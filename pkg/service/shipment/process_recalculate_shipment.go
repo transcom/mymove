@@ -52,42 +52,28 @@ type ProcessRecalculateShipment struct {
 // Call recalculates a Shipment's Line Items
 func (r ProcessRecalculateShipment) Call(shipment *models.Shipment, lineItems models.ShipmentLineItems, planner route.Planner) (bool, error) {
 
-	r.Logger.Info("Entering ProcessRecalculateShipment.Call():")
-
 	// If there is an active recalculate date range then continue
 	recalculateDates, err := models.FetchTariff400ngRecalculateDates(r.DB)
 	if recalculateDates == nil || err != nil {
-		r.Logger.Info("Fetched Dates for re-calculate returned 0: ",
-			zap.Any("recalculateDates", recalculateDates))
 		return false, nil
 	}
 
-	r.Logger.Info("Fetched Dates for re-calculate: ",
-		zap.Any("recalculateDates", recalculateDates))
-
 	// If the Shipment is in the DELIVERED or COMPLETED state continue
 	shipmentStatus := shipment.Status
-	r.Logger.Info("Shipment status: ",
-		zap.Any("shipmentStatus", shipmentStatus))
 	if shipmentStatus != models.ShipmentStatusDELIVERED && shipmentStatus != models.ShipmentStatusCOMPLETED {
 		return false, nil
 	}
 
 	// If the Shipment was created before "ShipmentUpdatedBefore" date then continue
 	if !r.updatedInDateRange(shipment.CreatedAt, recalculateDates) {
-		r.Logger.Info("Shipment created outside of date range: ",
-			zap.Any("shipment.CreatedAt", shipment.CreatedAt))
 		return false, nil
 	}
 
 	// If Shipment does not have all of the base line items expected or
 	// a shipment line item was updated within the recalculate update range then continue
 	if r.hasAllBaseLineItems(lineItems) && !r.shipmentLineItemsUpdatedInDateRange(lineItems, recalculateDates) {
-		r.Logger.Info("Shipment line items outside of date range: ")
 		return false, nil
 	}
-
-	r.Logger.Info("Calling RecalculateShipment.Call()")
 
 	// Re-calculate the Shipment!
 	engine := rateengine.NewRateEngine(r.DB, r.Logger, planner)
