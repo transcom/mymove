@@ -375,9 +375,9 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 
 			// save dimensions to shipmentLineItem
 			shipmentLineItem.ItemDimensions = ShipmentLineItemDimensions{
-				Length: unit.Inch(additionalParams.ItemDimensions.Length),
-				Width:  unit.Inch(additionalParams.ItemDimensions.Width),
-				Height: unit.Inch(additionalParams.ItemDimensions.Height),
+				Length: unit.BaseQuantityInch(additionalParams.ItemDimensions.Length),
+				Width:  unit.BaseQuantityInch(additionalParams.ItemDimensions.Width),
+				Height: unit.BaseQuantityInch(additionalParams.ItemDimensions.Height),
 			}
 			verrs, err := db.ValidateAndCreate(&shipmentLineItem.ItemDimensions)
 			if verrs.HasAny() || err != nil {
@@ -385,9 +385,9 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 			}
 
 			shipmentLineItem.CrateDimensions = ShipmentLineItemDimensions{
-				Length: unit.Inch(additionalParams.CrateDimensions.Length),
-				Width:  unit.Inch(additionalParams.CrateDimensions.Width),
-				Height: unit.Inch(additionalParams.CrateDimensions.Height),
+				Length: unit.BaseQuantityInch(additionalParams.CrateDimensions.Length),
+				Width:  unit.BaseQuantityInch(additionalParams.CrateDimensions.Width),
+				Height: unit.BaseQuantityInch(additionalParams.CrateDimensions.Height),
 			}
 			verrs, err = db.ValidateAndCreate(&shipmentLineItem.CrateDimensions)
 			if verrs.HasAny() || err != nil {
