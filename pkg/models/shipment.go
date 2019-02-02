@@ -778,7 +778,7 @@ func (s *Shipment) SaveShipmentAndLineItems(db *pop.Connection, baselineLineItem
 			verrs, err = s.createUniqueShipmentLineItem(tx, lineItem)
 			if err != nil || verrs.HasAny() {
 				responseVErrors.Append(verrs)
-				responseError = errors.Wrapf(err, "Error saving shipment line item for shipment %s and item %s",
+				responseError = errors.Wrapf(err, "Error saving shipment unique line item for shipment %s and item %s",
 					lineItem.ShipmentID, lineItem.Tariff400ngItemID)
 				return transactionError
 			}
@@ -787,7 +787,7 @@ func (s *Shipment) SaveShipmentAndLineItems(db *pop.Connection, baselineLineItem
 			verrs, err = tx.ValidateAndSave(&lineItem)
 			if err != nil || verrs.HasAny() {
 				responseVErrors.Append(verrs)
-				responseError = errors.Wrapf(err, "Error saving shipment line item for shipment %s and item %s",
+				responseError = errors.Wrapf(err, "Error saving shipment general line item for shipment %s and item %s",
 					lineItem.ShipmentID, lineItem.Tariff400ngItemID)
 				return transactionError
 			}
@@ -875,11 +875,13 @@ func (s *Shipment) AcceptedShipmentOffer() (*ShipmentOffer, error) {
 	return &acceptedOffers[0], nil
 }
 
-func findBaseShipmentLineItem(code string) bool {
+// FindBaseShipmentLineItem returns true if code is a Base Shipment Line Item
+// otherwise, returns false
+func FindBaseShipmentLineItem(code string) bool {
 	for _, base := range BaseShipmentLineItems {
 		if code == base.Code {
+			return true
 		}
-		return true
 	}
 	return false
 }
@@ -892,7 +894,7 @@ func VerifyBaseShipmentLineItems(lineItems []ShipmentLineItem) error {
 	}
 
 	for _, item := range lineItems {
-		if !findBaseShipmentLineItem(item.Tariff400ngItem.Code) {
+		if !FindBaseShipmentLineItem(item.Tariff400ngItem.Code) {
 			return errors.New("Unexpected Base Shipment Line Item found in Shipment's Line Items with Code: " + item.Tariff400ngItem.Code)
 		}
 	}
@@ -906,7 +908,7 @@ func (s *Shipment) DeleteBaseShipmentLineItems(db *pop.Connection) error {
 		if item.Tariff400ngItem.RequiresPreApproval {
 			continue
 		}
-		if findBaseShipmentLineItem(item.Tariff400ngItem.Code) {
+		if FindBaseShipmentLineItem(item.Tariff400ngItem.Code) {
 			err := db.Destroy(&item)
 			if err != nil {
 				return fmt.Errorf("Error deleting shipment line item for shipment ID: %s and shipment line item code: %s", s.ID, item.Tariff400ngItem.Code)
