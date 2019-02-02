@@ -30,12 +30,13 @@ type ProcessRecalculateShipment struct {
 
 /*
 	Recalculate a shipment's line items is temporary functionality that will be used when it has been
-    determined there is is some shipment that requires recalcuation. A shipment does not contain a line items
+    determined there is is some shipment that requires recalcuation. A shipment does not contain line items
     until it has reached the DELIVERED state.
 
     Some of the reasons a recalculation can happen are:
       - missing required pre-approved line items
-      - line items that have been priced incorrectly
+      - line items that have been priced incorrectly (this is detected by saying that a line item could have been
+        price erroneously if priced in this specified date range)
 
     The database table tariff400ng_recalculate contains the date range for shipments that need to be assessed.
 
@@ -43,10 +44,26 @@ type ProcessRecalculateShipment struct {
 
     Currently to recalculate a shipment we are looking for the following:
       - Shipment is in DELIVERED or COMPLETED state
+      - If the Shipment was created within the specified recalculation date range
       - Shipment's line item has been updated before the date tariff400ng_recalcuate.updated_before
       - If there is an approved accessorial, this line item must be preserved to maintain the approved status
+      - If a Shipment does have have all of the Base Shipment Line Items it will be re-calculated
 
     The API that will call this method is GET /shipments/{shipmentId}/accessorials
+
+    TODO: Potential issue: FetchShipmentForInvoice{}.Call() is used to retrieve a Shipment and it's ShipmentLineItems
+    TODO: ths fetch takes care not to return shipment line items that have an Invoice ID attached. However,
+    TODO: if re-calculate is triggered on a shipment with lingering shipment line items and the Base ShipmentLineItems
+    TODO: have an Invoice ID already attached, then calling rateengine.CreateBaseShipmentLineItems() fails, because
+    TODO: it tries to add BaseShipmentLineItems to the Shipment and they are then duplicates. Since no Invoice's have
+    TODO: been sent to date, this isn't an issue. But if we use recalculate functionality when there are
+    TODO: invoices sent it will cause a problem. This problem is not unique to RecalculateShipment{}.Call() it is
+    TODO: it is an issue with the underlying PriceShipment{}.Call().
+    TODO:
+    TODO: The problem that is unique to  RecalculateShipment{}.Call() is that it is called for shipments that are in the
+    TODO: ShipmentStatusDELIVERED or ShipmentStatusCOMPLETED state. And in that state, a Shipment could potentially
+    TODO: have a sent invoice and that will cause an issue. Hitting the payment button doesn't change the status of the
+    TODO: HHG Shipment.
 */
 
 // Call recalculates a Shipment's Line Items

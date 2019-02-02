@@ -36,8 +36,6 @@ const (
 	ShipmentStatusDELIVERED ShipmentStatus = "DELIVERED"
 	// ShipmentStatusCOMPLETED captures enum value "COMPLETED"
 	ShipmentStatusCOMPLETED ShipmentStatus = "COMPLETED"
-	// ShipmentStatusRECALCULATE captures enuam value "RECALCULATE"
-	ShipmentStatusRECALCULATE ShipmentStatus = "RECALCULATE"
 )
 
 // Shipment represents a single shipment within a Service Member's move.
@@ -261,27 +259,6 @@ func (s *Shipment) Complete() error {
 	return nil
 }
 
-// Recalculate marks the Shipment for either ShipmentStatusRECALCULATE or ShipmentStatusDELIVERED/ShipmentStatusCOMPLETED.
-// The original Shipment Status should be ShipmentStatusDELIVERED/ShipmentStatusCOMPLETED.
-// ShipmentStatusRECALCULATE is temporary status that will be used while a Shipment is being recalculated.
-func (s *Shipment) Recalculate(status ShipmentStatus) error {
-	if s.Status != ShipmentStatusDELIVERED && s.Status != ShipmentStatusCOMPLETED {
-		return errors.Wrap(ErrInvalidTransition, "Recalculate")
-	}
-	switch status {
-	case ShipmentStatusDELIVERED:
-		s.Status = status
-	case ShipmentStatusCOMPLETED:
-		s.Status = status
-	case ShipmentStatusRECALCULATE:
-		s.Status = status
-	default:
-		return errors.Wrap(ErrInvalidTransition, "Recalculate")
-	}
-
-	return nil
-}
-
 // BeforeSave will run before each create/update of a Shipment.
 func (s *Shipment) BeforeSave(tx *pop.Connection) error {
 	// To be safe, we will always try to determine the correct TDL anytime a shipment record
@@ -460,17 +437,6 @@ func FetchUnofferedShipments(db *pop.Connection) (Shipments, error) {
 	}
 
 	return shipments, err
-}
-
-// FetchShipmentForInvoice fetches all the shipment information for generating an invoice
-func FetchShipmentForInvoice(db *pop.Connection, shipmentID uuid.UUID) (Shipment, error) {
-	var shipment Shipment
-	err := db.Q().Eager(
-		"Move.Orders",
-		"PickupAddress",
-		"ServiceMember",
-	).Find(&shipment, shipmentID)
-	return shipment, err
 }
 
 // FetchShipmentsByTSP looks up all shipments belonging to a TSP ID

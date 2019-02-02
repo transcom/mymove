@@ -17,7 +17,8 @@ type RecalculateShipment struct {
 
 // Call recalculates a Shipment
 func (c RecalculateShipment) Call(shipment *models.Shipment) (*validate.Errors, error) {
-	c.Logger.Info("Recalculate Shipment: ", zap.Any("shipment.ID", shipment.ID))
+	c.Logger.Info("Recalculate Shipment: ", zap.Any("shipment.ID", shipment.ID),
+		zap.Any("shipment.Status", shipment.Status))
 
 	// Re-price Shipment
 	return PriceShipment{DB: c.DB, Engine: c.Engine}.Call(shipment, ShipmentPriceRECALCULATE)

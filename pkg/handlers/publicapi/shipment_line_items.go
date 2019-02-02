@@ -124,7 +124,8 @@ func (h GetShipmentLineItemsHandler) Handle(params accessorialop.GetShipmentLine
 	if update {
 		shipmentLineItems, err = models.FetchLineItemsByShipmentID(h.DB(), &shipmentID)
 		if err != nil {
-			h.Logger().Error("Error fetching line items for shipment after re-calculation", zap.Error(err))
+			h.Logger().Error("Error fetching line items for shipment after re-calculation",
+				zap.Error(err))
 			return accessorialop.NewGetShipmentLineItemsInternalServerError()
 		}
 	}
