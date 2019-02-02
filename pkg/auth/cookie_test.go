@@ -236,3 +236,87 @@ func (suite *authSuite) TestMaskedCSRFMiddleware() {
 	setCookies := rr.HeaderMap["Set-Cookie"]
 	suite.Equal(1, len(setCookies), "expected cookie to be set")
 }
+
+func (suite *authSuite) TestMiddlewareConstructor() {
+	adm := SessionCookieMiddleware(suite.logger, "secret", false, MyTestHost, OfficeTestHost, TspTestHost)
+	suite.NotNil(adm)
+}
+
+func (suite *authSuite) TestMiddlewareMyApp() {
+	rr := httptest.NewRecorder()
+
+	milMoveTestHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		session := SessionFromRequestContext(r)
+		suite.True(session.IsMyApp(), "first should be milmove app")
+		suite.False(session.IsOfficeApp(), "first should not be office app")
+		suite.False(session.IsTspApp(), "first should not be tsp app")
+		suite.Equal(MyTestHost, session.Hostname)
+	})
+	milMoveMiddleware := SessionCookieMiddleware(suite.logger, "secret", false, MyTestHost, OfficeTestHost, TspTestHost)(milMoveTestHandler)
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/some_url", MyTestHost), nil)
+	milMoveMiddleware.ServeHTTP(rr, req)
+
+	req, _ = http.NewRequest("GET", fmt.Sprintf("http://%s:8080/some_url", MyTestHost), nil)
+	milMoveMiddleware.ServeHTTP(rr, req)
+
+	req, _ = http.NewRequest("GET", fmt.Sprintf("http://%s:8080/some_url", strings.ToUpper(MyTestHost)), nil)
+	milMoveMiddleware.ServeHTTP(rr, req)
+}
+
+func (suite *authSuite) TestMiddlwareOfficeApp() {
+	rr := httptest.NewRecorder()
+
+	officeTestHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		session := SessionFromRequestContext(r)
+		suite.False(session.IsMyApp(), "should not be milmove app")
+		suite.True(session.IsOfficeApp(), "should be office app")
+		suite.False(session.IsTspApp(), "should not be tsp app")
+		suite.Equal(OfficeTestHost, session.Hostname)
+	})
+	officeMiddleware := SessionCookieMiddleware(suite.logger, "secret", false, MyTestHost, OfficeTestHost, TspTestHost)(officeTestHandler)
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/some_url", OfficeTestHost), nil)
+	officeMiddleware.ServeHTTP(rr, req)
+
+	req, _ = http.NewRequest("GET", fmt.Sprintf("http://%s:8080/some_url", OfficeTestHost), nil)
+	officeMiddleware.ServeHTTP(rr, req)
+
+	req, _ = http.NewRequest("GET", fmt.Sprintf("http://%s:8080/some_url", strings.ToUpper(OfficeTestHost)), nil)
+	officeMiddleware.ServeHTTP(rr, req)
+}
+
+func (suite *authSuite) TestMiddlwareTspApp() {
+	rr := httptest.NewRecorder()
+
+	tspTestHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		session := SessionFromRequestContext(r)
+		suite.False(session.IsMyApp(), "should not be milmove app")
+		suite.False(session.IsOfficeApp(), "should not be office app")
+		suite.True(session.IsTspApp(), "should be tsp app")
+		suite.Equal(TspTestHost, session.Hostname)
+	})
+	tspMiddleware := SessionCookieMiddleware(suite.logger, "secret", false, MyTestHost, OfficeTestHost, TspTestHost)(tspTestHandler)
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/some_url", TspTestHost), nil)
+	tspMiddleware.ServeHTTP(rr, req)
+
+	req, _ = http.NewRequest("GET", fmt.Sprintf("http://%s:8080/some_url", TspTestHost), nil)
+	tspMiddleware.ServeHTTP(rr, req)
+
+	req, _ = http.NewRequest("GET", fmt.Sprintf("http://%s:8080/some_url", strings.ToUpper(TspTestHost)), nil)
+	tspMiddleware.ServeHTTP(rr, req)
+}
+
+func (suite *authSuite) TestMiddlewareBadApp() {
+	rr := httptest.NewRecorder()
+
+	noAppTestHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		suite.Fail("Should not be called")
+	})
+	noAppMiddleware := SessionCookieMiddleware(suite.logger, "secret", false, MyTestHost, OfficeTestHost, TspTestHost)(noAppTestHandler)
+
+	req := httptest.NewRequest("GET", "http://totally.bogus.hostname/some_url", nil)
+	noAppMiddleware.ServeHTTP(rr, req)
+	suite.Equal(http.StatusBadRequest, rr.Code, "Should get an error ")
+}

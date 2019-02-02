@@ -11,6 +11,33 @@ type authSessionKey string
 
 const sessionContextKey authSessionKey = "session"
 
+// Application describes the application name
+type Application string
+
+const (
+	// TspApp indicates tsp.move.mil
+	TspApp Application = "TSP"
+	// OfficeApp indicates office.move.mil
+	OfficeApp Application = "OFFICE"
+	// MyApp indicates my.move.mil
+	MyApp Application = "MY"
+)
+
+// IsTspApp returns true iff the request is for the office.move.mil host
+func (s *Session) IsTspApp() bool {
+	return s.ApplicationName == TspApp
+}
+
+// IsOfficeApp returns true iff the request is for the office.move.mil host
+func (s *Session) IsOfficeApp() bool {
+	return s.ApplicationName == OfficeApp
+}
+
+// IsMyApp returns true iff the request is for the my.move.mil host
+func (s *Session) IsMyApp() bool {
+	return s.ApplicationName == MyApp
+}
+
 // Session stores information about the currently logged in session
 type Session struct {
 	ApplicationName Application

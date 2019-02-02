@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -57,27 +58,25 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 
 	fakeToken := "some_token"
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
-	myMoveMil := "my.move.host"
 	officeMoveMil := "office.move.host"
-	tspMoveMil := "tsp.move.host"
 	callbackPort := 1234
 	responsePattern := regexp.MustCompile(`href="(.+)"`)
 
-	req, err := http.NewRequest("GET", "/auth/logout", nil)
-	if err != nil {
-		t.Fatal(err)
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", officeMoveMil), nil)
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        officeMoveMil,
 	}
-	req.Host = officeMoveMil
-	session := auth.Session{UserID: fakeUUID, IDToken: fakeToken}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	req = req.WithContext(ctx)
 
 	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
 	handler := LogoutHandler{authContext, "fake key", false}
-	wrappedHandler := auth.DetectorMiddleware(suite.logger, myMoveMil, officeMoveMil, tspMoveMil)(handler)
 
 	rr := httptest.NewRecorder()
-	wrappedHandler.ServeHTTP(rr, req.WithContext(ctx))
+	handler.ServeHTTP(rr, req.WithContext(ctx))
 
 	if status := rr.Code; status != http.StatusTemporaryRedirect {
 		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusTemporaryRedirect)

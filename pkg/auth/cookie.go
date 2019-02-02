@@ -9,6 +9,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/csrf"
+	"github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
@@ -61,7 +62,7 @@ func signTokenStringWithUserInfo(expiry time.Time, session *Session, secret stri
 }
 
 func sessionClaimsFromRequest(logger *zap.Logger, secret string, appName Application, r *http.Request) (claims *SessionClaims, ok bool) {
-	// Name the cookie with the host name, use the same method as in the DetectorMiddleware
+	// Name the cookie with the app name
 	cookieName := fmt.Sprintf("%s_%s", strings.ToLower(string(appName)), UserSessionCookieName)
 	cookie, err := r.Cookie(cookieName)
 	if err != nil {
@@ -162,12 +163,31 @@ func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, 
 	w.Header().Set("Set-Cookie", cookie.String())
 }
 
+// ApplicationName returns the application name given the hostname
+func ApplicationName(hostname, myHostname, officeHostname, tspHostname string) (Application, error) {
+	var appName Application
+	if strings.EqualFold(hostname, myHostname) {
+		return MyApp, nil
+	} else if strings.EqualFold(hostname, officeHostname) {
+		return OfficeApp, nil
+	} else if strings.EqualFold(hostname, tspHostname) {
+		return TspApp, nil
+	}
+	return appName, errors.New("Bad hostname")
+}
+
 // SessionCookieMiddleware handle serializing and de-serializing the session between the user_session cookie and the request context
 func SessionCookieMiddleware(logger *zap.Logger, secret string, noSessionTimeout bool, myHostname, officeHostname, tspHostname string) func(next http.Handler) http.Handler {
+	logger.Info("Creating session", zap.String("myHost", myHostname), zap.String("officeHost", officeHostname), zap.String("tspHost", tspHostname))
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
+			ctx, span := beeline.StartSpan(r.Context(), "SessionCookieMiddleware")
+			defer span.Send()
+
+			// Set up the new session object
 			session := Session{}
 
+			// Split the hostname from the port
 			hostname := strings.Split(r.Host, ":")[0]
 			appName, err := ApplicationName(hostname, myHostname, officeHostname, tspHostname)
 			if err != nil {
@@ -180,10 +200,19 @@ func SessionCookieMiddleware(logger *zap.Logger, secret string, noSessionTimeout
 				session = claims.SessionValue
 			}
 
+			// Set more information on the session
+			session.ApplicationName = appName
+			session.Hostname = strings.ToLower(hostname)
+
 			// And put the session info into the request context
-			ctx := SetSessionInRequestContext(r, &session)
+			ctx = SetSessionInRequestContext(r.WithContext(ctx), &session)
+
 			// And update the cookie. May get over-ridden later
 			WriteSessionCookie(w, &session, secret, noSessionTimeout, logger)
+
+			span.AddTraceField("auth.application_name", session.ApplicationName)
+			span.AddTraceField("auth.hostname", session.Hostname)
+
 			next.ServeHTTP(w, r.WithContext(ctx))
 
 		}

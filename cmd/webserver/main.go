@@ -753,7 +753,6 @@ func main() {
 	noSessionTimeout := v.GetBool("no-session-timeout")
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(zapLogger, clientAuthSecretKey, noSessionTimeout, myHostname, officeHostname, tspHostname)
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(zapLogger, noSessionTimeout)
-	appDetectionMiddleware := auth.DetectorMiddleware(zapLogger, myHostname, officeHostname, tspHostname)
 	userAuthMiddleware := authentication.UserAuthMiddleware(zapLogger)
 	clientCertMiddleware := authentication.ClientCertMiddleware(zapLogger, dbConnection)
 
@@ -1020,7 +1019,6 @@ func main() {
 
 	root := goji.NewMux()
 	root.Use(sessionCookieMiddleware)
-	root.Use(appDetectionMiddleware) // Comes after the sessionCookieMiddleware as it sets session state
 	root.Use(logging.LogRequestMiddleware(gitBranch, gitCommit))
 
 	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
