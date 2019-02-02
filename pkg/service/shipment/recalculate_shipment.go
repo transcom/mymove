@@ -46,7 +46,7 @@ func (c RecalculateShipment) Call(shipment *models.Shipment) (*validate.Errors, 
 	}
 	*/
 
-	c.Logger.Info("Recalculate ShipmentID: ",
+	c.Logger.Info("Recalculate Shipment: ",
 		zap.Any("shipment.ID", shipment.ID))
 	// Re-price Shipment
 	//verrs, err := PriceShipment{DB: c.DB, Engine: c.Engine}.Call(shipment, ShipmentPriceRECALCULATE)
