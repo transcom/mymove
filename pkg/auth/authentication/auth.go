@@ -211,7 +211,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		provider.ClientKey,
 		h.loginGovProvider)
 	if err != nil {
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 		return
 	}
 
