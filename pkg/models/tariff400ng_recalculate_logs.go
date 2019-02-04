@@ -53,7 +53,7 @@ func (t *Tariff400ngRecalculateLog) ValidateUpdate(tx *pop.Connection) (*validat
 	return validate.NewErrors(), nil
 }
 
-// SaveTariff400ngRecalculateLog validates and saves the Shipment
+// SaveTariff400ngRecalculateLog validates and saves the log record
 func (t *Tariff400ngRecalculateLog) SaveTariff400ngRecalculateLog(db *pop.Connection) (*validate.Errors, error) {
 	verrs, err := db.ValidateAndSave(t)
 	if verrs.HasAny() || err != nil {

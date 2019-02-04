@@ -874,6 +874,10 @@ func (s *Shipment) DeleteBaseShipmentLineItems(db *pop.Connection) error {
 		if item.Tariff400ngItem.RequiresPreApproval {
 			continue
 		}
+		// Do not delete a line item that has an Invoice ID
+		if item.InvoiceID != nil {
+			continue
+		}
 		if FindBaseShipmentLineItem(item.Tariff400ngItem.Code) {
 			err := db.Destroy(&item)
 			if err != nil {

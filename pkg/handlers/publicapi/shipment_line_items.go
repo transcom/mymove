@@ -72,7 +72,17 @@ type GetShipmentLineItemsHandler struct {
 func (h GetShipmentLineItemsHandler) recalculateShipmentLineItems(shipmentLineItems models.ShipmentLineItems, shipmentID uuid.UUID, session *auth.Session) (bool, middleware.Responder) {
 	update := false
 
+	// If there is a shipment line item with an invoice do not run the recalculate function
+	// the system is currently not setup to re-price a shipment with an existing invoice
+	// and currently the system does not expect to have multiple invoices per shipment
+	for _, item := range shipmentLineItems {
+		if item.InvoiceID != nil {
+			return update, nil
+		}
+	}
+
 	// Need to fetch Shipment to get the Accepted Offer and the ShipmentLineItems
+	// Only returning ShipmentLineItems that are approved and have no InvoiceID
 	shipment, err := invoice.FetchShipmentForInvoice{DB: h.DB()}.Call(shipmentID)
 	if err != nil {
 		h.Logger().Error("Error fetching Shipment for re-pricing line items for shipment", zap.Error(err))
