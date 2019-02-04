@@ -8,7 +8,8 @@ import (
 	"github.com/stretchr/testify/suite"
 	"github.com/transcom/mymove/mocks"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/paperwork"
+	paperworkforms "github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/services/paperwork/forms"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -69,8 +70,9 @@ func (suite *CreateFormSuite) TestCreateFormServiceSuccess() {
 		f,
 	).Return(nil)
 
-	createFormService := CreateForm{FileStorer, FormFiller}
-	file, err := createFormService.Call(gbl, paperwork.Form1203Layout, "some-file-name", "some-form-type")
+	createForm := NewCreateForm(FileStorer, FormFiller)
+	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, forms.GBL)
+	file, err := createForm.CreateForm(template)
 
 	assert.NotNil(suite.T(), file)
 	assert.Nil(suite.T(), err)
@@ -85,18 +87,19 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerAppendPageFailure()
 
 	FormFiller.On("AppendPage",
 		mock.AnythingOfType("*bytes.Reader"),
-		mock.AnythingOfType("map[string]paperwork.FieldPos"),
+		mock.AnythingOfType("map[string]paperworkforms.FieldPos"),
 		mock.AnythingOfType("models.GovBillOfLadingFormValues"),
 	).Return(errors.New("Error for FormFiller.AppendPage()")).Times(1)
 
-	createFormService := CreateForm{FileStorer, FormFiller}
-	file, err := createFormService.Call(gbl, paperwork.Form1203Layout, "some-file-name", "some-form-type")
+	createForm := NewCreateForm(FileStorer, FormFiller)
+	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, forms.GBL)
+	file, err := createForm.CreateForm(template)
 
 	assert.NotNil(suite.T(), err)
 	assert.Nil(suite.T(), file)
 	serviceErrMsg := errors.Cause(err)
 	assert.Equal(suite.T(), "Error for FormFiller.AppendPage()", serviceErrMsg.Error(), "should be equal")
-	assert.Equal(suite.T(), "Failure writing some-form-type data to form.: Error for FormFiller.AppendPage()", err.Error(), "should be equal")
+	assert.Equal(suite.T(), "Failure writing GBL data to form.: Error for FormFiller.AppendPage()", err.Error(), "should be equal")
 	FormFiller.AssertExpectations(suite.T())
 }
 
@@ -108,7 +111,7 @@ func (suite *CreateFormSuite) TestCreateFormServiceFileStorerCreateFailure() {
 
 	FormFiller.On("AppendPage",
 		mock.AnythingOfType("*bytes.Reader"),
-		mock.AnythingOfType("map[string]paperwork.FieldPos"),
+		mock.AnythingOfType("map[string]paperworkforms.FieldPos"),
 		mock.AnythingOfType("models.GovBillOfLadingFormValues"),
 	).Return(nil).Times(1)
 
@@ -116,14 +119,15 @@ func (suite *CreateFormSuite) TestCreateFormServiceFileStorerCreateFailure() {
 		mock.AnythingOfType("string"),
 	).Return(nil, errors.New("Error for FileStorer.Create()"))
 
-	createFormService := CreateForm{FileStorer, FormFiller}
-	file, err := createFormService.Call(gbl, paperwork.Form1203Layout, "some-file-name", "some-form-type")
+	createForm := NewCreateForm(FileStorer, FormFiller)
+	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, forms.GBL)
+	file, err := createForm.CreateForm(template)
 
 	assert.Nil(suite.T(), file)
 	assert.NotNil(suite.T(), err)
 	serviceErrMsg := errors.Cause(err)
 	assert.Equal(suite.T(), "Error for FileStorer.Create()", serviceErrMsg.Error(), "should be equal")
-	assert.Equal(suite.T(), "Error creating a new afero file for some-form-type form.: Error for FileStorer.Create()", err.Error(), "should be equal")
+	assert.Equal(suite.T(), "Error creating a new afero file for GBL form.: Error for FileStorer.Create()", err.Error(), "should be equal")
 	FormFiller.AssertExpectations(suite.T())
 }
 
@@ -138,7 +142,7 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerOutputFailure() {
 
 	FormFiller.On("AppendPage",
 		mock.AnythingOfType("*bytes.Reader"),
-		mock.AnythingOfType("map[string]paperwork.FieldPos"),
+		mock.AnythingOfType("map[string]paperworkforms.FieldPos"),
 		mock.AnythingOfType("models.GovBillOfLadingFormValues"),
 	).Return(nil).Times(1)
 
@@ -150,13 +154,14 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerOutputFailure() {
 		f,
 	).Return(errors.New("Error for FormFiller.Output()"))
 
-	createFormService := CreateForm{FileStorer, FormFiller}
-	file, err := createFormService.Call(gbl, paperwork.Form1203Layout, "some-file-name", "some-form-type")
+	createForm := NewCreateForm(FileStorer, FormFiller)
+	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, forms.GBL)
+	file, err := createForm.CreateForm(template)
 
 	assert.Nil(suite.T(), file)
 	assert.NotNil(suite.T(), err)
 	serviceErrMsg := errors.Cause(err)
 	assert.Equal(suite.T(), "Error for FormFiller.Output()", serviceErrMsg.Error(), "should be equal")
-	assert.Equal(suite.T(), "Failure exporting some-form-type form to file.: Error for FormFiller.Output()", err.Error(), "should be equal")
+	assert.Equal(suite.T(), "Failure exporting GBL form to file.: Error for FormFiller.Output()", err.Error(), "should be equal")
 	FormFiller.AssertExpectations(suite.T())
 }
