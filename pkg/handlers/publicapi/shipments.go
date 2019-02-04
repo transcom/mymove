@@ -19,8 +19,9 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/rateengine"
-	paperworkservice "github.com/transcom/mymove/pkg/service/paperwork"
 	shipmentservice "github.com/transcom/mymove/pkg/service/shipment"
+	"github.com/transcom/mymove/pkg/services"
+	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -569,6 +570,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 // CreateGovBillOfLadingHandler creates a GBL PDF & uploads it as a document associated to a move doc, shipment and move
 type CreateGovBillOfLadingHandler struct {
 	handlers.HandlerContext
+	createForm services.FormCreator
 }
 
 // Handle generates the GBL PDF & uploads it as a document associated to a move doc, shipment and move
@@ -577,8 +579,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 
 	// Verify that the TSP user is authorized to update move doc
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
-	tspUserID := session.TspUserID
-	tspUser, shipment, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), tspUserID, shipmentID)
+	tspUser, shipment, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
 	if err != nil {
 		if err.Error() == "USER_UNAUTHORIZED" {
 			h.Logger().Error("DB Query", zap.Error(err))
@@ -614,10 +615,11 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	}
 	formLayout := paperwork.Form1203Layout
 
-	file, err := paperworkservice.CreateForm{
-		FileStorer: h.FileStorer().TempFileSystem(),
-		FormFiller: paperwork.NewFormFiller(),
-	}.Call(gbl, formLayout, gbl.GBLNumber1, "GBL")
+	template, err := paperworkservice.MakeFormTemplate(gbl, gbl.GBLNumber1, formLayout, paperworkservice.GBL)
+	if err != nil {
+		h.Logger().Error(errors.Cause(err).Error(), zap.Error(errors.Cause(err)))
+	}
+	gblFile, err := h.createForm.CreateForm(template)
 
 	if err != nil {
 		h.Logger().Error(errors.Cause(err).Error(), zap.Error(errors.Cause(err)))
@@ -625,7 +627,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	}
 
 	uploader := uploaderpkg.NewUploader(h.DB(), h.Logger(), h.FileStorer())
-	upload, verrs, err := uploader.CreateUpload(nil, *tspUser.UserID, file)
+	upload, verrs, err := uploader.CreateUpload(nil, *tspUser.UserID, gblFile)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
