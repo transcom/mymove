@@ -1609,7 +1609,7 @@ definitions:
   StorageInTransit:
     type: object
     properties:
-      sit_location:
+      location:
         type: string
         title: SIT Location
         enum:
@@ -1637,25 +1637,25 @@ definitions:
         type: string
         example: ABC Warehouse, Inc.
         title: Warehouse Name
-      telephone:
+      warehouse_phone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
         title: Phone
-      personal_email:
+      warehouse_email:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
         title: Email
-      address:
+      warehouse_address:
         $ref: '#/definitions/Address'
     required:
-      - sit_location
-      - address
+      - location
+      - warehouse_address
       - warehouse_id
       - warehouse_name
       - estimated_start_date

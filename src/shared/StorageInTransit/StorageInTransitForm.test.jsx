@@ -10,7 +10,7 @@ const submit = jest.fn();
 
 const storageInTransitSchema = {
   properties: {
-    sit_location: {
+    location: {
       type: 'string',
       title: 'SIT Location',
     },
@@ -35,7 +35,7 @@ const storageInTransitSchema = {
 
 const addressSchema = {
   properties: {
-    address: {
+    warehouse_address: {
       street_address_1: '123 Disney Rd',
       city: 'Los Angeles',
       state: 'CA',
