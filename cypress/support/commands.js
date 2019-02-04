@@ -83,7 +83,7 @@ Cypress.Commands.add('waitForLoadingScreen', (ms = longPageLoadTimeout) => {
 Cypress.Commands.add('selectQueueItemMoveLocator', moveLocator => {
   // Wait for ReactTable loading to be completed
   cy.get('.ReactTable').within(() => {
-    cy.get('.-loading -active', { timeout: longPageLoadTimeout }).should('not.exist');
+    cy.get('.-loading.-active', { timeout: longPageLoadTimeout }).should('not.exist');
   });
 
   cy
