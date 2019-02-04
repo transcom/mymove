@@ -87,7 +87,7 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerAppendPageFailure()
 
 	FormFiller.On("AppendPage",
 		mock.AnythingOfType("*bytes.Reader"),
-		mock.AnythingOfType("map[string]paperworkforms.FieldPos"),
+		mock.AnythingOfType("map[string]paperwork.FieldPos"),
 		mock.AnythingOfType("models.GovBillOfLadingFormValues"),
 	).Return(errors.New("Error for FormFiller.AppendPage()")).Times(1)
 
@@ -111,7 +111,7 @@ func (suite *CreateFormSuite) TestCreateFormServiceFileStorerCreateFailure() {
 
 	FormFiller.On("AppendPage",
 		mock.AnythingOfType("*bytes.Reader"),
-		mock.AnythingOfType("map[string]paperworkforms.FieldPos"),
+		mock.AnythingOfType("map[string]paperwork.FieldPos"),
 		mock.AnythingOfType("models.GovBillOfLadingFormValues"),
 	).Return(nil).Times(1)
 
@@ -142,7 +142,7 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerOutputFailure() {
 
 	FormFiller.On("AppendPage",
 		mock.AnythingOfType("*bytes.Reader"),
-		mock.AnythingOfType("map[string]paperworkforms.FieldPos"),
+		mock.AnythingOfType("map[string]paperwork.FieldPos"),
 		mock.AnythingOfType("models.GovBillOfLadingFormValues"),
 	).Return(nil).Times(1)
 
