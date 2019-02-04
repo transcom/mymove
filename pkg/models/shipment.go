@@ -39,6 +39,20 @@ const (
 	ShipmentStatusCOMPLETED ShipmentStatus = "COMPLETED"
 )
 
+var (
+	// ShipmentAssociationsDEFAULT declares the default eager associations for a shipment
+	ShipmentAssociationsDEFAULT EagerAssociations = EagerAssociations{
+		"TrafficDistributionList",
+		"ServiceMember.BackupContacts",
+		"Move.Orders.NewDutyStation.Address",
+		"PickupAddress",
+		"SecondaryPickupAddress",
+		"DeliveryAddress",
+		"PartialSITDeliveryAddress",
+		"ShipmentOffers.TransportationServiceProviderPerformance.TransportationServiceProvider",
+	}
+)
+
 // Shipment represents a single shipment within a Service Member's move.
 type Shipment struct {
 	ID               uuid.UUID      `json:"id" db:"id"`
@@ -422,14 +436,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 
 	shipments := []Shipment{}
 
-	query := tx.Q().Eager(
-		"TrafficDistributionList",
-		"ServiceMember",
-		"Move",
-		"PickupAddress",
-		"SecondaryPickupAddress",
-		"DeliveryAddress",
-		"PartialSITDeliveryAddress").
+	query := tx.Q().Eager(ShipmentAssociationsDEFAULT...).
 		Where("shipment_offers.transportation_service_provider_id = $1", tspID).
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id")
 
@@ -488,12 +495,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 // FetchShipment Fetches and Validates a Shipment model
 func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Shipment, error) {
 	var shipment Shipment
-	err := db.Eager(
-		"Move.Orders.NewDutyStation.Address",
-		"PickupAddress",
-		"SecondaryPickupAddress",
-		"DeliveryAddress",
-		"ShipmentOffers").Find(&shipment, id)
+	err := db.Eager(ShipmentAssociationsDEFAULT...).Find(&shipment, id)
 
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
@@ -519,16 +521,7 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 
 	shipments := []Shipment{}
 
-	err := tx.Eager(
-		"TrafficDistributionList",
-		"ServiceMember.BackupContacts",
-		"Move.Orders.NewDutyStation.Address",
-		"PickupAddress",
-		"SecondaryPickupAddress",
-		"DeliveryAddress",
-		"PartialSITDeliveryAddress",
-		"ShipmentOffers.TransportationServiceProviderPerformance",
-		"ShipmentOffers.TransportationServiceProviderPerformance.TransportationServiceProvider").
+	err := tx.Eager(ShipmentAssociationsDEFAULT...).
 		Where("shipment_offers.transportation_service_provider_id = $1 and shipments.id = $2", tspID, shipmentID).
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
 		All(&shipments)

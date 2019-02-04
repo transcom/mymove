@@ -77,9 +77,7 @@ func MakeCompleteShipmentLineItem(db *pop.Connection, assertions Assertions) mod
 
 	// And lastly we need a valid rate for the item code
 	rateAssertions := assertions
-	rateAssertions.Tariff400ngItemRate = models.Tariff400ngItemRate{
-		Code: tariff400ngItem.Code,
-	}
+	rateAssertions.Tariff400ngItemRate.Code = tariff400ngItem.Code
 	MakeTariff400ngItemRate(db, rateAssertions)
 
 	return MakeShipmentLineItem(db, assertions)

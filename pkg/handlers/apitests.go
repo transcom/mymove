@@ -79,6 +79,15 @@ func (suite *BaseHandlerTestSuite) CheckErrorResponse(resp middleware.Responder,
 	}
 }
 
+// CheckNotErrorResponse verifies there is no error response
+func (suite *BaseHandlerTestSuite) CheckNotErrorResponse(resp middleware.Responder) {
+	errResponse, ok := resp.(*ErrResponse)
+	if ok {
+		suite.NoError(errResponse.Err)
+		suite.FailNowf("Received error response", "Code: %v", errResponse.Code)
+	}
+}
+
 // CheckResponseBadRequest looks at BadRequest errors
 func (suite *BaseHandlerTestSuite) CheckResponseBadRequest(resp middleware.Responder) {
 	suite.CheckErrorResponse(resp, http.StatusBadRequest, "BadRequest")

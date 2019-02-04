@@ -102,6 +102,7 @@ repos:
         # See the following run for a failure example:
         # https://circleci.com/gh/transcom/mymove/62449
         require_serial: true
+        pass_filenames: false
 
   - repo: local
     hooks:
@@ -123,6 +124,8 @@ repos:
         name: regenerate docs index
         entry: bin/gen-docs-index
         language: script
+        files: \.md$
+        pass_filenames: false
 
   - repo: local
     hooks:
