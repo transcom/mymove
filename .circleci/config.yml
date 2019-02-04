@@ -430,6 +430,7 @@ jobs:
             # download test reporter as a static binary
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
             chmod +x ./cc-test-reporter
+          working_directory: /home/circleci/go/src/github.com/transcom/mymove
       - run:
           name: make server_test_coverage
           command: |
@@ -445,6 +446,7 @@ jobs:
             DB_NAME: test_db
             SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
+          working_directory: /home/circleci/go/src/github.com/transcom/mymove
 
   # `client_test` runs the client side Javascript tests
   client_test:
