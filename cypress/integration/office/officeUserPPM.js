@@ -24,10 +24,7 @@ function officeUserViewsMoves() {
   });
 
   // Find move and open it
-  cy
-    .get('div')
-    .contains('VGHEIS')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('VGHEIS');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -41,10 +38,7 @@ function officeUserVerifiesOrders() {
   });
 
   // Find move and open it
-  cy
-    .get('div')
-    .contains('VGHEIS')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('VGHEIS');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -109,10 +103,7 @@ function officeUserVerifiesAccounting() {
   });
 
   // Find move and open it
-  cy
-    .get('div')
-    .contains('VGHEIS')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('VGHEIS');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -164,10 +155,7 @@ function officeUserApprovesMoveAndVerifiesPPM() {
   });
 
   // Find move and open it
-  cy
-    .get('div')
-    .contains('VGHEIS')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('VGHEIS');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -201,10 +189,7 @@ function officeUserApprovesMoveAndVerifiesPPM() {
     .click();
 
   // Find move and open it
-  cy
-    .get('div')
-    .contains('VGHEIS')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('VGHEIS');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);

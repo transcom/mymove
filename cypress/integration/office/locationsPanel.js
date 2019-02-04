@@ -71,10 +71,7 @@ function officeUserViewsLocation({ shipmentId, type, expectation }) {
   });
 
   // Find a shipment and open it
-  cy
-    .get('div')
-    .contains(shipmentId)
-    .dblclick();
+  cy.selectQueueItemMoveLocator(shipmentId);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -141,10 +138,7 @@ function officeUserEntersLocations() {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains('BACON3')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('BACON3');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
