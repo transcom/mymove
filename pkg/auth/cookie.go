@@ -14,6 +14,17 @@ import (
 	"go.uber.org/zap"
 )
 
+type errInvalidHostname struct {
+	Hostname  string
+	MyApp     string
+	OfficeApp string
+	TspApp    string
+}
+
+func (e *errInvalidHostname) Error() string {
+	return fmt.Sprintf("invalid hostname %s, must be one of %s, %s, or %s", e.Hostname, e.MyApp, e.OfficeApp, e.TspApp)
+}
+
 // UserSessionCookieName is the key suffix at which we're storing our token cookie
 const UserSessionCookieName = "session_token"
 
@@ -173,7 +184,12 @@ func ApplicationName(hostname, myHostname, officeHostname, tspHostname string) (
 	} else if strings.EqualFold(hostname, tspHostname) {
 		return TspApp, nil
 	}
-	return appName, errors.New("Bad hostname")
+	return appName, errors.Wrap(
+		&errInvalidHostname{
+			Hostname:  hostname,
+			MyApp:     myHostname,
+			OfficeApp: officeHostname,
+			TspApp:    tspHostname}, fmt.Sprintf("%s is invalid", hostname))
 }
 
 // SessionCookieMiddleware handle serializing and de-serializing the session between the user_session cookie and the request context
@@ -191,7 +207,7 @@ func SessionCookieMiddleware(logger *zap.Logger, secret string, noSessionTimeout
 			hostname := strings.Split(r.Host, ":")[0]
 			appName, err := ApplicationName(hostname, myHostname, officeHostname, tspHostname)
 			if err != nil {
-				logger.Error("Bad hostname", zap.String("hostname", r.Host))
+				logger.Error("Bad Hostname", zap.Error(err))
 				http.Error(w, http.StatusText(400), http.StatusBadRequest)
 				return
 			}
