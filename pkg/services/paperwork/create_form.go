@@ -12,21 +12,21 @@ import (
 	"io"
 )
 
-// FileStorer is an interface for FileStorer
-type FileStorer interface {
+// Storer is an interface for FileStorer
+type Storer interface {
 	Create(string) (afero.File, error)
 }
 
-// FormFiller is an interface for FormFiller
-type FormFiller interface {
+// Filler is an interface for FormFiller
+type Filler interface {
 	AppendPage(io.ReadSeeker, map[string]paperworkforms.FieldPos, interface{}) error
 	Output(io.Writer) error
 }
 
 // CreateForm is a service object to create a form with data
 type createForm struct {
-	FileStorer FileStorer
-	FormFiller FormFiller
+	FileStorer Storer
+	FormFiller Filler
 }
 
 // CreateAssetByteReader creates a new byte reader based on the TemplateImagePath of the formLayout
