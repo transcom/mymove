@@ -508,16 +508,27 @@ func (suite *HandlerSuite) TestApproveShipmentLineItemHandler() {
 func (suite *HandlerSuite) TestApproveShipmentLineItemHandlerShipmentDelivered() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusDELIVERED}
+	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	rateCents := unit.Cents(1000)
 	item := testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
-			Status: models.ShipmentLineItemStatusSUBMITTED,
+			Status:    models.ShipmentLineItemStatusSUBMITTED,
+			Shipment:  shipments[0],
+			Quantity1: unit.BaseQuantityFromInt(1),
 		},
 		Tariff400ngItem: models.Tariff400ngItem{
-			Code:                "4A",
+			Code:                "130A",
 			RequiresPreApproval: true,
+			DiscountType:        models.Tariff400ngItemDiscountTypeHHG,
 		},
-		Shipment: models.Shipment{
-			Status: models.ShipmentStatusDELIVERED,
+		Tariff400ngItemRate: models.Tariff400ngItemRate{
+			RateCents: rateCents,
 		},
 	})
 
@@ -544,7 +555,12 @@ func (suite *HandlerSuite) TestApproveShipmentLineItemHandlerShipmentDelivered()
 
 		// And: Rate and amount have been assigned to item
 		suite.NotNil(okResponse.Payload.AppliedRate)
-		suite.NotNil(okResponse.Payload.AmountCents)
+		if suite.NotNil(okResponse.Payload.AmountCents) {
+			discountRate := shipments[0].ShipmentOffers[0].TransportationServiceProviderPerformance.LinehaulRate
+			suite.NotEqual(discountRate, 0)
+			// There should be a discount rate applied for code 130A
+			suite.Equal(int64(discountRate.Apply(rateCents)), *okResponse.Payload.AmountCents)
+		}
 	}
 }
 

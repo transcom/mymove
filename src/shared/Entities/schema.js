@@ -92,3 +92,13 @@ export const moveDatesSummary = new schema.Entity('moveDatesSummaries');
 
 // TransportationServiceProviders
 export const transportationServiceProvider = new schema.Entity('transportationServiceProviders');
+
+// Section for Service Member
+// ServiceMemberBackupContacts
+export const backupContact = new schema.Entity('backupContacts');
+
+export const backupContacts = new schema.Array(backupContact);
+
+export const indexServiceMemberBackupContacts = new schema.Array(backupContact);
+
+export const serviceMemberBackupContact = backupContact;

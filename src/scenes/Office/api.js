@@ -64,15 +64,6 @@ export async function UpdateServiceMember(serviceMemberId, payload) {
 }
 
 // BACKUP CONTACT
-export async function LoadBackupContacts(serviceMemberId) {
-  const client = await getClient();
-  const response = await client.apis.backup_contacts.indexServiceMemberBackupContacts({
-    serviceMemberId,
-  });
-  checkResponse(response, 'failed to load backup contacts due to server error');
-  return response.body;
-}
-
 export async function UpdateBackupContact(backupContactId, payload) {
   const client = await getClient();
   const response = await client.apis.backup_contacts.updateServiceMemberBackupContact({
