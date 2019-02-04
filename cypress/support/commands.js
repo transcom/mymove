@@ -1,5 +1,5 @@
 import * as mime from 'mime-types';
-import { milmoveAppName, officeAppName, tspAppName } from './constants';
+import { milmoveAppName, officeAppName, tspAppName, longPageLoadTimeout } from './constants';
 
 /* global Cypress, cy */
 // ***********************************************
@@ -65,18 +65,31 @@ Cypress.Commands.add('signInAsUser', userId => {
 // Reloads the page but makes an attempt to wait for the loading screen to disappear
 Cypress.Commands.add('patientReload', () => {
   cy.reload();
-  cy.waitForLoadingScreen(10000);
+  cy.waitForLoadingScreen();
 });
 
 // Visits a given URL but makes an attempt to wait for the loading screen to disappear
 Cypress.Commands.add('patientVisit', url => {
   cy.visit(url);
-  cy.waitForLoadingScreen(10000);
+  cy.waitForLoadingScreen();
 });
 
 // Waits for the loading screen to disappear for a given amount of milliseconds
-Cypress.Commands.add('waitForLoadingScreen', ms => {
+Cypress.Commands.add('waitForLoadingScreen', (ms = longPageLoadTimeout) => {
   cy.get('h2[data-name="loading-placeholder"]', { timeout: ms }).should('not.exist');
+});
+
+// Attempts to double-click a given move locator in a shipment queue list
+Cypress.Commands.add('selectQueueItemMoveLocator', moveLocator => {
+  // Wait for ReactTable loading to be completed
+  cy.get('.ReactTable').within(() => {
+    cy.get('.-loading.-active', { timeout: longPageLoadTimeout }).should('not.exist');
+  });
+
+  cy
+    .get('div')
+    .contains(moveLocator)
+    .dblclick();
 });
 
 Cypress.Commands.add(

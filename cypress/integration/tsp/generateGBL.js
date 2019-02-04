@@ -28,10 +28,7 @@ function tspUserCannotGenerateGBL() {
     expect(loc.pathname).to.match(/^\/queues\/accepted/);
   });
 
-  cy
-    .get('div')
-    .contains('GBLDIS')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('GBLDIS');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -53,10 +50,7 @@ function tspUserGeneratesGBL() {
   });
 
   // Find shipment
-  cy
-    .get('div')
-    .contains('GBLGBL')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('GBLGBL');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -106,10 +100,7 @@ function tspUserViewsGBL() {
   });
 
   // Find shipment
-  cy
-    .get('div')
-    .contains('GBLGBL')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('GBLGBL');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
