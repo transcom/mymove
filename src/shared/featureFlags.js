@@ -11,9 +11,9 @@ import { forEach } from 'lodash';
 const defaultFlags = {
   ppm: true,
   hhg: true,
-  hhgAndPpm: true,
   documentViewer: true,
   allowHhgInvoicePayment: true,
+  robustAccessorial: true,
 };
 
 const environmentFlags = {
@@ -23,11 +23,13 @@ const environmentFlags = {
 
   experimental: Object.assign({}, defaultFlags),
 
-  staging: Object.assign({}, defaultFlags),
+  staging: Object.assign({}, defaultFlags, {
+    robustAccessorial: false,
+  }),
 
   production: Object.assign({}, defaultFlags, {
-    hhgAndPpm: false,
     allowHhgInvoicePayment: false,
+    robustAccessorial: false,
   }),
 };
 

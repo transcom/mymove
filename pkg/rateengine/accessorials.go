@@ -1,6 +1,7 @@
 package rateengine
 
 import (
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -157,6 +158,12 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 			return FeeAndRate{}, errors.Wrap(err, "Fetching 400ng item rate from db")
 		}
 		rateCents = rate.RateCents
+	}
+
+	// Make sure we have a ShipmentOffer and TSPP if we need to apply a discount
+	hasTSPP := len(shipment.ShipmentOffers) == 0 || shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.ID == uuid.Nil
+	if shipmentLineItem.Tariff400ngItem.DiscountType != models.Tariff400ngItemDiscountTypeNONE && hasTSPP {
+		return FeeAndRate{}, errors.New("No TSPP provided for Shipment, something is very wrong")
 	}
 
 	var discountRate *unit.DiscountRate

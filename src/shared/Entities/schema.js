@@ -18,14 +18,12 @@ export const addresses = new schema.Array(address);
 
 // Shipments
 export const shipment = new schema.Entity('shipments');
-shipment.define({
-  pickup_address: address,
-  secondary_pickup_address: address,
-  delivery_address: address,
-  partial_sit_delivery_address: address,
-});
 
 export const shipments = new schema.Array(shipment);
+
+export const serviceAgent = new schema.Entity('serviceAgents');
+
+export const serviceAgents = new schema.Array(serviceAgent);
 
 // Moves
 export const move = new schema.Entity('moves', {
@@ -94,3 +92,13 @@ export const moveDatesSummary = new schema.Entity('moveDatesSummaries');
 
 // TransportationServiceProviders
 export const transportationServiceProvider = new schema.Entity('transportationServiceProviders');
+
+// Section for Service Member
+// ServiceMemberBackupContacts
+export const backupContact = new schema.Entity('backupContacts');
+
+export const backupContacts = new schema.Array(backupContact);
+
+export const indexServiceMemberBackupContacts = new schema.Array(backupContact);
+
+export const serviceMemberBackupContact = backupContact;

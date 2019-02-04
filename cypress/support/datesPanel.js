@@ -1,4 +1,4 @@
-/* global cy, Cypress*/
+/* global cy */
 
 export function userEntersDates() {
   cy

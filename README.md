@@ -170,7 +170,7 @@ Dependencies are managed by [dep](https://github.com/golang/dep). New dependenci
 
 The above will start the webpack dev server, serving the front-end on port 3000. If paired with `make server_run` then the whole app will work, the webpack dev server proxies all API calls through to the server.
 
-If both the server and client are running, you should be able to view the Swagger UI at <http://localhost:3000/api/v1/docs>.  If it does not, try running `make client_build` (this only needs to be run the first time).
+If both the server and client are running, you should be able to view the Swagger UI at <http://milmovelocal:3000/api/v1/docs>.  If it does not, try running `make client_build` (this only needs to be run the first time).
 
 Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
@@ -231,7 +231,7 @@ When creating new features, it is helpful to have sample data for the feature to
 
 * `make build_tools` will build the fake data generator binary
 * `bin/generate-test-data -named-scenario="e2e_basic"` will populate the database with a handful of users in various stages of progress along the flow. The emails are named accordingly (see [`e2ebasic.go`](https://github.com/transcom/mymove/blob/master/pkg/testdatagen/scenario/e2ebasic.go)). Alternatively, run `make db_populate_e2e` to reset your db and populate it with e2e user flow cases.
-* `bin/generate-test-data` will run binary and create a preconfigured set of test data. To determine the data scenario you'd like to use, check out scenarios in the `testdatagen` package. Each scenario contains a description of what data will be created when the scenario is run. Pass the scenario in as a flag to the generate-test-data function. A sample command: `./bin/generate-test-data -scenario=2`. If you'd like to further specify how the data should look, you can specify the number of awards for each TSP performance by use the flag `rounds` with one of three arguments: 'none', 'half', and 'full'. This will create the TSP performance records with either no rounds of awards completed, half a round, or a full round. It will default to none if not specified. To specify how many TSPs should be created, use the flag `numTSP`. It will default to 15 if not specified. A sample command: `./bin/generate-test-data -rounds=half -numTSP=6`. You can use the `numTSP` and `rounds` in conjunction, but you cannot use them with the pre-packaged scenarios.
+* `bin/generate-test-data` will run binary and create a preconfigured set of test data. To determine the data scenario you'd like to use, check out scenarios in the `testdatagen` package. Each scenario contains a description of what data will be created when the scenario is run. Pass the scenario in as a flag to the generate-test-data function. A sample command: `./bin/generate-test-data -scenario=2`.
 
 There is also a package (`/pkg/testdatagen`) that can be imported to create arbitrary test data. This could be used in tests, so as not to duplicate functionality.
 
@@ -291,6 +291,7 @@ There are a few handy targets in the Makefile to help you interact with the dev 
 * `make db_dev_create`: Waits to connect to the DB and will create a DB if one doesn't already exist (run usually as part of `db_dev_run`).
 * `make db_dev_reset`: Destroys your database container. Useful if you want to start from scratch.
 * `make db_dev_migrate`: Applies database migrations against your running database container.
+* `make db_dev_migrate_standalone`: Applies database migrations against your running database container but will not check for server dependencies first.
 * `make db_dev_e2e_populate`: Populate data with data used to run e2e tests
 
 #### Test DB Commands
@@ -301,6 +302,7 @@ The Dev Commands are used to talk to the dev DB.  If you were working with the t
 * `make db_test_create`
 * `make db_test_reset`
 * `make db_test_migrate`
+* `make db_test_migrate_standalone`
 * `make db_test_e2e_populate`
 
 The test DB commands all talk to the DB over localhost.  But in a docker-only environment (like CircleCI) you may not be able to use those commands, which is why `*_docker` versions exist for all of them:
@@ -309,7 +311,6 @@ The test DB commands all talk to the DB over localhost.  But in a docker-only en
 * `make db_test_create_docker`
 * `make db_test_reset_docker`
 * `make db_test_migrate_docker`
-* `make db_test_e2e_populate_docker`
 
 #### Migrations
 

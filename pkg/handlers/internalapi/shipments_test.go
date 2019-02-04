@@ -90,6 +90,75 @@ func (suite *HandlerSuite) verifyAddressFields(expected, actual *internalmessage
 	suite.Equal(expected.Country, actual.Country, "Country did not match")
 }
 
+// Tests to ensure we get a non 500 response from a bad zipcode. Expectation is a 404.
+func (suite *HandlerSuite) TestInvalidZipcodeResponse() {
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
+		},
+	})
+	sm := move.Orders.ServiceMember
+
+	// Make associated lookup table records.
+	testdatagen.FetchOrMakeTariff400ngZip3(suite.DB(), testdatagen.Assertions{
+		Tariff400ngZip3: models.Tariff400ngZip3{
+			Zip3:          "012",
+			BasepointCity: "Pittsfield",
+			State:         "MA",
+			ServiceArea:   "388",
+			RateArea:      "US14",
+			Region:        "9",
+		},
+	})
+
+	testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
+		TrafficDistributionList: models.TrafficDistributionList{
+			SourceRateArea:    "US14",
+			DestinationRegion: "9",
+			CodeOfService:     "D",
+		},
+	})
+
+	addressPayload := fakeAddressPayload()
+	zip := "34567"
+	addressPayload.PostalCode = &zip
+	requestedPickupDate := strfmt.Date(testdatagen.DateInsideNonPeakRateCycle)
+
+	newShipment := internalmessages.Shipment{
+		PickupAddress:                addressPayload,
+		HasSecondaryPickupAddress:    handlers.FmtBool(true),
+		SecondaryPickupAddress:       addressPayload,
+		HasDeliveryAddress:           handlers.FmtBool(true),
+		DeliveryAddress:              addressPayload,
+		HasPartialSitDeliveryAddress: handlers.FmtBool(true),
+		PartialSitDeliveryAddress:    addressPayload,
+		WeightEstimate:               swag.Int64(4500),
+		ProgearWeightEstimate:        swag.Int64(325),
+		SpouseProgearWeightEstimate:  swag.Int64(120),
+		RequestedPickupDate:          &requestedPickupDate,
+	}
+
+	req := httptest.NewRequest("POST", "/moves/move_id/shipment", nil)
+	req = suite.AuthenticateRequest(req, sm)
+
+	params := shipmentop.CreateShipmentParams{
+		Shipment:    &newShipment,
+		MoveID:      strfmt.UUID(move.ID.String()),
+		HTTPRequest: req,
+	}
+
+	handler := CreateShipmentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	planner := route.NewTestingPlanner(2000)
+	handler.SetPlanner(planner)
+
+	response := handler.Handle(params)
+	unwrapped := response.(*handlers.ErrResponse)
+
+	suite.Equal(404, unwrapped.Code)
+
+}
+
 func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: models.Order{
@@ -484,5 +553,5 @@ func (suite *HandlerSuite) TestShipmentInvoiceHandlerShipmentWrongState() {
 
 	// assert we got back the conflict response
 	response := handler.Handle(params)
-	suite.Equal(shipmentop.NewCreateAndSendHHGInvoiceConflict(), response)
+	suite.Equal(shipmentop.NewCreateAndSendHHGInvoicePreconditionFailed(), response)
 }

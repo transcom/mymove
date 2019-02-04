@@ -21,7 +21,7 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	station := assertions.Order.NewDutyStation
 	// Note above
 	if isZeroUUID(assertions.Order.NewDutyStationID) {
-		station = FetchOrMakeDefaultDutyStation(db)
+		station = FetchOrMakeDefaultNewOrdersDutyStation(db)
 	}
 
 	document := assertions.Order.UploadedOrders

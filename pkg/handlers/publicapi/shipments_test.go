@@ -795,6 +795,11 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 		},
 	})
 
+	// Make sure there's a FuelEIADieselPrice to use
+	assertions := testdatagen.Assertions{}
+	assertions.FuelEIADieselPrice.BaselineRate = 6
+	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
+
 	// Handler to Test
 	handler := DeliverShipmentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	handler.SetPlanner(route.NewTestingPlanner(1044))
@@ -815,6 +820,7 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	}
 
 	response := handler.Handle(params)
+	suite.CheckNotErrorResponse(response)
 	suite.Assertions.IsType(&shipmentop.DeliverShipmentOK{}, response)
 	okResponse := response.(*shipmentop.DeliverShipmentOK)
 	suite.Equal("DELIVERED", string(okResponse.Payload.Status))

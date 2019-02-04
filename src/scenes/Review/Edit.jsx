@@ -1,18 +1,22 @@
 import React from 'react';
 import Summary from './Summary';
 import { withRouter } from 'react-router-dom';
+import scrollToTop from 'shared/scrollToTop';
+
 export class Edit extends React.Component {
   componentDidMount() {
-    window.scrollTo(0, 0);
+    scrollToTop();
   }
-  goBack = () => {
-    this.props.history.goBack();
+
+  goHome = () => {
+    this.props.history.push('/');
   };
+
   render() {
     return (
       <div className="usa-grid">
         <div className="usa-width-one-whole">
-          <a className="back-to-home" onClick={this.goBack}>
+          <a className="back-to-home" onClick={this.goHome}>
             &lt;BACK TO HOME
           </a>
           <h1 className="edit-title">Edit Move</h1>

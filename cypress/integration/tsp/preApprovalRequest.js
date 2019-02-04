@@ -27,10 +27,7 @@ function tspUserCreatesPreApprovalRequest() {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains('DATESP')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('DATESP');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -51,10 +48,7 @@ function tspUserEditsPreApprovalRequest() {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains('DATESP')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('DATESP');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -72,10 +66,7 @@ function tspUserDeletesPreApprovalRequest() {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains('DATESP')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('DATESP');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);

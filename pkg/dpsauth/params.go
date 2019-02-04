@@ -8,4 +8,7 @@ type Params struct {
 	SecretKey      string
 	DPSRedirectURL string
 	CookieName     string
+	CookieDomain   string
+	CookieSecret   []byte
+	CookieExpires  int
 }

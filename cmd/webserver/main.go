@@ -7,13 +7,13 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/transcom/mymove/pkg/edi/gex"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -32,11 +32,15 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+	goji "goji.io"
 	"goji.io/pat"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
+	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
+	"github.com/transcom/mymove/pkg/edi/gex"
+	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/dpsapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
@@ -48,7 +52,6 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/storage"
-	goji "goji.io"
 )
 
 // GitCommit is empty unless set as a build flag
@@ -178,6 +181,8 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("dps-redirect-url", "", "DPS url to redirect to")
 	flag.String("dps-cookie-name", "", "Name of the DPS cookie")
 	flag.String("dps-cookie-domain", "sddclocal", "Domain of the DPS cookie")
+	flag.String("dps-auth-cookie-secret-key", "", "DPS auth cookie secret key, 32 byte long")
+	flag.Int("dps-cookie-expires-in-minutes", 240, "DPS cookie expiration in minutes")
 
 	// Initialize Swagger
 	flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
@@ -223,15 +228,18 @@ func initFlags(flag *pflag.FlagSet) {
 	// EDI Invoice Config
 	flag.String("gex-basic-auth-username", "", "GEX api auth username")
 	flag.String("gex-basic-auth-password", "", "GEX api auth password")
-	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should go to production GEX")
+	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should be sent with Production or Test indicator")
 	flag.String("gex-url", "", "URL for sending an HTTP POST request to GEX")
 
-	flag.String("storage-backend", "local", "Storage backend to use, either filesystem or s3.")
+	flag.String("storage-backend", "local", "Storage backend to use, either local, memory or s3.")
+	flag.String("local-storage-root", "tmp", "Local storage root directory. Default is tmp.")
+	flag.String("local-storage-web-root", "storage", "Local storage web root directory. Default is storage.")
 	flag.String("email-backend", "local", "Email backend to use, either SES or local")
 	flag.String("aws-s3-bucket-name", "", "S3 bucket used for file storage")
 	flag.String("aws-s3-region", "", "AWS region used for S3 file storage")
 	flag.String("aws-s3-key-namespace", "", "Key prefix for all objects written to S3")
 	flag.String("aws-ses-region", "", "AWS region used for SES")
+	flag.String("aws-ses-domain", "", "Domain used for SES")
 
 	// Honeycomb Config
 	flag.Bool("honeycomb-enabled", false, "Honeycomb enabled")
@@ -254,7 +262,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("csrf-auth-key", "", "CSRF Auth Key, 32 byte long")
 }
 
-func initDODCertificates(v *viper.Viper, logger *zap.Logger) ([]tls.Certificate, *x509.CertPool, error) {
+func initDODCertificates(v *viper.Viper, logger *webserverLogger) ([]tls.Certificate, *x509.CertPool, error) {
 
 	// https://tools.ietf.org/html/rfc7468#section-2
 	//	- https://stackoverflow.com/questions/20173472/does-go-regexps-any-charcter-match-newline
@@ -360,7 +368,7 @@ func initRoutePlanner(v *viper.Viper, logger *zap.Logger) route.Planner {
 		v.GetString("here-maps-app-code"))
 }
 
-func initHoneycomb(v *viper.Viper, logger *zap.Logger) bool {
+func initHoneycomb(v *viper.Viper, logger *webserverLogger) bool {
 
 	honeycombAPIHost := v.GetString("honeycomb-api-host")
 	honeycombAPIKey := v.GetString("honeycomb-api-key")
@@ -385,15 +393,15 @@ func initHoneycomb(v *viper.Viper, logger *zap.Logger) bool {
 	return false
 }
 
-func initRealTimeBrokerService(v *viper.Viper, logger *zap.Logger) (*iws.RealTimeBrokerService, error) {
-	return iws.NewRealTimeBrokerService(
+func initRBSPersonLookup(v *viper.Viper, logger *webserverLogger) (*iws.RBSPersonLookup, error) {
+	return iws.NewRBSPersonLookup(
 		v.GetString("iws-rbs-host"),
 		v.GetString("dod-ca-package"),
 		v.GetString("move-mil-dod-tls-cert"),
 		v.GetString("move-mil-dod-tls-key"))
 }
 
-func initDatabase(v *viper.Viper, logger *zap.Logger) (*pop.Connection, error) {
+func initDatabase(v *viper.Viper, logger *webserverLogger) (*pop.Connection, error) {
 
 	env := v.GetString("env")
 	dbName := v.GetString("db-name")
@@ -474,6 +482,11 @@ func checkConfig(v *viper.Viper) error {
 	}
 
 	err = checkPorts(v)
+	if err != nil {
+		return err
+	}
+
+	err = checkDPS(v)
 	if err != nil {
 		return err
 	}
@@ -560,6 +573,16 @@ func checkPorts(v *viper.Viper) error {
 	return nil
 }
 
+func checkDPS(v *viper.Viper) error {
+
+	dpsCookieSecret := []byte(v.GetString("dps-auth-cookie-secret-key"))
+	if len(dpsCookieSecret) != 32 {
+		return errors.New("DPS Cookie Secret Key is not 32 bytes. Cookie Secret Key length: " + strconv.Itoa(len(dpsCookieSecret)))
+	}
+
+	return nil
+}
+
 func checkCSRF(v *viper.Viper) error {
 
 	csrfAuthKey, err := hex.DecodeString(v.GetString("csrf-auth-key"))
@@ -584,6 +607,9 @@ func checkEmail(v *viper.Viper) error {
 		// - see https://docs.aws.amazon.com/ses/latest/DeveloperGuide/regions.html#region-endpoints
 		if r := v.GetString("aws-ses-region"); len(r) == 0 || !stringSliceContains([]string{"us-east-1", "us-west-2", "eu-west-1"}, r) {
 			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-ses-region"))
+		}
+		if h := v.GetString("aws-ses-domain"); len(h) == 0 {
+			return errors.Wrap(&errInvalidHost{Host: h}, fmt.Sprintf("%s is invalid", "aws-ses-domain"))
 		}
 	}
 
@@ -612,8 +638,8 @@ func checkGEX(v *viper.Viper) error {
 func checkStorage(v *viper.Viper) error {
 
 	storageBackend := v.GetString("storage-backend")
-	if !stringSliceContains([]string{"local", "s3"}, storageBackend) {
-		return fmt.Errorf("invalid storage-backend %s, expecting local or s3", storageBackend)
+	if !stringSliceContains([]string{"local", "memory", "s3"}, storageBackend) {
+		return fmt.Errorf("invalid storage-backend %s, expecting local, memory or s3", storageBackend)
 	}
 
 	if storageBackend == "s3" {
@@ -629,6 +655,11 @@ func checkStorage(v *viper.Viper) error {
 
 		if _, ok := regions[r]; !ok {
 			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-s3-region"))
+		}
+	} else if storageBackend == "local" {
+		localStorageRoot := v.GetString("local-storage-root")
+		if _, err := filepath.Abs(localStorageRoot); err != nil {
+			return fmt.Errorf("could not get absolute path for %s", localStorageRoot)
 		}
 	}
 
@@ -649,15 +680,15 @@ func main() {
 	env := v.GetString("env")
 	isDevOrTest := env == "development" || env == "test"
 
-	logger, err := logging.Config(env, v.GetBool("debug-logging"))
+	zapLogger, err := logging.Config(env, v.GetBool("debug-logging"))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
-	zap.ReplaceGlobals(logger)
+	zap.ReplaceGlobals(zapLogger)
 
-	logger.Debug("Build Variables",
-		zap.String("git.branch", gitBranch),
-		zap.String("git.commit", gitCommit))
+	logger := &webserverLogger{zapLogger}
+
+	logger.Debug("webserver starting up")
 
 	err = checkConfig(v)
 	if err != nil {
@@ -683,7 +714,7 @@ func main() {
 		logger.Fatal("Client auth private key", zap.Error(err))
 	}
 	if len(loginGovHostname) == 0 {
-		log.Fatal("Must provide the Login.gov hostname parameter, exiting")
+		logger.Fatal("Must provide the Login.gov hostname parameter, exiting")
 	}
 
 	// Create a connection to the DB
@@ -704,7 +735,7 @@ func main() {
 	tspHostname := v.GetString("http-tsp-server-name")
 
 	// Register Login.gov authentication provider for My.(move.mil)
-	loginGovProvider := authentication.NewLoginGovProvider(loginGovHostname, loginGovSecretKey, logger)
+	loginGovProvider := authentication.NewLoginGovProvider(loginGovHostname, loginGovSecretKey, zapLogger)
 	err = loginGovProvider.RegisterProvider(
 		myHostname,
 		v.GetString("login-gov-my-client-id"),
@@ -720,13 +751,13 @@ func main() {
 
 	// Session management and authentication middleware
 	noSessionTimeout := v.GetBool("no-session-timeout")
-	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout)
-	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, noSessionTimeout)
-	appDetectionMiddleware := auth.DetectorMiddleware(logger, myHostname, officeHostname, tspHostname)
-	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
-	clientCertMiddleware := authentication.ClientCertMiddleware(logger, dbConnection)
+	sessionCookieMiddleware := auth.SessionCookieMiddleware(zapLogger, clientAuthSecretKey, noSessionTimeout)
+	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(zapLogger, noSessionTimeout)
+	appDetectionMiddleware := auth.DetectorMiddleware(zapLogger, myHostname, officeHostname, tspHostname)
+	userAuthMiddleware := authentication.UserAuthMiddleware(zapLogger)
+	clientCertMiddleware := authentication.ClientCertMiddleware(zapLogger, dbConnection)
 
-	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
+	handlerContext := handlers.NewHandlerContext(dbConnection, zapLogger)
 	handlerContext.SetCookieSecret(clientAuthSecretKey)
 	if noSessionTimeout {
 		handlerContext.SetNoSessionTimeout()
@@ -736,16 +767,23 @@ func main() {
 		// Setup Amazon SES (email) service
 		// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
 		// below.
+		awsSESRegion := v.GetString("aws-ses-region")
+		awsSESDomain := v.GetString("aws-ses-domain")
+		logger.Info("Using ses email backend",
+			zap.String("region", awsSESRegion),
+			zap.String("domain", awsSESDomain))
 		sesSession, err := awssession.NewSession(&aws.Config{
-			Region: aws.String(v.GetString("aws-ses-region")),
+			Region: aws.String(awsSESRegion),
 		})
 		if err != nil {
 			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
 		}
 		sesService := ses.New(sesSession)
-		handlerContext.SetNotificationSender(notifications.NewNotificationSender(sesService, logger))
+		handlerContext.SetNotificationSender(notifications.NewNotificationSender(sesService, awsSESDomain, zapLogger))
 	} else {
-		handlerContext.SetNotificationSender(notifications.NewStubNotificationSender(logger))
+		domain := "milmovelocal"
+		logger.Info("Using local email backend", zap.String("domain", domain))
+		handlerContext.SetNotificationSender(notifications.NewStubNotificationSender(domain, zapLogger))
 	}
 
 	build := v.GetString("build")
@@ -755,36 +793,49 @@ func main() {
 
 	// Get route planner for handlers to calculate transit distances
 	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
-	routePlanner := initRoutePlanner(v, logger)
+	routePlanner := initRoutePlanner(v, zapLogger)
 	handlerContext.SetPlanner(routePlanner)
 
 	// Set SendProductionInvoice for ediinvoice
 	handlerContext.SetSendProductionInvoice(v.GetBool("send-prod-invoice"))
 
 	storageBackend := v.GetString("storage-backend")
+	localStorageRoot := v.GetString("local-storage-root")
+	localStorageWebRoot := v.GetString("local-storage-web-root")
 
 	var storer storage.FileStorer
 	if storageBackend == "s3" {
-		zap.L().Info("Using s3 storage backend")
 		awsS3Bucket := v.GetString("aws-s3-bucket-name")
-		if len(awsS3Bucket) == 0 {
-			log.Fatalln(errors.New("must provide aws-s3-bucket-name parameter, exiting"))
-		}
 		awsS3Region := v.GetString("aws-s3-region")
-		if len(awsS3Region) == 0 {
-			log.Fatalln(errors.New("Must provide aws-s3-region parameter, exiting"))
-		}
 		awsS3KeyNamespace := v.GetString("aws-s3-key-namespace")
+		logger.Info("Using s3 storage backend",
+			zap.String("bucket", awsS3Bucket),
+			zap.String("region", awsS3Region),
+			zap.String("key", awsS3KeyNamespace))
+		if len(awsS3Bucket) == 0 {
+			logger.Fatal("must provide aws-s3-bucket-name parameter, exiting")
+		}
+		if len(awsS3Region) == 0 {
+			logger.Fatal("Must provide aws-s3-region parameter, exiting")
+		}
 		if len(awsS3KeyNamespace) == 0 {
-			log.Fatalln(errors.New("Must provide aws_s3_key_namespace parameter, exiting"))
+			logger.Fatal("Must provide aws_s3_key_namespace parameter, exiting")
 		}
 		aws := awssession.Must(awssession.NewSession(&aws.Config{
 			Region: aws.String(awsS3Region),
 		}))
-		storer = storage.NewS3(awsS3Bucket, awsS3KeyNamespace, logger, aws)
+		storer = storage.NewS3(awsS3Bucket, awsS3KeyNamespace, zapLogger, aws)
+	} else if storageBackend == "memory" {
+		logger.Info("Using memory storage backend",
+			zap.String("root", path.Join(localStorageRoot, localStorageWebRoot)),
+			zap.String("web root", localStorageWebRoot))
+		fsParams := storage.NewMemoryParams(localStorageRoot, localStorageWebRoot, zapLogger)
+		storer = storage.NewMemory(fsParams)
 	} else {
-		zap.L().Info("Using filesystem storage backend")
-		fsParams := storage.DefaultFilesystemParams(logger)
+		logger.Info("Using local storage backend",
+			zap.String("root", path.Join(localStorageRoot, localStorageWebRoot)),
+			zap.String("web root", localStorageWebRoot))
+		fsParams := storage.NewFilesystemParams(localStorageRoot, localStorageWebRoot, zapLogger)
 		storer = storage.NewFilesystem(fsParams)
 	}
 	handlerContext.SetFileStorer(storer)
@@ -824,14 +875,32 @@ func main() {
 	}
 	handlerContext.SetGexSender(gexRequester)
 
-	rbs, err := initRealTimeBrokerService(v, logger)
+	// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
+	// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate
+	// test ICNs in Syncada.
+	var icnSequencer sequence.Sequencer
+	if isDevOrTest && len(gexURL) > 0 {
+		// ICNs are 9-digit numbers; reserve the ones in an upper range for development/testing.
+		icnSequencer, err = sequence.NewRandomSequencer(ediinvoice.ICNRandomMin, ediinvoice.ICNRandomMax)
+		if err != nil {
+			logger.Fatal("Could not create random sequencer for ICN", zap.Error(err))
+		}
+	} else {
+		icnSequencer = sequence.NewDatabaseSequencer(dbConnection, ediinvoice.ICNSequenceName)
+	}
+	handlerContext.SetICNSequencer(icnSequencer)
+
+	rbs, err := initRBSPersonLookup(v, logger)
 	if err != nil {
 		logger.Fatal("Could not instantiate IWS RBS", zap.Error(err))
 	}
-	handlerContext.SetIWSRealTimeBrokerService(*rbs)
+	handlerContext.SetIWSPersonLookup(*rbs)
 
 	sddcHostname := v.GetString("http-sddc-server-name")
 	dpsAuthSecretKey := v.GetString("dps-auth-secret-key")
+	dpsCookieDomain := v.GetString("dps-cookie-domain")
+	dpsCookieSecret := []byte(v.GetString("dps-auth-cookie-secret-key"))
+	dpsCookieExpires := v.GetInt("dps-cookie-expires-in-minutes")
 	handlerContext.SetDPSAuthParams(
 		dpsauth.Params{
 			SDDCProtocol:   v.GetString("http-sddc-protocol"),
@@ -840,6 +909,9 @@ func main() {
 			SecretKey:      dpsAuthSecretKey,
 			DPSRedirectURL: v.GetString("dps-redirect-url"),
 			CookieName:     v.GetString("dps-cookie-name"),
+			CookieDomain:   dpsCookieDomain,
+			CookieSecret:   dpsCookieSecret,
+			CookieExpires:  dpsCookieExpires,
 		},
 	)
 
@@ -855,15 +927,28 @@ func main() {
 
 	// Stub health check
 	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {
-		err := dbConnection.RawQuery("SELECT 1;").Exec()
-		if err != nil {
-			logger.Error("Failed database health check", zap.Error(err))
-		}
-		err = json.NewEncoder(w).Encode(map[string]interface{}{
+
+		data := map[string]interface{}{
 			"gitBranch": gitBranch,
 			"gitCommit": gitCommit,
-			"database":  err == nil,
-		})
+		}
+
+		// Check and see if we should disable DB query with '?database=false'
+		// Disabling the DB is useful for Route53 health checks which require the TLS
+		// handshake be less than 4 seconds and the status code return in less than
+		// two seconds. https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/dns-failover-determining-health-of-endpoints.html
+		showDB, ok := r.URL.Query()["database"]
+
+		// Always show DB unless key set to "false"
+		if !ok || (ok && showDB[0] != "false") {
+			dbErr := dbConnection.RawQuery("SELECT 1;").Exec()
+			if dbErr != nil {
+				logger.Error("Failed database health check", zap.Error(dbErr))
+			}
+			data["database"] = dbErr == nil
+		}
+
+		err := json.NewEncoder(w).Encode(data)
 		if err != nil {
 			logger.Error("Failed encoding health check response", zap.Error(err))
 		}
@@ -875,7 +960,7 @@ func main() {
 		} else {
 			protocol = "https"
 		}
-		zap.L().Info("Request",
+		zapLogger.Info("Request",
 			zap.String("git-branch", gitBranch),
 			zap.String("git-commit", gitCommit),
 			zap.String("accepted-language", r.Header.Get("accepted-language")),
@@ -902,7 +987,7 @@ func main() {
 	site.Handle(pat.Get("/favicon.ico"), clientHandler)
 
 	ordersMux := goji.SubMux()
-	ordersDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, v.GetString("http-orders-server-name"))
+	ordersDetectionMiddleware := auth.HostnameDetectorMiddleware(zapLogger, v.GetString("http-orders-server-name"))
 	ordersMux.Use(ordersDetectionMiddleware)
 	ordersMux.Use(noCacheMiddleware)
 	ordersMux.Use(clientCertMiddleware)
@@ -912,7 +997,7 @@ func main() {
 	site.Handle(pat.Get("/orders/v0/*"), ordersMux)
 
 	dpsMux := goji.SubMux()
-	dpsDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, v.GetString("http-dps-server-name"))
+	dpsDetectionMiddleware := auth.HostnameDetectorMiddleware(zapLogger, v.GetString("http-dps-server-name"))
 	dpsMux.Use(dpsDetectionMiddleware)
 	dpsMux.Use(noCacheMiddleware)
 	dpsMux.Use(clientCertMiddleware)
@@ -922,11 +1007,16 @@ func main() {
 	site.Handle(pat.New("/dps/v0/*"), dpsMux)
 
 	sddcDPSMux := goji.SubMux()
-	sddcDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, sddcHostname)
+	sddcDetectionMiddleware := auth.HostnameDetectorMiddleware(zapLogger, sddcHostname)
 	sddcDPSMux.Use(sddcDetectionMiddleware)
 	sddcDPSMux.Use(noCacheMiddleware)
 	site.Handle(pat.New("/dps_auth/*"), sddcDPSMux)
-	sddcDPSMux.Handle(pat.Get("/set_cookie"), dpsauth.NewSetCookieHandler(logger, dpsAuthSecretKey, v.GetString("dps-cookie-domain")))
+	sddcDPSMux.Handle(pat.Get("/set_cookie"),
+		dpsauth.NewSetCookieHandler(zapLogger,
+			dpsAuthSecretKey,
+			dpsCookieDomain,
+			dpsCookieSecret,
+			dpsCookieExpires))
 
 	root := goji.NewMux()
 	root.Use(sessionCookieMiddleware)
@@ -979,7 +1069,7 @@ func main() {
 	internalAPIMux.Use(noCacheMiddleware)
 	internalAPIMux.Handle(pat.New("/*"), internalapi.NewInternalAPIHandler(handlerContext))
 
-	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
+	authContext := authentication.NewAuthContext(zapLogger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
 	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext})
@@ -987,7 +1077,7 @@ func main() {
 	authMux.Handle(pat.Get("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout))
 
 	if isDevOrTest {
-		zap.L().Info("Enabling devlocal auth")
+		logger.Info("Enabling devlocal auth")
 		localAuthMux := goji.SubMux()
 		root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)
 		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection))
@@ -1002,14 +1092,14 @@ func main() {
 		}
 	}
 
-	if storageBackend == "filesystem" {
+	if storageBackend == "local" {
 		// Add a file handler to provide access to files uploaded in development
-		fs := storage.NewFilesystemHandler("tmp")
-		root.Handle(pat.Get("/storage/*"), fs)
+		fs := storage.NewFilesystemHandler(localStorageRoot)
+		root.Handle(pat.Get(path.Join("/", localStorageWebRoot, "/*")), fs)
 	}
 
 	// Serve index.html to all requests that haven't matches a previous route,
-	root.HandleFunc(pat.Get("/*"), indexHandler(build, logger))
+	root.HandleFunc(pat.Get("/*"), indexHandler(build, zapLogger))
 
 	var httpHandler http.Handler
 	if useHoneycomb {
@@ -1026,7 +1116,7 @@ func main() {
 		noTLSServer := server.Server{
 			ListenAddress: listenInterface,
 			HTTPHandler:   httpHandler,
-			Logger:        logger,
+			Logger:        zapLogger,
 			Port:          v.GetInt("no-tls-port"),
 		}
 		errChan <- noTLSServer.ListenAndServe()
@@ -1037,7 +1127,7 @@ func main() {
 			ClientAuthType: tls.NoClientCert,
 			ListenAddress:  listenInterface,
 			HTTPHandler:    httpHandler,
-			Logger:         logger,
+			Logger:         zapLogger,
 			Port:           v.GetInt("tls-port"),
 			TLSCerts:       certificates,
 		}
@@ -1052,7 +1142,7 @@ func main() {
 			ClientAuthType: tls.RequireAndVerifyClientCert,
 			ListenAddress:  listenInterface,
 			HTTPHandler:    httpHandler,
-			Logger:         logger,
+			Logger:         zapLogger,
 			Port:           v.GetInt("mutual-tls-port"),
 			TLSCerts:       certificates,
 		}

@@ -402,6 +402,14 @@ scss
 database.md
 transportation_service_provider_performances
 perf
+devlocal
+justinas
+nosurf
+csrf
+Goji
+DD-Mon-YYYY
+29-Mar-2018
+_Prevention_Cheat_Sheet#Double_Submit_Cookie
 - /usr/local
 # Put all custom terms BEFORE this comment, lest you end up in an mdspell pain cycle.
  - docs/data/tspp-data-creation.md

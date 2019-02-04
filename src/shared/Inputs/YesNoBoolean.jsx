@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Fragment } from 'react';
 import { uniqueId } from 'lodash';
-import './YesNoBoolean.css';
+
 const YesNoBoolean = props => {
   let value, onChange;
   if (props.input) {

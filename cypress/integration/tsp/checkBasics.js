@@ -15,10 +15,7 @@ function tspUserViewsCustomerInfo() {
   });
 
   // Find a shipment and open it
-  cy
-    .get('div')
-    .contains('BACON4')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('BACON4');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);

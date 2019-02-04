@@ -17,6 +17,7 @@ describe('orders entry', function() {
     });
 
     cy.get('select[name="orders_type"]').select('Permanent Change Of Station');
+
     cy
       .get('input[name="issue_date"]')
       .first()

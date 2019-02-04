@@ -25,6 +25,12 @@ const receiverCode = "8004171844" // Syncada
 // ICNSequenceName used to query Interchange Control Numbers from DB
 const ICNSequenceName = "interchange_control_number"
 
+// ICNRandomMin is the smallest allowed random-number based ICN (we use random ICN numbers in development)
+const ICNRandomMin int64 = 100000000
+
+// ICNRandomMax is the largest allowed random-number based ICN (we use random ICN numbers in development)
+const ICNRandomMax int64 = 999999999
+
 const rateValueQualifier = "RC"    // Rate
 const hierarchicalLevelCode = "SS" // Services
 const weightQualifier = "B"        // Billed Weight
@@ -74,10 +80,10 @@ func (invoice Invoice858C) EDIString() (string, error) {
 }
 
 // Generate858C generates an EDI X12 858C transaction set
-func Generate858C(shipment models.Shipment, invoiceModel models.Invoice, db *pop.Connection, sendProductionInvoice bool, clock clock.Clock) (Invoice858C, error) {
+func Generate858C(shipment models.Shipment, invoiceModel models.Invoice, db *pop.Connection, sendProductionInvoice bool, icnSequencer sequence.Sequencer, clock clock.Clock) (Invoice858C, error) {
 	currentTime := clock.Now().UTC()
 
-	interchangeControlNumber, err := sequence.NextVal(db, ICNSequenceName)
+	interchangeControlNumber, err := icnSequencer.NextVal()
 	if err != nil {
 		return Invoice858C{}, errors.Wrap(err, fmt.Sprintf("Failed to get next Interchange Control Number"))
 	}

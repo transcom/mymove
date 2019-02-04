@@ -11,6 +11,8 @@ describe('Office user looks at the invoice tab to view unbilled line items', () 
   it('there are unbilled line items with an approve button', checkApproveButton);
 
   it('the confirmation dialogue appears', checkConfirmationDialogue);
+
+  it('should be able to approve an invoice', checkApproveInvoice);
 });
 
 function checkNoUnbilledLineItems() {
@@ -89,5 +91,57 @@ function checkConfirmationDialogue() {
       .click();
 
     cy.get('button').should('have.text', 'Approve Payment');
+  });
+}
+
+function checkApproveInvoice() {
+  // Open the shipments tab.
+  cy.patientVisit('/queues/new/moves/fb4105cf-f5a5-43be-845e-d59fdb34f31c/hhg');
+
+  // Within the unbilled line item table
+  cy.get('[data-cy="unbilled-table"]').within(() => {
+    // Count the number of unbilled line items and amount total (we'll use this later)
+    cy.get('tr[data-cy="table--item"]').as('unbilledItems');
+    cy
+      .get('tr[data-cy="table--total"] td')
+      .last()
+      .as('unbilledTotal');
+
+    // Find/click approve button
+    cy
+      .get('button')
+      .should('have.text', 'Approve Payment')
+      .click();
+
+    // Find/click second approve button
+    cy
+      .get('.usa-button-primary')
+      .should('have.text', 'Approve')
+      .click();
+
+    // Confirm approve button isn't visible anymore
+    cy.get('button').should('not.have.text', 'Approve Payment');
+  });
+
+  // Confirm successful alert appears
+  cy.get('div.usa-alert').should('contain', 'Success!');
+
+  // Within the newly created invoice table
+  cy.get('[data-cy="invoice-table"]').within(() => {
+    // Confirm invoice header is shown
+    cy.get('[data-cy="invoice--detail"]').should('exist');
+
+    // Confirm number of invoiced items matches previous unbilled amount
+    cy.get('@unbilledItems').then($unbilledItems => {
+      cy.get('tr[data-cy="table--item"]').should('have.length', $unbilledItems.length);
+    });
+
+    // Confirm total of invoiced matches previous unbilled amount
+    cy.get('@unbilledTotal').then($unbilledTotal => {
+      cy
+        .get('tr[data-cy="table--total"] td')
+        .last()
+        .should('have.text', $unbilledTotal.text());
+    });
   });
 }

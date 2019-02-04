@@ -6,6 +6,8 @@ import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
 
 export const STATE_KEY = 'moves';
+const approveBasicsLabel = 'Moves.ApproveBasics';
+const cancelMoveLabel = 'Moves.CancelMove';
 
 export default function reducer(state = {}, action) {
   switch (action.type) {
@@ -37,4 +39,26 @@ export function selectMoveDatesSummary(state, moveId, moveDate) {
     return null;
   }
   return get(state, `entities.moveDatesSummaries.${moveId}:${moveDate}`);
+}
+
+export function approveBasics(moveId) {
+  const label = approveBasicsLabel;
+  const swaggerTag = 'office.approveMove';
+  return swaggerRequest(getClient, swaggerTag, { moveId }, { label });
+}
+
+export function cancelMove(moveId, cancelReason) {
+  const label = cancelMoveLabel;
+  const swaggerTag = 'office.cancelMove';
+  const cancelMove = { cancel_reason: cancelReason };
+  return swaggerRequest(getClient, swaggerTag, { moveId, cancelMove }, { label });
+}
+
+export function selectMoveStatus(state, moveId) {
+  const entitiesMove = get(state, `entities.moves.${moveId}`);
+  if (entitiesMove) {
+    return entitiesMove.status;
+  } else {
+    return get(state, 'office.officeMove.status', '');
+  }
 }

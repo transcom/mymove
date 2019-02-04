@@ -11,7 +11,6 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/logging"
 )
@@ -19,7 +18,7 @@ import (
 type webServerSuite struct {
 	suite.Suite
 	viper  *viper.Viper
-	logger *zap.Logger
+	logger *webserverLogger
 }
 
 func TestWebServerSuite(t *testing.T) {
@@ -33,10 +32,12 @@ func TestWebServerSuite(t *testing.T) {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	logger, err := logging.Config(v.GetString("env"), v.GetBool("debug-logging"))
+	zapLogger, err := logging.Config(v.GetString("env"), v.GetBool("debug-logging"))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
+
+	logger := &webserverLogger{zapLogger}
 
 	ss := &webServerSuite{
 		viper:  v,
@@ -91,6 +92,10 @@ func (suite *webServerSuite) TestConfigHosts() {
 
 func (suite *webServerSuite) TestConfigPorts() {
 	suite.Nil(checkPorts(suite.viper))
+}
+
+func (suite *webServerSuite) TestConfigDPS() {
+	suite.Nil(checkDPS(suite.viper))
 }
 
 func (suite *webServerSuite) TestConfigCSRF() {

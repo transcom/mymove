@@ -62,10 +62,7 @@ function tspUserSeesEstimatedWeights() {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains('BACON4')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('BACON4');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -102,10 +99,7 @@ function tspUserEntersNetWeight() {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains('BACON4')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('BACON4');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);

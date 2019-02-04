@@ -71,79 +71,9 @@ function tspUserVisitsAnInTransitShipment(locator) {
     expect(loc.pathname).to.match(/^\/queues\/in_transit/);
   });
 
-  cy
-    .get('div')
-    .contains(locator)
-    .dblclick();
+  cy.selectQueueItemMoveLocator(locator);
 }
 
-function tspUserPacksShipment() {
-  // Click the Pack button
-  cy
-    .get('div')
-    .contains('Enter Packing')
-    .click();
-
-  // Done button should be disabled.
-  cy
-    .get('button')
-    .contains('Done')
-    .should('be.disabled');
-
-  // Pick a date!
-  cy
-    .get('div')
-    .contains('Actual Pack Date')
-    .get('input')
-    .click();
-
-  cy
-    .get('div.DayPicker-Month')
-    .contains('10')
-    .click();
-
-  // Cancel
-  cy
-    .get('button')
-    .contains('Cancel')
-    .click();
-
-  // Check that the date doesn't appear in dates panel
-  cy.get('div.actual_pack_date').contains('missing');
-
-  // Wash, Rinse, Repeat
-  // Click the Pack button
-  cy
-    .get('div')
-    .contains('Enter Packing')
-    .click();
-
-  // Done button should be disabled.
-  cy
-    .get('button')
-    .contains('Done')
-    .should('be.disabled');
-
-  // Pick a date!
-  cy
-    .get('div')
-    .contains('Actual Pack Date')
-    .get('input')
-    .click();
-
-  cy
-    .get('div.DayPicker-Day')
-    .contains('10')
-    .click();
-
-  cy
-    .get('button')
-    .contains('Done')
-    .click();
-
-  // Appears in dates panel
-  cy.get('div.actual_pack_date').contains('10');
-}
 function tspUserEntersPackAndPickUpInfo() {
   cy.patientVisit('/queues/new');
 
@@ -158,10 +88,7 @@ function tspUserEntersPackAndPickUpInfo() {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains('CONGBL')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('CONGBL');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);

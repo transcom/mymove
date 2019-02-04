@@ -22,10 +22,7 @@ function tspUserOpensAShipment(shipment) {
   });
 
   // Find a shipment and open it
-  cy
-    .get('div')
-    .contains(shipment)
-    .dblclick();
+  cy.selectQueueItemMoveLocator(shipment);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
