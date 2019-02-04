@@ -96,12 +96,6 @@ repos:
         language: script
         description: Inspects source code for security problems by scanning the Go AST.
         files: \.go$
-        # Allowing parallel execution of this hook resulted in the CircleCI
-        # container exploding. Serial execution did not appercialby increase
-        # runtime (44s to 50s, in my experiment.) -akostibas
-        # See the following run for a failure example:
-        # https://circleci.com/gh/transcom/mymove/62449
-        require_serial: true
         pass_filenames: false
 
   - repo: local
