@@ -3,6 +3,7 @@ package publicapi
 import (
 	"fmt"
 	"github.com/pkg/errors"
+	"github.com/transcom/mymove/pkg/services/paperwork/forms"
 	"net/http"
 	"time"
 
@@ -615,12 +616,12 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	}
 	formLayout := paperwork.Form1203Layout
 
-	template, err := paperworkservice.MakeFormTemplate(gbl, gbl.GBLNumber1, formLayout, paperworkservice.GBL)
+	template, err := paperworkservice.MakeFormTemplate(gbl, gbl.GBLNumber1, formLayout, forms.GBL)
 	if err != nil {
 		h.Logger().Error(errors.Cause(err).Error(), zap.Error(errors.Cause(err)))
 	}
-	gblFile, err := h.createForm.CreateForm(template)
 
+	gblFile, err := h.createForm.CreateForm(template)
 	if err != nil {
 		h.Logger().Error(errors.Cause(err).Error(), zap.Error(errors.Cause(err)))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()

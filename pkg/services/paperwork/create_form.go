@@ -33,7 +33,7 @@ type createForm struct {
 func CreateAssetByteReader(path string) (*bytes.Reader, error) {
 	asset, err := assets.Asset(path)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Error creating asset from path. Check image path.")
 	}
 
 	templateBuffer := bytes.NewReader(asset)

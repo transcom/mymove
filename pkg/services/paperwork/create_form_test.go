@@ -165,3 +165,11 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerOutputFailure() {
 	assert.Equal(suite.T(), "Failure exporting GBL form to file.: Error for FormFiller.Output()", err.Error(), "should be equal")
 	FormFiller.AssertExpectations(suite.T())
 }
+
+func (suite *CreateFormSuite) TestCreateFormServiceCreateAssetByteReaderFailure() {
+	badAssetPath := "pkg/paperwork/formtemplates/someUndefinedTemplatePath.png"
+	templateBuffer, err := CreateAssetByteReader(badAssetPath)
+	assert.Nil(suite.T(), templateBuffer)
+	assert.NotNil(suite.T(), err)
+	assert.Equal(suite.T(), "Error creating asset from path. Check image path.: Asset pkg/paperwork/formtemplates/someUndefinedTemplate.png not found", err.Error(), "should be equal")
+}
