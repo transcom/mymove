@@ -88,7 +88,7 @@ window.onload = function() {
     var protocolRegex = /(http|https):*/;
     var isNonRelativePath = protocolRegex.test(req['url']);
     if (isNonRelativePath) {
-      req['url'] = '/api/v1/swagger.yaml';
+      req['url'] = null;
     }
 
     return req;

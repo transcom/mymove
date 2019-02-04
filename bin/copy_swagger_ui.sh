@@ -6,4 +6,3 @@
 # if it ever changes.
 cp node_modules/swagger-ui-dist/{*.js,*.css,*.png} public/swagger-ui
 cp node_modules/js-cookie/src/js.cookie.js public/swagger-ui
-if [ -f "build/swagger-ui/" ]; then cp -rf public/swagger-ui/* build/swagger-ui/; fi
