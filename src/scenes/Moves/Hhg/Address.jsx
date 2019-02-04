@@ -19,7 +19,6 @@ export class ShipmentAddress extends Component {
     const hasSecondary = get(this.props, 'formValues.has_secondary_pickup_address', false);
     const hasDelivery = get(this.props, 'formValues.has_delivery_address', false);
     const addressSchema = get(this.props, 'schema.properties.pickup_address', {});
-    // const questionLink = ;
 
     return (
       <div className="form-section">
