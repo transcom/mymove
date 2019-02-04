@@ -171,5 +171,5 @@ func (suite *CreateFormSuite) TestCreateFormServiceCreateAssetByteReaderFailure(
 	templateBuffer, err := CreateAssetByteReader(badAssetPath)
 	assert.Nil(suite.T(), templateBuffer)
 	assert.NotNil(suite.T(), err)
-	assert.Equal(suite.T(), "Error creating asset from path. Check image path.: Asset pkg/paperwork/formtemplates/someUndefinedTemplate.png not found", err.Error(), "should be equal")
+	assert.Equal(suite.T(), "Error creating asset from path. Check image path.: Asset pkg/paperwork/formtemplates/someUndefinedTemplatePath.png not found", err.Error(), "should be equal")
 }
