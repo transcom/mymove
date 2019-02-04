@@ -7,6 +7,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/transcom/mymove/pkg/auth"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/transcom/mymove/pkg/models"
@@ -52,7 +54,7 @@ func main() {
 		formFiller.Debug()
 	}
 
-	page1Data, page2Data, err := models.FetchShipmentSummaryWorksheetFormValues(db, parsedID)
+	page1Data, page2Data, err := models.FetchShipmentSummaryWorksheetFormValues(db, &auth.Session{}, parsedID, time.Now())
 	noErr(err)
 
 	// page 1

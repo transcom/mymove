@@ -75,7 +75,7 @@ func (h IndexServiceAgentsHandler) Handle(params serviceagentop.IndexServiceAgen
 		return serviceagentop.NewIndexServiceAgentsForbidden()
 	}
 
-	serviceAgentPayloadList := make(apimessages.IndexServiceAgents, len(serviceAgents))
+	serviceAgentPayloadList := make(apimessages.ServiceAgents, len(serviceAgents))
 	for i, serviceAgent := range serviceAgents {
 		serviceAgentPayloadList[i] = payloadForServiceAgentModel(serviceAgent)
 	}
@@ -165,7 +165,7 @@ func (h PatchServiceAgentHandler) Handle(params serviceagentop.PatchServiceAgent
 		return serviceagentop.NewPatchServiceAgentForbidden()
 	}
 	// Update the Service Agent
-	payload := params.PatchServiceAgentPayload
+	payload := params.ServiceAgent
 	if payload.Company != nil {
 		serviceAgent.Company = *payload.Company
 	}

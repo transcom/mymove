@@ -18,8 +18,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/transcom/mymove/pkg/edi/gex"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
@@ -34,11 +32,15 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+	goji "goji.io"
 	"goji.io/pat"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
+	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
+	"github.com/transcom/mymove/pkg/edi/gex"
+	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/dpsapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
@@ -50,7 +52,6 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/storage"
-	goji "goji.io"
 )
 
 // GitCommit is empty unless set as a build flag
@@ -874,6 +875,21 @@ func main() {
 		}
 	}
 	handlerContext.SetGexSender(gexRequester)
+
+	// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
+	// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate
+	// test ICNs in Syncada.
+	var icnSequencer sequence.Sequencer
+	if isDevOrTest && len(gexURL) > 0 {
+		// ICNs are 9-digit numbers; reserve the ones in an upper range for development/testing.
+		icnSequencer, err = sequence.NewRandomSequencer(ediinvoice.ICNRandomMin, ediinvoice.ICNRandomMax)
+		if err != nil {
+			logger.Fatal("Could not create random sequencer for ICN", zap.Error(err))
+		}
+	} else {
+		icnSequencer = sequence.NewDatabaseSequencer(dbConnection, ediinvoice.ICNSequenceName)
+	}
+	handlerContext.SetICNSequencer(icnSequencer)
 
 	rbs, err := initRBSPersonLookup(v, logger)
 	if err != nil {

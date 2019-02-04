@@ -307,11 +307,16 @@ definitions:
         description: unit is millicents
       location:
         $ref: '#/definitions/ShipmentLineItemLocation'
+      description:
+        type: string
+        format: textarea
+        title: Description
+        example: Mounted deer head
       notes:
         type: string
         format: textarea
         title: Notes
-        example: Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft
+        example: Needed for gun safe moving
       status:
         $ref: '#/definitions/ShipmentLineItemStatus'
       invoice_id:
@@ -1272,7 +1277,7 @@ definitions:
     required:
     - standard_carrier_alpha_code
     - enrolled
-  IndexServiceAgents:
+  ServiceAgents:
     type: array
     items:
       $ref: '#/definitions/ServiceAgent'
@@ -2051,7 +2056,7 @@ paths:
         200:
           description: returns an array of Service Agents
           schema:
-            $ref: '#/definitions/IndexServiceAgents'
+            $ref: '#/definitions/ServiceAgents'
         400:
           description: invalid request
         401:
@@ -2114,7 +2119,7 @@ paths:
           format: uuid
           required: true
           description: UUID of the service agent
-        - name: patchServiceAgentPayload
+        - name: serviceAgent
           in: body
           required: true
           schema:
