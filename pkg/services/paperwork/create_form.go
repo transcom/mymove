@@ -51,7 +51,7 @@ func MakeFormTemplate(data interface{}, fileName string, formLayout paperworkfor
 }
 
 // NewCreateForm creates a new struct with service dependencies
-func NewCreateForm(FileStorer FileStorer, FormFiller FormFiller) services.FormCreator {
+func NewCreateForm(FileStorer Storer, FormFiller Filler) services.FormCreator {
 	return &createForm{FileStorer: FileStorer, FormFiller: FormFiller}
 }
 
