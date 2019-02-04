@@ -6,6 +6,11 @@
   padding-bottom: 6rem;
 }
 
+.delivery-location {
+  position: relative;
+  width: 900px;
+}
+
 .tool-tip {
   float: right;
   margin-top: -53px;

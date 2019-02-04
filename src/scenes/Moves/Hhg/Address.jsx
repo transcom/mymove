@@ -77,20 +77,19 @@ export class ShipmentAddress extends Component {
               </Fragment>
             )}
             <h4>Delivery Location</h4>
-            <SwaggerField
-              className="radio-title"
-              fieldName="has_delivery_address"
-              swagger={this.props.schema}
-              component={YesNoBoolean}
-            />
-            {
+            <div className="delivery-location">
+              <SwaggerField
+                className="radio-title"
+                fieldName="has_delivery_address"
+                swagger={this.props.schema}
+                component={YesNoBoolean}
+              />
               <div>
                 <a className="tool-tip" onClick={this.handleClick}>
                   What happens if I don't know before I move?
                 </a>
               </div>
-            }
-
+            </div>
             {hasDelivery && (
               <Fragment>
                 <FormSection name="delivery_address">
