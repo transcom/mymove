@@ -27,7 +27,7 @@ describe('MoveSummary', () => {
     resumeMoveFn,
     addPPMShipmentFn,
   ) => {
-    const componentWrapper = shallow(
+    return shallow(
       <MoveSummary
         entitlement={entitlementObj}
         profile={serviceMember}
@@ -40,7 +40,6 @@ describe('MoveSummary', () => {
         addPPMShipment={addPPMShipmentFn}
       />,
     );
-    return shallow(componentWrapper.props().children());
   };
 
   // PPM

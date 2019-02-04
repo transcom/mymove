@@ -20,13 +20,13 @@
   vertical-align: top;
 }
 
-.column-head{
+.column-head {
   font-weight: 700;
   margin: 1em 0.8em 0em 0;
   font-size: 1em;
 }
 
-.column-subhead{
+.column-subhead {
   display: block;
   margin: 1.3em 0.8em 0em 0em;
   font-size: 0.8em;
@@ -37,7 +37,7 @@
   font-size: 1.7rem;
   font-weight: bold;
   background-color: #f1f1f1;
-  padding: .4em 1em;
+  padding: 0.4em 1em;
   border: 3px solid #f1f1f1;
   position: relative;
 }
@@ -45,7 +45,7 @@
 .document-viewer .editable-panel-header {
   font-size: 2rem;
   font-weight: bold;
-  padding: .4em 1em;
+  padding: 0.4em 1em;
   position: relative;
 }
 
@@ -80,7 +80,7 @@
 
 .office-tab .editable-panel-edit {
   font-weight: normal;
-  font-size: .9em;
+  font-size: 0.9em;
   position: absolute;
   top: 1rem;
   right: 2rem;
@@ -88,7 +88,7 @@
 }
 
 .document-viewer .editable-panel-edit {
-  font-size: .9em;
+  font-size: 0.9em;
   position: absolute;
   top: 1rem;
   right: 2rem;
@@ -96,20 +96,20 @@
 }
 
 .office-tab .editable-panel.is-editable .editable-panel-header {
-  background: rgb(176,176,176);
-  border-color: rgb(176,176,176);
+  background: rgb(176, 176, 176);
+  border-color: rgb(176, 176, 176);
   color: white;
 }
 
 .office-tab .editable-panel.is-editable .editable-panel-content {
   border-style: dashed;
-  border-color: rgb(176,176,176);
+  border-color: rgb(176, 176, 176);
 }
 
 .panel-field {
   border-bottom: solid 1px #f1f1f1;
   font-size: 0.8em;
-  padding: .1em 0;
+  padding: 0.1em 0;
   margin-bottom: 0.3em;
   line-height: 1.3em;
 }
@@ -132,7 +132,7 @@
 }
 
 .panel-field.missing .field-value {
-  color:#FFA305;
+  color: #cd3504;
   font-style: italic;
 }
 
@@ -151,7 +151,7 @@
   font-weight: bold;
   margin: 2rem 0 1rem 0;
   font-size: 1.6rem;
-  display:inline-block;
+  display: inline-block;
 }
 
 .panel-subhead + .usa-input .usa-input-label {
@@ -167,12 +167,12 @@
 .editable-panel.is-editable .field-title {
   display: block;
   font-size: 1.4rem;
-  margin: .8rem 0;
+  margin: 0.8rem 0;
 }
 
 .editable-panel.is-editable .panel-field {
   border: 0;
-  margin: .8rem 0 .8rem;
+  margin: 0.8rem 0 0.8rem;
 }
 
 .editable-panel.is-editable .panel-subhead {

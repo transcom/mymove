@@ -2,7 +2,7 @@ import { swaggerRequest } from 'shared/Swagger/request';
 import { getPublicClient } from 'shared/Swagger/api';
 import { shipmentLineItems as ShipmentLineItemsModel } from '../schema';
 import { denormalize } from 'normalizr';
-import { get, orderBy, filter, map, keys } from 'lodash';
+import { get, orderBy, filter, map, keys, flow } from 'lodash';
 import { createSelector } from 'reselect';
 
 export function createShipmentLineItem(label, shipmentId, payload) {
@@ -30,6 +30,25 @@ export function getAllShipmentLineItems(label, shipmentId) {
   return swaggerRequest(getPublicClient, 'accessorials.getShipmentLineItems', { shipmentId }, { label });
 }
 
+// Show linehaul (and related) items before any accessorial items by adding isLinehaul property.
+function listLinehaulItemsBeforeAccessorials(items) {
+  const linehaulRelatedItems = ['LHS', '135A', '135B', '105A', '105C', '16A'];
+  return items.map(item => {
+    return {
+      ...item,
+      isLinehaul: linehaulRelatedItems.includes(item.tariff400ng_item.code) ? 1 : 10,
+    };
+  });
+}
+
+function orderItemsBy(items) {
+  const sortOrder = {
+    fields: ['isLinehaul', 'status', 'approved_date', 'submitted_date', 'tariff400ng_item.code'],
+    order: ['asc', 'asc', 'desc', 'desc', 'desc'],
+  };
+  return orderBy(items, sortOrder.fields, sortOrder.order);
+}
+
 const selectShipmentLineItems = (state, shipmentId) => {
   let filteredItems = denormalize(
     keys(get(state, 'entities.shipmentLineItems', {})),
@@ -45,8 +64,8 @@ const selectShipmentLineItems = (state, shipmentId) => {
   });
 };
 
-export const selectSortedShipmentLineItems = createSelector([selectShipmentLineItems], shipmentLineItems =>
-  orderBy(shipmentLineItems, ['status', 'approved_date', 'submitted_date'], ['asc', 'desc', 'desc']),
+export const selectSortedShipmentLineItems = createSelector([selectShipmentLineItems], items =>
+  flow([listLinehaulItemsBeforeAccessorials, orderItemsBy])(items),
 );
 
 export const selectSortedPreApprovalShipmentLineItems = createSelector(
@@ -84,11 +103,11 @@ const selectUnbilledShipmentLineItemsByShipmentId = (state, shipmentId) => {
 };
 
 export const selectUnbilledShipmentLineItems = createSelector([selectUnbilledShipmentLineItemsByShipmentId], items =>
-  orderBy(items, ['status', 'approved_date', 'submitted_date'], ['asc', 'desc', 'desc']),
+  flow([listLinehaulItemsBeforeAccessorials, orderItemsBy])(items),
 );
 
 export const selectInvoiceShipmentLineItems = createSelector([selectInvoicesShipmentLineItemsByInvoiceId], items =>
-  orderBy(items, ['status', 'approved_date', 'submitted_date'], ['asc', 'desc', 'desc']),
+  flow([listLinehaulItemsBeforeAccessorials, orderItemsBy])(items),
 );
 
 export const selectTotalFromUnbilledLineItems = createSelector([selectUnbilledShipmentLineItemsByShipmentId], items => {

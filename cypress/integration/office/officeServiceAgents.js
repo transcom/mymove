@@ -48,10 +48,7 @@ function officeUserOpensHhgPanelForMove(moveLocator) {
   });
 
   // Find move and open it
-  cy
-    .get('div')
-    .contains(moveLocator)
-    .dblclick();
+  cy.selectQueueItemMoveLocator(moveLocator);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);

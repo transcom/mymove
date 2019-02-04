@@ -86,16 +86,11 @@ describe('HomePage tests', () => {
           />,
           div,
         );
-        const moveSummary = shallow(
+
+        expect(
           wrapper
             .find(MoveSummary)
             .dive()
-            .props()
-            .children(),
-        );
-
-        expect(
-          moveSummary
             .find('.status-component')
             .dive()
             .find('.step')
@@ -133,15 +128,10 @@ describe('HomePage tests', () => {
           />,
           div,
         );
-        const moveSummary = shallow(
+        expect(
           wrapper
             .find(MoveSummary)
             .dive()
-            .props()
-            .children(),
-        );
-        expect(
-          moveSummary
             .find('.status-component')
             .dive()
             .find('.step')

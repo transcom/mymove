@@ -71,10 +71,7 @@ function tspUserVisitsAnInTransitShipment(locator) {
     expect(loc.pathname).to.match(/^\/queues\/in_transit/);
   });
 
-  cy
-    .get('div')
-    .contains(locator)
-    .dblclick();
+  cy.selectQueueItemMoveLocator(locator);
 }
 
 function tspUserEntersPackAndPickUpInfo() {
@@ -91,10 +88,7 @@ function tspUserEntersPackAndPickUpInfo() {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains('CONGBL')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('CONGBL');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);

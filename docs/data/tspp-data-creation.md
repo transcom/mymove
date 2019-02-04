@@ -314,7 +314,7 @@ FROM traffic_distribution_lists AS tdl
 LEFT JOIN transportation_service_provider_performances on tdl.id = transportation_service_provider_performances.traffic_distribution_list_id
 LEFT JOIN transportation_service_providers on transportation_service_provider_performances.transportation_service_provider_id = transportation_service_providers.id
 WHERE performance_period_start='2019-01-01' and performance_period_end='2019-05-14'
-  AND standard_carrier_alpha_code='ABCD'
+  AND standard_carrier_alpha_code='ABBV'
   AND destination_region='14' AND source_rate_area='US11'
   AND code_of_service='D';
 

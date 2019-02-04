@@ -96,6 +96,7 @@ repos:
         language: script
         description: Inspects source code for security problems by scanning the Go AST.
         files: \.go$
+        pass_filenames: false
 
   - repo: local
     hooks:
@@ -117,6 +118,8 @@ repos:
         name: regenerate docs index
         entry: bin/gen-docs-index
         language: script
+        files: \.md$
+        pass_filenames: false
 
   - repo: local
     hooks:

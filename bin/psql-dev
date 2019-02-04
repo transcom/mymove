@@ -1,5 +1,5 @@
 #!/bin/bash
 
 export DB_NAME=dev_db
-# shellcheck source=bin/psql
+# shellcheck disable=SC1091,SC1090
 . "$(dirname "$0")"/psql
