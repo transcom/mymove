@@ -24,3 +24,8 @@
 .storage-in-transit-warehouse-id {
   width: calc(60% + 1.9rem);
 }
+
+.storage-in-transit-request-form-send-request-button {
+  float: right;
+  margin-top: 10px !important;
+}
