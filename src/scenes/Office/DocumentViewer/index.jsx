@@ -9,14 +9,13 @@ import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpen
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import { PanelField } from 'shared/EditablePanel';
-import { loadMoveDependencies } from '../ducks.js';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import { Switch, Redirect, Link } from 'react-router-dom';
 
 import DocumentUploadViewer from 'shared/DocumentViewer/DocumentUploadViewer';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
-import DocumentDetailPanel from './DocumentDetailPanel';
+import { selectPPM } from 'shared/Entities/modules/ppms';
 
 import DocumentUploader from 'shared/DocumentViewer/DocumentUploader';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
@@ -25,6 +24,9 @@ import { convertDollarsToCents } from 'shared/utils';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
+
+import { loadMoveDependencies } from '../ducks.js';
+import DocumentDetailPanel from './DocumentDetailPanel';
 
 import './index.css';
 class DocumentViewer extends Component {
@@ -200,7 +202,7 @@ class DocumentViewer extends Component {
 const mapStateToProps = state => ({
   genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
   moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
-  currentPpm: get(state.office, 'officePPMs.0') || get(state, 'ppm.currentPpm'),
+  currentPpm: selectPPM(state) || get(state, 'ppm.currentPpm'),
   docTypes: get(state, 'swaggerInternal.spec.definitions.MoveDocumentType.enum', []),
   orders: state.office.officeOrders || {},
   move: get(state, 'office.officeMove', {}),

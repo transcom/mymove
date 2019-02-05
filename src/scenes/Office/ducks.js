@@ -12,7 +12,6 @@ import {
   SendHHGInvoice,
 } from './api.js';
 
-import { UpdatePpm } from 'scenes/Moves/Ppm/api.js';
 import { UpdateOrders } from 'scenes/Orders/api.js';
 import { getEntitlements } from 'shared/entitlements.js';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
@@ -28,7 +27,6 @@ const loadServiceMemberType = 'LOAD_SERVICE_MEMBER';
 const updateServiceMemberType = 'UPDATE_SERVICE_MEMBER';
 const loadBackupContactType = 'LOAD_BACKUP_CONTACT';
 const updateBackupContactType = 'UPDATE_BACKUP_CONTACT';
-const updatePPMType = 'UPDATE_PPM';
 const sendHHGInvoiceType = 'SEND_HHG_INVOICE';
 const approveReimbursementType = 'APPROVE_REIMBURSEMENT';
 const downloadPPMAttachmentsType = 'DOWNLOAD_ATTACHMENTS';
@@ -73,8 +71,6 @@ const LOAD_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(loadBackupCont
 
 const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(updateBackupContactType);
 
-const UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes(updatePPMType);
-
 const SEND_HHG_INVOICE = ReduxHelpers.generateAsyncActionTypes(sendHHGInvoiceType);
 
 export const APPROVE_REIMBURSEMENT = ReduxHelpers.generateAsyncActionTypes(approveReimbursementType);
@@ -112,8 +108,6 @@ export const updateBackupContact = ReduxHelpers.generateAsyncActionCreator(
   updateBackupContactType,
   UpdateBackupContact,
 );
-
-export const updatePPM = ReduxHelpers.generateAsyncActionCreator(updatePPMType, UpdatePpm);
 
 export const sendHHGInvoice = ReduxHelpers.generateAsyncActionCreator(sendHHGInvoiceType, SendHHGInvoice);
 
@@ -454,27 +448,6 @@ export function officeReducer(state = initialState, action) {
         backupContactIsUpdating: false,
         backupContactHasUpdateSuccess: false,
         backupContactHasUpdateFailure: true,
-        error: action.error.message,
-      });
-
-    case UPDATE_PPM.start:
-      return Object.assign({}, state, {
-        PPMIsUpdating: true,
-        PPMHasUpdateSuccess: false,
-      });
-    case UPDATE_PPM.success:
-      return Object.assign({}, state, {
-        PPMIsUpdating: false,
-        officePPMs: [action.payload],
-        PPMHasUpdateSuccess: true,
-        PPMHasUpdateError: false,
-      });
-    case UPDATE_PPM.failure:
-      return Object.assign({}, state, {
-        PPMIsUpdating: false,
-        officePPMs: null,
-        PPMHasUpdateSuccess: false,
-        PPMHasUpdateError: true,
         error: action.error.message,
       });
 

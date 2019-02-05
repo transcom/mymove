@@ -247,7 +247,7 @@ const mapStateToProps = state => {
     ppm,
     ppmStatus: ppm.status,
     move: get(state, 'office.officeMove', {}),
-    advance: get(state, 'office.officePPMs[0].advance', {}),
+    advance: ppm.advance,
     hasError: false,
     errorMessage: state.office.error,
     attachmentsError: get(state, 'office.downloadAttachmentsHasError'),

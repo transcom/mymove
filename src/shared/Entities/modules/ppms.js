@@ -21,3 +21,22 @@ export function selectPPM(state) {
   const ppmId = Object.keys(get(state, 'entities.personallyProcuredMove', {}))[0];
   return get(state, `entities.personallyProcuredMove.${ppmId}`, {});
 }
+
+export function updatePPM(
+  moveId,
+  personallyProcuredMoveId,
+  payload /*shape: {size, weightEstimate, estimatedIncentive}*/,
+) {
+  const label = 'office.updatePPM';
+  const swaggerTag = 'ppm.patchPersonallyProcuredMove';
+  return swaggerRequest(
+    getClient,
+    swaggerTag,
+    {
+      moveId,
+      personallyProcuredMoveId: personallyProcuredMoveId,
+      patchPersonallyProcuredMovePayload: payload,
+    },
+    { label },
+  );
+}
