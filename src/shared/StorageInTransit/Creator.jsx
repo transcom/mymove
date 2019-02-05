@@ -22,6 +22,7 @@ export class Creator extends Component {
     if (this.state.showForm)
       return (
         <div className="storage-in-transit-panel-modal">
+          <div className="title">Request SIT</div>
           <StorageInTransitForm />
           <div className="usa-grid-full">
             <div className="usa-width-one-half">

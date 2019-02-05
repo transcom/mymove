@@ -17,7 +17,6 @@ export class StorageInTransitForm extends Component {
     return (
       <form onSubmit={this.handleSubmit} className="storage-in-transit-request-form">
         <fieldset key="sit-request-information">
-          <h3>Request SIT</h3>
           <div className="editable-panel-column">
             <SwaggerField
               fieldName="location"
