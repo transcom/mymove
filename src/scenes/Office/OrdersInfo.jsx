@@ -9,6 +9,7 @@ import Alert from 'shared/Alert';
 import DocumentContent from 'shared/DocumentViewer/DocumentContent';
 import OrdersViewerPanel from './OrdersViewerPanel';
 import { loadMoveDependencies } from './ducks.js';
+import { selectServiceMemberForMove } from 'shared/Entities/modules/orders';
 import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMembers';
 import { stringifyName } from 'shared/utils/serviceMember';
 
@@ -66,8 +67,8 @@ OrdersInfo.propTypes = {
   loadMoveDependencies: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = state => {
-  const orders = state.office.officeOrders || {};
+const mapStateToProps = (state, ownProps) => {
+  const orders = selectServiceMemberForMove(state, ownProps.moveId);
   const serviceMember = selectServiceMemberForOrders(state, orders.id);
 
   return {

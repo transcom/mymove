@@ -72,7 +72,7 @@ import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLin
 const BasicsTabContent = props => {
   return (
     <div className="office-tab">
-      <OrdersPanel title="Orders" />
+      <OrdersPanel title="Orders" moveId={props.moveId} />
       <CustomerInfoPanel title="Customer Info" serviceMember={props.serviceMember} />
       <BackupInfoPanel title="Backup Info" serviceMember={props.serviceMember} />
       <AccountingPanel title="Accounting" serviceMember={props.serviceMember} />
@@ -326,7 +326,7 @@ class MoveInfo extends Component {
                   render={() => <Redirect replace to={`${this.props.match.url}/basics`} />}
                 />
                 <PrivateRoute path={`${this.props.match.path}/basics`}>
-                  <BasicsTabContent serviceMember={this.props.serviceMember} />
+                  <BasicsTabContent moveId={this.props.moveId} serviceMember={this.props.serviceMember} />
                 </PrivateRoute>
                 <PrivateRoute path={`${this.props.match.path}/ppm`}>
                   <PPMTabContent moveId={this.props.moveId} />

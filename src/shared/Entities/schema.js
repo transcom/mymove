@@ -39,6 +39,9 @@ personallyProcuredMove.define({
 
 // Orders
 export const orders = new schema.Entity('orders');
+orders.define({
+  moves: moves,
+});
 
 // ServiceMemberBackupContacts
 export const backupContact = new schema.Entity('backupContacts');

@@ -3,6 +3,7 @@ import { ADD_ENTITIES } from '../actions';
 import { denormalize } from 'normalizr';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
+import { get } from 'lodash';
 
 export const STATE_KEY = 'orders';
 const loadOrdersLabel = 'Orders.loadOrders';
@@ -29,3 +30,12 @@ export function loadOrders(ordersId) {
 export const selectUpload = (state, id) => {
   return denormalize([id], orders, state.entities)[0];
 };
+
+export function selectServiceMemberForMove(state, moveId) {
+  const ordersId = get(state, `entities.moves.${moveId}.orders_id`);
+  if (ordersId) {
+    return get(state, `entities.orders.${ordersId}`);
+  } else {
+    return {};
+  }
+}
