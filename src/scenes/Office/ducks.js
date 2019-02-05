@@ -1,5 +1,5 @@
 import { isNull, get } from 'lodash';
-import { LoadMove, LoadOrders, DownloadPPMAttachments, PatchShipment, SendHHGInvoice } from './api.js';
+import { LoadMove, DownloadPPMAttachments, PatchShipment, SendHHGInvoice } from './api.js';
 
 import { UpdateOrders } from 'scenes/Orders/api.js';
 import { getEntitlements } from 'shared/entitlements.js';
@@ -11,11 +11,11 @@ import {
   loadBackupContacts,
   updateBackupContact,
 } from 'shared/Entities/modules/serviceMembers';
+import { loadOrders } from 'shared/Entities/modules/orders';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // SINGLE RESOURCE ACTION TYPES
 const loadMoveType = 'LOAD_MOVE';
-const loadOrdersType = 'LOAD_ORDERS';
 const updateOrdersType = 'UPDATE_ORDERS';
 const patchShipmentType = 'PATCH_SHIPMENT';
 const sendHHGInvoiceType = 'SEND_HHG_INVOICE';
@@ -47,8 +47,6 @@ export const resetInvoiceFlow = () => ({
 
 const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
 
-const LOAD_ORDERS = ReduxHelpers.generateAsyncActionTypes(loadOrdersType);
-
 const UPDATE_ORDERS = ReduxHelpers.generateAsyncActionTypes(updateOrdersType);
 
 const PATCH_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(patchShipmentType);
@@ -68,8 +66,6 @@ const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(loadDependencies
 // SINGLE-RESOURCE ACTION CREATORS
 
 export const loadMove = ReduxHelpers.generateAsyncActionCreator(loadMoveType, LoadMove);
-
-export const loadOrders = ReduxHelpers.generateAsyncActionCreator(loadOrdersType, LoadOrders);
 
 export const updateOrders = ReduxHelpers.generateAsyncActionCreator(updateOrdersType, UpdateOrders);
 
@@ -143,9 +139,9 @@ export function loadMoveDependencies(moveId) {
     try {
       await dispatch(loadMove(moveId));
       const move = getState().office.officeMove;
-      await dispatch(loadOrders(move.orders_id));
-      const orders = getState().office.officeOrders;
-      const serviceMemberId = orders.service_member_id;
+      const ordersId = move.orders_id;
+      await dispatch(loadOrders(ordersId));
+      const serviceMemberId = get(getState(), `entities.orders.${ordersId}.service_member_id`);
       await dispatch(loadServiceMember(serviceMemberId));
       await dispatch(loadBackupContacts(serviceMemberId));
       // TODO: load PPMs in parallel to move using moveId
@@ -171,15 +167,12 @@ export function loadEntitlements(state) {
 // Reducer
 const initialState = {
   moveIsLoading: false,
-  ordersAreLoading: false,
   ordersAreUpdating: false,
   ppmsAreLoading: false,
   ppmIsUpdating: false,
   moveHasLoadError: null,
   moveHasLoadSuccess: false,
   officeMove: {},
-  ordersHaveLoadError: null,
-  ordersHaveLoadSuccess: false,
   ordersHaveUploadError: null,
   ordersHaveUploadSuccess: false,
   downloadAttachmentsHasError: null,
@@ -225,26 +218,6 @@ export function officeReducer(state = initialState, action) {
       });
 
     // ORDERS
-    case LOAD_ORDERS.start:
-      return Object.assign({}, state, {
-        ordersAreLoading: true,
-        ordersHaveLoadSuccess: false,
-      });
-    case LOAD_ORDERS.success:
-      return Object.assign({}, state, {
-        ordersAreLoading: false,
-        officeOrders: action.payload,
-        ordersHaveLoadSuccess: true,
-        ordersHaveLoadError: false,
-      });
-    case LOAD_ORDERS.failure:
-      return Object.assign({}, state, {
-        ordersAreLoading: false,
-        officeOrders: null,
-        ordersHaveLoadSuccess: false,
-        ordersHaveLoadError: true,
-        error: action.error.message,
-      });
     case UPDATE_ORDERS.start:
       return Object.assign({}, state, {
         ordersAreUpdating: true,

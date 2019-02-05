@@ -38,11 +38,7 @@ personallyProcuredMove.define({
 });
 
 // Orders
-export const order = new schema.Entity('orders', {
-  moves: moves,
-});
-
-export const orders = new schema.Array(order);
+export const orders = new schema.Entity('orders');
 
 // ServiceMemberBackupContacts
 export const backupContact = new schema.Entity('backupContacts');
@@ -57,7 +53,7 @@ export const serviceMemberBackupContact = backupContact;
 export const serviceMember = new schema.Entity('serviceMembers', {
   backup_contacts: backupContacts,
   user: user,
-  orders: orders,
+  // orders: new schema.Array(order),
 });
 
 // Documents
@@ -65,7 +61,7 @@ export const documentModel = new schema.Entity('documents', {
   uploads: uploads,
   service_member: serviceMember,
 });
-order.define({
+orders.define({
   uploaded_orders: documentModel,
 });
 
