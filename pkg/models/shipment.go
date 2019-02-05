@@ -361,14 +361,12 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	//We can do validation for specific item codes here
 	// Example: 105B/E
 	shipmentLineItem := ShipmentLineItem{}
-	// item code for tariff400ngItemCode
 	itemCode := baseParams.Tariff400ngItemCode
 
 	err := db.Transaction(func(connection *pop.Connection) error {
 		// Backwards compatible with "Old school" 105B/E
 		if (itemCode == "105B" || itemCode == "105E") && baseParams.Quantity1 == nil {
 			//Additional validation check if item and crate dimensions exist
-			// for 105B/E
 			if additionalParams.ItemDimensions == nil || additionalParams.CrateDimensions == nil {
 				return errors.New("Must have both item and crate dimensions params for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
 			}
