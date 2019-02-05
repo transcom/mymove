@@ -71,8 +71,7 @@ func payloadForDimensionsModel(a *models.ShipmentLineItemDimensions) *apimessage
 	if a == nil {
 		return nil
 	}
-	if a.ID == (uuid.UUID{}) {
-		//zero value
+	if a.ID == uuid.Nil {
 		return nil
 	}
 
