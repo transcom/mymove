@@ -341,20 +341,10 @@ definitions:
         format: textarea
         title: Description
         example: Mounted deer head
-      item_dimensions_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
       crate_dimensions:
         $ref: '#/definitions/Dimensions'
       item_dimensions:
         $ref: '#/definitions/Dimensions'
-      crate_dimensions_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
       notes:
         type: string
         format: textarea
