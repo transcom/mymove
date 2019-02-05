@@ -166,13 +166,13 @@ func (suite *InvoiceServiceSuite) helperShipment() models.Shipment {
 		}
 
 		// default location created in testdatagen shipmentLineItem is DESTINATION
-		if code == "135A" || code == "105A" {
+		if code == "135A" || code == "105A" || code == "LHS" {
 			location = models.ShipmentLineItemLocationORIGIN
 		}
 		if code == "135B" {
 			location = models.ShipmentLineItemLocationDESTINATION
 		}
-		if code == "LHS" || code == "46A" {
+		if code == "46A" {
 			location = models.ShipmentLineItemLocationNEITHER
 		}
 
