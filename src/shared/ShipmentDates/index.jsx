@@ -9,8 +9,10 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { formatDate } from 'shared/formatters';
 
 import './index.css';
+import Alert from 'shared/Alert';
+import { getRequestStatus } from 'shared/Swagger/selectors';
 
-const datesUpdateLabel = 'shipment.updateShipment.premoveSurvey';
+const datesUpdateShipmentLabel = 'shipment.updateShipment.dates';
 
 const datesFields = [
   'pm_survey_conducted_date',
@@ -75,6 +77,11 @@ const DatesEdit = props => {
   const rdd = props.shipment.pm_survey_planned_delivery_date || props.shipment.original_delivery_date;
   return (
     <Fragment>
+      {props.hasError && (
+        <Alert type="error" heading="An error occurred">
+          <em>{props.errorMessage}</em>.
+        </Alert>
+      )}
       <FormSection name="dates">
         <div className="editable-panel-column">
           <div className="column-head">Pre-move Survey</div>
@@ -119,6 +126,15 @@ DatesPanel.propTypes = {
 function mapStateToProps(state, props) {
   const formValues = getFormValues(formName)(state);
 
+  const updateShipmentStatus = getRequestStatus(state, datesUpdateShipmentLabel);
+  let hasError = false;
+  let errorMessage = '';
+
+  if (updateShipmentStatus.isLoading === false && updateShipmentStatus.isSuccess === false) {
+    hasError = true;
+    errorMessage = Object.values(get(updateShipmentStatus, 'error.response.response.body.errors', {})).join('\n');
+  }
+
   return {
     // reduxForm
     formValues,
@@ -128,13 +144,13 @@ function mapStateToProps(state, props) {
 
     shipmentSchema: get(state, 'swaggerPublic.spec.definitions.Shipment', {}),
 
-    hasError: !!props.error,
-    errorMessage: props.error,
+    hasError,
+    errorMessage,
     isUpdating: false,
 
     // editablePanelify
     getUpdateArgs: function() {
-      return [get(props, 'shipment.id'), formValues.dates, datesUpdateLabel];
+      return [get(props, 'shipment.id'), formValues.dates, datesUpdateShipmentLabel];
     },
   };
 }
