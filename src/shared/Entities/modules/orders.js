@@ -31,11 +31,25 @@ export const selectUpload = (state, id) => {
   return denormalize([id], orders, state.entities)[0];
 };
 
-export function selectServiceMemberForMove(state, moveId) {
+export function selectOrders(state, ordersId) {
+  return get(state, `entities.orders.${ordersId}`) || {};
+}
+
+export function selectOrdersForMove(state, moveId) {
   const ordersId = get(state, `entities.moves.${moveId}.orders_id`);
   if (ordersId) {
-    return get(state, `entities.orders.${ordersId}`);
+    return selectOrders(state, ordersId);
   } else {
     return {};
+  }
+}
+
+export function selectUplodsForOrders(state, ordersId) {
+  const orders = selectOrders(state, ordersId);
+  const uploadedOrders = get(state, `entities.documents.${orders.uploaded_orders}`);
+  if (uploadedOrders) {
+    return uploadedOrders.uploads.map(uploadId => get(state, `entities.uploads.${uploadId}`));
+  } else {
+    return [];
   }
 }

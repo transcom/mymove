@@ -5,7 +5,7 @@ import { get } from 'lodash';
 import { reduxForm, getFormValues, FormSection, Field } from 'redux-form';
 
 import { updateOrdersInfo } from './ducks.js';
-import { selectServiceMemberForMove } from 'shared/Entities/modules/orders';
+import { selectOrdersForMove } from 'shared/Entities/modules/orders';
 import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMembers';
 import { formatDate, formatDateTime } from 'shared/formatters';
 import { PanelSwaggerField, PanelField, editablePanelify } from 'shared/EditablePanel';
@@ -118,7 +118,7 @@ let OrdersViewerPanel = editablePanelify(OrdersViewerDisplay, OrdersViewerEdit);
 OrdersViewerPanel = reduxForm({ form: formName })(OrdersViewerPanel);
 
 function mapStateToProps(state, ownProps) {
-  const orders = selectServiceMemberForMove(state, ownProps.moveId);
+  const orders = selectOrdersForMove(state, ownProps.moveId);
   const serviceMember = selectServiceMemberForOrders(state, orders.id);
 
   return {

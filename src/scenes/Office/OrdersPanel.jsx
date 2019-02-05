@@ -6,7 +6,7 @@ import { reduxForm, Field, FormSection, getFormValues } from 'redux-form';
 import { Link } from 'react-router-dom';
 
 import { loadEntitlements, updateOrdersInfo } from './ducks';
-import { selectServiceMemberForMove } from 'shared/Entities/modules/orders';
+import { selectOrdersForMove } from 'shared/Entities/modules/orders';
 import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMembers';
 import { formatDate } from 'shared/formatters';
 
@@ -132,7 +132,7 @@ OrdersPanel = reduxForm({
 
 function mapStateToProps(state, ownProps) {
   let formValues = getFormValues(formName)(state);
-  const orders = selectServiceMemberForMove(state, ownProps.moveId);
+  const orders = selectOrdersForMove(state, ownProps.moveId);
   const serviceMember = selectServiceMemberForOrders(state, orders.id);
 
   return {
