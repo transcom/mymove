@@ -11,4 +11,4 @@ add_foreign_key("shipment_line_items", "item_dimensions_id", {"shipment_line_ite
 add_column("shipment_line_items", "crate_dimensions_id", "uuid", {"null": true})
 add_foreign_key("shipment_line_items", "crate_dimensions_id", {"shipment_line_item_dimensions": ["id"]}, {"name": "shipment_line_item_dimensions_crate_fk"})
 
-add_column("shipment_line_items", "description", "text", {"default": ""})
+add_column("shipment_line_items", "description", "text", {"null": true})
