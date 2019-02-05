@@ -233,7 +233,7 @@ func (suite *ModelSuite) TestCreateShipmentLineItem() {
 		acc.ID,
 		&q1,
 		nil,
-		"O",
+		"ORIGIN",
 		&notes)
 
 	if suite.noValidationErrors(verrs, err) {
