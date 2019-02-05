@@ -10,6 +10,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import { PanelField } from 'shared/EditablePanel';
 import { loadMoveDependencies } from '../ducks.js';
+import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMembers';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import { Switch, Redirect, Link } from 'react-router-dom';
@@ -197,19 +198,24 @@ class DocumentViewer extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
-  moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
-  currentPpm: get(state.office, 'officePPMs.0') || get(state, 'ppm.currentPpm'),
-  docTypes: get(state, 'swaggerInternal.spec.definitions.MoveDocumentType.enum', []),
-  orders: state.office.officeOrders || {},
-  move: get(state, 'office.officeMove', {}),
-  moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
-  serviceMember: state.office.officeServiceMember || {},
-  loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
-  loadDependenciesHasError: state.office.loadDependenciesHasError,
-  error: state.office.error,
-});
+const mapStateToProps = state => {
+  const move = get(state, 'office.officeMove') || {};
+  const serviceMember = selectServiceMemberForOrders(state, move.orders_id);
+
+  return {
+    genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
+    moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
+    currentPpm: get(state.office, 'officePPMs.0') || get(state, 'ppm.currentPpm'),
+    docTypes: get(state, 'swaggerInternal.spec.definitions.MoveDocumentType.enum', []),
+    orders: state.office.officeOrders || {},
+    move,
+    moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
+    serviceMember,
+    loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
+    loadDependenciesHasError: state.office.loadDependenciesHasError,
+    error: state.office.error,
+  };
+};
 
 const mapDispatchToProps = {
   createMoveDocument,

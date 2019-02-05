@@ -5,6 +5,7 @@ import { get } from 'lodash';
 import { reduxForm, getFormValues, FormSection, Field } from 'redux-form';
 
 import { updateOrdersInfo } from './ducks.js';
+import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMembers';
 import { formatDate, formatDateTime } from 'shared/formatters';
 import { PanelSwaggerField, PanelField, editablePanelify } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -116,11 +117,14 @@ let OrdersViewerPanel = editablePanelify(OrdersViewerDisplay, OrdersViewerEdit);
 OrdersViewerPanel = reduxForm({ form: formName })(OrdersViewerPanel);
 
 function mapStateToProps(state) {
+  const orders = get(state, 'office.officeOrders', {});
+  const serviceMember = selectServiceMemberForOrders(state, orders.id);
+
   return {
     // reduxForm
     initialValues: {
-      orders: get(state, 'office.officeOrders', {}),
-      serviceMember: get(state, 'office.officeServiceMember', {}),
+      orders,
+      serviceMember,
     },
 
     ordersSchema: get(state, 'swaggerInternal.spec.definitions.Orders', {}),
@@ -129,19 +133,14 @@ function mapStateToProps(state) {
     errorMessage: state.office.error,
     isUpdating: false,
 
-    orders: get(state, 'office.officeOrders', {}),
-    serviceMember: get(state, 'office.officeServiceMember', {}),
+    orders,
+    serviceMember,
     move: get(state, 'office.officeMove', {}),
 
     // editablePanelify
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
-      return [
-        get(state, 'office.officeOrders.id'),
-        values.orders,
-        get(state, 'office.officeServiceMember.id'),
-        values.serviceMember,
-      ];
+      return [orders.id, values.orders, serviceMember.id, values.serviceMember];
     },
   };
 }
