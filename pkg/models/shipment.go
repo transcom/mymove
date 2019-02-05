@@ -401,8 +401,7 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 			/*
 				1. Calculate base quantity for line item. Specifically calculating the cu. ft. from the dimensions crate?
 			*/
-			var q1 unit.BaseQuantity
-			baseParams.Quantity1 = &q1
+			baseParams.Quantity1 = nil
 		} else if baseParams.Quantity1 == nil {
 			// General pre-approval request
 			// Check if base quantity is filled out
