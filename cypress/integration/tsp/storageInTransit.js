@@ -9,16 +9,16 @@ describe('TSP user interacts with storage in transit panel', function() {
 });
 
 function tspUserCreatesSitRequest() {
+  // Open accepted shipments queue
+  cy.patientVisit('/queues/accepted');
+
   // Open new shipments queue
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new/);
+    expect(loc.pathname).to.match(/^\/queues\/accepted/);
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains('DATESP') // TODO: Need our own shipment to work with?
-    .dblclick();
+  cy.selectQueueItemMoveLocator('SITPAN');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
