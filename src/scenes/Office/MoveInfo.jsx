@@ -104,12 +104,7 @@ const HHGTabContent = props => {
       <Dates title="Dates" shipment={shipment} update={updatePublicShipment} />
       <LocationsContainer update={updatePublicShipment} shipmentId={shipment.id} />
       <Weights title="Weights & Items" shipment={shipment} update={updatePublicShipment} />
-      <PremoveSurvey
-        title="Premove Survey"
-        shipment={shipment}
-        update={updatePublicShipment}
-        error={props.surveyError}
-      />
+      <PremoveSurvey title="Premove Survey" shipment={shipment} update={updatePublicShipment} />
       <ServiceAgentsContainer
         title="TSP & Servicing Agents"
         shipment={shipment}
@@ -332,7 +327,6 @@ class MoveInfo extends Component {
                       shipment={this.props.shipment}
                       shipmentStatus={this.props.shipmentStatus}
                       serviceAgents={this.props.serviceAgents}
-                      surveyError={this.props.shipmentPatchError && this.props.errorMessage}
                       canApprovePaymentInvoice={hhgDelivered}
                       officeMove={this.props.officeMove}
                       allowHhgInvoicePayment={allowHhgInvoicePayment}
@@ -485,7 +479,6 @@ const mapStateToProps = (state, ownProps) => {
     shipment: selectShipment(state, shipmentId),
     shipmentId,
     shipmentLineItems: selectSortedShipmentLineItems(state),
-    shipmentPatchError: get(state, 'office.shipmentPatchError'),
     shipmentStatus: selectShipmentStatus(state, shipmentId),
     swaggerError: get(state, 'swagger.hasErrored'),
     tariff400ngItems: selectTariff400ngItems(state),

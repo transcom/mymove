@@ -12,6 +12,7 @@ import { PanelSwaggerField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import './office.css';
+import { getRequestStatus } from 'shared/Swagger/selectors';
 
 const surveyFields = [
   'pm_survey_conducted_date',
@@ -24,6 +25,8 @@ const surveyFields = [
   'pm_survey_notes',
   'pm_survey_method',
 ];
+
+const premoveSurveyUpdateShipmentLabel = 'shipment.updateShipment.premoveSurvey';
 
 // TODO: Refactor when we switch to using a wizard
 // Editable panel specific to Enter pre-move survey. Due to not using a wizard to enter the pre-move survey this
@@ -120,7 +123,7 @@ export function PreMoveSurveyEditablePanelify(DisplayComponent, EditComponent, e
         <React.Fragment>
           {this.props.hasError && (
             <Alert type="error" heading="An error occurred">
-              There was an error: <em>{this.props.errorMessage}</em>.
+              <em>{this.props.errorMessage}</em>.
             </Alert>
           )}
           <PreMoveSurveyEditablePanel
@@ -258,6 +261,15 @@ PremoveSurveyPanel.propTypes = {
 function mapStateToProps(state, props) {
   let formValues = getFormValues(formName)(state);
 
+  const updateShipmentStatus = getRequestStatus(state, premoveSurveyUpdateShipmentLabel);
+  let hasError = false;
+  let errorMessage = '';
+
+  if (updateShipmentStatus.isLoading === false && updateShipmentStatus.isSuccess === false) {
+    hasError = true;
+    errorMessage = Object.values(get(updateShipmentStatus, 'error.response.response.body.errors', {})).join('\n');
+  }
+
   return {
     // reduxForm
     formValues: formValues,
@@ -267,13 +279,13 @@ function mapStateToProps(state, props) {
 
     shipmentSchema: get(state, 'swaggerPublic.spec.definitions.Shipment', {}),
 
-    hasError: !!props.error,
-    errorMessage: props.error,
+    hasError,
+    errorMessage,
     isUpdating: false,
 
     // editablePanelify
     getUpdateArgs: function() {
-      return [get(props, 'shipment.id'), formValues.survey];
+      return [get(props, 'shipment.id'), formValues.survey, premoveSurveyUpdateShipmentLabel];
     },
   };
 }

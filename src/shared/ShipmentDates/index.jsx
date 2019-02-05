@@ -10,6 +10,8 @@ import { formatDate } from 'shared/formatters';
 
 import './index.css';
 
+const datesUpdateLabel = 'shipment.updateShipment.premoveSurvey';
+
 const datesFields = [
   'pm_survey_conducted_date',
   'pm_survey_planned_pack_date',
@@ -132,7 +134,7 @@ function mapStateToProps(state, props) {
 
     // editablePanelify
     getUpdateArgs: function() {
-      return [get(props, 'shipment.id'), formValues.dates];
+      return [get(props, 'shipment.id'), formValues.dates, datesUpdateLabel];
     },
   };
 }
