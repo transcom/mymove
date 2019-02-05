@@ -8,9 +8,14 @@ import { AddressElementDisplay, AddressElementEdit } from 'shared/Address';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 
-import { updateServiceMember } from './ducks';
+import {
+  updateServiceMember,
+  loadServiceMemberLabel,
+  updateServiceMemberLabel,
+} from 'shared/Entities/modules/serviceMembers';
 import { PanelSwaggerField, PanelField, SwaggerValue, editablePanelify } from 'shared/EditablePanel';
 import { stringifyName } from 'shared/utils/serviceMember';
+import { getRequestStatus } from 'shared/Swagger/selectors';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -130,8 +135,23 @@ CustomerInfoPanel = reduxForm({
   keepDirtyOnReinitialize: true,
 })(CustomerInfoPanel);
 
-function mapStateToProps(state) {
-  let customerInfo = get(state, 'office.officeServiceMember', {});
+function mapStateToProps(state, ownProps) {
+  let customerInfo = ownProps.serviceMember;
+  const loadServiceMemberStatus = getRequestStatus(state, loadServiceMemberLabel);
+  const updateServiceMemberStatus = getRequestStatus(state, updateServiceMemberLabel);
+  let hasError = false;
+  let errorMessage = '';
+
+  if (loadServiceMemberStatus.isSuccess === false) {
+    hasError = true;
+    errorMessage = get(loadServiceMemberStatus, 'error.response.message', '');
+  }
+
+  if (updateServiceMemberStatus.isSuccess === false) {
+    hasError = true;
+    errorMessage = get(updateServiceMemberStatus, 'error.response.message', '');
+  }
+
   return {
     // reduxForm
     initialValues: {
@@ -143,10 +163,10 @@ function mapStateToProps(state) {
 
     // CustomerInfoEdit
     serviceMemberSchema: get(state, 'swaggerInternal.spec.definitions.ServiceMemberPayload'),
-    serviceMember: state.office.officeServiceMember,
+    serviceMember: ownProps.serviceMember,
 
-    hasError: state.office.serviceMemberHasLoadError || state.office.serviceMemberHasUpdateError,
-    errorMessage: state.office.error,
+    hasError,
+    errorMessage,
     isUpdating: false,
 
     // editablePanelify
@@ -154,7 +174,7 @@ function mapStateToProps(state) {
       let values = getFormValues(formName)(state);
       let serviceMember = values.serviceMember;
       serviceMember.residential_address = values.address;
-      return [state.office.officeServiceMember.id, serviceMember];
+      return [ownProps.serviceMember.id, serviceMember];
     },
   };
 }
