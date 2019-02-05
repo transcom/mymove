@@ -449,9 +449,10 @@ jobs:
       - run:
           name: upload code coverage
           command: |
-            # needs to run from this directory so that it can find the source code.
+            export GIT_COMMITTED_AT=`git -C "github.com/transcom/mymove" log -1 --pretty=format:%ct`
             ./cc-test-reporter format-coverage github.com/transcom/mymove/coverage.out -t gocov -d
             ./cc-test-reporter upload-coverage -d
+          # needs to run from this directory so that it can find the source code.
           working_directory: /home/circleci/go/src
 
   # `client_test` runs the client side Javascript tests
