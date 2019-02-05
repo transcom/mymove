@@ -4,7 +4,7 @@ import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
 import PreApprovalForm, { formName as PreApprovalFormName } from 'shared/PreApprovalRequest/PreApprovalForm.jsx';
-import { formatToBaseQuantity, formatToBaseDimensions } from 'shared/formatters';
+import { formatToBaseQuantity, formatDimensions } from 'shared/formatters';
 import { submit, isValid, isSubmitting, reset, hasSubmitSucceeded } from 'redux-form';
 
 import { connect } from 'react-redux';
@@ -102,16 +102,6 @@ Creator.propTypes = {
   clearForm: PropTypes.func.isRequired,
   onFormActivation: PropTypes.func.isRequired,
 };
-
-function formatDimensions(dimensions) {
-  if (!dimensions) {
-    return;
-  }
-
-  dimensions.length = formatToBaseDimensions(dimensions.length);
-  dimensions.width = formatToBaseDimensions(dimensions.width);
-  dimensions.height = formatToBaseDimensions(dimensions.height);
-}
 
 function mapStateToProps(state) {
   return {

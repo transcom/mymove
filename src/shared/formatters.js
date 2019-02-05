@@ -49,6 +49,17 @@ export function formatToBaseQuantity(baseQuantity) {
   return baseQuantity;
 }
 
+// Format dimensions object length, width and height to base dimensions
+export function formatDimensions(dimensions) {
+  if (!dimensions) {
+    return;
+  }
+
+  dimensions.length = formatToBaseDimensions(dimensions.length);
+  dimensions.width = formatToBaseDimensions(dimensions.width);
+  dimensions.height = formatToBaseDimensions(dimensions.height);
+}
+
 // Format user-entered dimension into base dimension, e.g. 15.25 -> 1525
 export function formatToBaseDimensions(val) {
   return parseFloat(String(val).replace(',', '')) * 100;
