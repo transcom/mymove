@@ -86,8 +86,8 @@ BackupInfoPanel = reduxForm({
   keepDirtyOnReinitialize: true,
 })(BackupInfoPanel);
 
-function mapStateToProps(state) {
-  let serviceMember = get(state, 'office.officeServiceMember', {});
+function mapStateToProps(state, ownProps) {
+  let serviceMember = ownProps.serviceMember;
   let backupContact = selectBackupContactForServiceMember(state, serviceMember.id);
 
   return {
