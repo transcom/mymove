@@ -6,7 +6,7 @@ import { get } from 'lodash';
 import { NavLink, Link } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
-import { titleCase, isProduction } from 'shared/constants.js';
+import { titleCase } from 'shared/constants.js';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
@@ -402,7 +402,7 @@ class ShipmentInfo extends Component {
                   <Weights title="Weights & Items" shipment={this.props.shipment} update={this.props.patchShipment} />
                   <LocationsContainer update={this.props.patchShipment} />
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
-                  {!isProduction && (
+                  {this.props.context.flags.sitPanel && (
                     <StorageInTransitPanel
                       sitRequests={this.props.sitRequests}
                       shipmentId={this.props.match.params.shipmentId}
