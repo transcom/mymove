@@ -3,6 +3,7 @@ package publicapi
 import (
 	"fmt"
 	"github.com/pkg/errors"
+	"github.com/transcom/mymove/pkg/services"
 	"net/http"
 	"time"
 
@@ -577,7 +578,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 // CreateGovBillOfLadingHandler creates a GBL PDF & uploads it as a document associated to a move doc, shipment and move
 type CreateGovBillOfLadingHandler struct {
 	handlers.HandlerContext
-	createForm paperworkservice.FormCreator
+	createForm services.FormCreator
 }
 
 // Handle generates the GBL PDF & uploads it as a document associated to a move doc, shipment and move
@@ -622,7 +623,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	}
 	formLayout := paperwork.Form1203Layout
 
-	template, err := paperworkservice.MakeFormTemplate(gbl, gbl.GBLNumber1, formLayout, paperworkservice.GBL)
+	template, err := paperworkservice.MakeFormTemplate(gbl, gbl.GBLNumber1, formLayout, services.GBL)
 	if err != nil {
 		h.Logger().Error(errors.Cause(err).Error(), zap.Error(errors.Cause(err)))
 	}
