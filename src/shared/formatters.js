@@ -60,9 +60,9 @@ export function formatDimensions(dimensions) {
   dimensions.height = formatToBaseDimensions(dimensions.height);
 }
 
-// Format user-entered dimension into base dimension, e.g. 15.25 -> 1525
+// Format user-entered dimension into base dimension, e.g. 15.25 -> 15250
 export function formatToBaseDimensions(val) {
-  return parseFloat(String(val).replace(',', '')) * 100;
+  return parseFloat(String(val).replace(',', '')) * 1000;
 }
 
 export function formatCentsRange(min, max) {
