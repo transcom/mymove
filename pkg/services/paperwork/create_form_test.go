@@ -9,7 +9,6 @@ import (
 	"github.com/transcom/mymove/mocks"
 	"github.com/transcom/mymove/pkg/models"
 	paperworkforms "github.com/transcom/mymove/pkg/paperwork"
-	"github.com/transcom/mymove/pkg/services/paperwork/forms"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -71,7 +70,7 @@ func (suite *CreateFormSuite) TestCreateFormServiceSuccess() {
 	).Return(nil)
 
 	createForm := NewCreateForm(FileStorer, FormFiller)
-	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, forms.GBL)
+	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, GBL)
 	file, err := createForm.CreateForm(template)
 
 	assert.NotNil(suite.T(), file)
@@ -92,7 +91,7 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerAppendPageFailure()
 	).Return(errors.New("Error for FormFiller.AppendPage()")).Times(1)
 
 	createForm := NewCreateForm(FileStorer, FormFiller)
-	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, forms.GBL)
+	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, GBL)
 	file, err := createForm.CreateForm(template)
 
 	assert.NotNil(suite.T(), err)
@@ -120,7 +119,7 @@ func (suite *CreateFormSuite) TestCreateFormServiceFileStorerCreateFailure() {
 	).Return(nil, errors.New("Error for FileStorer.Create()"))
 
 	createForm := NewCreateForm(FileStorer, FormFiller)
-	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, forms.GBL)
+	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, GBL)
 	file, err := createForm.CreateForm(template)
 
 	assert.Nil(suite.T(), file)
@@ -155,7 +154,7 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerOutputFailure() {
 	).Return(errors.New("Error for FormFiller.Output()"))
 
 	createForm := NewCreateForm(FileStorer, FormFiller)
-	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, forms.GBL)
+	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, GBL)
 	file, err := createForm.CreateForm(template)
 
 	assert.Nil(suite.T(), file)

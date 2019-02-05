@@ -1,16 +1,18 @@
-package forms
+package paperwork
 
 import (
 	"bytes"
+	"github.com/spf13/afero"
 	paperworkforms "github.com/transcom/mymove/pkg/paperwork"
 )
 
-// FormType is the type of form
+// FormType defined as integer
 type FormType int
 
 // Form Types for CreateForm
 const (
 	GBL FormType = iota
+	SSW FormType = iota
 )
 
 // String returns the string value of the Form Type
@@ -25,4 +27,9 @@ type FormTemplate struct {
 	FormType
 	FileName string
 	Data     interface{}
+}
+
+// FormCreator is the service object interface for CreateForm
+type FormCreator interface {
+	CreateForm(template FormTemplate) (afero.File, error)
 }

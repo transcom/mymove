@@ -7,8 +7,6 @@ import (
 	"github.com/spf13/afero"
 	"github.com/transcom/mymove/pkg/assets"
 	paperworkforms "github.com/transcom/mymove/pkg/paperwork"
-	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/paperwork/forms"
 	"io"
 )
 
@@ -41,22 +39,22 @@ func CreateAssetByteReader(path string) (*bytes.Reader, error) {
 }
 
 // MakeFormTemplate creates form template with all needed parameters from handler
-func MakeFormTemplate(data interface{}, fileName string, formLayout paperworkforms.FormLayout, formType forms.FormType) (forms.FormTemplate, error) {
+func MakeFormTemplate(data interface{}, fileName string, formLayout paperworkforms.FormLayout, formType FormType) (FormTemplate, error) {
 	// Read in bytes from Asset pkg
 	templateBuffer, err := CreateAssetByteReader(formLayout.TemplateImagePath)
 	if err != nil {
-		return forms.FormTemplate{}, errors.Wrap(err, "Error reading template file and creating form template")
+		return FormTemplate{}, errors.Wrap(err, "Error reading template file and creating form template")
 	}
-	return forms.FormTemplate{Buffer: templateBuffer, FieldsLayout: formLayout.FieldsLayout, FormType: formType, FileName: fileName, Data: data}, nil
+	return FormTemplate{Buffer: templateBuffer, FieldsLayout: formLayout.FieldsLayout, FormType: formType, FileName: fileName, Data: data}, nil
 }
 
 // NewCreateForm creates a new struct with service dependencies
-func NewCreateForm(FileStorer Storer, FormFiller Filler) services.FormCreator {
+func NewCreateForm(FileStorer Storer, FormFiller Filler) FormCreator {
 	return &createForm{FileStorer: FileStorer, FormFiller: FormFiller}
 }
 
 // Call creates a form with the given data
-func (c createForm) CreateForm(template forms.FormTemplate) (afero.File, error) {
+func (c createForm) CreateForm(template FormTemplate) (afero.File, error) {
 	// Populate form fields with data
 	err := c.FormFiller.AppendPage(template.Buffer, template.FieldsLayout, template.Data)
 	if err != nil {

@@ -3,7 +3,6 @@ package publicapi
 import (
 	"fmt"
 	"github.com/pkg/errors"
-	"github.com/transcom/mymove/pkg/services/paperwork/forms"
 	"net/http"
 	"time"
 
@@ -21,7 +20,6 @@ import (
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/rateengine"
 	shipmentservice "github.com/transcom/mymove/pkg/service/shipment"
-	"github.com/transcom/mymove/pkg/services"
 	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
@@ -579,7 +577,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 // CreateGovBillOfLadingHandler creates a GBL PDF & uploads it as a document associated to a move doc, shipment and move
 type CreateGovBillOfLadingHandler struct {
 	handlers.HandlerContext
-	createForm services.FormCreator
+	createForm paperworkservice.FormCreator
 }
 
 // Handle generates the GBL PDF & uploads it as a document associated to a move doc, shipment and move
@@ -624,7 +622,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	}
 	formLayout := paperwork.Form1203Layout
 
-	template, err := paperworkservice.MakeFormTemplate(gbl, gbl.GBLNumber1, formLayout, forms.GBL)
+	template, err := paperworkservice.MakeFormTemplate(gbl, gbl.GBLNumber1, formLayout, paperworkservice.GBL)
 	if err != nil {
 		h.Logger().Error(errors.Cause(err).Error(), zap.Error(errors.Cause(err)))
 	}
