@@ -450,8 +450,8 @@ jobs:
           name: upload code coverage
           command: |
             # needs to run from this directory so that it can find the source code.
-            ./cc-test-reporter format-coverage format-coverage github.com/transcom/mymove/coverage.out -t gocov -d
-            ./cc-test-reporter format-coverage upload-coverage -d
+            ./cc-test-reporter format-coverage github.com/transcom/mymove/coverage.out -t gocov -d
+            ./cc-test-reporter upload-coverage -d
           working_directory: /home/circleci/go/src
 
   # `client_test` runs the client side Javascript tests
