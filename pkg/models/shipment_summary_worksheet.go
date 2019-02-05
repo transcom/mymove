@@ -50,19 +50,19 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	TotalWeightAllotment            string
 	POVAuthorized                   string
 	TAC                             string
-	ShipmentNumberAndTypes          []string
-	ShipmentPickUpDates             []string
-	ShipmentWeights                 []string
-	ShipmentCurrentShipmentStatuses []string
+	ShipmentNumberAndTypes          string
+	ShipmentPickUpDates             string
+	ShipmentWeights                 string
+	ShipmentCurrentShipmentStatuses string
 	PreparationDate                 string
 }
 
 //ShipmentSummaryWorkSheetShipments is and object representing shipment line items on Shipment Summary Worksheet
 type ShipmentSummaryWorkSheetShipments struct {
-	ShipmentNumberAndType string
-	PickUpDate            string
-	ShipmentWeight        string
-	CurrentShipmentStatus string
+	ShipmentNumberAndTypes  string
+	PickUpDates             string
+	ShipmentWeights         string
+	CurrentShipmentStatuses string
 }
 
 // ShipmentSummaryWorksheetPage2Values is an object representing a Shipment Summary Worksheet
@@ -156,23 +156,10 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.TotalWeightAllotment = FormatWeights(total)
 
 	formattedShipments := FormatAllShipments(data.PersonallyProcuredMoves, data.Shipments)
-	// This will need to be revised slightly to handle multiple shipments
-	if len(formattedShipments) != 0 {
-		shipmentNumberAndTypes := make([]string, len(formattedShipments))
-		shipmentPickUpDates := make([]string, len(formattedShipments))
-		shipmentCurrentShipmentStatuses := make([]string, len(formattedShipments))
-		shipmentWeights := make([]string, len(formattedShipments))
-		for i, shipment := range formattedShipments {
-			shipmentNumberAndTypes[i] = shipment.ShipmentNumberAndType
-			shipmentPickUpDates[i] = shipment.PickUpDate
-			shipmentCurrentShipmentStatuses[i] = shipment.CurrentShipmentStatus
-			shipmentWeights[i] = shipment.ShipmentWeight
-		}
-		page1.ShipmentNumberAndTypes = shipmentNumberAndTypes
-		page1.ShipmentPickUpDates = shipmentPickUpDates
-		page1.ShipmentCurrentShipmentStatuses = shipmentCurrentShipmentStatuses
-		page1.ShipmentWeights = shipmentWeights
-	}
+	page1.ShipmentNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
+	page1.ShipmentPickUpDates = formattedShipments.PickUpDates
+	page1.ShipmentCurrentShipmentStatuses = formattedShipments.CurrentShipmentStatuses
+	page1.ShipmentWeights = formattedShipments.ShipmentWeights
 	return page1
 }
 
@@ -194,22 +181,33 @@ func FormatServiceMemberFullName(serviceMember ServiceMember) string {
 }
 
 //FormatAllShipments formats Shipment line items for the Shipment Summary Worksheet
-func FormatAllShipments(ppms PersonallyProcuredMoves, shipments Shipments) []ShipmentSummaryWorkSheetShipments {
-	formattedShipments := make([]ShipmentSummaryWorkSheetShipments, len(shipments)+len(ppms))
+func FormatAllShipments(ppms PersonallyProcuredMoves, shipments Shipments) ShipmentSummaryWorkSheetShipments {
+	formattedShipments := ShipmentSummaryWorkSheetShipments{}
+	formattedNumberAndTypes := make([]string, len(shipments)+len(ppms))
+	formattedPickUpDates := make([]string, len(shipments)+len(ppms))
+	formattedShipmentWeights := make([]string, len(shipments)+len(ppms))
+	formattedShipmentStatuses := make([]string, len(shipments)+len(ppms))
+
 	for i, shipment := range shipments {
-		formattedShipments[i].ShipmentNumberAndType = FormatShipmentNumberAndType(i)
-		formattedShipments[i].PickUpDate = FormatShipmentPickupDate(shipment)
-		formattedShipments[i].ShipmentWeight = FormatShipmentWeight(shipment)
-		formattedShipments[i].CurrentShipmentStatus = FormatCurrentShipmentStatus(shipment)
+		formattedNumberAndTypes[i] = FormatShipmentNumberAndType(i)
+		formattedPickUpDates[i] = FormatShipmentPickupDate(shipment)
+		formattedShipmentWeights[i] = FormatShipmentWeight(shipment)
+		formattedShipmentStatuses[i] = FormatCurrentShipmentStatus(shipment)
 	}
-	for i, ppm := range ppms {
-		j := i + len(shipments)
-		formattedShipments[j].ShipmentNumberAndType = FormatPPMNumberAndType(j)
-		formattedShipments[j].PickUpDate = FormatPPMPickupDate(ppm)
+	for j, ppm := range ppms {
+		k := j + len(shipments)
+		formattedNumberAndTypes[k] = FormatPPMNumberAndType(k)
+		formattedPickUpDates[k] = FormatPPMPickupDate(ppm)
 		// We don't have an actual weight for ppms yet, so we're leaving it blank for now
-		formattedShipments[j].ShipmentWeight = ""
-		formattedShipments[j].CurrentShipmentStatus = FormatCurrentPPMStatus(ppm)
+		formattedShipmentWeights[k] = ""
+		formattedShipmentStatuses[k] = FormatCurrentPPMStatus(ppm)
 	}
+
+	formattedShipments.ShipmentNumberAndTypes = strings.Join(formattedNumberAndTypes, "\n")
+	formattedShipments.PickUpDates = strings.Join(formattedPickUpDates, "\n")
+	formattedShipments.ShipmentWeights = strings.Join(formattedShipmentWeights, "\n")
+	formattedShipments.CurrentShipmentStatuses = strings.Join(formattedShipmentStatuses, "\n")
+
 	return formattedShipments
 }
 

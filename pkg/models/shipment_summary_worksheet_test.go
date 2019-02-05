@@ -161,14 +161,10 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("500", sswPage1.WeightAllotmentProgearSpouse)
 	suite.Equal("15,500", sswPage1.TotalWeightAllotment)
 
-	suite.Equal("01 - HHG (GBL)", sswPage1.ShipmentNumberAndTypes[0])
-	suite.Equal("11-Jan-2019", sswPage1.ShipmentPickUpDates[0])
-	suite.Equal("5,000 lbs - FINAL", sswPage1.ShipmentWeights[0])
-	suite.Equal("Delivered", sswPage1.ShipmentCurrentShipmentStatuses[0])
-	suite.Equal("02 - PPM", sswPage1.ShipmentNumberAndTypes[1])
-	suite.Equal("11-Jan-2019", sswPage1.ShipmentPickUpDates[1])
-	suite.Equal("", sswPage1.ShipmentWeights[1])
-	suite.Equal("Payment Requested", sswPage1.ShipmentCurrentShipmentStatuses[1])
+	suite.Equal("01 - HHG (GBL)\n02 - PPM", sswPage1.ShipmentNumberAndTypes)
+	suite.Equal("11-Jan-2019\n11-Jan-2019", sswPage1.ShipmentPickUpDates)
+	suite.Equal("5,000 lbs - FINAL\n", sswPage1.ShipmentWeights)
+	suite.Equal("Delivered\nAt destination", sswPage1.ShipmentCurrentShipmentStatuses)
 }
 
 func (suite *ModelSuite) FormatAuthorizedLocation() {
@@ -224,24 +220,17 @@ func (suite *ModelSuite) TestFormatShipmentNumberAndType() {
 	varietyOfShipmentsFormatted := models.FormatAllShipments(multiplePPMs, singleShipment)
 
 	// testing single shipment moves
-	suite.Equal("01 - HHG (GBL)", models.FormatAllShipments(blankPPMSlice, singleShipment)[0].ShipmentNumberAndType)
-	suite.Equal("01 - PPM", models.FormatAllShipments(singlePPM, blankHHGSlice)[0].ShipmentNumberAndType)
+	suite.Equal("01 - HHG (GBL)", models.FormatAllShipments(blankPPMSlice, singleShipment).ShipmentNumberAndTypes)
+	suite.Equal("01 - PPM", models.FormatAllShipments(singlePPM, blankHHGSlice).ShipmentNumberAndTypes)
 
 	// testing multiple shipment moves
-	suite.Require().Len(multipleShipmentsFormatted, 2)
-	suite.Equal("01 - HHG (GBL)", multipleShipmentsFormatted[0].ShipmentNumberAndType)
-	suite.Equal("02 - HHG (GBL)", multipleShipmentsFormatted[1].ShipmentNumberAndType)
+	suite.Equal("01 - HHG (GBL)\n02 - HHG (GBL)", multipleShipmentsFormatted.ShipmentNumberAndTypes)
 
 	// testing multiple ppm moves
-	suite.Require().Len(multiplePPMsFormatted, 2)
-	suite.Equal("01 - PPM", multiplePPMsFormatted[0].ShipmentNumberAndType)
-	suite.Equal("02 - PPM", multiplePPMsFormatted[1].ShipmentNumberAndType)
+	suite.Equal("01 - PPM\n02 - PPM", multiplePPMsFormatted.ShipmentNumberAndTypes)
 
 	// testing a variety of shipments and ppms
-	suite.Require().Len(varietyOfShipmentsFormatted, 3)
-	suite.Equal("01 - HHG (GBL)", varietyOfShipmentsFormatted[0].ShipmentNumberAndType)
-	suite.Equal("02 - PPM", varietyOfShipmentsFormatted[1].ShipmentNumberAndType)
-	suite.Equal("03 - PPM", varietyOfShipmentsFormatted[2].ShipmentNumberAndType)
+	suite.Equal("01 - HHG (GBL)\n02 - PPM\n03 - PPM", varietyOfShipmentsFormatted.ShipmentNumberAndTypes)
 }
 
 func (suite *ModelSuite) TestFormatShipmentWeight() {
