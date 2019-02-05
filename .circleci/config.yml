@@ -430,14 +430,12 @@ jobs:
             # download test reporter as a static binary
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
             chmod +x ./cc-test-reporter
-          working_directory: /home/circleci/go/src/github.com/transcom/mymove
+            ./cc-test-reporter before-build
+          working_directory: /home/circleci/go/src
       - run:
           name: make server_test_coverage
           command: |
-            ./cc-test-reporter before-build
             make server_test_coverage
-            mv coverage.out c.out
-            ./cc-test-reporter after-build --coverage-input-type gocov --exit-code $?
           environment:
             # Env vars needed by the `bin/apply-secure-migrations.sh` script
             DB_PASSWORD: mysecretpassword
@@ -448,6 +446,13 @@ jobs:
             SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
           working_directory: /home/circleci/go/src/github.com/transcom/mymove
+      - run:
+          name: upload code coverage
+          command: |
+            # needs to run from this directory so that it can find the source code.
+            ./cc-test-reporter format-coverage format-coverage github.com/transcom/mymove/coverage.out -t gocov
+            ./cc-test-reporter format-coverage upload-coverage
+          working_directory: /home/circleci/go/src
 
   # `client_test` runs the client side Javascript tests
   client_test:
