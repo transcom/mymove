@@ -227,7 +227,7 @@ func (suite *ModelSuite) TestCreateShipmentLineItem() {
 	acc := testdatagen.MakeDefaultTariff400ngItem(suite.DB())
 	shipment := testdatagen.MakeDefaultShipment(suite.DB())
 
-	q1 := int64(5)
+	q1 := unit.BaseQuantity(5)
 	notes := "It's a giant moose head named Fred he seemed rather pleasant"
 	baseParams := BaseShipmentLineItemParams{
 		Tariff400ngItemID: acc.ID,
@@ -306,7 +306,7 @@ func (suite *ModelSuite) TestCreateShipmentLineItemCode105BAndE() {
 	//Create 105E preapproval with base quantity
 	baseParams.Tariff400ngItemID = acc105E.ID
 	baseParams.Tariff400ngItemCode = acc105E.Code
-	var q1 int64 = 1000
+	var q1 unit.BaseQuantity = 1000
 	baseParams.Quantity1 = &q1
 	additionalParams = AdditionalShipmentLineItemParams{}
 	shipmentLineItem, verrs, err = shipment.CreateShipmentLineItem(suite.DB(),

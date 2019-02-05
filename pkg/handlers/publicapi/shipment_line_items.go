@@ -168,16 +168,16 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 	var itemDimensions, crateDimensions *models.AdditionalLineItemDimensions
 	if params.Payload.ItemDimensions != nil {
 		itemDimensions = &models.AdditionalLineItemDimensions{
-			Length: *params.Payload.ItemDimensions.Length,
-			Width:  *params.Payload.ItemDimensions.Width,
-			Height: *params.Payload.ItemDimensions.Height,
+			Length: unit.ThousandthInches(*params.Payload.ItemDimensions.Length),
+			Width:  unit.ThousandthInches(*params.Payload.ItemDimensions.Width),
+			Height: unit.ThousandthInches(*params.Payload.ItemDimensions.Height),
 		}
 	}
 	if params.Payload.CrateDimensions != nil {
 		crateDimensions = &models.AdditionalLineItemDimensions{
-			Length: *params.Payload.CrateDimensions.Length,
-			Width:  *params.Payload.CrateDimensions.Width,
-			Height: *params.Payload.CrateDimensions.Height,
+			Length: unit.ThousandthInches(*params.Payload.CrateDimensions.Length),
+			Width:  unit.ThousandthInches(*params.Payload.CrateDimensions.Width),
+			Height: unit.ThousandthInches(*params.Payload.CrateDimensions.Height),
 		}
 	}
 	additionalParams := models.AdditionalShipmentLineItemParams{

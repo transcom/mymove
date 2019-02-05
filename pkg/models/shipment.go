@@ -336,9 +336,9 @@ type AdditionalShipmentLineItemParams struct {
 
 // AdditionalLineItemDimensions holds the length, width and height that will be converted to inches
 type AdditionalLineItemDimensions struct {
-	Length int64
-	Width  int64
-	Height int64
+	Length unit.ThousandthInches
+	Width  unit.ThousandthInches
+	Height unit.ThousandthInches
 }
 
 // CreateShipmentLineItem creates a new ShipmentLineItem tied to the Shipment
@@ -398,8 +398,10 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 			// ToDo: For another story
 			/*
 				1. Calculate base quantity for line item. Specifically calculating the cu. ft. from the dimensions crate?
+				Set quantity1 as zero value for now.
 			*/
-			baseParams.Quantity1 = nil
+			var quantity1 unit.BaseQuantity
+			baseParams.Quantity1 = &quantity1
 		} else if baseParams.Quantity1 == nil {
 			// General pre-approval request
 			// Check if base quantity is filled out
