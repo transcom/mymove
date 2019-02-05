@@ -158,8 +158,8 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 	baseParams := models.BaseShipmentLineItemParams{
 		Tariff400ngItemID:   tariff400ngItemID,
 		Tariff400ngItemCode: tariff400ngItem.Code,
-		Quantity1:           params.Payload.Quantity1,
-		Quantity2:           params.Payload.Quantity2,
+		Quantity1:           unit.IntToBaseQuantity(params.Payload.Quantity1),
+		Quantity2:           unit.IntToBaseQuantity(params.Payload.Quantity2),
 		Location:            string(params.Payload.Location),
 		Notes:               handlers.FmtString(params.Payload.Notes),
 		Description:         handlers.FmtString(params.Payload.Description),

@@ -321,8 +321,8 @@ func (s *Shipment) DetermineTrafficDistributionList(db *pop.Connection) (*Traffi
 type BaseShipmentLineItemParams struct {
 	Tariff400ngItemID   uuid.UUID
 	Tariff400ngItemCode string
-	Quantity1           *int64
-	Quantity2           *int64
+	Quantity1           *unit.BaseQuantity
+	Quantity2           *unit.BaseQuantity
 	Location            string
 	Notes               *string
 	Description         *string
@@ -401,7 +401,7 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 			/*
 				1. Calculate base quantity for line item. Specifically calculating the cu. ft. from the dimensions crate?
 			*/
-			var q1 int64
+			var q1 unit.BaseQuantity
 			baseParams.Quantity1 = &q1
 		} else if baseParams.Quantity1 == nil {
 			// General pre-approval request
