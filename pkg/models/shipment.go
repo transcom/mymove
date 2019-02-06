@@ -415,7 +415,8 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 		} else if baseParams.Quantity1 == nil {
 			// General pre-approval request
 			// Check if base quantity is filled out
-			return errors.New("Quantity1 required for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
+			responseError = errors.New("Quantity1 required for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
+			return transactionError
 		}
 		// Non-specified item code
 		shipmentLineItem.ShipmentID = s.ID
