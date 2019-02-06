@@ -93,17 +93,6 @@ export async function SendHHGInvoice(shipmentId) {
   return response.body;
 }
 
-// Reimbursement status
-export async function ApproveReimbursement(reimbursementId) {
-  const client = await getClient();
-  console.log('yup', reimbursementId);
-  const response = await client.apis.office.approveReimbursement({
-    reimbursementId,
-  });
-  checkResponse(response, 'failed to approve reimbursement due to server error');
-  return response.body;
-}
-
 // PPM attachments
 export async function DownloadPPMAttachments(ppmId, docTypes) {
   const client = await getClient();

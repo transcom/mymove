@@ -6,7 +6,6 @@ import {
   UpdateServiceMember,
   LoadBackupContacts,
   UpdateBackupContact,
-  ApproveReimbursement,
   DownloadPPMAttachments,
   PatchShipment,
   SendHHGInvoice,
@@ -28,7 +27,6 @@ const updateServiceMemberType = 'UPDATE_SERVICE_MEMBER';
 const loadBackupContactType = 'LOAD_BACKUP_CONTACT';
 const updateBackupContactType = 'UPDATE_BACKUP_CONTACT';
 const sendHHGInvoiceType = 'SEND_HHG_INVOICE';
-const approveReimbursementType = 'APPROVE_REIMBURSEMENT';
 const downloadPPMAttachmentsType = 'DOWNLOAD_ATTACHMENTS';
 const REMOVE_BANNER = 'REMOVE_BANNER';
 const SHOW_BANNER = 'SHOW_BANNER';
@@ -73,8 +71,6 @@ const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(updateBackup
 
 const SEND_HHG_INVOICE = ReduxHelpers.generateAsyncActionTypes(sendHHGInvoiceType);
 
-export const APPROVE_REIMBURSEMENT = ReduxHelpers.generateAsyncActionTypes(approveReimbursementType);
-
 export const DOWNLOAD_ATTACHMENTS = ReduxHelpers.generateAsyncActionTypes(downloadPPMAttachmentsType);
 
 // MULTIPLE-RESOURCE ACTION TYPES
@@ -110,11 +106,6 @@ export const updateBackupContact = ReduxHelpers.generateAsyncActionCreator(
 );
 
 export const sendHHGInvoice = ReduxHelpers.generateAsyncActionCreator(sendHHGInvoiceType, SendHHGInvoice);
-
-export const approveReimbursement = ReduxHelpers.generateAsyncActionCreator(
-  approveReimbursementType,
-  ApproveReimbursement,
-);
 
 export const downloadPPMAttachments = ReduxHelpers.generateAsyncActionCreator(
   downloadPPMAttachmentsType,
@@ -458,27 +449,6 @@ export function officeReducer(state = initialState, action) {
     case REMOVE_BANNER:
       return Object.assign({}, state, {
         flashMessage: false,
-      });
-
-    // REIMBURSEMENT STATUS
-    case APPROVE_REIMBURSEMENT.start:
-      return Object.assign({}, state, {
-        reimbursementIsApproving: true,
-      });
-    case APPROVE_REIMBURSEMENT.success:
-      // TODO: Remove once we have multiple ppms
-      let officePPM = get(state, 'officePPMs[0]');
-      let newPPM = Object.assign({}, officePPM, {
-        advance: action.payload,
-      });
-      return Object.assign({}, state, {
-        reimbursementIsApproving: false,
-        officePPMs: [newPPM],
-      });
-    case APPROVE_REIMBURSEMENT.failure:
-      return Object.assign({}, state, {
-        reimbursementIsApproving: false,
-        error: action.error.message,
       });
 
     // MULTIPLE-RESOURCE ACTION TYPES
