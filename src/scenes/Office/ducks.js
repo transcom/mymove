@@ -1,22 +1,18 @@
 import { isNull, get } from 'lodash';
 import { LoadMove, DownloadPPMAttachments, PatchShipment, SendHHGInvoice } from './api.js';
-
-import { UpdateOrders } from 'scenes/Orders/api.js';
 import { getEntitlements } from 'shared/entitlements.js';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
-
 import {
   loadServiceMember,
   updateServiceMember,
   loadBackupContacts,
   updateBackupContact,
 } from 'shared/Entities/modules/serviceMembers';
-import { loadOrders } from 'shared/Entities/modules/orders';
+import { loadOrders, updateOrders } from 'shared/Entities/modules/orders';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // SINGLE RESOURCE ACTION TYPES
 const loadMoveType = 'LOAD_MOVE';
-const updateOrdersType = 'UPDATE_ORDERS';
 const patchShipmentType = 'PATCH_SHIPMENT';
 const sendHHGInvoiceType = 'SEND_HHG_INVOICE';
 const downloadPPMAttachmentsType = 'DOWNLOAD_ATTACHMENTS';
@@ -47,8 +43,6 @@ export const resetInvoiceFlow = () => ({
 
 const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
 
-const UPDATE_ORDERS = ReduxHelpers.generateAsyncActionTypes(updateOrdersType);
-
 const PATCH_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(patchShipmentType);
 
 const SEND_HHG_INVOICE = ReduxHelpers.generateAsyncActionTypes(sendHHGInvoiceType);
@@ -66,8 +60,6 @@ const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(loadDependencies
 // SINGLE-RESOURCE ACTION CREATORS
 
 export const loadMove = ReduxHelpers.generateAsyncActionCreator(loadMoveType, LoadMove);
-
-export const updateOrders = ReduxHelpers.generateAsyncActionCreator(updateOrdersType, UpdateOrders);
 
 export const patchShipment = ReduxHelpers.generateAsyncActionCreator(patchShipmentType, PatchShipment);
 
@@ -214,27 +206,6 @@ export function officeReducer(state = initialState, action) {
         officeShipment: null,
         moveHasLoadSuccess: false,
         moveHasLoadError: true,
-        error: action.error.message,
-      });
-
-    // ORDERS
-    case UPDATE_ORDERS.start:
-      return Object.assign({}, state, {
-        ordersAreUpdating: true,
-        ordersHaveUpdateSuccess: false,
-      });
-    case UPDATE_ORDERS.success:
-      return Object.assign({}, state, {
-        ordersAreUpdating: false,
-        officeOrders: action.payload,
-        ordersHaveUpdateSuccess: true,
-        ordersHaveUpdateError: false,
-      });
-    case UPDATE_ORDERS.failure:
-      return Object.assign({}, state, {
-        ordersAreUpdating: false,
-        ordersHaveUpdateSuccess: false,
-        ordersHaveUpdateError: true,
         error: action.error.message,
       });
 

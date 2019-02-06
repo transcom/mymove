@@ -7,6 +7,7 @@ import { get } from 'lodash';
 
 export const STATE_KEY = 'orders';
 const loadOrdersLabel = 'Orders.loadOrders';
+const updateOrdersLabel = 'Orders.updateOrders';
 
 export default function reducer(state = {}, action) {
   switch (action.type) {
@@ -25,6 +26,12 @@ export function loadOrders(ordersId) {
   const label = loadOrdersLabel;
   const swaggerTag = 'orders.showOrders';
   return swaggerRequest(getClient, swaggerTag, { ordersId }, { label });
+}
+
+export function updateOrders(ordersId, orders) {
+  const label = updateOrdersLabel;
+  const swaggerTag = 'orders.updateOrders';
+  return swaggerRequest(getClient, swaggerTag, { ordersId, updateOrders: orders }, { label });
 }
 
 export const selectUpload = (state, id) => {
