@@ -40,3 +40,13 @@ export function updatePPM(
     { label },
   );
 }
+
+export function approveReimbursement(reimbursementId) {
+  const label = 'office.approveReimbursement';
+  const swaggerTag = 'office.approveReimbursement';
+  return swaggerRequest(getClient, swaggerTag, { reimbursementId }, { label });
+}
+
+export function selectReimbursement(state, advanceId) {
+  return get(state, `entities.reimbursement.${advanceId}`);
+}

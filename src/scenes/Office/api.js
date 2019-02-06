@@ -96,6 +96,7 @@ export async function SendHHGInvoice(shipmentId) {
 // Reimbursement status
 export async function ApproveReimbursement(reimbursementId) {
   const client = await getClient();
+  console.log('yup', reimbursementId);
   const response = await client.apis.office.approveReimbursement({
     reimbursementId,
   });
