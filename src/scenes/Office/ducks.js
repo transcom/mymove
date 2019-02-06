@@ -2,10 +2,6 @@ import { isNull, get } from 'lodash';
 import {
   LoadMove,
   LoadOrders,
-  LoadServiceMember,
-  UpdateServiceMember,
-  LoadBackupContacts,
-  UpdateBackupContact,
   LoadPPMs,
   ApproveReimbursement,
   DownloadPPMAttachments,
@@ -16,6 +12,12 @@ import {
 import { UpdatePpm } from 'scenes/Moves/Ppm/api.js';
 import { UpdateOrders } from 'scenes/Orders/api.js';
 import { getEntitlements } from 'shared/entitlements.js';
+import {
+  loadServiceMember,
+  updateServiceMember,
+  loadBackupContacts,
+  updateBackupContact,
+} from 'shared/Entities/modules/serviceMembers';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // SINGLE RESOURCE ACTION TYPES
@@ -23,10 +25,6 @@ const loadMoveType = 'LOAD_MOVE';
 const loadOrdersType = 'LOAD_ORDERS';
 const updateOrdersType = 'UPDATE_ORDERS';
 const patchShipmentType = 'PATCH_SHIPMENT';
-const loadServiceMemberType = 'LOAD_SERVICE_MEMBER';
-const updateServiceMemberType = 'UPDATE_SERVICE_MEMBER';
-const loadBackupContactType = 'LOAD_BACKUP_CONTACT';
-const updateBackupContactType = 'UPDATE_BACKUP_CONTACT';
 const loadPPMsType = 'LOAD_PPMS';
 const updatePPMType = 'UPDATE_PPM';
 const sendHHGInvoiceType = 'SEND_HHG_INVOICE';
@@ -65,14 +63,6 @@ const UPDATE_ORDERS = ReduxHelpers.generateAsyncActionTypes(updateOrdersType);
 
 const PATCH_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(patchShipmentType);
 
-const LOAD_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(loadServiceMemberType);
-
-const UPDATE_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(updateServiceMemberType);
-
-const LOAD_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(loadBackupContactType);
-
-const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(updateBackupContactType);
-
 const LOAD_PPMS = ReduxHelpers.generateAsyncActionTypes(loadPPMsType);
 
 const UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes(updatePPMType);
@@ -100,20 +90,6 @@ export const loadOrders = ReduxHelpers.generateAsyncActionCreator(loadOrdersType
 export const updateOrders = ReduxHelpers.generateAsyncActionCreator(updateOrdersType, UpdateOrders);
 
 export const patchShipment = ReduxHelpers.generateAsyncActionCreator(patchShipmentType, PatchShipment);
-
-export const loadServiceMember = ReduxHelpers.generateAsyncActionCreator(loadServiceMemberType, LoadServiceMember);
-
-export const updateServiceMember = ReduxHelpers.generateAsyncActionCreator(
-  updateServiceMemberType,
-  UpdateServiceMember,
-);
-
-export const loadBackupContacts = ReduxHelpers.generateAsyncActionCreator(loadBackupContactType, LoadBackupContacts);
-
-export const updateBackupContact = ReduxHelpers.generateAsyncActionCreator(
-  updateBackupContactType,
-  UpdateBackupContact,
-);
 
 export const loadPPMs = ReduxHelpers.generateAsyncActionCreator(loadPPMsType, LoadPPMs);
 
@@ -194,9 +170,9 @@ export function loadMoveDependencies(moveId) {
       const move = getState().office.officeMove;
       await dispatch(loadOrders(move.orders_id));
       const orders = getState().office.officeOrders;
-      await dispatch(loadServiceMember(orders.service_member_id));
-      const sm = getState().office.officeServiceMember;
-      await dispatch(loadBackupContacts(sm.id));
+      const serviceMemberId = orders.service_member_id;
+      await dispatch(loadServiceMember(serviceMemberId));
+      await dispatch(loadBackupContacts(serviceMemberId));
       // TODO: load PPMs in parallel to move using moveId
       await dispatch(loadPPMs(moveId));
       return dispatch(actions.success());
@@ -222,8 +198,6 @@ const initialState = {
   moveIsLoading: false,
   ordersAreLoading: false,
   ordersAreUpdating: false,
-  serviceMemberIsLoading: false,
-  backupContactsAreLoading: false,
   ppmsAreLoading: false,
   ppmIsUpdating: false,
   moveHasLoadError: null,
@@ -233,12 +207,6 @@ const initialState = {
   ordersHaveLoadSuccess: false,
   ordersHaveUploadError: null,
   ordersHaveUploadSuccess: false,
-  serviceMemberHasLoadError: null,
-  serviceMemberHasLoadSuccess: false,
-  serviceMemberHasUpdateError: null,
-  serviceMemberHasUpdateSuccess: false,
-  backupContactsHaveLoadError: null,
-  backupContactsHaveLoadSuccess: false,
   downloadAttachmentsHasError: null,
   ppmsHaveLoadError: null,
   ppmsHaveLoadSuccess: false,
@@ -376,89 +344,6 @@ export function officeReducer(state = initialState, action) {
         hhgInvoiceIsSending: false,
         hhgInvoiceHasSendSuccess: false,
         hhgInvoiceHasFailure: false,
-      });
-
-    // SERVICE_MEMBER
-    case LOAD_SERVICE_MEMBER.start:
-      return Object.assign({}, state, {
-        serviceMemberIsLoading: true,
-        serviceMemberHasLoadSuccess: false,
-      });
-    case LOAD_SERVICE_MEMBER.success:
-      return Object.assign({}, state, {
-        serviceMemberIsLoading: false,
-        officeServiceMember: action.payload,
-        serviceMemberHasLoadSuccess: true,
-        serviceMemberHasLoadError: false,
-      });
-    case LOAD_SERVICE_MEMBER.failure:
-      return Object.assign({}, state, {
-        serviceMemberIsLoading: false,
-        serviceMemberHasLoadSuccess: false,
-        serviceMemberHasLoadError: true,
-        error: action.error.message,
-      });
-
-    case UPDATE_SERVICE_MEMBER.start:
-      return Object.assign({}, state, {
-        serviceMemberIsUpdating: true,
-        serviceMemberHasUpdateSuccess: false,
-      });
-    case UPDATE_SERVICE_MEMBER.success:
-      return Object.assign({}, state, {
-        serviceMemberIsUpdating: false,
-        officeServiceMember: action.payload,
-        serviceMemberHasUpdateSuccess: true,
-        serviceMemberHasUpdateError: false,
-      });
-    case UPDATE_SERVICE_MEMBER.failure:
-      return Object.assign({}, state, {
-        serviceMemberIsUpdating: false,
-        serviceMemberHasUpdateSuccess: false,
-        serviceMemberHasUpdateError: true,
-        error: action.error.message,
-      });
-
-    // BACKUP CONTACT
-    case LOAD_BACKUP_CONTACT.start:
-      return Object.assign({}, state, {
-        backupContactsAreLoading: true,
-        backupContactsHaveLoadSuccess: false,
-      });
-    case LOAD_BACKUP_CONTACT.success:
-      return Object.assign({}, state, {
-        backupContactsAreLoading: false,
-        officeBackupContacts: action.payload,
-        backupContactsHaveLoadSuccess: true,
-        backupContactsHaveLoadError: false,
-      });
-    case LOAD_BACKUP_CONTACT.failure:
-      return Object.assign({}, state, {
-        backupContactsAreLoading: false,
-        officeBackupContacts: null,
-        backupContactsHaveLoadSuccess: false,
-        backupContactsHaveLoadError: true,
-        error: action.error.message,
-      });
-
-    case UPDATE_BACKUP_CONTACT.start:
-      return Object.assign({}, state, {
-        backupContactIsUpdating: true,
-        backupContactHasUpdateSuccess: false,
-      });
-    case UPDATE_BACKUP_CONTACT.success:
-      return Object.assign({}, state, {
-        backupContactIsUpdating: false,
-        officeBackupContacts: [action.payload], // there is only one
-        backupContactHasUpdateSuccess: true,
-        backupContactHasUpdateFailure: false,
-      });
-    case UPDATE_BACKUP_CONTACT.failure:
-      return Object.assign({}, state, {
-        backupContactIsUpdating: false,
-        backupContactHasUpdateSuccess: false,
-        backupContactHasUpdateFailure: true,
-        error: action.error.message,
       });
 
     // PPMs

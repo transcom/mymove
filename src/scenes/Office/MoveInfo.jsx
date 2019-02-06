@@ -42,6 +42,7 @@ import {
 } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
 import { approvePPM, selectPpmStatus } from 'shared/Entities/modules/ppms';
+import { selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import {
   getPublicShipment,
   updatePublicShipment,
@@ -72,9 +73,9 @@ const BasicsTabContent = props => {
   return (
     <div className="office-tab">
       <OrdersPanel title="Orders" />
-      <CustomerInfoPanel title="Customer Info" moveId={props.moveId} />
-      <BackupInfoPanel title="Backup Info" moveId={props.moveId} />
-      <AccountingPanel title="Accounting" moveId={props.moveId} />
+      <CustomerInfoPanel title="Customer Info" serviceMember={props.serviceMember} />
+      <BackupInfoPanel title="Backup Info" serviceMember={props.serviceMember} />
+      <AccountingPanel title="Accounting" serviceMember={props.serviceMember} />
     </div>
   );
 };
@@ -209,9 +210,8 @@ class MoveInfo extends Component {
   };
 
   render() {
-    const { moveDocuments, moveStatus, ppmStatus, shipment, shipmentStatus } = this.props;
+    const { moveDocuments, moveStatus, ppmStatus, shipment, shipmentStatus, serviceMember } = this.props;
     const move = this.props.officeMove;
-    const serviceMember = this.props.officeServiceMember;
     const orders = this.props.officeOrders;
     const ppm = this.props.officePPM;
     const isPPM = move.selected_move_type === 'PPM';
@@ -319,7 +319,9 @@ class MoveInfo extends Component {
                   path={`${this.props.match.url}`}
                   render={() => <Redirect replace to={`${this.props.match.url}/basics`} />}
                 />
-                <PrivateRoute path={`${this.props.match.path}/basics`} component={BasicsTabContent} />
+                <PrivateRoute path={`${this.props.match.path}/basics`}>
+                  <BasicsTabContent serviceMember={this.props.serviceMember} />
+                </PrivateRoute>
                 <PrivateRoute path={`${this.props.match.path}/ppm`} component={PPMTabContent} />
                 <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   {this.props.shipment && (
@@ -461,6 +463,8 @@ const mapStateToProps = (state, ownProps) => {
   const officeMove = get(state, 'office.officeMove', {}) || {};
   const shipmentId = get(officeMove, 'shipments.0.id');
   const officePPM = get(state, 'office.officePPMs.0', {});
+  const orders = get(state, `entities.orders.${officeMove.orders_id}`, {});
+  const serviceMember = selectServiceMember(state, orders.service_member_id);
 
   return {
     approveMoveHasError: get(state, 'office.moveHasApproveError'),
@@ -470,15 +474,14 @@ const mapStateToProps = (state, ownProps) => {
     moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
     moveId,
     moveStatus: selectMoveStatus(state, moveId),
-    officeBackupContacts: get(state, 'office.officeBackupContacts', []),
     officeMove,
     officeOrders: get(state, 'office.officeOrders', {}),
     officePPM,
-    officeServiceMember: get(state, 'office.officeServiceMember', {}),
     officeShipment: get(state, 'office.officeShipment', {}),
     ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
     ppmStatus: selectPpmStatus(state, officePPM.id),
     serviceAgents: selectServiceAgentsForShipment(state, shipmentId),
+    serviceMember,
     shipment: selectShipment(state, shipmentId),
     shipmentId,
     shipmentLineItems: selectSortedShipmentLineItems(state),

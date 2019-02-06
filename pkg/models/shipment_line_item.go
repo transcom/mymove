@@ -4,9 +4,10 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/pkg/errors"
-
+	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -64,6 +65,30 @@ type ShipmentLineItem struct {
 
 // ShipmentLineItems is not required by pop and may be deleted
 type ShipmentLineItems []ShipmentLineItem
+
+// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
+// This method is not required and may be deleted.
+func (s *ShipmentLineItem) Validate(tx *pop.Connection) (*validate.Errors, error) {
+	if s == nil {
+		return validate.NewErrors(), nil
+	}
+
+	validStatuses := []string{
+		string(ShipmentLineItemStatusSUBMITTED),
+		string(ShipmentLineItemStatusAPPROVED),
+	}
+
+	validLocations := []string{
+		string(ShipmentLineItemLocationORIGIN),
+		string(ShipmentLineItemLocationDESTINATION),
+		string(ShipmentLineItemLocationNEITHER),
+	}
+
+	return validate.Validate(
+		&validators.StringInclusion{Field: string(s.Status), Name: "Status", List: validStatuses},
+		&validators.StringInclusion{Field: string(s.Location), Name: "Locations", List: validLocations},
+	), nil
+}
 
 // BeforeDestroy verifies that a ShipmentLineItem is in a state to be destroyed
 func (s *ShipmentLineItem) BeforeDestroy(tx *pop.Connection) error {

@@ -923,6 +923,11 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       name:
         type: string
         example: Susan Smith
@@ -952,6 +957,7 @@ definitions:
         format: date-time
     required:
       - id
+      - service_member_id
       - created_at
       - updated_at
       - name
@@ -1590,6 +1596,59 @@ definitions:
         type: object
         additionalProperties:
           type: string
+  StorageInTransit:
+    type: object
+    properties:
+      location:
+        type: string
+        title: SIT Location
+        enum:
+          - ORIGIN
+          - DESTINATION
+        x-display-value:
+          ORIGIN: Origin
+          DESTINATION: Destination
+      estimated_start_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        title: Estimated start date
+      notes:
+        type: string
+        example: Good to go!
+        format: textarea
+        x-nullable: true
+        title: Note
+      warehouse_id:
+        type: string
+        example: '000383'
+        title: Warehouse ID number
+      warehouse_name:
+        type: string
+        example: ABC Warehouse, Inc.
+        title: Warehouse Name
+      warehouse_phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+        title: Phone
+      warehouse_email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        x-nullable: true
+        title: Email
+      warehouse_address:
+        $ref: '#/definitions/Address'
+    required:
+      - location
+      - warehouse_address
+      - warehouse_id
+      - warehouse_name
+      - estimated_start_date
 paths:
   /tariff_400ng_items:
     get:

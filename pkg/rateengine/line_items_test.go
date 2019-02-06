@@ -37,7 +37,7 @@ func (suite *RateEngineSuite) TestCreateBaseShipmentLineItems() {
 
 	itemLHS := suite.findLineItem(lineItems, "LHS")
 	if itemLHS != nil {
-		suite.validateLineItemFields(*itemLHS, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(1044), models.ShipmentLineItemLocationNEITHER, unit.Cents(260858), unit.Millicents(0))
+		suite.validateLineItemFields(*itemLHS, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(1044), models.ShipmentLineItemLocationORIGIN, unit.Cents(260858), unit.Millicents(0))
 	}
 
 	item135A := suite.findLineItem(lineItems, "135A")

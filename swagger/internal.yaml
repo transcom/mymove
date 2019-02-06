@@ -1092,6 +1092,11 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       name:
         type: string
         example: Susan Smith
@@ -1529,7 +1534,7 @@ definitions:
       has_secondary_pickup_address:
         type: boolean
         default: false
-        title: 'Do you have household goods at any other pickup location?'
+        title: 'Do you have stuff at another pickup location?'
       secondary_pickup_address:
         $ref: '#/definitions/Address'
         title: Secondary Pickup Address
@@ -1537,7 +1542,7 @@ definitions:
       has_delivery_address:
         type: boolean
         default: false
-        title: 'Do you know the delivery address at destination yet?'
+        title: 'Do you know your home address at your destination yet?'
       delivery_address:
         $ref: '#/definitions/Address'
         title: Delivery Address
@@ -1545,7 +1550,7 @@ definitions:
       has_partial_sit_delivery_address:
         type: boolean
         default: false
-        title: 'Will some of your items be stored in transit?'
+        title: 'Do you want to deliver some of your household goods to an additional destination (such as a self-storage unit)?'
       partial_sit_delivery_address:
         $ref: '#/definitions/Address'
         title: Partial SIT Delivery Address
@@ -1674,12 +1679,12 @@ definitions:
       street_address_1:
         type: string
         example: 123 Main Ave
-        title: Address Line 1
+        title: Street address 1
       street_address_2:
         type: string
         example: Apartment 9000
         x-nullable: true
-        title: Address Line 2
+        title: Street address 2
       street_address_3:
         type: string
         example: Montmârtre
@@ -1799,7 +1804,7 @@ definitions:
       postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
       country:
