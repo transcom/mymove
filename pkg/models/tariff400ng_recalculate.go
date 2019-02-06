@@ -16,7 +16,7 @@ type Tariff400ngRecalculate struct {
 	ID                    uuid.UUID `json:"id" db:"id"`
 	CreatedAt             time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt             time.Time `json:"updated_at" db:"updated_at"`
-	ShipmentUdpatedBefore time.Time `json:"shipment_udpated_before" db:"shipment_udpated_before"`
+	ShipmentUpdatedBefore time.Time `json:"shipment_udpated_before" db:"shipment_udpated_before"`
 	ShipmentUpdatedAfter  time.Time `json:"shipment_updated_after" db:"shipment_updated_after"`
 	Active                bool      `json:"active" db:"active"`
 }
@@ -40,10 +40,10 @@ func (t Tariff400ngRecalculates) String() string {
 // This method is not required and may be deleted.
 func (t *Tariff400ngRecalculate) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.TimeIsPresent{Field: t.ShipmentUdpatedBefore, Name: "ShipmentUdpatedBefore"},
+		&validators.TimeIsPresent{Field: t.ShipmentUpdatedBefore, Name: "ShipmentUpdatedBefore"},
 		&validators.TimeIsPresent{Field: t.ShipmentUpdatedAfter, Name: "ShipmentUpdatedAfter"},
 		&validators.TimeAfterTime{
-			FirstTime: t.ShipmentUdpatedBefore, FirstName: "ShipmentUdpatedBefore",
+			FirstTime: t.ShipmentUpdatedBefore, FirstName: "ShipmentUpdatedBefore",
 			SecondTime: t.ShipmentUpdatedAfter, SecondName: "ShipmentUpdatedAfter"},
 	), nil
 }
@@ -65,13 +65,13 @@ func FetchTariff400ngRecalculateDates(db *pop.Connection) (*Tariff400ngRecalcula
 	type Tariff400ngRecalculateRecords []Tariff400ngRecalculate
 	var recalculate Tariff400ngRecalculateRecords
 	if err := db.Where("active = true").All(&recalculate); err != nil {
-		return &Tariff400ngRecalculate{}, errors.Wrap(err, "could not find re-calculate dates")
+		return nil, errors.Wrap(err, "could not find re-calculate dates")
 	}
 	if len(recalculate) > 1 {
-		return &Tariff400ngRecalculate{}, errors.New("Too many active re-calculate date records")
+		return nil, errors.New("Too many active re-calculate date records")
 	}
 	if len(recalculate) == 1 {
 		return &recalculate[0], nil
 	}
-	return &Tariff400ngRecalculate{}, errors.New("No active records for re-calculate dates")
+	return nil, errors.New("No active records for re-calculate dates")
 }

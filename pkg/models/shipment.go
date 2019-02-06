@@ -855,14 +855,16 @@ func FindBaseShipmentLineItem(code string) bool {
 // VerifyBaseShipmentLineItems checks that all of the expected base line items are in use, as they are mandatory for
 // every shipment
 func VerifyBaseShipmentLineItems(lineItems []ShipmentLineItem) error {
-	if len(BaseShipmentLineItems) != len(lineItems) {
-		return fmt.Errorf("Missing Base Shipment Line Item expected length: %d actual length: %d", len(BaseShipmentLineItems), len(lineItems))
+	var count int
+	count = 0
+	for _, item := range lineItems {
+		if !item.Tariff400ngItem.RequiresPreApproval && FindBaseShipmentLineItem(item.Tariff400ngItem.Code) {
+			count++
+		}
 	}
 
-	for _, item := range lineItems {
-		if !FindBaseShipmentLineItem(item.Tariff400ngItem.Code) {
-			return errors.New("Unexpected Base Shipment Line Item found in Shipment's Line Items with Code: " + item.Tariff400ngItem.Code)
-		}
+	if count != len(BaseShipmentLineItems) {
+		return fmt.Errorf("Incorrect count for Base Shipment Line Items expected length: %d actual length: %d", len(BaseShipmentLineItems), count)
 	}
 
 	return nil

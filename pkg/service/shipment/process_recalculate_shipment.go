@@ -100,17 +100,11 @@ func (r ProcessRecalculateShipment) Call(shipment *models.Shipment, lineItems mo
 }
 
 func (r ProcessRecalculateShipment) hasAllBaseLineItems(lineItems models.ShipmentLineItems) bool {
-	var count int
-	count = 0
-	for _, item := range lineItems {
-		if models.FindBaseShipmentLineItem(item.Tariff400ngItem.Code) {
-			count++
-		}
+	err := models.VerifyBaseShipmentLineItems(lineItems)
+	if err != nil {
+		return false
 	}
-	if count == len(models.BaseShipmentLineItems) {
-		return true
-	}
-	return false
+	return true
 }
 
 func (r ProcessRecalculateShipment) shipmentLineItemsUpdatedInDateRange(lineItems models.ShipmentLineItems, recalculateDates *models.Tariff400ngRecalculate) bool {
@@ -123,7 +117,7 @@ func (r ProcessRecalculateShipment) shipmentLineItemsUpdatedInDateRange(lineItem
 }
 
 func (r ProcessRecalculateShipment) updatedInDateRange(update time.Time, recalculateDates *models.Tariff400ngRecalculate) bool {
-	if update.After(recalculateDates.ShipmentUpdatedAfter) && update.Before(recalculateDates.ShipmentUdpatedBefore) {
+	if update.After(recalculateDates.ShipmentUpdatedAfter) && update.Before(recalculateDates.ShipmentUpdatedBefore) {
 		return true
 	}
 	return false

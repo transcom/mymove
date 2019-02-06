@@ -1,7 +1,126 @@
-package models
+package models_test
 
-import "testing"
+import (
+	"testing"
+	"time"
 
-func Test_Tariff400ngRecalculate(t *testing.T) {
-	t.Fatal("This test needs to be implemented!")
+	"github.com/gofrs/uuid"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
+)
+
+func (suite *ModelSuite) TestTariff400ngRecalculate() {
+	testCases := map[string]struct {
+		recalculateDates models.Tariff400ngRecalculate
+		expectedErrs     map[string][]string
+	}{
+		"Successful Create": {
+			recalculateDates: models.Tariff400ngRecalculate{
+				ID:                    uuid.Must(uuid.NewV4()),
+				ShipmentUpdatedAfter:  time.Date(1970, time.January, 01, 0, 0, 0, 0, time.UTC),
+				ShipmentUpdatedBefore: time.Now(),
+				Active:                true,
+			},
+			expectedErrs: nil,
+		},
+
+		"Empty Fields": {
+			recalculateDates: models.Tariff400ngRecalculate{},
+			expectedErrs: map[string][]string{
+				"shipment_updated_before": {"ShipmentUpdatedBefore can not be blank."},
+				"shipment_updated_after":  {"ShipmentUpdatedAfter can not be blank."},
+			},
+		},
+
+		"Bad recalculate date range": {
+			recalculateDates: models.Tariff400ngRecalculate{
+				ID:                    uuid.Must(uuid.NewV4()),
+				ShipmentUpdatedBefore: time.Date(1970, time.January, 01, 0, 0, 0, 0, time.UTC),
+				ShipmentUpdatedAfter:  time.Now(),
+				Active:                true,
+			},
+			expectedErrs: map[string][]string{
+				"shipment_updated_before": {"ShipmentUpdatedBefore must be after ShipmentUpdatedAfter."},
+			},
+		},
+	}
+
+	for name, test := range testCases {
+		suite.T().Run(name, func(t *testing.T) {
+			suite.verifyValidationErrors(&test.recalculateDates, test.expectedErrs)
+		})
+	}
+}
+
+func (suite *ModelSuite) TestTariff400ngRecalculateTooManyActiveRecord() {
+
+	id := uuid.Must(uuid.NewV4())
+
+	suite.T().Run("Too many active records", func(t *testing.T) {
+
+		// Test for too many active records
+		newRecalculateDates := models.Tariff400ngRecalculate{
+			ID:                    id,
+			ShipmentUpdatedAfter:  time.Date(1970, time.January, 01, 0, 0, 0, 0, time.UTC),
+			ShipmentUpdatedBefore: time.Date(1970, time.February, 01, 0, 0, 0, 0, time.UTC),
+			Active:                true,
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&newRecalculateDates)
+		suite.Empty(verrs.Error())
+		suite.Nil(err)
+
+		id = uuid.Must(uuid.NewV4())
+		newRecalculateDates = models.Tariff400ngRecalculate{
+			ShipmentUpdatedAfter:  time.Date(testdatagen.TestYear, time.January, 01, 0, 0, 0, 0, time.UTC),
+			ShipmentUpdatedBefore: time.Date(testdatagen.TestYear, time.March, 01, 0, 0, 0, 0, time.UTC),
+			Active:                true,
+		}
+		verrs, err = suite.DB().ValidateAndCreate(&newRecalculateDates)
+		suite.Empty(verrs.Error())
+		suite.Nil(err)
+
+		fetchDates, err := models.FetchTariff400ngRecalculateDates(suite.DB())
+		suite.EqualError(err, "Too many active re-calculate date records")
+		suite.Nil(fetchDates)
+
+	})
+
+}
+
+func (suite *ModelSuite) TestTariff400ngFetchActiveRecord() {
+
+	suite.T().Run("Fetch active records", func(t *testing.T) {
+
+		id := uuid.Must(uuid.NewV4())
+
+		// Fetch active record
+		newRecalculateDatesActive := models.Tariff400ngRecalculate{
+			ID:                    id,
+			ShipmentUpdatedAfter:  time.Date(testdatagen.TestYear, time.January, 01, 0, 0, 0, 0, time.UTC),
+			ShipmentUpdatedBefore: time.Date(testdatagen.TestYear, time.February, 01, 0, 0, 0, 0, time.UTC),
+			Active:                true,
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&newRecalculateDatesActive)
+		suite.Empty(verrs.Error())
+		suite.Nil(err)
+
+		id = uuid.Must(uuid.NewV4())
+
+		newRecalculateDatesNotActive := models.Tariff400ngRecalculate{
+			ID:                    id,
+			ShipmentUpdatedAfter:  time.Date(1970, time.January, 01, 0, 0, 0, 0, time.UTC),
+			ShipmentUpdatedBefore: time.Date(1970, time.February, 01, 0, 0, 0, 0, time.UTC),
+			Active:                false,
+		}
+		verrs, err = suite.DB().ValidateAndCreate(&newRecalculateDatesNotActive)
+		suite.Empty(verrs.Error())
+		suite.Nil(err)
+
+		fetchDates, err := models.FetchTariff400ngRecalculateDates(suite.DB())
+		suite.Nil(err)
+		suite.Empty(verrs.Error())
+		suite.NotNil(fetchDates)
+
+	})
+
 }

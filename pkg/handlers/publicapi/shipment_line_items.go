@@ -89,7 +89,7 @@ func (h GetShipmentLineItemsHandler) recalculateShipmentLineItems(shipmentLineIt
 		return update, accessorialop.NewGetShipmentLineItemsInternalServerError()
 	}
 
-	// Run re-calcuation process
+	// Run re-calculation process
 	update, err = shipmentop.ProcessRecalculateShipment{
 		DB:     h.DB(),
 		Logger: h.Logger(),
