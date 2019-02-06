@@ -360,64 +360,20 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 
 	//We can do validation for specific item codes here
 	// Example: 105B/E
-	shipmentLineItem := ShipmentLineItem{}
-	itemCode := baseParams.Tariff400ngItemCode
-
 	var responseError error
 	responseVErrors := validate.NewErrors()
+	shipmentLineItem := ShipmentLineItem{}
 
 	db.Transaction(func(connection *pop.Connection) error {
 		transactionError := errors.New("Rollback the transaction")
 
-		// Backwards compatible with "Old school" 105B/E
-		if (itemCode == "105B" || itemCode == "105E") && baseParams.Quantity1 == nil {
-			//Additional validation check if item and crate dimensions exist
-			if additionalParams.ItemDimensions == nil || additionalParams.CrateDimensions == nil {
-				responseError = errors.New("Must have both item and crate dimensions params for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
-				return transactionError
-			}
-
-			// save dimensions to shipmentLineItem
-			shipmentLineItem.ItemDimensions = ShipmentLineItemDimensions{
-				Length: unit.ThousandthInches(additionalParams.ItemDimensions.Length),
-				Width:  unit.ThousandthInches(additionalParams.ItemDimensions.Width),
-				Height: unit.ThousandthInches(additionalParams.ItemDimensions.Height),
-			}
-			verrs, err := db.ValidateAndCreate(&shipmentLineItem.ItemDimensions)
-			if verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = errors.Wrap(err, "Error creating item dimensions for shipment line item")
-				return transactionError
-			}
-
-			shipmentLineItem.CrateDimensions = ShipmentLineItemDimensions{
-				Length: unit.ThousandthInches(additionalParams.CrateDimensions.Length),
-				Width:  unit.ThousandthInches(additionalParams.CrateDimensions.Width),
-				Height: unit.ThousandthInches(additionalParams.CrateDimensions.Height),
-			}
-			verrs, err = db.ValidateAndCreate(&shipmentLineItem.CrateDimensions)
-			if verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = errors.Wrap(err, "Error creating crate dimensions for shipment line item")
-				return transactionError
-			}
-
-			shipmentLineItem.ItemDimensionsID = &shipmentLineItem.ItemDimensions.ID
-			shipmentLineItem.CrateDimensionsID = &shipmentLineItem.CrateDimensions.ID
-
-			// ToDo: For another story
-			/*
-				1. Calculate base quantity for line item. Specifically calculating the cu. ft. from the dimensions crate?
-				Set quantity1 as zero value for now.
-			*/
-			var quantity1 unit.BaseQuantity
-			baseParams.Quantity1 = &quantity1
-		} else if baseParams.Quantity1 == nil {
-			// General pre-approval request
-			// Check if base quantity is filled out
-			responseError = errors.New("Quantity1 required for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
+		verrs, err := SetupAndCreateItemCodePrequiste(connection, &baseParams, &additionalParams, &shipmentLineItem)
+		if responseVErrors.HasAny() || responseError != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error setting up item code prequiste: "+baseParams.Tariff400ngItemCode)
 			return transactionError
 		}
+
 		// Non-specified item code
 		shipmentLineItem.ShipmentID = s.ID
 		shipmentLineItem.Tariff400ngItemID = baseParams.Tariff400ngItemID
@@ -429,7 +385,7 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 		shipmentLineItem.Status = ShipmentLineItemStatusSUBMITTED
 		shipmentLineItem.Description = description
 
-		verrs, err := db.ValidateAndCreate(&shipmentLineItem)
+		verrs, err = connection.ValidateAndCreate(&shipmentLineItem)
 		if verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error creating shipment line item")
@@ -437,7 +393,7 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 		}
 
 		// Loads line item information
-		err = db.Load(&shipmentLineItem)
+		err = connection.Load(&shipmentLineItem)
 		if err != nil {
 			responseError = errors.Wrap(err, "Error loading shipment line item")
 			return transactionError
@@ -447,6 +403,64 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	})
 
 	return &shipmentLineItem, responseVErrors, responseError
+}
+
+// SetupAndCreateItemCodePrequiste applies specific validation and creates additional objects for item codes
+func SetupAndCreateItemCodePrequiste(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	// Backwards compatible with "Old school" 105B/E
+	if (baseParams.Tariff400ngItemCode == "105B" || baseParams.Tariff400ngItemCode == "105E") && baseParams.Quantity1 == nil {
+		//Additional validation check if item and crate dimensions exist
+		if additionalParams.ItemDimensions == nil || additionalParams.CrateDimensions == nil {
+			responseError = errors.New("Must have both item and crate dimensions params for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
+			return responseVErrors, responseError
+		}
+
+		// save dimensions to shipmentLineItem
+		shipmentLineItem.ItemDimensions = ShipmentLineItemDimensions{
+			Length: unit.ThousandthInches(additionalParams.ItemDimensions.Length),
+			Width:  unit.ThousandthInches(additionalParams.ItemDimensions.Width),
+			Height: unit.ThousandthInches(additionalParams.ItemDimensions.Height),
+		}
+		verrs, err := db.ValidateAndCreate(&shipmentLineItem.ItemDimensions)
+		if verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating item dimensions for shipment line item")
+			return responseVErrors, responseError
+		}
+
+		shipmentLineItem.CrateDimensions = ShipmentLineItemDimensions{
+			Length: unit.ThousandthInches(additionalParams.CrateDimensions.Length),
+			Width:  unit.ThousandthInches(additionalParams.CrateDimensions.Width),
+			Height: unit.ThousandthInches(additionalParams.CrateDimensions.Height),
+		}
+		verrs, err = db.ValidateAndCreate(&shipmentLineItem.CrateDimensions)
+		if verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating crate dimensions for shipment line item")
+			return responseVErrors, responseError
+		}
+
+		shipmentLineItem.ItemDimensionsID = &shipmentLineItem.ItemDimensions.ID
+		shipmentLineItem.CrateDimensionsID = &shipmentLineItem.CrateDimensions.ID
+
+		// ToDo: For another story
+		/*
+			1. Calculate base quantity for line item. Specifically calculating the cu. ft. from the dimensions crate?
+			Set quantity1 as zero value for now.
+		*/
+		var quantity1 unit.BaseQuantity
+		baseParams.Quantity1 = &quantity1
+	} else if baseParams.Quantity1 == nil {
+		// General pre-approval request
+		// Check if base quantity is filled out
+		responseError = errors.New("Quantity1 required for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
+		return responseVErrors, responseError
+	}
+
+	return responseVErrors, responseError
 }
 
 // AssignGBLNumber generates a new valid GBL number for the shipment
