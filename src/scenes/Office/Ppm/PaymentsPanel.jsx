@@ -101,6 +101,7 @@ class PaymentsTable extends Component {
   };
 
   render() {
+    console.warn('warning in component');
     const attachmentsError = this.props.attachmentsError;
     const advance = this.props.advance;
     const paperworkIcon = this.state.showPaperwork ? faMinusSquare : faPlusSquare;
