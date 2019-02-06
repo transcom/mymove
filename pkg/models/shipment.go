@@ -363,12 +363,18 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	shipmentLineItem := ShipmentLineItem{}
 	itemCode := baseParams.Tariff400ngItemCode
 
-	err := db.Transaction(func(connection *pop.Connection) error {
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	db.Transaction(func(connection *pop.Connection) error {
+		transactionError := errors.New("Rollback the transaction")
+
 		// Backwards compatible with "Old school" 105B/E
 		if (itemCode == "105B" || itemCode == "105E") && baseParams.Quantity1 == nil {
 			//Additional validation check if item and crate dimensions exist
 			if additionalParams.ItemDimensions == nil || additionalParams.CrateDimensions == nil {
-				return errors.New("Must have both item and crate dimensions params for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
+				responseError = errors.New("Must have both item and crate dimensions params for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
+				return transactionError
 			}
 
 			// save dimensions to shipmentLineItem
@@ -379,7 +385,9 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 			}
 			verrs, err := db.ValidateAndCreate(&shipmentLineItem.ItemDimensions)
 			if verrs.HasAny() || err != nil {
-				return err
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrap(err, "Error creating item dimensions for shipment line item")
+				return transactionError
 			}
 
 			shipmentLineItem.CrateDimensions = ShipmentLineItemDimensions{
@@ -389,7 +397,9 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 			}
 			verrs, err = db.ValidateAndCreate(&shipmentLineItem.CrateDimensions)
 			if verrs.HasAny() || err != nil {
-				return err
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrap(err, "Error creating crate dimensions for shipment line item")
+				return transactionError
 			}
 
 			shipmentLineItem.ItemDimensionsID = &shipmentLineItem.ItemDimensions.ID
@@ -420,23 +430,22 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 
 		verrs, err := db.ValidateAndCreate(&shipmentLineItem)
 		if verrs.HasAny() || err != nil {
-			return err
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating shipment line item")
+			return transactionError
+		}
+
+		// Loads line item information
+		err = db.Load(&shipmentLineItem)
+		if err != nil {
+			responseError = errors.Wrap(err, "Error loading shipment line item")
+			return transactionError
 		}
 
 		return nil
 	})
 
-	if err != nil {
-		return &ShipmentLineItem{}, validate.NewErrors(), err
-	}
-
-	// Loads line item information
-	err = db.Load(&shipmentLineItem)
-	if err != nil {
-		return &ShipmentLineItem{}, validate.NewErrors(), err
-	}
-
-	return &shipmentLineItem, validate.NewErrors(), nil
+	return &shipmentLineItem, responseVErrors, responseError
 }
 
 // AssignGBLNumber generates a new valid GBL number for the shipment
