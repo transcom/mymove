@@ -238,11 +238,9 @@ func helperShipment(suite *InvoiceSuite) models.Shipment {
 		// default location created in testdatagen shipmentLineItem is DESTINATION
 		if code == "135A" || code == "105A" || code == "LHS" {
 			location = models.ShipmentLineItemLocationORIGIN
-		}
-		if code == "135B" {
+		} else if code == "135B" {
 			location = models.ShipmentLineItemLocationDESTINATION
-		}
-		if code == "46A" {
+		} else if code == "46A" {
 			location = models.ShipmentLineItemLocationNEITHER
 		}
 
@@ -341,13 +339,9 @@ func (suite *InvoiceSuite) TestMakeEDISegments() {
 
 			if lineItem.Location == models.ShipmentLineItemLocationORIGIN {
 				suite.Equal("303", hlSegment.HierarchicalIDNumber)
-			}
-
-			if lineItem.Location == models.ShipmentLineItemLocationDESTINATION {
+			} else if lineItem.Location == models.ShipmentLineItemLocationDESTINATION {
 				suite.Equal("304", hlSegment.HierarchicalIDNumber)
-			}
-
-			if lineItem.Location == models.ShipmentLineItemLocationNEITHER {
+			} else if lineItem.Location == models.ShipmentLineItemLocationNEITHER {
 				suite.Equal("303", hlSegment.HierarchicalIDNumber)
 			}
 
