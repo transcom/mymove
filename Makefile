@@ -100,7 +100,12 @@ build_soda: go_deps .build_soda.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
 	touch .build_soda.stamp
 
-server_deps: check_hosts go_deps build_chamber build_soda .server_deps.stamp
+build_callgraph: go_deps .build_callgraph.stamp
+.build_callgraph.stamp:
+	go build -i -o bin/callgraph ./vendor/golang.org/x/tools/cmd/callgraph
+	touch .build_callgraph.stamp
+
+server_deps: check_hosts go_deps build_chamber build_soda build_callgraph .server_deps.stamp
 .server_deps.stamp:
 	# Unfortunately, dep ensure blows away ./vendor every time so these builds always take a while
 	go install ./vendor/github.com/golang/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
@@ -398,7 +403,7 @@ clean:
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs check_hosts
 .PHONY: server_run_standalone server_run server_run_default server_test webserver_test
 .PHONY: go_deps_update server_go_bindata
-.PHONY: build_chamber build_soda
+.PHONY: build_chamber build_soda build_callgraph
 .PHONY: server_generate server_deps server_build
 .PHONY: server_generate_linux server_deps_linux server_build_linux
 .PHONY: db_run db_destroy

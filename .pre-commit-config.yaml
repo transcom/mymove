@@ -100,6 +100,16 @@ repos:
 
   - repo: local
     hooks:
+      - id: dump-packages
+        name: dump list of used packages
+        entry: bin/dump-packages docs/packages.txt
+        language: script
+        description: Dumps list of all used packages to docs/packages.txt.
+        files: \.go$
+        pass_filenames: false
+
+  - repo: local
+    hooks:
       - id: mdspell
         name: mdspell
         entry: bin/pre-commit-spellcheck
