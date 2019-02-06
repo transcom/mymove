@@ -447,7 +447,14 @@ jobs:
             SECURE_MIGRATION_SOURCE: local
           working_directory: /home/circleci/go/src/github.com/transcom/mymove
       - run:
-          name: upload code coverage
+          name: upload code coverage to codecov
+          command: |
+            curl -s https://codecov.io/bash > codecov
+            chmod +x codecov
+            ./codecov -f coverage.out
+          working_directory: /home/circleci/go/src/github.com/transcom/mymove
+      - run:
+          name: upload code coverage to code climate
           command: |
             export GIT_COMMITTED_AT=`git -C "github.com/transcom/mymove" log -1 --pretty=format:%ct`
             ./cc-test-reporter format-coverage github.com/transcom/mymove/coverage.out -t gocov -d
