@@ -1,6 +1,8 @@
 package shipment
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/suite"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -8,7 +10,6 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"go.uber.org/zap"
-	"testing"
 )
 
 func (suite *DeliverPriceShipmentSuite) TestUpdateInvoicesCall() {
@@ -67,7 +68,7 @@ type DeliverPriceShipmentSuite struct {
 func (suite *DeliverPriceShipmentSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
-func TestUpdateInvoiceSuite(t *testing.T) {
+func TestDeliverPriceShipmentSuite(t *testing.T) {
 	// Use a no-op logger during testing
 	logger := zap.NewNop()
 

@@ -73,13 +73,15 @@ func (suite *ModelSuite) TestCreateUser() {
 	const goodUUID = "39b28c92-0506-4bef-8b57-e39519f42dc2"
 	const badUUID = "39xnfc92-0506-4bef-8b57-e39519f42dc2"
 
-	sally, err := CreateUser(suite.DB(), goodUUID, testEmail)
+	sally, verrs, err := CreateUser(suite.DB(), goodUUID, testEmail)
 	suite.Nil(err, "No error for good create")
+	suite.False(verrs.HasAny())
 	suite.Equal(expectedEmail, sally.LoginGovEmail, "should convert email to lower case")
 	suite.NotEqual(sally.ID, uuid.Nil)
 
-	fail, err := CreateUser(suite.DB(), expectedEmail, badUUID)
+	fail, verrs, err := CreateUser(suite.DB(), expectedEmail, badUUID)
 	suite.NotNil(err, "should get and error from bad uuid")
+	suite.False(verrs.HasAny())
 	suite.Nil(fail, "no user with bad uuid")
 }
 

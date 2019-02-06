@@ -217,20 +217,24 @@ func loginUser(handler devlocalAuthHandler, user *models.User, w http.ResponseWr
 			session.ServiceMemberID = *(userIdentity.ServiceMemberID)
 		}
 
-		if userIdentity.OfficeUserID != nil {
-			session.OfficeUserID = *(userIdentity.OfficeUserID)
-		} else if session.IsOfficeApp() {
-			handler.logger.Error("Non-office user authenticated at office site", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-			return
+		if session.IsOfficeApp() {
+			if userIdentity.OfficeUserID != nil {
+				session.OfficeUserID = *(userIdentity.OfficeUserID)
+			} else {
+				handler.logger.Error("Non-office user authenticated at office site", zap.String("email", session.Email))
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			}
 		}
 
-		if userIdentity.TspUserID != nil {
-			session.TspUserID = *(userIdentity.TspUserID)
-		} else if session.IsTspApp() {
-			handler.logger.Error("Non-TSP user authenticated at TSP site", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-			return
+		if session.IsTspApp() {
+			if userIdentity.TspUserID != nil {
+				session.TspUserID = *(userIdentity.TspUserID)
+			} else {
+				handler.logger.Error("Non-TSP user authenticated at TSP site", zap.String("email", session.Email))
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			}
 		}
 
 		session.FirstName = userIdentity.FirstName()

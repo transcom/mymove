@@ -3,12 +3,13 @@ package models
 import (
 	"time"
 
+	"strings"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"strings"
 )
 
 // User is an entity with a registered uuid and email at login.gov
@@ -52,23 +53,21 @@ func GetUser(db *pop.Connection, userID uuid.UUID) (*User, error) {
 }
 
 // CreateUser is called upon successful login.gov verification of a new user
-func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, error) {
+func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, *validate.Errors, error) {
 	lgu, err := uuid.FromString(loginGovID)
 	if err != nil {
-		return nil, err
+		return nil, validate.NewErrors(), err
 	}
 	newUser := User{
 		LoginGovUUID:  lgu,
 		LoginGovEmail: strings.ToLower(email),
 	}
 	verrs, err := db.ValidateAndCreate(&newUser)
-	if verrs.HasAny() {
-		return nil, verrs
-	} else if err != nil {
+	if verrs.HasAny() || err != nil {
 		err = errors.Wrap(err, "Unable to create user")
-		return nil, err
+		return nil, verrs, err
 	}
-	return &newUser, nil
+	return &newUser, validate.NewErrors(), nil
 }
 
 // UserIdentity is summary of the information about a user from the database
