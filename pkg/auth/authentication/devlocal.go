@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -101,9 +102,6 @@ type devlocalAuthHandler struct {
 // AssignUserHandler logs a user in directly
 type AssignUserHandler devlocalAuthHandler
 
-// CreateUserHandler creates and then logs in a new user
-type CreateUserHandler devlocalAuthHandler
-
 // NewAssignUserHandler creates a new AssignUserHandler
 func NewAssignUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) AssignUserHandler {
 	handler := AssignUserHandler{
@@ -136,6 +134,9 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	loginUser(devlocalAuthHandler(h), user, w, r)
 }
 
+// CreateUserHandler creates a new user
+type CreateUserHandler devlocalAuthHandler
+
 // NewCreateUserHandler creates a new CreateUserHandler
 func NewCreateUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) CreateUserHandler {
 	handler := CreateUserHandler{
@@ -147,8 +148,15 @@ func NewCreateUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey st
 	return handler
 }
 
-// CreateUserHandler creates a user and logs them in
+// CreateUserHandler creates a user, primarily used in automated testing
 func (h CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	user := createUser(devlocalAuthHandler(h), w, r)
+	jsonOut, _ := json.Marshal(user)
+	fmt.Fprintf(w, string(jsonOut))
+}
+
+// createUser creates a user
+func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) models.User {
 	id := uuid.Must(uuid.NewV4())
 
 	now := time.Now()
@@ -168,7 +176,27 @@ func (h CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.logger.Error("validation errors creating user", zap.Stringer("errors", verrs))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 	}
+	return user
+}
 
+// CreateAndLoginUserHandler creates and then logs in a new user
+type CreateAndLoginUserHandler devlocalAuthHandler
+
+// NewCreateAndLoginUserHandler creates a new CreateAndLoginUserHandler
+func NewCreateAndLoginUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) CreateAndLoginUserHandler {
+	handler := CreateAndLoginUserHandler{
+		Context:             ac,
+		db:                  db,
+		clientAuthSecretKey: clientAuthSecretKey,
+		noSessionTimeout:    noSessionTimeout,
+	}
+	return handler
+}
+
+// CreateAndLoginUserHandler creates a user and logs them in
+func (h CreateAndLoginUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	user := createUser(devlocalAuthHandler(h), w, r)
 	loginUser(devlocalAuthHandler(h), &user, w, r)
 }
 

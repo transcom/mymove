@@ -8,49 +8,25 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *RateEngineSuite) createShipmentWithServiceArea(assertions testdatagen.Assertions) models.Shipment {
-	shipment := testdatagen.MakeShipment(suite.DB(), assertions)
+func (suite *RateEngineSuite) createShipmentWithServiceArea() models.Shipment {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusDELIVERED}
+	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
 
-	zip3 := models.Tariff400ngZip3{
-		Zip3:          Zip5ToZip3(shipment.PickupAddress.PostalCode),
-		BasepointCity: "Saucier",
-		State:         "MS",
-		ServiceArea:   "428",
-		RateArea:      "US48",
-		Region:        "11",
-	}
-	suite.MustSave(&zip3)
-
-	serviceArea := models.Tariff400ngServiceArea{
-		Name:               "Gulfport, MS",
-		ServiceArea:        "428",
-		LinehaulFactor:     57,
-		ServiceChargeCents: 350,
-		ServicesSchedule:   1,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.NonPeakRateCycleEnd,
-		SIT185ARateCents:   unit.Cents(50),
-		SIT185BRateCents:   unit.Cents(50),
-		SITPDSchedule:      1,
-	}
-	suite.MustSave(&serviceArea)
-
-	return shipment
+	return shipments[0]
 }
 
 func (suite *RateEngineSuite) TestAccessorialsPricingPackCrate() {
 	itemCode := "105B"
 	rateCents := unit.Cents(2275)
-	netWeight := unit.Pound(1000)
-	shipment := suite.createShipmentWithServiceArea(testdatagen.Assertions{
-		Shipment: models.Shipment{
-			BookDate:  &testdatagen.DateInsidePeakRateCycle,
-			NetWeight: &netWeight,
-		},
-	})
+	shipment := suite.createShipmentWithServiceArea()
+	q1 := 5
 	item := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
-			Quantity1: unit.BaseQuantity(50000),
+			Quantity1: unit.BaseQuantityFromInt(q1),
 			Shipment:  shipment,
 			Status:    models.ShipmentLineItemStatusAPPROVED,
 			Location:  models.ShipmentLineItemLocationORIGIN,
@@ -58,6 +34,7 @@ func (suite *RateEngineSuite) TestAccessorialsPricingPackCrate() {
 		Tariff400ngItem: models.Tariff400ngItem{
 			Code:                itemCode,
 			RequiresPreApproval: true,
+			DiscountType:        models.Tariff400ngItemDiscountTypeHHG,
 		},
 	})
 
@@ -72,20 +49,15 @@ func (suite *RateEngineSuite) TestAccessorialsPricingPackCrate() {
 	computedPriceAndRate, err := engine.ComputeShipmentLineItemCharge(item)
 
 	if suite.NoError(err) {
-		suite.Equal(rateCents.Multiply(5), computedPriceAndRate.Fee)
+		discountRate := shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.LinehaulRate
+		suite.Equal(discountRate.Apply(rateCents.Multiply(q1)), computedPriceAndRate.Fee)
 	}
 }
 
 // Iterates through all codes that have pricers and make sure they don't explode with sane values
 func (suite *RateEngineSuite) TestAccessorialsSmokeTest() {
 	rateCents := unit.Cents(100)
-	netWeight := unit.Pound(1000)
-	shipment := suite.createShipmentWithServiceArea(testdatagen.Assertions{
-		Shipment: models.Shipment{
-			BookDate:  &testdatagen.DateInsidePeakRateCycle,
-			NetWeight: &netWeight,
-		},
-	})
+	shipment := suite.createShipmentWithServiceArea()
 
 	for code := range tariff400ngItemPricing {
 		item := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{

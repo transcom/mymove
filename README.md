@@ -291,6 +291,7 @@ There are a few handy targets in the Makefile to help you interact with the dev 
 * `make db_dev_create`: Waits to connect to the DB and will create a DB if one doesn't already exist (run usually as part of `db_dev_run`).
 * `make db_dev_reset`: Destroys your database container. Useful if you want to start from scratch.
 * `make db_dev_migrate`: Applies database migrations against your running database container.
+* `make db_dev_migrate_standalone`: Applies database migrations against your running database container but will not check for server dependencies first.
 * `make db_dev_e2e_populate`: Populate data with data used to run e2e tests
 
 #### Test DB Commands
@@ -301,6 +302,7 @@ The Dev Commands are used to talk to the dev DB.  If you were working with the t
 * `make db_test_create`
 * `make db_test_reset`
 * `make db_test_migrate`
+* `make db_test_migrate_standalone`
 * `make db_test_e2e_populate`
 
 The test DB commands all talk to the DB over localhost.  But in a docker-only environment (like CircleCI) you may not be able to use those commands, which is why `*_docker` versions exist for all of them:

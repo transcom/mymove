@@ -69,10 +69,7 @@ function tspUserViewsLocation({ shipmentId, type, expectation }) {
   });
 
   // Find a shipment and open it
-  cy
-    .get('div')
-    .contains(shipmentId)
-    .dblclick();
+  cy.selectQueueItemMoveLocator(shipmentId);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -134,10 +131,7 @@ function tspUserEntersLocations() {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains('BACON1')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('BACON1');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);

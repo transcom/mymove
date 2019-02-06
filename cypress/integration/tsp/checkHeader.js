@@ -20,10 +20,7 @@ function tspUserViewsHHGHeaderInfo() {
   });
 
   // Find a shipment and open it
-  cy
-    .get('div')
-    .contains('HHGPPM')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('HHGPPM');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -59,10 +56,7 @@ function tspUserViewsHHGPPMHeaderInfo() {
   });
 
   // Find a shipment and open it
-  cy
-    .get('div')
-    .contains('HHGPPM')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('HHGPPM');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);

@@ -373,7 +373,7 @@ func createTariffDataForRateEngine(db *pop.Connection, shipment models.Shipment)
 		Code:                "LHS",
 		Item:                "Linehaul Transportation",
 		DiscountType:        models.Tariff400ngItemDiscountTypeHHG,
-		AllowedLocation:     models.Tariff400ngItemAllowedLocationNEITHER,
+		AllowedLocation:     models.Tariff400ngItemAllowedLocationORIGIN,
 		MeasurementUnit1:    models.Tariff400ngItemMeasurementUnitFLATRATE,
 		MeasurementUnit2:    models.Tariff400ngItemMeasurementUnitNONE,
 		RateRefCode:         models.Tariff400ngItemRateRefCodeTARIFFSECTION,

@@ -101,10 +101,7 @@ function tspUserEntersServiceAgent() {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains('BACON2')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('BACON2');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -125,10 +122,7 @@ function tspUserAcceptsShipment() {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains('BACON2')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('BACON2');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -159,10 +153,7 @@ function tspUserClicksAssignServiceAgent(locator) {
   cy.patientVisit('/queues/accepted');
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains(locator)
-    .dblclick();
+  cy.selectQueueItemMoveLocator(locator);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
