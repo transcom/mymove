@@ -203,10 +203,10 @@ func FormatAllShipments(ppms PersonallyProcuredMoves, shipments Shipments) Shipm
 		formattedShipmentStatuses[k] = FormatCurrentPPMStatus(ppm)
 	}
 
-	formattedShipments.ShipmentNumberAndTypes = strings.Join(formattedNumberAndTypes, "\n")
-	formattedShipments.PickUpDates = strings.Join(formattedPickUpDates, "\n")
-	formattedShipments.ShipmentWeights = strings.Join(formattedShipmentWeights, "\n")
-	formattedShipments.CurrentShipmentStatuses = strings.Join(formattedShipmentStatuses, "\n")
+	formattedShipments.ShipmentNumberAndTypes = strings.Join(formattedNumberAndTypes, "\n\n")
+	formattedShipments.PickUpDates = strings.Join(formattedPickUpDates, "\n\n")
+	formattedShipments.ShipmentWeights = strings.Join(formattedShipmentWeights, "\n\n")
+	formattedShipments.CurrentShipmentStatuses = strings.Join(formattedShipmentStatuses, "\n\n")
 
 	return formattedShipments
 }
