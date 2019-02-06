@@ -66,7 +66,7 @@ client_deps: check_hosts .client_deps.stamp
 	bin/copy_swagger_ui.sh
 	touch .client_deps.stamp
 .client_build.stamp: $(shell find src -type f)
-	yarn build
+	CI=true yarn build
 	touch .client_build.stamp
 client_build: client_deps .client_build.stamp
 client_run: client_deps
