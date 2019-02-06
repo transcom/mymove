@@ -1078,11 +1078,13 @@ definitions:
       - IN_PROCESS
       - SUBMITTED
       - SUBMISSION_FAILURE
+      - UPDATE_FAILURE
     x-display-value:
       DRAFT: Draft
       IN_PROCESS: In Process
       SUBMITTED: Submitted
       SUBMISSION_FAILURE: Submission Failure
+      UPDATE_FAILURE: Update Failure
   ServiceMemberBackupContactPayload:
     type: object
     properties:
@@ -1090,6 +1092,11 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       name:
         type: string
         example: Susan Smith
@@ -1299,85 +1306,6 @@ definitions:
       - bytes
       - created_at
       - updated_at
-  CreateIssuePayload:
-    type: object
-    properties:
-      description:
-        type: string
-        example: This is a test issue
-        format: textarea
-        minLength: 1
-        maxLength: 1024
-        title: Description
-      reporter_name:
-        type: string
-        example: Jane Doe
-        x-nullable: true
-        title: Reporter Name
-      due_date:
-        type: string
-        format: date
-        example: 2019-03-15
-        x-nullable: true
-        title: Due Date
-    required:
-      - description
-  IndexIssuesPayload:
-    type: array
-    items:
-      $ref: '#/definitions/IssuePayload'
-  IssuePayload:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      description:
-        type: string
-        example: This is a test issue
-        minLength: 1
-        maxLength: 1024
-      reporter_name:
-        type: string
-        example: Jane Doe
-        x-nullable: true
-      due_date:
-        type: string
-        format: date
-        example: 2019-03-15
-        x-nullable: true
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-    required:
-      - id
-      - description
-      - created_at
-      - updated_at
-  SendGexRequestPayload:
-    type: object
-    properties:
-      transaction_name:
-        type: string
-        title: Transaction Name
-        example: 858-1.edi
-      transaction_body:
-        type: string
-        title: Transaction Body
-        format: textarea
-    required:
-      - transaction_name
-      - transaction_body
-  GexResponsePayload:
-    type: object
-    properties:
-      gex_response:
-        type: string
-        title: The HTTP response body received from GEX
   DPSAuthCookieURLPayload:
     type: object
     properties:
@@ -1452,6 +1380,25 @@ definitions:
     x-display-value:
       AIR_FORCE: 57 - United States Air Force
       MARINES: 17 - United States Marines
+  TrafficDistributionList:
+    type: object
+    properties:
+      source_rate_area:
+        type: string
+        example: US34
+      destination_region:
+        type: string
+        example: '5'
+      code_of_service:
+        type: string
+        example: D
+        enum:
+          - D
+          - '2'
+    required:
+      - source_rate_area
+      - destination_region
+      - code_of_service
   Shipment:
     type: object
     properties:
@@ -1460,6 +1407,23 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
+      status:
+        $ref: '#/definitions/ShipmentStatus'
+        readOnly: true
+      source_gbloc:
+        $ref: '#/definitions/GBLOC'
+        title: Channel
+      destination_gbloc:
+        $ref: '#/definitions/GBLOC'
+      market:
+        $ref: '#/definitions/ShipmentMarket'
+        readOnly: true
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
       move_id:
         type: string
         format: uuid
@@ -1470,26 +1434,19 @@ definitions:
         format: uuid
         example: d56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
+      traffic_distribution_list:
+        $ref: '#/definitions/TrafficDistributionList'
         readOnly: true
       service_member_id:
         type: string
         format: uuid
         example: d56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      source_gbloc:
-        $ref: '#/definitions/GBLOC'
-        title: Channel
-      destination_gbloc:
-        $ref: '#/definitions/GBLOC'
-      market:
-        $ref: '#/definitions/ShipmentMarket'
       code_of_service:
         type: string
         x-nullable: true
         title: Code of service
         readOnly: true
-      status:
-        $ref: '#/definitions/ShipmentStatus'
       book_date:
         type: string
         format: date
@@ -1571,67 +1528,33 @@ definitions:
               type: string
               format: date
         x-nullable: true
-      pickup_address_id:
-        type: string
-        format: uuid
-        example: f56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
       pickup_address:
         $ref: '#/definitions/Address'
         title: Pickup Address
-      secondary_pickup_address_id:
-        type: string
-        format: uuid
-        example: f56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
+      has_secondary_pickup_address:
+        type: boolean
+        default: false
+        title: 'Do you have stuff at another pickup location?'
       secondary_pickup_address:
         $ref: '#/definitions/Address'
         title: Secondary Pickup Address
         x-nullable: true
-      delivery_address_id:
-        type: string
-        format: uuid
-        example: f56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
-      delivery_address:
-        $ref: '#/definitions/Address'
-        title: Delivery Address
-        x-nullable: true
-      partial_sit_delivery_address_id:
-        type: string
-        format: uuid
-        example: f56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
-      partial_sit_delivery_address:
-        $ref: '#/definitions/Address'
-        title: Partial SIT Delivery Address
-        x-nullable: true
-      has_secondary_pickup_address:
-        type: boolean
-        default: false
-        title: 'Do you have household goods at any other pickup location?'
       has_delivery_address:
         type: boolean
         default: false
         title: 'Do you know your home address at your destination yet?'
+      delivery_address:
+        $ref: '#/definitions/Address'
+        title: Delivery Address
+        x-nullable: true
       has_partial_sit_delivery_address:
         type: boolean
         default: false
-        title: 'Do you know the delivery address at destination yet?'
-      gross_weight:
-        type: integer
-        minimum: 0
-        example: 10000
-        title: Gross Weight
+        title: 'Do you want to deliver some of your household goods to an additional destination (such as a self-storage unit)?'
+      partial_sit_delivery_address:
+        $ref: '#/definitions/Address'
+        title: Partial SIT Delivery Address
         x-nullable: true
-        x-formatting: weight
-      tare_weight:
-        type: integer
-        minimum: 0
-        example: 10000
-        title: Tare Weight
-        x-nullable: true
-        x-formatting: weight
       weight_estimate:
         type: integer
         minimum: 0
@@ -1651,6 +1574,28 @@ definitions:
         minimum: 0
         example: 200
         title: Spouse's Pro-Gear
+        x-nullable: true
+        x-formatting: weight
+      net_weight:
+        type: integer
+        description: Actual net weight of the shipment in lbs
+        minimum: 0
+        example: 10000
+        x-nullable: true
+        x-formatting: weight
+        title: Net
+      gross_weight:
+        type: integer
+        minimum: 0
+        example: 10000
+        title: Gross Weight
+        x-nullable: true
+        x-formatting: weight
+      tare_weight:
+        type: integer
+        minimum: 0
+        example: 10000
+        title: Tare Weight
         x-nullable: true
         x-formatting: weight
       pm_survey_completed_at:
@@ -1680,18 +1625,6 @@ definitions:
         format: date
         example: '2018-04-26'
         title: 'Planned delivery date'
-        x-nullable: true
-      pm_survey_earliest_delivery_date:
-        type: string
-        format: date
-        example: '2018-04-26'
-        title: 'Earliest delivery date'
-        x-nullable: true
-      pm_survey_latest_delivery_date:
-        type: string
-        format: date
-        example: '2018-04-26'
-        title: 'Latest delivery date'
         x-nullable: true
       pm_survey_weight_estimate:
         type: integer
@@ -1731,87 +1664,11 @@ definitions:
           IN_PERSON: In person
           PHONE: Phone
           VIDEO: Video
-      service_agents:
-        type: array
-        items:
-          $ref: '#/definitions/ServiceAgent'
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-  ServiceAgentRole:
-    type: string
-    title: Service Agent Role
-    enum:
-      - ORIGIN
-      - DESTINATION
-    x-display-value:
-      ORIGIN: Origin
-      DESTINATION: Destination
-  ServiceAgent:
-    type: object
-    properties:
-      id:
+      transportation_service_provider_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      shipment_id:
-        type: string
-        format: uuid
-        readOnly: true
-      role:
-        $ref: '#/definitions/ServiceAgentRole'
-      company:
-        type: string
-        example: ACME Movers
-        title: Company
-      email:
-        type: string
-        format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        description: Email used to contact shipping agent
-        example: jenny_acme@example.com
-        x-nullable: true
-        title: Email
-      phone_number:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 303-867-5309
-        x-nullable: true
-        title: Phone Number
-      fax_number:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 303-867-5310
-        x-nullable: true
-        title: Fax Number
-      email_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Email Is Preferred
-      phone_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Phone Is Preferred
-      notes:
-        type: string
-        x-nullable: true
-        example: This service agent is available at all hours
-        title: Notes
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-    required:
-      - role
-      - company
   Address:
     type: object
     properties:
@@ -1822,12 +1679,12 @@ definitions:
       street_address_1:
         type: string
         example: 123 Main Ave
-        title: Address Line 1
+        title: Street address 1
       street_address_2:
         type: string
         example: Apartment 9000
         x-nullable: true
-        title: Address Line 2
+        title: Street address 2
       street_address_3:
         type: string
         example: Montmârtre
@@ -1947,7 +1804,7 @@ definitions:
       postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
       country:
@@ -2096,13 +1953,6 @@ definitions:
     title: Orders type
     enum:
       - PERMANENT_CHANGE_OF_STATION
-      - SEPARATION
-      - RETIREMENT
-      - LOCAL_MOVE
-      - TEMPORARY_DUTY
-      - DEPENDENT_TRAVEL
-      - BLUEBARK
-      - VARIOUS
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       SEPARATION: Separation
@@ -2521,43 +2371,6 @@ paths:
           description: user is not authorized
         500:
           description: internal server error
-  /issues:
-    post:
-      summary: Create a new issue
-      description: Issues represent problems or suggestions for the app, this creates a new one.
-      operationId: createIssue
-      tags:
-        - issues
-      parameters:
-        - in: body
-          name: createIssuePayload
-          required: true
-          schema:
-            $ref: '#/definitions/CreateIssuePayload'
-      responses:
-        201:
-          description: created issue
-          schema:
-            $ref: '#/definitions/IssuePayload'
-        400:
-          description: invalid request
-    get:
-      summary: List all issues
-      description: List all issues
-      operationId: indexIssues
-      tags:
-        - issues
-      responses:
-        200:
-          description: list of issues
-          schema:
-            $ref: '#/definitions/IndexIssuesPayload'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
   /users/logged_in:
     get:
       summary: Returns the user info for the currently logged in user
@@ -3524,6 +3337,12 @@ paths:
           format: uuid
           required: true
           description: UUID of the move
+        - in: query
+          name: preparationDate
+          type: string
+          format: date
+          required: true
+          description: The preparationDate of PDF
       produces:
         - application/pdf
       responses:
@@ -4148,28 +3967,6 @@ paths:
           description: personally procured move not found
         409:
           description: Requested weight estimate is above allotted entitlement
-  /gex/send_request:
-    post:
-      summary: Sends a request to GEX
-      description: Sends a request to GEX
-      operationId: sendGexRequest
-      tags:
-        - gex
-      parameters:
-        - in: body
-          name: sendGexRequestPayload
-          required: true
-          schema:
-            $ref: '#/definitions/SendGexRequestPayload'
-      responses:
-        200:
-          description: sent request
-          schema:
-            $ref: '#/definitions/GexResponsePayload'
-        400:
-          description: invalid request
-        500:
-          description: internal server error
   /calendar/available_move_dates:
     get:
       summary: Returns available dates for the move calendar

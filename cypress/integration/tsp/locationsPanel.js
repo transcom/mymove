@@ -46,9 +46,9 @@ describe('TSP User Checks Shipment Locations', function() {
   });
   it('tsp user primary delivery location when delivery address does not exist', function() {
     const address = {
-      city: 'Des Moines',
-      state: 'IA',
-      postal_code: '50309',
+      city: 'Augusta',
+      state: 'GA',
+      postal_code: '30813',
     };
     const expectation = text => {
       expect(text).to.equal(`${address.city}, ${address.state} ${address.postal_code}`);
@@ -69,10 +69,7 @@ function tspUserViewsLocation({ shipmentId, type, expectation }) {
   });
 
   // Find a shipment and open it
-  cy
-    .get('div')
-    .contains(shipmentId)
-    .dblclick();
+  cy.selectQueueItemMoveLocator(shipmentId);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -122,10 +119,10 @@ function tspUserEntersLocations() {
     state: 'NJ',
     postal_code: '66666-6666',
   };
-  const newDutyStation = {
-    city: 'Des Moines',
-    state: 'IA',
-    postal_code: '50309',
+  const newDutyStationAddress = {
+    city: 'Augusta',
+    state: 'GA',
+    postal_code: '30813',
   };
 
   // Open new shipments queue
@@ -134,10 +131,7 @@ function tspUserEntersLocations() {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains('BACON1')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('BACON1');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -382,7 +376,9 @@ function tspUserEntersLocations() {
         .children('.field-value')
         .should($div => {
           const text = $div.text();
-          expect(text).to.include(`${newDutyStation.city}, ${newDutyStation.state} ${newDutyStation.postal_code}`);
+          expect(text).to.include(
+            `${newDutyStationAddress.city}, ${newDutyStationAddress.state} ${newDutyStationAddress.postal_code}`,
+          );
         });
     });
 }

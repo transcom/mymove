@@ -9,12 +9,10 @@ import { requestsReducer } from 'shared/Swagger/requestsReducer';
 import { entitiesReducer } from 'shared/Entities/reducer';
 import uiReducer from 'shared/UI/ducks';
 
-import { feedbackReducer } from 'scenes/Feedback/ducks';
 import { moveReducer } from 'scenes/Moves/ducks';
 import { ppmReducer } from 'scenes/Moves/Ppm/ducks';
 import { serviceMemberReducer } from 'scenes/ServiceMembers/ducks';
 import { ordersReducer } from 'scenes/Orders/ducks';
-import issuesReducer from 'scenes/SubmittedFeedback/ducks';
 import { signedCertificationReducer } from 'scenes/Legalese/ducks';
 import { documentReducer } from 'shared/Uploader/ducks';
 import { reviewReducer } from 'scenes/Review/ducks';
@@ -37,19 +35,16 @@ const defaultReducers = {
 export const appReducer = combineReducers({
   ...defaultReducers,
   swaggerInternal: swaggerReducerInternal,
-  submittedIssues: issuesReducer,
   moves: moveReducer,
   ppm: ppmReducer,
   serviceMember: serviceMemberReducer,
   orders: ordersReducer,
-  feedback: feedbackReducer,
   signedCertification: signedCertificationReducer,
   upload: documentReducer,
   review: reviewReducer,
   office: officeReducer,
   transportationOffices: transportationOfficeReducer,
   ppmIncentive: officePpmReducer,
-  tsp: tspReducer,
 });
 
 export const tspAppReducer = combineReducers({

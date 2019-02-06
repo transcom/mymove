@@ -1,4 +1,4 @@
-/* global cy, Cypress*/
+/* global cy */
 
 export function selectPreMoveSurveyPanel() {
   // Click on edit Premove Survey

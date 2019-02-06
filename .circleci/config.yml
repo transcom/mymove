@@ -7,7 +7,7 @@
 #
 ############
 
-version: "2.1"
+version: '2.1'
 
 executors:
   # `mymove_small` and `mymove_medium` use the `trussworks/circleci-docker-primary` docker image with a checkout of the mymove code
@@ -15,18 +15,23 @@ executors:
     resource_class: small
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:b3a0c4f25f01672c6dc45d066972195deda7ea49
+      - image: trussworks/circleci-docker-primary:d1a2b3b5c3b196e91eb1c30926953d0665ec3fd1
   mymove_medium:
     resource_class: medium
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:b3a0c4f25f01672c6dc45d066972195deda7ea49
+      - image: trussworks/circleci-docker-primary:d1a2b3b5c3b196e91eb1c30926953d0665ec3fd1
+  mymove_large:
+    resource_class: large
+    working_directory: ~/go/src/github.com/transcom/mymove
+    docker:
+      - image: trussworks/circleci-docker-primary:d1a2b3b5c3b196e91eb1c30926953d0665ec3fd1
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:4bf3060cd9f47be0adb819ded630aa1848055ffe
+      - image: trussworks/circleci-docker-primary:d1a2b3b5c3b196e91eb1c30926953d0665ec3fd1
       - image: postgres:10.5
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -105,7 +110,7 @@ commands:
         type: string
     steps:
       - run:
-          name: "Build, tag, and push docker image << parameters.tag >> from Dockerfile << parameters.dockerfile >>"
+          name: 'Build, tag, and push docker image << parameters.tag >> from Dockerfile << parameters.dockerfile >>'
           command: |
             docker build -f << parameters.dockerfile >> -t << parameters.tag >> .
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
@@ -131,26 +136,25 @@ commands:
             source $BASH_ENV
             make e2e_test_docker
           environment:
-              # Env vars needed by the `bin/apply-secure-migrations.sh` script
-              DB_PASSWORD: mysecretpassword
-              DB_USER: postgres
-              DB_HOST: localhost
-              DB_PORT: 5432
-              DB_NAME: test_db
-              # Env vars needed for the webserver to run inside docker
-              SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
-              SECURE_MIGRATION_SOURCE: local
-              LOGIN_GOV_CALLBACK_PROTOCOL: http
-              LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
-              LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
-              LOGIN_GOV_TSP_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:tspmovemillocal
-              LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
-              HERE_MAPS_GEOCODE_ENDPOINT: https://geocoder.cit.api.here.com/6.2/geocode.json
-              HERE_MAPS_ROUTING_ENDPOINT: https://route.cit.api.here.com/routing/7.2/calculateroute.json
-              DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
+            # Env vars needed by the `bin/apply-secure-migrations.sh` script
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT: 5432
+            DB_NAME: test_db
+            # Env vars needed for the webserver to run inside docker
+            SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
+            SECURE_MIGRATION_SOURCE: local
+            LOGIN_GOV_CALLBACK_PROTOCOL: http
+            LOGIN_GOV_MY_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemillocal
+            LOGIN_GOV_OFFICE_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:officemovemillocal
+            LOGIN_GOV_TSP_CLIENT_ID: urn:gov:gsa:openidconnect.profiles:sp:sso:dod:tspmovemillocal
+            LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
+            HERE_MAPS_GEOCODE_ENDPOINT: https://geocoder.cit.api.here.com/6.2/geocode.json
+            HERE_MAPS_ROUTING_ENDPOINT: https://route.cit.api.here.com/routing/7.2/calculateroute.json
+            DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
 
 jobs:
-
   # `pre_deps_golang` is used for cache dep soruces and the vendor directory for mymove.
   pre_deps_golang:
     executor: mymove_small
@@ -246,8 +250,8 @@ jobs:
             - ~/.cache/pre-commit
       - announce_failure
 
-  # `acceptance_tests` runs acceptance tests for the webserver against a local environment.
-  acceptance_tests:
+  # `acceptance_tests_local` runs acceptance tests for the webserver against a local environment.
+  acceptance_tests_local:
     executor: mymove_medium
     steps:
       - checkout
@@ -264,6 +268,7 @@ jobs:
           name: Run acceptance tests
           command: make webserver_test
           environment:
+            PWD: /home/circleci/go/src/github.com/transcom/mymove
             LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
       - announce_failure
@@ -288,11 +293,13 @@ jobs:
           keys:
             - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
       - e2e_tests:
-          spec: "cypress/integration/mymove/**/*"
+          spec: 'cypress/integration/mymove/**/*'
       - store_artifacts:
           path: cypress/videos
+          destination: videos
       - store_artifacts:
           path: cypress/screenshots
+          destination: screenshots
       - store_test_results:
           path: cypress/results
       - announce_failure
@@ -317,11 +324,13 @@ jobs:
           keys:
             - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
       - e2e_tests:
-          spec: "cypress/integration/office/**/*"
+          spec: 'cypress/integration/office/**/*'
       - store_artifacts:
           path: cypress/videos
+          destination: videos
       - store_artifacts:
           path: cypress/screenshots
+          destination: screenshots
       - store_test_results:
           path: cypress/results
       - announce_failure
@@ -346,11 +355,13 @@ jobs:
           keys:
             - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
       - e2e_tests:
-          spec: "cypress/integration/tsp/**/*"
+          spec: 'cypress/integration/tsp/**/*'
       - store_artifacts:
           path: cypress/videos
+          destination: videos
       - store_artifacts:
           path: cypress/screenshots
+          destination: screenshots
       - store_test_results:
           path: cypress/results
       - announce_failure
@@ -393,7 +404,7 @@ jobs:
 
   # `client_test` runs the client side Javascript tests
   client_test:
-    executor: mymove_medium
+    executor: mymove_large
     steps:
       - checkout
       - setup_remote_docker:
@@ -465,11 +476,37 @@ jobs:
           repo: app-migrations
       - announce_failure
 
+  # `acceptance_tests_experimental` runs acceptance tests for the webserver against the experimental environment.
+  acceptance_tests_experimental:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      - run:
+          name: Run make server_generate
+          command: make server_generate
+      - run:
+          name: Build Chamber
+          command: make build_chamber
+      - run:
+          name: Run acceptance tests
+          command: make webserver_test
+          environment:
+            PWD: /home/circleci/go/src/github.com/transcom/mymove
+            DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
+            TEST_ACC_ENV: experimental
+      - announce_failure
+
   # `deploy_experimental_migrations` deploys migrations to the experimental environment
   deploy_experimental_migrations:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: "experimental"
+      - APP_ENVIRONMENT: 'experimental'
     steps:
       - deploy_migrations_steps
 
@@ -477,7 +514,7 @@ jobs:
   deploy_experimental_app:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: "experimental"
+      - APP_ENVIRONMENT: 'experimental'
     steps:
       - deploy_app_steps:
           health_check_hosts: my.experimental.move.mil,office.experimental.move.mil,tsp.experimental.move.mil
@@ -486,7 +523,7 @@ jobs:
   deploy_experimental_app_client_tls:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: "experimental"
+      - APP_ENVIRONMENT: 'experimental'
     steps:
       - deploy_app_client_tls_steps:
           health_check_hosts: gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
@@ -497,11 +534,37 @@ jobs:
       - checkout
       - halt_workflow_if_older_sha
 
+  # `acceptance_tests_staging` runs acceptance tests for the webserver against the staging environment.
+  acceptance_tests_staging:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      - run:
+          name: Run make server_generate
+          command: make server_generate
+      - run:
+          name: Build Chamber
+          command: make build_chamber
+      - run:
+          name: Run acceptance tests
+          command: make webserver_test
+          environment:
+            PWD: /home/circleci/go/src/github.com/transcom/mymove
+            DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
+            TEST_ACC_ENV: staging
+      - announce_failure
+
   # `deploy_staging_migrations` deploys migrations to the staging environment
   deploy_staging_migrations:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: "staging"
+      - APP_ENVIRONMENT: 'staging'
     steps:
       - deploy_migrations_steps
 
@@ -509,7 +572,7 @@ jobs:
   deploy_staging_app:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: "staging"
+      - APP_ENVIRONMENT: 'staging'
     steps:
       - deploy_app_steps:
           health_check_hosts: my.staging.move.mil,office.staging.move.mil,tsp.staging.move.mil
@@ -518,7 +581,7 @@ jobs:
   deploy_staging_app_client_tls:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: "staging"
+      - APP_ENVIRONMENT: 'staging'
     steps:
       - deploy_app_client_tls_steps:
           health_check_hosts: gex.staging.move.mil,dps.staging.move.mil,orders.staging.move.mil
@@ -527,7 +590,7 @@ jobs:
   deploy_prod_migrations:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: "prod"
+      - APP_ENVIRONMENT: 'prod'
     steps:
       - deploy_migrations_steps
 
@@ -535,7 +598,7 @@ jobs:
   deploy_prod_app:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: "prod"
+      - APP_ENVIRONMENT: 'prod'
     steps:
       - deploy_app_steps:
           health_check_hosts: my.move.mil,office.move.mil,tsp.move.mil
@@ -544,7 +607,7 @@ jobs:
   deploy_prod_app_client_tls:
     executor: mymove_small
     environment:
-      - APP_ENVIRONMENT: "prod"
+      - APP_ENVIRONMENT: 'prod'
     steps:
       - deploy_app_client_tls_steps:
           health_check_hosts: gex.move.mil,dps.move.mil,orders.move.mil
@@ -590,7 +653,17 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
 
-      - acceptance_tests:
+      - acceptance_tests_local:
+          requires:
+            - pre_deps_golang
+            - pre_deps_yarn
+
+      - acceptance_tests_experimental:
+          requires:
+            - pre_deps_golang
+            - pre_deps_yarn
+
+      - acceptance_tests_staging:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
@@ -599,7 +672,7 @@ workflows:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
-            - acceptance_tests
+            - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
           # filters:
           #  branches:
@@ -609,7 +682,7 @@ workflows:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
-            - acceptance_tests
+            - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
           # filters:
           #   branches:
@@ -619,7 +692,7 @@ workflows:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
-            - acceptance_tests
+            - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
           # filters:
           #   branches:
@@ -637,6 +710,7 @@ workflows:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+            - acceptance_tests_local # don't bother building and pushing the application if it won't even start properly
 
       - build_tools:
           requires:
@@ -651,7 +725,8 @@ workflows:
             - pre_test
             - client_test
             - server_test
-            - acceptance_tests
+            - acceptance_tests_local
+            - acceptance_tests_experimental
             - build_app
             # - build_tools # tools don't need to build to deploy to experimental
             - build_migrations
@@ -681,7 +756,8 @@ workflows:
             - build_app
             - build_tools
             - build_migrations
-            - acceptance_tests
+            - acceptance_tests_local
+            - acceptance_tests_staging
             - integration_tests_mymove
             - integration_tests_office
             - integration_tests_tsp
@@ -737,12 +813,11 @@ workflows:
             branches:
               only: master
 
-
   dependency_updater:
     triggers:
       - schedule:
           # Monday at 4am/7am PST/EST
-          cron: "0 12 * * 1"
+          cron: '0 12 * * 1'
           filters:
             branches:
               only: master

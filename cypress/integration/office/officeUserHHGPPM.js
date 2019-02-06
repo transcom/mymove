@@ -1,11 +1,32 @@
 /* global cy */
+
 describe('office user finds the shipment', function() {
   beforeEach(() => {
     cy.signIntoOffice();
   });
+  const queues = {
+    new: 'new',
+    ppm: 'ppm',
+    acceptedHHG: 'hhg_accepted',
+    deliveredHHG: 'hhg_delivered',
+    completedHHG: 'hhg_completed',
+    all: 'all',
+  };
+  it('office user sees accepted HHG in Accepted HHGs queue', function() {
+    officeUserVisitsQueue(queues.acceptedHHG);
+    officeUserViewsMove('COMBO2');
+  });
+  it('office user sees delivered HHG in Delivered HHG queue', function() {
+    officeUserVisitsQueue(queues.deliveredHHG);
+    officeUserViewsMove('COMBO3');
+  });
+  it('office user sees completed HHG in Completed HHGs queue', function() {
+    officeUserVisitsQueue(queues.completedHHG);
+    officeUserViewsMove('COMBO4');
+  });
   it('office user approves shipment', function() {
-    officeUserVisitsAllMovesQueue();
-    officeUserViewsMove();
+    officeUserVisitsQueue(queues.all);
+    officeUserViewsMove('COMBO2');
     officeUserVisitsPPMTab();
     officeUserVisitsHHGTab();
     officeUserApprovesShipment();
@@ -24,11 +45,14 @@ function officeUserApprovesShipment() {
   cy.get('.status').contains('Approved');
 }
 
-function officeUserVisitsAllMovesQueue() {
-  cy.patientVisit('/queues/all');
+function officeUserVisitsQueue(queue) {
+  const queueName = queue.toLowerCase();
+  // eslint-disable-next-line security/detect-non-literal-regexp
+  const routePattern = new RegExp(`^/queues/${queueName}`);
+  cy.patientVisit(`/queues/${queueName}`);
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/all/);
+    expect(loc.pathname).to.match(routePattern);
   });
 }
 
@@ -56,12 +80,8 @@ function officeUserVisitsHHGTab() {
   });
 }
 
-function officeUserViewsMove() {
-  // Find move (generated in e2ebasic.go) and open it
-  cy
-    .get('div')
-    .contains('COMBO2')
-    .dblclick();
+function officeUserViewsMove(locator) {
+  cy.selectQueueItemMoveLocator(locator);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);

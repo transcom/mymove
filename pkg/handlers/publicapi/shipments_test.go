@@ -2,6 +2,7 @@ package publicapi
 
 import (
 	"fmt"
+	"github.com/transcom/mymove/pkg/paperwork"
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -15,6 +16,7 @@ import (
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
@@ -350,8 +352,9 @@ func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
 	shipment.Move.Orders.TAC = nil
 	suite.MustSave(&shipment.Move.Orders)
 
+	createForm := paperworkservice.NewCreateForm(context.FileStorer().TempFileSystem(), paperwork.NewFormFiller())
 	// And: the create gbl handler is called
-	handler := CreateGovBillOfLadingHandler{context}
+	handler := CreateGovBillOfLadingHandler{context, createForm}
 	response := handler.Handle(params)
 
 	// Then: expect a 417 status code
@@ -364,14 +367,14 @@ func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
 	suite.MustSave(&shipment.Move.Orders)
 
 	// And: the create gbl handler is called
-	handler = CreateGovBillOfLadingHandler{context}
+	handler = CreateGovBillOfLadingHandler{context, createForm}
 	response = handler.Handle(params)
 
 	// Then: expect a 200 status code
 	suite.Assertions.IsType(&shipmentop.CreateGovBillOfLadingCreated{}, response)
 
 	// When: there is an existing GBL for a shipment and handler is called
-	handler = CreateGovBillOfLadingHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler = CreateGovBillOfLadingHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), createForm}
 	response = handler.Handle(params)
 
 	// Then: expect a 400 status code
@@ -816,6 +819,7 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	}
 
 	response := handler.Handle(params)
+	suite.CheckNotErrorResponse(response)
 	suite.Assertions.IsType(&shipmentop.DeliverShipmentOK{}, response)
 	okResponse := response.(*shipmentop.DeliverShipmentOK)
 	suite.Equal("DELIVERED", string(okResponse.Payload.Status))

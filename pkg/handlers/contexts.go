@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/iws"
@@ -32,12 +33,14 @@ type HandlerContext interface {
 	SetCookieSecret(secret string)
 	NoSessionTimeout() bool
 	SetNoSessionTimeout()
-	IWSRealTimeBrokerService() iws.RealTimeBrokerService
-	SetIWSRealTimeBrokerService(rbs iws.RealTimeBrokerService)
+	IWSPersonLookup() iws.PersonLookup
+	SetIWSPersonLookup(rbs iws.PersonLookup)
 	SendProductionInvoice() bool
 	SetSendProductionInvoice(sendProductionInvoice bool)
 	GexSender() gex.SendToGex
 	SetGexSender(gexSender gex.SendToGex)
+	ICNSequencer() sequence.Sequencer
+	SetICNSequencer(sequencer sequence.Sequencer)
 	DPSAuthParams() dpsauth.Params
 	SetDPSAuthParams(params dpsauth.Params)
 	RespondAndTraceError(ctx context.Context, err error, msg string, fields ...zap.Field) middleware.Responder
@@ -46,17 +49,18 @@ type HandlerContext interface {
 
 // A single handlerContext is passed to each handler
 type handlerContext struct {
-	db                       *pop.Connection
-	logger                   *zap.Logger
-	cookieSecret             string
-	noSessionTimeout         bool
-	planner                  route.Planner
-	storage                  storage.FileStorer
-	notificationSender       notifications.NotificationSender
-	iwsRealTimeBrokerService iws.RealTimeBrokerService
-	sendProductionInvoice    bool
-	dpsAuthParams            dpsauth.Params
-	senderToGex              gex.SendToGex
+	db                    *pop.Connection
+	logger                *zap.Logger
+	cookieSecret          string
+	noSessionTimeout      bool
+	planner               route.Planner
+	storage               storage.FileStorer
+	notificationSender    notifications.NotificationSender
+	iwsPersonLookup       iws.PersonLookup
+	sendProductionInvoice bool
+	dpsAuthParams         dpsauth.Params
+	senderToGex           gex.SendToGex
+	icnSequencer          sequence.Sequencer
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
@@ -144,12 +148,12 @@ func (hctx *handlerContext) SetNoSessionTimeout() {
 	hctx.noSessionTimeout = true
 }
 
-func (hctx *handlerContext) IWSRealTimeBrokerService() iws.RealTimeBrokerService {
-	return hctx.iwsRealTimeBrokerService
+func (hctx *handlerContext) IWSPersonLookup() iws.PersonLookup {
+	return hctx.iwsPersonLookup
 }
 
-func (hctx *handlerContext) SetIWSRealTimeBrokerService(rbs iws.RealTimeBrokerService) {
-	hctx.iwsRealTimeBrokerService = rbs
+func (hctx *handlerContext) SetIWSPersonLookup(rbs iws.PersonLookup) {
+	hctx.iwsPersonLookup = rbs
 }
 
 // SendProductionInvoice is a flag to notify EDI invoice generation whether it should be sent as a test or production transaction
@@ -168,6 +172,14 @@ func (hctx *handlerContext) GexSender() gex.SendToGex {
 
 func (hctx *handlerContext) SetGexSender(sendGexRequest gex.SendToGex) {
 	hctx.senderToGex = sendGexRequest
+}
+
+func (hctx *handlerContext) ICNSequencer() sequence.Sequencer {
+	return hctx.icnSequencer
+}
+
+func (hctx *handlerContext) SetICNSequencer(sequencer sequence.Sequencer) {
+	hctx.icnSequencer = sequencer
 }
 
 func (hctx *handlerContext) DPSAuthParams() dpsauth.Params {

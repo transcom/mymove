@@ -52,7 +52,7 @@ func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
 		return dps.NewGetUserInternalServerError()
 	}
 
-	payload, err := getPayload(h.DB(), loginGovID, h.IWSRealTimeBrokerService())
+	payload, err := getPayload(h.DB(), loginGovID, h.IWSPersonLookup())
 	if err != nil {
 		switch e := err.(type) {
 		case *errUserMissingData:
@@ -67,7 +67,7 @@ func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
 	return dps.NewGetUserOK().WithPayload(payload)
 }
 
-func getPayload(db *pop.Connection, loginGovID string, rbs iws.RealTimeBrokerService) (*dpsmessages.AuthenticationUserPayload, error) {
+func getPayload(db *pop.Connection, loginGovID string, rbs iws.PersonLookup) (*dpsmessages.AuthenticationUserPayload, error) {
 	userIdentity, err := models.FetchUserIdentity(db, loginGovID)
 	if err != nil {
 		return nil, errors.Wrap(err, "Fetching user identity")
@@ -123,7 +123,7 @@ func getPayload(db *pop.Connection, loginGovID string, rbs iws.RealTimeBrokerSer
 	return &payload, nil
 }
 
-func getSSNFromIWS(edipi string, rbs iws.RealTimeBrokerService) (string, error) {
+func getSSNFromIWS(edipi string, rbs iws.PersonLookup) (string, error) {
 	edipiInt, err := strconv.ParseUint(edipi, 10, 64)
 	if err != nil {
 		return "", errors.Wrap(err, "Converting EDIPI from string to int")

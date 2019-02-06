@@ -14,6 +14,7 @@ import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpen
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
 import { submitExpenseDocs } from './ducks.js';
+import scrollToTop from 'shared/scrollToTop';
 
 import './PaymentRequest.css';
 
@@ -71,7 +72,7 @@ export class PaymentRequest extends Component {
         this.props.history.push('/');
       })
       .catch(() => {
-        window.scrollTo(0, 0);
+        scrollToTop();
       });
   }
 

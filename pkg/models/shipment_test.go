@@ -233,7 +233,7 @@ func (suite *ModelSuite) TestCreateShipmentLineItem() {
 		acc.ID,
 		&q1,
 		nil,
-		"O",
+		"ORIGIN",
 		&notes)
 
 	if suite.noValidationErrors(verrs, err) {
@@ -258,14 +258,15 @@ func (suite *ModelSuite) TestSaveShipmentAndLineItems() {
 			ShipmentID:        shipment.ID,
 			Tariff400ngItemID: item.ID,
 			Tariff400ngItem:   item,
+			Location:          ShipmentLineItemLocationDESTINATION,
+			Status:            ShipmentLineItemStatusAPPROVED,
 		}
 		lineItems = append(lineItems, lineItem)
 	}
 
 	verrs, err := shipment.SaveShipmentAndLineItems(suite.DB(), lineItems, []ShipmentLineItem{})
-
 	suite.NoError(err)
-	suite.False(verrs.HasAny())
+	suite.NoVerrs(verrs)
 }
 
 // TestSaveShipmentAndLineItemsDisallowDuplicates tests that duplicate baseline charges with the same
@@ -296,7 +297,7 @@ func (suite *ModelSuite) TestSaveShipmentAndLineItemsDisallowBaselineDuplicates(
 	verrs, err := shipment.SaveShipmentAndLineItems(suite.DB(), lineItems, []ShipmentLineItem{})
 
 	suite.Error(err)
-	suite.False(verrs.HasAny())
+	suite.NoVerrs(verrs)
 }
 
 // TestSaveShipmentAndLineItemsDisallowDuplicates tests that duplicate baseline charges with the same
@@ -323,12 +324,14 @@ func (suite *ModelSuite) TestSaveShipmentAndLineItemsAllowOtherDuplicates() {
 		ShipmentID:        shipment.ID,
 		Tariff400ngItemID: item.ID,
 		Tariff400ngItem:   item,
+		Location:          ShipmentLineItemLocationDESTINATION,
+		Status:            ShipmentLineItemStatusAPPROVED,
 	}
 	lineItems = append(lineItems, lineItem)
 	verrs, err := shipment.SaveShipmentAndLineItems(suite.DB(), []ShipmentLineItem{}, lineItems)
 
 	suite.NoError(err)
-	suite.False(verrs.HasAny())
+	suite.NoVerrs(verrs)
 }
 
 // TestSaveShipment tests that a shipment can be saved
@@ -340,7 +343,7 @@ func (suite *ModelSuite) TestSaveShipment() {
 	verrs, err := SaveShipment(suite.DB(), &shipment)
 
 	suite.NoError(err)
-	suite.False(verrs.HasAny())
+	suite.NoVerrs(verrs)
 }
 
 // TestAcceptedShipmentOffer test that we can retrieve a valid accepted shipment offer

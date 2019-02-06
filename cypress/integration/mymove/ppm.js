@@ -11,7 +11,7 @@ describe('completing the ppm flow', function() {
   //update moves set status='DRAFT';
   //delete from personally_procured_moves
   it('progresses thru forms', function() {
-    cy.contains('Yuma AFB (from Yuma AFB)');
+    cy.contains('Fort Gordon (from Yuma AFB)');
     cy.get('.whole_box > div > :nth-child(3) > span').contains('10,500 lbs');
     cy.contains('Continue Move Setup').click();
 

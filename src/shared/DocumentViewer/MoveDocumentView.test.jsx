@@ -13,7 +13,7 @@ describe('MoveDocumentView', () => {
 
   it('calls onDidMount when the component mounts', () => {
     const onDidMountSpy = jest.fn();
-    const documentView = shallow(
+    shallow(
       <MoveDocumentView
         documentDetailUrlPrefix=""
         match={{ params: {} }}

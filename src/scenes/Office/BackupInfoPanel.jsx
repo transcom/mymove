@@ -10,6 +10,7 @@ import { AddressElementDisplay, AddressElementEdit } from 'shared/Address';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelField, editablePanelify } from 'shared/EditablePanel';
+import { selectBackupContactForServiceMember } from 'shared/Entities/modules/serviceMembers';
 
 const BackupInfoDisplay = props => {
   const backupAddress = props.backupMailingAddress;
@@ -85,9 +86,9 @@ BackupInfoPanel = reduxForm({
   keepDirtyOnReinitialize: true,
 })(BackupInfoPanel);
 
-function mapStateToProps(state) {
-  let serviceMember = get(state, 'office.officeServiceMember', {});
-  let backupContact = get(state, 'office.officeBackupContacts.0', {}); // there can be only one
+function mapStateToProps(state, ownProps) {
+  let serviceMember = ownProps.serviceMember;
+  let backupContact = selectBackupContactForServiceMember(state, serviceMember.id);
 
   return {
     // reduxForm

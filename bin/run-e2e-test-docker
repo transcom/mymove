@@ -64,10 +64,12 @@ $DOCKER_RUN \
   -e NO_TLS_PORT="${HTTP_PORT}" \
   -e SECURE_MIGRATION_DIR \
   -e SECURE_MIGRATION_SOURCE \
+  -e STORAGE_BACKEND=memory \
   -p "${HTTP_PORT}:${HTTP_PORT}" \
   --expose="${HTTP_PORT}" \
   --name="${CONTAINER}" \
   --link="db-dev:database" \
+  --read-only \
   --detach \
   --rm \
   ${CONTAINER}:latest

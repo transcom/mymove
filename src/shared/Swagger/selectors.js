@@ -34,8 +34,10 @@ export function getLastRequestIsSuccess(state, label) {
   const last = getLastRequest(state, label);
   if (last && last.ok) {
     return true;
-  } else {
+  } else if (last) {
     return false;
+  } else {
+    return undefined;
   }
 }
 

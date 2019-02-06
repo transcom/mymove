@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 
 	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -43,6 +45,21 @@ func (v *StringDoesNotContainSSN) IsValid(errors *validate.Errors) {
 	cleanSSN := ignoredCharactersRegex.ReplaceAllString(v.Field, "")
 	if nineDigitsRegex.MatchString(cleanSSN) {
 		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s Cannot store a raw SSN in this field.", v.Name))
+	}
+}
+
+// OptionalTimeIsPresent adds an error if the Field is not nil and also not a valid time
+type OptionalTimeIsPresent struct {
+	Name    string
+	Field   *time.Time
+	Message string
+}
+
+// IsValid adds an error if the Field is not nil and also not a valid time
+func (v *OptionalTimeIsPresent) IsValid(errors *validate.Errors) {
+	if v.Field != nil {
+		timeIsPresent := validators.TimeIsPresent{Name: v.Name, Field: *v.Field, Message: v.Message}
+		timeIsPresent.IsValid(errors)
 	}
 }
 
