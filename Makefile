@@ -208,6 +208,10 @@ server_test_all: server_deps server_generate db_dev_reset db_dev_migrate
 	go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 server_test_coverage_generate: server_deps server_generate db_test_reset db_test_migrate
+	# Don't run tests in /cmd or /pkg/gen
+	# Use -test.parallel 1 to test packages serially and avoid database collisions
+	# Disable test caching with `-count 1` - caching was masking local test failures
+	# Add coverage tracker via go cover
 	go test -coverprofile=coverage.out -covermode=count -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 server_test_coverage: server_deps server_generate db_test_reset db_test_migrate server_test_coverage_generate
