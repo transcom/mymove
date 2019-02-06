@@ -244,6 +244,21 @@ func FetchOrderForPDFConversion(db *pop.Connection, id uuid.UUID) (Order, error)
 	return order, nil
 }
 
+// FetchElectronicOrdersBySharedID gets all revisions of a set of Orders by their shared UUID,
+// sorted in descending order by their sequence number
+func FetchElectronicOrdersBySharedID(db *pop.Connection, sharedID uuid.UUID) ([]Order, error) {
+	var orders []Order
+	err := db.Q().Eager("ServiceMember", "LosingUnit", "GainingUnit").Where("shared_id = $1", sharedID).Order("seq_num DESC").All(orders)
+	if err != nil {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
+			return []Order{}, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return []Order{}, err
+	}
+	return orders, err
+}
+
 // CreateNewMove creates a move associated with these Orders
 func (o *Order) CreateNewMove(db *pop.Connection, moveType *SelectedMoveType) (*Move, *validate.Errors, error) {
 	return createNewMove(db, *o, moveType)

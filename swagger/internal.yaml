@@ -2109,6 +2109,19 @@ definitions:
       - DEPENDENT_TRAVEL
       - BLUEBARK
       - VARIOUS
+      - ACCESSION
+      - BETWEEN_DUTY_STATIONS
+      - BRAC
+      - COT
+      - EMERGENCY_EVAC
+      - IPCOT
+      - LOW_COST_TRAVEL
+      - OPERATIONAL
+      - OTEIP
+      - ROTATIONAL
+      - SPECIAL_PURPOSE
+      - TRAINING
+      - UNIT_MOVE
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       SEPARATION: Separation
@@ -2118,6 +2131,19 @@ definitions:
       DEPENDENT_TRAVEL: Dependent Travel
       BLUEBARK: Bluebark
       VARIOUS: Various
+      ACCESSION: Accession
+      BETWEEN_DUTY_STATIONS: Between Duty Stations
+      BRAC: Base Realignment and Closure (BRAC)
+      COT: Consecutive Overseas Travel (COT)
+      EMERGENCY_EVAC: Emergency Evacuation
+      IPCOT: In-Place Consecutive Overseas Travel (IPCOT)
+      LOW_COST_TRAVEL: Low-Cost Travel
+      OPERATIONAL: Operational
+      OTEIP: Overseas Tour Extension Incentive Program (OTEIP)
+      ROTATIONAL: Rotational
+      SPECIAL_PURPOSE: Special Purpose
+      TRAINING: Training
+      UNIT_MOVE: Unit Move
   OrdersTypeDetail:
     type: string
     title: Orders type detail
