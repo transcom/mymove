@@ -345,7 +345,7 @@ type AdditionalLineItemDimensions struct {
 func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShipmentLineItemParams, additionalParams AdditionalShipmentLineItemParams) (*ShipmentLineItem, *validate.Errors, error) {
 	var quantity2 unit.BaseQuantity
 	if baseParams.Quantity2 != nil {
-		quantity2 = unit.BaseQuantity(*baseParams.Quantity2)
+		quantity2 = *baseParams.Quantity2
 	}
 
 	var notesVal string
@@ -377,7 +377,7 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 		// Non-specified item code
 		shipmentLineItem.ShipmentID = s.ID
 		shipmentLineItem.Tariff400ngItemID = baseParams.Tariff400ngItemID
-		shipmentLineItem.Quantity1 = unit.BaseQuantity(*baseParams.Quantity1)
+		shipmentLineItem.Quantity1 = *baseParams.Quantity1
 		shipmentLineItem.Quantity2 = quantity2
 		shipmentLineItem.Location = ShipmentLineItemLocation(baseParams.Location)
 		shipmentLineItem.Notes = notesVal
