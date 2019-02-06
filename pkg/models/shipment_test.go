@@ -339,7 +339,7 @@ func (suite *ModelSuite) TestCreateShipmentLineItemCode105BAndEMissingDimensions
 	baseParams := BaseShipmentLineItemParams{
 		Tariff400ngItemID:   acc105B.ID,
 		Tariff400ngItemCode: acc105B.Code,
-		Location:            "O",
+		Location:            "ORIGIN",
 		Notes:               &notes,
 	}
 	additionalParams := AdditionalShipmentLineItemParams{}
