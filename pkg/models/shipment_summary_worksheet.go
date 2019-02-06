@@ -182,25 +182,28 @@ func FormatServiceMemberFullName(serviceMember ServiceMember) string {
 
 //FormatAllShipments formats Shipment line items for the Shipment Summary Worksheet
 func FormatAllShipments(ppms PersonallyProcuredMoves, shipments Shipments) ShipmentSummaryWorkSheetShipments {
+	totalShipments := len(shipments) + len(ppms)
 	formattedShipments := ShipmentSummaryWorkSheetShipments{}
-	formattedNumberAndTypes := make([]string, len(shipments)+len(ppms))
-	formattedPickUpDates := make([]string, len(shipments)+len(ppms))
-	formattedShipmentWeights := make([]string, len(shipments)+len(ppms))
-	formattedShipmentStatuses := make([]string, len(shipments)+len(ppms))
+	formattedNumberAndTypes := make([]string, totalShipments)
+	formattedPickUpDates := make([]string, totalShipments)
+	formattedShipmentWeights := make([]string, totalShipments)
+	formattedShipmentStatuses := make([]string, totalShipments)
+	var shipmentNumber int
 
-	for i, shipment := range shipments {
-		formattedNumberAndTypes[i] = FormatShipmentNumberAndType(i)
-		formattedPickUpDates[i] = FormatShipmentPickupDate(shipment)
-		formattedShipmentWeights[i] = FormatShipmentWeight(shipment)
-		formattedShipmentStatuses[i] = FormatCurrentShipmentStatus(shipment)
+	for _, shipment := range shipments {
+		formattedNumberAndTypes[shipmentNumber] = FormatShipmentNumberAndType(shipmentNumber)
+		formattedPickUpDates[shipmentNumber] = FormatShipmentPickupDate(shipment)
+		formattedShipmentWeights[shipmentNumber] = FormatShipmentWeight(shipment)
+		formattedShipmentStatuses[shipmentNumber] = FormatCurrentShipmentStatus(shipment)
+		shipmentNumber++
 	}
-	for j, ppm := range ppms {
-		k := j + len(shipments)
-		formattedNumberAndTypes[k] = FormatPPMNumberAndType(k)
-		formattedPickUpDates[k] = FormatPPMPickupDate(ppm)
+	for _, ppm := range ppms {
+		formattedNumberAndTypes[shipmentNumber] = FormatPPMNumberAndType(shipmentNumber)
+		formattedPickUpDates[shipmentNumber] = FormatPPMPickupDate(ppm)
 		// We don't have an actual weight for ppms yet, so we're leaving it blank for now
-		formattedShipmentWeights[k] = ""
-		formattedShipmentStatuses[k] = FormatCurrentPPMStatus(ppm)
+		formattedShipmentWeights[shipmentNumber] = ""
+		formattedShipmentStatuses[shipmentNumber] = FormatCurrentPPMStatus(ppm)
+		shipmentNumber++
 	}
 
 	formattedShipments.ShipmentNumberAndTypes = strings.Join(formattedNumberAndTypes, "\n\n")
