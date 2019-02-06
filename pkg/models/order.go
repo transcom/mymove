@@ -67,27 +67,27 @@ type Order struct {
 	TAC                 *string                            `json:"tac" db:"tac"`
 	SAC                 *string                            `json:"sac" db:"sac"`
 	DepartmentIndicator *string                            `json:"department_indicator" db:"department_indicator"`
-	SharedID            uuid.UUID                          `json:"sharedId" db:"sharedId"`
-	IsElectronic        bool                               `json:"isElectronic" db:"isElectronic"`
-	SeqNum              int                                `json:"seqNum" db:"seqNum"`
-	NoCostMove          bool                               `json:"noCostMove" db:"noCostMove"`
-	TdyEnRoute          bool                               `json:"tdyEnRoute" db:"tdyEnRoute"`
-	TourType            TourType                           `json:"tourType" db:"tourType"`
-	ReportNoEarlierThan time.Time                          `json:"reportNoEarlierThan" db:"reportNoEarlierThan"`
-	HhgSDN              *string                            `json:"hhgSdn" db:"hhgSdn"`
-	HhgLOA              *string                            `json:"hhgLoa" db:"hhgLoa"`
-	NtsTAC              *string                            `json:"ntsTac" db:"ntsTac"`
-	NtsSDN              *string                            `json:"ntsSdn" db:"ntsSdn"`
-	NtsLOA              *string                            `json:"ntsLoa" db:"ntsLoa"`
-	PovShipmentTAC      *string                            `json:"povShipmentTac" db:"povShipmentTac"`
-	PovShipmentSDN      *string                            `json:"povShipmentSdn" db:"povShipmentSdn"`
-	PovShipmentLOA      *string                            `json:"povShipmentLoa" db:"povShipmentLoa"`
-	PovStorageTAC       *string                            `json:"povStorageTac" db:"povStorageTac"`
-	PovStorageSDN       *string                            `json:"povStorageSdn" db:"povStorageSdn"`
-	PovStorageLOA       *string                            `json:"povStorageLoa" db:"povStorageLoa"`
-	UbTAC               *string                            `json:"ubTac" db:"ubTac"`
-	UbSDN               *string                            `json:"ubSdn" db:"ubSdn"`
-	UbLOA               *string                            `json:"ubLoa" db:"ubLoa"`
+	SharedID            uuid.UUID                          `json:"shared_id" db:"shared_id"`
+	IsElectronic        bool                               `json:"is_electronic" db:"is_electronic"`
+	SeqNum              int                                `json:"seq_num" db:"seq_num"`
+	NoCostMove          bool                               `json:"no_cost_move" db:"no_cost_move"`
+	TdyEnRoute          bool                               `json:"tdy_en_route" db:"tdy_en_route"`
+	TourType            TourType                           `json:"tour_type" db:"tour_type"`
+	ReportNoEarlierThan time.Time                          `json:"report_no_earlier_than" db:"report_no_earlier_than"`
+	HhgSDN              *string                            `json:"hhg_sdn" db:"hhg_sdn"`
+	HhgLOA              *string                            `json:"hhg_loa" db:"hhg_loa"`
+	NtsTAC              *string                            `json:"nts_tac" db:"nts_tac"`
+	NtsSDN              *string                            `json:"nts_sdn" db:"nts_sdn"`
+	NtsLOA              *string                            `json:"nts_loa" db:"nts_loa"`
+	PovShipmentTAC      *string                            `json:"pov_shipment_tac" db:"pov_shipment_tac"`
+	PovShipmentSDN      *string                            `json:"pov_shipment_sdn" db:"pov_shipment_sdn"`
+	PovShipmentLOA      *string                            `json:"pov_shipment_loa" db:"pov_shipment_loa"`
+	PovStorageTAC       *string                            `json:"pov_storage_tac" db:"pov_storage_tac"`
+	PovStorageSDN       *string                            `json:"pov_storage_sdn" db:"pov_storage_sdn"`
+	PovStorageLOA       *string                            `json:"pov_storage_loa" db:"pov_storage_loa"`
+	UbTAC               *string                            `json:"ub_tac" db:"ub_tac"`
+	UbSDN               *string                            `json:"ub_sdn" db:"ub_sdn"`
+	UbLOA               *string                            `json:"ub_loa" db:"ub_loa"`
 	LosingUnitID        uuid.UUID                          `json:"losing_unit_id" db:"losing_unit_id"`
 	LosingUnit          Unit                               `belongs_to:"units"`
 	GainingUnitID       uuid.UUID                          `json:"gaining_unit_id" db:"gaining_unit_id"`
