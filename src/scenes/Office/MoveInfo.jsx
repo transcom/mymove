@@ -75,7 +75,7 @@ const BasicsTabContent = props => {
       <OrdersPanel title="Orders" moveId={props.moveId} />
       <CustomerInfoPanel title="Customer Info" serviceMember={props.serviceMember} />
       <BackupInfoPanel title="Backup Info" serviceMember={props.serviceMember} />
-      <AccountingPanel title="Accounting" serviceMember={props.serviceMember} />
+      <AccountingPanel title="Accounting" serviceMember={props.serviceMember} moveId={props.moveId} />
     </div>
   );
 };

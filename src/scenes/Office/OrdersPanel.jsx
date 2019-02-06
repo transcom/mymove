@@ -142,7 +142,7 @@ function mapStateToProps(state, ownProps) {
     ordersSchema: get(state, 'swaggerInternal.spec.definitions.Orders', {}),
     hasError: false,
     errorMessage: state.office.error,
-    entitlements: loadEntitlements(state),
+    entitlements: loadEntitlements(state, ownProps.moveId),
     isUpdating: false,
     orders,
     serviceMember,
