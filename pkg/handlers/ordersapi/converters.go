@@ -213,14 +213,7 @@ var toAPIOrdersTypeMap = map[internalmessages.OrdersType]ordersmessages.OrdersTy
 	internalmessages.OrdersTypeSPECIALPURPOSE:      ordersmessages.OrdersTypeSpecialPurpose,
 	internalmessages.OrdersTypeTRAINING:            ordersmessages.OrdersTypeTraining,
 	internalmessages.OrdersTypeUNITMOVE:            ordersmessages.OrdersTypeUnitMove,
-	internalmessages.OrdersTypeRETIREMENT:          ordersmessages.OrdersTypeSeparation,
-	// The Orders API does not distinguish between separation and retirement orders, because the services don't distinguish either
 	// FIXME: NO MATCH for internalmessages.OrdersTypePERMANENTCHANGEOFSTATION - PCS happens for many kinds of orders
-	// FIXME: NO MATCH for internalmessages.OrdersTypeLOCALMOVE - that's a move type, not an orders type
-	// FIXME: NO MATCH for internalmessages.OrdersTypeTEMPORARYDUTY. that covers a lot of different types of orders...
-	// FIXME: NO MATCH for internalmessages.OrdersTypeDEPENDENTTRAVEL - like local move, that's a move type, not an orders type
-	// FIXME: NO MATCH for internalmessages.OrdersTypeBLUEBARK - that's a move type, but what do the orders for a deceased service member look like?
-	// FIXME: NO MATCH for internalmessages.OrdersTypeVARIOUS - that's not possible for me to round-trip
 }
 
 func toAPIOrdersType(ot internalmessages.OrdersType) (ordersmessages.OrdersType, error) {
@@ -246,12 +239,6 @@ var fromAPIOrdersTypeMap = map[ordersmessages.OrdersType]internalmessages.Orders
 	ordersmessages.OrdersTypeSpecialPurpose:      internalmessages.OrdersTypeSPECIALPURPOSE,
 	ordersmessages.OrdersTypeTraining:            internalmessages.OrdersTypeTRAINING,
 	ordersmessages.OrdersTypeUnitMove:            internalmessages.OrdersTypeUNITMOVE,
-	// NO MATCH for internalmessages.OrdersTypeRETIREMENT
-	// FIXME: NO MATCH for internalmessages.OrdersTypeLOCALMOVE - that's a move type, not an orders type
-	// FIXME: NO MATCH for internalmessages.OrdersTypeTEMPORARYDUTY. that covers a lot of different types of orders...
-	// FIXME: NO MATCH for internalmessages.OrdersTypeDEPENDENTTRAVEL - like local move, that's a move type, not an orders type
-	// FIXME: NO MATCH for internalmessages.OrdersTypeBLUEBARK - that's a move type, but what do the orders for a deceased service member look like?
-	// FIXME: NO MATCH for internalmessages.OrdersTypeVARIOUS - that's not possible for me to round-trip
 }
 
 func fromAPIOrdersType(ot ordersmessages.OrdersType) (internalmessages.OrdersType, error) {

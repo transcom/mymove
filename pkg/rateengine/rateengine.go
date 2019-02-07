@@ -29,9 +29,14 @@ type RateEngine struct {
 type CostComputation struct {
 	LinehaulCostComputation
 	NonLinehaulCostComputation
-	SITFee unit.Cents
-	SITMax unit.Cents
-	GCC    unit.Cents
+
+	SITFee      unit.Cents
+	SITMax      unit.Cents
+	GCC         unit.Cents
+	LHDiscount  unit.DiscountRate
+	SITDiscount unit.DiscountRate
+	Weight      unit.Pound
+	ShipmentID  uuid.UUID
 }
 
 // Scale scales a cost computation by a multiplicative factor
@@ -46,11 +51,12 @@ func (c *CostComputation) Scale(factor float64) {
 
 // MarshalLogObject allows CostComputation to be logged by Zap.
 func (c CostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
-	encoder.AddInt("BaseLinehaul", c.BaseLinehaul.Int())
-	encoder.AddInt("OriginLinehaulFactor", c.OriginLinehaulFactor.Int())
-	encoder.AddInt("DestinationLinehaulFactor", c.DestinationLinehaulFactor.Int())
-	encoder.AddInt("ShorthaulCharge", c.ShorthaulCharge.Int())
+	if err := encoder.AddObject("Linehaul Components", c.LinehaulCostComputation); err != nil {
+		return err
+	}
+
 	encoder.AddInt("LinehaulChargeTotal", c.LinehaulChargeTotal.Int())
+	encoder.AddInt("FuelSurcharge", c.FuelSurcharge.Fee.Int())
 
 	encoder.AddInt("OriginServiceFee", c.OriginService.Fee.Int())
 	encoder.AddInt("DestinationServiceFee", c.DestinationService.Fee.Int())
@@ -60,6 +66,12 @@ func (c CostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	encoder.AddInt("SITFee", c.SITFee.Int())
 
 	encoder.AddInt("GCC", c.GCC.Int())
+
+	encoder.AddFloat64("LHDiscount", float64(c.LHDiscount))
+	encoder.AddFloat64("SITDiscount", float64(c.SITDiscount))
+	encoder.AddInt("Miles", c.Mileage)
+	encoder.AddInt("Weight", c.Weight.Int())
+	encoder.AddString("ShipmentID", c.ShipmentID.String())
 
 	return nil
 }
@@ -139,6 +151,9 @@ func (re *RateEngine) ComputePPM(
 		SITFee:                     sitFee,
 		SITMax:                     maxSITFee,
 		GCC:                        gcc,
+		LHDiscount:                 lhDiscount,
+		SITDiscount:                sitDiscount,
+		Weight:                     weight,
 	}
 
 	// Finally, scale by prorate factor
@@ -151,30 +166,33 @@ func (re *RateEngine) ComputePPM(
 
 // ComputeShipment Calculates the cost of an HHG move.
 func (re *RateEngine) ComputeShipment(
-	weight unit.Pound,
-	originZip5 string,
-	destinationZip5 string,
-	date time.Time,
+	shipment models.Shipment,
 	daysInSIT int,
 	lhDiscount unit.DiscountRate,
 	sitDiscount unit.DiscountRate) (cost CostComputation, err error) {
 
 	// Weights below 1000lbs are prorated to the 1000lb rate
 	prorateFactor := 1.0
+	weight := *shipment.NetWeight
 	if weight.Int() < 1000 {
 		prorateFactor = weight.Float64() / 1000.0
 		weight = unit.Pound(1000)
 	}
 
+	originZip5 := shipment.PickupAddress.PostalCode
+	destinationZip5 := shipment.Move.Orders.NewDutyStation.Address.PostalCode
+	pickupDate := time.Time(*shipment.ActualPickupDate)
+	bookDate := time.Time(*shipment.BookDate)
+
 	// Linehaul charges
-	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, date)
+	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, pickupDate)
 	if err != nil {
 		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
 		return
 	}
 
 	// Non linehaul charges
-	nonLinehaulCostComputation, err := re.nonLinehaulChargeComputation(weight, originZip5, destinationZip5, date)
+	nonLinehaulCostComputation, err := re.nonLinehaulChargeComputation(weight, originZip5, destinationZip5, pickupDate)
 	if err != nil {
 		re.logger.Error("Failed to compute non-linehaul cost", zap.Error(err))
 		return
@@ -194,10 +212,20 @@ func (re *RateEngine) ComputeShipment(
 	nonLinehaulCostComputation.Pack.Rate = lhDiscount.ApplyToMillicents(nonLinehaulCostComputation.Pack.Rate/1000) * 1000
 	nonLinehaulCostComputation.Unpack.Rate = lhDiscount.ApplyToMillicents(nonLinehaulCostComputation.Unpack.Rate)
 
+	// Calculate FuelSurcharge (FeeAndRate struct) and log it.
+	// We've applied the linehaul discount to the linehaulCostComputation.LinehaulChargeTotal object, so we don't need
+	// to worry about applying it again here.
+	linehaulCostComputation.FuelSurcharge, err = re.fuelSurchargeComputation(linehaulCostComputation.LinehaulChargeTotal, bookDate)
+	if err != nil {
+		return cost, errors.Wrap(err, "Failed to calculate fuel surcharge")
+	}
+	re.logger.Info("Fuel Surcharge Calculated",
+		zap.Any("Fee and Rate", linehaulCostComputation.FuelSurcharge))
+
 	// SIT
 	// Note that SIT has a different discount rate than [non]linehaul charges
 	destinationZip3 := Zip5ToZip3(destinationZip5)
-	sit, err := re.SitCharge(weight.ToCWT(), daysInSIT, destinationZip3, date, true)
+	sit, err := re.SitCharge(weight.ToCWT(), daysInSIT, destinationZip3, pickupDate, true)
 	if err != nil {
 		re.logger.Info("Can't calculate sit")
 		return
@@ -205,7 +233,7 @@ func (re *RateEngine) ComputeShipment(
 	sitFee := sitDiscount.Apply(sit)
 
 	/// Max SIT
-	maxSIT, err := re.SitCharge(weight.ToCWT(), MaxSITDays, destinationZip3, date, true)
+	maxSIT, err := re.SitCharge(weight.ToCWT(), MaxSITDays, destinationZip3, pickupDate, true)
 	if err != nil {
 		re.logger.Info("Can't calculate max sit")
 		return
@@ -220,18 +248,24 @@ func (re *RateEngine) ComputeShipment(
 		nonLinehaulCostComputation.Pack.Fee +
 		nonLinehaulCostComputation.Unpack.Fee
 
+	shipmentID := shipment.ID
+
 	cost = CostComputation{
 		LinehaulCostComputation:    linehaulCostComputation,
 		NonLinehaulCostComputation: nonLinehaulCostComputation,
 		SITFee:                     sitFee,
 		SITMax:                     maxSITFee,
 		GCC:                        gcc,
+		LHDiscount:                 lhDiscount,
+		SITDiscount:                sitDiscount,
+		Weight:                     weight,
+		ShipmentID:                 shipmentID,
 	}
 
 	// Finally, scale by prorate factor
 	cost.Scale(prorateFactor)
 
-	re.logger.Info("PPM cost computation", zap.Object("cost", cost))
+	re.logger.Info("ComputeShipment() cost computation", zap.Object("cost", cost))
 
 	return cost, nil
 }
@@ -287,10 +321,7 @@ func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment) (CostByShipm
 
 	// Apply rate engine to shipment
 	var shipmentCost CostByShipment
-	cost, err := re.ComputeShipment(*shipment.NetWeight,
-		shipment.PickupAddress.PostalCode,
-		shipment.Move.Orders.NewDutyStation.Address.PostalCode,
-		time.Time(*shipment.ActualPickupDate),
+	cost, err := re.ComputeShipment(shipment,
 		daysInSIT, // We don't want any SIT charges
 		lhDiscount,
 		sitDiscount,

@@ -32,41 +32,55 @@ check_arn() {
 show_logs() {
     local arn=$1
     local task_id
-    task_id=$(echo "$arn" | grep -Eo ':task/([[:alnum:]-]+)$' | cut -d / -f 2)
-    echo "CloudWatch logs:"
+    echo "Attempting to get CloudWatch logs for ${arn}:"
+    task_id=$(echo "${arn}" | grep -Eo ":task/${cluster}/([[:alnum:]-]+)$" | cut -d / -f 3)
+    echo "Found task_id ${task_id} for cluster ${cluster}"
+    echo
     aws logs get-log-events --log-group-name "ecs-tasks-$cluster" --log-stream-name "$log_prefix/$container_name/$task_id" --query 'events[].message' || true
     echo
 }
 
 # get network configuration from the cluster we'll run on
+echo "Get the network configuration for ${cluster}"
 network_configuration=$(aws ecs describe-services --services app --cluster "$cluster" --query 'services[0].networkConfiguration')
 readonly network_configuration
 
 # get the DB address
+echo "Get the DB address for app-${environment}"
 db_host=$(aws rds describe-db-instances --db-instance-identifier "app-$environment" --query 'DBInstances[0].Endpoint.Address' | jq -r .)
 readonly db_host
 
 # $DIR/../cmd/renderer/main.go builds its template context from (1) environment variables, (2) file at -v FILE, and (3) positional command line args.
+echo "Get the container definition from template ${template} for environment ${environment} with image ${image} and db host ${db_host}"
 container_definition_json=$(go run "$DIR"/../cmd/renderer/main.go -t "$template" environment="$environment" image="$image" db_host="$db_host")
 readonly container_definition_json
 
 # create new task definition with the given image
+echo "Create a new task definition for task family ${task_family}"
 task_definition_arn=$(aws ecs register-task-definition --network-mode awsvpc --task-role-arn "ecs-task-role-app-$environment" --family "$task_family" --container-definitions "$container_definition_json" --requires-compatibilities FARGATE --execution-role-arn "ecs-task-execution-role-app-$environment" --cpu 256 --memory 512 --query 'taskDefinition.taskDefinitionArn' --output text)
 readonly task_definition_arn
 check_arn "$task_definition_arn"
 
 # run the task
-echo "Running task definition $task_definition_arn …"
+echo "Running task definition $task_definition_arn ..."
 task_arn=$(aws ecs run-task --launch-type FARGATE --network-configuration "$network_configuration" --task-definition "$task_definition_arn" --cluster "$cluster" --query 'tasks[].taskArn' --output text)
 readonly task_arn
 check_arn "$task_arn"
-time aws ecs wait tasks-stopped --tasks "$task_arn" --cluster "$cluster"
 echo
+echo "Wait for tasks to stop for ${task_arn}"
+time aws ecs wait tasks-stopped --tasks "$task_arn" --cluster "$cluster"
 
-# check for success
+# Show logs immediately after wait because if they don't exist they throw a confusing error
+# If there is an error it will be in the ecs task description
+show_logs "$task_arn"
+echo
+aws ecs describe-tasks --tasks "$task_arn" --cluster "$cluster"
+
+echo
+echo "Check for successful deploy of ${task_arn}"
 exit_code=$(aws ecs describe-tasks --tasks "$task_arn" --cluster "$cluster" --query 'tasks[].containers[].exitCode' --output text)
+
 if [[ $exit_code = "0" ]]; then
-    show_logs "$task_arn"
     echo "Task $task_arn finished."
     exit 0
 fi
@@ -74,7 +88,5 @@ fi
 # announce task run failure
 echo "Task $task_arn failed!"
 echo
-aws ecs describe-tasks --tasks "$task_arn" --cluster "$cluster"
-echo
-show_logs "$task_arn"
+echo "If the log stream does not exist check the task description above for 'tasks[].stoppedReason'"
 exit 1

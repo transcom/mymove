@@ -17,7 +17,7 @@
 }
 
 .icon-grey {
-  color: rgba(171,171,171,1.00);
+  color: rgba(171, 171, 171, 1);
 }
 
 .form-column {
@@ -301,7 +301,7 @@ head .panel-subhead {
 }
 
 .approval-waiting {
-  color: #fdb81e;
+  color: #cd3504;
 }
 
 .approval-blocked {
@@ -309,7 +309,7 @@ head .panel-subhead {
 }
 
 .approval-problem {
-  color: #e31c3d;
+  color: #cd3504;
 }
 
 .payment-action {

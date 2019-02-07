@@ -32,6 +32,7 @@ import {
 } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
 import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
+import { selectSitRequests } from 'shared/Entities/modules/sitRequests';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -46,6 +47,7 @@ import {
   transportShipment,
   deliverShipment,
   handleServiceAgents,
+  loadEntitlements,
 } from './ducks';
 import TspContainer from 'shared/TspPanel/TspContainer';
 import Weights from 'shared/ShipmentWeights';
@@ -54,6 +56,7 @@ import LocationsContainer from 'shared/LocationsPanel/LocationsContainer';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
+import StorageInTransitPanel from 'shared/StorageInTransit/StorageInTransitPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
 import PickupForm from './PickupForm';
 import PremoveSurveyForm from './PremoveSurveyForm';
@@ -159,8 +162,12 @@ class ShipmentInfo extends Component {
   };
 
   editServiceAgents = values => {
-    values['destination_service_agent']['role'] = 'DESTINATION';
-    values['origin_service_agent']['role'] = 'ORIGIN';
+    if (values['destination_service_agent']) {
+      values['destination_service_agent']['role'] = 'DESTINATION';
+    }
+    if (values['origin_service_agent']) {
+      values['origin_service_agent']['role'] = 'ORIGIN';
+    }
     this.props.handleServiceAgents(this.props.shipment.id, values);
   };
 
@@ -189,6 +196,7 @@ class ShipmentInfo extends Component {
     const shipmentId = this.props.match.params.shipmentId;
     const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
     const showDocumentViewer = context.flags.documentViewer;
+    const showSitPanel = context.flags.sitPanel;
     const awarded = shipment.status === 'AWARDED';
     const accepted = shipment.status === 'ACCEPTED';
     const approved = shipment.status === 'APPROVED';
@@ -395,7 +403,13 @@ class ShipmentInfo extends Component {
                   <Weights title="Weights & Items" shipment={this.props.shipment} update={this.props.patchShipment} />
                   <LocationsContainer update={this.props.patchShipment} />
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
-                  <InvoicePanel shipmentId={this.props.match.params.shipmentId} shipmentStatus={shipment.status} />
+                  {showSitPanel && (
+                    <StorageInTransitPanel
+                      sitRequests={this.props.sitRequests}
+                      shipmentId={this.props.match.params.shipmentId}
+                      sitEntitlement={this.props.entitlement.storage_in_transit}
+                    />
+                  )}
 
                   <TspContainer
                     title="TSP & Servicing Agents"
@@ -403,6 +417,8 @@ class ShipmentInfo extends Component {
                     serviceAgents={this.props.serviceAgents}
                     transportationServiceProviderId={this.props.shipment.transportation_service_provider_id}
                   />
+
+                  <InvoicePanel shipmentId={this.props.match.params.shipmentId} shipmentStatus={shipment.status} />
                 </div>
               )}
             </div>
@@ -467,6 +483,8 @@ const mapStateToProps = state => {
     serviceAgentSchema: get(state, 'swaggerPublic.spec.definitions.ServiceAgent', {}),
     transportSchema: get(state, 'swaggerPublic.spec.definitions.TransportPayload', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
+    entitlement: loadEntitlements(state),
+    sitRequests: selectSitRequests(state, shipment.id),
   };
 };
 

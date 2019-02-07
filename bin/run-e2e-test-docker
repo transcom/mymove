@@ -35,12 +35,15 @@ docker build --tag e2e:latest .
 # Run the image with the ports changed
 $DOCKER_RUN \
   -e CLIENT_AUTH_SECRET_KEY \
+  -e CSRF_AUTH_KEY \
   -e DB_HOST="database" \
   -e DB_NAME \
   -e DB_PASSWORD \
   -e DB_PORT \
   -e DB_USER \
   -e DOD_CA_PACKAGE="/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b" \
+  -e DPS_AUTH_COOKIE_SECRET_KEY \
+  -e DPS_COOKIE_EXPIRES_IN_MINUTES \
   -e ENV="test" \
   -e HERE_MAPS_APP_CODE \
   -e HERE_MAPS_APP_ID \
@@ -61,11 +64,12 @@ $DOCKER_RUN \
   -e NO_TLS_PORT="${HTTP_PORT}" \
   -e SECURE_MIGRATION_DIR \
   -e SECURE_MIGRATION_SOURCE \
-  -e CSRF_AUTH_KEY \
+  -e STORAGE_BACKEND=memory \
   -p "${HTTP_PORT}:${HTTP_PORT}" \
   --expose="${HTTP_PORT}" \
   --name="${CONTAINER}" \
   --link="db-dev:database" \
+  --read-only \
   --detach \
   --rm \
   ${CONTAINER}:latest

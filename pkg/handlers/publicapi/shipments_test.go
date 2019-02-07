@@ -2,6 +2,7 @@ package publicapi
 
 import (
 	"fmt"
+	"github.com/transcom/mymove/pkg/paperwork"
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -15,6 +16,7 @@ import (
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
@@ -41,6 +43,73 @@ func (suite *HandlerSuite) TestPayloadForShipmentModelWhenTspIDIsPresent() {
 	shipmentPayload := payloadForShipmentModel(*reloadShipment)
 	expectedTspID := *handlers.FmtUUID(tsp.ID)
 	suite.Equal(shipmentPayload.TransportationServiceProviderID, expectedTspID)
+}
+
+func (suite *HandlerSuite) TestPayloadForShipmentWithNullValues() {
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
+	// Set all values that can be nil to nil
+	shipment.SourceGBLOC = nil
+	shipment.DestinationGBLOC = nil
+	shipment.GBLNumber = nil
+	shipment.Market = nil
+	shipment.TrafficDistributionListID = nil
+	shipment.TrafficDistributionList = nil
+	shipment.ActualPickupDate = nil
+	shipment.ActualPackDate = nil
+	shipment.ActualDeliveryDate = nil
+	shipment.BookDate = nil
+	shipment.RequestedPickupDate = nil
+	shipment.OriginalDeliveryDate = nil
+	shipment.OriginalPackDate = nil
+	shipment.EstimatedPackDays = nil
+	shipment.EstimatedTransitDays = nil
+	shipment.PickupAddressID = nil
+	shipment.PickupAddress = nil
+	shipment.SecondaryPickupAddressID = nil
+	shipment.SecondaryPickupAddress = nil
+	shipment.DeliveryAddressID = nil
+	shipment.DeliveryAddress = nil
+	shipment.PartialSITDeliveryAddressID = nil
+	shipment.PartialSITDeliveryAddress = nil
+	shipment.PmSurveyConductedDate = nil
+	shipment.PmSurveyCompletedAt = nil
+	shipment.PmSurveyPlannedPackDate = nil
+	shipment.PmSurveyPlannedPickupDate = nil
+	shipment.PmSurveyPlannedDeliveryDate = nil
+	shipment.PmSurveyWeightEstimate = nil
+	shipment.PmSurveyProgearWeightEstimate = nil
+	shipment.PmSurveySpouseProgearWeightEstimate = nil
+	shipment.PmSurveyNotes = nil
+
+	shipmentPayload := payloadForShipmentModel(shipment)
+	suite.Nil(shipmentPayload.SourceGbloc)
+	suite.Nil(shipmentPayload.DestinationGbloc)
+	suite.Nil(shipmentPayload.GblNumber)
+	suite.Nil(shipmentPayload.Market)
+	suite.Nil(shipmentPayload.TrafficDistributionList)
+	suite.Nil(shipmentPayload.ActualPickupDate)
+	suite.Nil(shipmentPayload.ActualPackDate)
+	suite.Nil(shipmentPayload.ActualDeliveryDate)
+	suite.Nil(shipmentPayload.BookDate)
+	suite.Nil(shipmentPayload.RequestedPickupDate)
+	suite.Nil(shipmentPayload.OriginalDeliveryDate)
+	suite.Nil(shipmentPayload.OriginalPackDate)
+	suite.Nil(shipmentPayload.EstimatedPackDays)
+	suite.Nil(shipmentPayload.EstimatedTransitDays)
+	suite.Nil(shipmentPayload.PickupAddress)
+	suite.Nil(shipmentPayload.SecondaryPickupAddress)
+	suite.Nil(shipmentPayload.DeliveryAddress)
+	suite.Nil(shipmentPayload.PartialSitDeliveryAddress)
+	suite.Nil(shipmentPayload.PmSurveyConductedDate)
+	suite.Nil(shipmentPayload.PmSurveyCompletedAt)
+	suite.Nil(shipmentPayload.PmSurveyPlannedPackDate)
+	suite.Nil(shipmentPayload.PmSurveyPlannedPickupDate)
+	suite.Nil(shipmentPayload.PmSurveyPlannedDeliveryDate)
+	suite.Nil(shipmentPayload.PmSurveyWeightEstimate)
+	suite.Nil(shipmentPayload.PmSurveyProgearWeightEstimate)
+	suite.Nil(shipmentPayload.PmSurveySpouseProgearWeightEstimate)
+	suite.Nil(shipmentPayload.PmSurveyNotes)
 }
 
 func (suite *HandlerSuite) TestGetShipmentHandler() {
@@ -283,8 +352,9 @@ func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
 	shipment.Move.Orders.TAC = nil
 	suite.MustSave(&shipment.Move.Orders)
 
+	createForm := paperworkservice.NewCreateForm(context.FileStorer().TempFileSystem(), paperwork.NewFormFiller())
 	// And: the create gbl handler is called
-	handler := CreateGovBillOfLadingHandler{context}
+	handler := CreateGovBillOfLadingHandler{context, createForm}
 	response := handler.Handle(params)
 
 	// Then: expect a 417 status code
@@ -297,14 +367,14 @@ func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
 	suite.MustSave(&shipment.Move.Orders)
 
 	// And: the create gbl handler is called
-	handler = CreateGovBillOfLadingHandler{context}
+	handler = CreateGovBillOfLadingHandler{context, createForm}
 	response = handler.Handle(params)
 
 	// Then: expect a 200 status code
 	suite.Assertions.IsType(&shipmentop.CreateGovBillOfLadingCreated{}, response)
 
 	// When: there is an existing GBL for a shipment and handler is called
-	handler = CreateGovBillOfLadingHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler = CreateGovBillOfLadingHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), createForm}
 	response = handler.Handle(params)
 
 	// Then: expect a 400 status code
@@ -725,6 +795,11 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 		},
 	})
 
+	// Make sure there's a FuelEIADieselPrice to use
+	assertions := testdatagen.Assertions{}
+	assertions.FuelEIADieselPrice.BaselineRate = 6
+	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
+
 	// Handler to Test
 	handler := DeliverShipmentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	handler.SetPlanner(route.NewTestingPlanner(1044))
@@ -744,6 +819,7 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	}
 
 	response := handler.Handle(params)
+	suite.CheckNotErrorResponse(response)
 	suite.Assertions.IsType(&shipmentop.DeliverShipmentOK{}, response)
 	okResponse := response.(*shipmentop.DeliverShipmentOK)
 	suite.Equal("DELIVERED", string(okResponse.Payload.Status))

@@ -1,7 +1,6 @@
 package internalapi
 
 import (
-	"os"
 	"time"
 
 	"github.com/facebookgo/clock"
@@ -11,9 +10,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/edi"
-	"github.com/transcom/mymove/pkg/edi/gex"
-	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -46,12 +42,6 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 		codeOfService = &s.TrafficDistributionList.CodeOfService
 	}
 
-	var serviceAgentPayloads []*internalmessages.ServiceAgent
-	for _, serviceAgent := range s.ServiceAgents {
-		payload := payloadForServiceAgentModel(serviceAgent)
-		serviceAgentPayloads = append(serviceAgentPayloads, payload)
-	}
-
 	var moveDatesSummary internalmessages.ShipmentMoveDatesSummary
 	if s.RequestedPickupDate != nil && s.EstimatedPackDays != nil && s.EstimatedTransitDays != nil {
 		summary, err := calculateMoveDatesFromShipment(&s)
@@ -69,18 +59,18 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 	shipmentPayload := &internalmessages.Shipment{
 		ID:               strfmt.UUID(s.ID.String()),
 		Status:           internalmessages.ShipmentStatus(s.Status),
-		SourceGbloc:      s.SourceGBLOC,
-		DestinationGbloc: s.DestinationGBLOC,
-		Market:           s.Market,
+		SourceGbloc:      payloadForGBLOC(s.SourceGBLOC),
+		DestinationGbloc: payloadForGBLOC(s.DestinationGBLOC),
+		Market:           payloadForMarkets(s.Market),
 		CodeOfService:    codeOfService,
 		CreatedAt:        strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:        strfmt.DateTime(s.UpdatedAt),
 
 		// associations
 		TrafficDistributionListID: handlers.FmtUUIDPtr(s.TrafficDistributionListID),
+		TrafficDistributionList:   payloadForTrafficDistributionListModel(s.TrafficDistributionList),
 		ServiceMemberID:           strfmt.UUID(s.ServiceMemberID.String()),
 		MoveID:                    strfmt.UUID(s.MoveID.String()),
-		ServiceAgents:             serviceAgentPayloads,
 
 		// dates
 		ActualPickupDate:     handlers.FmtDatePtr(s.ActualPickupDate),
@@ -109,6 +99,7 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 		WeightEstimate:              handlers.FmtPoundPtr(s.WeightEstimate),
 		ProgearWeightEstimate:       handlers.FmtPoundPtr(s.ProgearWeightEstimate),
 		SpouseProgearWeightEstimate: handlers.FmtPoundPtr(s.SpouseProgearWeightEstimate),
+		NetWeight:                   handlers.FmtPoundPtr(s.NetWeight),
 		GrossWeight:                 handlers.FmtPoundPtr(s.GrossWeight),
 		TareWeight:                  handlers.FmtPoundPtr(s.TareWeight),
 
@@ -123,6 +114,10 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 		PmSurveySpouseProgearWeightEstimate: handlers.FmtPoundPtr(s.PmSurveySpouseProgearWeightEstimate),
 		PmSurveyNotes:                       s.PmSurveyNotes,
 		PmSurveyMethod:                      s.PmSurveyMethod,
+	}
+	tspID := s.CurrentTransportationServiceProviderID()
+	if tspID != uuid.Nil {
+		shipmentPayload.TransportationServiceProviderID = *handlers.FmtUUID(tspID)
 	}
 	return shipmentPayload, nil
 }
@@ -495,7 +490,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 	}
 	if shipment.Status != models.ShipmentStatusDELIVERED && shipment.Status != models.ShipmentStatusCOMPLETED {
 		h.Logger().Error("Shipment status not in delivered state.")
-		return shipmentop.NewCreateAndSendHHGInvoiceConflict()
+		return shipmentop.NewCreateAndSendHHGInvoicePreconditionFailed()
 	}
 
 	//for now we limit a shipment to 1 invoice
@@ -524,47 +519,28 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	// pass value into generator --> edi string
-	invoice858C, err := ediinvoice.Generate858C(shipment, invoice, h.DB(), h.SendProductionInvoice(), clock.New())
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-	// to use for demo visual
-	// should this have a flag or be taken out?
-	ediWriter := edi.NewWriter(os.Stdout)
-	ediWriter.WriteAll(invoice858C.Segments())
-
-	// send edi through gex post api
-	transactionName := "placeholder"
-	invoice858CString, err := invoice858C.EDIString()
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-	resp, err := gex.SendInvoiceToGex(invoice858CString, transactionName)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	// get response from gex --> use status as status for this invoice call
-	if resp.StatusCode != 200 {
-		h.Logger().Error("Invoice POST request to GEX failed", zap.Int("status", resp.StatusCode))
-		// Update invoice record as failed
-		invoice.Status = models.InvoiceStatusSUBMISSIONFAILURE
-		verrs, err := h.DB().ValidateAndSave(&invoice)
-		if verrs.HasAny() {
-			h.Logger().Error("Failed to update invoice records to failed state with validation errors", zap.Error(verrs))
-		}
-		if err != nil {
-			h.Logger().Error("Failed to update invoice records to failed state", zap.Error(err))
-		}
-		return shipmentop.NewCreateAndSendHHGInvoiceInternalServerError()
-	}
-
-	// Update invoice record as submitted
-	shipmentLineItems := shipment.ShipmentLineItems
-	verrs, err = invoiceop.UpdateInvoiceSubmitted{DB: h.DB()}.Call(&invoice, shipmentLineItems)
+	invoice858CString, verrs, err := invoiceop.ProcessInvoice{
+		DB:                    h.DB(),
+		GexSender:             h.GexSender(),
+		SendProductionInvoice: h.SendProductionInvoice(),
+		ICNSequencer:          h.ICNSequencer(),
+	}.Call(&invoice, shipment)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+
+	// Send invoice to S3 for storage if response from GEX is successful
+	fs := h.FileStorer()
+	verrs, err = invoiceop.StoreInvoice858C{
+		DB:     h.DB(),
+		Logger: h.Logger(),
+		Storer: &fs,
+	}.Call(*invoice858CString, &invoice, session.UserID)
+	if verrs.HasAny() {
+		h.Logger().Error("Failed to store invoice record to s3, with validation errors", zap.Error(verrs))
+	}
+	if err != nil {
+		h.Logger().Error("Failed to store invoice record to s3, with error", zap.Error(err))
 	}
 
 	payload := payloadForInvoiceModel(&invoice)

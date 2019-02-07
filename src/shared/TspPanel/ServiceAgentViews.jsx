@@ -1,8 +1,9 @@
-import React, { Fragment } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 
 export const ServiceAgentDisplay = ({ serviceAgentProps, saRole }) => {
   return (
@@ -23,10 +24,10 @@ ServiceAgentDisplay.propTypes = {
   }),
 };
 
-export const ServiceAgentEdit = ({ serviceAgentProps, saRole }) => {
+export const ServiceAgentEdit = ({ serviceAgentProps, saRole, columnSize }) => {
   return (
     <Fragment>
-      <div className="editable-panel-3-column">
+      <div className={columnSize}>
         <span className="column-subhead">{saRole} agent</span>
         <SwaggerField fieldName="company" required {...serviceAgentProps} />
         <SwaggerField fieldName="email" required {...serviceAgentProps} />
@@ -35,6 +36,36 @@ export const ServiceAgentEdit = ({ serviceAgentProps, saRole }) => {
     </Fragment>
   );
 };
+
+export class OptionalServiceAgentEdit extends Component {
+  state = {
+    showOptionalServiceAgent: false,
+  };
+
+  setShowOptionalServiceAgent = showOptionalServiceAgent => {
+    this.setState({ showOptionalServiceAgent });
+  };
+
+  render() {
+    const { serviceAgentProps, saRole, columnSize } = this.props;
+    return (
+      <Fragment>
+        <div className={columnSize}>
+          <span className="column-subhead">{saRole} agent</span>
+          <p className="optional-destination-agent-question">Have you assigned a destination servicing agent yet?</p>
+          <YesNoBoolean value={this.state.showOptionalServiceAgent} onChange={this.setShowOptionalServiceAgent} />
+          {this.state.showOptionalServiceAgent && (
+            <div>
+              <SwaggerField fieldName="company" required {...serviceAgentProps} />
+              <SwaggerField fieldName="email" required {...serviceAgentProps} />
+              <SwaggerField fieldName="phone_number" required {...serviceAgentProps} />
+            </div>
+          )}
+        </div>
+      </Fragment>
+    );
+  }
+}
 
 export const TransportationServiceProviderDisplay = ({ tsp }) => {
   const { name, standard_carrier_alpha_code, poc_general_email, poc_general_phone } = tsp;

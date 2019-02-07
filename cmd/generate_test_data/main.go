@@ -23,10 +23,8 @@ func main() {
 	namedScenario := flag.String("named-scenario", "", "It's like a scenario, but more descriptive.")
 	flag.Parse()
 
-	logger, err := zap.NewDevelopment()
-
 	//DB connection
-	err = pop.AddLookupPaths(*config)
+	err := pop.AddLookupPaths(*config)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -34,12 +32,6 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
-
-	// Initialize storage and uploader
-	zap.L().Info("Using filesystem storage backend")
-	fsParams := storage.DefaultFilesystemParams(logger)
-	storer := storage.NewFilesystem(fsParams)
-	loader := uploader.NewUploader(db, logger, storer)
 
 	if *scenario == 1 {
 		tdgs.RunAwardQueueScenario1(db)
@@ -81,6 +73,18 @@ func main() {
 		testdatagen.MakeDefaultOfficeUser(db)
 		log.Print("Success! Created TSP test data.")
 	} else if *namedScenario == tdgs.E2eBasicScenario.Name {
+		// Initialize logger
+		logger, err := zap.NewDevelopment()
+		if err != nil {
+			log.Panic(err)
+		}
+
+		// Initialize storage and uploader
+		zap.L().Info("Using memory storage backend")
+		fsParams := storage.NewMemoryParams("tmp", "testdata", logger)
+		storer := storage.NewMemory(fsParams)
+		loader := uploader.NewUploader(db, logger, storer)
+
 		tdgs.E2eBasicScenario.Run(db, loader, logger, storer)
 		log.Print("Success! Created e2e test data.")
 	} else {

@@ -1,6 +1,8 @@
 package rateengine
 
-import "github.com/transcom/mymove/pkg/unit"
+import (
+	"github.com/transcom/mymove/pkg/unit"
+)
 
 type pricer interface {
 	price(rate unit.Cents, q1 unit.BaseQuantity, discount *unit.DiscountRate) unit.Cents

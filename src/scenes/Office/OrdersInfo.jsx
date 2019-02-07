@@ -9,6 +9,7 @@ import Alert from 'shared/Alert';
 import DocumentContent from 'shared/DocumentViewer/DocumentContent';
 import OrdersViewerPanel from './OrdersViewerPanel';
 import { loadMoveDependencies } from './ducks.js';
+import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMembers';
 import { stringifyName } from 'shared/utils/serviceMember';
 
 import './office.css';
@@ -65,14 +66,19 @@ OrdersInfo.propTypes = {
   loadMoveDependencies: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = state => ({
-  swaggerError: state.swaggerInternal.hasErrored,
-  ordersSchema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
-  orders: state.office.officeOrders || {},
-  serviceMember: state.office.officeServiceMember || {},
-  loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
-  loadDependenciesHasError: state.office.loadDependenciesHasError,
-});
+const mapStateToProps = state => {
+  const orders = state.office.officeOrders || {};
+  const serviceMember = selectServiceMemberForOrders(state, orders.id);
+
+  return {
+    swaggerError: state.swaggerInternal.hasErrored,
+    ordersSchema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
+    orders,
+    serviceMember,
+    loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
+    loadDependenciesHasError: state.office.loadDependenciesHasError,
+  };
+};
 
 const mapDispatchToProps = dispatch => bindActionCreators({ loadMoveDependencies }, dispatch);
 

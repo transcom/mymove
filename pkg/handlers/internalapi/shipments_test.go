@@ -14,6 +14,71 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+func (suite *HandlerSuite) TestPayloadForShipmentWithNullValues() {
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
+	// Set all values that can be nil to nil
+	shipment.SourceGBLOC = nil
+	shipment.DestinationGBLOC = nil
+	shipment.GBLNumber = nil
+	shipment.Market = nil
+	shipment.TrafficDistributionListID = nil
+	shipment.TrafficDistributionList = nil
+	shipment.ActualPickupDate = nil
+	shipment.ActualPackDate = nil
+	shipment.ActualDeliveryDate = nil
+	shipment.BookDate = nil
+	shipment.RequestedPickupDate = nil
+	shipment.OriginalDeliveryDate = nil
+	shipment.OriginalPackDate = nil
+	shipment.EstimatedPackDays = nil
+	shipment.EstimatedTransitDays = nil
+	shipment.PickupAddressID = nil
+	shipment.PickupAddress = nil
+	shipment.SecondaryPickupAddressID = nil
+	shipment.SecondaryPickupAddress = nil
+	shipment.DeliveryAddressID = nil
+	shipment.DeliveryAddress = nil
+	shipment.PartialSITDeliveryAddressID = nil
+	shipment.PartialSITDeliveryAddress = nil
+	shipment.PmSurveyConductedDate = nil
+	shipment.PmSurveyCompletedAt = nil
+	shipment.PmSurveyPlannedPackDate = nil
+	shipment.PmSurveyPlannedPickupDate = nil
+	shipment.PmSurveyPlannedDeliveryDate = nil
+	shipment.PmSurveyWeightEstimate = nil
+	shipment.PmSurveyProgearWeightEstimate = nil
+	shipment.PmSurveySpouseProgearWeightEstimate = nil
+	shipment.PmSurveyNotes = nil
+
+	shipmentPayload, _ := payloadForShipmentModel(shipment)
+	suite.Nil(shipmentPayload.SourceGbloc)
+	suite.Nil(shipmentPayload.DestinationGbloc)
+	suite.Nil(shipmentPayload.Market)
+	suite.Nil(shipmentPayload.ActualPickupDate)
+	suite.Nil(shipmentPayload.ActualPackDate)
+	suite.Nil(shipmentPayload.ActualDeliveryDate)
+	suite.Nil(shipmentPayload.BookDate)
+	suite.Nil(shipmentPayload.RequestedPickupDate)
+	suite.Nil(shipmentPayload.OriginalDeliveryDate)
+	suite.Nil(shipmentPayload.OriginalPackDate)
+	suite.Nil(shipmentPayload.EstimatedPackDays)
+	suite.Nil(shipmentPayload.EstimatedTransitDays)
+	suite.Nil(shipmentPayload.PickupAddress)
+	suite.Nil(shipmentPayload.SecondaryPickupAddress)
+	suite.Nil(shipmentPayload.DeliveryAddress)
+	suite.Nil(shipmentPayload.PartialSitDeliveryAddress)
+	suite.Nil(shipmentPayload.PmSurveyConductedDate)
+	suite.Nil(shipmentPayload.PmSurveyCompletedAt)
+	suite.Nil(shipmentPayload.PmSurveyPlannedPackDate)
+	suite.Nil(shipmentPayload.PmSurveyPlannedPickupDate)
+	suite.Nil(shipmentPayload.PmSurveyPlannedDeliveryDate)
+	suite.Nil(shipmentPayload.PmSurveyWeightEstimate)
+	suite.Nil(shipmentPayload.PmSurveyProgearWeightEstimate)
+	suite.Nil(shipmentPayload.PmSurveySpouseProgearWeightEstimate)
+	suite.Nil(shipmentPayload.PmSurveyNotes)
+}
+
 func (suite *HandlerSuite) verifyAddressFields(expected, actual *internalmessages.Address) {
 	suite.T().Helper()
 	suite.Equal(expected.StreetAddress1, actual.StreetAddress1, "Street1 did not match")
@@ -23,6 +88,75 @@ func (suite *HandlerSuite) verifyAddressFields(expected, actual *internalmessage
 	suite.Equal(expected.State, actual.State, "State did not match")
 	suite.Equal(expected.PostalCode, actual.PostalCode, "PostalCode did not match")
 	suite.Equal(expected.Country, actual.Country, "Country did not match")
+}
+
+// Tests to ensure we get a non 500 response from a bad zipcode. Expectation is a 404.
+func (suite *HandlerSuite) TestInvalidZipcodeResponse() {
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
+		},
+	})
+	sm := move.Orders.ServiceMember
+
+	// Make associated lookup table records.
+	testdatagen.FetchOrMakeTariff400ngZip3(suite.DB(), testdatagen.Assertions{
+		Tariff400ngZip3: models.Tariff400ngZip3{
+			Zip3:          "012",
+			BasepointCity: "Pittsfield",
+			State:         "MA",
+			ServiceArea:   "388",
+			RateArea:      "US14",
+			Region:        "9",
+		},
+	})
+
+	testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
+		TrafficDistributionList: models.TrafficDistributionList{
+			SourceRateArea:    "US14",
+			DestinationRegion: "9",
+			CodeOfService:     "D",
+		},
+	})
+
+	addressPayload := fakeAddressPayload()
+	zip := "34567"
+	addressPayload.PostalCode = &zip
+	requestedPickupDate := strfmt.Date(testdatagen.DateInsideNonPeakRateCycle)
+
+	newShipment := internalmessages.Shipment{
+		PickupAddress:                addressPayload,
+		HasSecondaryPickupAddress:    handlers.FmtBool(true),
+		SecondaryPickupAddress:       addressPayload,
+		HasDeliveryAddress:           handlers.FmtBool(true),
+		DeliveryAddress:              addressPayload,
+		HasPartialSitDeliveryAddress: handlers.FmtBool(true),
+		PartialSitDeliveryAddress:    addressPayload,
+		WeightEstimate:               swag.Int64(4500),
+		ProgearWeightEstimate:        swag.Int64(325),
+		SpouseProgearWeightEstimate:  swag.Int64(120),
+		RequestedPickupDate:          &requestedPickupDate,
+	}
+
+	req := httptest.NewRequest("POST", "/moves/move_id/shipment", nil)
+	req = suite.AuthenticateRequest(req, sm)
+
+	params := shipmentop.CreateShipmentParams{
+		Shipment:    &newShipment,
+		MoveID:      strfmt.UUID(move.ID.String()),
+		HTTPRequest: req,
+	}
+
+	handler := CreateShipmentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	planner := route.NewTestingPlanner(2000)
+	handler.SetPlanner(planner)
+
+	response := handler.Handle(params)
+	unwrapped := response.(*handlers.ErrResponse)
+
+	suite.Equal(404, unwrapped.Code)
+
 }
 
 func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
@@ -94,7 +228,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 	suite.Equal(strfmt.UUID(sm.ID.String()), createShipmentPayload.ServiceMemberID)
 	suite.Equal(internalmessages.ShipmentStatusDRAFT, createShipmentPayload.Status)
 	suite.Equal(swag.String("D"), createShipmentPayload.CodeOfService)
-	suite.Equal(swag.String("dHHG"), createShipmentPayload.Market)
+	suite.Equal(internalmessages.ShipmentMarketDHHG, *createShipmentPayload.Market)
 	suite.EqualValues(3, *createShipmentPayload.EstimatedPackDays)
 	suite.EqualValues(12, *createShipmentPayload.EstimatedTransitDays)
 	suite.verifyAddressFields(addressPayload, createShipmentPayload.PickupAddress)
@@ -150,7 +284,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 	suite.Equal(strfmt.UUID(move.ID.String()), unwrapped.Payload.MoveID)
 	suite.Equal(strfmt.UUID(sm.ID.String()), unwrapped.Payload.ServiceMemberID)
 	suite.Equal(internalmessages.ShipmentStatusDRAFT, unwrapped.Payload.Status)
-	suite.Equal(swag.String("dHHG"), unwrapped.Payload.Market)
+	suite.Equal(internalmessages.ShipmentMarketDHHG, *unwrapped.Payload.Market)
 	suite.Nil(unwrapped.Payload.CodeOfService) // Won't be able to assign a TDL since we do not have a pickup address.
 	suite.Nil(unwrapped.Payload.EstimatedPackDays)
 	suite.Nil(unwrapped.Payload.EstimatedTransitDays)
@@ -419,5 +553,5 @@ func (suite *HandlerSuite) TestShipmentInvoiceHandlerShipmentWrongState() {
 
 	// assert we got back the conflict response
 	response := handler.Handle(params)
-	suite.Equal(shipmentop.NewCreateAndSendHHGInvoiceConflict(), response)
+	suite.Equal(shipmentop.NewCreateAndSendHHGInvoicePreconditionFailed(), response)
 }

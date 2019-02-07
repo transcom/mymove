@@ -16,6 +16,11 @@ func (suite *RateEngineSuite) TestCreateBaseShipmentLineItems() {
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
 
+	assertions := testdatagen.Assertions{}
+	assertions.FuelEIADieselPrice.BaselineRate = 6
+	assertions.FuelEIADieselPrice.EIAPricePerGallonMillicents = 320700
+	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
+
 	// Refetching shipments from database to get all needed eagerly fetched relationships.
 	dbShipment, err := models.FetchShipmentByTSP(suite.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
 	suite.FatalNoError(err)
@@ -32,7 +37,7 @@ func (suite *RateEngineSuite) TestCreateBaseShipmentLineItems() {
 
 	itemLHS := suite.findLineItem(lineItems, "LHS")
 	if itemLHS != nil {
-		suite.validateLineItemFields(*itemLHS, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(1044), models.ShipmentLineItemLocationNEITHER, unit.Cents(260858), unit.Millicents(0))
+		suite.validateLineItemFields(*itemLHS, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(1044), models.ShipmentLineItemLocationORIGIN, unit.Cents(260858), unit.Millicents(0))
 	}
 
 	item135A := suite.findLineItem(lineItems, "135A")
@@ -57,7 +62,7 @@ func (suite *RateEngineSuite) TestCreateBaseShipmentLineItems() {
 
 	item16A := suite.findLineItem(lineItems, "16A")
 	if item105C != nil {
-		suite.validateLineItemFields(*item16A, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(1044), models.ShipmentLineItemLocationORIGIN, unit.Cents(0), unit.Millicents(0))
+		suite.validateLineItemFields(*item16A, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(1044), models.ShipmentLineItemLocationORIGIN, unit.Cents(15651), unit.Millicents(320700))
 	}
 }
 

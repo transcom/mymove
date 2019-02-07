@@ -153,17 +153,18 @@ server_run_debug:
 	$(AWS_VAULT) dlv debug cmd/webserver/main.go
 
 build_tools: server_deps server_generate
-	go build -i -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
-	go build -i -ldflags "$(LDFLAGS)" -o bin/rateengine ./cmd/demo/rateengine.go
-	go build -i -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
-	go build -i -ldflags "$(LDFLAGS)" -o bin/load-office-data ./cmd/load_office_data
-	go build -i -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
-	go build -i -ldflags "$(LDFLAGS)" -o bin/make-dps-user ./cmd/make_dps_user
-	go build -i -ldflags "$(LDFLAGS)" -o bin/load-user-gen ./cmd/load_user_gen
-	go build -i -ldflags "$(LDFLAGS)" -o bin/paperwork ./cmd/paperwork
-	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/demo/iws.go
 	go build -i -ldflags "$(LDFLAGS)" -o bin/health_checker ./cmd/health_checker
+	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/demo/iws.go
+	go build -i -ldflags "$(LDFLAGS)" -o bin/load-office-data ./cmd/load_office_data
+	go build -i -ldflags "$(LDFLAGS)" -o bin/load-user-gen ./cmd/load_user_gen
+	go build -i -ldflags "$(LDFLAGS)" -o bin/make-dps-user ./cmd/make_dps_user
+	go build -i -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
+	go build -i -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
+	go build -i -ldflags "$(LDFLAGS)" -o bin/paperwork ./cmd/paperwork
+	go build -i -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
 
 tsp_run: build_tools db_dev_run
 	./bin/tsp-award-queue
@@ -172,18 +173,28 @@ build: server_build build_tools client_build
 
 # webserver_test runs a few acceptance tests against a local or remote environment.
 # This can help identify potential errors before deploying a container.
-webserver_test: server_generate
+webserver_test: server_generate build_chamber
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
-	TEST_ACC_DATABASE=0 TEST_ACC_DOD_CERTIFICATES=0 TEST_ACC_HONEYCOMB=0 \
-	go test -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver) 2> /dev/null
+	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 \
+	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver)
+else
+ifndef CIRCLECI
+	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
+	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 \
+	TEST_ACC_CWD=$(PWD) \
+	DISABLE_AWS_VAULT_WRAPPER=1 \
+	aws-vault exec $(AWS_PROFILE) -- \
+	bin/chamber exec app-$(TEST_ACC_ENV) -- \
+	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver)
 else
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
-	TEST_ACC_DATABASE=0 TEST_ACC_DOD_CERTIFICATES=0 TEST_ACC_HONEYCOMB=0 TEST_ACC_CWD=$$(PWD) \
-	aws-vault exec $$AWS_PROFILE -- \
-	chamber exec app-$$TEST_ACC_ENV -- \
-	go test -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver) 2> /dev/null
+	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 \
+	TEST_ACC_CWD=$(PWD) \
+	bin/chamber exec app-$(TEST_ACC_ENV) -- \
+	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver)
+endif
 endif
 
 server_test: server_deps server_generate db_test_reset db_test_migrate
@@ -196,13 +207,14 @@ server_test_all: server_deps server_generate db_dev_reset db_dev_migrate
 	# Like server_test but runs extended tests that may hit external services.
 	go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
-server_test_coverage: server_deps server_generate db_dev_reset db_dev_migrate
+server_test_coverage_generate: server_deps server_generate db_test_reset db_test_migrate
 	# Don't run tests in /cmd or /pkg/gen
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	# Add coverage tracker via go cover
-	# Then open coverage tracker in HTML
-	go test -coverprofile=coverage.out -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+	go test -coverprofile=coverage.out -covermode=count -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+
+server_test_coverage: server_deps server_generate db_test_reset db_test_migrate server_test_coverage_generate
 	go tool cover -html=coverage.out
 
 e2e_test: server_deps server_generate server_build client_build db_e2e_init
@@ -256,11 +268,13 @@ db_dev_run: db_run db_dev_create
 
 db_dev_reset: db_destroy db_dev_run
 
-db_dev_migrate: server_deps
+db_dev_migrate_standalone:
 	@echo "Migrating the ${DB_NAME} database..."
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd bin && \
 		./soda -c ../config/database.yml -p ../migrations migrate up
+
+db_dev_migrate: server_deps db_dev_migrate_standalone
 
 db_test_create:
 	@echo "Create the test database..."
@@ -285,12 +299,14 @@ db_test_migrations_build: .db_test_migrations_build.stamp
 	@echo "Build the docker migration container..."
 	docker build -f Dockerfile.migrations_local --tag e2e_migrations:latest .
 
-db_test_migrate: server_deps
+db_test_migrate_standalone:
 	@echo "Migrating the test database..."
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd bin && \
 		DB_NAME=test_db \
 		./soda -c ../config/database.yml -p ../migrations migrate up
+
+db_test_migrate: server_deps db_test_migrate_standalone
 
 db_test_migrate_docker: db_test_migrations_build
 	@echo "Migrating the test database with docker command..."

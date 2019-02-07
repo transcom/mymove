@@ -24,6 +24,10 @@ const (
 	InvoiceStatusSUBMITTED InvoiceStatus = "SUBMITTED"
 	// InvoiceStatusSUBMISSIONFAILURE captures enum value "SUBMISSION_FAILURE"
 	InvoiceStatusSUBMISSIONFAILURE InvoiceStatus = "SUBMISSION_FAILURE"
+	// InvoiceStatusUPDATEFAILURE captures enum value "UPDATE_FAILURE"
+	// This status indicates that the invoice was successfully submitted, but the updating of the invoice
+	// and associated shipment line items failed.
+	InvoiceStatusUPDATEFAILURE InvoiceStatus = "UPDATE_FAILURE"
 )
 
 // Invoice is a collection of line item charges to be sent for payment
@@ -39,6 +43,8 @@ type Invoice struct {
 	ShipmentLineItems ShipmentLineItems `has_many:"shipment_line_items"`
 	CreatedAt         time.Time         `json:"created_at" db:"created_at"`
 	UpdatedAt         time.Time         `json:"updated_at" db:"updated_at"`
+	UploadID          *uuid.UUID        `json:"upload_id" db:"upload_id"`
+	Upload            *Upload           `belongs_to:"uploads"`
 }
 
 // Invoices is an array of invoices

@@ -48,10 +48,7 @@ function officeUserOpensHhgPanelForMove(moveLocator) {
   });
 
   // Find move and open it
-  cy
-    .get('div')
-    .contains(moveLocator)
-    .dblclick();
+  cy.selectQueueItemMoveLocator(moveLocator);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -82,7 +79,7 @@ function officeUserEditsServiceAgentPanel() {
 }
 
 function officeUserSeesBlankTspData() {
-  const tspFields = cy
+  cy
     .get('.editable-panel-3-column')
     .contains('TSP')
     .parent()

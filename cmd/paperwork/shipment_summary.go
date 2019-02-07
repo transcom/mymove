@@ -67,7 +67,7 @@ func main() {
 		storer = storage.NewS3(*s3Bucket, *s3KeyNamespace, logger, aws)
 	} else {
 		zap.L().Info("Using filesystem storage backend")
-		fsParams := storage.DefaultFilesystemParams(logger)
+		fsParams := storage.NewFilesystemParams("tmp", "storage", logger)
 		storer = storage.NewFilesystem(fsParams)
 	}
 	uploader := uploader.NewUploader(db, logger, storer)

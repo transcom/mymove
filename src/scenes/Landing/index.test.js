@@ -2,13 +2,12 @@ import 'raf/polyfill';
 import React from 'react';
 
 import { Provider } from 'react-redux';
-import ReactDOM from 'react-dom';
 import moment from 'moment';
 import configureStore from 'redux-mock-store';
 import { shallow, mount } from 'enzyme';
 
 import { Landing } from '.';
-import { MoveSummary, DraftMoveSummary } from './MoveSummary';
+import { MoveSummary } from './MoveSummary';
 
 describe('HomePage tests', () => {
   let wrapper;
@@ -87,16 +86,11 @@ describe('HomePage tests', () => {
           />,
           div,
         );
-        const moveSummary = shallow(
+
+        expect(
           wrapper
             .find(MoveSummary)
             .dive()
-            .props()
-            .children(),
-        );
-
-        expect(
-          moveSummary
             .find('.status-component')
             .dive()
             .find('.step')
@@ -134,15 +128,10 @@ describe('HomePage tests', () => {
           />,
           div,
         );
-        const moveSummary = shallow(
+        expect(
           wrapper
             .find(MoveSummary)
             .dive()
-            .props()
-            .children(),
-        );
-        expect(
-          moveSummary
             .find('.status-component')
             .dive()
             .find('.step')

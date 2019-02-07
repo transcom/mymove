@@ -1,5 +1,5 @@
 import * as mime from 'mime-types';
-import { milmoveAppName, officeAppName, tspAppName } from './constants';
+import { milmoveAppName, officeAppName, tspAppName, longPageLoadTimeout } from './constants';
 
 /* global Cypress, cy */
 // ***********************************************
@@ -46,10 +46,12 @@ Cypress.Commands.add('signIntoMyMoveAsUser', userId => {
 Cypress.Commands.add('signIntoOffice', () => {
   cy.setupBaseUrl(officeAppName);
   cy.signInAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
+  cy.waitForReactTableLoad();
 });
 Cypress.Commands.add('signIntoTSP', () => {
   cy.setupBaseUrl(tspAppName);
   cy.signInAsUser('6cd03e5b-bee8-4e97-a340-fecb8f3d5465');
+  cy.waitForReactTableLoad();
 });
 Cypress.Commands.add('signInAsUser', userId => {
   // make sure we log out first before sign in
@@ -65,18 +67,36 @@ Cypress.Commands.add('signInAsUser', userId => {
 // Reloads the page but makes an attempt to wait for the loading screen to disappear
 Cypress.Commands.add('patientReload', () => {
   cy.reload();
-  cy.waitForLoadingScreen(10000);
+  cy.waitForLoadingScreen();
 });
 
 // Visits a given URL but makes an attempt to wait for the loading screen to disappear
 Cypress.Commands.add('patientVisit', url => {
   cy.visit(url);
-  cy.waitForLoadingScreen(10000);
+  cy.waitForLoadingScreen();
 });
 
 // Waits for the loading screen to disappear for a given amount of milliseconds
-Cypress.Commands.add('waitForLoadingScreen', ms => {
+Cypress.Commands.add('waitForLoadingScreen', (ms = longPageLoadTimeout) => {
   cy.get('h2[data-name="loading-placeholder"]', { timeout: ms }).should('not.exist');
+});
+
+// Attempts to double-click a given move locator in a shipment queue list
+Cypress.Commands.add('waitForReactTableLoad', () => {
+  // Wait for ReactTable loading to be completed
+  cy.get('.ReactTable').within(() => {
+    cy.get('.-loading.-active', { timeout: longPageLoadTimeout }).should('not.exist');
+  });
+});
+
+// Attempts to double-click a given move locator in a shipment queue list
+Cypress.Commands.add('selectQueueItemMoveLocator', moveLocator => {
+  cy.waitForReactTableLoad();
+
+  cy
+    .get('div')
+    .contains(moveLocator)
+    .dblclick();
 });
 
 Cypress.Commands.add(

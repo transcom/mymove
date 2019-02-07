@@ -1,15 +1,15 @@
 package scenario
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/go-openapi/swag"
-	"go.uber.org/zap"
-
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/dates"
@@ -49,7 +49,7 @@ var nowMinusFive = dates.NextValidMoveDate(nowTime.AddDate(0, 0, -5), cal)
 var nowMinusTen = dates.NextValidMoveDate(nowTime.AddDate(0, 0, -10), cal)
 
 // Run does that data load thing
-func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger *zap.Logger, storer *storage.Filesystem) {
+func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger *zap.Logger, storer *storage.Memory) {
 	/*
 	 * Basic user with tsp access
 	 */
@@ -372,23 +372,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
-	// Check if Fort Gordon exists, if not, create
-	// Move date picker for this test case only works with an address of street name "Fort Gordon"
-	fortGordon, err := models.FetchDutyStationByName(db, "Fort Gordon")
-	if err != nil {
-		fortGordonAssertions := testdatagen.Assertions{
-			Address: models.Address{
-				City:       "Augusta",
-				State:      "GA",
-				PostalCode: "30813",
-			},
-			DutyStation: models.DutyStation{
-				Name: "Fort Gordon",
-			},
-		}
-		fortGordon = testdatagen.MakeDutyStation(db, fortGordonAssertions)
-	}
-
 	testdatagen.MakeMoveWithoutMoveType(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("b5d1f44b-5ceb-4a0e-9119-5687808996ff"),
@@ -397,8 +380,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			LastName:      models.StringPointer("UserPerson"),
 			Edipi:         models.StringPointer("6833908163"),
 			PersonalEmail: models.StringPointer(email),
-			DutyStationID: &fortGordon.ID,
-			DutyStation:   fortGordon,
 		},
 		Order: models.Order{
 			HasDependents:    true,
@@ -431,8 +412,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			LastName:      models.StringPointer("UserPerson2"),
 			Edipi:         models.StringPointer("6833908164"),
 			PersonalEmail: models.StringPointer(email),
-			DutyStationID: &fortGordon.ID,
-			DutyStation:   fortGordon,
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("b2ecbbe5-36ad-49fc-86c8-66e55e0697a7"),
@@ -1979,6 +1958,83 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	hhg33 := offer33.Shipment
 	hhg33.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg33.Move)
+
+	/*
+	 * Service member with accepted move but needs to be assigned an origin service agent
+	 */
+	email = "hhg@assignorigin.serviceagent"
+	offer34 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("2a14af24-5448-414b-a114-e943d695a371")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("95ca8bc7-2fbd-46f7-871d-ddb3f8472b8d"),
+			FirstName:     models.StringPointer("AssignOrigin"),
+			LastName:      models.StringPointer("ServiceAgent"),
+			Edipi:         models.StringPointer("4444512345"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("5bd2eb88-ca20-4678-8253-04da76db0a52"),
+			Locator:          "ASNORG",
+			SelectedMoveType: &selectedMoveTypeHHG,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("0a93b301-1b66-4a22-ab0e-027ec19d81d9"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusACCEPTED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+		},
+	})
+	hhg34 := offer34.Shipment
+	hhg34.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg34.Move)
+
+	/*
+	 * Service member with accepted move for use in testing SIT panel
+	 */
+	email = "hhg@sit.panel"
+	offer35 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("08e0eb2c-d80f-494c-ae49-bd3497e41613")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("b6d43527-3fd2-4f04-936a-a69e7641a552"),
+			FirstName:     models.StringPointer("SIT"),
+			LastName:      models.StringPointer("Panel"),
+			Edipi:         models.StringPointer("1357924680"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("b6d43527-3fd2-4f04-936a-a69e7641a552"),
+			Locator:          "SITPAN",
+			SelectedMoveType: &selectedMoveTypeHHG,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("acb1a5f4-8750-4853-8db6-73b2acbe95d6"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusACCEPTED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+	hhg35 := offer35.Shipment
+	hhg35.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg35.Move)
 }
 
 // MakeHhgWithPpm creates an HHG user who has added a PPM
@@ -2039,6 +2095,216 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 	})
 	ppm.Move.Submit()
 	models.SaveMoveDependencies(db, &ppm.Move)
+
+	email2 := "hhgwithppm@approve.shipment"
+	userID2 := uuid.Must(uuid.FromString("144f63c5-676f-4c36-a849-5588bd60c33f"))
+	moveID2 := uuid.FromStringOrNil("27266e89-df79-4469-8843-05b45741a818")
+	smID2 := uuid.FromStringOrNil("f753c28f-5da4-4924-9955-dba90b1b3011")
+	ordersTypeDetail := internalmessages.OrdersTypeDetailPCSTDY
+
+	testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            userID2,
+			LoginGovEmail: email2,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            smID2,
+			FirstName:     models.StringPointer("HHGPPM"),
+			LastName:      models.StringPointer("ApproveShipment"),
+			Edipi:         models.StringPointer("4224567890"),
+			PersonalEmail: models.StringPointer(email2),
+		},
+		Order: models.Order{
+			IssueDate:        time.Date(2018, time.May, 20, 0, 0, 0, 0, time.UTC),
+			OrdersTypeDetail: &ordersTypeDetail,
+		},
+		Move: models.Move{
+			ID:               moveID2,
+			Locator:          "COMBO2",
+			SelectedMoveType: &selectedMoveTypeHHGPPM,
+			Status:           models.MoveStatusAPPROVED,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("ceb40c74-41a4-48cd-a53b-f7f5a81c7ebc"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status:             models.ShipmentStatusACCEPTED,
+			HasDeliveryAddress: true,
+			GBLNumber:          models.StringPointer("LKNQ7123456"),
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+		},
+	})
+
+	ppm2 := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID: smID2,
+		},
+		Move: models.Move{
+			ID: moveID2,
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			PlannedMoveDate: &nowTime,
+			MoveID:          moveID2,
+		},
+		Uploader: loader,
+	})
+	ppm2.Move.Submit()
+	models.SaveMoveDependencies(db, &ppm2.Move)
+
+	email3 := "delivered@hhg.ppm"
+	userID3 := uuid.Must(uuid.FromString("70ad85ce-bb8b-4def-b138-344d7438efe2"))
+	moveID3 := uuid.FromStringOrNil("fbde058b-fed7-4612-8f48-5cf6d17c8ded")
+	smID3 := uuid.FromStringOrNil("f443ed0c-576d-41dd-9815-436c714cfd79")
+	weightEstimate := unit.Pound(5000)
+	sourceOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "ABCD",
+		},
+	})
+	destOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: "QRED",
+		},
+	})
+	testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            userID3,
+			LoginGovEmail: email3,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            smID3,
+			FirstName:     models.StringPointer("HHGPPM"),
+			LastName:      models.StringPointer("Delivered"),
+			Edipi:         models.StringPointer("4224567890"),
+			PersonalEmail: models.StringPointer(email3),
+		},
+		Order: models.Order{
+			IssueDate:        time.Date(2018, time.May, 20, 0, 0, 0, 0, time.UTC),
+			OrdersTypeDetail: &ordersTypeDetail,
+		},
+		Move: models.Move{
+			ID:               moveID3,
+			Locator:          "COMBO3",
+			SelectedMoveType: &selectedMoveTypeHHGPPM,
+			Status:           models.MoveStatusAPPROVED,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("efe2d407-af23-4838-aba8-5bc6dd6696ba"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status:             models.ShipmentStatusDELIVERED,
+			HasDeliveryAddress: true,
+			GBLNumber:          models.StringPointer("LKNQ7123456"),
+
+			ActualPickupDate:            &nowMinusFive,
+			PmSurveyMethod:              "PHONE",
+			PmSurveyPlannedPackDate:     &nowPlusOne,
+			PmSurveyPlannedPickupDate:   &nowPlusFive,
+			PmSurveyConductedDate:       &nowPlusOne,
+			PmSurveyCompletedAt:         &nowPlusOne,
+			PmSurveyPlannedDeliveryDate: &nowPlusTen,
+			PmSurveyWeightEstimate:      &weightEstimate,
+			SourceGBLOC:                 &sourceOffice.Gbloc,
+			DestinationGBLOC:            &destOffice.Gbloc,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+		},
+	})
+
+	ppm3 := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID: smID3,
+		},
+		Move: models.Move{
+			ID: moveID3,
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			PlannedMoveDate: &nowTime,
+			MoveID:          moveID3,
+		},
+		Uploader: loader,
+	})
+	ppm3.Move.Submit()
+	models.SaveMoveDependencies(db, &ppm3.Move)
+
+	email4 := "completed@hhg.ppm"
+	userID4 := uuid.Must(uuid.FromString("c361b804-fac8-4c58-9efb-6f6fdcc364f5"))
+	moveID4 := uuid.FromStringOrNil("c4691535-4d5d-4dee-82ec-5be5e296f0c6")
+	smID4 := uuid.FromStringOrNil("357c70b4-d925-45a6-9f53-02f32e763a91")
+
+	testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            userID4,
+			LoginGovEmail: email4,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            smID4,
+			FirstName:     models.StringPointer("HHGPPM"),
+			LastName:      models.StringPointer("Completed"),
+			Edipi:         models.StringPointer("4224567890"),
+			PersonalEmail: models.StringPointer(email4),
+		},
+		Order: models.Order{
+			IssueDate:        time.Date(2018, time.May, 20, 0, 0, 0, 0, time.UTC),
+			OrdersTypeDetail: &ordersTypeDetail,
+		},
+		Move: models.Move{
+			ID:               moveID4,
+			Locator:          "COMBO4",
+			SelectedMoveType: &selectedMoveTypeHHGPPM,
+			Status:           models.MoveStatusAPPROVED,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("37f33cb7-97b0-432f-bfc0-a7bee1cb6ec9"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status:             models.ShipmentStatusCOMPLETED,
+			HasDeliveryAddress: true,
+			GBLNumber:          models.StringPointer("LKNQ7123456"),
+
+			ActualPickupDate:            &nowMinusFive,
+			PmSurveyMethod:              "PHONE",
+			PmSurveyPlannedPackDate:     &nowPlusOne,
+			PmSurveyPlannedPickupDate:   &nowPlusFive,
+			PmSurveyConductedDate:       &nowPlusOne,
+			PmSurveyCompletedAt:         &nowPlusOne,
+			PmSurveyPlannedDeliveryDate: &nowPlusTen,
+			PmSurveyWeightEstimate:      &weightEstimate,
+			SourceGBLOC:                 &sourceOffice.Gbloc,
+			DestinationGBLOC:            &destOffice.Gbloc,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+		},
+	})
+
+	ppm4 := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID: smID4,
+		},
+		Move: models.Move{
+			ID: moveID4,
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			PlannedMoveDate: &nowTime,
+			MoveID:          moveID4,
+		},
+		Uploader: loader,
+	})
+	ppm4.Move.Submit()
+	models.SaveMoveDependencies(db, &ppm4.Move)
 }
 
 // MakeHhgFromAwardedToAcceptedGBLReady creates a scenario for an approved shipment ready for GBL generation
@@ -2129,7 +2395,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 }
 
 // MakeHhgWithGBL creates a scenario for an approved shipment with a GBL generated
-func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logger, storer *storage.Filesystem) models.Shipment {
+func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logger, storer *storage.Memory) models.Shipment {
 	/*
 	 * Service member with uploaded orders and an approved shipment to be accepted, able to generate GBL
 	 */
@@ -2216,21 +2482,19 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logg
 	models.SaveMoveDependencies(db, &hhg.Move)
 
 	// Create PDF for GBL
-	gbl, _ := models.FetchGovBillOfLadingExtractor(db, hhgID)
+	gbl, _ := models.FetchGovBillOfLadingFormValues(db, hhgID)
 	formLayout := paperwork.Form1203Layout
 
 	// Read in bytes from Asset pkg
 	data, _ := assets.Asset(formLayout.TemplateImagePath)
-	f, _ := storer.FileSystem().Create("something.png")
-	f.Write(data)
-	f.Seek(0, 0)
+	f := bytes.NewReader(data)
 
-	form, _ := paperwork.NewTemplateForm(f, formLayout.FieldsLayout)
+	formFiller := paperwork.NewFormFiller()
+	formFiller.AppendPage(f, formLayout.FieldsLayout, gbl)
 
-	// Populate form fields with GBL data
-	form.DrawData(gbl)
-	aFile, _ := storer.FileSystem().Create(gbl.GBLNumber1)
-	form.Output(aFile)
+	// Write to a temporary file system
+	aFile, _ := storer.TempFileSystem().Create(gbl.GBLNumber1)
+	formFiller.Output(aFile)
 
 	uploader := uploaderpkg.NewUploader(db, logger, storer)
 	upload, _, _ := uploader.CreateUpload(nil, *tspUser.UserID, aFile)
@@ -2249,7 +2513,7 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logg
 	return offer.Shipment
 }
 
-func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *zap.Logger, storer *storage.Filesystem) models.Shipment {
+func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *zap.Logger, storer *storage.Memory) models.Shipment {
 	/*
 	 * Service member with uploaded orders and a delivered shipment, able to generate GBL
 	 */
@@ -2356,21 +2620,19 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 	models.SaveMoveDependencies(db, &hhg.Move)
 
 	// Create PDF for GBL
-	gbl, _ := models.FetchGovBillOfLadingExtractor(db, hhgID)
+	gbl, _ := models.FetchGovBillOfLadingFormValues(db, hhgID)
 	formLayout := paperwork.Form1203Layout
 
 	// Read in bytes from Asset pkg
 	data, _ := assets.Asset(formLayout.TemplateImagePath)
-	f, _ := storer.FileSystem().Create("something.png")
-	f.Write(data)
-	f.Seek(0, 0)
+	f := bytes.NewReader(data)
 
-	form, _ := paperwork.NewTemplateForm(f, formLayout.FieldsLayout)
+	formFiller := paperwork.NewFormFiller()
+	formFiller.AppendPage(f, formLayout.FieldsLayout, gbl)
 
-	// Populate form fields with GBL data
-	form.DrawData(gbl)
-	aFile, _ := storer.FileSystem().Create(gbl.GBLNumber1)
-	form.Output(aFile)
+	// Write to a temporary file system
+	aFile, _ := storer.TempFileSystem().Create(gbl.GBLNumber1)
+	formFiller.Output(aFile)
 
 	uploader := uploaderpkg.NewUploader(db, logger, storer)
 	upload, _, _ := uploader.CreateUpload(nil, *tspUser.UserID, aFile)

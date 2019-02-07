@@ -32,10 +32,7 @@ function officeUserCreatesPreApprovalRequest() {
   });
 
   // Find move and open it
-  cy
-    .get('div')
-    .contains('RLKBEM')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('RLKBEM');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -65,10 +62,7 @@ function officeUserEditsPreApprovalRequest() {
   });
 
   // Find move and open it
-  cy
-    .get('div')
-    .contains('RLKBEM')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('RLKBEM');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -99,10 +93,7 @@ function officeUserApprovesPreApprovalRequest() {
   });
 
   // Find move and open it
-  cy
-    .get('div')
-    .contains('RLKBEM')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('RLKBEM');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -132,10 +123,7 @@ function officeUserDeletesPreApprovalRequest() {
   });
 
   // Find move and open it
-  cy
-    .get('div')
-    .contains('RLKBEM')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('RLKBEM');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);

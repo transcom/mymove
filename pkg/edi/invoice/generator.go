@@ -25,6 +25,12 @@ const receiverCode = "8004171844" // Syncada
 // ICNSequenceName used to query Interchange Control Numbers from DB
 const ICNSequenceName = "interchange_control_number"
 
+// ICNRandomMin is the smallest allowed random-number based ICN (we use random ICN numbers in development)
+const ICNRandomMin int64 = 100000000
+
+// ICNRandomMax is the largest allowed random-number based ICN (we use random ICN numbers in development)
+const ICNRandomMax int64 = 999999999
+
 const rateValueQualifier = "RC"    // Rate
 const hierarchicalLevelCode = "SS" // Services
 const weightQualifier = "B"        // Billed Weight
@@ -74,10 +80,10 @@ func (invoice Invoice858C) EDIString() (string, error) {
 }
 
 // Generate858C generates an EDI X12 858C transaction set
-func Generate858C(shipment models.Shipment, invoiceModel models.Invoice, db *pop.Connection, sendProductionInvoice bool, clock clock.Clock) (Invoice858C, error) {
+func Generate858C(shipment models.Shipment, invoiceModel models.Invoice, db *pop.Connection, sendProductionInvoice bool, icnSequencer sequence.Sequencer, clock clock.Clock) (Invoice858C, error) {
 	currentTime := clock.Now().UTC()
 
-	interchangeControlNumber, err := sequence.NextVal(db, ICNSequenceName)
+	interchangeControlNumber, err := icnSequencer.NextVal()
 	if err != nil {
 		return Invoice858C{}, errors.Wrap(err, fmt.Sprintf("Failed to get next Interchange Control Number"))
 	}
@@ -434,12 +440,19 @@ func MakeL0Segment(lineItem models.ShipmentLineItem, netCentiWeight float64) *ed
 
 // MakeL1Segment builds L1 segment based on shipment lineitem input.
 func MakeL1Segment(lineItem models.ShipmentLineItem) *edisegment.L1 {
-
+	// The rate used in the L102 value (FreightRate) will be sent as 0.00 in order to avoid an issue where Syncada
+	// does validations that create inaccurate representation of the invoice.
+	// The true rate applied in the rateengine calculations is recorded in the db under shipment_line_items.applied_rate
+	// TLDR: When Syncada receives the file, they do their own calculation (rate X weight in most cases)
+	// and compare it to the total (Charge, L104) that we gave them (calculated on the rate engine).
+	// If their calculation outputs something greater than or equal to what we got, the line item shows up 0 (?!).
+	// Communication with USBank and Transcom were unsuccessful in uncovering why this happens or how to resolve it,
+	// so this is a workaround so that the line-item total values will show up in Syncada invoices as we submitted them.
+	proxyRate := 0.0
 	return &edisegment.L1{
-		FreightRate:              lineItem.AppliedRate.ToDollarFloat(),
+		FreightRate:              proxyRate,
 		RateValueQualifier:       rateValueQualifier,
 		Charge:                   lineItem.AmountCents.ToDollarFloat(),
 		SpecialChargeDescription: lineItem.Tariff400ngItem.Code,
 	}
-
 }

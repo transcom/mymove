@@ -47,7 +47,7 @@ describe('testing CSRF protection updating user profile', function() {
     cy.get('button[type="submit"]').click();
 
     cy.location().should(loc => {
-      expect(loc.pathname).to.match(/^\//);
+      expect(loc.pathname).to.match(/^\/$/);
     });
 
     // reload page
