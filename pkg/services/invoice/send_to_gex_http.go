@@ -18,7 +18,7 @@ const gexRequestTimeout = time.Duration(30) * time.Second
 
 // NewGexSenderHTTP creates a new GexSender service object
 func NewGexSenderHTTP(url string, isTrueGexURL bool, tlsConfig *tls.Config, gexBasicAuthUsername string, gexBasicAuthPassword string) services.GexSender {
-	return GexSenderHTTP{
+	return &GexSenderHTTP{
 		url,
 		isTrueGexURL,
 		tlsConfig,
