@@ -14,7 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/logging/hnyzap"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
-	"github.com/transcom/mymove/pkg/service"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -38,8 +38,8 @@ type HandlerContext interface {
 	SendProductionInvoice() bool
 	SetSendProductionInvoice(sendProductionInvoice bool)
 
-	GexSender() service.SendToGex
-	SetGexSender(gexSender service.SendToGex)
+	GexSender() services.SendToGex
+	SetGexSender(gexSender services.SendToGex)
 	ICNSequencer() sequence.Sequencer
 	SetICNSequencer(sequencer sequence.Sequencer)
 	DPSAuthParams() dpsauth.Params
@@ -60,7 +60,7 @@ type handlerContext struct {
 	iwsPersonLookup       iws.PersonLookup
 	sendProductionInvoice bool
 	dpsAuthParams         dpsauth.Params
-	senderToGex           service.SendToGex
+	senderToGex           services.SendToGex
 	icnSequencer          sequence.Sequencer
 }
 
@@ -167,11 +167,11 @@ func (hctx *handlerContext) SetSendProductionInvoice(sendProductionInvoice bool)
 	hctx.sendProductionInvoice = sendProductionInvoice
 }
 
-func (hctx *handlerContext) GexSender() service.SendToGex {
+func (hctx *handlerContext) GexSender() services.SendToGex {
 	return hctx.senderToGex
 }
 
-func (hctx *handlerContext) SetGexSender(sendGexRequest service.SendToGex) {
+func (hctx *handlerContext) SetGexSender(sendGexRequest services.SendToGex) {
 	hctx.senderToGex = sendGexRequest
 }
 

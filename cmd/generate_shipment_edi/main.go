@@ -21,12 +21,12 @@ import (
 
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi"
-	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/server"
-	"github.com/transcom/mymove/pkg/service/invoice"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/invoice"
 )
 
 // Call this from command line with go run cmd/generate_shipment_edi/main.go --shipmentID <UUID> --approver <email>
@@ -93,7 +93,7 @@ func main() {
 		log.Fatal(verrs)
 	}
 
-	var sendToGexHTTP gex.SendToGexHTTP
+	var sendToGexHTTP services.SendToGex
 	if sendToGex {
 		certificates, rootCAs, err := initDODCertificates(v, logger)
 		if certificates == nil || rootCAs == nil || err != nil {
@@ -104,13 +104,13 @@ func main() {
 		if len(url) == 0 {
 			log.Fatal("Not sending to GEX because no URL set. Set GEX_URL in your envrc.local.")
 		}
-		sendToGexHTTP = gex.SendToGexHTTP{
-			URL:                  url,
-			IsTrueGexURL:         true,
-			TLSConfig:            tlsConfig,
-			GEXBasicAuthUsername: v.GetString("gex-basic-auth-username"),
-			GEXBasicAuthPassword: v.GetString("gex-basic-auth-password"),
-		}
+		sendToGexHTTP = invoice.NewSendToGexHTTP(
+			url,
+			true,
+			tlsConfig,
+			v.GetString("gex-basic-auth-username"),
+			v.GetString("gex-basic-auth-password"),
+		)
 	}
 
 	resp, err := processInvoice(db, shipment, invoiceModel, sendToGex, &transactionName, sendToGexHTTP)
@@ -122,7 +122,7 @@ func main() {
 	}
 }
 
-func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel models.Invoice, sendToGex bool, transactionName *string, gexSender gex.SendToGexHTTP) (resp *http.Response, err error) {
+func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel models.Invoice, sendToGex bool, transactionName *string, gexSender services.SendToGex) (resp *http.Response, err error) {
 	defer func() {
 		if err != nil || (resp != nil && resp.StatusCode != 200) {
 			// Update invoice record as failed

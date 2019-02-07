@@ -10,14 +10,14 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/service"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 // gexRequestTimeout is how long to wait on Gex request before timing out (30 seconds).
 const gexRequestTimeout = time.Duration(30) * time.Second
 
 // NewSendToGexHTTP creates a new SendToGex service object
-func NewSendToGexHTTP(url string, isTrueGexURL bool, tlsConfig *tls.Config, gexBasicAuthUsername string, gexBasicAuthPassword string) service.SendToGex {
+func NewSendToGexHTTP(url string, isTrueGexURL bool, tlsConfig *tls.Config, gexBasicAuthUsername string, gexBasicAuthPassword string) services.SendToGex {
 	return SendToGexHTTP{
 		url,
 		isTrueGexURL,

@@ -51,8 +51,8 @@ import (
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/server"
-	"github.com/transcom/mymove/pkg/service"
-	"github.com/transcom/mymove/pkg/service/invoice"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/invoice"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -852,7 +852,7 @@ func main() {
 
 	// Set the GexSender() and SendToGexHTTP fields
 	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
-	var gexRequester service.SendToGex
+	var gexRequester services.SendToGex
 	gexURL := v.GetString("gex-url")
 	if len(gexURL) == 0 {
 		// this spins up a local test server

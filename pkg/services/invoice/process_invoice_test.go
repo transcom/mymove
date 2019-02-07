@@ -9,7 +9,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
-	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -24,16 +23,24 @@ func (suite *InvoiceServiceSuite) TestProcessInvoiceCall() {
 	mockServerSuccess := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
-	gexSenderSuccess := gex.SendToGexHTTP{
-		URL: mockServerSuccess.URL,
-	}
+	gexSenderSuccess := NewSendToGexHTTP(
+		mockServerSuccess.URL,
+		false,
+		nil,
+		"",
+		"",
+	)
 
 	mockServerFail := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusForbidden)
 	}))
-	gexSenderFail := gex.SendToGexHTTP{
-		URL: mockServerFail.URL,
-	}
+	gexSenderFail := NewSendToGexHTTP(
+		mockServerFail.URL,
+		false,
+		nil,
+		"",
+		"",
+	)
 
 	processInvoice := ProcessInvoice{
 		DB:                    suite.DB(),
