@@ -49,7 +49,7 @@ func (suite *PopTestSuite) MustSave(model interface{}) {
 	}
 }
 
-// MustCreate requires saving without errors
+// MustCreate requires creating without errors
 func (suite *PopTestSuite) MustCreate(db *pop.Connection, model interface{}) {
 	t := suite.T()
 	t.Helper()

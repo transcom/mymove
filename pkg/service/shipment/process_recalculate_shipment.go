@@ -30,7 +30,7 @@ type ProcessRecalculateShipment struct {
 
 /*
 	Recalculate a shipment's line items is temporary functionality that will be used when it has been
-    determined there is is some shipment that requires recalcuation. A shipment does not contain line items
+    determined there is some shipment that requires recalcluation. A shipment does not contain line items
     until it has reached the DELIVERED state.
 
     Some of the reasons a recalculation can happen are:
