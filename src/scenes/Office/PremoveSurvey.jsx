@@ -7,12 +7,12 @@ import { get, pick } from 'lodash';
 import classNames from 'classnames';
 import { reduxForm, FormSection, getFormValues } from 'redux-form';
 
-import Alert from 'shared/Alert';
 import { PanelSwaggerField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import './office.css';
 import { getRequestStatus } from 'shared/Swagger/selectors';
+import { humanReadableError } from 'shared/utils';
 
 const surveyFields = [
   'pm_survey_conducted_date',
@@ -261,8 +261,9 @@ function mapStateToProps(state, props) {
   let errorMessage = '';
 
   if (updateShipmentStatus.isLoading === false && updateShipmentStatus.isSuccess === false) {
+    const errors = get(updateShipmentStatus, 'error.response.response.body.errors', {});
+    errorMessage = humanReadableError(errors);
     hasError = true;
-    errorMessage = Object.values(get(updateShipmentStatus, 'error.response.response.body.errors', {})).join('\n');
   }
 
   return {
