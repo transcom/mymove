@@ -36,6 +36,7 @@ __snapshots__
 /bin/tsp-award-queue
 /bin/webserver
 
+/bin/callgraph
 /bin/chamber
 /bin/soda
 /bin/golint
