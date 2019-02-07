@@ -37,7 +37,7 @@ func TestDateIsWorkday_IsValid(t *testing.T) {
 		if len(testErrors) != 1 {
 			t.Fatal("There should be an error")
 		}
-		if testErrors[0] != "test_date cannot be on a weekend or holiday, is 2019-01-26 00:00:00 +0000 UTC" {
+		if testErrors[0] != "cannot be on a weekend or holiday, is 2019-01-26 00:00:00 +0000 UTC" {
 			t.Fatal("Did not fail with weekend or holiday error")
 		}
 	})
@@ -53,7 +53,7 @@ func TestDateIsWorkday_IsValid(t *testing.T) {
 		if len(testErrors) != 1 {
 			t.Fatal("There should be an error")
 		}
-		if testErrors[0] != "test_date cannot be on a weekend or holiday, is 2019-01-21 00:00:00 +0000 UTC" {
+		if testErrors[0] != "cannot be on a weekend or holiday, is 2019-01-21 00:00:00 +0000 UTC" {
 			t.Fatal("Did not fail with weekend or holiday error")
 		}
 	})
@@ -85,7 +85,7 @@ func TestOptionalDateIsWorkday_IsValid(t *testing.T) {
 			t.Fatal("There should be an error")
 		}
 		stringDate := date.Format("2006-01-02 15:04:05 -0700 UTC")
-		if testErrors[0] != fmt.Sprintf("test_date cannot be on a weekend or holiday, is %s", stringDate) {
+		if testErrors[0] != fmt.Sprintf("cannot be on a weekend or holiday, is %s", stringDate) {
 			t.Fatal("Did not fail with weekend or holiday error")
 		}
 	})
@@ -102,7 +102,7 @@ func TestOptionalDateIsWorkday_IsValid(t *testing.T) {
 			t.Fatal("There should be an error")
 		}
 		stringDate := date.Format("2006-01-02 15:04:05 -0700 UTC")
-		if testErrors[0] != fmt.Sprintf("test_date cannot be on a weekend or holiday, is %v", stringDate) {
+		if testErrors[0] != fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate) {
 			t.Fatal("Did not fail with weekend or holiday error")
 		}
 	})

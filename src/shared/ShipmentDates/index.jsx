@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { get, pick } from 'lodash';
+import { capitalize, get, pick } from 'lodash';
 import { reduxForm, FormSection, getFormValues } from 'redux-form';
 
 import { PanelSwaggerField, PanelField, editablePanelify } from 'shared/EditablePanel';
@@ -11,6 +11,7 @@ import { formatDate } from 'shared/formatters';
 import './index.css';
 import Alert from 'shared/Alert';
 import { getRequestStatus } from 'shared/Swagger/selectors';
+import { humanReadableError } from '../utils';
 
 const datesUpdateShipmentLabel = 'shipment.updateShipment.dates';
 
@@ -77,11 +78,6 @@ const DatesEdit = props => {
   const rdd = props.shipment.pm_survey_planned_delivery_date || props.shipment.original_delivery_date;
   return (
     <Fragment>
-      {props.hasError && (
-        <Alert type="error" heading="An error occurred">
-          <em>{props.errorMessage}</em>.
-        </Alert>
-      )}
       <FormSection name="dates">
         <div className="editable-panel-column">
           <div className="column-head">Pre-move Survey</div>
@@ -131,8 +127,9 @@ function mapStateToProps(state, props) {
   let errorMessage = '';
 
   if (updateShipmentStatus.isLoading === false && updateShipmentStatus.isSuccess === false) {
+    const errors = get(updateShipmentStatus, 'error.response.response.body.errors', {});
+    errorMessage = humanReadableError(errors);
     hasError = true;
-    errorMessage = Object.values(get(updateShipmentStatus, 'error.response.response.body.errors', {})).join('\n');
   }
 
   return {

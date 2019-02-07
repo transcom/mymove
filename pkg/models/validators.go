@@ -184,7 +184,7 @@ type DateIsWorkday struct {
 func (v *DateIsWorkday) IsValid(errors *validate.Errors) {
 	if !v.Calendar.IsWorkday(v.Field) {
 		errors.Add(validators.GenerateKey(v.Name),
-			fmt.Sprintf("%s cannot be on a weekend or holiday, is %v", v.Name, v.Field))
+			fmt.Sprintf("cannot be on a weekend or holiday, is %v", v.Field))
 	}
 }
 

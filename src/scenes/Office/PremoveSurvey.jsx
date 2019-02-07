@@ -121,11 +121,6 @@ export function PreMoveSurveyEditablePanelify(DisplayComponent, EditComponent, e
       const Content = isEditable ? EditComponent : DisplayComponent;
       return (
         <React.Fragment>
-          {this.props.hasError && (
-            <Alert type="error" heading="An error occurred">
-              <em>{this.props.errorMessage}</em>.
-            </Alert>
-          )}
           <PreMoveSurveyEditablePanel
             title={this.props.title}
             className={this.props.className}
