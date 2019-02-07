@@ -8,40 +8,53 @@ import { submit, isValid, isSubmitting, reset, hasSubmitSucceeded } from 'redux-
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+
 export class Creator extends Component {
-  state = { showForm: false, closeOnSubmit: true };
+  state = {
+    showForm: false,
+    closeOnSubmit: true,
+  };
+
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (this.props.hasSubmitSucceeded && !prevProps.hasSubmitSucceeded)
       if (this.state.closeOnSubmit) this.setState({ showForm: false });
       else this.props.clearForm();
   }
+
   openForm = () => {
     this.setState({ showForm: true });
     this.props.onFormActivation(true);
   };
+
   closeForm = () => {
     this.setState({ showForm: false });
     this.props.onFormActivation(false);
   };
+
   onSubmit = values => {
     // Convert quantity_1 to base quantity unit before hitting endpoint
     if (values.quantity_1) {
       values.quantity_1 = formatToBaseQuantity(values.quantity_1);
     }
+
     values.tariff400ng_item_id = values.tariff400ng_item.id;
+
     this.props.savePreApprovalRequest(values);
   };
+
   saveAndClear = () => {
     this.setState({ closeOnSubmit: false }, () => {
       this.props.submitForm();
     });
   };
+
   saveAndClose = () => {
     this.setState({ closeOnSubmit: true }, () => {
       this.props.submitForm();
       this.props.onFormActivation(false);
     });
   };
+
   render() {
     if (this.state.showForm)
       return (
@@ -97,6 +110,8 @@ Creator.propTypes = {
 };
 
 function mapStateToProps(state) {
+  console.log('☠️: validity: ', isValid(PreApprovalFormName)(state));
+  console.log('🎉:  submitting: ', !isSubmitting(PreApprovalFormName)(state));
   return {
     formEnabled: isValid(PreApprovalFormName)(state) && !isSubmitting(PreApprovalFormName)(state),
     hasSubmitSucceeded: hasSubmitSucceeded(PreApprovalFormName)(state),

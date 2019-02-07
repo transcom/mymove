@@ -61,7 +61,8 @@ StorageInTransitForm.propTypes = {
   addressSchema: PropTypes.object.isRequired,
 };
 
-const formName = 'storage_in_transit_request_form';
+export const formName = 'storage_in_transit_request_form';
+
 StorageInTransitForm = reduxForm({
   form: formName,
   enableReinitialize: true,
