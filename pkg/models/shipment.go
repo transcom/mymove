@@ -381,7 +381,7 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	db.Transaction(func(connection *pop.Connection) error {
 		transactionError := errors.New("Rollback the transaction")
 
-		verrs, err := SetupAndCreateItemCodePrequiste(connection, baseParams, additionalParams, &shipmentLineItem)
+		verrs, err := SetupAndCreateItemCodePrequiste(connection, &baseParams, &additionalParams, &shipmentLineItem)
 		if verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error setting up item code prequiste: "+baseParams.Tariff400ngItemCode)
@@ -420,7 +420,7 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 }
 
 // SetupAndCreateItemCodePrequiste applies specific validation and creates additional objects for item codes
-func SetupAndCreateItemCodePrequiste(db *pop.Connection, baseParams BaseShipmentLineItemParams, additionalParams AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+func SetupAndCreateItemCodePrequiste(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
 	var responseError error
 	responseVErrors := validate.NewErrors()
 
