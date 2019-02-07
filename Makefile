@@ -65,6 +65,8 @@ client_deps: check_hosts .client_deps.stamp
 	yarn install
 	bin/copy_swagger_ui.sh
 	touch .client_deps.stamp
+# The inclusion of CI=true allows warnings to be treated as errors in local builds, consistent with behavior in CI.
+# This seems to be the only way to induce warnings be treated as errors, see https://github.com/facebook/create-react-app/issues/3657
 .client_build.stamp: $(shell find src -type f)
 	CI=true yarn build
 	touch .client_build.stamp
