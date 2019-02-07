@@ -3,13 +3,8 @@ import { shallow } from 'enzyme/build';
 import React from 'react';
 
 describe('given a dimension input', () => {
-  describe('and there are no values entered', () => {
-    it('should display an error', () => {});
-    let swagger = { a: 'test', b: 2 };
-    let wrapper = shallow(
-      <DimensionsField isRequired={true} fieldName={'test'} labelText={'test'} swagger={swagger} />,
-    );
-    wrapper.props();
-    //expect(wrapper.props().isRequired).toBe(true);
-  });
+  it('should render without crashing', () => {});
+  let swagger = { a: 'test', b: 2 };
+  let wrapper = shallow(<DimensionsField isRequired={true} fieldName={'test'} labelText={'test'} swagger={swagger} />);
+  expect(wrapper.find('.dimensions-form').length).toBe(1);
 });

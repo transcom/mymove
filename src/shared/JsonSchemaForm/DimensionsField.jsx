@@ -36,9 +36,7 @@ export class DimensionsField extends Component {
                   required={this.props.isRequired}
                 />
               </td>
-              <td width="11%" className="multiplication-sign">
-                x
-              </td>
+              <td width="11%" className="multiplication-sign" />
               <td width="26%" className="dimensions-form-input-cell">
                 <SwaggerField
                   fieldName="width"
@@ -48,9 +46,7 @@ export class DimensionsField extends Component {
                   required={this.props.isRequired}
                 />
               </td>
-              <td width="11%" className="multiplication-sign">
-                x
-              </td>
+              <td width="11%" className="multiplication-sign" />
               <td width="26%" className="dimensions-form-input-cell">
                 <SwaggerField
                   fieldName="height"
