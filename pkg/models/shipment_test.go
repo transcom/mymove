@@ -227,19 +227,135 @@ func (suite *ModelSuite) TestCreateShipmentLineItem() {
 	acc := testdatagen.MakeDefaultTariff400ngItem(suite.DB())
 	shipment := testdatagen.MakeDefaultShipment(suite.DB())
 
-	q1 := int64(5)
+	q1 := unit.BaseQuantity(5)
 	notes := "It's a giant moose head named Fred he seemed rather pleasant"
+	baseParams := BaseShipmentLineItemParams{
+		Tariff400ngItemID: acc.ID,
+		Quantity1:         &q1,
+		Location:          "ORIGIN",
+		Notes:             &notes,
+	}
+	additionalParams := AdditionalShipmentLineItemParams{}
 	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(suite.DB(),
-		acc.ID,
-		&q1,
-		nil,
-		"ORIGIN",
-		&notes)
+		baseParams, additionalParams)
 
 	if suite.noValidationErrors(verrs, err) {
 		suite.Equal(5, shipmentLineItem.Quantity1.ToUnitInt())
 		suite.Equal(acc.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
 	}
+}
+
+// TestShipmentAssignGBLNumber tests that a GBL number is created correctly
+func (suite *ModelSuite) TestCreateShipmentLineItemCode105BAndE() {
+	acc105B := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "105B",
+		},
+	})
+
+	acc105E := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "105E",
+		},
+	})
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
+	notes := "It's a giant moose head named Fred he seemed rather pleasant"
+	baseParams := BaseShipmentLineItemParams{
+		Tariff400ngItemID:   acc105B.ID,
+		Tariff400ngItemCode: acc105B.Code,
+		Location:            "ORIGIN",
+		Notes:               &notes,
+	}
+	additionalParams := AdditionalShipmentLineItemParams{
+		ItemDimensions: &AdditionalLineItemDimensions{
+			Length: 100,
+			Width:  100,
+			Height: 100,
+		},
+		CrateDimensions: &AdditionalLineItemDimensions{
+			Length: 100,
+			Width:  100,
+			Height: 100,
+		},
+	}
+	// Create 105B preapproval
+	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams)
+
+	if suite.noValidationErrors(verrs, err) {
+		suite.Equal(0, shipmentLineItem.Quantity1.ToUnitInt())
+		suite.Equal(acc105B.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
+		suite.NotZero(shipmentLineItem.ItemDimensions.ID)
+		suite.NotZero(shipmentLineItem.CrateDimensions.ID)
+	}
+
+	//Create 105E preapproval
+	baseParams.Tariff400ngItemID = acc105E.ID
+	baseParams.Tariff400ngItemCode = acc105E.Code
+	shipmentLineItem, verrs, err = shipment.CreateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams)
+
+	if suite.noValidationErrors(verrs, err) {
+		suite.Equal(0, shipmentLineItem.Quantity1.ToUnitInt())
+		suite.Equal(acc105E.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
+		suite.NotZero(shipmentLineItem.ItemDimensions.ID)
+		suite.NotZero(shipmentLineItem.CrateDimensions.ID)
+	}
+
+	//Create 105E preapproval with base quantity
+	baseParams.Tariff400ngItemID = acc105E.ID
+	baseParams.Tariff400ngItemCode = acc105E.Code
+	var q1 unit.BaseQuantity = 1000
+	baseParams.Quantity1 = &q1
+	additionalParams = AdditionalShipmentLineItemParams{}
+	shipmentLineItem, verrs, err = shipment.CreateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams)
+
+	if suite.noValidationErrors(verrs, err) {
+		suite.Equal(1000, shipmentLineItem.Quantity1.ToUnitInt())
+		suite.Equal(acc105E.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
+		suite.Zero(shipmentLineItem.ItemDimensionsID)
+		suite.Zero(shipmentLineItem.CrateDimensionsID)
+	}
+}
+
+// TestShipmentAssignGBLNumber tests that a GBL number is created correctly
+func (suite *ModelSuite) TestCreateShipmentLineItemCode105BAndEMissingDimensions() {
+	acc105B := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "105B",
+		},
+	})
+
+	acc105E := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "105E",
+		},
+	})
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
+	notes := "It's a giant moose head named Fred he seemed rather pleasant"
+	baseParams := BaseShipmentLineItemParams{
+		Tariff400ngItemID:   acc105B.ID,
+		Tariff400ngItemCode: acc105B.Code,
+		Location:            "ORIGIN",
+		Notes:               &notes,
+	}
+	additionalParams := AdditionalShipmentLineItemParams{}
+	// Try create 105B preapproval
+	_, _, err := shipment.CreateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams)
+
+	suite.Error(err)
+
+	// Try create 105E preapproval
+	baseParams.Tariff400ngItemID = acc105E.ID
+	baseParams.Tariff400ngItemCode = acc105E.Code
+	_, _, err = shipment.CreateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams)
+
+	suite.Error(err)
 }
 
 // TestSaveShipmentAndLineItems tests that a shipment and line items can be saved

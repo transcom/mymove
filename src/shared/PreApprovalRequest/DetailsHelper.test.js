@@ -36,6 +36,11 @@ describe('testing getDetailComponent()', () => {
     it('for code 4A', () => {
       expect(DetailComponent).toBe(DefaultDetails);
     });
+
+    DetailComponent = getDetailComponent('105D', featureFlag);
+    it('for code 105D', () => {
+      expect(DetailComponent).toBe(DefaultDetails);
+    });
   });
 
   describe('returns 105B/E details component with feature flag on', () => {
@@ -54,6 +59,15 @@ describe('testing getDetailComponent()', () => {
     DetailComponent = getDetailComponent('105E', featureFlag);
     it('for code 105E', () => {
       expect(DetailComponent).toBe(Code105Details);
+    });
+  });
+
+  describe('returns default details component with feature flag on', () => {
+    featureFlag = true;
+
+    let DetailComponent = getDetailComponent('105D', featureFlag);
+    it('for code 105D', () => {
+      expect(DetailComponent).toBe(DefaultDetails);
     });
   });
 });
