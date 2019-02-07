@@ -1,12 +1,12 @@
 package rateengine
 
 import (
-	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 	"testing"
 
+	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
@@ -14,7 +14,7 @@ import (
 
 func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 	t := suite.T()
-	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger)
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
 		BasepointCity: "Saucier",
@@ -107,7 +107,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
 
 	// 139698 +20000
-	cost, err := engine.ComputePPM(2000, "39574", "33633", testdatagen.RateEngineDate,
+	cost, err := engine.ComputePPM(2000, "39574", "33633", 1234, testdatagen.RateEngineDate,
 		1, unit.DiscountRate(.6), unit.DiscountRate(.5))
 
 	if err != nil {
@@ -122,8 +122,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 
 type RateEngineSuite struct {
 	testingsuite.PopTestSuite
-	logger  *zap.Logger
-	planner route.Planner
+	logger *zap.Logger
 }
 
 func (suite *RateEngineSuite) SetupTest() {
@@ -133,12 +132,10 @@ func (suite *RateEngineSuite) SetupTest() {
 func TestRateEngineSuite(t *testing.T) {
 	// Use a no-op logger during testing
 	logger, _ := zap.NewDevelopment()
-	planner := route.NewTestingPlanner(1234)
 
 	hs := &RateEngineSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(),
 		logger:       logger,
-		planner:      planner,
 	}
 	suite.Run(t, hs)
 }

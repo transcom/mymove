@@ -354,7 +354,7 @@ func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipm
 	// If shipment is delivered, price single shipment line item
 	if shipmentLineItem.Shipment.Status == models.ShipmentStatusDELIVERED {
 		shipmentLineItem.Shipment = *shipment
-		engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
+		engine := rateengine.NewRateEngine(h.DB(), h.Logger())
 		err = engine.PricePreapprovalRequest(&shipmentLineItem)
 		if err != nil {
 			return handlers.ResponseForError(h.Logger(), err)

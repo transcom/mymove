@@ -24,6 +24,7 @@ type Assertions struct {
 	Address                                  models.Address
 	BackupContact                            models.BackupContact
 	BlackoutDate                             models.BlackoutDate
+	DistanceCalculation                      models.DistanceCalculation
 	Document                                 models.Document
 	DutyStation                              models.DutyStation
 	FuelEIADieselPrice                       models.FuelEIADieselPrice

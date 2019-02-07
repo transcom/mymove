@@ -41,7 +41,7 @@ const (
 
 var (
 	// ShipmentAssociationsDEFAULT declares the default eager associations for a shipment
-	ShipmentAssociationsDEFAULT EagerAssociations = EagerAssociations{
+	ShipmentAssociationsDEFAULT = EagerAssociations{
 		"TrafficDistributionList",
 		"ServiceMember.BackupContacts",
 		"Move.Orders.NewDutyStation.Address",
@@ -50,6 +50,8 @@ var (
 		"DeliveryAddress",
 		"PartialSITDeliveryAddress",
 		"ShipmentOffers.TransportationServiceProviderPerformance.TransportationServiceProvider",
+		"ShippingDistance.OriginAddress",
+		"ShippingDistance.DestinationAddress",
 	}
 )
 
@@ -108,6 +110,10 @@ type Shipment struct {
 	NetWeight                   *unit.Pound `json:"net_weight" db:"net_weight"`
 	GrossWeight                 *unit.Pound `json:"gross_weight" db:"gross_weight"`
 	TareWeight                  *unit.Pound `json:"tare_weight" db:"tare_weight"`
+
+	// distance
+	ShippingDistanceID *uuid.UUID          `json:"shipping_distance_id" db:"shipping_distance_id"`
+	ShippingDistance   DistanceCalculation `belongs_to:"distance_calculation"`
 
 	// pre-move survey
 	PmSurveyConductedDate               *time.Time  `json:"pm_survey_conducted_date" db:"pm_survey_conducted_date"`
@@ -801,15 +807,24 @@ func SaveShipmentAndAddresses(db *pop.Connection, shipment *Shipment) (*validate
 	return responseVErrors, responseError
 }
 
-// SaveShipmentAndLineItems saves a shipment and a slice of line items in a single transaction.
-func (s *Shipment) SaveShipmentAndLineItems(db *pop.Connection, baselineLineItems []ShipmentLineItem, generalLineItems []ShipmentLineItem) (*validate.Errors, error) {
+// SaveShipmentAndPricingInfo saves a shipment and a slice of line items in a single transaction.
+func (s *Shipment) SaveShipmentAndPricingInfo(db *pop.Connection, baselineLineItems []ShipmentLineItem, generalLineItems []ShipmentLineItem, distanceCalculation DistanceCalculation) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
 	db.Transaction(func(tx *pop.Connection) error {
 		transactionError := errors.New("rollback")
 
-		verrs, err := tx.ValidateAndSave(s)
+		verrs, err := tx.ValidateAndSave(&distanceCalculation)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error saving distance calculation")
+			return transactionError
+		}
+		s.ShippingDistance = distanceCalculation
+		s.ShippingDistanceID = &distanceCalculation.ID
+
+		verrs, err = tx.ValidateAndSave(s)
 		if err != nil || verrs.HasAny() {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error saving shipment")

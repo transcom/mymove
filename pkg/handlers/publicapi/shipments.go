@@ -2,10 +2,11 @@ package publicapi
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/transcom/mymove/pkg/services"
 	"net/http"
 	"time"
+
+	"github.com/pkg/errors"
+	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
@@ -328,11 +329,12 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 	}
 
 	actualDeliveryDate := (time.Time)(*params.Payload.ActualDeliveryDate)
-	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
+	engine := rateengine.NewRateEngine(h.DB(), h.Logger())
 
 	verrs, err := shipmentservice.DeliverAndPriceShipment{
-		DB:     h.DB(),
-		Engine: engine,
+		DB:      h.DB(),
+		Engine:  engine,
+		Planner: h.Planner(),
 	}.Call(actualDeliveryDate, shipment)
 
 	if err != nil || verrs.HasAny() {

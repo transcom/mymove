@@ -358,9 +358,11 @@ func (suite *ModelSuite) TestCreateShipmentLineItemCode105BAndEMissingDimensions
 	suite.Error(err)
 }
 
-// TestSaveShipmentAndLineItems tests that a shipment and line items can be saved
-func (suite *ModelSuite) TestSaveShipmentAndLineItems() {
+// TestSaveShipmentAndPricingInfo tests that a shipment and line items can be saved
+func (suite *ModelSuite) TestSaveShipmentAndPricingInfo() {
 	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
+	distance := testdatagen.MakeDefaultDistanceCalculation(suite.DB())
 
 	var lineItems []ShipmentLineItem
 	codes := []string{"LHS", "135A", "135B", "105A", "105C"}
@@ -380,16 +382,18 @@ func (suite *ModelSuite) TestSaveShipmentAndLineItems() {
 		lineItems = append(lineItems, lineItem)
 	}
 
-	verrs, err := shipment.SaveShipmentAndLineItems(suite.DB(), lineItems, []ShipmentLineItem{})
+	verrs, err := shipment.SaveShipmentAndPricingInfo(suite.DB(), lineItems, []ShipmentLineItem{}, distance)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 }
 
-// TestSaveShipmentAndLineItemsDisallowDuplicates tests that duplicate baseline charges with the same
+// TestSaveShipmentAndPricingInfoDisallowDuplicates tests that duplicate baseline charges with the same
 // tariff 400ng codes cannot be saved.
-func (suite *ModelSuite) TestSaveShipmentAndLineItemsDisallowBaselineDuplicates() {
+func (suite *ModelSuite) TestSaveShipmentAndPricingInfoDisallowBaselineDuplicates() {
 	shipment := testdatagen.MakeDefaultShipment(suite.DB())
 	var lineItems []ShipmentLineItem
+
+	distance := testdatagen.MakeDefaultDistanceCalculation(suite.DB())
 
 	item := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
 		Tariff400ngItem: Tariff400ngItem{
@@ -410,17 +414,19 @@ func (suite *ModelSuite) TestSaveShipmentAndLineItemsDisallowBaselineDuplicates(
 		Tariff400ngItem:   item,
 	}
 	lineItems = append(lineItems, lineItem)
-	verrs, err := shipment.SaveShipmentAndLineItems(suite.DB(), lineItems, []ShipmentLineItem{})
+	verrs, err := shipment.SaveShipmentAndPricingInfo(suite.DB(), lineItems, []ShipmentLineItem{}, distance)
 
 	suite.Error(err)
 	suite.NoVerrs(verrs)
 }
 
-// TestSaveShipmentAndLineItemsDisallowDuplicates tests that duplicate baseline charges with the same
+// TestSaveShipmentAndPricingInfoDisallowDuplicates tests that duplicate baseline charges with the same
 // tariff 400ng codes cannot be saved.
-func (suite *ModelSuite) TestSaveShipmentAndLineItemsAllowOtherDuplicates() {
+func (suite *ModelSuite) TestSaveShipmentAndPricingInfoAllowOtherDuplicates() {
 	shipment := testdatagen.MakeDefaultShipment(suite.DB())
 	var lineItems []ShipmentLineItem
+
+	distance := testdatagen.MakeDefaultDistanceCalculation(suite.DB())
 
 	item := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
 		Tariff400ngItem: Tariff400ngItem{
@@ -444,7 +450,7 @@ func (suite *ModelSuite) TestSaveShipmentAndLineItemsAllowOtherDuplicates() {
 		Status:            ShipmentLineItemStatusAPPROVED,
 	}
 	lineItems = append(lineItems, lineItem)
-	verrs, err := shipment.SaveShipmentAndLineItems(suite.DB(), []ShipmentLineItem{}, lineItems)
+	verrs, err := shipment.SaveShipmentAndPricingInfo(suite.DB(), []ShipmentLineItem{}, lineItems, distance)
 
 	suite.NoError(err)
 	suite.NoVerrs(verrs)

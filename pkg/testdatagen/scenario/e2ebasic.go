@@ -2584,10 +2584,11 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 	})
 
 	planner := route.NewTestingPlanner(1234)
-	engine := rateengine.NewRateEngine(db, logger, planner)
+	engine := rateengine.NewRateEngine(db, logger)
 	verrs, err := shipmentservice.DeliverAndPriceShipment{
-		DB:     db,
-		Engine: engine,
+		DB:      db,
+		Engine:  engine,
+		Planner: planner,
 	}.Call(nowMinusOne, &offer.Shipment)
 
 	if verrs.HasAny() || err != nil {
