@@ -162,7 +162,7 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 		Quantity2:           unit.IntToBaseQuantity(params.Payload.Quantity2),
 		Location:            string(params.Payload.Location),
 		Notes:               handlers.FmtString(params.Payload.Notes),
-		Description:         handlers.FmtString(params.Payload.Description),
+		Description:         params.Payload.Description,
 	}
 
 	var itemDimensions, crateDimensions *models.AdditionalLineItemDimensions

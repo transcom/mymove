@@ -341,6 +341,7 @@ definitions:
         format: textarea
         title: Description
         example: Mounted deer head
+        x-nullable: true
       crate_dimensions:
         $ref: '#/definitions/Dimensions'
       item_dimensions:
