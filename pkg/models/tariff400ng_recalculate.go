@@ -16,7 +16,7 @@ type Tariff400ngRecalculate struct {
 	ID                    uuid.UUID `json:"id" db:"id"`
 	CreatedAt             time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt             time.Time `json:"updated_at" db:"updated_at"`
-	ShipmentUpdatedBefore time.Time `json:"shipment_udpated_before" db:"shipment_udpated_before"`
+	ShipmentUpdatedBefore time.Time `json:"shipment_updated_before" db:"shipment_updated_before"`
 	ShipmentUpdatedAfter  time.Time `json:"shipment_updated_after" db:"shipment_updated_after"`
 	Active                bool      `json:"active" db:"active"`
 }
