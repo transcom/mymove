@@ -110,8 +110,6 @@ Creator.propTypes = {
 };
 
 function mapStateToProps(state) {
-  console.log('☠️: validity: ', isValid(PreApprovalFormName)(state));
-  console.log('🎉:  submitting: ', !isSubmitting(PreApprovalFormName)(state));
   return {
     formEnabled: isValid(PreApprovalFormName)(state) && !isSubmitting(PreApprovalFormName)(state),
     hasSubmitSucceeded: hasSubmitSucceeded(PreApprovalFormName)(state),
