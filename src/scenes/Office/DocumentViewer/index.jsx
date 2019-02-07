@@ -188,6 +188,7 @@ class DocumentViewer extends Component {
                     <DocumentDetailPanel
                       className="document-viewer"
                       moveDocumentId={this.props.match.params.moveDocumentId}
+                      moveId={move.id}
                       title=""
                     />
                   </TabPanel>
@@ -207,7 +208,7 @@ const mapStateToProps = state => {
   return {
     genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
-    currentPpm: selectPPMForMove(state, move.id) || get(state, 'ppm.currentPpm'),
+    currentPpm: selectPPMForMove(state, move.id),
     docTypes: get(state, 'swaggerInternal.spec.definitions.MoveDocumentType.enum', []),
     orders: state.office.officeOrders || {},
     move,

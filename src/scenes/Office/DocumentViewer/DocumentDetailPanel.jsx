@@ -119,7 +119,6 @@ let DocumentDetailPanel = editablePanelify(DocumentDetailDisplay, DocumentDetail
 DocumentDetailPanel = reduxForm({ form: formName })(DocumentDetailPanel);
 
 function mapStateToProps(state, props) {
-  const moveId = props.match.params.moveId;
   const moveDocumentId = props.moveDocumentId;
   const moveDocument = selectMoveDocument(state, moveDocumentId);
   const isExpenseDocument = isMovingExpenseDocument(moveDocument);
@@ -147,7 +146,7 @@ function mapStateToProps(state, props) {
     getUpdateArgs: function() {
       // Make a copy of values to not modify moveDocument
       let values = JSON.parse(JSON.stringify(getFormValues(formName)(state)));
-      values.moveDocument.personally_procured_move_id = selectPPMForMove(state, moveId).id;
+      values.moveDocument.personally_procured_move_id = selectPPMForMove(state, props.moveId).id;
       if (
         get(values.moveDocument, 'move_document_type', '') !== 'EXPENSE' &&
         get(values.moveDocument, 'payment_method', false)

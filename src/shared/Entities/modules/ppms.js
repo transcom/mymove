@@ -25,7 +25,7 @@ export function selectPPM(state) {
 export function selectPPMForMove(state, moveId) {
   const ppmId = Object.keys(get(state, 'entities.personallyProcuredMove', {})).filter(
     ppmId => get(state, `entities.personallyProcuredMove.${ppmId}.move_id`) === moveId,
-  );
+  )[0];
   return get(state, `entities.personallyProcuredMove.${ppmId}`, {});
 }
 
@@ -41,7 +41,7 @@ export function updatePPM(
     swaggerTag,
     {
       moveId,
-      personallyProcuredMoveId: personallyProcuredMoveId,
+      personallyProcuredMoveId,
       patchPersonallyProcuredMovePayload: payload,
     },
     { label },
@@ -55,5 +55,5 @@ export function approveReimbursement(reimbursementId) {
 }
 
 export function selectReimbursement(state, advanceId) {
-  return get(state, `entities.reimbursement.${advanceId}`);
+  return get(state, `entities.reimbursements.${advanceId}`);
 }

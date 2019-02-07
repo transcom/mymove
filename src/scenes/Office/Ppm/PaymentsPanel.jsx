@@ -72,7 +72,7 @@ class PaymentsTable extends Component {
   };
 
   renderAdvanceAction = () => {
-    if (this.props.ppmStatus === 'APPROVED') {
+    if (this.props.ppm.status === 'APPROVED') {
       if (this.props.advance.status === 'APPROVED') {
         return <div>{/* Further actions to come*/}</div>;
       } else {
@@ -245,7 +245,6 @@ const mapStateToProps = state => {
   const ppm = selectPPMForMove(state, move.id);
 
   return {
-    ppmStatus: ppm.status,
     ppm,
     move,
     advance: selectReimbursement(state, ppm.advance.id) || ppm.advance,
