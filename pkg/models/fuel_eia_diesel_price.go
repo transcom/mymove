@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -39,6 +40,18 @@ type FuelEIADieselPrices []FuelEIADieselPrice
 func (f FuelEIADieselPrices) String() string {
 	jf, _ := json.Marshal(f)
 	return string(jf)
+}
+
+// FetchLastTwelveMonthsOfFuelPrices queries and fetches all fuel_eia_diesel_prices for past 12 months
+func FetchLastTwelveMonthsOfFuelPrices(dbConnection *pop.Connection) ([]FuelEIADieselPrice, error) {
+	today := time.Now()
+	query := dbConnection.Where("pub_date <= $1  AND pub_Date >= $2", time.Now(), today.AddDate(0, -12, 0))
+	var fuelPrices []FuelEIADieselPrice
+	err := query.Eager().All(&fuelPrices)
+	if err != nil {
+		return fuelPrices, errors.Wrap(err, "Fetch line items query failed")
+	}
+	return fuelPrices, nil
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
