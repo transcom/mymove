@@ -52,10 +52,7 @@ function tspUserViewsNewShipments() {
     .contains('div', '15-May-18');
 
   // Find and open shipment
-  cy
-    .get('div')
-    .contains('BACON1')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('BACON1');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -73,10 +70,7 @@ function tspUserViewsInTransitShipments() {
   cy.get('h1').contains('Queue: In Transit Shipments');
 
   // Find in transit (generated in e2ebasic.go) and open it
-  cy
-    .get('div')
-    .contains('NINOPK')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('NINOPK');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -99,10 +93,7 @@ function tspUserViewsDeliveredShipments() {
   cy.get('h1').contains('Queue: Delivered Shipments');
 
   // Find delivered shipment (generated in e2ebasic.go) and open it
-  cy
-    .get('div')
-    .contains('SCHNOO')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('SCHNOO');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -129,10 +120,7 @@ function tspUserViewsAcceptedShipments() {
   cy.get('h1').contains('Queue: Accepted Shipments');
 
   // Find shipment
-  cy
-    .get('div')
-    .contains('BACON3')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('BACON3');
 
   // Status
   tspUserVerifiesShipmentStatus('Shipment accepted');
@@ -159,10 +147,7 @@ function tspUserViewsApprovedShipments() {
     .get('div')
     .contains('BACON1')
     .should('not.exist');
-  cy
-    .get('div')
-    .contains('APPRVD')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('APPRVD');
 
   // Status
   tspUserVerifiesShipmentStatus('Awaiting pre-move survey');
@@ -185,10 +170,7 @@ function tspUserViewsCompletedShipments() {
   cy.get('h1').contains('Queue: Completed Shipments');
 
   // Find shipment
-  cy
-    .get('div')
-    .contains('NOCHKA')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('NOCHKA');
 
   // Status
   tspUserVerifiesShipmentStatus('Delivered');

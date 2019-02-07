@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
+import scrollToTop from 'shared/scrollToTop';
 
 import { push } from 'react-router-redux';
 import { reduxForm } from 'redux-form';
@@ -40,7 +41,7 @@ class EditBackupContact extends Component {
   componentDidMount() {
     this.props.editBegin();
     this.props.entitlementChangeBegin();
-    window.scrollTo(0, 0);
+    scrollToTop();
   }
 
   updateContact = fieldValues => {
@@ -53,7 +54,7 @@ class EditBackupContact extends Component {
         this.props.editSuccessful();
         this.props.history.goBack();
       } else {
-        window.scrollTo(0, 0);
+        scrollToTop();
       }
     });
   };

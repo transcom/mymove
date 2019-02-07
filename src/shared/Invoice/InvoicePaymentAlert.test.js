@@ -1,6 +1,5 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import moment from 'moment';
 
 import InvoicePaymentAlert from './InvoicePaymentAlert';
 import { isError, isLoading, isSuccess } from 'shared/constants';
@@ -21,7 +20,6 @@ describe('Invoice Payment Component tests', () => {
     });
     describe('and the api response is 409 and invoice status is SUBMITTED', () => {
       let invoiceDate = '12/12/2018 12:12:00z';
-      let momentDate = moment(invoiceDate);
       it('renders invoice already processed by another user', () => {
         wrapper = shallow(
           <InvoicePaymentAlert
@@ -48,7 +46,6 @@ describe('Invoice Payment Component tests', () => {
     });
     describe('and the api response is 409 and invoice status is IN_PROCESS', () => {
       let invoiceDate = '12/12/2018 12:12:00z';
-      let momentDate = moment(invoiceDate);
       it('renders invoice already processed by another user', () => {
         wrapper = shallow(
           <InvoicePaymentAlert
@@ -75,7 +72,6 @@ describe('Invoice Payment Component tests', () => {
     });
     describe('and the api response is 409 and invoice status is DRAFT', () => {
       let invoiceDate = '12/12/2018 12:12:00z';
-      let momentDate = moment(invoiceDate);
       it('renders invoice already processed by another user', () => {
         wrapper = shallow(
           <InvoicePaymentAlert

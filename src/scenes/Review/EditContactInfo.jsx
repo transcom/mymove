@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
+import scrollToTop from 'shared/scrollToTop';
 
 import { push } from 'react-router-redux';
 import { reduxForm, FormSection } from 'redux-form';
@@ -103,7 +104,7 @@ class EditContact extends Component {
         this.props.editSuccessful();
         this.props.history.goBack();
       } else {
-        window.scrollTo(0, 0);
+        scrollToTop();
       }
     });
   };

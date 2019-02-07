@@ -24,9 +24,6 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{context}
 
-	internalAPI.IssuesCreateIssueHandler = CreateIssueHandler{context}
-	internalAPI.IssuesIndexIssuesHandler = IndexIssuesHandler{context}
-
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{context}
 
 	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler{context}
@@ -90,8 +87,6 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.OfficeCancelMoveHandler = CancelMoveHandler{context}
 
 	internalAPI.EntitlementsValidateEntitlementHandler = ValidateEntitlementHandler{context}
-
-	internalAPI.GexSendGexRequestHandler = SendGexRequestHandler{context}
 
 	internalAPI.CalendarShowAvailableMoveDatesHandler = ShowAvailableMoveDatesHandler{context}
 

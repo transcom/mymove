@@ -6,6 +6,7 @@ import { get } from 'lodash';
 import 'react-table/react-table.css';
 import { RetrieveMovesForOffice } from './api.js';
 import Alert from 'shared/Alert';
+import { selectServiceMemberForMove } from 'shared/Entities/modules/serviceMembers';
 
 class QueueTable extends Component {
   constructor() {
@@ -149,11 +150,15 @@ class QueueTable extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  flashMessage: get(state, 'office.flashMessage', false),
-  moveLocator: get(state, 'office.officeMove.locator', 'Unloaded'),
-  firstName: get(state, 'office.officeServiceMember.first_name', 'Unloaded'),
-  lastName: get(state, 'office.officeServiceMember.last_name', 'Unloaded'),
-});
+const mapStateToProps = state => {
+  const moveId = get(state, 'office.officeMove.id');
+  const serviceMember = selectServiceMemberForMove(state, moveId);
+  return {
+    flashMessage: get(state, 'office.flashMessage', false),
+    moveLocator: get(state, 'office.officeMove.locator', 'Unloaded'),
+    firstName: serviceMember.first_name,
+    lastName: serviceMember.last_name,
+  };
+};
 
 export default withRouter(connect(mapStateToProps)(QueueTable));

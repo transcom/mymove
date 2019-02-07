@@ -40,6 +40,7 @@ type Assertions struct {
 	Shipment                                 models.Shipment
 	ShipmentLineItem                         models.ShipmentLineItem
 	ShipmentOffer                            models.ShipmentOffer
+	StorageInTransit                         models.StorageInTransit
 	Tariff400ngServiceArea                   models.Tariff400ngServiceArea
 	Tariff400ngItem                          models.Tariff400ngItem
 	Tariff400ngItemRate                      models.Tariff400ngItemRate

@@ -15,10 +15,7 @@ describe('The document viewer', function() {
     });
 
     // Find a shipment and open it
-    cy
-      .get('div')
-      .contains('DOCVWR')
-      .dblclick();
+    cy.selectQueueItemMoveLocator('DOCVWR');
 
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -58,10 +55,7 @@ describe('The document viewer', function() {
     });
 
     // Find a shipment with a doc
-    cy
-      .get('div')
-      .contains('GOTDOC')
-      .dblclick();
+    cy.selectQueueItemMoveLocator('GOTDOC');
 
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -110,10 +104,7 @@ describe('The document viewer', function() {
       .contains('Delivered Shipments')
       .click();
 
-    cy
-      .get('div')
-      .contains('DOOB')
-      .dblclick();
+    cy.selectQueueItemMoveLocator('DOOB');
 
     cy
       .get('.invoice-panel')

@@ -74,6 +74,7 @@ EntitlementBar.propTypes = {
     pro_gear: PropTypes.number.isRequired,
     pro_gear_spouse: PropTypes.number.isRequired,
     sum: PropTypes.number.isRequired,
+    storage_in_transit: PropTypes.number.isRequired,
   }),
   hhgPPMEntitlementMessage: PropTypes.string,
 };

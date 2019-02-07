@@ -1,6 +1,7 @@
-/* global cy, Cypress*/
+/* global cy */
 
 export function getFixture(role) {
+  /* eslint-disable security/detect-object-injection */
   return {
     Origin: {
       Company: 'ACME Movers',
@@ -27,10 +28,11 @@ export function getFixture(role) {
       Role: 'destination_service_agent',
     },
   }[role];
+  /* eslint-enable security/detect-object-injection */
 }
 
 export function userVerifiesTspAssigned() {
-  const tspFields = cy
+  cy
     .get('.editable-panel-3-column')
     .contains('TSP')
     .parent()

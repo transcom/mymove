@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 import PropTypes from 'prop-types';
+import { get } from 'lodash';
 import PreApprovalForm, { formName as PreApprovalFormName } from 'shared/PreApprovalRequest/PreApprovalForm.jsx';
-import { formatToBaseQuantity } from 'shared/formatters';
+import { formatToBaseQuantity, formatDimensionsToThousandthInches } from 'shared/formatters';
 import { submit, isValid, isSubmitting, reset, hasSubmitSucceeded } from 'redux-form';
 
 import { connect } from 'react-redux';
@@ -28,6 +29,12 @@ export class Creator extends Component {
     if (values.quantity_1) {
       values.quantity_1 = formatToBaseQuantity(values.quantity_1);
     }
+
+    //Convert item dimensions to base quantity unit before hitting endpoint
+    formatDimensionsToThousandthInches(get(values, 'item_dimensions'));
+    //Convert crate dimensions to base quantity unit before hitting endpoint
+    formatDimensionsToThousandthInches(get(values, 'crate_dimensions'));
+
     values.tariff400ng_item_id = values.tariff400ng_item.id;
     this.props.savePreApprovalRequest(values);
   };

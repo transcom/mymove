@@ -5,7 +5,7 @@ import Alert from 'shared/Alert';
 
 describe('HHG with too high a weight estimate', function() {
   const shipment = { weight_estimate: 12000, progear_weight_estimate: 300, spouse_progear_weight_estimate: 200 };
-  const entitlements = { weight: 10000, pro_gear: 200, pro_gear_spouse: 100 };
+  const entitlements = { weight: 10000, pro_gear: 200, pro_gear_spouse: 100, storage_in_transit: 90 };
   const wrapper = shallow(<HHGWeightWarning shipment={shipment} entitlements={entitlements} />);
 
   it('shows a warning if the estimated weight is too high', function() {
@@ -29,7 +29,7 @@ describe('HHG with too high a weight estimate', function() {
 
 describe('with valid weights', function() {
   const shipment = { weight_estimate: 1000, progear_weight_estimate: 200, spouse_progear_weight_estimate: 200 };
-  const entitlements = { weight: 2000, pro_gear: 300, pro_gear_spouse: 300 };
+  const entitlements = { weight: 2000, pro_gear: 300, pro_gear_spouse: 300, storage_in_transit: 90 };
   const wrapper = shallow(<HHGWeightWarning shipment={shipment} entitlements={entitlements} />);
 
   it('shows no alerts', function() {
@@ -39,7 +39,7 @@ describe('with valid weights', function() {
 
 describe('with no estimates', function() {
   const shipment = {};
-  const entitlements = { weight: 2000, pro_gear: 300, pro_gear_spouse: 300 };
+  const entitlements = { weight: 2000, pro_gear: 300, pro_gear_spouse: 300, storage_in_transit: 90 };
   const wrapper = shallow(<HHGWeightWarning shipment={shipment} entitlements={entitlements} />);
 
   it('shows no alerts', function() {

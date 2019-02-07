@@ -6,12 +6,14 @@ import { connect } from 'react-redux';
 import { get } from 'lodash';
 import WizardHeader from 'scenes/Moves/WizardHeader';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
+import scrollToTop from 'shared/scrollToTop';
+
 import reviewGray from 'shared/icon/review-gray.svg';
 import './Review.css';
 
 class Review extends Component {
   componentDidMount() {
-    window.scrollTo(0, 0);
+    scrollToTop();
   }
   render() {
     const { pages, pageKey, isHHGPPMComboMove } = this.props;
