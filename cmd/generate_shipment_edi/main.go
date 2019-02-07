@@ -93,7 +93,7 @@ func main() {
 		log.Fatal(verrs)
 	}
 
-	var sendToGexHTTP services.SendToGex
+	var sendToGexHTTP services.GexSender
 	if sendToGex {
 		certificates, rootCAs, err := initDODCertificates(v, logger)
 		if certificates == nil || rootCAs == nil || err != nil {
@@ -104,7 +104,7 @@ func main() {
 		if len(url) == 0 {
 			log.Fatal("Not sending to GEX because no URL set. Set GEX_URL in your envrc.local.")
 		}
-		sendToGexHTTP = invoice.NewSendToGexHTTP(
+		sendToGexHTTP = invoice.NewGexSenderHTTP(
 			url,
 			true,
 			tlsConfig,
@@ -122,7 +122,7 @@ func main() {
 	}
 }
 
-func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel models.Invoice, sendToGex bool, transactionName *string, gexSender services.SendToGex) (resp *http.Response, err error) {
+func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel models.Invoice, sendToGex bool, transactionName *string, gexSender services.GexSender) (resp *http.Response, err error) {
 	defer func() {
 		if err != nil || (resp != nil && resp.StatusCode != 200) {
 			// Update invoice record as failed
@@ -168,7 +168,7 @@ func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel m
 		if err != nil {
 			return nil, err
 		}
-		resp, err := gexSender.Call(invoice858CString, *transactionName)
+		resp, err := gexSender.SendToGex(invoice858CString, *transactionName)
 		if resp == nil || err != nil {
 			log.Fatal("Gex Sender had no response", err)
 		}

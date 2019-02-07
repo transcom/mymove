@@ -23,7 +23,7 @@ func (suite *InvoiceServiceSuite) TestProcessInvoiceCall() {
 	mockServerSuccess := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
-	gexSenderSuccess := NewSendToGexHTTP(
+	gexSenderSuccess := NewGexSenderHTTP(
 		mockServerSuccess.URL,
 		false,
 		nil,
@@ -34,7 +34,7 @@ func (suite *InvoiceServiceSuite) TestProcessInvoiceCall() {
 	mockServerFail := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusForbidden)
 	}))
-	gexSenderFail := NewSendToGexHTTP(
+	gexSenderFail := NewGexSenderHTTP(
 		mockServerFail.URL,
 		false,
 		nil,

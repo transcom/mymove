@@ -38,8 +38,8 @@ type HandlerContext interface {
 	SendProductionInvoice() bool
 	SetSendProductionInvoice(sendProductionInvoice bool)
 
-	GexSender() services.SendToGex
-	SetGexSender(gexSender services.SendToGex)
+	GexSender() services.GexSender
+	SetGexSender(gexSender services.GexSender)
 	ICNSequencer() sequence.Sequencer
 	SetICNSequencer(sequencer sequence.Sequencer)
 	DPSAuthParams() dpsauth.Params
@@ -60,7 +60,7 @@ type handlerContext struct {
 	iwsPersonLookup       iws.PersonLookup
 	sendProductionInvoice bool
 	dpsAuthParams         dpsauth.Params
-	senderToGex           services.SendToGex
+	senderToGex           services.GexSender
 	icnSequencer          sequence.Sequencer
 }
 
@@ -167,11 +167,11 @@ func (hctx *handlerContext) SetSendProductionInvoice(sendProductionInvoice bool)
 	hctx.sendProductionInvoice = sendProductionInvoice
 }
 
-func (hctx *handlerContext) GexSender() services.SendToGex {
+func (hctx *handlerContext) GexSender() services.GexSender {
 	return hctx.senderToGex
 }
 
-func (hctx *handlerContext) SetGexSender(sendGexRequest services.SendToGex) {
+func (hctx *handlerContext) SetGexSender(sendGexRequest services.GexSender) {
 	hctx.senderToGex = sendGexRequest
 }
 

@@ -850,16 +850,16 @@ func main() {
 	logger.Debug("Server DOD Key Pair Loaded")
 	logger.Debug("Trusted Certificate Authorities", zap.Any("subjects", rootCAs.Subjects()))
 
-	// Set the GexSender() and SendToGexHTTP fields
+	// Set the GexSender() and GexSenderHTTP fields
 	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
-	var gexRequester services.SendToGex
+	var gexRequester services.GexSender
 	gexURL := v.GetString("gex-url")
 	if len(gexURL) == 0 {
 		// this spins up a local test server
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusOK)
 		}))
-		gexRequester = invoice.NewSendToGexHTTP(
+		gexRequester = invoice.NewGexSenderHTTP(
 			server.URL,
 			false,
 			&tls.Config{},
@@ -867,7 +867,7 @@ func main() {
 			"",
 		)
 	} else {
-		gexRequester = invoice.NewSendToGexHTTP(
+		gexRequester = invoice.NewGexSenderHTTP(
 			v.GetString("gex-url"),
 			true,
 			tlsConfig,

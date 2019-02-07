@@ -16,7 +16,7 @@ import (
 // ProcessInvoice is a service object to generate/send/record an invoice.
 type ProcessInvoice struct {
 	DB                    *pop.Connection
-	GexSender             services.SendToGex
+	GexSender             services.GexSender
 	SendProductionInvoice bool
 	ICNSequencer          sequence.Sequencer
 }
@@ -57,7 +57,7 @@ func (p ProcessInvoice) generateAndSendInvoiceData(invoice *models.Invoice, ship
 		return nil, err
 	}
 
-	resp, err := p.GexSender.Call(invoice858CString, transactionName)
+	resp, err := p.GexSender.SendToGex(invoice858CString, transactionName)
 	if err != nil {
 		return &invoice858CString, err
 	}
