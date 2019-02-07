@@ -49,6 +49,44 @@ export function formatToBaseQuantity(baseQuantity) {
   return baseQuantity;
 }
 
+// Format a thousandth of an inch into an inch, e.g. 16700 -> 16.7
+export function convertFromThousandthInchToInch(thousandthInch) {
+  if (!isFinite(thousandthInch)) {
+    return null;
+  }
+
+  return thousandthInch / 1000;
+}
+
+// Format a dimensions object length, width and height to inches
+export function formatToDimensionsInches(dimensions) {
+  if (!dimensions) {
+    return;
+  }
+
+  dimensions.length = convertFromThousandthInchToInch(dimensions.length);
+  dimensions.width = convertFromThousandthInchToInch(dimensions.width);
+  dimensions.height = convertFromThousandthInchToInch(dimensions.height);
+
+  return dimensions;
+}
+
+// Format dimensions object length, width and height to base dimensions
+export function formatDimensionsToThousandthInches(dimensions) {
+  if (!dimensions) {
+    return;
+  }
+
+  dimensions.length = formatToThousandthInches(dimensions.length);
+  dimensions.width = formatToThousandthInches(dimensions.width);
+  dimensions.height = formatToThousandthInches(dimensions.height);
+}
+
+// Format user-entered dimension into base dimension, e.g. 15.25 -> 15250
+export function formatToThousandthInches(val) {
+  return parseFloat(String(val).replace(',', '')) * 1000;
+}
+
 export function formatCentsRange(min, max) {
   if (!isFinite(min) || !isFinite(max)) {
     return '';
