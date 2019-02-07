@@ -367,11 +367,6 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 		notesVal = *baseParams.Notes
 	}
 
-	var description string
-	if baseParams.Description != nil {
-		description = *baseParams.Description
-	}
-
 	//We can do validation for specific item codes here
 	// Example: 105B/E
 	var responseError error
@@ -397,7 +392,7 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 		shipmentLineItem.Notes = notesVal
 		shipmentLineItem.SubmittedDate = time.Now()
 		shipmentLineItem.Status = ShipmentLineItemStatusSUBMITTED
-		shipmentLineItem.Description = description
+		shipmentLineItem.Description = baseParams.Description
 
 		verrs, err = connection.ValidateAndCreate(&shipmentLineItem)
 		if verrs.HasAny() || err != nil {

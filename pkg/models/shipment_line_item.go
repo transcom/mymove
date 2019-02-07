@@ -58,7 +58,7 @@ type ShipmentLineItem struct {
 	ItemDimensions    ShipmentLineItemDimensions `belongs_to:"shipment_line_item_dimensions"`
 	CrateDimensionsID *uuid.UUID                 `json:"crate_dimensions_id" db:"crate_dimensions_id"`
 	CrateDimensions   ShipmentLineItemDimensions `belongs_to:"shipment_line_item_dimensions"`
-	Description       string                     `json:"description" db:"description"`
+	Description       *string                    `json:"description" db:"description"`
 	CreatedAt         time.Time                  `json:"created_at" db:"created_at"`
 	UpdatedAt         time.Time                  `json:"updated_at" db:"updated_at"`
 }
