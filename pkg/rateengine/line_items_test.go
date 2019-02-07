@@ -24,7 +24,7 @@ func (suite *RateEngineSuite) TestCreateBaseShipmentLineItems() {
 	dbShipment, err := models.FetchShipmentByTSP(suite.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
 	suite.FatalNoError(err)
 
-	shipmentCost, err := engine.HandleRunOnShipment(*dbShipment)
+	shipmentCost, err := engine.HandleRunOnShipment(*dbShipment, dbShipment.ShippingDistance)
 	suite.FatalNoError(err)
 
 	lineItems, err := CreateBaseShipmentLineItems(suite.DB(), shipmentCost)
