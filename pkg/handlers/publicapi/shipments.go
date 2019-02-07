@@ -26,6 +26,18 @@ import (
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
+func payloadForDistanceCalculationModel(d models.DistanceCalculation) *apimessages.DistanceCalculation {
+	if d.ID == uuid.Nil {
+		return nil
+	}
+
+	return &apimessages.DistanceCalculation{
+		OriginAddress:      payloadForAddressModel(&d.OriginAddress),
+		DestinationAddress: payloadForAddressModel(&d.DestinationAddress),
+		DistanceMiles:      int64(d.DistanceMiles),
+	}
+}
+
 func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 	shipmentpayload := &apimessages.Shipment{
 		ID:               *handlers.FmtUUID(s.ID),
@@ -74,6 +86,9 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		NetWeight:                   handlers.FmtPoundPtr(s.NetWeight),
 		GrossWeight:                 handlers.FmtPoundPtr(s.GrossWeight),
 		TareWeight:                  handlers.FmtPoundPtr(s.TareWeight),
+
+		// distance
+		ShippingDistance: payloadForDistanceCalculationModel(s.ShippingDistance),
 
 		// pre-move survey
 		PmSurveyConductedDate:               handlers.FmtDatePtr(s.PmSurveyConductedDate),

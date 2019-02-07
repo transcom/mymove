@@ -576,6 +576,17 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MoveDocumentPayload'
+  DistanceCalculation:
+    type: object
+    properties:
+      origin_address:
+        $ref: '#/definitions/Address'
+      destination_address:
+        $ref: '#/definitions/Address'
+      distance_miles:
+        type: integer
+        title: Distance
+        description: unit is miles
   MoveDocumentPayload:
     type: object
     properties:
@@ -1547,6 +1558,8 @@ definitions:
         $ref: '#/definitions/Address'
         title: Delivery Address
         x-nullable: true
+      shipping_distance:
+        $ref: '#/definitions/DistanceCalculation'
       has_partial_sit_delivery_address:
         type: boolean
         default: false

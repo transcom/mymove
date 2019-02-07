@@ -33,6 +33,18 @@ func payloadForInvoiceModel(a *models.Invoice) *internalmessages.Invoice {
 	}
 }
 
+func payloadForDistanceCalculationModel(d models.DistanceCalculation) *internalmessages.DistanceCalculation {
+	if d.ID == uuid.Nil {
+		return nil
+	}
+
+	return &internalmessages.DistanceCalculation{
+		OriginAddress:      payloadForAddressModel(&d.OriginAddress),
+		DestinationAddress: payloadForAddressModel(&d.DestinationAddress),
+		DistanceMiles:      int64(d.DistanceMiles),
+	}
+}
+
 func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, error) {
 	// TODO: For now, we keep the Shipment structure the same but change where the CodeOfService
 	// TODO: is coming from.  Ultimately we should probably rework the structure below to more
@@ -102,6 +114,9 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 		NetWeight:                   handlers.FmtPoundPtr(s.NetWeight),
 		GrossWeight:                 handlers.FmtPoundPtr(s.GrossWeight),
 		TareWeight:                  handlers.FmtPoundPtr(s.TareWeight),
+
+		// distance
+		ShippingDistance: payloadForDistanceCalculationModel(s.ShippingDistance),
 
 		// pre-move survey
 		PmSurveyConductedDate:               handlers.FmtDatePtr(s.PmSurveyConductedDate),
