@@ -22,6 +22,13 @@ export function selectPPM(state) {
   return get(state, `entities.personallyProcuredMove.${ppmId}`, {});
 }
 
+export function selectPPMForMove(state, moveId) {
+  const ppmId = Object.keys(get(state, 'entities.personallyProcuredMove', {})).filter(
+    ppmId => get(state, `entities.personallyProcuredMove.${ppmId}.move_id`) === moveId,
+  );
+  return get(state, `entities.personallyProcuredMove.${ppmId}`, {});
+}
+
 export function updatePPM(
   moveId,
   personallyProcuredMoveId,

@@ -41,7 +41,7 @@ import {
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
-import { approvePPM, selectPPM } from 'shared/Entities/modules/ppms';
+import { approvePPM, selectPPMForMove } from 'shared/Entities/modules/ppms';
 import { selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import {
   getPublicShipment,
@@ -83,10 +83,10 @@ const BasicsTabContent = props => {
 const PPMTabContent = props => {
   return (
     <div className="office-tab">
-      <PaymentsPanel title="Payments" moveId={props.moveId} />
-      <ExpensesPanel title="Expenses" />
-      <IncentiveCalculator />
-      <StorageReimbursementCalculator />
+      <PaymentsPanel title="Payments" />
+      <ExpensesPanel title="Expenses" moveId={props.moveId} />
+      <IncentiveCalculator moveId={props.moveId} />
+      <StorageReimbursementCalculator moveId={props.moveId} />
       <PPMEstimatesPanel title="Estimates" moveId={props.moveId} />
     </div>
   );
@@ -322,7 +322,9 @@ class MoveInfo extends Component {
                 <PrivateRoute path={`${this.props.match.path}/basics`}>
                   <BasicsTabContent serviceMember={this.props.serviceMember} />
                 </PrivateRoute>
-                <PrivateRoute path={`${this.props.match.path}/ppm`} component={PPMTabContent} />
+                <PrivateRoute path={`${this.props.match.path}/ppm`}>
+                  <PPMTabContent moveId={this.props.moveId} />
+                </PrivateRoute>
                 <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   {this.props.shipment && (
                     <HHGTabContent
@@ -462,7 +464,7 @@ const mapStateToProps = (state, ownProps) => {
   const moveId = ownProps.match.params.moveId;
   const officeMove = get(state, 'office.officeMove', {}) || {};
   const shipmentId = get(officeMove, 'shipments.0.id');
-  const officePPM = selectPPM(state);
+  const officePPM = selectPPMForMove(state, moveId);
   const orders = get(state, `entities.orders.${officeMove.orders_id}`, {});
   const serviceMember = selectServiceMember(state, orders.service_member_id);
   return {

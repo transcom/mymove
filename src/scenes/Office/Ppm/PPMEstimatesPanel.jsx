@@ -8,7 +8,7 @@ import { PanelSwaggerField, PanelField, editablePanelify } from 'shared/Editable
 import { formatCentsRange } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import { selectPPM, updatePPM } from 'shared/Entities/modules/ppms';
+import { selectPPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
 
 import { loadEntitlements } from 'scenes/Office/ducks';
 
@@ -90,9 +90,8 @@ const formName = 'ppm_estimate_and_details';
 let PPMEstimatesPanel = editablePanelify(EstimatesDisplay, EstimatesEdit);
 PPMEstimatesPanel = reduxForm({ form: formName })(PPMEstimatesPanel);
 
-function mapStateToProps(state) {
-  const PPMEstimate = selectPPM(state);
-  const officeMove = get(state, 'office.officeMove', {});
+function mapStateToProps(state, ownProps) {
+  const PPMEstimate = selectPPMForMove(state, ownProps.moveId);
   const formValues = getFormValues(formName)(state);
 
   return {
@@ -119,7 +118,7 @@ function mapStateToProps(state) {
         delete formValues.PPMEstimate.additional_pickup_postal_code;
         formValues.PPMEstimate.has_additional_postal_code = false;
       }
-      return [officeMove.id, formValues.PPMEstimate.id, formValues.PPMEstimate];
+      return [ownProps.moveId, formValues.PPMEstimate.id, formValues.PPMEstimate];
     },
   };
 }

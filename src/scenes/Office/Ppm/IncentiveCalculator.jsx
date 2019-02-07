@@ -8,7 +8,7 @@ import { reduxForm } from 'redux-form';
 import Alert from 'shared/Alert';
 import { formatCents } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { selectPPM } from 'shared/Entities/modules/ppms';
+import { selectPPMForMove } from 'shared/Entities/modules/ppms';
 
 import { getPpmIncentive, clearPpmIncentive } from './ducks';
 const formName = 'ppm_reimbursement_calc';
@@ -153,8 +153,12 @@ IncentiveCalculator.propTypes = {
   error: PropTypes.object,
 };
 
-function mapStateToProps(state) {
-  const initialValues = pick(selectPPM(state), ['planned_move_date', 'pickup_postal_code', 'destination_postal_code']);
+function mapStateToProps(state, ownProps) {
+  const initialValues = pick(selectPPMForMove(state, ownProps.moveId), [
+    'planned_move_date',
+    'pickup_postal_code',
+    'destination_postal_code',
+  ]);
   const props = {
     schema,
     ...state.ppmIncentive,

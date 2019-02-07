@@ -3,7 +3,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
-import { selectReimbursement, selectPPM, approveReimbursement } from 'shared/Entities/modules/ppms';
+import { selectReimbursement, approveReimbursement, selectPPMForMove } from 'shared/Entities/modules/ppms';
 
 import { downloadPPMAttachments } from '../ducks';
 import { no_op } from 'shared/utils';
@@ -241,12 +241,13 @@ class PaymentsTable extends Component {
 }
 
 const mapStateToProps = state => {
-  const ppm = selectPPM(state);
+  const move = get(state, 'office.officeMove', {});
+  const ppm = selectPPMForMove(state, move.id);
 
   return {
-    ppm,
     ppmStatus: ppm.status,
-    move: get(state, 'office.officeMove', {}),
+    ppm,
+    move,
     advance: selectReimbursement(state, ppm.advance.id) || ppm.advance,
     hasError: false,
     errorMessage: state.office.error,

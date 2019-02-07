@@ -125,7 +125,6 @@ export function swaggerRequest(getClient, operationPath, params, options = {}) {
 
         // eslint-disable-next-line security/detect-object-injection
         const payloadSchema = schema[schemaKey];
-        console.log('schemakey', schemaKey);
         if (!payloadSchema) {
           throw new Error(`Could not find a schema for ${schemaKey}`);
         }

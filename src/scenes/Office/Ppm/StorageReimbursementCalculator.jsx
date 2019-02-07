@@ -7,7 +7,7 @@ import { reduxForm } from 'redux-form';
 
 import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { selectPPM } from 'shared/Entities/modules/ppms';
+import { selectPPMForMove } from 'shared/Entities/modules/ppms';
 
 import { getPpmSitEstimate, clearPpmSitEstimate } from '../../Moves/Ppm/ducks';
 
@@ -148,8 +148,8 @@ StorageReimbursementCalculator.propTypes = {
   error: PropTypes.object,
 };
 
-function mapStateToProps(state) {
-  const initialValues = pick(selectPPM(state), [
+function mapStateToProps(state, ownProps) {
+  const initialValues = pick(selectPPMForMove(state, ownProps.moveId), [
     'planned_move_date',
     'pickup_postal_code',
     'destination_postal_code',
