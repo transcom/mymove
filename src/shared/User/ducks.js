@@ -73,7 +73,7 @@ const loggedOutUser = {
 
 function getUserInfo() {
   // The prefix should match the lowercased application name set in the server session
-  let cookiePrefix = (isMilmoveSite && 'my') || (isOfficeSite && 'office') || (isTspSite && 'tsp') || '';
+  let cookiePrefix = (isMilmoveSite && 'mil') || (isOfficeSite && 'office') || (isTspSite && 'tsp') || '';
   const cookieName = cookiePrefix + '_session_token';
   const cookie = Cookies.get(cookieName);
   if (!cookie) return loggedOutUser;

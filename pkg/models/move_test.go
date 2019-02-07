@@ -50,7 +50,7 @@ func (suite *ModelSuite) TestFetchMove() {
 	session := &auth.Session{
 		UserID:          order1.ServiceMember.UserID,
 		ServiceMemberID: order1.ServiceMemberID,
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 	}
 	selectedMoveType := SelectedMoveTypeHHG
 

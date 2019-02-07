@@ -74,7 +74,7 @@ func FetchBackupContact(db *pop.Connection, session *auth.Session, id uuid.UUID)
 		return BackupContact{}, err
 	}
 	// TODO: Handle case where more than one user is authorized to modify contact
-	if session.IsMyApp() && contact.ServiceMember.ID != session.ServiceMemberID {
+	if session.IsMilApp() && contact.ServiceMember.ID != session.ServiceMemberID {
 		return BackupContact{}, ErrFetchForbidden
 	}
 	return contact, nil

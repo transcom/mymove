@@ -15,8 +15,8 @@ const (
 	TspTestHost string = "tsp.example.com"
 	// OfficeTestHost
 	OfficeTestHost string = "office.example.com"
-	// MyTestHost
-	MyTestHost string = "my.example.com"
+	// MilTestHost
+	MilTestHost string = "mil.example.com"
 )
 
 type authSuite struct {

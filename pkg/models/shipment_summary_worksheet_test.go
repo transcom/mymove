@@ -43,7 +43,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksFormData() {
 	session := auth.Session{
 		UserID:          move.Orders.ServiceMember.UserID,
 		ServiceMemberID: serviceMemberID,
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 	}
 	ssd, err := models.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
 
