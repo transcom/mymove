@@ -42,6 +42,7 @@ export const orders = new schema.Entity('orders');
 orders.define({
   moves: moves,
 });
+export const ordersArray = new schema.Array(orders);
 
 // ServiceMemberBackupContacts
 export const backupContact = new schema.Entity('backupContacts');
@@ -56,7 +57,6 @@ export const serviceMemberBackupContact = backupContact;
 export const serviceMember = new schema.Entity('serviceMembers', {
   backup_contacts: backupContacts,
   user: user,
-  // orders: new schema.Array(order),
 });
 
 // Documents

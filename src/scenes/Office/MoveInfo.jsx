@@ -210,16 +210,7 @@ class MoveInfo extends Component {
   };
 
   render() {
-    const {
-      moveDocuments,
-      moveStatus,
-      orders,
-      ppm,
-      shipment,
-      shipmentStatus,
-      serviceMember,
-      upload,
-    } = this.props;
+    const { moveDocuments, moveStatus, orders, ppm, shipment, shipmentStatus, serviceMember, upload } = this.props;
     const move = this.props.officeMove;
     const isPPM = move.selected_move_type === 'PPM';
     const isHHG = move.selected_move_type === 'HHG';
