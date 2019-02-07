@@ -51,6 +51,7 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	ShipmentCurrentShipmentStatuses string
 	PreparationDate                 string
 	GCC100                          string
+	TotalWeightAllotmentRepeat      string
 	GCC95                           string
 	GCCMaxAdvance                   string
 }
@@ -158,6 +159,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.WeightAllotmentProgear = FormatWeights(data.WeightAllotment.ProGearWeight)
 	page1.WeightAllotmentProgearSpouse = FormatWeights(data.WeightAllotment.ProGearWeightSpouse)
 	page1.TotalWeightAllotment = FormatWeights(data.TotalWeightAllotment)
+	page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
 
 	formattedShipments := FormatAllShipments(data.PersonallyProcuredMoves, data.Shipments)
 	page1.ShipmentNumberAndTypes = formattedShipments.ShipmentNumberAndTypes

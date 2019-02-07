@@ -175,6 +175,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("5,000 lbs - FINAL\n\n", sswPage1.ShipmentWeights)
 	suite.Equal("Delivered\n\nAt destination", sswPage1.ShipmentCurrentShipmentStatuses)
 
+	suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
 	suite.Equal("$6,000.00", sswPage1.GCC100)
 	suite.Equal("$5,700.00", sswPage1.GCC95)
 	suite.Equal("$3,600.00", sswPage1.GCCMaxAdvance)
