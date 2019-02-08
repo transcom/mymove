@@ -16,12 +16,6 @@ export function loadPPMs(moveId) {
   return swaggerRequest(getClient, swaggerTag, { moveId }, { label });
 }
 
-export function selectPPM(state) {
-  // Note: will need to be changed when we support multiple PPMS
-  const ppmId = Object.keys(get(state, 'entities.personallyProcuredMove', {}))[0];
-  return get(state, `entities.personallyProcuredMove.${ppmId}`, {});
-}
-
 export function selectPPMForMove(state, moveId) {
   const ppmId = Object.keys(get(state, 'entities.personallyProcuredMove', {})).find(
     ppmId => get(state, `entities.personallyProcuredMove.${ppmId}.move_id`) === moveId,
