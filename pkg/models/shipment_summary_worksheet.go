@@ -5,6 +5,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/transcom/mymove/pkg/unit"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -14,18 +16,11 @@ import (
 	"golang.org/x/text/message"
 )
 
-// FetchShipmentSummaryWorksheetFormValues fetches the pages for the Shipment Summary Worksheet for a given Shipment ID
-func FetchShipmentSummaryWorksheetFormValues(db *pop.Connection, session *auth.Session, moveID uuid.UUID, preparationDate time.Time) (ShipmentSummaryWorksheetPage1Values, ShipmentSummaryWorksheetPage2Values, error) {
-	var err error
+// FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
+func FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummaryFormData) (ShipmentSummaryWorksheetPage1Values, ShipmentSummaryWorksheetPage2Values, error) {
 	var page1 ShipmentSummaryWorksheetPage1Values
 	page2 := ShipmentSummaryWorksheetPage2Values{}
-
-	ssfd, err := FetchDataShipmentSummaryWorksheetFormData(db, session, moveID)
-	ssfd.PreparationDate = preparationDate
-	if err != nil {
-		return page1, page2, err
-	}
-	page1 = FormatValuesShipmentSummaryWorksheetFormPage1(ssfd)
+	page1 = FormatValuesShipmentSummaryWorksheetFormPage1(shipmentSummaryFormData)
 	return page1, page2, nil
 }
 
@@ -44,7 +39,7 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	AuthorizedOrigin                string
 	AuthorizedDestination           string
 	NewDutyAssignment               string
-	WeightAllotmentSelf             string
+	WeightAllotment                 string
 	WeightAllotmentProgear          string
 	WeightAllotmentProgearSpouse    string
 	TotalWeightAllotment            string
@@ -55,6 +50,10 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	ShipmentWeights                 string
 	ShipmentCurrentShipmentStatuses string
 	PreparationDate                 string
+	GCC100                          string
+	TotalWeightAllotmentRepeat      string
+	GCC95                           string
+	GCCMaxAdvance                   string
 }
 
 //ShipmentSummaryWorkSheetShipments is and object representing shipment line items on Shipment Summary Worksheet
@@ -76,9 +75,11 @@ type ShipmentSummaryFormData struct {
 	CurrentDutyStation      DutyStation
 	NewDutyStation          DutyStation
 	WeightAllotment         WeightAllotment
+	TotalWeightAllotment    int
 	Shipments               Shipments
-	PreparationDate         time.Time
 	PersonallyProcuredMoves PersonallyProcuredMoves
+	PreparationDate         time.Time
+	GCC                     unit.Cents
 }
 
 // FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
@@ -107,10 +108,16 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 
 	serviceMember := move.Orders.ServiceMember
 	var rank ServiceMemberRank
+	var weightAllotment WeightAllotment
+	var totalEntitlement int
 	if serviceMember.Rank != nil {
 		rank = ServiceMemberRank(*serviceMember.Rank)
+		weightAllotment = GetWeightAllotment(rank)
+		totalEntitlement, err = GetEntitlement(rank, move.Orders.HasDependents, move.Orders.SpouseHasProGear)
+		if err != nil {
+			return ShipmentSummaryFormData{}, err
+		}
 	}
-	weightAllotment := GetWeightAllotment(rank)
 
 	ssd := ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
@@ -118,6 +125,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		CurrentDutyStation:      serviceMember.DutyStation,
 		NewDutyStation:          move.Orders.NewDutyStation,
 		WeightAllotment:         weightAllotment,
+		TotalWeightAllotment:    totalEntitlement,
 		Shipments:               move.Shipments,
 		PersonallyProcuredMoves: move.PersonallyProcuredMoves,
 	}
@@ -147,20 +155,29 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.AuthorizedDestination = FormatAuthorizedLocation(data.NewDutyStation)
 	page1.NewDutyAssignment = FormatDutyStation(data.NewDutyStation)
 
-	page1.WeightAllotmentSelf = FormatWeights(data.WeightAllotment.TotalWeightSelf)
+	page1.WeightAllotment = FormatWeightAllotment(data)
 	page1.WeightAllotmentProgear = FormatWeights(data.WeightAllotment.ProGearWeight)
 	page1.WeightAllotmentProgearSpouse = FormatWeights(data.WeightAllotment.ProGearWeightSpouse)
-	total := data.WeightAllotment.TotalWeightSelf +
-		data.WeightAllotment.ProGearWeight +
-		data.WeightAllotment.ProGearWeightSpouse
-	page1.TotalWeightAllotment = FormatWeights(total)
+	page1.TotalWeightAllotment = FormatWeights(data.TotalWeightAllotment)
+	page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
 
 	formattedShipments := FormatAllShipments(data.PersonallyProcuredMoves, data.Shipments)
 	page1.ShipmentNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
 	page1.ShipmentPickUpDates = formattedShipments.PickUpDates
 	page1.ShipmentCurrentShipmentStatuses = formattedShipments.CurrentShipmentStatuses
 	page1.ShipmentWeights = formattedShipments.ShipmentWeights
+	page1.GCC100 = FormatDollars(data.GCC.ToDollarFloat())
+	page1.GCC95 = FormatDollars(data.GCC.MultiplyFloat64(.95).ToDollarFloat())
+	page1.GCCMaxAdvance = FormatDollars(data.GCC.MultiplyFloat64(.60).ToDollarFloat())
 	return page1
+}
+
+//FormatWeightAllotment formats the weight allotment for Shipment Summary Worksheet
+func FormatWeightAllotment(data ShipmentSummaryFormData) string {
+	if data.Order.HasDependents {
+		return FormatWeights(data.WeightAllotment.TotalWeightSelfPlusDependents)
+	}
+	return FormatWeights(data.WeightAllotment.TotalWeightSelf)
 }
 
 //FormatAuthorizedLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet
@@ -308,6 +325,12 @@ func FormatEnum(s string) string {
 func FormatWeights(wtg int) string {
 	p := message.NewPrinter(language.English)
 	return p.Sprintf("%d", wtg)
+}
+
+//FormatDollars formats an int using 000s separator
+func FormatDollars(dollars float64) string {
+	p := message.NewPrinter(language.English)
+	return p.Sprintf("$%.2f", dollars)
 }
 
 func derefStringTypes(st interface{}) string {
