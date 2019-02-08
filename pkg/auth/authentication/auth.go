@@ -17,7 +17,8 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
-	authSvc "github.com/transcom/mymove/pkg/service/auth"
+	"github.com/transcom/mymove/pkg/services"
+	authsvc "github.com/transcom/mymove/pkg/services/auth"
 )
 
 // UserAuthMiddleware enforces that the incoming request is tied to a user session
@@ -156,7 +157,7 @@ type CallbackHandler struct {
 	loginGovMyClientID     string
 	loginGovOfficeClientID string
 	loginGovTspClientID    string
-	userInitializer        authSvc.UserInitializer
+	userInitializer        services.UserInitializer
 }
 
 // NewCallbackHandler creates a new CallbackHandler
@@ -166,7 +167,7 @@ func NewCallbackHandler(ac Context, db *pop.Connection, clientAuthSecretKey stri
 		db:                  db,
 		clientAuthSecretKey: clientAuthSecretKey,
 		noSessionTimeout:    noSessionTimeout,
-		userInitializer:     authSvc.UserInitializer{DB: db},
+		userInitializer:     authsvc.NewUserInitializer(db),
 	}
 	return handler
 }

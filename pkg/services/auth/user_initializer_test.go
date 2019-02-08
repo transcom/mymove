@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
-
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/markbates/goth"
-
 	"github.com/stretchr/testify/suite"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func uuidFormatter(id uuid.UUID) *uuid.UUID {
@@ -24,16 +24,16 @@ func uuidFormatter(id uuid.UUID) *uuid.UUID {
 }
 
 // Mocks a session object, as far as the UserInitializer is concerned
-type oracleMock struct {
+type appDetectorMock struct {
 	isOfficeApp bool
 	isTspApp    bool
 }
 
-func (o oracleMock) IsOfficeApp() bool {
+func (o appDetectorMock) IsOfficeApp() bool {
 	return o.isOfficeApp
 }
 
-func (o oracleMock) IsTspApp() bool {
+func (o appDetectorMock) IsTspApp() bool {
 	return o.isTspApp
 }
 
@@ -87,34 +87,34 @@ func dataHelper(db *pop.Connection, params dataHelperParams) goth.User {
 }
 
 // Verifies office user data exists and NOT tsp user data
-func (suite *UserInitializerSuite) verifyOfficeResponse(r InitializeUserResponse) bool {
+func (suite *UserInitializerSuite) verifyOfficeResponse(r services.InitializeUserResponse) bool {
 	return suite.NotEqual(uuid.Nil, r.UserID) &&
 		suite.NotEqual(uuid.Nil, r.OfficeUserID) &&
 		suite.Equal(uuid.Nil, r.TspUserID)
 }
 
 // Verifies tsp user data exists and NOT office user data
-func (suite *UserInitializerSuite) verifyTspResponse(r InitializeUserResponse) bool {
+func (suite *UserInitializerSuite) verifyTspResponse(r services.InitializeUserResponse) bool {
 	return suite.NotEqual(uuid.Nil, r.UserID) &&
 		suite.Equal(uuid.Nil, r.OfficeUserID) &&
 		suite.NotEqual(uuid.Nil, r.TspUserID)
 }
 
 // Verifies that NEITHER office or TSP user data is provided
-func (suite *UserInitializerSuite) verifyMilmoveResponse(r InitializeUserResponse) bool {
+func (suite *UserInitializerSuite) verifyMilmoveResponse(r services.InitializeUserResponse) bool {
 	return suite.NotEqual(uuid.Nil, r.UserID) &&
 		suite.Equal(uuid.Nil, r.OfficeUserID) &&
 		suite.Equal(uuid.Nil, r.TspUserID)
 }
 
 func (suite *UserInitializerSuite) TestOfficeAppOfficeUser() {
-	initializer := UserInitializer{DB: suite.DB()}
-
 	// On the office app
-	oracle := oracleMock{
+	detector := appDetectorMock{
 		isOfficeApp: true,
 		isTspApp:    false,
 	}
+
+	initializer := NewUserInitializer(suite.DB(), detector)
 
 	// A previously authed Office user should succeed
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -122,20 +122,20 @@ func (suite *UserInitializerSuite) TestOfficeAppOfficeUser() {
 		isOfficeUser: true,
 		isTspUser:    false,
 	})
-	response, verrs, err := initializer.InitializeUser(oracle, user)
+	response, verrs, err := initializer.InitializeUser(user)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 	suite.verifyOfficeResponse(response)
 }
 
 func (suite *UserInitializerSuite) TestOfficeAppNewOfficeUser() {
-	initializer := UserInitializer{DB: suite.DB()}
-
 	// On the office app
-	oracle := oracleMock{
+	detector := appDetectorMock{
 		isOfficeApp: true,
 		isTspApp:    false,
 	}
+
+	initializer := NewUserInitializer(suite.DB(), detector)
 
 	// A brand new office user should succeed
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -143,20 +143,20 @@ func (suite *UserInitializerSuite) TestOfficeAppNewOfficeUser() {
 		isOfficeUser: true,
 		isTspUser:    false,
 	})
-	response, verrs, err := initializer.InitializeUser(oracle, user)
+	response, verrs, err := initializer.InitializeUser(user)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 	suite.verifyOfficeResponse(response)
 }
 
 func (suite *UserInitializerSuite) TestOfficeAppNotOfficeUser() {
-	initializer := UserInitializer{DB: suite.DB()}
-
 	// On the office app
-	oracle := oracleMock{
+	detector := appDetectorMock{
 		isOfficeApp: true,
 		isTspApp:    false,
 	}
+
+	initializer := NewUserInitializer(suite.DB(), detector)
 
 	// A base-only user should fail
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -164,19 +164,19 @@ func (suite *UserInitializerSuite) TestOfficeAppNotOfficeUser() {
 		isOfficeUser: false,
 		isTspUser:    false,
 	})
-	_, verrs, err := initializer.InitializeUser(oracle, user)
+	_, verrs, err := initializer.InitializeUser(user)
 	suite.Error(err)
 	suite.False(verrs.HasAny())
 }
 
 func (suite *UserInitializerSuite) TestOfficeAppTspUser() {
-	initializer := UserInitializer{DB: suite.DB()}
-
 	// On the office app
-	oracle := oracleMock{
+	detector := appDetectorMock{
 		isOfficeApp: true,
 		isTspApp:    false,
 	}
+
+	initializer := NewUserInitializer(suite.DB(), detector)
 
 	// A base-only user should fail
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -184,19 +184,19 @@ func (suite *UserInitializerSuite) TestOfficeAppTspUser() {
 		isOfficeUser: false,
 		isTspUser:    true,
 	})
-	_, verrs, err := initializer.InitializeUser(oracle, user)
+	_, verrs, err := initializer.InitializeUser(user)
 	suite.Error(err)
 	suite.False(verrs.HasAny())
 }
 
 func (suite *UserInitializerSuite) TestTspAppTspUser() {
-	initializer := UserInitializer{DB: suite.DB()}
-
 	// On the TSP app
-	oracle := oracleMock{
+	detector := appDetectorMock{
 		isOfficeApp: false,
 		isTspApp:    true,
 	}
+
+	initializer := NewUserInitializer(suite.DB(), detector)
 
 	// A previously authed TSP user should succeed
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -204,20 +204,20 @@ func (suite *UserInitializerSuite) TestTspAppTspUser() {
 		isOfficeUser: false,
 		isTspUser:    true,
 	})
-	response, verrs, err := initializer.InitializeUser(oracle, user)
+	response, verrs, err := initializer.InitializeUser(user)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 	suite.verifyTspResponse(response)
 }
 
 func (suite *UserInitializerSuite) TestTspAppNewTspUser() {
-	initializer := UserInitializer{DB: suite.DB()}
-
 	// On the TSP app
-	oracle := oracleMock{
+	detector := appDetectorMock{
 		isOfficeApp: false,
 		isTspApp:    true,
 	}
+
+	initializer := NewUserInitializer(suite.DB(), detector)
 
 	// A brand new TSP user should succeed
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -225,20 +225,20 @@ func (suite *UserInitializerSuite) TestTspAppNewTspUser() {
 		isOfficeUser: false,
 		isTspUser:    true,
 	})
-	response, verrs, err := initializer.InitializeUser(oracle, user)
+	response, verrs, err := initializer.InitializeUser(user)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 	suite.verifyTspResponse(response)
 }
 
 func (suite *UserInitializerSuite) TestTspAppNotTspUser() {
-	initializer := UserInitializer{DB: suite.DB()}
-
 	// On the TSP app
-	oracle := oracleMock{
+	detector := appDetectorMock{
 		isOfficeApp: false,
 		isTspApp:    true,
 	}
+
+	initializer := NewUserInitializer(suite.DB(), detector)
 
 	// A base-only user should fail
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -246,19 +246,19 @@ func (suite *UserInitializerSuite) TestTspAppNotTspUser() {
 		isOfficeUser: false,
 		isTspUser:    false,
 	})
-	_, verrs, err := initializer.InitializeUser(oracle, user)
+	_, verrs, err := initializer.InitializeUser(user)
 	suite.Error(err)
 	suite.False(verrs.HasAny())
 }
 
 func (suite *UserInitializerSuite) TestTspAppOfficeUser() {
-	initializer := UserInitializer{DB: suite.DB()}
-
 	// On the TSP app
-	oracle := oracleMock{
+	detector := appDetectorMock{
 		isOfficeApp: false,
 		isTspApp:    true,
 	}
+
+	initializer := NewUserInitializer(suite.DB(), detector)
 
 	// An office user should fail
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -266,19 +266,19 @@ func (suite *UserInitializerSuite) TestTspAppOfficeUser() {
 		isOfficeUser: true,
 		isTspUser:    false,
 	})
-	_, verrs, err := initializer.InitializeUser(oracle, user)
+	_, verrs, err := initializer.InitializeUser(user)
 	suite.Error(err)
 	suite.False(verrs.HasAny())
 }
 
 func (suite *UserInitializerSuite) TestMilmoveAppOfficeUser() {
-	initializer := UserInitializer{DB: suite.DB()}
-
 	// On the Milmove app
-	oracle := oracleMock{
+	detector := appDetectorMock{
 		isOfficeApp: false,
 		isTspApp:    false,
 	}
+
+	initializer := NewUserInitializer(suite.DB(), detector)
 
 	// An office user should succeed
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -286,20 +286,20 @@ func (suite *UserInitializerSuite) TestMilmoveAppOfficeUser() {
 		isOfficeUser: true,
 		isTspUser:    false,
 	})
-	response, verrs, err := initializer.InitializeUser(oracle, user)
+	response, verrs, err := initializer.InitializeUser(user)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 	suite.verifyMilmoveResponse(response)
 }
 
 func (suite *UserInitializerSuite) TestMilmoveAppTspUser() {
-	initializer := UserInitializer{DB: suite.DB()}
-
 	// On the Milmove app
-	oracle := oracleMock{
+	detector := appDetectorMock{
 		isOfficeApp: false,
 		isTspApp:    false,
 	}
+
+	initializer := NewUserInitializer(suite.DB(), detector)
 
 	// A TSP user should succeed
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -307,20 +307,20 @@ func (suite *UserInitializerSuite) TestMilmoveAppTspUser() {
 		isOfficeUser: false,
 		isTspUser:    true,
 	})
-	response, verrs, err := initializer.InitializeUser(oracle, user)
+	response, verrs, err := initializer.InitializeUser(user)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 	suite.verifyMilmoveResponse(response)
 }
 
 func (suite *UserInitializerSuite) TestMilmoveAppAllUsers() {
-	initializer := UserInitializer{DB: suite.DB()}
-
 	// On the Milmove app
-	oracle := oracleMock{
+	detector := appDetectorMock{
 		isOfficeApp: false,
 		isTspApp:    false,
 	}
+
+	initializer := NewUserInitializer(suite.DB(), detector)
 
 	// A user with all roles should succeed
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -328,20 +328,20 @@ func (suite *UserInitializerSuite) TestMilmoveAppAllUsers() {
 		isOfficeUser: true,
 		isTspUser:    true,
 	})
-	response, verrs, err := initializer.InitializeUser(oracle, user)
+	response, verrs, err := initializer.InitializeUser(user)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 	suite.verifyMilmoveResponse(response)
 }
 
 func (suite *UserInitializerSuite) TestMilmoveAppBaseUser() {
-	initializer := UserInitializer{DB: suite.DB()}
-
 	// On the Milmove app
-	oracle := oracleMock{
+	detector := appDetectorMock{
 		isOfficeApp: false,
 		isTspApp:    false,
 	}
+
+	initializer := NewUserInitializer(suite.DB(), detector)
 
 	// A base-only user should succeed
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -349,7 +349,7 @@ func (suite *UserInitializerSuite) TestMilmoveAppBaseUser() {
 		isOfficeUser: false,
 		isTspUser:    false,
 	})
-	response, verrs, err := initializer.InitializeUser(oracle, user)
+	response, verrs, err := initializer.InitializeUser(user)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 	suite.verifyMilmoveResponse(response)

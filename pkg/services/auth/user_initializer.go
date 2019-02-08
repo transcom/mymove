@@ -2,36 +2,25 @@ package auth
 
 import (
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/markbates/goth"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 )
 
-// UserInitializer is a service object to deliver and price a Shipment
-type UserInitializer struct {
+// userInitializer is a service object to deliver and price a Shipment
+type userInitializer struct {
 	DB *pop.Connection
 }
 
-// InitializeUserResponse does a thing
-type InitializeUserResponse struct {
-	UserID          uuid.UUID
-	ServiceMemberID uuid.UUID
-	OfficeUserID    uuid.UUID
-	TspUserID       uuid.UUID
-	FirstName       string
-	Middle          string
-	LastName        string
+// NewUserInitializer returns a new userInitializer struct
+func NewUserInitializer(db *pop.Connection) services.UserInitializer {
+	return &userInitializer{DB: db}
 }
 
-type applicationOracle interface {
-	IsOfficeApp() bool
-	IsTspApp() bool
-}
-
-func (c UserInitializer) createBaseUser(userID string, email string, officeUser *models.OfficeUser, tspUser *models.TspUser) (*models.User, *validate.Errors, error) {
+func (c *userInitializer) createBaseUser(userID string, email string, officeUser *models.OfficeUser, tspUser *models.TspUser) (*models.User, *validate.Errors, error) {
 	var newUser *models.User
 	var responseError error
 	responseVErrors := validate.NewErrors()
@@ -72,7 +61,7 @@ func (c UserInitializer) createBaseUser(userID string, email string, officeUser 
 }
 
 // InitializeUser returns a collection of user data, generating a base user as necessary
-func (c UserInitializer) InitializeUser(oracle applicationOracle, openIDUser goth.User) (response InitializeUserResponse, verrs *validate.Errors, err error) {
+func (c *userInitializer) InitializeUser(detector services.AppDetector, openIDUser goth.User) (response services.InitializeUserResponse, verrs *validate.Errors, err error) {
 	verrs = validate.NewErrors()
 
 	userIdentity, identityErr := models.FetchUserIdentity(c.DB, openIDUser.UserID)
@@ -85,10 +74,10 @@ func (c UserInitializer) InitializeUser(oracle applicationOracle, openIDUser got
 	// We found a user identity
 	if identityErr == nil {
 		// If we already have the relevant user info then we're done
-		if oracle.IsOfficeApp() && userIdentity.OfficeUserID != nil {
+		if detector.IsOfficeApp() && userIdentity.OfficeUserID != nil {
 			response.OfficeUserID = *userIdentity.OfficeUserID
 			return
-		} else if oracle.IsTspApp() && userIdentity.TspUserID != nil {
+		} else if detector.IsTspApp() && userIdentity.TspUserID != nil {
 			response.TspUserID = *userIdentity.TspUserID
 			return
 		}
@@ -97,14 +86,14 @@ func (c UserInitializer) InitializeUser(oracle applicationOracle, openIDUser got
 	// Else we'll need to look up user information by email address
 	var officeUser *models.OfficeUser
 	var tspUser *models.TspUser
-	if oracle.IsOfficeApp() {
+	if detector.IsOfficeApp() {
 		officeUser, err = models.FetchOfficeUserByEmail(c.DB, openIDUser.Email)
 		if err != nil {
 			err = errors.Wrap(err, "Error while fetching office user")
 			return
 		}
 		response.OfficeUserID = officeUser.ID
-	} else if oracle.IsTspApp() {
+	} else if detector.IsTspApp() {
 		tspUser, err = models.FetchTspUserByEmail(c.DB, openIDUser.Email)
 		if err != nil {
 			err = errors.Wrap(err, "Error while fetching TSP user")
