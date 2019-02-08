@@ -114,7 +114,7 @@ func (suite *UserInitializerSuite) TestOfficeAppOfficeUser() {
 		isTspApp:    false,
 	}
 
-	initializer := NewUserInitializer(suite.DB(), detector)
+	initializer := NewUserInitializer(suite.DB())
 
 	// A previously authed Office user should succeed
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -122,7 +122,7 @@ func (suite *UserInitializerSuite) TestOfficeAppOfficeUser() {
 		isOfficeUser: true,
 		isTspUser:    false,
 	})
-	response, verrs, err := initializer.InitializeUser(user)
+	response, verrs, err := initializer.InitializeUser(detector, user)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 	suite.verifyOfficeResponse(response)
@@ -135,7 +135,7 @@ func (suite *UserInitializerSuite) TestOfficeAppNewOfficeUser() {
 		isTspApp:    false,
 	}
 
-	initializer := NewUserInitializer(suite.DB(), detector)
+	initializer := NewUserInitializer(suite.DB())
 
 	// A brand new office user should succeed
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -143,7 +143,7 @@ func (suite *UserInitializerSuite) TestOfficeAppNewOfficeUser() {
 		isOfficeUser: true,
 		isTspUser:    false,
 	})
-	response, verrs, err := initializer.InitializeUser(user)
+	response, verrs, err := initializer.InitializeUser(detector, user)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 	suite.verifyOfficeResponse(response)
@@ -156,7 +156,7 @@ func (suite *UserInitializerSuite) TestOfficeAppNotOfficeUser() {
 		isTspApp:    false,
 	}
 
-	initializer := NewUserInitializer(suite.DB(), detector)
+	initializer := NewUserInitializer(suite.DB())
 
 	// A base-only user should fail
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -164,7 +164,7 @@ func (suite *UserInitializerSuite) TestOfficeAppNotOfficeUser() {
 		isOfficeUser: false,
 		isTspUser:    false,
 	})
-	_, verrs, err := initializer.InitializeUser(user)
+	_, verrs, err := initializer.InitializeUser(detector, user)
 	suite.Error(err)
 	suite.False(verrs.HasAny())
 }
@@ -176,7 +176,7 @@ func (suite *UserInitializerSuite) TestOfficeAppTspUser() {
 		isTspApp:    false,
 	}
 
-	initializer := NewUserInitializer(suite.DB(), detector)
+	initializer := NewUserInitializer(suite.DB())
 
 	// A base-only user should fail
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -184,7 +184,7 @@ func (suite *UserInitializerSuite) TestOfficeAppTspUser() {
 		isOfficeUser: false,
 		isTspUser:    true,
 	})
-	_, verrs, err := initializer.InitializeUser(user)
+	_, verrs, err := initializer.InitializeUser(detector, user)
 	suite.Error(err)
 	suite.False(verrs.HasAny())
 }
@@ -196,7 +196,7 @@ func (suite *UserInitializerSuite) TestTspAppTspUser() {
 		isTspApp:    true,
 	}
 
-	initializer := NewUserInitializer(suite.DB(), detector)
+	initializer := NewUserInitializer(suite.DB())
 
 	// A previously authed TSP user should succeed
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -204,7 +204,7 @@ func (suite *UserInitializerSuite) TestTspAppTspUser() {
 		isOfficeUser: false,
 		isTspUser:    true,
 	})
-	response, verrs, err := initializer.InitializeUser(user)
+	response, verrs, err := initializer.InitializeUser(detector, user)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 	suite.verifyTspResponse(response)
@@ -217,7 +217,7 @@ func (suite *UserInitializerSuite) TestTspAppNewTspUser() {
 		isTspApp:    true,
 	}
 
-	initializer := NewUserInitializer(suite.DB(), detector)
+	initializer := NewUserInitializer(suite.DB())
 
 	// A brand new TSP user should succeed
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -225,7 +225,7 @@ func (suite *UserInitializerSuite) TestTspAppNewTspUser() {
 		isOfficeUser: false,
 		isTspUser:    true,
 	})
-	response, verrs, err := initializer.InitializeUser(user)
+	response, verrs, err := initializer.InitializeUser(detector, user)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 	suite.verifyTspResponse(response)
@@ -238,7 +238,7 @@ func (suite *UserInitializerSuite) TestTspAppNotTspUser() {
 		isTspApp:    true,
 	}
 
-	initializer := NewUserInitializer(suite.DB(), detector)
+	initializer := NewUserInitializer(suite.DB())
 
 	// A base-only user should fail
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -246,7 +246,7 @@ func (suite *UserInitializerSuite) TestTspAppNotTspUser() {
 		isOfficeUser: false,
 		isTspUser:    false,
 	})
-	_, verrs, err := initializer.InitializeUser(user)
+	_, verrs, err := initializer.InitializeUser(detector, user)
 	suite.Error(err)
 	suite.False(verrs.HasAny())
 }
@@ -258,7 +258,7 @@ func (suite *UserInitializerSuite) TestTspAppOfficeUser() {
 		isTspApp:    true,
 	}
 
-	initializer := NewUserInitializer(suite.DB(), detector)
+	initializer := NewUserInitializer(suite.DB())
 
 	// An office user should fail
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -266,7 +266,7 @@ func (suite *UserInitializerSuite) TestTspAppOfficeUser() {
 		isOfficeUser: true,
 		isTspUser:    false,
 	})
-	_, verrs, err := initializer.InitializeUser(user)
+	_, verrs, err := initializer.InitializeUser(detector, user)
 	suite.Error(err)
 	suite.False(verrs.HasAny())
 }
@@ -278,7 +278,7 @@ func (suite *UserInitializerSuite) TestMilmoveAppOfficeUser() {
 		isTspApp:    false,
 	}
 
-	initializer := NewUserInitializer(suite.DB(), detector)
+	initializer := NewUserInitializer(suite.DB())
 
 	// An office user should succeed
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -286,7 +286,7 @@ func (suite *UserInitializerSuite) TestMilmoveAppOfficeUser() {
 		isOfficeUser: true,
 		isTspUser:    false,
 	})
-	response, verrs, err := initializer.InitializeUser(user)
+	response, verrs, err := initializer.InitializeUser(detector, user)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 	suite.verifyMilmoveResponse(response)
@@ -299,7 +299,7 @@ func (suite *UserInitializerSuite) TestMilmoveAppTspUser() {
 		isTspApp:    false,
 	}
 
-	initializer := NewUserInitializer(suite.DB(), detector)
+	initializer := NewUserInitializer(suite.DB())
 
 	// A TSP user should succeed
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -307,7 +307,7 @@ func (suite *UserInitializerSuite) TestMilmoveAppTspUser() {
 		isOfficeUser: false,
 		isTspUser:    true,
 	})
-	response, verrs, err := initializer.InitializeUser(user)
+	response, verrs, err := initializer.InitializeUser(detector, user)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 	suite.verifyMilmoveResponse(response)
@@ -320,7 +320,7 @@ func (suite *UserInitializerSuite) TestMilmoveAppAllUsers() {
 		isTspApp:    false,
 	}
 
-	initializer := NewUserInitializer(suite.DB(), detector)
+	initializer := NewUserInitializer(suite.DB())
 
 	// A user with all roles should succeed
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -328,7 +328,7 @@ func (suite *UserInitializerSuite) TestMilmoveAppAllUsers() {
 		isOfficeUser: true,
 		isTspUser:    true,
 	})
-	response, verrs, err := initializer.InitializeUser(user)
+	response, verrs, err := initializer.InitializeUser(detector, user)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 	suite.verifyMilmoveResponse(response)
@@ -341,7 +341,7 @@ func (suite *UserInitializerSuite) TestMilmoveAppBaseUser() {
 		isTspApp:    false,
 	}
 
-	initializer := NewUserInitializer(suite.DB(), detector)
+	initializer := NewUserInitializer(suite.DB())
 
 	// A base-only user should succeed
 	user := dataHelper(suite.DB(), dataHelperParams{
@@ -349,7 +349,7 @@ func (suite *UserInitializerSuite) TestMilmoveAppBaseUser() {
 		isOfficeUser: false,
 		isTspUser:    false,
 	})
-	response, verrs, err := initializer.InitializeUser(user)
+	response, verrs, err := initializer.InitializeUser(detector, user)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
 	suite.verifyMilmoveResponse(response)
