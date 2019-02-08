@@ -23,7 +23,7 @@ func UpdateFuelDieselPrices() (resp *http.Response, err error) {
 	startDay := "1"
 	startDateString := fmt.Sprintf("%v%v%v", startYear, startMonth, startDay)
 	endDateString := fmt.Sprintf("%v%v28", time.Now().Year(), time.Now().Month())
-	eiaKey := "26758423cb0636ae577cf3d6512f1f0a"
+	eiaKey := "26758423cb0636ae577cf3d6512f1f0a" //TODO add to constants and get a key using a central email
 
 	url := fmt.Sprintf("https://api.eia.gov/series/?api_key=%v&series_id=PET.EMD_EPD2D_PTE_NUS_DPG.W&start=%v1&end=%v", eiaKey, startDateString, endDateString)
 

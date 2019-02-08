@@ -146,6 +146,21 @@ func (suite *ModelSuite) TestMakeFuelEIADieselPriceForDate() {
 	testdatagen.MakeFuelEIADieselPriceForDate(suite.DB(), shipmentDate, assertions)
 }
 
+func (suite *ModelSuite) TestFetchLastTwelveMonthsOfFuelPrices() {
+	// Make fuel price records for the last twelve months
+	months := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
+	for _, month := range months {
+		var shipmentDate time.Time
+		shipmentDate = time.Now().AddDate(0, -(month + 1), 0)
+		testdatagen.MakeDefaultFuelEIADieselPriceForDate(suite.DB(), shipmentDate)
+	}
+
+	fuelPrices, err := models.FetchLastTwelveMonthsOfFuelPrices(suite.DB())
+	expectedNumFuelPrices := 12
+	suite.NoError(err)
+	suite.Equal(expectedNumFuelPrices, len(fuelPrices))
+}
+
 // Create 1 record for the shipment date provided
 func (suite *ModelSuite) TestMakeDefaultFuelEIADieselPriceForDate() {
 	shipmentDate := time.Now()
