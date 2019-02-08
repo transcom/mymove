@@ -41,7 +41,7 @@ import {
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
-import { approvePPM, selectPpmStatus } from 'shared/Entities/modules/ppms';
+import { approvePPM, selectPPMForMove } from 'shared/Entities/modules/ppms';
 import { selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import {
   getPublicShipment,
@@ -83,10 +83,10 @@ const BasicsTabContent = props => {
 const PPMTabContent = props => {
   return (
     <div className="office-tab">
-      <PaymentsPanel title="Payments" moveId={props.moveId} />
-      <ExpensesPanel title="Expenses" />
-      <IncentiveCalculator />
-      <StorageReimbursementCalculator />
+      <PaymentsPanel title="Payments" />
+      <ExpensesPanel title="Expenses" moveId={props.moveId} />
+      <IncentiveCalculator moveId={props.moveId} />
+      <StorageReimbursementCalculator moveId={props.moveId} />
       <PPMEstimatesPanel title="Estimates" moveId={props.moveId} />
     </div>
   );
@@ -163,7 +163,7 @@ class MoveInfo extends Component {
   };
 
   approvePPM = () => {
-    this.props.approvePPM(this.props.officePPM.id);
+    this.props.approvePPM(this.props.ppm.id);
   };
 
   approveShipment = () => {
@@ -183,7 +183,7 @@ class MoveInfo extends Component {
   };
 
   renderPPMTabStatus = () => {
-    if (this.props.ppmStatus === 'APPROVED') {
+    if (this.props.ppm.status === 'APPROVED') {
       if (this.props.ppmAdvance.status === 'APPROVED' || !this.props.ppmAdvance.status) {
         return (
           <span className="status">
@@ -210,10 +210,9 @@ class MoveInfo extends Component {
   };
 
   render() {
-    const { moveDocuments, moveStatus, ppmStatus, shipment, shipmentStatus, serviceMember } = this.props;
+    const { moveDocuments, moveStatus, ppm, shipment, shipmentStatus, serviceMember } = this.props;
     const move = this.props.officeMove;
     const orders = this.props.officeOrders;
-    const ppm = this.props.officePPM;
     const isPPM = move.selected_move_type === 'PPM';
     const isHHG = move.selected_move_type === 'HHG';
     const isHHGPPM = move.selected_move_type === 'HHG_PPM';
@@ -226,7 +225,7 @@ class MoveInfo extends Component {
     const ordersComplete = Boolean(
       orders.orders_number && orders.orders_type_detail && orders.department_indicator && orders.tac,
     );
-    const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppmStatus);
+    const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     const hhgApproved = includes(['APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
     const hhgAccepted = shipmentStatus === 'ACCEPTED';
     const hhgDelivered = shipmentStatus === 'DELIVERED';
@@ -322,13 +321,15 @@ class MoveInfo extends Component {
                 <PrivateRoute path={`${this.props.match.path}/basics`}>
                   <BasicsTabContent serviceMember={this.props.serviceMember} />
                 </PrivateRoute>
-                <PrivateRoute path={`${this.props.match.path}/ppm`} component={PPMTabContent} />
+                <PrivateRoute path={`${this.props.match.path}/ppm`}>
+                  <PPMTabContent moveId={this.props.moveId} />
+                </PrivateRoute>
                 <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   {this.props.shipment && (
                     <HHGTabContent
                       updatePublicShipment={this.props.updatePublicShipment}
                       moveId={this.props.moveId}
-                      ppmStatus={this.props.ppmStatus}
+                      ppmStatus={ppm.status}
                       shipment={this.props.shipment}
                       shipmentStatus={this.props.shipmentStatus}
                       serviceAgents={this.props.serviceAgents}
@@ -462,24 +463,22 @@ const mapStateToProps = (state, ownProps) => {
   const moveId = ownProps.match.params.moveId;
   const officeMove = get(state, 'office.officeMove', {}) || {};
   const shipmentId = get(officeMove, 'shipments.0.id');
-  const officePPM = get(state, 'office.officePPMs.0', {});
+  const ppm = selectPPMForMove(state, moveId);
   const orders = get(state, `entities.orders.${officeMove.orders_id}`, {});
   const serviceMember = selectServiceMember(state, orders.service_member_id);
-
   return {
     approveMoveHasError: get(state, 'office.moveHasApproveError'),
     errorMessage: get(state, 'office.error'),
     loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
     loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
     moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
+    ppm,
     moveId,
     moveStatus: selectMoveStatus(state, moveId),
     officeMove,
     officeOrders: get(state, 'office.officeOrders', {}),
-    officePPM,
     officeShipment: get(state, 'office.officeShipment', {}),
-    ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
-    ppmStatus: selectPpmStatus(state, officePPM.id),
+    ppmAdvance: ppm.advance,
     serviceAgents: selectServiceAgentsForShipment(state, shipmentId),
     serviceMember,
     shipment: selectShipment(state, shipmentId),

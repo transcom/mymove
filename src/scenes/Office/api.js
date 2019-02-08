@@ -74,16 +74,6 @@ export async function UpdateBackupContact(backupContactId, payload) {
   return response.body;
 }
 
-// PPM
-export async function LoadPPMs(moveId) {
-  const client = await getClient();
-  const response = await client.apis.ppm.indexPersonallyProcuredMoves({
-    moveId,
-  });
-  checkResponse(response, 'failed to load PPMs due to server error');
-  return response.body;
-}
-
 // HHG invoice
 export async function SendHHGInvoice(shipmentId) {
   const client = await getClient();
@@ -91,16 +81,6 @@ export async function SendHHGInvoice(shipmentId) {
     shipmentId,
   });
   checkResponse(response, 'failed to send invoice to server error');
-  return response.body;
-}
-
-// Reimbursement status
-export async function ApproveReimbursement(reimbursementId) {
-  const client = await getClient();
-  const response = await client.apis.office.approveReimbursement({
-    reimbursementId,
-  });
-  checkResponse(response, 'failed to approve reimbursement due to server error');
   return response.body;
 }
 
