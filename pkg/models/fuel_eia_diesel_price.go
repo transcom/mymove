@@ -45,9 +45,10 @@ func (f FuelEIADieselPrices) String() string {
 // FetchLastTwelveMonthsOfFuelPrices queries and fetches all fuel_eia_diesel_prices for past 12 months
 func FetchLastTwelveMonthsOfFuelPrices(dbConnection *pop.Connection) ([]FuelEIADieselPrice, error) {
 	today := time.Now()
-	query := dbConnection.Where("pub_date <= $1  AND pub_Date >= $2", time.Now(), today.AddDate(0, -12, 0))
+	query := dbConnection.Where("pub_date <= $1 AND pub_date >= $2", time.Now(), today.AddDate(-1, 0, 0))
 	var fuelPrices []FuelEIADieselPrice
 	err := query.Eager().All(&fuelPrices)
+
 	if err != nil {
 		return fuelPrices, errors.Wrap(err, "Fetch line items query failed")
 	}

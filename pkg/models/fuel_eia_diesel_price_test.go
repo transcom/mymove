@@ -151,7 +151,7 @@ func (suite *ModelSuite) TestFetchLastTwelveMonthsOfFuelPrices() {
 	months := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
 	for _, month := range months {
 		var shipmentDate time.Time
-		shipmentDate = time.Now().AddDate(0, -(month + 1), 0)
+		shipmentDate = time.Now().AddDate(0, -(month - 2), 0)
 		testdatagen.MakeDefaultFuelEIADieselPriceForDate(suite.DB(), shipmentDate)
 	}
 
@@ -159,6 +159,7 @@ func (suite *ModelSuite) TestFetchLastTwelveMonthsOfFuelPrices() {
 	expectedNumFuelPrices := 12
 	suite.NoError(err)
 	suite.Equal(expectedNumFuelPrices, len(fuelPrices))
+	// TODO: another test to make sure earliest and latest month match?
 }
 
 // Create 1 record for the shipment date provided
