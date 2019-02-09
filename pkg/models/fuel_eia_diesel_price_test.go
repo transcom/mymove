@@ -148,10 +148,9 @@ func (suite *ModelSuite) TestMakeFuelEIADieselPriceForDate() {
 
 func (suite *ModelSuite) TestFetchLastTwelveMonthsOfFuelPrices() {
 	// Make fuel price records for the last twelve months
-	months := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
-	for _, month := range months {
+	for month := 0; month < 12; month++ {
 		var shipmentDate time.Time
-		shipmentDate = time.Now().AddDate(0, -(month - 2), 0)
+		shipmentDate = time.Now().AddDate(0, -(month - 1), 0)
 		testdatagen.MakeDefaultFuelEIADieselPriceForDate(suite.DB(), shipmentDate)
 	}
 
