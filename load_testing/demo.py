@@ -21,7 +21,7 @@ def create_user(client, csrf):
     """
     Create a new user for local testing using the CSRF token in the header
     """
-    resp = client.post(urllib.parse.urljoin(MILMOVE, 'devlocal-auth/new'), headers={'x-csrf-token': csrf})
+    resp = client.post(urllib.parse.urljoin(MILMOVE, 'devlocal-auth/create'), headers={'x-csrf-token': csrf})
     print(resp.content)
 
 
