@@ -11,7 +11,7 @@ class UserBehavior(TaskSet):
         self.logout()
 
     def login(self):
-        self.client.post("/devlocal-auth/new")
+        self.client.post("/devlocal-auth/create")
 
     def logout(self):
         self.client.post("/auth/logout")
