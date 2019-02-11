@@ -3,6 +3,8 @@
 #   Show logs from the containers running for the named service.
 #
 set -eo pipefail
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly DIR
 
 usage() {
     echo "$0 <name> <environment> | less"
@@ -11,27 +13,6 @@ usage() {
 [[ -z $1 || -z $2 ]] && usage
 set -u
 
-readonly prefix="app"
-readonly name=$1
-readonly environment=$2
-readonly cluster=$prefix-$environment
+[[ -f "$DIR/ecs-service-logs" ]] || (echo "Missing bin/ecs-service-logs. Run make build_tools" && exit 1)
 
-# awslogs-stream-prefix settings
-readonly container=$name-$environment
-readonly log_group_name=ecs-tasks-$name-$environment
-
-# Get list of running tasks
-for task_arn in $(aws ecs list-tasks --cluster "$cluster" --service-name "$name" --query 'taskArns' | jq -r '.[]'); do
-    [[ -z $task_arn ]] && { echo "Missing task ARN"; exit 1; }
-
-    # Parse out the task ID
-    task_id=$(echo "$task_arn" | perl -ne 'm|^arn:aws:ecs:([^:]+:){2}task/([\S]+)|; print "$2\n";')
-    [[ -z $task_id ]] && { echo "Couldn't parse task ID: $task_arn"; exit 1; }
-
-    # Display logs for this task
-    log_stream_name=$prefix/$container/$task_id
-    echo "Task $task_id"
-    echo "-----------------------------------------"
-    aws logs get-log-events --log-group-name "$log_group_name" --log-stream-name "$log_stream_name" --query 'events[].message' | jq -r '.[]' || true
-    echo
-done
+"$DIR/ecs-service-logs" --cluster "app-${2}" --service "${1}" --status "RUNNING" --verbose

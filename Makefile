@@ -170,6 +170,7 @@ build_tools: server_deps server_generate
 	go build -i -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
 	go build -i -ldflags "$(LDFLAGS)" -o bin/paperwork ./cmd/paperwork
 	go build -i -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
+	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 
 tsp_run: build_tools db_dev_run
 	./bin/tsp-award-queue
