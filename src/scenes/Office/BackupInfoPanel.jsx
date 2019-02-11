@@ -1,10 +1,9 @@
 import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
-import { updateBackupInfo } from './ducks';
+import { updateServiceMember, updateBackupContact } from 'shared/Entities/modules/serviceMembers';
 
 import { AddressElementDisplay, AddressElementEdit } from 'shared/Address';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
@@ -119,12 +118,12 @@ function mapStateToProps(state, ownProps) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      update: updateBackupInfo,
-    },
-    dispatch,
-  );
+  const update = (serviceMemberId, serviceMemberPayload, backupContactId, backupContact) => {
+    dispatch(updateServiceMember(serviceMemberId, serviceMemberPayload));
+    dispatch(updateBackupContact(backupContactId, backupContact));
+  };
+
+  return { update };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(BackupInfoPanel);

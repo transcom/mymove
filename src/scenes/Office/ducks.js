@@ -2,12 +2,7 @@ import { isNull, get } from 'lodash';
 import { LoadMove } from './api.js';
 import { getEntitlements } from 'shared/entitlements.js';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
-import {
-  loadServiceMember,
-  updateServiceMember,
-  loadBackupContacts,
-  updateBackupContact,
-} from 'shared/Entities/modules/serviceMembers';
+import { loadServiceMember, updateServiceMember, loadBackupContacts } from 'shared/Entities/modules/serviceMembers';
 import { loadOrders, updateOrders, selectOrdersForMove } from 'shared/Entities/modules/orders';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
@@ -18,7 +13,6 @@ const SHOW_BANNER = 'SHOW_BANNER';
 const RESET_MOVE = 'RESET_MOVE';
 
 // MULTIPLE-RESOURCE ACTION TYPES
-const updateBackupInfoType = 'UPDATE_BACKUP_INFO';
 const updateOrdersInfoType = 'UPDATE_ORDERS_INFO';
 const loadDependenciesType = 'LOAD_DEPENDENCIES';
 
@@ -31,8 +25,6 @@ export const resetMove = () => ({
 const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
 
 // MULTIPLE-RESOURCE ACTION TYPES
-
-const UPDATE_BACKUP_INFO = ReduxHelpers.generateAsyncActionTypes(updateBackupInfoType);
 
 const UPDATE_ORDERS_INFO = ReduxHelpers.generateAsyncActionTypes(updateOrdersInfoType);
 
@@ -58,21 +50,6 @@ export const showBanner = () => {
 // These action types typically dispatch to other actions above to
 // perform their work and exist to encapsulate when multiple requests
 // need to be made in response to a user action.
-
-export function updateBackupInfo(serviceMemberId, serviceMemberPayload, backupContactId, backupContact) {
-  const actions = ReduxHelpers.generateAsyncActions(updateBackupInfoType);
-  return async function(dispatch, getState) {
-    dispatch(actions.start());
-    try {
-      // TODO: perform these requests concurrently
-      await dispatch(updateServiceMember(serviceMemberId, serviceMemberPayload));
-      await dispatch(updateBackupContact(backupContactId, backupContact));
-      return dispatch(actions.success());
-    } catch (ex) {
-      return dispatch(actions.error(ex));
-    }
-  };
-}
 
 export function updateOrdersInfo(ordersId, orders, serviceMemberId, serviceMember) {
   const actions = ReduxHelpers.generateAsyncActions(updateOrdersInfoType);
@@ -182,24 +159,6 @@ export function officeReducer(state = initialState, action) {
     // These action types typically dispatch to other actions above to
     // perform their work and exist to encapsulate when multiple requests
     // need to be made in response to a user action.
-
-    // BACKUP INFO
-    case UPDATE_BACKUP_INFO.start:
-      return Object.assign({}, state, {
-        updateBackupInfoHasSuccess: false,
-        updateBackupInfoHasError: false,
-      });
-    case UPDATE_BACKUP_INFO.success:
-      return Object.assign({}, state, {
-        updateBackupInfoHasSuccess: true,
-        updateBackupInfoHasError: false,
-      });
-    case UPDATE_BACKUP_INFO.failure:
-      return Object.assign({}, state, {
-        updateBackupInfoHasSuccess: false,
-        updateBackupInfoHasError: true,
-        error: action.error.message,
-      });
 
     // ORDERS INFO
     case UPDATE_ORDERS_INFO.start:
