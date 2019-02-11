@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /usr/bin/env bash
 
 # Copies the assets (other than xxx.html) into the public directory
 # internal.html & api.html are checked into public/swagger-ui and

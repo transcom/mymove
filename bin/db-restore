@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /usr/bin/env bash
 # Restore the contents of the development database from an earlier backup.
 
 set -eu -o pipefail
