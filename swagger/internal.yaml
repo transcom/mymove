@@ -406,6 +406,12 @@ definitions:
         title: Weight Estimate
         x-nullable: true
         x-formatting: weight
+      net_weight:
+        type: integer
+        minimum: 1
+        title: Net Weight
+        x-nullable: true
+        x-formatting: weight
       mileage:
         type: integer
         title: Distance between origin and destination in miles

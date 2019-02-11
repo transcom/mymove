@@ -3,12 +3,10 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues } from 'redux-form';
-import { selectPPMForMove } from 'shared/Entities/modules/ppms';
+import { selectPPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
-
-import { updateOrders } from '../ducks';
 
 const NetWeightDisplay = props => {
   const fieldProps = {
@@ -35,7 +33,7 @@ const NetWeightEdit = props => {
   );
 };
 
-const formName = 'office_move_info_accounting';
+const formName = 'ppm_net_weight';
 
 let NetWeightPanel = editablePanelify(NetWeightDisplay, NetWeightEdit);
 NetWeightPanel = reduxForm({
@@ -56,18 +54,17 @@ function mapStateToProps(state, ownProps) {
     ppmSchema: get(state, 'swaggerInternal.spec.definitions.PersonallyProcuredMovePayload'),
     ppm,
     // editablePanelify
-    // getUpdateArgs: function() {
-    //   let values = getFormValues(formName)(state);
-    //   values.new_duty_station_id = values.new_duty_station.id;
-    //   return [orders.id, values];
-    // },
+    getUpdateArgs: function() {
+      const values = getFormValues(formName)(state);
+      return [ownProps.moveId, ppm.id, values];
+    },
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      update: updateOrders,
+      update: updatePPM,
     },
     dispatch,
   );
