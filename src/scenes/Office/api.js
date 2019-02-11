@@ -20,47 +20,6 @@ export async function LoadMove(moveId) {
   return response.body;
 }
 
-// ORDERS
-export async function LoadOrders(ordersId) {
-  const client = await getClient();
-  const response = await client.apis.orders.showOrders({
-    ordersId,
-  });
-  checkResponse(response, 'failed to load orders due to server error');
-  return response.body;
-}
-
-// SERVICE MEMBER
-export async function LoadServiceMember(serviceMemberId) {
-  const client = await getClient();
-  const response = await client.apis.service_members.showServiceMember({
-    serviceMemberId,
-  });
-  checkResponse(response, 'failed to load service member due to server error');
-  return response.body;
-}
-
-export async function UpdateServiceMember(serviceMemberId, payload) {
-  const client = await getClient();
-  const response = await client.apis.service_members.patchServiceMember({
-    serviceMemberId,
-    patchServiceMemberPayload: payload,
-  });
-  checkResponse(response, 'failed to update service member due to server error');
-  return response.body;
-}
-
-// BACKUP CONTACT
-export async function UpdateBackupContact(backupContactId, payload) {
-  const client = await getClient();
-  const response = await client.apis.backup_contacts.updateServiceMemberBackupContact({
-    backupContactId,
-    updateServiceMemberBackupContactPayload: payload,
-  });
-  checkResponse(response, 'failed to load backup contacts due to server error');
-  return response.body;
-}
-
 // HHG invoice
 export async function SendHHGInvoice(shipmentId) {
   const client = await getClient();
