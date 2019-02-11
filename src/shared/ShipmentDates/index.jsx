@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { capitalize, get, pick } from 'lodash';
+import { get, pick } from 'lodash';
 import { reduxForm, FormSection, getFormValues } from 'redux-form';
 
 import { PanelSwaggerField, PanelField, editablePanelify } from 'shared/EditablePanel';
@@ -9,7 +9,6 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { formatDate } from 'shared/formatters';
 
 import './index.css';
-import Alert from 'shared/Alert';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { humanReadableError } from '../utils';
 
