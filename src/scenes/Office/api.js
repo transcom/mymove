@@ -1,5 +1,4 @@
 import { getClient, checkResponse } from 'shared/Swagger/api';
-import { formatPayload } from 'shared/utils';
 
 // MOVE QUEUE
 export async function RetrieveMovesForOffice(queueType) {
@@ -18,18 +17,6 @@ export async function LoadMove(moveId) {
     moveId,
   });
   checkResponse(response, 'failed to load move due to server error');
-  return response.body;
-}
-
-// SHIPMENT
-export async function PatchShipment(shipmentId, shipment) {
-  const client = await getClient();
-  const payloadDef = client.spec.definitions.Shipment;
-  const response = await client.apis.shipments.patchShipment({
-    shipmentId,
-    shipment: formatPayload(shipment, payloadDef),
-  });
-  checkResponse(response, 'failed to load shipment due to server error');
   return response.body;
 }
 

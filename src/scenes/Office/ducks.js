@@ -1,5 +1,5 @@
 import { isNull, get } from 'lodash';
-import { LoadMove, DownloadPPMAttachments, PatchShipment, SendHHGInvoice } from './api.js';
+import { LoadMove, DownloadPPMAttachments, SendHHGInvoice } from './api.js';
 import { getEntitlements } from 'shared/entitlements.js';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
 import {
@@ -13,7 +13,6 @@ import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // SINGLE RESOURCE ACTION TYPES
 const loadMoveType = 'LOAD_MOVE';
-const patchShipmentType = 'PATCH_SHIPMENT';
 const sendHHGInvoiceType = 'SEND_HHG_INVOICE';
 const downloadPPMAttachmentsType = 'DOWNLOAD_ATTACHMENTS';
 const REMOVE_BANNER = 'REMOVE_BANNER';
@@ -43,8 +42,6 @@ export const resetInvoiceFlow = () => ({
 
 const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
 
-const PATCH_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(patchShipmentType);
-
 const SEND_HHG_INVOICE = ReduxHelpers.generateAsyncActionTypes(sendHHGInvoiceType);
 
 export const DOWNLOAD_ATTACHMENTS = ReduxHelpers.generateAsyncActionTypes(downloadPPMAttachmentsType);
@@ -60,8 +57,6 @@ const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(loadDependencies
 // SINGLE-RESOURCE ACTION CREATORS
 
 export const loadMove = ReduxHelpers.generateAsyncActionCreator(loadMoveType, LoadMove);
-
-export const patchShipment = ReduxHelpers.generateAsyncActionCreator(patchShipmentType, PatchShipment);
 
 export const sendHHGInvoice = ReduxHelpers.generateAsyncActionCreator(sendHHGInvoiceType, SendHHGInvoice);
 
@@ -210,26 +205,6 @@ export function officeReducer(state = initialState, action) {
         error: action.error.message,
       });
 
-    // SHIPMENT
-    case PATCH_SHIPMENT.start:
-      return Object.assign({}, state, {
-        shipmentIsUpdating: true,
-        shipmentPatchSuccess: false,
-      });
-    case PATCH_SHIPMENT.success:
-      return Object.assign({}, state, {
-        shipmentIsUpdating: false,
-        officeShipment: action.payload,
-        shipmentPatchSuccess: true,
-        shipmentPatchError: false,
-      });
-    case PATCH_SHIPMENT.failure:
-      return Object.assign({}, state, {
-        shipmentIsUpdating: false,
-        shipmentPatchSuccess: false,
-        shipmentPatchError: true,
-        error: action.error.message,
-      });
     case SEND_HHG_INVOICE.start:
       return Object.assign({}, state, {
         hhgInvoiceIsSending: true,
