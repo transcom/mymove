@@ -135,6 +135,10 @@ The following commands will get mymove running on your machine for the first tim
   * Pin it, so that you don't accidentally upgrade before we upgrade the project: `brew pin go`
   * When we upgrade the project's go version, unpin, upgrade, and then re-pin: `brew unpin go; brew upgrade go; brew pin go`
   * **Note**: If you have previously modified your PATH to point to a specific version of go, make sure to remove that. This would be either in your `.bash_profile` or `.bashrc`, and might look something like `PATH=$PATH:/usr/local/opt/go@1.11.4/bin`.
+* Ensure you are using the latest version of bash for this project:
+  * Install it with Homebrew: `brew install bash`
+  * Update your shells: `echo "/usr/local/bin/bash" | sudo tee -a /etc/shells`
+  * Change your user's shell (optional): `chsh -s /usr/local/bin/bash`
 * Run `bin/prereqs` and install everything it tells you to. _Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!_
 * For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/). For bash, add the command `eval "$(direnv hook bash)"` to whichever file loads upon opening bash (likely `~./bash_profile`, though instructions say `~/.bashrc`).
 * Run `direnv allow` to load up the `.envrc` file. Add a `.envrc.local` file with any values it asks you to define.
