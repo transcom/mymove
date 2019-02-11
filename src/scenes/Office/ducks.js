@@ -1,5 +1,5 @@
 import { isNull, get } from 'lodash';
-import { LoadMove, DownloadPPMAttachments, SendHHGInvoice } from './api.js';
+import { LoadMove, DownloadPPMAttachments } from './api.js';
 import { getEntitlements } from 'shared/entitlements.js';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
 import {
@@ -13,7 +13,6 @@ import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // SINGLE RESOURCE ACTION TYPES
 const loadMoveType = 'LOAD_MOVE';
-const sendHHGInvoiceType = 'SEND_HHG_INVOICE';
 const downloadPPMAttachmentsType = 'DOWNLOAD_ATTACHMENTS';
 const REMOVE_BANNER = 'REMOVE_BANNER';
 const SHOW_BANNER = 'SHOW_BANNER';
@@ -42,8 +41,6 @@ export const resetInvoiceFlow = () => ({
 
 const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
 
-const SEND_HHG_INVOICE = ReduxHelpers.generateAsyncActionTypes(sendHHGInvoiceType);
-
 export const DOWNLOAD_ATTACHMENTS = ReduxHelpers.generateAsyncActionTypes(downloadPPMAttachmentsType);
 
 // MULTIPLE-RESOURCE ACTION TYPES
@@ -57,8 +54,6 @@ const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(loadDependencies
 // SINGLE-RESOURCE ACTION CREATORS
 
 export const loadMove = ReduxHelpers.generateAsyncActionCreator(loadMoveType, LoadMove);
-
-export const sendHHGInvoice = ReduxHelpers.generateAsyncActionCreator(sendHHGInvoiceType, SendHHGInvoice);
 
 export const downloadPPMAttachments = ReduxHelpers.generateAsyncActionCreator(
   downloadPPMAttachmentsType,
@@ -205,27 +200,6 @@ export function officeReducer(state = initialState, action) {
         error: action.error.message,
       });
 
-    case SEND_HHG_INVOICE.start:
-      return Object.assign({}, state, {
-        hhgInvoiceIsSending: true,
-        hhgInvoiceHasSendSuccess: false,
-        hhgInvoiceHasFailure: false,
-        hhgInvoiceInDraft: false,
-      });
-    case SEND_HHG_INVOICE.success:
-      return Object.assign({}, state, {
-        hhgInvoiceIsSending: false,
-        hhgInvoiceHasSendSuccess: true,
-        hhgInvoiceHasFailure: false,
-        hhgInvoiceInDraft: false,
-      });
-    case SEND_HHG_INVOICE.failure:
-      return Object.assign({}, state, {
-        hhgInvoiceIsSending: false,
-        hhgInvoiceHasFailure: true,
-        hhgInvoiceInDraft: false,
-        error: action.error.message,
-      });
     case DRAFT_HHG_INVOICE:
       return Object.assign({}, state, {
         hhgInvoiceInDraft: true,
