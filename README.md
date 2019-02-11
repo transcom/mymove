@@ -139,6 +139,7 @@ The following commands will get mymove running on your machine for the first tim
   * Install it with Homebrew: `brew install bash`
   * Update your shells: `echo "/usr/local/bin/bash" | sudo tee -a /etc/shells`
   * Change your user's shell (optional): `chsh -s /usr/local/bin/bash`
+  * Ensure that `/usr/local/bin` comes before `/bin` on your `$PATH` by running `echo $PATH`.
 * Run `bin/prereqs` and install everything it tells you to. _Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!_
 * For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/). For bash, add the command `eval "$(direnv hook bash)"` to whichever file loads upon opening bash (likely `~./bash_profile`, though instructions say `~/.bashrc`).
 * Run `direnv allow` to load up the `.envrc` file. Add a `.envrc.local` file with any values it asks you to define.
