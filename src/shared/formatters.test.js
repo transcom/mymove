@@ -35,7 +35,7 @@ describe('formatters', () => {
   });
   describe('addCommasToNumberString', () => {
     it('should truncate number based on passed variable returning a number string', () => {
-      expect(formatters.addCommasToNumberString(500000000)).toEqual('500,000,000');
+      expect(formatters.addCommasToNumberString(5000)).toEqual('5,000');
       expect(formatters.addCommasToNumberString('500000000.0001')).toEqual('500,000,000.0001');
       expect(formatters.addCommasToNumberString('500000000')).toEqual('500,000,000');
       expect(formatters.addCommasToNumberString('5000')).toEqual('5,000');
