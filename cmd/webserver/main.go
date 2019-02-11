@@ -849,7 +849,7 @@ func main() {
 	logger.Debug("Server DOD Key Pair Loaded")
 	logger.Debug("Trusted Certificate Authorities", zap.Any("subjects", rootCAs.Subjects()))
 
-	// Set the GexSender() and GexSenderHTTP fields
+	// Set the GexSender() and GexSender fields
 	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
 	var gexRequester services.GexSender
 	gexURL := v.GetString("gex-url")

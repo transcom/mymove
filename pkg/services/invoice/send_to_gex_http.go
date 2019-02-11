@@ -18,7 +18,7 @@ const gexRequestTimeout = time.Duration(30) * time.Second
 
 // NewGexSenderHTTP creates a new GexSender service object
 func NewGexSenderHTTP(url string, isTrueGexURL bool, tlsConfig *tls.Config, gexBasicAuthUsername string, gexBasicAuthPassword string) services.GexSender {
-	return &GexSenderHTTP{
+	return &gexSenderHTTP{
 		url,
 		isTrueGexURL,
 		tlsConfig,
@@ -27,8 +27,8 @@ func NewGexSenderHTTP(url string, isTrueGexURL bool, tlsConfig *tls.Config, gexB
 	}
 }
 
-// GexSenderHTTP represents a struct to contain an actual gex request function
-type GexSenderHTTP struct {
+// gexSenderHTTP represents a struct to contain an actual gex request function
+type gexSenderHTTP struct {
 	url                  string
 	isTrueGexURL         bool
 	tlsConfig            *tls.Config
@@ -39,7 +39,7 @@ type GexSenderHTTP struct {
 // SendToGex sends an edi file string as a POST to the gex api
 // To set local dev to send a real GEX request, replace your env.local:
 // export GEX_URL=""  with "export GEX_URL=https://gexweba.daas.dla.mil/msg_data/submit/"
-func (s *GexSenderHTTP) SendToGex(edi string, transactionName string) (resp *http.Response, err error) {
+func (s *gexSenderHTTP) SendToGex(edi string, transactionName string) (resp *http.Response, err error) {
 	// Ensure that the transaction body ends with a newline, otherwise the GEX EDI parser will fail silently
 	edi = strings.TrimSpace(edi) + "\n"
 	URL := s.url
