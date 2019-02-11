@@ -1,5 +1,5 @@
 import { isNull, get } from 'lodash';
-import { LoadMove, DownloadPPMAttachments } from './api.js';
+import { LoadMove } from './api.js';
 import { getEntitlements } from 'shared/entitlements.js';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
 import {
@@ -13,7 +13,6 @@ import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // SINGLE RESOURCE ACTION TYPES
 const loadMoveType = 'LOAD_MOVE';
-const downloadPPMAttachmentsType = 'DOWNLOAD_ATTACHMENTS';
 const REMOVE_BANNER = 'REMOVE_BANNER';
 const SHOW_BANNER = 'SHOW_BANNER';
 const RESET_MOVE = 'RESET_MOVE';
@@ -41,8 +40,6 @@ export const resetInvoiceFlow = () => ({
 
 const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
 
-export const DOWNLOAD_ATTACHMENTS = ReduxHelpers.generateAsyncActionTypes(downloadPPMAttachmentsType);
-
 // MULTIPLE-RESOURCE ACTION TYPES
 
 const UPDATE_BACKUP_INFO = ReduxHelpers.generateAsyncActionTypes(updateBackupInfoType);
@@ -54,11 +51,6 @@ const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(loadDependencies
 // SINGLE-RESOURCE ACTION CREATORS
 
 export const loadMove = ReduxHelpers.generateAsyncActionCreator(loadMoveType, LoadMove);
-
-export const downloadPPMAttachments = ReduxHelpers.generateAsyncActionCreator(
-  downloadPPMAttachmentsType,
-  DownloadPPMAttachments,
-);
 
 export const removeBanner = () => {
   return {
@@ -284,19 +276,6 @@ export function officeReducer(state = initialState, action) {
         error: action.error.message,
       });
 
-    // PPM ATTACHMENTS GENERATOR
-    case DOWNLOAD_ATTACHMENTS.start:
-      return Object.assign({}, state, {
-        downloadAttachmentsHasError: null,
-      });
-    case DOWNLOAD_ATTACHMENTS.failure:
-      return Object.assign({}, state, {
-        downloadAttachmentsHasError: action.error,
-      });
-    case RESET_MOVE:
-      return Object.assign({}, state, {
-        officeShipment: {},
-      });
     default:
       return state;
   }

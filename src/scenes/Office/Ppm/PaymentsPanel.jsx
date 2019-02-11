@@ -3,9 +3,13 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
-import { selectReimbursement, approveReimbursement, selectPPMForMove } from 'shared/Entities/modules/ppms';
+import {
+  selectReimbursement,
+  approveReimbursement,
+  selectPPMForMove,
+  downloadPPMAttachments,
+} from 'shared/Entities/modules/ppms';
 
-import { downloadPPMAttachments } from '../ducks';
 import { no_op } from 'shared/utils';
 import { formatCents, formatDate } from 'shared/formatters';
 import Alert from 'shared/Alert';
