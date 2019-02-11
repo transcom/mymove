@@ -16,8 +16,6 @@ const loadMoveType = 'LOAD_MOVE';
 const REMOVE_BANNER = 'REMOVE_BANNER';
 const SHOW_BANNER = 'SHOW_BANNER';
 const RESET_MOVE = 'RESET_MOVE';
-const DRAFT_HHG_INVOICE = 'DRAFT_INVOICE';
-const RESET_HHG_INVOICE = 'RESET_INVOICE';
 
 // MULTIPLE-RESOURCE ACTION TYPES
 const updateBackupInfoType = 'UPDATE_BACKUP_INFO';
@@ -28,14 +26,6 @@ const loadDependenciesType = 'LOAD_DEPENDENCIES';
 
 export const resetMove = () => ({
   type: RESET_MOVE,
-});
-
-export const draftInvoice = () => ({
-  type: DRAFT_HHG_INVOICE,
-});
-
-export const resetInvoiceFlow = () => ({
-  type: RESET_HHG_INVOICE,
 });
 
 const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
@@ -145,7 +135,6 @@ const initialState = {
   moveHasLoadError: null,
   moveHasLoadSuccess: false,
   officeMove: {},
-  hhgInvoiceInDraft: false,
   loadDependenciesHasError: null,
   loadDependenciesHasSuccess: false,
   flashMessage: false,
@@ -177,21 +166,6 @@ export function officeReducer(state = initialState, action) {
         moveHasLoadSuccess: false,
         moveHasLoadError: true,
         error: action.error.message,
-      });
-
-    case DRAFT_HHG_INVOICE:
-      return Object.assign({}, state, {
-        hhgInvoiceInDraft: true,
-        hhgInvoiceIsSending: false,
-        hhgInvoiceHasSendSuccess: false,
-        hhgInvoiceHasFailure: false,
-      });
-    case RESET_HHG_INVOICE:
-      return Object.assign({}, state, {
-        hhgInvoiceInDraft: false,
-        hhgInvoiceIsSending: false,
-        hhgInvoiceHasSendSuccess: false,
-        hhgInvoiceHasFailure: false,
       });
 
     case SHOW_BANNER:
