@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -12,6 +13,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // AddFuelDieselPrices is a service object to add missing fuel prices to db
@@ -21,41 +23,62 @@ type AddFuelDieselPrices struct {
 
 // Call retrieves data for the months we do not have prices for, calculates them, and adds them to the database
 func (u AddFuelDieselPrices) Call() (*validate.Errors, error) {
-	//missingMonths, err := u.findMissingRecordMonths(u.DB)
-	//if err != nil {
-	//	return &validate.Errors{}, errors.Errorf("Error getting months missing fuel data in the db: %v ", err)
-	//}
+	missingMonths, err := u.findMissingRecordMonths(u.DB)
+	if err != nil {
+		return &validate.Errors{}, errors.Errorf("Error getting months missing fuel data in the db: %v ", err)
+	}
 
-	//fuelValues, err := u.getMissingRecordsPrices(missingMonths)
-	//if err != nil {
-	//	return &validate.Errors{}, err
-	//}
+	fuelValuesByMonth, err := u.getMissingRecordsPrices(missingMonths)
+	if err != nil {
+		return &validate.Errors{}, err
+	}
 
 	// TODO: Get the first Mondays (or non-holiday) values (pub_date, price per gallon) for missing months
+	for _, fuelValues := range fuelValuesByMonth {
 
-	var pricePerGallon int
-	u.calculateFuelSurchargeBaselineRate(pricePerGallon)
-	// Insert values into fuel_eia_diesel_prices
-	//verrs, err := u.DB.ValidateAndSave()
-	//return verrs, err
+		pricePerGallon := fuelValues.price
+		pubDateString := fuelValues.dateString
+		year, err := strconv.Atoi(pubDateString[:4])
+		monthInt, err := strconv.Atoi(pubDateString[4:6])
+		month := time.Month(monthInt)
+		day, err := strconv.Atoi(pubDateString[6:])
 
+		pubDate := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		startDate := time.Date(year, month, 15, 0, 0, 0, 0, time.UTC)
+		endDate := time.Date(year, month+1, 14, 0, 0, 0, 0, time.UTC)
+		baselineRate := u.calculateFuelSurchargeBaselineRate(pricePerGallon)
+		// Insert values into fuel_eia_diesel_prices
+		fuelPrice := models.FuelEIADieselPrice{
+			CreatedAt:                   time.Now(),
+			UpdatedAt:                   time.Now(),
+			PubDate:                     pubDate,
+			RateStartDate:               startDate,
+			RateEndDate:                 endDate,
+			EIAPricePerGallonMillicents: unit.Cents(pricePerGallon * 100).ToMillicents(),
+			BaselineRate:                baselineRate,
+		}
+		verrs, err := u.DB.ValidateAndSave(fuelPrice)
+		return verrs, err
+	}
 }
 
 type fuelData struct {
 	dateString string
-	price      int
+	price      float64
 }
 
 func (u AddFuelDieselPrices) getMissingRecordsPrices(missingMonths []int) (fuelValues []fuelData, err error) {
+	// for each missing month, get the data for that month and add to struct
+
 	client := &http.Client{}
 
-	// for each missing month, get the data for that month and add to struct
+	// Do an api query for each month that needs a fuel price record
 	for _, month := range missingMonths {
 		var startDateString string
 		var endDateString string
 		var year int
 		startDay := "01"
-		endDay := 8 // this will capture the first Monday or day after holiday needed
+		endDay := 28 // this will capture the first Monday or day after holiday whose rates are used for the rate period
 
 		if month <= int(time.Now().Month()) {
 			year = time.Now().Year()
@@ -78,24 +101,43 @@ func (u AddFuelDieselPrices) getMissingRecordsPrices(missingMonths []int) (fuelV
 		json.NewDecoder(resp.Body).Decode(&result)
 		fmt.Println(result)
 
-		//fuelData := resp.Body["series"]["data"]
-		//if len(fuelData) > 1 {
-		//	for monthData := 0; monthData < len(fuelData); monthData++ {
-		//		for weekData := 0; weekData < len(monthData); weekData++ {
+		//monthFuelData := resp.Body["series"]["data"] // Todo: find out how to do this properly
 		//
+		//if monthFuelData < 1 {
+		//	err := errors.Errorf("No fuel data available for $1", time.Month(month))
+		//	return fuelValues, err
+		//}
+		//
+		dateString := ""
+		var price float64
+		//
+		//if len(monthFuelData) > 1 {
+		//	weekIndex := 0
+		//	var min int
+		//	// find earliest date(String) in the month
+		//	for i, weekData := range monthFuelData {
+		//		pubDateAsInt, err := strconv.Atoi(weekData[0])
+		//		if err != nil {
+		//			errors.Wrap(err, "pubDate conversion from string to int")
+		//		}
+		//		if i == 0 || pubDateAsInt < min {
+		//			min = weekData
+		//			weekIndex = i
 		//		}
 		//	}
+		//	dateString = monthFuelData[weekIndex][0]
+		//	price = monthFuelData[weekIndex][1]
+		//} else if monthFuelData == 1 {
+		//	dateString = monthFuelData[0][0]
+		//	price = monthFuelData[0][1]
 		//}
-		//fuelData
-		//append(fuelValues, fuelData{dateString: dateString, price: price})price
+
+		fuelValues = append(fuelValues, fuelData{dateString: dateString, price: price})
 	}
+	return fuelValues, err
 }
 
 func (u AddFuelDieselPrices) findMissingRecordMonths(db *pop.Connection) (months []int, err error) {
-	// Determine month(s) we are pulling data for
-	// query db table and pull the pub_dates of last 12 months
-
-	// this is temp until I either figure out how to do this or change to an interface with handler with db
 
 	fuelPrices, err := models.FetchLastTwelveMonthsOfFuelPrices(db)
 	if err != nil {
@@ -119,12 +161,12 @@ func (u AddFuelDieselPrices) findMissingRecordMonths(db *pop.Connection) (months
 	return months, nil
 }
 
-func (u AddFuelDieselPrices) calculateFuelSurchargeBaselineRate(pricePerGallon int) (baselineRate int) {
+func (u AddFuelDieselPrices) calculateFuelSurchargeBaselineRate(pricePerGallon float64) (baselineRate int64) {
 	// Calculate fuel surcharge based on price per gallon based on government-provided calculation
 	fuelPriceBaseline := 2.5
 	dividendValue := .13
-	rate := (float64(pricePerGallon) - fuelPriceBaseline) / dividendValue
-	baselineRate = int(math.Ceil(rate))
+	rate := (pricePerGallon - fuelPriceBaseline) / dividendValue
+	baselineRate = int64(math.Ceil(rate))
 	return baselineRate
 }
 
