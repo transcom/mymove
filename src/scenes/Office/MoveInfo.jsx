@@ -54,7 +54,7 @@ import {
 import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
 
-import { loadMoveDependencies, sendHHGInvoice, resetMove, showBanner, removeBanner } from './ducks';
+import { loadMoveDependencies, resetMove, showBanner, removeBanner } from './ducks';
 import { selectMoveStatus, approveBasics, cancelMove } from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
@@ -115,7 +115,6 @@ const HHGTabContent = props => {
       <InvoicePanel
         shipmentId={shipment.id}
         shipmentStatus={shipmentStatus}
-        onApprovePayment={props.sendHHGInvoice}
         canApprove={props.canApprovePaymentInvoice}
         allowPayments={props.allowHhgInvoicePayment}
       />
@@ -495,7 +494,6 @@ const mapDispatchToProps = dispatch =>
       approveShipment,
       completeShipment,
       cancelMove,
-      sendHHGInvoice,
       getAllTariff400ngItems,
       getAllShipmentLineItems,
       getAllInvoices,

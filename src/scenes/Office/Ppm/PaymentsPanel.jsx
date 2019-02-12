@@ -3,9 +3,15 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
-import { selectReimbursement, approveReimbursement, selectPPMForMove } from 'shared/Entities/modules/ppms';
+import {
+  selectReimbursement,
+  approveReimbursement,
+  selectPPMForMove,
+  downloadPPMAttachments,
+  downloadPPMAttachmentsLabel,
+} from 'shared/Entities/modules/ppms';
+import { getLastError } from 'shared/Swagger/selectors';
 
-import { downloadPPMAttachments } from '../ducks';
 import { no_op } from 'shared/utils';
 import { formatCents, formatDate } from 'shared/formatters';
 import Alert from 'shared/Alert';
@@ -248,9 +254,7 @@ const mapStateToProps = state => {
     ppm,
     move,
     advance: selectReimbursement(state, advance.id) || advance,
-    hasError: false,
-    errorMessage: state.office.error,
-    attachmentsError: get(state, 'office.downloadAttachmentsHasError'),
+    attachmentsError: getLastError(state, downloadPPMAttachmentsLabel),
   };
 };
 
