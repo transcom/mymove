@@ -173,8 +173,14 @@ class MoveInfo extends Component {
   };
 
   cancelMoveAndRedirect = cancelReason => {
+    const messageLines = [
+      `Move #${this.props.move.locator} for ${this.props.serviceMember.last_name}, ${
+        this.props.serviceMember.first_name
+      } has been canceled`,
+      'An email confirmation has been sent to the customer.',
+    ];
     this.props.cancelMove(this.props.moveId, cancelReason).then(() => {
-      this.props.showBanner();
+      this.props.showBanner({ messageLines });
       setTimeout(() => this.props.removeBanner(), 10000);
       this.setState({ redirectToHome: true });
     });

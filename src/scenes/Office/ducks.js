@@ -23,9 +23,10 @@ export const removeBanner = () => {
   };
 };
 
-export const showBanner = () => {
+export const showBanner = ({ messageLines }) => {
   return {
     type: SHOW_BANNER,
+    payload: { messageLines },
   };
 };
 // MULTIPLE-RESOURCE ACTION CREATORS
@@ -60,6 +61,7 @@ const initialState = {
   loadDependenciesHasError: null,
   loadDependenciesHasSuccess: false,
   flashMessage: false,
+  flashMessageLines: [],
 };
 
 export function officeReducer(state = initialState, action) {
@@ -68,6 +70,7 @@ export function officeReducer(state = initialState, action) {
     case SHOW_BANNER:
       return Object.assign({}, state, {
         flashMessage: true,
+        flashMessageLines: action.payload.messageLines,
       });
     case REMOVE_BANNER:
       return Object.assign({}, state, {
