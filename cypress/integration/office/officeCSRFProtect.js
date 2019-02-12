@@ -95,6 +95,6 @@ describe('testing CSRF protection updating move info', function() {
       .should('be.enabled')
       .click();
 
-    cy.contains('Forbidden.');
+    cy.contains('Forbidden');
   });
 });
