@@ -99,8 +99,7 @@ export function renderStatusIcon(status) {
 }
 
 export function snakeCaseToCapitals(str) {
-  console.log(str);
-  str
+  return str
     .split('_')
     .map(word => capitalize(word))
     .join(' ');
