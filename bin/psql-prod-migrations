@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /usr/bin/env bash
 
 export DB_NAME=prod_migrations
 # shellcheck disable=SC1091,SC1090
