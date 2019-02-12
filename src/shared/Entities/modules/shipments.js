@@ -43,13 +43,9 @@ export function updateShipment(
 export function updatePublicShipment(
   shipmentId,
   shipment /*shape: {pickup_address, requested_pickup_date, weight_estimate}*/,
+  label = 'shipments.updateShipment',
 ) {
-  return swaggerRequest(
-    getPublicClient,
-    'shipments.patchShipment',
-    { shipmentId, update: shipment },
-    { label: 'shipments.updateShipment' },
-  );
+  return swaggerRequest(getPublicClient, 'shipments.patchShipment', { shipmentId, update: shipment }, { label });
 }
 
 export function approveShipment(shipmentId) {

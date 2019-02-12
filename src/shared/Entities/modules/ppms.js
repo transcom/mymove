@@ -10,11 +10,44 @@ export function approvePPM(personallyProcuredMoveId) {
   return swaggerRequest(getClient, swaggerTag, { personallyProcuredMoveId }, { label });
 }
 
-export function selectPpmStatus(state, id) {
-  const ppm = get(state, `entities.personallyProcuredMove.${id}`);
-  if (ppm) {
-    return ppm.status;
-  } else {
-    return get(state, 'office.officePPMs.0.status', '');
-  }
+export function loadPPMs(moveId) {
+  const label = 'office.loadPPMs';
+  const swaggerTag = 'ppm.indexPersonallyProcuredMoves';
+  return swaggerRequest(getClient, swaggerTag, { moveId }, { label });
+}
+
+export function selectPPMForMove(state, moveId) {
+  const ppmId = Object.keys(get(state, 'entities.personallyProcuredMove', {})).find(
+    ppmId => get(state, `entities.personallyProcuredMove.${ppmId}.move_id`) === moveId,
+  );
+  return get(state, `entities.personallyProcuredMove.${ppmId}`, {});
+}
+
+export function updatePPM(
+  moveId,
+  personallyProcuredMoveId,
+  payload /*shape: {size, weightEstimate, estimatedIncentive}*/,
+) {
+  const label = 'office.updatePPM';
+  const swaggerTag = 'ppm.patchPersonallyProcuredMove';
+  return swaggerRequest(
+    getClient,
+    swaggerTag,
+    {
+      moveId,
+      personallyProcuredMoveId,
+      patchPersonallyProcuredMovePayload: payload,
+    },
+    { label },
+  );
+}
+
+export function approveReimbursement(reimbursementId) {
+  const label = 'office.approveReimbursement';
+  const swaggerTag = 'office.approveReimbursement';
+  return swaggerRequest(getClient, swaggerTag, { reimbursementId }, { label });
+}
+
+export function selectReimbursement(state, advanceId) {
+  return get(state, `entities.reimbursements.${advanceId}`);
 }
