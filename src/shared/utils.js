@@ -99,19 +99,15 @@ export function renderStatusIcon(status) {
 }
 
 export function snakeCaseToCapitals(str) {
-  let out = '';
-  str.split('_').forEach(function(word) {
-    out = out + capitalize(word) + ' ';
-  });
-  return out;
+  console.log(str);
+  str
+    .split('_')
+    .map(word => capitalize(word))
+    .join(' ');
 }
 
 export function humanReadableError(errors) {
-  console.log(errors);
-  let errorMessage = '';
-
-  Object.entries(errors).forEach(error => {
-    errorMessage = errorMessage + snakeCaseToCapitals(error[0]) + ' ' + error[1] + '\n';
-  });
-  return errorMessage;
+  return Object.entries(errors)
+    .map(error => `${snakeCaseToCapitals(error[0])} ${error[1]}`)
+    .join('/n');
 }
