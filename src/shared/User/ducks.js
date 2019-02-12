@@ -5,7 +5,7 @@ import { GetLoggedInUser } from './api.js';
 import { normalize } from 'normalizr';
 import { pick } from 'lodash';
 
-import { serviceMember } from 'shared/Entities/schema';
+import { ordersArray } from 'shared/Entities/schema';
 import { addEntities } from 'shared/Entities/actions';
 
 const getLoggedInUserType = 'GET_LOGGED_IN_USER';
@@ -21,7 +21,7 @@ export const loadLoggedInUser = () => {
     return GetLoggedInUser()
       .then(response => {
         if (response.service_member) {
-          const data = normalize(response.service_member, serviceMember);
+          const data = normalize(response.service_member.orders, ordersArray);
 
           // Only store shipments and addresses in a normalized way. This prevents
           // data duplication while we're using both Redux approaches.

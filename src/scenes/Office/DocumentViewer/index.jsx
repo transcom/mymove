@@ -11,6 +11,7 @@ import Alert from 'shared/Alert';
 import { PanelField } from 'shared/EditablePanel';
 import { loadMoveDependencies } from '../ducks.js';
 import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMembers';
+import { selectOrdersForMove } from 'shared/Entities/modules/orders';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import { Switch, Redirect, Link } from 'react-router-dom';
@@ -210,7 +211,7 @@ const mapStateToProps = state => {
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
     currentPpm: selectPPMForMove(state, move.id),
     docTypes: get(state, 'swaggerInternal.spec.definitions.MoveDocumentType.enum', []),
-    orders: state.office.officeOrders || {},
+    orders: selectOrdersForMove(state, move.id),
     move,
     moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
     serviceMember,

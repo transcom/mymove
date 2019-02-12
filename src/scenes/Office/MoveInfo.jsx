@@ -72,10 +72,10 @@ import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLin
 const BasicsTabContent = props => {
   return (
     <div className="office-tab">
-      <OrdersPanel title="Orders" />
+      <OrdersPanel title="Orders" moveId={props.moveId} />
       <CustomerInfoPanel title="Customer Info" serviceMember={props.serviceMember} />
       <BackupInfoPanel title="Backup Info" serviceMember={props.serviceMember} />
-      <AccountingPanel title="Accounting" serviceMember={props.serviceMember} />
+      <AccountingPanel title="Accounting" serviceMember={props.serviceMember} moveId={props.moveId} />
     </div>
   );
 };
@@ -210,9 +210,8 @@ class MoveInfo extends Component {
   };
 
   render() {
-    const { moveDocuments, moveStatus, ppm, shipment, shipmentStatus, serviceMember } = this.props;
+    const { moveDocuments, moveStatus, orders, ppm, shipment, shipmentStatus, serviceMember, upload } = this.props;
     const move = this.props.officeMove;
-    const orders = this.props.officeOrders;
     const isPPM = move.selected_move_type === 'PPM';
     const isHHG = move.selected_move_type === 'HHG';
     const isHHGPPM = move.selected_move_type === 'HHG_PPM';
@@ -220,7 +219,6 @@ class MoveInfo extends Component {
     const currentTab = pathnames[pathnames.length - 1];
     const showDocumentViewer = this.props.context.flags.documentViewer;
     const allowHhgInvoicePayment = this.props.context.flags.allowHhgInvoicePayment;
-    let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
     const ordersComplete = Boolean(
       orders.orders_number && orders.orders_type_detail && orders.department_indicator && orders.tac,
@@ -319,7 +317,7 @@ class MoveInfo extends Component {
                   render={() => <Redirect replace to={`${this.props.match.url}/basics`} />}
                 />
                 <PrivateRoute path={`${this.props.match.path}/basics`}>
-                  <BasicsTabContent serviceMember={this.props.serviceMember} />
+                  <BasicsTabContent moveId={this.props.moveId} serviceMember={this.props.serviceMember} />
                 </PrivateRoute>
                 <PrivateRoute path={`${this.props.match.path}/ppm`}>
                   <PPMTabContent moveId={this.props.moveId} />
@@ -476,7 +474,7 @@ const mapStateToProps = (state, ownProps) => {
     moveId,
     moveStatus: selectMoveStatus(state, moveId),
     officeMove,
-    officeOrders: get(state, 'office.officeOrders', {}),
+    orders,
     officeShipment: get(state, 'office.officeShipment', {}),
     ppmAdvance: ppm.advance,
     serviceAgents: selectServiceAgentsForShipment(state, shipmentId),
@@ -488,6 +486,7 @@ const mapStateToProps = (state, ownProps) => {
     shipmentStatus: selectShipmentStatus(state, shipmentId),
     swaggerError: get(state, 'swagger.hasErrored'),
     tariff400ngItems: selectTariff400ngItems(state),
+    upload: get(orders, 'uploaded_orders.uploads.0', {}),
   };
 };
 
