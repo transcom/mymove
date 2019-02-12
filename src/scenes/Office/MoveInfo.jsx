@@ -43,6 +43,7 @@ import {
 import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
 import { approvePPM, selectPPMForMove } from 'shared/Entities/modules/ppms';
 import { selectServiceMember } from 'shared/Entities/modules/serviceMembers';
+import { selectMove } from 'shared/Entities/modules/moves';
 import {
   getPublicShipment,
   updatePublicShipment,
@@ -169,7 +170,7 @@ class MoveInfo extends Component {
   };
 
   cancelMoveAndRedirect = cancelReason => {
-    this.props.cancelMove(this.props.officeMove.id, cancelReason).then(() => {
+    this.props.cancelMove(this.props.moveId, cancelReason).then(() => {
       this.props.showBanner();
       setTimeout(() => this.props.removeBanner(), 10000);
       this.setState({ redirectToHome: true });
@@ -204,8 +205,17 @@ class MoveInfo extends Component {
   };
 
   render() {
-    const { moveDocuments, moveStatus, orders, ppm, shipment, shipmentStatus, serviceMember, upload } = this.props;
-    const move = this.props.officeMove;
+    const {
+      move,
+      moveDocuments,
+      moveStatus,
+      orders,
+      ppm,
+      shipment,
+      shipmentStatus,
+      serviceMember,
+      upload,
+    } = this.props;
     const isPPM = move.selected_move_type === 'PPM';
     const isHHG = move.selected_move_type === 'HHG';
     const isHHGPPM = move.selected_move_type === 'HHG_PPM';
@@ -452,21 +462,21 @@ MoveInfo.propTypes = {
 
 const mapStateToProps = (state, ownProps) => {
   const moveId = ownProps.match.params.moveId;
-  const officeMove = get(state, 'office.officeMove', {}) || {};
-  const shipmentId = get(officeMove, 'shipments.0.id');
+  const move = selectMove(state, moveId);
+  const shipmentId = get(move, 'shipments.0.id');
   const ppm = selectPPMForMove(state, moveId);
-  const orders = get(state, `entities.orders.${officeMove.orders_id}`, {});
+  const orders = get(state, `entities.orders.${move.orders_id}`, {});
   const serviceMember = selectServiceMember(state, orders.service_member_id);
   return {
     approveMoveHasError: get(state, 'office.moveHasApproveError'),
     errorMessage: get(state, 'office.error'),
     loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
     loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
-    moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
+    moveDocuments: selectAllDocumentsForMove(state, moveId),
     ppm,
+    move,
     moveId,
     moveStatus: selectMoveStatus(state, moveId),
-    officeMove,
     orders,
     officeShipment: get(state, 'office.officeShipment', {}),
     ppmAdvance: ppm.advance,

@@ -1,5 +1,5 @@
 import { isNull, get } from 'lodash';
-import { LoadMove } from './api.js';
+import { loadMove, selectMove } from 'shared/Entities/modules/moves';
 import { getEntitlements } from 'shared/entitlements.js';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
 import { loadServiceMember, loadBackupContacts } from 'shared/Entities/modules/serviceMembers';
@@ -7,7 +7,6 @@ import { loadOrders, selectOrdersForMove } from 'shared/Entities/modules/orders'
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // SINGLE RESOURCE ACTION TYPES
-const loadMoveType = 'LOAD_MOVE';
 const REMOVE_BANNER = 'REMOVE_BANNER';
 const SHOW_BANNER = 'SHOW_BANNER';
 const RESET_MOVE = 'RESET_MOVE';
@@ -21,15 +20,11 @@ export const resetMove = () => ({
   type: RESET_MOVE,
 });
 
-const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
-
 // MULTIPLE-RESOURCE ACTION TYPES
 
 const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(loadDependenciesType);
 
 // SINGLE-RESOURCE ACTION CREATORS
-
-export const loadMove = ReduxHelpers.generateAsyncActionCreator(loadMoveType, LoadMove);
 
 export const removeBanner = () => {
   return {
@@ -54,7 +49,7 @@ export function loadMoveDependencies(moveId) {
     dispatch(actions.start());
     try {
       await dispatch(loadMove(moveId));
-      const move = getState().office.officeMove;
+      const move = selectMove(getState(), moveId);
       const ordersId = move.orders_id;
       await dispatch(loadOrders(ordersId));
       const serviceMemberId = get(getState(), `entities.orders.${ordersId}.service_member_id`);
@@ -95,31 +90,6 @@ const initialState = {
 export function officeReducer(state = initialState, action) {
   switch (action.type) {
     // SINGLE-RESOURCE ACTION TYPES
-
-    // MOVES
-    case LOAD_MOVE.start:
-      return Object.assign({}, state, {
-        moveIsLoading: true,
-        moveHasLoadSuccess: false,
-      });
-    case LOAD_MOVE.success:
-      return Object.assign({}, state, {
-        moveIsLoading: false,
-        officeMove: action.payload,
-        officeShipment: get(action.payload, 'shipments.0', null),
-        moveHasLoadSuccess: true,
-        moveHasLoadError: false,
-      });
-    case LOAD_MOVE.failure:
-      return Object.assign({}, state, {
-        moveIsLoading: false,
-        officeMove: null,
-        officeShipment: null,
-        moveHasLoadSuccess: false,
-        moveHasLoadError: true,
-        error: action.error.message,
-      });
-
     case SHOW_BANNER:
       return Object.assign({}, state, {
         flashMessage: true,

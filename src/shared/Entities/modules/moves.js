@@ -8,6 +8,7 @@ import { getClient } from 'shared/Swagger/api';
 export const STATE_KEY = 'moves';
 const approveBasicsLabel = 'Moves.ApproveBasics';
 const cancelMoveLabel = 'Moves.CancelMove';
+const loadMoveLabel = 'Moves.loadMove';
 
 export default function reducer(state = {}, action) {
   switch (action.type) {
@@ -22,12 +23,12 @@ export default function reducer(state = {}, action) {
   }
 }
 
-export function getMove(label, moveId) {
+export function loadMove(moveId, label = loadMoveLabel) {
   return swaggerRequest(getClient, 'moves.showMove', { moveId }, { label });
 }
 
 export const selectMove = (state, id) => {
-  return denormalize([id], moves, state.entities)[0];
+  return denormalize([id], moves, state.entities)[0] || {};
 };
 
 export function getMoveDatesSummary(label, moveId, moveDate) {
