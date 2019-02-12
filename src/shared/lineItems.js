@@ -10,7 +10,8 @@ export const displayBaseQuantityUnits = (item, scale) => {
 
   if (lbsItems.includes(itemCode)) {
     const decimalPlaces = 0;
-    const baseQuantity = truncateNumber(itemQuantity, decimalPlaces);
+    const convertedItemQuantity = itemQuantity / 10000;
+    const baseQuantity = truncateNumber(convertedItemQuantity, decimalPlaces);
     return `${addCommasToNumberString(baseQuantity, decimalPlaces)} lbs`;
   }
   return formatFromBaseQuantity(itemQuantity);
