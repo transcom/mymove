@@ -3,11 +3,15 @@ package fuelprice
 import (
 	"encoding/json"
 	"fmt"
+	"go/types"
+	"io/ioutil"
+	"log"
 	"math"
 	"net/http"
 	"strconv"
 	"time"
 
+	"github.com/docker/go-units"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
@@ -23,17 +27,23 @@ type AddFuelDieselPrices struct {
 
 // Call retrieves data for the months we do not have prices for, calculates them, and adds them to the database
 func (u AddFuelDieselPrices) Call() (*validate.Errors, error) {
+	verrs := &validate.Errors{}
 	missingMonths, err := u.findMissingRecordMonths(u.DB)
+	if len(missingMonths) < 1 {
+		log.Fatal("No new values to add to the database") //TODO: what to use here to end?
+		return verrs, err
+	}
 	if err != nil {
 		return &validate.Errors{}, errors.Errorf("Error getting months missing fuel data in the db: %v ", err)
 	}
 
 	fuelValuesByMonth, err := u.getMissingRecordsPrices(missingMonths)
+
 	if err != nil {
 		return &validate.Errors{}, err
 	}
 
-	// TODO: Get the first Mondays (or non-holiday) values (pub_date, price per gallon) for missing months
+	//Save each month's fuel values to the db
 	for _, fuelValues := range fuelValuesByMonth {
 
 		pricePerGallon := fuelValues.price
@@ -60,11 +70,29 @@ func (u AddFuelDieselPrices) Call() (*validate.Errors, error) {
 		verrs, err := u.DB.ValidateAndSave(fuelPrice)
 		return verrs, err
 	}
+	return verrs, err
 }
 
 type fuelData struct {
 	dateString string
 	price      float64
+}
+
+type eiaSeriesData struct {
+	seriesID    string
+	name        string
+	units       string
+	f           string
+	unitshort   string
+	description string
+	copyright   string
+	source      string
+	iso3166     string
+	geography   string
+	start       string
+	end         string
+	updated     string
+	data        [][]string
 }
 
 func (u AddFuelDieselPrices) getMissingRecordsPrices(missingMonths []int) (fuelValues []fuelData, err error) {
@@ -85,24 +113,33 @@ func (u AddFuelDieselPrices) getMissingRecordsPrices(missingMonths []int) (fuelV
 		} else {
 			year = int(time.Now().AddDate(-1, 0, 0).Year())
 		}
-
-		startDateString = fmt.Sprintf("%v%v%v", year, month, startDay)
-		endDateString = fmt.Sprintf("%v%v%v", year, month, endDay)
+		monthString := fmt.Sprintf("%02s", strconv.Itoa(month))
+		startDateString = fmt.Sprintf("%v%v%v", year, monthString, startDay)
+		endDateString = fmt.Sprintf("%v%v%v", year, monthString, endDay)
 		eiaKey := "26758423cb0636ae577cf3d6512f1f0a" //TODO add to constants and get a key using a central email
 		url := fmt.Sprintf(
-			"https://api.eia.gov/series/?api_key=%v&series_id=PET.EMD_EPD2D_PTE_NUS_DPG.W&start=%v1&end=%v",
+			"https://api.eia.gov/series/?api_key=%v&series_id=PET.EMD_EPD2D_PTE_NUS_DPG.W&start=%v&end=%v",
 			eiaKey, startDateString, endDateString)
 		resp, err := client.Get(url)
 		if err != nil {
-			return fuelValues, errors.Wrap(err, "Error with EIA Open Data fuel prices GET request")
+			return nil, errors.Wrap(err, "Error with EIA Open Data fuel prices GET request")
 		}
 
 		var result map[string]interface{}
-		json.NewDecoder(resp.Body).Decode(&result)
+
+		response, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, errors.Wrap(err, "Unable to read response body from eia.gov")
+		}
+
+		err = json.Unmarshal([]byte(response), &result)
+		if err != nil {
+			return nil, errors.Wrap(err, "Unable to unmarshal JSON data from eia.gov's open data")
+		}
 		fmt.Println(result)
 
-		//monthFuelData := resp.Body["series"]["data"] // Todo: find out how to do this properly
-		//
+		monthFuelData := result["series"].([][]string) // Todo: find out how to do this properly
+		fmt.Println(monthFuelData)
 		//if monthFuelData < 1 {
 		//	err := errors.Errorf("No fuel data available for $1", time.Month(month))
 		//	return fuelValues, err
@@ -141,16 +178,17 @@ func (u AddFuelDieselPrices) findMissingRecordMonths(db *pop.Connection) (months
 
 	fuelPrices, err := models.FetchLastTwelveMonthsOfFuelPrices(db)
 	if err != nil {
-		return months, errors.New("Error fetching fuel prices")
+		return nil, errors.New("Error fetching fuel prices")
 	}
 
 	// determine what months are represented in the DB records
 	var monthsInDB []int
-	for i := 1; i < len(fuelPrices); i++ {
+	for i := 0; i < len(fuelPrices); i++ {
 		pubMonth := fuelPrices[i].PubDate.Month()
 		monthsInDB = append(monthsInDB, int(pubMonth))
 	}
 
+	months = []int{}
 	// determine months in the past 12 months NOT represented in the DB
 	allMonths := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
 	for i := 1; i < len(allMonths); i++ {
