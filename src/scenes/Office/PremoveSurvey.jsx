@@ -13,6 +13,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import './office.css';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { humanReadableError } from 'shared/utils';
+import Alert from 'shared/Alert';
 
 const surveyFields = [
   'pm_survey_conducted_date',
@@ -121,6 +122,11 @@ export function PreMoveSurveyEditablePanelify(DisplayComponent, EditComponent, e
       const Content = isEditable ? EditComponent : DisplayComponent;
       return (
         <React.Fragment>
+          {this.props.hasError && (
+            <Alert type="error" heading="An error occurred">
+              <em>{this.props.errorMessage}</em>
+            </Alert>
+          )}
           <PreMoveSurveyEditablePanel
             title={this.props.title}
             className={this.props.className}
