@@ -8,6 +8,7 @@ import Editor from 'shared/PreApprovalRequest/Editor.jsx';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
 import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
+import { convertFromThousandthInchToInch } from 'shared/formatters';
 
 function formatStatus(lineItem) {
   let formattedStatus = lineItem.status;
@@ -106,23 +107,68 @@ export class PreApprovalRequest extends Component {
         status = renderStatusIcon(row.status);
       }
       const deleteActiveClass = this.state.showDeleteForm ? 'delete-active' : '';
+      let basePAR;
+      switch (row.tariff400ng_item.code) {
+        case '105B':
+          let crateLengthinInches = convertFromThousandthInchToInch(row.crate_dimensions.length);
+          let crateWidthinInches = convertFromThousandthInchToInch(row.crate_dimensions.width);
+          let crateHeightinInches = convertFromThousandthInchToInch(row.crate_dimensions.height);
+          let itemLengthinInches = convertFromThousandthInchToInch(row.item_dimensions.length);
+          let itemWidthinInches = convertFromThousandthInchToInch(row.item_dimensions.width);
+          let itemHeightinInches = convertFromThousandthInchToInch(row.item_dimensions.height);
+
+          let createDetails = `Crate: ${crateLengthinInches}" x ${crateWidthinInches}" x ${crateHeightinInches}" (16.7 cu ft)`;
+          let ItemDetails = `Item: ${itemLengthinInches}" x ${itemWidthinInches}" x ${itemHeightinInches}"`;
+          let description = row.description;
+          basePAR = (
+            <tr key={row.id} className={deleteActiveClass}>
+              <td align="left">{row.tariff400ng_item.code}</td>
+              <td align="left">{row.tariff400ng_item.item}</td>
+              <td align="left"> {row.location[0]} </td>
+              <td>
+                {description} <br />
+                {createDetails} <br />
+                {ItemDetails}
+              </td>
+              <td align="left">{formatDate(row.submitted_date)}</td>
+              <td align="left">
+                <span className="status">{status}</span>
+                {formatStatus(row)}
+              </td>
+              <td>
+                {showButtons &&
+                  renderActionIcons(row.status, this.onEdit, this.props.onApproval, this.onDelete, row.id)}
+              </td>
+            </tr>
+          );
+          break;
+        default:
+          basePAR = (
+            <tr key={row.id} className={deleteActiveClass}>
+              <td align="left">{row.tariff400ng_item.code}</td>
+              <td align="left">{row.tariff400ng_item.item}</td>
+              <td align="left"> {row.location[0]} </td>
+              <td align="left">
+                {formatFromBaseQuantity(row.quantity_1)} <br />
+                {row.notes}
+              </td>
+              <td align="left">{formatDate(row.submitted_date)}</td>
+              <td align="left">
+                <span className="status">{status}</span>
+                {formatStatus(row)}
+              </td>
+              <td>
+                {showButtons &&
+                  renderActionIcons(row.status, this.onEdit, this.props.onApproval, this.onDelete, row.id)}
+              </td>
+            </tr>
+          );
+          break;
+      }
+
       return (
         <Fragment>
-          <tr key={row.id} className={deleteActiveClass}>
-            <td align="left">{row.tariff400ng_item.code}</td>
-            <td align="left">{row.tariff400ng_item.item}</td>
-            <td align="left"> {row.location[0]} </td>
-            <td align="left">{formatFromBaseQuantity(row.quantity_1)}</td>
-            <td align="left">{row.notes} </td>
-            <td align="left">{formatDate(row.submitted_date)}</td>
-            <td align="left">
-              <span className="status">{status}</span>
-              {formatStatus(row)}
-            </td>
-            <td>
-              {showButtons && renderActionIcons(row.status, this.onEdit, this.props.onApproval, this.onDelete, row.id)}
-            </td>
-          </tr>
+          {basePAR}
           {this.state.showDeleteForm && (
             <tr className="delete-confirm-row">
               <td colSpan="8" className="delete-confirm">

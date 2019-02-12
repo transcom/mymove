@@ -28,8 +28,7 @@ export class PreApprovalTable extends PureComponent {
                 <th>Code</th>
                 <th>Item</th>
                 <th>Loc</th>
-                <th>Base quantity</th>
-                <th>Notes</th>
+                <th>Details</th>
                 <th>Submitted</th>
                 <th>Status</th>
                 <th>&nbsp;</th>
