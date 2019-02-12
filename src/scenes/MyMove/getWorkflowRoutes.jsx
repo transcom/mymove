@@ -175,7 +175,7 @@ const pages = {
   '/moves/:moveId/hhg-start': {
     isInFlow: hasHHG,
     isComplete: (sm, orders, move, hhg) => {
-      return every([hhg.requested_pickup_date]);
+      return hhg && every([hhg.requested_pickup_date]);
     },
     render: (key, pages) => ({ match }) => <MoveDate pages={pages} pageKey={key} match={match} />,
   },
