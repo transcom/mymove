@@ -9,19 +9,11 @@ import * as ReduxHelpers from 'shared/ReduxHelpers';
 // SINGLE RESOURCE ACTION TYPES
 const REMOVE_BANNER = 'REMOVE_BANNER';
 const SHOW_BANNER = 'SHOW_BANNER';
-const RESET_MOVE = 'RESET_MOVE';
 
 // MULTIPLE-RESOURCE ACTION TYPES
 const loadDependenciesType = 'LOAD_DEPENDENCIES';
 
-// SINGLE RESOURCE ACTION TYPES
-
-export const resetMove = () => ({
-  type: RESET_MOVE,
-});
-
 // MULTIPLE-RESOURCE ACTION TYPES
-
 const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(loadDependenciesType);
 
 // SINGLE-RESOURCE ACTION CREATORS
@@ -78,10 +70,6 @@ export function loadEntitlements(state, moveId) {
 
 // Reducer
 const initialState = {
-  moveIsLoading: false,
-  moveHasLoadError: null,
-  moveHasLoadSuccess: false,
-  officeMove: {},
   loadDependenciesHasError: null,
   loadDependenciesHasSuccess: false,
   flashMessage: false,

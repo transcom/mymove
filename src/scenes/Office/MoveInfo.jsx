@@ -55,7 +55,7 @@ import {
 import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
 
-import { loadMoveDependencies, resetMove, showBanner, removeBanner } from './ducks';
+import { loadMoveDependencies, showBanner, removeBanner } from './ducks';
 import { selectMoveStatus, approveBasics, cancelMove } from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
@@ -139,10 +139,6 @@ class MoveInfo extends Component {
     if (this.props.shipmentId !== prevProps.shipmentId) {
       this.getAllShipmentInfo(this.props.shipmentId);
     }
-  }
-
-  componentWillUnmount() {
-    this.props.resetMove();
   }
 
   getAllShipmentInfo = shipmentId => {
@@ -507,7 +503,6 @@ const mapDispatchToProps = dispatch =>
       getAllTariff400ngItems,
       getAllShipmentLineItems,
       getAllInvoices,
-      resetMove,
       getTspForShipment,
       getServiceAgentsForShipment,
       showBanner,
