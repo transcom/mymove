@@ -1,9 +1,8 @@
-import { isNull, get } from 'lodash';
+import { get } from 'lodash';
 import { loadMove, selectMove } from 'shared/Entities/modules/moves';
-import { getEntitlements } from 'shared/entitlements.js';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
 import { loadServiceMember, loadBackupContacts } from 'shared/Entities/modules/serviceMembers';
-import { loadOrders, selectOrdersForMove } from 'shared/Entities/modules/orders';
+import { loadOrders } from 'shared/Entities/modules/orders';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // SINGLE RESOURCE ACTION TYPES
@@ -54,18 +53,6 @@ export function loadMoveDependencies(moveId) {
       return dispatch(actions.error(ex));
     }
   };
-}
-
-// Selectors
-export function loadEntitlements(state, moveId) {
-  const orders = selectOrdersForMove(state, moveId);
-  const hasDependents = orders.has_dependents;
-  const spouseHasProGear = orders.spouse_has_pro_gear;
-  const rank = get(state, 'office.officeServiceMember.rank', null);
-  if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
-    return null;
-  }
-  return getEntitlements(rank, hasDependents, spouseHasProGear);
 }
 
 // Reducer

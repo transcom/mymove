@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { reduxForm, Field, FormSection, getFormValues } from 'redux-form';
 import { Link } from 'react-router-dom';
 
-import { loadEntitlements } from './ducks';
+import { calculateEntitlementsForMove } from 'shared/Entities/modules/moves';
 import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { selectOrdersForMove, updateOrders } from 'shared/Entities/modules/orders';
 import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMembers';
@@ -142,7 +142,7 @@ function mapStateToProps(state, ownProps) {
     ordersSchema: get(state, 'swaggerInternal.spec.definitions.Orders', {}),
     hasError: false,
     errorMessage: state.office.error,
-    entitlements: loadEntitlements(state, ownProps.moveId),
+    entitlements: calculateEntitlementsForMove(state, ownProps.moveId),
     isUpdating: false,
     orders,
     serviceMember,

@@ -10,7 +10,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { selectPPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
 
-import { loadEntitlements } from 'scenes/Office/ducks';
+import { calculateEntitlementsForMove } from 'shared/Entities/modules/moves';
 
 const validateWeight = (value, formValues, props, fieldName) => {
   if (value && props.entitlement && value > props.entitlement.sum) {
@@ -105,7 +105,7 @@ function mapStateToProps(state, ownProps) {
     errorMessage: get(state, 'office.error'),
     PPMEstimate: PPMEstimate,
     isUpdating: false,
-    entitlement: loadEntitlements(state, ownProps.moveId),
+    entitlement: calculateEntitlementsForMove(state, ownProps.moveId),
 
     // editablePanelify
     getUpdateArgs: function() {

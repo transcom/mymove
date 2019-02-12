@@ -1,9 +1,11 @@
-import { get } from 'lodash';
+import { isNull, get } from 'lodash';
 import { moves } from '../schema';
 import { ADD_ENTITIES } from '../actions';
 import { denormalize } from 'normalizr';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
+import { getEntitlements } from 'shared/entitlements.js';
+import { selectOrdersForMove } from 'shared/Entities/modules/orders';
 
 export const STATE_KEY = 'moves';
 const approveBasicsLabel = 'Moves.ApproveBasics';
@@ -35,13 +37,6 @@ export function getMoveDatesSummary(label, moveId, moveDate) {
   return swaggerRequest(getClient, 'moves.showMoveDatesSummary', { moveId, moveDate }, { label });
 }
 
-export function selectMoveDatesSummary(state, moveId, moveDate) {
-  if (!moveId || !moveDate) {
-    return null;
-  }
-  return get(state, `entities.moveDatesSummaries.${moveId}:${moveDate}`);
-}
-
 export function approveBasics(moveId) {
   const label = approveBasicsLabel;
   const swaggerTag = 'office.approveMove';
@@ -53,6 +48,24 @@ export function cancelMove(moveId, cancelReason) {
   const swaggerTag = 'office.cancelMove';
   const cancelMove = { cancel_reason: cancelReason };
   return swaggerRequest(getClient, swaggerTag, { moveId, cancelMove }, { label });
+}
+
+export function calculateEntitlementsForMove(state, moveId) {
+  const orders = selectOrdersForMove(state, moveId);
+  const hasDependents = orders.has_dependents;
+  const spouseHasProGear = orders.spouse_has_pro_gear;
+  const rank = get(state, 'office.officeServiceMember.rank', null);
+  if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
+    return null;
+  }
+  return getEntitlements(rank, hasDependents, spouseHasProGear);
+}
+
+export function selectMoveDatesSummary(state, moveId, moveDate) {
+  if (!moveId || !moveDate) {
+    return null;
+  }
+  return get(state, `entities.moveDatesSummaries.${moveId}:${moveDate}`);
 }
 
 export function selectMoveStatus(state, moveId) {
