@@ -1,8 +1,9 @@
 package publicapi
 
 import (
-	"bytes"
 	"fmt"
+	"github.com/pkg/errors"
+	"github.com/transcom/mymove/pkg/services"
 	"net/http"
 	"time"
 
@@ -12,7 +13,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
@@ -21,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/rateengine"
 	shipmentservice "github.com/transcom/mymove/pkg/service/shipment"
+	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -577,6 +578,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 // CreateGovBillOfLadingHandler creates a GBL PDF & uploads it as a document associated to a move doc, shipment and move
 type CreateGovBillOfLadingHandler struct {
 	handlers.HandlerContext
+	createForm services.FormCreator
 }
 
 // Handle generates the GBL PDF & uploads it as a document associated to a move doc, shipment and move
@@ -621,38 +623,19 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	}
 	formLayout := paperwork.Form1203Layout
 
-	// Read in bytes from Asset pkg
-	data, err := assets.Asset(formLayout.TemplateImagePath)
+	template, err := paperworkservice.MakeFormTemplate(gbl, gbl.GBLNumber1, formLayout, services.GBL)
 	if err != nil {
-		h.Logger().Error("Error reading template file", zap.Error(err))
-		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
+		h.Logger().Error(errors.Cause(err).Error(), zap.Error(errors.Cause(err)))
 	}
 
-	templateBuffer := bytes.NewReader(data)
-	formFiller := paperwork.NewFormFiller()
-
-	// Populate form fields with GBL data
-	err = formFiller.AppendPage(templateBuffer, formLayout.FieldsLayout, gbl)
+	gblFile, err := h.createForm.CreateForm(template)
 	if err != nil {
-		h.Logger().Error("Failure writing GBL data to form.", zap.Error(err))
-		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
-	}
-
-	// Read the incoming data into a temporary afero.File for consumption
-	aFile, err := h.FileStorer().TempFileSystem().Create(gbl.GBLNumber1)
-	if err != nil {
-		h.Logger().Error("Error creating a new afero file for GBL form.", zap.Error(err))
-		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
-	}
-
-	err = formFiller.Output(aFile)
-	if err != nil {
-		h.Logger().Error("Failure exporting GBL form to file.", zap.Error(err))
+		h.Logger().Error(errors.Cause(err).Error(), zap.Error(errors.Cause(err)))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
 
 	uploader := uploaderpkg.NewUploader(h.DB(), h.Logger(), h.FileStorer())
-	upload, verrs, err := uploader.CreateUpload(nil, *tspUser.UserID, aFile)
+	upload, verrs, err := uploader.CreateUpload(nil, *tspUser.UserID, gblFile)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}

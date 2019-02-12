@@ -6,7 +6,7 @@ import { get } from 'lodash';
 import { NavLink, Link } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
-import { titleCase, isProduction } from 'shared/constants.js';
+import { titleCase } from 'shared/constants.js';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
@@ -196,6 +196,7 @@ class ShipmentInfo extends Component {
     const shipmentId = this.props.match.params.shipmentId;
     const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
     const showDocumentViewer = context.flags.documentViewer;
+    const showSitPanel = context.flags.sitPanel;
     const awarded = shipment.status === 'AWARDED';
     const accepted = shipment.status === 'ACCEPTED';
     const approved = shipment.status === 'APPROVED';
@@ -402,7 +403,7 @@ class ShipmentInfo extends Component {
                   <Weights title="Weights & Items" shipment={this.props.shipment} update={this.props.patchShipment} />
                   <LocationsContainer update={this.props.patchShipment} />
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
-                  {!isProduction && (
+                  {showSitPanel && (
                     <StorageInTransitPanel
                       sitRequests={this.props.sitRequests}
                       shipmentId={this.props.match.params.shipmentId}

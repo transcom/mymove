@@ -17,7 +17,7 @@ import { Switch, Redirect, Link } from 'react-router-dom';
 
 import DocumentUploadViewer from 'shared/DocumentViewer/DocumentUploadViewer';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
-import DocumentDetailPanel from './DocumentDetailPanel';
+import { selectPPMForMove } from 'shared/Entities/modules/ppms';
 
 import DocumentUploader from 'shared/DocumentViewer/DocumentUploader';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
@@ -26,6 +26,8 @@ import { convertDollarsToCents } from 'shared/utils';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
+
+import DocumentDetailPanel from './DocumentDetailPanel';
 
 import './index.css';
 class DocumentViewer extends Component {
@@ -186,6 +188,7 @@ class DocumentViewer extends Component {
                     <DocumentDetailPanel
                       className="document-viewer"
                       moveDocumentId={this.props.match.params.moveDocumentId}
+                      moveId={move.id}
                       title=""
                     />
                   </TabPanel>
@@ -205,7 +208,7 @@ const mapStateToProps = state => {
   return {
     genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
-    currentPpm: get(state.office, 'officePPMs.0') || get(state, 'ppm.currentPpm'),
+    currentPpm: selectPPMForMove(state, move.id),
     docTypes: get(state, 'swaggerInternal.spec.definitions.MoveDocumentType.enum', []),
     orders: state.office.officeOrders || {},
     move,

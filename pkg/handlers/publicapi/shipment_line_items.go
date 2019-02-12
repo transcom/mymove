@@ -51,14 +51,33 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 		Tariff400ngItemID: handlers.FmtUUID(s.Tariff400ngItemID),
 		Location:          apimessages.ShipmentLineItemLocation(s.Location),
 		Notes:             s.Notes,
+		Description:       s.Description,
 		Quantity1:         handlers.FmtInt64(int64(s.Quantity1)),
 		Quantity2:         handlers.FmtInt64(int64(s.Quantity2)),
 		Status:            apimessages.ShipmentLineItemStatus(s.Status),
 		InvoiceID:         handlers.FmtUUIDPtr(s.InvoiceID),
+		ItemDimensions:    payloadForDimensionsModel(&s.ItemDimensions),
+		CrateDimensions:   payloadForDimensionsModel(&s.CrateDimensions),
 		AmountCents:       amt,
 		AppliedRate:       rate,
 		SubmittedDate:     *handlers.FmtDateTime(s.SubmittedDate),
 		ApprovedDate:      handlers.FmtDateTime(s.ApprovedDate),
+	}
+}
+
+func payloadForDimensionsModel(a *models.ShipmentLineItemDimensions) *apimessages.Dimensions {
+	if a == nil {
+		return nil
+	}
+	if a.ID == uuid.Nil {
+		return nil
+	}
+
+	return &apimessages.Dimensions{
+		ID:     *handlers.FmtUUID(a.ID),
+		Length: handlers.FmtInt64(int64(a.Length)),
+		Width:  handlers.FmtInt64(int64(a.Width)),
+		Height: handlers.FmtInt64(int64(a.Height)),
 	}
 }
 
@@ -136,13 +155,41 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 		return accessorialop.NewCreateShipmentLineItemForbidden()
 	}
 
+	baseParams := models.BaseShipmentLineItemParams{
+		Tariff400ngItemID:   tariff400ngItemID,
+		Tariff400ngItemCode: tariff400ngItem.Code,
+		Quantity1:           unit.IntToBaseQuantity(params.Payload.Quantity1),
+		Quantity2:           unit.IntToBaseQuantity(params.Payload.Quantity2),
+		Location:            string(params.Payload.Location),
+		Notes:               handlers.FmtString(params.Payload.Notes),
+		Description:         params.Payload.Description,
+	}
+
+	var itemDimensions, crateDimensions *models.AdditionalLineItemDimensions
+	if params.Payload.ItemDimensions != nil {
+		itemDimensions = &models.AdditionalLineItemDimensions{
+			Length: unit.ThousandthInches(*params.Payload.ItemDimensions.Length),
+			Width:  unit.ThousandthInches(*params.Payload.ItemDimensions.Width),
+			Height: unit.ThousandthInches(*params.Payload.ItemDimensions.Height),
+		}
+	}
+	if params.Payload.CrateDimensions != nil {
+		crateDimensions = &models.AdditionalLineItemDimensions{
+			Length: unit.ThousandthInches(*params.Payload.CrateDimensions.Length),
+			Width:  unit.ThousandthInches(*params.Payload.CrateDimensions.Width),
+			Height: unit.ThousandthInches(*params.Payload.CrateDimensions.Height),
+		}
+	}
+	additionalParams := models.AdditionalShipmentLineItemParams{
+		ItemDimensions:  itemDimensions,
+		CrateDimensions: crateDimensions,
+	}
+
 	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(h.DB(),
-		tariff400ngItemID,
-		params.Payload.Quantity1,
-		params.Payload.Quantity2,
-		string(params.Payload.Location),
-		handlers.FmtString(params.Payload.Notes),
+		baseParams,
+		additionalParams,
 	)
+
 	if verrs.HasAny() || err != nil {
 		h.Logger().Error("Error fetching shipment line items for shipment", zap.Error(err))
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
