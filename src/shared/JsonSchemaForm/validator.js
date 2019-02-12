@@ -113,14 +113,14 @@ const createDecimalNormalizer = decimalDigits => {
     if (!value) {
       return value;
     }
-    const onlyNumsAndDots = value.replace(/[^\d.]/g, '');
+    value = value.replace(/[^\d.]/g, '');
 
-    if (onlyNumsAndDots.indexOf('.') >= 0) {
+    if (value.indexOf('.') >= 0) {
       value =
-        onlyNumsAndDots.substr(0, onlyNumsAndDots.indexOf('.')) +
+        value.substr(0, value.indexOf('.')) +
         '.' +
-        onlyNumsAndDots
-          .substr(onlyNumsAndDots.indexOf('.') + 1)
+        value
+          .substr(value.indexOf('.') + 1)
           .replace(/[^\d]/g, '')
           .substr(0, decimalDigits);
     }
