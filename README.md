@@ -137,7 +137,7 @@ The following commands will get mymove running on your machine for the first tim
   * **Note**: If you have previously modified your PATH to point to a specific version of go, make sure to remove that. This would be either in your `.bash_profile` or `.bashrc`, and might look something like `PATH=$PATH:/usr/local/opt/go@1.11.4/bin`.
 * Ensure you are using the latest version of bash for this project:
   * Install it with Homebrew: `brew install bash`
-  * Update your shells: `echo "/usr/local/bin/bash" | sudo tee -a /etc/shells`
+  * Update your shells: `[[ $(cat /etc/shells | grep /usr/local/bin/bash) ]] || echo "/usr/local/bin/bash" | sudo tee -a /etc/shells`
   * Change your user's shell (optional): `chsh -s /usr/local/bin/bash`
   * Ensure that `/usr/local/bin` comes before `/bin` on your `$PATH` by running `echo $PATH`.
 * Run `bin/prereqs` and install everything it tells you to. _Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!_
