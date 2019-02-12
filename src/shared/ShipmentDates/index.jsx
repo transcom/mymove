@@ -9,6 +9,10 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { formatDate } from 'shared/formatters';
 
 import './index.css';
+import { getRequestStatus } from 'shared/Swagger/selectors';
+import { humanReadableError } from '../utils';
+
+const datesUpdateShipmentLabel = 'shipment.updateShipment.dates';
 
 const datesFields = [
   'pm_survey_conducted_date',
@@ -117,6 +121,16 @@ DatesPanel.propTypes = {
 function mapStateToProps(state, props) {
   const formValues = getFormValues(formName)(state);
 
+  const updateShipmentStatus = getRequestStatus(state, datesUpdateShipmentLabel);
+  let hasError = false;
+  let errorMessage = '';
+
+  if (updateShipmentStatus.isLoading === false && updateShipmentStatus.isSuccess === false) {
+    const errors = get(updateShipmentStatus, 'error.response.response.body.errors', {});
+    errorMessage = humanReadableError(errors);
+    hasError = true;
+  }
+
   return {
     // reduxForm
     formValues,
@@ -126,13 +140,13 @@ function mapStateToProps(state, props) {
 
     shipmentSchema: get(state, 'swaggerPublic.spec.definitions.Shipment', {}),
 
-    hasError: !!props.error,
-    errorMessage: props.error,
+    hasError,
+    errorMessage,
     isUpdating: false,
 
     // editablePanelify
     getUpdateArgs: function() {
-      return [get(props, 'shipment.id'), formValues.dates];
+      return [get(props, 'shipment.id'), formValues.dates, datesUpdateShipmentLabel];
     },
   };
 }

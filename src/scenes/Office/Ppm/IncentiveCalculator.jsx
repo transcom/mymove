@@ -1,4 +1,4 @@
-import { get, pick } from 'lodash';
+import { pick } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -8,6 +8,7 @@ import { reduxForm } from 'redux-form';
 import Alert from 'shared/Alert';
 import { formatCents } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { selectPPMForMove } from 'shared/Entities/modules/ppms';
 
 import { getPpmIncentive, clearPpmIncentive } from './ducks';
 const formName = 'ppm_reimbursement_calc';
@@ -152,8 +153,8 @@ IncentiveCalculator.propTypes = {
   error: PropTypes.object,
 };
 
-function mapStateToProps(state) {
-  const initialValues = pick(get(state, 'office.officePPMs[0]'), [
+function mapStateToProps(state, ownProps) {
+  const initialValues = pick(selectPPMForMove(state, ownProps.moveId), [
     'planned_move_date',
     'pickup_postal_code',
     'destination_postal_code',

@@ -15,9 +15,9 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/server"
+	"github.com/transcom/mymove/pkg/services/invoice"
 )
 
 // Call this from command line with go run cmd/send_to_gex/main.go --edi <filepath>
@@ -79,13 +79,13 @@ func main() {
 		log.Fatal("Not sending to GEX because no URL set. Set GEX_URL in your envrc.local.")
 	}
 
-	resp, err := gex.SendToGexHTTP{
-		URL:                  url,
-		IsTrueGexURL:         true,
-		TLSConfig:            tlsConfig,
-		GEXBasicAuthUsername: v.GetString("gex-basic-auth-username"),
-		GEXBasicAuthPassword: v.GetString("gex-basic-auth-password"),
-	}.Call(ediString, v.GetString("transaction-name"))
+	resp, err := invoice.NewGexSenderHTTP(
+		url,
+		true,
+		tlsConfig,
+		v.GetString("gex-basic-auth-username"),
+		v.GetString("gex-basic-auth-password"),
+	).SendToGex(ediString, v.GetString("transaction-name"))
 	if resp == nil || err != nil {
 		log.Fatal("Gex Sender had no response", err)
 	}

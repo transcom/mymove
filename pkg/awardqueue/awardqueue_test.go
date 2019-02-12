@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/testingsuite"
 
 	"github.com/go-openapi/swag"
@@ -29,8 +30,9 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	blackoutStartDate := testdatagen.DateInsidePeakRateCycle
 	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
 
-	pickupDate := blackoutStartDate.Add(time.Hour)
-	deliveryDate := blackoutStartDate.Add(time.Hour * 24 * 60)
+	calendar := dates.NewUSCalendar()
+	pickupDate := dates.NextWorkday(*calendar, blackoutStartDate.Add(time.Hour))
+	deliveryDate := dates.NextWorkday(*calendar, blackoutStartDate.Add(time.Hour*24*60))
 	market := testdatagen.DefaultMarket
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 
@@ -82,11 +84,12 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	market := testdatagen.DefaultMarket
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 
+	calendar := dates.NewUSCalendar()
 	blackoutStartDate := testdatagen.DateInsidePeakRateCycle
-	blackoutEndDate := blackoutStartDate.AddDate(0, 1, 0)
+	blackoutEndDate := dates.NextWorkday(*calendar, blackoutStartDate.AddDate(0, 1, 0))
 
-	blackoutPickupDate := blackoutStartDate.AddDate(0, 0, 1)
-	blackoutDeliverDate := blackoutStartDate.AddDate(0, 0, 5)
+	blackoutPickupDate := dates.NextWorkday(*calendar, blackoutStartDate.AddDate(0, 0, 1))
+	blackoutDeliverDate := dates.NextWorkday(*calendar, blackoutStartDate.AddDate(0, 0, 5))
 
 	blackoutShipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
@@ -99,8 +102,8 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 		},
 	})
 
-	pickupDate := blackoutEndDate.AddDate(0, 0, 1)
-	deliveryDate := blackoutEndDate.AddDate(0, 0, 2)
+	pickupDate := dates.NextWorkday(*calendar, blackoutEndDate.AddDate(0, 0, 2))
+	deliveryDate := dates.NextWorkday(*calendar, blackoutEndDate.AddDate(0, 0, 3))
 
 	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
@@ -176,14 +179,15 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	// Creates a TSP with a blackout date connected to both.
 	testTSP1 := testdatagen.MakeDefaultTSP(suite.DB())
 
+	calendar := dates.NewUSCalendar()
 	market := testdatagen.DefaultMarket
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
-	testStartDate := testdatagen.DateInsidePeakRateCycle
-	testEndDate := testStartDate.Add(time.Hour * 24 * 2)
+	testStartDate := dates.NextWorkday(*calendar, testdatagen.DateInsidePeakRateCycle)
+	testEndDate := dates.NextWorkday(*calendar, testStartDate.Add(time.Hour*24*2))
 
 	// Two pickup times to check with ShipmentWithinBlackoutDates
-	testPickupDateBetween := testStartDate.Add(time.Hour * 24)
-	testPickupDateAfter := testEndDate.Add(time.Hour * 24 * 5)
+	testPickupDateBetween := dates.NextWorkday(*calendar, testStartDate.Add(time.Hour*24))
+	testPickupDateAfter := dates.NextWorkday(*calendar, testEndDate.Add(time.Hour*24*5))
 
 	// Two shipments using these pickup dates to provide to ShipmentWithinBlackoutDates
 	testShipmentBetween := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
@@ -271,10 +275,11 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 	queue := NewAwardQueue(suite.DB(), suite.logger)
 
 	// Make a shipment
+	calendar := dates.NewUSCalendar()
 	market := testdatagen.DefaultMarket
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
-	pickupDate := testdatagen.DateInsidePeakRateCycle
-	deliveryDate := testdatagen.DateInsidePeakRateCycle
+	pickupDate := dates.NextWorkday(*calendar, testdatagen.DateInsidePeakRateCycle)
+	deliveryDate := pickupDate
 
 	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{

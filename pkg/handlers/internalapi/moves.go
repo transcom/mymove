@@ -6,10 +6,14 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/transcom/mymove/pkg/unit"
+
+	"github.com/transcom/mymove/pkg/rateengine"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
+	beeline "github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/assets"
@@ -238,9 +242,32 @@ type ShowShipmentSummaryWorksheetHandler struct {
 func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSummaryWorksheetParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
-	preparationDate := time.Time(params.PreparationDate)
+	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
 
-	page1Data, page2Data, err := models.FetchShipmentSummaryWorksheetFormValues(h.DB(), session, moveID, preparationDate)
+	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(h.DB(), session, moveID)
+	ssfd.PreparationDate = time.Time(params.PreparationDate)
+	var firstPPM models.PersonallyProcuredMove
+	if len(ssfd.PersonallyProcuredMoves) > 0 {
+		firstPPM = ssfd.PersonallyProcuredMoves[0]
+	}
+	if firstPPM.PickupPostalCode != nil &&
+		firstPPM.DestinationPostalCode != nil &&
+		firstPPM.PlannedMoveDate != nil {
+		cost, err := engine.ComputePPMIncludingLHDiscount(
+			unit.Pound(ssfd.TotalWeightAllotment),
+			*firstPPM.PickupPostalCode,
+			*firstPPM.DestinationPostalCode,
+			*firstPPM.PlannedMoveDate,
+			0, 0,
+		)
+		ssfd.GCC = cost.GCC
+		if err != nil {
+			h.Logger().Error("Error calculating PPM max obligations ", zap.Error(err))
+			return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
+		}
+	}
+
+	page1Data, page2Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
 
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)

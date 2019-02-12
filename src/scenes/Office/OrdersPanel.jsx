@@ -6,6 +6,7 @@ import { reduxForm, Field, FormSection, getFormValues } from 'redux-form';
 import { Link } from 'react-router-dom';
 
 import { loadEntitlements, updateOrdersInfo } from './ducks';
+import { selectOrdersForMove } from 'shared/Entities/modules/orders';
 import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMembers';
 import { formatDate } from 'shared/formatters';
 
@@ -129,9 +130,9 @@ OrdersPanel = reduxForm({
   keepDirtyOnReinitialize: true,
 })(OrdersPanel);
 
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
   let formValues = getFormValues(formName)(state);
-  const orders = get(state, 'office.officeOrders', {});
+  const orders = selectOrdersForMove(state, ownProps.moveId);
   const serviceMember = selectServiceMemberForOrders(state, orders.id);
 
   return {
@@ -141,7 +142,7 @@ function mapStateToProps(state) {
     ordersSchema: get(state, 'swaggerInternal.spec.definitions.Orders', {}),
     hasError: false,
     errorMessage: state.office.error,
-    entitlements: loadEntitlements(state),
+    entitlements: loadEntitlements(state, ownProps.moveId),
     isUpdating: false,
     orders,
     serviceMember,

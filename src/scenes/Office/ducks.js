@@ -1,34 +1,20 @@
 import { isNull, get } from 'lodash';
-import {
-  LoadMove,
-  LoadOrders,
-  LoadPPMs,
-  ApproveReimbursement,
-  DownloadPPMAttachments,
-  PatchShipment,
-  SendHHGInvoice,
-} from './api.js';
-
-import { UpdatePpm } from 'scenes/Moves/Ppm/api.js';
-import { UpdateOrders } from 'scenes/Orders/api.js';
+import { LoadMove, DownloadPPMAttachments, PatchShipment, SendHHGInvoice } from './api.js';
 import { getEntitlements } from 'shared/entitlements.js';
+import { loadPPMs } from 'shared/Entities/modules/ppms';
 import {
   loadServiceMember,
   updateServiceMember,
   loadBackupContacts,
   updateBackupContact,
 } from 'shared/Entities/modules/serviceMembers';
+import { loadOrders, updateOrders, selectOrdersForMove } from 'shared/Entities/modules/orders';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // SINGLE RESOURCE ACTION TYPES
 const loadMoveType = 'LOAD_MOVE';
-const loadOrdersType = 'LOAD_ORDERS';
-const updateOrdersType = 'UPDATE_ORDERS';
 const patchShipmentType = 'PATCH_SHIPMENT';
-const loadPPMsType = 'LOAD_PPMS';
-const updatePPMType = 'UPDATE_PPM';
 const sendHHGInvoiceType = 'SEND_HHG_INVOICE';
-const approveReimbursementType = 'APPROVE_REIMBURSEMENT';
 const downloadPPMAttachmentsType = 'DOWNLOAD_ATTACHMENTS';
 const REMOVE_BANNER = 'REMOVE_BANNER';
 const SHOW_BANNER = 'SHOW_BANNER';
@@ -57,19 +43,9 @@ export const resetInvoiceFlow = () => ({
 
 const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
 
-const LOAD_ORDERS = ReduxHelpers.generateAsyncActionTypes(loadOrdersType);
-
-const UPDATE_ORDERS = ReduxHelpers.generateAsyncActionTypes(updateOrdersType);
-
 const PATCH_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(patchShipmentType);
 
-const LOAD_PPMS = ReduxHelpers.generateAsyncActionTypes(loadPPMsType);
-
-const UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes(updatePPMType);
-
 const SEND_HHG_INVOICE = ReduxHelpers.generateAsyncActionTypes(sendHHGInvoiceType);
-
-export const APPROVE_REIMBURSEMENT = ReduxHelpers.generateAsyncActionTypes(approveReimbursementType);
 
 export const DOWNLOAD_ATTACHMENTS = ReduxHelpers.generateAsyncActionTypes(downloadPPMAttachmentsType);
 
@@ -85,22 +61,9 @@ const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(loadDependencies
 
 export const loadMove = ReduxHelpers.generateAsyncActionCreator(loadMoveType, LoadMove);
 
-export const loadOrders = ReduxHelpers.generateAsyncActionCreator(loadOrdersType, LoadOrders);
-
-export const updateOrders = ReduxHelpers.generateAsyncActionCreator(updateOrdersType, UpdateOrders);
-
 export const patchShipment = ReduxHelpers.generateAsyncActionCreator(patchShipmentType, PatchShipment);
 
-export const loadPPMs = ReduxHelpers.generateAsyncActionCreator(loadPPMsType, LoadPPMs);
-
-export const updatePPM = ReduxHelpers.generateAsyncActionCreator(updatePPMType, UpdatePpm);
-
 export const sendHHGInvoice = ReduxHelpers.generateAsyncActionCreator(sendHHGInvoiceType, SendHHGInvoice);
-
-export const approveReimbursement = ReduxHelpers.generateAsyncActionCreator(
-  approveReimbursementType,
-  ApproveReimbursement,
-);
 
 export const downloadPPMAttachments = ReduxHelpers.generateAsyncActionCreator(
   downloadPPMAttachmentsType,
@@ -168,9 +131,9 @@ export function loadMoveDependencies(moveId) {
     try {
       await dispatch(loadMove(moveId));
       const move = getState().office.officeMove;
-      await dispatch(loadOrders(move.orders_id));
-      const orders = getState().office.officeOrders;
-      const serviceMemberId = orders.service_member_id;
+      const ordersId = move.orders_id;
+      await dispatch(loadOrders(ordersId));
+      const serviceMemberId = get(getState(), `entities.orders.${ordersId}.service_member_id`);
       await dispatch(loadServiceMember(serviceMemberId));
       await dispatch(loadBackupContacts(serviceMemberId));
       // TODO: load PPMs in parallel to move using moveId
@@ -183,9 +146,10 @@ export function loadMoveDependencies(moveId) {
 }
 
 // Selectors
-export function loadEntitlements(state) {
-  const hasDependents = get(state, 'office.officeOrders.has_dependents', null);
-  const spouseHasProGear = get(state, 'office.officeOrders.spouse_has_pro_gear', null);
+export function loadEntitlements(state, moveId) {
+  const orders = selectOrdersForMove(state, moveId);
+  const hasDependents = orders.has_dependents;
+  const spouseHasProGear = orders.spouse_has_pro_gear;
   const rank = get(state, 'office.officeServiceMember.rank', null);
   if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
     return null;
@@ -196,15 +160,12 @@ export function loadEntitlements(state) {
 // Reducer
 const initialState = {
   moveIsLoading: false,
-  ordersAreLoading: false,
   ordersAreUpdating: false,
   ppmsAreLoading: false,
   ppmIsUpdating: false,
   moveHasLoadError: null,
   moveHasLoadSuccess: false,
   officeMove: {},
-  ordersHaveLoadError: null,
-  ordersHaveLoadSuccess: false,
   ordersHaveUploadError: null,
   ordersHaveUploadSuccess: false,
   downloadAttachmentsHasError: null,
@@ -246,47 +207,6 @@ export function officeReducer(state = initialState, action) {
         officeShipment: null,
         moveHasLoadSuccess: false,
         moveHasLoadError: true,
-        error: action.error.message,
-      });
-
-    // ORDERS
-    case LOAD_ORDERS.start:
-      return Object.assign({}, state, {
-        ordersAreLoading: true,
-        ordersHaveLoadSuccess: false,
-      });
-    case LOAD_ORDERS.success:
-      return Object.assign({}, state, {
-        ordersAreLoading: false,
-        officeOrders: action.payload,
-        ordersHaveLoadSuccess: true,
-        ordersHaveLoadError: false,
-      });
-    case LOAD_ORDERS.failure:
-      return Object.assign({}, state, {
-        ordersAreLoading: false,
-        officeOrders: null,
-        ordersHaveLoadSuccess: false,
-        ordersHaveLoadError: true,
-        error: action.error.message,
-      });
-    case UPDATE_ORDERS.start:
-      return Object.assign({}, state, {
-        ordersAreUpdating: true,
-        ordersHaveUpdateSuccess: false,
-      });
-    case UPDATE_ORDERS.success:
-      return Object.assign({}, state, {
-        ordersAreUpdating: false,
-        officeOrders: action.payload,
-        ordersHaveUpdateSuccess: true,
-        ordersHaveUpdateError: false,
-      });
-    case UPDATE_ORDERS.failure:
-      return Object.assign({}, state, {
-        ordersAreUpdating: false,
-        ordersHaveUpdateSuccess: false,
-        ordersHaveUpdateError: true,
         error: action.error.message,
       });
 
@@ -346,48 +266,6 @@ export function officeReducer(state = initialState, action) {
         hhgInvoiceHasFailure: false,
       });
 
-    // PPMs
-    case LOAD_PPMS.start:
-      return Object.assign({}, state, {
-        PPMsAreLoading: true,
-        PPMsHaveLoadSuccess: false,
-      });
-    case LOAD_PPMS.success:
-      return Object.assign({}, state, {
-        PPMsAreLoading: false,
-        officePPMs: action.payload,
-        PPMsHaveLoadSuccess: true,
-        PPMsHaveLoadError: false,
-      });
-    case LOAD_PPMS.failure:
-      return Object.assign({}, state, {
-        PPMsAreLoading: false,
-        officePPMs: null,
-        PPMsHaveLoadSuccess: false,
-        PPMsHaveLoadError: true,
-        error: action.error.message,
-      });
-    case UPDATE_PPM.start:
-      return Object.assign({}, state, {
-        PPMIsUpdating: true,
-        PPMHasUpdateSuccess: false,
-      });
-    case UPDATE_PPM.success:
-      return Object.assign({}, state, {
-        PPMIsUpdating: false,
-        officePPMs: [action.payload],
-        PPMHasUpdateSuccess: true,
-        PPMHasUpdateError: false,
-      });
-    case UPDATE_PPM.failure:
-      return Object.assign({}, state, {
-        PPMIsUpdating: false,
-        officePPMs: null,
-        PPMHasUpdateSuccess: false,
-        PPMHasUpdateError: true,
-        error: action.error.message,
-      });
-
     case SHOW_BANNER:
       return Object.assign({}, state, {
         flashMessage: true,
@@ -395,27 +273,6 @@ export function officeReducer(state = initialState, action) {
     case REMOVE_BANNER:
       return Object.assign({}, state, {
         flashMessage: false,
-      });
-
-    // REIMBURSEMENT STATUS
-    case APPROVE_REIMBURSEMENT.start:
-      return Object.assign({}, state, {
-        reimbursementIsApproving: true,
-      });
-    case APPROVE_REIMBURSEMENT.success:
-      // TODO: Remove once we have multiple ppms
-      let officePPM = get(state, 'officePPMs[0]');
-      let newPPM = Object.assign({}, officePPM, {
-        advance: action.payload,
-      });
-      return Object.assign({}, state, {
-        reimbursementIsApproving: false,
-        officePPMs: [newPPM],
-      });
-    case APPROVE_REIMBURSEMENT.failure:
-      return Object.assign({}, state, {
-        reimbursementIsApproving: false,
-        error: action.error.message,
       });
 
     // MULTIPLE-RESOURCE ACTION TYPES

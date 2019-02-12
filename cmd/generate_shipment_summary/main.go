@@ -7,6 +7,12 @@ import (
 	"os"
 	"time"
 
+	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/unit"
+
+	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/route"
+
 	"github.com/transcom/mymove/pkg/auth"
 
 	"github.com/gobuffalo/pop"
@@ -54,7 +60,41 @@ func main() {
 		formFiller.Debug()
 	}
 
-	page1Data, page2Data, err := models.FetchShipmentSummaryWorksheetFormValues(db, &auth.Session{}, parsedID, time.Now())
+	logger, err := logging.Config(*env, true)
+	if err != nil {
+		log.Fatalf("Failed to initialize Zap logging due to %v", err)
+	}
+	geocodeEndpoint := os.Getenv("HERE_MAPS_GEOCODE_ENDPOINT")
+	routingEndpoint := os.Getenv("HERE_MAPS_ROUTING_ENDPOINT")
+	testAppID := os.Getenv("HERE_MAPS_APP_ID")
+	testAppCode := os.Getenv("HERE_MAPS_APP_CODE")
+	planner := route.NewHEREPlanner(logger, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
+	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(db, &auth.Session{}, parsedID)
+	if err != nil {
+		log.Fatalf("Error fetching worksheet data %v", err)
+	}
+	engine := rateengine.NewRateEngine(db, logger, planner)
+	var firstPPM models.PersonallyProcuredMove
+	if len(ssfd.PersonallyProcuredMoves) > 0 {
+		firstPPM = ssfd.PersonallyProcuredMoves[0]
+	}
+	if firstPPM.PickupPostalCode != nil &&
+		firstPPM.DestinationPostalCode != nil &&
+		firstPPM.PlannedMoveDate != nil {
+		cost, err := engine.ComputePPMIncludingLHDiscount(
+			unit.Pound(ssfd.TotalWeightAllotment),
+			*firstPPM.PickupPostalCode,
+			*firstPPM.DestinationPostalCode,
+			*firstPPM.PlannedMoveDate,
+			0, 0,
+		)
+		ssfd.GCC = cost.GCC
+		if err != nil {
+			log.Fatalf("Error calculating PPM max obligations %v", err)
+		}
+	}
+
+	page1Data, page2Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
 	noErr(err)
 
 	// page 1
