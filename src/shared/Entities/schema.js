@@ -9,10 +9,14 @@ export const upload = new schema.Entity('uploads');
 export const uploads = new schema.Array(upload);
 
 // PPMs
+export const reimbursement = new schema.Entity('reimbursements');
 export const personallyProcuredMove = new schema.Entity('personallyProcuredMoves');
+personallyProcuredMove.define({
+  advance: reimbursement,
+});
+
 export const personallyProcuredMoves = new schema.Array(personallyProcuredMove);
 export const indexPersonallyProcuredMove = personallyProcuredMoves;
-export const reimbursement = new schema.Entity('reimbursements');
 
 // Addresses
 export const address = new schema.Entity('addresses');
@@ -33,9 +37,6 @@ export const move = new schema.Entity('moves', {
   shipments: shipments,
 });
 export const moves = new schema.Array(move);
-personallyProcuredMove.define({
-  move: move,
-});
 
 // Orders
 export const orders = new schema.Entity('orders');
