@@ -105,7 +105,7 @@ function mapStateToProps(state, ownProps) {
     errorMessage: get(state, 'office.error'),
     PPMEstimate: PPMEstimate,
     isUpdating: false,
-    entitlement: loadEntitlements(state),
+    entitlement: loadEntitlements(state, ownProps.moveId),
 
     // editablePanelify
     getUpdateArgs: function() {
