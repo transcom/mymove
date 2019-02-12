@@ -43,7 +43,7 @@ const OrdersDisplay = props => {
       <div className="editable-panel-column">
         {props.orders.orders_number ? (
           <PanelField title="Orders Number" className="orders_number">
-            <Link to={`/moves/${props.move.id}/orders`} target="_blank">
+            <Link to={`/moves/${props.moveId}/orders`} target="_blank">
               <SwaggerValue fieldName="orders_number" {...fieldProps} />
               &nbsp;
               <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
@@ -52,7 +52,7 @@ const OrdersDisplay = props => {
         ) : (
           <PanelField title="Orders Number" className="missing orders_number">
             missing
-            <Link to={`/moves/${props.move.id}/orders`} target="_blank">
+            <Link to={`/moves/${props.moveId}/orders`} target="_blank">
               <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
             </Link>
           </PanelField>
@@ -132,7 +132,8 @@ OrdersPanel = reduxForm({
 
 function mapStateToProps(state, ownProps) {
   let formValues = getFormValues(formName)(state);
-  const orders = selectOrdersForMove(state, ownProps.moveId);
+  const { moveId } = ownProps;
+  const orders = selectOrdersForMove(state, moveId);
   const serviceMember = selectServiceMemberForOrders(state, orders.id);
 
   return {
@@ -142,11 +143,11 @@ function mapStateToProps(state, ownProps) {
     ordersSchema: get(state, 'swaggerInternal.spec.definitions.Orders', {}),
     hasError: false,
     errorMessage: state.office.error,
-    entitlements: calculateEntitlementsForMove(state, ownProps.moveId),
+    entitlements: calculateEntitlementsForMove(state, moveId),
     isUpdating: false,
     orders,
     serviceMember,
-    move: get(state, 'office.officeMove', {}),
+    moveId,
     // editablePanelify
     getUpdateArgs: () => [orders.id, formValues.orders, serviceMember.id, formValues.serviceMember],
   };
