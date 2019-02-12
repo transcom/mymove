@@ -48,7 +48,7 @@ describe('MoveSummary', () => {
       const moveObj = { selected_move_type: 'PPM', status: 'CANCELED' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
-        planned_move_date: futureFortNight,
+        original_move_date: futureFortNight,
         weight_estimate: '10000',
         estimated_incentive: '$24665.59 - 27261.97',
         status: 'CANCELED',
@@ -79,7 +79,7 @@ describe('MoveSummary', () => {
       const moveObj = { selected_move_type: 'PPM', status: 'SUBMITTED' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
-        planned_move_date: futureFortNight,
+        original_move_date: futureFortNight,
         weight_estimate: '10000',
         estimated_incentive: '$24665.59 - 27261.97',
       };
@@ -111,7 +111,7 @@ describe('MoveSummary', () => {
       const moveObj = { selected_move_type: 'PPM', status: 'APPROVED' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
-        planned_move_date: futureFortNight,
+        original_move_date: futureFortNight,
         weight_estimate: '10000',
         estimated_incentive: '$24665.59 - 27261.97',
         status: 'SUBMITTED',
@@ -144,7 +144,7 @@ describe('MoveSummary', () => {
       const moveObj = { status: 'APPROVED' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
-        planned_move_date: futureFortNight,
+        original_move_date: futureFortNight,
         weight_estimate: '10000',
         estimated_incentive: '$24665.59 - 27261.97',
         status: 'APPROVED',
@@ -176,7 +176,7 @@ describe('MoveSummary', () => {
       const moveObj = { status: 'APPROVED' };
       const pastFortNight = moment().subtract(14, 'day');
       const ppmObj = {
-        planned_move_date: pastFortNight,
+        original_move_date: pastFortNight,
         weight_estimate: '10000',
         estimated_incentive: '$24665.59 - 27261.97',
       };
@@ -240,7 +240,7 @@ describe('MoveSummary', () => {
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {};
       const hhgObj = {
-        planned_move_date: futureFortNight,
+        original_move_date: futureFortNight,
         weight_estimate: '10000',
         status: 'SUBMITTED',
       };

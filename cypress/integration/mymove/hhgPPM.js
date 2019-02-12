@@ -157,7 +157,7 @@ function serviceMemberVerifiesPPMDatesAndLocationsEdited() {
 function serviceMemberEditsPPMDatesAndLocations() {
   cy.get('[data-cy="edit-ppm-dates"]').click();
 
-  typeInInput({ name: 'planned_move_date', value: '5/28/2018' });
+  typeInInput({ name: 'original_move_date', value: '5/28/2018' });
   typeInInput({ name: 'pickup_postal_code', value: '91206' });
   typeInInput({ name: 'destination_postal_code', value: '30813' });
 

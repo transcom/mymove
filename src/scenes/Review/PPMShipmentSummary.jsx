@@ -43,7 +43,7 @@ function PPMShipmentSummary(props) {
           <tbody>
             <tr>
               <td> Move Date: </td>
-              <td>{formatDateSM(get(ppm, 'planned_move_date'))}</td>
+              <td>{formatDateSM(get(ppm, 'original_move_date'))}</td>
             </tr>
             <tr>
               <td> Pickup ZIP Code: </td>

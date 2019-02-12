@@ -243,7 +243,7 @@ class MoveInfo extends Component {
     const hhgCompleted = shipmentStatus === 'COMPLETED';
     const moveApproved = moveStatus === 'APPROVED';
 
-    const moveDate = isPPM ? ppm.planned_move_date : shipment && shipment.requested_pickup_date;
+    const moveDate = isPPM ? ppm.original_move_date : shipment && shipment.requested_pickup_date;
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
     }

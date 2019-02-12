@@ -23,7 +23,7 @@ func MakePPM(db *pop.Connection, assertions Assertions) models.PersonallyProcure
 		MoveID:                        move.ID,
 		Size:                          &shirt,
 		WeightEstimate:                models.Int64Pointer(8000),
-		PlannedMoveDate:               models.TimePointer(DateInsidePeakRateCycle),
+		OriginalMoveDate:              models.TimePointer(DateInsidePeakRateCycle),
 		PickupPostalCode:              models.StringPointer("72017"),
 		HasAdditionalPostalCode:       models.BoolPointer(false),
 		AdditionalPickupPostalCode:    nil,
