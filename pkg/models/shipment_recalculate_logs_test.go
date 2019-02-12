@@ -9,17 +9,17 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (suite *ModelSuite) TestTariff400ngRecalculateLog() {
+func (suite *ModelSuite) TestShipmentRecalculateLog() {
 
 	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{})
 	shipmentID := shipment.ID
 
 	testCases := map[string]struct {
-		recalculateLog models.Tariff400ngRecalculateLog
+		recalculateLog models.ShipmentRecalculateLog
 		expectedErrs   map[string][]string
 	}{
 		"Successful Create": {
-			recalculateLog: models.Tariff400ngRecalculateLog{
+			recalculateLog: models.ShipmentRecalculateLog{
 				ID:         uuid.Must(uuid.NewV4()),
 				ShipmentID: shipmentID,
 				Shipment:   shipment,
@@ -28,7 +28,7 @@ func (suite *ModelSuite) TestTariff400ngRecalculateLog() {
 		},
 
 		"Empty Fields": {
-			recalculateLog: models.Tariff400ngRecalculateLog{},
+			recalculateLog: models.ShipmentRecalculateLog{},
 			expectedErrs:   map[string][]string{},
 		},
 	}

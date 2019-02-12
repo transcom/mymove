@@ -29,7 +29,7 @@ type ProcessRecalculateShipment struct {
 
 /*
 	Recalculate a shipment's line items is temporary functionality that will be used when it has been
-    determined there is some shipment that requires recalcluation. A shipment does not contain line items
+    determined there is some shipment that requires recalculuation. A shipment does not contain line items
     until it has reached the DELIVERED state.
 
     Some of the reasons a recalculation can happen are:
@@ -37,9 +37,9 @@ type ProcessRecalculateShipment struct {
       - line items that have been priced incorrectly (this is detected by saying that a line item could have been
         priced erroneously if priced in this specified date range)
 
-    The database table tariff400ng_recalculate contains the date range for shipments that need to be assessed.
+    The database table shipment_recalculate contains the date range for shipments that need to be assessed.
 
-    The database table tariff400ng_recalculate_log contains a record entry for each shipment that was recalculated.
+    The database table shipment_recalculate_log contains a record entry for each shipment that was recalculated.
 
     Currently to recalculate a shipment we are looking for the following:
       - Shipment is in DELIVERED or COMPLETED state
@@ -56,7 +56,7 @@ type ProcessRecalculateShipment struct {
 func (r ProcessRecalculateShipment) Call(shipment *models.Shipment, lineItems models.ShipmentLineItems, planner route.Planner) (bool, error) {
 
 	// If there is an active recalculate date range then continue
-	recalculateDates, err := models.FetchTariff400ngRecalculateDates(r.DB)
+	recalculateDates, err := models.FetchShipmentRecalculateDates(r.DB)
 	if recalculateDates == nil || err != nil {
 		return false, nil
 	}
@@ -109,7 +109,7 @@ func (r ProcessRecalculateShipment) hasAllBaseLineItems(lineItems models.Shipmen
 	return true
 }
 
-func (r ProcessRecalculateShipment) shipmentLineItemsUpdatedInDateRange(lineItems models.ShipmentLineItems, recalculateDates *models.Tariff400ngRecalculate) bool {
+func (r ProcessRecalculateShipment) shipmentLineItemsUpdatedInDateRange(lineItems models.ShipmentLineItems, recalculateDates *models.ShipmentRecalculate) bool {
 	for _, item := range lineItems {
 		if r.updatedInDateRange(item.UpdatedAt, recalculateDates) {
 			return true
@@ -118,7 +118,7 @@ func (r ProcessRecalculateShipment) shipmentLineItemsUpdatedInDateRange(lineItem
 	return false
 }
 
-func (r ProcessRecalculateShipment) updatedInDateRange(update time.Time, recalculateDates *models.Tariff400ngRecalculate) bool {
+func (r ProcessRecalculateShipment) updatedInDateRange(update time.Time, recalculateDates *models.ShipmentRecalculate) bool {
 	if update.After(recalculateDates.ShipmentUpdatedAfter) && update.Before(recalculateDates.ShipmentUpdatedBefore) {
 		return true
 	}

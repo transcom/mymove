@@ -113,7 +113,7 @@ func (suite *HandlerSuite) TestGetShipmentLineItemRecalculateHandler() {
 	}
 
 	// Create date range
-	recalculateRange := models.Tariff400ngRecalculate{
+	recalculateRange := models.ShipmentRecalculate{
 		ShipmentUpdatedAfter:  time.Date(1970, time.January, 01, 0, 0, 0, 0, time.UTC),
 		ShipmentUpdatedBefore: time.Now(),
 		Active:                true,

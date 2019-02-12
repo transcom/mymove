@@ -65,8 +65,8 @@ func (c PriceShipment) Call(shipment *models.Shipment, price Price) (*validate.E
 	}
 
 	if price == ShipmentPriceRECALCULATE {
-		log := models.Tariff400ngRecalculateLog{ShipmentID: shipment.ID}
-		log.SaveTariff400ngRecalculateLog(c.DB)
+		log := models.ShipmentRecalculateLog{ShipmentID: shipment.ID}
+		log.SaveShipmentRecalculateLog(c.DB)
 	}
 
 	return validate.NewErrors(), nil

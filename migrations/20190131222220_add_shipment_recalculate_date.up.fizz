@@ -1,4 +1,4 @@
-sql("UPDATE public.tariff400ng_recalculates SET active=false");
+sql("UPDATE public.shipment_recalculates SET active=false");
 
-sql("INSERT INTO public.tariff400ng_recalculates (id, created_at, updated_at, shipment_updated_before, shipment_updated_after, active)
+sql("INSERT INTO public.shipment_recalculates (id, created_at, updated_at, shipment_updated_before, shipment_updated_after, active)
      VALUES (uuid_generate_v4(), now(), now(), now(), '1970-01-01', true)");

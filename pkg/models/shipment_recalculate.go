@@ -10,9 +10,9 @@ import (
 	"time"
 )
 
-// Tariff400ngRecalculate model/struct is a record of the date range to use to determine if a Shipment is a candidate
+// ShipmentRecalculate model/struct is a record of the date range to use to determine if a Shipment is a candidate
 // to be re-calculated.
-type Tariff400ngRecalculate struct {
+type ShipmentRecalculate struct {
 	ID                    uuid.UUID `json:"id" db:"id"`
 	CreatedAt             time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt             time.Time `json:"updated_at" db:"updated_at"`
@@ -22,23 +22,23 @@ type Tariff400ngRecalculate struct {
 }
 
 // String is not required by pop and may be deleted
-func (t Tariff400ngRecalculate) String() string {
+func (t ShipmentRecalculate) String() string {
 	jt, _ := json.Marshal(t)
 	return string(jt)
 }
 
-// Tariff400ngRecalculates is not required by pop and may be deleted
-type Tariff400ngRecalculates []Tariff400ngRecalculate
+// ShipmentRecalculates is not required by pop and may be deleted
+type ShipmentRecalculates []ShipmentRecalculate
 
 // String is not required by pop and may be deleted
-func (t Tariff400ngRecalculates) String() string {
+func (t ShipmentRecalculates) String() string {
 	jt, _ := json.Marshal(t)
 	return string(jt)
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
-func (t *Tariff400ngRecalculate) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (t *ShipmentRecalculate) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.TimeIsPresent{Field: t.ShipmentUpdatedBefore, Name: "ShipmentUpdatedBefore"},
 		&validators.TimeIsPresent{Field: t.ShipmentUpdatedAfter, Name: "ShipmentUpdatedAfter"},
@@ -50,20 +50,20 @@ func (t *Tariff400ngRecalculate) Validate(tx *pop.Connection) (*validate.Errors,
 
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
 // This method is not required and may be deleted.
-func (t *Tariff400ngRecalculate) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
+func (t *ShipmentRecalculate) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
 // ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
 // This method is not required and may be deleted.
-func (t *Tariff400ngRecalculate) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
+func (t *ShipmentRecalculate) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
-// FetchTariff400ngRecalculateDates returns the active recalculation date range
-func FetchTariff400ngRecalculateDates(db *pop.Connection) (*Tariff400ngRecalculate, error) {
-	type Tariff400ngRecalculateRecords []Tariff400ngRecalculate
-	var recalculate Tariff400ngRecalculateRecords
+// FetchShipmentRecalculateDates returns the active recalculation date range
+func FetchShipmentRecalculateDates(db *pop.Connection) (*ShipmentRecalculate, error) {
+	type ShipmentRecalculateRecords []ShipmentRecalculate
+	var recalculate ShipmentRecalculateRecords
 	if err := db.Where("active = true").All(&recalculate); err != nil {
 		return nil, errors.Wrap(err, "could not find re-calculate dates")
 	}

@@ -77,7 +77,7 @@ func (suite *ProcessRecalculateShipmentSuite) TestProcessRecalculateShipmentCall
 	// TEST: No date range records (return false)
 	//
 
-	dates, err := models.FetchTariff400ngRecalculateDates(suite.DB())
+	dates, err := models.FetchShipmentRecalculateDates(suite.DB())
 	suite.Empty(dates)
 
 	update, err := ProcessRecalculateShipment{
@@ -90,14 +90,14 @@ func (suite *ProcessRecalculateShipmentSuite) TestProcessRecalculateShipmentCall
 
 	id, err := uuid.NewV4()
 	// Create date range
-	recalculateRange := models.Tariff400ngRecalculate{
+	recalculateRange := models.ShipmentRecalculate{
 		ID:                    id,
 		ShipmentUpdatedAfter:  time.Date(1970, time.January, 01, 0, 0, 0, 0, time.UTC),
 		ShipmentUpdatedBefore: time.Now(),
 		Active:                true,
 	}
 	suite.MustCreate(suite.DB(), &recalculateRange)
-	fetchRecalculateRange, err := models.FetchTariff400ngRecalculateDates(suite.DB())
+	fetchRecalculateRange, err := models.FetchShipmentRecalculateDates(suite.DB())
 	recalculateRange = *fetchRecalculateRange
 	suite.Nil(err)
 
@@ -172,7 +172,7 @@ func (suite *ProcessRecalculateShipmentSuite) TestProcessRecalculateShipmentCall
 	recalculateRange.ShipmentUpdatedBefore = time.Now().AddDate(0, -1, 0)
 	suite.MustSave(&recalculateRange)
 
-	fetchRecalculateRange, err = models.FetchTariff400ngRecalculateDates(suite.DB())
+	fetchRecalculateRange, err = models.FetchShipmentRecalculateDates(suite.DB())
 	suite.Nil(err)
 	suite.NotNil(fetchRecalculateRange)
 
