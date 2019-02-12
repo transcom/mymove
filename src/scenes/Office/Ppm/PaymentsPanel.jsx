@@ -8,7 +8,9 @@ import {
   approveReimbursement,
   selectPPMForMove,
   downloadPPMAttachments,
+  downloadPPMAttachmentsLabel,
 } from 'shared/Entities/modules/ppms';
+import { getLastError } from 'shared/Swagger/selectors';
 
 import { no_op } from 'shared/utils';
 import { formatCents, formatDate } from 'shared/formatters';
@@ -252,9 +254,7 @@ const mapStateToProps = state => {
     ppm,
     move,
     advance: selectReimbursement(state, advance.id) || advance,
-    hasError: false,
-    errorMessage: state.office.error,
-    attachmentsError: get(state, 'office.downloadAttachmentsHasError'),
+    attachmentsError: getLastError(state, downloadPPMAttachmentsLabel),
   };
 };
 

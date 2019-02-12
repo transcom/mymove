@@ -3,7 +3,7 @@ import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
 
 const approvePpmLabel = 'PPMs.approvePPM';
-const downloadPPMAttachmentsLabel = 'PPMs.downloadAttachments';
+export const downloadPPMAttachmentsLabel = 'PPMs.downloadAttachments';
 
 export function approvePPM(personallyProcuredMoveId) {
   const label = approvePpmLabel;
