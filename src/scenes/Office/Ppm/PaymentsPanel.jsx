@@ -243,11 +243,11 @@ class PaymentsTable extends Component {
 const mapStateToProps = state => {
   const move = get(state, 'office.officeMove', {});
   const ppm = selectPPMForMove(state, move.id);
-
+  const advance = get(ppm, 'advance', {});
   return {
     ppm,
     move,
-    advance: selectReimbursement(state, ppm.advance.id) || ppm.advance,
+    advance: selectReimbursement(state, advance.id) || advance,
     hasError: false,
     errorMessage: state.office.error,
     attachmentsError: get(state, 'office.downloadAttachmentsHasError'),
