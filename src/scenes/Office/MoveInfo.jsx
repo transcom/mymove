@@ -95,13 +95,20 @@ const PPMTabContent = props => {
 
 const HHGTabContent = props => {
   let shipmentStatus = '';
-  const { shipment, updatePublicShipment } = props;
+  const {
+    allowHhgInvoicePayment,
+    canApprovePaymentInvoice,
+    moveId,
+    serviceAgents,
+    shipment,
+    updatePublicShipment,
+  } = props;
   if (shipment) {
     shipmentStatus = shipment.status;
   }
   return (
     <div className="office-tab">
-      <RoutingPanel title="Routing" moveId={props.moveId} />
+      <RoutingPanel title="Routing" moveId={moveId} />
       <Dates title="Dates" shipment={shipment} update={updatePublicShipment} />
       <LocationsContainer update={updatePublicShipment} shipmentId={shipment.id} />
       <Weights title="Weights & Items" shipment={shipment} update={updatePublicShipment} />
@@ -109,15 +116,15 @@ const HHGTabContent = props => {
       <ServiceAgentsContainer
         title="TSP & Servicing Agents"
         shipment={shipment}
-        serviceAgents={props.serviceAgents}
+        serviceAgents={serviceAgents}
         transportationServiceProviderId={shipment.transportation_service_provider_id}
       />
       <PreApprovalPanel shipmentId={shipment.id} />
       <InvoicePanel
         shipmentId={shipment.id}
         shipmentStatus={shipmentStatus}
-        canApprove={props.canApprovePaymentInvoice}
-        allowPayments={props.allowHhgInvoicePayment}
+        canApprove={canApprovePaymentInvoice}
+        allowPayments={allowHhgInvoicePayment}
       />
     </div>
   );
@@ -325,15 +332,13 @@ class MoveInfo extends Component {
                 <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   {this.props.shipment && (
                     <HHGTabContent
-                      updatePublicShipment={this.props.updatePublicShipment}
+                      allowHhgInvoicePayment={allowHhgInvoicePayment}
+                      canApprovePaymentInvoice={hhgDelivered}
                       moveId={this.props.moveId}
-                      ppmStatus={ppm.status}
+                      serviceAgents={this.props.serviceAgents}
                       shipment={this.props.shipment}
                       shipmentStatus={this.props.shipmentStatus}
-                      serviceAgents={this.props.serviceAgents}
-                      canApprovePaymentInvoice={hhgDelivered}
-                      officeMove={this.props.officeMove}
-                      allowHhgInvoicePayment={allowHhgInvoicePayment}
+                      updatePublicShipment={this.props.updatePublicShipment}
                     />
                   )}
                 </PrivateRoute>
