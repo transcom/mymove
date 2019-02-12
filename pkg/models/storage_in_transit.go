@@ -99,3 +99,37 @@ func (s *StorageInTransit) Validate(tx *pop.Connection) (*validate.Errors, error
 		&StringIsNilOrNotBlank{Field: s.WarehouseEmail, Name: "WarehouseEmail"},
 	), nil
 }
+
+// FetchStorageInTransitsOnShipment retrieves Storage In Transit objects using the shipment ID
+func FetchStorageInTransitsOnShipment(tx *pop.Connection, shipmentID uuid.UUID) (StorageInTransits, error) {
+	storageInTransits := StorageInTransits{}
+
+	err := tx.Where("shipments.id = $1", shipmentID).
+		LeftJoin("addresses", "storage_in_transits.warehouse_address_id=addresses.id").
+		All(&storageInTransits)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(storageInTransits) == 0 {
+		return nil, ErrFetchNotFound
+	}
+
+	return storageInTransits, nil
+
+}
+
+// FetchStorageInTransitsByID retrieves a single Storage In Transit object based on its own ID
+func FetchStorageInTransitsByID(tx *pop.Connection, storageInTransitID uuid.UUID) (StorageInTransit, error) {
+	var storageInTransit StorageInTransit
+	err := tx.Where("id = $1", storageInTransitID).
+		LeftJoin("addresses", "storage_in_transits.warehouse_address_id=address.id").First(&storageInTransit)
+
+	if err != nil {
+		return StorageInTransit{}, err
+	}
+
+	return storageInTransit, nil
+
+}

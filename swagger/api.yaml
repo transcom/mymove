@@ -2773,8 +2773,10 @@ paths:
           schema:
             $ref: '#/definitions/StorageInTransit'
       responses:
-        200:
-          description: returns a Storage In Transit with UUID
+        201:
+          description: successfully created Storage In Transit
+          schema:
+            $ref: '#/definitions/StorageInTransit'
         400:
           description: invalid request
         401:
