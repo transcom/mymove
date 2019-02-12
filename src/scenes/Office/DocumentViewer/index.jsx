@@ -4,13 +4,13 @@ import { connect } from 'react-redux';
 import { includes, get } from 'lodash';
 import qs from 'query-string';
 
-import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
+import { selectMove } from 'shared/Entities/modules/moves';
 import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import { PanelField } from 'shared/EditablePanel';
 import { loadMoveDependencies } from '../ducks.js';
-import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMembers';
+import { selectServiceMemberForMove } from 'shared/Entities/modules/serviceMembers';
 import { selectOrdersForMove } from 'shared/Entities/modules/orders';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import PrivateRoute from 'shared/User/PrivateRoute';
@@ -21,7 +21,11 @@ import DocumentList from 'shared/DocumentViewer/DocumentList';
 import { selectPPMForMove } from 'shared/Entities/modules/ppms';
 
 import DocumentUploader from 'shared/DocumentViewer/DocumentUploader';
-import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import {
+  selectAllDocumentsForMove,
+  getMoveDocumentsForMove,
+  createMoveDocument,
+} from 'shared/Entities/modules/moveDocuments';
 import { stringifyName } from 'shared/utils/serviceMember';
 import { convertDollarsToCents } from 'shared/utils';
 
@@ -73,10 +77,7 @@ class DocumentViewer extends Component {
   }
 
   handleSubmit = (uploadIds, formValues) => {
-    const {
-      currentPpm,
-      move: { id: moveId },
-    } = this.props;
+    const { currentPpm, moveId } = this.props;
     const {
       title,
       moving_expense_type: movingExpenseType,
@@ -109,19 +110,18 @@ class DocumentViewer extends Component {
     });
   };
   render() {
-    const { serviceMember, move, moveDocuments } = this.props;
+    const { serviceMember, moveId, moveDocumentId, moveDocuments, moveLocator } = this.props;
     const numMoveDocs = moveDocuments ? moveDocuments.length : 0;
     const name = stringifyName(serviceMember);
 
     // urls: has full url with IDs
-    const defaultUrl = move ? `/moves/${move.id}/documents` : '';
-    const newUrl = move ? `/moves/${move.id}/documents/new` : '';
+    const defaultUrl = `/moves/${moveId}/documents`;
+    const newUrl = `/moves/${moveId}/documents/new`;
 
     // paths: has placeholders (e.g. ":moveId")
     const defaultPath = `/moves/:moveId/documents`;
     const newPath = `/moves/:moveId/documents/new`;
     const documentPath = `/moves/:moveId/documents/:moveDocumentId`;
-    const currentMoveDocumentId = this.props.match.params.moveDocumentId;
 
     const defaultTabIndex = this.props.match.params.moveDocumentId !== 'new' ? 1 : 0;
     if (!this.props.loadDependenciesHasSuccess && !this.props.loadDependenciesHasError) return <LoadingPlaceholder />;
@@ -143,7 +143,7 @@ class DocumentViewer extends Component {
               <PrivateRoute exact path={defaultPath} render={() => <Redirect replace to={newUrl} />} />
               <PrivateRoute
                 path={newPath}
-                moveId={move.id}
+                moveId={moveId}
                 render={() => {
                   return <DocumentUploader {...this.getDocumentUploaderProps} />;
                 }}
@@ -155,15 +155,14 @@ class DocumentViewer extends Component {
         </div>
         <div className="usa-width-one-third">
           <h3>{name}</h3>
-          <PanelField title="Move Locator">{move.locator}</PanelField>
+          <PanelField title="Move Locator">{moveLocator}</PanelField>
           <PanelField title="DoD ID">{serviceMember.edipi}</PanelField>
           <div className="tab-content">
             <Tabs defaultIndex={defaultTabIndex}>
               <TabList className="doc-viewer-tabs">
                 <Tab className="title nav-tab">All Documents ({numMoveDocs})</Tab>
                 {/* TODO: Handle routing of /new route better */}
-                {this.props.match.params.moveDocumentId &&
-                  this.props.match.params.moveDocumentId !== 'new' && <Tab className="title nav-tab">Details</Tab>}
+                {moveDocumentId && moveDocumentId !== 'new' && <Tab className="title nav-tab">Details</Tab>}
               </TabList>
 
               <TabPanel>
@@ -176,20 +175,20 @@ class DocumentViewer extends Component {
                 <div>
                   {' '}
                   <DocumentList
-                    currentMoveDocumentId={currentMoveDocumentId}
-                    detailUrlPrefix={`/moves/${move.id}/documents`}
+                    currentMoveDocumentId={moveDocumentId}
+                    detailUrlPrefix={`/moves/${moveId}/documents`}
                     moveDocuments={moveDocuments}
                   />
                 </div>
               </TabPanel>
 
-              {this.props.match.params.moveDocumentId &&
-                this.props.match.params.moveDocumentId !== 'new' && (
+              {moveDocumentId &&
+                moveDocumentId !== 'new' && (
                   <TabPanel>
                     <DocumentDetailPanel
                       className="document-viewer"
-                      moveDocumentId={this.props.match.params.moveDocumentId}
-                      moveId={move.id}
+                      moveDocumentId={moveDocumentId}
+                      moveId={moveId}
                       title=""
                     />
                   </TabPanel>
@@ -202,18 +201,21 @@ class DocumentViewer extends Component {
   }
 }
 
-const mapStateToProps = state => {
-  const move = get(state, 'office.officeMove') || {};
-  const serviceMember = selectServiceMemberForOrders(state, move.orders_id);
+const mapStateToProps = (state, ownProps) => {
+  const { moveId, moveDocumentId } = ownProps.match.params;
+  const move = selectMove(state, moveId);
+  const serviceMember = selectServiceMemberForMove(state, moveId);
 
   return {
     genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
-    currentPpm: selectPPMForMove(state, move.id),
+    currentPpm: selectPPMForMove(state, moveId),
     docTypes: get(state, 'swaggerInternal.spec.definitions.MoveDocumentType.enum', []),
-    orders: selectOrdersForMove(state, move.id),
-    move,
-    moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
+    orders: selectOrdersForMove(state, moveId),
+    moveId,
+    moveLocator: move.locator,
+    moveDocumentId,
+    moveDocuments: selectAllDocumentsForMove(state, moveId),
     serviceMember,
     loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
     loadDependenciesHasError: state.office.loadDependenciesHasError,
