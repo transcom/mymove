@@ -57,13 +57,7 @@ type CreateStorageInTransitHandler struct {
 	handlers.HandlerContext
 }
 
-// Handle handles the handling
-func (h CreateStorageInTransitHandler) Handle(params sitop.CreateStorageInTransitParams) middleware.Responder {
-	//session := auth.SessionFromRequestContext(params.HTTPRequest)
-	payload := params.StorageInTransit
-
-	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
-
+func processStorageInTransitInput(h handlers.HandlerContext, shipmentID uuid.UUID, payload apimessages.StorageInTransit) (models.StorageInTransit, error) {
 	incomingLocation := *payload.Location
 	var savedLocation models.StorageInTransitLocation
 
@@ -99,8 +93,7 @@ func (h CreateStorageInTransitHandler) Handle(params sitop.CreateStorageInTransi
 		_, err := h.DB().ValidateAndCreate(&warehouseAddress)
 
 		if err != nil {
-			h.Logger().Error("DB Query", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			return models.StorageInTransit{}, err
 		}
 	}
 
@@ -117,9 +110,68 @@ func (h CreateStorageInTransitHandler) Handle(params sitop.CreateStorageInTransi
 		WarehouseEmail:     payload.WarehouseEmail,
 	}
 
-	sitPayload := payloadForStorageInTransitModel(&newStorageInTransit)
+	return newStorageInTransit, nil
 
-	return sitop.NewCreateStorageInTransitCreated().WithPayload(sitPayload)
+}
+
+// Handle handles the handling
+func (h CreateStorageInTransitHandler) Handle(params sitop.CreateStorageInTransitParams) middleware.Responder {
+	//session := auth.SessionFromRequestContext(params.HTTPRequest)
+	payload := params.StorageInTransit
+	shipmentID, err := uuid.FromString(params.ShipmentID.String())
+
+	if err != nil {
+		h.Logger().Error("UUID Parsing", zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	newStorageInTransit, err := processStorageInTransitInput(h, shipmentID, *payload)
+
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	_, err = h.DB().ValidateAndCreate(&newStorageInTransit)
+
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	storageInTransitPayload := payloadForStorageInTransitModel(&newStorageInTransit)
+
+	return sitop.NewCreateStorageInTransitCreated().WithPayload(storageInTransitPayload)
+
+}
+
+// PatchStorageInTransitHandler updates an existing Storage In Transit entry
+type PatchStorageInTransitHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle handles the handling
+func (h PatchStorageInTransitHandler) Handle(params sitop.PatchStorageInTransitParams) middleware.Responder {
+	payload := params.StorageInTransit
+	shipmentID, err := uuid.FromString(params.ShipmentID.String())
+
+	if err != nil {
+		h.Logger().Error("UUID Parsing", zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	newStorageInTransit, err := processStorageInTransitInput(h, shipmentID, *payload)
+
+	_, err = h.DB().ValidateAndUpdate(&newStorageInTransit)
+
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	storageInTransitPayload := payloadForStorageInTransitModel(&newStorageInTransit)
+
+	return sitop.NewPatchStorageInTransitOK().WithPayload(storageInTransitPayload)
 
 }
 
