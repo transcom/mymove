@@ -74,4 +74,14 @@ describe('utils', () => {
       });
     });
   });
+
+  describe('computeCubicFeetFromInches', () => {
+    it('should return null', () => {
+      expect(utils.computeCubicFeetFromThousandthInch({ length: 1000, width: 1000, height: 1000 })).toEqual('0.001');
+      expect(utils.computeCubicFeetFromThousandthInch({ length: 5000, width: 5000, height: 5000 })).toEqual('0.072');
+      expect(utils.computeCubicFeetFromThousandthInch({ length: 100000, width: 50000, height: 75000 })).toEqual(
+        '217.014',
+      );
+    });
+  });
 });

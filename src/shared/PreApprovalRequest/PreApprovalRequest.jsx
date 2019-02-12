@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
-import { renderStatusIcon } from 'shared/utils';
+import { renderStatusIcon, computeCubicFeetFromThousandthInch } from 'shared/utils';
 import { isOfficeSite } from 'shared/constants.js';
 import { formatDate, formatFromBaseQuantity } from 'shared/formatters';
 import Editor from 'shared/PreApprovalRequest/Editor.jsx';
@@ -116,8 +116,9 @@ export class PreApprovalRequest extends Component {
           let itemLengthinInches = convertFromThousandthInchToInch(row.item_dimensions.length);
           let itemWidthinInches = convertFromThousandthInchToInch(row.item_dimensions.width);
           let itemHeightinInches = convertFromThousandthInchToInch(row.item_dimensions.height);
+          let crateCubicFeet = computeCubicFeetFromThousandthInch(row.crate_dimensions);
 
-          let createDetails = `Crate: ${crateLengthinInches}" x ${crateWidthinInches}" x ${crateHeightinInches}" (16.7 cu ft)`;
+          let createDetails = `Crate: ${crateLengthinInches}" x ${crateWidthinInches}" x ${crateHeightinInches}" (${crateCubicFeet} cu ft)`;
           let ItemDetails = `Item: ${itemLengthinInches}" x ${itemWidthinInches}" x ${itemHeightinInches}"`;
           let description = row.description;
           basePAR = (
