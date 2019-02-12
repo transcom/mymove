@@ -1,12 +1,12 @@
 import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { reduxForm, Field, FormSection, getFormValues } from 'redux-form';
 import { Link } from 'react-router-dom';
 
-import { loadEntitlements, updateOrdersInfo } from './ducks';
-import { selectOrdersForMove } from 'shared/Entities/modules/orders';
+import { loadEntitlements } from './ducks';
+import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
+import { selectOrdersForMove, updateOrders } from 'shared/Entities/modules/orders';
 import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMembers';
 import { formatDate } from 'shared/formatters';
 
@@ -153,12 +153,19 @@ function mapStateToProps(state, ownProps) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      update: updateOrdersInfo,
-    },
-    dispatch,
-  );
+  const update = (ordersId, orders, serviceMemberId, serviceMember) => {
+    serviceMember.current_station_id = serviceMember.current_station.id;
+    dispatch(updateServiceMember(serviceMemberId, { serviceMember }));
+
+    if (!orders.has_dependents) {
+      orders.spouse_has_pro_gear = false;
+    }
+
+    orders.new_duty_station_id = orders.new_duty_station.id;
+    dispatch(updateOrders(ordersId, orders));
+  };
+
+  return { update };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(OrdersPanel);

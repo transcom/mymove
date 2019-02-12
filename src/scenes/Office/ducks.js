@@ -2,8 +2,8 @@ import { isNull, get } from 'lodash';
 import { LoadMove } from './api.js';
 import { getEntitlements } from 'shared/entitlements.js';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
-import { loadServiceMember, updateServiceMember, loadBackupContacts } from 'shared/Entities/modules/serviceMembers';
-import { loadOrders, updateOrders, selectOrdersForMove } from 'shared/Entities/modules/orders';
+import { loadServiceMember, loadBackupContacts } from 'shared/Entities/modules/serviceMembers';
+import { loadOrders, selectOrdersForMove } from 'shared/Entities/modules/orders';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // SINGLE RESOURCE ACTION TYPES
@@ -13,7 +13,6 @@ const SHOW_BANNER = 'SHOW_BANNER';
 const RESET_MOVE = 'RESET_MOVE';
 
 // MULTIPLE-RESOURCE ACTION TYPES
-const updateOrdersInfoType = 'UPDATE_ORDERS_INFO';
 const loadDependenciesType = 'LOAD_DEPENDENCIES';
 
 // SINGLE RESOURCE ACTION TYPES
@@ -25,8 +24,6 @@ export const resetMove = () => ({
 const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
 
 // MULTIPLE-RESOURCE ACTION TYPES
-
-const UPDATE_ORDERS_INFO = ReduxHelpers.generateAsyncActionTypes(updateOrdersInfoType);
 
 const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(loadDependenciesType);
 
@@ -50,28 +47,6 @@ export const showBanner = () => {
 // These action types typically dispatch to other actions above to
 // perform their work and exist to encapsulate when multiple requests
 // need to be made in response to a user action.
-
-export function updateOrdersInfo(ordersId, orders, serviceMemberId, serviceMember) {
-  const actions = ReduxHelpers.generateAsyncActions(updateOrdersInfoType);
-  return async function(dispatch, getState) {
-    dispatch(actions.start());
-    try {
-      // TODO: perform these requests concurrently
-      serviceMember.current_station_id = serviceMember.current_station.id;
-      await dispatch(updateServiceMember(serviceMemberId, serviceMember));
-
-      if (!orders.has_dependents) {
-        orders.spouse_has_pro_gear = false;
-      }
-
-      orders.new_duty_station_id = orders.new_duty_station.id;
-      await dispatch(updateOrders(ordersId, orders));
-      return dispatch(actions.success());
-    } catch (ex) {
-      return dispatch(actions.error(ex));
-    }
-  };
-}
 
 export function loadMoveDependencies(moveId) {
   const actions = ReduxHelpers.generateAsyncActions(loadDependenciesType);
@@ -159,24 +134,6 @@ export function officeReducer(state = initialState, action) {
     // These action types typically dispatch to other actions above to
     // perform their work and exist to encapsulate when multiple requests
     // need to be made in response to a user action.
-
-    // ORDERS INFO
-    case UPDATE_ORDERS_INFO.start:
-      return Object.assign({}, state, {
-        updateOrdersInfoHasSuccess: false,
-        updateOrdersInfoHasError: false,
-      });
-    case UPDATE_ORDERS_INFO.success:
-      return Object.assign({}, state, {
-        updateOrdersInfoHasSuccess: true,
-        updateOrdersInfoHasError: false,
-      });
-    case UPDATE_ORDERS_INFO.failure:
-      return Object.assign({}, state, {
-        updateOrdersInfoHasSuccess: false,
-        updateOrdersInfoHasError: true,
-        error: action.error.message,
-      });
 
     // ALL DEPENDENCIES
     case LOAD_DEPENDENCIES.start:
