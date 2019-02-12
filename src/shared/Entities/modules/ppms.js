@@ -49,10 +49,10 @@ export function approveReimbursement(reimbursementId) {
 }
 
 export function selectPPMForMove(state, moveId) {
-  const ppmId = Object.keys(get(state, 'entities.personallyProcuredMove', {})).find(
-    ppmId => get(state, `entities.personallyProcuredMove.${ppmId}.move_id`) === moveId,
-  );
-  return get(state, `entities.personallyProcuredMove.${ppmId}`, {});
+  const ppm = Object.values(state.entities.personallyProcuredMoves).find(
+    ppm => ppm.move_id === moveId,
+  )
+  return ppm || {};
 }
 
 export function selectReimbursement(state, advanceId) {

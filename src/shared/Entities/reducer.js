@@ -32,6 +32,8 @@ const initialState = {
   invoices: {},
   moveDocuments: {},
   moves: {},
+  personallyProcuredMoves: {},
+  reimbursements: {},
   serviceAgents: {},
   shipmentLineItems: {},
   shipments: {},

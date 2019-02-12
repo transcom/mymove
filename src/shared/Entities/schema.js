@@ -9,7 +9,7 @@ export const upload = new schema.Entity('uploads');
 export const uploads = new schema.Array(upload);
 
 // PPMs
-export const personallyProcuredMove = new schema.Entity('personallyProcuredMove');
+export const personallyProcuredMove = new schema.Entity('personallyProcuredMoves');
 export const personallyProcuredMoves = new schema.Array(personallyProcuredMove);
 export const indexPersonallyProcuredMove = personallyProcuredMoves;
 export const reimbursement = new schema.Entity('reimbursements');
