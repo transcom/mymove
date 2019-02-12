@@ -6,8 +6,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"github.com/transcom/mymove/pkg/service/invoice"
-	shipmentop "github.com/transcom/mymove/pkg/service/shipment"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -16,6 +14,8 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/service/invoice"
+	shipmentop "github.com/transcom/mymove/pkg/service/shipment"
 	"github.com/transcom/mymove/pkg/unit"
 )
 

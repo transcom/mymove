@@ -6,7 +6,6 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
@@ -87,11 +86,14 @@ func (r ProcessRecalculateShipment) Call(shipment *models.Shipment, lineItems mo
 		Engine: engine,
 	}.Call(shipment)
 	if verrs.HasAny() || err != nil {
-		verrsString := ""
+		errorString := ""
 		if verrs.HasAny() {
-			verrsString = "verrs: " + verrs.String()
+			errorString = "verrs: " + verrs.String()
 		}
-		recalculateError := errors.Wrap(err, fmt.Sprintf("Error saving shipment for RecalculateShipment %s", verrsString))
+		if err != nil {
+			errorString = errorString + " err: " + err.Error()
+		}
+		recalculateError := fmt.Errorf("Error saving shipment for RecalculateShipment %s", errorString)
 		// return true for update so that the caller can refresh line items and shipment
 		return true, recalculateError
 	}

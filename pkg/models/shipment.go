@@ -872,20 +872,27 @@ func VerifyBaseShipmentLineItems(lineItems []ShipmentLineItem) error {
 
 // DeleteBaseShipmentLineItems removes all base shipment line items from a shipment
 func (s *Shipment) DeleteBaseShipmentLineItems(db *pop.Connection) error {
-	for _, item := range s.ShipmentLineItems {
-		if item.Tariff400ngItem.RequiresPreApproval {
-			continue
-		}
-		// Do not delete a line item that has an Invoice ID
-		if item.InvoiceID != nil {
-			continue
-		}
-		if FindBaseShipmentLineItem(item.Tariff400ngItem.Code) {
-			err := db.Destroy(&item)
-			if err != nil {
-				return fmt.Errorf("Error deleting shipment line item for shipment ID: %s and shipment line item code: %s", s.ID, item.Tariff400ngItem.Code)
+	db.Transaction(func(tx *pop.Connection) error {
+		transactionError := errors.New("rollback")
+
+		for _, item := range s.ShipmentLineItems {
+			if item.Tariff400ngItem.RequiresPreApproval {
+				continue
+			}
+			// Do not delete a line item that has an Invoice ID
+			if item.InvoiceID != nil {
+				continue
+			}
+			if FindBaseShipmentLineItem(item.Tariff400ngItem.Code) {
+				err := tx.Destroy(&item)
+				if err != nil {
+					transactionError = errors.Wrap(transactionError, fmt.Sprintf(" Error deleting shipment line item for shipment ID: %s and shipment line item code: %s", s.ID, item.Tariff400ngItem.Code))
+					return errors.Wrap(err, transactionError.Error())
+				}
 			}
 		}
-	}
+		return nil
+	})
+
 	return nil
 }
