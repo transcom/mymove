@@ -92,7 +92,7 @@ repos:
     hooks:
       - id: gosec
         name: gosec scanner
-        entry: bin/gosec -exclude=G104 -fmt text -quiet ./...
+        entry: bin/gosec -exclude=G104 -fmt text ./...
         language: script
         description: Inspects source code for security problems by scanning the Go AST.
         files: \.go$
