@@ -3,7 +3,7 @@
 -- intend to apply on production, but do not include any sensitive data.
 
 -- New local user with password
-CREATE USER ecs_user WITH PASSWORD 'md58037cee937aa16b186790d62ede15db5';
+CREATE USER ecs_user WITH PASSWORD 'mysecretpassword';
 -- rds_iam is an empty role in development
 GRANT rds_iam TO ecs_user;
 
