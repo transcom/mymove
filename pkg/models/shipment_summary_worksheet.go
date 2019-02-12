@@ -5,22 +5,25 @@ import (
 	"strings"
 	"time"
 
-	"github.com/transcom/mymove/pkg/unit"
+	"github.com/mitchellh/mapstructure"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/unit"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
 
 // FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
 func FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummaryFormData) (ShipmentSummaryWorksheetPage1Values, ShipmentSummaryWorksheetPage2Values, error) {
-	var page1 ShipmentSummaryWorksheetPage1Values
-	page2 := ShipmentSummaryWorksheetPage2Values{}
-	page1 = FormatValuesShipmentSummaryWorksheetFormPage1(shipmentSummaryFormData)
+	page1 := FormatValuesShipmentSummaryWorksheetFormPage1(shipmentSummaryFormData)
+	page2, err := FormatValuesShipmentSummaryWorksheetFormPage2(shipmentSummaryFormData)
+	if err != nil {
+		return page1, page2, err
+	}
 	return page1, page2, nil
 }
 
@@ -66,6 +69,30 @@ type ShipmentSummaryWorkSheetShipments struct {
 
 // ShipmentSummaryWorksheetPage2Values is an object representing a Shipment Summary Worksheet
 type ShipmentSummaryWorksheetPage2Values struct {
+	PreparationDate string
+	FormattedMovingExpenses
+}
+
+//FormattedMovingExpenses is an object representing the service member's moving expenses formatted for the SSW
+type FormattedMovingExpenses struct {
+	ContractedExpenseMemberPaid string
+	ContractedExpenseGTCCPaid   string
+	RentalEquipmentMemberPaid   string
+	RentalEquipmentGTCCPaid     string
+	PackingMaterialsMemberPaid  string
+	PackingMaterialsGTCCPaid    string
+	WeighingFeesMemberPaid      string
+	WeighingFeesGTCCPaid        string
+	GasMemberPaid               string
+	GasGTCCPaid                 string
+	TollsMemberPaid             string
+	TollsGTCCPaid               string
+	OilMemberPaid               string
+	OilGTCCPaid                 string
+	OtherMemberPaid             string
+	OtherGTCCPaid               string
+	TotalMemberPaid             string
+	TotalGTCCPaid               string
 }
 
 // ShipmentSummaryFormData is a container for the various objects required for the a Shipment Summary Worksheet
@@ -80,6 +107,7 @@ type ShipmentSummaryFormData struct {
 	PersonallyProcuredMoves PersonallyProcuredMoves
 	PreparationDate         time.Time
 	GCC                     unit.Cents
+	MovingExpenseDocuments  []MovingExpenseDocument
 }
 
 // FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
@@ -119,6 +147,11 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		}
 	}
 
+	movingExpenses, err := FetchMovingExpensesShipmentSummaryWorksheet(move, db, session)
+	if err != nil {
+		return ShipmentSummaryFormData{}, err
+	}
+
 	ssd := ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
 		Order:                   move.Orders,
@@ -128,8 +161,27 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		TotalWeightAllotment:    totalEntitlement,
 		Shipments:               move.Shipments,
 		PersonallyProcuredMoves: move.PersonallyProcuredMoves,
+		MovingExpenseDocuments:  movingExpenses,
 	}
 	return ssd, nil
+}
+
+//FetchMovingExpensesShipmentSummaryWorksheet fetches moving expenses for the Shipment Summary Worksheet
+func FetchMovingExpensesShipmentSummaryWorksheet(move Move, db *pop.Connection, session *auth.Session) ([]MovingExpenseDocument, error) {
+	var movingExpenses []MovingExpenseDocument
+	if len(move.PersonallyProcuredMoves) > 0 {
+		ppm := move.PersonallyProcuredMoves[0]
+		moveDocuments, err := FetchApprovedMovingExpenseDocuments(db, session, ppm.ID)
+		if err != nil {
+			return movingExpenses, err
+		}
+		for _, moveDocument := range moveDocuments {
+			if moveDocument.MovingExpenseDocument != nil {
+				movingExpenses = append(movingExpenses, *moveDocument.MovingExpenseDocument)
+			}
+		}
+	}
+	return movingExpenses, nil
 }
 
 // FormatValuesShipmentSummaryWorksheetFormPage1 formats the data for page 1 of the Shipment Summary Worksheet
@@ -170,6 +222,18 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.GCC95 = FormatDollars(data.GCC.MultiplyFloat64(.95).ToDollarFloat())
 	page1.GCCMaxAdvance = FormatDollars(data.GCC.MultiplyFloat64(.60).ToDollarFloat())
 	return page1
+}
+
+//FormatValuesShipmentSummaryWorksheetFormPage2 formats the data for page 2 of the Shipment Summary Worksheet
+func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData) (ShipmentSummaryWorksheetPage2Values, error) {
+	var err error
+	page2 := ShipmentSummaryWorksheetPage2Values{}
+	page2.PreparationDate = FormatDate(data.PreparationDate)
+	page2.FormattedMovingExpenses, err = FormatMovingExpenses(data.MovingExpenseDocuments)
+	if err != nil {
+		return page2, err
+	}
+	return page2, nil
 }
 
 //FormatWeightAllotment formats the weight allotment for Shipment Summary Worksheet
@@ -231,9 +295,72 @@ func FormatAllShipments(ppms PersonallyProcuredMoves, shipments Shipments) Shipm
 	return formattedShipments
 }
 
+//FormatMovingExpenses formats moving expenses for Shipment Summary Worksheet
+func FormatMovingExpenses(movingExpenseDocuments MovingExpenseDocuments) (FormattedMovingExpenses, error) {
+	expenses := FormattedMovingExpenses{
+		ContractedExpenseMemberPaid: FormatDollars(0),
+		ContractedExpenseGTCCPaid:   FormatDollars(0),
+		RentalEquipmentMemberPaid:   FormatDollars(0),
+		RentalEquipmentGTCCPaid:     FormatDollars(0),
+		PackingMaterialsMemberPaid:  FormatDollars(0),
+		PackingMaterialsGTCCPaid:    FormatDollars(0),
+		WeighingFeesMemberPaid:      FormatDollars(0),
+		WeighingFeesGTCCPaid:        FormatDollars(0),
+		GasMemberPaid:               FormatDollars(0),
+		GasGTCCPaid:                 FormatDollars(0),
+		TollsMemberPaid:             FormatDollars(0),
+		TollsGTCCPaid:               FormatDollars(0),
+		OilMemberPaid:               FormatDollars(0),
+		OilGTCCPaid:                 FormatDollars(0),
+		OtherMemberPaid:             FormatDollars(0),
+		OtherGTCCPaid:               FormatDollars(0),
+		TotalMemberPaid:             FormatDollars(0),
+		TotalGTCCPaid:               FormatDollars(0),
+	}
+	subTotals := SubTotalExpenses(movingExpenseDocuments)
+	formattedExpenses := make(map[string]string)
+	for key, value := range subTotals {
+		formattedExpenses[key] = FormatDollars(value)
+	}
+	err := mapstructure.Decode(formattedExpenses, &expenses)
+	if err != nil {
+		return expenses, err
+	}
+	return expenses, nil
+}
+
+//SubTotalExpenses groups moving expenses by type and payment method
+func SubTotalExpenses(expenseDocuments MovingExpenseDocuments) map[string]float64 {
+	var expenseType string
+	totals := make(map[string]float64)
+	for _, expense := range expenseDocuments {
+		expenseType = getExpenseType(expense)
+		expenseDollarAmt := expense.RequestedAmountCents.ToDollarFloat()
+		totals[expenseType] += expenseDollarAmt
+		addToGrandTotal(totals, expenseType, expenseDollarAmt)
+	}
+	return totals
+}
+
+func addToGrandTotal(totals map[string]float64, key string, expenseDollarAmt float64) {
+	if strings.HasSuffix(key, "GTCCPaid") {
+		totals["TotalGTCCPaid"] += expenseDollarAmt
+	} else {
+		totals["TotalMemberPaid"] += expenseDollarAmt
+	}
+}
+
+func getExpenseType(expense MovingExpenseDocument) string {
+	expenseType := FormatEnum(string(expense.MovingExpenseType), "")
+	if expense.PaymentMethod == "GTCC" {
+		return fmt.Sprintf("%s%s", expenseType, "GTCCPaid")
+	}
+	return fmt.Sprintf("%s%s", expenseType, "MemberPaid")
+}
+
 //FormatCurrentShipmentStatus formats FormatCurrentShipmentStatus for the Shipment Summary Worksheet
 func FormatCurrentShipmentStatus(shipment Shipment) string {
-	return FormatEnum(string(shipment.Status))
+	return FormatEnum(string(shipment.Status), " ")
 }
 
 //FormatCurrentPPMStatus formats FormatCurrentPPMStatus for the Shipment Summary Worksheet
@@ -241,7 +368,7 @@ func FormatCurrentPPMStatus(ppm PersonallyProcuredMove) string {
 	if ppm.Status == "PAYMENT_REQUESTED" {
 		return "At destination"
 	}
-	return FormatEnum(string(ppm.Status))
+	return FormatEnum(string(ppm.Status), " ")
 }
 
 //FormatShipmentNumberAndType formats FormatShipmentNumberAndType for the Shipment Summary Worksheet
@@ -294,7 +421,7 @@ func FormatOrdersTypeAndOrdersNumber(order Order) string {
 //FormatServiceMemberAffiliation formats ServiceMemberAffiliation in human friendly format
 func FormatServiceMemberAffiliation(affiliation *ServiceMemberAffiliation) string {
 	if affiliation != nil {
-		return FormatEnum(string(*affiliation))
+		return FormatEnum(string(*affiliation), " ")
 	}
 	return ""
 }
@@ -316,9 +443,10 @@ func FormatDate(date time.Time) string {
 }
 
 //FormatEnum titlecases string const types (e.g. THIS_CONSTANT -> This Constant)
-func FormatEnum(s string) string {
-	words := strings.Split(strings.ToLower(s), "_")
-	return strings.Title(strings.Join(words, " "))
+//outSep specifies the character to use for rejoining the string
+func FormatEnum(s string, outSep string) string {
+	words := strings.Replace(strings.ToLower(s), "_", " ", -1)
+	return strings.Replace(strings.Title(words), " ", outSep, -1)
 }
 
 //FormatWeights formats an int using 000s separator

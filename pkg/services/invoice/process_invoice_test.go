@@ -1,39 +1,34 @@
 package invoice
 
 import (
+	"errors"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/facebookgo/clock"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
-	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+type TestGexSender struct {
+	sendError error
+}
+
+func (g *TestGexSender) SendToGex(edi string, transactionName string) (resp *http.Response, err error) {
+	return nil, g.sendError
+}
+
 func (suite *InvoiceServiceSuite) TestProcessInvoiceCall() {
 	shipment := helperDeliveredShipment(suite)
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
-	// Spin up a two local test servers -- one that always succeeds and one that always fails.
-	mockServerSuccess := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}))
-	gexSenderSuccess := gex.SendToGexHTTP{
-		URL: mockServerSuccess.URL,
-	}
-
-	mockServerFail := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusForbidden)
-	}))
-	gexSenderFail := gex.SendToGexHTTP{
-		URL: mockServerFail.URL,
-	}
+	gexSenderSuccess := TestGexSender{nil}
+	gexSenderFail := TestGexSender{errors.New("test error")}
 
 	processInvoice := ProcessInvoice{
 		DB:                    suite.DB(),
@@ -45,7 +40,7 @@ func (suite *InvoiceServiceSuite) TestProcessInvoiceCall() {
 	suite.T().Run("process invoice fails due to bad GEX response code", func(t *testing.T) {
 		invoice := helperCreateInvoiceForShipment(suite, shipment, officeUser)
 
-		processInvoice.GexSender = gexSenderFail
+		processInvoice.GexSender = &gexSenderFail
 		_, verrs, err := processInvoice.Call(&invoice, shipment)
 		suite.Empty(verrs.Errors)
 		suite.Error(err)
@@ -64,7 +59,7 @@ func (suite *InvoiceServiceSuite) TestProcessInvoiceCall() {
 		savedGBLNumber := shipment.GBLNumber
 		shipment.GBLNumber = nil
 
-		processInvoice.GexSender = gexSenderFail
+		processInvoice.GexSender = &gexSenderFail
 		_, verrs, err := processInvoice.Call(&invoice, shipment)
 		suite.Empty(verrs.Errors)
 		suite.Error(err)
@@ -86,7 +81,7 @@ func (suite *InvoiceServiceSuite) TestProcessInvoiceCall() {
 		// Set the invoice number to incorrect length range to force a validation error.
 		invoice.InvoiceNumber = "12345"
 
-		processInvoice.GexSender = gexSenderSuccess
+		processInvoice.GexSender = &gexSenderSuccess
 		_, verrs, err := processInvoice.Call(&invoice, shipment)
 		suite.NotEmpty(verrs.Errors)
 		// We should have two invoice number errors since we first try to set the invoice to
@@ -104,7 +99,7 @@ func (suite *InvoiceServiceSuite) TestProcessInvoiceCall() {
 	suite.T().Run("process invoice succeeds", func(t *testing.T) {
 		invoice := helperCreateInvoiceForShipment(suite, shipment, officeUser)
 
-		processInvoice.GexSender = gexSenderSuccess
+		processInvoice.GexSender = &gexSenderSuccess
 		ediString, verrs, err := processInvoice.Call(&invoice, shipment)
 		suite.Empty(verrs.Errors)
 		suite.NoError(err)

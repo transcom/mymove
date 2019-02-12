@@ -1,22 +1,18 @@
 import { isNull, get } from 'lodash';
-import { LoadMove, LoadOrders, DownloadPPMAttachments, PatchShipment, SendHHGInvoice } from './api.js';
-
-import { UpdateOrders } from 'scenes/Orders/api.js';
+import { LoadMove, DownloadPPMAttachments, PatchShipment, SendHHGInvoice } from './api.js';
 import { getEntitlements } from 'shared/entitlements.js';
 import { loadPPMs } from 'shared/Entities/modules/ppms';
-
 import {
   loadServiceMember,
   updateServiceMember,
   loadBackupContacts,
   updateBackupContact,
 } from 'shared/Entities/modules/serviceMembers';
+import { loadOrders, updateOrders, selectOrdersForMove } from 'shared/Entities/modules/orders';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // SINGLE RESOURCE ACTION TYPES
 const loadMoveType = 'LOAD_MOVE';
-const loadOrdersType = 'LOAD_ORDERS';
-const updateOrdersType = 'UPDATE_ORDERS';
 const patchShipmentType = 'PATCH_SHIPMENT';
 const sendHHGInvoiceType = 'SEND_HHG_INVOICE';
 const downloadPPMAttachmentsType = 'DOWNLOAD_ATTACHMENTS';
@@ -47,10 +43,6 @@ export const resetInvoiceFlow = () => ({
 
 const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
 
-const LOAD_ORDERS = ReduxHelpers.generateAsyncActionTypes(loadOrdersType);
-
-const UPDATE_ORDERS = ReduxHelpers.generateAsyncActionTypes(updateOrdersType);
-
 const PATCH_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(patchShipmentType);
 
 const SEND_HHG_INVOICE = ReduxHelpers.generateAsyncActionTypes(sendHHGInvoiceType);
@@ -68,10 +60,6 @@ const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(loadDependencies
 // SINGLE-RESOURCE ACTION CREATORS
 
 export const loadMove = ReduxHelpers.generateAsyncActionCreator(loadMoveType, LoadMove);
-
-export const loadOrders = ReduxHelpers.generateAsyncActionCreator(loadOrdersType, LoadOrders);
-
-export const updateOrders = ReduxHelpers.generateAsyncActionCreator(updateOrdersType, UpdateOrders);
 
 export const patchShipment = ReduxHelpers.generateAsyncActionCreator(patchShipmentType, PatchShipment);
 
@@ -143,9 +131,9 @@ export function loadMoveDependencies(moveId) {
     try {
       await dispatch(loadMove(moveId));
       const move = getState().office.officeMove;
-      await dispatch(loadOrders(move.orders_id));
-      const orders = getState().office.officeOrders;
-      const serviceMemberId = orders.service_member_id;
+      const ordersId = move.orders_id;
+      await dispatch(loadOrders(ordersId));
+      const serviceMemberId = get(getState(), `entities.orders.${ordersId}.service_member_id`);
       await dispatch(loadServiceMember(serviceMemberId));
       await dispatch(loadBackupContacts(serviceMemberId));
       // TODO: load PPMs in parallel to move using moveId
@@ -158,9 +146,10 @@ export function loadMoveDependencies(moveId) {
 }
 
 // Selectors
-export function loadEntitlements(state) {
-  const hasDependents = get(state, 'office.officeOrders.has_dependents', null);
-  const spouseHasProGear = get(state, 'office.officeOrders.spouse_has_pro_gear', null);
+export function loadEntitlements(state, moveId) {
+  const orders = selectOrdersForMove(state, moveId);
+  const hasDependents = orders.has_dependents;
+  const spouseHasProGear = orders.spouse_has_pro_gear;
   const rank = get(state, 'office.officeServiceMember.rank', null);
   if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
     return null;
@@ -171,15 +160,12 @@ export function loadEntitlements(state) {
 // Reducer
 const initialState = {
   moveIsLoading: false,
-  ordersAreLoading: false,
   ordersAreUpdating: false,
   ppmsAreLoading: false,
   ppmIsUpdating: false,
   moveHasLoadError: null,
   moveHasLoadSuccess: false,
   officeMove: {},
-  ordersHaveLoadError: null,
-  ordersHaveLoadSuccess: false,
   ordersHaveUploadError: null,
   ordersHaveUploadSuccess: false,
   downloadAttachmentsHasError: null,
@@ -221,47 +207,6 @@ export function officeReducer(state = initialState, action) {
         officeShipment: null,
         moveHasLoadSuccess: false,
         moveHasLoadError: true,
-        error: action.error.message,
-      });
-
-    // ORDERS
-    case LOAD_ORDERS.start:
-      return Object.assign({}, state, {
-        ordersAreLoading: true,
-        ordersHaveLoadSuccess: false,
-      });
-    case LOAD_ORDERS.success:
-      return Object.assign({}, state, {
-        ordersAreLoading: false,
-        officeOrders: action.payload,
-        ordersHaveLoadSuccess: true,
-        ordersHaveLoadError: false,
-      });
-    case LOAD_ORDERS.failure:
-      return Object.assign({}, state, {
-        ordersAreLoading: false,
-        officeOrders: null,
-        ordersHaveLoadSuccess: false,
-        ordersHaveLoadError: true,
-        error: action.error.message,
-      });
-    case UPDATE_ORDERS.start:
-      return Object.assign({}, state, {
-        ordersAreUpdating: true,
-        ordersHaveUpdateSuccess: false,
-      });
-    case UPDATE_ORDERS.success:
-      return Object.assign({}, state, {
-        ordersAreUpdating: false,
-        officeOrders: action.payload,
-        ordersHaveUpdateSuccess: true,
-        ordersHaveUpdateError: false,
-      });
-    case UPDATE_ORDERS.failure:
-      return Object.assign({}, state, {
-        ordersAreUpdating: false,
-        ordersHaveUpdateSuccess: false,
-        ordersHaveUpdateError: true,
         error: action.error.message,
       });
 
