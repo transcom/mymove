@@ -111,6 +111,7 @@ func processStorageInTransitInput(h handlers.HandlerContext, shipmentID uuid.UUI
 		WarehouseAddressID: warehouseAddress.ID,
 		WarehouseAddress:   warehouseAddress,
 		WarehouseEmail:     payload.WarehouseEmail,
+		WarehousePhone:     payload.WarehousePhone,
 	}
 
 	return newStorageInTransit, nil
