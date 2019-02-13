@@ -130,9 +130,11 @@ The following commands will get mymove running on your machine for the first tim
 
 ### Setup: Prerequisites
 
-* Install Go version 1.11.4 with Homebrew. Make sure you do not have other installations.
-  * `brew install go@1.11.4`
-  * If a later Go version exists, Brew will warn you that "go@1.11.4 is keg-only, which means it was not symlinked". If that happens, add the following to your bash config: `export PATH="/usr/local/opt/go@1.11.4/bin:$PATH"`. This line needs to appear in the file before your Go paths are declared.
+* We tend to use the latest version of Go.
+  * Install it with Homebrew: `brew install go`
+  * Pin it, so that you don't accidentally upgrade before we upgrade the project: `brew pin go`
+  * When we upgrade the project's go version, unpin, upgrade, and then re-pin: `brew unpin go; brew upgrade go; brew pin go`
+  * **Note**: If you have previously modified your PATH to point to a specific version of go, make sure to remove that. This would be either in your `.bash_profile` or `.bashrc`, and might look something like `PATH=$PATH:/usr/local/opt/go@1.11.4/bin`.
 * Run `bin/prereqs` and install everything it tells you to. _Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!_
 * For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/). For bash, add the command `eval "$(direnv hook bash)"` to whichever file loads upon opening bash (likely `~./bash_profile`, though instructions say `~/.bashrc`).
 * Run `direnv allow` to load up the `.envrc` file. Add a `.envrc.local` file with any values it asks you to define.
@@ -291,6 +293,7 @@ There are a few handy targets in the Makefile to help you interact with the dev 
 * `make db_dev_create`: Waits to connect to the DB and will create a DB if one doesn't already exist (run usually as part of `db_dev_run`).
 * `make db_dev_reset`: Destroys your database container. Useful if you want to start from scratch.
 * `make db_dev_migrate`: Applies database migrations against your running database container.
+* `make db_dev_migrate_standalone`: Applies database migrations against your running database container but will not check for server dependencies first.
 * `make db_dev_e2e_populate`: Populate data with data used to run e2e tests
 
 #### Test DB Commands
@@ -301,6 +304,7 @@ The Dev Commands are used to talk to the dev DB.  If you were working with the t
 * `make db_test_create`
 * `make db_test_reset`
 * `make db_test_migrate`
+* `make db_test_migrate_standalone`
 * `make db_test_e2e_populate`
 
 The test DB commands all talk to the DB over localhost.  But in a docker-only environment (like CircleCI) you may not be able to use those commands, which is why `*_docker` versions exist for all of them:

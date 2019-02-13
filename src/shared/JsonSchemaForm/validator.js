@@ -108,17 +108,24 @@ const normalizeZip = (value, previousValue) => {
   return normalizedZip;
 };
 
-const normalizeBaseQuantity = value => {
-  if (!value) {
-    return value;
-  }
-  var onlyNumsAndDots = value.replace(/[^\d.]/g, '');
+const createDecimalNormalizer = decimalDigits => {
+  return value => {
+    if (!value) {
+      return value;
+    }
+    value = value.replace(/[^\d.]/g, '');
 
-  if (onlyNumsAndDots.indexOf('.') >= 0) {
-    value =
-      onlyNumsAndDots.substr(0, onlyNumsAndDots.indexOf('.')) + onlyNumsAndDots.substr(onlyNumsAndDots.indexOf('.'), 5);
-  }
-  return value;
+    if (value.indexOf('.') >= 0) {
+      value =
+        value.substr(0, value.indexOf('.')) +
+        '.' +
+        value
+          .substr(value.indexOf('.') + 1)
+          .replace(/[^\d]/g, '')
+          .substr(0, decimalDigits);
+    }
+    return value;
+  };
 };
 
 const patternMatches = memoize((pattern, message) => {
@@ -145,5 +152,5 @@ export default {
   normalizeSSN,
   normalizeZip,
   patternMatches,
-  normalizeBaseQuantity,
+  createDecimalNormalizer,
 };

@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190118210319_add_army_hrc_cert.sql")

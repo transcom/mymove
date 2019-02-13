@@ -1,0 +1,36 @@
+.storage-in-transit-panel-modal {
+  border: 3px dashed #00a6d2;
+  padding-left: 1.7rem;
+  padding-right: 1.7rem;
+  padding-top: 8px;
+  padding-bottom: 9px;
+  margin-top: 20px;
+}
+
+.storage-in-transit-panel-modal .title {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.storage-in-transit-hr-top {
+  border-top: 1px solid #f1f1f1;
+  margin-top: 1.5em;
+  padding-top: 0.5em;
+}
+
+.storage-in-transit-location {
+  width: calc(60% + 1.9rem);
+}
+
+.storage-in-transit-request-form textarea {
+  height: 9rem;
+}
+
+.storage-in-transit-warehouse-id {
+  width: calc(60% + 1.9rem);
+}
+
+.storage-in-transit-request-form-send-request-button {
+  float: right;
+  margin-top: 10px !important;
+}

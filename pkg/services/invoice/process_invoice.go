@@ -7,16 +7,18 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/edi/gex"
+	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 // ProcessInvoice is a service object to generate/send/record an invoice.
 type ProcessInvoice struct {
 	DB                    *pop.Connection
-	GexSender             gex.SendToGex
+	GexSender             services.GexSender
 	SendProductionInvoice bool
+	ICNSequencer          sequence.Sequencer
 }
 
 // Call processes an invoice by generating the EDI, sending the invoice to GEX, and recording the status.
@@ -43,7 +45,7 @@ func (p ProcessInvoice) Call(invoice *models.Invoice, shipment models.Shipment) 
 
 func (p ProcessInvoice) generateAndSendInvoiceData(invoice *models.Invoice, shipment models.Shipment) (*string, error) {
 	// pass value into generator --> edi string
-	invoice858C, err := ediinvoice.Generate858C(shipment, *invoice, p.DB, p.SendProductionInvoice, clock.New())
+	invoice858C, err := ediinvoice.Generate858C(shipment, *invoice, p.DB, p.SendProductionInvoice, p.ICNSequencer, clock.New())
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +57,7 @@ func (p ProcessInvoice) generateAndSendInvoiceData(invoice *models.Invoice, ship
 		return nil, err
 	}
 
-	resp, err := p.GexSender.Call(invoice858CString, transactionName)
+	resp, err := p.GexSender.SendToGex(invoice858CString, transactionName)
 	if err != nil {
 		return &invoice858CString, err
 	}

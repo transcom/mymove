@@ -24,7 +24,7 @@ export function fillAndSavePremoveSurvey() {
   cy
     .get('input[name="survey.pm_survey_planned_delivery_date"]')
     .first()
-    .type('8/5/2018')
+    .type('8/6/2018')
     .blur();
   cy
     .get('input[name="survey.pm_survey_conducted_date"]')

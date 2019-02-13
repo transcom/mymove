@@ -371,7 +371,7 @@ function serviceMemberFillsInDatesAndLocations() {
     .should('have.value', '5/20/2018')
     .clear()
     .first()
-    .type('9/2/2018{enter}')
+    .type('9/3/2018{enter}')
     .blur();
 
   cy.get('input[name="pickup_postal_code"]').should('have.value', '90210');

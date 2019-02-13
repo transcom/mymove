@@ -77,7 +77,7 @@ function tspUserFillsInPreMoveSurveyWizard() {
   cy
     .get('input[name="pm_survey_planned_delivery_date"]')
     .first()
-    .type('8/5/2018')
+    .type('8/6/2018')
     .blur();
   cy
     .get('input[name="pm_survey_conducted_date"]')
@@ -141,10 +141,7 @@ function tspUserGoesToShipment(queue, locator) {
   cy.patientVisit(queue);
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains(locator)
-    .dblclick();
+  cy.selectQueueItemMoveLocator(locator);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);

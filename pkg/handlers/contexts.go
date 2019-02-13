@@ -8,12 +8,13 @@ import (
 	"github.com/gobuffalo/validate"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
-	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/logging/hnyzap"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -36,8 +37,11 @@ type HandlerContext interface {
 	SetIWSPersonLookup(rbs iws.PersonLookup)
 	SendProductionInvoice() bool
 	SetSendProductionInvoice(sendProductionInvoice bool)
-	GexSender() gex.SendToGex
-	SetGexSender(gexSender gex.SendToGex)
+
+	GexSender() services.GexSender
+	SetGexSender(gexSender services.GexSender)
+	ICNSequencer() sequence.Sequencer
+	SetICNSequencer(sequencer sequence.Sequencer)
 	DPSAuthParams() dpsauth.Params
 	SetDPSAuthParams(params dpsauth.Params)
 	RespondAndTraceError(ctx context.Context, err error, msg string, fields ...zap.Field) middleware.Responder
@@ -56,7 +60,8 @@ type handlerContext struct {
 	iwsPersonLookup       iws.PersonLookup
 	sendProductionInvoice bool
 	dpsAuthParams         dpsauth.Params
-	senderToGex           gex.SendToGex
+	senderToGex           services.GexSender
+	icnSequencer          sequence.Sequencer
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
@@ -162,12 +167,20 @@ func (hctx *handlerContext) SetSendProductionInvoice(sendProductionInvoice bool)
 	hctx.sendProductionInvoice = sendProductionInvoice
 }
 
-func (hctx *handlerContext) GexSender() gex.SendToGex {
+func (hctx *handlerContext) GexSender() services.GexSender {
 	return hctx.senderToGex
 }
 
-func (hctx *handlerContext) SetGexSender(sendGexRequest gex.SendToGex) {
+func (hctx *handlerContext) SetGexSender(sendGexRequest services.GexSender) {
 	hctx.senderToGex = sendGexRequest
+}
+
+func (hctx *handlerContext) ICNSequencer() sequence.Sequencer {
+	return hctx.icnSequencer
+}
+
+func (hctx *handlerContext) SetICNSequencer(sequencer sequence.Sequencer) {
+	hctx.icnSequencer = sequencer
 }
 
 func (hctx *handlerContext) DPSAuthParams() dpsauth.Params {

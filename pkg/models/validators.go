@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/rickar/cal"
 
 	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -43,6 +46,21 @@ func (v *StringDoesNotContainSSN) IsValid(errors *validate.Errors) {
 	cleanSSN := ignoredCharactersRegex.ReplaceAllString(v.Field, "")
 	if nineDigitsRegex.MatchString(cleanSSN) {
 		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s Cannot store a raw SSN in this field.", v.Name))
+	}
+}
+
+// OptionalTimeIsPresent adds an error if the Field is not nil and also not a valid time
+type OptionalTimeIsPresent struct {
+	Name    string
+	Field   *time.Time
+	Message string
+}
+
+// IsValid adds an error if the Field is not nil and also not a valid time
+func (v *OptionalTimeIsPresent) IsValid(errors *validate.Errors) {
+	if v.Field != nil {
+		timeIsPresent := validators.TimeIsPresent{Name: v.Name, Field: *v.Field, Message: v.Message}
+		timeIsPresent.IsValid(errors)
 	}
 }
 
@@ -169,6 +187,38 @@ func (v *CannotBeTrueIfFalse) IsValid(errors *validate.Errors) {
 	if v.Field1 == true && v.Field2 == false {
 		errors.Add(validators.GenerateKey(v.Name1), fmt.Sprintf("%s can not be true if %s is false", v.Name1, v.Name2))
 	}
+}
+
+// DateIsWorkday validates that field is on a workday
+type DateIsWorkday struct {
+	Name     string
+	Field    time.Time
+	Calendar *cal.Calendar
+}
+
+// IsValid adds error if field is not on valid workday
+func (v *DateIsWorkday) IsValid(errors *validate.Errors) {
+	if !v.Calendar.IsWorkday(v.Field) {
+		errors.Add(validators.GenerateKey(v.Name),
+			fmt.Sprintf("cannot be on a weekend or holiday, is %v", v.Field))
+	}
+}
+
+// OptionalDateIsWorkday validates that a field is on a workday if it exists
+type OptionalDateIsWorkday struct {
+	Name     string
+	Field    *time.Time
+	Calendar *cal.Calendar
+}
+
+// IsValid adds error if field is not on valid workday
+// ignores nil field
+func (v *OptionalDateIsWorkday) IsValid(errors *validate.Errors) {
+	if v.Field == nil {
+		return
+	}
+	dateIsWorkday := DateIsWorkday{v.Name, *v.Field, v.Calendar}
+	dateIsWorkday.IsValid(errors)
 }
 
 // ValidateableModel is here simply because `validateable` is private to `pop`

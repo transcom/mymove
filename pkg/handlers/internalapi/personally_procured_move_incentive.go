@@ -3,6 +3,8 @@ package internalapi
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/models"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 
@@ -28,7 +30,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 	}
 	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
 
-	lhDiscount, _, err := PPMDiscountFetch(h.DB(),
+	lhDiscount, _, err := models.PPMDiscountFetch(h.DB(),
 		h.Logger(),
 		params.OriginZip,
 		params.DestinationZip,

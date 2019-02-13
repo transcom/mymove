@@ -10,13 +10,15 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import { PanelField } from 'shared/EditablePanel';
 import { loadMoveDependencies } from '../ducks.js';
+import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMembers';
+import { selectOrdersForMove } from 'shared/Entities/modules/orders';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import { Switch, Redirect, Link } from 'react-router-dom';
 
 import DocumentUploadViewer from 'shared/DocumentViewer/DocumentUploadViewer';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
-import DocumentDetailPanel from './DocumentDetailPanel';
+import { selectPPMForMove } from 'shared/Entities/modules/ppms';
 
 import DocumentUploader from 'shared/DocumentViewer/DocumentUploader';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
@@ -25,6 +27,8 @@ import { convertDollarsToCents } from 'shared/utils';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
+
+import DocumentDetailPanel from './DocumentDetailPanel';
 
 import './index.css';
 class DocumentViewer extends Component {
@@ -185,6 +189,7 @@ class DocumentViewer extends Component {
                     <DocumentDetailPanel
                       className="document-viewer"
                       moveDocumentId={this.props.match.params.moveDocumentId}
+                      moveId={move.id}
                       title=""
                     />
                   </TabPanel>
@@ -197,19 +202,24 @@ class DocumentViewer extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
-  moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
-  currentPpm: get(state.office, 'officePPMs.0') || get(state, 'ppm.currentPpm'),
-  docTypes: get(state, 'swaggerInternal.spec.definitions.MoveDocumentType.enum', []),
-  orders: state.office.officeOrders || {},
-  move: get(state, 'office.officeMove', {}),
-  moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
-  serviceMember: state.office.officeServiceMember || {},
-  loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
-  loadDependenciesHasError: state.office.loadDependenciesHasError,
-  error: state.office.error,
-});
+const mapStateToProps = state => {
+  const move = get(state, 'office.officeMove') || {};
+  const serviceMember = selectServiceMemberForOrders(state, move.orders_id);
+
+  return {
+    genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
+    moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
+    currentPpm: selectPPMForMove(state, move.id),
+    docTypes: get(state, 'swaggerInternal.spec.definitions.MoveDocumentType.enum', []),
+    orders: selectOrdersForMove(state, move.id),
+    move,
+    moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
+    serviceMember,
+    loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
+    loadDependenciesHasError: state.office.loadDependenciesHasError,
+    error: state.office.error,
+  };
+};
 
 const mapDispatchToProps = {
   createMoveDocument,

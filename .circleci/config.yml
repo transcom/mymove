@@ -15,23 +15,23 @@ executors:
     resource_class: small
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:b3a0c4f25f01672c6dc45d066972195deda7ea49
+      - image: trussworks/circleci-docker-primary:d1a2b3b5c3b196e91eb1c30926953d0665ec3fd1
   mymove_medium:
     resource_class: medium
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:b3a0c4f25f01672c6dc45d066972195deda7ea49
+      - image: trussworks/circleci-docker-primary:d1a2b3b5c3b196e91eb1c30926953d0665ec3fd1
   mymove_large:
     resource_class: large
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:b3a0c4f25f01672c6dc45d066972195deda7ea49
+      - image: trussworks/circleci-docker-primary:d1a2b3b5c3b196e91eb1c30926953d0665ec3fd1
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:4bf3060cd9f47be0adb819ded630aa1848055ffe
+      - image: trussworks/circleci-docker-primary:d1a2b3b5c3b196e91eb1c30926953d0665ec3fd1
       - image: postgres:10.5
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -237,9 +237,8 @@ jobs:
           name: Install markdown-toc
           command: yarn add markdown-toc
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
-      - run:
-          name: Run make server_generate
-          command: make server_generate
+      - run: make server_generate
+      - run: make build_callgraph
       - run:
           name: Run pre-commit tests
           command: pre-commit run --all-files
@@ -402,6 +401,66 @@ jobs:
             SECURE_MIGRATION_SOURCE: local
       - announce_failure
 
+  # `server_test_coverage` runs code coverage and submits it to CodeClimate
+  server_test_coverage:
+    executor: mymove_and_postgres_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      - run:
+          # This is needed to use `psql` to test DB connectivity, until the app
+          # itself starts making database connections.
+          name: Install postgres client
+          command: |
+            sudo apt-get -qq update
+            # Debian stretch only supports 9.6 client
+            sudo apt-get -qq -y install postgresql-client-9.6
+      - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+      - run:
+          name: Setup Code Climate test-reporter
+          command: |
+            # download test reporter as a static binary
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+            ./cc-test-reporter before-build -d
+          working_directory: /home/circleci/go/src
+      - run:
+          name: make server_test_coverage_generate
+          command: |
+            make server_test_coverage_generate
+          environment:
+            # Env vars needed by the `bin/apply-secure-migrations.sh` script
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT: 5432
+            DB_NAME: test_db
+            SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
+            SECURE_MIGRATION_SOURCE: local
+          working_directory: /home/circleci/go/src/github.com/transcom/mymove
+      - run:
+          name: upload code coverage to codecov
+          command: |
+            curl -s https://codecov.io/bash > codecov
+            chmod +x codecov
+            ./codecov -F go -f coverage.out
+          working_directory: /home/circleci/go/src/github.com/transcom/mymove
+      - run:
+          name: upload code coverage to code climate
+          command: |
+            export GIT_COMMITTED_AT=`git -C "github.com/transcom/mymove" log -1 --pretty=format:%ct`
+            ./cc-test-reporter format-coverage github.com/transcom/mymove/coverage.out -t gocov -d
+            ./cc-test-reporter upload-coverage -d
+          # needs to run from this directory so that it can find the source code.
+          working_directory: /home/circleci/go/src
+
   # `client_test` runs the client side Javascript tests
   client_test:
     executor: mymove_large
@@ -417,6 +476,28 @@ jobs:
             - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make client_test
       - announce_failure
+
+  # `client_test_coverage` runs the client side Javascript tests and reports coverage to codecov
+  client_test_coverage:
+    executor: mymove_large
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - run: make client_test_coverage
+      - run:
+          name: upload code coverage to codecov
+          command: |
+            curl -s https://codecov.io/bash > codecov
+            chmod +x codecov
+            ./codecov -F javascript -f coverage/coverage-final.json
+          working_directory: /home/circleci/go/src/github.com/transcom/mymove
 
   # `build_tools` builds the mymove-specific CLI tools in `mymove/cmd`
   build_tools:
@@ -702,7 +783,15 @@ workflows:
           requires:
             - pre_deps_yarn
 
+      - client_test_coverage:
+          requires:
+            - pre_deps_yarn
+
       - server_test:
+          requires:
+            - pre_deps_golang
+
+      - server_test_coverage:
           requires:
             - pre_deps_golang
 
@@ -710,6 +799,7 @@ workflows:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+            - acceptance_tests_local # don't bother building and pushing the application if it won't even start properly
 
       - build_tools:
           requires:

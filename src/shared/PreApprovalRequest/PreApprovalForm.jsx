@@ -85,7 +85,9 @@ export class LocationSearch extends Component {
           Location
         </label>
         <div>
-          {this.props.ship_line_item_schema.properties.location['x-display-value'][this.props.filteredLocations[0]]}
+          <strong>
+            {this.props.ship_line_item_schema.properties.location['x-display-value'][this.props.filteredLocations[0]]}
+          </strong>
         </div>
       </Fragment>
     ) : (
@@ -106,10 +108,10 @@ export class PreApprovalForm extends Component {
     const DetailComponent = getDetailComponent(this.props.tariff400ng_item_code, robustAccessorial);
 
     return (
-      <Form onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
+      <Form className="pre-approval-form" onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
         <div className="usa-grid-full">
           <div className="usa-width-one-third">
-            <div className="tariff400-select">
+            <div className="tariff400-select usa-input">
               <Field
                 name="tariff400ng_item"
                 title="Code & Item"
@@ -131,14 +133,10 @@ export class PreApprovalForm extends Component {
           {this.props.tariff400ngItem && (
             <Fragment>
               <div className="usa-width-one-third">
-                <DetailComponent swagger={this.props.ship_line_item_schema} />
+                <DetailComponent {...this.props} />
               </div>
               <div className="usa-width-one-third">
-                <SwaggerField
-                  fieldName="notes"
-                  className="three-quarter-width"
-                  swagger={this.props.ship_line_item_schema}
-                />
+                <SwaggerField fieldName="notes" swagger={this.props.ship_line_item_schema} />
               </div>
             </Fragment>
           )}

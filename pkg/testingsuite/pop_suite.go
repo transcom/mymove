@@ -1,11 +1,13 @@
 package testingsuite
 
 import (
+	"fmt"
 	"log"
 	"path/filepath"
 	"runtime"
 
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
 )
 
 // PopTestSuite is a suite for testing
@@ -61,4 +63,13 @@ func (suite *PopTestSuite) MustCreate(db *pop.Connection, model interface{}) {
 	if verrs.HasAny() {
 		suite.T().Errorf("Validation errors encountered creating %v: %v", model, verrs)
 	}
+}
+
+// NoVerrs prints any errors it receives
+func (suite *PopTestSuite) NoVerrs(verrs *validate.Errors) bool {
+	if !suite.False(verrs.HasAny()) {
+		fmt.Println(verrs.String())
+		return false
+	}
+	return true
 }

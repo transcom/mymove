@@ -23,3 +23,15 @@ required = [
 [[constraint]]
   branch = "master"
   name = "go.mozilla.org/pkcs7"
+
+[[constraint]]
+  name = "github.com/stretchr/testify"
+  version = "1.2.2"
+
+[[constraint]]
+  name = "github.com/stretchr/objx"
+  version = "0.1.1"
+
+[[constraint]]
+  name = "github.com/99designs/aws-vault"
+  branch = "master"

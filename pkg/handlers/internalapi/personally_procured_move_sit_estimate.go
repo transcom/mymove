@@ -3,6 +3,8 @@ package internalapi
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/models"
+
 	"github.com/go-openapi/runtime/middleware"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
@@ -25,7 +27,7 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 	cwtWeight := unit.Pound(params.WeightEstimate).ToCWT()
 	plannedMoveDateTime := time.Time(params.PlannedMoveDate)
 
-	_, sitDiscount, err := PPMDiscountFetch(h.DB(),
+	_, sitDiscount, err := models.PPMDiscountFetch(h.DB(),
 		h.Logger(),
 		params.OriginZip,
 		params.DestinationZip,

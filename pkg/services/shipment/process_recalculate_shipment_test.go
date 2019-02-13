@@ -117,7 +117,7 @@ func (suite *ProcessRecalculateShipmentSuite) TestProcessRecalculateShipmentCall
 	suite.Equal(false, update)
 
 	// Shipment is delivered
-	// TODO: going to bypass the shipment.Deliver(testdatagen.DateInsidePeakRateCycle)
+	// Bypassing the shipment.Deliver(testdatagen.DateInsidePeakRateCycle)
 	helperForceDeliver(shipment, testdatagen.DateInsidePeakRateCycle.AddDate(0, 0, 2))
 
 	suite.MustSave(shipment)

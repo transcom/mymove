@@ -1,0 +1,14 @@
+create_table("shipment_line_item_dimensions") {
+    t.Column("id", "uuid", {"primary": true})
+    t.Column("length", "integer")
+    t.Column("width", "integer")
+    t.Column("height", "integer")
+}
+
+add_column("shipment_line_items", "item_dimensions_id", "uuid", {"null": true})
+add_foreign_key("shipment_line_items", "item_dimensions_id", {"shipment_line_item_dimensions": ["id"]}, {})
+
+add_column("shipment_line_items", "crate_dimensions_id", "uuid", {"null": true})
+add_foreign_key("shipment_line_items", "crate_dimensions_id", {"shipment_line_item_dimensions": ["id"]}, {"name": "shipment_line_item_dimensions_crate_fk"})
+
+add_column("shipment_line_items", "description", "text", {"null": true})

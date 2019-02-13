@@ -1,10 +1,11 @@
 import React from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import { reduxForm, getFormValues, FormSection, Field } from 'redux-form';
 
-import { updateOrdersInfo } from './ducks.js';
+import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
+import { selectOrdersForMove, updateOrders } from 'shared/Entities/modules/orders';
+import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMembers';
 import { formatDate, formatDateTime } from 'shared/formatters';
 import { PanelSwaggerField, PanelField, editablePanelify } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -115,12 +116,15 @@ const formName = 'orders_document_viewer';
 let OrdersViewerPanel = editablePanelify(OrdersViewerDisplay, OrdersViewerEdit);
 OrdersViewerPanel = reduxForm({ form: formName })(OrdersViewerPanel);
 
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
+  const orders = selectOrdersForMove(state, ownProps.moveId);
+  const serviceMember = selectServiceMemberForOrders(state, orders.id);
+
   return {
     // reduxForm
     initialValues: {
-      orders: get(state, 'office.officeOrders', {}),
-      serviceMember: get(state, 'office.officeServiceMember', {}),
+      orders,
+      serviceMember,
     },
 
     ordersSchema: get(state, 'swaggerInternal.spec.definitions.Orders', {}),
@@ -129,30 +133,32 @@ function mapStateToProps(state) {
     errorMessage: state.office.error,
     isUpdating: false,
 
-    orders: get(state, 'office.officeOrders', {}),
-    serviceMember: get(state, 'office.officeServiceMember', {}),
+    orders,
+    serviceMember,
     move: get(state, 'office.officeMove', {}),
 
     // editablePanelify
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
-      return [
-        get(state, 'office.officeOrders.id'),
-        values.orders,
-        get(state, 'office.officeServiceMember.id'),
-        values.serviceMember,
-      ];
+      return [orders.id, values.orders, serviceMember.id, values.serviceMember];
     },
   };
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      update: updateOrdersInfo,
-    },
-    dispatch,
-  );
+  const update = (ordersId, orders, serviceMemberId, serviceMember) => {
+    serviceMember.current_station_id = serviceMember.current_station.id;
+    dispatch(updateServiceMember(serviceMemberId, { serviceMember }));
+
+    if (!orders.has_dependents) {
+      orders.spouse_has_pro_gear = false;
+    }
+
+    orders.new_duty_station_id = orders.new_duty_station.id;
+    dispatch(updateOrders(ordersId, orders));
+  };
+
+  return { update };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(OrdersViewerPanel);

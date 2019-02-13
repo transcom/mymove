@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -138,6 +139,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 	})
 
 	var tariffDataShipment *models.Shipment
+	var pickupDate *time.Time
 	for i := 1; i <= numShipments; i++ {
 		// Service Member Details
 		smEmail := fmt.Sprintf("leo_spaceman_sm_%d@example.com", i)
@@ -203,6 +205,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 
 		durIndex := time.Duration(i + 1)
 
+		calendar := dates.NewUSCalendar()
 		// Set dates based on status
 		if shipmentStatus == models.ShipmentStatusINTRANSIT || shipmentStatus == models.ShipmentStatusDELIVERED {
 			plusOneWeek := shipment.BookDate.Add(OneWeek)
@@ -213,8 +216,14 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			shipment.PmSurveyPlannedDeliveryDate = &plusTwoWeeks
 			shipment.ActualPackDate = shipment.BookDate
 			// For sortability, we need varying pickup dates
-			pickupDate := shipment.BookDate.Add(OneDay * durIndex)
-			shipment.ActualPickupDate = &pickupDate
+			if pickupDate == nil {
+				newDate := dates.NextWorkday(*calendar, *shipment.BookDate)
+				pickupDate = &newDate
+			} else {
+				newDate := dates.NextWorkday(*calendar, *pickupDate)
+				pickupDate = &newDate
+			}
+			shipment.ActualPickupDate = pickupDate
 
 			shipment.NetWeight = shipment.WeightEstimate
 
@@ -223,7 +232,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 
 		if shipmentStatus == models.ShipmentStatusDELIVERED {
 			// For sortability, we need varying delivery dates
-			deliveryDate := shipment.BookDate.Add(OneWeek * durIndex)
+			deliveryDate := dates.NextWorkday(*calendar, shipment.BookDate.Add(OneWeek*durIndex))
 			shipment.ActualDeliveryDate = &deliveryDate
 		}
 
@@ -373,7 +382,7 @@ func createTariffDataForRateEngine(db *pop.Connection, shipment models.Shipment)
 		Code:                "LHS",
 		Item:                "Linehaul Transportation",
 		DiscountType:        models.Tariff400ngItemDiscountTypeHHG,
-		AllowedLocation:     models.Tariff400ngItemAllowedLocationNEITHER,
+		AllowedLocation:     models.Tariff400ngItemAllowedLocationORIGIN,
 		MeasurementUnit1:    models.Tariff400ngItemMeasurementUnitFLATRATE,
 		MeasurementUnit2:    models.Tariff400ngItemMeasurementUnitNONE,
 		RateRefCode:         models.Tariff400ngItemRateRefCodeTARIFFSECTION,

@@ -14,7 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	invoiceop "github.com/transcom/mymove/pkg/service/invoice"
+	invoiceop "github.com/transcom/mymove/pkg/services/invoice"
 )
 
 func payloadForInvoiceModel(a *models.Invoice) *internalmessages.Invoice {
@@ -40,12 +40,6 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 	var codeOfService *string
 	if s.TrafficDistributionList != nil {
 		codeOfService = &s.TrafficDistributionList.CodeOfService
-	}
-
-	var serviceAgentPayloads []*internalmessages.ServiceAgent
-	for _, serviceAgent := range s.ServiceAgents {
-		payload := payloadForServiceAgentModel(serviceAgent)
-		serviceAgentPayloads = append(serviceAgentPayloads, payload)
 	}
 
 	var moveDatesSummary internalmessages.ShipmentMoveDatesSummary
@@ -77,7 +71,6 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 		TrafficDistributionList:   payloadForTrafficDistributionListModel(s.TrafficDistributionList),
 		ServiceMemberID:           strfmt.UUID(s.ServiceMemberID.String()),
 		MoveID:                    strfmt.UUID(s.MoveID.String()),
-		ServiceAgents:             serviceAgentPayloads,
 
 		// dates
 		ActualPickupDate:     handlers.FmtDatePtr(s.ActualPickupDate),
@@ -530,6 +523,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 		DB:                    h.DB(),
 		GexSender:             h.GexSender(),
 		SendProductionInvoice: h.SendProductionInvoice(),
+		ICNSequencer:          h.ICNSequencer(),
 	}.Call(&invoice, shipment)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)

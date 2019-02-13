@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/dates"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -39,8 +40,9 @@ func (suite *ModelSuite) TestFetchMove() {
 	order1 := testdatagen.MakeDefaultOrder(suite.DB())
 	order2 := testdatagen.MakeDefaultOrder(suite.DB())
 
-	pickupDate := time.Now()
-	deliveryDate := time.Now().AddDate(0, 0, 1)
+	calendar := dates.NewUSCalendar()
+	pickupDate := dates.NextWorkday(*calendar, time.Date(testdatagen.TestYear, time.January, 28, 0, 0, 0, 0, time.UTC))
+	deliveryDate := dates.NextWorkday(*calendar, pickupDate)
 
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 
@@ -143,8 +145,9 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, ppm)
 
 	// Create hhg (shipment) on this move
-	pickupDate := time.Now()
-	deliveryDate := time.Now().AddDate(0, 0, 1)
+	calendar := dates.NewUSCalendar()
+	pickupDate := dates.NextWorkday(*calendar, time.Date(testdatagen.TestYear, time.January, 28, 0, 0, 0, 0, time.UTC))
+	deliveryDate := dates.NextWorkday(*calendar, pickupDate)
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 	market := "dHHG"
 	sourceGBLOC := "KKFA"
@@ -259,8 +262,9 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 	serviceMember.DutyStation = dutyStation
 	suite.MustSave(&serviceMember)
 
-	pickupDate := time.Now()
-	deliveryDate := time.Now().AddDate(0, 0, 1)
+	calendar := dates.NewUSCalendar()
+	pickupDate := dates.NextWorkday(*calendar, time.Date(testdatagen.TestYear, time.January, 28, 0, 0, 0, 0, time.UTC))
+	deliveryDate := dates.NextWorkday(*calendar, pickupDate)
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 	market := "dHHG"
 	sourceGBLOC := "BMLK"

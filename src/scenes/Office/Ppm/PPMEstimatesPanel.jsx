@@ -8,8 +8,9 @@ import { PanelSwaggerField, PanelField, editablePanelify } from 'shared/Editable
 import { formatCentsRange } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
+import { selectPPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
 
-import { loadEntitlements, updatePPM } from 'scenes/Office/ducks';
+import { loadEntitlements } from 'scenes/Office/ducks';
 
 const validateWeight = (value, formValues, props, fieldName) => {
   if (value && props.entitlement && value > props.entitlement.sum) {
@@ -89,10 +90,9 @@ const formName = 'ppm_estimate_and_details';
 let PPMEstimatesPanel = editablePanelify(EstimatesDisplay, EstimatesEdit);
 PPMEstimatesPanel = reduxForm({ form: formName })(PPMEstimatesPanel);
 
-function mapStateToProps(state) {
-  let PPMEstimate = get(state, 'office.officePPMs[0]', {});
-  let officeMove = get(state, 'office.officeMove', {});
-  let formValues = getFormValues(formName)(state);
+function mapStateToProps(state, ownProps) {
+  const PPMEstimate = selectPPMForMove(state, ownProps.moveId);
+  const formValues = getFormValues(formName)(state);
 
   return {
     // reduxForm
@@ -105,7 +105,7 @@ function mapStateToProps(state) {
     errorMessage: get(state, 'office.error'),
     PPMEstimate: PPMEstimate,
     isUpdating: false,
-    entitlement: loadEntitlements(state),
+    entitlement: loadEntitlements(state, ownProps.moveId),
 
     // editablePanelify
     getUpdateArgs: function() {
@@ -118,7 +118,7 @@ function mapStateToProps(state) {
         delete formValues.PPMEstimate.additional_pickup_postal_code;
         formValues.PPMEstimate.has_additional_postal_code = false;
       }
-      return [officeMove.id, formValues.PPMEstimate.id, formValues.PPMEstimate];
+      return [ownProps.moveId, formValues.PPMEstimate.id, formValues.PPMEstimate];
     },
   };
 }

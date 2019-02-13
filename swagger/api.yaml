@@ -173,6 +173,35 @@ definitions:
       SUBMITTED: Submitted
       APPROVED: Approved
       INVOICED: Invoiced
+  Dimensions:
+    type: object
+    format: dimensions
+    properties:
+      length:
+        type: integer
+        format: dimension
+        title: Length
+        description: Length recorded as base quantity unit, eg. baseQuantityInch
+        minimum: 0
+        example: 167000
+      width:
+        type: integer
+        format: dimension
+        title: Width
+        description: Width recorded as base quantity unit, eg. baseQuantityInch
+        minimum: 0
+        example: 167000
+      height:
+        type: integer
+        format: dimension
+        title: Height
+        description: Height recorded as base quantity unit, eg. baseQuantityInch
+        minimum: 0
+        example: 167000
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
   InvoiceStatus:
     type: string
     title: Status
@@ -307,11 +336,21 @@ definitions:
         description: unit is millicents
       location:
         $ref: '#/definitions/ShipmentLineItemLocation'
+      description:
+        type: string
+        format: textarea
+        title: Description
+        example: Mounted deer head
+        x-nullable: true
+      crate_dimensions:
+        $ref: '#/definitions/Dimensions'
+      item_dimensions:
+        $ref: '#/definitions/Dimensions'
       notes:
         type: string
         format: textarea
         title: Notes
-        example: Mounted deer head measures 23" x 34" x 27"; crate will be 16.7 cu ft
+        example: Needed for gun safe moving
       status:
         $ref: '#/definitions/ShipmentLineItemStatus'
       invoice_id:
@@ -343,7 +382,6 @@ definitions:
         format: date-time
     required:
       - tariff400ng_item_id
-      - quantity_1
       - location
   Address:
     type: object
@@ -886,6 +924,11 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       name:
         type: string
         example: Susan Smith
@@ -915,6 +958,7 @@ definitions:
         format: date-time
     required:
       - id
+      - service_member_id
       - created_at
       - updated_at
       - name
@@ -1270,9 +1314,9 @@ definitions:
         type: string
         format: date-time
     required:
-    - standard_carrier_alpha_code
-    - enrolled
-  IndexServiceAgents:
+      - standard_carrier_alpha_code
+      - enrolled
+  ServiceAgents:
     type: array
     items:
       $ref: '#/definitions/ServiceAgent'
@@ -1553,6 +1597,59 @@ definitions:
         type: object
         additionalProperties:
           type: string
+  StorageInTransit:
+    type: object
+    properties:
+      location:
+        type: string
+        title: SIT Location
+        enum:
+          - ORIGIN
+          - DESTINATION
+        x-display-value:
+          ORIGIN: Origin
+          DESTINATION: Destination
+      estimated_start_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        title: Estimated start date
+      notes:
+        type: string
+        example: Good to go!
+        format: textarea
+        x-nullable: true
+        title: Note
+      warehouse_id:
+        type: string
+        example: '000383'
+        title: Warehouse ID number
+      warehouse_name:
+        type: string
+        example: ABC Warehouse, Inc.
+        title: Warehouse Name
+      warehouse_phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+        title: Phone
+      warehouse_email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        x-nullable: true
+        title: Email
+      warehouse_address:
+        $ref: '#/definitions/Address'
+    required:
+      - location
+      - warehouse_address
+      - warehouse_id
+      - warehouse_name
+      - estimated_start_date
 paths:
   /tariff_400ng_items:
     get:
@@ -2051,7 +2148,7 @@ paths:
         200:
           description: returns an array of Service Agents
           schema:
-            $ref: '#/definitions/IndexServiceAgents'
+            $ref: '#/definitions/ServiceAgents'
         400:
           description: invalid request
         401:
@@ -2114,7 +2211,7 @@ paths:
           format: uuid
           required: true
           description: UUID of the service agent
-        - name: patchServiceAgentPayload
+        - name: serviceAgent
           in: body
           required: true
           schema:
@@ -2200,14 +2297,14 @@ paths:
       description: Sets the pre-move survey as completed. Completion date will be recorded on shipment.
       operationId: completePmSurvey
       tags:
-      - shipments
+        - shipments
       parameters:
-      - name: shipmentId
-        in: path
-        type: string
-        format: uuid
-        required: true
-        description: UUID of the move
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
       responses:
         200:
           description: returns updated shipment object

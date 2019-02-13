@@ -9,6 +9,8 @@ import Alert from 'shared/Alert';
 import DocumentContent from 'shared/DocumentViewer/DocumentContent';
 import OrdersViewerPanel from './OrdersViewerPanel';
 import { loadMoveDependencies } from './ducks.js';
+import { selectOrdersForMove, selectUplodsForOrders } from 'shared/Entities/modules/orders';
+import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMembers';
 import { stringifyName } from 'shared/utils/serviceMember';
 
 import './office.css';
@@ -19,23 +21,8 @@ class OrdersInfo extends Component {
   }
 
   render() {
-    const orders = this.props.orders;
-    const serviceMember = this.props.serviceMember;
+    const { serviceMember, uploads } = this.props;
     const name = stringifyName(serviceMember);
-
-    let uploads;
-    if (orders && orders.uploaded_orders) {
-      uploads = orders.uploaded_orders.uploads.map(upload => (
-        <DocumentContent
-          key={upload.url}
-          url={upload.url}
-          filename={upload.filename}
-          contentType={upload.content_type}
-        />
-      ));
-    } else {
-      uploads = [];
-    }
 
     if (!this.props.loadDependenciesHasSuccess && !this.props.loadDependenciesHasError) return <LoadingPlaceholder />;
     if (this.props.loadDependenciesHasError)
@@ -51,7 +38,16 @@ class OrdersInfo extends Component {
     return (
       <div>
         <div className="usa-grid">
-          <div className="usa-width-two-thirds document-contents">{uploads}</div>
+          <div className="usa-width-two-thirds document-contents">
+            {uploads.map(upload => (
+              <DocumentContent
+                key={upload.url}
+                url={upload.url}
+                filename={upload.filename}
+                contentType={upload.content_type}
+              />
+            ))}
+          </div>
           <div className="usa-width-one-third orders-page-fields">
             <OrdersViewerPanel title={name} className="document-viewer" moveId={this.props.match.params.moveId} />
           </div>
@@ -65,14 +61,20 @@ OrdersInfo.propTypes = {
   loadMoveDependencies: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = state => ({
-  swaggerError: state.swaggerInternal.hasErrored,
-  ordersSchema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
-  orders: state.office.officeOrders || {},
-  serviceMember: state.office.officeServiceMember || {},
-  loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
-  loadDependenciesHasError: state.office.loadDependenciesHasError,
-});
+const mapStateToProps = (state, ownProps) => {
+  const orders = selectOrdersForMove(state, ownProps.match.params.moveId);
+  const uploads = selectUplodsForOrders(state, orders.id);
+  const serviceMember = selectServiceMemberForOrders(state, orders.id);
+
+  return {
+    swaggerError: state.swaggerInternal.hasErrored,
+    ordersSchema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
+    serviceMember,
+    uploads,
+    loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
+    loadDependenciesHasError: state.office.loadDependenciesHasError,
+  };
+};
 
 const mapDispatchToProps = dispatch => bindActionCreators({ loadMoveDependencies }, dispatch);
 

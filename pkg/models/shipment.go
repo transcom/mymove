@@ -38,6 +38,20 @@ const (
 	ShipmentStatusCOMPLETED ShipmentStatus = "COMPLETED"
 )
 
+var (
+	// ShipmentAssociationsDEFAULT declares the default eager associations for a shipment
+	ShipmentAssociationsDEFAULT EagerAssociations = EagerAssociations{
+		"TrafficDistributionList",
+		"ServiceMember.BackupContacts",
+		"Move.Orders.NewDutyStation.Address",
+		"PickupAddress",
+		"SecondaryPickupAddress",
+		"DeliveryAddress",
+		"PartialSITDeliveryAddress",
+		"ShipmentOffers.TransportationServiceProviderPerformance.TransportationServiceProvider",
+	}
+)
+
 // Shipment represents a single shipment within a Service Member's move.
 type Shipment struct {
 	ID               uuid.UUID      `json:"id" db:"id"`
@@ -146,6 +160,8 @@ var BaseShipmentLineItems = []BaseShipmentLineItem{
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
+	calendar := dates.NewUSCalendar()
+
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: s.MoveID, Name: "move_id"},
 		&validators.StringIsPresent{Field: string(s.Status), Name: "status"},
@@ -154,6 +170,42 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&OptionalPoundIsNonNegative{Field: s.WeightEstimate, Name: "weight_estimate"},
 		&OptionalPoundIsNonNegative{Field: s.ProgearWeightEstimate, Name: "progear_weight_estimate"},
 		&OptionalPoundIsNonNegative{Field: s.SpouseProgearWeightEstimate, Name: "spouse_progear_weight_estimate"},
+		&OptionalDateIsWorkday{
+			Field:    s.OriginalPackDate,
+			Name:     "original_pack_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.RequestedPickupDate,
+			Name:     "requested_pickup_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.OriginalDeliveryDate,
+			Name:     "original_delivery_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.PmSurveyPlannedPackDate,
+			Name:     "pm_survey_planned_pack_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.PmSurveyPlannedPickupDate,
+			Name:     "pm_survey_planned_pickup_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.PmSurveyPlannedDeliveryDate,
+			Name:     "pm_survey_planned_delivery_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.ActualPackDate,
+			Name:     "actual_pack_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.ActualPickupDate,
+			Name:     "actual_pickup_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.ActualDeliveryDate,
+			Name:     "actual_delivery_date",
+			Calendar: calendar},
 	), nil
 }
 
@@ -265,7 +317,7 @@ func (s *Shipment) BeforeSave(tx *pop.Connection) error {
 	// is created/updated.
 	trafficDistributionList, err := s.DetermineTrafficDistributionList(tx)
 	if err != nil {
-		return errors.Wrapf(err, "Could not determine TDL for shipment ID %s for move ID %s", s.ID, s.MoveID)
+		return errors.Wrapf(ErrFetchNotFound, "Could not determine TDL for shipment ID %s for move ID %s"+"\n Error from attempt: \n %s", s.ID, s.MoveID, err.Error())
 	}
 
 	if trafficDistributionList != nil {
@@ -350,41 +402,145 @@ func (s *Shipment) DetermineTrafficDistributionList(db *pop.Connection) (*Traffi
 	return &trafficDistributionList, nil
 }
 
+// BaseShipmentLineItemParams holds the basic parameters for a ShipmentLineItem
+type BaseShipmentLineItemParams struct {
+	Tariff400ngItemID   uuid.UUID
+	Tariff400ngItemCode string
+	Quantity1           *unit.BaseQuantity
+	Quantity2           *unit.BaseQuantity
+	Location            string
+	Notes               *string
+	Description         *string
+}
+
+// AdditionalShipmentLineItemParams holds any additional parameters for a ShipmentLineItem
+type AdditionalShipmentLineItemParams struct {
+	ItemDimensions  *AdditionalLineItemDimensions
+	CrateDimensions *AdditionalLineItemDimensions
+}
+
+// AdditionalLineItemDimensions holds the length, width and height that will be converted to inches
+type AdditionalLineItemDimensions struct {
+	Length unit.ThousandthInches
+	Width  unit.ThousandthInches
+	Height unit.ThousandthInches
+}
+
 // CreateShipmentLineItem creates a new ShipmentLineItem tied to the Shipment
-func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, tariff400ngItemID uuid.UUID, q1, q2 *int64, location string, notes *string) (*ShipmentLineItem, *validate.Errors, error) {
+func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShipmentLineItemParams, additionalParams AdditionalShipmentLineItemParams) (*ShipmentLineItem, *validate.Errors, error) {
 	var quantity2 unit.BaseQuantity
-	if q2 != nil {
-		quantity2 = unit.BaseQuantity(*q2)
+	if baseParams.Quantity2 != nil {
+		quantity2 = *baseParams.Quantity2
 	}
 
 	var notesVal string
-	if notes != nil {
-		notesVal = *notes
+	if baseParams.Notes != nil {
+		notesVal = *baseParams.Notes
 	}
 
-	shipmentLineItem := ShipmentLineItem{
-		ShipmentID:        s.ID,
-		Tariff400ngItemID: tariff400ngItemID,
-		Quantity1:         unit.BaseQuantity(*q1),
-		Quantity2:         quantity2,
-		Location:          ShipmentLineItemLocation(location),
-		Notes:             notesVal,
-		SubmittedDate:     time.Now(),
-		Status:            ShipmentLineItemStatusSUBMITTED,
+	//We can do validation for specific item codes here
+	// Example: 105B/E
+	var responseError error
+	responseVErrors := validate.NewErrors()
+	shipmentLineItem := ShipmentLineItem{}
+
+	db.Transaction(func(connection *pop.Connection) error {
+		transactionError := errors.New("Rollback the transaction")
+
+		verrs, err := SetupAndCreateItemCodePrequiste(connection, &baseParams, &additionalParams, &shipmentLineItem)
+		if verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error setting up item code prequiste: "+baseParams.Tariff400ngItemCode)
+			return transactionError
+		}
+
+		// Non-specified item code
+		shipmentLineItem.ShipmentID = s.ID
+		shipmentLineItem.Tariff400ngItemID = baseParams.Tariff400ngItemID
+		shipmentLineItem.Quantity1 = *baseParams.Quantity1
+		shipmentLineItem.Quantity2 = quantity2
+		shipmentLineItem.Location = ShipmentLineItemLocation(baseParams.Location)
+		shipmentLineItem.Notes = notesVal
+		shipmentLineItem.SubmittedDate = time.Now()
+		shipmentLineItem.Status = ShipmentLineItemStatusSUBMITTED
+		shipmentLineItem.Description = baseParams.Description
+
+		verrs, err = connection.ValidateAndCreate(&shipmentLineItem)
+		if verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating shipment line item")
+			return transactionError
+		}
+
+		// Loads line item information
+		err = connection.Load(&shipmentLineItem)
+		if err != nil {
+			responseError = errors.Wrap(err, "Error loading shipment line item")
+			return transactionError
+		}
+
+		return nil
+	})
+
+	return &shipmentLineItem, responseVErrors, responseError
+}
+
+// SetupAndCreateItemCodePrequiste applies specific validation and creates additional objects for item codes
+func SetupAndCreateItemCodePrequiste(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	// Backwards compatible with "Old school" 105B/E
+	if (baseParams.Tariff400ngItemCode == "105B" || baseParams.Tariff400ngItemCode == "105E") && baseParams.Quantity1 == nil {
+		//Additional validation check if item and crate dimensions exist
+		if additionalParams.ItemDimensions == nil || additionalParams.CrateDimensions == nil {
+			responseError = errors.New("Must have both item and crate dimensions params for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
+			return responseVErrors, responseError
+		}
+
+		// save dimensions to shipmentLineItem
+		shipmentLineItem.ItemDimensions = ShipmentLineItemDimensions{
+			Length: unit.ThousandthInches(additionalParams.ItemDimensions.Length),
+			Width:  unit.ThousandthInches(additionalParams.ItemDimensions.Width),
+			Height: unit.ThousandthInches(additionalParams.ItemDimensions.Height),
+		}
+		verrs, err := db.ValidateAndCreate(&shipmentLineItem.ItemDimensions)
+		if verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating item dimensions for shipment line item")
+			return responseVErrors, responseError
+		}
+
+		shipmentLineItem.CrateDimensions = ShipmentLineItemDimensions{
+			Length: unit.ThousandthInches(additionalParams.CrateDimensions.Length),
+			Width:  unit.ThousandthInches(additionalParams.CrateDimensions.Width),
+			Height: unit.ThousandthInches(additionalParams.CrateDimensions.Height),
+		}
+		verrs, err = db.ValidateAndCreate(&shipmentLineItem.CrateDimensions)
+		if verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating crate dimensions for shipment line item")
+			return responseVErrors, responseError
+		}
+
+		shipmentLineItem.ItemDimensionsID = &shipmentLineItem.ItemDimensions.ID
+		shipmentLineItem.CrateDimensionsID = &shipmentLineItem.CrateDimensions.ID
+
+		// ToDo: For another story
+		/*
+			1. Calculate base quantity for line item. Specifically calculating the cu. ft. from the dimensions crate?
+			Set quantity1 as zero value for now.
+		*/
+		var quantity1 unit.BaseQuantity
+		baseParams.Quantity1 = &quantity1
+	} else if baseParams.Quantity1 == nil {
+		// General pre-approval request
+		// Check if base quantity is filled out
+		responseError = errors.New("Quantity1 required for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
+		return responseVErrors, responseError
 	}
 
-	verrs, err := db.ValidateAndCreate(&shipmentLineItem)
-	if verrs.HasAny() || err != nil {
-		return &ShipmentLineItem{}, verrs, err
-	}
-
-	// Loads line item information
-	err = db.Load(&shipmentLineItem)
-	if err != nil {
-		return &ShipmentLineItem{}, validate.NewErrors(), err
-	}
-
-	return &shipmentLineItem, validate.NewErrors(), nil
+	return responseVErrors, responseError
 }
 
 // AssignGBLNumber generates a new valid GBL number for the shipment
@@ -444,14 +600,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 
 	shipments := []Shipment{}
 
-	query := tx.Q().Eager(
-		"TrafficDistributionList",
-		"ServiceMember",
-		"Move",
-		"PickupAddress",
-		"SecondaryPickupAddress",
-		"DeliveryAddress",
-		"PartialSITDeliveryAddress").
+	query := tx.Q().Eager(ShipmentAssociationsDEFAULT...).
 		Where("shipment_offers.transportation_service_provider_id = $1", tspID).
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id")
 
@@ -510,12 +659,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 // FetchShipment Fetches and Validates a Shipment model
 func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Shipment, error) {
 	var shipment Shipment
-	err := db.Eager(
-		"Move.Orders.NewDutyStation.Address",
-		"PickupAddress",
-		"SecondaryPickupAddress",
-		"DeliveryAddress",
-		"ShipmentOffers").Find(&shipment, id)
+	err := db.Eager(ShipmentAssociationsDEFAULT...).Find(&shipment, id)
 
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
@@ -541,16 +685,7 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 
 	shipments := []Shipment{}
 
-	err := tx.Eager(
-		"TrafficDistributionList",
-		"ServiceMember.BackupContacts",
-		"Move.Orders.NewDutyStation.Address",
-		"PickupAddress",
-		"SecondaryPickupAddress",
-		"DeliveryAddress",
-		"PartialSITDeliveryAddress",
-		"ShipmentOffers.TransportationServiceProviderPerformance",
-		"ShipmentOffers.TransportationServiceProviderPerformance.TransportationServiceProvider").
+	err := tx.Eager(ShipmentAssociationsDEFAULT...).
 		Where("shipment_offers.transportation_service_provider_id = $1 and shipments.id = $2", tspID, shipmentID).
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
 		All(&shipments)

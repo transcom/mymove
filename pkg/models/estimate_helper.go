@@ -1,4 +1,4 @@
-package internalapi
+package models
 
 import (
 	"time"
@@ -6,7 +6,6 @@ import (
 	"github.com/gobuffalo/pop"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -14,7 +13,7 @@ import (
 // Most PPMs use COS D, but when there is no COS D rate, the calculation is based on Code 2
 func PPMDiscountFetch(db *pop.Connection, logger *zap.Logger, originZip string, destZip string, moveDate time.Time) (unit.DiscountRate, unit.DiscountRate, error) {
 	// Try to fetch with COS D.
-	lhDiscount, sitDiscount, err := models.FetchDiscountRates(db,
+	lhDiscount, sitDiscount, err := FetchDiscountRates(db,
 		originZip,
 		destZip,
 		"D",
@@ -29,11 +28,11 @@ func PPMDiscountFetch(db *pop.Connection, logger *zap.Logger, originZip string, 
 		return lhDiscount, sitDiscount, err
 	}
 
-	if err != models.ErrFetchNotFound {
+	if err != ErrFetchNotFound {
 		return 0, 0, err
 	}
 	// When COS D not found, COS 2 may have rates.
-	lhDiscount, sitDiscount, err = models.FetchDiscountRates(db,
+	lhDiscount, sitDiscount, err = FetchDiscountRates(db,
 		originZip,
 		destZip,
 		"2",
