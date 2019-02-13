@@ -477,6 +477,7 @@ func (s *Shipment) UpdateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 		if baseParams.Notes != nil {
 			shipmentLineItem.Notes = *baseParams.Notes
 		}
+		shipmentLineItem.Description = baseParams.Description
 
 		verrs, err = connection.ValidateAndUpdate(shipmentLineItem)
 		if verrs.HasAny() || err != nil {
