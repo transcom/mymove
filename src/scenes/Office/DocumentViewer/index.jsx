@@ -203,7 +203,7 @@ class DocumentViewer extends Component {
 
 const mapStateToProps = (state, ownProps) => {
   const { moveId, moveDocumentId } = ownProps.match.params;
-  const move = selectMove(state, moveId);
+  const moveLocator = selectMove(state, moveId).locator;
   const serviceMember = selectServiceMemberForMove(state, moveId);
 
   return {
@@ -213,7 +213,7 @@ const mapStateToProps = (state, ownProps) => {
     docTypes: get(state, 'swaggerInternal.spec.definitions.MoveDocumentType.enum', []),
     orders: selectOrdersForMove(state, moveId),
     moveId,
-    moveLocator: move.locator,
+    moveLocator,
     moveDocumentId,
     moveDocuments: selectAllDocumentsForMove(state, moveId),
     serviceMember,

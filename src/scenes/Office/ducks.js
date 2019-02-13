@@ -75,6 +75,7 @@ export function officeReducer(state = initialState, action) {
     case REMOVE_BANNER:
       return Object.assign({}, state, {
         flashMessage: false,
+        flashMessageLines: [],
       });
 
     // MULTIPLE-RESOURCE ACTION TYPES

@@ -33,17 +33,18 @@ function renderEntitlements(entitlements, orders) {
 }
 
 const OrdersDisplay = props => {
+  const { entitlements, moveId, orders, ordersSchema, serviceMember } = props;
   const fieldProps = {
-    schema: props.ordersSchema,
-    values: props.orders,
+    schema: ordersSchema,
+    values: orders,
   };
 
   return (
     <React.Fragment>
       <div className="editable-panel-column">
-        {props.orders.orders_number ? (
+        {orders.orders_number ? (
           <PanelField title="Orders Number" className="orders_number">
-            <Link to={`/moves/${props.moveId}/orders`} target="_blank">
+            <Link to={`/moves/${moveId}/orders`} target="_blank">
               <SwaggerValue fieldName="orders_number" {...fieldProps} />
               &nbsp;
               <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
@@ -52,25 +53,25 @@ const OrdersDisplay = props => {
         ) : (
           <PanelField title="Orders Number" className="missing orders_number">
             missing
-            <Link to={`/moves/${props.moveId}/orders`} target="_blank">
+            <Link to={`/moves/${moveId}/orders`} target="_blank">
               <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
             </Link>
           </PanelField>
         )}
-        <PanelField title="Date issued" value={formatDate(props.orders.issue_date)} />
+        <PanelField title="Date issued" value={formatDate(orders.issue_date)} />
         <PanelSwaggerField fieldName="orders_type" {...fieldProps} />
         <PanelSwaggerField fieldName="orders_type_detail" required {...fieldProps} />
-        <PanelField title="Report by" value={formatDate(props.orders.report_by_date)} />
-        <PanelField title="Current Duty Station">{get(props.serviceMember, 'current_station.name', '')}</PanelField>
-        <PanelField title="New Duty Station">{get(props.orders, 'new_duty_station.name', '')}</PanelField>
+        <PanelField title="Report by" value={formatDate(orders.report_by_date)} />
+        <PanelField title="Current Duty Station">{get(serviceMember, 'current_station.name', '')}</PanelField>
+        <PanelField title="New Duty Station">{get(orders, 'new_duty_station.name', '')}</PanelField>
 
         <PanelSwaggerField title="Orders Issuing Agency" fieldName="orders_issuing_agency" {...fieldProps} />
 
         <PanelSwaggerField title="Paragraph Number" fieldName="paragraph_number" {...fieldProps} />
       </div>
       <div className="editable-panel-column">
-        {renderEntitlements(props.entitlements, props.orders)}
-        {props.orders.has_dependents && <PanelField title="Dependents" value="Authorized" />}
+        {renderEntitlements(entitlements, orders)}
+        {orders.has_dependents && <PanelField title="Dependents" value="Authorized" />}
       </div>
     </React.Fragment>
   );
