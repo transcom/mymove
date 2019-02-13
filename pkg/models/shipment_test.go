@@ -269,7 +269,7 @@ func (suite *ModelSuite) TestCreateShipmentLineItem() {
 	}
 }
 
-// TestShipmentAssignGBLNumber tests that a GBL number is created correctly
+// TestCreateShipmentLineItemCode105BAndE tests that 105B/E line items are created correctly
 func (suite *ModelSuite) TestCreateShipmentLineItemCode105BAndE() {
 	acc105B := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
 		Tariff400ngItem: Tariff400ngItem{
@@ -341,6 +341,141 @@ func (suite *ModelSuite) TestCreateShipmentLineItemCode105BAndE() {
 		suite.Equal(acc105E.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
 		suite.Zero(shipmentLineItem.ItemDimensionsID)
 		suite.Zero(shipmentLineItem.CrateDimensionsID)
+	}
+}
+
+// TestCreateShipmentLineItemCode105BAndE tests that 105B/E line items are updated correctly
+func (suite *ModelSuite) TestUpdateShipmentLineItem() {
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+	notes := "It's a giant moose head named Fred he seemed rather pleasant"
+	description := "This is a description."
+	acc4A := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "4A",
+		},
+	})
+	lineItem := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
+		ShipmentLineItem: ShipmentLineItem{
+			Tariff400ngItem:   acc4A,
+			Tariff400ngItemID: acc4A.ID,
+			Quantity1:         unit.BaseQuantityFromInt(1234),
+			Location:          "ORIGIN",
+			Notes:             notes,
+			Description:       &description,
+		},
+	})
+
+	updateNotes := "Updated notes"
+	baseParams := BaseShipmentLineItemParams{
+		Quantity1:           &lineItem.Quantity1,
+		Tariff400ngItemID:   lineItem.Tariff400ngItemID,
+		Tariff400ngItemCode: lineItem.Tariff400ngItem.Code,
+		Location:            string(lineItem.Location),
+		Notes:               &updateNotes,
+		Description:         lineItem.Description,
+	}
+	additionalParams := AdditionalShipmentLineItemParams{}
+
+	// Create 105B preapproval
+	verrs, err := shipment.UpdateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams, &lineItem)
+
+	if suite.noValidationErrors(verrs, err) {
+		suite.Equal(unit.BaseQuantityFromInt(1234), lineItem.Quantity1.ToUnitInt())
+		suite.Equal(*baseParams.Notes, lineItem.Notes)
+	}
+}
+
+// TestCreateShipmentLineItemCode105BAndE tests that 105B/E line items are updated correctly
+func (suite *ModelSuite) TestUpdateShipmentLineItemCode105BAndE() {
+	acc105B := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "105B",
+		},
+	})
+
+	acc105E := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "105E",
+		},
+	})
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+	notes := "It's a giant moose head named Fred he seemed rather pleasant"
+	description := "This is a description."
+	item := testdatagen.MakeDefaultShipmentLineItemDimensions(suite.DB())
+	crate := testdatagen.MakeDefaultShipmentLineItemDimensions(suite.DB())
+	lineItem := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
+		ShipmentLineItem: ShipmentLineItem{
+			Tariff400ngItemID: acc105B.ID,
+			Location:          "ORIGIN",
+			Notes:             notes,
+			Description:       &description,
+			ItemDimensionsID:  &item.ID,
+			ItemDimensions:    item,
+			CrateDimensionsID: &crate.ID,
+			CrateDimensions:   crate,
+		},
+	})
+
+	updateNotes := "Updated notes"
+	baseParams := BaseShipmentLineItemParams{
+		Tariff400ngItemID:   lineItem.Tariff400ngItemID,
+		Tariff400ngItemCode: lineItem.Tariff400ngItem.Code,
+		Location:            string(lineItem.Location),
+		Notes:               &updateNotes,
+		Description:         lineItem.Description,
+	}
+	additionalParams := AdditionalShipmentLineItemParams{
+		ItemDimensions: &AdditionalLineItemDimensions{
+			Length: unit.ThousandthInches(200),
+			Width:  unit.ThousandthInches(200),
+			Height: unit.ThousandthInches(200),
+		},
+		CrateDimensions: &AdditionalLineItemDimensions{
+			Length: unit.ThousandthInches(200),
+			Width:  unit.ThousandthInches(200),
+			Height: unit.ThousandthInches(200),
+		},
+	}
+
+	// Create 105B preapproval
+	verrs, err := shipment.UpdateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams, &lineItem)
+
+	if suite.noValidationErrors(verrs, err) {
+		suite.Equal(0, lineItem.Quantity1.ToUnitInt())
+		suite.Equal(acc105B.ID.String(), lineItem.Tariff400ngItem.ID.String())
+		suite.Equal(*baseParams.Notes, lineItem.Notes)
+		suite.Equal(*baseParams.Description, lineItem.Description)
+
+		suite.NotZero(lineItem.ItemDimensions.ID)
+		suite.Equal(additionalParams.ItemDimensions.Length, lineItem.ItemDimensions.Length)
+		suite.Equal(additionalParams.ItemDimensions.Width, lineItem.ItemDimensions.Width)
+		suite.Equal(additionalParams.ItemDimensions.Height, lineItem.ItemDimensions.Height)
+
+		suite.NotZero(lineItem.CrateDimensions.ID)
+		suite.Equal(additionalParams.CrateDimensions.Height, lineItem.CrateDimensions.Height)
+		suite.Equal(additionalParams.CrateDimensions.Width, lineItem.CrateDimensions.Width)
+		suite.Equal(additionalParams.CrateDimensions.Height, lineItem.CrateDimensions.Height)
+	}
+
+	//Update to 105E preapproval
+	baseParams.Tariff400ngItemID = acc105E.ID
+	baseParams.Tariff400ngItemCode = acc105E.Code
+	verrs, err = shipment.UpdateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams, &lineItem)
+
+	if suite.noValidationErrors(verrs, err) {
+		suite.Equal(0, lineItem.Quantity1.ToUnitInt())
+		suite.Equal(acc105B.ID.String(), lineItem.Tariff400ngItem.ID.String())
+		suite.NotZero(lineItem.ItemDimensions.ID)
+		suite.Equal(additionalParams.ItemDimensions.Length, lineItem.ItemDimensions.Length)
+		suite.Equal(additionalParams.ItemDimensions.Width, lineItem.ItemDimensions.Width)
+		suite.Equal(additionalParams.ItemDimensions.Height, lineItem.ItemDimensions.Height)
+		suite.NotZero(lineItem.CrateDimensions.ID)
+		suite.Equal(additionalParams.CrateDimensions.Height, lineItem.CrateDimensions.Height)
+		suite.Equal(additionalParams.CrateDimensions.Width, lineItem.CrateDimensions.Width)
+		suite.Equal(additionalParams.CrateDimensions.Height, lineItem.CrateDimensions.Height)
 	}
 }
 
