@@ -110,6 +110,10 @@ func (suite *webServerSuite) TestConfigGEX() {
 	suite.Nil(checkGEX(suite.viper))
 }
 
+func (suite *webServerSuite) TestConfigEIAKey() {
+	suite.Nil(checkEIAKey(suite.viper))
+}
+
 func (suite *webServerSuite) TestConfigStorage() {
 	suite.Nil(checkStorage(suite.viper))
 }

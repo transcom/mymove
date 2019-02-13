@@ -137,7 +137,7 @@ func (u AddFuelDieselPrices) getMissingRecordsPrices(missingMonths []int) (fuelV
 		monthString := fmt.Sprintf("%02s", strconv.Itoa(month))
 		startDateString = fmt.Sprintf("%v%v%v", year, monthString, startDay)
 		endDateString = fmt.Sprintf("%v%v%v", year, monthString, endDay)
-		eiaKey := "26758423cb0636ae577cf3d6512f1f0a" //TODO add to constants and get a key using a central email
+		eiaKey := ""
 		url := fmt.Sprintf(
 			"https://api.eia.gov/series/?api_key=%v&series_id=PET.EMD_EPD2D_PTE_NUS_DPG.W&start=%v&end=%v",
 			eiaKey, startDateString, endDateString)

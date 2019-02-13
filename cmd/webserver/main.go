@@ -265,6 +265,9 @@ func initFlags(flag *pflag.FlagSet) {
 
 	// CSRF Protection
 	flag.String("csrf-auth-key", "", "CSRF Auth Key, 32 byte long")
+
+	// IEA Open Data API
+	flag.String("iea-key", "", "Key for Energy Information Administration (EIA) api")
 }
 
 func initDODCertificates(v *viper.Viper, logger *webserverLogger) ([]tls.Certificate, *x509.CertPool, error) {
@@ -518,6 +521,11 @@ func checkConfig(v *viper.Viper) error {
 		return err
 	}
 
+	err = checkEIAKey(v)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -639,6 +647,14 @@ func checkGEX(v *viper.Viper) error {
 		}
 	}
 
+	return nil
+}
+
+func checkEIAKey(v *viper.Viper) error {
+	eiaKey := v.GetString("eia-key")
+	if len(eiaKey) < 1 {
+		return fmt.Errorf("no eia api key provided")
+	}
 	return nil
 }
 
