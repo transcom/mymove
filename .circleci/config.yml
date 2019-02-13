@@ -755,9 +755,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #  branches:
-          #    ignore: placeholder_branch_name
+          filters:
+           branches:
+             ignore: cg_163884093_enforce_bash_on_milmove
 
       - integration_tests_office:
           requires:
@@ -765,9 +765,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+            branches:
+              ignore: cg_163884093_enforce_bash_on_milmove
 
       - integration_tests_tsp:
           requires:
@@ -775,9 +775,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+            branches:
+              ignore: cg_163884093_enforce_bash_on_milmove
 
       - client_test:
           requires:
@@ -821,21 +821,21 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cg_163884093_enforce_bash_on_milmove
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cg_163884093_enforce_bash_on_milmove
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cg_163884093_enforce_bash_on_milmove
 
       - check_circle_against_staging_sha:
           requires:
