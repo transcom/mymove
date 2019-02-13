@@ -16,6 +16,7 @@ import BackupInfoPanel from './BackupInfoPanel';
 import CustomerInfoPanel from './CustomerInfoPanel';
 import OrdersPanel from './OrdersPanel';
 import PaymentsPanel from './Ppm/PaymentsPanel';
+import DatesAndLocationPanel from './Ppm/DatesAndLocationsPanel';
 import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
 import IncentiveCalculator from './Ppm/IncentiveCalculator';
@@ -88,6 +89,7 @@ const PPMTabContent = props => {
       <ExpensesPanel title="Expenses" moveId={props.moveId} />
       <IncentiveCalculator moveId={props.moveId} />
       <StorageReimbursementCalculator moveId={props.moveId} />
+      <DatesAndLocationPanel title="Dates & Locations" moveId={props.moveId} />
       <PPMEstimatesPanel title="Estimates" moveId={props.moveId} />
     </div>
   );
