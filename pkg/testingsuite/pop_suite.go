@@ -51,6 +51,20 @@ func (suite *PopTestSuite) MustSave(model interface{}) {
 	}
 }
 
+// MustCreate requires creating without errors
+func (suite *PopTestSuite) MustCreate(db *pop.Connection, model interface{}) {
+	t := suite.T()
+	t.Helper()
+
+	verrs, err := db.ValidateAndCreate(model)
+	if err != nil {
+		suite.T().Errorf("Errors encountered creating %v: %v", model, err)
+	}
+	if verrs.HasAny() {
+		suite.T().Errorf("Validation errors encountered creating %v: %v", model, verrs)
+	}
+}
+
 // NoVerrs prints any errors it receives
 func (suite *PopTestSuite) NoVerrs(verrs *validate.Errors) bool {
 	if !suite.False(verrs.HasAny()) {

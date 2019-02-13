@@ -1,0 +1,5 @@
+create_table("shipment_recalculate_logs") {
+	t.Column("id", "uuid", {primary: true})
+	t.Column("shipment_id", "uuid", {})
+}
+add_foreign_key("shipment_recalculate_logs", "shipment_id", {"shipments": ["id"]}, {})
