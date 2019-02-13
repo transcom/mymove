@@ -71,7 +71,6 @@ export class InvoicePanel extends PureComponent {
             <UnbilledTable
               lineItems={this.props.unbilledShipmentLineItems}
               lineItemsTotal={this.props.unbilledLineItemsTotal}
-              cancelPayment={this.props.resetInvoiceFlow}
               approvePayment={this.approvePayment.bind(this)}
               allowPayments={allowPayments}
               createInvoiceStatus={this.state.createInvoiceRequestStatus}

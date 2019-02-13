@@ -1,0 +1,6 @@
+create_table("shipment_recalculates") {
+	t.Column("id", "uuid", {primary: true})
+	t.Column("shipment_updated_before", "timestamp", {})
+	t.Column("shipment_updated_after", "timestamp", {})
+	t.Column("active", "bool", {"default": false})
+}

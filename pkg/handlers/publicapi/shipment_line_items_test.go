@@ -2,6 +2,7 @@ package publicapi
 
 import (
 	"net/http/httptest"
+	"time"
 
 	"github.com/gobuffalo/pop"
 
@@ -80,6 +81,44 @@ func (suite *HandlerSuite) TestGetShipmentLineItemOfficeHandler() {
 		HTTPRequest: req,
 		ShipmentID:  strfmt.UUID(acc1.ShipmentID.String()),
 	}
+
+	// And: get shipment is returned
+	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	if suite.Assertions.IsType(&accessorialop.GetShipmentLineItemsOK{}, response) {
+		okResponse := response.(*accessorialop.GetShipmentLineItemsOK)
+
+		// And: Payload is equivalent to original shipment line item
+		suite.Len(okResponse.Payload, 1)
+		suite.Equal(acc1.ID.String(), okResponse.Payload[0].ID.String())
+	}
+}
+
+func (suite *HandlerSuite) TestGetShipmentLineItemRecalculateHandler() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	// Two shipment line items tied to two different shipments
+	acc1 := testdatagen.MakeDefaultShipmentLineItem(suite.DB())
+	testdatagen.MakeDefaultShipmentLineItem(suite.DB())
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("GET", "/shipments", nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	params := accessorialop.GetShipmentLineItemsParams{
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(acc1.ShipmentID.String()),
+	}
+
+	// Create date range
+	recalculateRange := models.ShipmentRecalculate{
+		ShipmentUpdatedAfter:  time.Date(1970, time.January, 01, 0, 0, 0, 0, time.UTC),
+		ShipmentUpdatedBefore: time.Now(),
+		Active:                true,
+	}
+	suite.MustCreate(suite.DB(), &recalculateRange)
 
 	// And: get shipment is returned
 	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}

@@ -3,6 +3,8 @@
 #   Show logs from the most recently stopped app tasks.
 #
 set -eo pipefail
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly DIR
 readonly LIMIT=${LIMIT:-25}
 
 usage() {
@@ -12,23 +14,6 @@ usage() {
 [[ -z $1 || -z $2 ]] && usage
 set -u
 
-readonly name=$1
-readonly environment=$2
-readonly cluster=app-$environment
+[[ -f "$DIR/ecs-service-logs" ]] || (echo "Missing bin/ecs-service-logs. Run make build_tools" && exit 1)
 
-# awslogs-stream-prefix settings
-readonly prefix=$name
-readonly container=$name-$environment
-readonly log_group_name=ecs-tasks-$name-$environment
-
-# Get list of recently stopped tasks
-for task_id in $(aws ecs describe-services --cluster "$cluster" --services "$name" --query 'services[].events[].message' | grep stopped | grep -o 'task [0-9a-f-]*' | cut -f 2 -d ' '); do
-    [[ -z $task_id ]] && { echo "Missing task ID"; exit 1; }
-
-    # Display logs for this task
-    log_stream_name=$prefix/$container/$task_id
-    echo "Task $task_id"
-    echo "-----------------------------------------"
-    aws logs get-log-events --limit "$LIMIT" --log-group-name "$log_group_name" --log-stream-name "$log_stream_name" --query 'events[].message' | jq -r '.[]' || true
-    echo
-done
+"$DIR/ecs-service-logs" --cluster "app-${2}" --service "${1}" --environment "${2}" --status "STOPPED" --verbose
