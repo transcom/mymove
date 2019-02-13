@@ -375,7 +375,7 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 		daysInSIT = int(*ppm.DaysInStorage)
 	}
 
-	lhDiscount, sitDiscount, err := PPMDiscountFetch(h.DB(), h.Logger(), *ppm.PickupPostalCode, *ppm.DestinationPostalCode, *ppm.PlannedMoveDate)
+	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(h.DB(), h.Logger(), *ppm.PickupPostalCode, *ppm.DestinationPostalCode, *ppm.PlannedMoveDate)
 	if err != nil {
 		return err
 	}

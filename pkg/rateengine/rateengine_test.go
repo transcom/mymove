@@ -3,18 +3,18 @@ package rateengine
 import (
 	"testing"
 
+	"github.com/go-openapi/swag"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *RateEngineSuite) Test_CheckPPMTotal() {
-	t := suite.T()
-	engine := NewRateEngine(suite.DB(), suite.logger)
+func (suite *RateEngineSuite) setupRateEngineTest() {
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
 		BasepointCity: "Saucier",
@@ -24,7 +24,6 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		Region:        "11",
 	}
 	suite.MustSave(&originZip3)
-
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Gulfport, MS",
 		ServiceArea:        "428",
@@ -38,7 +37,6 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		SITPDSchedule:      1,
 	}
 	suite.MustSave(&originServiceArea)
-
 	destinationZip3 := models.Tariff400ngZip3{
 		Zip3:          "336",
 		BasepointCity: "Tampa",
@@ -48,7 +46,6 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		Region:        "13",
 	}
 	suite.MustSave(&destinationZip3)
-
 	destinationServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Tampa, FL",
 		ServiceArea:        "197",
@@ -62,7 +59,6 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		SITPDSchedule:      1,
 	}
 	suite.MustSave(&destinationServiceArea)
-
 	fullPackRate := models.Tariff400ngFullPackRate{
 		Schedule:           1,
 		WeightLbsLower:     0,
@@ -72,7 +68,6 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.MustSave(&fullPackRate)
-
 	fullUnpackRate := models.Tariff400ngFullUnpackRate{
 		Schedule:           1,
 		RateMillicents:     542900,
@@ -80,7 +75,6 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.MustSave(&fullUnpackRate)
-
 	newBaseLinehaul := models.Tariff400ngLinehaulRate{
 		DistanceMilesLower: 1,
 		DistanceMilesUpper: 10000,
@@ -92,7 +86,6 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.MustSave(&newBaseLinehaul)
-
 	shorthaul := models.Tariff400ngShorthaulRate{
 		CwtMilesLower:      1,
 		CwtMilesUpper:      50000,
@@ -101,6 +94,59 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.MustSave(&shorthaul)
+
+}
+
+func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, destinationZip string, weight unit.Pound, logger *zap.Logger, planner route.Planner) (CostComputation, error) {
+	suite.setupRateEngineTest()
+	tdl := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
+		TrafficDistributionList: models.TrafficDistributionList{
+			SourceRateArea:    "US48",
+			DestinationRegion: "13",
+			CodeOfService:     "2",
+		},
+	})
+	tsp := testdatagen.MakeDefaultTSP(suite.DB())
+	tspPerformance := models.TransportationServiceProviderPerformance{
+		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
+		PerformancePeriodEnd:            testdatagen.PerformancePeriodEnd,
+		RateCycleStart:                  testdatagen.PeakRateCycleStart,
+		RateCycleEnd:                    testdatagen.PeakRateCycleEnd,
+		TrafficDistributionListID:       tdl.ID,
+		TransportationServiceProviderID: tsp.ID,
+		QualityBand:                     swag.Int(1),
+		BestValueScore:                  90,
+		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
+		SITRate:                         unit.NewDiscountRateFromPercent(50.0),
+	}
+	suite.MustSave(&tspPerformance)
+	lhDiscount, _, err := models.PPMDiscountFetch(suite.DB(),
+		logger,
+		originZip,
+		destinationZip, testdatagen.RateEngineDate,
+	)
+	suite.Require().Nil(err)
+	engine := NewRateEngine(suite.DB(), logger)
+	cost, err := engine.ComputePPM(
+		weight,
+		originZip,
+		destinationZip,
+		1044,
+		testdatagen.RateEngineDate,
+		0,
+		lhDiscount,
+		0,
+	)
+	suite.Require().Nil(err)
+	suite.Require().True(cost.GCC > 0)
+	return cost, err
+}
+
+func (suite *RateEngineSuite) Test_CheckPPMTotal() {
+	suite.setupRateEngineTest()
+	t := suite.T()
+
+	engine := NewRateEngine(suite.DB(), suite.logger)
 
 	assertions := testdatagen.Assertions{}
 	assertions.FuelEIADieselPrice.BaselineRate = 6
@@ -118,6 +164,30 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 	if cost.GCC != expected {
 		t.Errorf("wrong GCC: expected %d, got %d", expected, cost.GCC)
 	}
+}
+
+func (suite *RateEngineSuite) TestComputePPMWithLHDiscount() {
+	logger, _ := zap.NewDevelopment()
+	planner := route.NewTestingPlanner(1234)
+	originZip := "39574"
+	destinationZip := "33633"
+	weight := unit.Pound(2000)
+	cost, err := suite.computePPMIncludingLHRates(originZip, destinationZip, weight, logger, planner)
+
+	engine := NewRateEngine(suite.DB(), logger)
+	ppmCost, err := engine.ComputePPMIncludingLHDiscount(
+		weight,
+		originZip,
+		destinationZip,
+		1044,
+		testdatagen.RateEngineDate,
+		0,
+		0,
+	)
+	suite.Require().Nil(err)
+
+	suite.True(ppmCost.GCC > 0)
+	suite.Equal(ppmCost, cost)
 }
 
 type RateEngineSuite struct {

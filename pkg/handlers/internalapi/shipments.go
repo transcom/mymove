@@ -14,7 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	invoiceop "github.com/transcom/mymove/pkg/service/invoice"
+	invoiceop "github.com/transcom/mymove/pkg/services/invoice"
 )
 
 func payloadForInvoiceModel(a *models.Invoice) *internalmessages.Invoice {

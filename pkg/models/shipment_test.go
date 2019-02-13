@@ -1,9 +1,11 @@
 package models_test
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/transcom/mymove/pkg/dates"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -15,6 +17,8 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 	var weightEstimate unit.Pound = -3
 	var progearWeightEstimate unit.Pound = -12
 	var spouseProgearWeightEstimate unit.Pound = -9
+	calendar := dates.NewUSCalendar()
+	weekendDate := dates.NextNonWorkday(*calendar, time.Date(testdatagen.TestYear, time.January, 25, 0, 0, 0, 0, time.UTC))
 
 	shipment := &Shipment{
 		EstimatedPackDays:           &packDays,
@@ -22,16 +26,35 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 		WeightEstimate:              &weightEstimate,
 		ProgearWeightEstimate:       &progearWeightEstimate,
 		SpouseProgearWeightEstimate: &spouseProgearWeightEstimate,
+		RequestedPickupDate:         &weekendDate,
+		OriginalDeliveryDate:        &weekendDate,
+		OriginalPackDate:            &weekendDate,
+		PmSurveyPlannedPackDate:     &weekendDate,
+		PmSurveyPlannedPickupDate:   &weekendDate,
+		PmSurveyPlannedDeliveryDate: &weekendDate,
+		ActualPackDate:              &weekendDate,
+		ActualPickupDate:            &weekendDate,
+		ActualDeliveryDate:          &weekendDate,
 	}
 
+	stringDate := weekendDate.Format("2006-01-02 15:04:05 -0700 UTC")
 	expErrors := map[string][]string{
-		"move_id":                        []string{"move_id can not be blank."},
-		"status":                         []string{"status can not be blank."},
-		"estimated_pack_days":            []string{"-2 is less than or equal to zero."},
-		"estimated_transit_days":         []string{"0 is less than or equal to zero."},
-		"weight_estimate":                []string{"-3 is less than zero."},
-		"progear_weight_estimate":        []string{"-12 is less than zero."},
-		"spouse_progear_weight_estimate": []string{"-9 is less than zero."},
+		"move_id":                         []string{"move_id can not be blank."},
+		"status":                          []string{"status can not be blank."},
+		"estimated_pack_days":             []string{"-2 is less than or equal to zero."},
+		"estimated_transit_days":          []string{"0 is less than or equal to zero."},
+		"weight_estimate":                 []string{"-3 is less than zero."},
+		"progear_weight_estimate":         []string{"-12 is less than zero."},
+		"spouse_progear_weight_estimate":  []string{"-9 is less than zero."},
+		"requested_pickup_date":           []string{fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"original_delivery_date":          []string{fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"original_pack_date":              []string{fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"pm_survey_planned_pack_date":     []string{fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"pm_survey_planned_pickup_date":   []string{fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"pm_survey_planned_delivery_date": []string{fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"actual_pack_date":                []string{fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"actual_pickup_date":              []string{fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"actual_delivery_date":            []string{fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
 	}
 
 	suite.verifyValidationErrors(shipment, expErrors)
@@ -40,8 +63,9 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 // Test_FetchUnofferedShipments tests that a shipment is returned when we fetch shipments with offers.
 func (suite *ModelSuite) Test_FetchUnofferedShipments() {
 	t := suite.T()
-	pickupDate := time.Now()
-	deliveryDate := time.Now().AddDate(0, 0, 1)
+	calendar := dates.NewUSCalendar()
+	pickupDate := dates.NextWorkday(*calendar, time.Date(testdatagen.TestYear, time.January, 28, 0, 0, 0, 0, time.UTC))
+	deliveryDate := dates.NextWorkday(*calendar, pickupDate)
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 	market := "dHHG"
 	sourceGBLOC := "KKFA"

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues } from 'redux-form';
 
-import { updateOrders } from './ducks';
+import { updateOrders, selectOrdersForMove } from 'shared/Entities/modules/orders';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
@@ -56,12 +56,12 @@ AccountingPanel = reduxForm({
   keepDirtyOnReinitialize: true,
 })(AccountingPanel);
 
-function mapStateToProps(state) {
-  let orders = get(state, 'office.officeOrders', {});
+function mapStateToProps(state, ownProps) {
+  const orders = selectOrdersForMove(state, ownProps.moveId);
 
   return {
     // reduxForm
-    initialValues: state.office.officeOrders,
+    initialValues: orders,
 
     // Wrapper
     ordersSchema: get(state, 'swaggerInternal.spec.definitions.Orders', {}),

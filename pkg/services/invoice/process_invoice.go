@@ -8,15 +8,15 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
-	"github.com/transcom/mymove/pkg/edi/gex"
 	"github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 // ProcessInvoice is a service object to generate/send/record an invoice.
 type ProcessInvoice struct {
 	DB                    *pop.Connection
-	GexSender             gex.SendToGex
+	GexSender             services.GexSender
 	SendProductionInvoice bool
 	ICNSequencer          sequence.Sequencer
 }
@@ -57,7 +57,7 @@ func (p ProcessInvoice) generateAndSendInvoiceData(invoice *models.Invoice, ship
 		return nil, err
 	}
 
-	resp, err := p.GexSender.Call(invoice858CString, transactionName)
+	resp, err := p.GexSender.SendToGex(invoice858CString, transactionName)
 	if err != nil {
 		return &invoice858CString, err
 	}

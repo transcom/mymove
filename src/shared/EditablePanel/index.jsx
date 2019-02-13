@@ -200,7 +200,7 @@ export function editablePanelify(DisplayComponent, EditComponent, editEnabled = 
         <React.Fragment>
           {this.props.hasError && (
             <Alert type="error" heading="An error occurred">
-              There was an error: <em>{this.props.errorMessage}</em>.
+              <em>{this.props.errorMessage}</em>
             </Alert>
           )}
           <EditablePanel

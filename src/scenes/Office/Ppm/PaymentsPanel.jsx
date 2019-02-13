@@ -3,9 +3,15 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
+import {
+  selectReimbursement,
+  approveReimbursement,
+  selectPPMForMove,
+  downloadPPMAttachments,
+  downloadPPMAttachmentsLabel,
+} from 'shared/Entities/modules/ppms';
+import { getLastError } from 'shared/Swagger/selectors';
 
-import { approveReimbursement, downloadPPMAttachments } from '../ducks';
-import { selectPpmStatus } from 'shared/Entities/modules/ppms';
 import { no_op } from 'shared/utils';
 import { formatCents, formatDate } from 'shared/formatters';
 import Alert from 'shared/Alert';
@@ -72,7 +78,7 @@ class PaymentsTable extends Component {
   };
 
   renderAdvanceAction = () => {
-    if (this.props.ppmStatus === 'APPROVED') {
+    if (this.props.ppm.status === 'APPROVED') {
       if (this.props.advance.status === 'APPROVED') {
         return <div>{/* Further actions to come*/}</div>;
       } else {
@@ -241,16 +247,14 @@ class PaymentsTable extends Component {
 }
 
 const mapStateToProps = state => {
-  const ppm = get(state, 'office.officePPMs.0', {});
-
+  const move = get(state, 'office.officeMove', {});
+  const ppm = selectPPMForMove(state, move.id);
+  const advance = get(ppm, 'advance', {});
   return {
     ppm,
-    ppmStatus: selectPpmStatus(state, ppm.id),
-    move: get(state, 'office.officeMove', {}),
-    advance: get(state, 'office.officePPMs[0].advance', {}),
-    hasError: false,
-    errorMessage: state.office.error,
-    attachmentsError: get(state, 'office.downloadAttachmentsHasError'),
+    move,
+    advance: selectReimbursement(state, advance.id) || advance,
+    attachmentsError: getLastError(state, downloadPPMAttachmentsLabel),
   };
 };
 

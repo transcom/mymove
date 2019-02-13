@@ -1,4 +1,4 @@
-package gex
+package invoice
 
 import (
 	"log"
@@ -41,8 +41,8 @@ func (suite *GexSuite) TestSendToGexHTTP_Call() {
 	mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	}))
-	resp, err := SendToGexHTTP{URL: mockServer.URL, IsTrueGexURL: false, GEXBasicAuthUsername: "",
-		GEXBasicAuthPassword: ""}.Call(ediString, "test_transaction")
+	resp, err := NewGexSenderHTTP(mockServer.URL, false, nil, "", "").
+		SendToGex(ediString, "test_transaction")
 	if resp == nil || err != nil {
 		suite.T().Fatal(err, "Failed mock request")
 	}
@@ -52,7 +52,8 @@ func (suite *GexSuite) TestSendToGexHTTP_Call() {
 	mockServer = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}))
-	resp, err = SendToGexHTTP{URL: mockServer.URL, IsTrueGexURL: false}.Call(ediString, "test_transaction")
+	resp, err = NewGexSenderHTTP(mockServer.URL, false, nil, "", "").
+		SendToGex(ediString, "test_transaction")
 	if resp == nil || err != nil {
 		suite.T().Fatal(err, "Failed mock request")
 	}
