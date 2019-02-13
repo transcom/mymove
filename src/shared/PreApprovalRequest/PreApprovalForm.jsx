@@ -105,7 +105,11 @@ export class LocationSearch extends Component {
 export class PreApprovalForm extends Component {
   render() {
     const robustAccessorial = get(this.props, 'context.flags.robustAccessorial', false);
-    const DetailComponent = getDetailComponent(this.props.tariff400ng_item_code, robustAccessorial);
+    const DetailComponent = getDetailComponent(
+      this.props.tariff400ng_item_code,
+      robustAccessorial,
+      this.props.initialValues,
+    );
 
     return (
       <Form className="pre-approval-form" onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
