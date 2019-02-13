@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /usr/bin/env bash
 # This script waits for an available database connection, or until a timeout is
 # reached. Useful to test database connectivity, or wait for local Docker
 # instances to spin up.
