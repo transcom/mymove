@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /usr/bin/env bash
 
 gpath=$GOPATH
 if [ -z "$gpath" ]; then

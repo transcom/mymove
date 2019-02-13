@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /usr/bin/env bash
 #
 # This script will use available API endpoints to find invoices in whatever
 # environment you specify.
