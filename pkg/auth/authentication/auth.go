@@ -152,9 +152,6 @@ type CallbackHandler struct {
 	db                  *pop.Connection
 	clientAuthSecretKey string
 	noSessionTimeout    bool
-	// loginGovMilClientID    string
-	// loginGovOfficeClientID string
-	// loginGovTspClientID    string
 }
 
 // NewCallbackHandler creates a new CallbackHandler
