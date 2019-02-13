@@ -54,5 +54,7 @@ export function selectPPMForMove(state, moveId) {
 }
 
 export function selectReimbursement(state, reimbursementId) {
-  return get(state, `entities.reimbursements.${reimbursementId}`) || {};
+  const advanceFromEntities = get(state, `entities.reimbursements.${reimbursementId}`);
+  const advanceFromPpmReducer = get(state, 'ppm.currentPpm.advance');
+  return advanceFromEntities || advanceFromPpmReducer || {};
 }
