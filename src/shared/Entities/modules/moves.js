@@ -65,7 +65,9 @@ export function selectMoveDatesSummary(state, moveId, moveDate) {
 }
 
 export const selectMove = (state, id) => {
-  return denormalize([id], moves, state.entities)[0] || {};
+  const emptyMove = {};
+  if (!id) return emptyMove;
+  return denormalize([id], moves, state.entities)[0] || emptyMove;
 };
 
 export function selectMoveStatus(state, moveId) {
