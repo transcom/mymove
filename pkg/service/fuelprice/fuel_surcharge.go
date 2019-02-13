@@ -3,7 +3,6 @@ package fuelprice
 import (
 	"encoding/json"
 	"fmt"
-	"go/types"
 	"io/ioutil"
 	"log"
 	"math"
@@ -11,7 +10,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/docker/go-units"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
@@ -30,15 +28,14 @@ func (u AddFuelDieselPrices) Call() (*validate.Errors, error) {
 	verrs := &validate.Errors{}
 	missingMonths, err := u.findMissingRecordMonths(u.DB)
 	if len(missingMonths) < 1 {
-		log.Fatal("No new values to add to the database") //TODO: what to use here to end?
-		return verrs, err
+		log.Println("No new values to add to the database") //TODO: what to use here to end?
+		return verrs, nil
 	}
 	if err != nil {
-		return &validate.Errors{}, errors.Errorf("Error getting months missing fuel data in the db: %v ", err)
+		return verrs, errors.Errorf("Error getting months missing fuel data in the db: %v ", err)
 	}
 
 	fuelValuesByMonth, err := u.getMissingRecordsPrices(missingMonths)
-
 	if err != nil {
 		return &validate.Errors{}, err
 	}
@@ -49,9 +46,18 @@ func (u AddFuelDieselPrices) Call() (*validate.Errors, error) {
 		pricePerGallon := fuelValues.price
 		pubDateString := fuelValues.dateString
 		year, err := strconv.Atoi(pubDateString[:4])
+		if err != nil {
+			return verrs, errors.Wrapf(err, "Unable to convert year to integer from %v", pubDateString)
+		}
 		monthInt, err := strconv.Atoi(pubDateString[4:6])
+		if err != nil {
+			return verrs, errors.Wrapf(err, "Unable to convert month to integer from %v", pubDateString)
+		}
 		month := time.Month(monthInt)
 		day, err := strconv.Atoi(pubDateString[6:])
+		if err != nil {
+			return verrs, errors.Wrapf(err, "Unable to convert day to integer from %v", pubDateString)
+		}
 
 		pubDate := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		startDate := time.Date(year, month, 15, 0, 0, 0, 0, time.UTC)
@@ -78,21 +84,31 @@ type fuelData struct {
 	price      float64
 }
 
+type eiaRequestData struct {
+	Command  string `json:"command"`
+	SeriesID string `json:"series_id"`
+}
+
 type eiaSeriesData struct {
-	seriesID    string
-	name        string
-	units       string
-	f           string
-	unitshort   string
-	description string
-	copyright   string
-	source      string
-	iso3166     string
-	geography   string
-	start       string
-	end         string
-	updated     string
-	data        [][]string
+	SeriesID    string          `json:"series_id"`
+	Name        string          `json:"name"`
+	Units       string          `json:"units"`
+	F           string          `json:"f"`
+	Unitshort   string          `json:"unitshort"`
+	Description string          `json:"description"`
+	Copyright   string          `json:"copyright"`
+	Source      string          `json:"source"`
+	Iso3166     string          `json:"iso3166"`
+	Geography   string          `json:"geography"`
+	Start       string          `json:"start"`
+	End         string          `json:"end"`
+	Updated     string          `json:"updated"`
+	Data        [][]interface{} `json:"data"`
+}
+
+type eiaData struct {
+	RequestData eiaRequestData  `json:"request"`
+	SeriesData  []eiaSeriesData `json:"series"`
 }
 
 func (u AddFuelDieselPrices) getMissingRecordsPrices(missingMonths []int) (fuelValues []fuelData, err error) {
@@ -125,28 +141,29 @@ func (u AddFuelDieselPrices) getMissingRecordsPrices(missingMonths []int) (fuelV
 			return nil, errors.Wrap(err, "Error with EIA Open Data fuel prices GET request")
 		}
 
-		var result map[string]interface{}
-
 		response, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			return nil, errors.Wrap(err, "Unable to read response body from eia.gov")
 		}
 
-		err = json.Unmarshal([]byte(response), &result)
+		var result eiaData
+		err = json.Unmarshal(response, &result)
 		if err != nil {
 			return nil, errors.Wrap(err, "Unable to unmarshal JSON data from eia.gov's open data")
 		}
-		fmt.Println(result)
 
-		monthFuelData := result["series"].([][]string) // Todo: find out how to do this properly
-		fmt.Println(monthFuelData)
-		//if monthFuelData < 1 {
-		//	err := errors.Errorf("No fuel data available for $1", time.Month(month))
-		//	return fuelValues, err
-		//}
-		//
 		dateString := ""
 		var price float64
+		monthFuelData := result.SeriesData[0].Data
+		if len(monthFuelData) < 1 {
+			err := errors.Errorf("No fuel data available for $1", time.Month(month))
+			return []fuelData{}, err
+		}
+
+		for _, datum := range monthFuelData {
+			dateString = datum[0].(string)
+			price = datum[1].(float64)
+		}
 		//
 		//if len(monthFuelData) > 1 {
 		//	weekIndex := 0
