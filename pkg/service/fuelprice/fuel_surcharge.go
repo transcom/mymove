@@ -28,7 +28,7 @@ func (u AddFuelDieselPrices) Call() (*validate.Errors, error) {
 	verrs := &validate.Errors{}
 	missingMonths, err := u.findMissingRecordMonths(u.DB)
 	if len(missingMonths) < 1 {
-		log.Println("No new values to add to the database") //TODO: what to use here to end?
+		log.Println("No new values to add to the database")
 		return verrs, nil
 	}
 	if err != nil {
@@ -63,6 +63,7 @@ func (u AddFuelDieselPrices) Call() (*validate.Errors, error) {
 		startDate := time.Date(year, month, 15, 0, 0, 0, 0, time.UTC)
 		endDate := time.Date(year, month+1, 14, 0, 0, 0, 0, time.UTC)
 		baselineRate := u.calculateFuelSurchargeBaselineRate(pricePerGallon)
+
 		// Insert values into fuel_eia_diesel_prices
 		fuelPrice := models.FuelEIADieselPrice{
 			CreatedAt:                   time.Now(),
@@ -73,8 +74,12 @@ func (u AddFuelDieselPrices) Call() (*validate.Errors, error) {
 			EIAPricePerGallonMillicents: unit.Cents(pricePerGallon * 100).ToMillicents(),
 			BaselineRate:                baselineRate,
 		}
-		verrs, err := u.DB.ValidateAndSave(fuelPrice)
-		return verrs, err
+		responseVErrors := validate.NewErrors()
+		verrs, err := u.DB.ValidateAndSave(&fuelPrice)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			return responseVErrors, errors.Wrap(err, "Cannot validate and save fuel diesel price")
+		}
 	}
 	return verrs, err
 }
@@ -160,31 +165,28 @@ func (u AddFuelDieselPrices) getMissingRecordsPrices(missingMonths []int) (fuelV
 			return []fuelData{}, err
 		}
 
-		for _, datum := range monthFuelData {
-			dateString = datum[0].(string)
-			price = datum[1].(float64)
+		if len(monthFuelData) > 1 {
+			weekIndex := 0
+			var min int
+			// find earliest date(String) in the month
+			for i, weekData := range monthFuelData {
+				dateString = weekData[0].(string)
+				price = weekData[1].(float64)
+				pubDateAsInt, err := strconv.Atoi(dateString)
+				if err != nil {
+					errors.Wrap(err, "pubDate conversion from string to int")
+				}
+				if i == 0 || pubDateAsInt < min {
+					min = pubDateAsInt
+					weekIndex = i
+				}
+			}
+			dateString = monthFuelData[weekIndex][0].(string)
+			price = monthFuelData[weekIndex][1].(float64)
+		} else if len(monthFuelData) == 1 {
+			dateString = monthFuelData[0][0].(string)
+			price = monthFuelData[0][1].(float64)
 		}
-		//
-		//if len(monthFuelData) > 1 {
-		//	weekIndex := 0
-		//	var min int
-		//	// find earliest date(String) in the month
-		//	for i, weekData := range monthFuelData {
-		//		pubDateAsInt, err := strconv.Atoi(weekData[0])
-		//		if err != nil {
-		//			errors.Wrap(err, "pubDate conversion from string to int")
-		//		}
-		//		if i == 0 || pubDateAsInt < min {
-		//			min = weekData
-		//			weekIndex = i
-		//		}
-		//	}
-		//	dateString = monthFuelData[weekIndex][0]
-		//	price = monthFuelData[weekIndex][1]
-		//} else if monthFuelData == 1 {
-		//	dateString = monthFuelData[0][0]
-		//	price = monthFuelData[0][1]
-		//}
 
 		fuelValues = append(fuelValues, fuelData{dateString: dateString, price: price})
 	}
