@@ -48,7 +48,7 @@ export class StorageInTransitForm extends Component {
             <SwaggerField fieldName="street_address_2" swagger={addressSchema} />
             <SwaggerField fieldName="city" swagger={addressSchema} required />
             <SwaggerField fieldName="state" swagger={addressSchema} required />
-            <SwaggerField fieldName="postal_code" swagger={addressSchema} required />
+            <SwaggerField fieldName="postal_code" swagger={addressSchema} zipPattern="USA" required />
           </div>
         </fieldset>
       </form>
