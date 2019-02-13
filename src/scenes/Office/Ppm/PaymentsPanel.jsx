@@ -65,16 +65,16 @@ class PaymentsTable extends Component {
   };
 
   documentUpload = () => {
-    const move = this.props.move;
-    this.props.push(`/moves/${move.id}/documents/new?move_document_type=SHIPMENT_SUMMARY`);
+    const { moveId } = this.props;
+    this.props.push(`/moves/${moveId}/documents/new?move_document_type=SHIPMENT_SUMMARY`);
   };
 
   downloadShipmentSummary = () => {
-    let moveID = get(this.props, 'move.id');
+    const { moveId } = this.props;
     const userDate = getUserDate();
 
     // eslint-disable-next-line
-    window.open(`/internal/moves/${moveID}/shipment_summary_worksheet/?preparationDate=${userDate}`);
+    window.open(`/internal/moves/${moveId}/shipment_summary_worksheet/?preparationDate=${userDate}`);
   };
 
   renderAdvanceAction = () => {
@@ -246,14 +246,14 @@ class PaymentsTable extends Component {
   }
 }
 
-const mapStateToProps = state => {
-  const move = get(state, 'office.officeMove', {});
-  const ppm = selectPPMForMove(state, move.id);
-  const advance = get(ppm, 'advance', {});
+const mapStateToProps = (state, ownProps) => {
+  const { moveId } = ownProps;
+  const ppm = selectPPMForMove(state, moveId);
+  const advance = selectReimbursement(state, ppm.advance);
   return {
     ppm,
-    move,
-    advance: selectReimbursement(state, advance.id) || advance,
+    moveId,
+    advance,
     attachmentsError: getLastError(state, downloadPPMAttachmentsLabel),
   };
 };

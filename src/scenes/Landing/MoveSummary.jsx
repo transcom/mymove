@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { get, includes } from 'lodash';
 import moment from 'moment';
@@ -9,6 +10,7 @@ import Alert from 'shared/Alert';
 import { formatCents, formatCentsRange } from 'shared/formatters';
 import TransportationOfficeContactInfo from 'shared/TransportationOffices/TransportationOfficeContactInfo';
 import truck from 'shared/icon/truck-gray.svg';
+import { selectReimbursement } from 'shared/Entities/modules/ppms';
 
 import './MoveSummary.css';
 import ppmCar from './images/ppm-car.svg';
@@ -372,14 +374,12 @@ export const ApprovedMoveSummary = props => {
   );
 };
 
-const PPMMoveDetails = props => {
-  const { ppm } = props;
+const PPMMoveDetailsPanel = props => {
+  const { advance, ppm } = props;
   const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
     ? `(up to ${ppm.estimated_storage_reimbursement})`
     : '';
-  const advanceString = ppm.has_requested_advance
-    ? `Advance Requested: $${formatCents(ppm.advance.requested_amount)}`
-    : '';
+  const advanceString = ppm.has_requested_advance ? `Advance Requested: $${formatCents(advance.requested_amount)}` : '';
   const hasSitString = `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`;
 
   return (
@@ -392,6 +392,14 @@ const PPMMoveDetails = props => {
     </div>
   );
 };
+
+const mapStateToPPMMoveDetailsProps = (state, ownProps) => {
+  const { ppm } = ownProps;
+  const advance = selectReimbursement(state, ownProps.ppm.advance);
+  return { ppm, advance };
+};
+
+const PPMMoveDetails = connect(mapStateToPPMMoveDetailsProps)(PPMMoveDetailsPanel);
 
 const HhgMoveDetails = props => {
   return (
