@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
-	"github.com/transcom/mymove/pkg/service/invoice"
+	"github.com/transcom/mymove/pkg/services/invoice"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"go.uber.org/zap"

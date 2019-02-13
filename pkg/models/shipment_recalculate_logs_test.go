@@ -29,7 +29,9 @@ func (suite *ModelSuite) TestShipmentRecalculateLog() {
 
 		"Empty Fields": {
 			recalculateLog: models.ShipmentRecalculateLog{},
-			expectedErrs:   map[string][]string{},
+			expectedErrs: map[string][]string{
+				"shipment_id": {"ShipmentID can not be blank."},
+			},
 		},
 	}
 

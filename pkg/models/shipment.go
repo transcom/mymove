@@ -1007,8 +1007,8 @@ func VerifyBaseShipmentLineItems(lineItems []ShipmentLineItem) error {
 
 // DeleteBaseShipmentLineItems removes all base shipment line items from a shipment
 func (s *Shipment) DeleteBaseShipmentLineItems(db *pop.Connection) error {
-	db.Transaction(func(tx *pop.Connection) error {
-		transactionError := errors.New("rollback")
+	transactionError := db.Transaction(func(tx *pop.Connection) error {
+		dbError := errors.New("rollback")
 
 		for _, item := range s.ShipmentLineItems {
 			if item.Tariff400ngItem.RequiresPreApproval {
@@ -1021,13 +1021,13 @@ func (s *Shipment) DeleteBaseShipmentLineItems(db *pop.Connection) error {
 			if FindBaseShipmentLineItem(item.Tariff400ngItem.Code) {
 				err := tx.Destroy(&item)
 				if err != nil {
-					transactionError = errors.Wrap(transactionError, fmt.Sprintf(" Error deleting shipment line item for shipment ID: %s and shipment line item code: %s", s.ID, item.Tariff400ngItem.Code))
-					return errors.Wrap(err, transactionError.Error())
+					dbError = errors.Wrap(dbError, fmt.Sprintf(" Error deleting shipment line item for shipment ID: %s and shipment line item code: %s", s.ID, item.Tariff400ngItem.Code))
+					return errors.Wrap(err, dbError.Error())
 				}
 			}
 		}
 		return nil
 	})
 
-	return nil
+	return transactionError
 }

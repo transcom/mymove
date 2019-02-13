@@ -8,14 +8,14 @@ import (
 	"github.com/transcom/mymove/pkg/rateengine"
 )
 
-// Price describe the type of pricing to do for a shipment
-type Price string
+// PricingType describe the type of pricing to do for a shipment
+type PricingType string
 
 const (
 	// ShipmentPriceNEW captures enum value "NEW"
-	ShipmentPriceNEW Price = "NEW"
+	ShipmentPriceNEW PricingType = "NEW"
 	// ShipmentPriceRECALCULATE captures enum value "RECALCULATE"
-	ShipmentPriceRECALCULATE Price = "RECALCULATE"
+	ShipmentPriceRECALCULATE PricingType = "RECALCULATE"
 )
 
 // PriceShipment is a service object to price a Shipment
@@ -25,7 +25,7 @@ type PriceShipment struct {
 }
 
 // Call prices a Shipment
-func (c PriceShipment) Call(shipment *models.Shipment, price Price) (*validate.Errors, error) {
+func (c PriceShipment) Call(shipment *models.Shipment, price PricingType) (*validate.Errors, error) {
 	// Delivering a shipment is a trigger to populate several shipment line items in the database.  First
 	// calculate charges, then submit the updated shipment record and line items in a DB transaction.
 	shipmentCost, err := c.Engine.HandleRunOnShipment(*shipment)

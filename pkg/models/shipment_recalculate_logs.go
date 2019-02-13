@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 )
 
@@ -38,7 +39,9 @@ func (t ShipmentRecalculateLogs) String() string {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (t *ShipmentRecalculateLog) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.Validate(), nil
+	return validate.Validate(
+		&validators.UUIDIsPresent{Field: t.ShipmentID, Name: "ShipmentID"},
+	), nil
 }
 
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.

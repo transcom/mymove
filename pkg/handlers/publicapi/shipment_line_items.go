@@ -14,8 +14,8 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
-	"github.com/transcom/mymove/pkg/service/invoice"
-	shipmentop "github.com/transcom/mymove/pkg/service/shipment"
+	"github.com/transcom/mymove/pkg/services/invoice"
+	shipmentop "github.com/transcom/mymove/pkg/services/shipment"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
