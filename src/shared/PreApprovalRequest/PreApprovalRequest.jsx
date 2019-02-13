@@ -207,5 +207,5 @@ PreApprovalRequest.propTypes = {
   tariff400ngItems: PropTypes.array,
 };
 
-// export default PreApprovalRequest;
 export default withContext(PreApprovalRequest);
+export { PreApprovalRequest as BasicPreApprovalRequest };
