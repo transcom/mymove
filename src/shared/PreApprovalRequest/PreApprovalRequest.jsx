@@ -1,6 +1,8 @@
+import { get } from 'lodash';
 import React, { Component, Fragment } from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
+import { withContext } from 'shared/AppContext';
 import { renderStatusIcon, computeCubicFeetFromThousandthInch } from 'shared/utils';
 import { isOfficeSite } from 'shared/constants.js';
 import { formatDate, formatFromBaseQuantity } from 'shared/formatters';
@@ -9,6 +11,7 @@ import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
 import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
 import { convertFromThousandthInchToInch } from 'shared/formatters';
+import { isNewAccessorial } from 'shared/preApprovals';
 
 function formatStatus(lineItem) {
   let formattedStatus = lineItem.status;
@@ -87,6 +90,7 @@ export class PreApprovalRequest extends Component {
     const hasInvoice = Boolean(row.invoice_id);
     const isShowingForm = Boolean(this.state.showDeleteForm || this.state.showEditForm);
     const showButtons = this.props.isActionable && !isShowingForm && !hasInvoice;
+    const robustAccessorial = get(this.props, 'context.flags.robustAccessorial', false);
     if (this.state.showEditForm) {
       return (
         <tr>
@@ -107,9 +111,28 @@ export class PreApprovalRequest extends Component {
         status = renderStatusIcon(row.status);
       }
       const deleteActiveClass = this.state.showDeleteForm ? 'delete-active' : '';
-      let basePAR;
-      switch (row.tariff400ng_item.code) {
-        case '105B':
+      let basePAR = (
+        <tr key={row.id} className={deleteActiveClass}>
+          <td align="left">{row.tariff400ng_item.code}</td>
+          <td align="left">{row.tariff400ng_item.item}</td>
+          <td align="left"> {row.location[0]} </td>
+          <td align="left">
+            {formatFromBaseQuantity(row.quantity_1)} <br />
+            {row.notes}
+          </td>
+          <td align="left">{formatDate(row.submitted_date)}</td>
+          <td align="left">
+            <span className="status">{status}</span>
+            {formatStatus(row)}
+          </td>
+          <td>
+            {showButtons && renderActionIcons(row.status, this.onEdit, this.props.onApproval, this.onDelete, row.id)}
+          </td>
+        </tr>
+      );
+      console.log(`row.tariff400ng_item.code: ${row.tariff400ng_item.code}`);
+      if (row.tariff400ng_item.code === '105B' && robustAccessorial) {
+        if (isNewAccessorial(row)) {
           let crateLengthinInches = convertFromThousandthInchToInch(row.crate_dimensions.length);
           let crateWidthinInches = convertFromThousandthInchToInch(row.crate_dimensions.width);
           let crateHeightinInches = convertFromThousandthInchToInch(row.crate_dimensions.height);
@@ -142,29 +165,7 @@ export class PreApprovalRequest extends Component {
               </td>
             </tr>
           );
-          break;
-        default:
-          basePAR = (
-            <tr key={row.id} className={deleteActiveClass}>
-              <td align="left">{row.tariff400ng_item.code}</td>
-              <td align="left">{row.tariff400ng_item.item}</td>
-              <td align="left"> {row.location[0]} </td>
-              <td align="left">
-                {formatFromBaseQuantity(row.quantity_1)} <br />
-                {row.notes}
-              </td>
-              <td align="left">{formatDate(row.submitted_date)}</td>
-              <td align="left">
-                <span className="status">{status}</span>
-                {formatStatus(row)}
-              </td>
-              <td>
-                {showButtons &&
-                  renderActionIcons(row.status, this.onEdit, this.props.onApproval, this.onDelete, row.id)}
-              </td>
-            </tr>
-          );
-          break;
+        }
       }
 
       return (
@@ -206,4 +207,5 @@ PreApprovalRequest.propTypes = {
   tariff400ngItems: PropTypes.array,
 };
 
-export default PreApprovalRequest;
+// export default PreApprovalRequest;
+export default withContext(PreApprovalRequest);
