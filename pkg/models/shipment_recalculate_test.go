@@ -9,7 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *ModelSuite) TestTariff400ngRecalculate() {
+func (suite *ModelSuite) TestShipmentRecalculate() {
 	testCases := map[string]struct {
 		recalculateDates models.ShipmentRecalculate
 		expectedErrs     map[string][]string
@@ -52,7 +52,7 @@ func (suite *ModelSuite) TestTariff400ngRecalculate() {
 	}
 }
 
-func (suite *ModelSuite) TestTariff400ngRecalculateTooManyActiveRecord() {
+func (suite *ModelSuite) TestShipmentRecalculateTooManyActiveRecord() {
 
 	id := uuid.Must(uuid.NewV4())
 
@@ -87,7 +87,7 @@ func (suite *ModelSuite) TestTariff400ngRecalculateTooManyActiveRecord() {
 
 }
 
-func (suite *ModelSuite) TestTariff400ngFetchActiveRecord() {
+func (suite *ModelSuite) TestShipmentRecalculateFetchActiveRecord() {
 
 	suite.T().Run("Fetch active records", func(t *testing.T) {
 

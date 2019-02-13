@@ -5,21 +5,11 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gofrs/uuid"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
 	"go.uber.org/zap"
 )
-
-// Tariff400ngRecalculateLog struct
-type Tariff400ngRecalculateLog struct {
-	DateRecalculated time.Time
-	ShipmentID       uuid.UUID
-	Code             string
-	BeforePrice      float64
-	AfterPrice       float64
-}
 
 // ProcessRecalculateShipment is a service object to recalculate a Shipment's Line Items
 type ProcessRecalculateShipment struct {
@@ -29,7 +19,7 @@ type ProcessRecalculateShipment struct {
 
 /*
 	Recalculate a shipment's line items is temporary functionality that will be used when it has been
-    determined there is some shipment that requires recalculuation. A shipment does not contain line items
+    determined there is some shipment that requires recalculation. A shipment does not contain line items
     until it has reached the DELIVERED state.
 
     Some of the reasons a recalculation can happen are:
@@ -44,7 +34,7 @@ type ProcessRecalculateShipment struct {
     Currently to recalculate a shipment we are looking for the following:
       - Shipment is in DELIVERED or COMPLETED state
       - If the Shipment was created within the specified recalculation date range
-      - Shipment has a line item that has been updated before the date tariff400ng_recalcuate.updated_before
+      - Shipment has a line item that has been updated before the date shipment_recalculate.updated_before
       - If there is an approved accessorial, this line item must be preserved to maintain the approved status
       - If a Shipment does not have all of the Base Shipment Line Items it will be re-calculated
       - Shipment does not have any line item that has an InvoiceID
