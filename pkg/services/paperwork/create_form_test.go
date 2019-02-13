@@ -72,9 +72,9 @@ func (suite *CreateFormSuite) TestCreateFormServiceSuccess() {
 		f,
 	).Return(nil)
 
-	createForm := NewCreateForm(FileStorer, FormFiller)
+	formCreator := NewCreateForm(FileStorer, FormFiller)
 	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, services.GBL)
-	file, err := createForm.CreateForm(template)
+	file, err := formCreator.CreateForm(template)
 
 	assert.NotNil(suite.T(), file)
 	assert.Nil(suite.T(), err)
@@ -93,9 +93,9 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerAppendPageFailure()
 		mock.AnythingOfType("models.GovBillOfLadingFormValues"),
 	).Return(errors.New("Error for FormFiller.AppendPage()")).Times(1)
 
-	createForm := NewCreateForm(FileStorer, FormFiller)
+	formCreator := NewCreateForm(FileStorer, FormFiller)
 	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, services.GBL)
-	file, err := createForm.CreateForm(template)
+	file, err := formCreator.CreateForm(template)
 
 	assert.NotNil(suite.T(), err)
 	assert.Nil(suite.T(), file)
@@ -121,9 +121,9 @@ func (suite *CreateFormSuite) TestCreateFormServiceFileStorerCreateFailure() {
 		mock.AnythingOfType("string"),
 	).Return(nil, errors.New("Error for FileStorer.Create()"))
 
-	createForm := NewCreateForm(FileStorer, FormFiller)
+	formCreator := NewCreateForm(FileStorer, FormFiller)
 	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, services.GBL)
-	file, err := createForm.CreateForm(template)
+	file, err := formCreator.CreateForm(template)
 
 	assert.Nil(suite.T(), file)
 	assert.NotNil(suite.T(), err)
@@ -156,9 +156,9 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerOutputFailure() {
 		f,
 	).Return(errors.New("Error for FormFiller.Output()"))
 
-	createForm := NewCreateForm(FileStorer, FormFiller)
+	formCreator := NewCreateForm(FileStorer, FormFiller)
 	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, services.GBL)
-	file, err := createForm.CreateForm(template)
+	file, err := formCreator.CreateForm(template)
 
 	assert.Nil(suite.T(), file)
 	assert.NotNil(suite.T(), err)
@@ -170,7 +170,7 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerOutputFailure() {
 
 func (suite *CreateFormSuite) TestCreateFormServiceCreateAssetByteReaderFailure() {
 	badAssetPath := "pkg/paperwork/formtemplates/someUndefinedTemplatePath.png"
-	templateBuffer, err := CreateAssetByteReader(badAssetPath)
+	templateBuffer, err := createAssetByteReader(badAssetPath)
 	assert.Nil(suite.T(), templateBuffer)
 	assert.NotNil(suite.T(), err)
 	assert.Equal(suite.T(), "Error creating asset from path. Check image path.: Asset pkg/paperwork/formtemplates/someUndefinedTemplatePath.png not found", err.Error(), "should be equal")
