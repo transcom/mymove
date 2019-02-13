@@ -91,8 +91,8 @@ const PPMTabContent = props => {
       <IncentiveCalculator moveId={props.moveId} />
       <StorageReimbursementCalculator moveId={props.moveId} />
       <DatesAndLocationPanel title="Dates & Locations" moveId={props.moveId} />
-      <PPMEstimatesPanel title="Estimates" moveId={props.moveId} />
       <NetWeightPanel title="Weights" moveId={props.moveId} />
+      <PPMEstimatesPanel title="Estimates" moveId={props.moveId} />
     </div>
   );
 };

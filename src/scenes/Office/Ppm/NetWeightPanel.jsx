@@ -14,22 +14,18 @@ const NetWeightDisplay = props => {
     values: props.ppm,
   };
   return (
-    <React.Fragment>
-      <div className="editable-panel-column">
-        <PanelSwaggerField title="Net Weight" fieldName="net_weight" required {...fieldProps} />
-      </div>
-    </React.Fragment>
+    <div className="editable-panel-column">
+      <PanelSwaggerField title="Net Weight" fieldName="net_weight" required {...fieldProps} />
+    </div>
   );
 };
 
 const NetWeightEdit = props => {
   const { ppmSchema } = props;
   return (
-    <React.Fragment>
-      <div className="editable-panel-column">
-        <SwaggerField title="Net Weight" fieldName="net_weight" swagger={ppmSchema} required />
-      </div>
-    </React.Fragment>
+    <div className="editable-panel-column net-weight">
+      <SwaggerField className="short-field" title="Net Weight" fieldName="net_weight" swagger={ppmSchema} required />lbs
+    </div>
   );
 };
 
