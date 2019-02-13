@@ -3,6 +3,8 @@ package models
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/gen/ordersmessages"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
@@ -16,7 +18,7 @@ import (
 // UploadedOrdersDocumentName is the name of an uploaded orders document
 const UploadedOrdersDocumentName = "uploaded_orders"
 
-// OrderStatus represents the status of an order record's lifecycle
+// OrderStatus represents the status of an order record's state in the UX manual orders flow
 type OrderStatus string
 
 const (
@@ -40,6 +42,18 @@ const (
 	TourTypeUnaccompanied TourType = "unaccompanied"
 	// TourTypeUnaccompaniedDependentsRestricted captures enum value "unaccompanied-dependents-restricted"
 	TourTypeUnaccompaniedDependentsRestricted TourType = "unaccompanied-dependents-restricted"
+)
+
+// OrderImpact represents whether these orders are effective and authorized, merely a request for orders, or canceled altogether
+type OrderImpact string
+
+const (
+	// OrderImpactAuthorized means that these Orders are in effect if they are the latest amendment revision
+	OrderImpactAuthorized OrderImpact = "authorized"
+	// OrderImpactRequestForOrders means that these Orders are a request sent to a personnel office or division to cut authorized orders, and cannot be used by a member to actually move
+	OrderImpactRequestForOrders OrderImpact = "rfo"
+	// OrderImpactCanceled means that these Orders are canceled
+	OrderImpactCanceled OrderImpact = "canceled"
 )
 
 // Order is a set of orders received by a service member
@@ -70,6 +84,14 @@ type Order struct {
 	SharedID            uuid.UUID                          `json:"shared_id" db:"shared_id"`
 	IsElectronic        bool                               `json:"is_electronic" db:"is_electronic"`
 	SeqNum              int                                `json:"seq_num" db:"seq_num"`
+	EOrdersGivenName    *string                            `json:"eorders_given_name" db:"eorders_given_name"`
+	EOrdersFamilyName   *string                            `json:"eorders_family_name" db:"eorders_family_name"`
+	EOrdersMiddleName   *string                            `json:"eorders_middle_name" db:"eorders_middle_name"`
+	EOrdersNameSuffix   *string                            `json:"eorders_name_suffix" db:"eorders_name_suffix"`
+	EOrdersAffiliation  ordersmessages.Affiliation         `json:"eorders_affiliation" db:"eorders_affiliation"`
+	EOrdersPaygrade     ordersmessages.Rank                `json:"eorders_paygrade" db:"eorders_paygrade"`
+	EOrdersTitle        *string                            `json:"eorders_title" db:"eorders_title"`
+	Impact              ordersmessages.Status              `json:"impact" db:"impact"`
 	NoCostMove          bool                               `json:"no_cost_move" db:"no_cost_move"`
 	TdyEnRoute          bool                               `json:"tdy_en_route" db:"tdy_en_route"`
 	TourType            TourType                           `json:"tour_type" db:"tour_type"`
@@ -88,10 +110,18 @@ type Order struct {
 	UbTAC               *string                            `json:"ub_tac" db:"ub_tac"`
 	UbSDN               *string                            `json:"ub_sdn" db:"ub_sdn"`
 	UbLOA               *string                            `json:"ub_loa" db:"ub_loa"`
-	LosingUnitID        uuid.UUID                          `json:"losing_unit_id" db:"losing_unit_id"`
-	LosingUnit          Unit                               `belongs_to:"units"`
-	GainingUnitID       uuid.UUID                          `json:"gaining_unit_id" db:"gaining_unit_id"`
-	GainingUnit         Unit                               `belongs_to:"units"`
+	LosingUIC           *string                            `json:"losing_uic" db:"losing_uic"`
+	LosingUnitName      *string                            `json:"losing_unit_name" db:"losing_unit_name"`
+	LosingUnitCity      *string                            `json:"losing_unit_city" db:"losing_unit_city"`
+	LosingUnitLocality  *string                            `json:"losing_unit_locality" db:"losing_unit_locality"`
+	LosingUnitCountry   *string                            `json:"losing_unit_country" db:"losing_unit_country"`
+	LosingUnitPostCode  *string                            `json:"losing_unit_postal_code" db:"losing_unit_postal_code"`
+	GainingUIC          *string                            `json:"gaining_uic" db:"gaining_uic"`
+	GainingUnitName     *string                            `json:"gaining_unit_name" db:"gaining_unit_name"`
+	GainingUnitCity     *string                            `json:"gaining_unit_city" db:"gaining_unit_city"`
+	GainingUnitLocality *string                            `json:"gaining_unit_locality" db:"gaining_unit_locality"`
+	GainingUnitCountry  *string                            `json:"gaining_unit_country" db:"gaining_unit_country"`
+	GainingUnitPostCode *string                            `json:"gaining_unit_postal_code" db:"gaining_unit_postal_code"`
 	Comments            *string                            `json:"comments" db:"comments"`
 }
 

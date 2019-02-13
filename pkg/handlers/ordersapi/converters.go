@@ -9,22 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-var issuerDict = map[string]ordersmessages.Issuer{
-	string(internalmessages.DeptIndicatorAIRFORCE): ordersmessages.IssuerAirForce,
-	string(internalmessages.DeptIndicatorMARINES):  ordersmessages.IssuerMarineCorps,
-}
-
-func deptIndicatorToAPIIssuer(di *string) (ordersmessages.Issuer, error) {
-	if di == nil {
-		return "", errors.New("DeptIndicator cannot be nil")
-	}
-	issuer := issuerDict[*di]
-	if issuer == "" {
-		return "", fmt.Errorf("Unknown issuer %v", di)
-	}
-	return issuer, nil
-}
-
 var toAPIAffiliationMap = map[models.ServiceMemberAffiliation]ordersmessages.Affiliation{
 	models.AffiliationARMY:       ordersmessages.AffiliationArmy,
 	models.AffiliationNAVY:       ordersmessages.AffiliationNavy,
@@ -141,47 +125,6 @@ func fromAPIRank(omr ordersmessages.Rank) (models.ServiceMemberRank, error) {
 		return "", fmt.Errorf("Unknown rank %v", omr)
 	}
 	return rank, nil
-}
-
-func serviceMemberToAPIMember(sm models.ServiceMember) (*ordersmessages.Member, error) {
-	member := ordersmessages.Member{}
-	member.GivenName = sm.FirstName
-	if sm.MiddleName != nil {
-		member.MiddleName = *sm.MiddleName
-	}
-	member.FamilyName = sm.LastName
-	if sm.Suffix != nil {
-		member.Suffix = *sm.Suffix
-	}
-	var err error
-	member.Affiliation, err = toAPIAffiliation(sm.Affiliation)
-	if err != nil {
-		return nil, err
-	}
-	member.Rank, err = toAPIRank(sm.Rank)
-	if err != nil {
-		return nil, err
-	}
-	if sm.Title != nil {
-		member.Title = *sm.Title
-	}
-	return &member, nil
-}
-
-var toAPIStatusMap = map[models.OrderStatus]ordersmessages.Status{
-	// OrderStatusAPPROVED and OrderStatusCANCELED are not currently used by the manual Orders entry flow.
-	models.OrderStatusAPPROVED:  ordersmessages.StatusAuthorized,
-	models.OrderStatusCANCELED:  ordersmessages.StatusCanceled,
-	models.OrderStatusDRAFT:     ordersmessages.StatusRfo,
-	models.OrderStatusSUBMITTED: ordersmessages.StatusAuthorized,
-}
-
-func toAPIStatus(os models.OrderStatus) (ordersmessages.Status, error) {
-	apiStatus := toAPIStatusMap[os]
-	if apiStatus == "" {
-		return "", fmt.Errorf("Unknown order status %s", os)
-	}
-	return apiStatus, nil
 }
 
 var tourTypeDict = map[models.TourType]ordersmessages.TourType{

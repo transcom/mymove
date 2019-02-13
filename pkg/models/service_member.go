@@ -62,7 +62,6 @@ type ServiceMember struct {
 	BackupContacts         BackupContacts            `has_many:"backup_contacts"`
 	DutyStationID          *uuid.UUID                `json:"duty_station_id" db:"duty_station_id"`
 	DutyStation            DutyStation               `belongs_to:"duty_stations"`
-	Title                  *string                   `json:"title" db:"title"`
 }
 
 // ServiceMembers is not required by pop and may be deleted

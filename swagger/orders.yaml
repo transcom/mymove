@@ -108,15 +108,12 @@ paths:
 
         # Errors
 
-        It is an error to specify a seqNum in the Revision that has already been
-        used in another Revision of these Orders.
-
-        It is an error to specify a different issuer from the one in preexisting
-        Revisions of these Orders.
-
         Users of this endpoint must have permission to write Orders for the
         specified `issuer`. Otherwise, this endpoint will return `403
         Forbidden`.
+
+        If amending existing Orders, the supplied seqNum must be unique. If it
+        has already been used, this endpoint will return `409 Conflict`.
       operationId: postRevision
       consumes:
         - application/json
@@ -170,6 +167,8 @@ paths:
           description: must be authenticated to use this endpoint
         '403':
           description: Forbidden
+        '409':
+          description: Conflict
         '500':
           description: Server error
   '/orders/{uuid}':
@@ -214,14 +213,16 @@ paths:
 
         ## Errors
 
-        It is an error to specify a non-existent UUID.
-
-        It is an error to specify a seqNum in the Revision that has already been
-        used in another Revision of these Orders.
-
         Users of this endpoint must have permission to write Orders for the
         `issuer` associated with the Orders that were originally POST'd to the
         `orders` endpoint. If not, this endpoint will return `403 Forbidden`.
+
+        The UUID must match an existing set of Orders. Otherwise, this endpoint
+        will return `404 Not Found`.
+
+        If amending existing Orders, the supplied seqNum must be unique. If it
+        has already been used, this endpoint will return `409 Conflict`.
+
       operationId: postRevisionToOrders
       consumes:
         - application/json
@@ -252,6 +253,8 @@ paths:
           description: Forbidden
         '404':
           description: Orders not found
+        '409':
+          description: Conflict
         '500':
           description: Server error
 definitions:

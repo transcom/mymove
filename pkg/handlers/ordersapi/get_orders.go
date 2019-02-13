@@ -56,7 +56,10 @@ func (h GetOrdersHandler) Handle(params ordersoperations.GetOrdersParams) middle
 	latestOrders := orders[len(orders)-1]
 	apiOrders.OrdersNum = latestOrders.OrdersNumber
 	apiOrders.Edipi = latestOrders.ServiceMember.Edipi
-	apiOrders.Issuer, err = deptIndicatorToAPIIssuer(latestOrders.DepartmentIndicator)
+	if latestOrders.OrdersIssuingAgency == nil {
+		return ordersoperations.NewGetOrdersInternalServerError()
+	}
+	apiOrders.Issuer = ordersmessages.Issuer(*latestOrders.OrdersIssuingAgency)
 	if err != nil {
 		h.Logger().Info(err.Error())
 		return ordersoperations.NewGetOrdersInternalServerError()
@@ -67,16 +70,23 @@ func (h GetOrdersHandler) Handle(params ordersoperations.GetOrdersParams) middle
 		rev := ordersmessages.Revision{}
 		seqNum := int64(o.SeqNum)
 		rev.SeqNum = &seqNum
-		rev.Member, err = serviceMemberToAPIMember(o.ServiceMember)
-		if err != nil {
-			h.Logger().Info(err.Error())
-			return ordersoperations.NewGetOrdersInternalServerError()
+		member := ordersmessages.Member{
+			Affiliation: o.EOrdersAffiliation,
+			FamilyName:  o.EOrdersFamilyName,
+			GivenName:   o.EOrdersGivenName,
+			Rank:        o.EOrdersPaygrade,
 		}
-		rev.Status, err = toAPIStatus(o.Status)
-		if err != nil {
-			h.Logger().Info(err.Error())
-			return ordersoperations.NewGetOrdersInternalServerError()
+		if o.EOrdersMiddleName != nil {
+			member.MiddleName = *o.EOrdersMiddleName
 		}
+		if o.EOrdersNameSuffix != nil {
+			member.Suffix = *o.EOrdersNameSuffix
+		}
+		if o.EOrdersTitle != nil {
+			member.Title = *o.EOrdersTitle
+		}
+		rev.Member = &member
+		rev.Status = o.Impact
 		rev.DateIssued = strfmt.DateTime(o.IssueDate)
 		rev.NoCostMove = o.NoCostMove
 		rev.TdyEnRoute = o.TdyEnRoute
@@ -92,9 +102,44 @@ func (h GetOrdersHandler) Handle(params ordersoperations.GetOrdersParams) middle
 		}
 		hasDependents := o.HasDependents
 		rev.HasDependents = &hasDependents
-		// TODO losing and gaining units
 		rev.LosingUnit = new(ordersmessages.Unit)
+		if o.LosingUnitName != nil {
+			rev.LosingUnit.Name = *o.LosingUnitName
+		}
+		if o.LosingUnitCity != nil {
+			rev.LosingUnit.City = *o.LosingUnitCity
+		}
+		if o.LosingUnitLocality != nil {
+			rev.LosingUnit.Locality = *o.LosingUnitLocality
+		}
+		if o.LosingUnitCountry != nil {
+			rev.LosingUnit.Country = *o.LosingUnitCountry
+		}
+		if o.LosingUnitPostCode != nil {
+			rev.LosingUnit.PostalCode = *o.LosingUnitPostCode
+		}
+		if o.LosingUIC != nil {
+			rev.LosingUnit.Uic = *o.LosingUIC
+		}
 		rev.GainingUnit = new(ordersmessages.Unit)
+		if o.GainingUnitName != nil {
+			rev.GainingUnit.Name = *o.GainingUnitName
+		}
+		if o.GainingUnitCity != nil {
+			rev.GainingUnit.City = *o.GainingUnitCity
+		}
+		if o.GainingUnitLocality != nil {
+			rev.GainingUnit.Locality = *o.GainingUnitLocality
+		}
+		if o.GainingUnitCountry != nil {
+			rev.GainingUnit.Country = *o.GainingUnitCountry
+		}
+		if o.GainingUnitPostCode != nil {
+			rev.GainingUnit.PostalCode = *o.GainingUnitPostCode
+		}
+		if o.GainingUIC != nil {
+			rev.GainingUnit.Uic = *o.GainingUIC
+		}
 		rnetDate := strfmt.Date(o.ReportNoEarlierThan)
 		rev.ReportNoEarlierThan = &rnetDate
 		rnltDate := strfmt.Date(o.ReportByDate)
