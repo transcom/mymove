@@ -16,6 +16,8 @@ func payloadForStorageInTransitModel(s *models.StorageInTransit) *apimessages.St
 		return nil
 	}
 
+	location := string(s.Location)
+
 	return &apimessages.StorageInTransit{
 		EstimatedStartDate: handlers.FmtDate(s.EstimatedStartDate),
 		Notes:              handlers.FmtStringPtr(s.Notes),
@@ -24,6 +26,7 @@ func payloadForStorageInTransitModel(s *models.StorageInTransit) *apimessages.St
 		WarehouseID:        handlers.FmtString(s.WarehouseID),
 		WarehouseName:      handlers.FmtString(s.WarehouseName),
 		WarehousePhone:     handlers.FmtStringPtr(s.WarehousePhone),
+		Location:           &location,
 	}
 }
 
@@ -33,7 +36,7 @@ type IndexStorageInTransitHandler struct {
 }
 
 // Handle returns a list of Storage In Transit entries
-func (h IndexStorageInTransitHandler) Handle(params sitop.CreateStorageInTransitParams) middleware.Responder {
+func (h IndexStorageInTransitHandler) Handle(params sitop.IndexStorageInTransitsParams) middleware.Responder {
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
 	storageInTransits, err := models.FetchStorageInTransitsOnShipment(h.DB(), shipmentID)
@@ -116,7 +119,6 @@ func processStorageInTransitInput(h handlers.HandlerContext, shipmentID uuid.UUI
 
 // Handle handles the handling
 func (h CreateStorageInTransitHandler) Handle(params sitop.CreateStorageInTransitParams) middleware.Responder {
-	//session := auth.SessionFromRequestContext(params.HTTPRequest)
 	payload := params.StorageInTransit
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
 
@@ -162,7 +164,7 @@ func (h PatchStorageInTransitHandler) Handle(params sitop.PatchStorageInTransitP
 
 	newStorageInTransit, err := processStorageInTransitInput(h, shipmentID, *payload)
 
-	_, err = h.DB().ValidateAndUpdate(&newStorageInTransit)
+	_, err = h.DB().ValidateAndSave(&newStorageInTransit)
 
 	if err != nil {
 		h.Logger().Error("DB Query", zap.Error(err))
