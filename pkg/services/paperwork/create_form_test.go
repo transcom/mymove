@@ -72,7 +72,7 @@ func (suite *CreateFormSuite) TestCreateFormServiceSuccess() {
 		f,
 	).Return(nil)
 
-	formCreator := NewCreateForm(FileStorer, FormFiller)
+	formCreator := NewFormCreator(FileStorer, FormFiller)
 	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, services.GBL)
 	file, err := formCreator.CreateForm(template)
 
@@ -93,7 +93,7 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerAppendPageFailure()
 		mock.AnythingOfType("models.GovBillOfLadingFormValues"),
 	).Return(errors.New("Error for FormFiller.AppendPage()")).Times(1)
 
-	formCreator := NewCreateForm(FileStorer, FormFiller)
+	formCreator := NewFormCreator(FileStorer, FormFiller)
 	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, services.GBL)
 	file, err := formCreator.CreateForm(template)
 
@@ -121,7 +121,7 @@ func (suite *CreateFormSuite) TestCreateFormServiceFileStorerCreateFailure() {
 		mock.AnythingOfType("string"),
 	).Return(nil, errors.New("Error for FileStorer.Create()"))
 
-	formCreator := NewCreateForm(FileStorer, FormFiller)
+	formCreator := NewFormCreator(FileStorer, FormFiller)
 	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, services.GBL)
 	file, err := formCreator.CreateForm(template)
 
@@ -156,7 +156,7 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerOutputFailure() {
 		f,
 	).Return(errors.New("Error for FormFiller.Output()"))
 
-	formCreator := NewCreateForm(FileStorer, FormFiller)
+	formCreator := NewFormCreator(FileStorer, FormFiller)
 	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, services.GBL)
 	file, err := formCreator.CreateForm(template)
 

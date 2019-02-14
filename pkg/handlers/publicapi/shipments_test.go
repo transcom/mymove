@@ -379,7 +379,7 @@ func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
 	shipment.Move.Orders.TAC = nil
 	suite.MustSave(&shipment.Move.Orders)
 
-	formCreator := paperworkservice.NewCreateForm(context.FileStorer().TempFileSystem(), paperwork.NewFormFiller())
+	formCreator := paperworkservice.NewFormCreator(context.FileStorer().TempFileSystem(), paperwork.NewFormFiller())
 	// And: the create gbl handler is called
 	handler := CreateGovBillOfLadingHandler{context, formCreator}
 	response := handler.Handle(params)

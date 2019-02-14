@@ -13,12 +13,12 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// FileStorer is an interface for pdfFileStorer implementation
+// FileStorer is an interface for fileStorer implementation
 type FileStorer interface {
 	Create(string) (afero.File, error)
 }
 
-// FormFiller is an interface for pdfFormFiller implementation
+// FormFiller is an interface for formFiller implementation
 type FormFiller interface {
 	AppendPage(io.ReadSeeker, map[string]paperworkforms.FieldPos, interface{}) error
 	Output(io.Writer) error
@@ -26,8 +26,8 @@ type FormFiller interface {
 
 // createForm is a service object to create a form with data
 type createForm struct {
-	pdfFileStorer FileStorer
-	pdfFormFiller FormFiller
+	fileStorer FileStorer
+	formFiller FormFiller
 }
 
 // createAssetByteReader creates a new byte reader based on the TemplateImagePath of the formLayout
@@ -51,27 +51,27 @@ func MakeFormTemplate(data interface{}, fileName string, formLayout paperworkfor
 	return services.FormTemplate{Buffer: templateBuffer, FieldsLayout: formLayout.FieldsLayout, FormType: formType, FileName: fileName, Data: data}, nil
 }
 
-// NewCreateForm creates a new struct with service dependencies
-func NewCreateForm(fileStorer FileStorer, formFiller FormFiller) services.FormCreator {
+// NewFormCreator creates a new struct with service dependencies
+func NewFormCreator(fileStorer FileStorer, formFiller FormFiller) services.FormCreator {
 	return &createForm{fileStorer, formFiller}
 }
 
 // Call creates a form with the given data
 func (c createForm) CreateForm(template services.FormTemplate) (afero.File, error) {
 	// Populate form fields with data
-	err := c.pdfFormFiller.AppendPage(template.Buffer, template.FieldsLayout, template.Data)
+	err := c.formFiller.AppendPage(template.Buffer, template.FieldsLayout, template.Data)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("Failure writing %s data to form.", template.FormType.String()))
 	}
 
 	// Read the incoming data into a temporary afero.File for consumption
-	file, err := c.pdfFileStorer.Create(template.FileName)
+	file, err := c.fileStorer.Create(template.FileName)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("Error creating a new afero file for %s form.", template.FormType.String()))
 	}
 
 	// Export file from form filler
-	err = c.pdfFormFiller.Output(file)
+	err = c.formFiller.Output(file)
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("Failure exporting %s form to file.", template.FormType.String()))
 	}
