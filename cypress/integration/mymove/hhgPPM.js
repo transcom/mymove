@@ -367,7 +367,7 @@ function serviceMemberFillsInDatesAndLocations() {
     .should('contain', 'Review');
 
   cy
-    .get('input[name="planned_move_date"]')
+    .get('input[name="original_move_date"]')
     .should('have.value', '5/20/2018')
     .clear()
     .first()
