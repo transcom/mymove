@@ -603,9 +603,10 @@ func UpdateShipmentLineItemDimensions(db *pop.Connection, baseParams *BaseShipme
 func CreateOrUpdateItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
 	var responseError error
 	responseVErrors := validate.NewErrors()
+	hasDimension := additionalParams.ItemDimensions != nil || additionalParams.CrateDimensions != nil
 
 	// Backwards compatible with "Old school" 105B/E
-	if (baseParams.Tariff400ngItemCode == "105B" || baseParams.Tariff400ngItemCode == "105E") && baseParams.Quantity1 == nil {
+	if (baseParams.Tariff400ngItemCode == "105B" || baseParams.Tariff400ngItemCode == "105E") && hasDimension {
 		//Additional validation check if item and crate dimensions exist
 		if additionalParams.ItemDimensions == nil || additionalParams.CrateDimensions == nil {
 			responseError = errors.New("Must have both item and crate dimensions params for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
