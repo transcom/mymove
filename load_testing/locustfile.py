@@ -3,7 +3,7 @@ from locust import HttpLocust, TaskSet, task
 
 class UserBehavior(TaskSet):
 
-    login = None
+    user = None
 
     def _get_csrf_token(self):
         """
@@ -26,11 +26,11 @@ class UserBehavior(TaskSet):
         csrf = self._get_csrf_token()
         resp = self.client.post('/devlocal-auth/create',
                                 headers={'x-csrf-token': csrf})
-        self.login = resp.json()
+        self.user = resp.json()
         resp = self.client.post('/devlocal-auth/login',
                                 headers={'x-csrf-token': csrf},
-                                data={'id': self.login["id"]})
-        print(resp.code, resp.content)
+                                data={'id': self.user["id"]})
+        print(resp.status_code, resp.content)
 
     def logout(self):
         self.client.post("/auth/logout")

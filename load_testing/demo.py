@@ -4,28 +4,44 @@ import urllib
 
 import requests
 
-MILMOVE = 'http://milmovelocal:8080'
 
+class Demo(object):
 
-def get_csrf_token(client):
-    """
-    Pull the CSRF token from the website by hitting the root URL.
+    def __init__(self, url):
+        self.session = requests.Session()
+        self.url = url
+        self.csrf = None
+        self.user = None
+        self.token = None
 
-    The token is set as a cookie with the name `masked_gorilla_csrf`
-    """
-    client.get(urllib.parse.urljoin(MILMOVE, '/'))
-    return client.cookies.get('masked_gorilla_csrf')
+    def _get_csrf_token(self):
+        """
+        Pull the CSRF token from the website by hitting the root URL.
 
+        The token is set as a cookie with the name `masked_gorilla_csrf`
+        """
+        if self.csrf:
+            return self.csrf
+        self.session.get(urllib.parse.urljoin(self.url, '/'))
+        self.csrf = self.session.cookies.get('masked_gorilla_csrf')
+        return self.csrf
 
-def create_user(client, csrf):
-    """
-    Create a new user for local testing using the CSRF token in the header
-    """
-    resp = client.post(urllib.parse.urljoin(MILMOVE, 'devlocal-auth/create'), headers={'x-csrf-token': csrf})
-    print(resp.content)
+    def create_user(self):
+        """
+        Create a new user for local testing using the CSRF token in the header
+        """
+        resp = self.session.post(urllib.parse.urljoin(self.url, 'devlocal-auth/create'),
+                                 headers={'x-csrf-token': self._get_csrf_token()})
+        try:
+            self.user = resp.json()
+        except Exception:
+            print(resp.content)
+        self.token = self.session.cookies.get('session_token')
 
 
 if __name__ == "__main__":
-    client = requests.session()
-    csrf = get_csrf_token(client)
-    create_user(client, csrf)
+
+    demo = Demo('http://milmovelocal:8080')
+    demo.create_user()
+    print('User', demo.user)
+    print('Token', demo.token)
