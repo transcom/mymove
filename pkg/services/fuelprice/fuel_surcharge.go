@@ -161,7 +161,7 @@ func (u AddFuelDieselPrices) getMissingRecordsPrices(missingMonths []int) (fuelV
 		var price float64
 		monthFuelData := result.SeriesData[0].Data
 		if len(monthFuelData) < 1 {
-			err := errors.Errorf("No fuel data available for $1", time.Month(month))
+			err := errors.Errorf("No fuel data available for %v", time.Month(month))
 			return []fuelData{}, err
 		}
 
