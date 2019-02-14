@@ -164,7 +164,12 @@ func (p *herePlanner) LatLongTransitDistance(source LatLong, dest LatLong) (int,
 }
 
 func (p *herePlanner) Zip5TransitDistance(source string, destination string) (int, error) {
-	return zip5TransitDistanceHelper(p, source, destination)
+	distanceMiles, err := zip5TransitDistanceHelper(p, source, destination)
+	if err != nil {
+		p.logger.Info("Failed to calculate HERE route between ZIPs", zap.String("source", source), zap.String("destination", destination))
+	}
+
+	return distanceMiles, err
 }
 
 func (p *herePlanner) TransitDistance(source *models.Address, destination *models.Address) (int, error) {
