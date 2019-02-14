@@ -48,6 +48,15 @@ go_version: .go_version.stamp
 	bin/check_go_version
 	touch .go_version.stamp
 
+bash_version: .bash_version.stamp
+.bash_version.stamp: bin/check_bash_version
+ifndef CIRCLECI
+	bin/check_bash_version
+else
+	@echo "No need to check bash version on CircleCI"
+endif
+	touch .bash_version.stamp
+
 deps: prereqs check_hosts ensure_pre_commit client_deps server_deps
 test: client_test server_test e2e_test
 
@@ -157,7 +166,7 @@ server_run_debug:
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) dlv debug cmd/webserver/main.go
 
-build_tools: server_deps server_generate
+build_tools: bash_version server_deps server_generate
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
@@ -170,6 +179,7 @@ build_tools: server_deps server_generate
 	go build -i -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
 	go build -i -ldflags "$(LDFLAGS)" -o bin/paperwork ./cmd/paperwork
 	go build -i -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
+	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 
 tsp_run: build_tools db_dev_run
 	./bin/tsp-award-queue

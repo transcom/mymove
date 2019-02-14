@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /usr/bin/env bash
 # Convenience script for creating a new certificate signed by the devlocal CA.
 
 set -eo pipefail

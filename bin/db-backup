@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /usr/bin/env bash
 # Backup the contents of the development database for later restore.
 
 set -eu -o pipefail

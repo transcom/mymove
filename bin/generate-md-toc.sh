@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /usr/bin/env bash
 # Wrapper script to generate table of contents on Markdown files.
 # Markdown files must have the `<!-- toc -->` tag in them in order to receive
 # a TOC.

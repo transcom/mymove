@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /usr/bin/env bash
 #
 #   Creates a snapshot of the app database for the given environment.
 #

@@ -43,6 +43,7 @@ import {
 import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
 import { approvePPM, selectPPMForMove } from 'shared/Entities/modules/ppms';
 import { selectServiceMember } from 'shared/Entities/modules/serviceMembers';
+import { selectMove } from 'shared/Entities/modules/moves';
 import {
   getPublicShipment,
   updatePublicShipment,
@@ -54,7 +55,7 @@ import {
 import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
 
-import { loadMoveDependencies, sendHHGInvoice, resetMove, showBanner, removeBanner } from './ducks';
+import { loadMoveDependencies, showBanner, removeBanner } from './ducks';
 import { selectMoveStatus, approveBasics, cancelMove } from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
@@ -83,7 +84,7 @@ const BasicsTabContent = props => {
 const PPMTabContent = props => {
   return (
     <div className="office-tab">
-      <PaymentsPanel title="Payments" />
+      <PaymentsPanel title="Payments" moveId={props.moveId} />
       <ExpensesPanel title="Expenses" moveId={props.moveId} />
       <IncentiveCalculator moveId={props.moveId} />
       <StorageReimbursementCalculator moveId={props.moveId} />
@@ -94,13 +95,20 @@ const PPMTabContent = props => {
 
 const HHGTabContent = props => {
   let shipmentStatus = '';
-  const { shipment, updatePublicShipment } = props;
+  const {
+    allowHhgInvoicePayment,
+    canApprovePaymentInvoice,
+    moveId,
+    serviceAgents,
+    shipment,
+    updatePublicShipment,
+  } = props;
   if (shipment) {
     shipmentStatus = shipment.status;
   }
   return (
     <div className="office-tab">
-      <RoutingPanel title="Routing" moveId={props.moveId} />
+      <RoutingPanel title="Routing" moveId={moveId} />
       <Dates title="Dates" shipment={shipment} update={updatePublicShipment} />
       <LocationsContainer update={updatePublicShipment} shipmentId={shipment.id} />
       <Weights title="Weights & Items" shipment={shipment} update={updatePublicShipment} />
@@ -108,16 +116,15 @@ const HHGTabContent = props => {
       <ServiceAgentsContainer
         title="TSP & Servicing Agents"
         shipment={shipment}
-        serviceAgents={props.serviceAgents}
+        serviceAgents={serviceAgents}
         transportationServiceProviderId={shipment.transportation_service_provider_id}
       />
       <PreApprovalPanel shipmentId={shipment.id} />
       <InvoicePanel
         shipmentId={shipment.id}
         shipmentStatus={shipmentStatus}
-        onApprovePayment={props.sendHHGInvoice}
-        canApprove={props.canApprovePaymentInvoice}
-        allowPayments={props.allowHhgInvoicePayment}
+        canApprove={canApprovePaymentInvoice}
+        allowPayments={allowHhgInvoicePayment}
       />
     </div>
   );
@@ -139,10 +146,6 @@ class MoveInfo extends Component {
     if (this.props.shipmentId !== prevProps.shipmentId) {
       this.getAllShipmentInfo(this.props.shipmentId);
     }
-  }
-
-  componentWillUnmount() {
-    this.props.resetMove();
   }
 
   getAllShipmentInfo = shipmentId => {
@@ -170,8 +173,14 @@ class MoveInfo extends Component {
   };
 
   cancelMoveAndRedirect = cancelReason => {
-    this.props.cancelMove(this.props.officeMove.id, cancelReason).then(() => {
-      this.props.showBanner();
+    const messageLines = [
+      `Move #${this.props.move.locator} for ${this.props.serviceMember.last_name}, ${
+        this.props.serviceMember.first_name
+      } has been canceled`,
+      'An email confirmation has been sent to the customer.',
+    ];
+    this.props.cancelMove(this.props.moveId, cancelReason).then(() => {
+      this.props.showBanner({ messageLines });
       setTimeout(() => this.props.removeBanner(), 10000);
       this.setState({ redirectToHome: true });
     });
@@ -205,8 +214,17 @@ class MoveInfo extends Component {
   };
 
   render() {
-    const { moveDocuments, moveStatus, orders, ppm, shipment, shipmentStatus, serviceMember, upload } = this.props;
-    const move = this.props.officeMove;
+    const {
+      move,
+      moveDocuments,
+      moveStatus,
+      orders,
+      ppm,
+      shipment,
+      shipmentStatus,
+      serviceMember,
+      upload,
+    } = this.props;
     const isPPM = move.selected_move_type === 'PPM';
     const isHHG = move.selected_move_type === 'HHG';
     const isHHGPPM = move.selected_move_type === 'HHG_PPM';
@@ -320,15 +338,13 @@ class MoveInfo extends Component {
                 <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   {this.props.shipment && (
                     <HHGTabContent
-                      updatePublicShipment={this.props.updatePublicShipment}
+                      allowHhgInvoicePayment={allowHhgInvoicePayment}
+                      canApprovePaymentInvoice={hhgDelivered}
                       moveId={this.props.moveId}
-                      ppmStatus={ppm.status}
+                      serviceAgents={this.props.serviceAgents}
                       shipment={this.props.shipment}
                       shipmentStatus={this.props.shipmentStatus}
-                      serviceAgents={this.props.serviceAgents}
-                      canApprovePaymentInvoice={hhgDelivered}
-                      officeMove={this.props.officeMove}
-                      allowHhgInvoicePayment={allowHhgInvoicePayment}
+                      updatePublicShipment={this.props.updatePublicShipment}
                     />
                   )}
                 </PrivateRoute>
@@ -453,21 +469,21 @@ MoveInfo.propTypes = {
 
 const mapStateToProps = (state, ownProps) => {
   const moveId = ownProps.match.params.moveId;
-  const officeMove = get(state, 'office.officeMove', {}) || {};
-  const shipmentId = get(officeMove, 'shipments.0.id');
+  const move = selectMove(state, moveId);
+  const shipmentId = get(move, 'shipments.0.id');
   const ppm = selectPPMForMove(state, moveId);
-  const orders = get(state, `entities.orders.${officeMove.orders_id}`, {});
+  const orders = get(state, `entities.orders.${move.orders_id}`, {});
   const serviceMember = selectServiceMember(state, orders.service_member_id);
   return {
     approveMoveHasError: get(state, 'office.moveHasApproveError'),
     errorMessage: get(state, 'office.error'),
     loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
     loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
-    moveDocuments: selectAllDocumentsForMove(state, get(state, 'office.officeMove.id', '')),
+    moveDocuments: selectAllDocumentsForMove(state, moveId),
     ppm,
+    move,
     moveId,
     moveStatus: selectMoveStatus(state, moveId),
-    officeMove,
     orders,
     officeShipment: get(state, 'office.officeShipment', {}),
     ppmAdvance: ppm.advance,
@@ -495,11 +511,9 @@ const mapDispatchToProps = dispatch =>
       approveShipment,
       completeShipment,
       cancelMove,
-      sendHHGInvoice,
       getAllTariff400ngItems,
       getAllShipmentLineItems,
       getAllInvoices,
-      resetMove,
       getTspForShipment,
       getServiceAgentsForShipment,
       showBanner,
