@@ -2,6 +2,18 @@ from locust import HttpLocust, TaskSet, task
 
 
 class UserBehavior(TaskSet):
+
+    login = None
+
+    def _get_csrf_token(self):
+        """
+        Pull the CSRF token from the website by hitting the root URL.
+
+        The token is set as a cookie with the name `masked_gorilla_csrf`
+        """
+        self.client.get('/')
+        return self.client.cookies.get('masked_gorilla_csrf')
+
     def on_start(self):
         """ on_start is called when a Locust start before any task is scheduled """
         self.login()
@@ -11,7 +23,9 @@ class UserBehavior(TaskSet):
         self.logout()
 
     def login(self):
-        self.client.post("/devlocal-auth/create")
+        csrf = self._get_csrf_token()
+        resp = self.client.post('/devlocal-auth/create', headers={'x-csrf-token': csrf})
+        self.login = resp.content
 
     def logout(self):
         self.client.post("/auth/logout")
