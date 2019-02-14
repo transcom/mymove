@@ -3,7 +3,9 @@ from locust import HttpLocust, TaskSet, task
 
 class UserBehavior(TaskSet):
 
+    csrf = None
     user = None
+    token = None
 
     def _get_csrf_token(self):
         """
@@ -11,11 +13,14 @@ class UserBehavior(TaskSet):
 
         The token is set as a cookie with the name `masked_gorilla_csrf`
         """
+        if self.csrf:
+            return self.csrf
         self.client.get('/')
-        return self.client.cookies.get('masked_gorilla_csrf')
+        self.csrf = self.client.cookies.get('masked_gorilla_csrf')
 
     def on_start(self):
         """ on_start is called when a Locust start before any task is scheduled """
+        self._get_csrf_token()
         self.login()
 
     def on_stop(self):
@@ -23,17 +28,20 @@ class UserBehavior(TaskSet):
         self.logout()
 
     def login(self):
-        csrf = self._get_csrf_token()
         resp = self.client.post('/devlocal-auth/create',
-                                headers={'x-csrf-token': csrf})
-        self.user = resp.json()
-        resp = self.client.post('/devlocal-auth/login',
-                                headers={'x-csrf-token': csrf},
-                                data={'id': self.user["id"]})
-        print(resp.status_code, resp.content)
+                                headers={'x-csrf-token': self.csrf})
+        try:
+            self.user = resp.json()
+            self.token = self.client.cookies.get('mil_session_token')
+        except Exception:
+            print('CSRF Token:', self.csrf)
+            print(resp.content)
 
     def logout(self):
         self.client.post("/auth/logout")
+        self.csrf = None
+        self.user = None
+        self.token = None
 
     @task(1)
     def index(self):
