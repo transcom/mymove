@@ -61,7 +61,7 @@ import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
 import PickupForm from './PickupForm';
 import PremoveSurveyForm from './PremoveSurveyForm';
 import ServiceAgentForm from './ServiceAgentForm';
-import { getLastRequestIsSuccess, getLastRequestIsLoading } from 'shared/Swagger/selectors';
+import { getLastRequestIsLoading } from 'shared/Swagger/selectors';
 
 import './tsp.css';
 
@@ -127,6 +127,7 @@ class ShipmentInfo extends Component {
   state = {
     redirectToHome: false,
     editTspServiceAgent: false,
+    showGblCreatedNotification: false,
   };
 
   componentDidMount() {
@@ -150,7 +151,9 @@ class ShipmentInfo extends Component {
   };
 
   generateGBL = () => {
-    return this.props.generateGBL(generateGblLabel, this.props.shipment.id);
+    return this.props
+      .generateGBL(generateGblLabel, this.props.shipment.id)
+      .then(() => this.setState({ showGblCreatedNotification: true }));
   };
 
   enterPreMoveSurvey = values => {
@@ -180,11 +183,11 @@ class ShipmentInfo extends Component {
   };
 
   render() {
+    const { showGblCreatedNotification } = this.state;
     const {
       context,
       shipment,
       shipmentDocuments,
-      generateGBLSuccess,
       generateGBLError,
       generateGBLInProgress,
       serviceAgents,
@@ -343,7 +346,7 @@ class ShipmentInfo extends Component {
                 </p>
               )}
 
-              {generateGBLSuccess && (
+              {showGblCreatedNotification && (
                 <Alert type="success" heading="GBL has been created">
                   <span className="usa-grid usa-alert-no-padding">
                     <span className="usa-width-two-thirds">Click the button to view, print, or download the GBL.</span>
@@ -475,7 +478,6 @@ const mapStateToProps = state => {
     loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
     acceptError: get(state, 'tsp.shipmentHasAcceptError'),
     generateGBLError: get(state, 'tsp.generateGBLError'),
-    generateGBLSuccess: getLastRequestIsSuccess(state, generateGblLabel),
     generateGBLInProgress: getLastRequestIsLoading(state, generateGblLabel),
     gblDocUrl: `/shipments/${shipment.id}/documents/${get(gbl, 'id')}`,
     error: get(state, 'tsp.error'),
