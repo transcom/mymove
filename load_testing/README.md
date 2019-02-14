@@ -5,6 +5,7 @@
 Getting started
 
 ```sh
+cd load_testing/
 brew install libev
 virtualenv .venv -p python3
 source .venv/bin/activate
