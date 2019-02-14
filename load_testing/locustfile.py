@@ -1,6 +1,19 @@
 from locust import HttpLocust, TaskSet, task
 
 
+class AnonBehavior(TaskSet):
+
+    @task(1)
+    def index(self):
+        self.client.get("/")
+
+
+class AnonUser(HttpLocust):
+    task_set = AnonBehavior
+    min_wait = 5000
+    max_wait = 9000
+
+
 class UserBehavior(TaskSet):
 
     csrf = None
@@ -48,7 +61,7 @@ class UserBehavior(TaskSet):
         self.client.get("/")
 
 
-class WebsiteUser(HttpLocust):
+class MilMoveUser(HttpLocust):
     task_set = UserBehavior
     min_wait = 5000
     max_wait = 9000
