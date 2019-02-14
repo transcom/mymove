@@ -114,6 +114,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			LoginGovEmail: email,
 		},
 	})
+	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
 	ppm0 := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("94ced723-fabc-42af-b9ee-87f8986bb5c9"),
@@ -129,6 +130,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			PlannedMoveDate: &nowTime,
+			Advance:         &advance,
+			AdvanceID:       &advance.ID,
 		},
 		Uploader: loader,
 	})
