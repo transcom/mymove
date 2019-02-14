@@ -64,7 +64,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksFormData() {
 	session := auth.Session{
 		UserID:          move.Orders.ServiceMember.UserID,
 		ServiceMemberID: serviceMemberID,
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 	}
 	ppm.Move.Submit()
 	ppm.Move.Approve()

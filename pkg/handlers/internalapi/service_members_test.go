@@ -124,7 +124,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	user := testdatagen.MakeDefaultUser(suite.DB())
 	session := &auth.Session{
 		UserID:          user.ID,
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 	}
 
 	// When: a new ServiceMember is posted
