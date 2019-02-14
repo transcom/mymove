@@ -49,8 +49,8 @@ DatesAndLocationPanel = reduxForm({
 })(DatesAndLocationPanel);
 
 function mapStateToProps(state, props) {
-  let formValues = getFormValues(formName)(state);
-  let ppm = selectPPMForMove(state, props.moveId);
+  const formValues = getFormValues(formName)(state);
+  const ppm = selectPPMForMove(state, props.moveId);
 
   return {
     // reduxForm
