@@ -186,7 +186,7 @@ type GetStorageInTransitHandler struct {
 // Handle handles the handling
 func (h GetStorageInTransitHandler) Handle(params sitop.GetStorageInTransitParams) middleware.Responder {
 	storageInTransitID, _ := uuid.FromString(params.StorageInTransitID.String())
-	storageInTransit, err := models.FetchStorageInTransitsByID(h.DB(), storageInTransitID)
+	storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
 
 	if err != nil {
 		h.Logger().Error("DB Query", zap.Error(err))

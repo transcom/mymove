@@ -120,8 +120,8 @@ func FetchStorageInTransitsOnShipment(tx *pop.Connection, shipmentID uuid.UUID) 
 
 }
 
-// FetchStorageInTransitsByID retrieves a single Storage In Transit object based on its own ID
-func FetchStorageInTransitsByID(tx *pop.Connection, storageInTransitID uuid.UUID) (StorageInTransit, error) {
+// FetchStorageInTransitByID retrieves a single Storage In Transit object based on its own ID
+func FetchStorageInTransitByID(tx *pop.Connection, storageInTransitID uuid.UUID) (StorageInTransit, error) {
 	var storageInTransit StorageInTransit
 	err := tx.Where("storage_in_transits.id = $1", storageInTransitID).
 		LeftJoin("addresses", "storage_in_transits.warehouse_address_id=addresses.id").First(&storageInTransit)

@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"github.com/go-openapi/swag"
 	"testing"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -27,4 +28,48 @@ func (suite *ModelSuite) TestStorageInTransitValidations() {
 		}
 		suite.verifyValidationErrors(invalidStorageInTransit, expErrors)
 	})
+}
+
+func (suite *ModelSuite) TestFetchStorageInTransitsByShipment() {
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
+	assertions := testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			Location:           models.StorageInTransitLocationORIGIN,
+			ShipmentID:         shipment.ID,
+			EstimatedStartDate: testdatagen.DateInsidePeakRateCycle,
+		},
+	}
+
+	for i := 0; i < 10; i++ {
+		testdatagen.MakeStorageInTransit(suite.DB(), assertions)
+	}
+
+	storageInTransits, err := models.FetchStorageInTransitsOnShipment(suite.DB(), shipment.ID)
+
+	suite.Nil(err)
+	suite.Equal(10, len(storageInTransits))
+
+}
+
+func (suite *ModelSuite) TestFetchStorageInTransistByID() {
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
+	assertions := testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			Location:           models.StorageInTransitLocationORIGIN,
+			ShipmentID:         shipment.ID,
+			EstimatedStartDate: testdatagen.DateInsidePeakRateCycle,
+			WarehouseEmail:     swag.String("test@tester.org"),
+		},
+	}
+	createdSIT := testdatagen.MakeStorageInTransit(suite.DB(), assertions)
+
+	fetchedSIT, err := models.FetchStorageInTransitByID(suite.DB(), createdSIT.ID)
+
+	suite.Nil(err)
+	suite.NotEmpty(fetchedSIT)
+	suite.Equal(createdSIT.ID, fetchedSIT.ID)
+	suite.Equal(*createdSIT.WarehouseEmail, *createdSIT.WarehouseEmail)
+
 }
