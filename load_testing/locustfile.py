@@ -24,8 +24,13 @@ class UserBehavior(TaskSet):
 
     def login(self):
         csrf = self._get_csrf_token()
-        resp = self.client.post('/devlocal-auth/create', headers={'x-csrf-token': csrf})
-        self.login = resp.content
+        resp = self.client.post('/devlocal-auth/create',
+                                headers={'x-csrf-token': csrf})
+        self.login = resp.json()
+        resp = self.client.post('/devlocal-auth/login',
+                                headers={'x-csrf-token': csrf},
+                                data={'id': self.login["id"]})
+        print(resp.code, resp.content)
 
     def logout(self):
         self.client.post("/auth/logout")
