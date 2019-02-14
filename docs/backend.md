@@ -21,6 +21,7 @@
   * [Libraries](#libraries)
     * [Pop](#pop)
   * [Learning](#learning)
+  * [Service Objects](backend-service-objects.md)
   * [Testing](#testing)
     * [General](#general)
     * [Coverage](#coverage)
