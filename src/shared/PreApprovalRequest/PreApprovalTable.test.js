@@ -1,17 +1,13 @@
 import React from 'react';
 import { mount, shallow } from 'enzyme';
 import PreApprovalTable from './PreApprovalTable';
-import { Provider } from 'react-redux';
-import configureStore from 'redux-mock-store';
 
 describe('PreApprovalTable tests', () => {
   let wrapper;
-  const mockStore = configureStore();
-  let store = mockStore();
   const onEdit = jest.fn();
   const shipmentLineItems = [
     {
-      id: 'sldkjf',
+      id: '1',
       tariff400ng_item: { code: '105E', item: 'Reg Shipping' },
       location: 'D',
       base_quantity: 167000,
@@ -20,7 +16,7 @@ describe('PreApprovalTable tests', () => {
       status: 'SUBMITTED',
     },
     {
-      id: 'sldsdff',
+      id: '2',
       tariff400ng_item: { code: '105D', item: 'Reg Shipping' },
       location: 'D',
       base_quantity: 788300,
@@ -32,15 +28,13 @@ describe('PreApprovalTable tests', () => {
   describe('When shipmentLineItems exist', () => {
     it('renders without crashing', () => {
       wrapper = mount(
-        <Provider store={store}>
-          <PreApprovalTable
-            shipmentLineItems={shipmentLineItems}
-            isActionable={true}
-            onEdit={onEdit}
-            onDelete={onEdit}
-            onApproval={onEdit}
-          />
-        </Provider>,
+        <PreApprovalTable
+          shipmentLineItems={shipmentLineItems}
+          isActionable={true}
+          onEdit={onEdit}
+          onDelete={onEdit}
+          onApproval={onEdit}
+        />,
       );
       console.dir(wrapper);
       expect(wrapper.find('PreApprovalRequest').length).toEqual(2);
@@ -62,29 +56,22 @@ describe('PreApprovalTable tests', () => {
     });
   });
   describe('When a request is being acted upon', () => {
-    beforeEach(() => {
-      store = mockStore({});
-    });
     it('is the only request that is actionable', () => {
       const onActivation = jest.fn();
       wrapper = mount(
-        <Provider store={store}>
-          <PreApprovalTable
-            shipmentLineItems={shipmentLineItems}
-            onRequestActivation={onActivation}
-            isActionable={true}
-            onEdit={onEdit}
-            onDelete={onEdit}
-            onApproval={onEdit}
-          />
-        </Provider>,
+        <PreApprovalTable
+          shipmentLineItems={shipmentLineItems}
+          onRequestActivation={onActivation}
+          isActionable={true}
+          onEdit={onEdit}
+          onDelete={onEdit}
+          onApproval={onEdit}
+        />,
       );
+      wrapper.setState({ actionRequestId: shipmentLineItems[0].id });
       const requests = wrapper.find('PreApprovalRequest');
       expect(requests.length).toEqual(2);
       requests.forEach(req => {
-        console.log(req.prop('shipmentLineItem').id);
-        console.log(shipmentLineItems[0].id);
-        //if (req.prop('shipmentLineItem').id === shipmentLineItems[0].tariff400ng_item.code) {
         if (req.prop('shipmentLineItem').id === shipmentLineItems[0].id) {
           expect(req.prop('isActionable')).toBe(true);
         } else {
