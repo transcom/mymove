@@ -5,7 +5,7 @@ import (
 
 	"github.com/gobuffalo/pop"
 
-	"github.com/transcom/mymove/pkg/service/fuelprice"
+	"github.com/transcom/mymove/pkg/services/fuelprice"
 )
 
 func main() {
