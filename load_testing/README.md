@@ -1,5 +1,13 @@
 # Load Testing
 
+## Creating devlocal users for load testing
+
+Load testing will require that you create a number of different users for your scenarios. To create a devlocal
+user you'll hit the `/devlocal-auth/create` endpoint. The `/create` method is different from `/new` because it
+returns a JSON formatted version of the User model for the new user instead of redirecting to the landing page.
+The new user will be logged in upon creation and the response will contain the session token you'd expect from
+a normal login.
+
 ## locust.io
 
 Getting started
