@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"reflect"
 	"time"
 
@@ -179,20 +180,28 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-	lURL := h.landingURL(session)
+	rawLandingURL := h.landingURL(session)
+	landingURL, err := url.Parse(rawLandingURL)
+	if err != nil {
+		h.logger.Error("Error parsing landing URL")
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
 
 	if err := r.URL.Query().Get("error"); len(err) > 0 {
+		landingQuery := landingURL.Query()
 		switch err {
 		case "access_denied":
 			// The user has either cancelled or declined to authorize the client
-			http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 		case "invalid_request":
 			h.logger.Error("INVALID_REQUEST error from login.gov")
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			landingQuery.Add("error", "INVALID_REQUEST")
 		default:
 			h.logger.Error("unknown error from login.gov")
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			landingQuery.Add("error", "UNKNOWN_ERROR")
 		}
+		landingURL.RawQuery = landingQuery.Encode()
+		http.Redirect(w, r, landingURL.String(), http.StatusPermanentRedirect)
 		return
 	}
 
@@ -227,10 +236,10 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	userIdentity, err := models.FetchUserIdentity(h.db, openIDUser.UserID)
 	if err == nil { // Someone we know already
-		authorizeKnownUser(userIdentity, h, session, w, span, r, lURL)
+		authorizeKnownUser(userIdentity, h, session, w, span, r, landingURL.String())
 		return
 	} else if err == models.ErrFetchNotFound { // Never heard of them so far
-		authorizeUnknownUser(openIDUser, h, session, w, span, r, lURL)
+		authorizeUnknownUser(openIDUser, h, session, w, span, r, landingURL.String())
 		return
 	} else {
 		h.logger.Error("Error loading Identity.", zap.Error(err))
@@ -370,7 +379,7 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 	h.logger.Info("logged in", zap.Any("session", session))
 
 	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
-	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
+	http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
 }
 
 func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
