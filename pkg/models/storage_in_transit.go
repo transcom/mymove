@@ -112,6 +112,7 @@ func FetchStorageInTransitsOnShipment(tx *pop.Connection, shipmentID uuid.UUID) 
 		return nil, err
 	}
 
+	// Send up a ErrFetchNotFound if we have zero results.
 	if len(storageInTransits) == 0 {
 		return nil, ErrFetchNotFound
 	}
@@ -127,6 +128,10 @@ func FetchStorageInTransitByID(tx *pop.Connection, storageInTransitID uuid.UUID)
 		LeftJoin("addresses", "storage_in_transits.warehouse_address_id=addresses.id").First(&storageInTransit)
 
 	if err != nil {
+		// If we fail to get rows let's pass up a ErrFetchNotFound so that handlers wind up passing a 404
+		if err.Error() == "sql: no rows in result set" {
+			return StorageInTransit{}, ErrFetchNotFound
+		}
 		return StorageInTransit{}, err
 	}
 
