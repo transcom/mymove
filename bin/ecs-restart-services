@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /usr/bin/env bash
 #
 #   Restarted the ECS services associated with the given environment.
 #

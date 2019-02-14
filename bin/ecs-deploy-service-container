@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /usr/bin/env bash
 #
 #   Updates the named service with the given container definition template,
 #   image, and environment.

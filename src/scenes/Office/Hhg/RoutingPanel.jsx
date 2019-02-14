@@ -7,6 +7,7 @@ import { reduxForm, getFormValues } from 'redux-form';
 import { no_op } from 'shared/utils';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelField, PanelSwaggerField, SwaggerValue, editablePanelify } from 'shared/EditablePanel';
+import { selectShipmentForMove } from 'shared/Entities/modules/shipments';
 
 // TODO: add shipment_type
 // TODO: combine source_gbloc and destination_gbloc values to one value
@@ -47,8 +48,9 @@ const editEnabled = false; // to remove the "Edit" button on panel header and di
 let RoutingPanel = editablePanelify(RoutingPanelDisplay, RoutingPanelEdit, editEnabled);
 RoutingPanel = reduxForm({ form: formName })(RoutingPanel);
 
-function mapStateToProps(state) {
-  let shipment = get(state, 'office.officeMove.shipments.0', {});
+function mapStateToProps(state, ownProps) {
+  const { moveId } = ownProps;
+  const shipment = selectShipmentForMove(state, moveId);
 
   return {
     initialValues: shipment,

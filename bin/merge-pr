@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /usr/bin/env bash
 # A script to automate the landing of your GitHub pull requests.
 
 set -eu -o pipefail
