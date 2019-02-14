@@ -7,13 +7,26 @@ describe('office user finds the move', function() {
     officeUserViewsMoves();
   });
   it('office user verifies the orders tab', function() {
-    officeUserVerifiesOrders();
+    officeUserVerifiesOrders('VGHEIS');
   });
   it('office user verifies the accounting tab', function() {
     officeUserVerifiesAccounting();
   });
   it('office user approves move, verifies and approves PPM', function() {
-    officeUserApprovesMoveAndVerifiesPPM();
+    officeUserApprovesMoveAndPPM('VGHEIS');
+    officeUserVerifiesPPM();
+  });
+  it('office user approves move, approves PPM with no advance', function() {
+    const moveLocator = 'NOADVC';
+    officeUserVerifiesOrders(moveLocator);
+    cy.patientVisit('/');
+    officeUserApprovesMoveAndPPM(moveLocator);
+
+    // Make sure the page hasn't exploded
+    cy
+      .get('button')
+      .contains('Approve PPM')
+      .should('have.class', 'btn__approve--green');
   });
 });
 
@@ -31,14 +44,14 @@ function officeUserViewsMoves() {
   });
 }
 
-function officeUserVerifiesOrders() {
+function officeUserVerifiesOrders(moveLocator) {
   // Open new moves queue
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
   // Find move and open it
-  cy.selectQueueItemMoveLocator('VGHEIS');
+  cy.selectQueueItemMoveLocator(moveLocator);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -148,14 +161,14 @@ function officeUserVerifiesAccounting() {
   cy.get('span').contains('N002214CSW32Y9');
 }
 
-function officeUserApprovesMoveAndVerifiesPPM() {
+function officeUserApprovesMoveAndPPM(moveLocator) {
   // Open new moves queue
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
   // Find move and open it
-  cy.selectQueueItemMoveLocator('VGHEIS');
+  cy.selectQueueItemMoveLocator(moveLocator);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -189,7 +202,7 @@ function officeUserApprovesMoveAndVerifiesPPM() {
     .click();
 
   // Find move and open it
-  cy.selectQueueItemMoveLocator('VGHEIS');
+  cy.selectQueueItemMoveLocator(moveLocator);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -204,14 +217,16 @@ function officeUserApprovesMoveAndVerifiesPPM() {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);
   });
 
-  // Verify that the Estimates section contains expected data
-  cy.get('span').contains('8,000');
-
   // Approve PPM
   cy
     .get('button')
     .contains('Approve PPM')
     .click();
+}
+
+function officeUserVerifiesPPM() {
+  // Verify that the Estimates section contains expected data
+  cy.get('span').contains('8,000');
 
   // Approve advance
   cy.get('.payment-table').within(() => {
