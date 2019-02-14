@@ -1,8 +1,6 @@
 package ordersapi
 
 import (
-	"sort"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -28,80 +26,53 @@ func (h GetOrdersHandler) Handle(params ordersoperations.GetOrdersParams) middle
 
 	var err error
 
-	sharedID, err := uuid.FromString(params.UUID.String())
+	id, err := uuid.FromString(params.UUID.String())
 	if err != nil {
 		h.Logger().Info("Not a valid UUID")
 		return ordersoperations.NewGetOrdersBadRequest()
 	}
 
-	orders, err := models.FetchElectronicOrdersBySharedID(h.DB(), sharedID)
+	orders, err := models.FetchElectronicOrderByID(h.DB(), id)
 	if err != nil {
-		h.Logger().Info("Error while fetching electronic Orders by shared ID")
+		h.Logger().Info("Error while fetching electronic Orders by ID")
 		return ordersoperations.NewGetOrdersInternalServerError()
-	}
-
-	if len(orders) == 0 {
-		return ordersoperations.NewGetOrdersNotFound()
 	}
 
 	apiOrders := ordersmessages.Orders{}
 	apiOrders.UUID = params.UUID
-	apiOrders.Revisions = make([]*ordersmessages.Revision, len(orders))
-
-	// sort orders by sequence number ascending
-	sort.Slice(orders, func(i, j int) bool { return orders[i].SeqNum < orders[j].SeqNum })
-
-	// use highest sequence number (i.e., the latest) for ordersNum, service member edipi, issuer
-	// Although these SHOULD be the same for each revision, it's possible for them to differ
-	latestOrders := orders[len(orders)-1]
-	apiOrders.OrdersNum = latestOrders.OrdersNumber
-	apiOrders.Edipi = latestOrders.ServiceMember.Edipi
-	if latestOrders.OrdersIssuingAgency == nil {
-		return ordersoperations.NewGetOrdersInternalServerError()
-	}
-	apiOrders.Issuer = ordersmessages.Issuer(*latestOrders.OrdersIssuingAgency)
-	if err != nil {
-		h.Logger().Info(err.Error())
-		return ordersoperations.NewGetOrdersInternalServerError()
-	}
+	apiOrders.Edipi = &orders.Edipi
+	apiOrders.OrdersNum = &orders.OrdersNumber
+	apiOrders.Issuer = orders.Issuer
 	// TODO check permission to retrieve orders by this issuer
+	apiOrders.Revisions = make([]*ordersmessages.Revision, len(orders.Revisions))
 
-	for i, o := range orders {
+	for i, o := range orders.Revisions {
 		rev := ordersmessages.Revision{}
 		seqNum := int64(o.SeqNum)
 		rev.SeqNum = &seqNum
 		member := ordersmessages.Member{
-			Affiliation: o.EOrdersAffiliation,
-			FamilyName:  o.EOrdersFamilyName,
-			GivenName:   o.EOrdersGivenName,
-			Rank:        o.EOrdersPaygrade,
+			Affiliation: o.Affiliation,
+			FamilyName:  &o.FamilyName,
+			GivenName:   &o.GivenName,
+			Rank:        o.Paygrade,
 		}
-		if o.EOrdersMiddleName != nil {
-			member.MiddleName = *o.EOrdersMiddleName
+		if o.MiddleName != nil {
+			member.MiddleName = *o.MiddleName
 		}
-		if o.EOrdersNameSuffix != nil {
-			member.Suffix = *o.EOrdersNameSuffix
+		if o.NameSuffix != nil {
+			member.Suffix = *o.NameSuffix
 		}
-		if o.EOrdersTitle != nil {
-			member.Title = *o.EOrdersTitle
+		if o.Title != nil {
+			member.Title = *o.Title
 		}
 		rev.Member = &member
-		rev.Status = o.Impact
-		rev.DateIssued = strfmt.DateTime(o.IssueDate)
+		rev.Status = o.Status
+		rev.DateIssued = strfmt.DateTime(o.DateIssued)
 		rev.NoCostMove = o.NoCostMove
 		rev.TdyEnRoute = o.TdyEnRoute
-		rev.TourType, err = tourTypeToAPITourType(o.TourType)
-		if err != nil {
-			h.Logger().Info(err.Error())
-			return ordersoperations.NewGetOrdersInternalServerError()
-		}
-		rev.OrdersType, err = toAPIOrdersType(o.OrdersType)
-		if err != nil {
-			h.Logger().Info(err.Error())
-			return ordersoperations.NewGetOrdersInternalServerError()
-		}
-		hasDependents := o.HasDependents
-		rev.HasDependents = &hasDependents
+		rev.TourType = o.TourType
+		rev.OrdersType = o.OrdersType
+		rev.HasDependents = &o.HasDependents
 		rev.LosingUnit = new(ordersmessages.Unit)
 		if o.LosingUnitName != nil {
 			rev.LosingUnit.Name = *o.LosingUnitName
@@ -115,8 +86,8 @@ func (h GetOrdersHandler) Handle(params ordersoperations.GetOrdersParams) middle
 		if o.LosingUnitCountry != nil {
 			rev.LosingUnit.Country = *o.LosingUnitCountry
 		}
-		if o.LosingUnitPostCode != nil {
-			rev.LosingUnit.PostalCode = *o.LosingUnitPostCode
+		if o.LosingUnitPostalCode != nil {
+			rev.LosingUnit.PostalCode = *o.LosingUnitPostalCode
 		}
 		if o.LosingUIC != nil {
 			rev.LosingUnit.Uic = *o.LosingUIC
@@ -134,37 +105,67 @@ func (h GetOrdersHandler) Handle(params ordersoperations.GetOrdersParams) middle
 		if o.GainingUnitCountry != nil {
 			rev.GainingUnit.Country = *o.GainingUnitCountry
 		}
-		if o.GainingUnitPostCode != nil {
-			rev.GainingUnit.PostalCode = *o.GainingUnitPostCode
+		if o.GainingUnitPostalCode != nil {
+			rev.GainingUnit.PostalCode = *o.GainingUnitPostalCode
 		}
 		if o.GainingUIC != nil {
 			rev.GainingUnit.Uic = *o.GainingUIC
 		}
-		rnetDate := strfmt.Date(o.ReportNoEarlierThan)
-		rev.ReportNoEarlierThan = &rnetDate
-		rnltDate := strfmt.Date(o.ReportByDate)
-		rev.ReportNoLaterThan = &rnltDate
+		rev.ReportNoEarlierThan = (*strfmt.Date)(o.ReportNoEarlierThan)
+		rev.ReportNoLaterThan = (*strfmt.Date)(o.ReportNoLaterThan)
 		rev.PcsAccounting = new(ordersmessages.Accounting)
-		rev.PcsAccounting.Tac = *o.TAC
-		rev.PcsAccounting.Sdn = *o.HhgSDN
-		rev.PcsAccounting.Loa = *o.HhgLOA
+		if o.HhgTAC != nil {
+			rev.PcsAccounting.Tac = *o.HhgTAC
+		}
+		if o.HhgSDN != nil {
+			rev.PcsAccounting.Sdn = *o.HhgSDN
+		}
+		if o.HhgLOA != nil {
+			rev.PcsAccounting.Loa = *o.HhgLOA
+		}
 		rev.NtsAccounting = new(ordersmessages.Accounting)
-		rev.NtsAccounting.Tac = *o.NtsTAC
-		rev.NtsAccounting.Sdn = *o.NtsSDN
-		rev.NtsAccounting.Loa = *o.NtsLOA
+		if o.NtsTAC != nil {
+			rev.NtsAccounting.Tac = *o.NtsTAC
+		}
+		if o.NtsSDN != nil {
+			rev.NtsAccounting.Sdn = *o.NtsSDN
+		}
+		if o.NtsLOA != nil {
+			rev.NtsAccounting.Loa = *o.NtsLOA
+		}
 		rev.PovShipmentAccounting = new(ordersmessages.Accounting)
-		rev.PovShipmentAccounting.Tac = *o.PovShipmentTAC
-		rev.PovShipmentAccounting.Sdn = *o.PovShipmentSDN
-		rev.PovShipmentAccounting.Loa = *o.PovShipmentLOA
+		if o.PovShipmentTAC != nil {
+			rev.PovShipmentAccounting.Tac = *o.PovShipmentTAC
+		}
+		if o.PovShipmentSDN != nil {
+			rev.PovShipmentAccounting.Sdn = *o.PovShipmentSDN
+		}
+		if o.PovShipmentLOA != nil {
+			rev.PovShipmentAccounting.Loa = *o.PovShipmentLOA
+		}
 		rev.PovStorageAccounting = new(ordersmessages.Accounting)
-		rev.PovStorageAccounting.Tac = *o.PovStorageTAC
-		rev.PovStorageAccounting.Sdn = *o.PovStorageSDN
-		rev.PovStorageAccounting.Loa = *o.PovStorageLOA
+		if o.PovStorageTAC != nil {
+			rev.PovStorageAccounting.Tac = *o.PovStorageTAC
+		}
+		if o.PovStorageSDN != nil {
+			rev.PovStorageAccounting.Sdn = *o.PovStorageSDN
+		}
+		if o.PovStorageLOA != nil {
+			rev.PovStorageAccounting.Loa = *o.PovStorageLOA
+		}
 		rev.UbAccounting = new(ordersmessages.Accounting)
-		rev.UbAccounting.Tac = *o.UbTAC
-		rev.UbAccounting.Sdn = *o.UbSDN
-		rev.UbAccounting.Loa = *o.UbLOA
-		rev.Comments = *o.Comments
+		if o.UbTAC != nil {
+			rev.UbAccounting.Tac = *o.UbTAC
+		}
+		if o.HhgSDN != nil {
+			rev.UbAccounting.Sdn = *o.UbSDN
+		}
+		if o.UbLOA != nil {
+			rev.UbAccounting.Loa = *o.UbLOA
+		}
+		if o.Comments != nil {
+			rev.Comments = *o.Comments
+		}
 
 		apiOrders.Revisions[i] = &rev
 	}

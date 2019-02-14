@@ -3,8 +3,6 @@ package models
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/gen/ordersmessages"
-
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
@@ -81,48 +79,6 @@ type Order struct {
 	TAC                 *string                            `json:"tac" db:"tac"`
 	SAC                 *string                            `json:"sac" db:"sac"`
 	DepartmentIndicator *string                            `json:"department_indicator" db:"department_indicator"`
-	SharedID            uuid.UUID                          `json:"shared_id" db:"shared_id"`
-	IsElectronic        bool                               `json:"is_electronic" db:"is_electronic"`
-	SeqNum              int                                `json:"seq_num" db:"seq_num"`
-	EOrdersGivenName    *string                            `json:"eorders_given_name" db:"eorders_given_name"`
-	EOrdersFamilyName   *string                            `json:"eorders_family_name" db:"eorders_family_name"`
-	EOrdersMiddleName   *string                            `json:"eorders_middle_name" db:"eorders_middle_name"`
-	EOrdersNameSuffix   *string                            `json:"eorders_name_suffix" db:"eorders_name_suffix"`
-	EOrdersAffiliation  ordersmessages.Affiliation         `json:"eorders_affiliation" db:"eorders_affiliation"`
-	EOrdersPaygrade     ordersmessages.Rank                `json:"eorders_paygrade" db:"eorders_paygrade"`
-	EOrdersTitle        *string                            `json:"eorders_title" db:"eorders_title"`
-	Impact              ordersmessages.Status              `json:"impact" db:"impact"`
-	NoCostMove          bool                               `json:"no_cost_move" db:"no_cost_move"`
-	TdyEnRoute          bool                               `json:"tdy_en_route" db:"tdy_en_route"`
-	TourType            TourType                           `json:"tour_type" db:"tour_type"`
-	ReportNoEarlierThan time.Time                          `json:"report_no_earlier_than" db:"report_no_earlier_than"`
-	HhgSDN              *string                            `json:"hhg_sdn" db:"hhg_sdn"`
-	HhgLOA              *string                            `json:"hhg_loa" db:"hhg_loa"`
-	NtsTAC              *string                            `json:"nts_tac" db:"nts_tac"`
-	NtsSDN              *string                            `json:"nts_sdn" db:"nts_sdn"`
-	NtsLOA              *string                            `json:"nts_loa" db:"nts_loa"`
-	PovShipmentTAC      *string                            `json:"pov_shipment_tac" db:"pov_shipment_tac"`
-	PovShipmentSDN      *string                            `json:"pov_shipment_sdn" db:"pov_shipment_sdn"`
-	PovShipmentLOA      *string                            `json:"pov_shipment_loa" db:"pov_shipment_loa"`
-	PovStorageTAC       *string                            `json:"pov_storage_tac" db:"pov_storage_tac"`
-	PovStorageSDN       *string                            `json:"pov_storage_sdn" db:"pov_storage_sdn"`
-	PovStorageLOA       *string                            `json:"pov_storage_loa" db:"pov_storage_loa"`
-	UbTAC               *string                            `json:"ub_tac" db:"ub_tac"`
-	UbSDN               *string                            `json:"ub_sdn" db:"ub_sdn"`
-	UbLOA               *string                            `json:"ub_loa" db:"ub_loa"`
-	LosingUIC           *string                            `json:"losing_uic" db:"losing_uic"`
-	LosingUnitName      *string                            `json:"losing_unit_name" db:"losing_unit_name"`
-	LosingUnitCity      *string                            `json:"losing_unit_city" db:"losing_unit_city"`
-	LosingUnitLocality  *string                            `json:"losing_unit_locality" db:"losing_unit_locality"`
-	LosingUnitCountry   *string                            `json:"losing_unit_country" db:"losing_unit_country"`
-	LosingUnitPostCode  *string                            `json:"losing_unit_postal_code" db:"losing_unit_postal_code"`
-	GainingUIC          *string                            `json:"gaining_uic" db:"gaining_uic"`
-	GainingUnitName     *string                            `json:"gaining_unit_name" db:"gaining_unit_name"`
-	GainingUnitCity     *string                            `json:"gaining_unit_city" db:"gaining_unit_city"`
-	GainingUnitLocality *string                            `json:"gaining_unit_locality" db:"gaining_unit_locality"`
-	GainingUnitCountry  *string                            `json:"gaining_unit_country" db:"gaining_unit_country"`
-	GainingUnitPostCode *string                            `json:"gaining_unit_postal_code" db:"gaining_unit_postal_code"`
-	Comments            *string                            `json:"comments" db:"comments"`
 }
 
 // Orders is not required by pop and may be deleted
@@ -272,21 +228,6 @@ func FetchOrderForPDFConversion(db *pop.Connection, id uuid.UUID) (Order, error)
 		return Order{}, err
 	}
 	return order, nil
-}
-
-// FetchElectronicOrdersBySharedID gets all revisions of a set of Orders by their shared UUID,
-// sorted in descending order by their sequence number
-func FetchElectronicOrdersBySharedID(db *pop.Connection, sharedID uuid.UUID) ([]Order, error) {
-	var orders []Order
-	err := db.Q().Eager("ServiceMember", "LosingUnit", "GainingUnit").Where("shared_id = $1", sharedID).Order("seq_num DESC").All(orders)
-	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
-			return []Order{}, ErrFetchNotFound
-		}
-		// Otherwise, it's an unexpected err so we return that.
-		return []Order{}, err
-	}
-	return orders, err
 }
 
 // CreateNewMove creates a move associated with these Orders
