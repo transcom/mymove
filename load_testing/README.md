@@ -25,7 +25,7 @@ In a separate window ensure that the app server is running with `make server_run
 ## Running tests with Web UI
 
 ```sh
-locust --host=http://milmovelocal:8080 -f load_testing/locustfile.py
+locust -f load_testing/locustfile.py
 ```
 
 Then open [http://localhost:8089](http://localhost:8089/) and enter the number of users to simulate and the hatch rate.
@@ -36,5 +36,5 @@ Finally, hit the `Start swarming` button and wait for the tests to finish.
 You can run the test suite without the Web UI with a command similar to this:
 
 ```sh
-locust --host=http://milmovelocal:8080 -f load_testing/locustfile.py --clients=50 --hatch-rate=5 --no-web --run-time=60s
+locust -f load_testing/locustfile.py --no-web --clients=50 --hatch-rate=5 --run-time=60s
 ```

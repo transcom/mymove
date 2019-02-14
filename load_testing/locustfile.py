@@ -9,9 +9,9 @@ class AnonBehavior(TaskSet):
 
 
 class AnonUser(HttpLocust):
+    host = "http://milmovelocal:8080"
+    weight = 5  # 5x more likely than other users
     task_set = AnonBehavior
-    min_wait = 5000
-    max_wait = 9000
 
 
 class UserBehavior(TaskSet):
@@ -62,6 +62,8 @@ class UserBehavior(TaskSet):
 
 
 class MilMoveUser(HttpLocust):
+    host = "http://milmovelocal:8080"
+    weight = 1
     task_set = UserBehavior
-    min_wait = 5000
-    max_wait = 9000
+    min_wait = 1000
+    max_wait = 5000
