@@ -53,8 +53,6 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 		return ordersoperations.NewPostRevisionBadRequest()
 	}
 
-	// TODO check enumerated values, or are these already checked for me by swagger?
-
 	var edipi string
 	if len(params.MemberID) == 9 {
 		// TODO EDIPI lookup from DMDC

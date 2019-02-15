@@ -29,8 +29,6 @@ func (h PostRevisionToOrdersHandler) Handle(params ordersoperations.PostRevision
 		return ordersoperations.NewPostRevisionToOrdersUnauthorized()
 	}
 
-	// TODO check enumerated values, or are these already checked for me by swagger?
-
 	id, err := uuid.FromString(params.UUID.String())
 	if err != nil {
 		h.Logger().Info("Not a valid UUID")
