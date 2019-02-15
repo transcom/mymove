@@ -599,7 +599,7 @@ func UpdateShipmentLineItemDimensions(db *pop.Connection, baseParams *BaseShipme
 	return responseVErrors, responseError
 }
 
-// UpsertItemCodeDependency applies specific validation and creates or updates additional objects/fields for item codes
+// UpsertItemCodeDependency applies specific validation, creates or updates additional objects/fields for item codes
 func UpsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
 	var responseError error
 	responseVErrors := validate.NewErrors()
