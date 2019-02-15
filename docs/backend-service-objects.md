@@ -112,6 +112,20 @@ if any errors occur.
 
 *Remember all `errors` should be Wrapped by using `errors.Wrap` so that the underlying error is propagated properly*
 
+```go
+// create_form.go
+package paperwork
+
+func (c createForm) CreateForm(template services.FormTemplate) (afero.File, error) {
+  // Populate form fields with data
+  err := c.FormFiller.AppendPage(template.Buffer, template.FieldsLayout, template.Data)
+  if err != nil {
+    return nil, errors.Wrap(err, fmt.Sprintf("Failure writing %s data to form.", template.FormType.String()))
+  }
+  ...
+}
+```
+
 ### Naming And Defining Service Object Structs and Interfaces
 
 1. Define a private struct with the same name as the service object file, making sure that it is a noun camel-cased.
