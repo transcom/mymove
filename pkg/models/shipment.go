@@ -447,7 +447,7 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	db.Transaction(func(connection *pop.Connection) error {
 		transactionError := errors.New("Rollback the transaction")
 
-		verrs, err := CreateOrUpdateItemCodeDependency(connection, &baseParams, &additionalParams, &shipmentLineItem)
+		verrs, err := UpsertItemCodeDependency(connection, &baseParams, &additionalParams, &shipmentLineItem)
 		if verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error setting up item code dependency: "+baseParams.Tariff400ngItemCode)
@@ -493,7 +493,7 @@ func (s *Shipment) UpdateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	db.Transaction(func(connection *pop.Connection) error {
 		transactionError := errors.New("Rollback the transaction")
 
-		verrs, err := CreateOrUpdateItemCodeDependency(connection, &baseParams, &additionalParams, shipmentLineItem)
+		verrs, err := UpsertItemCodeDependency(connection, &baseParams, &additionalParams, shipmentLineItem)
 		if verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error setting up item code dependency: "+baseParams.Tariff400ngItemCode)
@@ -599,8 +599,8 @@ func UpdateShipmentLineItemDimensions(db *pop.Connection, baseParams *BaseShipme
 	return responseVErrors, responseError
 }
 
-// CreateOrUpdateItemCodeDependency applies specific validation and creates or updates additional objects for item codes
-func CreateOrUpdateItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+// UpsertItemCodeDependency applies specific validation and creates or updates additional objects/fields for item codes
+func UpsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
 	var responseError error
 	responseVErrors := validate.NewErrors()
 	hasDimension := additionalParams.ItemDimensions != nil || additionalParams.CrateDimensions != nil
