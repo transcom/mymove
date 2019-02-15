@@ -31,6 +31,7 @@ export class Editor extends Component {
   render() {
     let initialValues = cloneDeep(this.props.shipmentLineItem);
 
+    // Leaving quantity_2 alone in the swagger definition until we know for sure we won't use
     // Delete quantities so we don't unnecessarily send them back
     delete initialValues.quantity_2;
     if (!initialValues.quantity_1 || initialValues.quantity_1 <= 0) {
