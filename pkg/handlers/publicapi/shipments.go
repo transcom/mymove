@@ -20,8 +20,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/rateengine"
-	shipmentservice "github.com/transcom/mymove/pkg/service/shipment"
 	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
+	shipmentservice "github.com/transcom/mymove/pkg/services/shipment"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 

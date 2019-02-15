@@ -112,7 +112,7 @@ func (suite *ModelSuite) TestFetchServiceMemberForUser() {
 
 	// User is authorized to fetch service member
 	session := &auth.Session{
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 		UserID:          user1.ID,
 		ServiceMemberID: sm.ID,
 	}

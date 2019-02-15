@@ -1,12 +1,12 @@
-#!/bin/bash
+#! /usr/bin/env bash
 #
 # This script will use available API endpoints to find invoices in whatever
 # environment you specify.
 #
 # It requires that you supply it with an active JWT. You can obtain your JWT
 # by logging into the appropriate office environment, and inspecting your
-# cookies. You want the contents of the cookie named 'session_token'; it's
-# a very long string.
+# cookies. You want the contents of the cookie named 'XYZ_session_token' where
+# XYZ is the name of your app: mil, office, or tsp. It's a very long string.
 #
 # Valid environments: staging, prod, experimental
 # Valid queue names:  all, hhg_delivered, hhg_accepted, hhg_completed

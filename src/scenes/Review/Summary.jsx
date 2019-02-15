@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { getShipment, selectShipment } from 'shared/Entities/modules/shipments';
-import { getMove, selectMove } from 'shared/Entities/modules/moves';
+import { loadMove, selectMove } from 'shared/Entities/modules/moves';
 import { getCurrentShipmentID } from 'shared/UI/ducks';
 
 import { getPPM } from 'scenes/Moves/Ppm/ducks.js';
@@ -155,7 +155,7 @@ function mapDispatchToProps(dispatch, ownProps) {
   return {
     onDidMount: function() {
       const moveID = ownProps.match.params.moveId;
-      dispatch(getMove('Summary.getMove', moveID)).then(function(action) {
+      dispatch(loadMove(moveID, 'Summary.getMove')).then(function(action) {
         forEach(action.entities.shipments, function(shipment) {
           dispatch(getShipment('Summary.getShipment', shipment.id));
         });

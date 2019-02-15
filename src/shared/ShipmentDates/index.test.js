@@ -29,7 +29,7 @@ describe('DatesPanel tests', () => {
   let store;
 
   beforeEach(() => {
-    store = mockStore({});
+    store = mockStore({ requests: { lastErrors: [] } });
     //mount appears to be necessary to get inner components to load (i.e. tests fail with shallow)
     wrapper = mount(
       <Provider store={store}>

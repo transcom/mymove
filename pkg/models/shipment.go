@@ -9,7 +9,6 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/unit"
@@ -125,8 +124,44 @@ type Shipment struct {
 // Shipments is not required by pop and may be deleted
 type Shipments []Shipment
 
+// BaseShipmentLineItem describes a base line items
+type BaseShipmentLineItem struct {
+	Code        string
+	Description string
+}
+
+// BaseShipmentLineItems lists all of the mandatory Shipment Line Items
+var BaseShipmentLineItems = []BaseShipmentLineItem{
+	{
+		Code:        "LHS",
+		Description: "Linehaul charges",
+	},
+	{
+		Code:        "135A",
+		Description: "Origin service fee",
+	},
+	{
+		Code:        "135B",
+		Description: "Destination service",
+	},
+	{
+		Code:        "105A",
+		Description: "Pack Fee",
+	},
+	{
+		Code:        "105C",
+		Description: "Unpack Fee",
+	},
+	{
+		Code:        "16A",
+		Description: "Fuel Surcharge",
+	},
+}
+
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
+	calendar := dates.NewUSCalendar()
+
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: s.MoveID, Name: "move_id"},
 		&validators.StringIsPresent{Field: string(s.Status), Name: "status"},
@@ -135,6 +170,42 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&OptionalPoundIsNonNegative{Field: s.WeightEstimate, Name: "weight_estimate"},
 		&OptionalPoundIsNonNegative{Field: s.ProgearWeightEstimate, Name: "progear_weight_estimate"},
 		&OptionalPoundIsNonNegative{Field: s.SpouseProgearWeightEstimate, Name: "spouse_progear_weight_estimate"},
+		&OptionalDateIsWorkday{
+			Field:    s.OriginalPackDate,
+			Name:     "original_pack_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.RequestedPickupDate,
+			Name:     "requested_pickup_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.OriginalDeliveryDate,
+			Name:     "original_delivery_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.PmSurveyPlannedPackDate,
+			Name:     "pm_survey_planned_pack_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.PmSurveyPlannedPickupDate,
+			Name:     "pm_survey_planned_pickup_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.PmSurveyPlannedDeliveryDate,
+			Name:     "pm_survey_planned_delivery_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.ActualPackDate,
+			Name:     "actual_pack_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.ActualPickupDate,
+			Name:     "actual_pickup_date",
+			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.ActualDeliveryDate,
+			Name:     "actual_delivery_date",
+			Calendar: calendar},
 	), nil
 }
 
@@ -367,11 +438,6 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 		notesVal = *baseParams.Notes
 	}
 
-	var description string
-	if baseParams.Description != nil {
-		description = *baseParams.Description
-	}
-
 	//We can do validation for specific item codes here
 	// Example: 105B/E
 	var responseError error
@@ -397,7 +463,7 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 		shipmentLineItem.Notes = notesVal
 		shipmentLineItem.SubmittedDate = time.Now()
 		shipmentLineItem.Status = ShipmentLineItemStatusSUBMITTED
-		shipmentLineItem.Description = description
+		shipmentLineItem.Description = baseParams.Description
 
 		verrs, err = connection.ValidateAndCreate(&shipmentLineItem)
 		if verrs.HasAny() || err != nil {
@@ -529,17 +595,6 @@ func FetchUnofferedShipments(db *pop.Connection) (Shipments, error) {
 	return shipments, err
 }
 
-// FetchShipmentForInvoice fetches all the shipment information for generating an invoice
-func FetchShipmentForInvoice(db *pop.Connection, shipmentID uuid.UUID) (Shipment, error) {
-	var shipment Shipment
-	err := db.Q().Eager(
-		"Move.Orders",
-		"PickupAddress",
-		"ServiceMember",
-	).Find(&shipment, shipmentID)
-	return shipment, err
-}
-
 // FetchShipmentsByTSP looks up all shipments belonging to a TSP ID
 func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, orderBy *string, limit *int64, offset *int64) ([]Shipment, error) {
 
@@ -618,7 +673,7 @@ func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Sh
 	if err != nil {
 		return nil, err
 	}
-	if session.IsMyApp() && move.Orders.ServiceMemberID != session.ServiceMemberID {
+	if session.IsMilApp() && move.Orders.ServiceMemberID != session.ServiceMemberID {
 		return nil, ErrFetchForbidden
 	}
 
@@ -824,7 +879,7 @@ func (s *Shipment) SaveShipmentAndLineItems(db *pop.Connection, baselineLineItem
 			verrs, err = s.createUniqueShipmentLineItem(tx, lineItem)
 			if err != nil || verrs.HasAny() {
 				responseVErrors.Append(verrs)
-				responseError = errors.Wrapf(err, "Error saving shipment line item for shipment %s and item %s",
+				responseError = errors.Wrapf(err, "Error saving shipment unique line item for shipment %s and item %s",
 					lineItem.ShipmentID, lineItem.Tariff400ngItemID)
 				return transactionError
 			}
@@ -833,7 +888,7 @@ func (s *Shipment) SaveShipmentAndLineItems(db *pop.Connection, baselineLineItem
 			verrs, err = tx.ValidateAndSave(&lineItem)
 			if err != nil || verrs.HasAny() {
 				responseVErrors.Append(verrs)
-				responseError = errors.Wrapf(err, "Error saving shipment line item for shipment %s and item %s",
+				responseError = errors.Wrapf(err, "Error saving shipment general line item for shipment %s and item %s",
 					lineItem.ShipmentID, lineItem.Tariff400ngItemID)
 				return transactionError
 			}
@@ -919,4 +974,60 @@ func (s *Shipment) AcceptedShipmentOffer() (*ShipmentOffer, error) {
 	}
 
 	return &acceptedOffers[0], nil
+}
+
+// FindBaseShipmentLineItem returns true if code is a Base Shipment Line Item
+// otherwise, returns false
+func FindBaseShipmentLineItem(code string) bool {
+	for _, base := range BaseShipmentLineItems {
+		if code == base.Code {
+			return true
+		}
+	}
+	return false
+}
+
+// VerifyBaseShipmentLineItems checks that all of the expected base line items are in use, as they are mandatory for
+// every shipment
+func VerifyBaseShipmentLineItems(lineItems []ShipmentLineItem) error {
+	var count int
+	count = 0
+	for _, item := range lineItems {
+		if !item.Tariff400ngItem.RequiresPreApproval && FindBaseShipmentLineItem(item.Tariff400ngItem.Code) {
+			count++
+		}
+	}
+
+	if count != len(BaseShipmentLineItems) {
+		return fmt.Errorf("Incorrect count for Base Shipment Line Items expected length: %d actual length: %d", len(BaseShipmentLineItems), count)
+	}
+
+	return nil
+}
+
+// DeleteBaseShipmentLineItems removes all base shipment line items from a shipment
+func (s *Shipment) DeleteBaseShipmentLineItems(db *pop.Connection) error {
+	transactionError := db.Transaction(func(tx *pop.Connection) error {
+		dbError := errors.New("rollback")
+
+		for _, item := range s.ShipmentLineItems {
+			if item.Tariff400ngItem.RequiresPreApproval {
+				continue
+			}
+			// Do not delete a line item that has an Invoice ID
+			if item.InvoiceID != nil {
+				continue
+			}
+			if FindBaseShipmentLineItem(item.Tariff400ngItem.Code) {
+				err := tx.Destroy(&item)
+				if err != nil {
+					dbError = errors.Wrap(dbError, fmt.Sprintf(" Error deleting shipment line item for shipment ID: %s and shipment line item code: %s", s.ID, item.Tariff400ngItem.Code))
+					return errors.Wrap(err, dbError.Error())
+				}
+			}
+		}
+		return nil
+	})
+
+	return transactionError
 }

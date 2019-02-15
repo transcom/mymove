@@ -2,6 +2,7 @@ import { get } from 'lodash';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { formatCents } from 'shared/formatters';
+import { selectPPMForMove } from 'shared/Entities/modules/ppms';
 import { getTabularExpenses, getPpmExpenseSummary } from 'scenes/Office/Ppm/ducks';
 import { connect } from 'react-redux';
 
@@ -66,9 +67,9 @@ class ExpensesPanel extends Component {
     );
   }
 }
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
   return {
-    ppmId: get(state.office, 'officePPMs[0].id'),
+    ppmId: selectPPMForMove(state, ownProps.moveId).id,
     schemaMovingExpenseType: get(state, 'swaggerInternal.spec.definitions.MovingExpenseType', {}),
     expenseData: get(state, 'ppmIncentive.summary'),
   };

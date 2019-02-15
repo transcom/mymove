@@ -3,13 +3,15 @@ import { connect } from 'react-redux';
 import { getFormValues } from 'redux-form';
 
 import { getPublicSwaggerDefinition } from 'shared/Swagger/selectors';
+import { selectOrdersForMove } from 'shared/Entities/modules/orders';
 import { selectShipment } from 'shared/Entities/modules/shipments';
 import LocationsPanel from 'shared/LocationsPanel/LocationsPanel';
 
 const mapStateToProps = (state, ownProps) => {
   const shipment = selectShipment(state, ownProps.shipmentId);
   const formName = 'shipment_locations';
-  const newDutyStation = get(state, 'office.officeOrders.new_duty_station.address', {});
+  const orders = selectOrdersForMove(state, shipment.move_id);
+  const newDutyStation = get(orders, 'new_duty_station.address', {});
   const schema = getPublicSwaggerDefinition(state, 'Shipment');
   const formValues = getFormValues(formName)(state);
 

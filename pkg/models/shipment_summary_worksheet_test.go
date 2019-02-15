@@ -40,6 +40,21 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksFormData() {
 			MoveID: move.ID,
 		},
 	})
+	movedocuments := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm.Move.ID,
+			Move:                     ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:                   "OK",
+			MoveDocumentType:         "EXPENSE",
+		},
+		Document: models.Document{
+			ServiceMemberID: serviceMemberID,
+			ServiceMember:   move.Orders.ServiceMember,
+		},
+	}
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
 	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
 			ServiceMemberID: serviceMemberID,
@@ -49,7 +64,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksFormData() {
 	session := auth.Session{
 		UserID:          move.Orders.ServiceMember.UserID,
 		ServiceMemberID: serviceMemberID,
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 	}
 	ppm.Move.Submit()
 	ppm.Move.Approve()
@@ -73,15 +88,46 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksFormData() {
 	suite.Equal(fortGordon.Address.ID, ssd.NewDutyStation.Address.ID)
 	rankWtgAllotment := models.GetWeightAllotment(rank)
 	suite.Equal(rankWtgAllotment, ssd.WeightAllotment)
+	suite.Require().NotNil(ssd.ServiceMember.Rank)
+	totalEntitlement, err := models.GetEntitlement(*ssd.ServiceMember.Rank, ssd.Order.HasDependents, ssd.Order.SpouseHasProGear)
+	suite.Require().Nil(err)
+	suite.Equal(totalEntitlement, ssd.TotalWeightAllotment)
+	suite.Require().Len(ssd.MovingExpenseDocuments, 2)
+	suite.NotNil(ssd.MovingExpenseDocuments[0].ID)
+	suite.NotNil(ssd.MovingExpenseDocuments[1].ID)
+}
+
+func (suite *ModelSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() {
+	moveID, _ := uuid.NewV4()
+	serviceMemberID, _ := uuid.NewV4()
+	moveType := models.SelectedMoveTypeHHG
+
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			ID:               moveID,
+			SelectedMoveType: &moveType,
+		},
+	})
+	session := auth.Session{
+		UserID:          move.Orders.ServiceMember.UserID,
+		ServiceMemberID: serviceMemberID,
+		ApplicationName: auth.MilApp,
+	}
+
+	movingExpenses, err := models.FetchMovingExpensesShipmentSummaryWorksheet(move, suite.DB(), &session)
+
+	suite.Len(movingExpenses, 0)
+	suite.Nil(err)
 }
 
 func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
 	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
 	wtgEntitlements := models.WeightAllotment{
-		TotalWeightSelf:     13000,
-		ProGearWeight:       2000,
-		ProGearWeightSpouse: 500,
+		TotalWeightSelf:               13000,
+		TotalWeightSelfPlusDependents: 15000,
+		ProGearWeight:                 2000,
+		ProGearWeightSpouse:           500,
 	}
 	serviceMemberID, _ := uuid.NewV4()
 	serviceBranch := models.AffiliationAIRFORCE
@@ -108,6 +154,8 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		NewDutyStationID:    fortGordon.ID,
 		OrdersIssuingAgency: models.StringPointer(string(serviceBranch)),
 		TAC:                 models.StringPointer("NTA4"),
+		HasDependents:       true,
+		SpouseHasProGear:    true,
 	}
 	pickupDate := time.Date(2019, time.January, 11, 0, 0, 0, 0, time.UTC)
 	weight := unit.Pound(5000)
@@ -125,16 +173,17 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 			Status:          models.PPMStatusPAYMENTREQUESTED,
 		},
 	}
-
 	ssd := models.ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
 		Order:                   order,
 		CurrentDutyStation:      yuma,
 		NewDutyStation:          fortGordon,
 		WeightAllotment:         wtgEntitlements,
+		TotalWeightAllotment:    17500,
 		Shipments:               shipments,
 		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
 		PersonallyProcuredMoves: personallyProcuredMoves,
+		GCC:                     unit.Cents(600000),
 	}
 	sswPage1 := models.FormatValuesShipmentSummaryWorksheetFormPage1(ssd)
 
@@ -156,23 +205,170 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 
 	suite.Equal("Fort Gordon, GA", sswPage1.NewDutyAssignment)
 
-	suite.Equal("13,000", sswPage1.WeightAllotmentSelf)
+	suite.Equal("15,000", sswPage1.WeightAllotment)
 	suite.Equal("2,000", sswPage1.WeightAllotmentProgear)
 	suite.Equal("500", sswPage1.WeightAllotmentProgearSpouse)
-	suite.Equal("15,500", sswPage1.TotalWeightAllotment)
+	suite.Equal("17,500", sswPage1.TotalWeightAllotment)
 
 	suite.Equal("01 - HHG (GBL)\n\n02 - PPM", sswPage1.ShipmentNumberAndTypes)
 	suite.Equal("11-Jan-2019\n\n11-Jan-2019", sswPage1.ShipmentPickUpDates)
 	suite.Equal("5,000 lbs - FINAL\n\n", sswPage1.ShipmentWeights)
 	suite.Equal("Delivered\n\nAt destination", sswPage1.ShipmentCurrentShipmentStatuses)
+
+	suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
+	suite.Equal("$6,000.00", sswPage1.GCC100)
+	suite.Equal("$5,700.00", sswPage1.GCC95)
+	suite.Equal("$3,600.00", sswPage1.GCCMaxAdvance)
+
 }
 
-func (suite *ModelSuite) FormatAuthorizedLocation() {
+func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
+	movingExpenses := models.MovingExpenseDocuments{
+		{
+			MovingExpenseType:    "TOLLS",
+			RequestedAmountCents: unit.Cents(10000),
+			PaymentMethod:        "OTHER",
+		},
+		{
+			MovingExpenseType:    "GAS",
+			RequestedAmountCents: unit.Cents(10000),
+			PaymentMethod:        "OTHER",
+		},
+		{
+			MovingExpenseType:    "CONTRACTED_EXPENSE",
+			RequestedAmountCents: unit.Cents(20000),
+			PaymentMethod:        "GTCC",
+		},
+		{
+			MovingExpenseType:    "CONTRACTED_EXPENSE",
+			RequestedAmountCents: unit.Cents(10000),
+			PaymentMethod:        "GTCC",
+		},
+	}
+
+	ssd := models.ShipmentSummaryFormData{
+		MovingExpenseDocuments: movingExpenses,
+	}
+	sswPage2, _ := models.FormatValuesShipmentSummaryWorksheetFormPage2(ssd)
+	// fields w/ no expenses should format as $0.00
+	suite.Equal("$0.00", sswPage2.RentalEquipmentGTCCPaid)
+	suite.Equal("$0.00", sswPage2.PackingMaterialsGTCCPaid)
+
+	suite.Equal("$300.00", sswPage2.ContractedExpenseGTCCPaid)
+	suite.Equal("$300.00", sswPage2.TotalGTCCPaid)
+
+	suite.Equal("$100.00", sswPage2.TollsMemberPaid)
+	suite.Equal("$100.00", sswPage2.GasMemberPaid)
+	suite.Equal("$200.00", sswPage2.TotalMemberPaid)
+}
+
+func (suite *ModelSuite) TestGroupExpenses() {
+	testCases := []struct {
+		input    models.MovingExpenseDocuments
+		expected map[string]float64
+	}{
+		{
+			models.MovingExpenseDocuments{
+				{
+					MovingExpenseType:    "TOLLS",
+					RequestedAmountCents: unit.Cents(10000),
+					PaymentMethod:        "GTCC",
+				},
+				{
+					MovingExpenseType:    "GAS",
+					RequestedAmountCents: unit.Cents(10000),
+					PaymentMethod:        "OTHER",
+				},
+				{
+					MovingExpenseType:    "GAS",
+					RequestedAmountCents: unit.Cents(20000),
+					PaymentMethod:        "OTHER",
+				},
+			},
+			map[string]float64{
+				"TollsGTCCPaid":   100,
+				"GasMemberPaid":   300,
+				"TotalMemberPaid": 300,
+				"TotalGTCCPaid":   100,
+			},
+		},
+		{
+			models.MovingExpenseDocuments{
+				{
+					MovingExpenseType:    "PACKING_MATERIALS",
+					RequestedAmountCents: unit.Cents(10000),
+					PaymentMethod:        "GTCC",
+				},
+				{
+					MovingExpenseType:    "PACKING_MATERIALS",
+					RequestedAmountCents: unit.Cents(10000),
+					PaymentMethod:        "OTHER",
+				},
+				{
+					MovingExpenseType:    "WEIGHING_FEES",
+					RequestedAmountCents: unit.Cents(10000),
+					PaymentMethod:        "GTCC",
+				},
+				{
+					MovingExpenseType:    "WEIGHING_FEES",
+					RequestedAmountCents: unit.Cents(10000),
+					PaymentMethod:        "OTHER",
+				},
+				{
+					MovingExpenseType:    "WEIGHING_FEES",
+					RequestedAmountCents: unit.Cents(20000),
+					PaymentMethod:        "GTCC",
+				},
+				{
+					MovingExpenseType:    "GAS",
+					RequestedAmountCents: unit.Cents(20000),
+					PaymentMethod:        "OTHER",
+				},
+			},
+			map[string]float64{
+				"PackingMaterialsGTCCPaid":   100,
+				"PackingMaterialsMemberPaid": 100,
+				"WeighingFeesMemberPaid":     100,
+				"WeighingFeesGTCCPaid":       300,
+				"GasMemberPaid":              200,
+				"TotalMemberPaid":            400,
+				"TotalGTCCPaid":              400,
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		actual := models.SubTotalExpenses(testCase.input)
+		suite.Equal(testCase.expected, actual)
+	}
+
+}
+
+func (suite *ModelSuite) TestFormatWeightAllotment() {
+	hasDependant := models.ShipmentSummaryFormData{
+		Order: models.Order{HasDependents: true},
+		WeightAllotment: models.WeightAllotment{
+			TotalWeightSelf:               1000,
+			TotalWeightSelfPlusDependents: 2000,
+		},
+	}
+	noDependant := models.ShipmentSummaryFormData{
+		WeightAllotment: models.WeightAllotment{
+			TotalWeightSelf:               1000,
+			TotalWeightSelfPlusDependents: 2000,
+		},
+	}
+
+	suite.Equal("2,000", models.FormatWeightAllotment(hasDependant))
+	suite.Equal("1,000", models.FormatWeightAllotment(noDependant))
+}
+
+func (suite *ModelSuite) TestFormatAuthorizedLocation() {
 	fortGordon := models.DutyStation{Name: "Fort Gordon", Address: models.Address{State: "GA", PostalCode: "30813"}}
 	yuma := models.DutyStation{Name: "Yuma AFB", Address: models.Address{State: "IA", PostalCode: "50309"}}
 
-	suite.Equal("Fort Gordon, GA 30813", models.FormatDutyStation(fortGordon))
-	suite.Equal("Yuma AFB, IA 50309", models.FormatDutyStation(yuma))
+	suite.Equal("Fort Gordon, GA 30813", models.FormatAuthorizedLocation(fortGordon))
+	suite.Equal("Yuma AFB, IA 50309", models.FormatAuthorizedLocation(yuma))
 }
 
 func (suite *ModelSuite) TestFormatServiceMemberFullName() {

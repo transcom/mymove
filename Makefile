@@ -48,6 +48,15 @@ go_version: .go_version.stamp
 	bin/check_go_version
 	touch .go_version.stamp
 
+bash_version: .bash_version.stamp
+.bash_version.stamp: bin/check_bash_version
+ifndef CIRCLECI
+	bin/check_bash_version
+else
+	@echo "No need to check bash version on CircleCI"
+endif
+	touch .bash_version.stamp
+
 deps: prereqs check_hosts ensure_pre_commit client_deps server_deps
 test: client_test server_test e2e_test
 
@@ -100,7 +109,12 @@ build_soda: go_deps .build_soda.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
 	touch .build_soda.stamp
 
-server_deps: check_hosts go_deps build_chamber build_soda .server_deps.stamp
+build_callgraph: go_deps .build_callgraph.stamp
+.build_callgraph.stamp:
+	go build -i -o bin/callgraph ./vendor/golang.org/x/tools/cmd/callgraph
+	touch .build_callgraph.stamp
+
+server_deps: check_hosts go_deps build_chamber build_soda build_callgraph .server_deps.stamp
 .server_deps.stamp:
 	# Unfortunately, dep ensure blows away ./vendor every time so these builds always take a while
 	go install ./vendor/github.com/golang/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
@@ -152,7 +166,7 @@ server_run_debug:
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) dlv debug cmd/webserver/main.go
 
-build_tools: server_deps server_generate
+build_tools: bash_version server_deps server_generate
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
@@ -165,6 +179,7 @@ build_tools: server_deps server_generate
 	go build -i -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
 	go build -i -ldflags "$(LDFLAGS)" -o bin/paperwork ./cmd/paperwork
 	go build -i -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
+	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 
 tsp_run: build_tools db_dev_run
 	./bin/tsp-award-queue
@@ -399,7 +414,7 @@ clean:
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs check_hosts
 .PHONY: server_run_standalone server_run server_run_default server_test webserver_test
 .PHONY: go_deps_update server_go_bindata
-.PHONY: build_chamber build_soda
+.PHONY: build_chamber build_soda build_callgraph
 .PHONY: server_generate server_deps server_build
 .PHONY: server_generate_linux server_deps_linux server_build_linux
 .PHONY: db_run db_destroy

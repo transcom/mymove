@@ -1,5 +1,5 @@
 import React from 'react';
-import { get, includes, find, mapValues } from 'lodash';
+import { get, includes, find, mapValues, capitalize } from 'lodash';
 import moment from 'moment';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
@@ -96,4 +96,17 @@ export function renderStatusIcon(status) {
   if (status === 'HAS_ISSUE') {
     return <FontAwesomeIcon className="icon approval-problem" icon={faExclamationCircle} />;
   }
+}
+
+export function snakeCaseToCapitals(str) {
+  return str
+    .split('_')
+    .map(word => capitalize(word))
+    .join(' ');
+}
+
+export function humanReadableError(errors) {
+  return Object.entries(errors)
+    .map(error => `${snakeCaseToCapitals(error[0])} ${error[1]}`)
+    .join('/n');
 }

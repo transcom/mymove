@@ -79,11 +79,19 @@ const simpleSchema = {
 let wrapper;
 describe('code 105B/E details component', () => {
   describe('renders', () => {
-    wrapper = shallow(<Code105Details swagger={simpleSchema} />);
+    wrapper = shallow(<Code105Details ship_line_item_schema={simpleSchema} />);
 
     it('without crashing', () => {
       // eslint-disable-next-line
       expect(wrapper.exists('SwaggerField')).toBe(true);
+    });
+
+    it('contains crate dimension', () => {
+      expect(wrapper.exists('DimensionsField[fieldName="crate_dimensions"]')).toBe(true);
+    });
+
+    it('contains item dimension', () => {
+      expect(wrapper.exists('DimensionsField[fieldName="item_dimensions"]')).toBe(true);
     });
   });
 });

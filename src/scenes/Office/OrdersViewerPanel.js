@@ -1,10 +1,11 @@
 import React from 'react';
-import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import { reduxForm, getFormValues, FormSection, Field } from 'redux-form';
 
-import { updateOrdersInfo } from './ducks.js';
+import { selectMove } from 'shared/Entities/modules/moves';
+import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
+import { selectOrdersForMove, updateOrders } from 'shared/Entities/modules/orders';
 import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMembers';
 import { formatDate, formatDateTime } from 'shared/formatters';
 import { PanelSwaggerField, PanelField, editablePanelify } from 'shared/EditablePanel';
@@ -116,8 +117,9 @@ const formName = 'orders_document_viewer';
 let OrdersViewerPanel = editablePanelify(OrdersViewerDisplay, OrdersViewerEdit);
 OrdersViewerPanel = reduxForm({ form: formName })(OrdersViewerPanel);
 
-function mapStateToProps(state) {
-  const orders = get(state, 'office.officeOrders', {});
+function mapStateToProps(state, ownProps) {
+  const { moveId } = ownProps;
+  const orders = selectOrdersForMove(state, moveId);
   const serviceMember = selectServiceMemberForOrders(state, orders.id);
 
   return {
@@ -135,7 +137,7 @@ function mapStateToProps(state) {
 
     orders,
     serviceMember,
-    move: get(state, 'office.officeMove', {}),
+    move: selectMove(state, moveId),
 
     // editablePanelify
     getUpdateArgs: function() {
@@ -146,12 +148,19 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      update: updateOrdersInfo,
-    },
-    dispatch,
-  );
+  const update = (ordersId, orders, serviceMemberId, serviceMember) => {
+    serviceMember.current_station_id = serviceMember.current_station.id;
+    dispatch(updateServiceMember(serviceMemberId, { serviceMember }));
+
+    if (!orders.has_dependents) {
+      orders.spouse_has_pro_gear = false;
+    }
+
+    orders.new_duty_station_id = orders.new_duty_station.id;
+    dispatch(updateOrders(ordersId, orders));
+  };
+
+  return { update };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(OrdersViewerPanel);

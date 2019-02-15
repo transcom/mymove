@@ -3,9 +3,15 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
+import {
+  selectReimbursement,
+  approveReimbursement,
+  selectPPMForMove,
+  downloadPPMAttachments,
+  downloadPPMAttachmentsLabel,
+} from 'shared/Entities/modules/ppms';
+import { getLastError } from 'shared/Swagger/selectors';
 
-import { approveReimbursement, downloadPPMAttachments } from '../ducks';
-import { selectPpmStatus } from 'shared/Entities/modules/ppms';
 import { no_op } from 'shared/utils';
 import { formatCents, formatDate } from 'shared/formatters';
 import Alert from 'shared/Alert';
@@ -59,20 +65,20 @@ class PaymentsTable extends Component {
   };
 
   documentUpload = () => {
-    const move = this.props.move;
-    this.props.push(`/moves/${move.id}/documents/new?move_document_type=SHIPMENT_SUMMARY`);
+    const { moveId } = this.props;
+    this.props.push(`/moves/${moveId}/documents/new?move_document_type=SHIPMENT_SUMMARY`);
   };
 
   downloadShipmentSummary = () => {
-    let moveID = get(this.props, 'move.id');
+    const { moveId } = this.props;
     const userDate = getUserDate();
 
     // eslint-disable-next-line
-    window.open(`/internal/moves/${moveID}/shipment_summary_worksheet/?preparationDate=${userDate}`);
+    window.open(`/internal/moves/${moveId}/shipment_summary_worksheet/?preparationDate=${userDate}`);
   };
 
   renderAdvanceAction = () => {
-    if (this.props.ppmStatus === 'APPROVED') {
+    if (this.props.ppm.status === 'APPROVED') {
       if (this.props.advance.status === 'APPROVED') {
         return <div>{/* Further actions to come*/}</div>;
       } else {
@@ -240,17 +246,15 @@ class PaymentsTable extends Component {
   }
 }
 
-const mapStateToProps = state => {
-  const ppm = get(state, 'office.officePPMs.0', {});
-
+const mapStateToProps = (state, ownProps) => {
+  const { moveId } = ownProps;
+  const ppm = selectPPMForMove(state, moveId);
+  const advance = selectReimbursement(state, ppm.advance);
   return {
     ppm,
-    ppmStatus: selectPpmStatus(state, ppm.id),
-    move: get(state, 'office.officeMove', {}),
-    advance: get(state, 'office.officePPMs[0].advance', {}),
-    hasError: false,
-    errorMessage: state.office.error,
-    attachmentsError: get(state, 'office.downloadAttachmentsHasError'),
+    moveId,
+    advance,
+    attachmentsError: getLastError(state, downloadPPMAttachmentsLabel),
   };
 };
 
