@@ -1,9 +1,12 @@
 package models
 
 import (
+	"context"
 	"encoding/json"
 	"time"
 
+	beeline "github.com/honeycombio/beeline-go"
+	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/gen/ordersmessages"
 
 	"github.com/gobuffalo/pop"
@@ -17,8 +20,8 @@ type ElectronicOrdersRevision struct {
 	ID                    uuid.UUID                  `json:"id" db:"id"`
 	CreatedAt             time.Time                  `json:"created_at" db:"created_at"`
 	UpdatedAt             time.Time                  `json:"updated_at" db:"updated_at"`
-	ElectronicOrder       ElectronicOrder            `belongs_to:"electronic_orders"`
-	ElectronicOrderID     uuid.UUID                  `json:"electronic_order_id" db:"electronic_orders_id"`
+	ElectronicOrderID     uuid.UUID                  `json:"electronic_order_id" db:"electronic_order_id"`
+	ElectronicOrder       ElectronicOrder            `belongs_to:"electronic_order"`
 	SeqNum                int                        `json:"seq_num" db:"seq_num"`
 	GivenName             string                     `json:"given_name" db:"given_name"`
 	MiddleName            *string                    `json:"middle_name" db:"middle_name"`
@@ -138,4 +141,27 @@ func (e *ElectronicOrdersRevision) ValidateCreate(tx *pop.Connection) (*validate
 // This method is not required and may be deleted.
 func (e *ElectronicOrdersRevision) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// CreateElectronicOrdersRevision inserts a revision into the database
+func CreateElectronicOrdersRevision(ctx context.Context, dbConnection *pop.Connection, revision *ElectronicOrdersRevision) (*validate.Errors, error) {
+	ctx, span := beeline.StartSpan(ctx, "CreateElectronicOrdersRevision")
+	defer span.Send()
+
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	// If the passed in function returns an error, the transaction is rolled back
+	dbConnection.Transaction(func(dbConnection *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+		if verrs, err := dbConnection.ValidateAndCreate(revision); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = err
+			return transactionError
+		}
+
+		return nil
+	})
+
+	return responseVErrors, responseError
 }

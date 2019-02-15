@@ -13,7 +13,7 @@ paths:
       summary: Retrieve orders that match a particular search
       description: >
         Returns all orders that match all of the supplied parameters. At least
-        one query parameter must be provided.
+        one query parameter (other than latestOnly) must be provided.
       operationId: indexOrders
       produces:
         - application/json
@@ -44,8 +44,8 @@ paths:
         - name: status
           in: query
           description: >-
-            Return only Orders where the status of the latest Revision of the
-            Orders matches the supplied status.
+            Return only those Orders where the status of the latest Revision of
+            the Orders matches the supplied status.
           type: string
           enum:
             - authorized
@@ -222,7 +222,6 @@ paths:
 
         If amending existing Orders, the supplied seqNum must be unique. If it
         has already been used, this endpoint will return `409 Conflict`.
-
       operationId: postRevisionToOrders
       consumes:
         - application/json
@@ -319,12 +318,14 @@ definitions:
           Corresponds to the Travel Authorization Number. For example,
           "PS8D000025".
         example: M7000213CTB28DZ
+        x-nullable: false
       edipi:
         type: string
         description: >-
           Electronic Data Interchange Personal Identifier, AKA the 10 digit DoD
           ID Number of the member.
         pattern: '^\d{10}$'
+        x-nullable: false
       issuer:
         $ref: '#/definitions/Issuer'
       revisions:
@@ -373,6 +374,7 @@ definitions:
           The date and time that these orders were cut. If omitted, the current
           date and time will be used.
         format: date-time
+        x-nullable: true
       noCostMove:
         type: boolean
         description: >
@@ -400,7 +402,6 @@ definitions:
         description: >
           True if the service member has any dependents (e.g., spouse, children,
           caring for an elderly parent, etc.), False otherwise.
-
 
           When the member has dependents, it usually raises their weight
           entitlement.
@@ -439,6 +440,7 @@ definitions:
         description: >-
           Free-form text that may or may not contain information relevant to
           moving.
+        x-nullable: true
     required:
       - seqNum
       - member
@@ -472,17 +474,21 @@ definitions:
         description: >-
           In languages that use Western order, like English, this is the first
           name.
+        x-nullable: false
       familyName:
         type: string
         description: >-
           In languages that use Western order, like English, this is the last
           name.
+        x-nullable: false
       middleName:
         type: string
         description: Middle name or middle initial
+        x-nullable: true
       suffix:
         type: string
         description: 'Jr., Sr., III, etc.'
+        x-nullable: true
       affiliation:
         $ref: '#/definitions/Affiliation'
       rank:
@@ -501,6 +507,7 @@ definitions:
 
           If omitted, my.move.mil will show the member the default name for the
           provided rank and affiliation.
+        x-nullable: true
     required:
       - givenName
       - familyName
@@ -693,6 +700,7 @@ definitions:
           time to pay an NTS invoice, the underscore in the NTS TAC is replaced
           with the last digit of the current FY, and then that reconstructed TAC
           is used to look up the correct LOA in TGET.
+        x-nullable: true
       sdn:
         type: string
         description: >
@@ -716,9 +724,11 @@ definitions:
           the CT SDN in any transactions with the Third Party Payment System,
           and for the TPPS to include this unique value with every expense in
           the resulting report.
+        x-nullable: true
       loa:
         type: string
         description: The full Line Of Accounting. LOA is required if there is no TAC.
+        x-nullable: true
   Unit:
     type: object
     description: >-
@@ -729,6 +739,7 @@ definitions:
       name:
         type: string
         description: Human-readable name of the Unit.
+        x-nullable: true
       uic:
         type: string
         description: >
@@ -740,20 +751,25 @@ definitions:
           Note that the Navy has the habit of omitting the leading character,
           which is always "N" for them.
         pattern: '^[A-Z][A-Z0-9]{5}$'
+        x-nullable: true
       city:
         type: string
         description: May be FPO or APO for OCONUS commands.
+        x-nullable: true
       locality:
         type: string
         description: >-
           State (US). OCONUS units may not have the equivalent information
           available.
+        x-nullable: true
       country:
         type: string
         description: >-
           ISO 3166-1 alpha-2 country code. If blank, but city and locality or
           postalCode are not blank, assume US
         pattern: '^[A-Z]{2}$'
+        x-nullable: true
       postalCode:
         type: string
         description: 'In the USA, this is the ZIP Code.'
+        x-nullable: true

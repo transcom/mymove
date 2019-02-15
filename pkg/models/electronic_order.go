@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"encoding/json"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/gen/ordersmessages"
 )
@@ -44,6 +46,7 @@ func (e *ElectronicOrder) Validate(tx *pop.Connection) (*validate.Errors, error)
 	return validate.Validate(
 		&validators.StringIsPresent{Field: e.OrdersNumber, Name: "OrdersNumber"},
 		&validators.StringIsPresent{Field: e.Edipi, Name: "Edipi"},
+		&validators.StringLengthInRange{Field: e.Edipi, Name: "Edipi", Min: 10, Max: 10},
 		&validators.StringIsPresent{Field: string(e.Issuer), Name: "Issuer"},
 	), nil
 }
@@ -58,6 +61,29 @@ func (e *ElectronicOrder) ValidateCreate(tx *pop.Connection) (*validate.Errors, 
 // This method is not required and may be deleted.
 func (e *ElectronicOrder) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// CreateElectronicOrder inserts an empty set of electronic Orders into the database
+func CreateElectronicOrder(ctx context.Context, dbConnection *pop.Connection, order *ElectronicOrder) (*validate.Errors, error) {
+	ctx, span := beeline.StartSpan(ctx, "CreateElectronicOrder")
+	defer span.Send()
+
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	// If the passed in function returns an error, the transaction is rolled back
+	dbConnection.Transaction(func(dbConnection *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+		if verrs, err := dbConnection.ValidateAndCreate(order); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = err
+			return transactionError
+		}
+
+		return nil
+	})
+
+	return responseVErrors, responseError
 }
 
 // FetchElectronicOrderByID gets all revisions of a set of Orders by their shared UUID,
@@ -77,17 +103,16 @@ func FetchElectronicOrderByID(db *pop.Connection, id uuid.UUID) (ElectronicOrder
 }
 
 // FetchElectronicOrderByUniqueFeatures gets all revisions of a set Orders by the combination of features
-// that make Orders unique - the Orders number, the EDIPI of the member, and the issuer. The results are
-// returned in descending order by their sequence number
-func FetchElectronicOrderByUniqueFeatures(db *pop.Connection, ordersNum string, edipi string, issuer string) ([]ElectronicOrder, error) {
-	var orders []ElectronicOrder
-	err := db.Q().Eager("ServiceMember").Where("orders_number = $1 AND edipi = $2 AND issuer = $3", ordersNum, edipi, issuer).All(orders)
+// that make Orders unique - the Orders number, the EDIPI of the member, and the issuer.
+func FetchElectronicOrderByUniqueFeatures(db *pop.Connection, ordersNum string, edipi string, issuer string) (ElectronicOrder, error) {
+	var order ElectronicOrder
+	err := db.Q().Eager("Revisions").Where("orders_number = $1 AND edipi = $2 AND issuer = $3", ordersNum, edipi, issuer).First(&order)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
-			return []ElectronicOrder{}, ErrFetchNotFound
+			return ElectronicOrder{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
-		return []ElectronicOrder{}, err
+		return ElectronicOrder{}, err
 	}
-	return orders, err
+	return order, err
 }
