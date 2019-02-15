@@ -134,8 +134,8 @@ import (
 
 // DO NOT DEFINE STRUCT LIKE THIS
 type createForm struct {
-  File afero.File
-  FormFiller *paperworkforms.FormFiller
+  fileStorer afero.File
+  formFiller *paperworkforms.FormFiller
 }
 ```
 
