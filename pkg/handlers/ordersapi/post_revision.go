@@ -65,91 +65,95 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 		}
 	}
 
-	r := params.Revision
-	var dateIssued time.Time
-	if r.DateIssued == nil {
-		dateIssued = time.Now()
-	} else {
-		dateIssued = time.Time(*r.DateIssued)
-	}
-
-	var tourType ordersmessages.TourType
-	if r.TourType == "" {
-		tourType = ordersmessages.TourTypeAccompanied
-	} else {
-		tourType = r.TourType
-	}
-
-	newRevision := models.ElectronicOrdersRevision{
-		ElectronicOrderID:     orders.ID,
-		ElectronicOrder:       orders,
-		SeqNum:                int(*r.SeqNum),
-		GivenName:             r.Member.GivenName,
-		MiddleName:            r.Member.MiddleName,
-		FamilyName:            r.Member.FamilyName,
-		NameSuffix:            r.Member.Suffix,
-		Affiliation:           r.Member.Affiliation,
-		Paygrade:              r.Member.Rank,
-		Title:                 r.Member.Title,
-		Status:                r.Status,
-		DateIssued:            dateIssued,
-		NoCostMove:            r.NoCostMove,
-		TdyEnRoute:            r.TdyEnRoute,
-		TourType:              tourType,
-		OrdersType:            r.OrdersType,
-		HasDependents:         *r.HasDependents,
-		LosingUIC:             r.LosingUnit.Uic,
-		LosingUnitName:        r.LosingUnit.Name,
-		LosingUnitCity:        r.LosingUnit.City,
-		LosingUnitLocality:    r.LosingUnit.Locality,
-		LosingUnitCountry:     r.LosingUnit.Country,
-		LosingUnitPostalCode:  r.LosingUnit.PostalCode,
-		GainingUIC:            r.GainingUnit.Uic,
-		GainingUnitName:       r.GainingUnit.Name,
-		GainingUnitCity:       r.GainingUnit.City,
-		GainingUnitLocality:   r.GainingUnit.Locality,
-		GainingUnitCountry:    r.GainingUnit.Country,
-		GainingUnitPostalCode: r.GainingUnit.PostalCode,
-		ReportNoEarlierThan:   (*time.Time)(r.ReportNoEarlierThan),
-		ReportNoLaterThan:     (*time.Time)(r.ReportNoLaterThan),
-		Comments:              r.Comments,
-	}
-	if r.PcsAccounting != nil {
-		newRevision.HhgTAC = r.PcsAccounting.Tac
-		newRevision.HhgSDN = r.PcsAccounting.Sdn
-		newRevision.HhgLOA = r.PcsAccounting.Loa
-	}
-	if r.NtsAccounting != nil {
-		newRevision.NtsTAC = r.NtsAccounting.Tac
-		newRevision.NtsSDN = r.NtsAccounting.Sdn
-		newRevision.NtsLOA = r.NtsAccounting.Loa
-	}
-	if r.PovShipmentAccounting != nil {
-		newRevision.PovShipmentTAC = r.PovShipmentAccounting.Tac
-		newRevision.PovShipmentSDN = r.PovShipmentAccounting.Sdn
-		newRevision.PovShipmentLOA = r.PovShipmentAccounting.Loa
-	}
-	if r.PovStorageAccounting != nil {
-		newRevision.PovStorageTAC = r.PovStorageAccounting.Tac
-		newRevision.PovStorageSDN = r.PovStorageAccounting.Sdn
-		newRevision.PovStorageLOA = r.PovStorageAccounting.Loa
-	}
-	if r.UbAccounting != nil {
-		newRevision.UbTAC = r.UbAccounting.Tac
-		newRevision.UbSDN = r.UbAccounting.Sdn
-		newRevision.UbLOA = r.UbAccounting.Loa
-	}
-
-	verrs, err := models.CreateElectronicOrdersRevision(ctx, h.DB(), &newRevision)
+	newRevision := toElectronicOrdersRevision(orders, params.Revision)
+	verrs, err := models.CreateElectronicOrdersRevision(ctx, h.DB(), newRevision)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	orders.Revisions = append(orders.Revisions, newRevision)
+	orders.Revisions = append(orders.Revisions, *newRevision)
 
 	orderPayload, err := payloadForElectronicOrderModel(orders)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 	return ordersoperations.NewPostRevisionCreated().WithPayload(orderPayload)
+}
+
+func toElectronicOrdersRevision(orders models.ElectronicOrder, rev *ordersmessages.Revision) *models.ElectronicOrdersRevision {
+	var dateIssued time.Time
+	if rev.DateIssued == nil {
+		dateIssued = time.Now()
+	} else {
+		dateIssued = time.Time(*rev.DateIssued)
+	}
+
+	var tourType ordersmessages.TourType
+	if rev.TourType == "" {
+		tourType = ordersmessages.TourTypeAccompanied
+	} else {
+		tourType = rev.TourType
+	}
+
+	newRevision := models.ElectronicOrdersRevision{
+		ElectronicOrderID:     orders.ID,
+		ElectronicOrder:       orders,
+		SeqNum:                int(*rev.SeqNum),
+		GivenName:             rev.Member.GivenName,
+		MiddleName:            rev.Member.MiddleName,
+		FamilyName:            rev.Member.FamilyName,
+		NameSuffix:            rev.Member.Suffix,
+		Affiliation:           rev.Member.Affiliation,
+		Paygrade:              rev.Member.Rank,
+		Title:                 rev.Member.Title,
+		Status:                rev.Status,
+		DateIssued:            dateIssued,
+		NoCostMove:            rev.NoCostMove,
+		TdyEnRoute:            rev.TdyEnRoute,
+		TourType:              tourType,
+		OrdersType:            rev.OrdersType,
+		HasDependents:         *rev.HasDependents,
+		LosingUIC:             rev.LosingUnit.Uic,
+		LosingUnitName:        rev.LosingUnit.Name,
+		LosingUnitCity:        rev.LosingUnit.City,
+		LosingUnitLocality:    rev.LosingUnit.Locality,
+		LosingUnitCountry:     rev.LosingUnit.Country,
+		LosingUnitPostalCode:  rev.LosingUnit.PostalCode,
+		GainingUIC:            rev.GainingUnit.Uic,
+		GainingUnitName:       rev.GainingUnit.Name,
+		GainingUnitCity:       rev.GainingUnit.City,
+		GainingUnitLocality:   rev.GainingUnit.Locality,
+		GainingUnitCountry:    rev.GainingUnit.Country,
+		GainingUnitPostalCode: rev.GainingUnit.PostalCode,
+		ReportNoEarlierThan:   (*time.Time)(rev.ReportNoEarlierThan),
+		ReportNoLaterThan:     (*time.Time)(rev.ReportNoLaterThan),
+		Comments:              rev.Comments,
+	}
+	if rev.PcsAccounting != nil {
+		newRevision.HhgTAC = rev.PcsAccounting.Tac
+		newRevision.HhgSDN = rev.PcsAccounting.Sdn
+		newRevision.HhgLOA = rev.PcsAccounting.Loa
+	}
+	if rev.NtsAccounting != nil {
+		newRevision.NtsTAC = rev.NtsAccounting.Tac
+		newRevision.NtsSDN = rev.NtsAccounting.Sdn
+		newRevision.NtsLOA = rev.NtsAccounting.Loa
+	}
+	if rev.PovShipmentAccounting != nil {
+		newRevision.PovShipmentTAC = rev.PovShipmentAccounting.Tac
+		newRevision.PovShipmentSDN = rev.PovShipmentAccounting.Sdn
+		newRevision.PovShipmentLOA = rev.PovShipmentAccounting.Loa
+	}
+	if rev.PovStorageAccounting != nil {
+		newRevision.PovStorageTAC = rev.PovStorageAccounting.Tac
+		newRevision.PovStorageSDN = rev.PovStorageAccounting.Sdn
+		newRevision.PovStorageLOA = rev.PovStorageAccounting.Loa
+	}
+	if rev.UbAccounting != nil {
+		newRevision.UbTAC = rev.UbAccounting.Tac
+		newRevision.UbSDN = rev.UbAccounting.Sdn
+		newRevision.UbLOA = rev.UbAccounting.Loa
+	}
+
+	return &newRevision
 }
