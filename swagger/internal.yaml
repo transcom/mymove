@@ -1965,36 +1965,8 @@ definitions:
     title: Orders type
     enum:
       - PERMANENT_CHANGE_OF_STATION
-      - ACCESSION
-      - BETWEEN_DUTY_STATIONS
-      - BRAC
-      - COT
-      - EMERGENCY_EVAC
-      - IPCOT
-      - LOW_COST_TRAVEL
-      - OPERATIONAL
-      - OTEIP
-      - ROTATIONAL
-      - SEPARATION
-      - SPECIAL_PURPOSE
-      - TRAINING
-      - UNIT_MOVE
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
-      ACCESSION: Accession
-      BETWEEN_DUTY_STATIONS: Between Duty Stations
-      BRAC: Base Realignment and Closure (BRAC)
-      COT: Consecutive Overseas Travel (COT)
-      EMERGENCY_EVAC: Emergency Evacuation
-      IPCOT: In-Place Consecutive Overseas Travel (IPCOT)
-      LOW_COST_TRAVEL: Low-Cost Travel
-      OPERATIONAL: Operational
-      OTEIP: Overseas Tour Extension Incentive Program (OTEIP)
-      ROTATIONAL: Rotational
-      SEPARATION: Separation
-      SPECIAL_PURPOSE: Special Purpose
-      TRAINING: Training
-      UNIT_MOVE: Unit Move
   OrdersTypeDetail:
     type: string
     title: Orders type detail

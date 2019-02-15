@@ -16,7 +16,7 @@ import (
 // UploadedOrdersDocumentName is the name of an uploaded orders document
 const UploadedOrdersDocumentName = "uploaded_orders"
 
-// OrderStatus represents the status of an order record's state in the UX manual orders flow
+// OrderStatus represents the state of an order record in the UX manual orders flow
 type OrderStatus string
 
 const (
@@ -28,30 +28,6 @@ const (
 	OrderStatusAPPROVED OrderStatus = "APPROVED"
 	// OrderStatusCANCELED captures enum value "CANCELED"
 	OrderStatusCANCELED OrderStatus = "CANCELED"
-)
-
-// TourType indicates whether dependents are included in the Tour of Duty
-type TourType string
-
-const (
-	// TourTypeAccompanied means that dependents are authorized to travel with the service member
-	TourTypeAccompanied TourType = "accompanied"
-	// TourTypeUnaccompanied means that dependents are not authorized to travel with the service member
-	TourTypeUnaccompanied TourType = "unaccompanied"
-	// TourTypeUnaccompaniedDependentsRestricted captures enum value "unaccompanied-dependents-restricted"
-	TourTypeUnaccompaniedDependentsRestricted TourType = "unaccompanied-dependents-restricted"
-)
-
-// OrderImpact represents whether these orders are effective and authorized, merely a request for orders, or canceled altogether
-type OrderImpact string
-
-const (
-	// OrderImpactAuthorized means that these Orders are in effect if they are the latest amendment revision
-	OrderImpactAuthorized OrderImpact = "authorized"
-	// OrderImpactRequestForOrders means that these Orders are a request sent to a personnel office or division to cut authorized orders, and cannot be used by a member to actually move
-	OrderImpactRequestForOrders OrderImpact = "rfo"
-	// OrderImpactCanceled means that these Orders are canceled
-	OrderImpactCanceled OrderImpact = "canceled"
 )
 
 // Order is a set of orders received by a service member
