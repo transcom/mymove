@@ -41,6 +41,20 @@ func (u *Uploader) SetUploadStorageKey(key string) {
 	u.UploadStorageKey = key
 }
 
+// AllowedFileTypes contains a list of content types
+type AllowedFileTypes []string
+
+var (
+	// AllowedTypesServiceMember are the content types we allow service members to upload
+	AllowedTypesServiceMember AllowedFileTypes = []string{"image/jpeg", "image/png", "application/pdf", "text/plain", "text/plain; charset=utf-8"}
+
+	// AllowedTypesText accepts text files
+	AllowedTypesText AllowedFileTypes = []string{}
+
+	// AllowedTypesPDF accepts PDF files
+	AllowedTypesPDF AllowedFileTypes = []string{}
+)
+
 // CreateUpload creates a new Upload by performing validations, storing the specified
 // file using the supplied storer, and saving an Upload object to the database containing
 // the file's metadata.
@@ -61,6 +75,14 @@ func (u *Uploader) CreateUpload(documentID *uuid.UUID, userID uuid.UUID, file af
 	if err != nil {
 		u.logger.Error("Could not detect content type", zap.Error(err))
 		return nil, responseVErrors, err
+	}
+
+	allowedTypes := AllowedTypesServiceMember
+	validator := models.NewStringInList(contentType, "ContentType", allowedTypes)
+	validator.IsValid(responseVErrors)
+	if responseVErrors.HasAny() {
+		u.logger.Error("Invalid content type for upload: %s", zap.String("ContentType", contentType))
+		return nil, responseVErrors, nil
 	}
 
 	checksum, err := storage.ComputeChecksum(file)

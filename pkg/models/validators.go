@@ -135,17 +135,34 @@ func (v *DiscountRateIsValid) IsValid(errors *validate.Errors) {
 	}
 }
 
-// AllowedFileType validates that a content-type is contained in our list of accepted types.
-type AllowedFileType struct {
-	validators.StringInclusion
+// StringInList is an improved validators.StringInclusion validator with better error messages.
+type StringInList struct {
+	Value     string
+	FieldName string
+	List      []string
 }
 
-// NewAllowedFileTypeValidator constructs as StringInclusion Validator which checks for allowed file upload types
-func NewAllowedFileTypeValidator(field string, name string) *AllowedFileType {
-	return &AllowedFileType{
-		validators.StringInclusion{Name: name,
-			Field: field,
-			List:  []string{"image/jpeg", "image/png", "application/pdf", "text/plain", "text/plain; charset=utf-8"}}}
+// NewStringInList returns a new StringInList validator.
+func NewStringInList(value string, fieldName string, list []string) *StringInList {
+	return &StringInList{
+		Value:     value,
+		FieldName: fieldName,
+		List:      list,
+	}
+}
+
+// IsValid adds an error if the string value is blank.
+func (v *StringInList) IsValid(errors *validate.Errors) {
+	found := false
+	for _, l := range v.List {
+		if l == v.Value {
+			found = true
+			break
+		}
+	}
+	if !found {
+		errors.Add(validators.GenerateKey(v.FieldName), fmt.Sprintf("%s '%s' is not in the list [%s].", v.FieldName, v.Value, strings.Join(v.List, ", ")))
+	}
 }
 
 // AffiliationIsPresent validates that a branch is present
