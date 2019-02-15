@@ -142,3 +142,22 @@ func (suite *HandlerSuite) TestPatchStorageInTransitHandler() {
 
 	storageInTransitPayloadCompare(suite, sitPayload, responsePayload)
 }
+
+func (suite *HandlerSuite) TestDeleteStorageInTransitHandler() {
+	shipment, sit, user := setupStorageInTransitHandlerTest(suite)
+
+	path := fmt.Sprintf("/shipments/%s/storage_in_transits", shipment.ID.String())
+	fmt.Println(path)
+	req := httptest.NewRequest("DELETE", path, nil)
+	req = suite.AuthenticateOfficeRequest(req, user)
+
+	params := sitop.DeleteStorageInTransitParams{
+		HTTPRequest:        req,
+		StorageInTransitID: strfmt.UUID(sit.ID.String()),
+	}
+
+	handler := DeleteStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&sitop.DeleteStorageInTransitOK{}, response)
+}

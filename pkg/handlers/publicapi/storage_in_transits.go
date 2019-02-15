@@ -185,7 +185,13 @@ type GetStorageInTransitHandler struct {
 
 // Handle handles the handling
 func (h GetStorageInTransitHandler) Handle(params sitop.GetStorageInTransitParams) middleware.Responder {
-	storageInTransitID, _ := uuid.FromString(params.StorageInTransitID.String())
+	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
+
+	if err != nil {
+		h.Logger().Error("UUID Parsing", zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
 	storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
 
 	if err != nil {
@@ -195,5 +201,30 @@ func (h GetStorageInTransitHandler) Handle(params sitop.GetStorageInTransitParam
 
 	storageInTransitPayload := payloadForStorageInTransitModel(&storageInTransit)
 	return sitop.NewGetStorageInTransitOK().WithPayload(storageInTransitPayload)
+
+}
+
+// DeleteStorageInTransitHandler deletes a Storage in Transit based on the provided ID
+type DeleteStorageInTransitHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle handles the handling
+func (h DeleteStorageInTransitHandler) Handle(params sitop.DeleteStorageInTransitParams) middleware.Responder {
+	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
+
+	if err != nil {
+		h.Logger().Error("UUID Parsing", zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	err = models.DeleteStorageInTransit(h.DB(), storageInTransitID)
+
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	return sitop.NewDeleteStorageInTransitOK()
 
 }

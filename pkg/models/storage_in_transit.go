@@ -138,3 +138,27 @@ func FetchStorageInTransitByID(tx *pop.Connection, storageInTransitID uuid.UUID)
 	return storageInTransit, nil
 
 }
+
+// DeleteStorageInTransit deletes a Storage In Transit object based on the provided ID
+func DeleteStorageInTransit(tx *pop.Connection, storageInTransitID uuid.UUID) (err error) {
+	var storageInTransit StorageInTransit
+
+	// Identify the record we're going to delete by its ID
+	// If we can't find it we return an ErrFetchNotFound.
+	err = tx.Find(&storageInTransit, storageInTransitID)
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return ErrFetchNotFound
+		}
+		return err
+	}
+
+	// Execute the deletion
+	err = tx.Destroy(&storageInTransit)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}
