@@ -5,6 +5,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
+	"github.com/transcom/mymove/pkg/gen/ordersmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -33,10 +34,31 @@ func (h GetOrdersHandler) Handle(params ordersoperations.GetOrdersParams) middle
 	orders, err := models.FetchElectronicOrderByID(h.DB(), id)
 	if err == models.ErrFetchNotFound {
 		return ordersoperations.NewGetOrdersNotFound()
-
 	} else if err != nil {
 		h.Logger().Info("Error while fetching electronic Orders by ID")
 		return ordersoperations.NewGetOrdersInternalServerError()
+	}
+
+	if orders.Issuer == ordersmessages.IssuerAirForce {
+		if !clientCert.AllowAirForceOrdersRead {
+			return ordersoperations.NewGetOrdersUnauthorized()
+		}
+	} else if orders.Issuer == ordersmessages.IssuerArmy {
+		if !clientCert.AllowArmyOrdersRead {
+			return ordersoperations.NewGetOrdersUnauthorized()
+		}
+	} else if orders.Issuer == ordersmessages.IssuerCoastGuard {
+		if !clientCert.AllowCoastGuardOrdersRead {
+			return ordersoperations.NewGetOrdersUnauthorized()
+		}
+	} else if orders.Issuer == ordersmessages.IssuerMarineCorps {
+		if !clientCert.AllowMarineCorpsOrdersRead {
+			return ordersoperations.NewGetOrdersUnauthorized()
+		}
+	} else if orders.Issuer == ordersmessages.IssuerNavy {
+		if !clientCert.AllowNavyOrdersRead {
+			return ordersoperations.NewGetOrdersUnauthorized()
+		}
 	}
 
 	ordersPayload, err := payloadForElectronicOrderModel(orders)

@@ -8,6 +8,7 @@ import (
 	beeline "github.com/honeycombio/beeline-go"
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
+	"github.com/transcom/mymove/pkg/gen/ordersmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -39,6 +40,28 @@ func (h PostRevisionToOrdersHandler) Handle(params ordersoperations.PostRevision
 	orders, err := models.FetchElectronicOrderByID(h.DB(), id)
 	if err == models.ErrFetchNotFound {
 		return ordersoperations.NewPostRevisionToOrdersNotFound()
+	}
+
+	if orders.Issuer == ordersmessages.IssuerAirForce {
+		if !clientCert.AllowAirForceOrdersWrite {
+			return ordersoperations.NewPostRevisionToOrdersUnauthorized()
+		}
+	} else if orders.Issuer == ordersmessages.IssuerArmy {
+		if !clientCert.AllowArmyOrdersWrite {
+			return ordersoperations.NewPostRevisionToOrdersUnauthorized()
+		}
+	} else if orders.Issuer == ordersmessages.IssuerCoastGuard {
+		if !clientCert.AllowCoastGuardOrdersWrite {
+			return ordersoperations.NewPostRevisionToOrdersUnauthorized()
+		}
+	} else if orders.Issuer == ordersmessages.IssuerMarineCorps {
+		if !clientCert.AllowMarineCorpsOrdersWrite {
+			return ordersoperations.NewPostRevisionToOrdersUnauthorized()
+		}
+	} else if orders.Issuer == ordersmessages.IssuerNavy {
+		if !clientCert.AllowNavyOrdersWrite {
+			return ordersoperations.NewPostRevisionToOrdersUnauthorized()
+		}
 	}
 
 	for _, r := range orders.Revisions {

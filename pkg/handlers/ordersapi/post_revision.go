@@ -28,6 +28,30 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 		h.Logger().Info("Client certificate is not authorized to access this API")
 		return ordersoperations.NewPostRevisionUnauthorized()
 	}
+	if params.Issuer == string(ordersmessages.IssuerAirForce) {
+		if !clientCert.AllowAirForceOrdersWrite {
+			return ordersoperations.NewPostRevisionUnauthorized()
+		}
+	} else if params.Issuer == string(ordersmessages.IssuerArmy) {
+		if !clientCert.AllowArmyOrdersWrite {
+			return ordersoperations.NewPostRevisionUnauthorized()
+		}
+	} else if params.Issuer == string(ordersmessages.IssuerCoastGuard) {
+		if !clientCert.AllowCoastGuardOrdersWrite {
+			return ordersoperations.NewPostRevisionUnauthorized()
+		}
+	} else if params.Issuer == string(ordersmessages.IssuerMarineCorps) {
+		if !clientCert.AllowMarineCorpsOrdersWrite {
+			return ordersoperations.NewPostRevisionUnauthorized()
+		}
+	} else if params.Issuer == string(ordersmessages.IssuerNavy) {
+		if !clientCert.AllowNavyOrdersWrite {
+			return ordersoperations.NewPostRevisionUnauthorized()
+		}
+	} else {
+		// Unknown issuer
+		return ordersoperations.NewPostRevisionBadRequest()
+	}
 
 	// TODO check enumerated values, or are these already checked for me by swagger?
 
