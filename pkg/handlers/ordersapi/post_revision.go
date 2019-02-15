@@ -112,22 +112,32 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 		GainingUnitPostalCode: r.GainingUnit.PostalCode,
 		ReportNoEarlierThan:   (*time.Time)(r.ReportNoEarlierThan),
 		ReportNoLaterThan:     (*time.Time)(r.ReportNoLaterThan),
-		HhgTAC:                r.PcsAccounting.Tac,
-		HhgSDN:                r.PcsAccounting.Sdn,
-		HhgLOA:                r.PcsAccounting.Loa,
-		NtsTAC:                r.NtsAccounting.Tac,
-		NtsSDN:                r.NtsAccounting.Sdn,
-		NtsLOA:                r.NtsAccounting.Loa,
-		PovShipmentTAC:        r.PovShipmentAccounting.Tac,
-		PovShipmentSDN:        r.PovShipmentAccounting.Sdn,
-		PovShipmentLOA:        r.PovShipmentAccounting.Loa,
-		PovStorageTAC:         r.PovStorageAccounting.Tac,
-		PovStorageSDN:         r.PovStorageAccounting.Sdn,
-		PovStorageLOA:         r.PovStorageAccounting.Loa,
-		UbTAC:                 r.UbAccounting.Tac,
-		UbSDN:                 r.UbAccounting.Sdn,
-		UbLOA:                 r.UbAccounting.Loa,
 		Comments:              r.Comments,
+	}
+	if r.PcsAccounting != nil {
+		newRevision.HhgTAC = r.PcsAccounting.Tac
+		newRevision.HhgSDN = r.PcsAccounting.Sdn
+		newRevision.HhgLOA = r.PcsAccounting.Loa
+	}
+	if r.NtsAccounting != nil {
+		newRevision.NtsTAC = r.NtsAccounting.Tac
+		newRevision.NtsSDN = r.NtsAccounting.Sdn
+		newRevision.NtsLOA = r.NtsAccounting.Loa
+	}
+	if r.PovShipmentAccounting != nil {
+		newRevision.PovShipmentTAC = r.PovShipmentAccounting.Tac
+		newRevision.PovShipmentSDN = r.PovShipmentAccounting.Sdn
+		newRevision.PovShipmentLOA = r.PovShipmentAccounting.Loa
+	}
+	if r.PovStorageAccounting != nil {
+		newRevision.PovStorageTAC = r.PovStorageAccounting.Tac
+		newRevision.PovStorageSDN = r.PovStorageAccounting.Sdn
+		newRevision.PovStorageLOA = r.PovStorageAccounting.Loa
+	}
+	if r.UbAccounting != nil {
+		newRevision.UbTAC = r.UbAccounting.Tac
+		newRevision.UbSDN = r.UbAccounting.Sdn
+		newRevision.UbLOA = r.UbAccounting.Loa
 	}
 
 	verrs, err := models.CreateElectronicOrdersRevision(ctx, h.DB(), &newRevision)

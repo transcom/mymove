@@ -22,7 +22,7 @@ type ElectronicOrder struct {
 	OrdersNumber string                    `json:"orders_number" db:"orders_number"`
 	Edipi        string                    `json:"edipi" db:"edipi"`
 	Issuer       ordersmessages.Issuer     `json:"issuer" db:"issuer"`
-	Revisions    ElectronicOrdersRevisions `has_many:"electronic_orders_revisions" order_by:"seq_num desc"`
+	Revisions    ElectronicOrdersRevisions `has_many:"electronic_orders_revisions" order_by:"seq_num asc"`
 }
 
 // String is not required by pop and may be deleted
@@ -87,7 +87,7 @@ func CreateElectronicOrder(ctx context.Context, dbConnection *pop.Connection, or
 }
 
 // FetchElectronicOrderByID gets all revisions of a set of Orders by their shared UUID,
-// sorted in descending order by their sequence number
+// sorted in ascending order by their sequence number
 func FetchElectronicOrderByID(db *pop.Connection, id uuid.UUID) (ElectronicOrder, error) {
 	var order ElectronicOrder
 	err := db.Q().Eager("Revisions").Find(&order, id)
