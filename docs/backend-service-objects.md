@@ -136,6 +136,35 @@ All methods in an interface must be those that the service object is actually us
 struct is only using the `Create` method as a part of the `FileStorer` interface. That is because that is the
 only method needed from that dependency.
 
+In addition to these structs and interfaces, it is also expected to add an interface for the service, capturing the behavior
+of the execution method.
+
+```go
+// paperwork.go
+package services
+
+import (
+  "bytes"
+  "github.com/spf13/afero"
+  paperworkforms "github.com/transcom/mymove/pkg/paperwork"
+)
+
+// FormTemplate are the struct fields defined to call CreateForm service object
+type FormTemplate struct {
+  Buffer       *bytes.Reader
+  FieldsLayout map[string]paperworkforms.FieldPos
+  FormType
+  FileName string
+  Data     interface{}
+}
+
+// FormCreator is the service object interface for CreateForm
+type FormCreator interface {
+  CreateForm(template FormTemplate) (afero.File, error)
+}
+
+```
+
 ### Naming and Defining Service Object Execution Method
 
 The service object execution method is responsible for kicking off the service object call. Ideally, the service object
