@@ -67,16 +67,28 @@ class UserBehavior(TaskSequence):
         service_member_id = self.user["service_member"]["id"]
         url = "/internal/service_members/" + service_member_id
         profile = {
-            "affiliation": "NAVY",
-            "edipi": "3333333333",
-            "rank": "E_5",
-            "social_security_number": "333-33-3333",
+            "affiliation": "NAVY",  # Rotate
+            "edipi": "3333333333",  # Random
+            "rank": "E_5",  # Rotate
+            "social_security_number": "333-33-3333",  # Random
         }
         self.client.patch(url, json=profile)
 
     @seq_task(5)
+    def create_your_name(self):
+        service_member_id = self.user["service_member"]["id"]
+        url = "/internal/service_members/" + service_member_id
+        profile = {
+            "first_name": "Alice",  # Random
+            "last_name": "Bob",  # Random
+            "middle_name": "Carol",
+            "suffix": "",
+        }
+        self.client.patch(url, json=profile)
+
+    @seq_task(6)
     def logout(self):
-        self.client.post("/auth/logout")
+        self.client.get("/auth/logout")
         self.login_gov_user = None
         self.token = None
         self.user = {}
