@@ -8,8 +8,8 @@
 
 * [When a Service Object Makes Sense](#when-a-service-object-makes-sense)
 * [Creating Service Objects](#creating-service-objects)
-  * [Parameters and Return Values](#parameters-and-return-values)
   * [Folder Structure And Naming](#folder-structure-and-naming)
+  * [Parameters and Return Values](#parameters-and-return-values)
   * [Naming And Defining Service Object Structs and Interfaces](#naming-and-defining-service-object-structs-and-interfaces)
   * [Naming and Defining Service Object Execution Method](#naming-and-defining-service-object-execution-method)
   * [Instantiating Service Objects](#instantiating-service-objects)
@@ -21,8 +21,8 @@ Regenerate with "bin/generate-md-toc.sh"
 
 * [When a Service Object Makes Sense](#when-a-service-object-makes-sense)
 * [Creating Service Objects](#creating-service-objects)
-  * [Parameters and Return Values](#parameters-and-return-values)
   * [Folder Structure And Naming](#folder-structure-and-naming)
+  * [Parameters and Return Values](#parameters-and-return-values)
   * [Naming And Defining Service Object Structs and Interfaces](#naming-and-defining-service-object-structs-and-interfaces)
   * [Naming and Defining Service Object Execution Method](#naming-and-defining-service-object-execution-method)
   * [Instantiating Service Objects](#instantiating-service-objects)
@@ -46,6 +46,36 @@ If you answered no to more than of these questions, then a service object may no
 ## Creating Service Objects
 
 Once you have analyzed and determined that a service object is appropriate the next step is to actually create it.
+
+### Folder Structure And Naming
+
+1. Find or create appropriate directory.
+
+Find or create the appropriate directory, in `/services` where the service object will live. Oftentimes, this directory
+will be related to the actual model entity that it is dealing with. If this is something that involves multiple models, or
+does not necessarily easily map to a model entity name, then it might be best to create a new folder that has a relevant name.
+
+ ```bash
+ /mymove
+   /pkg
+     /services
+       /paperwork
+```
+
+1. Create the appropriate file(s) for the service object file, service object test file, and service object directory file.
+
+Create a file with a name that captures what the service object is responsible for. Choose this name carefully as it will also be
+the name of the service object execution method.
+
+```bash
+/mymove
+  /pkg
+    /services
+      /paperwork
+        create_form.go
+        create_form_test.go
+      paperwork.go
+```
 
 ### Parameters and Return Values
 
@@ -81,36 +111,6 @@ This can be a new entity instance or even model validation errors. The second pa
 if any errors occur.
 
 *Remember all `errors` should be Wrapped by using `errors.Wrap` so that the underlying error is propagated properly*
-
-### Folder Structure And Naming
-
-1. Find or create appropriate directory.
-
-Find or create the appropriate directory, in `/services` where the service object will live. Oftentimes, this directory
-will be related to the actual model entity that it is dealing with. If this is something that involves multiple models, or
-does not necessarily easily map to a model entity name, then it might be best to create a new folder that has a relevant name.
-
- ```bash
- /mymove
-   /pkg
-     /services
-       /paperwork
-```
-
-1. Create the appropriate file(s) for the service object file, service object test file, and service object directory file.
-
-Create a file with a name that captures what the service object is responsible for. Choose this name carefully as it will also be
-the name of the service object execution method.
-
-```bash
-/mymove
-  /pkg
-    /services
-      /paperwork
-        create_form.go
-        create_form_test.go
-      paperwork.go
-```
 
 ### Naming And Defining Service Object Structs and Interfaces
 
@@ -253,7 +253,19 @@ func NewFormCreator(FileStorer Storer, FormFiller Filler) services.FormCreator {
 
 ```
 
-1. Instantiate the service object and pass it in as a field value for the Handler struct in `NewAPIHandler` function call.
+1. Add the service object as a field for the Handler struct of the handler that the service object will be executed in.
+
+```go
+// shipments.go
+package publicapi
+// CreateGovBillOfLadingHandler creates a GBL PDF & uploads it as a document associated to a move doc, shipment and move
+type CreateGovBillOfLadingHandler struct {
+  handlers.HandlerContext
+  createForm services.FormCreator
+}
+```
+
+1. Instantiate the service object while passing it in as a field for the Handler struct in `NewAPIHandler` function call.
 
 ```go
 // publicapi/api.go
