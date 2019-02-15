@@ -246,7 +246,7 @@ func (suite *ModelSuite) TestShipmentAssignGBLNumber() {
 	}
 }
 
-// TestShipmentAssignGBLNumber tests that a GBL number is created correctly
+// TestCreateShipmentLineItem tests that a shipment line item is created correctly
 func (suite *ModelSuite) TestCreateShipmentLineItem() {
 	acc := testdatagen.MakeDefaultTariff400ngItem(suite.DB())
 	shipment := testdatagen.MakeDefaultShipment(suite.DB())
@@ -344,7 +344,7 @@ func (suite *ModelSuite) TestCreateShipmentLineItemCode105BAndE() {
 	}
 }
 
-// TestCreateShipmentLineItemCode105BAndE tests that 105B/E line items are updated correctly
+// TestUpdateShipmentLineItem tests that line items are updated correctly
 func (suite *ModelSuite) TestUpdateShipmentLineItem() {
 	shipment := testdatagen.MakeDefaultShipment(suite.DB())
 	notes := "It's a giant moose head named Fred he seemed rather pleasant"
@@ -386,7 +386,7 @@ func (suite *ModelSuite) TestUpdateShipmentLineItem() {
 	}
 }
 
-// TestCreateShipmentLineItemCode105BAndE tests that 105B/E line items are updated correctly
+// TestUpdateShipmentLineItemCode105BAndE tests that 105B/E line items are updated correctly
 func (suite *ModelSuite) TestUpdateShipmentLineItemCode105BAndE() {
 	acc105B := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
 		Tariff400ngItem: Tariff400ngItem{
@@ -479,7 +479,7 @@ func (suite *ModelSuite) TestUpdateShipmentLineItemCode105BAndE() {
 	}
 }
 
-// TestShipmentAssignGBLNumber tests that a GBL number is created correctly
+// TestCreateShipmentLineItemCode105BAndEMissingDimensions tests that missing dimensions for 105B/E throws error
 func (suite *ModelSuite) TestCreateShipmentLineItemCode105BAndEMissingDimensions() {
 	acc105B := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
 		Tariff400ngItem: Tariff400ngItem{
