@@ -18,13 +18,13 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// AddFuelDieselPrices is a service object to add missing fuel prices to db
-type AddFuelDieselPrices struct {
+// DieselFuelPriceStorer is a service object to add missing fuel prices to db
+type DieselFuelPriceStorer struct {
 	DB *pop.Connection
 }
 
-// Call retrieves data for the months we do not have prices for, calculates them, and adds them to the database
-func (u AddFuelDieselPrices) Call() (*validate.Errors, error) {
+// StoreFuelPrices retrieves data for the months we do not have prices for, calculates them, and adds them to the database
+func (u DieselFuelPriceStorer) StoreFuelPrices() (*validate.Errors, error) {
 	verrs := &validate.Errors{}
 	missingMonths, err := u.findMissingRecordMonths(u.DB)
 	if len(missingMonths) < 1 {
@@ -116,7 +116,7 @@ type eiaData struct {
 	SeriesData  []eiaSeriesData `json:"series"`
 }
 
-func (u AddFuelDieselPrices) getMissingRecordsPrices(missingMonths []int) (fuelValues []fuelData, err error) {
+func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fuelValues []fuelData, err error) {
 	// for each missing month, get the data for that month and add to struct
 
 	client := &http.Client{}
@@ -193,7 +193,7 @@ func (u AddFuelDieselPrices) getMissingRecordsPrices(missingMonths []int) (fuelV
 	return fuelValues, err
 }
 
-func (u AddFuelDieselPrices) findMissingRecordMonths(db *pop.Connection) (months []int, err error) {
+func (u DieselFuelPriceStorer) findMissingRecordMonths(db *pop.Connection) (months []int, err error) {
 
 	fuelPrices, err := models.FetchLastTwelveMonthsOfFuelPrices(db)
 	if err != nil {
@@ -218,7 +218,7 @@ func (u AddFuelDieselPrices) findMissingRecordMonths(db *pop.Connection) (months
 	return months, nil
 }
 
-func (u AddFuelDieselPrices) calculateFuelSurchargeBaselineRate(pricePerGallon float64) (baselineRate int64) {
+func (u DieselFuelPriceStorer) calculateFuelSurchargeBaselineRate(pricePerGallon float64) (baselineRate int64) {
 	// Calculate fuel surcharge based on price per gallon based on government-provided calculation
 	fuelPriceBaseline := 2.5
 	dividendValue := .13

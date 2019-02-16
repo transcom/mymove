@@ -39,7 +39,7 @@ func TestFuelPriceSuite(t *testing.T) {
 	suite.Run(t, hs)
 }
 
-func (suite *FuelPriceServiceSuite) TestAddFuelDieselPricesCall() {
+func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	// create fuel prices in db for last 15 months
 	for month := 0; month < 15; month++ {
 		var shipmentDate time.Time
@@ -50,14 +50,13 @@ func (suite *FuelPriceServiceSuite) TestAddFuelDieselPricesCall() {
 	fuelEIADeiselPrices := []models.FuelEIADieselPrice{}
 
 	queryForThisMonth := suite.DB().RawQuery(
-		"SELECT * FROM fuel_eia_diesel_prices WHERE (DATEPART(yy, pub_date) = $1"+
-			"AND DATEPART(mm, pub_date = $2))", time.Now().Year(), time.Now().Month())
+		"SELECT * FROM fuel_eia_diesel_prices WHERE (DATEPART(year, pub_date) = $1"+
+			"AND DATEPART(month, pub_date = $2))", time.Now().Year(), time.Now().Month())
 	err := queryForThisMonth.All(&fuelEIADeiselPrices)
 	if err != nil {
 		suite.logger.Error(err.Error())
 	}
-	fmt.Print("!@@@@@@@@@@@@@@@", queryForThisMonth)
-	fmt.Print("!!!!!!!!!!!!!!!!!!!", fuelEIADeiselPrices)
+
 	err = suite.DB().Destroy(&fuelEIADeiselPrices)
 	if err != nil {
 		suite.logger.Error("Error deleting eia diesel price", zap.Error(err))
@@ -78,7 +77,7 @@ func (suite *FuelPriceServiceSuite) TestAddFuelDieselPricesCall() {
 	}
 
 	// run the function
-	verrs, err := AddFuelDieselPrices{DB: suite.DB()}.Call()
+	verrs, err := FuelPriceStorer{DB: suite.DB()}.StoreFuelPrices()
 	suite.NoError(err, "error when creating invoice")
 	suite.Empty(verrs.Errors, "validation error when creating diesel prices")
 
