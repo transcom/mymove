@@ -5,6 +5,7 @@
 <!-- toc -->
 
 * [Clock Dependency](#clock-dependency)
+* [MilMove Calendar Utils](#milmove-calendar-utils)
 
 Regenerate with "bin/generate-md-toc.sh"
 
@@ -73,3 +74,13 @@ func TestMyTimeFunc(t *testing.T) {
   }
 }
 ```
+
+## MilMove Calendar Utils
+
+The MilMove project has a set of date/calendar util
+to help develop and test.
+You can find them in the [dates package](../../pkg/dates)
+
+For testing, we also have `TestYear`
+in the [constants package](../../pkg/testdatagen/constants.go)
+which should be used instead of the current year.
