@@ -1,6 +1,7 @@
 import * as Cookies from 'js-cookie';
 import * as decode from 'jwt-decode';
 import * as helpers from 'shared/ReduxHelpers';
+import { isMilmoveSite, isOfficeSite, isTspSite } from 'shared/constants';
 import { GetLoggedInUser } from './api.js';
 import { normalize } from 'normalizr';
 import { pick } from 'lodash';
@@ -71,7 +72,10 @@ const loggedOutUser = {
 };
 
 function getUserInfo() {
-  const cookie = Cookies.get('session_token');
+  // The prefix should match the lowercased application name set in the server session
+  let cookiePrefix = (isMilmoveSite && 'mil') || (isOfficeSite && 'office') || (isTspSite && 'tsp') || '';
+  const cookieName = cookiePrefix + '_session_token';
+  const cookie = Cookies.get(cookieName);
   if (!cookie) return loggedOutUser;
   const jwt = decode(cookie);
   const { Email, UserID, FirstName } = jwt.SessionValue;

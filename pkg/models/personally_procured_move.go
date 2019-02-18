@@ -177,7 +177,7 @@ func FetchPersonallyProcuredMove(db *pop.Connection, session *auth.Session, id u
 		return nil, err
 	}
 	// TODO: Handle case where more than one user is authorized to modify ppm
-	if session.IsMyApp() && ppm.Move.Orders.ServiceMember.ID != session.ServiceMemberID {
+	if session.IsMilApp() && ppm.Move.Orders.ServiceMember.ID != session.ServiceMemberID {
 		return nil, ErrFetchForbidden
 	}
 

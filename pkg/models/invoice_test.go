@@ -81,7 +81,7 @@ func (suite *ModelSuite) TestFetchInvoice() {
 	}
 	// When: Service Member tries to access
 	session = &auth.Session{
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 		UserID:          *authedTspUser.UserID,
 		ServiceMemberID: authedTspUser.ID,
 	}

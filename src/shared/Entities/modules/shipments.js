@@ -1,5 +1,4 @@
 import { denormalize } from 'normalizr';
-import { get } from 'lodash';
 
 import { shipments } from '../schema';
 import { swaggerRequest } from 'shared/Swagger/request';
@@ -62,16 +61,17 @@ export function completeShipment(shipmentId) {
 
 export function selectShipment(state, id) {
   if (!id) {
-    return null;
+    return {};
   }
-  return denormalize([id], shipments, state.entities)[0];
+  return denormalize([id], shipments, state.entities)[0] || {};
 }
 
 export function selectShipmentStatus(state, id) {
   const shipment = selectShipment(state, id);
-  if (shipment) {
-    return shipment.status;
-  } else {
-    return get(state, 'office.officeMove.shipments.0.status', '');
-  }
+  return shipment.status;
+}
+
+export function selectShipmentForMove(state, moveId) {
+  const shipment = Object.values(state.entities.shipments).find(shipment => shipment.move_id === moveId);
+  return shipment || {};
 }
