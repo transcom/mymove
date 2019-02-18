@@ -10,8 +10,6 @@ import (
 // MakePPM creates a single Personally Procured Move and its associated Move and Orders
 func MakePPM(db *pop.Connection, assertions Assertions) models.PersonallyProcuredMove {
 	shirt := internalmessages.TShirtSizeM
-	defaultAdvance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
-	mustCreate(db, &defaultAdvance)
 
 	// Create new Move if not provided
 	move := assertions.PersonallyProcuredMove.Move
@@ -34,8 +32,6 @@ func MakePPM(db *pop.Connection, assertions Assertions) models.PersonallyProcure
 		DaysInStorage:                 nil,
 		Status:                        models.PPMStatusDRAFT,
 		HasRequestedAdvance:           true,
-		Advance:                       &defaultAdvance,
-		AdvanceID:                     &defaultAdvance.ID,
 		EstimatedStorageReimbursement: models.StringPointer("estimate sit"),
 	}
 
@@ -52,7 +48,13 @@ func MakePPM(db *pop.Connection, assertions Assertions) models.PersonallyProcure
 
 // MakeDefaultPPM makes a PPM with default values
 func MakeDefaultPPM(db *pop.Connection) models.PersonallyProcuredMove {
+	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
+	mustCreate(db, &advance)
 	return MakePPM(db, Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			Advance:   &advance,
+			AdvanceID: &advance.ID,
+		},
 		Order: models.Order{
 			HasDependents:    true,
 			SpouseHasProGear: true,
