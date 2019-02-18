@@ -77,7 +77,7 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	}
 
 	// run the function
-	verrs, err := FuelPriceStorer{DB: suite.DB()}.StoreFuelPrices()
+	verrs, err := DieselFuelPriceStorer{DB: suite.DB()}.StoreFuelPrices()
 	suite.NoError(err, "error when creating invoice")
 	suite.Empty(verrs.Errors, "validation error when creating diesel prices")
 
