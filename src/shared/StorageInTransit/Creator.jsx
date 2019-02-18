@@ -62,8 +62,6 @@ export class Creator extends Component {
 
 Creator.propTypes = {
   formEnabled: PropTypes.bool.isRequired,
-  // submitForm: PropTypes.func.isRequired,
-  // onFormActivation: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
