@@ -158,6 +158,7 @@ LocationSearch.propTypes = {
 };
 
 const validateItemSelect = validateAdditionalFields(['tariff400ng_item']);
+
 export const formName = 'preapproval_request_form';
 
 PreApprovalForm = reduxForm({
@@ -168,6 +169,7 @@ PreApprovalForm = reduxForm({
 })(PreApprovalForm);
 
 const selector = formValueSelector(formName);
+
 function mapStateToProps(state) {
   return {
     tariff400ng_item_code: get(state, 'form.preapproval_request_form.values.tariff400ng_item.code'),
