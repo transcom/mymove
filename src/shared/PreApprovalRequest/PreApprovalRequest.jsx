@@ -12,6 +12,7 @@ import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
 import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
 import { convertFromThousandthInchToInch } from 'shared/formatters';
 import { isNewAccessorial } from 'shared/preApprovals';
+import { displayBaseQuantityUnits } from 'shared/lineItems';
 
 function formatStatus(lineItem) {
   let formattedStatus = lineItem.status;
@@ -130,20 +131,18 @@ export class PreApprovalRequest extends Component {
           </td>
         </tr>
       );
-      console.log(`row.tariff400ng_item.code: ${row.tariff400ng_item.code}`);
+
       if ((row.tariff400ng_item.code === '105B' || row.tariff400ng_item.code === '105E') && robustAccessorial) {
         if (isNewAccessorial(row)) {
-          console.dir(row);
           let crateLengthinInches = convertFromThousandthInchToInch(row.crate_dimensions.length);
           let crateWidthinInches = convertFromThousandthInchToInch(row.crate_dimensions.width);
           let crateHeightinInches = convertFromThousandthInchToInch(row.crate_dimensions.height);
           let itemLengthinInches = convertFromThousandthInchToInch(row.item_dimensions.length);
           let itemWidthinInches = convertFromThousandthInchToInch(row.item_dimensions.width);
           let itemHeightinInches = convertFromThousandthInchToInch(row.item_dimensions.height);
-          let crateCubicFeet = row.quantity_1;
-          // let crateCubicFeet = (row.crate_dimensions);
+          let crateCubicFeet = displayBaseQuantityUnits(row);
 
-          let createDetails = `Crate: ${crateLengthinInches}" x ${crateWidthinInches}" x ${crateHeightinInches}" (${crateCubicFeet} cu ft)`;
+          let createDetails = `Crate: ${crateLengthinInches}" x ${crateWidthinInches}" x ${crateHeightinInches}" (${crateCubicFeet})`;
           let ItemDetails = `Item: ${itemLengthinInches}" x ${itemWidthinInches}" x ${itemHeightinInches}"`;
           let description = row.description;
           basePAR = (

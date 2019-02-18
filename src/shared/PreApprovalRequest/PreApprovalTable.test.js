@@ -36,7 +36,6 @@ describe('PreApprovalTable tests', () => {
           onApproval={onEdit}
         />,
       );
-      console.dir(wrapper);
       expect(wrapper.find('PreApprovalRequest').length).toEqual(2);
     });
   });
