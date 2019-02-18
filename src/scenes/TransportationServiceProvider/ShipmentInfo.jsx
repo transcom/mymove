@@ -39,6 +39,12 @@ import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
+import TspContainer from 'shared/TspPanel/TspContainer';
+import Weights from 'shared/ShipmentWeights';
+import Dates from 'shared/ShipmentDates';
+import LocationsContainer from 'shared/LocationsPanel/LocationsContainer';
+import { getLastRequestIsSuccess, getLastRequestIsLoading } from 'shared/Swagger/selectors';
+import { resetRequests } from 'shared/Swagger/request';
 import {
   loadShipmentDependencies,
   completePmSurvey,
@@ -49,10 +55,6 @@ import {
   handleServiceAgents,
   loadEntitlements,
 } from './ducks';
-import TspContainer from 'shared/TspPanel/TspContainer';
-import Weights from 'shared/ShipmentWeights';
-import Dates from 'shared/ShipmentDates';
-import LocationsContainer from 'shared/LocationsPanel/LocationsContainer';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
@@ -61,7 +63,6 @@ import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
 import PickupForm from './PickupForm';
 import PremoveSurveyForm from './PremoveSurveyForm';
 import ServiceAgentForm from './ServiceAgentForm';
-import { getLastRequestIsLoading } from 'shared/Swagger/selectors';
 
 import './tsp.css';
 
@@ -127,7 +128,6 @@ class ShipmentInfo extends Component {
   state = {
     redirectToHome: false,
     editTspServiceAgent: false,
-    showGblCreatedNotification: false,
   };
 
   componentDidMount() {
@@ -146,14 +146,16 @@ class ShipmentInfo extends Component {
       });
   }
 
+  componentWillUnmount() {
+    this.props.resetRequests();
+  }
+
   acceptShipment = () => {
     return this.props.acceptShipment(this.props.shipment.id);
   };
 
   generateGBL = () => {
-    return this.props
-      .generateGBL(generateGblLabel, this.props.shipment.id)
-      .then(() => this.setState({ showGblCreatedNotification: true }));
+    return this.props.generateGBL(generateGblLabel, this.props.shipment.id);
   };
 
   enterPreMoveSurvey = values => {
@@ -183,11 +185,11 @@ class ShipmentInfo extends Component {
   };
 
   render() {
-    const { showGblCreatedNotification } = this.state;
     const {
       context,
       shipment,
       shipmentDocuments,
+      generateGBLSuccess,
       generateGBLError,
       generateGBLInProgress,
       serviceAgents,
@@ -346,7 +348,7 @@ class ShipmentInfo extends Component {
                 </p>
               )}
 
-              {showGblCreatedNotification && (
+              {generateGBLSuccess && (
                 <Alert type="success" heading="GBL has been created">
                   <span className="usa-grid usa-alert-no-padding">
                     <span className="usa-width-two-thirds">Click the button to view, print, or download the GBL.</span>
@@ -477,6 +479,7 @@ const mapStateToProps = state => {
     loadTspDependenciesHasSuccess: get(state, 'tsp.loadTspDependenciesHasSuccess'),
     loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
     acceptError: get(state, 'tsp.shipmentHasAcceptError'),
+    generateGBLSuccess: getLastRequestIsSuccess(state, generateGblLabel),
     generateGBLError: get(state, 'tsp.generateGBLError'),
     generateGBLInProgress: getLastRequestIsLoading(state, generateGblLabel),
     gblDocUrl: `/shipments/${shipment.id}/documents/${get(gbl, 'id')}`,
@@ -506,6 +509,7 @@ const mapDispatchToProps = dispatch =>
       getAllShipmentLineItems,
       getAllInvoices,
       getTspForShipment,
+      resetRequests,
     },
     dispatch,
   );
