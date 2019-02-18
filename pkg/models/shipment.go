@@ -413,7 +413,7 @@ type BaseShipmentLineItemParams struct {
 	Description         *string
 }
 
-// AdditionalShipmentLineItemParams holds any additional parameters for a ShipmentLineItem
+// AdditionalShipmentLineItemParams holds any additional parameters for a ShipmentLineItems
 type AdditionalShipmentLineItemParams struct {
 	ItemDimensions  *AdditionalLineItemDimensions
 	CrateDimensions *AdditionalLineItemDimensions
