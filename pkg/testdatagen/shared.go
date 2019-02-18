@@ -39,6 +39,7 @@ type Assertions struct {
 	ServiceMember                            models.ServiceMember
 	Shipment                                 models.Shipment
 	ShipmentLineItem                         models.ShipmentLineItem
+	ShipmentLineItemDimensions               models.ShipmentLineItemDimensions
 	ShipmentOffer                            models.ShipmentOffer
 	StorageInTransit                         models.StorageInTransit
 	Tariff400ngServiceArea                   models.Tariff400ngServiceArea

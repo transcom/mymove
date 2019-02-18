@@ -1,17 +1,31 @@
 package auth
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/csrf"
+	"github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
 
-// UserSessionCookieName is the key at which we're storing our token cookie
+type errInvalidHostname struct {
+	Hostname  string
+	MilApp    string
+	OfficeApp string
+	TspApp    string
+}
+
+func (e *errInvalidHostname) Error() string {
+	return fmt.Sprintf("invalid hostname %s, must be one of %s, %s, or %s", e.Hostname, e.MilApp, e.OfficeApp, e.TspApp)
+}
+
+// UserSessionCookieName is the key suffix at which we're storing our token cookie
 const UserSessionCookieName = "session_token"
 
 // MaskedGorillaCSRFToken is the masked CSRF token used to send back in the 'X-CSRF-Token' request header
@@ -58,8 +72,10 @@ func signTokenStringWithUserInfo(expiry time.Time, session *Session, secret stri
 	return ss, err
 }
 
-func sessionClaimsFromRequest(logger *zap.Logger, secret string, r *http.Request) (claims *SessionClaims, ok bool) {
-	cookie, err := r.Cookie(UserSessionCookieName)
+func sessionClaimsFromRequest(logger *zap.Logger, secret string, appName Application, r *http.Request) (claims *SessionClaims, ok bool) {
+	// Name the cookie with the app name
+	cookieName := fmt.Sprintf("%s_%s", string(appName), UserSessionCookieName)
+	cookie, err := r.Cookie(cookieName)
 	if err != nil {
 		// No cookie set on client
 		return
@@ -122,8 +138,9 @@ func MaskedCSRFMiddleware(logger *zap.Logger, noSessionTimeout bool) func(next h
 func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, noSessionTimeout bool, logger *zap.Logger) {
 
 	// Delete the cookie
+	cookieName := fmt.Sprintf("%s_%s", string(session.ApplicationName), UserSessionCookieName)
 	cookie := http.Cookie{
-		Name:    UserSessionCookieName,
+		Name:    cookieName,
 		Value:   "blank",
 		Path:    "/",
 		Expires: time.Unix(0, 0),
@@ -157,20 +174,61 @@ func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, 
 	w.Header().Set("Set-Cookie", cookie.String())
 }
 
+// ApplicationName returns the application name given the hostname
+func ApplicationName(hostname, milHostname, officeHostname, tspHostname string) (Application, error) {
+	var appName Application
+	if strings.EqualFold(hostname, milHostname) {
+		return MilApp, nil
+	} else if strings.EqualFold(hostname, officeHostname) {
+		return OfficeApp, nil
+	} else if strings.EqualFold(hostname, tspHostname) {
+		return TspApp, nil
+	}
+	return appName, errors.Wrap(
+		&errInvalidHostname{
+			Hostname:  hostname,
+			MilApp:    milHostname,
+			OfficeApp: officeHostname,
+			TspApp:    tspHostname}, fmt.Sprintf("%s is invalid", hostname))
+}
+
 // SessionCookieMiddleware handle serializing and de-serializing the session between the user_session cookie and the request context
-func SessionCookieMiddleware(logger *zap.Logger, secret string, noSessionTimeout bool) func(next http.Handler) http.Handler {
+func SessionCookieMiddleware(logger *zap.Logger, secret string, noSessionTimeout bool, milHostname, officeHostname, tspHostname string) func(next http.Handler) http.Handler {
+	logger.Info("Creating session", zap.String("milHost", milHostname), zap.String("officeHost", officeHostname), zap.String("tspHost", tspHostname))
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
+			ctx, span := beeline.StartSpan(r.Context(), "SessionCookieMiddleware")
+			defer span.Send()
+
+			// Set up the new session object
 			session := Session{}
-			claims, ok := sessionClaimsFromRequest(logger, secret, r)
+
+			// Split the hostname from the port
+			hostname := strings.Split(r.Host, ":")[0]
+			appName, err := ApplicationName(hostname, milHostname, officeHostname, tspHostname)
+			if err != nil {
+				logger.Error("Bad Hostname", zap.Error(err))
+				http.Error(w, http.StatusText(400), http.StatusBadRequest)
+				return
+			}
+			claims, ok := sessionClaimsFromRequest(logger, secret, appName, r)
 			if ok {
 				session = claims.SessionValue
 			}
 
+			// Set more information on the session
+			session.ApplicationName = appName
+			session.Hostname = strings.ToLower(hostname)
+
 			// And put the session info into the request context
-			ctx := SetSessionInRequestContext(r, &session)
+			ctx = SetSessionInRequestContext(r.WithContext(ctx), &session)
+
 			// And update the cookie. May get over-ridden later
 			WriteSessionCookie(w, &session, secret, noSessionTimeout, logger)
+
+			span.AddTraceField("auth.application_name", session.ApplicationName)
+			span.AddTraceField("auth.hostname", session.Hostname)
+
 			next.ServeHTTP(w, r.WithContext(ctx))
 
 		}
