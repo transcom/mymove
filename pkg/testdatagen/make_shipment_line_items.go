@@ -32,10 +32,10 @@ func MakeShipmentLineItem(db *pop.Connection, assertions Assertions) models.Ship
 		Quantity1:         unit.BaseQuantity(1670),
 		AppliedRate:       &rate,
 		Status:            models.ShipmentLineItemStatusSUBMITTED,
-		SubmittedDate:     Now,
-		ApprovedDate:      Now,
-		CreatedAt:         Now,
-		UpdatedAt:         Now,
+		SubmittedDate:     NextValidMoveDate,
+		ApprovedDate:      NextValidMoveDate,
+		CreatedAt:         NextValidMoveDate,
+		UpdatedAt:         NextValidMoveDate,
 	}
 
 	// Overwrite values with those from assertions

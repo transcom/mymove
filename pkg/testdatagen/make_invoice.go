@@ -35,11 +35,11 @@ func MakeInvoice(db *pop.Connection, assertions Assertions) models.Invoice {
 		ApproverID:    approver.ID,
 		Approver:      approver,
 		InvoiceNumber: invoiceNumber,
-		InvoicedDate:  Now,
+		InvoicedDate:  NextValidMoveDate,
 		ShipmentID:    shipment.ID,
 		Shipment:      shipment,
-		CreatedAt:     Now,
-		UpdatedAt:     Now,
+		CreatedAt:     NextValidMoveDate,
+		UpdatedAt:     NextValidMoveDate,
 	}
 
 	// Overwrite values with those from assertions

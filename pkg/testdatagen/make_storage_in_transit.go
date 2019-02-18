@@ -24,7 +24,7 @@ func MakeStorageInTransit(db *pop.Connection, assertions Assertions) models.Stor
 		ShipmentID:         shipment.ID,
 		Status:             models.StorageInTransitStatusREQUESTED,
 		Location:           models.StorageInTransitLocationDESTINATION,
-		EstimatedStartDate: Now,
+		EstimatedStartDate: NextValidMoveDate,
 		Notes:              swag.String("Shipper phoned to let us know he is delayed until next week."),
 		WarehouseID:        "000383",
 		WarehouseName:      "Hercules Hauling",

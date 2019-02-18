@@ -38,8 +38,8 @@ func MakeBlackoutDate(db *pop.Connection, assertions Assertions) models.Blackout
 
 	blackoutDate := models.BlackoutDate{
 		TransportationServiceProviderID: tspID,
-		StartBlackoutDate:               Now,
-		EndBlackoutDate:                 Now,
+		StartBlackoutDate:               NextValidMoveDate,
+		EndBlackoutDate:                 NextValidMoveDate,
 		TrafficDistributionListID:       tdlID,
 		SourceGBLOC:                     stringPointer("PORK"),
 		Market:                          stringPointer("dHHG"),

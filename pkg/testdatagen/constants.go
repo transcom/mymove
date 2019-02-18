@@ -89,5 +89,5 @@ var OneWeek = time.Hour * 168
 // Often weekends and holidays are not allowable dates
 var cal = dates.NewUSCalendar()
 
-// Now is the next valid move date
-var Now = dates.NextValidMoveDate(time.Now(), cal)
+// NextValidMoveDate is the next valid move date
+var NextValidMoveDate = dates.NextValidMoveDate(time.Now(), cal)
