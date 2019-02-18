@@ -3,6 +3,7 @@ package models_test
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -12,9 +13,10 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDates() {
 	t := suite.T()
 	// Use FetchTSPBlackoutDates on two queries: one that should use a market value and one that doesn't.
 	// Create one blackout date object with a market.
+	calendar := dates.NewUSCalendar()
 	tsp := testdatagen.MakeDefaultTSP(suite.DB())
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
-	blackoutStartDate := time.Now()
+	blackoutStartDate := dates.NextWorkday(*calendar, time.Date(testdatagen.TestYear, time.January, 28, 0, 0, 0, 0, time.UTC))
 	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
 	pickupDate := blackoutStartDate.Add(time.Hour)
 	market1 := "dHHG"
@@ -66,9 +68,10 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDatesWithGBLOC() {
 	t := suite.T()
 	// Use FetchTSPBlackoutDates on two queries: one that should use a market value and one that doesn't.
 	// Create one blackout date object with a market.
+	calendar := dates.NewUSCalendar()
 	tsp := testdatagen.MakeDefaultTSP(suite.DB())
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
-	blackoutStartDate := time.Now()
+	blackoutStartDate := dates.NextWorkday(*calendar, time.Date(testdatagen.TestYear, time.January, 28, 0, 0, 0, 0, time.UTC))
 	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
 	pickupDate := blackoutStartDate.Add(time.Hour)
 	market1 := "dHHG"

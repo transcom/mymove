@@ -18,7 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
-	shipmentservice "github.com/transcom/mymove/pkg/service/shipment"
+	shipmentservice "github.com/transcom/mymove/pkg/services/shipment"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -1997,6 +1997,44 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	hhg34.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg34.Move)
 
+	/*
+	 * Service member with accepted move for use in testing SIT panel
+	 */
+	email = "hhg@sit.panel"
+	offer35 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("08e0eb2c-d80f-494c-ae49-bd3497e41613")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("b6d43527-3fd2-4f04-936a-a69e7641a552"),
+			FirstName:     models.StringPointer("SIT"),
+			LastName:      models.StringPointer("Panel"),
+			Edipi:         models.StringPointer("1357924680"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("b6d43527-3fd2-4f04-936a-a69e7641a552"),
+			Locator:          "SITPAN",
+			SelectedMoveType: &selectedMoveTypeHHG,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("acb1a5f4-8750-4853-8db6-73b2acbe95d6"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusACCEPTED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+	hhg35 := offer35.Shipment
+	hhg35.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg35.Move)
 }
 
 // MakeHhgWithPpm creates an HHG user who has added a PPM

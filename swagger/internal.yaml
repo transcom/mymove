@@ -1092,6 +1092,11 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       name:
         type: string
         example: Susan Smith
@@ -1529,7 +1534,7 @@ definitions:
       has_secondary_pickup_address:
         type: boolean
         default: false
-        title: 'Do you have household goods at any other pickup location?'
+        title: 'Do you have stuff at another pickup location?'
       secondary_pickup_address:
         $ref: '#/definitions/Address'
         title: Secondary Pickup Address
@@ -1537,7 +1542,7 @@ definitions:
       has_delivery_address:
         type: boolean
         default: false
-        title: 'Do you know the delivery address at destination yet?'
+        title: 'Do you know your home address at your destination yet?'
       delivery_address:
         $ref: '#/definitions/Address'
         title: Delivery Address
@@ -1545,7 +1550,7 @@ definitions:
       has_partial_sit_delivery_address:
         type: boolean
         default: false
-        title: 'Will some of your items be stored in transit?'
+        title: 'Do you want to deliver some of your household goods to an additional destination (such as a self-storage unit)?'
       partial_sit_delivery_address:
         $ref: '#/definitions/Address'
         title: Partial SIT Delivery Address
@@ -1659,86 +1664,11 @@ definitions:
           IN_PERSON: In person
           PHONE: Phone
           VIDEO: Video
-      service_agents:
-        type: array
-        items:
-          $ref: '#/definitions/ServiceAgent'
       transportation_service_provider_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-  ServiceAgentRole:
-    type: string
-    title: Service Agent Role
-    enum:
-      - ORIGIN
-      - DESTINATION
-    x-display-value:
-      ORIGIN: Origin
-      DESTINATION: Destination
-  ServiceAgent:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      shipment_id:
-        type: string
-        format: uuid
-        readOnly: true
-      role:
-        $ref: '#/definitions/ServiceAgentRole'
-      company:
-        type: string
-        example: ACME Movers
-        title: Company
-      email:
-        type: string
-        format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        description: Email used to contact shipping agent
-        example: jenny_acme@example.com
-        x-nullable: true
-        title: Email
-      phone_number:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 303-867-5309
-        x-nullable: true
-        title: Phone Number
-      fax_number:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 303-867-5310
-        x-nullable: true
-        title: Fax Number
-      email_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Email Is Preferred
-      phone_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Phone Is Preferred
-      notes:
-        type: string
-        x-nullable: true
-        example: This service agent is available at all hours
-        title: Notes
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-    required:
-      - role
-      - company
   Address:
     type: object
     properties:
@@ -1749,12 +1679,12 @@ definitions:
       street_address_1:
         type: string
         example: 123 Main Ave
-        title: Address Line 1
+        title: Street address 1
       street_address_2:
         type: string
         example: Apartment 9000
         x-nullable: true
-        title: Address Line 2
+        title: Street address 2
       street_address_3:
         type: string
         example: Montmârtre
@@ -1874,7 +1804,7 @@ definitions:
       postal_code:
         type: string
         format: zip
-        title: ZIP/Postal Code
+        title: ZIP
         example: '90210'
         pattern: '^(\d{5}([\-]\d{4})?)$'
       country:
@@ -3407,6 +3337,12 @@ paths:
           format: uuid
           required: true
           description: UUID of the move
+        - in: query
+          name: preparationDate
+          type: string
+          format: date
+          required: true
+          description: The preparationDate of PDF
       produces:
         - application/pdf
       responses:

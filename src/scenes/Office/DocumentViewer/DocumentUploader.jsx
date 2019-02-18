@@ -7,6 +7,7 @@ import { getFormValues, reduxForm } from 'redux-form';
 import PropTypes from 'prop-types';
 
 import Alert from 'shared/Alert';
+import { selectPPMForMove } from 'shared/Entities/modules/ppms';
 import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -178,7 +179,7 @@ function mapStateToProps(state, props) {
     genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
     moveDocumentCreateError: state.office.moveDocumentCreateError,
-    currentPpm: get(state.office, 'officePPMs.0') || get(state, 'ppm.currentPpm'),
+    currentPpm: selectPPMForMove(state, props.moveId) || get(state, 'ppm.currentPpm'),
   };
   return newProps;
 }

@@ -87,10 +87,9 @@ class QueueTable extends Component {
 
     return (
       <div>
-        {this.props.flashMessage ? (
+        {this.props.showFlashMessage ? (
           <Alert type="success" heading="Success">
-            Move #{this.props.moveLocator} for {this.props.lastName}, {this.props.firstName} has been canceled <br />
-            An email confirmation has been sent to the customer.
+            {this.props.flashMessageLines.join('\n')}
             <br />
           </Alert>
         ) : null}
@@ -149,11 +148,11 @@ class QueueTable extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  flashMessage: get(state, 'office.flashMessage', false),
-  moveLocator: get(state, 'office.officeMove.locator', 'Unloaded'),
-  firstName: get(state, 'office.officeServiceMember.first_name', 'Unloaded'),
-  lastName: get(state, 'office.officeServiceMember.last_name', 'Unloaded'),
-});
+const mapStateToProps = state => {
+  return {
+    showFlashMessage: get(state, 'office.flashMessage', false),
+    flashMessageLines: get(state, 'office.flashMessageLines', false),
+  };
+};
 
 export default withRouter(connect(mapStateToProps)(QueueTable));

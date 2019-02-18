@@ -28,12 +28,16 @@ function deleteEntities(entities, deleteEntities) {
 }
 
 const initialState = {
-  moves: {},
+  backupContacts: {},
+  invoices: {},
   moveDocuments: {},
+  moves: {},
+  personallyProcuredMoves: {},
+  reimbursements: {},
+  serviceAgents: {},
+  shipmentLineItems: {},
   shipments: {},
   tariff400ngItems: {},
-  shipmentLineItems: {},
-  invoices: {},
   transportationServiceProviders: {},
 };
 

@@ -14,6 +14,8 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/services/invoice"
+	shipmentop "github.com/transcom/mymove/pkg/services/shipment"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -51,10 +53,13 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 		Tariff400ngItemID: handlers.FmtUUID(s.Tariff400ngItemID),
 		Location:          apimessages.ShipmentLineItemLocation(s.Location),
 		Notes:             s.Notes,
+		Description:       s.Description,
 		Quantity1:         handlers.FmtInt64(int64(s.Quantity1)),
 		Quantity2:         handlers.FmtInt64(int64(s.Quantity2)),
 		Status:            apimessages.ShipmentLineItemStatus(s.Status),
 		InvoiceID:         handlers.FmtUUIDPtr(s.InvoiceID),
+		ItemDimensions:    payloadForDimensionsModel(&s.ItemDimensions),
+		CrateDimensions:   payloadForDimensionsModel(&s.CrateDimensions),
 		AmountCents:       amt,
 		AppliedRate:       rate,
 		SubmittedDate:     *handlers.FmtDateTime(s.SubmittedDate),
@@ -62,9 +67,59 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 	}
 }
 
+func payloadForDimensionsModel(a *models.ShipmentLineItemDimensions) *apimessages.Dimensions {
+	if a == nil {
+		return nil
+	}
+	if a.ID == uuid.Nil {
+		return nil
+	}
+
+	return &apimessages.Dimensions{
+		ID:     *handlers.FmtUUID(a.ID),
+		Length: handlers.FmtInt64(int64(a.Length)),
+		Width:  handlers.FmtInt64(int64(a.Width)),
+		Height: handlers.FmtInt64(int64(a.Height)),
+	}
+}
+
 // GetShipmentLineItemsHandler returns a particular shipment line item
 type GetShipmentLineItemsHandler struct {
 	handlers.HandlerContext
+}
+
+func (h GetShipmentLineItemsHandler) recalculateShipmentLineItems(shipmentLineItems models.ShipmentLineItems, shipmentID uuid.UUID, session *auth.Session) (bool, middleware.Responder) {
+	update := false
+
+	// If there is a shipment line item with an invoice do not run the recalculate function
+	// the system is currently not setup to re-price a shipment with an existing invoice
+	// and currently the system does not expect to have multiple invoices per shipment
+	for _, item := range shipmentLineItems {
+		if item.InvoiceID != nil {
+			return update, nil
+		}
+	}
+
+	// Need to fetch Shipment to get the Accepted Offer and the ShipmentLineItems
+	// Only returning ShipmentLineItems that are approved and have no InvoiceID
+	shipment, err := invoice.FetchShipmentForInvoice{DB: h.DB()}.Call(shipmentID)
+	if err != nil {
+		h.Logger().Error("Error fetching Shipment for re-pricing line items for shipment", zap.Error(err))
+		return update, accessorialop.NewGetShipmentLineItemsInternalServerError()
+	}
+
+	// Run re-calculation process
+	update, err = shipmentop.ProcessRecalculateShipment{
+		DB:     h.DB(),
+		Logger: h.Logger(),
+	}.Call(&shipment, shipmentLineItems, h.Planner())
+
+	if err != nil {
+		h.Logger().Error("Error re-pricing line items for shipment", zap.Error(err))
+		return update, accessorialop.NewGetShipmentLineItemsInternalServerError()
+	}
+
+	return update, nil
 }
 
 // Handle returns a specified shipment line item
@@ -90,6 +145,20 @@ func (h GetShipmentLineItemsHandler) Handle(params accessorialop.GetShipmentLine
 		h.Logger().Error("Error fetching line items for shipment", zap.Error(err))
 		return accessorialop.NewGetShipmentLineItemsInternalServerError()
 	}
+
+	update, recalculateError := h.recalculateShipmentLineItems(shipmentLineItems, shipmentID, session)
+	if recalculateError != nil {
+		return recalculateError
+	}
+	if update {
+		shipmentLineItems, err = models.FetchLineItemsByShipmentID(h.DB(), &shipmentID)
+		if err != nil {
+			h.Logger().Error("Error fetching line items for shipment after re-calculation",
+				zap.Error(err))
+			return accessorialop.NewGetShipmentLineItemsInternalServerError()
+		}
+	}
+
 	payload := payloadForShipmentLineItemModels(shipmentLineItems)
 	return accessorialop.NewGetShipmentLineItemsOK().WithPayload(payload)
 }
@@ -136,13 +205,41 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 		return accessorialop.NewCreateShipmentLineItemForbidden()
 	}
 
+	baseParams := models.BaseShipmentLineItemParams{
+		Tariff400ngItemID:   tariff400ngItemID,
+		Tariff400ngItemCode: tariff400ngItem.Code,
+		Quantity1:           unit.IntToBaseQuantity(params.Payload.Quantity1),
+		Quantity2:           unit.IntToBaseQuantity(params.Payload.Quantity2),
+		Location:            string(params.Payload.Location),
+		Notes:               handlers.FmtString(params.Payload.Notes),
+		Description:         params.Payload.Description,
+	}
+
+	var itemDimensions, crateDimensions *models.AdditionalLineItemDimensions
+	if params.Payload.ItemDimensions != nil {
+		itemDimensions = &models.AdditionalLineItemDimensions{
+			Length: unit.ThousandthInches(*params.Payload.ItemDimensions.Length),
+			Width:  unit.ThousandthInches(*params.Payload.ItemDimensions.Width),
+			Height: unit.ThousandthInches(*params.Payload.ItemDimensions.Height),
+		}
+	}
+	if params.Payload.CrateDimensions != nil {
+		crateDimensions = &models.AdditionalLineItemDimensions{
+			Length: unit.ThousandthInches(*params.Payload.CrateDimensions.Length),
+			Width:  unit.ThousandthInches(*params.Payload.CrateDimensions.Width),
+			Height: unit.ThousandthInches(*params.Payload.CrateDimensions.Height),
+		}
+	}
+	additionalParams := models.AdditionalShipmentLineItemParams{
+		ItemDimensions:  itemDimensions,
+		CrateDimensions: crateDimensions,
+	}
+
 	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(h.DB(),
-		tariff400ngItemID,
-		params.Payload.Quantity1,
-		params.Payload.Quantity2,
-		string(params.Payload.Location),
-		handlers.FmtString(params.Payload.Notes),
+		baseParams,
+		additionalParams,
 	)
+
 	if verrs.HasAny() || err != nil {
 		h.Logger().Error("Error fetching shipment line items for shipment", zap.Error(err))
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)

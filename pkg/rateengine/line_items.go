@@ -30,7 +30,7 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 		ShipmentID:        shipment.ID,
 		Tariff400ngItemID: linehaulItem.ID,
 		Tariff400ngItem:   linehaulItem,
-		Location:          models.ShipmentLineItemLocationNEITHER,
+		Location:          models.ShipmentLineItemLocation(linehaulItem.AllowedLocation),
 		Quantity1:         bqNetWeight,
 		Quantity2:         unit.BaseQuantityFromInt(cost.LinehaulCostComputation.Mileage),
 		Status:            models.ShipmentLineItemStatusSUBMITTED,
@@ -49,7 +49,7 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 		ShipmentID:        shipment.ID,
 		Tariff400ngItemID: originServiceFeeItem.ID,
 		Tariff400ngItem:   originServiceFeeItem,
-		Location:          models.ShipmentLineItemLocationORIGIN,
+		Location:          models.ShipmentLineItemLocation(originServiceFeeItem.AllowedLocation),
 		Quantity1:         bqNetWeight,
 		Status:            models.ShipmentLineItemStatusSUBMITTED,
 		AmountCents:       &cost.NonLinehaulCostComputation.OriginService.Fee,
@@ -67,7 +67,7 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 		ShipmentID:        shipment.ID,
 		Tariff400ngItemID: destinationServiceFeeItem.ID,
 		Tariff400ngItem:   destinationServiceFeeItem,
-		Location:          models.ShipmentLineItemLocationDESTINATION,
+		Location:          models.ShipmentLineItemLocation(destinationServiceFeeItem.AllowedLocation),
 		Quantity1:         bqNetWeight,
 		Status:            models.ShipmentLineItemStatusSUBMITTED,
 		AmountCents:       &cost.NonLinehaulCostComputation.DestinationService.Fee,
@@ -87,7 +87,7 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 		ShipmentID:        shipment.ID,
 		Tariff400ngItemID: fullPackItem.ID,
 		Tariff400ngItem:   fullPackItem,
-		Location:          models.ShipmentLineItemLocationORIGIN,
+		Location:          models.ShipmentLineItemLocation(fullPackItem.AllowedLocation),
 		Quantity1:         bqNetWeight,
 		Status:            models.ShipmentLineItemStatusSUBMITTED,
 		AmountCents:       &packFee,
@@ -107,7 +107,7 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 		ShipmentID:        shipment.ID,
 		Tariff400ngItemID: fullUnpackItem.ID,
 		Tariff400ngItem:   fullUnpackItem,
-		Location:          models.ShipmentLineItemLocationDESTINATION,
+		Location:          models.ShipmentLineItemLocation(fullUnpackItem.AllowedLocation),
 		Quantity1:         bqNetWeight,
 		Status:            models.ShipmentLineItemStatusSUBMITTED,
 		AmountCents:       &unpackFee,
@@ -127,7 +127,7 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 		ShipmentID:        shipment.ID,
 		Tariff400ngItemID: fuelSurchargeItem.ID,
 		Tariff400ngItem:   fuelSurchargeItem,
-		Location:          models.ShipmentLineItemLocationORIGIN,
+		Location:          models.ShipmentLineItemLocation(fuelSurchargeItem.AllowedLocation),
 		Quantity1:         bqNetWeight,
 		Quantity2:         unit.BaseQuantityFromInt(cost.LinehaulCostComputation.Mileage),
 		Status:            models.ShipmentLineItemStatusSUBMITTED,
@@ -136,6 +136,12 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 		SubmittedDate:     now,
 	}
 	lineItems = append(lineItems, fuelSurcharge)
+
+	// Check that all base line items were added
+	err = models.VerifyBaseShipmentLineItems(lineItems)
+	if err != nil {
+		return nil, err
+	}
 
 	return lineItems, nil
 }

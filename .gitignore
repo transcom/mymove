@@ -36,7 +36,9 @@ __snapshots__
 /bin/tsp-award-queue
 /bin/webserver
 
+/bin/callgraph
 /bin/chamber
+/bin/ecs-service-logs
 /bin/soda
 /bin/golint
 /bin/swagger
@@ -45,6 +47,9 @@ __snapshots__
 
 # Special bin folder for e2e test binaries
 /bin_linux/
+
+# Ignore
+/docs/packages.txt
 
 # pdf artifacts
 /cmd/generate_1203_form/*.pdf

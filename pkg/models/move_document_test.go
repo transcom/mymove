@@ -118,7 +118,7 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 
 	// User is authorized to fetch move doc
 	session := &auth.Session{
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 		UserID:          sm.UserID,
 		ServiceMemberID: sm.ID,
 	}
@@ -176,7 +176,7 @@ func (suite *ModelSuite) TestFetchMoveDocument() {
 	})
 	// User is authorized to fetch move doc
 	session := &auth.Session{
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 		UserID:          sm.UserID,
 		ServiceMemberID: sm.ID,
 	}

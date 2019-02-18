@@ -74,7 +74,7 @@ func (suite *ModelSuite) TestFetchOrderForUser() {
 
 	// User is authorized to fetch order
 	session := &auth.Session{
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 		UserID:          serviceMember1.UserID,
 		ServiceMemberID: serviceMember1.ID,
 	}

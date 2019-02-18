@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /usr/bin/env bash
 
 # This file allows running soda from the top level directory, it
 # runs in the correct directory, with the right pointer to migrations.

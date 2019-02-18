@@ -2,6 +2,7 @@ package publicapi
 
 import (
 	"net/http/httptest"
+	"time"
 
 	"github.com/gobuffalo/pop"
 
@@ -80,6 +81,44 @@ func (suite *HandlerSuite) TestGetShipmentLineItemOfficeHandler() {
 		HTTPRequest: req,
 		ShipmentID:  strfmt.UUID(acc1.ShipmentID.String()),
 	}
+
+	// And: get shipment is returned
+	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	if suite.Assertions.IsType(&accessorialop.GetShipmentLineItemsOK{}, response) {
+		okResponse := response.(*accessorialop.GetShipmentLineItemsOK)
+
+		// And: Payload is equivalent to original shipment line item
+		suite.Len(okResponse.Payload, 1)
+		suite.Equal(acc1.ID.String(), okResponse.Payload[0].ID.String())
+	}
+}
+
+func (suite *HandlerSuite) TestGetShipmentLineItemRecalculateHandler() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	// Two shipment line items tied to two different shipments
+	acc1 := testdatagen.MakeDefaultShipmentLineItem(suite.DB())
+	testdatagen.MakeDefaultShipmentLineItem(suite.DB())
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("GET", "/shipments", nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	params := accessorialop.GetShipmentLineItemsParams{
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(acc1.ShipmentID.String()),
+	}
+
+	// Create date range
+	recalculateRange := models.ShipmentRecalculate{
+		ShipmentUpdatedAfter:  time.Date(1970, time.January, 01, 0, 0, 0, 0, time.UTC),
+		ShipmentUpdatedBefore: time.Now(),
+		Active:                true,
+	}
+	suite.MustCreate(suite.DB(), &recalculateRange)
 
 	// And: get shipment is returned
 	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
@@ -508,16 +547,27 @@ func (suite *HandlerSuite) TestApproveShipmentLineItemHandler() {
 func (suite *HandlerSuite) TestApproveShipmentLineItemHandlerShipmentDelivered() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusDELIVERED}
+	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	suite.NoError(err)
+
+	rateCents := unit.Cents(1000)
 	item := testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
-			Status: models.ShipmentLineItemStatusSUBMITTED,
+			Status:    models.ShipmentLineItemStatusSUBMITTED,
+			Shipment:  shipments[0],
+			Quantity1: unit.BaseQuantityFromInt(1),
 		},
 		Tariff400ngItem: models.Tariff400ngItem{
-			Code:                "4A",
+			Code:                "130A",
 			RequiresPreApproval: true,
+			DiscountType:        models.Tariff400ngItemDiscountTypeHHG,
 		},
-		Shipment: models.Shipment{
-			Status: models.ShipmentStatusDELIVERED,
+		Tariff400ngItemRate: models.Tariff400ngItemRate{
+			RateCents: rateCents,
 		},
 	})
 
@@ -544,7 +594,12 @@ func (suite *HandlerSuite) TestApproveShipmentLineItemHandlerShipmentDelivered()
 
 		// And: Rate and amount have been assigned to item
 		suite.NotNil(okResponse.Payload.AppliedRate)
-		suite.NotNil(okResponse.Payload.AmountCents)
+		if suite.NotNil(okResponse.Payload.AmountCents) {
+			discountRate := shipments[0].ShipmentOffers[0].TransportationServiceProviderPerformance.LinehaulRate
+			suite.NotEqual(discountRate, 0)
+			// There should be a discount rate applied for code 130A
+			suite.Equal(int64(discountRate.Apply(rateCents)), *okResponse.Payload.AmountCents)
+		}
 	}
 }
 

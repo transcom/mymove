@@ -64,10 +64,7 @@ function openMoveHhgPanel() {
   });
 
   // Find shipment and open it
-  cy
-    .get('div')
-    .contains('WTSPNL')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('WTSPNL');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);

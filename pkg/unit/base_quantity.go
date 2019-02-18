@@ -60,3 +60,12 @@ func (bq BaseQuantity) ToUnitFloat() float64 {
 	d := float64(bq) / 10000.0
 	return d
 }
+
+// IntToBaseQuantity returns a unit in BaseQuantity format
+func IntToBaseQuantity(quantity *int64) *BaseQuantity {
+	if quantity == nil {
+		return nil
+	}
+	formattedValue := BaseQuantity(int(*quantity))
+	return &formattedValue
+}

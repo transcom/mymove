@@ -79,6 +79,15 @@ func (suite *BaseHandlerTestSuite) CheckErrorResponse(resp middleware.Responder,
 	}
 }
 
+// CheckNotErrorResponse verifies there is no error response
+func (suite *BaseHandlerTestSuite) CheckNotErrorResponse(resp middleware.Responder) {
+	errResponse, ok := resp.(*ErrResponse)
+	if ok {
+		suite.NoError(errResponse.Err)
+		suite.FailNowf("Received error response", "Code: %v", errResponse.Code)
+	}
+}
+
 // CheckResponseBadRequest looks at BadRequest errors
 func (suite *BaseHandlerTestSuite) CheckResponseBadRequest(resp middleware.Responder) {
 	suite.CheckErrorResponse(resp, http.StatusBadRequest, "BadRequest")
@@ -112,7 +121,7 @@ func (suite *BaseHandlerTestSuite) CheckResponseTeapot(resp middleware.Responder
 // AuthenticateRequest Request authenticated with a service member
 func (suite *BaseHandlerTestSuite) AuthenticateRequest(req *http.Request, serviceMember models.ServiceMember) *http.Request {
 	session := auth.Session{
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 		UserID:          serviceMember.UserID,
 		IDToken:         "fake token",
 		ServiceMemberID: serviceMember.ID,
@@ -131,7 +140,7 @@ func (suite *BaseHandlerTestSuite) AuthenticateRequest(req *http.Request, servic
 // AuthenticateUserRequest only authenticated with a bare user - have no idea if they are a service member yet
 func (suite *BaseHandlerTestSuite) AuthenticateUserRequest(req *http.Request, user models.User) *http.Request {
 	session := auth.Session{
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 		UserID:          user.ID,
 		IDToken:         "fake token",
 	}

@@ -1,11 +1,12 @@
 import * as Cookies from 'js-cookie';
 import * as decode from 'jwt-decode';
 import * as helpers from 'shared/ReduxHelpers';
+import { isMilmoveSite, isOfficeSite, isTspSite } from 'shared/constants';
 import { GetLoggedInUser } from './api.js';
 import { normalize } from 'normalizr';
 import { pick } from 'lodash';
 
-import { serviceMember } from 'shared/Entities/schema';
+import { ordersArray } from 'shared/Entities/schema';
 import { addEntities } from 'shared/Entities/actions';
 
 const getLoggedInUserType = 'GET_LOGGED_IN_USER';
@@ -21,7 +22,7 @@ export const loadLoggedInUser = () => {
     return GetLoggedInUser()
       .then(response => {
         if (response.service_member) {
-          const data = normalize(response.service_member, serviceMember);
+          const data = normalize(response.service_member.orders, ordersArray);
 
           // Only store shipments and addresses in a normalized way. This prevents
           // data duplication while we're using both Redux approaches.
@@ -71,7 +72,10 @@ const loggedOutUser = {
 };
 
 function getUserInfo() {
-  const cookie = Cookies.get('session_token');
+  // The prefix should match the lowercased application name set in the server session
+  let cookiePrefix = (isMilmoveSite && 'mil') || (isOfficeSite && 'office') || (isTspSite && 'tsp') || '';
+  const cookieName = cookiePrefix + '_session_token';
+  const cookie = Cookies.get(cookieName);
   if (!cookie) return loggedOutUser;
   const jwt = decode(cookie);
   const { Email, UserID, FirstName } = jwt.SessionValue;

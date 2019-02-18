@@ -149,12 +149,9 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // CallbackHandler processes a callback from login.gov
 type CallbackHandler struct {
 	Context
-	db                     *pop.Connection
-	clientAuthSecretKey    string
-	noSessionTimeout       bool
-	loginGovMyClientID     string
-	loginGovOfficeClientID string
-	loginGovTspClientID    string
+	db                  *pop.Connection
+	clientAuthSecretKey string
+	noSessionTimeout    bool
 }
 
 // NewCallbackHandler creates a new CallbackHandler
@@ -211,7 +208,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		provider.ClientKey,
 		h.loginGovProvider)
 	if err != nil {
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 		return
 	}
 

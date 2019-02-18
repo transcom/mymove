@@ -33,10 +33,7 @@ function officeUserViewsMoves() {
   });
 
   // Find move (generated in e2ebasic.go) and open it
-  cy
-    .get('div')
-    .contains('RLKBEM')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('RLKBEM');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -60,10 +57,7 @@ function officeUserViewsDeliveredShipment() {
   });
 
   // Find move (generated in e2ebasic.go) and open it
-  cy
-    .get('div')
-    .contains('SCHNOO')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('SCHNOO');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -87,10 +81,7 @@ function officeUserViewsCompletedShipment() {
   });
 
   // Find move (generated in e2ebasic.go) and open it
-  cy
-    .get('div')
-    .contains('NOCHKA')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('NOCHKA');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -114,10 +105,7 @@ function officeUserViewsAcceptedShipment() {
   });
 
   // Find move (generated in e2ebasic.go) and open it
-  cy
-    .get('div')
-    .contains('BACON3')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('BACON3');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -141,10 +129,7 @@ function officeUserApprovesOnlyBasicsHHG() {
   });
 
   // Find move and open it
-  cy
-    .get('div')
-    .contains('BACON6')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('BACON6');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -205,10 +190,7 @@ function officeUserApprovesHHG() {
   });
 
   // Find move and open it
-  cy
-    .get('div')
-    .contains('BACON5')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('BACON5');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -269,10 +251,7 @@ function officeUserCompletesHHG() {
   });
 
   // Find move and open it
-  cy
-    .get('div')
-    .contains('SSETZN')
-    .dblclick();
+  cy.selectQueueItemMoveLocator('SSETZN');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);

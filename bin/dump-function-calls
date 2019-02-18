@@ -1,0 +1,23 @@
+#! /usr/bin/env bash
+#
+#   Show all used functions in our codebase.
+#
+set -eo pipefail
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly DIR
+
+usage() {
+    echo "$0>"
+    exit 1
+}
+[[ -z $1 ]] || usage
+set -u
+
+readonly entrypoint=github.com/transcom/mymove/cmd/webserver
+readonly header="Package | Line | Column | Caller | Callee"
+readonly format='{"path":"{{.Caller.Pkg.Pkg.Path}}","line":"{{.Line}}","column":"{{.Column}}","caller":{"package":{"name":"{{.Caller.Pkg.Pkg.Name}}","path":"{{.Caller.Pkg.Pkg.Path}}"},"name":"{{.Caller.Name}}"},"callee":{"package":{"name":"{{.Caller.Pkg.Pkg.Name}}","path":"{{.Caller.Pkg.Pkg.Path}}"},"name":"{{.Callee.Name}}"}}'
+
+# Use the deployed architecture, since we don't really care what is used just for darwin/macOS.
+# "The cgo tool is enabled by default for native builds on systems where it is expected to work. It is disabled by default when cross-compiling"
+# https://golang.org/cmd/cgo/
+CGO_ENABLED=1 GOOS=linux GOARCH=amd64 "$DIR/callgraph" -format "$format" "$entrypoint"

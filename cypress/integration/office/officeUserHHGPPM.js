@@ -81,11 +81,7 @@ function officeUserVisitsHHGTab() {
 }
 
 function officeUserViewsMove(locator) {
-  cy
-    .get('div')
-    .contains(locator)
-    .should('exist')
-    .dblclick();
+  cy.selectQueueItemMoveLocator(locator);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
