@@ -77,11 +77,21 @@ func (re *RateEngine) fullUnpackCents(cwt unit.CWT, zip3 string, date time.Time)
 // SitCharge calculates the SIT charge based on various factors.
 // If `isPPM` (Personally Procured Move) is True we do not apply the first-day
 // storage fees, 185A, to the total.
+// Note: Assumes the caller will apply any SIT discount rate as needed (no discounts applied here).
 func (re *RateEngine) SitCharge(cwt unit.CWT, daysInSIT int, zip3 string, date time.Time, isPPM bool) (unit.Cents, error) {
 	if daysInSIT == 0 {
 		return 0, nil
 	} else if daysInSIT < 0 {
 		return 0, errors.New("requested SitCharge for negative days in SIT")
+	}
+
+	effectiveCWT := cwt
+	if !isPPM {
+		// Non-PPMs uses a minimum weight of 1000 pounds.
+		minCWT := unit.Pound(1000).ToCWT()
+		if cwt < minCWT {
+			effectiveCWT = minCWT
+		}
 	}
 
 	sa, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
@@ -91,20 +101,42 @@ func (re *RateEngine) SitCharge(cwt unit.CWT, daysInSIT int, zip3 string, date t
 
 	var sitTotal unit.Cents
 
-	if isPPM {
-		sitTotal = sa.SIT185BRateCents.Multiply(daysInSIT).Multiply(cwt.Int())
-	} else {
-		sitTotal = sa.SIT185ARateCents.Multiply(cwt.Int())
-		additionalDays := daysInSIT - 1
-		if additionalDays > 0 {
-			sitTotal = sitTotal.AddCents(sa.SIT185BRateCents.Multiply(additionalDays).Multiply(cwt.Int()))
-		}
+	// SIT formula:
+	// (185A SIT first day rate * CWT) +
+	// (185B SIT additional day rate * additional days * CWT) +
+	// 210A SIT PD 30 miles or less for SIT PD schedule of service area +
+	// 225A SIT PD Self/Mini Storage for SIT PD schedule of service area
+	rate210A, err := models.FetchTariff400ngItemRate(re.db, "210A", sa.SITPDSchedule, effectiveCWT.ToPounds(), date)
+	if err != nil {
+		return 0, errors.Wrapf(err, "No 210A rate found for schedule %v, %v pounds, date %v", sa.SITPDSchedule, effectiveCWT.ToPounds(), date)
 	}
+
+	// TODO: Should we be using sa.ServicesSchedule or sa.SITPDSchedule?
+	rate225A, err := models.FetchTariff400ngItemRate(re.db, "225A", sa.SITPDSchedule, effectiveCWT.ToPounds(), date)
+	if err != nil {
+		return 0, errors.Wrapf(err, "No 225A rate found for schedule %v, %v pounds, date %v", sa.SITPDSchedule, effectiveCWT.ToPounds(), date)
+	}
+
+	sitTotal = sa.SIT185ARateCents.Multiply(effectiveCWT.Int())
+	additionalDays := daysInSIT - 1
+	if additionalDays > 0 {
+		sitTotal = sitTotal.AddCents(sa.SIT185BRateCents.Multiply(additionalDays).Multiply(effectiveCWT.Int()))
+	}
+	sitTotal = sitTotal.AddCents(rate210A.RateCents)
+	sitTotal = sitTotal.AddCents(rate225A.RateCents)
+
 	re.logger.Info("sit calculation",
 		zap.Int("cwt", cwt.Int()),
+		zap.Int("days", daysInSIT),
+		zap.String("zip3", zip3),
+		zap.Time("date", date),
+		zap.Bool("isPPM", isPPM),
+		zap.Int("effectiveCWT", effectiveCWT.Int()),
+		zap.Int("sitPDSchedule", sa.SITPDSchedule),
 		zap.Int("185A", sa.SIT185ARateCents.Int()),
 		zap.Int("185B", sa.SIT185BRateCents.Int()),
-		zap.Int("days", daysInSIT),
+		zap.Int("210A", rate210A.RateCents.Int()),
+		zap.Int("225A", rate225A.RateCents.Int()),
 		zap.Int("total", sitTotal.Int()))
 
 	return sitTotal, err

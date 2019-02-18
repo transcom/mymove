@@ -1,6 +1,8 @@
 package rateengine
 
 import (
+	"testing"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -166,14 +168,9 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 }
 
 func (suite *RateEngineSuite) Test_SITCharge() {
-	t := suite.T()
 	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
 
-	cwt := unit.CWT(10)
-	daysInSIT := 4
 	zip3 := "395"
-	sit185ARate := unit.Cents(2324)
-	sit185BRate := unit.Cents(431)
 
 	z := models.Tariff400ngZip3{
 		Zip3:          zip3,
@@ -185,6 +182,8 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 	}
 	suite.MustSave(&z)
 
+	sit185ARate := unit.Cents(2324)
+	sit185BRate := unit.Cents(431)
 	sa := models.Tariff400ngServiceArea{
 		Name:               "Tampa, FL",
 		ServiceArea:        "428",
@@ -199,26 +198,90 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 	}
 	suite.MustSave(&sa)
 
-	// Test PPM SIT charges
-	charge, err := engine.SitCharge(cwt, daysInSIT, zip3, testdatagen.DateInsidePeakRateCycle, true)
-	if err != nil {
-		t.Fatalf("error calculating SIT charge: %s", err)
+	sit210ARateCentsAtMin := unit.Cents(57600)
+	itemRate210AAtMin := models.Tariff400ngItemRate{
+		Code:               "210A",
+		Schedule:           &sa.SITPDSchedule,
+		WeightLbsLower:     unit.Pound(1000),
+		WeightLbsUpper:     unit.Pound(1099),
+		RateCents:          sit210ARateCentsAtMin,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
-	expected := sit185BRate.Multiply(daysInSIT).Multiply(cwt.Int())
-	if charge != expected {
-		t.Errorf("wrong PPM SIT charge total: expected %d, got %d", expected, charge)
+	suite.MustSave(&itemRate210AAtMin)
+
+	sit225ARateCentsAtMin := unit.Cents(9900)
+	itemRate225AAtMin := models.Tariff400ngItemRate{
+		Code:               "225A",
+		Schedule:           &sa.SITPDSchedule,
+		WeightLbsLower:     itemRate210AAtMin.WeightLbsLower,
+		WeightLbsUpper:     itemRate210AAtMin.WeightLbsUpper,
+		RateCents:          sit225ARateCentsAtMin,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+	}
+	suite.MustSave(&itemRate225AAtMin)
+
+	sit210ARateCentsBelowMin := unit.Cents(42100)
+	itemRate210ABelowMin := models.Tariff400ngItemRate{
+		Code:               "210A",
+		Schedule:           &sa.SITPDSchedule,
+		WeightLbsLower:     unit.Pound(0),
+		WeightLbsUpper:     unit.Pound(999),
+		RateCents:          sit210ARateCentsBelowMin,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+	}
+	suite.MustSave(&itemRate210ABelowMin)
+
+	sit225ARateCentsBelowMin := unit.Cents(7700)
+	itemRate225ABelowMin := models.Tariff400ngItemRate{
+		Code:               "225A",
+		Schedule:           &sa.SITPDSchedule,
+		WeightLbsLower:     itemRate210ABelowMin.WeightLbsLower,
+		WeightLbsUpper:     itemRate210ABelowMin.WeightLbsUpper,
+		RateCents:          sit225ARateCentsBelowMin,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+	}
+	suite.MustSave(&itemRate225ABelowMin)
+
+	cwtAtMin := unit.CWT(10)
+	daysInSIT := 4
+
+	expectedAtMin := sit185ARate.Multiply(cwtAtMin.Int())
+	expectedAtMin = expectedAtMin.AddCents(sit185BRate.Multiply(daysInSIT - 1).Multiply(cwtAtMin.Int()))
+	expectedAtMin = expectedAtMin.AddCents(sit210ARateCentsAtMin)
+	expectedAtMin = expectedAtMin.AddCents(sit225ARateCentsAtMin)
+
+	cwtBelowMin := unit.CWT(5)
+	expectedBelowMin := sit185ARate.Multiply(cwtBelowMin.Int())
+	expectedBelowMin = expectedBelowMin.AddCents(sit185BRate.Multiply(daysInSIT - 1).Multiply(cwtBelowMin.Int()))
+	expectedBelowMin = expectedBelowMin.AddCents(sit210ARateCentsBelowMin)
+	expectedBelowMin = expectedBelowMin.AddCents(sit225ARateCentsBelowMin)
+
+	var testCases = []struct {
+		description string
+		cwt         unit.CWT
+		isPPM       bool
+		expected    unit.Cents
+	}{
+		{"PPM at minimum weight", cwtAtMin, true, expectedAtMin},
+		{"HHG at minimum weight", cwtAtMin, false, expectedAtMin},
+		{"PPM below minimum weight", cwtBelowMin, true, expectedBelowMin},
+		{"HHG below minimum weight", cwtBelowMin, false, expectedAtMin},
 	}
 
-	// Test HHG SIT charges
-	charge, err = engine.SitCharge(cwt, daysInSIT, zip3, testdatagen.DateInsidePeakRateCycle, false)
-	if err != nil {
-		t.Fatalf("error calculating SIT charge: %s", err)
-	}
-	expectedFirstDay := sit185ARate.Multiply(cwt.Int()).Int()
-	expectedAddtlDay := sit185BRate.Multiply(daysInSIT - 1).Multiply(cwt.Int()).Int()
-	expected = unit.Cents(expectedFirstDay + expectedAddtlDay)
-	if charge != expected {
-		t.Errorf("wrong HHG SIT charge total: expected %d, got %d", expected, charge)
+	for _, testCase := range testCases {
+		suite.T().Run(testCase.description, func(t *testing.T) {
+			charge, err := engine.SitCharge(testCase.cwt, daysInSIT, zip3, testdatagen.DateInsidePeakRateCycle, testCase.isPPM)
+			if err != nil {
+				t.Fatalf("error calculating SIT charge: %s", err)
+			}
+			if charge != testCase.expected {
+				t.Errorf("wrong SIT charge total: expected %d, got %d", testCase.expected, charge)
+			}
+		})
 	}
 }
 

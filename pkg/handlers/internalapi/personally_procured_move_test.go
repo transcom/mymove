@@ -304,7 +304,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	suite.Assertions.Equal(int64(267746), *patchPPMPayload.IncentiveEstimateMax)
 	suite.Assertions.Nil(patchPPMPayload.EstimatedStorageReimbursement)
 	suite.Assertions.Equal(int64(0), *patchPPMPayload.PlannedSitMax)
-	suite.Assertions.Equal(int64(97785), *patchPPMPayload.SitMax)
+	suite.Assertions.Equal(int64(158698), *patchPPMPayload.SitMax)
 
 	// Now check that SIT values update when days in storage is set
 	hasSit := swag.Bool(true)
@@ -319,8 +319,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	okResponse = response.(*ppmop.PatchPersonallyProcuredMoveOK)
 	patchPPMPayload = okResponse.Payload
 
-	suite.Assertions.Equal("$32.60", *patchPPMPayload.EstimatedStorageReimbursement)
-	suite.Assertions.Equal(int64(3260), *patchPPMPayload.PlannedSitMax)
+	suite.Assertions.Equal("$641.72", *patchPPMPayload.EstimatedStorageReimbursement)
+	suite.Assertions.Equal(int64(64172), *patchPPMPayload.PlannedSitMax)
 }
 
 func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
