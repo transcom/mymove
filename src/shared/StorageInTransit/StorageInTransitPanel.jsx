@@ -11,6 +11,7 @@ export class StorageInTransitPanel extends Component {
   constructor() {
     super();
     this.state = {
+      isRequestActionable: true,
       isCreatorActionable: true,
       error: null,
     };
@@ -36,7 +37,7 @@ export class StorageInTransitPanel extends Component {
           <div className="column-subhead">
             Entitlement: {sitEntitlement} days <span className="unbold">({daysRemaining} remaining)</span>
           </div>
-          {isCreatorActionable && <Creator />}
+          {isCreatorActionable && <Creator onFormActivation={this.onFormActivation} />}
         </BasicPanel>
       </div>
     );
