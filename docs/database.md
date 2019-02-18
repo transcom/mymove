@@ -10,6 +10,9 @@
   * [Creating a migration](#creating-a-migration)
 * [Zero-Downtime Migrations](#zero-downtime-migrations)
 * [Secure Migrations](#secure-migrations)
+  * [Creating Secure Migrations](#creating-secure-migrations)
+  * [Secure Migrations for One Environment](#secure-migrations-for-one-environment)
+  * [Downloading Secure Migrations](#downloading-secure-migrations)
 
 Regenerate with "bin/generate-md-toc.sh"
 
@@ -46,7 +49,7 @@ Similarly, if a column needs to be dropped, we should deprecate the column in on
 
 We are piggy-backing on the migration system for importing static datasets. This approach causes problems if the data isn't public, as all of the migrations are in this open source repository. To address this, we have what are called "secure migrations."
 
-To create a secure migration:
+### Creating Secure Migrations
 
 * Generate new migration files: `bin/generate-secure-migration <migration_name>`
   * This creates two migration files: a local test file with no secret data, and a production file to be uploaded to S3 that will have sensitive data.
@@ -59,6 +62,8 @@ To create a secure migration:
 * Run `bin/run-prod-migrations` to verify that the upload worked and that the migration can be applied successfully
 * Open a pull request!
 * When the pull request lands, the production migrations will be run on Staging and Prod.
+
+### Secure Migrations for One Environment
 
 To run a secure migration on ONLY staging (or other chosen environment), upload the migration only to the S3 environment and blank files to the others:
 
@@ -79,3 +84,15 @@ When this migration is run, `soda` will shell out to our script, `apply-secure-m
 * Regardless of where the migration comes from, it is then applied to the database by essentially doing: `psql < ${FILENAME}`.
 
 There is an example of a secure migration [in the repo](https://github.com/transcom/mymove/blob/master/migrations/20180424010930_test_secure_migrations.up.fizz).
+
+### Downloading Secure Migrations
+
+**NOTE:** Be careful with downloading secure migrations. They often contain sensitive input and should be treated with care. When
+you are done with these secure migrations please delete them from your computer.
+
+You may need to download and inspect secure migrations. Or perhaps you need to correct a file you uploaded by mistake. Here is how you download the secure migrations:
+
+* Download the migration to S3 with: `bin/download-secure-migration <production_migration_file>`
+* This will put files in `./tmp/secure_migrations/${environment}`.
+
+You can now inspect or modify and re-upload those files as needed.

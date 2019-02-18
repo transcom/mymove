@@ -65,4 +65,11 @@ for environment in "${environments[@]}"; do
     "${migration_dir}/$production_migration_file"
 done
 
-find ./tmp/secure_migrations
+echo
+echo "Files have been downloaded to these locations:"
+echo
+find ./tmp/secure_migrations -type f
+
+echo
+echo "Please remember to 'rm -rf ./tmp/secure_migrations' when you are finished working"
+echo
