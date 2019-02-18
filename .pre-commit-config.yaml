@@ -98,19 +98,19 @@ repos:
         files: \.go$
         pass_filenames: false
 
-  - repo: local
-    hooks:
-      - id: mdspell
-        name: mdspell
-        entry: bin/pre-commit-spellcheck
-        language: script
-        files: \.md$
-        exclude: >
-          (?x)^(
-            node_modules/|
-            vendor/|
-            docs/adr/index.md
-          )$
+  # - repo: local
+  #   hooks:
+  #     - id: mdspell
+  #       name: mdspell
+  #       entry: bin/pre-commit-spellcheck
+  #       language: script
+  #       files: \.md$
+  #       exclude: >
+  #         (?x)^(
+  #           node_modules/|
+  #           vendor/|
+  #           docs/adr/index.md
+  #         )$
 
   - repo: local
     hooks:
