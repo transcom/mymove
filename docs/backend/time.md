@@ -13,6 +13,11 @@ Regenerate with "bin/generate-md-toc.sh"
 
 ## Clock Dependency
 
+`time.Now()` can cause a lot of side effects in a codebase.
+One example is
+that you can't test the "current" time
+that happened in a function you called in the past
+
 For example, let's say we have the following:
 
 ```go
