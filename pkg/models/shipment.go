@@ -634,14 +634,6 @@ func UpsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineIt
 				return responseVErrors, responseError
 			}
 		}
-
-		// ToDo: For another story
-		/*
-			1. Calculate base quantity for line item. Specifically calculating the cu. ft. from the dimensions crate?
-			Set quantity1 as zero value for now.
-		*/
-		var quantity1 unit.BaseQuantity
-		baseParams.Quantity1 = &quantity1
 	} else if baseParams.Quantity1 == nil {
 		// General pre-approval request
 		// Check if base quantity is filled out
