@@ -694,3 +694,10 @@ func (suite *HandlerSuite) TestApproveShipmentLineItemTSPUser() {
 	// Then: expect TSP user to be forbidden from approving
 	suite.Assertions.IsType(&accessorialop.ApproveShipmentLineItemForbidden{}, response)
 }
+
+func (suite *HandlerSuite) TestConvertVolume() {
+	vol1 := ConvertVolume(unit.ThousandthInches(25000), unit.ThousandthInches(25000), unit.ThousandthInches(25000))
+	suite.Equal(vol1.String(), "90422")
+	vol2 := ConvertVolume(unit.ThousandthInches(40000), unit.ThousandthInches(25000), unit.ThousandthInches(40000))
+	suite.Equal(vol2.String(), "231481")
+}

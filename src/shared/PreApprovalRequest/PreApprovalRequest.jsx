@@ -3,7 +3,7 @@ import React, { Component, Fragment } from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
 import { withContext } from 'shared/AppContext';
-import { renderStatusIcon, computeCubicFeetFromThousandthInch } from 'shared/utils';
+import { renderStatusIcon } from 'shared/utils';
 import { isOfficeSite } from 'shared/constants.js';
 import { formatDate, formatFromBaseQuantity } from 'shared/formatters';
 import Editor from 'shared/PreApprovalRequest/Editor.jsx';
@@ -131,15 +131,17 @@ export class PreApprovalRequest extends Component {
         </tr>
       );
       console.log(`row.tariff400ng_item.code: ${row.tariff400ng_item.code}`);
-      if (row.tariff400ng_item.code === '105B' && robustAccessorial) {
+      if ((row.tariff400ng_item.code === '105B' || row.tariff400ng_item.code === '105E') && robustAccessorial) {
         if (isNewAccessorial(row)) {
+          console.dir(row);
           let crateLengthinInches = convertFromThousandthInchToInch(row.crate_dimensions.length);
           let crateWidthinInches = convertFromThousandthInchToInch(row.crate_dimensions.width);
           let crateHeightinInches = convertFromThousandthInchToInch(row.crate_dimensions.height);
           let itemLengthinInches = convertFromThousandthInchToInch(row.item_dimensions.length);
           let itemWidthinInches = convertFromThousandthInchToInch(row.item_dimensions.width);
           let itemHeightinInches = convertFromThousandthInchToInch(row.item_dimensions.height);
-          let crateCubicFeet = computeCubicFeetFromThousandthInch(row.crate_dimensions);
+          let crateCubicFeet = row.quantity_1;
+          // let crateCubicFeet = (row.crate_dimensions);
 
           let createDetails = `Crate: ${crateLengthinInches}" x ${crateWidthinInches}" x ${crateHeightinInches}" (${crateCubicFeet} cu ft)`;
           let ItemDetails = `Item: ${itemLengthinInches}" x ${itemWidthinInches}" x ${itemHeightinInches}"`;

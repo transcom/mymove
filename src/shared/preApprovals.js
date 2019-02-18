@@ -2,7 +2,7 @@ export const isNewAccessorial = item => {
   if (!item) return false;
 
   const code = item.tariff400ng_item.code;
-  if (code === '105B' && !item.crate_dimensions) {
+  if ((code === '105B' || code === '105B') && !item.crate_dimensions) {
     return false;
   }
 

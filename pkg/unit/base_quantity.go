@@ -25,6 +25,11 @@ func BaseQuantityFromInt(i int) BaseQuantity {
 	return BaseQuantity(i * 10000)
 }
 
+// BaseQuantityFromFloat a BaseQuantity for a provided float64
+func BaseQuantityFromFloat(i float64) BaseQuantity {
+	return BaseQuantity(i * 10000)
+}
+
 // BaseQuantityFromThousandthInches creates a BaseQuantity for a provided ThousandthInches
 func BaseQuantityFromThousandthInches(ti ThousandthInches) BaseQuantity {
 	return BaseQuantity(ti * 10)

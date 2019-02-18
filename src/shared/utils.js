@@ -1,6 +1,5 @@
 import React from 'react';
 import { get, includes, find, mapValues, capitalize } from 'lodash';
-import { convertFromThousandthInchToInch } from 'shared/formatters';
 import moment from 'moment';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
@@ -110,13 +109,4 @@ export function humanReadableError(errors) {
   return Object.entries(errors)
     .map(error => `${snakeCaseToCapitals(error[0])} ${error[1]}`)
     .join('/n');
-}
-
-export function computeCubicFeetFromThousandthInch(dimentions, decimalPlaces = 3) {
-  const lengthInInches = convertFromThousandthInchToInch(dimentions.length);
-  const widthInInches = convertFromThousandthInchToInch(dimentions.width);
-  const heightInInches = convertFromThousandthInchToInch(dimentions.height);
-  const cubicInches = lengthInInches * widthInInches * heightInInches;
-  const cubicFeet = cubicInches / 1728;
-  return cubicFeet.toFixed(decimalPlaces);
 }

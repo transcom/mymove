@@ -229,7 +229,7 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 			Width:  unit.ThousandthInches(*params.Payload.CrateDimensions.Width),
 			Height: unit.ThousandthInches(*params.Payload.CrateDimensions.Height),
 		}
-		baseParams.Quantity1 = convertVolume(crateDimensions.Length, crateDimensions.Width, crateDimensions.Height)
+		baseParams.Quantity1 = ConvertVolume(crateDimensions.Length, crateDimensions.Width, crateDimensions.Height)
 	}
 
 	additionalParams := models.AdditionalShipmentLineItemParams{
@@ -250,10 +250,15 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 	return accessorialop.NewCreateShipmentLineItemCreated().WithPayload(payload)
 }
 
-func convertVolume(length, width, height unit.ThousandthInches) *unit.BaseQuantity {
-	var cubicFeet = length * width * height / 1000000 / 1728
-	cubicFeetAsBaseQuantity := unit.BaseQuantityFromThousandthInches(cubicFeet)
+// ConvertVolume - converts dimensions to cubic feet
+func ConvertVolume(length, width, height unit.ThousandthInches) *unit.BaseQuantity {
+	var l = float64(length) / 1000
+	var w = float64(width) / 1000
+	var h = float64(height) / 1000
+	var cubicFeet = l * w * h / 1728
+	cubicFeetAsBaseQuantity := unit.BaseQuantityFromFloat(cubicFeet)
 	return &cubicFeetAsBaseQuantity
+
 }
 
 // UpdateShipmentLineItemHandler updates a particular shipment line item
