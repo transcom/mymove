@@ -63,7 +63,7 @@ func (suite *HandlerSuite) TestIndexStorageInTransitsHandler() {
 	// Let's make sure it doesn't authorize with a servicemember user
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 	serviceMemberReq := httptest.NewRequest("GET", path, nil)
-	serviceMemberReq = suite.AuthenticateRequest(req, serviceMember)
+	serviceMemberReq = suite.AuthenticateRequest(serviceMemberReq, serviceMember)
 	params = sitop.IndexStorageInTransitsParams{
 		HTTPRequest: serviceMemberReq,
 		ShipmentID:  strfmt.UUID(shipment.ID.String()),
@@ -96,6 +96,14 @@ func (suite *HandlerSuite) TestGetStorageInTransitHandler() {
 	responsePayload := response.(*sitop.GetStorageInTransitOK).Payload
 
 	storageInTransitPayloadCompare(suite, sitPayload, responsePayload)
+
+	// Let's make sure it fails when a TSP who doesn't own the shipment tries to do a GET on this
+	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
+	req = httptest.NewRequest("GET", path, nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	params.HTTPRequest = req
+	handler.Handle(params)
+	suite.Error(models.ErrFetchForbidden)
 }
 
 func (suite *HandlerSuite) TestCreateStorageInTransitHandler() {
@@ -151,7 +159,6 @@ func (suite *HandlerSuite) TestPatchStorageInTransitHandler() {
 	sitPayload := payloadForStorageInTransitModel(&sit)
 
 	path := fmt.Sprintf("/shipments/%s/storage_in_transits/%s", shipment.ID.String(), sit.ID.String())
-	fmt.Println(path)
 	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateOfficeRequest(req, user)
 
@@ -182,6 +189,7 @@ func (suite *HandlerSuite) TestPatchStorageInTransitHandler() {
 	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
 	req = httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
+	params.HTTPRequest = req
 	handler = PatchStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	handler.Handle(params)
 	suite.Error(models.ErrFetchForbidden)
@@ -199,6 +207,7 @@ func (suite *HandlerSuite) TestPatchStorageInTransitHandler() {
 	testdatagen.MakeShipmentOffer(suite.DB(), assertions)
 	req = httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
+	params.HTTPRequest = req
 	handler = PatchStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response = handler.Handle(params)
 
@@ -209,19 +218,49 @@ func (suite *HandlerSuite) TestPatchStorageInTransitHandler() {
 }
 
 func (suite *HandlerSuite) TestDeleteStorageInTransitHandler() {
-	shipment, sit, user := setupStorageInTransitHandlerTest(suite)
 
-	path := fmt.Sprintf("/shipments/%s/storage_in_transits", shipment.ID.String())
-	req := httptest.NewRequest("DELETE", path, nil)
-	req = suite.AuthenticateOfficeRequest(req, user)
+	// Let's make sure that it fails if an Office user tries to do it.
+	shipment, sit, officeUser := setupStorageInTransitHandlerTest(suite)
 
-	params := sitop.DeleteStorageInTransitParams{
-		HTTPRequest:        req,
+	failPath := fmt.Sprintf("/shipments/%s/storage_in_transits/%s", shipment.ID.String(), sit.ID.String())
+
+	failReq := httptest.NewRequest("DELETE", failPath, nil)
+	failReq = suite.AuthenticateOfficeRequest(failReq, officeUser)
+	failParams := sitop.DeleteStorageInTransitParams{
+		HTTPRequest:        failReq,
+		ShipmentID:         strfmt.UUID(shipment.ID.String()),
 		StorageInTransitID: strfmt.UUID(sit.ID.String()),
 	}
+	failHandler := DeleteStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	failHandler.Handle(failParams)
+	suite.Error(models.ErrFetchForbidden)
 
+	// Let's have one, you know, be successful
+	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
+
+	// Lastly let's make sure it succeeds when the tsp does have permissions
+	// Now let's do a working one
+	assertions := testdatagen.Assertions{
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			ShipmentID:                      shipment.ID,
+		},
+	}
+	// Create a shipment offer that uses our generated TSP ID and shipment ID so that our TSP has rights to
+	// Use these to create a SIT for them.
+	testdatagen.MakeShipmentOffer(suite.DB(), assertions)
+
+	path := fmt.Sprintf("/shipments/%s/storage_in_transits/%s", shipment.ID.String(), sit.ID.String())
+
+	req := httptest.NewRequest("DELETE", path, nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	params := sitop.DeleteStorageInTransitParams{
+		HTTPRequest:        req,
+		ShipmentID:         strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID: strfmt.UUID(sit.ID.String()),
+	}
 	handler := DeleteStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
-
 	suite.Assertions.IsType(&sitop.DeleteStorageInTransitOK{}, response)
+
 }
