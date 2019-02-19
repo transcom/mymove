@@ -2,7 +2,9 @@ package publicapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	sitop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/storage_in_transits"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -30,34 +32,22 @@ func payloadForStorageInTransitModel(s *models.StorageInTransit) *apimessages.St
 	}
 }
 
-// IndexStorageInTransitHandler returns a list of Storage In Transit entries
-type IndexStorageInTransitHandler struct {
-	handlers.HandlerContext
-}
+func authorizeStorageInTransitRequest(db *pop.Connection, session *auth.Session, shipmentID uuid.UUID, allowOffice bool) (isUserAuthorized bool, err error) {
+	if session.IsTspUser() {
+		_, _, err := models.FetchShipmentForVerifiedTSPUser(db, session.TspUserID, shipmentID)
 
-// Handle returns a list of Storage In Transit entries
-func (h IndexStorageInTransitHandler) Handle(params sitop.IndexStorageInTransitsParams) middleware.Responder {
-	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
-
-	storageInTransits, err := models.FetchStorageInTransitsOnShipment(h.DB(), shipmentID)
-
-	if err != nil {
-		h.Logger().Error("DB Query", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		if err != nil {
+			return false, err
+		}
+		return true, nil
+	} else if session.IsOfficeUser() {
+		if allowOffice {
+			return true, nil
+		}
+	} else {
+		return false, models.ErrFetchForbidden
 	}
-
-	storageInTransitsList := make(apimessages.StorageInTransits, len(storageInTransits))
-
-	for i, storageInTransit := range storageInTransits {
-		storageInTransitsList[i] = payloadForStorageInTransitModel(&storageInTransit)
-	}
-
-	return sitop.NewIndexStorageInTransitsOK().WithPayload(storageInTransitsList)
-}
-
-// CreateStorageInTransitHandler creates a storage in transit entry and returns a payload.
-type CreateStorageInTransitHandler struct {
-	handlers.HandlerContext
+	return false, models.ErrFetchForbidden
 }
 
 func processStorageInTransitInput(h handlers.HandlerContext, shipmentID uuid.UUID, payload apimessages.StorageInTransit) (models.StorageInTransit, error) {
@@ -66,9 +56,7 @@ func processStorageInTransitInput(h handlers.HandlerContext, shipmentID uuid.UUI
 
 	if incomingLocation == "ORIGIN" {
 		savedLocation = models.StorageInTransitLocationORIGIN
-	}
-
-	if incomingLocation == "DESTINATION" {
+	} else {
 		savedLocation = models.StorageInTransitLocationDESTINATION
 	}
 
@@ -118,10 +106,56 @@ func processStorageInTransitInput(h handlers.HandlerContext, shipmentID uuid.UUI
 
 }
 
+// IndexStorageInTransitHandler returns a list of Storage In Transit entries
+type IndexStorageInTransitHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle returns a list of Storage In Transit entries
+func (h IndexStorageInTransitHandler) Handle(params sitop.IndexStorageInTransitsParams) middleware.Responder {
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	isUserAuthorized, err := authorizeStorageInTransitRequest(h.DB(), session, shipmentID, true)
+
+	if isUserAuthorized == false {
+		h.Logger().Error("Unauthorized User", zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	storageInTransits, err := models.FetchStorageInTransitsOnShipment(h.DB(), shipmentID)
+
+	if err != nil {
+		h.Logger().Error("DB Query", zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	storageInTransitsList := make(apimessages.StorageInTransits, len(storageInTransits))
+
+	for i, storageInTransit := range storageInTransits {
+		storageInTransitsList[i] = payloadForStorageInTransitModel(&storageInTransit)
+	}
+
+	return sitop.NewIndexStorageInTransitsOK().WithPayload(storageInTransitsList)
+}
+
+// CreateStorageInTransitHandler creates a storage in transit entry and returns a payload.
+type CreateStorageInTransitHandler struct {
+	handlers.HandlerContext
+}
+
 // Handle handles the handling
 func (h CreateStorageInTransitHandler) Handle(params sitop.CreateStorageInTransitParams) middleware.Responder {
 	payload := params.StorageInTransit
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	isUserAuthorized, err := authorizeStorageInTransitRequest(h.DB(), session, shipmentID, false)
+
+	if isUserAuthorized == false {
+		h.Logger().Error("User is unauthorized", zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
 
 	if err != nil {
 		h.Logger().Error("UUID Parsing", zap.Error(err))
@@ -158,6 +192,14 @@ func (h PatchStorageInTransitHandler) Handle(params sitop.PatchStorageInTransitP
 	payload := params.StorageInTransit
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
 
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	isUserAuthorized, err := authorizeStorageInTransitRequest(h.DB(), session, shipmentID, true)
+
+	if isUserAuthorized == false {
+		h.Logger().Error("User is unauthorized", zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
 	if err != nil {
 		h.Logger().Error("UUID Parsing", zap.Error(err))
 		return handlers.ResponseForError(h.Logger(), err)
@@ -186,6 +228,15 @@ type GetStorageInTransitHandler struct {
 // Handle handles the handling
 func (h GetStorageInTransitHandler) Handle(params sitop.GetStorageInTransitParams) middleware.Responder {
 	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
+	shipmentID, err := uuid.FromString(params.ShipmentID.String())
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	isUserAuthorized, err := authorizeStorageInTransitRequest(h.DB(), session, shipmentID, true)
+
+	if isUserAuthorized == false {
+		h.Logger().Error("User is unauthorized", zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
 
 	if err != nil {
 		h.Logger().Error("UUID Parsing", zap.Error(err))
@@ -212,6 +263,15 @@ type DeleteStorageInTransitHandler struct {
 // Handle handles the handling
 func (h DeleteStorageInTransitHandler) Handle(params sitop.DeleteStorageInTransitParams) middleware.Responder {
 	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
+	shipmentID, err := uuid.FromString(params.ShipmentID.String())
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	isUserAuthorized, err := authorizeStorageInTransitRequest(h.DB(), session, shipmentID, true)
+
+	if isUserAuthorized == false {
+		h.Logger().Error("User is unauthorized", zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
 
 	if err != nil {
 		h.Logger().Error("UUID Parsing", zap.Error(err))
