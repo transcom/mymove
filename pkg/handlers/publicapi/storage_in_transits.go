@@ -90,7 +90,6 @@ func processStorageInTransitInput(h handlers.HandlerContext, shipmentID uuid.UUI
 
 	newStorageInTransit := models.StorageInTransit{
 		ShipmentID:         shipmentID,
-		Status:             models.StorageInTransitStatusREQUESTED,
 		Location:           savedLocation,
 		EstimatedStartDate: estimatedStartDate,
 		Notes:              payload.Notes,
@@ -168,6 +167,8 @@ func (h CreateStorageInTransitHandler) Handle(params sitop.CreateStorageInTransi
 		h.Logger().Error("DB Query", zap.Error(err))
 		return handlers.ResponseForError(h.Logger(), err)
 	}
+
+	newStorageInTransit.Status = models.StorageInTransitStatusREQUESTED
 
 	_, err = h.DB().ValidateAndCreate(&newStorageInTransit)
 
