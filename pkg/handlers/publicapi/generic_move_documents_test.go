@@ -1,6 +1,7 @@
 package publicapi
 
 import (
+	"github.com/gobuffalo/uuid"
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
@@ -79,13 +80,13 @@ func (suite *HandlerSuite) testCreateGenericMoveHandler(moveType models.Selected
 	request = suite.AuthenticateTspRequest(request, wrongUser)
 	newMoveDocParams.HTTPRequest = request
 
-	//badUserResponse := handler.Handle(newMoveDocParams)
-	//suite.CheckResponseForbidden(badUserResponse)
+	badUserResponse := handler.Handle(newMoveDocParams)
+	suite.CheckResponseForbidden(badUserResponse)
 
-	// Now try a bad shipment
-	//newMoveDocParams.ShipmentID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
-	//badMoveResponse := handler.Handle(newMoveDocParams)
-	//suite.CheckResponseForbidden(badMoveResponse)
+	//Now try a bad shipment
+	newMoveDocParams.ShipmentID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+	badMoveResponse := handler.Handle(newMoveDocParams)
+	suite.CheckResponseForbidden(badMoveResponse)
 
 	var moveDocument models.MoveDocument
 	suite.Nil(suite.DB().Find(&moveDocument, createdPayload.ID), "could not load MoveDocument")
