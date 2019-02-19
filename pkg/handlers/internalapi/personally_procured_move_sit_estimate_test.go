@@ -25,6 +25,7 @@ func helperCreateZip3AndServiceAreas(suite *HandlerSuite) (models.Tariff400ngSer
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Victoria, TX",
 		ServiceArea:        "748",
+		ServicesSchedule:   3,
 		LinehaulFactor:     39,
 		ServiceChargeCents: 350,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
@@ -38,6 +39,7 @@ func helperCreateZip3AndServiceAreas(suite *HandlerSuite) (models.Tariff400ngSer
 	destServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Salina, KS",
 		ServiceArea:        "320",
+		ServicesSchedule:   2,
 		LinehaulFactor:     43,
 		ServiceChargeCents: 350,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
@@ -79,7 +81,7 @@ func helperShowPPMSitEstimateHandler(suite *HandlerSuite, codeOfService string) 
 
 	itemRate225A := models.Tariff400ngItemRate{
 		Code:               "225A",
-		Schedule:           &destServiceArea.SITPDSchedule,
+		Schedule:           &destServiceArea.ServicesSchedule,
 		WeightLbsLower:     2000,
 		WeightLbsUpper:     4000,
 		RateCents:          unit.Cents(9900),

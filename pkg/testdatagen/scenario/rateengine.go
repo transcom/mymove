@@ -118,7 +118,7 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 
 	itemRate225A := models.Tariff400ngItemRate{
 		Code:               "225A",
-		Schedule:           &destinationServiceArea.SITPDSchedule,
+		Schedule:           &destinationServiceArea.ServicesSchedule,
 		WeightLbsLower:     linehaulRate.WeightLbsLower,
 		WeightLbsUpper:     linehaulRate.WeightLbsUpper,
 		RateCents:          unit.Cents(9900),
@@ -290,7 +290,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 
 	item1Rate225A := models.Tariff400ngItemRate{
 		Code:               "225A",
-		Schedule:           &destinationServiceArea.SITPDSchedule,
+		Schedule:           &destinationServiceArea.ServicesSchedule,
 		WeightLbsLower:     linehaulRate1.WeightLbsLower,
 		WeightLbsUpper:     linehaulRate1.WeightLbsUpper,
 		RateCents:          unit.Cents(9900),
@@ -330,7 +330,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 
 	item2Rate225A := models.Tariff400ngItemRate{
 		Code:               "225A",
-		Schedule:           &destinationServiceArea.SITPDSchedule,
+		Schedule:           &destinationServiceArea.ServicesSchedule,
 		WeightLbsLower:     linehaulRate2.WeightLbsLower,
 		WeightLbsUpper:     linehaulRate2.WeightLbsUpper,
 		RateCents:          unit.Cents(7700),

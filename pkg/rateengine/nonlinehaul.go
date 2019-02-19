@@ -105,16 +105,15 @@ func (re *RateEngine) SitCharge(cwt unit.CWT, daysInSIT int, zip3 string, date t
 	// (185A SIT first day rate * CWT) +
 	// (185B SIT additional day rate * additional days * CWT) +
 	// 210A SIT PD 30 miles or less for SIT PD schedule of service area +
-	// 225A SIT PD Self/Mini Storage for SIT PD schedule of service area
+	// 225A SIT PD Self/Mini Storage for services schedule of service area
 	rate210A, err := models.FetchTariff400ngItemRate(re.db, "210A", sa.SITPDSchedule, effectiveCWT.ToPounds(), date)
 	if err != nil {
 		return 0, errors.Wrapf(err, "No 210A rate found for schedule %v, %v pounds, date %v", sa.SITPDSchedule, effectiveCWT.ToPounds(), date)
 	}
 
-	// TODO: Should we be using sa.ServicesSchedule or sa.SITPDSchedule?
-	rate225A, err := models.FetchTariff400ngItemRate(re.db, "225A", sa.SITPDSchedule, effectiveCWT.ToPounds(), date)
+	rate225A, err := models.FetchTariff400ngItemRate(re.db, "225A", sa.ServicesSchedule, effectiveCWT.ToPounds(), date)
 	if err != nil {
-		return 0, errors.Wrapf(err, "No 225A rate found for schedule %v, %v pounds, date %v", sa.SITPDSchedule, effectiveCWT.ToPounds(), date)
+		return 0, errors.Wrapf(err, "No 225A rate found for schedule %v, %v pounds, date %v", sa.ServicesSchedule, effectiveCWT.ToPounds(), date)
 	}
 
 	sitTotal = sa.SIT185ARateCents.Multiply(effectiveCWT.Int())
@@ -132,6 +131,7 @@ func (re *RateEngine) SitCharge(cwt unit.CWT, daysInSIT int, zip3 string, date t
 		zap.Time("date", date),
 		zap.Bool("isPPM", isPPM),
 		zap.Int("effectiveCWT", effectiveCWT.Int()),
+		zap.Int("servicesSchedule", sa.ServicesSchedule),
 		zap.Int("sitPDSchedule", sa.SITPDSchedule),
 		zap.Int("185A", sa.SIT185ARateCents.Int()),
 		zap.Int("185B", sa.SIT185BRateCents.Int()),

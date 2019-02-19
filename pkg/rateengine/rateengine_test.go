@@ -106,7 +106,7 @@ func (suite *RateEngineSuite) setupRateEngineTest() {
 	suite.MustSave(&itemRate210A)
 	itemRate225A := models.Tariff400ngItemRate{
 		Code:               "225A",
-		Schedule:           &destinationServiceArea.SITPDSchedule,
+		Schedule:           &destinationServiceArea.ServicesSchedule,
 		WeightLbsLower:     newBaseLinehaul.WeightLbsLower,
 		WeightLbsUpper:     newBaseLinehaul.WeightLbsUpper,
 		RateCents:          unit.Cents(9900),

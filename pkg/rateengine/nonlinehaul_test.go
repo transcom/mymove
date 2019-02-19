@@ -213,7 +213,7 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 	sit225ARateCentsAtMin := unit.Cents(9900)
 	itemRate225AAtMin := models.Tariff400ngItemRate{
 		Code:               "225A",
-		Schedule:           &sa.SITPDSchedule,
+		Schedule:           &sa.ServicesSchedule,
 		WeightLbsLower:     itemRate210AAtMin.WeightLbsLower,
 		WeightLbsUpper:     itemRate210AAtMin.WeightLbsUpper,
 		RateCents:          sit225ARateCentsAtMin,
@@ -237,7 +237,7 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 	sit225ARateCentsBelowMin := unit.Cents(7700)
 	itemRate225ABelowMin := models.Tariff400ngItemRate{
 		Code:               "225A",
-		Schedule:           &sa.SITPDSchedule,
+		Schedule:           &sa.ServicesSchedule,
 		WeightLbsLower:     itemRate210ABelowMin.WeightLbsLower,
 		WeightLbsUpper:     itemRate210ABelowMin.WeightLbsUpper,
 		RateCents:          sit225ARateCentsBelowMin,

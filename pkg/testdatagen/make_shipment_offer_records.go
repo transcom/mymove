@@ -393,7 +393,7 @@ func createTariffDataForRateEngine(db *pop.Connection, shipment models.Shipment)
 	mustSave(db, &itemRate210A)
 	itemRate225A := models.Tariff400ngItemRate{
 		Code:               "225A",
-		Schedule:           &sa2.SITPDSchedule,
+		Schedule:           &sa2.ServicesSchedule,
 		WeightLbsLower:     weightLower,
 		WeightLbsUpper:     weightUpper,
 		RateCents:          unit.Cents(9900),
