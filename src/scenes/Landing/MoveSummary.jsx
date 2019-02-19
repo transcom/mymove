@@ -9,6 +9,7 @@ import { ppmInfoPacket, hhgInfoPacket } from 'shared/constants';
 import Alert from 'shared/Alert';
 import { formatCents, formatCentsRange } from 'shared/formatters';
 import TransportationOfficeContactInfo from 'shared/TransportationOffices/TransportationOfficeContactInfo';
+import TransportationServiceProviderContactInfo from 'scenes/TransportationServiceProvider/ContactInfo';
 import truck from 'shared/icon/truck-gray.svg';
 import { selectReimbursement } from 'shared/Entities/modules/ppms';
 
@@ -581,10 +582,10 @@ export const MoveSummary = props => {
               <TransportationOfficeContactInfo dutyStation={get(orders, 'new_duty_station')} />
             )}
             {showTsp && (
-              <div className="titled_block">
-                <strong>TSP name</strong>
-                <div>phone #</div>
-              </div>
+              <TransportationServiceProviderContactInfo
+                shipmentId={shipment.id}
+                transportationServiceProviderId={shipment.transportation_service_provider_id}
+              />
             )}
           </div>
         </div>
