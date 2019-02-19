@@ -66,7 +66,7 @@ func MakeDefaultShipmentOffer(db *pop.Connection) models.ShipmentOffer {
 // CreateShipmentOfferData creates a list of TSP Users, Shipments, and Shipment Offers
 // Must pass in the number of tsp users to create and number of shipments.
 // The split of shipment offers should be the length of TSP users and the sum should equal the number of shipments
-func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments int, numShipmentOfferSplit []int, statuses []models.ShipmentStatus) ([]models.TspUser, []models.Shipment, []models.ShipmentOffer, error) {
+func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments int, numShipmentOfferSplit []int, statuses []models.ShipmentStatus, moveType models.SelectedMoveType) ([]models.TspUser, []models.Shipment, []models.ShipmentOffer, error) {
 	var tspUserList []models.TspUser
 	var shipmentList []models.Shipment
 	var shipmentOfferList []models.ShipmentOffer

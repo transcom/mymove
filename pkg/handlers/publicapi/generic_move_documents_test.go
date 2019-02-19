@@ -14,12 +14,12 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
+func (suite *HandlerSuite) testCreateGenericMoveHandler(moveType models.SelectedMoveType) {
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusAWARDED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
 	suite.NoError(err)
 
 	shipment := shipments[0]
@@ -87,4 +87,14 @@ func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
 	newMoveDocParams.ShipmentID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	badMoveResponse := handler.Handle(newMoveDocParams)
 	suite.CheckResponseForbidden(badMoveResponse)
+
+}
+
+func (suite *HandlerSuite) TestCreateGenericMoveDocumentHandler() {
+	types := []models.SelectedMoveType{models.SelectedMoveTypeHHG}
+	for _, moveType := range types {
+		suite.Run(string(moveType), func() {
+			suite.testCreateGenericMoveHandler(moveType)
+		})
+	}
 }
