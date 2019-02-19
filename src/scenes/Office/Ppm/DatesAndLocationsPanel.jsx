@@ -1,5 +1,5 @@
 import { get } from 'lodash';
-import React, { Fragment } from 'react';
+import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { reduxForm, getFormValues } from 'redux-form';
@@ -14,28 +14,24 @@ const DatesAndLocationDisplay = props => {
     values: props.ppm,
   };
   return (
-    <Fragment>
-      <div className="editable-panel-column">
-        <PanelSwaggerField fieldName="actual_move_date" title="Departure date" required {...fieldProps} />
-      </div>
-    </Fragment>
+    <div className="editable-panel-column">
+      <PanelSwaggerField fieldName="actual_move_date" title="Departure date" required {...fieldProps} />
+    </div>
   );
 };
 
 const DatesAndLocationEdit = props => {
   const schema = props.ppmSchema;
   return (
-    <Fragment>
-      <div className="editable-panel-column">
-        <SwaggerField
-          className="short-field"
-          fieldName="actual_move_date"
-          title="Departure date"
-          swagger={schema}
-          required
-        />
-      </div>
-    </Fragment>
+    <div className="editable-panel-column">
+      <SwaggerField
+        className="short-field"
+        fieldName="actual_move_date"
+        title="Departure date"
+        swagger={schema}
+        required
+      />
+    </div>
   );
 };
 
