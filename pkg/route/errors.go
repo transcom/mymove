@@ -11,17 +11,17 @@ type ErrorCode string
 
 const (
 	// UnsupportedPostalCode happens when we can't map a ZIP5 to a set of Lat/Long
-	UnsupportedPostalCode = "UNSUPPORTED_POSTAL_CODE"
+	UnsupportedPostalCode ErrorCode = "UNSUPPORTED_POSTAL_CODE"
 	// UnroutableRoute happens when a valid route can't be calculated between two locations
-	UnroutableRoute = "UNROUTABLE_ROUTE"
+	UnroutableRoute ErrorCode = "UNROUTABLE_ROUTE"
 	// AddressLookupError happens when doing a LatLong lookup of an address
-	AddressLookupError = "ADDRESS_LOOKUP_ERROR"
+	AddressLookupError ErrorCode = "ADDRESS_LOOKUP_ERROR"
 	// GeocodeResponseDecodingError happens when attempting to decode a geocode response
-	GeocodeResponseDecodingError = "GEOCODE_RESPONSE_DECODE_ERROR"
+	GeocodeResponseDecodingError ErrorCode = "GEOCODE_RESPONSE_DECODE_ERROR"
 	// RoutingResponseDecodingError happens when attempting to decode a routing response
-	RoutingResponseDecodingError = "ROUTING_RESPONSE_DECODE_ERROR"
+	RoutingResponseDecodingError ErrorCode = "ROUTING_RESPONSE_DECODE_ERROR"
 	// UnknownError is for when the cause of the error can't be ascertained
-	UnknownError = "UNKNOWN_ERROR"
+	UnknownError ErrorCode = "UNKNOWN_ERROR"
 )
 
 // Error is used for handling errors from the Route package

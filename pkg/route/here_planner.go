@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"math"
 	"net/http"
-	"time"
 
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -15,13 +14,14 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// hereRequestTimeout is how long to wait on HERE request before timing out (15 seconds).
-const hereRequestTimeout = time.Duration(15) * time.Second
+type httpGetter interface {
+	Get(url string) (resp *http.Response, err error)
+}
 
 // herePlanner holds configuration information to make calls using the HERE maps API
 type herePlanner struct {
 	logger                  *zap.Logger
-	httpClient              http.Client
+	httpClient              httpGetter
 	routeEndPointWithKeys   string
 	geocodeEndPointWithKeys string
 }
@@ -111,9 +111,10 @@ func (p *herePlanner) getAddressLatLong(responses chan addressLatLong, address *
 		if err != nil {
 			latLongResponse.err = err
 			p.logger.Error("Failed to decode response from HERE geocode address lookup.", zap.Error(err), zap.Object("address", address))
+		} else {
+			latLongResponse.location.Latitude = position.Lat
+			latLongResponse.location.Longitude = position.Long
 		}
-		latLongResponse.location.Latitude = position.Lat
-		latLongResponse.location.Longitude = position.Long
 	}
 	responses <- latLongResponse
 }
@@ -187,7 +188,7 @@ func (p *herePlanner) Zip5TransitDistance(source string, destination string) (in
 		p.logger.Error("Failed to calculate HERE route between ZIPs", zap.String("source", source), zap.String("destination", destination))
 	}
 
-	return distance, nil
+	return distance, err
 }
 
 func (p *herePlanner) TransitDistance(source *models.Address, destination *models.Address) (int, error) {
@@ -218,10 +219,10 @@ func addKeysToEndpoint(endpoint string, id string, code string) string {
 }
 
 // NewHEREPlanner constructs and returns a Planner which uses the HERE Map API to plan routes.
-func NewHEREPlanner(logger *zap.Logger, geocodeEndpoint string, routeEndpoint string, appID string, appCode string) Planner {
+func NewHEREPlanner(logger *zap.Logger, client httpGetter, geocodeEndpoint string, routeEndpoint string, appID string, appCode string) Planner {
 	return &herePlanner{
 		logger:                  logger,
-		httpClient:              http.Client{Timeout: hereRequestTimeout},
+		httpClient:              client,
 		routeEndPointWithKeys:   addKeysToEndpoint(routeEndpoint, appID, appCode),
 		geocodeEndPointWithKeys: addKeysToEndpoint(geocodeEndpoint, appID, appCode)}
 }
