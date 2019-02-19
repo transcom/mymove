@@ -60,6 +60,20 @@ func (suite *HandlerSuite) TestIndexStorageInTransitsHandler() {
 
 	suite.Equal(2, len(okResponse.Payload))
 
+	// Let's make sure it doesn't authorize with a servicemember user
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+	serviceMemberReq := httptest.NewRequest("GET", path, nil)
+	serviceMemberReq = suite.AuthenticateRequest(req, serviceMember)
+	params = sitop.IndexStorageInTransitsParams{
+		HTTPRequest: serviceMemberReq,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+	}
+
+	handler = IndexStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	_ = handler.Handle(params)
+
+	suite.Assertions.Error(models.ErrFetchForbidden)
+
 }
 
 func (suite *HandlerSuite) TestGetStorageInTransitHandler() {
@@ -86,16 +100,16 @@ func (suite *HandlerSuite) TestGetStorageInTransitHandler() {
 
 func (suite *HandlerSuite) TestCreateStorageInTransitHandler() {
 
-	shipment, sit, user := setupStorageInTransitHandlerTest(suite)
+	shipment, sit, _ := setupStorageInTransitHandlerTest(suite)
+	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
 
 	sit.WarehouseID = "12345"
 
 	sitPayload := payloadForStorageInTransitModel(&sit)
 
 	path := fmt.Sprintf("/shipments/%s/storage_in_transits", shipment.ID.String())
-	fmt.Println(path)
 	req := httptest.NewRequest("POST", path, nil)
-	req = suite.AuthenticateOfficeRequest(req, user)
+	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	params := sitop.CreateStorageInTransitParams{
 		HTTPRequest:      req,
@@ -104,12 +118,26 @@ func (suite *HandlerSuite) TestCreateStorageInTransitHandler() {
 	}
 
 	handler := CreateStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	_ = handler.Handle(params)
+
+	// we expect this to fail with a forbidden message. The generated TSP does not have rights to the shipment.
+	suite.Error(models.ErrFetchForbidden)
+
+	// Now let's do a working one
+	assertions := testdatagen.Assertions{
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			ShipmentID:                      shipment.ID,
+		},
+	}
+	// Create a shipment offer that uses our generated TSP ID and shipment ID so that our TSP has rights to
+	// Use these to create a SIT for them.
+	testdatagen.MakeShipmentOffer(suite.DB(), assertions)
+
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&sitop.CreateStorageInTransitCreated{}, response)
-
 	responsePayload := response.(*sitop.CreateStorageInTransitCreated).Payload
-
 	storageInTransitPayloadCompare(suite, sitPayload, responsePayload)
 }
 
@@ -141,13 +169,49 @@ func (suite *HandlerSuite) TestPatchStorageInTransitHandler() {
 	responsePayload := response.(*sitop.PatchStorageInTransitOK).Payload
 
 	storageInTransitPayloadCompare(suite, sitPayload, responsePayload)
+
+	// Alright now let's make sure we fail out with a bad user
+	serviceMemberUser := testdatagen.MakeDefaultServiceMember(suite.DB())
+	req = httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateRequest(req, serviceMemberUser)
+	handler = PatchStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler.Handle(params)
+	suite.Error(models.ErrFetchForbidden)
+
+	// Let's also make sure it fails for a TSP user that doesn't have permissions
+	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
+	req = httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	handler = PatchStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler.Handle(params)
+	suite.Error(models.ErrFetchForbidden)
+
+	// Lastly let's make sure it succeeds when the tsp does have permissions
+	// Now let's do a working one
+	assertions := testdatagen.Assertions{
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			ShipmentID:                      shipment.ID,
+		},
+	}
+	// Create a shipment offer that uses our generated TSP ID and shipment ID so that our TSP has rights to
+	// Use these to create a SIT for them.
+	testdatagen.MakeShipmentOffer(suite.DB(), assertions)
+	req = httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	handler = PatchStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response = handler.Handle(params)
+
+	suite.Assertions.IsType(&sitop.PatchStorageInTransitOK{}, response)
+	responsePayload = response.(*sitop.PatchStorageInTransitOK).Payload
+	storageInTransitPayloadCompare(suite, sitPayload, responsePayload)
+
 }
 
 func (suite *HandlerSuite) TestDeleteStorageInTransitHandler() {
 	shipment, sit, user := setupStorageInTransitHandlerTest(suite)
 
 	path := fmt.Sprintf("/shipments/%s/storage_in_transits", shipment.ID.String())
-	fmt.Println(path)
 	req := httptest.NewRequest("DELETE", path, nil)
 	req = suite.AuthenticateOfficeRequest(req, user)
 
