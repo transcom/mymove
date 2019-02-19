@@ -30,8 +30,8 @@ export class DateAndLocation extends Component {
 
   componentDidMount() {
     if (!this.props.currentPpm && this.props.isHHGPPMComboMove) {
-      const { plannedMoveDate, pickupPostalCode, destinationPostalCode } = this.props.defaultValues;
-      this.props.setInitialFormValues(plannedMoveDate, pickupPostalCode, destinationPostalCode);
+      const { originalMoveDate, pickupPostalCode, destinationPostalCode } = this.props.defaultValues;
+      this.props.setInitialFormValues(originalMoveDate, pickupPostalCode, destinationPostalCode);
     }
   }
 
@@ -69,7 +69,7 @@ export class DateAndLocation extends Component {
     const estimateValues = cloneDeep(formValues);
     estimateValues[field] = value; // eslint-disable-line security/detect-object-injection
     this.debouncedSitEstimate(
-      estimateValues.planned_move_date,
+      estimateValues.original_move_date,
       estimateValues.days_in_storage,
       estimateValues.pickup_postal_code,
       estimateValues.destination_postal_code,
@@ -115,7 +115,7 @@ export class DateAndLocation extends Component {
           {isHHGPPMComboMove && <div>Great! Let's review your pickup and destination information.</div>}
           <h3> Move Date </h3>
           <SwaggerField
-            fieldName="planned_move_date"
+            fieldName="original_move_date"
             onChange={this.getDebouncedSitEstimate}
             swagger={this.props.schema}
             required
@@ -229,7 +229,7 @@ function mapStateToProps(state) {
   if (props.isHHGPPMComboMove) {
     props.defaultValues = {
       pickupPostalCode: defaultPickupZip,
-      plannedMoveDate: currentOrders.issue_date,
+      originalMoveDate: currentOrders.issue_date,
       // defaults to SM's destination address, if none, uses destination duty station zip
       destinationPostalCode: getDestinationPostalCode(state),
     };

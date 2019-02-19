@@ -295,7 +295,7 @@ export const SubmittedHhgMoveSummary = props => {
 export const ApprovedMoveSummary = props => {
   const { ppm, move, requestPaymentSuccess } = props;
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
-  const moveInProgress = moment(ppm.planned_move_date, 'YYYY-MM-DD').isSameOrBefore();
+  const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
   return (
     <Fragment>
       <div>

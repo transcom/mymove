@@ -145,7 +145,7 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
-      planned_move_date:
+      original_move_date:
         type: string
         example: '2018-04-26'
         format: date
@@ -207,11 +207,17 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
-      planned_move_date:
+      original_move_date:
         type: string
         format: date
         example: '2018-04-26'
         title: When do you plan to move?
+        x-nullable: true
+      actual_move_date:
+        type: string
+        example: '2018-04-26'
+        format: date
+        title: When did you actually move?
         x-nullable: true
       pickup_postal_code:
         type: string
@@ -270,11 +276,17 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
-      planned_move_date:
+      original_move_date:
         type: string
         example: '2018-04-26'
         format: date
         title: When do you plan to move?
+        x-nullable: true
+      actual_move_date:
+        type: string
+        example: '2018-04-26'
+        format: date
+        title: When did you actually move?
         x-nullable: true
       pickup_postal_code:
         type: string
@@ -337,11 +349,17 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       size:
         $ref: '#/definitions/TShirtSize'
-      planned_move_date:
+      original_move_date:
         type: string
         format: date
         title: When do you plan to move?
         example: '2018-04-26'
+        x-nullable: true
+      actual_move_date:
+        type: string
+        example: '2018-04-26'
+        format: date
+        title: When did you actually move?
         x-nullable: true
       pickup_postal_code:
         type: string
@@ -2292,7 +2310,7 @@ paths:
         - ppm
       parameters:
         - in: query
-          name: planned_move_date
+          name: original_move_date
           type: string
           format: date
           required: true
@@ -2334,7 +2352,7 @@ paths:
         - ppm
       parameters:
         - in: query
-          name: planned_move_date
+          name: original_move_date
           type: string
           format: date
           required: true
@@ -3436,7 +3454,7 @@ paths:
         - ppm
       parameters:
         - in: query
-          name: planned_move_date
+          name: original_move_date
           type: string
           format: date
           required: true

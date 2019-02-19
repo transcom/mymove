@@ -32,7 +32,8 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 		UpdatedAt:                     handlers.FmtDateTime(personallyProcuredMove.UpdatedAt),
 		Size:                          personallyProcuredMove.Size,
 		WeightEstimate:                personallyProcuredMove.WeightEstimate,
-		PlannedMoveDate:               handlers.FmtDatePtr(personallyProcuredMove.PlannedMoveDate),
+		OriginalMoveDate:              handlers.FmtDatePtr(personallyProcuredMove.OriginalMoveDate),
+		ActualMoveDate:                handlers.FmtDatePtr(personallyProcuredMove.ActualMoveDate),
 		PickupPostalCode:              personallyProcuredMove.PickupPostalCode,
 		HasAdditionalPostalCode:       personallyProcuredMove.HasAdditionalPostalCode,
 		AdditionalPickupPostalCode:    personallyProcuredMove.AdditionalPickupPostalCode,
@@ -93,7 +94,7 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 	newPPM, verrs, err := move.CreatePPM(h.DB(),
 		payload.Size,
 		payload.WeightEstimate,
-		(*time.Time)(payload.PlannedMoveDate),
+		(*time.Time)(payload.OriginalMoveDate),
 		payload.PickupPostalCode,
 		payload.HasAdditionalPostalCode,
 		payload.AdditionalPickupPostalCode,
@@ -155,8 +156,11 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 	if payload.WeightEstimate != nil {
 		ppm.WeightEstimate = payload.WeightEstimate
 	}
-	if payload.PlannedMoveDate != nil {
-		ppm.PlannedMoveDate = (*time.Time)(payload.PlannedMoveDate)
+	if payload.OriginalMoveDate != nil {
+		ppm.OriginalMoveDate = (*time.Time)(payload.OriginalMoveDate)
+	}
+	if payload.ActualMoveDate != nil {
+		ppm.ActualMoveDate = (*time.Time)(payload.ActualMoveDate)
 	}
 	if payload.PickupPostalCode != nil {
 		ppm.PickupPostalCode = payload.PickupPostalCode
@@ -262,7 +266,7 @@ func (h PatchPersonallyProcuredMoveHandler) ppmNeedsEstimatesRecalculated(ppm *m
 	originPtr := patch.PickupPostalCode
 	destinationPtr := patch.DestinationPostalCode
 	weightPtr := patch.WeightEstimate
-	datePtr := patch.PlannedMoveDate
+	datePtr := patch.OriginalMoveDate
 	daysPtr := patch.DaysInStorage
 
 	// Figure out if we have values to compare and, if so, whether the new or old value
@@ -270,7 +274,7 @@ func (h PatchPersonallyProcuredMoveHandler) ppmNeedsEstimatesRecalculated(ppm *m
 	origin, originChanged, originOK := stringForComparison(ppm.PickupPostalCode, originPtr)
 	destination, destinationChanged, destinationOK := stringForComparison(ppm.DestinationPostalCode, destinationPtr)
 	weight, weightChanged, weightOK := int64ForComparison(ppm.WeightEstimate, weightPtr)
-	date, dateChanged, dateOK := dateForComparison(ppm.PlannedMoveDate, (*time.Time)(datePtr))
+	date, dateChanged, dateOK := dateForComparison(ppm.OriginalMoveDate, (*time.Time)(datePtr))
 	daysInStorage, daysChanged, _ := int64ForComparison(ppm.DaysInStorage, daysPtr)
 
 	// We don't care if daysInStorage is OK, since we just want to meet the minimum bar to recalculate
@@ -375,7 +379,7 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 		daysInSIT = int(*ppm.DaysInStorage)
 	}
 
-	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(h.DB(), h.Logger(), *ppm.PickupPostalCode, *ppm.DestinationPostalCode, *ppm.PlannedMoveDate)
+	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(h.DB(), h.Logger(), *ppm.PickupPostalCode, *ppm.DestinationPostalCode, *ppm.OriginalMoveDate)
 	if err != nil {
 		return err
 	}
@@ -384,7 +388,7 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 	if ppm.HasSit != nil && *ppm.HasSit == true {
 		cwtWeight := unit.Pound(*ppm.WeightEstimate).ToCWT()
 		sitZip3 := rateengine.Zip5ToZip3(*ppm.DestinationPostalCode)
-		sitTotal, err := re.SitCharge(cwtWeight, daysInSIT, sitZip3, *ppm.PlannedMoveDate, true)
+		sitTotal, err := re.SitCharge(cwtWeight, daysInSIT, sitZip3, *ppm.OriginalMoveDate, true)
 		if err != nil {
 			return err
 		}
@@ -393,7 +397,7 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 		ppm.EstimatedStorageReimbursement = &reimbursementString
 	}
 
-	cost, err := re.ComputePPM(unit.Pound(*ppm.WeightEstimate), *ppm.PickupPostalCode, *ppm.DestinationPostalCode, *ppm.PlannedMoveDate, daysInSIT, lhDiscount, sitDiscount)
+	cost, err := re.ComputePPM(unit.Pound(*ppm.WeightEstimate), *ppm.PickupPostalCode, *ppm.DestinationPostalCode, *ppm.OriginalMoveDate, daysInSIT, lhDiscount, sitDiscount)
 	if err != nil {
 		return err
 	}

@@ -169,8 +169,8 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 
 	personallyProcuredMoves := []models.PersonallyProcuredMove{
 		{
-			PlannedMoveDate: &pickupDate,
-			Status:          models.PPMStatusPAYMENTREQUESTED,
+			OriginalMoveDate: &pickupDate,
+			Status:           models.PPMStatusPAYMENTREQUESTED,
 		},
 	}
 	ssd := models.ShipmentSummaryFormData{
