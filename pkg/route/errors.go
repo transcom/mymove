@@ -103,15 +103,6 @@ func NewUnknownAddressLookupError(statusCode int, a *models.Address) Error {
 	}
 }
 
-// NewPostalCodeLookupError returns an error for failed postal code lookups
-func NewPostalCodeLookupError(statusCode int, postalCode string) Error {
-	return &responseError{
-		BaseError{UnsupportedPostalCode},
-		statusCode,
-		postalCode,
-	}
-}
-
 type geocodeResponseDecodingError struct {
 	BaseError
 	response GeocodeResponseBody
