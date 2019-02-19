@@ -25,18 +25,18 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
 	sitZip3 := rateengine.Zip5ToZip3(params.DestinationZip)
 	cwtWeight := unit.Pound(params.WeightEstimate).ToCWT()
-	plannedMoveDateTime := time.Time(params.PlannedMoveDate)
+	originalMoveDateTime := time.Time(params.OriginalMoveDate)
 
 	_, sitDiscount, err := models.PPMDiscountFetch(h.DB(),
 		h.Logger(),
 		params.OriginZip,
 		params.DestinationZip,
-		time.Time(params.PlannedMoveDate),
+		time.Time(params.OriginalMoveDate),
 	)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	sitTotal, err := engine.SitCharge(cwtWeight, int(params.DaysInStorage), sitZip3, plannedMoveDateTime, true)
+	sitTotal, err := engine.SitCharge(cwtWeight, int(params.DaysInStorage), sitZip3, originalMoveDateTime, true)
 
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)

@@ -40,7 +40,7 @@ export async function UpdatePpm(
 export async function GetPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate) {
   const client = await getClient();
   const response = await client.apis.ppm.showPPMEstimate({
-    planned_move_date: formatDateString(moveDate),
+    original_move_date: formatDateString(moveDate),
     origin_zip: originZip,
     destination_zip: destZip,
     weight_estimate: weightEstimate,
@@ -52,7 +52,7 @@ export async function GetPpmWeightEstimate(moveDate, originZip, destZip, weightE
 export async function GetPpmSitEstimate(moveDate, sitDays, originZip, destZip, weightEstimate) {
   const client = await getClient();
   const response = await client.apis.ppm.showPPMSitEstimate({
-    planned_move_date: formatDateString(moveDate),
+    original_move_date: formatDateString(moveDate),
     days_in_storage: sitDays,
     origin_zip: originZip,
     destination_zip: destZip,

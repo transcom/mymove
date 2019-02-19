@@ -400,8 +400,8 @@ func FormatShipmentPickupDate(shipment Shipment) string {
 
 //FormatPPMPickupDate formats a shipments ActualPickupDate for the Shipment Summary Worksheet
 func FormatPPMPickupDate(ppm PersonallyProcuredMove) string {
-	if ppm.PlannedMoveDate != nil {
-		return FormatDate(*ppm.PlannedMoveDate)
+	if ppm.OriginalMoveDate != nil {
+		return FormatDate(*ppm.OriginalMoveDate)
 	}
 	return ""
 }

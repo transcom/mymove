@@ -415,6 +415,8 @@ fish
 tcsh
 csh
 _Prevention_Cheat_Sheet#Double_Submit_Cookie
+IT-19
+IT-18
 # Put all custom terms BEFORE this comment, lest you end up in an mdspell pain cycle.
  - /usr/local
  - docs/data/tspp-data-creation.md

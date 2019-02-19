@@ -74,12 +74,12 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 	req = suite.AuthenticateRequest(req, user)
 
 	params := ppmop.ShowPPMSitEstimateParams{
-		HTTPRequest:     req,
-		PlannedMoveDate: *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
-		DaysInStorage:   4,
-		OriginZip:       "77901",
-		DestinationZip:  "67401",
-		WeightEstimate:  3000,
+		HTTPRequest:      req,
+		OriginalMoveDate: *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
+		DaysInStorage:    4,
+		OriginZip:        "77901",
+		DestinationZip:   "67401",
+		WeightEstimate:   3000,
 	}
 	// And: ShowPPMSitEstimateHandler is queried
 	showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
@@ -159,12 +159,12 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 	req = suite.AuthenticateRequest(req, user)
 
 	params := ppmop.ShowPPMSitEstimateParams{
-		HTTPRequest:     req,
-		PlannedMoveDate: *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
-		DaysInStorage:   4,
-		OriginZip:       "77901",
-		DestinationZip:  "67401",
-		WeightEstimate:  3000,
+		HTTPRequest:      req,
+		OriginalMoveDate: *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
+		DaysInStorage:    4,
+		OriginZip:        "77901",
+		DestinationZip:   "67401",
+		WeightEstimate:   3000,
 	}
 	// And: ShowPPMSitEstimateHandler is queried
 	showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
@@ -220,12 +220,12 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 	req = suite.AuthenticateRequest(req, user)
 
 	params := ppmop.ShowPPMSitEstimateParams{
-		HTTPRequest:     req,
-		PlannedMoveDate: *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
-		DaysInStorage:   4,
-		OriginZip:       "77901",
-		DestinationZip:  "67401",
-		WeightEstimate:  3000,
+		HTTPRequest:      req,
+		OriginalMoveDate: *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
+		DaysInStorage:    4,
+		OriginZip:        "77901",
+		DestinationZip:   "67401",
+		WeightEstimate:   3000,
 	}
 	// And: ShowPPMSitEstimateHandler is queried
 	showHandler := ShowPPMSitEstimateHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
