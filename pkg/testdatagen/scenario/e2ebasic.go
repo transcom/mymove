@@ -163,7 +163,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Locator: "NOADVC",
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &nextValidMoveDate,
+			OriginalMoveDate: &nextValidMoveDate,
 		},
 		Uploader: loader,
 	})
@@ -2126,7 +2126,7 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &nextValidMoveDate,
-			MoveID:          moveID,
+			MoveID:           moveID,
 		},
 		Uploader: loader,
 	})
@@ -2266,7 +2266,7 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			OriginalMoveDate: &nextValidMoveDate,
-			MoveID:          moveID3,
+			MoveID:           moveID3,
 		},
 		Uploader: loader,
 	})
