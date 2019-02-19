@@ -62,6 +62,15 @@ func (h GetTransportationServiceProviderHandler) Handle(params tspop.GetTranspor
 			handlers.ResponseForError(h.Logger(), err)
 			return tspop.NewGetTransportationServiceProviderBadRequest()
 		}
+	} else if session.IsServiceMember() {
+		shipment, err = models.FetchShipment(h.DB(), session, shipmentID)
+		if err != nil {
+			handlers.ResponseForError(h.Logger(), err)
+			return tspop.NewGetTransportationServiceProviderBadRequest()
+		}
+		if session.ServiceMemberID != shipment.ServiceMemberID {
+			return tspop.NewGetTransportationServiceProviderBadRequest()
+		}
 
 	} else {
 		return tspop.NewGetTransportationServiceProviderForbidden()
