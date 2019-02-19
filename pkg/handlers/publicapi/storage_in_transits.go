@@ -266,7 +266,7 @@ func (h DeleteStorageInTransitHandler) Handle(params sitop.DeleteStorageInTransi
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	isUserAuthorized, err := authorizeStorageInTransitRequest(h.DB(), session, shipmentID, true)
+	isUserAuthorized, err := authorizeStorageInTransitRequest(h.DB(), session, shipmentID, false)
 
 	if isUserAuthorized == false {
 		h.Logger().Error("User is unauthorized", zap.Error(err))
