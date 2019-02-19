@@ -129,9 +129,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Locator: "VGHEIS",
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			OriginalMoveDate: &nextValidMoveDate,
-			Advance:          &advance,
-			AdvanceID:        &advance.ID,
+			OriginalMoveDate:    &nextValidMoveDate,
+			Advance:             &advance,
+			AdvanceID:           &advance.ID,
+			HasRequestedAdvance: true,
 		},
 		Uploader: loader,
 	})

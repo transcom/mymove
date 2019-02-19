@@ -31,7 +31,6 @@ func MakePPM(db *pop.Connection, assertions Assertions) models.PersonallyProcure
 		HasSit:                        models.BoolPointer(false),
 		DaysInStorage:                 nil,
 		Status:                        models.PPMStatusDRAFT,
-		HasRequestedAdvance:           true,
 		EstimatedStorageReimbursement: models.StringPointer("estimate sit"),
 	}
 
@@ -52,8 +51,9 @@ func MakeDefaultPPM(db *pop.Connection) models.PersonallyProcuredMove {
 	mustCreate(db, &advance)
 	return MakePPM(db, Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			Advance:   &advance,
-			AdvanceID: &advance.ID,
+			Advance:             &advance,
+			AdvanceID:           &advance.ID,
+			HasRequestedAdvance: true,
 		},
 		Order: models.Order{
 			HasDependents:    true,
