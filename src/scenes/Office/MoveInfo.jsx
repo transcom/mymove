@@ -38,11 +38,7 @@ import {
   selectTariff400ngItems,
   getTariff400ngItemsLabel,
 } from 'shared/Entities/modules/tariff400ngItems';
-import {
-  getAllShipmentLineItems,
-  selectSortedShipmentLineItems,
-  getShipmentLineItemsLabel,
-} from 'shared/Entities/modules/shipmentLineItems';
+import { getAllShipmentLineItems, selectSortedShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { loadPPMs, approvePPM, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { loadServiceMember, loadBackupContacts, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
@@ -164,7 +160,7 @@ class MoveInfo extends Component {
   getAllShipmentInfo = shipmentId => {
     this.props.getTspForShipment(getTspForShipmentLabel, shipmentId);
     this.props.getPublicShipment('Shipments.getPublicShipment', shipmentId);
-    this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, shipmentId);
+    this.props.getAllShipmentLineItems(shipmentId);
     this.props.getAllInvoices(shipmentId);
     this.props.getServiceAgentsForShipment(shipmentId);
   };

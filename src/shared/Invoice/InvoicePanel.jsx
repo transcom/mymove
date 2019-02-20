@@ -10,7 +10,6 @@ import {
   selectUnbilledShipmentLineItems,
   selectTotalFromUnbilledLineItems,
   getAllShipmentLineItems,
-  getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
 import {
   selectSortedInvoices,
@@ -41,14 +40,14 @@ export class InvoicePanel extends PureComponent {
       .createInvoice(this.props.shipmentId)
       .then(() => {
         this.setState({ createInvoiceRequestStatus: isSuccess });
-        return this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.shipmentId);
+        return this.props.getAllShipmentLineItems(this.props.shipmentId);
       })
       .catch(err => {
         this.setState({ createInvoiceRequestStatus: isError });
         let httpResCode = get(err, 'response.status');
         if (httpResCode === 409) {
           this.props.getAllInvoices(this.props.shipmentId);
-          return this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.shipmentId);
+          return this.props.getAllShipmentLineItems(this.props.shipmentId);
         }
       });
   };
