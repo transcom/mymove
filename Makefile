@@ -109,10 +109,8 @@ build_soda: go_deps .build_soda.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
 	touch .build_soda.stamp
 
-build_generate_test_data: go_deps .build_generate_test_data.stamp
-.build_generate_test_data.stamp:
+build_generate_test_data: go_deps
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
-	touch .build_generate_test_data.stamp
 
 build_callgraph: go_deps .build_callgraph.stamp
 .build_callgraph.stamp:
@@ -171,10 +169,9 @@ server_run_debug:
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) dlv debug cmd/webserver/main.go
 
-build_tools: bash_version server_deps server_generate
+build_tools: bash_version server_deps server_generate build_generate_test_data
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
-	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
 	go build -i -ldflags "$(LDFLAGS)" -o bin/health_checker ./cmd/health_checker
 	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/demo/iws.go
 	go build -i -ldflags "$(LDFLAGS)" -o bin/load-office-data ./cmd/load_office_data
