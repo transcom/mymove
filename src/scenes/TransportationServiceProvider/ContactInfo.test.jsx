@@ -37,7 +37,8 @@ describe('ContactInfo tests', () => {
     </Provider>,
   );
 
-  it('renders without crashing', () => {
-    expect(wrapper.find('.transportation-service-provider-contact-info').length).toEqual(1);
+  it('renders the correct information', () => {
+    expect(wrapper.contains(transportationServiceProvider.name)).toEqual(true);
+    expect(wrapper.contains(transportationServiceProvider.poc_general_phone)).toEqual(true);
   });
 });

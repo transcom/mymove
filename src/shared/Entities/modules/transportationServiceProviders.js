@@ -25,6 +25,6 @@ export function selectTransportationServiceProviderForShipment(state, shipmentId
   if (transportationServiceProviderId) {
     return selectTspById(state, transportationServiceProviderId);
   } else {
-    return [];
+    return {};
   }
 }

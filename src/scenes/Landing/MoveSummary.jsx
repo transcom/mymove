@@ -581,12 +581,7 @@ export const MoveSummary = props => {
             {hhgStatus !== 'CANCELED' && (
               <TransportationOfficeContactInfo dutyStation={get(orders, 'new_duty_station')} />
             )}
-            {showTsp && (
-              <TransportationServiceProviderContactInfo
-                shipmentId={shipment.id}
-                transportationServiceProviderId={shipment.transportation_service_provider_id}
-              />
-            )}
+            {showTsp && <TransportationServiceProviderContactInfo shipmentId={shipment.id} />}
           </div>
         </div>
       </div>
