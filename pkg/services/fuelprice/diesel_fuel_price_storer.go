@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
@@ -20,13 +21,14 @@ import (
 
 // DieselFuelPriceStorer is a service object to add missing fuel prices to db
 type DieselFuelPriceStorer struct {
-	DB *pop.Connection
+	DB    *pop.Connection
+	Clock clock.Clock
 }
 
 // StoreFuelPrices retrieves data for the months we do not have prices for, calculates them, and adds them to the database
-func (u DieselFuelPriceStorer) StoreFuelPrices() (*validate.Errors, error) {
+func (u DieselFuelPriceStorer) StoreFuelPrices(numMonths int) (*validate.Errors, error) {
 	verrs := &validate.Errors{}
-	missingMonths, err := u.findMissingRecordMonths(u.DB)
+	missingMonths, err := u.findMissingRecordMonths(u.DB, numMonths)
 	if len(missingMonths) < 1 {
 		log.Println("No new values to add to the database")
 		return verrs, nil
@@ -120,7 +122,7 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 	// for each missing month, get the data for that month and add to struct
 
 	client := &http.Client{}
-
+	currentDate := u.Clock.Now()
 	// Do an api query for each month that needs a fuel price record
 	for _, month := range missingMonths {
 		var startDateString string
@@ -129,10 +131,10 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 		startDay := "01"
 		endDay := 28 // this will capture the first Monday or day after holiday whose rates are used for the rate period
 
-		if month <= int(time.Now().Month()) {
-			year = time.Now().Year()
+		if month <= int(currentDate.Month()) {
+			year = currentDate.Year()
 		} else {
-			year = int(time.Now().AddDate(-1, 0, 0).Year())
+			year = int(currentDate.AddDate(-1, 0, 0).Year())
 		}
 		monthString := fmt.Sprintf("%02s", strconv.Itoa(month))
 		startDateString = fmt.Sprintf("%v%v%v", year, monthString, startDay)
@@ -193,9 +195,9 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 	return fuelValues, err
 }
 
-func (u DieselFuelPriceStorer) findMissingRecordMonths(db *pop.Connection) (months []int, err error) {
+func (u DieselFuelPriceStorer) findMissingRecordMonths(db *pop.Connection, numMonths int) (months []int, err error) {
 
-	fuelPrices, err := models.FetchLastTwelveMonthsOfFuelPrices(db)
+	fuelPrices, err := models.FetchMostRecentFuelPrices(db, u.Clock, numMonths)
 	if err != nil {
 		return nil, errors.New("Error fetching fuel prices")
 	}

@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/facebookgo/clock"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -146,16 +147,26 @@ func (suite *ModelSuite) TestMakeFuelEIADieselPriceForDate() {
 	testdatagen.MakeFuelEIADieselPriceForDate(suite.DB(), shipmentDate, assertions)
 }
 
-func (suite *ModelSuite) TestFetchLastTwelveMonthsOfFuelPrices() {
+func (suite *ModelSuite) TestFetchMostRecentFuelPrices() {
 	// Make fuel price records for the last twelve months
-	for month := 0; month < 12; month++ {
+	clock := clock.NewMock()
+	currentTime := clock.Now()
+	for month := 0; month < 15; month++ {
 		var shipmentDate time.Time
-		shipmentDate = time.Now().AddDate(0, -(month - 1), 0)
+
+		shipmentDate = currentTime.AddDate(0, -(month - 1), 0)
 		testdatagen.MakeDefaultFuelEIADieselPriceForDate(suite.DB(), shipmentDate)
 	}
 
-	fuelPrices, err := models.FetchLastTwelveMonthsOfFuelPrices(suite.DB())
+	fuelPrices, err := models.FetchMostRecentFuelPrices(suite.DB(), clock, 12)
 	expectedNumFuelPrices := 12
+	suite.NoError(err)
+	suite.Equal(expectedNumFuelPrices, len(fuelPrices))
+
+	// if the day is after the 15th
+	currentTime = currentTime.Add(time.Hour * 24 * 20)
+	fuelPrices, err = models.FetchMostRecentFuelPrices(suite.DB(), clock, 12)
+	expectedNumFuelPrices = 12
 	suite.NoError(err)
 	suite.Equal(expectedNumFuelPrices, len(fuelPrices))
 	// TODO: another test to make sure earliest and latest month match?

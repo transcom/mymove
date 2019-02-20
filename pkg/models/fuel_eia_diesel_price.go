@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
@@ -42,10 +43,11 @@ func (f FuelEIADieselPrices) String() string {
 	return string(jf)
 }
 
-// FetchLastTwelveMonthsOfFuelPrices queries and fetches all fuel_eia_diesel_prices for past 12 months
-func FetchLastTwelveMonthsOfFuelPrices(dbConnection *pop.Connection) ([]FuelEIADieselPrice, error) {
-	today := time.Now()
-	query := dbConnection.Where("pub_date <= $1 AND pub_date >= $2", time.Now(), today.AddDate(-1, 0, 0))
+// FetchMostRecentFuelPrices queries and fetches all fuel_eia_diesel_prices for past specified number of months
+func FetchMostRecentFuelPrices(dbConnection *pop.Connection, clock clock.Clock, numMonths int) ([]FuelEIADieselPrice, error) {
+	today := clock.Now().UTC()
+	query := dbConnection.Where("pub_date >= $1 AND pub_date <= $2", today.AddDate(0, -numMonths, 0), today)
+	// TODO: what if today's date is before the first Monday/publication date, but in the new month?
 	var fuelPrices []FuelEIADieselPrice
 	err := query.Eager().All(&fuelPrices)
 

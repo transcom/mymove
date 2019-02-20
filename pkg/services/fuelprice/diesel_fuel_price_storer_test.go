@@ -1,10 +1,10 @@
 package fuelprice
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
+	"github.com/facebookgo/clock"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -40,18 +40,20 @@ func TestFuelPriceSuite(t *testing.T) {
 }
 
 func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
+	clock := clock.NewMock()
+	currentDate := clock.Now().AddDate(49, 0, 0)
 	// create fuel prices in db for last 15 months
 	for month := 0; month < 15; month++ {
 		var shipmentDate time.Time
-		shipmentDate = time.Now().AddDate(0, -(month - 1), 0)
+
+		shipmentDate = currentDate.AddDate(40, -(month - 1), 0)
 		testdatagen.MakeDefaultFuelEIADieselPriceForDate(suite.DB(), shipmentDate)
 	}
 	// remove this month's data
 	fuelEIADeiselPrices := []models.FuelEIADieselPrice{}
-
 	queryForThisMonth := suite.DB().RawQuery(
 		"SELECT * FROM fuel_eia_diesel_prices WHERE (DATEPART(year, pub_date) = $1"+
-			"AND DATEPART(month, pub_date = $2))", time.Now().Year(), time.Now().Month())
+			"AND DATEPART(month, pub_date = $2))", currentDate.Year(), currentDate.Month())
 	err := queryForThisMonth.All(&fuelEIADeiselPrices)
 	if err != nil {
 		suite.logger.Error(err.Error())
@@ -65,7 +67,7 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	//remove a different month's data (not next to this month)
 	queryForPriorMonth := suite.DB().RawQuery(
 		"SELECT * FROM fuel_eia_diesel_prices WHERE (DATEPART(yy, pub_date) = $1"+
-			"AND DATEPART(mm, pub_date = $2))", time.Now().AddDate(0, -5, 0).Year(), time.Now().AddDate(0, -5, 0).Month())
+			"AND DATEPART(mm, pub_date = $2))", currentDate.AddDate(0, -5, 0).Year(), currentDate.AddDate(0, -5, 0).Month())
 	err = queryForPriorMonth.All(&fuelEIADeiselPrices)
 	if err != nil {
 		suite.logger.Error(err.Error())
@@ -77,7 +79,8 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	}
 
 	// run the function
-	verrs, err := DieselFuelPriceStorer{DB: suite.DB()}.StoreFuelPrices()
+	numMonthsToVerify := 12
+	verrs, err := DieselFuelPriceStorer{DB: suite.DB(), Clock: clock}.StoreFuelPrices(numMonthsToVerify)
 	suite.NoError(err, "error when creating invoice")
 	suite.Empty(verrs.Errors, "validation error when creating diesel prices")
 
