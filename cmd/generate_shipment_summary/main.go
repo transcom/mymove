@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
@@ -20,6 +21,9 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
 )
+
+// hereRequestTimeout is how long to wait on HERE request before timing out (15 seconds).
+const hereRequestTimeout = time.Duration(15) * time.Second
 
 func noErr(err error) {
 	if err != nil {
@@ -68,7 +72,8 @@ func main() {
 	routingEndpoint := os.Getenv("HERE_MAPS_ROUTING_ENDPOINT")
 	testAppID := os.Getenv("HERE_MAPS_APP_ID")
 	testAppCode := os.Getenv("HERE_MAPS_APP_CODE")
-	planner := route.NewHEREPlanner(logger, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
+	hereClient := &http.Client{Timeout: hereRequestTimeout}
+	planner := route.NewHEREPlanner(logger, hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
 	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(db, &auth.Session{}, parsedID)
 	if err != nil {
 		log.Fatalf("Error fetching worksheet data %v", err)
