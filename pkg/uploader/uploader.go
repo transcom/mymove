@@ -41,10 +41,10 @@ func (u *Uploader) SetUploadStorageKey(key string) {
 	u.UploadStorageKey = key
 }
 
-// CreateUpload creates a new Upload by performing validations, storing the specified
+// CreateUploadForDocument creates a new Upload by performing validations, storing the specified
 // file using the supplied storer, and saving an Upload object to the database containing
 // the file's metadata.
-func (u *Uploader) CreateUpload(documentID *uuid.UUID, userID uuid.UUID, file afero.File, allowedTypes AllowedFileTypes) (*models.Upload, *validate.Errors, error) {
+func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UUID, file afero.File, allowedTypes AllowedFileTypes) (*models.Upload, *validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
@@ -93,7 +93,7 @@ func (u *Uploader) CreateUpload(documentID *uuid.UUID, userID uuid.UUID, file af
 		newUpload.StorageKey = u.UploadStorageKey
 	}
 
-	u.db.Transaction(func(db *pop.Connection) error {
+	err = u.db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
 		verrs, err := db.ValidateAndCreate(newUpload)
@@ -114,15 +114,17 @@ func (u *Uploader) CreateUpload(documentID *uuid.UUID, userID uuid.UUID, file af
 
 		u.logger.Info("created an upload with id and key ", zap.Any("new_upload_id", newUpload.ID), zap.String("key", newUpload.StorageKey))
 		return nil
-
 	})
+	if err != nil {
+		return nil, responseVErrors, errors.Wrap(err, "could not create upload")
+	}
 
 	return newUpload, responseVErrors, responseError
 }
 
-// CreateUploadNoDocument stores Upload but does not create a Document
-func (u *Uploader) CreateUploadNoDocument(userID uuid.UUID, aFile *afero.File, allowedFileTypes AllowedFileTypes) (*models.Upload, *validate.Errors, error) {
-	return u.CreateUpload(nil, userID, *aFile, allowedFileTypes)
+// CreateUpload stores Upload but does not assign a Document
+func (u *Uploader) CreateUpload(userID uuid.UUID, aFile *afero.File, allowedFileTypes AllowedFileTypes) (*models.Upload, *validate.Errors, error) {
+	return u.CreateUploadForDocument(nil, userID, *aFile, allowedFileTypes)
 }
 
 // PresignedURL returns a URL that can be used to access an Upload's file.

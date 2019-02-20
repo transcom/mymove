@@ -43,19 +43,19 @@ func (suite *PaperworkSuite) setupOrdersDocument() (*Generator, models.Order) {
 	file, err := suite.openLocalFile("testdata/orders1.jpg", generator.fs)
 	suite.FatalNil(err)
 
-	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesAny)
+	_, _, err = suite.uploader.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesAny)
 	suite.FatalNil(err)
 
 	file, err = suite.openLocalFile("testdata/orders1.pdf", generator.fs)
 	suite.FatalNil(err)
 
-	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesAny)
+	_, _, err = suite.uploader.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesAny)
 	suite.FatalNil(err)
 
 	file, err = suite.openLocalFile("testdata/orders2.jpg", generator.fs)
 	suite.FatalNil(err)
 
-	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesAny)
+	_, _, err = suite.uploader.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesAny)
 	suite.FatalNil(err)
 
 	err = suite.DB().Load(&document, "Uploads")

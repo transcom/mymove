@@ -652,7 +652,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	}
 
 	uploader := uploaderpkg.NewUploader(h.DB(), h.Logger(), h.FileStorer())
-	upload, verrs, err := uploader.CreateUpload(nil, *tspUser.UserID, gblFile, uploaderpkg.AllowedTypesPDF)
+	upload, verrs, err := uploader.CreateUploadForDocument(nil, *tspUser.UserID, gblFile, uploaderpkg.AllowedTypesPDF)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
