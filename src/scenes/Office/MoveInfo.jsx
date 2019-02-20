@@ -97,14 +97,7 @@ const PPMTabContent = props => {
 
 const HHGTabContent = props => {
   let shipmentStatus = '';
-  const {
-    allowHhgInvoicePayment,
-    canApprovePaymentInvoice,
-    moveId,
-    serviceAgents,
-    shipment,
-    updatePublicShipment,
-  } = props;
+  const { canApprovePaymentInvoice, moveId, serviceAgents, shipment, updatePublicShipment } = props;
   if (shipment) {
     shipmentStatus = shipment.status;
   }
@@ -122,12 +115,7 @@ const HHGTabContent = props => {
         transportationServiceProviderId={shipment.transportation_service_provider_id}
       />
       <PreApprovalPanel shipmentId={shipment.id} />
-      <InvoicePanel
-        shipmentId={shipment.id}
-        shipmentStatus={shipmentStatus}
-        canApprove={canApprovePaymentInvoice}
-        allowPayments={allowHhgInvoicePayment}
-      />
+      <InvoicePanel shipmentId={shipment.id} shipmentStatus={shipmentStatus} canApprove={canApprovePaymentInvoice} />
     </div>
   );
 };
@@ -233,7 +221,6 @@ class MoveInfo extends Component {
     const pathnames = this.props.location.pathname.split('/');
     const currentTab = pathnames[pathnames.length - 1];
     const showDocumentViewer = this.props.context.flags.documentViewer;
-    const allowHhgInvoicePayment = this.props.context.flags.allowHhgInvoicePayment;
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
     const ordersComplete = Boolean(
       orders.orders_number && orders.orders_type_detail && orders.department_indicator && orders.tac,
@@ -340,7 +327,6 @@ class MoveInfo extends Component {
                 <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   {this.props.shipment && (
                     <HHGTabContent
-                      allowHhgInvoicePayment={allowHhgInvoicePayment}
                       canApprovePaymentInvoice={hhgDelivered}
                       moveId={this.props.moveId}
                       serviceAgents={this.props.serviceAgents}

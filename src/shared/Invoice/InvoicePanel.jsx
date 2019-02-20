@@ -56,7 +56,7 @@ export class InvoicePanel extends PureComponent {
 
   render() {
     // For now we're only allowing one invoice to be generated
-    const allowPayments = this.props.allowPayments && (!this.props.invoices || !this.props.invoices.length);
+    const allowPayments = !this.props.invoices || !this.props.invoices.length;
     const hasUnbilled = Boolean(get(this.props, 'unbilledShipmentLineItems.length'));
     const hasInvoices = Boolean(get(this.props, 'invoices.length'));
     return (
