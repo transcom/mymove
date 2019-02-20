@@ -634,6 +634,10 @@ func UpsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineIt
 				return responseVErrors, responseError
 			}
 		}
+		if baseParams.Quantity1 == nil {
+			quantity1 := unit.BaseQuantityFromInt(0)
+			baseParams.Quantity1 = &quantity1
+		}
 	} else if baseParams.Quantity1 == nil {
 		// General pre-approval request
 		// Check if base quantity is filled out
