@@ -6,7 +6,7 @@ import { getClient } from 'shared/Swagger/api';
 import { get } from 'lodash';
 
 export const STATE_KEY = 'orders';
-const loadOrdersLabel = 'Orders.loadOrders';
+export const loadOrdersLabel = 'Orders.loadOrders';
 const updateOrdersLabel = 'Orders.updateOrders';
 
 export default function reducer(state = {}, action) {
