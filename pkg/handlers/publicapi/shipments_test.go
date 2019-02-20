@@ -13,7 +13,6 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"github.com/gofrs/uuid"
 	"github.com/transcom/mymove/pkg/auth"
 
 	"github.com/transcom/mymove/pkg/gen/apimessages"
@@ -164,10 +163,8 @@ func (suite *HandlerSuite) TestGetShipmentHandlerWhereSessionServiceMemberIDDoes
 	response := handler.Handle(params)
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	sessionID, _ := uuid.NewV4()
-	session.ServiceMemberID = sessionID
 
-	suite.NotEqual(sessionID, shipment.ServiceMemberID)
+	suite.NotEqual(session.ServiceMemberID, shipment.ServiceMemberID)
 	suite.Assertions.IsType(&shipmentop.GetShipmentForbidden{}, response)
 }
 

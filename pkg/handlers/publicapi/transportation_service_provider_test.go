@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-openapi/strfmt"
 
-	"github.com/gofrs/uuid"
 	"github.com/transcom/mymove/pkg/auth"
 
 	tspop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/transportation_service_provider"
@@ -65,9 +64,7 @@ func (suite *HandlerSuite) TestGetTransportationHandlerWhereSessionServiceMember
 	response := handler.Handle(params)
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	sessionID, _ := uuid.NewV4()
-	session.ServiceMemberID = sessionID
 
-	suite.NotEqual(sessionID, shipment.ServiceMemberID)
+	suite.NotEqual(session.ServiceMemberID, shipment.ServiceMemberID)
 	suite.Assertions.IsType(&tspop.GetTransportationServiceProviderBadRequest{}, response)
 }
