@@ -31,6 +31,7 @@ import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
 
+import { getRequestStatus } from 'shared/Swagger/selectors';
 import {
   getAllTariff400ngItems,
   selectTariff400ngItems,
@@ -42,9 +43,9 @@ import {
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
-import { approvePPM, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
-import { selectServiceMember } from 'shared/Entities/modules/serviceMembers';
-import { selectMove } from 'shared/Entities/modules/moves';
+import { loadPPMs, approvePPM, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
+import { loadServiceMember, loadBackupContacts, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
+import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
 import {
   getPublicShipment,
   updatePublicShipment,
@@ -56,8 +57,8 @@ import {
 import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
 
-import { loadMoveDependencies, showBanner, removeBanner } from './ducks';
-import { selectMoveStatus, approveBasics, cancelMove } from 'shared/Entities/modules/moves';
+import { showBanner, removeBanner } from './ducks';
+import { loadMove, selectMove, selectMoveStatus, approveBasics, cancelMove } from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
@@ -139,14 +140,22 @@ class MoveInfo extends Component {
 
   componentDidMount() {
     const { moveId } = this.props;
-    this.props.loadMoveDependencies(moveId);
+    this.props.loadMove(moveId);
     this.props.getMoveDocumentsForMove(moveId);
     this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
+    this.props.loadPPMs(moveId);
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.shipmentId !== prevProps.shipmentId) {
-      this.getAllShipmentInfo(this.props.shipmentId);
+    const { loadBackupContacts, loadOrders, loadServiceMember, ordersId, serviceMemberId, shipmentId } = this.props;
+    // Once we can get one of the ids, they all should be present
+    if (ordersId !== prevProps.ordersId) {
+      loadOrders(ordersId);
+      loadServiceMember(serviceMemberId);
+      loadBackupContacts(serviceMemberId);
+      if (shipmentId) {
+        this.getAllShipmentInfo(shipmentId);
+      }
     }
   }
 
@@ -463,7 +472,7 @@ MoveInfo.defaultProps = {
 };
 
 MoveInfo.propTypes = {
-  loadMoveDependencies: PropTypes.func.isRequired,
+  loadMove: PropTypes.func.isRequired,
   context: PropTypes.shape({
     flags: PropTypes.shape({ documentViewer: PropTypes.bool }).isRequired,
   }).isRequired,
@@ -474,23 +483,29 @@ const mapStateToProps = (state, ownProps) => {
   const move = selectMove(state, moveId);
   const shipmentId = get(move, 'shipments.0.id');
   const ppm = selectPPMForMove(state, moveId);
-  const orders = get(state, `entities.orders.${move.orders_id}`, {});
-  const serviceMember = selectServiceMember(state, orders.service_member_id);
+  const ordersId = move.orders_id;
+  const orders = selectOrders(state, ordersId);
+  const serviceMemberId = move.service_member_id;
+  const serviceMember = selectServiceMember(state, serviceMemberId);
+  const loadOrdersStatus = getRequestStatus(state, loadOrdersLabel);
+
   return {
     approveMoveHasError: get(state, 'office.moveHasApproveError'),
     errorMessage: get(state, 'office.error'),
-    loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
-    loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
+    loadDependenciesHasError: loadOrdersStatus.error,
+    loadDependenciesHasSuccess: loadOrdersStatus.isSuccess,
     moveDocuments: selectAllDocumentsForMove(state, moveId),
     ppm,
     move,
     moveId,
     moveStatus: selectMoveStatus(state, moveId),
     orders,
+    ordersId,
     officeShipment: get(state, 'office.officeShipment', {}),
     ppmAdvance: selectReimbursement(state, ppm.advance),
     serviceAgents: selectServiceAgentsForShipment(state, shipmentId),
     serviceMember,
+    serviceMemberId,
     shipment: selectShipment(state, shipmentId),
     shipmentId,
     shipmentLineItems: selectSortedShipmentLineItems(state),
@@ -506,7 +521,6 @@ const mapDispatchToProps = dispatch =>
     {
       getPublicShipment,
       updatePublicShipment,
-      loadMoveDependencies,
       getMoveDocumentsForMove,
       approveBasics,
       approvePPM,
@@ -520,6 +534,11 @@ const mapDispatchToProps = dispatch =>
       getServiceAgentsForShipment,
       showBanner,
       removeBanner,
+      loadMove,
+      loadPPMs,
+      loadServiceMember,
+      loadBackupContacts,
+      loadOrders,
     },
     dispatch,
   );
