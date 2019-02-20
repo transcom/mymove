@@ -17,8 +17,8 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import {
   getAllShipmentDocuments,
   selectShipmentDocuments,
-  getShipmentDocumentsLabel,
   generateGBL,
+  generateGBLLabel,
 } from 'shared/Entities/modules/shipmentDocuments';
 import {
   getAllTariff400ngItems,
@@ -65,8 +65,6 @@ import PremoveSurveyForm from './PremoveSurveyForm';
 import ServiceAgentForm from './ServiceAgentForm';
 
 import './tsp.css';
-
-const generateGblLabel = 'Shipments.createGovBillOfLading';
 
 const attachmentsErrorMessages = {
   400: 'An error occurred',
@@ -136,7 +134,7 @@ class ShipmentInfo extends Component {
       .then(() => {
         const shipmentId = this.props.shipment.id;
         this.props.getTspForShipment(getTspForShipmentLabel, shipmentId);
-        this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, shipmentId);
+        this.props.getAllShipmentDocuments(shipmentId);
         this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
         this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, shipmentId);
         this.props.getAllInvoices(shipmentId);
@@ -155,7 +153,7 @@ class ShipmentInfo extends Component {
   };
 
   generateGBL = () => {
-    return this.props.generateGBL(generateGblLabel, this.props.shipment.id);
+    return this.props.generateGBL(this.props.shipment.id);
   };
 
   enterPreMoveSurvey = values => {
@@ -479,9 +477,9 @@ const mapStateToProps = state => {
     loadTspDependenciesHasSuccess: get(state, 'tsp.loadTspDependenciesHasSuccess'),
     loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
     acceptError: get(state, 'tsp.shipmentHasAcceptError'),
-    generateGBLSuccess: getLastRequestIsSuccess(state, generateGblLabel),
     generateGBLError: get(state, 'tsp.generateGBLError'),
-    generateGBLInProgress: getLastRequestIsLoading(state, generateGblLabel),
+    generateGBLInProgress: getLastRequestIsLoading(state, generateGBLLabel),
+    generateGBLSuccess: getLastRequestIsSuccess(state, generateGBLLabel),
     gblDocUrl: `/shipments/${shipment.id}/documents/${get(gbl, 'id')}`,
     error: get(state, 'tsp.error'),
     shipmentSchema: get(state, 'swaggerPublic.spec.definitions.Shipment', {}),
