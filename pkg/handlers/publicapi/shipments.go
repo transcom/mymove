@@ -2,10 +2,11 @@ package publicapi
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/transcom/mymove/pkg/services"
 	"net/http"
 	"time"
+
+	"github.com/pkg/errors"
+	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
@@ -24,6 +25,18 @@ import (
 	shipmentservice "github.com/transcom/mymove/pkg/services/shipment"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
+
+func payloadForDistanceCalculationModel(d models.DistanceCalculation) *apimessages.DistanceCalculation {
+	if d.ID == uuid.Nil {
+		return nil
+	}
+
+	return &apimessages.DistanceCalculation{
+		OriginAddress:      payloadForAddressModel(&d.OriginAddress),
+		DestinationAddress: payloadForAddressModel(&d.DestinationAddress),
+		DistanceMiles:      int64(d.DistanceMiles),
+	}
+}
 
 func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 	shipmentpayload := &apimessages.Shipment{
@@ -73,6 +86,9 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		NetWeight:                   handlers.FmtPoundPtr(s.NetWeight),
 		GrossWeight:                 handlers.FmtPoundPtr(s.GrossWeight),
 		TareWeight:                  handlers.FmtPoundPtr(s.TareWeight),
+
+		// distance
+		ShippingDistance: payloadForDistanceCalculationModel(s.ShippingDistance),
 
 		// pre-move survey
 		PmSurveyConductedDate:               handlers.FmtDatePtr(s.PmSurveyConductedDate),
@@ -328,11 +344,12 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 	}
 
 	actualDeliveryDate := (time.Time)(*params.Payload.ActualDeliveryDate)
-	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
+	engine := rateengine.NewRateEngine(h.DB(), h.Logger())
 
 	verrs, err := shipmentservice.DeliverAndPriceShipment{
-		DB:     h.DB(),
-		Engine: engine,
+		DB:      h.DB(),
+		Engine:  engine,
+		Planner: h.Planner(),
 	}.Call(actualDeliveryDate, shipment)
 
 	if err != nil || verrs.HasAny() {
