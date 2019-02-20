@@ -19,7 +19,7 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusAWARDED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
 	suite.NoError(err)
 
 	shipment := shipments[0]
@@ -85,7 +85,7 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusAWARDED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
 	suite.NoError(err)
 
 	shipment := shipments[0]

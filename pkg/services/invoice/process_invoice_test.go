@@ -114,7 +114,7 @@ func (suite *InvoiceServiceSuite) TestProcessInvoiceCall() {
 }
 
 func helperDeliveredShipment(suite *InvoiceServiceSuite) models.Shipment {
-	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), 1, 1, []int{1}, []models.ShipmentStatus{models.ShipmentStatusDELIVERED})
+	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), 1, 1, []int{1}, []models.ShipmentStatus{models.ShipmentStatusDELIVERED}, models.SelectedMoveTypeHHG)
 	suite.NoError(err)
 
 	shipment := shipments[0]

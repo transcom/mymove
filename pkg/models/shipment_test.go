@@ -178,7 +178,7 @@ func (suite *ModelSuite) TestAcceptShipmentForTSP() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []ShipmentStatus{ShipmentStatusAWARDED}
-	tspUsers, shipments, shipmentOffers, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, shipmentOffers, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, SelectedMoveTypeHHG)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]

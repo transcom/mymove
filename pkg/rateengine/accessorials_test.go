@@ -13,7 +13,7 @@ func (suite *RateEngineSuite) createShipmentWithServiceArea() models.Shipment {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusDELIVERED}
-	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
 	suite.NoError(err)
 
 	return shipments[0]

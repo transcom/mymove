@@ -9,7 +9,7 @@ import (
 func (suite *RateEngineSuite) TestCreateBaseShipmentLineItems() {
 	engine := NewRateEngine(suite.DB(), suite.logger)
 
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), 1, 1, []int{1}, []models.ShipmentStatus{models.ShipmentStatusINTRANSIT})
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), 1, 1, []int{1}, []models.ShipmentStatus{models.ShipmentStatusINTRANSIT}, models.SelectedMoveTypeHHG)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]

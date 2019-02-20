@@ -17,7 +17,7 @@ func (suite *HandlerSuite) TestGetTransportationServiceProviderHandler() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
