@@ -1424,6 +1424,9 @@ definitions:
         enum:
           - D
           - '2'
+        x-display-value:
+          D: D
+          '2': '2'
     required:
       - source_rate_area
       - destination_region
