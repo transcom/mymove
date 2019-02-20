@@ -46,19 +46,30 @@ type AllowedFileTypes []string
 
 var (
 	// AllowedTypesServiceMember are the content types we allow service members to upload
-	AllowedTypesServiceMember AllowedFileTypes = []string{"image/jpeg", "image/png", "application/pdf", "text/plain", "text/plain; charset=utf-8"}
+	AllowedTypesServiceMember AllowedFileTypes = []string{"image/jpeg", "image/png", "application/pdf"}
 
 	// AllowedTypesText accepts text files
-	AllowedTypesText AllowedFileTypes = []string{}
+	AllowedTypesText AllowedFileTypes = []string{"text/plain", "text/plain; charset=utf-8"}
 
 	// AllowedTypesPDF accepts PDF files
-	AllowedTypesPDF AllowedFileTypes = []string{}
+	AllowedTypesPDF AllowedFileTypes = []string{"application/pdf"}
+
+	// AllowedTypesAny accepts any file type
+	AllowedTypesAny AllowedFileTypes = []string{"*"}
 )
+
+// AllowsAny returned true if any file type is acceptable
+func (aft AllowedFileTypes) AllowsAny() bool {
+	if len(aft) == 1 && aft[0] == "*" {
+		return true
+	}
+	return false
+}
 
 // CreateUpload creates a new Upload by performing validations, storing the specified
 // file using the supplied storer, and saving an Upload object to the database containing
 // the file's metadata.
-func (u *Uploader) CreateUpload(documentID *uuid.UUID, userID uuid.UUID, file afero.File) (*models.Upload, *validate.Errors, error) {
+func (u *Uploader) CreateUpload(documentID *uuid.UUID, userID uuid.UUID, file afero.File, allowedTypes AllowedFileTypes) (*models.Upload, *validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
@@ -77,12 +88,13 @@ func (u *Uploader) CreateUpload(documentID *uuid.UUID, userID uuid.UUID, file af
 		return nil, responseVErrors, err
 	}
 
-	allowedTypes := AllowedTypesServiceMember
-	validator := models.NewStringInList(contentType, "ContentType", allowedTypes)
-	validator.IsValid(responseVErrors)
-	if responseVErrors.HasAny() {
-		u.logger.Error("Invalid content type for upload: %s", zap.String("ContentType", contentType))
-		return nil, responseVErrors, nil
+	if !allowedTypes.AllowsAny() {
+		validator := models.NewStringInList(contentType, "ContentType", allowedTypes)
+		validator.IsValid(responseVErrors)
+		if responseVErrors.HasAny() {
+			u.logger.Error("Invalid content type for upload", zap.String("Filename", file.Name()), zap.String("ContentType", contentType))
+			return nil, responseVErrors, nil
+		}
 	}
 
 	checksum, err := storage.ComputeChecksum(file)
@@ -136,8 +148,8 @@ func (u *Uploader) CreateUpload(documentID *uuid.UUID, userID uuid.UUID, file af
 }
 
 // CreateUploadNoDocument stores Upload but does not create a Document
-func (u *Uploader) CreateUploadNoDocument(userID uuid.UUID, aFile *afero.File) (*models.Upload, *validate.Errors, error) {
-	return u.CreateUpload(nil, userID, *aFile)
+func (u *Uploader) CreateUploadNoDocument(userID uuid.UUID, aFile *afero.File, allowedFileTypes AllowedFileTypes) (*models.Upload, *validate.Errors, error) {
+	return u.CreateUpload(nil, userID, *aFile, allowedFileTypes)
 }
 
 // PresignedURL returns a URL that can be used to access an Upload's file.
