@@ -77,7 +77,7 @@ func (h GetTransportationServiceProviderHandler) Handle(params tspop.GetTranspor
 	}
 
 	transportationServiceProviderID := shipment.CurrentTransportationServiceProviderID()
-	if &transportationServiceProviderID == nil {
+	if transportationServiceProviderID == uuid.Nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
