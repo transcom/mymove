@@ -373,7 +373,7 @@ func dateForComparison(previousValue, newValue *time.Time) (value time.Time, val
 }
 
 func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.PersonallyProcuredMove) error {
-	re := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
+	re := rateengine.NewRateEngine(h.DB(), h.Logger())
 	daysInSIT := 0
 	if ppm.HasSit != nil && *ppm.HasSit && ppm.DaysInStorage != nil {
 		daysInSIT = int(*ppm.DaysInStorage)
@@ -397,7 +397,12 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 		ppm.EstimatedStorageReimbursement = &reimbursementString
 	}
 
-	cost, err := re.ComputePPM(unit.Pound(*ppm.WeightEstimate), *ppm.PickupPostalCode, *ppm.DestinationPostalCode, *ppm.OriginalMoveDate, daysInSIT, lhDiscount, sitDiscount)
+	distanceMiles, err := h.Planner().Zip5TransitDistance(*ppm.PickupPostalCode, *ppm.DestinationPostalCode)
+	if err != nil {
+		return err
+	}
+
+	cost, err := re.ComputePPM(unit.Pound(*ppm.WeightEstimate), *ppm.PickupPostalCode, *ppm.DestinationPostalCode, distanceMiles, *ppm.OriginalMoveDate, daysInSIT, lhDiscount, sitDiscount)
 	if err != nil {
 		return err
 	}

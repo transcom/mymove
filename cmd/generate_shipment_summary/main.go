@@ -73,10 +73,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error fetching worksheet data %v", err)
 	}
-	engine := rateengine.NewRateEngine(db, logger, planner)
+	engine := rateengine.NewRateEngine(db, logger)
 	var firstPPM models.PersonallyProcuredMove
 	if len(ssfd.PersonallyProcuredMoves) > 0 {
 		firstPPM = ssfd.PersonallyProcuredMoves[0]
+	}
+	distanceMiles, err := planner.Zip5TransitDistance(*firstPPM.PickupPostalCode, *firstPPM.DestinationPostalCode)
+	if err != nil {
+		log.Fatalf("Error calculating distance %v", err)
 	}
 	if firstPPM.PickupPostalCode != nil &&
 		firstPPM.DestinationPostalCode != nil &&
@@ -85,6 +89,7 @@ func main() {
 			unit.Pound(ssfd.TotalWeightAllotment),
 			*firstPPM.PickupPostalCode,
 			*firstPPM.DestinationPostalCode,
+			distanceMiles,
 			*firstPPM.OriginalMoveDate,
 			0, 0,
 		)

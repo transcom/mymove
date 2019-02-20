@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -227,6 +228,15 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			shipment.NetWeight = shipment.WeightEstimate
 
 			tariffDataShipment = &shipment
+
+			distanceCalc, _ := models.NewDistanceCalculation(
+				route.NewTestingPlanner(1044),
+				*shipment.PickupAddress,
+				shipment.Move.Orders.NewDutyStation.Address)
+			mustSave(db, &distanceCalc)
+
+			shipment.ShippingDistance = distanceCalc
+			shipment.ShippingDistanceID = &distanceCalc.ID
 		}
 
 		if shipmentStatus == models.ShipmentStatusDELIVERED {
