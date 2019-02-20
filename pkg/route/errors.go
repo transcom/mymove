@@ -30,25 +30,25 @@ type Error interface {
 	Code() ErrorCode
 }
 
-// BaseError contains basic route error functionality
-type BaseError struct {
+// baseError contains basic route error functionality
+type baseError struct {
 	code ErrorCode
 }
 
 // Code returns the error code enum
-func (b *BaseError) Code() ErrorCode {
+func (b *baseError) Code() ErrorCode {
 	return b.code
 }
 
 type unsupportedPostalCode struct {
-	BaseError
+	baseError
 	postalCode string
 }
 
 // NewUnsupportedPostalCodeError creates a new UnsupportedPostalCode error.
 func NewUnsupportedPostalCodeError(postalCode string) Error {
 	return &unsupportedPostalCode{
-		BaseError{UnsupportedPostalCode},
+		baseError{UnsupportedPostalCode},
 		postalCode,
 	}
 }
@@ -58,7 +58,7 @@ func (e *unsupportedPostalCode) Error() string {
 }
 
 type responseError struct {
-	BaseError
+	baseError
 	statusCode  int
 	routingInfo string
 }
@@ -70,7 +70,7 @@ func (e *responseError) Error() string {
 // NewUnroutableRouteError creates a new responseError error.
 func NewUnroutableRouteError(statusCode int, source LatLong, dest LatLong) Error {
 	return &responseError{
-		BaseError{UnroutableRoute},
+		baseError{UnroutableRoute},
 		statusCode,
 		fmt.Sprintf("source: (%s), dest: (%s", source.Coords(), dest.Coords()),
 	}
@@ -79,7 +79,7 @@ func NewUnroutableRouteError(statusCode int, source LatLong, dest LatLong) Error
 // NewUnknownRoutingError returns an error for failed postal code lookups
 func NewUnknownRoutingError(statusCode int, source LatLong, dest LatLong) Error {
 	return &responseError{
-		BaseError{UnknownError},
+		baseError{UnknownError},
 		statusCode,
 		fmt.Sprintf("source: (%s), dest: (%s", source.Coords(), dest.Coords()),
 	}
@@ -88,7 +88,7 @@ func NewUnknownRoutingError(statusCode int, source LatLong, dest LatLong) Error 
 // NewAddressLookupError returns a known error for failed address lookups
 func NewAddressLookupError(statusCode int, a *models.Address) Error {
 	return &responseError{
-		BaseError{AddressLookupError},
+		baseError{AddressLookupError},
 		statusCode,
 		fmt.Sprintf(a.LineFormat()),
 	}
@@ -97,14 +97,14 @@ func NewAddressLookupError(statusCode int, a *models.Address) Error {
 // NewUnknownAddressLookupError returns an unknown error for failed address lookups
 func NewUnknownAddressLookupError(statusCode int, a *models.Address) Error {
 	return &responseError{
-		BaseError{UnknownError},
+		baseError{UnknownError},
 		statusCode,
 		fmt.Sprintf(a.LineFormat()),
 	}
 }
 
 type geocodeResponseDecodingError struct {
-	BaseError
+	baseError
 	response GeocodeResponseBody
 }
 
@@ -115,13 +115,13 @@ func (e *geocodeResponseDecodingError) Error() string {
 // NewGeocodeResponseDecodingError creates a new geocodeResponseDecodingError error.
 func NewGeocodeResponseDecodingError(r GeocodeResponseBody) Error {
 	return &geocodeResponseDecodingError{
-		BaseError{GeocodeResponseDecodingError},
+		baseError{GeocodeResponseDecodingError},
 		r,
 	}
 }
 
 type routingResponseDecodingError struct {
-	BaseError
+	baseError
 	response RoutingResponseBody
 }
 
@@ -132,7 +132,7 @@ func (e *routingResponseDecodingError) Error() string {
 // NewRoutingResponseDecodingError creates a new routingResponseDecodingError error.
 func NewRoutingResponseDecodingError(r RoutingResponseBody) Error {
 	return &routingResponseDecodingError{
-		BaseError{RoutingResponseDecodingError},
+		baseError{RoutingResponseDecodingError},
 		r,
 	}
 }
