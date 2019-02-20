@@ -31,7 +31,7 @@ func (suite *ModelSuite) TestPPMAdvance() {
 	SavePersonallyProcuredMove(suite.DB(), ppm)
 	session := auth.Session{
 		UserID:          serviceMember.User.ID,
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 		ServiceMemberID: serviceMember.ID,
 	}
 	fetchedPPM, err := FetchPersonallyProcuredMove(suite.DB(), &session, ppm.ID)

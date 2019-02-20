@@ -34,7 +34,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 		h.Logger(),
 		params.OriginZip,
 		params.DestinationZip,
-		time.Time(params.PlannedMoveDate),
+		time.Time(params.OriginalMoveDate),
 	)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
@@ -49,7 +49,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 		params.OriginZip,
 		params.DestinationZip,
 		distanceMiles,
-		time.Time(params.PlannedMoveDate),
+		time.Time(params.OriginalMoveDate),
 		0, // We don't want any SIT charges
 		lhDiscount,
 		0.0,

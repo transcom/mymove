@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /usr/bin/env bash
 #
 #   Creates and runs a migration task using the given container definition
 #   template, image, and environment.

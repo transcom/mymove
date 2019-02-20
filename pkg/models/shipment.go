@@ -453,10 +453,10 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	db.Transaction(func(connection *pop.Connection) error {
 		transactionError := errors.New("Rollback the transaction")
 
-		verrs, err := SetupAndCreateItemCodePrequiste(connection, &baseParams, &additionalParams, &shipmentLineItem)
+		verrs, err := UpsertItemCodeDependency(connection, &baseParams, &additionalParams, &shipmentLineItem)
 		if verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error setting up item code prequiste: "+baseParams.Tariff400ngItemCode)
+			responseError = errors.Wrap(err, "Error setting up item code dependency: "+baseParams.Tariff400ngItemCode)
 			return transactionError
 		}
 
@@ -491,46 +491,149 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	return &shipmentLineItem, responseVErrors, responseError
 }
 
-// SetupAndCreateItemCodePrequiste applies specific validation and creates additional objects for item codes
-func SetupAndCreateItemCodePrequiste(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+// UpdateShipmentLineItem updates a ShipmentLineItem tied to the Shipment
+func (s *Shipment) UpdateShipmentLineItem(db *pop.Connection, baseParams BaseShipmentLineItemParams, additionalParams AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
 	var responseError error
 	responseVErrors := validate.NewErrors()
 
+	db.Transaction(func(connection *pop.Connection) error {
+		transactionError := errors.New("Rollback the transaction")
+
+		verrs, err := UpsertItemCodeDependency(connection, &baseParams, &additionalParams, shipmentLineItem)
+		if verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error setting up item code dependency: "+baseParams.Tariff400ngItemCode)
+			return transactionError
+		}
+
+		// Non-specified item code
+		shipmentLineItem.Tariff400ngItemID = baseParams.Tariff400ngItemID
+		shipmentLineItem.Quantity1 = unit.BaseQuantity(*baseParams.Quantity1)
+		if baseParams.Quantity2 != nil {
+			shipmentLineItem.Quantity2 = unit.BaseQuantity(*baseParams.Quantity2)
+		}
+		shipmentLineItem.Location = ShipmentLineItemLocation(baseParams.Location)
+		if baseParams.Notes != nil {
+			shipmentLineItem.Notes = *baseParams.Notes
+		}
+		shipmentLineItem.Description = baseParams.Description
+
+		verrs, err = connection.ValidateAndUpdate(shipmentLineItem)
+		if verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error updating shipment line item")
+			return transactionError
+		}
+
+		// Loads line item information
+		err = connection.Load(shipmentLineItem)
+		if err != nil {
+			responseError = errors.Wrap(err, "Error loading shipment line item")
+			return transactionError
+		}
+
+		return nil
+	})
+
+	return responseVErrors, responseError
+}
+
+// CreateShipmentLineItemDimensions creates new item and crate dimensions for shipment line item
+func CreateShipmentLineItemDimensions(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	// save dimensions to shipmentLineItem
+	shipmentLineItem.ItemDimensions = ShipmentLineItemDimensions{
+		Length: unit.ThousandthInches(additionalParams.ItemDimensions.Length),
+		Width:  unit.ThousandthInches(additionalParams.ItemDimensions.Width),
+		Height: unit.ThousandthInches(additionalParams.ItemDimensions.Height),
+	}
+	verrs, err := db.ValidateAndCreate(&shipmentLineItem.ItemDimensions)
+	if verrs.HasAny() || err != nil {
+		responseVErrors.Append(verrs)
+		responseError = errors.Wrap(err, "Error creating item dimensions for shipment line item")
+		return responseVErrors, responseError
+	}
+
+	shipmentLineItem.CrateDimensions = ShipmentLineItemDimensions{
+		Length: unit.ThousandthInches(additionalParams.CrateDimensions.Length),
+		Width:  unit.ThousandthInches(additionalParams.CrateDimensions.Width),
+		Height: unit.ThousandthInches(additionalParams.CrateDimensions.Height),
+	}
+	verrs, err = db.ValidateAndCreate(&shipmentLineItem.CrateDimensions)
+	if verrs.HasAny() || err != nil {
+		responseVErrors.Append(verrs)
+		responseError = errors.Wrap(err, "Error creating crate dimensions for shipment line item")
+		return responseVErrors, responseError
+	}
+
+	shipmentLineItem.ItemDimensionsID = &shipmentLineItem.ItemDimensions.ID
+	shipmentLineItem.CrateDimensionsID = &shipmentLineItem.CrateDimensions.ID
+
+	return responseVErrors, responseError
+}
+
+// UpdateShipmentLineItemDimensions updates existing shipment line item dimensions
+func UpdateShipmentLineItemDimensions(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	// save dimensions to shipmentLineItem
+	shipmentLineItem.ItemDimensions.Length = unit.ThousandthInches(additionalParams.ItemDimensions.Length)
+	shipmentLineItem.ItemDimensions.Width = unit.ThousandthInches(additionalParams.ItemDimensions.Width)
+	shipmentLineItem.ItemDimensions.Height = unit.ThousandthInches(additionalParams.ItemDimensions.Height)
+
+	verrs, err := db.ValidateAndUpdate(&shipmentLineItem.ItemDimensions)
+	if verrs.HasAny() || err != nil {
+		responseVErrors.Append(verrs)
+		responseError = errors.Wrap(err, "Error updating item dimensions for shipment line item")
+		return responseVErrors, responseError
+	}
+
+	shipmentLineItem.CrateDimensions.Length = unit.ThousandthInches(additionalParams.CrateDimensions.Length)
+	shipmentLineItem.CrateDimensions.Width = unit.ThousandthInches(additionalParams.CrateDimensions.Width)
+	shipmentLineItem.CrateDimensions.Height = unit.ThousandthInches(additionalParams.CrateDimensions.Height)
+
+	verrs, err = db.ValidateAndUpdate(&shipmentLineItem.CrateDimensions)
+	if verrs.HasAny() || err != nil {
+		responseVErrors.Append(verrs)
+		responseError = errors.Wrap(err, "Error updating crate dimensions for shipment line item")
+		return responseVErrors, responseError
+	}
+
+	return responseVErrors, responseError
+}
+
+// UpsertItemCodeDependency applies specific validation, creates or updates additional objects/fields for item codes
+func UpsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+	var responseError error
+	responseVErrors := validate.NewErrors()
+	hasDimension := additionalParams.ItemDimensions != nil || additionalParams.CrateDimensions != nil
+
 	// Backwards compatible with "Old school" 105B/E
-	if (baseParams.Tariff400ngItemCode == "105B" || baseParams.Tariff400ngItemCode == "105E") && baseParams.Quantity1 == nil {
+	if (baseParams.Tariff400ngItemCode == "105B" || baseParams.Tariff400ngItemCode == "105E") && hasDimension {
 		//Additional validation check if item and crate dimensions exist
 		if additionalParams.ItemDimensions == nil || additionalParams.CrateDimensions == nil {
 			responseError = errors.New("Must have both item and crate dimensions params for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
 			return responseVErrors, responseError
 		}
 
-		// save dimensions to shipmentLineItem
-		shipmentLineItem.ItemDimensions = ShipmentLineItemDimensions{
-			Length: unit.ThousandthInches(additionalParams.ItemDimensions.Length),
-			Width:  unit.ThousandthInches(additionalParams.ItemDimensions.Width),
-			Height: unit.ThousandthInches(additionalParams.ItemDimensions.Height),
+		if shipmentLineItem.ItemDimensions.ID == uuid.Nil || shipmentLineItem.CrateDimensions.ID == uuid.Nil {
+			verrs, err := CreateShipmentLineItemDimensions(db, baseParams, additionalParams, shipmentLineItem)
+			if verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrap(err, "Error creating shipment line item dimensions")
+				return responseVErrors, responseError
+			}
+		} else {
+			verrs, err := UpdateShipmentLineItemDimensions(db, baseParams, additionalParams, shipmentLineItem)
+			if verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrap(err, "Error updating shipment line item dimensions")
+				return responseVErrors, responseError
+			}
 		}
-		verrs, err := db.ValidateAndCreate(&shipmentLineItem.ItemDimensions)
-		if verrs.HasAny() || err != nil {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error creating item dimensions for shipment line item")
-			return responseVErrors, responseError
-		}
-
-		shipmentLineItem.CrateDimensions = ShipmentLineItemDimensions{
-			Length: unit.ThousandthInches(additionalParams.CrateDimensions.Length),
-			Width:  unit.ThousandthInches(additionalParams.CrateDimensions.Width),
-			Height: unit.ThousandthInches(additionalParams.CrateDimensions.Height),
-		}
-		verrs, err = db.ValidateAndCreate(&shipmentLineItem.CrateDimensions)
-		if verrs.HasAny() || err != nil {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error creating crate dimensions for shipment line item")
-			return responseVErrors, responseError
-		}
-
-		shipmentLineItem.ItemDimensionsID = &shipmentLineItem.ItemDimensions.ID
-		shipmentLineItem.CrateDimensionsID = &shipmentLineItem.CrateDimensions.ID
 
 		// ToDo: For another story
 		/*
@@ -679,7 +782,7 @@ func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Sh
 	if err != nil {
 		return nil, err
 	}
-	if session.IsMyApp() && move.Orders.ServiceMemberID != session.ServiceMemberID {
+	if session.IsMilApp() && move.Orders.ServiceMemberID != session.ServiceMemberID {
 		return nil, ErrFetchForbidden
 	}
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /usr/bin/env bash
 
 ########################################################################################
 # CircleCI's current recommendation for roughly serializing a subset

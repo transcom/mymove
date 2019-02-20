@@ -121,7 +121,7 @@ func (suite *BaseHandlerTestSuite) CheckResponseTeapot(resp middleware.Responder
 // AuthenticateRequest Request authenticated with a service member
 func (suite *BaseHandlerTestSuite) AuthenticateRequest(req *http.Request, serviceMember models.ServiceMember) *http.Request {
 	session := auth.Session{
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 		UserID:          serviceMember.UserID,
 		IDToken:         "fake token",
 		ServiceMemberID: serviceMember.ID,
@@ -140,7 +140,7 @@ func (suite *BaseHandlerTestSuite) AuthenticateRequest(req *http.Request, servic
 // AuthenticateUserRequest only authenticated with a bare user - have no idea if they are a service member yet
 func (suite *BaseHandlerTestSuite) AuthenticateUserRequest(req *http.Request, user models.User) *http.Request {
 	session := auth.Session{
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 		UserID:          user.ID,
 		IDToken:         "fake token",
 	}

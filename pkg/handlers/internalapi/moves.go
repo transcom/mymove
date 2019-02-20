@@ -253,7 +253,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	}
 	if firstPPM.PickupPostalCode != nil &&
 		firstPPM.DestinationPostalCode != nil &&
-		firstPPM.PlannedMoveDate != nil {
+		firstPPM.OriginalMoveDate != nil {
 		distanceMiles, err := h.Planner().Zip5TransitDistance(*firstPPM.PickupPostalCode, *firstPPM.DestinationPostalCode)
 		if err != nil {
 			log.Fatalf("Error calculating distance %v", err)
@@ -263,7 +263,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 			*firstPPM.PickupPostalCode,
 			*firstPPM.DestinationPostalCode,
 			distanceMiles,
-			*firstPPM.PlannedMoveDate,
+			*firstPPM.OriginalMoveDate,
 			0, 0,
 		)
 		ssfd.GCC = cost.GCC

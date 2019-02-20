@@ -11,6 +11,7 @@ export const ppmInfoPacket = '/downloads/ppm_info_sheet.pdf';
 export const hhgInfoPacket = '/downloads/hhg_info_sheet.pdf';
 
 export const hostname = window && window.location && window.location.hostname;
+export const isMilmoveSite = hostname.startsWith('my') || hostname.startsWith('mil') || '';
 export const isOfficeSite = hostname.startsWith('office') || '';
 export const isTspSite = hostname.startsWith('tsp') || '';
 

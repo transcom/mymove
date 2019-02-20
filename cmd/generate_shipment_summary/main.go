@@ -84,13 +84,13 @@ func main() {
 	}
 	if firstPPM.PickupPostalCode != nil &&
 		firstPPM.DestinationPostalCode != nil &&
-		firstPPM.PlannedMoveDate != nil {
+		firstPPM.OriginalMoveDate != nil {
 		cost, err := engine.ComputePPMIncludingLHDiscount(
 			unit.Pound(ssfd.TotalWeightAllotment),
 			*firstPPM.PickupPostalCode,
 			*firstPPM.DestinationPostalCode,
 			distanceMiles,
-			*firstPPM.PlannedMoveDate,
+			*firstPPM.OriginalMoveDate,
 			0, 0,
 		)
 		ssfd.GCC = cost.GCC

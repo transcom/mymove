@@ -69,7 +69,7 @@ describe('HomePage tests', () => {
       const moveObj = { id: 'foo', selected_move_type: 'PPM' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
-        planned_move_date: futureFortNight,
+        original_move_date: futureFortNight,
         weight_estimate: '10000',
         estimated_incentive: '$24665.59 - 27261.97',
       };
@@ -110,7 +110,7 @@ describe('HomePage tests', () => {
         new_duty_station: { id: 'something' },
       };
       const ppmObj = {
-        planned_move_date: futureFortNight,
+        original_move_date: futureFortNight,
         weight_estimate: '10000',
         estimated_incentive: '$24665.59 - 27261.97',
       };

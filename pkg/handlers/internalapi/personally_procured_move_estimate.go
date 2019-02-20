@@ -27,7 +27,7 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 		h.Logger(),
 		params.OriginZip,
 		params.DestinationZip,
-		time.Time(params.PlannedMoveDate),
+		time.Time(params.OriginalMoveDate),
 	)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
@@ -42,7 +42,7 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 		params.OriginZip,
 		params.DestinationZip,
 		distanceMiles,
-		time.Time(params.PlannedMoveDate),
+		time.Time(params.OriginalMoveDate),
 		0, // We don't want any SIT charges
 		lhDiscount,
 		0.0,
