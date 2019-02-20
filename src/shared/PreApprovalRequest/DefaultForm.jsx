@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-export const DefaultDetails = props => {
+export const DefaultForm = props => {
   const { ship_line_item_schema } = props;
   return (
     <Fragment>

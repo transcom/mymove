@@ -86,12 +86,53 @@ export class PreApprovalRequest extends Component {
     // We don't want the user clicking delete more than once
     this.setState({ showDeleteForm: false });
   };
+
+  getDefaultDetails() {
+    const row = this.props.shipmentLineItem;
+    return (
+      <td align="left">
+        {formatFromBaseQuantity(row.quantity_1)} <br />
+        {row.notes}
+      </td>
+    );
+  }
+
+  get105Details() {
+    const row = this.props.shipmentLineItem;
+    let crateLengthinInches = convertFromThousandthInchToInch(row.crate_dimensions.length);
+    let crateWidthinInches = convertFromThousandthInchToInch(row.crate_dimensions.width);
+    let crateHeightinInches = convertFromThousandthInchToInch(row.crate_dimensions.height);
+    let itemLengthinInches = convertFromThousandthInchToInch(row.item_dimensions.length);
+    let itemWidthinInches = convertFromThousandthInchToInch(row.item_dimensions.width);
+    let itemHeightinInches = convertFromThousandthInchToInch(row.item_dimensions.height);
+    let crateCubicFeet = displayBaseQuantityUnits(row);
+
+    let createDetails = `Crate: ${crateLengthinInches}" x ${crateWidthinInches}" x ${crateHeightinInches}" (${crateCubicFeet})`;
+    let ItemDetails = `Item: ${itemLengthinInches}" x ${itemWidthinInches}" x ${itemHeightinInches}"`;
+    return (
+      <td>
+        {row.description} <br />
+        {createDetails} <br />
+        {ItemDetails}
+      </td>
+    );
+  }
+
+  getDetailsComponent() {
+    const row = this.props.shipmentLineItem;
+    const robustAccessorial = get(this.props, 'context.flags.robustAccessorial', false);
+    return (row.tariff400ng_item.code === '105B' || row.tariff400ng_item.code === '105E') &&
+      robustAccessorial &&
+      isNewAccessorial(row)
+      ? this.get105Details()
+      : this.getDefaultDetails();
+  }
+
   render() {
     const row = this.props.shipmentLineItem;
     const hasInvoice = Boolean(row.invoice_id);
     const isShowingForm = Boolean(this.state.showDeleteForm || this.state.showEditForm);
     const showButtons = this.props.isActionable && !isShowingForm && !hasInvoice;
-    const robustAccessorial = get(this.props, 'context.flags.robustAccessorial', false);
     if (this.state.showEditForm) {
       return (
         <tr>
@@ -112,66 +153,23 @@ export class PreApprovalRequest extends Component {
         status = renderStatusIcon(row.status);
       }
       const deleteActiveClass = this.state.showDeleteForm ? 'delete-active' : '';
-      let basePAR = (
-        <tr key={row.id} className={deleteActiveClass}>
-          <td align="left">{row.tariff400ng_item.code}</td>
-          <td align="left">{row.tariff400ng_item.item}</td>
-          <td align="left"> {row.location[0]} </td>
-          <td align="left">
-            {formatFromBaseQuantity(row.quantity_1)} <br />
-            {row.notes}
-          </td>
-          <td align="left">{formatDate(row.submitted_date)}</td>
-          <td align="left">
-            <span className="status">{status}</span>
-            {formatStatus(row)}
-          </td>
-          <td>
-            {showButtons && renderActionIcons(row.status, this.onEdit, this.props.onApproval, this.onDelete, row.id)}
-          </td>
-        </tr>
-      );
-
-      if ((row.tariff400ng_item.code === '105B' || row.tariff400ng_item.code === '105E') && robustAccessorial) {
-        if (isNewAccessorial(row)) {
-          let crateLengthinInches = convertFromThousandthInchToInch(row.crate_dimensions.length);
-          let crateWidthinInches = convertFromThousandthInchToInch(row.crate_dimensions.width);
-          let crateHeightinInches = convertFromThousandthInchToInch(row.crate_dimensions.height);
-          let itemLengthinInches = convertFromThousandthInchToInch(row.item_dimensions.length);
-          let itemWidthinInches = convertFromThousandthInchToInch(row.item_dimensions.width);
-          let itemHeightinInches = convertFromThousandthInchToInch(row.item_dimensions.height);
-          let crateCubicFeet = displayBaseQuantityUnits(row);
-
-          let createDetails = `Crate: ${crateLengthinInches}" x ${crateWidthinInches}" x ${crateHeightinInches}" (${crateCubicFeet})`;
-          let ItemDetails = `Item: ${itemLengthinInches}" x ${itemWidthinInches}" x ${itemHeightinInches}"`;
-          let description = row.description;
-          basePAR = (
-            <tr key={row.id} className={deleteActiveClass}>
-              <td align="left">{row.tariff400ng_item.code}</td>
-              <td align="left">{row.tariff400ng_item.item}</td>
-              <td align="left"> {row.location[0]} </td>
-              <td>
-                {description} <br />
-                {createDetails} <br />
-                {ItemDetails}
-              </td>
-              <td align="left">{formatDate(row.submitted_date)}</td>
-              <td align="left">
-                <span className="status">{status}</span>
-                {formatStatus(row)}
-              </td>
-              <td>
-                {showButtons &&
-                  renderActionIcons(row.status, this.onEdit, this.props.onApproval, this.onDelete, row.id)}
-              </td>
-            </tr>
-          );
-        }
-      }
 
       return (
         <Fragment>
-          {basePAR}
+          <tr key={row.id} className={deleteActiveClass}>
+            <td align="left">{row.tariff400ng_item.code}</td>
+            <td align="left">{row.tariff400ng_item.item}</td>
+            <td align="left"> {row.location[0]} </td>
+            {this.getDetailsComponent()}
+            <td align="left">{formatDate(row.submitted_date)}</td>
+            <td align="left">
+              <span className="status">{status}</span>
+              {formatStatus(row)}
+            </td>
+            <td>
+              {showButtons && renderActionIcons(row.status, this.onEdit, this.props.onApproval, this.onDelete, row.id)}
+            </td>
+          </tr>
           {this.state.showDeleteForm && (
             <tr className="delete-confirm-row">
               <td colSpan="8" className="delete-confirm">

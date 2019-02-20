@@ -1,6 +1,6 @@
 import { getDetailComponent } from './DetailsHelper';
-import { DefaultDetails } from './DefaultDetails';
-import { Code105Details } from './Code105Details';
+import { DefaultForm } from './DefaultForm';
+import { Code105Form } from './Code105Form';
 
 let featureFlag = false;
 let initialValuesWithoutCrateDimensions = {};
@@ -10,7 +10,7 @@ describe('testing getDetailComponent()', () => {
     const DetailComponent = getDetailComponent();
 
     it('for undefined values', () => {
-      expect(DetailComponent).toBe(DefaultDetails);
+      expect(DetailComponent).toBe(DefaultForm);
     });
   });
 
@@ -20,23 +20,23 @@ describe('testing getDetailComponent()', () => {
 
     let DetailComponent = getDetailComponent('105', featureFlag, initialValuesWithCrateDimensions);
     it('for code 105', () => {
-      expect(DetailComponent).toBe(DefaultDetails);
+      expect(DetailComponent).toBe(DefaultForm);
     });
 
     DetailComponent = getDetailComponent('105B', featureFlag, initialValuesWithCrateDimensions);
     it('for code 105B', () => {
-      expect(DetailComponent).toBe(DefaultDetails);
+      expect(DetailComponent).toBe(DefaultForm);
     });
 
     DetailComponent = getDetailComponent('105E', featureFlag, initialValuesWithCrateDimensions);
     it('for code 105E', () => {
-      expect(DetailComponent).toBe(DefaultDetails);
+      expect(DetailComponent).toBe(DefaultForm);
     });
 
     //testing for non-existing code
     DetailComponent = getDetailComponent('4A', featureFlag, initialValuesWithCrateDimensions);
     it('for code 4A', () => {
-      expect(DetailComponent).toBe(DefaultDetails);
+      expect(DetailComponent).toBe(DefaultForm);
     });
 
     DetailComponent = getDetailComponent('105D', featureFlag, initialValuesWithCrateDimensions);
@@ -46,7 +46,7 @@ describe('testing getDetailComponent()', () => {
 
     DetailComponent = getDetailComponent('105D', featureFlag, null);
     it('for code 105D', () => {
-      expect(DetailComponent).toBe(DefaultDetails);
+      expect(DetailComponent).toBe(DefaultForm);
     });
   });
 
@@ -55,12 +55,12 @@ describe('testing getDetailComponent()', () => {
 
     let DetailComponent = getDetailComponent('105', featureFlag, initialValuesWithCrateDimensions);
     it('for code 105', () => {
-      expect(DetailComponent).toBe(Code105Details);
+      expect(DetailComponent).toBe(Code105Form);
     });
 
     DetailComponent = getDetailComponent('105B', featureFlag, initialValuesWithCrateDimensions);
     it('for code 105B', () => {
-      expect(DetailComponent).toBe(Code105Details);
+      expect(DetailComponent).toBe(Code105Form);
     });
 
     DetailComponent = getDetailComponent('105E', featureFlag, initialValuesWithCrateDimensions);
@@ -70,7 +70,7 @@ describe('testing getDetailComponent()', () => {
 
     DetailComponent = getDetailComponent('105E', featureFlag, null);
     it('for code 105E', () => {
-      expect(DetailComponent).toBe(Code105Details);
+      expect(DetailComponent).toBe(Code105Form);
     });
   });
 
@@ -79,7 +79,7 @@ describe('testing getDetailComponent()', () => {
 
     let DetailComponent = getDetailComponent('105D', featureFlag);
     it('for code 105D', () => {
-      expect(DetailComponent).toBe(DefaultDetails);
+      expect(DetailComponent).toBe(DefaultForm);
     });
 
     DetailComponent = getDetailComponent('105B', featureFlag, initialValuesWithoutCrateDimensions);

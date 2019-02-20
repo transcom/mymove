@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { DimensionsField } from '../JsonSchemaForm/DimensionsField';
 
-export const Code105Details = props => {
+export const Code105Form = props => {
   const { ship_line_item_schema } = props;
   return (
     <Fragment>
