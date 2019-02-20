@@ -20,7 +20,7 @@ export class TransportationServiceProviderContactInfo extends Component {
     return (
       <div className="titled_block transportation-service-provider-contact-info">
         <div>
-          <b>{transportationServiceProvider.name}</b>
+          <strong>{transportationServiceProvider.name}</strong>
         </div>
         <div>{transportationServiceProvider.poc_general_phone}</div>
       </div>
