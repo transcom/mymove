@@ -1,13 +1,14 @@
-import { getDetailComponent } from './DetailsHelper';
+import { getFormComponent } from './DetailsHelper';
 import { DefaultForm } from './DefaultForm';
 import { Code105Form } from './Code105Form';
 
 let featureFlag = false;
+describe('testing getFormComponent()', () => {
 let initialValuesWithoutCrateDimensions = {};
 let initialValuesWithCrateDimensions = { crate_dimensions: true };
 describe('testing getDetailComponent()', () => {
   describe('returns default details component', () => {
-    const DetailComponent = getDetailComponent();
+    const DetailComponent = getFormComponent();
 
     it('for undefined values', () => {
       expect(DetailComponent).toBe(DefaultForm);
@@ -18,33 +19,33 @@ describe('testing getDetailComponent()', () => {
     //pass in known code item with feature flag off
     featureFlag = false;
 
-    let DetailComponent = getDetailComponent('105', featureFlag, initialValuesWithCrateDimensions);
+    let DetailComponent = getFormComponent('105', featureFlag, initialValuesWithCrateDimensions);
     it('for code 105', () => {
       expect(DetailComponent).toBe(DefaultForm);
     });
 
-    DetailComponent = getDetailComponent('105B', featureFlag, initialValuesWithCrateDimensions);
+    DetailComponent = getFormComponent('105B', featureFlag, initialValuesWithCrateDimensions);
     it('for code 105B', () => {
       expect(DetailComponent).toBe(DefaultForm);
     });
 
-    DetailComponent = getDetailComponent('105E', featureFlag, initialValuesWithCrateDimensions);
+    DetailComponent = getFormComponent('105E', featureFlag, initialValuesWithCrateDimensions);
     it('for code 105E', () => {
       expect(DetailComponent).toBe(DefaultForm);
     });
 
     //testing for non-existing code
-    DetailComponent = getDetailComponent('4A', featureFlag, initialValuesWithCrateDimensions);
+    DetailComponent = getFormComponent('4A', featureFlag, initialValuesWithCrateDimensions);
     it('for code 4A', () => {
       expect(DetailComponent).toBe(DefaultForm);
     });
 
-    DetailComponent = getDetailComponent('105D', featureFlag, initialValuesWithCrateDimensions);
+    DetailComponent = getFormComponent('105D', featureFlag, initialValuesWithCrateDimensions);
     it('for code 105D', () => {
-      expect(DetailComponent).toBe(DefaultDetails);
+      expect(DetailComponent).toBe(DefaultForm);
     });
 
-    DetailComponent = getDetailComponent('105D', featureFlag, null);
+    DetailComponent = getFormComponent('105D', featureFlag, null);
     it('for code 105D', () => {
       expect(DetailComponent).toBe(DefaultForm);
     });
@@ -53,43 +54,38 @@ describe('testing getDetailComponent()', () => {
   describe('returns 105B/E details component with feature flag on', () => {
     featureFlag = true;
 
-    let DetailComponent = getDetailComponent('105', featureFlag, initialValuesWithCrateDimensions);
+    let FormComponent = getFormComponent('105', featureFlag, initialValuesWithCrateDimensions);
     it('for code 105', () => {
-      expect(DetailComponent).toBe(Code105Form);
+      expect(FormComponent).toBe(Code105Form);
     });
 
-    DetailComponent = getDetailComponent('105B', featureFlag, initialValuesWithCrateDimensions);
+    FormComponent = getFormComponent('105B', featureFlag, initialValuesWithCrateDimensions);
     it('for code 105B', () => {
-      expect(DetailComponent).toBe(Code105Form);
+      expect(FormComponent).toBe(Code105Form);
     });
 
-    DetailComponent = getDetailComponent('105E', featureFlag, initialValuesWithCrateDimensions);
+    FormComponent = getFormComponent('105E', featureFlag, initialValuesWithCrateDimensions);
     it('for code 105E', () => {
-      expect(DetailComponent).toBe(Code105Details);
-    });
-
-    DetailComponent = getDetailComponent('105E', featureFlag, null);
-    it('for code 105E', () => {
-      expect(DetailComponent).toBe(Code105Form);
+      expect(FormComponent).toBe(Code105Form);
     });
   });
 
   describe('returns default details component with feature flag on', () => {
     featureFlag = true;
 
-    let DetailComponent = getDetailComponent('105D', featureFlag);
+    let FormComponent = getFormComponent('105D', featureFlag);
     it('for code 105D', () => {
-      expect(DetailComponent).toBe(DefaultForm);
+      expect(FormComponent).toBe(DefaultForm);
     });
 
-    DetailComponent = getDetailComponent('105B', featureFlag, initialValuesWithoutCrateDimensions);
+    FormComponent = getFormComponent('105B', featureFlag, initialValuesWithoutCrateDimensions);
     it('for code 105B without crate dimensions', () => {
-      expect(DetailComponent).toBe(DefaultDetails);
+      expect(FormComponent).toBe(DefaultForm);
     });
 
-    DetailComponent = getDetailComponent('105E', featureFlag, initialValuesWithoutCrateDimensions);
+    FormComponent = getFormComponent('105E', featureFlag, initialValuesWithoutCrateDimensions);
     it('for code 105E without crate dimensions', () => {
-      expect(DetailComponent).toBe(DefaultDetails);
+      expect(FormComponent).toBe(DefaultForm);
     });
   });
 });

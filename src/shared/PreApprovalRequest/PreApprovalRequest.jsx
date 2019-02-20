@@ -5,14 +5,13 @@ import PropTypes from 'prop-types';
 import { withContext } from 'shared/AppContext';
 import { renderStatusIcon } from 'shared/utils';
 import { isOfficeSite } from 'shared/constants.js';
-import { formatDate, formatFromBaseQuantity } from 'shared/formatters';
+import { formatDate } from 'shared/formatters';
 import Editor from 'shared/PreApprovalRequest/Editor.jsx';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
 import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
-import { convertFromThousandthInchToInch } from 'shared/formatters';
 import { isNewAccessorial } from 'shared/preApprovals';
-import { displayBaseQuantityUnits } from 'shared/lineItems';
+import { getDetailsComponent } from './DetailsHelper';
 
 function formatStatus(lineItem) {
   let formattedStatus = lineItem.status;
@@ -87,52 +86,16 @@ export class PreApprovalRequest extends Component {
     this.setState({ showDeleteForm: false });
   };
 
-  getDefaultDetails() {
-    const row = this.props.shipmentLineItem;
-    return (
-      <td align="left">
-        {formatFromBaseQuantity(row.quantity_1)} <br />
-        {row.notes}
-      </td>
-    );
-  }
-
-  get105Details() {
-    const row = this.props.shipmentLineItem;
-    let crateLengthinInches = convertFromThousandthInchToInch(row.crate_dimensions.length);
-    let crateWidthinInches = convertFromThousandthInchToInch(row.crate_dimensions.width);
-    let crateHeightinInches = convertFromThousandthInchToInch(row.crate_dimensions.height);
-    let itemLengthinInches = convertFromThousandthInchToInch(row.item_dimensions.length);
-    let itemWidthinInches = convertFromThousandthInchToInch(row.item_dimensions.width);
-    let itemHeightinInches = convertFromThousandthInchToInch(row.item_dimensions.height);
-    let crateCubicFeet = displayBaseQuantityUnits(row);
-
-    let createDetails = `Crate: ${crateLengthinInches}" x ${crateWidthinInches}" x ${crateHeightinInches}" (${crateCubicFeet})`;
-    let ItemDetails = `Item: ${itemLengthinInches}" x ${itemWidthinInches}" x ${itemHeightinInches}"`;
-    return (
-      <td>
-        {row.description} <br />
-        {createDetails} <br />
-        {ItemDetails}
-      </td>
-    );
-  }
-
-  getDetailsComponent() {
-    const row = this.props.shipmentLineItem;
-    const robustAccessorial = get(this.props, 'context.flags.robustAccessorial', false);
-    return (row.tariff400ng_item.code === '105B' || row.tariff400ng_item.code === '105E') &&
-      robustAccessorial &&
-      isNewAccessorial(row)
-      ? this.get105Details()
-      : this.getDefaultDetails();
-  }
-
   render() {
     const row = this.props.shipmentLineItem;
     const hasInvoice = Boolean(row.invoice_id);
     const isShowingForm = Boolean(this.state.showDeleteForm || this.state.showEditForm);
     const showButtons = this.props.isActionable && !isShowingForm && !hasInvoice;
+    const DetailsComponent = getDetailsComponent(
+      row.tariff400ng_item.code,
+      get(this.props, 'context.flags.robustAccessorial', false),
+      isNewAccessorial(row),
+    );
     if (this.state.showEditForm) {
       return (
         <tr>
@@ -160,7 +123,7 @@ export class PreApprovalRequest extends Component {
             <td align="left">{row.tariff400ng_item.code}</td>
             <td align="left">{row.tariff400ng_item.item}</td>
             <td align="left"> {row.location[0]} </td>
-            {this.getDetailsComponent()}
+            <DetailsComponent {...this.props} />
             <td align="left">{formatDate(row.submitted_date)}</td>
             <td align="left">
               <span className="status">{status}</span>
