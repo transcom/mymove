@@ -1,4 +1,0 @@
-sql("UPDATE shipments
-SET status='DELIVERED',
-updated_at=now()
-WHERE id='3767a329-4a92-402d-9217-d695d7da9e3c' and status='COMPLETED';")
