@@ -34,7 +34,7 @@ func TestMyTimeFunc(t *testing.T) {
     if MyTimeFunc() != time.Now() {
         // This will error!
         // The time in the function and the test happen at different times
-        t.Errorf("time was not now, expected")
+        t.Errorf("time was not now")
   }
 }
 ```
@@ -46,15 +46,20 @@ we need a way to know what `time.Now()` was when the function was called.
 Instead of directly using the `time` package,
 we can pass a clock as a dependency and call `.Now()` on that.
 Then in our tests, we can assert against that clock!
-The clock can be anything as long as it adheres to the clock.Clock interface
+The clock can be anything as long as it adheres to the `clock.Clock` interface
 as defined in the
 [facebookgo clock package](https://godoc.org/github.com/facebookgo/clock#Clock).
 We could, for example,
 make the clock always return the year 0,
 or the 2019 New Year,
 or maybe your birthday!
-In this clock package, `time.Now()` will start at epoch time.
-We'll show later how to change that!
+In this clock package,
+there are two clocks.
+
+* The real clock where `clock.Now()` will call `time.Now()`.
+* A mock clock where `clock.Now()` always returns epoch time.
+  We'll show later how to change that!
+
 Let's look at the example above with the `clock` package.
 
 ```go
