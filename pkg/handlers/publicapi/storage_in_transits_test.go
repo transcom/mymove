@@ -155,6 +155,7 @@ func (suite *HandlerSuite) TestPatchStorageInTransitHandler() {
 	sit.WarehouseID = "123456"
 	sit.Notes = swag.String("Updated Note")
 	sit.WarehouseEmail = swag.String("updated@email.com")
+	sit.Status = models.StorageInTransitStatusAPPROVED
 
 	sitPayload := payloadForStorageInTransitModel(&sit)
 
@@ -214,6 +215,11 @@ func (suite *HandlerSuite) TestPatchStorageInTransitHandler() {
 	suite.Assertions.IsType(&sitop.PatchStorageInTransitOK{}, response)
 	responsePayload = response.(*sitop.PatchStorageInTransitOK).Payload
 	storageInTransitPayloadCompare(suite, sitPayload, responsePayload)
+
+	// Let's also double check to make sure that we didn't change the status. This shouldn't be something we're
+	// doing from the patch handler.
+	savedStorageInTransit, _ := models.FetchStorageInTransitByID(suite.DB(), sit.ID)
+	suite.Equal(models.StorageInTransitStatusREQUESTED, savedStorageInTransit.Status)
 
 }
 
