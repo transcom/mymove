@@ -272,3 +272,13 @@ Cypress.Commands.add('setupBaseUrl', appname => {
       break;
   }
 });
+
+Cypress.Commands.add('removeFetch', () => {
+  // cypress server/route/wait currently does not support window.fetch api
+  // https://github.com/cypress-io/cypress/issues/95#issuecomment-347607198
+  // delete window.fetch to force fallback to supported xhr.
+  // https://github.com/cypress-io/cypress-example-recipes/tree/master/examples/stubbing-spying__window-fetch
+  cy.on('window:before:load', win => {
+    delete win.fetch;
+  });
+});

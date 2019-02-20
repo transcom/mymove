@@ -19,17 +19,11 @@ describe('shipments', function() {
   });
   describe('continuing a hhg move after logging out before completion', function() {
     it('resumes where service member left off', function() {
-      // cypress server/route/wait currently does not support window.fetch api
-      // https://github.com/cypress-io/cypress/issues/95#issuecomment-347607198
-      // delete window.fetch so fallback to xhr
-      // https://github.com/cypress-io/cypress-example-recipes/tree/master/examples/stubbing-spying__window-fetch
-      cy.on('window:before:load', win => {
-        delete win.fetch;
-      });
       // sm_hhg_continue@example.com
       const serviceMemberId = '1256a6ea-27cc-4d60-92df-1bc2a5c39028';
       const firstIncompletePage = /^\/moves\/[^/]+\/hhg-weight/;
 
+      cy.removeFetch();
       cy.signInAsUser(serviceMemberId);
       serviceMemberAddsHHG();
       serviceMemberAddsMoveDates();
