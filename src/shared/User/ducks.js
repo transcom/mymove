@@ -29,7 +29,7 @@ export const loadLoggedInUser = () => {
             shipmentIds.map(id => dispatch(getShipment('Shipments.GetShipment', id)));
           }
 
-          // Only store shipments and addresses in a normalized way. This prevents
+          // Only store addresses in a normalized way. This prevents
           // data duplication while we're using both Redux approaches.
           const filtered = pick(data.entities, ['addresses']);
           dispatch(addEntities(filtered));
