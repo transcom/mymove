@@ -1474,11 +1474,6 @@ definitions:
         format: uuid
         example: d56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      code_of_service:
-        type: string
-        x-nullable: true
-        title: Code of service
-        readOnly: true
       book_date:
         type: string
         format: date
