@@ -6,6 +6,9 @@ import (
 
 	"github.com/go-openapi/strfmt"
 
+	"github.com/gofrs/uuid"
+	"github.com/transcom/mymove/pkg/auth"
+
 	tspop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/transportation_service_provider"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -43,4 +46,28 @@ func (suite *HandlerSuite) TestGetTransportationServiceProviderHandler() {
 
 	// And: Payload is equivalent to original shipment
 	suite.Equal(strfmt.UUID(tspUser.TransportationServiceProviderID.String()), okResponse.Payload.ID)
+}
+
+func (suite *HandlerSuite) TestGetTransportationHandlerWhereSessionServiceMemberIDDoesNotEqualShipmentServiceMemberID() {
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
+	path := fmt.Sprintf("/shipments/%s/transportation_service_provider", shipment.ID.String())
+	req := httptest.NewRequest("GET", path, nil)
+	req = suite.AuthenticateRequest(req, serviceMember)
+
+	params := tspop.GetTransportationServiceProviderParams{
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+	}
+
+	handler := GetTransportationServiceProviderHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	sessionID, _ := uuid.NewV4()
+	session.ServiceMemberID = sessionID
+
+	suite.NotEqual(sessionID, shipment.ServiceMemberID)
+	suite.Assertions.IsType(&tspop.GetTransportationServiceProviderBadRequest{}, response)
 }
