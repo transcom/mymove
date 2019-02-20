@@ -2,6 +2,8 @@ package testdatagen
 
 import (
 	"time"
+
+	"github.com/transcom/mymove/pkg/dates"
 )
 
 // TestYear is the default year for testing.
@@ -83,3 +85,9 @@ var OneDay = time.Hour * 24
 
 // OneWeek creates a 1 week period
 var OneWeek = time.Hour * 168
+
+// Often weekends and holidays are not allowable dates
+var cal = dates.NewUSCalendar()
+
+// NextValidMoveDate is the next valid move date
+var NextValidMoveDate = dates.NextValidMoveDate(time.Now(), cal)
