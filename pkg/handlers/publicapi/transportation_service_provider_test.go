@@ -47,9 +47,10 @@ func (suite *HandlerSuite) TestGetTransportationServiceProviderHandler() {
 	suite.Equal(strfmt.UUID(tspUser.TransportationServiceProviderID.String()), okResponse.Payload.ID)
 }
 
-func (suite *HandlerSuite) TestGetTransportationHandlerWhereSessionServiceMemberIDDoesNotEqualShipmentServiceMemberID() {
+func (suite *HandlerSuite) TestGetTransportationServiceProviderHandlerWhereSessionServiceMemberIDDoesNotEqualShipmentServiceMemberID() {
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+	tsp := testdatagen.MakeTSP(suite.DB(), testdatagen.Assertions{})
 
 	path := fmt.Sprintf("/shipments/%s/transportation_service_provider", shipment.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
@@ -60,11 +61,17 @@ func (suite *HandlerSuite) TestGetTransportationHandlerWhereSessionServiceMember
 		ShipmentID:  strfmt.UUID(shipment.ID.String()),
 	}
 
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	reloadShipment, err := models.FetchShipment(suite.DB(), session, shipment.ID)
+	suite.Nil(err)
+
 	handler := GetTransportationServiceProviderHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	shipmentPayload := payloadForShipmentModel(*reloadShipment)
+	expectedTspID := *handlers.FmtUUID(tsp.ID)
+	suite.Equal(shipmentPayload.TransportationServiceProviderID, expectedTspID)
 
 	suite.NotEqual(session.ServiceMemberID, shipment.ServiceMemberID)
-	suite.Assertions.IsType(&tspop.GetTransportationServiceProviderBadRequest{}, response)
+	suite.Assertions.IsType(&tspop.GetTransportationServiceProviderForbidden{}, response)
 }

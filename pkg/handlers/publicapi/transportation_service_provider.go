@@ -69,7 +69,7 @@ func (h GetTransportationServiceProviderHandler) Handle(params tspop.GetTranspor
 			return tspop.NewGetTransportationServiceProviderBadRequest()
 		}
 		if session.ServiceMemberID != shipment.ServiceMemberID {
-			return tspop.NewGetTransportationServiceProviderBadRequest()
+			return tspop.NewGetTransportationServiceProviderForbidden()
 		}
 
 	} else {
