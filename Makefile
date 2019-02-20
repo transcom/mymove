@@ -109,6 +109,11 @@ build_soda: go_deps .build_soda.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
 	touch .build_soda.stamp
 
+build_generate_test_data: go_deps .build_generate_test_data.stamp
+.build_generate_test_data.stamp:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
+	touch .build_generate_test_data.stamp
+
 build_callgraph: go_deps .build_callgraph.stamp
 .build_callgraph.stamp:
 	go build -i -o bin/callgraph ./vendor/golang.org/x/tools/cmd/callgraph
@@ -343,7 +348,7 @@ db_test_reset: db_destroy db_test_run
 
 db_test_reset_docker: db_destroy db_test_run_docker
 
-db_e2e_up:
+db_e2e_up: build_generate_test_data
 	@echo "Truncate the test database..."
 	psql postgres://postgres:$(PGPASSWORD)@localhost:5432/test_db?sslmode=disable -c 'TRUNCATE users CASCADE;'
 	@echo "Populate the test database..."
