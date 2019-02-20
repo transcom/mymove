@@ -15,11 +15,13 @@ var fileTypeTestCasesAny = []fileTypeTestCase{
 	{"image/painting", true},
 	{"application/zip", true},
 	{"text/plain", true},
+	{"image/gif", true},
 }
 
 var fileTypeTestCasesServiceMember = []fileTypeTestCase{
 	{"image/jpeg", true},
 	{"image/png", true},
+	{"image/gif", false},
 	{"application/pdf", true},
 	{"application/zip", false},
 	{"text/plain", false},
