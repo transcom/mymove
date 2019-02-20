@@ -3,6 +3,7 @@ package internalapi
 import (
 	"bytes"
 	"io/ioutil"
+	"log"
 	"reflect"
 	"time"
 
@@ -242,7 +243,7 @@ type ShowShipmentSummaryWorksheetHandler struct {
 func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSummaryWorksheetParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
-	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
+	engine := rateengine.NewRateEngine(h.DB(), h.Logger())
 
 	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(h.DB(), session, moveID)
 	ssfd.PreparationDate = time.Time(params.PreparationDate)
@@ -252,12 +253,17 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	}
 	if firstPPM.PickupPostalCode != nil &&
 		firstPPM.DestinationPostalCode != nil &&
-		firstPPM.PlannedMoveDate != nil {
+		firstPPM.OriginalMoveDate != nil {
+		distanceMiles, err := h.Planner().Zip5TransitDistance(*firstPPM.PickupPostalCode, *firstPPM.DestinationPostalCode)
+		if err != nil {
+			log.Fatalf("Error calculating distance %v", err)
+		}
 		cost, err := engine.ComputePPMIncludingLHDiscount(
 			unit.Pound(ssfd.TotalWeightAllotment),
 			*firstPPM.PickupPostalCode,
 			*firstPPM.DestinationPostalCode,
-			*firstPPM.PlannedMoveDate,
+			distanceMiles,
+			*firstPPM.OriginalMoveDate,
 			0, 0,
 		)
 		ssfd.GCC = cost.GCC

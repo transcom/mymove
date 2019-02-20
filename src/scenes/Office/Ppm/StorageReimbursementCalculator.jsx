@@ -14,7 +14,7 @@ import { getPpmSitEstimate, clearPpmSitEstimate } from '../../Moves/Ppm/ducks';
 const formName = 'storage_reimbursement_calc';
 const schema = {
   properties: {
-    planned_move_date: {
+    original_move_date: {
       type: 'string',
       format: 'date',
       example: '2018-04-26',
@@ -67,9 +67,9 @@ export class StorageReimbursementCalculator extends Component {
     this.reset();
   }
   calculate = values => {
-    const { planned_move_date, pickup_postal_code, destination_postal_code, days_in_storage, weight } = values;
+    const { original_move_date, pickup_postal_code, destination_postal_code, days_in_storage, weight } = values;
     this.props.getPpmSitEstimate(
-      planned_move_date,
+      original_move_date,
       days_in_storage,
       pickup_postal_code,
       destination_postal_code,
@@ -92,7 +92,12 @@ export class StorageReimbursementCalculator extends Component {
               </div>
             )}
             <div className="usa-width-one-half">
-              <SwaggerField className="date-field" fieldName="planned_move_date" swagger={this.props.schema} required />
+              <SwaggerField
+                className="date-field"
+                fieldName="original_move_date"
+                swagger={this.props.schema}
+                required
+              />
               <SwaggerField className="short-field" fieldName="weight" swagger={this.props.schema} required />
             </div>
             <div className="usa-width-one-half">
@@ -150,7 +155,7 @@ StorageReimbursementCalculator.propTypes = {
 
 function mapStateToProps(state, ownProps) {
   const initialValues = pick(selectPPMForMove(state, ownProps.moveId), [
-    'planned_move_date',
+    'original_move_date',
     'pickup_postal_code',
     'destination_postal_code',
     'days_in_storage',
