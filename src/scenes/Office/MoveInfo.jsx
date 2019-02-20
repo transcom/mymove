@@ -47,7 +47,7 @@ import {
   selectShipment,
   selectShipmentStatus,
 } from 'shared/Entities/modules/shipments';
-import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
+import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
 
 import { showBanner, removeBanner } from './ducks';
@@ -154,7 +154,7 @@ class MoveInfo extends Component {
   }
 
   getAllShipmentInfo = shipmentId => {
-    this.props.getTspForShipment(getTspForShipmentLabel, shipmentId);
+    this.props.getTspForShipment(shipmentId);
     this.props.getPublicShipment(shipmentId);
     this.props.getAllShipmentLineItems(shipmentId);
     this.props.getAllInvoices(shipmentId);

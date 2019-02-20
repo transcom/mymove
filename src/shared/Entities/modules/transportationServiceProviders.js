@@ -4,7 +4,7 @@ import { get } from 'lodash';
 
 export const getTspForShipmentLabel = 'Shipments.getTspForShipment';
 
-export function getTspForShipment(label, shipmentId) {
+export function getTspForShipment(shipmentId, label = getTspForShipmentLabel) {
   return swaggerRequest(
     getPublicClient,
     'transportation_service_provider.getTransportationServiceProvider',

@@ -23,7 +23,7 @@ import {
 import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
 import { getAllShipmentLineItems, selectSortedShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices } from 'shared/Entities/modules/invoices';
-import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
+import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { selectSitRequests } from 'shared/Entities/modules/sitRequests';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -125,7 +125,7 @@ class ShipmentInfo extends Component {
       .loadShipmentDependencies(this.props.match.params.shipmentId)
       .then(() => {
         const shipmentId = this.props.shipment.id;
-        this.props.getTspForShipment(getTspForShipmentLabel, shipmentId);
+        this.props.getTspForShipment(shipmentId);
         this.props.getAllShipmentDocuments(shipmentId);
         this.props.getAllTariff400ngItems(true);
         this.props.getAllShipmentLineItems(shipmentId);
