@@ -20,11 +20,7 @@ import {
   generateGBL,
   generateGBLLabel,
 } from 'shared/Entities/modules/shipmentDocuments';
-import {
-  getAllTariff400ngItems,
-  selectTariff400ngItems,
-  getTariff400ngItemsLabel,
-} from 'shared/Entities/modules/tariff400ngItems';
+import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
 import { getAllShipmentLineItems, selectSortedShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
@@ -131,7 +127,7 @@ class ShipmentInfo extends Component {
         const shipmentId = this.props.shipment.id;
         this.props.getTspForShipment(getTspForShipmentLabel, shipmentId);
         this.props.getAllShipmentDocuments(shipmentId);
-        this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
+        this.props.getAllTariff400ngItems(true);
         this.props.getAllShipmentLineItems(shipmentId);
         this.props.getAllInvoices(shipmentId);
       })
