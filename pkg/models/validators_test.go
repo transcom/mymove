@@ -13,8 +13,28 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+type container interface {
+	Contains(string) bool
+	Contents() []string
+}
+
+type stringList []string
+
+func (sl stringList) Contains(needle string) bool {
+	for _, s := range sl {
+		if s == needle {
+			return true
+		}
+	}
+	return false
+}
+
+func (sl stringList) Contents() []string {
+	return sl
+}
+
 func TestStringInList_IsValid(t *testing.T) {
-	validTypes := []string{"image/png", "image/jpeg", "application/pdf"}
+	validTypes := stringList{"image/png", "image/jpeg", "application/pdf"}
 	for _, validType := range validTypes {
 		t.Run(validType, func(t *testing.T) {
 			validator := models.NewStringInList(validType, "fieldName", validTypes)
@@ -28,7 +48,7 @@ func TestStringInList_IsValid(t *testing.T) {
 		})
 	}
 
-	invalidTypes := []string{"image/gif", "video/mp4", "application/octet-stream"}
+	invalidTypes := stringList{"image/gif", "video/mp4", "application/octet-stream"}
 	for _, invalidType := range invalidTypes {
 		t.Run(invalidType, func(t *testing.T) {
 			validator := models.NewStringInList(invalidType, "fieldName", validTypes)
