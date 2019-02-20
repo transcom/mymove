@@ -229,7 +229,8 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 			Width:  unit.ThousandthInches(*params.Payload.CrateDimensions.Width),
 			Height: unit.ThousandthInches(*params.Payload.CrateDimensions.Height),
 		}
-		baseParams.Quantity1 = unit.DimensionToCubicFeet(crateDimensions.Length, crateDimensions.Width, crateDimensions.Height)
+		quantity1 := unit.DimensionToCubicFeet(crateDimensions.Length, crateDimensions.Width, crateDimensions.Height)
+		baseParams.Quantity1 = &quantity1
 	}
 
 	additionalParams := models.AdditionalShipmentLineItemParams{
