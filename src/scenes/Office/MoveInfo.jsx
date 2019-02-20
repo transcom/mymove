@@ -159,7 +159,7 @@ class MoveInfo extends Component {
 
   getAllShipmentInfo = shipmentId => {
     this.props.getTspForShipment(getTspForShipmentLabel, shipmentId);
-    this.props.getPublicShipment('Shipments.getPublicShipment', shipmentId);
+    this.props.getPublicShipment(shipmentId);
     this.props.getAllShipmentLineItems(shipmentId);
     this.props.getAllInvoices(shipmentId);
     this.props.getServiceAgentsForShipment(shipmentId);
