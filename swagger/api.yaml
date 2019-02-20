@@ -151,6 +151,17 @@ definitions:
       DESTINATION: Destination
       NEITHER: Neither
       EITHER: Either
+  DistanceCalculation:
+    type: object
+    properties:
+      origin_address:
+        $ref: '#/definitions/Address'
+      destination_address:
+        $ref: '#/definitions/Address'
+      distance_miles:
+        type: integer
+        title: Distance
+        description: unit is miles
   ShipmentLineItemLocation:
     type: string
     title: Location
@@ -1122,6 +1133,8 @@ definitions:
       delivery_address:
         $ref: '#/definitions/Address'
         x-nullable: true
+      shipping_distance:
+        $ref: '#/definitions/DistanceCalculation'
       has_partial_sit_delivery_address:
         type: boolean
         default: false

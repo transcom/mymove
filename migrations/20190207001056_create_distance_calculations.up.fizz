@@ -1,0 +1,11 @@
+create_table("distance_calculations") {
+	t.Column("id", "uuid", {primary: true})
+	t.Column("origin_address_id", "uuid", {})
+	t.Column("destination_address_id", "uuid", {})
+	t.Column("distance_miles", "integer", {})
+	t.ForeignKey("origin_address_id", {"addresses": ["id"]}, {})
+	t.ForeignKey("destination_address_id", {"addresses": ["id"]}, {})
+}
+
+add_column("shipments", "shipping_distance_id", "uuid", {"null": true})
+add_foreign_key("shipments", "shipping_distance_id", {"distance_calculations": ["id"]}, {})

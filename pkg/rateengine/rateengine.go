@@ -11,7 +11,6 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
-	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -20,9 +19,8 @@ const MaxSITDays = 90
 
 // RateEngine encapsulates the TSP rate engine process
 type RateEngine struct {
-	db      *pop.Connection
-	logger  *zap.Logger
-	planner route.Planner
+	db     *pop.Connection
+	logger *zap.Logger
 }
 
 // CostComputation represents the results of a computation.
@@ -86,6 +84,7 @@ func (re *RateEngine) ComputePPM(
 	weight unit.Pound,
 	originZip5 string,
 	destinationZip5 string,
+	distanceMiles int,
 	date time.Time,
 	daysInSIT int,
 	lhDiscount unit.DiscountRate,
@@ -99,7 +98,7 @@ func (re *RateEngine) ComputePPM(
 	}
 
 	// Linehaul charges
-	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, date)
+	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, distanceMiles, date)
 	if err != nil {
 		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
 		return
@@ -165,7 +164,7 @@ func (re *RateEngine) ComputePPM(
 }
 
 //ComputePPMIncludingLHDiscount Calculates the cost of a PPM move using zip + date derived linehaul discount
-func (re *RateEngine) ComputePPMIncludingLHDiscount(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time, daysInSIT int, sitDiscount unit.DiscountRate) (cost CostComputation, err error) {
+func (re *RateEngine) ComputePPMIncludingLHDiscount(weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int, sitDiscount unit.DiscountRate) (cost CostComputation, err error) {
 
 	lhDiscount, _, err := models.PPMDiscountFetch(re.db,
 		re.logger,
@@ -181,6 +180,7 @@ func (re *RateEngine) ComputePPMIncludingLHDiscount(weight unit.Pound, originZip
 	cost, err = re.ComputePPM(weight,
 		originZip5,
 		destinationZip5,
+		distanceMiles,
 		date,
 		daysInSIT,
 		lhDiscount,
@@ -197,6 +197,7 @@ func (re *RateEngine) ComputePPMIncludingLHDiscount(weight unit.Pound, originZip
 // ComputeShipment Calculates the cost of an HHG move.
 func (re *RateEngine) ComputeShipment(
 	shipment models.Shipment,
+	distanceCalculation models.DistanceCalculation,
 	daysInSIT int,
 	lhDiscount unit.DiscountRate,
 	sitDiscount unit.DiscountRate) (cost CostComputation, err error) {
@@ -209,20 +210,22 @@ func (re *RateEngine) ComputeShipment(
 		weight = unit.Pound(1000)
 	}
 
-	originZip5 := shipment.PickupAddress.PostalCode
-	destinationZip5 := shipment.Move.Orders.NewDutyStation.Address.PostalCode
 	pickupDate := time.Time(*shipment.ActualPickupDate)
 	bookDate := time.Time(*shipment.BookDate)
 
+	originZip := distanceCalculation.OriginAddress.PostalCode
+	destinationZip := distanceCalculation.DestinationAddress.PostalCode
+	distanceMiles := distanceCalculation.DistanceMiles
+
 	// Linehaul charges
-	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, pickupDate)
+	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip, destinationZip, distanceMiles, pickupDate)
 	if err != nil {
 		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
 		return
 	}
 
 	// Non linehaul charges
-	nonLinehaulCostComputation, err := re.nonLinehaulChargeComputation(weight, originZip5, destinationZip5, pickupDate)
+	nonLinehaulCostComputation, err := re.nonLinehaulChargeComputation(weight, originZip, destinationZip, pickupDate)
 	if err != nil {
 		re.logger.Error("Failed to compute non-linehaul cost", zap.Error(err))
 		return
@@ -254,7 +257,7 @@ func (re *RateEngine) ComputeShipment(
 
 	// SIT
 	// Note that SIT has a different discount rate than [non]linehaul charges
-	destinationZip3 := Zip5ToZip3(destinationZip5)
+	destinationZip3 := Zip5ToZip3(distanceCalculation.DestinationAddress.PostalCode)
 	sit, err := re.SitCharge(weight.ToCWT(), daysInSIT, destinationZip3, pickupDate, true)
 	if err != nil {
 		re.logger.Info("Can't calculate sit")
@@ -309,7 +312,7 @@ type CostByShipment struct {
 // HandleRunOnShipment runs the rate engine on a shipment and returns the shipment and cost.
 // Assumptions: Shipment model passed in has eagerly fetched PickupAddress,
 // Move.Orders.NewDutyStation.Address, and ShipmentOffers.TransportationServiceProviderPerformance.
-func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment) (CostByShipment, error) {
+func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment, distanceCalculation models.DistanceCalculation) (CostByShipment, error) {
 	// Validate expected model relationships are available.
 	if shipment.PickupAddress == nil {
 		return CostByShipment{}, errors.New("PickupAddress is nil")
@@ -352,6 +355,7 @@ func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment) (CostByShipm
 	// Apply rate engine to shipment
 	var shipmentCost CostByShipment
 	cost, err := re.ComputeShipment(shipment,
+		distanceCalculation,
 		daysInSIT, // We don't want any SIT charges
 		lhDiscount,
 		sitDiscount,
@@ -368,6 +372,6 @@ func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment) (CostByShipm
 }
 
 // NewRateEngine creates a new RateEngine
-func NewRateEngine(db *pop.Connection, logger *zap.Logger, planner route.Planner) *RateEngine {
-	return &RateEngine{db: db, logger: logger, planner: planner}
+func NewRateEngine(db *pop.Connection, logger *zap.Logger) *RateEngine {
+	return &RateEngine{db: db, logger: logger}
 }

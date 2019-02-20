@@ -406,6 +406,8 @@ func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	planner := route.NewTestingPlanner(1044)
+	context.SetPlanner(planner)
 
 	handler := ShowShipmentSummaryWorksheetHandler{context}
 	response := handler.Handle(params)
