@@ -251,7 +251,7 @@ func (h GetStorageInTransitHandler) Handle(params sitop.GetStorageInTransitParam
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	storageInTransitPayload := payloadForStorageInTransitModel(&storageInTransit)
+	storageInTransitPayload := payloadForStorageInTransitModel(storageInTransit)
 	return sitop.NewGetStorageInTransitOK().WithPayload(storageInTransitPayload)
 
 }

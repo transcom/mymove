@@ -122,7 +122,7 @@ func FetchStorageInTransitsOnShipment(tx *pop.Connection, shipmentID uuid.UUID) 
 }
 
 // FetchStorageInTransitByID retrieves a single Storage In Transit object based on its own ID
-func FetchStorageInTransitByID(tx *pop.Connection, storageInTransitID uuid.UUID) (StorageInTransit, error) {
+func FetchStorageInTransitByID(tx *pop.Connection, storageInTransitID uuid.UUID) (*StorageInTransit, error) {
 	var storageInTransit StorageInTransit
 	err := tx.Where("storage_in_transits.id = $1", storageInTransitID).
 		LeftJoin("addresses", "storage_in_transits.warehouse_address_id=addresses.id").First(&storageInTransit)
@@ -130,12 +130,12 @@ func FetchStorageInTransitByID(tx *pop.Connection, storageInTransitID uuid.UUID)
 	if err != nil {
 		// If we fail to get rows let's pass up a ErrFetchNotFound so that handlers wind up passing a 404
 		if err.Error() == "sql: no rows in result set" {
-			return StorageInTransit{}, ErrFetchNotFound
+			return nil, ErrFetchNotFound
 		}
-		return StorageInTransit{}, err
+		return nil, err
 	}
 
-	return storageInTransit, nil
+	return &storageInTransit, nil
 
 }
 
