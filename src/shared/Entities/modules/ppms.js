@@ -4,15 +4,16 @@ import { getClient } from 'shared/Swagger/api';
 
 const approvePpmLabel = 'PPMs.approvePPM';
 export const downloadPPMAttachmentsLabel = 'PPMs.downloadAttachments';
+const loadPPMsLabel = 'office.loadPPMs';
+const updatePPMLabel = 'office.updatePPM';
+const approveReimbursementLabel = 'office.approveReimbursement';
 
-export function approvePPM(personallyProcuredMoveId) {
-  const label = approvePpmLabel;
+export function approvePPM(personallyProcuredMoveId, label = approvePpmLabel) {
   const swaggerTag = 'office.approvePPM';
   return swaggerRequest(getClient, swaggerTag, { personallyProcuredMoveId }, { label });
 }
 
-export function loadPPMs(moveId) {
-  const label = 'office.loadPPMs';
+export function loadPPMs(moveId, label = loadPPMsLabel) {
   const swaggerTag = 'ppm.indexPersonallyProcuredMoves';
   return swaggerRequest(getClient, swaggerTag, { moveId }, { label });
 }
@@ -21,8 +22,8 @@ export function updatePPM(
   moveId,
   personallyProcuredMoveId,
   payload /*shape: {size, weightEstimate, estimatedIncentive}*/,
+  label = updatePPMLabel,
 ) {
-  const label = 'office.updatePPM';
   const swaggerTag = 'ppm.patchPersonallyProcuredMove';
   return swaggerRequest(
     getClient,
@@ -42,8 +43,7 @@ export function downloadPPMAttachments(ppmId, docTypes, label = downloadPPMAttac
   return swaggerRequest(getClient, swaggerTag, payload, { label });
 }
 
-export function approveReimbursement(reimbursementId) {
-  const label = 'office.approveReimbursement';
+export function approveReimbursement(reimbursementId, label = approveReimbursementLabel) {
   const swaggerTag = 'office.approveReimbursement';
   return swaggerRequest(getClient, swaggerTag, { reimbursementId }, { label });
 }
