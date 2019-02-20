@@ -43,7 +43,7 @@ import {
   selectSortedShipmentLineItems,
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
-import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
+import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { loadPPMs, approvePPM, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { loadServiceMember, loadBackupContacts, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
@@ -165,7 +165,7 @@ class MoveInfo extends Component {
     this.props.getTspForShipment(getTspForShipmentLabel, shipmentId);
     this.props.getPublicShipment('Shipments.getPublicShipment', shipmentId);
     this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, shipmentId);
-    this.props.getAllInvoices(getShipmentInvoicesLabel, shipmentId);
+    this.props.getAllInvoices(shipmentId);
     this.props.getServiceAgentsForShipment(shipmentId);
   };
 

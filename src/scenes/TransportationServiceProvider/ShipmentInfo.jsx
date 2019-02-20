@@ -30,7 +30,7 @@ import {
   selectSortedShipmentLineItems,
   getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
-import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
+import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { selectSitRequests } from 'shared/Entities/modules/sitRequests';
 
@@ -139,7 +139,7 @@ class ShipmentInfo extends Component {
         this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, shipmentId);
         this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
         this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, shipmentId);
-        this.props.getAllInvoices(getShipmentInvoicesLabel, shipmentId);
+        this.props.getAllInvoices(shipmentId);
       })
       .catch(err => {
         this.props.history.replace('/');
