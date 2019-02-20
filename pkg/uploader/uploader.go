@@ -63,13 +63,11 @@ func (u *Uploader) CreateUpload(documentID *uuid.UUID, userID uuid.UUID, file af
 		return nil, responseVErrors, err
 	}
 
-	if !allowedTypes.AllowsAny() {
-		validator := models.NewStringInList(contentType, "ContentType", allowedTypes)
-		validator.IsValid(responseVErrors)
-		if responseVErrors.HasAny() {
-			u.logger.Error("Invalid content type for upload", zap.String("Filename", file.Name()), zap.String("ContentType", contentType))
-			return nil, responseVErrors, nil
-		}
+	validator := models.NewStringInList(contentType, "ContentType", allowedTypes)
+	validator.IsValid(responseVErrors)
+	if responseVErrors.HasAny() {
+		u.logger.Error("Invalid content type for upload", zap.String("Filename", file.Name()), zap.String("ContentType", contentType))
+		return nil, responseVErrors, nil
 	}
 
 	checksum, err := storage.ComputeChecksum(file)

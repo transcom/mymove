@@ -17,10 +17,20 @@ var (
 	AllowedTypesAny AllowedFileTypes = []string{"*"}
 )
 
-// AllowsAny returned true if any file type is acceptable
-func (aft AllowedFileTypes) AllowsAny() bool {
+// Contains checks to see if the provided file type is acceptable
+func (aft AllowedFileTypes) Contains(fileType string) bool {
 	if len(aft) == 1 && aft[0] == "*" {
 		return true
 	}
+	for _, fType := range aft {
+		if fType == fileType {
+			return true
+		}
+	}
 	return false
+}
+
+// Contents returns the allowed types as a slice of strings
+func (aft AllowedFileTypes) Contents() []string {
+	return aft
 }

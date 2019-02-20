@@ -135,15 +135,20 @@ func (v *DiscountRateIsValid) IsValid(errors *validate.Errors) {
 	}
 }
 
+type container interface {
+	Contains(string) bool
+	Contents() []string
+}
+
 // StringInList is an improved validators.StringInclusion validator with better error messages.
 type StringInList struct {
 	Value     string
 	FieldName string
-	List      []string
+	List      container
 }
 
 // NewStringInList returns a new StringInList validator.
-func NewStringInList(value string, fieldName string, list []string) *StringInList {
+func NewStringInList(value string, fieldName string, list container) *StringInList {
 	return &StringInList{
 		Value:     value,
 		FieldName: fieldName,
@@ -153,15 +158,8 @@ func NewStringInList(value string, fieldName string, list []string) *StringInLis
 
 // IsValid adds an error if the string value is blank.
 func (v *StringInList) IsValid(errors *validate.Errors) {
-	found := false
-	for _, l := range v.List {
-		if l == v.Value {
-			found = true
-			break
-		}
-	}
-	if !found {
-		errors.Add(validators.GenerateKey(v.FieldName), fmt.Sprintf("%s '%s' is not in the list [%s].", v.FieldName, v.Value, strings.Join(v.List, ", ")))
+	if !v.List.Contains(v.Value) {
+		errors.Add(validators.GenerateKey(v.FieldName), fmt.Sprintf("%s is not in the list [%s].", v.Value, strings.Join(v.List.Contents(), ", ")))
 	}
 }
 
