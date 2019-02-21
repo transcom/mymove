@@ -39,7 +39,7 @@ export function getCurrentUserInfo() {
 }
 
 export function selectCurrentUser(state) {
-  return state.user.userInfo;
+  return state.user.userInfo || {};
 }
 
 export function selectGetCurrentUserIsLoading(state) {
