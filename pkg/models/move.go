@@ -283,7 +283,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 	}
 
 	var newMoveDocument *MoveDocument
-	if moveType == "HHG" {
+	if moveType == SelectedMoveTypeHHG || moveType == SelectedMoveTypeHHGPPM {
 		newMoveDocument = &MoveDocument{
 			Move:             m,
 			MoveID:           m.ID,

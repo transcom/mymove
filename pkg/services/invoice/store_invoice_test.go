@@ -15,7 +15,7 @@ func helperInvoice(suite *InvoiceServiceSuite) (*models.Invoice, *models.OfficeU
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusDELIVERED}
-	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
 	suite.NoError(err)
 
 	shipment := shipments[0]

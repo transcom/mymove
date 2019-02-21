@@ -69,11 +69,12 @@ func (r ProcessRecalculateShipment) Call(shipment *models.Shipment, lineItems mo
 	}
 
 	// Re-calculate the Shipment!
-	engine := rateengine.NewRateEngine(r.DB, r.Logger, planner)
+	engine := rateengine.NewRateEngine(r.DB, r.Logger)
 	verrs, err := RecalculateShipment{
-		DB:     r.DB,
-		Logger: r.Logger,
-		Engine: engine,
+		DB:      r.DB,
+		Logger:  r.Logger,
+		Engine:  engine,
+		Planner: planner,
 	}.Call(shipment)
 	if verrs.HasAny() || err != nil {
 		errorString := ""

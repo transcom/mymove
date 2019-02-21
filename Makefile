@@ -109,6 +109,9 @@ build_soda: go_deps .build_soda.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
 	touch .build_soda.stamp
 
+build_generate_test_data: go_deps
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
+
 build_callgraph: go_deps .build_callgraph.stamp
 .build_callgraph.stamp:
 	go build -i -o bin/callgraph ./vendor/golang.org/x/tools/cmd/callgraph
@@ -166,10 +169,9 @@ server_run_debug:
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) dlv debug cmd/webserver/main.go
 
-build_tools: bash_version server_deps server_generate
+build_tools: bash_version server_deps server_generate build_generate_test_data
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
-	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
 	go build -i -ldflags "$(LDFLAGS)" -o bin/health_checker ./cmd/health_checker
 	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/demo/iws.go
 	go build -i -ldflags "$(LDFLAGS)" -o bin/load-office-data ./cmd/load_office_data
@@ -343,7 +345,7 @@ db_test_reset: db_destroy db_test_run
 
 db_test_reset_docker: db_destroy db_test_run_docker
 
-db_e2e_up:
+db_e2e_up: build_generate_test_data
 	@echo "Truncate the test database..."
 	psql postgres://postgres:$(PGPASSWORD)@localhost:5432/test_db?sslmode=disable -c 'TRUNCATE users CASCADE;'
 	@echo "Populate the test database..."
