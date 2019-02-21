@@ -44,7 +44,9 @@ func (u DieselFuelPriceStorer) StoreFuelPrices(numMonths int) (*validate.Errors,
 
 	//Save each month's fuel values to the db
 	for _, fuelValues := range fuelValuesByMonth {
-
+		if len(fuelValues.dateString) == 0 {
+			break
+		}
 		pricePerGallon := fuelValues.price
 		pubDateString := fuelValues.dateString
 		year, err := strconv.Atoi(pubDateString[:4])
@@ -97,24 +99,32 @@ type eiaRequestData struct {
 }
 
 type eiaSeriesData struct {
-	SeriesID    string          `json:"series_id"`
-	Name        string          `json:"name"`
-	Units       string          `json:"units"`
-	F           string          `json:"f"`
-	Unitshort   string          `json:"unitshort"`
-	Description string          `json:"description"`
-	Copyright   string          `json:"copyright"`
-	Source      string          `json:"source"`
-	Iso3166     string          `json:"iso3166"`
-	Geography   string          `json:"geography"`
-	Start       string          `json:"start"`
-	End         string          `json:"end"`
-	Updated     string          `json:"updated"`
-	Data        [][]interface{} `json:"data"`
+	//SeriesID    string          `json:"series_id"`
+	//Name        string          `json:"name"`
+	//Units       string          `json:"units"`
+	//F           string          `json:"f"`
+	//Unitshort   string          `json:"unitshort"`
+	//Description string          `json:"description"`
+	//Copyright   string          `json:"copyright"`
+	//Source      string          `json:"source"`
+	//Iso3166     string          `json:"iso3166"`
+	//Geography   string          `json:"geography"`
+	//Start       string          `json:"start"`
+	//End         string          `json:"end"`
+	//Updated     string          `json:"updated"`
+	Data [][]interface{} `json:"data"`
+}
+
+//TODO: Determine if we want to log or use any of the commented out info above
+
+type eiaOtherData struct {
+	Error       string `json:"error"`
+	UnknownInfo map[string]interface{}
 }
 
 type eiaData struct {
 	RequestData eiaRequestData  `json:"request"`
+	OtherData   eiaOtherData    `json:"data"`
 	SeriesData  []eiaSeriesData `json:"series"`
 }
 
@@ -159,14 +169,20 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 			return nil, errors.Wrap(err, "Unable to unmarshal JSON data from eia.gov's open data")
 		}
 
-		dateString := ""
-		var price float64
+		if len(result.OtherData.Error) != 0 {
+			return nil, errors.New(result.OtherData.Error)
+		} else if len(result.OtherData.UnknownInfo) != 0 {
+			return nil, errors.New("Unexpected response from GET request to eia.gov's open data")
+		} else if len(result.SeriesData) == 0 {
+			return nil, errors.New("GET request to eia.gov's open data was unsuccessful")
+		}
 		monthFuelData := result.SeriesData[0].Data
 		if len(monthFuelData) < 1 {
-			err := errors.Errorf("No fuel data available for %v", time.Month(month))
+			err := errors.Errorf("No fuel data available for %v, %v", time.Month(month), year)
 			return []fuelData{}, err
 		}
-
+		dateString := ""
+		var price float64
 		if len(monthFuelData) > 1 {
 			weekIndex := 0
 			var min int
@@ -176,7 +192,7 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 				price = weekData[1].(float64)
 				pubDateAsInt, err := strconv.Atoi(dateString)
 				if err != nil {
-					errors.Wrap(err, "pubDate conversion from string to int")
+					return nil, errors.Wrap(err, "pubDate conversion from string to int")
 				}
 				if i == 0 || pubDateAsInt < min {
 					min = pubDateAsInt
@@ -188,6 +204,8 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 		} else if len(monthFuelData) == 1 {
 			dateString = monthFuelData[0][0].(string)
 			price = monthFuelData[0][1].(float64)
+		} else if len(monthFuelData) == 0 {
+			log.Print("No fueldata available for %v %v", time.Month(month), year)
 		}
 
 		fuelValues = append(fuelValues, fuelData{dateString: dateString, price: price})
