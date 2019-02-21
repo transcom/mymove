@@ -26,7 +26,7 @@ export const loadLoggedInUser = () => {
           const data = normalize(response.service_member.orders, ordersArray);
           if (data.entities.shipments) {
             const shipmentIds = Object.keys(data.entities.shipments);
-            shipmentIds.map(id => dispatch(getShipment('Shipments.GetShipment', id)));
+            shipmentIds.map(id => dispatch(getShipment(id)));
           }
 
           // Only store addresses in a normalized way. This prevents
