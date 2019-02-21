@@ -453,23 +453,12 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	db.Transaction(func(connection *pop.Connection) error {
 		transactionError := errors.New("Rollback the transaction")
 
+		// NOTE: UpsertItemCodeDependency could update baseParams.Quantity1
 		verrs, err := UpsertItemCodeDependency(connection, &baseParams, &additionalParams, &shipmentLineItem)
 		if verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error setting up item code dependency: "+baseParams.Tariff400ngItemCode)
 			return transactionError
-		}
-
-		// if you are 105b/e item we need to store the crate volume in quantity1 field
-		if is105Item(baseParams.Tariff400ngItemCode, &additionalParams) {
-			quantity1 := unit.DimensionToCubicFeet(additionalParams.CrateDimensions.Length, additionalParams.CrateDimensions.Width, additionalParams.CrateDimensions.Height)
-			baseParams.Quantity1 = &quantity1
-		}
-
-		// But if Quantity1 is nil then set it to 0
-		if baseParams.Quantity1 == nil {
-			quantity1 := unit.BaseQuantityFromInt(0)
-			baseParams.Quantity1 = &quantity1
 		}
 
 		// Non-specified item code
@@ -511,6 +500,7 @@ func (s *Shipment) UpdateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	db.Transaction(func(connection *pop.Connection) error {
 		transactionError := errors.New("Rollback the transaction")
 
+		// NOTE: UpsertItemCodeDependency could update baseParams.Quantity1
 		verrs, err := UpsertItemCodeDependency(connection, &baseParams, &additionalParams, shipmentLineItem)
 		if verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
@@ -652,6 +642,17 @@ func UpsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineIt
 				responseError = errors.Wrap(err, "Error updating shipment line item dimensions")
 				return responseVErrors, responseError
 			}
+		}
+		// if you are 105b/e item we need to store the crate volume in quantity1 field
+		if is105Item(baseParams.Tariff400ngItemCode, additionalParams) {
+			quantity1 := unit.DimensionToCubicFeet(additionalParams.CrateDimensions.Length, additionalParams.CrateDimensions.Width, additionalParams.CrateDimensions.Height)
+			baseParams.Quantity1 = &quantity1
+		}
+
+		// But if Quantity1 is nil then set it to 0
+		if baseParams.Quantity1 == nil {
+			quantity1 := unit.BaseQuantityFromInt(0)
+			baseParams.Quantity1 = &quantity1
 		}
 	} else if baseParams.Quantity1 == nil {
 		// General pre-approval request
