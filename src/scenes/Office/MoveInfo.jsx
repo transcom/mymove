@@ -21,6 +21,7 @@ import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
 import IncentiveCalculator from './Ppm/IncentiveCalculator';
 import ExpensesPanel from './Ppm/ExpensesPanel';
+import NetWeightPanel from './Ppm/NetWeightPanel';
 import Dates from 'shared/ShipmentDates';
 import RoutingPanel from './Hhg/RoutingPanel';
 import ServiceAgentsContainer from './Hhg/ServiceAgentsContainer';
@@ -91,6 +92,7 @@ const PPMTabContent = props => {
       <IncentiveCalculator moveId={props.moveId} />
       <StorageReimbursementCalculator moveId={props.moveId} />
       <DatesAndLocationPanel title="Dates & Locations" moveId={props.moveId} />
+      <NetWeightPanel title="Weights" moveId={props.moveId} />
       <PPMEstimatesPanel title="Estimates" moveId={props.moveId} />
     </div>
   );

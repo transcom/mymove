@@ -195,6 +195,11 @@ definitions:
         minimum: 1
         title: Weight Estimate
         x-nullable: true
+      net_weight:
+        type: integer
+        minimum: 1
+        title: Net Weight
+        x-nullable: true
       has_requested_advance:
         type: boolean
         title: Would you like an advance of up to 60% of your PPM incentive?
@@ -263,6 +268,11 @@ definitions:
         minimum: 1
         title: Weight Estimate
         x-nullable: true
+      net_weight:
+        type: integer
+        minimum: 1
+        title: Net Weight
+        x-nullable: true
       has_requested_advance:
         type: boolean
         default: false
@@ -327,6 +337,11 @@ definitions:
         type: integer
         minimum: 1
         title: Weight Estimate
+        x-nullable: true
+      net_weight:
+        type: integer
+        minimum: 1
+        title: Net Weight
         x-nullable: true
       has_requested_advance:
         type: boolean
@@ -404,6 +419,12 @@ definitions:
         type: integer
         minimum: 1
         title: Weight Estimate
+        x-nullable: true
+        x-formatting: weight
+      net_weight:
+        type: integer
+        minimum: 1
+        title: Net Weight
         x-nullable: true
         x-formatting: weight
       mileage:

@@ -34,6 +34,7 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 		WeightEstimate:                personallyProcuredMove.WeightEstimate,
 		OriginalMoveDate:              handlers.FmtDatePtr(personallyProcuredMove.OriginalMoveDate),
 		ActualMoveDate:                handlers.FmtDatePtr(personallyProcuredMove.ActualMoveDate),
+		NetWeight:                     personallyProcuredMove.NetWeight,
 		PickupPostalCode:              personallyProcuredMove.PickupPostalCode,
 		HasAdditionalPostalCode:       personallyProcuredMove.HasAdditionalPostalCode,
 		AdditionalPickupPostalCode:    personallyProcuredMove.AdditionalPickupPostalCode,
@@ -155,6 +156,9 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 	}
 	if payload.WeightEstimate != nil {
 		ppm.WeightEstimate = payload.WeightEstimate
+	}
+	if payload.NetWeight != nil {
+		ppm.NetWeight = payload.NetWeight
 	}
 	if payload.OriginalMoveDate != nil {
 		ppm.OriginalMoveDate = (*time.Time)(payload.OriginalMoveDate)

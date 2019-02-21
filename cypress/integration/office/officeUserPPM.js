@@ -54,7 +54,47 @@ describe('office user finds the move', function() {
       expect(text).to.include('20-Nov-18');
     });
   });
+
+  it('office user edits ppm net weight', function() {
+    officeUserEditsNetWeight();
+  });
 });
+
+function officeUserEditsNetWeight() {
+  cy.patientVisit('/queues/ppm');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/ppm/);
+  });
+
+  cy.selectQueueItemMoveLocator('VGHEIS');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
+
+  cy
+    .get('span')
+    .contains('PPM')
+    .click();
+
+  cy.get('.net_weight').contains('missing');
+
+  cy
+    .get('.editable-panel-header')
+    .contains('Weights')
+    .siblings()
+    .click();
+
+  cy.get('input[name="net_weight"]').type('6000');
+
+  cy
+    .get('button')
+    .contains('Save')
+    .click();
+
+  cy.get('.net_weight').contains('6,000');
+}
 
 function officeUserViewsMoves() {
   // Open new moves queue
