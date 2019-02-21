@@ -160,10 +160,10 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 		shipment, err = models.FetchShipment(h.DB(), session, shipmentID)
 		if err != nil {
 			h.Logger().Error("Error fetching shipment for service member", zap.Error(err))
-			return shipmentop.NewGetShipmentForbidden()
-		}
-		if session.ServiceMemberID != shipment.ServiceMemberID {
-			return shipmentop.NewGetShipmentForbidden()
+			if err == models.ErrFetchForbidden {
+				return shipmentop.NewGetShipmentForbidden()
+			}
+			return shipmentop.NewGetShipmentBadRequest()
 		}
 	} else {
 		return shipmentop.NewGetShipmentForbidden()

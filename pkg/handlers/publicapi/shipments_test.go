@@ -161,7 +161,6 @@ func (suite *HandlerSuite) TestGetShipmentHandlerWhereSessionServiceMemberIDDoes
 	}
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	models.FetchShipment(suite.DB(), session, shipment.ID)
 
 	handler := GetShipmentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
