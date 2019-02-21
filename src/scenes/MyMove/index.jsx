@@ -29,7 +29,7 @@ import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { loadLoggedInUser } from 'shared/User/ducks';
-import { getCurrentUserInfo } from 'shared/Entities/modules/users';
+import { getCurrentUserInfo, selectCurrentUser } from 'shared/Entities/modules/users';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
 import FailWhale from 'shared/FailWhale';
 import { no_op } from 'shared/utils';
@@ -40,7 +40,9 @@ export class AppWrapper extends Component {
   componentDidMount() {
     this.props.loadLoggedInUser();
     this.props.loadInternalSchema();
-    this.props.getCurrentUserInfo();
+    if (this.props.user.isLoggedIn) {
+      this.props.getCurrentUserInfo();
+    }
   }
 
   componentDidCatch(error, info) {
@@ -125,12 +127,13 @@ AppWrapper.defaultProps = {
 
 const mapStateToProps = state => {
   return {
-    swaggerError: state.swaggerInternal.hasErrored,
     currentServiceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
-    selectedMoveType: selectedMoveType(state),
-    moveId: get(state, 'moves.currentMove.id'),
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     latestMove: get(state, 'moves.latestMove'),
+    moveId: get(state, 'moves.currentMove.id'),
+    selectedMoveType: selectedMoveType(state),
+    swaggerError: state.swaggerInternal.hasErrored,
+    user: selectCurrentUser(state),
   };
 };
 const mapDispatchToProps = dispatch =>
