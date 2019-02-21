@@ -266,8 +266,8 @@ func initFlags(flag *pflag.FlagSet) {
 	// CSRF Protection
 	flag.String("csrf-auth-key", "", "CSRF Auth Key, 32 byte long")
 
-	// IEA Open Data API
-	flag.String("iea-key", "", "Key for Energy Information Administration (EIA) api")
+	// EIA Open Data API
+	flag.String("eia-key", "", "Key for Energy Information Administration (EIA) api")
 }
 
 func initDODCertificates(v *viper.Viper, logger *webserverLogger) ([]tls.Certificate, *x509.CertPool, error) {
