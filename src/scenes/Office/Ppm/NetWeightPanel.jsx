@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { get, pick } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -43,7 +43,7 @@ function mapStateToProps(state, ownProps) {
   const ppm = selectPPMForMove(state, ownProps.moveId);
   return {
     // reduxForm
-    initialValues: ppm,
+    initialValues: pick(ppm, 'net_weight'),
     formValues,
 
     // Wrapper
