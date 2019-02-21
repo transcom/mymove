@@ -49,10 +49,6 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 	// TODO: For now, we keep the Shipment structure the same but change where the CodeOfService
 	// TODO: is coming from.  Ultimately we should probably rework the structure below to more
 	// TODO: closely match the database structure.
-	var codeOfService *string
-	if s.TrafficDistributionList != nil {
-		codeOfService = &s.TrafficDistributionList.CodeOfService
-	}
 
 	var moveDatesSummary internalmessages.ShipmentMoveDatesSummary
 	if s.RequestedPickupDate != nil && s.EstimatedPackDays != nil && s.EstimatedTransitDays != nil {
@@ -74,7 +70,6 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 		SourceGbloc:      payloadForGBLOC(s.SourceGBLOC),
 		DestinationGbloc: payloadForGBLOC(s.DestinationGBLOC),
 		Market:           payloadForMarkets(s.Market),
-		CodeOfService:    codeOfService,
 		CreatedAt:        strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:        strfmt.DateTime(s.UpdatedAt),
 
