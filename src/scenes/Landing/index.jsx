@@ -20,6 +20,7 @@ import scrollToTop from 'shared/scrollToTop';
 import { updateMove } from 'scenes/Moves/ducks';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { selectShipment } from 'shared/Entities/modules/shipments';
+import { selectCurrentUser } from 'shared/Entities/modules/users';
 
 export class Landing extends Component {
   componentDidMount() {
@@ -162,10 +163,11 @@ export class Landing extends Component {
 
 const mapStateToProps = state => {
   const shipmentId = getCurrentShipment(state);
+  const user = selectCurrentUser(state);
   const props = {
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     selectedMoveType: selectedMoveType(state),
-    isLoggedIn: state.user.isLoggedIn,
+    isLoggedIn: user.isLoggedIn,
     isProfileComplete: isProfileComplete(state),
     isHHGPPMComboMove: isHHGPPMComboMove(state),
     serviceMember: state.serviceMember.currentServiceMember || {},

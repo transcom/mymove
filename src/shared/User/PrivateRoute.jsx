@@ -2,6 +2,7 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 
+import { selectCurrentUser } from 'shared/Entities/modules/users';
 import SignIn from './SignIn';
 
 const NotAuthenticated = () => (
@@ -19,9 +20,12 @@ class PrivateRouteContainer extends React.Component {
     else return <Route path={path} component={NotAuthenticated} />;
   }
 }
-const mapStateToProps = state => ({
-  isLoggedIn: state.user.isLoggedIn,
-});
+const mapStateToProps = state => {
+  const user = selectCurrentUser(state);
+  return {
+    isLoggedIn: user.isLoggedIn,
+  };
+};
 const PrivateRoute = connect(mapStateToProps)(PrivateRouteContainer);
 
 export default PrivateRoute;
