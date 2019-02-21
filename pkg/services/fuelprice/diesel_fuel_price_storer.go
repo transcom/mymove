@@ -128,11 +128,31 @@ type eiaData struct {
 	SeriesData  []eiaSeriesData `json:"series"`
 }
 
+func (u DieselFuelPriceStorer) fetchFuelData(url string, client *http.Client) (resultData eiaData, err error) {
+	resp, err := client.Get(url)
+	if err != nil {
+		return resultData, errors.Wrap(err, "Error with EIA Open Data fuel prices GET request")
+	}
+
+	response, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return resultData, errors.Wrap(err, "Unable to read response body from eia.gov")
+	}
+
+	err = json.Unmarshal(response, &resultData)
+	if err != nil {
+		return resultData, errors.Wrap(err, "Unable to unmarshal JSON data from eia.gov's open data")
+	}
+
+	return resultData, err
+}
+
 func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fuelValues []fuelData, err error) {
 	// for each missing month, get the data for that month and add to struct
 
 	client := &http.Client{}
 	currentDate := u.Clock.Now()
+
 	// Do an api query for each month that needs a fuel price record
 	for _, month := range missingMonths {
 		var startDateString string
@@ -153,20 +173,10 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 		url := fmt.Sprintf(
 			"https://api.eia.gov/series/?api_key=%v&series_id=PET.EMD_EPD2D_PTE_NUS_DPG.W&start=%v&end=%v",
 			eiaKey, startDateString, endDateString)
-		resp, err := client.Get(url)
-		if err != nil {
-			return nil, errors.Wrap(err, "Error with EIA Open Data fuel prices GET request")
-		}
 
-		response, err := ioutil.ReadAll(resp.Body)
+		result, err := u.fetchFuelData(url, client)
 		if err != nil {
-			return nil, errors.Wrap(err, "Unable to read response body from eia.gov")
-		}
-
-		var result eiaData
-		err = json.Unmarshal(response, &result)
-		if err != nil {
-			return nil, errors.Wrap(err, "Unable to unmarshal JSON data from eia.gov's open data")
+			return nil, errors.Wrap(err, "problem fetching fuel data")
 		}
 
 		if len(result.OtherData.Error) != 0 {
@@ -186,6 +196,7 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 		if len(monthFuelData) > 1 {
 			weekIndex := 0
 			var min int
+
 			// find earliest date(String) in the month
 			for i, weekData := range monthFuelData {
 				dateString = weekData[0].(string)
@@ -205,7 +216,7 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 			dateString = monthFuelData[0][0].(string)
 			price = monthFuelData[0][1].(float64)
 		} else if len(monthFuelData) == 0 {
-			log.Print("No fueldata available for %v %v", time.Month(month), year)
+			log.Print("No fueldata available yet for %v %v", time.Month(month), year)
 		}
 
 		fuelValues = append(fuelValues, fuelData{dateString: dateString, price: price})
