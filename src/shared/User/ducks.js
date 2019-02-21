@@ -72,8 +72,6 @@ export const loggedInUserReducer = (state = {}, action) => {
 
 const loggedOutUser = {
   isLoggedIn: false,
-  email: '',
-  userId: null,
 };
 
 function getUserInfo() {
@@ -83,11 +81,7 @@ function getUserInfo() {
   const cookie = Cookies.get(cookieName);
   if (!cookie) return loggedOutUser;
   const jwt = decode(cookie);
-  const { Email, UserID, FirstName } = jwt.SessionValue;
   return {
-    email: Email,
-    userId: UserID,
-    firstName: FirstName,
     isLoggedIn: true,
   };
 }
