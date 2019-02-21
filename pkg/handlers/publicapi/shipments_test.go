@@ -151,6 +151,7 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 func (suite *HandlerSuite) TestGetShipmentHandlerWhereSessionServiceMemberIDDoesNotEqualShipmentServiceMemberID() {
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
 	req := httptest.NewRequest("GET", "/shipments", nil)
 	req = suite.AuthenticateRequest(req, serviceMember)
 
@@ -159,10 +160,11 @@ func (suite *HandlerSuite) TestGetShipmentHandlerWhereSessionServiceMemberIDDoes
 		ShipmentID:  strfmt.UUID(shipment.ID.String()),
 	}
 
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	models.FetchShipment(suite.DB(), session, shipment.ID)
+
 	handler := GetShipmentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
-
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	suite.NotEqual(session.ServiceMemberID, shipment.ServiceMemberID)
 	suite.Assertions.IsType(&shipmentop.GetShipmentForbidden{}, response)
