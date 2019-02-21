@@ -39,7 +39,6 @@ const initialState = {
   shipments: {},
   tariff400ngItems: {},
   transportationServiceProviders: {},
-  users: {},
 };
 
 // Actions of either of these types will be merged into the store:

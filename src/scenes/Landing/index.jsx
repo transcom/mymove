@@ -11,7 +11,11 @@ import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { getCurrentShipment } from 'shared/UI/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { loadLoggedInUser } from 'shared/User/ducks';
+import {
+  selectGetCurrentUserIsLoading,
+  selectGetCurrentUserIsSuccess,
+  selectGetCurrentUserIsError,
+} from 'shared/Entities/modules/users';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import Alert from 'shared/Alert';
 import SignIn from 'shared/User/SignIn';
@@ -177,10 +181,10 @@ const mapStateToProps = state => {
     hhg: selectShipment(state, shipmentId),
     ppm: getPPM(state),
     currentShipment: shipmentId || {},
-    loggedInUser: state.loggedInUser.loggedInUser,
-    loggedInUserIsLoading: state.loggedInUser.isLoading,
-    loggedInUserError: state.loggedInUser.error,
-    loggedInUserSuccess: state.loggedInUser.hasSucceeded,
+    loggedInUser: user,
+    loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
+    loggedInUserError: selectGetCurrentUserIsError(state),
+    loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     createdServiceMemberIsLoading: state.serviceMember.isLoading,
     createdServiceMemberSuccess: state.serviceMember.hasSubmitSuccess,
     createdServiceMemberError: state.serviceMember.error,
@@ -194,7 +198,7 @@ const mapStateToProps = state => {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ push, createServiceMember, loadLoggedInUser, updateMove }, dispatch);
+  return bindActionCreators({ push, createServiceMember, updateMove }, dispatch);
 }
 
 export default withLastLocation(connect(mapStateToProps, mapDispatchToProps)(Landing));

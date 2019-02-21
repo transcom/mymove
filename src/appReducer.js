@@ -2,8 +2,7 @@ import { combineReducers } from 'redux';
 import { reducer as formReducer } from 'redux-form';
 import { routerReducer } from 'react-router-redux';
 
-import { loggedInUserReducer } from 'shared/User/ducks';
-import userReducer from 'shared/User/ducks';
+import userReducer from 'shared/Entities/modules/users';
 import { swaggerReducerPublic, swaggerReducerInternal } from 'shared/Swagger/ducks';
 import { requestsReducer } from 'shared/Swagger/requestsReducer';
 import { entitiesReducer } from 'shared/Entities/reducer';
@@ -23,7 +22,6 @@ import officePpmReducer from 'scenes/Office/Ppm/ducks';
 
 const defaultReducers = {
   form: formReducer,
-  loggedInUser: loggedInUserReducer,
   router: routerReducer,
   swaggerPublic: swaggerReducerPublic,
   requests: requestsReducer,

@@ -28,7 +28,6 @@ import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement'
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
-import { loadLoggedInUser } from 'shared/User/ducks';
 import { getCurrentUserInfo, selectCurrentUser } from 'shared/Entities/modules/users';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
 import FailWhale from 'shared/FailWhale';
@@ -137,6 +136,6 @@ const mapStateToProps = state => {
   };
 };
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ goBack, push, loadInternalSchema, loadLoggedInUser, getCurrentUserInfo }, dispatch);
+  bindActionCreators({ goBack, push, loadInternalSchema, getCurrentUserInfo }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppWrapper);
