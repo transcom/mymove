@@ -1,5 +1,4 @@
 import * as Cookies from 'js-cookie';
-import * as decode from 'jwt-decode';
 import * as helpers from 'shared/ReduxHelpers';
 import { isMilmoveSite, isOfficeSite, isTspSite } from 'shared/constants';
 import { GetLoggedInUser } from './api.js';
@@ -70,19 +69,13 @@ export const loggedInUserReducer = (state = {}, action) => {
   }
 };
 
-const loggedOutUser = {
-  isLoggedIn: false,
-};
-
 function getUserInfo() {
   // The prefix should match the lowercased application name set in the server session
   let cookiePrefix = (isMilmoveSite && 'mil') || (isOfficeSite && 'office') || (isTspSite && 'tsp') || '';
   const cookieName = cookiePrefix + '_session_token';
   const cookie = Cookies.get(cookieName);
-  if (!cookie) return loggedOutUser;
-  const jwt = decode(cookie);
   return {
-    isLoggedIn: true,
+    isLoggedIn: !!cookie,
   };
 }
 
