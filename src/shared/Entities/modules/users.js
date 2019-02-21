@@ -9,7 +9,12 @@ export function getCurrentUserInfo(label = getCurrentUserInfoLabel) {
 }
 
 export function selectCurrentUser(state) {
-  const currentUserInfo = Object.values(state.entities.users).first || {};
+  const currentUserInfo = Object.values(state.entities.users)[0] || {};
   const userAppInfo = state.user;
-  return { ...currentUserInfo, ...userAppInfo };
+  const serviceMember = currentUserInfo.service_member;
+  if (serviceMember) {
+    return { email: serviceMember.personal_email, first_name: serviceMember.first_name, ...userAppInfo };
+  } else {
+    return { email: '', ...currentUserInfo, ...userAppInfo };
+  }
 }

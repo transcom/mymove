@@ -29,6 +29,7 @@ import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { loadLoggedInUser } from 'shared/User/ducks';
+import { getCurrentUserInfo } from 'shared/Entities/modules/users';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
 import FailWhale from 'shared/FailWhale';
 import { no_op } from 'shared/utils';
@@ -39,6 +40,7 @@ export class AppWrapper extends Component {
   componentDidMount() {
     this.props.loadLoggedInUser();
     this.props.loadInternalSchema();
+    this.props.getCurrentUserInfo();
   }
 
   componentDidCatch(error, info) {
@@ -132,6 +134,6 @@ const mapStateToProps = state => {
   };
 };
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ goBack, push, loadInternalSchema, loadLoggedInUser }, dispatch);
+  bindActionCreators({ goBack, push, loadInternalSchema, loadLoggedInUser, getCurrentUserInfo }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppWrapper);
