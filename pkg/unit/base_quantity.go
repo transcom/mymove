@@ -25,8 +25,8 @@ func BaseQuantityFromInt(i int) BaseQuantity {
 	return BaseQuantity(i * 10000)
 }
 
-// BaseQuantityFromFloat a BaseQuantity for a provided float64
-func BaseQuantityFromFloat(i float64) BaseQuantity {
+// BaseQuantityFromFloat a BaseQuantity for a provided float32
+func BaseQuantityFromFloat(i float32) BaseQuantity {
 	return BaseQuantity(i * 10000)
 }
 

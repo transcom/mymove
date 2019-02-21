@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"math"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -474,6 +473,7 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 		shipmentLineItem.Description = baseParams.Description
 
 		verrs, err = connection.ValidateAndCreate(&shipmentLineItem)
+
 		if verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error creating shipment line item")
@@ -647,9 +647,7 @@ func UpsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineIt
 		// if you are 105b/e item we need to store the crate volume in quantity1 field
 		if is105Item(baseParams.Tariff400ngItemCode, additionalParams) {
 			quantity1 := unit.DimensionToCubicFeet(additionalParams.CrateDimensions.Length, additionalParams.CrateDimensions.Width, additionalParams.CrateDimensions.Height)
-			truncateQuantity1 := unit.BaseQuantityFromFloat(math.Floor(quantity1*100) / 100)
-			fmt.Println(truncateQuantity1)
-			baseParams.Quantity1 = &truncateQuantity1
+			baseParams.Quantity1 = &quantity1
 		}
 
 		// But if Quantity1 is nil then set it to 0
