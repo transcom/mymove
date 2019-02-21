@@ -39,6 +39,12 @@ import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
+import TspContainer from 'shared/TspPanel/TspContainer';
+import Weights from 'shared/ShipmentWeights';
+import Dates from 'shared/ShipmentDates';
+import LocationsContainer from 'shared/LocationsPanel/LocationsContainer';
+import { getLastRequestIsSuccess, getLastRequestIsLoading } from 'shared/Swagger/selectors';
+import { resetRequests } from 'shared/Swagger/request';
 import {
   loadShipmentDependencies,
   completePmSurvey,
@@ -49,10 +55,6 @@ import {
   handleServiceAgents,
   loadEntitlements,
 } from './ducks';
-import TspContainer from 'shared/TspPanel/TspContainer';
-import Weights from 'shared/ShipmentWeights';
-import Dates from 'shared/ShipmentDates';
-import LocationsContainer from 'shared/LocationsPanel/LocationsContainer';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
@@ -61,7 +63,6 @@ import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
 import PickupForm from './PickupForm';
 import PremoveSurveyForm from './PremoveSurveyForm';
 import ServiceAgentForm from './ServiceAgentForm';
-import { getLastRequestIsSuccess, getLastRequestIsLoading } from 'shared/Swagger/selectors';
 
 import './tsp.css';
 
@@ -143,6 +144,10 @@ class ShipmentInfo extends Component {
       .catch(err => {
         this.props.history.replace('/');
       });
+  }
+
+  componentWillUnmount() {
+    this.props.resetRequests();
   }
 
   acceptShipment = () => {
@@ -474,8 +479,8 @@ const mapStateToProps = state => {
     loadTspDependenciesHasSuccess: get(state, 'tsp.loadTspDependenciesHasSuccess'),
     loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
     acceptError: get(state, 'tsp.shipmentHasAcceptError'),
-    generateGBLError: get(state, 'tsp.generateGBLError'),
     generateGBLSuccess: getLastRequestIsSuccess(state, generateGblLabel),
+    generateGBLError: get(state, 'tsp.generateGBLError'),
     generateGBLInProgress: getLastRequestIsLoading(state, generateGblLabel),
     gblDocUrl: `/shipments/${shipment.id}/documents/${get(gbl, 'id')}`,
     error: get(state, 'tsp.error'),
@@ -504,6 +509,7 @@ const mapDispatchToProps = dispatch =>
       getAllShipmentLineItems,
       getAllInvoices,
       getTspForShipment,
+      resetRequests,
     },
     dispatch,
   );
