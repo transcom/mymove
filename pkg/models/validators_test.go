@@ -60,7 +60,7 @@ func TestStringInList_IsValid(t *testing.T) {
 				t.Fatal("There should be one error")
 			}
 
-			expected := fmt.Sprintf("fieldName '%s' is not in the list [%s].", invalidType, strings.Join(validTypes, ", "))
+			expected := fmt.Sprintf("'%s' is not in the list [%s].", invalidType, strings.Join(validTypes, ", "))
 			fieldErrors := errs.Get("field_name")
 
 			if len(fieldErrors) != 1 {

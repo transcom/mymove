@@ -159,7 +159,7 @@ func NewStringInList(value string, fieldName string, list container) *StringInLi
 // IsValid adds an error if the string value is blank.
 func (v *StringInList) IsValid(errors *validate.Errors) {
 	if !v.List.Contains(v.Value) {
-		errors.Add(validators.GenerateKey(v.FieldName), fmt.Sprintf("%s is not in the list [%s].", v.Value, strings.Join(v.List.Contents(), ", ")))
+		errors.Add(validators.GenerateKey(v.FieldName), fmt.Sprintf("'%s' is not in the list [%s].", v.Value, strings.Join(v.List.Contents(), ", ")))
 	}
 }
 
