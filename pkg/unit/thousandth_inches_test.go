@@ -10,7 +10,7 @@ func TestDimensionToCubicFeet(t *testing.T) {
 	largeCrate := 60000
 	xLarge := 1000000
 
-	var flagtests = []struct {
+	var testData = []struct {
 		length   ThousandthInches
 		width    ThousandthInches
 		height   ThousandthInches
@@ -31,10 +31,10 @@ func TestDimensionToCubicFeet(t *testing.T) {
 		{ThousandthInches(xLarge + 60000), ThousandthInches(xLarge - 50000), ThousandthInches(xLarge - 16543), "5731141197"},
 	}
 
-	for _, flag := range flagtests {
-		result := DimensionToCubicFeet(ThousandthInches(flag.length), ThousandthInches(flag.width), ThousandthInches(flag.height)).String()
-		if result != flag.expected {
-			t.Errorf("volume calculation failed: expected %s, got %s", flag.expected, result)
+	for _, data := range testData {
+		result := DimensionToCubicFeet(ThousandthInches(data.length), ThousandthInches(data.width), ThousandthInches(data.height)).String()
+		if result != data.expected {
+			t.Errorf("volume calculation failed: expected %s, got %s", data.expected, result)
 		}
 	}
 }
