@@ -31,7 +31,9 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 
 	if !session.IsServiceMember() {
 		userPayload := internalmessages.LoggedInUserPayload{
-			ID: handlers.FmtUUID(session.UserID),
+			ID:        handlers.FmtUUID(session.UserID),
+			FirstName: session.FirstName,
+			Email:     session.Email,
 		}
 		return userop.NewShowLoggedInUserOK().WithPayload(&userPayload)
 	}
