@@ -3,6 +3,7 @@ import { schema } from 'normalizr';
 
 // User
 export const user = new schema.Entity('users');
+export const loggedInUser = user;
 
 // Uploads
 export const upload = new schema.Entity('uploads');
