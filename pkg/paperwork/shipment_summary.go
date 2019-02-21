@@ -6,6 +6,8 @@ import (
 	"io"
 	"time"
 
+	"github.com/transcom/mymove/pkg/route"
+
 	"github.com/transcom/mymove/pkg/rateengine"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -249,42 +251,6 @@ func NewSSWPPMComputer(PPMComputer ppmComputer) *SSWPPMComputer {
 	return &SSWPPMComputer{ppmComputer: PPMComputer}
 }
 
-type ppmParams struct {
-	Weight          *int64
-	OriginZip5      *string
-	DestinationZip5 *string
-	Date            *time.Time
-	DaysInSIT       int
-	SitDiscount     unit.DiscountRate
-}
-
-type ppmComputerParams struct {
-	Weight          unit.Pound
-	OriginZip5      string
-	DestinationZip5 string
-	Date            time.Time
-	DaysInSIT       int
-	SitDiscount     unit.DiscountRate
-}
-
-func (sswPpmComputer *SSWPPMComputer) isValidPPM(moveDetails ppmParams) (ppmComputerParams, bool) {
-	if moveDetails.OriginZip5 != nil &&
-		moveDetails.DestinationZip5 != nil &&
-		moveDetails.Date != nil &&
-		moveDetails.Weight != nil {
-		details := ppmComputerParams{
-			unit.Pound(*moveDetails.Weight),
-			*moveDetails.OriginZip5,
-			*moveDetails.DestinationZip5,
-			*moveDetails.Date,
-			moveDetails.DaysInSIT,
-			moveDetails.SitDiscount,
-		}
-		return details, true
-	}
-	return ppmComputerParams{}, false
-}
-
 //ObligationType type corresponding to obligation sections of shipment summary worksheet
 type ObligationType int
 
@@ -296,44 +262,53 @@ const (
 )
 
 //ComputeObligations is helper function for computing the obligations section of the shipment summary worksheet
-func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ppm models.PersonallyProcuredMove, miles int, obligationType ObligationType) (obligation models.Obligation, err error) {
-	var params ppmComputerParams
+func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSummaryFormData, planner route.Planner, obligationType ObligationType) (obligation models.Obligation, err error) {
+	var firstPPM models.PersonallyProcuredMove
+	var cost rateengine.CostComputation
+	if len(ssfd.PersonallyProcuredMoves) == 0 {
+		return models.Obligation{}, errors.New("missing ppm")
+	}
+	firstPPM = ssfd.PersonallyProcuredMoves[0]
+	if firstPPM.PickupPostalCode == nil || firstPPM.DestinationPostalCode == nil {
+		return models.Obligation{}, errors.New("missing required address parameter")
+	}
+	distanceMiles, err := planner.Zip5TransitDistance(*firstPPM.PickupPostalCode, *firstPPM.DestinationPostalCode)
+	if err != nil {
+		return models.Obligation{}, errors.New("error calculating distance")
+	}
+
 	var valid bool
-	var moveDetails ppmParams
 	switch obligationType {
 	case MaxObligation:
-		moveDetails = ppmParams{
-			Weight:          ppm.WeightEstimate,
-			OriginZip5:      ppm.PickupPostalCode,
-			DestinationZip5: ppm.DestinationPostalCode,
-			Date:            ppm.OriginalMoveDate,
-			DaysInSIT:       0,
-			SitDiscount:     0,
+		if valid = firstPPM.OriginalMoveDate != nil; valid {
+			cost, err = sswPpmComputer.ComputePPMIncludingLHDiscount(
+				unit.Pound(ssfd.TotalWeightAllotment),
+				*firstPPM.PickupPostalCode,
+				*firstPPM.DestinationPostalCode,
+				distanceMiles,
+				*firstPPM.OriginalMoveDate,
+				0,
+				0,
+			)
+		}
+		if err != nil || !valid {
+			return models.Obligation{}, errors.New("error calculating PPM max obligations")
 		}
 	case ActualObligation:
-		moveDetails = ppmParams{
-			Weight:          ppm.NetWeight,
-			OriginZip5:      ppm.PickupPostalCode,
-			DestinationZip5: ppm.DestinationPostalCode,
-			Date:            ppm.ActualMoveDate,
-			DaysInSIT:       0,
-			SitDiscount:     0,
+		if valid = firstPPM.NetWeight != nil && firstPPM.ActualMoveDate != nil; valid {
+			cost, err = sswPpmComputer.ComputePPMIncludingLHDiscount(
+				unit.Pound(*firstPPM.NetWeight),
+				*firstPPM.PickupPostalCode,
+				*firstPPM.DestinationPostalCode,
+				distanceMiles,
+				*firstPPM.ActualMoveDate,
+				0,
+				0,
+			)
 		}
-	}
-	if params, valid = sswPpmComputer.isValidPPM(moveDetails); !valid {
-		return models.Obligation{}, errors.New("ppm missing required parameter")
-	}
-	cost, err := sswPpmComputer.ComputePPMIncludingLHDiscount(
-		params.Weight,
-		params.OriginZip5,
-		params.DestinationZip5,
-		miles,
-		params.Date,
-		params.DaysInSIT,
-		params.SitDiscount,
-	)
-	if err != nil {
-		return models.Obligation{}, errors.New("Error calculating PPM max obligations ")
+		if err != nil || !valid {
+			return models.Obligation{}, errors.New("error calculating PPM actual obligations")
+		}
 	}
 	return models.Obligation{Gcc: cost.GCC}, nil
 }

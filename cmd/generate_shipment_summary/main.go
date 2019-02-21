@@ -73,31 +73,16 @@ func main() {
 	testAppCode := os.Getenv("HERE_MAPS_APP_CODE")
 	hereClient := &http.Client{Timeout: hereRequestTimeout}
 	planner := route.NewHEREPlanner(logger, hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
-	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(db, &auth.Session{}, parsedID)
-	if err != nil {
-		log.Fatalf("Error fetching worksheet data %v", err)
-	}
 	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(db, logger))
-	var firstPPM models.PersonallyProcuredMove
-	if len(ssfd.PersonallyProcuredMoves) > 0 {
-		firstPPM = ssfd.PersonallyProcuredMoves[0]
-		if firstPPM.PickupPostalCode == nil || firstPPM.DestinationPostalCode == nil {
-			log.Fatalf("Error missing required address parameter: PickupPostalCode %v, DestinationPostalCode %v", firstPPM.PickupPostalCode, firstPPM.DestinationPostalCode)
-		}
-		distanceMiles, err := planner.Zip5TransitDistance(*firstPPM.PickupPostalCode, *firstPPM.DestinationPostalCode)
-		if err != nil {
-			log.Fatalf("Error calculating distance %v", err)
-		}
-		ssfd.MaxObligation, err = ppmComputer.ComputeObligations(firstPPM, distanceMiles, paperwork.MaxObligation)
-		if err != nil {
-			log.Fatalf("Error calculating PPM max obligations %v", err)
-		}
-		ssfd.ActualObligation, err = ppmComputer.ComputeObligations(firstPPM, distanceMiles, paperwork.ActualObligation)
-		//TODO clarify how the error handling should work (i.e. if certain fields are missing should we not print the
-		//TODO form or just zero them out). Wasn't sure which fields can actually be missing when form is printed.
-		if err != nil {
-			log.Printf("Error calculating PPM actual obligations %v", err)
-		}
+
+	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(db, &auth.Session{}, parsedID)
+	ssfd.MaxObligation, err = ppmComputer.ComputeObligations(ssfd, planner, paperwork.MaxObligation)
+	if err != nil {
+		log.Println("Error calculating PPM max obligations ")
+	}
+	ssfd.ActualObligation, err = ppmComputer.ComputeObligations(ssfd, planner, paperwork.ActualObligation)
+	if err != nil {
+		log.Println("Error calculating PPM actual obligations ")
 	}
 
 	page1Data, page2Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)

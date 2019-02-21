@@ -244,27 +244,13 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 
 	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(h.DB(), session, moveID)
 	ssfd.PreparationDate = time.Time(params.PreparationDate)
-	var firstPPM models.PersonallyProcuredMove
-	if len(ssfd.PersonallyProcuredMoves) > 0 {
-		firstPPM = ssfd.PersonallyProcuredMoves[0]
-		if firstPPM.PickupPostalCode == nil || firstPPM.DestinationPostalCode == nil {
-			h.Logger().Error("Error missing required address parameter")
-			return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
-		}
-		distanceMiles, err := h.Planner().Zip5TransitDistance(*firstPPM.PickupPostalCode, *firstPPM.DestinationPostalCode)
-		if err != nil {
-			h.Logger().Error("Error calculating distance", zap.Error(err))
-			return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
-		}
-		ssfd.MaxObligation, err = ppmComputer.ComputeObligations(firstPPM, distanceMiles, paperwork.MaxObligation)
-		if err != nil {
-			h.Logger().Error("Error calculating PPM max obligations ", zap.Error(err))
-			return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
-		}
-		ssfd.ActualObligation, err = ppmComputer.ComputeObligations(firstPPM, distanceMiles, paperwork.ActualObligation)
-		if err != nil {
-			h.Logger().Error("Error calculating PPM actual obligations ", zap.Error(err))
-		}
+	ssfd.MaxObligation, err = ppmComputer.ComputeObligations(ssfd, h.Planner(), paperwork.MaxObligation)
+	if err != nil {
+		h.Logger().Error("Error calculating PPM max obligations ", zap.Error(err))
+	}
+	ssfd.ActualObligation, err = ppmComputer.ComputeObligations(ssfd, h.Planner(), paperwork.ActualObligation)
+	if err != nil {
+		h.Logger().Error("Error calculating PPM actual obligations ", zap.Error(err))
 	}
 
 	page1Data, page2Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)

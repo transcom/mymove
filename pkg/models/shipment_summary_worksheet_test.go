@@ -49,6 +49,8 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 			Advance:             &advance,
 		},
 	})
+	// Wasn't saving advance in reimbursements table w/o this step
+	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
 	movedocuments := testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
 			MoveID:                   ppm.Move.ID,
@@ -62,7 +64,6 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 			ServiceMember:   move.Orders.ServiceMember,
 		},
 	}
-	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
 	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
 	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
 	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
