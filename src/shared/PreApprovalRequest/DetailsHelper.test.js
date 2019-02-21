@@ -91,10 +91,5 @@ describe('testing getDetailComponent()', () => {
     it('for code 105E without crate dimensions', () => {
       expect(DetailComponent).toBe(DefaultDetails);
     });
-
-    DetailComponent = getDetailComponent('105E', featureFlag, null);
-    it('for code 105E without crate dimensions', () => {
-      expect(DetailComponent).toBe(DefaultDetails);
-    });
   });
 });
