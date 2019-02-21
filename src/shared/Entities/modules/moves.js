@@ -34,8 +34,7 @@ export function getMoveDatesSummary(moveId, moveDate, label = getMoveDatesSummar
   return swaggerRequest(getClient, 'moves.showMoveDatesSummary', { moveId, moveDate }, { label });
 }
 
-export function approveBasics(moveId) {
-  const label = approveBasicsLabel;
+export function approveBasics(moveId, label = approveBasicsLabel) {
   const swaggerTag = 'office.approveMove';
   return swaggerRequest(getClient, swaggerTag, { moveId }, { label });
 }
