@@ -150,8 +150,8 @@ class QueueTable extends Component {
 
 const mapStateToProps = state => {
   return {
-    showFlashMessage: get(state, 'office.flashMessage', false),
-    flashMessageLines: get(state, 'office.flashMessageLines', false),
+    showFlashMessage: get(state, 'flashMessages.display', false),
+    flashMessageLines: get(state, 'flashMessages.messageLines', false),
   };
 };
 

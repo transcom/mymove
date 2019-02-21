@@ -10,7 +10,7 @@ import { selectOrdersForMove } from 'shared/Entities/modules/orders';
 export const STATE_KEY = 'moves';
 const approveBasicsLabel = 'Moves.ApproveBasics';
 const cancelMoveLabel = 'Moves.CancelMove';
-const loadMoveLabel = 'Moves.loadMove';
+export const loadMoveLabel = 'Moves.loadMove';
 
 export default function reducer(state = {}, action) {
   switch (action.type) {

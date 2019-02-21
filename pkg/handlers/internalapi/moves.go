@@ -62,6 +62,7 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		UpdatedAt:               handlers.FmtDateTime(move.UpdatedAt),
 		PersonallyProcuredMoves: ppmPayloads,
 		OrdersID:                handlers.FmtUUID(order.ID),
+		ServiceMemberID:         *handlers.FmtUUID(order.ServiceMemberID),
 		Status:                  internalmessages.MoveStatus(move.Status),
 		Shipments:               shipmentPayloads,
 	}
