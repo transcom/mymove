@@ -3,7 +3,6 @@ package internalapi
 import (
 	"bytes"
 	"io/ioutil"
-	"log"
 	"reflect"
 	"time"
 
@@ -24,7 +23,6 @@ import (
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/storage"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 func payloadForMoveModel(storer storage.FileStorer, order models.Order, move models.Move) (*internalmessages.MovePayload, error) {
@@ -242,33 +240,30 @@ type ShowShipmentSummaryWorksheetHandler struct {
 func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSummaryWorksheetParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
-	engine := rateengine.NewRateEngine(h.DB(), h.Logger())
+	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(h.DB(), h.Logger()))
 
 	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(h.DB(), session, moveID)
 	ssfd.PreparationDate = time.Time(params.PreparationDate)
 	var firstPPM models.PersonallyProcuredMove
 	if len(ssfd.PersonallyProcuredMoves) > 0 {
 		firstPPM = ssfd.PersonallyProcuredMoves[0]
-	}
-	if firstPPM.PickupPostalCode != nil &&
-		firstPPM.DestinationPostalCode != nil &&
-		firstPPM.OriginalMoveDate != nil {
+		if firstPPM.PickupPostalCode == nil || firstPPM.DestinationPostalCode == nil {
+			h.Logger().Error("Error missing required address parameter")
+			return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
+		}
 		distanceMiles, err := h.Planner().Zip5TransitDistance(*firstPPM.PickupPostalCode, *firstPPM.DestinationPostalCode)
 		if err != nil {
-			log.Fatalf("Error calculating distance %v", err)
+			h.Logger().Error("Error calculating distance", zap.Error(err))
+			return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
 		}
-		cost, err := engine.ComputePPMIncludingLHDiscount(
-			unit.Pound(ssfd.TotalWeightAllotment),
-			*firstPPM.PickupPostalCode,
-			*firstPPM.DestinationPostalCode,
-			distanceMiles,
-			*firstPPM.OriginalMoveDate,
-			0, 0,
-		)
-		ssfd.GCC = cost.GCC
+		ssfd.MaxObligation, err = ppmComputer.ComputeObligations(firstPPM, distanceMiles, paperwork.MaxObligation)
 		if err != nil {
 			h.Logger().Error("Error calculating PPM max obligations ", zap.Error(err))
 			return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
+		}
+		ssfd.ActualObligation, err = ppmComputer.ComputeObligations(firstPPM, distanceMiles, paperwork.ActualObligation)
+		if err != nil {
+			h.Logger().Error("Error calculating PPM actual obligations ", zap.Error(err))
 		}
 	}
 

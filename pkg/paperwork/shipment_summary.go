@@ -1,9 +1,14 @@
 package paperwork
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"time"
+
+	"github.com/transcom/mymove/pkg/rateengine"
+
+	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/jung-kurt/gofpdf"
 
@@ -228,4 +233,107 @@ func (s *ShipmentSummary) addTable(header string, fields []formField, width, cel
 		s.pdf.CellFormat(width/2, cellHeight, field.label, "LTB", 0, "", false, 0, "")
 		s.pdf.CellFormat(width/2, cellHeight, field.value, "TRB", 1, "", false, 0, "")
 	}
+}
+
+type ppmComputer interface {
+	ComputePPMIncludingLHDiscount(weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int, sitDiscount unit.DiscountRate) (cost rateengine.CostComputation, err error)
+}
+
+//SSWPPMComputer a rate engine wrapper with helper functions to simplify ppm cost calculations specific to shipment summary worksheet
+type SSWPPMComputer struct {
+	ppmComputer
+}
+
+//NewSSWPPMComputer creates a SSWPPMComputer
+func NewSSWPPMComputer(PPMComputer ppmComputer) *SSWPPMComputer {
+	return &SSWPPMComputer{ppmComputer: PPMComputer}
+}
+
+type ppmParams struct {
+	Weight          *int64
+	OriginZip5      *string
+	DestinationZip5 *string
+	Date            *time.Time
+	DaysInSIT       int
+	SitDiscount     unit.DiscountRate
+}
+
+type ppmComputerParams struct {
+	Weight          unit.Pound
+	OriginZip5      string
+	DestinationZip5 string
+	Date            time.Time
+	DaysInSIT       int
+	SitDiscount     unit.DiscountRate
+}
+
+func (sswPpmComputer *SSWPPMComputer) isValidPPM(moveDetails ppmParams) (ppmComputerParams, bool) {
+	if moveDetails.OriginZip5 != nil &&
+		moveDetails.DestinationZip5 != nil &&
+		moveDetails.Date != nil &&
+		moveDetails.Weight != nil {
+		details := ppmComputerParams{
+			unit.Pound(*moveDetails.Weight),
+			*moveDetails.OriginZip5,
+			*moveDetails.DestinationZip5,
+			*moveDetails.Date,
+			moveDetails.DaysInSIT,
+			moveDetails.SitDiscount,
+		}
+		return details, true
+	}
+	return ppmComputerParams{}, false
+}
+
+//ObligationType type corresponding to obligation sections of shipment summary worksheet
+type ObligationType int
+
+const (
+	//MaxObligation max obligation section of shipment summary worksheet
+	MaxObligation ObligationType = iota
+	//ActualObligation max obligation section of shipment summary worksheet
+	ActualObligation
+)
+
+//ComputeObligations is helper function for computing the obligations section of the shipment summary worksheet
+func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ppm models.PersonallyProcuredMove, miles int, obligationType ObligationType) (obligation models.Obligation, err error) {
+	var params ppmComputerParams
+	var valid bool
+	var moveDetails ppmParams
+	switch obligationType {
+	case MaxObligation:
+		moveDetails = ppmParams{
+			Weight:          ppm.WeightEstimate,
+			OriginZip5:      ppm.PickupPostalCode,
+			DestinationZip5: ppm.DestinationPostalCode,
+			Date:            ppm.OriginalMoveDate,
+			DaysInSIT:       0,
+			SitDiscount:     0,
+		}
+	case ActualObligation:
+		moveDetails = ppmParams{
+			Weight:          ppm.NetWeight,
+			OriginZip5:      ppm.PickupPostalCode,
+			DestinationZip5: ppm.DestinationPostalCode,
+			Date:            ppm.ActualMoveDate,
+			DaysInSIT:       0,
+			SitDiscount:     0,
+		}
+	}
+	if params, valid = sswPpmComputer.isValidPPM(moveDetails); !valid {
+		return models.Obligation{}, errors.New("ppm missing required parameter")
+	}
+	cost, err := sswPpmComputer.ComputePPMIncludingLHDiscount(
+		params.Weight,
+		params.OriginZip5,
+		params.DestinationZip5,
+		miles,
+		params.Date,
+		params.DaysInSIT,
+		params.SitDiscount,
+	)
+	if err != nil {
+		return models.Obligation{}, errors.New("Error calculating PPM max obligations ")
+	}
+	return models.Obligation{Gcc: cost.GCC}, nil
 }
