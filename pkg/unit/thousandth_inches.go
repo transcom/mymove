@@ -4,11 +4,11 @@ package unit
 type ThousandthInches int
 
 // DimensionToCubicFeet - converts dimensions to cubic feet
-func DimensionToCubicFeet(length, width, height ThousandthInches) BaseQuantity {
+func DimensionToCubicFeet(length, width, height ThousandthInches) float64 {
+	const cubicInchesPerCubicFoot = 1728
 	var l = float64(length) / 1000
 	var w = float64(width) / 1000
 	var h = float64(height) / 1000
-	var cubicFeet = l * w * h / 1728
-	cubicFeetAsBaseQuantity := BaseQuantityFromFloat(cubicFeet)
-	return cubicFeetAsBaseQuantity
+	var cubicFeet = l * w * h / cubicInchesPerCubicFoot
+	return cubicFeet
 }

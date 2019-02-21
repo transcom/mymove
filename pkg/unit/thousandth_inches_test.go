@@ -32,7 +32,9 @@ func TestDimensionToCubicFeet(t *testing.T) {
 	}
 
 	for _, data := range testData {
-		result := DimensionToCubicFeet(ThousandthInches(data.length), ThousandthInches(data.width), ThousandthInches(data.height)).String()
+		cubicFeet := DimensionToCubicFeet(ThousandthInches(data.length), ThousandthInches(data.width), ThousandthInches(data.height))
+		result := BaseQuantityFromFloat(cubicFeet).String()
+
 		if result != data.expected {
 			t.Errorf("volume calculation failed: expected %s, got %s", data.expected, result)
 		}
