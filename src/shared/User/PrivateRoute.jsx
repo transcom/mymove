@@ -2,7 +2,7 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { selectCurrentUser } from 'shared/Entities/modules/users';
+import { selectCurrentUser } from 'shared/Data/users';
 import SignIn from './SignIn';
 
 const NotAuthenticated = () => (

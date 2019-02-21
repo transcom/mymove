@@ -12,10 +12,11 @@ import { getCurrentShipment } from 'shared/UI/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import {
+  selectCurrentUser,
   selectGetCurrentUserIsLoading,
   selectGetCurrentUserIsSuccess,
   selectGetCurrentUserIsError,
-} from 'shared/Entities/modules/users';
+} from 'shared/Data/users';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import Alert from 'shared/Alert';
 import SignIn from 'shared/User/SignIn';
@@ -24,7 +25,6 @@ import scrollToTop from 'shared/scrollToTop';
 import { updateMove } from 'scenes/Moves/ducks';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { selectShipment } from 'shared/Entities/modules/shipments';
-import { selectCurrentUser } from 'shared/Entities/modules/users';
 
 export class Landing extends Component {
   componentDidMount() {

@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 
-import { selectCurrentUser } from 'shared/Entities/modules/users';
+import { selectCurrentUser } from 'shared/Data/users';
 import { isDevelopment } from 'shared/constants';
 
 const LoginButton = props => {

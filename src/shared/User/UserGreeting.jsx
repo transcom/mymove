@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { selectCurrentUser } from 'shared/Entities/modules/users';
+import { selectCurrentUser } from 'shared/Data/users';
 
 export const UserGreeting = ({ isLoggedIn, firstName, email }) =>
   isLoggedIn && (

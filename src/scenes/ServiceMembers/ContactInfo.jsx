@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import { updateServiceMember } from './ducks';
-import { selectCurrentUser } from 'shared/Entities/modules/users';
+import { selectCurrentUser } from 'shared/Data/users';
 
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';

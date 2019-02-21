@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import TspHeader from 'shared/Header/Tsp';
-import { getCurrentUserInfo, selectCurrentUser } from 'shared/Entities/modules/users';
+import { getCurrentUserInfo, selectCurrentUser } from 'shared/Data/users';
 import { loadPublicSchema } from 'shared/Swagger/ducks';
 import { no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';

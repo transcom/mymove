@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import IdleTimer from 'react-idle-timer';
 import { isProduction } from 'shared/constants';
 import Alert from 'shared/Alert';
-import { selectCurrentUser } from 'shared/Entities/modules/users';
+import { selectCurrentUser } from 'shared/Data/users';
 
 const fifteenMinutesInMilliseconds = 900000;
 const tenMinutesInMilliseconds = 600000;
