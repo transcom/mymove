@@ -39,13 +39,7 @@ export function getCurrentUserInfo() {
 }
 
 export function selectCurrentUser(state) {
-  const currentUser = state.user.userInfo;
-  const serviceMember = currentUser.service_member;
-  if (serviceMember) {
-    return { email: serviceMember.personal_email, first_name: serviceMember.first_name, ...currentUser };
-  } else {
-    return { email: '', ...currentUser };
-  }
+  return state.user.userInfo;
 }
 
 export function selectGetCurrentUserIsLoading(state) {
@@ -74,7 +68,7 @@ const currentUserReducerDefault = () => ({
   hasSucceeded: false,
   hasErrored: false,
   isLoading: false,
-  userInfo: getUserInfo(),
+  userInfo: { email: '', ...getUserInfo() },
 });
 
 const currentUserReducer = (state = currentUserReducerDefault(), action) => {
