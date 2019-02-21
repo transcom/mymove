@@ -28,7 +28,7 @@ import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement'
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
-import { getCurrentUserInfo, selectCurrentUser } from 'shared/Data/users';
+import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
 import FailWhale from 'shared/FailWhale';
 import { no_op } from 'shared/utils';
@@ -37,11 +37,8 @@ import DPSAuthCookie from 'scenes/DPSAuthCookie';
 export class AppWrapper extends Component {
   state = { hasError: false };
   componentDidMount() {
-    this.props.loadLoggedInUser();
     this.props.loadInternalSchema();
-    if (this.props.user.isLoggedIn) {
-      this.props.getCurrentUserInfo();
-    }
+    this.props.getCurrentUserInfo();
   }
 
   componentDidCatch(error, info) {
@@ -121,7 +118,7 @@ export class AppWrapper extends Component {
 }
 AppWrapper.defaultProps = {
   loadInternalSchema: no_op,
-  loadLoggedInUser: no_op,
+  getCurrentUserInfo: no_op,
 };
 
 const mapStateToProps = state => {
@@ -132,7 +129,6 @@ const mapStateToProps = state => {
     moveId: get(state, 'moves.currentMove.id'),
     selectedMoveType: selectedMoveType(state),
     swaggerError: state.swaggerInternal.hasErrored,
-    user: selectCurrentUser(state),
   };
 };
 const mapDispatchToProps = dispatch =>

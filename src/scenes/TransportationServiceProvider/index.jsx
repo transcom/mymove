@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import TspHeader from 'shared/Header/Tsp';
-import { getCurrentUserInfo, selectCurrentUser } from 'shared/Data/users';
+import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadPublicSchema } from 'shared/Swagger/ducks';
 import { no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
@@ -42,9 +42,7 @@ class TspWrapper extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: TSP';
     this.props.loadPublicSchema();
-    if (this.props.user.isLoggedIn) {
-      this.props.getCurrentUserInfo();
-    }
+    this.props.getCurrentUserInfo();
   }
 
   render() {
@@ -79,11 +77,10 @@ class TspWrapper extends Component {
 
 TspWrapper.defaultProps = {
   loadPublicSchema: no_op,
-  loadLoggedInUser: no_op,
+  getCurrentUserInfo: no_op,
 };
 
 const mapStateToProps = state => ({
-  user: selectCurrentUser(state),
   swaggerError: state.swaggerPublic.hasErrored,
 });
 
