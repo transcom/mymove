@@ -1,6 +1,7 @@
 package testingsuite
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/codegangsta/envy/lib"
 	"github.com/gobuffalo/pop"
@@ -15,8 +16,8 @@ import (
 // PopTestSuite is a suite for testing
 type PopTestSuite struct {
 	BaseTestSuite
-	PackageName string
-	db          *pop.Connection
+	PackageName
+	db *pop.Connection
 }
 
 func cloneDatabase(source, destination string) error {
@@ -35,48 +36,58 @@ func cloneDatabase(source, destination string) error {
 
 	// #nosec G204
 	dump := exec.Command("pg_dump", "-U", "postgres", "-h", "localhost", "-F", "c", source)
-	out, err := dump.StdoutPipe()
+	dumpErr := bytes.Buffer{}
+	dump.Stderr = &dumpErr
+	out, err := dump.Output()
 	if err != nil {
-		return errors.Wrapf(err, "failed to dump the database %s", source)
+		return errors.Wrapf(err, "failed to dump the database %s: %s %s", source, string(out), dumpErr.String())
 	}
 
 	// #nosec G204
 	restore := exec.Command("pg_restore", "-U", "postgres", "-h", "localhost", "-d", destination)
-	restore.Stdin = out
-
-	err = dump.Start()
-	if err != nil {
-		return errors.Wrap(err, "failed to run the dump cmd")
-	}
+	restore.Stdin = bytes.NewReader(out)
 
 	if op, err := restore.CombinedOutput(); err != nil {
-		return errors.Wrapf(err, "failed to start the restore cmd: %s", op)
-	}
-
-	err = dump.Wait()
-	if err != nil {
-		return errors.Wrap(err, "failed to wait for restore cmd")
+		return errors.Wrapf(err, "failed to run the restore cmd: %s", op)
 	}
 
 	return nil
 }
 
-// NewPopTestSuite returns a new PopTestSuite
-func NewPopTestSuite() PopTestSuite {
-	//pop.Debug = true
+// PackageName represents the project-relative name of a Go package.
+type PackageName string
 
-	// Find out what package is calling this function, and use that to build the database name.
+func (pn PackageName) String() string {
+	return string(pn)
+}
+
+// CurrentPackage returns the project-relative name of the caller's package.
+//
+// "github.com/transcom/mymove/pkg/" is removed from the beginning of the absolute package name, so
+// the return value will be e.g. "handlers/publicapi".
+func CurrentPackage() PackageName {
 	pc, _, _, _ := runtime.Caller(1)
 	caller := runtime.FuncForPC(pc)
 
 	fnName := strings.Replace(caller.Name(), "github.com/transcom/mymove/pkg/", "", 1)
 	pkg := strings.Split(fnName, ".")[0]
-	dbName := fmt.Sprintf("test_%s", strings.Replace(pkg, "/", "_", -1))
+	fmt.Println(caller.Name())
+	fmt.Println(fnName)
+	fmt.Println(pkg)
+	return PackageName(pkg)
+}
 
+// NewPopTestSuite returns a new PopTestSuite
+func NewPopTestSuite(packageName PackageName) PopTestSuite {
+	//pop.Debug = true
+	dbName := fmt.Sprintf("test_%s", strings.Replace(packageName.String(), "/", "_", -1))
+	log.Printf("package %s is attempting to connect to database %s", packageName.String(), dbName)
+
+	fmt.Printf("attempting to clone database %s to %s... ", "test_db", dbName)
 	if err := cloneDatabase("test_db", dbName); err != nil {
-		log.Panicf("failed to clone database\n%#v", err)
+		log.Panicf("failed to clone database '%s' to '%s': %#v", "testdb", dbName, err)
 	}
-
+	fmt.Println("success")
 	db, err := pop.NewConnection(&pop.ConnectionDetails{
 		Dialect:  "postgres",
 		Database: dbName,
@@ -93,14 +104,12 @@ func NewPopTestSuite() PopTestSuite {
 		log.Panic(err)
 	}
 
-	fmt.Println(dbName)
-
 	err = db.RawQuery("SELECT 1;").Exec()
 	if err != nil {
 		log.Panic(err)
 	}
 
-	return PopTestSuite{db: db, PackageName: pkg}
+	return PopTestSuite{db: db, PackageName: packageName}
 }
 
 // DB returns a db connection

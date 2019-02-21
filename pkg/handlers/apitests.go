@@ -27,9 +27,9 @@ type BaseHandlerTestSuite struct {
 }
 
 // NewBaseHandlerTestSuite returns a new BaseHandlerTestSuite
-func NewBaseHandlerTestSuite(logger *zap.Logger, sender notifications.NotificationSender) BaseHandlerTestSuite {
+func NewBaseHandlerTestSuite(logger *zap.Logger, sender notifications.NotificationSender, packageName testingsuite.PackageName) BaseHandlerTestSuite {
 	return BaseHandlerTestSuite{
-		PopTestSuite:       testingsuite.NewPopTestSuite(),
+		PopTestSuite:       testingsuite.NewPopTestSuite(packageName),
 		logger:             logger,
 		notificationSender: sender,
 	}

@@ -792,7 +792,7 @@ func TestAwardQueueSuite(t *testing.T) {
 	}
 
 	hs := &AwardQueueSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       &hnyzap.Logger{Logger: logger},
 	}
 	suite.Run(t, hs)

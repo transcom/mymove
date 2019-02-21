@@ -34,7 +34,7 @@ func TestAuthSuite(t *testing.T) {
 		log.Panic(err)
 	}
 	hs := &AuthSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 	}
 	suite.Run(t, hs)

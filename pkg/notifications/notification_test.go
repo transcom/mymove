@@ -99,7 +99,7 @@ func TestNotificationSuite(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
 	s := &NotificationSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 	}
 	suite.Run(t, s)

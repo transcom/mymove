@@ -1,6 +1,7 @@
 package dutystationsloader
 
 import (
+	"github.com/transcom/mymove/pkg/testingsuite"
 	"log"
 	"reflect"
 	"testing"
@@ -16,44 +17,23 @@ import (
 )
 
 type DutyStationsLoaderSuite struct {
-	suite.Suite
-	db     *pop.Connection
+	testingsuite.PopTestSuite
 	logger *zap.Logger
 }
 
 func (suite *DutyStationsLoaderSuite) SetupTest() {
-	suite.db.TruncateAll()
-}
-
-func (suite *DutyStationsLoaderSuite) mustSave(model interface{}) {
-	t := suite.T()
-	t.Helper()
-
-	verrs, err := suite.db.ValidateAndSave(model)
-	if err != nil {
-		suite.T().Errorf("Errors encountered saving %v: %v", model, err)
-	}
-	if verrs.HasAny() {
-		suite.T().Errorf("Validation errors encountered saving %v: %v", model, verrs)
-	}
+	suite.DB().TruncateAll()
 }
 
 func TestDutyStationsLoaderSuite(t *testing.T) {
-	configLocation := "../../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Panic(err)
 	}
 
 	hs := &DutyStationsLoaderSuite{
-		db:     db,
-		logger: logger,
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		logger:       logger,
 	}
 
 	suite.Run(t, hs)
@@ -63,7 +43,7 @@ func (suite *DutyStationsLoaderSuite) TestParsingFunctions() {
 	stationsPath := "./testdata/stations.xlsx"
 	officesPath := "./testdata/offices.xlsx"
 
-	builder := NewMigrationBuilder(suite.db, suite.logger)
+	builder := NewMigrationBuilder(suite.DB(), suite.logger)
 
 	stationRows, err := builder.parseStations(stationsPath)
 	suite.NoError(err)
@@ -81,7 +61,7 @@ func (suite *DutyStationsLoaderSuite) TestParsingFunctions() {
 }
 
 func (suite *DutyStationsLoaderSuite) TestInsertionString() {
-	builder := NewMigrationBuilder(suite.db, suite.logger)
+	builder := NewMigrationBuilder(suite.DB(), suite.logger)
 
 	something := "something"
 	zeroID := uuid.Nil
@@ -99,7 +79,7 @@ func (suite *DutyStationsLoaderSuite) TestInsertionString() {
 }
 
 func (suite *DutyStationsLoaderSuite) TestCreateInsertQuery() {
-	builder := NewMigrationBuilder(suite.db, suite.logger)
+	builder := NewMigrationBuilder(suite.DB(), suite.logger)
 
 	model := models.User{
 		ID:            uuid.Must(uuid.FromString("cd40c92e-7c8a-4da4-ad58-4480df84b3f0")),
@@ -122,7 +102,7 @@ func (suite *DutyStationsLoaderSuite) TestSeparateStations() {
 		State:          "CA",
 		PostalCode:     postalCode1,
 	}
-	suite.mustSave(&address1)
+	suite.MustSave(&address1)
 
 	savedName := "Saved!"
 	saved := models.DutyStation{
@@ -131,7 +111,7 @@ func (suite *DutyStationsLoaderSuite) TestSeparateStations() {
 		Name:        savedName,
 		Affiliation: internalmessages.AffiliationARMY,
 	}
-	suite.mustSave(&saved)
+	suite.MustSave(&saved)
 
 	postalCode2 := "00002"
 	address2 := models.Address{
@@ -149,7 +129,7 @@ func (suite *DutyStationsLoaderSuite) TestSeparateStations() {
 		Affiliation: internalmessages.AffiliationARMY,
 	}
 
-	builder := NewMigrationBuilder(suite.db, suite.logger)
+	builder := NewMigrationBuilder(suite.DB(), suite.logger)
 	new, existing, err := builder.separateExistingStations([]DutyStationWrapper{
 		DutyStationWrapper{
 			TransportationOfficeName: "Some name",
@@ -178,7 +158,7 @@ func (suite *DutyStationsLoaderSuite) TestCheckForDuplicates() {
 		State:          "CA",
 		PostalCode:     postalCode,
 	}
-	suite.mustSave(&address)
+	suite.MustSave(&address)
 
 	savedName := "Some Office"
 	saved := models.TransportationOffice{
@@ -186,7 +166,7 @@ func (suite *DutyStationsLoaderSuite) TestCheckForDuplicates() {
 		Address:   address,
 		Name:      savedName,
 	}
-	suite.mustSave(&saved)
+	suite.MustSave(&saved)
 
 	postalCode2 := "00002"
 	address2 := models.Address{
@@ -203,7 +183,7 @@ func (suite *DutyStationsLoaderSuite) TestCheckForDuplicates() {
 		Name:      notSavedName,
 	}
 
-	builder := NewMigrationBuilder(suite.db, suite.logger)
+	builder := NewMigrationBuilder(suite.DB(), suite.logger)
 	new, existing, err := builder.separateExistingOffices([]models.TransportationOffice{saved, notSaved})
 
 	suite.NoError(err)
@@ -256,7 +236,7 @@ func (suite *DutyStationsLoaderSuite) TestPairStationsOffices() {
 		},
 	}
 
-	builder := NewMigrationBuilder(suite.db, suite.logger)
+	builder := NewMigrationBuilder(suite.DB(), suite.logger)
 	pairs := builder.pairOfficesToStations(
 		[]DutyStationWrapper{station1, station2, station3},
 		[]TransportationOfficeWrapper{office1, office2})

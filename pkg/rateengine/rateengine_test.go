@@ -205,7 +205,7 @@ func TestRateEngineSuite(t *testing.T) {
 	planner := route.NewTestingPlanner(1234)
 
 	hs := &RateEngineSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 		planner:      planner,
 	}

@@ -31,7 +31,7 @@ func TestCreateFormSuite(t *testing.T) {
 	logger := zap.NewNop()
 
 	hs := &CreateFormSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 	}
 	suite.Run(t, hs)

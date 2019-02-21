@@ -27,7 +27,7 @@ func TestSequenceSuite(t *testing.T) {
 	logger := zap.NewNop()
 
 	hs := &SequenceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 	}
 	suite.Run(t, hs)
