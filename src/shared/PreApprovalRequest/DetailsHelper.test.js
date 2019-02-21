@@ -43,6 +43,11 @@ describe('testing getDetailComponent()', () => {
     it('for code 105D', () => {
       expect(DetailComponent).toBe(DefaultDetails);
     });
+
+    DetailComponent = getDetailComponent('105D', featureFlag, null);
+    it('for code 105D', () => {
+      expect(DetailComponent).toBe(DefaultDetails);
+    });
   });
 
   describe('returns 105B/E details component with feature flag on', () => {
@@ -62,6 +67,11 @@ describe('testing getDetailComponent()', () => {
     it('for code 105E', () => {
       expect(DetailComponent).toBe(Code105Details);
     });
+
+    DetailComponent = getDetailComponent('105E', featureFlag, null);
+    it('for code 105E', () => {
+      expect(DetailComponent).toBe(Code105Details);
+    });
   });
 
   describe('returns default details component with feature flag on', () => {
@@ -78,6 +88,11 @@ describe('testing getDetailComponent()', () => {
     });
 
     DetailComponent = getDetailComponent('105E', featureFlag, initialValuesWithoutCrateDimensions);
+    it('for code 105E without crate dimensions', () => {
+      expect(DetailComponent).toBe(DefaultDetails);
+    });
+
+    DetailComponent = getDetailComponent('105E', featureFlag, null);
     it('for code 105E without crate dimensions', () => {
       expect(DetailComponent).toBe(DefaultDetails);
     });
