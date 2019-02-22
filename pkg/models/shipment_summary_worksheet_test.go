@@ -191,11 +191,13 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("01-Jan-2019", sswPage1.PreparationDate)
 
 	suite.Equal("Jenkins Jr., Marcus Joseph", sswPage1.ServiceMemberName)
+	suite.Equal("E-9", sswPage1.RankGrade)
+	suite.Equal("Air Force", sswPage1.ServiceBranch)
 	suite.Equal("90 days per each shipment", sswPage1.MaxSITStorageEntitlement)
 	suite.Equal("Yuma AFB, IA 50309", sswPage1.AuthorizedOrigin)
 	suite.Equal("Fort Gordon, GA 30813", sswPage1.AuthorizedDestination)
 	suite.Equal("NO", sswPage1.POVAuthorized)
-	suite.Equal("444-555-8888", sswPage1.PreferredPhone)
+	suite.Equal("444-555-8888", sswPage1.PreferredPhoneNumber)
 	suite.Equal("michael+ppm-expansion_1@truss.works", sswPage1.PreferredEmail)
 	suite.Equal("1234567890", sswPage1.DODId)
 
@@ -402,6 +404,14 @@ func (suite *ModelSuite) TestFormatCurrentPPMStatus() {
 
 	suite.Equal("At destination", models.FormatCurrentPPMStatus(paymentRequested))
 	suite.Equal("Completed", models.FormatCurrentPPMStatus(completed))
+}
+
+func (suite *ModelSuite) TestFormatRank() {
+	e9 := models.ServiceMemberRankE9
+	many := models.ServiceMemberRankO1W1ACADEMYGRADUATE
+
+	suite.Equal("E-9", models.FormatRank(&e9))
+	suite.Equal("O-1/W-1/Service Academy Graduate", models.FormatRank(&many))
 }
 
 func (suite *ModelSuite) TestFormatShipmentNumberAndType() {
