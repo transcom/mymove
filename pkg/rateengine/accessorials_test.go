@@ -13,7 +13,7 @@ func (suite *RateEngineSuite) createShipmentWithServiceArea() models.Shipment {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusDELIVERED}
-	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
 	suite.NoError(err)
 
 	return shipments[0]
@@ -45,7 +45,7 @@ func (suite *RateEngineSuite) TestAccessorialsPricingPackCrate() {
 		},
 	})
 
-	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger)
 	computedPriceAndRate, err := engine.ComputeShipmentLineItemCharge(item)
 
 	if suite.NoError(err) {
@@ -85,7 +85,7 @@ func (suite *RateEngineSuite) TestAccessorialsSmokeTest() {
 			},
 		})
 
-		engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
+		engine := NewRateEngine(suite.DB(), suite.logger)
 		_, err := engine.ComputeShipmentLineItemCharge(item)
 
 		// Make sure we don't error
@@ -111,7 +111,7 @@ func (suite *RateEngineSuite) TestPricePreapprovalRequestsForShipment() {
 		shipment = item.Shipment
 	}
 
-	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger)
 	pricedItems, err := engine.PricePreapprovalRequestsForShipment(shipment)
 
 	// There should be no error
@@ -136,7 +136,7 @@ func (suite *RateEngineSuite) TestPricePreapprovalRequest() {
 		},
 	})
 
-	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger)
 	err := engine.PricePreapprovalRequest(&item)
 
 	if suite.NoError(err) {

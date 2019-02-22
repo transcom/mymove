@@ -59,10 +59,18 @@ func ResponseForError(logger *zap.Logger, err error) middleware.Responder {
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
 
 	cause := errors.Cause(err)
-	switch cause.(type) {
-	case *route.UnsupportedPostalCode:
-		skipLogger.Debug("unsupported postal code", zap.Error(err))
-		return newErrResponse(http.StatusUnprocessableEntity, err)
+	switch e := cause.(type) {
+	case route.Error:
+		skipLogger.Info("Encountered error using route planner", zap.Error(e))
+		// Handle RouteError codes
+		switch e.Code() {
+		case route.UnsupportedPostalCode:
+			return newErrResponse(http.StatusUnprocessableEntity, err)
+		case route.UnroutableRoute:
+			return newErrResponse(http.StatusUnprocessableEntity, err)
+		default:
+			return newErrResponse(http.StatusInternalServerError, err)
+		}
 	default:
 		return responseForBaseError(skipLogger, err)
 	}

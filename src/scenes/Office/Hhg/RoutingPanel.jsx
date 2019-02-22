@@ -56,11 +56,7 @@ function mapStateToProps(state, ownProps) {
     initialValues: shipment,
     // Wrapper
     shipmentSchema: get(state, 'swaggerInternal.spec.definitions.Shipment', {}),
-    hasError: state.office.shipmentHasLoadError || state.office.shipmentHasUpdateError,
-    errorMessage: state.office.error,
-
     shipment: shipment,
-    isUpdating: state.office.shipmentIsUpdating,
 
     // editablePanelify
     getUpdateArgs: function() {

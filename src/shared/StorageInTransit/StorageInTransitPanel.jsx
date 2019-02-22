@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import BasicPanel from 'shared/BasicPanel';
 import Alert from 'shared/Alert';
 import Creator from 'shared/StorageInTransit/Creator';
+// import { createStorageInTransit } from '../../scenes/TransportationServiceProvider/ducks';
 
 export class StorageInTransitPanel extends Component {
   constructor() {
@@ -19,6 +20,10 @@ export class StorageInTransitPanel extends Component {
 
   closeError = () => {
     this.setState({ error: null });
+  };
+
+  onFormActivation = isFormActive => {
+    this.setState({ isRequestActionable: !isFormActive });
   };
 
   render() {
@@ -37,7 +42,9 @@ export class StorageInTransitPanel extends Component {
           <div className="column-subhead">
             Entitlement: {sitEntitlement} days <span className="unbold">({daysRemaining} remaining)</span>
           </div>
-          {isCreatorActionable && <Creator onFormActivation={this.onFormActivation} />}
+          {isCreatorActionable && (
+            <Creator onFormActivation={this.onFormActivation} saveStorageInTransit={this.onSubmit} />
+          )}
         </BasicPanel>
       </div>
     );
@@ -49,7 +56,6 @@ StorageInTransitPanel.propTypes = {
   shipmentId: PropTypes.string,
   sitEntitlement: PropTypes.number,
 };
-
 /*
 function mapStateToProps(state, ownProps) {
   return {
@@ -58,10 +64,7 @@ function mapStateToProps(state, ownProps) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { createSitRequest, deleteSitRequest, approveSitRequest, updateSitRequest },
-    dispatch,
-  );
+  return bindActionCreators({ createSitRequest, deleteSitRequest, approveSitRequest, updateSitRequest }, dispatch);
 }
 export default connect(mapStateToProps, mapDispatchToProps)(StorageInTransitPanel);
 */

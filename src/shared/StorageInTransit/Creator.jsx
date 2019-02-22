@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 import './StorageInTransit.css';
 
-import { isValid, isSubmitting } from 'redux-form';
+import { isValid, isSubmitting, submit } from 'redux-form';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -22,6 +22,13 @@ export class Creator extends Component {
 
   closeForm = () => {
     this.setState({ showForm: false });
+  };
+
+  sendRequest = () => {
+    this.setState({ closeOnSubmit: true }, () => {
+      this.props.submitForm();
+      this.props.onFormActivation(false);
+    });
   };
 
   render() {
@@ -42,6 +49,7 @@ export class Creator extends Component {
               <button
                 className="button usa-button-primary storage-in-transit-request-form-send-request-button"
                 disabled={!this.props.formEnabled}
+                onClick={this.sendRequest}
               >
                 Send Request
               </button>
@@ -62,6 +70,8 @@ export class Creator extends Component {
 
 Creator.propTypes = {
   formEnabled: PropTypes.bool.isRequired,
+  onFormActivation: PropTypes.func.isRequired,
+  saveStorageInTransit: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -72,6 +82,11 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   // Bind an action, which submit the form by its name
-  return bindActionCreators({}, dispatch);
+  return bindActionCreators(
+    {
+      submitForm: () => submit(StorageInTransitFormName),
+    },
+    dispatch,
+  );
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Creator);
