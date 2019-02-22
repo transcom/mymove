@@ -10,6 +10,8 @@ import {
   IndexServiceAgents,
   UpdateServiceAgent,
   GetAllShipmentDocuments,
+  IndexStorageInTransits,
+  CreateStorageInTransit,
 } from './api.js';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
@@ -28,6 +30,9 @@ const indexServiceAgentsType = 'INDEX_SERVICE_AGENTS';
 const createServiceAgentsType = 'CREATE_SERVICE_AGENTS';
 const updateServiceAgentsType = 'UPDATE_SERVICE_AGENTS';
 
+const indexStorageInTransitsType = 'INDEX_STORAGE_IN_TRANSITS';
+const createStorageInTransitType = 'CREATE_STORAGE_IN_TRANSIT';
+
 // MULTIPLE-RESOURCE ACTION TYPES
 const loadTspDependenciesType = 'LOAD_TSP_DEPENDENCIES';
 
@@ -45,6 +50,9 @@ const INDEX_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(indexServiceA
 const CREATE_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(createServiceAgentsType);
 
 const UPDATE_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(updateServiceAgentsType);
+
+const CREATE_STORAGE_IN_TRANSIT = ReduxHelpers.generateAsyncActionTypes(createStorageInTransitType);
+const INDEX_STORAGE_IN_TRANSITS = ReduxHelpers.generateAsyncActionTypes(indexStorageInTransitsType);
 
 // MULTIPLE-RESOURCE ACTION TYPES
 
@@ -74,6 +82,15 @@ export const indexServiceAgents = ReduxHelpers.generateAsyncActionCreator(indexS
 export const createServiceAgent = ReduxHelpers.generateAsyncActionCreator(createServiceAgentsType, CreateServiceAgent);
 
 export const updateServiceAgent = ReduxHelpers.generateAsyncActionCreator(updateServiceAgentsType, UpdateServiceAgent);
+
+export const indexStorageInTransits = ReduxHelpers.generateAsyncActionCreator(
+  indexStorageInTransitsType,
+  IndexStorageInTransits,
+);
+export const createStorageInTransit = ReduxHelpers.generateAsyncActionCreator(
+  createStorageInTransitType,
+  CreateStorageInTransit,
+);
 
 // MULTIPLE-RESOURCE ACTION CREATORS
 //
@@ -161,6 +178,7 @@ const initialState = {
   loadTspDependenciesHasError: null,
   flashMessage: false,
   serviceAgents: [],
+  storageInTransits: [],
 };
 
 export function tspReducer(state = initialState, action) {
@@ -382,6 +400,55 @@ export function tspReducer(state = initialState, action) {
         serviceAgentHasUpdatedSucces: false,
         serviceAgentHasUpdatedError: null,
         serviceAgents: [],
+        error: action.error.message,
+      });
+
+    // Storage In Transit
+    case CREATE_STORAGE_IN_TRANSIT.start:
+      return Object.assign({}, state, {
+        storageInTransitIsCreating: true,
+        storageInTransitCreatedSuccess: false,
+      });
+
+    case CREATE_STORAGE_IN_TRANSIT.success:
+      const storageInTransits = state.storageInTransits;
+      storageInTransits.push(action.payload);
+      return Object.assign({}, state, {
+        storageInTransitIsCreating: false,
+        storageInTransitHasCreatedSuccess: true,
+        storageInTransitHasCreatedError: false,
+        storageInTransits,
+      });
+
+    case CREATE_STORAGE_IN_TRANSIT.failure:
+      return Object.assign({}, state, {
+        storageInTransitIsCreating: false,
+        storageInTransitHasCreatedSuccess: false,
+        storageInTransitHasCreatedError: null,
+        storageInTransits: [],
+        error: action.error.message,
+      });
+
+    case INDEX_STORAGE_IN_TRANSITS.start:
+      return Object.assign({}, state, {
+        storageInTransitsAreLoading: true,
+        storageInTransitsHasLoadSuccess: false,
+      });
+
+    case INDEX_STORAGE_IN_TRANSITS.success:
+      return Object.assign({}, state, {
+        storageInTransitsAreLoading: false,
+        storageInTransitsHasLoadSuccess: true,
+        storageInTransitsHasLoadError: false,
+        storageInTransits: action.payload,
+      });
+
+    case INDEX_STORAGE_IN_TRANSITS.failure:
+      return Object.assign({}, state, {
+        storageInTransitsAreLoading: false,
+        storageInTransitsHasLoadSuccess: false,
+        storageInTransitsHasLoadError: null,
+        storageInTransits: [],
         error: action.error.message,
       });
 
