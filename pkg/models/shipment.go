@@ -608,6 +608,7 @@ func UpdateShipmentLineItemDimensions(db *pop.Connection, baseParams *BaseShipme
 	return responseVErrors, responseError
 }
 
+// is105Item determines whether the shipment line item is a new (robust) 105B/E item.
 func is105Item(itemCode string, additionalParams *AdditionalShipmentLineItemParams) bool {
 	hasDimension := additionalParams.ItemDimensions != nil || additionalParams.CrateDimensions != nil
 	if (itemCode == "105B" || itemCode == "105E") && hasDimension {

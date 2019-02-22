@@ -23,7 +23,7 @@ describe('lineItems', () => {
       // negitives act funny due to floor() - but we shouldn't have negitive quantities so meh
       expect(lineItems.displayBaseQuantityUnits(itemNegitive)).toEqual('-6 lbs');
     });
-    it('display 105B/E for origional accessorials', () => {
+    it('display 105B/E for original accessorials', () => {
       const item105B = { tariff400ng_item: { code: '105B' }, quantity_1: 5000000 };
       const item105E = { tariff400ng_item: { code: '105E' }, quantity_1: Number.MAX_SAFE_INTEGER };
       const itemNull = null;
