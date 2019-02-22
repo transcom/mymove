@@ -129,9 +129,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Locator: "VGHEIS",
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &nextValidMoveDate,
-			Advance:         &advance,
-			AdvanceID:       &advance.ID,
+			OriginalMoveDate:    &nextValidMoveDate,
+			Advance:             &advance,
+			AdvanceID:           &advance.ID,
+			HasRequestedAdvance: true,
 		},
 		Uploader: loader,
 	})
@@ -163,7 +164,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Locator: "NOADVC",
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &nextValidMoveDate,
+			OriginalMoveDate: &nextValidMoveDate,
 		},
 		Uploader: loader,
 	})
@@ -195,7 +196,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Locator: "CANCEL",
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &nextValidMoveDate,
+			OriginalMoveDate: &nextValidMoveDate,
 		},
 		Uploader: loader,
 	})
@@ -228,7 +229,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Locator: "GBXYUI",
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &pastTime,
+			OriginalMoveDate: &pastTime,
 		},
 		Uploader: loader,
 	})
@@ -270,7 +271,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Locator: "FDXTIU",
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &futureTime,
+			OriginalMoveDate: &futureTime,
 		},
 		Uploader: loader,
 	})
@@ -293,7 +294,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 	// Date picked essentialy at random, but needs to be within TestYear
-	plannedMoveDate := time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
+	originalMoveDate := time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
+	actualMoveDate := time.Date(testdatagen.TestYear, time.November, 11, 10, 0, 0, 0, time.UTC)
 	moveTypeDetail := internalmessages.OrdersTypeDetailPCSTDY
 	ppm3 := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -316,7 +318,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Locator: "PAYMNT",
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &plannedMoveDate,
+			OriginalMoveDate: &originalMoveDate,
+			ActualMoveDate:   &actualMoveDate,
 		},
 		Uploader: loader,
 	})
@@ -353,7 +356,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Locator: "PPMCAN",
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &nextValidMoveDate,
+			OriginalMoveDate: &nextValidMoveDate,
 		},
 		Uploader: loader,
 	})
@@ -423,6 +426,38 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("8718c8ac-e0c6-423b-bdc6-af971ee05b9a"),
 			Locator: "REWGIE",
+		},
+	})
+
+	/*
+	 * Service member with orders and a move, but no move type selected to select HHG
+	 */
+	email = "sm_hhg_continue@example.com"
+	uuidStr = "1256a6ea-27cc-4d60-92df-1bc2a5c39028"
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+
+	testdatagen.MakeMoveWithoutMoveType(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("2dac8695-b4d8-40ad-aa84-2b03b6bec960"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("Continue"),
+			Edipi:         models.StringPointer("2553282188"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("209ecba8-f99d-446f-b649-06a0da613aa7"),
+			Locator: "HHGCON",
 		},
 	})
 
@@ -2123,8 +2158,8 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 			ID: moveID,
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &nextValidMoveDate,
-			MoveID:          moveID,
+			OriginalMoveDate: &nextValidMoveDate,
+			MoveID:           moveID,
 		},
 		Uploader: loader,
 	})
@@ -2183,8 +2218,8 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 			ID: moveID2,
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &nextValidMoveDate,
-			MoveID:          moveID2,
+			OriginalMoveDate: &nextValidMoveDate,
+			MoveID:           moveID2,
 		},
 		Uploader: loader,
 	})
@@ -2263,8 +2298,8 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 			ID: moveID3,
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &nextValidMoveDate,
-			MoveID:          moveID3,
+			OriginalMoveDate: &nextValidMoveDate,
+			MoveID:           moveID3,
 		},
 		Uploader: loader,
 	})
@@ -2333,8 +2368,8 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 			ID: moveID4,
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &nextValidMoveDate,
-			MoveID:          moveID4,
+			OriginalMoveDate: &nextValidMoveDate,
+			MoveID:           moveID4,
 		},
 		Uploader: loader,
 	})
@@ -2619,10 +2654,11 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 	})
 
 	planner := route.NewTestingPlanner(1234)
-	engine := rateengine.NewRateEngine(db, logger, planner)
+	engine := rateengine.NewRateEngine(db, logger)
 	verrs, err := shipmentservice.DeliverAndPriceShipment{
-		DB:     db,
-		Engine: engine,
+		DB:      db,
+		Engine:  engine,
+		Planner: planner,
 	}.Call(nextValidMoveDateMinusOne, &offer.Shipment)
 
 	if verrs.HasAny() || err != nil {

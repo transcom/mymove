@@ -5,14 +5,16 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/route"
 	"go.uber.org/zap"
 )
 
 // RecalculateShipment is a service object to re-price a Shipment
 type RecalculateShipment struct {
-	DB     *pop.Connection
-	Logger *zap.Logger
-	Engine *rateengine.RateEngine
+	DB      *pop.Connection
+	Logger  *zap.Logger
+	Engine  *rateengine.RateEngine
+	Planner route.Planner
 }
 
 // Call recalculates a Shipment
@@ -21,5 +23,5 @@ func (c RecalculateShipment) Call(shipment *models.Shipment) (*validate.Errors, 
 		zap.Any("shipment.Status", shipment.Status))
 
 	// Re-price Shipment
-	return PriceShipment{DB: c.DB, Engine: c.Engine}.Call(shipment, ShipmentPriceRECALCULATE)
+	return PriceShipment{DB: c.DB, Engine: c.Engine, Planner: c.Planner}.Call(shipment, ShipmentPriceRECALCULATE)
 }

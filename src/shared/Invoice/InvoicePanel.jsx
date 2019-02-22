@@ -10,13 +10,11 @@ import {
   selectUnbilledShipmentLineItems,
   selectTotalFromUnbilledLineItems,
   getAllShipmentLineItems,
-  getShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
 import {
   selectSortedInvoices,
   createInvoice,
   createInvoiceLabel,
-  getShipmentInvoicesLabel,
   getAllInvoices,
 } from 'shared/Entities/modules/invoices';
 import UnbilledTable from 'shared/Invoice/UnbilledTable';
@@ -39,17 +37,17 @@ export class InvoicePanel extends PureComponent {
   approvePayment = () => {
     this.setState({ createInvoiceRequestStatus: isLoading });
     return this.props
-      .createInvoice(createInvoiceLabel, this.props.shipmentId)
+      .createInvoice(this.props.shipmentId)
       .then(() => {
         this.setState({ createInvoiceRequestStatus: isSuccess });
-        return this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.shipmentId);
+        return this.props.getAllShipmentLineItems(this.props.shipmentId);
       })
       .catch(err => {
         this.setState({ createInvoiceRequestStatus: isError });
         let httpResCode = get(err, 'response.status');
         if (httpResCode === 409) {
-          this.props.getAllInvoices(getShipmentInvoicesLabel, this.props.shipmentId);
-          return this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.shipmentId);
+          this.props.getAllInvoices(this.props.shipmentId);
+          return this.props.getAllShipmentLineItems(this.props.shipmentId);
         }
       });
   };

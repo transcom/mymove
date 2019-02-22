@@ -10,7 +10,7 @@ import (
 
 func (suite *RateEngineSuite) Test_CheckServiceFee() {
 	t := suite.T()
-	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger)
 
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
@@ -54,7 +54,7 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 func (suite *RateEngineSuite) Test_CheckFullPack() {
 	t := suite.T()
 
-	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger)
 
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
@@ -107,7 +107,7 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 
 func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 	t := suite.T()
-	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger)
 
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
@@ -168,7 +168,7 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 }
 
 func (suite *RateEngineSuite) Test_SITCharge() {
-	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger)
 
 	zip3 := "395"
 
@@ -290,7 +290,7 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 
 func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	t := suite.T()
-	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger)
 
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",

@@ -25,6 +25,7 @@
     * [General](#general)
     * [Coverage](#coverage)
     * [Models](#models)
+  * [Time](#time)
   * [Miscellaneous Tips](#miscellaneous-tips)
 * [Environment settings](#environment-settings)
   * [Adding `ulimit`](#adding-ulimit)
@@ -336,6 +337,12 @@ In general, focus on testing non-trivial behavior.
 * Struct methods warrant a unit test if they contain important behavior, e.g. validations.
 * Avoid testing functionality of libraries, e.g. model saving and loading (which is provided by Pop)
 * Try to leverage the type system to ensure that components are “hooked up correctly” instead of writing integration tests.
+
+### Time
+
+Some helpful tips on dealing with time
+in the MilMove Go codebase
+can be found in [this doc](backend/time.md)
 
 ### Miscellaneous Tips
 

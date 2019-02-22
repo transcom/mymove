@@ -91,7 +91,6 @@ function mapStateToProps(state, ownProps) {
 }
 
 const getShipmentLabel = 'EditShipment.getShipment';
-const updateShipmentLabel = 'EditShipment.updateShipment';
 function mapDispatchToProps(dispatch, ownProps) {
   const shipmentID = ownProps.match.params.shipmentId;
   return {
@@ -99,7 +98,7 @@ function mapDispatchToProps(dispatch, ownProps) {
       dispatch(getShipment(getShipmentLabel, shipmentID));
     },
     updateShipment: function(values, shipment) {
-      dispatch(updateShipment(updateShipmentLabel, shipmentID, values)).then(function(action) {
+      dispatch(updateShipment(shipmentID, values)).then(function(action) {
         if (!action.error) {
           const moveID = Object.values(action.entities.shipments)[0].move_id;
           if (shipment.status !== 'DRAFT') {

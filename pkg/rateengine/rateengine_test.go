@@ -145,11 +145,12 @@ func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, desti
 		destinationZip, testdatagen.RateEngineDate,
 	)
 	suite.Require().Nil(err)
-	engine := NewRateEngine(suite.DB(), logger, planner)
+	engine := NewRateEngine(suite.DB(), logger)
 	cost, err := engine.ComputePPM(
 		weight,
 		originZip,
 		destinationZip,
+		1044,
 		testdatagen.RateEngineDate,
 		0,
 		lhDiscount,
@@ -164,14 +165,14 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 	suite.setupRateEngineTest()
 	t := suite.T()
 
-	engine := NewRateEngine(suite.DB(), suite.logger, suite.planner)
+	engine := NewRateEngine(suite.DB(), suite.logger)
 
 	assertions := testdatagen.Assertions{}
 	assertions.FuelEIADieselPrice.BaselineRate = 6
 	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
 
 	// 139698 +20000
-	cost, err := engine.ComputePPM(2000, "39574", "33633", testdatagen.RateEngineDate,
+	cost, err := engine.ComputePPM(2000, "39574", "33633", 1234, testdatagen.RateEngineDate,
 		1, unit.DiscountRate(.6), unit.DiscountRate(.5))
 
 	if err != nil {
@@ -192,11 +193,12 @@ func (suite *RateEngineSuite) TestComputePPMWithLHDiscount() {
 	weight := unit.Pound(2000)
 	cost, err := suite.computePPMIncludingLHRates(originZip, destinationZip, weight, logger, planner)
 
-	engine := NewRateEngine(suite.DB(), logger, planner)
+	engine := NewRateEngine(suite.DB(), logger)
 	ppmCost, err := engine.ComputePPMIncludingLHDiscount(
 		weight,
 		originZip,
 		destinationZip,
+		1044,
 		testdatagen.RateEngineDate,
 		0,
 		0,
@@ -209,8 +211,7 @@ func (suite *RateEngineSuite) TestComputePPMWithLHDiscount() {
 
 type RateEngineSuite struct {
 	testingsuite.PopTestSuite
-	logger  *zap.Logger
-	planner route.Planner
+	logger *zap.Logger
 }
 
 func (suite *RateEngineSuite) SetupTest() {
@@ -220,12 +221,10 @@ func (suite *RateEngineSuite) SetupTest() {
 func TestRateEngineSuite(t *testing.T) {
 	// Use a no-op logger during testing
 	logger, _ := zap.NewDevelopment()
-	planner := route.NewTestingPlanner(1234)
 
 	hs := &RateEngineSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(),
 		logger:       logger,
-		planner:      planner,
 	}
 	suite.Run(t, hs)
 }

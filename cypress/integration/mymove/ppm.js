@@ -20,7 +20,7 @@ describe('completing the ppm flow', function() {
     });
     cy.get('.wizard-header').should('not.exist');
     cy
-      .get('input[name="planned_move_date"]')
+      .get('input[name="original_move_date"]')
       .first()
       .type('9/2/2018{enter}')
       .blur();

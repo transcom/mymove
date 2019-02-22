@@ -1,7 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { get, pick } from 'lodash';
 import classNames from 'classnames';
@@ -292,8 +291,4 @@ function mapStateToProps(state, props) {
   };
 }
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({}, dispatch);
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(PremoveSurveyPanel);
+export default connect(mapStateToProps)(PremoveSurveyPanel);
