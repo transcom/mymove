@@ -249,16 +249,19 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 	cwtAtMin := unit.CWT(10)
 	daysInSIT := 4
 
-	expectedAtMin := sit185ARate.Multiply(cwtAtMin.Int())
-	expectedAtMin = expectedAtMin.AddCents(sit185BRate.Multiply(daysInSIT - 1).Multiply(cwtAtMin.Int()))
-	expectedAtMin = expectedAtMin.AddCents(sit210ARateCentsAtMin)
+	expectedAtMinBase := sit185ARate.Multiply(cwtAtMin.Int())
+	expectedAtMinBase = expectedAtMinBase.AddCents(sit185BRate.Multiply(daysInSIT - 1).Multiply(cwtAtMin.Int()))
+	expectedAtMin := expectedAtMinBase.AddCents(sit210ARateCentsAtMin)
 	expectedAtMin = expectedAtMin.AddCents(sit225ARateCentsAtMin)
 
 	cwtBelowMin := unit.CWT(5)
-	expectedBelowMin := sit185ARate.Multiply(cwtBelowMin.Int())
-	expectedBelowMin = expectedBelowMin.AddCents(sit185BRate.Multiply(daysInSIT - 1).Multiply(cwtBelowMin.Int()))
-	expectedBelowMin = expectedBelowMin.AddCents(sit210ARateCentsBelowMin)
+	expectedBelowMinBase := sit185ARate.Multiply(cwtBelowMin.Int())
+	expectedBelowMinBase = expectedBelowMinBase.AddCents(sit185BRate.Multiply(daysInSIT - 1).Multiply(cwtBelowMin.Int()))
+	expectedBelowMin := expectedBelowMinBase.AddCents(sit210ARateCentsBelowMin)
 	expectedBelowMin = expectedBelowMin.AddCents(sit225ARateCentsBelowMin)
+
+	// TODO: HHG SIT formula will be changing in future story to add in 225A/225B/225C (based on mileage).
+	//   Current test just expecting baseline 185A and 185B charges.
 
 	var testCases = []struct {
 		description string
@@ -267,9 +270,9 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 		expected    unit.Cents
 	}{
 		{"PPM at minimum weight", cwtAtMin, true, expectedAtMin},
-		{"HHG at minimum weight", cwtAtMin, false, expectedAtMin},
+		{"HHG at minimum weight", cwtAtMin, false, expectedAtMinBase},
 		{"PPM below minimum weight", cwtBelowMin, true, expectedBelowMin},
-		{"HHG below minimum weight", cwtBelowMin, false, expectedAtMin},
+		{"HHG below minimum weight", cwtBelowMin, false, expectedAtMinBase},
 	}
 
 	for _, testCase := range testCases {
