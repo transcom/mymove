@@ -126,3 +126,24 @@ export async function GetAllShipmentDocuments(shipmentId) {
   checkResponse(response, 'failed to load shipment documents due to server error');
   return response.body;
 }
+
+// All SITs for shipment
+export async function IndexStorageInTransits(shipmentId) {
+  const client = await getPublicClient();
+  const response = await client.apis.storage_in_transits.indexStorageInTransits({
+    shipmentId,
+  });
+  checkResponse(response, 'failed to load shipment documents due to server error');
+  return response.body;
+}
+
+// Create SIT for Shipment
+export async function CreateStorageInTransit(shipmentId, payload) {
+  const client = await getPublicClient();
+  const response = await client.apis.storage_in_transits.createStorageInTransit({
+    shipmentId,
+    storage_in_transit: payload,
+  });
+  checkResponse(response, 'failed to create storage in transit due to server error');
+  return response.body;
+}
