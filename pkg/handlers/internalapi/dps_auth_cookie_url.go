@@ -35,7 +35,7 @@ func (h DPSAuthGetCookieURLHandler) Handle(params dps_auth.GetCookieURLParams) m
 	// Only DPS users can set the cookie name and redirect URL for testing purposes
 	if params.CookieName != nil || params.DpsRedirectURL != nil {
 		session := auth.SessionFromRequestContext(params.HTTPRequest)
-		if !session.CanAccessFeature(auth.FeatureDPS) {
+		if !session.IsDpsUser() {
 			return dps_auth.NewGetCookieURLForbidden()
 		}
 	}

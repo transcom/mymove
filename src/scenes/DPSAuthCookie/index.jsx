@@ -22,12 +22,21 @@ const schema = {
 
 export class DPSAuthCookie extends Component {
   sendRequest = values => {
-    this.props.getCookieURL(values).then(response => {
-      var cookieURL = get(response, 'payload.cookie_url', '');
-      if (cookieURL) {
-        window.location = cookieURL;
-      }
-    });
+    this.props
+      .getCookieURL(values)
+      .then(response => {
+        var cookieURL = get(response, 'payload.cookie_url', '');
+        if (cookieURL) {
+          window.location = cookieURL;
+        }
+      })
+      .catch(error => {
+        if (error.response.status === 403) {
+          window.location = '/forbidden';
+        } else {
+          window.location = '/server_error';
+        }
+      });
   };
 
   render() {
