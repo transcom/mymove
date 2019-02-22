@@ -12,12 +12,12 @@ export const Code105Details = props => {
   let itemHeightinInches = convertFromThousandthInchToInch(row.item_dimensions.height);
   let crateCubicFeet = displayBaseQuantityUnits(row);
 
-  let createDetails = `Crate: ${crateLengthinInches}" x ${crateWidthinInches}" x ${crateHeightinInches}" (${crateCubicFeet})`;
+  let crateDetails = `Crate: ${crateLengthinInches}" x ${crateWidthinInches}" x ${crateHeightinInches}" (${crateCubicFeet})`;
   let ItemDetails = `Item: ${itemLengthinInches}" x ${itemWidthinInches}" x ${itemHeightinInches}"`;
   return (
     <td>
       {row.description} <br />
-      {createDetails} <br />
+      {crateDetails} <br />
       {ItemDetails}
     </td>
   );
