@@ -5,10 +5,11 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
-	"go.uber.org/zap"
 )
 
 // ProcessRecalculateShipment is a service object to recalculate a Shipment's Line Items

@@ -12,6 +12,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/gorilla/csrf"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 )

@@ -1,10 +1,11 @@
 package internalapi
 
 import (
-	"github.com/transcom/mymove/pkg/dates"
-	"github.com/transcom/mymove/pkg/models"
 	"testing"
 	"time"
+
+	"github.com/transcom/mymove/pkg/dates"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *HandlerSuite) TestCalculateMoveDatesFromShipmentMissingPickupDate() {

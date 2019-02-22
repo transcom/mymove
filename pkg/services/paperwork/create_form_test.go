@@ -1,11 +1,15 @@
 package paperwork
 
 import (
+	"testing"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/mocks"
 	"github.com/transcom/mymove/pkg/models"
 	paperworkforms "github.com/transcom/mymove/pkg/paperwork"
@@ -13,8 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 	"github.com/transcom/mymove/pkg/testingsuite"
-	"go.uber.org/zap"
-	"testing"
 )
 
 type CreateFormSuite struct {

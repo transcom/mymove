@@ -1,13 +1,15 @@
 package internalapi
 
 import (
+	"time"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+
 	"github.com/transcom/mymove/pkg/dates"
 	calendarop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/calendar"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
-	"time"
 )
 
 // ShowAvailableMoveDatesHandler returns the available move dates starting at a given date.

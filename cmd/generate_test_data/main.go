@@ -5,8 +5,9 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/namsral/flag"
-	"github.com/transcom/mymove/pkg/models"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/testdatagen"

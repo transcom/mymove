@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 
