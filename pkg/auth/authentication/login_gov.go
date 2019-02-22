@@ -12,8 +12,9 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
-	"github.com/transcom/mymove/pkg/auth"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/auth"
 )
 
 const milProviderName = "milProvider"

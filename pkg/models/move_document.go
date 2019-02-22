@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/auth"
 )
 

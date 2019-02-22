@@ -1,10 +1,12 @@
 package publicapi
 
 import (
-	"github.com/gobuffalo/uuid"
 	"net/http/httptest"
 
+	"github.com/gobuffalo/uuid"
+
 	"github.com/go-openapi/strfmt"
+
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	movedocop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/move_docs"
 	"github.com/transcom/mymove/pkg/handlers"
