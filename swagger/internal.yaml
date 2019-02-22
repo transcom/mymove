@@ -445,6 +445,10 @@ definitions:
         type: integer
         title: Maximum SIT reimbursement for the planned SIT duration
         x-nullable: true
+      total_sit_cost:
+        type: integer
+        title: Total cost for the planned SIT duration
+        x-nullable: true
       sit_max:
         type: integer
         title: Maximum SIT reimbursement for maximum SIT duration
