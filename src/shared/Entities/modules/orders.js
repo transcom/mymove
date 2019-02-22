@@ -22,14 +22,12 @@ export default function reducer(state = {}, action) {
   }
 }
 
-export function loadOrders(ordersId) {
-  const label = loadOrdersLabel;
+export function loadOrders(ordersId, label = loadOrdersLabel) {
   const swaggerTag = 'orders.showOrders';
   return swaggerRequest(getClient, swaggerTag, { ordersId }, { label });
 }
 
-export function updateOrders(ordersId, orders) {
-  const label = updateOrdersLabel;
+export function updateOrders(ordersId, orders, label = updateOrdersLabel) {
   const swaggerTag = 'orders.updateOrders';
   return swaggerRequest(getClient, swaggerTag, { ordersId, updateOrders: orders }, { label });
 }

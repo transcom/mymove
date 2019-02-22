@@ -33,17 +33,9 @@ import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
 
 import { getRequestStatus } from 'shared/Swagger/selectors';
-import {
-  getAllTariff400ngItems,
-  selectTariff400ngItems,
-  getTariff400ngItemsLabel,
-} from 'shared/Entities/modules/tariff400ngItems';
-import {
-  getAllShipmentLineItems,
-  selectSortedShipmentLineItems,
-  getShipmentLineItemsLabel,
-} from 'shared/Entities/modules/shipmentLineItems';
-import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
+import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
+import { getAllShipmentLineItems, selectSortedShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
+import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { loadPPMs, approvePPM, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { loadServiceMember, loadBackupContacts, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
@@ -55,7 +47,7 @@ import {
   selectShipment,
   selectShipmentStatus,
 } from 'shared/Entities/modules/shipments';
-import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
+import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
 
 import { showBanner, removeBanner } from './ducks';
@@ -144,7 +136,7 @@ class MoveInfo extends Component {
     const { moveId } = this.props;
     this.props.loadMove(moveId);
     this.props.getMoveDocumentsForMove(moveId);
-    this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
+    this.props.getAllTariff400ngItems(true);
     this.props.loadPPMs(moveId);
   }
 
@@ -162,10 +154,10 @@ class MoveInfo extends Component {
   }
 
   getAllShipmentInfo = shipmentId => {
-    this.props.getTspForShipment(getTspForShipmentLabel, shipmentId);
-    this.props.getPublicShipment('Shipments.getPublicShipment', shipmentId);
-    this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, shipmentId);
-    this.props.getAllInvoices(getShipmentInvoicesLabel, shipmentId);
+    this.props.getTspForShipment(shipmentId);
+    this.props.getPublicShipment(shipmentId);
+    this.props.getAllShipmentLineItems(shipmentId);
+    this.props.getAllInvoices(shipmentId);
     this.props.getServiceAgentsForShipment(shipmentId);
   };
 

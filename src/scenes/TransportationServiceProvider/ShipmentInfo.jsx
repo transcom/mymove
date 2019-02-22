@@ -17,21 +17,13 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import {
   getAllShipmentDocuments,
   selectShipmentDocuments,
-  getShipmentDocumentsLabel,
   generateGBL,
+  generateGBLLabel,
 } from 'shared/Entities/modules/shipmentDocuments';
-import {
-  getAllTariff400ngItems,
-  selectTariff400ngItems,
-  getTariff400ngItemsLabel,
-} from 'shared/Entities/modules/tariff400ngItems';
-import {
-  getAllShipmentLineItems,
-  selectSortedShipmentLineItems,
-  getShipmentLineItemsLabel,
-} from 'shared/Entities/modules/shipmentLineItems';
-import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
-import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
+import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
+import { getAllShipmentLineItems, selectSortedShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
+import { getAllInvoices } from 'shared/Entities/modules/invoices';
+import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { selectSitRequests } from 'shared/Entities/modules/sitRequests';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -65,8 +57,6 @@ import PremoveSurveyForm from './PremoveSurveyForm';
 import ServiceAgentForm from './ServiceAgentForm';
 
 import './tsp.css';
-
-const generateGblLabel = 'Shipments.createGovBillOfLading';
 
 const attachmentsErrorMessages = {
   400: 'An error occurred',
@@ -135,11 +125,11 @@ class ShipmentInfo extends Component {
       .loadShipmentDependencies(this.props.match.params.shipmentId)
       .then(() => {
         const shipmentId = this.props.shipment.id;
-        this.props.getTspForShipment(getTspForShipmentLabel, shipmentId);
-        this.props.getAllShipmentDocuments(getShipmentDocumentsLabel, shipmentId);
-        this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
-        this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, shipmentId);
-        this.props.getAllInvoices(getShipmentInvoicesLabel, shipmentId);
+        this.props.getTspForShipment(shipmentId);
+        this.props.getAllShipmentDocuments(shipmentId);
+        this.props.getAllTariff400ngItems(true);
+        this.props.getAllShipmentLineItems(shipmentId);
+        this.props.getAllInvoices(shipmentId);
       })
       .catch(err => {
         this.props.history.replace('/');
@@ -155,7 +145,7 @@ class ShipmentInfo extends Component {
   };
 
   generateGBL = () => {
-    return this.props.generateGBL(generateGblLabel, this.props.shipment.id);
+    return this.props.generateGBL(this.props.shipment.id);
   };
 
   enterPreMoveSurvey = values => {
@@ -180,7 +170,7 @@ class ShipmentInfo extends Component {
 
   deliverShipment = values => {
     this.props.deliverShipment(this.props.shipment.id, values).then(() => {
-      this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, this.props.shipment.id);
+      this.props.getAllShipmentLineItems(this.props.shipment.id);
     });
   };
 
@@ -479,9 +469,9 @@ const mapStateToProps = state => {
     loadTspDependenciesHasSuccess: get(state, 'tsp.loadTspDependenciesHasSuccess'),
     loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
     acceptError: get(state, 'tsp.shipmentHasAcceptError'),
-    generateGBLSuccess: getLastRequestIsSuccess(state, generateGblLabel),
     generateGBLError: get(state, 'tsp.generateGBLError'),
-    generateGBLInProgress: getLastRequestIsLoading(state, generateGblLabel),
+    generateGBLInProgress: getLastRequestIsLoading(state, generateGBLLabel),
+    generateGBLSuccess: getLastRequestIsSuccess(state, generateGBLLabel),
     gblDocUrl: `/shipments/${shipment.id}/documents/${get(gbl, 'id')}`,
     error: get(state, 'tsp.error'),
     shipmentSchema: get(state, 'swaggerPublic.spec.definitions.Shipment', {}),

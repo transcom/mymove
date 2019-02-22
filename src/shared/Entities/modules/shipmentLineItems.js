@@ -5,11 +5,17 @@ import { denormalize } from 'normalizr';
 import { get, orderBy, filter, map, keys, flow } from 'lodash';
 import { createSelector } from 'reselect';
 
-export function createShipmentLineItem(label, shipmentId, payload) {
+export const getShipmentLineItemsLabel = 'ShipmentLineItems.getAllShipmentLineItems';
+export const createShipmentLineItemLabel = 'ShipmentLineItems.createShipmentLineItem';
+export const deleteShipmentLineItemLabel = 'ShipmentLineItems.deleteShipmentLineItem';
+export const approveShipmentLineItemLabel = 'ShipmentLineItems.approveShipmentLineItem';
+export const updateShipmentLineItemLabel = 'ShipmentLineItems.updateShipmentLineItem';
+
+export function createShipmentLineItem(shipmentId, payload, label = createShipmentLineItemLabel) {
   return swaggerRequest(getPublicClient, 'accessorials.createShipmentLineItem', { shipmentId, payload }, { label });
 }
 
-export function updateShipmentLineItem(label, shipmentLineItemId, payload) {
+export function updateShipmentLineItem(shipmentLineItemId, payload, label = updateShipmentLineItemLabel) {
   return swaggerRequest(
     getPublicClient,
     'accessorials.updateShipmentLineItem',
@@ -18,15 +24,15 @@ export function updateShipmentLineItem(label, shipmentLineItemId, payload) {
   );
 }
 
-export function deleteShipmentLineItem(label, shipmentLineItemId) {
+export function deleteShipmentLineItem(shipmentLineItemId, label = deleteShipmentLineItemLabel) {
   return swaggerRequest(getPublicClient, 'accessorials.deleteShipmentLineItem', { shipmentLineItemId }, { label });
 }
 
-export function approveShipmentLineItem(label, shipmentLineItemId) {
+export function approveShipmentLineItem(shipmentLineItemId, label = approveShipmentLineItemLabel) {
   return swaggerRequest(getPublicClient, 'accessorials.approveShipmentLineItem', { shipmentLineItemId }, { label });
 }
 
-export function getAllShipmentLineItems(label, shipmentId) {
+export function getAllShipmentLineItems(shipmentId, label = getShipmentLineItemsLabel) {
   return swaggerRequest(getPublicClient, 'accessorials.getShipmentLineItems', { shipmentId }, { label });
 }
 
@@ -72,12 +78,6 @@ export const selectSortedPreApprovalShipmentLineItems = createSelector(
   [selectSortedShipmentLineItems],
   shipmentLineItems => filter(shipmentLineItems, lineItem => lineItem.tariff400ng_item.requires_pre_approval),
 );
-
-export const getShipmentLineItemsLabel = 'ShipmentLineItems.getAllShipmentLineItems';
-export const createShipmentLineItemLabel = 'ShipmentLineItems.createShipmentLineItem';
-export const deleteShipmentLineItemLabel = 'ShipmentLineItems.deleteShipmentLineItem';
-export const approveShipmentLineItemLabel = 'ShipmentLineItems.approveShipmentLineItem';
-export const updateShipmentLineItemLabel = 'ShipmentLineItems.updateShipmentLineItem';
 
 export const selectShipmentLineItem = (state, id) => denormalize([id], ShipmentLineItemsModel, state.entities)[0];
 

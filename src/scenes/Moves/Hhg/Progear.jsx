@@ -10,7 +10,7 @@ import { getLastError, getInternalSwaggerDefinition } from 'shared/Swagger/selec
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 
-import { createOrUpdateShipment, getShipment } from 'shared/Entities/modules/shipments';
+import { createOrUpdateShipment, getShipment, getShipmentLabel } from 'shared/Entities/modules/shipments';
 
 import './ShipmentWizard.css';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -19,9 +19,6 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 
 const formName = 'progear_form';
-const getRequestLabel = 'progear.getShipment';
-const createOrUpdateRequestLabel = 'progear.createOrUpdateShipment';
-
 const ProgearWizardForm = reduxifyWizardForm(formName);
 
 export class Progear extends Component {
@@ -55,7 +52,7 @@ export class Progear extends Component {
   loadShipment() {
     const shipmentID = get(this.props, 'currentShipment.id');
     if (shipmentID) {
-      this.props.getShipment(getRequestLabel, shipmentID, this.props.currentShipment.move_id);
+      this.props.getShipment(shipmentID, this.props.currentShipment.move_id);
     }
   }
 
@@ -80,7 +77,7 @@ export class Progear extends Component {
     }
 
     return this.props
-      .createOrUpdateShipment(createOrUpdateRequestLabel, moveId, shipment, currentShipmentId)
+      .createOrUpdateShipment(moveId, shipment, currentShipmentId)
       .then(action => {
         const id = Object.keys(action.entities.shipments)[0];
         return this.props.setCurrentShipmentID(id);
@@ -234,7 +231,7 @@ function mapStateToProps(state) {
     formValues: getFormValues(formName)(state),
     currentShipment: shipment,
     initialValues: Object.assign({}, shipment, { has_pro_gear: initialHasProgear }),
-    error: getLastError(state, getRequestLabel),
+    error: getLastError(state, getShipmentLabel),
     entitlement: loadEntitlementsFromState(state),
   };
   return props;

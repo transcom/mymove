@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import {
-  getTspForShipmentLabel,
   getTspForShipment,
   selectTransportationServiceProviderForShipment,
 } from 'shared/Entities/modules/transportationServiceProviders';
@@ -11,8 +10,8 @@ import { getPublicShipment } from 'shared/Entities/modules/shipments';
 export class TransportationServiceProviderContactInfo extends Component {
   componentDidMount() {
     const shipmentId = this.props.shipmentId;
-    this.props.getTspForShipment(getTspForShipmentLabel, shipmentId);
-    this.props.getPublicShipment('Shipments.getPublicShipment', shipmentId);
+    this.props.getTspForShipment(shipmentId);
+    this.props.getPublicShipment(shipmentId);
   }
 
   render() {
