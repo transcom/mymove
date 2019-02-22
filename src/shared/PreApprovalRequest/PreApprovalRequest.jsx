@@ -120,12 +120,12 @@ export class PreApprovalRequest extends Component {
       return (
         <Fragment>
           <tr key={row.id} className={deleteActiveClass}>
-            <td align="left">{row.tariff400ng_item.code}</td>
-            <td align="left">{row.tariff400ng_item.item}</td>
-            <td align="left"> {row.location[0]} </td>
+            <td>{row.tariff400ng_item.code}</td>
+            <td>{row.tariff400ng_item.item}</td>
+            <td> {row.location[0]} </td>
             <DetailsComponent {...this.props} />
-            <td align="left">{formatDate(row.submitted_date)}</td>
-            <td align="left">
+            <td>{formatDate(row.submitted_date)}</td>
+            <td>
               <span className="status">{status}</span>
               {formatStatus(row)}
             </td>
