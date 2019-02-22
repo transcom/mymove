@@ -19,10 +19,58 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// FetchFuelData is a function for returning fuel data
+type FetchFuelData func(string) (EiaData, error)
+
+type fuelData struct {
+	dateString string
+	price      float64
+}
+
+// EiaRequestData encapsulates the Request portion of returned JSON
+type EiaRequestData struct {
+	Command  string `json:"command"`
+	SeriesID string `json:"series_id"`
+}
+
+// EiaSeriesData gets all of the desired data in JSON under series
+type EiaSeriesData struct {
+	//SeriesID    string          `json:"series_id"`
+	//Name        string          `json:"name"`
+	//Units       string          `json:"units"`
+	//F           string          `json:"f"`
+	//Unitshort   string          `json:"unitshort"`
+	//Description string          `json:"description"`
+	//Copyright   string          `json:"copyright"`
+	//Source      string          `json:"source"`
+	//Iso3166     string          `json:"iso3166"`
+	//Geography   string          `json:"geography"`
+	//Start       string          `json:"start"`
+	//End         string          `json:"end"`
+	//Updated     string          `json:"updated"`
+	Data [][]interface{} `json:"data"`
+}
+
+//TODO: Determine if we want to log or use any of the commented out info above
+
+// EiaOtherData captures data that isn't request or series data
+type EiaOtherData struct {
+	Error       string `json:"error"`
+	UnknownInfo map[string]interface{}
+}
+
+// EiaData captures entirety of desired returned JSON
+type EiaData struct {
+	RequestData EiaRequestData  `json:"request"`
+	OtherData   EiaOtherData    `json:"data"`
+	SeriesData  []EiaSeriesData `json:"series"`
+}
+
 // DieselFuelPriceStorer is a service object to add missing fuel prices to db
 type DieselFuelPriceStorer struct {
-	DB    *pop.Connection
-	Clock clock.Clock
+	DB            *pop.Connection
+	Clock         clock.Clock
+	FetchFuelData FetchFuelData
 }
 
 // StoreFuelPrices retrieves data for the months we do not have prices for, calculates them, and adds them to the database
@@ -66,7 +114,10 @@ func (u DieselFuelPriceStorer) StoreFuelPrices(numMonths int) (*validate.Errors,
 		pubDate := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		startDate := time.Date(year, month, 15, 0, 0, 0, 0, time.UTC)
 		endDate := time.Date(year, month+1, 14, 0, 0, 0, 0, time.UTC)
-		baselineRate := u.calculateFuelSurchargeBaselineRate(pricePerGallon)
+		baselineRate, err := u.calculateFuelSurchargeBaselineRate(pricePerGallon)
+		if err != nil {
+			return verrs, errors.Wrap(err, "Cannot calculate baseline rate")
+		}
 
 		// Insert values into fuel_eia_diesel_prices
 		fuelPrice := models.FuelEIADieselPrice{
@@ -84,51 +135,14 @@ func (u DieselFuelPriceStorer) StoreFuelPrices(numMonths int) (*validate.Errors,
 			responseVErrors.Append(verrs)
 			return responseVErrors, errors.Wrap(err, "Cannot validate and save fuel diesel price")
 		}
+		log.Printf("Fuel Data added for %v with pub_date %v \n", month, pubDate)
 	}
 	return verrs, err
 }
 
-type fuelData struct {
-	dateString string
-	price      float64
-}
-
-type eiaRequestData struct {
-	Command  string `json:"command"`
-	SeriesID string `json:"series_id"`
-}
-
-type eiaSeriesData struct {
-	//SeriesID    string          `json:"series_id"`
-	//Name        string          `json:"name"`
-	//Units       string          `json:"units"`
-	//F           string          `json:"f"`
-	//Unitshort   string          `json:"unitshort"`
-	//Description string          `json:"description"`
-	//Copyright   string          `json:"copyright"`
-	//Source      string          `json:"source"`
-	//Iso3166     string          `json:"iso3166"`
-	//Geography   string          `json:"geography"`
-	//Start       string          `json:"start"`
-	//End         string          `json:"end"`
-	//Updated     string          `json:"updated"`
-	Data [][]interface{} `json:"data"`
-}
-
-//TODO: Determine if we want to log or use any of the commented out info above
-
-type eiaOtherData struct {
-	Error       string `json:"error"`
-	UnknownInfo map[string]interface{}
-}
-
-type eiaData struct {
-	RequestData eiaRequestData  `json:"request"`
-	OtherData   eiaOtherData    `json:"data"`
-	SeriesData  []eiaSeriesData `json:"series"`
-}
-
-func (u DieselFuelPriceStorer) fetchFuelData(url string, client *http.Client) (resultData eiaData, err error) {
+// FetchFuelPriceData is the function that fetches the actual fuel data
+func FetchFuelPriceData(url string) (resultData EiaData, err error) {
+	client := &http.Client{}
 	resp, err := client.Get(url)
 	if err != nil {
 		return resultData, errors.Wrap(err, "Error with EIA Open Data fuel prices GET request")
@@ -147,14 +161,14 @@ func (u DieselFuelPriceStorer) fetchFuelData(url string, client *http.Client) (r
 	return resultData, err
 }
 
+// getMissingRecordsPrices gets the data for each month that doesn't have data in the db and adds the data to struct
 func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fuelValues []fuelData, err error) {
-	// for each missing month, get the data for that month and add to struct
 
-	client := &http.Client{}
 	currentDate := u.Clock.Now()
 
 	// Do an api query for each month that needs a fuel price record
 	for _, month := range missingMonths {
+		// formulate the URL
 		var startDateString string
 		var endDateString string
 		var year int
@@ -174,11 +188,13 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 			"https://api.eia.gov/series/?api_key=%v&series_id=PET.EMD_EPD2D_PTE_NUS_DPG.W&start=%v&end=%v",
 			eiaKey, startDateString, endDateString)
 
-		result, err := u.fetchFuelData(url, client)
+		// fetch the data
+		result, err := u.FetchFuelData(url)
 		if err != nil {
 			return nil, errors.Wrap(err, "problem fetching fuel data")
 		}
 
+		// handle all possible responses
 		if len(result.OtherData.Error) != 0 {
 			return nil, errors.New(result.OtherData.Error)
 		} else if len(result.OtherData.UnknownInfo) != 0 {
@@ -188,9 +204,11 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 		}
 		monthFuelData := result.SeriesData[0].Data
 		if len(monthFuelData) < 1 {
-			err := errors.Errorf("No fuel data available for %v, %v", time.Month(month), year)
+			err := errors.Errorf("No fuel data available for %v %v", time.Month(month), year)
 			return []fuelData{}, err
 		}
+
+		// select the fuel data for the first Monday
 		dateString := ""
 		var price float64
 		if len(monthFuelData) > 1 {
@@ -216,7 +234,7 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 			dateString = monthFuelData[0][0].(string)
 			price = monthFuelData[0][1].(float64)
 		} else if len(monthFuelData) == 0 {
-			log.Print("No fueldata available yet for %v %v", time.Month(month), year)
+			log.Printf("No fueldata available yet for %v %v \n", time.Month(month), year)
 		}
 
 		fuelValues = append(fuelValues, fuelData{dateString: dateString, price: price})
@@ -239,8 +257,12 @@ func (u DieselFuelPriceStorer) findMissingRecordMonths(db *pop.Connection, numMo
 	}
 
 	months = []int{}
-	// determine months in the past 12 months NOT represented in the DB
-	allMonths := []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}
+	// determine months in the past desired months NOT represented in the DB
+	allMonths := []int{}
+	for i := 0; i < numMonths; i++ {
+		monthWanted := int(u.Clock.Now().AddDate(0, -i, 0).Month())
+		allMonths = append(allMonths, monthWanted)
+	}
 	for i := 1; i < len(allMonths); i++ {
 		if !intInSlice(allMonths[i], monthsInDB) {
 			months = append(months, allMonths[i])
@@ -249,13 +271,19 @@ func (u DieselFuelPriceStorer) findMissingRecordMonths(db *pop.Connection, numMo
 	return months, nil
 }
 
-func (u DieselFuelPriceStorer) calculateFuelSurchargeBaselineRate(pricePerGallon float64) (baselineRate int64) {
+func (u DieselFuelPriceStorer) calculateFuelSurchargeBaselineRate(pricePerGallon float64) (baselineRate int64, err error) {
 	// Calculate fuel surcharge based on price per gallon based on government-provided calculation
 	fuelPriceBaseline := 2.5
 	dividendValue := .13
-	rate := (pricePerGallon - fuelPriceBaseline) / dividendValue
+	diffPriceAndBaseline := pricePerGallon - fuelPriceBaseline
+	if diffPriceAndBaseline <= 0 {
+		// TODO: Find out what should be done if Baseline rate is greater than fuel price
+		err = errors.New("Cannot calculate fuel percentage when fuelPriceBaseline is greater than fuel price")
+		return baselineRate, err
+	}
+	rate := (diffPriceAndBaseline) / dividendValue
 	baselineRate = int64(math.Ceil(rate))
-	return baselineRate
+	return baselineRate, nil
 }
 
 func intInSlice(a int, list []int) bool {

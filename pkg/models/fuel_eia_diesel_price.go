@@ -45,7 +45,7 @@ func (f FuelEIADieselPrices) String() string {
 
 // FetchMostRecentFuelPrices queries and fetches all fuel_eia_diesel_prices for past specified number of months
 func FetchMostRecentFuelPrices(dbConnection *pop.Connection, clock clock.Clock, numMonths int) ([]FuelEIADieselPrice, error) {
-	today := clock.Now().UTC()
+	today := clock.Now()
 	query := dbConnection.Where("pub_date >= $1 AND pub_date <= $2", today.AddDate(0, -numMonths, 0), today)
 	// TODO: what if today's date is before the first Monday/publication date, but in the new month?
 	var fuelPrices []FuelEIADieselPrice

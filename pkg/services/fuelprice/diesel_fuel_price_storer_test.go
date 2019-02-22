@@ -1,12 +1,12 @@
 package fuelprice
 
 import (
-	"testing"
-	"time"
-
 	"github.com/facebookgo/clock"
+	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
+	"testing"
+	"time"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
@@ -40,8 +40,11 @@ func TestFuelPriceSuite(t *testing.T) {
 }
 
 func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
-	clock := clock.NewMock()
-	currentDate := clock.Now().AddDate(40, 0, 0)
+	testClock := clock.NewMock()
+	dateToTest := time.Date(2010, time.January, 10, 0, 0, 0, 0, time.UTC)
+	timeDiff := dateToTest.Sub(testClock.Now())
+	testClock.Add(timeDiff)
+	currentDate := testClock.Now()
 	// create fuel prices in db for last 15 months
 	for month := 0; month < 15; month++ {
 		var shipmentDate time.Time
@@ -61,7 +64,7 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	//remove a different month's data (not next to this month)
 	queryForPriorMonth := suite.DB().RawQuery(
 		"SELECT * FROM fuel_eia_diesel_prices WHERE (date_part('year', pub_date) = $1 "+
-			"AND date_part('month', pub_date) = $2)", currentDate.AddDate(0, -5, 0).Year(), int(currentDate.AddDate(0, -5, 0).Month()))
+			"AND date_part('month', pub_date) = $2)", currentDate.AddDate(0, -3, 0).Year(), int(currentDate.AddDate(0, -3, 0).Month()))
 	err = queryForPriorMonth.All(&fuelEIADeiselPrices)
 	if err != nil {
 		suite.logger.Error(err.Error())
@@ -70,11 +73,12 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	if err != nil {
 		suite.logger.Error("Error deleting eia diesel price", zap.Error(err))
 	}
-
+	nowInDB := []models.FuelEIADieselPrice{}
+	suite.DB().All(&nowInDB)
 	// run the function
-	numMonthsToVerify := 12
-	verrs, err := DieselFuelPriceStorer{DB: suite.DB(), Clock: clock}.StoreFuelPrices(numMonthsToVerify)
-	suite.NoError(err, "error when creating invoice")
+	numMonthsToVerify := 10
+	verrs, err := DieselFuelPriceStorer{DB: suite.DB(), Clock: testClock, FetchFuelData: mockedFetchFuelPriceData}.StoreFuelPrices(numMonthsToVerify)
+	suite.NoError(err, "error when creating diesel prices")
 	suite.Empty(verrs.Errors, "validation error when creating diesel prices")
 
 	// check that the last twelve months have fuel data
@@ -91,4 +95,19 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 		suite.logger.Error(err.Error())
 	}
 	suite.NotEmpty(&fuelEIADeiselPrices)
+}
+
+func mockedFetchFuelPriceData(url string) (data EiaData, err error) {
+	// TODO: build out structs to match test scenarios
+	switch url {
+	case "all months":
+		data = EiaData{}
+	case "None To Fetch":
+		data = EiaData{}
+	case "No data available":
+		data = EiaData{}
+	case "Error":
+		data = EiaData{}
+	}
+	return data, err
 }

@@ -17,8 +17,9 @@ func main() {
 	}
 	clock := clock.New()
 	fuelPrices := fuelprice.DieselFuelPriceStorer{
-		DB:    db,
-		Clock: clock,
+		DB:            db,
+		Clock:         clock,
+		FetchFuelData: fuelprice.FetchFuelPriceData,
 	}
 
 	verrs, err := fuelPrices.StoreFuelPrices(12)
