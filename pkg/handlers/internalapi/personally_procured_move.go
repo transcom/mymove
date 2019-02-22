@@ -47,6 +47,7 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 		Advance:                       payloadForReimbursementModel(personallyProcuredMove.Advance),
 		AdvanceWorksheet:              documentPayload,
 		Mileage:                       personallyProcuredMove.Mileage,
+		TotalSitCost:                  handlers.FmtCost(personallyProcuredMove.TotalSITCost),
 	}
 	if personallyProcuredMove.IncentiveEstimateMin != nil {
 		min := (*personallyProcuredMove.IncentiveEstimateMin).Int64()
