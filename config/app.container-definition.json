@@ -165,6 +165,10 @@
     {
       "name": "EIA_KEY",
       "value": "{{ .EIA_KEY }}"
+    },
+    {
+      "name": "EIA_URL",
+      "value": "{{ .EIA_URL }}"
     }
   ],
   "logConfiguration": {

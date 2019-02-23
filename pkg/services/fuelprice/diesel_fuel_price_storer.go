@@ -19,9 +19,6 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// FetchFuelData is a function for returning fuel data
-type FetchFuelData func(string) (EiaData, error)
-
 type fuelData struct {
 	dateString string
 	price      float64
@@ -66,11 +63,27 @@ type EiaData struct {
 	SeriesData  []EiaSeriesData `json:"series"`
 }
 
+// FetchFuelData is a function for returning fuel data
+type FetchFuelData func(string) (EiaData, error)
+
+// NewDieselFuelPriceStorer creates a new struct
+func NewDieselFuelPriceStorer(db *pop.Connection, clock clock.Clock, dataFetch FetchFuelData, eiaKey string, url string) *DieselFuelPriceStorer {
+	return &DieselFuelPriceStorer{
+		DB:            db,
+		Clock:         clock,
+		FetchFuelData: dataFetch,
+		EiaKey:        eiaKey,
+		URL:           url,
+	}
+}
+
 // DieselFuelPriceStorer is a service object to add missing fuel prices to db
 type DieselFuelPriceStorer struct {
 	DB            *pop.Connection
 	Clock         clock.Clock
 	FetchFuelData FetchFuelData
+	EiaKey        string
+	URL           string
 }
 
 // StoreFuelPrices retrieves data for the months we do not have prices for, calculates them, and adds them to the database
@@ -131,6 +144,7 @@ func (u DieselFuelPriceStorer) StoreFuelPrices(numMonths int) (*validate.Errors,
 		}
 		responseVErrors := validate.NewErrors()
 		verrs, err := u.DB.ValidateAndSave(&fuelPrice)
+
 		if err != nil || verrs.HasAny() {
 			responseVErrors.Append(verrs)
 			return responseVErrors, errors.Wrap(err, "Cannot validate and save fuel diesel price")
@@ -183,7 +197,8 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 		monthString := fmt.Sprintf("%02s", strconv.Itoa(month))
 		startDateString = fmt.Sprintf("%v%v%v", year, monthString, startDay)
 		endDateString = fmt.Sprintf("%v%v%v", year, monthString, endDay)
-		eiaKey := ""
+		eiaKey := u.EiaKey
+		//TODO: get url from env't var; use url Join to make full url
 		url := fmt.Sprintf(
 			"https://api.eia.gov/series/?api_key=%v&series_id=PET.EMD_EPD2D_PTE_NUS_DPG.W&start=%v&end=%v",
 			eiaKey, startDateString, endDateString)
@@ -243,7 +258,10 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 }
 
 func (u DieselFuelPriceStorer) findMissingRecordMonths(db *pop.Connection, numMonths int) (months []int, err error) {
-
+	// right now this function only supports 12 months or less
+	if numMonths > 12 {
+		return months, errors.New("Can check no more than a max of 12 records")
+	}
 	fuelPrices, err := models.FetchMostRecentFuelPrices(db, u.Clock, numMonths)
 	if err != nil {
 		return nil, errors.New("Error fetching fuel prices")
@@ -263,7 +281,7 @@ func (u DieselFuelPriceStorer) findMissingRecordMonths(db *pop.Connection, numMo
 		monthWanted := int(u.Clock.Now().AddDate(0, -i, 0).Month())
 		allMonths = append(allMonths, monthWanted)
 	}
-	for i := 1; i < len(allMonths); i++ {
+	for i := 0; i < len(allMonths); i++ {
 		if !intInSlice(allMonths[i], monthsInDB) {
 			months = append(months, allMonths[i])
 		}

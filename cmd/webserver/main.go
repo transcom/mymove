@@ -268,6 +268,7 @@ func initFlags(flag *pflag.FlagSet) {
 
 	// EIA Open Data API
 	flag.String("eia-key", "", "Key for Energy Information Administration (EIA) api")
+	flag.String("eia-url", "", "Url for Energy Information Administration (EIA) api")
 }
 
 func initDODCertificates(v *viper.Viper, logger *webserverLogger) ([]tls.Certificate, *x509.CertPool, error) {
@@ -526,6 +527,11 @@ func checkConfig(v *viper.Viper) error {
 		return err
 	}
 
+	err = checkEIAURL(v)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -652,8 +658,16 @@ func checkGEX(v *viper.Viper) error {
 
 func checkEIAKey(v *viper.Viper) error {
 	eiaKey := v.GetString("eia-key")
-	if len(eiaKey) < 1 {
-		return fmt.Errorf("no eia api key provided")
+	if len(eiaKey) != 32 {
+		return fmt.Errorf("eia key is not 32 characters key is %d chars", len(eiaKey))
+	}
+	return nil
+}
+
+func checkEIAURL(v *viper.Viper) error {
+	eiaURL := v.GetString("eia-url")
+	if eiaURL != "https://api.eia.gov/series/" {
+		return fmt.Errorf("eia url not correct as %s", eiaURL)
 	}
 	return nil
 }

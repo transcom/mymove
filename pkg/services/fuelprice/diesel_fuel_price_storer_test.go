@@ -2,7 +2,6 @@ package fuelprice
 
 import (
 	"github.com/facebookgo/clock"
-	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 	"testing"
@@ -77,13 +76,13 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	suite.DB().All(&nowInDB)
 	// run the function
 	numMonthsToVerify := 10
-	verrs, err := DieselFuelPriceStorer{DB: suite.DB(), Clock: testClock, FetchFuelData: mockedFetchFuelPriceData}.StoreFuelPrices(numMonthsToVerify)
+	verrs, err := DieselFuelPriceStorer{DB: suite.DB(), Clock: testClock, FetchFuelData: FetchFuelPriceData, EiaKey: "", URL: "all months"}.StoreFuelPrices(numMonthsToVerify)
 	suite.NoError(err, "error when creating diesel prices")
 	suite.Empty(verrs.Errors, "validation error when creating diesel prices")
 
-	// check that the last twelve months have fuel data
+	// check that the given number of prior months have fuel data
 	resultingFuelEIADeiselPrices := []models.FuelEIADieselPrice{}
-	// check that the records are added back in for the months removed
+	// check that the records are added back in for each of months previously missing
 	err = queryForThisMonth.All(&resultingFuelEIADeiselPrices)
 	if err != nil {
 		suite.logger.Error(err.Error())
@@ -97,17 +96,30 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	suite.NotEmpty(&fuelEIADeiselPrices)
 }
 
-func mockedFetchFuelPriceData(url string) (data EiaData, err error) {
+func mockedFetchFuelPriceData(url string) (data *EiaData, err error) {
 	// TODO: build out structs to match test scenarios
 	switch url {
 	case "all months":
-		data = EiaData{}
+		return &EiaData{
+			//SeriesData: []EiaSeriesData{
+			//	{
+			//		Data: [][]interface{
+			//				[string{"20100104"}, float64{2.79}],
+			//
+			//				//[]{
+			//				//"20100111", 2.81,
+			//				//},
+			//		},
+			//	},
+			//},
+		}, nil
 	case "None To Fetch":
-		data = EiaData{}
+		return &EiaData{}, nil
 	case "No data available":
-		data = EiaData{}
+		return &EiaData{}, nil
 	case "Error":
-		data = EiaData{}
+		return &EiaData{}, nil
+	default:
+		return nil, nil
 	}
-	return data, err
 }
