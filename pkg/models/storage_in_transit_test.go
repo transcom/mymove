@@ -1,9 +1,10 @@
 package models_test
 
 import (
+	"testing"
+
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
-	"testing"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
