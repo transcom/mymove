@@ -104,10 +104,32 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	makeHhgReadyToInvoice(db, tspUser, logger, storer)
 
 	/*
+	 * Service member with no uploaded orders
+	 */
+	email = "needs@orde.rs"
+	uuidStr := "feac0e92-66ec-4cab-ad29-538129bf918e"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+
+	testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("c52a9f13-ccc7-4c1b-b5ef-e1132a4f4db9"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("NEEDS"),
+			LastName:      models.StringPointer("ORDERS"),
+			PersonalEmail: models.StringPointer(email),
+		},
+	})
+
+	/*
 	 * Service member with uploaded orders and a new ppm
 	 */
 	email = "ppm@incomple.te"
-	uuidStr := "e10d5964-c070-49cb-9bd1-eaf9f7348eb6"
+	uuidStr = "e10d5964-c070-49cb-9bd1-eaf9f7348eb6"
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
