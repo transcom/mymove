@@ -12,6 +12,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -19,8 +20,9 @@ import (
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
-	"github.com/transcom/mymove/pkg/uploader"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *InvoiceServiceSuite) openLocalFile(path string) (afero.File, error) {

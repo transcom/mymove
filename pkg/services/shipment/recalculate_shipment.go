@@ -3,10 +3,11 @@ package shipment
 import (
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
-	"go.uber.org/zap"
 )
 
 // RecalculateShipment is a service object to re-price a Shipment

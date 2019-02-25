@@ -2,16 +2,19 @@ package publicapi
 
 import (
 	"fmt"
-	"github.com/transcom/mymove/pkg/paperwork"
 	"net/http"
 	"net/http/httptest"
 	"time"
+
+	"github.com/transcom/mymove/pkg/paperwork"
 
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/route"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+
+	"github.com/transcom/mymove/pkg/auth"
 
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
@@ -144,6 +147,27 @@ func (suite *HandlerSuite) TestGetShipmentHandler() {
 	// And: Payload is equivalent to original shipment
 	suite.Equal(strfmt.UUID(shipment.ID.String()), okResponse.Payload.ID)
 	suite.Equal(apimessages.AffiliationARMY, *okResponse.Payload.ServiceMember.Affiliation)
+}
+
+func (suite *HandlerSuite) TestGetShipmentHandlerWhereSessionServiceMemberIDDoesNotEqualShipmentServiceMemberID() {
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
+	req := httptest.NewRequest("GET", "/shipments", nil)
+	req = suite.AuthenticateRequest(req, serviceMember)
+
+	params := shipmentop.GetShipmentParams{
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+	}
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	handler := GetShipmentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	suite.NotEqual(session.ServiceMemberID, shipment.ServiceMemberID)
+	suite.Assertions.IsType(&shipmentop.GetShipmentForbidden{}, response)
 }
 
 func (suite *HandlerSuite) TestPatchShipmentHandlerNetWeight() {

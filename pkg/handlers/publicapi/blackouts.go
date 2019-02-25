@@ -2,6 +2,7 @@ package publicapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+
 	blackoutsop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/blackouts"
 	"github.com/transcom/mymove/pkg/handlers"
 )

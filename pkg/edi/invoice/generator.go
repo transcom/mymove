@@ -12,7 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi"
-	"github.com/transcom/mymove/pkg/edi/segment"
+	edisegment "github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/models"
 )
 

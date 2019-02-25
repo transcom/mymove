@@ -5,6 +5,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/auth"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"

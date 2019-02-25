@@ -7,10 +7,6 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/transcom/mymove/pkg/unit"
-
-	"github.com/transcom/mymove/pkg/rateengine"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -26,7 +22,9 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func payloadForMoveModel(storer storage.FileStorer, order models.Order, move models.Move) (*internalmessages.MovePayload, error) {
