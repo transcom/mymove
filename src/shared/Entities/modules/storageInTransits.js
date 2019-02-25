@@ -1,22 +1,15 @@
-import { denormalize } from 'normalizr';
-
-import { storageInTransit as storageInTransitModel } from '../schema';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getPublicClient } from 'shared/Swagger/api';
-import { get, filter, keys } from 'lodash';
 
 const createStorageInTransitLabel = 'StorageInTransits.createStorageInTransit';
+const getStorageInTransitsLabel = 'StorageInTransits.getStorageInTransitsForShipment';
 
 export const selectStorageInTransits = (state, shipmentId) => {
-  let filteredItems = denormalize(
-    keys(get(state, 'entities.storageInTransit', {})),
-    storageInTransitModel,
-    state.entities,
+  const storageInTransits = Object.values(state.entities.storageInTransits).filter(
+    storageInTransit => storageInTransit.shipment_id === shipmentId,
   );
 
-  return filter(filteredItems, item => {
-    return item.shipmentId === shipmentId;
-  });
+  return storageInTransits;
 };
 
 export function createStorageInTransit(shipmentId, storageInTransit, label = createStorageInTransitLabel) {
@@ -27,3 +20,7 @@ export function createStorageInTransit(shipmentId, storageInTransit, label = cre
     { label },
   );
 }
+
+export const getStorageInTransitsForShipment = (shipmentId, label = getStorageInTransitsLabel) => {
+  return swaggerRequest(getPublicClient, 'storage_in_transits.indexStorageInTransits', { shipmentId }, { label });
+};
