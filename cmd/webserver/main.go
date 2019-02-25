@@ -17,6 +17,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
@@ -39,7 +40,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
-	"github.com/transcom/mymove/pkg/edi/invoice"
+	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/dpsapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
@@ -62,6 +63,9 @@ var gitCommit string
 
 // max request body size is 20 mb
 const maxBodySize int64 = 200 * 1000 * 1000
+
+// hereRequestTimeout is how long to wait on HERE request before timing out (15 seconds).
+const hereRequestTimeout = time.Duration(15) * time.Second
 
 type errInvalidProtocol struct {
 	Protocol string
@@ -361,8 +365,10 @@ func initDODCertificates(v *viper.Viper, logger *webserverLogger) ([]tls.Certifi
 }
 
 func initRoutePlanner(v *viper.Viper, logger *zap.Logger) route.Planner {
+	hereClient := &http.Client{Timeout: hereRequestTimeout}
 	return route.NewHEREPlanner(
 		logger,
+		hereClient,
 		v.GetString("here-maps-geocode-endpoint"),
 		v.GetString("here-maps-routing-endpoint"),
 		v.GetString("here-maps-app-id"),

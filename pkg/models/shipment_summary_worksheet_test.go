@@ -6,6 +6,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -169,8 +170,8 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 
 	personallyProcuredMoves := []models.PersonallyProcuredMove{
 		{
-			PlannedMoveDate: &pickupDate,
-			Status:          models.PPMStatusPAYMENTREQUESTED,
+			OriginalMoveDate: &pickupDate,
+			Status:           models.PPMStatusPAYMENTREQUESTED,
 		},
 	}
 	ssd := models.ShipmentSummaryFormData{

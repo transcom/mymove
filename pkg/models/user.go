@@ -3,12 +3,13 @@ package models
 import (
 	"time"
 
+	"strings"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"strings"
 )
 
 // User is an entity with a registered uuid and email at login.gov

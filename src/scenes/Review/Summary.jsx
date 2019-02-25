@@ -157,7 +157,7 @@ function mapDispatchToProps(dispatch, ownProps) {
       const moveID = ownProps.match.params.moveId;
       dispatch(loadMove(moveID, 'Summary.getMove')).then(function(action) {
         forEach(action.entities.shipments, function(shipment) {
-          dispatch(getShipment('Summary.getShipment', shipment.id));
+          dispatch(getShipment(shipment.id));
         });
       });
     },

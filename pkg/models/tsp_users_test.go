@@ -2,6 +2,7 @@ package models_test
 
 import (
 	"github.com/gofrs/uuid"
+
 	. "github.com/transcom/mymove/pkg/models"
 )
 

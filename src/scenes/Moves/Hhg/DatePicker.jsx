@@ -17,7 +17,6 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { getAvailableMoveDates, selectAvailableMoveDates } from 'shared/Entities/modules/calendar';
 
-const getMoveDatesSummaryLabel = 'DatePicker.getMoveDatesSummary';
 const getAvailableMoveDatesLabel = 'MoveDate.getAvailableMoveDates';
 
 function createModifiers(moveDates) {
@@ -52,7 +51,7 @@ export class HHGDatePicker extends Component {
     }
     const moveDate = formatSwaggerDate(day);
     this.props.input.onChange(moveDate);
-    this.props.getMoveDatesSummary(getMoveDatesSummaryLabel, this.props.moveID, moveDate);
+    this.props.getMoveDatesSummary(this.props.moveID, moveDate);
     this.setState({
       selectedDay: moveDate,
     });
@@ -78,11 +77,7 @@ export class HHGDatePicker extends Component {
       this.props.currentShipment.requested_pickup_date === this.props.input.value;
     if (this.props.currentShipment !== prevProps.currentShipment && this.props.currentShipment.requested_pickup_date) {
       if (!moveDateIsSavedDate) {
-        this.props.getMoveDatesSummary(
-          getMoveDatesSummaryLabel,
-          this.props.moveID,
-          this.props.currentShipment.requested_pickup_date,
-        );
+        this.props.getMoveDatesSummary(this.props.moveID, this.props.currentShipment.requested_pickup_date);
       }
       this.setState({
         selectedDay: this.props.input.value || this.props.currentShipment.requested_pickup_date,

@@ -5,8 +5,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
-	"github.com/transcom/mymove/pkg/testingsuite"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type iwsSuite struct {

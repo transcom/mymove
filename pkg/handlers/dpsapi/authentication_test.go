@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/gen/dpsapi/dpsoperations/dps"

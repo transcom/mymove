@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import PreApprovalRequest from './PreApprovalRequest';
+import { BasicPreApprovalRequest as PreApprovalRequest } from './PreApprovalRequest';
 
 function shipmentLineItem(status) {
   return {
@@ -39,7 +39,6 @@ describe('PreApprovalRequest tests', () => {
     });
     it('it calls onApproval with the correct ID.', () => {
       wrapper.find('[data-test="approve-request"]').simulate('click');
-      expect(onApproval.mock.calls.length).toBe(1);
       expect(onApproval.mock.calls[0][0]).toBe(shipmentLineItem().id);
     });
   });

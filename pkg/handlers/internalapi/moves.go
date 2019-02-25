@@ -3,12 +3,9 @@ package internalapi
 import (
 	"bytes"
 	"io/ioutil"
+	"log"
 	"reflect"
 	"time"
-
-	"github.com/transcom/mymove/pkg/unit"
-
-	"github.com/transcom/mymove/pkg/rateengine"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
@@ -25,7 +22,9 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func payloadForMoveModel(storer storage.FileStorer, order models.Order, move models.Move) (*internalmessages.MovePayload, error) {
@@ -61,6 +60,7 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		UpdatedAt:               handlers.FmtDateTime(move.UpdatedAt),
 		PersonallyProcuredMoves: ppmPayloads,
 		OrdersID:                handlers.FmtUUID(order.ID),
+		ServiceMemberID:         *handlers.FmtUUID(order.ServiceMemberID),
 		Status:                  internalmessages.MoveStatus(move.Status),
 		Shipments:               shipmentPayloads,
 	}
@@ -242,7 +242,7 @@ type ShowShipmentSummaryWorksheetHandler struct {
 func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSummaryWorksheetParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
-	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
+	engine := rateengine.NewRateEngine(h.DB(), h.Logger())
 
 	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(h.DB(), session, moveID)
 	ssfd.PreparationDate = time.Time(params.PreparationDate)
@@ -252,12 +252,17 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	}
 	if firstPPM.PickupPostalCode != nil &&
 		firstPPM.DestinationPostalCode != nil &&
-		firstPPM.PlannedMoveDate != nil {
+		firstPPM.OriginalMoveDate != nil {
+		distanceMiles, err := h.Planner().Zip5TransitDistance(*firstPPM.PickupPostalCode, *firstPPM.DestinationPostalCode)
+		if err != nil {
+			log.Fatalf("Error calculating distance %v", err)
+		}
 		cost, err := engine.ComputePPMIncludingLHDiscount(
 			unit.Pound(ssfd.TotalWeightAllotment),
 			*firstPPM.PickupPostalCode,
 			*firstPPM.DestinationPostalCode,
-			*firstPPM.PlannedMoveDate,
+			distanceMiles,
+			*firstPPM.OriginalMoveDate,
 			0, 0,
 		)
 		ssfd.GCC = cost.GCC

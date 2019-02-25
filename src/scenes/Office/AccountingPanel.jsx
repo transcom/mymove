@@ -67,12 +67,8 @@ function mapStateToProps(state, ownProps) {
 
     // Wrapper
     ordersSchema: get(state, 'swaggerInternal.spec.definitions.Orders', {}),
-    hasError: state.office.ordersHaveLoadError || state.office.ordersHaveUpdateError,
-    errorMessage: state.office.error,
-
     orders: orders,
     sacIsRequired: !move.selected_move_type === 'PPM',
-    isUpdating: state.office.ordersAreUpdating,
 
     // editablePanelify
     getUpdateArgs: function() {

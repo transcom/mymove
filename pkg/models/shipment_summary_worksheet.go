@@ -10,11 +10,12 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/unit"
-	"golang.org/x/text/language"
-	"golang.org/x/text/message"
 )
 
 // FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
@@ -400,8 +401,8 @@ func FormatShipmentPickupDate(shipment Shipment) string {
 
 //FormatPPMPickupDate formats a shipments ActualPickupDate for the Shipment Summary Worksheet
 func FormatPPMPickupDate(ppm PersonallyProcuredMove) string {
-	if ppm.PlannedMoveDate != nil {
-		return FormatDate(*ppm.PlannedMoveDate)
+	if ppm.OriginalMoveDate != nil {
+		return FormatDate(*ppm.OriginalMoveDate)
 	}
 	return ""
 }

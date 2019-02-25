@@ -1,19 +1,25 @@
 import React, { Component } from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
+import PropTypes from 'prop-types';
 
 import './StorageInTransit.css';
 
+import { isValid, isSubmitting } from 'redux-form';
+
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import StorageInTransitForm from './StorageInTransitForm';
+import StorageInTransitForm, { formName as StorageInTransitFormName } from './StorageInTransitForm.jsx';
 
 export class Creator extends Component {
-  state = { showForm: false };
+  state = {
+    showForm: false,
+  };
 
   openForm = () => {
     this.setState({ showForm: true });
   };
+
   closeForm = () => {
     this.setState({ showForm: false });
   };
@@ -54,10 +60,14 @@ export class Creator extends Component {
   }
 }
 
-Creator.propTypes = {};
+Creator.propTypes = {
+  formEnabled: PropTypes.bool.isRequired,
+};
 
 function mapStateToProps(state) {
-  return {};
+  return {
+    formEnabled: isValid(StorageInTransitFormName)(state) && !isSubmitting(StorageInTransitFormName)(state),
+  };
 }
 
 function mapDispatchToProps(dispatch) {

@@ -7,6 +7,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"github.com/honeycombio/beeline-go"
+
 	"github.com/transcom/mymove/pkg/auth"
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"

@@ -142,8 +142,6 @@ function mapStateToProps(state, ownProps) {
     formValues: formValues,
     initialValues: { orders, serviceMember },
     ordersSchema: get(state, 'swaggerInternal.spec.definitions.Orders', {}),
-    hasError: false,
-    errorMessage: state.office.error,
     entitlements: calculateEntitlementsForMove(state, moveId),
     isUpdating: false,
     orders,

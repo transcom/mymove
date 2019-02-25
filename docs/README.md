@@ -19,6 +19,8 @@ If you are looking to understand choices made in this project, see the list of [
 * [display dates and times](how-to/display-dates-and-times.md#how-to-display-dates-and-times)
 * [Generate Mocks with Mockery](how-to/generate-mocks-with-mockery.md#how-to-generate-mocks-with-mockery)
 * [Instrument Data in Honeycomb](how-to/instrument-data-in-honeycomb.md#how-to-instrument-data-in-honeycomb)
+* [Manage Docker Locally](how-to/manage-docker-locally.md#how-to-manage-docker-locally)
+* [Migrate the Database](how-to/migrate-the-database.md#how-to-migrate-the-database)
 * [revert a change](how-to/revert-a-change.md#how-to-revert-a-change)
 * [Run Against S3 Locally](how-to/run-against-s3-locally.md#how-to-run-against-s3-locally)
 * [Run End to End (Cypress) Tests](how-to/run-e2e-tests.md#how-to-run-end-to-end-cypress-tests)

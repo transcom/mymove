@@ -47,11 +47,6 @@ commands:
             [[ $CIRCLE_BRANCH = master ]] || exit 0
             bin/circleci-announce-broken-branch
           when: on_fail
-  halt_workflow_if_older_sha:
-    steps:
-      - run:
-          name: Halt workflow to prevent old master deploying to staging
-          command: bin/check-staging-app-sha $CIRCLE_SHA1
   deploy_migrations_steps:
     steps:
       - checkout
@@ -64,10 +59,16 @@ commands:
       - announce_failure
   deploy_app_steps:
     parameters:
+      compare_host:
+        type: string
       health_check_hosts:
         type: string
     steps:
       - checkout
+      - run:
+          name: Compare against deployed commit
+          command: |
+            [[ -z "<< parameters.compare_host >>" ]] || bin/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1
       - restore_cache:
           keys:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
@@ -84,10 +85,16 @@ commands:
       - announce_failure
   deploy_app_client_tls_steps:
     parameters:
+      compare_host:
+        type: string
       health_check_hosts:
         type: string
     steps:
       - checkout
+      - run:
+          name: Compare against deployed commit
+          command: |
+            [[ -z "<< parameters.compare_host >>" ]] || bin/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1 ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
       - restore_cache:
           keys:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
@@ -99,6 +106,9 @@ commands:
           name: Health Check
           command: |
             go run cmd/health_checker/main.go --schemes https --hosts << parameters.health_check_hosts >> --key ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} --cert ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} --ca ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 15m
+      - run:
+          name: Check deployed commits
+          command: bin/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1" ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
       - announce_failure
   build_tag_push:
     parameters:
@@ -598,6 +608,7 @@ jobs:
       - APP_ENVIRONMENT: 'experimental'
     steps:
       - deploy_app_steps:
+          compare_host: "" # leave blank since we want experimental to be able to roll back
           health_check_hosts: my.experimental.move.mil,office.experimental.move.mil,tsp.experimental.move.mil
 
   # `deploy_experimental_app_client_tls` updates the mutual-TLS service in the experimental environment
@@ -607,13 +618,16 @@ jobs:
       - APP_ENVIRONMENT: 'experimental'
     steps:
       - deploy_app_client_tls_steps:
+          compare_host: "" # leave blank since we want experimental to be able to roll back
           health_check_hosts: gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
 
   check_circle_against_staging_sha:
     executor: mymove_small
     steps:
       - checkout
-      - halt_workflow_if_older_sha
+      - run:
+          name: Halt workflow to prevent old master deploying to staging
+          command: bin/compare-deployed-commit my.staging.move.mil $CIRCLE_SHA1
 
   # `acceptance_tests_staging` runs acceptance tests for the webserver against the staging environment.
   acceptance_tests_staging:
@@ -656,6 +670,7 @@ jobs:
       - APP_ENVIRONMENT: 'staging'
     steps:
       - deploy_app_steps:
+          compare_host: my.staging.move.mil
           health_check_hosts: my.staging.move.mil,office.staging.move.mil,tsp.staging.move.mil
 
   # `deploy_staging_app_client_tls` updates the mutual-TLS service in the staging environment
@@ -665,6 +680,7 @@ jobs:
       - APP_ENVIRONMENT: 'staging'
     steps:
       - deploy_app_client_tls_steps:
+          compare_host: gex.staging.move.mil
           health_check_hosts: gex.staging.move.mil,dps.staging.move.mil,orders.staging.move.mil
 
   # `deploy_prod_migrations` deploys migrations to the staging environment
@@ -682,6 +698,7 @@ jobs:
       - APP_ENVIRONMENT: 'prod'
     steps:
       - deploy_app_steps:
+          compare_host: my.move.mil
           health_check_hosts: my.move.mil,office.move.mil,tsp.move.mil
 
   # `deploy_prod_app_client_tls` updates the mutual-TLS service in the prod environment
@@ -691,6 +708,7 @@ jobs:
       - APP_ENVIRONMENT: 'prod'
     steps:
       - deploy_app_client_tls_steps:
+          compare_host: gex.move.mil
           health_check_hosts: gex.move.mil,dps.move.mil,orders.move.mil
 
   # `update_dependencies` periodically updates pre-commit, yarn, and Go dependencies.

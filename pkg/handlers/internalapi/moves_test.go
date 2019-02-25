@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 
@@ -406,6 +407,8 @@ func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	planner := route.NewTestingPlanner(1044)
+	context.SetPlanner(planner)
 
 	handler := ShowShipmentSummaryWorksheetHandler{context}
 	response := handler.Handle(params)

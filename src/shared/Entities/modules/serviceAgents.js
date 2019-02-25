@@ -4,22 +4,25 @@ import { getPublicClient } from 'shared/Swagger/api';
 const getServiceAgentsForShipmentLabel = 'ServiceAgents.getServiceAgentsForShipment';
 const updateServiceAgentForShipmentLabel = 'ServiceAgents.updateServiceAgentForShipment';
 
-export function getServiceAgentsForShipment(shipmentId) {
-  const label = getServiceAgentsForShipmentLabel;
+export function getServiceAgentsForShipment(shipmentId, label = getServiceAgentsForShipmentLabel) {
   const swaggerTag = 'service_agents.indexServiceAgents';
   return swaggerRequest(getPublicClient, swaggerTag, { shipmentId }, { label });
 }
 
-export function updateServiceAgentForShipment(shipmentId, serviceAgentId, serviceAgent) {
-  const label = updateServiceAgentForShipmentLabel;
+export function updateServiceAgentForShipment(
+  shipmentId,
+  serviceAgentId,
+  serviceAgent,
+  label = updateServiceAgentForShipmentLabel,
+) {
   const swaggerTag = 'service_agents.patchServiceAgent';
   return swaggerRequest(getPublicClient, swaggerTag, { shipmentId, serviceAgentId, serviceAgent }, { label });
 }
 
-export function updateServiceAgentsForShipment(shipmentId, serviceAgents) {
+export function updateServiceAgentsForShipment(shipmentId, serviceAgents, label = updateServiceAgentForShipmentLabel) {
   return async function(dispatch) {
     Object.values(serviceAgents).map(serviceAgent =>
-      dispatch(updateServiceAgentForShipment(shipmentId, serviceAgent.id, serviceAgent)),
+      dispatch(updateServiceAgentForShipment(shipmentId, serviceAgent.id, serviceAgent, label)),
     );
   };
 }

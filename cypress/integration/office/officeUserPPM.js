@@ -7,15 +7,94 @@ describe('office user finds the move', function() {
     officeUserViewsMoves();
   });
   it('office user verifies the orders tab', function() {
-    officeUserVerifiesOrders();
+    officeUserVerifiesOrders('VGHEIS');
   });
   it('office user verifies the accounting tab', function() {
     officeUserVerifiesAccounting();
   });
   it('office user approves move, verifies and approves PPM', function() {
-    officeUserApprovesMoveAndVerifiesPPM();
+    officeUserApprovesMoveAndPPM('VGHEIS');
+    officeUserVerifiesPPM();
+  });
+  it('office user approves move, approves PPM with no advance', function() {
+    const moveLocator = 'NOADVC';
+    officeUserVerifiesOrders(moveLocator);
+    cy.patientVisit('/');
+    officeUserApprovesMoveAndPPM(moveLocator);
+
+    // Make sure the page hasn't exploded
+    cy
+      .get('button')
+      .contains('Approve PPM')
+      .should('have.class', 'btn__approve--green');
+  });
+  it('office user views actual move date', function() {
+    officeUserGoesToDatesAndLocationsPanel('PAYMNT');
+    cy.get('.actual_move_date').should($div => {
+      const text = $div.text();
+      expect(text).to.include('Departure date');
+      expect(text).to.include('11-Nov-18');
+    });
+  });
+  it('edits missing text when the actual move date is not set', function() {
+    officeUserGoesToDatesAndLocationsPanel('FDXTIU');
+    cy.get('.actual_move_date').should($div => {
+      const text = $div.text();
+      expect(text).to.include('Departure date');
+      expect(text).to.include('missing');
+    });
+
+    const actualDate = '11/20/2018';
+
+    officeUserEditsDatesAndLocationsPanel(actualDate);
+
+    cy.get('.actual_move_date').should($div => {
+      const text = $div.text();
+      expect(text).to.include('Departure date');
+      expect(text).to.include('20-Nov-18');
+    });
+  });
+
+  it('office user edits ppm net weight', function() {
+    officeUserEditsNetWeight();
   });
 });
+
+function officeUserEditsNetWeight() {
+  cy.patientVisit('/queues/ppm');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/ppm/);
+  });
+
+  cy.selectQueueItemMoveLocator('VGHEIS');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
+
+  cy
+    .get('span')
+    .contains('PPM')
+    .click();
+
+  cy.get('.net_weight').contains('missing');
+
+  cy
+    .get('.editable-panel-header')
+    .contains('Weights')
+    .siblings()
+    .click();
+
+  cy.get('input[name="net_weight"]').type('6000');
+
+  cy
+    .get('button')
+    .contains('Save')
+    .click();
+
+  cy.get('.net_weight').contains('6,000');
+}
 
 function officeUserViewsMoves() {
   // Open new moves queue
@@ -31,14 +110,14 @@ function officeUserViewsMoves() {
   });
 }
 
-function officeUserVerifiesOrders() {
+function officeUserVerifiesOrders(moveLocator) {
   // Open new moves queue
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
   // Find move and open it
-  cy.selectQueueItemMoveLocator('VGHEIS');
+  cy.selectQueueItemMoveLocator(moveLocator);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -148,14 +227,14 @@ function officeUserVerifiesAccounting() {
   cy.get('span').contains('N002214CSW32Y9');
 }
 
-function officeUserApprovesMoveAndVerifiesPPM() {
+function officeUserApprovesMoveAndPPM(moveLocator) {
   // Open new moves queue
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
   // Find move and open it
-  cy.selectQueueItemMoveLocator('VGHEIS');
+  cy.selectQueueItemMoveLocator(moveLocator);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -189,7 +268,7 @@ function officeUserApprovesMoveAndVerifiesPPM() {
     .click();
 
   // Find move and open it
-  cy.selectQueueItemMoveLocator('VGHEIS');
+  cy.selectQueueItemMoveLocator(moveLocator);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -204,14 +283,16 @@ function officeUserApprovesMoveAndVerifiesPPM() {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);
   });
 
-  // Verify that the Estimates section contains expected data
-  cy.get('span').contains('8,000');
-
   // Approve PPM
   cy
     .get('button')
     .contains('Approve PPM')
     .click();
+}
+
+function officeUserVerifiesPPM() {
+  // Verify that the Estimates section contains expected data
+  cy.get('span').contains('8,000');
 
   // Approve advance
   cy.get('.payment-table').within(() => {
@@ -233,4 +314,54 @@ function officeUserApprovesMoveAndVerifiesPPM() {
       .should('have.attr', 'title')
       .and('eq', 'Approved');
   });
+}
+
+function officeUserGoesToDatesAndLocationsPanel(locator) {
+  // Open ppm queue
+  cy.patientVisit('/queues/ppm');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/ppm/);
+  });
+
+  // Find shipment and open it
+  cy.selectQueueItemMoveLocator(locator);
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
+
+  cy
+    .get('.title')
+    .contains('PPM')
+    .click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);
+  });
+}
+
+function officeUserEditsDatesAndLocationsPanel(date) {
+  cy
+    .get('.editable-panel-header')
+    .contains('Dates & Locations')
+    .siblings()
+    .click();
+
+  cy
+    .get('input[name="actual_move_date"]')
+    .first()
+    .clear()
+    .type(date)
+    .blur();
+
+  cy
+    .get('button')
+    .contains('Save')
+    .should('be.enabled');
+
+  cy
+    .get('button')
+    .contains('Save')
+    .click();
 }

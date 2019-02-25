@@ -109,12 +109,20 @@ build_soda: go_deps .build_soda.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
 	touch .build_soda.stamp
 
+build_generate_test_data: go_deps
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
+
 build_callgraph: go_deps .build_callgraph.stamp
 .build_callgraph.stamp:
 	go build -i -o bin/callgraph ./vendor/golang.org/x/tools/cmd/callgraph
 	touch .build_callgraph.stamp
 
-server_deps: check_hosts go_deps build_chamber build_soda build_callgraph .server_deps.stamp
+get_goimports: go_deps .get_goimports.stamp
+.get_goimports.stamp:
+	go get -u golang.org/x/tools/cmd/goimports
+	touch .get_goimports.stamp
+
+server_deps: check_hosts go_deps build_chamber build_soda build_callgraph get_goimports .server_deps.stamp
 .server_deps.stamp:
 	# Unfortunately, dep ensure blows away ./vendor every time so these builds always take a while
 	go install ./vendor/github.com/golang/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
@@ -166,10 +174,9 @@ server_run_debug:
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) dlv debug cmd/webserver/main.go
 
-build_tools: bash_version server_deps server_generate
+build_tools: bash_version server_deps server_generate build_generate_test_data
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
-	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
 	go build -i -ldflags "$(LDFLAGS)" -o bin/health_checker ./cmd/health_checker
 	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/demo/iws.go
 	go build -i -ldflags "$(LDFLAGS)" -o bin/load-office-data ./cmd/load_office_data
@@ -343,7 +350,7 @@ db_test_reset: db_destroy db_test_run
 
 db_test_reset_docker: db_destroy db_test_run_docker
 
-db_e2e_up:
+db_e2e_up: build_generate_test_data
 	@echo "Truncate the test database..."
 	psql postgres://postgres:$(PGPASSWORD)@localhost:5432/test_db?sslmode=disable -c 'TRUNCATE users CASCADE;'
 	@echo "Populate the test database..."
@@ -414,7 +421,7 @@ clean:
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs check_hosts
 .PHONY: server_run_standalone server_run server_run_default server_test webserver_test
 .PHONY: go_deps_update server_go_bindata
-.PHONY: build_chamber build_soda build_callgraph
+.PHONY: build_chamber build_soda build_callgraph get_goimports
 .PHONY: server_generate server_deps server_build
 .PHONY: server_generate_linux server_deps_linux server_build_linux
 .PHONY: db_run db_destroy

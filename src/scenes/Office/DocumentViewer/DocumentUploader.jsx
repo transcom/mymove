@@ -178,7 +178,6 @@ function mapStateToProps(state, props) {
     formValues: getFormValues(moveDocumentFormName)(state),
     genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
-    moveDocumentCreateError: state.office.moveDocumentCreateError,
     currentPpm: selectPPMForMove(state, props.moveId) || get(state, 'ppm.currentPpm'),
   };
   return newProps;

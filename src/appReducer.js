@@ -17,7 +17,7 @@ import { signedCertificationReducer } from 'scenes/Legalese/ducks';
 import { documentReducer } from 'shared/Uploader/ducks';
 import { reviewReducer } from 'scenes/Review/ducks';
 import transportationOfficeReducer from 'shared/TransportationOffices/ducks';
-import { officeReducer } from 'scenes/Office/ducks';
+import { officeFlashMessagesReducer } from 'scenes/Office/ducks';
 import { tspReducer } from 'scenes/TransportationServiceProvider/ducks';
 import officePpmReducer from 'scenes/Office/Ppm/ducks';
 
@@ -42,7 +42,7 @@ export const appReducer = combineReducers({
   signedCertification: signedCertificationReducer,
   upload: documentReducer,
   review: reviewReducer,
-  office: officeReducer,
+  flashMessages: officeFlashMessagesReducer,
   transportationOffices: transportationOfficeReducer,
   ppmIncentive: officePpmReducer,
 });

@@ -159,7 +159,7 @@ export class PpmWeight extends Component {
     if (![this.state.pendingPpmWeight, weight_estimate].includes(currentWeight)) {
       this.onWeightSelecting(currentWeight);
       this.props.getPpmWeightEstimate(
-        currentPpm.planned_move_date,
+        currentPpm.original_move_date,
         currentPpm.pickup_postal_code,
         currentPpm.destination_postal_code,
         currentWeight,
@@ -192,7 +192,7 @@ export class PpmWeight extends Component {
   onWeightSelected = value => {
     const { currentPpm } = this.props;
     this.props.getPpmWeightEstimate(
-      currentPpm.planned_move_date,
+      currentPpm.original_move_date,
       currentPpm.pickup_postal_code,
       currentPpm.destination_postal_code,
       this.state.pendingPpmWeight,

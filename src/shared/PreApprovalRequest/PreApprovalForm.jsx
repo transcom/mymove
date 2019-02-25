@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { reduxForm, Form, Field, formValueSelector } from 'redux-form';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { getDetailComponent } from './DetailsHelper';
+import { getFormComponent } from './DetailsHelper';
 import { selectLocationFromTariff400ngItem } from 'shared/Entities/modules/shipmentLineItems';
 
 import './PreApprovalRequest.css';
@@ -105,7 +105,11 @@ export class LocationSearch extends Component {
 export class PreApprovalForm extends Component {
   render() {
     const robustAccessorial = get(this.props, 'context.flags.robustAccessorial', false);
-    const DetailComponent = getDetailComponent(this.props.tariff400ng_item_code, robustAccessorial);
+    const FormComponent = getFormComponent(
+      this.props.tariff400ng_item_code,
+      robustAccessorial,
+      this.props.initialValues,
+    );
 
     return (
       <Form className="pre-approval-form" onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
@@ -133,7 +137,7 @@ export class PreApprovalForm extends Component {
           {this.props.tariff400ngItem && (
             <Fragment>
               <div className="usa-width-one-third">
-                <DetailComponent {...this.props} />
+                <FormComponent {...this.props} />
               </div>
               <div className="usa-width-one-third">
                 <SwaggerField fieldName="notes" swagger={this.props.ship_line_item_schema} />
@@ -158,6 +162,7 @@ LocationSearch.propTypes = {
 };
 
 const validateItemSelect = validateAdditionalFields(['tariff400ng_item']);
+
 export const formName = 'preapproval_request_form';
 
 PreApprovalForm = reduxForm({
@@ -168,6 +173,7 @@ PreApprovalForm = reduxForm({
 })(PreApprovalForm);
 
 const selector = formValueSelector(formName);
+
 function mapStateToProps(state) {
   return {
     tariff400ng_item_code: get(state, 'form.preapproval_request_form.values.tariff400ng_item.code'),
