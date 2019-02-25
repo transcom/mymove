@@ -318,5 +318,5 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	}
 
 	payload := ioutil.NopCloser(buf)
-	return moveop.NewShowShipmentSummaryWorksheetOK().WithPayload(payload)
+	return moveop.NewShowShipmentSummaryWorksheetOK().WithContentDisposition("attachment; filename=\"filename.jpg\"").WithPayload(payload)
 }
