@@ -1,16 +1,18 @@
 package publicapi
 
 import (
+	"time"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	sitop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/storage_in_transits"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"go.uber.org/zap"
-	"time"
 )
 
 func payloadForStorageInTransitModel(s *models.StorageInTransit) *apimessages.StorageInTransit {
@@ -19,8 +21,11 @@ func payloadForStorageInTransitModel(s *models.StorageInTransit) *apimessages.St
 	}
 
 	location := string(s.Location)
+	status := string(s.Status)
 
 	return &apimessages.StorageInTransit{
+		ID:                 *handlers.FmtUUID(s.ID),
+		ShipmentID:         *handlers.FmtUUID(s.ShipmentID),
 		EstimatedStartDate: handlers.FmtDate(s.EstimatedStartDate),
 		Notes:              handlers.FmtStringPtr(s.Notes),
 		WarehouseAddress:   payloadForAddressModel(&s.WarehouseAddress),
@@ -29,6 +34,7 @@ func payloadForStorageInTransitModel(s *models.StorageInTransit) *apimessages.St
 		WarehouseName:      handlers.FmtString(s.WarehouseName),
 		WarehousePhone:     handlers.FmtStringPtr(s.WarehousePhone),
 		Location:           &location,
+		Status:             *handlers.FmtString(status),
 	}
 }
 

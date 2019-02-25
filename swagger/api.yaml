@@ -1613,6 +1613,10 @@ definitions:
   StorageInTransit:
     type: object
     properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       location:
         type: string
         title: SIT Location
@@ -1681,6 +1685,7 @@ definitions:
         title: Email
       shipment_id:
         type: string
+        format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         title: Shipment ID
       sit_number:
@@ -1696,7 +1701,6 @@ definitions:
         $ref: '#/definitions/Address'
     required:
       - location
-      - shipment_id
       - warehouse_address
       - warehouse_id
       - warehouse_name
