@@ -255,9 +255,9 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.TAC = derefStringTypes(data.Order.TAC)
 	page1.SAC = derefStringTypes(data.Order.SAC)
 
-	page1.AuthorizedOrigin = FormatAuthorizedLocation(data.CurrentDutyStation)
-	page1.AuthorizedDestination = FormatAuthorizedLocation(data.NewDutyStation)
-	page1.NewDutyAssignment = FormatDutyStation(data.NewDutyStation)
+	page1.AuthorizedOrigin = FormatLocation(data.CurrentDutyStation)
+	page1.AuthorizedDestination = FormatLocation(data.NewDutyStation)
+	page1.NewDutyAssignment = FormatLocation(data.NewDutyStation)
 
 	page1.WeightAllotment = FormatWeightAllotment(data)
 	page1.WeightAllotmentProgear = FormatWeights(data.WeightAllotment.ProGearWeight)
@@ -358,8 +358,8 @@ func FormatWeightAllotment(data ShipmentSummaryFormData) string {
 	return FormatWeights(data.WeightAllotment.TotalWeightSelf)
 }
 
-//FormatAuthorizedLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet
-func FormatAuthorizedLocation(dutyStation DutyStation) string {
+//FormatLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet
+func FormatLocation(dutyStation DutyStation) string {
 	return fmt.Sprintf("%s, %s %s", dutyStation.Name, dutyStation.Address.State, dutyStation.Address.PostalCode)
 }
 
@@ -527,11 +527,6 @@ func FormatPPMPickupDate(ppm PersonallyProcuredMove) string {
 		return FormatDate(*ppm.OriginalMoveDate)
 	}
 	return ""
-}
-
-//FormatDutyStation formats DutyStation for Shipment Summary Worksheet
-func FormatDutyStation(dutyStation DutyStation) string {
-	return fmt.Sprintf("%s, %s", dutyStation.Name, dutyStation.Address.State)
 }
 
 //FormatOrdersTypeAndOrdersNumber formats OrdersTypeAndOrdersNumber for Shipment Summary Worksheet
