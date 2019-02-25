@@ -2,10 +2,14 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
 import BasicPanel from 'shared/BasicPanel';
 import Alert from 'shared/Alert';
 import Creator from 'shared/StorageInTransit/Creator';
+import { selectStorageInTransits, createStorageInTransit } from 'shared/Entities/modules/storageInTransits';
+import { loadEntitlements } from '../../scenes/TransportationServiceProvider/ducks';
+
 // import { createStorageInTransit } from '../../scenes/TransportationServiceProvider/ducks';
 
 export class StorageInTransitPanel extends Component {
@@ -25,6 +29,8 @@ export class StorageInTransitPanel extends Component {
   onFormActivation = isFormActive => {
     this.setState({ isRequestActionable: !isFormActive });
   };
+
+  onSubmit = () => {};
 
   render() {
     const { sitEntitlement } = this.props;
@@ -56,16 +62,20 @@ StorageInTransitPanel.propTypes = {
   shipmentId: PropTypes.string,
   sitEntitlement: PropTypes.number,
 };
-/*
+
 function mapStateToProps(state, ownProps) {
   return {
-    sitRequests: selectSortedSitRequests(state, ownProps.shipmentId),
+    sitRequests: selectStorageInTransits(state, ownProps.shipmentId),
+    sitEntitlement: loadEntitlements(state).storage_in_transit,
+    shipmentId: ownProps.shipmentId,
   };
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createSitRequest, deleteSitRequest, approveSitRequest, updateSitRequest }, dispatch);
+  return bindActionCreators(
+    { createStorageInTransit /*deleteSitRequest, approveSitRequest, updateSitRequest*/ },
+    dispatch,
+  );
 }
+
 export default connect(mapStateToProps, mapDispatchToProps)(StorageInTransitPanel);
-*/
-export default connect(null, null)(StorageInTransitPanel);

@@ -104,3 +104,8 @@ export const moveDatesSummary = new schema.Entity('moveDatesSummaries');
 
 // TransportationServiceProviders
 export const transportationServiceProvider = new schema.Entity('transportationServiceProviders');
+
+// StorageInTransits
+export const storageInTransit = new schema.Entity('storageInTransits');
+
+export const storageInTransists = new schema.Array(storageInTransit);
