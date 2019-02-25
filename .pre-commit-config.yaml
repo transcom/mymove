@@ -81,10 +81,18 @@ repos:
         language: script
         files: \.md$
 
+  - repo: local
+    hooks:
+      - id: go-imports
+        name: go imports
+        entry: bin/pre-commit-go-imports
+        language: script
+        files: \.go$
+        exclude: vendor/
+
   - repo: git://github.com/dnephin/pre-commit-golang
     rev: v0.3.2
     hooks:
-      - id: go-fmt
       - id: go-vet
       - id: go-lint
 

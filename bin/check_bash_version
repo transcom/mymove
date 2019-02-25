@@ -12,6 +12,7 @@ function check_shell () {
   if [ -z "${shell_line}" ]; then
     # shellcheck disable=SC1117
     echo -e "\033[0;33mPlease add ${shell} to your /etc/shells file using the command:\033[0m 'echo \"${shell}\" | sudo tee -a /etc/shells'"
+    # shellcheck disable=SC1117
     echo -e "\033[0;33mOptionally update your user's shell with the command:\033[0m 'sudo chsh -s /usr/local/bin/bash'"
     exit 1
   fi

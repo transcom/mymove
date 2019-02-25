@@ -8,8 +8,9 @@ import (
 
 	"github.com/gobuffalo/pop"
 	beeline "github.com/honeycombio/beeline-go"
-	"github.com/transcom/mymove/pkg/models"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/models"
 )
 
 type authClientCertKey string

@@ -2,10 +2,11 @@ package publicapi
 
 import (
 	"fmt"
-	"github.com/transcom/mymove/pkg/paperwork"
 	"net/http"
 	"net/http/httptest"
 	"time"
+
+	"github.com/transcom/mymove/pkg/paperwork"
 
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/route"

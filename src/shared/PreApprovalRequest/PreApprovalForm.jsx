@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { reduxForm, Form, Field, formValueSelector } from 'redux-form';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { getDetailComponent } from './DetailsHelper';
+import { getFormComponent } from './DetailsHelper';
 import { selectLocationFromTariff400ngItem } from 'shared/Entities/modules/shipmentLineItems';
 
 import './PreApprovalRequest.css';
@@ -105,7 +105,7 @@ export class LocationSearch extends Component {
 export class PreApprovalForm extends Component {
   render() {
     const robustAccessorial = get(this.props, 'context.flags.robustAccessorial', false);
-    const DetailComponent = getDetailComponent(
+    const FormComponent = getFormComponent(
       this.props.tariff400ng_item_code,
       robustAccessorial,
       this.props.initialValues,
@@ -137,7 +137,7 @@ export class PreApprovalForm extends Component {
           {this.props.tariff400ngItem && (
             <Fragment>
               <div className="usa-width-one-third">
-                <DetailComponent {...this.props} />
+                <FormComponent {...this.props} />
               </div>
               <div className="usa-width-one-third">
                 <SwaggerField fieldName="notes" swagger={this.props.ship_line_item_schema} />

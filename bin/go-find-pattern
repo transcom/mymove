@@ -31,12 +31,12 @@ for pkg in "${pkgs[@]}"; do
     lines=$(cat "$parent/$file" | grep -inE "$pattern" | cut -d':' -f1 | tr '\n' ',')
     # shellcheck disable=SC1072
     if [[ "${lines// }" ]]; then
-      # shellcheck disable=SC2178,SC2128
+      # shellcheck disable=SC2178,SC2128,SC1117
       results="$results\n$import/$file | $lines"
     fi
     #exit 0
   done
 done
 
-# shellcheck disable=SC2128
+# shellcheck disable=SC2128,SC1117
 echo -e "package | lines\n$results" | column -t

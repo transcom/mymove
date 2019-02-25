@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/unit"
@@ -453,6 +454,7 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	db.Transaction(func(connection *pop.Connection) error {
 		transactionError := errors.New("Rollback the transaction")
 
+		// NOTE: UpsertItemCodeDependency could update baseParams.Quantity1
 		verrs, err := UpsertItemCodeDependency(connection, &baseParams, &additionalParams, &shipmentLineItem)
 		if verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
@@ -472,6 +474,7 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 		shipmentLineItem.Description = baseParams.Description
 
 		verrs, err = connection.ValidateAndCreate(&shipmentLineItem)
+
 		if verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error creating shipment line item")
@@ -499,6 +502,7 @@ func (s *Shipment) UpdateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	db.Transaction(func(connection *pop.Connection) error {
 		transactionError := errors.New("Rollback the transaction")
 
+		// NOTE: UpsertItemCodeDependency could update baseParams.Quantity1
 		verrs, err := UpsertItemCodeDependency(connection, &baseParams, &additionalParams, shipmentLineItem)
 		if verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
@@ -605,14 +609,22 @@ func UpdateShipmentLineItemDimensions(db *pop.Connection, baseParams *BaseShipme
 	return responseVErrors, responseError
 }
 
+// is105Item determines whether the shipment line item is a new (robust) 105B/E item.
+func is105Item(itemCode string, additionalParams *AdditionalShipmentLineItemParams) bool {
+	hasDimension := additionalParams.ItemDimensions != nil || additionalParams.CrateDimensions != nil
+	if (itemCode == "105B" || itemCode == "105E") && hasDimension {
+		return true
+	}
+	return false
+}
+
 // UpsertItemCodeDependency applies specific validation, creates or updates additional objects/fields for item codes
 func UpsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
 	var responseError error
 	responseVErrors := validate.NewErrors()
-	hasDimension := additionalParams.ItemDimensions != nil || additionalParams.CrateDimensions != nil
 
 	// Backwards compatible with "Old school" 105B/E
-	if (baseParams.Tariff400ngItemCode == "105B" || baseParams.Tariff400ngItemCode == "105E") && hasDimension {
+	if is105Item(baseParams.Tariff400ngItemCode, additionalParams) {
 		//Additional validation check if item and crate dimensions exist
 		if additionalParams.ItemDimensions == nil || additionalParams.CrateDimensions == nil {
 			responseError = errors.New("Must have both item and crate dimensions params for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
@@ -634,14 +646,24 @@ func UpsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineIt
 				return responseVErrors, responseError
 			}
 		}
+		// if you are 105b/e item we need to store the crate volume in quantity1 field
+		if is105Item(baseParams.Tariff400ngItemCode, additionalParams) {
+			// get crate volume in cubic feet
+			crateVolume, err := unit.DimensionToCubicFeet(additionalParams.CrateDimensions.Length, additionalParams.CrateDimensions.Width, additionalParams.CrateDimensions.Height)
+			if err != nil {
+				return nil, errors.Wrap(err, "Dimension units must be greater than 0")
+			}
 
-		// ToDo: For another story
-		/*
-			1. Calculate base quantity for line item. Specifically calculating the cu. ft. from the dimensions crate?
-			Set quantity1 as zero value for now.
-		*/
-		var quantity1 unit.BaseQuantity
-		baseParams.Quantity1 = &quantity1
+			// format value to base quantity i.e. times 10,000
+			formattedQuantity1 := unit.BaseQuantityFromFloat(float32(crateVolume))
+			baseParams.Quantity1 = &formattedQuantity1
+		}
+
+		// But if Quantity1 is nil then set it to 0
+		if baseParams.Quantity1 == nil {
+			quantity1 := unit.BaseQuantityFromInt(0)
+			baseParams.Quantity1 = &quantity1
+		}
 	} else if baseParams.Quantity1 == nil {
 		// General pre-approval request
 		// Check if base quantity is filled out

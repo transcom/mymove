@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
@@ -11,7 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
-	"go.uber.org/zap"
 )
 
 func (suite *RecalculateShipmentSuite) helperDeliverAndPriceShipment() *models.Shipment {

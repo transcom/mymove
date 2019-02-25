@@ -6,12 +6,13 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services/invoice"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
-	"go.uber.org/zap"
 )
 
 // Deliver marks the Shipment request as Delivered. Must be IN TRANSIT state.
