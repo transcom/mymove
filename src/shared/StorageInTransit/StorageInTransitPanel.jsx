@@ -10,8 +10,6 @@ import Creator from 'shared/StorageInTransit/Creator';
 import { selectStorageInTransits, createStorageInTransit } from 'shared/Entities/modules/storageInTransits';
 import { loadEntitlements } from '../../scenes/TransportationServiceProvider/ducks';
 
-// import { createStorageInTransit } from '../../scenes/TransportationServiceProvider/ducks';
-
 export class StorageInTransitPanel extends Component {
   constructor() {
     super();
@@ -30,13 +28,15 @@ export class StorageInTransitPanel extends Component {
     this.setState({ isRequestActionable: !isFormActive });
   };
 
-  onSubmit = () => {};
+  onSubmit = createPayload => {
+    return this.props.createStorageInTransit(this.props.shipmentId, createPayload);
+  };
 
   render() {
-    const { sitEntitlement } = this.props;
+    const { storageInTransitEntitlement, storageInTransits } = this.props;
     const { error, isCreatorActionable } = this.state;
     const daysUsed = 0; // placeholder
-    const daysRemaining = sitEntitlement - daysUsed;
+    const daysRemaining = storageInTransitEntitlement - daysUsed;
     return (
       <div className="storage-in-transit-panel">
         <BasicPanel title="Storage in Transit (SIT)">
@@ -46,8 +46,17 @@ export class StorageInTransitPanel extends Component {
             </Alert>
           )}
           <div className="column-subhead">
-            Entitlement: {sitEntitlement} days <span className="unbold">({daysRemaining} remaining)</span>
+            Entitlement: {storageInTransitEntitlement} days <span className="unbold">({daysRemaining} remaining)</span>
           </div>
+          {storageInTransits.map(row => {
+            return (
+              <div class="column-head">
+                {row.location.charAt(0) + row.location.slice(1).toLowerCase()} SIT
+                <span class="unbold"> Status: </span>{' '}
+                <span> SIT {row.status.charAt(0) + row.status.slice(1).toLowerCase()} </span>
+              </div>
+            );
+          })}
           {isCreatorActionable && (
             <Creator onFormActivation={this.onFormActivation} saveStorageInTransit={this.onSubmit} />
           )}
@@ -58,15 +67,15 @@ export class StorageInTransitPanel extends Component {
 }
 
 StorageInTransitPanel.propTypes = {
-  sitRequests: PropTypes.array,
+  storageInTransits: PropTypes.array,
   shipmentId: PropTypes.string,
-  sitEntitlement: PropTypes.number,
+  storageInTransitEntitlement: PropTypes.number,
 };
 
 function mapStateToProps(state, ownProps) {
   return {
-    sitRequests: selectStorageInTransits(state, ownProps.shipmentId),
-    sitEntitlement: loadEntitlements(state).storage_in_transit,
+    storageInTransits: selectStorageInTransits(state, ownProps.shipmentId),
+    storageInTransitEntitlement: loadEntitlements(state).storage_in_transit,
     shipmentId: ownProps.shipmentId,
   };
 }

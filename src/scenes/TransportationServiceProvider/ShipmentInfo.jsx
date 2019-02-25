@@ -24,6 +24,7 @@ import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/
 import { getAllShipmentLineItems, selectSortedShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
+import { getStorageInTransitsForShipment } from 'shared/Entities/modules/storageInTransits';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -128,6 +129,7 @@ class ShipmentInfo extends Component {
         this.props.getAllTariff400ngItems(true);
         this.props.getAllShipmentLineItems(shipmentId);
         this.props.getAllInvoices(shipmentId);
+        this.props.getStorageInTransitsForShipment(shipmentId);
       })
       .catch(err => {
         this.props.history.replace('/');
@@ -492,6 +494,7 @@ const mapDispatchToProps = dispatch =>
       getAllInvoices,
       getTspForShipment,
       resetRequests,
+      getStorageInTransitsForShipment,
     },
     dispatch,
   );

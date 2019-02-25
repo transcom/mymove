@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 
 import './StorageInTransit.css';
 
-import { isValid, isSubmitting, submit } from 'redux-form';
+import { isValid, isSubmitting, submit, hasSubmitSucceeded } from 'redux-form';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -24,11 +24,15 @@ export class Creator extends Component {
     this.setState({ showForm: false });
   };
 
-  sendRequest = () => {
+  saveAndClose = () => {
     this.setState({ closeOnSubmit: true }, () => {
       this.props.submitForm();
       this.props.onFormActivation(false);
     });
+  };
+
+  onSubmit = values => {
+    this.props.saveStorageInTransit(values);
   };
 
   render() {
@@ -36,7 +40,7 @@ export class Creator extends Component {
       return (
         <div className="storage-in-transit-panel-modal">
           <div className="title">Request SIT</div>
-          <StorageInTransitForm />
+          <StorageInTransitForm onSubmit={this.onSubmit} />
           <div className="usa-grid-full">
             <div className="usa-width-one-half">
               <p className="cancel-link">
@@ -49,7 +53,7 @@ export class Creator extends Component {
               <button
                 className="button usa-button-primary storage-in-transit-request-form-send-request-button"
                 disabled={!this.props.formEnabled}
-                onClick={this.sendRequest}
+                onClick={this.saveAndClose}
               >
                 Send Request
               </button>
@@ -72,11 +76,13 @@ Creator.propTypes = {
   formEnabled: PropTypes.bool.isRequired,
   onFormActivation: PropTypes.func.isRequired,
   saveStorageInTransit: PropTypes.func.isRequired,
+  submitForm: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
     formEnabled: isValid(StorageInTransitFormName)(state) && !isSubmitting(StorageInTransitFormName)(state),
+    hasSubmitSucceeded: hasSubmitSucceeded(StorageInTransitFormName),
   };
 }
 
