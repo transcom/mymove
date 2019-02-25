@@ -71,7 +71,7 @@ func (suite *ModelSuite) Test_UploadValidations() {
 		"checksum":     {"Checksum can not be blank."},
 		"bytes":        {"Bytes can not be blank."},
 		"filename":     {"Filename can not be blank."},
-		"content_type": {"ContentType is not in the list [image/jpeg, image/png, application/pdf, text/plain, text/plain; charset=utf-8]."},
+		"content_type": {"ContentType can not be blank."},
 	}
 
 	suite.verifyValidationErrors(upload, expErrors)

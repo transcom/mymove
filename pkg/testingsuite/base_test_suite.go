@@ -19,7 +19,7 @@ func (suite *BaseTestSuite) FatalNil(object interface{}, messages ...string) {
 		if len(messages) > 0 {
 			t.Fatal(strings.Join(messages, ","))
 		} else {
-			t.Fatal()
+			t.Fatal("expected a not-nil value")
 		}
 	}
 }
@@ -45,7 +45,7 @@ func (suite *BaseTestSuite) FatalFalse(b bool, messages ...string) {
 		if len(messages) > 0 {
 			t.Fatalf("%s", strings.Join(messages, ","))
 		} else {
-			t.Fatal()
+			t.Fatal("expected a true value")
 		}
 	}
 }
