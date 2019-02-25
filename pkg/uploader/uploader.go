@@ -116,7 +116,7 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 		return nil
 	})
 	if err != nil {
-		return nil, responseVErrors, errors.Wrap(err, "could not create upload")
+		return nil, responseVErrors, errors.Wrap(uploadError, "could not create upload")
 	}
 
 	return newUpload, responseVErrors, nil
