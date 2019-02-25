@@ -9,6 +9,11 @@ var ShipmentSummaryPage1Layout = FormLayout{
 	FieldsLayout: map[string]FieldPos{
 		"PreparationDate":                 FormField(155.5, 22, 46, floatPtr(10), nil, nil),
 		"ServiceMemberName":               FormField(10, 42, 105, floatPtr(10), nil, nil),
+		"DODId":                           FormField(10, 54, 40, floatPtr(10), nil, nil),
+		"ServiceBranch":                   FormField(54, 54, 44, floatPtr(10), nil, nil),
+		"RankGrade":                       FormField(102.5, 54, 47, floatPtr(10), nil, nil),
+		"PreferredEmail":                  FormField(153.5, 54, 60, floatPtr(10), nil, nil),
+		"PreferredPhoneNumber":            FormField(153.5, 42, 60, floatPtr(10), nil, nil),
 		"WeightAllotment":                 FormField(74, 92, 16, floatPtr(10), nil, stringPtr("RM")),
 		"WeightAllotmentProgear":          FormField(74, 98, 16, floatPtr(10), nil, stringPtr("RM")),
 		"WeightAllotmentProgearSpouse":    FormField(74, 103, 16, floatPtr(10), nil, stringPtr("RM")),

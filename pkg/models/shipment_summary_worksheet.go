@@ -32,11 +32,11 @@ func FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummar
 type ShipmentSummaryWorksheetPage1Values struct {
 	ServiceMemberName               string
 	MaxSITStorageEntitlement        string
-	PreferredPhone                  string
+	PreferredPhoneNumber            string
 	PreferredEmail                  string
 	DODId                           string
 	ServiceBranch                   string
-	Rank                            string
+	RankGrade                       string
 	IssuingBranchOrAgency           string
 	OrdersIssueDate                 string
 	OrdersTypeAndOrdersNumber       string
@@ -195,9 +195,11 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 
 	sm := data.ServiceMember
 	page1.ServiceMemberName = FormatServiceMemberFullName(sm)
-	page1.PreferredPhone = derefStringTypes(sm.Telephone)
+	page1.PreferredPhoneNumber = derefStringTypes(sm.Telephone)
+	page1.ServiceBranch = FormatServiceMemberAffiliation(sm.Affiliation)
 	page1.PreferredEmail = derefStringTypes(sm.PersonalEmail)
 	page1.DODId = derefStringTypes(sm.Edipi)
+	page1.RankGrade = FormatRank(data.ServiceMember.Rank)
 
 	page1.IssuingBranchOrAgency = FormatServiceMemberAffiliation(sm.Affiliation)
 	page1.OrdersIssueDate = FormatDate(data.Order.IssueDate)
@@ -223,6 +225,38 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.GCC95 = FormatDollars(data.GCC.MultiplyFloat64(.95).ToDollarFloat())
 	page1.GCCMaxAdvance = FormatDollars(data.GCC.MultiplyFloat64(.60).ToDollarFloat())
 	return page1
+}
+
+//FormatRank formats the service member's rank for Shipment Summary Worksheet
+func FormatRank(rank *ServiceMemberRank) string {
+	var rankDisplayValue = map[ServiceMemberRank]string{
+		ServiceMemberRankE1:                     "E-1",
+		ServiceMemberRankE2:                     "E-2",
+		ServiceMemberRankE3:                     "E-3",
+		ServiceMemberRankE4:                     "E-4",
+		ServiceMemberRankE5:                     "E-5",
+		ServiceMemberRankE6:                     "E-6",
+		ServiceMemberRankE7:                     "E-7",
+		ServiceMemberRankE8:                     "E-8",
+		ServiceMemberRankE9:                     "E-9",
+		ServiceMemberRankO1W1ACADEMYGRADUATE:    "O-1/W-1/Service Academy Graduate",
+		ServiceMemberRankO2W2:                   "O-2/W-2",
+		ServiceMemberRankO3W3:                   "O-3/W-3",
+		ServiceMemberRankO4W4:                   "O-4/W-4",
+		ServiceMemberRankO5W5:                   "O-5/W-5",
+		ServiceMemberRankO6:                     "O-6",
+		ServiceMemberRankO7:                     "O-7",
+		ServiceMemberRankO8:                     "O-8",
+		ServiceMemberRankO9:                     "O-9",
+		ServiceMemberRankO10:                    "O-10",
+		ServiceMemberRankAVIATIONCADET:          "Aviation Cadet",
+		ServiceMemberRankCIVILIANEMPLOYEE:       "Civilian Employee",
+		ServiceMemberRankACADEMYCADETMIDSHIPMAN: "Service Academy Cadet/Midshipman",
+	}
+	if rank != nil {
+		return rankDisplayValue[*rank]
+	}
+	return ""
 }
 
 //FormatValuesShipmentSummaryWorksheetFormPage2 formats the data for page 2 of the Shipment Summary Worksheet
