@@ -46,7 +46,6 @@ func (u *Uploader) SetUploadStorageKey(key string) {
 // the file's metadata.
 func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UUID, file afero.File, allowedTypes AllowedFileTypes) (*models.Upload, *validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
-	var responseError error
 
 	info, err := file.Stat()
 	if err != nil {
@@ -93,6 +92,7 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 		newUpload.StorageKey = u.UploadStorageKey
 	}
 
+	var uploadError error
 	err = u.db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
@@ -100,7 +100,7 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 		if err != nil || verrs.HasAny() {
 			u.logger.Error("Error creating new upload", zap.Error(err))
 			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error creating new upload")
+			uploadError = errors.Wrap(err, "Error creating new upload")
 			return transactionError
 		}
 
@@ -108,7 +108,7 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 		if _, err := u.Storer.Store(newUpload.StorageKey, file, checksum); err != nil {
 			u.logger.Error("failed to store object", zap.Error(err))
 			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "failed to store object")
+			uploadError = errors.Wrap(err, "failed to store object")
 			return transactionError
 		}
 
@@ -119,7 +119,7 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 		return nil, responseVErrors, errors.Wrap(err, "could not create upload")
 	}
 
-	return newUpload, responseVErrors, responseError
+	return newUpload, responseVErrors, nil
 }
 
 // CreateUpload stores Upload but does not assign a Document
