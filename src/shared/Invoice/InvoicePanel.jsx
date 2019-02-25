@@ -95,7 +95,6 @@ InvoicePanel.propTypes = {
   shipmentId: PropTypes.string,
   shipmentStatus: PropTypes.string,
   isShipmentDelivered: PropTypes.bool,
-  allowPayments: PropTypes.bool,
 };
 
 const mapStateToProps = (state, ownProps) => {
