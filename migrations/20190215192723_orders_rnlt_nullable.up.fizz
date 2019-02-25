@@ -1,0 +1,1 @@
+change_column("electronic_orders_revisions", "report_no_later_than", "timestamp", {"null": true})
