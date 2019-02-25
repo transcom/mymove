@@ -32,13 +32,13 @@ func main() {
 		log.Fatal(err)
 	}
 	clock := clock.New()
-	fuelPrices := fuelprice.DieselFuelPriceStorer{
-		DB:            db,
-		Clock:         clock,
-		FetchFuelData: fuelprice.FetchFuelPriceData,
-		EiaKey:        v.GetString("eia-key"),
-		URL:           v.GetString("eia-url"),
-	}
+	fuelPrices := fuelprice.NewDieselFuelPriceStorer(
+		db,
+		clock,
+		fuelprice.FetchFuelPriceData,
+		v.GetString("eia-key"),
+		v.GetString("eia-url"),
+	)
 
 	verrs, err := fuelPrices.StoreFuelPrices(10)
 	if err != nil || verrs != nil {

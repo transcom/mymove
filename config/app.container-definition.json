@@ -168,7 +168,7 @@
     },
     {
       "name": "EIA_URL",
-      "value": "{{ .EIA_URL }}"
+      "value": "https://api.eia.gov/series/"
     }
   ],
   "logConfiguration": {
