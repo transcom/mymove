@@ -2,6 +2,7 @@ package uploader_test
 
 import (
 	"fmt"
+
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
