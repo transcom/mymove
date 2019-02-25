@@ -7,6 +7,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -72,8 +73,8 @@ func NewDieselFuelPriceStorer(db *pop.Connection, clock clock.Clock, dataFetch F
 		DB:            db,
 		Clock:         clock,
 		FetchFuelData: dataFetch,
-		EiaKey:        eiaKey,
-		URL:           url,
+		eiaKey:        eiaKey,
+		url:           url,
 	}
 }
 
@@ -82,8 +83,8 @@ type DieselFuelPriceStorer struct {
 	DB            *pop.Connection
 	Clock         clock.Clock
 	FetchFuelData FetchFuelData
-	EiaKey        string
-	URL           string
+	eiaKey        string
+	url           string
 }
 
 // StoreFuelPrices retrieves data for the months we do not have prices for, calculates them, and adds them to the database
@@ -197,14 +198,20 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 		monthString := fmt.Sprintf("%02s", strconv.Itoa(month))
 		startDateString = fmt.Sprintf("%v%v%v", year, monthString, startDay)
 		endDateString = fmt.Sprintf("%v%v%v", year, monthString, endDay)
-		eiaKey := u.EiaKey
-		//TODO: get url from env't var; use url Join to make full url
-		url := fmt.Sprintf(
-			"https://api.eia.gov/series/?api_key=%v&series_id=PET.EMD_EPD2D_PTE_NUS_DPG.W&start=%v&end=%v",
-			eiaKey, startDateString, endDateString)
+		parsedURL, err := url.Parse(u.url)
+		if err != nil {
+			log.Fatal(err)
+		}
+		query := parsedURL.Query()
+		query.Set("api_key", u.eiaKey)
+		query.Set("series_id", "PET.EMD_EPD2D_PTE_NUS_DPG.W")
+		query.Set("start", startDateString)
+		query.Set("end", endDateString)
+		parsedURL.RawQuery = query.Encode()
+		finalURL := parsedURL.String()
 
 		// fetch the data
-		result, err := u.FetchFuelData(url)
+		result, err := u.FetchFuelData(finalURL)
 		if err != nil {
 			return nil, errors.Wrap(err, "problem fetching fuel data")
 		}
