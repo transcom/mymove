@@ -45,7 +45,6 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		Status:           apimessages.ShipmentStatus(s.Status),
 		SourceGbloc:      payloadForGBLOC(s.SourceGBLOC),
 		DestinationGbloc: payloadForGBLOC(s.DestinationGBLOC),
-		GblNumber:        s.GBLNumber,
 		Market:           payloadForMarkets(s.Market),
 		CreatedAt:        strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:        strfmt.DateTime(s.UpdatedAt),

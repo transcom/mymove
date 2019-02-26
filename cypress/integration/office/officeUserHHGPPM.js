@@ -1,6 +1,6 @@
 /* global cy */
 
-describe('office user finds the shipment', function() {
+describe('office user finds the combo shipment', function() {
   beforeEach(() => {
     cy.signIntoOffice();
   });

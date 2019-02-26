@@ -1023,11 +1023,6 @@ definitions:
       destination_gbloc:
         $ref: '#/definitions/GBLOC'
         readOnly: true
-      gbl_number:
-        type: string
-        example: 'KKFA9999999'
-        x-nullable: true
-        title: GBL Number
       market:
         $ref: '#/definitions/ShipmentMarket'
         readOnly: true

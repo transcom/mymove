@@ -55,7 +55,6 @@ func (suite *HandlerSuite) TestPayloadForShipmentWithNullValues() {
 	// Set all values that can be nil to nil
 	shipment.SourceGBLOC = nil
 	shipment.DestinationGBLOC = nil
-	shipment.GBLNumber = nil
 	shipment.Market = nil
 	shipment.TrafficDistributionListID = nil
 	shipment.TrafficDistributionList = nil
@@ -89,7 +88,6 @@ func (suite *HandlerSuite) TestPayloadForShipmentWithNullValues() {
 	shipmentPayload := payloadForShipmentModel(shipment)
 	suite.Nil(shipmentPayload.SourceGbloc)
 	suite.Nil(shipmentPayload.DestinationGbloc)
-	suite.Nil(shipmentPayload.GblNumber)
 	suite.Nil(shipmentPayload.Market)
 	suite.Nil(shipmentPayload.TrafficDistributionList)
 	suite.Nil(shipmentPayload.ActualPickupDate)
