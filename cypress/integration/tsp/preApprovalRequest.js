@@ -87,7 +87,7 @@ function tspUserDeletesPreApprovalRequest() {
 }
 
 function test105beOrigional() {
-  cy.visit('/queues/new?flag:robustAccessorial=false');
+  cy.setFeatureFlag('robustAccessorial=false');
 
   cy.selectQueueItemMoveLocator('DATESP');
   addOrigional105b();
