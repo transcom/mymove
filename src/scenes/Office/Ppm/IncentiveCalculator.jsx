@@ -59,8 +59,8 @@ const schema = {
 };
 export class IncentiveCalculator extends Component {
   calculate = values => {
-    const { pickup_postal_code, destination_postal_code, weight } = values;
-    const moveDate = values.actual_move_date || values.original_move_date;
+    const { pickup_postal_code, destination_postal_code, weight, original_move_date, actual_move_date } = values;
+    const moveDate = actual_move_date || original_move_date;
     this.props.getPpmIncentive(moveDate, pickup_postal_code, destination_postal_code, weight);
   };
   reset = async () => {
@@ -180,4 +180,6 @@ function mapStateToProps(state, ownProps) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ getPpmIncentive, clearPpmIncentive }, dispatch);
 }
-export default connect(mapStateToProps, mapDispatchToProps)(reduxForm({ form: formName })(IncentiveCalculator));
+export default connect(mapStateToProps, mapDispatchToProps)(
+  reduxForm({ form: formName, enableReinitialize: true, keepDirtyOnReinitialize: true })(IncentiveCalculator),
+);

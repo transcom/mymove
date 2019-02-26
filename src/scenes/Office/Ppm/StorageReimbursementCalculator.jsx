@@ -75,8 +75,15 @@ export class StorageReimbursementCalculator extends Component {
     this.reset();
   }
   calculate = values => {
-    const { pickup_postal_code, destination_postal_code, days_in_storage, weight } = values;
-    const moveDate = values.actual_move_date || values.original_move_date;
+    const {
+      pickup_postal_code,
+      destination_postal_code,
+      days_in_storage,
+      weight,
+      actual_move_date,
+      original_move_date,
+    } = values;
+    const moveDate = actual_move_date || original_move_date;
     this.props.getPpmSitEstimate(moveDate, days_in_storage, pickup_postal_code, destination_postal_code, weight);
   };
 
@@ -182,5 +189,7 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(
-  reduxForm({ form: formName })(StorageReimbursementCalculator),
+  reduxForm({ form: formName, enableReinitialize: true, keepDirtyOnReinitialize: true })(
+    StorageReimbursementCalculator,
+  ),
 );
