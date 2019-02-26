@@ -22,6 +22,14 @@ const schema = {
       'x-nullable': true,
       'x-always-required': true,
     },
+    actual_move_date: {
+      type: 'string',
+      format: 'date',
+      example: '2018-04-26',
+      title: 'Move Date',
+      'x-nullable': true,
+      'x-always-required': false,
+    },
     pickup_postal_code: {
       type: 'string',
       format: 'zip',
@@ -51,8 +59,9 @@ const schema = {
 };
 export class IncentiveCalculator extends Component {
   calculate = values => {
-    const { original_move_date, pickup_postal_code, destination_postal_code, weight } = values;
-    this.props.getPpmIncentive(original_move_date, pickup_postal_code, destination_postal_code, weight);
+    const { pickup_postal_code, destination_postal_code, weight } = values;
+    const moveDate = values.actual_move_date || values.original_move_date;
+    this.props.getPpmIncentive(moveDate, pickup_postal_code, destination_postal_code, weight);
   };
   reset = async () => {
     const { reset, clearPpmIncentive } = this.props;
@@ -63,7 +72,8 @@ export class IncentiveCalculator extends Component {
     this.reset();
   }
   render() {
-    const { handleSubmit, calculation, invalid, pristine, submitting, hasErrored } = this.props;
+    const { handleSubmit, calculation, invalid, pristine, submitting, hasErrored, initialValues } = this.props;
+    const moveDateField = initialValues.actual_move_date ? 'actual_move_date' : 'original_move_date';
     return (
       <div className="calculator-panel incentive-calc">
         <div className="calculator-panel-title">Incentive Calculator</div>
@@ -78,12 +88,7 @@ export class IncentiveCalculator extends Component {
             )}
 
             <div className="usa-width-one-half">
-              <SwaggerField
-                className="date-field"
-                fieldName="original_move_date"
-                swagger={this.props.schema}
-                required
-              />
+              <SwaggerField className="date-field" fieldName={moveDateField} swagger={this.props.schema} required />
               <SwaggerField className="short-field" fieldName="weight" swagger={this.props.schema} required />
             </div>
             <div className="usa-width-one-half">
@@ -161,6 +166,7 @@ IncentiveCalculator.propTypes = {
 function mapStateToProps(state, ownProps) {
   const initialValues = pick(selectPPMForMove(state, ownProps.moveId), [
     'original_move_date',
+    'actual_move_date',
     'pickup_postal_code',
     'destination_postal_code',
   ]);
