@@ -92,7 +92,7 @@ func (u DieselFuelPriceStorer) StoreFuelPrices(numMonths int) (*validate.Errors,
 	verrs := &validate.Errors{}
 	missingMonths, err := u.findMissingRecordMonths(u.DB, numMonths)
 	if len(missingMonths) < 1 {
-		log.Println("No new values to add to the database")
+		log.Println("No new fuel prices to add to the database")
 		return verrs, nil
 	}
 	if err != nil {
