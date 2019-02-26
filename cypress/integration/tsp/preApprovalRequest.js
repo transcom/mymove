@@ -2,7 +2,7 @@ import {
   fillAndSavePreApprovalRequest,
   editPreApprovalRequest,
   deletePreApprovalRequest,
-} from '../../support/testCreatePreApprovalRequest';
+} from '../../support/preapprovals/testCreatePreApprovalRequest';
 
 /* global cy */
 describe('TSP user interacts with pre approval request panel', function() {
