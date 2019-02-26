@@ -33,6 +33,7 @@ import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
 
 import { getRequestStatus } from 'shared/Swagger/selectors';
+import { resetRequests } from 'shared/Swagger/request';
 import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
 import { getAllShipmentLineItems, selectSortedShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices } from 'shared/Entities/modules/invoices';
@@ -151,6 +152,10 @@ class MoveInfo extends Component {
         this.getAllShipmentInfo(shipmentId);
       }
     }
+  }
+
+  componentWillUnmount() {
+    this.props.resetRequests();
   }
 
   getAllShipmentInfo = shipmentId => {
@@ -533,6 +538,7 @@ const mapDispatchToProps = dispatch =>
       loadServiceMember,
       loadBackupContacts,
       loadOrders,
+      resetRequests,
     },
     dispatch,
   );
