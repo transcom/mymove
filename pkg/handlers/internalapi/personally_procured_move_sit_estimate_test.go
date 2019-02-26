@@ -127,7 +127,7 @@ func helperShowPPMSitEstimateHandler(suite *HandlerSuite, codeOfService string) 
 	sitCost := okResponse.Payload
 
 	// And: Returned SIT cost to be as expected
-	expectedSitCost := int64(55425)
+	expectedSitCost := int64(55376)
 	if *sitCost.Estimate != expectedSitCost {
 		t.Errorf("Expected move ppm SIT cost to be '%v', instead is '%v'", expectedSitCost, *sitCost.Estimate)
 	}

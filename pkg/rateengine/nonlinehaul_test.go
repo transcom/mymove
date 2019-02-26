@@ -249,16 +249,22 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 	cwtAtMin := unit.CWT(10)
 	daysInSIT := 4
 
-	expectedAtMinBase := sit185ARate.Multiply(cwtAtMin.Int())
-	expectedAtMinBase = expectedAtMinBase.AddCents(sit185BRate.Multiply(daysInSIT - 1).Multiply(cwtAtMin.Int()))
-	expectedAtMin := expectedAtMinBase.AddCents(sit210ARateCentsAtMin)
-	expectedAtMin = expectedAtMin.AddCents(sit225ARateCentsAtMin)
+	var expectedAtMinBase, expectedAtMin SITComputation
+	expectedAtMinBase.SITPart = sit185ARate.Multiply(cwtAtMin.Int())
+	expectedAtMinBase.SITPart = expectedAtMinBase.SITPart.AddCents(sit185BRate.Multiply(daysInSIT - 1).Multiply(cwtAtMin.Int()))
+	expectedAtMinBase.NonDiscountedTotal = expectedAtMinBase.SITPart.AddCents(expectedAtMinBase.LinehaulPart)
+	expectedAtMin.SITPart = expectedAtMinBase.SITPart.AddCents(sit210ARateCentsAtMin)
+	expectedAtMin.LinehaulPart = sit225ARateCentsAtMin
+	expectedAtMin.NonDiscountedTotal = expectedAtMin.SITPart.AddCents(expectedAtMin.LinehaulPart)
 
 	cwtBelowMin := unit.CWT(5)
-	expectedBelowMinBase := sit185ARate.Multiply(cwtBelowMin.Int())
-	expectedBelowMinBase = expectedBelowMinBase.AddCents(sit185BRate.Multiply(daysInSIT - 1).Multiply(cwtBelowMin.Int()))
-	expectedBelowMin := expectedBelowMinBase.AddCents(sit210ARateCentsBelowMin)
-	expectedBelowMin = expectedBelowMin.AddCents(sit225ARateCentsBelowMin)
+	var expectedBelowMinBase, expectedBelowMin SITComputation
+	expectedBelowMinBase.SITPart = sit185ARate.Multiply(cwtBelowMin.Int())
+	expectedBelowMinBase.SITPart = expectedBelowMinBase.SITPart.AddCents(sit185BRate.Multiply(daysInSIT - 1).Multiply(cwtBelowMin.Int()))
+	expectedBelowMinBase.NonDiscountedTotal = expectedBelowMinBase.SITPart.AddCents(expectedBelowMinBase.LinehaulPart)
+	expectedBelowMin.SITPart = expectedBelowMinBase.SITPart.AddCents(sit210ARateCentsBelowMin)
+	expectedBelowMin.LinehaulPart = sit225ARateCentsBelowMin
+	expectedBelowMin.NonDiscountedTotal = expectedBelowMin.SITPart.AddCents(expectedBelowMin.LinehaulPart)
 
 	// TODO: HHG SIT formula will be changing in future story to add in 225A/225B/225C (based on mileage).
 	//   Current test just expecting baseline 185A and 185B charges.
@@ -267,7 +273,7 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 		description string
 		cwt         unit.CWT
 		isPPM       bool
-		expected    unit.Cents
+		expected    SITComputation
 	}{
 		{"PPM at minimum weight", cwtAtMin, true, expectedAtMin},
 		{"HHG at minimum weight", cwtAtMin, false, expectedAtMinBase},
@@ -281,9 +287,7 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 			if err != nil {
 				t.Fatalf("error calculating SIT charge: %s", err)
 			}
-			if charge != testCase.expected {
-				t.Errorf("wrong SIT charge total: expected %d, got %d", testCase.expected, charge)
-			}
+			suite.Equal(testCase.expected, charge)
 		})
 	}
 }
@@ -372,5 +376,62 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	totalFee := cost.OriginService.Fee + cost.DestinationService.Fee + cost.Pack.Fee + cost.Unpack.Fee
 	if totalFee != expected {
 		t.Errorf("wrong non-linehaul charge total: expected %d, got %d", expected, totalFee)
+	}
+}
+
+func (suite *RateEngineSuite) TestSitComputationApplyDiscount() {
+	var discountTestCases = []struct {
+		description      string
+		sitPart          unit.Cents
+		linehaulPart     unit.Cents
+		sitDiscount      unit.DiscountRate
+		linehaulDiscount unit.DiscountRate
+		expected         unit.Cents
+	}{
+		{
+			"all values",
+			unit.Cents(57500),
+			unit.Cents(45555),
+			unit.DiscountRate(0.5),
+			unit.DiscountRate(0.75),
+			unit.Cents(40139),
+		},
+		{
+			"all zeros",
+			unit.Cents(0),
+			unit.Cents(0),
+			unit.DiscountRate(0),
+			unit.DiscountRate(0),
+			unit.Cents(0),
+		},
+		{
+			"no discount",
+			unit.Cents(57500),
+			unit.Cents(45555),
+			unit.DiscountRate(0),
+			unit.DiscountRate(0),
+			unit.Cents(103055),
+		},
+		{
+			"full discount",
+			unit.Cents(57500),
+			unit.Cents(45555),
+			unit.DiscountRate(1),
+			unit.DiscountRate(1),
+			unit.Cents(0),
+		},
+	}
+
+	for _, testCase := range discountTestCases {
+		suite.T().Run(testCase.description, func(t *testing.T) {
+			sitComputation := SITComputation{
+				SITPart:            testCase.sitPart,
+				LinehaulPart:       testCase.linehaulPart,
+				NonDiscountedTotal: testCase.sitPart.AddCents(testCase.linehaulPart),
+			}
+
+			sitDiscounted := sitComputation.ApplyDiscount(testCase.linehaulDiscount, testCase.sitDiscount)
+			suite.Equal(testCase.expected, sitDiscounted)
+		})
 	}
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -25,12 +26,33 @@ type NonLinehaulCostComputation struct {
 	Unpack             FeeAndRate
 }
 
+// SITComputation represents the parts of the SIT calculation (needs to be separable to apply correct discount rates).
+type SITComputation struct {
+	SITPart            unit.Cents
+	LinehaulPart       unit.Cents
+	NonDiscountedTotal unit.Cents
+}
+
 // Scale scales a cost computation by a multiplicative factor
 func (c *NonLinehaulCostComputation) Scale(factor float64) {
 	c.OriginService.Fee = c.OriginService.Fee.MultiplyFloat64(factor)
 	c.DestinationService.Fee = c.DestinationService.Fee.MultiplyFloat64(factor)
 	c.Pack.Fee = c.Pack.Fee.MultiplyFloat64(factor)
 	c.Unpack.Fee = c.Unpack.Fee.MultiplyFloat64(factor)
+}
+
+// ApplyDiscount will apply the linehaul and SIT discounts to the appropriate parts of the SIT computation.
+func (s SITComputation) ApplyDiscount(linehaulDiscount unit.DiscountRate, sitDiscount unit.DiscountRate) unit.Cents {
+	return sitDiscount.Apply(s.SITPart) + linehaulDiscount.Apply(s.LinehaulPart)
+}
+
+// MarshalLogObject allows SITComputation to be logged by Zap.
+func (s SITComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	encoder.AddInt("SITPart", s.SITPart.Int())
+	encoder.AddInt("LinehaulPart", s.LinehaulPart.Int())
+	encoder.AddInt("NonDiscountedTotal", s.NonDiscountedTotal.Int())
+
+	return nil
 }
 
 // serviceFeeCents returns the NON-DISCOUNTED rate in millicents with the fee
@@ -76,11 +98,11 @@ func (re *RateEngine) fullUnpackCents(cwt unit.CWT, zip3 string, date time.Time)
 
 // SitCharge calculates the SIT charge based on various factors.
 // Note: Assumes the caller will apply any SIT discount rate as needed (no discounts applied here).
-func (re *RateEngine) SitCharge(cwt unit.CWT, daysInSIT int, zip3 string, date time.Time, isPPM bool) (unit.Cents, error) {
+func (re *RateEngine) SitCharge(cwt unit.CWT, daysInSIT int, zip3 string, date time.Time, isPPM bool) (SITComputation, error) {
 	if daysInSIT == 0 {
-		return 0, nil
+		return SITComputation{}, nil
 	} else if daysInSIT < 0 {
-		return 0, errors.New("requested SitCharge for negative days in SIT")
+		return SITComputation{}, errors.New("requested SitCharge for negative days in SIT")
 	}
 
 	effectiveCWT := cwt
@@ -95,15 +117,14 @@ func (re *RateEngine) SitCharge(cwt unit.CWT, daysInSIT int, zip3 string, date t
 
 	sa, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
 	if err != nil {
-		return 0, err
+		return SITComputation{}, err
 	}
 
 	// Both PPMs and HHGs use 185A and 185B in the same way.
-	var sitTotal unit.Cents
-	sitTotal = sa.SIT185ARateCents.Multiply(effectiveCWT.Int())
+	sitPart := sa.SIT185ARateCents.Multiply(effectiveCWT.Int())
 	additionalDays := daysInSIT - 1
 	if additionalDays > 0 {
-		sitTotal = sitTotal.AddCents(sa.SIT185BRateCents.Multiply(additionalDays).Multiply(effectiveCWT.Int()))
+		sitPart = sitPart.AddCents(sa.SIT185BRateCents.Multiply(additionalDays).Multiply(effectiveCWT.Int()))
 	}
 
 	zapFields := []zap.Field{
@@ -119,6 +140,7 @@ func (re *RateEngine) SitCharge(cwt unit.CWT, daysInSIT int, zip3 string, date t
 		zap.Int("185B", sa.SIT185BRateCents.Int()),
 	}
 
+	var linehaulPart unit.Cents
 	if isPPM {
 		// PPM SIT formula:
 		//   (185A SIT first day rate * CWT) +
@@ -127,15 +149,15 @@ func (re *RateEngine) SitCharge(cwt unit.CWT, daysInSIT int, zip3 string, date t
 		//   225A SIT PD Self/Mini Storage for services schedule of service area
 		rate210A, err := models.FetchTariff400ngItemRate(re.db, "210A", sa.SITPDSchedule, effectiveCWT.ToPounds(), date)
 		if err != nil {
-			return 0, errors.Wrapf(err, "No 210A rate found for schedule %v, %v pounds, date %v", sa.SITPDSchedule, effectiveCWT.ToPounds(), date)
+			return SITComputation{}, errors.Wrapf(err, "No 210A rate found for schedule %v, %v pounds, date %v", sa.SITPDSchedule, effectiveCWT.ToPounds(), date)
 		}
-		sitTotal = sitTotal.AddCents(rate210A.RateCents)
+		sitPart = sitPart.AddCents(rate210A.RateCents)
 
 		rate225A, err := models.FetchTariff400ngItemRate(re.db, "225A", sa.ServicesSchedule, effectiveCWT.ToPounds(), date)
 		if err != nil {
-			return 0, errors.Wrapf(err, "No 225A rate found for schedule %v, %v pounds, date %v", sa.ServicesSchedule, effectiveCWT.ToPounds(), date)
+			return SITComputation{}, errors.Wrapf(err, "No 225A rate found for schedule %v, %v pounds, date %v", sa.ServicesSchedule, effectiveCWT.ToPounds(), date)
 		}
-		sitTotal = sitTotal.AddCents(rate225A.RateCents)
+		linehaulPart = rate225A.RateCents
 
 		zapFields = append(zapFields,
 			zap.Int("210A", rate210A.RateCents.Int()),
@@ -159,10 +181,16 @@ func (re *RateEngine) SitCharge(cwt unit.CWT, daysInSIT int, zip3 string, date t
 		//       210C SIT PD over 50 miles SIT PD schedule of service area
 	}
 
-	zapFields = append(zapFields, zap.Int("total", sitTotal.Int()))
+	sitComputation := SITComputation{
+		SITPart:            sitPart,
+		LinehaulPart:       linehaulPart,
+		NonDiscountedTotal: sitPart.AddCents(linehaulPart),
+	}
+
+	zapFields = append(zapFields, zap.Object("sit computation", sitComputation))
 	re.logger.Info("sit calculation", zapFields...)
 
-	return sitTotal, err
+	return sitComputation, err
 }
 
 func (re *RateEngine) nonLinehaulChargeComputation(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time) (cost NonLinehaulCostComputation, err error) {

@@ -122,21 +122,21 @@ func (re *RateEngine) ComputePPM(
 	// SIT
 	// Note that SIT has a different discount rate than [non]linehaul charges
 	destinationZip3 := Zip5ToZip3(destinationZip5)
-	sit, err := re.SitCharge(weight.ToCWT(), daysInSIT, destinationZip3, date, true)
+	sitComputation, err := re.SitCharge(weight.ToCWT(), daysInSIT, destinationZip3, date, true)
 	if err != nil {
 		re.logger.Info("Can't calculate sit")
 		return
 	}
-	sitFee := sitDiscount.Apply(sit)
+	sitFee := sitComputation.ApplyDiscount(lhDiscount, sitDiscount)
 
 	/// Max SIT
-	maxSIT, err := re.SitCharge(weight.ToCWT(), MaxSITDays, destinationZip3, date, true)
+	maxSITComputation, err := re.SitCharge(weight.ToCWT(), MaxSITDays, destinationZip3, date, true)
 	if err != nil {
 		re.logger.Info("Can't calculate max sit")
 		return
 	}
 	// Note that SIT has a different discount rate than [non]linehaul charges
-	maxSITFee := sitDiscount.Apply(maxSIT)
+	maxSITFee := maxSITComputation.ApplyDiscount(lhDiscount, sitDiscount)
 
 	// Totals
 	gcc := linehaulCostComputation.LinehaulChargeTotal +
@@ -259,21 +259,21 @@ func (re *RateEngine) ComputeShipment(
 	// SIT
 	// Note that SIT has a different discount rate than [non]linehaul charges
 	destinationZip3 := Zip5ToZip3(distanceCalculation.DestinationAddress.PostalCode)
-	sit, err := re.SitCharge(weight.ToCWT(), daysInSIT, destinationZip3, pickupDate, true)
+	sitComputation, err := re.SitCharge(weight.ToCWT(), daysInSIT, destinationZip3, pickupDate, true)
 	if err != nil {
 		re.logger.Info("Can't calculate sit")
 		return
 	}
-	sitFee := sitDiscount.Apply(sit)
+	sitFee := sitDiscount.Apply(sitComputation.SITPart) + lhDiscount.Apply(sitComputation.LinehaulPart)
 
 	/// Max SIT
-	maxSIT, err := re.SitCharge(weight.ToCWT(), MaxSITDays, destinationZip3, pickupDate, true)
+	maxSITComputation, err := re.SitCharge(weight.ToCWT(), MaxSITDays, destinationZip3, pickupDate, true)
 	if err != nil {
 		re.logger.Info("Can't calculate max sit")
 		return
 	}
 	// Note that SIT has a different discount rate than [non]linehaul charges
-	maxSITFee := sitDiscount.Apply(maxSIT)
+	maxSITFee := sitDiscount.Apply(maxSITComputation.SITPart) + lhDiscount.Apply(maxSITComputation.LinehaulPart)
 
 	// Totals
 	gcc := linehaulCostComputation.LinehaulChargeTotal +
