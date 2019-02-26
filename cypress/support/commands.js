@@ -99,6 +99,10 @@ Cypress.Commands.add('selectQueueItemMoveLocator', moveLocator => {
     .dblclick();
 });
 
+Cypress.Commands.add('setFeatureFlag', (flagVal, url = '/queues/new') => {
+  cy.visit(`${url}?flag:${flagVal}`);
+});
+
 Cypress.Commands.add(
   'signInAsUserPostRequest',
   (
