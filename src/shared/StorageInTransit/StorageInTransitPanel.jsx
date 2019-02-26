@@ -51,18 +51,19 @@ export class StorageInTransitPanel extends Component {
           <div className="column-subhead">
             Entitlement: {storageInTransitEntitlement} days <span className="unbold">({daysRemaining} remaining)</span>
           </div>
-          {storageInTransits.map(row => {
-            return (
-              <div className="column-head">
-                {row.location.charAt(0) + row.location.slice(1).toLowerCase()} SIT
-                <span className="unbold">
-                  {' '}
-                  Status: <FontAwesomeIcon className="icon icon-grey" icon={faClock} />{' '}
-                </span>{' '}
-                <span> SIT {row.status.charAt(0) + row.status.slice(1).toLowerCase()} </span>
-              </div>
-            );
-          })}
+          {storageInTransits !== undefined &&
+            storageInTransits.map(row => {
+              return (
+                <div key={row.id} className="column-head">
+                  {row.location.charAt(0) + row.location.slice(1).toLowerCase()} SIT
+                  <span className="unbold">
+                    {' '}
+                    Status: <FontAwesomeIcon className="icon icon-grey" icon={faClock} />{' '}
+                  </span>{' '}
+                  <span> SIT {row.status.charAt(0) + row.status.slice(1).toLowerCase()} </span>
+                </div>
+              );
+            })}
           {isCreatorActionable && (
             <Creator onFormActivation={this.onFormActivation} saveStorageInTransit={this.onSubmit} />
           )}
