@@ -4,6 +4,9 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faClock from '@fortawesome/fontawesome-free-solid/faClock';
+
 import BasicPanel from 'shared/BasicPanel';
 import Alert from 'shared/Alert';
 import Creator from 'shared/StorageInTransit/Creator';
@@ -50,9 +53,12 @@ export class StorageInTransitPanel extends Component {
           </div>
           {storageInTransits.map(row => {
             return (
-              <div class="column-head">
+              <div className="column-head">
                 {row.location.charAt(0) + row.location.slice(1).toLowerCase()} SIT
-                <span class="unbold"> Status: </span>{' '}
+                <span className="unbold">
+                  {' '}
+                  Status: <FontAwesomeIcon className="icon icon-grey" icon={faClock} />{' '}
+                </span>{' '}
                 <span> SIT {row.status.charAt(0) + row.status.slice(1).toLowerCase()} </span>
               </div>
             );
