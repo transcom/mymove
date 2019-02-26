@@ -20,11 +20,6 @@ export function addOrigional105b() {
   cy
     .get('button')
     .contains('Save & Close')
-    .should('be.enabled');
-
-  cy
-    .get('button')
-    .contains('Save & Close')
     .click();
 }
 
@@ -39,7 +34,7 @@ export function add105b() {
   cy
     .get('textarea[name="description"]')
     .first()
-    .type('description txtfield', { force: true });
+    .type('description description', { force: true });
 
   addDimensions('item', 30);
   addDimensions('crate');
@@ -48,11 +43,6 @@ export function add105b() {
     .get('textarea[name="notes"]')
     .first()
     .type('notes notes', { force: true });
-
-  cy
-    .get('button')
-    .contains('Save & Close')
-    .should('be.enabled');
 
   cy
     .get('button')

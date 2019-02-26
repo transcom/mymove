@@ -87,18 +87,19 @@ function tspUserDeletesPreApprovalRequest() {
 }
 
 function test105beOrigional() {
-  // Open new shipments queue
-  cy.visit('/shipments/2dedc49e-908c-4755-bc3f-cfea2e8eb81a?flag:robustAccessorial=false').then(resp => {
-    addOrigional105b();
-    cy.get('td').contains('12.0000');
-  });
+  cy.visit('/queues/new?flag:robustAccessorial=false');
+
+  cy.selectQueueItemMoveLocator('DATESP');
+  addOrigional105b();
+  cy.get('td').contains('12.0000');
 }
 
 function test105be() {
-  // Open new shipments queue
-  cy.visit('/shipments/2dedc49e-908c-4755-bc3f-cfea2e8eb81a').then(resp => {
-    add105b();
-    cy.get('td').contains(`12.0000 notes notes`);
-    cy.get('td').contains(`description txtfield Crate: 25" x 25" x 25" (9.04 cu ft) Item: 30" x 30" x 30"`);
-  });
+  cy.selectQueueItemMoveLocator('DATESP');
+
+  add105b();
+  cy.get('td').contains(`12.0000 notes notes`);
+  cy
+    .get('td')
+    .contains(`description description Crate: 25" x 25" x 25" (9.04 cu ft) Item: 30" x 30" x 30" notes notes`);
 }
