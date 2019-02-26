@@ -3,7 +3,7 @@ import {
   editPreApprovalRequest,
   approvePreApprovalRequest,
   deletePreApprovalRequest,
-} from '../../support/testCreatePreApprovalRequest';
+} from '../../support/preapprovals/testCreatePreApprovalRequest';
 
 /* global cy */
 describe('office user interacts with pre approval request panel', function() {
