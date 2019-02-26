@@ -265,9 +265,19 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	// page 1
 	page1Layout := paperwork.ShipmentSummaryPage1Layout
 	page1Template, err := assets.Asset(page1Layout.TemplateImagePath)
+	smallerFontSize := float64(8)
+
 	if err != nil {
 		h.Logger().Error("Error reading template file", zap.String("asset", page1Layout.TemplateImagePath), zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
+	}
+
+	if len(page1Data.NewDutyAssignment) >= 30 {
+		page1Layout.FieldsLayout["NewDutyAssignment"] = paperwork.FormField(153, 72, 48, &smallerFontSize, nil)
+	}
+
+	if len(page1Data.AuthorizedDestination) >= 30 {
+		page1Layout.FieldsLayout["AuthorizedDestination"] = paperwork.FormField(153.5, 90, 48, &smallerFontSize, nil)
 	}
 
 	page1Reader := bytes.NewReader(page1Template)
@@ -280,6 +290,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	// page 2
 	page2Layout := paperwork.ShipmentSummaryPage2Layout
 	page2Template, err := assets.Asset(page2Layout.TemplateImagePath)
+
 	if err != nil {
 		h.Logger().Error("Error reading template file", zap.String("asset", page2Layout.TemplateImagePath), zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
