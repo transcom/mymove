@@ -12,6 +12,7 @@ const defaultFlags = {
   ppm: true,
   hhg: true,
   documentViewer: true,
+  allowHhgInvoicePayment: true,
   robustAccessorial: true,
   sitPanel: true,
 };
@@ -28,6 +29,7 @@ const environmentFlags = {
   }),
 
   production: Object.assign({}, defaultFlags, {
+    allowHhgInvoicePayment: false,
     robustAccessorial: false,
     sitPanel: false,
   }),
