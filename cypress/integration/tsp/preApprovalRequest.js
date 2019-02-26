@@ -3,6 +3,7 @@ import {
   editPreApprovalRequest,
   deletePreApprovalRequest,
 } from '../../support/preapprovals/testCreateRequest';
+import { addOrigional105b, add105b } from '../../support/preapprovals/test105be';
 
 /* global cy */
 describe('TSP user interacts with pre approval request panel', function() {
@@ -17,6 +18,12 @@ describe('TSP user interacts with pre approval request panel', function() {
   });
   it('TSP user deletes pre approval request', function() {
     tspUserDeletesPreApprovalRequest();
+  });
+  it('TSP user creates origional 105B request', function() {
+    test105beOrigional();
+  });
+  it('TSP user creates 105B request', function() {
+    test105be();
   });
 });
 
@@ -77,4 +84,21 @@ function tspUserDeletesPreApprovalRequest() {
     .get('.pre-approval-panel td')
     .first()
     .should('not.contain', 'Bulky Article: Motorcycle/Rec vehicle');
+}
+
+function test105beOrigional() {
+  // Open new shipments queue
+  cy.visit('/shipments/2dedc49e-908c-4755-bc3f-cfea2e8eb81a?flag:robustAccessorial=false').then(resp => {
+    addOrigional105b();
+    cy.get('td').contains('12.0000');
+  });
+}
+
+function test105be() {
+  // Open new shipments queue
+  cy.visit('/shipments/2dedc49e-908c-4755-bc3f-cfea2e8eb81a').then(resp => {
+    add105b();
+    cy.get('td').contains(`12.0000 notes notes`);
+    cy.get('td').contains(`description txtfield Crate: 25" x 25" x 25" (9.04 cu ft) Item: 30" x 30" x 30"`);
+  });
 }
