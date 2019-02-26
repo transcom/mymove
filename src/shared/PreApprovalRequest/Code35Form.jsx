@@ -5,8 +5,20 @@ export const Code35Form = props => {
   const { ship_line_item_schema } = props;
   return (
     <Fragment>
-      <SwaggerField title="Description of service" fieldName="description" swagger={ship_line_item_schema} required />
-      <SwaggerField title="Reason for service" fieldName="reason" swagger={ship_line_item_schema} required />
+      <SwaggerField
+        className="textarea-half"
+        title="Description of service"
+        fieldName="description"
+        swagger={ship_line_item_schema}
+        required
+      />
+      <SwaggerField
+        className="textarea-half"
+        title="Reason for service"
+        fieldName="reason"
+        swagger={ship_line_item_schema}
+        required
+      />
       <SwaggerField
         title="Estimate, not to exceed"
         fieldName="estimate_amount_cents"
