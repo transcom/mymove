@@ -153,7 +153,13 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		if err != nil {
 			return ShipmentSummaryFormData{}, err
 		}
-		move.PersonallyProcuredMoves[i].Advance = ppmDetails.Advance
+		if ppmDetails.Advance != nil {
+			switch ppmDetails.Advance.Status {
+			case ReimbursementStatusAPPROVED,
+				ReimbursementStatusPAID:
+				move.PersonallyProcuredMoves[i].Advance = ppmDetails.Advance
+			}
+		}
 	}
 
 	if err != nil {

@@ -49,7 +49,10 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 			Advance:             &advance,
 		},
 	})
-	// Wasn't saving advance in reimbursements table w/o this step
+	// Only concerned w/ approved advances for ssw
+	ppm.Move.PersonallyProcuredMoves[0].Advance.Request()
+	ppm.Move.PersonallyProcuredMoves[0].Advance.Approve()
+	// Save advance in reimbursements table by saving ppm
 	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
 	movedocuments := testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
@@ -107,6 +110,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	suite.NotNil(ssd.MovingExpenseDocuments[0].ID)
 	suite.NotNil(ssd.MovingExpenseDocuments[1].ID)
 	suite.Equal(ppm.NetWeight, ssd.PersonallyProcuredMoves[0].NetWeight)
+	suite.Require().NotNil(ssd.PersonallyProcuredMoves[0].Advance)
 	suite.Equal(ppm.Advance.ID, ssd.PersonallyProcuredMoves[0].Advance.ID)
 	suite.Equal(unit.Cents(1000), ssd.PersonallyProcuredMoves[0].Advance.RequestedAmount)
 }
