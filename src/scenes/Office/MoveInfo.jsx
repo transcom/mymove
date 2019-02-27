@@ -140,7 +140,7 @@ class ComboButton extends Component {
   render() {
     return (
       <Fragment>
-        <span className="button-tooltip">
+        <span className="button-tooltip tooltip">
           <button disabled={true}>
             Approve&nbsp;&nbsp;&nbsp;
             <FontAwesomeIcon className="icon" icon={faCaretDown} />

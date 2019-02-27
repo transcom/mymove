@@ -319,40 +319,6 @@ head .panel-subhead {
 }
 
 /*TOOLTIP*/
-.button-tooltip {
-  position: relative;
-}
-
-.button-tooltip .tooltiptext {
-  visibility: hidden;
-  width: 400px;
-  background-color: white;
-  font-size: 15px;
-  color: black;
-  text-align: center;
-  border-radius: 6px;
-  border: 1px solid black;
-  padding: 5px;
-  position: absolute;
-  z-index: 1;
-  bottom: 40px;
-  margin-left: -275px;
-}
-
-.button-tooltip .tooltiptext::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  margin-left: -5px;
-  border-width: 8px;
-  border-style: solid;
-  border-color: black transparent transparent transparent;
-}
-
-.button-tooltip:hover .tooltiptext {
-  visibility: visible;
-}
 
 .tooltip .tooltiptext {
   visibility: hidden;
@@ -381,6 +347,15 @@ head .panel-subhead {
 
 .tooltip:hover .tooltiptext {
   visibility: visible;
+}
+
+.button-tooltip {
+  position: relative;
+}
+
+.button-tooltip .tooltiptext {
+  top: 40px;
+  margin-left: -180px;
 }
 
 .calculator-panel {
@@ -490,6 +465,3 @@ head .panel-subhead {
   white-space: normal;
   word-wrap: break-word;
 }
-
-
-
