@@ -38,18 +38,18 @@ function clickAddPAR() {
     .click();
 }
 
-function addDimensions(type, value = 25) {
-  enterInput(`${type}_dimensions.length`, value);
-  enterInput(`${type}_dimensions.width`, value);
-  enterInput(`${type}_dimensions.height`, value);
+function addDimensions(name, value = 25) {
+  enterInput(`${name}_dimensions.length`, value);
+  enterInput(`${name}_dimensions.width`, value);
+  enterInput(`${name}_dimensions.height`, value);
 }
 
-function enterTextarea(type, value) {
-  cy.get(`textarea[name="${type}"]`).type(value, { force: true });
+function enterTextarea(name, value) {
+  cy.get(`textarea[name="${name}"]`).type(value, { force: true });
 }
 
-function enterInput(type, value) {
-  cy.get(`input[name="${type}"]`).type(value, { force: true });
+function enterInput(name, value) {
+  cy.get(`input[name="${name}"]`).type(value, { force: true });
 }
 
 function clickSaveButtonAndWait() {
