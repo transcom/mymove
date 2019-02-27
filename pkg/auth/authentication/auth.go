@@ -292,10 +292,6 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	} else if err == models.ErrFetchNotFound { // Never heard of them so far
 
-		if userIdentity.DpsUserID != nil {
-			session.DpsUserID = *(userIdentity.DpsUserID)
-		}
-
 		var officeUser *models.OfficeUser
 		if session.IsOfficeApp() { // Look to see if we have OfficeUser with this email address
 			officeUser, err = models.FetchOfficeUserByEmail(h.db, session.Email)
