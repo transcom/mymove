@@ -409,6 +409,74 @@ func (suite *HandlerSuite) TestDeleteShipmentLineItemTSPHandler() {
 	}
 }
 
+func (suite *HandlerSuite) TestDeleteShipmentLineItemCode105BE() {
+
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
+	suite.NoError(err)
+
+	tspUser := tspUsers[0]
+	shipment := shipments[0]
+
+	acc105B := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		ShipmentLineItem: models.ShipmentLineItem{
+			ShipmentID: shipment.ID,
+		},
+		Tariff400ngItem: models.Tariff400ngItem{
+			Code:                "105B",
+			RequiresPreApproval: true,
+		},
+	})
+
+	notes := "It's a giant moose head named Fred he seemed rather pleasant"
+	baseParams := models.BaseShipmentLineItemParams{
+		Tariff400ngItemID:   acc105B.ID,
+		Tariff400ngItemCode: acc105B.Code,
+		Location:            "ORIGIN",
+		Notes:               &notes,
+	}
+	additionalParams := models.AdditionalShipmentLineItemParams{
+		ItemDimensions: &models.AdditionalLineItemDimensions{
+			Length: 100,
+			Width:  100,
+			Height: 100,
+		},
+		CrateDimensions: &models.AdditionalLineItemDimensions{
+			Length: 100,
+			Width:  100,
+			Height: 100,
+		},
+	}
+	// Given: Create 105B preapproval
+	shipmentLineItem, _, err := shipment.CreateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams)
+
+	testdatagen.MakeDefaultShipmentLineItem(suite.DB())
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("DELETE", "/shipments", nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+
+	params := accessorialop.DeleteShipmentLineItemParams{
+		HTTPRequest:        req,
+		ShipmentLineItemID: strfmt.UUID(shipmentLineItem.ID.String()),
+	}
+
+	// And: get shipment is returned
+	handler := DeleteShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code, and Crate Dimensions item should be deleted.
+	if suite.Assertions.IsType(&accessorialop.DeleteShipmentLineItemOK{}, response) {
+		// Check if we actually deleted the shipment line
+		err = suite.DB().Find(&shipmentLineItem.CrateDimensions, shipmentLineItem.CrateDimensions.ID)
+		suite.Error(err)
+	}
+}
+
 func (suite *HandlerSuite) TestDeleteShipmentLineItemOfficeHandler() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
