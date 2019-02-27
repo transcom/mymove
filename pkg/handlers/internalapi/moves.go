@@ -273,11 +273,11 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	}
 
 	if len(page1Data.NewDutyAssignment) >= 30 {
-		page1Layout.FieldsLayout["NewDutyAssignment"] = paperwork.FormField(153, 72, 48, &smallerFontSize, nil)
+		page1Layout.FieldsLayout["NewDutyAssignment"] = paperwork.FormField(153, 72, 48, &smallerFontSize, nil, nil)
 	}
 
 	if len(page1Data.AuthorizedDestination) >= 30 {
-		page1Layout.FieldsLayout["AuthorizedDestination"] = paperwork.FormField(153.5, 90, 48, &smallerFontSize, nil)
+		page1Layout.FieldsLayout["AuthorizedDestination"] = paperwork.FormField(153.5, 90, 48, &smallerFontSize, nil, nil)
 	}
 
 	page1Reader := bytes.NewReader(page1Template)

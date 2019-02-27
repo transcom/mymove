@@ -228,7 +228,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("NTA4", sswPage1.TAC)
 	suite.Equal("SAC", sswPage1.SAC)
 
-	suite.Equal("Fort Gordon, GA", sswPage1.NewDutyAssignment)
+	suite.Equal("Fort Gordon, GA 30813", sswPage1.NewDutyAssignment)
 
 	suite.Equal("15,000", sswPage1.WeightAllotment)
 	suite.Equal("2,000", sswPage1.WeightAllotmentProgear)
