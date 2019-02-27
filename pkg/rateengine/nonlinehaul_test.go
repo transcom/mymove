@@ -290,6 +290,19 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 			suite.Equal(testCase.expected, charge)
 		})
 	}
+
+	// Test zero days in SIT.
+	suite.T().Run("zero days in SIT", func(t *testing.T) {
+		charge, err := engine.SitCharge(cwtAtMin, 0, zip3, testdatagen.DateInsidePeakRateCycle, true)
+		suite.NoError(err)
+		suite.Equal(SITComputation{}, charge)
+	})
+
+	// Test negative days in SIT.
+	suite.T().Run("negative days in SIT", func(t *testing.T) {
+		_, err := engine.SitCharge(cwtAtMin, -1, zip3, testdatagen.DateInsidePeakRateCycle, true)
+		suite.Error(err)
+	})
 }
 
 func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
@@ -379,7 +392,7 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	}
 }
 
-func (suite *RateEngineSuite) TestSitComputationApplyDiscount() {
+func (suite *RateEngineSuite) Test_SitComputationApplyDiscount() {
 	var discountTestCases = []struct {
 		description      string
 		sitPart          unit.Cents
