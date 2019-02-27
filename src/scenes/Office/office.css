@@ -349,15 +349,6 @@ head .panel-subhead {
   visibility: visible;
 }
 
-.button-tooltip {
-  position: relative;
-}
-
-.button-tooltip .tooltiptext {
-  top: 40px;
-  margin-left: -180px;
-}
-
 .calculator-panel {
   border: solid #f1f1f1;
   border-width: 3px;

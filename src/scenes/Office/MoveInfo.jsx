@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -31,6 +31,7 @@ import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
+import ComboButton from 'shared/ComboButton';
 
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
@@ -72,7 +73,6 @@ import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
-import faCaretDown from '@fortawesome/fontawesome-free-solid/faCaretDown';
 
 const BasicsTabContent = props => {
   return (
@@ -135,24 +135,6 @@ const HHGTabContent = props => {
     </div>
   );
 };
-
-class ComboButton extends Component {
-  render() {
-    return (
-      <Fragment>
-        <span className="button-tooltip tooltip">
-          <button disabled={true}>
-            Approve&nbsp;&nbsp;&nbsp;
-            <FontAwesomeIcon className="icon" icon={faCaretDown} />
-          </button>
-          <span className="tooltiptext">
-            Some information about the move is missing or contains errors. Please fix these problems before approving.
-          </span>
-        </span>
-      </Fragment>
-    );
-  }
-}
 
 class MoveInfo extends Component {
   state = {
@@ -402,7 +384,16 @@ class MoveInfo extends Component {
                   Please fill out missing data
                 </Alert>
               )}
-              <div>{moveInfoComboButton && <ComboButton />}</div>
+              <div>
+                {moveInfoComboButton && (
+                  <ComboButton
+                    isDisabled={true}
+                    toolTipText={
+                      'Some information about the move is missing or contains errors. Please fix these problems before approving.'
+                    }
+                  />
+                )}
+              </div>
               <button
                 className={`${moveApproved ? 'btn__approve--green' : ''}`}
                 onClick={this.approveBasics}

@@ -1,0 +1,8 @@
+.button-tooltip {
+  position: relative;
+}
+
+.button-tooltip .tooltiptext {
+  top: 40px;
+  margin-left: -180px;
+}
