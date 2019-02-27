@@ -154,9 +154,8 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 			return ShipmentSummaryFormData{}, err
 		}
 		if ppmDetails.Advance != nil {
-			switch ppmDetails.Advance.Status {
-			case ReimbursementStatusAPPROVED,
-				ReimbursementStatusPAID:
+			status := ppmDetails.Advance.Status
+			if status == ReimbursementStatusAPPROVED || status == ReimbursementStatusPAID {
 				move.PersonallyProcuredMoves[i].Advance = ppmDetails.Advance
 			}
 		}
