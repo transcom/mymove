@@ -31,6 +31,7 @@ export class StorageInTransitForm extends Component {
         <fieldset key="warehouse-information" className="storage-in-transit-hr-top">
           <h3>Warehouse</h3>
           <div className="editable-panel-column">
+            <div className="panel-subhead" />
             <SwaggerField
               fieldName="warehouse_id"
               swagger={storageInTransitSchema}
@@ -41,16 +42,17 @@ export class StorageInTransitForm extends Component {
             <SwaggerField fieldName="warehouse_phone" swagger={storageInTransitSchema} />
             <SwaggerField fieldName="warehouse_email" swagger={storageInTransitSchema} />
           </div>
-          <FormSection name="warehouse_address">
-            <AddressElementEdit
-              addressProps={{
-                swagger: addressSchema,
-                values: warehouseAddress,
-              }}
-              title="Primary address"
-              zipPattern="USA"
-            />
-          </FormSection>
+          <div className="editable-panel-column">
+            <FormSection name="warehouse_address">
+              <AddressElementEdit
+                addressProps={{
+                  swagger: addressSchema,
+                  values: warehouseAddress,
+                }}
+                zipPattern="USA"
+              />
+            </FormSection>
+          </div>
         </fieldset>
       </form>
     );
