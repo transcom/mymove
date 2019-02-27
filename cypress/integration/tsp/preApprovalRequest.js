@@ -3,7 +3,7 @@ import {
   editPreApprovalRequest,
   deletePreApprovalRequest,
 } from '../../support/preapprovals/testCreateRequest';
-import { addOrigional105b, add105b } from '../../support/preapprovals/test105be';
+import { addOrigional105be, add105be } from '../../support/preapprovals/test105be';
 
 /* global cy */
 describe('TSP user interacts with pre approval request panel', function() {
@@ -86,20 +86,32 @@ function tspUserDeletesPreApprovalRequest() {
     .should('not.contain', 'Bulky Article: Motorcycle/Rec vehicle');
 }
 
-function test105beOrigional() {
-  cy.setFeatureFlag('robustAccessorial=false');
+function setupAccessorialAlias() {
+  cy.removeFetch();
+  cy.server();
+  cy.route('POST', '/api/v1/shipments/*/accessorials').as('accessorialsCheck');
+}
 
+function test105beOrigional() {
+  setupAccessorialAlias();
+  cy.setFeatureFlag('robustAccessorial=false');
   cy.selectQueueItemMoveLocator('DATESP');
-  addOrigional105b();
-  cy.get('td').contains('12.0000');
+
+  addOrigional105be();
+  cy.get('td').contains('12.0000 notes notes 105B');
+  cy.get('td').contains('90.0000 notes notes 105E');
 }
 
 function test105be() {
+  setupAccessorialAlias();
+  cy.setFeatureFlag('robustAccessorial=true');
   cy.selectQueueItemMoveLocator('DATESP');
 
-  add105b();
-  cy.get('td').contains(`12.0000 notes notes`);
+  add105be();
   cy
     .get('td')
-    .contains(`description description Crate: 25" x 25" x 25" (9.04 cu ft) Item: 30" x 30" x 30" notes notes`);
+    .contains(`description description 105B Crate: 25" x 25" x 25" (9.04 cu ft) Item: 30" x 30" x 30" notes notes`);
+  cy
+    .get('td')
+    .contains(`description description 105E Crate: 50" x 50" x 50" (72.33 cu ft) Item: 40" x 40" x 40" notes notes`);
 }
