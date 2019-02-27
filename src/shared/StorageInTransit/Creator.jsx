@@ -14,7 +14,14 @@ import StorageInTransitForm, { formName as StorageInTransitFormName } from './St
 export class Creator extends Component {
   state = {
     showForm: false,
+    closeOnSubmit: true,
   };
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.props.hasSubmitSucceeded && !prevProps.hasSubmitSucceeded) {
+      this.setState({ showForm: false });
+    }
+  }
 
   openForm = () => {
     this.setState({ showForm: true });
@@ -82,7 +89,7 @@ Creator.propTypes = {
 function mapStateToProps(state) {
   return {
     formEnabled: isValid(StorageInTransitFormName)(state) && !isSubmitting(StorageInTransitFormName)(state),
-    hasSubmitSucceeded: hasSubmitSucceeded(StorageInTransitFormName),
+    hasSubmitSucceeded: hasSubmitSucceeded(StorageInTransitFormName)(state),
   };
 }
 
