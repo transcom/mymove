@@ -5,7 +5,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -76,8 +75,8 @@ func (suite *CreateFormSuite) TestCreateFormServiceSuccess() {
 	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, services.GBL)
 	file, err := formCreator.CreateForm(template)
 
-	assert.NotNil(suite.T(), file)
-	assert.Nil(suite.T(), err)
+	suite.NotNil(suite.T(), file)
+	suite.Nil(suite.T(), err)
 	FormFiller.AssertExpectations(suite.T())
 }
 
@@ -97,11 +96,11 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerAppendPageFailure()
 	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, services.GBL)
 	file, err := formCreator.CreateForm(template)
 
-	assert.NotNil(suite.T(), err)
-	assert.Nil(suite.T(), file)
+	suite.NotNil(suite.T(), err)
+	suite.Nil(suite.T(), file)
 	serviceErrMsg := errors.Cause(err)
-	assert.Equal(suite.T(), "Error for FormFiller.AppendPage()", serviceErrMsg.Error(), "should be equal")
-	assert.Equal(suite.T(), "Failure writing GBL data to form.: Error for FormFiller.AppendPage()", err.Error(), "should be equal")
+	suite.Equal(suite.T(), "Error for FormFiller.AppendPage()", serviceErrMsg.Error(), "should be equal")
+	suite.Equal(suite.T(), "Failure writing GBL data to form.: Error for FormFiller.AppendPage()", err.Error(), "should be equal")
 	FormFiller.AssertExpectations(suite.T())
 }
 
@@ -125,11 +124,11 @@ func (suite *CreateFormSuite) TestCreateFormServiceFileStorerCreateFailure() {
 	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, services.GBL)
 	file, err := formCreator.CreateForm(template)
 
-	assert.Nil(suite.T(), file)
-	assert.NotNil(suite.T(), err)
+	suite.Nil(suite.T(), file)
+	suite.NotNil(suite.T(), err)
 	serviceErrMsg := errors.Cause(err)
-	assert.Equal(suite.T(), "Error for FileStorer.Create()", serviceErrMsg.Error(), "should be equal")
-	assert.Equal(suite.T(), "Error creating a new afero file for GBL form.: Error for FileStorer.Create()", err.Error(), "should be equal")
+	suite.Equal(suite.T(), "Error for FileStorer.Create()", serviceErrMsg.Error(), "should be equal")
+	suite.Equal(suite.T(), "Error creating a new afero file for GBL form.: Error for FileStorer.Create()", err.Error(), "should be equal")
 	FormFiller.AssertExpectations(suite.T())
 }
 
@@ -160,18 +159,18 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerOutputFailure() {
 	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, services.GBL)
 	file, err := formCreator.CreateForm(template)
 
-	assert.Nil(suite.T(), file)
-	assert.NotNil(suite.T(), err)
+	suite.Nil(suite.T(), file)
+	suite.NotNil(suite.T(), err)
 	serviceErrMsg := errors.Cause(err)
-	assert.Equal(suite.T(), "Error for FormFiller.Output()", serviceErrMsg.Error(), "should be equal")
-	assert.Equal(suite.T(), "Failure exporting GBL form to file.: Error for FormFiller.Output()", err.Error(), "should be equal")
+	suite.Equal(suite.T(), "Error for FormFiller.Output()", serviceErrMsg.Error(), "should be equal")
+	suite.Equal(suite.T(), "Failure exporting GBL form to file.: Error for FormFiller.Output()", err.Error(), "should be equal")
 	FormFiller.AssertExpectations(suite.T())
 }
 
 func (suite *CreateFormSuite) TestCreateFormServiceCreateAssetByteReaderFailure() {
 	badAssetPath := "pkg/paperwork/formtemplates/someUndefinedTemplatePath.png"
 	templateBuffer, err := createAssetByteReader(badAssetPath)
-	assert.Nil(suite.T(), templateBuffer)
-	assert.NotNil(suite.T(), err)
-	assert.Equal(suite.T(), "Error creating asset from path. Check image path.: Asset pkg/paperwork/formtemplates/someUndefinedTemplatePath.png not found", err.Error(), "should be equal")
+	suite.Nil(suite.T(), templateBuffer)
+	suite.NotNil(suite.T(), err)
+	suite.Equal(suite.T(), "Error creating asset from path. Check image path.: Asset pkg/paperwork/formtemplates/someUndefinedTemplatePath.png not found", err.Error(), "should be equal")
 }
