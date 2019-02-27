@@ -14,8 +14,10 @@ import (
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+	"github.com/jinzhu/now"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -178,7 +180,6 @@ func FetchFuelPriceData(url string) (resultData EiaData, err error) {
 
 // getMissingRecordsPrices gets the data for each month that doesn't have data in the db and adds the data to struct
 func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fuelValues []fuelData, err error) {
-
 	currentDate := u.Clock.Now()
 
 	// Do an api query for each month that needs a fuel price record
@@ -202,6 +203,7 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		query := parsedURL.Query()
 		query.Set("api_key", u.eiaKey)
 		query.Set("series_id", "PET.EMD_EPD2D_PTE_NUS_DPG.W")
@@ -225,12 +227,8 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 			return nil, errors.New("GET request to eia.gov's open data was unsuccessful")
 		}
 		monthFuelData := result.SeriesData[0].Data
-		if len(monthFuelData) < 1 {
-			err := errors.Errorf("No fuel data available for %v %v", time.Month(month), year)
-			return []fuelData{}, err
-		}
 
-		// select the fuel data for the first Monday
+		// select the fuel data for the first week of data available for the month
 		dateString := ""
 		var price float64
 		if len(monthFuelData) > 1 {
@@ -256,6 +254,15 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 			dateString = monthFuelData[0][0].(string)
 			price = monthFuelData[0][1].(float64)
 		} else if len(monthFuelData) == 0 {
+			// Throw error if data should be available but is not
+			if month == int(currentDate.Month()) {
+				firstMondayOrNonHolidayAfter := getFirstMondayOrNonHolidayAfter(time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC), u.Clock)
+				todayIsAfterPostingDate := !firstMondayOrNonHolidayAfter.After(currentDate)
+				if todayIsAfterPostingDate {
+					err := errors.Errorf("Expected data, but no fuel data available for %v %v", time.Month(month), year)
+					return []fuelData{}, err
+				}
+			}
 			log.Printf("No fueldata available yet for %v %v \n", time.Month(month), year)
 		}
 
@@ -318,4 +325,23 @@ func intInSlice(a int, list []int) bool {
 		}
 	}
 	return false
+}
+
+func getFirstMondayOrNonHolidayAfter(date time.Time, clock clock.Clock) time.Time {
+	// loop through days of month until you hit a non-holiday Monday or first workday after
+	cal := dates.NewUSCalendar()
+	dayToCheck := now.New(date).BeginningOfMonth()
+	isWorkMondayOrNonHolidayAfter := false
+	fmt.Println("date", date.UTC())
+	fmt.Println("dayToCheck", dayToCheck.UTC())
+	for isWorkMondayOrNonHolidayAfter == false {
+		fmt.Println(dayToCheck.UTC())
+		if dayToCheck.Weekday() == time.Monday && cal.IsWorkday(dayToCheck) {
+			isWorkMondayOrNonHolidayAfter = true
+		} else {
+			dayToCheck = dayToCheck.AddDate(0, 0, 1)
+		}
+	}
+	firstWorkMondayOrNonHolidayAfter := dayToCheck
+	return firstWorkMondayOrNonHolidayAfter
 }

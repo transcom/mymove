@@ -40,7 +40,7 @@ func main() {
 		v.GetString("eia-url"),
 	)
 
-	verrs, err := fuelPrices.StoreFuelPrices(10)
+	verrs, err := fuelPrices.StoreFuelPrices(12)
 	if err != nil || verrs != nil {
 		log.Fatal(err, verrs)
 	}
