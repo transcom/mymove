@@ -185,6 +185,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	daysInStorage := swag.Int64(3)
 	newPickupPostalCode := swag.String("32168")
 	newDestinationPostalCode := swag.String("29401")
+	newSitCost := swag.Int64(60)
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
@@ -221,6 +222,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		PickupPostalCode:        newPickupPostalCode,
 		DestinationPostalCode:   newDestinationPostalCode,
 		HasSit:                  newHasSit,
+		TotalSitCost:            newSitCost,
 	}
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
@@ -240,12 +242,11 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 
 	suite.Equal(*patchPPMPayload.Size, newSize, "Size should have been updated.")
 	suite.Equal(patchPPMPayload.WeightEstimate, newWeight, "Weight should have been updated.")
-
+	suite.Equal(patchPPMPayload.TotalSitCost, newSitCost, "Total sit cost should have been updated.")
 	suite.Equal(patchPPMPayload.PickupPostalCode, newPickupPostalCode, "PickupPostalCode should have been updated.")
 	suite.Equal(patchPPMPayload.DestinationPostalCode, newDestinationPostalCode, "DestinationPostalCode should have been updated.")
 	suite.Nil(patchPPMPayload.AdditionalPickupPostalCode, "AdditionalPickupPostalCode should have been updated to nil.")
 	suite.Equal(*(*time.Time)(patchPPMPayload.OriginalMoveDate), newMoveDate, "MoveDate should have been updated.")
-	suite.Nil(patchPPMPayload.DaysInStorage, "AdditionalPostalCode should have been updated to nil.")
 	suite.Equal(*patchPPMPayload.Mileage, int64(900), "Mileage should have been set to 900")
 }
 
