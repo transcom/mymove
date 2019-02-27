@@ -2,10 +2,10 @@ import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get, capitalize, includes } from 'lodash';
+import { capitalize, get, includes } from 'lodash';
 
-import { RoutedTabs, NavTab } from 'react-router-tabs';
-import { NavLink, Switch, Redirect, Link } from 'react-router-dom';
+import { NavTab, RoutedTabs } from 'react-router-tabs';
+import { Link, NavLink, Redirect, Switch } from 'react-router-dom';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import LocationsContainer from './Hhg/LocationsContainer';
@@ -37,16 +37,16 @@ import { resetRequests } from 'shared/Swagger/request';
 import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
 import { getAllShipmentLineItems, selectSortedShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices } from 'shared/Entities/modules/invoices';
-import { loadPPMs, approvePPM, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
-import { loadServiceMember, loadBackupContacts, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
+import { approvePPM, loadPPMs, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
+import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
 import {
-  getPublicShipment,
-  updatePublicShipment,
   approveShipment,
   completeShipment,
+  getPublicShipment,
   selectShipment,
   selectShipmentStatus,
+  updatePublicShipment,
 } from 'shared/Entities/modules/shipments';
 import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
@@ -61,7 +61,7 @@ import {
   cancelMove,
 } from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
-import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import { getMoveDocumentsForMove, selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -72,6 +72,7 @@ import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
+import faCaretDown from '@fortawesome/fontawesome-free-solid/faCaretDown';
 
 const BasicsTabContent = props => {
   return (
@@ -134,6 +135,24 @@ const HHGTabContent = props => {
     </div>
   );
 };
+
+class ComboButton extends Component {
+  render() {
+    return (
+      <Fragment>
+        <span className="button-tooltip">
+          <button disabled={true}>
+            Approve&nbsp;&nbsp;&nbsp;
+            <FontAwesomeIcon className="icon" icon={faCaretDown} />
+          </button>
+          <span className="tooltiptext">
+            Some information about the move is missing or contains errors. Please fix these problems before approving.
+          </span>
+        </span>
+      </Fragment>
+    );
+  }
+}
 
 class MoveInfo extends Component {
   state = {
@@ -378,66 +397,57 @@ class MoveInfo extends Component {
           </div>
           <div className="usa-width-one-fourth">
             <div>
-              {moveInfoComboButton ? (
-                <Fragment>
-                  <button>Im a ComboButton</button>
-                </Fragment>
-              ) : (
-                <Fragment>
-                  {this.props.approveMoveHasError && (
-                    <Alert type="warning" heading="Unable to approve">
-                      Please fill out missing data
-                    </Alert>
-                  )}
-                  <button
-                    className={`${moveApproved ? 'btn__approve--green' : ''}`}
-                    onClick={this.approveBasics}
-                    disabled={moveApproved || !ordersComplete}
-                  >
-                    Approve Basics
-                    {moveApproved && check}
-                  </button>
+              {this.props.approveMoveHasError && (
+                <Alert type="warning" heading="Unable to approve">
+                  Please fill out missing data
+                </Alert>
+              )}
+              <div>{moveInfoComboButton && <ComboButton />}</div>
+              <button
+                className={`${moveApproved ? 'btn__approve--green' : ''}`}
+                onClick={this.approveBasics}
+                disabled={moveApproved || !ordersComplete}
+              >
+                Approve Basics
+                {moveApproved && check}
+              </button>
 
-                  {(isPPM || isHHGPPM) && (
-                    <button
-                      className={`${ppmApproved ? 'btn__approve--green' : ''}`}
-                      onClick={this.approvePPM}
-                      disabled={ppmApproved || !moveApproved || !ordersComplete}
-                    >
-                      Approve PPM
-                      {ppmApproved && check}
-                    </button>
-                  )}
-                  {(isHHG || isHHGPPM) && (
-                    <button
-                      className={`${hhgApproved ? 'btn__approve--green' : ''}`}
-                      onClick={this.approveShipment}
-                      disabled={
-                        !hhgAccepted ||
-                        hhgApproved ||
-                        hhgCompleted ||
-                        !moveApproved ||
-                        !ordersComplete ||
-                        currentTab !== 'hhg'
-                      }
-                    >
-                      Approve HHG
-                      {hhgApproved && check}
-                    </button>
-                  )}
-                  {(isHHG || isHHGPPM) && (
-                    <button
-                      className={`${hhgCompleted ? 'btn__approve--green' : ''}`}
-                      onClick={this.completeShipment}
-                      disabled={
-                        !hhgDelivered || hhgCompleted || !moveApproved || !ordersComplete || currentTab !== 'hhg'
-                      }
-                    >
-                      Complete Shipments
-                      {hhgCompleted && check}
-                    </button>
-                  )}
-                </Fragment>
+              {(isPPM || isHHGPPM) && (
+                <button
+                  className={`${ppmApproved ? 'btn__approve--green' : ''}`}
+                  onClick={this.approvePPM}
+                  disabled={ppmApproved || !moveApproved || !ordersComplete}
+                >
+                  Approve PPM
+                  {ppmApproved && check}
+                </button>
+              )}
+              {(isHHG || isHHGPPM) && (
+                <button
+                  className={`${hhgApproved ? 'btn__approve--green' : ''}`}
+                  onClick={this.approveShipment}
+                  disabled={
+                    !hhgAccepted ||
+                    hhgApproved ||
+                    hhgCompleted ||
+                    !moveApproved ||
+                    !ordersComplete ||
+                    currentTab !== 'hhg'
+                  }
+                >
+                  Approve HHG
+                  {hhgApproved && check}
+                </button>
+              )}
+              {(isHHG || isHHGPPM) && (
+                <button
+                  className={`${hhgCompleted ? 'btn__approve--green' : ''}`}
+                  onClick={this.completeShipment}
+                  disabled={!hhgDelivered || hhgCompleted || !moveApproved || !ordersComplete || currentTab !== 'hhg'}
+                >
+                  Complete Shipments
+                  {hhgCompleted && check}
+                </button>
               )}
               <ConfirmWithReasonButton
                 buttonTitle="Cancel Move"

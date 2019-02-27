@@ -185,6 +185,7 @@
 .panel-field.contact-prefs .field-value span {
   margin-right: 1em;
 }
+
 .panel-field.contact-prefs .field-value svg {
   margin-right: 4px;
   font-size: 0.8em;
@@ -318,6 +319,41 @@ head .panel-subhead {
 }
 
 /*TOOLTIP*/
+.button-tooltip {
+  position: relative;
+}
+
+.button-tooltip .tooltiptext {
+  visibility: hidden;
+  width: 400px;
+  background-color: white;
+  font-size: 15px;
+  color: black;
+  text-align: center;
+  border-radius: 6px;
+  border: 1px solid black;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 40px;
+  margin-left: -275px;
+}
+
+.button-tooltip .tooltiptext::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 8px;
+  border-style: solid;
+  border-color: black transparent transparent transparent;
+}
+
+.button-tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
 .tooltip .tooltiptext {
   visibility: hidden;
   width: 200px;
@@ -369,6 +405,7 @@ head .panel-subhead {
   max-width: 10rem;
   display: block;
 }
+
 .calculator-panel .date-field {
   margin: 1em;
   display: block;
@@ -385,6 +422,7 @@ head .panel-subhead {
   empty-cells: hide;
   margin-bottom: 18px;
 }
+
 .expense-panel table {
   margin: 1em;
   width: 97%;
@@ -404,11 +442,13 @@ head .panel-subhead {
   text-align: right;
   width: 15%;
 }
+
 .expense-panel .payment-method {
   border-bottom-width: 0;
   text-align: center;
   text-decoration: underline;
 }
+
 .expense-panel th {
   padding: 0;
 }
@@ -423,24 +463,33 @@ head .panel-subhead {
   width: 1%;
   white-space: nowrap;
 }
+
 .expense-panel table > tbody > tr > td:last-child {
   padding-left: 10px;
   font-weight: bold;
 }
+
 .expense-panel table > tbody > tr:first-child > td {
   padding-top: 0;
 }
+
 .expense-panel table > tbody > tr:last-child > td {
   border-bottom-width: 0;
   font-weight: bold;
 }
+
 .expense-panel table > tbody tr:nth-last-child(2) > td {
   border-bottom-color: black;
 }
+
 .expense-panel table > tbody > tr > td:last-child {
   font-weight: normal;
 }
+
 .notes {
   white-space: normal;
   word-wrap: break-word;
 }
+
+
+
