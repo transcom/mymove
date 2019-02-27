@@ -62,7 +62,7 @@ function mapStateToProps(state, props) {
       total_sit_cost: ppm.total_sit_cost,
       days_in_storage: ppm.days_in_storage,
     },
-    // ppmSchema: schema,
+
     ppmSchema: get(state, 'swaggerInternal.spec.definitions.PersonallyProcuredMovePayload'),
     ppm,
 
