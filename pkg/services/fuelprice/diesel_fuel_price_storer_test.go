@@ -1,11 +1,12 @@
 package fuelprice
 
 import (
+	"testing"
+	"time"
+
 	"github.com/facebookgo/clock"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
-	"testing"
-	"time"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
@@ -39,6 +40,19 @@ func TestFuelPriceSuite(t *testing.T) {
 }
 
 func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
+
+	//var fuelPriceTestCases := []struct{
+	//	url string
+	//	numMonthsToCheck int
+	//	expectedNumRecords int
+	//}{
+	//	{
+	//		url: "gets all missing months",
+	//		numMonthsToCheck: 12,
+	//		expectedNumRecords: 12,
+	//	},
+	//}
+
 	testClock := clock.NewMock()
 	dateToTest := time.Date(2010, time.January, 10, 0, 0, 0, 0, time.UTC)
 	timeDiff := dateToTest.Sub(testClock.Now())
@@ -74,14 +88,18 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	}
 	nowInDB := []models.FuelEIADieselPrice{}
 	suite.DB().All(&nowInDB)
+
+	// Test case where data is missing from the most recent months
 	// run the function
 	numMonthsToVerify := 10
-	verrs, err := DieselFuelPriceStorer{DB: suite.DB(), Clock: testClock, FetchFuelData: FetchFuelPriceData, EiaKey: "", URL: "all months"}.StoreFuelPrices(numMonthsToVerify)
+	dieselFuelPriceStorer := NewDieselFuelPriceStorer(suite.DB(), testClock, FetchFuelPriceData, "", "gets all missing months")
+	verrs, err := dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
 	suite.NoError(err, "error when creating diesel prices")
 	suite.Empty(verrs.Errors, "validation error when creating diesel prices")
 
 	// check that the given number of prior months have fuel data
 	resultingFuelEIADeiselPrices := []models.FuelEIADieselPrice{}
+
 	// check that the records are added back in for each of months previously missing
 	err = queryForThisMonth.All(&resultingFuelEIADeiselPrices)
 	if err != nil {
@@ -94,12 +112,36 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 		suite.logger.Error(err.Error())
 	}
 	suite.NotEmpty(&fuelEIADeiselPrices)
+
+	// Test case where there is no data yet available for the current month (nor expected)
+	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), testClock, FetchFuelPriceData, "", "No data available")
+	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
+	suite.NoError(err)
+
+	// Test case where there is no data for a given month (but should be)
+	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), testClock, FetchFuelPriceData, "", "Data missing")
+	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
+
+	// Test case where all desired data already exists in db
+	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), testClock, FetchFuelPriceData, "", "No data needed")
+	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
+	suite.NoError(err)
+
+	// Test case where an error message is returned from api
+	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), testClock, FetchFuelPriceData, "", "Error")
+	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
+	suite.Error(err)
+
+	// Test case where api returns unexpected JSON structure/value
+	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), testClock, FetchFuelPriceData, "", "Unexpected response")
+	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
+	suite.Error(err)
 }
 
 func mockedFetchFuelPriceData(url string) (data *EiaData, err error) {
 	// TODO: build out structs to match test scenarios
 	switch url {
-	case "all months":
+	case "gets all missing months":
 		return &EiaData{
 			//SeriesData: []EiaSeriesData{
 			//	{
@@ -113,9 +155,11 @@ func mockedFetchFuelPriceData(url string) (data *EiaData, err error) {
 			//	},
 			//},
 		}, nil
-	case "None To Fetch":
+	case "No data needed":
 		return &EiaData{}, nil
 	case "No data available":
+		return &EiaData{}, nil
+	case "Unexpected response":
 		return &EiaData{}, nil
 	case "Error":
 		return &EiaData{}, nil
