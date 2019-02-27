@@ -1,3 +1,7 @@
+import {
+  fillAndSaveStorageInTransit,
+} from '../../support/testCreateStorageInTransit';
+
 /* global cy */
 describe('TSP user interacts with storage in transit panel', function() {
   beforeEach(() => {
@@ -7,6 +11,8 @@ describe('TSP user interacts with storage in transit panel', function() {
     tspUserCreatesSitRequest();
   });
 });
+
+// need to simulate a form submit
 
 function tspUserCreatesSitRequest() {
   // Open accepted shipments queue
@@ -36,13 +42,28 @@ function tspUserCreatesSitRequest() {
       expect(text).to.include('Warehouse ID number');
       expect(text).to.include('Warehouse Name');
       expect(text).to.include('Address Line 1');
-    })
-    .get('.usa-button-secondary')
-    .contains('Cancel')
-    .click()
-    .get('.storage-in-transit-panel .add-request')
-    .should($div => {
-      const text = $div.text();
-      expect(text).to.not.include('Sit Location');
     });
+
+    // fill out and submit the form
+    fillAndSaveStorageInTransit();
+
 }
+
+// function tspUserCreatesAndCancelsSitRequest() {
+
+//   cy
+//     .get('.storage-in-transit-panel .add-request')
+//     .contains('Request SIT')
+//     .click();
+
+//   cy
+//     .get('.usa-button-secondary')
+//     .contains('Cancel')
+//     .click()
+//     .get('.storage-in-transit-panel .add-request')
+//     .should($div => {
+//       const text = $div.text();
+//       expect(text).to.not.include('Sit Location');
+//     });
+
+// }
