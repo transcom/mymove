@@ -395,12 +395,12 @@ func (suite *ModelSuite) TestFormatWeightAllotment() {
 	suite.Equal("1,000", models.FormatWeightAllotment(noDependant))
 }
 
-func (suite *ModelSuite) TestFormatAuthorizedLocation() {
+func (suite *ModelSuite) TestFormatLocation() {
 	fortGordon := models.DutyStation{Name: "Fort Gordon", Address: models.Address{State: "GA", PostalCode: "30813"}}
 	yuma := models.DutyStation{Name: "Yuma AFB", Address: models.Address{State: "IA", PostalCode: "50309"}}
 
-	suite.Equal("Fort Gordon, GA 30813", models.FormatAuthorizedLocation(fortGordon))
-	suite.Equal("Yuma AFB, IA 50309", models.FormatAuthorizedLocation(yuma))
+	suite.Equal("Fort Gordon, GA 30813", models.FormatLocation(fortGordon))
+	suite.Equal("Yuma AFB, IA 50309", models.FormatLocation(yuma))
 }
 
 func (suite *ModelSuite) TestFormatServiceMemberFullName() {
@@ -504,14 +504,6 @@ func (suite *ModelSuite) TestFormatWeights() {
 	suite.Equal("10", models.FormatWeights(10))
 	suite.Equal("1,000", models.FormatWeights(1000))
 	suite.Equal("1,000,000", models.FormatWeights(1000000))
-}
-
-func (suite *ModelSuite) TestFormatDutyStation() {
-	fortBenning := models.DutyStation{Name: "Fort Benning", Address: models.Address{State: "GA"}}
-	yuma := models.DutyStation{Name: "Yuma AFB", Address: models.Address{State: "AZ"}}
-
-	suite.Equal("Fort Benning, GA", models.FormatDutyStation(fortBenning))
-	suite.Equal("Yuma AFB, AZ", models.FormatDutyStation(yuma))
 }
 
 func (suite *ModelSuite) TestFormatOrdersIssueDate() {
