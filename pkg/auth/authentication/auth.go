@@ -10,7 +10,7 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
+	beeline "github.com/honeycombio/beeline-go"
 	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -225,7 +225,11 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	userIdentity, err := models.FetchUserIdentity(h.db, openIDUser.UserID)
 	if err == nil { // Someone we know already
-
+		if userIdentity.Disabled {
+			h.logger.Error("Disabled user requesting authentication", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
+		}
 		session.UserID = userIdentity.ID
 		span.AddField("session.user_id", session.UserID)
 		if userIdentity.ServiceMemberID != nil {

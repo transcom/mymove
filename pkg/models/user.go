@@ -75,6 +75,7 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 // UserIdentity is summary of the information about a user from the database
 type UserIdentity struct {
 	ID                     uuid.UUID  `db:"id"`
+	Disabled               bool       `db:"disabled"`
 	Email                  string     `db:"email"`
 	ServiceMemberID        *uuid.UUID `db:"sm_id"`
 	ServiceMemberFirstName *string    `db:"sm_fname"`
@@ -96,6 +97,7 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 	var identities []UserIdentity
 	query := `SELECT users.id,
 				users.login_gov_email as email,
+				users.disabled as disabled,
 				sm.id as sm_id,
 				sm.first_name as sm_fname,
 				sm.last_name as sm_lname,
