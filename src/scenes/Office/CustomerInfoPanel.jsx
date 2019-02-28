@@ -136,18 +136,18 @@ CustomerInfoPanel = reduxForm({
 })(CustomerInfoPanel);
 
 function mapStateToProps(state, ownProps) {
-  let customerInfo = ownProps.serviceMember;
+  const customerInfo = ownProps.serviceMember;
   const loadServiceMemberStatus = getRequestStatus(state, loadServiceMemberLabel);
   const updateServiceMemberStatus = getRequestStatus(state, updateServiceMemberLabel);
   let hasError = false;
   let errorMessage = '';
 
-  if (loadServiceMemberStatus.isSuccess === false) {
+  if (loadServiceMemberStatus.error) {
     hasError = true;
     errorMessage = get(loadServiceMemberStatus, 'error.response.message', '');
   }
 
-  if (updateServiceMemberStatus.isSuccess === false) {
+  if (updateServiceMemberStatus.error) {
     hasError = true;
     errorMessage = get(updateServiceMemberStatus, 'error.response.message', '');
   }

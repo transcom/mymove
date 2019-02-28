@@ -3,6 +3,7 @@ describe('office user finds the move', function() {
   beforeEach(() => {
     cy.signIntoOffice();
   });
+
   it('office user views moves in queue new moves', function() {
     officeUserViewsMoves();
   });
@@ -29,7 +30,7 @@ describe('office user finds the move', function() {
       .should('have.class', 'btn__approve--green');
   });
   it('office user views actual move date', function() {
-    officeUserGoesToDatesAndLocationsPanel('PAYMNT');
+    officeUserGoesToPPMPanel('PAYMNT');
     cy.get('.actual_move_date').should($div => {
       const text = $div.text();
       expect(text).to.include('Departure date');
@@ -37,7 +38,7 @@ describe('office user finds the move', function() {
     });
   });
   it('edits missing text when the actual move date is not set', function() {
-    officeUserGoesToDatesAndLocationsPanel('FDXTIU');
+    officeUserGoesToPPMPanel('FDXTIU');
     cy.get('.actual_move_date').should($div => {
       const text = $div.text();
       expect(text).to.include('Departure date');
@@ -57,6 +58,11 @@ describe('office user finds the move', function() {
 
   it('office user edits ppm net weight', function() {
     officeUserEditsNetWeight();
+  });
+
+  it('edits pickup and destination zip codes in estimates panel and these values are reflected in the storage and incentive calculators', function() {
+    officeUserGoesToPPMPanel('FDXTIU');
+    officeUserEditsEstimatesPanel(60606, 72018);
   });
 });
 
@@ -316,7 +322,7 @@ function officeUserVerifiesPPM() {
   });
 }
 
-function officeUserGoesToDatesAndLocationsPanel(locator) {
+function officeUserGoesToPPMPanel(locator) {
   // Open ppm queue
   cy.patientVisit('/queues/ppm');
 
@@ -364,4 +370,40 @@ function officeUserEditsDatesAndLocationsPanel(date) {
     .get('button')
     .contains('Save')
     .click();
+}
+
+function officeUserEditsEstimatesPanel(destinationPostalCode, pickupPostalCode) {
+  cy
+    .get('.editable-panel-header')
+    .contains('Estimates')
+    .siblings()
+    .click();
+
+  cy.get('.estimates').within(() => {
+    cy
+      .get('input[name="PPMEstimate.destination_postal_code"]')
+      .clear()
+      .type(destinationPostalCode);
+
+    cy
+      .get('input[name="PPMEstimate.pickup_postal_code"]')
+      .clear()
+      .type(pickupPostalCode);
+  });
+
+  cy
+    .get('button')
+    .contains('Save')
+    .should('be.enabled');
+
+  cy
+    .get('button')
+    .contains('Save')
+    .click();
+
+  cy.get('.storage-calc').within(() => {
+    cy.get('input[name="destination_postal_code"]').should('have.value', `${destinationPostalCode}`);
+
+    cy.get('input[name="pickup_postal_code"]').should('have.value', `${pickupPostalCode}`);
+  });
 }

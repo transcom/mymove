@@ -2567,7 +2567,7 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logg
 	formFiller.Output(aFile)
 
 	uploader := uploaderpkg.NewUploader(db, logger, storer)
-	upload, _, _ := uploader.CreateUpload(nil, *tspUser.UserID, aFile)
+	upload, _, _ := uploader.CreateUpload(*tspUser.UserID, &aFile, uploaderpkg.AllowedTypesPDF)
 	uploads := []models.Upload{*upload}
 
 	// Create GBL move document associated to the shipment
@@ -2706,7 +2706,7 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 	formFiller.Output(aFile)
 
 	uploader := uploaderpkg.NewUploader(db, logger, storer)
-	upload, _, _ := uploader.CreateUpload(nil, *tspUser.UserID, aFile)
+	upload, _, _ := uploader.CreateUpload(*tspUser.UserID, &aFile, uploaderpkg.AllowedTypesPDF)
 	uploads := []models.Upload{*upload}
 
 	// Create GBL move document associated to the shipment

@@ -230,6 +230,7 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 			Height: unit.ThousandthInches(*params.Payload.CrateDimensions.Height),
 		}
 	}
+
 	additionalParams := models.AdditionalShipmentLineItemParams{
 		ItemDimensions:  itemDimensions,
 		CrateDimensions: crateDimensions,

@@ -61,11 +61,15 @@ const (
 	fontFamily      string  = "Helvetica"
 	fontStyle       string  = ""
 	fontSize        float64 = 7
-	fontDir         string  = ""
-	lineHeight      float64 = 3
-	templateName    string  = "form_template"
-	imageXPos       float64 = 0
-	imageYPos       float64 = 0
+	alignment       string  = "LM"
+	// Horizontal alignment is controlled by including "L", "C" or "R" (left, center, right) in alignStr.
+	// Vertical alignment is controlled by including "T", "M", "B" or "A" (top, middle, bottom, baseline) in alignStr.
+	// The default alignment is left middle.
+	fontDir      string  = ""
+	lineHeight   float64 = 3
+	templateName string  = "form_template"
+	imageXPos    float64 = 0
+	imageYPos    float64 = 0
 	// 0-value will be auto-calculated from aspect ratio
 	letterWidthMm  float64 = 215.9
 	letterHeightMm float64 = 0
@@ -78,6 +82,10 @@ const (
 
 func floatPtr(f float64) *float64 {
 	return &f
+}
+
+func stringPtr(s string) *string {
+	return &s
 }
 
 // FormLayout houses both a background image form template and the layout of individual fields
@@ -93,16 +101,18 @@ type FieldPos struct {
 	width      float64
 	fontSize   *float64
 	lineHeight *float64
+	alignStr   *string
 }
 
 // FormField returns a new field position
-func FormField(xPos, yPos, width float64, fontSize, lineHeight *float64) FieldPos {
+func FormField(xPos, yPos, width float64, fontSize, lineHeight *float64, alignStr *string) FieldPos {
 	return FieldPos{
 		xPos:       xPos,
 		yPos:       yPos,
 		width:      width,
 		fontSize:   fontSize,
 		lineHeight: lineHeight,
+		alignStr:   alignStr,
 	}
 }
 
@@ -246,7 +256,12 @@ func (f *FormFiller) drawData(fields map[string]FieldPos, data interface{}) erro
 			tempLineHeight = *formField.lineHeight
 		}
 
-		f.pdf.MultiCell(formField.width, tempLineHeight, displayValue, "", "", false)
+		fieldAlignment := alignment
+		if formField.alignStr != nil {
+			fieldAlignment = *formField.alignStr
+		}
+
+		f.pdf.MultiCell(formField.width, tempLineHeight, displayValue, "", fieldAlignment, false)
 
 		// Draw a red-bordered box with the display value's key to the right
 		if f.debug {

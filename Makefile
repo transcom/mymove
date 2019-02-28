@@ -119,7 +119,7 @@ build_callgraph: go_deps .build_callgraph.stamp
 
 get_goimports: go_deps .get_goimports.stamp
 .get_goimports.stamp:
-	go get golang.org/x/tools/cmd/goimports
+	go get -u golang.org/x/tools/cmd/goimports
 	touch .get_goimports.stamp
 
 server_deps: check_hosts go_deps build_chamber build_soda build_callgraph get_goimports .server_deps.stamp

@@ -33,6 +33,7 @@ import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
 
 import { getRequestStatus } from 'shared/Swagger/selectors';
+import { resetRequests } from 'shared/Swagger/request';
 import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
 import { getAllShipmentLineItems, selectSortedShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices } from 'shared/Entities/modules/invoices';
@@ -51,7 +52,14 @@ import { getTspForShipment } from 'shared/Entities/modules/transportationService
 import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
 
 import { showBanner, removeBanner } from './ducks';
-import { loadMove, selectMove, selectMoveStatus, approveBasics, cancelMove } from 'shared/Entities/modules/moves';
+import {
+  loadMove,
+  loadMoveLabel,
+  selectMove,
+  selectMoveStatus,
+  approveBasics,
+  cancelMove,
+} from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
@@ -141,9 +149,16 @@ class MoveInfo extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { loadBackupContacts, loadOrders, loadServiceMember, ordersId, serviceMemberId, shipmentId } = this.props;
-    // Once we can get one of the ids, they all should be present
-    if (ordersId !== prevProps.ordersId) {
+    const {
+      loadBackupContacts,
+      loadOrders,
+      loadMoveIsSuccess,
+      loadServiceMember,
+      ordersId,
+      serviceMemberId,
+      shipmentId,
+    } = this.props;
+    if (loadMoveIsSuccess !== prevProps.loadMoveIsSuccess && loadMoveIsSuccess) {
       loadOrders(ordersId);
       loadServiceMember(serviceMemberId);
       loadBackupContacts(serviceMemberId);
@@ -151,6 +166,10 @@ class MoveInfo extends Component {
         this.getAllShipmentInfo(shipmentId);
       }
     }
+  }
+
+  componentWillUnmount() {
+    this.props.resetRequests();
   }
 
   getAllShipmentInfo = shipmentId => {
@@ -482,12 +501,14 @@ const mapStateToProps = (state, ownProps) => {
   const serviceMemberId = move.service_member_id;
   const serviceMember = selectServiceMember(state, serviceMemberId);
   const loadOrdersStatus = getRequestStatus(state, loadOrdersLabel);
+  const loadMoveIsSuccess = getRequestStatus(state, loadMoveLabel).isSuccess;
 
   return {
     approveMoveHasError: get(state, 'office.moveHasApproveError'),
     errorMessage: get(state, 'office.error'),
     loadDependenciesHasError: loadOrdersStatus.error,
     loadDependenciesHasSuccess: loadOrdersStatus.isSuccess,
+    loadMoveIsSuccess,
     moveDocuments: selectAllDocumentsForMove(state, moveId),
     ppm,
     move,
@@ -533,6 +554,7 @@ const mapDispatchToProps = dispatch =>
       loadServiceMember,
       loadBackupContacts,
       loadOrders,
+      resetRequests,
     },
     dispatch,
   );

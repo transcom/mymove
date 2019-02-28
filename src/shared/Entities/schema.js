@@ -91,7 +91,6 @@ export const invoices = new schema.Array(invoice);
 
 // ShipmentLineItem
 export const shipmentLineItem = new schema.Entity('shipmentLineItems', {
-  tariff400ng_item: tariff400ngItem,
   invoice: invoice,
 });
 export const shipmentLineItems = new schema.Array(shipmentLineItem);
