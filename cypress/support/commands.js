@@ -99,6 +99,10 @@ Cypress.Commands.add('selectQueueItemMoveLocator', moveLocator => {
     .dblclick();
 });
 
+Cypress.Commands.add('setFeatureFlag', (flagVal, url = '/queues/new') => {
+  cy.visit(`${url}?flag:${flagVal}`);
+});
+
 Cypress.Commands.add(
   'signInAsUserPostRequest',
   (
@@ -244,6 +248,23 @@ function genericSelect(inputData, fieldName, classSelector) {
     .first()
     .click();
 }
+
+Cypress.Commands.add('typeInInput', ({ name, value }) => {
+  cy
+    .get(`input[name="${name}"]`)
+    .clear()
+    .type(value)
+    .blur();
+});
+
+// function typeInTextArea({ name, value }) {
+Cypress.Commands.add('typeInTextarea', ({ name, value }) => {
+  cy
+    .get(`textarea[name="${name}"]`)
+    .clear()
+    .type(value)
+    .blur();
+});
 
 Cypress.Commands.add('selectDutyStation', (stationName, fieldName) => {
   let classSelector = '.duty-input-box';
