@@ -1,6 +1,6 @@
 import { get, head, pick } from 'lodash';
 import { UpdateMove, GetMove, SubmitMoveForApproval } from './api.js';
-import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
+import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive } from 'shared/utils';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
