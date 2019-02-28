@@ -30,6 +30,7 @@ import PremoveSurvey from './PremoveSurvey';
 import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
+import StorageInTransitPanel from 'shared/StorageInTransit/StorageInTransitPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
 
 import { getRequestStatus } from 'shared/Swagger/selectors';
@@ -49,9 +50,17 @@ import {
 } from 'shared/Entities/modules/shipments';
 import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
+import { selectSitRequests } from 'shared/Entities/modules/sitRequests';
 
 import { showBanner, removeBanner } from './ducks';
-import { loadMove, selectMove, selectMoveStatus, approveBasics, cancelMove } from 'shared/Entities/modules/moves';
+import {
+  loadMove,
+  selectMove,
+  selectMoveStatus,
+  approveBasics,
+  cancelMove,
+  calculateEntitlementsForMove,
+} from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
 import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
@@ -92,6 +101,7 @@ const PPMTabContent = props => {
 
 const HHGTabContent = props => {
   let shipmentStatus = '';
+  let shipmentId = '';
   const {
     allowHhgInvoicePayment,
     canApprovePaymentInvoice,
@@ -99,10 +109,15 @@ const HHGTabContent = props => {
     serviceAgents,
     shipment,
     updatePublicShipment,
+    sitRequests,
+    showSitPanel,
+    sitEntitlement,
   } = props;
   if (shipment) {
     shipmentStatus = shipment.status;
+    shipmentId = shipment.id;
   }
+
   return (
     <div className="office-tab">
       <RoutingPanel title="Routing" moveId={moveId} />
@@ -117,6 +132,9 @@ const HHGTabContent = props => {
         transportationServiceProviderId={shipment.transportation_service_provider_id}
       />
       <PreApprovalPanel shipmentId={shipment.id} />
+      {showSitPanel && (
+        <StorageInTransitPanel sitRequests={sitRequests} shipmentId={shipmentId} sitEntitlement={sitEntitlement} />
+      )}
       <InvoicePanel
         shipmentId={shipment.id}
         shipmentStatus={shipmentStatus}
@@ -229,6 +247,7 @@ class MoveInfo extends Component {
       shipmentStatus,
       serviceMember,
       upload,
+      entitlement,
     } = this.props;
     const isPPM = move.selected_move_type === 'PPM';
     const isHHG = move.selected_move_type === 'HHG';
@@ -350,6 +369,8 @@ class MoveInfo extends Component {
                       shipment={this.props.shipment}
                       shipmentStatus={this.props.shipmentStatus}
                       updatePublicShipment={this.props.updatePublicShipment}
+                      showSitPanel={this.props.context.flags.sitPanel}
+                      sitEntitlement={entitlement.storage_in_transit}
                     />
                   )}
                 </PrivateRoute>
@@ -468,7 +489,10 @@ MoveInfo.defaultProps = {
 MoveInfo.propTypes = {
   loadMove: PropTypes.func.isRequired,
   context: PropTypes.shape({
-    flags: PropTypes.shape({ documentViewer: PropTypes.bool }).isRequired,
+    flags: PropTypes.shape({
+      documentViewer: PropTypes.bool,
+      sitPanel: PropTypes.bool,
+    }).isRequired,
   }).isRequired,
 };
 
@@ -507,6 +531,8 @@ const mapStateToProps = (state, ownProps) => {
     swaggerError: get(state, 'swagger.hasErrored'),
     tariff400ngItems: selectTariff400ngItems(state),
     upload: get(orders, 'uploaded_orders.uploads.0', {}),
+    entitlement: calculateEntitlementsForMove(state, moveId) || {},
+    sitRequests: selectSitRequests(state, shipmentId),
   };
 };
 

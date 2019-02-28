@@ -7,6 +7,8 @@ import BasicPanel from 'shared/BasicPanel';
 import Alert from 'shared/Alert';
 import Creator from 'shared/StorageInTransit/Creator';
 
+import { isTspSite } from 'shared/constants.js';
+
 export class StorageInTransitPanel extends Component {
   constructor() {
     super();
@@ -37,7 +39,7 @@ export class StorageInTransitPanel extends Component {
           <div className="column-subhead">
             Entitlement: {sitEntitlement} days <span className="unbold">({daysRemaining} remaining)</span>
           </div>
-          {isCreatorActionable && <Creator onFormActivation={this.onFormActivation} />}
+          {isCreatorActionable && isTspSite && <Creator onFormActivation={this.onFormActivation} />}
         </BasicPanel>
       </div>
     );

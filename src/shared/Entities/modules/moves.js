@@ -6,6 +6,7 @@ import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
 import { getEntitlements } from 'shared/entitlements.js';
 import { selectOrdersForMove } from 'shared/Entities/modules/orders';
+import { selectServiceMemberForMove } from 'shared/Entities/modules/serviceMembers';
 
 export const STATE_KEY = 'moves';
 const approveBasicsLabel = 'Moves.ApproveBasics';
@@ -49,7 +50,8 @@ export function calculateEntitlementsForMove(state, moveId) {
   const orders = selectOrdersForMove(state, moveId);
   const hasDependents = orders.has_dependents;
   const spouseHasProGear = orders.spouse_has_pro_gear;
-  const rank = get(state, 'office.officeServiceMember.rank', null);
+  const serviceMember = selectServiceMemberForMove(state, moveId);
+  const rank = serviceMember.rank;
   if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
     return null;
   }
