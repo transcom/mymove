@@ -68,7 +68,7 @@ $DOCKER_RUN \
   -p "${HTTP_PORT}:${HTTP_PORT}" \
   --expose="${HTTP_PORT}" \
   --name="${CONTAINER}" \
-  --link="db-dev:database" \
+  --link="milmove-db-test:database" \
   --read-only \
   --detach \
   --rm \

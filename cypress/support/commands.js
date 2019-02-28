@@ -97,6 +97,8 @@ Cypress.Commands.add('selectQueueItemMoveLocator', moveLocator => {
     .get('div')
     .contains(moveLocator)
     .dblclick();
+
+  cy.waitForLoadingScreen();
 });
 
 Cypress.Commands.add('setFeatureFlag', (flagVal, url = '/queues/new') => {

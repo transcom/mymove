@@ -525,7 +525,7 @@ jobs:
 
   # `build_app` builds the application container and pushes to the container repository
   build_app:
-    executor: mymove_and_postgres_medium
+    executor: mymove_medium
     steps:
       - checkout
       - setup_remote_docker:
