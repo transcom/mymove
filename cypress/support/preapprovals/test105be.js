@@ -35,5 +35,4 @@ function clickSaveAndClose() {
     .get('button')
     .contains('Save & Close')
     .click();
-  cy.wait('@accessorialsCheck');
 }
