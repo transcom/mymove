@@ -9,7 +9,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import Alert from 'shared/Alert';
-import Authorization from 'shared/User/Authorization';
 import StyleGuide from 'scenes/StyleGuide';
 import Landing from 'scenes/Landing';
 import Edit from 'scenes/Review/Edit';
@@ -95,7 +94,17 @@ export class AppWrapper extends Component {
                     {/* <PrivateRoute path="/moves/:moveId/review/edit-hhg-weights" component={EditHHGWeights} /> */}
 
                     <PrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
-                    <PrivateRoute path="/dps_cookie" component={Authorization(DPSAuthCookie, 'dps')} />
+                    <PrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
+                    <Route exact path="/forbidden">
+                      <div className="usa-grid">
+                        <h2>You are forbidden to use this endpoint</h2>
+                      </div>
+                    </Route>
+                    <Route exact path="/server_error">
+                      <div className="usa-grid">
+                        <h2>We are experiencing an internal server error</h2>
+                      </div>
+                    </Route>
                     <Route component={this.noMatch} />
                   </Switch>
                 )}

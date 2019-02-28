@@ -18,7 +18,8 @@ export const Code105Details = props => {
     <td>
       {row.description} <br />
       {crateDetails} <br />
-      {ItemDetails}
+      {ItemDetails} <br />
+      {row.notes}
     </td>
   );
 };

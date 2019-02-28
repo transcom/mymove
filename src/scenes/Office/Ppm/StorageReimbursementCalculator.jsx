@@ -22,6 +22,14 @@ const schema = {
       'x-nullable': true,
       'x-always-required': true,
     },
+    actual_move_date: {
+      type: 'string',
+      format: 'date',
+      example: '2018-04-26',
+      title: 'Move Date',
+      'x-nullable': true,
+      'x-always-required': false,
+    },
     pickup_postal_code: {
       type: 'string',
       format: 'zip',
@@ -67,18 +75,30 @@ export class StorageReimbursementCalculator extends Component {
     this.reset();
   }
   calculate = values => {
-    const { original_move_date, pickup_postal_code, destination_postal_code, days_in_storage, weight } = values;
-    this.props.getPpmSitEstimate(
-      original_move_date,
-      days_in_storage,
+    const {
       pickup_postal_code,
       destination_postal_code,
+      days_in_storage,
       weight,
-    );
+      actual_move_date,
+      original_move_date,
+    } = values;
+    const moveDate = actual_move_date || original_move_date;
+    this.props.getPpmSitEstimate(moveDate, days_in_storage, pickup_postal_code, destination_postal_code, weight);
   };
 
   render() {
-    const { handleSubmit, sitReimbursement, invalid, pristine, submitting, hasEstimateError } = this.props;
+    const {
+      handleSubmit,
+      sitReimbursement,
+      invalid,
+      pristine,
+      submitting,
+      hasEstimateError,
+      initialValues,
+    } = this.props;
+    const moveDateField = initialValues.actual_move_date ? 'actual_move_date' : 'original_move_date';
+
     return (
       <div className="calculator-panel storage-calc">
         <div className="calculator-panel-title">Storage Calculator</div>
@@ -92,12 +112,7 @@ export class StorageReimbursementCalculator extends Component {
               </div>
             )}
             <div className="usa-width-one-half">
-              <SwaggerField
-                className="date-field"
-                fieldName="original_move_date"
-                swagger={this.props.schema}
-                required
-              />
+              <SwaggerField className="date-field" fieldName={moveDateField} swagger={this.props.schema} required />
               <SwaggerField className="short-field" fieldName="weight" swagger={this.props.schema} required />
             </div>
             <div className="usa-width-one-half">
@@ -156,6 +171,7 @@ StorageReimbursementCalculator.propTypes = {
 function mapStateToProps(state, ownProps) {
   const initialValues = pick(selectPPMForMove(state, ownProps.moveId), [
     'original_move_date',
+    'actual_move_date',
     'pickup_postal_code',
     'destination_postal_code',
     'days_in_storage',
@@ -173,5 +189,7 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(
-  reduxForm({ form: formName })(StorageReimbursementCalculator),
+  reduxForm({ form: formName, enableReinitialize: true, keepDirtyOnReinitialize: true })(
+    StorageReimbursementCalculator,
+  ),
 );
