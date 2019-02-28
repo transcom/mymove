@@ -35,23 +35,8 @@ type EiaRequestData struct {
 
 // EiaSeriesData gets all of the desired data in JSON under series
 type EiaSeriesData struct {
-	//SeriesID    string          `json:"series_id"`
-	//Name        string          `json:"name"`
-	//Units       string          `json:"units"`
-	//F           string          `json:"f"`
-	//Unitshort   string          `json:"unitshort"`
-	//Description string          `json:"description"`
-	//Copyright   string          `json:"copyright"`
-	//Source      string          `json:"source"`
-	//Iso3166     string          `json:"iso3166"`
-	//Geography   string          `json:"geography"`
-	//Start       string          `json:"start"`
-	//End         string          `json:"end"`
-	//Updated     string          `json:"updated"`
 	Data [][]interface{} `json:"data"`
 }
-
-//TODO: Determine if we want to log or use any of the commented out info above
 
 // EiaOtherData captures data that isn't request or series data
 type EiaOtherData struct {
