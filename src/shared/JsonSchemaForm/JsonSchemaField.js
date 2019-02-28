@@ -79,6 +79,8 @@ const configureCentsField = (swaggerField, props) => {
     props.validate.push(validator.minimum(swaggerField.minimum / 100));
   }
 
+  props.prefixInputClassName = 'dollar-sign';
+
   return props;
 };
 
@@ -166,6 +168,7 @@ const renderInputField = ({
   className,
   inputProps,
   hideLabel,
+  prefixInputClassName,
 }) => {
   let component = 'input';
   if (componentNameOverride) {
@@ -210,7 +213,7 @@ const renderInputField = ({
             {error}
           </span>
         )}
-      {FieldComponent}
+      <span className={prefixInputClassName}>{FieldComponent}</span>
     </div>
   );
 };
@@ -327,6 +330,7 @@ const createSchemaField = (
   } else if (['integer', 'number'].includes(swaggerField.type)) {
     if (swaggerField.format === 'cents') {
       fieldProps = configureCentsField(swaggerField, fieldProps);
+      className += ' dollar-input';
     } else if (swaggerField.format === 'basequantity') {
       fieldProps = configureDecimalField(
         swaggerField,
