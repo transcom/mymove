@@ -3412,6 +3412,10 @@ paths:
         - application/pdf
       responses:
         200:
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
           description: Pre-filled worksheet PDF
           schema:
             format: binary
