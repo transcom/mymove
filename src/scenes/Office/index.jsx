@@ -11,7 +11,7 @@ import QueueTable from './QueueTable';
 import MoveInfo from './MoveInfo';
 import OrdersInfo from './OrdersInfo';
 import DocumentViewer from './DocumentViewer';
-import { loadLoggedInUser } from 'shared/User/ducks';
+import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadInternalSchema, loadPublicSchema } from 'shared/Swagger/ducks';
 import { no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
@@ -43,6 +43,7 @@ class OfficeWrapper extends Component {
     document.title = 'Transcom PPP: Office';
     this.props.loadInternalSchema();
     this.props.loadPublicSchema();
+    this.props.getCurrentUserInfo();
   }
 
   render() {
@@ -72,7 +73,6 @@ class OfficeWrapper extends Component {
 OfficeWrapper.defaultProps = {
   loadInternalSchema: no_op,
   loadPublicSchema: no_op,
-  loadLoggedInUser: no_op,
 };
 
 const mapStateToProps = state => ({
@@ -80,6 +80,6 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ loadInternalSchema, loadPublicSchema, loadLoggedInUser }, dispatch);
+  bindActionCreators({ loadInternalSchema, loadPublicSchema, getCurrentUserInfo }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(OfficeWrapper);
