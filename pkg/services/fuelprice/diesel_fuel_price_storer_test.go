@@ -107,6 +107,15 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	suite.NoError(err)
 	suite.Empty(verrs.Errors)
 
+	currentMonthPrices := []models.FuelEIADieselPrice{}
+	err = queryForThisMonth.All(&currentMonthPrices)
+	if err != nil {
+		suite.logger.Error(err.Error())
+	}
+	dbBaselineRate := currentMonthPrices[0].BaselineRate
+	expectedBaselineRate := 4
+	suite.Equal(expectedBaselineRate, dbBaselineRate)
+
 	// Test case where data is missing from a prior month and saved to db
 	//remove a month other than current month
 	priorMonthsToRemove := []models.FuelEIADieselPrice{}
@@ -128,7 +137,7 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	suite.NoError(err)
 	suite.Empty(verrs.Errors)
 
-	// check that the records are added back in for previously missing ones
+	// check that the records are added back in for previous month
 	resultingFuelEIADeiselPrices := []models.FuelEIADieselPrice{}
 
 	err = queryForThisMonth.All(&resultingFuelEIADeiselPrices)
@@ -143,6 +152,9 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 		suite.logger.Error(err.Error())
 	}
 	suite.NotEmpty(&priorMonthPrices)
+	dbBaselineRate = priorMonthPrices[0].BaselineRate
+	expectedBaselineRate = 4
+	suite.Equal(expectedBaselineRate, dbBaselineRate)
 
 	// Test case where all desired data already exists in db
 	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), testClock, mockedFetchFuelPriceData, "", "No data needed")
