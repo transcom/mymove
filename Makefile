@@ -392,7 +392,6 @@ endif
 			POSTGRES_PASSWORD=$(PGPASSWORD) \
 			-d \
 			-p $(DB_PORT_TEST):$(DB_PORT_DOCKER)\
-			--cpus=0.250 \
 			$(DB_DOCKER_CONTAINER_IMAGE)
 
 .PHONY: db_test_create
