@@ -113,7 +113,8 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 		suite.logger.Error(err.Error())
 	}
 	dbBaselineRate := currentMonthPrices[0].BaselineRate
-	expectedBaselineRate := 4
+	var expectedBaselineRate int64
+	expectedBaselineRate = 3
 	suite.Equal(expectedBaselineRate, dbBaselineRate)
 
 	// Test case where data is missing from a prior month and saved to db
@@ -153,7 +154,7 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	}
 	suite.NotEmpty(&priorMonthPrices)
 	dbBaselineRate = priorMonthPrices[0].BaselineRate
-	expectedBaselineRate = 4
+	expectedBaselineRate = 1
 	suite.Equal(expectedBaselineRate, dbBaselineRate)
 
 	// Test case where all desired data already exists in db
@@ -210,7 +211,7 @@ func mockedFetchFuelPriceData(url string) (data EiaData, err error) {
 				{
 					Data: [][]interface{}{
 						{
-							"20100104", 2.79,
+							"20100104", 2.797,
 						},
 						{
 							"20100111", 2.81,
@@ -226,7 +227,7 @@ func mockedFetchFuelPriceData(url string) (data EiaData, err error) {
 				{
 					Data: [][]interface{}{
 						{
-							"20091005", 3.10,
+							"20091005", 2.582,
 						},
 						{
 							"20091012", 3.41,
