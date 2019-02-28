@@ -1,37 +1,23 @@
 /* global cy */
-export function addOrigional105be() {
-  clickAddPAR();
-  cy.selectTariff400ngItem('105B');
-  enterInput('quantity_1', 12);
-  enterTextarea('notes', 'notes notes 105B');
-  clickSaveButtonAndWait();
-
-  clickAddPAR();
-  cy.selectTariff400ngItem('105E');
-  enterInput('quantity_1', 90);
-  enterTextarea('notes', 'notes notes 105E');
-  clickSaveButtonAndWait();
+export function addOriginal105({ code, quantity1 }) {
+  clickAddARequest();
+  cy.selectTariff400ngItem(code);
+  cy.typeInInput({ name: 'quantity_1', value: quantity1 });
+  cy.typeInTextarea({ name: 'notes', value: `notes notes ${code}` });
+  clickSaveAndClose();
 }
 
-export function add105be() {
-  clickAddPAR();
-  cy.selectTariff400ngItem('105B');
-  enterTextarea('description', 'description description 105B');
-  addDimensions('item', 30);
-  addDimensions('crate');
-  enterTextarea('notes', 'notes notes');
-  clickSaveButtonAndWait();
-
-  clickAddPAR();
-  cy.selectTariff400ngItem('105E');
-  enterTextarea('description', 'description description 105E');
-  addDimensions('item', 40);
-  addDimensions('crate', 50);
-  enterTextarea('notes', 'notes notes');
-  clickSaveButtonAndWait();
+export function add105({ code, itemSize = 25, crateSize = 25 }) {
+  clickAddARequest();
+  cy.selectTariff400ngItem(code);
+  cy.typeInTextarea({ name: 'description', value: `description description ${code}` });
+  addDimensions('item', itemSize);
+  addDimensions('crate', crateSize);
+  cy.typeInTextarea({ name: 'notes', value: 'notes notes' });
+  clickSaveAndClose();
 }
 
-function clickAddPAR() {
+function clickAddARequest() {
   cy
     .get('.add-request')
     .contains('Add a request')
@@ -39,20 +25,12 @@ function clickAddPAR() {
 }
 
 function addDimensions(name, value = 25) {
-  enterInput(`${name}_dimensions.length`, value);
-  enterInput(`${name}_dimensions.width`, value);
-  enterInput(`${name}_dimensions.height`, value);
+  cy.typeInInput({ name: `${name}_dimensions.length`, value: value });
+  cy.typeInInput({ name: `${name}_dimensions.width`, value: value });
+  cy.typeInInput({ name: `${name}_dimensions.height`, value: value });
 }
 
-function enterTextarea(name, value) {
-  cy.get(`textarea[name="${name}"]`).type(value, { force: true });
-}
-
-function enterInput(name, value) {
-  cy.get(`input[name="${name}"]`).type(value, { force: true });
-}
-
-function clickSaveButtonAndWait() {
+function clickSaveAndClose() {
   cy
     .get('button')
     .contains('Save & Close')

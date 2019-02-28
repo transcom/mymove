@@ -3,7 +3,7 @@ import {
   editPreApprovalRequest,
   deletePreApprovalRequest,
 } from '../../support/preapprovals/testCreateRequest';
-import { addOrigional105be, add105be } from '../../support/preapprovals/test105be';
+import { addOriginal105, add105 } from '../../support/preapprovals/test105be';
 
 /* global cy */
 describe('TSP user interacts with pre approval request panel', function() {
@@ -97,8 +97,10 @@ function test105beOrigional() {
   cy.setFeatureFlag('robustAccessorial=false');
   cy.selectQueueItemMoveLocator('DATESP');
 
-  addOrigional105be();
+  addOriginal105({ code: '105B', quantity1: 12 });
   cy.get('td').contains('12.0000 notes notes 105B');
+
+  addOriginal105({ code: '105E', quantity1: 90 });
   cy.get('td').contains('90.0000 notes notes 105E');
 }
 
@@ -107,10 +109,12 @@ function test105be() {
   cy.setFeatureFlag('robustAccessorial=true');
   cy.selectQueueItemMoveLocator('DATESP');
 
-  add105be();
+  add105({ code: '105B', itemSize: 30, crateSize: 25 });
   cy
     .get('td')
     .contains(`description description 105B Crate: 25" x 25" x 25" (9.04 cu ft) Item: 30" x 30" x 30" notes notes`);
+
+  add105({ code: '105E', itemSize: 40, crateSize: 50 });
   cy
     .get('td')
     .contains(`description description 105E Crate: 50" x 50" x 50" (72.33 cu ft) Item: 40" x 40" x 40" notes notes`);
