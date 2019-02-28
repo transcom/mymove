@@ -44,7 +44,7 @@ func TestFuelPriceSuite(t *testing.T) {
 func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 
 	testClock := clock.NewMock()
-	dateToTest := time.Date(2010, time.January, 10, 0, 0, 0, 0, time.UTC) // first Mon 1/2010 is 4th
+	dateToTest := time.Date(2010, time.January, 12, 0, 0, 0, 0, time.UTC) // first Mon 1/2010 is 4th
 	timeDiff := dateToTest.Sub(testClock.Now())
 	testClock.Add(timeDiff)
 	currentDate := testClock.Now()
@@ -91,7 +91,23 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
 	suite.Error(err)
 
-	// Test case where data is missing and is fetched and saved to db
+	// Test case where an error message is returned from api
+	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), testClock, mockedFetchFuelPriceData, "", "Error")
+	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
+	suite.Error(err)
+	suite.Empty(verrs.Errors)
+
+	// Test case where api returns unexpected JSON structure/value
+	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), testClock, mockedFetchFuelPriceData, "", "Unexpected response")
+	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
+	suite.Error(err)
+
+	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), testClock, mockedFetchFuelPriceData, "", "Store current month missing data")
+	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
+	suite.NoError(err)
+	suite.Empty(verrs.Errors)
+
+	// Test case where data is missing from a prior month and saved to db
 	//remove a month other than current month
 	priorMonthsToRemove := []models.FuelEIADieselPrice{}
 
@@ -107,7 +123,7 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 		suite.logger.Error("Error deleting eia diesel price", zap.Error(err))
 	}
 
-	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), testClock, mockedFetchFuelPriceData, "", "Stores all missing months")
+	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), testClock, mockedFetchFuelPriceData, "", "Store previous month missing data")
 	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
 	suite.NoError(err)
 	suite.Empty(verrs.Errors)
@@ -132,16 +148,7 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), testClock, mockedFetchFuelPriceData, "", "No data needed")
 	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
 	suite.NoError(err)
-
-	// Test case where an error message is returned from api
-	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), testClock, mockedFetchFuelPriceData, "", "Error")
-	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
-	suite.Error(err)
-
-	// Test case where api returns unexpected JSON structure/value
-	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), testClock, mockedFetchFuelPriceData, "", "Unexpected response")
-	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
-	suite.Error(err)
+	suite.Empty(verrs.Errors)
 }
 
 func mockedFetchFuelPriceData(url string) (data EiaData, err error) {
@@ -169,32 +176,6 @@ func mockedFetchFuelPriceData(url string) (data EiaData, err error) {
 			},
 		}, nil
 	}
-	if re.MatchString("Stores all missing months") {
-		//TODO: fix this one
-		return EiaData{
-			SeriesData: []EiaSeriesData{
-				{
-					Data: [][]interface{}{
-						{
-							[]string{"20100104"}, []float64{2.79},
-						},
-						{
-							[]string{"20100111"}, []float64{2.81},
-						},
-					},
-				},
-			},
-		}, nil
-	}
-	if re.MatchString("No data needed") {
-		return EiaData{
-			SeriesData: []EiaSeriesData{
-				{
-					Data: [][]interface{}{},
-				},
-			},
-		}, nil
-	}
 	if re.MatchString("Error") {
 		return EiaData{
 			OtherData: EiaOtherData{
@@ -208,6 +189,53 @@ func mockedFetchFuelPriceData(url string) (data EiaData, err error) {
 				//UnknownInfo: []string{
 				//	"some sort of response"
 				//}
+			},
+		}, nil
+	}
+	if re.MatchString("Store current month missing data") {
+		return EiaData{
+			SeriesData: []EiaSeriesData{
+				{
+					Data: [][]interface{}{
+						{
+							"20100104", 2.79,
+						},
+						{
+							"20100111", 2.81,
+						},
+					},
+				},
+			},
+		}, nil
+	}
+	if re.MatchString("Store previous month missing data") {
+		return EiaData{
+			SeriesData: []EiaSeriesData{
+				{
+					Data: [][]interface{}{
+						{
+							"20091005", 3.10,
+						},
+						{
+							"20091012", 3.41,
+						},
+						{
+							"20091019", 3.32,
+						},
+						{
+							"20091026", 3.07,
+						},
+					},
+				},
+			},
+		}, nil
+	}
+	if re.MatchString("No data needed") {
+		return EiaData{
+			SeriesData: []EiaSeriesData{
+				{
+					Data: [][]interface{}{},
+				},
 			},
 		}, nil
 	}

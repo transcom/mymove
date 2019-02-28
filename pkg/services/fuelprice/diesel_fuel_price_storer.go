@@ -319,7 +319,6 @@ func getFirstMondayOrNonHolidayAfter(date time.Time, clock clock.Clock) time.Tim
 	isWorkMondayOrNonHolidayAfter := false
 
 	for isWorkMondayOrNonHolidayAfter == false {
-		fmt.Println(dayToCheck.UTC())
 		if dayToCheck.Weekday() == time.Monday && cal.IsWorkday(dayToCheck) {
 			isWorkMondayOrNonHolidayAfter = true
 		} else {
