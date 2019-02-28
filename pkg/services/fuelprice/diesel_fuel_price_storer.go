@@ -294,12 +294,11 @@ func (u DieselFuelPriceStorer) calculateFuelSurchargeBaselineRate(pricePerGallon
 	dividendValue := .13
 	diffPriceAndBaseline := pricePerGallon - fuelPriceBaseline
 	if diffPriceAndBaseline <= 0 {
-		// TODO: Find out what should be done if Baseline rate is greater than fuel price
-		err = errors.New("Cannot calculate fuel percentage when fuelPriceBaseline is greater than fuel price")
-		return baselineRate, err
+		baselineRate = int64(0)
+	} else {
+		rate := (diffPriceAndBaseline) / dividendValue
+		baselineRate = int64(math.Ceil(rate))
 	}
-	rate := (diffPriceAndBaseline) / dividendValue
-	baselineRate = int64(math.Ceil(rate))
 	return baselineRate, nil
 }
 
