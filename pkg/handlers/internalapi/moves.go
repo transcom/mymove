@@ -2,8 +2,8 @@ package internalapi
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
-	"log"
 	"reflect"
 	"time"
 
@@ -24,7 +24,6 @@ import (
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/storage"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 func payloadForMoveModel(storer storage.FileStorer, order models.Order, move models.Move) (*internalmessages.MovePayload, error) {
@@ -242,34 +241,17 @@ type ShowShipmentSummaryWorksheetHandler struct {
 func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSummaryWorksheetParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
-	engine := rateengine.NewRateEngine(h.DB(), h.Logger())
+	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(h.DB(), h.Logger()))
 
 	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(h.DB(), session, moveID)
 	ssfd.PreparationDate = time.Time(params.PreparationDate)
-	var firstPPM models.PersonallyProcuredMove
-	if len(ssfd.PersonallyProcuredMoves) > 0 {
-		firstPPM = ssfd.PersonallyProcuredMoves[0]
+	ssfd.MaxObligation, err = ppmComputer.ComputeObligations(ssfd, h.Planner(), paperwork.MaxObligation)
+	if err != nil {
+		h.Logger().Error("Error calculating PPM max obligations ", zap.Error(err))
 	}
-	if firstPPM.PickupPostalCode != nil &&
-		firstPPM.DestinationPostalCode != nil &&
-		firstPPM.OriginalMoveDate != nil {
-		distanceMiles, err := h.Planner().Zip5TransitDistance(*firstPPM.PickupPostalCode, *firstPPM.DestinationPostalCode)
-		if err != nil {
-			log.Fatalf("Error calculating distance %v", err)
-		}
-		cost, err := engine.ComputePPMIncludingLHDiscount(
-			unit.Pound(ssfd.TotalWeightAllotment),
-			*firstPPM.PickupPostalCode,
-			*firstPPM.DestinationPostalCode,
-			distanceMiles,
-			*firstPPM.OriginalMoveDate,
-			0, 0,
-		)
-		ssfd.GCC = cost.GCC
-		if err != nil {
-			h.Logger().Error("Error calculating PPM max obligations ", zap.Error(err))
-			return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
-		}
+	ssfd.ActualObligation, err = ppmComputer.ComputeObligations(ssfd, h.Planner(), paperwork.ActualObligation)
+	if err != nil {
+		h.Logger().Error("Error calculating PPM actual obligations ", zap.Error(err))
 	}
 
 	page1Data, page2Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
@@ -318,5 +300,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	}
 
 	payload := ioutil.NopCloser(buf)
-	return moveop.NewShowShipmentSummaryWorksheetOK().WithPayload(payload)
+	filename := fmt.Sprintf("attachment; filename=\"%s-%s-ssw-%s.pdf\"", *ssfd.ServiceMember.FirstName, *ssfd.ServiceMember.LastName, time.Now().Format("01-02-2006"))
+
+	return moveop.NewShowShipmentSummaryWorksheetOK().WithContentDisposition(filename).WithPayload(payload)
 }

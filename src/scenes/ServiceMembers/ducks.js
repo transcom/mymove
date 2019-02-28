@@ -9,7 +9,7 @@ import {
   CreateBackupContactAPI,
   UpdateBackupContactAPI,
 } from './api.js';
-import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
+import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { upsert } from 'shared/utils';
 // Types

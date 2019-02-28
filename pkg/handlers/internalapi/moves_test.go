@@ -395,6 +395,9 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
 
 func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
+	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{},
+	})
 
 	req := httptest.NewRequest("GET", "/moves/some_id/shipment_summary_worksheet", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)

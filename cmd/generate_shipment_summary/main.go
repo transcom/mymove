@@ -8,10 +8,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/transcom/mymove/pkg/rateengine"
-	"github.com/transcom/mymove/pkg/unit"
-
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -75,34 +73,16 @@ func main() {
 	testAppCode := os.Getenv("HERE_MAPS_APP_CODE")
 	hereClient := &http.Client{Timeout: hereRequestTimeout}
 	planner := route.NewHEREPlanner(logger, hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
+	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(db, logger))
+
 	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(db, &auth.Session{}, parsedID)
+	ssfd.MaxObligation, err = ppmComputer.ComputeObligations(ssfd, planner, paperwork.MaxObligation)
 	if err != nil {
-		log.Fatalf("Error fetching worksheet data %v", err)
+		log.Println("Error calculating PPM max obligations ")
 	}
-	engine := rateengine.NewRateEngine(db, logger)
-	var firstPPM models.PersonallyProcuredMove
-	if len(ssfd.PersonallyProcuredMoves) > 0 {
-		firstPPM = ssfd.PersonallyProcuredMoves[0]
-	}
-	distanceMiles, err := planner.Zip5TransitDistance(*firstPPM.PickupPostalCode, *firstPPM.DestinationPostalCode)
+	ssfd.ActualObligation, err = ppmComputer.ComputeObligations(ssfd, planner, paperwork.ActualObligation)
 	if err != nil {
-		log.Fatalf("Error calculating distance %v", err)
-	}
-	if firstPPM.PickupPostalCode != nil &&
-		firstPPM.DestinationPostalCode != nil &&
-		firstPPM.OriginalMoveDate != nil {
-		cost, err := engine.ComputePPMIncludingLHDiscount(
-			unit.Pound(ssfd.TotalWeightAllotment),
-			*firstPPM.PickupPostalCode,
-			*firstPPM.DestinationPostalCode,
-			distanceMiles,
-			*firstPPM.OriginalMoveDate,
-			0, 0,
-		)
-		ssfd.GCC = cost.GCC
-		if err != nil {
-			log.Fatalf("Error calculating PPM max obligations %v", err)
-		}
+		log.Println("Error calculating PPM actual obligations ")
 	}
 
 	page1Data, page2Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
