@@ -20,7 +20,7 @@ describe('TSP user interacts with pre approval request panel', function() {
     tspUserDeletesPreApprovalRequest();
   });
   it('TSP user creates origional 105B request', function() {
-    test105beOrigional();
+    test105beOriginal();
   });
   it('TSP user creates 105B request', function() {
     test105be();
@@ -86,7 +86,7 @@ function tspUserDeletesPreApprovalRequest() {
     .should('not.contain', 'Bulky Article: Motorcycle/Rec vehicle');
 }
 
-function test105beOrigional() {
+function test105beOriginal() {
   cy.setFeatureFlag('robustAccessorial=false');
   cy.selectQueueItemMoveLocator('DATESP');
 
