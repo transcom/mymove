@@ -14,15 +14,7 @@ import { getPpmSitEstimate, clearPpmSitEstimate } from '../../Moves/Ppm/ducks';
 const formName = 'storage_reimbursement_calc';
 const schema = {
   properties: {
-    original_move_date: {
-      type: 'string',
-      format: 'date',
-      example: '2018-04-26',
-      title: 'Move Date',
-      'x-nullable': true,
-      'x-always-required': true,
-    },
-    actual_move_date: {
+    move_date: {
       type: 'string',
       format: 'date',
       example: '2018-04-26',
@@ -88,16 +80,7 @@ export class StorageReimbursementCalculator extends Component {
   };
 
   render() {
-    const {
-      handleSubmit,
-      sitReimbursement,
-      invalid,
-      pristine,
-      submitting,
-      hasEstimateError,
-      initialValues,
-    } = this.props;
-    const moveDateField = initialValues.actual_move_date ? 'actual_move_date' : 'original_move_date';
+    const { handleSubmit, sitReimbursement, invalid, pristine, submitting, hasEstimateError } = this.props;
 
     return (
       <div className="calculator-panel storage-calc">
@@ -112,7 +95,7 @@ export class StorageReimbursementCalculator extends Component {
               </div>
             )}
             <div className="usa-width-one-half">
-              <SwaggerField className="date-field" fieldName={moveDateField} swagger={this.props.schema} required />
+              <SwaggerField className="date-field" fieldName="move_date" swagger={this.props.schema} required />
               <SwaggerField className="short-field" fieldName="weight" swagger={this.props.schema} required />
             </div>
             <div className="usa-width-one-half">
@@ -169,20 +152,15 @@ StorageReimbursementCalculator.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-  const initialValues = pick(selectPPMForMove(state, ownProps.moveId), [
-    'original_move_date',
-    'actual_move_date',
-    'pickup_postal_code',
-    'destination_postal_code',
-    'days_in_storage',
-  ]);
-  const props = {
+  let ppm = selectPPMForMove(state, ownProps.moveId);
+  let initialValues = pick(ppm, ['pickup_postal_code', 'destination_postal_code', 'days_in_storage']);
+  initialValues.move_date = ppm.actual_move_date || ppm.original_move_date;
+  return {
     schema,
     hasEstimateError: state.ppm.hasEstimateError,
     sitReimbursement: state.ppm.sitReimbursement,
     initialValues,
   };
-  return props;
 }
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ getPpmSitEstimate, clearPpmSitEstimate }, dispatch);
