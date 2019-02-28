@@ -11,6 +11,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/gen/ordersmessages"
 )
 
@@ -93,10 +94,9 @@ func FetchElectronicOrderByID(db *pop.Connection, id uuid.UUID) (ElectronicOrder
 	err := db.Q().Eager("Revisions").Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
-			return ElectronicOrder{}, ErrFetchNotFound
+			return order, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
-		return ElectronicOrder{}, err
 	}
 
 	return order, nil
@@ -109,10 +109,35 @@ func FetchElectronicOrderByUniqueFeatures(db *pop.Connection, ordersNum string, 
 	err := db.Q().Eager("Revisions").Where("orders_number = $1 AND edipi = $2 AND issuer = $3", ordersNum, edipi, issuer).First(&order)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
-			return ElectronicOrder{}, ErrFetchNotFound
+			return order, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
-		return ElectronicOrder{}, err
 	}
 	return order, err
+}
+
+// FetchElectronicOrderByIssuerAndOrdersNum gets all revisions of a set of Orders by the unique combination of the Orders number and the issuer.
+func FetchElectronicOrderByIssuerAndOrdersNum(db *pop.Connection, ordersNum string, issuer string) (ElectronicOrder, error) {
+	var order ElectronicOrder
+	err := db.Q().Eager("Revisions").Where("orders_number = $1 AND issuer = $2", ordersNum, issuer).First(&order)
+	if err != nil {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
+			return order, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+	}
+	return order, err
+}
+
+// FetchElectronicOrdersByEdipi gets all Orders issued to the member with the specified EDIPI
+func FetchElectronicOrdersByEdipi(db *pop.Connection, edipi string) ([]ElectronicOrder, error) {
+	var orders []ElectronicOrder
+	err := db.Q().Eager("Revisions").Where("edipi = $1", edipi).All(orders)
+	if err != nil {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
+			return orders, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+	}
+	return orders, err
 }

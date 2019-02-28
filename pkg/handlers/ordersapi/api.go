@@ -25,7 +25,8 @@ func NewOrdersAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	ordersAPI := ordersoperations.NewMymoveAPI(ordersSpec)
 	ordersAPI.GetOrdersHandler = GetOrdersHandler{context}
-	ordersAPI.IndexOrdersHandler = IndexOrdersHandler{context}
+	ordersAPI.GetOrdersByIssuerAndOrdersNumHandler = GetOrdersByIssuerAndOrdersNumHandler{context}
+	ordersAPI.IndexOrdersForMemberHandler = IndexOrdersForMemberHandler{context}
 	ordersAPI.PostRevisionHandler = PostRevisionHandler{context}
 	ordersAPI.PostRevisionToOrdersHandler = PostRevisionToOrdersHandler{context}
 	return ordersAPI.Serve(nil)
