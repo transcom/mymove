@@ -41,7 +41,7 @@ func main() {
 	)
 
 	verrs, err := fuelPrices.StoreFuelPrices(12)
-	if err != nil || verrs != nil {
+	if err != nil || verrs.HasAny() {
 		log.Fatal(err, verrs)
 	}
 }

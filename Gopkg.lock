@@ -827,14 +827,6 @@
   version = "v1.4.0"
 
 [[projects]]
-  digest = "1:04e5cc203f3a83d31496622fdc71da869e3f4907e2dc21fbe39c2e86a0f7245b"
-  name = "github.com/jinzhu/now"
-  packages = ["."]
-  pruneopts = ""
-  revision = "8ec929ed50c3ac25ce77ba4486e1f277c552c591"
-  version = "v1.0.0"
-
-[[projects]]
   digest = "1:13fe471d0ed891e8544eddfeeb0471fd3c9f2015609a1c000aefdedf52a19d40"
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
@@ -1301,7 +1293,7 @@
   version = "v0.1.1"
 
 [[projects]]
-  digest = "1:381bcbeb112a51493d9d998bbba207a529c73dbb49b3fd789e48c63fac1f192c"
+  digest = "1:c587772fb8ad29ad4db67575dad25ba17a51f072ff18a22b4f0257a4d9c24f75"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
@@ -1609,7 +1601,6 @@
     "github.com/go-swagger/go-swagger/cmd/swagger",
     "github.com/gobuffalo/pop",
     "github.com/gobuffalo/pop/soda",
-    "github.com/gobuffalo/uuid",
     "github.com/gobuffalo/validate",
     "github.com/gobuffalo/validate/validators",
     "github.com/gofrs/uuid",
@@ -1620,12 +1611,10 @@
     "github.com/honeycombio/beeline-go/wrappers/hnynethttp",
     "github.com/imdario/mergo",
     "github.com/jessevdk/go-flags",
-    "github.com/jinzhu/now",
     "github.com/jmoiron/sqlx",
     "github.com/jung-kurt/gofpdf",
     "github.com/markbates/goth",
     "github.com/markbates/goth/providers/openidConnect",
-    "github.com/mitchellh/mapstructure",
     "github.com/namsral/flag",
     "github.com/pkg/errors",
     "github.com/rickar/cal",

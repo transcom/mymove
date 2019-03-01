@@ -14,7 +14,6 @@ import (
 	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
-	"github.com/jinzhu/now"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/dates"
@@ -241,7 +240,7 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 		} else if len(monthFuelData) == 0 {
 			// Throw error if data should be available but is not
 			if month == int(currentDate.Month()) {
-				firstMondayOrNonHolidayAfter := getFirstMondayOrNonHolidayAfter(time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC), u.Clock)
+				firstMondayOrNonHolidayAfter := getFirstMondayOrNonHolidayAfter(time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC))
 				todayIsAfterPostingDate := !firstMondayOrNonHolidayAfter.After(currentDate)
 				if todayIsAfterPostingDate {
 					err := errors.Errorf("Expected data, but no fuel data available for %v %v", time.Month(month), year)
@@ -311,10 +310,10 @@ func intInSlice(a int, list []int) bool {
 	return false
 }
 
-func getFirstMondayOrNonHolidayAfter(date time.Time, clock clock.Clock) time.Time {
+func getFirstMondayOrNonHolidayAfter(firstDateOfMonth time.Time) time.Time {
 	// loop through days of month until you hit a non-holiday Monday or first workday after
 	cal := dates.NewUSCalendar()
-	dayToCheck := now.New(date).BeginningOfMonth()
+	dayToCheck := firstDateOfMonth
 	isWorkMondayOrNonHolidayAfter := false
 
 	for isWorkMondayOrNonHolidayAfter == false {
