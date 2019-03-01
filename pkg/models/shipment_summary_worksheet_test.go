@@ -235,7 +235,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 
 	suite.Equal("01 - HHG (GBL)\n\n02 - PPM", sswPage1.ShipmentNumberAndTypes)
 	suite.Equal("11-Jan-2019\n\n11-Jan-2019", sswPage1.ShipmentPickUpDates)
-	suite.Equal("5,000 lbs - FINAL\n\n", sswPage1.ShipmentWeights)
+	suite.Equal("5,000 lbs - FINAL\n\n4,000 lbs - FINAL", sswPage1.ShipmentWeights)
 	suite.Equal("Delivered\n\nAt destination", sswPage1.ShipmentCurrentShipmentStatuses)
 
 	suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
@@ -516,4 +516,13 @@ func (suite *ModelSuite) TestFormatServiceMemberAffiliation() {
 
 	suite.Equal("Air Force", models.FormatServiceMemberAffiliation(&airForce))
 	suite.Equal("Marines", models.FormatServiceMemberAffiliation(&marines))
+}
+
+func (suite *ModelSuite) TestFormatPPMWeight() {
+	var pounds int64 = 1000
+	ppm := models.PersonallyProcuredMove{NetWeight: &pounds}
+	noWtg := models.PersonallyProcuredMove{NetWeight: nil}
+
+	suite.Equal("1,000 lbs - FINAL", models.FormatPPMWeight(ppm))
+	suite.Equal("", models.FormatPPMWeight(noWtg))
 }
