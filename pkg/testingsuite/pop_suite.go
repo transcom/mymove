@@ -21,37 +21,48 @@ type PopTestSuite struct {
 	db *pop.Connection
 }
 
-func cloneDatabase(source, destination string) error {
+func commandWithDefaults(command string, args ...string) *exec.Cmd {
 	port := envy.MustGet("DB_PORT")
+	defaults := []string{"-U", "postgres", "-h", "localhost", "-p", port}
+
+	arguments := append(defaults, args...)
 
 	// #nosec G204
-	drop := exec.Command("dropdb", "-U", "postgres", "-h", "localhost", "-p", port, "--if-exists", destination)
+	return exec.Command(command, arguments...)
+}
 
-	if op, err := drop.CombinedOutput(); err != nil {
-		return errors.Wrapf(err, "failed to drop the database %s: %s", destination, op)
-	}
-	// #nosec G204
-	create := exec.Command("createdb", "-U", "postgres", "-h", "localhost", "-p", port, destination)
-
-	if op, err := create.CombinedOutput(); err != nil {
-		return errors.Wrapf(err, "failed to create the database %s: %s", destination, op)
-	}
-
-	// #nosec G204
-	dump := exec.Command("pg_dump", "-U", "postgres", "-h", "localhost", "-p", port, "-F", "c", source)
-	dumpErr := bytes.Buffer{}
-	dump.Stderr = &dumpErr
-	out, err := dump.Output()
+func runCommand(cmd *exec.Cmd, desc string) ([]byte, error) {
+	cmdErr := bytes.Buffer{}
+	cmd.Stderr = &cmdErr
+	out, err := cmd.Output()
 	if err != nil {
-		return errors.Wrapf(err, "failed to dump the database %s: %s %s", source, string(out), dumpErr.String())
+		return nil, errors.Wrapf(err, "failed to %s: ran %s; got %s", desc, string(out), cmdErr.String())
+	}
+	return out, nil
+}
+
+func cloneDatabase(source, destination string) error {
+	drop := commandWithDefaults("dropdb", "--if-exists", destination)
+	if _, err := runCommand(drop, "drop the database"); err != nil {
+		return err
 	}
 
-	// #nosec G204
-	restore := exec.Command("pg_restore", "-U", "postgres", "-h", "localhost", "-p", port, "-d", destination)
+	create := commandWithDefaults("createdb", destination)
+	if _, err := runCommand(create, "create the database"); err != nil {
+		return err
+	}
+
+	dump := commandWithDefaults("pg_dump", "-F", "c", source)
+	out, dumpErr := runCommand(dump, "dump the database")
+	if dumpErr != nil {
+		return dumpErr
+	}
+
+	restore := commandWithDefaults("pg_restore", "-d", destination)
 	restore.Stdin = bytes.NewReader(out)
 
-	if op, err := restore.CombinedOutput(); err != nil {
-		return errors.Wrapf(err, "failed to run the restore cmd: %s", op)
+	if _, err := runCommand(restore, "run the restore cmd"); err != nil {
+		return dumpErr
 	}
 
 	return nil
@@ -82,7 +93,6 @@ func CurrentPackage() PackageName {
 
 // NewPopTestSuite returns a new PopTestSuite
 func NewPopTestSuite(packageName PackageName) PopTestSuite {
-	//pop.Debug = true
 	dbName := fmt.Sprintf("test_%s", strings.Replace(packageName.String(), "/", "_", -1))
 	log.Printf("package %s is attempting to connect to database %s", packageName.String(), dbName)
 
@@ -103,11 +113,6 @@ func NewPopTestSuite(packageName PackageName) PopTestSuite {
 		log.Panic(err)
 	}
 	err = db.Open()
-	if err != nil {
-		log.Panic(err)
-	}
-
-	err = db.RawQuery("SELECT 1;").Exec()
 	if err != nil {
 		log.Panic(err)
 	}
