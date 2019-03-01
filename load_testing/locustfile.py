@@ -49,7 +49,7 @@ class UserBehavior(TaskSequence):
             print(resp.content)
 
     @seq_task(2)
-    def retriever_user(self):
+    def retrieve_user(self):
         resp = self.client.get("/internal/users/logged_in")
         self.user = resp.json()
         # check response for 200
