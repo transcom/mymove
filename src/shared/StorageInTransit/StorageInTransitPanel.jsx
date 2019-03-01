@@ -88,10 +88,7 @@ function mapStateToProps(state, ownProps) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { createStorageInTransit /*deleteSitRequest, approveSitRequest, updateSitRequest*/ },
-    dispatch,
-  );
+  return bindActionCreators({ createStorageInTransit }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(StorageInTransitPanel);
