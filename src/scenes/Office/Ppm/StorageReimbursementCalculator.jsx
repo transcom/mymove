@@ -67,16 +67,8 @@ export class StorageReimbursementCalculator extends Component {
     this.reset();
   }
   calculate = values => {
-    const {
-      pickup_postal_code,
-      destination_postal_code,
-      days_in_storage,
-      weight,
-      actual_move_date,
-      original_move_date,
-    } = values;
-    const moveDate = actual_move_date || original_move_date;
-    this.props.getPpmSitEstimate(moveDate, days_in_storage, pickup_postal_code, destination_postal_code, weight);
+    const { pickup_postal_code, destination_postal_code, days_in_storage, weight, move_date } = values;
+    this.props.getPpmSitEstimate(move_date, days_in_storage, pickup_postal_code, destination_postal_code, weight);
   };
 
   render() {
