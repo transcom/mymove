@@ -47,7 +47,7 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	dateToTest := time.Date(2010, time.January, 12, 0, 0, 0, 0, time.UTC) // first Mon 1/2010 is 4th
 	timeDiff := dateToTest.Sub(testClock.Now())
 	testClock.Add(timeDiff)
-	currentDate := testClock.Now()
+	currentDate := testClock.Now().UTC()
 	// create fuel prices in db for last 15 months
 	for month := 0; month < 15; month++ {
 		var shipmentDate time.Time
@@ -73,7 +73,7 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	// Test case where there is no data yet available for the current month (nor expected).
 	prePubDateTestClock := clock.NewMock()
 	dateToTest = time.Date(2010, time.January, 2, 0, 0, 0, 0, time.UTC) // first Mon 1/2010 is 4th
-	timeDiff = dateToTest.Sub(prePubDateTestClock.Now())
+	timeDiff = dateToTest.Sub(prePubDateTestClock.Now().UTC())
 	prePubDateTestClock.Add(timeDiff)
 	dieselFuelPriceStorer := NewDieselFuelPriceStorer(suite.DB(), prePubDateTestClock, mockedFetchFuelPriceData, "", "No data available yet this month")
 	verrs, err := dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)

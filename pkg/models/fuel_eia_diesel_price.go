@@ -45,9 +45,9 @@ func (f FuelEIADieselPrices) String() string {
 
 // FetchMostRecentFuelPrices queries and fetches all fuel_eia_diesel_prices for past specified number of months, including this month
 func FetchMostRecentFuelPrices(dbConnection *pop.Connection, clock clock.Clock, numMonths int) ([]FuelEIADieselPrice, error) {
-	today := clock.Now()
+	today := clock.Now().UTC()
 
-	query := dbConnection.Where("pub_date >= $1 AND pub_date <= $2", today.AddDate(0, -numMonths, 0), today)
+	query := dbConnection.Where("pub_date BETWEEN $1 AND $2", today.AddDate(0, -numMonths, 0), today)
 
 	var fuelPrices []FuelEIADieselPrice
 	err := query.Eager().All(&fuelPrices)
