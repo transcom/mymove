@@ -659,7 +659,7 @@ func checkGEX(v *viper.Viper) error {
 func checkEIAKey(v *viper.Viper) error {
 	eiaKey := v.GetString("eia-key")
 	if len(eiaKey) != 32 {
-		return fmt.Errorf("eia key is not 32 characters key is %d chars", len(eiaKey))
+		return fmt.Errorf("expected eia key to be 32 characters long; key is %d chars", len(eiaKey))
 	}
 	return nil
 }
