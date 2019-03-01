@@ -292,6 +292,10 @@ server_test: server_deps server_generate db_test_reset db_test_migrate
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	DB_PORT=$(DB_PORT_TEST) go test -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
+server_test_build:
+	# Try to compile tests, but don't run them.
+	go test -run=nope $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+
 server_test_all: server_deps server_generate db_dev_reset db_dev_migrate
 	# Like server_test but runs extended tests that may hit external services.
 	DB_PORT=$(DB_PORT_TEST) go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
