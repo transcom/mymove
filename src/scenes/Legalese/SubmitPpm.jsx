@@ -6,13 +6,14 @@ import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
 import { loadCertificationText, signAndSubmitPpm } from './ducks';
 import { isHHGPPMComboMove } from 'scenes/Moves/Ppm/ducks';
+import { selectGetCurrentUserIsSuccess } from 'shared/Data/users';
 
 const formName = 'signature-form';
 
 function mapStateToProps(state) {
   return {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateSignedCertificationPayload', {}),
-    hasLoggedInUser: state.loggedInUser.hasSucceeded,
+    hasLoggedInUser: selectGetCurrentUserIsSuccess(state),
     values: getFormValues(formName)(state),
     ...state.signedCertification,
     has_sit: get(state.ppm, 'currentPpm.has_sit', false),

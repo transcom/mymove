@@ -51,7 +51,7 @@ type Session struct {
 	ServiceMemberID uuid.UUID
 	OfficeUserID    uuid.UUID
 	TspUserID       uuid.UUID
-	Features        []Feature
+	DpsUserID       uuid.UUID
 }
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data
@@ -82,13 +82,7 @@ func (s *Session) IsTspUser() bool {
 	return s.TspUserID != uuid.Nil
 }
 
-// CanAccessFeature checks whether or not the authenticated user can access
-// a specific feature
-func (s *Session) CanAccessFeature(feature Feature) bool {
-	for _, f := range s.Features {
-		if f == feature {
-			return true
-		}
-	}
-	return false
+// IsDpsUser checks whether the authenticated user is a DpsUser
+func (s *Session) IsDpsUser() bool {
+	return s.DpsUserID != uuid.Nil
 }

@@ -328,12 +328,15 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 }
 
 func createTariffDataForRateEngine(db *pop.Connection, shipment models.Shipment) {
+	weightLower := unit.Pound(shipment.NetWeight.Int() - 100)
+	weightUpper := unit.Pound(shipment.NetWeight.Int() + 100)
+
 	// $4861 is the cost for a 2000 pound move traveling 1044 miles (90210 to 80011).
 	baseLinehaul := models.Tariff400ngLinehaulRate{
 		DistanceMilesLower: 1001,
 		DistanceMilesUpper: 1101,
-		WeightLbsLower:     2000,
-		WeightLbsUpper:     2100,
+		WeightLbsLower:     weightLower,
+		WeightLbsUpper:     weightUpper,
 		RateCents:          386400,
 		Type:               "ConusLinehaul",
 		EffectiveDateLower: PerformancePeriodStart,
@@ -373,8 +376,8 @@ func createTariffDataForRateEngine(db *pop.Connection, shipment models.Shipment)
 
 	fullPackRate := models.Tariff400ngFullPackRate{
 		Schedule:           sa1.ServicesSchedule,
-		WeightLbsLower:     0,
-		WeightLbsUpper:     16001,
+		WeightLbsLower:     weightLower,
+		WeightLbsUpper:     weightUpper,
 		RateCents:          6714,
 		EffectiveDateLower: PerformancePeriodStart,
 		EffectiveDateUpper: PerformancePeriodEnd,
@@ -388,6 +391,28 @@ func createTariffDataForRateEngine(db *pop.Connection, shipment models.Shipment)
 		EffectiveDateUpper: PerformancePeriodEnd,
 	}
 	mustSave(db, &fullUnpackRate)
+
+	// Set up item rates for SIT-related charges
+	itemRate210A := models.Tariff400ngItemRate{
+		Code:               "210A",
+		Schedule:           &sa2.SITPDSchedule,
+		WeightLbsLower:     weightLower,
+		WeightLbsUpper:     weightUpper,
+		RateCents:          unit.Cents(57600),
+		EffectiveDateLower: PerformancePeriodStart,
+		EffectiveDateUpper: PerformancePeriodEnd,
+	}
+	mustSave(db, &itemRate210A)
+	itemRate225A := models.Tariff400ngItemRate{
+		Code:               "225A",
+		Schedule:           &sa2.ServicesSchedule,
+		WeightLbsLower:     weightLower,
+		WeightLbsUpper:     weightUpper,
+		RateCents:          unit.Cents(9900),
+		EffectiveDateLower: PerformancePeriodStart,
+		EffectiveDateUpper: PerformancePeriodEnd,
+	}
+	mustSave(db, &itemRate225A)
 
 	// Set up item codes
 	codeLHS := models.Tariff400ngItem{

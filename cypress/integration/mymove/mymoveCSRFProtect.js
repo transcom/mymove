@@ -38,6 +38,11 @@ describe('testing CSRF protection updating user profile', function() {
 
     // update info
     cy
+      .get('select[name=affiliation]')
+      .should('exist')
+      .should('have.value', 'ARMY');
+
+    cy
       .get('input[name="middle_name"]')
       .clear()
       .type('CSRF Test')

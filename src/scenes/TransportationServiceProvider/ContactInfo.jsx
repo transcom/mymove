@@ -11,7 +11,6 @@ export class TransportationServiceProviderContactInfo extends Component {
   componentDidMount() {
     const shipmentId = this.props.shipmentId;
     this.props.getTspForShipment(shipmentId);
-    this.props.getPublicShipment(shipmentId);
   }
 
   render() {

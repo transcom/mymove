@@ -12,7 +12,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -127,12 +126,6 @@ func (suite *BaseHandlerTestSuite) AuthenticateRequest(req *http.Request, servic
 		ServiceMemberID: serviceMember.ID,
 		Email:           serviceMember.User.LoginGovEmail,
 	}
-	features, err := authentication.GetAllowedFeatures(suite.DB(), session)
-	if err != nil {
-		suite.logger.Fatal("Error determining features user has access to", zap.Error(err))
-	}
-	session.Features = features
-
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)
 }
@@ -167,6 +160,18 @@ func (suite *BaseHandlerTestSuite) AuthenticateTspRequest(req *http.Request, use
 		UserID:          *user.UserID,
 		IDToken:         "fake token",
 		TspUserID:       user.ID,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	return req.WithContext(ctx)
+}
+
+// AuthenticateDpsRequest authenticates TSP users
+func (suite *BaseHandlerTestSuite) AuthenticateDpsRequest(req *http.Request, serviceMember models.ServiceMember, dpsUser models.DpsUser) *http.Request {
+	session := auth.Session{
+		ApplicationName: auth.MilApp,
+		UserID:          serviceMember.UserID,
+		IDToken:         "fake token",
+		DpsUserID:       dpsUser.ID,
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)

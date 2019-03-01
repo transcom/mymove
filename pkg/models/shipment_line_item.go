@@ -100,6 +100,25 @@ func (s *ShipmentLineItem) BeforeDestroy(tx *pop.Connection) error {
 	return nil
 }
 
+// AfterDestroy also destroys associated items in the dimensions table, if they exist
+func (s *ShipmentLineItem) AfterDestroy(tx *pop.Connection) error {
+
+	if s.ItemDimensionsID != nil {
+		err := tx.Destroy(&s.ItemDimensions)
+		if err != nil {
+			return ErrDestroyForbidden
+		}
+	}
+	if s.CrateDimensionsID != nil {
+		err := tx.Destroy(&s.CrateDimensions)
+		if err != nil {
+			return ErrDestroyForbidden
+		}
+	}
+
+	return nil
+}
+
 // FetchLineItemsByShipmentID returns a list of line items by shipment_id
 func FetchLineItemsByShipmentID(dbConnection *pop.Connection, shipmentID *uuid.UUID) ([]ShipmentLineItem, error) {
 	var err error

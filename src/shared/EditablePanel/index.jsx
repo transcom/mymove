@@ -144,6 +144,7 @@ export class EditablePanel extends Component {
       {
         'is-editable': this.props.isEditable,
       },
+      this.props.title.toLowerCase(),
       this.props.className,
     );
 
