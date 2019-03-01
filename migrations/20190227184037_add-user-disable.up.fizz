@@ -1,4 +1,3 @@
-add_column("users", "disabled", "bool", {"null": false })
+add_column("users", "disabled", "bool", {"default": false })
 
 sql("UPDATE users SET disabled = true WHERE id = '5d5136c7-f004-4de1-abfc-475ae6bf34a9';")
-sql("UPDATE users SET disabled = true WHERE id = '8db5b39f-2b71-4be4-bc75-c17ce964d8e3 ';")
