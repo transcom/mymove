@@ -667,7 +667,7 @@ func checkEIAKey(v *viper.Viper) error {
 func checkEIAURL(v *viper.Viper) error {
 	eiaURL := v.GetString("eia-url")
 	if eiaURL != "https://api.eia.gov/series/" {
-		return fmt.Errorf("eia url not correct as %s", eiaURL)
+		return fmt.Errorf("invalid eia url %s, expecting https://api.eia.gov/series/", eiaURL)
 	}
 	return nil
 }
