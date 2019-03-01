@@ -3,12 +3,14 @@ package paperwork
 import (
 	"bytes"
 	"fmt"
+	"io"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+
 	"github.com/transcom/mymove/pkg/assets"
 	paperworkforms "github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services"
-	"io"
 )
 
 // Storer is an interface for FileStorer

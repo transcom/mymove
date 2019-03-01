@@ -1,12 +1,13 @@
 package models
 
 import (
+	"strings"
+	"time"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
-	"strings"
-	"time"
 )
 
 // TspUser is someone who works for a Transportation Service Provider

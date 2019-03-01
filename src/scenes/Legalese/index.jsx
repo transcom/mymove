@@ -6,6 +6,7 @@ import { push } from 'react-router-redux';
 import PropTypes from 'prop-types';
 import { getFormValues } from 'redux-form';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
+import { selectGetCurrentUserIsSuccess } from 'shared/Data/users';
 import CertificationText from './CertificationText';
 import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -145,7 +146,7 @@ SignedCertification.propTypes = {
 function mapStateToProps(state) {
   return {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateSignedCertificationPayload', {}),
-    hasLoggedInUser: state.loggedInUser.hasSucceeded,
+    hasLoggedInUser: selectGetCurrentUserIsSuccess(state),
     values: getFormValues(formName)(state),
     ...state.signedCertification,
     has_sit: get(state.ppm, 'currentPpm.has_sit', false),

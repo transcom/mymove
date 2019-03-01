@@ -9,7 +9,7 @@ describe('office user uses incentive calculator', () => {
     // Click on PPM tab
     cy.get('.incentive-calc').within(() => {
       cy
-        .get('input[name="planned_move_date"]')
+        .get('input[name="move_date"]')
         .first()
         .clear()
         .type('9/2/2018{enter}')

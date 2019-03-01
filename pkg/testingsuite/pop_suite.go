@@ -3,14 +3,15 @@ package testingsuite
 import (
 	"bytes"
 	"fmt"
-	"github.com/codegangsta/envy/lib"
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
-	"github.com/pkg/errors"
 	"log"
 	"os/exec"
 	"runtime"
 	"strings"
+
+	envy "github.com/codegangsta/envy/lib"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
+	"github.com/pkg/errors"
 )
 
 // PopTestSuite is a suite for testing
@@ -21,21 +22,23 @@ type PopTestSuite struct {
 }
 
 func cloneDatabase(source, destination string) error {
+	port := envy.MustGet("DB_PORT")
+
 	// #nosec G204
-	drop := exec.Command("dropdb", "-U", "postgres", "-h", "localhost", "--if-exists", destination)
+	drop := exec.Command("dropdb", "-U", "postgres", "-h", "localhost", "-p", port, "--if-exists", destination)
 
 	if op, err := drop.CombinedOutput(); err != nil {
 		return errors.Wrapf(err, "failed to drop the database %s: %s", destination, op)
 	}
 	// #nosec G204
-	create := exec.Command("createdb", "-U", "postgres", "-h", "localhost", destination)
+	create := exec.Command("createdb", "-U", "postgres", "-h", "localhost", "-p", port, destination)
 
 	if op, err := create.CombinedOutput(); err != nil {
 		return errors.Wrapf(err, "failed to create the database %s: %s", destination, op)
 	}
 
 	// #nosec G204
-	dump := exec.Command("pg_dump", "-U", "postgres", "-h", "localhost", "-F", "c", source)
+	dump := exec.Command("pg_dump", "-U", "postgres", "-h", "localhost", "-p", port, "-F", "c", source)
 	dumpErr := bytes.Buffer{}
 	dump.Stderr = &dumpErr
 	out, err := dump.Output()
@@ -44,7 +47,7 @@ func cloneDatabase(source, destination string) error {
 	}
 
 	// #nosec G204
-	restore := exec.Command("pg_restore", "-U", "postgres", "-h", "localhost", "-d", destination)
+	restore := exec.Command("pg_restore", "-U", "postgres", "-h", "localhost", "-p", port, "-d", destination)
 	restore.Stdin = bytes.NewReader(out)
 
 	if op, err := restore.CombinedOutput(); err != nil {

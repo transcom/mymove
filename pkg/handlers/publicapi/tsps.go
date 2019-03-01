@@ -2,6 +2,7 @@ package publicapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+
 	tspsop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/tsps"
 	"github.com/transcom/mymove/pkg/handlers"
 )

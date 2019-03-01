@@ -1,10 +1,11 @@
 package publicapi
 
 import (
-	"github.com/transcom/mymove/pkg/paperwork"
-	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
 	"log"
 	"net/http"
+
+	"github.com/transcom/mymove/pkg/paperwork"
+	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
 
 	"github.com/go-openapi/loads"
 

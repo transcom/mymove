@@ -3,12 +3,13 @@ package models
 import (
 	"time"
 
+	"strings"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"strings"
 )
 
 // User is an entity with a registered uuid and email at login.gov
@@ -87,6 +88,7 @@ type UserIdentity struct {
 	TspUserFirstName       *string    `db:"tu_fname"`
 	TspUserLastName        *string    `db:"tu_lname"`
 	TspUserMiddle          *string    `db:"tu_middle"`
+	DpsUserID              *uuid.UUID `db:"du_id"`
 }
 
 // FetchUserIdentity queries the database for information about the logged in user
@@ -105,11 +107,13 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 				tu.id as tu_id,
 				tu.first_name as tu_fname,
 				tu.last_name as tu_lname,
-				tu.middle_initials as tu_middle
+				tu.middle_initials as tu_middle,
+				du.id as du_id
 			FROM users
 			LEFT OUTER JOIN service_members as sm on sm.user_id = users.id
 			LEFT OUTER JOIN office_users as ou on ou.user_id = users.id
 			LEFT OUTER JOIN tsp_users as tu on tu.user_id = users.id
+			LEFT OUTER JOIN dps_users as du on du.login_gov_email = users.login_gov_email
 			WHERE users.login_gov_uuid  = $1`
 	err := db.RawQuery(query, loginGovID).All(&identities)
 	if err != nil {

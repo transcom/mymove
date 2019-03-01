@@ -8,13 +8,14 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 	"github.com/honeycombio/beeline-go"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/auth"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
-	"go.uber.org/zap"
 )
 
 func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {

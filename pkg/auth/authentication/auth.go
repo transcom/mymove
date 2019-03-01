@@ -233,6 +233,10 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			span.AddField("session.service_member_id", session.ServiceMemberID)
 		}
 
+		if userIdentity.DpsUserID != nil {
+			session.DpsUserID = *(userIdentity.DpsUserID)
+		}
+
 		if userIdentity.OfficeUserID != nil {
 			session.OfficeUserID = *(userIdentity.OfficeUserID)
 		} else if session.IsOfficeApp() {
@@ -343,13 +347,6 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session.Features, err = GetAllowedFeatures(h.db, *session)
-	if err != nil {
-		h.logger.Error("Error setting roles", zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
-	}
-
 	h.logger.Info("logged in", zap.Any("session", session))
 
 	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
@@ -397,18 +394,4 @@ func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvid
 		IDToken:     parsedResponse.IDToken,
 	}
 	return &session, err
-}
-
-// GetAllowedFeatures returns a list of features the user has access to
-func GetAllowedFeatures(db *pop.Connection, session auth.Session) ([]auth.Feature, error) {
-	features := []auth.Feature{}
-	isDPSUser, err := models.IsDPSUser(db, session.Email)
-	if err != nil {
-		return features, err
-	}
-
-	if isDPSUser {
-		features = append(features, auth.FeatureDPS)
-	}
-	return features, nil
 }
