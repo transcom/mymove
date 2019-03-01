@@ -36,18 +36,22 @@ func (c PriceShipment) Call(shipment *models.Shipment, price PricingType) (*vali
 	}
 
 	destination := shipment.Move.Orders.NewDutyStation.Address
-	if destination.ID == uuid.Nil {
-		return validate.NewErrors(), errors.New("New duty station address not provided")
+	if shipment.DestinationAddressOnAcceptance != nil {
+		destination = *shipment.DestinationAddressOnAcceptance
 	}
 
-	distanceCalculaton, err := models.NewDistanceCalculation(c.Planner, *origin, destination)
+	if destination.ID == uuid.Nil {
+		return validate.NewErrors(), errors.New("Destination address not provided")
+	}
+
+	distanceCalculation, err := models.NewDistanceCalculation(c.Planner, *origin, destination)
 	if err != nil {
 		return validate.NewErrors(), errors.Wrap(err, "Error creating DistanceCalculation model")
 	}
 
 	// Delivering a shipment is a trigger to populate several shipment line items in the database.  First
 	// calculate charges, then submit the updated shipment record and line items in a DB transaction.
-	shipmentCost, err := c.Engine.HandleRunOnShipment(*shipment, distanceCalculaton)
+	shipmentCost, err := c.Engine.HandleRunOnShipment(*shipment, distanceCalculation)
 	if err != nil {
 		return validate.NewErrors(), err
 	}
@@ -78,7 +82,7 @@ func (c PriceShipment) Call(shipment *models.Shipment, price PricingType) (*vali
 		return validate.NewErrors(), err
 	}
 
-	verrs, err := shipment.SaveShipmentAndPricingInfo(c.DB, lineItems, preApprovals, distanceCalculaton)
+	verrs, err := shipment.SaveShipmentAndPricingInfo(c.DB, lineItems, preApprovals, distanceCalculation)
 	if err != nil || verrs.HasAny() {
 		return verrs, err
 	}

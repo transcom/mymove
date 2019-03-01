@@ -91,17 +91,19 @@ type Shipment struct {
 	EstimatedTransitDays *int64 `json:"estimated_transit_days" db:"estimated_transit_days"` // how many days it will take to get to destination
 
 	// addresses
-	PickupAddressID              *uuid.UUID `json:"pickup_address_id" db:"pickup_address_id"`
-	PickupAddress                *Address   `belongs_to:"address"`
-	HasSecondaryPickupAddress    bool       `json:"has_secondary_pickup_address" db:"has_secondary_pickup_address"`
-	SecondaryPickupAddressID     *uuid.UUID `json:"secondary_pickup_address_id" db:"secondary_pickup_address_id"`
-	SecondaryPickupAddress       *Address   `belongs_to:"address"`
-	HasDeliveryAddress           bool       `json:"has_delivery_address" db:"has_delivery_address"`
-	DeliveryAddressID            *uuid.UUID `json:"delivery_address_id" db:"delivery_address_id"`
-	DeliveryAddress              *Address   `belongs_to:"address"`
-	HasPartialSITDeliveryAddress bool       `json:"has_partial_sit_delivery_address" db:"has_partial_sit_delivery_address"`
-	PartialSITDeliveryAddressID  *uuid.UUID `json:"partial_sit_delivery_address_id" db:"partial_sit_delivery_address_id"`
-	PartialSITDeliveryAddress    *Address   `belongs_to:"address"`
+	PickupAddressID                  *uuid.UUID `json:"pickup_address_id" db:"pickup_address_id"`
+	PickupAddress                    *Address   `belongs_to:"address"`
+	HasSecondaryPickupAddress        bool       `json:"has_secondary_pickup_address" db:"has_secondary_pickup_address"`
+	SecondaryPickupAddressID         *uuid.UUID `json:"secondary_pickup_address_id" db:"secondary_pickup_address_id"`
+	SecondaryPickupAddress           *Address   `belongs_to:"address"`
+	HasDeliveryAddress               bool       `json:"has_delivery_address" db:"has_delivery_address"`
+	DeliveryAddressID                *uuid.UUID `json:"delivery_address_id" db:"delivery_address_id"`
+	DeliveryAddress                  *Address   `belongs_to:"address"`
+	HasPartialSITDeliveryAddress     bool       `json:"has_partial_sit_delivery_address" db:"has_partial_sit_delivery_address"`
+	PartialSITDeliveryAddressID      *uuid.UUID `json:"partial_sit_delivery_address_id" db:"partial_sit_delivery_address_id"`
+	PartialSITDeliveryAddress        *Address   `belongs_to:"address"`
+	DestinationAddressOnAcceptanceID *uuid.UUID `json:"destination_address_on_acceptance_id" db:"destination_address_on_acceptance_id"`
+	DestinationAddressOnAcceptance   *Address   `belongs_to:"address"`
 
 	// weights
 	WeightEstimate              *unit.Pound `json:"weight_estimate" db:"weight_estimate"`
@@ -916,6 +918,16 @@ func AcceptShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.U
 	if err != nil {
 		return shipment, nil, nil, err
 	}
+
+	// by default we should use the address of duty station when a TSP accepts shipment unless actual delivery
+	// shipment address is available at the time
+	destAddOnAcceptance := shipment.Move.Orders.NewDutyStation.Address
+	if shipment.DeliveryAddress != nil {
+		destAddOnAcceptance = *shipment.DeliveryAddress
+	}
+
+	shipment.DestinationAddressOnAcceptance = &destAddOnAcceptance
+	shipment.DestinationAddressOnAcceptanceID = &destAddOnAcceptance.ID
 
 	shipmentOffer, err := FetchShipmentOfferByTSP(db, tspID, shipmentID)
 	if err != nil {
