@@ -69,8 +69,10 @@ const configureNumberField = (swaggerField, props) => {
 // but allow the user to enter in dollars.
 // On first pass, that did not seem straightforward.
 const configureCentsField = (swaggerField, props) => {
-  props.type = 'text';
-  props.validate.push(validator.isNumber);
+  // Cents field IS a decimal field
+  const decimalLength = 2;
+  props = configureDecimalField(swaggerField, props, decimalLength, 'Dollar must be only up to 2 decimal places.');
+  props.prefixInputClassName = 'dollar-sign';
 
   if (swaggerField.maximum != null) {
     props.validate.push(validator.maximum(swaggerField.maximum / 100));
@@ -78,8 +80,6 @@ const configureCentsField = (swaggerField, props) => {
   if (swaggerField.minimum != null) {
     props.validate.push(validator.minimum(swaggerField.minimum / 100));
   }
-
-  props.prefixInputClassName = 'dollar-sign';
 
   return props;
 };
