@@ -101,7 +101,8 @@ func NewPopTestSuite(packageName PackageName) PopTestSuite {
 		log.Panicf("failed to clone database '%s' to '%s': %#v", "testdb", dbName, err)
 	}
 	fmt.Println("success")
-	db, err := pop.NewConnection(&pop.ConnectionDetails{
+
+	conn, err := pop.NewConnection(&pop.ConnectionDetails{
 		Dialect:  "postgres",
 		Database: dbName,
 		Host:     envy.MustGet("DB_HOST"),
@@ -112,12 +113,12 @@ func NewPopTestSuite(packageName PackageName) PopTestSuite {
 	if err != nil {
 		log.Panic(err)
 	}
-	err = db.Open()
-	if err != nil {
+
+	if err := conn.Open(); err != nil {
 		log.Panic(err)
 	}
 
-	return PopTestSuite{db: db, PackageName: packageName}
+	return PopTestSuite{db: conn, PackageName: packageName}
 }
 
 // DB returns a db connection
