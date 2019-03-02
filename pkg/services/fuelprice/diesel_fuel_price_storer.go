@@ -97,6 +97,7 @@ func (u DieselFuelPriceStorer) StoreFuelPrices(numMonths int) (*validate.Errors,
 		}
 		pricePerGallon := fuelValues.price
 		pubDateString := fuelValues.dateString
+
 		year, err := strconv.Atoi(pubDateString[:4])
 		if err != nil {
 			return verrs, errors.Wrapf(err, "Unable to convert year to integer from %v", pubDateString)
@@ -215,7 +216,7 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 		// select the fuel data for the first week of data available for the month
 		dateString := ""
 		var price float64
-		if len(monthFuelData) > 1 {
+		if len(monthFuelData) >= 1 {
 			weekIndex := 0
 			var min int
 
@@ -234,9 +235,6 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 			}
 			dateString = monthFuelData[weekIndex][0].(string)
 			price = monthFuelData[weekIndex][1].(float64)
-		} else if len(monthFuelData) == 1 {
-			dateString = monthFuelData[0][0].(string)
-			price = monthFuelData[0][1].(float64)
 		} else if len(monthFuelData) == 0 {
 			// Throw error if data should be available but is not
 			if month == int(currentDate.Month()) {
@@ -315,9 +313,13 @@ func getFirstMondayOrNonHolidayAfter(firstDateOfMonth time.Time) time.Time {
 	cal := dates.NewUSCalendar()
 	dayToCheck := firstDateOfMonth
 	isWorkMondayOrNonHolidayAfter := false
+	isFirstMondayOrAfter := false
 
 	for isWorkMondayOrNonHolidayAfter == false {
-		if dayToCheck.Weekday() == time.Monday && cal.IsWorkday(dayToCheck) {
+		if dayToCheck.Weekday() == time.Monday {
+			isFirstMondayOrAfter = true
+		}
+		if isFirstMondayOrAfter && cal.IsWorkday(dayToCheck) {
 			isWorkMondayOrNonHolidayAfter = true
 		} else {
 			dayToCheck = dayToCheck.AddDate(0, 0, 1)

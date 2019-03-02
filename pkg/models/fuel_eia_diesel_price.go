@@ -49,7 +49,7 @@ func FetchMostRecentFuelPrices(dbConnection *pop.Connection, clock clock.Clock, 
 
 	query := dbConnection.Where("pub_date BETWEEN $1 AND $2", today.AddDate(0, -numMonths, 0), today)
 
-	var fuelPrices []FuelEIADieselPrice
+	var fuelPrices FuelEIADieselPrices
 	err := query.Eager().All(&fuelPrices)
 
 	if err != nil {
