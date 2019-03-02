@@ -10,6 +10,9 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 )
 
