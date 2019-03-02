@@ -1,7 +1,7 @@
 import { get, every, isNull, isNumber } from 'lodash';
 import { CreatePpm, UpdatePpm, GetPpm, GetPpmWeightEstimate, GetPpmSitEstimate, RequestPayment } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
-import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
+import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive } from 'shared/utils';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCents } from 'shared/formatters';

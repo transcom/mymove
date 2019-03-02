@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import IdleTimer from 'react-idle-timer';
 import { isProduction } from 'shared/constants';
 import Alert from 'shared/Alert';
+import { selectCurrentUser } from 'shared/Data/users';
 
 const fifteenMinutesInMilliseconds = 900000;
 const tenMinutesInMilliseconds = 600000;
@@ -80,8 +81,9 @@ LogoutOnInactivity.propTypes = {
 };
 
 const mapStateToProps = state => {
+  const user = selectCurrentUser(state);
   return {
-    isLoggedIn: state.user.isLoggedIn,
+    isLoggedIn: user.isLoggedIn,
   };
 };
 export default connect(mapStateToProps)(LogoutOnInactivity);

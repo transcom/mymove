@@ -2,7 +2,8 @@ import {
   fillAndSavePreApprovalRequest,
   editPreApprovalRequest,
   deletePreApprovalRequest,
-} from '../../support/testCreatePreApprovalRequest';
+} from '../../support/preapprovals/testCreateRequest';
+import { addOriginal105, add105 } from '../../support/preapprovals/test105be';
 
 /* global cy */
 describe('TSP user interacts with pre approval request panel', function() {
@@ -17,6 +18,12 @@ describe('TSP user interacts with pre approval request panel', function() {
   });
   it('TSP user deletes pre approval request', function() {
     tspUserDeletesPreApprovalRequest();
+  });
+  it('TSP user creates origional 105B request', function() {
+    test105beOriginal();
+  });
+  it('TSP user creates 105B request', function() {
+    test105be();
   });
 });
 
@@ -77,4 +84,41 @@ function tspUserDeletesPreApprovalRequest() {
     .get('.pre-approval-panel td')
     .first()
     .should('not.contain', 'Bulky Article: Motorcycle/Rec vehicle');
+}
+
+function test105beOriginal() {
+  cy.setFeatureFlag('robustAccessorial=false');
+  cy.selectQueueItemMoveLocator('DATESP');
+
+  addOriginal105({ code: '105B', quantity1: 12 });
+  cy.get('td[data-cy="105B-default-details"]').should(td => {
+    const text = td.text();
+    expect(text).to.include('12.0000 notes notes 105B');
+  });
+
+  addOriginal105({ code: '105E', quantity1: 90 });
+  cy.get('td[data-cy="105E-default-details"]').should(td => {
+    const text = td.text();
+    expect(text).to.include('90.0000 notes notes 105E');
+  });
+}
+
+function test105be() {
+  cy.selectQueueItemMoveLocator('DATESP');
+
+  add105({ code: '105B', itemSize: 30, crateSize: 25 });
+  cy.get('td[data-cy="105B-details"]').should(td => {
+    const text = td.text();
+    expect(text).to.include(
+      'description description 105B Crate: 25" x 25" x 25" (9.04 cu ft) Item: 30" x 30" x 30" notes notes',
+    );
+  });
+
+  add105({ code: '105E', itemSize: 40, crateSize: 50 });
+  cy.get('td[data-cy="105E-details"]').should(td => {
+    const text = td.text();
+    expect(text).to.include(
+      'description description 105E Crate: 50" x 50" x 50" (72.33 cu ft) Item: 40" x 40" x 40" notes notes',
+    );
+  });
 }
