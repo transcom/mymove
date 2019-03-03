@@ -37,17 +37,11 @@ type EiaSeriesData struct {
 	Data [][]interface{} `json:"data"`
 }
 
-// EiaOtherData captures data that isn't request or series data
-type EiaOtherData struct {
-	Error       string `json:"error"`
-	UnknownInfo map[string]interface{}
-}
-
 // EiaData captures entirety of desired returned JSON
 type EiaData struct {
-	RequestData EiaRequestData  `json:"request"`
-	OtherData   EiaOtherData    `json:"data"`
-	SeriesData  []EiaSeriesData `json:"series"`
+	RequestData EiaRequestData         `json:"request"`
+	OtherData   map[string]interface{} `json:"data"`
+	SeriesData  []EiaSeriesData        `json:"series"`
 }
 
 // FetchFuelData is a function for returning fuel data
@@ -97,22 +91,14 @@ func (u DieselFuelPriceStorer) StoreFuelPrices(numMonths int) (*validate.Errors,
 		}
 		pricePerGallon := fuelValues.price
 		pubDateString := fuelValues.dateString
+		pubDateFormatString := pubDateString[:4] + "-" + pubDateString[4:6] + "-" + pubDateString[6:] + "T00:00:00Z"
+		pubDate, err := time.Parse(time.RFC3339, pubDateFormatString)
+		if err != nil {
+			return verrs, errors.Wrap(err, "unable to convert pubDate datestring to date")
+		}
+		year := pubDate.Year()
+		month := pubDate.Month()
 
-		year, err := strconv.Atoi(pubDateString[:4])
-		if err != nil {
-			return verrs, errors.Wrapf(err, "Unable to convert year to integer from %v", pubDateString)
-		}
-		monthInt, err := strconv.Atoi(pubDateString[4:6])
-		if err != nil {
-			return verrs, errors.Wrapf(err, "Unable to convert month to integer from %v", pubDateString)
-		}
-		month := time.Month(monthInt)
-		day, err := strconv.Atoi(pubDateString[6:])
-		if err != nil {
-			return verrs, errors.Wrapf(err, "Unable to convert day to integer from %v", pubDateString)
-		}
-
-		pubDate := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		startDate := time.Date(year, month, 15, 0, 0, 0, 0, time.UTC)
 		endDate := time.Date(year, month+1, 14, 0, 0, 0, 0, time.UTC)
 		baselineRate, err := u.calculateFuelSurchargeBaselineRate(pricePerGallon)
@@ -204,9 +190,10 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 		}
 
 		// handle all possible responses
-		if len(result.OtherData.Error) != 0 {
-			return nil, errors.New(result.OtherData.Error)
-		} else if len(result.OtherData.UnknownInfo) != 0 {
+		if len(result.OtherData) != 0 {
+			if result.OtherData["error"] == 1 {
+				return nil, errors.New(result.OtherData["error"].(string))
+			}
 			return nil, errors.New("Unexpected response from GET request to eia.gov's open data")
 		} else if len(result.SeriesData) == 0 {
 			return nil, errors.New("GET request to eia.gov's open data was unsuccessful")

@@ -42,7 +42,6 @@ func TestFuelPriceSuite(t *testing.T) {
 }
 
 func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
-
 	testClock := clock.NewMock()
 	dateToTest := time.Date(2010, time.January, 12, 0, 0, 0, 0, time.UTC) // first Mon 1/2010 is 4th
 	timeDiff := dateToTest.Sub(testClock.Now())
@@ -88,6 +87,16 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 
 	// Test case where there is no data for a given month (but should be)
 	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), testClock, mockedFetchFuelPriceData, "", "Data missing but expected")
+	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
+	suite.Error(err)
+
+	// Test case where there is no data for a given month (but should be) and the first Monday is a holiday
+	postMonHolidayTestClock := clock.NewMock()
+	dateToTest = time.Date(2018, time.September, 5, 0, 0, 0, 0, time.UTC) // Labor Day Mon 3/3
+	timeDiff = dateToTest.Sub(postMonHolidayTestClock.Now().UTC())
+	postMonHolidayTestClock.Add(timeDiff)
+
+	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), postMonHolidayTestClock, mockedFetchFuelPriceData, "", "Data missing but expected")
 	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
 	suite.Error(err)
 
@@ -191,17 +200,15 @@ func mockedFetchFuelPriceData(url string) (data EiaData, err error) {
 	}
 	if re.MatchString("Error") {
 		return EiaData{
-			OtherData: EiaOtherData{
-				Error: "error message",
+			OtherData: map[string]interface{}{
+				"error": "error message",
 			},
 		}, nil
 	}
 	if re.MatchString("Unexpected response") {
 		return EiaData{
-			OtherData: EiaOtherData{
-				//UnknownInfo: []string{
-				//	"some sort of response"
-				//}
+			OtherData: map[string]interface{}{
+				"rogueInfo": "Unexpected response from api",
 			},
 		}, nil
 	}
