@@ -1,15 +1,31 @@
-#!/bin/bash
+#! /usr/bin/env bash
+#
+#   check-deployed-commit checks that the deployed commit and given commit match.
+#
 set -euo pipefail
 
-HOSTS=$1
-TARGET_COMMIT=$2
+usage() {
+    echo "$0 <hosts> <commit> [<key> <cert> <ca>]"
+    exit 1
+}
+[[ -z $1 || -z $2 ]] && usage
+
+hosts=$1
+target_commit=$2
+nargs=$#
 
 # shellcheck disable=SC2001
-for host in $(echo "$HOSTS" | sed "s/,/ /g")
+for host in $(echo "$hosts" | sed "s/,/ /g")
 do
-    DEPLOYED_COMMIT=$(curl "https://${host}/health" | jq -r .gitCommit)
-    if [[ "$DEPLOYED_COMMIT" != "$TARGET_COMMIT" ]]; then
-      echo "On host $host, the commit returned from the health check does not match what we expected to have deployed. Found: $DEPLOYED_COMMIT, Expected: $TARGET_COMMIT."
+    deployed_commit=""
+    # If
+    if [[ "$nargs" -eq 5 ]]; then
+      deployed_commit=$(curl -vk --key <(echo "$3" | base64 --decode) --cert <(echo "$4" | base64 --decode) --cacert <(echo "$5" | base64 --decode) "https://$host/health"  | jq -r .gitCommit)
+    else
+      deployed_commit=$(curl "https://$host/health" | jq -r .gitCommit)
+    fi
+    if [[ "$deployed_commit" != "$target_commit" ]]; then
+      echo "On host $host, the commit returned from the health check does not match what we expected to have deployed. Found: $deployed_commit, Expected: $target_commit."
       exit 1
     fi
 done

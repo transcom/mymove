@@ -1,13 +1,14 @@
-#!/bin/bash
+#! /usr/bin/env bash
 
 set -eu -o pipefail
 
 db_password="mysecretpassword"
+db_port="${DB_PORT:-5432}"
 
 command="${*:-}"
 
 if [ -n "${command[*]}" ]; then
-  exec psql --variable "ON_ERROR_STOP=1" postgres://postgres:"${db_password}"@localhost/"${DB_NAME}" -c "${command}"
+  exec psql --variable "ON_ERROR_STOP=1" postgres://postgres:"${db_password}"@localhost:"${db_port}"/"${DB_NAME}" -c "${command}"
 else
-  exec psql --variable "ON_ERROR_STOP=1" postgres://postgres:"${db_password}"@localhost/"${DB_NAME}"
+  exec psql --variable "ON_ERROR_STOP=1" postgres://postgres:"${db_password}"@localhost:"${db_port}"/"${DB_NAME}"
 fi

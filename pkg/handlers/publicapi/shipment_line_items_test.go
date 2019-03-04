@@ -2,6 +2,7 @@ package publicapi
 
 import (
 	"net/http/httptest"
+	"time"
 
 	"github.com/gobuffalo/pop"
 
@@ -28,7 +29,7 @@ func (suite *HandlerSuite) TestGetShipmentLineItemTSPHandler() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
@@ -80,6 +81,44 @@ func (suite *HandlerSuite) TestGetShipmentLineItemOfficeHandler() {
 		HTTPRequest: req,
 		ShipmentID:  strfmt.UUID(acc1.ShipmentID.String()),
 	}
+
+	// And: get shipment is returned
+	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	if suite.Assertions.IsType(&accessorialop.GetShipmentLineItemsOK{}, response) {
+		okResponse := response.(*accessorialop.GetShipmentLineItemsOK)
+
+		// And: Payload is equivalent to original shipment line item
+		suite.Len(okResponse.Payload, 1)
+		suite.Equal(acc1.ID.String(), okResponse.Payload[0].ID.String())
+	}
+}
+
+func (suite *HandlerSuite) TestGetShipmentLineItemRecalculateHandler() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	// Two shipment line items tied to two different shipments
+	acc1 := testdatagen.MakeDefaultShipmentLineItem(suite.DB())
+	testdatagen.MakeDefaultShipmentLineItem(suite.DB())
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("GET", "/shipments", nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	params := accessorialop.GetShipmentLineItemsParams{
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(acc1.ShipmentID.String()),
+	}
+
+	// Create date range
+	recalculateRange := models.ShipmentRecalculate{
+		ShipmentUpdatedAfter:  time.Date(1970, time.January, 01, 0, 0, 0, 0, time.UTC),
+		ShipmentUpdatedBefore: time.Now(),
+		Active:                true,
+	}
+	suite.MustCreate(suite.DB(), &recalculateRange)
 
 	// And: get shipment is returned
 	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
@@ -170,7 +209,7 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItemTSPHandler() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
 	suite.NoError(err)
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
@@ -328,7 +367,7 @@ func (suite *HandlerSuite) TestDeleteShipmentLineItemTSPHandler() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
@@ -366,6 +405,74 @@ func (suite *HandlerSuite) TestDeleteShipmentLineItemTSPHandler() {
 	if suite.Assertions.IsType(&accessorialop.DeleteShipmentLineItemOK{}, response) {
 		// Check if we actually deleted the shipment line
 		err = suite.DB().Find(&shipAcc1, shipAcc1.ID)
+		suite.Error(err)
+	}
+}
+
+func (suite *HandlerSuite) TestDeleteShipmentLineItemCode105BE() {
+
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
+	suite.NoError(err)
+
+	tspUser := tspUsers[0]
+	shipment := shipments[0]
+
+	acc105B := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		ShipmentLineItem: models.ShipmentLineItem{
+			ShipmentID: shipment.ID,
+		},
+		Tariff400ngItem: models.Tariff400ngItem{
+			Code:                "105B",
+			RequiresPreApproval: true,
+		},
+	})
+
+	notes := "It's a giant moose head named Fred he seemed rather pleasant"
+	baseParams := models.BaseShipmentLineItemParams{
+		Tariff400ngItemID:   acc105B.ID,
+		Tariff400ngItemCode: acc105B.Code,
+		Location:            "ORIGIN",
+		Notes:               &notes,
+	}
+	additionalParams := models.AdditionalShipmentLineItemParams{
+		ItemDimensions: &models.AdditionalLineItemDimensions{
+			Length: 100,
+			Width:  100,
+			Height: 100,
+		},
+		CrateDimensions: &models.AdditionalLineItemDimensions{
+			Length: 100,
+			Width:  100,
+			Height: 100,
+		},
+	}
+	// Given: Create 105B preapproval
+	shipmentLineItem, _, err := shipment.CreateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams)
+
+	testdatagen.MakeDefaultShipmentLineItem(suite.DB())
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("DELETE", "/shipments", nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+
+	params := accessorialop.DeleteShipmentLineItemParams{
+		HTTPRequest:        req,
+		ShipmentLineItemID: strfmt.UUID(shipmentLineItem.ID.String()),
+	}
+
+	// And: get shipment is returned
+	handler := DeleteShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code, and Crate Dimensions item should be deleted.
+	if suite.Assertions.IsType(&accessorialop.DeleteShipmentLineItemOK{}, response) {
+		// Check if we actually deleted the shipment line
+		err = suite.DB().Find(&shipmentLineItem.CrateDimensions, shipmentLineItem.CrateDimensions.ID)
 		suite.Error(err)
 	}
 }
@@ -512,7 +619,7 @@ func (suite *HandlerSuite) TestApproveShipmentLineItemHandlerShipmentDelivered()
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusDELIVERED}
-	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
 	suite.NoError(err)
 
 	rateCents := unit.Cents(1000)
@@ -624,7 +731,7 @@ func (suite *HandlerSuite) TestApproveShipmentLineItemTSPUser() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusSUBMITTED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]

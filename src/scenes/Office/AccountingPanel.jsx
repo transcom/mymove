@@ -1,10 +1,11 @@
-import { get, isEmpty } from 'lodash';
+import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues } from 'redux-form';
 
 import { updateOrders, selectOrdersForMove } from 'shared/Entities/modules/orders';
+import { selectMove } from 'shared/Entities/modules/moves';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
@@ -14,13 +15,13 @@ const AccountingDisplay = props => {
     schema: props.ordersSchema,
     values: props.orders,
   };
-  const isRequired = props.isHHG ? true : false;
+  const { sacIsRequired } = props;
   return (
     <React.Fragment>
       <div className="editable-panel-column">
         <PanelSwaggerField title="Department indicator" fieldName="department_indicator" required {...fieldProps} />
 
-        <PanelSwaggerField title="SAC" required={isRequired} fieldName="sac" {...fieldProps} />
+        <PanelSwaggerField title="SAC" required={sacIsRequired} fieldName="sac" {...fieldProps} />
       </div>
       <div className="editable-panel-column">
         <PanelSwaggerField title="TAC" required fieldName="tac" {...fieldProps} />
@@ -30,8 +31,7 @@ const AccountingDisplay = props => {
 };
 
 const AccountingEdit = props => {
-  const { ordersSchema } = props;
-  const isRequired = props.isHHG ? true : false;
+  const { ordersSchema, sacIsRequired } = props;
   return (
     <React.Fragment>
       <div className="editable-panel-column">
@@ -41,7 +41,7 @@ const AccountingEdit = props => {
         <SwaggerField title="TAC" fieldName="tac" swagger={ordersSchema} required />
       </div>
       <div className="editable-panel-column">
-        <SwaggerField title="SAC" fieldName="sac" swagger={ordersSchema} required={isRequired} />
+        <SwaggerField title="SAC" fieldName="sac" swagger={ordersSchema} required={sacIsRequired} />
       </div>
     </React.Fragment>
   );
@@ -57,7 +57,9 @@ AccountingPanel = reduxForm({
 })(AccountingPanel);
 
 function mapStateToProps(state, ownProps) {
-  const orders = selectOrdersForMove(state, ownProps.moveId);
+  const { moveId } = ownProps;
+  const move = selectMove(state, moveId);
+  const orders = selectOrdersForMove(state, moveId);
 
   return {
     // reduxForm
@@ -65,12 +67,8 @@ function mapStateToProps(state, ownProps) {
 
     // Wrapper
     ordersSchema: get(state, 'swaggerInternal.spec.definitions.Orders', {}),
-    hasError: state.office.ordersHaveLoadError || state.office.ordersHaveUpdateError,
-    errorMessage: state.office.error,
-
     orders: orders,
-    isHHG: !isEmpty(get(state, 'office.officeMove.shipments.0', {})),
-    isUpdating: state.office.ordersAreUpdating,
+    sacIsRequired: !move.selected_move_type === 'PPM',
 
     // editablePanelify
     getUpdateArgs: function() {

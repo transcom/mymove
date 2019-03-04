@@ -14,13 +14,13 @@ import { getPpmIncentive, clearPpmIncentive } from './ducks';
 const formName = 'ppm_reimbursement_calc';
 const schema = {
   properties: {
-    planned_move_date: {
+    move_date: {
       type: 'string',
       format: 'date',
       example: '2018-04-26',
       title: 'Move Date',
       'x-nullable': true,
-      'x-always-required': true,
+      'x-always-required': false,
     },
     pickup_postal_code: {
       type: 'string',
@@ -51,8 +51,8 @@ const schema = {
 };
 export class IncentiveCalculator extends Component {
   calculate = values => {
-    const { planned_move_date, pickup_postal_code, destination_postal_code, weight } = values;
-    this.props.getPpmIncentive(planned_move_date, pickup_postal_code, destination_postal_code, weight);
+    const { pickup_postal_code, destination_postal_code, weight, move_date } = values;
+    this.props.getPpmIncentive(move_date, pickup_postal_code, destination_postal_code, weight);
   };
   reset = async () => {
     const { reset, clearPpmIncentive } = this.props;
@@ -78,7 +78,7 @@ export class IncentiveCalculator extends Component {
             )}
 
             <div className="usa-width-one-half">
-              <SwaggerField className="date-field" fieldName="planned_move_date" swagger={this.props.schema} required />
+              <SwaggerField className="date-field" fieldName="move_date" swagger={this.props.schema} required />
               <SwaggerField className="short-field" fieldName="weight" swagger={this.props.schema} required />
             </div>
             <div className="usa-width-one-half">
@@ -154,19 +154,19 @@ IncentiveCalculator.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-  const initialValues = pick(selectPPMForMove(state, ownProps.moveId), [
-    'planned_move_date',
-    'pickup_postal_code',
-    'destination_postal_code',
-  ]);
-  const props = {
+  let ppm = selectPPMForMove(state, ownProps.moveId);
+  let initialValues = pick(ppm, ['pickup_postal_code', 'destination_postal_code']);
+
+  initialValues.move_date = ppm.actual_move_date || ppm.original_move_date;
+  return {
     schema,
     ...state.ppmIncentive,
     initialValues,
   };
-  return props;
 }
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ getPpmIncentive, clearPpmIncentive }, dispatch);
 }
-export default connect(mapStateToProps, mapDispatchToProps)(reduxForm({ form: formName })(IncentiveCalculator));
+export default connect(mapStateToProps, mapDispatchToProps)(
+  reduxForm({ form: formName, enableReinitialize: true, keepDirtyOnReinitialize: true })(IncentiveCalculator),
+);

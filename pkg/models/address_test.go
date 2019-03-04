@@ -2,6 +2,7 @@ package models_test
 
 import (
 	"github.com/go-openapi/swag"
+
 	. "github.com/transcom/mymove/pkg/models"
 )
 

@@ -14,6 +14,8 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/services/invoice"
+	shipmentop "github.com/transcom/mymove/pkg/services/shipment"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -86,6 +88,40 @@ type GetShipmentLineItemsHandler struct {
 	handlers.HandlerContext
 }
 
+func (h GetShipmentLineItemsHandler) recalculateShipmentLineItems(shipmentLineItems models.ShipmentLineItems, shipmentID uuid.UUID, session *auth.Session) (bool, middleware.Responder) {
+	update := false
+
+	// If there is a shipment line item with an invoice do not run the recalculate function
+	// the system is currently not setup to re-price a shipment with an existing invoice
+	// and currently the system does not expect to have multiple invoices per shipment
+	for _, item := range shipmentLineItems {
+		if item.InvoiceID != nil {
+			return update, nil
+		}
+	}
+
+	// Need to fetch Shipment to get the Accepted Offer and the ShipmentLineItems
+	// Only returning ShipmentLineItems that are approved and have no InvoiceID
+	shipment, err := invoice.FetchShipmentForInvoice{DB: h.DB()}.Call(shipmentID)
+	if err != nil {
+		h.Logger().Error("Error fetching Shipment for re-pricing line items for shipment", zap.Error(err))
+		return update, accessorialop.NewGetShipmentLineItemsInternalServerError()
+	}
+
+	// Run re-calculation process
+	update, err = shipmentop.ProcessRecalculateShipment{
+		DB:     h.DB(),
+		Logger: h.Logger(),
+	}.Call(&shipment, shipmentLineItems, h.Planner())
+
+	if err != nil {
+		h.Logger().Error("Error re-pricing line items for shipment", zap.Error(err))
+		return update, accessorialop.NewGetShipmentLineItemsInternalServerError()
+	}
+
+	return update, nil
+}
+
 // Handle returns a specified shipment line item
 func (h GetShipmentLineItemsHandler) Handle(params accessorialop.GetShipmentLineItemsParams) middleware.Responder {
 
@@ -109,6 +145,20 @@ func (h GetShipmentLineItemsHandler) Handle(params accessorialop.GetShipmentLine
 		h.Logger().Error("Error fetching line items for shipment", zap.Error(err))
 		return accessorialop.NewGetShipmentLineItemsInternalServerError()
 	}
+
+	update, recalculateError := h.recalculateShipmentLineItems(shipmentLineItems, shipmentID, session)
+	if recalculateError != nil {
+		return recalculateError
+	}
+	if update {
+		shipmentLineItems, err = models.FetchLineItemsByShipmentID(h.DB(), &shipmentID)
+		if err != nil {
+			h.Logger().Error("Error fetching line items for shipment after re-calculation",
+				zap.Error(err))
+			return accessorialop.NewGetShipmentLineItemsInternalServerError()
+		}
+	}
+
 	payload := payloadForShipmentLineItemModels(shipmentLineItems)
 	return accessorialop.NewGetShipmentLineItemsOK().WithPayload(payload)
 }
@@ -180,6 +230,7 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 			Height: unit.ThousandthInches(*params.Payload.CrateDimensions.Height),
 		}
 	}
+
 	additionalParams := models.AdditionalShipmentLineItemParams{
 		ItemDimensions:  itemDimensions,
 		CrateDimensions: crateDimensions,
@@ -235,29 +286,51 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 
 	tariff400ngItemID := uuid.Must(uuid.FromString(params.Payload.Tariff400ngItemID.String()))
 	tariff400ngItem, err := models.FetchTariff400ngItem(h.DB(), tariff400ngItemID)
+	shipment := shipmentLineItem.Shipment
 
 	if !tariff400ngItem.RequiresPreApproval {
 		return accessorialop.NewUpdateShipmentLineItemForbidden()
 	}
 
-	// update
-	shipmentLineItem.Tariff400ngItemID = tariff400ngItemID
-	shipmentLineItem.Quantity1 = unit.BaseQuantity(*params.Payload.Quantity1)
-	if params.Payload.Quantity2 != nil {
-		shipmentLineItem.Quantity2 = unit.BaseQuantity(*params.Payload.Quantity2)
+	baseParams := models.BaseShipmentLineItemParams{
+		Tariff400ngItemID:   tariff400ngItemID,
+		Tariff400ngItemCode: tariff400ngItem.Code,
+		Quantity1:           unit.IntToBaseQuantity(params.Payload.Quantity1),
+		Quantity2:           unit.IntToBaseQuantity(params.Payload.Quantity2),
+		Location:            string(params.Payload.Location),
+		Notes:               handlers.FmtString(params.Payload.Notes),
+		Description:         params.Payload.Description,
 	}
-	shipmentLineItem.Location = models.ShipmentLineItemLocation(params.Payload.Location)
-	shipmentLineItem.Notes = params.Payload.Notes
 
-	verrs, err := h.DB().ValidateAndUpdate(&shipmentLineItem)
+	var itemDimensions, crateDimensions *models.AdditionalLineItemDimensions
+	if params.Payload.ItemDimensions != nil {
+		itemDimensions = &models.AdditionalLineItemDimensions{
+			Length: unit.ThousandthInches(*params.Payload.ItemDimensions.Length),
+			Width:  unit.ThousandthInches(*params.Payload.ItemDimensions.Width),
+			Height: unit.ThousandthInches(*params.Payload.ItemDimensions.Height),
+		}
+	}
+	if params.Payload.CrateDimensions != nil {
+		crateDimensions = &models.AdditionalLineItemDimensions{
+			Length: unit.ThousandthInches(*params.Payload.CrateDimensions.Length),
+			Width:  unit.ThousandthInches(*params.Payload.CrateDimensions.Width),
+			Height: unit.ThousandthInches(*params.Payload.CrateDimensions.Height),
+		}
+	}
+
+	additionalParams := models.AdditionalShipmentLineItemParams{
+		ItemDimensions:  itemDimensions,
+		CrateDimensions: crateDimensions,
+	}
+
+	verrs, err := shipment.UpdateShipmentLineItem(h.DB(),
+		baseParams,
+		additionalParams,
+		&shipmentLineItem,
+	)
 	if verrs.HasAny() || err != nil {
-		h.Logger().Error("Error updating shipment line item for shipment", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	err = h.DB().Load(&shipmentLineItem)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		h.Logger().Error("Error fetching shipment line items for shipment", zap.Error(err))
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
 	payload := payloadForShipmentLineItemModel(&shipmentLineItem)
@@ -354,7 +427,7 @@ func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipm
 	// If shipment is delivered, price single shipment line item
 	if shipmentLineItem.Shipment.Status == models.ShipmentStatusDELIVERED {
 		shipmentLineItem.Shipment = *shipment
-		engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
+		engine := rateengine.NewRateEngine(h.DB(), h.Logger())
 		err = engine.PricePreapprovalRequest(&shipmentLineItem)
 		if err != nil {
 			return handlers.ResponseForError(h.Logger(), err)

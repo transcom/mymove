@@ -170,7 +170,7 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		return Order{}, err
 	}
 	// TODO: Handle case where more than one user is authorized to modify orders
-	if session.IsMyApp() && order.ServiceMember.ID != session.ServiceMemberID {
+	if session.IsMilApp() && order.ServiceMember.ID != session.ServiceMemberID {
 		return Order{}, ErrFetchForbidden
 	}
 	return order, nil

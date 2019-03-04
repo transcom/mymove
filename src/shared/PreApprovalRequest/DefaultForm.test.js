@@ -1,6 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import { Code105Details } from './Code105Details';
+
+import { DefaultForm } from './DefaultForm';
 
 const simpleSchema = {
   properties: {
@@ -39,12 +40,6 @@ const simpleSchema = {
       type: 'string',
       title: 'Location',
     },
-    description: {
-      type: 'string',
-      format: 'textarea',
-      title: 'Notes',
-      example: 'Mounted deer head',
-    },
     notes: {
       type: 'string',
       title: 'Notes',
@@ -77,13 +72,13 @@ const simpleSchema = {
 };
 
 let wrapper;
-describe('code 105B/E details component', () => {
-  describe('renders', () => {
-    wrapper = shallow(<Code105Details swagger={simpleSchema} />);
+describe('Renders without crashing', () => {
+  describe('Base quantity default details', () => {
+    wrapper = shallow(<DefaultForm ship_line_item_schema={simpleSchema} />);
 
-    it('without crashing', () => {
+    it('renders without crashing', () => {
       // eslint-disable-next-line
-      expect(wrapper.exists('SwaggerField')).toBe(true);
+      expect(wrapper.exists('p')).toBe(true);
     });
   });
 });

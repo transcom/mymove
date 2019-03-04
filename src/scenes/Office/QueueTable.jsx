@@ -6,7 +6,6 @@ import { get } from 'lodash';
 import 'react-table/react-table.css';
 import { RetrieveMovesForOffice } from './api.js';
 import Alert from 'shared/Alert';
-import { selectServiceMemberForMove } from 'shared/Entities/modules/serviceMembers';
 
 class QueueTable extends Component {
   constructor() {
@@ -88,10 +87,9 @@ class QueueTable extends Component {
 
     return (
       <div>
-        {this.props.flashMessage ? (
+        {this.props.showFlashMessage ? (
           <Alert type="success" heading="Success">
-            Move #{this.props.moveLocator} for {this.props.lastName}, {this.props.firstName} has been canceled <br />
-            An email confirmation has been sent to the customer.
+            {this.props.flashMessageLines.join('\n')}
             <br />
           </Alert>
         ) : null}
@@ -151,13 +149,9 @@ class QueueTable extends Component {
 }
 
 const mapStateToProps = state => {
-  const moveId = get(state, 'office.officeMove.id');
-  const serviceMember = selectServiceMemberForMove(state, moveId);
   return {
-    flashMessage: get(state, 'office.flashMessage', false),
-    moveLocator: get(state, 'office.officeMove.locator', 'Unloaded'),
-    firstName: serviceMember.first_name,
-    lastName: serviceMember.last_name,
+    showFlashMessage: get(state, 'flashMessages.display', false),
+    flashMessageLines: get(state, 'flashMessages.messageLines', false),
   };
 };
 

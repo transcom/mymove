@@ -72,7 +72,7 @@ func (s StoreInvoice858C) Call(edi string, invoice *models.Invoice, userID uuid.
 	}
 
 	// Create and save Upload to s3
-	upload, verrs2, err := loader.CreateUploadNoDocument(userID, &f)
+	upload, verrs2, err := loader.CreateUpload(userID, &f, uploader.AllowedTypesText)
 	verrs.Append(verrs2)
 	if err != nil {
 		return verrs, errors.Wrapf(err, "Failed to Create Upload for StoreInvoice858C(), invoice ID: %s", invoiceID)

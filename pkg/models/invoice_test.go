@@ -28,7 +28,7 @@ func (suite *ModelSuite) TestFetchInvoice() {
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []ShipmentStatus{ShipmentStatusDELIVERED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, SelectedMoveTypeHHG)
 	suite.NoError(err)
 
 	shipment := shipments[0]
@@ -81,7 +81,7 @@ func (suite *ModelSuite) TestFetchInvoice() {
 	}
 	// When: Service Member tries to access
 	session = &auth.Session{
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 		UserID:          *authedTspUser.UserID,
 		ServiceMemberID: authedTspUser.ID,
 	}

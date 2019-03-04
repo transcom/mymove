@@ -38,6 +38,7 @@ __snapshots__
 
 /bin/callgraph
 /bin/chamber
+/bin/ecs-service-logs
 /bin/soda
 /bin/golint
 /bin/swagger

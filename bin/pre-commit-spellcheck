@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 # This wrapper exists because mdspell doesn't think that pre-commit supports colors.
 # markdown-spellcheck, the library we're using here, isn't doing a great job

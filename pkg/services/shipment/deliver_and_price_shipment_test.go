@@ -4,20 +4,21 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
-	"go.uber.org/zap"
 )
 
-func (suite *DeliverPriceShipmentSuite) TestUpdateInvoicesCall() {
+func (suite *DeliverPriceShipmentSuite) TestDeliverPriceShipmentCall() {
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusINTRANSIT}
-	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
 	suite.FatalNoError(err)
 
 	shipment := shipments[0]
@@ -40,11 +41,11 @@ func (suite *DeliverPriceShipmentSuite) TestUpdateInvoicesCall() {
 	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
 
 	deliveryDate := testdatagen.DateInsidePerformancePeriod
-	planner := route.NewTestingPlanner(1100)
-	engine := rateengine.NewRateEngine(suite.DB(), suite.logger, planner)
+	engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
 	verrs, err := DeliverAndPriceShipment{
-		DB:     suite.DB(),
-		Engine: engine,
+		DB:      suite.DB(),
+		Engine:  engine,
+		Planner: route.NewTestingPlanner(1044),
 	}.Call(deliveryDate, &shipment)
 
 	suite.FatalNoError(err)

@@ -5,11 +5,14 @@ import { denormalize } from 'normalizr';
 import { get, orderBy, filter, keys } from 'lodash';
 import { createSelector } from 'reselect';
 
-export function createInvoice(label, shipmentId) {
+export const getShipmentInvoicesLabel = 'Shipments.getShipmentInvoices';
+export const createInvoiceLabel = 'Shipments.createAndSendHHGInvoice';
+
+export function createInvoice(shipmentId, label = createInvoiceLabel) {
   return swaggerRequest(getClient, 'shipments.createAndSendHHGInvoice', { shipmentId }, { label });
 }
 
-export function getAllInvoices(label, shipmentId) {
+export function getAllInvoices(shipmentId, label = getShipmentInvoicesLabel) {
   return swaggerRequest(getPublicClient, 'shipments.getShipmentInvoices', { shipmentId }, { label });
 }
 
@@ -27,8 +30,5 @@ const selectInvoices = (state, shipmentId) => {
 export const selectSortedInvoices = createSelector([selectInvoices], items =>
   orderBy(items, ['invoiced_date'], ['desc']),
 );
-
-export const getShipmentInvoicesLabel = 'Shipments.getShipmentInvoices';
-export const createInvoiceLabel = 'Shipments.createAndSendHHGInvoice';
 
 export const selectInvoice = (state, id) => denormalize([id], InvoiceModel, state.entities)[0];

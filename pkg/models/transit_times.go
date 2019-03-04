@@ -1,9 +1,11 @@
 package models
 
 import (
-	"github.com/pkg/errors"
-	"github.com/transcom/mymove/pkg/unit"
 	"math"
+
+	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // PoundsPackedPerDay represents the number of pounds that can be packed in a single day.

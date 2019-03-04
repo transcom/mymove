@@ -16,7 +16,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	authsvc "github.com/transcom/mymove/pkg/services/auth"
 )
@@ -151,13 +150,10 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // CallbackHandler processes a callback from login.gov
 type CallbackHandler struct {
 	Context
-	db                     *pop.Connection
-	clientAuthSecretKey    string
-	noSessionTimeout       bool
-	loginGovMyClientID     string
-	loginGovOfficeClientID string
-	loginGovTspClientID    string
-	userInitializer        services.UserInitializer
+	db                  *pop.Connection
+	clientAuthSecretKey string
+	noSessionTimeout    bool
+	userInitializer     services.UserInitializer
 }
 
 // NewCallbackHandler creates a new CallbackHandler
@@ -307,18 +303,4 @@ func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvid
 		IDToken:     parsedResponse.IDToken,
 	}
 	return &session, err
-}
-
-// GetAllowedFeatures returns a list of features the user has access to
-func GetAllowedFeatures(db *pop.Connection, session auth.Session) ([]auth.Feature, error) {
-	features := []auth.Feature{}
-	isDPSUser, err := models.IsDPSUser(db, session.Email)
-	if err != nil {
-		return features, err
-	}
-
-	if isDPSUser {
-		features = append(features, auth.FeatureDPS)
-	}
-	return features, nil
 }

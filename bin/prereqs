@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 set -eu -o pipefail
 
@@ -16,6 +16,7 @@ function has() {
 }
 
 has go "brew install go"
+has bash "brew install bash"
 has yarn "brew install yarn"
 has dep "brew install dep"
 has pre-commit "brew install pre-commit"

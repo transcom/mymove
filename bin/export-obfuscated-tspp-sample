@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /usr/bin/env bash
 #
 # Export a subset of rows from the transportation_service_provider_performances table:
 #   2 TSPs per TDL

@@ -1,8 +1,8 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 set -eu -o pipefail
 
-VERSION="go1.11.5"
+VERSION="go1.12"
 
 if [[ $(go version) = *$VERSION* ]]; then
   echo "$VERSION installed"

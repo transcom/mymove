@@ -186,3 +186,29 @@ export function formatDateTime(date) {
     return moment(date).format('DD-MMM-YY HH:mm');
   }
 }
+
+// truncate a number and return appropiate decimal places... (watch out for negitive numbers: floor(-5.1) === -6)
+// see test for examples of how this works
+export const truncateNumber = (num, decimalPlaces = 0) => {
+  if (!num) return num;
+
+  const floatNum = parseFloat(num).toFixed(4);
+  const scale = Math.pow(10, decimalPlaces);
+  const truncatedNbr = Math.floor(floatNum * scale) / scale;
+  return truncatedNbr.toFixed(decimalPlaces).toString();
+};
+
+// adds commas to numberString w/o removeing .0000 from the end of the string or rounding
+export const addCommasToNumberString = (numOrString, decimalPlaces = 0) => {
+  if (!numOrString || numOrString === '0') {
+    numOrString = (0).toFixed(decimalPlaces);
+  }
+
+  const str = numOrString.toString();
+  const [wholeNum, decimalNum] = str.split('.');
+  const wholeNumInt = parseInt(wholeNum);
+  if (decimalNum) {
+    return `${wholeNumInt.toLocaleString()}.${decimalNum}`;
+  }
+  return wholeNumInt.toLocaleString();
+};

@@ -3,7 +3,7 @@ import { CreateOrders, UpdateOrders, GetOrders, ShowServiceMemberOrders } from '
 import { createOrUpdateMoveType } from 'scenes/Moves/ducks';
 import { DeleteUploads } from 'shared/api';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
-import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
+import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive } from 'shared/utils';
 
 // Types

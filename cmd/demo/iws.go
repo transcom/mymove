@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/namsral/flag"
+
 	"github.com/transcom/mymove/pkg/iws"
 )
 

@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /usr/bin/env bash
 # Executes an SQL file from S3 against the environment's database.
 #
 # If `SECURE_MIGRATION_SOURCE=local` then we look for a similarly named file in the

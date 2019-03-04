@@ -119,7 +119,7 @@ let DocumentDetailPanel = editablePanelify(DocumentDetailDisplay, DocumentDetail
 DocumentDetailPanel = reduxForm({ form: formName })(DocumentDetailPanel);
 
 function mapStateToProps(state, props) {
-  const moveDocumentId = props.moveDocumentId;
+  const { moveId, moveDocumentId } = props;
   const moveDocument = selectMoveDocument(state, moveDocumentId);
   const isExpenseDocument = isMovingExpenseDocument(moveDocument);
   // Convert cents to collars - make a deep clone copy to not modify moveDocument itself
@@ -138,7 +138,6 @@ function mapStateToProps(state, props) {
     formValues: getFormValues(formName)(state),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
     hasError: false,
-    errorMessage: state.office.error,
     isUpdating: false,
     moveDocument,
 
@@ -156,7 +155,7 @@ function mapStateToProps(state, props) {
       if (get(values.moveDocument, 'move_document_type', '') === 'EXPENSE') {
         values.moveDocument.requested_amount_cents = convertDollarsToCents(values.moveDocument.requested_amount_cents);
       }
-      return [get(state, 'office.officeMove.id'), get(moveDocument, 'id'), values.moveDocument];
+      return [moveId, moveDocumentId, values.moveDocument];
     },
   };
 }

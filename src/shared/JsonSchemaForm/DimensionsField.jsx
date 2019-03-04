@@ -33,28 +33,27 @@ export class DimensionsField extends Component {
                   swagger={get(this.props, 'swagger.properties.' + this.props.fieldName)}
                   hideLabel={true}
                   className="dimensions-form-input"
+                  required={this.props.isRequired}
                 />
               </td>
-              <td width="11%" className="multiplication-sign">
-                x
-              </td>
+              <td width="11%" className="multiplication-sign" />
               <td width="26%" className="dimensions-form-input-cell">
                 <SwaggerField
                   fieldName="width"
                   swagger={get(this.props, 'swagger.properties.' + this.props.fieldName)}
                   hideLabel={true}
                   className="dimensions-form-input"
+                  required={this.props.isRequired}
                 />
               </td>
-              <td width="11%" className="multiplication-sign">
-                x
-              </td>
+              <td width="11%" className="multiplication-sign" />
               <td width="26%" className="dimensions-form-input-cell">
                 <SwaggerField
                   fieldName="height"
                   swagger={get(this.props, 'swagger.properties.' + this.props.fieldName)}
                   hideLabel={true}
                   className="dimensions-form-input"
+                  required={this.props.isRequired}
                 />
               </td>
             </tr>
@@ -69,4 +68,5 @@ DimensionsField.propTypes = {
   fieldName: PropTypes.string.isRequired,
   labelText: PropTypes.string.isRequired,
   swagger: PropTypes.object.isRequired,
+  isRequired: PropTypes.bool.isRequired,
 };

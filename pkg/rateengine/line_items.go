@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -136,6 +137,12 @@ func CreateBaseShipmentLineItems(db *pop.Connection, costByShipment CostByShipme
 		SubmittedDate:     now,
 	}
 	lineItems = append(lineItems, fuelSurcharge)
+
+	// Check that all base line items were added
+	err = models.VerifyBaseShipmentLineItems(lineItems)
+	if err != nil {
+		return nil, err
+	}
 
 	return lineItems, nil
 }
