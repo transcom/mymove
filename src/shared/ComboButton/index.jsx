@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import 'shared/shared.css';
 import './index.css';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faCaretDown from '@fortawesome/fontawesome-free-solid/faCaretDown';
