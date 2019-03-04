@@ -16,6 +16,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	authsvc "github.com/transcom/mymove/pkg/services/auth"
 )
@@ -222,38 +223,48 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Fetch user/role information, creating a new user if necessary
-	initResponse, verrs, err := h.userInitializer.InitializeUser(session, openIDUser)
+	userIdentity, identityErr := models.FetchUserIdentity(h.db, openIDUser.UserID)
+	if identityErr == models.ErrFetchNotFound {
+		userIdentity, err = h.userInitializer.InitializeUser(openIDUser)
+	} else if identityErr != nil {
+		// An unknown error
+		err = errors.Wrap(identityErr, "Unknown error while fetching user identity")
+		return
+	}
 
-	failedOfficeCheck := session.IsOfficeApp() && initResponse.OfficeUserID == uuid.Nil
-	failedTspCheck := session.IsTspApp() && initResponse.TspUserID == uuid.Nil
-	if failedOfficeCheck || failedTspCheck {
-		h.logger.Error("User does not have required credentials to view this site", zap.String("email", session.Email))
-		http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-		return
-	} else if verrs.HasAny() || err != nil {
-		h.logger.Error("Error while initializing user", zap.String("email", session.Email), zap.Error(verrs), zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
+	if session.IsTspApp() {
+		if userIdentity.TspUserID == nil {
+			h.logger.Error("User does not have required credentials to view TSP site", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+			return
+		}
+		session.TspUserID = *(userIdentity.TspUserID)
+	}
+
+	if session.IsOfficeApp() {
+		if userIdentity.OfficeUserID == nil {
+			h.logger.Error("User does not have required credentials to view Office site", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+			return
+		}
+		session.OfficeUserID = *(userIdentity.OfficeUserID)
 	}
 
 	session.IDToken = openIDSession.IDToken
 	session.Email = openIDUser.Email
 	h.logger.Info("New Login", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email), zap.String("Host", session.Hostname))
 
-	session.UserID = initResponse.UserID
-	session.FirstName = initResponse.FirstName
-	session.LastName = initResponse.LastName
-	session.Middle = initResponse.Middle
-	session.TspUserID = initResponse.TspUserID
-	session.OfficeUserID = initResponse.OfficeUserID
-	session.ServiceMemberID = initResponse.ServiceMemberID
+	session.UserID = userIdentity.ID
+	session.FirstName = userIdentity.FirstName()
+	session.LastName = userIdentity.LastName()
+	session.Middle = userIdentity.Middle()
 
-	session.Features, err = GetAllowedFeatures(h.db, *session)
-	if err != nil {
-		h.logger.Error("Error setting roles", zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
+	if userIdentity.ServiceMemberID != nil {
+		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
+	}
+
+	if userIdentity.DpsUserID != nil {
+		session.DpsUserID = *(userIdentity.DpsUserID)
 	}
 
 	h.logger.Info("logged in", zap.Any("session", session))

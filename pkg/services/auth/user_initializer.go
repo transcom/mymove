@@ -10,7 +10,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// userInitializer is a service object to deliver and price a Shipment
 type userInitializer struct {
 	DB *pop.Connection
 }
@@ -60,71 +59,33 @@ func (c *userInitializer) createBaseUser(userID string, email string, officeUser
 	return newUser, responseVErrors, responseError
 }
 
-// InitializeUser returns a collection of user data, generating a base user as necessary
-func (c *userInitializer) InitializeUser(detector services.AppDetector, openIDUser goth.User) (response services.InitializeUserResponse, verrs *validate.Errors, err error) {
-	verrs = validate.NewErrors()
-
-	userIdentity, identityErr := models.FetchUserIdentity(c.DB, openIDUser.UserID)
-	if identityErr != nil && identityErr != models.ErrFetchNotFound {
-		// An unknown error
-		err = errors.Wrap(identityErr, "Unknown error while fetching user identity")
-		return
+// InitializeUser creates a User that is associated to existing Office and TSP user identities
+func (c *userInitializer) InitializeUser(openIDUser goth.User) (*models.UserIdentity, error) {
+	officeUser, err := models.FetchOfficeUserByEmail(c.DB, openIDUser.Email)
+	if err != nil && err != models.ErrFetchNotFound {
+		err = errors.Wrap(err, "Error while fetching office user")
+		return nil, err
 	}
 
-	// We found a user identity
-	if identityErr == nil {
-		// If we already have the relevant user info then we're done
-		if detector.IsOfficeApp() && userIdentity.OfficeUserID != nil {
-			response.OfficeUserID = *userIdentity.OfficeUserID
-			return
-		} else if detector.IsTspApp() && userIdentity.TspUserID != nil {
-			response.TspUserID = *userIdentity.TspUserID
-			return
-		}
+	tspUser, err := models.FetchTspUserByEmail(c.DB, openIDUser.Email)
+	if err != nil && err != models.ErrFetchNotFound {
+		err = errors.Wrap(err, "Error while fetching TSP user")
+		return nil, err
 	}
 
-	// Else we'll need to look up user information by email address
-	var officeUser *models.OfficeUser
-	var tspUser *models.TspUser
-	if detector.IsOfficeApp() {
-		officeUser, err = models.FetchOfficeUserByEmail(c.DB, openIDUser.Email)
-		if err != nil {
-			err = errors.Wrap(err, "Error while fetching office user")
-			return
-		}
-		response.OfficeUserID = officeUser.ID
-	} else if detector.IsTspApp() {
-		tspUser, err = models.FetchTspUserByEmail(c.DB, openIDUser.Email)
-		if err != nil {
-			err = errors.Wrap(err, "Error while fetching TSP user")
-			return
-		}
-		response.TspUserID = tspUser.ID
+	_, verrs, err := c.createBaseUser(openIDUser.UserID, openIDUser.Email, officeUser, tspUser)
+	if err != nil {
+		err = errors.Wrap(err, "Error while creating base user")
+		return nil, err
+	} else if verrs.HasAny() {
+		return nil, verrs
 	}
 
-	// If we never got an identity, we need to generate a base user.
-	// Also pass in office/tsp user models so they can be associated
-	if identityErr == models.ErrFetchNotFound {
-		_, verrs, err = c.createBaseUser(openIDUser.UserID, openIDUser.Email, officeUser, tspUser)
-		if verrs.HasAny() || err != nil {
-			err = errors.Wrap(err, "Error while creating base user")
-			return
-		}
-		// Fetch the userIdentity again, which should now have a base user
-		userIdentity, err = models.FetchUserIdentity(c.DB, openIDUser.UserID)
-		if err != nil {
-			err = errors.Wrap(err, "A user identity could not be found after creating a user")
-			return
-		}
-	}
-	response.UserID = userIdentity.ID
-	if userIdentity.ServiceMemberID != nil {
-		response.ServiceMemberID = *userIdentity.ServiceMemberID
+	userIdentity, err := models.FetchUserIdentity(c.DB, openIDUser.UserID)
+	if err != nil {
+		err = errors.Wrap(err, "A user identity could not be found after creating a user")
+		return nil, err
 	}
 
-	response.FirstName = userIdentity.FirstName()
-	response.LastName = userIdentity.LastName()
-	response.Middle = userIdentity.Middle()
-
-	return response, validate.NewErrors(), nil
+	return userIdentity, nil
 }

@@ -1,9 +1,10 @@
 package services
 
 import (
-	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 	"github.com/markbates/goth"
+
+	"github.com/transcom/mymove/pkg/models"
 )
 
 // InitializeUserResponse encapsulates a response from InitializeUser
@@ -17,13 +18,7 @@ type InitializeUserResponse struct {
 	LastName        string
 }
 
-// AppDetector detects which type of app is handling the request
-type AppDetector interface {
-	IsOfficeApp() bool
-	IsTspApp() bool
-}
-
 // UserInitializer is the service object interface for CreateForm
 type UserInitializer interface {
-	InitializeUser(session AppDetector, openIDUser goth.User) (response InitializeUserResponse, verrs *validate.Errors, err error)
+	InitializeUser(openIDUser goth.User) (response *models.UserIdentity, err error)
 }
