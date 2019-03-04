@@ -159,17 +159,17 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 		var startDateString string
 		var endDateString string
 		var year int
-		startDay := "01"
-		endDay := 28 // this will capture the first Monday or day after holiday whose rates are used for the rate period
+		startDayString := "01"
+		endDayString := "28" // this will capture the first Monday or day after holiday whose rates are used for the rate period
 
 		if month <= int(currentDate.Month()) {
 			year = currentDate.Year()
 		} else {
-			year = int(currentDate.AddDate(-1, 0, 0).Year())
+			year = currentDate.AddDate(-1, 0, 0).Year()
 		}
 		monthString := fmt.Sprintf("%02s", strconv.Itoa(month))
-		startDateString = fmt.Sprintf("%v%v%v", year, monthString, startDay)
-		endDateString = fmt.Sprintf("%v%v%v", year, monthString, endDay)
+		startDateString = fmt.Sprintf("%d%s%s", year, monthString, startDayString)
+		endDateString = fmt.Sprintf("%d%s%s", year, monthString, endDayString)
 		parsedURL, err := url.Parse(u.url)
 		if err != nil {
 			log.Fatal(err)
@@ -228,11 +228,11 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 				firstMondayOrNonHolidayAfter := getFirstMondayOrNonHolidayAfter(time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC))
 				todayIsAfterPostingDate := !firstMondayOrNonHolidayAfter.After(currentDate)
 				if todayIsAfterPostingDate {
-					err := errors.Errorf("Expected data, but no fuel data available for %v %v", time.Month(month), year)
+					err := errors.Errorf("Expected data, but no fuel data available for %d %d", time.Month(month), year)
 					return []fuelData{}, err
 				}
 			}
-			log.Printf("No fueldata available yet for %v %v \n", time.Month(month), year)
+			log.Printf("No fueldata available yet for %d %d \n", time.Month(month), year)
 		}
 
 		fuelValues = append(fuelValues, fuelData{dateString: dateString, price: price})

@@ -169,7 +169,6 @@ func (suite *ModelSuite) TestFetchMostRecentFuelPrices() {
 	expectedNumFuelPrices = 12
 	suite.NoError(err)
 	suite.Equal(expectedNumFuelPrices, len(fuelPrices))
-	// TODO: another test to make sure earliest and latest month match?
 }
 
 // Create 1 record for the shipment date provided
