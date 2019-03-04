@@ -96,8 +96,7 @@ func (u DieselFuelPriceStorer) StoreFuelPrices(numMonths int) (*validate.Errors,
 		}
 		pricePerGallon := fuelValues.price
 		pubDateString := fuelValues.dateString
-		pubDateFormatString := pubDateString[:4] + "-" + pubDateString[4:6] + "-" + pubDateString[6:] + "T00:00:00Z"
-		pubDate, err := time.Parse(time.RFC3339, pubDateFormatString)
+		pubDate, err := time.Parse("20180214", pubDateString)
 		if err != nil {
 			return verrs, errors.Wrap(err, "unable to convert pubDate datestring to date")
 		}
@@ -128,7 +127,7 @@ func (u DieselFuelPriceStorer) StoreFuelPrices(numMonths int) (*validate.Errors,
 			responseVErrors.Append(verrs)
 			return responseVErrors, errors.Wrap(err, "Cannot validate and save fuel diesel price")
 		}
-		u.logger.Info("Fuel Data added for %v with pub_date %v \n", month, pubDate)
+		u.logger.Info("Fuel Data added \n", zap.String("start date month", string(month)), zap.Time("pubDate", pubDate))
 	}
 	return verrs, err
 }
