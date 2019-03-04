@@ -74,7 +74,7 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	dateToTest = time.Date(2010, time.January, 2, 0, 0, 0, 0, time.UTC) // first Mon 1/2010 is 4th
 	timeDiff = dateToTest.Sub(prePubDateTestClock.Now().UTC())
 	prePubDateTestClock.Add(timeDiff)
-	dieselFuelPriceStorer := NewDieselFuelPriceStorer(suite.DB(), prePubDateTestClock, mockedFetchFuelPriceData, "", "No data available yet this month")
+	dieselFuelPriceStorer := NewDieselFuelPriceStorer(suite.DB(), suite.logger, prePubDateTestClock, mockedFetchFuelPriceData, "", "No data available yet this month")
 	verrs, err := dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
 	suite.NoError(err)
 
@@ -86,32 +86,32 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	suite.Empty(&prePubDatePrices)
 
 	// Test case where there is no data for a given month (but should be)
-	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), testClock, mockedFetchFuelPriceData, "", "Data missing but expected")
+	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), suite.logger, testClock, mockedFetchFuelPriceData, "", "Data missing but expected")
 	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
 	suite.Error(err)
 
 	// Test case where there is no data for a given month (but should be) and the first Monday is a holiday
 	postMonHolidayTestClock := clock.NewMock()
-	dateToTest = time.Date(2018, time.September, 5, 0, 0, 0, 0, time.UTC) // Labor Day Mon 3/3
+	dateToTest = time.Date(2018, time.September, 5, 0, 0, 0, 0, time.UTC) // Labor Day 2018 Mon 3/3
 	timeDiff = dateToTest.Sub(postMonHolidayTestClock.Now().UTC())
 	postMonHolidayTestClock.Add(timeDiff)
 
-	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), postMonHolidayTestClock, mockedFetchFuelPriceData, "", "Data missing but expected")
+	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), suite.logger, postMonHolidayTestClock, mockedFetchFuelPriceData, "", "Data missing but expected")
 	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
 	suite.Error(err)
 
 	// Test case where an error message is returned from api
-	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), testClock, mockedFetchFuelPriceData, "", "Error")
+	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), suite.logger, testClock, mockedFetchFuelPriceData, "", "Error")
 	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
 	suite.Error(err)
 	suite.Empty(verrs.Errors)
 
 	// Test case where api returns unexpected JSON structure/value
-	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), testClock, mockedFetchFuelPriceData, "", "Unexpected response")
+	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), suite.logger, testClock, mockedFetchFuelPriceData, "", "Unexpected response")
 	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
 	suite.Error(err)
 
-	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), testClock, mockedFetchFuelPriceData, "", "Store current month missing data")
+	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), suite.logger, testClock, mockedFetchFuelPriceData, "", "Store current month missing data")
 	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
 	suite.NoError(err)
 	suite.Empty(verrs.Errors)
@@ -142,7 +142,7 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 		suite.logger.Error("Error deleting eia diesel price", zap.Error(err))
 	}
 
-	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), testClock, mockedFetchFuelPriceData, "", "Store previous month missing data")
+	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), suite.logger, testClock, mockedFetchFuelPriceData, "", "Store previous month missing data")
 	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
 	suite.NoError(err)
 	suite.Empty(verrs.Errors)
@@ -167,7 +167,7 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	suite.Equal(expectedBaselineRate, dbBaselineRate)
 
 	// Test case where all desired data already exists in db
-	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), testClock, mockedFetchFuelPriceData, "", "No data needed")
+	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), suite.logger, testClock, mockedFetchFuelPriceData, "", "No data needed")
 	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
 	suite.NoError(err)
 	suite.Empty(verrs.Errors)

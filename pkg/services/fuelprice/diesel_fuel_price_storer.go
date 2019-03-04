@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+
+	"go.uber.org/zap"
+
 	"math"
 	"net/http"
 	"net/url"
@@ -48,9 +51,10 @@ type EiaData struct {
 type FetchFuelData func(string) (EiaData, error)
 
 // NewDieselFuelPriceStorer creates a new struct
-func NewDieselFuelPriceStorer(db *pop.Connection, clock clock.Clock, dataFetch FetchFuelData, eiaKey string, url string) *DieselFuelPriceStorer {
+func NewDieselFuelPriceStorer(db *pop.Connection, logger *zap.Logger, clock clock.Clock, dataFetch FetchFuelData, eiaKey string, url string) *DieselFuelPriceStorer {
 	return &DieselFuelPriceStorer{
 		DB:            db,
+		logger:        logger,
 		Clock:         clock,
 		FetchFuelData: dataFetch,
 		eiaKey:        eiaKey,
@@ -61,6 +65,7 @@ func NewDieselFuelPriceStorer(db *pop.Connection, clock clock.Clock, dataFetch F
 // DieselFuelPriceStorer is a service object to add missing fuel prices to db
 type DieselFuelPriceStorer struct {
 	DB            *pop.Connection
+	logger        *zap.Logger
 	Clock         clock.Clock
 	FetchFuelData FetchFuelData
 	eiaKey        string
@@ -72,7 +77,7 @@ func (u DieselFuelPriceStorer) StoreFuelPrices(numMonths int) (*validate.Errors,
 	verrs := &validate.Errors{}
 	missingMonths, err := u.findMissingRecordMonths(u.DB, numMonths)
 	if len(missingMonths) < 1 {
-		log.Println("No new fuel prices to add to the database")
+		u.logger.Info("No new fuel prices to add to the database")
 		return verrs, nil
 	}
 	if err != nil {
@@ -123,7 +128,7 @@ func (u DieselFuelPriceStorer) StoreFuelPrices(numMonths int) (*validate.Errors,
 			responseVErrors.Append(verrs)
 			return responseVErrors, errors.Wrap(err, "Cannot validate and save fuel diesel price")
 		}
-		log.Printf("Fuel Data added for %v with pub_date %v \n", month, pubDate)
+		u.logger.Info("Fuel Data added for %v with pub_date %v \n", month, pubDate)
 	}
 	return verrs, err
 }

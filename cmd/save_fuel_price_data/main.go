@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/services/fuelprice"
 )
 
@@ -31,9 +32,16 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	logger, err := logging.Config("development", true)
+	if err != nil {
+		log.Fatalf("Failed to initialize Zap logging due to %v", err)
+	}
+
 	clock := clock.New()
 	fuelPrices := fuelprice.NewDieselFuelPriceStorer(
 		db,
+		logger,
 		clock,
 		fuelprice.FetchFuelPriceData,
 		v.GetString("eia-key"),
