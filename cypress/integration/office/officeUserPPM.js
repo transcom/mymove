@@ -68,14 +68,14 @@ describe('office user finds the move', function() {
   });
 
   it('office user completes storage panel', function() {
-    officeUserGoesToStoragePanel('VGHEIS');
+    officeUserGoesToStoragePanel('STORAG');
     userSavesStorageDetails();
   });
 
   it('office user cancels storage panel', function() {
-    officeUserGoesToStoragePanel('NOADVC');
+    officeUserGoesToStoragePanel('NOSTRG');
     userCancelsStorageDetails();
-    })
+  });
 });
 
 function officeUserEditsNetWeight() {
@@ -430,21 +430,21 @@ function officeUserGoesToStoragePanel(locator) {
   cy.selectQueueItemMoveLocator(locator);
 
   cy.location().should(loc => {
-  expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
-});
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
 
   cy
-  .get('.title')
-  .contains('PPM')
-  .click();
+    .get('.title')
+    .contains('PPM')
+    .click();
 
   cy.location().should(loc => {
-  expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);
-});
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);
+  });
 
   cy
-  .get('.editable-panel-header')
-  .contains('Storage')
-  .siblings()
-  .click();
+    .get('.editable-panel-header')
+    .contains('Storage')
+    .siblings()
+    .click();
 }
