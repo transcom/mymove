@@ -1,4 +1,5 @@
 from locust import (HttpLocust, TaskSet, TaskSequence, task, seq_task)
+from bravado.client import SwaggerClient
 
 
 class AnonBehavior(TaskSet):
@@ -40,6 +41,9 @@ class UserBehavior(TaskSequence):
 
     @seq_task(1)
     def login(self):
+        self.swagger = SwaggerClient.from_url(
+            "/api/v1/swagger.yaml",
+            http_client=self.client)
         resp = self.client.post('/devlocal-auth/create')
         try:
             self.login_gov_user = resp.json()
