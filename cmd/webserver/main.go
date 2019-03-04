@@ -1118,40 +1118,47 @@ func main() {
 
 	listenInterface := v.GetString("interface")
 
+	noTLSServer, err := server.CreateServer(&server.CreateServerInput{
+		Host:        listenInterface,
+		Port:        v.GetInt("no-tls-port"),
+		Logger:      zapLogger,
+		HTTPHandler: httpHandler,
+	})
+	if err != nil {
+		logger.Fatal("error creating no-tls server", zap.Error(err))
+	}
 	go func() {
-		noTLSServer := server.Server{
-			ListenAddress: listenInterface,
-			HTTPHandler:   httpHandler,
-			Logger:        zapLogger,
-			Port:          v.GetInt("no-tls-port"),
-		}
 		errChan <- noTLSServer.ListenAndServe()
 	}()
 
+	tlsServer, err := server.CreateServer(&server.CreateServerInput{
+		Host:         listenInterface,
+		Port:         v.GetInt("tls-port"),
+		Logger:       zapLogger,
+		HTTPHandler:  httpHandler,
+		ClientAuth:   tls.NoClientCert,
+		Certificates: certificates,
+	})
+	if err != nil {
+		logger.Fatal("error creating tls server", zap.Error(err))
+	}
 	go func() {
-		tlsServer := server.Server{
-			ClientAuthType: tls.NoClientCert,
-			ListenAddress:  listenInterface,
-			HTTPHandler:    httpHandler,
-			Logger:         zapLogger,
-			Port:           v.GetInt("tls-port"),
-			TLSCerts:       certificates,
-		}
 		errChan <- tlsServer.ListenAndServeTLS()
 	}()
 
+	mutualTLSServer, err := server.CreateServer(&server.CreateServerInput{
+		Host:         listenInterface,
+		Port:         v.GetInt("mutual-tls-port"),
+		Logger:       zapLogger,
+		HTTPHandler:  httpHandler,
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+		Certificates: certificates,
+		ClientCAs:    rootCAs,
+	})
+	if err != nil {
+		logger.Fatal("error creating mutual-tls server", zap.Error(err))
+	}
 	go func() {
-		mutualTLSServer := server.Server{
-			// Ensure that any DoD-signed client certificate can be validated,
-			// using the package of DoD root and intermediate CAs provided by DISA
-			CaCertPool:     rootCAs,
-			ClientAuthType: tls.RequireAndVerifyClientCert,
-			ListenAddress:  listenInterface,
-			HTTPHandler:    httpHandler,
-			Logger:         zapLogger,
-			Port:           v.GetInt("mutual-tls-port"),
-			TLSCerts:       certificates,
-		}
 		errChan <- mutualTLSServer.ListenAndServeTLS()
 	}()
 
