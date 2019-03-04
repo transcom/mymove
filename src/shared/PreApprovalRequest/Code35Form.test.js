@@ -82,7 +82,6 @@ describe('code 35A details component', () => {
     wrapper = shallow(<Code35Form ship_line_item_schema={simpleSchema} />);
 
     it('without crashing', () => {
-      // eslint-disable-next-line
       expect(wrapper.exists('SwaggerField')).toBe(true);
     });
   });
