@@ -1,5 +1,6 @@
 from locust import (HttpLocust, TaskSet, TaskSequence, task, seq_task)
 from bravado.client import SwaggerClient
+from bravado.requests_client import RequestsClient
 
 
 class AnonBehavior(TaskSet):
@@ -17,8 +18,10 @@ class AnonUser(HttpLocust):
 
 class UserBehavior(TaskSequence):
 
+    swagger = None
     login_gov_user = None
-    token = None
+    csrf = None
+    session_token = None
     user = {}
 
     def _get_csrf_token(self):
@@ -28,8 +31,8 @@ class UserBehavior(TaskSequence):
         The token is set as a cookie with the name `masked_gorilla_csrf`
         """
         self.client.get('/')
-        csrf = self.client.cookies.get('masked_gorilla_csrf')
-        self.client.headers.update({'x-csrf-token': csrf})
+        self.csrf = self.client.cookies.get('masked_gorilla_csrf')
+        self.client.headers.update({'x-csrf-token': self.csrf})
 
     def on_start(self):
         """ on_start is called when a Locust start before any task is scheduled """
@@ -41,13 +44,16 @@ class UserBehavior(TaskSequence):
 
     @seq_task(1)
     def login(self):
-        self.swagger = SwaggerClient.from_url(
-            "/api/v1/swagger.yaml",
-            http_client=self.client)
         resp = self.client.post('/devlocal-auth/create')
         try:
             self.login_gov_user = resp.json()
-            self.token = self.client.cookies.get('mil_session_token')
+            self.session_token = self.client.cookies.get('mil_session_token')
+            self.requests_client = RequestsClient()
+            self.requests_client.session = self.client
+            self.swagger = SwaggerClient.from_url(
+                "http://milmovelocal:8080/internal/swagger.yaml",
+                request_headers={'x-csrf-token': self.csrf},
+                http_client=self.requests_client)
         except Exception:
             print('Headers:', self.client.headers)
             print(resp.content)
@@ -60,15 +66,16 @@ class UserBehavior(TaskSequence):
 
     @seq_task(3)
     def create_service_member(self):
-        payload = {"id": self.user["id"]}
-        resp = self.client.post("/internal/service_members", json=payload)
-        service_member = resp.json()
+        model = self.swagger.get_model("CreateServiceMemberPayload")
+        payload = model(user_id=self.user["id"])
+        service_member = self.swagger.service_members.createServiceMember(
+            createServiceMemberPayload=payload).response().result
         self.user["service_member"] = service_member
         # check response for 201
 
     @seq_task(4)
     def create_your_profile(self):
-        service_member_id = self.user["service_member"]["id"]
+        service_member_id = self.user["service_member"].id
         url = "/internal/service_members/" + service_member_id
         profile = {
             "affiliation": "NAVY",  # Rotate
@@ -94,7 +101,7 @@ class UserBehavior(TaskSequence):
     def logout(self):
         self.client.get("/auth/logout")
         self.login_gov_user = None
-        self.token = None
+        self.session_token = None
         self.user = {}
 
 
