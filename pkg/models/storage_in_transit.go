@@ -112,11 +112,6 @@ func FetchStorageInTransitsOnShipment(tx *pop.Connection, shipmentID uuid.UUID) 
 		return nil, err
 	}
 
-	// Send up a ErrFetchNotFound if we have zero results.
-	if len(storageInTransits) == 0 {
-		return nil, ErrFetchNotFound
-	}
-
 	return storageInTransits, nil
 
 }

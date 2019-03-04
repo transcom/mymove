@@ -9,7 +9,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import Alert from 'shared/Alert';
-import Authorization from 'shared/User/Authorization';
 import StyleGuide from 'scenes/StyleGuide';
 import Landing from 'scenes/Landing';
 import Edit from 'scenes/Review/Edit';
@@ -29,7 +28,7 @@ import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement'
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
-import { loadLoggedInUser } from 'shared/User/ducks';
+import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
 import FailWhale from 'shared/FailWhale';
 import { no_op } from 'shared/utils';
@@ -38,8 +37,8 @@ import DPSAuthCookie from 'scenes/DPSAuthCookie';
 export class AppWrapper extends Component {
   state = { hasError: false };
   componentDidMount() {
-    this.props.loadLoggedInUser();
     this.props.loadInternalSchema();
+    this.props.getCurrentUserInfo();
   }
 
   componentDidCatch(error, info) {
@@ -95,7 +94,17 @@ export class AppWrapper extends Component {
                     {/* <PrivateRoute path="/moves/:moveId/review/edit-hhg-weights" component={EditHHGWeights} /> */}
 
                     <PrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
-                    <PrivateRoute path="/dps_cookie" component={Authorization(DPSAuthCookie, 'dps')} />
+                    <PrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
+                    <Route exact path="/forbidden">
+                      <div className="usa-grid">
+                        <h2>You are forbidden to use this endpoint</h2>
+                      </div>
+                    </Route>
+                    <Route exact path="/server_error">
+                      <div className="usa-grid">
+                        <h2>We are experiencing an internal server error</h2>
+                      </div>
+                    </Route>
                     <Route component={this.noMatch} />
                   </Switch>
                 )}
@@ -109,20 +118,20 @@ export class AppWrapper extends Component {
 }
 AppWrapper.defaultProps = {
   loadInternalSchema: no_op,
-  loadLoggedInUser: no_op,
+  getCurrentUserInfo: no_op,
 };
 
 const mapStateToProps = state => {
   return {
-    swaggerError: state.swaggerInternal.hasErrored,
     currentServiceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
-    selectedMoveType: selectedMoveType(state),
-    moveId: get(state, 'moves.currentMove.id'),
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     latestMove: get(state, 'moves.latestMove'),
+    moveId: get(state, 'moves.currentMove.id'),
+    selectedMoveType: selectedMoveType(state),
+    swaggerError: state.swaggerInternal.hasErrored,
   };
 };
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ goBack, push, loadInternalSchema, loadLoggedInUser }, dispatch);
+  bindActionCreators({ goBack, push, loadInternalSchema, getCurrentUserInfo }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppWrapper);

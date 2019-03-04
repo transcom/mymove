@@ -31,10 +31,14 @@ var ShipmentSummaryPage1Layout = FormLayout{
 		"ShipmentPickUpDates":             FormField(54, 122.5, 46, floatPtr(10), nil, nil),
 		"ShipmentWeights":                 FormField(103, 122.5, 41, floatPtr(10), nil, nil),
 		"ShipmentCurrentShipmentStatuses": FormField(153.5, 122.5, 41, floatPtr(10), nil, nil),
-		"GCC100":                          FormField(40, 182.5, 22, floatPtr(10), nil, stringPtr("RM")),
+		"MaxObligationGCC100":             FormField(40, 182.5, 22, floatPtr(10), nil, stringPtr("RM")),
 		"TotalWeightAllotmentRepeat":      FormField(74, 182.5, 16, floatPtr(10), nil, stringPtr("RM")),
-		"GCC95":                           FormField(40, 188.5, 22, floatPtr(10), nil, stringPtr("RM")),
-		"GCCMaxAdvance":                   FormField(40, 201, 22, floatPtr(10), nil, stringPtr("RM")),
+		"MaxObligationGCC95":              FormField(40, 188.5, 22, floatPtr(10), nil, stringPtr("RM")),
+		"MaxObligationGCCMaxAdvance":      FormField(40, 201, 22, floatPtr(10), nil, stringPtr("RM")),
+		"ActualObligationGCC100":          FormField(133, 182.5, 22, floatPtr(10), nil, stringPtr("RM")),
+		"ActualWeight":                    FormField(167, 182.5, 16, floatPtr(10), nil, stringPtr("RM")),
+		"ActualObligationGCC95":           FormField(133, 188.5, 22, floatPtr(10), nil, stringPtr("RM")),
+		"ActualObligationAdvance":         FormField(133, 201, 22, floatPtr(10), nil, stringPtr("RM")),
 	},
 }
 

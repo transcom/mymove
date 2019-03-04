@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get, capitalize, includes } from 'lodash';
+import { capitalize, get, includes } from 'lodash';
 
-import { RoutedTabs, NavTab } from 'react-router-tabs';
-import { NavLink, Switch, Redirect, Link } from 'react-router-dom';
+import { NavTab, RoutedTabs } from 'react-router-tabs';
+import { Link, NavLink, Redirect, Switch } from 'react-router-dom';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import LocationsContainer from './Hhg/LocationsContainer';
@@ -32,13 +32,14 @@ import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 import StorageInTransitPanel from 'shared/StorageInTransit/StorageInTransitPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
+import ComboButton from 'shared/ComboButton';
 
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
 import { getAllShipmentLineItems, selectSortedShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices } from 'shared/Entities/modules/invoices';
-import { loadPPMs, approvePPM, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
-import { loadServiceMember, loadBackupContacts, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
+import { approvePPM, loadPPMs, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
+import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
 import {
   getPublicShipment,
@@ -55,6 +56,7 @@ import { selectSitRequests } from 'shared/Entities/modules/sitRequests';
 import { showBanner, removeBanner } from './ducks';
 import {
   loadMove,
+  loadMoveLabel,
   selectMove,
   selectMoveStatus,
   approveBasics,
@@ -62,7 +64,7 @@ import {
   calculateEntitlementsForMove,
 } from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
-import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import { getMoveDocumentsForMove, selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -117,7 +119,6 @@ const HHGTabContent = props => {
     shipmentStatus = shipment.status;
     shipmentId = shipment.id;
   }
-
   return (
     <div className="office-tab">
       <RoutingPanel title="Routing" moveId={moveId} />
@@ -159,9 +160,16 @@ class MoveInfo extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { loadBackupContacts, loadOrders, loadServiceMember, ordersId, serviceMemberId, shipmentId } = this.props;
-    // Once we can get one of the ids, they all should be present
-    if (ordersId !== prevProps.ordersId) {
+    const {
+      loadBackupContacts,
+      loadOrders,
+      loadMoveIsSuccess,
+      loadServiceMember,
+      ordersId,
+      serviceMemberId,
+      shipmentId,
+    } = this.props;
+    if (loadMoveIsSuccess !== prevProps.loadMoveIsSuccess && loadMoveIsSuccess) {
       loadOrders(ordersId);
       loadServiceMember(serviceMemberId);
       loadBackupContacts(serviceMemberId);
@@ -169,6 +177,10 @@ class MoveInfo extends Component {
         this.getAllShipmentInfo(shipmentId);
       }
     }
+  }
+
+  componentWillUnmount() {
+    this.props.resetRequests();
   }
 
   getAllShipmentInfo = shipmentId => {
@@ -255,6 +267,7 @@ class MoveInfo extends Component {
     const pathnames = this.props.location.pathname.split('/');
     const currentTab = pathnames[pathnames.length - 1];
     const showDocumentViewer = this.props.context.flags.documentViewer;
+    const moveInfoComboButton = this.props.context.flags.moveInfoComboButton;
     const allowHhgInvoicePayment = this.props.context.flags.allowHhgInvoicePayment;
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
     const ordersComplete = Boolean(
@@ -384,6 +397,17 @@ class MoveInfo extends Component {
                   Please fill out missing data
                 </Alert>
               )}
+              <div>
+                {moveInfoComboButton && (
+                  <ComboButton
+                    buttonText={'Approve'}
+                    isDisabled={true}
+                    toolTipText={
+                      'Some information about the move is missing or contains errors. Please fix these problems before approving.'
+                    }
+                  />
+                )}
+              </div>
               <button
                 className={`${moveApproved ? 'btn__approve--green' : ''}`}
                 onClick={this.approveBasics}
@@ -506,12 +530,14 @@ const mapStateToProps = (state, ownProps) => {
   const serviceMemberId = move.service_member_id;
   const serviceMember = selectServiceMember(state, serviceMemberId);
   const loadOrdersStatus = getRequestStatus(state, loadOrdersLabel);
+  const loadMoveIsSuccess = getRequestStatus(state, loadMoveLabel).isSuccess;
 
   return {
     approveMoveHasError: get(state, 'office.moveHasApproveError'),
     errorMessage: get(state, 'office.error'),
     loadDependenciesHasError: loadOrdersStatus.error,
     loadDependenciesHasSuccess: loadOrdersStatus.isSuccess,
+    loadMoveIsSuccess,
     moveDocuments: selectAllDocumentsForMove(state, moveId),
     ppm,
     move,

@@ -66,5 +66,12 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.TspsIndexTSPsHandler = TspsIndexTSPsHandler{context}
 	publicAPI.TspsGetTspShipmentsHandler = TspsGetTspShipmentsHandler{context}
 
+	// Storage In Transits
+	publicAPI.StorageInTransitsCreateStorageInTransitHandler = CreateStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsGetStorageInTransitHandler = GetStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsIndexStorageInTransitsHandler = IndexStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsDeleteStorageInTransitHandler = DeleteStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsPatchStorageInTransitHandler = PatchStorageInTransitHandler{context}
+
 	return publicAPI.Serve(nil)
 }

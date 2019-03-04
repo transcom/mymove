@@ -13,18 +13,20 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksFormData() {
+func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	moveID, _ := uuid.NewV4()
 	serviceMemberID, _ := uuid.NewV4()
+	//advanceID, _ := uuid.NewV4()
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
 	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
 	rank := models.ServiceMemberRankE9
+	moveType := models.SelectedMoveTypeHHGPPM
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
-			ID: moveID,
-			// SelectedMoveType: models.SelectedMoveTypeHHGPPM,
+			ID:               moveID,
+			SelectedMoveType: &moveType,
 		},
 		Order: models.Order{
 			OrdersType:       ordersType,
@@ -36,11 +38,22 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksFormData() {
 			Rank:          &rank,
 		},
 	})
+
+	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			MoveID: move.ID,
+			MoveID:              move.ID,
+			NetWeight:           models.Int64Pointer(10000),
+			HasRequestedAdvance: true,
+			AdvanceID:           &advance.ID,
+			Advance:             &advance,
 		},
 	})
+	// Only concerned w/ approved advances for ssw
+	ppm.Move.PersonallyProcuredMoves[0].Advance.Request()
+	ppm.Move.PersonallyProcuredMoves[0].Advance.Approve()
+	// Save advance in reimbursements table by saving ppm
+	models.SavePersonallyProcuredMove(suite.DB(), &ppm)
 	movedocuments := testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
 			MoveID:                   ppm.Move.ID,
@@ -96,6 +109,10 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksFormData() {
 	suite.Require().Len(ssd.MovingExpenseDocuments, 2)
 	suite.NotNil(ssd.MovingExpenseDocuments[0].ID)
 	suite.NotNil(ssd.MovingExpenseDocuments[1].ID)
+	suite.Equal(ppm.NetWeight, ssd.PersonallyProcuredMoves[0].NetWeight)
+	suite.Require().NotNil(ssd.PersonallyProcuredMoves[0].Advance)
+	suite.Equal(ppm.Advance.ID, ssd.PersonallyProcuredMoves[0].Advance.ID)
+	suite.Equal(unit.Cents(1000), ssd.PersonallyProcuredMoves[0].Advance.RequestedAmount)
 }
 
 func (suite *ModelSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() {
@@ -167,11 +184,13 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 			Status:           models.ShipmentStatusDELIVERED,
 		},
 	}
-
+	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
 	personallyProcuredMoves := []models.PersonallyProcuredMove{
 		{
 			OriginalMoveDate: &pickupDate,
 			Status:           models.PPMStatusPAYMENTREQUESTED,
+			NetWeight:        models.Int64Pointer(4000),
+			Advance:          &advance,
 		},
 	}
 	ssd := models.ShipmentSummaryFormData{
@@ -184,7 +203,8 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		Shipments:               shipments,
 		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
 		PersonallyProcuredMoves: personallyProcuredMoves,
-		GCC:                     unit.Cents(600000),
+		MaxObligation:           models.Obligation{Gcc: unit.Cents(600000)},
+		ActualObligation:        models.Obligation{Gcc: unit.Cents(500000)},
 	}
 	sswPage1 := models.FormatValuesShipmentSummaryWorksheetFormPage1(ssd)
 
@@ -215,14 +235,18 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 
 	suite.Equal("01 - HHG (GBL)\n\n02 - PPM", sswPage1.ShipmentNumberAndTypes)
 	suite.Equal("11-Jan-2019\n\n11-Jan-2019", sswPage1.ShipmentPickUpDates)
-	suite.Equal("5,000 lbs - FINAL\n\n", sswPage1.ShipmentWeights)
+	suite.Equal("5,000 lbs - FINAL\n\n4,000 lbs - FINAL", sswPage1.ShipmentWeights)
 	suite.Equal("Delivered\n\nAt destination", sswPage1.ShipmentCurrentShipmentStatuses)
 
 	suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
-	suite.Equal("$6,000.00", sswPage1.GCC100)
-	suite.Equal("$5,700.00", sswPage1.GCC95)
-	suite.Equal("$3,600.00", sswPage1.GCCMaxAdvance)
+	suite.Equal("$6,000.00", sswPage1.MaxObligationGCC100)
+	suite.Equal("$5,700.00", sswPage1.MaxObligationGCC95)
+	suite.Equal("$3,600.00", sswPage1.MaxObligationGCCMaxAdvance)
 
+	suite.Equal("4,000", sswPage1.ActualWeight)
+	suite.Equal("$5,000.00", sswPage1.ActualObligationGCC100)
+	suite.Equal("$4,750.00", sswPage1.ActualObligationGCC95)
+	suite.Equal("$10.00", sswPage1.ActualObligationAdvance)
 }
 
 func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
@@ -492,4 +516,13 @@ func (suite *ModelSuite) TestFormatServiceMemberAffiliation() {
 
 	suite.Equal("Air Force", models.FormatServiceMemberAffiliation(&airForce))
 	suite.Equal("Marines", models.FormatServiceMemberAffiliation(&marines))
+}
+
+func (suite *ModelSuite) TestFormatPPMWeight() {
+	var pounds int64 = 1000
+	ppm := models.PersonallyProcuredMove{NetWeight: &pounds}
+	noWtg := models.PersonallyProcuredMove{NetWeight: nil}
+
+	suite.Equal("1,000 lbs - FINAL", models.FormatPPMWeight(ppm))
+	suite.Equal("", models.FormatPPMWeight(noWtg))
 }

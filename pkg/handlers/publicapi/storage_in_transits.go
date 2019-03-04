@@ -21,8 +21,11 @@ func payloadForStorageInTransitModel(s *models.StorageInTransit) *apimessages.St
 	}
 
 	location := string(s.Location)
+	status := string(s.Status)
 
 	return &apimessages.StorageInTransit{
+		ID:                 *handlers.FmtUUID(s.ID),
+		ShipmentID:         *handlers.FmtUUID(s.ShipmentID),
 		EstimatedStartDate: handlers.FmtDate(s.EstimatedStartDate),
 		Notes:              handlers.FmtStringPtr(s.Notes),
 		WarehouseAddress:   payloadForAddressModel(&s.WarehouseAddress),
@@ -31,6 +34,7 @@ func payloadForStorageInTransitModel(s *models.StorageInTransit) *apimessages.St
 		WarehouseName:      handlers.FmtString(s.WarehouseName),
 		WarehousePhone:     handlers.FmtStringPtr(s.WarehousePhone),
 		Location:           &location,
+		Status:             *handlers.FmtString(status),
 	}
 }
 

@@ -1,21 +1,19 @@
 import * as Cookies from 'js-cookie';
-import * as decode from 'jwt-decode';
 import * as helpers from 'shared/ReduxHelpers';
 import { isMilmoveSite, isOfficeSite, isTspSite } from 'shared/constants';
-import { GetLoggedInUser } from './api.js';
-import { normalize } from 'normalizr';
+import { GetLoggedInUser } from 'shared/User/api.js';
 import { pick } from 'lodash';
-
+import { normalize } from 'normalizr';
 import { ordersArray } from 'shared/Entities/schema';
 import { addEntities } from 'shared/Entities/actions';
-import { getShipment } from 'shared/Entities/modules/shipments';
+import { getPublicShipment } from 'shared/Entities/modules/shipments';
 
 const getLoggedInUserType = 'GET_LOGGED_IN_USER';
 
 export const GET_LOGGED_IN_USER = helpers.generateAsyncActionTypes(getLoggedInUserType);
-
 const getLoggedInActions = helpers.generateAsyncActions(getLoggedInUserType);
-export const loadLoggedInUser = () => {
+
+export function getCurrentUserInfo() {
   return function(dispatch) {
     const userInfo = getUserInfo();
     if (!userInfo.isLoggedIn) return Promise.resolve();
@@ -26,7 +24,7 @@ export const loadLoggedInUser = () => {
           const data = normalize(response.service_member.orders, ordersArray);
           if (data.entities.shipments) {
             const shipmentIds = Object.keys(data.entities.shipments);
-            shipmentIds.map(id => dispatch(getShipment(id)));
+            shipmentIds.map(id => dispatch(getPublicShipment(id)));
           }
 
           // Only store addresses in a normalized way. This prevents
@@ -38,10 +36,43 @@ export const loadLoggedInUser = () => {
       })
       .catch(error => dispatch(getLoggedInActions.error(error)));
   };
-};
+}
 
-// the results of the api call will be handled by other reducers. This just lets us know app has loaded initial data
-export const loggedInUserReducer = (state = {}, action) => {
+export function selectCurrentUser(state) {
+  return state.user.userInfo || {};
+}
+
+export function selectGetCurrentUserIsLoading(state) {
+  return state.user.isLoading;
+}
+
+export function selectGetCurrentUserIsSuccess(state) {
+  return state.user.hasSucceeded;
+}
+
+export function selectGetCurrentUserIsError(state) {
+  return state.user.hasErrored;
+}
+
+function getUserInfo() {
+  // The prefix should match the lowercased application name set in the server session
+  let cookiePrefix = (isMilmoveSite && 'mil') || (isOfficeSite && 'office') || (isTspSite && 'tsp') || '';
+  const cookieName = cookiePrefix + '_session_token';
+  const cookie = Cookies.get(cookieName);
+  return {
+    isLoggedIn: !!cookie,
+  };
+}
+
+const currentUserReducerDefault = () => ({
+  hasSucceeded: false,
+  hasErrored: false,
+  isLoading: false,
+  userInfo: { email: '', ...getUserInfo() },
+});
+
+const currentUserReducer = (state = currentUserReducerDefault(), action) => {
+  const userLogInStatus = getUserInfo();
   switch (action.type) {
     case GET_LOGGED_IN_USER.start:
       return {
@@ -53,9 +84,13 @@ export const loggedInUserReducer = (state = {}, action) => {
     case GET_LOGGED_IN_USER.success:
       return {
         ...state,
-        isLoading: false,
-        hasErrored: false,
+        userInfo: {
+          ...userLogInStatus,
+          ...action.payload,
+        },
         hasSucceeded: true,
+        hasErrored: false,
+        isLoading: false,
       };
     case GET_LOGGED_IN_USER.error:
       return {
@@ -70,31 +105,4 @@ export const loggedInUserReducer = (state = {}, action) => {
   }
 };
 
-const loggedOutUser = {
-  isLoggedIn: false,
-  email: '',
-  userId: null,
-};
-
-function getUserInfo() {
-  // The prefix should match the lowercased application name set in the server session
-  let cookiePrefix = (isMilmoveSite && 'mil') || (isOfficeSite && 'office') || (isTspSite && 'tsp') || '';
-  const cookieName = cookiePrefix + '_session_token';
-  const cookie = Cookies.get(cookieName);
-  if (!cookie) return loggedOutUser;
-  const jwt = decode(cookie);
-  const { Email, UserID, FirstName } = jwt.SessionValue;
-  return {
-    email: Email,
-    userId: UserID,
-    firstName: FirstName,
-    isLoggedIn: true,
-    features: jwt.SessionValue.Features,
-  };
-}
-
-const userReducer = (state = getUserInfo(), action) => {
-  return getUserInfo();
-};
-
-export default userReducer;
+export default currentUserReducer;
