@@ -1,12 +1,3 @@
-.button-tooltip {
-  position: relative;
-}
-
-.button-tooltip .tooltiptext {
-  top: 40px;
-  margin-left: -175px;
-}
-
 .combo-button-icon {
   margin-left: 15px;
 }

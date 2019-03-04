@@ -5,17 +5,18 @@ import './index.css';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faCaretDown from '@fortawesome/fontawesome-free-solid/faCaretDown';
 
-const ComboButton = ({ toolTipText, isDisabled }) => (
-  <span className="combo-button button-tooltip tooltip">
+const ComboButton = ({ buttonText, toolTipText, isDisabled }) => (
+  <span className="combo-button tooltip">
     <button disabled={isDisabled}>
-      Approve
+      {buttonText}
       <FontAwesomeIcon className="combo-button-icon" icon={faCaretDown} />
     </button>
-    {toolTipText && <span className="tooltiptext">{toolTipText}</span>}
+    {toolTipText && <span className="tooltiptext tooltiptext-large">{toolTipText}</span>}
   </span>
 );
 
 ComboButton.propTypes = {
+  buttonText: PropTypes.string,
   toolTipText: PropTypes.string,
   isDisabled: PropTypes.bool,
 };

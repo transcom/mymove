@@ -3,8 +3,16 @@ import { shallow } from 'enzyme';
 import ComboButton from './index';
 
 describe('ComboButton tests', () => {
-  const renderComboButton = ({ isDisabled = false, toolTipText = undefined }) =>
-    shallow(<ComboButton isDisabled={isDisabled} toolTipText={toolTipText} />);
+  const renderComboButton = ({ buttonText = '', isDisabled = false, toolTipText = undefined }) =>
+    shallow(<ComboButton buttonText={buttonText} isDisabled={isDisabled} toolTipText={toolTipText} />);
+
+  describe('button text', () => {
+    it('renders button using buttonText', () => {
+      const comboButton = renderComboButton({ buttonText: 'Text' });
+      const button = comboButton.find('button');
+      expect(button.render().text()).toEqual('Text');
+    });
+  });
 
   describe('disabled state', () => {
     it('renders a disabled button when isDisabled is true', () => {
