@@ -40,8 +40,8 @@ type EiaSeriesData struct {
 // EiaData captures entirety of desired returned JSON
 type EiaData struct {
 	RequestData EiaRequestData         `json:"request"`
-	OtherData   map[string]interface{} `json:"data"`
-	SeriesData  []EiaSeriesData        `json:"series"`
+	OtherData   map[string]interface{} `json:"data,omitempty"`
+	SeriesData  []EiaSeriesData        `json:"series,omitempty"`
 }
 
 // FetchFuelData is a function for returning fuel data
