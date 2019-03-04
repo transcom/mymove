@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/loads"
+
 	"github.com/transcom/mymove/pkg/gen/dpsapi"
 	dpsops "github.com/transcom/mymove/pkg/gen/dpsapi/dpsoperations"
 	"github.com/transcom/mymove/pkg/handlers"

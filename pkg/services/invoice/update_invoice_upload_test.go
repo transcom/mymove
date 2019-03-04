@@ -12,6 +12,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -19,8 +20,9 @@ import (
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
-	"github.com/transcom/mymove/pkg/uploader"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *InvoiceServiceSuite) openLocalFile(path string) (afero.File, error) {
@@ -80,14 +82,14 @@ func (suite *InvoiceServiceSuite) helperCreateUpload(storer *storage.FileStorer)
 	}
 
 	// Create Upload and save it
-	upload, verrs, err := up.CreateUploadNoDocument(userID, &file)
-	suite.Nil(err, "CreateUploadNoDocument() failed to create upload")
-	suite.Empty(verrs.Error(), "CreateUploadNoDocument() verrs returned error")
-	suite.NotNil(upload, "CreateUploadNoDocument() failed to create upload structure")
+	upload, verrs, err := up.CreateUpload(userID, &file, uploader.AllowedTypesPDF)
+	suite.Nil(err, "CreateUpload() failed to create upload")
+	suite.Empty(verrs.Error(), "CreateUpload() verrs returned error")
+	suite.NotNil(upload, "CreateUpload() failed to create upload structure")
 	if upload == nil {
 		suite.T().Fatalf("failed to create a upload object: %s", err)
 	}
-	// Call Close on file after CreateUpload is complete
+	// Call Close on file after CreateUploadForDocument is complete
 	file.Close()
 	return upload
 }

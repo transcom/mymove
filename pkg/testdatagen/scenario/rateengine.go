@@ -2,6 +2,7 @@ package scenario
 
 import (
 	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -99,6 +100,32 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		EffectiveDateUpper: May14_2019,
 	}
 	if err := save(db, &linehaulRate); err != nil {
+		return err
+	}
+
+	itemRate210A := models.Tariff400ngItemRate{
+		Code:               "210A",
+		Schedule:           &destinationServiceArea.SITPDSchedule,
+		WeightLbsLower:     linehaulRate.WeightLbsLower,
+		WeightLbsUpper:     linehaulRate.WeightLbsUpper,
+		RateCents:          unit.Cents(57600),
+		EffectiveDateLower: May15_2018,
+		EffectiveDateUpper: May14_2019,
+	}
+	if err := save(db, &itemRate210A); err != nil {
+		return err
+	}
+
+	itemRate225A := models.Tariff400ngItemRate{
+		Code:               "225A",
+		Schedule:           &destinationServiceArea.ServicesSchedule,
+		WeightLbsLower:     linehaulRate.WeightLbsLower,
+		WeightLbsUpper:     linehaulRate.WeightLbsUpper,
+		RateCents:          unit.Cents(9900),
+		EffectiveDateLower: May15_2018,
+		EffectiveDateUpper: May14_2019,
+	}
+	if err := save(db, &itemRate225A); err != nil {
 		return err
 	}
 
@@ -248,6 +275,32 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		return err
 	}
 
+	item1Rate210A := models.Tariff400ngItemRate{
+		Code:               "210A",
+		Schedule:           &destinationServiceArea.SITPDSchedule,
+		WeightLbsLower:     linehaulRate1.WeightLbsLower,
+		WeightLbsUpper:     linehaulRate1.WeightLbsUpper,
+		RateCents:          unit.Cents(57600),
+		EffectiveDateLower: May15_2018,
+		EffectiveDateUpper: May14_2019,
+	}
+	if err := save(db, &item1Rate210A); err != nil {
+		return err
+	}
+
+	item1Rate225A := models.Tariff400ngItemRate{
+		Code:               "225A",
+		Schedule:           &destinationServiceArea.ServicesSchedule,
+		WeightLbsLower:     linehaulRate1.WeightLbsLower,
+		WeightLbsUpper:     linehaulRate1.WeightLbsUpper,
+		RateCents:          unit.Cents(9900),
+		EffectiveDateLower: May15_2018,
+		EffectiveDateUpper: May14_2019,
+	}
+	if err := save(db, &item1Rate225A); err != nil {
+		return err
+	}
+
 	linehaulRate2 := models.Tariff400ngLinehaulRate{
 		DistanceMilesLower: 1601,
 		DistanceMilesUpper: 1701,
@@ -259,6 +312,32 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		EffectiveDateUpper: May14_2019,
 	}
 	if err := save(db, &linehaulRate2); err != nil {
+		return err
+	}
+
+	item2Rate210A := models.Tariff400ngItemRate{
+		Code:               "210A",
+		Schedule:           &destinationServiceArea.SITPDSchedule,
+		WeightLbsLower:     linehaulRate2.WeightLbsLower,
+		WeightLbsUpper:     linehaulRate2.WeightLbsUpper,
+		RateCents:          unit.Cents(35050),
+		EffectiveDateLower: May15_2018,
+		EffectiveDateUpper: May14_2019,
+	}
+	if err := save(db, &item2Rate210A); err != nil {
+		return err
+	}
+
+	item2Rate225A := models.Tariff400ngItemRate{
+		Code:               "225A",
+		Schedule:           &destinationServiceArea.ServicesSchedule,
+		WeightLbsLower:     linehaulRate2.WeightLbsLower,
+		WeightLbsUpper:     linehaulRate2.WeightLbsUpper,
+		RateCents:          unit.Cents(7700),
+		EffectiveDateLower: May15_2018,
+		EffectiveDateUpper: May14_2019,
+	}
+	if err := save(db, &item2Rate225A); err != nil {
 		return err
 	}
 

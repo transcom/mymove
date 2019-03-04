@@ -54,6 +54,10 @@
   display: inline-block;
 }
 
+.net-weight .short-field {
+  margin-right: 0.5rem;
+}
+
 .office-tab .editable-panel-content {
   padding-left: 1.7rem;
   padding-right: 1.7rem;

@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/honeycombio/beeline-go"
+
 	auth "github.com/transcom/mymove/pkg/auth"
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"

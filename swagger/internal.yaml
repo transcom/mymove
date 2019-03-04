@@ -40,6 +40,16 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        readOnly: true
+      first_name:
+        type: string
+        example: John
+        readOnly: true
       service_member:
         $ref: '#/definitions/ServiceMemberPayload'
         x-nullable: true
@@ -145,7 +155,7 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
-      planned_move_date:
+      original_move_date:
         type: string
         example: '2018-04-26'
         format: date
@@ -194,6 +204,11 @@ definitions:
         type: integer
         minimum: 1
         title: Weight Estimate
+        x-nullable: true
+      net_weight:
+        type: integer
+        minimum: 1
+        title: Net Weight
         x-nullable: true
       has_requested_advance:
         type: boolean
@@ -207,11 +222,17 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
-      planned_move_date:
+      original_move_date:
         type: string
         format: date
         example: '2018-04-26'
         title: When do you plan to move?
+        x-nullable: true
+      actual_move_date:
+        type: string
+        example: '2018-04-26'
+        format: date
+        title: When did you actually move?
         x-nullable: true
       pickup_postal_code:
         type: string
@@ -256,6 +277,11 @@ definitions:
         type: integer
         minimum: 1
         title: Weight Estimate
+        x-nullable: true
+      net_weight:
+        type: integer
+        minimum: 1
+        title: Net Weight
         x-nullable: true
       has_requested_advance:
         type: boolean
@@ -270,11 +296,17 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
-      planned_move_date:
+      original_move_date:
         type: string
         example: '2018-04-26'
         format: date
         title: When do you plan to move?
+        x-nullable: true
+      actual_move_date:
+        type: string
+        example: '2018-04-26'
+        format: date
+        title: When did you actually move?
         x-nullable: true
       pickup_postal_code:
         type: string
@@ -315,6 +347,11 @@ definitions:
         type: integer
         minimum: 1
         title: Weight Estimate
+        x-nullable: true
+      net_weight:
+        type: integer
+        minimum: 1
+        title: Net Weight
         x-nullable: true
       has_requested_advance:
         type: boolean
@@ -337,11 +374,17 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       size:
         $ref: '#/definitions/TShirtSize'
-      planned_move_date:
+      original_move_date:
         type: string
         format: date
         title: When do you plan to move?
         example: '2018-04-26'
+        x-nullable: true
+      actual_move_date:
+        type: string
+        example: '2018-04-26'
+        format: date
+        title: When did you actually move?
         x-nullable: true
       pickup_postal_code:
         type: string
@@ -386,6 +429,12 @@ definitions:
         type: integer
         minimum: 1
         title: Weight Estimate
+        x-nullable: true
+        x-formatting: weight
+      net_weight:
+        type: integer
+        minimum: 1
+        title: Net Weight
         x-nullable: true
         x-formatting: weight
       mileage:
@@ -507,6 +556,11 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       locator:
         type: string
         example: '12432'
@@ -576,6 +630,17 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MoveDocumentPayload'
+  DistanceCalculation:
+    type: object
+    properties:
+      origin_address:
+        $ref: '#/definitions/Address'
+      destination_address:
+        $ref: '#/definitions/Address'
+      distance_miles:
+        type: integer
+        title: Distance
+        description: unit is miles
   MoveDocumentPayload:
     type: object
     properties:
@@ -1395,6 +1460,9 @@ definitions:
         enum:
           - D
           - '2'
+        x-display-value:
+          D: D
+          '2': '2'
     required:
       - source_rate_area
       - destination_region
@@ -1441,11 +1509,6 @@ definitions:
         type: string
         format: uuid
         example: d56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      code_of_service:
-        type: string
-        x-nullable: true
-        title: Code of service
         readOnly: true
       book_date:
         type: string
@@ -1547,6 +1610,8 @@ definitions:
         $ref: '#/definitions/Address'
         title: Delivery Address
         x-nullable: true
+      shipping_distance:
+        $ref: '#/definitions/DistanceCalculation'
       has_partial_sit_delivery_address:
         type: boolean
         default: false
@@ -2292,7 +2357,7 @@ paths:
         - ppm
       parameters:
         - in: query
-          name: planned_move_date
+          name: original_move_date
           type: string
           format: date
           required: true
@@ -2334,7 +2399,7 @@ paths:
         - ppm
       parameters:
         - in: query
-          name: planned_move_date
+          name: original_move_date
           type: string
           format: date
           required: true
@@ -3347,6 +3412,10 @@ paths:
         - application/pdf
       responses:
         200:
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
           description: Pre-filled worksheet PDF
           schema:
             format: binary
@@ -3436,7 +3505,7 @@ paths:
         - ppm
       parameters:
         - in: query
-          name: planned_move_date
+          name: original_move_date
           type: string
           format: date
           required: true

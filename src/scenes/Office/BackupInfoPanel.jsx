@@ -113,7 +113,6 @@ function mapStateToProps(state, ownProps) {
     },
 
     hasError: false,
-    errorMessage: state.office.error,
   };
 }
 

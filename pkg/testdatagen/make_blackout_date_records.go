@@ -3,7 +3,6 @@ package testdatagen
 import (
 	"log"
 	"math/rand"
-	"time"
 
 	"github.com/gobuffalo/pop"
 
@@ -39,8 +38,8 @@ func MakeBlackoutDate(db *pop.Connection, assertions Assertions) models.Blackout
 
 	blackoutDate := models.BlackoutDate{
 		TransportationServiceProviderID: tspID,
-		StartBlackoutDate:               time.Now(),
-		EndBlackoutDate:                 time.Now(),
+		StartBlackoutDate:               NextValidMoveDate,
+		EndBlackoutDate:                 NextValidMoveDate,
 		TrafficDistributionListID:       tdlID,
 		SourceGBLOC:                     stringPointer("PORK"),
 		Market:                          stringPointer("dHHG"),

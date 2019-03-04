@@ -6,9 +6,10 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testingsuite"
-	"go.uber.org/zap"
 )
 
 type PlannerSuite struct {

@@ -47,8 +47,8 @@ func (suite *HandlerSuite) TestDPSAuthCookieURLHandler() {
 	suite.True(ok)
 
 	// Make the service member a DPS user, should no longer get a permission error when setting params
-	testdatagen.MakeDpsUser(suite.DB(), testdatagen.Assertions{User: serviceMember.User})
-	request = suite.AuthenticateRequest(request, serviceMember)
+	dpsUser := testdatagen.MakeDpsUser(suite.DB(), testdatagen.Assertions{User: serviceMember.User})
+	request = suite.AuthenticateDpsRequest(request, serviceMember, dpsUser)
 	params.HTTPRequest = request
 	response = handler.Handle(params)
 	_, ok = response.(*dps_auth.GetCookieURLOK)

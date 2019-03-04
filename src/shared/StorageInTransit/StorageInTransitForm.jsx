@@ -48,7 +48,7 @@ export class StorageInTransitForm extends Component {
             <SwaggerField fieldName="street_address_2" swagger={addressSchema} />
             <SwaggerField fieldName="city" swagger={addressSchema} required />
             <SwaggerField fieldName="state" swagger={addressSchema} required />
-            <SwaggerField fieldName="postal_code" swagger={addressSchema} required />
+            <SwaggerField fieldName="postal_code" swagger={addressSchema} zipPattern="USA" required />
           </div>
         </fieldset>
       </form>
@@ -61,7 +61,8 @@ StorageInTransitForm.propTypes = {
   addressSchema: PropTypes.object.isRequired,
 };
 
-const formName = 'storage_in_transit_request_form';
+export const formName = 'storage_in_transit_request_form';
+
 StorageInTransitForm = reduxForm({
   form: formName,
   enableReinitialize: true,

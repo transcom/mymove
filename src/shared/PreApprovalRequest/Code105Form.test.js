@@ -1,7 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-
-import { DefaultDetails } from './DefaultDetails';
+import { Code105Form } from './Code105Form';
 
 const simpleSchema = {
   properties: {
@@ -40,6 +39,12 @@ const simpleSchema = {
       type: 'string',
       title: 'Location',
     },
+    description: {
+      type: 'string',
+      format: 'textarea',
+      title: 'Notes',
+      example: 'Mounted deer head',
+    },
     notes: {
       type: 'string',
       title: 'Notes',
@@ -72,13 +77,21 @@ const simpleSchema = {
 };
 
 let wrapper;
-describe('Renders without crashing', () => {
-  describe('Base quantity default details', () => {
-    wrapper = shallow(<DefaultDetails ship_line_item_schema={simpleSchema} />);
+describe('code 105B/E details component', () => {
+  describe('renders', () => {
+    wrapper = shallow(<Code105Form ship_line_item_schema={simpleSchema} />);
 
-    it('renders without crashing', () => {
+    it('without crashing', () => {
       // eslint-disable-next-line
-      expect(wrapper.exists('p')).toBe(true);
+      expect(wrapper.exists('SwaggerField')).toBe(true);
+    });
+
+    it('contains crate dimension', () => {
+      expect(wrapper.exists('DimensionsField[fieldName="crate_dimensions"]')).toBe(true);
+    });
+
+    it('contains item dimension', () => {
+      expect(wrapper.exists('DimensionsField[fieldName="item_dimensions"]')).toBe(true);
     });
   });
 });

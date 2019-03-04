@@ -8,8 +8,9 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/transcom/mymove/pkg/models"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/models"
 )
 
 // bingRequestTimeout is how long to wait on Bing request before timing out (30 seconds).

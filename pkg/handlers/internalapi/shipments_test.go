@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -227,7 +228,6 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 	suite.Equal(strfmt.UUID(move.ID.String()), createShipmentPayload.MoveID)
 	suite.Equal(strfmt.UUID(sm.ID.String()), createShipmentPayload.ServiceMemberID)
 	suite.Equal(internalmessages.ShipmentStatusDRAFT, createShipmentPayload.Status)
-	suite.Equal(swag.String("D"), createShipmentPayload.CodeOfService)
 	suite.Equal(internalmessages.ShipmentMarketDHHG, *createShipmentPayload.Market)
 	suite.EqualValues(3, *createShipmentPayload.EstimatedPackDays)
 	suite.EqualValues(12, *createShipmentPayload.EstimatedTransitDays)
@@ -285,7 +285,6 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 	suite.Equal(strfmt.UUID(sm.ID.String()), unwrapped.Payload.ServiceMemberID)
 	suite.Equal(internalmessages.ShipmentStatusDRAFT, unwrapped.Payload.Status)
 	suite.Equal(internalmessages.ShipmentMarketDHHG, *unwrapped.Payload.Market)
-	suite.Nil(unwrapped.Payload.CodeOfService) // Won't be able to assign a TDL since we do not have a pickup address.
 	suite.Nil(unwrapped.Payload.EstimatedPackDays)
 	suite.Nil(unwrapped.Payload.EstimatedTransitDays)
 	suite.Nil(unwrapped.Payload.ActualPackDate)

@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/auth"
 )
 
@@ -202,7 +203,7 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	}
 
 	// Check that the logged-in service member is associated to the document
-	if session.IsMyApp() && moveDoc.Document.ServiceMemberID != session.ServiceMemberID {
+	if session.IsMilApp() && moveDoc.Document.ServiceMemberID != session.ServiceMemberID {
 		return &MoveDocument{}, ErrFetchForbidden
 	}
 

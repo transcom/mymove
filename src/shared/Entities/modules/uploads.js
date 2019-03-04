@@ -21,7 +21,7 @@ export default function reducer(state = {}, action) {
 
 export const createShipmentDocumentLabel = 'Uploads.createShipmentDocument';
 
-export function createShipmentDocument(label, shipmentId, createGenericMoveDocument) {
+export function createShipmentDocument(shipmentId, createGenericMoveDocument, label = createShipmentDocumentLabel) {
   return swaggerRequest(
     getPublicClient,
     'move_docs.createGenericMoveDocument',

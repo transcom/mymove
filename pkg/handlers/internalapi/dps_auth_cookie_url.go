@@ -7,13 +7,14 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/dps_auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"go.uber.org/zap"
 )
 
 type errUserMissing struct {
@@ -34,7 +35,7 @@ func (h DPSAuthGetCookieURLHandler) Handle(params dps_auth.GetCookieURLParams) m
 	// Only DPS users can set the cookie name and redirect URL for testing purposes
 	if params.CookieName != nil || params.DpsRedirectURL != nil {
 		session := auth.SessionFromRequestContext(params.HTTPRequest)
-		if !session.CanAccessFeature(auth.FeatureDPS) {
+		if !session.IsDpsUser() {
 			return dps_auth.NewGetCookieURLForbidden()
 		}
 	}

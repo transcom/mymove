@@ -115,12 +115,12 @@ function serviceMemberVerifiesHHGPPMSummary() {
 
     // PPM Panel
     expect(text).to.include('Shipment - You move your stuff (PPM)');
-    expect(text).to.include('Move Date: 05/20/2018');
+    expect(text).to.include('Move Date: 09/03/2018');
     expect(text).to.include('Pickup ZIP Code:  90210');
     expect(text).to.include('Delivery ZIP Code:  30813');
     expect(text).not.to.include('Storage: Not requested');
     expect(text).to.include('Estimated Weight:  1,50');
-    expect(text).to.include('Estimated PPM Incentive:  $4,362.66 - 4,821.88');
+    expect(text).to.include('Estimated PPM Incentive:  $2,677.52 - 2,959.36');
   });
 }
 
@@ -157,7 +157,7 @@ function serviceMemberVerifiesPPMDatesAndLocationsEdited() {
 function serviceMemberEditsPPMDatesAndLocations() {
   cy.get('[data-cy="edit-ppm-dates"]').click();
 
-  typeInInput({ name: 'planned_move_date', value: '5/28/2018' });
+  typeInInput({ name: 'original_move_date', value: '5/28/2018' });
   typeInInput({ name: 'pickup_postal_code', value: '91206' });
   typeInInput({ name: 'destination_postal_code', value: '30813' });
 
@@ -367,7 +367,7 @@ function serviceMemberFillsInDatesAndLocations() {
     .should('contain', 'Review');
 
   cy
-    .get('input[name="planned_move_date"]')
+    .get('input[name="original_move_date"]')
     .should('have.value', '5/20/2018')
     .clear()
     .first()
@@ -445,12 +445,12 @@ function serviceMemberCanReviewMoveSummary() {
   cy.get('.ppm-container').should($div => {
     const text = $div.text();
     expect(text).to.include('Shipment - You move your stuff (PPM)');
-    expect(text).to.include('Move Date: 05/20/2018');
+    expect(text).to.include('Move Date: 09/03/2018');
     expect(text).to.include('Pickup ZIP Code:  90210');
     expect(text).to.include('Delivery ZIP Code:  30813');
     expect(text).not.to.include('Storage: Not requested');
     expect(text).to.include('Estimated Weight:  1,50');
-    expect(text).to.include('Estimated PPM Incentive:  $4,362.66 - 4,821.88');
+    expect(text).to.include('Estimated PPM Incentive:  $2,677.52 - 2,959.36');
   });
 
   cy.nextPage();
@@ -500,6 +500,6 @@ function serviceMemberViewsUpdatedHomePage() {
     // PPM information and details
     expect(text).to.include('Next Step: Wait for approval');
     expect(text).to.include('Weight (est.): 150');
-    expect(text).to.include('Incentive (est.): $4,362.66 - 4,821.88');
+    expect(text).to.include('Incentive (est.): $2,677.52 - 2,959.36');
   });
 }

@@ -6,14 +6,12 @@ const updateBackupContactLabel = 'ServiceMember.updateBackupContact';
 export const loadServiceMemberLabel = 'ServiceMember.loadServiceMember';
 export const updateServiceMemberLabel = 'ServiceMember.updateServiceMember';
 
-export function loadBackupContacts(serviceMemberId) {
-  const label = loadBackupContactsLabel;
+export function loadBackupContacts(serviceMemberId, label = loadBackupContactsLabel) {
   const swaggerTag = 'backup_contacts.indexServiceMemberBackupContacts';
   return swaggerRequest(getClient, swaggerTag, { serviceMemberId }, { label });
 }
 
-export function updateBackupContact(backupContactId, backupContact) {
-  const label = updateBackupContactLabel;
+export function updateBackupContact(backupContactId, backupContact, label = updateBackupContactLabel) {
   const swaggerTag = 'backup_contacts.updateServiceMemberBackupContact';
   return swaggerRequest(
     getClient,
@@ -23,14 +21,12 @@ export function updateBackupContact(backupContactId, backupContact) {
   );
 }
 
-export function loadServiceMember(serviceMemberId) {
-  const label = loadServiceMemberLabel;
+export function loadServiceMember(serviceMemberId, label = loadServiceMemberLabel) {
   const swaggerTag = 'service_members.showServiceMember';
   return swaggerRequest(getClient, swaggerTag, { serviceMemberId }, { label });
 }
 
-export function updateServiceMember(serviceMemberId, serviceMember) {
-  const label = updateServiceMemberLabel;
+export function updateServiceMember(serviceMemberId, serviceMember, label = updateServiceMemberLabel) {
   const swaggerTag = 'service_members.patchServiceMember';
   return swaggerRequest(
     getClient,
@@ -62,7 +58,8 @@ export function selectServiceMemberForMove(state, moveId) {
 }
 
 export function selectBackupContactForServiceMember(state, serviceMemberId) {
-  return Object.values(state.entities.backupContacts).find(backupContact => {
+  const backupContact = Object.values(state.entities.backupContacts).find(backupContact => {
     return backupContact.service_member_id === serviceMemberId;
   });
+  return backupContact || {};
 }
