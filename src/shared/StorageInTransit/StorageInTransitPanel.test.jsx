@@ -75,13 +75,13 @@ describe('StorageInTransit tests', () => {
     });
 
     it('renders the first mocked Storage In Transit request', () => {
-      expect(wrapper.find('.column-head').get(0).props.children).toContain('Origin');
-      expect(wrapper.find('.column-head').get(0).props.children[4].props.children[1]).toEqual('Requested');
+      expect(wrapper.find('.column-head').get(1).props.children).toContain('Origin');
+      expect(wrapper.find('.column-head').get(1).props.children[3].props.children[1]).toEqual('Requested');
     });
 
     it('renders the second mocked Storage In Transit request', () => {
-      expect(wrapper.find('.column-head').get(1).props.children).toContain('Destination');
-      expect(wrapper.find('.column-head').get(1).props.children[4].props.children[1]).toEqual('Requested');
+      expect(wrapper.find('.column-head').get(2).props.children).toContain('Destination');
+      expect(wrapper.find('.column-head').get(2).props.children[3].props.children[1]).toEqual('Requested');
     });
   });
 });

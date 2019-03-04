@@ -48,7 +48,7 @@ export class StorageInTransitPanel extends Component {
               <span className="warning--header">Please refresh the page and try again.</span>
             </Alert>
           )}
-          <div className="column-subhead">
+          <div className="column-head">
             Entitlement: {storageInTransitEntitlement} days <span className="unbold">({daysRemaining} remaining)</span>
           </div>
           {storageInTransits !== undefined &&
@@ -58,9 +58,10 @@ export class StorageInTransitPanel extends Component {
                   {row.location.charAt(0) + row.location.slice(1).toLowerCase()} SIT
                   <span className="unbold">
                     {' '}
-                    Status: <FontAwesomeIcon className="icon icon-grey" icon={faClock} />{' '}
-                  </span>{' '}
-                  <span> SIT {row.status.charAt(0) + row.status.slice(1).toLowerCase()} </span>
+                    <span id={'sit-status-text'}>Status:</span>{' '}
+                    <FontAwesomeIcon className="icon icon-grey" icon={faClock} />
+                  </span>
+                  <span>SIT {row.status.charAt(0) + row.status.slice(1).toLowerCase()} </span>
                 </div>
               );
             })}
