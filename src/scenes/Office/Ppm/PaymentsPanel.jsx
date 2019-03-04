@@ -100,7 +100,7 @@ class PaymentsTable extends Component {
             icon={faCheck}
             title="Can't approve payment until shipment is approved."
           />
-          <span className="tooltiptext">Can't approve payment until shipment is approved.</span>
+          <span className="tooltiptext tooltiptext-medium">Can't approve payment until shipment is approved.</span>
         </React.Fragment>
       );
     }
