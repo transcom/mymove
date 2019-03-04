@@ -45,9 +45,9 @@ paths:
     get:
       summary: Retrieve orders by issuer and orders number
       description: >-
-        Return the Orders for the provided issuer and orders number.
+        Return Orders with the provided issuer and orders number.
 
-        ## Errors
+        # Errors
 
         Users of this endpoint must have permission to read Orders for the
         specified issuer. Otherwise, this endpoint will return `403 Forbidden`.
@@ -98,21 +98,35 @@ paths:
       description: >
         Creates a Revision of a set of orders.
 
+        # Identifying the service member
+
+        The Orders Gateway associates Orders and their Revisions with the
+        member's EDIPI. For users of this API who do not have the member's EDIPI
+        but do have the member's SSN, they can submit the SSN instead. The
+        Orders Gateway will then fetch the member's EDIPI using DMDC's Identity
+        Web Services. Calls using the 9-digit SSN instead of the 10-digit EDIPI
+        will take longer to respond due to the additional overhead.
+
+        # Submitting Orders Revisions
+
         ## New Orders
 
         The supplied Revision is considered part of a new set of Orders if the
-        combination of `ordersNum`, EDIPI, and `issuer` has never been seen
-        before. A new UUID is created and associated with the Orders, which is
-        returned along with the supplied Revision.
+        combination of `ordersNum` and `issuer` has never been seen before. A
+        new UUID is created and associated with the Orders, which is returned
+        along with the supplied Revision.
 
         ## Amended Orders
 
-        If the system determines that the supplied Revision is an amendment to
-        an existing set of Orders, then the supplied Revision is added to the
-        existing Orders.
+        If the system already has Orders with the supplied combination of
+        `ordersNum` and `issuer`, then the supplied Revision is considered to be
+        an amendment of those Orders. The Revision with the highest `seqNum` is
+        considered the most recent amendment, which is not necessarily the
+        Revision with the latest `dateIssued` or the Revision submitted last.
 
         If you stored the UUID of the Orders from a previous call to this API,
-        you have the option of using the `POST /orders/{uuid}` API instead.
+        you have the option of using the `POST /orders/{uuid}` API instead to
+        supply a new Revision.
 
         ## Canceled, Rescinded, or Revoked Orders
 
@@ -125,8 +139,13 @@ paths:
         specified `issuer`. Otherwise, this endpoint will return `403
         Forbidden`.
 
-        If amending existing Orders, the supplied seqNum must be unique. If it
-        has already been used, this endpoint will return `409 Conflict`.
+        If SSN instead of EDIPI is provided to identify the member, and DMDC's
+        Identity Web Services does not return an EDIPI for that SSN, then this
+        endpoint will return `404 Not Found`.
+
+        If amending existing Orders, the supplied seqNum must be unique when
+        compared to existing Revisions in those Orders. If it has already been
+        used, this endpoint will return `409 Conflict`.
       operationId: postRevision
       consumes:
         - application/json
@@ -146,10 +165,7 @@ paths:
           description: >
             Electronic Data Interchange Personal Identifier of the member
             (preferred). If the member's EDIPI is unknown, then the Social
-            Security Number may be provided instead. The Orders Gateway will
-            then fetch the member's EDIPI using DMDC's Identity Web Services.
-            Calls using the 9 digit SSN instead of the 10 digit EDIPI will take
-            longer to respond due to the additional overhead.
+            Security Number may be provided instead.
           required: true
           type: string
           pattern: '^\d{9}\d?$'
@@ -180,6 +196,8 @@ paths:
           description: must be authenticated to use this endpoint
         '403':
           description: Forbidden
+        '404':
+          description: Not Found
         '409':
           description: Conflict
         '500':
@@ -233,7 +251,7 @@ paths:
         in these Orders. Other than `seqNum`, nothing else is required to change
         in the Revision compared to any other Revision in these Orders.
 
-        ## Errors
+        # Errors
 
         Users of this endpoint must have permission to write Orders for the
         `issuer` associated with the Orders that were originally POST'd to the
@@ -689,27 +707,22 @@ definitions:
           the Transportation Global Edit Tables (TGET). This is the preferred
           way to charge a move expense to the correct pool of money.
 
-
           > TGET is a centralized repository that contains established
           transportation LOAs formatted in accordance with Service/Agency LOA
           requirements and associated TACs.
 
-
           ## Army
 
           Army orders do not include a TAC. Instead, they provide an MDC.
-
 
           > A movement designator code (MDC) provides the office of the Deputy
           Chief of Staff for Personnel with a record of the type of PCS travel
           performed by Active Army personnel. This record is used to centrally
           manage PCS funds.
 
-
           The correct TAC can be located by looking up the MDC, move type, and
           Fiscal Year (corresponding to the orders issuance date) in the
           CROSSWALK Excel spreadsheet.
-
 
           ## Navy
 
@@ -732,11 +745,9 @@ definitions:
           obviously only works if the SDN is unique to the member and to the
           specific set of orders.
 
-
           ## Marine Corps
 
           The last four characters of the SDN should be same as the TAC.
-
 
           At the time of this writing, the Marines have separate SDNs for each
           category of moving expenses (HHG, POV Storage, NTS, etc.), but only
@@ -768,7 +779,6 @@ definitions:
           Unit Identification Code - a six character alphanumeric code that
           uniquely identifies each United States Department of Defense entity.
           Used in Army, Air Force, and Navy orders.
-
 
           Note that the Navy has the habit of omitting the leading character,
           which is always "N" for them.
