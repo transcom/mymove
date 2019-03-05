@@ -269,6 +269,11 @@ definitions:
         minimum: 0
         maximum: 90
         x-nullable: true
+      total_sit_cost:
+        type: integer
+        title: How much does your storage cost?
+        minimum: 0
+        x-nullable: true
       estimated_storage_reimbursement:
         type: string
         title: Estimated Storage Reimbursement
@@ -342,6 +347,11 @@ definitions:
         title: How many days do you plan to put your stuff in storage?
         minimum: 0
         maximum: 90
+        x-nullable: true
+      total_sit_cost:
+        type: integer
+        minimum: 1
+        title: How much does your storage cost?
         x-nullable: true
       weight_estimate:
         type: integer
@@ -444,6 +454,10 @@ definitions:
       planned_sit_max:
         type: integer
         title: Maximum SIT reimbursement for the planned SIT duration
+        x-nullable: true
+      total_sit_cost:
+        type: integer
+        title: Total cost for the planned SIT duration
         x-nullable: true
       sit_max:
         type: integer

@@ -47,6 +47,7 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 		Advance:                       payloadForReimbursementModel(personallyProcuredMove.Advance),
 		AdvanceWorksheet:              documentPayload,
 		Mileage:                       personallyProcuredMove.Mileage,
+		TotalSitCost:                  handlers.FmtCost(personallyProcuredMove.TotalSITCost),
 	}
 	if personallyProcuredMove.IncentiveEstimateMin != nil {
 		min := (*personallyProcuredMove.IncentiveEstimateMin).Int64()
@@ -180,14 +181,18 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 	if payload.DestinationPostalCode != nil {
 		ppm.DestinationPostalCode = payload.DestinationPostalCode
 	}
+
 	if payload.HasSit != nil {
-		if *payload.HasSit == false {
-			ppm.DaysInStorage = nil
-			ppm.EstimatedStorageReimbursement = nil
-		} else if *payload.HasSit == true {
-			ppm.DaysInStorage = payload.DaysInStorage
-		}
 		ppm.HasSit = payload.HasSit
+	}
+
+	if payload.TotalSitCost != nil {
+		cost := unit.Cents(*payload.TotalSitCost)
+		ppm.TotalSITCost = &cost
+	}
+
+	if payload.DaysInStorage != nil {
+		ppm.DaysInStorage = payload.DaysInStorage
 	}
 
 	if payload.HasRequestedAdvance != nil {

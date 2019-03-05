@@ -353,6 +353,12 @@ definitions:
         title: Description
         example: Mounted deer head
         x-nullable: true
+      reason:
+        type: string
+        format: textarea
+        title: Reason
+        example: Too large to be transported safely
+        x-nullable: true
       crate_dimensions:
         $ref: '#/definitions/Dimensions'
       item_dimensions:
@@ -369,12 +375,26 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
+      estimate_amount_cents:
+        type: integer
+        format: cents
+        minimum: 1
+        title: Estimate amount
+        description: Used for storing estimate cost of a service or charge.
+        x-nullable: true
+      actual_amount_cents:
+        type: integer
+        format: cents
+        minimum: 1
+        title: Actual amount
+        description: Used for storing actual cost of a service or charge.
+        x-nullable: true
       amount_cents:
         type: integer
         format: cents
         minimum: 1
         title: Amount
-        description: unit is cents
+        description: Unit is cents. Used for storing line haul charges.
         x-nullable: true
       submitted_date:
         type: string
@@ -1613,6 +1633,10 @@ definitions:
   StorageInTransit:
     type: object
     properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       location:
         type: string
         title: SIT Location
@@ -1681,6 +1705,7 @@ definitions:
         title: Email
       shipment_id:
         type: string
+        format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         title: Shipment ID
       sit_number:
@@ -1696,7 +1721,6 @@ definitions:
         $ref: '#/definitions/Address'
     required:
       - location
-      - shipment_id
       - warehouse_address
       - warehouse_id
       - warehouse_name

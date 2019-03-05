@@ -1,5 +1,6 @@
 import { DefaultForm } from './DefaultForm';
 import { Code105Form } from './Code105Form';
+import { Code35Form } from './Code35Form';
 import { get } from 'lodash';
 import { Code105Details } from './Code105Details';
 import { DefaultDetails } from './DefaultDetails';
@@ -10,6 +11,8 @@ export function getFormComponent(code, robustAccessorial, initialValues) {
   const isNew = !initialValues;
   if (robustAccessorial && (code.startsWith('105b') || code.startsWith('105e'))) {
     if (isNew || hasCrateDimensions) return Code105Form;
+  } else if (robustAccessorial && code.startsWith('35')) {
+    return Code35Form;
   }
   return DefaultForm;
 }

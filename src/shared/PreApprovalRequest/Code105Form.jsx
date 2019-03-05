@@ -6,7 +6,7 @@ export const Code105Form = props => {
   const { ship_line_item_schema } = props;
   return (
     <Fragment>
-      <SwaggerField fieldName="description" swagger={ship_line_item_schema} required />
+      <SwaggerField className="textarea-half" fieldName="description" swagger={ship_line_item_schema} required />
       <DimensionsField
         fieldName="item_dimensions"
         swagger={ship_line_item_schema}

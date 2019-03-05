@@ -194,6 +194,68 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	models.SaveMoveDependencies(db, &ppmNoAdvance.Move)
 
 	/*
+	 * office user finds the move: office user completes storage panel
+	 */
+	email = "office.user.completes@storage.panel"
+	uuidStr = "ebac4efd-c980-48d6-9cce-99fb34644789"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	ppmStorage := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("76eb1c93-16f7-4c8e-a71c-67d5c9093dd3"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Storage"),
+			LastName:      models.StringPointer("Panel"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("25fb9bf6-2a38-4463-8247-fce2a5571ab7"),
+			Locator: "STORAG",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate: &nextValidMoveDate,
+		},
+		Uploader: loader,
+	})
+	ppmStorage.Move.Submit()
+	models.SaveMoveDependencies(db, &ppmStorage.Move)
+
+	/*
+	 * office user finds the move: office user cancels storage panel
+	 */
+	email = "office.user.cancelss@storage.panel"
+	uuidStr = "cbb56f00-97f7-4d20-83cf-25a7b2f150b6"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	ppmNoStorage := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("b9673e29-ac8d-4945-abc2-36f8eafd6fd8"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Storage"),
+			LastName:      models.StringPointer("Panel"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("9d0409b8-3587-4fad-9caf-7fc853e1c001"),
+			Locator: "NOSTRG",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate: &nextValidMoveDate,
+		},
+		Uploader: loader,
+	})
+	ppmNoStorage.Move.Submit()
+	models.SaveMoveDependencies(db, &ppmNoStorage.Move)
+
+	/*
 	 * A move, that will be canceled by the E2E test
 	 */
 	email = "ppm-to-cancel@example.com"
