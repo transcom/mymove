@@ -26,10 +26,7 @@ endif
 WEBSERVER_LDFLAGS=-X main.gitBranch=$(shell git branch | grep \* | cut -d ' ' -f2) -X main.gitCommit=$(shell git rev-list -1 HEAD)
 DB_PORT_DEV=5432
 DB_PORT_DOCKER=5432
-ifndef CIRCLECI
-	DB_PORT_TEST=5433
-	LDFLAGS=
-else
+ifdef CIRCLECI
 	DB_PORT_TEST=5432
 	LDFLAGS=-linkmode external -extldflags -static
 endif
