@@ -70,107 +70,126 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	numMonthsToVerify := 10
 
 	// Test case where there is no data yet available for the current month (nor expected).
-	prePubDateTestClock := clock.NewMock()
-	dateToTest = time.Date(2010, time.January, 2, 0, 0, 0, 0, time.UTC) // first Mon 1/2010 is 4th
-	timeDiff = dateToTest.Sub(prePubDateTestClock.Now().UTC())
-	prePubDateTestClock.Add(timeDiff)
-	dieselFuelPriceStorer := NewDieselFuelPriceStorer(suite.DB(), suite.logger, prePubDateTestClock, mockedFetchFuelPriceData, "", "No data available yet this month")
-	verrs, err := dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
-	suite.NoError(err)
+	suite.T().Run("no data yet available for current month", func(t *testing.T) {
+		prePubDateTestClock := clock.NewMock()
+		dateToTest = time.Date(2010, time.January, 2, 0, 0, 0, 0, time.UTC) // first Mon 1/2010 is 4th
+		timeDiff = dateToTest.Sub(prePubDateTestClock.Now().UTC())
+		prePubDateTestClock.Add(timeDiff)
+		dieselFuelPriceStorer := NewDieselFuelPriceStorer(suite.DB(), suite.logger, prePubDateTestClock, mockedFetchFuelPriceData, "", "No data available yet this month")
+		verrs, err := dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
+		suite.NoError(err)
+		suite.Empty(verrs.Errors)
 
-	prePubDatePrices := []models.FuelEIADieselPrice{}
-	err = queryForThisMonth.All(&prePubDatePrices)
-	if err != nil {
-		suite.logger.Error(err.Error())
-	}
-	suite.Empty(&prePubDatePrices)
+		prePubDatePrices := []models.FuelEIADieselPrice{}
+		err = queryForThisMonth.All(&prePubDatePrices)
+		if err != nil {
+			suite.logger.Error(err.Error())
+		}
+		suite.Empty(&prePubDatePrices)
+	})
 
 	// Test case where there is no data for a given month (but should be)
-	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), suite.logger, testClock, mockedFetchFuelPriceData, "", "Data missing but expected")
-	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
-	suite.Error(err)
+	suite.T().Run("no data available for current month (though expected)", func(t *testing.T) {
+		dieselFuelPriceStorer := NewDieselFuelPriceStorer(suite.DB(), suite.logger, testClock, mockedFetchFuelPriceData, "", "Data missing but expected")
+		verrs, err := dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
+		suite.Error(err)
+		suite.Empty(verrs.Errors)
+	})
 
 	// Test case where there is no data for a given month (but should be) and the first Monday is a holiday
-	postMonHolidayTestClock := clock.NewMock()
-	dateToTest = time.Date(2018, time.September, 5, 0, 0, 0, 0, time.UTC) // Labor Day 2018 Mon 3/3
-	timeDiff = dateToTest.Sub(postMonHolidayTestClock.Now().UTC())
-	postMonHolidayTestClock.Add(timeDiff)
+	suite.T().Run("no data available for current month (though expected) and first Monday is a holiday", func(t *testing.T) {
+		postMonHolidayTestClock := clock.NewMock()
+		dateToTest = time.Date(2018, time.September, 5, 0, 0, 0, 0, time.UTC) // Labor Day 2018 Mon 3/3
+		timeDiff = dateToTest.Sub(postMonHolidayTestClock.Now().UTC())
+		postMonHolidayTestClock.Add(timeDiff)
 
-	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), suite.logger, postMonHolidayTestClock, mockedFetchFuelPriceData, "", "Data missing but expected")
-	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
-	suite.Error(err)
+		dieselFuelPriceStorer := NewDieselFuelPriceStorer(suite.DB(), suite.logger, postMonHolidayTestClock, mockedFetchFuelPriceData, "", "Data missing but expected")
+		verrs, err := dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
+		suite.Error(err)
+		suite.Empty(verrs.Errors)
+	})
 
 	// Test case where an error message is returned from api
-	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), suite.logger, testClock, mockedFetchFuelPriceData, "", "Error")
-	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
-	suite.Error(err)
-	suite.Empty(verrs.Errors)
-
+	suite.T().Run("error message returned from api", func(t *testing.T) {
+		dieselFuelPriceStorer := NewDieselFuelPriceStorer(suite.DB(), suite.logger, testClock, mockedFetchFuelPriceData, "", "Error")
+		verrs, err := dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
+		suite.Error(err)
+		suite.Empty(verrs.Errors)
+	})
 	// Test case where api returns unexpected JSON structure/value
-	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), suite.logger, testClock, mockedFetchFuelPriceData, "", "Unexpected response")
-	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
-	suite.Error(err)
+	suite.T().Run("unexpected JSON structure returned from api", func(t *testing.T) {
+		dieselFuelPriceStorer := NewDieselFuelPriceStorer(suite.DB(), suite.logger, testClock, mockedFetchFuelPriceData, "", "Unexpected response")
+		verrs, err := dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
+		suite.Error(err)
+		suite.Empty(verrs.Errors)
+	})
 
-	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), suite.logger, testClock, mockedFetchFuelPriceData, "", "Store current month missing data")
-	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
-	suite.NoError(err)
-	suite.Empty(verrs.Errors)
+	suite.T().Run("stores current month missing data", func(t *testing.T) {
+		dieselFuelPriceStorer := NewDieselFuelPriceStorer(suite.DB(), suite.logger, testClock, mockedFetchFuelPriceData, "", "Stores current month missing data")
+		verrs, err := dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
+		suite.NoError(err)
+		suite.Empty(verrs.Errors)
 
-	currentMonthPrices := []models.FuelEIADieselPrice{}
-	err = queryForThisMonth.All(&currentMonthPrices)
-	if err != nil {
-		suite.logger.Error(err.Error())
-	}
-	dbBaselineRate := currentMonthPrices[0].BaselineRate
-	var expectedBaselineRate int64
-	expectedBaselineRate = 3
-	suite.Equal(expectedBaselineRate, dbBaselineRate)
+		currentMonthPrices := []models.FuelEIADieselPrice{}
+		err = queryForThisMonth.All(&currentMonthPrices)
+		if err != nil {
+			suite.logger.Error(err.Error())
+		}
+		suite.NotEmpty(currentMonthPrices)
+		dbBaselineRate := currentMonthPrices[0].BaselineRate
+		expectedBaselineRate := int64(3)
+		suite.Equal(expectedBaselineRate, dbBaselineRate)
+	})
 
 	// Test case where data is missing from a prior month and saved to db
-	//remove a month other than current month
-	priorMonthsToRemove := []models.FuelEIADieselPrice{}
+	suite.T().Run("stores data missing for a month that is not the current month", func(t *testing.T) {
+		//remove a month other than current month
+		priorMonthsToRemove := []models.FuelEIADieselPrice{}
 
-	queryForPriorMonth := suite.DB().RawQuery(
-		"SELECT * FROM fuel_eia_diesel_prices WHERE (date_part('year', pub_date) = $1 "+
-			"AND date_part('month', pub_date) = $2)", currentDate.AddDate(0, -3, 0).Year(), int(currentDate.AddDate(0, -3, 0).Month()))
-	err = queryForPriorMonth.All(&priorMonthsToRemove)
-	if err != nil {
-		suite.logger.Error(err.Error())
-	}
-	err = suite.DB().Destroy(&priorMonthsToRemove)
-	if err != nil {
-		suite.logger.Error("Error deleting eia diesel price", zap.Error(err))
-	}
+		queryForPriorMonth := suite.DB().RawQuery(
+			"SELECT * FROM fuel_eia_diesel_prices WHERE (date_part('year', pub_date) = $1 "+
+				"AND date_part('month', pub_date) = $2)", currentDate.AddDate(0, -3, 0).Year(), int(currentDate.AddDate(0, -3, 0).Month()))
+		err = queryForPriorMonth.All(&priorMonthsToRemove)
+		if err != nil {
+			suite.logger.Error(err.Error())
+		}
+		err = suite.DB().Destroy(&priorMonthsToRemove)
+		if err != nil {
+			suite.logger.Error("Error deleting eia diesel price", zap.Error(err))
+		}
 
-	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), suite.logger, testClock, mockedFetchFuelPriceData, "", "Store previous month missing data")
-	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
-	suite.NoError(err)
-	suite.Empty(verrs.Errors)
+		dieselFuelPriceStorer := NewDieselFuelPriceStorer(suite.DB(), suite.logger, testClock, mockedFetchFuelPriceData, "", "Store previous month missing data")
+		verrs, err := dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
+		suite.NoError(err)
+		suite.Empty(verrs.Errors)
 
-	// check that the records are added back in for previous month
-	resultingFuelEIADeiselPrices := []models.FuelEIADieselPrice{}
+		// check that the records are added back in for previous month
+		resultingFuelEIADeiselPrices := []models.FuelEIADieselPrice{}
 
-	err = queryForThisMonth.All(&resultingFuelEIADeiselPrices)
-	if err != nil {
-		suite.logger.Error(err.Error())
-	}
-	suite.NotEmpty(&resultingFuelEIADeiselPrices)
+		err = queryForThisMonth.All(&resultingFuelEIADeiselPrices)
+		if err != nil {
+			suite.logger.Error(err.Error())
+		}
+		suite.NotEmpty(&resultingFuelEIADeiselPrices)
 
-	priorMonthPrices := []models.FuelEIADieselPrice{}
-	err = queryForPriorMonth.All(&priorMonthPrices)
-	if err != nil {
-		suite.logger.Error(err.Error())
-	}
-	suite.NotEmpty(&priorMonthPrices)
-	dbBaselineRate = priorMonthPrices[0].BaselineRate
-	expectedBaselineRate = 1
-	suite.Equal(expectedBaselineRate, dbBaselineRate)
+		priorMonthPrices := []models.FuelEIADieselPrice{}
+		err = queryForPriorMonth.All(&priorMonthPrices)
+		if err != nil {
+			suite.logger.Error(err.Error())
+		}
+		suite.NotEmpty(&priorMonthPrices)
+		dbBaselineRate := priorMonthPrices[0].BaselineRate
+		expectedBaselineRate := int64(1)
+		suite.Equal(expectedBaselineRate, dbBaselineRate)
+	})
 
 	// Test case where all desired data already exists in db
-	dieselFuelPriceStorer = NewDieselFuelPriceStorer(suite.DB(), suite.logger, testClock, mockedFetchFuelPriceData, "", "No data needed")
-	verrs, err = dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
-	suite.NoError(err)
-	suite.Empty(verrs.Errors)
+	suite.T().Run("all desired data already exists in the db", func(t *testing.T) {
+		dieselFuelPriceStorer := NewDieselFuelPriceStorer(suite.DB(), suite.logger, testClock, mockedFetchFuelPriceData, "", "No data needed")
+		verrs, err := dieselFuelPriceStorer.StoreFuelPrices(numMonthsToVerify)
+		suite.NoError(err)
+		suite.Empty(verrs.Errors)
+	})
 }
 
 func mockedFetchFuelPriceData(url string) (data EiaData, err error) {
@@ -212,7 +231,7 @@ func mockedFetchFuelPriceData(url string) (data EiaData, err error) {
 			},
 		}, nil
 	}
-	if re.MatchString("Store current month missing data") {
+	if re.MatchString("Stores current month missing data") {
 		return EiaData{
 			SeriesData: []EiaSeriesData{
 				{

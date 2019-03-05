@@ -96,7 +96,7 @@ func (u DieselFuelPriceStorer) StoreFuelPrices(numMonths int) (*validate.Errors,
 		}
 		pricePerGallon := fuelValues.price
 		pubDateString := fuelValues.dateString
-		pubDate, err := time.Parse("20180214", pubDateString)
+		pubDate, err := time.Parse("20060102", pubDateString) // must use this date Jan 2 2006 for layout
 		if err != nil {
 			return verrs, errors.Wrap(err, "unable to convert pubDate datestring to date")
 		}
@@ -278,6 +278,8 @@ func (u DieselFuelPriceStorer) findMissingRecordMonths(db *pop.Connection, numMo
 
 func (u DieselFuelPriceStorer) calculateFuelSurchargeBaselineRate(pricePerGallon float64) (baselineRate int64, err error) {
 	// Calculate fuel surcharge based on price per gallon based on government-provided calculation
+	// Rate formula found at https://www.sddc.army.mil/res/PublicationsAndPolicies/TR-12%20FRA%20Policy.docx
+	// Formula to get baseline rate: (fuelprice - baseline)/.13 rounded up; if the fuel price is greater than or equal to baseline, the baseline rate is 0
 	fuelPriceBaseline := 2.5
 	dividendValue := .13
 	diffPriceAndBaseline := pricePerGallon - fuelPriceBaseline
