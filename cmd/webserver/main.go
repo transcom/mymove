@@ -150,6 +150,19 @@ func httpsComplianceMiddleware(inner http.Handler) http.Handler {
 	return http.HandlerFunc(mw)
 }
 
+func validMethodForStaticMiddleware(inner http.Handler) http.Handler {
+	mw := func(w http.ResponseWriter, r *http.Request) {
+		url := strings.Split(r.URL.String(), "/")
+		if url[1] == "static" && r.Method == "POST" {
+			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+			return
+		}
+		inner.ServeHTTP(w, r)
+		return
+	}
+	return http.HandlerFunc(mw)
+}
+
 func securityHeadersMiddleware(inner http.Handler) http.Handler {
 	zap.L().Debug("securityHeadersMiddleware installed")
 	mw := func(w http.ResponseWriter, r *http.Request) {
@@ -963,6 +976,7 @@ func main() {
 	site.Use(httpsComplianceMiddleware)
 	site.Use(securityHeadersMiddleware)
 	site.Use(limitBodySizeMiddleware)
+	site.Use(validMethodForStaticMiddleware)
 
 	// Stub health check
 	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {
