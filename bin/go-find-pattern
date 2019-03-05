@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /usr/bin/env bash
 #
 #   go-find-pattern searchs over all our go source code files for a regex pattern"
 #   For example: bin/go-find-pattern '[.]Info[(]"[^"]+\s+"'
