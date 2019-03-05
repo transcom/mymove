@@ -292,6 +292,7 @@ func (u DieselFuelPriceStorer) calculateFuelSurchargeBaselineRate(pricePerGallon
 	return baselineRate, nil
 }
 
+// intInSlice checks if an integer exists within the given slice
 func intInSlice(a int, list []int) bool {
 	for _, b := range list {
 		if b == a {
