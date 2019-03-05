@@ -83,21 +83,6 @@ describe('ComboButton tests', () => {
         const dropDownAfterSecondClick = enabledComboButton.find('.dropdown');
         expect(dropDownAfterSecondClick.exists()).toBe(false);
       });
-
-      it('disappears on click outside of button', () => {
-        const enabledComboButton = mount(
-          <div className={'outside'}>
-            <ComboButton {...buttonProps} />
-          </div>,
-        );
-
-        enabledComboButton.find('button').simulate('click');
-        const dropDownAfterFirstClick = enabledComboButton.find('.dropdown');
-        expect(dropDownAfterFirstClick.exists()).toBe(true);
-        enabledComboButton.find('.outside').simulate('click');
-        const dropDownAfterSecondClick = enabledComboButton.find('.dropdown');
-        expect(dropDownAfterSecondClick.exists()).toBe(false);
-      });
     });
   });
 });

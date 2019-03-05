@@ -6,7 +6,7 @@
 .dropdown {
   width: 230px;
   position: absolute;
-  top: 100%;
+  top: 150%;
   z-index: 2;
 }
 
