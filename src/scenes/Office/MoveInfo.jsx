@@ -51,7 +51,7 @@ import {
 } from 'shared/Entities/modules/shipments';
 import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
-import { selectSitRequests } from 'shared/Entities/modules/sitRequests';
+import { selectStorageInTransits } from 'shared/Entities/modules/storageInTransits';
 
 import { showBanner, removeBanner } from './ducks';
 import {
@@ -111,9 +111,9 @@ const HHGTabContent = props => {
     serviceAgents,
     shipment,
     updatePublicShipment,
-    sitRequests,
+    storageInTransits,
     showSitPanel,
-    sitEntitlement,
+    storageInTransitEntitlement,
   } = props;
   if (shipment) {
     shipmentStatus = shipment.status;
@@ -134,7 +134,11 @@ const HHGTabContent = props => {
       />
       <PreApprovalPanel shipmentId={shipment.id} />
       {showSitPanel && (
-        <StorageInTransitPanel sitRequests={sitRequests} shipmentId={shipmentId} sitEntitlement={sitEntitlement} />
+        <StorageInTransitPanel
+          storageInTransits={storageInTransits}
+          shipmentId={shipmentId}
+          storageInTransitEntitlement={storageInTransitEntitlement}
+        />
       )}
       <InvoicePanel
         shipmentId={shipment.id}
@@ -259,7 +263,7 @@ class MoveInfo extends Component {
       shipmentStatus,
       serviceMember,
       upload,
-      entitlement,
+      storageInTransitEntitlement,
     } = this.props;
     const isPPM = move.selected_move_type === 'PPM';
     const isHHG = move.selected_move_type === 'HHG';
@@ -383,7 +387,7 @@ class MoveInfo extends Component {
                       shipmentStatus={this.props.shipmentStatus}
                       updatePublicShipment={this.props.updatePublicShipment}
                       showSitPanel={this.props.context.flags.sitPanel}
-                      sitEntitlement={entitlement.storage_in_transit}
+                      storageInTransitEntitlement={storageInTransitEntitlement.storage_in_transit}
                     />
                   )}
                 </PrivateRoute>
@@ -557,8 +561,8 @@ const mapStateToProps = (state, ownProps) => {
     swaggerError: get(state, 'swagger.hasErrored'),
     tariff400ngItems: selectTariff400ngItems(state),
     upload: get(orders, 'uploaded_orders.uploads.0', {}),
-    entitlement: calculateEntitlementsForMove(state, moveId) || {},
-    sitRequests: selectSitRequests(state, shipmentId),
+    storageInTransitEntitlement: calculateEntitlementsForMove(state, moveId) || {},
+    storageInTransits: selectStorageInTransits(state, shipmentId),
   };
 };
 
