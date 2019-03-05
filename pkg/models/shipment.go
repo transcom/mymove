@@ -48,6 +48,7 @@ var (
 		"PickupAddress",
 		"SecondaryPickupAddress",
 		"DeliveryAddress",
+		"DestinationAddressOnAcceptance",
 		"PartialSITDeliveryAddress",
 		"ShipmentOffers.TransportationServiceProviderPerformance.TransportationServiceProvider",
 		"ShippingDistance.OriginAddress",
