@@ -49,11 +49,19 @@ class UserBehavior(TaskSequence):
             self.login_gov_user = resp.json()
             self.session_token = self.client.cookies.get('mil_session_token')
             self.requests_client = RequestsClient()
+            # Set the session to be the same session as locust uses
             self.requests_client.session = self.client
+            # Set the csrf token in the global headers for all requests
+            # Don't validate requests or responses because we're using OpenAPI Spec 2.0 which doesn't respect
+            # nullable sub-definitions
             self.swagger = SwaggerClient.from_url(
                 "http://milmovelocal:8080/internal/swagger.yaml",
                 request_headers={'x-csrf-token': self.csrf},
-                http_client=self.requests_client)
+                http_client=self.requests_client,
+                config={
+                    'validate_requests': False,
+                    'validate_responses': False,
+                })
         except Exception:
             print('Headers:', self.client.headers)
             print(resp.content)
@@ -69,9 +77,17 @@ class UserBehavior(TaskSequence):
         model = self.swagger.get_model("CreateServiceMemberPayload")
         payload = model(user_id=self.user["id"])
         service_member = self.swagger.service_members.createServiceMember(
-            createServiceMemberPayload=payload).response().result
-        self.user["service_member"] = service_member
-        # check response for 201
+            createServiceMemberPayload=payload)
+        try:
+            service_member = service_member.response()
+            http_response = service_member.incoming_response
+            print("3", http_response.status_code)
+            service_member = service_member.response().result
+            print(service_member)
+            self.user["service_member"] = service_member
+            # check response for 201
+        except Exception as e:
+            print(e)
 
     @seq_task(4)
     def create_your_profile(self):
