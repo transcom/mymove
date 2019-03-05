@@ -196,7 +196,11 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 		// handle all possible responses
 		if len(result.OtherData) != 0 {
 			if result.OtherData["error"] == 1 {
-				return nil, errors.New(result.OtherData["error"].(string))
+				errMsg, ok := result.OtherData["error"].(string)
+				if !ok {
+					return nil, errors.New("data returned from api as error failed string type assertion")
+				}
+				return nil, errors.New(errMsg)
 			}
 			return nil, errors.New("Unexpected response from GET request to eia.gov's open data")
 		} else if len(result.SeriesData) == 0 {
@@ -206,6 +210,7 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 
 		// select the fuel data for the first week of data available for the month
 		dateString := ""
+		var ok bool
 		var price float64
 		if len(monthFuelData) >= 1 {
 			weekIndex := 0
@@ -213,8 +218,14 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 
 			// find earliest date(String) in the month
 			for i, weekData := range monthFuelData {
-				dateString = weekData[0].(string)
-				price = weekData[1].(float64)
+				dateString, ok = weekData[0].(string)
+				if !ok {
+					return nil, errors.New("data returned from api as pub_date failed string type assertion")
+				}
+				price, ok = weekData[1].(float64)
+				if !ok {
+					return nil, errors.New("data returned as fuel price failed float64 type assertion")
+				}
 				pubDateAsInt, err := strconv.Atoi(dateString)
 				if err != nil {
 					return nil, errors.Wrap(err, "pubDate conversion from string to int")
@@ -224,8 +235,14 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 					weekIndex = i
 				}
 			}
-			dateString = monthFuelData[weekIndex][0].(string)
-			price = monthFuelData[weekIndex][1].(float64)
+			dateString, ok = monthFuelData[weekIndex][0].(string)
+			if !ok {
+				return nil, errors.New("data returned from api as pub_date failed string type assertion")
+			}
+			price, ok = monthFuelData[weekIndex][1].(float64)
+			if !ok {
+				return nil, errors.New("data returned as fuel price failed float64 type assertion")
+			}
 		} else if len(monthFuelData) == 0 {
 			// Throw error if data should be available but is not
 			if month == int(currentDate.Month()) {
