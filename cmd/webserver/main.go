@@ -103,6 +103,8 @@ type errInvalidPKCS7 struct {
 	Path string
 }
 
+const serveSwaggerUIFlag string = "serve-swagger-ui"
+
 func (e *errInvalidPKCS7) Error() string {
 	return fmt.Sprintf("invalid DER encoded PKCS7 package: %s", e.Path)
 }
@@ -194,6 +196,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
 	flag.String("orders-swagger", "swagger/orders.yaml", "The location of the Orders API swagger definition")
 	flag.String("dps-swagger", "swagger/dps.yaml", "The location of the DPS API swagger definition")
+	flag.Bool(serveSwaggerUIFlag, false, "Whether to serve swagger UI for the APIs")
 
 	flag.Bool("debug-logging", false, "log messages at the debug level.")
 	flag.String("client-auth-secret-key", "", "Client auth secret JWT key.")
@@ -921,6 +924,12 @@ func main() {
 		},
 	)
 
+	if v.GetBool(serveSwaggerUIFlag) {
+		logger.Info("Swagger UI serving is enabled")
+	} else {
+		logger.Info("Swagger UI serving is disabled")
+	}
+
 	// Base routes
 	site := goji.NewMux()
 	// Add middleware: they are evaluated in the reverse order in which they
@@ -988,7 +997,9 @@ func main() {
 
 	// Allow public content through without any auth or app checks
 	site.Handle(pat.Get("/static/*"), clientHandler)
-	site.Handle(pat.Get("/swagger-ui/*"), clientHandler)
+	if v.GetBool(serveSwaggerUIFlag) {
+		site.Handle(pat.Get("/swagger-ui/*"), clientHandler)
+	}
 	site.Handle(pat.Get("/downloads/*"), clientHandler)
 	site.Handle(pat.Get("/favicon.ico"), clientHandler)
 
@@ -997,8 +1008,10 @@ func main() {
 	ordersMux.Use(ordersDetectionMiddleware)
 	ordersMux.Use(noCacheMiddleware)
 	ordersMux.Use(clientCertMiddleware)
-	ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("orders-swagger")))
-	ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "orders.html")))
+	if v.GetBool(serveSwaggerUIFlag) {
+		ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("orders-swagger")))
+		ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "orders.html")))
+	}
 	ordersMux.Handle(pat.New("/*"), ordersapi.NewOrdersAPIHandler(handlerContext))
 	site.Handle(pat.Get("/orders/v0/*"), ordersMux)
 
@@ -1007,8 +1020,10 @@ func main() {
 	dpsMux.Use(dpsDetectionMiddleware)
 	dpsMux.Use(noCacheMiddleware)
 	dpsMux.Use(clientCertMiddleware)
-	dpsMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("dps-swagger")))
-	dpsMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "dps.html")))
+	if v.GetBool(serveSwaggerUIFlag) {
+		dpsMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("dps-swagger")))
+		dpsMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "dps.html")))
+	}
 	dpsMux.Handle(pat.New("/*"), dpsapi.NewDPSAPIHandler(handlerContext))
 	site.Handle(pat.New("/dps/v0/*"), dpsMux)
 
@@ -1053,9 +1068,10 @@ func main() {
 
 	apiMux := goji.SubMux()
 	root.Handle(pat.New("/api/v1/*"), apiMux)
-	apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("swagger")))
-	apiMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "api.html")))
-
+	if v.GetBool(serveSwaggerUIFlag) {
+		apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("swagger")))
+		apiMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "api.html")))
+	}
 	externalAPIMux := goji.SubMux()
 	apiMux.Handle(pat.New("/*"), externalAPIMux)
 	externalAPIMux.Use(noCacheMiddleware)
@@ -1064,9 +1080,10 @@ func main() {
 
 	internalMux := goji.SubMux()
 	root.Handle(pat.New("/internal/*"), internalMux)
-	internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("internal-swagger")))
-	internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "internal.html")))
-
+	if v.GetBool(serveSwaggerUIFlag) {
+		internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("internal-swagger")))
+		internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "internal.html")))
+	}
 	// Mux for internal API that enforces auth
 	internalAPIMux := goji.SubMux()
 	internalMux.Handle(pat.New("/*"), internalAPIMux)

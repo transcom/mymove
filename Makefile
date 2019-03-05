@@ -227,6 +227,7 @@ server_run:
 # This command runs the server behind gin, a hot-reload server
 server_run_default: server_deps server_generate db_dev_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
+	SERVE_SWAGGER_UI=true \
 	$(AWS_VAULT) ./bin/gin --build ./cmd/webserver \
 		--bin /bin/webserver \
 		--port 8080 --appPort 8081 \
@@ -236,6 +237,7 @@ server_run_default: server_deps server_generate db_dev_run
 .PHONY: server_run_debug
 server_run_debug:
 	INTERFACE=localhost DEBUG_LOGGING=true \
+	SERVE_SWAGGER_UI=true \
 	$(AWS_VAULT) dlv debug cmd/webserver/main.go
 
 .PHONY: build_tools
