@@ -1,3 +1,55 @@
+.container {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown {
+  width: 230px;
+  position: absolute;
+  top: 100%;
+  z-index: 2;
+}
+
+.dropdown ul {
+  list-style: none;
+  border: 2px solid #0071bc;
+  background-color: white;
+  border-radius: 5px;
+  padding: 0;
+  margin: 0;
+}
+
+.dropdown li {
+  padding: 0.25em 1em;
+  color: #0071bc;
+  font-size: 0.9em;
+  cursor: pointer;
+}
+
+.dropdown li.last-item {
+  border-top: 1px solid #ccc;
+}
+
+.dropdown li.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.dropdown > li:hover {
+  color: white;
+  background-color: #0071bc;
+  cursor: pointer;
+}
+
+.dropdown > li.disabled {
+  color: #aeb0b5;
+}
+
+.dropdown > li.disabled:hover {
+  color: #aeb0b5;
+  background-color: white;
+}
+
 .combo-button-icon {
   margin-left: 15px;
 }
