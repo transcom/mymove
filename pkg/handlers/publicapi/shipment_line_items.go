@@ -245,13 +245,15 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 		}
 	}
 
-	var estAmtCents unit.Cents
-	var actAmtCents unit.Cents
+	var estAmtCents *unit.Cents
+	var actAmtCents *unit.Cents
 	if params.Payload.EstimateAmountCents != nil {
-		estAmtCents = unit.Cents(*params.Payload.EstimateAmountCents)
+		centsValue := unit.Cents(*params.Payload.EstimateAmountCents)
+		estAmtCents = &centsValue
 	}
 	if params.Payload.ActualAmountCents != nil {
-		actAmtCents = unit.Cents(*params.Payload.ActualAmountCents)
+		centsValue := unit.Cents(*params.Payload.ActualAmountCents)
+		actAmtCents = &centsValue
 	}
 
 	additionalParams := models.AdditionalShipmentLineItemParams{
@@ -259,8 +261,8 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 		CrateDimensions:     crateDimensions,
 		Description:         params.Payload.Description,
 		Reason:              params.Payload.Reason,
-		EstimateAmountCents: &estAmtCents,
-		ActualAmountCents:   &actAmtCents,
+		EstimateAmountCents: estAmtCents,
+		ActualAmountCents:   actAmtCents,
 	}
 
 	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(h.DB(),
