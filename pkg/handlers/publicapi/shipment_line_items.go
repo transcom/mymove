@@ -212,7 +212,6 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 		Quantity2:           unit.IntToBaseQuantity(params.Payload.Quantity2),
 		Location:            string(params.Payload.Location),
 		Notes:               handlers.FmtString(params.Payload.Notes),
-		Description:         params.Payload.Description,
 	}
 
 	var itemDimensions, crateDimensions *models.AdditionalLineItemDimensions
@@ -234,6 +233,7 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 	additionalParams := models.AdditionalShipmentLineItemParams{
 		ItemDimensions:  itemDimensions,
 		CrateDimensions: crateDimensions,
+		Description:     params.Payload.Description,
 	}
 
 	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(h.DB(),
@@ -299,7 +299,6 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 		Quantity2:           unit.IntToBaseQuantity(params.Payload.Quantity2),
 		Location:            string(params.Payload.Location),
 		Notes:               handlers.FmtString(params.Payload.Notes),
-		Description:         params.Payload.Description,
 	}
 
 	var itemDimensions, crateDimensions *models.AdditionalLineItemDimensions
@@ -321,6 +320,7 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 	additionalParams := models.AdditionalShipmentLineItemParams{
 		ItemDimensions:  itemDimensions,
 		CrateDimensions: crateDimensions,
+		Description:     params.Payload.Description,
 	}
 
 	verrs, err := shipment.UpdateShipmentLineItem(h.DB(),
