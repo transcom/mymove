@@ -1,4 +1,4 @@
-import { createItem } from '../../fixtures/preApprovals/requests/create105';
+import { createItemRequest } from '../../fixtures/preApprovals/requests/create105';
 
 /* global cy */
 export function addOriginal105({ code, quantity1 }) {
@@ -45,7 +45,7 @@ function clickSaveAndClose() {
 }
 
 function createOriginal105(shipmentId, csrfToken, code, quantity1) {
-  const item = createItem({
+  const item = createItemRequest({
     shipmentId: shipmentId,
     csrfToken: csrfToken,
     code: code,

@@ -1,4 +1,4 @@
-export function createItem({ shipmentId, csrfToken, code, quantity1 }) {
+export function createItemRequest({ shipmentId, csrfToken, code, quantity1 }) {
   const tariff400ng = {
     '105B': { item: 'Pack Reg Crate', id: 'deb28967-d52c-4f04-8a0b-a264c9d80457', location: 'ORIGIN' },
     '105E': { item: 'UnPack Reg Crate', id: '6df4f1aa-a232-4eef-bbe8-f06bfb0b6d40', location: 'DESTINATION' },
