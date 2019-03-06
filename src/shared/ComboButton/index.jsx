@@ -57,14 +57,14 @@ const styleListItems = items => {
   return items.map((item, index) => <li className={liClasses(item, index)}>{item.value}</li>);
 };
 
-function DropDown(props) {
+const DropDown = props => {
   let { items } = props;
   return (
     <div className="dropdown">
       <ul className="dropdown">{styleListItems(items)}</ul>
     </div>
   );
-}
+};
 
 DropDown.propTypes = {
   items: PropTypes.array,
