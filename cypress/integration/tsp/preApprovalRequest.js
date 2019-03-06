@@ -19,10 +19,10 @@ describe('TSP user interacts with pre approval request panel', function() {
   it('TSP user deletes pre approval request', function() {
     tspUserDeletesPreApprovalRequest();
   });
-  it('TSP user creates origional 105B request', function() {
+  it('Add original 105B/E to verify they display correctly', function() {
     test105beOriginal();
   });
-  it('TSP user creates 105B request', function() {
+  it('TSP user creates 105B/E request', function() {
     test105be();
   });
 });
@@ -93,13 +93,19 @@ function tspUserDeletesPreApprovalRequest() {
 }
 
 function test105beOriginal() {
-  cy.setFeatureFlag('robustAccessorial=false');
   cy.selectQueueItemMoveLocator('DATESP');
 
-  addOriginal105({ code: '105B', quantity1: 12 });
-  cy.get('td[details-cy="105B-default-details"]').should('contain', '12.0000 notes notes 105B');
+  addOriginal105({ code: '105B', quantity1: 12 }).then(res => {
+    expect(res.status).to.equal(201);
+  });
 
-  addOriginal105({ code: '105E', quantity1: 90 });
+  addOriginal105({ code: '105E', quantity1: 90 }).then(res => {
+    expect(res.status).to.equal(201);
+  });
+
+  // must reload page because original 105B/E are added by cy.request()
+  cy.reload();
+  cy.get('td[details-cy="105B-default-details"]').should('contain', '12.0000 notes notes 105B');
   cy.get('td[details-cy="105E-default-details"]').should('contain', '90.0000 notes notes 105E');
 }
 
