@@ -26,10 +26,6 @@
   cursor: pointer;
 }
 
-.dropdown li.last-item {
-  border-top: 1px solid #ccc;
-}
-
 .dropdown li.disabled {
   pointer-events: none;
   opacity: 0.6;

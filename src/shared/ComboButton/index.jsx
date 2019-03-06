@@ -52,9 +52,8 @@ class ComboButton extends Component {
 }
 
 const styleListItems = items => {
-  const isLastItem = (item, index) => index === items.length - 1;
-  const liClasses = (item, index) => classNames({ disabled: item.disabled, 'last-item': isLastItem(item, index) });
-  return items.map((item, index) => <li className={liClasses(item, index)}>{item.value}</li>);
+  const liClasses = item => classNames({ disabled: item.disabled });
+  return items.map(item => <li className={liClasses(item)}>{item.value}</li>);
 };
 
 const DropDown = props => {

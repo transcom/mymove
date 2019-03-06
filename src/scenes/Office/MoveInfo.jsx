@@ -391,7 +391,6 @@ class MoveInfo extends Component {
                       { value: 'Approve Basics', disabled: true },
                       { value: 'Approve HHG', disabled: true },
                       { value: 'Approve PPM', disabled: true },
-                      { value: 'Approve All', disabled: true },
                     ]}
                     buttonText={'Approve'}
                     disabled={!ordersComplete}
