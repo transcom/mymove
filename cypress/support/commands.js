@@ -184,10 +184,8 @@ Cypress.Commands.add(
 
 Cypress.Commands.add('logout', () => {
   cy
-    .get('form')
-    .within(() => {
-      cy.get('input[name="logout"]').should('have.value', 'Sign Out');
-    })
+    .get('a')
+    .contains('Sign Out')
     .click();
 });
 
