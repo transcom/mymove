@@ -1293,7 +1293,7 @@
   version = "v0.1.1"
 
 [[projects]]
-  digest = "1:c587772fb8ad29ad4db67575dad25ba17a51f072ff18a22b4f0257a4d9c24f75"
+  digest = "1:381bcbeb112a51493d9d998bbba207a529c73dbb49b3fd789e48c63fac1f192c"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
@@ -1615,6 +1615,7 @@
     "github.com/jung-kurt/gofpdf",
     "github.com/markbates/goth",
     "github.com/markbates/goth/providers/openidConnect",
+    "github.com/mitchellh/mapstructure",
     "github.com/namsral/flag",
     "github.com/pkg/errors",
     "github.com/rickar/cal",
