@@ -83,6 +83,38 @@ describe('ComboButton tests', () => {
         const dropDownAfterSecondClick = enabledComboButton.find('.dropdown');
         expect(dropDownAfterSecondClick.exists()).toBe(false);
       });
+
+      it('disappears on second click outside of component', () => {
+        // registering event outside of component in enzyme
+        // adapted from https://github.com/airbnb/enzyme/issues/426
+        const map = {
+          mousedown: null,
+        };
+        /* eslint-disable security/detect-object-injection */
+        document.addEventListener = jest.fn((event, cb) => {
+          map[event] = cb;
+        });
+        /* eslint-enable security/detect-object-injection */
+        const newButtonProps = { toolTipText: 'toolTipText', disabled: false, buttonText: 'buttonText' };
+        const comboButton = renderComboButton(newButtonProps);
+        comboButton.find('button').simulate('click');
+        const dropDown = comboButton.find('.dropdown');
+        expect(dropDown.exists()).toBe(true);
+        map.mousedown({ pageX: 100, pageY: 100 });
+        // have to call update to force a re-rerender of enzyme wrapper
+        comboButton.update();
+
+        const dropDownAfterSecondClick = comboButton.find('.dropdown');
+        expect(dropDownAfterSecondClick.exists()).toBe(false);
+      });
+
+      it('state.displayDropDown is toggled on click', function() {
+        const newButtonProps = { toolTipText: 'toolTipText', disabled: false, buttonText: 'buttonText' };
+        const enabledComboButton = renderComboButton(newButtonProps);
+        enabledComboButton.setState({ displayDropDown: true });
+        enabledComboButton.find('button').simulate('click');
+        expect(enabledComboButton.state().displayDropDown).toBe(false);
+      });
     });
   });
 });
