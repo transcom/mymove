@@ -19,8 +19,6 @@ import (
 )
 
 func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
-	var dutyStationPayload *internalmessages.DutyStationPayload
-	dutyStationPayload = payloadForDutyStationModel(serviceMember.DutyStation)
 	orders := make([]*internalmessages.Orders, len(serviceMember.Orders))
 	for i, order := range serviceMember.Orders {
 		orderPayload, _ := payloadForOrdersModel(storer, order)
@@ -57,7 +55,7 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		BackupContacts:          contactPayloads,
 		HasSocialSecurityNumber: handlers.FmtBool(serviceMember.SocialSecurityNumberID != nil),
 		IsProfileComplete:       handlers.FmtBool(serviceMember.IsProfileComplete()),
-		CurrentStation:          dutyStationPayload,
+		CurrentStation:          payloadForDutyStationModel(serviceMember.DutyStation),
 	}
 	return &serviceMemberPayload
 }
