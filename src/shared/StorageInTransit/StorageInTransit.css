@@ -42,3 +42,14 @@
 #sit-status-text {
   margin-left: 1.8em;
 }
+
+.storage-in-transit-panel .column-subhead {
+  margin-top: 0.8em !important;
+  border-bottom: 1px #BBBBBB solid;
+}
+
+.add-storage-in-transit {
+  border-top: 1px solid #f1f1f1;
+  padding-top: 0.5em;
+
+}

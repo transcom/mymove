@@ -12,6 +12,7 @@ import Alert from 'shared/Alert';
 import Creator from 'shared/StorageInTransit/Creator';
 import { selectStorageInTransits, createStorageInTransit } from 'shared/Entities/modules/storageInTransits';
 import { loadEntitlements } from '../../scenes/TransportationServiceProvider/ducks';
+import { formatDate } from 'shared/formatters';
 
 export class StorageInTransitPanel extends Component {
   constructor() {
@@ -54,14 +55,55 @@ export class StorageInTransitPanel extends Component {
           {storageInTransits !== undefined &&
             storageInTransits.map(row => {
               return (
-                <div key={row.id} className="column-head">
-                  {row.location.charAt(0) + row.location.slice(1).toLowerCase()} SIT
-                  <span className="unbold">
-                    {' '}
-                    <span id={'sit-status-text'}>Status:</span>{' '}
-                    <FontAwesomeIcon className="icon icon-grey" icon={faClock} />
-                  </span>
-                  <span>SIT {row.status.charAt(0) + row.status.slice(1).toLowerCase()} </span>
+                <div key={row.id} className="storage-in-transit">
+                  <div className="column-head">
+                    {row.location.charAt(0) + row.location.slice(1).toLowerCase()} SIT
+                    <span className="unbold">
+                      {' '}
+                      <span id={'sit-status-text'}>Status:</span>{' '}
+                      <FontAwesomeIcon className="icon icon-grey" icon={faClock} />
+                    </span>
+                    <span>SIT {row.status.charAt(0) + row.status.slice(1).toLowerCase()} </span>
+                  </div>
+                  <div className="usa-width-one-whole">
+                    <div className="usa-width-one-half">
+                      <div className="column-subhead">Dates</div>
+                      <div className="panel-field">
+                        <span className="field-title unbold">Est. start date</span>
+                        <span className="field-value">{formatDate(row.estimated_start_date)}</span>
+                      </div>
+                      {row.notes !== undefined && (
+                        <div className="sit-notes">
+                          <div className="column-subhead">Note</div>
+                          <div className="panel-field">
+                            <span className="field-title unbold">{row.notes}</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="usa-width-one-half">
+                      <div className="column-subhead">Warehouse</div>
+                      <div className="panel-field">
+                        <span className="field-title unbold">Warehouse ID</span>
+                        <span className="field-value">{row.warehouse_id}</span>
+                      </div>
+                      <div className="panel-field">
+                        <span className="field-title unbold">Contact Info</span>
+                        <span className="field-value">
+                          {row.warehouse_name}
+                          <br />
+                          {row.warehouse_address.street_address_1}
+                          <br />
+                          {row.warehouse_address.city}, {row.warehouse_address.state}{' '}
+                          {row.warehouse_address.postal_code}
+                          <br />
+                          {row.warehouse_phone}
+                          <br />
+                          {row.warehouse_email}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               );
             })}
