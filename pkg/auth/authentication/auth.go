@@ -8,12 +8,11 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/honeycombio/beeline-go/trace"
-	"github.com/markbates/goth"
-
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	beeline "github.com/honeycombio/beeline-go"
+	"github.com/honeycombio/beeline-go/trace"
+	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
