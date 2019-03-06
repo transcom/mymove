@@ -6,7 +6,7 @@ import * as Cookies from 'js-cookie';
 import { selectCurrentUser } from 'shared/Data/users';
 import { isDevelopment } from 'shared/constants';
 
-import './index.css';
+import './LoginButton.css';
 
 const token = Cookies.get('masked_gorilla_csrf');
 
