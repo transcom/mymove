@@ -152,8 +152,7 @@ func httpsComplianceMiddleware(inner http.Handler) http.Handler {
 
 func validMethodForStaticMiddleware(inner http.Handler) http.Handler {
 	mw := func(w http.ResponseWriter, r *http.Request) {
-		url := strings.Split(r.URL.String(), "/")
-		if url[1] == "static" && r.Method == "POST" {
+		if r.Method != "GET" {
 			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
 			return
 		}
@@ -976,7 +975,6 @@ func main() {
 	site.Use(httpsComplianceMiddleware)
 	site.Use(securityHeadersMiddleware)
 	site.Use(limitBodySizeMiddleware)
-	site.Use(validMethodForStaticMiddleware)
 
 	// Stub health check
 	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {
@@ -1033,8 +1031,12 @@ func main() {
 		)
 	})
 
+	staticMux := goji.SubMux()
+	staticMux.Use(validMethodForStaticMiddleware)
+	staticMux.Handle(pat.New("/*"), clientHandler)
 	// Allow public content through without any auth or app checks
-	site.Handle(pat.Get("/static/*"), clientHandler)
+	site.Handle(pat.New("/static/*"), staticMux)
+	site.Handle(pat.Get("/swagger-ui/*"), clientHandler)
 	site.Handle(pat.Get("/downloads/*"), clientHandler)
 	site.Handle(pat.Get("/favicon.ico"), clientHandler)
 
