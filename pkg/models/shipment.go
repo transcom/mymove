@@ -670,7 +670,7 @@ func upsertItemCode105Dependency(db *pop.Connection, baseParams *BaseShipmentLin
 // is35AItem determines whether the shipment line item is a new (robust) 35A item.
 func is35AItem(itemCode string, additionalParams *AdditionalShipmentLineItemParams) bool {
 	isRobustItem := additionalParams.Reason != nil || additionalParams.EstimateAmountCents != nil || additionalParams.ActualAmountCents != nil
-	if (itemCode == "105B" || itemCode == "105E") && isRobustItem {
+	if itemCode == "35A" && isRobustItem {
 		return true
 	}
 	return false
