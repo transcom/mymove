@@ -471,6 +471,7 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 		// Non-specified item code
 		shipmentLineItem.ShipmentID = s.ID
 		shipmentLineItem.Tariff400ngItemID = baseParams.Tariff400ngItemID
+		shipmentLineItem.Quantity1 = *baseParams.Quantity1
 		shipmentLineItem.Quantity2 = quantity2
 		shipmentLineItem.Location = ShipmentLineItemLocation(baseParams.Location)
 		shipmentLineItem.Notes = notesVal
@@ -516,8 +517,9 @@ func (s *Shipment) UpdateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 
 		// Non-specified item code
 		shipmentLineItem.Tariff400ngItemID = baseParams.Tariff400ngItemID
+		shipmentLineItem.Quantity1 = *baseParams.Quantity1
 		if baseParams.Quantity2 != nil {
-			shipmentLineItem.Quantity2 = unit.BaseQuantity(*baseParams.Quantity2)
+			shipmentLineItem.Quantity2 = *baseParams.Quantity2
 		}
 		shipmentLineItem.Location = ShipmentLineItemLocation(baseParams.Location)
 		if baseParams.Notes != nil {
