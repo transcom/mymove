@@ -1,13 +1,13 @@
 
-.logoutForm {
+form.logout {
   display: inline;
 }
 
-.logout {
+div.logout {
   display: inline;
 }
 
-.logoutButton {
+input.logout {
   margin: 0;
   padding: 0;
 }

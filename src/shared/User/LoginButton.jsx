@@ -26,10 +26,10 @@ const LoginButton = props => {
     );
   } else {
     return (
-      <form className="logoutForm" name="logoutForm" method="post" action="/auth/logout">
+      <form className="logout" name="logoutForm" method="post" action="/auth/logout">
         <div className="logout">
           <input type="hidden" name="gorilla.csrf.Token" value={token} />
-          <input className="logoutButton" type="submit" value="Sign Out" name="logout" />
+          <input className="logout" type="submit" value="Sign Out" name="logout" />
         </div>
       </form>
     );
