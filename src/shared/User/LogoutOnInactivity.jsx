@@ -5,6 +5,7 @@ import IdleTimer from 'react-idle-timer';
 import { isProduction } from 'shared/constants';
 import Alert from 'shared/Alert';
 import { selectCurrentUser } from 'shared/Data/users';
+import * as Cookies from 'js-cookie';
 
 const fifteenMinutesInMilliseconds = 900000;
 const tenMinutesInMilliseconds = 600000;
@@ -30,9 +31,18 @@ export class LogoutOnInactivity extends React.Component {
     this.setState({ isIdle: false });
   };
   onIdle = () => {
+    const token = Cookies.get('masked_gorilla_csrf');
     this.setState({ isIdle: true });
     this.timeout = setTimeout(() => {
-      if (this.state.isIdle) window.location = this.props.logoutEndpoint;
+      if (this.state.isIdle) {
+        fetch(this.props.logoutEndpoint, {
+          method: 'POST',
+          headers: { 'X-CSRF-Token': token },
+          redirect: 'follow',
+        }).then(response => {
+          window.location = '/';
+        });
+      }
     }, this.props.logoutAfterWarningTimeout);
   };
   render() {

@@ -1079,7 +1079,7 @@ func main() {
 	root.Handle(pat.New("/auth/*"), authMux)
 	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext})
 	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
-	authMux.Handle(pat.Get("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout))
+	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout))
 
 	if isDevOrTest {
 		logger.Info("Enabling devlocal auth")

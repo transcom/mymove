@@ -62,7 +62,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	callbackPort := 1234
 	responsePattern := regexp.MustCompile(`href="(.+)"`)
 
-	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", officeTestHost), nil)
+	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/auth/logout", officeTestHost), nil)
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
 		UserID:          fakeUUID,
@@ -79,7 +79,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	handler.ServeHTTP(rr, req.WithContext(ctx))
 
 	if status := rr.Code; status != http.StatusTemporaryRedirect {
-		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusTemporaryRedirect)
+		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusSeeOther)
 	}
 
 	redirectURL, err := url.Parse(responsePattern.FindStringSubmatch(rr.Body.String())[1])
