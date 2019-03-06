@@ -2,10 +2,11 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import IdleTimer from 'react-idle-timer';
+
 import { isProduction } from 'shared/constants';
 import Alert from 'shared/Alert';
 import { selectCurrentUser } from 'shared/Data/users';
-import * as Cookies from 'js-cookie';
+import { LogoutUser } from 'shared/User/api.js';
 
 const fifteenMinutesInMilliseconds = 900000;
 const tenMinutesInMilliseconds = 600000;
@@ -31,17 +32,10 @@ export class LogoutOnInactivity extends React.Component {
     this.setState({ isIdle: false });
   };
   onIdle = () => {
-    const token = Cookies.get('masked_gorilla_csrf');
     this.setState({ isIdle: true });
     this.timeout = setTimeout(() => {
       if (this.state.isIdle) {
-        fetch(this.props.logoutEndpoint, {
-          method: 'POST',
-          headers: { 'X-CSRF-Token': token },
-          redirect: 'follow',
-        }).then(response => {
-          window.location = '/';
-        });
+        LogoutUser();
       }
     }, this.props.logoutAfterWarningTimeout);
   };
@@ -80,14 +74,12 @@ LogoutOnInactivity.defaultProps = {
   keepAliveInterval: tenMinutesInMilliseconds,
   logoutAfterWarningTimeout: oneMinuteInMilliseconds,
   keepAliveEndpoint: '/internal/swagger.yaml',
-  logoutEndpoint: '/auth/logout',
 };
 LogoutOnInactivity.propTypes = {
   idleTimeout: PropTypes.number.isRequired,
   keepAliveInterval: PropTypes.number.isRequired,
   logoutAfterWarningTimeout: PropTypes.number.isRequired,
   keepAliveEndpoint: PropTypes.string.isRequired,
-  logoutEndpoint: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = state => {

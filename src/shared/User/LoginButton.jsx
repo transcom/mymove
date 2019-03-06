@@ -1,14 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
-import * as Cookies from 'js-cookie';
 
 import { selectCurrentUser } from 'shared/Data/users';
 import { isDevelopment } from 'shared/constants';
-
-import './LoginButton.css';
-
-const token = Cookies.get('masked_gorilla_csrf');
+import { LogoutUser } from 'shared/User/api.js';
 
 const LoginButton = props => {
   if (!props.isLoggedIn) {
@@ -25,14 +21,7 @@ const LoginButton = props => {
       </React.Fragment>
     );
   } else {
-    return (
-      <form className="logout" name="logoutForm" method="post" action="/auth/logout">
-        <div className="logout">
-          <input type="hidden" name="gorilla.csrf.Token" value={token} />
-          <input className="logout" type="submit" value="Sign Out" name="logout" />
-        </div>
-      </form>
-    );
+    return <a onClick={LogoutUser}>Sign Out</a>;
   }
 };
 
