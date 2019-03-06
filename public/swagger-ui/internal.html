@@ -88,7 +88,9 @@ window.onload = function() {
     var protocolRegex = /(http|https):*/;
     var isNonRelativePath = protocolRegex.test(req['url']);
     if (isNonRelativePath) {
-      req['url'] = null;
+      // Convert to relative path
+      url = new URL(req['url'])
+      req['url'] = url.pathname;
     }
 
     return req;
@@ -101,13 +103,11 @@ window.onload = function() {
     dom_id: '#swagger-ui',
     deepLinking: true,
     presets: [
-      SwaggerUIBundle.presets.apis,
-      SwaggerUIStandalonePreset
+      SwaggerUIBundle.presets.apis
     ],
     plugins: [
       SwaggerUIBundle.plugins.DownloadUrl
     ],
-    layout: "StandaloneLayout",
     validatorUrl: false
   })
 
