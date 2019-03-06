@@ -647,25 +647,16 @@ func upsertItemCode105Dependency(db *pop.Connection, baseParams *BaseShipmentLin
 		}
 	}
 
-	// if you are 105b/e item we need to store the crate volume in quantity1 field
-	if is105Item(baseParams.Tariff400ngItemCode, additionalParams) {
-		// get crate volume in cubic feet
-		crateVolume, err := unit.DimensionToCubicFeet(additionalParams.CrateDimensions.Length, additionalParams.CrateDimensions.Width, additionalParams.CrateDimensions.Height)
-		if err != nil {
-			return nil, errors.Wrap(err, "Dimension units must be greater than 0")
-		}
-
-		// format value to base quantity i.e. times 10,000
-		formattedQuantity1 := unit.BaseQuantityFromFloat(float32(crateVolume))
-		shipmentLineItem.Quantity1 = formattedQuantity1
-		shipmentLineItem.Description = additionalParams.Description
+	// get crate volume in cubic feet
+	crateVolume, err := unit.DimensionToCubicFeet(additionalParams.CrateDimensions.Length, additionalParams.CrateDimensions.Width, additionalParams.CrateDimensions.Height)
+	if err != nil {
+		return nil, errors.Wrap(err, "Dimension units must be greater than 0")
 	}
 
-	// But if Quantity1 is nil then set it to 0
-	if baseParams.Quantity1 == nil {
-		quantity1 := unit.BaseQuantityFromInt(0)
-		shipmentLineItem.Quantity1 = quantity1
-	}
+	// format value to base quantity i.e. times 10,000
+	formattedQuantity1 := unit.BaseQuantityFromFloat(float32(crateVolume))
+	shipmentLineItem.Quantity1 = formattedQuantity1
+	shipmentLineItem.Description = additionalParams.Description
 
 	return responseVErrors, responseError
 }
