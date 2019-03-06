@@ -23,8 +23,10 @@ __snapshots__
 # built binaries
 /bin/callgraph
 /bin/chamber
+/bin/compare-secure-migrations
 /bin/ecs-service-logs
 /bin/generate-1203-form
+/bin/generate-shipment-edi
 /bin/generate-shipment-summary
 /bin/generate-test-data
 /bin/gin
@@ -38,6 +40,7 @@ __snapshots__
 /bin/make-tsp-user
 /bin/paperwork
 /bin/save-fuel-price-data
+/bin/send-to-gex
 /bin/soda
 /bin/swagger
 /bin/tsp-award-queue
