@@ -15,7 +15,7 @@ describe('TSP User Navigating the App', function() {
 
 function unauthorizedTspUserGoesToAuthorizedRoute() {
   cy.setupBaseUrl(tspAppName);
-  cy.logout();
+  cy.clearCookies();
   cy.patientVisit('/queues/new');
   cy.contains('Welcome to tsp.move.mil');
   cy.contains('Sign In');

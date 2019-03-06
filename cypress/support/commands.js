@@ -29,8 +29,8 @@ import { milmoveAppName, officeAppName, tspAppName, longPageLoadTimeout } from '
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
 Cypress.Commands.add('signInAsNewUser', () => {
-  // make sure we log out first before sign in
-  cy.logout();
+  // make sure we reset the session token first before sign in
+  cy.clearCookies();
 
   cy.visit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now
@@ -55,7 +55,7 @@ Cypress.Commands.add('signIntoTSP', () => {
 });
 Cypress.Commands.add('signInAsUser', userId => {
   // make sure we log out first before sign in
-  cy.logout();
+  cy.clearCookies();
 
   cy.visit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now
@@ -144,8 +144,8 @@ Cypress.Commands.add(
         });
     };
 
-    // make sure we log out first before sign in
-    cy.logout();
+    // make sure we reset the session token first before sign in
+    cy.clearCookies();
     // GET landing page to get csrf cookies
     cy.request('/');
 
@@ -183,10 +183,12 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('logout', () => {
-  // The session cookie wasn't being cleared out after doing a get request even though the Set-Cookie
-  // header was present. Switching to cy.visit() fixed the problem, but it's not clear why this worked.
-  // Seems like others using Cypress have similar issues: https://github.com/cypress-io/cypress/issues/781
-  cy.visit('/auth/logout');
+  cy
+    .get('form')
+    .within(() => {
+      cy.get('input[name="logout"]').should('have.value', 'Sign Out');
+    })
+    .click();
 });
 
 Cypress.Commands.add('nextPage', () => {

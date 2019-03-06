@@ -5,7 +5,6 @@ describe('The document viewer', function() {
   describe('When not logged in', function() {
     beforeEach(() => {
       cy.setupBaseUrl(officeAppName);
-      cy.logout();
       cy.clearCookies();
     });
     it('shows page not found', function() {

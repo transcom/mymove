@@ -16,7 +16,7 @@ describe('TSP Home Page', function() {
 
 function tspUserLogsOut() {
   // Logs out any users
-  cy.logout();
+  cy.clearCookies();
   cy.patientVisit('/');
 }
 
