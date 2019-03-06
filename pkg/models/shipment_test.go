@@ -373,9 +373,8 @@ func (suite *ModelSuite) TestUpdateShipmentLineItem() {
 		Tariff400ngItemCode: lineItem.Tariff400ngItem.Code,
 		Location:            string(lineItem.Location),
 		Notes:               &updateNotes,
-		Description:         lineItem.Description,
 	}
-	additionalParams := AdditionalShipmentLineItemParams{}
+	additionalParams := AdditionalShipmentLineItemParams{Description: lineItem.Description}
 
 	// Create 105B preapproval
 	verrs, err := shipment.UpdateShipmentLineItem(suite.DB(),
@@ -424,7 +423,6 @@ func (suite *ModelSuite) TestUpdateShipmentLineItemCode105BAndE() {
 		Tariff400ngItemCode: lineItem.Tariff400ngItem.Code,
 		Location:            string(lineItem.Location),
 		Notes:               &updateNotes,
-		Description:         lineItem.Description,
 	}
 	additionalParams := AdditionalShipmentLineItemParams{
 		ItemDimensions: &AdditionalLineItemDimensions{
@@ -437,6 +435,7 @@ func (suite *ModelSuite) TestUpdateShipmentLineItemCode105BAndE() {
 			Width:  unit.ThousandthInches(200),
 			Height: unit.ThousandthInches(200),
 		},
+		Description: lineItem.Description,
 	}
 
 	// Create 105B preapproval
@@ -447,7 +446,7 @@ func (suite *ModelSuite) TestUpdateShipmentLineItemCode105BAndE() {
 		suite.Equal(0, lineItem.Quantity1.ToUnitInt())
 		suite.Equal(acc105B.ID.String(), lineItem.Tariff400ngItem.ID.String())
 		suite.Equal(*baseParams.Notes, lineItem.Notes)
-		suite.Equal(*baseParams.Description, lineItem.Description)
+		suite.Equal(*additionalParams.Description, lineItem.Description)
 
 		suite.NotZero(lineItem.ItemDimensions.ID)
 		suite.Equal(additionalParams.ItemDimensions.Length, lineItem.ItemDimensions.Length)
