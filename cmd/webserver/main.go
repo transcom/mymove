@@ -1022,6 +1022,7 @@ func main() {
 	// Allow public content through without any auth or app checks
 	site.Handle(pat.Get("/static/*"), clientHandler)
 	if v.GetBool(serveSwaggerUIFlag) {
+		logger.Info("Swagger UI static file serving is enabled")
 		site.Handle(pat.Get("/swagger-ui/*"), clientHandler)
 	}
 	site.Handle(pat.Get("/downloads/*"), clientHandler)
