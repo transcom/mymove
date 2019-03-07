@@ -62,4 +62,6 @@
 
 .storage-in-transit-panel .basic-panel-content {
   display: table;
+  table-layout: fixed;
+  width: 100%;
 }
