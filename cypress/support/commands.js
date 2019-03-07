@@ -145,7 +145,7 @@ Cypress.Commands.add(
     };
 
     // make sure we log out first before sign in
-    cy.clearCookies();
+    cy.logout();
     // GET landing page to get csrf cookies
     cy.request('/');
 
