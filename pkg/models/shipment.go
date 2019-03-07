@@ -627,7 +627,7 @@ func upsertItemCode105Dependency(db *pop.Connection, baseParams *BaseShipmentLin
 
 	//Additional validation check if item and crate dimensions exist
 	if additionalParams.ItemDimensions == nil || additionalParams.CrateDimensions == nil {
-		responseError = errors.New("Must have both item and crate dimensions params for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
+		responseError = errors.New("Must have both item and crate dimensions params")
 		return responseVErrors, responseError
 	}
 
@@ -678,7 +678,7 @@ func upsertItemCode35ADependency(db *pop.Connection, baseParams *BaseShipmentLin
 	// Required to create 35A line item
 	// Description, Reason and EstimateAmounCents
 	if additionalParams.Description == nil || additionalParams.Reason == nil || additionalParams.EstimateAmountCents == nil {
-		responseError = errors.New("Must have Description, Reason and EstimateAmountCents params for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
+		responseError = errors.New("Must have Description, Reason and EstimateAmountCents params")
 		return responseVErrors, responseError
 	}
 
