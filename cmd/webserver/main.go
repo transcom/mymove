@@ -1034,11 +1034,12 @@ func main() {
 	staticMux := goji.SubMux()
 	staticMux.Use(validMethodForStaticMiddleware)
 	staticMux.Handle(pat.New("/*"), clientHandler)
+
 	// Allow public content through without any auth or app checks
 	site.Handle(pat.New("/static/*"), staticMux)
-	site.Handle(pat.Get("/swagger-ui/*"), clientHandler)
-	site.Handle(pat.Get("/downloads/*"), clientHandler)
-	site.Handle(pat.Get("/favicon.ico"), clientHandler)
+	site.Handle(pat.New("/swagger-ui/*"), staticMux)
+	site.Handle(pat.New("/downloads/*"), staticMux)
+	site.Handle(pat.New("/favicon.ico"), staticMux)
 
 	// Explicitly disable swagger.json route
 	site.Handle(pat.Get("/swagger.json"), http.NotFoundHandler())
