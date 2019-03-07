@@ -1021,12 +1021,17 @@ func main() {
 
 	// Allow public content through without any auth or app checks
 	site.Handle(pat.Get("/static/*"), clientHandler)
+	site.Handle(pat.Get("/downloads/*"), clientHandler)
+	site.Handle(pat.Get("/favicon.ico"), clientHandler)
+
+	// Explicitly disable swagger.json route
+	site.Handle(pat.Get("/swagger.json"), http.NotFoundHandler())
 	if v.GetBool(serveSwaggerUIFlag) {
 		logger.Info("Swagger UI static file serving is enabled")
 		site.Handle(pat.Get("/swagger-ui/*"), clientHandler)
+	} else {
+		site.Handle(pat.Get("/swagger-ui/*"), http.NotFoundHandler())
 	}
-	site.Handle(pat.Get("/downloads/*"), clientHandler)
-	site.Handle(pat.Get("/favicon.ico"), clientHandler)
 
 	ordersMux := goji.SubMux()
 	ordersDetectionMiddleware := auth.HostnameDetectorMiddleware(zapLogger, v.GetString("http-orders-server-name"))
@@ -1037,6 +1042,8 @@ func main() {
 	if v.GetBool(serveSwaggerUIFlag) {
 		logger.Info("Orders API Swagger UI serving is enabled")
 		ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "orders.html")))
+	} else {
+		ordersMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
 	}
 	ordersMux.Handle(pat.New("/*"), ordersapi.NewOrdersAPIHandler(handlerContext))
 	site.Handle(pat.Get("/orders/v0/*"), ordersMux)
@@ -1050,6 +1057,8 @@ func main() {
 	if v.GetBool(serveSwaggerUIFlag) {
 		logger.Info("DPS API Swagger UI serving is enabled")
 		dpsMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "dps.html")))
+	} else {
+		dpsMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
 	}
 	dpsMux.Handle(pat.New("/*"), dpsapi.NewDPSAPIHandler(handlerContext))
 	site.Handle(pat.New("/dps/v0/*"), dpsMux)
@@ -1099,6 +1108,8 @@ func main() {
 	if v.GetBool(serveSwaggerUIFlag) {
 		logger.Info("Public API Swagger UI serving is enabled")
 		apiMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "api.html")))
+	} else {
+		apiMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
 	}
 	externalAPIMux := goji.SubMux()
 	apiMux.Handle(pat.New("/*"), externalAPIMux)
@@ -1112,6 +1123,8 @@ func main() {
 	if v.GetBool(serveSwaggerUIFlag) {
 		logger.Info("Internal API Swagger UI serving is enabled")
 		internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "internal.html")))
+	} else {
+		internalMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
 	}
 	// Mux for internal API that enforces auth
 	internalAPIMux := goji.SubMux()
