@@ -75,8 +75,8 @@ func (suite *CreateFormSuite) TestCreateFormServiceSuccess() {
 	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, services.GBL)
 	file, err := formCreator.CreateForm(template)
 
-	suite.NotNil(suite.T(), file)
-	suite.Nil(suite.T(), err)
+	suite.NotNil(file)
+	suite.Nil(err)
 	FormFiller.AssertExpectations(suite.T())
 }
 
@@ -96,11 +96,11 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerAppendPageFailure()
 	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, services.GBL)
 	file, err := formCreator.CreateForm(template)
 
-	suite.NotNil(suite.T(), err)
-	suite.Nil(suite.T(), file)
+	suite.NotNil(err)
+	suite.Nil(file)
 	serviceErrMsg := errors.Cause(err)
-	suite.Equal(suite.T(), "Error for FormFiller.AppendPage()", serviceErrMsg.Error(), "should be equal")
-	suite.Equal(suite.T(), "Failure writing GBL data to form.: Error for FormFiller.AppendPage()", err.Error(), "should be equal")
+	suite.Equal("Error for FormFiller.AppendPage()", serviceErrMsg.Error())
+	suite.Equal("Failure writing GBL data to form.: Error for FormFiller.AppendPage()", err.Error())
 	FormFiller.AssertExpectations(suite.T())
 }
 
@@ -124,11 +124,11 @@ func (suite *CreateFormSuite) TestCreateFormServiceFileStorerCreateFailure() {
 	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, services.GBL)
 	file, err := formCreator.CreateForm(template)
 
-	suite.Nil(suite.T(), file)
-	suite.NotNil(suite.T(), err)
+	suite.Nil(file)
+	suite.NotNil(err)
 	serviceErrMsg := errors.Cause(err)
-	suite.Equal(suite.T(), "Error for FileStorer.Create()", serviceErrMsg.Error(), "should be equal")
-	suite.Equal(suite.T(), "Error creating a new afero file for GBL form.: Error for FileStorer.Create()", err.Error(), "should be equal")
+	suite.Equal("Error for FileStorer.Create()", serviceErrMsg.Error())
+	suite.Equal("Error creating a new afero file for GBL form.: Error for FileStorer.Create()", err.Error())
 	FormFiller.AssertExpectations(suite.T())
 }
 
@@ -159,18 +159,18 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerOutputFailure() {
 	template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, services.GBL)
 	file, err := formCreator.CreateForm(template)
 
-	suite.Nil(suite.T(), file)
-	suite.NotNil(suite.T(), err)
+	suite.Nil(file)
+	suite.NotNil(err)
 	serviceErrMsg := errors.Cause(err)
-	suite.Equal(suite.T(), "Error for FormFiller.Output()", serviceErrMsg.Error(), "should be equal")
-	suite.Equal(suite.T(), "Failure exporting GBL form to file.: Error for FormFiller.Output()", err.Error(), "should be equal")
+	suite.Equal("Error for FormFiller.Output()", serviceErrMsg.Error())
+	suite.Equal("Failure exporting GBL form to file.: Error for FormFiller.Output()", err.Error())
 	FormFiller.AssertExpectations(suite.T())
 }
 
 func (suite *CreateFormSuite) TestCreateFormServiceCreateAssetByteReaderFailure() {
 	badAssetPath := "pkg/paperwork/formtemplates/someUndefinedTemplatePath.png"
 	templateBuffer, err := createAssetByteReader(badAssetPath)
-	suite.Nil(suite.T(), templateBuffer)
-	suite.NotNil(suite.T(), err)
-	suite.Equal(suite.T(), "Error creating asset from path. Check image path.: Asset pkg/paperwork/formtemplates/someUndefinedTemplatePath.png not found", err.Error(), "should be equal")
+	suite.Nil(templateBuffer)
+	suite.NotNil(err)
+	suite.Equal("Error creating asset from path. Check image path.: Asset pkg/paperwork/formtemplates/someUndefinedTemplatePath.png not found", err.Error())
 }
