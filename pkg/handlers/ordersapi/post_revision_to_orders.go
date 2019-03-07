@@ -6,6 +6,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	beeline "github.com/honeycombio/beeline-go"
+
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
 	"github.com/transcom/mymove/pkg/gen/ordersmessages"
@@ -24,9 +25,13 @@ func (h PostRevisionToOrdersHandler) Handle(params ordersoperations.PostRevision
 	defer span.Send()
 
 	clientCert := authentication.ClientCertFromRequestContext(params.HTTPRequest)
-	if clientCert == nil || !clientCert.AllowOrdersAPI {
-		h.Logger().Info("Client certificate is not authorized to access this API")
+	if clientCert == nil {
+		h.Logger().Info("No client certificate provided")
 		return ordersoperations.NewPostRevisionToOrdersUnauthorized()
+	}
+	if !clientCert.AllowOrdersAPI {
+		h.Logger().Info("Client certificate is not permitted to access this API")
+		return ordersoperations.NewPostRevisionToOrdersForbidden()
 	}
 
 	id, err := uuid.FromString(params.UUID.String())
@@ -42,23 +47,23 @@ func (h PostRevisionToOrdersHandler) Handle(params ordersoperations.PostRevision
 
 	if orders.Issuer == ordersmessages.IssuerAirForce {
 		if !clientCert.AllowAirForceOrdersWrite {
-			return ordersoperations.NewPostRevisionToOrdersUnauthorized()
+			return ordersoperations.NewPostRevisionToOrdersForbidden()
 		}
 	} else if orders.Issuer == ordersmessages.IssuerArmy {
 		if !clientCert.AllowArmyOrdersWrite {
-			return ordersoperations.NewPostRevisionToOrdersUnauthorized()
+			return ordersoperations.NewPostRevisionToOrdersForbidden()
 		}
 	} else if orders.Issuer == ordersmessages.IssuerCoastGuard {
 		if !clientCert.AllowCoastGuardOrdersWrite {
-			return ordersoperations.NewPostRevisionToOrdersUnauthorized()
+			return ordersoperations.NewPostRevisionToOrdersForbidden()
 		}
 	} else if orders.Issuer == ordersmessages.IssuerMarineCorps {
 		if !clientCert.AllowMarineCorpsOrdersWrite {
-			return ordersoperations.NewPostRevisionToOrdersUnauthorized()
+			return ordersoperations.NewPostRevisionToOrdersForbidden()
 		}
 	} else if orders.Issuer == ordersmessages.IssuerNavy {
 		if !clientCert.AllowNavyOrdersWrite {
-			return ordersoperations.NewPostRevisionToOrdersUnauthorized()
+			return ordersoperations.NewPostRevisionToOrdersForbidden()
 		}
 	}
 

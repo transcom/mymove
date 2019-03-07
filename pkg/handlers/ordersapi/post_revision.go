@@ -1,11 +1,13 @@
 package ordersapi
 
 import (
+	"fmt"
 	"reflect"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	beeline "github.com/honeycombio/beeline-go"
+
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
 	"github.com/transcom/mymove/pkg/gen/ordersmessages"
@@ -24,32 +26,42 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 	defer span.Send()
 
 	clientCert := authentication.ClientCertFromRequestContext(params.HTTPRequest)
-	if clientCert == nil || !clientCert.AllowOrdersAPI {
-		h.Logger().Info("Client certificate is not authorized to access this API")
+	if clientCert == nil {
+		h.Logger().Info("No client certificate provided")
 		return ordersoperations.NewPostRevisionUnauthorized()
+	}
+	if !clientCert.AllowOrdersAPI {
+		h.Logger().Info("Client certificate is not permitted to access this API")
+		return ordersoperations.NewPostRevisionForbidden()
 	}
 	if params.Issuer == string(ordersmessages.IssuerAirForce) {
 		if !clientCert.AllowAirForceOrdersWrite {
-			return ordersoperations.NewPostRevisionUnauthorized()
+			h.Logger().Info("Client certificate is not permitted to write Air Force Orders")
+			return ordersoperations.NewPostRevisionForbidden()
 		}
 	} else if params.Issuer == string(ordersmessages.IssuerArmy) {
 		if !clientCert.AllowArmyOrdersWrite {
-			return ordersoperations.NewPostRevisionUnauthorized()
+			h.Logger().Info("Client certificate is not permitted to write Army Orders")
+			return ordersoperations.NewPostRevisionForbidden()
 		}
 	} else if params.Issuer == string(ordersmessages.IssuerCoastGuard) {
 		if !clientCert.AllowCoastGuardOrdersWrite {
-			return ordersoperations.NewPostRevisionUnauthorized()
+			h.Logger().Info("Client certificate is not permitted to write Coast Guard Orders")
+			return ordersoperations.NewPostRevisionForbidden()
 		}
 	} else if params.Issuer == string(ordersmessages.IssuerMarineCorps) {
 		if !clientCert.AllowMarineCorpsOrdersWrite {
-			return ordersoperations.NewPostRevisionUnauthorized()
+			h.Logger().Info("Client certificate is not permitted to write Marine Corps Orders")
+			return ordersoperations.NewPostRevisionForbidden()
 		}
 	} else if params.Issuer == string(ordersmessages.IssuerNavy) {
 		if !clientCert.AllowNavyOrdersWrite {
-			return ordersoperations.NewPostRevisionUnauthorized()
+			h.Logger().Info("Client certificate is not permitted to write Navy Orders")
+			return ordersoperations.NewPostRevisionForbidden()
 		}
 	} else {
 		// Unknown issuer
+		h.Logger().Info(fmt.Sprint("Unknown issuer ", params.Issuer))
 		return ordersoperations.NewPostRevisionBadRequest()
 	}
 

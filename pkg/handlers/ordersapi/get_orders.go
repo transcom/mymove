@@ -3,6 +3,7 @@ package ordersapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
 	"github.com/transcom/mymove/pkg/gen/ordersmessages"
@@ -18,9 +19,13 @@ type GetOrdersHandler struct {
 // Handle (GetOrdersHandler) responds to GET /orders/{uuid}
 func (h GetOrdersHandler) Handle(params ordersoperations.GetOrdersParams) middleware.Responder {
 	clientCert := authentication.ClientCertFromRequestContext(params.HTTPRequest)
-	if clientCert == nil || !clientCert.AllowOrdersAPI {
-		h.Logger().Info("Client certificate is not authorized to access this API")
+	if clientCert == nil {
+		h.Logger().Info("No client certificate provided")
 		return ordersoperations.NewGetOrdersUnauthorized()
+	}
+	if !clientCert.AllowOrdersAPI {
+		h.Logger().Info("Client certificate is not authorized to access this API")
+		return ordersoperations.NewGetOrdersForbidden()
 	}
 
 	var err error
@@ -41,23 +46,23 @@ func (h GetOrdersHandler) Handle(params ordersoperations.GetOrdersParams) middle
 
 	if orders.Issuer == ordersmessages.IssuerAirForce {
 		if !clientCert.AllowAirForceOrdersRead {
-			return ordersoperations.NewGetOrdersUnauthorized()
+			return ordersoperations.NewGetOrdersForbidden()
 		}
 	} else if orders.Issuer == ordersmessages.IssuerArmy {
 		if !clientCert.AllowArmyOrdersRead {
-			return ordersoperations.NewGetOrdersUnauthorized()
+			return ordersoperations.NewGetOrdersForbidden()
 		}
 	} else if orders.Issuer == ordersmessages.IssuerCoastGuard {
 		if !clientCert.AllowCoastGuardOrdersRead {
-			return ordersoperations.NewGetOrdersUnauthorized()
+			return ordersoperations.NewGetOrdersForbidden()
 		}
 	} else if orders.Issuer == ordersmessages.IssuerMarineCorps {
 		if !clientCert.AllowMarineCorpsOrdersRead {
-			return ordersoperations.NewGetOrdersUnauthorized()
+			return ordersoperations.NewGetOrdersForbidden()
 		}
 	} else if orders.Issuer == ordersmessages.IssuerNavy {
 		if !clientCert.AllowNavyOrdersRead {
-			return ordersoperations.NewGetOrdersUnauthorized()
+			return ordersoperations.NewGetOrdersForbidden()
 		}
 	}
 

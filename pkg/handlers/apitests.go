@@ -165,7 +165,7 @@ func (suite *BaseHandlerTestSuite) AuthenticateTspRequest(req *http.Request, use
 	return req.WithContext(ctx)
 }
 
-// AuthenticateDpsRequest authenticates TSP users
+// AuthenticateDpsRequest authenticates DPS users
 func (suite *BaseHandlerTestSuite) AuthenticateDpsRequest(req *http.Request, serviceMember models.ServiceMember, dpsUser models.DpsUser) *http.Request {
 	session := auth.Session{
 		ApplicationName: auth.MilApp,

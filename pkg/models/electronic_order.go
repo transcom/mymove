@@ -117,7 +117,7 @@ func FetchElectronicOrderByUniqueFeatures(db *pop.Connection, ordersNum string, 
 }
 
 // FetchElectronicOrderByIssuerAndOrdersNum gets all revisions of a set of Orders by the unique combination of the Orders number and the issuer.
-func FetchElectronicOrderByIssuerAndOrdersNum(db *pop.Connection, ordersNum string, issuer string) (ElectronicOrder, error) {
+func FetchElectronicOrderByIssuerAndOrdersNum(db *pop.Connection, issuer string, ordersNum string) (ElectronicOrder, error) {
 	var order ElectronicOrder
 	err := db.Q().Eager("Revisions").Where("orders_number = $1 AND issuer = $2", ordersNum, issuer).First(&order)
 	if err != nil {

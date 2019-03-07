@@ -18,9 +18,13 @@ type IndexOrdersForMemberHandler struct {
 // Handle (IndexOrdersForMemberHandler) responds to GET /edipis/{edipi}/orders
 func (h IndexOrdersForMemberHandler) Handle(params ordersoperations.IndexOrdersForMemberParams) middleware.Responder {
 	clientCert := authentication.ClientCertFromRequestContext(params.HTTPRequest)
-	if clientCert == nil || !clientCert.AllowOrdersAPI {
-		h.Logger().Info("Client certificate is not authorized to access this API")
+	if clientCert == nil {
+		h.Logger().Info("No client certificate provided")
 		return ordersoperations.NewIndexOrdersForMemberUnauthorized()
+	}
+	if !clientCert.AllowOrdersAPI {
+		h.Logger().Info("Client certificate is not authorized to access this API")
+		return ordersoperations.NewIndexOrdersForMemberForbidden()
 	}
 
 	var err error

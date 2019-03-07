@@ -208,7 +208,9 @@ paths:
       description: >-
         Gets Orders with the supplied UUID.
 
-        ## Errors Users of this endpoint must have permission to read Orders for
+        ## Errors
+
+        Users of this endpoint must have permission to read Orders for
         the `issuer` associated with the Orders. If not, this endpoint will
         return `403 Forbidden`.
 

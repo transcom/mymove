@@ -18,9 +18,13 @@ type GetOrdersByIssuerAndOrdersNumHandler struct {
 // Handle (GetOrdersByIssuerAndOrdersNumHandler) responds to GET /issuers/{issuer}/orders/{ordersNum}
 func (h GetOrdersByIssuerAndOrdersNumHandler) Handle(params ordersoperations.GetOrdersByIssuerAndOrdersNumParams) middleware.Responder {
 	clientCert := authentication.ClientCertFromRequestContext(params.HTTPRequest)
-	if clientCert == nil || !clientCert.AllowOrdersAPI {
-		h.Logger().Info("Client certificate is not authorized to access this API")
+	if clientCert == nil {
+		h.Logger().Info("No client certificate provided")
 		return ordersoperations.NewGetOrdersByIssuerAndOrdersNumUnauthorized()
+	}
+	if !clientCert.AllowOrdersAPI {
+		h.Logger().Info("Client certificate is not authorized to access this API")
+		return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()
 	}
 
 	var err error
@@ -35,23 +39,23 @@ func (h GetOrdersByIssuerAndOrdersNumHandler) Handle(params ordersoperations.Get
 
 	if orders.Issuer == ordersmessages.IssuerAirForce {
 		if !clientCert.AllowAirForceOrdersRead {
-			return ordersoperations.NewGetOrdersByIssuerAndOrdersNumUnauthorized()
+			return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()
 		}
 	} else if orders.Issuer == ordersmessages.IssuerArmy {
 		if !clientCert.AllowArmyOrdersRead {
-			return ordersoperations.NewGetOrdersByIssuerAndOrdersNumUnauthorized()
+			return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()
 		}
 	} else if orders.Issuer == ordersmessages.IssuerCoastGuard {
 		if !clientCert.AllowCoastGuardOrdersRead {
-			return ordersoperations.NewGetOrdersByIssuerAndOrdersNumUnauthorized()
+			return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()
 		}
 	} else if orders.Issuer == ordersmessages.IssuerMarineCorps {
 		if !clientCert.AllowMarineCorpsOrdersRead {
-			return ordersoperations.NewGetOrdersByIssuerAndOrdersNumUnauthorized()
+			return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()
 		}
 	} else if orders.Issuer == ordersmessages.IssuerNavy {
 		if !clientCert.AllowNavyOrdersRead {
-			return ordersoperations.NewGetOrdersByIssuerAndOrdersNumUnauthorized()
+			return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()
 		}
 	}
 
