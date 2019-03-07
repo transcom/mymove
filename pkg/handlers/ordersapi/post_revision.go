@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
 	"github.com/transcom/mymove/pkg/gen/ordersmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -67,12 +68,37 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 
 	var edipi string
 	if len(params.MemberID) == 9 {
-		// TODO EDIPI lookup from DMDC
-		return middleware.NotImplemented("EDIPI lookup from SSN not supported yet")
+		rbsPersonLookup := h.IWSPersonLookup()
+
+		iwsParams := iws.GetPersonUsingSSNParams{
+			Ssn:       params.MemberID,
+			LastName:  params.Revision.Member.FamilyName,
+			FirstName: params.Revision.Member.GivenName,
+		}
+		matchReasonCode, edipiNum, _, _, err := rbsPersonLookup.GetPersonUsingSSN(iwsParams)
+		if err != nil {
+			h.Logger().Warn(fmt.Sprint("Error while retrieving EDIPI from Identity Web Services: ", err.Error()))
+			return ordersoperations.NewPostRevisionInternalServerError()
+		}
+		switch matchReasonCode {
+		case iws.MatchReasonCodeLimited:
+			// limited match: the returned EDIPI matches the provided SSN and maybe first name but DMDC doesn't think the last name matches
+			edipi = string(edipiNum)
+		case iws.MatchReasonCodeFull:
+			// full match means the returned EDIPI matches the provided SSN and last name
+			edipi = string(edipiNum)
+		case iws.MatchReasonCodeMultiple:
+			// more than one EDIPI for this SSN! Uhh... how to choose? FWIW it's unlikely but not impossible to encounter this in the wild
+			return ordersoperations.NewPostRevisionNotFound()
+		case iws.MatchReasonCodeNone:
+			// No match: fail
+			return ordersoperations.NewPostRevisionNotFound()
+		}
 	} else if len(params.MemberID) != 10 {
 		return ordersoperations.NewPostRevisionBadRequest()
+	} else {
+		edipi = params.MemberID
 	}
-	edipi = params.MemberID
 
 	// Is there already a Revision matching these Orders? (same ordersNum, edipi, issuer)
 	orders, err := models.FetchElectronicOrderByUniqueFeatures(h.DB(), params.OrdersNum, params.MemberID, params.Issuer)
@@ -89,6 +115,7 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 		}
 	} else if err != nil {
+		h.Logger().Warn(fmt.Sprintf("Error fetching electronic orders with OrdersNum %s, EDIPI %s, and Issuer %s: %s", params.OrdersNum, params.MemberID, params.Issuer, err.Error()))
 		return ordersoperations.NewPostRevisionInternalServerError()
 	}
 
