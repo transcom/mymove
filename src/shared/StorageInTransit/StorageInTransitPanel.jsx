@@ -53,30 +53,32 @@ export class StorageInTransitPanel extends Component {
             Entitlement: {storageInTransitEntitlement} days <span className="unbold">({daysRemaining} remaining)</span>
           </div>
           {storageInTransits !== undefined &&
-            storageInTransits.map(row => {
+            storageInTransits.map(storageInTransit => {
               return (
-                <div key={row.id} className="storage-in-transit">
+                <div key={storageInTransit.id} className="storage-in-transit">
                   <div className="column-head">
-                    {row.location.charAt(0) + row.location.slice(1).toLowerCase()} SIT
+                    {storageInTransit.location.charAt(0) + storageInTransit.location.slice(1).toLowerCase()} SIT
                     <span className="unbold">
                       {' '}
                       <span id={'sit-status-text'}>Status:</span>{' '}
                       <FontAwesomeIcon className="icon icon-grey" icon={faClock} />
                     </span>
-                    <span>SIT {row.status.charAt(0) + row.status.slice(1).toLowerCase()} </span>
+                    <span>
+                      SIT {storageInTransit.status.charAt(0) + storageInTransit.status.slice(1).toLowerCase()}{' '}
+                    </span>
                   </div>
                   <div className="usa-width-one-whole">
                     <div className="usa-width-one-half">
                       <div className="column-subhead">Dates</div>
                       <div className="panel-field">
                         <span className="field-title unbold">Est. start date</span>
-                        <span className="field-value">{formatDate(row.estimated_start_date)}</span>
+                        <span className="field-value">{formatDate(storageInTransit.estimated_start_date)}</span>
                       </div>
-                      {row.notes !== undefined && (
+                      {storageInTransit.notes !== undefined && (
                         <div className="sit-notes">
                           <div className="column-subhead">Note</div>
                           <div className="panel-field">
-                            <span className="field-title unbold">{row.notes}</span>
+                            <span className="field-title unbold">{storageInTransit.notes}</span>
                           </div>
                         </div>
                       )}
@@ -85,21 +87,21 @@ export class StorageInTransitPanel extends Component {
                       <div className="column-subhead">Warehouse</div>
                       <div className="panel-field">
                         <span className="field-title unbold">Warehouse ID</span>
-                        <span className="field-value">{row.warehouse_id}</span>
+                        <span className="field-value">{storageInTransit.warehouse_id}</span>
                       </div>
                       <div className="panel-field">
-                        <span className="field-title unbold">Contact Info</span>
+                        <span className="field-title unbold">Contact info</span>
                         <span className="field-value">
-                          {row.warehouse_name}
+                          {storageInTransit.warehouse_name}
                           <br />
-                          {row.warehouse_address.street_address_1}
+                          {storageInTransit.warehouse_address.street_address_1}
                           <br />
-                          {row.warehouse_address.city}, {row.warehouse_address.state}{' '}
-                          {row.warehouse_address.postal_code}
+                          {storageInTransit.warehouse_address.city}, {storageInTransit.warehouse_address.state}{' '}
+                          {storageInTransit.warehouse_address.postal_code}
                           <br />
-                          {row.warehouse_phone}
+                          {storageInTransit.warehouse_phone}
                           <br />
-                          {row.warehouse_email}
+                          {storageInTransit.warehouse_email}
                         </span>
                       </div>
                     </div>
