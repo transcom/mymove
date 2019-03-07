@@ -54,5 +54,20 @@ describe('lineItems', () => {
         });
       });
     });
+    describe('for Linehaul Transportation(LHS) and 105E Fule Surcharge-LHS(16A)', () => {
+      it('should display weight and milage', () => {
+        const itemLHS = { tariff400ng_item: { code: 'LHS' }, quantity_1: 5000000, quantity_2: 55550000 };
+        const item16A = {
+          tariff400ng_item: { code: 'LHS' },
+          quantity_1: Number.MAX_SAFE_INTEGER,
+          quantity_2: Number.MAX_SAFE_INTEGER,
+        };
+        const itemNull = null;
+
+        expect(lineItems.displayBaseQuantityUnits(itemLHS)).toEqual('500 lbs, 5,555 mi');
+        expect(lineItems.displayBaseQuantityUnits(item16A)).toEqual('900,719,925,474 lbs, 900,719,925,474 mi');
+        expect(lineItems.displayBaseQuantityUnits(itemNull)).toEqual(undefined);
+      });
+    });
   });
 });
