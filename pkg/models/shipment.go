@@ -460,7 +460,7 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	db.Transaction(func(connection *pop.Connection) error {
 		transactionError := errors.New("Rollback the transaction")
 
-		// NOTE: UpsertItemCodeDependency could mutate shipmentLineItem
+		// NOTE: upsertItemCodeDependency could mutate shipmentLineItem
 		verrs, err := upsertItemCodeDependency(connection, &baseParams, &additionalParams, &shipmentLineItem)
 		if verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
@@ -506,7 +506,7 @@ func (s *Shipment) UpdateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	db.Transaction(func(connection *pop.Connection) error {
 		transactionError := errors.New("Rollback the transaction")
 
-		// NOTE: UpsertItemCodeDependency could update baseParams.Quantity1
+		// NOTE: upsertItemCodeDependency could update baseParams.Quantity1
 		verrs, err := upsertItemCodeDependency(connection, &baseParams, &additionalParams, shipmentLineItem)
 		if verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
