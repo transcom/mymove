@@ -49,6 +49,7 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	TotalWeightAllotment            string
 	POVAuthorized                   string
 	TAC                             string
+	SAC                             string
 	ShipmentNumberAndTypes          string
 	ShipmentPickUpDates             string
 	ShipmentWeights                 string
@@ -243,6 +244,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.OrdersIssueDate = FormatDate(data.Order.IssueDate)
 	page1.OrdersTypeAndOrdersNumber = FormatOrdersTypeAndOrdersNumber(data.Order)
 	page1.TAC = derefStringTypes(data.Order.TAC)
+	page1.SAC = derefStringTypes(data.Order.SAC)
 
 	page1.AuthorizedOrigin = FormatAuthorizedLocation(data.CurrentDutyStation)
 	page1.AuthorizedDestination = FormatAuthorizedLocation(data.NewDutyStation)
