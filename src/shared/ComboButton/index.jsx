@@ -53,16 +53,12 @@ class ComboButton extends Component {
 
 const styleListItems = items => {
   const liClasses = item => classNames({ disabled: item.disabled });
-  return items.map(item => <li className={liClasses(item)}>{item.value}</li>);
+  return items.map(item => <p className={liClasses(item)}>{item.value}</p>);
 };
 
 const DropDown = props => {
   let { items } = props;
-  return (
-    <div className="dropdown">
-      <ul className="dropdown">{styleListItems(items)}</ul>
-    </div>
-  );
+  return <div className="dropdown">{styleListItems(items)}</div>;
 };
 
 DropDown.propTypes = {
