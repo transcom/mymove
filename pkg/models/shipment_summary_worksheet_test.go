@@ -172,7 +172,6 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		NewDutyStationID:    fortGordon.ID,
 		OrdersIssuingAgency: models.StringPointer(string(serviceBranch)),
 		TAC:                 models.StringPointer("NTA4"),
-		SAC:                 models.StringPointer("SAC"),
 		HasDependents:       true,
 		SpouseHasProGear:    true,
 	}
@@ -226,7 +225,6 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("21-Dec-2018", sswPage1.OrdersIssueDate)
 	suite.Equal("PCS/012345", sswPage1.OrdersTypeAndOrdersNumber)
 	suite.Equal("NTA4", sswPage1.TAC)
-	suite.Equal("SAC", sswPage1.SAC)
 
 	suite.Equal("Fort Gordon, GA", sswPage1.NewDutyAssignment)
 
