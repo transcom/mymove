@@ -192,6 +192,7 @@ Cypress.Commands.add('logout', () => {
       headers: { 'x-csrf-token': cookie.value },
     });
   });
+  cy.patientVisit('/');
 });
 
 Cypress.Commands.add('nextPage', () => {
