@@ -924,12 +924,6 @@ func main() {
 		},
 	)
 
-	if v.GetBool(serveSwaggerUIFlag) {
-		logger.Info("Swagger UI serving is enabled")
-	} else {
-		logger.Info("Swagger UI serving is disabled")
-	}
-
 	// Base routes
 	site := goji.NewMux()
 	// Add middleware: they are evaluated in the reverse order in which they
@@ -1008,8 +1002,9 @@ func main() {
 	ordersMux.Use(ordersDetectionMiddleware)
 	ordersMux.Use(noCacheMiddleware)
 	ordersMux.Use(clientCertMiddleware)
+	ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("orders-swagger")))
 	if v.GetBool(serveSwaggerUIFlag) {
-		ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("orders-swagger")))
+		logger.Info("Orders API Swagger UI serving is enabled")
 		ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "orders.html")))
 	}
 	ordersMux.Handle(pat.New("/*"), ordersapi.NewOrdersAPIHandler(handlerContext))
@@ -1020,8 +1015,9 @@ func main() {
 	dpsMux.Use(dpsDetectionMiddleware)
 	dpsMux.Use(noCacheMiddleware)
 	dpsMux.Use(clientCertMiddleware)
+	dpsMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("dps-swagger")))
 	if v.GetBool(serveSwaggerUIFlag) {
-		dpsMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("dps-swagger")))
+		logger.Info("DPS API Swagger UI serving is enabled")
 		dpsMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "dps.html")))
 	}
 	dpsMux.Handle(pat.New("/*"), dpsapi.NewDPSAPIHandler(handlerContext))
@@ -1068,8 +1064,9 @@ func main() {
 
 	apiMux := goji.SubMux()
 	root.Handle(pat.New("/api/v1/*"), apiMux)
+	apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("swagger")))
 	if v.GetBool(serveSwaggerUIFlag) {
-		apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("swagger")))
+		logger.Info("Public API Swagger UI serving is enabled")
 		apiMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "api.html")))
 	}
 	externalAPIMux := goji.SubMux()
@@ -1080,8 +1077,9 @@ func main() {
 
 	internalMux := goji.SubMux()
 	root.Handle(pat.New("/internal/*"), internalMux)
+	internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("internal-swagger")))
 	if v.GetBool(serveSwaggerUIFlag) {
-		internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("internal-swagger")))
+		logger.Info("Internal API Swagger UI serving is enabled")
 		internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "internal.html")))
 	}
 	// Mux for internal API that enforces auth
