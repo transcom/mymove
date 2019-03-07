@@ -1608,6 +1608,7 @@
     "github.com/gorilla/csrf",
     "github.com/hashicorp/go-multierror",
     "github.com/honeycombio/beeline-go",
+    "github.com/honeycombio/beeline-go/trace",
     "github.com/honeycombio/beeline-go/wrappers/hnynethttp",
     "github.com/imdario/mergo",
     "github.com/jessevdk/go-flags",
