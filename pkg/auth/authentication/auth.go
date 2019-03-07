@@ -108,7 +108,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			// don't want to make a call to login.gov for a logout URL as it will
 			// fail for devlocal-auth'ed users.
 			if session.IDToken == "devlocal" {
-				logoutURL = "/"
+				logoutURL = redirectURL
 			} else {
 				logoutURL = h.loginGovProvider.LogoutURL(redirectURL, session.IDToken)
 			}
