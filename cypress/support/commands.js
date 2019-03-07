@@ -29,8 +29,8 @@ import { milmoveAppName, officeAppName, tspAppName, longPageLoadTimeout } from '
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
 Cypress.Commands.add('signInAsNewUser', () => {
-  // make sure we reset the session token first before sign in
-  cy.clearCookies();
+  // make sure we log out first before sign in
+  cy.logout();
 
   cy.visit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now
@@ -55,7 +55,7 @@ Cypress.Commands.add('signIntoTSP', () => {
 });
 Cypress.Commands.add('signInAsUser', userId => {
   // make sure we log out first before sign in
-  cy.clearCookies();
+  cy.logout();
 
   cy.visit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now
@@ -144,7 +144,7 @@ Cypress.Commands.add(
         });
     };
 
-    // make sure we reset the session token first before sign in
+    // make sure we log out first before sign in
     cy.clearCookies();
     // GET landing page to get csrf cookies
     cy.request('/');
@@ -184,6 +184,14 @@ Cypress.Commands.add(
 
 Cypress.Commands.add('logout', () => {
   cy.clearCookies();
+  cy.patientVisit('/');
+  cy.getCookie('masked_gorilla_csrf').then(cookie => {
+    cy.request({
+      url: '/auth/logout',
+      method: 'POST',
+      headers: { 'x-csrf-token': cookie.value },
+    });
+  });
 });
 
 Cypress.Commands.add('nextPage', () => {
