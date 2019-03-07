@@ -327,6 +327,8 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData)
 	page2 := ShipmentSummaryWorksheetPage2Values{}
 	page2.PreparationDate = FormatDate(data.PreparationDate)
 	page2.FormattedMovingExpenses, err = FormatMovingExpenses(data.MovingExpenseDocuments)
+	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
+	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
 	if err != nil {
 		return page2, err
 	}
@@ -418,9 +420,6 @@ func FormatMovingExpenses(movingExpenseDocuments MovingExpenseDocuments) (Format
 	for key, value := range subTotals {
 		formattedExpenses[key] = FormatDollars(value)
 	}
-
-	formattedExpenses["TotalMemberPaidRepeated"] = formattedExpenses["TotalMemberPaid"]
-	formattedExpenses["TotalGTCCPaidRepeated"] = formattedExpenses["TotalGTCCPaid"]
 
 	err := mapstructure.Decode(formattedExpenses, &expenses)
 	if err != nil {

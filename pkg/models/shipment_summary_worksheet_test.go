@@ -283,10 +283,12 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
 
 	suite.Equal("$300.00", sswPage2.ContractedExpenseGTCCPaid)
 	suite.Equal("$300.00", sswPage2.TotalGTCCPaid)
+	suite.Equal("$300.00", sswPage2.TotalGTCCPaidRepeated)
 
 	suite.Equal("$100.00", sswPage2.TollsMemberPaid)
 	suite.Equal("$100.00", sswPage2.GasMemberPaid)
 	suite.Equal("$200.00", sswPage2.TotalMemberPaid)
+	suite.Equal("$200.00", sswPage2.TotalMemberPaidRepeated)
 }
 
 func (suite *ModelSuite) TestGroupExpenses() {
