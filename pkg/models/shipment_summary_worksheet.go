@@ -49,6 +49,7 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	TotalWeightAllotment            string
 	POVAuthorized                   string
 	TAC                             string
+	SAC                             string
 	ShipmentNumberAndTypes          string
 	ShipmentPickUpDates             string
 	ShipmentWeights                 string
@@ -243,6 +244,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.OrdersIssueDate = FormatDate(data.Order.IssueDate)
 	page1.OrdersTypeAndOrdersNumber = FormatOrdersTypeAndOrdersNumber(data.Order)
 	page1.TAC = derefStringTypes(data.Order.TAC)
+	page1.SAC = derefStringTypes(data.Order.SAC)
 
 	page1.AuthorizedOrigin = FormatAuthorizedLocation(data.CurrentDutyStation)
 	page1.AuthorizedDestination = FormatAuthorizedLocation(data.NewDutyStation)
@@ -382,8 +384,7 @@ func FormatAllShipments(ppms PersonallyProcuredMoves, shipments Shipments) Shipm
 	for _, ppm := range ppms {
 		formattedNumberAndTypes[shipmentNumber] = FormatPPMNumberAndType(shipmentNumber)
 		formattedPickUpDates[shipmentNumber] = FormatPPMPickupDate(ppm)
-		// We don't have an actual weight for ppms yet, so we're leaving it blank for now
-		formattedShipmentWeights[shipmentNumber] = ""
+		formattedShipmentWeights[shipmentNumber] = FormatPPMWeight(ppm)
 		formattedShipmentStatuses[shipmentNumber] = FormatCurrentPPMStatus(ppm)
 		shipmentNumber++
 	}
@@ -495,6 +496,15 @@ func FormatShipmentWeight(shipment Shipment) string {
 func FormatShipmentPickupDate(shipment Shipment) string {
 	if shipment.ActualPickupDate != nil {
 		return FormatDate(*shipment.ActualPickupDate)
+	}
+	return ""
+}
+
+//FormatPPMWeight formats a ppms NetWeight for the Shipment Summary Worksheet
+func FormatPPMWeight(ppm PersonallyProcuredMove) string {
+	if ppm.NetWeight != nil {
+		wtg := FormatWeights(int(*ppm.NetWeight))
+		return fmt.Sprintf("%s lbs - FINAL", wtg)
 	}
 	return ""
 }

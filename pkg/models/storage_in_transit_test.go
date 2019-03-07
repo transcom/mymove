@@ -52,11 +52,6 @@ func (suite *ModelSuite) TestFetchStorageInTransitsByShipment() {
 	suite.Nil(err)
 	suite.Equal(10, len(storageInTransits))
 
-	// Let's make sure we can trigger a FetchNotFound
-	fakeUUID, _ := uuid.FromString("bb2de0f1-f069-4823-a4fa-bc1c89d86506")
-	_, err = models.FetchStorageInTransitsOnShipment(suite.DB(), fakeUUID)
-	suite.Equal(err, models.ErrFetchNotFound)
-
 }
 
 func (suite *ModelSuite) TestFetchStorageInTransistByID() {

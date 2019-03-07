@@ -141,6 +141,14 @@
     {
       "name": "SEND_PROD_INVOICE",
       "value": "{{ .SEND_PROD_INVOICE }}"
+    },
+    {
+      "name": "EIA_KEY",
+      "value": "{{ .EIA_KEY }}"
+    },
+    {
+      "name": "EIA_URL",
+      "value": "https://api.eia.gov/series/"
     }
   ],
   "logConfiguration": {

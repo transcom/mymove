@@ -7,7 +7,9 @@ import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modul
 import { getPublicShipment } from 'shared/Entities/modules/shipments';
 
 let store;
+let wrapper;
 const mockStore = configureStore();
+store = mockStore({});
 
 const transportationServiceProvider = {
   id: 'f21cfbfa-3735-4166-97fb-bbc069e52637',
@@ -26,19 +28,40 @@ const props = {
 };
 
 describe('ContactInfo tests', () => {
-  let wrapper;
-  store = mockStore({});
-  wrapper = mount(
-    <Provider store={store}>
-      <TransportationServiceProviderContactInfo
-        transportationServiceProvider={transportationServiceProvider}
-        {...props}
-      />
-    </Provider>,
-  );
+  describe('Shows transportation service provider only when fileAClaim is false', () => {
+    beforeEach(() => {
+      wrapper = mount(
+        <Provider store={store}>
+          <TransportationServiceProviderContactInfo
+            transportationServiceProvider={transportationServiceProvider}
+            {...props}
+          />
+        </Provider>,
+      );
+    });
+    it('renders the correct information', () => {
+      expect(wrapper.contains('File a Claim')).toBe(false);
+      expect(wrapper.contains(transportationServiceProvider.name)).toEqual(true);
+      expect(wrapper.contains(transportationServiceProvider.poc_general_phone)).toEqual(true);
+    });
+  });
 
-  it('renders the correct information', () => {
-    expect(wrapper.contains(transportationServiceProvider.name)).toEqual(true);
-    expect(wrapper.contains(transportationServiceProvider.poc_general_phone)).toEqual(true);
+  describe('File a claim section', () => {
+    beforeEach(() => {
+      wrapper = mount(
+        <Provider store={store}>
+          <TransportationServiceProviderContactInfo
+            transportationServiceProvider={transportationServiceProvider}
+            showFileAClaimInfo
+            {...props}
+          />
+        </Provider>,
+      );
+    });
+    it('renders the file a claim section', () => {
+      expect(wrapper.contains('File a Claim')).toBe(true);
+      expect(wrapper.contains(transportationServiceProvider.name)).toEqual(true);
+      expect(wrapper.contains(transportationServiceProvider.poc_general_phone)).toEqual(true);
+    });
   });
 });

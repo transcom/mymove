@@ -157,3 +157,12 @@ func StringFromSSN(ssn *strfmt.SSN) *string {
 	}
 	return stringPointer
 }
+
+// FmtCost converts pop type to go-swagger type
+func FmtCost(c *unit.Cents) *int64 {
+	if c == nil {
+		return nil
+	}
+	cost := c.Int64()
+	return &cost
+}

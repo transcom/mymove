@@ -2,10 +2,16 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 
 import BasicPanel from 'shared/BasicPanel';
 import Alert from 'shared/Alert';
 import Creator from 'shared/StorageInTransit/Creator';
+import { selectStorageInTransits, createStorageInTransit } from 'shared/Entities/modules/storageInTransits';
+import { loadEntitlements } from '../../scenes/TransportationServiceProvider/ducks';
 
 export class StorageInTransitPanel extends Component {
   constructor() {
@@ -21,11 +27,19 @@ export class StorageInTransitPanel extends Component {
     this.setState({ error: null });
   };
 
+  onFormActivation = isFormActive => {
+    this.setState({ isRequestActionable: !isFormActive });
+  };
+
+  onSubmit = createPayload => {
+    return this.props.createStorageInTransit(this.props.shipmentId, createPayload);
+  };
+
   render() {
-    const { sitEntitlement } = this.props;
+    const { storageInTransitEntitlement, storageInTransits } = this.props;
     const { error, isCreatorActionable } = this.state;
     const daysUsed = 0; // placeholder
-    const daysRemaining = sitEntitlement - daysUsed;
+    const daysRemaining = storageInTransitEntitlement - daysUsed;
     return (
       <div className="storage-in-transit-panel">
         <BasicPanel title="Storage in Transit (SIT)">
@@ -34,10 +48,26 @@ export class StorageInTransitPanel extends Component {
               <span className="warning--header">Please refresh the page and try again.</span>
             </Alert>
           )}
-          <div className="column-subhead">
-            Entitlement: {sitEntitlement} days <span className="unbold">({daysRemaining} remaining)</span>
+          <div className="column-head">
+            Entitlement: {storageInTransitEntitlement} days <span className="unbold">({daysRemaining} remaining)</span>
           </div>
-          {isCreatorActionable && <Creator onFormActivation={this.onFormActivation} />}
+          {storageInTransits !== undefined &&
+            storageInTransits.map(row => {
+              return (
+                <div key={row.id} className="column-head">
+                  {row.location.charAt(0) + row.location.slice(1).toLowerCase()} SIT
+                  <span className="unbold">
+                    {' '}
+                    <span id={'sit-status-text'}>Status:</span>{' '}
+                    <FontAwesomeIcon className="icon icon-grey" icon={faClock} />
+                  </span>
+                  <span>SIT {row.status.charAt(0) + row.status.slice(1).toLowerCase()} </span>
+                </div>
+              );
+            })}
+          {isCreatorActionable && (
+            <Creator onFormActivation={this.onFormActivation} saveStorageInTransit={this.onSubmit} />
+          )}
         </BasicPanel>
       </div>
     );
@@ -45,24 +75,21 @@ export class StorageInTransitPanel extends Component {
 }
 
 StorageInTransitPanel.propTypes = {
-  sitRequests: PropTypes.array,
+  storageInTransits: PropTypes.array,
   shipmentId: PropTypes.string,
-  sitEntitlement: PropTypes.number,
+  storageInTransitEntitlement: PropTypes.number,
 };
 
-/*
 function mapStateToProps(state, ownProps) {
   return {
-    sitRequests: selectSortedSitRequests(state, ownProps.shipmentId),
+    storageInTransits: selectStorageInTransits(state, ownProps.shipmentId),
+    storageInTransitEntitlement: loadEntitlements(state).storage_in_transit,
+    shipmentId: ownProps.shipmentId,
   };
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { createSitRequest, deleteSitRequest, approveSitRequest, updateSitRequest },
-    dispatch,
-  );
+  return bindActionCreators({ createStorageInTransit }, dispatch);
 }
+
 export default connect(mapStateToProps, mapDispatchToProps)(StorageInTransitPanel);
-*/
-export default connect(null, null)(StorageInTransitPanel);

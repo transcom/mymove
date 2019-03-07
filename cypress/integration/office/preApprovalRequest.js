@@ -3,7 +3,7 @@ import {
   editPreApprovalRequest,
   approvePreApprovalRequest,
   deletePreApprovalRequest,
-} from '../../support/testCreatePreApprovalRequest';
+} from '../../support/preapprovals/testCreateRequest';
 
 /* global cy */
 describe('office user interacts with pre approval request panel', function() {
@@ -52,7 +52,10 @@ function officeUserCreatesPreApprovalRequest() {
 
   fillAndSavePreApprovalRequest();
   // Verify data has been saved in the UI
-  cy.get('td').contains('Bulky Article: Motorcycle/Rec vehicle');
+  cy.get('tr[data-cy="130B"]').should(td => {
+    const text = td.text();
+    expect(text).to.include('Bulky Article: Motorcycle/Rec vehicle');
+  });
 }
 function officeUserEditsPreApprovalRequest() {
   // Open new moves queue
@@ -82,7 +85,10 @@ function officeUserEditsPreApprovalRequest() {
 
   editPreApprovalRequest();
   // Verify data has been saved in the UI
-  cy.get('td').contains('notes notes edited');
+  cy.get('tr[data-cy="130B"]').should(td => {
+    const text = td.text();
+    expect(text).to.include('edited');
+  });
 }
 
 function officeUserApprovesPreApprovalRequest() {

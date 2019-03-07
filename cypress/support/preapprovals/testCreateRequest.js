@@ -18,15 +18,8 @@ export function fillAndSavePreApprovalRequest() {
 
   cy.get('select[name="location"]').select('ORIGIN');
 
-  cy
-    .get('input[name="quantity_1"]')
-    .first()
-    .type('2', { force: true, delay: 150 });
-
-  cy
-    .get('textarea[name="notes"]')
-    .first()
-    .type('notes notes', { force: true, delay: 150 });
+  cy.typeInInput({ name: 'quantity_1', value: 2 });
+  cy.typeInTextarea({ name: 'notes', value: `notes notes` });
 
   cy
     .get('button')
@@ -45,10 +38,7 @@ export function editPreApprovalRequest() {
     .first()
     .click();
 
-  cy
-    .get('textarea[name="notes"]')
-    .first()
-    .type(' edited', { force: true, delay: 150 });
+  cy.typeInTextarea({ name: 'notes', value: `edited` });
   cy
     .get('button')
     .contains('Save')

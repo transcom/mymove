@@ -119,7 +119,7 @@ export class PreApprovalRequest extends Component {
 
       return (
         <Fragment>
-          <tr key={row.id} className={deleteActiveClass}>
+          <tr key={row.id} className={deleteActiveClass} data-cy={row.tariff400ng_item.code}>
             <td>{row.tariff400ng_item.code}</td>
             <td>{row.tariff400ng_item.item}</td>
             <td> {row.location[0]} </td>

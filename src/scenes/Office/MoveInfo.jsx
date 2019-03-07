@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get, capitalize, includes } from 'lodash';
+import { capitalize, get, includes } from 'lodash';
 
-import { RoutedTabs, NavTab } from 'react-router-tabs';
-import { NavLink, Switch, Redirect, Link } from 'react-router-dom';
+import { NavTab, RoutedTabs } from 'react-router-tabs';
+import { Link, NavLink, Redirect, Switch } from 'react-router-dom';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import LocationsContainer from './Hhg/LocationsContainer';
@@ -18,6 +18,7 @@ import OrdersPanel from './OrdersPanel';
 import PaymentsPanel from './Ppm/PaymentsPanel';
 import DatesAndLocationPanel from './Ppm/DatesAndLocationsPanel';
 import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
+import StoragePanel from './Ppm/StoragePanel';
 import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
 import IncentiveCalculator from './Ppm/IncentiveCalculator';
 import ExpensesPanel from './Ppm/ExpensesPanel';
@@ -31,22 +32,23 @@ import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
+import ComboButton from 'shared/ComboButton';
 
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
 import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
 import { getAllShipmentLineItems, selectSortedShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices } from 'shared/Entities/modules/invoices';
-import { loadPPMs, approvePPM, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
-import { loadServiceMember, loadBackupContacts, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
+import { approvePPM, loadPPMs, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
+import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
 import {
-  getPublicShipment,
-  updatePublicShipment,
   approveShipment,
   completeShipment,
+  getPublicShipment,
   selectShipment,
   selectShipmentStatus,
+  updatePublicShipment,
 } from 'shared/Entities/modules/shipments';
 import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
@@ -61,7 +63,7 @@ import {
   cancelMove,
 } from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
-import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import { getMoveDocumentsForMove, selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -91,6 +93,7 @@ const PPMTabContent = props => {
       <ExpensesPanel title="Expenses" moveId={props.moveId} />
       <IncentiveCalculator moveId={props.moveId} />
       <StorageReimbursementCalculator moveId={props.moveId} />
+      <StoragePanel title="Storage" moveId={props.moveId} />
       <DatesAndLocationPanel title="Dates & Locations" moveId={props.moveId} />
       <NetWeightPanel title="Weights" moveId={props.moveId} />
       <PPMEstimatesPanel title="Estimates" moveId={props.moveId} />
@@ -255,6 +258,7 @@ class MoveInfo extends Component {
     const pathnames = this.props.location.pathname.split('/');
     const currentTab = pathnames[pathnames.length - 1];
     const showDocumentViewer = this.props.context.flags.documentViewer;
+    const moveInfoComboButton = this.props.context.flags.moveInfoComboButton;
     const allowHhgInvoicePayment = this.props.context.flags.allowHhgInvoicePayment;
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
     const ordersComplete = Boolean(
@@ -382,6 +386,17 @@ class MoveInfo extends Component {
                   Please fill out missing data
                 </Alert>
               )}
+              <div>
+                {moveInfoComboButton && (
+                  <ComboButton
+                    buttonText={'Approve'}
+                    isDisabled={true}
+                    toolTipText={
+                      'Some information about the move is missing or contains errors. Please fix these problems before approving.'
+                    }
+                  />
+                )}
+              </div>
               <button
                 className={`${moveApproved ? 'btn__approve--green' : ''}`}
                 onClick={this.approveBasics}
