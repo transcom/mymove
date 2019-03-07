@@ -12,7 +12,7 @@ import Alert from 'shared/Alert';
 import Creator from 'shared/StorageInTransit/Creator';
 import { selectStorageInTransits, createStorageInTransit } from 'shared/Entities/modules/storageInTransits';
 import { loadEntitlements } from '../../scenes/TransportationServiceProvider/ducks';
-import { formatDate } from 'shared/formatters';
+import { formatDate4DigitYear } from 'shared/formatters';
 
 export class StorageInTransitPanel extends Component {
   constructor() {
@@ -72,7 +72,9 @@ export class StorageInTransitPanel extends Component {
                       <div className="column-subhead">Dates</div>
                       <div className="panel-field">
                         <span className="field-title unbold">Est. start date</span>
-                        <span className="field-value">{formatDate(storageInTransit.estimated_start_date)}</span>
+                        <span className="field-value">
+                          {formatDate4DigitYear(storageInTransit.estimated_start_date)}
+                        </span>
                       </div>
                       {storageInTransit.notes !== undefined && (
                         <div className="sit-notes">

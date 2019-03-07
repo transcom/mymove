@@ -63,7 +63,7 @@ export function fillAndSaveStorageInTransit() {
   cy.get('.storage-in-transit').should($div => {
     const text = $div.text();
     expect(text).to.include('Dates');
-    expect(text).to.include('24-Oct-18');
+    expect(text).to.include('24-Oct-2018');
     expect(text).to.include('Warehouse');
     expect(text).to.include('warehouse haus');
     expect(text).to.include('Warehouse ID');

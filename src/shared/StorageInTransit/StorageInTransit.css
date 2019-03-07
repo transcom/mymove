@@ -44,7 +44,7 @@
 }
 
 .storage-in-transit-panel .column-subhead {
-  margin-top: 0.8em !important;
+  margin-top: 0.9em !important;
   border-bottom: 1px #BBBBBB solid;
 }
 
@@ -63,5 +63,15 @@
 .storage-in-transit-panel .basic-panel-content {
   display: table;
   table-layout: fixed;
+  width: 100%;
+}
+
+.column-subhead {
+  margin-bottom: 4px;
+  line-height: 1.5em;
+
+}
+
+.sit-notes .field-title {
   width: 100%;
 }
