@@ -56,6 +56,8 @@ commands:
       - run:
           name: Run migrations
           command: bin/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
+          environment:
+            CHAMBER_RETRIES: 20
       - announce_failure
   deploy_app_steps:
     parameters:
@@ -76,6 +78,7 @@ commands:
       - deploy:
           name: Deploy app service
           command: bin/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+          no_output_timeout: 20m
       - run:
           name: Health Check
           command: go run cmd/health_checker/main.go --schemes http,https --hosts << parameters.health_check_hosts >> --tries 10 --backoff 3 --log-level info --timeout 15m
@@ -102,6 +105,7 @@ commands:
       - deploy:
           name: Deploy app-client-tls service
           command: bin/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+          no_output_timeout: 20m
       - run:
           name: Health Check
           command: |
@@ -588,6 +592,7 @@ jobs:
           name: Run acceptance tests
           command: make webserver_test
           environment:
+            CHAMBER_RETRIES: 20
             PWD: /home/circleci/go/src/github.com/transcom/mymove
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             TEST_ACC_ENV: experimental
@@ -650,6 +655,7 @@ jobs:
           name: Run acceptance tests
           command: make webserver_test
           environment:
+            CHAMBER_RETRIES: 20
             PWD: /home/circleci/go/src/github.com/transcom/mymove
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             TEST_ACC_ENV: staging
