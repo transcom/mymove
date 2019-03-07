@@ -16,7 +16,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetOrdersSuccess() {
-	order := testdatagen.MakeDefaultElectronicOrder(suite.DB(), ordersmessages.IssuerAirForce, ordersmessages.AffiliationAirForce)
+	order := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", ordersmessages.IssuerAirForce, "8675309", ordersmessages.AffiliationAirForce)
 	req := httptest.NewRequest("GET", "/orders/v1/orders/", nil)
 
 	clientCert := models.ClientCert{
@@ -56,7 +56,7 @@ func (suite *HandlerSuite) TestGetOrdersNoApiPerm() {
 }
 
 func (suite *HandlerSuite) TestGetOrdersNoArmyPerm() {
-	order := testdatagen.MakeDefaultElectronicOrder(suite.DB(), ordersmessages.IssuerArmy, ordersmessages.AffiliationArmy)
+	order := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", ordersmessages.IssuerArmy, "8675309", ordersmessages.AffiliationArmy)
 	req := httptest.NewRequest("GET", "/orders/v1/orders/", nil)
 
 	clientCert := models.ClientCert{
@@ -80,7 +80,7 @@ func (suite *HandlerSuite) TestGetOrdersNoArmyPerm() {
 }
 
 func (suite *HandlerSuite) TestGetOrdersNoNavyPerm() {
-	order := testdatagen.MakeDefaultElectronicOrder(suite.DB(), ordersmessages.IssuerNavy, ordersmessages.AffiliationNavy)
+	order := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", ordersmessages.IssuerNavy, "8675309", ordersmessages.AffiliationNavy)
 	req := httptest.NewRequest("GET", "/orders/v1/orders/", nil)
 
 	clientCert := models.ClientCert{
@@ -104,7 +104,7 @@ func (suite *HandlerSuite) TestGetOrdersNoNavyPerm() {
 }
 
 func (suite *HandlerSuite) TestGetOrdersNoMarineCorpsPerm() {
-	order := testdatagen.MakeDefaultElectronicOrder(suite.DB(), ordersmessages.IssuerMarineCorps, ordersmessages.AffiliationMarineCorps)
+	order := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", ordersmessages.IssuerMarineCorps, "8675309", ordersmessages.AffiliationMarineCorps)
 	req := httptest.NewRequest("GET", "/orders/v1/orders/", nil)
 
 	clientCert := models.ClientCert{
@@ -128,7 +128,7 @@ func (suite *HandlerSuite) TestGetOrdersNoMarineCorpsPerm() {
 }
 
 func (suite *HandlerSuite) TestGetOrdersNoAirForcePerm() {
-	order := testdatagen.MakeDefaultElectronicOrder(suite.DB(), ordersmessages.IssuerAirForce, ordersmessages.AffiliationAirForce)
+	order := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", ordersmessages.IssuerAirForce, "8675309", ordersmessages.AffiliationAirForce)
 	req := httptest.NewRequest("GET", "/orders/v1/orders/", nil)
 
 	clientCert := models.ClientCert{
@@ -152,7 +152,7 @@ func (suite *HandlerSuite) TestGetOrdersNoAirForcePerm() {
 }
 
 func (suite *HandlerSuite) TestGetOrdersNoCoastGuardPerm() {
-	order := testdatagen.MakeDefaultElectronicOrder(suite.DB(), ordersmessages.IssuerCoastGuard, ordersmessages.AffiliationCoastGuard)
+	order := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", ordersmessages.IssuerCoastGuard, "8675309", ordersmessages.AffiliationCoastGuard)
 	req := httptest.NewRequest("GET", "/orders/v1/orders/", nil)
 
 	clientCert := models.ClientCert{

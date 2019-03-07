@@ -9,12 +9,12 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeDefaultElectronicOrder returns a single ElectronicOrder with default values and a single ElectronicOrdersRevision
-func MakeDefaultElectronicOrder(db *pop.Connection, issuer ordersmessages.Issuer, affiliation ordersmessages.Affiliation) models.ElectronicOrder {
+// MakeElectronicOrder returns a single ElectronicOrder with a single ElectronicOrdersRevision
+func MakeElectronicOrder(db *pop.Connection, edipi string, issuer ordersmessages.Issuer, ordersNumber string, affiliation ordersmessages.Affiliation) models.ElectronicOrder {
 	order := models.ElectronicOrder{
-		Edipi:        "1234567890",
+		Edipi:        edipi,
 		Issuer:       issuer,
-		OrdersNumber: "8675309",
+		OrdersNumber: ordersNumber,
 	}
 
 	mustCreate(db, &order)
