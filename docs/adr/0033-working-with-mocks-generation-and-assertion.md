@@ -1,6 +1,6 @@
 # *Working With Mocks: Generation and Assertion*
 
-Currently, there is no way to approach mocking the behavior of dependencies in the backend API. Mocking allows you to simulate the behavior of an interface, in Golang, in a controlled way. Mock objects are helpful within the realm of unit testing. Oftentimes while testing, the piece of functionality that is being tested calls other dependencies - external services or methods within it. In order to exert full control over the test, mocking these dependencies allows one to define how they should behave. It would be helpful to have some way to work with mocks, such that they can be integrated easily with minimal developer overhead.
+Currently, there is no way to approach mocking the behavior of dependencies in the backend API. Mocking allows you to simulate the behavior of an interface, in Golang, in a controlled way. Mock objects are helpful within the realm of unit testing. Oftentimes while testing, the piece of functionality that is being tested calls other dependencies - external services or methods within it. In order to exert full control over the test, mocking these dependencies allows one to define how they should behave. In the MilMove project, there are several instances that we integrate with services that we do not control, for example, the login and GEX services. Having the ability to mock these dependencies and others like it enables better testing. It would be helpful to have some way to work with mocks, such that they can be integrated easily with minimal developer overhead.
 
 ## Decision Drivers
 
@@ -38,8 +38,10 @@ Resources:
 * `+` Mockery and Testify/Mock Libraries actively maintained
 * `+` Allows us to move quicker in development with code generation tools
 * `+` Relatively simple API for mock generation and assertion
+* `+` Testify is already apart of our testing suite and present in our codebase
 * `-` Steeper learning curve given that these are new libraries that the team has not yet worked with
 * `-` Mocks must be generated
+* `-` Limited to what we can do by the mocking API or we have to contribute to it.
 
 ### *Write mock implementation methods in development without Mockery and only use Testify for mock assertion testing*
 
