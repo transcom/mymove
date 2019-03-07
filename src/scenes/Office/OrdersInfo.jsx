@@ -8,16 +8,27 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import DocumentContent from 'shared/DocumentViewer/DocumentContent';
 import OrdersViewerPanel from './OrdersViewerPanel';
-import { loadMoveDependencies } from './ducks.js';
-import { selectOrdersForMove, selectUplodsForOrders } from 'shared/Entities/modules/orders';
-import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMembers';
+import { getRequestStatus } from 'shared/Swagger/selectors';
+import { loadMove, selectMove } from 'shared/Entities/modules/moves';
+import { loadOrders, loadOrdersLabel, selectUplodsForOrders } from 'shared/Entities/modules/orders';
+import { loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { stringifyName } from 'shared/utils/serviceMember';
 
 import './office.css';
 
 class OrdersInfo extends Component {
   componentDidMount() {
-    this.props.loadMoveDependencies(this.props.match.params.moveId);
+    this.props.loadMove(this.props.moveId);
+  }
+
+  componentDidUpdate(prevProps) {
+    const { serviceMemberId, ordersId } = this.props;
+    // Both serviceMemberId and ordersId come from the move
+    // If we have one, we can safely assume we have the other
+    if (serviceMemberId !== prevProps.serviceMemberId) {
+      this.props.loadServiceMember(serviceMemberId);
+      this.props.loadOrders(ordersId);
+    }
   }
 
   render() {
@@ -58,24 +69,31 @@ class OrdersInfo extends Component {
 }
 
 OrdersInfo.propTypes = {
-  loadMoveDependencies: PropTypes.func.isRequired,
+  loadMove: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = (state, ownProps) => {
-  const orders = selectOrdersForMove(state, ownProps.match.params.moveId);
-  const uploads = selectUplodsForOrders(state, orders.id);
-  const serviceMember = selectServiceMemberForOrders(state, orders.id);
+  const moveId = ownProps.match.params.moveId;
+  const move = selectMove(state, moveId);
+  const ordersId = move.orders_id;
+  const uploads = selectUplodsForOrders(state, ordersId);
+  const serviceMemberId = move.service_member_id;
+  const serviceMember = selectServiceMember(state, serviceMemberId);
+  const loadOrdersRequest = getRequestStatus(state, loadOrdersLabel);
 
   return {
     swaggerError: state.swaggerInternal.hasErrored,
+    moveId,
     ordersSchema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
+    ordersId,
     serviceMember,
+    serviceMemberId,
     uploads,
-    loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
-    loadDependenciesHasError: state.office.loadDependenciesHasError,
+    loadDependenciesHasSuccess: loadOrdersRequest.isSuccess,
+    loadDependenciesHasError: loadOrdersRequest.error,
   };
 };
 
-const mapDispatchToProps = dispatch => bindActionCreators({ loadMoveDependencies }, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators({ loadMove, loadOrders, loadServiceMember }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(OrdersInfo);

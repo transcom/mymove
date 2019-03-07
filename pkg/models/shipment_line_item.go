@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -94,6 +95,25 @@ func (s *ShipmentLineItem) Validate(tx *pop.Connection) (*validate.Errors, error
 func (s *ShipmentLineItem) BeforeDestroy(tx *pop.Connection) error {
 	if s.InvoiceID != nil {
 		return ErrDestroyForbidden
+	}
+
+	return nil
+}
+
+// AfterDestroy also destroys associated items in the dimensions table, if they exist
+func (s *ShipmentLineItem) AfterDestroy(tx *pop.Connection) error {
+
+	if s.ItemDimensionsID != nil {
+		err := tx.Destroy(&s.ItemDimensions)
+		if err != nil {
+			return ErrDestroyForbidden
+		}
+	}
+	if s.CrateDimensionsID != nil {
+		err := tx.Destroy(&s.CrateDimensions)
+		if err != nil {
+			return ErrDestroyForbidden
+		}
 	}
 
 	return nil

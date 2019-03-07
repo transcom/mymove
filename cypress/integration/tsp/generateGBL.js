@@ -90,6 +90,15 @@ function tspUserGeneratesGBL() {
     .should('not.exist');
 
   cy.get('.documents').should('contain', 'Government Bill Of Lading');
+
+  cy.patientVisit('/queues/approved');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/approved/);
+  });
+
+  cy.selectQueueItemMoveLocator('GBLGBL');
+
+  cy.get('.usa-alert-success').should('not.exist');
 }
 
 function tspUserViewsGBL() {

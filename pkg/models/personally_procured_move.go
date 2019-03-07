@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/unit"
@@ -41,7 +42,9 @@ type PersonallyProcuredMove struct {
 	UpdatedAt                     time.Time                    `json:"updated_at" db:"updated_at"`
 	Size                          *internalmessages.TShirtSize `json:"size" db:"size"`
 	WeightEstimate                *int64                       `json:"weight_estimate" db:"weight_estimate"`
-	PlannedMoveDate               *time.Time                   `json:"planned_move_date" db:"planned_move_date"`
+	OriginalMoveDate              *time.Time                   `json:"original_move_date" db:"original_move_date"`
+	ActualMoveDate                *time.Time                   `json:"actual_move_date" db:"actual_move_date"`
+	NetWeight                     *int64                       `json:"net_weight" db:"net_weight"`
 	PickupPostalCode              *string                      `json:"pickup_postal_code" db:"pickup_postal_code"`
 	HasAdditionalPostalCode       *bool                        `json:"has_additional_postal_code" db:"has_additional_postal_code"`
 	AdditionalPickupPostalCode    *string                      `json:"additional_pickup_postal_code" db:"additional_pickup_postal_code"`
@@ -60,6 +63,7 @@ type PersonallyProcuredMove struct {
 	Advance                       *Reimbursement               `belongs_to:"reimbursements"`
 	AdvanceWorksheet              Document                     `belongs_to:"documents"`
 	AdvanceWorksheetID            *uuid.UUID                   `json:"advance_worksheet_id" db:"advance_worksheet_id"`
+	TotalSITCost                  *unit.Cents                  `json:"total_sit_cost" db:"total_sit_cost"`
 }
 
 // PersonallyProcuredMoves is a list of PPMs
@@ -177,7 +181,7 @@ func FetchPersonallyProcuredMove(db *pop.Connection, session *auth.Session, id u
 		return nil, err
 	}
 	// TODO: Handle case where more than one user is authorized to modify ppm
-	if session.IsMyApp() && ppm.Move.Orders.ServiceMember.ID != session.ServiceMemberID {
+	if session.IsMilApp() && ppm.Move.Orders.ServiceMember.ID != session.ServiceMemberID {
 		return nil, ErrFetchForbidden
 	}
 

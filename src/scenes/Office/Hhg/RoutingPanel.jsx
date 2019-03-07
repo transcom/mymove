@@ -16,6 +16,10 @@ const RoutingPanelDisplay = props => {
     schema: props.shipmentSchema,
     values: props.shipment,
   };
+  const tdlFieldProps = {
+    schema: props.tdlSchema,
+    values: props.shipment.traffic_distribution_list,
+  };
   return (
     <div className="editable-panel-column">
       <PanelField title="Shipment type">HHG</PanelField>
@@ -24,20 +28,20 @@ const RoutingPanelDisplay = props => {
         <SwaggerValue fieldName="source_gbloc" {...fieldProps} /> -{' '}
         <SwaggerValue fieldName="destination_gbloc" {...fieldProps} />
       </PanelField>
-      <PanelSwaggerField title="Code of service" fieldName="code_of_service" {...fieldProps} />
+      <PanelSwaggerField title="Code of service" fieldName="code_of_service" {...tdlFieldProps} />
     </div>
   );
 };
 
 const RoutingPanelEdit = props => {
-  const { shipmentSchema } = props;
+  const { shipmentSchema, tdlSchema } = props;
   return (
     <div className="editable-panel-column">
       <PanelField title="Shipment type">HHG</PanelField>
       <PanelField title="Market">dHHG</PanelField>
       <SwaggerField title="Source GBLOC" fieldName="source_gbloc" swagger={shipmentSchema} required />
       <SwaggerField title="Destination GBLOC" fieldName="source_gbloc" swagger={shipmentSchema} required />
-      <SwaggerField title="Code of service" fieldName="code_of_service" swagger={shipmentSchema} required />
+      <SwaggerField title="Code of service" fieldName="code_of_service" swagger={tdlSchema} required />
     </div>
   );
 };
@@ -55,12 +59,9 @@ function mapStateToProps(state, ownProps) {
   return {
     initialValues: shipment,
     // Wrapper
+    tdlSchema: get(state, 'swaggerInternal.spec.definitions.TrafficDistributionList'),
     shipmentSchema: get(state, 'swaggerInternal.spec.definitions.Shipment', {}),
-    hasError: state.office.shipmentHasLoadError || state.office.shipmentHasUpdateError,
-    errorMessage: state.office.error,
-
     shipment: shipment,
-    isUpdating: state.office.shipmentIsUpdating,
 
     // editablePanelify
     getUpdateArgs: function() {

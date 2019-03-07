@@ -11,10 +11,6 @@
   border-spacing: 2px;
 }
 
-.pre-approval-panel-table-cont {
-  width: 90%;
-}
-
 /* Custom widths for columns in the preapproval request table */
 /*Code */
 .pre-approval-panel-table-cont table > tbody > tr > th:nth-child(1) {
@@ -68,6 +64,8 @@
   border-bottom: 1px solid #f1f1f1;
   font-size: 0.8em;
   padding: 1rem 1rem 1rem 0rem;
+  text-align: left;
+  vertical-align: top;
 }
 
 .actionable {
@@ -93,7 +91,7 @@
   max-width: 100% !important;
 }
 
-.pre-approval-panel-modal textarea[name='description'] {
+.pre-approval-panel-modal .textarea-half textarea {
   height: 8rem;
 }
 

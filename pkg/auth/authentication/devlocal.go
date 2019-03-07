@@ -12,6 +12,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/gorilla/csrf"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -45,7 +46,9 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	err := h.db.All(&users)
 	if err != nil {
 		h.logger.Error("Could not load list of users", zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		http.Error(w,
+			fmt.Sprintf("%s - Could not load list of users, try migrating the DB", http.StatusText(500)),
+			http.StatusInternalServerError)
 		return
 	}
 
@@ -69,7 +72,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				<p id="{{.ID}}">
 					<input type="hidden" name="gorilla.csrf.Token" value="` + csrf.Token(r) + `">
 					{{.Email}}
-					({{if .TspUserID}}tsp{{else if .OfficeUserID}}office{{else}}mymove{{end}})
+					({{if .DpsUserID}}dps{{else if .TspUserID}}tsp{{else if .OfficeUserID}}office{{else}}milmove{{end}})
 					<button name="id" value="{{.ID}}" data-hook="existing-user-login">Login</button>
 				</p>
 			</form>
@@ -213,8 +216,19 @@ func loginUser(handler devlocalAuthHandler, user *models.User, w http.ResponseWr
 		session.IDToken = "devlocal"
 		session.UserID = userIdentity.ID
 		session.Email = userIdentity.Email
+
+		if userIdentity.Disabled {
+			handler.logger.Error("Disabled user requesting authentication", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
+		}
+
 		if userIdentity.ServiceMemberID != nil {
 			session.ServiceMemberID = *(userIdentity.ServiceMemberID)
+		}
+
+		if userIdentity.DpsUserID != nil {
+			session.DpsUserID = *(userIdentity.DpsUserID)
 		}
 
 		if userIdentity.OfficeUserID != nil {

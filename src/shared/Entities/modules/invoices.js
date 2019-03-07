@@ -8,11 +8,11 @@ import { createSelector } from 'reselect';
 export const getShipmentInvoicesLabel = 'Shipments.getShipmentInvoices';
 export const createInvoiceLabel = 'Shipments.createAndSendHHGInvoice';
 
-export function createInvoice(label, shipmentId) {
+export function createInvoice(shipmentId, label = createInvoiceLabel) {
   return swaggerRequest(getClient, 'shipments.createAndSendHHGInvoice', { shipmentId }, { label });
 }
 
-export function getAllInvoices(label, shipmentId) {
+export function getAllInvoices(shipmentId, label = getShipmentInvoicesLabel) {
   return swaggerRequest(getPublicClient, 'shipments.getShipmentInvoices', { shipmentId }, { label });
 }
 

@@ -1,13 +1,14 @@
 package models
 
 import (
+	"time"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"go.uber.org/zap/zapcore"
-	"time"
 )
 
 // TransportationServiceProvider models moving companies used to move

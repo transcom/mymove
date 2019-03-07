@@ -2,8 +2,7 @@ import { combineReducers } from 'redux';
 import { reducer as formReducer } from 'redux-form';
 import { routerReducer } from 'react-router-redux';
 
-import { loggedInUserReducer } from 'shared/User/ducks';
-import userReducer from 'shared/User/ducks';
+import userReducer from 'shared/Data/users';
 import { swaggerReducerPublic, swaggerReducerInternal } from 'shared/Swagger/ducks';
 import { requestsReducer } from 'shared/Swagger/requestsReducer';
 import { entitiesReducer } from 'shared/Entities/reducer';
@@ -17,13 +16,12 @@ import { signedCertificationReducer } from 'scenes/Legalese/ducks';
 import { documentReducer } from 'shared/Uploader/ducks';
 import { reviewReducer } from 'scenes/Review/ducks';
 import transportationOfficeReducer from 'shared/TransportationOffices/ducks';
-import { officeReducer } from 'scenes/Office/ducks';
+import { officeFlashMessagesReducer } from 'scenes/Office/ducks';
 import { tspReducer } from 'scenes/TransportationServiceProvider/ducks';
 import officePpmReducer from 'scenes/Office/Ppm/ducks';
 
 const defaultReducers = {
   form: formReducer,
-  loggedInUser: loggedInUserReducer,
   router: routerReducer,
   swaggerPublic: swaggerReducerPublic,
   requests: requestsReducer,
@@ -42,7 +40,7 @@ export const appReducer = combineReducers({
   signedCertification: signedCertificationReducer,
   upload: documentReducer,
   review: reviewReducer,
-  office: officeReducer,
+  flashMessages: officeFlashMessagesReducer,
   transportationOffices: transportationOfficeReducer,
   ppmIncentive: officePpmReducer,
 });

@@ -3,12 +3,13 @@ package models
 import (
 	"time"
 
+	"strings"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"strings"
 )
 
 // User is an entity with a registered uuid and email at login.gov
@@ -18,6 +19,7 @@ type User struct {
 	UpdatedAt     time.Time `json:"updated_at" db:"updated_at"`
 	LoginGovUUID  uuid.UUID `json:"login_gov_uuid" db:"login_gov_uuid"`
 	LoginGovEmail string    `json:"login_gov_email" db:"login_gov_email"`
+	Disabled      bool      `json:"disabled" db:"disabled"`
 }
 
 // Users is not required by pop and may be deleted
@@ -74,6 +76,7 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 // UserIdentity is summary of the information about a user from the database
 type UserIdentity struct {
 	ID                     uuid.UUID  `db:"id"`
+	Disabled               bool       `db:"disabled"`
 	Email                  string     `db:"email"`
 	ServiceMemberID        *uuid.UUID `db:"sm_id"`
 	ServiceMemberFirstName *string    `db:"sm_fname"`
@@ -87,6 +90,7 @@ type UserIdentity struct {
 	TspUserFirstName       *string    `db:"tu_fname"`
 	TspUserLastName        *string    `db:"tu_lname"`
 	TspUserMiddle          *string    `db:"tu_middle"`
+	DpsUserID              *uuid.UUID `db:"du_id"`
 }
 
 // FetchUserIdentity queries the database for information about the logged in user
@@ -94,6 +98,7 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 	var identities []UserIdentity
 	query := `SELECT users.id,
 				users.login_gov_email as email,
+				users.disabled as disabled,
 				sm.id as sm_id,
 				sm.first_name as sm_fname,
 				sm.last_name as sm_lname,
@@ -105,11 +110,13 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 				tu.id as tu_id,
 				tu.first_name as tu_fname,
 				tu.last_name as tu_lname,
-				tu.middle_initials as tu_middle
+				tu.middle_initials as tu_middle,
+				du.id as du_id
 			FROM users
 			LEFT OUTER JOIN service_members as sm on sm.user_id = users.id
 			LEFT OUTER JOIN office_users as ou on ou.user_id = users.id
 			LEFT OUTER JOIN tsp_users as tu on tu.user_id = users.id
+			LEFT OUTER JOIN dps_users as du on du.login_gov_email = users.login_gov_email
 			WHERE users.login_gov_uuid  = $1`
 	err := db.RawQuery(query, loginGovID).All(&identities)
 	if err != nil {

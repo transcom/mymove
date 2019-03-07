@@ -5,10 +5,11 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
-	"go.uber.org/zap"
 )
 
 // ProcessRecalculateShipment is a service object to recalculate a Shipment's Line Items
@@ -69,11 +70,12 @@ func (r ProcessRecalculateShipment) Call(shipment *models.Shipment, lineItems mo
 	}
 
 	// Re-calculate the Shipment!
-	engine := rateengine.NewRateEngine(r.DB, r.Logger, planner)
+	engine := rateengine.NewRateEngine(r.DB, r.Logger)
 	verrs, err := RecalculateShipment{
-		DB:     r.DB,
-		Logger: r.Logger,
-		Engine: engine,
+		DB:      r.DB,
+		Logger:  r.Logger,
+		Engine:  engine,
+		Planner: planner,
 	}.Call(shipment)
 	if verrs.HasAny() || err != nil {
 		errorString := ""

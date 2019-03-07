@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 

@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190304210740_disable-unwanted-staging-user.sql")

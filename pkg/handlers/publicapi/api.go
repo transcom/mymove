@@ -1,10 +1,11 @@
 package publicapi
 
 import (
-	"github.com/transcom/mymove/pkg/paperwork"
-	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
 	"log"
 	"net/http"
+
+	"github.com/transcom/mymove/pkg/paperwork"
+	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
 
 	"github.com/go-openapi/loads"
 
@@ -64,6 +65,13 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.TransportationServiceProviderGetTransportationServiceProviderHandler = GetTransportationServiceProviderHandler{context}
 	publicAPI.TspsIndexTSPsHandler = TspsIndexTSPsHandler{context}
 	publicAPI.TspsGetTspShipmentsHandler = TspsGetTspShipmentsHandler{context}
+
+	// Storage In Transits
+	publicAPI.StorageInTransitsCreateStorageInTransitHandler = CreateStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsGetStorageInTransitHandler = GetStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsIndexStorageInTransitsHandler = IndexStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsDeleteStorageInTransitHandler = DeleteStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsPatchStorageInTransitHandler = PatchStorageInTransitHandler{context}
 
 	return publicAPI.Serve(nil)
 }

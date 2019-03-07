@@ -134,7 +134,7 @@ The following commands will get mymove running on your machine for the first tim
   * Install it with Homebrew: `brew install go`
   * Pin it, so that you don't accidentally upgrade before we upgrade the project: `brew pin go`
   * When we upgrade the project's go version, unpin, upgrade, and then re-pin: `brew unpin go; brew upgrade go; brew pin go`
-  * **Note**: If you have previously modified your PATH to point to a specific version of go, make sure to remove that. This would be either in your `.bash_profile` or `.bashrc`, and might look something like `PATH=$PATH:/usr/local/opt/go@1.11.4/bin`.
+  * **Note**: If you have previously modified your PATH to point to a specific version of go, make sure to remove that. This would be either in your `.bash_profile` or `.bashrc`, and might look something like `PATH=$PATH:/usr/local/opt/go@1.12/bin`.
 * Ensure you are using the latest version of bash for this project:
   * Install it with Homebrew: `brew install bash`
   * Update list of shells that users can choose from: `[[ $(cat /etc/shells | grep /usr/local/bin/bash) ]] || echo "/usr/local/bin/bash" | sudo tee -a /etc/shells`
@@ -267,11 +267,9 @@ You can view the API's documentation (powered by Swagger UI) at <http://localhos
 There are a few handy targets in the Makefile to help you run tests:
 
 * `make client_test`: Run front-end testing suites.
-* `make server_test`: Run back-end testing suites.
+* `make server_test`: Run back-end testing suites. [Additional info for running go tests](https://github.com/transcom/mymove/blob/master/docs/how-to/run-go-tests.md)
 * `make e2e_test`: Run e2e testing suite. To run locally, add an environment variable called SAUCE_ACCESS_KEY, which you can find in team DP3 Engineering Vault of 1Password under Sauce Labs or by logging in to Sauce itself. In 1Password, the access key is labeled SAUCE_ACCESS_KEY. This will run against our staging environment. If you want to point to another instance, add an environment variable called E2E_BASE with the base url for the instance. Note that to test a development instance, you must run `make server_run_standalone` and set up a tunnel (via ngrok or localtunnel).
 * `make test`: Run e2e, client- and server-side testing suites.
-
-To run an individual test: `go test ./pkg/rateengine/ -testify.m Test_Scenario1`
 
 ### Logging
 

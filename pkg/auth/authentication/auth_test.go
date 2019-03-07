@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -8,6 +9,8 @@ import (
 	"regexp"
 	"strconv"
 	"testing"
+
+	"github.com/honeycombio/beeline-go/trace"
 
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
@@ -57,27 +60,25 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 
 	fakeToken := "some_token"
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
-	myMoveMil := "my.move.host"
-	officeMoveMil := "office.move.host"
-	tspMoveMil := "tsp.move.host"
+	officeTestHost := "office.example.com"
 	callbackPort := 1234
 	responsePattern := regexp.MustCompile(`href="(.+)"`)
 
-	req, err := http.NewRequest("GET", "/auth/logout", nil)
-	if err != nil {
-		t.Fatal(err)
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", officeTestHost), nil)
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        officeTestHost,
 	}
-	req.Host = officeMoveMil
-	session := auth.Session{UserID: fakeUUID, IDToken: fakeToken}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	req = req.WithContext(ctx)
 
 	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
 	handler := LogoutHandler{authContext, "fake key", false}
-	wrappedHandler := auth.DetectorMiddleware(suite.logger, myMoveMil, officeMoveMil, tspMoveMil)(handler)
 
 	rr := httptest.NewRecorder()
-	wrappedHandler.ServeHTTP(rr, req.WithContext(ctx))
+	handler.ServeHTTP(rr, req.WithContext(ctx))
 
 	if status := rr.Code; status != http.StatusTemporaryRedirect {
 		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusTemporaryRedirect)
@@ -92,7 +93,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	postRedirectURI, err := url.Parse(params["post_logout_redirect_uri"][0])
 
 	suite.Nil(err)
-	suite.Equal(officeMoveMil, postRedirectURI.Hostname())
+	suite.Equal(officeTestHost, postRedirectURI.Hostname())
 	suite.Equal(strconv.Itoa(callbackPort), postRedirectURI.Port())
 	token := params["id_token_hint"][0]
 	suite.Equal(fakeToken, token, "handler id_token")
@@ -144,4 +145,37 @@ func (suite *AuthSuite) TestRequireAuthMiddlewareUnauthorized() {
 	if status := rr.Code; status != http.StatusUnauthorized {
 		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusUnauthorized)
 	}
+}
+
+func (suite *AuthSuite) TestAuthorizeDisableUser() {
+	userIdentity := models.UserIdentity{
+		Disabled: true,
+	}
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", "office.example.com"), nil)
+
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	officeTestHost := "office.example.com"
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        officeTestHost,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled user")
+
 }

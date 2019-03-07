@@ -2,6 +2,7 @@ package ordersapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
 	"github.com/transcom/mymove/pkg/handlers"

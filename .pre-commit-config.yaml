@@ -81,11 +81,19 @@ repos:
         language: script
         files: \.md$
 
+  - repo: local
+    hooks:
+      - id: go-imports
+        name: go imports
+        entry: bin/pre-commit-go-imports
+        language: script
+        files: \.go$
+        exclude: vendor/
+
   - repo: git://github.com/dnephin/pre-commit-golang
     rev: v0.3.2
     hooks:
-      - id: go-fmt
-      - id: go-vet
+      # - id: go-vet uncomment when go@1.12 is supported for this hook
       - id: go-lint
 
   - repo: local
@@ -98,19 +106,19 @@ repos:
         files: \.go$
         pass_filenames: false
 
-  - repo: local
-    hooks:
-      - id: mdspell
-        name: mdspell
-        entry: bin/pre-commit-spellcheck
-        language: script
-        files: \.md$
-        exclude: >
-          (?x)^(
-            node_modules/|
-            vendor/|
-            docs/adr/index.md
-          )$
+  # - repo: local
+  #   hooks:
+  #     - id: mdspell
+  #       name: mdspell
+  #       entry: bin/pre-commit-spellcheck
+  #       language: script
+  #       files: \.md$
+  #       exclude: >
+  #         (?x)^(
+  #           node_modules/|
+  #           vendor/|
+  #           docs/adr/index.md
+  #         )$
 
   - repo: local
     hooks:

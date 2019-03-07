@@ -71,6 +71,56 @@ func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 	suite.Assertions.Equal(http.StatusForbidden, errResponse.Code)
 }
 
+func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
+	// Given: A logged-in user
+	user := testdatagen.MakeDefaultUser(suite.DB())
+
+	// When: a new ServiceMember is posted
+	newServiceMemberPayload := internalmessages.CreateServiceMemberPayload{}
+
+	req := httptest.NewRequest("POST", "/service_members", nil)
+	req = suite.AuthenticateUserRequest(req, user)
+
+	params := servicememberop.CreateServiceMemberParams{
+		CreateServiceMemberPayload: &newServiceMemberPayload,
+		HTTPRequest:                req,
+	}
+
+	handler := CreateServiceMemberHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&handlers.CookieUpdateResponder{}, response)
+
+	unwrappedResponse := response.(*handlers.CookieUpdateResponder).Responder
+	suite.Assertions.IsType(&servicememberop.CreateServiceMemberCreated{}, unwrappedResponse)
+
+	// Then: we expect a servicemember to have been created for the user
+	query := suite.DB().Where(fmt.Sprintf("user_id='%v'", user.ID))
+	var serviceMembers models.ServiceMembers
+	query.All(&serviceMembers)
+
+	suite.Assertions.Len(serviceMembers, 1)
+
+	serviceMemberPayload := unwrappedResponse.(*servicememberop.CreateServiceMemberCreated).Payload
+
+	suite.Assertions.NotEqual(*serviceMemberPayload.ID, uuid.Nil)
+	suite.Assertions.NotEqual(*serviceMemberPayload.UserID, uuid.Nil)
+	suite.Assertions.Equal(*serviceMemberPayload.HasSocialSecurityNumber, false)
+	suite.Assertions.Equal(*serviceMemberPayload.IsProfileComplete, false)
+	suite.Assertions.Equal(len((*serviceMemberPayload).Orders), 0)
+	fmt.Println((*serviceMemberPayload).CurrentStation)
+
+	// These shouldn't return any value or Swagger clients will complain during validation
+	// because the payloads for these objects are defined to require non-null values for most fields
+	// which can't be handled in OpenAPI Spec 2.0. Therefore we don't return them at all.
+	suite.Assertions.Equal((*serviceMemberPayload).Rank, (*internalmessages.ServiceMemberRank)(nil))
+	suite.Assertions.Equal((*serviceMemberPayload).Affiliation, (*internalmessages.Affiliation)(nil))
+	suite.Assertions.Equal((*serviceMemberPayload).CurrentStation, (*internalmessages.DutyStationPayload)(nil))
+	suite.Assertions.Equal((*serviceMemberPayload).ResidentialAddress, (*internalmessages.Address)(nil))
+	suite.Assertions.Equal((*serviceMemberPayload).BackupMailingAddress, (*internalmessages.Address)(nil))
+	suite.Assertions.Equal((*serviceMemberPayload).BackupContacts, internalmessages.IndexServiceMemberBackupContactsPayload{})
+}
+
 func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	// Given: A logged-in user
 	user := testdatagen.MakeDefaultUser(suite.DB())
@@ -124,7 +174,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	user := testdatagen.MakeDefaultUser(suite.DB())
 	session := &auth.Session{
 		UserID:          user.ID,
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 	}
 
 	// When: a new ServiceMember is posted

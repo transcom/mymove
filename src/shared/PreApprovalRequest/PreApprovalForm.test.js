@@ -205,7 +205,7 @@ describe('PreApprovalForm tests', () => {
             filteredLocations={['ORIGIN']}
             tariff400ng_item_code={'105B'}
             tariff400ngItem={simple105TariffItem}
-            context={{ flags: { robustAccessorial: true } }}
+            initialValues={{ crate_dimensions: true }}
           />
         </Provider>,
       );

@@ -6,6 +6,7 @@ import (
 	"math/rand"
 
 	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 

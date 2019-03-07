@@ -132,7 +132,6 @@ function mapStateToProps(state, ownProps) {
     ordersSchema: get(state, 'swaggerInternal.spec.definitions.Orders', {}),
 
     hasError: false,
-    errorMessage: state.office.error,
     isUpdating: false,
 
     orders,

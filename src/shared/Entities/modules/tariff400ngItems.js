@@ -5,7 +5,9 @@ import { tariff400ngItems } from '../schema';
 import { denormalize } from 'normalizr';
 import { createSelector } from 'reselect';
 
-export function getAllTariff400ngItems(requires_pre_approval, label) {
+export const getTariff400ngItemsLabel = 'Tariff400ngItem.getAlltariff400ngItems';
+
+export function getAllTariff400ngItems(requires_pre_approval, label = getTariff400ngItemsLabel) {
   return swaggerRequest(getPublicClient, 'accessorials.getTariff400ngItems', { requires_pre_approval }, { label });
 }
 
@@ -20,7 +22,5 @@ export const selectSortedTariff400ngItems = createSelector([selectTariff400ngIte
 export const selectSortedPreApprovalTariff400ngItems = createSelector([selectSortedTariff400ngItems], items =>
   filter(items, item => item.requires_pre_approval),
 );
-
-export const getTariff400ngItemsLabel = 'Tariff400ngItem.getAlltariff400ngItems';
 
 export const selectTariff400ngItem = (state, id) => denormalize([id], tariff400ngItems, state.entities)[0];
