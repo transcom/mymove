@@ -165,6 +165,14 @@
     {
       "name": "SERVE_SWAGGER_UI",
       "value": "{{ .SERVE_SWAGGER_UI }}"
+    },
+    {
+      "name": "EIA_KEY",
+      "value": "{{ .EIA_KEY }}"
+    },
+    {
+      "name": "EIA_URL",
+      "value": "https://api.eia.gov/series/"
     }
   ],
   "logConfiguration": {
