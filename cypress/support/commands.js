@@ -192,6 +192,7 @@ Cypress.Commands.add('logout', () => {
       headers: { 'x-csrf-token': cookie.value },
     });
   });
+  // In case of login redirect we once more go to the homepage
   cy.patientVisit('/');
 });
 

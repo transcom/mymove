@@ -10,6 +10,10 @@ export async function GetLoggedInUser() {
 
 export function LogoutUser() {
   const token = Cookies.get('masked_gorilla_csrf');
+  console.log('============');
+  console.log(token);
+  console.log(document.cookie);
+  console.log('============');
   const logoutEndpoint = '/auth/logout';
   fetch(logoutEndpoint, {
     method: 'POST',
