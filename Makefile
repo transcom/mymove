@@ -240,7 +240,10 @@ server_run_debug:
 
 .PHONY: build_tools
 build_tools: bash_version server_deps server_generate build_generate_test_data
+	go build -i -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare_secure_migrations
+	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-edi ./cmd/generate_shipment_edi
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
 	go build -i -ldflags "$(LDFLAGS)" -o bin/health_checker ./cmd/health_checker
 	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/demo/iws.go
@@ -250,8 +253,9 @@ build_tools: bash_version server_deps server_generate build_generate_test_data
 	go build -i -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
 	go build -i -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
 	go build -i -ldflags "$(LDFLAGS)" -o bin/paperwork ./cmd/paperwork
+	go build -i -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
+	go build -i -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
 	go build -i -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
-	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 
 .PHONY: build
 build: server_build build_tools client_build
