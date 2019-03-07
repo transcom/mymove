@@ -183,10 +183,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('logout', () => {
-  cy
-    .get('a')
-    .contains('Sign Out')
-    .click();
+  cy.clearCookies();
 });
 
 Cypress.Commands.add('nextPage', () => {
