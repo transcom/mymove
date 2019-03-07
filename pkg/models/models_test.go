@@ -65,6 +65,8 @@ func (suite *ModelSuite) noValidationErrors(verrs *validate.Errors, err error) b
 func TestModelSuite(t *testing.T) {
 	hs := &ModelSuite{PopTestSuite: testingsuite.NewPopTestSuite()}
 	suite.Run(t, hs)
+	// Get a clean slate once all of the tests are done
+	hs.DB().TruncateAll()
 }
 
 func sliceContains(needle string, haystack []string) bool {

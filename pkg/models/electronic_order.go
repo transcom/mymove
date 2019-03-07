@@ -47,7 +47,7 @@ func (e *ElectronicOrder) Validate(tx *pop.Connection) (*validate.Errors, error)
 	return validate.Validate(
 		&validators.StringIsPresent{Field: e.OrdersNumber, Name: "OrdersNumber"},
 		&validators.StringIsPresent{Field: e.Edipi, Name: "Edipi"},
-		&validators.StringLengthInRange{Field: e.Edipi, Name: "Edipi", Min: 10, Max: 10},
+		&validators.RegexMatch{Field: e.Edipi, Name: "Edipi", Expr: "\\d{10}"},
 		&validators.StringIsPresent{Field: string(e.Issuer), Name: "Issuer"},
 	), nil
 }
@@ -132,7 +132,7 @@ func FetchElectronicOrderByIssuerAndOrdersNum(db *pop.Connection, ordersNum stri
 // FetchElectronicOrdersByEdipi gets all Orders issued to the member with the specified EDIPI
 func FetchElectronicOrdersByEdipi(db *pop.Connection, edipi string) ([]ElectronicOrder, error) {
 	var orders []ElectronicOrder
-	err := db.Q().Eager("Revisions").Where("edipi = $1", edipi).All(orders)
+	err := db.Q().Eager("Revisions").Where("edipi = $1", edipi).All(&orders)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return orders, ErrFetchNotFound
