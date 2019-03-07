@@ -53,3 +53,13 @@
   padding-top: 0.5em;
 
 }
+
+.storage-in-transit {
+  display: table-row;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.storage-in-transit-panel .basic-panel-content {
+  display: table;
+}
