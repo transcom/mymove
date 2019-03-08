@@ -85,6 +85,7 @@ func LogRequestMiddleware(gitBranch string, gitCommit string) func(inner http.Ha
 				zap.String("x-forwarded-for", r.Header.Get("x-forwarded-for")),
 				zap.String("x-forwarded-host", r.Header.Get("x-forwarded-host")),
 				zap.String("x-forwarded-proto", r.Header.Get("x-forwarded-proto")),
+				zap.String("x-csrf-token", r.Header.Get("x-csrf-token")),
 			)
 
 		}
