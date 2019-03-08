@@ -10,6 +10,7 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+	"github.com/gorilla/csrf"
 	"github.com/honeycombio/beeline-go"
 	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/pkg/errors"
@@ -350,6 +351,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.logger.Info("logged in", zap.Any("session", session))
 
 	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
+	auth.WriteMaskedCSRFCookie(w, csrf.Token(r), h.noSessionTimeout, h.logger)
 	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 }
 
