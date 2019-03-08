@@ -116,7 +116,8 @@ func (suite *ModelSuite) TestFetchElectronicOrdersByEdipi() {
 		OrdersNumber: "8675309",
 	}
 
-	verrs, err := models.CreateElectronicOrder(context.Background(), suite.DB(), &newOrder1)
+	ctx := context.Background()
+	verrs, err := models.CreateElectronicOrder(ctx, suite.DB(), &newOrder1)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 
@@ -126,7 +127,7 @@ func (suite *ModelSuite) TestFetchElectronicOrdersByEdipi() {
 		OrdersNumber: "5551234",
 	}
 
-	verrs, err = models.CreateElectronicOrder(context.Background(), suite.DB(), &newOrder2)
+	verrs, err = models.CreateElectronicOrder(ctx, suite.DB(), &newOrder2)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 

@@ -134,8 +134,8 @@ func FetchElectronicOrdersByEdipi(db *pop.Connection, edipi string) ([]*Electron
 	var orders []ElectronicOrder
 	err := db.Q().Eager("Revisions").Where("edipi = $1", edipi).All(&orders)
 	ordersPtrs := make([]*ElectronicOrder, len(orders))
-	for i, eo := range orders {
-		ordersPtrs[i] = &eo
+	for i := range orders {
+		ordersPtrs[i] = &orders[i]
 	}
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
