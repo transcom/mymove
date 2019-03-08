@@ -5,7 +5,8 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
+	beeline "github.com/honeycombio/beeline-go"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
@@ -53,7 +54,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching move", zap.String("move_id", moveID.String()))
 	}
 
 	payload := params.CreateGenericMoveDocumentPayload
@@ -69,7 +70,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		converted := uuid.Must(uuid.FromString(id.String()))
 		upload, err := models.FetchUpload(ctx, h.DB(), session, converted)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching upload", zap.String("upload_id", id.String()))
 		}
 		uploads = append(uploads, upload)
 	}
@@ -81,7 +82,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		// Enforce that the ppm's move_id matches our move
 		ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, id)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching personally procured move", zap.String("personally_procured_move_id", payload.PersonallyProcuredMoveID.String()))
 		}
 		if ppm.MoveID != moveID {
 			return movedocop.NewCreateGenericMoveDocumentBadRequest()
@@ -104,7 +105,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 
 	newPayload, err := payloadForGenericMoveDocumentModel(h.FileStorer(), *newMoveDocument)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching payload for generic move document")
 	}
 	return movedocop.NewCreateGenericMoveDocumentOK().WithPayload(newPayload)
 }

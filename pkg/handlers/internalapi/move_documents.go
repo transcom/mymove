@@ -1,10 +1,12 @@
 package internalapi
 
 import (
+	"reflect"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
-
-	"github.com/pkg/errors"
+	beeline "github.com/honeycombio/beeline-go"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
@@ -86,6 +88,8 @@ type IndexMoveDocumentsHandler struct {
 
 // Handle handles the request
 func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
 	// #nosec User should always be populated by middleware
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
@@ -94,19 +98,21 @@ func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsPar
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching move", zap.String("move_id", moveID.String()))
 	}
 
 	moveDocs, err := move.FetchAllMoveDocumentsForMove(h.DB())
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching move documents for move", zap.String("move_id", moveID.String()))
+
 	}
 
 	moveDocumentsPayload := make(internalmessages.MoveDocuments, len(moveDocs))
 	for i, doc := range moveDocs {
 		moveDocumentPayload, err := payloadForMoveDocumentExtractor(h.FileStorer(), doc)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching move document payload", zap.String("document_id", doc.ID.String()))
+
 		}
 		moveDocumentsPayload[i] = moveDocumentPayload
 	}
@@ -122,6 +128,9 @@ type UpdateMoveDocumentHandler struct {
 
 // Handle ... updates a move document from a request payload
 func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	moveDocID, _ := uuid.FromString(params.MoveDocumentID.String())
@@ -129,7 +138,7 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	// Fetch move document from move id
 	moveDoc, err := models.FetchMoveDocument(h.DB(), session, moveDocID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching move document", zap.String("document_id", moveDocID.String()))
 	}
 
 	payload := params.UpdateMoveDocument
@@ -148,12 +157,13 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	if newStatus != moveDoc.Status {
 		err = moveDoc.AttemptTransition(newStatus)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error transitioning move document", zap.String("document_id", moveDocID.String()))
+
 		}
 
 		if newStatus == models.MoveDocumentStatusOK && moveDoc.MoveDocumentType == models.MoveDocumentTypeSHIPMENTSUMMARY {
 			if moveDoc.PersonallyProcuredMoveID == nil {
-				return handlers.ResponseForError(h.Logger(), errors.New("No PPM loaded for Approved Move Doc"))
+				return h.RespondAndTraceError(ctx, err, "error no PPM loaded for Approved Move Doc", zap.String("document_id", moveDocID.String()))
 			}
 
 			ppm := &moveDoc.PersonallyProcuredMove
@@ -163,7 +173,7 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 			if ppm.Status != models.PPMStatusCOMPLETED {
 				err := ppm.Complete()
 				if err != nil {
-					return handlers.ResponseForError(h.Logger(), err)
+					return h.RespondAndTraceError(ctx, err, "error completing ppm", zap.String("personally_procured_move_id", ppm.ID.String()))
 				}
 			}
 		}
@@ -202,12 +212,12 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 
 	verrs, err := models.SaveMoveDocument(h.DB(), moveDoc, saveAction)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error saving move document")
 	}
 
 	moveDocPayload, err := payloadForMoveDocument(h.FileStorer(), *moveDoc)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching move document payload")
 	}
 	return movedocop.NewUpdateMoveDocumentOK().WithPayload(moveDocPayload)
 }
