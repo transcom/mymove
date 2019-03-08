@@ -8,7 +8,7 @@ const StyleGuide = () => (
     <h2>This is a H2</h2>
     <h3>This is a H3</h3>
     <div>
-      <ComboButton buttonText={'Approve'} isDisabled={false} toolTipText={'tooltiptext'} />
+      <ComboButton buttonText={'Approve'} disabled={false} toolTipText={'tooltiptext'} />
     </div>
   </div>
 );
