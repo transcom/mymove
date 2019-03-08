@@ -1,10 +1,12 @@
 package ordersapi
 
 import (
+	"fmt"
 	"net/http/httptest"
 	"testing"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
@@ -14,93 +16,11 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestPostRevisionNew() {
-	req := httptest.NewRequest("POST", "/orders/v1/orders", nil)
-	clientCert := models.ClientCert{
-		AllowOrdersAPI:           true,
-		AllowAirForceOrdersWrite: true,
-	}
-	req = suite.AuthenticateClientCertRequest(req, &clientCert)
-
-	rev := ordersmessages.Revision{
-		SeqNum: 0,
-		Member: &ordersmessages.Member{
-			GivenName:   "First",
-			FamilyName:  "Last",
-			Affiliation: ordersmessages.AffiliationAirForce,
-			Rank:        ordersmessages.RankW1,
-		},
-		Status:        ordersmessages.StatusAuthorized,
-		DateIssued:    handlers.FmtDateTime(time.Now()),
-		NoCostMove:    false,
-		TdyEnRoute:    false,
-		TourType:      ordersmessages.TourTypeAccompanied,
-		OrdersType:    ordersmessages.OrdersTypeSeparation,
-		HasDependents: true,
-		LosingUnit: &ordersmessages.Unit{
-			Uic:        handlers.FmtString("FFFS00"),
-			Name:       handlers.FmtString("SPC721 COMMUNICATIONS SQ"),
-			City:       handlers.FmtString("CHEYENNE MTN"),
-			Locality:   handlers.FmtString("CO"),
-			PostalCode: handlers.FmtString("80914"),
-		},
-		PcsAccounting: &ordersmessages.Accounting{
-			Tac: handlers.FmtString("F67C"),
-		},
-	}
-
-	params := ordersoperations.PostRevisionParams{
-		HTTPRequest: req,
-		Issuer:      string(ordersmessages.IssuerAirForce),
-		MemberID:    "1234567890",
-		OrdersNum:   "8675309",
-		Revision:    &rev,
-	}
-
-	handler := PostRevisionHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	response := handler.Handle(params)
-
-	suite.Assertions.IsType(&ordersoperations.PostRevisionCreated{}, response)
-
-	createdResponse, ok := response.(*ordersoperations.PostRevisionCreated)
-	if !ok {
-		return
-	}
-
-	id, err := uuid.FromString(createdResponse.Payload.UUID.String())
-	suite.Assertions.NoError(err)
-
-	// check that the order and its revision are actually in the DB
-	order, err := models.FetchElectronicOrderByID(suite.DB(), id)
-	suite.NoError(err)
-	suite.NotNil(order)
-	suite.Equal(params.Issuer, string(order.Issuer))
-	suite.Equal(params.MemberID, order.Edipi)
-	suite.Equal(params.OrdersNum, order.OrdersNumber)
-	suite.Len(order.Revisions, 1)
-	storedRev := order.Revisions[0]
-	suite.EqualValues(rev.SeqNum, storedRev.SeqNum)
-	suite.Equal(rev.Member.GivenName, storedRev.GivenName)
-	suite.Equal(rev.Member.FamilyName, storedRev.FamilyName)
-	suite.Equal(rev.Member.Rank, storedRev.Paygrade)
-	suite.Equal(rev.PcsAccounting.Tac, storedRev.HhgTAC)
-	suite.Equal(rev.Status, storedRev.Status)
-	suite.Equal(rev.TourType, storedRev.TourType)
-	suite.Equal(rev.OrdersType, storedRev.OrdersType)
-	suite.Equal(rev.HasDependents, storedRev.HasDependents)
-	suite.Equal(rev.NoCostMove, storedRev.NoCostMove)
-	suite.Equal(rev.LosingUnit.Uic, storedRev.LosingUIC)
-	suite.Equal(rev.LosingUnit.Name, storedRev.LosingUnitName)
-	suite.Equal(rev.LosingUnit.City, storedRev.LosingUnitCity)
-	suite.Equal(rev.LosingUnit.Locality, storedRev.LosingUnitLocality)
-	suite.Equal(rev.LosingUnit.PostalCode, storedRev.LosingUnitPostalCode)
-}
-
-func (suite *HandlerSuite) TestPostRevisionNewAmendment() {
+func (suite *HandlerSuite) TestPostRevisionToOrdersNewAmendment() {
 	// prime the DB with an order with 1 revision
 	origOrder := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", ordersmessages.IssuerAirForce, "8675309", ordersmessages.AffiliationAirForce)
 
-	req := httptest.NewRequest("POST", "/orders/v1/orders", nil)
+	req := httptest.NewRequest("POST", fmt.Sprintf("/orders/v1/orders/%s", origOrder.ID), nil)
 	clientCert := models.ClientCert{
 		AllowOrdersAPI:           true,
 		AllowAirForceOrdersWrite: true,
@@ -134,20 +54,18 @@ func (suite *HandlerSuite) TestPostRevisionNewAmendment() {
 		},
 	}
 
-	params := ordersoperations.PostRevisionParams{
+	params := ordersoperations.PostRevisionToOrdersParams{
 		HTTPRequest: req,
-		Issuer:      string(ordersmessages.IssuerAirForce),
-		MemberID:    origOrder.Edipi,
-		OrdersNum:   origOrder.OrdersNumber,
+		UUID:        strfmt.UUID(origOrder.ID.String()),
 		Revision:    &rev,
 	}
 
-	handler := PostRevisionHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := PostRevisionToOrdersHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&ordersoperations.PostRevisionCreated{}, response)
+	suite.Assertions.IsType(&ordersoperations.PostRevisionToOrdersCreated{}, response)
 
-	createdResponse, ok := response.(*ordersoperations.PostRevisionCreated)
+	createdResponse, ok := response.(*ordersoperations.PostRevisionToOrdersCreated)
 	if !ok {
 		return
 	}
@@ -159,9 +77,6 @@ func (suite *HandlerSuite) TestPostRevisionNewAmendment() {
 	order, err := models.FetchElectronicOrderByID(suite.DB(), id)
 	suite.NoError(err)
 	suite.NotNil(order)
-	suite.Equal(params.Issuer, string(order.Issuer))
-	suite.Equal(params.MemberID, order.Edipi)
-	suite.Equal(params.OrdersNum, order.OrdersNumber)
 	suite.Len(order.Revisions, 2)
 	storedRev := order.Revisions[1]
 	suite.EqualValues(rev.SeqNum, storedRev.SeqNum)
@@ -181,28 +96,29 @@ func (suite *HandlerSuite) TestPostRevisionNewAmendment() {
 	suite.Equal(rev.LosingUnit.PostalCode, storedRev.LosingUnitPostalCode)
 }
 
-func (suite *HandlerSuite) TestPostRevisionNoApiPerm() {
-	req := httptest.NewRequest("POST", "/orders/v1/orders", nil)
+func (suite *HandlerSuite) TestPostRevisionToOrdersNoApiPerm() {
+	id, _ := uuid.NewV4()
+	req := httptest.NewRequest("POST", fmt.Sprintf("/orders/v1/orders/%s", id.String()), nil)
 	clientCert := models.ClientCert{}
 	req = suite.AuthenticateClientCertRequest(req, &clientCert)
 
-	params := ordersoperations.PostRevisionParams{
+	params := ordersoperations.PostRevisionToOrdersParams{
 		HTTPRequest: req,
-		Issuer:      string(ordersmessages.IssuerAirForce),
-		MemberID:    "1234567890",
-		OrdersNum:   "8675309",
+		UUID:        strfmt.UUID(id.String()),
 	}
 
-	handler := PostRevisionHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := PostRevisionToOrdersHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&ordersoperations.PostRevisionForbidden{}, response)
+	suite.Assertions.IsType(&ordersoperations.PostRevisionToOrdersForbidden{}, response)
 }
 
-func (suite *HandlerSuite) TestPostRevisionWritePerms() {
+func (suite *HandlerSuite) TestPostRevisionToOrdersWritePerms() {
 	testCases := map[string]struct {
 		cert   models.ClientCert
 		issuer ordersmessages.Issuer
+		affl   ordersmessages.Affiliation
+		edipi  string
 	}{
 		"Army": {
 			models.ClientCert{
@@ -213,6 +129,8 @@ func (suite *HandlerSuite) TestPostRevisionWritePerms() {
 				AllowNavyOrdersWrite:        true,
 			},
 			ordersmessages.IssuerArmy,
+			ordersmessages.AffiliationArmy,
+			"1234567890",
 		},
 		"Navy": {
 			models.ClientCert{
@@ -223,6 +141,8 @@ func (suite *HandlerSuite) TestPostRevisionWritePerms() {
 				AllowMarineCorpsOrdersWrite: true,
 			},
 			ordersmessages.IssuerNavy,
+			ordersmessages.AffiliationNavy,
+			"1234567891",
 		},
 		"MarineCorps": {
 			models.ClientCert{
@@ -233,6 +153,8 @@ func (suite *HandlerSuite) TestPostRevisionWritePerms() {
 				AllowNavyOrdersWrite:       true,
 			},
 			ordersmessages.IssuerMarineCorps,
+			ordersmessages.AffiliationMarineCorps,
+			"1234567892",
 		},
 		"CoastGuard": {
 			models.ClientCert{
@@ -243,6 +165,8 @@ func (suite *HandlerSuite) TestPostRevisionWritePerms() {
 				AllowNavyOrdersWrite:        true,
 			},
 			ordersmessages.IssuerCoastGuard,
+			ordersmessages.AffiliationCoastGuard,
+			"1234567893",
 		},
 		"AirForce": {
 			models.ClientCert{
@@ -253,25 +177,27 @@ func (suite *HandlerSuite) TestPostRevisionWritePerms() {
 				AllowNavyOrdersWrite:        true,
 			},
 			ordersmessages.IssuerAirForce,
+			ordersmessages.AffiliationAirForce,
+			"1234567894",
 		},
 	}
 
 	for name, testCase := range testCases {
 		suite.T().Run(name, func(t *testing.T) {
-			req := httptest.NewRequest("POST", "/orders/v1/orders", nil)
+			// prime the DB with an order with 1 revision
+			origOrder := testdatagen.MakeElectronicOrder(suite.DB(), testCase.edipi, testCase.issuer, "8675309", testCase.affl)
+			req := httptest.NewRequest("POST", fmt.Sprintf("/orders/v1/orders/%s", origOrder.ID.String()), nil)
 			req = suite.AuthenticateClientCertRequest(req, &testCase.cert)
 
-			params := ordersoperations.PostRevisionParams{
+			params := ordersoperations.PostRevisionToOrdersParams{
 				HTTPRequest: req,
-				Issuer:      string(testCase.issuer),
-				MemberID:    "1234567890",
-				OrdersNum:   "8675309",
+				UUID:        strfmt.UUID(origOrder.ID.String()),
 			}
 
-			handler := PostRevisionHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+			handler := PostRevisionToOrdersHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 			response := handler.Handle(params)
 
-			suite.Assertions.IsType(&ordersoperations.PostRevisionForbidden{}, response)
+			suite.Assertions.IsType(&ordersoperations.PostRevisionToOrdersForbidden{}, response)
 		})
 	}
 }
