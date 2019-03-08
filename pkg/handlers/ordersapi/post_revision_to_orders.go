@@ -47,22 +47,27 @@ func (h PostRevisionToOrdersHandler) Handle(params ordersoperations.PostRevision
 
 	if orders.Issuer == ordersmessages.IssuerAirForce {
 		if !clientCert.AllowAirForceOrdersWrite {
+			h.Logger().Info("Client certificate is not permitted to write Air Force Orders")
 			return ordersoperations.NewPostRevisionToOrdersForbidden()
 		}
 	} else if orders.Issuer == ordersmessages.IssuerArmy {
 		if !clientCert.AllowArmyOrdersWrite {
+			h.Logger().Info("Client certificate is not permitted to write Army Orders")
 			return ordersoperations.NewPostRevisionToOrdersForbidden()
 		}
 	} else if orders.Issuer == ordersmessages.IssuerCoastGuard {
 		if !clientCert.AllowCoastGuardOrdersWrite {
+			h.Logger().Info("Client certificate is not permitted to write Coast Guard Orders")
 			return ordersoperations.NewPostRevisionToOrdersForbidden()
 		}
 	} else if orders.Issuer == ordersmessages.IssuerMarineCorps {
 		if !clientCert.AllowMarineCorpsOrdersWrite {
+			h.Logger().Info("Client certificate is not permitted to write Marine Corps Orders")
 			return ordersoperations.NewPostRevisionToOrdersForbidden()
 		}
 	} else if orders.Issuer == ordersmessages.IssuerNavy {
 		if !clientCert.AllowNavyOrdersWrite {
+			h.Logger().Info("Client certificate is not permitted to write Navy Orders")
 			return ordersoperations.NewPostRevisionToOrdersForbidden()
 		}
 	}
