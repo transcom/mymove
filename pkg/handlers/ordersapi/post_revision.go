@@ -157,38 +157,42 @@ func toElectronicOrdersRevision(orders models.ElectronicOrder, rev *ordersmessag
 	}
 
 	newRevision := models.ElectronicOrdersRevision{
-		ElectronicOrderID:     orders.ID,
-		ElectronicOrder:       orders,
-		SeqNum:                int(rev.SeqNum),
-		GivenName:             rev.Member.GivenName,
-		MiddleName:            rev.Member.MiddleName,
-		FamilyName:            rev.Member.FamilyName,
-		NameSuffix:            rev.Member.Suffix,
-		Affiliation:           rev.Member.Affiliation,
-		Paygrade:              rev.Member.Rank,
-		Title:                 rev.Member.Title,
-		Status:                rev.Status,
-		DateIssued:            dateIssued,
-		NoCostMove:            rev.NoCostMove,
-		TdyEnRoute:            rev.TdyEnRoute,
-		TourType:              tourType,
-		OrdersType:            rev.OrdersType,
-		HasDependents:         rev.HasDependents,
-		LosingUIC:             rev.LosingUnit.Uic,
-		LosingUnitName:        rev.LosingUnit.Name,
-		LosingUnitCity:        rev.LosingUnit.City,
-		LosingUnitLocality:    rev.LosingUnit.Locality,
-		LosingUnitCountry:     rev.LosingUnit.Country,
-		LosingUnitPostalCode:  rev.LosingUnit.PostalCode,
-		GainingUIC:            rev.GainingUnit.Uic,
-		GainingUnitName:       rev.GainingUnit.Name,
-		GainingUnitCity:       rev.GainingUnit.City,
-		GainingUnitLocality:   rev.GainingUnit.Locality,
-		GainingUnitCountry:    rev.GainingUnit.Country,
-		GainingUnitPostalCode: rev.GainingUnit.PostalCode,
-		ReportNoEarlierThan:   (*time.Time)(rev.ReportNoEarlierThan),
-		ReportNoLaterThan:     (*time.Time)(rev.ReportNoLaterThan),
-		Comments:              rev.Comments,
+		ElectronicOrderID:   orders.ID,
+		ElectronicOrder:     orders,
+		SeqNum:              int(rev.SeqNum),
+		GivenName:           rev.Member.GivenName,
+		MiddleName:          rev.Member.MiddleName,
+		FamilyName:          rev.Member.FamilyName,
+		NameSuffix:          rev.Member.Suffix,
+		Affiliation:         rev.Member.Affiliation,
+		Paygrade:            rev.Member.Rank,
+		Title:               rev.Member.Title,
+		Status:              rev.Status,
+		DateIssued:          dateIssued,
+		NoCostMove:          rev.NoCostMove,
+		TdyEnRoute:          rev.TdyEnRoute,
+		TourType:            tourType,
+		OrdersType:          rev.OrdersType,
+		HasDependents:       rev.HasDependents,
+		ReportNoEarlierThan: (*time.Time)(rev.ReportNoEarlierThan),
+		ReportNoLaterThan:   (*time.Time)(rev.ReportNoLaterThan),
+		Comments:            rev.Comments,
+	}
+	if rev.LosingUnit != nil {
+		newRevision.LosingUIC = rev.LosingUnit.Uic
+		newRevision.LosingUnitName = rev.LosingUnit.Name
+		newRevision.LosingUnitCity = rev.LosingUnit.City
+		newRevision.LosingUnitLocality = rev.LosingUnit.Locality
+		newRevision.LosingUnitCountry = rev.LosingUnit.Country
+		newRevision.LosingUnitPostalCode = rev.LosingUnit.PostalCode
+	}
+	if rev.GainingUnit != nil {
+		newRevision.GainingUIC = rev.GainingUnit.Uic
+		newRevision.GainingUnitName = rev.GainingUnit.Name
+		newRevision.GainingUnitCity = rev.GainingUnit.City
+		newRevision.GainingUnitLocality = rev.GainingUnit.Locality
+		newRevision.GainingUnitCountry = rev.GainingUnit.Country
+		newRevision.GainingUnitPostalCode = rev.GainingUnit.PostalCode
 	}
 	if rev.PcsAccounting != nil {
 		newRevision.HhgTAC = rev.PcsAccounting.Tac
