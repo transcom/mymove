@@ -1,7 +1,6 @@
 import Swagger from 'swagger-client';
-import * as Cookies from 'js-cookie';
 
-import { getClient, checkResponse } from 'shared/Swagger/api';
+import { getClient, checkResponse, requestInterceptor } from 'shared/Swagger/api';
 
 export async function GetLoggedInUser() {
   const client = await getClient();
@@ -11,12 +10,11 @@ export async function GetLoggedInUser() {
 }
 
 export function LogoutUser() {
-  const token = Cookies.get('masked_gorilla_csrf');
   const logoutEndpoint = '/auth/logout';
   const req = {
     url: logoutEndpoint,
     method: 'POST',
-    headers: { 'X-CSRF-Token': token },
+    requestInterceptor,
   };
   Swagger.http(req)
     .then(response => {
