@@ -6,7 +6,6 @@ describe('lineItems', () => {
       it('should display fee weight truncated to 0 decimal places', () => {
         const item105A = { tariff400ng_item: { code: '105A' }, quantity_1: 5000000 };
         const item105C = { tariff400ng_item: { code: '105C' }, quantity_1: Number.MAX_SAFE_INTEGER };
-
         const item135A = { tariff400ng_item: { code: '135A' }, quantity_1: 50000 };
         const item135B = { tariff400ng_item: { code: '135B' }, quantity_1: 51111 };
         const itemQuantityNull = { tariff400ng_item: { code: '105A' }, quantity_1: null };
