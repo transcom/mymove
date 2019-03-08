@@ -135,3 +135,12 @@ repos:
         name: dep version
         entry: bin/check_dep_version
         language: script
+
+  - repo: local
+    hooks:
+      - id: dep-check
+        name: dep check
+        entry: bin/pre-commit-dep-check
+        language: script
+        files: \.go$
+        pass_filenames: false
