@@ -55,7 +55,7 @@ func payloadForElectronicOrderModel(order models.ElectronicOrder) (*ordersmessag
 func payloadForElectronicOrdersRevisionModel(revision models.ElectronicOrdersRevision) (*ordersmessages.Revision, error) {
 	seqNum := int64(revision.SeqNum)
 	revisionPayload := &ordersmessages.Revision{
-		SeqNum: &seqNum,
+		SeqNum: seqNum,
 		Member: &ordersmessages.Member{
 			GivenName:   revision.GivenName,
 			MiddleName:  revision.MiddleName,

@@ -121,7 +121,7 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 
 	for _, r := range orders.Revisions {
 		// SeqNum collision
-		if r.SeqNum == int(*params.Revision.SeqNum) {
+		if r.SeqNum == int(params.Revision.SeqNum) {
 			return ordersoperations.NewPostRevisionConflict()
 		}
 	}
@@ -159,7 +159,7 @@ func toElectronicOrdersRevision(orders models.ElectronicOrder, rev *ordersmessag
 	newRevision := models.ElectronicOrdersRevision{
 		ElectronicOrderID:     orders.ID,
 		ElectronicOrder:       orders,
-		SeqNum:                int(*rev.SeqNum),
+		SeqNum:                int(rev.SeqNum),
 		GivenName:             rev.Member.GivenName,
 		MiddleName:            rev.Member.MiddleName,
 		FamilyName:            rev.Member.FamilyName,

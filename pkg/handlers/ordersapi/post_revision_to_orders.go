@@ -69,7 +69,7 @@ func (h PostRevisionToOrdersHandler) Handle(params ordersoperations.PostRevision
 
 	for _, r := range orders.Revisions {
 		// SeqNum collision
-		if r.SeqNum == int(*params.Revision.SeqNum) {
+		if r.SeqNum == int(params.Revision.SeqNum) {
 			return ordersoperations.NewPostRevisionToOrdersConflict()
 		}
 	}
