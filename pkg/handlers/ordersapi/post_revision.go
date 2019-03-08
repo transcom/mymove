@@ -104,13 +104,13 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 	orders, err := models.FetchElectronicOrderByUniqueFeatures(h.DB(), params.OrdersNum, params.MemberID, params.Issuer)
 
 	if err == models.ErrFetchNotFound {
-		orders = models.ElectronicOrder{
+		orders = &models.ElectronicOrder{
 			OrdersNumber: params.OrdersNum,
 			Edipi:        edipi,
 			Issuer:       ordersmessages.Issuer(params.Issuer),
 			Revisions:    []models.ElectronicOrdersRevision{},
 		}
-		verrs, err := models.CreateElectronicOrder(ctx, h.DB(), &orders)
+		verrs, err := models.CreateElectronicOrder(ctx, h.DB(), orders)
 		if err != nil || verrs.HasAny() {
 			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 		}
@@ -141,7 +141,7 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 	return ordersoperations.NewPostRevisionCreated().WithPayload(orderPayload)
 }
 
-func toElectronicOrdersRevision(orders models.ElectronicOrder, rev *ordersmessages.Revision) *models.ElectronicOrdersRevision {
+func toElectronicOrdersRevision(orders *models.ElectronicOrder, rev *ordersmessages.Revision) *models.ElectronicOrdersRevision {
 	var dateIssued time.Time
 	if rev.DateIssued == nil {
 		dateIssued = time.Now()
@@ -158,7 +158,7 @@ func toElectronicOrdersRevision(orders models.ElectronicOrder, rev *ordersmessag
 
 	newRevision := models.ElectronicOrdersRevision{
 		ElectronicOrderID:   orders.ID,
-		ElectronicOrder:     orders,
+		ElectronicOrder:     *orders,
 		SeqNum:              int(rev.SeqNum),
 		GivenName:           rev.Member.GivenName,
 		MiddleName:          rev.Member.MiddleName,

@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/gofrs/uuid"
 	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 
@@ -89,55 +89,59 @@ func CreateElectronicOrder(ctx context.Context, dbConnection *pop.Connection, or
 
 // FetchElectronicOrderByID gets all revisions of a set of Orders by their shared UUID,
 // sorted in ascending order by their sequence number
-func FetchElectronicOrderByID(db *pop.Connection, id uuid.UUID) (ElectronicOrder, error) {
+func FetchElectronicOrderByID(db *pop.Connection, id uuid.UUID) (*ElectronicOrder, error) {
 	var order ElectronicOrder
 	err := db.Q().Eager("Revisions").Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
-			return order, ErrFetchNotFound
+			return &order, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
 	}
 
-	return order, nil
+	return &order, nil
 }
 
 // FetchElectronicOrderByUniqueFeatures gets all revisions of a set Orders by the combination of features
 // that make Orders unique - the Orders number, the EDIPI of the member, and the issuer.
-func FetchElectronicOrderByUniqueFeatures(db *pop.Connection, ordersNum string, edipi string, issuer string) (ElectronicOrder, error) {
+func FetchElectronicOrderByUniqueFeatures(db *pop.Connection, ordersNum string, edipi string, issuer string) (*ElectronicOrder, error) {
 	var order ElectronicOrder
 	err := db.Q().Eager("Revisions").Where("orders_number = $1 AND edipi = $2 AND issuer = $3", ordersNum, edipi, issuer).First(&order)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
-			return order, ErrFetchNotFound
+			return &order, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
 	}
-	return order, err
+	return &order, err
 }
 
 // FetchElectronicOrderByIssuerAndOrdersNum gets all revisions of a set of Orders by the unique combination of the Orders number and the issuer.
-func FetchElectronicOrderByIssuerAndOrdersNum(db *pop.Connection, issuer string, ordersNum string) (ElectronicOrder, error) {
+func FetchElectronicOrderByIssuerAndOrdersNum(db *pop.Connection, issuer string, ordersNum string) (*ElectronicOrder, error) {
 	var order ElectronicOrder
 	err := db.Q().Eager("Revisions").Where("orders_number = $1 AND issuer = $2", ordersNum, issuer).First(&order)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
-			return order, ErrFetchNotFound
+			return &order, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
 	}
-	return order, err
+	return &order, err
 }
 
 // FetchElectronicOrdersByEdipi gets all Orders issued to the member with the specified EDIPI
-func FetchElectronicOrdersByEdipi(db *pop.Connection, edipi string) ([]ElectronicOrder, error) {
+func FetchElectronicOrdersByEdipi(db *pop.Connection, edipi string) ([]*ElectronicOrder, error) {
 	var orders []ElectronicOrder
 	err := db.Q().Eager("Revisions").Where("edipi = $1", edipi).All(&orders)
+	ordersPtrs := make([]*ElectronicOrder, len(orders))
+	for i, eo := range orders {
+		ordersPtrs[i] = &eo
+	}
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
-			return orders, ErrFetchNotFound
+			return ordersPtrs, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
 	}
-	return orders, err
+	return ordersPtrs, err
 }

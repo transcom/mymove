@@ -32,7 +32,7 @@ func NewOrdersAPIHandler(context handlers.HandlerContext) http.Handler {
 	return ordersAPI.Serve(nil)
 }
 
-func payloadForElectronicOrderModel(order models.ElectronicOrder) (*ordersmessages.Orders, error) {
+func payloadForElectronicOrderModel(order *models.ElectronicOrder) (*ordersmessages.Orders, error) {
 	var revisionPayloads []*ordersmessages.Revision
 	for _, revision := range order.Revisions {
 		payload, err := payloadForElectronicOrdersRevisionModel(revision)
