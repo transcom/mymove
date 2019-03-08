@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import './index.css';
 
-export class ToolTip extends Component {
+class ToolTip extends Component {
   render() {
-    let { children, text, disabled, textStyle } = this.props;
+    let { children, toolTipText, disabled, textStyle } = this.props;
     return (
       <span className="tooltip">
+        {!disabled && toolTipText && <span className={`tooltiptext ${textStyle}`}>{toolTipText}</span>}
         {children}
-        {text && !disabled && <span className={`tooltiptext ${textStyle}`}>{text}</span>}
       </span>
     );
   }
