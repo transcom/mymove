@@ -7,6 +7,7 @@ import (
 
 	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/gen/ordersmessages"
 
 	"github.com/gobuffalo/pop"
