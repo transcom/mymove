@@ -99,6 +99,8 @@ type FormattedMovingExpenses struct {
 	OtherGTCCPaid               string
 	TotalMemberPaid             string
 	TotalGTCCPaid               string
+	TotalMemberPaidRepeated     string
+	TotalGTCCPaidRepeated       string
 }
 
 // ShipmentSummaryFormData is a container for the various objects required for the a Shipment Summary Worksheet
@@ -327,6 +329,8 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData)
 	page2 := ShipmentSummaryWorksheetPage2Values{}
 	page2.PreparationDate = FormatDate(data.PreparationDate)
 	page2.FormattedMovingExpenses, err = FormatMovingExpenses(data.MovingExpenseDocuments)
+	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
+	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
 	if err != nil {
 		return page2, err
 	}
@@ -418,6 +422,7 @@ func FormatMovingExpenses(movingExpenseDocuments MovingExpenseDocuments) (Format
 	for key, value := range subTotals {
 		formattedExpenses[key] = FormatDollars(value)
 	}
+
 	err := mapstructure.Decode(formattedExpenses, &expenses)
 	if err != nil {
 		return expenses, err
