@@ -46,6 +46,7 @@ describe('StorageInTransit tests', () => {
         estimated_start_date: '2019-02-12',
         id: '5cd370a1-ac3d-4fb3-86a3-c4f23e289689',
         location: 'DESTINATION',
+        notes: 'notes',
         shipment_id: 'dd67cec5-334a-4209-a9d9-a14485414052',
         status: 'REQUESTED',
         warehouse_address: {
@@ -77,11 +78,17 @@ describe('StorageInTransit tests', () => {
     it('renders the first mocked Storage In Transit request', () => {
       expect(wrapper.find('.column-head').get(1).props.children).toContain('Origin');
       expect(wrapper.find('.column-head').get(1).props.children[3].props.children[1]).toEqual('Requested');
+      expect(wrapper.find('.column-subhead').get(0).props.children).toEqual('Dates');
+      expect(wrapper.find('.column-subhead').get(1).props.children).toEqual('Warehouse');
     });
 
     it('renders the second mocked Storage In Transit request', () => {
       expect(wrapper.find('.column-head').get(2).props.children).toContain('Destination');
       expect(wrapper.find('.column-head').get(2).props.children[3].props.children[1]).toEqual('Requested');
+
+      expect(wrapper.find('.column-subhead').get(3).props.children).toEqual('Note');
+      expect(wrapper.find('.column-subhead').get(0).props.children).toEqual('Dates');
+      expect(wrapper.find('.column-subhead').get(1).props.children).toEqual('Warehouse');
     });
   });
 });

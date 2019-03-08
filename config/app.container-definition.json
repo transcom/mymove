@@ -163,6 +163,10 @@
       "value": "{{ .SEND_PROD_INVOICE }}"
     },
     {
+      "name": "SERVE_SWAGGER_UI",
+      "value": "{{ .SERVE_SWAGGER_UI }}"
+    },
+    {
       "name": "EIA_KEY",
       "value": "{{ .EIA_KEY }}"
     },

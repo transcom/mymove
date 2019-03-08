@@ -1,0 +1,3 @@
+add_column("shipment_line_items", "reason", "text", {"null": true})
+add_column("shipment_line_items", "estimate_amount_cents", "integer", {"null": true})
+add_column("shipment_line_items", "actual_amount_cents", "integer", {"null": true})

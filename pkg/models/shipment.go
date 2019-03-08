@@ -420,13 +420,16 @@ type BaseShipmentLineItemParams struct {
 	Quantity2           *unit.BaseQuantity
 	Location            string
 	Notes               *string
-	Description         *string
 }
 
 // AdditionalShipmentLineItemParams holds any additional parameters for a ShipmentLineItem
 type AdditionalShipmentLineItemParams struct {
-	ItemDimensions  *AdditionalLineItemDimensions
-	CrateDimensions *AdditionalLineItemDimensions
+	Description         *string
+	ItemDimensions      *AdditionalLineItemDimensions
+	CrateDimensions     *AdditionalLineItemDimensions
+	Reason              *string
+	EstimateAmountCents *unit.Cents
+	ActualAmountCents   *unit.Cents
 }
 
 // AdditionalLineItemDimensions holds the length, width and height that will be converted to inches
@@ -457,8 +460,8 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	db.Transaction(func(connection *pop.Connection) error {
 		transactionError := errors.New("Rollback the transaction")
 
-		// NOTE: UpsertItemCodeDependency could update baseParams.Quantity1
-		verrs, err := UpsertItemCodeDependency(connection, &baseParams, &additionalParams, &shipmentLineItem)
+		// NOTE: upsertItemCodeDependency could mutate shipmentLineItem
+		verrs, err := upsertItemCodeDependency(connection, &baseParams, &additionalParams, &shipmentLineItem)
 		if verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error setting up item code dependency: "+baseParams.Tariff400ngItemCode)
@@ -468,13 +471,11 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 		// Non-specified item code
 		shipmentLineItem.ShipmentID = s.ID
 		shipmentLineItem.Tariff400ngItemID = baseParams.Tariff400ngItemID
-		shipmentLineItem.Quantity1 = *baseParams.Quantity1
 		shipmentLineItem.Quantity2 = quantity2
 		shipmentLineItem.Location = ShipmentLineItemLocation(baseParams.Location)
 		shipmentLineItem.Notes = notesVal
 		shipmentLineItem.SubmittedDate = time.Now()
 		shipmentLineItem.Status = ShipmentLineItemStatusSUBMITTED
-		shipmentLineItem.Description = baseParams.Description
 
 		verrs, err = connection.ValidateAndCreate(&shipmentLineItem)
 
@@ -505,8 +506,8 @@ func (s *Shipment) UpdateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	db.Transaction(func(connection *pop.Connection) error {
 		transactionError := errors.New("Rollback the transaction")
 
-		// NOTE: UpsertItemCodeDependency could update baseParams.Quantity1
-		verrs, err := UpsertItemCodeDependency(connection, &baseParams, &additionalParams, shipmentLineItem)
+		// NOTE: upsertItemCodeDependency could mutate shipmentLineItem
+		verrs, err := upsertItemCodeDependency(connection, &baseParams, &additionalParams, shipmentLineItem)
 		if verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error setting up item code dependency: "+baseParams.Tariff400ngItemCode)
@@ -515,15 +516,13 @@ func (s *Shipment) UpdateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 
 		// Non-specified item code
 		shipmentLineItem.Tariff400ngItemID = baseParams.Tariff400ngItemID
-		shipmentLineItem.Quantity1 = unit.BaseQuantity(*baseParams.Quantity1)
 		if baseParams.Quantity2 != nil {
-			shipmentLineItem.Quantity2 = unit.BaseQuantity(*baseParams.Quantity2)
+			shipmentLineItem.Quantity2 = *baseParams.Quantity2
 		}
 		shipmentLineItem.Location = ShipmentLineItemLocation(baseParams.Location)
 		if baseParams.Notes != nil {
 			shipmentLineItem.Notes = *baseParams.Notes
 		}
-		shipmentLineItem.Description = baseParams.Description
 
 		verrs, err = connection.ValidateAndUpdate(shipmentLineItem)
 		if verrs.HasAny() || err != nil {
@@ -545,8 +544,8 @@ func (s *Shipment) UpdateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	return responseVErrors, responseError
 }
 
-// CreateShipmentLineItemDimensions creates new item and crate dimensions for shipment line item
-func CreateShipmentLineItemDimensions(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+// createShipmentLineItemDimensions creates new item and crate dimensions for shipment line item
+func createShipmentLineItemDimensions(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
 	var responseError error
 	responseVErrors := validate.NewErrors()
 
@@ -581,8 +580,8 @@ func CreateShipmentLineItemDimensions(db *pop.Connection, baseParams *BaseShipme
 	return responseVErrors, responseError
 }
 
-// UpdateShipmentLineItemDimensions updates existing shipment line item dimensions
-func UpdateShipmentLineItemDimensions(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+// updateShipmentLineItemDimensions updates existing shipment line item dimensions
+func updateShipmentLineItemDimensions(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
 	var responseError error
 	responseVErrors := validate.NewErrors()
 
@@ -621,57 +620,102 @@ func is105Item(itemCode string, additionalParams *AdditionalShipmentLineItemPara
 	return false
 }
 
-// UpsertItemCodeDependency applies specific validation, creates or updates additional objects/fields for item codes
-func UpsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+// upsertItemCode105Dependency specifically upserts item code 105B/E for shipmentLineItem passed in
+func upsertItemCode105Dependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
 	var responseError error
 	responseVErrors := validate.NewErrors()
 
-	// Backwards compatible with "Old school" 105B/E
-	if is105Item(baseParams.Tariff400ngItemCode, additionalParams) {
-		//Additional validation check if item and crate dimensions exist
-		if additionalParams.ItemDimensions == nil || additionalParams.CrateDimensions == nil {
-			responseError = errors.New("Must have both item and crate dimensions params for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
+	//Additional validation check if item and crate dimensions exist
+	if additionalParams.ItemDimensions == nil || additionalParams.CrateDimensions == nil {
+		responseError = errors.New("Must have both item and crate dimensions params")
+		return responseVErrors, responseError
+	}
+
+	if shipmentLineItem.ItemDimensions.ID == uuid.Nil || shipmentLineItem.CrateDimensions.ID == uuid.Nil {
+		verrs, err := createShipmentLineItemDimensions(db, baseParams, additionalParams, shipmentLineItem)
+		if verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating shipment line item dimensions")
 			return responseVErrors, responseError
 		}
-
-		if shipmentLineItem.ItemDimensions.ID == uuid.Nil || shipmentLineItem.CrateDimensions.ID == uuid.Nil {
-			verrs, err := CreateShipmentLineItemDimensions(db, baseParams, additionalParams, shipmentLineItem)
-			if verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = errors.Wrap(err, "Error creating shipment line item dimensions")
-				return responseVErrors, responseError
-			}
-		} else {
-			verrs, err := UpdateShipmentLineItemDimensions(db, baseParams, additionalParams, shipmentLineItem)
-			if verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = errors.Wrap(err, "Error updating shipment line item dimensions")
-				return responseVErrors, responseError
-			}
+	} else {
+		verrs, err := updateShipmentLineItemDimensions(db, baseParams, additionalParams, shipmentLineItem)
+		if verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error updating shipment line item dimensions")
+			return responseVErrors, responseError
 		}
-		// if you are 105b/e item we need to store the crate volume in quantity1 field
-		if is105Item(baseParams.Tariff400ngItemCode, additionalParams) {
-			// get crate volume in cubic feet
-			crateVolume, err := unit.DimensionToCubicFeet(additionalParams.CrateDimensions.Length, additionalParams.CrateDimensions.Width, additionalParams.CrateDimensions.Height)
-			if err != nil {
-				return nil, errors.Wrap(err, "Dimension units must be greater than 0")
-			}
+	}
 
-			// format value to base quantity i.e. times 10,000
-			formattedQuantity1 := unit.BaseQuantityFromFloat(float32(crateVolume))
-			baseParams.Quantity1 = &formattedQuantity1
-		}
+	// get crate volume in cubic feet
+	crateVolume, err := unit.DimensionToCubicFeet(additionalParams.CrateDimensions.Length, additionalParams.CrateDimensions.Width, additionalParams.CrateDimensions.Height)
+	if err != nil {
+		return nil, errors.Wrap(err, "Dimension units must be greater than 0")
+	}
 
-		// But if Quantity1 is nil then set it to 0
-		if baseParams.Quantity1 == nil {
-			quantity1 := unit.BaseQuantityFromInt(0)
-			baseParams.Quantity1 = &quantity1
-		}
+	// format value to base quantity i.e. times 10,000
+	formattedQuantity1 := unit.BaseQuantityFromFloat(float32(crateVolume))
+	shipmentLineItem.Quantity1 = formattedQuantity1
+	shipmentLineItem.Description = additionalParams.Description
+
+	return responseVErrors, responseError
+}
+
+// is35AItem determines whether the shipment line item is a new (robust) 35A item.
+func is35AItem(itemCode string, additionalParams *AdditionalShipmentLineItemParams) bool {
+	isRobustItem := additionalParams.Reason != nil || additionalParams.EstimateAmountCents != nil || additionalParams.ActualAmountCents != nil
+	if itemCode == "35A" && isRobustItem {
+		return true
+	}
+	return false
+}
+
+// upsertItemCode35ADependency specifically upserts item code 35A for shipmentLineItem passed in
+func upsertItemCode35ADependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	// Required to create 35A line item
+	// Description, Reason and EstimateAmounCents
+	if additionalParams.Description == nil || additionalParams.Reason == nil || additionalParams.EstimateAmountCents == nil {
+		responseError = errors.New("Must have Description, Reason and EstimateAmountCents params")
+		return responseVErrors, responseError
+	}
+
+	shipmentLineItem.Description = additionalParams.Description
+	shipmentLineItem.Reason = additionalParams.Reason
+	shipmentLineItem.EstimateAmountCents = additionalParams.EstimateAmountCents
+	shipmentLineItem.ActualAmountCents = additionalParams.ActualAmountCents
+
+	// ToDo: Another story to calculate base quantity
+	// if Quantity1 is nil then set it to 0
+	if baseParams.Quantity1 == nil {
+		quantity1 := unit.BaseQuantityFromInt(0)
+		shipmentLineItem.Quantity1 = quantity1
+	}
+
+	return responseVErrors, responseError
+}
+
+// upsertItemCodeDependency applies specific validation, creates or updates additional objects/fields for item codes.
+// Mutates the shipmentLineItem passed in.
+func upsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+	var responseError error
+	responseVErrors := validate.NewErrors()
+	itemCode := baseParams.Tariff400ngItemCode
+
+	// Backwards compatible with "Old school" base quantity field
+	if is105Item(itemCode, additionalParams) {
+		responseVErrors, responseError = upsertItemCode105Dependency(db, baseParams, additionalParams, shipmentLineItem)
+	} else if is35AItem(itemCode, additionalParams) {
+		responseVErrors, responseError = upsertItemCode35ADependency(db, baseParams, additionalParams, shipmentLineItem)
 	} else if baseParams.Quantity1 == nil {
 		// General pre-approval request
 		// Check if base quantity is filled out
 		responseError = errors.New("Quantity1 required for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
-		return responseVErrors, responseError
+	} else {
+		// Good to fill out quantity1
+		shipmentLineItem.Quantity1 = *baseParams.Quantity1
 	}
 
 	return responseVErrors, responseError
