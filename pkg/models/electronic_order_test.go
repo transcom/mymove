@@ -100,7 +100,7 @@ func (suite *ModelSuite) TestFetchElectronicOrderByIssuerAndOrdersNum() {
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 
-	retrievedOrder, err := models.FetchElectronicOrderByIssuerAndOrdersNum(suite.DB(), newOrder.OrdersNumber, string(ordersmessages.IssuerArmy))
+	retrievedOrder, err := models.FetchElectronicOrderByIssuerAndOrdersNum(suite.DB(), string(ordersmessages.IssuerArmy), newOrder.OrdersNumber)
 	suite.NoError(err)
 	suite.Equal(newOrder.ID, retrievedOrder.ID)
 	suite.Equal(newOrder.OrdersNumber, retrievedOrder.OrdersNumber)
