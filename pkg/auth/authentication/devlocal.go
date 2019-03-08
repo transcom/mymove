@@ -73,7 +73,8 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					<input type="hidden" name="gorilla.csrf.Token" value="` + csrf.Token(r) + `">
 					{{.Email}}
 					({{if .DpsUserID}}dps{{else if .TspUserID}}tsp{{else if .OfficeUserID}}office{{else}}milmove{{end}})
-					<button name="id" value="{{.ID}}" data-hook="existing-user-login">Login</button>
+					<input type="hidden" name="id" value="{{.ID}}" />
+					<button type="submit" data-hook="existing-user-login">Login</button>
 				</p>
 			</form>
 		{{else}}
