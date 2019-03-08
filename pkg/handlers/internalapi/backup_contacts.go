@@ -45,7 +45,7 @@ func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBa
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
-		return h.RespondAndTraceError(ctx, err, "error fetching service member for user", zap.String("service_member_id", serviceMemberID))
+		return h.RespondAndTraceError(ctx, err, "error fetching service member for user", zap.String("service_member_id", serviceMemberID.String()))
 	}
 
 	newContact, verrs, err := serviceMember.CreateBackupContact(h.DB(),
@@ -54,7 +54,7 @@ func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBa
 		params.CreateBackupContactPayload.Telephone,
 		models.BackupContactPermission(params.CreateBackupContactPayload.Permission))
 	if err != nil || verrs.HasAny() {
-		return h.RespondAndTraceVErrors(ctx, verrs, err, "error when creating backup contact", zap.String("service_member_id", serviceMemberID))
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error when creating backup contact", zap.String("service_member_id", serviceMemberID.String()))
 	}
 
 	contactPayload := payloadForBackupContactModel(newContact)
@@ -77,7 +77,7 @@ func (h IndexBackupContactsHandler) Handle(params backupop.IndexServiceMemberBac
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
-		return h.RespondAndTraceError(ctx, err, "error fetching service member for user", zap.String("service_member_id", serviceMemberID))
+		return h.RespondAndTraceError(ctx, err, "error fetching service member for user", zap.String("service_member_id", serviceMemberID.String()))
 	}
 
 	contacts := serviceMember.BackupContacts
@@ -98,13 +98,16 @@ type ShowBackupContactHandler struct {
 
 // Handle retrieves a backup contact in the system belonging to the logged in user given backup contact ID
 func (h ShowBackupContactHandler) Handle(params backupop.ShowServiceMemberBackupContactParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	// User should always be populated by middleware
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	contactID, _ := uuid.FromString(params.BackupContactID.String())
 	contact, err := models.FetchBackupContact(h.DB(), session, contactID)
 	if err != nil {
-		return h.RespondAndTraceError(ctx, err, "error fetching backup contact", zap.String("backup_contact_id", BackupContactID.String()))
+		return h.RespondAndTraceError(ctx, err, "error fetching backup contact", zap.String("backup_contact_id", params.BackupContactID.String()))
 	}
 
 	contactPayload := payloadForBackupContactModel(contact)
@@ -118,6 +121,9 @@ type UpdateBackupContactHandler struct {
 
 // Handle ... updates a BackupContact from a request payload
 func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBackupContactParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	// User should always be populated by middleware
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	/* #nosec UUID is pattern matched by swagger which checks the format */
@@ -133,7 +139,7 @@ func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBa
 	contact.Permission = models.BackupContactPermission(params.UpdateServiceMemberBackupContactPayload.Permission)
 
 	if verrs, err := h.DB().ValidateAndUpdate(&contact); verrs.HasAny() || err != nil {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error updating backup contact")
 	}
 
 	contactPayload := payloadForBackupContactModel(contact)

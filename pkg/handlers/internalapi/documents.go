@@ -56,7 +56,7 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 	// Fetch to check auth
 	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
-		return h.RespondAndTraceError(ctx, err, "error fetching service member", zap.String("service_member_id", serviceMemberID))
+		return h.RespondAndTraceError(ctx, err, "error fetching service member", zap.String("service_member_id", serviceMemberID.String()))
 	}
 
 	newDocument := models.Document{
@@ -75,7 +75,7 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 	h.Logger().Info("created a document with id: ", zap.Any("new_document_id", newDocument.ID))
 	documentPayload, err := payloadForDocumentModel(h.FileStorer(), newDocument)
 	if err != nil {
-		return h.RespondAndTraceError(ctx, err, "error fetching document payload", zap.String("service_member_id", newDocument.ID))
+		return h.RespondAndTraceError(ctx, err, "error fetching document payload", zap.String("service_member_id", newDocument.ID.String()))
 	}
 	return documentop.NewCreateDocumentCreated().WithPayload(documentPayload)
 }
@@ -100,12 +100,12 @@ func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middle
 
 	document, err := models.FetchDocument(ctx, h.DB(), session, documentID)
 	if err != nil {
-		return h.RespondAndTraceError(ctx, err, "error fetching document", zap.String("document_id", documentID))
+		return h.RespondAndTraceError(ctx, err, "error fetching document", zap.String("document_id", documentID.String()))
 	}
 
 	documentPayload, err := payloadForDocumentModel(h.FileStorer(), document)
 	if err != nil {
-		return h.RespondAndTraceError(ctx, err, "error fetching document payload", zap.String("document_id", documentID))
+		return h.RespondAndTraceError(ctx, err, "error fetching document payload", zap.String("document_id", documentID.String()))
 	}
 
 	return documentop.NewShowDocumentOK().WithPayload(documentPayload)
