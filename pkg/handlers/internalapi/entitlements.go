@@ -44,8 +44,8 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	// Return 404 if there's no PPM (including no combo move) or no Rank
-	if len(move.PersonallyProcuredMoves) < 1 || serviceMember.Rank == nil {
+	// Return 404 if there's no PPM or Shipment,  or if there is no Rank
+	if (len(move.PersonallyProcuredMoves) < 1 && len(move.Shipments) < 1) || serviceMember.Rank == nil {
 		return entitlementop.NewValidateEntitlementNotFound()
 	}
 	// PPMs are in descending order - this is the last one created
