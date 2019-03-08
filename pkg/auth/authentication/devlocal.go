@@ -11,8 +11,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/gorilla/csrf"
-
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -65,12 +63,21 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		identities = append(identities, identity)
 	}
 
+	// Grab the CSRF token from cookies set by the middleware
+	csrfCookie, err := auth.GetCookie(auth.MaskedGorillaCSRFToken, r)
+	if err != nil {
+		h.logger.Error("CSRF Token was not set")
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+	csrfToken := csrfCookie.Value
+
 	t := template.Must(template.New("users").Parse(`
 		<h1>Select an existing user</h1>
 		{{range .}}
 			<form method="post" action="/devlocal-auth/login">
 				<p id="{{.ID}}">
-					<input type="hidden" name="gorilla.csrf.Token" value="` + csrf.Token(r) + `">
+					<input type="hidden" name="gorilla.csrf.Token" value="` + csrfToken + `">
 					{{.Email}}
 					({{if .DpsUserID}}dps{{else if .TspUserID}}tsp{{else if .OfficeUserID}}office{{else}}milmove{{end}})
 					<input type="hidden" name="id" value="{{.ID}}" />
@@ -84,7 +91,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		<h1>Create a new user</h1>
 		<form method="post" action="/devlocal-auth/new">
 			<p>
-				<input type="hidden" name="gorilla.csrf.Token" value="` + csrf.Token(r) + `">
+				<input type="hidden" name="gorilla.csrf.Token" value="` + csrfToken + `">
 				<button type="submit" data-hook="new-user-login">Login as New User</button>
 			</p>
 		</form>
