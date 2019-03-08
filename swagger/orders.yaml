@@ -442,6 +442,7 @@ definitions:
         $ref: '#/definitions/OrdersType'
       hasDependents:
         type: boolean
+        x-nullable: false
         description: >
           True if the service member has any dependents (e.g., spouse, children,
           caring for an elderly parent, etc.), False otherwise.

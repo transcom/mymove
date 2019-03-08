@@ -173,7 +173,7 @@ func toElectronicOrdersRevision(orders models.ElectronicOrder, rev *ordersmessag
 		TdyEnRoute:            rev.TdyEnRoute,
 		TourType:              tourType,
 		OrdersType:            rev.OrdersType,
-		HasDependents:         *rev.HasDependents,
+		HasDependents:         rev.HasDependents,
 		LosingUIC:             rev.LosingUnit.Uic,
 		LosingUnitName:        rev.LosingUnit.Name,
 		LosingUnitCity:        rev.LosingUnit.City,
