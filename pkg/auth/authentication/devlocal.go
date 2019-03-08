@@ -66,7 +66,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Grab the CSRF token from cookies set by the middleware
 	csrfCookie, err := auth.GetCookie(auth.MaskedGorillaCSRFToken, r)
 	if err != nil {
-		h.logger.Error("CSRF Token was not set")
+		h.logger.Error("CSRF Cookie was not set via middleware")
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
