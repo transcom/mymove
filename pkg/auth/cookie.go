@@ -8,6 +8,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofrs/uuid"
+	"github.com/gorilla/csrf"
 	"github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -120,6 +121,17 @@ func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, noSessionTim
 	}
 
 	http.SetCookie(w, &cookie)
+}
+
+// MaskedCSRFMiddleware handles setting the CSRF Token cookie
+func MaskedCSRFMiddleware(logger *zap.Logger, noSessionTimeout bool) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			WriteMaskedCSRFCookie(w, csrf.Token(r), noSessionTimeout, logger)
+			next.ServeHTTP(w, r)
+		}
+		return http.HandlerFunc(mw)
+	}
 }
 
 // WriteSessionCookie update the cookie for the session

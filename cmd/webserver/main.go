@@ -763,6 +763,7 @@ func main() {
 	// Session management and authentication middleware
 	noSessionTimeout := v.GetBool("no-session-timeout")
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(zapLogger, clientAuthSecretKey, noSessionTimeout, myHostname, officeHostname, tspHostname)
+	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(zapLogger, noSessionTimeout)
 	userAuthMiddleware := authentication.UserAuthMiddleware(zapLogger)
 	clientCertMiddleware := authentication.ClientCertMiddleware(zapLogger, dbConnection)
 
@@ -1038,6 +1039,7 @@ func main() {
 	}
 	logger.Info("Enabling CSRF protection")
 	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/")))
+	root.Use(maskedCSRFMiddleware)
 
 	// Sends build variables to honeycomb
 	if len(gitBranch) > 0 && len(gitCommit) > 0 {

@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gorilla/csrf"
 
 	"github.com/transcom/mymove/pkg/auth"
 )
@@ -19,6 +20,7 @@ type CookieUpdateResponder struct {
 	noSessionTimeout bool
 	logger           *zap.Logger
 	Responder        middleware.Responder
+	request          *http.Request
 }
 
 // NewCookieUpdateResponder constructs a wrapper for the responder which will update cookies
@@ -29,11 +31,13 @@ func NewCookieUpdateResponder(request *http.Request, secret string, noSessionTim
 		noSessionTimeout: noSessionTimeout,
 		logger:           logger,
 		Responder:        responder,
+		request:          request,
 	}
 }
 
 // WriteResponse updates the session cookie before writing out the details of the response
 func (cur *CookieUpdateResponder) WriteResponse(rw http.ResponseWriter, p runtime.Producer) {
 	auth.WriteSessionCookie(rw, cur.session, cur.cookieSecret, cur.noSessionTimeout, cur.logger)
+	auth.WriteMaskedCSRFCookie(rw, csrf.Token(cur.request), cur.noSessionTimeout, cur.logger)
 	cur.Responder.WriteResponse(rw, p)
 }
