@@ -5,7 +5,8 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
+	beeline "github.com/honeycombio/beeline-go"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	backupop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/backup_contacts"
@@ -44,7 +45,7 @@ func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBa
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching service member for user", zap.String("service_member_id", serviceMemberID))
 	}
 
 	newContact, verrs, err := serviceMember.CreateBackupContact(h.DB(),
@@ -53,7 +54,7 @@ func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBa
 		params.CreateBackupContactPayload.Telephone,
 		models.BackupContactPermission(params.CreateBackupContactPayload.Permission))
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error when creating backup contact", zap.String("service_member_id", serviceMemberID))
 	}
 
 	contactPayload := payloadForBackupContactModel(newContact)
@@ -76,7 +77,7 @@ func (h IndexBackupContactsHandler) Handle(params backupop.IndexServiceMemberBac
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching service member for user", zap.String("service_member_id", serviceMemberID))
 	}
 
 	contacts := serviceMember.BackupContacts
@@ -103,7 +104,7 @@ func (h ShowBackupContactHandler) Handle(params backupop.ShowServiceMemberBackup
 	contactID, _ := uuid.FromString(params.BackupContactID.String())
 	contact, err := models.FetchBackupContact(h.DB(), session, contactID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching backup contact", zap.String("backup_contact_id", BackupContactID.String()))
 	}
 
 	contactPayload := payloadForBackupContactModel(contact)
@@ -123,7 +124,7 @@ func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBa
 	contactID, _ := uuid.FromString(params.BackupContactID.String())
 	contact, err := models.FetchBackupContact(h.DB(), session, contactID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching backup contact", zap.String("backup_contact_id", params.BackupContactID.String()))
 	}
 
 	contact.Name = *params.UpdateServiceMemberBackupContactPayload.Name
