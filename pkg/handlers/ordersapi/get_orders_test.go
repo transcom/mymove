@@ -2,6 +2,7 @@ package ordersapi
 
 import (
 	"net/http/httptest"
+	"testing"
 
 	"github.com/transcom/mymove/pkg/gen/ordersmessages"
 
@@ -55,124 +56,92 @@ func (suite *HandlerSuite) TestGetOrdersNoApiPerm() {
 	suite.Assertions.IsType(&ordersoperations.GetOrdersForbidden{}, response)
 }
 
-func (suite *HandlerSuite) TestGetOrdersNoArmyPerm() {
-	order := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", ordersmessages.IssuerArmy, "8675309", ordersmessages.AffiliationArmy)
-	req := httptest.NewRequest("GET", "/orders/v1/orders/", nil)
-
-	clientCert := models.ClientCert{
-		AllowOrdersAPI:             true,
-		AllowAirForceOrdersRead:    true,
-		AllowCoastGuardOrdersRead:  true,
-		AllowMarineCorpsOrdersRead: true,
-		AllowNavyOrdersRead:        true,
-	}
-	req = suite.AuthenticateClientCertRequest(req, &clientCert)
-
-	params := ordersoperations.GetOrdersParams{
-		HTTPRequest: req,
-		UUID:        strfmt.UUID(order.ID.String()),
-	}
-
-	handler := GetOrdersHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	response := handler.Handle(params)
-
-	suite.Assertions.IsType(&ordersoperations.GetOrdersForbidden{}, response)
-}
-
-func (suite *HandlerSuite) TestGetOrdersNoNavyPerm() {
-	order := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", ordersmessages.IssuerNavy, "8675309", ordersmessages.AffiliationNavy)
-	req := httptest.NewRequest("GET", "/orders/v1/orders/", nil)
-
-	clientCert := models.ClientCert{
-		AllowOrdersAPI:             true,
-		AllowAirForceOrdersRead:    true,
-		AllowArmyOrdersRead:        true,
-		AllowCoastGuardOrdersRead:  true,
-		AllowMarineCorpsOrdersRead: true,
-	}
-	req = suite.AuthenticateClientCertRequest(req, &clientCert)
-
-	params := ordersoperations.GetOrdersParams{
-		HTTPRequest: req,
-		UUID:        strfmt.UUID(order.ID.String()),
-	}
-
-	handler := GetOrdersHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	response := handler.Handle(params)
-
-	suite.Assertions.IsType(&ordersoperations.GetOrdersForbidden{}, response)
-}
-
-func (suite *HandlerSuite) TestGetOrdersNoMarineCorpsPerm() {
-	order := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", ordersmessages.IssuerMarineCorps, "8675309", ordersmessages.AffiliationMarineCorps)
-	req := httptest.NewRequest("GET", "/orders/v1/orders/", nil)
-
-	clientCert := models.ClientCert{
-		AllowOrdersAPI:            true,
-		AllowAirForceOrdersRead:   true,
-		AllowArmyOrdersRead:       true,
-		AllowCoastGuardOrdersRead: true,
-		AllowNavyOrdersRead:       true,
-	}
-	req = suite.AuthenticateClientCertRequest(req, &clientCert)
-
-	params := ordersoperations.GetOrdersParams{
-		HTTPRequest: req,
-		UUID:        strfmt.UUID(order.ID.String()),
-	}
-
-	handler := GetOrdersHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	response := handler.Handle(params)
-
-	suite.Assertions.IsType(&ordersoperations.GetOrdersForbidden{}, response)
-}
-
-func (suite *HandlerSuite) TestGetOrdersNoAirForcePerm() {
-	order := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", ordersmessages.IssuerAirForce, "8675309", ordersmessages.AffiliationAirForce)
-	req := httptest.NewRequest("GET", "/orders/v1/orders/", nil)
-
-	clientCert := models.ClientCert{
-		AllowOrdersAPI:             true,
-		AllowArmyOrdersRead:        true,
-		AllowCoastGuardOrdersRead:  true,
-		AllowMarineCorpsOrdersRead: true,
-		AllowNavyOrdersRead:        true,
-	}
-	req = suite.AuthenticateClientCertRequest(req, &clientCert)
-
-	params := ordersoperations.GetOrdersParams{
-		HTTPRequest: req,
-		UUID:        strfmt.UUID(order.ID.String()),
+func (suite *HandlerSuite) TestGetOrdersReadPerms() {
+	testCases := map[string]struct {
+		cert   models.ClientCert
+		issuer ordersmessages.Issuer
+		affl   ordersmessages.Affiliation
+		edipi  string
+	}{
+		"Army": {
+			models.ClientCert{
+				AllowOrdersAPI:             true,
+				AllowAirForceOrdersRead:    true,
+				AllowCoastGuardOrdersRead:  true,
+				AllowMarineCorpsOrdersRead: true,
+				AllowNavyOrdersRead:        true,
+			},
+			ordersmessages.IssuerArmy,
+			ordersmessages.AffiliationArmy,
+			"1234567890",
+		},
+		"Navy": {
+			models.ClientCert{
+				AllowOrdersAPI:             true,
+				AllowAirForceOrdersRead:    true,
+				AllowArmyOrdersRead:        true,
+				AllowCoastGuardOrdersRead:  true,
+				AllowMarineCorpsOrdersRead: true,
+			},
+			ordersmessages.IssuerNavy,
+			ordersmessages.AffiliationNavy,
+			"1234567891",
+		},
+		"MarineCorps": {
+			models.ClientCert{
+				AllowOrdersAPI:            true,
+				AllowAirForceOrdersRead:   true,
+				AllowArmyOrdersRead:       true,
+				AllowCoastGuardOrdersRead: true,
+				AllowNavyOrdersRead:       true,
+			},
+			ordersmessages.IssuerMarineCorps,
+			ordersmessages.AffiliationMarineCorps,
+			"1234567892",
+		},
+		"CoastGuard": {
+			models.ClientCert{
+				AllowOrdersAPI:             true,
+				AllowAirForceOrdersRead:    true,
+				AllowArmyOrdersRead:        true,
+				AllowMarineCorpsOrdersRead: true,
+				AllowNavyOrdersRead:        true,
+			},
+			ordersmessages.IssuerCoastGuard,
+			ordersmessages.AffiliationCoastGuard,
+			"1234567893",
+		},
+		"AirForce": {
+			models.ClientCert{
+				AllowOrdersAPI:             true,
+				AllowArmyOrdersRead:        true,
+				AllowCoastGuardOrdersRead:  true,
+				AllowMarineCorpsOrdersRead: true,
+				AllowNavyOrdersRead:        true,
+			},
+			ordersmessages.IssuerAirForce,
+			ordersmessages.AffiliationAirForce,
+			"1234567894",
+		},
 	}
 
-	handler := GetOrdersHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	response := handler.Handle(params)
+	for name, testCase := range testCases {
+		suite.T().Run(name, func(t *testing.T) {
+			order := testdatagen.MakeElectronicOrder(suite.DB(), testCase.edipi, testCase.issuer, "8675309", testCase.affl)
+			req := httptest.NewRequest("GET", "/orders/v1/orders/", nil)
+			req = suite.AuthenticateClientCertRequest(req, &testCase.cert)
 
-	suite.Assertions.IsType(&ordersoperations.GetOrdersForbidden{}, response)
-}
+			params := ordersoperations.GetOrdersParams{
+				HTTPRequest: req,
+				UUID:        strfmt.UUID(order.ID.String()),
+			}
 
-func (suite *HandlerSuite) TestGetOrdersNoCoastGuardPerm() {
-	order := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", ordersmessages.IssuerCoastGuard, "8675309", ordersmessages.AffiliationCoastGuard)
-	req := httptest.NewRequest("GET", "/orders/v1/orders/", nil)
+			handler := GetOrdersHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+			response := handler.Handle(params)
 
-	clientCert := models.ClientCert{
-		AllowOrdersAPI:             true,
-		AllowAirForceOrdersRead:    true,
-		AllowArmyOrdersRead:        true,
-		AllowMarineCorpsOrdersRead: true,
-		AllowNavyOrdersRead:        true,
+			suite.Assertions.IsType(&ordersoperations.GetOrdersForbidden{}, response)
+		})
 	}
-	req = suite.AuthenticateClientCertRequest(req, &clientCert)
-
-	params := ordersoperations.GetOrdersParams{
-		HTTPRequest: req,
-		UUID:        strfmt.UUID(order.ID.String()),
-	}
-
-	handler := GetOrdersHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	response := handler.Handle(params)
-
-	suite.Assertions.IsType(&ordersoperations.GetOrdersForbidden{}, response)
 }
 
 func (suite *HandlerSuite) TestGetOrdersMissingUUID() {
