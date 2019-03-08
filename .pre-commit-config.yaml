@@ -72,6 +72,13 @@ repos:
         entry: bin/swagger validate swagger/orders.yaml
         language: script
 
+  - repo: local
+    hooks:
+    - id: swagger
+      name: DPS Swagger
+      entry: bin/swagger validate swagger/dps.yaml
+      language: script
+
   # Ensure markdown files have updated table of contents
   - repo: local
     hooks:
