@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Redirect, Switch, Route } from 'react-router-dom';
+import { Redirect, Switch } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 import { history } from 'shared/store';
 import { connect } from 'react-redux';
@@ -55,19 +55,7 @@ class OfficeWrapper extends Component {
             <div>
               <LogoutOnInactivity />
               <Switch>
-                <Route
-                  exact
-                  path="/"
-                  component={({ location }) => (
-                    <Redirect
-                      from="/"
-                      to={{
-                        ...location,
-                        pathname: '/queues/new',
-                      }}
-                    />
-                  )}
-                />
+                <Redirect from="/" to="/queues/new" exact />
                 <PrivateRoute path="/queues/:queueType/moves/:moveId" component={MoveInfo} />
                 <PrivateRoute path="/queues/:queueType" component={Queues} />
                 <PrivateRoute path="/moves/:moveId/orders" component={OrdersInfo} />

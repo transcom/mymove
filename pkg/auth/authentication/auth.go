@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"reflect"
 	"time"
 
@@ -180,28 +179,20 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-	rawLandingURL := h.landingURL(session)
-	landingURL, err := url.Parse(rawLandingURL)
-	if err != nil {
-		h.logger.Error("Error parsing landing URL")
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
-	}
+	lURL := h.landingURL(session)
 
 	if err := r.URL.Query().Get("error"); len(err) > 0 {
-		landingQuery := landingURL.Query()
 		switch err {
 		case "access_denied":
 			// The user has either cancelled or declined to authorize the client
+			http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 		case "invalid_request":
 			h.logger.Error("INVALID_REQUEST error from login.gov")
-			landingQuery.Add("error", "INVALID_REQUEST")
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		default:
 			h.logger.Error("unknown error from login.gov")
-			landingQuery.Add("error", "UNKNOWN_ERROR")
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		}
-		landingURL.RawQuery = landingQuery.Encode()
-		http.Redirect(w, r, landingURL.String(), http.StatusPermanentRedirect)
 		return
 	}
 
@@ -379,7 +370,7 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 	h.logger.Info("logged in", zap.Any("session", session))
 
 	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
-	http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
+	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 }
 
 func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
