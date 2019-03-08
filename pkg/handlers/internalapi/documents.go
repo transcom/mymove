@@ -5,9 +5,8 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	beeline "github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
-
-	"github.com/honeycombio/beeline-go"
 
 	auth "github.com/transcom/mymove/pkg/auth"
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
@@ -51,13 +50,13 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 
 	serviceMemberID, err := uuid.FromString(params.DocumentPayload.ServiceMemberID.String())
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching service member id", zap.String("service_member_id", params.DocumentPayload.ServiceMemberID.String()))
 	}
 
 	// Fetch to check auth
 	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching service member", zap.String("service_member_id", serviceMemberID))
 	}
 
 	newDocument := models.Document{
@@ -76,7 +75,7 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 	h.Logger().Info("created a document with id: ", zap.Any("new_document_id", newDocument.ID))
 	documentPayload, err := payloadForDocumentModel(h.FileStorer(), newDocument)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching document payload", zap.String("service_member_id", newDocument.ID))
 	}
 	return documentop.NewCreateDocumentCreated().WithPayload(documentPayload)
 }
@@ -96,17 +95,17 @@ func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middle
 
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching document id", zap.String("document_id", params.DocumentID.String()))
 	}
 
 	document, err := models.FetchDocument(ctx, h.DB(), session, documentID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching document", zap.String("document_id", documentID))
 	}
 
 	documentPayload, err := payloadForDocumentModel(h.FileStorer(), document)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching document payload", zap.String("document_id", documentID))
 	}
 
 	return documentop.NewShowDocumentOK().WithPayload(documentPayload)
