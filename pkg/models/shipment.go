@@ -42,17 +42,17 @@ const (
 var (
 	// ShipmentAssociationsDEFAULT declares the default eager associations for a shipment
 	ShipmentAssociationsDEFAULT = EagerAssociations{
-		"TrafficDistributionList",
-		"ServiceMember.BackupContacts",
-		"Move.Orders.NewDutyStation.Address",
-		"PickupAddress",
-		"SecondaryPickupAddress",
-		"DeliveryAddress",
-		"DestinationAddressOnAcceptance",
-		"PartialSITDeliveryAddress",
-		"ShipmentOffers.TransportationServiceProviderPerformance.TransportationServiceProvider",
-		"ShippingDistance.OriginAddress",
-		"ShippingDistance.DestinationAddress",
+		// "TrafficDistributionList",
+		// "ServiceMember.BackupContacts",
+		// "Move.Orders.NewDutyStation.Address",
+		// "PickupAddress",
+		// "SecondaryPickupAddress",
+		// "DeliveryAddress",
+		// "DestinationAddressOnAcceptance",
+		// "PartialSITDeliveryAddress",
+		// "ShipmentOffers.TransportationServiceProviderPerformance.TransportationServiceProvider",
+		// "ShippingDistance.OriginAddress",
+		// "ShippingDistance.DestinationAddress",
 	}
 )
 
