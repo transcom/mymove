@@ -211,8 +211,6 @@ func (suite *authSuite) TestSessionCookiePR161162731() {
 }
 
 func (suite *authSuite) TestMaskedCSRFMiddleware() {
-	expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
-
 	rr := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/", nil)
 
