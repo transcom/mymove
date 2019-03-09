@@ -346,10 +346,21 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 		}
 	}
 
+	var estimateAmountCents, actualAmountCents unit.Cents
+	if params.Payload.EstimateAmountCents != nil {
+		estimateAmountCents = unit.Cents(int(*params.Payload.EstimateAmountCents))
+	}
+	if params.Payload.ActualAmountCents != nil {
+		actualAmountCents = unit.Cents(int(*params.Payload.ActualAmountCents))
+	}
+
 	additionalParams := models.AdditionalShipmentLineItemParams{
-		ItemDimensions:  itemDimensions,
-		CrateDimensions: crateDimensions,
-		Description:     params.Payload.Description,
+		ItemDimensions:      itemDimensions,
+		CrateDimensions:     crateDimensions,
+		Description:         params.Payload.Description,
+		Reason:              params.Payload.Reason,
+		EstimateAmountCents: &estimateAmountCents,
+		ActualAmountCents:   &actualAmountCents,
 	}
 
 	verrs, err := shipment.UpdateShipmentLineItem(h.DB(),

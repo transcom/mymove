@@ -1,4 +1,4 @@
-import { cloneDeep } from 'lodash';
+import { cloneDeep, get } from 'lodash';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import PreApprovalForm, { formName as PreApprovalFormName } from 'shared/PreApprovalRequest/PreApprovalForm.jsx';
@@ -7,7 +7,9 @@ import {
   convertFromBaseQuantity,
   formatToDimensionsInches,
   formatDimensionsToThousandthInches,
+  formatCents,
 } from 'shared/formatters';
+import { convertDollarsToCents } from 'shared/utils';
 import { submit, isValid, isDirty, isSubmitting, hasSubmitSucceeded } from 'redux-form';
 
 import { connect } from 'react-redux';
@@ -25,6 +27,8 @@ export class Editor extends Component {
 
     formatDimensionsToThousandthInches(values.item_dimensions);
     formatDimensionsToThousandthInches(values.crate_dimensions);
+    values.estimate_amount_cents = convertDollarsToCents(get(values, 'estimate_amount_cents'));
+    values.actual_amount_cents = convertDollarsToCents(get(values, 'actual_amount_cents'));
 
     this.props.saveEdit(this.props.shipmentLineItem.id, values);
   };
@@ -42,6 +46,13 @@ export class Editor extends Component {
 
     initialValues.item_dimensions = formatToDimensionsInches(initialValues.item_dimensions);
     initialValues.crate_dimensions = formatToDimensionsInches(initialValues.crate_dimensions);
+
+    if (initialValues.estimate_amount_cents) {
+      initialValues.estimate_amount_cents = formatCents(initialValues.estimate_amount_cents);
+    }
+    if (initialValues.actual_amount_cents) {
+      initialValues.actual_amount_cents = formatCents(initialValues.actual_amount_cents);
+    }
 
     return (
       <div className="pre-approval-panel-modal pre-approval-edit">
