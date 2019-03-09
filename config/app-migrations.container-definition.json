@@ -4,6 +4,8 @@
   "essential": true,
   "entryPoint": [
     "/bin/chamber",
+    "-r",
+    "{{ .CHAMBER_RETRIES }}",
     "exec",
     "app-{{ .environment }}",
     "--",

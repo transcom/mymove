@@ -379,9 +379,9 @@ func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
 	shipment.Move.Orders.TAC = nil
 	suite.MustSave(&shipment.Move.Orders)
 
-	createForm := paperworkservice.NewCreateForm(context.FileStorer().TempFileSystem(), paperwork.NewFormFiller())
+	formCreator := paperworkservice.NewFormCreator(context.FileStorer().TempFileSystem(), paperwork.NewFormFiller())
 	// And: the create gbl handler is called
-	handler := CreateGovBillOfLadingHandler{context, createForm}
+	handler := CreateGovBillOfLadingHandler{context, formCreator}
 	response := handler.Handle(params)
 
 	// Then: expect a 417 status code
@@ -394,14 +394,14 @@ func (suite *HandlerSuite) TestCreateGovBillOfLadingHandler() {
 	suite.MustSave(&shipment.Move.Orders)
 
 	// And: the create gbl handler is called
-	handler = CreateGovBillOfLadingHandler{context, createForm}
+	handler = CreateGovBillOfLadingHandler{context, formCreator}
 	response = handler.Handle(params)
 
 	// Then: expect a 200 status code
 	suite.Assertions.IsType(&shipmentop.CreateGovBillOfLadingCreated{}, response)
 
 	// When: there is an existing GBL for a shipment and handler is called
-	handler = CreateGovBillOfLadingHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), createForm}
+	handler = CreateGovBillOfLadingHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), formCreator}
 	response = handler.Handle(params)
 
 	// Then: expect a 400 status code

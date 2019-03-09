@@ -27,6 +27,7 @@ var ShipmentSummaryPage1Layout = FormLayout{
 		"IssuingBranchOrAgency":           FormField(102.5, 73, 47, floatPtr(10), nil, nil),
 		"NewDutyAssignment":               FormField(153, 73, 60, floatPtr(10), nil, nil),
 		"TAC":                             FormField(10, 233, 45, floatPtr(10), nil, nil),
+		"SAC":                             FormField(10, 222, 45, floatPtr(10), nil, nil),
 		"ShipmentNumberAndTypes":          FormField(9.5, 122.5, 41, floatPtr(10), nil, nil),
 		"ShipmentPickUpDates":             FormField(54, 122.5, 46, floatPtr(10), nil, nil),
 		"ShipmentWeights":                 FormField(103, 122.5, 41, floatPtr(10), nil, nil),
@@ -68,5 +69,7 @@ var ShipmentSummaryPage2Layout = FormLayout{
 		"OilGTCCPaid":                 FormField(181.5, 86.5, 20, floatPtr(10), nil, stringPtr("RM")),
 		"OtherGTCCPaid":               FormField(181.5, 93, 20, floatPtr(10), nil, stringPtr("RM")),
 		"TotalGTCCPaid":               FormField(181.5, 99.5, 20, floatPtr(10), nil, stringPtr("RM")),
+		"TotalMemberPaidRepeated":     FormField(74, 42, 30, floatPtr(10), nil, stringPtr("RM")),
+		"TotalGTCCPaidRepeated":       FormField(74, 53, 30, floatPtr(10), nil, stringPtr("RM")),
 	},
 }

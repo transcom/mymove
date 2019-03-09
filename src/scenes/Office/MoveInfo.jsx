@@ -389,8 +389,13 @@ class MoveInfo extends Component {
               <div>
                 {moveInfoComboButton && (
                   <ComboButton
+                    items={[
+                      { value: 'Approve Basics', disabled: true },
+                      { value: 'Approve HHG', disabled: true },
+                      { value: 'Approve PPM', disabled: true },
+                    ]}
                     buttonText={'Approve'}
-                    isDisabled={true}
+                    disabled={!ordersComplete}
                     toolTipText={
                       'Some information about the move is missing or contains errors. Please fix these problems before approving.'
                     }

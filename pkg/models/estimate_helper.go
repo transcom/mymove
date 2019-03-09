@@ -24,6 +24,8 @@ func PPMDiscountFetch(db *pop.Connection, logger *zap.Logger, originZip string, 
 			zap.String("origin_zip", originZip),
 			zap.String("destination_zip", destZip),
 			zap.Time("move_date", moveDate),
+			zap.Float64("lh_discount", lhDiscount.Float64()),
+			zap.Float64("sit_discount", sitDiscount.Float64()),
 		)
 		return lhDiscount, sitDiscount, err
 	}
@@ -43,6 +45,8 @@ func PPMDiscountFetch(db *pop.Connection, logger *zap.Logger, originZip string, 
 			zap.String("origin_zip", originZip),
 			zap.String("destination_zip", destZip),
 			zap.Time("move_date", moveDate),
+			zap.Float64("lh_discount", lhDiscount.Float64()),
+			zap.Float64("sit_discount", sitDiscount.Float64()),
 		)
 		return lhDiscount, sitDiscount, err
 	}
