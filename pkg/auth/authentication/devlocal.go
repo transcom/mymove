@@ -40,29 +40,13 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
 		return
 	}
-
-	// get list of users in system
-	var users []models.User
-	err := h.db.All(&users)
+	identities, err := models.FetchAllUserIdentities(h.db)
 	if err != nil {
 		h.logger.Error("Could not load list of users", zap.Error(err))
 		http.Error(w,
 			fmt.Sprintf("%s - Could not load list of users, try migrating the DB", http.StatusText(500)),
 			http.StatusInternalServerError)
 		return
-	}
-
-	// load user identities
-	var identities []*models.UserIdentity
-	for _, user := range users {
-		uuid := user.LoginGovUUID.String()
-		identity, err := models.FetchUserIdentity(h.db, uuid)
-		if err != nil {
-			h.logger.Error("Could not get user identity", zap.String("userID", uuid), zap.Error(err))
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-			return
-		}
-		identities = append(identities, identity)
 	}
 
 	t := template.Must(template.New("users").Parse(`

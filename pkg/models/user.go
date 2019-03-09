@@ -127,6 +127,40 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 	return &identities[0], nil
 }
 
+// FetchAllUserIdentities returns information for all users in the db
+func FetchAllUserIdentities(db *pop.Connection) ([]UserIdentity, error) {
+	var identities []UserIdentity
+	query := `SELECT users.id,
+				users.login_gov_email as email,
+				users.disabled as disabled,
+				sm.id as sm_id,
+				sm.first_name as sm_fname,
+				sm.last_name as sm_lname,
+				sm.middle_name as sm_middle,
+				ou.id as ou_id,
+				ou.first_name as ou_fname,
+				ou.last_name as ou_lname,
+				ou.middle_initials as ou_middle,
+				tu.id as tu_id,
+				tu.first_name as tu_fname,
+				tu.last_name as tu_lname,
+				tu.middle_initials as tu_middle,
+				du.id as du_id
+			FROM users
+			LEFT OUTER JOIN service_members as sm on sm.user_id = users.id
+			LEFT OUTER JOIN office_users as ou on ou.user_id = users.id
+			LEFT OUTER JOIN tsp_users as tu on tu.user_id = users.id
+			LEFT OUTER JOIN dps_users as du on du.login_gov_email = users.login_gov_email
+			WHERE users.login_gov_uuid in (SELECT users.login_gov_uuid FROM users AS users)
+			ORDER BY users.created_at`
+
+	err := db.RawQuery(query).All(&identities)
+	if err != nil {
+		return nil, err
+	}
+	return identities, nil
+}
+
 // firstValue returns the first string value that is not nil
 func firstValue(one *string, two *string, three *string) (value string) {
 
