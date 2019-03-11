@@ -17,11 +17,7 @@ export function LogoutUser() {
     credentials: 'same-origin', // Passes through CSRF cookies
     requestInterceptor,
   };
-  Swagger.http(req)
-    .then(response => {
-      window.location = '/';
-    })
-    .catch(err => {
-      console.log(err);
-    });
+  Swagger.http(req).then(response => {
+    window.location = '/';
+  });
 }
