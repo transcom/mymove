@@ -795,7 +795,7 @@ func main() {
 	// Session management and authentication middleware
 	noSessionTimeout := v.GetBool("no-session-timeout")
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(zapLogger, clientAuthSecretKey, noSessionTimeout, myHostname, officeHostname, tspHostname, useSecureCookie)
-	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(zapLogger, noSessionTimeout)
+	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(zapLogger, noSessionTimeout, useSecureCookie)
 	userAuthMiddleware := authentication.UserAuthMiddleware(zapLogger)
 	clientCertMiddleware := authentication.ClientCertMiddleware(zapLogger, dbConnection)
 

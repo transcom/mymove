@@ -101,7 +101,7 @@ func sessionClaimsFromRequest(logger *zap.Logger, secret string, appName Applica
 }
 
 // WriteMaskedCSRFCookie update the masked_gorilla_csrf cookie value
-func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, noSessionTimeout bool, logger *zap.Logger) {
+func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, noSessionTimeout bool, logger *zap.Logger, useSecureCookie bool) {
 
 	expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
 	maxAge := sessionExpiryInSeconds
@@ -119,16 +119,18 @@ func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, noSessionTim
 		Expires:  expiry,
 		MaxAge:   maxAge,
 		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
+		Secure:   useSecureCookie,
 	}
 
 	http.SetCookie(w, &cookie)
 }
 
 // MaskedCSRFMiddleware handles setting the CSRF Token cookie
-func MaskedCSRFMiddleware(logger *zap.Logger, noSessionTimeout bool) func(next http.Handler) http.Handler {
+func MaskedCSRFMiddleware(logger *zap.Logger, noSessionTimeout bool, useSecureCookie bool) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			WriteMaskedCSRFCookie(w, csrf.Token(r), noSessionTimeout, logger)
+			WriteMaskedCSRFCookie(w, csrf.Token(r), noSessionTimeout, logger, useSecureCookie)
 			next.ServeHTTP(w, r)
 		}
 		return http.HandlerFunc(mw)
@@ -147,6 +149,7 @@ func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, 
 		Expires:  time.Unix(0, 0),
 		MaxAge:   -1,
 		HttpOnly: true,
+		SameSite: http.SameSiteStrictMode,
 		Secure:   useSecureCookie,
 	}
 
