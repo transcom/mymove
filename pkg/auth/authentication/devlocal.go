@@ -81,7 +81,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					{{.Email}}
 					({{if .DpsUserID}}dps{{else if .TspUserID}}tsp{{else if .OfficeUserID}}office{{else}}milmove{{end}})
 					<input type="hidden" name="id" value="{{.ID}}" />
-					<button type="submit" data-hook="existing-user-login">Login</button>
+					<button type="submit" value="{{.ID}}" data-hook="existing-user-login">Login</button>
 				</p>
 			</form>
 		{{else}}
