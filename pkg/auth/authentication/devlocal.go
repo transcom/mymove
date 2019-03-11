@@ -224,6 +224,13 @@ func loginUser(handler devlocalAuthHandler, user *models.User, w http.ResponseWr
 		session.IDToken = "devlocal"
 		session.UserID = userIdentity.ID
 		session.Email = userIdentity.Email
+
+		if userIdentity.Disabled {
+			handler.logger.Error("Disabled user requesting authentication", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
+		}
+
 		if userIdentity.ServiceMemberID != nil {
 			session.ServiceMemberID = *(userIdentity.ServiceMemberID)
 		}

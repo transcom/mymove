@@ -104,7 +104,7 @@ func (s *StorageInTransit) Validate(tx *pop.Connection) (*validate.Errors, error
 func FetchStorageInTransitsOnShipment(tx *pop.Connection, shipmentID uuid.UUID) (StorageInTransits, error) {
 	storageInTransits := StorageInTransits{}
 
-	err := tx.Where("shipment_id = $1", shipmentID).
+	err := tx.Eager().Where("shipment_id = $1", shipmentID).
 		LeftJoin("addresses", "storage_in_transits.warehouse_address_id=addresses.id").
 		All(&storageInTransits)
 
@@ -119,7 +119,7 @@ func FetchStorageInTransitsOnShipment(tx *pop.Connection, shipmentID uuid.UUID) 
 // FetchStorageInTransitByID retrieves a single Storage In Transit object based on its own ID
 func FetchStorageInTransitByID(tx *pop.Connection, storageInTransitID uuid.UUID) (*StorageInTransit, error) {
 	var storageInTransit StorageInTransit
-	err := tx.Where("storage_in_transits.id = $1", storageInTransitID).
+	err := tx.Eager().Where("storage_in_transits.id = $1", storageInTransitID).
 		LeftJoin("addresses", "storage_in_transits.warehouse_address_id=addresses.id").First(&storageInTransit)
 
 	if err != nil {

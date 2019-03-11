@@ -69,7 +69,7 @@ export class Creator extends Component {
         </div>
       );
     return (
-      <div className="add-request storage-in-transit-hr-top">
+      <div className="add-request">
         <a onClick={this.openForm}>
           <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
           Request SIT

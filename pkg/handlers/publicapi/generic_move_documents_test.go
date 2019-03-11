@@ -3,9 +3,8 @@ package publicapi
 import (
 	"net/http/httptest"
 
-	"github.com/gobuffalo/uuid"
-
 	"github.com/go-openapi/strfmt"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	movedocop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/move_docs"
