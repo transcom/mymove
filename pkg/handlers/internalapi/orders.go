@@ -6,7 +6,8 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
+	beeline "github.com/honeycombio/beeline-go"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
@@ -64,7 +65,6 @@ type CreateOrdersHandler struct {
 
 // Handle ... creates new Orders from a request payload
 func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middleware.Responder {
-
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
@@ -74,20 +74,21 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 
 	serviceMemberID, err := uuid.FromString(payload.ServiceMemberID.String())
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error converting service member id", zap.String("service_member_id", payload.ServiceMemberID.String()))
 	}
 	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching service member for user", zap.String("service_member_id", serviceMemberID.String()))
 	}
 
 	stationID, err := uuid.FromString(payload.NewDutyStationID.String())
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error converting new duty station id", zap.String("new_duty_station_id", payload.NewDutyStationID.String()))
 	}
+
 	dutyStation, err := models.FetchDutyStation(ctx, h.DB(), stationID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching duty station", zap.String("duty_station_id", stationID.String()))
 	}
 
 	var deptIndicator *string
@@ -122,7 +123,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 
 	orderPayload, err := payloadForOrdersModel(h.FileStorer(), newOrder)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching payload for orders model", zap.String("new_order_id", newOrder.ID.String()))
 	}
 	return ordersop.NewCreateOrdersCreated().WithPayload(orderPayload)
 }
@@ -134,17 +135,20 @@ type ShowOrdersHandler struct {
 
 // Handle retrieves orders in the system belonging to the logged in user given order ID
 func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec swagger verifies uuid format
 	orderID, _ := uuid.FromString(params.OrdersID.String())
 	order, err := models.FetchOrderForUser(h.DB(), session, orderID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error converting order id", zap.String("order_id", params.OrdersID.String()))
 	}
 
 	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching payload for order", zap.String("order_id", orderID.String()))
 	}
 	return ordersop.NewShowOrdersOK().WithPayload(orderPayload)
 }
@@ -156,7 +160,6 @@ type UpdateOrdersHandler struct {
 
 // Handle ... updates an order from a request payload
 func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middleware.Responder {
-
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
@@ -164,21 +167,21 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 
 	orderID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error converting order id", zap.String("order_id", params.OrdersID.String()))
 	}
 	order, err := models.FetchOrderForUser(h.DB(), session, orderID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching order for user", zap.String("order_id", params.OrdersID.String()))
 	}
 
 	payload := params.UpdateOrders
 	stationID, err := uuid.FromString(payload.NewDutyStationID.String())
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error converting new duty station id", zap.String("new_duty_station_id", payload.NewDutyStationID.String()))
 	}
 	dutyStation, err := models.FetchDutyStation(ctx, h.DB(), stationID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching duty station", zap.String("duty_station_id", stationID.String()))
 	}
 
 	order.OrdersNumber = payload.OrdersNumber
@@ -206,7 +209,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 
 	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching payload for orders model", zap.String("order_id", orderID.String()))
 	}
 	return ordersop.NewUpdateOrdersOK().WithPayload(orderPayload)
 }
