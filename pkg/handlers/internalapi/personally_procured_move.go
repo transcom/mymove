@@ -2,10 +2,12 @@ package internalapi
 
 import (
 	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	beeline "github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -75,6 +77,9 @@ type CreatePersonallyProcuredMoveHandler struct {
 
 // Handle is the handler
 func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonallyProcuredMoveParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
@@ -82,7 +87,7 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching move", zap.String("move_id", moveID.String()))
 	}
 
 	payload := params.CreatePersonallyProcuredMovePayload
@@ -113,7 +118,7 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 
 	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *newPPM)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching payload for personally procured move")
 	}
 	return ppmop.NewCreatePersonallyProcuredMoveCreated().WithPayload(ppmPayload)
 }
@@ -125,6 +130,9 @@ type IndexPersonallyProcuredMovesHandler struct {
 
 // Handle handles the request
 func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonallyProcuredMovesParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	// #nosec User should always be populated by middleware
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
@@ -133,7 +141,8 @@ func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonally
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching move", zap.String("move_id", moveID.String()))
+
 	}
 
 	// The given move does belong to the current user.
@@ -142,7 +151,8 @@ func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonally
 	for i, ppm := range ppms {
 		ppmPayload, err := payloadForPPMModel(h.FileStorer(), ppm)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching payload for personally procured move")
+
 		}
 		ppmsPayload[i] = ppmPayload
 	}
@@ -151,7 +161,6 @@ func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonally
 }
 
 func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalmessages.PatchPersonallyProcuredMovePayload) {
-
 	if payload.Size != nil {
 		ppm.Size = payload.Size
 	}
@@ -228,6 +237,8 @@ type PatchPersonallyProcuredMoveHandler struct {
 
 // Handle is the handler
 func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyProcuredMoveParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	// #nosec UUID is pattern matched by swagger and will be ok
@@ -237,7 +248,7 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 
 	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching personally proucred move", zap.String("personally_procured_move_id", ppmID.String()))
 	}
 
 	if ppm.MoveID != moveID {
@@ -253,7 +264,7 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 		err = h.updateEstimates(ppm)
 		if err != nil {
 			h.Logger().Error("Unable to set calculated fields on PPM", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error updating PPM estimates")
 		}
 	}
 
@@ -264,7 +275,7 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 
 	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching payload for personally procured move")
 	}
 	return ppmop.NewPatchPersonallyProcuredMoveOK().WithPayload(ppmPayload)
 }
@@ -312,6 +323,9 @@ type SubmitPersonallyProcuredMoveHandler struct {
 
 // Handle Submits a PPM to change its status to SUBMITTED
 func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonallyProcuredMoveParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	// #nosec UUID is pattern matched by swagger and will be ok
@@ -320,7 +334,7 @@ func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonall
 	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
 
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching personally procured move", zap.String("personally_procured_move_id", ppmID.String()))
 	}
 
 	err = ppm.Submit()
@@ -333,7 +347,7 @@ func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonall
 	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
 
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching payload for personally procured move")
 	}
 
 	return ppmop.NewSubmitPersonallyProcuredMoveOK().WithPayload(ppmPayload)
@@ -435,6 +449,9 @@ type RequestPPMPaymentHandler struct {
 
 // Handle is the handler
 func (h RequestPPMPaymentHandler) Handle(params ppmop.RequestPPMPaymentParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	// #nosec UUID is pattern matched by swagger and will be ok
@@ -442,12 +459,12 @@ func (h RequestPPMPaymentHandler) Handle(params ppmop.RequestPPMPaymentParams) m
 
 	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching personally procured move", zap.String("personally_procured_move_id", ppmID.String()))
 	}
 
 	err = ppm.RequestPayment()
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error requesting personally procured move payment")
 	}
 
 	verrs, err := models.SavePersonallyProcuredMove(h.DB(), ppm)
@@ -457,7 +474,7 @@ func (h RequestPPMPaymentHandler) Handle(params ppmop.RequestPPMPaymentParams) m
 
 	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching payload for personally procured move")
 	}
 	return ppmop.NewRequestPPMPaymentOK().WithPayload(ppmPayload)
 
@@ -534,6 +551,9 @@ type RequestPPMExpenseSummaryHandler struct {
 
 // Handle is the handler
 func (h RequestPPMExpenseSummaryHandler) Handle(params ppmop.RequestPPMExpenseSummaryParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
@@ -541,7 +561,7 @@ func (h RequestPPMExpenseSummaryHandler) Handle(params ppmop.RequestPPMExpenseSu
 	// Fetch all approved expense documents for a PPM
 	moveDocsExpense, err := models.FetchApprovedMovingExpenseDocuments(h.DB(), session, ppmID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching approved expense documents for personally procured move", zap.String("personally_procured_move_id", ppmID.String()))
 	}
 	expenseSummaryPayload := buildExpenseSummaryPayload(moveDocsExpense)
 

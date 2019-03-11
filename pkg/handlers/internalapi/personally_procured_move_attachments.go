@@ -1,8 +1,11 @@
 package internalapi
 
 import (
+	"reflect"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	beeline "github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -20,6 +23,9 @@ type CreatePersonallyProcuredMoveAttachmentsHandler struct {
 
 // Handle is the handler
 func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.CreatePPMAttachmentsParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	// #nosec UUID is pattern matched by swagger and will be ok
@@ -27,12 +33,12 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 
 	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching personally procured move", zap.String("personally_procured_move_id", ppmID.String()))
 	}
 
 	err = h.DB().Load(ppm, "Move.Orders.UploadedOrders.Uploads")
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error loading uploads")
 	}
 
 	moveDocs, err := ppm.FetchMoveDocumentsForTypes(h.DB(), params.DocTypes)

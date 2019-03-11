@@ -1,7 +1,10 @@
 package internalapi
 
 import (
+	"reflect"
 	"time"
+
+	beeline "github.com/honeycombio/beeline-go"
 
 	"github.com/transcom/mymove/pkg/models"
 
@@ -23,6 +26,9 @@ type ShowPPMIncentiveHandler struct {
 
 // Handle calculates a PPM reimbursement range.
 func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	if !session.IsOfficeUser() {
@@ -37,12 +43,12 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 		time.Time(params.OriginalMoveDate),
 	)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching personally procured move discount")
 	}
 
 	distanceMiles, err := h.Planner().Zip5TransitDistance(params.OriginZip, params.DestinationZip)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching zip5 transit distance")
 	}
 
 	cost, err := engine.ComputePPM(unit.Pound(params.Weight),
@@ -56,7 +62,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 	)
 
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error computing personally procured move")
 	}
 
 	gcc := cost.GCC

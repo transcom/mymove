@@ -1,7 +1,10 @@
 package internalapi
 
 import (
+	"reflect"
 	"time"
+
+	beeline "github.com/honeycombio/beeline-go"
 
 	"github.com/transcom/mymove/pkg/models"
 
@@ -22,6 +25,9 @@ type ShowPPMSitEstimateHandler struct {
 // Handle calculates SIT charge and retrieves SIT discount rate.
 // It returns the discount rate applied to relevant SIT charge.
 func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	engine := rateengine.NewRateEngine(h.DB(), h.Logger())
 	sitZip3 := rateengine.Zip5ToZip3(params.DestinationZip)
 	cwtWeight := unit.Pound(params.WeightEstimate).ToCWT()
@@ -34,12 +40,12 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 		time.Time(params.OriginalMoveDate),
 	)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching personally procured move discount")
 	}
 	sitComputation, err := engine.SitCharge(cwtWeight, int(params.DaysInStorage), sitZip3, originalMoveDateTime, true)
 
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error computing sit charge")
 	}
 
 	// Swagger returns int64 when using the integer type
