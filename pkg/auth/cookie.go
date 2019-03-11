@@ -113,11 +113,12 @@ func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, noSessionTim
 
 	// New cookie
 	cookie := http.Cookie{
-		Name:    MaskedGorillaCSRFToken,
-		Value:   csrfToken,
-		Path:    "/",
-		Expires: expiry,
-		MaxAge:  maxAge,
+		Name:     MaskedGorillaCSRFToken,
+		Value:    csrfToken,
+		Path:     "/",
+		Expires:  expiry,
+		MaxAge:   maxAge,
+		HttpOnly: true,
 	}
 
 	http.SetCookie(w, &cookie)
@@ -135,16 +136,18 @@ func MaskedCSRFMiddleware(logger *zap.Logger, noSessionTimeout bool) func(next h
 }
 
 // WriteSessionCookie update the cookie for the session
-func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, noSessionTimeout bool, logger *zap.Logger) {
+func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, noSessionTimeout bool, logger *zap.Logger, useSecureCookie bool) {
 
 	// Delete the cookie
 	cookieName := fmt.Sprintf("%s_%s", string(session.ApplicationName), UserSessionCookieName)
 	cookie := http.Cookie{
-		Name:    cookieName,
-		Value:   "blank",
-		Path:    "/",
-		Expires: time.Unix(0, 0),
-		MaxAge:  -1,
+		Name:     cookieName,
+		Value:    "blank",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		MaxAge:   -1,
+		HttpOnly: true,
+		Secure:   useSecureCookie,
 	}
 
 	// unless we have a valid session
@@ -193,7 +196,7 @@ func ApplicationName(hostname, milHostname, officeHostname, tspHostname string) 
 }
 
 // SessionCookieMiddleware handle serializing and de-serializing the session between the user_session cookie and the request context
-func SessionCookieMiddleware(logger *zap.Logger, secret string, noSessionTimeout bool, milHostname, officeHostname, tspHostname string) func(next http.Handler) http.Handler {
+func SessionCookieMiddleware(logger *zap.Logger, secret string, noSessionTimeout bool, milHostname, officeHostname, tspHostname string, useSecureCookie bool) func(next http.Handler) http.Handler {
 	logger.Info("Creating session", zap.String("milHost", milHostname), zap.String("officeHost", officeHostname), zap.String("tspHost", tspHostname))
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
@@ -224,7 +227,7 @@ func SessionCookieMiddleware(logger *zap.Logger, secret string, noSessionTimeout
 			ctx = SetSessionInRequestContext(r.WithContext(ctx), &session)
 
 			// And update the cookie. May get over-ridden later
-			WriteSessionCookie(w, &session, secret, noSessionTimeout, logger)
+			WriteSessionCookie(w, &session, secret, noSessionTimeout, logger, useSecureCookie)
 
 			span.AddTraceField("auth.application_name", session.ApplicationName)
 			span.AddTraceField("auth.hostname", session.Hostname)
