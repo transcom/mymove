@@ -8,7 +8,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
+	beeline "github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -38,7 +38,6 @@ type CreateUploadHandler struct {
 
 // Handle creates a new Upload from a request payload
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
-
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
@@ -64,7 +63,8 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		// Fetch document to ensure user has access to it
 		document, docErr := models.FetchDocument(ctx, h.DB(), session, documentID)
 		if docErr != nil {
-			return handlers.ResponseForError(h.Logger(), docErr)
+			return h.RespondAndTraceError(ctx, err, "error fetching document", zap.String("document_id", documentID.String()))
+
 		}
 		docID = &document.ID
 	}
@@ -104,7 +104,6 @@ type DeleteUploadHandler struct {
 
 // Handle deletes an upload
 func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middleware.Responder {
-
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
@@ -113,12 +112,12 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 	uploadID, _ := uuid.FromString(params.UploadID.String())
 	upload, err := models.FetchUpload(ctx, h.DB(), session, uploadID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching upload", zap.String("upload_id", uploadID.String()))
 	}
 
 	uploader := uploaderpkg.NewUploader(h.DB(), h.Logger(), h.FileStorer())
 	if err = uploader.DeleteUpload(&upload); err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error deleting upload")
 	}
 
 	return uploadop.NewDeleteUploadNoContent()
@@ -131,7 +130,6 @@ type DeleteUploadsHandler struct {
 
 // Handle deletes uploads
 func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middleware.Responder {
-
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
@@ -143,11 +141,11 @@ func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middle
 		uuid, _ := uuid.FromString(uploadID.String())
 		upload, err := models.FetchUpload(ctx, h.DB(), session, uuid)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching upload", zap.String("upload_id", uploadID.String()))
 		}
 
 		if err = uploader.DeleteUpload(&upload); err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error deleting upload", zap.String("upload_id", uploadID.String()))
 		}
 	}
 

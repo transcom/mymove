@@ -1,9 +1,12 @@
 package publicapi
 
 import (
+	"reflect"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
+	beeline "github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -38,6 +41,9 @@ type GetTransportationServiceProviderHandler struct {
 
 // Handle getting the tsp for a shipment
 func (h GetTransportationServiceProviderHandler) Handle(params tspop.GetTransportationServiceProviderParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	var shipment *models.Shipment
 	var err error
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
@@ -53,19 +59,19 @@ func (h GetTransportationServiceProviderHandler) Handle(params tspop.GetTranspor
 
 		shipment, err = models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
 		if err != nil {
-			handlers.ResponseForError(h.Logger(), err)
+			h.RespondAndTraceError(ctx, err, "error fetching shipment by transportation service provider", zap.String("shipment_id", shipmentID.String()))
 			return tspop.NewGetTransportationServiceProviderBadRequest()
 		}
 	} else if session.IsOfficeUser() {
 		shipment, err = models.FetchShipment(h.DB(), session, shipmentID)
 		if err != nil {
-			handlers.ResponseForError(h.Logger(), err)
+			h.RespondAndTraceError(ctx, err, "error fetching shipm ent", zap.String("shipment_id", shipmentID.String()))
 			return tspop.NewGetTransportationServiceProviderBadRequest()
 		}
 	} else if session.IsServiceMember() {
 		shipment, err = models.FetchShipment(h.DB(), session, shipmentID)
 		if err != nil {
-			handlers.ResponseForError(h.Logger(), err)
+			h.RespondAndTraceError(ctx, err, "error fetching shipment", zap.String("shipment_id", shipmentID.String()))
 			if err == models.ErrFetchForbidden {
 				return tspop.NewGetTransportationServiceProviderForbidden()
 			}
@@ -77,12 +83,12 @@ func (h GetTransportationServiceProviderHandler) Handle(params tspop.GetTranspor
 
 	transportationServiceProviderID := shipment.CurrentTransportationServiceProviderID()
 	if transportationServiceProviderID == uuid.Nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching current transportation service provider")
 	}
 
 	transportationServiceProvider, err := models.FetchTransportationServiceProvider(h.DB(), transportationServiceProviderID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching tsp", zap.String("transportation_service_provider_id", transportationServiceProviderID.String()))
 	}
 
 	transportationServiceProviderPayload := payloadForTransportationServiceProviderModel(*transportationServiceProvider)

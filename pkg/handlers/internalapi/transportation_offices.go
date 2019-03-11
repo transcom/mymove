@@ -1,9 +1,13 @@
 package internalapi
 
 import (
+	"reflect"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
+	beeline "github.com/honeycombio/beeline-go"
+	"go.uber.org/zap"
 
 	transportationofficeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -38,10 +42,13 @@ type ShowDutyStationTransportationOfficeHandler struct {
 
 // Handle retrieves the transportation office in the system for a given duty station ID
 func (h ShowDutyStationTransportationOfficeHandler) Handle(params transportationofficeop.ShowDutyStationTransportationOfficeParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	dutyStationID, _ := uuid.FromString(params.DutyStationID.String())
 	transportationOffice, err := models.FetchDutyStationTransportationOffice(h.DB(), dutyStationID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching duty station", zap.String("duty_station_id", dutyStationID.String()))
 	}
 	transportationOfficePayload := payloadForTransportationOfficeModel(transportationOffice)
 

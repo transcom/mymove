@@ -1,10 +1,13 @@
 package internalapi
 
 import (
+	"reflect"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	beeline "github.com/honeycombio/beeline-go"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
@@ -31,13 +34,16 @@ type CreateSignedCertificationHandler struct {
 
 // Handle creates a new SignedCertification from a request payload
 func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCertificationParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// User should always be populated by middleware
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching move", zap.String("move_id", moveID.String()))
 	}
 
 	payload := params.CreateSignedCertificationPayload

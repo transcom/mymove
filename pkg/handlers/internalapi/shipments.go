@@ -1,12 +1,14 @@
 package internalapi
 
 import (
+	"reflect"
 	"time"
 
 	"github.com/facebookgo/clock"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
+	beeline "github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -139,6 +141,9 @@ type CreateShipmentHandler struct {
 
 // Handle is the handler
 func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
@@ -146,7 +151,7 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching move", zap.String("move_id", moveID.String()))
 	}
 
 	payload := params.Shipment
@@ -198,7 +203,7 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		Market:                       &market,
 	}
 	if err = updateShipmentDatesWithPayload(h, &newShipment, params.Shipment); err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error updating shipment dates")
 	}
 
 	verrs, err := models.SaveShipmentAndAddresses(h.DB(), &newShipment)
@@ -322,6 +327,9 @@ type PatchShipmentHandler struct {
 
 // Handle is the handler
 func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	// #nosec UUID is pattern matched by swagger and will be ok
@@ -329,12 +337,12 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 
 	shipment, err := models.FetchShipment(h.DB(), session, shipmentID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching shipment", zap.String("shipment_id", shipmentID.String()))
 	}
 
 	patchShipmentWithPayload(shipment, params.Shipment)
 	if err = updateShipmentDatesWithPayload(h, shipment, params.Shipment); err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error updating shipment dates")
 	}
 
 	// Premove survey info can only be edited by office users or TSPs
@@ -389,6 +397,9 @@ type GetShipmentHandler struct {
 
 // Handle is the handler
 func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	// #nosec UUID is pattern matched by swagger and will be ok
@@ -396,7 +407,7 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 
 	shipment, err := models.FetchShipment(h.DB(), session, shipmentID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching shipment", zap.String("shipment_id", shipmentID.String()))
 	}
 
 	shipmentPayload, err := payloadForShipmentModel(*shipment)
@@ -414,6 +425,9 @@ type ApproveHHGHandler struct {
 
 // Handle is the handler
 func (h ApproveHHGHandler) Handle(params shipmentop.ApproveHHGParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	if !session.IsOfficeUser() {
 		return shipmentop.NewApproveHHGForbidden()
@@ -424,12 +438,12 @@ func (h ApproveHHGHandler) Handle(params shipmentop.ApproveHHGParams) middleware
 
 	shipment, err := models.FetchShipment(h.DB(), session, shipmentID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching shipment", zap.String("shipment_id", shipmentID.String()))
 	}
 	err = shipment.Approve()
 	if err != nil {
 		h.Logger().Error("Attempted to approve HHG, got invalid transition", zap.Error(err), zap.String("shipment_status", string(shipment.Status)))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error approving shipment")
 	}
 	verrs, err := h.DB().ValidateAndUpdate(shipment)
 	if err != nil || verrs.HasAny() {
@@ -451,6 +465,9 @@ type CompleteHHGHandler struct {
 
 // Handle is the handler
 func (h CompleteHHGHandler) Handle(params shipmentop.CompleteHHGParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	if !session.IsOfficeUser() {
 		return shipmentop.NewCompleteHHGForbidden()
@@ -460,12 +477,12 @@ func (h CompleteHHGHandler) Handle(params shipmentop.CompleteHHGParams) middlewa
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 	shipment, err := models.FetchShipment(h.DB(), session, shipmentID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching shipment", zap.String("shipment_id", shipmentID.String()))
 	}
 	err = shipment.Complete()
 	if err != nil {
 		h.Logger().Error("Attempted to complete HHG, got invalid transition", zap.Error(err), zap.String("shipment_status", string(shipment.Status)))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error completing shipment")
 	}
 	verrs, err := h.DB().ValidateAndUpdate(shipment)
 	if err != nil || verrs.HasAny() {
@@ -487,6 +504,9 @@ type ShipmentInvoiceHandler struct {
 
 // Handle is the handler
 func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoiceParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	if !session.IsOfficeUser() {
 		return shipmentop.NewCreateAndSendHHGInvoiceForbidden()
@@ -496,7 +516,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 	shipment, err := invoiceop.FetchShipmentForInvoice{DB: h.DB()}.Call(shipmentID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching shipment for invoice", zap.String("shipment_id", shipmentID.String()))
 	}
 	if shipment.Status != models.ShipmentStatusDELIVERED && shipment.Status != models.ShipmentStatusCOMPLETED {
 		h.Logger().Error("Shipment status not in delivered state.")
@@ -507,7 +527,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 	//if invoices exists and at least one is either in process or has succeeded then return 409
 	existingInvoices, err := models.FetchInvoicesForShipment(h.DB(), shipmentID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching invoice for shipment", zap.String("shipment_id", shipmentID.String()))
 	}
 	for _, invoice := range existingInvoices {
 		//if an invoice has started, is in process or has been submitted successfully then throw err
@@ -519,7 +539,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 
 	approver, err := models.FetchOfficeUserByID(h.DB(), session.OfficeUserID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching office user", zap.String("office_user_id", session.OfficeUserID.String()))
 	}
 
 	// before processing the invoice, save it in an in process state
