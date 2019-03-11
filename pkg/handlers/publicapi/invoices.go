@@ -1,8 +1,11 @@
 package publicapi
 
 import (
+	"reflect"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	beeline "github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -45,6 +48,9 @@ type GetInvoiceHandler struct {
 
 // Handle returns a specified invoice
 func (h GetInvoiceHandler) Handle(params accessorialop.GetInvoiceParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	if session == nil {
@@ -57,16 +63,17 @@ func (h GetInvoiceHandler) Handle(params accessorialop.GetInvoiceParams) middlew
 	if err != nil {
 		if err == models.ErrFetchNotFound {
 			h.Logger().Warn("Invoice not found", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error invoice not found")
 		} else if err == models.ErrFetchForbidden {
 			h.Logger().Error("User not permitted to access invoice", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error user not permitted to access invoice")
 		} else if err == models.ErrUserUnauthorized {
 			h.Logger().Error("User not authorized to access invoice", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error user not authorized to access invoice")
 		}
+
 		h.Logger().Error("Error fetching invoice", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching invoice")
 	}
 
 	payload := payloadForInvoiceModel(invoice)

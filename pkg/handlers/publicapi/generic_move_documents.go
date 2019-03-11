@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
+	beeline "github.com/honeycombio/beeline-go"
 
 	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
@@ -72,7 +72,6 @@ type CreateGenericMoveDocumentHandler struct {
 
 // Handle is the handler
 func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericMoveDocumentParams) middleware.Responder {
-
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
@@ -84,19 +83,19 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 	if err != nil {
 		if err.Error() == "USER_UNAUTHORIZED" {
 			h.Logger().Error("DB Query", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error user unauthroized")
 		}
 		if err.Error() == "FETCH_FORBIDDEN" {
 			h.Logger().Error("DB Query", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error request forbidden")
 		}
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching shipment", zap.String("shipment_id", shipmentID.String()))
 	}
 
 	// Fetch move
 	move, err := models.FetchMove(h.DB(), session, shipment.Move.ID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching move", zap.String("move_id", shipment.Move.ID.String()))
 	}
 
 	payload := params.CreateGenericMoveDocumentPayload
@@ -112,7 +111,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		converted := uuid.Must(uuid.FromString(id.String()))
 		upload, err := models.FetchUpload(ctx, h.DB(), session, converted)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching upload", zap.String("upload_id", id.String()))
 		}
 		uploads = append(uploads, upload)
 	}
@@ -131,7 +130,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 
 	newPayload, err := payloadForGenericMoveDocumentModel(h.FileStorer(), *newMoveDocument, shipmentID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching payload for generic move document")
 	}
 	return movedocop.NewCreateGenericMoveDocumentOK().WithPayload(newPayload)
 }

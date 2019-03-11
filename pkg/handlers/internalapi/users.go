@@ -4,10 +4,9 @@ import (
 	"reflect"
 
 	"github.com/go-openapi/runtime/middleware"
+	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
-
-	"github.com/honeycombio/beeline-go"
 
 	"github.com/transcom/mymove/pkg/auth"
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
@@ -23,7 +22,6 @@ type ShowLoggedInUserHandler struct {
 
 // Handle returns the logged in user
 func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) middleware.Responder {
-
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
@@ -49,7 +47,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		// Fetch associations on duty station
 		dutyStation, err := models.FetchDutyStation(ctx, h.DB(), *serviceMember.DutyStationID)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching duty station", zap.String("duty_station_id", serviceMember.DutyStationID.String()))
 		}
 		serviceMember.DutyStation = dutyStation
 
@@ -58,11 +56,11 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		if err != nil {
 			if errors.Cause(err) != models.ErrFetchNotFound {
 				// The absence of an office shouldn't render the entire request a 404
-				return handlers.ResponseForError(h.Logger(), err)
+				return h.RespondAndTraceError(ctx, err, "error fetching duty station transportation office", zap.String("duty_station_id", serviceMember.DutyStationID.String()))
 			}
 			// We might not have Transportation Office data for a Duty Station, and that's ok
 			if errors.Cause(err) != models.ErrFetchNotFound {
-				return handlers.ResponseForError(h.Logger(), err)
+				return h.RespondAndTraceError(ctx, err, "error fetching duty station transportation office", zap.String("duty_station_id", serviceMember.DutyStationID.String()))
 			}
 		}
 		serviceMember.DutyStation.TransportationOffice = transportationOffice
@@ -72,7 +70,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	if len(serviceMember.Orders) > 0 {
 		orders, err := models.FetchOrderForUser(h.DB(), session, serviceMember.Orders[0].ID)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching order for user", zap.String("order_id", serviceMember.Orders[0].ID.String()))
 		}
 		serviceMember.Orders[0] = orders
 
@@ -80,11 +78,11 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		if err != nil {
 			if errors.Cause(err) != models.ErrFetchNotFound {
 				// The absence of an office shouldn't render the entire request a 404
-				return handlers.ResponseForError(h.Logger(), err)
+				return h.RespondAndTraceError(ctx, err, "error fetching duty station transportation office", zap.String("duty_station_id", serviceMember.DutyStationID.String()))
 			}
 			// We might not have Transportation Office data for a Duty Station, and that's ok
 			if errors.Cause(err) != models.ErrFetchNotFound {
-				return handlers.ResponseForError(h.Logger(), err)
+				return h.RespondAndTraceError(ctx, err, "error fetching duty station transportation office", zap.String("duty_station_id", serviceMember.DutyStationID.String()))
 			}
 		}
 		serviceMember.Orders[0].NewDutyStation.TransportationOffice = newDutyStationTransportationOffice
@@ -95,7 +93,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				// TODO: load advances on all ppms for the latest order's move
 				ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].ID)
 				if err != nil {
-					return handlers.ResponseForError(h.Logger(), err)
+					return h.RespondAndTraceError(ctx, err, "error fetching personally procured move", zap.String("personally_procured_move_id", serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].ID.String()))
 				}
 				serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].Advance = ppm.Advance
 			}
