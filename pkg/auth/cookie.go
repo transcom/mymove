@@ -118,7 +118,7 @@ func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, noSessionTim
 		Path:     "/",
 		Expires:  expiry,
 		MaxAge:   maxAge,
-		HttpOnly: true,
+		HttpOnly: false, // must be false to be read by POST/PUT/PATCH/DELETE requests
 		SameSite: http.SameSiteStrictMode,
 		Secure:   useSecureCookie,
 	}
