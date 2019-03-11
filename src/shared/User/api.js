@@ -14,7 +14,7 @@ export function LogoutUser() {
   const req = {
     url: logoutEndpoint,
     method: 'POST',
-    credentials: 'same-origin',
+    credentials: 'same-origin', // Passes through CSRF cookies
     requestInterceptor,
   };
   Swagger.http(req)
