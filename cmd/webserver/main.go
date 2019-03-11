@@ -801,6 +801,7 @@ func main() {
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, zapLogger)
 	handlerContext.SetCookieSecret(clientAuthSecretKey)
+	handlerContext.SetUseSecureCookie(useSecureCookie)
 	if noSessionTimeout {
 		handlerContext.SetNoSessionTimeout()
 	}
