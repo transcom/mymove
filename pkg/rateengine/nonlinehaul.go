@@ -43,7 +43,7 @@ func (c *NonLinehaulCostComputation) Scale(factor float64) {
 
 // ApplyDiscount will apply the linehaul and SIT discounts to the appropriate parts of the SIT computation.
 func (s SITComputation) ApplyDiscount(linehaulDiscount unit.DiscountRate, sitDiscount unit.DiscountRate) unit.Cents {
-	return sitDiscount.Apply(s.SITPart) + linehaulDiscount.Apply(s.LinehaulPart)
+	return sitDiscount.Apply(s.SITPart).AddCents(linehaulDiscount.Apply(s.LinehaulPart))
 }
 
 // MarshalLogObject allows SITComputation to be logged by Zap.
