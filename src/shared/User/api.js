@@ -14,6 +14,7 @@ export function LogoutUser() {
   const req = {
     url: logoutEndpoint,
     method: 'POST',
+    credentials: 'same-origin',
     requestInterceptor,
   };
   Swagger.http(req)
