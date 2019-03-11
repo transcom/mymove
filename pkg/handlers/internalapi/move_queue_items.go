@@ -1,8 +1,11 @@
 package internalapi
 
 import (
+	"reflect"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
+	beeline "github.com/honeycombio/beeline-go"
 
 	"go.uber.org/zap"
 
@@ -40,6 +43,9 @@ type ShowQueueHandler struct {
 
 // Handle retrieves a list of all MoveQueueItems in the system in the moves queue
 func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	if !session.IsOfficeUser() {
@@ -51,7 +57,7 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 	MoveQueueItems, err := models.GetMoveQueueItems(h.DB(), lifecycleState)
 	if err != nil {
 		h.Logger().Error("Loading Queue", zap.String("State", lifecycleState), zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching move queue items")
 	}
 
 	MoveQueueItemPayloads := make([]*internalmessages.MoveQueueItem, len(MoveQueueItems))

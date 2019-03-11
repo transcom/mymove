@@ -73,6 +73,9 @@ type ShowMoveHandler struct {
 
 // Handle retrieves a move in the system belonging to the logged in user given move ID
 func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	/* #nosec UUID is pattern matched by swagger which checks the format */
@@ -81,17 +84,19 @@ func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Respond
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching move", zap.String("move_id", moveID.String()))
 	}
 	// Fetch orders for authorized user
 	orders, err := models.FetchOrderForUser(h.DB(), session, move.OrdersID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching order for user", zap.String("order_id", move.OrdersID.String()))
+
 	}
 
 	movePayload, err := payloadForMoveModel(h.FileStorer(), orders, *move)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching move payload")
+
 	}
 	return moveop.NewShowMoveOK().WithPayload(movePayload)
 }
@@ -103,6 +108,9 @@ type PatchMoveHandler struct {
 
 // Handle ... patches a Move from a request payload
 func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
@@ -110,12 +118,13 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching move", zap.String("move_id", moveID.String()))
 	}
 	// Fetch orders for authorized user
 	orders, err := models.FetchOrderForUser(h.DB(), session, move.OrdersID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching order for user", zap.String("order_id", move.OrdersID.String()))
+
 	}
 	payload := params.PatchMovePayload
 	newSelectedMoveType := payload.SelectedMoveType
@@ -133,7 +142,8 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 	}
 	movePayload, err := payloadForMoveModel(h.FileStorer(), orders, *move)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching payload for move")
+
 	}
 	return moveop.NewPatchMoveCreated().WithPayload(movePayload)
 }
@@ -145,7 +155,6 @@ type SubmitMoveHandler struct {
 
 // Handle ... submit a move for approval
 func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
-
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
@@ -157,7 +166,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching move", zap.String("move_id", moveID.String()))
 	}
 
 	err = move.Submit()
@@ -166,7 +175,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		h.HoneyZapLogger().TraceError(ctx, "Failed to change move status to submit",
 			zap.String("move_id", moveID.String()),
 			zap.String("move_status", string(move.Status)))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error submitting move", zap.String("move_id", moveID.String()))
 	}
 
 	// Transaction to save move and dependencies
@@ -181,7 +190,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	)
 	if err != nil {
 		h.Logger().Error("problem sending email to user", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error sending email to user")
 	}
 
 	if len(move.Shipments) > 0 {
@@ -190,7 +199,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 
 	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching move payload")
 	}
 	return moveop.NewSubmitMoveForApprovalOK().WithPayload(movePayload)
 }
@@ -202,6 +211,9 @@ type ShowMoveDatesSummaryHandler struct {
 
 // Handle returns a summary of the dates in the move process.
 func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	moveDate := time.Time(params.MoveDate)
@@ -210,12 +222,12 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 	// Validate that this move belongs to the current user
 	_, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching move", zap.String("move_id", moveID.String()))
 	}
 
 	summary, err := calculateMoveDatesFromMove(h.DB(), h.Planner(), moveID, moveDate)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error calculating move dates from move", zap.String("move_id", moveID.String()))
 	}
 
 	moveDatesSummary := &internalmessages.MoveDatesSummary{
@@ -239,6 +251,9 @@ type ShowShipmentSummaryWorksheetHandler struct {
 
 // Handle returns a generated PDF
 func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSummaryWorksheetParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(h.DB(), h.Logger()))
@@ -257,7 +272,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	page1Data, page2Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
 
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error formatting shipment summary worksheet")
 	}
 
 	formFiller := paperwork.NewFormFiller()
