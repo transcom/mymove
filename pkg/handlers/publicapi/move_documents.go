@@ -1,8 +1,11 @@
 package publicapi
 
 import (
+	"reflect"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	beeline "github.com/honeycombio/beeline-go"
 
 	"go.uber.org/zap"
 
@@ -20,6 +23,9 @@ type IndexMoveDocumentsHandler struct {
 
 // Handle handles the request
 func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	// Verify that the TSP user is authorized to update move doc
@@ -28,31 +34,31 @@ func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsPar
 	if err != nil {
 		if err.Error() == "USER_UNAUTHORIZED" {
 			h.Logger().Error("DB Query", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error user unauthorized")
 		}
 		if err.Error() == "FETCH_FORBIDDEN" {
 			h.Logger().Error("DB Query", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetch forbiddewn")
 		}
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching shipment", zap.String("shipmnt_id", shipmentID.String()))
 	}
 
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, shipment.Move.ID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error user unauthorized")
 	}
 
 	moveDocs, err := move.FetchAllMoveDocumentsForMove(h.DB())
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching move")
 	}
 
 	moveDocumentsPayload := make(apimessages.MoveDocuments, len(moveDocs))
 	for i, doc := range moveDocs {
 		documentPayload, err := payloadForDocumentModel(h.FileStorer(), doc.Document)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching payload for document")
 		}
 		moveDocumentPayload := apimessages.MoveDocumentPayload{
 			ID:               handlers.FmtUUID(doc.ID),
@@ -64,7 +70,7 @@ func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsPar
 			Notes:            handlers.FmtStringPtr(doc.Notes),
 		}
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching payload for document")
 		}
 		moveDocumentsPayload[i] = &moveDocumentPayload
 	}
@@ -80,6 +86,9 @@ type UpdateMoveDocumentHandler struct {
 
 // Handle ... updates a move document from a request payload
 func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	// Verify that the TSP user is authorized to update move doc
@@ -88,20 +97,20 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	if err != nil {
 		if err.Error() == "USER_UNAUTHORIZED" {
 			h.Logger().Error("DB Query", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error user unauthorized")
 		}
 		if err.Error() == "FETCH_FORBIDDEN" {
 			h.Logger().Error("DB Query", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetch forbidden")
 		}
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching shipment", zap.String("shipment_id", shipmentID.String()))
 	}
 
 	// Fetch move document from move doc id
 	moveDocID, _ := uuid.FromString(params.MoveDocumentID.String())
 	moveDoc, err := models.FetchMoveDocument(h.DB(), session, moveDocID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching move document", zap.String("move_id_id", moveDocID.String()))
 	}
 	if moveDoc.ShipmentID == nil {
 		h.Logger().Error("Move document is not associated to a shipment.")
@@ -125,7 +134,7 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	if newStatus != moveDoc.Status {
 		err = moveDoc.AttemptTransition(newStatus)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error changing move doc status")
 		}
 	}
 
@@ -138,7 +147,7 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 
 	moveDocPayload, err := payloadForGenericMoveDocumentModel(h.FileStorer(), *moveDoc, shipmentID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching payload for generic move document")
 	}
 	return movedocop.NewUpdateMoveDocumentOK().WithPayload(moveDocPayload)
 }

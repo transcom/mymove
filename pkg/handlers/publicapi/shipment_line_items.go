@@ -2,9 +2,11 @@ package publicapi
 
 import (
 	"database/sql"
+	"reflect"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
@@ -139,6 +141,8 @@ func (h GetShipmentLineItemsHandler) recalculateShipmentLineItems(shipmentLineIt
 
 // Handle returns a specified shipment line item
 func (h GetShipmentLineItemsHandler) Handle(params accessorialop.GetShipmentLineItemsParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
@@ -149,7 +153,7 @@ func (h GetShipmentLineItemsHandler) Handle(params accessorialop.GetShipmentLine
 		_, _, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
 		if err != nil {
 			h.Logger().Error("Error fetching shipment for TSP user", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching shipment for TSP user", zap.String("shipment_id", shipmentID.String()))
 		}
 	} else if !session.IsOfficeUser() {
 		return accessorialop.NewGetShipmentLineItemsForbidden()
@@ -185,6 +189,9 @@ type CreateShipmentLineItemHandler struct {
 
 // Handle handles the request
 func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmentLineItemParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID := uuid.Must(uuid.FromString(params.ShipmentID.String()))
@@ -198,13 +205,13 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 		_, shipment, err = models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
 		if err != nil {
 			h.Logger().Error("Error fetching shipment for TSP user", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching shipment for TSP user", zap.String("shipment_id", shipmentID.String()))
 		}
 	} else if session.IsOfficeUser() {
 		shipment, err = models.FetchShipment(h.DB(), session, shipmentID)
 		if err != nil {
 			h.Logger().Error("Error fetching shipment for office user", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching shipment for office user", zap.String("shipment_id", shipmentID.String()))
 		}
 	} else {
 		return accessorialop.NewCreateShipmentLineItemForbidden()
@@ -213,7 +220,7 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 	tariff400ngItemID := uuid.Must(uuid.FromString(params.Payload.Tariff400ngItemID.String()))
 	tariff400ngItem, err := models.FetchTariff400ngItem(h.DB(), tariff400ngItemID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching tariff 400ng item", zap.String("tariff_400ng_item_id", tariff400ngItemID.String()))
 	}
 
 	if !tariff400ngItem.RequiresPreApproval {
@@ -285,6 +292,9 @@ type UpdateShipmentLineItemHandler struct {
 
 // Handle updates a specified shipment line item
 func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmentLineItemParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	shipmentLineItemID := uuid.Must(uuid.FromString(params.ShipmentLineItemID.String()))
 
@@ -301,13 +311,13 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 		_, _, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentLineItem.ShipmentID)
 		if err != nil {
 			h.Logger().Error("Error fetching shipment for TSP user", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching shipment for TSP user", zap.String("shipment_id", shipmentLineItem.ShipmentID.String()))
 		}
 	} else if session.IsOfficeUser() {
 		_, err := models.FetchShipment(h.DB(), session, shipmentLineItem.ShipmentID)
 		if err != nil {
 			h.Logger().Error("Error fetching shipment for office user", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching shipment for office user", zap.String("shipment_id", shipmentLineItem.ShipmentID.String()))
 		}
 	} else {
 		return accessorialop.NewUpdateShipmentLineItemForbidden()
@@ -373,6 +383,8 @@ type DeleteShipmentLineItemHandler struct {
 
 // Handle deletes a specified shipment line item
 func (h DeleteShipmentLineItemHandler) Handle(params accessorialop.DeleteShipmentLineItemParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
 
 	// Fetch shipment line item first
 	shipmentLineItemID := uuid.Must(uuid.FromString(params.ShipmentLineItemID.String()))
@@ -399,13 +411,13 @@ func (h DeleteShipmentLineItemHandler) Handle(params accessorialop.DeleteShipmen
 		_, _, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
 		if err != nil {
 			h.Logger().Error("Error fetching shipment for TSP user", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching shipment for TSP user", zap.String("shipment_id", shipmentID.String()))
 		}
 	} else if session.IsOfficeUser() {
 		_, err := models.FetchShipment(h.DB(), session, shipmentID)
 		if err != nil {
 			h.Logger().Error("Error fetching shipment for office user", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching shipment for office user", zap.String("shipment_id", shipmentID.String()))
 		}
 	} else {
 		return accessorialop.NewDeleteShipmentLineItemForbidden()
@@ -415,7 +427,7 @@ func (h DeleteShipmentLineItemHandler) Handle(params accessorialop.DeleteShipmen
 	err = h.DB().Destroy(&shipmentLineItem)
 	if err != nil {
 		h.Logger().Error("Error deleting shipment line item for shipment", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error deleting shipment shipment line item for shipment")
 	}
 
 	payload := payloadForShipmentLineItemModel(&shipmentLineItem)
@@ -429,6 +441,9 @@ type ApproveShipmentLineItemHandler struct {
 
 // Handle returns a specified shipment
 func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipmentLineItemParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	var shipment *models.Shipment
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
@@ -446,7 +461,7 @@ func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipm
 		shipment, err = models.FetchShipment(h.DB(), session, shipmentLineItem.ShipmentID)
 		if err != nil {
 			h.Logger().Error("Error fetching shipment for office user", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching shipment for office user", zap.String("shipment_id", shipmentLineItem.ShipmentID.String()))
 		}
 	} else {
 		h.Logger().Error("Error does not require pre-approval for shipment")
@@ -459,7 +474,7 @@ func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipm
 		engine := rateengine.NewRateEngine(h.DB(), h.Logger())
 		err = engine.PricePreapprovalRequest(&shipmentLineItem)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching price for preapproval request")
 		}
 	}
 

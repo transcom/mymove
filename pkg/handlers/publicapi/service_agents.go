@@ -1,9 +1,12 @@
 package publicapi
 
 import (
+	"reflect"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
+	beeline "github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -38,6 +41,9 @@ type IndexServiceAgentsHandler struct {
 
 // Handle returns a list of service agents - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h IndexServiceAgentsHandler) Handle(params serviceagentop.IndexServiceAgentsParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	var serviceAgents []models.ServiceAgent
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
@@ -59,7 +65,7 @@ func (h IndexServiceAgentsHandler) Handle(params serviceagentop.IndexServiceAgen
 
 		serviceAgents, err = models.FetchServiceAgentsByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching service agents", zap.String("shipment_id", shipment.ID.String()))
 		}
 	} else if session.IsOfficeUser() {
 		shipment, err := models.FetchShipment(h.DB(), session, shipmentID)
@@ -69,7 +75,7 @@ func (h IndexServiceAgentsHandler) Handle(params serviceagentop.IndexServiceAgen
 		}
 		serviceAgents, err = models.FetchServiceAgentsOnShipment(h.DB(), shipment.ID)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetching service agents", zap.String("shipment_id", shipment.ID.String()))
 		}
 	} else {
 		return serviceagentop.NewIndexServiceAgentsForbidden()

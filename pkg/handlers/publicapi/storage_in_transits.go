@@ -1,11 +1,13 @@
 package publicapi
 
 import (
+	"reflect"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+	beeline "github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -118,6 +120,9 @@ type IndexStorageInTransitHandler struct {
 
 // Handle returns a list of Storage In Transit entries
 func (h IndexStorageInTransitHandler) Handle(params sitop.IndexStorageInTransitsParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
@@ -125,14 +130,14 @@ func (h IndexStorageInTransitHandler) Handle(params sitop.IndexStorageInTransits
 
 	if isUserAuthorized == false {
 		h.Logger().Error("Unauthorized User", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error authorizing SIT request", zap.String("shipment_id", shipmentID.String()))
 	}
 
 	storageInTransits, err := models.FetchStorageInTransitsOnShipment(h.DB(), shipmentID)
 
 	if err != nil {
 		h.Logger().Error("DB Query", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching SIT", zap.String("shipment_id", shipmentID.String()))
 	}
 
 	storageInTransitsList := make(apimessages.StorageInTransits, len(storageInTransits))
@@ -151,6 +156,9 @@ type CreateStorageInTransitHandler struct {
 
 // Handle handles the handling
 func (h CreateStorageInTransitHandler) Handle(params sitop.CreateStorageInTransitParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	payload := params.StorageInTransit
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
@@ -159,19 +167,19 @@ func (h CreateStorageInTransitHandler) Handle(params sitop.CreateStorageInTransi
 
 	if isUserAuthorized == false {
 		h.Logger().Error("User is unauthorized", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error authorizing SIT request", zap.String("shipment_id", shipmentID.String()))
 	}
 
 	if err != nil {
 		h.Logger().Error("UUID Parsing", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error parsing UUID", zap.String("shipment_id", params.ShipmentID.String()))
 	}
 
 	newStorageInTransit, err := processStorageInTransitInput(h, shipmentID, *payload)
 
 	if err != nil {
 		h.Logger().Error("DB Query", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error processing SIT input", zap.String("shipment_id", shipmentID.String()))
 	}
 
 	newStorageInTransit.Status = models.StorageInTransitStatusREQUESTED
@@ -180,7 +188,7 @@ func (h CreateStorageInTransitHandler) Handle(params sitop.CreateStorageInTransi
 
 	if err != nil {
 		h.Logger().Error("DB Query", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error validating and creating SIT")
 	}
 
 	storageInTransitPayload := payloadForStorageInTransitModel(&newStorageInTransit)
@@ -196,6 +204,9 @@ type PatchStorageInTransitHandler struct {
 
 // Handle handles the handling
 func (h PatchStorageInTransitHandler) Handle(params sitop.PatchStorageInTransitParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	payload := params.StorageInTransit
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
 
@@ -204,12 +215,12 @@ func (h PatchStorageInTransitHandler) Handle(params sitop.PatchStorageInTransitP
 
 	if isUserAuthorized == false {
 		h.Logger().Error("User is unauthorized", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error authorizing SIT request", zap.String("shipment_id", shipmentID.String()))
 	}
 
 	if err != nil {
 		h.Logger().Error("UUID Parsing", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error parsing UUID", zap.String("shipment_id", params.ShipmentID.String()))
 	}
 
 	newStorageInTransit, err := processStorageInTransitInput(h, shipmentID, *payload)
@@ -218,7 +229,7 @@ func (h PatchStorageInTransitHandler) Handle(params sitop.PatchStorageInTransitP
 
 	if err != nil {
 		h.Logger().Error("DB Query", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error validating and saving SIT")
 	}
 
 	storageInTransitPayload := payloadForStorageInTransitModel(&newStorageInTransit)
@@ -234,6 +245,9 @@ type GetStorageInTransitHandler struct {
 
 // Handle handles the handling
 func (h GetStorageInTransitHandler) Handle(params sitop.GetStorageInTransitParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
 
@@ -242,19 +256,19 @@ func (h GetStorageInTransitHandler) Handle(params sitop.GetStorageInTransitParam
 
 	if isUserAuthorized == false {
 		h.Logger().Error("User is unauthorized", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error authorizing SIT request", zap.String("shipment_id", shipmentID.String()))
 	}
 
 	if err != nil {
 		h.Logger().Error("UUID Parsing", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error parsing UUID", zap.String("shipment_id", params.ShipmentID.String()))
 	}
 
 	storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
 
 	if err != nil {
 		h.Logger().Error("DB Query", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching SIT", zap.String("storage_in_transit_id", storageInTransitID.String()))
 	}
 
 	storageInTransitPayload := payloadForStorageInTransitModel(storageInTransit)
@@ -269,6 +283,9 @@ type DeleteStorageInTransitHandler struct {
 
 // Handle handles the handling
 func (h DeleteStorageInTransitHandler) Handle(params sitop.DeleteStorageInTransitParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
 
@@ -277,19 +294,19 @@ func (h DeleteStorageInTransitHandler) Handle(params sitop.DeleteStorageInTransi
 
 	if isUserAuthorized == false {
 		h.Logger().Error("User is unauthorized", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error authorizing SIT request", zap.String("shipment_id", shipmentID.String()))
 	}
 
 	if err != nil {
 		h.Logger().Error("UUID Parsing", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error parsing UUID", zap.String("shipment_id", params.ShipmentID.String()))
 	}
 
 	err = models.DeleteStorageInTransit(h.DB(), storageInTransitID)
 
 	if err != nil {
 		h.Logger().Error("DB Query", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error deleting SIT", zap.String("storage_in_transit_id", storageInTransitID.String()))
 	}
 
 	return sitop.NewDeleteStorageInTransitOK()

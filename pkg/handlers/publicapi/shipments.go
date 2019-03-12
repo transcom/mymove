@@ -3,8 +3,10 @@ package publicapi
 import (
 	"fmt"
 	"net/http"
+	"reflect"
 	"time"
 
+	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -276,6 +278,9 @@ type TransportShipmentHandler struct {
 
 // Handle updates the shipment with pack and pickup dates and weights and puts it in-transit - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
@@ -299,14 +304,14 @@ func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentPara
 
 	err = shipment.Pack(actualPackDate)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error packing shipment", zap.String("shipment_id", shipmentID.String()))
 	}
 
 	actualPickupDate := (time.Time)(*params.Payload.ActualPickupDate)
 
 	err = shipment.Transport(actualPickupDate)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error transporting shipment", zap.String("shipment_id", shipmentID.String()))
 	}
 
 	shipment.NetWeight = handlers.PoundPtrFromInt64Ptr(params.Payload.NetWeight)
@@ -610,6 +615,9 @@ type CreateGovBillOfLadingHandler struct {
 
 // Handle generates the GBL PDF & uploads it as a document associated to a move doc, shipment and move
 func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLadingParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	// Verify that the TSP user is authorized to update move doc
@@ -618,13 +626,13 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	if err != nil {
 		if err.Error() == "USER_UNAUTHORIZED" {
 			h.Logger().Error("DB Query", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error user unauthorized")
 		}
 		if err.Error() == "FETCH_FORBIDDEN" {
 			h.Logger().Error("DB Query", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			return h.RespondAndTraceError(ctx, err, "error fetch forbidden")
 		}
-		return handlers.ResponseForError(h.Logger(), err)
+		return h.RespondAndTraceError(ctx, err, "error fetching shipment", zap.String("shipment_id", shipmentID.String()))
 	}
 	// Don't allow GBL generation for shipments that already have a GBL move document
 	extantGBLS, _ := models.FetchMoveDocumentsByTypeForShipment(h.DB(), session, models.MoveDocumentTypeGOVBILLOFLADING, shipmentID)
@@ -635,7 +643,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	// Don't allow GBL generation for incomplete orders
 	orders, ordersErr := models.FetchOrder(h.DB(), shipment.Move.OrdersID)
 	if ordersErr != nil {
-		return handlers.ResponseForError(h.Logger(), ordersErr)
+		return h.RespondAndTraceError(ctx, err, "error fetching order", zap.String("order_id", shipment.Move.OrdersID.String()))
 	}
 	if orders.IsCompleteForGBL() != true {
 		return handlers.ResponseForCustomErrors(h.Logger(), fmt.Errorf("the move is missing some information from the JPPSO. Please contact the JPPSO"), http.StatusExpectationFailed)
