@@ -81,11 +81,11 @@ img._fix-ie-11-height {
   padding: 0 0 1rem 0;
 }
 
-.align-right {
-  text-align: right !important;
-}
-
-.cancel-link {
+.basic-panel .cancel-link {
   padding: 1em 1em 1em 0;
   cursor: pointer;
+}
+
+.align-right {
+  text-align: right !important;
 }
