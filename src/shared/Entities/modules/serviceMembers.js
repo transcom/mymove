@@ -50,24 +50,15 @@ export function selectServiceMemberForOrders(state, ordersId) {
 }
 
 export function selectServiceMemberForMove(state, moveId) {
-  console.log('function selectServiceMemberForMove \n\n');
   const move = get(state, `entities.moves.${moveId}`);
   if (!move) {
     return {};
   }
-
   const serviceMemberId = move.service_member_id;
-  console.log('function selectServiceMemberForMove\n\n');
-  console.log('serviceMemberId ' + serviceMemberId);
-  console.log('\n\n');
-
   const serviceMember = selectServiceMember(state, serviceMemberId);
-  console.log(serviceMember);
   if (!serviceMember) {
     return {};
   }
-  console.log('END -- function selectServiceMemberForMove \n\n');
-
   return serviceMember;
 }
 

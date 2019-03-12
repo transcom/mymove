@@ -53,7 +53,6 @@ import {
 } from 'shared/Entities/modules/shipments';
 import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
-import { selectStorageInTransits } from 'shared/Entities/modules/storageInTransits';
 
 import { showBanner, removeBanner } from './ducks';
 import {
@@ -63,7 +62,6 @@ import {
   selectMoveStatus,
   approveBasics,
   cancelMove,
-  calculateEntitlementsForMove,
 } from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
 import { getMoveDocumentsForMove, selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
@@ -114,17 +112,11 @@ const HHGTabContent = props => {
     serviceAgents,
     shipment,
     updatePublicShipment,
-    storageInTransits,
     showSitPanel,
-    serviceMemberEntitlement,
   } = props;
   if (shipment) {
     shipmentStatus = shipment.status;
     shipmentId = shipment.id;
-  }
-  let storageInTransitEntitlement = 0;
-  if (serviceMemberEntitlement) {
-    storageInTransitEntitlement = serviceMemberEntitlement.storage_in_transit;
   }
   return (
     <div className="office-tab">
@@ -140,14 +132,7 @@ const HHGTabContent = props => {
         transportationServiceProviderId={shipment.transportation_service_provider_id}
       />
       <PreApprovalPanel shipmentId={shipment.id} />
-      {showSitPanel && (
-        <StorageInTransitPanel
-          shipmentId={shipmentId}
-          moveId={moveId}
-          storageInTransitEntitlement={storageInTransitEntitlement}
-          storageInTransits={storageInTransits}
-        />
-      )}
+      {showSitPanel && <StorageInTransitPanel shipmentId={shipmentId} moveId={moveId} />}
       <InvoicePanel
         shipmentId={shipment.id}
         shipmentStatus={shipmentStatus}
@@ -271,12 +256,7 @@ class MoveInfo extends Component {
       shipmentStatus,
       serviceMember,
       upload,
-      serviceMemberEntitlement,
     } = this.props;
-    console.log('MoveInfo render \n\n');
-    console.log('render(');
-    console.log(serviceMemberEntitlement.storage_in_transit);
-    console.log(');');
     const isPPM = move.selected_move_type === 'PPM';
     const isHHG = move.selected_move_type === 'HHG';
     const isHHGPPM = move.selected_move_type === 'HHG_PPM';
@@ -301,10 +281,6 @@ class MoveInfo extends Component {
       return <Redirect to="/" />;
     }
 
-    let storageInTransitEntitlement = 0;
-    if (serviceMemberEntitlement) {
-      storageInTransitEntitlement = serviceMemberEntitlement.storage_in_transit;
-    }
     if (!this.props.loadDependenciesHasSuccess && !this.props.loadDependenciesHasError) return <LoadingPlaceholder />;
     if (this.props.loadDependenciesHasError)
       return (
@@ -403,7 +379,6 @@ class MoveInfo extends Component {
                       shipmentStatus={this.props.shipmentStatus}
                       updatePublicShipment={this.props.updatePublicShipment}
                       showSitPanel={this.props.context.flags.sitPanel}
-                      storageInTransitEntitlement={storageInTransitEntitlement}
                     />
                   )}
                 </PrivateRoute>
@@ -577,8 +552,6 @@ const mapStateToProps = (state, ownProps) => {
     swaggerError: get(state, 'swagger.hasErrored'),
     tariff400ngItems: selectTariff400ngItems(state),
     upload: get(orders, 'uploaded_orders.uploads.0', {}),
-    serviceMemberEntitlement: calculateEntitlementsForMove(state, moveId) || {},
-    storageInTransits: selectStorageInTransits(state, shipmentId),
   };
 };
 

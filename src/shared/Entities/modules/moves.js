@@ -47,7 +47,6 @@ export function cancelMove(moveId, cancelReason, label = cancelMoveLabel) {
 }
 
 export function calculateEntitlementsForMove(state, moveId) {
-  console.log('function calculateEntitlementsForMove  \n\n');
   const orders = selectOrdersForMove(state, moveId);
   const hasDependents = orders.has_dependents;
   const spouseHasProGear = orders.spouse_has_pro_gear;
@@ -56,21 +55,6 @@ export function calculateEntitlementsForMove(state, moveId) {
   if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
     return null;
   }
-  console.log('rank ' + rank);
-  console.log('\n');
-  console.log('orders\n');
-  console.log(orders);
-  console.log('\n\n');
-  console.log('serviceMember\n');
-  console.log(serviceMember);
-  console.log('\n\n');
-  console.log(getEntitlements(rank, hasDependents, spouseHasProGear));
-
-  const entitlement = getEntitlements(rank, hasDependents, spouseHasProGear);
-  console.log('entitlement\n\n');
-  console.log(entitlement);
-  console.log('END -- function calculateEntitlementsForMove\n\n\n');
-
   return getEntitlements(rank, hasDependents, spouseHasProGear);
 }
 
