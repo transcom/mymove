@@ -148,7 +148,6 @@ func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, 
 		Path:     "/",
 		Expires:  time.Unix(0, 0),
 		MaxAge:   -1,
-		HttpOnly: true,
 		SameSite: http.SameSiteStrictMode,
 		Secure:   useSecureCookie,
 	}
