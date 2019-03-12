@@ -105,7 +105,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	suite.Require().NotNil(ssd.ServiceMember.Rank)
 	totalEntitlement, err := models.GetEntitlement(*ssd.ServiceMember.Rank, ssd.Order.HasDependents, ssd.Order.SpouseHasProGear)
 	suite.Require().Nil(err)
-	suite.Equal(totalEntitlement, ssd.TotalWeightAllotment)
+	suite.Equal(unit.Pound(totalEntitlement), ssd.TotalWeightAllotment)
 	suite.Require().Len(ssd.MovingExpenseDocuments, 2)
 	suite.NotNil(ssd.MovingExpenseDocuments[0].ID)
 	suite.NotNil(ssd.MovingExpenseDocuments[1].ID)
@@ -199,6 +199,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		Order:                   order,
 		CurrentDutyStation:      yuma,
 		NewDutyStation:          fortGordon,
+		PPMRemainingEntitlement: 3000,
 		WeightAllotment:         wtgEntitlements,
 		TotalWeightAllotment:    17500,
 		Shipments:               shipments,
@@ -248,7 +249,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("$530.00", sswPage1.MaxObligationSIT)
 	suite.Equal("$3,600.00", sswPage1.MaxObligationGCCMaxAdvance)
 
-	suite.Equal("4,000", sswPage1.ActualWeight)
+	suite.Equal("3,000", sswPage1.PPMRemainingEntitlement)
 	suite.Equal("$5,000.00", sswPage1.ActualObligationGCC100)
 	suite.Equal("$4,750.00", sswPage1.ActualObligationGCC95)
 	suite.Equal("$300.00", sswPage1.ActualObligationSIT)
@@ -438,22 +439,6 @@ func (suite *ModelSuite) TestFormatCurrentPPMStatus() {
 	suite.Equal("Completed", models.FormatCurrentPPMStatus(completed))
 }
 
-func (suite *ModelSuite) TestFormatActualObligationsWeight() {
-	suite.Equal("4,000", models.FormatActualObligationsWeight(7000,
-		[]models.PersonallyProcuredMove{
-			{NetWeight: models.Int64Pointer(4000)},
-		}))
-	suite.Equal("5,000", models.FormatActualObligationsWeight(5000,
-		[]models.PersonallyProcuredMove{
-			{NetWeight: models.Int64Pointer(10000)},
-		}))
-	suite.Equal("", models.FormatActualObligationsWeight(5000,
-		[]models.PersonallyProcuredMove{
-			{NetWeight: nil},
-		}))
-
-}
-
 func (suite *ModelSuite) TestFormatRank() {
 	e9 := models.ServiceMemberRankE9
 	multipleRanks := models.ServiceMemberRankO1ACADEMYGRADUATE
@@ -549,4 +534,56 @@ func (suite *ModelSuite) TestFormatPPMWeight() {
 
 	suite.Equal("1,000 lbs - FINAL", models.FormatPPMWeight(ppm))
 	suite.Equal("", models.FormatPPMWeight(noWtg))
+}
+
+func (suite *ModelSuite) TestCalculatePPMEntitlementNoHHGPPMLessThanMaxEntitlement() {
+	ppmWeight := int64(900)
+	totalEntitlement := unit.Pound(1000)
+	move := models.Move{
+		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
+	}
+
+	ppmRemainingEntitlement := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
+
+	suite.Equal(unit.Pound(ppmWeight), ppmRemainingEntitlement)
+}
+
+func (suite *ModelSuite) TestCalculatePPMEntitlementNoHHGPPMGreaterThanMaxEntitlement() {
+	ppmWeight := int64(1100)
+	totalEntitlement := unit.Pound(1000)
+	move := models.Move{
+		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
+	}
+
+	ppmRemainingEntitlement := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
+
+	suite.Equal(totalEntitlement, ppmRemainingEntitlement)
+}
+
+func (suite *ModelSuite) TestCalculatePPMEntitlementPPMGreaterThanRemainingEntitlement() {
+	ppmWeight := int64(1100)
+	totalEntitlement := unit.Pound(1000)
+	hhg := unit.Pound(100)
+	move := models.Move{
+		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
+		Shipments:               models.Shipments{models.Shipment{NetWeight: &hhg}},
+	}
+
+	ppmRemainingEntitlement := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
+
+	suite.Equal(totalEntitlement-hhg, ppmRemainingEntitlement)
+}
+
+func (suite *ModelSuite) TestCalculatePPMEntitlementPPMLessThanRemainingEntitlement() {
+	ppmWeight := int64(500)
+	totalEntitlement := unit.Pound(1000)
+	hhg := unit.Pound(100)
+	move := models.Move{
+		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
+		Shipments:               models.Shipments{models.Shipment{NetWeight: &hhg}},
+	}
+
+	ppmRemainingEntitlement := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
+
+	suite.Equal(unit.Pound(ppmWeight), ppmRemainingEntitlement)
 }
