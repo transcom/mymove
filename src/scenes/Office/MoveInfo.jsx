@@ -391,7 +391,7 @@ class MoveInfo extends Component {
               <div>
                 <ToolTip
                   disabled={ordersComplete}
-                  textStyle={'tooltiptext-large'}
+                  textStyle="tooltiptext-large"
                   toolTipText={
                     'Some information about the move is missing or contains errors. Please fix these problems before approving.'
                   }

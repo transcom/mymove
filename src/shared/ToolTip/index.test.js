@@ -24,6 +24,7 @@ describe('ToolTip tests', () => {
       const tooltipText = enabledToolTip.find('.tooltiptext');
 
       expect(tooltipText.exists()).toBe(true);
+      expect(tooltipText.text()).toBe(toolTipProps.toolTipText);
     });
 
     it('does not render when toolTipText is null', () => {
