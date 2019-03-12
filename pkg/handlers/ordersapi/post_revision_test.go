@@ -22,6 +22,7 @@ func (suite *HandlerSuite) TestPostRevisionNew() {
 	}
 	req = suite.AuthenticateClientCertRequest(req, &clientCert)
 
+	hasDependents := true
 	rev := ordersmessages.Revision{
 		SeqNum: 0,
 		Member: &ordersmessages.Member{
@@ -36,7 +37,7 @@ func (suite *HandlerSuite) TestPostRevisionNew() {
 		TdyEnRoute:    false,
 		TourType:      ordersmessages.TourTypeAccompanied,
 		OrdersType:    ordersmessages.OrdersTypeSeparation,
-		HasDependents: true,
+		HasDependents: &hasDependents,
 		LosingUnit: &ordersmessages.Unit{
 			Uic:        handlers.FmtString("FFFS00"),
 			Name:       handlers.FmtString("SPC721 COMMUNICATIONS SQ"),
@@ -87,7 +88,7 @@ func (suite *HandlerSuite) TestPostRevisionNew() {
 	suite.Equal(string(rev.Status), string(storedRev.Status))
 	suite.Equal(string(rev.TourType), string(storedRev.TourType))
 	suite.Equal(string(rev.OrdersType), string(storedRev.OrdersType))
-	suite.Equal(rev.HasDependents, storedRev.HasDependents)
+	suite.Equal(*rev.HasDependents, storedRev.HasDependents)
 	suite.Equal(rev.NoCostMove, storedRev.NoCostMove)
 	suite.Equal(rev.LosingUnit.Uic, storedRev.LosingUIC)
 	suite.Equal(rev.LosingUnit.Name, storedRev.LosingUnitName)
@@ -107,6 +108,7 @@ func (suite *HandlerSuite) TestPostRevisionNewAmendment() {
 	}
 	req = suite.AuthenticateClientCertRequest(req, &clientCert)
 
+	hasDependents := true
 	rev := ordersmessages.Revision{
 		SeqNum: 1,
 		Member: &ordersmessages.Member{
@@ -121,7 +123,7 @@ func (suite *HandlerSuite) TestPostRevisionNewAmendment() {
 		TdyEnRoute:    false,
 		TourType:      ordersmessages.TourTypeAccompanied,
 		OrdersType:    ordersmessages.OrdersTypeSeparation,
-		HasDependents: true,
+		HasDependents: &hasDependents,
 		LosingUnit: &ordersmessages.Unit{
 			Uic:        handlers.FmtString("FFFS00"),
 			Name:       handlers.FmtString("SPC721 COMMUNICATIONS SQ"),
@@ -172,7 +174,7 @@ func (suite *HandlerSuite) TestPostRevisionNewAmendment() {
 	suite.Equal(string(rev.Status), string(storedRev.Status))
 	suite.Equal(string(rev.TourType), string(storedRev.TourType))
 	suite.Equal(string(rev.OrdersType), string(storedRev.OrdersType))
-	suite.Equal(rev.HasDependents, storedRev.HasDependents)
+	suite.Equal(*rev.HasDependents, storedRev.HasDependents)
 	suite.Equal(rev.NoCostMove, storedRev.NoCostMove)
 	suite.Equal(rev.LosingUnit.Uic, storedRev.LosingUIC)
 	suite.Equal(rev.LosingUnit.Name, storedRev.LosingUnitName)
