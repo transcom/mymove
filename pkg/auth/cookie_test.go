@@ -225,7 +225,7 @@ func (suite *authSuite) TestMaskedCSRFMiddleware() {
 	}
 	req.AddCookie(&cookie)
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := MaskedCSRFMiddleware(suite.logger, false)(handler)
+	middleware := MaskedCSRFMiddleware(suite.logger, false, false)(handler)
 
 	middleware.ServeHTTP(rr, req)
 
