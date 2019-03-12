@@ -743,7 +743,6 @@ func main() {
 	v.AutomaticEnv()
 
 	env := v.GetString("env")
-	isDevOrTest := env == "development" || env == "test"
 
 	zapLogger, err := logging.Config(env, v.GetBool("debug-logging"))
 	if err != nil {
@@ -758,6 +757,11 @@ func main() {
 	err = checkConfig(v)
 	if err != nil {
 		logger.Fatal("invalid configuration", zap.Error(err))
+	}
+
+	isDevOrTest := env == "development" || env == "test"
+	if isDevOrTest {
+		logger.Info(fmt.Sprintf("Starting in %s mode, which enables additional features", env))
 	}
 
 	// Honeycomb
@@ -1163,7 +1167,7 @@ func main() {
 	root.Handle(pat.New("/auth/*"), authMux)
 	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext})
 	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
-	authMux.Handle(pat.Get("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout))
+	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout))
 
 	if isDevOrTest {
 		logger.Info("Enabling devlocal auth")
