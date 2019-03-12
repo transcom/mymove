@@ -181,6 +181,8 @@ function mapStateToProps(state) {
     filteredLocations: selectLocationFromTariff400ngItem(state, selector(state, 'tariff400ng_item')),
     selectedLocation: selector(state, 'location'),
     tariff400ngItem: selector(state, 'tariff400ng_item'),
+    estimateAmount: get(state, 'form.preapproval_request_form.values.estimate_amount_cents'),
+    actualAmount: get(state, 'form.preapproval_request_form.values.actual_amount_cents'),
   };
 }
 
