@@ -97,9 +97,8 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 			OriginZip5:      pickupPostalCode,
 			DestinationZip5: destinationPostalCode,
 			Miles:           miles,
-			Date:            origMoveDate,
+			Date:            actualDate,
 			DaysInSIT:       0,
-			SitDiscount:     0,
 		}
 
 		_, err := ppmComputer.ComputeObligations(params, planner, MaxObligation)
@@ -117,7 +116,6 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 			Date:            actualDate,
 			Miles:           miles,
 			DaysInSIT:       0,
-			SitDiscount:     0,
 		}
 
 		_, err := ppmComputer.ComputeObligations(params, planner, ActualObligation)
