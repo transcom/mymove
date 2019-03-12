@@ -39,7 +39,6 @@ __snapshots__
 /bin/make-office-user
 /bin/make-tsp-user
 /bin/paperwork
-/bin/rateengine
 /bin/save-fuel-price-data
 /bin/send-to-gex
 /bin/soda

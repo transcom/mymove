@@ -136,7 +136,7 @@ func (obligation Obligation) GCC95() float64 {
 	return obligation.Gcc.MultiplyFloat64(.95).ToDollarFloat()
 }
 
-// FormatMaxSIT formats the SITMax into a readable dollar format for the shipment summary worksheet
+// FormatMaxSIT formats the SITMax into a dollar float for the shipment summary worksheet
 func (obligation Obligation) FormatMaxSIT() float64 {
 	return obligation.SITMax.ToDollarFloat()
 }
