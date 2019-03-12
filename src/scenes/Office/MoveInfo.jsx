@@ -19,8 +19,6 @@ import PaymentsPanel from './Ppm/PaymentsPanel';
 import DatesAndLocationPanel from './Ppm/DatesAndLocationsPanel';
 import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StoragePanel from './Ppm/StoragePanel';
-import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
-import IncentiveCalculator from './Ppm/IncentiveCalculator';
 import ExpensesPanel from './Ppm/ExpensesPanel';
 import NetWeightPanel from './Ppm/NetWeightPanel';
 import Dates from 'shared/ShipmentDates';
@@ -91,8 +89,6 @@ const PPMTabContent = props => {
     <div className="office-tab">
       <PaymentsPanel title="Payments" moveId={props.moveId} />
       <ExpensesPanel title="Expenses" moveId={props.moveId} />
-      <IncentiveCalculator moveId={props.moveId} />
-      <StorageReimbursementCalculator moveId={props.moveId} />
       <StoragePanel title="Storage" moveId={props.moveId} />
       <DatesAndLocationPanel title="Dates & Locations" moveId={props.moveId} />
       <NetWeightPanel title="Weights" moveId={props.moveId} />

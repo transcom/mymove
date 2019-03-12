@@ -35,6 +35,7 @@ var ShipmentSummaryPage1Layout = FormLayout{
 		"MaxObligationGCC100":             FormField(40, 182.5, 22, floatPtr(10), nil, stringPtr("RM")),
 		"TotalWeightAllotmentRepeat":      FormField(74, 182.5, 16, floatPtr(10), nil, stringPtr("RM")),
 		"MaxObligationGCC95":              FormField(40, 188.5, 22, floatPtr(10), nil, stringPtr("RM")),
+		"MaxObligationSIT":                FormField(40, 194.75, 22, floatPtr(10), nil, stringPtr("RM")),
 		"MaxObligationGCCMaxAdvance":      FormField(40, 201, 22, floatPtr(10), nil, stringPtr("RM")),
 		"ActualObligationGCC100":          FormField(133, 182.5, 22, floatPtr(10), nil, stringPtr("RM")),
 		"ActualWeight":                    FormField(167, 182.5, 16, floatPtr(10), nil, stringPtr("RM")),

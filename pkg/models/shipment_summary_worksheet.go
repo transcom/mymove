@@ -58,6 +58,7 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	MaxObligationGCC100             string
 	TotalWeightAllotmentRepeat      string
 	MaxObligationGCC95              string
+	MaxObligationSIT                string
 	MaxObligationGCCMaxAdvance      string
 	ActualWeight                    string
 	ActualObligationGCC100          string
@@ -121,17 +122,23 @@ type ShipmentSummaryFormData struct {
 
 //Obligation an object representing the obligations section on the shipment summary worksheet
 type Obligation struct {
-	Gcc unit.Cents
+	Gcc    unit.Cents
+	SITMax unit.Cents
 }
 
-//GCC100 calculates the 95% GCC on shipment summary worksheet
+//GCC100 calculates the 100% GCC on shipment summary worksheet
 func (obligation Obligation) GCC100() float64 {
 	return obligation.Gcc.ToDollarFloat()
 }
 
-//GCC95 calculates the 100% GCC on shipment summary worksheet
+//GCC95 calculates the 95% GCC on shipment summary worksheet
 func (obligation Obligation) GCC95() float64 {
 	return obligation.Gcc.MultiplyFloat64(.95).ToDollarFloat()
+}
+
+// FormatMaxSIT formats the SITMax into a dollar float for the shipment summary worksheet
+func (obligation Obligation) FormatMaxSIT() float64 {
+	return obligation.SITMax.ToDollarFloat()
 }
 
 //MaxAdvance calculates the Max Advance on the shipment summary worksheet
@@ -266,6 +273,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.MaxObligationGCC100 = FormatDollars(data.MaxObligation.GCC100())
 	page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
 	page1.MaxObligationGCC95 = FormatDollars(data.MaxObligation.GCC95())
+	page1.MaxObligationSIT = FormatDollars(data.MaxObligation.FormatMaxSIT())
 	page1.MaxObligationGCCMaxAdvance = FormatDollars(data.MaxObligation.MaxAdvance())
 
 	page1.ActualObligationGCC100 = FormatDollars(data.ActualObligation.GCC100())
