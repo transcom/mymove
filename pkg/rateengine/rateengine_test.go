@@ -201,7 +201,6 @@ func (suite *RateEngineSuite) TestComputePPMWithLHDiscount() {
 		1044,
 		testdatagen.RateEngineDate,
 		0,
-		0,
 	)
 	suite.Require().Nil(err)
 

@@ -18,7 +18,6 @@ type ppmComputerParams struct {
 	Miles           int
 	Date            time.Time
 	DaysInSIT       int
-	SitDiscount     unit.DiscountRate
 }
 
 type mockPPMComputer struct {
@@ -27,7 +26,7 @@ type mockPPMComputer struct {
 	ppmComputerParams ppmComputerParams
 }
 
-func (mppmc *mockPPMComputer) ComputePPMIncludingLHDiscount(weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int, sitDiscount unit.DiscountRate) (cost rateengine.CostComputation, err error) {
+func (mppmc *mockPPMComputer) ComputePPMIncludingLHDiscount(weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int) (cost rateengine.CostComputation, err error) {
 	mppmc.ppmComputerParams = ppmComputerParams{
 		Weight:          weight,
 		OriginZip5:      originZip5,
@@ -35,7 +34,6 @@ func (mppmc *mockPPMComputer) ComputePPMIncludingLHDiscount(weight unit.Pound, o
 		Miles:           distanceMiles,
 		Date:            date,
 		DaysInSIT:       daysInSIT,
-		SitDiscount:     sitDiscount,
 	}
 	return mppmc.costComputation, mppmc.err
 }
