@@ -394,7 +394,8 @@ endif
 			-d \
 			-p $(DB_PORT_TEST):$(DB_PORT_DOCKER)\
 			$(DB_DOCKER_CONTAINER_IMAGE)\
-			-c fsync=off
+			-c fsync=off\
+			-c full_page_writes=off
 
 .PHONY: db_test_create
 db_test_create:
