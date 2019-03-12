@@ -215,7 +215,7 @@ func (suite *authSuite) TestMaskedCSRFMiddleware() {
 	req, _ := http.NewRequest("GET", "/", nil)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := MaskedCSRFMiddleware(suite.logger, false)(handler)
+	middleware := MaskedCSRFMiddleware(suite.logger, false, false)(handler)
 	middleware.ServeHTTP(rr, req)
 
 	// We should get a 200 OK
