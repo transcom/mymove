@@ -139,7 +139,7 @@ func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, desti
 		SITRate:                         unit.NewDiscountRateFromPercent(50.0),
 	}
 	suite.MustSave(&tspPerformance)
-	lhDiscount, _, err := models.PPMDiscountFetch(suite.DB(),
+	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(suite.DB(),
 		logger,
 		originZip,
 		destinationZip, testdatagen.RateEngineDate,
@@ -154,7 +154,7 @@ func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, desti
 		testdatagen.RateEngineDate,
 		0,
 		lhDiscount,
-		0,
+		sitDiscount,
 	)
 	suite.Require().Nil(err)
 	suite.Require().True(cost.GCC > 0)
