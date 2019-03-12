@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/hex"
@@ -12,11 +13,14 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"os/signal"
 	"path"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
+	"syscall"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -173,6 +177,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("env", "development", "The environment to run in, which configures the database.")
 	flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	flag.String("service-name", "app", "The service name identifies the application for instrumentation.")
+	flag.Duration("graceful-shutdown-timeout", 25*time.Second, "The duration for which the server gracefully wait for existing connections to finish.  AWS ECS only gives you 30 seconds before sending SIGKILL.")
 
 	flag.String("http-my-server-name", "milmovelocal", "Hostname according to environment.")
 	flag.String("http-office-server-name", "officelocal", "Hostname according to environment.")
@@ -706,6 +711,26 @@ func checkStorage(v *viper.Viper) error {
 	return nil
 }
 
+func startListener(srv *server.NamedServer, logger *webserverLogger, useTLS bool) {
+	logger.Info("Starting listener",
+		zap.String("name", srv.Name),
+		zap.Duration("idle-timeout", srv.IdleTimeout),
+		zap.Any("listen-address", srv.Addr),
+		zap.Int("max-header-bytes", srv.MaxHeaderBytes),
+		zap.Int("port", srv.Port()),
+		zap.Bool("tls", useTLS),
+	)
+	var err error
+	if useTLS {
+		err = srv.ListenAndServeTLS()
+	} else {
+		err = srv.ListenAndServe()
+	}
+	if err != nil && err != http.ErrServerClosed {
+		logger.Fatal("server error", zap.String("name", srv.Name), zap.Error(err))
+	}
+}
+
 func main() {
 
 	flag := pflag.CommandLine
@@ -1173,11 +1198,10 @@ func main() {
 		httpHandler = site
 	}
 
-	errChan := make(chan error)
-
 	listenInterface := v.GetString("interface")
 
-	noTLSServer, err := server.CreateServer(&server.CreateServerInput{
+	noTLSServer, err := server.CreateNamedServer(&server.CreateNamedServerInput{
+		Name:        "no-tls",
 		Host:        listenInterface,
 		Port:        v.GetInt("no-tls-port"),
 		Logger:      zapLogger,
@@ -1186,11 +1210,10 @@ func main() {
 	if err != nil {
 		logger.Fatal("error creating no-tls server", zap.Error(err))
 	}
-	go func() {
-		errChan <- noTLSServer.ListenAndServe()
-	}()
+	go startListener(noTLSServer, logger, false)
 
-	tlsServer, err := server.CreateServer(&server.CreateServerInput{
+	tlsServer, err := server.CreateNamedServer(&server.CreateNamedServerInput{
+		Name:         "tls",
 		Host:         listenInterface,
 		Port:         v.GetInt("tls-port"),
 		Logger:       zapLogger,
@@ -1201,11 +1224,10 @@ func main() {
 	if err != nil {
 		logger.Fatal("error creating tls server", zap.Error(err))
 	}
-	go func() {
-		errChan <- tlsServer.ListenAndServeTLS()
-	}()
+	go startListener(tlsServer, logger, true)
 
-	mutualTLSServer, err := server.CreateServer(&server.CreateServerInput{
+	mutualTLSServer, err := server.CreateNamedServer(&server.CreateNamedServerInput{
+		Name:         "mutual-tls",
 		Host:         listenInterface,
 		Port:         v.GetInt("mutual-tls-port"),
 		Logger:       zapLogger,
@@ -1217,11 +1239,77 @@ func main() {
 	if err != nil {
 		logger.Fatal("error creating mutual-tls server", zap.Error(err))
 	}
+	go startListener(mutualTLSServer, logger, true)
+
+	// make sure we flush any pending startup messages
+	logger.Sync()
+
+	// Create a buffered channel that accepts 1 signal at a time.
+	quit := make(chan os.Signal, 1)
+
+	// Only send the SIGINT and SIGTERM signals to the quit channel
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	// Wait until the quit channel receieves a signal
+	sig := <-quit
+
+	logger.Info("received signal for graceful shutdown of server", zap.Any("signal", sig))
+
+	// flush message that we received signal
+	logger.Sync()
+
+	gracefulShutdownTimeout := v.GetDuration("graceful-shutdown-timeout")
+
+	ctx, cancel := context.WithTimeout(context.Background(), gracefulShutdownTimeout)
+	defer cancel()
+
+	logger.Info("Waiting for listeners to be shutdown", zap.Duration("timeout", gracefulShutdownTimeout))
+
+	// flush message that we are waiting on listeners
+	logger.Sync()
+
+	wg := &sync.WaitGroup{}
+	var shutdownErrors sync.Map
+
+	wg.Add(1)
 	go func() {
-		errChan <- mutualTLSServer.ListenAndServeTLS()
+		shutdownErrors.Store(noTLSServer, noTLSServer.Shutdown(ctx))
+		wg.Done()
 	}()
 
-	logger.Fatal("listener error", zap.Error(<-errChan))
+	wg.Add(1)
+	go func() {
+		shutdownErrors.Store(tlsServer, tlsServer.Shutdown(ctx))
+		wg.Done()
+	}()
+
+	wg.Add(1)
+	go func() {
+		shutdownErrors.Store(mutualTLSServer, mutualTLSServer.Shutdown(ctx))
+		wg.Done()
+	}()
+
+	wg.Wait()
+	logger.Info("All listeners are shutdown")
+	logger.Sync()
+
+	shutdownError := false
+	shutdownErrors.Range(func(key, value interface{}) bool {
+		if srv, ok := key.(*server.NamedServer); ok {
+			if err, ok := value.(error); ok {
+				logger.Error("shutdown error", zap.String("name", srv.Name), zap.String("addr", srv.Addr), zap.Int("port", srv.Port()), zap.Error(err))
+				shutdownError = true
+			} else {
+				logger.Info("shutdown server", zap.String("name", srv.Name), zap.String("addr", srv.Addr), zap.Int("port", srv.Port()))
+			}
+		}
+		return true
+	})
+	logger.Sync()
+
+	if shutdownError {
+		os.Exit(1)
+	}
 }
 
 // fileHandler serves up a single file
