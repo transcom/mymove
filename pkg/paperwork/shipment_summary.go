@@ -254,59 +254,60 @@ func NewSSWPPMComputer(PPMComputer ppmComputer) *SSWPPMComputer {
 //ObligationType type corresponding to obligation sections of shipment summary worksheet
 type ObligationType int
 
-const (
-	//MaxObligation max obligation section of shipment summary worksheet
-	MaxObligation ObligationType = iota
-	//ActualObligation max obligation section of shipment summary worksheet
-	ActualObligation
-)
-
 //ComputeObligations is helper function for computing the obligations section of the shipment summary worksheet
-func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSummaryFormData, planner route.Planner, obligationType ObligationType) (obligation models.Obligation, err error) {
+func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSummaryFormData, planner route.Planner) (obligation models.Obligations, err error) {
 	var firstPPM models.PersonallyProcuredMove
-	var cost rateengine.CostComputation
 	if len(ssfd.PersonallyProcuredMoves) == 0 {
-		return models.Obligation{}, errors.New("missing ppm")
+		return models.Obligations{}, errors.New("missing ppm")
 	}
 	firstPPM = ssfd.PersonallyProcuredMoves[0]
 	if firstPPM.PickupPostalCode == nil || firstPPM.DestinationPostalCode == nil {
-		return models.Obligation{}, errors.New("missing required address parameter")
+		return models.Obligations{}, errors.New("missing required address parameter")
 	}
 	distanceMiles, err := planner.Zip5TransitDistance(*firstPPM.PickupPostalCode, *firstPPM.DestinationPostalCode)
 	if err != nil {
-		return models.Obligation{}, errors.New("error calculating distance")
+		return models.Obligations{}, errors.New("error calculating distance")
 	}
 
 	var valid bool
-	switch obligationType {
-	case MaxObligation:
-		if valid = firstPPM.ActualMoveDate != nil; valid {
-			cost, err = sswPpmComputer.ComputePPMIncludingLHDiscount(
-				unit.Pound(ssfd.TotalWeightAllotment),
-				*firstPPM.PickupPostalCode,
-				*firstPPM.DestinationPostalCode,
-				distanceMiles,
-				*firstPPM.ActualMoveDate,
-				0,
-			)
-		}
-		if err != nil || !valid {
-			return models.Obligation{}, errors.New("error calculating PPM max obligations")
-		}
-	case ActualObligation:
-		if valid = firstPPM.NetWeight != nil && firstPPM.ActualMoveDate != nil; valid {
-			cost, err = sswPpmComputer.ComputePPMIncludingLHDiscount(
-				unit.Pound(*firstPPM.NetWeight),
-				*firstPPM.PickupPostalCode,
-				*firstPPM.DestinationPostalCode,
-				distanceMiles,
-				*firstPPM.ActualMoveDate,
-				0,
-			)
-		}
-		if err != nil || !valid {
-			return models.Obligation{}, errors.New("error calculating PPM actual obligations")
-		}
+	var maxCost, actualCost rateengine.CostComputation
+	if valid = firstPPM.ActualMoveDate != nil; valid {
+		maxCost, err = sswPpmComputer.ComputePPMIncludingLHDiscount(
+			unit.Pound(ssfd.TotalWeightAllotment),
+			*firstPPM.PickupPostalCode,
+			*firstPPM.DestinationPostalCode,
+			distanceMiles,
+			*firstPPM.ActualMoveDate,
+			0,
+		)
 	}
-	return models.Obligation{Gcc: cost.GCC, SITMax: cost.SITMax}, nil
+	if err != nil || !valid {
+		return models.Obligations{}, errors.New("error calculating PPM max obligations")
+	}
+	if valid = firstPPM.NetWeight != nil && firstPPM.ActualMoveDate != nil; valid {
+		actualCost, err = sswPpmComputer.ComputePPMIncludingLHDiscount(
+			unit.Pound(*firstPPM.NetWeight),
+			*firstPPM.PickupPostalCode,
+			*firstPPM.DestinationPostalCode,
+			distanceMiles,
+			*firstPPM.ActualMoveDate,
+			0,
+		)
+	}
+	if err != nil || !valid {
+		return models.Obligations{}, errors.New("error calculating PPM actual obligations")
+	}
+	var actualSIT unit.Cents
+	if firstPPM.TotalSITCost == nil {
+		actualSIT = unit.Cents(0)
+	} else {
+		actualSIT = *firstPPM.TotalSITCost
+	}
+	if actualSIT > maxCost.SITMax {
+		actualSIT = maxCost.SITMax
+	}
+	maxObligation := models.Obligation{Gcc: maxCost.GCC, SIT: maxCost.SITMax}
+	actualObligation := models.Obligation{Gcc: actualCost.GCC, SIT: actualSIT}
+	obligations := models.Obligations{MaxObligation: maxObligation, ActualObligation: actualObligation}
+	return obligations, nil
 }

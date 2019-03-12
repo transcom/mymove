@@ -245,13 +245,9 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 
 	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(h.DB(), session, moveID)
 	ssfd.PreparationDate = time.Time(params.PreparationDate)
-	ssfd.MaxObligation, err = ppmComputer.ComputeObligations(ssfd, h.Planner(), paperwork.MaxObligation)
+	ssfd.Obligations, err = ppmComputer.ComputeObligations(ssfd, h.Planner())
 	if err != nil {
-		h.Logger().Error("Error calculating PPM max obligations ", zap.Error(err))
-	}
-	ssfd.ActualObligation, err = ppmComputer.ComputeObligations(ssfd, h.Planner(), paperwork.ActualObligation)
-	if err != nil {
-		h.Logger().Error("Error calculating PPM actual obligations ", zap.Error(err))
+		h.Logger().Error("Error calculating obligations ", zap.Error(err))
 	}
 
 	page1Data, page2Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
