@@ -45,16 +45,6 @@ func GetExpiryTimeFromMinutes(min int64) time.Time {
 	return time.Now().Add(time.Minute * time.Duration(min))
 }
 
-// GetCookie returns a cookie from a request
-func GetCookie(name string, r *http.Request) (*http.Cookie, error) {
-	for _, cookie := range r.Cookies() {
-		if cookie.Name == name {
-			return cookie, nil
-		}
-	}
-	return nil, errors.Errorf("Unable to find cookie: %s", name)
-}
-
 // SessionClaims wraps StandardClaims with some Session info
 type SessionClaims struct {
 	jwt.StandardClaims
@@ -137,10 +127,7 @@ func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, noSessionTim
 func MaskedCSRFMiddleware(logger *zap.Logger, noSessionTimeout bool) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			// Write a CSRF cookie if none exists
-			if _, err := GetCookie(MaskedGorillaCSRFToken, r); err != nil {
-				WriteMaskedCSRFCookie(w, csrf.Token(r), noSessionTimeout, logger)
-			}
+			WriteMaskedCSRFCookie(w, csrf.Token(r), noSessionTimeout, logger)
 			next.ServeHTTP(w, r)
 		}
 		return http.HandlerFunc(mw)
