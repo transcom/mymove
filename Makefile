@@ -393,7 +393,8 @@ endif
 			POSTGRES_PASSWORD=$(PGPASSWORD) \
 			-d \
 			-p $(DB_PORT_TEST):$(DB_PORT_DOCKER)\
-			$(DB_DOCKER_CONTAINER_IMAGE)
+			$(DB_DOCKER_CONTAINER_IMAGE)\
+			-c fsync=off
 
 .PHONY: db_test_create
 db_test_create:
