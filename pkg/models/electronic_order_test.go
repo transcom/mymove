@@ -24,7 +24,7 @@ func (suite *ModelSuite) TestElectronicOrderValidations() {
 	var expErrors = map[string][]string{
 		"orders_number": {"OrdersNumber can not be blank."},
 		"edipi":         {"Edipi can not be blank.", "Edipi does not match the expected format."},
-		"issuer":        {"Issuer can not be blank."},
+		"issuer":        {"Issuer is not in the list [air-force, army, coast-guard, marine-corps, navy]."},
 	}
 
 	suite.verifyValidationErrors(order, expErrors)

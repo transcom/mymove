@@ -62,7 +62,13 @@ func (e *ElectronicOrder) Validate(tx *pop.Connection) (*validate.Errors, error)
 		&validators.StringIsPresent{Field: e.OrdersNumber, Name: "OrdersNumber"},
 		&validators.StringIsPresent{Field: e.Edipi, Name: "Edipi"},
 		&validators.RegexMatch{Field: e.Edipi, Name: "Edipi", Expr: "\\d{10}"},
-		&validators.StringIsPresent{Field: string(e.Issuer), Name: "Issuer"},
+		&validators.StringInclusion{Field: string(e.Issuer), Name: "Issuer", List: []string{
+			string(IssuerAirForce),
+			string(IssuerArmy),
+			string(IssuerCoastGuard),
+			string(IssuerMarineCorps),
+			string(IssuerNavy),
+		}},
 	), nil
 }
 
