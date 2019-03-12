@@ -42,10 +42,6 @@
   width: 9%;
 }
 
-.cancel-link {
-  padding: 1em 1em 1em 0;
-  cursor: pointer;
-}
 .pre-approval-panel th,
 .pre-approval-panel td {
   border: none;
@@ -102,13 +98,6 @@
 .pre-approval-panel-modal .title {
   font-size: 2rem;
   font-weight: bold;
-}
-.pre-approval-panel .align-right {
-  text-align: right !important;
-}
-
-.pre-approval-form {
-  padding: 0 0 1rem 0;
 }
 
 .cancel button {
