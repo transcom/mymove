@@ -412,12 +412,6 @@ function officeUserEditsEstimatesPanel(destinationPostalCode, pickupPostalCode) 
     .get('button')
     .contains('Save')
     .click();
-
-  cy.get('.storage-calc').within(() => {
-    cy.get('input[name="destination_postal_code"]').should('have.value', `${destinationPostalCode}`);
-
-    cy.get('input[name="pickup_postal_code"]').should('have.value', `${pickupPostalCode}`);
-  });
 }
 
 function officeUserGoesToStoragePanel(locator) {
