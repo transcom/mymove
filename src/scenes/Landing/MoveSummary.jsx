@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { get, includes } from 'lodash';
+import { get, includes, isEmpty } from 'lodash';
 import moment from 'moment';
 import fedHolidays from '@18f/us-federal-holidays';
 
@@ -415,7 +415,7 @@ const MoveInfoHeader = props => {
         {get(orders, 'new_duty_station.name', 'New move')} (from {get(profile, 'current_station.name', '')})
       </h2>
       {get(move, 'locator') && <div>Move Locator: {get(move, 'locator')}</div>}
-      {entitlement && (
+      {!isEmpty(entitlement) && (
         <div>
           Weight Entitlement: <span>{entitlement.sum.toLocaleString()} lbs</span>
         </div>
