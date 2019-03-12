@@ -173,7 +173,7 @@ func toElectronicOrdersRevision(orders *models.ElectronicOrder, rev *ordersmessa
 		TdyEnRoute:          rev.TdyEnRoute,
 		TourType:            models.TourType(tourType),
 		OrdersType:          models.ElectronicOrdersType(rev.OrdersType),
-		HasDependents:       rev.HasDependents,
+		HasDependents:       *rev.HasDependents,
 		ReportNoEarlierThan: (*time.Time)(rev.ReportNoEarlierThan),
 		ReportNoLaterThan:   (*time.Time)(rev.ReportNoLaterThan),
 		Comments:            rev.Comments,

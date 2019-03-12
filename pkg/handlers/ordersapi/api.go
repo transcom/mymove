@@ -71,7 +71,7 @@ func payloadForElectronicOrdersRevisionModel(revision models.ElectronicOrdersRev
 		TdyEnRoute:    revision.TdyEnRoute,
 		TourType:      ordersmessages.TourType(revision.TourType),
 		OrdersType:    ordersmessages.OrdersType(revision.OrdersType),
-		HasDependents: revision.HasDependents,
+		HasDependents: &revision.HasDependents,
 		LosingUnit: &ordersmessages.Unit{
 			Uic:        revision.LosingUIC,
 			Name:       revision.LosingUnitName,
