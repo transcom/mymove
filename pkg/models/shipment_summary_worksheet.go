@@ -269,9 +269,8 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.MaxObligationGCCMaxAdvance = FormatDollars(data.MaxObligation.MaxAdvance())
 
 	page1.ActualObligationGCC100 = FormatDollars(data.ActualObligation.GCC100())
-	page1.ActualWeight = formatActualWeight(data)
+	page1.ActualWeight = FormatActualObligationsWeight(data.TotalWeightAllotment, data.PersonallyProcuredMoves)
 	page1.ActualObligationAdvance = formatActualObligationAdvance(data)
-
 	page1.ActualObligationGCC95 = FormatDollars(data.ActualObligation.GCC95())
 	return page1
 }
@@ -284,11 +283,21 @@ func formatActualObligationAdvance(data ShipmentSummaryFormData) string {
 	return FormatDollars(0)
 }
 
-func formatActualWeight(data ShipmentSummaryFormData) string {
-	if len(data.PersonallyProcuredMoves) > 0 && data.PersonallyProcuredMoves[0].NetWeight != nil {
-		return FormatWeights(int(*(data.PersonallyProcuredMoves[0].NetWeight)))
+//FormatActualObligationsWeight formats the service member's weight for the actual obligations im the Shipment Summary Worksheet
+func FormatActualObligationsWeight(totalWeightAllotment int, personallyProcuredMoves PersonallyProcuredMoves) string {
+	var actualWeightObligation int
+
+	if len(personallyProcuredMoves) > 0 && personallyProcuredMoves[0].NetWeight != nil {
+		ppmWeight := int(*personallyProcuredMoves[0].NetWeight)
+		weightAllotment := int(totalWeightAllotment)
+
+		if ppmWeight >= weightAllotment {
+			actualWeightObligation = weightAllotment
+		} else {
+			actualWeightObligation = ppmWeight
+		}
 	}
-	return FormatWeights(0)
+	return FormatWeights(actualWeightObligation)
 }
 
 //FormatRank formats the service member's rank for Shipment Summary Worksheet
