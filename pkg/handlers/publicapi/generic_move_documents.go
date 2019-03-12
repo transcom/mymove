@@ -125,7 +125,7 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		*shipment.Move.SelectedMoveType)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error creating move document")
 	}
 
 	newPayload, err := payloadForGenericMoveDocumentModel(h.FileStorer(), *newMoveDocument, shipmentID)

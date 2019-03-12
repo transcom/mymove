@@ -209,7 +209,7 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 	verrs, err := models.SaveShipmentAndAddresses(h.DB(), &newShipment)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error saving shipment and addresses")
 	}
 
 	shipmentPayload, err := payloadForShipmentModel(newShipment)
@@ -353,7 +353,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	verrs, err := models.SaveShipmentAndAddresses(h.DB(), shipment)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error saving shipment and addresses")
 	}
 
 	shipmentPayload, err := payloadForShipmentModel(*shipment)
@@ -447,7 +447,7 @@ func (h ApproveHHGHandler) Handle(params shipmentop.ApproveHHGParams) middleware
 	}
 	verrs, err := h.DB().ValidateAndUpdate(shipment)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error validating and updating HHG")
 	}
 
 	shipmentPayload, err := payloadForShipmentModel(*shipment)
@@ -486,7 +486,7 @@ func (h CompleteHHGHandler) Handle(params shipmentop.CompleteHHGParams) middlewa
 	}
 	verrs, err := h.DB().ValidateAndUpdate(shipment)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error validating and updating HHG")
 	}
 
 	shipmentPayload, err := payloadForShipmentModel(*shipment)
@@ -546,7 +546,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 	var invoice models.Invoice
 	verrs, err := invoiceop.CreateInvoice{DB: h.DB(), Clock: clock.New()}.Call(*approver, &invoice, shipment)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error creating invoice")
 	}
 
 	invoice858CString, verrs, err := invoiceop.ProcessInvoice{
@@ -556,7 +556,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 		ICNSequencer:          h.ICNSequencer(),
 	}.Call(&invoice, shipment)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error processing invoice")
 	}
 
 	// Send invoice to S3 for storage if response from GEX is successful

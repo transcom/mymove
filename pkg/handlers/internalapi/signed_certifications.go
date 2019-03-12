@@ -49,7 +49,7 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 	payload := params.CreateSignedCertificationPayload
 	_, verrs, err := move.CreateSignedCertification(h.DB(), session.UserID, *payload.CertificationText, *payload.Signature, (time.Time)(*payload.Date))
 	if verrs.HasAny() || err != nil {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error creating signed certification")
 	}
 
 	return certop.NewCreateSignedCertificationCreated()

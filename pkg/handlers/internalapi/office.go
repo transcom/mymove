@@ -53,7 +53,7 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 
 	verrs, err := h.DB().ValidateAndUpdate(move)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error validating and updating move")
 	}
 
 	// TODO: Save and/or update the move association status' (PPM, Reimbursement, Orders) a la Cancel handler
@@ -99,7 +99,7 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 	// Save move, orders, and PPMs statuses
 	verrs, err := models.SaveMoveDependencies(h.DB(), move)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error saving move dependencies")
 	}
 
 	err = h.NotificationSender().SendNotification(
@@ -152,7 +152,7 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 
 	verrs, err := h.DB().ValidateAndUpdate(ppm)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error validating and updating personally procured move")
 	}
 
 	err = h.NotificationSender().SendNotification(
@@ -203,7 +203,7 @@ func (h ApproveReimbursementHandler) Handle(params officeop.ApproveReimbursement
 
 	verrs, err := h.DB().ValidateAndUpdate(reimbursement)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error validating and updating reimbursement")
 	}
 
 	reimbursementPayload := payloadForReimbursementModel(reimbursement)

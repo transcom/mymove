@@ -238,6 +238,9 @@ type AcceptShipmentHandler struct {
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h AcceptShipmentHandler) Handle(params shipmentop.AcceptShipmentParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
@@ -263,7 +266,7 @@ func (h AcceptShipmentHandler) Handle(params shipmentop.AcceptShipmentParams) mi
 			return shipmentop.NewAcceptShipmentConflict()
 		} else {
 			h.Logger().Error("Unknown Error", zap.Error(err))
-			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+			return h.RespondAndTraceVErrors(ctx, verrs, err, "error accepting shipment for TSP")
 		}
 	}
 
@@ -326,7 +329,7 @@ func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentPara
 
 	verrs, err := h.DB().ValidateAndUpdate(shipment)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error validating and updating shipment")
 	}
 	sp := payloadForShipmentModel(*shipment)
 	return shipmentop.NewTransportShipmentOK().WithPayload(sp)
@@ -339,6 +342,9 @@ type DeliverShipmentHandler struct {
 
 // Handle delivers the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
@@ -368,7 +374,7 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 	}.Call(actualDeliveryDate, shipment)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error delivering shipment")
 	}
 
 	sp := payloadForShipmentModel(*shipment)
@@ -382,6 +388,9 @@ type CompletePmSurveyHandler struct {
 
 // Handle completes a pre-moves survey - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h CompletePmSurveyHandler) Handle(params shipmentop.CompletePmSurveyParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
@@ -407,7 +416,7 @@ func (h CompletePmSurveyHandler) Handle(params shipmentop.CompletePmSurveyParams
 	verrs, err := models.SaveShipment(h.DB(), shipment)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error saving shipment")
 	}
 
 	sp := payloadForShipmentModel(*shipment)
@@ -568,6 +577,9 @@ type PatchShipmentHandler struct {
 
 // Handle updates the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	var shipment *models.Shipment
 	var err error
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
@@ -600,7 +612,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	verrs, err := models.SaveShipmentAndAddresses(h.DB(), shipment)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error saving shipment and addresses")
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
@@ -672,7 +684,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	uploader := uploaderpkg.NewUploader(h.DB(), h.Logger(), h.FileStorer())
 	upload, verrs, err := uploader.CreateUpload(*tspUser.UserID, &gblFile, uploaderpkg.AllowedTypesPDF)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error creating upload")
 	}
 
 	uploads := []models.Upload{*upload}
@@ -687,7 +699,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 		models.SelectedMoveType(apimessages.SelectedMoveTypeHHG),
 	)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error creating move document")
 	}
 
 	documentPayload, err := payloadForDocumentModel(h.FileStorer(), doc.Document)

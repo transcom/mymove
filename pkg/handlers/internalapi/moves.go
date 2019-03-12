@@ -138,7 +138,7 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 
 	verrs, err := h.DB().ValidateAndUpdate(move)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error validating and updating move")
 	}
 	movePayload, err := payloadForMoveModel(h.FileStorer(), orders, *move)
 	if err != nil {
@@ -181,7 +181,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	// Transaction to save move and dependencies
 	verrs, err := models.SaveMoveDependencies(h.DB(), move)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error saving move dependencies")
 	}
 
 	err = h.NotificationSender().SendNotification(

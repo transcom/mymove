@@ -279,7 +279,7 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 
 	if verrs.HasAny() || err != nil {
 		h.Logger().Error("Error fetching shipment line items for shipment", zap.Error(err))
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error creating shipment line item")
 	}
 	payload := payloadForShipmentLineItemModel(shipmentLineItem)
 	return accessorialop.NewCreateShipmentLineItemCreated().WithPayload(payload)
@@ -369,7 +369,7 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 	)
 	if verrs.HasAny() || err != nil {
 		h.Logger().Error("Error fetching shipment line items for shipment", zap.Error(err))
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error updating shipment line item")
 	}
 
 	payload := payloadForShipmentLineItemModel(&shipmentLineItem)

@@ -110,7 +110,7 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 	)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error creating move expense document")
 	}
 
 	newPayload, err := payloadForMovingExpenseDocumentModel(h.FileStorer(), *newMovingExpenseDocument)

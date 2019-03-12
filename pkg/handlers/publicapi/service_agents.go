@@ -95,6 +95,9 @@ type CreateServiceAgentHandler struct {
 
 // Handle creates a new ServiceAgent from a request payload - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h CreateServiceAgentHandler) Handle(params serviceagentop.CreateServiceAgentParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
@@ -126,7 +129,7 @@ func (h CreateServiceAgentHandler) Handle(params serviceagentop.CreateServiceAge
 		payload.PhoneIsPreferred,
 		payload.Notes)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error creating service agent")
 	}
 
 	serviceAgentPayload := payloadForServiceAgentModel(newServiceAgent)
@@ -140,6 +143,9 @@ type PatchServiceAgentHandler struct {
 
 // Handle updates the service agent - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h PatchServiceAgentHandler) Handle(params serviceagentop.PatchServiceAgentParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
 	var serviceAgent *models.ServiceAgent
 	var err error
 
@@ -188,7 +194,7 @@ func (h PatchServiceAgentHandler) Handle(params serviceagentop.PatchServiceAgent
 	verrs, err := h.DB().ValidateAndSave(serviceAgent)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error validating and saving service agent")
 	}
 
 	serviceAgentPayload := payloadForServiceAgentModel(*serviceAgent)

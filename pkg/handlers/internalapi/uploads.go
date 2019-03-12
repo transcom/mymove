@@ -85,7 +85,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	uploader := uploaderpkg.NewUploader(h.DB(), h.Logger(), h.FileStorer())
 	newUpload, verrs, err := uploader.CreateUploadForDocument(docID, session.UserID, aFile, uploaderpkg.AllowedTypesServiceMember)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error creating upload for document")
 	}
 
 	url, err := uploader.PresignedURL(newUpload)

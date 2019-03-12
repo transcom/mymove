@@ -112,12 +112,12 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		payload.Sac,
 		deptIndicator)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error creating order")
 	}
 
 	newMove, verrs, err := newOrder.CreateNewMove(h.DB(), nil)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error creating new move")
 	}
 	newOrder.Moves = append(newOrder.Moves, *newMove)
 
@@ -204,7 +204,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 
 	verrs, err := models.SaveOrder(h.DB(), &order)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error saving order")
 	}
 
 	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)

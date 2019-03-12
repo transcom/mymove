@@ -142,7 +142,7 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 
 	verrs, err := models.SaveMoveDocument(h.DB(), moveDoc, saveAction)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error saving move document")
 	}
 
 	moveDocPayload, err := payloadForGenericMoveDocumentModel(h.FileStorer(), *moveDoc, shipmentID)

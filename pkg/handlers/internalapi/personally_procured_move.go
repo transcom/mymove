@@ -113,7 +113,7 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 		advance)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error creating personally procured move")
 	}
 
 	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *newPPM)
@@ -270,7 +270,7 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 
 	verrs, err := models.SavePersonallyProcuredMove(h.DB(), ppm)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error saving personally procured move")
 	}
 
 	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
@@ -341,7 +341,7 @@ func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonall
 
 	verrs, err := models.SavePersonallyProcuredMove(h.DB(), ppm)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error saving personally procured move")
 	}
 
 	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
@@ -469,7 +469,7 @@ func (h RequestPPMPaymentHandler) Handle(params ppmop.RequestPPMPaymentParams) m
 
 	verrs, err := models.SavePersonallyProcuredMove(h.DB(), ppm)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return h.RespondAndTraceVErrors(ctx, verrs, err, "error saving personally procured move")
 	}
 
 	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
