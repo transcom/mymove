@@ -111,6 +111,8 @@ function serviceMemberAddsLocations() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-locations/);
   });
+  // Note that we are not checking for a disabled save button because we
+  // expect the pickup address to prefill with the SM residential address
 
   // Pickup address
   cy.get('input[name="pickup_address.street_address_1"]').should('have.value', '123 Any Street');
