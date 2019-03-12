@@ -1,22 +1,9 @@
 import React, { Fragment } from 'react';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import Alert from 'shared/Alert';
+import { Code35FormAlert } from './Code35FormAlert';
 
 export const Code35Form = props => {
   const { ship_line_item_schema } = props;
-  let warnMsg;
-
-  if (props.actualAmount > props.estimateAmount) {
-    const priceDifference = props.actualAmount - props.estimateAmount;
-    warnMsg = (
-      <Alert type="warning" heading="Oops– you appear to have exceeded your estimated cost!">
-        <span className="warning--header">
-          Your actual cost of {props.actualAmount} is {priceDifference} dollars over your estimated cost of{' '}
-          {props.estimateAmount}. You will not be paid for this difference. <a href="#">What are my options?</a>
-        </span>
-      </Alert>
-    );
-  }
   return (
     <Fragment>
       <SwaggerField
@@ -43,7 +30,7 @@ export const Code35Form = props => {
       <div className="bq-explanation">
         <p>Enter amount after service is completed</p>
       </div>
-      {warnMsg}
+      <Code35FormAlert showAlert={props.showAlert} />
     </Fragment>
   );
 };
