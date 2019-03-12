@@ -6,6 +6,7 @@ import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
 import { getEntitlements } from 'shared/entitlements.js';
 import { selectOrdersForMove } from 'shared/Entities/modules/orders';
+import { selectServiceMemberForMove } from 'shared/Entities/modules/serviceMembers';
 
 export const STATE_KEY = 'moves';
 const approveBasicsLabel = 'Moves.ApproveBasics';
@@ -46,13 +47,30 @@ export function cancelMove(moveId, cancelReason, label = cancelMoveLabel) {
 }
 
 export function calculateEntitlementsForMove(state, moveId) {
+  console.log('function calculateEntitlementsForMove  \n\n');
   const orders = selectOrdersForMove(state, moveId);
   const hasDependents = orders.has_dependents;
   const spouseHasProGear = orders.spouse_has_pro_gear;
-  const rank = get(state, 'office.officeServiceMember.rank', null);
+  const serviceMember = selectServiceMemberForMove(state, moveId);
+  const rank = serviceMember.rank;
   if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
     return null;
   }
+  console.log('rank ' + rank);
+  console.log('\n');
+  console.log('orders\n');
+  console.log(orders);
+  console.log('\n\n');
+  console.log('serviceMember\n');
+  console.log(serviceMember);
+  console.log('\n\n');
+  console.log(getEntitlements(rank, hasDependents, spouseHasProGear));
+
+  const entitlement = getEntitlements(rank, hasDependents, spouseHasProGear);
+  console.log('entitlement\n\n');
+  console.log(entitlement);
+  console.log('END -- function calculateEntitlementsForMove\n\n\n');
+
   return getEntitlements(rank, hasDependents, spouseHasProGear);
 }
 

@@ -12,6 +12,9 @@ import Alert from 'shared/Alert';
 import Creator from 'shared/StorageInTransit/Creator';
 import { selectStorageInTransits, createStorageInTransit } from 'shared/Entities/modules/storageInTransits';
 import { loadEntitlements } from '../../scenes/TransportationServiceProvider/ducks';
+import { calculateEntitlementsForMove } from 'shared/Entities/modules/moves';
+
+import { isTspSite } from 'shared/constants.js';
 
 export class StorageInTransitPanel extends Component {
   constructor() {
@@ -65,9 +68,8 @@ export class StorageInTransitPanel extends Component {
                 </div>
               );
             })}
-          {isCreatorActionable && (
-            <Creator onFormActivation={this.onFormActivation} saveStorageInTransit={this.onSubmit} />
-          )}
+          {isCreatorActionable &&
+            isTspSite && <Creator onFormActivation={this.onFormActivation} saveStorageInTransit={this.onSubmit} />}
         </BasicPanel>
       </div>
     );
@@ -78,12 +80,27 @@ StorageInTransitPanel.propTypes = {
   storageInTransits: PropTypes.array,
   shipmentId: PropTypes.string,
   storageInTransitEntitlement: PropTypes.number,
+  moveId: PropTypes.string,
 };
 
+function getStorageInTransitEntitlement(state, moveId) {
+  let entitlement = {};
+  if (isTspSite) {
+    entitlement = loadEntitlements(state);
+  } else {
+    entitlement = calculateEntitlementsForMove(state, moveId);
+  }
+  if (entitlement) {
+    return entitlement.storage_in_transit;
+  }
+  return {};
+}
+
 function mapStateToProps(state, ownProps) {
+  const moveId = ownProps.moveId;
   return {
     storageInTransits: selectStorageInTransits(state, ownProps.shipmentId),
-    storageInTransitEntitlement: loadEntitlements(state).storage_in_transit,
+    storageInTransitEntitlement: getStorageInTransitEntitlement(state, moveId),
     shipmentId: ownProps.shipmentId,
   };
 }
