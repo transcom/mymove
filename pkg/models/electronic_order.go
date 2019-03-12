@@ -11,8 +11,22 @@ import (
 	"github.com/gofrs/uuid"
 	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
+)
 
-	"github.com/transcom/mymove/pkg/gen/ordersmessages"
+// Issuer is the organization that issues orders.
+type Issuer string
+
+const (
+	// IssuerArmy captures enum value "army"
+	IssuerArmy Issuer = "army"
+	// IssuerNavy captures enum value "navy"
+	IssuerNavy Issuer = "navy"
+	// IssuerAirForce captures enum value "air-force"
+	IssuerAirForce Issuer = "air-force"
+	// IssuerMarineCorps captures enum value "marine-corps"
+	IssuerMarineCorps Issuer = "marine-corps"
+	// IssuerCoastGuard captures enum value "coast-guard"
+	IssuerCoastGuard Issuer = "coast-guard"
 )
 
 // ElectronicOrder contains the unchanging data of a set of orders across all amendments / revisions
@@ -22,7 +36,7 @@ type ElectronicOrder struct {
 	UpdatedAt    time.Time                 `json:"updated_at" db:"updated_at"`
 	OrdersNumber string                    `json:"orders_number" db:"orders_number"`
 	Edipi        string                    `json:"edipi" db:"edipi"`
-	Issuer       ordersmessages.Issuer     `json:"issuer" db:"issuer"`
+	Issuer       Issuer                    `json:"issuer" db:"issuer"`
 	Revisions    ElectronicOrdersRevisions `has_many:"electronic_orders_revisions" order_by:"seq_num asc"`
 }
 

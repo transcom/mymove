@@ -5,7 +5,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
-	"github.com/transcom/mymove/pkg/gen/ordersmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -37,27 +36,27 @@ func (h GetOrdersByIssuerAndOrdersNumHandler) Handle(params ordersoperations.Get
 		return ordersoperations.NewGetOrdersByIssuerAndOrdersNumInternalServerError()
 	}
 
-	if orders.Issuer == ordersmessages.IssuerAirForce {
+	if orders.Issuer == models.IssuerAirForce {
 		if !clientCert.AllowAirForceOrdersRead {
 			h.Logger().Info("Client certificate is not permitted to read Air Force Orders")
 			return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()
 		}
-	} else if orders.Issuer == ordersmessages.IssuerArmy {
+	} else if orders.Issuer == models.IssuerArmy {
 		if !clientCert.AllowArmyOrdersRead {
 			h.Logger().Info("Client certificate is not permitted to read Army Orders")
 			return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()
 		}
-	} else if orders.Issuer == ordersmessages.IssuerCoastGuard {
+	} else if orders.Issuer == models.IssuerCoastGuard {
 		if !clientCert.AllowCoastGuardOrdersRead {
 			h.Logger().Info("Client certificate is not permitted to read Coast Guard Orders")
 			return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()
 		}
-	} else if orders.Issuer == ordersmessages.IssuerMarineCorps {
+	} else if orders.Issuer == models.IssuerMarineCorps {
 		if !clientCert.AllowMarineCorpsOrdersRead {
 			h.Logger().Info("Client certificate is not permitted to read Marine Corps Orders")
 			return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()
 		}
-	} else if orders.Issuer == ordersmessages.IssuerNavy {
+	} else if orders.Issuer == models.IssuerNavy {
 		if !clientCert.AllowNavyOrdersRead {
 			h.Logger().Info("Client certificate is not permitted to read Navy Orders")
 			return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()

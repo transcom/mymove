@@ -1046,8 +1046,7 @@ func main() {
 		ordersMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
 	}
 	ordersMux.Handle(pat.New("/*"), ordersapi.NewOrdersAPIHandler(handlerContext))
-	site.Handle(pat.Get("/orders/v1/*"), ordersMux)
-	site.Handle(pat.Post("/orders/v1/*"), ordersMux)
+	site.Handle(pat.New("/orders/v1/*"), ordersMux)
 
 	dpsMux := goji.SubMux()
 	dpsDetectionMiddleware := auth.HostnameDetectorMiddleware(zapLogger, v.GetString("http-dps-server-name"))

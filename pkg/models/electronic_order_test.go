@@ -3,15 +3,13 @@ package models_test
 import (
 	"context"
 
-	"github.com/transcom/mymove/pkg/gen/ordersmessages"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestElectronicOrderValidateAndCreate() {
 	newOrder := models.ElectronicOrder{
 		Edipi:        "1234567890",
-		Issuer:       ordersmessages.IssuerArmy,
+		Issuer:       models.IssuerArmy,
 		OrdersNumber: "8675309",
 	}
 
@@ -41,7 +39,7 @@ func (suite *ModelSuite) TestElectronicOrderValidations() {
 func (suite *ModelSuite) TestCreateElectronicOrder() {
 	newOrder := models.ElectronicOrder{
 		Edipi:        "1234567890",
-		Issuer:       ordersmessages.IssuerArmy,
+		Issuer:       models.IssuerArmy,
 		OrdersNumber: "8675309",
 	}
 
@@ -53,7 +51,7 @@ func (suite *ModelSuite) TestCreateElectronicOrder() {
 func (suite *ModelSuite) TestFetchElectronicOrderByID() {
 	newOrder := models.ElectronicOrder{
 		Edipi:        "1234567890",
-		Issuer:       ordersmessages.IssuerArmy,
+		Issuer:       models.IssuerArmy,
 		OrdersNumber: "8675309",
 	}
 
@@ -72,7 +70,7 @@ func (suite *ModelSuite) TestFetchElectronicOrderByID() {
 func (suite *ModelSuite) TestFetchElectronicOrderByUniqueFeatures() {
 	newOrder := models.ElectronicOrder{
 		Edipi:        "1234567890",
-		Issuer:       ordersmessages.IssuerArmy,
+		Issuer:       models.IssuerArmy,
 		OrdersNumber: "8675309",
 	}
 
@@ -92,7 +90,7 @@ func (suite *ModelSuite) TestFetchElectronicOrderByIssuerAndOrdersNum() {
 
 	newOrder := models.ElectronicOrder{
 		Edipi:        "1234567890",
-		Issuer:       ordersmessages.IssuerArmy,
+		Issuer:       models.IssuerArmy,
 		OrdersNumber: "8675309",
 	}
 
@@ -100,7 +98,7 @@ func (suite *ModelSuite) TestFetchElectronicOrderByIssuerAndOrdersNum() {
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 
-	retrievedOrder, err := models.FetchElectronicOrderByIssuerAndOrdersNum(suite.DB(), string(ordersmessages.IssuerArmy), newOrder.OrdersNumber)
+	retrievedOrder, err := models.FetchElectronicOrderByIssuerAndOrdersNum(suite.DB(), string(models.IssuerArmy), newOrder.OrdersNumber)
 	suite.NoError(err)
 	suite.Equal(newOrder.ID, retrievedOrder.ID)
 	suite.Equal(newOrder.OrdersNumber, retrievedOrder.OrdersNumber)
@@ -112,7 +110,7 @@ func (suite *ModelSuite) TestFetchElectronicOrdersByEdipi() {
 	edipi := "1234567890"
 	newOrder1 := models.ElectronicOrder{
 		Edipi:        edipi,
-		Issuer:       ordersmessages.IssuerArmy,
+		Issuer:       models.IssuerArmy,
 		OrdersNumber: "8675309",
 	}
 
@@ -123,7 +121,7 @@ func (suite *ModelSuite) TestFetchElectronicOrdersByEdipi() {
 
 	newOrder2 := models.ElectronicOrder{
 		Edipi:        edipi,
-		Issuer:       ordersmessages.IssuerArmy,
+		Issuer:       models.IssuerArmy,
 		OrdersNumber: "5551234",
 	}
 

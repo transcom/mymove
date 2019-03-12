@@ -6,14 +6,13 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/gen/ordersmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestElectronicOrdersRevisionValidateAndCreate() {
 	order := models.ElectronicOrder{
 		Edipi:        "1234567890",
-		Issuer:       ordersmessages.IssuerAirForce,
+		Issuer:       models.IssuerAirForce,
 		OrdersNumber: "8675309",
 	}
 	verrs, err := models.CreateElectronicOrder(context.Background(), suite.DB(), &order)
@@ -26,14 +25,14 @@ func (suite *ModelSuite) TestElectronicOrdersRevisionValidateAndCreate() {
 		SeqNum:            0,
 		GivenName:         "First",
 		FamilyName:        "Last",
-		Affiliation:       ordersmessages.AffiliationAirForce,
-		Paygrade:          ordersmessages.RankE1,
-		Status:            ordersmessages.StatusAuthorized,
+		Affiliation:       models.ElectronicOrdersAffiliationAirForce,
+		Paygrade:          models.PaygradeE1,
+		Status:            models.ElectronicOrdersStatusAuthorized,
 		DateIssued:        time.Now(),
 		NoCostMove:        false,
 		TdyEnRoute:        false,
-		TourType:          ordersmessages.TourTypeAccompanied,
-		OrdersType:        ordersmessages.OrdersTypeSeparation,
+		TourType:          models.TourTypeAccompanied,
+		OrdersType:        models.ElectronicOrdersTypeSeparation,
 		HasDependents:     true,
 	}
 
@@ -127,7 +126,7 @@ func (suite *ModelSuite) TestElectronicOrdersRevisionValidations() {
 func (suite *ModelSuite) TestCreateElectronicOrdersRevision() {
 	order := models.ElectronicOrder{
 		Edipi:        "1234567890",
-		Issuer:       ordersmessages.IssuerAirForce,
+		Issuer:       models.IssuerAirForce,
 		OrdersNumber: "8675309",
 	}
 	verrs, err := models.CreateElectronicOrder(context.Background(), suite.DB(), &order)
@@ -140,14 +139,14 @@ func (suite *ModelSuite) TestCreateElectronicOrdersRevision() {
 		SeqNum:            0,
 		GivenName:         "First",
 		FamilyName:        "Last",
-		Affiliation:       ordersmessages.AffiliationAirForce,
-		Paygrade:          ordersmessages.RankE1,
-		Status:            ordersmessages.StatusAuthorized,
+		Affiliation:       models.ElectronicOrdersAffiliationAirForce,
+		Paygrade:          models.PaygradeE1,
+		Status:            models.ElectronicOrdersStatusAuthorized,
 		DateIssued:        time.Now(),
 		NoCostMove:        false,
 		TdyEnRoute:        false,
-		TourType:          ordersmessages.TourTypeAccompanied,
-		OrdersType:        ordersmessages.OrdersTypeSeparation,
+		TourType:          models.TourTypeAccompanied,
+		OrdersType:        models.ElectronicOrdersTypeSeparation,
 		HasDependents:     true,
 	}
 
@@ -159,7 +158,7 @@ func (suite *ModelSuite) TestCreateElectronicOrdersRevision() {
 func (suite *ModelSuite) TestCreateElectronicOrdersRevision_Amendment() {
 	order := models.ElectronicOrder{
 		Edipi:        "1234567890",
-		Issuer:       ordersmessages.IssuerAirForce,
+		Issuer:       models.IssuerAirForce,
 		OrdersNumber: "8675309",
 	}
 	ctx := context.Background()
@@ -173,14 +172,14 @@ func (suite *ModelSuite) TestCreateElectronicOrdersRevision_Amendment() {
 		SeqNum:            0,
 		GivenName:         "First",
 		FamilyName:        "Last",
-		Affiliation:       ordersmessages.AffiliationAirForce,
-		Paygrade:          ordersmessages.RankE1,
-		Status:            ordersmessages.StatusAuthorized,
+		Affiliation:       models.ElectronicOrdersAffiliationAirForce,
+		Paygrade:          models.PaygradeE1,
+		Status:            models.ElectronicOrdersStatusAuthorized,
 		DateIssued:        time.Now(),
 		NoCostMove:        false,
 		TdyEnRoute:        false,
-		TourType:          ordersmessages.TourTypeAccompanied,
-		OrdersType:        ordersmessages.OrdersTypeSeparation,
+		TourType:          models.TourTypeAccompanied,
+		OrdersType:        models.ElectronicOrdersTypeSeparation,
 		HasDependents:     true,
 	}
 
@@ -194,14 +193,14 @@ func (suite *ModelSuite) TestCreateElectronicOrdersRevision_Amendment() {
 		SeqNum:            1,
 		GivenName:         "First",
 		FamilyName:        "Last",
-		Affiliation:       ordersmessages.AffiliationAirForce,
-		Paygrade:          ordersmessages.RankE1,
-		Status:            ordersmessages.StatusAuthorized,
+		Affiliation:       models.ElectronicOrdersAffiliationAirForce,
+		Paygrade:          models.PaygradeE1,
+		Status:            models.ElectronicOrdersStatusAuthorized,
 		DateIssued:        time.Now(),
 		NoCostMove:        false,
 		TdyEnRoute:        false,
-		TourType:          ordersmessages.TourTypeAccompanied,
-		OrdersType:        ordersmessages.OrdersTypeSeparation,
+		TourType:          models.TourTypeAccompanied,
+		OrdersType:        models.ElectronicOrdersTypeSeparation,
 		HasDependents:     true,
 	}
 

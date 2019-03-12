@@ -6,14 +6,14 @@ import (
 	"testing"
 
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
-	"github.com/transcom/mymove/pkg/gen/ordersmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestIndexOrdersForMemberNumSuccess() {
-	order := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", ordersmessages.IssuerAirForce, "8675309", ordersmessages.AffiliationAirForce)
+	order := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", models.IssuerAirForce, "8675309", models.ElectronicOrdersAffiliationAirForce)
+	order2 := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", models.IssuerAirForce, "8675310", models.ElectronicOrdersAffiliationAirForce)
 	req := httptest.NewRequest("GET", fmt.Sprintf("/orders/v1/edipis/%s/orders", order.Edipi), nil)
 
 	clientCert := models.ClientCert{
@@ -32,10 +32,14 @@ func (suite *HandlerSuite) TestIndexOrdersForMemberNumSuccess() {
 
 	suite.Assertions.IsType(&ordersoperations.IndexOrdersForMemberOK{}, response)
 	okResponse := response.(*ordersoperations.IndexOrdersForMemberOK)
-	suite.Len(okResponse.Payload, 1)
+	suite.Len(okResponse.Payload, 2)
 	suite.Equal(order.Edipi, okResponse.Payload[0].Edipi)
-	suite.Equal(order.Issuer, okResponse.Payload[0].Issuer)
-	suite.Equal(order.OrdersNumber, okResponse.Payload[0].OrdersNum)
+	suite.Equal(string(order.Issuer), string(okResponse.Payload[0].Issuer))
+	suite.Equal(order.Edipi, okResponse.Payload[1].Edipi)
+	suite.Equal(string(order.Issuer), string(okResponse.Payload[1].Issuer))
+	suite.Contains([]string{order.OrdersNumber, order2.OrdersNumber}, okResponse.Payload[0].OrdersNum)
+	suite.Contains([]string{order.OrdersNumber, order2.OrdersNumber}, okResponse.Payload[1].OrdersNum)
+	suite.NotEqual(okResponse.Payload[0].OrdersNum, okResponse.Payload[1].OrdersNum)
 }
 
 func (suite *HandlerSuite) TestIndexOrdersForMemberNumNoApiPerm() {
@@ -57,8 +61,8 @@ func (suite *HandlerSuite) TestIndexOrdersForMemberNumNoApiPerm() {
 func (suite *HandlerSuite) TestIndexOrderForMemberReadPerms() {
 	testCases := map[string]struct {
 		cert   models.ClientCert
-		issuer ordersmessages.Issuer
-		affl   ordersmessages.Affiliation
+		issuer models.Issuer
+		affl   models.ElectronicOrdersAffiliation
 		edipi  string
 	}{
 		"Army": {
@@ -69,8 +73,8 @@ func (suite *HandlerSuite) TestIndexOrderForMemberReadPerms() {
 				AllowMarineCorpsOrdersRead: true,
 				AllowNavyOrdersRead:        true,
 			},
-			ordersmessages.IssuerArmy,
-			ordersmessages.AffiliationArmy,
+			models.IssuerArmy,
+			models.ElectronicOrdersAffiliationArmy,
 			"1234567890",
 		},
 		"Navy": {
@@ -81,8 +85,8 @@ func (suite *HandlerSuite) TestIndexOrderForMemberReadPerms() {
 				AllowCoastGuardOrdersRead:  true,
 				AllowMarineCorpsOrdersRead: true,
 			},
-			ordersmessages.IssuerNavy,
-			ordersmessages.AffiliationNavy,
+			models.IssuerNavy,
+			models.ElectronicOrdersAffiliationNavy,
 			"1234567891",
 		},
 		"MarineCorps": {
@@ -93,8 +97,8 @@ func (suite *HandlerSuite) TestIndexOrderForMemberReadPerms() {
 				AllowCoastGuardOrdersRead: true,
 				AllowNavyOrdersRead:       true,
 			},
-			ordersmessages.IssuerMarineCorps,
-			ordersmessages.AffiliationMarineCorps,
+			models.IssuerMarineCorps,
+			models.ElectronicOrdersAffiliationMarineCorps,
 			"1234567892",
 		},
 		"CoastGuard": {
@@ -105,8 +109,8 @@ func (suite *HandlerSuite) TestIndexOrderForMemberReadPerms() {
 				AllowMarineCorpsOrdersRead: true,
 				AllowNavyOrdersRead:        true,
 			},
-			ordersmessages.IssuerCoastGuard,
-			ordersmessages.AffiliationCoastGuard,
+			models.IssuerCoastGuard,
+			models.ElectronicOrdersAffiliationCoastGuard,
 			"1234567893",
 		},
 		"AirForce": {
@@ -117,8 +121,8 @@ func (suite *HandlerSuite) TestIndexOrderForMemberReadPerms() {
 				AllowMarineCorpsOrdersRead: true,
 				AllowNavyOrdersRead:        true,
 			},
-			ordersmessages.IssuerAirForce,
-			ordersmessages.AffiliationAirForce,
+			models.IssuerAirForce,
+			models.ElectronicOrdersAffiliationAirForce,
 			"1234567894",
 		},
 	}

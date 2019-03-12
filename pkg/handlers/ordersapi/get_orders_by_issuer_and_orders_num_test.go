@@ -6,14 +6,13 @@ import (
 	"testing"
 
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
-	"github.com/transcom/mymove/pkg/gen/ordersmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumSuccess() {
-	order := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", ordersmessages.IssuerAirForce, "8675309", ordersmessages.AffiliationAirForce)
+	order := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", models.IssuerAirForce, "8675309", models.ElectronicOrdersAffiliationAirForce)
 	req := httptest.NewRequest("GET", fmt.Sprintf("/orders/v1/issuers/%s/orders/%s", string(order.Issuer), order.OrdersNumber), nil)
 
 	clientCert := models.ClientCert{
@@ -33,7 +32,7 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumSuccess() {
 
 	suite.Assertions.IsType(&ordersoperations.GetOrdersByIssuerAndOrdersNumOK{}, response)
 	okResponse := response.(*ordersoperations.GetOrdersByIssuerAndOrdersNumOK)
-	suite.Equal(order.Issuer, okResponse.Payload.Issuer)
+	suite.Equal(string(order.Issuer), string(okResponse.Payload.Issuer))
 	suite.Equal(order.OrdersNumber, okResponse.Payload.OrdersNum)
 }
 
@@ -44,7 +43,7 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumNoApiPerm() {
 
 	params := ordersoperations.GetOrdersByIssuerAndOrdersNumParams{
 		HTTPRequest: req,
-		Issuer:      string(ordersmessages.IssuerAirForce),
+		Issuer:      string(models.IssuerAirForce),
 		OrdersNum:   "8675309",
 	}
 
@@ -57,8 +56,8 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumNoApiPerm() {
 func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumReadPerms() {
 	testCases := map[string]struct {
 		cert   models.ClientCert
-		issuer ordersmessages.Issuer
-		affl   ordersmessages.Affiliation
+		issuer models.Issuer
+		affl   models.ElectronicOrdersAffiliation
 		edipi  string
 	}{
 		"Army": {
@@ -69,8 +68,8 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumReadPerms() {
 				AllowMarineCorpsOrdersRead: true,
 				AllowNavyOrdersRead:        true,
 			},
-			ordersmessages.IssuerArmy,
-			ordersmessages.AffiliationArmy,
+			models.IssuerArmy,
+			models.ElectronicOrdersAffiliationArmy,
 			"1234567890",
 		},
 		"Navy": {
@@ -81,8 +80,8 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumReadPerms() {
 				AllowCoastGuardOrdersRead:  true,
 				AllowMarineCorpsOrdersRead: true,
 			},
-			ordersmessages.IssuerNavy,
-			ordersmessages.AffiliationNavy,
+			models.IssuerNavy,
+			models.ElectronicOrdersAffiliationNavy,
 			"1234567891",
 		},
 		"MarineCorps": {
@@ -93,8 +92,8 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumReadPerms() {
 				AllowCoastGuardOrdersRead: true,
 				AllowNavyOrdersRead:       true,
 			},
-			ordersmessages.IssuerMarineCorps,
-			ordersmessages.AffiliationMarineCorps,
+			models.IssuerMarineCorps,
+			models.ElectronicOrdersAffiliationMarineCorps,
 			"1234567892",
 		},
 		"CoastGuard": {
@@ -105,8 +104,8 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumReadPerms() {
 				AllowMarineCorpsOrdersRead: true,
 				AllowNavyOrdersRead:        true,
 			},
-			ordersmessages.IssuerCoastGuard,
-			ordersmessages.AffiliationCoastGuard,
+			models.IssuerCoastGuard,
+			models.ElectronicOrdersAffiliationCoastGuard,
 			"1234567893",
 		},
 		"AirForce": {
@@ -117,8 +116,8 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumReadPerms() {
 				AllowMarineCorpsOrdersRead: true,
 				AllowNavyOrdersRead:        true,
 			},
-			ordersmessages.IssuerAirForce,
-			ordersmessages.AffiliationAirForce,
+			models.IssuerAirForce,
+			models.ElectronicOrdersAffiliationAirForce,
 			"1234567894",
 		},
 	}
@@ -144,7 +143,7 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumReadPerms() {
 }
 
 func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumNotFound() {
-	issuer := ordersmessages.IssuerArmy
+	issuer := models.IssuerArmy
 	ordersNum := "notfound"
 	req := httptest.NewRequest("GET", fmt.Sprintf("/orders/v1/issuers/%s/orders/%s", string(issuer), ordersNum), nil)
 	clientCert := models.ClientCert{

@@ -107,7 +107,7 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 		orders = &models.ElectronicOrder{
 			OrdersNumber: params.OrdersNum,
 			Edipi:        edipi,
-			Issuer:       ordersmessages.Issuer(params.Issuer),
+			Issuer:       models.Issuer(params.Issuer),
 			Revisions:    []models.ElectronicOrdersRevision{},
 		}
 		verrs, err := models.CreateElectronicOrder(ctx, h.DB(), orders)
@@ -149,11 +149,11 @@ func toElectronicOrdersRevision(orders *models.ElectronicOrder, rev *ordersmessa
 		dateIssued = time.Time(*rev.DateIssued)
 	}
 
-	var tourType ordersmessages.TourType
+	var tourType models.TourType
 	if rev.TourType == "" {
-		tourType = ordersmessages.TourTypeAccompanied
+		tourType = models.TourTypeAccompanied
 	} else {
-		tourType = rev.TourType
+		tourType = models.TourType(rev.TourType)
 	}
 
 	newRevision := models.ElectronicOrdersRevision{
@@ -164,15 +164,15 @@ func toElectronicOrdersRevision(orders *models.ElectronicOrder, rev *ordersmessa
 		MiddleName:          rev.Member.MiddleName,
 		FamilyName:          rev.Member.FamilyName,
 		NameSuffix:          rev.Member.Suffix,
-		Affiliation:         rev.Member.Affiliation,
-		Paygrade:            rev.Member.Rank,
+		Affiliation:         models.ElectronicOrdersAffiliation(rev.Member.Affiliation),
+		Paygrade:            models.Paygrade(rev.Member.Rank),
 		Title:               rev.Member.Title,
-		Status:              rev.Status,
+		Status:              models.ElectronicOrdersStatus(rev.Status),
 		DateIssued:          dateIssued,
 		NoCostMove:          rev.NoCostMove,
 		TdyEnRoute:          rev.TdyEnRoute,
-		TourType:            tourType,
-		OrdersType:          rev.OrdersType,
+		TourType:            models.TourType(tourType),
+		OrdersType:          models.ElectronicOrdersType(rev.OrdersType),
 		HasDependents:       rev.HasDependents,
 		ReportNoEarlierThan: (*time.Time)(rev.ReportNoEarlierThan),
 		ReportNoLaterThan:   (*time.Time)(rev.ReportNoLaterThan),

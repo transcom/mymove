@@ -13,6 +13,7 @@ type WeightAllotment struct {
 }
 
 func makeEntitlements() map[ServiceMemberRank]WeightAllotment {
+	// the midshipman entitlement is shared with service academy cadet
 	midshipman := WeightAllotment{
 		TotalWeightSelf:               350,
 		TotalWeightSelfPlusDependents: 3000,
@@ -90,6 +91,7 @@ func makeEntitlements() map[ServiceMemberRank]WeightAllotment {
 		ProGearWeightSpouse:           500,
 	}
 
+	// O-1 through O-5 share their entitlements with W-1 through W-5
 	O1W1AcademyGraduate := WeightAllotment{
 		TotalWeightSelf:               10000,
 		TotalWeightSelfPlusDependents: 12000,

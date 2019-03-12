@@ -4,8 +4,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/transcom/mymove/pkg/gen/ordersmessages"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
@@ -17,7 +15,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetOrdersSuccess() {
-	order := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", ordersmessages.IssuerAirForce, "8675309", ordersmessages.AffiliationAirForce)
+	order := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", models.IssuerAirForce, "8675309", models.ElectronicOrdersAffiliationAirForce)
 	req := httptest.NewRequest("GET", "/orders/v1/orders/", nil)
 
 	clientCert := models.ClientCert{
@@ -59,8 +57,8 @@ func (suite *HandlerSuite) TestGetOrdersNoApiPerm() {
 func (suite *HandlerSuite) TestGetOrdersReadPerms() {
 	testCases := map[string]struct {
 		cert   models.ClientCert
-		issuer ordersmessages.Issuer
-		affl   ordersmessages.Affiliation
+		issuer models.Issuer
+		affl   models.ElectronicOrdersAffiliation
 		edipi  string
 	}{
 		"Army": {
@@ -71,8 +69,8 @@ func (suite *HandlerSuite) TestGetOrdersReadPerms() {
 				AllowMarineCorpsOrdersRead: true,
 				AllowNavyOrdersRead:        true,
 			},
-			ordersmessages.IssuerArmy,
-			ordersmessages.AffiliationArmy,
+			models.IssuerArmy,
+			models.ElectronicOrdersAffiliationArmy,
 			"1234567890",
 		},
 		"Navy": {
@@ -83,8 +81,8 @@ func (suite *HandlerSuite) TestGetOrdersReadPerms() {
 				AllowCoastGuardOrdersRead:  true,
 				AllowMarineCorpsOrdersRead: true,
 			},
-			ordersmessages.IssuerNavy,
-			ordersmessages.AffiliationNavy,
+			models.IssuerNavy,
+			models.ElectronicOrdersAffiliationNavy,
 			"1234567891",
 		},
 		"MarineCorps": {
@@ -95,8 +93,8 @@ func (suite *HandlerSuite) TestGetOrdersReadPerms() {
 				AllowCoastGuardOrdersRead: true,
 				AllowNavyOrdersRead:       true,
 			},
-			ordersmessages.IssuerMarineCorps,
-			ordersmessages.AffiliationMarineCorps,
+			models.IssuerMarineCorps,
+			models.ElectronicOrdersAffiliationMarineCorps,
 			"1234567892",
 		},
 		"CoastGuard": {
@@ -107,8 +105,8 @@ func (suite *HandlerSuite) TestGetOrdersReadPerms() {
 				AllowMarineCorpsOrdersRead: true,
 				AllowNavyOrdersRead:        true,
 			},
-			ordersmessages.IssuerCoastGuard,
-			ordersmessages.AffiliationCoastGuard,
+			models.IssuerCoastGuard,
+			models.ElectronicOrdersAffiliationCoastGuard,
 			"1234567893",
 		},
 		"AirForce": {
@@ -119,8 +117,8 @@ func (suite *HandlerSuite) TestGetOrdersReadPerms() {
 				AllowMarineCorpsOrdersRead: true,
 				AllowNavyOrdersRead:        true,
 			},
-			ordersmessages.IssuerAirForce,
-			ordersmessages.AffiliationAirForce,
+			models.IssuerAirForce,
+			models.ElectronicOrdersAffiliationAirForce,
 			"1234567894",
 		},
 	}

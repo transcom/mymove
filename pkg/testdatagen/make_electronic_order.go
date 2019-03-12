@@ -5,12 +5,11 @@ import (
 
 	"github.com/gobuffalo/pop"
 
-	"github.com/transcom/mymove/pkg/gen/ordersmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // MakeElectronicOrder returns a single ElectronicOrder with a single ElectronicOrdersRevision
-func MakeElectronicOrder(db *pop.Connection, edipi string, issuer ordersmessages.Issuer, ordersNumber string, affiliation ordersmessages.Affiliation) models.ElectronicOrder {
+func MakeElectronicOrder(db *pop.Connection, edipi string, issuer models.Issuer, ordersNumber string, affiliation models.ElectronicOrdersAffiliation) models.ElectronicOrder {
 	order := models.ElectronicOrder{
 		Edipi:        edipi,
 		Issuer:       issuer,
@@ -26,13 +25,13 @@ func MakeElectronicOrder(db *pop.Connection, edipi string, issuer ordersmessages
 		GivenName:         "First",
 		FamilyName:        "Last",
 		Affiliation:       affiliation,
-		Paygrade:          ordersmessages.RankE1,
-		Status:            ordersmessages.StatusAuthorized,
+		Paygrade:          models.PaygradeE1,
+		Status:            models.ElectronicOrdersStatusAuthorized,
 		DateIssued:        time.Now(),
 		NoCostMove:        false,
 		TdyEnRoute:        false,
-		TourType:          ordersmessages.TourTypeAccompanied,
-		OrdersType:        ordersmessages.OrdersTypeSeparation,
+		TourType:          models.TourTypeAccompanied,
+		OrdersType:        models.ElectronicOrdersTypeSeparation,
 		HasDependents:     true,
 	}
 

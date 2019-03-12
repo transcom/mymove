@@ -82,11 +82,11 @@ func (suite *HandlerSuite) TestPostRevisionNew() {
 	suite.EqualValues(rev.SeqNum, storedRev.SeqNum)
 	suite.Equal(rev.Member.GivenName, storedRev.GivenName)
 	suite.Equal(rev.Member.FamilyName, storedRev.FamilyName)
-	suite.Equal(rev.Member.Rank, storedRev.Paygrade)
+	suite.Equal(string(rev.Member.Rank), string(storedRev.Paygrade))
 	suite.Equal(rev.PcsAccounting.Tac, storedRev.HhgTAC)
-	suite.Equal(rev.Status, storedRev.Status)
-	suite.Equal(rev.TourType, storedRev.TourType)
-	suite.Equal(rev.OrdersType, storedRev.OrdersType)
+	suite.Equal(string(rev.Status), string(storedRev.Status))
+	suite.Equal(string(rev.TourType), string(storedRev.TourType))
+	suite.Equal(string(rev.OrdersType), string(storedRev.OrdersType))
 	suite.Equal(rev.HasDependents, storedRev.HasDependents)
 	suite.Equal(rev.NoCostMove, storedRev.NoCostMove)
 	suite.Equal(rev.LosingUnit.Uic, storedRev.LosingUIC)
@@ -98,7 +98,7 @@ func (suite *HandlerSuite) TestPostRevisionNew() {
 
 func (suite *HandlerSuite) TestPostRevisionNewAmendment() {
 	// prime the DB with an order with 1 revision
-	origOrder := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", ordersmessages.IssuerAirForce, "8675309", ordersmessages.AffiliationAirForce)
+	origOrder := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", models.IssuerAirForce, "8675309", models.ElectronicOrdersAffiliationAirForce)
 
 	req := httptest.NewRequest("POST", "/orders/v1/orders", nil)
 	clientCert := models.ClientCert{
@@ -167,11 +167,11 @@ func (suite *HandlerSuite) TestPostRevisionNewAmendment() {
 	suite.EqualValues(rev.SeqNum, storedRev.SeqNum)
 	suite.Equal(rev.Member.GivenName, storedRev.GivenName)
 	suite.Equal(rev.Member.FamilyName, storedRev.FamilyName)
-	suite.Equal(rev.Member.Rank, storedRev.Paygrade)
+	suite.Equal(string(rev.Member.Rank), string(storedRev.Paygrade))
 	suite.Equal(rev.PcsAccounting.Tac, storedRev.HhgTAC)
-	suite.Equal(rev.Status, storedRev.Status)
-	suite.Equal(rev.TourType, storedRev.TourType)
-	suite.Equal(rev.OrdersType, storedRev.OrdersType)
+	suite.Equal(string(rev.Status), string(storedRev.Status))
+	suite.Equal(string(rev.TourType), string(storedRev.TourType))
+	suite.Equal(string(rev.OrdersType), string(storedRev.OrdersType))
 	suite.Equal(rev.HasDependents, storedRev.HasDependents)
 	suite.Equal(rev.NoCostMove, storedRev.NoCostMove)
 	suite.Equal(rev.LosingUnit.Uic, storedRev.LosingUIC)

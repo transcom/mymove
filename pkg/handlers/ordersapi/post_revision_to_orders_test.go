@@ -18,7 +18,7 @@ import (
 
 func (suite *HandlerSuite) TestPostRevisionToOrdersNewAmendment() {
 	// prime the DB with an order with 1 revision
-	origOrder := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", ordersmessages.IssuerAirForce, "8675309", ordersmessages.AffiliationAirForce)
+	origOrder := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", models.IssuerAirForce, "8675309", models.ElectronicOrdersAffiliationAirForce)
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("/orders/v1/orders/%s", origOrder.ID), nil)
 	clientCert := models.ClientCert{
@@ -82,11 +82,11 @@ func (suite *HandlerSuite) TestPostRevisionToOrdersNewAmendment() {
 	suite.EqualValues(rev.SeqNum, storedRev.SeqNum)
 	suite.Equal(rev.Member.GivenName, storedRev.GivenName)
 	suite.Equal(rev.Member.FamilyName, storedRev.FamilyName)
-	suite.Equal(rev.Member.Rank, storedRev.Paygrade)
+	suite.Equal(string(rev.Member.Rank), string(storedRev.Paygrade))
 	suite.Equal(rev.PcsAccounting.Tac, storedRev.HhgTAC)
-	suite.Equal(rev.Status, storedRev.Status)
-	suite.Equal(rev.TourType, storedRev.TourType)
-	suite.Equal(rev.OrdersType, storedRev.OrdersType)
+	suite.Equal(string(rev.Status), string(storedRev.Status))
+	suite.Equal(string(rev.TourType), string(storedRev.TourType))
+	suite.Equal(string(rev.OrdersType), string(storedRev.OrdersType))
 	suite.Equal(rev.HasDependents, storedRev.HasDependents)
 	suite.Equal(rev.NoCostMove, storedRev.NoCostMove)
 	suite.Equal(rev.LosingUnit.Uic, storedRev.LosingUIC)
@@ -116,8 +116,8 @@ func (suite *HandlerSuite) TestPostRevisionToOrdersNoApiPerm() {
 func (suite *HandlerSuite) TestPostRevisionToOrdersWritePerms() {
 	testCases := map[string]struct {
 		cert   models.ClientCert
-		issuer ordersmessages.Issuer
-		affl   ordersmessages.Affiliation
+		issuer models.Issuer
+		affl   models.ElectronicOrdersAffiliation
 		edipi  string
 	}{
 		"Army": {
@@ -128,8 +128,8 @@ func (suite *HandlerSuite) TestPostRevisionToOrdersWritePerms() {
 				AllowMarineCorpsOrdersWrite: true,
 				AllowNavyOrdersWrite:        true,
 			},
-			ordersmessages.IssuerArmy,
-			ordersmessages.AffiliationArmy,
+			models.IssuerArmy,
+			models.ElectronicOrdersAffiliationArmy,
 			"1234567890",
 		},
 		"Navy": {
@@ -140,8 +140,8 @@ func (suite *HandlerSuite) TestPostRevisionToOrdersWritePerms() {
 				AllowCoastGuardOrdersWrite:  true,
 				AllowMarineCorpsOrdersWrite: true,
 			},
-			ordersmessages.IssuerNavy,
-			ordersmessages.AffiliationNavy,
+			models.IssuerNavy,
+			models.ElectronicOrdersAffiliationNavy,
 			"1234567891",
 		},
 		"MarineCorps": {
@@ -152,8 +152,8 @@ func (suite *HandlerSuite) TestPostRevisionToOrdersWritePerms() {
 				AllowCoastGuardOrdersWrite: true,
 				AllowNavyOrdersWrite:       true,
 			},
-			ordersmessages.IssuerMarineCorps,
-			ordersmessages.AffiliationMarineCorps,
+			models.IssuerMarineCorps,
+			models.ElectronicOrdersAffiliationMarineCorps,
 			"1234567892",
 		},
 		"CoastGuard": {
@@ -164,8 +164,8 @@ func (suite *HandlerSuite) TestPostRevisionToOrdersWritePerms() {
 				AllowMarineCorpsOrdersWrite: true,
 				AllowNavyOrdersWrite:        true,
 			},
-			ordersmessages.IssuerCoastGuard,
-			ordersmessages.AffiliationCoastGuard,
+			models.IssuerCoastGuard,
+			models.ElectronicOrdersAffiliationCoastGuard,
 			"1234567893",
 		},
 		"AirForce": {
@@ -176,8 +176,8 @@ func (suite *HandlerSuite) TestPostRevisionToOrdersWritePerms() {
 				AllowMarineCorpsOrdersWrite: true,
 				AllowNavyOrdersWrite:        true,
 			},
-			ordersmessages.IssuerAirForce,
-			ordersmessages.AffiliationAirForce,
+			models.IssuerAirForce,
+			models.ElectronicOrdersAffiliationAirForce,
 			"1234567894",
 		},
 	}
