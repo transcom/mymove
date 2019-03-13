@@ -1,3 +1,4 @@
+#documentation - docs/how-to/run-pre-commit-hooks.md
 repos:
   - repo: local
     hooks:

@@ -26,7 +26,7 @@ If you are looking to understand choices made in this project, see the list of [
 * [Run End to End (Cypress) Tests](how-to/run-e2e-tests.md#how-to-run-end-to-end-cypress-tests)
 * [Run Go Tests](how-to/run-go-tests.md#how-to-run-go-tests)
 * [Run JavaScript (Jest) Tests](how-to/run-js-tests.md#how-to-run-javascript-jest-tests)
-* [run pre-commit and troubleshoot](how-to/run-pre-commit-hooks.md#how-to-run-pre-commit-and-troubleshoot)
+* [Run and troubleshoot pre-commit hook's](how-to/run-pre-commit-hooks.md#run-and-troubleshoot-pre-commit-hook-s)
 * [Store Data in Redux](how-to/store-data-in-redux.md#how-to-store-data-in-redux)
 * [Store UI State in Redux](how-to/store-ui-state-in-redux.md#how-to-store-ui-state-in-redux)
 * [Troubleshoot GEX Connection](how-to/troubleshoot-gex-connection.md#how-to-troubleshoot-gex-connection)
