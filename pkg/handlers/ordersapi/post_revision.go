@@ -114,6 +114,9 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 	return ordersoperations.NewPostRevisionCreated().WithPayload(orderPayload)
 }
 
+// toElectronicOrdersRevision converts an API Revision to a DB model
+// ElectronicOrdersRevision, and sets the association with the provided DB
+// model ElectronicOrder
 func toElectronicOrdersRevision(orders *models.ElectronicOrder, rev *ordersmessages.Revision) *models.ElectronicOrdersRevision {
 	var dateIssued time.Time
 	if rev.DateIssued == nil {
