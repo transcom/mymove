@@ -98,6 +98,7 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 	for _, r := range orders.Revisions {
 		// SeqNum collision
 		if r.SeqNum == int(params.Revision.SeqNum) {
+			h.Logger().Info(fmt.Sprintf("Cannot post revision with sequence number %d for EDIPI %s to Electronic Orders with OrdersNum %s from Issuer %s: a Revision with that sequence number already exists", r.SeqNum, edipi, params.OrdersNum, params.Issuer))
 			return ordersoperations.NewPostRevisionConflict()
 		}
 	}

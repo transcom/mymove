@@ -1,6 +1,8 @@
 package ordersapi
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 
@@ -31,7 +33,7 @@ func (h GetOrdersHandler) Handle(params ordersoperations.GetOrdersParams) middle
 
 	id, err := uuid.FromString(params.UUID.String())
 	if err != nil {
-		h.Logger().Info("Not a valid UUID")
+		h.Logger().Error(fmt.Sprintf("Not a valid UUID: %s; why didn't the generated Swagger code catch this?", params.UUID))
 		return ordersoperations.NewGetOrdersBadRequest()
 	}
 
