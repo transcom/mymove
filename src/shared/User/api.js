@@ -9,7 +9,7 @@ export async function GetLoggedInUser() {
   return response.body;
 }
 
-export function LogoutUser() {
+export async function LogoutUser() {
   const logoutEndpoint = '/auth/logout';
   const req = {
     url: logoutEndpoint,
@@ -17,7 +17,12 @@ export function LogoutUser() {
     credentials: 'same-origin', // Passes through CSRF cookies
     requestInterceptor,
   };
-  Swagger.http(req).then(response => {
-    window.location = '/';
-  });
+  try {
+    // Successful logout should return a redirect url
+    let resp = await Swagger.http(req);
+    window.location.href = resp.text;
+  } catch (err) {
+    // Failure to logout should return user to homepage
+    window.location.href = '/';
+  }
 }
