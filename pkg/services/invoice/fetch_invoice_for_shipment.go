@@ -35,11 +35,11 @@ func (f FetchShipmentForInvoice) Call(shipmentID uuid.UUID) (models.Shipment, er
 	}
 
 	var lineItems models.ShipmentLineItems
+	code35A := "35A"
 	err = f.DB.Q().
 		Eager("Tariff400ngItem").
 		LeftJoin("tariff400ng_items as ti", "shipment_line_items.tariff400ng_item_id = ti.id").
-		Where("(shipment_line_items.status=? OR ti.requires_pre_approval = false)",
-			models.ShipmentLineItemStatusAPPROVED).
+		Where("(ti.requires_pre_approval = false OR (shipment_line_items.status=? AND ti.code != ?) OR (shipment_line_items.status=? AND ti.code = ? and shipment_line_items.actual_amount_cents is not null) )", models.ShipmentLineItemStatusAPPROVED, code35A, models.ShipmentLineItemStatusAPPROVED, code35A).
 		Where("shipment_line_items.invoice_id IS NULL").
 		Where("shipment_line_items.shipment_id=?", shipmentID).
 		All(&lineItems)
