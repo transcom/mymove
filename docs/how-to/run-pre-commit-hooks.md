@@ -12,14 +12,14 @@ If you would like to run an individual hook, for example if you want to only run
 | Hook  | Description | Notes |
 | ------------- | ------------- |------------- |
 | go-version  | Attempts to load go version and verify it  |
-|  check-json  | Attempts to load all json files to verify syntax |
-| check-merge-conflict  | Check for files that contain merge conflict strings |
-| check-yaml  | Attempts to load all yaml files to verify syntax |
-| detect-private-key  | Checks for the existence of private keys |
-|  trailing-whitespace | Trims trailing whitespace |
-| markdownlint  | Linting rules for markdown files | more information [here](http://github.com/igorshubovych/markdownlint-cli)
-| shell-lint  |  |
-|  prettier |  |
+|  check-json  | Attempts to load all json files to verify syntax | for more see [here](http://github.com/pre-commit/pre-commit-hooks)
+| check-merge-conflict  | Check for files that contain merge conflict strings | for more see [here](http://github.com/pre-commit/pre-commit-hooks)
+| check-yaml  | Attempts to load all yaml files to verify syntax | for more see [here](http://github.com/pre-commit/pre-commit-hooks)
+| detect-private-key  | Checks for the existence of private keys | for more see [here](http://github.com/pre-commit/pre-commit-hooks)
+|  trailing-whitespace | Trims trailing whitespace | for more see [here](http://github.com/pre-commit/pre-commit-hooks)
+| markdownlint  | Linting rules for markdown files | for more see [here](http://github.com/igorshubovych/markdownlint-cli)
+| shell-lint  | Linter for shell files including spell check | for more see [here](http://github.com/detailyang/pre-commit-shell)
+|  prettier | Attempts to run [prettier](https://prettier.io/) hook against the code |
 | eslint  |  |
 | swagger  |  |
 | markdown-toc  |  |
