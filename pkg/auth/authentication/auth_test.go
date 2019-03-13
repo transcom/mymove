@@ -78,11 +78,11 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req.WithContext(ctx))
 
-	if status := rr.Code; status != http.StatusSeeOther {
-		t.Errorf("handler returned wrong status code: got %d wanted %d", status, http.StatusSeeOther)
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %d wanted %d", status, http.StatusOK)
 	}
 
-	redirectURL, err := url.Parse(rr.HeaderMap.Get("Location"))
+	redirectURL, err := url.Parse(rr.Body.String())
 	if err != nil {
 		t.Fatal(err)
 	}
