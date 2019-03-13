@@ -2,6 +2,7 @@ package models_test
 
 import (
 	"context"
+	"time"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -44,6 +45,31 @@ func (suite *ModelSuite) TestCreateElectronicOrder() {
 	}
 
 	verrs, err := models.CreateElectronicOrder(context.Background(), suite.DB(), &newOrder)
+	suite.NoError(err)
+	suite.NoVerrs(verrs)
+}
+
+func (suite *ModelSuite) TestCreateElectronicOrderWithRevision() {
+	newOrder := models.ElectronicOrder{
+		Edipi:        "1234567890",
+		Issuer:       models.IssuerArmy,
+		OrdersNumber: "8675309",
+	}
+	rev := models.ElectronicOrdersRevision{
+		SeqNum:        0,
+		GivenName:     "First",
+		FamilyName:    "Last",
+		Affiliation:   models.ElectronicOrdersAffiliationArmy,
+		Paygrade:      models.PaygradeE1,
+		Status:        models.ElectronicOrdersStatusAuthorized,
+		DateIssued:    time.Now(),
+		NoCostMove:    false,
+		TdyEnRoute:    false,
+		TourType:      models.TourTypeAccompanied,
+		OrdersType:    models.ElectronicOrdersTypeSeparation,
+		HasDependents: true,
+	}
+	verrs, err := models.CreateElectronicOrderWithRevision(context.Background(), suite.DB(), &newOrder, &rev)
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 }

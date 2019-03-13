@@ -90,12 +90,33 @@ func CreateElectronicOrder(ctx context.Context, dbConnection *pop.Connection, or
 	defer span.Send()
 
 	responseVErrors := validate.NewErrors()
+	verrs, responseError := dbConnection.ValidateAndCreate(order)
+	if verrs.HasAny() {
+		responseVErrors.Append(verrs)
+	}
+
+	return responseVErrors, responseError
+}
+
+// CreateElectronicOrderWithRevision inserts a new set of electronic Orders into the database with its first Revision
+func CreateElectronicOrderWithRevision(ctx context.Context, dbConnection *pop.Connection, order *ElectronicOrder, firstRevision *ElectronicOrdersRevision) (*validate.Errors, error) {
+	ctx, span := beeline.StartSpan(ctx, "CreateElectronicOrder")
+	defer span.Send()
+
+	responseVErrors := validate.NewErrors()
 	var responseError error
 
 	// If the passed in function returns an error, the transaction is rolled back
 	dbConnection.Transaction(func(dbConnection *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
-		if verrs, err := dbConnection.ValidateAndCreate(order); verrs.HasAny() || err != nil {
+		if verrs, err := CreateElectronicOrder(ctx, dbConnection, order); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = err
+			return transactionError
+		}
+		firstRevision.ElectronicOrderID = order.ID
+		firstRevision.ElectronicOrder = *order
+		if verrs, err := CreateElectronicOrdersRevision(ctx, dbConnection, firstRevision); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = err
 			return transactionError

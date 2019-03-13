@@ -22,9 +22,10 @@ func (suite *HandlerSuite) TestPostRevisionNew() {
 	}
 	req = suite.AuthenticateClientCertRequest(req, &clientCert)
 
+	seqNum := int64(0)
 	hasDependents := true
 	rev := ordersmessages.Revision{
-		SeqNum: 0,
+		SeqNum: &seqNum,
 		Member: &ordersmessages.Member{
 			GivenName:   "First",
 			FamilyName:  "Last",
@@ -80,7 +81,7 @@ func (suite *HandlerSuite) TestPostRevisionNew() {
 	suite.Equal(params.OrdersNum, order.OrdersNumber)
 	suite.Len(order.Revisions, 1)
 	storedRev := order.Revisions[0]
-	suite.EqualValues(rev.SeqNum, storedRev.SeqNum)
+	suite.EqualValues(*rev.SeqNum, storedRev.SeqNum)
 	suite.Equal(rev.Member.GivenName, storedRev.GivenName)
 	suite.Equal(rev.Member.FamilyName, storedRev.FamilyName)
 	suite.Equal(string(rev.Member.Rank), string(storedRev.Paygrade))
@@ -108,9 +109,10 @@ func (suite *HandlerSuite) TestPostRevisionNewAmendment() {
 	}
 	req = suite.AuthenticateClientCertRequest(req, &clientCert)
 
+	seqNum := int64(1)
 	hasDependents := true
 	rev := ordersmessages.Revision{
-		SeqNum: 1,
+		SeqNum: &seqNum,
 		Member: &ordersmessages.Member{
 			GivenName:   "First",
 			FamilyName:  "Last",
@@ -166,7 +168,7 @@ func (suite *HandlerSuite) TestPostRevisionNewAmendment() {
 	suite.Equal(params.OrdersNum, order.OrdersNumber)
 	suite.Len(order.Revisions, 2)
 	storedRev := order.Revisions[1]
-	suite.EqualValues(rev.SeqNum, storedRev.SeqNum)
+	suite.EqualValues(*rev.SeqNum, storedRev.SeqNum)
 	suite.Equal(rev.Member.GivenName, storedRev.GivenName)
 	suite.Equal(rev.Member.FamilyName, storedRev.FamilyName)
 	suite.Equal(string(rev.Member.Rank), string(storedRev.Paygrade))

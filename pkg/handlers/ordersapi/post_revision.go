@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gobuffalo/validate"
 	beeline "github.com/honeycombio/beeline-go"
 
 	"github.com/transcom/mymove/pkg/auth/authentication"
@@ -76,39 +77,40 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 	// Is there already a Revision matching these Orders? (same ordersNum and issuer)
 	orders, err := models.FetchElectronicOrderByIssuerAndOrdersNum(h.DB(), params.Issuer, params.OrdersNum)
 
+	var newRevision *models.ElectronicOrdersRevision
+	var verrs *validate.Errors
 	if err == models.ErrFetchNotFound {
+		// New Orders
 		orders = &models.ElectronicOrder{
 			OrdersNumber: params.OrdersNum,
 			Edipi:        edipi,
 			Issuer:       models.Issuer(params.Issuer),
 			Revisions:    []models.ElectronicOrdersRevision{},
 		}
-		verrs, err := models.CreateElectronicOrder(ctx, h.DB(), orders)
-		if err != nil || verrs.HasAny() {
-			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
-		}
+		newRevision = toElectronicOrdersRevision(orders, params.Revision)
+		verrs, err = models.CreateElectronicOrderWithRevision(ctx, h.DB(), orders, newRevision)
 	} else if err != nil {
 		h.Logger().Info(fmt.Sprintf("Error fetching electronic orders with OrdersNum %s and Issuer %s: %s", params.OrdersNum, params.Issuer, err.Error()))
 		return ordersoperations.NewPostRevisionInternalServerError()
 	} else if orders.Edipi != edipi {
 		h.Logger().Info(fmt.Sprintf("Cannot post revision for EDIPI %s to Electronic Orders with OrdersNum %s from Issuer %s: the existing orders are issued to EDIPI %s", edipi, params.OrdersNum, params.Issuer, orders.Edipi))
 		return ordersoperations.NewPostRevisionConflict()
-	}
-
-	for _, r := range orders.Revisions {
-		// SeqNum collision
-		if r.SeqNum == int(params.Revision.SeqNum) {
-			h.Logger().Info(fmt.Sprintf("Cannot post revision with sequence number %d for EDIPI %s to Electronic Orders with OrdersNum %s from Issuer %s: a Revision with that sequence number already exists", r.SeqNum, edipi, params.OrdersNum, params.Issuer))
-			return ordersoperations.NewPostRevisionConflict()
+	} else {
+		// Amending
+		for _, r := range orders.Revisions {
+			// SeqNum collision
+			if r.SeqNum == int(*params.Revision.SeqNum) {
+				h.Logger().Info(fmt.Sprintf("Cannot post revision with sequence number %d for EDIPI %s to Electronic Orders with OrdersNum %s from Issuer %s: a Revision with that sequence number already exists", r.SeqNum, edipi, params.OrdersNum, params.Issuer))
+				return ordersoperations.NewPostRevisionConflict()
+			}
 		}
-	}
 
-	newRevision := toElectronicOrdersRevision(orders, params.Revision)
-	verrs, err := models.CreateElectronicOrdersRevision(ctx, h.DB(), newRevision)
+		newRevision = toElectronicOrdersRevision(orders, params.Revision)
+		verrs, err = models.CreateElectronicOrdersRevision(ctx, h.DB(), newRevision)
+	}
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
-
 	orders.Revisions = append(orders.Revisions, *newRevision)
 
 	orderPayload, err := payloadForElectronicOrderModel(orders)
@@ -139,7 +141,7 @@ func toElectronicOrdersRevision(orders *models.ElectronicOrder, rev *ordersmessa
 	newRevision := models.ElectronicOrdersRevision{
 		ElectronicOrderID:   orders.ID,
 		ElectronicOrder:     *orders,
-		SeqNum:              int(rev.SeqNum),
+		SeqNum:              int(*rev.SeqNum),
 		GivenName:           rev.Member.GivenName,
 		MiddleName:          rev.Member.MiddleName,
 		FamilyName:          rev.Member.FamilyName,

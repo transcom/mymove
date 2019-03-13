@@ -6,7 +6,6 @@ import (
 	"time"
 
 	beeline "github.com/honeycombio/beeline-go"
-	"github.com/pkg/errors"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
@@ -345,19 +344,10 @@ func CreateElectronicOrdersRevision(ctx context.Context, dbConnection *pop.Conne
 	defer span.Send()
 
 	responseVErrors := validate.NewErrors()
-	var responseError error
-
-	// If the passed in function returns an error, the transaction is rolled back
-	dbConnection.Transaction(func(dbConnection *pop.Connection) error {
-		transactionError := errors.New("Rollback The transaction")
-		if verrs, err := dbConnection.ValidateAndCreate(revision); verrs.HasAny() || err != nil {
-			responseVErrors.Append(verrs)
-			responseError = err
-			return transactionError
-		}
-
-		return nil
-	})
+	verrs, responseError := dbConnection.ValidateAndCreate(revision)
+	if verrs.HasAny() {
+		responseVErrors.Append(verrs)
+	}
 
 	return responseVErrors, responseError
 }

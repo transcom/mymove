@@ -402,7 +402,6 @@ definitions:
       seqNum:
         type: integer
         minimum: 0
-        x-nullable: false
         description: >
           Sequence number. As Orders are amended, the Revision with the highest
           sequence number is considered the current, authoritative version of
