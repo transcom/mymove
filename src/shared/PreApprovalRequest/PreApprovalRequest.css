@@ -69,6 +69,10 @@
   cursor: pointer;
 }
 
+.pre-approval-edit {
+  font-size: 1.7rem;
+}
+
 /*Creator styles*/
 .add-request {
   margin: 1.5rem 0rem 1.5rem 0rem;
