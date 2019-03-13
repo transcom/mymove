@@ -33,6 +33,7 @@ export function loadEntitlementsFromState(state) {
 
 /*
  * These entitlements are found in Appendix K-1 of the Defense Transportation Regulations
+ * https://www.ustranscom.mil/dtr/part-iv/dtr_part_iv_app_k_1.pdf
  */
 const entitlements = {
   ACADEMY_CADET: {
