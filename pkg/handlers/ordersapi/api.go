@@ -1,11 +1,13 @@
 package ordersapi
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/strfmt"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/ordersapi"
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
@@ -118,4 +120,84 @@ func payloadForElectronicOrdersRevisionModel(revision models.ElectronicOrdersRev
 		Comments: revision.Comments,
 	}
 	return revisionPayload, nil
+}
+
+func verifyOrdersReadAccess(issuer models.Issuer, cert *models.ClientCert, logger *zap.Logger, logFailure bool) bool {
+	switch issuer {
+	case models.IssuerAirForce:
+		if !cert.AllowAirForceOrdersRead {
+			if logFailure {
+				logger.Info("Client certificate is not permitted to read Air Force Orders")
+			}
+			return false
+		}
+	case models.IssuerArmy:
+		if !cert.AllowArmyOrdersRead {
+			if logFailure {
+				logger.Info("Client certificate is not permitted to read Army Orders")
+			}
+			return false
+		}
+	case models.IssuerCoastGuard:
+		if !cert.AllowCoastGuardOrdersRead {
+			if logFailure {
+				logger.Info("Client certificate is not permitted to read Coast Guard Orders")
+			}
+			return false
+		}
+	case models.IssuerMarineCorps:
+		if !cert.AllowMarineCorpsOrdersRead {
+			if logFailure {
+				logger.Info("Client certificate is not permitted to read Marine Corps Orders")
+			}
+			return false
+		}
+	case models.IssuerNavy:
+		if !cert.AllowNavyOrdersRead {
+			if logFailure {
+				logger.Info("Client certificate is not permitted to read Navy Orders")
+			}
+			return false
+		}
+	default:
+		// Unknown issuer
+		logger.Error(fmt.Sprint("Unknown issuer ", issuer))
+		return false
+	}
+	return true
+}
+
+func verifyOrdersWriteAccess(issuer models.Issuer, cert *models.ClientCert, logger *zap.Logger) bool {
+	switch issuer {
+	case models.IssuerAirForce:
+		if !cert.AllowAirForceOrdersWrite {
+			logger.Info("Client certificate is not permitted to write Air Force Orders")
+			return false
+		}
+	case models.IssuerArmy:
+		if !cert.AllowArmyOrdersWrite {
+			logger.Info("Client certificate is not permitted to write Army Orders")
+			return false
+		}
+	case models.IssuerCoastGuard:
+		if !cert.AllowCoastGuardOrdersWrite {
+			logger.Info("Client certificate is not permitted to write Coast Guard Orders")
+			return false
+		}
+	case models.IssuerMarineCorps:
+		if !cert.AllowMarineCorpsOrdersWrite {
+			logger.Info("Client certificate is not permitted to write Marine Corps Orders")
+			return false
+		}
+	case models.IssuerNavy:
+		if !cert.AllowNavyOrdersWrite {
+			logger.Info("Client certificate is not permitted to write Navy Orders")
+			return false
+		}
+	default:
+		// Unknown issuer
+		logger.Error(fmt.Sprint("Unknown issuer ", issuer))
+		return false
+	}
+	return true
 }

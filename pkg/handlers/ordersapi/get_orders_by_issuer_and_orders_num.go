@@ -36,31 +36,8 @@ func (h GetOrdersByIssuerAndOrdersNumHandler) Handle(params ordersoperations.Get
 		return ordersoperations.NewGetOrdersByIssuerAndOrdersNumInternalServerError()
 	}
 
-	if orders.Issuer == models.IssuerAirForce {
-		if !clientCert.AllowAirForceOrdersRead {
-			h.Logger().Info("Client certificate is not permitted to read Air Force Orders")
-			return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()
-		}
-	} else if orders.Issuer == models.IssuerArmy {
-		if !clientCert.AllowArmyOrdersRead {
-			h.Logger().Info("Client certificate is not permitted to read Army Orders")
-			return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()
-		}
-	} else if orders.Issuer == models.IssuerCoastGuard {
-		if !clientCert.AllowCoastGuardOrdersRead {
-			h.Logger().Info("Client certificate is not permitted to read Coast Guard Orders")
-			return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()
-		}
-	} else if orders.Issuer == models.IssuerMarineCorps {
-		if !clientCert.AllowMarineCorpsOrdersRead {
-			h.Logger().Info("Client certificate is not permitted to read Marine Corps Orders")
-			return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()
-		}
-	} else if orders.Issuer == models.IssuerNavy {
-		if !clientCert.AllowNavyOrdersRead {
-			h.Logger().Info("Client certificate is not permitted to read Navy Orders")
-			return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()
-		}
+	if !verifyOrdersReadAccess(orders.Issuer, clientCert, h.Logger(), true) {
+		return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()
 	}
 
 	ordersPayload, err := payloadForElectronicOrderModel(orders)

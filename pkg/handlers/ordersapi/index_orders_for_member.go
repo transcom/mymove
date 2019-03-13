@@ -40,26 +40,8 @@ func (h IndexOrdersForMemberHandler) Handle(params ordersoperations.IndexOrdersF
 	var ordersPayloads []*ordersmessages.Orders
 	for _, o := range orders {
 		// only return orders that the client is permitted to see
-		if o.Issuer == models.IssuerAirForce {
-			if !clientCert.AllowAirForceOrdersRead {
-				continue
-			}
-		} else if o.Issuer == models.IssuerArmy {
-			if !clientCert.AllowArmyOrdersRead {
-				continue
-			}
-		} else if o.Issuer == models.IssuerCoastGuard {
-			if !clientCert.AllowCoastGuardOrdersRead {
-				continue
-			}
-		} else if o.Issuer == models.IssuerMarineCorps {
-			if !clientCert.AllowMarineCorpsOrdersRead {
-				continue
-			}
-		} else if o.Issuer == models.IssuerNavy {
-			if !clientCert.AllowNavyOrdersRead {
-				continue
-			}
+		if !verifyOrdersReadAccess(o.Issuer, clientCert, h.Logger(), false) {
+			continue
 		}
 
 		ordersPayload, err := payloadForElectronicOrderModel(o)

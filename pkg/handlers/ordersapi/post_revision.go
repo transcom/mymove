@@ -35,35 +35,8 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 		h.Logger().Info("Client certificate is not permitted to access this API")
 		return ordersoperations.NewPostRevisionForbidden()
 	}
-	if params.Issuer == string(ordersmessages.IssuerAirForce) {
-		if !clientCert.AllowAirForceOrdersWrite {
-			h.Logger().Info("Client certificate is not permitted to write Air Force Orders")
-			return ordersoperations.NewPostRevisionForbidden()
-		}
-	} else if params.Issuer == string(ordersmessages.IssuerArmy) {
-		if !clientCert.AllowArmyOrdersWrite {
-			h.Logger().Info("Client certificate is not permitted to write Army Orders")
-			return ordersoperations.NewPostRevisionForbidden()
-		}
-	} else if params.Issuer == string(ordersmessages.IssuerCoastGuard) {
-		if !clientCert.AllowCoastGuardOrdersWrite {
-			h.Logger().Info("Client certificate is not permitted to write Coast Guard Orders")
-			return ordersoperations.NewPostRevisionForbidden()
-		}
-	} else if params.Issuer == string(ordersmessages.IssuerMarineCorps) {
-		if !clientCert.AllowMarineCorpsOrdersWrite {
-			h.Logger().Info("Client certificate is not permitted to write Marine Corps Orders")
-			return ordersoperations.NewPostRevisionForbidden()
-		}
-	} else if params.Issuer == string(ordersmessages.IssuerNavy) {
-		if !clientCert.AllowNavyOrdersWrite {
-			h.Logger().Info("Client certificate is not permitted to write Navy Orders")
-			return ordersoperations.NewPostRevisionForbidden()
-		}
-	} else {
-		// Unknown issuer
-		h.Logger().Info(fmt.Sprint("Unknown issuer ", params.Issuer))
-		return ordersoperations.NewPostRevisionBadRequest()
+	if !verifyOrdersWriteAccess(models.Issuer(params.Issuer), clientCert, h.Logger()) {
+		return ordersoperations.NewPostRevisionForbidden()
 	}
 
 	var edipi string

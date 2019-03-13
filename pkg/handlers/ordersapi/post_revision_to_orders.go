@@ -44,31 +44,8 @@ func (h PostRevisionToOrdersHandler) Handle(params ordersoperations.PostRevision
 		return ordersoperations.NewPostRevisionToOrdersNotFound()
 	}
 
-	if orders.Issuer == models.IssuerAirForce {
-		if !clientCert.AllowAirForceOrdersWrite {
-			h.Logger().Info("Client certificate is not permitted to write Air Force Orders")
-			return ordersoperations.NewPostRevisionToOrdersForbidden()
-		}
-	} else if orders.Issuer == models.IssuerArmy {
-		if !clientCert.AllowArmyOrdersWrite {
-			h.Logger().Info("Client certificate is not permitted to write Army Orders")
-			return ordersoperations.NewPostRevisionToOrdersForbidden()
-		}
-	} else if orders.Issuer == models.IssuerCoastGuard {
-		if !clientCert.AllowCoastGuardOrdersWrite {
-			h.Logger().Info("Client certificate is not permitted to write Coast Guard Orders")
-			return ordersoperations.NewPostRevisionToOrdersForbidden()
-		}
-	} else if orders.Issuer == models.IssuerMarineCorps {
-		if !clientCert.AllowMarineCorpsOrdersWrite {
-			h.Logger().Info("Client certificate is not permitted to write Marine Corps Orders")
-			return ordersoperations.NewPostRevisionToOrdersForbidden()
-		}
-	} else if orders.Issuer == models.IssuerNavy {
-		if !clientCert.AllowNavyOrdersWrite {
-			h.Logger().Info("Client certificate is not permitted to write Navy Orders")
-			return ordersoperations.NewPostRevisionToOrdersForbidden()
-		}
+	if !verifyOrdersWriteAccess(orders.Issuer, clientCert, h.Logger()) {
+		return ordersoperations.NewPostRevisionToOrdersForbidden()
 	}
 
 	for _, r := range orders.Revisions {
