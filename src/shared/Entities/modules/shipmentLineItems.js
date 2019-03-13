@@ -98,7 +98,11 @@ const selectUnbilledShipmentLineItemsByShipmentId = (state, shipmentId) => {
   //but this is the right way to hydrate the data structure so leaving it in
   let denormItems = denormalize(map(items, 'id'), ShipmentLineItemsModel, state.entities);
   return denormItems.filter(item => {
-    return !item.tariff400ng_item.requires_pre_approval || item.status === 'APPROVED';
+    return (
+      !item.tariff400ng_item.requires_pre_approval ||
+      (item.status === 'APPROVED' && item.tariff400ng_item.code !== '35A') ||
+      (item.status === 'APPROVED' && item.tariff400ng_item.code === '35A' && item.actual_amount_cents)
+    );
   });
 };
 
