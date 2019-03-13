@@ -204,7 +204,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		Shipments:               shipments,
 		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
 		PersonallyProcuredMoves: personallyProcuredMoves,
-		MaxObligation:           models.Obligation{Gcc: unit.Cents(600000)},
+		MaxObligation:           models.Obligation{Gcc: unit.Cents(600000), SITMax: unit.Cents(53000)},
 		ActualObligation:        models.Obligation{Gcc: unit.Cents(500000)},
 	}
 	sswPage1 := models.FormatValuesShipmentSummaryWorksheetFormPage1(ssd)
@@ -243,6 +243,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
 	suite.Equal("$6,000.00", sswPage1.MaxObligationGCC100)
 	suite.Equal("$5,700.00", sswPage1.MaxObligationGCC95)
+	suite.Equal("$530.00", sswPage1.MaxObligationSIT)
 	suite.Equal("$3,600.00", sswPage1.MaxObligationGCCMaxAdvance)
 
 	suite.Equal("4,000", sswPage1.ActualWeight)
