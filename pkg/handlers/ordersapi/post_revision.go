@@ -57,10 +57,10 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 		switch matchReasonCode {
 		case iws.MatchReasonCodeLimited:
 			// limited match: the returned EDIPI matches the provided SSN and maybe first name but DMDC doesn't think the last name matches
-			edipi = string(edipiNum)
+			edipi = fmt.Sprintf("%010d", edipiNum)
 		case iws.MatchReasonCodeFull:
 			// full match means the returned EDIPI matches the provided SSN and last name
-			edipi = string(edipiNum)
+			edipi = fmt.Sprintf("%010d", edipiNum)
 		case iws.MatchReasonCodeMultiple:
 			// more than one EDIPI for this SSN! Uhh... how to choose? FWIW it's unlikely but not impossible to encounter this in the wild
 			return ordersoperations.NewPostRevisionNotFound()
