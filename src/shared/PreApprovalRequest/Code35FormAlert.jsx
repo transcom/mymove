@@ -6,7 +6,7 @@ export const Code35FormAlert = props => {
     <Fragment>
       {props.showAlert && (
         <Alert type="warning" heading="Amount exceeds approved estimate">
-          <span className="warning--header">
+          <span>
             If you continue, you'll only be paid the max approved amount. Submit a separate pre-approval request to
             cover any additional costs.
           </span>
