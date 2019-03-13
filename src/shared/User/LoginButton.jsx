@@ -21,7 +21,11 @@ const LoginButton = props => {
       </React.Fragment>
     );
   } else {
-    return <a onClick={LogoutUser}>Sign Out</a>;
+    return (
+      <a href="#" onClick={LogoutUser}>
+        Sign Out
+      </a>
+    );
   }
 };
 
