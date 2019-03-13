@@ -4,6 +4,7 @@ import { get } from 'lodash';
 
 import { selectCurrentUser } from 'shared/Data/users';
 import { isDevelopment } from 'shared/constants';
+import { LogoutUser } from 'shared/User/api.js';
 
 const LoginButton = props => {
   if (!props.isLoggedIn) {
@@ -20,7 +21,7 @@ const LoginButton = props => {
       </React.Fragment>
     );
   } else {
-    return <a href="/auth/logout">Sign Out</a>;
+    return <a onClick={LogoutUser}>Sign Out</a>;
   }
 };
 
