@@ -180,6 +180,14 @@ td.delete-confirm strong {
   border-radius: 7px !important;
 }
 
+.tariff400__value-container {
+  height: 5rem;
+}
+
+.tariff400__input input {
+  height: 2rem;
+}
+
 .location__control {
   height: 5rem;
   border-color: #5b616b !important;
