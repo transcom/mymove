@@ -1,4 +1,4 @@
-# Run and troubleshoot pre-commit hook's
+# Run and troubleshoot pre-commit hooks
 
 [Pre-commit](https://pre-commit.com/) is a powerful tool that automates validations, lint checks and adds to developer quality of life. The config file that determines the actions of pre-commit hook can be found [here](/path/.pre-commit-config.yaml)
 
