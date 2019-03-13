@@ -122,20 +122,6 @@ func FetchElectronicOrderByID(db *pop.Connection, id uuid.UUID) (*ElectronicOrde
 	return &order, nil
 }
 
-// FetchElectronicOrderByUniqueFeatures gets all revisions of a set Orders by the combination of features
-// that make Orders unique - the Orders number, the EDIPI of the member, and the issuer.
-func FetchElectronicOrderByUniqueFeatures(db *pop.Connection, ordersNum string, edipi string, issuer string) (*ElectronicOrder, error) {
-	var order ElectronicOrder
-	err := db.Q().Eager("Revisions").Where("orders_number = $1 AND edipi = $2 AND issuer = $3", ordersNum, edipi, issuer).First(&order)
-	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
-			return &order, ErrFetchNotFound
-		}
-		// Otherwise, it's an unexpected err so we return that.
-	}
-	return &order, err
-}
-
 // FetchElectronicOrderByIssuerAndOrdersNum gets all revisions of a set of Orders by the unique combination of the Orders number and the issuer.
 func FetchElectronicOrderByIssuerAndOrdersNum(db *pop.Connection, issuer string, ordersNum string) (*ElectronicOrder, error) {
 	var order ElectronicOrder

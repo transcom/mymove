@@ -67,25 +67,6 @@ func (suite *ModelSuite) TestFetchElectronicOrderByID() {
 	suite.Equal(newOrder.Issuer, retrievedOrder.Issuer)
 }
 
-func (suite *ModelSuite) TestFetchElectronicOrderByUniqueFeatures() {
-	newOrder := models.ElectronicOrder{
-		Edipi:        "1234567890",
-		Issuer:       models.IssuerArmy,
-		OrdersNumber: "8675309",
-	}
-
-	verrs, err := models.CreateElectronicOrder(context.Background(), suite.DB(), &newOrder)
-	suite.NoError(err)
-	suite.NoVerrs(verrs)
-
-	retrievedOrder, err := models.FetchElectronicOrderByUniqueFeatures(suite.DB(), newOrder.OrdersNumber, newOrder.Edipi, string(newOrder.Issuer))
-	suite.NoError(err)
-	suite.Equal(newOrder.ID, retrievedOrder.ID)
-	suite.Equal(newOrder.OrdersNumber, retrievedOrder.OrdersNumber)
-	suite.Equal(newOrder.Edipi, retrievedOrder.Edipi)
-	suite.Equal(newOrder.Issuer, retrievedOrder.Issuer)
-}
-
 func (suite *ModelSuite) TestFetchElectronicOrderByIssuerAndOrdersNum() {
 
 	newOrder := models.ElectronicOrder{

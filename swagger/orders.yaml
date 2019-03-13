@@ -146,6 +146,11 @@ paths:
         If amending existing Orders, the supplied seqNum must be unique when
         compared to existing Revisions in those Orders. If it has already been
         used, this endpoint will return `409 Conflict`.
+
+        If amending existing Orders, the supplied memberId, as an EDIPI, or as
+        an EDIPI retrieved from DMDC by SSN, must match the EDIPI in the
+        existing Orders. If the EDIPIs do not match, this endpoint will return
+        `409 Conflict`.
       operationId: postRevision
       consumes:
         - application/json

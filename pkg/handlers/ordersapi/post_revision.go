@@ -67,14 +67,14 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 			// No match: fail
 			return ordersoperations.NewPostRevisionNotFound()
 		}
-	} else if len(params.MemberID) != 10 {
-		return ordersoperations.NewPostRevisionBadRequest()
-	} else {
+	} else if len(params.MemberID) == 10 {
 		edipi = params.MemberID
+	} else {
+		return ordersoperations.NewPostRevisionBadRequest()
 	}
 
-	// Is there already a Revision matching these Orders? (same ordersNum, edipi, issuer)
-	orders, err := models.FetchElectronicOrderByUniqueFeatures(h.DB(), params.OrdersNum, params.MemberID, params.Issuer)
+	// Is there already a Revision matching these Orders? (same ordersNum and issuer)
+	orders, err := models.FetchElectronicOrderByIssuerAndOrdersNum(h.DB(), params.Issuer, params.OrdersNum)
 
 	if err == models.ErrFetchNotFound {
 		orders = &models.ElectronicOrder{
@@ -88,8 +88,11 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 		}
 	} else if err != nil {
-		h.Logger().Warn(fmt.Sprintf("Error fetching electronic orders with OrdersNum %s, EDIPI %s, and Issuer %s: %s", params.OrdersNum, params.MemberID, params.Issuer, err.Error()))
+		h.Logger().Info(fmt.Sprintf("Error fetching electronic orders with OrdersNum %s and Issuer %s: %s", params.OrdersNum, params.Issuer, err.Error()))
 		return ordersoperations.NewPostRevisionInternalServerError()
+	} else if orders.Edipi != edipi {
+		h.Logger().Info(fmt.Sprintf("Cannot post revision for EDIPI %s to Electronic Orders with OrdersNum %s from Issuer %s: the existing orders are issued to EDIPI %s", edipi, params.OrdersNum, params.Issuer, orders.Edipi))
+		return ordersoperations.NewPostRevisionConflict()
 	}
 
 	for _, r := range orders.Revisions {
