@@ -268,7 +268,6 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 	if err != nil {
 		return models.Obligations{}, errors.New("error calculating distance")
 	}
-
 	var valid bool
 	var maxCost, actualCost rateengine.CostComputation
 	if valid = firstPPM.ActualMoveDate != nil; valid {
@@ -298,9 +297,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		return models.Obligations{}, errors.New("error calculating PPM actual obligations")
 	}
 	var actualSIT unit.Cents
-	if firstPPM.TotalSITCost == nil {
-		actualSIT = unit.Cents(0)
-	} else {
+	if firstPPM.TotalSITCost != nil {
 		actualSIT = *firstPPM.TotalSITCost
 	}
 	if actualSIT > maxCost.SITMax {
