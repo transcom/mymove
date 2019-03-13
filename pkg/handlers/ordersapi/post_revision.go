@@ -96,7 +96,7 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 		h.Logger().Info(fmt.Sprintf("Cannot post revision for EDIPI %s to Electronic Orders with OrdersNum %s from Issuer %s: the existing orders are issued to EDIPI %s", edipi, params.OrdersNum, params.Issuer, orders.Edipi))
 		return ordersoperations.NewPostRevisionConflict()
 	} else {
-		// Amending
+		// Amending Orders
 		for _, r := range orders.Revisions {
 			// SeqNum collision
 			if r.SeqNum == int(*params.Revision.SeqNum) {
