@@ -50,7 +50,6 @@
 
 .pre-approval-panel-table-cont th {
   font-weight: bold;
-  font-size: 0.8em;
   border-bottom: solid 1px #a2a2a2;
   text-align: left;
   padding: 0rem 2rem 1rem 0rem;
@@ -58,7 +57,6 @@
 
 .pre-approval-panel-table-cont table > tbody > tr > td {
   border-bottom: 1px solid #f1f1f1;
-  font-size: 0.8em;
   padding: 1rem 1rem 1rem 0rem;
   text-align: left;
   vertical-align: top;
@@ -67,10 +65,6 @@
 .actionable {
   color: #0071bc;
   cursor: pointer;
-}
-
-.pre-approval-edit {
-  font-size: 1.7rem;
 }
 
 /*Creator styles*/
