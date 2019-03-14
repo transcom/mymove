@@ -147,7 +147,8 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumNotFound() {
 	ordersNum := "notfound"
 	req := httptest.NewRequest("GET", fmt.Sprintf("/orders/v1/issuers/%s/orders/%s", string(issuer), ordersNum), nil)
 	clientCert := models.ClientCert{
-		AllowOrdersAPI: true,
+		AllowOrdersAPI:      true,
+		AllowArmyOrdersRead: true,
 	}
 	req = suite.AuthenticateClientCertRequest(req, &clientCert)
 

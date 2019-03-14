@@ -25,6 +25,9 @@ func (h GetOrdersByIssuerAndOrdersNumHandler) Handle(params ordersoperations.Get
 		h.Logger().Info("Client certificate is not authorized to access this API")
 		return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()
 	}
+	if !verifyOrdersReadAccess(models.Issuer(params.Issuer), clientCert, h.Logger(), true) {
+		return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()
+	}
 
 	var err error
 
@@ -34,10 +37,6 @@ func (h GetOrdersByIssuerAndOrdersNumHandler) Handle(params ordersoperations.Get
 	} else if err != nil {
 		h.Logger().Info("Error while fetching electronic Orders by Issuer and Orders Num")
 		return ordersoperations.NewGetOrdersByIssuerAndOrdersNumInternalServerError()
-	}
-
-	if !verifyOrdersReadAccess(orders.Issuer, clientCert, h.Logger(), true) {
-		return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()
 	}
 
 	ordersPayload, err := payloadForElectronicOrderModel(orders)
