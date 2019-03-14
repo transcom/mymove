@@ -1581,6 +1581,7 @@
     "github.com/aws/aws-sdk-go/service/s3/s3manager",
     "github.com/aws/aws-sdk-go/service/ses",
     "github.com/aws/aws-sdk-go/service/ses/sesiface",
+    "github.com/codegangsta/envy/lib",
     "github.com/codegangsta/gin",
     "github.com/dgrijalva/jwt-go",
     "github.com/docker/go-units",
