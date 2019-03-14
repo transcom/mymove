@@ -65,3 +65,24 @@ func FetchClientCert(db *pop.Connection, sha256Digest string) (*ClientCert, erro
 	}
 	return &cert, nil
 }
+
+// GetAllowedOrdersIssuersRead returns a slice with the issuers of Orders that this ClientCert is allowed to read
+func (c *ClientCert) GetAllowedOrdersIssuersRead() []string {
+	var issuers []string
+	if c.AllowAirForceOrdersRead {
+		issuers = append(issuers, string(IssuerAirForce))
+	}
+	if c.AllowArmyOrdersRead {
+		issuers = append(issuers, string(IssuerArmy))
+	}
+	if c.AllowCoastGuardOrdersRead {
+		issuers = append(issuers, string(IssuerCoastGuard))
+	}
+	if c.AllowMarineCorpsOrdersRead {
+		issuers = append(issuers, string(IssuerMarineCorps))
+	}
+	if c.AllowNavyOrdersRead {
+		issuers = append(issuers, string(IssuerNavy))
+	}
+	return issuers
+}

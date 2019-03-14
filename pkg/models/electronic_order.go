@@ -156,10 +156,10 @@ func FetchElectronicOrderByIssuerAndOrdersNum(db *pop.Connection, issuer string,
 	return &order, err
 }
 
-// FetchElectronicOrdersByEdipi gets all Orders issued to the member with the specified EDIPI
-func FetchElectronicOrdersByEdipi(db *pop.Connection, edipi string) ([]*ElectronicOrder, error) {
+// FetchElectronicOrdersByEdipiAndIssuers gets all Orders issued to a member by EDIPI from the specified issuers
+func FetchElectronicOrdersByEdipiAndIssuers(db *pop.Connection, edipi string, issuers []string) ([]*ElectronicOrder, error) {
 	var orders []ElectronicOrder
-	err := db.Q().Eager("Revisions").Where("edipi = $1", edipi).All(&orders)
+	err := db.Q().Eager("Revisions").Where("edipi = ?", edipi).Where("issuer IN (?)", issuers).All(&orders)
 	ordersPtrs := make([]*ElectronicOrder, len(orders))
 	for i := range orders {
 		ordersPtrs[i] = &orders[i]

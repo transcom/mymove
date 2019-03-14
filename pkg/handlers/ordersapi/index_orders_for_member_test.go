@@ -58,6 +58,24 @@ func (suite *HandlerSuite) TestIndexOrdersForMemberNumNoApiPerm() {
 	suite.Assertions.IsType(&ordersoperations.IndexOrdersForMemberForbidden{}, response)
 }
 
+func (suite *HandlerSuite) TestIndexOrdersForMemberNumNoReadPerms() {
+	req := httptest.NewRequest("GET", "/orders/v1/edipis/1234567890/orders", nil)
+	clientCert := models.ClientCert{
+		AllowOrdersAPI: true,
+	}
+	req = suite.AuthenticateClientCertRequest(req, &clientCert)
+
+	params := ordersoperations.IndexOrdersForMemberParams{
+		HTTPRequest: req,
+		Edipi:       "1234567890",
+	}
+
+	handler := IndexOrdersForMemberHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&ordersoperations.IndexOrdersForMemberForbidden{}, response)
+}
+
 func (suite *HandlerSuite) TestIndexOrderForMemberReadPerms() {
 	testCases := map[string]struct {
 		cert   models.ClientCert

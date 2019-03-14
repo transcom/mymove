@@ -113,7 +113,7 @@ func (suite *ModelSuite) TestFetchElectronicOrderByIssuerAndOrdersNum() {
 	suite.Equal(newOrder.Issuer, retrievedOrder.Issuer)
 }
 
-func (suite *ModelSuite) TestFetchElectronicOrdersByEdipi() {
+func (suite *ModelSuite) TestFetchElectronicOrdersByEdipiAndIssuers() {
 	edipi := "1234567890"
 	newOrder1 := models.ElectronicOrder{
 		Edipi:        edipi,
@@ -128,7 +128,7 @@ func (suite *ModelSuite) TestFetchElectronicOrdersByEdipi() {
 
 	newOrder2 := models.ElectronicOrder{
 		Edipi:        edipi,
-		Issuer:       models.IssuerArmy,
+		Issuer:       models.IssuerAirForce,
 		OrdersNumber: "5551234",
 	}
 
@@ -136,7 +136,7 @@ func (suite *ModelSuite) TestFetchElectronicOrdersByEdipi() {
 	suite.NoError(err)
 	suite.NoVerrs(verrs)
 
-	retrievedOrders, err := models.FetchElectronicOrdersByEdipi(suite.DB(), edipi)
+	retrievedOrders, err := models.FetchElectronicOrdersByEdipiAndIssuers(suite.DB(), edipi, []string{string(models.IssuerArmy), string(models.IssuerAirForce)})
 	suite.NoError(err)
 	suite.Len(retrievedOrders, 2)
 	ordersnumbers := []string{newOrder1.OrdersNumber, newOrder2.OrdersNumber}

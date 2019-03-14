@@ -26,29 +26,26 @@ func (h IndexOrdersForMemberHandler) Handle(params ordersoperations.IndexOrdersF
 		h.Logger().Info("Client certificate is not authorized to access this API")
 		return ordersoperations.NewIndexOrdersForMemberForbidden()
 	}
+	allowedIssuers := clientCert.GetAllowedOrdersIssuersRead()
+	if len(allowedIssuers) == 0 {
+		h.Logger().Info("Client certificate is not permitted to read any Orders")
+		return ordersoperations.NewIndexOrdersForMemberForbidden()
+	}
 
-	var err error
-
-	orders, err := models.FetchElectronicOrdersByEdipi(h.DB(), params.Edipi)
+	orders, err := models.FetchElectronicOrdersByEdipiAndIssuers(h.DB(), params.Edipi, allowedIssuers)
 	if err == models.ErrFetchNotFound {
 		return ordersoperations.NewIndexOrdersForMemberOK().WithPayload([]*ordersmessages.Orders{})
 	} else if err != nil {
 		h.Logger().Info("Error while fetching electronic Orders by EDIPI")
 		return ordersoperations.NewIndexOrdersForMemberInternalServerError()
 	}
-
-	var ordersPayloads []*ordersmessages.Orders
-	for _, o := range orders {
-		// only return orders that the client is permitted to see
-		if !verifyOrdersReadAccess(o.Issuer, clientCert, h.Logger(), false) {
-			continue
-		}
-
-		ordersPayload, err := payloadForElectronicOrderModel(o)
+	ordersPayloads := make([]*ordersmessages.Orders, len(orders))
+	for i, o := range orders {
+		payload, err := payloadForElectronicOrderModel(o)
 		if err != nil {
 			return handlers.ResponseForError(h.Logger(), err)
 		}
-		ordersPayloads = append(ordersPayloads, ordersPayload)
+		ordersPayloads[i] = payload
 	}
 
 	return ordersoperations.NewIndexOrdersForMemberOK().WithPayload(ordersPayloads)
