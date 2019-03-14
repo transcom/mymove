@@ -76,16 +76,11 @@ img._fix-ie-11-height {
   display: inline-block;
 }
 
-/* Forms inside a basic-panel */
-.basic-panel form {
-  padding: 0 0 1rem 0;
-}
-
-.basic-panel .cancel-link {
-  padding: 1em 1em 1em 0;
-  cursor: pointer;
-}
-
 .align-right {
   text-align: right !important;
+}
+
+.align-center-vertical {
+  display: flex;
+  align-items: center;
 }
