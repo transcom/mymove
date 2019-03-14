@@ -72,7 +72,7 @@
 <script src="/swagger-ui/js.cookie.js"></script>
 <script>
 window.onload = function() {
-  // Intercept the request to add csrf token
+  // Intercept the request to add csrf token and only allow requests to the current domain.
   const requestInterceptor = req => {
     if (!req.loadSpec) {
       const token = Cookies.get('masked_gorilla_csrf');
@@ -82,15 +82,9 @@ window.onload = function() {
         console.warn('Unable to retrieve CSRF Token from cookie');
       }
     }
-    // Add check for protocol so that we know if someone tries to throw a non-relative path in the url parameter.
-    // This is here to prevent malicious actors using the parameter to execute arbitrary malicious code on an
-    // unsuspecting user (swagger-ui behavior causes this to happen otherwise).
-    var protocolRegex = /(http|https):*/;
-    var isNonRelativePath = protocolRegex.test(req['url']);
-    if (isNonRelativePath) {
-      req['url'] = null;
-    }
 
+    // Ensure that we only load files from the current domain.
+    req.url = window.location.protocol + "//" + window.location.host + req['url'];
     return req;
   };
 
@@ -101,13 +95,11 @@ window.onload = function() {
     dom_id: '#swagger-ui',
     deepLinking: true,
     presets: [
-      SwaggerUIBundle.presets.apis,
-      SwaggerUIStandalonePreset
+      SwaggerUIBundle.presets.apis
     ],
     plugins: [
       SwaggerUIBundle.plugins.DownloadUrl
     ],
-    layout: "StandaloneLayout",
     validatorUrl: false
   })
 

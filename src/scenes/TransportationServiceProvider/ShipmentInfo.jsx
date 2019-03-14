@@ -24,7 +24,7 @@ import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/
 import { getAllShipmentLineItems, selectSortedShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
-import { selectSitRequests } from 'shared/Entities/modules/sitRequests';
+import { getStorageInTransitsForShipment } from 'shared/Entities/modules/storageInTransits';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -45,7 +45,6 @@ import {
   transportShipment,
   deliverShipment,
   handleServiceAgents,
-  loadEntitlements,
 } from './ducks';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
@@ -130,6 +129,7 @@ class ShipmentInfo extends Component {
         this.props.getAllTariff400ngItems(true);
         this.props.getAllShipmentLineItems(shipmentId);
         this.props.getAllInvoices(shipmentId);
+        this.props.getStorageInTransitsForShipment(shipmentId);
       })
       .catch(err => {
         this.props.history.replace('/');
@@ -398,13 +398,7 @@ class ShipmentInfo extends Component {
                   <Weights title="Weights & Items" shipment={this.props.shipment} update={this.props.patchShipment} />
                   <LocationsContainer update={this.props.patchShipment} />
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
-                  {showSitPanel && (
-                    <StorageInTransitPanel
-                      sitRequests={this.props.sitRequests}
-                      shipmentId={this.props.match.params.shipmentId}
-                      sitEntitlement={this.props.entitlement.storage_in_transit}
-                    />
-                  )}
+                  {showSitPanel && <StorageInTransitPanel shipmentId={this.props.shipmentId} />}
 
                   <TspContainer
                     title="TSP & Servicing Agents"
@@ -451,7 +445,8 @@ class ShipmentInfo extends Component {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, props) => {
+  const shipmentId = props.match.params.shipmentId;
   const shipment = get(state, 'tsp.shipment', {});
   const shipmentDocuments = selectShipmentDocuments(state, shipment.id) || {};
   const gbl = shipmentDocuments.find(element => element.move_document_type === 'GOV_BILL_OF_LADING');
@@ -478,8 +473,7 @@ const mapStateToProps = state => {
     serviceAgentSchema: get(state, 'swaggerPublic.spec.definitions.ServiceAgent', {}),
     transportSchema: get(state, 'swaggerPublic.spec.definitions.TransportPayload', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
-    entitlement: loadEntitlements(state),
-    sitRequests: selectSitRequests(state, shipment.id),
+    shipmentId,
   };
 };
 
@@ -500,6 +494,7 @@ const mapDispatchToProps = dispatch =>
       getAllInvoices,
       getTspForShipment,
       resetRequests,
+      getStorageInTransitsForShipment,
     },
     dispatch,
   );

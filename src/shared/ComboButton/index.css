@@ -1,0 +1,37 @@
+.dropdown {
+  position: absolute;
+  top: 31px;
+  border: 2px solid #0071bc;
+  background-color: white;
+  border-radius: 5px;
+  width: 200px;
+  display: block;
+}
+
+.dropdown > p {
+  padding: 0.5em 1em;
+  color: #0071bc;
+  font-size: 0.85em;
+  cursor: pointer;
+  line-height: normal;
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+.dropdown > p:hover {
+  color: white;
+  background-color: #0071bc;
+}
+
+.dropdown > p.disabled {
+  color: #aeb0b5;
+}
+
+.dropdown > p.disabled:hover {
+  color: #aeb0b5;
+  background-color: white;
+}
+
+.combo-button-icon {
+  margin-left: 20px;
+}

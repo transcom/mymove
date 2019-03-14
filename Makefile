@@ -26,10 +26,7 @@ endif
 WEBSERVER_LDFLAGS=-X main.gitBranch=$(shell git branch | grep \* | cut -d ' ' -f2) -X main.gitCommit=$(shell git rev-list -1 HEAD)
 DB_PORT_DEV=5432
 DB_PORT_DOCKER=5432
-ifndef CIRCLECI
-	DB_PORT_TEST=5433
-	LDFLAGS=
-else
+ifdef CIRCLECI
 	DB_PORT_TEST=5432
 	LDFLAGS=-linkmode external -extldflags -static
 endif
@@ -243,7 +240,10 @@ server_run_debug:
 
 .PHONY: build_tools
 build_tools: bash_version server_deps server_generate build_generate_test_data
+	go build -i -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare_secure_migrations
+	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-edi ./cmd/generate_shipment_edi
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
 	go build -i -ldflags "$(LDFLAGS)" -o bin/health_checker ./cmd/health_checker
 	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/demo/iws.go
@@ -253,8 +253,9 @@ build_tools: bash_version server_deps server_generate build_generate_test_data
 	go build -i -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
 	go build -i -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
 	go build -i -ldflags "$(LDFLAGS)" -o bin/paperwork ./cmd/paperwork
+	go build -i -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
+	go build -i -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
 	go build -i -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
-	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 
 .PHONY: build
 build: server_build build_tools client_build
@@ -275,13 +276,13 @@ ifndef CIRCLECI
 	TEST_ACC_CWD=$(PWD) \
 	DISABLE_AWS_VAULT_WRAPPER=1 \
 	aws-vault exec $(AWS_PROFILE) -- \
-	bin/chamber exec app-$(TEST_ACC_ENV) -- \
+	bin/chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
 	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver)
 else
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
 	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 \
 	TEST_ACC_CWD=$(PWD) \
-	bin/chamber exec app-$(TEST_ACC_ENV) -- \
+	bin/chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
 	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver)
 endif
 endif
@@ -395,7 +396,9 @@ endif
 			POSTGRES_PASSWORD=$(PGPASSWORD) \
 			-d \
 			-p $(DB_PORT_TEST):$(DB_PORT_DOCKER)\
-			$(DB_DOCKER_CONTAINER_IMAGE)
+			$(DB_DOCKER_CONTAINER_IMAGE)\
+			-c fsync=off\
+			-c full_page_writes=off
 
 .PHONY: db_test_create
 db_test_create:

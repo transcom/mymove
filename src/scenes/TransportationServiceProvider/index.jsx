@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Redirect, Switch } from 'react-router-dom';
+import { Redirect, Switch, Route } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 import { history } from 'shared/store';
 import { connect } from 'react-redux';
@@ -54,7 +54,19 @@ class TspWrapper extends Component {
             <div>
               <LogoutOnInactivity />
               <Switch>
-                <Redirect from="/" to="/queues/new" exact />
+                <Route
+                  exact
+                  path="/"
+                  component={({ location }) => (
+                    <Redirect
+                      from="/"
+                      to={{
+                        ...location,
+                        pathname: '/queues/new',
+                      }}
+                    />
+                  )}
+                />
                 <PrivateRoute path="/shipments/:shipmentId/documents/new" component={NewDocument} />
                 <PrivateRoute path="/shipments/:shipmentId/documents/:moveDocumentId" component={DocumentViewer} />
                 <PrivateRoute path="/shipments/:shipmentId" component={ShipmentInfo} />

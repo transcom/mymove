@@ -172,6 +172,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		NewDutyStationID:    fortGordon.ID,
 		OrdersIssuingAgency: models.StringPointer(string(serviceBranch)),
 		TAC:                 models.StringPointer("NTA4"),
+		SAC:                 models.StringPointer("SAC"),
 		HasDependents:       true,
 		SpouseHasProGear:    true,
 	}
@@ -203,7 +204,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		Shipments:               shipments,
 		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
 		PersonallyProcuredMoves: personallyProcuredMoves,
-		MaxObligation:           models.Obligation{Gcc: unit.Cents(600000)},
+		MaxObligation:           models.Obligation{Gcc: unit.Cents(600000), SITMax: unit.Cents(53000)},
 		ActualObligation:        models.Obligation{Gcc: unit.Cents(500000)},
 	}
 	sswPage1 := models.FormatValuesShipmentSummaryWorksheetFormPage1(ssd)
@@ -225,6 +226,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("21-Dec-2018", sswPage1.OrdersIssueDate)
 	suite.Equal("PCS/012345", sswPage1.OrdersTypeAndOrdersNumber)
 	suite.Equal("NTA4", sswPage1.TAC)
+	suite.Equal("SAC", sswPage1.SAC)
 
 	suite.Equal("Fort Gordon, GA", sswPage1.NewDutyAssignment)
 
@@ -241,6 +243,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
 	suite.Equal("$6,000.00", sswPage1.MaxObligationGCC100)
 	suite.Equal("$5,700.00", sswPage1.MaxObligationGCC95)
+	suite.Equal("$530.00", sswPage1.MaxObligationSIT)
 	suite.Equal("$3,600.00", sswPage1.MaxObligationGCCMaxAdvance)
 
 	suite.Equal("4,000", sswPage1.ActualWeight)
@@ -283,10 +286,12 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
 
 	suite.Equal("$300.00", sswPage2.ContractedExpenseGTCCPaid)
 	suite.Equal("$300.00", sswPage2.TotalGTCCPaid)
+	suite.Equal("$300.00", sswPage2.TotalGTCCPaidRepeated)
 
 	suite.Equal("$100.00", sswPage2.TollsMemberPaid)
 	suite.Equal("$100.00", sswPage2.GasMemberPaid)
 	suite.Equal("$200.00", sswPage2.TotalMemberPaid)
+	suite.Equal("$200.00", sswPage2.TotalMemberPaidRepeated)
 }
 
 func (suite *ModelSuite) TestGroupExpenses() {
@@ -428,6 +433,22 @@ func (suite *ModelSuite) TestFormatCurrentPPMStatus() {
 
 	suite.Equal("At destination", models.FormatCurrentPPMStatus(paymentRequested))
 	suite.Equal("Completed", models.FormatCurrentPPMStatus(completed))
+}
+
+func (suite *ModelSuite) TestFormatActualObligationsWeight() {
+	suite.Equal("4,000", models.FormatActualObligationsWeight(7000,
+		[]models.PersonallyProcuredMove{
+			{NetWeight: models.Int64Pointer(4000)},
+		}))
+	suite.Equal("5,000", models.FormatActualObligationsWeight(5000,
+		[]models.PersonallyProcuredMove{
+			{NetWeight: models.Int64Pointer(10000)},
+		}))
+	suite.Equal("", models.FormatActualObligationsWeight(5000,
+		[]models.PersonallyProcuredMove{
+			{NetWeight: nil},
+		}))
+
 }
 
 func (suite *ModelSuite) TestFormatRank() {

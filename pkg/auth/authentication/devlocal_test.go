@@ -15,7 +15,7 @@ func (suite *AuthSuite) TestCreateUserHandler() {
 	req := httptest.NewRequest("POST", "/devlocal-auth/create", nil)
 
 	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", 1234)
-	handler := CreateUserHandler{authContext, suite.DB(), "fake key", false}
+	handler := CreateUserHandler{authContext, suite.DB(), "fake key", false, false}
 	handler.ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")

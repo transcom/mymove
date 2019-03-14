@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/hex"
@@ -12,11 +13,14 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"os/signal"
 	"path"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
+	"syscall"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -103,6 +107,8 @@ type errInvalidPKCS7 struct {
 	Path string
 }
 
+const serveSwaggerUIFlag string = "serve-swagger-ui"
+
 func (e *errInvalidPKCS7) Error() string {
 	return fmt.Sprintf("invalid DER encoded PKCS7 package: %s", e.Path)
 }
@@ -171,6 +177,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("env", "development", "The environment to run in, which configures the database.")
 	flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	flag.String("service-name", "app", "The service name identifies the application for instrumentation.")
+	flag.Duration("graceful-shutdown-timeout", 25*time.Second, "The duration for which the server gracefully wait for existing connections to finish.  AWS ECS only gives you 30 seconds before sending SIGKILL.")
 
 	flag.String("http-my-server-name", "milmovelocal", "Hostname according to environment.")
 	flag.String("http-office-server-name", "officelocal", "Hostname according to environment.")
@@ -194,6 +201,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
 	flag.String("orders-swagger", "swagger/orders.yaml", "The location of the Orders API swagger definition")
 	flag.String("dps-swagger", "swagger/dps.yaml", "The location of the DPS API swagger definition")
+	flag.Bool(serveSwaggerUIFlag, false, "Whether to serve swagger UI for the APIs")
 
 	flag.Bool("debug-logging", false, "log messages at the debug level.")
 	flag.String("client-auth-secret-key", "", "Client auth secret JWT key.")
@@ -265,6 +273,10 @@ func initFlags(flag *pflag.FlagSet) {
 
 	// CSRF Protection
 	flag.String("csrf-auth-key", "", "CSRF Auth Key, 32 byte long")
+
+	// EIA Open Data API
+	flag.String("eia-key", "", "Key for Energy Information Administration (EIA) api")
+	flag.String("eia-url", "", "Url for Energy Information Administration (EIA) api")
 }
 
 func initDODCertificates(v *viper.Viper, logger *webserverLogger) ([]tls.Certificate, *x509.CertPool, error) {
@@ -518,6 +530,16 @@ func checkConfig(v *viper.Viper) error {
 		return err
 	}
 
+	err = checkEIAKey(v)
+	if err != nil {
+		return err
+	}
+
+	err = checkEIAURL(v)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -642,6 +664,22 @@ func checkGEX(v *viper.Viper) error {
 	return nil
 }
 
+func checkEIAKey(v *viper.Viper) error {
+	eiaKey := v.GetString("eia-key")
+	if len(eiaKey) != 32 {
+		return fmt.Errorf("expected eia key to be 32 characters long; key is %d chars", len(eiaKey))
+	}
+	return nil
+}
+
+func checkEIAURL(v *viper.Viper) error {
+	eiaURL := v.GetString("eia-url")
+	if eiaURL != "https://api.eia.gov/series/" {
+		return fmt.Errorf("invalid eia url %s, expecting https://api.eia.gov/series/", eiaURL)
+	}
+	return nil
+}
+
 func checkStorage(v *viper.Viper) error {
 
 	storageBackend := v.GetString("storage-backend")
@@ -671,6 +709,26 @@ func checkStorage(v *viper.Viper) error {
 	}
 
 	return nil
+}
+
+func startListener(srv *server.NamedServer, logger *webserverLogger, useTLS bool) {
+	logger.Info("Starting listener",
+		zap.String("name", srv.Name),
+		zap.Duration("idle-timeout", srv.IdleTimeout),
+		zap.Any("listen-address", srv.Addr),
+		zap.Int("max-header-bytes", srv.MaxHeaderBytes),
+		zap.Int("port", srv.Port()),
+		zap.Bool("tls", useTLS),
+	)
+	var err error
+	if useTLS {
+		err = srv.ListenAndServeTLS()
+	} else {
+		err = srv.ListenAndServe()
+	}
+	if err != nil && err != http.ErrServerClosed {
+		logger.Fatal("server error", zap.String("name", srv.Name), zap.Error(err))
+	}
 }
 
 func main() {
@@ -756,15 +814,17 @@ func main() {
 		logger.Fatal("Registering login provider", zap.Error(err))
 	}
 
+	useSecureCookie := !isDevOrTest
 	// Session management and authentication middleware
 	noSessionTimeout := v.GetBool("no-session-timeout")
-	sessionCookieMiddleware := auth.SessionCookieMiddleware(zapLogger, clientAuthSecretKey, noSessionTimeout, myHostname, officeHostname, tspHostname)
-	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(zapLogger, noSessionTimeout)
+	sessionCookieMiddleware := auth.SessionCookieMiddleware(zapLogger, clientAuthSecretKey, noSessionTimeout, myHostname, officeHostname, tspHostname, useSecureCookie)
+	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(zapLogger, noSessionTimeout, useSecureCookie)
 	userAuthMiddleware := authentication.UserAuthMiddleware(zapLogger)
 	clientCertMiddleware := authentication.ClientCertMiddleware(zapLogger, dbConnection)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, zapLogger)
 	handlerContext.SetCookieSecret(clientAuthSecretKey)
+	handlerContext.SetUseSecureCookie(useSecureCookie)
 	if noSessionTimeout {
 		handlerContext.SetNoSessionTimeout()
 	}
@@ -988,9 +1048,17 @@ func main() {
 
 	// Allow public content through without any auth or app checks
 	site.Handle(pat.Get("/static/*"), clientHandler)
-	site.Handle(pat.Get("/swagger-ui/*"), clientHandler)
 	site.Handle(pat.Get("/downloads/*"), clientHandler)
 	site.Handle(pat.Get("/favicon.ico"), clientHandler)
+
+	// Explicitly disable swagger.json route
+	site.Handle(pat.Get("/swagger.json"), http.NotFoundHandler())
+	if v.GetBool(serveSwaggerUIFlag) {
+		logger.Info("Swagger UI static file serving is enabled")
+		site.Handle(pat.Get("/swagger-ui/*"), clientHandler)
+	} else {
+		site.Handle(pat.Get("/swagger-ui/*"), http.NotFoundHandler())
+	}
 
 	ordersMux := goji.SubMux()
 	ordersDetectionMiddleware := auth.HostnameDetectorMiddleware(zapLogger, v.GetString("http-orders-server-name"))
@@ -998,7 +1066,12 @@ func main() {
 	ordersMux.Use(noCacheMiddleware)
 	ordersMux.Use(clientCertMiddleware)
 	ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("orders-swagger")))
-	ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "orders.html")))
+	if v.GetBool(serveSwaggerUIFlag) {
+		logger.Info("Orders API Swagger UI serving is enabled")
+		ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "orders.html")))
+	} else {
+		ordersMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+	}
 	ordersMux.Handle(pat.New("/*"), ordersapi.NewOrdersAPIHandler(handlerContext))
 	site.Handle(pat.Get("/orders/v0/*"), ordersMux)
 
@@ -1008,7 +1081,12 @@ func main() {
 	dpsMux.Use(noCacheMiddleware)
 	dpsMux.Use(clientCertMiddleware)
 	dpsMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("dps-swagger")))
-	dpsMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "dps.html")))
+	if v.GetBool(serveSwaggerUIFlag) {
+		logger.Info("DPS API Swagger UI serving is enabled")
+		dpsMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "dps.html")))
+	} else {
+		dpsMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+	}
 	dpsMux.Handle(pat.New("/*"), dpsapi.NewDPSAPIHandler(handlerContext))
 	site.Handle(pat.New("/dps/v0/*"), dpsMux)
 
@@ -1054,8 +1132,12 @@ func main() {
 	apiMux := goji.SubMux()
 	root.Handle(pat.New("/api/v1/*"), apiMux)
 	apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("swagger")))
-	apiMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "api.html")))
-
+	if v.GetBool(serveSwaggerUIFlag) {
+		logger.Info("Public API Swagger UI serving is enabled")
+		apiMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "api.html")))
+	} else {
+		apiMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+	}
 	externalAPIMux := goji.SubMux()
 	apiMux.Handle(pat.New("/*"), externalAPIMux)
 	externalAPIMux.Use(noCacheMiddleware)
@@ -1065,8 +1147,12 @@ func main() {
 	internalMux := goji.SubMux()
 	root.Handle(pat.New("/internal/*"), internalMux)
 	internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("internal-swagger")))
-	internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "internal.html")))
-
+	if v.GetBool(serveSwaggerUIFlag) {
+		logger.Info("Internal API Swagger UI serving is enabled")
+		internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "internal.html")))
+	} else {
+		internalMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+	}
 	// Mux for internal API that enforces auth
 	internalAPIMux := goji.SubMux()
 	internalMux.Handle(pat.New("/*"), internalAPIMux)
@@ -1078,8 +1164,8 @@ func main() {
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
 	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext})
-	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
-	authMux.Handle(pat.Get("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout))
+	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
+	authMux.Handle(pat.Get("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 
 	if isDevOrTest {
 		logger.Info("Enabling devlocal auth")
@@ -1087,7 +1173,7 @@ func main() {
 		root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)
 		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection))
 		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
-		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
+		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
 
 		devlocalCa, err := ioutil.ReadFile(v.GetString("devlocal-ca")) // #nosec
@@ -1114,48 +1200,118 @@ func main() {
 		httpHandler = site
 	}
 
-	errChan := make(chan error)
-
 	listenInterface := v.GetString("interface")
 
+	noTLSServer, err := server.CreateNamedServer(&server.CreateNamedServerInput{
+		Name:        "no-tls",
+		Host:        listenInterface,
+		Port:        v.GetInt("no-tls-port"),
+		Logger:      zapLogger,
+		HTTPHandler: httpHandler,
+	})
+	if err != nil {
+		logger.Fatal("error creating no-tls server", zap.Error(err))
+	}
+	go startListener(noTLSServer, logger, false)
+
+	tlsServer, err := server.CreateNamedServer(&server.CreateNamedServerInput{
+		Name:         "tls",
+		Host:         listenInterface,
+		Port:         v.GetInt("tls-port"),
+		Logger:       zapLogger,
+		HTTPHandler:  httpHandler,
+		ClientAuth:   tls.NoClientCert,
+		Certificates: certificates,
+	})
+	if err != nil {
+		logger.Fatal("error creating tls server", zap.Error(err))
+	}
+	go startListener(tlsServer, logger, true)
+
+	mutualTLSServer, err := server.CreateNamedServer(&server.CreateNamedServerInput{
+		Name:         "mutual-tls",
+		Host:         listenInterface,
+		Port:         v.GetInt("mutual-tls-port"),
+		Logger:       zapLogger,
+		HTTPHandler:  httpHandler,
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+		Certificates: certificates,
+		ClientCAs:    rootCAs,
+	})
+	if err != nil {
+		logger.Fatal("error creating mutual-tls server", zap.Error(err))
+	}
+	go startListener(mutualTLSServer, logger, true)
+
+	// make sure we flush any pending startup messages
+	logger.Sync()
+
+	// Create a buffered channel that accepts 1 signal at a time.
+	quit := make(chan os.Signal, 1)
+
+	// Only send the SIGINT and SIGTERM signals to the quit channel
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	// Wait until the quit channel receieves a signal
+	sig := <-quit
+
+	logger.Info("received signal for graceful shutdown of server", zap.Any("signal", sig))
+
+	// flush message that we received signal
+	logger.Sync()
+
+	gracefulShutdownTimeout := v.GetDuration("graceful-shutdown-timeout")
+
+	ctx, cancel := context.WithTimeout(context.Background(), gracefulShutdownTimeout)
+	defer cancel()
+
+	logger.Info("Waiting for listeners to be shutdown", zap.Duration("timeout", gracefulShutdownTimeout))
+
+	// flush message that we are waiting on listeners
+	logger.Sync()
+
+	wg := &sync.WaitGroup{}
+	var shutdownErrors sync.Map
+
+	wg.Add(1)
 	go func() {
-		noTLSServer := server.Server{
-			ListenAddress: listenInterface,
-			HTTPHandler:   httpHandler,
-			Logger:        zapLogger,
-			Port:          v.GetInt("no-tls-port"),
-		}
-		errChan <- noTLSServer.ListenAndServe()
+		shutdownErrors.Store(noTLSServer, noTLSServer.Shutdown(ctx))
+		wg.Done()
 	}()
 
+	wg.Add(1)
 	go func() {
-		tlsServer := server.Server{
-			ClientAuthType: tls.NoClientCert,
-			ListenAddress:  listenInterface,
-			HTTPHandler:    httpHandler,
-			Logger:         zapLogger,
-			Port:           v.GetInt("tls-port"),
-			TLSCerts:       certificates,
-		}
-		errChan <- tlsServer.ListenAndServeTLS()
+		shutdownErrors.Store(tlsServer, tlsServer.Shutdown(ctx))
+		wg.Done()
 	}()
 
+	wg.Add(1)
 	go func() {
-		mutualTLSServer := server.Server{
-			// Ensure that any DoD-signed client certificate can be validated,
-			// using the package of DoD root and intermediate CAs provided by DISA
-			CaCertPool:     rootCAs,
-			ClientAuthType: tls.RequireAndVerifyClientCert,
-			ListenAddress:  listenInterface,
-			HTTPHandler:    httpHandler,
-			Logger:         zapLogger,
-			Port:           v.GetInt("mutual-tls-port"),
-			TLSCerts:       certificates,
-		}
-		errChan <- mutualTLSServer.ListenAndServeTLS()
+		shutdownErrors.Store(mutualTLSServer, mutualTLSServer.Shutdown(ctx))
+		wg.Done()
 	}()
 
-	logger.Fatal("listener error", zap.Error(<-errChan))
+	wg.Wait()
+	logger.Info("All listeners are shutdown")
+	logger.Sync()
+
+	shutdownError := false
+	shutdownErrors.Range(func(key, value interface{}) bool {
+		if srv, ok := key.(*server.NamedServer); ok {
+			if err, ok := value.(error); ok {
+				logger.Error("shutdown error", zap.String("name", srv.Name), zap.String("addr", srv.Addr), zap.Int("port", srv.Port()), zap.Error(err))
+				shutdownError = true
+			} else {
+				logger.Info("shutdown server", zap.String("name", srv.Name), zap.String("addr", srv.Addr), zap.Int("port", srv.Port()))
+			}
+		}
+		return true
+	})
+	logger.Sync()
+
+	if shutdownError {
+		os.Exit(1)
+	}
 }
 
 // fileHandler serves up a single file

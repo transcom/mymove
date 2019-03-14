@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/honeycombio/beeline-go/trace"
+
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -73,7 +75,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	req = req.WithContext(ctx)
 
 	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	handler := LogoutHandler{authContext, "fake key", false}
+	handler := LogoutHandler{authContext, "fake key", false, false}
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req.WithContext(ctx))
@@ -143,4 +145,38 @@ func (suite *AuthSuite) TestRequireAuthMiddlewareUnauthorized() {
 	if status := rr.Code; status != http.StatusUnauthorized {
 		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusUnauthorized)
 	}
+}
+
+func (suite *AuthSuite) TestAuthorizeDisableUser() {
+	userIdentity := models.UserIdentity{
+		Disabled: true,
+	}
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", "office.example.com"), nil)
+
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	officeTestHost := "office.example.com"
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        officeTestHost,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled user")
+
 }

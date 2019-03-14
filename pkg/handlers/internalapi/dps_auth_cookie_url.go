@@ -32,12 +32,17 @@ type DPSAuthGetCookieURLHandler struct {
 
 // Handle generates the URL to redirect to that begins the authentication process for DPS
 func (h DPSAuthGetCookieURLHandler) Handle(params dps_auth.GetCookieURLParams) middleware.Responder {
-	// Only DPS users can set the cookie name and redirect URL for testing purposes
-	if params.CookieName != nil || params.DpsRedirectURL != nil {
-		session := auth.SessionFromRequestContext(params.HTTPRequest)
-		if !session.IsDpsUser() {
-			return dps_auth.NewGetCookieURLForbidden()
-		}
+	// TODO: Currently, only whitelisted DPS users can access this endpoint because
+	//   1. The /dps_cookie page is ungated on the front-end. The restriction here will prevent
+	//      people from actually doing anything useful with that page.
+	//   2. This feature is in testing and isn't open to service members yet.
+	// However, when we're able to gate the /dps_cookie page on the front end and/or we're ready to
+	// launch this feature, all service members should be able to access this endpoint.
+	// Important: Only DPS users should ever be allowed to set parameters though (for testing).
+	// Service members should never be allowed to set params and only be allowed to use the default params.
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	if !session.IsDpsUser() {
+		return dps_auth.NewGetCookieURLForbidden()
 	}
 
 	dpsParams := h.DPSAuthParams()

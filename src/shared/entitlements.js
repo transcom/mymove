@@ -4,7 +4,7 @@ const defaultStorageInTransitDays = 90;
 
 export function getEntitlements(rank, hasDependents = false, spouseHasProGear = false) {
   if (!has(entitlements, rank)) {
-    return null;
+    return {};
   }
 
   const totalKey = hasDependents ? 'total_weight_self_plus_dependents' : 'total_weight_self';
@@ -26,7 +26,7 @@ export function loadEntitlementsFromState(state) {
   const spouseHasProGear = get(state, 'orders.currentOrders.spouse_has_pro_gear', null);
   const rank = get(state, 'serviceMember.currentServiceMember.rank', null);
   if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
-    return null;
+    return {};
   }
   return getEntitlements(rank, hasDependents, spouseHasProGear);
 }
