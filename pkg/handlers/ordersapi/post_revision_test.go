@@ -205,65 +205,40 @@ func (suite *HandlerSuite) TestPostRevisionNoApiPerm() {
 
 func (suite *HandlerSuite) TestPostRevisionWritePerms() {
 	testCases := map[string]struct {
-		cert   models.ClientCert
+		cert   *models.ClientCert
 		issuer ordersmessages.Issuer
 	}{
 		"Army": {
-			models.ClientCert{
-				AllowOrdersAPI:              true,
-				AllowAirForceOrdersWrite:    true,
-				AllowCoastGuardOrdersWrite:  true,
-				AllowMarineCorpsOrdersWrite: true,
-				AllowNavyOrdersWrite:        true,
-			},
+			makeAllPowerfulClientCert(),
 			ordersmessages.IssuerArmy,
 		},
 		"Navy": {
-			models.ClientCert{
-				AllowOrdersAPI:              true,
-				AllowAirForceOrdersWrite:    true,
-				AllowArmyOrdersWrite:        true,
-				AllowCoastGuardOrdersWrite:  true,
-				AllowMarineCorpsOrdersWrite: true,
-			},
+			makeAllPowerfulClientCert(),
 			ordersmessages.IssuerNavy,
 		},
 		"MarineCorps": {
-			models.ClientCert{
-				AllowOrdersAPI:             true,
-				AllowAirForceOrdersWrite:   true,
-				AllowArmyOrdersWrite:       true,
-				AllowCoastGuardOrdersWrite: true,
-				AllowNavyOrdersWrite:       true,
-			},
+			makeAllPowerfulClientCert(),
 			ordersmessages.IssuerMarineCorps,
 		},
 		"CoastGuard": {
-			models.ClientCert{
-				AllowOrdersAPI:              true,
-				AllowAirForceOrdersWrite:    true,
-				AllowArmyOrdersWrite:        true,
-				AllowMarineCorpsOrdersWrite: true,
-				AllowNavyOrdersWrite:        true,
-			},
+			makeAllPowerfulClientCert(),
 			ordersmessages.IssuerCoastGuard,
 		},
 		"AirForce": {
-			models.ClientCert{
-				AllowOrdersAPI:              true,
-				AllowArmyOrdersWrite:        true,
-				AllowCoastGuardOrdersWrite:  true,
-				AllowMarineCorpsOrdersWrite: true,
-				AllowNavyOrdersWrite:        true,
-			},
+			makeAllPowerfulClientCert(),
 			ordersmessages.IssuerAirForce,
 		},
 	}
+	testCases["Army"].cert.AllowArmyOrdersWrite = false
+	testCases["Navy"].cert.AllowNavyOrdersWrite = false
+	testCases["MarineCorps"].cert.AllowMarineCorpsOrdersWrite = false
+	testCases["CoastGuard"].cert.AllowCoastGuardOrdersWrite = false
+	testCases["AirForce"].cert.AllowAirForceOrdersWrite = false
 
 	for name, testCase := range testCases {
 		suite.T().Run(name, func(t *testing.T) {
 			req := httptest.NewRequest("POST", "/orders/v1/orders", nil)
-			req = suite.AuthenticateClientCertRequest(req, &testCase.cert)
+			req = suite.AuthenticateClientCertRequest(req, testCase.cert)
 
 			params := ordersoperations.PostRevisionParams{
 				HTTPRequest: req,

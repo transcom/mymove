@@ -52,3 +52,20 @@ func TestHandlerSuite(t *testing.T) {
 	// clean up whatever the last test added to the DB
 	hs.DB().TruncateAll()
 }
+
+func makeAllPowerfulClientCert() *models.ClientCert {
+	return &models.ClientCert{
+		AllowAirForceOrdersRead:     true,
+		AllowAirForceOrdersWrite:    true,
+		AllowArmyOrdersRead:         true,
+		AllowArmyOrdersWrite:        true,
+		AllowCoastGuardOrdersRead:   true,
+		AllowCoastGuardOrdersWrite:  true,
+		AllowDpsAuthAPI:             true,
+		AllowMarineCorpsOrdersRead:  true,
+		AllowMarineCorpsOrdersWrite: true,
+		AllowNavyOrdersRead:         true,
+		AllowNavyOrdersWrite:        true,
+		AllowOrdersAPI:              true,
+	}
+}

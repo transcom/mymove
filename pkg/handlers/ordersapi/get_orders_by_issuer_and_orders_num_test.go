@@ -55,78 +55,53 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumNoApiPerm() {
 
 func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumReadPerms() {
 	testCases := map[string]struct {
-		cert   models.ClientCert
+		cert   *models.ClientCert
 		issuer models.Issuer
 		affl   models.ElectronicOrdersAffiliation
 		edipi  string
 	}{
 		"Army": {
-			models.ClientCert{
-				AllowOrdersAPI:             true,
-				AllowAirForceOrdersRead:    true,
-				AllowCoastGuardOrdersRead:  true,
-				AllowMarineCorpsOrdersRead: true,
-				AllowNavyOrdersRead:        true,
-			},
+			makeAllPowerfulClientCert(),
 			models.IssuerArmy,
 			models.ElectronicOrdersAffiliationArmy,
 			"1234567890",
 		},
 		"Navy": {
-			models.ClientCert{
-				AllowOrdersAPI:             true,
-				AllowAirForceOrdersRead:    true,
-				AllowArmyOrdersRead:        true,
-				AllowCoastGuardOrdersRead:  true,
-				AllowMarineCorpsOrdersRead: true,
-			},
+			makeAllPowerfulClientCert(),
 			models.IssuerNavy,
 			models.ElectronicOrdersAffiliationNavy,
 			"1234567891",
 		},
 		"MarineCorps": {
-			models.ClientCert{
-				AllowOrdersAPI:            true,
-				AllowAirForceOrdersRead:   true,
-				AllowArmyOrdersRead:       true,
-				AllowCoastGuardOrdersRead: true,
-				AllowNavyOrdersRead:       true,
-			},
+			makeAllPowerfulClientCert(),
 			models.IssuerMarineCorps,
 			models.ElectronicOrdersAffiliationMarineCorps,
 			"1234567892",
 		},
 		"CoastGuard": {
-			models.ClientCert{
-				AllowOrdersAPI:             true,
-				AllowAirForceOrdersRead:    true,
-				AllowArmyOrdersRead:        true,
-				AllowMarineCorpsOrdersRead: true,
-				AllowNavyOrdersRead:        true,
-			},
+			makeAllPowerfulClientCert(),
 			models.IssuerCoastGuard,
 			models.ElectronicOrdersAffiliationCoastGuard,
 			"1234567893",
 		},
 		"AirForce": {
-			models.ClientCert{
-				AllowOrdersAPI:             true,
-				AllowArmyOrdersRead:        true,
-				AllowCoastGuardOrdersRead:  true,
-				AllowMarineCorpsOrdersRead: true,
-				AllowNavyOrdersRead:        true,
-			},
+			makeAllPowerfulClientCert(),
 			models.IssuerAirForce,
 			models.ElectronicOrdersAffiliationAirForce,
 			"1234567894",
 		},
 	}
+	testCases["Army"].cert.AllowArmyOrdersRead = false
+	testCases["Navy"].cert.AllowNavyOrdersRead = false
+	testCases["MarineCorps"].cert.AllowMarineCorpsOrdersRead = false
+	testCases["CoastGuard"].cert.AllowCoastGuardOrdersRead = false
+	testCases["AirForce"].cert.AllowAirForceOrdersRead = false
 
 	for name, testCase := range testCases {
 		suite.T().Run(name, func(t *testing.T) {
 			order := testdatagen.MakeElectronicOrder(suite.DB(), testCase.edipi, testCase.issuer, "8675309", testCase.affl)
 			req := httptest.NewRequest("GET", fmt.Sprintf("/orders/v1/issuers/%s/orders/%s", string(order.Issuer), order.OrdersNumber), nil)
-			req = suite.AuthenticateClientCertRequest(req, &testCase.cert)
+			req = suite.AuthenticateClientCertRequest(req, testCase.cert)
 
 			params := ordersoperations.GetOrdersByIssuerAndOrdersNumParams{
 				HTTPRequest: req,

@@ -117,79 +117,54 @@ func (suite *HandlerSuite) TestPostRevisionToOrdersNoApiPerm() {
 
 func (suite *HandlerSuite) TestPostRevisionToOrdersWritePerms() {
 	testCases := map[string]struct {
-		cert   models.ClientCert
+		cert   *models.ClientCert
 		issuer models.Issuer
 		affl   models.ElectronicOrdersAffiliation
 		edipi  string
 	}{
 		"Army": {
-			models.ClientCert{
-				AllowOrdersAPI:              true,
-				AllowAirForceOrdersWrite:    true,
-				AllowCoastGuardOrdersWrite:  true,
-				AllowMarineCorpsOrdersWrite: true,
-				AllowNavyOrdersWrite:        true,
-			},
+			makeAllPowerfulClientCert(),
 			models.IssuerArmy,
 			models.ElectronicOrdersAffiliationArmy,
 			"1234567890",
 		},
 		"Navy": {
-			models.ClientCert{
-				AllowOrdersAPI:              true,
-				AllowAirForceOrdersWrite:    true,
-				AllowArmyOrdersWrite:        true,
-				AllowCoastGuardOrdersWrite:  true,
-				AllowMarineCorpsOrdersWrite: true,
-			},
+			makeAllPowerfulClientCert(),
 			models.IssuerNavy,
 			models.ElectronicOrdersAffiliationNavy,
 			"1234567891",
 		},
 		"MarineCorps": {
-			models.ClientCert{
-				AllowOrdersAPI:             true,
-				AllowAirForceOrdersWrite:   true,
-				AllowArmyOrdersWrite:       true,
-				AllowCoastGuardOrdersWrite: true,
-				AllowNavyOrdersWrite:       true,
-			},
+			makeAllPowerfulClientCert(),
 			models.IssuerMarineCorps,
 			models.ElectronicOrdersAffiliationMarineCorps,
 			"1234567892",
 		},
 		"CoastGuard": {
-			models.ClientCert{
-				AllowOrdersAPI:              true,
-				AllowAirForceOrdersWrite:    true,
-				AllowArmyOrdersWrite:        true,
-				AllowMarineCorpsOrdersWrite: true,
-				AllowNavyOrdersWrite:        true,
-			},
+			makeAllPowerfulClientCert(),
 			models.IssuerCoastGuard,
 			models.ElectronicOrdersAffiliationCoastGuard,
 			"1234567893",
 		},
 		"AirForce": {
-			models.ClientCert{
-				AllowOrdersAPI:              true,
-				AllowArmyOrdersWrite:        true,
-				AllowCoastGuardOrdersWrite:  true,
-				AllowMarineCorpsOrdersWrite: true,
-				AllowNavyOrdersWrite:        true,
-			},
+			makeAllPowerfulClientCert(),
 			models.IssuerAirForce,
 			models.ElectronicOrdersAffiliationAirForce,
 			"1234567894",
 		},
 	}
+	testCases["Army"].cert.AllowArmyOrdersWrite = false
+	testCases["Navy"].cert.AllowNavyOrdersWrite = false
+	testCases["MarineCorps"].cert.AllowMarineCorpsOrdersWrite = false
+	testCases["CoastGuard"].cert.AllowCoastGuardOrdersWrite = false
+	testCases["AirForce"].cert.AllowAirForceOrdersWrite = false
 
 	for name, testCase := range testCases {
 		suite.T().Run(name, func(t *testing.T) {
 			// prime the DB with an order with 1 revision
 			origOrder := testdatagen.MakeElectronicOrder(suite.DB(), testCase.edipi, testCase.issuer, "8675309", testCase.affl)
 			req := httptest.NewRequest("POST", fmt.Sprintf("/orders/v1/orders/%s", origOrder.ID.String()), nil)
-			req = suite.AuthenticateClientCertRequest(req, &testCase.cert)
+			req = suite.AuthenticateClientCertRequest(req, testCase.cert)
 
 			params := ordersoperations.PostRevisionToOrdersParams{
 				HTTPRequest: req,
