@@ -443,6 +443,10 @@ func (suite *ModelSuite) TestFormatActualObligationsWeight() {
 		[]models.PersonallyProcuredMove{
 			{NetWeight: models.Int64Pointer(10000)},
 		}))
+	suite.Equal("", models.FormatActualObligationsWeight(5000,
+		[]models.PersonallyProcuredMove{
+			{NetWeight: nil},
+		}))
 
 }
 

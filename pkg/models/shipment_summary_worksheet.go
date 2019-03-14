@@ -285,19 +285,15 @@ func formatActualObligationAdvance(data ShipmentSummaryFormData) string {
 
 //FormatActualObligationsWeight formats the service member's weight for the actual obligations im the Shipment Summary Worksheet
 func FormatActualObligationsWeight(totalWeightAllotment int, personallyProcuredMoves PersonallyProcuredMoves) string {
-	var actualWeightObligation int
-
-	if len(personallyProcuredMoves) > 0 && personallyProcuredMoves[0].NetWeight != nil {
-		ppmWeight := int(*personallyProcuredMoves[0].NetWeight)
-		weightAllotment := int(totalWeightAllotment)
-
-		if ppmWeight >= weightAllotment {
-			actualWeightObligation = weightAllotment
-		} else {
-			actualWeightObligation = ppmWeight
-		}
+	if len(personallyProcuredMoves) == 0 || personallyProcuredMoves[0].NetWeight == nil {
+		return ""
 	}
-	return FormatWeights(actualWeightObligation)
+	ppmWeight := int(*personallyProcuredMoves[0].NetWeight)
+	weightAllotment := int(totalWeightAllotment)
+	if ppmWeight >= weightAllotment {
+		return FormatWeights(weightAllotment)
+	}
+	return FormatWeights(ppmWeight)
 }
 
 //FormatRank formats the service member's rank for Shipment Summary Worksheet
