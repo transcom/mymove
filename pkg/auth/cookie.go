@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/csrf"
-	"github.com/honeycombio/beeline-go"
+	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
@@ -72,7 +72,7 @@ func signTokenStringWithUserInfo(expiry time.Time, session *Session, secret stri
 	return ss, err
 }
 
-func sessionClaimsFromRequest(logger *zap.Logger, secret string, appName Application, r *http.Request) (claims *SessionClaims, ok bool) {
+func sessionClaimsFromRequest(logger Logger, secret string, appName Application, r *http.Request) (claims *SessionClaims, ok bool) {
 	// Name the cookie with the app name
 	cookieName := fmt.Sprintf("%s_%s", string(appName), UserSessionCookieName)
 	cookie, err := r.Cookie(cookieName)
@@ -101,7 +101,7 @@ func sessionClaimsFromRequest(logger *zap.Logger, secret string, appName Applica
 }
 
 // WriteMaskedCSRFCookie update the masked_gorilla_csrf cookie value
-func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, noSessionTimeout bool, logger *zap.Logger, useSecureCookie bool) {
+func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, noSessionTimeout bool, logger Logger, useSecureCookie bool) {
 
 	expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
 	maxAge := sessionExpiryInSeconds
@@ -127,7 +127,7 @@ func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, noSessionTim
 }
 
 // MaskedCSRFMiddleware handles setting the CSRF Token cookie
-func MaskedCSRFMiddleware(logger *zap.Logger, noSessionTimeout bool, useSecureCookie bool) func(next http.Handler) http.Handler {
+func MaskedCSRFMiddleware(logger Logger, noSessionTimeout bool, useSecureCookie bool) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			WriteMaskedCSRFCookie(w, csrf.Token(r), noSessionTimeout, logger, useSecureCookie)
@@ -138,7 +138,7 @@ func MaskedCSRFMiddleware(logger *zap.Logger, noSessionTimeout bool, useSecureCo
 }
 
 // WriteSessionCookie update the cookie for the session
-func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, noSessionTimeout bool, logger *zap.Logger, useSecureCookie bool) {
+func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, noSessionTimeout bool, logger Logger, useSecureCookie bool) {
 
 	// Delete the cookie
 	cookieName := fmt.Sprintf("%s_%s", string(session.ApplicationName), UserSessionCookieName)
@@ -198,7 +198,7 @@ func ApplicationName(hostname, milHostname, officeHostname, tspHostname string) 
 }
 
 // SessionCookieMiddleware handle serializing and de-serializing the session between the user_session cookie and the request context
-func SessionCookieMiddleware(logger *zap.Logger, secret string, noSessionTimeout bool, milHostname, officeHostname, tspHostname string, useSecureCookie bool) func(next http.Handler) http.Handler {
+func SessionCookieMiddleware(logger Logger, secret string, noSessionTimeout bool, milHostname, officeHostname, tspHostname string, useSecureCookie bool) func(next http.Handler) http.Handler {
 	logger.Info("Creating session", zap.String("milHost", milHostname), zap.String("officeHost", officeHostname), zap.String("tspHost", tspHostname))
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {

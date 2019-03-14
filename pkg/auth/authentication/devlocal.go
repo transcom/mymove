@@ -9,9 +9,8 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
-
 	"github.com/gorilla/csrf"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"

@@ -14,7 +14,7 @@ import (
 type GexSuite struct {
 	suite.Suite
 	db     *pop.Connection
-	logger *zap.Logger
+	logger Logger
 }
 
 func (suite *GexSuite) SetupTest() {
@@ -29,10 +29,10 @@ func TestGexSuite(t *testing.T) {
 		log.Panic(err)
 	}
 
-	// Use a no-op logger during testing
-	logger := zap.NewNop()
-
-	hs := &GexSuite{db: db, logger: logger}
+	hs := &GexSuite{
+		db:     db,
+		logger: zap.NewNop(), // Use a no-op logger during testing
+	}
 	suite.Run(t, hs)
 }
 

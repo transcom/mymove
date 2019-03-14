@@ -21,7 +21,7 @@ import (
 
 type UploaderSuite struct {
 	testingsuite.PopTestSuite
-	logger       *zap.Logger
+	logger       uploader.Logger
 	storer       storage.FileStorer
 	filesToClose []afero.File
 	fs           *afero.Afero

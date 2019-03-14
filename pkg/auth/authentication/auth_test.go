@@ -23,7 +23,7 @@ import (
 
 type AuthSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
+	logger Logger
 }
 
 func (suite *AuthSuite) SetupTest() {
@@ -42,7 +42,7 @@ func TestAuthSuite(t *testing.T) {
 	suite.Run(t, hs)
 }
 
-func fakeLoginGovProvider(logger *zap.Logger) LoginGovProvider {
+func fakeLoginGovProvider(logger Logger) LoginGovProvider {
 	return NewLoginGovProvider("fakeHostname", "secret_key", logger)
 }
 

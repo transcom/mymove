@@ -54,7 +54,7 @@ func (o *ErrResponse) WriteResponse(rw http.ResponseWriter, producer runtime.Pro
 }
 
 // ResponseForError logs an error and returns the expected error type
-func ResponseForError(logger *zap.Logger, err error) middleware.Responder {
+func ResponseForError(logger Logger, err error) middleware.Responder {
 	// AddCallerSkip(1) prevents log statements from listing this file and func as the caller
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
 
@@ -76,7 +76,7 @@ func ResponseForError(logger *zap.Logger, err error) middleware.Responder {
 	}
 }
 
-func responseForBaseError(logger *zap.Logger, err error) middleware.Responder {
+func responseForBaseError(logger Logger, err error) middleware.Responder {
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
 
 	switch errors.Cause(err) {
@@ -108,7 +108,7 @@ func responseForBaseError(logger *zap.Logger, err error) middleware.Responder {
 }
 
 // ResponseForVErrors checks for validation errors
-func ResponseForVErrors(logger *zap.Logger, verrs *validate.Errors, err error) middleware.Responder {
+func ResponseForVErrors(logger Logger, verrs *validate.Errors, err error) middleware.Responder {
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
 	if verrs.HasAny() {
 		skipLogger.Error("Encountered validation error", zap.Any("Validation errors", verrs.String()))
@@ -122,7 +122,7 @@ func ResponseForVErrors(logger *zap.Logger, verrs *validate.Errors, err error) m
 }
 
 // ResponseForCustomErrors checks for custom errors and returns a custom response body message
-func ResponseForCustomErrors(logger *zap.Logger, err error, httpStatus int) middleware.Responder {
+func ResponseForCustomErrors(logger Logger, err error, httpStatus int) middleware.Responder {
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
 	skipLogger.Error("Encountered error", zap.Error(err))
 
@@ -130,7 +130,7 @@ func ResponseForCustomErrors(logger *zap.Logger, err error, httpStatus int) midd
 }
 
 // ResponseForConflictErrors checks for conflict errors
-func ResponseForConflictErrors(logger *zap.Logger, err error) middleware.Responder {
+func ResponseForConflictErrors(logger Logger, err error) middleware.Responder {
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
 	skipLogger.Error("Encountered conflict error", zap.Error(err))
 
