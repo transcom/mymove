@@ -175,16 +175,21 @@ PreApprovalForm = reduxForm({
 const selector = formValueSelector(formName);
 
 function mapStateToProps(state) {
-  const estimateAmount = get(state, 'form.preapproval_request_form.values.estimate_amount_cents');
-  const actualAmount = get(state, 'form.preapproval_request_form.values.actual_amount_cents');
   return {
     tariff400ng_item_code: get(state, 'form.preapproval_request_form.values.tariff400ng_item.code'),
     ship_line_item_schema: get(state, 'swaggerPublic.spec.definitions.ShipmentLineItem', {}),
     filteredLocations: selectLocationFromTariff400ngItem(state, selector(state, 'tariff400ng_item')),
     selectedLocation: selector(state, 'location'),
     tariff400ngItem: selector(state, 'tariff400ng_item'),
-    showAlert: actualAmount > estimateAmount,
+    showAlert: actualAmount(state) > estimateAmount(state),
   };
+}
+
+function estimateAmount(state) {
+  return get(state, 'form.preapproval_request_form.values.estimate_amount_cents');
+}
+function actualAmount(state) {
+  return get(state, 'form.preapproval_request_form.values.actual_amount_cents');
 }
 
 export default withContext(connect(mapStateToProps)(PreApprovalForm));
