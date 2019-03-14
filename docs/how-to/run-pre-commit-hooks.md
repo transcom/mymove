@@ -25,6 +25,7 @@ If you would like to run an individual hook, for example if you want to only run
 | markdown-toc  | Wrapper script to generate table of contents on Markdown files  |
 | go-imports  | Attempts to run command `goimports` which updates your Go import lines, adding missing ones and removing unreferenced ones. For more see [here](https://godoc.org/golang.org/x/tools/cmd/goimports)
 | go-lint | Attempts to run a linter against the go source code |
+| go-vet | Attempts to examines Go source code and reports suspicious constructs, such as Printf calls whose arguments do not align with the format string. |
 | gosec | Inspects source code for security problems by scanning the Go AST. For more see [here](https://github.com/securego/gosec)
 | gen-docs |Attempts to generate table of contents for the [docs/README](docs/README.md) file in doc folder |
 | dep-version | checks the dep version |

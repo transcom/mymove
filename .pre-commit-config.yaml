@@ -109,6 +109,15 @@ repos:
 
   - repo: local
     hooks:
+    - id: go-vet
+      name: go vet
+      entry: bin/pre-commit-go-vet
+      language: script
+      files: \.go$
+      exclude: vendor/
+
+  - repo: local
+    hooks:
       - id: gosec
         name: gosec scanner
         entry: bin/gosec -exclude=G104 -fmt text ./...
