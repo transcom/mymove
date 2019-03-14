@@ -190,7 +190,7 @@ func (f *FormFiller) drawDebugOverlay(xPos, yPos, width, lineHeight float64, lab
 	f.pdf.MoveTo(xPos, yPos)
 	f.pdf.CellFormat(width, lineHeight, "", "1", 0, "R", false, 0, "")
 
-	f.pdf.MoveTo(xPos+1.2, yPos+1.8)
+	f.pdf.MoveTo(xPos+1.2, yPos-2.9)
 	f.pdf.CellFormat(width, 4, label, "0", 0, "R", false, 0, "")
 
 	// Restore settings
