@@ -21,7 +21,7 @@ export class TransportationServiceProviderContactInfo extends Component {
           <div className="title">File a Claim</div>
           <div>
             If you have household goods damaged or lost during the move, contact {transportationServiceProvider.name} to
-            file a claim: {transportationServiceProvider.poc_general_phone}. If, after attempting to work with them, you
+            file a claim: {transportationServiceProvider.poc_claims_phone}. If, after attempting to work with them, you
             do not feel that you are receiving adequate compensation, contact the Military Claims Office for help.
           </div>
         </div>
