@@ -107,14 +107,14 @@ repos:
         files: \.go$
         exclude: vendor/
 
-  - repo: local
-    hooks:
-    - id: go-vet
-      name: go vet
-      entry: bin/pre-commit-go-vet
-      language: script
-      files: \.go$
-      exclude: vendor/
+#  - repo: local
+#    hooks:
+#    - id: go-vet
+#      name: go vet
+#      entry: bin/pre-commit-go-vet
+#      language: script
+#      files: \.go$
+#      exclude: vendor/
 
   - repo: local
     hooks:
