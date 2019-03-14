@@ -143,13 +143,13 @@ func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, 
 	// Delete the cookie
 	cookieName := fmt.Sprintf("%s_%s", string(session.ApplicationName), UserSessionCookieName)
 	cookie := http.Cookie{
-		Name:    cookieName,
-		Value:   "blank",
-		Path:    "/",
-		Expires: time.Unix(0, 0),
-		MaxAge:  -1,
-		// SameSite: http.SameSiteStrictMode,
-		Secure: useSecureCookie,
+		Name:     cookieName,
+		Value:    "blank",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		MaxAge:   -1,
+		SameSite: http.SameSiteLaxMode, // Using 'strict' breaks the use of the login.gov redirect
+		Secure:   useSecureCookie,
 	}
 
 	// unless we have a valid session
