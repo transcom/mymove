@@ -90,20 +90,11 @@ const selectInvoicesShipmentLineItemsByInvoiceId = (state, invoiceId) => {
 };
 
 const selectUnbilledShipmentLineItemsByShipmentId = (state, shipmentId) => {
-  const items = filter(state.entities.shipmentLineItems, item => {
-    return item.shipment_id === shipmentId && !item.invoice_id;
-  });
-
+  const items = filterByShipmentId(state, shipmentId);
   //this denormalize step can be skipped because tariff400ng_item data is already available under items
   //but this is the right way to hydrate the data structure so leaving it in
-  let denormItems = denormalize(map(items, 'id'), ShipmentLineItemsModel, state.entities);
-  return denormItems.filter(item => {
-    return (
-      !item.tariff400ng_item.requires_pre_approval ||
-      (item.status === 'APPROVED' && item.tariff400ng_item.code !== '35A') ||
-      (item.status === 'APPROVED' && item.tariff400ng_item.code === '35A' && item.actual_amount_cents)
-    );
-  });
+  const denormItems = denormalize(map(items, 'id'), ShipmentLineItemsModel, state.entities);
+  return filterCheck35A(filterByLinehaulAndPreApprovals(denormItems));
 };
 
 export const selectUnbilledShipmentLineItems = createSelector([selectUnbilledShipmentLineItemsByShipmentId], items =>
@@ -138,3 +129,20 @@ export const selectLocationFromTariff400ngItem = (state, selectedTariff400ngItem
       : lineItemLocation === tariff400ngItemLocation;
   });
 };
+
+function filterByShipmentId(state, shipmentId) {
+  return filter(state.entities.shipmentLineItems, item => {
+    return item.shipment_id === shipmentId && !item.invoice_id;
+  });
+}
+
+function filterByLinehaulAndPreApprovals(items) {
+  return filter(items, item => !item.tariff400ng_item.requires_pre_approval || item.status === 'APPROVED');
+}
+
+function filterCheck35A(items) {
+  return filter(
+    items,
+    item => item.tariff400ng_item.code !== '35A' || (item.tariff400ng_item.code === '35A' && item.actual_amount_cents),
+  );
+}
