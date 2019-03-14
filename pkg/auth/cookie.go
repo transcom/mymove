@@ -142,7 +142,6 @@ func MaskedCSRFMiddleware(logger Logger, noSessionTimeout bool, useSecureCookie 
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			// Write a CSRF cookie if none exists
 			if _, err := GetCookie(MaskedGorillaCSRFToken, r); err != nil {
-				WriteMaskedCSRFCookie(w, csrf.Token(r), noSessionTimeout, logger)
 				WriteMaskedCSRFCookie(w, csrf.Token(r), noSessionTimeout, logger, useSecureCookie)
 			}
 			next.ServeHTTP(w, r)
