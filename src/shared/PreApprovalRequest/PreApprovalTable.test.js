@@ -45,7 +45,7 @@ describe('PreApprovalTable tests', () => {
           onApproval={onEdit}
         />,
       );
-      expect(wrapper.find('PreApprovalRequest').length).toEqual(2);
+      expect(wrapper.find('PreApprovalRequest').length).toEqual(3);
     });
   });
   describe('When no shipmentLineItems exist', () => {
@@ -78,7 +78,7 @@ describe('PreApprovalTable tests', () => {
       );
       wrapper.setState({ actionRequestId: shipmentLineItems[0].id });
       const requests = wrapper.find('PreApprovalRequest');
-      expect(requests.length).toEqual(2);
+      expect(requests.length).toEqual(3);
       requests.forEach(req => {
         if (req.prop('shipmentLineItem').id === shipmentLineItems[0].id) {
           expect(req.prop('isActionable')).toBe(true);
