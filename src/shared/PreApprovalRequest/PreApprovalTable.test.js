@@ -24,6 +24,15 @@ describe('PreApprovalTable tests', () => {
       created_at: '2018-09-24T14:05:38.847Z',
       status: 'SUBMITTED',
     },
+    {
+      id: '3',
+      tariff400ng_item: { code: '35A', item: 'Third Party Service' },
+      location: 'D',
+      base_quantity: 100,
+      notes: 'sample third party service',
+      created_at: '2018-09-24T14:05:38.847Z',
+      status: 'SUBMITTED',
+    },
   ];
   describe('When shipmentLineItems exist', () => {
     it('renders without crashing', () => {

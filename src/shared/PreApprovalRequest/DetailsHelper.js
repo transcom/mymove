@@ -18,9 +18,9 @@ export function getFormComponent(code, robustAccessorial, initialValues) {
   return DefaultForm;
 }
 
-export function getDetailsComponent(code, isNewAccessorial) {
+export function getDetailsComponent(code, robustccessorial, isNewAccessorial) {
   if (!isNewAccessorial) return DefaultDetails;
   if (code === '105B' || code === '105E') return Code105Details;
-  if (code === '35A') return Code35Details;
+  if (code === '35A' && robustccessorial) return Code35Details;
   return DefaultDetails;
 }

@@ -1,7 +1,7 @@
 import { createItemRequest } from '../../fixtures/preApprovals/requests/create105';
 
 /* global cy */
-export function addOriginal105({ code, quantity1 }) {
+export function addLegacyRequest({ code, quantity1 }) {
   return cy.location().then(loc => {
     // eslint-disable-next-line security/detect-non-literal-regexp
     const pattern = new RegExp(`^/shipments/(.*)`);
@@ -9,7 +9,7 @@ export function addOriginal105({ code, quantity1 }) {
     const shipmentId = loc.pathname.match(pattern)[1];
     return cy.getCookie('masked_gorilla_csrf').then(token => {
       const csrfToken = token.value;
-      return createOriginal105(shipmentId, csrfToken, code, quantity1);
+      return createLegacyRequest(shipmentId, csrfToken, code, quantity1);
     });
   });
 }
@@ -44,7 +44,7 @@ function clickSaveAndClose() {
     .click();
 }
 
-function createOriginal105(shipmentId, csrfToken, code, quantity1) {
+function createLegacyRequest(shipmentId, csrfToken, code, quantity1) {
   const item = createItemRequest({
     shipmentId: shipmentId,
     csrfToken: csrfToken,
@@ -52,4 +52,18 @@ function createOriginal105(shipmentId, csrfToken, code, quantity1) {
     quantity1: quantity1,
   });
   return cy.request(item);
+}
+
+export function add35A({ estimate_amount_dollars = 250, actual_amount_dollars }) {
+  clickAddARequest();
+  cy.selectTariff400ngItem('35A');
+  cy.get('select[name="location"]').select('ORIGIN');
+  cy.typeInTextarea({ name: 'description', value: `description description 35A` });
+  cy.typeInTextarea({ name: 'reason', value: `reason reason 35A` });
+  cy.typeInInput({ name: 'estimate_amount_cents', value: estimate_amount_dollars });
+  if (actual_amount_dollars) {
+    cy.typeInInput({ name: 'actual_amount_cents', value: actual_amount_dollars });
+  }
+  cy.typeInTextarea({ name: 'notes', value: 'notes notes' });
+  clickSaveAndClose();
 }

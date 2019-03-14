@@ -1,3 +1,4 @@
+import { get } from 'lodash';
 import React, { Component, Fragment } from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
@@ -90,7 +91,11 @@ export class PreApprovalRequest extends Component {
     const hasInvoice = Boolean(row.invoice_id);
     const isShowingForm = Boolean(this.state.showDeleteForm || this.state.showEditForm);
     const showButtons = this.props.isActionable && !isShowingForm && !hasInvoice;
-    const DetailsComponent = getDetailsComponent(row.tariff400ng_item.code, isNewAccessorial(row));
+    const DetailsComponent = getDetailsComponent(
+      row.tariff400ng_item.code,
+      get(this.props, 'context.flags.robustAccessorial', false),
+      isNewAccessorial(row),
+    );
     if (this.state.showEditForm) {
       return (
         <tr>
