@@ -182,6 +182,10 @@ td.delete-confirm strong {
   height: 2rem;
 }
 
+.tariff400ng_item {
+  font-size: 1.7rem;
+}
+
 .location__control {
   height: 5rem;
   border-color: #5b616b !important;
