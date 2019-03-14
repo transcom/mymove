@@ -9,7 +9,7 @@ export class DimensionsField extends Component {
     return (
       <FormSection name={this.props.fieldName}>
         <label htmlFor={this.props.fieldName} className="usa-input-label">
-          {this.props.labelText}
+          <b>{this.props.labelText}</b>
         </label>
         <table className="dimensions-form">
           <tbody>
