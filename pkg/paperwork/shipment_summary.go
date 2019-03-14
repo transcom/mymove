@@ -256,44 +256,34 @@ type ObligationType int
 
 //ComputeObligations is helper function for computing the obligations section of the shipment summary worksheet
 func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSummaryFormData, planner route.Planner) (obligation models.Obligations, err error) {
-	var firstPPM models.PersonallyProcuredMove
-	if len(ssfd.PersonallyProcuredMoves) == 0 {
-		return models.Obligations{}, errors.New("missing ppm")
-	}
-	firstPPM = ssfd.PersonallyProcuredMoves[0]
-	if firstPPM.PickupPostalCode == nil || firstPPM.DestinationPostalCode == nil {
-		return models.Obligations{}, errors.New("missing required address parameter")
+	firstPPM, err := sswPpmComputer.nilCheckPPM(ssfd)
+	if err != nil {
+		return models.Obligations{}, err
 	}
 	distanceMiles, err := planner.Zip5TransitDistance(*firstPPM.PickupPostalCode, *firstPPM.DestinationPostalCode)
 	if err != nil {
 		return models.Obligations{}, errors.New("error calculating distance")
 	}
-	var valid bool
-	var maxCost, actualCost rateengine.CostComputation
-	if valid = firstPPM.ActualMoveDate != nil; valid {
-		maxCost, err = sswPpmComputer.ComputePPMIncludingLHDiscount(
-			unit.Pound(ssfd.TotalWeightAllotment),
-			*firstPPM.PickupPostalCode,
-			*firstPPM.DestinationPostalCode,
-			distanceMiles,
-			*firstPPM.ActualMoveDate,
-			0,
-		)
-	}
-	if err != nil || !valid {
+	maxCost, err := sswPpmComputer.ComputePPMIncludingLHDiscount(
+		unit.Pound(ssfd.TotalWeightAllotment),
+		*firstPPM.PickupPostalCode,
+		*firstPPM.DestinationPostalCode,
+		distanceMiles,
+		*firstPPM.ActualMoveDate,
+		0,
+	)
+	if err != nil {
 		return models.Obligations{}, errors.New("error calculating PPM max obligations")
 	}
-	if valid = firstPPM.NetWeight != nil && firstPPM.ActualMoveDate != nil; valid {
-		actualCost, err = sswPpmComputer.ComputePPMIncludingLHDiscount(
-			unit.Pound(*firstPPM.NetWeight),
-			*firstPPM.PickupPostalCode,
-			*firstPPM.DestinationPostalCode,
-			distanceMiles,
-			*firstPPM.ActualMoveDate,
-			0,
-		)
-	}
-	if err != nil || !valid {
+	actualCost, err := sswPpmComputer.ComputePPMIncludingLHDiscount(
+		unit.Pound(*firstPPM.NetWeight),
+		*firstPPM.PickupPostalCode,
+		*firstPPM.DestinationPostalCode,
+		distanceMiles,
+		*firstPPM.ActualMoveDate,
+		0,
+	)
+	if err != nil {
 		return models.Obligations{}, errors.New("error calculating PPM actual obligations")
 	}
 	var actualSIT unit.Cents
@@ -307,4 +297,21 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 	actualObligation := models.Obligation{Gcc: actualCost.GCC, SIT: actualSIT}
 	obligations := models.Obligations{MaxObligation: maxObligation, ActualObligation: actualObligation}
 	return obligations, nil
+}
+
+func (sswPpmComputer *SSWPPMComputer) nilCheckPPM(ssfd models.ShipmentSummaryFormData) (models.PersonallyProcuredMove, error) {
+	if len(ssfd.PersonallyProcuredMoves) == 0 {
+		return models.PersonallyProcuredMove{}, errors.New("missing ppm")
+	}
+	firstPPM := ssfd.PersonallyProcuredMoves[0]
+	if firstPPM.PickupPostalCode == nil || firstPPM.DestinationPostalCode == nil {
+		return models.PersonallyProcuredMove{}, errors.New("missing required address parameter")
+	}
+	if firstPPM.ActualMoveDate == nil {
+		return models.PersonallyProcuredMove{}, errors.New("missing required actual move date parameter")
+	}
+	if firstPPM.NetWeight == nil {
+		return models.PersonallyProcuredMove{}, errors.New("missing required move net weight parameter")
+	}
+	return firstPPM, nil
 }
