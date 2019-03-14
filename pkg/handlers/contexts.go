@@ -37,6 +37,8 @@ type HandlerContext interface {
 	SetIWSPersonLookup(rbs iws.PersonLookup)
 	SendProductionInvoice() bool
 	SetSendProductionInvoice(sendProductionInvoice bool)
+	UseSecureCookie() bool
+	SetUseSecureCookie(useSecureCookie bool)
 
 	GexSender() services.GexSender
 	SetGexSender(gexSender services.GexSender)
@@ -62,6 +64,7 @@ type handlerContext struct {
 	dpsAuthParams         dpsauth.Params
 	senderToGex           services.GexSender
 	icnSequencer          sequence.Sequencer
+	useSecureCookie       bool
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
@@ -189,4 +192,14 @@ func (hctx *handlerContext) DPSAuthParams() dpsauth.Params {
 
 func (hctx *handlerContext) SetDPSAuthParams(params dpsauth.Params) {
 	hctx.dpsAuthParams = params
+}
+
+// UseSecureCookie determines if the field "Secure" is set to true or false upon cookie creation
+func (hctx *handlerContext) UseSecureCookie() bool {
+	return hctx.useSecureCookie
+}
+
+// Sets flag for using Secure cookie
+func (hctx *handlerContext) SetUseSecureCookie(useSecureCookie bool) {
+	hctx.useSecureCookie = useSecureCookie
 }

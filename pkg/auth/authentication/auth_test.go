@@ -75,7 +75,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	req = req.WithContext(ctx)
 
 	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	handler := LogoutHandler{authContext, "fake key", false}
+	handler := LogoutHandler{authContext, "fake key", false, false}
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req.WithContext(ctx))
@@ -170,6 +170,7 @@ func (suite *AuthSuite) TestAuthorizeDisableUser() {
 		authContext,
 		suite.DB(),
 		"fake key",
+		false,
 		false,
 	}
 	rr := httptest.NewRecorder()
