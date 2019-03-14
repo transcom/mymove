@@ -16,7 +16,7 @@ import (
 )
 
 type serverSuite struct {
-	logger *zap.Logger
+	logger Logger
 	testingsuite.BaseTestSuite
 	httpHandler http.Handler
 }

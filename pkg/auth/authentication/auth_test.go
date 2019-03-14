@@ -22,7 +22,7 @@ import (
 
 type AuthSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
+	logger Logger
 }
 
 func (suite *AuthSuite) SetupTest() {
@@ -41,7 +41,7 @@ func TestAuthSuite(t *testing.T) {
 	suite.Run(t, hs)
 }
 
-func fakeLoginGovProvider(logger *zap.Logger) LoginGovProvider {
+func fakeLoginGovProvider(logger Logger) LoginGovProvider {
 	return NewLoginGovProvider("fakeHostname", "secret_key", logger)
 }
 
@@ -73,7 +73,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	req = req.WithContext(ctx)
 
 	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	handler := LogoutHandler{authContext, "fake key", false}
+	handler := LogoutHandler{authContext, "fake key", false, false}
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req.WithContext(ctx))
@@ -167,6 +167,7 @@ func (suite *AuthSuite) TestAuthorizeDisableUser() {
 		authContext,
 		suite.DB(),
 		"fake key",
+		false,
 		false,
 	}
 	rr := httptest.NewRecorder()

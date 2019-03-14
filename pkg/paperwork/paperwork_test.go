@@ -18,7 +18,7 @@ import (
 
 type PaperworkSuite struct {
 	testingsuite.PopTestSuite
-	logger       *zap.Logger
+	logger       Logger
 	uploader     *uploader.Uploader
 	filesToClose []afero.File
 }
