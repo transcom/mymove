@@ -100,6 +100,7 @@ type devlocalAuthHandler struct {
 	db                  *pop.Connection
 	clientAuthSecretKey string
 	noSessionTimeout    bool
+	useSecureCookie     bool
 }
 
 // AssignUserHandler logs a user in directly
@@ -186,12 +187,13 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) m
 type CreateAndLoginUserHandler devlocalAuthHandler
 
 // NewCreateAndLoginUserHandler creates a new CreateAndLoginUserHandler
-func NewCreateAndLoginUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) CreateAndLoginUserHandler {
+func NewCreateAndLoginUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) CreateAndLoginUserHandler {
 	handler := CreateAndLoginUserHandler{
 		Context:             ac,
 		db:                  db,
 		clientAuthSecretKey: clientAuthSecretKey,
 		noSessionTimeout:    noSessionTimeout,
+		useSecureCookie:     useSecureCookie,
 	}
 	return handler
 }
@@ -257,7 +259,7 @@ func loginUser(handler devlocalAuthHandler, user *models.User, w http.ResponseWr
 	}
 
 	handler.logger.Info("logged in", zap.Any("session", session))
-	auth.WriteSessionCookie(w, session, handler.clientAuthSecretKey, handler.noSessionTimeout, handler.logger)
+	auth.WriteSessionCookie(w, session, handler.clientAuthSecretKey, handler.noSessionTimeout, handler.logger, handler.useSecureCookie)
 
 	lURL := handler.landingURL(session)
 	http.Redirect(w, r, lURL, http.StatusSeeOther)

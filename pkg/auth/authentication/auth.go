@@ -89,14 +89,16 @@ type LogoutHandler struct {
 	Context
 	clientAuthSecretKey string
 	noSessionTimeout    bool
+	useSecureCookie     bool
 }
 
 // NewLogoutHandler creates a new LogoutHandler
-func NewLogoutHandler(ac Context, clientAuthSecretKey string, noSessionTimeout bool) LogoutHandler {
+func NewLogoutHandler(ac Context, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) LogoutHandler {
 	handler := LogoutHandler{
 		Context:             ac,
 		clientAuthSecretKey: clientAuthSecretKey,
 		noSessionTimeout:    noSessionTimeout,
+		useSecureCookie:     useSecureCookie,
 	}
 	return handler
 }
@@ -117,7 +119,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 			session.IDToken = ""
 			session.UserID = uuid.Nil
-			auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
+			auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
 			http.Redirect(w, r, logoutURL, http.StatusTemporaryRedirect)
 		} else {
 			// Can't log out of login.gov without a token, redirect and let them re-auth
@@ -155,15 +157,17 @@ type CallbackHandler struct {
 	db                  *pop.Connection
 	clientAuthSecretKey string
 	noSessionTimeout    bool
+	useSecureCookie     bool
 }
 
 // NewCallbackHandler creates a new CallbackHandler
-func NewCallbackHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) CallbackHandler {
+func NewCallbackHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) CallbackHandler {
 	handler := CallbackHandler{
 		Context:             ac,
 		db:                  db,
 		clientAuthSecretKey: clientAuthSecretKey,
 		noSessionTimeout:    noSessionTimeout,
+		useSecureCookie:     useSecureCookie,
 	}
 	return handler
 }
@@ -320,7 +324,7 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 
 	h.logger.Info("logged in", zap.Any("session", session))
 
-	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
+	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
 	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 }
 
@@ -378,7 +382,7 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 
 	h.logger.Info("logged in", zap.Any("session", session))
 
-	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
+	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
 	http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
 }
 
