@@ -15,6 +15,7 @@ If you are looking to understand choices made in this project, see the list of [
 ## HOWTOs
 
 * [Call Swagger Endpoints from React](how-to/access-swagger-endpoints-from-react.md#how-to-call-swagger-endpoints-from-react)
+* [Add Application Logging](how-to/add-application-logging.md#how-to-add-application-logging)
 * [Backup and Restore the Development Database](how-to/backup-and-restore-dev-database.md#how-to-backup-and-restore-the-development-database)
 * [display dates and times](how-to/display-dates-and-times.md#how-to-display-dates-and-times)
 * [Generate Mocks with Mockery](how-to/generate-mocks-with-mockery.md#how-to-generate-mocks-with-mockery)

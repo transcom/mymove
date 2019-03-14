@@ -4,14 +4,12 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type SequenceSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
 }
 
 func (suite *SequenceSuite) SetupTest() {
@@ -23,12 +21,9 @@ func (suite *SequenceSuite) SetupTest() {
 }
 
 func TestSequenceSuite(t *testing.T) {
-	// Use a no-op logger during testing
-	logger := zap.NewNop()
 
 	hs := &SequenceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(),
-		logger:       logger,
 	}
 	suite.Run(t, hs)
 }

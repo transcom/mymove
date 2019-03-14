@@ -21,7 +21,7 @@ const MaxSITDays = 90
 // RateEngine encapsulates the TSP rate engine process
 type RateEngine struct {
 	db     *pop.Connection
-	logger *zap.Logger
+	logger Logger
 }
 
 // CostComputation represents the results of a computation.
@@ -373,6 +373,6 @@ func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment, distanceCalc
 }
 
 // NewRateEngine creates a new RateEngine
-func NewRateEngine(db *pop.Connection, logger *zap.Logger) *RateEngine {
+func NewRateEngine(db *pop.Connection, logger Logger) *RateEngine {
 	return &RateEngine{db: db, logger: logger}
 }

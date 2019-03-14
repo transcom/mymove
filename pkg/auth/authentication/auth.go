@@ -23,7 +23,7 @@ import (
 )
 
 // UserAuthMiddleware enforces that the incoming request is tied to a user session
-func UserAuthMiddleware(logger *zap.Logger) func(next http.Handler) http.Handler {
+func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			ctx, span := beeline.StartSpan(r.Context(), "UserAuthMiddleware")
@@ -69,13 +69,13 @@ func (context Context) landingURL(session *auth.Session) string {
 
 // Context is the common handler type for auth handlers
 type Context struct {
-	logger           *zap.Logger
+	logger           Logger
 	loginGovProvider LoginGovProvider
 	callbackTemplate string
 }
 
 // NewAuthContext creates an Context
-func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int) Context {
+func NewAuthContext(logger Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort int) Context {
 	context := Context{
 		logger:           logger,
 		loginGovProvider: loginGovProvider,
@@ -386,7 +386,7 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 	http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
 }
 
-func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
+func fetchToken(logger Logger, code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
 	tokenURL := loginGovProvider.TokenURL()
 	expiry := auth.GetExpiryTimeFromMinutes(auth.SessionExpiryInMinutes)
 	params, err := loginGovProvider.TokenParams(code, clientID, expiry)
