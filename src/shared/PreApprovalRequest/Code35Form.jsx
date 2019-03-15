@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { Code35FormAlert } from './Code35FormAlert';
 
 export const Code35Form = props => {
   const { ship_line_item_schema } = props;
@@ -29,6 +30,7 @@ export const Code35Form = props => {
       <div className="bq-explanation">
         <p>Enter amount after service is completed</p>
       </div>
+      <Code35FormAlert showAlert={props.showAlert} />
     </Fragment>
   );
 };
