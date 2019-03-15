@@ -556,6 +556,64 @@ func (suite *ModelSuite) TestUpdateShipmentLineItemCode105BAndE() {
 	}
 }
 
+// TestUpdateShipmentLineItemCode35A tests that 35A line items are updated correctly
+func (suite *ModelSuite) TestUpdateShipmentLineItemCode35A() {
+	acc35A := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "35A",
+		},
+	})
+
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
+	desc := "This is a description"
+	reas := "This is the reason"
+	notes := "Notes"
+	loc := ShipmentLineItemLocationORIGIN
+	estAmt := unit.Cents(1000)
+	actAmt := unit.Cents(1000)
+	lineItem := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
+		ShipmentLineItem: ShipmentLineItem{
+			Tariff400ngItemID:   acc35A.ID,
+			Location:            loc,
+			Notes:               notes,
+			Description:         &desc,
+			Reason:              &reas,
+			EstimateAmountCents: &estAmt,
+			ActualAmountCents:   &actAmt,
+		},
+	})
+
+	// Update values
+	baseParams := BaseShipmentLineItemParams{
+		Tariff400ngItemID:   acc35A.ID,
+		Tariff400ngItemCode: acc35A.Code,
+		Location:            "ORIGIN",
+	}
+	desc = "updated description"
+	reas = "updated reason"
+	estAmt = unit.Cents(2000)
+	actAmt = unit.Cents(2000)
+	additionalParams := AdditionalShipmentLineItemParams{
+		Description:         &desc,
+		Reason:              &reas,
+		EstimateAmountCents: &estAmt,
+		ActualAmountCents:   &actAmt,
+	}
+
+	verrs, err := shipment.UpdateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams, &lineItem)
+	if suite.noValidationErrors(verrs, err) {
+		// ToDo: will need to update this when we calculate base quantity
+		suite.Equal(0, lineItem.Quantity1.ToUnitInt())
+		suite.Equal(acc35A.ID.String(), lineItem.Tariff400ngItem.ID.String())
+		suite.Equal(desc, *lineItem.Description)
+		suite.Equal(reas, *lineItem.Reason)
+		suite.Equal(estAmt, *lineItem.EstimateAmountCents)
+		suite.Equal(actAmt, *lineItem.ActualAmountCents)
+	}
+}
+
 // TestCreateShipmentLineItemCode105BAndEMissingDimensions tests that missing dimensions for 105B/E throws error
 func (suite *ModelSuite) TestCreateShipmentLineItemCode105BAndEMissingDimensions() {
 	acc105B := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{

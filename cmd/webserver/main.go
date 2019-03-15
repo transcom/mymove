@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/hex"
@@ -12,11 +13,14 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"os/signal"
 	"path"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
+	"syscall"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -173,6 +177,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("env", "development", "The environment to run in, which configures the database.")
 	flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	flag.String("service-name", "app", "The service name identifies the application for instrumentation.")
+	flag.Duration("graceful-shutdown-timeout", 25*time.Second, "The duration for which the server gracefully wait for existing connections to finish.  AWS ECS only gives you 30 seconds before sending SIGKILL.")
 
 	flag.String("http-my-server-name", "milmovelocal", "Hostname according to environment.")
 	flag.String("http-office-server-name", "officelocal", "Hostname according to environment.")
@@ -274,7 +279,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("eia-url", "", "Url for Energy Information Administration (EIA) api")
 }
 
-func initDODCertificates(v *viper.Viper, logger *webserverLogger) ([]tls.Certificate, *x509.CertPool, error) {
+func initDODCertificates(v *viper.Viper, logger logger) ([]tls.Certificate, *x509.CertPool, error) {
 
 	// https://tools.ietf.org/html/rfc7468#section-2
 	//	- https://stackoverflow.com/questions/20173472/does-go-regexps-any-charcter-match-newline
@@ -371,7 +376,7 @@ func initDODCertificates(v *viper.Viper, logger *webserverLogger) ([]tls.Certifi
 
 }
 
-func initRoutePlanner(v *viper.Viper, logger *zap.Logger) route.Planner {
+func initRoutePlanner(v *viper.Viper, logger logger) route.Planner {
 	hereClient := &http.Client{Timeout: hereRequestTimeout}
 	return route.NewHEREPlanner(
 		logger,
@@ -382,7 +387,7 @@ func initRoutePlanner(v *viper.Viper, logger *zap.Logger) route.Planner {
 		v.GetString("here-maps-app-code"))
 }
 
-func initHoneycomb(v *viper.Viper, logger *webserverLogger) bool {
+func initHoneycomb(v *viper.Viper, logger logger) bool {
 
 	honeycombAPIHost := v.GetString("honeycomb-api-host")
 	honeycombAPIKey := v.GetString("honeycomb-api-key")
@@ -407,7 +412,7 @@ func initHoneycomb(v *viper.Viper, logger *webserverLogger) bool {
 	return false
 }
 
-func initRBSPersonLookup(v *viper.Viper, logger *webserverLogger) (*iws.RBSPersonLookup, error) {
+func initRBSPersonLookup(v *viper.Viper, logger logger) (*iws.RBSPersonLookup, error) {
 	return iws.NewRBSPersonLookup(
 		v.GetString("iws-rbs-host"),
 		v.GetString("dod-ca-package"),
@@ -415,7 +420,7 @@ func initRBSPersonLookup(v *viper.Viper, logger *webserverLogger) (*iws.RBSPerso
 		v.GetString("move-mil-dod-tls-key"))
 }
 
-func initDatabase(v *viper.Viper, logger *webserverLogger) (*pop.Connection, error) {
+func initDatabase(v *viper.Viper, logger logger) (*pop.Connection, error) {
 
 	env := v.GetString("env")
 	dbName := v.GetString("db-name")
@@ -706,6 +711,26 @@ func checkStorage(v *viper.Viper) error {
 	return nil
 }
 
+func startListener(srv *server.NamedServer, logger logger, useTLS bool) {
+	logger.Info("Starting listener",
+		zap.String("name", srv.Name),
+		zap.Duration("idle-timeout", srv.IdleTimeout),
+		zap.Any("listen-address", srv.Addr),
+		zap.Int("max-header-bytes", srv.MaxHeaderBytes),
+		zap.Int("port", srv.Port()),
+		zap.Bool("tls", useTLS),
+	)
+	var err error
+	if useTLS {
+		err = srv.ListenAndServeTLS()
+	} else {
+		err = srv.ListenAndServe()
+	}
+	if err != nil && err != http.ErrServerClosed {
+		logger.Fatal("server error", zap.String("name", srv.Name), zap.Error(err))
+	}
+}
+
 func main() {
 
 	flag := pflag.CommandLine
@@ -720,13 +745,20 @@ func main() {
 	env := v.GetString("env")
 	isDevOrTest := env == "development" || env == "test"
 
-	zapLogger, err := logging.Config(env, v.GetBool("debug-logging"))
+	logger, err := logging.Config(env, v.GetBool("debug-logging"))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
-	zap.ReplaceGlobals(zapLogger)
 
-	logger := &webserverLogger{zapLogger}
+	fields := make([]zap.Field, 0)
+	if len(gitBranch) > 0 {
+		fields = append(fields, zap.String("git_branch", gitBranch))
+	}
+	if len(gitCommit) > 0 {
+		fields = append(fields, zap.String("git_commit", gitCommit))
+	}
+	logger = logger.With(fields...)
+	zap.ReplaceGlobals(logger)
 
 	logger.Debug("webserver starting up")
 
@@ -775,7 +807,7 @@ func main() {
 	tspHostname := v.GetString("http-tsp-server-name")
 
 	// Register Login.gov authentication provider for My.(move.mil)
-	loginGovProvider := authentication.NewLoginGovProvider(loginGovHostname, loginGovSecretKey, zapLogger)
+	loginGovProvider := authentication.NewLoginGovProvider(loginGovHostname, loginGovSecretKey, logger)
 	err = loginGovProvider.RegisterProvider(
 		myHostname,
 		v.GetString("login-gov-my-client-id"),
@@ -789,15 +821,17 @@ func main() {
 		logger.Fatal("Registering login provider", zap.Error(err))
 	}
 
+	useSecureCookie := !isDevOrTest
 	// Session management and authentication middleware
 	noSessionTimeout := v.GetBool("no-session-timeout")
-	sessionCookieMiddleware := auth.SessionCookieMiddleware(zapLogger, clientAuthSecretKey, noSessionTimeout, myHostname, officeHostname, tspHostname)
-	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(zapLogger, noSessionTimeout)
-	userAuthMiddleware := authentication.UserAuthMiddleware(zapLogger)
-	clientCertMiddleware := authentication.ClientCertMiddleware(zapLogger, dbConnection)
+	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout, myHostname, officeHostname, tspHostname, useSecureCookie)
+	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, noSessionTimeout, useSecureCookie)
+	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
+	clientCertMiddleware := authentication.ClientCertMiddleware(logger, dbConnection)
 
-	handlerContext := handlers.NewHandlerContext(dbConnection, zapLogger)
+	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
 	handlerContext.SetCookieSecret(clientAuthSecretKey)
+	handlerContext.SetUseSecureCookie(useSecureCookie)
 	if noSessionTimeout {
 		handlerContext.SetNoSessionTimeout()
 	}
@@ -818,11 +852,11 @@ func main() {
 			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
 		}
 		sesService := ses.New(sesSession)
-		handlerContext.SetNotificationSender(notifications.NewNotificationSender(sesService, awsSESDomain, zapLogger))
+		handlerContext.SetNotificationSender(notifications.NewNotificationSender(sesService, awsSESDomain, logger))
 	} else {
 		domain := "milmovelocal"
 		logger.Info("Using local email backend", zap.String("domain", domain))
-		handlerContext.SetNotificationSender(notifications.NewStubNotificationSender(domain, zapLogger))
+		handlerContext.SetNotificationSender(notifications.NewStubNotificationSender(domain, logger))
 	}
 
 	build := v.GetString("build")
@@ -832,7 +866,7 @@ func main() {
 
 	// Get route planner for handlers to calculate transit distances
 	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
-	routePlanner := initRoutePlanner(v, zapLogger)
+	routePlanner := initRoutePlanner(v, logger)
 	handlerContext.SetPlanner(routePlanner)
 
 	// Set SendProductionInvoice for ediinvoice
@@ -863,18 +897,18 @@ func main() {
 		aws := awssession.Must(awssession.NewSession(&aws.Config{
 			Region: aws.String(awsS3Region),
 		}))
-		storer = storage.NewS3(awsS3Bucket, awsS3KeyNamespace, zapLogger, aws)
+		storer = storage.NewS3(awsS3Bucket, awsS3KeyNamespace, logger, aws)
 	} else if storageBackend == "memory" {
 		logger.Info("Using memory storage backend",
 			zap.String("root", path.Join(localStorageRoot, localStorageWebRoot)),
 			zap.String("web root", localStorageWebRoot))
-		fsParams := storage.NewMemoryParams(localStorageRoot, localStorageWebRoot, zapLogger)
+		fsParams := storage.NewMemoryParams(localStorageRoot, localStorageWebRoot, logger)
 		storer = storage.NewMemory(fsParams)
 	} else {
 		logger.Info("Using local storage backend",
 			zap.String("root", path.Join(localStorageRoot, localStorageWebRoot)),
 			zap.String("web root", localStorageWebRoot))
-		fsParams := storage.NewFilesystemParams(localStorageRoot, localStorageWebRoot, zapLogger)
+		fsParams := storage.NewFilesystemParams(localStorageRoot, localStorageWebRoot, logger)
 		storer = storage.NewFilesystem(fsParams)
 	}
 	handlerContext.SetFileStorer(storer)
@@ -999,7 +1033,7 @@ func main() {
 		} else {
 			protocol = "https"
 		}
-		zapLogger.Info("Request",
+		logger.Info("Request",
 			zap.String("git-branch", gitBranch),
 			zap.String("git-commit", gitCommit),
 			zap.String("accepted-language", r.Header.Get("accepted-language")),
@@ -1034,7 +1068,7 @@ func main() {
 	}
 
 	ordersMux := goji.SubMux()
-	ordersDetectionMiddleware := auth.HostnameDetectorMiddleware(zapLogger, v.GetString("http-orders-server-name"))
+	ordersDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, v.GetString("http-orders-server-name"))
 	ordersMux.Use(ordersDetectionMiddleware)
 	ordersMux.Use(noCacheMiddleware)
 	ordersMux.Use(clientCertMiddleware)
@@ -1049,7 +1083,7 @@ func main() {
 	site.Handle(pat.Get("/orders/v0/*"), ordersMux)
 
 	dpsMux := goji.SubMux()
-	dpsDetectionMiddleware := auth.HostnameDetectorMiddleware(zapLogger, v.GetString("http-dps-server-name"))
+	dpsDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, v.GetString("http-dps-server-name"))
 	dpsMux.Use(dpsDetectionMiddleware)
 	dpsMux.Use(noCacheMiddleware)
 	dpsMux.Use(clientCertMiddleware)
@@ -1064,12 +1098,12 @@ func main() {
 	site.Handle(pat.New("/dps/v0/*"), dpsMux)
 
 	sddcDPSMux := goji.SubMux()
-	sddcDetectionMiddleware := auth.HostnameDetectorMiddleware(zapLogger, sddcHostname)
+	sddcDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, sddcHostname)
 	sddcDPSMux.Use(sddcDetectionMiddleware)
 	sddcDPSMux.Use(noCacheMiddleware)
 	site.Handle(pat.New("/dps_auth/*"), sddcDPSMux)
 	sddcDPSMux.Handle(pat.Get("/set_cookie"),
-		dpsauth.NewSetCookieHandler(zapLogger,
+		dpsauth.NewSetCookieHandler(logger,
 			dpsAuthSecretKey,
 			dpsCookieDomain,
 			dpsCookieSecret,
@@ -1133,12 +1167,12 @@ func main() {
 	internalAPIMux.Use(noCacheMiddleware)
 	internalAPIMux.Handle(pat.New("/*"), internalapi.NewInternalAPIHandler(handlerContext))
 
-	authContext := authentication.NewAuthContext(zapLogger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
+	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
 	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext})
-	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
-	authMux.Handle(pat.Get("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout))
+	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
+	authMux.Handle(pat.Get("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 
 	if isDevOrTest {
 		logger.Info("Enabling devlocal auth")
@@ -1146,7 +1180,7 @@ func main() {
 		root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)
 		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection))
 		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
-		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
+		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
 
 		devlocalCa, err := ioutil.ReadFile(v.GetString("devlocal-ca")) // #nosec
@@ -1164,7 +1198,7 @@ func main() {
 	}
 
 	// Serve index.html to all requests that haven't matches a previous route,
-	root.HandleFunc(pat.Get("/*"), indexHandler(build, zapLogger))
+	root.HandleFunc(pat.Get("/*"), indexHandler(build, logger))
 
 	var httpHandler http.Handler
 	if useHoneycomb {
@@ -1173,27 +1207,25 @@ func main() {
 		httpHandler = site
 	}
 
-	errChan := make(chan error)
-
 	listenInterface := v.GetString("interface")
 
-	noTLSServer, err := server.CreateServer(&server.CreateServerInput{
+	noTLSServer, err := server.CreateNamedServer(&server.CreateNamedServerInput{
+		Name:        "no-tls",
 		Host:        listenInterface,
 		Port:        v.GetInt("no-tls-port"),
-		Logger:      zapLogger,
+		Logger:      logger,
 		HTTPHandler: httpHandler,
 	})
 	if err != nil {
 		logger.Fatal("error creating no-tls server", zap.Error(err))
 	}
-	go func() {
-		errChan <- noTLSServer.ListenAndServe()
-	}()
+	go startListener(noTLSServer, logger, false)
 
-	tlsServer, err := server.CreateServer(&server.CreateServerInput{
+	tlsServer, err := server.CreateNamedServer(&server.CreateNamedServerInput{
+		Name:         "tls",
 		Host:         listenInterface,
 		Port:         v.GetInt("tls-port"),
-		Logger:       zapLogger,
+		Logger:       logger,
 		HTTPHandler:  httpHandler,
 		ClientAuth:   tls.NoClientCert,
 		Certificates: certificates,
@@ -1201,14 +1233,13 @@ func main() {
 	if err != nil {
 		logger.Fatal("error creating tls server", zap.Error(err))
 	}
-	go func() {
-		errChan <- tlsServer.ListenAndServeTLS()
-	}()
+	go startListener(tlsServer, logger, true)
 
-	mutualTLSServer, err := server.CreateServer(&server.CreateServerInput{
+	mutualTLSServer, err := server.CreateNamedServer(&server.CreateNamedServerInput{
+		Name:         "mutual-tls",
 		Host:         listenInterface,
 		Port:         v.GetInt("mutual-tls-port"),
-		Logger:       zapLogger,
+		Logger:       logger,
 		HTTPHandler:  httpHandler,
 		ClientAuth:   tls.RequireAndVerifyClientCert,
 		Certificates: certificates,
@@ -1217,11 +1248,77 @@ func main() {
 	if err != nil {
 		logger.Fatal("error creating mutual-tls server", zap.Error(err))
 	}
+	go startListener(mutualTLSServer, logger, true)
+
+	// make sure we flush any pending startup messages
+	logger.Sync()
+
+	// Create a buffered channel that accepts 1 signal at a time.
+	quit := make(chan os.Signal, 1)
+
+	// Only send the SIGINT and SIGTERM signals to the quit channel
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	// Wait until the quit channel receieves a signal
+	sig := <-quit
+
+	logger.Info("received signal for graceful shutdown of server", zap.Any("signal", sig))
+
+	// flush message that we received signal
+	logger.Sync()
+
+	gracefulShutdownTimeout := v.GetDuration("graceful-shutdown-timeout")
+
+	ctx, cancel := context.WithTimeout(context.Background(), gracefulShutdownTimeout)
+	defer cancel()
+
+	logger.Info("Waiting for listeners to be shutdown", zap.Duration("timeout", gracefulShutdownTimeout))
+
+	// flush message that we are waiting on listeners
+	logger.Sync()
+
+	wg := &sync.WaitGroup{}
+	var shutdownErrors sync.Map
+
+	wg.Add(1)
 	go func() {
-		errChan <- mutualTLSServer.ListenAndServeTLS()
+		shutdownErrors.Store(noTLSServer, noTLSServer.Shutdown(ctx))
+		wg.Done()
 	}()
 
-	logger.Fatal("listener error", zap.Error(<-errChan))
+	wg.Add(1)
+	go func() {
+		shutdownErrors.Store(tlsServer, tlsServer.Shutdown(ctx))
+		wg.Done()
+	}()
+
+	wg.Add(1)
+	go func() {
+		shutdownErrors.Store(mutualTLSServer, mutualTLSServer.Shutdown(ctx))
+		wg.Done()
+	}()
+
+	wg.Wait()
+	logger.Info("All listeners are shutdown")
+	logger.Sync()
+
+	shutdownError := false
+	shutdownErrors.Range(func(key, value interface{}) bool {
+		if srv, ok := key.(*server.NamedServer); ok {
+			if err, ok := value.(error); ok {
+				logger.Error("shutdown error", zap.String("name", srv.Name), zap.String("addr", srv.Addr), zap.Int("port", srv.Port()), zap.Error(err))
+				shutdownError = true
+			} else {
+				logger.Info("shutdown server", zap.String("name", srv.Name), zap.String("addr", srv.Addr), zap.Int("port", srv.Port()))
+			}
+		}
+		return true
+	})
+	logger.Sync()
+
+	if shutdownError {
+		os.Exit(1)
+	}
 }
 
 // fileHandler serves up a single file
@@ -1232,7 +1329,7 @@ func fileHandler(entrypoint string) http.HandlerFunc {
 }
 
 // indexHandler returns a handler that will serve the resulting content
-func indexHandler(buildDir string, logger *zap.Logger) http.HandlerFunc {
+func indexHandler(buildDir string, logger logger) http.HandlerFunc {
 
 	indexPath := path.Join(buildDir, "index.html")
 	// #nosec - indexPath does not come from user input

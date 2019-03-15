@@ -188,7 +188,10 @@ func (f *FormFiller) drawDebugOverlay(xPos, yPos, width, lineHeight float64, lab
 	f.pdf.SetFontSize(4)
 
 	f.pdf.MoveTo(xPos, yPos)
-	f.pdf.CellFormat(width, lineHeight, label, "1", 0, "R", false, 0, "")
+	f.pdf.CellFormat(width, lineHeight, "", "1", 0, "R", false, 0, "")
+
+	f.pdf.MoveTo(xPos+1.2, yPos-2.9)
+	f.pdf.CellFormat(width, 4, label, "0", 0, "R", false, 0, "")
 
 	// Restore settings
 	f.pdf.SetTextColor(tr, tg, tb)

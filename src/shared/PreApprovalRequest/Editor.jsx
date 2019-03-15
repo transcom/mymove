@@ -11,6 +11,8 @@ import {
 } from 'shared/formatters';
 import { convertDollarsToCents } from 'shared/utils';
 import { submit, isValid, isDirty, isSubmitting, hasSubmitSucceeded } from 'redux-form';
+import { get } from 'lodash';
+import { convertDollarsToCents } from 'shared/utils';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -24,6 +26,9 @@ export class Editor extends Component {
       values.quantity_1 = formatToBaseQuantity(values.quantity_1);
     }
     values.tariff400ng_item_id = values.tariff400ng_item.id;
+
+    values.estimate_amount_cents = convertDollarsToCents(get(values, 'estimate_amount_cents'));
+    values.actual_amount_cents = convertDollarsToCents(get(values, 'actual_amount_cents'));
 
     formatDimensionsToThousandthInches(values.item_dimensions);
     formatDimensionsToThousandthInches(values.crate_dimensions);
@@ -44,6 +49,8 @@ export class Editor extends Component {
       initialValues.quantity_1 = convertFromBaseQuantity(initialValues.quantity_1);
     }
 
+    initialValues.estimate_amount_cents = formatCents(initialValues.estimate_amount_cents);
+    initialValues.actual_amount_cents = formatCents(initialValues.actual_amount_cents);
     initialValues.item_dimensions = formatToDimensionsInches(initialValues.item_dimensions);
     initialValues.crate_dimensions = formatToDimensionsInches(initialValues.crate_dimensions);
 
@@ -62,7 +69,7 @@ export class Editor extends Component {
           onSubmit={this.onSubmit}
           initialValues={initialValues}
         />
-        <div className="usa-grid-full">
+        <div className="usa-grid-full align-center-vertical">
           <div className="usa-width-one-half">
             <p className="cancel-link">
               <a className="usa-button-secondary" onClick={this.props.cancelEdit}>

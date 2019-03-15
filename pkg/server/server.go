@@ -5,11 +5,11 @@ import (
 	"crypto/x509"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
 const (
@@ -35,24 +35,38 @@ var curvePreferences = []tls.CurveID{
 	tls.X25519,
 }
 
-// CreateServerInput contains the input for the CreateServer function.
-type CreateServerInput struct {
+// CreateNamedServerInput contains the input for the CreateServer function.
+type CreateNamedServerInput struct {
+	Name         string
 	Host         string
 	Port         int
-	Logger       *zap.Logger
+	Logger       Logger
 	HTTPHandler  http.Handler
 	ClientAuth   tls.ClientAuthType
 	Certificates []tls.Certificate
 	ClientCAs    *x509.CertPool // CaCertPool
 }
 
-// Server wraps *http.Server to override the definition of ListenAndServeTLS, but bypasses some restrictions.
-type Server struct {
+// NamedServer wraps *http.Server to override the definition of ListenAndServeTLS, but bypasses some restrictions.
+type NamedServer struct {
 	*http.Server
+	Name string
+}
+
+// Port returns the port the server binds to.  Returns -1 if any error.
+func (s *NamedServer) Port() int {
+	if !strings.Contains(s.Addr, ":") {
+		return -1
+	}
+	port, err := strconv.Atoi(strings.SplitN(s.Addr, ":", 2)[1])
+	if err != nil {
+		return -1
+	}
+	return port
 }
 
 // ListenAndServeTLS is similar to (*http.Server).ListenAndServeTLS, but bypasses some restrictions.
-func (s *Server) ListenAndServeTLS() error {
+func (s *NamedServer) ListenAndServeTLS() error {
 	listener, err := tls.Listen("tcp", s.Addr, s.TLSConfig)
 	if err != nil {
 		return err
@@ -61,18 +75,10 @@ func (s *Server) ListenAndServeTLS() error {
 	return s.Serve(listener)
 }
 
-// CreateServer returns a no-tls, tls, or mutual-tls Server based on the input given and an error, if any.
-func CreateServer(input *CreateServerInput) (*Server, error) {
+// CreateNamedServer returns a no-tls, tls, or mutual-tls Server based on the input given and an error, if any.
+func CreateNamedServer(input *CreateNamedServerInput) (*NamedServer, error) {
 
 	address := fmt.Sprintf("%s:%d", input.Host, input.Port)
-
-	// Creates a *log.logger based off an existing zap.Logger instance.
-	// Some libraries call log.logger directly, which isn't structured as JSON. This method
-	// Will reformat log calls as zap.Error logs.
-	standardLog, err := zap.NewStdLogAt(input.Logger, zapcore.ErrorLevel)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create an error logger")
-	}
 
 	var tlsConfig *tls.Config
 	if len(input.Certificates) > 0 {
@@ -106,13 +112,17 @@ func CreateServer(input *CreateServerInput) (*Server, error) {
 		tlsConfig.BuildNameToCertificate()
 	}
 
-	return &Server{Server: &http.Server{
-		Addr:           address,
-		ErrorLog:       standardLog,
-		Handler:        input.HTTPHandler,
-		IdleTimeout:    idleTimeout,
-		MaxHeaderBytes: maxHeaderSize,
-		TLSConfig:      tlsConfig,
-	}}, nil
+	srv := &NamedServer{
+		Name: input.Name,
+		Server: &http.Server{
+			Addr:           address,
+			ErrorLog:       newStandardLogger(input.Logger),
+			Handler:        input.HTTPHandler,
+			IdleTimeout:    idleTimeout,
+			MaxHeaderBytes: maxHeaderSize,
+			TLSConfig:      tlsConfig,
+		},
+	}
+	return srv, nil
 
 }

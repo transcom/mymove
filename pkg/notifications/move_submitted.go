@@ -15,16 +15,13 @@ import (
 // MoveSubmitted has notification content for submitted moves
 type MoveSubmitted struct {
 	db      *pop.Connection
-	logger  *zap.Logger
+	logger  Logger
 	moveID  uuid.UUID
 	session *auth.Session // TODO - remove this when we move permissions up to handlers and out of models
 }
 
 // NewMoveSubmitted returns a new move submitted notification
-func NewMoveSubmitted(db *pop.Connection,
-	logger *zap.Logger,
-	session *auth.Session,
-	moveID uuid.UUID) *MoveSubmitted {
+func NewMoveSubmitted(db *pop.Connection, logger Logger, session *auth.Session, moveID uuid.UUID) *MoveSubmitted {
 
 	return &MoveSubmitted{
 		db:      db,

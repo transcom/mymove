@@ -353,7 +353,6 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 	if params.Payload.ActualAmountCents != nil {
 		actualAmountCents = unit.Cents(int(*params.Payload.ActualAmountCents))
 	}
-
 	additionalParams := models.AdditionalShipmentLineItemParams{
 		ItemDimensions:      itemDimensions,
 		CrateDimensions:     crateDimensions,

@@ -118,7 +118,7 @@ export class PreApprovalForm extends Component {
             <div className="tariff400-select usa-input">
               <Field
                 name="tariff400ng_item"
-                title="Code & Item"
+                title="Code & item"
                 component={Tariff400ngItemSearch}
                 tariff400ngItems={this.props.tariff400ngItems}
               />

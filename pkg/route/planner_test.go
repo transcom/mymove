@@ -14,7 +14,7 @@ import (
 
 type PlannerSuite struct {
 	testingsuite.BaseTestSuite
-	logger *zap.Logger
+	logger Logger
 }
 
 type PlannerFullSuite struct {

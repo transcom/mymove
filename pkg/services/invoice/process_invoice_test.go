@@ -32,6 +32,7 @@ func (suite *InvoiceServiceSuite) TestProcessInvoiceCall() {
 
 	processInvoice := ProcessInvoice{
 		DB:                    suite.DB(),
+		Logger:                suite.logger,
 		SendProductionInvoice: false,
 		ICNSequencer:          sequence.NewDatabaseSequencer(suite.DB(), ediinvoice.ICNSequenceName),
 		// GexSender set by each test below.

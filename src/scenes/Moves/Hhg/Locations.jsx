@@ -99,12 +99,13 @@ function mapDispatchToProps(dispatch) {
 }
 function mapStateToProps(state) {
   const shipment = getCurrentShipment(state);
+  const smAddress = get(state, 'serviceMember.currentServiceMember.residential_address', {});
   const props = {
     schema: getInternalSwaggerDefinition(state, 'Shipment'),
     move: get(state, 'moves.currentMove', {}),
     formValues: getFormValues(formName)(state),
     currentShipment: shipment,
-    initialValues: shipment,
+    initialValues: { pickup_address: smAddress },
     error: getLastError(state, getShipmentLabel),
   };
   return props;
