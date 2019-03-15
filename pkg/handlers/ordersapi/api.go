@@ -1,13 +1,11 @@
 package ordersapi
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/strfmt"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/ordersapi"
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
@@ -122,82 +120,38 @@ func payloadForElectronicOrdersRevisionModel(revision models.ElectronicOrdersRev
 	return revisionPayload, nil
 }
 
-func verifyOrdersReadAccess(issuer models.Issuer, cert *models.ClientCert, logger *zap.Logger, logFailure bool) bool {
+func verifyOrdersReadAccess(issuer models.Issuer, cert *models.ClientCert) bool {
 	switch issuer {
 	case models.IssuerAirForce:
-		if !cert.AllowAirForceOrdersRead {
-			if logFailure {
-				logger.Info("Client certificate is not permitted to read Air Force Orders")
-			}
-			return false
-		}
+		return cert.AllowAirForceOrdersRead
 	case models.IssuerArmy:
-		if !cert.AllowArmyOrdersRead {
-			if logFailure {
-				logger.Info("Client certificate is not permitted to read Army Orders")
-			}
-			return false
-		}
+		return cert.AllowArmyOrdersRead
 	case models.IssuerCoastGuard:
-		if !cert.AllowCoastGuardOrdersRead {
-			if logFailure {
-				logger.Info("Client certificate is not permitted to read Coast Guard Orders")
-			}
-			return false
-		}
+		return cert.AllowCoastGuardOrdersRead
 	case models.IssuerMarineCorps:
-		if !cert.AllowMarineCorpsOrdersRead {
-			if logFailure {
-				logger.Info("Client certificate is not permitted to read Marine Corps Orders")
-			}
-			return false
-		}
+		return cert.AllowMarineCorpsOrdersRead
 	case models.IssuerNavy:
-		if !cert.AllowNavyOrdersRead {
-			if logFailure {
-				logger.Info("Client certificate is not permitted to read Navy Orders")
-			}
-			return false
-		}
+		return cert.AllowNavyOrdersRead
 	default:
 		// Unknown issuer
-		logger.Error(fmt.Sprint("Unknown issuer ", issuer))
 		return false
 	}
-	return true
 }
 
-func verifyOrdersWriteAccess(issuer models.Issuer, cert *models.ClientCert, logger *zap.Logger) bool {
+func verifyOrdersWriteAccess(issuer models.Issuer, cert *models.ClientCert) bool {
 	switch issuer {
 	case models.IssuerAirForce:
-		if !cert.AllowAirForceOrdersWrite {
-			logger.Info("Client certificate is not permitted to write Air Force Orders")
-			return false
-		}
+		return cert.AllowAirForceOrdersWrite
 	case models.IssuerArmy:
-		if !cert.AllowArmyOrdersWrite {
-			logger.Info("Client certificate is not permitted to write Army Orders")
-			return false
-		}
+		return cert.AllowArmyOrdersWrite
 	case models.IssuerCoastGuard:
-		if !cert.AllowCoastGuardOrdersWrite {
-			logger.Info("Client certificate is not permitted to write Coast Guard Orders")
-			return false
-		}
+		return cert.AllowCoastGuardOrdersWrite
 	case models.IssuerMarineCorps:
-		if !cert.AllowMarineCorpsOrdersWrite {
-			logger.Info("Client certificate is not permitted to write Marine Corps Orders")
-			return false
-		}
+		return cert.AllowMarineCorpsOrdersWrite
 	case models.IssuerNavy:
-		if !cert.AllowNavyOrdersWrite {
-			logger.Info("Client certificate is not permitted to write Navy Orders")
-			return false
-		}
+		return cert.AllowNavyOrdersWrite
 	default:
 		// Unknown issuer
-		logger.Error(fmt.Sprint("Unknown issuer ", issuer))
 		return false
 	}
-	return true
 }

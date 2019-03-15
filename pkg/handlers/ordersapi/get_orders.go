@@ -1,10 +1,11 @@
 package ordersapi
 
 import (
-	"fmt"
+	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
@@ -21,32 +22,24 @@ type GetOrdersHandler struct {
 func (h GetOrdersHandler) Handle(params ordersoperations.GetOrdersParams) middleware.Responder {
 	clientCert := authentication.ClientCertFromRequestContext(params.HTTPRequest)
 	if clientCert == nil {
-		h.Logger().Info("No client certificate provided")
-		return ordersoperations.NewGetOrdersUnauthorized()
+		return handlers.ResponseForError(h.Logger(), errors.WithMessage(models.ErrUserUnauthorized, "No client certificate provided"))
 	}
 	if !clientCert.AllowOrdersAPI {
-		h.Logger().Info("Client certificate is not authorized to access this API")
-		return ordersoperations.NewGetOrdersForbidden()
+		return handlers.ResponseForError(h.Logger(), errors.WithMessage(models.ErrFetchForbidden, "Not permitted to access this API"))
 	}
-
-	var err error
 
 	id, err := uuid.FromString(params.UUID.String())
 	if err != nil {
-		h.Logger().Error(fmt.Sprintf("Not a valid UUID: %s; why didn't the generated Swagger code catch this?", params.UUID))
-		return ordersoperations.NewGetOrdersBadRequest()
+		return handlers.ResponseForCustomErrors(h.Logger(), err, http.StatusBadRequest)
 	}
 
 	orders, err := models.FetchElectronicOrderByID(h.DB(), id)
-	if err == models.ErrFetchNotFound {
-		return ordersoperations.NewGetOrdersNotFound()
-	} else if err != nil {
-		h.Logger().Info("Error while fetching electronic Orders by ID")
-		return ordersoperations.NewGetOrdersInternalServerError()
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	if !verifyOrdersReadAccess(orders.Issuer, clientCert, h.Logger(), true) {
-		return ordersoperations.NewGetOrdersForbidden()
+	if !verifyOrdersReadAccess(orders.Issuer, clientCert) {
+		return handlers.ResponseForError(h.Logger(), errors.WithMessage(models.ErrFetchForbidden, "Not permitted to read Orders from this issuer"))
 	}
 
 	ordersPayload, err := payloadForElectronicOrderModel(orders)

@@ -86,6 +86,9 @@ func responseForBaseError(logger *zap.Logger, err error) middleware.Responder {
 	case models.ErrFetchForbidden:
 		skipLogger.Debug("forbidden", zap.Error(err))
 		return newErrResponse(http.StatusForbidden, err)
+	case models.ErrWriteForbidden:
+		skipLogger.Debug("forbidden", zap.Error(err))
+		return newErrResponse(http.StatusForbidden, err)
 	case models.ErrUserUnauthorized:
 		skipLogger.Debug("unauthorized", zap.Error(err))
 		return newErrResponse(http.StatusUnauthorized, err)

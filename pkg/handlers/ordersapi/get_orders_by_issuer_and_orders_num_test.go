@@ -2,6 +2,7 @@ package ordersapi
 
 import (
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -31,7 +32,10 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumSuccess() {
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&ordersoperations.GetOrdersByIssuerAndOrdersNumOK{}, response)
-	okResponse := response.(*ordersoperations.GetOrdersByIssuerAndOrdersNumOK)
+	okResponse, ok := response.(*ordersoperations.GetOrdersByIssuerAndOrdersNumOK)
+	if !ok {
+		return
+	}
 	suite.Equal(string(order.Issuer), string(okResponse.Payload.Issuer))
 	suite.Equal(order.OrdersNumber, okResponse.Payload.OrdersNum)
 }
@@ -50,7 +54,12 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumNoApiPerm() {
 	handler := GetOrdersByIssuerAndOrdersNumHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&ordersoperations.GetOrdersByIssuerAndOrdersNumForbidden{}, response)
+	suite.IsType(&handlers.ErrResponse{}, response)
+	errResponse, ok := response.(*handlers.ErrResponse)
+	if !ok {
+		return
+	}
+	suite.Equal(http.StatusForbidden, errResponse.Code)
 }
 
 func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumReadPerms() {
@@ -112,7 +121,12 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumReadPerms() {
 			handler := GetOrdersByIssuerAndOrdersNumHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 			response := handler.Handle(params)
 
-			suite.Assertions.IsType(&ordersoperations.GetOrdersByIssuerAndOrdersNumForbidden{}, response)
+			suite.IsType(&handlers.ErrResponse{}, response)
+			errResponse, ok := response.(*handlers.ErrResponse)
+			if !ok {
+				return
+			}
+			suite.Equal(http.StatusForbidden, errResponse.Code)
 		})
 	}
 }
@@ -136,5 +150,10 @@ func (suite *HandlerSuite) TestGetOrdersByIssuerAndOrdersNumNotFound() {
 	handler := GetOrdersByIssuerAndOrdersNumHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&ordersoperations.GetOrdersByIssuerAndOrdersNumNotFound{}, response)
+	suite.IsType(&handlers.ErrResponse{}, response)
+	errResponse, ok := response.(*handlers.ErrResponse)
+	if !ok {
+		return
+	}
+	suite.Equal(http.StatusNotFound, errResponse.Code)
 }

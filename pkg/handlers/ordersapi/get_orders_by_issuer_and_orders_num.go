@@ -2,6 +2,7 @@ package ordersapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
@@ -18,25 +19,18 @@ type GetOrdersByIssuerAndOrdersNumHandler struct {
 func (h GetOrdersByIssuerAndOrdersNumHandler) Handle(params ordersoperations.GetOrdersByIssuerAndOrdersNumParams) middleware.Responder {
 	clientCert := authentication.ClientCertFromRequestContext(params.HTTPRequest)
 	if clientCert == nil {
-		h.Logger().Info("No client certificate provided")
-		return ordersoperations.NewGetOrdersByIssuerAndOrdersNumUnauthorized()
+		return handlers.ResponseForError(h.Logger(), errors.WithMessage(models.ErrUserUnauthorized, "No client certificate provided"))
 	}
 	if !clientCert.AllowOrdersAPI {
-		h.Logger().Info("Client certificate is not authorized to access this API")
-		return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()
+		return handlers.ResponseForError(h.Logger(), errors.WithMessage(models.ErrFetchForbidden, "Not permitted to access this API"))
 	}
-	if !verifyOrdersReadAccess(models.Issuer(params.Issuer), clientCert, h.Logger(), true) {
-		return ordersoperations.NewGetOrdersByIssuerAndOrdersNumForbidden()
+	if !verifyOrdersReadAccess(models.Issuer(params.Issuer), clientCert) {
+		return handlers.ResponseForError(h.Logger(), errors.WithMessage(models.ErrFetchForbidden, "Not permitted to read orders from this issuer"))
 	}
-
-	var err error
 
 	orders, err := models.FetchElectronicOrderByIssuerAndOrdersNum(h.DB(), params.Issuer, params.OrdersNum)
-	if err == models.ErrFetchNotFound {
-		return ordersoperations.NewGetOrdersByIssuerAndOrdersNumNotFound()
-	} else if err != nil {
-		h.Logger().Info("Error while fetching electronic Orders by Issuer and Orders Num")
-		return ordersoperations.NewGetOrdersByIssuerAndOrdersNumInternalServerError()
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	ordersPayload, err := payloadForElectronicOrderModel(orders)

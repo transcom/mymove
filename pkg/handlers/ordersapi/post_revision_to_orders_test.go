@@ -2,6 +2,7 @@ package ordersapi
 
 import (
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
@@ -16,7 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestPostRevisionToOrdersNewAmendment() {
+func (suite *HandlerSuite) TestPostRevisionToOrders() {
 	// prime the DB with an order with 1 revision
 	origOrder := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", models.IssuerAirForce, "8675309", models.ElectronicOrdersAffiliationAirForce)
 
@@ -63,39 +64,50 @@ func (suite *HandlerSuite) TestPostRevisionToOrdersNewAmendment() {
 	}
 
 	handler := PostRevisionToOrdersHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	response := handler.Handle(params)
+	suite.T().Run("Success", func(t *testing.T) {
+		response := handler.Handle(params)
 
-	suite.Assertions.IsType(&ordersoperations.PostRevisionToOrdersCreated{}, response)
+		suite.IsType(&ordersoperations.PostRevisionToOrdersCreated{}, response)
+		createdResponse, ok := response.(*ordersoperations.PostRevisionToOrdersCreated)
+		if !ok {
+			return
+		}
+		id, err := uuid.FromString(createdResponse.Payload.UUID.String())
+		suite.NoError(err)
 
-	createdResponse, ok := response.(*ordersoperations.PostRevisionToOrdersCreated)
-	if !ok {
-		return
-	}
+		// check that the order and its new revision are actually in the DB
+		order, err := models.FetchElectronicOrderByID(suite.DB(), id)
+		suite.NoError(err)
+		suite.NotNil(order)
+		suite.Len(order.Revisions, 2)
+		storedRev := order.Revisions[1]
+		suite.EqualValues(*rev.SeqNum, storedRev.SeqNum)
+		suite.Equal(rev.Member.GivenName, storedRev.GivenName)
+		suite.Equal(rev.Member.FamilyName, storedRev.FamilyName)
+		suite.Equal(string(rev.Member.Rank), string(storedRev.Paygrade))
+		suite.Equal(rev.PcsAccounting.Tac, storedRev.HhgTAC)
+		suite.Equal(string(rev.Status), string(storedRev.Status))
+		suite.Equal(string(rev.TourType), string(storedRev.TourType))
+		suite.Equal(string(rev.OrdersType), string(storedRev.OrdersType))
+		suite.Equal(*rev.HasDependents, storedRev.HasDependents)
+		suite.Equal(rev.NoCostMove, storedRev.NoCostMove)
+		suite.Equal(rev.LosingUnit.Uic, storedRev.LosingUIC)
+		suite.Equal(rev.LosingUnit.Name, storedRev.LosingUnitName)
+		suite.Equal(rev.LosingUnit.City, storedRev.LosingUnitCity)
+		suite.Equal(rev.LosingUnit.Locality, storedRev.LosingUnitLocality)
+		suite.Equal(rev.LosingUnit.PostalCode, storedRev.LosingUnitPostalCode)
+	})
 
-	id, err := uuid.FromString(createdResponse.Payload.UUID.String())
-	suite.Assertions.NoError(err)
-
-	// check that the order and its new revision are actually in the DB
-	order, err := models.FetchElectronicOrderByID(suite.DB(), id)
-	suite.NoError(err)
-	suite.NotNil(order)
-	suite.Len(order.Revisions, 2)
-	storedRev := order.Revisions[1]
-	suite.EqualValues(*rev.SeqNum, storedRev.SeqNum)
-	suite.Equal(rev.Member.GivenName, storedRev.GivenName)
-	suite.Equal(rev.Member.FamilyName, storedRev.FamilyName)
-	suite.Equal(string(rev.Member.Rank), string(storedRev.Paygrade))
-	suite.Equal(rev.PcsAccounting.Tac, storedRev.HhgTAC)
-	suite.Equal(string(rev.Status), string(storedRev.Status))
-	suite.Equal(string(rev.TourType), string(storedRev.TourType))
-	suite.Equal(string(rev.OrdersType), string(storedRev.OrdersType))
-	suite.Equal(*rev.HasDependents, storedRev.HasDependents)
-	suite.Equal(rev.NoCostMove, storedRev.NoCostMove)
-	suite.Equal(rev.LosingUnit.Uic, storedRev.LosingUIC)
-	suite.Equal(rev.LosingUnit.Name, storedRev.LosingUnitName)
-	suite.Equal(rev.LosingUnit.City, storedRev.LosingUnitCity)
-	suite.Equal(rev.LosingUnit.Locality, storedRev.LosingUnitLocality)
-	suite.Equal(rev.LosingUnit.PostalCode, storedRev.LosingUnitPostalCode)
+	suite.T().Run("SeqNumConflict", func(t *testing.T) {
+		// Sending the amendment again should result in a conflict because the SeqNum will be taken
+		response := handler.Handle(params)
+		suite.IsType(&handlers.ErrResponse{}, response)
+		errResponse, ok := response.(*handlers.ErrResponse)
+		if !ok {
+			return
+		}
+		suite.Equal(http.StatusConflict, errResponse.Code)
+	})
 }
 
 func (suite *HandlerSuite) TestPostRevisionToOrdersNoApiPerm() {
@@ -112,7 +124,12 @@ func (suite *HandlerSuite) TestPostRevisionToOrdersNoApiPerm() {
 	handler := PostRevisionToOrdersHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&ordersoperations.PostRevisionToOrdersForbidden{}, response)
+	suite.IsType(&handlers.ErrResponse{}, response)
+	errResponse, ok := response.(*handlers.ErrResponse)
+	if !ok {
+		return
+	}
+	suite.Equal(http.StatusForbidden, errResponse.Code)
 }
 
 func (suite *HandlerSuite) TestPostRevisionToOrdersWritePerms() {
@@ -174,7 +191,12 @@ func (suite *HandlerSuite) TestPostRevisionToOrdersWritePerms() {
 			handler := PostRevisionToOrdersHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 			response := handler.Handle(params)
 
-			suite.Assertions.IsType(&ordersoperations.PostRevisionToOrdersForbidden{}, response)
+			suite.IsType(&handlers.ErrResponse{}, response)
+			errResponse, ok := response.(*handlers.ErrResponse)
+			if !ok {
+				return
+			}
+			suite.Equal(http.StatusForbidden, errResponse.Code)
 		})
 	}
 }

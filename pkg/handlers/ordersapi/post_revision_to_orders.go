@@ -2,11 +2,13 @@ package ordersapi
 
 import (
 	"fmt"
+	"net/http"
 	"reflect"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	beeline "github.com/honeycombio/beeline-go"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
@@ -26,33 +28,33 @@ func (h PostRevisionToOrdersHandler) Handle(params ordersoperations.PostRevision
 
 	clientCert := authentication.ClientCertFromRequestContext(params.HTTPRequest)
 	if clientCert == nil {
-		h.Logger().Info("No client certificate provided")
-		return ordersoperations.NewPostRevisionToOrdersUnauthorized()
+		return handlers.ResponseForError(h.Logger(), errors.WithMessage(models.ErrUserUnauthorized, "No client certificate provided"))
 	}
 	if !clientCert.AllowOrdersAPI {
-		h.Logger().Info("Client certificate is not permitted to access this API")
-		return ordersoperations.NewPostRevisionToOrdersForbidden()
+		return handlers.ResponseForError(h.Logger(), errors.WithMessage(models.ErrWriteForbidden, "Not permitted to access this API"))
 	}
 
 	id, err := uuid.FromString(params.UUID.String())
 	if err != nil {
-		h.Logger().Error(fmt.Sprintf("Not a valid UUID: %s; why didn't the generated Swagger code catch this?", params.UUID))
-		return ordersoperations.NewPostRevisionToOrdersBadRequest()
+		return handlers.ResponseForCustomErrors(h.Logger(), err, http.StatusBadRequest)
 	}
 
 	orders, err := models.FetchElectronicOrderByID(h.DB(), id)
-	if err == models.ErrFetchNotFound {
-		return ordersoperations.NewPostRevisionToOrdersNotFound()
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	if !verifyOrdersWriteAccess(orders.Issuer, clientCert, h.Logger()) {
-		return ordersoperations.NewPostRevisionToOrdersForbidden()
+	if !verifyOrdersWriteAccess(orders.Issuer, clientCert) {
+		return handlers.ResponseForError(h.Logger(), errors.WithMessage(models.ErrWriteForbidden, "Not permitted to write Orders from this issuer"))
 	}
 
 	for _, r := range orders.Revisions {
 		// SeqNum collision
 		if r.SeqNum == int(*params.Revision.SeqNum) {
-			return ordersoperations.NewPostRevisionToOrdersConflict()
+			return handlers.ResponseForCustomErrors(
+				h.Logger(),
+				errors.New(fmt.Sprintf("Cannot POST Revision with SeqNum %d to Orders %s: a Revision with that SeqNum already exists in those Orders", r.SeqNum, params.UUID)),
+				http.StatusConflict)
 		}
 	}
 

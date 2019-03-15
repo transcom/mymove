@@ -2,12 +2,14 @@ package ordersapi
 
 import (
 	"fmt"
+	"net/http"
 	"reflect"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate"
 	beeline "github.com/honeycombio/beeline-go"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
@@ -29,15 +31,13 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 
 	clientCert := authentication.ClientCertFromRequestContext(params.HTTPRequest)
 	if clientCert == nil {
-		h.Logger().Info("No client certificate provided")
-		return ordersoperations.NewPostRevisionUnauthorized()
+		return handlers.ResponseForError(h.Logger(), errors.WithMessage(models.ErrUserUnauthorized, "No client certificate provided"))
 	}
 	if !clientCert.AllowOrdersAPI {
-		h.Logger().Info("Client certificate is not permitted to access this API")
-		return ordersoperations.NewPostRevisionForbidden()
+		return handlers.ResponseForError(h.Logger(), errors.WithMessage(models.ErrWriteForbidden, "Not permitted to access this API"))
 	}
-	if !verifyOrdersWriteAccess(models.Issuer(params.Issuer), clientCert, h.Logger()) {
-		return ordersoperations.NewPostRevisionForbidden()
+	if !verifyOrdersWriteAccess(models.Issuer(params.Issuer), clientCert) {
+		return handlers.ResponseForError(h.Logger(), errors.WithMessage(models.ErrWriteForbidden, "Not permitted to write Orders from this issuer"))
 	}
 
 	var edipi string
@@ -51,8 +51,7 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 		}
 		matchReasonCode, edipiNum, _, _, err := rbsPersonLookup.GetPersonUsingSSN(iwsParams)
 		if err != nil {
-			h.Logger().Warn(fmt.Sprint("Error while retrieving EDIPI from Identity Web Services: ", err.Error()))
-			return ordersoperations.NewPostRevisionInternalServerError()
+			return handlers.ResponseForError(h.Logger(), err)
 		}
 		switch matchReasonCode {
 		case iws.MatchReasonCodeLimited:
@@ -63,14 +62,15 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 			edipi = fmt.Sprintf("%010d", edipiNum)
 		case iws.MatchReasonCodeMultiple:
 			// more than one EDIPI for this SSN! Uhh... how to choose? FWIW it's unlikely but not impossible to encounter this in the wild
-			return ordersoperations.NewPostRevisionNotFound()
+			return handlers.ResponseForError(h.Logger(), errors.WithMessage(models.ErrFetchNotFound, "DMDC IWS matched multiple EDIPIs for this SSN"))
 		case iws.MatchReasonCodeNone:
 			// No match: fail
-			return ordersoperations.NewPostRevisionNotFound()
+			return handlers.ResponseForError(h.Logger(), errors.WithMessage(models.ErrFetchNotFound, "DMDC IWS matched no EDIPI for this SSN"))
 		}
 	} else if len(params.MemberID) == 10 {
 		edipi = params.MemberID
 	} else {
+		// go-swagger's validation should prevent this from happening
 		return ordersoperations.NewPostRevisionBadRequest()
 	}
 
@@ -90,18 +90,21 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 		newRevision = toElectronicOrdersRevision(orders, params.Revision)
 		verrs, err = models.CreateElectronicOrderWithRevision(ctx, h.DB(), orders, newRevision)
 	} else if err != nil {
-		h.Logger().Info(fmt.Sprintf("Error fetching electronic orders with OrdersNum %s and Issuer %s: %s", params.OrdersNum, params.Issuer, err.Error()))
-		return ordersoperations.NewPostRevisionInternalServerError()
+		return handlers.ResponseForError(h.Logger(), err)
 	} else if orders.Edipi != edipi {
-		h.Logger().Info(fmt.Sprintf("Cannot post revision for EDIPI %s to Electronic Orders with OrdersNum %s from Issuer %s: the existing orders are issued to EDIPI %s", edipi, params.OrdersNum, params.Issuer, orders.Edipi))
-		return ordersoperations.NewPostRevisionConflict()
+		return handlers.ResponseForCustomErrors(
+			h.Logger(),
+			errors.New(fmt.Sprintf("Cannot POST Revision for EDIPI %s to Electronic Orders with OrdersNum %s from Issuer %s: the existing orders are issued to EDIPI %s", edipi, params.OrdersNum, params.Issuer, orders.Edipi)),
+			http.StatusConflict)
 	} else {
 		// Amending Orders
 		for _, r := range orders.Revisions {
 			// SeqNum collision
 			if r.SeqNum == int(*params.Revision.SeqNum) {
-				h.Logger().Info(fmt.Sprintf("Cannot post revision with sequence number %d for EDIPI %s to Electronic Orders with OrdersNum %s from Issuer %s: a Revision with that sequence number already exists", r.SeqNum, edipi, params.OrdersNum, params.Issuer))
-				return ordersoperations.NewPostRevisionConflict()
+				return handlers.ResponseForCustomErrors(
+					h.Logger(),
+					errors.New(fmt.Sprintf("Cannot POST Revision with SeqNum %d for EDIPI %s to Electronic Orders with OrdersNum %s from Issuer %s: a Revision with that SeqNum already exists in those Orders", r.SeqNum, edipi, params.OrdersNum, params.Issuer)),
+					http.StatusConflict)
 			}
 		}
 

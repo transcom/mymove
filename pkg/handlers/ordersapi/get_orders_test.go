@@ -1,6 +1,7 @@
 package ordersapi
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -32,8 +33,11 @@ func (suite *HandlerSuite) TestGetOrdersSuccess() {
 	handler := GetOrdersHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&ordersoperations.GetOrdersOK{}, response)
-	okResponse := response.(*ordersoperations.GetOrdersOK)
+	suite.IsType(&ordersoperations.GetOrdersOK{}, response)
+	okResponse, ok := response.(*ordersoperations.GetOrdersOK)
+	if !ok {
+		return
+	}
 	suite.Equal(strfmt.UUID(order.ID.String()), okResponse.Payload.UUID)
 }
 
@@ -51,7 +55,12 @@ func (suite *HandlerSuite) TestGetOrdersNoApiPerm() {
 	handler := GetOrdersHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&ordersoperations.GetOrdersForbidden{}, response)
+	suite.IsType(&handlers.ErrResponse{}, response)
+	errResponse, ok := response.(*handlers.ErrResponse)
+	if !ok {
+		return
+	}
+	suite.Equal(http.StatusForbidden, errResponse.Code)
 }
 
 func (suite *HandlerSuite) TestGetOrdersReadPerms() {
@@ -112,7 +121,12 @@ func (suite *HandlerSuite) TestGetOrdersReadPerms() {
 			handler := GetOrdersHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 			response := handler.Handle(params)
 
-			suite.Assertions.IsType(&ordersoperations.GetOrdersForbidden{}, response)
+			suite.IsType(&handlers.ErrResponse{}, response)
+			errResponse, ok := response.(*handlers.ErrResponse)
+			if !ok {
+				return
+			}
+			suite.Equal(http.StatusForbidden, errResponse.Code)
 		})
 	}
 }
@@ -133,5 +147,10 @@ func (suite *HandlerSuite) TestGetOrdersMissingUUID() {
 	handler := GetOrdersHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&ordersoperations.GetOrdersNotFound{}, response)
+	suite.IsType(&handlers.ErrResponse{}, response)
+	errResponse, ok := response.(*handlers.ErrResponse)
+	if !ok {
+		return
+	}
+	suite.Equal(http.StatusNotFound, errResponse.Code)
 }

@@ -2,6 +2,7 @@ package ordersapi
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
@@ -19,26 +20,23 @@ type IndexOrdersForMemberHandler struct {
 func (h IndexOrdersForMemberHandler) Handle(params ordersoperations.IndexOrdersForMemberParams) middleware.Responder {
 	clientCert := authentication.ClientCertFromRequestContext(params.HTTPRequest)
 	if clientCert == nil {
-		h.Logger().Info("No client certificate provided")
-		return ordersoperations.NewIndexOrdersForMemberUnauthorized()
+		return handlers.ResponseForError(h.Logger(), errors.WithMessage(models.ErrUserUnauthorized, "No client certificate provided"))
 	}
 	if !clientCert.AllowOrdersAPI {
-		h.Logger().Info("Client certificate is not authorized to access this API")
-		return ordersoperations.NewIndexOrdersForMemberForbidden()
+		return handlers.ResponseForError(h.Logger(), errors.WithMessage(models.ErrFetchForbidden, "Not permitted to access this API"))
 	}
 	allowedIssuers := clientCert.GetAllowedOrdersIssuersRead()
 	if len(allowedIssuers) == 0 {
-		h.Logger().Info("Client certificate is not permitted to read any Orders")
-		return ordersoperations.NewIndexOrdersForMemberForbidden()
+		return handlers.ResponseForError(h.Logger(), errors.WithMessage(models.ErrFetchForbidden, "Not permitted to read any Orders"))
 	}
 
 	orders, err := models.FetchElectronicOrdersByEdipiAndIssuers(h.DB(), params.Edipi, allowedIssuers)
 	if err == models.ErrFetchNotFound {
 		return ordersoperations.NewIndexOrdersForMemberOK().WithPayload([]*ordersmessages.Orders{})
 	} else if err != nil {
-		h.Logger().Info("Error while fetching electronic Orders by EDIPI")
-		return ordersoperations.NewIndexOrdersForMemberInternalServerError()
+		return handlers.ResponseForError(h.Logger(), err)
 	}
+
 	ordersPayloads := make([]*ordersmessages.Orders, len(orders))
 	for i, o := range orders {
 		payload, err := payloadForElectronicOrderModel(o)

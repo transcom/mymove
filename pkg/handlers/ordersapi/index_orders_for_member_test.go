@@ -2,6 +2,7 @@ package ordersapi
 
 import (
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -30,8 +31,11 @@ func (suite *HandlerSuite) TestIndexOrdersForMemberNumSuccess() {
 	handler := IndexOrdersForMemberHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&ordersoperations.IndexOrdersForMemberOK{}, response)
-	okResponse := response.(*ordersoperations.IndexOrdersForMemberOK)
+	suite.IsType(&ordersoperations.IndexOrdersForMemberOK{}, response)
+	okResponse, ok := response.(*ordersoperations.IndexOrdersForMemberOK)
+	if !ok {
+		return
+	}
 	suite.Len(okResponse.Payload, 2)
 	suite.Equal(order.Edipi, okResponse.Payload[0].Edipi)
 	suite.Equal(string(order.Issuer), string(okResponse.Payload[0].Issuer))
@@ -55,7 +59,12 @@ func (suite *HandlerSuite) TestIndexOrdersForMemberNumNoApiPerm() {
 	handler := IndexOrdersForMemberHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&ordersoperations.IndexOrdersForMemberForbidden{}, response)
+	suite.IsType(&handlers.ErrResponse{}, response)
+	errResponse, ok := response.(*handlers.ErrResponse)
+	if !ok {
+		return
+	}
+	suite.Equal(http.StatusForbidden, errResponse.Code)
 }
 
 func (suite *HandlerSuite) TestIndexOrdersForMemberNumNoReadPerms() {
@@ -73,7 +82,12 @@ func (suite *HandlerSuite) TestIndexOrdersForMemberNumNoReadPerms() {
 	handler := IndexOrdersForMemberHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&ordersoperations.IndexOrdersForMemberForbidden{}, response)
+	suite.IsType(&handlers.ErrResponse{}, response)
+	errResponse, ok := response.(*handlers.ErrResponse)
+	if !ok {
+		return
+	}
+	suite.Equal(http.StatusForbidden, errResponse.Code)
 }
 
 func (suite *HandlerSuite) TestIndexOrderForMemberReadPerms() {
@@ -135,7 +149,10 @@ func (suite *HandlerSuite) TestIndexOrderForMemberReadPerms() {
 			response := handler.Handle(params)
 
 			suite.Assertions.IsType(&ordersoperations.IndexOrdersForMemberOK{}, response)
-			okResponse := response.(*ordersoperations.IndexOrdersForMemberOK)
+			okResponse, ok := response.(*ordersoperations.IndexOrdersForMemberOK)
+			if !ok {
+				return
+			}
 			suite.Len(okResponse.Payload, 0)
 		})
 	}
