@@ -131,6 +131,8 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("environment", "", "The environment name")
 	flag.String("service", "", "The service name")
 	flag.String("status", "", "The task status: "+strings.Join(ecsTaskStatuses, ", "))
+	flag.String("git-branch", "", "The git branch")
+	flag.String("git-commit", "", "The git commit")
 	flag.Int("limit", -1, "The log limit.  If 1 and above, will limit the results returned by each log stream.")
 	flag.BoolP("verbose", "v", false, "Print section lines")
 }
@@ -199,8 +201,10 @@ func quit(logger *log.Logger, flag *pflag.FlagSet, err error) {
 
 // Job is struct linking a task id to a given CloudWatch Log Stream.
 type Job struct {
-	TaskID            string
-	GetLogEventsInput *cloudwatchlogs.GetLogEventsInput
+	TaskID        string
+	LogGroupName  string
+	LogStreamName string
+	Limit         int
 }
 
 // getAWSCredentials uses aws-vault to return AWS credentials
@@ -339,17 +343,16 @@ func main() {
 			logGroupName := fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environment)
 			logStreamName := fmt.Sprintf("app/%s-%s/%s", serviceName, environment, taskID)
 
-			getLogEventsInput := &cloudwatchlogs.GetLogEventsInput{
-				LogGroupName:  aws.String(logGroupName),
-				LogStreamName: aws.String(logStreamName),
+			job := Job{
+				TaskID:        taskID,
+				LogGroupName:  logGroupName,
+				LogStreamName: logStreamName,
+				Limit:         -1,
 			}
 			if limit > 0 {
-				getLogEventsInput.Limit = aws.Int64(int64(limit))
+				job.Limit = limit
 			}
-			jobs = append(jobs, Job{
-				TaskID:            taskID,
-				GetLogEventsInput: getLogEventsInput,
-			})
+			jobs = append(jobs, job)
 		}
 
 	} else {
@@ -440,20 +443,37 @@ func main() {
 
 				logStreamName := fmt.Sprintf("%s/%s/%s", streamPrefix, containerName, taskID)
 
-				getLogEventsInput := &cloudwatchlogs.GetLogEventsInput{
-					LogGroupName:  logGroupName,
-					LogStreamName: aws.String(logStreamName),
+				job := Job{
+					TaskID:        taskID,
+					LogGroupName:  *logGroupName,
+					LogStreamName: logStreamName,
+					Limit:         -1,
 				}
 				if limit > 0 {
-					getLogEventsInput.Limit = aws.Int64(int64(limit))
+					job.Limit = limit
 				}
-				jobs = append(jobs, Job{
-					TaskID:            taskID,
-					GetLogEventsInput: getLogEventsInput,
-				})
+				jobs = append(jobs, job)
 			}
 
 		}
+	}
+
+	gitBranch := v.GetString("git-branch")
+	gitCommit := v.GetString("git-commit")
+	filters := map[string]string{}
+	if len(gitBranch) > 0 {
+		filters["git-branch"] = gitBranch
+	}
+	if len(gitCommit) > 0 {
+		filters["git-commit"] = gitCommit
+	}
+	filterPattern := ""
+	if len(filters) > 0 {
+		parts := make([]string, 0, len(filters))
+		for k, v := range filters {
+			parts = append(parts, fmt.Sprintf("($.%s = %q)", k, v))
+		}
+		filterPattern = "{" + strings.Join(parts, " && ") + "}"
 	}
 
 	for _, job := range jobs {
@@ -463,7 +483,17 @@ func main() {
 			fmt.Println("-----------------------------------------")
 		}
 
-		getLogEventsOutput, err := serviceCloudWatchLogs.GetLogEvents(job.GetLogEventsInput)
+		filterLogEventsInput := &cloudwatchlogs.FilterLogEventsInput{
+			LogGroupName:   aws.String(job.LogGroupName),
+			LogStreamNames: []*string{aws.String(job.LogStreamName)},
+		}
+		if job.Limit >= 0 {
+			filterLogEventsInput.Limit = aws.Int64(int64(job.Limit))
+		}
+		if len(filterPattern) > 0 {
+			filterLogEventsInput.FilterPattern = aws.String(filterPattern)
+		}
+		getLogEventsOutput, err := serviceCloudWatchLogs.FilterLogEvents(filterLogEventsInput)
 		if err != nil {
 			quit(logger, flag, errors.Wrap(err, "error retrieving log events"))
 		}
