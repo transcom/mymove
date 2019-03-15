@@ -9,6 +9,7 @@ import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { getFormComponent } from './DetailsHelper';
 import { selectLocationFromTariff400ngItem } from 'shared/Entities/modules/shipmentLineItems';
+import { convertDollarsToCents } from 'shared/utils';
 
 import './PreApprovalRequest.css';
 
@@ -181,15 +182,15 @@ function mapStateToProps(state) {
     filteredLocations: selectLocationFromTariff400ngItem(state, selector(state, 'tariff400ng_item')),
     selectedLocation: selector(state, 'location'),
     tariff400ngItem: selector(state, 'tariff400ng_item'),
-    showAlert: actualAmount(state) > estimateAmount(state),
+    showAlert: getActualAmount(state) > getEstimateAmount(state),
   };
 }
 
-function estimateAmount(state) {
-  return get(state, 'form.preapproval_request_form.values.estimate_amount_cents');
+function getEstimateAmount(state) {
+  return convertDollarsToCents(selector(state, 'estimate_amount_cents'));
 }
-function actualAmount(state) {
-  return get(state, 'form.preapproval_request_form.values.actual_amount_cents');
+function getActualAmount(state) {
+  return convertDollarsToCents(selector(state, 'actual_amount_cents'));
 }
 
 export default withContext(connect(mapStateToProps)(PreApprovalForm));
