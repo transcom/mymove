@@ -397,9 +397,11 @@ jobs:
           # itself starts making database connections.
           name: Install postgres client
           command: |
+            # Debian stretch only supports 9.6 client, so add the Postgresql apt repository for 10.x
+            echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" >> /etc/apt/sources.list.d/pgdg.list
+            wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
             sudo apt-get -qq update
-            # Debian stretch only supports 9.6 client
-            sudo apt-get -qq -y install postgresql-client-9.6
+            sudo apt-get -qq -y install postgresql-client-10
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
       - run:
           name: make server_test
