@@ -453,10 +453,10 @@ func (suite *ModelSuite) TestFormatActualObligationsWeight() {
 
 func (suite *ModelSuite) TestFormatRank() {
 	e9 := models.ServiceMemberRankE9
-	multipleRanks := models.ServiceMemberRankO1W1ACADEMYGRADUATE
+	multipleRanks := models.ServiceMemberRankO1ACADEMYGRADUATE
 
 	suite.Equal("E-9", models.FormatRank(&e9))
-	suite.Equal("O-1/W-1/Service Academy Graduate", models.FormatRank(&multipleRanks))
+	suite.Equal("O-1/Service Academy Graduate", models.FormatRank(&multipleRanks))
 }
 
 func (suite *ModelSuite) TestFormatShipmentNumberAndType() {
