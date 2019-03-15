@@ -11,11 +11,9 @@ import {
 } from 'shared/formatters';
 import { convertDollarsToCents } from 'shared/utils';
 import { submit, isValid, isDirty, isSubmitting, hasSubmitSucceeded } from 'redux-form';
-import { get } from 'lodash';
-import { convertDollarsToCents } from 'shared/utils';
-
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+
 export class Editor extends Component {
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (this.props.hasSubmitSucceeded && !prevProps.hasSubmitSucceeded) this.props.onSaveComplete();
