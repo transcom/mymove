@@ -1,8 +1,6 @@
 package ordersapi
 
 import (
-	"net/http"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -30,7 +28,7 @@ func (h GetOrdersHandler) Handle(params ordersoperations.GetOrdersParams) middle
 
 	id, err := uuid.FromString(params.UUID.String())
 	if err != nil {
-		return handlers.ResponseForCustomErrors(h.Logger(), err, http.StatusBadRequest)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	orders, err := models.FetchElectronicOrderByID(h.DB(), id)

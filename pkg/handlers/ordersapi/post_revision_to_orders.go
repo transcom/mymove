@@ -2,7 +2,6 @@ package ordersapi
 
 import (
 	"fmt"
-	"net/http"
 	"reflect"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -36,7 +35,7 @@ func (h PostRevisionToOrdersHandler) Handle(params ordersoperations.PostRevision
 
 	id, err := uuid.FromString(params.UUID.String())
 	if err != nil {
-		return handlers.ResponseForCustomErrors(h.Logger(), err, http.StatusBadRequest)
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	orders, err := models.FetchElectronicOrderByID(h.DB(), id)
@@ -51,10 +50,11 @@ func (h PostRevisionToOrdersHandler) Handle(params ordersoperations.PostRevision
 	for _, r := range orders.Revisions {
 		// SeqNum collision
 		if r.SeqNum == int(*params.Revision.SeqNum) {
-			return handlers.ResponseForCustomErrors(
+			return handlers.ResponseForError(
 				h.Logger(),
-				errors.New(fmt.Sprintf("Cannot POST Revision with SeqNum %d to Orders %s: a Revision with that SeqNum already exists in those Orders", r.SeqNum, params.UUID)),
-				http.StatusConflict)
+				errors.WithMessage(
+					models.ErrWriteConflict,
+					fmt.Sprintf("Cannot POST Revision with SeqNum %d to Orders %s: a Revision with that SeqNum already exists in those Orders", r.SeqNum, params.UUID)))
 		}
 	}
 

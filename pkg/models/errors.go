@@ -21,6 +21,9 @@ var ErrFetchForbidden = errors.New("FETCH_FORBIDDEN")
 // ErrWriteForbidden means that user is not permitted to write the record
 var ErrWriteForbidden = errors.New("WRITE_FORBIDDEN")
 
+// ErrWriteConflict means that the record creation or update cannot be completed due to a conflict with other records
+var ErrWriteConflict = errors.New("WRITE_CONFLICT")
+
 // ErrDestroyForbidden means that a model cannot be destroyed in its current state
 var ErrDestroyForbidden = errors.New("DESTROY_FORBIDDEN")
 

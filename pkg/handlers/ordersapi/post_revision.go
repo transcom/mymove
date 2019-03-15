@@ -2,7 +2,6 @@ package ordersapi
 
 import (
 	"fmt"
-	"net/http"
 	"reflect"
 	"time"
 
@@ -92,19 +91,21 @@ func (h PostRevisionHandler) Handle(params ordersoperations.PostRevisionParams) 
 	} else if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	} else if orders.Edipi != edipi {
-		return handlers.ResponseForCustomErrors(
+		return handlers.ResponseForError(
 			h.Logger(),
-			errors.New(fmt.Sprintf("Cannot POST Revision for EDIPI %s to Electronic Orders with OrdersNum %s from Issuer %s: the existing orders are issued to EDIPI %s", edipi, params.OrdersNum, params.Issuer, orders.Edipi)),
-			http.StatusConflict)
+			errors.WithMessage(
+				models.ErrWriteConflict,
+				fmt.Sprintf("Cannot POST Revision for EDIPI %s to Electronic Orders with OrdersNum %s from Issuer %s: the existing orders are issued to EDIPI %s", edipi, params.OrdersNum, params.Issuer, orders.Edipi)))
 	} else {
 		// Amending Orders
 		for _, r := range orders.Revisions {
 			// SeqNum collision
 			if r.SeqNum == int(*params.Revision.SeqNum) {
-				return handlers.ResponseForCustomErrors(
+				return handlers.ResponseForError(
 					h.Logger(),
-					errors.New(fmt.Sprintf("Cannot POST Revision with SeqNum %d for EDIPI %s to Electronic Orders with OrdersNum %s from Issuer %s: a Revision with that SeqNum already exists in those Orders", r.SeqNum, edipi, params.OrdersNum, params.Issuer)),
-					http.StatusConflict)
+					errors.WithMessage(
+						models.ErrWriteConflict,
+						fmt.Sprintf("Cannot POST Revision with SeqNum %d for EDIPI %s to Electronic Orders with OrdersNum %s from Issuer %s: a Revision with that SeqNum already exists in those Orders", r.SeqNum, edipi, params.OrdersNum, params.Issuer)))
 			}
 		}
 
