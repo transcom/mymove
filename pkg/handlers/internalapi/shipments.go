@@ -531,6 +531,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 
 	invoice858CString, verrs, err := invoiceop.ProcessInvoice{
 		DB:                    h.DB(),
+		Logger:                h.Logger(),
 		GexSender:             h.GexSender(),
 		SendProductionInvoice: h.SendProductionInvoice(),
 		ICNSequencer:          h.ICNSequencer(),

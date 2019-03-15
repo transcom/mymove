@@ -116,7 +116,7 @@ func (suite *RateEngineSuite) setupRateEngineTest() {
 	suite.MustSave(&itemRate225A)
 }
 
-func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, destinationZip string, weight unit.Pound, logger *zap.Logger, planner route.Planner) (CostComputation, error) {
+func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, destinationZip string, weight unit.Pound, logger Logger, planner route.Planner) (CostComputation, error) {
 	suite.setupRateEngineTest()
 	tdl := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
 		TrafficDistributionList: models.TrafficDistributionList{
@@ -210,7 +210,7 @@ func (suite *RateEngineSuite) TestComputePPMWithLHDiscount() {
 
 type RateEngineSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
+	logger Logger
 }
 
 func (suite *RateEngineSuite) SetupTest() {

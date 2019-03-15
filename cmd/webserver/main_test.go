@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/logging"
 )
@@ -18,7 +19,7 @@ import (
 type webServerSuite struct {
 	suite.Suite
 	viper  *viper.Viper
-	logger *webserverLogger
+	logger logger
 }
 
 func TestWebServerSuite(t *testing.T) {
@@ -32,12 +33,20 @@ func TestWebServerSuite(t *testing.T) {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	zapLogger, err := logging.Config(v.GetString("env"), v.GetBool("debug-logging"))
+	logger, err := logging.Config(v.GetString("env"), v.GetBool("debug-logging"))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
 
-	logger := &webserverLogger{zapLogger}
+	fields := make([]zap.Field, 0)
+	if len(gitBranch) > 0 {
+		fields = append(fields, zap.String("git_branch", gitBranch))
+	}
+	if len(gitCommit) > 0 {
+		fields = append(fields, zap.String("git_commit", gitCommit))
+	}
+	logger = logger.With(fields...)
+	zap.ReplaceGlobals(logger)
 
 	ss := &webServerSuite{
 		viper:  v,

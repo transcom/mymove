@@ -30,15 +30,6 @@
   width: calc(60% + 1.9rem);
 }
 
-.storage-in-transit-request-form-send-request-button {
-  float: right;
-  margin-top: 2.5em !important;
-}
-
-.cancel-link {
-  margin-top: 2.5em !important;
-}
-
 #sit-status-text {
   margin-left: 1.8em;
 }
