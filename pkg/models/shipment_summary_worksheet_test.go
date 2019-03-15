@@ -435,6 +435,22 @@ func (suite *ModelSuite) TestFormatCurrentPPMStatus() {
 	suite.Equal("Completed", models.FormatCurrentPPMStatus(completed))
 }
 
+func (suite *ModelSuite) TestFormatActualObligationsWeight() {
+	suite.Equal("4,000", models.FormatActualObligationsWeight(7000,
+		[]models.PersonallyProcuredMove{
+			{NetWeight: models.Int64Pointer(4000)},
+		}))
+	suite.Equal("5,000", models.FormatActualObligationsWeight(5000,
+		[]models.PersonallyProcuredMove{
+			{NetWeight: models.Int64Pointer(10000)},
+		}))
+	suite.Equal("", models.FormatActualObligationsWeight(5000,
+		[]models.PersonallyProcuredMove{
+			{NetWeight: nil},
+		}))
+
+}
+
 func (suite *ModelSuite) TestFormatRank() {
 	e9 := models.ServiceMemberRankE9
 	multipleRanks := models.ServiceMemberRankO1ACADEMYGRADUATE

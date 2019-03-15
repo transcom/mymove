@@ -13,7 +13,7 @@ import (
 // RecalculateShipment is a service object to re-price a Shipment
 type RecalculateShipment struct {
 	DB      *pop.Connection
-	Logger  *zap.Logger
+	Logger  Logger
 	Engine  *rateengine.RateEngine
 	Planner route.Planner
 }

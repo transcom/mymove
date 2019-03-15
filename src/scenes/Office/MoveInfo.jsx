@@ -30,7 +30,9 @@ import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
-import ComboButton from 'shared/ComboButton';
+import ComboButton from 'shared/ComboButton/index.jsx';
+import ToolTip from 'shared/ToolTip';
+import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';
 
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
@@ -383,20 +385,23 @@ class MoveInfo extends Component {
                 </Alert>
               )}
               <div>
-                {moveInfoComboButton && (
-                  <ComboButton
-                    items={[
-                      { value: 'Approve Basics', disabled: true },
-                      { value: 'Approve HHG', disabled: true },
-                      { value: 'Approve PPM', disabled: true },
-                    ]}
-                    buttonText={'Approve'}
-                    disabled={!ordersComplete}
-                    toolTipText={
-                      'Some information about the move is missing or contains errors. Please fix these problems before approving.'
-                    }
-                  />
-                )}
+                <ToolTip
+                  disabled={ordersComplete}
+                  textStyle="tooltiptext-large"
+                  toolTipText={
+                    'Some information about the move is missing or contains errors. Please fix these problems before approving.'
+                  }
+                >
+                  {moveInfoComboButton && (
+                    <ComboButton buttonText={'Approve'} disabled={!ordersComplete}>
+                      <DropDown>
+                        <DropDownItem value={'Approve Basics'} disabled={moveApproved || !ordersComplete} />
+                        {(isPPM || isHHGPPM) && <DropDownItem value={'Approve PPM'} disabled={true} />}
+                        {(isHHG || isHHGPPM) && <DropDownItem value={'Approve HHG'} disabled={true} />}
+                      </DropDown>
+                    </ComboButton>
+                  )}
+                </ToolTip>
               </div>
               <button
                 className={`${moveApproved ? 'btn__approve--green' : ''}`}

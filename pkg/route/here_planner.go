@@ -20,7 +20,7 @@ type httpGetter interface {
 
 // herePlanner holds configuration information to make calls using the HERE maps API
 type herePlanner struct {
-	logger                  *zap.Logger
+	logger                  Logger
 	httpClient              httpGetter
 	routeEndPointWithKeys   string
 	geocodeEndPointWithKeys string
@@ -219,7 +219,7 @@ func addKeysToEndpoint(endpoint string, id string, code string) string {
 }
 
 // NewHEREPlanner constructs and returns a Planner which uses the HERE Map API to plan routes.
-func NewHEREPlanner(logger *zap.Logger, client httpGetter, geocodeEndpoint string, routeEndpoint string, appID string, appCode string) Planner {
+func NewHEREPlanner(logger Logger, client httpGetter, geocodeEndpoint string, routeEndpoint string, appID string, appCode string) Planner {
 	return &herePlanner{
 		logger:                  logger,
 		httpClient:              client,
