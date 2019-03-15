@@ -52,16 +52,16 @@ func cloneDatabase(source, destination string) error {
 		return err
 	}
 
-	dump := commandWithDefaults("pg_dump", "-F", "c", source)
+	dump := commandWithDefaults("pg_dump", source)
 	out, dumpErr := runCommand(dump, "dump the database")
 	if dumpErr != nil {
 		return dumpErr
 	}
 
-	restore := commandWithDefaults("pg_restore", "-d", destination)
+	restore := commandWithDefaults("psql", "-q", destination)
 	restore.Stdin = bytes.NewReader(out)
 
-	if _, err := runCommand(restore, "run the restore cmd"); err != nil {
+	if _, err := runCommand(restore, "import the dump with psql"); err != nil {
 		return dumpErr
 	}
 
