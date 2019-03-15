@@ -59,7 +59,7 @@ export class Editor extends Component {
           onSubmit={this.onSubmit}
           initialValues={initialValues}
         />
-        <div className="usa-grid-full">
+        <div className="usa-grid-full align-center-vertical">
           <div className="usa-width-one-half">
             <p className="cancel-link">
               <a className="usa-button-secondary" onClick={this.props.cancelEdit}>

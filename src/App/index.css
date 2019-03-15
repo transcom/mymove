@@ -75,3 +75,12 @@ img._fix-ie-11-height {
 .address_inline {
   display: inline-block;
 }
+
+.align-right {
+  text-align: right !important;
+}
+
+.align-center-vertical {
+  display: flex;
+  align-items: center;
+}
