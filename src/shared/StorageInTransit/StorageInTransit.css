@@ -75,3 +75,12 @@
 .sit-notes .field-title {
   width: 100%;
 }
+
+.storage-in-transit-panel .sit-actions {
+  font-weight: normal;
+  margin-left: 1.5em;
+}
+
+.storage-in-transit-panel .sit-actions a {
+  text-decoration: none;
+}

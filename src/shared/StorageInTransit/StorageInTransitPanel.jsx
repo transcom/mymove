@@ -51,7 +51,7 @@ export class StorageInTransitPanel extends Component {
           </div>
           {storageInTransits !== undefined &&
             storageInTransits.map(storageInTransit => {
-              return <StorageInTransit storageInTransit={storageInTransit} />;
+              return <StorageInTransit key={storageInTransit.id} storageInTransit={storageInTransit} />;
             })}
           {isCreatorActionable && (
             <Creator onFormActivation={this.onFormActivation} saveStorageInTransit={this.onSubmit} />

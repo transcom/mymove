@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 )
 
 // StorageInTransitStatus represents the status of a SIT request
@@ -156,4 +157,31 @@ func DeleteStorageInTransit(tx *pop.Connection, storageInTransitID uuid.UUID) (e
 
 	return nil
 
+}
+
+// SaveStorageInTransitAndAddress saves a StorageInTransit and its Address atomically.
+func SaveStorageInTransitAndAddress(db *pop.Connection, storageInTransit *StorageInTransit) (*validate.Errors, error) {
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("rollback")
+
+		if verrs, err := db.ValidateAndSave(&storageInTransit.WarehouseAddress); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error saving warehouse address")
+			return transactionError
+		}
+		storageInTransit.WarehouseAddressID = storageInTransit.WarehouseAddress.ID
+
+		if verrs, err := db.ValidateAndSave(storageInTransit); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error saving storage in transit")
+			return transactionError
+		}
+
+		return nil
+	})
+
+	return responseVErrors, responseError
 }
