@@ -65,7 +65,7 @@ const selectShipmentLineItems = (state, shipmentId) => {
   if (!shipmentId) {
     return filteredItems;
   }
-  return filterByShipmentId(filteredItems, shipmentId);
+  return filterByShipmentId(shipmentId, filteredItems);
 };
 
 export const selectSortedShipmentLineItems = createSelector([selectShipmentLineItems], items =>
@@ -85,12 +85,13 @@ const selectInvoicesShipmentLineItemsByInvoiceId = (state, invoiceId) => {
 };
 
 const selectUnbilledShipmentLineItemsByShipmentId = (state, shipmentId) => {
-  const items = filterByNoInvoiceId(filterByShipmentId(state.entities.shipmentLineItems, shipmentId));
-
-  //this denormalize step can be skipped because tariff400ng_item data is already available under items
-  //but this is the right way to hydrate the data structure so leaving it in
-  const denormItems = denormalize(map(items, 'id'), ShipmentLineItemsModel, state.entities);
-  return filterCheck35A(filterByLinehaulOrPreApprovals(denormItems));
+  return flow([
+    filterByShipmentId.bind(this, shipmentId),
+    filterByNoInvoiceId,
+    denormItems.bind(this, getEntities(state)),
+    filterByLinehaulOrPreApprovals,
+    filterCheck35A,
+  ])(getShipmentIds(state));
 };
 
 export const selectUnbilledShipmentLineItems = createSelector([selectUnbilledShipmentLineItemsByShipmentId], items =>
@@ -126,11 +127,21 @@ export const selectLocationFromTariff400ngItem = (state, selectedTariff400ngItem
   });
 };
 
-function filterByShipmentId(items, shipmentId) {
+function getShipmentIds(state) {
+  return get(state, 'entities.shipmentLineItems', {});
+}
+function getEntities(state) {
+  return get(state, 'entities', {});
+}
+function denormItems(entities, items) {
+  return denormalize(map(items, 'id'), ShipmentLineItemsModel, entities);
+}
+
+function filterByShipmentId(shipmentId, items) {
   return filter(items, item => item.shipment_id === shipmentId);
 }
 
-function filterByInvoiceId(items, invoiceId) {
+function filterByInvoiceId(invoiceId, items) {
   return filter(items, item => item.invoice_id === invoiceId);
 }
 
