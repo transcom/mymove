@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faCaretDown from '@fortawesome/fontawesome-free-solid/faCaretDown';
-import ToolTip from 'shared/ToolTip';
 import './index.css';
 
 class ComboButton extends Component {
@@ -23,6 +21,7 @@ class ComboButton extends Component {
   componentDidMount() {
     document.addEventListener('mousedown', this.handleClickOutside);
   }
+
   componentWillUnmount() {
     document.removeEventListener('mousedown', this.handleClickOutside);
   }
@@ -36,34 +35,18 @@ class ComboButton extends Component {
   };
 
   render() {
-    let { buttonText, toolTipText, disabled, items = [] } = this.props;
+    let { buttonText, disabled, children } = this.props;
     return (
       <span className="container combo-button" ref={this.container}>
-        <ToolTip text={toolTipText} disabled={!disabled} textStyle={'tooltiptext-large'}>
-          <button disabled={disabled} onClick={this.handleButtonClick}>
-            {buttonText}
-            <FontAwesomeIcon className="combo-button-icon" icon={faCaretDown} />
-          </button>
-          {this.state.displayDropDown && <DropDown items={items} />}
-        </ToolTip>
+        <button disabled={disabled} onClick={this.handleButtonClick}>
+          {buttonText}
+          <FontAwesomeIcon className="combo-button-icon" icon={faCaretDown} />
+        </button>
+        {this.state.displayDropDown && children}
       </span>
     );
   }
 }
-
-const styleListItems = items => {
-  const liClasses = item => classNames({ disabled: item.disabled });
-  return items.map(item => <p className={liClasses(item)}>{item.value}</p>);
-};
-
-const DropDown = props => {
-  let { items } = props;
-  return <div className="dropdown">{styleListItems(items)}</div>;
-};
-
-DropDown.propTypes = {
-  items: PropTypes.array,
-};
 
 ComboButton.propTypes = {
   buttonText: PropTypes.string,
