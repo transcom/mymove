@@ -101,13 +101,11 @@ func (s *StorageInTransit) Validate(tx *pop.Connection) (*validate.Errors, error
 	), nil
 }
 
-// FetchStorageInTransitsOnShipment retrieves Storage In Transit objects using the shipment ID
+// FetchStorageInTransitsOnShipment retrieves Storage In Transit objects and their warehouse address using the shipment ID
 func FetchStorageInTransitsOnShipment(tx *pop.Connection, shipmentID uuid.UUID) (StorageInTransits, error) {
 	storageInTransits := StorageInTransits{}
 
-	err := tx.Eager().Where("shipment_id = $1", shipmentID).
-		LeftJoin("addresses", "storage_in_transits.warehouse_address_id=addresses.id").
-		All(&storageInTransits)
+	err := tx.Eager("WarehouseAddress").Where("shipment_id = $1", shipmentID).All(&storageInTransits)
 
 	if err != nil {
 		return nil, err
@@ -117,11 +115,10 @@ func FetchStorageInTransitsOnShipment(tx *pop.Connection, shipmentID uuid.UUID) 
 
 }
 
-// FetchStorageInTransitByID retrieves a single Storage In Transit object based on its own ID
+// FetchStorageInTransitByID retrieves a single Storage In Transit object and their warehouse address based on its own ID
 func FetchStorageInTransitByID(tx *pop.Connection, storageInTransitID uuid.UUID) (*StorageInTransit, error) {
 	var storageInTransit StorageInTransit
-	err := tx.Eager().Where("storage_in_transits.id = $1", storageInTransitID).
-		LeftJoin("addresses", "storage_in_transits.warehouse_address_id=addresses.id").First(&storageInTransit)
+	err := tx.Eager("WarehouseAddress").Where("storage_in_transits.id = $1", storageInTransitID).First(&storageInTransit)
 
 	if err != nil {
 		// If we fail to get rows let's pass up a ErrFetchNotFound so that handlers wind up passing a 404
