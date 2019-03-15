@@ -19,7 +19,7 @@ import (
 
 func (suite *HandlerSuite) TestPostRevisionToOrders() {
 	// prime the DB with an order with 1 revision
-	origOrder := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", models.IssuerAirForce, "8675309", models.ElectronicOrdersAffiliationAirForce)
+	origOrder := testdatagen.MakeDefaultElectronicOrder(suite.DB())
 
 	req := httptest.NewRequest("POST", fmt.Sprintf("/orders/v1/orders/%s", origOrder.ID), nil)
 	clientCert := models.ClientCert{
@@ -179,7 +179,16 @@ func (suite *HandlerSuite) TestPostRevisionToOrdersWritePerms() {
 	for name, testCase := range testCases {
 		suite.T().Run(name, func(t *testing.T) {
 			// prime the DB with an order with 1 revision
-			origOrder := testdatagen.MakeElectronicOrder(suite.DB(), testCase.edipi, testCase.issuer, "8675309", testCase.affl)
+			assertions := testdatagen.Assertions{
+				ElectronicOrder: models.ElectronicOrder{
+					Edipi:  testCase.edipi,
+					Issuer: testCase.issuer,
+				},
+				ElectronicOrdersRevision: models.ElectronicOrdersRevision{
+					Affiliation: testCase.affl,
+				},
+			}
+			origOrder := testdatagen.MakeElectronicOrder(suite.DB(), assertions)
 			req := httptest.NewRequest("POST", fmt.Sprintf("/orders/v1/orders/%s", origOrder.ID.String()), nil)
 			req = suite.AuthenticateClientCertRequest(req, testCase.cert)
 

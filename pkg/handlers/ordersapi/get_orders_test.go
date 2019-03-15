@@ -16,7 +16,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetOrdersSuccess() {
-	order := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", models.IssuerAirForce, "8675309", models.ElectronicOrdersAffiliationAirForce)
+	order := testdatagen.MakeDefaultElectronicOrder(suite.DB())
 	req := httptest.NewRequest("GET", "/orders/v1/orders/", nil)
 
 	clientCert := models.ClientCert{
@@ -109,7 +109,16 @@ func (suite *HandlerSuite) TestGetOrdersReadPerms() {
 
 	for name, testCase := range testCases {
 		suite.T().Run(name, func(t *testing.T) {
-			order := testdatagen.MakeElectronicOrder(suite.DB(), testCase.edipi, testCase.issuer, "8675309", testCase.affl)
+			assertions := testdatagen.Assertions{
+				ElectronicOrder: models.ElectronicOrder{
+					Edipi:  testCase.edipi,
+					Issuer: testCase.issuer,
+				},
+				ElectronicOrdersRevision: models.ElectronicOrdersRevision{
+					Affiliation: testCase.affl,
+				},
+			}
+			order := testdatagen.MakeElectronicOrder(suite.DB(), assertions)
 			req := httptest.NewRequest("GET", "/orders/v1/orders/", nil)
 			req = suite.AuthenticateClientCertRequest(req, testCase.cert)
 

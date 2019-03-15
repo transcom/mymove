@@ -13,8 +13,13 @@ import (
 )
 
 func (suite *HandlerSuite) TestIndexOrdersForMemberNumSuccess() {
-	order := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", models.IssuerAirForce, "8675309", models.ElectronicOrdersAffiliationAirForce)
-	order2 := testdatagen.MakeElectronicOrder(suite.DB(), "1234567890", models.IssuerAirForce, "8675310", models.ElectronicOrdersAffiliationAirForce)
+	order := testdatagen.MakeDefaultElectronicOrder(suite.DB())
+	assertions := testdatagen.Assertions{
+		ElectronicOrder: models.ElectronicOrder{
+			OrdersNumber: "8675310",
+		},
+	}
+	order2 := testdatagen.MakeElectronicOrder(suite.DB(), assertions)
 	req := httptest.NewRequest("GET", fmt.Sprintf("/orders/v1/edipis/%s/orders", order.Edipi), nil)
 
 	clientCert := models.ClientCert{
@@ -136,7 +141,16 @@ func (suite *HandlerSuite) TestIndexOrderForMemberReadPerms() {
 
 	for name, testCase := range testCases {
 		suite.T().Run(name, func(t *testing.T) {
-			order := testdatagen.MakeElectronicOrder(suite.DB(), testCase.edipi, testCase.issuer, "8675309", testCase.affl)
+			assertions := testdatagen.Assertions{
+				ElectronicOrder: models.ElectronicOrder{
+					Edipi:  testCase.edipi,
+					Issuer: testCase.issuer,
+				},
+				ElectronicOrdersRevision: models.ElectronicOrdersRevision{
+					Affiliation: testCase.affl,
+				},
+			}
+			order := testdatagen.MakeElectronicOrder(suite.DB(), assertions)
 			req := httptest.NewRequest("GET", fmt.Sprintf("/orders/v1/edipis/%s/orders", order.Edipi), nil)
 			req = suite.AuthenticateClientCertRequest(req, testCase.cert)
 
