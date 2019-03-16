@@ -35,6 +35,11 @@ func BaseQuantityFromThousandthInches(ti ThousandthInches) BaseQuantity {
 	return BaseQuantity(ti * 10)
 }
 
+// BaseQuantityFromCents creates a BaseQuantity for a provided Cents
+func BaseQuantityFromCents(c Cents) BaseQuantity {
+	return BaseQuantity(c * 100)
+}
+
 // String returns the value of self as string
 func (bq BaseQuantity) String() string {
 	return strconv.Itoa(int(bq))
