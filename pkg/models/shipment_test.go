@@ -225,6 +225,7 @@ func (suite *ModelSuite) TestAcceptShipmentForTSPWithDeliveryAddress() {
 
 	//address doesn't matter, as long as we have a valid value
 	deliveryAddress := testdatagen.MakeAddress3(suite.DB(), addressAssertions)
+	shipment.HasDeliveryAddress = true
 	shipment.DeliveryAddress = &deliveryAddress
 	shipment.DeliveryAddressID = &deliveryAddress.ID
 	suite.DB().ValidateAndSave(&shipment)
@@ -232,6 +233,42 @@ func (suite *ModelSuite) TestAcceptShipmentForTSPWithDeliveryAddress() {
 	newShipment, _, _, err := AcceptShipmentForTSP(suite.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
 	suite.NoError(err)
 	suite.Equal(shipment.DeliveryAddress.ID, newShipment.DestinationAddressOnAcceptance.ID)
+}
+
+// TestAcceptShipmentForTSPWithDeliveryAddress tests that delivery address is used for a shipment when TSP accepts
+// a offer and delivery address is available instead of duty station
+func (suite *ModelSuite) TestAcceptShipmentForTSPWithDeliveryAddressHasDeliveryAddressFalse() {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []ShipmentStatus{ShipmentStatusAWARDED}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, SelectedMoveTypeHHG)
+	suite.NoError(err)
+
+	tspUser := tspUsers[0]
+	shipment := shipments[0]
+	unitedStates := "United States"
+
+	addressAssertions := testdatagen.Assertions{
+		Address: Address{
+			StreetAddress1: "Fort Gordon",
+			City:           "Augusta",
+			State:          "GA",
+			PostalCode:     "30813",
+			Country:        &unitedStates,
+		},
+	}
+
+	//address doesn't matter, as long as we have a valid value
+	deliveryAddress := testdatagen.MakeAddress3(suite.DB(), addressAssertions)
+	shipment.HasDeliveryAddress = false
+	shipment.DeliveryAddress = &deliveryAddress
+	shipment.DeliveryAddressID = &deliveryAddress.ID
+	suite.DB().ValidateAndSave(&shipment)
+
+	newShipment, _, _, err := AcceptShipmentForTSP(suite.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
+	suite.NoError(err)
+	suite.Equal(shipment.Move.Orders.NewDutyStation.Address.ID, newShipment.DestinationAddressOnAcceptance.ID)
 }
 
 // TestCurrentTransportationServiceProviderID tests that a shipment returns the proper current tsp id

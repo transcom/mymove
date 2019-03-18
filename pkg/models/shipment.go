@@ -1002,7 +1002,7 @@ func AcceptShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.U
 	// by default we should use the address of duty station when a TSP accepts shipment unless actual delivery
 	// shipment address is available at the time
 	destAddOnAcceptance := shipment.Move.Orders.NewDutyStation.Address
-	if shipment.DeliveryAddress != nil {
+	if shipment.HasDeliveryAddress && shipment.DeliveryAddress != nil {
 		destAddOnAcceptance = *shipment.DeliveryAddress
 	}
 
