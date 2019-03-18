@@ -9,9 +9,9 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+	"github.com/gorilla/csrf"
 	"go.uber.org/zap"
 
-	"github.com/gorilla/csrf"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -45,7 +45,9 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	err := h.db.All(&users)
 	if err != nil {
 		h.logger.Error("Could not load list of users", zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		http.Error(w,
+			fmt.Sprintf("%s - Could not load list of users, try migrating the DB", http.StatusText(500)),
+			http.StatusInternalServerError)
 		return
 	}
 
@@ -69,7 +71,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				<p id="{{.ID}}">
 					<input type="hidden" name="gorilla.csrf.Token" value="` + csrf.Token(r) + `">
 					{{.Email}}
-					({{if .TspUserID}}tsp{{else if .OfficeUserID}}office{{else}}milmove{{end}})
+					({{if .DpsUserID}}dps{{else if .TspUserID}}tsp{{else if .OfficeUserID}}office{{else}}milmove{{end}})
 					<button name="id" value="{{.ID}}" data-hook="existing-user-login">Login</button>
 				</p>
 			</form>
@@ -97,6 +99,7 @@ type devlocalAuthHandler struct {
 	db                  *pop.Connection
 	clientAuthSecretKey string
 	noSessionTimeout    bool
+	useSecureCookie     bool
 }
 
 // AssignUserHandler logs a user in directly
@@ -183,12 +186,13 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) m
 type CreateAndLoginUserHandler devlocalAuthHandler
 
 // NewCreateAndLoginUserHandler creates a new CreateAndLoginUserHandler
-func NewCreateAndLoginUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) CreateAndLoginUserHandler {
+func NewCreateAndLoginUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) CreateAndLoginUserHandler {
 	handler := CreateAndLoginUserHandler{
 		Context:             ac,
 		db:                  db,
 		clientAuthSecretKey: clientAuthSecretKey,
 		noSessionTimeout:    noSessionTimeout,
+		useSecureCookie:     useSecureCookie,
 	}
 	return handler
 }
@@ -213,8 +217,19 @@ func loginUser(handler devlocalAuthHandler, user *models.User, w http.ResponseWr
 		session.IDToken = "devlocal"
 		session.UserID = userIdentity.ID
 		session.Email = userIdentity.Email
+
+		if userIdentity.Disabled {
+			handler.logger.Error("Disabled user requesting authentication", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
+		}
+
 		if userIdentity.ServiceMemberID != nil {
 			session.ServiceMemberID = *(userIdentity.ServiceMemberID)
+		}
+
+		if userIdentity.DpsUserID != nil {
+			session.DpsUserID = *(userIdentity.DpsUserID)
 		}
 
 		if userIdentity.OfficeUserID != nil {
@@ -243,7 +258,7 @@ func loginUser(handler devlocalAuthHandler, user *models.User, w http.ResponseWr
 	}
 
 	handler.logger.Info("logged in", zap.Any("session", session))
-	auth.WriteSessionCookie(w, session, handler.clientAuthSecretKey, handler.noSessionTimeout, handler.logger)
+	auth.WriteSessionCookie(w, session, handler.clientAuthSecretKey, handler.noSessionTimeout, handler.logger, handler.useSecureCookie)
 
 	lURL := handler.landingURL(session)
 	http.Redirect(w, r, lURL, http.StatusSeeOther)

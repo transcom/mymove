@@ -69,8 +69,10 @@ const configureNumberField = (swaggerField, props) => {
 // but allow the user to enter in dollars.
 // On first pass, that did not seem straightforward.
 const configureCentsField = (swaggerField, props) => {
-  props.type = 'text';
-  props.validate.push(validator.isNumber);
+  // Cents field IS a decimal field
+  const decimalLength = 2;
+  props = configureDecimalField(swaggerField, props, decimalLength, 'Dollar must be only up to 2 decimal places.');
+  props.prefixInputClassName = 'dollar-sign';
 
   if (swaggerField.maximum != null) {
     props.validate.push(validator.maximum(swaggerField.maximum / 100));
@@ -166,6 +168,7 @@ const renderInputField = ({
   className,
   inputProps,
   hideLabel,
+  prefixInputClassName,
 }) => {
   let component = 'input';
   if (componentNameOverride) {
@@ -210,7 +213,7 @@ const renderInputField = ({
             {error}
           </span>
         )}
-      {FieldComponent}
+      <span className={prefixInputClassName}>{FieldComponent}</span>
     </div>
   );
 };
@@ -327,6 +330,7 @@ const createSchemaField = (
   } else if (['integer', 'number'].includes(swaggerField.type)) {
     if (swaggerField.format === 'cents') {
       fieldProps = configureCentsField(swaggerField, fieldProps);
+      className += ' dollar-input';
     } else if (swaggerField.format === 'basequantity') {
       fieldProps = configureDecimalField(
         swaggerField,

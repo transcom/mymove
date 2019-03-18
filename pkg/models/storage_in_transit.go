@@ -99,3 +99,61 @@ func (s *StorageInTransit) Validate(tx *pop.Connection) (*validate.Errors, error
 		&StringIsNilOrNotBlank{Field: s.WarehouseEmail, Name: "WarehouseEmail"},
 	), nil
 }
+
+// FetchStorageInTransitsOnShipment retrieves Storage In Transit objects using the shipment ID
+func FetchStorageInTransitsOnShipment(tx *pop.Connection, shipmentID uuid.UUID) (StorageInTransits, error) {
+	storageInTransits := StorageInTransits{}
+
+	err := tx.Eager().Where("shipment_id = $1", shipmentID).
+		LeftJoin("addresses", "storage_in_transits.warehouse_address_id=addresses.id").
+		All(&storageInTransits)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return storageInTransits, nil
+
+}
+
+// FetchStorageInTransitByID retrieves a single Storage In Transit object based on its own ID
+func FetchStorageInTransitByID(tx *pop.Connection, storageInTransitID uuid.UUID) (*StorageInTransit, error) {
+	var storageInTransit StorageInTransit
+	err := tx.Eager().Where("storage_in_transits.id = $1", storageInTransitID).
+		LeftJoin("addresses", "storage_in_transits.warehouse_address_id=addresses.id").First(&storageInTransit)
+
+	if err != nil {
+		// If we fail to get rows let's pass up a ErrFetchNotFound so that handlers wind up passing a 404
+		if err.Error() == "sql: no rows in result set" {
+			return nil, ErrFetchNotFound
+		}
+		return nil, err
+	}
+
+	return &storageInTransit, nil
+
+}
+
+// DeleteStorageInTransit deletes a Storage In Transit object based on the provided ID
+func DeleteStorageInTransit(tx *pop.Connection, storageInTransitID uuid.UUID) (err error) {
+	var storageInTransit StorageInTransit
+
+	// Identify the record we're going to delete by its ID
+	// If we can't find it we return an ErrFetchNotFound.
+	err = tx.Find(&storageInTransit, storageInTransitID)
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return ErrFetchNotFound
+		}
+		return err
+	}
+
+	// Execute the deletion
+	err = tx.Destroy(&storageInTransit)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}

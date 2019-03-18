@@ -8,6 +8,8 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/gen/dpsapi/dpsoperations/dps"
@@ -15,7 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/models"
-	"go.uber.org/zap"
 )
 
 // GetUserHandler returns user information given an encrypted token

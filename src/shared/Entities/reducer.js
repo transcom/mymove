@@ -37,6 +37,7 @@ const initialState = {
   serviceAgents: {},
   shipmentLineItems: {},
   shipments: {},
+  storageInTransits: {},
   tariff400ngItems: {},
   transportationServiceProviders: {},
 };

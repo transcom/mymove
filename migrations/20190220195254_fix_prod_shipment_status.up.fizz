@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190220195254_fix_prod_shipment_status.sql")

@@ -7,6 +7,7 @@ import (
 
 	"github.com/gobuffalo/validate"
 	"github.com/stretchr/testify/suite"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )

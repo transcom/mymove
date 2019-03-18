@@ -1,21 +1,45 @@
 import React, { Component } from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
+import PropTypes from 'prop-types';
 
 import './StorageInTransit.css';
 
+import { isValid, isSubmitting, submit, hasSubmitSucceeded } from 'redux-form';
+
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import StorageInTransitForm from './StorageInTransitForm';
+import StorageInTransitForm, { formName as StorageInTransitFormName } from './StorageInTransitForm.jsx';
 
 export class Creator extends Component {
-  state = { showForm: false };
+  state = {
+    showForm: false,
+    closeOnSubmit: true,
+  };
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.props.hasSubmitSucceeded && !prevProps.hasSubmitSucceeded) {
+      this.setState({ showForm: false });
+    }
+  }
 
   openForm = () => {
     this.setState({ showForm: true });
   };
+
   closeForm = () => {
     this.setState({ showForm: false });
+  };
+
+  saveAndClose = () => {
+    this.setState({ closeOnSubmit: true }, () => {
+      this.props.submitForm();
+      this.props.onFormActivation(false);
+    });
+  };
+
+  onSubmit = values => {
+    this.props.saveStorageInTransit(values);
   };
 
   render() {
@@ -23,8 +47,8 @@ export class Creator extends Component {
       return (
         <div className="storage-in-transit-panel-modal">
           <div className="title">Request SIT</div>
-          <StorageInTransitForm />
-          <div className="usa-grid-full">
+          <StorageInTransitForm onSubmit={this.onSubmit} />
+          <div className="usa-grid-full align-center-vertical">
             <div className="usa-width-one-half">
               <p className="cancel-link">
                 <a className="usa-button-secondary" onClick={this.closeForm}>
@@ -36,6 +60,7 @@ export class Creator extends Component {
               <button
                 className="button usa-button-primary storage-in-transit-request-form-send-request-button"
                 disabled={!this.props.formEnabled}
+                onClick={this.saveAndClose}
               >
                 Send Request
               </button>
@@ -44,7 +69,7 @@ export class Creator extends Component {
         </div>
       );
     return (
-      <div className="add-request storage-in-transit-hr-top">
+      <div className="add-request">
         <a onClick={this.openForm}>
           <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
           Request SIT
@@ -54,14 +79,27 @@ export class Creator extends Component {
   }
 }
 
-Creator.propTypes = {};
+Creator.propTypes = {
+  formEnabled: PropTypes.bool.isRequired,
+  onFormActivation: PropTypes.func.isRequired,
+  saveStorageInTransit: PropTypes.func.isRequired,
+  submitForm: PropTypes.func.isRequired,
+};
 
 function mapStateToProps(state) {
-  return {};
+  return {
+    formEnabled: isValid(StorageInTransitFormName)(state) && !isSubmitting(StorageInTransitFormName)(state),
+    hasSubmitSucceeded: hasSubmitSucceeded(StorageInTransitFormName)(state),
+  };
 }
 
 function mapDispatchToProps(dispatch) {
   // Bind an action, which submit the form by its name
-  return bindActionCreators({}, dispatch);
+  return bindActionCreators(
+    {
+      submitForm: () => submit(StorageInTransitFormName),
+    },
+    dispatch,
+  );
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Creator);

@@ -8,12 +8,12 @@ readonly DIR
 readonly LIMIT=${LIMIT:-25}
 
 usage() {
-    echo "LIMIT=$LIMIT $0 <name> <environment> | less"
+    echo "LIMIT=$LIMIT $0 <name> <environment> [git-branch [git-commit]] | less"
     exit 1
 }
-[[ -z $1 || -z $2 ]] && usage
+[[ $# -lt 2 || $# -gt 4 ]] && usage
 set -u
 
 [[ -f "$DIR/ecs-service-logs" ]] || (echo "Missing bin/ecs-service-logs. Run make build_tools" && exit 1)
 
-"$DIR/ecs-service-logs" --cluster "app-${2}" --service "${1}" --environment "${2}" --status "STOPPED" --verbose
+"$DIR/ecs-service-logs" --cluster "app-${2}" --service "${1}" --environment "${2}" --git-branch "${3:-}" --git-commit "${4:-}" --status "STOPPED" --verbose

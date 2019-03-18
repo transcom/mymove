@@ -19,7 +19,7 @@ type Claims struct {
 
 // SetCookieHandler handles setting the DPS auth cookie and redirecting to DPS
 type SetCookieHandler struct {
-	logger        *zap.Logger
+	logger        Logger
 	secretKey     string
 	cookieDomain  string
 	cookieSecret  []byte
@@ -27,7 +27,7 @@ type SetCookieHandler struct {
 }
 
 // NewSetCookieHandler creates a new SetCookieHandler
-func NewSetCookieHandler(logger *zap.Logger, secretKey string, cookieDomain string, cookieSecret []byte, cookieExpires int) SetCookieHandler {
+func NewSetCookieHandler(logger Logger, secretKey string, cookieDomain string, cookieSecret []byte, cookieExpires int) SetCookieHandler {
 	return SetCookieHandler{
 		logger:        logger,
 		secretKey:     secretKey,

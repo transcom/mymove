@@ -11,10 +11,6 @@
   border-spacing: 2px;
 }
 
-.pre-approval-panel-table-cont {
-  width: 90%;
-}
-
 /* Custom widths for columns in the preapproval request table */
 /*Code */
 .pre-approval-panel-table-cont table > tbody > tr > th:nth-child(1) {
@@ -46,10 +42,6 @@
   width: 9%;
 }
 
-.cancel-link {
-  padding: 1em 1em 1em 0;
-  cursor: pointer;
-}
 .pre-approval-panel th,
 .pre-approval-panel td {
   border: none;
@@ -58,7 +50,6 @@
 
 .pre-approval-panel-table-cont th {
   font-weight: bold;
-  font-size: 0.8em;
   border-bottom: solid 1px #a2a2a2;
   text-align: left;
   padding: 0rem 2rem 1rem 0rem;
@@ -66,8 +57,9 @@
 
 .pre-approval-panel-table-cont table > tbody > tr > td {
   border-bottom: 1px solid #f1f1f1;
-  font-size: 0.8em;
   padding: 1rem 1rem 1rem 0rem;
+  text-align: left;
+  vertical-align: top;
 }
 
 .actionable {
@@ -93,24 +85,13 @@
   max-width: 100% !important;
 }
 
-.pre-approval-panel-modal textarea[name='description'] {
+.pre-approval-panel-modal .textarea-half textarea {
   height: 8rem;
-}
-
-.pre-approval-edit {
-  background-color: #f6fdfe;
 }
 
 .pre-approval-panel-modal .title {
   font-size: 2rem;
   font-weight: bold;
-}
-.pre-approval-panel .align-right {
-  text-align: right !important;
-}
-
-.pre-approval-form {
-  padding: 0 0 1rem 0;
 }
 
 .cancel button {
@@ -137,8 +118,7 @@
 }
 
 .bq-explanation {
-  font-size: 0.8em;
-  padding: 0rem 0rem 3rem 0rem;
+  font-size: 0.9em;
 }
 
 .bq-explanation p {
@@ -193,6 +173,18 @@ td.delete-confirm strong {
   border-radius: 7px !important;
 }
 
+.tariff400__value-container {
+  height: 5rem;
+}
+
+.tariff400__input input {
+  height: 2rem;
+}
+
+.tariff400ng_item {
+  font-size: 1.7rem;
+}
+
 .location__control {
   height: 5rem;
   border-color: #5b616b !important;
@@ -218,4 +210,8 @@ td.delete-confirm strong {
 
 .dimensions-form .dimensions-form-header {
   padding: 0;
+}
+
+.dimensions-form td {
+  border: none !important;
 }

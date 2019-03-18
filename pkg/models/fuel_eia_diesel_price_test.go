@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/facebookgo/clock"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -144,6 +145,30 @@ func (suite *ModelSuite) TestMakeFuelEIADieselPriceForDate() {
 	shipmentDate := assertions.FuelEIADieselPrice.RateStartDate.AddDate(0, 0, 10)
 
 	testdatagen.MakeFuelEIADieselPriceForDate(suite.DB(), shipmentDate, assertions)
+}
+
+func (suite *ModelSuite) TestFetchMostRecentFuelPrices() {
+	// Make fuel price records for the last twelve months
+	clock := clock.NewMock()
+	currentTime := clock.Now()
+	for month := 0; month < 15; month++ {
+		var shipmentDate time.Time
+
+		shipmentDate = currentTime.AddDate(0, -(month - 1), 0)
+		testdatagen.MakeDefaultFuelEIADieselPriceForDate(suite.DB(), shipmentDate)
+	}
+
+	fuelPrices, err := models.FetchMostRecentFuelPrices(suite.DB(), clock, 12)
+	expectedNumFuelPrices := 12
+	suite.NoError(err)
+	suite.Equal(expectedNumFuelPrices, len(fuelPrices))
+
+	// if the day is after the 15th
+	currentTime = currentTime.Add(time.Hour * 24 * 20)
+	fuelPrices, err = models.FetchMostRecentFuelPrices(suite.DB(), clock, 12)
+	expectedNumFuelPrices = 12
+	suite.NoError(err)
+	suite.Equal(expectedNumFuelPrices, len(fuelPrices))
 }
 
 // Create 1 record for the shipment date provided

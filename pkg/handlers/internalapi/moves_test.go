@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 
@@ -394,6 +395,9 @@ func (suite *HandlerSuite) TestShowMoveDatesSummaryForbiddenUser() {
 
 func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
+	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{},
+	})
 
 	req := httptest.NewRequest("GET", "/moves/some_id/shipment_summary_worksheet", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
@@ -406,6 +410,8 @@ func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	planner := route.NewTestingPlanner(1044)
+	context.SetPlanner(planner)
 
 	handler := ShowShipmentSummaryWorksheetHandler{context}
 	response := handler.Handle(params)

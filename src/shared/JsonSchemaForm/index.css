@@ -25,5 +25,25 @@ h2.sm-heading-2 {
 }
 
 .DayPicker {
-   border: 0.1rem solid #5b616b;
+  border: 0.1rem solid #5b616b;
+}
+
+.usa-input span.dollar-sign:before,
+.usa-input-error span.dollar-sign:before {
+  content: '$';
+  position: absolute;
+  color: #212121;
+  font-size: 1.7rem;
+  line-height: 1.3;
+  margin: 0 0;
+  padding: 1.1rem 0.7em;
+}
+
+.usa-input-error span.dollar-sign:before {
+  margin: 0.1em 0;
+  padding: 1.2rem 0.7em;
+}
+
+.dollar-input input {
+  padding: 1rem 1.3em;
 }

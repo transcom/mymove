@@ -21,7 +21,7 @@ import (
 // HandlerContext provides access to all the contextual references needed by individual handlers
 type HandlerContext interface {
 	DB() *pop.Connection
-	Logger() *zap.Logger
+	Logger() Logger
 	HoneyZapLogger() *hnyzap.Logger
 	FileStorer() storage.FileStorer
 	SetFileStorer(storer storage.FileStorer)
@@ -37,6 +37,8 @@ type HandlerContext interface {
 	SetIWSPersonLookup(rbs iws.PersonLookup)
 	SendProductionInvoice() bool
 	SetSendProductionInvoice(sendProductionInvoice bool)
+	UseSecureCookie() bool
+	SetUseSecureCookie(useSecureCookie bool)
 
 	GexSender() services.GexSender
 	SetGexSender(gexSender services.GexSender)
@@ -51,7 +53,7 @@ type HandlerContext interface {
 // A single handlerContext is passed to each handler
 type handlerContext struct {
 	db                    *pop.Connection
-	logger                *zap.Logger
+	logger                Logger
 	cookieSecret          string
 	noSessionTimeout      bool
 	planner               route.Planner
@@ -62,10 +64,11 @@ type handlerContext struct {
 	dpsAuthParams         dpsauth.Params
 	senderToGex           services.GexSender
 	icnSequencer          sequence.Sequencer
+	useSecureCookie       bool
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
-func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
+func NewHandlerContext(db *pop.Connection, logger Logger) HandlerContext {
 	return &handlerContext{
 		db:     db,
 		logger: logger,
@@ -78,13 +81,16 @@ func (hctx *handlerContext) DB() *pop.Connection {
 }
 
 // Logger returns the logger to use in this context
-func (hctx *handlerContext) Logger() *zap.Logger {
+func (hctx *handlerContext) Logger() Logger {
 	return hctx.logger
 }
 
 // HoneyZapLogger returns the logger capable of writing to Honeycomb to use in this context
 func (hctx *handlerContext) HoneyZapLogger() *hnyzap.Logger {
-	return &hnyzap.Logger{Logger: hctx.logger}
+	if zapLogger, ok := hctx.logger.(*zap.Logger); ok {
+		return &hnyzap.Logger{Logger: zapLogger}
+	}
+	return nil
 }
 
 // RespondAndTraceError uses Honeycomb to trace errors and then passes response to the standard ResponseForError
@@ -189,4 +195,14 @@ func (hctx *handlerContext) DPSAuthParams() dpsauth.Params {
 
 func (hctx *handlerContext) SetDPSAuthParams(params dpsauth.Params) {
 	hctx.dpsAuthParams = params
+}
+
+// UseSecureCookie determines if the field "Secure" is set to true or false upon cookie creation
+func (hctx *handlerContext) UseSecureCookie() bool {
+	return hctx.useSecureCookie
+}
+
+// Sets flag for using Secure cookie
+func (hctx *handlerContext) SetUseSecureCookie(useSecureCookie bool) {
+	hctx.useSecureCookie = useSecureCookie
 }

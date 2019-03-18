@@ -3,14 +3,16 @@ package main
 import (
 	"encoding/csv"
 	"fmt"
-	"github.com/gobuffalo/pop"
-	"github.com/gofrs/uuid"
-	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
-	"github.com/transcom/mymove/pkg/models"
 	"io"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/gobuffalo/pop"
+	"github.com/gofrs/uuid"
+	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
+
+	"github.com/transcom/mymove/pkg/models"
 )
 
 const (

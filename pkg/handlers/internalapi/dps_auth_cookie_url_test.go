@@ -33,24 +33,27 @@ func (suite *HandlerSuite) TestDPSAuthCookieURLHandler() {
 	params.HTTPRequest = request
 
 	response := handler.Handle(params)
-	okResponse := response.(*dps_auth.GetCookieURLOK)
-	url, _ := url.Parse(okResponse.Payload.CookieURL.String())
-	suite.Equal(url.Scheme, dpsAuthParams.SDDCProtocol)
-	suite.Equal(url.Host, fmt.Sprintf("%s:%s", dpsAuthParams.SDDCHostname, dpsAuthParams.SDDCPort))
-	suite.Contains(url.Query(), "token")
+	// TODO: Once the TODO is resolved in DPSAuthGetCookieURLHandler::Handle,
+	// this should be changed to GetCookieURLOK
+	_, ok := response.(*dps_auth.GetCookieURLForbidden)
+	suite.True(ok)
 
 	// Normal service member (not a DPS user) permission error
 	dpsRedirectURL := "http://example.com"
 	params.DpsRedirectURL = &dpsRedirectURL
 	response = handler.Handle(params)
-	_, ok := response.(*dps_auth.GetCookieURLForbidden)
+	_, ok = response.(*dps_auth.GetCookieURLForbidden)
 	suite.True(ok)
 
 	// Make the service member a DPS user, should no longer get a permission error when setting params
-	testdatagen.MakeDpsUser(suite.DB(), testdatagen.Assertions{User: serviceMember.User})
-	request = suite.AuthenticateRequest(request, serviceMember)
+	dpsUser := testdatagen.MakeDpsUser(suite.DB(), testdatagen.Assertions{User: serviceMember.User})
+	request = suite.AuthenticateDpsRequest(request, serviceMember, dpsUser)
 	params.HTTPRequest = request
 	response = handler.Handle(params)
-	_, ok = response.(*dps_auth.GetCookieURLOK)
+	okResponse := response.(*dps_auth.GetCookieURLOK)
+	url, _ := url.Parse(okResponse.Payload.CookieURL.String())
+	suite.Equal(url.Scheme, dpsAuthParams.SDDCProtocol)
+	suite.Equal(url.Host, fmt.Sprintf("%s:%s", dpsAuthParams.SDDCHostname, dpsAuthParams.SDDCPort))
+	suite.Contains(url.Query(), "token")
 	suite.True(ok)
 }

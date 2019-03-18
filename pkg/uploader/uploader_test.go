@@ -21,7 +21,7 @@ import (
 
 type UploaderSuite struct {
 	testingsuite.PopTestSuite
-	logger       *zap.Logger
+	logger       uploader.Logger
 	storer       storage.FileStorer
 	filesToClose []afero.File
 	fs           *afero.Afero
@@ -100,7 +100,7 @@ func (suite *UploaderSuite) TestUploadFromLocalFile() {
 	up := uploader.NewUploader(suite.DB(), suite.logger, suite.storer)
 	file := suite.fixture("test.pdf")
 
-	upload, verrs, err := up.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
+	upload, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesPDF)
 	suite.Nil(err, "failed to create upload")
 	suite.False(verrs.HasAny(), "failed to validate upload", verrs)
 	suite.Equal(upload.ContentType, "application/pdf")
@@ -113,7 +113,7 @@ func (suite *UploaderSuite) TestUploadFromLocalFileZeroLength() {
 	up := uploader.NewUploader(suite.DB(), suite.logger, suite.storer)
 	file := suite.fixture("empty.pdf")
 
-	upload, verrs, err := up.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
+	upload, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesPDF)
 	suite.Equal(err, uploader.ErrZeroLengthFile)
 	suite.False(verrs.HasAny(), "failed to validate upload")
 	suite.Nil(upload, "returned an upload when erroring")
@@ -137,7 +137,7 @@ func (suite *UploaderSuite) TestCreateUploadNoDocument() {
 	suite.Nil(err)
 
 	// Create file and upload
-	upload, verrs, err := up.CreateUploadNoDocument(userID, &file)
+	upload, verrs, err := up.CreateUpload(userID, &file, uploader.AllowedTypesPDF)
 	suite.Nil(err, "failed to create upload")
 	suite.Empty(verrs.Error(), "verrs returned error")
 	suite.NotNil(upload, "failed to create upload structure")

@@ -1,0 +1,2 @@
+add_index("electronic_orders", ["issuer", "orders_number"], {"unique": true, "name": "electronic_orders_index_by_issuer_and_orders_number"})
+add_index("electronic_orders", ["issuer", "edipi"], {"name": "electronic_orders_index_by_issuer_and_edipi"})

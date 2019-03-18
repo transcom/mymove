@@ -91,7 +91,6 @@ export const invoices = new schema.Array(invoice);
 
 // ShipmentLineItem
 export const shipmentLineItem = new schema.Entity('shipmentLineItems', {
-  tariff400ng_item: tariff400ngItem,
   invoice: invoice,
 });
 export const shipmentLineItems = new schema.Array(shipmentLineItem);
@@ -104,3 +103,8 @@ export const moveDatesSummary = new schema.Entity('moveDatesSummaries');
 
 // TransportationServiceProviders
 export const transportationServiceProvider = new schema.Entity('transportationServiceProviders');
+
+// StorageInTransits
+export const storageInTransit = new schema.Entity('storageInTransits');
+
+export const storageInTransits = new schema.Array(storageInTransit);

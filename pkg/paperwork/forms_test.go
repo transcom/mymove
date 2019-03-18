@@ -19,7 +19,7 @@ func (suite *PaperworkSuite) TestFormFillerSmokeTest() {
 	defer f.Close()
 
 	var fields = map[string]FieldPos{
-		"FieldName": FormField(28, 11, 79, nil, nil),
+		"FieldName": FormField(28, 11, 79, nil, nil, nil),
 	}
 
 	data := fakeModel{

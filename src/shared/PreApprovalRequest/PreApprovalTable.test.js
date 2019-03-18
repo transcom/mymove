@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 import PreApprovalTable from './PreApprovalTable';
 
 describe('PreApprovalTable tests', () => {
@@ -7,8 +7,8 @@ describe('PreApprovalTable tests', () => {
   const onEdit = jest.fn();
   const shipmentLineItems = [
     {
-      id: 'sldkjf',
-      tariff400ng_item: { code: '105D', item: 'Reg Shipping' },
+      id: '1',
+      tariff400ng_item: { code: '105E', item: 'Reg Shipping' },
       location: 'D',
       base_quantity: 167000,
       notes: '',
@@ -16,7 +16,7 @@ describe('PreApprovalTable tests', () => {
       status: 'SUBMITTED',
     },
     {
-      id: 'sldsdff',
+      id: '2',
       tariff400ng_item: { code: '105D', item: 'Reg Shipping' },
       location: 'D',
       base_quantity: 788300,
@@ -27,7 +27,7 @@ describe('PreApprovalTable tests', () => {
   ];
   describe('When shipmentLineItems exist', () => {
     it('renders without crashing', () => {
-      wrapper = shallow(
+      wrapper = mount(
         <PreApprovalTable
           shipmentLineItems={shipmentLineItems}
           isActionable={true}
@@ -57,7 +57,7 @@ describe('PreApprovalTable tests', () => {
   describe('When a request is being acted upon', () => {
     it('is the only request that is actionable', () => {
       const onActivation = jest.fn();
-      wrapper = shallow(
+      wrapper = mount(
         <PreApprovalTable
           shipmentLineItems={shipmentLineItems}
           onRequestActivation={onActivation}
