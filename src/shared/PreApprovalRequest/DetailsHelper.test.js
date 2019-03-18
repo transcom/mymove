@@ -84,7 +84,7 @@ describe('testing getFormComponent()', () => {
   describe('returns 35A form component with feature flag on', () => {
     featureFlag = true;
 
-    let FormComponent = getFormComponent('35A', featureFlag, initialValuesWithCrateDimensions);
+    let FormComponent = getFormComponent('35A', featureFlag, { estimate_amount_cents: true });
     it('for code 35A', () => {
       expect(FormComponent).toBe(Code35Form);
     });

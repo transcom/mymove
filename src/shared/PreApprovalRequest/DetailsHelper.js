@@ -8,12 +8,11 @@ import { DefaultDetails } from './DefaultDetails';
 
 export function getFormComponent(code, robustAccessorial, initialValues) {
   code = code ? code.toLowerCase() : '';
-  const hasCrateDimensions = get(initialValues, 'crate_dimensions', false);
   const isNew = !initialValues;
   if (code.startsWith('105b') || code.startsWith('105e')) {
-    if (isNew || hasCrateDimensions) return Code105Form;
+    if (isNew || get(initialValues, 'crate_dimensions', false)) return Code105Form;
   } else if (robustAccessorial && code.startsWith('35')) {
-    return Code35Form;
+    if (isNew || get(initialValues, 'estimate_amount_cents')) return Code35Form;
   } else if (robustAccessorial && code.startsWith('226')) {
     return Code226Form;
   }
