@@ -107,12 +107,13 @@ type devlocalAuthHandler struct {
 type AssignUserHandler devlocalAuthHandler
 
 // NewAssignUserHandler creates a new AssignUserHandler
-func NewAssignUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) AssignUserHandler {
+func NewAssignUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) AssignUserHandler {
 	handler := AssignUserHandler{
 		Context:             ac,
 		db:                  db,
 		clientAuthSecretKey: clientAuthSecretKey,
 		noSessionTimeout:    noSessionTimeout,
+		useSecureCookie:     useSecureCookie,
 	}
 	return handler
 }
