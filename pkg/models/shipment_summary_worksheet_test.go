@@ -204,7 +204,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		Shipments:               shipments,
 		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
 		PersonallyProcuredMoves: personallyProcuredMoves,
-		MaxObligation:           models.Obligation{Gcc: unit.Cents(600000)},
+		MaxObligation:           models.Obligation{Gcc: unit.Cents(600000), SITMax: unit.Cents(53000)},
 		ActualObligation:        models.Obligation{Gcc: unit.Cents(500000)},
 	}
 	sswPage1 := models.FormatValuesShipmentSummaryWorksheetFormPage1(ssd)
@@ -243,6 +243,7 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
 	suite.Equal("$6,000.00", sswPage1.MaxObligationGCC100)
 	suite.Equal("$5,700.00", sswPage1.MaxObligationGCC95)
+	suite.Equal("$530.00", sswPage1.MaxObligationSIT)
 	suite.Equal("$3,600.00", sswPage1.MaxObligationGCCMaxAdvance)
 
 	suite.Equal("4,000", sswPage1.ActualWeight)
@@ -434,12 +435,28 @@ func (suite *ModelSuite) TestFormatCurrentPPMStatus() {
 	suite.Equal("Completed", models.FormatCurrentPPMStatus(completed))
 }
 
+func (suite *ModelSuite) TestFormatActualObligationsWeight() {
+	suite.Equal("4,000", models.FormatActualObligationsWeight(7000,
+		[]models.PersonallyProcuredMove{
+			{NetWeight: models.Int64Pointer(4000)},
+		}))
+	suite.Equal("5,000", models.FormatActualObligationsWeight(5000,
+		[]models.PersonallyProcuredMove{
+			{NetWeight: models.Int64Pointer(10000)},
+		}))
+	suite.Equal("", models.FormatActualObligationsWeight(5000,
+		[]models.PersonallyProcuredMove{
+			{NetWeight: nil},
+		}))
+
+}
+
 func (suite *ModelSuite) TestFormatRank() {
 	e9 := models.ServiceMemberRankE9
-	multipleRanks := models.ServiceMemberRankO1W1ACADEMYGRADUATE
+	multipleRanks := models.ServiceMemberRankO1ACADEMYGRADUATE
 
 	suite.Equal("E-9", models.FormatRank(&e9))
-	suite.Equal("O-1/W-1/Service Academy Graduate", models.FormatRank(&multipleRanks))
+	suite.Equal("O-1/Service Academy Graduate", models.FormatRank(&multipleRanks))
 }
 
 func (suite *ModelSuite) TestFormatShipmentNumberAndType() {

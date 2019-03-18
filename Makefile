@@ -179,7 +179,7 @@ get_goimports: go_deps .get_goimports.stamp
 server_deps: check_hosts go_deps build_chamber build_soda build_callgraph get_goimports .server_deps.stamp
 .server_deps.stamp:
 	# Unfortunately, dep ensure blows away ./vendor every time so these builds always take a while
-	go install ./vendor/github.com/golang/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
+	go install ./vendor/golang.org/x/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec ./vendor/github.com/securego/gosec/cmd/gosec
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gin ./vendor/github.com/codegangsta/gin
 	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
@@ -393,7 +393,9 @@ endif
 			POSTGRES_PASSWORD=$(PGPASSWORD) \
 			-d \
 			-p $(DB_PORT_TEST):$(DB_PORT_DOCKER)\
-			$(DB_DOCKER_CONTAINER_IMAGE)
+			$(DB_DOCKER_CONTAINER_IMAGE)\
+			-c fsync=off\
+			-c full_page_writes=off
 
 .PHONY: db_test_create
 db_test_create:

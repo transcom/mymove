@@ -135,7 +135,7 @@ export class PreApprovalRequest extends Component {
           </tr>
           {this.state.showDeleteForm && (
             <tr className="delete-confirm-row">
-              <td colSpan="8" className="delete-confirm">
+              <td colSpan="7" className="delete-confirm">
                 <strong>Are you sure you want to delete?</strong>
                 <button
                   className="usa-button usa-button-secondary"

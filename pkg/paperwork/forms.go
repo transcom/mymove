@@ -16,28 +16,34 @@ import (
 )
 
 var rankDisplayValue = map[internalmessages.ServiceMemberRank]string{
-	internalmessages.ServiceMemberRankE1:                     "E-1",
-	internalmessages.ServiceMemberRankE2:                     "E-2",
-	internalmessages.ServiceMemberRankE3:                     "E-3",
-	internalmessages.ServiceMemberRankE4:                     "E-4",
-	internalmessages.ServiceMemberRankE5:                     "E-5",
-	internalmessages.ServiceMemberRankE6:                     "E-6",
-	internalmessages.ServiceMemberRankE7:                     "E-7",
-	internalmessages.ServiceMemberRankE8:                     "E-8",
-	internalmessages.ServiceMemberRankE9:                     "E-9",
-	internalmessages.ServiceMemberRankO1W1ACADEMYGRADUATE:    "O-1/W-1/Service Academy Graduate",
-	internalmessages.ServiceMemberRankO2W2:                   "O-2/W-2",
-	internalmessages.ServiceMemberRankO3W3:                   "O-3/W-3",
-	internalmessages.ServiceMemberRankO4W4:                   "O-4/W-4",
-	internalmessages.ServiceMemberRankO5W5:                   "O-5/W-5",
-	internalmessages.ServiceMemberRankO6:                     "O-6",
-	internalmessages.ServiceMemberRankO7:                     "O-7",
-	internalmessages.ServiceMemberRankO8:                     "O-8",
-	internalmessages.ServiceMemberRankO9:                     "O-9",
-	internalmessages.ServiceMemberRankO10:                    "O-10",
-	internalmessages.ServiceMemberRankAVIATIONCADET:          "Aviation Cadet",
-	internalmessages.ServiceMemberRankCIVILIANEMPLOYEE:       "Civilian Employee",
-	internalmessages.ServiceMemberRankACADEMYCADETMIDSHIPMAN: "Service Academy Cadet/Midshipman",
+	internalmessages.ServiceMemberRankE1:                "E-1",
+	internalmessages.ServiceMemberRankE2:                "E-2",
+	internalmessages.ServiceMemberRankE3:                "E-3",
+	internalmessages.ServiceMemberRankE4:                "E-4",
+	internalmessages.ServiceMemberRankE5:                "E-5",
+	internalmessages.ServiceMemberRankE6:                "E-6",
+	internalmessages.ServiceMemberRankE7:                "E-7",
+	internalmessages.ServiceMemberRankE8:                "E-8",
+	internalmessages.ServiceMemberRankE9:                "E-9",
+	internalmessages.ServiceMemberRankO1ACADEMYGRADUATE: "O-1/Service Academy Graduate",
+	internalmessages.ServiceMemberRankO2:                "O-2",
+	internalmessages.ServiceMemberRankO3:                "O-3",
+	internalmessages.ServiceMemberRankO4:                "O-4",
+	internalmessages.ServiceMemberRankO5:                "O-5",
+	internalmessages.ServiceMemberRankO6:                "O-6",
+	internalmessages.ServiceMemberRankO7:                "O-7",
+	internalmessages.ServiceMemberRankO8:                "O-8",
+	internalmessages.ServiceMemberRankO9:                "O-9",
+	internalmessages.ServiceMemberRankO10:               "O-10",
+	internalmessages.ServiceMemberRankW1:                "W-1",
+	internalmessages.ServiceMemberRankW2:                "W-2",
+	internalmessages.ServiceMemberRankW3:                "W-3",
+	internalmessages.ServiceMemberRankW4:                "W-4",
+	internalmessages.ServiceMemberRankW5:                "W-5",
+	internalmessages.ServiceMemberRankAVIATIONCADET:     "Aviation Cadet",
+	internalmessages.ServiceMemberRankCIVILIANEMPLOYEE:  "Civilian Employee",
+	internalmessages.ServiceMemberRankACADEMYCADET:      "Service Academy Cadet",
+	internalmessages.ServiceMemberRankMIDSHIPMAN:        "Midshipman",
 }
 
 var affiliationDisplayValue = map[internalmessages.Affiliation]string{
@@ -188,7 +194,10 @@ func (f *FormFiller) drawDebugOverlay(xPos, yPos, width, lineHeight float64, lab
 	f.pdf.SetFontSize(4)
 
 	f.pdf.MoveTo(xPos, yPos)
-	f.pdf.CellFormat(width, lineHeight, label, "1", 0, "R", false, 0, "")
+	f.pdf.CellFormat(width, lineHeight, "", "1", 0, "R", false, 0, "")
+
+	f.pdf.MoveTo(xPos+1.2, yPos-2.9)
+	f.pdf.CellFormat(width, 4, label, "0", 0, "R", false, 0, "")
 
 	// Restore settings
 	f.pdf.SetTextColor(tr, tg, tb)

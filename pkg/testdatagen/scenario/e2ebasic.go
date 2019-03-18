@@ -9,7 +9,6 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/dates"
@@ -49,7 +48,7 @@ var nextValidMoveDateMinusFive = dates.NextValidMoveDate(nextValidMoveDate.AddDa
 var nextVAlidMoveDateMinusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
 
 // Run does that data load thing
-func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger *zap.Logger, storer *storage.Memory) {
+func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger Logger, storer *storage.Memory) {
 	/*
 	 * Basic user with tsp access
 	 */
@@ -2549,7 +2548,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 }
 
 // MakeHhgWithGBL creates a scenario for an approved shipment with a GBL generated
-func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logger, storer *storage.Memory) models.Shipment {
+func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger Logger, storer *storage.Memory) models.Shipment {
 	/*
 	 * Service member with uploaded orders and an approved shipment to be accepted, able to generate GBL
 	 */
@@ -2667,7 +2666,7 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logg
 	return offer.Shipment
 }
 
-func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *zap.Logger, storer *storage.Memory) models.Shipment {
+func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Logger, storer *storage.Memory) models.Shipment {
 	/*
 	 * Service member with uploaded orders and a delivered shipment, able to generate GBL
 	 */

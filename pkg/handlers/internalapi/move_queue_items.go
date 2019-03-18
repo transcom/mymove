@@ -3,7 +3,6 @@ package internalapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
-
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"

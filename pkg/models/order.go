@@ -16,7 +16,7 @@ import (
 // UploadedOrdersDocumentName is the name of an uploaded orders document
 const UploadedOrdersDocumentName = "uploaded_orders"
 
-// OrderStatus represents the status of an order record's lifecycle
+// OrderStatus represents the state of an order record in the UX manual orders flow
 type OrderStatus string
 
 const (

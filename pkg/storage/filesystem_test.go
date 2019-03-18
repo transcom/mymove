@@ -7,11 +7,10 @@ import (
 )
 
 func TestFilesystemPresignedURL(t *testing.T) {
-	logger := zap.NewNop()
 	fsParams := FilesystemParams{
 		root:    "/home/username",
 		webRoot: "https://example.text/files",
-		logger:  logger,
+		logger:  zap.NewNop(),
 	}
 	fs := NewFilesystem(fsParams)
 

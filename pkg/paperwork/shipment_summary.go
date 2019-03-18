@@ -238,7 +238,7 @@ func (s *ShipmentSummary) addTable(header string, fields []formField, width, cel
 }
 
 type ppmComputer interface {
-	ComputePPMIncludingLHDiscount(weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int, sitDiscount unit.DiscountRate) (cost rateengine.CostComputation, err error)
+	ComputePPMIncludingLHDiscount(weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int) (cost rateengine.CostComputation, err error)
 }
 
 //SSWPPMComputer a rate engine wrapper with helper functions to simplify ppm cost calculations specific to shipment summary worksheet
@@ -280,14 +280,13 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 	var valid bool
 	switch obligationType {
 	case MaxObligation:
-		if valid = firstPPM.OriginalMoveDate != nil; valid {
+		if valid = firstPPM.ActualMoveDate != nil; valid {
 			cost, err = sswPpmComputer.ComputePPMIncludingLHDiscount(
 				unit.Pound(ssfd.TotalWeightAllotment),
 				*firstPPM.PickupPostalCode,
 				*firstPPM.DestinationPostalCode,
 				distanceMiles,
-				*firstPPM.OriginalMoveDate,
-				0,
+				*firstPPM.ActualMoveDate,
 				0,
 			)
 		}
@@ -303,12 +302,11 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 				distanceMiles,
 				*firstPPM.ActualMoveDate,
 				0,
-				0,
 			)
 		}
 		if err != nil || !valid {
 			return models.Obligation{}, errors.New("error calculating PPM actual obligations")
 		}
 	}
-	return models.Obligation{Gcc: cost.GCC}, nil
+	return models.Obligation{Gcc: cost.GCC, SITMax: cost.SITMax}, nil
 }

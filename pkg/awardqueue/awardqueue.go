@@ -14,11 +14,10 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
+	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/logging/hnyzap"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -32,8 +31,9 @@ const mps = 0
 
 // AwardQueue encapsulates the TSP award queue process
 type AwardQueue struct {
-	db     *pop.Connection
-	logger *hnyzap.Logger
+	db *pop.Connection
+	//logger *hnyzap.Logger
+	logger Logger
 }
 
 func (aq *AwardQueue) findAllUnassignedShipments() (models.Shipments, error) {
@@ -304,7 +304,7 @@ func waitForLock(ctx context.Context, db *pop.Connection, id int) error {
 }
 
 // NewAwardQueue creates a new AwardQueue
-func NewAwardQueue(db *pop.Connection, logger *hnyzap.Logger) *AwardQueue {
+func NewAwardQueue(db *pop.Connection, logger Logger) *AwardQueue {
 	return &AwardQueue{
 		db:     db,
 		logger: logger,

@@ -18,7 +18,7 @@ import (
 
 type InvoiceServiceSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
+	logger Logger
 	storer storage.FileStorer
 }
 
@@ -27,15 +27,11 @@ func (suite *InvoiceServiceSuite) SetupTest() {
 }
 
 func TestInvoiceSuite(t *testing.T) {
-	// Use a no-op logger during testing
-	logger := zap.NewNop()
-
-	fakeS3 := storageTest.NewFakeS3Storage(true)
 
 	hs := &InvoiceServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(),
-		logger:       logger,
-		storer:       fakeS3,
+		logger:       zap.NewNop(), // Use a no-op logger during testing
+		storer:       storageTest.NewFakeS3Storage(true),
 	}
 	suite.Run(t, hs)
 }

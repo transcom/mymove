@@ -16,7 +16,7 @@ import (
 )
 
 type serverSuite struct {
-	logger *zap.Logger
+	logger Logger
 	testingsuite.BaseTestSuite
 	httpHandler http.Handler
 }
@@ -54,7 +54,7 @@ func (suite *serverSuite) TestParseSingleTLSCert() {
 
 	suite.Nil(err)
 
-	httpsServer, err := CreateServer(&CreateServerInput{
+	httpsServer, err := CreateNamedServer(&CreateNamedServerInput{
 		Host:         "127.0.0.1",
 		Port:         8443,
 		ClientAuth:   tls.NoClientCert,
@@ -90,7 +90,7 @@ func (suite *serverSuite) TestParseMultipleTLSCerts() {
 
 	suite.Nil(err)
 
-	httpsServer, err := CreateServer(&CreateServerInput{
+	httpsServer, err := CreateNamedServer(&CreateNamedServerInput{
 		Host:        "127.0.0.1",
 		Port:        8443,
 		ClientAuth:  tls.NoClientCert,
@@ -119,7 +119,7 @@ func (suite *serverSuite) TestTLSConfigWithClientAuth() {
 	caCertPool := x509.NewCertPool()
 	caCertPool.AppendCertsFromPEM(caFile)
 
-	_, err = CreateServer(&CreateServerInput{
+	_, err = CreateNamedServer(&CreateNamedServerInput{
 		Host:         "127.0.0.1",
 		Port:         8443,
 		ClientAuth:   tls.RequireAndVerifyClientCert,
@@ -139,7 +139,7 @@ func (suite *serverSuite) TestTLSConfigWithMissingCA() {
 
 	suite.Nil(err)
 
-	_, err = CreateServer(&CreateServerInput{
+	_, err = CreateNamedServer(&CreateNamedServerInput{
 		Host:         "127.0.0.1",
 		Port:         8443,
 		ClientAuth:   tls.RequireAndVerifyClientCert,
@@ -163,7 +163,7 @@ func (suite *serverSuite) TestTLSConfigWithMisconfiguredCA() {
 	certOk := caCertPool.AppendCertsFromPEM(caFile)
 	suite.False(certOk)
 
-	_, err = CreateServer(&CreateServerInput{
+	_, err = CreateNamedServer(&CreateNamedServerInput{
 		Host:         "127.0.0.1",
 		Port:         8443,
 		ClientAuth:   tls.RequireAndVerifyClientCert,
@@ -176,7 +176,7 @@ func (suite *serverSuite) TestTLSConfigWithMisconfiguredCA() {
 }
 
 func (suite *serverSuite) TestHTTPServerConfig() {
-	httpsServer, err := CreateServer(&CreateServerInput{
+	httpsServer, err := CreateNamedServer(&CreateNamedServerInput{
 		Host:        "127.0.0.1",
 		Port:        8080,
 		HTTPHandler: suite.httpHandler,
