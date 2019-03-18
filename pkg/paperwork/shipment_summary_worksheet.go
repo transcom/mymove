@@ -21,7 +21,7 @@ var ShipmentSummaryPage1Layout = FormLayout{
 		"POVAuthorized":                   FormField(102.25, 104, 45, floatPtr(10), nil, nil),
 		"AuthorizedOrigin":                FormField(102.25, 91, 45, floatPtr(10), nil, nil),
 		"MaxSITStorageEntitlement":        FormField(153.5, 104, 49, floatPtr(10), nil, nil),
-		"AuthorizedDestination":           FormField(153.5, 91, 45, floatPtr(10), nil, nil),
+		"AuthorizedDestination":           FormField(153.5, 91, 60, floatPtr(10), nil, nil),
 		"OrdersIssueDate":                 FormField(9.5, 73, 40, floatPtr(10), nil, nil),
 		"OrdersTypeAndOrdersNumber":       FormField(54, 73, 44, floatPtr(10), nil, nil),
 		"IssuingBranchOrAgency":           FormField(102.5, 73, 47, floatPtr(10), nil, nil),
