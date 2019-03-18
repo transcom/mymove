@@ -13,6 +13,7 @@ type WeightAllotment struct {
 }
 
 func makeEntitlements() map[ServiceMemberRank]WeightAllotment {
+	// the midshipman entitlement is shared with service academy cadet
 	midshipman := WeightAllotment{
 		TotalWeightSelf:               350,
 		TotalWeightSelfPlusDependents: 3000,
@@ -90,6 +91,7 @@ func makeEntitlements() map[ServiceMemberRank]WeightAllotment {
 		ProGearWeightSpouse:           500,
 	}
 
+	// O-1 through O-5 share their entitlements with W-1 through W-5
 	O1W1AcademyGraduate := WeightAllotment{
 		TotalWeightSelf:               10000,
 		TotalWeightSelfPlusDependents: 12000,
@@ -168,28 +170,34 @@ func makeEntitlements() map[ServiceMemberRank]WeightAllotment {
 	}
 
 	entitlements := map[ServiceMemberRank]WeightAllotment{
-		ServiceMemberRankACADEMYCADETMIDSHIPMAN: midshipman,
-		ServiceMemberRankAVIATIONCADET:          aviationCadet,
-		ServiceMemberRankE1:                     E1,
-		ServiceMemberRankE2:                     E2,
-		ServiceMemberRankE3:                     E3,
-		ServiceMemberRankE4:                     E4,
-		ServiceMemberRankE5:                     E5,
-		ServiceMemberRankE6:                     E6,
-		ServiceMemberRankE7:                     E7,
-		ServiceMemberRankE8:                     E8,
-		ServiceMemberRankE9:                     E9,
-		ServiceMemberRankO1W1ACADEMYGRADUATE:    O1W1AcademyGraduate,
-		ServiceMemberRankO2W2:                   O2W2,
-		ServiceMemberRankO3W3:                   O3W3,
-		ServiceMemberRankO4W4:                   O4W4,
-		ServiceMemberRankO5W5:                   O5W5,
-		ServiceMemberRankO6:                     O6,
-		ServiceMemberRankO7:                     O7,
-		ServiceMemberRankO8:                     O8,
-		ServiceMemberRankO9:                     O9,
-		ServiceMemberRankO10:                    O10,
-		ServiceMemberRankCIVILIANEMPLOYEE:       civilianEmployee,
+		ServiceMemberRankACADEMYCADET:      midshipman,
+		ServiceMemberRankAVIATIONCADET:     aviationCadet,
+		ServiceMemberRankE1:                E1,
+		ServiceMemberRankE2:                E2,
+		ServiceMemberRankE3:                E3,
+		ServiceMemberRankE4:                E4,
+		ServiceMemberRankE5:                E5,
+		ServiceMemberRankE6:                E6,
+		ServiceMemberRankE7:                E7,
+		ServiceMemberRankE8:                E8,
+		ServiceMemberRankE9:                E9,
+		ServiceMemberRankMIDSHIPMAN:        midshipman,
+		ServiceMemberRankO1ACADEMYGRADUATE: O1W1AcademyGraduate,
+		ServiceMemberRankO2:                O2W2,
+		ServiceMemberRankO3:                O3W3,
+		ServiceMemberRankO4:                O4W4,
+		ServiceMemberRankO5:                O5W5,
+		ServiceMemberRankO6:                O6,
+		ServiceMemberRankO7:                O7,
+		ServiceMemberRankO8:                O8,
+		ServiceMemberRankO9:                O9,
+		ServiceMemberRankO10:               O10,
+		ServiceMemberRankW1:                O1W1AcademyGraduate,
+		ServiceMemberRankW2:                O2W2,
+		ServiceMemberRankW3:                O3W3,
+		ServiceMemberRankW4:                O4W4,
+		ServiceMemberRankW5:                O5W5,
+		ServiceMemberRankCIVILIANEMPLOYEE:  civilianEmployee,
 	}
 	return entitlements
 }

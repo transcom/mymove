@@ -9,6 +9,7 @@ import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { getFormComponent } from './DetailsHelper';
 import { selectLocationFromTariff400ngItem } from 'shared/Entities/modules/shipmentLineItems';
+import { convertDollarsToCents } from 'shared/utils';
 
 import './PreApprovalRequest.css';
 
@@ -118,7 +119,7 @@ export class PreApprovalForm extends Component {
             <div className="tariff400-select usa-input">
               <Field
                 name="tariff400ng_item"
-                title="Code & Item"
+                title="Code & item"
                 component={Tariff400ngItemSearch}
                 tariff400ngItems={this.props.tariff400ngItems}
               />
@@ -176,12 +177,20 @@ const selector = formValueSelector(formName);
 
 function mapStateToProps(state) {
   return {
-    tariff400ng_item_code: get(state, 'form.preapproval_request_form.values.tariff400ng_item.code'),
+    tariff400ng_item_code: selector(state, 'tariff400ng_item.code'),
     ship_line_item_schema: get(state, 'swaggerPublic.spec.definitions.ShipmentLineItem', {}),
     filteredLocations: selectLocationFromTariff400ngItem(state, selector(state, 'tariff400ng_item')),
     selectedLocation: selector(state, 'location'),
     tariff400ngItem: selector(state, 'tariff400ng_item'),
+    showAlert: getActualAmount(state) > getEstimateAmount(state),
   };
+}
+
+function getEstimateAmount(state) {
+  return convertDollarsToCents(selector(state, 'estimate_amount_cents'));
+}
+function getActualAmount(state) {
+  return convertDollarsToCents(selector(state, 'actual_amount_cents'));
 }
 
 export default withContext(connect(mapStateToProps)(PreApprovalForm));

@@ -4,10 +4,9 @@ import (
 	"reflect"
 
 	"github.com/go-openapi/runtime/middleware"
+	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
-
-	"github.com/honeycombio/beeline-go"
 
 	"github.com/transcom/mymove/pkg/auth"
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"

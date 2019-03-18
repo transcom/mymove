@@ -10,13 +10,13 @@ export const Code105Form = props => {
       <DimensionsField
         fieldName="item_dimensions"
         swagger={ship_line_item_schema}
-        labelText="Item Dimensions (inches)"
+        labelText="Item dimensions (inches)"
         isRequired={true}
       />
       <DimensionsField
         fieldName="crate_dimensions"
         swagger={ship_line_item_schema}
-        labelText="Crate Dimensions (inches)"
+        labelText="Crate dimensions (inches)"
         isRequired={true}
       />
       <div className="bq-explanation">

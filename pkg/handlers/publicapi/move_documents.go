@@ -3,7 +3,6 @@ package publicapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
-
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"

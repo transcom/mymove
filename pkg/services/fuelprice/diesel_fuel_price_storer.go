@@ -109,6 +109,7 @@ func (u DieselFuelPriceStorer) StoreFuelPrices(numMonths int) (*validate.Errors,
 		if err != nil {
 			return verrs, errors.Wrap(err, "Cannot calculate baseline rate")
 		}
+		dollarPricePerGallon := unit.Dollars(pricePerGallon)
 
 		// Insert values into fuel_eia_diesel_prices
 		fuelPrice := models.FuelEIADieselPrice{
@@ -117,7 +118,7 @@ func (u DieselFuelPriceStorer) StoreFuelPrices(numMonths int) (*validate.Errors,
 			PubDate:                     pubDate,
 			RateStartDate:               startDate,
 			RateEndDate:                 endDate,
-			EIAPricePerGallonMillicents: unit.Cents(pricePerGallon * 100).ToMillicents(),
+			EIAPricePerGallonMillicents: dollarPricePerGallon.ToMillicents(),
 			BaselineRate:                baselineRate,
 		}
 		responseVErrors := validate.NewErrors()
@@ -127,7 +128,7 @@ func (u DieselFuelPriceStorer) StoreFuelPrices(numMonths int) (*validate.Errors,
 			responseVErrors.Append(verrs)
 			return responseVErrors, errors.Wrap(err, "Cannot validate and save fuel diesel price")
 		}
-		u.logger.Info("Fuel Data added \n", zap.String("start date month", string(month)), zap.Time("pubDate", pubDate))
+		u.logger.Info("Fuel Data added \n", zap.String("start date month", month.String()), zap.Time("pubDate", pubDate))
 	}
 	return verrs, err
 }

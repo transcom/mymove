@@ -48,7 +48,7 @@ export class Creator extends Component {
         <div className="storage-in-transit-panel-modal">
           <div className="title">Request SIT</div>
           <StorageInTransitForm onSubmit={this.onSubmit} />
-          <div className="usa-grid-full">
+          <div className="usa-grid-full align-center-vertical">
             <div className="usa-width-one-half">
               <p className="cancel-link">
                 <a className="usa-button-secondary" onClick={this.closeForm}>
@@ -69,7 +69,7 @@ export class Creator extends Component {
         </div>
       );
     return (
-      <div className="add-request storage-in-transit-hr-top">
+      <div className="add-request">
         <a onClick={this.openForm}>
           <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
           Request SIT

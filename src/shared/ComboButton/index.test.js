@@ -1,47 +1,88 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { mount } from 'enzyme';
 import ComboButton from './index';
 
 describe('ComboButton tests', () => {
-  const renderComboButton = ({ buttonText = '', isDisabled = false, toolTipText = undefined }) =>
-    shallow(<ComboButton buttonText={buttonText} isDisabled={isDisabled} toolTipText={toolTipText} />);
+  const renderComboButton = ({ buttonText = '', disabled = false }) =>
+    mount(
+      <ComboButton buttonText={buttonText} disabled={disabled}>
+        <div className="dropdown">dropDownText</div>
+      </ComboButton>,
+    );
 
-  describe('button text', () => {
-    it('renders button using buttonText', () => {
-      const comboButton = renderComboButton({ buttonText: 'Text' });
-      const button = comboButton.find('button');
-      expect(button.render().text()).toEqual('Text');
+  describe('when the button is disabled', () => {
+    const buttonProps = { buttonText: 'buttonText', disabled: true };
+    const disabledComboButton = renderComboButton(buttonProps);
+
+    describe('button', () => {
+      const button = disabledComboButton.find('button');
+
+      it('renders using value from buttonText', () => {
+        expect(button.render().text()).toEqual(buttonProps.buttonText);
+      });
+
+      it('renders in a disabled state', () => {
+        expect(button.props().disabled).toBe(true);
+      });
     });
   });
 
-  describe('disabled state', () => {
-    it('renders a disabled button when isDisabled is true', () => {
-      const comboButton = renderComboButton({ isDisabled: true });
-      const button = comboButton.find('button');
-      expect(button.props().disabled).toBe(true);
+  describe('when the button is enabled', () => {
+    const buttonProps = { disabled: false, buttonText: 'buttonText' };
+    const defaultEnabledComboButton = renderComboButton(buttonProps);
+
+    describe('button', () => {
+      it('renders in enabled state', () => {
+        const button = defaultEnabledComboButton.find('button');
+
+        expect(button.props().disabled).toBe(false);
+      });
     });
 
-    it('renders an enabled button when isDisabled is false', () => {
-      const comboButton = renderComboButton({});
-      const button = comboButton.find('button');
-      expect(button.props().disabled).toBe(false);
-    });
-  });
+    describe('dropdown menu', () => {
+      it('is not displayed', () => {
+        const dropDown = defaultEnabledComboButton.find('.dropdown');
 
-  describe('tool tip', () => {
-    it('renders the tool tip when passed tool tip text', () => {
-      const text = 'tooltipText';
-      const comboButton = renderComboButton({ toolTipText: text });
-      const tooltipText = comboButton.find('.tooltiptext');
+        expect(dropDown.exists()).toBe(false);
+      });
 
-      expect(tooltipText.text()).toBe(text);
-    });
+      it('is displayed on click', () => {
+        const enabledComboButton = renderComboButton(buttonProps);
+        enabledComboButton.find('button').simulate('click');
+        const dropDown = enabledComboButton.find('.dropdown');
 
-    it('does not render the tool tip when no text is passed', () => {
-      const comboButton = renderComboButton({ toolTipText: null });
-      const tooltipText = comboButton.find('.tooltiptext');
+        expect(dropDown.exists()).toBe(true);
+      });
 
-      expect(tooltipText.exists()).toBe(false);
+      it('disappears on second click', () => {
+        const enabledComboButton = renderComboButton(buttonProps);
+        enabledComboButton.find('button').simulate('click');
+        const dropDownAfterFirstClick = enabledComboButton.find('.dropdown');
+
+        expect(dropDownAfterFirstClick.exists()).toBe(true);
+        enabledComboButton.find('button').simulate('click');
+        const dropDownAfterSecondClick = enabledComboButton.find('.dropdown');
+        expect(dropDownAfterSecondClick.exists()).toBe(false);
+      });
+
+      it('state.displayDropDown is false after click outside', () => {
+        const newButtonProps = { toolTipText: 'toolTipText', disabled: false, buttonText: 'buttonText' };
+        const enabledComboButton = renderComboButton(newButtonProps);
+        enabledComboButton.setState({ displayDropDown: true });
+        const enabledComboButtonInstance = enabledComboButton.instance();
+        enabledComboButtonInstance.handleClickOutside({});
+
+        expect(enabledComboButton.state().displayDropDown).toBe(false);
+      });
+
+      it('state.displayDropDown is toggled on click', function() {
+        const newButtonProps = { toolTipText: 'toolTipText', disabled: false, buttonText: 'buttonText' };
+        const enabledComboButton = renderComboButton(newButtonProps);
+        enabledComboButton.setState({ displayDropDown: true });
+        enabledComboButton.find('button').simulate('click');
+
+        expect(enabledComboButton.state().displayDropDown).toBe(false);
+      });
     });
   });
 });
