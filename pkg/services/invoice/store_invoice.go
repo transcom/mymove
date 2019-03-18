@@ -20,7 +20,7 @@ import (
 // StoreInvoice858C is a service object to store an invoice's EDI in S3.
 type StoreInvoice858C struct {
 	DB     *pop.Connection
-	Logger *zap.Logger
+	Logger Logger
 	Storer *storage.FileStorer
 }
 

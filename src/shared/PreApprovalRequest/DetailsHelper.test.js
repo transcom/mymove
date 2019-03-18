@@ -2,6 +2,7 @@ import { getFormComponent } from './DetailsHelper';
 import { DefaultForm } from './DefaultForm';
 import { Code105Form } from './Code105Form';
 import { Code35Form } from './Code35Form';
+import { Code226Form } from './Code226Form';
 
 let featureFlag = false;
 let initialValuesWithoutCrateDimensions = {};
@@ -54,6 +55,11 @@ describe('testing getFormComponent()', () => {
     it('for code 35A', () => {
       expect(FormComponent).toBe(DefaultForm);
     });
+
+    FormComponent = getFormComponent('226A', featureFlag);
+    it('for code 226A', () => {
+      expect(FormComponent).toBe(DefaultForm);
+    });
   });
 
   describe('returns 105B/E form component with feature flag on', () => {
@@ -81,6 +87,15 @@ describe('testing getFormComponent()', () => {
     let FormComponent = getFormComponent('35A', featureFlag, initialValuesWithCrateDimensions);
     it('for code 35A', () => {
       expect(FormComponent).toBe(Code35Form);
+    });
+  });
+
+  describe('returns 226A form component with feature flag on', () => {
+    featureFlag = true;
+
+    let FormComponent = getFormComponent('226A', featureFlag, initialValuesWithCrateDimensions);
+    it('for code 226A', () => {
+      expect(FormComponent).toBe(Code226Form);
     });
   });
 

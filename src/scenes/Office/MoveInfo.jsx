@@ -19,8 +19,6 @@ import PaymentsPanel from './Ppm/PaymentsPanel';
 import DatesAndLocationPanel from './Ppm/DatesAndLocationsPanel';
 import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StoragePanel from './Ppm/StoragePanel';
-import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
-import IncentiveCalculator from './Ppm/IncentiveCalculator';
 import ExpensesPanel from './Ppm/ExpensesPanel';
 import NetWeightPanel from './Ppm/NetWeightPanel';
 import Dates from 'shared/ShipmentDates';
@@ -32,7 +30,9 @@ import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
-import ComboButton from 'shared/ComboButton';
+import ComboButton from 'shared/ComboButton/index.jsx';
+import ToolTip from 'shared/ToolTip';
+import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';
 
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
@@ -91,8 +91,6 @@ const PPMTabContent = props => {
     <div className="office-tab">
       <PaymentsPanel title="Payments" moveId={props.moveId} />
       <ExpensesPanel title="Expenses" moveId={props.moveId} />
-      <IncentiveCalculator moveId={props.moveId} />
-      <StorageReimbursementCalculator moveId={props.moveId} />
       <StoragePanel title="Storage" moveId={props.moveId} />
       <DatesAndLocationPanel title="Dates & Locations" moveId={props.moveId} />
       <NetWeightPanel title="Weights" moveId={props.moveId} />
@@ -387,15 +385,23 @@ class MoveInfo extends Component {
                 </Alert>
               )}
               <div>
-                {moveInfoComboButton && (
-                  <ComboButton
-                    buttonText={'Approve'}
-                    isDisabled={true}
-                    toolTipText={
-                      'Some information about the move is missing or contains errors. Please fix these problems before approving.'
-                    }
-                  />
-                )}
+                <ToolTip
+                  disabled={ordersComplete}
+                  textStyle="tooltiptext-large"
+                  toolTipText={
+                    'Some information about the move is missing or contains errors. Please fix these problems before approving.'
+                  }
+                >
+                  {moveInfoComboButton && (
+                    <ComboButton buttonText={'Approve'} disabled={!ordersComplete}>
+                      <DropDown>
+                        <DropDownItem value={'Approve Basics'} disabled={moveApproved || !ordersComplete} />
+                        {(isPPM || isHHGPPM) && <DropDownItem value={'Approve PPM'} disabled={true} />}
+                        {(isHHG || isHHGPPM) && <DropDownItem value={'Approve HHG'} disabled={true} />}
+                      </DropDown>
+                    </ComboButton>
+                  )}
+                </ToolTip>
               </div>
               <button
                 className={`${moveApproved ? 'btn__approve--green' : ''}`}

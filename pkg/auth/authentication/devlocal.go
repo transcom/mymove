@@ -9,10 +9,9 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+	"github.com/gorilla/csrf"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
-
-	"github.com/gorilla/csrf"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
@@ -101,6 +100,7 @@ type devlocalAuthHandler struct {
 	db                  *pop.Connection
 	clientAuthSecretKey string
 	noSessionTimeout    bool
+	useSecureCookie     bool
 }
 
 // AssignUserHandler logs a user in directly
@@ -146,12 +146,13 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type CreateUserHandler devlocalAuthHandler
 
 // NewCreateUserHandler creates a new CreateUserHandler
-func NewCreateUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) CreateUserHandler {
+func NewCreateUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) CreateUserHandler {
 	handler := CreateUserHandler{
 		Context:             ac,
 		db:                  db,
 		clientAuthSecretKey: clientAuthSecretKey,
 		noSessionTimeout:    noSessionTimeout,
+		useSecureCookie:     useSecureCookie,
 	}
 	return handler
 }
@@ -174,12 +175,13 @@ func (h CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type CreateAndLoginUserHandler devlocalAuthHandler
 
 // NewCreateAndLoginUserHandler creates a new CreateAndLoginUserHandler
-func NewCreateAndLoginUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) CreateAndLoginUserHandler {
+func NewCreateAndLoginUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) CreateAndLoginUserHandler {
 	handler := CreateAndLoginUserHandler{
 		Context:             ac,
 		db:                  db,
 		clientAuthSecretKey: clientAuthSecretKey,
 		noSessionTimeout:    noSessionTimeout,
+		useSecureCookie:     useSecureCookie,
 	}
 	return handler
 }
@@ -241,6 +243,7 @@ func createSession(h devlocalAuthHandler, user *models.User, w http.ResponseWrit
 	session.IDToken = "devlocal"
 	session.UserID = userIdentity.ID
 	session.Email = userIdentity.Email
+	session.Disabled = userIdentity.Disabled
 
 	if userIdentity.ServiceMemberID != nil {
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
@@ -264,7 +267,7 @@ func createSession(h devlocalAuthHandler, user *models.User, w http.ResponseWrit
 
 	// Writing out the session cookie logs in the user
 	h.logger.Info("logged in", zap.Any("session", session))
-	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
+	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
 
 	return session, nil
 }
@@ -296,6 +299,13 @@ func loginUser(h devlocalAuthHandler, user *models.User, w http.ResponseWriter, 
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return nil
 	}
+
+	if session.Disabled {
+		h.logger.Info("Disabled user requesting authentication", zap.Error(err), zap.String("email", session.Email))
+		http.Error(w, http.StatusText(403), http.StatusForbidden)
+		return nil
+	}
+
 	err = verifySessionWithApp(session)
 	if err != nil {
 		h.logger.Error("User unauthorized", zap.Error(err))

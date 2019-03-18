@@ -39,10 +39,9 @@ func (suite *AuthSuite) TestCreateUserHandler() {
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	req = req.WithContext(ctx)
 
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	handler := NewCreateUserHandler(authContext, suite.DB(), "fake key", false)
-
 	rr := httptest.NewRecorder()
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	handler := NewCreateUserHandler(authContext, suite.DB(), "fake key", false, false)
 	handler.ServeHTTP(rr, req.WithContext(ctx))
 
 	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
@@ -80,7 +79,7 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandler() {
 	req = req.WithContext(ctx)
 
 	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), "fake key", false)
+	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), "fake key", false, false)
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req.WithContext(ctx))

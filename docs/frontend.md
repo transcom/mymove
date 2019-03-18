@@ -7,6 +7,7 @@
 * [Testing](#testing)
   * [Test Runners and Libraries](#test-runners-and-libraries)
   * [Writing Tests](#writing-tests)
+  * [Browser Testing](#browser-testing)
 * [Style](#style)
   * [Auto-formatting](#auto-formatting)
   * [Linting](#linting)
@@ -53,6 +54,11 @@ Regenerate with "bin/generate-md-toc.sh"
 * Redux Reducers
 * Redux Action Creators?
   * TODO: Give guidance here.
+
+### Browser Testing
+
+* We use the [Cypress framework](https://www.cypress.io/) for most browser testing, both with chrome and headless chrome
+* For testing on Windows 10 with IE 11 we have a [testing document](https://docs.google.com/document/d/1j04tGHTBpcdS8RSzlSB-dImLbIxsLpsFlCzZUWxUKxg/edit#)
 
 ## Style
 

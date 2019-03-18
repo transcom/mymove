@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/facebookgo/clock"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -39,6 +41,21 @@ type FuelEIADieselPrices []FuelEIADieselPrice
 func (f FuelEIADieselPrices) String() string {
 	jf, _ := json.Marshal(f)
 	return string(jf)
+}
+
+// FetchMostRecentFuelPrices queries and fetches all fuel_eia_diesel_prices for past specified number of months, including this month
+func FetchMostRecentFuelPrices(dbConnection *pop.Connection, clock clock.Clock, numMonths int) ([]FuelEIADieselPrice, error) {
+	today := clock.Now().UTC()
+
+	query := dbConnection.Where("pub_date BETWEEN $1 AND $2", today.AddDate(0, -numMonths, 0), today)
+
+	var fuelPrices FuelEIADieselPrices
+	err := query.Eager().All(&fuelPrices)
+
+	if err != nil {
+		return fuelPrices, errors.Wrap(err, "Fetch line items query failed")
+	}
+	return fuelPrices, nil
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

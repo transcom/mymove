@@ -7,11 +7,10 @@ import (
 )
 
 func TestMemoryPresignedURL(t *testing.T) {
-	logger := zap.NewNop()
 	fsParams := MemoryParams{
 		root:    "/home/username",
 		webRoot: "https://example.text/files",
-		logger:  logger,
+		logger:  zap.NewNop(),
 	}
 	fs := NewMemory(fsParams)
 

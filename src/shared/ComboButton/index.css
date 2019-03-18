@@ -1,3 +1,7 @@
+.combo-button {
+  position: relative;
+}
+
 .combo-button-icon {
-  margin-left: 15px;
+  margin-left: 20px;
 }

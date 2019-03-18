@@ -5,6 +5,7 @@ import (
 
 	"github.com/felixge/httpsnoop"
 	"github.com/gofrs/uuid"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 

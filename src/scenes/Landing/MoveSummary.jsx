@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { get, includes } from 'lodash';
+import { get, includes, isEmpty } from 'lodash';
 import moment from 'moment';
 import fedHolidays from '@18f/us-federal-holidays';
 
@@ -234,19 +234,7 @@ export const SubmittedHhgMoveSummary = props => {
               <div className="status_box usa-width-two-thirds">
                 {showHhgLandingPageText(shipment)}
                 {(shipment.actual_pack_date || today.isSameOrAfter(shipment.pm_survey_planned_pack_date)) && (
-                  <div className="step">
-                    {/* TODO: redo text once we have the proper text to place here.
-                        reference: https://www.pivotaltracker.com/story/show/161939484
-                    <div className="title">File a Claim</div>
-                    <div>
-                      If you have household goods damaged or lost during the move, contact{' '}
-                      <span className="Todo-phase2">Able Movers Claims</span> to file a claim:{' '}
-                      <span className="Todo-phase2">(567) 980-4321.</span> If, after attempting to work with them, you
-                      do not feel that you are receiving adequate compensation, contact the Military Claims Office for
-                      help.
-                    </div>
-                    */}
-                  </div>
+                  <TransportationServiceProviderContactInfo showFileAClaimInfo shipmentId={shipment.id} />
                 )}
               </div>
               <div className="usa-width-one-third">
@@ -427,7 +415,7 @@ const MoveInfoHeader = props => {
         {get(orders, 'new_duty_station.name', 'New move')} (from {get(profile, 'current_station.name', '')})
       </h2>
       {get(move, 'locator') && <div>Move Locator: {get(move, 'locator')}</div>}
-      {entitlement && (
+      {!isEmpty(entitlement) && (
         <div>
           Weight Entitlement: <span>{entitlement.sum.toLocaleString()} lbs</span>
         </div>

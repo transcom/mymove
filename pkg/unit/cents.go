@@ -50,7 +50,7 @@ func (c Cents) ToDollarString() string {
 	return s
 }
 
-// ToDollarFloat returns a dollar string representation of this value
+// ToDollarFloat returns a dollar float representation of this value
 func (c Cents) ToDollarFloat() float64 {
 	d := float64(c) / 100.0
 	return d

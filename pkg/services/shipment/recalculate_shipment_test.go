@@ -165,7 +165,7 @@ func (suite *RecalculateShipmentSuite) TestRecalculateShipmentCall() {
 
 type RecalculateShipmentSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
+	logger Logger
 }
 
 func (suite *RecalculateShipmentSuite) SetupTest() {

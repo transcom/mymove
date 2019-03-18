@@ -18,7 +18,7 @@ const bingRequestTimeout = time.Duration(30) * time.Second
 
 // bingPlanner holds configuration information to make TransitDistance calls via Microsoft's BING maps API
 type bingPlanner struct {
-	logger          *zap.Logger
+	logger          Logger
 	httpClient      http.Client
 	endPointWithKey string
 }
@@ -89,7 +89,7 @@ func (p *bingPlanner) TransitDistance(source *models.Address, destination *model
 // endpoint should be the full URL to the Truck route REST endpoint,
 // e.g. https://dev.virtualearth.net/REST/v1/Routes/Truck and apiKey should be the Bing Maps API key associated with
 // the application/account used to access the API
-func NewBingPlanner(logger *zap.Logger, endpoint *string, apiKey *string) Planner {
+func NewBingPlanner(logger Logger, endpoint *string, apiKey *string) Planner {
 	return &bingPlanner{
 		logger:          logger,
 		httpClient:      http.Client{Timeout: bingRequestTimeout},

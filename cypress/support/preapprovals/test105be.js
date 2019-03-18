@@ -1,10 +1,17 @@
+import { createItemRequest } from '../../fixtures/preApprovals/requests/create105';
+
 /* global cy */
 export function addOriginal105({ code, quantity1 }) {
-  clickAddARequest();
-  cy.selectTariff400ngItem(code);
-  cy.typeInInput({ name: 'quantity_1', value: quantity1 });
-  cy.typeInTextarea({ name: 'notes', value: `notes notes ${code}` });
-  clickSaveAndClose();
+  return cy.location().then(loc => {
+    // eslint-disable-next-line security/detect-non-literal-regexp
+    const pattern = new RegExp(`^/shipments/(.*)`);
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+    const shipmentId = loc.pathname.match(pattern)[1];
+    return cy.getCookie('masked_gorilla_csrf').then(token => {
+      const csrfToken = token.value;
+      return createOriginal105(shipmentId, csrfToken, code, quantity1);
+    });
+  });
 }
 
 export function add105({ code, itemSize = 25, crateSize = 25 }) {
@@ -35,4 +42,14 @@ function clickSaveAndClose() {
     .get('button')
     .contains('Save & Close')
     .click();
+}
+
+function createOriginal105(shipmentId, csrfToken, code, quantity1) {
+  const item = createItemRequest({
+    shipmentId: shipmentId,
+    csrfToken: csrfToken,
+    code: code,
+    quantity1: quantity1,
+  });
+  return cy.request(item);
 }

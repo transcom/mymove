@@ -11,6 +11,8 @@
   "essential": true,
   "entryPoint": [
     "/bin/chamber",
+    "-r",
+    "{{ .CHAMBER_RETRIES }}",
     "exec",
     "app-{{ .environment }}",
     "--",
@@ -141,6 +143,18 @@
     {
       "name": "SEND_PROD_INVOICE",
       "value": "{{ .SEND_PROD_INVOICE }}"
+    },
+    {
+      "name": "SERVE_SWAGGER_UI",
+      "value": "{{ .SERVE_SWAGGER_UI }}"
+    },
+    {
+      "name": "EIA_KEY",
+      "value": "{{ .EIA_KEY }}"
+    },
+    {
+      "name": "EIA_URL",
+      "value": "https://api.eia.gov/series/"
     }
   ],
   "logConfiguration": {
