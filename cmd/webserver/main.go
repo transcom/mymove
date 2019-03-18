@@ -1033,7 +1033,9 @@ func main() {
 
 	staticMux := goji.SubMux()
 	staticMux.Use(validMethodForStaticMiddleware)
-	staticMux.Handle(pat.New("/*"), clientHandler)
+	staticMux.Handle(pat.Get("/*"), clientHandler)
+	// Needed to serve static paths (like favicon)
+	staticMux.Handle(pat.Get(""), clientHandler)
 
 	// Allow public content through without any auth or app checks
 	site.Handle(pat.New("/static/*"), staticMux)

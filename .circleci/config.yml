@@ -379,6 +379,37 @@ jobs:
           path: cypress/results
       - announce_failure
 
+  # `integration_tests_api` runs integration tests using Cypress.  https://www.cypress.io/
+  integration_tests_api:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - e2e_tests:
+          spec: 'cypress/integration/api/**/*'
+      - store_artifacts:
+          path: cypress/videos
+          destination: videos
+      - store_artifacts:
+          path: cypress/screenshots
+          destination: screenshots
+      - store_test_results:
+          path: cypress/results
+      - announce_failure
+
   # `server_test` runs the server side Go tests
   server_test:
     executor: mymove_and_postgres_medium
@@ -803,6 +834,16 @@ workflows:
           #   branches:
           #     ignore: placeholder_branch_name
 
+      - integration_tests_api:
+          requires:
+            - pre_deps_golang
+            - pre_deps_yarn
+            - acceptance_tests_local
+          # if testing on experimental, you can disable these tests by using the commented block below.
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
+
       - client_test:
           requires:
             - pre_deps_yarn
@@ -874,6 +915,7 @@ workflows:
             - integration_tests_mymove
             - integration_tests_office
             - integration_tests_tsp
+            - integration_tests_api
           filters:
             branches:
               only: master
