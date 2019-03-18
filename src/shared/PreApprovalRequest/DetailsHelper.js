@@ -3,6 +3,7 @@ import { Code105Form } from './Code105Form';
 import { Code35Form } from './Code35Form';
 import { Code226Form } from './Code226Form';
 import { get } from 'lodash';
+import { Code35Details } from './Code35Details';
 import { Code105Details } from './Code105Details';
 import { DefaultDetails } from './DefaultDetails';
 
@@ -19,6 +20,9 @@ export function getFormComponent(code, robustAccessorial, initialValues) {
   return DefaultForm;
 }
 
-export function getDetailsComponent(code, robustAccessorial, isNewAccessorial) {
-  return (code === '105B' || code === '105E') && isNewAccessorial ? Code105Details : DefaultDetails;
+export function getDetailsComponent(code, robustccessorial, isNewAccessorial) {
+  if (!isNewAccessorial) return DefaultDetails;
+  if (code === '105B' || code === '105E') return Code105Details;
+  if (code === '35A' && robustccessorial) return Code35Details;
+  return DefaultDetails;
 }
