@@ -6,24 +6,24 @@ describe('static file hosting', () => {
   });
 
   it('returns the correct content type', () => {
-    let req = cy.request('/favicon.ico');
-
-    req
+    cy
+      .request('/swagger-ui/internal.html')
       .its('headers')
       .its('content-type')
-      .should('include', 'image/x-icon');
+      .should('include', 'text/html');
   });
 
   it('returns the correct status', () => {
-    let req = cy.request('/favicon.ico');
-
-    req.its('status').should('equal', 200);
+    cy
+      .request('/swagger-ui/internal.html')
+      .its('status')
+      .should('equal', 200);
   });
 
   it('rejects POST requests', () => {
     let req = cy.request({
       method: 'POST',
-      url: '/favicon.ico',
+      url: '/swagger-ui/internal.html',
       failOnStatusCode: false,
     });
 
