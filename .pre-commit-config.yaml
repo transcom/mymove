@@ -115,6 +115,7 @@ repos:
       language: script
       files: \.go$
       exclude: vendor/
+      pass_filenames: false
 
   - repo: local
     hooks:
