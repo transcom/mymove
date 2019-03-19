@@ -116,24 +116,51 @@ export class PreApprovalForm extends Component {
       <Form className="pre-approval-form" onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
         <div className="usa-grid-full">
           <div className="usa-width-one-third">
-            <div className="tariff400-select usa-input">
-              <Field
-                name="tariff400ng_item"
-                title="Code & item"
-                component={Tariff400ngItemSearch}
-                tariff400ngItems={this.props.tariff400ngItems}
-              />
-            </div>
-            {this.props.tariff400ngItem && (
-              <div className="location-select">
-                <LocationSearch
-                  filteredLocations={this.props.filteredLocations}
-                  ship_line_item_schema={this.props.ship_line_item_schema}
-                  change={this.props.change}
-                  value={this.props.selectedLocation}
+            {this.props.status === 'APPROVED' ? (
+              <Fragment>
+                <label htmlFor="tariff400ng_item" className="usa-input-label">
+                  Code & Item
+                </label>
+                <div>
+                  <strong>{this.props.initialValues.tariff400ngItem}</strong>
+                </div>
+              </Fragment>
+            ) : (
+              <div className="tariff400-select usa-input">
+                <Field
+                  name="tariff400ng_item"
+                  title="Code & item"
+                  component={Tariff400ngItemSearch}
+                  tariff400ngItems={this.props.tariff400ngItems}
                 />
               </div>
             )}
+            {this.props.tariff400ngItem &&
+              (this.props.status === 'APPROVED' ? (
+                <Fragment>
+                  <label htmlFor="location" className="usa-input-label">
+                    Location
+                  </label>
+                  <div>
+                    <strong>
+                      {
+                        this.props.ship_line_item_schema.properties.location['x-display-value'][
+                          this.props.initialValues.location
+                        ]
+                      }
+                    </strong>
+                  </div>
+                </Fragment>
+              ) : (
+                <div className="location-select">
+                  <LocationSearch
+                    filteredLocations={this.props.filteredLocations}
+                    ship_line_item_schema={this.props.ship_line_item_schema}
+                    change={this.props.change}
+                    value={this.props.selectedLocation}
+                  />
+                </div>
+              ))}
           </div>
           {this.props.tariff400ngItem && (
             <Fragment>
@@ -182,6 +209,7 @@ function mapStateToProps(state) {
     filteredLocations: selectLocationFromTariff400ngItem(state, selector(state, 'tariff400ng_item')),
     selectedLocation: selector(state, 'location'),
     tariff400ngItem: selector(state, 'tariff400ng_item'),
+    status: selector(state, 'status'),
     showAlert: getActualAmount(state) > getEstimateAmount(state),
   };
 }
