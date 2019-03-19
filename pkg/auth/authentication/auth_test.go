@@ -70,7 +70,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 	callbackPort := 1234
 
-	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/auth/logout", officeTestHost), nil)
+	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/auth/logout", OfficeTestHost), nil)
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
 		UserID:          fakeUUID,
@@ -161,12 +161,11 @@ func (suite *AuthSuite) TestAuthorizeDisableUser() {
 
 	fakeToken := "some_token"
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
-	officeTestHost := "office.example.com"
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
 		UserID:          fakeUUID,
 		IDToken:         fakeToken,
-		Hostname:        officeTestHost,
+		Hostname:        OfficeTestHost,
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
