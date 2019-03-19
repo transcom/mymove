@@ -25,7 +25,7 @@ echo "Code goes here"
   * [ ] Have been communicated to #dp3-engineering
   * [ ] Secure migrations have been tested using `bin/run-prod-migrations`
 * [ ] There are no aXe warnings for UI.
-* [ ] This works in IE.
+* [ ] This works in [Supported Browsers](./docs/adr/0016-Browser-Support.md) (Chrome, Firefox, IE, Edge).
 * Any new client dependencies (Google Analytics, hosted libraries, CDNs, etc) have been:
   * [ ] Communicated to @ntwyman
   * [ ] Added to the list of [network dependencies](https://github.com/transcom/mymove#client-network-dependencies)

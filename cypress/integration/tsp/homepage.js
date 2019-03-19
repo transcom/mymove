@@ -6,19 +6,13 @@ describe('TSP Home Page', function() {
     cy.setupBaseUrl(tspAppName);
   });
   it('successfully loads when not logged in', function() {
-    tspUserLogsOut();
+    cy.logout();
     tspUserIsOnSignInPage();
   });
   it('tsp user is properly welcomed', function() {
     tspUserIsWelcomed();
   });
 });
-
-function tspUserLogsOut() {
-  // Logs out any users
-  cy.logout();
-  cy.patientVisit('/');
-}
 
 function tspUserIsOnSignInPage() {
   cy.contains('tsp.move.mil');

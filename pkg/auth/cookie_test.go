@@ -211,10 +211,26 @@ func (suite *authSuite) TestSessionCookiePR161162731() {
 }
 
 func (suite *authSuite) TestMaskedCSRFMiddleware() {
+	rr := httptest.NewRecorder()
+	req, _ := http.NewRequest("GET", "/", nil)
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	middleware := MaskedCSRFMiddleware(suite.logger, false, false)(handler)
+	middleware.ServeHTTP(rr, req)
+
+	// We should get a 200 OK
+	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
+
+	// And the cookie should be added to the session
+	setCookies := rr.HeaderMap["Set-Cookie"]
+	suite.Equal(1, len(setCookies), "expected cookie to be set")
+}
+
+func (suite *authSuite) TestMaskedCSRFMiddlewareCreatesOneToken() {
 	expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
 
 	rr := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/protected", nil)
+	req, _ := http.NewRequest("GET", "/", nil)
 
 	// Set a secure cookie on the request
 	cookie := http.Cookie{
@@ -224,6 +240,7 @@ func (suite *authSuite) TestMaskedCSRFMiddleware() {
 		Expires: expiry,
 	}
 	req.AddCookie(&cookie)
+
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 	middleware := MaskedCSRFMiddleware(suite.logger, false, false)(handler)
 
@@ -232,9 +249,9 @@ func (suite *authSuite) TestMaskedCSRFMiddleware() {
 	// We should get a 200 OK
 	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
 
-	// And the cookie should be renewed
+	// No new cookie should be added to the session
 	setCookies := rr.HeaderMap["Set-Cookie"]
-	suite.Equal(1, len(setCookies), "expected cookie to be set")
+	suite.Equal(0, len(setCookies), "expected no new cookie to be set")
 }
 
 func (suite *authSuite) TestMiddlewareConstructor() {

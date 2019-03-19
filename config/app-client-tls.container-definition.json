@@ -49,6 +49,14 @@
       "value": "app"
     },
     {
+      "name": "DB_SSL_MODE",
+      "value": "{{ .DB_SSL_MODE }}"
+    },
+    {
+      "name": "DB_SSL_ROOT_CERT",
+      "value": "{{ .DB_SSL_ROOT_CERT }}"
+    },
+    {
       "name": "CHAMBER_KMS_KEY_ALIAS",
       "value": "alias/aws/ssm"
     },
