@@ -738,6 +738,8 @@ func upsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineIt
 		responseVErrors, responseError = upsertItemCode105Dependency(db, baseParams, additionalParams, shipmentLineItem)
 	} else if is35AItem(itemCode, additionalParams) {
 		responseVErrors, responseError = upsertItemCode35ADependency(db, baseParams, additionalParams, shipmentLineItem)
+	} else if is226AItem(itemCode, additionalParams) {
+		responseVErrors, responseError = upsertItemCode226ADependency(db, baseParams, additionalParams, shipmentLineItem)
 	} else if baseParams.Quantity1 == nil {
 		// General pre-approval request
 		// Check if base quantity is filled out
