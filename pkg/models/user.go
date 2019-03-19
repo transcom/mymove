@@ -151,7 +151,6 @@ func FetchAllUserIdentities(db *pop.Connection) ([]UserIdentity, error) {
 			LEFT OUTER JOIN office_users as ou on ou.user_id = users.id
 			LEFT OUTER JOIN tsp_users as tu on tu.user_id = users.id
 			LEFT OUTER JOIN dps_users as du on du.login_gov_email = users.login_gov_email
-			WHERE users.login_gov_uuid in (SELECT users.login_gov_uuid FROM users AS users)
 			ORDER BY users.created_at`
 
 	err := db.RawQuery(query).All(&identities)
