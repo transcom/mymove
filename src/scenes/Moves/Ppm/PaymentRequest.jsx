@@ -39,7 +39,7 @@ I understand that the maximum advance allowed is based on the estimated weight a
 shipment(s). In the event, less weight is moved or my move occurs on a different scheduled departure date, I may \
 have to remit the difference with the balance of my incentive disbursement and/or from the collection of my pay as may \
 be necessary. If I receive an advance for my PPM shipment, I agree to furnish weight tickets within 45 days of final \
-delivery to my desintation. I understand that failure to furnish weight tickets within this timeframe may lead to the \
+delivery to my destination. I understand that failure to furnish weight tickets within this timeframe may lead to the \
 collection of my pay as necessary to cover the cost of the advance.`;
 
   alert(legalese);
