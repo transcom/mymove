@@ -257,6 +257,7 @@ type ObligationType int
 //ComputeObligations is helper function for computing the obligations section of the shipment summary worksheet
 func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSummaryFormData, planner route.Planner) (obligation models.Obligations, err error) {
 	firstPPM, err := sswPpmComputer.nilCheckPPM(ssfd)
+
 	if err != nil {
 		return models.Obligations{}, err
 	}
@@ -276,7 +277,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		return models.Obligations{}, errors.New("error calculating PPM max obligations")
 	}
 	actualCost, err := sswPpmComputer.ComputePPMIncludingLHDiscount(
-		unit.Pound(*firstPPM.NetWeight),
+		unit.Pound(ssfd.PPMRemainingEntitlement),
 		*firstPPM.PickupPostalCode,
 		*firstPPM.DestinationPostalCode,
 		distanceMiles,
@@ -309,9 +310,6 @@ func (sswPpmComputer *SSWPPMComputer) nilCheckPPM(ssfd models.ShipmentSummaryFor
 	}
 	if firstPPM.ActualMoveDate == nil {
 		return models.PersonallyProcuredMove{}, errors.New("missing required actual move date parameter")
-	}
-	if firstPPM.NetWeight == nil {
-		return models.PersonallyProcuredMove{}, errors.New("missing required move net weight parameter")
 	}
 	return firstPPM, nil
 }
