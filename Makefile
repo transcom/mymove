@@ -176,10 +176,9 @@ get_goimports: go_deps .get_goimports.stamp
 	touch .get_goimports.stamp
 
 .PHONY: download_rds_certs
-download_rds_certs: .download_rds_certs.stamp
-.download_rds_certs.stamp:
+download_rds_certs: bin/rds-combined-ca-bundle.pem
+bin/rds-combined-ca-bundle.pem:
 	curl -o bin/rds-combined-ca-bundle.pem https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
-	touch .download_rds_certs.stamp
 
 .PHONY: server_deps
 server_deps: check_hosts go_deps build_chamber build_soda build_callgraph get_goimports download_rds_certs .server_deps.stamp
