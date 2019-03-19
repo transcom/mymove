@@ -1235,9 +1235,9 @@ func main() {
 		localAuthMux := goji.SubMux()
 		root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)
 		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection))
-		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
+		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
-		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
+		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 
 		devlocalCa, err := ioutil.ReadFile(v.GetString("devlocal-ca")) // #nosec
 		if err != nil {

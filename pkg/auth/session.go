@@ -43,6 +43,7 @@ type Session struct {
 	ApplicationName Application
 	Hostname        string
 	IDToken         string
+	Disabled        bool
 	UserID          uuid.UUID
 	Email           string
 	FirstName       string
