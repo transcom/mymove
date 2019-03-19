@@ -388,16 +388,18 @@ class MoveInfo extends Component {
                 <ToolTip
                   disabled={ordersComplete}
                   textStyle="tooltiptext-large"
-                  toolTipText={
-                    'Some information about the move is missing or contains errors. Please fix these problems before approving.'
-                  }
+                  toolTipText="Some information about the move is missing or contains errors. Please fix these problems before approving."
                 >
                   {moveInfoComboButton && (
-                    <ComboButton buttonText={'Approve'} disabled={!ordersComplete}>
+                    <ComboButton buttonText="Approve" disabled={!ordersComplete}>
                       <DropDown>
-                        <DropDownItem value={'Approve Basics'} disabled={moveApproved || !ordersComplete} />
-                        {(isPPM || isHHGPPM) && <DropDownItem value={'Approve PPM'} disabled={true} />}
-                        {(isHHG || isHHGPPM) && <DropDownItem value={'Approve HHG'} disabled={true} />}
+                        <DropDownItem
+                          value="Approve Basics"
+                          disabled={moveApproved || !ordersComplete}
+                          onClick={this.approveBasics}
+                        />
+                        {(isPPM || isHHGPPM) && <DropDownItem value="Approve PPM" disabled={true} />}
+                        {(isHHG || isHHGPPM) && <DropDownItem value="Approve HHG" disabled={true} />}
                       </DropDown>
                     </ComboButton>
                   )}
