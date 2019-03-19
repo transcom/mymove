@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -56,7 +57,7 @@ func TestWebServerSuite(t *testing.T) {
 	if testEnv := os.Getenv("TEST_ACC_ENV"); len(testEnv) > 0 {
 		filename := fmt.Sprintf("%s/config/env/%s.env", os.Getenv("TEST_ACC_CWD"), testEnv)
 		logger.Info(fmt.Sprintf("Loading environment variables from file %s", filename))
-		ss.applyContext(ss.loadContext(filename))
+		ss.applyContext(ss.patchContext(ss.loadContext(filename)))
 	}
 
 	suite.Run(t, ss)
@@ -79,6 +80,15 @@ func (suite *webServerSuite) loadContext(variablesFile string) map[string]string
 				pair := strings.SplitAfterN(x, "=", 2)
 				ctx[pair[0][0:len(pair[0])-1]] = pair[1]
 			}
+		}
+	}
+	return ctx
+}
+
+func (suite *webServerSuite) patchContext(ctx map[string]string) map[string]string {
+	for k, v := range ctx {
+		if strings.HasPrefix(v, "/bin/") {
+			ctx[k] = filepath.Join(os.Getenv("TEST_ACC_CWD"), v[1:])
 		}
 	}
 	return ctx
@@ -130,6 +140,10 @@ func (suite *webServerSuite) TestConfigStorage() {
 	suite.Nil(checkStorage(suite.viper))
 }
 
+func (suite *webServerSuite) TestConfigDatabase() {
+	suite.Nil(checkDatabase(suite.viper, suite.logger))
+}
+
 func (suite *webServerSuite) TestDODCertificates() {
 
 	if os.Getenv("TEST_ACC_DOD_CERTIFICATES") != "1" {
@@ -152,13 +166,14 @@ func (suite *webServerSuite) TestHoneycomb() {
 	suite.True(enabled)
 }
 
-func (suite *webServerSuite) TestDatabase() {
+func (suite *webServerSuite) TestInitDatabase() {
 
-	if os.Getenv("TEST_ACC_DATABASE") != "1" {
-		suite.logger.Info("skipping TestDatabase")
+	if os.Getenv("TEST_ACC_INIT_DATABASE") != "1" {
+		suite.logger.Info("skipping TestInitDatabase")
 		return
 	}
 
-	_, err := initDatabase(suite.viper, suite.logger)
+	conn, err := initDatabase(suite.viper, suite.logger)
 	suite.Nil(err)
+	suite.NotNil(conn)
 }
