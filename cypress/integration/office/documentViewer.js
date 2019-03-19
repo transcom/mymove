@@ -6,7 +6,6 @@ describe('The document viewer', function() {
     beforeEach(() => {
       cy.setupBaseUrl(officeAppName);
       cy.logout();
-      cy.clearCookies();
     });
     it('shows page not found', function() {
       cy.patientVisit('/moves/foo/documents');

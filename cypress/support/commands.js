@@ -183,10 +183,17 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('logout', () => {
-  // The session cookie wasn't being cleared out after doing a get request even though the Set-Cookie
-  // header was present. Switching to cy.visit() fixed the problem, but it's not clear why this worked.
-  // Seems like others using Cypress have similar issues: https://github.com/cypress-io/cypress/issues/781
-  cy.visit('/auth/logout');
+  cy.clearCookies();
+  cy.patientVisit('/');
+  cy.getCookie('masked_gorilla_csrf').then(cookie => {
+    cy.request({
+      url: '/auth/logout',
+      method: 'POST',
+      headers: { 'x-csrf-token': cookie.value },
+    });
+  });
+  // In case of login redirect we once more go to the homepage
+  cy.patientVisit('/');
 });
 
 Cypress.Commands.add('nextPage', () => {

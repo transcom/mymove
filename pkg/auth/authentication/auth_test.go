@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"regexp"
 	"strconv"
 	"testing"
 
@@ -62,9 +61,8 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 	officeTestHost := "office.example.com"
 	callbackPort := 1234
-	responsePattern := regexp.MustCompile(`href="(.+)"`)
 
-	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", officeTestHost), nil)
+	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/auth/logout", officeTestHost), nil)
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
 		UserID:          fakeUUID,
@@ -80,18 +78,17 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req.WithContext(ctx))
 
-	if status := rr.Code; status != http.StatusTemporaryRedirect {
-		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusTemporaryRedirect)
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %d wanted %d", status, http.StatusOK)
 	}
 
-	redirectURL, err := url.Parse(responsePattern.FindStringSubmatch(rr.Body.String())[1])
+	redirectURL, err := url.Parse(rr.Body.String())
 	if err != nil {
 		t.Fatal(err)
 	}
 	params := redirectURL.Query()
 
 	postRedirectURI, err := url.Parse(params["post_logout_redirect_uri"][0])
-
 	suite.Nil(err)
 	suite.Equal(officeTestHost, postRedirectURI.Hostname())
 	suite.Equal(strconv.Itoa(callbackPort), postRedirectURI.Port())
