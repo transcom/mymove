@@ -196,7 +196,7 @@ func (suite *ModelSuite) TestAcceptShipmentForTSP() {
 	suite.Equal(ShipmentStatusACCEPTED, newShipment.Status, "expected Accepted")
 	suite.True(*newShipmentOffer.Accepted)
 	suite.Nil(newShipmentOffer.RejectionReason)
-	suite.Equal(shipment.Move.Orders.NewDutyStation.Address.ID, newShipment.DestinationAddressOnAcceptance.ID)
+	suite.Equal(shipment.Move.Orders.NewDutyStation.Address.City, newShipment.DestinationAddressOnAcceptance.City)
 }
 
 // TestAcceptShipmentForTSPWithDeliveryAddress tests that delivery address is used for a shipment when TSP accepts
@@ -232,7 +232,7 @@ func (suite *ModelSuite) TestAcceptShipmentForTSPWithDeliveryAddress() {
 
 	newShipment, _, _, err := AcceptShipmentForTSP(suite.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
 	suite.NoError(err)
-	suite.Equal(shipment.DeliveryAddress.ID, newShipment.DestinationAddressOnAcceptance.ID)
+	suite.Equal(shipment.DeliveryAddress.City, newShipment.DestinationAddressOnAcceptance.City)
 }
 
 // TestAcceptShipmentForTSPWithDeliveryAddress tests that delivery address is used for a shipment when TSP accepts
@@ -268,7 +268,7 @@ func (suite *ModelSuite) TestAcceptShipmentForTSPWithDeliveryAddressHasDeliveryA
 
 	newShipment, _, _, err := AcceptShipmentForTSP(suite.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
 	suite.NoError(err)
-	suite.Equal(shipment.Move.Orders.NewDutyStation.Address.ID, newShipment.DestinationAddressOnAcceptance.ID)
+	suite.Equal(shipment.Move.Orders.NewDutyStation.Address.City, newShipment.DestinationAddressOnAcceptance.City)
 }
 
 // TestCurrentTransportationServiceProviderID tests that a shipment returns the proper current tsp id
