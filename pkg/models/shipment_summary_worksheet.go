@@ -64,6 +64,7 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	ActualObligationGCC100          string
 	ActualObligationGCC95           string
 	ActualObligationAdvance         string
+	ActualObligationSIT             string
 }
 
 //ShipmentSummaryWorkSheetShipments is and object representing shipment line items on Shipment Summary Worksheet
@@ -115,15 +116,20 @@ type ShipmentSummaryFormData struct {
 	Shipments               Shipments
 	PersonallyProcuredMoves PersonallyProcuredMoves
 	PreparationDate         time.Time
-	MaxObligation           Obligation
-	ActualObligation        Obligation
+	Obligations             Obligations
 	MovingExpenseDocuments  []MovingExpenseDocument
+}
+
+//Obligations an object representing the Max Obligation and Actual Obligation sections of the shipment summary worksheet
+type Obligations struct {
+	MaxObligation    Obligation
+	ActualObligation Obligation
 }
 
 //Obligation an object representing the obligations section on the shipment summary worksheet
 type Obligation struct {
-	Gcc    unit.Cents
-	SITMax unit.Cents
+	Gcc unit.Cents
+	SIT unit.Cents
 }
 
 //GCC100 calculates the 100% GCC on shipment summary worksheet
@@ -136,9 +142,9 @@ func (obligation Obligation) GCC95() float64 {
 	return obligation.Gcc.MultiplyFloat64(.95).ToDollarFloat()
 }
 
-// FormatMaxSIT formats the SITMax into a dollar float for the shipment summary worksheet
-func (obligation Obligation) FormatMaxSIT() float64 {
-	return obligation.SITMax.ToDollarFloat()
+// FormatSIT formats the SIT Cost into a dollar float for the shipment summary worksheet
+func (obligation Obligation) FormatSIT() float64 {
+	return obligation.SIT.ToDollarFloat()
 }
 
 //MaxAdvance calculates the Max Advance on the shipment summary worksheet
@@ -215,7 +221,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 	return ssd, nil
 }
 
-//FetchMovingExpensesShipmentSummaryWorksheet fetches moving expenses for the Shipment Summary Worksheet
+// FetchMovingExpensesShipmentSummaryWorksheet fetches moving expenses for the Shipment Summary Worksheet
 func FetchMovingExpensesShipmentSummaryWorksheet(move Move, db *pop.Connection, session *auth.Session) ([]MovingExpenseDocument, error) {
 	var movingExpenses []MovingExpenseDocument
 	if len(move.PersonallyProcuredMoves) > 0 {
@@ -270,16 +276,20 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.ShipmentCurrentShipmentStatuses = formattedShipments.CurrentShipmentStatuses
 	page1.ShipmentWeights = formattedShipments.ShipmentWeights
 
-	page1.MaxObligationGCC100 = FormatDollars(data.MaxObligation.GCC100())
+	maxObligations := data.Obligations.MaxObligation
+	page1.MaxObligationGCC100 = FormatDollars(maxObligations.GCC100())
 	page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
-	page1.MaxObligationGCC95 = FormatDollars(data.MaxObligation.GCC95())
-	page1.MaxObligationSIT = FormatDollars(data.MaxObligation.FormatMaxSIT())
-	page1.MaxObligationGCCMaxAdvance = FormatDollars(data.MaxObligation.MaxAdvance())
+	page1.MaxObligationGCC95 = FormatDollars(maxObligations.GCC95())
+	page1.MaxObligationSIT = FormatDollars(maxObligations.FormatSIT())
+	page1.MaxObligationGCCMaxAdvance = FormatDollars(maxObligations.MaxAdvance())
 
-	page1.ActualObligationGCC100 = FormatDollars(data.ActualObligation.GCC100())
+	actualObligations := data.Obligations.ActualObligation
+	page1.ActualObligationGCC100 = FormatDollars(actualObligations.GCC100())
 	page1.ActualWeight = FormatActualObligationsWeight(data.TotalWeightAllotment, data.PersonallyProcuredMoves)
+	page1.ActualObligationGCC95 = FormatDollars(actualObligations.GCC95())
+	page1.ActualObligationSIT = FormatDollars(actualObligations.FormatSIT())
 	page1.ActualObligationAdvance = formatActualObligationAdvance(data)
-	page1.ActualObligationGCC95 = FormatDollars(data.ActualObligation.GCC95())
+
 	return page1
 }
 

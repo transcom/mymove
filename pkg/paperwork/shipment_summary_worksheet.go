@@ -40,6 +40,7 @@ var ShipmentSummaryPage1Layout = FormLayout{
 		"ActualObligationGCC100":          FormField(133, 182.5, 22, floatPtr(10), nil, stringPtr("RM")),
 		"ActualWeight":                    FormField(167, 182.5, 16, floatPtr(10), nil, stringPtr("RM")),
 		"ActualObligationGCC95":           FormField(133, 188.5, 22, floatPtr(10), nil, stringPtr("RM")),
+		"ActualObligationSIT":             FormField(133, 194.75, 22, floatPtr(10), nil, stringPtr("RM")),
 		"ActualObligationAdvance":         FormField(133, 201, 22, floatPtr(10), nil, stringPtr("RM")),
 	},
 }
