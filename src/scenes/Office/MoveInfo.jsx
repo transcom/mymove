@@ -398,7 +398,13 @@ class MoveInfo extends Component {
                           disabled={moveApproved || !ordersComplete}
                           onClick={this.approveBasics}
                         />
-                        {(isPPM || isHHGPPM) && <DropDownItem value="Approve PPM" disabled={true} />}
+                        {(isPPM || isHHGPPM) && (
+                          <DropDownItem
+                            disabled={ppmApproved || !moveApproved || !ordersComplete}
+                            onClick={this.approvePPM}
+                            value="Approve PPM"
+                          />
+                        )}
                         {(isHHG || isHHGPPM) && <DropDownItem value="Approve HHG" disabled={true} />}
                       </DropDown>
                     </ComboButton>
