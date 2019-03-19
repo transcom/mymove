@@ -3,5 +3,11 @@ set -e
 
 for file in $(go list ./... | grep -v /vendor/)
 do
+    # skip analyzing dutystationsloader until repeated tags from embedded types are fixed in Go1.12.2
+    if [[ "$file" == *"dutystationsloader"* ]]; then
+      echo "skipping: $file"
+      continue
+    fi
+    echo "processing: $file"
     go vet "$file"
 done
