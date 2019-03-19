@@ -8,7 +8,7 @@ describe('DropdownItems', () => {
       const onClick = jest.fn();
       const wrapper = shallow(<DropDownItem disabled={false} onClick={onClick} />);
 
-      const dropDownItem = wrapper.find('p');
+      const dropDownItem = wrapper.find('div');
       dropDownItem.simulate('click');
 
       expect(onClick).toHaveBeenCalled();
@@ -19,7 +19,7 @@ describe('DropdownItems', () => {
       const onClick = jest.fn();
       const wrapper = shallow(<DropDownItem disabled={true} onClick={onClick} />);
 
-      const dropDownItem = wrapper.find('p');
+      const dropDownItem = wrapper.find('div');
       dropDownItem.simulate('click');
 
       expect(onClick).not.toHaveBeenCalled();
