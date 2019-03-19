@@ -413,13 +413,12 @@ func (suite *ModelSuite) TestCreateShipmentLineItemCode35A() {
 		baseParams, additionalParams)
 
 	if suite.noValidationErrors(verrs, err) {
-		// ToDo: will need to update this when we calculate base quantity
-		suite.Equal(0, shipmentLineItem.Quantity1.ToUnitInt())
 		suite.Equal(acc35A.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
 		suite.Equal(desc, *shipmentLineItem.Description)
 		suite.Equal(reas, *shipmentLineItem.Reason)
 		suite.Equal(estAmt, *shipmentLineItem.EstimateAmountCents)
 		suite.Equal(actAmt, *shipmentLineItem.ActualAmountCents)
+		suite.Equal(unit.BaseQuantity(100000), shipmentLineItem.Quantity1)
 	}
 }
 
@@ -594,7 +593,7 @@ func (suite *ModelSuite) TestUpdateShipmentLineItemCode35A() {
 	desc = "updated description"
 	reas = "updated reason"
 	estAmt = unit.Cents(2000)
-	actAmt = unit.Cents(2000)
+	actAmt = unit.Cents(1500)
 	additionalParams := AdditionalShipmentLineItemParams{
 		Description:         &desc,
 		Reason:              &reas,
@@ -605,8 +604,7 @@ func (suite *ModelSuite) TestUpdateShipmentLineItemCode35A() {
 	verrs, err := shipment.UpdateShipmentLineItem(suite.DB(),
 		baseParams, additionalParams, &lineItem)
 	if suite.noValidationErrors(verrs, err) {
-		// ToDo: will need to update this when we calculate base quantity
-		suite.Equal(0, lineItem.Quantity1.ToUnitInt())
+		suite.Equal(unit.BaseQuantity(150000), lineItem.Quantity1)
 		suite.Equal(acc35A.ID.String(), lineItem.Tariff400ngItem.ID.String())
 		suite.Equal(desc, *lineItem.Description)
 		suite.Equal(reas, *lineItem.Reason)
