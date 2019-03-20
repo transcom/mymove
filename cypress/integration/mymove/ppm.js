@@ -96,7 +96,7 @@ describe('editing ppm only move', () => {
 
     cy.get('.ppm-container').should(ppmContainer => {
       expect(ppmContainer).to.have.length(1);
-      expect(ppmContainer[0]).to.not.have.class('hhg-shipment-summary');
+      expect(ppmContainer).to.not.have.class('hhg-shipment-summary');
     });
   });
 });
