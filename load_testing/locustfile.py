@@ -76,18 +76,11 @@ class UserBehavior(TaskSequence):
     def create_service_member(self):
         model = self.swagger.get_model("CreateServiceMemberPayload")
         payload = model(user_id=self.user["id"])
-        service_member = self.swagger.service_members.createServiceMember(
-            createServiceMemberPayload=payload)
-        try:
-            service_member = service_member.response()
-            http_response = service_member.incoming_response
-            print("3", http_response.status_code)
-            service_member = service_member.response().result
-            print(service_member)
-            self.user["service_member"] = service_member
-            # check response for 201
-        except Exception as e:
-            print(e)
+        service_member_future = self.swagger.service_members.createServiceMember(
+
+        createServiceMemberPayload=payload)
+        service_member_response = service_member_future.response()
+        self.user["service_member"] = service_member_response.result
 
     @seq_task(4)
     def create_your_profile(self):
@@ -103,7 +96,7 @@ class UserBehavior(TaskSequence):
 
     @seq_task(5)
     def create_your_name(self):
-        service_member_id = self.user["service_member"]["id"]
+        service_member_id = self.user["service_member"].id
         url = "/internal/service_members/" + service_member_id
         profile = {
             "first_name": "Alice",  # Random
