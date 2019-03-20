@@ -129,6 +129,11 @@ StorageInTransitPanel.propTypes = {
   moveId: PropTypes.string,
 };
 
+// Service Member entitlement is stored different depending on if this is
+// being called from the TSP or Office site. Need to check for both.
+// moveId is needed to find the entitlement on the Office side. It is
+// not needed to pull entitlement from the TSP side.
+// calculateEntitlementsForMove is a more up-to-date way of storing data
 function getStorageInTransitEntitlement(state, moveId) {
   let entitlement = {};
   if (isTspSite) {
