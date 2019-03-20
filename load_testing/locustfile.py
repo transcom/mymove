@@ -115,7 +115,7 @@ class UserBehavior(TaskSequence):
 
     @seq_task(6)
     def logout(self):
-        self.client.get("/auth/logout")
+        self.client.post("/auth/logout")
         self.login_gov_user = None
         self.session_token = None
         self.user = {}
