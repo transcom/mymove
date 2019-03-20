@@ -701,6 +701,35 @@ func upsertItemCode35ADependency(db *pop.Connection, baseParams *BaseShipmentLin
 	return responseVErrors, responseError
 }
 
+// is226AItem determines whether the shipment line item is a new (robust) 226A item.
+func is226AItem(itemCode string, additionalParams *AdditionalShipmentLineItemParams) bool {
+	isRobustItem := additionalParams.Description != nil || additionalParams.Reason != nil || additionalParams.ActualAmountCents != nil
+	if itemCode == "226A" && isRobustItem {
+		return true
+	}
+	return false
+}
+
+// upsertItemCode226ADependency specifically upserts item code 226A for shipmentLineItem passed in
+func upsertItemCode226ADependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	// Required to create 226A line item
+	// Description, Reason and EstimateAmounCents
+	if additionalParams.Description == nil || additionalParams.Reason == nil || additionalParams.ActualAmountCents == nil {
+		responseError = errors.New("Must have Description, Reason and ActualAmountCents params")
+		return responseVErrors, responseError
+	}
+
+	shipmentLineItem.Description = additionalParams.Description
+	shipmentLineItem.Reason = additionalParams.Reason
+	shipmentLineItem.ActualAmountCents = additionalParams.ActualAmountCents
+	shipmentLineItem.Quantity1 = unit.BaseQuantityFromCents(*shipmentLineItem.ActualAmountCents)
+
+	return responseVErrors, responseError
+}
+
 // upsertItemCodeDependency applies specific validation, creates or updates additional objects/fields for item codes.
 // Mutates the shipmentLineItem passed in.
 func upsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
@@ -713,6 +742,8 @@ func upsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineIt
 		responseVErrors, responseError = upsertItemCode105Dependency(db, baseParams, additionalParams, shipmentLineItem)
 	} else if is35AItem(itemCode, additionalParams) {
 		responseVErrors, responseError = upsertItemCode35ADependency(db, baseParams, additionalParams, shipmentLineItem)
+	} else if is226AItem(itemCode, additionalParams) {
+		responseVErrors, responseError = upsertItemCode226ADependency(db, baseParams, additionalParams, shipmentLineItem)
 	} else if baseParams.Quantity1 == nil {
 		// General pre-approval request
 		// Check if base quantity is filled out
