@@ -1073,7 +1073,6 @@ func main() {
 
 	// Allow public content through without any auth or app checks
 	site.Handle(pat.New("/static/*"), staticMux)
-	site.Handle(pat.New("/swagger-ui/*"), staticMux)
 	site.Handle(pat.New("/downloads/*"), staticMux)
 	site.Handle(pat.New("/favicon.ico"), staticMux)
 
@@ -1081,7 +1080,7 @@ func main() {
 	site.Handle(pat.Get("/swagger.json"), http.NotFoundHandler())
 	if v.GetBool(serveSwaggerUIFlag) {
 		logger.Info("Swagger UI static file serving is enabled")
-		site.Handle(pat.Get("/swagger-ui/*"), clientHandler)
+		site.Handle(pat.Get("/swagger-ui/*"), staticMux)
 	} else {
 		site.Handle(pat.Get("/swagger-ui/*"), http.NotFoundHandler())
 	}
