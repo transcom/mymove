@@ -47,7 +47,7 @@ export class StorageInTransit extends Component {
           {storageInTransit.location.charAt(0) + storageInTransit.location.slice(1).toLowerCase()} SIT
           <span className="unbold">
             {' '}
-            <span id={'sit-status-text'}>Status:</span> <FontAwesomeIcon className="icon icon-grey" icon={faClock} />
+            <span id="sit-status-text">Status:</span> <FontAwesomeIcon className="icon icon-grey" icon={faClock} />
           </span>
           <span>SIT {storageInTransit.status.charAt(0) + storageInTransit.status.slice(1).toLowerCase()} </span>
           {showEditForm ? (
