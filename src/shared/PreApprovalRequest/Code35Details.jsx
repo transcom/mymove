@@ -10,7 +10,7 @@ export const Code35Details = props => {
       {row.description} <br />
       {row.reason} <br />
       Est. not to exceed: ${formatCents(row.estimate_amount_cents)} <br />
-      Actual Amount: {actAmtText} <br />
+      Actual amount: {actAmtText} <br />
       {row.notes}
     </td>
   );
