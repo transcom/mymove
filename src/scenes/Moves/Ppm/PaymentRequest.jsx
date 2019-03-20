@@ -18,6 +18,33 @@ import scrollToTop from 'shared/scrollToTop';
 
 import './PaymentRequest.css';
 
+function openLegalese(event) {
+  // Prevent this from checking the box after opening the alert.
+  event.preventDefault();
+
+  const legalese = `\
+LEGAL AGREEMENT / PRIVACY ACT
+
+FINANCIAL LIABILITY:
+If this shipment(s) incurs costs above the allowance I am entitled to, I will pay the difference to the government, \
+or consent to the collection from my pay as necessary to cover all excess costs associated by this shipment(s).
+
+ADVANCE OBLIGATION:
+I understand that the maximum advance allowed is based on the estimated weight and scheduled departure date of my \
+shipment(s). In the event, less weight is moved or my move occurs on a different scheduled departure date, I may have \
+to remit the difference with the balance of my incentive disbursement and/or from the collection of my pay as may be \
+necessary.
+
+I understand that the maximum advance allowed is based on the estimated weight and scheduled departure date of my \
+shipment(s). In the event, less weight is moved or my move occurs on a different scheduled departure date, I may \
+have to remit the difference with the balance of my incentive disbursement and/or from the collection of my pay as may \
+be necessary. If I receive an advance for my PPM shipment, I agree to furnish weight tickets within 45 days of final \
+delivery to my destination. I understand that failure to furnish weight tickets within this timeframe may lead to the \
+collection of my pay as necessary to cover the cost of the advance.`;
+
+  alert(legalese);
+}
+
 function RequestPaymentSection(props) {
   const { ppm, updatingPPM, submitDocs, disableSubmit } = props;
 
@@ -29,6 +56,16 @@ function RequestPaymentSection(props) {
     return (
       <Fragment>
         <h4>Done uploading documents?</h4>
+        <div className="customer-agreement">
+          <p>
+            <strong>Customer Agreement</strong>
+          </p>
+          <input id="agree-checkbox" type="checkbox" />
+          <label for="agree-checkbox">
+            I agree to the
+            <a onClick={openLegalese}> Legal Agreement / Privacy Act</a>
+          </label>
+        </div>
         <button onClick={submitDocs} className="usa-button" disabled={updatingPPM || disableSubmit}>
           Submit Payment Request
         </button>
