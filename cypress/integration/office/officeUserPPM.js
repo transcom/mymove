@@ -64,7 +64,7 @@ describe('office user finds the move', function() {
 
   it('edits pickup and destination zip codes in estimates panel and these values are reflected in the storage and incentive calculators', function() {
     officeUserGoesToPPMPanel('FDXTIU');
-    officeUserEditsEstimatesPanel(60606, 72018);
+    officeUserEditsEstimatesPanel(60606, 72018, 6000);
   });
 
   it('office user completes storage panel', function() {
@@ -384,7 +384,7 @@ function officeUserEditsDatesAndLocationsPanel(date) {
     .click();
 }
 
-function officeUserEditsEstimatesPanel(destinationPostalCode, pickupPostalCode) {
+function officeUserEditsEstimatesPanel(destinationPostalCode, pickupPostalCode, weightEstimate) {
   cy
     .get('.editable-panel-header')
     .contains('Estimates')
@@ -401,6 +401,11 @@ function officeUserEditsEstimatesPanel(destinationPostalCode, pickupPostalCode) 
       .get('input[name="PPMEstimate.pickup_postal_code"]')
       .clear()
       .type(pickupPostalCode);
+
+    cy
+      .get('input[name="PPMEstimate.weight_estimate"]')
+      .clear()
+      .type(weightEstimate);
   });
 
   cy

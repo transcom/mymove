@@ -131,3 +131,31 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Nil(identity.OfficeUserID)
 	suite.Equal(danielle.ID, *identity.TspUserID)
 }
+
+func (suite *ModelSuite) TestFetchAllUserIdentities() {
+	testdatagen.MakeDefaultUser(suite.DB())
+	testdatagen.MakeDefaultServiceMember(suite.DB())
+	testdatagen.MakeDefaultOfficeUser(suite.DB())
+	testdatagen.MakeDefaultTspUser(suite.DB())
+
+	identities, err := FetchAllUserIdentities(suite.DB())
+	suite.Nil(err)
+	suite.NotEmpty(identities)
+	suite.Equal(len(identities), 4)
+
+	suite.Nil(identities[0].ServiceMemberID)
+	suite.Nil(identities[0].OfficeUserID)
+	suite.Nil(identities[0].TspUserID)
+
+	suite.NotNil(identities[1].ServiceMemberID)
+	suite.Nil(identities[1].OfficeUserID)
+	suite.Nil(identities[1].TspUserID)
+
+	suite.Nil(identities[2].ServiceMemberID)
+	suite.NotNil(identities[2].OfficeUserID)
+	suite.Nil(identities[2].TspUserID)
+
+	suite.Nil(identities[3].ServiceMemberID)
+	suite.Nil(identities[3].OfficeUserID)
+	suite.NotNil(identities[3].TspUserID)
+}

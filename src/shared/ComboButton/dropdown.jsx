@@ -7,16 +7,21 @@ export const DropDown = props => {
   return <div className="dropdown">{props.children}</div>;
 };
 
-export const DropDownItem = props => {
-  const liClasses = props => classNames({ disabled: props.disabled });
-  return <p className={liClasses(props)}>{props.value}</p>;
-};
+export function DropDownItem(props) {
+  const dropdownItemClasses = classNames({ disabled: props.disabled });
+  return (
+    <div className={dropdownItemClasses} onClick={props.disabled ? null : props.onClick}>
+      {props.value}
+    </div>
+  );
+}
 
 DropDown.propTypes = {
-  children: PropTypes.arrayOf(DropDownItem),
+  children: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
 };
 
 DropDownItem.propTypes = {
+  onClick: PropTypes.func,
   value: PropTypes.string,
   disabled: PropTypes.bool,
 };

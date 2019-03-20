@@ -81,25 +81,31 @@ func responseForBaseError(logger Logger, err error) middleware.Responder {
 
 	switch errors.Cause(err) {
 	case models.ErrFetchNotFound:
-		skipLogger.Debug("not found", zap.Error(err))
+		skipLogger.Info("not found", zap.Error(err))
 		return newErrResponse(http.StatusNotFound, err)
 	case models.ErrFetchForbidden:
-		skipLogger.Debug("forbidden", zap.Error(err))
+		skipLogger.Info("forbidden", zap.Error(err))
 		return newErrResponse(http.StatusForbidden, err)
+	case models.ErrWriteForbidden:
+		skipLogger.Info("forbidden", zap.Error(err))
+		return newErrResponse(http.StatusForbidden, err)
+	case models.ErrWriteConflict:
+		skipLogger.Info("conflict", zap.Error(err))
+		return newErrResponse(http.StatusConflict, err)
 	case models.ErrUserUnauthorized:
-		skipLogger.Debug("unauthorized", zap.Error(err))
+		skipLogger.Info("unauthorized", zap.Error(err))
 		return newErrResponse(http.StatusUnauthorized, err)
 	case uploaderpkg.ErrZeroLengthFile:
-		skipLogger.Debug("uploaded zero length file", zap.Error(err))
+		skipLogger.Info("uploaded zero length file", zap.Error(err))
 		return newErrResponse(http.StatusBadRequest, err)
 	case models.ErrInvalidPatchGate:
-		skipLogger.Debug("invalid patch gate", zap.Error(err))
+		skipLogger.Info("invalid patch gate", zap.Error(err))
 		return newErrResponse(http.StatusBadRequest, err)
 	case models.ErrInvalidTransition:
-		skipLogger.Debug("invalid transition", zap.Error(err))
+		skipLogger.Info("invalid transition", zap.Error(err))
 		return newErrResponse(http.StatusBadRequest, err)
 	case models.ErrDestroyForbidden:
-		skipLogger.Debug("invalid deletion", zap.Error(err))
+		skipLogger.Info("invalid deletion", zap.Error(err))
 		return newErrResponse(http.StatusBadRequest, err)
 	default:
 		skipLogger.Error("unexpected error", zap.Error(err))

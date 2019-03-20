@@ -113,17 +113,18 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			// don't want to make a call to login.gov for a logout URL as it will
 			// fail for devlocal-auth'ed users.
 			if session.IDToken == "devlocal" {
-				logoutURL = "/"
+				logoutURL = redirectURL
 			} else {
 				logoutURL = h.loginGovProvider.LogoutURL(redirectURL, session.IDToken)
 			}
+			// This operation will delete all cookies from the session
 			session.IDToken = ""
 			session.UserID = uuid.Nil
 			auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
-			http.Redirect(w, r, logoutURL, http.StatusTemporaryRedirect)
+			fmt.Fprint(w, logoutURL)
 		} else {
 			// Can't log out of login.gov without a token, redirect and let them re-auth
-			http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
+			fmt.Fprint(w, redirectURL)
 		}
 	}
 }

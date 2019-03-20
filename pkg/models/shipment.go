@@ -687,13 +687,17 @@ func upsertItemCode35ADependency(db *pop.Connection, baseParams *BaseShipmentLin
 	shipmentLineItem.EstimateAmountCents = additionalParams.EstimateAmountCents
 	shipmentLineItem.ActualAmountCents = additionalParams.ActualAmountCents
 
-	// ToDo: Another story to calculate base quantity
-	// if Quantity1 is nil then set it to 0
-	if baseParams.Quantity1 == nil {
+	if shipmentLineItem.ActualAmountCents != nil {
+		if *shipmentLineItem.ActualAmountCents <= *shipmentLineItem.EstimateAmountCents {
+			shipmentLineItem.Quantity1 = unit.BaseQuantityFromCents(*shipmentLineItem.ActualAmountCents)
+		} else {
+			shipmentLineItem.Quantity1 = unit.BaseQuantityFromCents(*shipmentLineItem.EstimateAmountCents)
+		}
+	} else {
+		// If ActualAmountCents is unset, set base quantity to 0.
 		quantity1 := unit.BaseQuantityFromInt(0)
 		shipmentLineItem.Quantity1 = quantity1
 	}
-
 	return responseVErrors, responseError
 }
 

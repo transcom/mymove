@@ -46,6 +46,8 @@ __snapshots__
 /bin/tsp-award-queue
 /bin/webserver
 
+/bin/rds-combined-ca-bundle.pem
+
 # Special bin folder for e2e test binaries
 /bin_linux/
 

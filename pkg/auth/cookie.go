@@ -45,6 +45,16 @@ func GetExpiryTimeFromMinutes(min int64) time.Time {
 	return time.Now().Add(time.Minute * time.Duration(min))
 }
 
+// GetCookie returns a cookie from a request
+func GetCookie(name string, r *http.Request) (*http.Cookie, error) {
+	for _, cookie := range r.Cookies() {
+		if cookie.Name == name {
+			return cookie, nil
+		}
+	}
+	return nil, errors.Errorf("Unable to find cookie: %s", name)
+}
+
 // SessionClaims wraps StandardClaims with some Session info
 type SessionClaims struct {
 	jwt.StandardClaims
@@ -118,8 +128,8 @@ func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, noSessionTim
 		Path:     "/",
 		Expires:  expiry,
 		MaxAge:   maxAge,
-		HttpOnly: false, // must be false to be read by client for use in POST/PUT/PATCH/DELETE requests
-		SameSite: http.SameSiteStrictMode,
+		HttpOnly: false,                // must be false to be read by client for use in POST/PUT/PATCH/DELETE requests
+		SameSite: http.SameSiteLaxMode, // Using lax mode for now since strict is causing issues with Firefox/Safari
 		Secure:   useSecureCookie,
 	}
 
@@ -130,7 +140,10 @@ func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, noSessionTim
 func MaskedCSRFMiddleware(logger Logger, noSessionTimeout bool, useSecureCookie bool) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			WriteMaskedCSRFCookie(w, csrf.Token(r), noSessionTimeout, logger, useSecureCookie)
+			// Write a CSRF cookie if none exists
+			if _, err := GetCookie(MaskedGorillaCSRFToken, r); err != nil {
+				WriteMaskedCSRFCookie(w, csrf.Token(r), noSessionTimeout, logger, useSecureCookie)
+			}
 			next.ServeHTTP(w, r)
 		}
 		return http.HandlerFunc(mw)

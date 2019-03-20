@@ -76,13 +76,9 @@ func main() {
 	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(db, logger))
 
 	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(db, &auth.Session{}, parsedID)
-	ssfd.MaxObligation, err = ppmComputer.ComputeObligations(ssfd, planner, paperwork.MaxObligation)
+	ssfd.Obligations, err = ppmComputer.ComputeObligations(ssfd, planner)
 	if err != nil {
-		log.Println("Error calculating PPM max obligations ")
-	}
-	ssfd.ActualObligation, err = ppmComputer.ComputeObligations(ssfd, planner, paperwork.ActualObligation)
-	if err != nil {
-		log.Println("Error calculating PPM actual obligations ")
+		log.Println("Error calculating obligations ")
 	}
 
 	page1Data, page2Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)

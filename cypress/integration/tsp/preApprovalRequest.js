@@ -3,7 +3,8 @@ import {
   editPreApprovalRequest,
   deletePreApprovalRequest,
 } from '../../support/preapprovals/testCreateRequest';
-import { addOriginal105, add105 } from '../../support/preapprovals/test105be';
+import { test35A, test35ALegacy } from '../../support/preapprovals/test35a';
+import { test105be, test105beLegacy } from '../../support/preapprovals/test105be';
 
 /* global cy */
 describe('TSP user interacts with pre approval request panel', function() {
@@ -19,8 +20,14 @@ describe('TSP user interacts with pre approval request panel', function() {
   it('TSP user deletes pre approval request', function() {
     tspUserDeletesPreApprovalRequest();
   });
-  it('Add original 105B/E to verify they display correctly', function() {
-    test105beOriginal();
+  it('Add legacy 35A to verify it displays correctly', function() {
+    test35ALegacy();
+  });
+  it('TSP user creates 35A request', function() {
+    test35A();
+  });
+  it('Add legacy 105B/E to verify they display correctly', function() {
+    test105beLegacy();
   });
   it('TSP user creates 105B/E request', function() {
     test105be();
@@ -90,41 +97,4 @@ function tspUserDeletesPreApprovalRequest() {
     .get('.pre-approval-panel td')
     .first()
     .should('not.contain', 'Bulky Article: Motorcycle/Rec vehicle');
-}
-
-function test105beOriginal() {
-  cy.selectQueueItemMoveLocator('DATESP');
-
-  addOriginal105({ code: '105B', quantity1: 12 }).then(res => {
-    expect(res.status).to.equal(201);
-  });
-
-  addOriginal105({ code: '105E', quantity1: 90 }).then(res => {
-    expect(res.status).to.equal(201);
-  });
-
-  // must reload page because original 105B/E are added by cy.request()
-  cy.reload();
-  cy.get('td[details-cy="105B-default-details"]').should('contain', '12.0000 notes notes 105B');
-  cy.get('td[details-cy="105E-default-details"]').should('contain', '90.0000 notes notes 105E');
-}
-
-function test105be() {
-  cy.selectQueueItemMoveLocator('DATESP');
-
-  add105({ code: '105B', itemSize: 30, crateSize: 25 });
-  cy
-    .get('td[details-cy="105B-details"]')
-    .should(
-      'contain',
-      'description description 105B Crate: 25" x 25" x 25" (9.04 cu ft) Item: 30" x 30" x 30" notes notes',
-    );
-
-  add105({ code: '105E', itemSize: 40, crateSize: 50 });
-  cy
-    .get('td[details-cy="105E-details"]')
-    .should(
-      'contain',
-      'description description 105E Crate: 50" x 50" x 50" (72.33 cu ft) Item: 40" x 40" x 40" notes notes',
-    );
 }
