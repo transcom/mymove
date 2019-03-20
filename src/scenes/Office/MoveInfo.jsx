@@ -31,7 +31,7 @@ import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 import StorageInTransitPanel from 'shared/StorageInTransit/StorageInTransitPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
-import ComboButton from 'shared/ComboButton/index.jsx';
+import ComboButton from 'shared/ComboButton';
 import ToolTip from 'shared/ToolTip';
 import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';
 
@@ -263,7 +263,7 @@ class MoveInfo extends Component {
     const showDocumentViewer = this.props.context.flags.documentViewer;
     const moveInfoComboButton = this.props.context.flags.moveInfoComboButton;
     const allowHhgInvoicePayment = this.props.context.flags.allowHhgInvoicePayment;
-    let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
+    const check = <FontAwesomeIcon className="icon" icon={faCheck} />;
     const ordersComplete = Boolean(
       orders.orders_number && orders.orders_type_detail && orders.department_indicator && orders.tac,
     );
@@ -397,7 +397,7 @@ class MoveInfo extends Component {
                   toolTipText="Some information about the move is missing or contains errors. Please fix these problems before approving."
                 >
                   {moveInfoComboButton && (
-                    <ComboButton buttonText="Approve" disabled={!ordersComplete}>
+                    <ComboButton allAreApproved buttonText="Approve" disabled={!ordersComplete}>
                       <DropDown>
                         <DropDownItem
                           value="Approve Basics"
