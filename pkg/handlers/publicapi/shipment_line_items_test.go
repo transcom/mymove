@@ -359,7 +359,7 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItem35AActualAmountCents() {
 		Payload:            &updateShipmentLineItem,
 	}
 
-	// And: try to update
+	// And: try to update will succeed because ActualAmountCents is not filled out yet for 35A
 	handler := UpdateShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
