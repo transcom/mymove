@@ -29,6 +29,7 @@ import PremoveSurvey from './PremoveSurvey';
 import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
+import StorageInTransitPanel from 'shared/StorageInTransit/StorageInTransitPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
 import ComboButton from 'shared/ComboButton/index.jsx';
 import ToolTip from 'shared/ToolTip';
@@ -101,6 +102,7 @@ const PPMTabContent = props => {
 
 const HHGTabContent = props => {
   let shipmentStatus = '';
+  let shipmentId = '';
   const {
     allowHhgInvoicePayment,
     canApprovePaymentInvoice,
@@ -108,9 +110,11 @@ const HHGTabContent = props => {
     serviceAgents,
     shipment,
     updatePublicShipment,
+    showSitPanel,
   } = props;
   if (shipment) {
     shipmentStatus = shipment.status;
+    shipmentId = shipment.id;
   }
   return (
     <div className="office-tab">
@@ -126,6 +130,7 @@ const HHGTabContent = props => {
         transportationServiceProviderId={shipment.transportation_service_provider_id}
       />
       <PreApprovalPanel shipmentId={shipment.id} />
+      {showSitPanel && <StorageInTransitPanel shipmentId={shipmentId} moveId={moveId} />}
       <InvoicePanel
         shipmentId={shipment.id}
         shipmentStatus={shipmentStatus}
@@ -371,6 +376,7 @@ class MoveInfo extends Component {
                       shipment={this.props.shipment}
                       shipmentStatus={this.props.shipmentStatus}
                       updatePublicShipment={this.props.updatePublicShipment}
+                      showSitPanel={this.props.context.flags.sitPanel}
                     />
                   )}
                 </PrivateRoute>
@@ -516,7 +522,10 @@ MoveInfo.defaultProps = {
 MoveInfo.propTypes = {
   loadMove: PropTypes.func.isRequired,
   context: PropTypes.shape({
-    flags: PropTypes.shape({ documentViewer: PropTypes.bool }).isRequired,
+    flags: PropTypes.shape({
+      documentViewer: PropTypes.bool,
+      sitPanel: PropTypes.bool,
+    }).isRequired,
   }).isRequired,
 };
 
