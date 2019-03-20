@@ -7,15 +7,15 @@ describe('static file hosting', () => {
 
   it('returns the correct content type', () => {
     cy
-      .request('/swagger-ui/internal.html')
+      .request('/downloads/direct_deposit_form.pdf')
       .its('headers')
       .its('content-type')
-      .should('include', 'text/html');
+      .should('include', 'application/pdf');
   });
 
   it('returns the correct status', () => {
     cy
-      .request('/swagger-ui/internal.html')
+      .request('/downloads/direct_deposit_form.pdf')
       .its('status')
       .should('equal', 200);
   });
@@ -23,7 +23,7 @@ describe('static file hosting', () => {
   it('rejects POST requests', () => {
     let req = cy.request({
       method: 'POST',
-      url: '/swagger-ui/internal.html',
+      url: '/downloads/direct_deposit_form.pdf',
       failOnStatusCode: false,
     });
 
