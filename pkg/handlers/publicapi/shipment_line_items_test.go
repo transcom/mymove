@@ -457,7 +457,7 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItemConflict() {
 		Payload:            &updateShipmentLineItem,
 	}
 
-	// And: try to update
+	// And: try to update but will fail because line item status is APPROVED
 	handler := UpdateShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
