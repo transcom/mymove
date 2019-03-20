@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
@@ -176,4 +178,29 @@ func (suite *webServerSuite) TestInitDatabase() {
 	conn, err := initDatabase(suite.viper, suite.logger)
 	suite.Nil(err)
 	suite.NotNil(conn)
+}
+
+func (suite *webServerSuite) TestStaticReqMethodMiddleware() {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+	middleware := validMethodForStaticMiddleware(handler)
+
+	// For a GET request, we should get a 200
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "http://mil.example.com/static/something", nil)
+	middleware.ServeHTTP(rr, req)
+	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
+
+	// For a HEAD request, we should also get a 200
+	rr = httptest.NewRecorder()
+	req = httptest.NewRequest("HEAD", "http://mil.example.com/static/something", nil)
+	middleware.ServeHTTP(rr, req)
+	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
+
+	// For a POST request, we should get a 405 response
+	rr = httptest.NewRecorder()
+	req = httptest.NewRequest("POST", "http://mil.example.com/static/something", nil)
+	middleware.ServeHTTP(rr, req)
+	suite.Equal(http.StatusMethodNotAllowed, rr.Code, "handler returned wrong status code")
 }

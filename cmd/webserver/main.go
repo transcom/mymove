@@ -175,6 +175,18 @@ func httpsComplianceMiddleware(inner http.Handler) http.Handler {
 	return http.HandlerFunc(mw)
 }
 
+func validMethodForStaticMiddleware(inner http.Handler) http.Handler {
+	mw := func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "GET" && r.Method != "HEAD" {
+			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+			return
+		}
+		inner.ServeHTTP(w, r)
+		return
+	}
+	return http.HandlerFunc(mw)
+}
+
 func securityHeadersMiddleware(inner http.Handler) http.Handler {
 	zap.L().Debug("securityHeadersMiddleware installed")
 	mw := func(w http.ResponseWriter, r *http.Request) {
@@ -1109,16 +1121,22 @@ func main() {
 		)
 	})
 
+	staticMux := goji.SubMux()
+	staticMux.Use(validMethodForStaticMiddleware)
+	staticMux.Handle(pat.Get("/*"), clientHandler)
+	// Needed to serve static paths (like favicon)
+	staticMux.Handle(pat.Get(""), clientHandler)
+
 	// Allow public content through without any auth or app checks
-	site.Handle(pat.Get("/static/*"), clientHandler)
-	site.Handle(pat.Get("/downloads/*"), clientHandler)
-	site.Handle(pat.Get("/favicon.ico"), clientHandler)
+	site.Handle(pat.New("/static/*"), staticMux)
+	site.Handle(pat.New("/downloads/*"), staticMux)
+	site.Handle(pat.New("/favicon.ico"), staticMux)
 
 	// Explicitly disable swagger.json route
 	site.Handle(pat.Get("/swagger.json"), http.NotFoundHandler())
 	if v.GetBool(serveSwaggerUIFlag) {
 		logger.Info("Swagger UI static file serving is enabled")
-		site.Handle(pat.Get("/swagger-ui/*"), clientHandler)
+		site.Handle(pat.Get("/swagger-ui/*"), staticMux)
 	} else {
 		site.Handle(pat.Get("/swagger-ui/*"), http.NotFoundHandler())
 	}
