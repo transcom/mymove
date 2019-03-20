@@ -7,6 +7,7 @@ import { capitalize, get, includes } from 'lodash';
 import { NavTab, RoutedTabs } from 'react-router-tabs';
 import { Link, NavLink, Redirect, Switch } from 'react-router-dom';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import { getStorageInTransitsForShipment } from 'shared/Entities/modules/storageInTransits';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import LocationsContainer from './Hhg/LocationsContainer';
 import Alert from 'shared/Alert'; // eslint-disable-line
@@ -184,6 +185,7 @@ class MoveInfo extends Component {
     this.props.getAllShipmentLineItems(shipmentId);
     this.props.getAllInvoices(shipmentId);
     this.props.getServiceAgentsForShipment(shipmentId);
+    this.props.getStorageInTransitsForShipment(shipmentId);
   };
 
   approveBasics = () => {
@@ -593,6 +595,7 @@ const mapDispatchToProps = dispatch =>
       getAllInvoices,
       getTspForShipment,
       getServiceAgentsForShipment,
+      getStorageInTransitsForShipment,
       showBanner,
       removeBanner,
       loadMove,
