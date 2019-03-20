@@ -9,16 +9,34 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+//SignedCertificationType represents the types of certificates
+type SignedCertificationType string
+
+const (
+
+	// SignedCertificationTypePPM captures enum value "PPM"
+	SignedCertificationTypePPM SignedCertificationType = "PPM"
+
+	// SignedCertificationTypePPMPAYMENT captures enum value "PPM_PAYMENT"
+	SignedCertificationTypePPMPAYMENT SignedCertificationType = "PPM_PAYMENT"
+
+	// SignedCertificationTypeHHG captures enum value "HHG"
+	SignedCertificationTypeHHG SignedCertificationType = "HHG"
+)
+
 // SignedCertification represents users acceptance
 type SignedCertification struct {
-	ID                uuid.UUID `json:"id" db:"id"`
-	SubmittingUserID  uuid.UUID `json:"submitting_user_id" db:"submitting_user_id"`
-	MoveID            uuid.UUID `json:"move_id" db:"move_id"`
-	CreatedAt         time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt         time.Time `json:"updated_at" db:"updated_at"`
-	CertificationText string    `json:"certification_text" db:"certification_text"`
-	Signature         string    `json:"signature" db:"signature"`
-	Date              time.Time `json:"date" db:"date"`
+	ID                       uuid.UUID               `json:"id" db:"id"`
+	SubmittingUserID         uuid.UUID               `json:"submitting_user_id" db:"submitting_user_id"`
+	MoveID                   uuid.UUID               `json:"move_id" db:"move_id"`
+	PersonallyProcuredMoveID *uuid.UUID              `json:"personally_procured_move_id" db:"personally_procured_move_id"`
+	ShipmentID               *uuid.UUID              `json:"shipment_id" db:"shipment_id"`
+	CertificationType        SignedCertificationType `json:"certification_type" db:"certification_type"`
+	CreatedAt                time.Time               `json:"created_at" db:"created_at"`
+	UpdatedAt                time.Time               `json:"updated_at" db:"updated_at"`
+	CertificationText        string                  `json:"certification_text" db:"certification_text"`
+	Signature                string                  `json:"signature" db:"signature"`
+	Date                     time.Time               `json:"date" db:"date"`
 }
 
 // SignedCertifications is not required by pop and may be deleted

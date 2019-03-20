@@ -15,12 +15,15 @@ import (
 
 func payloadForSignedCertificationModel(cert models.SignedCertification) *internalmessages.SignedCertificationPayload {
 	return &internalmessages.SignedCertificationPayload{
-		ID:                handlers.FmtUUID(cert.ID),
-		CreatedAt:         handlers.FmtDateTime(cert.CreatedAt),
-		UpdatedAt:         handlers.FmtDateTime(cert.UpdatedAt),
-		CertificationText: handlers.FmtString(cert.CertificationText),
-		Signature:         handlers.FmtString(cert.Signature),
-		Date:              handlers.FmtDate(cert.Date),
+		CertificationText:        handlers.FmtString(cert.CertificationText),
+		CertificationType:        internalmessages.SignedCertificationType(cert.CertificationType),
+		CreatedAt:                handlers.FmtDateTime(cert.CreatedAt),
+		Date:                     handlers.FmtDate(cert.Date),
+		ID:                       handlers.FmtUUID(cert.ID),
+		PersonallyProcuredMoveID: handlers.FmtUUIDPtr(cert.PersonallyProcuredMoveID),
+		ShipmentID:               handlers.FmtUUIDPtr(cert.ShipmentID),
+		Signature:                handlers.FmtString(cert.Signature),
+		UpdatedAt:                handlers.FmtDateTime(cert.UpdatedAt),
 	}
 }
 
@@ -34,14 +37,49 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// User should always be populated by middleware
 	moveID, _ := uuid.FromString(params.MoveID.String())
+	payload := params.CreateSignedCertificationPayload
+
+	//TODO Has to be another way.
+	var ppmID *uuid.UUID
+	tmpPpmID, err := uuid.FromString(payload.PersonallyProcuredMoveID.String())
+	if err != nil {
+		ppmID = nil
+	} else {
+		ppmID = &tmpPpmID
+	}
+	if ppmID != nil {
+		_, err = models.FetchPersonallyProcuredMove(h.DB(), session, *ppmID)
+		if err != nil {
+			return handlers.ResponseForError(h.Logger(), err)
+		}
+	}
+	var shipmentID *uuid.UUID
+	tmpShipmentID, err := uuid.FromString(payload.ShipmentID.String())
+	if err != nil {
+		shipmentID = nil
+	} else {
+		shipmentID = &tmpShipmentID
+	}
+	if shipmentID != nil {
+		_, err = models.FetchShipment(h.DB(), session, *shipmentID)
+		if err != nil {
+			return handlers.ResponseForError(h.Logger(), err)
+		}
+	}
+	certType := models.SignedCertificationType(payload.CertificationType)
 
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	payload := params.CreateSignedCertificationPayload
-	_, verrs, err := move.CreateSignedCertification(h.DB(), session.UserID, *payload.CertificationText, *payload.Signature, (time.Time)(*payload.Date))
+	_, verrs, err := move.CreateSignedCertification(h.DB(),
+		session.UserID,
+		*payload.CertificationText,
+		*payload.Signature, (time.Time)(*payload.Date),
+		ppmID,
+		shipmentID,
+		certType)
 	if verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
