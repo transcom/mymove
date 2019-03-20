@@ -135,16 +135,13 @@ StorageInTransitPanel.propTypes = {
 // not needed to pull entitlement from the TSP side.
 // calculateEntitlementsForMove is a more up-to-date way of storing data
 function getStorageInTransitEntitlement(state, moveId) {
-  let entitlement = {};
+  let storageInTransitEntitlement = 0;
   if (isTspSite) {
-    entitlement = loadEntitlements(state);
+    storageInTransitEntitlement = loadEntitlements(state).storage_in_transit;
   } else {
-    entitlement = calculateEntitlementsForMove(state, moveId);
+    storageInTransitEntitlement = calculateEntitlementsForMove(state, moveId).storage_in_transit;
   }
-  if (entitlement) {
-    return entitlement.storage_in_transit;
-  }
-  return {};
+  return storageInTransitEntitlement;
 }
 
 function mapStateToProps(state, ownProps) {
