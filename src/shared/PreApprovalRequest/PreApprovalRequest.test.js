@@ -14,6 +14,19 @@ function shipmentLineItem(status) {
   };
 }
 
+function shipmentLineItem35A(status, actual_amount_cents) {
+  return {
+    id: 'sldkjf',
+    tariff400ng_item: { code: '35A', item: 'Third Party Service' },
+    location: 'D',
+    quantity_1: 167000,
+    actual_amount_cents: actual_amount_cents,
+    notes: '',
+    created_at: '2018-09-24T14:05:38.847Z',
+    status: status || 'SUBMITTED',
+  };
+}
+
 describe('PreApprovalRequest tests', () => {
   let wrapper;
   let onDelete = jest.fn();
@@ -80,6 +93,38 @@ describe('PreApprovalRequest tests', () => {
       wrapper = shallow(
         <PreApprovalRequest
           shipmentLineItem={shipmentLineItem('APPROVED')}
+          isActionable={true}
+          isActive={dummyFn}
+          onDelete={dummyFn}
+        />,
+      );
+    });
+    it('it shows the appropriate number of icons.', () => {
+      const icons = wrapper.find('.icon');
+      expect(icons.length).toBe(1);
+    });
+  });
+  describe('When the request is 35A with Actual Amount unset and status is APPROVED', () => {
+    beforeEach(() => {
+      wrapper = shallow(
+        <PreApprovalRequest
+          shipmentLineItem={shipmentLineItem35A('APPROVED')}
+          isActionable={true}
+          isActive={dummyFn}
+          onDelete={dummyFn}
+        />,
+      );
+    });
+    it('it shows the appropriate number of icons.', () => {
+      const icons = wrapper.find('.icon');
+      expect(icons.length).toBe(2);
+    });
+  });
+  describe('When the request is 35A with Actual Amount set and status is APPROVED', () => {
+    beforeEach(() => {
+      wrapper = shallow(
+        <PreApprovalRequest
+          shipmentLineItem={shipmentLineItem35A('APPROVED', 3500)}
           isActionable={true}
           isActive={dummyFn}
           onDelete={dummyFn}
