@@ -156,7 +156,7 @@ func httpsComplianceMiddleware(inner http.Handler) http.Handler {
 
 func validMethodForStaticMiddleware(inner http.Handler) http.Handler {
 	mw := func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != "GET" {
+		if r.Method != "GET" && r.Method != "HEAD" {
 			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
 			return
 		}
