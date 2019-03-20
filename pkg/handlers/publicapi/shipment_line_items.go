@@ -316,9 +316,13 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 	tariff400ngItemID := uuid.Must(uuid.FromString(params.Payload.Tariff400ngItemID.String()))
 	tariff400ngItem, err := models.FetchTariff400ngItem(h.DB(), tariff400ngItemID)
 	shipment := shipmentLineItem.Shipment
+	// 35A has special functionality to update ActualAmountCents if it is not filled out and Status is approved
+	canUpdate35A := tariff400ngItem.Code == "35A" && shipmentLineItem.ActualAmountCents == nil
 
 	if !tariff400ngItem.RequiresPreApproval {
 		return accessorialop.NewUpdateShipmentLineItemForbidden()
+	} else if shipmentLineItem.Status == models.ShipmentLineItemStatusAPPROVED && !canUpdate35A {
+		return accessorialop.NewUpdateShipmentLineItemConflict()
 	}
 
 	baseParams := models.BaseShipmentLineItemParams{
