@@ -322,7 +322,7 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 	if !tariff400ngItem.RequiresPreApproval {
 		return accessorialop.NewUpdateShipmentLineItemForbidden()
 	} else if shipmentLineItem.Status == models.ShipmentLineItemStatusAPPROVED && !canUpdate35A {
-		return accessorialop.NewUpdateShipmentLineItemBadRequest()
+		return accessorialop.NewUpdateShipmentLineItemConflict()
 	}
 
 	baseParams := models.BaseShipmentLineItemParams{
