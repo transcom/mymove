@@ -273,6 +273,7 @@ class MoveInfo extends Component {
     const hhgDelivered = shipmentStatus === 'DELIVERED';
     const hhgCompleted = shipmentStatus === 'COMPLETED';
     const moveApproved = moveStatus === 'APPROVED';
+    const hhgCantBeCanceled = includes(['IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
 
     const moveDate = isPPM ? ppm.original_move_date : shipment && shipment.requested_pickup_date;
     if (this.state.redirectToHome) {
@@ -474,6 +475,7 @@ class MoveInfo extends Component {
                 reasonPrompt="Why is the move being canceled?"
                 warningPrompt="Are you sure you want to cancel the entire move?"
                 onConfirm={this.cancelMoveAndRedirect}
+                buttonDisabled={hhgCantBeCanceled}
               />
               {/* Disabling until features implemented
               <button>Troubleshoot</button>
