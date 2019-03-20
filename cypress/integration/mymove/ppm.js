@@ -85,3 +85,18 @@ describe('completing the ppm flow', function() {
     cy.contains('Advance Requested: $1,333.91');
   });
 });
+
+describe('editing ppm only move', () => {
+  it('sees only details relevant to PPM only move', () => {
+    cy.signInAsUser('e10d5964-c070-49cb-9bd1-eaf9f7348eb6');
+    cy
+      .get('.sidebar button')
+      .contains('Edit Move')
+      .click();
+
+    cy.get('.ppm-container').should(ppmContainer => {
+      expect(ppmContainer).to.have.length(1);
+      expect(ppmContainer[0]).to.not.have.class('hhg-shipment-summary');
+    });
+  });
+});
