@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { forEach, get } from 'lodash';
+import { forEach, get, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
@@ -64,7 +64,7 @@ export class Summary extends Component {
     const showPPMShipmentSummary =
       (isReviewPage && currentPpm) || (!isReviewPage && currentPpm && currentPpm.status !== 'DRAFT');
     const showHHGShipmentSummary =
-      (currentShipment && !isHHGPPMComboMove) || (currentShipment && isHHGPPMComboMove && !isReviewPage);
+      (!isEmpty(currentShipment) && !isHHGPPMComboMove) || (currentShipment && isHHGPPMComboMove && !isReviewPage);
 
     const showProfileAndOrders = (isReviewPage && !isHHGPPMComboMove) || !isReviewPage;
     return (
