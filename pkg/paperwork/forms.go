@@ -260,6 +260,9 @@ func (f *FormFiller) drawData(fields map[string]FieldPos, data interface{}) erro
 			f.pdf.SetFontSize(fontSize)
 		}
 
+		fs, _ := f.pdf.GetFontSize()
+		f.ScaleText(displayValue, fs, formField.width)
+
 		tempLineHeight := lineHeight
 		if formField.lineHeight != nil {
 			tempLineHeight = *formField.lineHeight
@@ -279,6 +282,24 @@ func (f *FormFiller) drawData(fields map[string]FieldPos, data interface{}) erro
 	}
 
 	return f.pdf.Error()
+}
+
+// ScaleText scales the text down to fit the cell if it is too long to fit in one line
+func (f *FormFiller) ScaleText(displayValue string, fontsize float64, width float64) {
+	stringWidth := f.pdf.GetStringWidth(displayValue)
+	for f.isMoreThanOneLine(stringWidth, width) {
+		ptSize, _ := f.pdf.GetFontSize()
+		newFontSize := ptSize * .95
+		if newFontSize <= 5 {
+			break
+		}
+		f.pdf.SetFontSize(newFontSize)
+		stringWidth = f.pdf.GetStringWidth(displayValue)
+	}
+}
+
+func (f *FormFiller) isMoreThanOneLine(stringWidth float64, width float64) bool {
+	return stringWidth > (width - 2*f.pdf.GetCellMargin())
 }
 
 // Output outputs the form to the provided file
