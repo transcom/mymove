@@ -37,7 +37,6 @@ class ComboButton extends Component {
 
   render() {
     const { buttonText, disabled, children, allAreApproved } = this.props;
-    // const btnClasses = classNames({ 'approved-button': })
     return (
       <span className="container combo-button" ref={this.container}>
         <button
