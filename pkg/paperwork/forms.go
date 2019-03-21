@@ -250,11 +250,12 @@ func (f *FormFiller) drawData(fields map[string]FieldPos, data interface{}) erro
 		// Apply custom formatting options
 		if formField.fontSize != nil {
 			f.pdf.SetFontSize(*formField.fontSize)
-			fs, _ := f.pdf.GetFontSize()
-			f.ScaleText(displayValue, fs, formField.width)
 		} else {
 			f.pdf.SetFontSize(fontSize)
 		}
+
+		fs, _ := f.pdf.GetFontSize()
+		f.ScaleText(displayValue, fs, formField.width)
 
 		tempLineHeight := lineHeight
 		if formField.lineHeight != nil {
