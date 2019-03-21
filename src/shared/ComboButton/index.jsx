@@ -42,7 +42,7 @@ class ComboButton extends Component {
       <span className="container combo-button" ref={this.container}>
         <button
           className={allAreApproved ? 'btn__approve--green' : ''}
-          disabled={disabled || allAreApproved}
+          disabled={disabled}
           onClick={this.handleButtonClick}
         >
           {allAreApproved && <FontAwesomeIcon className="icon" icon={faCheck} />}

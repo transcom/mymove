@@ -178,6 +178,27 @@ class MoveInfo extends Component {
     this.props.resetRequests();
   }
 
+  get allAreApproved() {
+    const {
+      move: { selected_move_type },
+      moveStatus,
+      ppm,
+      shipmentStatus,
+    } = this.props;
+    const isPPM = selected_move_type === 'PPM';
+    const isHHG = selected_move_type === 'HHG';
+    const moveApproved = moveStatus === 'APPROVED';
+    const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
+    const hhgApproved = includes(['APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
+
+    if (isPPM) {
+      return moveApproved && ppmApproved;
+    } else if (isHHG) {
+      return moveApproved && hhgApproved;
+    }
+    // hhg_ppm move
+    return moveApproved && ppmApproved && hhgApproved;
+  }
   getAllShipmentInfo = shipmentId => {
     this.props.getTspForShipment(shipmentId);
     this.props.getPublicShipment(shipmentId);
@@ -397,7 +418,11 @@ class MoveInfo extends Component {
                   toolTipText="Some information about the move is missing or contains errors. Please fix these problems before approving."
                 >
                   {moveInfoComboButton && (
-                    <ComboButton allAreApproved buttonText="Approve" disabled={!ordersComplete}>
+                    <ComboButton
+                      allAreApproved={this.allAreApproved}
+                      buttonText={`Approve${this.allAreApproved ? 'd' : ''}`}
+                      disabled={this.allAreApproved || !ordersComplete}
+                    >
                       <DropDown>
                         <DropDownItem
                           value="Approve Basics"
