@@ -1,13 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-for file in $(go list ./... | grep -v /vendor/)
-do
-    # skip analyzing dutystationsloader until repeated tags from embedded types are fixed in Go1.12.2
-    if [[ "$file" == *"dutystationsloader"* ]]; then
-      echo "skipping: $file"
-      continue
-    fi
-    echo "processing: $file"
-    go vet "$file"
-done
+go_vet_pkgs=$(go list ./... | grep -v /vendor/ | grep -v internal/pkg/dutystationsloader | tr "\n" " ")
+
+# shellcheck disable=SC2086
+go vet $go_vet_pkgs
