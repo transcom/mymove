@@ -13,7 +13,7 @@
   * [Naming And Defining Service Object Structs and Interfaces](#naming-and-defining-service-object-structs-and-interfaces)
   * [Naming and Defining Service Object Execution Method](#naming-and-defining-service-object-execution-method)
   * [Instantiating Service Objects](#instantiating-service-objects)
-* [Testing Service Objects](#testing-service-objects)
+* [Testing Service Objects with Mocks](#testing-service-objects-with-mocks)
 
 Regenerate with "bin/generate-md-toc.sh"
 
@@ -35,13 +35,11 @@ When writing or refactoring a piece of business logic to adhere to the service o
 When to use a service object?
 
 * [ ] dedicated encapsulation of a single piece business logic
-* [ ] focuses on one thing
-* [ ] could possibly be reused
-* [ ] could possibly be extended
+* [ ] could possibly be re-purposed
 * [ ] does this focus beyond parsing a request and rendering data
 * [ ] does this singular piece of business logic use many different dependencies and/or different models
 
-If you answered no to more than of these questions, then a service object may not be the appropriate design pattern to use in your use case.
+If you answered no to more than two of these questions, then a service object may not be the appropriate design pattern to use in your use case.
 
 ## Creating Service Objects
 
@@ -81,8 +79,9 @@ the name of the service object execution method.
 
 **Parameters**
 Remember that service objects should be reusable. Try to abstract as much out of the logic specific parameters to achieve this.
-In the following example from the codebase, we are only passing in one parameter to the `CreateForm` execution method, a
-`template` variable with the type `FormTemplate`. `FormTemplate` only holds relatively abstract parameters such that the service
+Pass as many parameters as make sense. Use your best judgement. In the following example from the codebase, we are only passing in one parameter to the `CreateForm` execution method, a
+`template` variable with the type `FormTemplate`. This is because the `FormTemplate` is more complex than most service objects and this use case works for use here.
+ Some service objects will only require only one or two parameters and a struct is not appropriate.`FormTemplate` only holds relatively abstract parameters such that the service
 object can be reused if needed. Regarding `CreateForm`, this service object can be reused to generate another PDF by passing
 different valid parameters.
 
@@ -106,9 +105,8 @@ type FormCreator interface {
 ```
 
 **Return Values**
-Service objects should return two return values. The first parameter is whatever the service object is responsible with creating.
-This can be a new entity instance or even model validation errors. The second parameter is an error, that should be raised
-if any errors occur.
+Service objects should return as many return values as appropriate. In the case of a service object like the CreateForm, the first parameter is whatever the service object is responsible for creating. If the first parameter returns a created entity, the second parameter should be an error.
+In the case of a simple entity fetch by ID, the first parameter could be model validation errors. There are some situations that require more complex returns. For those, use your best judgement.
 
 *Remember all `errors` should be Wrapped by using `errors.Wrap` so that the underlying error is propagated properly*
 
@@ -130,65 +128,10 @@ func (c createForm) CreateForm(template services.FormTemplate) (afero.File, erro
 
 1. Define a private struct with the same name as the service object file, making sure that it is a noun camel-cased.
 
-The struct fields are the dependencies needed for the service. However, these dependencies must be defined as interfaces.
-To implement an interface in Go, all we need to do is to implement all the methods in the interface. By using an interface here
-we are able to easily do mock testing on this service object.
+The struct fields are the dependencies needed for the service. To implement an interface in Go, all we need to do is to implement all the methods in the interface. By using an interface here
+we are able to easily do mock testing on this service object. Adding these struct fields as interfaces will allow you to do testing with mocks; they are not required.
 
-Instead of defining types of the fields on the struct, like this:
-
-```go
-// create_form.go
-package paperwork
-
-import (
-  "github.com/spf13/afero"
-  paperworkforms "github.com/transcom/mymove/pkg/paperwork"
-  "io"
-)
-
-// DO NOT DEFINE STRUCT LIKE THIS
-type createForm struct {
-  fileStorer afero.File
-  formFiller *paperworkforms.FormFiller
-}
-```
-
- Make sure to define interfaces as the types value of the fields on the struct, like this:
-
- ```go
- // create_form.go
- package paperwork
-
-import (
-  "github.com/spf13/afero"
-  paperworkforms "github.com/transcom/mymove/pkg/paperwork"
-  "io"
-)
-
- type FileStorer interface {
-  Create(string) (afero.File, error)
- }
-
- // Filler is an interface for FormFiller
- type FormFiller interface {
-  AppendPage(io.ReadSeeker, map[string]paperworkforms.FieldPos, interface{}) error
-  Output(io.Writer) error
- }
-
-// DEFINE STRUCT LIKE THIS
-type createForm struct {
-  fileStorer FileStorer
-  formFiller FormFiller
-}
-```
-
-As you must define interfaces as the field types, this also means you must actual define those interfaces.
-All methods in an interface must be those that the service object is actually using. For example, above the `createForm`
-struct is only using the `Create` method as a part of the `FileStorer` interface. That is because that is the
-only method needed from that dependency.
-
-In addition to these structs and interfaces, it is also expected to add an interface for the service, capturing the behavior
-of the execution method.
+21 Add an interface for the service, that captures the behavior of the service object.
 
 ```go
 // paperwork.go
@@ -221,8 +164,8 @@ type FormCreator interface {
 The service object execution method is responsible for kicking off the service object call. Ideally, the service object
 should expose only one public function, with helper private functions, as needed and when it makes sense. Oftentimes,
 smaller private functions are good to unit test smaller units of functionality. The service object execution method should be the same as the file name
-and struct. The service object execution method should be a method of the service object struct, ideally taking only one parameter,
-a struct of parameters that the service object requires, and returning two parameters - what the service object is responsible for creating, and an error.
+and struct. The service object execution method should be a method of the service object struct,
+a struct of parameters that the service object requires, and returning values, as appropriate.
 
 ```go
 // create_form.go
@@ -245,7 +188,7 @@ func (c createForm) CreateForm(template services.FormTemplate) (afero.File, erro
 
 ### Instantiating Service Objects
 
-1. Create a `NewServiceObjectStruct` method that is responsible for creating a new service object. This method should be used whenever a new service object struct is needed.
+1. Create a `NewServiceObjectStruct` method that is responsible for creating a new service object. This method should be used whenever a new service object struct is needed. One of the main benefits of using service objects is abstracting implementation and returning an interface, then only using the interface in our codebase elsewhere. This allows us to separate interface from implementation.
 
 ```go
 // create_form.go
@@ -287,13 +230,17 @@ package publicapi
 
 func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
   ...
-  publicAPI.ShipmentsCreateGovBillOfLadingHandler = CreateGovBillOfLadingHandler{context, paperworkservice.NewCreateForm(context.FileStorer().TempFileSystem(), paperwork.NewFormFiller())}
+  publicAPI.ShipmentsCreateGovBillOfLadingHandler = CreateGovBillOfLadingHandler{
+    context,
+    paperworkservice.NewCreateForm(context.FileStorer().TempFileSystem(),
+    paperwork.NewFormFiller(),
+  )}
   ...
   return publicAPI.Serve(nil)
 }
 ```
 
-## Testing Service Objects
+## Testing Service Objects with Mocks
 
 1. Make sure the mock generation tool is installed by running `make server_deps`.
 1. Generate the mock for the interface you'd like to test. See the [how-to doc](how-to/generate-mocks-with-mockery.md#how-to-generate-mocks-with-mockery)
@@ -363,11 +310,11 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerAppendPageFailure()
   template, _ := MakeFormTemplate(gbl, "some-file-name", paperworkforms.Form1203Layout, services.GBL)
   file, err := createForm.CreateForm(template)
 
-  assert.NotNil(suite.T(), err)
-  assert.Nil(suite.T(), file)
+  suite.NotNil(suite.T(), err)
+  suite.Nil(suite.T(), file)
   serviceErrMsg := errors.Cause(err)
-  assert.Equal(suite.T(), "Error for FormFiller.AppendPage()", serviceErrMsg.Error(), "should be equal")
-  assert.Equal(suite.T(), "Failure writing GBL data to form.: Error for FormFiller.AppendPage()", err.Error(), "should be equal")
+  suite.Equal(suite.T(), "Error for FormFiller.AppendPage()", serviceErrMsg.Error(), "should be equal")
+  suite.Equal(suite.T(), "Failure writing GBL data to form.: Error for FormFiller.AppendPage()", err.Error(), "should be equal")
   FormFiller.AssertExpectations(suite.T())
 }
 ```
