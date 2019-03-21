@@ -196,12 +196,11 @@ func (suite *ModelSuite) TestAcceptShipmentForTSP() {
 	suite.Equal(ShipmentStatusACCEPTED, newShipment.Status, "expected Accepted")
 	suite.True(*newShipmentOffer.Accepted)
 	suite.Nil(newShipmentOffer.RejectionReason)
+	suite.NotEqual(shipment.Move.Orders.NewDutyStation.Address.ID, newShipment.DestinationAddressOnAcceptance.ID)
 	suite.Equal(shipment.Move.Orders.NewDutyStation.Address.City, newShipment.DestinationAddressOnAcceptance.City)
 }
 
-// TestAcceptShipmentForTSPWithDeliveryAddress tests that delivery address is used for a shipment when TSP accepts
-// a offer and delivery address is available instead of duty station
-func (suite *ModelSuite) TestAcceptShipmentForTSPWithDeliveryAddress() {
+func createAndAcceptShipmentWithDeliveryAddress(suite *ModelSuite, hasDeliveryAddress bool) (Shipment, Shipment, error) {
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
@@ -223,14 +222,22 @@ func (suite *ModelSuite) TestAcceptShipmentForTSPWithDeliveryAddress() {
 		},
 	}
 
-	//address doesn't matter, as long as we have a valid value
 	deliveryAddress := testdatagen.MakeAddress3(suite.DB(), addressAssertions)
-	shipment.HasDeliveryAddress = true
+	shipment.HasDeliveryAddress = hasDeliveryAddress
 	shipment.DeliveryAddress = &deliveryAddress
 	shipment.DeliveryAddressID = &deliveryAddress.ID
 	suite.DB().ValidateAndSave(&shipment)
 
 	newShipment, _, _, err := AcceptShipmentForTSP(suite.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
+
+	return shipment, *newShipment, err
+}
+
+// TestAcceptShipmentForTSPWithDeliveryAddress tests that delivery address is used for a shipment when TSP accepts
+// a offer and delivery address is available instead of duty station
+func (suite *ModelSuite) TestAcceptShipmentForTSPWithDeliveryAddress() {
+	hasDeliveryAddress := true
+	shipment, newShipment, err := createAndAcceptShipmentWithDeliveryAddress(suite, hasDeliveryAddress)
 	suite.NoError(err)
 	suite.Equal(shipment.DeliveryAddress.City, newShipment.DestinationAddressOnAcceptance.City)
 }
@@ -238,35 +245,8 @@ func (suite *ModelSuite) TestAcceptShipmentForTSPWithDeliveryAddress() {
 // TestAcceptShipmentForTSPWithDeliveryAddress tests that delivery address is used for a shipment when TSP accepts
 // a offer and delivery address is available instead of duty station
 func (suite *ModelSuite) TestAcceptShipmentForTSPWithDeliveryAddressHasDeliveryAddressFalse() {
-	numTspUsers := 1
-	numShipments := 1
-	numShipmentOfferSplit := []int{1}
-	status := []ShipmentStatus{ShipmentStatusAWARDED}
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, SelectedMoveTypeHHG)
-	suite.NoError(err)
-
-	tspUser := tspUsers[0]
-	shipment := shipments[0]
-	unitedStates := "United States"
-
-	addressAssertions := testdatagen.Assertions{
-		Address: Address{
-			StreetAddress1: "Fort Gordon",
-			City:           "Augusta",
-			State:          "GA",
-			PostalCode:     "30813",
-			Country:        &unitedStates,
-		},
-	}
-
-	//address doesn't matter, as long as we have a valid value
-	deliveryAddress := testdatagen.MakeAddress3(suite.DB(), addressAssertions)
-	shipment.HasDeliveryAddress = false
-	shipment.DeliveryAddress = &deliveryAddress
-	shipment.DeliveryAddressID = &deliveryAddress.ID
-	suite.DB().ValidateAndSave(&shipment)
-
-	newShipment, _, _, err := AcceptShipmentForTSP(suite.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
+	hasDeliveryAddress := false
+	shipment, newShipment, err := createAndAcceptShipmentWithDeliveryAddress(suite, hasDeliveryAddress)
 	suite.NoError(err)
 	suite.Equal(shipment.Move.Orders.NewDutyStation.Address.City, newShipment.DestinationAddressOnAcceptance.City)
 }
