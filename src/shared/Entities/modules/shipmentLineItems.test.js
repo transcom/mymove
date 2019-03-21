@@ -1,6 +1,7 @@
 import {
   selectUnbilledShipmentLineItems,
   selectSortedPreApprovalShipmentLineItems,
+  selectInvoiceShipmentLineItems,
 } from 'shared/Entities/modules/shipmentLineItems';
 
 describe('shipment line items tests', () => {
@@ -46,6 +47,19 @@ describe('shipment line items tests', () => {
               uom_2: 'NONE',
               updated_at: '2018-11-05T16:13:22.946Z',
             },
+            'c6a865dd-324a-48a5-9b03-5db8dcd044d1': {
+              code: '35A',
+              created_at: '2018-11-05T16:13:22.946Z',
+              discount_type: 'HHG',
+              id: 'c6a865dd-324a-48a5-9b03-5db8dcd044d1',
+              item: 'Third Party Service',
+              location: 'ORIGIN',
+              ref_code: 'NONE',
+              requires_pre_approval: true,
+              uom_1: 'EA',
+              uom_2: 'NONE',
+              updated_at: '2018-11-05T16:13:22.946Z',
+            },
           },
           shipmentLineItems: {
             'e2a787d5-ff90-4331-8caa-c4c11d5002a1': {
@@ -78,7 +92,7 @@ describe('shipment line items tests', () => {
             'e2a787d5-ff90-4331-8caa-c4c11d5002a2': {
               approved_date: '0001-01-01T00:00:00.000Z',
               created_at: '0001-01-01T00:00:00.000Z',
-              id: 'e2a787d5-ff90-4331-8caa-c4c11d5002a1',
+              id: 'e2a787d5-ff90-4331-8caa-c4c11d5002a2',
               location: 'ORIGIN',
               notes: 'this is a test request',
               quantity_1: 20000,
@@ -101,11 +115,12 @@ describe('shipment line items tests', () => {
               },
               tariff400ng_item_id: 'deb28967-d52c-4f04-8a0b-a264c9d80457',
               updated_at: '0001-01-01T00:00:00.000Z',
+              invoice_id: '683b4683-256c-4108-8400-300f3d87012f',
             },
-            'e2a787d5-ff90-4331-8caa-c4c11d50ghsdgha2': {
+            'e2a787d5-ff90-4331-8caa-c4c11d5002a3': {
               approved_date: '0001-01-01T00:00:00.000Z',
               created_at: '0001-01-01T00:00:00.000Z',
-              id: 'e2a787d5-ff90-4331-8caa-c4c11d5002a1',
+              id: 'e2a787d5-ff90-4331-8caa-c4c11d5002a3',
               location: 'ORIGIN',
               notes: 'this is a test request',
               quantity_1: 10000,
@@ -129,10 +144,10 @@ describe('shipment line items tests', () => {
               tariff400ng_item_id: 'deb28967-d52c-4f04-8a0b-a264c9d80457',
               updated_at: '0001-01-01T00:00:00.000Z',
             },
-            'e2a787d5-ff90-4331-8caa-c4c11d50ghsdgha3': {
+            'e2a787d5-ff90-4331-8caa-c4c11d50ghsdgha4': {
               approved_date: '0001-01-01T00:00:00.000Z',
               created_at: '0001-01-01T00:00:00.000Z',
-              id: 'e2a787d5-ff90-4331-8caa-c4c11d50ghsdgha3',
+              id: 'e2a787d5-ff90-4331-8caa-c4c11d50ghsdgha4',
               location: 'ORIGIN',
               notes: 'this is a test request',
               quantity_1: 0,
@@ -146,7 +161,7 @@ describe('shipment line items tests', () => {
                 code: '35A',
                 created_at: '2018-11-05T16:13:22.946Z',
                 discount_type: 'HHG',
-                id: 'c6a865dd-324a-48a5-9b03-5db8dcd044d2',
+                id: 'c6a865dd-324a-48a5-9b03-5db8dcd044d1',
                 item: 'Third Party Service',
                 location: 'ORIGIN',
                 ref_code: 'NONE',
@@ -155,13 +170,14 @@ describe('shipment line items tests', () => {
                 uom_2: 'NONE',
                 updated_at: '2018-11-05T16:13:22.946Z',
               },
-              tariff400ng_item_id: 'c6a865dd-324a-48a5-9b03-5db8dcd044d2',
+              tariff400ng_item_id: 'c6a865dd-324a-48a5-9b03-5db8dcd044d1',
               updated_at: '0001-01-01T00:00:00.000Z',
+              invoice_id: '683b4683-256c-4108-8400-300f3d87012f',
             },
-            'e2a787d5-ff90-4331-8caa-c4c11d50ghsdgha4': {
+            'e2a787d5-ff90-4331-8caa-c4c11d50ghsdgha5': {
               approved_date: '0001-01-01T00:00:00.000Z',
               created_at: '0001-01-01T00:00:00.000Z',
-              id: 'e2a787d5-ff90-4331-8caa-c4c11d50ghsdgha4',
+              id: 'e2a787d5-ff90-4331-8caa-c4c11d50ghsdgha5',
               location: 'ORIGIN',
               notes: 'this is a test request',
               quantity_1: 0,
@@ -174,7 +190,7 @@ describe('shipment line items tests', () => {
                 code: '35A',
                 created_at: '2018-11-05T16:13:22.946Z',
                 discount_type: 'HHG',
-                id: 'c6a865dd-324a-48a5-9b03-5db8dcd044d3',
+                id: 'c6a865dd-324a-48a5-9b03-5db8dcd044d1',
                 item: 'Third Party Service',
                 location: 'ORIGIN',
                 ref_code: 'NONE',
@@ -183,7 +199,7 @@ describe('shipment line items tests', () => {
                 uom_2: 'NONE',
                 updated_at: '2018-11-05T16:13:22.946Z',
               },
-              tariff400ng_item_id: 'c6a865dd-324a-48a5-9b03-5db8dcd044d3',
+              tariff400ng_item_id: 'c6a865dd-324a-48a5-9b03-5db8dcd044d1',
               updated_at: '0001-01-01T00:00:00.000Z',
             },
           },
@@ -191,7 +207,7 @@ describe('shipment line items tests', () => {
       };
     });
     it('selectUnbilledShipmentLineItems returns an array of items when shipment id is found', () => {
-      expect(selectUnbilledShipmentLineItems(state, '4612cfed-acbd-47ca-840a-7b7de190d6d2').length).toEqual(2);
+      expect(selectUnbilledShipmentLineItems(state, '4612cfed-acbd-47ca-840a-7b7de190d6d2').length).toEqual(1);
     });
     it('selectSortedPreApprovalShipmentLineItems returns pre-approval line items that are filtered by a shipmentId', () => {
       expect(selectSortedPreApprovalShipmentLineItems(state, '4612cfed-acbd-47ca-840a-7b7de190d6723').length).toEqual(
@@ -200,6 +216,9 @@ describe('shipment line items tests', () => {
     });
     it('selectSortedPreApprovalShipmentLineItems returns all line items if no shipmentId is passed', () => {
       expect(selectSortedPreApprovalShipmentLineItems(state).length).toEqual(5);
+    });
+    it('selectInvoiceShipmentLineItems returns all line items if no shipmentId is passed', () => {
+      expect(selectInvoiceShipmentLineItems(state, '683b4683-256c-4108-8400-300f3d87012f').length).toEqual(2);
     });
   });
 });

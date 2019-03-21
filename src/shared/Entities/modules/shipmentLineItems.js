@@ -80,8 +80,8 @@ export const selectSortedPreApprovalShipmentLineItems = createSelector(
 export const selectShipmentLineItem = (state, id) => denormalize([id], ShipmentLineItemsModel, state.entities)[0];
 
 const selectInvoicesShipmentLineItemsByInvoiceId = (state, invoiceId) => {
-  const items = filterByInvoiceId(state.entities.shipmentLineItems, invoiceId);
-  return denormalize(map(items, 'id'), ShipmentLineItemsModel, state.entities);
+  const items = filterByInvoiceId(invoiceId, getShipmentIds(state));
+  return denormalize(map(items, 'id'), ShipmentLineItemsModel, getEntities(state));
 };
 
 const selectUnbilledShipmentLineItemsByShipmentId = (state, shipmentId) => {
