@@ -647,8 +647,8 @@ func (suite *ModelSuite) TestUpdateShipmentLineItemCode35AActualAmountCents() {
 		Tariff400ngItemID:   acc35A.ID,
 		Tariff400ngItemCode: acc35A.Code,
 	}
-	desc = "updated description"
-	reas = "updated reason"
+	updateDesc := "updated description"
+	updateReas := "updated reason"
 	updateEstAmt := unit.Cents(2000)
 	actAmt := unit.Cents(2000)
 	additionalParams := AdditionalShipmentLineItemParams{
@@ -659,6 +659,8 @@ func (suite *ModelSuite) TestUpdateShipmentLineItemCode35AActualAmountCents() {
 	verrs, err := shipment.UpdateShipmentLineItem(suite.DB(),
 		baseParams, additionalParams, &lineItem)
 	if suite.noValidationErrors(verrs, err) {
+		suite.NotEqual(updateDesc, *lineItem.Description)
+		suite.NotEqual(updateReas, *lineItem.Reason)
 		suite.NotEqual(updateEstAmt, *lineItem.EstimateAmountCents)
 		suite.Equal(actAmt, *lineItem.ActualAmountCents)
 	}
