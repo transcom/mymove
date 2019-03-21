@@ -282,10 +282,11 @@ func (f *FormFiller) ScaleText(displayValue string, fontsize float64, width floa
 	stringWidth := f.pdf.GetStringWidth(displayValue)
 	for f.isMoreThanOneLine(stringWidth, width) {
 		ptSize, _ := f.pdf.GetFontSize()
-		if ptSize*.95 <= 5 {
+		newFontSize := ptSize * .95
+		if newFontSize <= 5 {
 			break
 		}
-		f.pdf.SetFontSize(ptSize * .95)
+		f.pdf.SetFontSize(newFontSize)
 		stringWidth = f.pdf.GetStringWidth(displayValue)
 	}
 }
