@@ -70,7 +70,7 @@ export class StorageInTransitPanel extends Component {
                         <FontAwesomeIcon
                           className={classnames(
                             iconStyles.statusIcon,
-                            { 'icon-grey': isTspSite },
+                            { [iconStyles.statusDefaultColor]: isTspSite },
                             { [iconStyles.statusAttention]: !isTspSite },
                           )}
                           icon={faClock}
