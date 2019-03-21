@@ -77,8 +77,7 @@ class UserBehavior(TaskSequence):
         model = self.swagger.get_model("CreateServiceMemberPayload")
         payload = model(user_id=self.user["id"])
         service_member_future = self.swagger.service_members.createServiceMember(
-
-        createServiceMemberPayload=payload)
+            createServiceMemberPayload=payload)
         service_member_response = service_member_future.response()
         self.user["service_member"] = service_member_response.result
 
