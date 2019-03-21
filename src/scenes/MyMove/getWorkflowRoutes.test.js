@@ -491,7 +491,7 @@ describe('when getting the next incomplete page', () => {
           },
           ppm: {
             id: 'baz',
-            planned_move_date: '2018-10-10',
+            original_move_date: '2018-10-10',
             pickup_postal_code: '22222',
             destination_postal_code: '22222',
           },
@@ -522,7 +522,7 @@ describe('when getting the next incomplete page', () => {
           },
           ppm: {
             id: 'baz',
-            planned_move_date: '2018-10-10',
+            original_move_date: '2018-10-10',
             pickup_postal_code: '22222',
             destination_postal_code: '22222',
             size: 'L',
@@ -554,7 +554,7 @@ describe('when getting the next incomplete page', () => {
           },
           ppm: {
             id: 'baz',
-            planned_move_date: '2018-10-10',
+            original_move_date: '2018-10-10',
             pickup_postal_code: '22222',
             destination_postal_code: '22222',
             size: 'L',

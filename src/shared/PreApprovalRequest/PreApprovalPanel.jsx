@@ -12,13 +12,9 @@ import Creator from 'shared/PreApprovalRequest/Creator';
 
 import {
   createShipmentLineItem,
-  createShipmentLineItemLabel,
   deleteShipmentLineItem,
-  deleteShipmentLineItemLabel,
   approveShipmentLineItem,
-  approveShipmentLineItemLabel,
   updateShipmentLineItem,
-  updateShipmentLineItemLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
 import { selectSortedPreApprovalShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
 import { selectSortedPreApprovalTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
@@ -36,18 +32,18 @@ export class PreApprovalPanel extends Component {
     this.setState({ error: null });
   };
   onSubmit = createPayload => {
-    return this.props.createShipmentLineItem(createShipmentLineItemLabel, this.props.shipmentId, createPayload);
+    return this.props.createShipmentLineItem(this.props.shipmentId, createPayload);
   };
   onEdit = (shipmentLineItemId, editPayload) => {
-    this.props.updateShipmentLineItem(updateShipmentLineItemLabel, shipmentLineItemId, editPayload);
+    this.props.updateShipmentLineItem(shipmentLineItemId, editPayload);
   };
   onDelete = shipmentLineItemId => {
-    this.props.deleteShipmentLineItem(deleteShipmentLineItemLabel, shipmentLineItemId).catch(err => {
+    this.props.deleteShipmentLineItem(shipmentLineItemId).catch(err => {
       this.setState({ error: true });
     });
   };
   onApproval = shipmentLineItemId => {
-    this.props.approveShipmentLineItem(approveShipmentLineItemLabel, shipmentLineItemId);
+    this.props.approveShipmentLineItem(shipmentLineItemId);
   };
   onFormActivation = isFormActive => {
     this.setState({ isRequestActionable: !isFormActive });
@@ -58,7 +54,7 @@ export class PreApprovalPanel extends Component {
   render() {
     return (
       <div className="pre-approval-panel">
-        <BasicPanel title={'Pre-Approval Requests'}>
+        <BasicPanel title="Pre-Approval Requests">
           {this.state.error && (
             <Alert type="error" heading="Oops, something went wrong!" onRemove={this.closeError}>
               <span className="warning--header">Please refresh the page and try again.</span>

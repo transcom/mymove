@@ -2,8 +2,10 @@ package invoice
 
 import (
 	"errors"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 

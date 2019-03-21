@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
@@ -11,7 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
-	"go.uber.org/zap"
 )
 
 func (suite *RecalculateShipmentSuite) helperDeliverAndPriceShipment() *models.Shipment {
@@ -19,7 +20,7 @@ func (suite *RecalculateShipmentSuite) helperDeliverAndPriceShipment() *models.S
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusINTRANSIT}
-	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status)
+	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
 	suite.FatalNoError(err)
 
 	shipment := shipments[0]
@@ -43,10 +44,11 @@ func (suite *RecalculateShipmentSuite) helperDeliverAndPriceShipment() *models.S
 
 	deliveryDate := testdatagen.DateInsidePerformancePeriod
 	planner := route.NewTestingPlanner(1100)
-	engine := rateengine.NewRateEngine(suite.DB(), suite.logger, planner)
+	engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
 	verrs, err := DeliverAndPriceShipment{
-		DB:     suite.DB(),
-		Engine: engine,
+		DB:      suite.DB(),
+		Engine:  engine,
+		Planner: planner,
 	}.Call(deliveryDate, &shipment)
 
 	suite.FatalNoError(err)
@@ -135,11 +137,12 @@ func (suite *RecalculateShipmentSuite) TestRecalculateShipmentCall() {
 
 	// Re-calculate the Shipment!
 	planner := route.NewTestingPlanner(1100)
-	engine := rateengine.NewRateEngine(suite.DB(), suite.logger, planner)
+	engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
 	verrs, err := RecalculateShipment{
-		DB:     suite.DB(),
-		Logger: suite.logger,
-		Engine: engine,
+		DB:      suite.DB(),
+		Logger:  suite.logger,
+		Engine:  engine,
+		Planner: planner,
 	}.Call(shipment)
 	suite.Equal(false, verrs.HasAny())
 	suite.Nil(err, "Failed to recalculate shipment")
@@ -162,7 +165,7 @@ func (suite *RecalculateShipmentSuite) TestRecalculateShipmentCall() {
 
 type RecalculateShipmentSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
+	logger Logger
 }
 
 func (suite *RecalculateShipmentSuite) SetupTest() {

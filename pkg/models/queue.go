@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
@@ -39,7 +40,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
 				moves.locator as locator,
 				ord.orders_type as orders_type,
-				ppm.planned_move_date as move_date,
+				ppm.original_move_date as move_date,
 				moves.created_at as created_at,
 				moves.updated_at as last_modified_date,
 				moves.status as status,
@@ -58,7 +59,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
 				moves.locator as locator,
 				ord.orders_type as orders_type,
-				ppm.planned_move_date as move_date,
+				ppm.original_move_date as move_date,
 				moves.created_at as created_at,
 				moves.updated_at as last_modified_date,
 				moves.status as status,
@@ -158,7 +159,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
 				moves.locator as locator,
 				ord.orders_type as orders_type,
-				ppm.planned_move_date as move_date,
+				ppm.original_move_date as move_date,
 				moves.created_at as created_at,
 				moves.updated_at as last_modified_date,
 				moves.status as status,

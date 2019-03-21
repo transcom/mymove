@@ -9,7 +9,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
+	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -104,7 +104,7 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 		return ServiceMember{}, err
 	}
 	// TODO: Handle case where more than one user is authorized to modify serviceMember
-	if session.IsMyApp() && serviceMember.ID != session.ServiceMemberID {
+	if session.IsMilApp() && serviceMember.ID != session.ServiceMemberID {
 		return ServiceMember{}, ErrFetchForbidden
 	} else if session.IsTspApp() {
 		// A TspUser is only allowed to interact with a service member if they are associated with one of their shipments.

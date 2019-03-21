@@ -1,0 +1,42 @@
+#! /usr/bin/env bash
+#
+#   go-find-pattern searchs over all our go source code files for a regex pattern"
+#   For example: bin/go-find-pattern '[.]Info[(]"[^"]+\s+"'
+#
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly DIR
+
+usage() {
+    echo "$0 <pattern"
+    exit 1
+}
+[[ -z $1  ]] && usage
+
+pattern=$1
+
+# shellcheck disable=SC2207
+pkgs=($(go list -e -json github.com/transcom/mymove/... 2> /dev/null | jq -c '{import: .ImportPath, dir: .Dir, files: .GoFiles}'))
+
+results=()
+# shellcheck disable=SC1072
+for pkg in "${pkgs[@]}"; do
+  import=$(echo "$pkg" | jq -r ".import")
+  parent=$(echo "$pkg" | jq -r ".dir")
+  # shellcheck disable=SC2207
+  files=($(echo "$pkg" | jq -r ".files[]"))
+  # shellcheck disable=SC1072
+  for file in "${files[@]}"; do
+    # shellcheck disable=SC2002
+    lines=$(cat "$parent/$file" | grep -inE "$pattern" | cut -d':' -f1 | tr '\n' ',')
+    # shellcheck disable=SC1072
+    if [[ "${lines// }" ]]; then
+      # shellcheck disable=SC2178,SC2128,SC1117
+      results="$results\n$import/$file | $lines"
+    fi
+    #exit 0
+  done
+done
+
+# shellcheck disable=SC2128,SC1117
+echo -e "package | lines\n$results" | column -t

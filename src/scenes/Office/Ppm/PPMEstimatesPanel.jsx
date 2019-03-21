@@ -32,7 +32,7 @@ const EstimatesDisplay = props => {
           {formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max)}
         </PanelField>
         <PanelSwaggerField fieldName="weight_estimate" {...fieldProps} />
-        <PanelSwaggerField title="Planned departure" fieldName="planned_move_date" {...fieldProps} />
+        <PanelSwaggerField title="Planned departure" fieldName="original_move_date" {...fieldProps} />
         <PanelField title="Storage planned" fieldName="has_sit">
           {fieldProps.values.has_sit ? 'Yes' : 'No'}
         </PanelField>
@@ -68,7 +68,7 @@ const EstimatesEdit = props => {
             required
           />{' '}
           lbs
-          <SwaggerField title="Planned departure date" fieldName="planned_move_date" swagger={schema} required />
+          <SwaggerField title="Planned departure date" fieldName="original_move_date" swagger={schema} required />
           <div className="panel-subhead">Storage</div>
           <SwaggerField title="Storage planned?" fieldName="has_sit" swagger={schema} component={YesNoBoolean} />
           {get(props, 'formValues.PPMEstimate.has_sit', false) && (

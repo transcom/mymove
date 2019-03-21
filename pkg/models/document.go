@@ -10,6 +10,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/auth"
 )
 

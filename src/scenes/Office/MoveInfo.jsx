@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get, capitalize, includes } from 'lodash';
+import { capitalize, get, includes } from 'lodash';
 
-import { RoutedTabs, NavTab } from 'react-router-tabs';
-import { NavLink, Switch, Redirect, Link } from 'react-router-dom';
+import { NavTab, RoutedTabs } from 'react-router-tabs';
+import { Link, NavLink, Redirect, Switch } from 'react-router-dom';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import LocationsContainer from './Hhg/LocationsContainer';
@@ -16,10 +16,11 @@ import BackupInfoPanel from './BackupInfoPanel';
 import CustomerInfoPanel from './CustomerInfoPanel';
 import OrdersPanel from './OrdersPanel';
 import PaymentsPanel from './Ppm/PaymentsPanel';
+import DatesAndLocationPanel from './Ppm/DatesAndLocationsPanel';
 import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
-import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
-import IncentiveCalculator from './Ppm/IncentiveCalculator';
+import StoragePanel from './Ppm/StoragePanel';
 import ExpensesPanel from './Ppm/ExpensesPanel';
+import NetWeightPanel from './Ppm/NetWeightPanel';
 import Dates from 'shared/ShipmentDates';
 import RoutingPanel from './Hhg/RoutingPanel';
 import ServiceAgentsContainer from './Hhg/ServiceAgentsContainer';
@@ -28,37 +29,42 @@ import PremoveSurvey from './PremoveSurvey';
 import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
+import StorageInTransitPanel from 'shared/StorageInTransit/StorageInTransitPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
+import ComboButton from 'shared/ComboButton/index.jsx';
+import ToolTip from 'shared/ToolTip';
+import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';
 
+import { getRequestStatus } from 'shared/Swagger/selectors';
+import { resetRequests } from 'shared/Swagger/request';
+import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
+import { getAllShipmentLineItems, selectSortedShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
+import { getAllInvoices } from 'shared/Entities/modules/invoices';
+import { approvePPM, loadPPMs, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
+import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
+import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
 import {
-  getAllTariff400ngItems,
-  selectTariff400ngItems,
-  getTariff400ngItemsLabel,
-} from 'shared/Entities/modules/tariff400ngItems';
-import {
-  getAllShipmentLineItems,
-  selectSortedShipmentLineItems,
-  getShipmentLineItemsLabel,
-} from 'shared/Entities/modules/shipmentLineItems';
-import { getAllInvoices, getShipmentInvoicesLabel } from 'shared/Entities/modules/invoices';
-import { approvePPM, selectPPMForMove } from 'shared/Entities/modules/ppms';
-import { selectServiceMember } from 'shared/Entities/modules/serviceMembers';
-import { selectMove } from 'shared/Entities/modules/moves';
-import {
-  getPublicShipment,
-  updatePublicShipment,
   approveShipment,
   completeShipment,
+  getPublicShipment,
   selectShipment,
   selectShipmentStatus,
+  updatePublicShipment,
 } from 'shared/Entities/modules/shipments';
-import { getTspForShipmentLabel, getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
+import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
 
-import { loadMoveDependencies, showBanner, removeBanner } from './ducks';
-import { selectMoveStatus, approveBasics, cancelMove } from 'shared/Entities/modules/moves';
+import { showBanner, removeBanner } from './ducks';
+import {
+  loadMove,
+  loadMoveLabel,
+  selectMove,
+  selectMoveStatus,
+  approveBasics,
+  cancelMove,
+} from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
-import { selectAllDocumentsForMove, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import { getMoveDocumentsForMove, selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -86,8 +92,9 @@ const PPMTabContent = props => {
     <div className="office-tab">
       <PaymentsPanel title="Payments" moveId={props.moveId} />
       <ExpensesPanel title="Expenses" moveId={props.moveId} />
-      <IncentiveCalculator moveId={props.moveId} />
-      <StorageReimbursementCalculator moveId={props.moveId} />
+      <StoragePanel title="Storage" moveId={props.moveId} />
+      <DatesAndLocationPanel title="Dates & Locations" moveId={props.moveId} />
+      <NetWeightPanel title="Weights" moveId={props.moveId} />
       <PPMEstimatesPanel title="Estimates" moveId={props.moveId} />
     </div>
   );
@@ -95,6 +102,7 @@ const PPMTabContent = props => {
 
 const HHGTabContent = props => {
   let shipmentStatus = '';
+  let shipmentId = '';
   const {
     allowHhgInvoicePayment,
     canApprovePaymentInvoice,
@@ -102,9 +110,11 @@ const HHGTabContent = props => {
     serviceAgents,
     shipment,
     updatePublicShipment,
+    showSitPanel,
   } = props;
   if (shipment) {
     shipmentStatus = shipment.status;
+    shipmentId = shipment.id;
   }
   return (
     <div className="office-tab">
@@ -120,6 +130,7 @@ const HHGTabContent = props => {
         transportationServiceProviderId={shipment.transportation_service_provider_id}
       />
       <PreApprovalPanel shipmentId={shipment.id} />
+      {showSitPanel && <StorageInTransitPanel shipmentId={shipmentId} moveId={moveId} />}
       <InvoicePanel
         shipmentId={shipment.id}
         shipmentStatus={shipmentStatus}
@@ -137,22 +148,41 @@ class MoveInfo extends Component {
 
   componentDidMount() {
     const { moveId } = this.props;
-    this.props.loadMoveDependencies(moveId);
+    this.props.loadMove(moveId);
     this.props.getMoveDocumentsForMove(moveId);
-    this.props.getAllTariff400ngItems(true, getTariff400ngItemsLabel);
+    this.props.getAllTariff400ngItems(true);
+    this.props.loadPPMs(moveId);
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.shipmentId !== prevProps.shipmentId) {
-      this.getAllShipmentInfo(this.props.shipmentId);
+    const {
+      loadBackupContacts,
+      loadOrders,
+      loadMoveIsSuccess,
+      loadServiceMember,
+      ordersId,
+      serviceMemberId,
+      shipmentId,
+    } = this.props;
+    if (loadMoveIsSuccess !== prevProps.loadMoveIsSuccess && loadMoveIsSuccess) {
+      loadOrders(ordersId);
+      loadServiceMember(serviceMemberId);
+      loadBackupContacts(serviceMemberId);
+      if (shipmentId) {
+        this.getAllShipmentInfo(shipmentId);
+      }
     }
   }
 
+  componentWillUnmount() {
+    this.props.resetRequests();
+  }
+
   getAllShipmentInfo = shipmentId => {
-    this.props.getTspForShipment(getTspForShipmentLabel, shipmentId);
-    this.props.getPublicShipment('Shipments.getPublicShipment', shipmentId);
-    this.props.getAllShipmentLineItems(getShipmentLineItemsLabel, shipmentId);
-    this.props.getAllInvoices(getShipmentInvoicesLabel, shipmentId);
+    this.props.getTspForShipment(shipmentId);
+    this.props.getPublicShipment(shipmentId);
+    this.props.getAllShipmentLineItems(shipmentId);
+    this.props.getAllInvoices(shipmentId);
     this.props.getServiceAgentsForShipment(shipmentId);
   };
 
@@ -231,6 +261,7 @@ class MoveInfo extends Component {
     const pathnames = this.props.location.pathname.split('/');
     const currentTab = pathnames[pathnames.length - 1];
     const showDocumentViewer = this.props.context.flags.documentViewer;
+    const moveInfoComboButton = this.props.context.flags.moveInfoComboButton;
     const allowHhgInvoicePayment = this.props.context.flags.allowHhgInvoicePayment;
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
     const ordersComplete = Boolean(
@@ -242,8 +273,9 @@ class MoveInfo extends Component {
     const hhgDelivered = shipmentStatus === 'DELIVERED';
     const hhgCompleted = shipmentStatus === 'COMPLETED';
     const moveApproved = moveStatus === 'APPROVED';
+    const hhgCantBeCanceled = includes(['IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
 
-    const moveDate = isPPM ? ppm.planned_move_date : shipment && shipment.requested_pickup_date;
+    const moveDate = isPPM ? ppm.original_move_date : shipment && shipment.requested_pickup_date;
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
     }
@@ -345,6 +377,7 @@ class MoveInfo extends Component {
                       shipment={this.props.shipment}
                       shipmentStatus={this.props.shipmentStatus}
                       updatePublicShipment={this.props.updatePublicShipment}
+                      showSitPanel={this.props.context.flags.sitPanel}
                     />
                   )}
                 </PrivateRoute>
@@ -358,6 +391,39 @@ class MoveInfo extends Component {
                   Please fill out missing data
                 </Alert>
               )}
+              <div>
+                <ToolTip
+                  disabled={ordersComplete}
+                  textStyle="tooltiptext-large"
+                  toolTipText="Some information about the move is missing or contains errors. Please fix these problems before approving."
+                >
+                  {moveInfoComboButton && (
+                    <ComboButton buttonText="Approve" disabled={!ordersComplete}>
+                      <DropDown>
+                        <DropDownItem
+                          value="Approve Basics"
+                          disabled={moveApproved || !ordersComplete}
+                          onClick={this.approveBasics}
+                        />
+                        {(isPPM || isHHGPPM) && (
+                          <DropDownItem
+                            disabled={ppmApproved || !moveApproved || !ordersComplete}
+                            onClick={this.approvePPM}
+                            value="Approve PPM"
+                          />
+                        )}
+                        {(isHHG || isHHGPPM) && (
+                          <DropDownItem
+                            value="Approve HHG"
+                            onClick={this.approveShipment}
+                            disabled={!hhgAccepted || hhgApproved || hhgCompleted || !moveApproved || !ordersComplete}
+                          />
+                        )}
+                      </DropDown>
+                    </ComboButton>
+                  )}
+                </ToolTip>
+              </div>
               <button
                 className={`${moveApproved ? 'btn__approve--green' : ''}`}
                 onClick={this.approveBasics}
@@ -409,6 +475,7 @@ class MoveInfo extends Component {
                 reasonPrompt="Why is the move being canceled?"
                 warningPrompt="Are you sure you want to cancel the entire move?"
                 onConfirm={this.cancelMoveAndRedirect}
+                buttonDisabled={hhgCantBeCanceled}
               />
               {/* Disabling until features implemented
               <button>Troubleshoot</button>
@@ -461,9 +528,12 @@ MoveInfo.defaultProps = {
 };
 
 MoveInfo.propTypes = {
-  loadMoveDependencies: PropTypes.func.isRequired,
+  loadMove: PropTypes.func.isRequired,
   context: PropTypes.shape({
-    flags: PropTypes.shape({ documentViewer: PropTypes.bool }).isRequired,
+    flags: PropTypes.shape({
+      documentViewer: PropTypes.bool,
+      sitPanel: PropTypes.bool,
+    }).isRequired,
   }).isRequired,
 };
 
@@ -472,23 +542,31 @@ const mapStateToProps = (state, ownProps) => {
   const move = selectMove(state, moveId);
   const shipmentId = get(move, 'shipments.0.id');
   const ppm = selectPPMForMove(state, moveId);
-  const orders = get(state, `entities.orders.${move.orders_id}`, {});
-  const serviceMember = selectServiceMember(state, orders.service_member_id);
+  const ordersId = move.orders_id;
+  const orders = selectOrders(state, ordersId);
+  const serviceMemberId = move.service_member_id;
+  const serviceMember = selectServiceMember(state, serviceMemberId);
+  const loadOrdersStatus = getRequestStatus(state, loadOrdersLabel);
+  const loadMoveIsSuccess = getRequestStatus(state, loadMoveLabel).isSuccess;
+
   return {
     approveMoveHasError: get(state, 'office.moveHasApproveError'),
     errorMessage: get(state, 'office.error'),
-    loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
-    loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
+    loadDependenciesHasError: loadOrdersStatus.error,
+    loadDependenciesHasSuccess: loadOrdersStatus.isSuccess,
+    loadMoveIsSuccess,
     moveDocuments: selectAllDocumentsForMove(state, moveId),
     ppm,
     move,
     moveId,
     moveStatus: selectMoveStatus(state, moveId),
     orders,
+    ordersId,
     officeShipment: get(state, 'office.officeShipment', {}),
-    ppmAdvance: ppm.advance,
+    ppmAdvance: selectReimbursement(state, ppm.advance),
     serviceAgents: selectServiceAgentsForShipment(state, shipmentId),
     serviceMember,
+    serviceMemberId,
     shipment: selectShipment(state, shipmentId),
     shipmentId,
     shipmentLineItems: selectSortedShipmentLineItems(state),
@@ -504,7 +582,6 @@ const mapDispatchToProps = dispatch =>
     {
       getPublicShipment,
       updatePublicShipment,
-      loadMoveDependencies,
       getMoveDocumentsForMove,
       approveBasics,
       approvePPM,
@@ -518,6 +595,12 @@ const mapDispatchToProps = dispatch =>
       getServiceAgentsForShipment,
       showBanner,
       removeBanner,
+      loadMove,
+      loadPPMs,
+      loadServiceMember,
+      loadBackupContacts,
+      loadOrders,
+      resetRequests,
     },
     dispatch,
   );

@@ -46,24 +46,39 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 		rate = &intVal
 	}
 
+	var estAmt *int64
+	if s.EstimateAmountCents != nil {
+		intVal := s.EstimateAmountCents.Int64()
+		estAmt = &intVal
+	}
+
+	var actAmt *int64
+	if s.ActualAmountCents != nil {
+		intVal := s.ActualAmountCents.Int64()
+		actAmt = &intVal
+	}
+
 	return &apimessages.ShipmentLineItem{
-		ID:                *handlers.FmtUUID(s.ID),
-		ShipmentID:        *handlers.FmtUUID(s.ShipmentID),
-		Tariff400ngItem:   payloadForTariff400ngItemModel(&s.Tariff400ngItem),
-		Tariff400ngItemID: handlers.FmtUUID(s.Tariff400ngItemID),
-		Location:          apimessages.ShipmentLineItemLocation(s.Location),
-		Notes:             s.Notes,
-		Description:       s.Description,
-		Quantity1:         handlers.FmtInt64(int64(s.Quantity1)),
-		Quantity2:         handlers.FmtInt64(int64(s.Quantity2)),
-		Status:            apimessages.ShipmentLineItemStatus(s.Status),
-		InvoiceID:         handlers.FmtUUIDPtr(s.InvoiceID),
-		ItemDimensions:    payloadForDimensionsModel(&s.ItemDimensions),
-		CrateDimensions:   payloadForDimensionsModel(&s.CrateDimensions),
-		AmountCents:       amt,
-		AppliedRate:       rate,
-		SubmittedDate:     *handlers.FmtDateTime(s.SubmittedDate),
-		ApprovedDate:      handlers.FmtDateTime(s.ApprovedDate),
+		ID:                  *handlers.FmtUUID(s.ID),
+		ShipmentID:          *handlers.FmtUUID(s.ShipmentID),
+		Tariff400ngItem:     payloadForTariff400ngItemModel(&s.Tariff400ngItem),
+		Tariff400ngItemID:   handlers.FmtUUID(s.Tariff400ngItemID),
+		Location:            apimessages.ShipmentLineItemLocation(s.Location),
+		Notes:               s.Notes,
+		Description:         s.Description,
+		Reason:              s.Reason,
+		Quantity1:           handlers.FmtInt64(int64(s.Quantity1)),
+		Quantity2:           handlers.FmtInt64(int64(s.Quantity2)),
+		Status:              apimessages.ShipmentLineItemStatus(s.Status),
+		InvoiceID:           handlers.FmtUUIDPtr(s.InvoiceID),
+		ItemDimensions:      payloadForDimensionsModel(&s.ItemDimensions),
+		CrateDimensions:     payloadForDimensionsModel(&s.CrateDimensions),
+		EstimateAmountCents: estAmt,
+		ActualAmountCents:   actAmt,
+		AmountCents:         amt,
+		AppliedRate:         rate,
+		SubmittedDate:       *handlers.FmtDateTime(s.SubmittedDate),
+		ApprovedDate:        handlers.FmtDateTime(s.ApprovedDate),
 	}
 }
 
@@ -212,7 +227,6 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 		Quantity2:           unit.IntToBaseQuantity(params.Payload.Quantity2),
 		Location:            string(params.Payload.Location),
 		Notes:               handlers.FmtString(params.Payload.Notes),
-		Description:         params.Payload.Description,
 	}
 
 	var itemDimensions, crateDimensions *models.AdditionalLineItemDimensions
@@ -230,9 +244,25 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 			Height: unit.ThousandthInches(*params.Payload.CrateDimensions.Height),
 		}
 	}
+
+	var estAmtCents *unit.Cents
+	var actAmtCents *unit.Cents
+	if params.Payload.EstimateAmountCents != nil {
+		centsValue := unit.Cents(*params.Payload.EstimateAmountCents)
+		estAmtCents = &centsValue
+	}
+	if params.Payload.ActualAmountCents != nil {
+		centsValue := unit.Cents(*params.Payload.ActualAmountCents)
+		actAmtCents = &centsValue
+	}
+
 	additionalParams := models.AdditionalShipmentLineItemParams{
-		ItemDimensions:  itemDimensions,
-		CrateDimensions: crateDimensions,
+		ItemDimensions:      itemDimensions,
+		CrateDimensions:     crateDimensions,
+		Description:         params.Payload.Description,
+		Reason:              params.Payload.Reason,
+		EstimateAmountCents: estAmtCents,
+		ActualAmountCents:   actAmtCents,
 	}
 
 	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(h.DB(),
@@ -285,29 +315,64 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 
 	tariff400ngItemID := uuid.Must(uuid.FromString(params.Payload.Tariff400ngItemID.String()))
 	tariff400ngItem, err := models.FetchTariff400ngItem(h.DB(), tariff400ngItemID)
+	shipment := shipmentLineItem.Shipment
 
 	if !tariff400ngItem.RequiresPreApproval {
 		return accessorialop.NewUpdateShipmentLineItemForbidden()
 	}
 
-	// update
-	shipmentLineItem.Tariff400ngItemID = tariff400ngItemID
-	shipmentLineItem.Quantity1 = unit.BaseQuantity(*params.Payload.Quantity1)
-	if params.Payload.Quantity2 != nil {
-		shipmentLineItem.Quantity2 = unit.BaseQuantity(*params.Payload.Quantity2)
+	baseParams := models.BaseShipmentLineItemParams{
+		Tariff400ngItemID:   tariff400ngItemID,
+		Tariff400ngItemCode: tariff400ngItem.Code,
+		Quantity1:           unit.IntToBaseQuantity(params.Payload.Quantity1),
+		Quantity2:           unit.IntToBaseQuantity(params.Payload.Quantity2),
+		Location:            string(params.Payload.Location),
+		Notes:               handlers.FmtString(params.Payload.Notes),
 	}
-	shipmentLineItem.Location = models.ShipmentLineItemLocation(params.Payload.Location)
-	shipmentLineItem.Notes = params.Payload.Notes
 
-	verrs, err := h.DB().ValidateAndUpdate(&shipmentLineItem)
+	var itemDimensions, crateDimensions *models.AdditionalLineItemDimensions
+	if params.Payload.ItemDimensions != nil {
+		itemDimensions = &models.AdditionalLineItemDimensions{
+			Length: unit.ThousandthInches(*params.Payload.ItemDimensions.Length),
+			Width:  unit.ThousandthInches(*params.Payload.ItemDimensions.Width),
+			Height: unit.ThousandthInches(*params.Payload.ItemDimensions.Height),
+		}
+	}
+	if params.Payload.CrateDimensions != nil {
+		crateDimensions = &models.AdditionalLineItemDimensions{
+			Length: unit.ThousandthInches(*params.Payload.CrateDimensions.Length),
+			Width:  unit.ThousandthInches(*params.Payload.CrateDimensions.Width),
+			Height: unit.ThousandthInches(*params.Payload.CrateDimensions.Height),
+		}
+	}
+
+	var estAmtCents *unit.Cents
+	var actAmtCents *unit.Cents
+	if params.Payload.EstimateAmountCents != nil {
+		centsValue := unit.Cents(*params.Payload.EstimateAmountCents)
+		estAmtCents = &centsValue
+	}
+	if params.Payload.ActualAmountCents != nil {
+		centsValue := unit.Cents(*params.Payload.ActualAmountCents)
+		actAmtCents = &centsValue
+	}
+	additionalParams := models.AdditionalShipmentLineItemParams{
+		ItemDimensions:      itemDimensions,
+		CrateDimensions:     crateDimensions,
+		Description:         params.Payload.Description,
+		Reason:              params.Payload.Reason,
+		EstimateAmountCents: estAmtCents,
+		ActualAmountCents:   actAmtCents,
+	}
+
+	verrs, err := shipment.UpdateShipmentLineItem(h.DB(),
+		baseParams,
+		additionalParams,
+		&shipmentLineItem,
+	)
 	if verrs.HasAny() || err != nil {
-		h.Logger().Error("Error updating shipment line item for shipment", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	err = h.DB().Load(&shipmentLineItem)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		h.Logger().Error("Error fetching shipment line items for shipment", zap.Error(err))
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
 	payload := payloadForShipmentLineItemModel(&shipmentLineItem)
@@ -404,7 +469,7 @@ func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipm
 	// If shipment is delivered, price single shipment line item
 	if shipmentLineItem.Shipment.Status == models.ShipmentStatusDELIVERED {
 		shipmentLineItem.Shipment = *shipment
-		engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
+		engine := rateengine.NewRateEngine(h.DB(), h.Logger())
 		err = engine.PricePreapprovalRequest(&shipmentLineItem)
 		if err != nil {
 			return handlers.ResponseForError(h.Logger(), err)

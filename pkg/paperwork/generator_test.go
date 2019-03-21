@@ -6,6 +6,8 @@ import (
 	"io"
 	"path"
 
+	"github.com/transcom/mymove/pkg/uploader"
+
 	"github.com/spf13/afero"
 	"github.com/trussworks/pdfcpu/pkg/api"
 	"github.com/trussworks/pdfcpu/pkg/pdfcpu"
@@ -39,20 +41,22 @@ func (suite *PaperworkSuite) setupOrdersDocument() (*Generator, models.Order) {
 	suite.FatalNil(err)
 
 	file, err := suite.openLocalFile("testdata/orders1.jpg", generator.fs)
-
 	suite.FatalNil(err)
-	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
+
+	_, _, err = suite.uploader.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesAny)
 	suite.FatalNil(err)
 
 	file, err = suite.openLocalFile("testdata/orders1.pdf", generator.fs)
 	suite.FatalNil(err)
-	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
+
+	_, _, err = suite.uploader.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesAny)
 	suite.FatalNil(err)
 
 	file, err = suite.openLocalFile("testdata/orders2.jpg", generator.fs)
-	suite.Nil(err)
-	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
-	suite.Nil(err)
+	suite.FatalNil(err)
+
+	_, _, err = suite.uploader.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesAny)
+	suite.FatalNil(err)
 
 	err = suite.DB().Load(&document, "Uploads")
 	suite.FatalNil(err)

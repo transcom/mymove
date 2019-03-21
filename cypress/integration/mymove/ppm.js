@@ -1,16 +1,9 @@
 /* global cy */
 
 describe('completing the ppm flow', function() {
-  beforeEach(() => {
-    //profile@comple.te
-    // cy.resetDb();
-    cy.signInAsUser('13f3949d-0d53-4be4-b1b1-ae4314793f34');
-  });
-
-  //tear down currently means doing this:
-  //update moves set status='DRAFT';
-  //delete from personally_procured_moves
   it('progresses thru forms', function() {
+    //profile@comple.te
+    cy.signInAsUser('13f3949d-0d53-4be4-b1b1-ae4314793f34');
     cy.contains('Fort Gordon (from Yuma AFB)');
     cy.get('.whole_box > div > :nth-child(3) > span').contains('10,500 lbs');
     cy.contains('Continue Move Setup').click();
@@ -20,7 +13,7 @@ describe('completing the ppm flow', function() {
     });
     cy.get('.wizard-header').should('not.exist');
     cy
-      .get('input[name="planned_move_date"]')
+      .get('input[name="original_move_date"]')
       .first()
       .type('9/2/2018{enter}')
       .blur();
@@ -83,5 +76,44 @@ describe('completing the ppm flow', function() {
     cy.contains('Success');
     cy.contains('Next Step: Wait for approval');
     cy.contains('Advance Requested: $1,333.91');
+  });
+
+  it('allows a SM to request payment', function() {
+    cy.logout();
+    //profile@comple.te
+    cy.signInAsUser('8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
+    cy.contains('Fort Gordon (from Yuma AFB)');
+    cy.contains('Request Payment').click();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/request-payment/);
+    });
+    cy.get('input[type="checkbox"]').should('not.be.checked');
+    const stub = cy.stub();
+    cy.on('window:alert', stub);
+
+    cy
+      .contains('Legal Agreement / Privacy Act')
+      .click()
+      .then(() => {
+        expect(stub.getCall(0)).to.be.calledWithMatch('LEGAL AGREEMENT / PRIVACY ACT');
+      });
+    cy.get('input[type="checkbox"]').should('not.be.checked');
+    cy.get('input[type="checkbox"]').check({ force: true });
+  });
+});
+
+describe('editing ppm only move', () => {
+  it('sees only details relevant to PPM only move', () => {
+    cy.signInAsUser('e10d5964-c070-49cb-9bd1-eaf9f7348eb6');
+    cy
+      .get('.sidebar button')
+      .contains('Edit Move')
+      .click();
+
+    cy.get('.ppm-container').should(ppmContainer => {
+      expect(ppmContainer).to.have.length(1);
+      expect(ppmContainer).to.not.have.class('hhg-shipment-summary');
+    });
   });
 });

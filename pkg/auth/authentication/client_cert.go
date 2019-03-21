@@ -8,8 +8,8 @@ import (
 
 	"github.com/gobuffalo/pop"
 	beeline "github.com/honeycombio/beeline-go"
+
 	"github.com/transcom/mymove/pkg/models"
-	"go.uber.org/zap"
 )
 
 type authClientCertKey string
@@ -30,7 +30,7 @@ func ClientCertFromRequestContext(r *http.Request) *models.ClientCert {
 }
 
 // ClientCertMiddleware enforces that the incoming request includes a known client certificate, and stores the fetched permissions in the session
-func ClientCertMiddleware(logger *zap.Logger, db *pop.Connection) func(next http.Handler) http.Handler {
+func ClientCertMiddleware(logger Logger, db *pop.Connection) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			ctx, span := beeline.StartSpan(r.Context(), "ClientCertMiddleware")

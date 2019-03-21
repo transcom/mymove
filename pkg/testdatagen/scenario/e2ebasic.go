@@ -9,7 +9,6 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/dates"
@@ -38,18 +37,18 @@ var selectedMoveTypeHHGPPM = models.SelectedMoveTypeHHGPPM
 
 // Often weekends and holidays are not allowable dates
 var cal = dates.NewUSCalendar()
-var nowTime = dates.NextValidMoveDate(time.Now(), cal)
+var nextValidMoveDate = dates.NextValidMoveDate(time.Now(), cal)
 
-var nowPlusOne = dates.NextValidMoveDate(nowTime.AddDate(0, 0, 1), cal)
-var nowPlusFive = dates.NextValidMoveDate(nowTime.AddDate(0, 0, 5), cal)
-var nowPlusTen = dates.NextValidMoveDate(nowTime.AddDate(0, 0, 10), cal)
+var nextValidMoveDatePlusOne = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, 1), cal)
+var nextValidMoveDatePlusFive = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, 5), cal)
+var nextValidMoveDatePlusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, 10), cal)
 
-var nowMinusOne = dates.NextValidMoveDate(nowTime.AddDate(0, 0, -1), cal)
-var nowMinusFive = dates.NextValidMoveDate(nowTime.AddDate(0, 0, -5), cal)
-var nowMinusTen = dates.NextValidMoveDate(nowTime.AddDate(0, 0, -10), cal)
+var nextValidMoveDateMinusOne = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -1), cal)
+var nextValidMoveDateMinusFive = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -5), cal)
+var nextVAlidMoveDateMinusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
 
 // Run does that data load thing
-func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger *zap.Logger, storer *storage.Memory) {
+func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger Logger, storer *storage.Memory) {
 	/*
 	 * Basic user with tsp access
 	 */
@@ -104,16 +103,39 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	makeHhgReadyToInvoice(db, tspUser, logger, storer)
 
 	/*
-	 * Service member with uploaded orders and a new ppm
+	 * Service member with no uploaded orders
 	 */
-	email = "ppm@incomple.te"
-	uuidStr := "e10d5964-c070-49cb-9bd1-eaf9f7348eb6"
+	email = "needs@orde.rs"
+	uuidStr := "feac0e92-66ec-4cab-ad29-538129bf918e"
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString(uuidStr)),
 			LoginGovEmail: email,
 		},
 	})
+
+	testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("c52a9f13-ccc7-4c1b-b5ef-e1132a4f4db9"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("NEEDS"),
+			LastName:      models.StringPointer("ORDERS"),
+			PersonalEmail: models.StringPointer(email),
+		},
+	})
+
+	/*
+	 * Service member with uploaded orders and a new ppm
+	 */
+	email = "ppm@incomple.te"
+	uuidStr = "e10d5964-c070-49cb-9bd1-eaf9f7348eb6"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
 	ppm0 := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("94ced723-fabc-42af-b9ee-87f8986bb5c9"),
@@ -128,12 +150,109 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Locator: "VGHEIS",
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &nowTime,
+			OriginalMoveDate:    &nextValidMoveDate,
+			Advance:             &advance,
+			AdvanceID:           &advance.ID,
+			HasRequestedAdvance: true,
 		},
 		Uploader: loader,
 	})
 	ppm0.Move.Submit()
 	models.SaveMoveDependencies(db, &ppm0.Move)
+
+	/*
+	 * Service member with uploaded orders, a new ppm and no advance
+	 */
+	email = "ppm@advance.no"
+	uuidStr = "f0ddc118-3f7e-476b-b8be-0f964a5feee2"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	ppmNoAdvance := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("1a1aafde-df3b-4459-9dbd-27e9f6c1d2f6"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("No Advance"),
+			Edipi:         models.StringPointer("1234567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("4f3f4bee-3719-4c17-8cf4-7e445a38d90e"),
+			Locator: "NOADVC",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate: &nextValidMoveDate,
+		},
+		Uploader: loader,
+	})
+	ppmNoAdvance.Move.Submit()
+	models.SaveMoveDependencies(db, &ppmNoAdvance.Move)
+
+	/*
+	 * office user finds the move: office user completes storage panel
+	 */
+	email = "office.user.completes@storage.panel"
+	uuidStr = "ebac4efd-c980-48d6-9cce-99fb34644789"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	ppmStorage := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("76eb1c93-16f7-4c8e-a71c-67d5c9093dd3"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Storage"),
+			LastName:      models.StringPointer("Panel"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("25fb9bf6-2a38-4463-8247-fce2a5571ab7"),
+			Locator: "STORAG",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate: &nextValidMoveDate,
+		},
+		Uploader: loader,
+	})
+	ppmStorage.Move.Submit()
+	models.SaveMoveDependencies(db, &ppmStorage.Move)
+
+	/*
+	 * office user finds the move: office user cancels storage panel
+	 */
+	email = "office.user.cancelss@storage.panel"
+	uuidStr = "cbb56f00-97f7-4d20-83cf-25a7b2f150b6"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	ppmNoStorage := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("b9673e29-ac8d-4945-abc2-36f8eafd6fd8"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Storage"),
+			LastName:      models.StringPointer("Panel"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("9d0409b8-3587-4fad-9caf-7fc853e1c001"),
+			Locator: "NOSTRG",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate: &nextValidMoveDate,
+		},
+		Uploader: loader,
+	})
+	ppmNoStorage.Move.Submit()
+	models.SaveMoveDependencies(db, &ppmNoStorage.Move)
 
 	/*
 	 * A move, that will be canceled by the E2E test
@@ -160,7 +279,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Locator: "CANCEL",
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &nowTime,
+			OriginalMoveDate: &nextValidMoveDate,
 		},
 		Uploader: loader,
 	})
@@ -178,7 +297,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			LoginGovEmail: email,
 		},
 	})
-	pastTime := time.Now().AddDate(0, 0, -10)
+	pastTime := nextVAlidMoveDateMinusTen
 	ppm1 := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("466c41b9-50bf-462c-b3cd-1ae33a2dad9b"),
@@ -193,7 +312,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Locator: "GBXYUI",
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &pastTime,
+			OriginalMoveDate: &pastTime,
 		},
 		Uploader: loader,
 	})
@@ -212,7 +331,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			LoginGovEmail: email,
 		},
 	})
-	futureTime := time.Now().AddDate(0, 0, 10)
+	futureTime := nextValidMoveDatePlusTen
 	typeDetail := internalmessages.OrdersTypeDetailPCSTDY
 	ppm2 := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -235,7 +354,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Locator: "FDXTIU",
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &futureTime,
+			OriginalMoveDate: &futureTime,
 		},
 		Uploader: loader,
 	})
@@ -258,7 +377,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 	// Date picked essentialy at random, but needs to be within TestYear
-	plannedMoveDate := time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
+	originalMoveDate := time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
+	actualMoveDate := time.Date(testdatagen.TestYear, time.November, 11, 10, 0, 0, 0, time.UTC)
 	moveTypeDetail := internalmessages.OrdersTypeDetailPCSTDY
 	ppm3 := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -281,7 +401,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Locator: "PAYMNT",
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &plannedMoveDate,
+			OriginalMoveDate: &originalMoveDate,
+			ActualMoveDate:   &actualMoveDate,
 		},
 		Uploader: loader,
 	})
@@ -318,7 +439,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Locator: "PPMCAN",
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &nowTime,
+			OriginalMoveDate: &nextValidMoveDate,
 		},
 		Uploader: loader,
 	})
@@ -388,6 +509,38 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("8718c8ac-e0c6-423b-bdc6-af971ee05b9a"),
 			Locator: "REWGIE",
+		},
+	})
+
+	/*
+	 * Service member with orders and a move, but no move type selected to select HHG
+	 */
+	email = "sm_hhg_continue@example.com"
+	uuidStr = "1256a6ea-27cc-4d60-92df-1bc2a5c39028"
+
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+
+	testdatagen.MakeMoveWithoutMoveType(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("2dac8695-b4d8-40ad-aa84-2b03b6bec960"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("Continue"),
+			Edipi:         models.StringPointer("2553282188"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("209ecba8-f99d-446f-b649-06a0da613aa7"),
+			Locator: "HHGCON",
 		},
 	})
 
@@ -546,11 +699,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Shipment: models.Shipment{
 			ID:                          uuid.FromStringOrNil("53ebebef-be58-41ce-9635-a4930149190d"),
 			Status:                      models.ShipmentStatusAWARDED,
-			PmSurveyPlannedPackDate:     &nowPlusOne,
-			PmSurveyConductedDate:       &nowPlusOne,
-			PmSurveyCompletedAt:         &nowPlusOne,
-			PmSurveyPlannedPickupDate:   &nowPlusFive,
-			PmSurveyPlannedDeliveryDate: &nowPlusTen,
+			PmSurveyPlannedPackDate:     &nextValidMoveDatePlusOne,
+			PmSurveyConductedDate:       &nextValidMoveDatePlusOne,
+			PmSurveyCompletedAt:         &nextValidMoveDatePlusOne,
+			PmSurveyPlannedPickupDate:   &nextValidMoveDatePlusFive,
+			PmSurveyPlannedDeliveryDate: &nextValidMoveDatePlusTen,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
 			DestinationGBLOC:            &destOffice.Gbloc,
 		},
@@ -607,12 +760,12 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Shipment: models.Shipment{
 			Status:                      models.ShipmentStatusACCEPTED,
 			HasDeliveryAddress:          true,
-			BookDate:                    &nowTime,
-			PmSurveyPlannedPackDate:     &nowPlusOne,
-			PmSurveyConductedDate:       &nowPlusOne,
-			PmSurveyCompletedAt:         &nowPlusOne,
-			PmSurveyPlannedPickupDate:   &nowPlusFive,
-			PmSurveyPlannedDeliveryDate: &nowPlusTen,
+			BookDate:                    &nextValidMoveDate,
+			PmSurveyPlannedPackDate:     &nextValidMoveDatePlusOne,
+			PmSurveyConductedDate:       &nextValidMoveDatePlusOne,
+			PmSurveyCompletedAt:         &nextValidMoveDatePlusOne,
+			PmSurveyPlannedPickupDate:   &nextValidMoveDatePlusFive,
+			PmSurveyPlannedDeliveryDate: &nextValidMoveDatePlusTen,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -654,12 +807,12 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Shipment: models.Shipment{
 			Status:                      models.ShipmentStatusAWARDED,
-			BookDate:                    &nowTime,
-			PmSurveyPlannedPackDate:     &nowPlusOne,
-			PmSurveyConductedDate:       &nowPlusOne,
-			PmSurveyCompletedAt:         &nowPlusOne,
-			PmSurveyPlannedPickupDate:   &nowPlusFive,
-			PmSurveyPlannedDeliveryDate: &nowPlusTen,
+			BookDate:                    &nextValidMoveDate,
+			PmSurveyPlannedPackDate:     &nextValidMoveDatePlusOne,
+			PmSurveyConductedDate:       &nextValidMoveDatePlusOne,
+			PmSurveyCompletedAt:         &nextValidMoveDatePlusOne,
+			PmSurveyPlannedPickupDate:   &nextValidMoveDatePlusFive,
+			PmSurveyPlannedDeliveryDate: &nextValidMoveDatePlusTen,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -700,12 +853,12 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Shipment: models.Shipment{
 			Status:                      models.ShipmentStatusAWARDED,
-			BookDate:                    &nowTime,
-			PmSurveyPlannedPackDate:     &nowPlusOne,
-			PmSurveyConductedDate:       &nowPlusOne,
-			PmSurveyCompletedAt:         &nowPlusOne,
-			PmSurveyPlannedPickupDate:   &nowPlusFive,
-			PmSurveyPlannedDeliveryDate: &nowPlusTen,
+			BookDate:                    &nextValidMoveDate,
+			PmSurveyPlannedPackDate:     &nextValidMoveDatePlusOne,
+			PmSurveyConductedDate:       &nextValidMoveDatePlusOne,
+			PmSurveyCompletedAt:         &nextValidMoveDatePlusOne,
+			PmSurveyPlannedPickupDate:   &nextValidMoveDatePlusFive,
+			PmSurveyPlannedDeliveryDate: &nextValidMoveDatePlusTen,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -746,11 +899,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Shipment: models.Shipment{
 			Status:                      models.ShipmentStatusINTRANSIT,
-			BookDate:                    &nowMinusTen,
-			PmSurveyPlannedPackDate:     &nowMinusFive,
-			PmSurveyConductedDate:       &nowMinusFive,
-			PmSurveyPlannedPickupDate:   &nowMinusOne,
-			PmSurveyPlannedDeliveryDate: &nowPlusFive,
+			BookDate:                    &nextVAlidMoveDateMinusTen,
+			PmSurveyPlannedPackDate:     &nextValidMoveDateMinusFive,
+			PmSurveyConductedDate:       &nextValidMoveDateMinusFive,
+			PmSurveyPlannedPickupDate:   &nextValidMoveDateMinusOne,
+			PmSurveyPlannedDeliveryDate: &nextValidMoveDatePlusFive,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -792,7 +945,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Shipment: models.Shipment{
 			Status:   models.ShipmentStatusAPPROVED,
-			BookDate: &nowTime,
+			BookDate: &nextValidMoveDate,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -1503,7 +1656,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	email = "enter@delivery.date"
 
 	netWeight := unit.Pound(2000)
-	actualPickupDate := time.Now()
+	actualPickupDate := nextValidMoveDate
 	offer24 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("1af7ca19-8511-4c6e-a93b-144811c0fa7c")),
@@ -1819,10 +1972,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			HasDeliveryAddress: true,
 
 			PmSurveyMethod:              "PHONE",
-			PmSurveyPlannedPackDate:     &nowPlusOne,
-			PmSurveyPlannedPickupDate:   &nowPlusFive,
-			PmSurveyCompletedAt:         &nowPlusOne,
-			PmSurveyPlannedDeliveryDate: &nowPlusTen,
+			PmSurveyPlannedPackDate:     &nextValidMoveDatePlusOne,
+			PmSurveyPlannedPickupDate:   &nextValidMoveDatePlusFive,
+			PmSurveyCompletedAt:         &nextValidMoveDatePlusOne,
+			PmSurveyPlannedDeliveryDate: &nextValidMoveDatePlusTen,
 			PmSurveyWeightEstimate:      &weightEstimate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
 			DestinationGBLOC:            &destOffice.Gbloc,
@@ -1886,12 +2039,12 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Shipment: models.Shipment{
 			ID:                          uuid.FromStringOrNil("53115e49-466e-42ee-85c6-9215add89cea"),
 			Status:                      models.ShipmentStatusACCEPTED,
-			PmSurveyConductedDate:       &nowPlusOne,
-			PmSurveyCompletedAt:         &nowPlusOne,
+			PmSurveyConductedDate:       &nextValidMoveDatePlusOne,
+			PmSurveyCompletedAt:         &nextValidMoveDatePlusOne,
 			PmSurveyMethod:              "PHONE",
-			PmSurveyPlannedPackDate:     &nowPlusOne,
-			PmSurveyPlannedPickupDate:   &nowPlusOne,
-			PmSurveyPlannedDeliveryDate: &nowPlusOne,
+			PmSurveyPlannedPackDate:     &nextValidMoveDatePlusOne,
+			PmSurveyPlannedPickupDate:   &nextValidMoveDatePlusOne,
+			PmSurveyPlannedDeliveryDate: &nextValidMoveDatePlusOne,
 			PmSurveyWeightEstimate:      &weightEstimate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
 			DestinationGBLOC:            &destOffice.Gbloc,
@@ -1947,7 +2100,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Shipment: models.Shipment{
 			Status:   models.ShipmentStatusAWARDED,
-			BookDate: &nowTime,
+			BookDate: &nextValidMoveDate,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -2035,6 +2188,49 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	hhg35 := offer35.Shipment
 	hhg35.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg35.Move)
+
+	/*
+	 * Service member with a ppm ready to request payment
+	 */
+	email = "ppm@requestingpay.ment"
+	uuidStr = "8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	ppm5 := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("ff1f56c0-544e-4109-8168-f91ebcbbb878"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("RequestingPay"),
+			Edipi:         models.StringPointer("6737033988"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		// These values should be populated for an approved move
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("62341"),
+			OrdersTypeDetail:    &typeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("946a5d40-0636-418f-b457-474915fb0149"),
+			Locator: "REQPAY",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate: &pastTime,
+		},
+		Uploader: loader,
+	})
+	ppm5.Move.Submit()
+	ppm5.Move.Approve()
+	// This is the same PPM model as ppm5, but this is the one that will be saved by SaveMoveDependencies
+	ppm5.Move.PersonallyProcuredMoves[0].Submit()
+	ppm5.Move.PersonallyProcuredMoves[0].Approve()
+	models.SaveMoveDependencies(db, &ppm5.Move)
 }
 
 // MakeHhgWithPpm creates an HHG user who has added a PPM
@@ -2088,8 +2284,8 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 			ID: moveID,
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &nowTime,
-			MoveID:          moveID,
+			OriginalMoveDate: &nextValidMoveDate,
+			MoveID:           moveID,
 		},
 		Uploader: loader,
 	})
@@ -2148,8 +2344,8 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 			ID: moveID2,
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &nowTime,
-			MoveID:          moveID2,
+			OriginalMoveDate: &nextValidMoveDate,
+			MoveID:           moveID2,
 		},
 		Uploader: loader,
 	})
@@ -2204,13 +2400,13 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 			HasDeliveryAddress: true,
 			GBLNumber:          models.StringPointer("LKNQ7123456"),
 
-			ActualPickupDate:            &nowMinusFive,
+			ActualPickupDate:            &nextValidMoveDateMinusFive,
 			PmSurveyMethod:              "PHONE",
-			PmSurveyPlannedPackDate:     &nowPlusOne,
-			PmSurveyPlannedPickupDate:   &nowPlusFive,
-			PmSurveyConductedDate:       &nowPlusOne,
-			PmSurveyCompletedAt:         &nowPlusOne,
-			PmSurveyPlannedDeliveryDate: &nowPlusTen,
+			PmSurveyPlannedPackDate:     &nextValidMoveDatePlusOne,
+			PmSurveyPlannedPickupDate:   &nextValidMoveDatePlusFive,
+			PmSurveyConductedDate:       &nextValidMoveDatePlusOne,
+			PmSurveyCompletedAt:         &nextValidMoveDatePlusOne,
+			PmSurveyPlannedDeliveryDate: &nextValidMoveDatePlusTen,
 			PmSurveyWeightEstimate:      &weightEstimate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
 			DestinationGBLOC:            &destOffice.Gbloc,
@@ -2228,8 +2424,8 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 			ID: moveID3,
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &nowTime,
-			MoveID:          moveID3,
+			OriginalMoveDate: &nextValidMoveDate,
+			MoveID:           moveID3,
 		},
 		Uploader: loader,
 	})
@@ -2274,13 +2470,13 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 			HasDeliveryAddress: true,
 			GBLNumber:          models.StringPointer("LKNQ7123456"),
 
-			ActualPickupDate:            &nowMinusFive,
+			ActualPickupDate:            &nextValidMoveDateMinusFive,
 			PmSurveyMethod:              "PHONE",
-			PmSurveyPlannedPackDate:     &nowPlusOne,
-			PmSurveyPlannedPickupDate:   &nowPlusFive,
-			PmSurveyConductedDate:       &nowPlusOne,
-			PmSurveyCompletedAt:         &nowPlusOne,
-			PmSurveyPlannedDeliveryDate: &nowPlusTen,
+			PmSurveyPlannedPackDate:     &nextValidMoveDatePlusOne,
+			PmSurveyPlannedPickupDate:   &nextValidMoveDatePlusFive,
+			PmSurveyConductedDate:       &nextValidMoveDatePlusOne,
+			PmSurveyCompletedAt:         &nextValidMoveDatePlusOne,
+			PmSurveyPlannedDeliveryDate: &nextValidMoveDatePlusTen,
 			PmSurveyWeightEstimate:      &weightEstimate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
 			DestinationGBLOC:            &destOffice.Gbloc,
@@ -2298,8 +2494,8 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 			ID: moveID4,
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			PlannedMoveDate: &nowTime,
-			MoveID:          moveID4,
+			OriginalMoveDate: &nextValidMoveDate,
+			MoveID:           moveID4,
 		},
 		Uploader: loader,
 	})
@@ -2357,10 +2553,10 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 			ID:                          uuid.FromStringOrNil("a4013cee-aa0a-41a3-b5f5-b9eed0758e1d 0xc42022c070"),
 			Status:                      models.ShipmentStatusAPPROVED,
 			PmSurveyMethod:              "PHONE",
-			PmSurveyPlannedPackDate:     &nowPlusOne,
-			PmSurveyPlannedPickupDate:   &nowPlusFive,
-			PmSurveyCompletedAt:         &nowPlusOne,
-			PmSurveyPlannedDeliveryDate: &nowPlusTen,
+			PmSurveyPlannedPackDate:     &nextValidMoveDatePlusOne,
+			PmSurveyPlannedPickupDate:   &nextValidMoveDatePlusFive,
+			PmSurveyCompletedAt:         &nextValidMoveDatePlusOne,
+			PmSurveyPlannedDeliveryDate: &nextValidMoveDatePlusTen,
 			PmSurveyWeightEstimate:      &weightEstimate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
 			DestinationGBLOC:            &destOffice.Gbloc,
@@ -2395,7 +2591,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 }
 
 // MakeHhgWithGBL creates a scenario for an approved shipment with a GBL generated
-func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logger, storer *storage.Memory) models.Shipment {
+func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger Logger, storer *storage.Memory) models.Shipment {
 	/*
 	 * Service member with uploaded orders and an approved shipment to be accepted, able to generate GBL
 	 */
@@ -2445,10 +2641,10 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logg
 			Status: models.ShipmentStatusAPPROVED,
 
 			PmSurveyMethod:              "PHONE",
-			PmSurveyPlannedPackDate:     &nowPlusOne,
-			PmSurveyPlannedPickupDate:   &nowPlusFive,
-			PmSurveyCompletedAt:         &nowPlusOne,
-			PmSurveyPlannedDeliveryDate: &nowPlusTen,
+			PmSurveyPlannedPackDate:     &nextValidMoveDatePlusOne,
+			PmSurveyPlannedPickupDate:   &nextValidMoveDatePlusFive,
+			PmSurveyCompletedAt:         &nextValidMoveDatePlusOne,
+			PmSurveyPlannedDeliveryDate: &nextValidMoveDatePlusTen,
 			PmSurveyWeightEstimate:      &weightEstimate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
 			DestinationGBLOC:            &destOffice.Gbloc,
@@ -2497,7 +2693,7 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logg
 	formFiller.Output(aFile)
 
 	uploader := uploaderpkg.NewUploader(db, logger, storer)
-	upload, _, _ := uploader.CreateUpload(nil, *tspUser.UserID, aFile)
+	upload, _, _ := uploader.CreateUpload(*tspUser.UserID, &aFile, uploaderpkg.AllowedTypesPDF)
 	uploads := []models.Upload{*upload}
 
 	// Create GBL move document associated to the shipment
@@ -2513,7 +2709,7 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logg
 	return offer.Shipment
 }
 
-func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *zap.Logger, storer *storage.Memory) models.Shipment {
+func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Logger, storer *storage.Memory) models.Shipment {
 	/*
 	 * Service member with uploaded orders and a delivered shipment, able to generate GBL
 	 */
@@ -2565,12 +2761,12 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 			ID:                          uuid.FromStringOrNil("67a3cbe7-4ae3-4f6a-9f9a-4f312e7458b9"),
 			Status:                      models.ShipmentStatusINTRANSIT,
 			PmSurveyMethod:              "PHONE",
-			PmSurveyPlannedPackDate:     &nowMinusTen,
-			PmSurveyPlannedPickupDate:   &nowMinusFive,
-			PmSurveyPlannedDeliveryDate: &nowMinusOne,
+			PmSurveyPlannedPackDate:     &nextVAlidMoveDateMinusTen,
+			PmSurveyPlannedPickupDate:   &nextValidMoveDateMinusFive,
+			PmSurveyPlannedDeliveryDate: &nextValidMoveDateMinusOne,
 			NetWeight:                   &netWeight,
-			ActualPickupDate:            &nowMinusFive,
-			OriginalDeliveryDate:        &nowMinusOne,
+			ActualPickupDate:            &nextValidMoveDateMinusFive,
+			OriginalDeliveryDate:        &nextValidMoveDateMinusOne,
 			PmSurveyWeightEstimate:      &weightEstimate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
 			DestinationGBLOC:            &destOffice.Gbloc,
@@ -2584,11 +2780,12 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 	})
 
 	planner := route.NewTestingPlanner(1234)
-	engine := rateengine.NewRateEngine(db, logger, planner)
+	engine := rateengine.NewRateEngine(db, logger)
 	verrs, err := shipmentservice.DeliverAndPriceShipment{
-		DB:     db,
-		Engine: engine,
-	}.Call(nowMinusOne, &offer.Shipment)
+		DB:      db,
+		Engine:  engine,
+		Planner: planner,
+	}.Call(nextValidMoveDateMinusOne, &offer.Shipment)
 
 	if verrs.HasAny() || err != nil {
 		fmt.Println(verrs.String())
@@ -2635,7 +2832,7 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *z
 	formFiller.Output(aFile)
 
 	uploader := uploaderpkg.NewUploader(db, logger, storer)
-	upload, _, _ := uploader.CreateUpload(nil, *tspUser.UserID, aFile)
+	upload, _, _ := uploader.CreateUpload(*tspUser.UserID, &aFile, uploaderpkg.AllowedTypesPDF)
 	uploads := []models.Upload{*upload}
 
 	// Create GBL move document associated to the shipment

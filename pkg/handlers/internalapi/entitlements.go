@@ -9,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/honeycombio/beeline-go"
+
 	"github.com/transcom/mymove/pkg/auth"
 	entitlementop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -43,19 +44,23 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	// Return 404 if there's no PPM or Rank, or this is an HHG
-	// TODO: Handle COMBO moves
-	if len(move.PersonallyProcuredMoves) < 1 || len(move.Shipments) >= 1 || serviceMember.Rank == nil {
+	// Return 404 if there's no PPM or Shipment,  or if there is no Rank
+	if (len(move.PersonallyProcuredMoves) < 1 && len(move.Shipments) < 1) || serviceMember.Rank == nil {
 		return entitlementop.NewValidateEntitlementNotFound()
 	}
-	// PPMs are in descending order - this is the last one created
-	weightEstimate := *move.PersonallyProcuredMoves[0].WeightEstimate
+	var weightEstimate int64
+	if len(move.PersonallyProcuredMoves) >= 1 {
+		// PPMs are in descending order - this is the last one created
+		weightEstimate = int64(*move.PersonallyProcuredMoves[0].WeightEstimate)
+	} else if len(move.Shipments) >= 1 {
+		weightEstimate = int64(*move.Shipments[0].WeightEstimate)
+	}
 
 	smEntitlement, err := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents, orders.SpouseHasProGear)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	if int(weightEstimate) > smEntitlement {
+	if weightEstimate > int64(smEntitlement) {
 		return handlers.ResponseForConflictErrors(h.Logger(), fmt.Errorf("your estimated weight of %s lbs is above your weight entitlement of %s lbs. \n You will only be paid for the weight you move up to your weight entitlement", humanize.Comma(weightEstimate), humanize.Comma(int64(smEntitlement))))
 	}
 

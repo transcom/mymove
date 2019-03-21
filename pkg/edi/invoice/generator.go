@@ -8,11 +8,10 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi"
-	"github.com/transcom/mymove/pkg/edi/segment"
+	edisegment "github.com/transcom/mymove/pkg/edi/segment"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -41,7 +40,7 @@ const billedRatedAsQuantity = 1
 // Place holders that currently exist TODO: Replace this constants with real value
 const freightRate = 4.07
 
-var logger *zap.Logger
+//var logger Logger
 
 // Invoice858C holds all the segments that are generated
 type Invoice858C struct {
@@ -80,7 +79,7 @@ func (invoice Invoice858C) EDIString() (string, error) {
 }
 
 // Generate858C generates an EDI X12 858C transaction set
-func Generate858C(shipment models.Shipment, invoiceModel models.Invoice, db *pop.Connection, sendProductionInvoice bool, icnSequencer sequence.Sequencer, clock clock.Clock) (Invoice858C, error) {
+func Generate858C(shipment models.Shipment, invoiceModel models.Invoice, db *pop.Connection, sendProductionInvoice bool, icnSequencer sequence.Sequencer, clock clock.Clock, logger Logger) (Invoice858C, error) {
 	currentTime := clock.Now().UTC()
 
 	interchangeControlNumber, err := icnSequencer.NextVal()
@@ -125,7 +124,7 @@ func Generate858C(shipment models.Shipment, invoiceModel models.Invoice, db *pop
 		Version:                  "004010",
 	}
 
-	shipmentSegments, err := generate858CShipment(db, shipment, invoiceModel, 1)
+	shipmentSegments, err := generate858CShipment(db, shipment, invoiceModel, 1, logger)
 	if err != nil {
 		return invoice, err
 	}
@@ -143,7 +142,7 @@ func Generate858C(shipment models.Shipment, invoiceModel models.Invoice, db *pop
 	return invoice, nil
 }
 
-func generate858CShipment(db *pop.Connection, shipment models.Shipment, invoiceModel models.Invoice, sequenceNum int) ([]edisegment.Segment, error) {
+func generate858CShipment(db *pop.Connection, shipment models.Shipment, invoiceModel models.Invoice, sequenceNum int, logger Logger) ([]edisegment.Segment, error) {
 	transactionNumber := fmt.Sprintf("%04d", sequenceNum)
 	segments := []edisegment.Segment{
 		&edisegment.ST{
@@ -158,7 +157,7 @@ func generate858CShipment(db *pop.Connection, shipment models.Shipment, invoiceM
 	}
 	segments = append(segments, headingSegments...)
 
-	lineItemSegments, err := getLineItemSegments(shipment)
+	lineItemSegments, err := getLineItemSegments(shipment, logger)
 	if err != nil {
 		return segments, err
 	}
@@ -313,7 +312,7 @@ func getHeadingSegments(db *pop.Connection, shipment models.Shipment, invoiceMod
 	}, nil
 }
 
-func getLineItemSegments(shipment models.Shipment) ([]edisegment.Segment, error) {
+func getLineItemSegments(shipment models.Shipment, logger Logger) ([]edisegment.Segment, error) {
 	// follows HL loop (p.13) in https://www.ustranscom.mil/cmd/associated/dteb/files/transportationics/dt858c41.pdf
 	// HL segment: p. 51
 	// L0 segment: p. 77
@@ -338,7 +337,7 @@ func getLineItemSegments(shipment models.Shipment) ([]edisegment.Segment, error)
 
 		// Build and put together the segments
 		hlSegment := MakeHLSegment(lineItem)
-		l0Segment := MakeL0Segment(lineItem, netCentiWeight)
+		l0Segment := MakeL0Segment(lineItem, netCentiWeight, logger)
 		l1Segment := MakeL1Segment(lineItem)
 		tariffSegments = append(tariffSegments, hlSegment, l0Segment, l1Segment)
 
@@ -374,7 +373,7 @@ func MakeHLSegment(lineItem models.ShipmentLineItem) *edisegment.HL {
 }
 
 // MakeL0Segment builds L0 segment based on shipment line item input and shipment centiweight input.
-func MakeL0Segment(lineItem models.ShipmentLineItem, netCentiWeight float64) *edisegment.L0 {
+func MakeL0Segment(lineItem models.ShipmentLineItem, netCentiWeight float64, logger Logger) *edisegment.L0 {
 	// Using Maps to group up MeasurementUnit types into categories
 	unitBasedMeasurementUnits := map[models.Tariff400ngItemMeasurementUnit]int{
 		models.Tariff400ngItemMeasurementUnitFLATRATE:       0,

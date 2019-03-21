@@ -72,7 +72,7 @@ func (suite *HandlerSuite) TestCreatePPMAttachmentsHandler() {
 
 	// Create upload for expense document model
 	loader := uploader.NewUploader(suite.DB(), suite.TestLogger(), context.FileStorer())
-	loader.CreateUpload(&expDoc.MoveDocument.DocumentID, *officeUser.UserID, f)
+	loader.CreateUploadForDocument(&expDoc.MoveDocument.DocumentID, *officeUser.UserID, f, uploader.AllowedTypesServiceMember)
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.AuthenticateOfficeRequest(request, officeUser)

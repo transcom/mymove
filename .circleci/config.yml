@@ -15,23 +15,23 @@ executors:
     resource_class: small
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:d1a2b3b5c3b196e91eb1c30926953d0665ec3fd1
+      - image: trussworks/circleci-docker-primary:a1006bfda60d05876196f03119898777542529d5
   mymove_medium:
     resource_class: medium
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:d1a2b3b5c3b196e91eb1c30926953d0665ec3fd1
+      - image: trussworks/circleci-docker-primary:a1006bfda60d05876196f03119898777542529d5
   mymove_large:
     resource_class: large
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:d1a2b3b5c3b196e91eb1c30926953d0665ec3fd1
+      - image: trussworks/circleci-docker-primary:a1006bfda60d05876196f03119898777542529d5
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:d1a2b3b5c3b196e91eb1c30926953d0665ec3fd1
+      - image: trussworks/circleci-docker-primary:a1006bfda60d05876196f03119898777542529d5
       - image: postgres:10.5
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -47,11 +47,6 @@ commands:
             [[ $CIRCLE_BRANCH = master ]] || exit 0
             bin/circleci-announce-broken-branch
           when: on_fail
-  halt_workflow_if_older_sha:
-    steps:
-      - run:
-          name: Halt workflow to prevent old master deploying to staging
-          command: bin/check-staging-app-sha $CIRCLE_SHA1
   deploy_migrations_steps:
     steps:
       - checkout
@@ -61,13 +56,21 @@ commands:
       - run:
           name: Run migrations
           command: bin/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
+          environment:
+            CHAMBER_RETRIES: 20
       - announce_failure
   deploy_app_steps:
     parameters:
+      compare_host:
+        type: string
       health_check_hosts:
         type: string
     steps:
       - checkout
+      - run:
+          name: Compare against deployed commit
+          command: |
+            [[ -z "<< parameters.compare_host >>" ]] || bin/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1
       - restore_cache:
           keys:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
@@ -75,6 +78,7 @@ commands:
       - deploy:
           name: Deploy app service
           command: bin/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+          no_output_timeout: 20m
       - run:
           name: Health Check
           command: go run cmd/health_checker/main.go --schemes http,https --hosts << parameters.health_check_hosts >> --tries 10 --backoff 3 --log-level info --timeout 15m
@@ -84,10 +88,16 @@ commands:
       - announce_failure
   deploy_app_client_tls_steps:
     parameters:
+      compare_host:
+        type: string
       health_check_hosts:
         type: string
     steps:
       - checkout
+      - run:
+          name: Compare against deployed commit
+          command: |
+            [[ -z "<< parameters.compare_host >>" ]] || bin/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1 ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
       - restore_cache:
           keys:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
@@ -95,10 +105,14 @@ commands:
       - deploy:
           name: Deploy app-client-tls service
           command: bin/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+          no_output_timeout: 20m
       - run:
           name: Health Check
           command: |
             go run cmd/health_checker/main.go --schemes https --hosts << parameters.health_check_hosts >> --key ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} --cert ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} --ca ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 15m
+      - run:
+          name: Check deployed commits
+          command: bin/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1" ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
       - announce_failure
   build_tag_push:
     parameters:
@@ -365,6 +379,37 @@ jobs:
           path: cypress/results
       - announce_failure
 
+  # `integration_tests_api` runs integration tests using Cypress.  https://www.cypress.io/
+  integration_tests_api:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - e2e_tests:
+          spec: 'cypress/integration/api/**/*'
+      - store_artifacts:
+          path: cypress/videos
+          destination: videos
+      - store_artifacts:
+          path: cypress/screenshots
+          destination: screenshots
+      - store_test_results:
+          path: cypress/results
+      - announce_failure
+
   # `server_test` runs the server side Go tests
   server_test:
     executor: mymove_and_postgres_medium
@@ -515,7 +560,7 @@ jobs:
 
   # `build_app` builds the application container and pushes to the container repository
   build_app:
-    executor: mymove_and_postgres_medium
+    executor: mymove_medium
     steps:
       - checkout
       - setup_remote_docker:
@@ -533,6 +578,7 @@ jobs:
           keys:
             - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make build_chamber
+      - run: make download_rds_certs
       - run: make build
       - build_tag_push:
           dockerfile: Dockerfile
@@ -578,6 +624,7 @@ jobs:
           name: Run acceptance tests
           command: make webserver_test
           environment:
+            CHAMBER_RETRIES: 20
             PWD: /home/circleci/go/src/github.com/transcom/mymove
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             TEST_ACC_ENV: experimental
@@ -598,6 +645,7 @@ jobs:
       - APP_ENVIRONMENT: 'experimental'
     steps:
       - deploy_app_steps:
+          compare_host: "" # leave blank since we want experimental to be able to roll back
           health_check_hosts: my.experimental.move.mil,office.experimental.move.mil,tsp.experimental.move.mil
 
   # `deploy_experimental_app_client_tls` updates the mutual-TLS service in the experimental environment
@@ -607,13 +655,16 @@ jobs:
       - APP_ENVIRONMENT: 'experimental'
     steps:
       - deploy_app_client_tls_steps:
+          compare_host: "" # leave blank since we want experimental to be able to roll back
           health_check_hosts: gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
 
   check_circle_against_staging_sha:
     executor: mymove_small
     steps:
       - checkout
-      - halt_workflow_if_older_sha
+      - run:
+          name: Halt workflow to prevent old master deploying to staging
+          command: bin/compare-deployed-commit my.staging.move.mil $CIRCLE_SHA1
 
   # `acceptance_tests_staging` runs acceptance tests for the webserver against the staging environment.
   acceptance_tests_staging:
@@ -636,6 +687,7 @@ jobs:
           name: Run acceptance tests
           command: make webserver_test
           environment:
+            CHAMBER_RETRIES: 20
             PWD: /home/circleci/go/src/github.com/transcom/mymove
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             TEST_ACC_ENV: staging
@@ -656,6 +708,7 @@ jobs:
       - APP_ENVIRONMENT: 'staging'
     steps:
       - deploy_app_steps:
+          compare_host: my.staging.move.mil
           health_check_hosts: my.staging.move.mil,office.staging.move.mil,tsp.staging.move.mil
 
   # `deploy_staging_app_client_tls` updates the mutual-TLS service in the staging environment
@@ -665,6 +718,7 @@ jobs:
       - APP_ENVIRONMENT: 'staging'
     steps:
       - deploy_app_client_tls_steps:
+          compare_host: gex.staging.move.mil
           health_check_hosts: gex.staging.move.mil,dps.staging.move.mil,orders.staging.move.mil
 
   # `deploy_prod_migrations` deploys migrations to the staging environment
@@ -682,6 +736,7 @@ jobs:
       - APP_ENVIRONMENT: 'prod'
     steps:
       - deploy_app_steps:
+          compare_host: my.move.mil
           health_check_hosts: my.move.mil,office.move.mil,tsp.move.mil
 
   # `deploy_prod_app_client_tls` updates the mutual-TLS service in the prod environment
@@ -691,6 +746,7 @@ jobs:
       - APP_ENVIRONMENT: 'prod'
     steps:
       - deploy_app_client_tls_steps:
+          compare_host: gex.move.mil
           health_check_hosts: gex.move.mil,dps.move.mil,orders.move.mil
 
   # `update_dependencies` periodically updates pre-commit, yarn, and Go dependencies.
@@ -779,6 +835,16 @@ workflows:
           #   branches:
           #     ignore: placeholder_branch_name
 
+      - integration_tests_api:
+          requires:
+            - pre_deps_golang
+            - pre_deps_yarn
+            - acceptance_tests_local
+          # if testing on experimental, you can disable these tests by using the commented block below.
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
+
       - client_test:
           requires:
             - pre_deps_yarn
@@ -850,6 +916,7 @@ workflows:
             - integration_tests_mymove
             - integration_tests_office
             - integration_tests_tsp
+            - integration_tests_api
           filters:
             branches:
               only: master

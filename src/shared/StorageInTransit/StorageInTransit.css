@@ -30,7 +30,39 @@
   width: calc(60% + 1.9rem);
 }
 
-.storage-in-transit-request-form-send-request-button {
-  float: right;
-  margin-top: 10px !important;
+#sit-status-text {
+  margin-left: 1.8em;
+}
+
+.storage-in-transit-panel .column-subhead {
+  margin-top: 0.9em !important;
+  border-bottom: 1px #BBBBBB solid;
+}
+
+.add-storage-in-transit {
+  border-top: 1px solid #f1f1f1;
+  padding-top: 0.5em;
+
+}
+
+.storage-in-transit {
+  display: table-row;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.storage-in-transit-panel .basic-panel-content {
+  display: table;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.column-subhead {
+  margin-bottom: 4px;
+  line-height: 1.5em;
+
+}
+
+.sit-notes .field-title {
+  width: 100%;
 }

@@ -2,12 +2,13 @@ package models
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"time"
 )
 
 // ShipmentRecalculate model/struct is a record of the date range to use to determine if a Shipment is a candidate

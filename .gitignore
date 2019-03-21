@@ -21,9 +21,16 @@ __snapshots__
 /tmp
 
 # built binaries
+/bin/callgraph
+/bin/chamber
+/bin/compare-secure-migrations
+/bin/ecs-service-logs
 /bin/generate-1203-form
+/bin/generate-shipment-edi
 /bin/generate-shipment-summary
 /bin/generate-test-data
+/bin/gin
+/bin/gosec
 /bin/health_checker
 /bin/iws
 /bin/load-office-data
@@ -32,18 +39,14 @@ __snapshots__
 /bin/make-office-user
 /bin/make-tsp-user
 /bin/paperwork
-/bin/rateengine
+/bin/save-fuel-price-data
+/bin/send-to-gex
+/bin/soda
+/bin/swagger
 /bin/tsp-award-queue
 /bin/webserver
 
-/bin/callgraph
-/bin/chamber
-/bin/ecs-service-logs
-/bin/soda
-/bin/golint
-/bin/swagger
-/bin/gin
-/bin/gosec
+/bin/rds-combined-ca-bundle.pem
 
 # Special bin folder for e2e test binaries
 /bin_linux/

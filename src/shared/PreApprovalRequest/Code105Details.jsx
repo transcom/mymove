@@ -1,35 +1,25 @@
-import React, { Fragment } from 'react';
-import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { DimensionsField } from '../JsonSchemaForm/DimensionsField';
+import React from 'react';
+import { convertFromThousandthInchToInch } from 'shared/formatters';
+import { displayBaseQuantityUnits } from 'shared/lineItems';
 
 export const Code105Details = props => {
-  const { ship_line_item_schema } = props;
+  const row = props.shipmentLineItem;
+  let crateLengthinInches = convertFromThousandthInchToInch(row.crate_dimensions.length);
+  let crateWidthinInches = convertFromThousandthInchToInch(row.crate_dimensions.width);
+  let crateHeightinInches = convertFromThousandthInchToInch(row.crate_dimensions.height);
+  let itemLengthinInches = convertFromThousandthInchToInch(row.item_dimensions.length);
+  let itemWidthinInches = convertFromThousandthInchToInch(row.item_dimensions.width);
+  let itemHeightinInches = convertFromThousandthInchToInch(row.item_dimensions.height);
+  let crateCubicFeet = displayBaseQuantityUnits(row);
+
+  let crateDetails = `Crate: ${crateLengthinInches}" x ${crateWidthinInches}" x ${crateHeightinInches}" (${crateCubicFeet})`;
+  let ItemDetails = `Item: ${itemLengthinInches}" x ${itemWidthinInches}" x ${itemHeightinInches}"`;
   return (
-    <Fragment>
-      <SwaggerField fieldName="description" swagger={ship_line_item_schema} required />
-      <DimensionsField
-        fieldName="item_dimensions"
-        swagger={ship_line_item_schema}
-        labelText="Item Dimensions (inches)"
-        isRequired={true}
-      />
-      <DimensionsField
-        fieldName="crate_dimensions"
-        swagger={ship_line_item_schema}
-        labelText="Crate Dimensions (inches)"
-        isRequired={true}
-      />
-      <div className="bq-explanation">
-        <p>Crate can only exceed item size by:</p>
-        <ul>
-          <li>
-            <em>Internal crate</em>: Up to 3" larger
-          </li>
-          <li>
-            <em>External crate</em>: Up to 5" larger
-          </li>
-        </ul>
-      </div>
-    </Fragment>
+    <td details-cy={`${row.tariff400ng_item.code}-details`}>
+      {row.description} <br />
+      {crateDetails} <br />
+      {ItemDetails} <br />
+      {row.notes}
+    </td>
   );
 };

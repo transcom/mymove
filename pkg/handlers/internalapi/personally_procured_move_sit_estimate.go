@@ -22,28 +22,28 @@ type ShowPPMSitEstimateHandler struct {
 // Handle calculates SIT charge and retrieves SIT discount rate.
 // It returns the discount rate applied to relevant SIT charge.
 func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams) middleware.Responder {
-	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
+	engine := rateengine.NewRateEngine(h.DB(), h.Logger())
 	sitZip3 := rateengine.Zip5ToZip3(params.DestinationZip)
 	cwtWeight := unit.Pound(params.WeightEstimate).ToCWT()
-	plannedMoveDateTime := time.Time(params.PlannedMoveDate)
+	originalMoveDateTime := time.Time(params.OriginalMoveDate)
 
-	_, sitDiscount, err := models.PPMDiscountFetch(h.DB(),
+	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(h.DB(),
 		h.Logger(),
 		params.OriginZip,
 		params.DestinationZip,
-		time.Time(params.PlannedMoveDate),
+		time.Time(params.OriginalMoveDate),
 	)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	sitTotal, err := engine.SitCharge(cwtWeight, int(params.DaysInStorage), sitZip3, plannedMoveDateTime, true)
+	sitComputation, err := engine.SitCharge(cwtWeight, int(params.DaysInStorage), sitZip3, originalMoveDateTime, true)
 
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	// Swagger returns int64 when using the integer type
-	sitCharge := int64(sitDiscount.Apply(sitTotal))
+	sitCharge := int64(sitComputation.ApplyDiscount(lhDiscount, sitDiscount))
 
 	ppmSitEstimate := internalmessages.PPMSitEstimate{
 		Estimate: &sitCharge,

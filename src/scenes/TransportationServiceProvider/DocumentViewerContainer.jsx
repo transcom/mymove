@@ -3,7 +3,6 @@ import { loadShipmentDependencies } from './ducks';
 import MoveDocumentView from 'shared/DocumentViewer/MoveDocumentView';
 import {
   getAllShipmentDocuments,
-  getShipmentDocumentsLabel,
   selectShipmentDocument,
   selectShipmentDocuments,
 } from 'shared/Entities/modules/shipmentDocuments';
@@ -42,7 +41,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     onDidMount: () => {
       dispatch(loadShipmentDependencies(shipmentId));
-      dispatch(getAllShipmentDocuments(getShipmentDocumentsLabel, shipmentId));
+      dispatch(getAllShipmentDocuments(shipmentId));
     },
   };
 };

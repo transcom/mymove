@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import { updateServiceMember } from './ducks';
+import { selectCurrentUser } from 'shared/Data/users';
 
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -88,8 +89,9 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ updateServiceMember }, dispatch);
 }
 function mapStateToProps(state) {
+  const user = selectCurrentUser(state);
   return {
-    userEmail: state.user.email,
+    userEmail: user.email,
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
     values: getFormValues(formName)(state),
     ...state.serviceMember,

@@ -14,14 +14,11 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import WeightCalculator from 'scenes/Moves/Hhg/WeightCalculator';
 
-import { createOrUpdateShipment, getShipment } from 'shared/Entities/modules/shipments';
+import { createOrUpdateShipment, getShipment, getShipmentLabel } from 'shared/Entities/modules/shipments';
 
 import './ShipmentWizard.css';
 
 const formName = 'weight_form';
-const getRequestLabel = 'WeightForm.getShipment';
-const createOrUpdateRequestLabel = 'WeightForm.createOrUpdateShipment';
-
 const ShipmentFormWizardForm = reduxifyWizardForm(formName);
 
 export class WeightEstimate extends Component {
@@ -53,7 +50,7 @@ export class WeightEstimate extends Component {
   loadShipment() {
     const shipmentID = get(this.props, 'currentShipment.id');
     if (shipmentID) {
-      this.props.getShipment(getRequestLabel, shipmentID, this.props.currentShipment.move_id);
+      this.props.getShipment(shipmentID, this.props.currentShipment.move_id);
     }
   }
 
@@ -63,7 +60,7 @@ export class WeightEstimate extends Component {
     const currentShipmentId = get(this.props, 'currentShipment.id');
 
     return this.props
-      .createOrUpdateShipment(createOrUpdateRequestLabel, moveId, shipment, currentShipmentId)
+      .createOrUpdateShipment(moveId, shipment, currentShipmentId)
       .then(action => {
         return this.props.setCurrentShipmentID(Object.keys(action.entities.shipments)[0]);
       })
@@ -192,7 +189,7 @@ function mapStateToProps(state) {
     formValues: getFormValues(formName)(state),
     currentShipment: shipment,
     initialValues: shipment,
-    error: getLastError(state, getRequestLabel),
+    error: getLastError(state, getShipmentLabel),
     entitlement: loadEntitlementsFromState(state),
   };
   return props;

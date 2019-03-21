@@ -21,7 +21,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/edi"
-	"github.com/transcom/mymove/pkg/edi/invoice"
+	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/server"
@@ -65,32 +65,32 @@ func main() {
 	sendToGex := v.GetBool("gex")
 	transactionName := v.GetString("transaction-name")
 	if shipmentIDString == "" || approverEmail == "" {
-		log.Fatal("Usage: go run cmd/generate_shipment_edi/main.go --shipmentID <29cb984e-c70d-46f0-926d-cd89e07a6ec3> --approver <officeuser1@example.com> --gex false")
+		logger.Fatal("Usage: go run cmd/generate_shipment_edi/main.go --shipmentID <29cb984e-c70d-46f0-926d-cd89e07a6ec3> --approver <officeuser1@example.com> --gex false")
 	}
 
 	db, err := pop.Connect("development")
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err.Error())
 	}
 
 	shipmentID := uuid.Must(uuid.FromString(shipmentIDString))
 	shipment, err := invoice.FetchShipmentForInvoice{DB: db}.Call(shipmentID)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err.Error())
 	}
 
 	approver, err := models.FetchOfficeUserByEmail(db, approverEmail)
 	if err != nil {
-		log.Fatalf("Could not fetch office user with e-mail %s: %v", approverEmail, err)
+		logger.Fatal("Could not fetch office user with e-mail", zap.String("email", approverEmail), zap.Error(err))
 	}
 
 	var invoiceModel models.Invoice
 	verrs, err := invoice.CreateInvoice{DB: db, Clock: clock.New()}.Call(*approver, &invoiceModel, shipment)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err.Error())
 	}
 	if verrs.HasAny() {
-		log.Fatal(verrs)
+		logger.Fatal(verrs.Error())
 	}
 
 	var sendToGexHTTP services.GexSender
@@ -113,7 +113,7 @@ func main() {
 		)
 	}
 
-	resp, err := processInvoice(db, shipment, invoiceModel, sendToGex, &transactionName, sendToGexHTTP)
+	resp, err := processInvoice(db, shipment, invoiceModel, sendToGex, &transactionName, sendToGexHTTP, logger)
 	if resp != nil {
 		fmt.Printf("status code: %v\n", resp.StatusCode)
 	}
@@ -122,27 +122,27 @@ func main() {
 	}
 }
 
-func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel models.Invoice, sendToGex bool, transactionName *string, gexSender services.GexSender) (resp *http.Response, err error) {
+func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel models.Invoice, sendToGex bool, transactionName *string, gexSender services.GexSender, logger *zap.Logger) (resp *http.Response, err error) {
 	defer func() {
 		if err != nil || (resp != nil && resp.StatusCode != 200) {
 			// Update invoice record as failed
 			invoiceModel.Status = models.InvoiceStatusSUBMISSIONFAILURE
 			verrs, deferErr := db.ValidateAndSave(&invoiceModel)
 			if deferErr != nil {
-				log.Fatal(deferErr)
+				logger.Fatal(deferErr.Error())
 			}
 			if verrs.HasAny() {
-				log.Fatal(verrs)
+				logger.Fatal(verrs.Error())
 			}
 		} else {
 			// Update invoice record as submitted
 			shipmentLineItems := shipment.ShipmentLineItems
 			verrs, deferErr := invoice.UpdateInvoiceSubmitted{DB: db}.Call(&invoiceModel, shipmentLineItems)
 			if deferErr != nil {
-				log.Fatal(deferErr)
+				logger.Fatal(deferErr.Error())
 			}
 			if verrs.HasAny() {
-				log.Fatal(verrs)
+				logger.Fatal(verrs.Error())
 			}
 		}
 	}()
@@ -151,13 +151,13 @@ func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel m
 	if sendToGex {
 		icnSequencer, err = sequence.NewRandomSequencer(ediinvoice.ICNRandomMin, ediinvoice.ICNRandomMax)
 		if err != nil {
-			log.Fatal("Could not create random sequencer for ICN", err)
+			logger.Fatal("Could not create random sequencer for ICN", zap.Error(err))
 		}
 	} else {
 		icnSequencer = sequence.NewDatabaseSequencer(db, ediinvoice.ICNSequenceName)
 	}
 
-	invoice858C, err := ediinvoice.Generate858C(shipment, invoiceModel, db, false, icnSequencer, clock.New())
+	invoice858C, err := ediinvoice.Generate858C(shipment, invoiceModel, db, false, icnSequencer, clock.New(), logger)
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +170,7 @@ func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel m
 		}
 		resp, err := gexSender.SendToGex(invoice858CString, *transactionName)
 		if resp == nil || err != nil {
-			log.Fatal("Gex Sender had no response", err)
+			logger.Fatal("Gex Sender had no response", zap.Error(err))
 		}
 
 		fmt.Printf("status code: %v, error: %v\n", resp.StatusCode, err)

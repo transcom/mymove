@@ -11,7 +11,12 @@ import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { getCurrentShipment } from 'shared/UI/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
-import { loadLoggedInUser } from 'shared/User/ducks';
+import {
+  selectCurrentUser,
+  selectGetCurrentUserIsLoading,
+  selectGetCurrentUserIsSuccess,
+  selectGetCurrentUserIsError,
+} from 'shared/Data/users';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import Alert from 'shared/Alert';
 import SignIn from 'shared/User/SignIn';
@@ -19,6 +24,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
 import { updateMove } from 'scenes/Moves/ducks';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
+import { selectShipment } from 'shared/Entities/modules/shipments';
 
 export class Landing extends Component {
   componentDidMount() {
@@ -107,7 +113,7 @@ export class Landing extends Component {
     return (
       <div className="usa-grid">
         {loggedInUserIsLoading && <LoadingPlaceholder />}
-        {!isLoggedIn && <SignIn />}
+        {!isLoggedIn && <SignIn location={this.props.location} />}
         {loggedInUserSuccess && (
           <Fragment>
             <div>
@@ -160,23 +166,25 @@ export class Landing extends Component {
 }
 
 const mapStateToProps = state => {
-  const shipment = getCurrentShipment(state);
+  const shipmentId = getCurrentShipment(state);
+  const user = selectCurrentUser(state);
   const props = {
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     selectedMoveType: selectedMoveType(state),
-    isLoggedIn: state.user.isLoggedIn,
+    isLoggedIn: user.isLoggedIn,
     isProfileComplete: isProfileComplete(state),
     isHHGPPMComboMove: isHHGPPMComboMove(state),
     serviceMember: state.serviceMember.currentServiceMember || {},
     backupContacts: state.serviceMember.currentBackupContacts || [],
     orders: state.orders.currentOrders || {},
     move: state.moves.currentMove || state.moves.latestMove || {},
+    hhg: selectShipment(state, shipmentId),
     ppm: getPPM(state),
-    currentShipment: shipment || {},
-    loggedInUser: state.loggedInUser.loggedInUser,
-    loggedInUserIsLoading: state.loggedInUser.isLoading,
-    loggedInUserError: state.loggedInUser.error,
-    loggedInUserSuccess: state.loggedInUser.hasSucceeded,
+    currentShipment: shipmentId || {},
+    loggedInUser: user,
+    loggedInUserIsLoading: selectGetCurrentUserIsLoading(state),
+    loggedInUserError: selectGetCurrentUserIsError(state),
+    loggedInUserSuccess: selectGetCurrentUserIsSuccess(state),
     createdServiceMemberIsLoading: state.serviceMember.isLoading,
     createdServiceMemberSuccess: state.serviceMember.hasSubmitSuccess,
     createdServiceMemberError: state.serviceMember.error,
@@ -190,7 +198,7 @@ const mapStateToProps = state => {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ push, createServiceMember, loadLoggedInUser, updateMove }, dispatch);
+  return bindActionCreators({ push, createServiceMember, updateMove }, dispatch);
 }
 
 export default withLastLocation(connect(mapStateToProps, mapDispatchToProps)(Landing));

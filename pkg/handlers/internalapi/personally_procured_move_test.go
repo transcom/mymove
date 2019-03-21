@@ -185,6 +185,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	daysInStorage := swag.Int64(3)
 	newPickupPostalCode := swag.String("32168")
 	newDestinationPostalCode := swag.String("29401")
+	newSitCost := swag.Int64(60)
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
@@ -199,7 +200,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		Move:                       move,
 		Size:                       &initialSize,
 		WeightEstimate:             initialWeight,
-		PlannedMoveDate:            &initialMoveDate,
+		OriginalMoveDate:           &initialMoveDate,
 		HasAdditionalPostalCode:    hasAdditionalPostalCode,
 		AdditionalPickupPostalCode: additionalPickupPostalCode,
 		HasSit:                     hasSit,
@@ -216,11 +217,12 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
 		Size:                    &newSize,
 		WeightEstimate:          newWeight,
-		PlannedMoveDate:         handlers.FmtDatePtr(&newMoveDate),
+		OriginalMoveDate:        handlers.FmtDatePtr(&newMoveDate),
 		HasAdditionalPostalCode: newHasAdditionalPostalCode,
 		PickupPostalCode:        newPickupPostalCode,
 		DestinationPostalCode:   newDestinationPostalCode,
 		HasSit:                  newHasSit,
+		TotalSitCost:            newSitCost,
 	}
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
@@ -240,12 +242,11 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 
 	suite.Equal(*patchPPMPayload.Size, newSize, "Size should have been updated.")
 	suite.Equal(patchPPMPayload.WeightEstimate, newWeight, "Weight should have been updated.")
-
+	suite.Equal(patchPPMPayload.TotalSitCost, newSitCost, "Total sit cost should have been updated.")
 	suite.Equal(patchPPMPayload.PickupPostalCode, newPickupPostalCode, "PickupPostalCode should have been updated.")
 	suite.Equal(patchPPMPayload.DestinationPostalCode, newDestinationPostalCode, "DestinationPostalCode should have been updated.")
 	suite.Nil(patchPPMPayload.AdditionalPickupPostalCode, "AdditionalPickupPostalCode should have been updated to nil.")
-	suite.Equal(*(*time.Time)(patchPPMPayload.PlannedMoveDate), newMoveDate, "MoveDate should have been updated.")
-	suite.Nil(patchPPMPayload.DaysInStorage, "AdditionalPostalCode should have been updated to nil.")
+	suite.Equal(*(*time.Time)(patchPPMPayload.OriginalMoveDate), newMoveDate, "MoveDate should have been updated.")
 	suite.Equal(*patchPPMPayload.Mileage, int64(900), "Mileage should have been set to 900")
 }
 
@@ -266,7 +267,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:                move.ID,
 		Move:                  move,
-		PlannedMoveDate:       &moveDate,
+		OriginalMoveDate:      &moveDate,
 		PickupPostalCode:      pickupPostalCode,
 		DestinationPostalCode: destinationPostalCode,
 		Status:                models.PPMStatusDRAFT,
@@ -304,7 +305,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	suite.Assertions.Equal(int64(267746), *patchPPMPayload.IncentiveEstimateMax)
 	suite.Assertions.Nil(patchPPMPayload.EstimatedStorageReimbursement)
 	suite.Assertions.Equal(int64(0), *patchPPMPayload.PlannedSitMax)
-	suite.Assertions.Equal(int64(97785), *patchPPMPayload.SitMax)
+	suite.Assertions.Equal(int64(157015), *patchPPMPayload.SitMax)
 
 	// Now check that SIT values update when days in storage is set
 	hasSit := swag.Bool(true)
@@ -319,8 +320,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	okResponse = response.(*ppmop.PatchPersonallyProcuredMoveOK)
 	patchPPMPayload = okResponse.Payload
 
-	suite.Assertions.Equal("$32.60", *patchPPMPayload.EstimatedStorageReimbursement)
-	suite.Assertions.Equal(int64(3260), *patchPPMPayload.PlannedSitMax)
+	suite.Assertions.Equal("$624.89", *patchPPMPayload.EstimatedStorageReimbursement)
+	suite.Assertions.Equal(int64(62489), *patchPPMPayload.PlannedSitMax)
 }
 
 func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
@@ -337,12 +338,12 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
 	ppm1 := models.PersonallyProcuredMove{
-		MoveID:          move.ID,
-		Move:            move,
-		Size:            &initialSize,
-		WeightEstimate:  initialWeight,
-		PlannedMoveDate: &initialMoveDate,
-		Status:          models.PPMStatusDRAFT,
+		MoveID:           move.ID,
+		Move:             move,
+		Size:             &initialSize,
+		WeightEstimate:   initialWeight,
+		OriginalMoveDate: &initialMoveDate,
+		Status:           models.PPMStatusDRAFT,
 	}
 	suite.MustSave(&ppm1)
 
@@ -350,9 +351,9 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	req = suite.AuthenticateRequest(req, user2)
 
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
-		Size:            &newSize,
-		WeightEstimate:  newWeight,
-		PlannedMoveDate: handlers.FmtDatePtr(&newMoveDate),
+		Size:             &newSize,
+		WeightEstimate:   newWeight,
+		OriginalMoveDate: handlers.FmtDatePtr(&newMoveDate),
 	}
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
@@ -417,7 +418,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(patchPPMParams)
 	suite.CheckResponseForbidden(response)
-
 }
 
 func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {

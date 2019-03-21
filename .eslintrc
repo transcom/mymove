@@ -4,6 +4,7 @@
   "rules": {
     "no-debugger": "warn",
     "jsx-a11y/anchor-is-valid": "off",
-    "react/jsx-no-target-blank": "off"
+    "react/jsx-no-target-blank": "off",
+    "react/jsx-curly-brace-presence": ["warn", "never"]
   }
 }

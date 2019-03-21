@@ -33,7 +33,7 @@ const (
 type Generator struct {
 	db        *pop.Connection
 	fs        *afero.Afero
-	logger    *zap.Logger
+	logger    Logger
 	uploader  *uploader.Uploader
 	pdfConfig *pdfcpu.Configuration
 	workDir   string
@@ -65,7 +65,7 @@ func convertTo8BitPNG(in io.Reader, out io.Writer) error {
 }
 
 // NewGenerator creates a new Generator.
-func NewGenerator(db *pop.Connection, logger *zap.Logger, uploader *uploader.Uploader) (*Generator, error) {
+func NewGenerator(db *pop.Connection, logger Logger, uploader *uploader.Uploader) (*Generator, error) {
 	afs := uploader.Storer.FileSystem()
 
 	pdfConfig := pdfcpu.NewInMemoryConfiguration()

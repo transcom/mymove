@@ -21,14 +21,19 @@ type ShowPPMEstimateHandler struct {
 
 // Handle calculates a PPM reimbursement range.
 func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middleware.Responder {
-	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
+	engine := rateengine.NewRateEngine(h.DB(), h.Logger())
 
 	lhDiscount, _, err := models.PPMDiscountFetch(h.DB(),
 		h.Logger(),
 		params.OriginZip,
 		params.DestinationZip,
-		time.Time(params.PlannedMoveDate),
+		time.Time(params.OriginalMoveDate),
 	)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	distanceMiles, err := h.Planner().Zip5TransitDistance(params.OriginZip, params.DestinationZip)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
@@ -36,7 +41,8 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 	cost, err := engine.ComputePPM(unit.Pound(params.WeightEstimate),
 		params.OriginZip,
 		params.DestinationZip,
-		time.Time(params.PlannedMoveDate),
+		distanceMiles,
+		time.Time(params.OriginalMoveDate),
 		0, // We don't want any SIT charges
 		lhDiscount,
 		0.0,

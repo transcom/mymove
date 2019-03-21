@@ -2,10 +2,12 @@ package publicapi
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/transcom/mymove/pkg/services"
 	"net/http"
 	"time"
+
+	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
@@ -24,6 +26,18 @@ import (
 	shipmentservice "github.com/transcom/mymove/pkg/services/shipment"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
+
+func payloadForDistanceCalculationModel(d models.DistanceCalculation) *apimessages.DistanceCalculation {
+	if d.ID == uuid.Nil {
+		return nil
+	}
+
+	return &apimessages.DistanceCalculation{
+		OriginAddress:      payloadForAddressModel(&d.OriginAddress),
+		DestinationAddress: payloadForAddressModel(&d.DestinationAddress),
+		DistanceMiles:      int64(d.DistanceMiles),
+	}
+}
 
 func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 	shipmentpayload := &apimessages.Shipment{
@@ -73,6 +87,9 @@ func payloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		NetWeight:                   handlers.FmtPoundPtr(s.NetWeight),
 		GrossWeight:                 handlers.FmtPoundPtr(s.GrossWeight),
 		TareWeight:                  handlers.FmtPoundPtr(s.TareWeight),
+
+		// distance
+		ShippingDistance: payloadForDistanceCalculationModel(s.ShippingDistance),
 
 		// pre-move survey
 		PmSurveyConductedDate:               handlers.FmtDatePtr(s.PmSurveyConductedDate),
@@ -155,6 +172,15 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 		if err != nil {
 			h.Logger().Error("Error fetching shipment for office user", zap.Error(err))
 			return shipmentop.NewGetShipmentForbidden()
+		}
+	} else if session.IsServiceMember() {
+		shipment, err = models.FetchShipment(h.DB(), session, shipmentID)
+		if err != nil {
+			h.Logger().Error("Error fetching shipment for service member", zap.Error(err))
+			if err == models.ErrFetchForbidden {
+				return shipmentop.NewGetShipmentForbidden()
+			}
+			return shipmentop.NewGetShipmentBadRequest()
 		}
 	} else {
 		return shipmentop.NewGetShipmentForbidden()
@@ -328,11 +354,12 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 	}
 
 	actualDeliveryDate := (time.Time)(*params.Payload.ActualDeliveryDate)
-	engine := rateengine.NewRateEngine(h.DB(), h.Logger(), h.Planner())
+	engine := rateengine.NewRateEngine(h.DB(), h.Logger())
 
 	verrs, err := shipmentservice.DeliverAndPriceShipment{
-		DB:     h.DB(),
-		Engine: engine,
+		DB:      h.DB(),
+		Engine:  engine,
+		Planner: h.Planner(),
 	}.Call(actualDeliveryDate, shipment)
 
 	if err != nil || verrs.HasAny() {
@@ -578,7 +605,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 // CreateGovBillOfLadingHandler creates a GBL PDF & uploads it as a document associated to a move doc, shipment and move
 type CreateGovBillOfLadingHandler struct {
 	handlers.HandlerContext
-	createForm services.FormCreator
+	pdfFormCreator services.FormCreator
 }
 
 // Handle generates the GBL PDF & uploads it as a document associated to a move doc, shipment and move
@@ -628,14 +655,14 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 		h.Logger().Error(errors.Cause(err).Error(), zap.Error(errors.Cause(err)))
 	}
 
-	gblFile, err := h.createForm.CreateForm(template)
+	gblFile, err := h.pdfFormCreator.CreateForm(template)
 	if err != nil {
 		h.Logger().Error(errors.Cause(err).Error(), zap.Error(errors.Cause(err)))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()
 	}
 
 	uploader := uploaderpkg.NewUploader(h.DB(), h.Logger(), h.FileStorer())
-	upload, verrs, err := uploader.CreateUpload(nil, *tspUser.UserID, gblFile)
+	upload, verrs, err := uploader.CreateUpload(*tspUser.UserID, &gblFile, uploaderpkg.AllowedTypesPDF)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
