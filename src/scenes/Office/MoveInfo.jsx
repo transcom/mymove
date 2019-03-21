@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { capitalize, get, includes } from 'lodash';
+import { capitalize, get, includes, some, isEmpty } from 'lodash';
 
 import { NavTab, RoutedTabs } from 'react-router-tabs';
 import { Link, NavLink, Redirect, Switch } from 'react-router-dom';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import { getStorageInTransitsForShipment } from 'shared/Entities/modules/storageInTransits';
+import { getStorageInTransitsForShipment, selectStorageInTransits } from 'shared/Entities/modules/storageInTransits';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import LocationsContainer from './Hhg/LocationsContainer';
 import Alert from 'shared/Alert'; // eslint-disable-line
@@ -76,6 +76,9 @@ import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
+import classnames from 'classnames';
+
+import iconStyles from 'shared/styles/icons.module.scss';
 
 const BasicsTabContent = props => {
   return (
@@ -112,6 +115,7 @@ const HHGTabContent = props => {
     shipment,
     updatePublicShipment,
     showSitPanel,
+    setStatusIcon,
   } = props;
   if (shipment) {
     shipmentStatus = shipment.status;
@@ -131,7 +135,9 @@ const HHGTabContent = props => {
         transportationServiceProviderId={shipment.transportation_service_provider_id}
       />
       <PreApprovalPanel shipmentId={shipment.id} />
-      {showSitPanel && <StorageInTransitPanel shipmentId={shipmentId} moveId={moveId} />}
+      {showSitPanel && (
+        <StorageInTransitPanel shipmentId={shipmentId} moveId={moveId} setSitStatusIcon={setStatusIcon} />
+      )}
       <InvoicePanel
         shipmentId={shipment.id}
         shipmentStatus={shipmentStatus}
@@ -255,6 +261,7 @@ class MoveInfo extends Component {
       shipment,
       shipmentStatus,
       serviceMember,
+      storageInTransits,
       upload,
     } = this.props;
     const isPPM = move.selected_move_type === 'PPM';
@@ -277,6 +284,17 @@ class MoveInfo extends Component {
     const moveApproved = moveStatus === 'APPROVED';
     const hhgCantBeCanceled = includes(['IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
 
+    const hasRequestedSIT = !isEmpty(storageInTransits) && some(storageInTransits, sit => sit.status === 'REQUESTED');
+    const setStatusIcon = isTspSite => (
+      <FontAwesomeIcon
+        className={classnames(
+          iconStyles.statusIcon,
+          { [iconStyles.statusDefaultColor]: isTspSite },
+          { [iconStyles.statusAttention]: !isTspSite },
+        )}
+        icon={faClock}
+      />
+    );
     const moveDate = isPPM ? ppm.original_move_date : shipment && shipment.requested_pickup_date;
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -349,8 +367,12 @@ class MoveInfo extends Component {
                 <NavTab to="/hhg">
                   <span className="title">HHG</span>
                   <span className="status">
-                    <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
-                    {capitalize(shipmentStatus)}
+                    {hasRequestedSIT ? (
+                      setStatusIcon(false)
+                    ) : (
+                      <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
+                    )}
+                    {hasRequestedSIT ? 'SIT requested' : capitalize(shipmentStatus)}
                   </span>
                 </NavTab>
               )}
@@ -380,6 +402,7 @@ class MoveInfo extends Component {
                       shipmentStatus={this.props.shipmentStatus}
                       updatePublicShipment={this.props.updatePublicShipment}
                       showSitPanel={this.props.context.flags.sitPanel}
+                      setStatusIcon={setStatusIcon}
                     />
                   )}
                 </PrivateRoute>
@@ -573,6 +596,7 @@ const mapStateToProps = (state, ownProps) => {
     shipmentId,
     shipmentLineItems: selectSortedShipmentLineItems(state),
     shipmentStatus: selectShipmentStatus(state, shipmentId),
+    storageInTransits: selectStorageInTransits(state, shipmentId),
     swaggerError: get(state, 'swagger.hasErrored'),
     tariff400ngItems: selectTariff400ngItems(state),
     upload: get(orders, 'uploaded_orders.uploads.0', {}),

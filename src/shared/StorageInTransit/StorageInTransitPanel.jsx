@@ -3,10 +3,7 @@ import PropTypes from 'prop-types';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faClock from '@fortawesome/fontawesome-free-solid/faClock';
-import classnames from 'classnames';
+import { some } from 'lodash';
 
 import BasicPanel from 'shared/BasicPanel';
 import Alert from 'shared/Alert';
@@ -17,7 +14,6 @@ import { formatDate4DigitYear } from 'shared/formatters';
 import { calculateEntitlementsForMove } from 'shared/Entities/modules/moves';
 
 import { isTspSite } from 'shared/constants.js';
-import iconStyles from 'shared/styles/icons.module.scss';
 
 export class StorageInTransitPanel extends Component {
   constructor() {
@@ -42,13 +38,15 @@ export class StorageInTransitPanel extends Component {
   };
 
   render() {
-    const { storageInTransitEntitlement, storageInTransits } = this.props;
+    const { storageInTransitEntitlement, storageInTransits, setSitStatusIcon } = this.props;
     const { error, isCreatorActionable } = this.state;
     const daysUsed = 0; // placeholder
     const daysRemaining = storageInTransitEntitlement - daysUsed;
+    const hasRequestedSIT = some(storageInTransits, sit => sit.status === 'REQUESTED');
+
     return (
       <div className="storage-in-transit-panel">
-        <BasicPanel title="Storage in Transit (SIT)">
+        <BasicPanel title="Storage in Transit (SIT)" titleExtension={hasRequestedSIT && setSitStatusIcon(isTspSite)}>
           {error && (
             <Alert type="error" heading="Oops, something went wrong!" onRemove={this.closeError}>
               <span className="warning--header">Please refresh the page and try again.</span>
@@ -66,16 +64,7 @@ export class StorageInTransitPanel extends Component {
                     <span className="unbold">
                       {' '}
                       <span id="sit-status-text">Status:</span>{' '}
-                      {storageInTransit.status === 'REQUESTED' && (
-                        <FontAwesomeIcon
-                          className={classnames(
-                            iconStyles.statusIcon,
-                            { [iconStyles.statusDefaultColor]: isTspSite },
-                            { [iconStyles.statusAttention]: !isTspSite },
-                          )}
-                          icon={faClock}
-                        />
-                      )}
+                      {storageInTransit.status === 'REQUESTED' && setSitStatusIcon(isTspSite)}
                     </span>
                     <span>
                       SIT {storageInTransit.status.charAt(0) + storageInTransit.status.slice(1).toLowerCase()}{' '}
