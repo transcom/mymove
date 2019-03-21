@@ -83,29 +83,70 @@ class UserBehavior(TaskSequence):
 
     @seq_task(4)
     def create_your_profile(self):
-        service_member_id = self.user["service_member"].id
-        url = "/internal/service_members/" + service_member_id
-        profile = {
-            "affiliation": "NAVY",  # Rotate
-            "edipi": "3333333333",  # Random
-            "rank": "E_5",  # Rotate
-            "social_security_number": "333-33-3333",  # Random
-        }
-        self.client.patch(url, json=profile)
+        model = self.swagger.get_model("PatchServiceMemberPayload")
+        payload = model(
+            affiliation="NAVY",  # Rotate
+            edipi="3333333333",  # Random
+            rank="E_5",  # Rotate
+            social_security_number="333-33-3333",  # Random
+        )
+        service_member_future = self.swagger.service_members.patchServiceMember(
+            serviceMemberId=self.user["service_member"].id,
+            patchServiceMemberPayload=payload)
+        service_member_response = service_member_future.response()
+        self.user["service_member"] = service_member_response.result
 
     @seq_task(5)
     def create_your_name(self):
-        service_member_id = self.user["service_member"].id
-        url = "/internal/service_members/" + service_member_id
-        profile = {
-            "first_name": "Alice",  # Random
-            "last_name": "Bob",  # Random
-            "middle_name": "Carol",
-            "suffix": "",
-        }
-        self.client.patch(url, json=profile)
+        model = self.swagger.get_model("PatchServiceMemberPayload")
+        payload = model(
+            first_name="Alice",  # Random
+            last_name="Bob",  # Random
+            middle_name="Carol",
+            suffix="",
+        )
+        service_member_future = self.swagger.service_members.patchServiceMember(
+            serviceMemberId=self.user["service_member"].id,
+            patchServiceMemberPayload=payload)
+        service_member_response = service_member_future.response()
+        self.user["service_member"] = service_member_response.result
 
     @seq_task(6)
+    def create_your_contact_info(self):
+        model = self.swagger.get_model("PatchServiceMemberPayload")
+        payload = model(
+            email_is_preferred=True,
+            personal_email="20190321164732@example.com",
+            phone_is_preferred=True,
+            secondary_telephone="333-333-3333",
+            telephone="333-333-3333",
+        )
+        service_member_future = self.swagger.service_members.patchServiceMember(
+            serviceMemberId=self.user["service_member"].id,
+            patchServiceMemberPayload=payload)
+        service_member_response = service_member_future.response()
+        self.user["service_member"] = service_member_response.result
+
+    @seq_task(7)
+    def search_for_duty_station_1(self):
+        station_list = ["b", "buck", "buckley"]
+        for station in station_list:
+            url = "/internal/duty_stations?search={}".format(station)
+            self.user["duty_station"] = self.client.get(url)
+
+    @seq_task(8)
+    def current_duty_station(self):
+        model = self.swagger.get_model("PatchServiceMemberPayload")
+        payload = model(
+            current_station_id=self.user["duty_station"].id
+        )
+        service_member_future = self.swagger.service_members.patchServiceMember(
+            serviceMemberId=self.user["service_member"].id,
+            patchServiceMemberPayload=payload)
+        service_member_response = service_member_future.response()
+        self.user["service_member"] = service_member_response.result
+
+    @seq_task(9)
     def logout(self):
         self.client.post("/auth/logout")
         self.login_gov_user = None
