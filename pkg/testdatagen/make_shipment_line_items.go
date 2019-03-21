@@ -2,9 +2,9 @@ package testdatagen
 
 import (
 	"log"
-	"time"
 
 	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -33,10 +33,10 @@ func MakeShipmentLineItem(db *pop.Connection, assertions Assertions) models.Ship
 		Quantity1:         unit.BaseQuantity(1670),
 		AppliedRate:       &rate,
 		Status:            models.ShipmentLineItemStatusSUBMITTED,
-		SubmittedDate:     time.Now(),
-		ApprovedDate:      time.Now(),
-		CreatedAt:         time.Now(),
-		UpdatedAt:         time.Now(),
+		SubmittedDate:     NextValidMoveDate,
+		ApprovedDate:      NextValidMoveDate,
+		CreatedAt:         NextValidMoveDate,
+		UpdatedAt:         NextValidMoveDate,
 	}
 
 	// Overwrite values with those from assertions

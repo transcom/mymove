@@ -14,7 +14,7 @@ import (
 
 type NotificationSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
+	logger Logger
 }
 
 type testNotification struct {
@@ -67,7 +67,7 @@ func (suite *NotificationSuite) TestMoveSubmitted() {
 		moveID: move.ID,
 		session: &auth.Session{
 			ServiceMemberID: move.Orders.ServiceMember.ID,
-			ApplicationName: auth.MyApp,
+			ApplicationName: auth.MilApp,
 		},
 	}
 

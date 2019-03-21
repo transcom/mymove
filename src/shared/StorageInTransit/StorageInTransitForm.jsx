@@ -2,24 +2,23 @@ import { get } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { reduxForm } from 'redux-form';
+import { FormSection, reduxForm } from 'redux-form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { AddressElementEdit } from 'shared/Address';
+
 import './StorageInTransit.css';
 
 export class StorageInTransitForm extends Component {
-  //form submission is still to be implemented
-  handleSubmit = e => {
-    e.preventDefault();
-  };
-
   render() {
     const { storageInTransitSchema, addressSchema } = this.props;
+    const warehouseAddress = get(this.props, 'formValues.warehouse_address');
     return (
-      <form onSubmit={this.handleSubmit} className="storage-in-transit-request-form">
+      <form onSubmit={this.props.handleSubmit(this.props.onSubmit)} className="storage-in-transit-request-form">
         <fieldset key="sit-request-information">
           <div className="editable-panel-column">
             <SwaggerField
               fieldName="location"
+              title="SIT location"
               swagger={storageInTransitSchema}
               className="storage-in-transit-location"
               required
@@ -33,22 +32,27 @@ export class StorageInTransitForm extends Component {
         <fieldset key="warehouse-information" className="storage-in-transit-hr-top">
           <h3>Warehouse</h3>
           <div className="editable-panel-column">
+            <div className="panel-subhead" />
             <SwaggerField
               fieldName="warehouse_id"
               swagger={storageInTransitSchema}
               className="storage-in-transit-warehouse-id"
               required
             />
-            <SwaggerField fieldName="warehouse_name" swagger={storageInTransitSchema} required />
+            <SwaggerField title="Warehouse name" fieldName="warehouse_name" swagger={storageInTransitSchema} required />
             <SwaggerField fieldName="warehouse_phone" swagger={storageInTransitSchema} />
             <SwaggerField fieldName="warehouse_email" swagger={storageInTransitSchema} />
           </div>
           <div className="editable-panel-column">
-            <SwaggerField fieldName="street_address_1" swagger={addressSchema} required />
-            <SwaggerField fieldName="street_address_2" swagger={addressSchema} />
-            <SwaggerField fieldName="city" swagger={addressSchema} required />
-            <SwaggerField fieldName="state" swagger={addressSchema} required />
-            <SwaggerField fieldName="postal_code" swagger={addressSchema} required />
+            <FormSection name="warehouse_address">
+              <AddressElementEdit
+                addressProps={{
+                  swagger: addressSchema,
+                  values: warehouseAddress,
+                }}
+                zipPattern="USA"
+              />
+            </FormSection>
           </div>
         </fieldset>
       </form>
@@ -59,9 +63,11 @@ export class StorageInTransitForm extends Component {
 StorageInTransitForm.propTypes = {
   storageInTransitSchema: PropTypes.object.isRequired,
   addressSchema: PropTypes.object.isRequired,
+  onSubmit: PropTypes.func.isRequired,
 };
 
-const formName = 'storage_in_transit_request_form';
+export const formName = 'storage_in_transit_request_form';
+
 StorageInTransitForm = reduxForm({
   form: formName,
   enableReinitialize: true,

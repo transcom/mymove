@@ -7,7 +7,6 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
@@ -16,14 +15,14 @@ import (
 // MoveApproved has notification content for approved moves
 type MoveApproved struct {
 	db      *pop.Connection
-	logger  *zap.Logger
+	logger  Logger
 	moveID  uuid.UUID
 	session *auth.Session // TODO - remove this when we move permissions up to handlers and out of models
 }
 
 // NewMoveApproved returns a new move approval notification
 func NewMoveApproved(db *pop.Connection,
-	logger *zap.Logger,
+	logger Logger,
 	session *auth.Session,
 	moveID uuid.UUID) *MoveApproved {
 

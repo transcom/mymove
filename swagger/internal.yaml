@@ -40,6 +40,16 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        readOnly: true
+      first_name:
+        type: string
+        example: John
+        readOnly: true
       service_member:
         $ref: '#/definitions/ServiceMemberPayload'
         x-nullable: true
@@ -145,7 +155,7 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
-      planned_move_date:
+      original_move_date:
         type: string
         example: '2018-04-26'
         format: date
@@ -194,6 +204,11 @@ definitions:
         type: integer
         minimum: 1
         title: Weight Estimate
+        x-nullable: true
+      net_weight:
+        type: integer
+        minimum: 1
+        title: Net Weight
         x-nullable: true
       has_requested_advance:
         type: boolean
@@ -207,11 +222,17 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
-      planned_move_date:
+      original_move_date:
         type: string
         format: date
         example: '2018-04-26'
         title: When do you plan to move?
+        x-nullable: true
+      actual_move_date:
+        type: string
+        example: '2018-04-26'
+        format: date
+        title: When did you actually move?
         x-nullable: true
       pickup_postal_code:
         type: string
@@ -248,6 +269,11 @@ definitions:
         minimum: 0
         maximum: 90
         x-nullable: true
+      total_sit_cost:
+        type: integer
+        title: How much does your storage cost?
+        minimum: 0
+        x-nullable: true
       estimated_storage_reimbursement:
         type: string
         title: Estimated Storage Reimbursement
@@ -256,6 +282,11 @@ definitions:
         type: integer
         minimum: 1
         title: Weight Estimate
+        x-nullable: true
+      net_weight:
+        type: integer
+        minimum: 1
+        title: Net Weight
         x-nullable: true
       has_requested_advance:
         type: boolean
@@ -270,11 +301,17 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
-      planned_move_date:
+      original_move_date:
         type: string
         example: '2018-04-26'
         format: date
         title: When do you plan to move?
+        x-nullable: true
+      actual_move_date:
+        type: string
+        example: '2018-04-26'
+        format: date
+        title: When did you actually move?
         x-nullable: true
       pickup_postal_code:
         type: string
@@ -311,10 +348,20 @@ definitions:
         minimum: 0
         maximum: 90
         x-nullable: true
+      total_sit_cost:
+        type: integer
+        minimum: 1
+        title: How much does your storage cost?
+        x-nullable: true
       weight_estimate:
         type: integer
         minimum: 1
         title: Weight Estimate
+        x-nullable: true
+      net_weight:
+        type: integer
+        minimum: 1
+        title: Net Weight
         x-nullable: true
       has_requested_advance:
         type: boolean
@@ -337,11 +384,17 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       size:
         $ref: '#/definitions/TShirtSize'
-      planned_move_date:
+      original_move_date:
         type: string
         format: date
         title: When do you plan to move?
         example: '2018-04-26'
+        x-nullable: true
+      actual_move_date:
+        type: string
+        example: '2018-04-26'
+        format: date
+        title: When did you actually move?
         x-nullable: true
       pickup_postal_code:
         type: string
@@ -388,6 +441,12 @@ definitions:
         title: Weight Estimate
         x-nullable: true
         x-formatting: weight
+      net_weight:
+        type: integer
+        minimum: 1
+        title: Net Weight
+        x-nullable: true
+        x-formatting: weight
       mileage:
         type: integer
         title: Distance between origin and destination in miles
@@ -395,6 +454,11 @@ definitions:
       planned_sit_max:
         type: integer
         title: Maximum SIT reimbursement for the planned SIT duration
+        x-nullable: true
+      total_sit_cost:
+        type: integer
+        format: cents
+        title: Total cost for the planned SIT duration
         x-nullable: true
       sit_max:
         type: integer
@@ -507,6 +571,11 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       locator:
         type: string
         example: '12432'
@@ -576,6 +645,17 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MoveDocumentPayload'
+  DistanceCalculation:
+    type: object
+    properties:
+      origin_address:
+        $ref: '#/definitions/Address'
+      destination_address:
+        $ref: '#/definitions/Address'
+      distance_miles:
+        type: integer
+        title: Distance
+        description: unit is miles
   MoveDocumentPayload:
     type: object
     properties:
@@ -1334,19 +1414,25 @@ definitions:
       - E_7
       - E_8
       - E_9
-      - O_1_W_1_ACADEMY_GRADUATE
-      - O_2_W_2
-      - O_3_W_3
-      - O_4_W_4
-      - O_5_W_5
+      - O_1_ACADEMY_GRADUATE
+      - O_2
+      - O_3
+      - O_4
+      - O_5
       - O_6
       - O_7
       - O_8
       - O_9
       - O_10
+      - W_1
+      - W_2
+      - W_3
+      - W_4
+      - W_5
       - AVIATION_CADET
       - CIVILIAN_EMPLOYEE
-      - ACADEMY_CADET_MIDSHIPMAN
+      - ACADEMY_CADET
+      - MIDSHIPMAN
     x-display-value:
       E_1: E-1
       E_2: E-2
@@ -1357,19 +1443,25 @@ definitions:
       E_7: E-7
       E_8: E-8
       E_9: E-9
-      O_1_W_1_ACADEMY_GRADUATE: O-1/W-1/Service Academy Graduate
-      O_2_W_2: O-2/W-2
-      O_3_W_3: O-3/W-3
-      O_4_W_4: O-4/W-4
-      O_5_W_5: O-5/W-5
+      O_1_ACADEMY_GRADUATE: O-1/Service Academy Graduate
+      O_2: O-2
+      O_3: O-3
+      O_4: O-4
+      O_5: O-5
       O_6: O-6
       O_7: O-7
       O_8: O-8
       O_9: O-9
       O_10: O-10
+      W_1: W-1
+      W_2: W-2
+      W_3: W-3
+      W_4: W-4
+      W_5: W-5
       AVIATION_CADET: Aviation Cadet
       CIVILIAN_EMPLOYEE: Civilian Employee
-      ACADEMY_CADET_MIDSHIPMAN: Service Academy Cadet/Midshipman
+      ACADEMY_CADET: Service Academy Cadet
+      MIDSHIPMAN: Midshipman
   DeptIndicator:
     type: string
     x-nullable: true
@@ -1395,6 +1487,9 @@ definitions:
         enum:
           - D
           - '2'
+        x-display-value:
+          D: D
+          '2': '2'
     required:
       - source_rate_area
       - destination_region
@@ -1441,11 +1536,6 @@ definitions:
         type: string
         format: uuid
         example: d56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      code_of_service:
-        type: string
-        x-nullable: true
-        title: Code of service
         readOnly: true
       book_date:
         type: string
@@ -1547,6 +1637,8 @@ definitions:
         $ref: '#/definitions/Address'
         title: Delivery Address
         x-nullable: true
+      shipping_distance:
+        $ref: '#/definitions/DistanceCalculation'
       has_partial_sit_delivery_address:
         type: boolean
         default: false
@@ -1955,13 +2047,6 @@ definitions:
       - PERMANENT_CHANGE_OF_STATION
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
-      SEPARATION: Separation
-      RETIREMENT: Retirement
-      LOCAL_MOVE: Local Move
-      TEMPORARY_DUTY: Temporary Duty
-      DEPENDENT_TRAVEL: Dependent Travel
-      BLUEBARK: Bluebark
-      VARIOUS: Various
   OrdersTypeDetail:
     type: string
     title: Orders type detail
@@ -2292,7 +2377,7 @@ paths:
         - ppm
       parameters:
         - in: query
-          name: planned_move_date
+          name: original_move_date
           type: string
           format: date
           required: true
@@ -2334,7 +2419,7 @@ paths:
         - ppm
       parameters:
         - in: query
-          name: planned_move_date
+          name: original_move_date
           type: string
           format: date
           required: true
@@ -3347,6 +3432,10 @@ paths:
         - application/pdf
       responses:
         200:
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
           description: Pre-filled worksheet PDF
           schema:
             format: binary
@@ -3436,7 +3525,7 @@ paths:
         - ppm
       parameters:
         - in: query
-          name: planned_move_date
+          name: original_move_date
           type: string
           format: date
           required: true

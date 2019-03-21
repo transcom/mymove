@@ -86,7 +86,7 @@ export class Uploader extends Component {
       imagePreviewMaxHeight: 100,
       labelIdle: labelIdle || 'Drag & drop or <span class="filepond--label-action">click to upload</span>',
       labelTapToUndo: 'tap to delete',
-      acceptedFileTypes: ['image/*', 'application/pdf'],
+      acceptedFileTypes: ['image/jpeg', 'image/png', 'application/pdf'],
     });
 
     this.pond._pond.on('processfile', e => {

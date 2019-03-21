@@ -3,9 +3,12 @@ package shipment
 import (
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/route"
 )
 
 // PricingType describe the type of pricing to do for a shipment
@@ -20,15 +23,35 @@ const (
 
 // PriceShipment is a service object to price a Shipment
 type PriceShipment struct {
-	DB     *pop.Connection
-	Engine *rateengine.RateEngine
+	DB      *pop.Connection
+	Engine  *rateengine.RateEngine
+	Planner route.Planner
 }
 
 // Call prices a Shipment
 func (c PriceShipment) Call(shipment *models.Shipment, price PricingType) (*validate.Errors, error) {
+	origin := shipment.PickupAddress
+	if origin == nil || origin.ID == uuid.Nil {
+		return validate.NewErrors(), errors.New("PickupAddress not provided")
+	}
+
+	destination := shipment.Move.Orders.NewDutyStation.Address
+	if shipment.DestinationAddressOnAcceptance != nil {
+		destination = *shipment.DestinationAddressOnAcceptance
+	}
+
+	if destination.ID == uuid.Nil {
+		return validate.NewErrors(), errors.New("Destination address not provided")
+	}
+
+	distanceCalculation, err := models.NewDistanceCalculation(c.Planner, *origin, destination)
+	if err != nil {
+		return validate.NewErrors(), errors.Wrap(err, "Error creating DistanceCalculation model")
+	}
+
 	// Delivering a shipment is a trigger to populate several shipment line items in the database.  First
 	// calculate charges, then submit the updated shipment record and line items in a DB transaction.
-	shipmentCost, err := c.Engine.HandleRunOnShipment(*shipment)
+	shipmentCost, err := c.Engine.HandleRunOnShipment(*shipment, distanceCalculation)
 	if err != nil {
 		return validate.NewErrors(), err
 	}
@@ -59,7 +82,7 @@ func (c PriceShipment) Call(shipment *models.Shipment, price PricingType) (*vali
 		return validate.NewErrors(), err
 	}
 
-	verrs, err := shipment.SaveShipmentAndLineItems(c.DB, lineItems, preApprovals)
+	verrs, err := shipment.SaveShipmentAndPricingInfo(c.DB, lineItems, preApprovals, distanceCalculation)
 	if err != nil || verrs.HasAny() {
 		return verrs, err
 	}

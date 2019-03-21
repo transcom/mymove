@@ -2,7 +2,9 @@ package services
 
 import (
 	"bytes"
+
 	"github.com/spf13/afero"
+
 	paperworkforms "github.com/transcom/mymove/pkg/paperwork"
 )
 

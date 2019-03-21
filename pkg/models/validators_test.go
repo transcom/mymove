@@ -2,6 +2,7 @@ package models_test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -11,6 +12,66 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
+
+type container interface {
+	Contains(string) bool
+	Contents() []string
+}
+
+type stringList []string
+
+func (sl stringList) Contains(needle string) bool {
+	for _, s := range sl {
+		if s == needle {
+			return true
+		}
+	}
+	return false
+}
+
+func (sl stringList) Contents() []string {
+	return sl
+}
+
+func TestStringInList_IsValid(t *testing.T) {
+	validTypes := stringList{"image/png", "image/jpeg", "application/pdf"}
+	for _, validType := range validTypes {
+		t.Run(validType, func(t *testing.T) {
+			validator := models.NewStringInList(validType, "fieldName", validTypes)
+
+			errs := validate.NewErrors()
+			validator.IsValid(errs)
+
+			if errs.Count() != 0 {
+				t.Fatalf("wrong number of errors; expected %d, got %d", 0, errs.Count())
+			}
+		})
+	}
+
+	invalidTypes := stringList{"image/gif", "video/mp4", "application/octet-stream"}
+	for _, invalidType := range invalidTypes {
+		t.Run(invalidType, func(t *testing.T) {
+			validator := models.NewStringInList(invalidType, "fieldName", validTypes)
+
+			errs := validate.NewErrors()
+			validator.IsValid(errs)
+
+			if errs.Count() != 1 {
+				t.Fatal("There should be one error")
+			}
+
+			expected := fmt.Sprintf("'%s' is not in the list [%s].", invalidType, strings.Join(validTypes, ", "))
+			fieldErrors := errs.Get("field_name")
+
+			if len(fieldErrors) != 1 {
+				t.Fatalf("wrong number of errors; expected %d, got %d", 1, len(fieldErrors))
+			}
+			if fieldErrors[0] != expected {
+				t.Fatalf("wrong validation message; expected %s, got %s", expected, fieldErrors[0])
+			}
+		})
+	}
+}
 
 func TestDateIsWorkday_IsValid(t *testing.T) {
 	calendar := dates.NewUSCalendar()

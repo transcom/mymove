@@ -2,7 +2,9 @@ import {
   fillAndSavePreApprovalRequest,
   editPreApprovalRequest,
   deletePreApprovalRequest,
-} from '../../support/testCreatePreApprovalRequest';
+} from '../../support/preapprovals/testCreateRequest';
+import { test35A, test35ALegacy } from '../../support/preapprovals/test35a';
+import { test105be, test105beLegacy } from '../../support/preapprovals/test105be';
 
 /* global cy */
 describe('TSP user interacts with pre approval request panel', function() {
@@ -17,6 +19,18 @@ describe('TSP user interacts with pre approval request panel', function() {
   });
   it('TSP user deletes pre approval request', function() {
     tspUserDeletesPreApprovalRequest();
+  });
+  it('Add legacy 35A to verify it displays correctly', function() {
+    test35ALegacy();
+  });
+  it('TSP user creates 35A request', function() {
+    test35A();
+  });
+  it('Add legacy 105B/E to verify they display correctly', function() {
+    test105beLegacy();
+  });
+  it('TSP user creates 105B/E request', function() {
+    test105be();
   });
 });
 
@@ -38,7 +52,10 @@ function tspUserCreatesPreApprovalRequest() {
 
   fillAndSavePreApprovalRequest();
   // Verify data has been saved in the UI
-  cy.get('td').contains('Bulky Article: Motorcycle/Rec vehicle');
+  cy.get('tr[data-cy="130B"]').should(td => {
+    const text = td.text();
+    expect(text).to.include('Bulky Article: Motorcycle/Rec vehicle');
+  });
 }
 
 function tspUserEditsPreApprovalRequest() {
@@ -56,7 +73,10 @@ function tspUserEditsPreApprovalRequest() {
 
   editPreApprovalRequest();
   // Verify data has been saved in the UI
-  cy.get('td').contains('notes notes edited');
+  cy.get('tr[data-cy="130B"]').should(td => {
+    const text = td.text();
+    expect(text).to.include('edited');
+  });
 }
 
 function tspUserDeletesPreApprovalRequest() {

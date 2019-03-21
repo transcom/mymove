@@ -19,7 +19,7 @@ func (suite *PaperworkSuite) TestFormFillerSmokeTest() {
 	defer f.Close()
 
 	var fields = map[string]FieldPos{
-		"FieldName": FormField(28, 11, 79, nil, nil),
+		"FieldName": FormField(28, 11, 79, nil, nil, nil),
 	}
 
 	data := fakeModel{
@@ -37,4 +37,22 @@ func (suite *PaperworkSuite) TestFormFillerSmokeTest() {
 
 	err = formFiller.Output(output)
 	suite.FatalNil(err)
+}
+
+func (suite *PaperworkSuite) TestFormScaleFont() {
+	formFiller := NewFormFiller()
+	formFiller.pdf.SetFontSize(10)
+	var cellWidth float64 = 60
+	value := "Joint Base McGuire-Dix-Lakehurst, NJ  08641"
+	stringWidth := formFiller.pdf.GetStringWidth(value)
+	tooLong := formFiller.isMoreThanOneLine(stringWidth, cellWidth)
+
+	suite.True(tooLong)
+	ptSize, _ := formFiller.pdf.GetFontSize()
+	formFiller.ScaleText(value, ptSize, cellWidth)
+
+	stringWidth = formFiller.pdf.GetStringWidth(value)
+	tooLong = formFiller.isMoreThanOneLine(stringWidth, cellWidth)
+	suite.False(tooLong)
+
 }

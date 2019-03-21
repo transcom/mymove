@@ -9,9 +9,9 @@ import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpen
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import { PanelField } from 'shared/EditablePanel';
-import { loadMoveDependencies } from '../ducks.js';
-import { selectServiceMemberForMove } from 'shared/Entities/modules/serviceMembers';
-import { selectOrdersForMove } from 'shared/Entities/modules/orders';
+import { loadMove, loadMoveLabel } from 'shared/Entities/modules/moves';
+import { getRequestStatus } from 'shared/Swagger/selectors';
+import { loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import { Switch, Redirect, Link } from 'react-router-dom';
@@ -36,22 +36,21 @@ import DocumentDetailPanel from './DocumentDetailPanel';
 
 import './index.css';
 class DocumentViewer extends Component {
-  static propTypes = {
-    docTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
-    loadMoveDependencies: PropTypes.func.isRequired,
-    getMoveDocumentsForMove: PropTypes.func.isRequired,
-    genericMoveDocSchema: PropTypes.object.isRequired,
-    moveDocSchema: PropTypes.object.isRequired,
-    moveDocuments: PropTypes.arrayOf(PropTypes.object),
-    location: PropTypes.object.isRequired,
-  };
   componentDidMount() {
-    //this is probably overkill, but works for now
-    this.props.loadMoveDependencies(this.props.match.params.moveId);
-    this.props.getMoveDocumentsForMove(this.props.match.params.moveId);
+    const { moveId } = this.props;
+    this.props.loadMove(moveId);
+    this.props.getMoveDocumentsForMove(moveId);
   }
+
   componentWillUpdate() {
     document.title = 'Document Viewer';
+  }
+
+  componentDidUpdate(prevProps) {
+    const { serviceMemberId } = this.props;
+    if (serviceMemberId !== prevProps.serviceMemberId) {
+      this.props.loadServiceMember(serviceMemberId);
+    }
   }
 
   get getDocumentUploaderProps() {
@@ -201,32 +200,45 @@ class DocumentViewer extends Component {
   }
 }
 
+DocumentViewer.propTypes = {
+  docTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
+  loadMove: PropTypes.func.isRequired,
+  getMoveDocumentsForMove: PropTypes.func.isRequired,
+  genericMoveDocSchema: PropTypes.object.isRequired,
+  moveDocSchema: PropTypes.object.isRequired,
+  moveDocuments: PropTypes.arrayOf(PropTypes.object),
+  location: PropTypes.object.isRequired,
+};
+
 const mapStateToProps = (state, ownProps) => {
   const { moveId, moveDocumentId } = ownProps.match.params;
-  const moveLocator = selectMove(state, moveId).locator;
-  const serviceMember = selectServiceMemberForMove(state, moveId);
+  const move = selectMove(state, moveId);
+  const moveLocator = move.locator;
+  const serviceMemberId = move.service_member_id;
+  const serviceMember = selectServiceMember(state, serviceMemberId);
+  const loadMoveRequest = getRequestStatus(state, loadMoveLabel);
 
   return {
     genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
     currentPpm: selectPPMForMove(state, moveId),
     docTypes: get(state, 'swaggerInternal.spec.definitions.MoveDocumentType.enum', []),
-    orders: selectOrdersForMove(state, moveId),
     moveId,
     moveLocator,
     moveDocumentId,
     moveDocuments: selectAllDocumentsForMove(state, moveId),
     serviceMember,
-    loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
-    loadDependenciesHasError: state.office.loadDependenciesHasError,
-    error: state.office.error,
+    serviceMemberId,
+    loadDependenciesHasSuccess: loadMoveRequest.isSuccess,
+    loadDependenciesHasError: loadMoveRequest.error,
   };
 };
 
 const mapDispatchToProps = {
   createMoveDocument,
   createMovingExpenseDocument,
-  loadMoveDependencies,
+  loadMove,
+  loadServiceMember,
   getMoveDocumentsForMove,
 };
 

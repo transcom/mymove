@@ -16,28 +16,34 @@ import (
 )
 
 var rankDisplayValue = map[internalmessages.ServiceMemberRank]string{
-	internalmessages.ServiceMemberRankE1:                     "E-1",
-	internalmessages.ServiceMemberRankE2:                     "E-2",
-	internalmessages.ServiceMemberRankE3:                     "E-3",
-	internalmessages.ServiceMemberRankE4:                     "E-4",
-	internalmessages.ServiceMemberRankE5:                     "E-5",
-	internalmessages.ServiceMemberRankE6:                     "E-6",
-	internalmessages.ServiceMemberRankE7:                     "E-7",
-	internalmessages.ServiceMemberRankE8:                     "E-8",
-	internalmessages.ServiceMemberRankE9:                     "E-9",
-	internalmessages.ServiceMemberRankO1W1ACADEMYGRADUATE:    "O-1/W-1/Service Academy Graduate",
-	internalmessages.ServiceMemberRankO2W2:                   "O-2/W-2",
-	internalmessages.ServiceMemberRankO3W3:                   "O-3/W-3",
-	internalmessages.ServiceMemberRankO4W4:                   "O-4/W-4",
-	internalmessages.ServiceMemberRankO5W5:                   "O-5/W-5",
-	internalmessages.ServiceMemberRankO6:                     "O-6",
-	internalmessages.ServiceMemberRankO7:                     "O-7",
-	internalmessages.ServiceMemberRankO8:                     "O-8",
-	internalmessages.ServiceMemberRankO9:                     "O-9",
-	internalmessages.ServiceMemberRankO10:                    "O-10",
-	internalmessages.ServiceMemberRankAVIATIONCADET:          "Aviation Cadet",
-	internalmessages.ServiceMemberRankCIVILIANEMPLOYEE:       "Civilian Employee",
-	internalmessages.ServiceMemberRankACADEMYCADETMIDSHIPMAN: "Service Academy Cadet/Midshipman",
+	internalmessages.ServiceMemberRankE1:                "E-1",
+	internalmessages.ServiceMemberRankE2:                "E-2",
+	internalmessages.ServiceMemberRankE3:                "E-3",
+	internalmessages.ServiceMemberRankE4:                "E-4",
+	internalmessages.ServiceMemberRankE5:                "E-5",
+	internalmessages.ServiceMemberRankE6:                "E-6",
+	internalmessages.ServiceMemberRankE7:                "E-7",
+	internalmessages.ServiceMemberRankE8:                "E-8",
+	internalmessages.ServiceMemberRankE9:                "E-9",
+	internalmessages.ServiceMemberRankO1ACADEMYGRADUATE: "O-1/Service Academy Graduate",
+	internalmessages.ServiceMemberRankO2:                "O-2",
+	internalmessages.ServiceMemberRankO3:                "O-3",
+	internalmessages.ServiceMemberRankO4:                "O-4",
+	internalmessages.ServiceMemberRankO5:                "O-5",
+	internalmessages.ServiceMemberRankO6:                "O-6",
+	internalmessages.ServiceMemberRankO7:                "O-7",
+	internalmessages.ServiceMemberRankO8:                "O-8",
+	internalmessages.ServiceMemberRankO9:                "O-9",
+	internalmessages.ServiceMemberRankO10:               "O-10",
+	internalmessages.ServiceMemberRankW1:                "W-1",
+	internalmessages.ServiceMemberRankW2:                "W-2",
+	internalmessages.ServiceMemberRankW3:                "W-3",
+	internalmessages.ServiceMemberRankW4:                "W-4",
+	internalmessages.ServiceMemberRankW5:                "W-5",
+	internalmessages.ServiceMemberRankAVIATIONCADET:     "Aviation Cadet",
+	internalmessages.ServiceMemberRankCIVILIANEMPLOYEE:  "Civilian Employee",
+	internalmessages.ServiceMemberRankACADEMYCADET:      "Service Academy Cadet",
+	internalmessages.ServiceMemberRankMIDSHIPMAN:        "Midshipman",
 }
 
 var affiliationDisplayValue = map[internalmessages.Affiliation]string{
@@ -61,11 +67,15 @@ const (
 	fontFamily      string  = "Helvetica"
 	fontStyle       string  = ""
 	fontSize        float64 = 7
-	fontDir         string  = ""
-	lineHeight      float64 = 3
-	templateName    string  = "form_template"
-	imageXPos       float64 = 0
-	imageYPos       float64 = 0
+	alignment       string  = "LM"
+	// Horizontal alignment is controlled by including "L", "C" or "R" (left, center, right) in alignStr.
+	// Vertical alignment is controlled by including "T", "M", "B" or "A" (top, middle, bottom, baseline) in alignStr.
+	// The default alignment is left middle.
+	fontDir      string  = ""
+	lineHeight   float64 = 3
+	templateName string  = "form_template"
+	imageXPos    float64 = 0
+	imageYPos    float64 = 0
 	// 0-value will be auto-calculated from aspect ratio
 	letterWidthMm  float64 = 215.9
 	letterHeightMm float64 = 0
@@ -78,6 +88,10 @@ const (
 
 func floatPtr(f float64) *float64 {
 	return &f
+}
+
+func stringPtr(s string) *string {
+	return &s
 }
 
 // FormLayout houses both a background image form template and the layout of individual fields
@@ -93,16 +107,18 @@ type FieldPos struct {
 	width      float64
 	fontSize   *float64
 	lineHeight *float64
+	alignStr   *string
 }
 
 // FormField returns a new field position
-func FormField(xPos, yPos, width float64, fontSize, lineHeight *float64) FieldPos {
+func FormField(xPos, yPos, width float64, fontSize, lineHeight *float64, alignStr *string) FieldPos {
 	return FieldPos{
 		xPos:       xPos,
 		yPos:       yPos,
 		width:      width,
 		fontSize:   fontSize,
 		lineHeight: lineHeight,
+		alignStr:   alignStr,
 	}
 }
 
@@ -178,7 +194,10 @@ func (f *FormFiller) drawDebugOverlay(xPos, yPos, width, lineHeight float64, lab
 	f.pdf.SetFontSize(4)
 
 	f.pdf.MoveTo(xPos, yPos)
-	f.pdf.CellFormat(width, lineHeight, label, "1", 0, "R", false, 0, "")
+	f.pdf.CellFormat(width, lineHeight, "", "1", 0, "R", false, 0, "")
+
+	f.pdf.MoveTo(xPos+1.2, yPos-2.9)
+	f.pdf.CellFormat(width, 4, label, "0", 0, "R", false, 0, "")
 
 	// Restore settings
 	f.pdf.SetTextColor(tr, tg, tb)
@@ -241,12 +260,20 @@ func (f *FormFiller) drawData(fields map[string]FieldPos, data interface{}) erro
 			f.pdf.SetFontSize(fontSize)
 		}
 
+		fs, _ := f.pdf.GetFontSize()
+		f.ScaleText(displayValue, fs, formField.width)
+
 		tempLineHeight := lineHeight
 		if formField.lineHeight != nil {
 			tempLineHeight = *formField.lineHeight
 		}
 
-		f.pdf.MultiCell(formField.width, tempLineHeight, displayValue, "", "", false)
+		fieldAlignment := alignment
+		if formField.alignStr != nil {
+			fieldAlignment = *formField.alignStr
+		}
+
+		f.pdf.MultiCell(formField.width, tempLineHeight, displayValue, "", fieldAlignment, false)
 
 		// Draw a red-bordered box with the display value's key to the right
 		if f.debug {
@@ -255,6 +282,24 @@ func (f *FormFiller) drawData(fields map[string]FieldPos, data interface{}) erro
 	}
 
 	return f.pdf.Error()
+}
+
+// ScaleText scales the text down to fit the cell if it is too long to fit in one line
+func (f *FormFiller) ScaleText(displayValue string, fontsize float64, width float64) {
+	stringWidth := f.pdf.GetStringWidth(displayValue)
+	for f.isMoreThanOneLine(stringWidth, width) {
+		ptSize, _ := f.pdf.GetFontSize()
+		newFontSize := ptSize * .95
+		if newFontSize <= 5 {
+			break
+		}
+		f.pdf.SetFontSize(newFontSize)
+		stringWidth = f.pdf.GetStringWidth(displayValue)
+	}
+}
+
+func (f *FormFiller) isMoreThanOneLine(stringWidth float64, width float64) bool {
+	return stringWidth > (width - 2*f.pdf.GetCellMargin())
 }
 
 // Output outputs the form to the provided file

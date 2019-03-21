@@ -24,8 +24,11 @@ type Assertions struct {
 	Address                                  models.Address
 	BackupContact                            models.BackupContact
 	BlackoutDate                             models.BlackoutDate
+	DistanceCalculation                      models.DistanceCalculation
 	Document                                 models.Document
 	DutyStation                              models.DutyStation
+	ElectronicOrder                          models.ElectronicOrder
+	ElectronicOrdersRevision                 models.ElectronicOrdersRevision
 	FuelEIADieselPrice                       models.FuelEIADieselPrice
 	Invoice                                  models.Invoice
 	Move                                     models.Move
@@ -39,6 +42,7 @@ type Assertions struct {
 	ServiceMember                            models.ServiceMember
 	Shipment                                 models.Shipment
 	ShipmentLineItem                         models.ShipmentLineItem
+	ShipmentLineItemDimensions               models.ShipmentLineItemDimensions
 	ShipmentOffer                            models.ShipmentOffer
 	StorageInTransit                         models.StorageInTransit
 	Tariff400ngServiceArea                   models.Tariff400ngServiceArea

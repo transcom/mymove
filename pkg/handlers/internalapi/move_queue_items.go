@@ -3,13 +3,13 @@ package internalapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"go.uber.org/zap"
 )
 
 func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessages.MoveQueueItem {

@@ -33,11 +33,11 @@ type NotificationSender interface {
 type NotificationSendingContext struct {
 	svc    sesiface.SESAPI
 	domain string
-	logger *zap.Logger
+	logger Logger
 }
 
 // NewNotificationSender returns a new NotificationSendingContext
-func NewNotificationSender(svc sesiface.SESAPI, domain string, logger *zap.Logger) NotificationSendingContext {
+func NewNotificationSender(svc sesiface.SESAPI, domain string, logger Logger) NotificationSendingContext {
 	return NotificationSendingContext{
 		svc:    svc,
 		domain: domain,
@@ -55,7 +55,7 @@ func (n NotificationSendingContext) SendNotification(ctx context.Context, notifi
 	return sendEmails(emails, n.svc, n.domain, n.logger)
 }
 
-func sendEmails(emails []emailContent, svc sesiface.SESAPI, domain string, logger *zap.Logger) error {
+func sendEmails(emails []emailContent, svc sesiface.SESAPI, domain string, logger Logger) error {
 	for _, email := range emails {
 		rawMessage, err := formatRawEmailMessage(email, domain)
 		if err != nil {

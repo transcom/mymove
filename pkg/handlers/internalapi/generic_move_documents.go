@@ -1,10 +1,11 @@
 package internalapi
 
 import (
+	"reflect"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"github.com/honeycombio/beeline-go"
-	"reflect"
 
 	"github.com/transcom/mymove/pkg/auth"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"

@@ -1,13 +1,17 @@
+import { get } from 'lodash';
 import React, { Component, Fragment } from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
+import { withContext } from 'shared/AppContext';
 import { renderStatusIcon } from 'shared/utils';
 import { isOfficeSite } from 'shared/constants.js';
-import { formatDate, formatFromBaseQuantity } from 'shared/formatters';
+import { formatDate } from 'shared/formatters';
 import Editor from 'shared/PreApprovalRequest/Editor.jsx';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
 import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
+import { isNewAccessorial } from 'shared/preApprovals';
+import { getDetailsComponent } from './DetailsHelper';
 
 function formatStatus(lineItem) {
   let formattedStatus = lineItem.status;
@@ -81,11 +85,17 @@ export class PreApprovalRequest extends Component {
     // We don't want the user clicking delete more than once
     this.setState({ showDeleteForm: false });
   };
+
   render() {
     const row = this.props.shipmentLineItem;
     const hasInvoice = Boolean(row.invoice_id);
     const isShowingForm = Boolean(this.state.showDeleteForm || this.state.showEditForm);
     const showButtons = this.props.isActionable && !isShowingForm && !hasInvoice;
+    const DetailsComponent = getDetailsComponent(
+      row.tariff400ng_item.code,
+      get(this.props, 'context.flags.robustAccessorial', false),
+      isNewAccessorial(row),
+    );
     if (this.state.showEditForm) {
       return (
         <tr>
@@ -106,16 +116,16 @@ export class PreApprovalRequest extends Component {
         status = renderStatusIcon(row.status);
       }
       const deleteActiveClass = this.state.showDeleteForm ? 'delete-active' : '';
+
       return (
         <Fragment>
-          <tr key={row.id} className={deleteActiveClass}>
-            <td align="left">{row.tariff400ng_item.code}</td>
-            <td align="left">{row.tariff400ng_item.item}</td>
-            <td align="left"> {row.location[0]} </td>
-            <td align="left">{formatFromBaseQuantity(row.quantity_1)}</td>
-            <td align="left">{row.notes} </td>
-            <td align="left">{formatDate(row.submitted_date)}</td>
-            <td align="left">
+          <tr key={row.id} className={deleteActiveClass} data-cy={row.tariff400ng_item.code}>
+            <td>{row.tariff400ng_item.code}</td>
+            <td>{row.tariff400ng_item.item}</td>
+            <td> {row.location[0]} </td>
+            <DetailsComponent {...this.props} />
+            <td>{formatDate(row.submitted_date)}</td>
+            <td>
               <span className="status">{status}</span>
               {formatStatus(row)}
             </td>
@@ -125,7 +135,7 @@ export class PreApprovalRequest extends Component {
           </tr>
           {this.state.showDeleteForm && (
             <tr className="delete-confirm-row">
-              <td colSpan="8" className="delete-confirm">
+              <td colSpan="7" className="delete-confirm">
                 <strong>Are you sure you want to delete?</strong>
                 <button
                   className="usa-button usa-button-secondary"
@@ -159,4 +169,5 @@ PreApprovalRequest.propTypes = {
   tariff400ngItems: PropTypes.array,
 };
 
-export default PreApprovalRequest;
+export default withContext(PreApprovalRequest);
+export { PreApprovalRequest as BasicPreApprovalRequest };

@@ -6,29 +6,41 @@ import { get } from 'lodash';
 import PreApprovalForm, { formName as PreApprovalFormName } from 'shared/PreApprovalRequest/PreApprovalForm.jsx';
 import { formatToBaseQuantity, formatDimensionsToThousandthInches } from 'shared/formatters';
 import { submit, isValid, isSubmitting, reset, hasSubmitSucceeded } from 'redux-form';
+import { convertDollarsToCents } from 'shared/utils';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+
 export class Creator extends Component {
-  state = { showForm: false, closeOnSubmit: true };
+  state = {
+    showForm: false,
+    closeOnSubmit: true,
+  };
+
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (this.props.hasSubmitSucceeded && !prevProps.hasSubmitSucceeded)
       if (this.state.closeOnSubmit) this.setState({ showForm: false });
       else this.props.clearForm();
   }
+
   openForm = () => {
     this.setState({ showForm: true });
     this.props.onFormActivation(true);
   };
+
   closeForm = () => {
     this.setState({ showForm: false });
     this.props.onFormActivation(false);
   };
+
   onSubmit = values => {
     // Convert quantity_1 to base quantity unit before hitting endpoint
     if (values.quantity_1) {
       values.quantity_1 = formatToBaseQuantity(values.quantity_1);
     }
+
+    values.estimate_amount_cents = convertDollarsToCents(get(values, 'estimate_amount_cents'));
+    values.actual_amount_cents = convertDollarsToCents(get(values, 'actual_amount_cents'));
 
     //Convert item dimensions to base quantity unit before hitting endpoint
     formatDimensionsToThousandthInches(get(values, 'item_dimensions'));
@@ -36,26 +48,30 @@ export class Creator extends Component {
     formatDimensionsToThousandthInches(get(values, 'crate_dimensions'));
 
     values.tariff400ng_item_id = values.tariff400ng_item.id;
+
     this.props.savePreApprovalRequest(values);
   };
+
   saveAndClear = () => {
     this.setState({ closeOnSubmit: false }, () => {
       this.props.submitForm();
     });
   };
+
   saveAndClose = () => {
     this.setState({ closeOnSubmit: true }, () => {
       this.props.submitForm();
       this.props.onFormActivation(false);
     });
   };
+
   render() {
     if (this.state.showForm)
       return (
         <div className="pre-approval-panel-modal">
           <div className="title">Add a request</div>
           <PreApprovalForm tariff400ngItems={this.props.tariff400ngItems} onSubmit={this.onSubmit} />
-          <div className="usa-grid-full">
+          <div className="usa-grid-full align-center-vertical">
             <div className="usa-width-one-half">
               <p className="cancel-link">
                 <a className="usa-button-secondary" onClick={this.closeForm}>

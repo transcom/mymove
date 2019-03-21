@@ -97,6 +97,12 @@ Cypress.Commands.add('selectQueueItemMoveLocator', moveLocator => {
     .get('div')
     .contains(moveLocator)
     .dblclick();
+
+  cy.waitForLoadingScreen();
+});
+
+Cypress.Commands.add('setFeatureFlag', (flagVal, url = '/queues/new') => {
+  cy.visit(`${url}?flag:${flagVal}`);
 });
 
 Cypress.Commands.add(
@@ -177,10 +183,18 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('logout', () => {
-  // The session cookie wasn't being cleared out after doing a get request even though the Set-Cookie
-  // header was present. Switching to cy.visit() fixed the problem, but it's not clear why this worked.
-  // Seems like others using Cypress have similar issues: https://github.com/cypress-io/cypress/issues/781
-  cy.visit('/auth/logout');
+  cy.clearCookies();
+  cy.patientVisit('/');
+  cy.getCookie('masked_gorilla_csrf').then(cookie => {
+    cy.request({
+      url: '/auth/logout',
+      method: 'POST',
+      headers: { 'x-csrf-token': cookie.value },
+    });
+
+    // In case of login redirect we once more go to the homepage
+    cy.patientVisit('/');
+  });
 });
 
 Cypress.Commands.add('nextPage', () => {
@@ -245,6 +259,23 @@ function genericSelect(inputData, fieldName, classSelector) {
     .click();
 }
 
+Cypress.Commands.add('typeInInput', ({ name, value }) => {
+  cy
+    .get(`input[name="${name}"]`)
+    .clear()
+    .type(value)
+    .blur();
+});
+
+// function typeInTextArea({ name, value }) {
+Cypress.Commands.add('typeInTextarea', ({ name, value }) => {
+  cy
+    .get(`textarea[name="${name}"]`)
+    .clear()
+    .type(value)
+    .blur();
+});
+
 Cypress.Commands.add('selectDutyStation', (stationName, fieldName) => {
   let classSelector = '.duty-input-box';
   genericSelect(stationName, fieldName, classSelector);
@@ -271,4 +302,14 @@ Cypress.Commands.add('setupBaseUrl', appname => {
     default:
       break;
   }
+});
+
+Cypress.Commands.add('removeFetch', () => {
+  // cypress server/route/wait currently does not support window.fetch api
+  // https://github.com/cypress-io/cypress/issues/95#issuecomment-347607198
+  // delete window.fetch to force fallback to supported xhr.
+  // https://github.com/cypress-io/cypress-example-recipes/tree/master/examples/stubbing-spying__window-fetch
+  cy.on('window:before:load', win => {
+    delete win.fetch;
+  });
 });

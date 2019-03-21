@@ -2,6 +2,7 @@ package models_test
 
 import (
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 
@@ -118,7 +119,7 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 
 	// User is authorized to fetch move doc
 	session := &auth.Session{
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 		UserID:          sm.UserID,
 		ServiceMemberID: sm.ID,
 	}
@@ -176,7 +177,7 @@ func (suite *ModelSuite) TestFetchMoveDocument() {
 	})
 	// User is authorized to fetch move doc
 	session := &auth.Session{
-		ApplicationName: auth.MyApp,
+		ApplicationName: auth.MilApp,
 		UserID:          sm.UserID,
 		ServiceMemberID: sm.ID,
 	}

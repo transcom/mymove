@@ -1,3 +1,4 @@
+#documentation - docs/how-to/run-pre-commit-hooks.md
 repos:
   - repo: local
     hooks:
@@ -72,6 +73,13 @@ repos:
         entry: bin/swagger validate swagger/orders.yaml
         language: script
 
+  - repo: local
+    hooks:
+    - id: swagger
+      name: DPS Swagger
+      entry: bin/swagger validate swagger/dps.yaml
+      language: script
+
   # Ensure markdown files have updated table of contents
   - repo: local
     hooks:
@@ -81,12 +89,33 @@ repos:
         language: script
         files: \.md$
 
-  - repo: git://github.com/dnephin/pre-commit-golang
-    rev: v0.3.2
+  - repo: local
     hooks:
-      - id: go-fmt
-      - id: go-vet
+      - id: go-imports
+        name: go imports
+        entry: bin/pre-commit-go-imports
+        language: script
+        files: \.go$
+        exclude: vendor/
+
+  - repo: local
+    hooks:
       - id: go-lint
+        name: go lint
+        entry: bin/pre-commit-go-lint
+        language: script
+        files: \.go$
+        exclude: vendor/
+
+  - repo: local
+    hooks:
+    - id: go-vet
+      name: go vet
+      entry: bin/pre-commit-go-vet
+      language: script
+      files: \.go$
+      exclude: vendor/
+      pass_filenames: false
 
   - repo: local
     hooks:
@@ -98,19 +127,19 @@ repos:
         files: \.go$
         pass_filenames: false
 
-  - repo: local
-    hooks:
-      - id: mdspell
-        name: mdspell
-        entry: bin/pre-commit-spellcheck
-        language: script
-        files: \.md$
-        exclude: >
-          (?x)^(
-            node_modules/|
-            vendor/|
-            docs/adr/index.md
-          )$
+  # - repo: local
+  #   hooks:
+  #     - id: mdspell
+  #       name: mdspell
+  #       entry: bin/pre-commit-spellcheck
+  #       language: script
+  #       files: \.md$
+  #       exclude: >
+  #         (?x)^(
+  #           node_modules/|
+  #           vendor/|
+  #           docs/adr/index.md
+  #         )$
 
   - repo: local
     hooks:
@@ -127,3 +156,12 @@ repos:
         name: dep version
         entry: bin/check_dep_version
         language: script
+
+  - repo: local
+    hooks:
+      - id: dep-check
+        name: dep check
+        entry: bin/pre-commit-dep-check
+        language: script
+        files: (\.go|Gopkg\.toml|Gopkg\.lock)$
+        pass_filenames: false

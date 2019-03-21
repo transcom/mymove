@@ -4,17 +4,17 @@ import (
 	"reflect"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
-
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
+	beeline "github.com/honeycombio/beeline-go"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	movedocop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/move_docs"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
-	"go.uber.org/zap"
 )
 
 func payloadForDocumentModel(storer storage.FileStorer, document models.Document) (*apimessages.DocumentPayload, error) {

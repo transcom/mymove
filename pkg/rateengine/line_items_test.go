@@ -2,15 +2,14 @@ package rateengine
 
 import (
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *RateEngineSuite) TestCreateBaseShipmentLineItems() {
-	engine := NewRateEngine(suite.DB(), suite.logger, route.NewTestingPlanner(1044))
+	engine := NewRateEngine(suite.DB(), suite.logger)
 
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), 1, 1, []int{1}, []models.ShipmentStatus{models.ShipmentStatusINTRANSIT})
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), 1, 1, []int{1}, []models.ShipmentStatus{models.ShipmentStatusINTRANSIT}, models.SelectedMoveTypeHHG)
 	suite.NoError(err)
 
 	tspUser := tspUsers[0]
@@ -25,7 +24,7 @@ func (suite *RateEngineSuite) TestCreateBaseShipmentLineItems() {
 	dbShipment, err := models.FetchShipmentByTSP(suite.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
 	suite.FatalNoError(err)
 
-	shipmentCost, err := engine.HandleRunOnShipment(*dbShipment)
+	shipmentCost, err := engine.HandleRunOnShipment(*dbShipment, dbShipment.ShippingDistance)
 	suite.FatalNoError(err)
 
 	lineItems, err := CreateBaseShipmentLineItems(suite.DB(), shipmentCost)

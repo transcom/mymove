@@ -8,18 +8,17 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 	"github.com/honeycombio/beeline-go"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/auth"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
-	"go.uber.org/zap"
 )
 
 func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
-	var dutyStationPayload *internalmessages.DutyStationPayload
-	dutyStationPayload = payloadForDutyStationModel(serviceMember.DutyStation)
 	orders := make([]*internalmessages.Orders, len(serviceMember.Orders))
 	for i, order := range serviceMember.Orders {
 		orderPayload, _ := payloadForOrdersModel(storer, order)
@@ -56,7 +55,7 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		BackupContacts:          contactPayloads,
 		HasSocialSecurityNumber: handlers.FmtBool(serviceMember.SocialSecurityNumberID != nil),
 		IsProfileComplete:       handlers.FmtBool(serviceMember.IsProfileComplete()),
-		CurrentStation:          dutyStationPayload,
+		CurrentStation:          payloadForDutyStationModel(serviceMember.DutyStation),
 	}
 	return &serviceMemberPayload
 }
@@ -149,7 +148,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	// And return
 	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember)
 	responder := servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)
-	return handlers.NewCookieUpdateResponder(params.HTTPRequest, h.CookieSecret(), h.NoSessionTimeout(), h.Logger(), responder)
+	return handlers.NewCookieUpdateResponder(params.HTTPRequest, h.CookieSecret(), h.NoSessionTimeout(), h.Logger(), responder, h.UseSecureCookie())
 }
 
 // ShowServiceMemberHandler returns a serviceMember for a user and service member ID

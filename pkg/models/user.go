@@ -3,12 +3,13 @@ package models
 import (
 	"time"
 
+	"strings"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"strings"
 )
 
 // User is an entity with a registered uuid and email at login.gov
@@ -18,6 +19,7 @@ type User struct {
 	UpdatedAt     time.Time `json:"updated_at" db:"updated_at"`
 	LoginGovUUID  uuid.UUID `json:"login_gov_uuid" db:"login_gov_uuid"`
 	LoginGovEmail string    `json:"login_gov_email" db:"login_gov_email"`
+	Disabled      bool      `json:"disabled" db:"disabled"`
 }
 
 // Users is not required by pop and may be deleted
@@ -74,6 +76,7 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 // UserIdentity is summary of the information about a user from the database
 type UserIdentity struct {
 	ID                     uuid.UUID  `db:"id"`
+	Disabled               bool       `db:"disabled"`
 	Email                  string     `db:"email"`
 	ServiceMemberID        *uuid.UUID `db:"sm_id"`
 	ServiceMemberFirstName *string    `db:"sm_fname"`
@@ -87,29 +90,33 @@ type UserIdentity struct {
 	TspUserFirstName       *string    `db:"tu_fname"`
 	TspUserLastName        *string    `db:"tu_lname"`
 	TspUserMiddle          *string    `db:"tu_middle"`
+	DpsUserID              *uuid.UUID `db:"du_id"`
 }
 
 // FetchUserIdentity queries the database for information about the logged in user
 func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, error) {
 	var identities []UserIdentity
 	query := `SELECT users.id,
-				users.login_gov_email as email,
-				sm.id as sm_id,
-				sm.first_name as sm_fname,
-				sm.last_name as sm_lname,
-				sm.middle_name as sm_middle,
-				ou.id as ou_id,
-				ou.first_name as ou_fname,
-				ou.last_name as ou_lname,
-				ou.middle_initials as ou_middle,
-				tu.id as tu_id,
-				tu.first_name as tu_fname,
-				tu.last_name as tu_lname,
-				tu.middle_initials as tu_middle
+				users.login_gov_email AS email,
+				users.disabled AS disabled,
+				sm.id AS sm_id,
+				sm.first_name AS sm_fname,
+				sm.last_name AS sm_lname,
+				sm.middle_name AS sm_middle,
+				ou.id AS ou_id,
+				ou.first_name AS ou_fname,
+				ou.last_name AS ou_lname,
+				ou.middle_initials AS ou_middle,
+				tu.id AS tu_id,
+				tu.first_name AS tu_fname,
+				tu.last_name AS tu_lname,
+				tu.middle_initials AS tu_middle,
+				du.id AS du_id
 			FROM users
-			LEFT OUTER JOIN service_members as sm on sm.user_id = users.id
-			LEFT OUTER JOIN office_users as ou on ou.user_id = users.id
-			LEFT OUTER JOIN tsp_users as tu on tu.user_id = users.id
+			LEFT OUTER JOIN service_members AS sm on sm.user_id = users.id
+			LEFT OUTER JOIN office_users AS ou on ou.user_id = users.id
+			LEFT OUTER JOIN tsp_users AS tu on tu.user_id = users.id
+			LEFT OUTER JOIN dps_users AS du on du.login_gov_email = users.login_gov_email
 			WHERE users.login_gov_uuid  = $1`
 	err := db.RawQuery(query, loginGovID).All(&identities)
 	if err != nil {
@@ -118,6 +125,39 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 		return nil, ErrFetchNotFound
 	}
 	return &identities[0], nil
+}
+
+// FetchAllUserIdentities returns information for all users in the db
+func FetchAllUserIdentities(db *pop.Connection) ([]UserIdentity, error) {
+	var identities []UserIdentity
+	query := `SELECT users.id,
+				users.login_gov_email AS email,
+				users.disabled AS disabled,
+				sm.id AS sm_id,
+				sm.first_name AS sm_fname,
+				sm.last_name AS sm_lname,
+				sm.middle_name AS sm_middle,
+				ou.id AS ou_id,
+				ou.first_name AS ou_fname,
+				ou.last_name AS ou_lname,
+				ou.middle_initials AS ou_middle,
+				tu.id AS tu_id,
+				tu.first_name AS tu_fname,
+				tu.last_name AS tu_lname,
+				tu.middle_initials AS tu_middle,
+				du.id AS du_id
+			FROM users
+			LEFT OUTER JOIN service_members AS sm on sm.user_id = users.id
+			LEFT OUTER JOIN office_users AS ou on ou.user_id = users.id
+			LEFT OUTER JOIN tsp_users AS tu on tu.user_id = users.id
+			LEFT OUTER JOIN dps_users AS du on du.login_gov_email = users.login_gov_email
+			ORDER BY users.created_at`
+
+	err := db.RawQuery(query).All(&identities)
+	if err != nil {
+		return nil, err
+	}
+	return identities, nil
 }
 
 // firstValue returns the first string value that is not nil

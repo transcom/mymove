@@ -42,6 +42,7 @@ export function requestsReducer(state = initialState, action) {
       case 'RESET':
         return Object.assign({}, state, {
           lastErrors: omit(state.lastErrors, [action.label]),
+          byID: {},
         });
       default:
         return state;
