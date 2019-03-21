@@ -48,7 +48,6 @@ class UserBehavior(TaskSequence):
 
     def update_duty_stations(self, duty_stations_future):
         duty_stations_response = duty_stations_future.response()
-        print(duty_stations_response.result)
         self.user["duty_stations"] = duty_stations_response.result
 
     @seq_task(1)
@@ -72,7 +71,6 @@ class UserBehavior(TaskSequence):
                     'validate_responses': False,
                 })
         except Exception:
-            print('Headers:', self.client.headers)
             print(resp.content)
 
     @seq_task(2)
