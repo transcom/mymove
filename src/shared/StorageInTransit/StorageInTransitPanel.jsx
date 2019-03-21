@@ -14,6 +14,7 @@ import { formatDate4DigitYear } from 'shared/formatters';
 import { calculateEntitlementsForMove } from 'shared/Entities/modules/moves';
 
 import { isTspSite } from 'shared/constants.js';
+import SitStatusIcon from './SitStatusIcon';
 
 export class StorageInTransitPanel extends Component {
   constructor() {
@@ -38,7 +39,7 @@ export class StorageInTransitPanel extends Component {
   };
 
   render() {
-    const { storageInTransitEntitlement, storageInTransits, setSitStatusIcon } = this.props;
+    const { storageInTransitEntitlement, storageInTransits } = this.props;
     const { error, isCreatorActionable } = this.state;
     const daysUsed = 0; // placeholder
     const daysRemaining = storageInTransitEntitlement - daysUsed;
@@ -46,7 +47,10 @@ export class StorageInTransitPanel extends Component {
 
     return (
       <div className="storage-in-transit-panel">
-        <BasicPanel title="Storage in Transit (SIT)" titleExtension={hasRequestedSIT && setSitStatusIcon(isTspSite)}>
+        <BasicPanel
+          title="Storage in Transit (SIT)"
+          titleExtension={!isTspSite && hasRequestedSIT && <SitStatusIcon isTspSite={isTspSite} />}
+        >
           {error && (
             <Alert type="error" heading="Oops, something went wrong!" onRemove={this.closeError}>
               <span className="warning--header">Please refresh the page and try again.</span>
@@ -64,7 +68,7 @@ export class StorageInTransitPanel extends Component {
                     <span className="unbold">
                       {' '}
                       <span id="sit-status-text">Status:</span>{' '}
-                      {storageInTransit.status === 'REQUESTED' && setSitStatusIcon(isTspSite)}
+                      {storageInTransit.status === 'REQUESTED' && <SitStatusIcon isTspSite={isTspSite} />}
                     </span>
                     <span>
                       SIT {storageInTransit.status.charAt(0) + storageInTransit.status.slice(1).toLowerCase()}{' '}

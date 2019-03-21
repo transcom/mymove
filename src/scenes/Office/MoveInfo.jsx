@@ -66,6 +66,7 @@ import {
 } from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
 import { getMoveDocumentsForMove, selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import SitStatusIcon from 'shared/StorageInTransit/SitStatusIcon';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -76,9 +77,6 @@ import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
-import classnames from 'classnames';
-
-import iconStyles from 'shared/styles/icons.module.scss';
 
 const BasicsTabContent = props => {
   return (
@@ -115,7 +113,6 @@ const HHGTabContent = props => {
     shipment,
     updatePublicShipment,
     showSitPanel,
-    setStatusIcon,
   } = props;
   if (shipment) {
     shipmentStatus = shipment.status;
@@ -135,9 +132,7 @@ const HHGTabContent = props => {
         transportationServiceProviderId={shipment.transportation_service_provider_id}
       />
       <PreApprovalPanel shipmentId={shipment.id} />
-      {showSitPanel && (
-        <StorageInTransitPanel shipmentId={shipmentId} moveId={moveId} setSitStatusIcon={setStatusIcon} />
-      )}
+      {showSitPanel && <StorageInTransitPanel shipmentId={shipmentId} moveId={moveId} />}
       <InvoicePanel
         shipmentId={shipment.id}
         shipmentStatus={shipmentStatus}
@@ -285,16 +280,7 @@ class MoveInfo extends Component {
     const hhgCantBeCanceled = includes(['IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
 
     const hasRequestedSIT = !isEmpty(storageInTransits) && some(storageInTransits, sit => sit.status === 'REQUESTED');
-    const setStatusIcon = isTspSite => (
-      <FontAwesomeIcon
-        className={classnames(
-          iconStyles.statusIcon,
-          { [iconStyles.statusDefaultColor]: isTspSite },
-          { [iconStyles.statusAttention]: !isTspSite },
-        )}
-        icon={faClock}
-      />
-    );
+
     const moveDate = isPPM ? ppm.original_move_date : shipment && shipment.requested_pickup_date;
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -368,7 +354,7 @@ class MoveInfo extends Component {
                   <span className="title">HHG</span>
                   <span className="status">
                     {hasRequestedSIT ? (
-                      setStatusIcon(false)
+                      <SitStatusIcon isTspSite={false} />
                     ) : (
                       <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
                     )}
@@ -402,7 +388,6 @@ class MoveInfo extends Component {
                       shipmentStatus={this.props.shipmentStatus}
                       updatePublicShipment={this.props.updatePublicShipment}
                       showSitPanel={this.props.context.flags.sitPanel}
-                      setStatusIcon={setStatusIcon}
                     />
                   )}
                 </PrivateRoute>
