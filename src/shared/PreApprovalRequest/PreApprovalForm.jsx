@@ -104,61 +104,66 @@ export class LocationSearch extends Component {
 }
 
 export class PreApprovalForm extends Component {
-  render() {
-    const robustAccessorial = get(this.props, 'context.flags.robustAccessorial', false);
-    const FormComponent = getFormComponent(
-      this.props.tariff400ng_item_code,
-      robustAccessorial,
-      this.props.initialValues,
+  makeStaticForm(FormComponent) {
+    return (
+      <Fragment>
+        <div className="usa-width-one-third">
+          <label htmlFor="tariff400ng_item" className="usa-input-label">
+            Code & Item
+          </label>
+          <div>
+            <strong>{getOptionLabel(this.props.initialValues.tariff400ng_item)}</strong>
+          </div>
+          <label htmlFor="location" className="usa-input-label">
+            Location
+          </label>
+          <div>
+            <strong>
+              {
+                this.props.ship_line_item_schema.properties.location['x-display-value'][
+                  this.props.initialValues.location
+                ]
+              }
+            </strong>
+          </div>
+        </div>
+        <div className="usa-width-one-third">
+          <FormComponent {...this.props} />
+        </div>
+        <div className="usa-width-one-third">
+          <label htmlFor="notes" className="usa-input-label">
+            Notes
+          </label>
+          <div>
+            <strong>{this.props.initialValues.notes || `None`}</strong>
+          </div>
+        </div>
+      </Fragment>
     );
-    const isStatic = this.props.status === 'APPROVED';
+  }
 
+  makeEditableForm(FormComponent) {
     return (
       <Form className="pre-approval-form" onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
         <div className="usa-grid-full">
           <div className="usa-width-one-third">
-            {isStatic ? (
-              <Fragment>
-                <label htmlFor="tariff400ng_item" className="usa-input-label">
-                  Code & Item
-                </label>
-                <div>
-                  <strong>{getOptionLabel(this.props.initialValues.tariff400ng_item)}</strong>
-                </div>
-                <label htmlFor="location" className="usa-input-label">
-                  Location
-                </label>
-                <div>
-                  <strong>
-                    {
-                      this.props.ship_line_item_schema.properties.location['x-display-value'][
-                        this.props.initialValues.location
-                      ]
-                    }
-                  </strong>
-                </div>
-              </Fragment>
-            ) : (
-              <Fragment>
-                <div className="tariff400-select usa-input">
-                  <Field
-                    name="tariff400ng_item"
-                    title="Code & item"
-                    component={Tariff400ngItemSearch}
-                    tariff400ngItems={this.props.tariff400ngItems}
-                  />
-                </div>
-                {this.props.tariff400ngItem && (
-                  <div className="location-select">
-                    <LocationSearch
-                      filteredLocations={this.props.filteredLocations}
-                      ship_line_item_schema={this.props.ship_line_item_schema}
-                      change={this.props.change}
-                      value={this.props.selectedLocation}
-                    />
-                  </div>
-                )}
-              </Fragment>
+            <div className="tariff400-select usa-input">
+              <Field
+                name="tariff400ng_item"
+                title="Code & item"
+                component={Tariff400ngItemSearch}
+                tariff400ngItems={this.props.tariff400ngItems}
+              />
+            </div>
+            {this.props.tariff400ngItem && (
+              <div className="location-select">
+                <LocationSearch
+                  filteredLocations={this.props.filteredLocations}
+                  ship_line_item_schema={this.props.ship_line_item_schema}
+                  change={this.props.change}
+                  value={this.props.selectedLocation}
+                />
+              </div>
             )}
           </div>
           {this.props.tariff400ngItem && (
@@ -167,24 +172,24 @@ export class PreApprovalForm extends Component {
                 <FormComponent {...this.props} />
               </div>
               <div className="usa-width-one-third">
-                {isStatic ? (
-                  <Fragment>
-                    <label htmlFor="notes" className="usa-input-label">
-                      Notes
-                    </label>
-                    <div>
-                      <strong>{this.props.initialValues.notes || `None`}</strong>
-                    </div>
-                  </Fragment>
-                ) : (
-                  <SwaggerField fieldName="notes" swagger={this.props.ship_line_item_schema} />
-                )}
+                <SwaggerField fieldName="notes" swagger={this.props.ship_line_item_schema} />
               </div>
             </Fragment>
           )}
         </div>
       </Form>
     );
+  }
+
+  render() {
+    const robustAccessorial = get(this.props, 'context.flags.robustAccessorial', false);
+    const FormComponent = getFormComponent(
+      this.props.tariff400ng_item_code,
+      robustAccessorial,
+      this.props.initialValues,
+    );
+    const isStatic = this.props.status === 'APPROVED';
+    return isStatic ? this.makeStaticForm(FormComponent) : this.makeEditableForm(FormComponent);
   }
 }
 

@@ -168,6 +168,7 @@ export class PreApprovalRequest extends Component {
     }
   }
 }
+
 PreApprovalRequest.propTypes = {
   shipmentLineItem: PropTypes.object.isRequired,
   onEdit: PropTypes.func,
