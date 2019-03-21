@@ -59,10 +59,12 @@ export class StorageInTransit extends Component {
           ) : (
             <span className="sit-actions">
               <span className="sit-edit actionable">
-                <a onClick={this.openEditForm}>
-                  <FontAwesomeIcon className="icon" icon={faPencil} />
-                  Edit
-                </a>
+                {storageInTransit.status !== 'APPROVED' && (
+                  <a onClick={this.openEditForm}>
+                    <FontAwesomeIcon className="icon" icon={faPencil} />
+                    Edit
+                  </a>
+                )}
               </span>
             </span>
           )}
