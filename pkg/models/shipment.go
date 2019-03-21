@@ -1002,12 +1002,18 @@ func AcceptShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.U
 	// by default we should use the address of duty station when a TSP accepts shipment unless actual delivery
 	// shipment address is available at the time
 	destAddOnAcceptance := shipment.Move.Orders.NewDutyStation.Address
-	if shipment.DeliveryAddress != nil {
+	if shipment.HasDeliveryAddress && shipment.DeliveryAddress != nil {
 		destAddOnAcceptance = *shipment.DeliveryAddress
 	}
 
+	// setting id to nil to force a new Address in the db
+	destAddOnAcceptance.ID = uuid.Nil
 	shipment.DestinationAddressOnAcceptance = &destAddOnAcceptance
-	shipment.DestinationAddressOnAcceptanceID = &destAddOnAcceptance.ID
+
+	_, err = SaveDestinationAddress(db, shipment)
+	if err != nil {
+		return shipment, nil, nil, err
+	}
 
 	shipmentOffer, err := FetchShipmentOfferByTSP(db, tspID, shipmentID)
 	if err != nil {
@@ -1026,6 +1032,17 @@ func AcceptShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.U
 	}
 
 	return saveShipmentAndOffer(db, shipment, shipmentOffer)
+}
+
+// SaveDestinationAddress saves a DestinationAddressOnAcceptance
+func SaveDestinationAddress(db *pop.Connection, shipment *Shipment) (*validate.Errors, error) {
+	verrs, err := db.ValidateAndSave(shipment.DestinationAddressOnAcceptance)
+	if verrs.HasAny() || err != nil {
+		saveError := errors.Wrap(err, "Error saving shipment")
+		return verrs, saveError
+	}
+	shipment.DestinationAddressOnAcceptanceID = &shipment.DestinationAddressOnAcceptance.ID
+	return verrs, nil
 }
 
 // SaveShipmentAndAddresses saves a Shipment and its Addresses atomically.
