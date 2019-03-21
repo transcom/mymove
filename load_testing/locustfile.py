@@ -42,6 +42,15 @@ class UserBehavior(TaskSequence):
         """ on_stop is called when the TaskSet is stopping """
         pass
 
+    def update_service_member(self, service_member_future):
+        service_member_response = service_member_future.response()
+        self.user["service_member"] = service_member_response.result
+
+    def update_duty_stations(self, duty_stations_future):
+        duty_stations_response = duty_stations_future.response()
+        print(duty_stations_response.result)
+        self.user["duty_stations"] = duty_stations_response.result
+
     @seq_task(1)
     def login(self):
         resp = self.client.post('/devlocal-auth/create')
@@ -78,8 +87,7 @@ class UserBehavior(TaskSequence):
         payload = model(user_id=self.user["id"])
         service_member_future = self.swagger.service_members.createServiceMember(
             createServiceMemberPayload=payload)
-        service_member_response = service_member_future.response()
-        self.user["service_member"] = service_member_response.result
+        self.update_service_member(service_member_future)
 
     @seq_task(4)
     def create_your_profile(self):
@@ -93,8 +101,7 @@ class UserBehavior(TaskSequence):
         service_member_future = self.swagger.service_members.patchServiceMember(
             serviceMemberId=self.user["service_member"].id,
             patchServiceMemberPayload=payload)
-        service_member_response = service_member_future.response()
-        self.user["service_member"] = service_member_response.result
+        self.update_service_member(service_member_future)
 
     @seq_task(5)
     def create_your_name(self):
@@ -108,8 +115,7 @@ class UserBehavior(TaskSequence):
         service_member_future = self.swagger.service_members.patchServiceMember(
             serviceMemberId=self.user["service_member"].id,
             patchServiceMemberPayload=payload)
-        service_member_response = service_member_future.response()
-        self.user["service_member"] = service_member_response.result
+        self.update_service_member(service_member_future)
 
     @seq_task(6)
     def create_your_contact_info(self):
@@ -124,27 +130,26 @@ class UserBehavior(TaskSequence):
         service_member_future = self.swagger.service_members.patchServiceMember(
             serviceMemberId=self.user["service_member"].id,
             patchServiceMemberPayload=payload)
-        service_member_response = service_member_future.response()
-        self.user["service_member"] = service_member_response.result
+        self.update_service_member(service_member_future)
 
     @seq_task(7)
     def search_for_duty_station_1(self):
         station_list = ["b", "buck", "buckley"]
         for station in station_list:
-            url = "/internal/duty_stations?search={}".format(station)
-            self.user["duty_station"] = self.client.get(url)
+            duty_stations_future = self.swagger.duty_stations.searchDutyStations(
+                search=station)
+            self.update_duty_stations(duty_stations_future)
 
     @seq_task(8)
     def current_duty_station(self):
         model = self.swagger.get_model("PatchServiceMemberPayload")
         payload = model(
-            current_station_id=self.user["duty_station"].id
+            current_station_id=self.user["duty_stations"][0].id
         )
         service_member_future = self.swagger.service_members.patchServiceMember(
             serviceMemberId=self.user["service_member"].id,
             patchServiceMemberPayload=payload)
-        service_member_response = service_member_future.response()
-        self.user["service_member"] = service_member_response.result
+        self.update_service_member(service_member_future)
 
     @seq_task(9)
     def logout(self):
