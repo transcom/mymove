@@ -110,6 +110,21 @@ func sessionClaimsFromRequest(logger Logger, secret string, appName Application,
 	return claims, ok
 }
 
+// CSRFErrorHandler handles the csrf error
+func CSRFErrorHandler(logger Logger, noSessionTimeout bool, useSecureCookie bool) http.Handler {
+	mw := func(w http.ResponseWriter, r *http.Request) {
+		// Write the masked token again
+		WriteMaskedCSRFCookie(w, csrf.Token(r), noSessionTimeout, logger, useSecureCookie)
+		// Set http status to 403 and log error
+		msg := fmt.Sprintf("%s - %s",
+			http.StatusText(http.StatusForbidden), csrf.FailureReason(r))
+		http.Error(w, msg, http.StatusForbidden)
+		logger.Error(msg)
+	}
+
+	return http.HandlerFunc(mw)
+}
+
 // WriteMaskedCSRFCookie update the masked_gorilla_csrf cookie value
 func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, noSessionTimeout bool, logger Logger, useSecureCookie bool) {
 
