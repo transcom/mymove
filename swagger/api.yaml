@@ -2744,7 +2744,7 @@ paths:
           description: user is not authorized
         404:
           description: shipment line item not found
-        409:
+        422:
           description: shipment line item not in state to update
         500:
           description: internal server error

@@ -461,8 +461,8 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItemConflict() {
 	handler := UpdateShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
 
-	// Then: expect a 409 status code
-	suite.Assertions.IsType(&accessorialop.UpdateShipmentLineItemConflict{}, response)
+	// Then: expect a 422 status code
+	suite.Assertions.IsType(&accessorialop.UpdateShipmentLineItemUnprocessableEntity{}, response)
 }
 
 func (suite *HandlerSuite) TestDeleteShipmentLineItemTSPHandler() {

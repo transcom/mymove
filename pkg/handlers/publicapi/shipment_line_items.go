@@ -320,9 +320,11 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 	canUpdate35A := tariff400ngItem.Code == "35A" && shipmentLineItem.ActualAmountCents == nil
 
 	if !tariff400ngItem.RequiresPreApproval {
+		h.Logger().Error("Error: tariff400ng item " + tariff400ngItem.Code + " does not require pre-approval")
 		return accessorialop.NewUpdateShipmentLineItemForbidden()
 	} else if shipmentLineItem.Status == models.ShipmentLineItemStatusAPPROVED && !canUpdate35A {
-		return accessorialop.NewUpdateShipmentLineItemConflict()
+		h.Logger().Error("Error: cannot update shipment line item if status is approved or actual amount field already filled for tariff400ng item 35A")
+		return accessorialop.NewUpdateShipmentLineItemUnprocessableEntity()
 	}
 
 	baseParams := models.BaseShipmentLineItemParams{
