@@ -6,6 +6,7 @@ import { get } from 'lodash';
 import { Code35Details } from './Code35Details';
 import { Code105Details } from './Code105Details';
 import { DefaultDetails } from './DefaultDetails';
+import { Code226Details } from './Code226Details';
 
 export function getFormComponent(code, robustAccessorial, initialValues) {
   code = code ? code.toLowerCase() : '';
@@ -24,5 +25,6 @@ export function getDetailsComponent(code, robustccessorial, isNewAccessorial) {
   if (!isNewAccessorial) return DefaultDetails;
   if (code === '105B' || code === '105E') return Code105Details;
   if (code === '35A' && robustccessorial) return Code35Details;
+  if (code === '226A' && robustccessorial) return Code226Details;
   return DefaultDetails;
 }
