@@ -128,8 +128,8 @@ func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, noSessionTim
 		Path:     "/",
 		Expires:  expiry,
 		MaxAge:   maxAge,
-		HttpOnly: false, // must be false to be read by client for use in POST/PUT/PATCH/DELETE requests
-		SameSite: http.SameSiteStrictMode,
+		HttpOnly: false,                // must be false to be read by client for use in POST/PUT/PATCH/DELETE requests
+		SameSite: http.SameSiteLaxMode, // Using lax mode for now since strict is causing issues with Firefox/Safari
 		Secure:   useSecureCookie,
 	}
 

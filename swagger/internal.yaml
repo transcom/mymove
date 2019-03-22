@@ -457,6 +457,7 @@ definitions:
         x-nullable: true
       total_sit_cost:
         type: integer
+        format: cents
         title: Total cost for the planned SIT duration
         x-nullable: true
       sit_max:

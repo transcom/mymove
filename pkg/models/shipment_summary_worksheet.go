@@ -60,7 +60,7 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	MaxObligationGCC95              string
 	MaxObligationSIT                string
 	MaxObligationGCCMaxAdvance      string
-	ActualWeight                    string
+	PPMRemainingEntitlement         string
 	ActualObligationGCC100          string
 	ActualObligationGCC95           string
 	ActualObligationAdvance         string
@@ -112,12 +112,13 @@ type ShipmentSummaryFormData struct {
 	CurrentDutyStation      DutyStation
 	NewDutyStation          DutyStation
 	WeightAllotment         WeightAllotment
-	TotalWeightAllotment    int
+	TotalWeightAllotment    unit.Pound
 	Shipments               Shipments
 	PersonallyProcuredMoves PersonallyProcuredMoves
 	PreparationDate         time.Time
 	Obligations             Obligations
 	MovingExpenseDocuments  []MovingExpenseDocument
+	PPMRemainingEntitlement unit.Pound
 }
 
 //Obligations an object representing the Max Obligation and Actual Obligation sections of the shipment summary worksheet
@@ -192,11 +193,12 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 	serviceMember := move.Orders.ServiceMember
 	var rank ServiceMemberRank
 	var weightAllotment WeightAllotment
-	var totalEntitlement int
+	var totalEntitlement unit.Pound
 	if serviceMember.Rank != nil {
 		rank = ServiceMemberRank(*serviceMember.Rank)
 		weightAllotment = GetWeightAllotment(rank)
-		totalEntitlement, err = GetEntitlement(rank, move.Orders.HasDependents, move.Orders.SpouseHasProGear)
+		te, err := GetEntitlement(rank, move.Orders.HasDependents, move.Orders.SpouseHasProGear)
+		totalEntitlement = unit.Pound(te)
 		if err != nil {
 			return ShipmentSummaryFormData{}, err
 		}
@@ -207,6 +209,8 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		return ShipmentSummaryFormData{}, err
 	}
 
+	ppmRemainingEntitlement := CalculateRemainingPPMEntitlement(move, totalEntitlement)
+
 	ssd := ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
 		Order:                   move.Orders,
@@ -216,9 +220,31 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		TotalWeightAllotment:    totalEntitlement,
 		Shipments:               move.Shipments,
 		PersonallyProcuredMoves: move.PersonallyProcuredMoves,
+		PPMRemainingEntitlement: ppmRemainingEntitlement,
 		MovingExpenseDocuments:  movingExpenses,
 	}
 	return ssd, nil
+}
+
+// CalculateRemainingPPMEntitlement calculates the remaining PPM entitlement for PPM moves
+// a PPMs remaining entitlement weight is equal to total entitlement - hhg weight
+func CalculateRemainingPPMEntitlement(move Move, totalEntitlement unit.Pound) unit.Pound {
+	var hhgActualWeight unit.Pound
+	if len(move.Shipments) > 0 && move.Shipments[0].NetWeight != nil {
+		hhgActualWeight = *move.Shipments[0].NetWeight
+	}
+	var ppmActualWeight unit.Pound
+	if len(move.PersonallyProcuredMoves) > 0 {
+		ppmActualWeight = unit.Pound(*move.PersonallyProcuredMoves[0].NetWeight)
+	}
+	switch ppmRemainingEntitlement := totalEntitlement - hhgActualWeight; {
+	case ppmActualWeight < ppmRemainingEntitlement:
+		return ppmActualWeight
+	case ppmRemainingEntitlement < 0:
+		return 0
+	default:
+		return ppmRemainingEntitlement
+	}
 }
 
 // FetchMovingExpensesShipmentSummaryWorksheet fetches moving expenses for the Shipment Summary Worksheet
@@ -261,13 +287,13 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.TAC = derefStringTypes(data.Order.TAC)
 	page1.SAC = derefStringTypes(data.Order.SAC)
 
-	page1.AuthorizedOrigin = FormatAuthorizedLocation(data.CurrentDutyStation)
-	page1.AuthorizedDestination = FormatAuthorizedLocation(data.NewDutyStation)
-	page1.NewDutyAssignment = FormatDutyStation(data.NewDutyStation)
+	page1.AuthorizedOrigin = FormatLocation(data.CurrentDutyStation)
+	page1.AuthorizedDestination = FormatLocation(data.NewDutyStation)
+	page1.NewDutyAssignment = FormatLocation(data.NewDutyStation)
 
 	page1.WeightAllotment = FormatWeightAllotment(data)
-	page1.WeightAllotmentProgear = FormatWeights(data.WeightAllotment.ProGearWeight)
-	page1.WeightAllotmentProgearSpouse = FormatWeights(data.WeightAllotment.ProGearWeightSpouse)
+	page1.WeightAllotmentProgear = FormatWeights(unit.Pound(data.WeightAllotment.ProGearWeight))
+	page1.WeightAllotmentProgearSpouse = FormatWeights(unit.Pound(data.WeightAllotment.ProGearWeightSpouse))
 	page1.TotalWeightAllotment = FormatWeights(data.TotalWeightAllotment)
 
 	formattedShipments := FormatAllShipments(data.PersonallyProcuredMoves, data.Shipments)
@@ -285,11 +311,10 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 
 	actualObligations := data.Obligations.ActualObligation
 	page1.ActualObligationGCC100 = FormatDollars(actualObligations.GCC100())
-	page1.ActualWeight = FormatActualObligationsWeight(data.TotalWeightAllotment, data.PersonallyProcuredMoves)
+	page1.PPMRemainingEntitlement = FormatWeights(data.PPMRemainingEntitlement)
 	page1.ActualObligationGCC95 = FormatDollars(actualObligations.GCC95())
 	page1.ActualObligationSIT = FormatDollars(actualObligations.FormatSIT())
 	page1.ActualObligationAdvance = formatActualObligationAdvance(data)
-
 	return page1
 }
 
@@ -299,19 +324,6 @@ func formatActualObligationAdvance(data ShipmentSummaryFormData) string {
 		return FormatDollars(advance)
 	}
 	return FormatDollars(0)
-}
-
-//FormatActualObligationsWeight formats the service member's weight for the actual obligations im the Shipment Summary Worksheet
-func FormatActualObligationsWeight(totalWeightAllotment int, personallyProcuredMoves PersonallyProcuredMoves) string {
-	if len(personallyProcuredMoves) == 0 || personallyProcuredMoves[0].NetWeight == nil {
-		return ""
-	}
-	ppmWeight := int(*personallyProcuredMoves[0].NetWeight)
-	weightAllotment := int(totalWeightAllotment)
-	if ppmWeight >= weightAllotment {
-		return FormatWeights(weightAllotment)
-	}
-	return FormatWeights(ppmWeight)
 }
 
 //FormatRank formats the service member's rank for Shipment Summary Worksheet
@@ -369,13 +381,13 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData)
 //FormatWeightAllotment formats the weight allotment for Shipment Summary Worksheet
 func FormatWeightAllotment(data ShipmentSummaryFormData) string {
 	if data.Order.HasDependents {
-		return FormatWeights(data.WeightAllotment.TotalWeightSelfPlusDependents)
+		return FormatWeights(unit.Pound(data.WeightAllotment.TotalWeightSelfPlusDependents))
 	}
-	return FormatWeights(data.WeightAllotment.TotalWeightSelf)
+	return FormatWeights(unit.Pound(data.WeightAllotment.TotalWeightSelf))
 }
 
-//FormatAuthorizedLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet
-func FormatAuthorizedLocation(dutyStation DutyStation) string {
+//FormatLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet
+func FormatLocation(dutyStation DutyStation) string {
 	return fmt.Sprintf("%s, %s %s", dutyStation.Name, dutyStation.Address.State, dutyStation.Address.PostalCode)
 }
 
@@ -514,7 +526,7 @@ func FormatPPMNumberAndType(i int) string {
 //FormatShipmentWeight formats a shipments ShipmentWeight for the Shipment Summary Worksheet
 func FormatShipmentWeight(shipment Shipment) string {
 	if shipment.NetWeight != nil {
-		wtg := FormatWeights(int(*shipment.NetWeight))
+		wtg := FormatWeights(*shipment.NetWeight)
 		return fmt.Sprintf("%s lbs - FINAL", wtg)
 	}
 	return ""
@@ -531,7 +543,7 @@ func FormatShipmentPickupDate(shipment Shipment) string {
 //FormatPPMWeight formats a ppms NetWeight for the Shipment Summary Worksheet
 func FormatPPMWeight(ppm PersonallyProcuredMove) string {
 	if ppm.NetWeight != nil {
-		wtg := FormatWeights(int(*ppm.NetWeight))
+		wtg := FormatWeights(unit.Pound(*ppm.NetWeight))
 		return fmt.Sprintf("%s lbs - FINAL", wtg)
 	}
 	return ""
@@ -543,11 +555,6 @@ func FormatPPMPickupDate(ppm PersonallyProcuredMove) string {
 		return FormatDate(*ppm.OriginalMoveDate)
 	}
 	return ""
-}
-
-//FormatDutyStation formats DutyStation for Shipment Summary Worksheet
-func FormatDutyStation(dutyStation DutyStation) string {
-	return fmt.Sprintf("%s, %s", dutyStation.Name, dutyStation.Address.State)
 }
 
 //FormatOrdersTypeAndOrdersNumber formats OrdersTypeAndOrdersNumber for Shipment Summary Worksheet
@@ -588,8 +595,8 @@ func FormatEnum(s string, outSep string) string {
 	return strings.Replace(strings.Title(words), " ", outSep, -1)
 }
 
-//FormatWeights formats an int using 000s separator
-func FormatWeights(wtg int) string {
+//FormatWeights formats a unit.Pound using 000s separator
+func FormatWeights(wtg unit.Pound) string {
 	p := message.NewPrinter(language.English)
 	return p.Sprintf("%d", wtg)
 }

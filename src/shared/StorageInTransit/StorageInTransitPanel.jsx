@@ -13,6 +13,9 @@ import Creator from 'shared/StorageInTransit/Creator';
 import { selectStorageInTransits, createStorageInTransit } from 'shared/Entities/modules/storageInTransits';
 import { loadEntitlements } from '../../scenes/TransportationServiceProvider/ducks';
 import { formatDate4DigitYear } from 'shared/formatters';
+import { calculateEntitlementsForMove } from 'shared/Entities/modules/moves';
+
+import { isTspSite } from 'shared/constants.js';
 
 export class StorageInTransitPanel extends Component {
   constructor() {
@@ -111,9 +114,8 @@ export class StorageInTransitPanel extends Component {
                 </div>
               );
             })}
-          {isCreatorActionable && (
-            <Creator onFormActivation={this.onFormActivation} saveStorageInTransit={this.onSubmit} />
-          )}
+          {isCreatorActionable &&
+            isTspSite && <Creator onFormActivation={this.onFormActivation} saveStorageInTransit={this.onSubmit} />}
         </BasicPanel>
       </div>
     );
@@ -124,12 +126,29 @@ StorageInTransitPanel.propTypes = {
   storageInTransits: PropTypes.array,
   shipmentId: PropTypes.string,
   storageInTransitEntitlement: PropTypes.number,
+  moveId: PropTypes.string,
 };
 
+// Service Member entitlement is stored different depending on if this is
+// being called from the TSP or Office site. Need to check for both.
+// moveId is needed to find the entitlement on the Office side. It is
+// not needed to pull entitlement from the TSP side.
+// calculateEntitlementsForMove is a more up-to-date way of storing data
+function getStorageInTransitEntitlement(state, moveId) {
+  let storageInTransitEntitlement = 0;
+  if (isTspSite) {
+    storageInTransitEntitlement = loadEntitlements(state).storage_in_transit;
+  } else {
+    storageInTransitEntitlement = calculateEntitlementsForMove(state, moveId).storage_in_transit;
+  }
+  return storageInTransitEntitlement;
+}
+
 function mapStateToProps(state, ownProps) {
+  const moveId = ownProps.moveId;
   return {
     storageInTransits: selectStorageInTransits(state, ownProps.shipmentId),
-    storageInTransitEntitlement: loadEntitlements(state).storage_in_transit,
+    storageInTransitEntitlement: getStorageInTransitEntitlement(state, moveId),
     shipmentId: ownProps.shipmentId,
   };
 }

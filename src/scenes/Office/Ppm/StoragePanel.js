@@ -11,18 +11,34 @@ import { formatCents } from '../../../shared/formatters';
 import { convertDollarsToCents } from '../../../shared/utils';
 
 const StorageDisplay = props => {
+  let cost = props.ppm && props.ppm.total_sit_cost ? formatCents(props.ppm.total_sit_cost) : 0;
+  let days = props.ppm && props.ppm.days_in_storage ? props.ppm.days_in_storage : 0;
+
   const fieldProps = {
-    schema: props.ppmSchema,
+    schema: {
+      properties: {
+        days_in_storage: {
+          maximum: 90,
+          minimum: 0,
+          title: 'How many days do you plan to put your stuff in storage?',
+          type: 'integer',
+          'x-nullable': true,
+        },
+        total_sit_cost: {
+          type: 'string',
+        },
+      },
+    },
     values: {
-      total_sit_cost: formatCents(props.ppm.total_sit_cost),
-      days_in_storage: props.ppm.days_in_storage,
+      total_sit_cost: `$${cost}`,
+      days_in_storage: `${days}`,
     },
   };
 
   return (
     <div className="editable-panel-column">
-      <PanelSwaggerField fieldName="total_sit_cost" title="Total cost" {...fieldProps} />
-      <PanelSwaggerField fieldName="days_in_storage" title="Total days in storage" {...fieldProps} />
+      <PanelSwaggerField fieldName="total_sit_cost" title="Total storage cost" {...fieldProps} />
+      <PanelSwaggerField fieldName="days_in_storage" title="Days in storage" {...fieldProps} />
     </div>
   );
 };
@@ -32,11 +48,16 @@ const StorageEdit = props => {
 
   return (
     <div className="editable-panel-column">
-      <SwaggerField className="short-field storage" fieldName="total_sit_cost" title="Total cost" swagger={schema} />
+      <SwaggerField
+        className="short-field storage"
+        fieldName="total_sit_cost"
+        title="Total storage cost"
+        swagger={schema}
+      />
       <SwaggerField
         className="short-field storage"
         fieldName="days_in_storage"
-        title="Total days in storage"
+        title="Days in storage"
         swagger={schema}
       />
     </div>
@@ -59,7 +80,7 @@ function mapStateToProps(state, props) {
     // reduxForm
     formValues,
     initialValues: {
-      total_sit_cost: ppm.total_sit_cost,
+      total_sit_cost: formatCents(ppm.total_sit_cost),
       days_in_storage: ppm.days_in_storage,
     },
 
