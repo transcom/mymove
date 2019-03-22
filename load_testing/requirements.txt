@@ -13,7 +13,7 @@ Jinja2==2.10
 jsonpointer==2.0
 jsonref==0.2
 jsonschema==3.0.1
-locustio==0.9.0
+locustio==0.10.0
 MarkupSafe==1.1.0
 monotonic==1.5
 msgpack==0.6.0

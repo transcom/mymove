@@ -1,4 +1,5 @@
 from locust import (HttpLocust, TaskSet, TaskSequence, task, seq_task)
+from locust import events
 from bravado.client import SwaggerClient
 from bravado.requests_client import RequestsClient
 
@@ -42,13 +43,36 @@ class UserBehavior(TaskSequence):
         """ on_stop is called when the TaskSet is stopping """
         pass
 
-    def update_service_member(self, service_member_future):
-        service_member_response = service_member_future.response()
-        self.user["service_member"] = service_member_response.result
+    def update_service_member(self, service_member):
+        self.user["service_member"] = service_member
 
-    def update_duty_stations(self, duty_stations_future):
-        duty_stations_response = duty_stations_future.response()
-        self.user["duty_stations"] = duty_stations_response.result
+    def update_duty_stations(self, duty_stations):
+        self.user["duty_stations"] = duty_stations
+
+    def swagger_wrapper(self, callable_operation, *args, **kwargs):
+        """
+        Swagger client uses requests send() method instead of request(). This means we need to send off
+        events to Locust on our own.
+        """
+        response_future = callable_operation(*args, **kwargs)
+        response = response_future.response()
+        metadata = response.metadata
+
+        events.request_success.fire(
+            request_type=callable_operation.operation.http_method.upper(),
+            name=callable_operation.operation.path_name,
+            response_time=metadata.elapsed_time,
+            response_length=len(metadata.incoming_response.raw_bytes),
+        )
+        return response.result
+
+    @task(2)
+    def load_swagger_file_internal(self):
+        self.client.get("/internal/swagger.yaml")
+
+    @task(2)
+    def load_swagger_file_public(self):
+        self.client.get("/api/v1/swagger.yaml")
 
     @seq_task(1)
     def login(self):
@@ -83,9 +107,10 @@ class UserBehavior(TaskSequence):
     def create_service_member(self):
         model = self.swagger.get_model("CreateServiceMemberPayload")
         payload = model(user_id=self.user["id"])
-        service_member_future = self.swagger.service_members.createServiceMember(
+        service_member = self.swagger_wrapper(
+            self.swagger.service_members.createServiceMember,
             createServiceMemberPayload=payload)
-        self.update_service_member(service_member_future)
+        self.update_service_member(service_member)
 
     @seq_task(4)
     def create_your_profile(self):
@@ -96,10 +121,11 @@ class UserBehavior(TaskSequence):
             rank="E_5",  # Rotate
             social_security_number="333-33-3333",  # Random
         )
-        service_member_future = self.swagger.service_members.patchServiceMember(
+        service_member = self.swagger_wrapper(
+            self.swagger.service_members.patchServiceMember,
             serviceMemberId=self.user["service_member"].id,
             patchServiceMemberPayload=payload)
-        self.update_service_member(service_member_future)
+        self.update_service_member(service_member)
 
     @seq_task(5)
     def create_your_name(self):
@@ -110,10 +136,11 @@ class UserBehavior(TaskSequence):
             middle_name="Carol",
             suffix="",
         )
-        service_member_future = self.swagger.service_members.patchServiceMember(
+        service_member = self.swagger_wrapper(
+            self.swagger.service_members.patchServiceMember,
             serviceMemberId=self.user["service_member"].id,
             patchServiceMemberPayload=payload)
-        self.update_service_member(service_member_future)
+        self.update_service_member(service_member)
 
     @seq_task(6)
     def create_your_contact_info(self):
@@ -125,18 +152,20 @@ class UserBehavior(TaskSequence):
             secondary_telephone="333-333-3333",
             telephone="333-333-3333",
         )
-        service_member_future = self.swagger.service_members.patchServiceMember(
+        service_member = self.swagger_wrapper(
+            self.swagger.service_members.patchServiceMember,
             serviceMemberId=self.user["service_member"].id,
             patchServiceMemberPayload=payload)
-        self.update_service_member(service_member_future)
+        self.update_service_member(service_member)
 
     @seq_task(7)
-    def search_for_duty_station_1(self):
+    def search_for_duty_station(self):
         station_list = ["b", "buck", "buckley"]
         for station in station_list:
-            duty_stations_future = self.swagger.duty_stations.searchDutyStations(
+            duty_stations = self.swagger_wrapper(
+                self.swagger.duty_stations.searchDutyStations,
                 search=station)
-            self.update_duty_stations(duty_stations_future)
+            self.update_duty_stations(duty_stations)
 
     @seq_task(8)
     def current_duty_station(self):
@@ -144,10 +173,11 @@ class UserBehavior(TaskSequence):
         payload = model(
             current_station_id=self.user["duty_stations"][0].id
         )
-        service_member_future = self.swagger.service_members.patchServiceMember(
+        service_member = self.swagger_wrapper(
+            self.swagger.service_members.patchServiceMember,
             serviceMemberId=self.user["service_member"].id,
             patchServiceMemberPayload=payload)
-        self.update_service_member(service_member_future)
+        self.update_service_member(service_member)
 
     @seq_task(9)
     def logout(self):
