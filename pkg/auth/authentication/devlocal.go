@@ -213,9 +213,9 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) *
 	if lastName == "" {
 		lastName = "Bob"
 	}
-	number := r.Form.Get("number")
-	if number == "" {
-		number = "333-333-3333"
+	telephone := r.Form.Get("telephone")
+	if telephone == "" {
+		telephone = "333-333-3333"
 	}
 	email := r.Form.Get("email")
 	if email == "" {
@@ -278,7 +278,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) *
 		officeUser := models.OfficeUser{
 			FirstName:              firstName,
 			LastName:               lastName,
-			Telephone:              number,
+			Telephone:              telephone,
 			TransportationOfficeID: office.ID,
 			Email:                  email,
 		}
@@ -313,7 +313,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) *
 		tspUser := models.TspUser{
 			FirstName:                       firstName,
 			LastName:                        lastName,
-			Telephone:                       number,
+			Telephone:                       telephone,
 			TransportationServiceProviderID: tsp.ID,
 			Email:                           email,
 		}
