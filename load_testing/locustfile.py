@@ -2,6 +2,7 @@ from locust import (HttpLocust, TaskSet, TaskSequence, task, seq_task)
 from locust import events
 from bravado.client import SwaggerClient
 from bravado.requests_client import RequestsClient
+from bravado.exception import HTTPError
 
 
 class AnonBehavior(TaskSet):
@@ -54,17 +55,29 @@ class UserBehavior(TaskSequence):
         Swagger client uses requests send() method instead of request(). This means we need to send off
         events to Locust on our own.
         """
+        method = callable_operation.operation.http_method.upper()
+        path_name = callable_operation.operation.path_name
         response_future = callable_operation(*args, **kwargs)
-        response = response_future.response()
-        metadata = response.metadata
+        try:
+            response = response_future.response()
+        except HTTPError as e:
+            events.request_failure.fire(
+                request_type=method,
+                name=path_name,
+                response_time=0,  # Not clear how to get this
+                exception=e,
+            )
+            return e.swagger_result
+        else:
+            metadata = response.metadata
 
-        events.request_success.fire(
-            request_type=callable_operation.operation.http_method.upper(),
-            name=callable_operation.operation.path_name,
-            response_time=metadata.elapsed_time,
-            response_length=len(metadata.incoming_response.raw_bytes),
-        )
-        return response.result
+            events.request_success.fire(
+                request_type=method,
+                name=path_name,
+                response_time=metadata.elapsed_time,
+                response_length=len(metadata.incoming_response.raw_bytes),
+            )
+            return response.result
 
     @task(2)
     def load_swagger_file_internal(self):
