@@ -2,6 +2,14 @@ h2 {
   margin-bottom: 0;
 }
 
+.usa-alert li {
+  margin-bottom: 0;
+}
+
+.usa-alert ul {
+  padding-left: 3.5rem;
+}
+
 .shipment_box {
   border: 3px solid #f1f1f1;
   overflow: hidden;

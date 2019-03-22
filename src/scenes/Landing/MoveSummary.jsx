@@ -112,6 +112,21 @@ export const SubmittedPpmMoveSummary = props => {
   return (
     <Fragment>
       <div>
+        <Alert type="success" heading="Congrats - your move is submitted!">
+          Next, wait for approval. Once approved:<br />
+          <ul>
+            <li>
+              Get certified <strong>weight tickets</strong>, both empty and full
+            </li>
+            <li>
+              Save <strong>expense receipts</strong>, including for storgage
+            </li>
+            <li>
+              Read the <a>PPM info sheet</a> for more info
+            </li>
+          </ul>
+        </Alert>
+
         <div className="shipment_box">
           <div className="shipment_type">
             <img className="move_sm" src={ppmCar} alt="ppm-car" />
