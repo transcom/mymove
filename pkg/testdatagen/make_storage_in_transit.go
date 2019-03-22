@@ -22,6 +22,7 @@ func MakeStorageInTransit(db *pop.Connection, assertions Assertions) models.Stor
 	// Filled in dummy data.
 	storageInTransit := models.StorageInTransit{
 		ShipmentID:         shipment.ID,
+		Shipment:           shipment,
 		Status:             models.StorageInTransitStatusREQUESTED,
 		Location:           models.StorageInTransitLocationDESTINATION,
 		EstimatedStartDate: NextValidMoveDate,
@@ -29,6 +30,7 @@ func MakeStorageInTransit(db *pop.Connection, assertions Assertions) models.Stor
 		WarehouseID:        "000383",
 		WarehouseName:      "Hercules Hauling",
 		WarehouseAddressID: address.ID,
+		WarehouseAddress:   address,
 		WarehousePhone:     swag.String("(713) 868-3497"),
 		WarehouseEmail:     swag.String("joe@herculeshauling.com"),
 	}
