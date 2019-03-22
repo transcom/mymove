@@ -3,7 +3,7 @@ import classnames from 'classnames';
 
 import iconStyles from 'shared/styles/icons.module.scss';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
-import FontAwesomeIcon from '../../scenes/Office/MoveInfo';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 
 const SitStatusIcon = props => {
   const { isTspSite } = props;
