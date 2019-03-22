@@ -59,6 +59,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	t := template.Must(template.New("users").Parse(`
 		<h1>Select an existing user</h1>
+		<p>Showing the first 25 users:</p>
 		{{range .}}
 			<form method="post" action="/devlocal-auth/login">
 				<p id="{{.ID}}">
@@ -77,11 +78,17 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		<form method="post" action="/devlocal-auth/new">
 			<p>
 				<input type="hidden" name="gorilla.csrf.Token" value="` + csrfToken + `">
-				<button type="submit" data-hook="new-user-login">Login as New User</button>
+				<select name="userType">
+					<option value="milmove">MilMove</option>
+					<option value="office">Office</option>
+					<option value="tsp">TSP</option>
+					<option value="dps">DPS</option>
+				</select>
+				<button type="submit" data-hook="new-user-login">Login as a New User</button>
 			</p>
 		</form>
 	`))
-	err = t.Execute(w, identities)
+	err = t.Execute(w, identities[:25])
 	if err != nil {
 		h.logger.Error("Could not render template", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -197,9 +204,26 @@ func (h CreateAndLoginUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) *models.User {
 	id := uuid.Must(uuid.NewV4())
 
-	now := time.Now()
-	email := fmt.Sprintf("%s@example.com", now.Format("20060102150405"))
+	// Set up some defaults that we can pass in from a form
+	firstName := r.Form.Get("firstName")
+	if firstName == "" {
+		firstName = "Alice"
+	}
+	lastName := r.Form.Get("lastName")
+	if lastName == "" {
+		lastName = "Bob"
+	}
+	number := r.Form.Get("number")
+	if number == "" {
+		number = "333-333-3333"
+	}
+	email := r.Form.Get("email")
+	if email == "" {
+		now := time.Now()
+		email = fmt.Sprintf("%s@example.com", now.Format("20060102150405"))
+	}
 
+	// Create the User (which is the basis of all Service Members)
 	user := models.User{
 		LoginGovUUID:  id,
 		LoginGovEmail: email,
@@ -216,6 +240,108 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) *
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return nil
 	}
+
+	switch r.Form.Get("userType") {
+	case "office":
+		// Now create the Truss JPPSO
+		address := models.Address{
+			StreetAddress1: "1333 Minna St",
+			City:           "San Francisco",
+			State:          "CA",
+			PostalCode:     "94115",
+		}
+
+		verrs, err := h.db.ValidateAndSave(&address)
+		if err != nil {
+			h.logger.Error("could not create address", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating address", zap.Stringer("errors", verrs))
+		}
+
+		office := models.TransportationOffice{
+			Name:      "Truss",
+			AddressID: address.ID,
+			Latitude:  37.7678355,
+			Longitude: -122.4199298,
+			Hours:     models.StringPointer("0900-1800 Mon-Sat"),
+		}
+
+		verrs, err = h.db.ValidateAndSave(&office)
+		if err != nil {
+			h.logger.Error("could not create office", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating office", zap.Stringer("errors", verrs))
+		}
+
+		officeUser := models.OfficeUser{
+			FirstName:              firstName,
+			LastName:               lastName,
+			Telephone:              number,
+			TransportationOfficeID: office.ID,
+			Email:                  email,
+		}
+		if user.ID != uuid.Nil {
+			officeUser.UserID = &user.ID
+		}
+
+		verrs, err = h.db.ValidateAndSave(&officeUser)
+		if err != nil {
+			h.logger.Error("could not create office user", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating office user", zap.Stringer("errors", verrs))
+		}
+	case "tsp":
+		var tsp models.TransportationServiceProvider
+		h.db.Where("standard_carrier_alpha_code = $1", "TRS1").First(&tsp)
+		if tsp.ID == uuid.Nil {
+			// TSP not found, create one for Truss
+			tsp = models.TransportationServiceProvider{
+				StandardCarrierAlphaCode: "TRSS",
+			}
+			verrs, err := h.db.ValidateAndSave(&tsp)
+			if err != nil {
+				h.logger.Error("could not create TSP", zap.Error(err))
+			}
+			if verrs.HasAny() {
+				h.logger.Error("validation errors creating TSP", zap.Stringer("errors", verrs))
+			}
+		}
+
+		tspUser := models.TspUser{
+			FirstName:                       firstName,
+			LastName:                        lastName,
+			Telephone:                       number,
+			TransportationServiceProviderID: tsp.ID,
+			Email:                           email,
+		}
+		if user.ID != uuid.Nil {
+			tspUser.UserID = &user.ID
+		}
+
+		verrs, err := h.db.ValidateAndSave(&tspUser)
+		if err != nil {
+			h.logger.Error("could not create tsp user", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating tsp user", zap.Stringer("errors", verrs))
+		}
+	case "dps":
+		dpsUser := models.DpsUser{
+			LoginGovEmail: email,
+		}
+
+		verrs, err := h.db.ValidateAndSave(&dpsUser)
+		if err != nil {
+			h.logger.Error("could not create dps user", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating dps user", zap.Stringer("errors", verrs))
+		}
+	}
+
 	return &user
 }
 
@@ -245,10 +371,16 @@ func createSession(h devlocalAuthHandler, user *models.User, w http.ResponseWrit
 
 	if userIdentity.OfficeUserID != nil {
 		session.OfficeUserID = *(userIdentity.OfficeUserID)
+		// TODO: pull from startup params
+		session.ApplicationName = auth.OfficeApp
+		session.Hostname = "officelocal"
 	}
 
 	if userIdentity.TspUserID != nil {
 		session.TspUserID = *(userIdentity.TspUserID)
+		// TODO: pull from startup params
+		session.ApplicationName = auth.TspApp
+		session.Hostname = "tsplocal"
 	}
 
 	if userIdentity.DpsUserID != nil {
