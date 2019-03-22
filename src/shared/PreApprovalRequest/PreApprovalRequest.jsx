@@ -22,11 +22,10 @@ function formatStatus(lineItem) {
   return formattedStatus[0].toUpperCase() + formattedStatus.substring(1).toLowerCase();
 }
 
-export function renderActionIcons(status, onEdit, onApproval, onDelete, shipmentLineItemId, isActualAmountUnfilled) {
+export function renderActionIcons(status, onEdit, onApproval, onDelete, shipmentLineItemId, canEdit35A) {
   // Only office users can approve requests.
   // If the request is approved/invoiced, they cannot be edited, only deleted.
-  //TODO: hiding edit action until we have implementation
-  const isEditable = status === 'SUBMITTED' || (status === 'APPROVED' && isActualAmountUnfilled);
+  const isEditable = status === 'SUBMITTED' || (status === 'APPROVED' && canEdit35A);
   return (
     <Fragment>
       {onApproval &&
@@ -138,7 +137,7 @@ export class PreApprovalRequest extends Component {
                   this.props.onApproval,
                   this.onDelete,
                   row.id,
-                  row.tariff400ng_item.code === '35A' && !row.actual_amount_cents,
+                  row.tariff400ng_item.code === '35A' && row.estimate_amount_cents && !row.actual_amount_cents,
                 )}
             </td>
           </tr>
