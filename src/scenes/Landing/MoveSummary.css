@@ -49,6 +49,14 @@ img.status_icon {
   margin-bottom: 1em;
 }
 
+.next-step {
+  width: 102%;
+}
+
+.next-step li {
+  margin-bottom: 0;
+}
+
 .step-contents {
   overflow: hidden;
   margin: 1em 1rem 1rem 1rem;
