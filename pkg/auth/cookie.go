@@ -113,21 +113,21 @@ func sessionClaimsFromRequest(logger Logger, secret string, appName Application,
 // WriteMaskedCSRFCookie update the masked_gorilla_csrf cookie value
 func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, noSessionTimeout bool, logger Logger, useSecureCookie bool) {
 
-	expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
-	maxAge := sessionExpiryInSeconds
+	//expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
+	//maxAge := sessionExpiryInSeconds
 	// Never expire token if in development
-	if noSessionTimeout {
-		expiry = likeForever
-		maxAge = likeForeverInSeconds
-	}
+	// if noSessionTimeout {
+	// 	expiry = likeForever
+	// 	maxAge = likeForeverInSeconds
+	// }
 
 	// New cookie
 	cookie := http.Cookie{
 		Name:     MaskedGorillaCSRFToken,
 		Value:    csrfToken,
 		Path:     "/",
-		Expires:  expiry,
-		MaxAge:   maxAge,
+		Expires:  time.Now(),
+		MaxAge:   60,
 		HttpOnly: false,                // must be false to be read by client for use in POST/PUT/PATCH/DELETE requests
 		SameSite: http.SameSiteLaxMode, // Using lax mode for now since strict is causing issues with Firefox/Safari
 		Secure:   useSecureCookie,
