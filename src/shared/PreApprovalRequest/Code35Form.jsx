@@ -22,7 +22,7 @@ export class Code35Form extends Component {
           Estimate, not to exceed
         </label>
         <div>
-          <strong>{this.props.initialValues.estimate_amount_cents}</strong>
+          <strong>{`$${this.props.initialValues.estimate_amount_cents}`}</strong>
         </div>
       </Fragment>
     );
