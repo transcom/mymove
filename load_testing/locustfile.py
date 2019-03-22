@@ -18,7 +18,7 @@ class AnonUser(HttpLocust):
     task_set = AnonBehavior
 
 
-class UserBehavior(TaskSequence):
+class MilMoveUserBehavior(TaskSequence):
 
     swagger = None
     login_gov_user = None
@@ -203,6 +203,6 @@ class UserBehavior(TaskSequence):
 class MilMoveUser(HttpLocust):
     host = "http://milmovelocal:8080"
     weight = 1
-    task_set = UserBehavior
+    task_set = MilMoveUserBehavior
     min_wait = 1000
     max_wait = 5000
