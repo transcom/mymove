@@ -2201,7 +2201,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("dcd26e48-18a0-465a-ba36-1f71f6e5cccc"),
 			FirstName:     models.StringPointer("SIT"),
-			LastName:      models.StringPointer("Panel"),
+			LastName:      models.StringPointer("Requested"),
 			Edipi:         models.StringPointer("1357924680"),
 			PersonalEmail: models.StringPointer(email),
 		},
