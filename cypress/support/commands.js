@@ -40,45 +40,23 @@ Cypress.Commands.add('signInAsNewUser', () => {
 });
 
 Cypress.Commands.add('signIntoMyMoveAsUser', userId => {
-  cy.setupBaseUrl(milmoveAppName);
-  cy.signInAsUser(userId);
+  cy.signInAsUserPostRequest(milmoveAppName, userId);
+});
+
+Cypress.Commands.add('signIntoOfficeAsUser', userId => {
+  cy.signInAsUserPostRequest(officeAppName, userId);
+  cy.waitForReactTableLoad();
 });
 Cypress.Commands.add('signIntoOffice', () => {
-  cy.setupBaseUrl(officeAppName);
-  cy.signInAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
+  cy.signIntoOfficeAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
+});
+
+Cypress.Commands.add('signIntoTSPAsUser', userId => {
+  cy.signInAsUserPostRequest(tspAppName, userId);
   cy.waitForReactTableLoad();
 });
 Cypress.Commands.add('signIntoTSP', () => {
-  cy.setupBaseUrl(tspAppName);
-  cy.signInAsUser('6cd03e5b-bee8-4e97-a340-fecb8f3d5465');
-  cy.waitForReactTableLoad();
-});
-Cypress.Commands.add('signInAsUser', userId => {
-  // make sure we log out first before sign in
-  cy.logout();
-
-  cy.visit('/devlocal-auth/login');
-  // should have both our csrf cookie tokens now
-  cy.getCookie('_gorilla_csrf').should('exist');
-  cy.getCookie('masked_gorilla_csrf').then(cookie => {
-    // After confirming existence of cookie we can login
-    // Instead of using a login button we can post directly to the login endpoint
-    // This allows us to paginate the login page and limit the number of logins it shows
-    // without breaking the e2e tests.
-    cy.request({
-      method: 'POST',
-      url: '/devlocal-auth/login',
-      form: true,
-      headers: { 'x-csrf-token': cookie.value }, // CSRF middleware will look at headers before form data
-      body: {
-        'gorilla.csrf.Token': cookie.value, // This is probably redundant but mimics the form
-        id: userId,
-      },
-    });
-
-    // In case of login redirect we once more go to the homepage
-    cy.patientVisit('/');
-  });
+  cy.signIntoTSPAsUser('6cd03e5b-bee8-4e97-a340-fecb8f3d5465');
 });
 
 // Reloads the page but makes an attempt to wait for the loading screen to disappear
@@ -195,6 +173,15 @@ Cypress.Commands.add(
         .then(cookie => {
           sendRequest(cookie.value);
         });
+    }
+
+    // Login should provide named session tokens
+    if (signInAs === milmoveAppName) {
+      cy.getCookie('mil_session_token').should('exist');
+    } else if (signInAs === officeAppName) {
+      cy.getCookie('office_session_token').should('exist');
+    } else if (signInAs === tspAppName) {
+      cy.getCookie('tsp_session_token').should('exist');
     }
   },
 );
