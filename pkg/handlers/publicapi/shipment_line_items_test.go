@@ -410,7 +410,7 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItemForbidden() {
 	suite.Assertions.IsType(&accessorialop.UpdateShipmentLineItemForbidden{}, response)
 }
 
-func (suite *HandlerSuite) TestUpdateShipmentLineItemConflict() {
+func (suite *HandlerSuite) TestUpdateShipmentLineItemUnprocessableEntity() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	//  shipment line item
