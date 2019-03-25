@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { capitalize, get, includes } from 'lodash';
+import { capitalize, get, includes, some, isEmpty } from 'lodash';
 
 import { NavTab, RoutedTabs } from 'react-router-tabs';
 import { Link, NavLink, Redirect, Switch } from 'react-router-dom';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import { getStorageInTransitsForShipment, selectStorageInTransits } from 'shared/Entities/modules/storageInTransits';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import LocationsContainer from './Hhg/LocationsContainer';
 import Alert from 'shared/Alert'; // eslint-disable-line
@@ -65,6 +66,7 @@ import {
 } from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
 import { getMoveDocumentsForMove, selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import SitStatusIcon from 'shared/StorageInTransit/SitStatusIcon';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -184,6 +186,7 @@ class MoveInfo extends Component {
     this.props.getAllShipmentLineItems(shipmentId);
     this.props.getAllInvoices(shipmentId);
     this.props.getServiceAgentsForShipment(shipmentId);
+    this.props.getStorageInTransitsForShipment(shipmentId);
   };
 
   approveBasics = () => {
@@ -253,6 +256,7 @@ class MoveInfo extends Component {
       shipment,
       shipmentStatus,
       serviceMember,
+      storageInTransits,
       upload,
     } = this.props;
     const isPPM = move.selected_move_type === 'PPM';
@@ -274,6 +278,8 @@ class MoveInfo extends Component {
     const hhgCompleted = shipmentStatus === 'COMPLETED';
     const moveApproved = moveStatus === 'APPROVED';
     const hhgCantBeCanceled = includes(['IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
+
+    const hasRequestedSIT = !isEmpty(storageInTransits) && some(storageInTransits, sit => sit.status === 'REQUESTED');
 
     const moveDate = isPPM ? ppm.original_move_date : shipment && shipment.requested_pickup_date;
     if (this.state.redirectToHome) {
@@ -347,8 +353,12 @@ class MoveInfo extends Component {
                 <NavTab to="/hhg">
                   <span className="title">HHG</span>
                   <span className="status">
-                    <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
-                    {capitalize(shipmentStatus)}
+                    {hasRequestedSIT ? (
+                      <SitStatusIcon isTspSite={false} />
+                    ) : (
+                      <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
+                    )}
+                    {hasRequestedSIT ? 'SIT requested' : capitalize(shipmentStatus)}
                   </span>
                 </NavTab>
               )}
@@ -486,7 +496,7 @@ class MoveInfo extends Component {
                 Documents
                 {!showDocumentViewer && <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />}
                 {showDocumentViewer && (
-                  <Link to={`/moves/${move.id}/documents`} target="_blank">
+                  <Link to={`/moves/${move.id}/documents`} target="_blank" aria-label="Documents">
                     <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
                   </Link>
                 )}
@@ -571,6 +581,7 @@ const mapStateToProps = (state, ownProps) => {
     shipmentId,
     shipmentLineItems: selectSortedShipmentLineItems(state),
     shipmentStatus: selectShipmentStatus(state, shipmentId),
+    storageInTransits: selectStorageInTransits(state, shipmentId),
     swaggerError: get(state, 'swagger.hasErrored'),
     tariff400ngItems: selectTariff400ngItems(state),
     upload: get(orders, 'uploaded_orders.uploads.0', {}),
@@ -593,6 +604,7 @@ const mapDispatchToProps = dispatch =>
       getAllInvoices,
       getTspForShipment,
       getServiceAgentsForShipment,
+      getStorageInTransitsForShipment,
       showBanner,
       removeBanner,
       loadMove,
