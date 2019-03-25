@@ -1,5 +1,17 @@
 import * as mime from 'mime-types';
-import { milmoveAppName, officeAppName, tspAppName, longPageLoadTimeout } from './constants';
+import {
+  milmoveBaseURL,
+  officeBaseURL,
+  tspBaseURL,
+  milmoveAppName,
+  officeAppName,
+  tspAppName,
+  milmoveUserType,
+  officeUserType,
+  tspUserType,
+  dpsUserType,
+  longPageLoadTimeout,
+} from './constants';
 
 /* global Cypress, cy */
 // ***********************************************
@@ -28,7 +40,7 @@ import { milmoveAppName, officeAppName, tspAppName, longPageLoadTimeout } from '
 // -- This is will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
-Cypress.Commands.add('signInAsNewUser', () => {
+Cypress.Commands.add('signInAsNewUser', userType => {
   // make sure we log out first before sign in
   cy.logout();
 
@@ -36,7 +48,31 @@ Cypress.Commands.add('signInAsNewUser', () => {
   // should have both our csrf cookie tokens now
   cy.getCookie('_gorilla_csrf').should('exist');
   cy.getCookie('masked_gorilla_csrf').should('exist');
+  // select the user type and then login as new user
+  cy.get('select[name=userType]').select(userType);
   cy.get('button[data-hook="new-user-login"]').click();
+});
+
+Cypress.Commands.add('signInAsNewMilMoveUser', () => {
+  cy.signInAsNewUser(milmoveUserType);
+  cy.url().should('contain', milmoveBaseURL);
+  cy.location('pathname').should('contain', 'service-member');
+  cy.location('pathname').should('contain', 'create');
+});
+
+Cypress.Commands.add('signInAsNewOfficeUser', () => {
+  cy.signInAsNewUser(officeUserType);
+  cy.url().should('eq', officeBaseURL + '/queues/new');
+});
+
+Cypress.Commands.add('signInAsNewTSPUser', () => {
+  cy.signInAsNewUser(tspUserType);
+  cy.url().should('contain', tspBaseURL + '/queues/new');
+});
+
+Cypress.Commands.add('signInAsNewDPSUser', () => {
+  cy.signInAsNewUser(dpsUserType);
+  cy.url().should('contain', 'milmovelocal');
 });
 
 Cypress.Commands.add('signIntoMyMoveAsUser', userId => {
@@ -298,13 +334,13 @@ Cypress.Commands.add('setupBaseUrl', appname => {
   // setup baseurl
   switch (appname) {
     case milmoveAppName:
-      Cypress.config('baseUrl', 'http://milmovelocal:4000');
+      Cypress.config('baseUrl', milmoveBaseURL);
       break;
     case officeAppName:
-      Cypress.config('baseUrl', 'http://officelocal:4000');
+      Cypress.config('baseUrl', officeBaseURL);
       break;
     case tspAppName:
-      Cypress.config('baseUrl', 'http://tsplocal:4000');
+      Cypress.config('baseUrl', tspBaseURL);
       break;
     default:
       break;
