@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"strings"
 
-	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -25,24 +25,20 @@ func getCookie(name string, cookies []*http.Cookie) (*http.Cookie, error) {
 func (suite *AuthSuite) TestCreateUserHandler() {
 	t := suite.T()
 
-	fakeToken := "some_token"
-	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 	callbackPort := 1234
 
-	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", MilTestHost), nil)
-	session := auth.Session{
-		ApplicationName: auth.MilApp,
-		IDToken:         fakeToken,
-		UserID:          fakeUUID,
-		Hostname:        MilTestHost,
-	}
-	ctx := auth.SetSessionInRequestContext(req, &session)
-	req = req.WithContext(ctx)
+	form := url.Values{}
+	form.Add("userType", "milmove")
 
-	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/create", MilTestHost), strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+	req.Form = form
+
 	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
 	handler := NewCreateUserHandler(authContext, suite.DB(), "fake key", false, false)
-	handler.ServeHTTP(rr, req.WithContext(ctx))
+
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
 	if status := rr.Code; status != http.StatusOK {
@@ -61,28 +57,23 @@ func (suite *AuthSuite) TestCreateUserHandler() {
 	}
 }
 
-func (suite *AuthSuite) TestCreateAndLoginUserHandler() {
+func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 	t := suite.T()
 
-	fakeToken := "some_token"
-	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 	callbackPort := 1234
 
-	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", MilTestHost), nil)
-	session := auth.Session{
-		ApplicationName: auth.MilApp,
-		IDToken:         fakeToken,
-		UserID:          fakeUUID,
-		Hostname:        MilTestHost,
-	}
-	ctx := auth.SetSessionInRequestContext(req, &session)
-	req = req.WithContext(ctx)
+	form := url.Values{}
+	form.Add("userType", "milmove")
+
+	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", MilTestHost), strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+	req.Form = form
 
 	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
 	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), "fake key", false, false)
 
 	rr := httptest.NewRecorder()
-	handler.ServeHTTP(rr, req.WithContext(ctx))
+	handler.ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusSeeOther, rr.Code, "handler returned wrong status code")
 	if status := rr.Code; status != http.StatusSeeOther {
@@ -93,4 +84,37 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandler() {
 	if _, err := getCookie("mil_session_token", cookies); err != nil {
 		t.Error("could not find session token in response")
 	}
+
+	suite.Equal(rr.Result().Header.Get("Location"), "http://mil.example.com:1234/")
+}
+
+func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToOffice() {
+	t := suite.T()
+
+	callbackPort := 1234
+
+	form := url.Values{}
+	form.Add("userType", "office")
+
+	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", MilTestHost), strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+	req.Form = form
+
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), "fake key", false, false)
+
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+
+	suite.Equal(http.StatusSeeOther, rr.Code, "handler returned wrong status code")
+	if status := rr.Code; status != http.StatusSeeOther {
+		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusSeeOther)
+	}
+
+	cookies := rr.Result().Cookies()
+	if _, err := getCookie("office_session_token", cookies); err != nil {
+		t.Error("could not find session token in response")
+	}
+
+	suite.Equal(rr.Result().Header.Get("Location"), "http://office.example.com:1234/")
 }

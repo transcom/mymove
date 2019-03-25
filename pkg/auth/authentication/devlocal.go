@@ -347,9 +347,10 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) *
 
 // createSession creates a new session for the user
 func createSession(h devlocalAuthHandler, user *models.User, w http.ResponseWriter, r *http.Request) (*auth.Session, error) {
+	// Preference any session already in the request context. Otherwise just create a new empty session.
 	session := auth.SessionFromRequestContext(r)
 	if session == nil {
-		return nil, errors.New("Unable to create session from request context")
+		session = &auth.Session{}
 	}
 
 	lgUUID := user.LoginGovUUID.String()
@@ -367,6 +368,9 @@ func createSession(h devlocalAuthHandler, user *models.User, w http.ResponseWrit
 
 	if userIdentity.ServiceMemberID != nil {
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
+		// TODO: pull from startup params
+		session.ApplicationName = auth.MilApp
+		session.Hostname = "milmovelocal"
 	}
 
 	if userIdentity.OfficeUserID != nil {
