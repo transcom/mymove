@@ -20,6 +20,7 @@ function shipmentLineItem35A(status, actual_amount_cents) {
     tariff400ng_item: { code: '35A', item: 'Third Party Service' },
     location: 'D',
     quantity_1: 167000,
+    estimate_amount_cents: 167000,
     actual_amount_cents: actual_amount_cents,
     notes: '',
     created_at: '2018-09-24T14:05:38.847Z',
