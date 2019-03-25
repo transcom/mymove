@@ -67,7 +67,7 @@ export class StorageInTransitPanel extends Component {
                     {storageInTransit.location.charAt(0) + storageInTransit.location.slice(1).toLowerCase()} SIT
                     <span className="unbold">
                       {' '}
-                      <span id="sit-status-text">Status:</span>{' '}
+                      <span className="sit-status-text">Status:</span>{' '}
                       {storageInTransit.status === 'REQUESTED' && <SitStatusIcon isTspSite={isTspSite} />}
                     </span>
                     <span>

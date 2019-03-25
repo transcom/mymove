@@ -496,7 +496,7 @@ class MoveInfo extends Component {
                 Documents
                 {!showDocumentViewer && <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />}
                 {showDocumentViewer && (
-                  <Link to={`/moves/${move.id}/documents`} target="_blank">
+                  <Link to={`/moves/${move.id}/documents`} target="_blank" aria-label="Documents">
                     <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
                   </Link>
                 )}
