@@ -1,31 +1,32 @@
-import { Component } from 'react';
 import React from 'react';
 import PropTypes from 'prop-types';
-import PopUp from 'shared/PopUp';
-import CheckBox from 'shared/CheckBox';
 
-class CustomerAgreement extends Component {
-  handleAcceptTermsChange = acceptTerms => {
-    this.props.onAcceptTermsChange(acceptTerms);
+const CustomerAgreement = ({ onChange, checked, agreementText }) => {
+  const handleOnChange = e => {
+    onChange(e.target.checked);
   };
 
-  render() {
-    return (
-      <div className="customer-agreement">
-        <p>
-          <strong>Customer Agreement</strong>
-        </p>
-        <CheckBox onChangeHandler={this.handleAcceptTermsChange} checked={this.props.checked}>
-          I agree to the
-          <PopUp alertMessage={this.props.agreementText}> Legal Agreement / Privacy Act</PopUp>
-        </CheckBox>
-      </div>
-    );
-  }
-}
+  const handleClick = e => {
+    // Prevent this from checking the box after opening the alert.
+    e.preventDefault();
+    alert(agreementText);
+  };
+
+  return (
+    <div className="customer-agreement">
+      <p>
+        <strong>Customer Agreement</strong>
+      </p>
+      <input id="agree-checkbox" type="checkbox" checked={checked} onChange={handleOnChange} />
+      <label htmlFor="agree-checkbox">
+        I agree to the <a onClick={handleClick}> Legal Agreement / Privacy Act</a>
+      </label>
+    </div>
+  );
+};
 
 CustomerAgreement.propTypes = {
-  onAcceptTermsChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   checked: PropTypes.bool.isRequired,
   agreementText: PropTypes.string.isRequired,
 };

@@ -3,5 +3,3 @@ ALTER TABLE signed_certifications
 	ADD COLUMN shipment_id uuid REFERENCES shipments(id),
 	ADD COLUMN certification_type text;
 
--- TODO maybe make certification type not null and write query to copy over values
-

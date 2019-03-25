@@ -93,7 +93,7 @@ export class PaymentRequest extends Component {
   };
 
   handleOnAcceptTermsChange = acceptTerms => {
-    this.setState({ acceptTerms: acceptTerms });
+    this.setState({ acceptTerms });
   };
 
   applyClickHandlers = () => {
@@ -112,17 +112,21 @@ export class PaymentRequest extends Component {
         return;
       case 'APPROVED':
         return (
-          <>
+          <div>
             <h4>Done uploading documents?</h4>
             <CustomerAgreement
-              onAcceptTermsChange={this.handleOnAcceptTermsChange}
+              onChange={this.handleOnAcceptTermsChange}
               checked={this.state.acceptTerms}
               agreementText={ppmPaymentLegal}
             />
-          </>
+          </div>
         );
       case 'PAYMENT_REQUESTED':
-        return <h4>Payment requested, awaiting approval.</h4>;
+        return (
+          <div>
+            <h4>Payment requested, awaiting approval.</h4>
+          </div>
+        );
       default:
         console.error('Unexpectedly got to PaymentRequest screen without PPM approval');
     }
@@ -167,7 +171,7 @@ export class PaymentRequest extends Component {
             moveDocSchema={this.props.moveDocSchema}
             onSubmit={this.handleSubmit}
           />
-          <div>{this.renderCustomerAgreement(currentPpmStatus)}</div>
+          {this.renderCustomerAgreement(currentPpmStatus)}
           <button onClick={this.applyClickHandlers} disabled={!canSubmitPayment} className="usa-button">
             Submit Payment Request
           </button>
