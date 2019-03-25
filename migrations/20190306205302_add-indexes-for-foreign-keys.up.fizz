@@ -31,6 +31,8 @@ add_index("office_phone_lines", "transportation_office_id", {});
 
 add_index("office_users", "user_id", {});
 add_index("office_users", "transportation_office_id", {});
+add_index("office_users", "email", {});
+
 
 add_index("orders", "service_member_id", {});
 add_index("orders", "new_duty_station_id", {});
@@ -46,6 +48,7 @@ add_index("service_members", "social_security_number_id", {});
 add_index("service_members", "duty_station_id", {});
 add_index("service_members", "backup_mailing_address_id", {});
 add_index("service_members", "residential_address_id", {});
+add_index("service_members", "personal_email", {});
 
 add_index("shipment_line_items", "tariff400ng_item_id", {});
 add_index("shipment_line_items", "shipment_id", {});
@@ -81,9 +84,12 @@ add_index("transportation_offices", "address_id", {});
 
 add_index("transportation_service_provider_performances", "transportation_service_provider_id", {});
 add_index("transportation_service_provider_performances", "traffic_distribution_list_id", {});
+add_index("transportation_service_provider", "poc_general_email", {});
+add_index("transportation_service_provider", "poc_claims_eamil", {});
 
 add_index("tsp_users", "user_id", {});
 add_index("tsp_users", "transportation_service_provider_id", {});
+add_index("tsp_users", "email", {});
 
 add_index("uploads", "uploader_id", {});
 add_index("uploads", "document_id", {});
