@@ -120,6 +120,7 @@ export const SubmittedPpmMoveSummary = props => {
 
           <div className="shipment_box_contents">
             <img className="status_icon" src={ppmSubmitted} alt="status" />
+            <StatusTimelineContainer ppm={ppm} shipment={null} />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 <div className="step">

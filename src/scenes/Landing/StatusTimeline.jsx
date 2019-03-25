@@ -20,7 +20,7 @@ export class StatusTimelineContainer extends PureComponent {
     return indexOf(statuses, statusToCheck) === statuses.length - 1;
   }
 
-  determineCompletedAndCurrentStatuses(shipment) {
+  determineCompletedAndCurrentShipmentStatuses(shipment) {
     const today = moment();
     const actualPackDate = get(shipment, 'actual_pack_date', null);
     const pmSurveyPlannedPackDate = get(shipment, 'pm_survey_planned_pack_date', null);
@@ -67,7 +67,7 @@ export class StatusTimelineContainer extends PureComponent {
 
   render() {
     const bookDate = get(this.props.shipment, 'book_date');
-    const moveDates = this.props.shipment.move_dates_summary;
+    const moveDates = {}; //this.props.shipment.move_dates_summary;
     const pickupDates = get(moveDates, 'pickup', []);
     const packDates = get(moveDates, 'pack', []);
     const deliveryDates = get(moveDates, 'delivery', []);
@@ -75,7 +75,9 @@ export class StatusTimelineContainer extends PureComponent {
 
     const formatType = 'condensed';
 
-    const markedStatuses = this.determineCompletedAndCurrentStatuses(this.props.shipment);
+    const markedStatuses = this.props.shipment
+      ? this.determineCompletedAndCurrentShipmentStatuses(this.props.shipment)
+      : this.determineCompletedAndCurrentPPMStatuses(this.props.ppm);
 
     return (
       <div className="status_timeline">
