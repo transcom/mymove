@@ -82,7 +82,7 @@ export class PaymentRequest extends Component {
       personally_procured_move_id: this.props.currentPpm.id,
       certification_type: 'PPM_PAYMENT',
     };
-    this.props.createSignedCertification(this.props.match.params.moveId, certificate);
+    return this.props.createSignedCertification(this.props.match.params.moveId, certificate);
   };
 
   handleOnAcceptTermsChange = acceptTerms => {
@@ -91,7 +91,11 @@ export class PaymentRequest extends Component {
 
   applyClickHandlers = () => {
     this.submitDocs()
-      .then(() => this.submitCertificate())
+      .then(() =>
+        this.submitCertificate().then(() => {
+          this.props.history.push('/');
+        }),
+      )
       .catch(() => scrollToTop());
   };
 
@@ -99,7 +103,7 @@ export class PaymentRequest extends Component {
     return new Date().toISOString().split('T')[0];
   }
 
-  renderCustomerAgreement = ppmStatus => {
+  renderCustomerAgreement = (ppmStatus, canSubmitPayment) => {
     switch (ppmStatus) {
       case null:
         //ppm hasn't loaded yet
@@ -113,6 +117,9 @@ export class PaymentRequest extends Component {
               checked={this.state.acceptTerms}
               agreementText={ppmPaymentLegal}
             />
+            <button onClick={this.applyClickHandlers} disabled={!canSubmitPayment} className="usa-button">
+              Submit Payment Request
+            </button>
           </div>
         );
       case 'PAYMENT_REQUESTED':
@@ -165,10 +172,7 @@ export class PaymentRequest extends Component {
             moveDocSchema={this.props.moveDocSchema}
             onSubmit={this.handleSubmit}
           />
-          {this.renderCustomerAgreement(currentPpmStatus)}
-          <button onClick={this.applyClickHandlers} disabled={!canSubmitPayment} className="usa-button">
-            Submit Payment Request
-          </button>
+          {this.renderCustomerAgreement(currentPpmStatus, canSubmitPayment)}
         </div>
         <div className="usa-width-one-third">
           <h4 className="doc-list-title">All Documents ({numMoveDocs})</h4>

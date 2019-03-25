@@ -65,7 +65,7 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	signedCertification, verrs, err := move.CreateSignedCertification(h.DB(),
+	newSignedCertification, verrs, err := move.CreateSignedCertification(h.DB(),
 		session.UserID,
 		*payload.CertificationText,
 		*payload.Signature,
@@ -76,8 +76,7 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 	if verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
-	//TODO not sure can guarantee signedCertification non-nil
-	signedCertificationPayload := payloadForSignedCertificationModel(*signedCertification)
+	signedCertificationPayload := payloadForSignedCertificationModel(*newSignedCertification)
 
 	return certop.NewCreateSignedCertificationCreated().WithPayload(signedCertificationPayload)
 }
