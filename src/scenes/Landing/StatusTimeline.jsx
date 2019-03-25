@@ -65,57 +65,42 @@ export class StatusTimelineContainer extends PureComponent {
     return markedStatuses;
   }
 
+  getDates(shipment, datesType) {
+    if (datesType === 'book_date') {
+      return [get(shipment, datesType)];
+    }
+    return get(shipment, datesType);
+  }
+
   render() {
-    const bookDate = get(this.props.shipment, 'book_date');
-    const moveDates = {}; //this.props.shipment.move_dates_summary;
-    const pickupDates = get(moveDates, 'pickup', []);
-    const packDates = get(moveDates, 'pack', []);
-    const deliveryDates = get(moveDates, 'delivery', []);
-    const transitDates = get(moveDates, 'transit', []);
-
+    const HHGSTATUSES = [
+      { name: 'Scheduled', dates: 'book_date' },
+      { name: 'Packed', dates: 'pack' },
+      { name: 'Loaded', dates: 'pickup' },
+      { name: 'In transit', dates: 'transit' },
+      { name: 'Delivered', dates: 'delivery' },
+    ];
+    const statusBlocks = [];
     const formatType = 'condensed';
+    const markedStatuses = this.determineCompletedAndCurrentShipmentStatuses(this.props.shipment);
 
-    const markedStatuses = this.props.shipment
-      ? this.determineCompletedAndCurrentShipmentStatuses(this.props.shipment)
-      : this.determineCompletedAndCurrentPPMStatuses(this.props.ppm);
+    const createStatusBlocks = status => {
+      statusBlocks.push(
+        <StatusBlock
+          name={status.name}
+          dates={this.getDates(this.props.shipment, status.dates)}
+          formatType={formatType}
+          completed={this.checkIfCompleted(markedStatuses, status.name.toLowerCase())}
+          current={this.checkIfCurrent(markedStatuses, status.name.toLowerCase())}
+        />,
+      );
+    };
+    createStatusBlocks.bind(this);
+    HHGSTATUSES.forEach(createStatusBlocks);
 
     return (
       <div className="status_timeline">
-        <StatusBlock
-          name="Scheduled"
-          dates={[bookDate]}
-          formatType={formatType}
-          completed={true}
-          current={this.checkIfCurrent(markedStatuses, 'scheduled')}
-        />
-        <StatusBlock
-          name="Packed"
-          dates={packDates}
-          formatType={formatType}
-          completed={this.checkIfCompleted(markedStatuses, 'packed')}
-          current={this.checkIfCurrent(markedStatuses, 'packed')}
-        />
-        <StatusBlock
-          name="Loaded"
-          dates={pickupDates}
-          formatType={formatType}
-          completed={this.checkIfCompleted(markedStatuses, 'loaded')}
-          current={this.checkIfCurrent(markedStatuses, 'loaded')}
-        />
-        <StatusBlock
-          name="In transit"
-          dates={transitDates}
-          formatType={formatType}
-          completed={this.checkIfCompleted(markedStatuses, 'in_transit')}
-          current={this.checkIfCurrent(markedStatuses, 'in_transit')}
-        />
-        <StatusBlock
-          name="Delivered"
-          dates={deliveryDates}
-          formatType={formatType}
-          completed={this.checkIfCompleted(markedStatuses, 'delivered')}
-          current={this.checkIfCurrent(markedStatuses, 'delivered')}
-        />
+        {statusBlocks}
         <div className="legend">* Estimated</div>
       </div>
     );
