@@ -8,16 +8,43 @@ import './StatusTimeline.css';
 
 export class StatusTimelineContainer extends PureComponent {
   checkIfCompleted(statuses, statusToCheck) {
+    console.log(statusToCheck);
+    console.log(statuses);
     if (!statuses.includes(statusToCheck)) {
       return false;
     }
     return indexOf(statuses, statusToCheck) < statuses.length;
   }
   checkIfCurrent(statuses, statusToCheck) {
+    console.log(statusToCheck);
+    console.log(statuses);
     if (!statuses.includes(statusToCheck)) {
       return false;
     }
     return indexOf(statuses, statusToCheck) === statuses.length - 1;
+  }
+
+  determineCompletedAndCurrentPPMStatuses(ppm) {
+    let markedStatuses = ['SUBMITTED'];
+
+    if (ppm.status === 'SUBMITTED') {
+      return markedStatuses;
+    }
+
+    markedStatuses.push('APPROVED');
+
+    if (ppm.status === 'APPROVED') {
+      const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
+      if (moveInProgress) {
+        markedStatuses.push('IN_PROGRESS');
+      }
+      return markedStatuses;
+    }
+
+    if (ppm.status === 'COMPLETED') {
+      markedStatuses.push('IN_PROGRESS');
+      markedStatuses.push('COMPLETED');
+    }
   }
 
   determineCompletedAndCurrentShipmentStatuses(shipment) {
@@ -29,10 +56,10 @@ export class StatusTimelineContainer extends PureComponent {
     const pmSurveyPlannedPickupDate = get(shipment, 'pm_survey_planned_pickup_date', null);
     const requestedPickupDate = get(shipment, 'requested_pickup_date', null);
     const actualDeliveryDate = get(shipment, 'actual_delivery_date', null);
-    let markedStatuses = ['scheduled'];
+    let markedStatuses = ['SCHEDULED'];
 
     if (actualPackDate || today.isSameOrAfter(pmSurveyPlannedPackDate) || today.isSameOrAfter(originalPackDate)) {
-      markedStatuses.push('packed');
+      markedStatuses.push('PACKED');
     } else {
       return markedStatuses;
     }
@@ -42,7 +69,7 @@ export class StatusTimelineContainer extends PureComponent {
       today.isSameOrAfter(pmSurveyPlannedPickupDate, 'day') ||
       today.isSameOrAfter(requestedPickupDate, 'day')
     ) {
-      markedStatuses.push('loaded');
+      markedStatuses.push('LOADED');
     } else {
       return markedStatuses;
     }
@@ -52,13 +79,13 @@ export class StatusTimelineContainer extends PureComponent {
       today.isAfter(pmSurveyPlannedPickupDate, 'day') ||
       today.isAfter(requestedPickupDate, 'day')
     ) {
-      markedStatuses.push('in_transit');
+      markedStatuses.push('IN_TRANSIT');
     } else {
       return markedStatuses;
     }
 
     if (actualDeliveryDate) {
-      markedStatuses.push('delivered');
+      markedStatuses.push('DELIVERED');
     } else {
       return markedStatuses;
     }
@@ -73,30 +100,39 @@ export class StatusTimelineContainer extends PureComponent {
   }
 
   render() {
-    const HHGSTATUSES = [
-      { name: 'Scheduled', dates: 'book_date' },
-      { name: 'Packed', dates: 'pack' },
-      { name: 'Loaded', dates: 'pickup' },
-      { name: 'In transit', dates: 'transit' },
-      { name: 'Delivered', dates: 'delivery' },
+    const SUBMITTEDPPMSTATUSES = [
+      { name: 'Submitted', code: 'SUBMITTED', dates: null },
+      { name: 'Approved', code: 'APPROVED', dates: null },
+      { name: 'In progress', code: 'IN_PROGRESS', dates: null },
+      { name: 'Completed', code: 'COMPLETED', dates: null },
     ];
+    const HHGSTATUSES = [
+      { name: 'Scheduled', code: 'SCHEDULED', dates: 'book_date' },
+      { name: 'Packed', code: 'PACKED', dates: 'pack' },
+      { name: 'Loaded', code: 'LOADED', dates: 'pickup' },
+      { name: 'In transit', code: 'IN_TRANSIT', dates: 'transit' },
+      { name: 'Delivered', code: 'DELIVERED', dates: 'delivery' },
+    ];
+    const statuses = this.props.ppm ? SUBMITTEDPPMSTATUSES : HHGSTATUSES;
     const statusBlocks = [];
     const formatType = 'condensed';
-    const markedStatuses = this.determineCompletedAndCurrentShipmentStatuses(this.props.shipment);
-
+    const markedStatuses = this.props.ppm
+      ? this.determineCompletedAndCurrentPPMStatuses(this.props.ppm)
+      : this.determineCompletedAndCurrentShipmentStatuses(this.props.shipment);
     const createStatusBlocks = status => {
       statusBlocks.push(
         <StatusBlock
           name={status.name}
           dates={this.getDates(this.props.shipment, status.dates)}
           formatType={formatType}
-          completed={this.checkIfCompleted(markedStatuses, status.name.toLowerCase())}
-          current={this.checkIfCurrent(markedStatuses, status.name.toLowerCase())}
+          completed={this.checkIfCompleted(markedStatuses, status.code)}
+          current={this.checkIfCurrent(markedStatuses, status.code)}
+          shipment={this.props.shipment}
         />,
       );
     };
     createStatusBlocks.bind(this);
-    HHGSTATUSES.forEach(createStatusBlocks);
+    statuses.forEach(createStatusBlocks);
 
     return (
       <div className="status_timeline">
@@ -109,13 +145,19 @@ export class StatusTimelineContainer extends PureComponent {
 
 StatusTimelineContainer.propTypes = {
   shipment: PropTypes.object,
-  moveDates: PropTypes.object,
+  ppm: PropTypes.object,
 };
 
 export default StatusTimelineContainer;
 
 const StatusBlock = props => {
-  let classes = ['status_block', props.name.toLowerCase()];
+  let cssName = props.name.toLowerCase();
+  // 'approved' is a shared class name that turns font into green
+  // and we want to avoid that
+  if (cssName === 'approved') {
+    cssName = 'ppm-approved';
+  }
+  let classes = ['status_block', cssName];
   if (props.completed) classes.push('status_completed');
   if (props.current) classes.push('status_current');
 
@@ -123,9 +165,11 @@ const StatusBlock = props => {
     <div className={classes.join(' ')}>
       <div className="status_dot" />
       <div className="status_name">{props.name}</div>
-      <div className="status_dates">
-        {isEmpty(props.dates) ? 'TBD' : displayDateRange(props.dates, props.formatType)}
-      </div>
+      {props.shipment && (
+        <div className="status_dates">
+          {isEmpty(props.dates) ? 'TBD' : displayDateRange(props.dates, props.formatType)}
+        </div>
+      )}
     </div>
   );
 };

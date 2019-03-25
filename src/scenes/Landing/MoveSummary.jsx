@@ -16,9 +16,6 @@ import { selectReimbursement } from 'shared/Entities/modules/ppms';
 import './MoveSummary.css';
 import ppmCar from './images/ppm-car.svg';
 import ppmDraft from './images/ppm-draft.png';
-import ppmSubmitted from './images/ppm-submitted.png';
-import ppmApproved from './images/ppm-approved.png';
-import ppmInProgress from './images/ppm-in-progress.png';
 import StatusTimelineContainer from './StatusTimeline';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -119,7 +116,6 @@ export const SubmittedPpmMoveSummary = props => {
           </div>
 
           <div className="shipment_box_contents">
-            <img className="status_icon" src={ppmSubmitted} alt="status" />
             <StatusTimelineContainer ppm={ppm} shipment={null} />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
@@ -226,11 +222,7 @@ export const SubmittedHhgMoveSummary = props => {
           </div>
 
           <div className="shipment_box_contents">
-            <StatusTimelineContainer
-              bookDate={shipment.book_date}
-              moveDates={shipment.move_dates_summary}
-              shipment={shipment}
-            />
+            <StatusTimelineContainer shipment={shipment} />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 {showHhgLandingPageText(shipment)}
@@ -302,12 +294,7 @@ export const ApprovedMoveSummary = props => {
               </Alert>
             )}
 
-            {moveInProgress ? (
-              <img className="status_icon" src={ppmInProgress} alt="status" />
-            ) : (
-              <img className="status_icon" src={ppmApproved} alt="status" />
-            )}
-
+            <StatusTimelineContainer ppm={ppm} shipment={null} />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 {!moveInProgress && (
