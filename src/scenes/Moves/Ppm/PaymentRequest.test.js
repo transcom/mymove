@@ -52,8 +52,8 @@ describe('Payment Request', () => {
         expect(instance.applyClickHandlers).toHaveBeenCalled();
       });
       it('applyClickHandlers calls submitDocs, submitCertificate', () => {
-        instance.submitDocs = jest.fn();
-        instance.submitCertificate = jest.fn();
+        instance.submitDocs = jest.fn(() => Promise.resolve());
+        instance.submitCertificate = jest.fn(() => Promise.resolve());
         instance.applyClickHandlers();
 
         expect(instance.submitCertificate).toHaveBeenCalled();

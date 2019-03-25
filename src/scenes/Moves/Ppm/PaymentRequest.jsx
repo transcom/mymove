@@ -90,13 +90,13 @@ export class PaymentRequest extends Component {
   };
 
   applyClickHandlers = () => {
-    this.submitDocs()
-      .then(() =>
-        this.submitCertificate().then(() => {
-          this.props.history.push('/');
-        }),
-      )
-      .catch(() => scrollToTop());
+    Promise.all([this.submitDocs(), this.submitCertificate()])
+      .then(() => {
+        this.props.history.push('/');
+      })
+      .catch(() => {
+        scrollToTop();
+      });
   };
 
   static getUserDate() {
