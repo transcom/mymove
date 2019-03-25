@@ -1,14 +1,16 @@
-add_index("blackout_dates", "transportation_service_provider_id", {});
-add_index("blackout_dates", "traffic_distribution_list_id", {});
+add_index("backup_contacts", "email", {});
 
 add_index("distance_calculations", "origin_address_id", {});
 add_index("distance_calculations", "destination_address_id", {});
 
 add_index("documents", "service_member_id", {});
 
+add_index("dps_users", "login_gov_email", {});
+
 add_index("duty_stations", "address_id", {});
 add_index("duty_stations", "transportation_office_id", {});
 
+add_index("electronic_orders_revisions", ["electronic_order_id", "seq_num"], {});
 
 add_index("invoices", "shipment_id", {});
 add_index("invoices", "approver_id", {});
@@ -57,7 +59,6 @@ add_index("shipment_offers", "shipment_id", {});
 
 add_index("shipment_recalculate_logs", "shipment_id", {});
 
-add_index("shipments", "traffic_distribution_list_id", {});
 add_index("shipments", "service_member_id", {});
 add_index("shipments", "move_id", {});
 add_index("shipments", "shipping_distance_id", {});
@@ -66,6 +67,9 @@ add_index("shipments", "secondary_pickup_address_id", {});
 add_index("shipments", "delivery_address_id", {});
 add_index("shipments", "partial_sit_delivery_address_id", {});
 add_index("shipments", "destination_address_on_acceptance_id", {});
+add_index("shipments", "status", {});
+add_index("shipments", "actual_pickup_date", {});
+add_index("shipments", "actual_delivery_date", {});
 
 add_index("signed_certifications", "submitting_user_id", {});
 add_index("signed_certifications", "move_id", {});
@@ -73,7 +77,6 @@ add_index("signed_certifications", "move_id", {});
 add_index("storage_in_transits", "shipment_id", {});
 add_index("storage_in_transits", "warehouse_address_id", {});
 
-add_index("transportation_offices", "shipping_office_id", {});
 add_index("transportation_offices", "address_id", {});
 
 add_index("transportation_service_provider_performances", "transportation_service_provider_id", {});
@@ -83,10 +86,6 @@ add_index("tsp_users", "user_id", {});
 add_index("tsp_users", "transportation_service_provider_id", {});
 
 add_index("uploads", "uploader_id", {});
+add_index("uploads", "document_id", {});
 
-
-
-
-add_index("shipments", "status", {});
-add_index("shipments", "actual_pickup_date", {});
-add_index("shipments", "actual_delivery_date", {});
+add_index("users", "login_gov_email", {});
