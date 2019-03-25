@@ -7,7 +7,7 @@ import (
 )
 
 // TestCreateShipmentLineItemCode226A tests that 226A line items are created correctly
-func (suite *ModelSuite) TestCreateShipmentLineItemCode226AA() {
+func (suite *ModelSuite) TestCreateShipmentLineItemCode226A() {
 	// test create 226A preapproval
 	item226A := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
 		Tariff400ngItem: models.Tariff400ngItem{
