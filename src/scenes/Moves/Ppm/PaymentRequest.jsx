@@ -31,14 +31,7 @@ export class PaymentRequest extends Component {
   }
 
   submitDocs = () => {
-    this.props
-      .submitExpenseDocs()
-      .then(() => {
-        this.props.history.push('/');
-      })
-      .catch(() => {
-        scrollToTop();
-      });
+    return this.props.submitExpenseDocs();
   };
 
   handleSubmit = (uploadIds, formValues) => {
@@ -97,8 +90,9 @@ export class PaymentRequest extends Component {
   };
 
   applyClickHandlers = () => {
-    this.submitDocs();
-    this.submitCertificate();
+    this.submitDocs()
+      .then(() => this.submitCertificate())
+      .catch(() => scrollToTop());
   };
 
   static getUserDate() {

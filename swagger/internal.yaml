@@ -2671,6 +2671,8 @@ paths:
       responses:
         201:
           description: created instance of signed_certification
+          schema:
+            $ref: '#/definitions/SignedCertificationPayload'
         400:
           description: invalid request
         401:

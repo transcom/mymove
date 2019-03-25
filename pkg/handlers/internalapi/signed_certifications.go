@@ -65,18 +65,21 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	_, verrs, err := move.CreateSignedCertification(h.DB(),
+	signedCertification, verrs, err := move.CreateSignedCertification(h.DB(),
 		session.UserID,
 		*payload.CertificationText,
-		*payload.Signature, (time.Time)(*payload.Date),
+		*payload.Signature,
+		(time.Time)(*payload.Date),
 		ppmID,
 		shipmentID,
 		certType)
 	if verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
+	//TODO not sure can guarantee signedCertification non-nil
+	signedCertificationPayload := payloadForSignedCertificationModel(*signedCertification)
 
-	return certop.NewCreateSignedCertificationCreated()
+	return certop.NewCreateSignedCertificationCreated().WithPayload(signedCertificationPayload)
 }
 
 // IndexSignedCertificationsHandler creates a new issue via POST /issue

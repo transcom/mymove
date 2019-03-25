@@ -90,7 +90,7 @@ export const invoice = new schema.Entity('invoices');
 export const invoices = new schema.Array(invoice);
 
 // Signed Certificate
-export const signedCertificate = new schema.Entity('signedCertificate');
+export const signedCertification = new schema.Entity('signedCertification');
 
 // ShipmentLineItem
 export const shipmentLineItem = new schema.Entity('shipmentLineItems', {
