@@ -60,8 +60,25 @@ Cypress.Commands.add('signInAsUser', userId => {
   cy.visit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now
   cy.getCookie('_gorilla_csrf').should('exist');
-  cy.getCookie('masked_gorilla_csrf').should('exist');
-  cy.get('button[value="' + userId + '"]').click();
+  cy.getCookie('masked_gorilla_csrf').then(cookie => {
+    // After confirming existence of cookie we can login
+    // Instead of using a login button we can post directly to the login endpoint
+    // This allows us to paginate the login page and limit the number of logins it shows
+    // without breaking the e2e tests.
+    cy.request({
+      method: 'POST',
+      url: '/devlocal-auth/login',
+      form: true,
+      headers: { 'x-csrf-token': cookie.value }, // CSRF middleware will look at headers before form data
+      body: {
+        'gorilla.csrf.Token': cookie.value, // This is probably redundant but mimics the form
+        id: userId,
+      },
+    });
+
+    // In case of login redirect we once more go to the homepage
+    cy.patientVisit('/');
+  });
 });
 
 // Reloads the page but makes an attempt to wait for the loading screen to disappear
