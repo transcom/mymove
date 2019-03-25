@@ -34,7 +34,7 @@ function officeUserViewsSITPanel() {
   cy.get('.storage-in-transit').within(() => {
     cy.contains('Destination SIT');
     cy
-      .get('#sit-status-text')
+      .get('.sit-status-text')
       .contains('Status')
       .parent()
       .siblings()
