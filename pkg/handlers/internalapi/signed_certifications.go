@@ -42,12 +42,8 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 	//TODO Has to be another way.
 	var ppmID *uuid.UUID
 	tmpPpmID, err := uuid.FromString(payload.PersonallyProcuredMoveID.String())
-	if err != nil {
-		ppmID = nil
-	} else {
+	if err == nil {
 		ppmID = &tmpPpmID
-	}
-	if ppmID != nil {
 		_, err = models.FetchPersonallyProcuredMove(h.DB(), session, *ppmID)
 		if err != nil {
 			return handlers.ResponseForError(h.Logger(), err)
@@ -55,12 +51,8 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 	}
 	var shipmentID *uuid.UUID
 	tmpShipmentID, err := uuid.FromString(payload.ShipmentID.String())
-	if err != nil {
-		shipmentID = nil
-	} else {
+	if err == nil {
 		shipmentID = &tmpShipmentID
-	}
-	if shipmentID != nil {
 		_, err = models.FetchShipment(h.DB(), session, *shipmentID)
 		if err != nil {
 			return handlers.ResponseForError(h.Logger(), err)
