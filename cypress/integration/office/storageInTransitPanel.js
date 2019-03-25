@@ -44,7 +44,7 @@ function officeUserViewsSITPanel() {
       .siblings()
       .contains('Est. start date')
       .siblings()
-      .contains('25-Mar-2019');
+      .contains('22-Mar-2019');
     cy
       .contains('Note')
       .siblings()

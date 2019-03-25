@@ -2227,8 +2227,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 
 	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
 		StorageInTransit: models.StorageInTransit{
-			ShipmentID: offer36.ShipmentID,
-			Shipment:   offer36.Shipment,
+			ShipmentID:         offer36.ShipmentID,
+			Shipment:           offer36.Shipment,
+			EstimatedStartDate: time.Date(2019, time.Month(3), 22, 0, 0, 0, 0, time.UTC),
 		},
 	})
 	hhg36 := offer36.Shipment

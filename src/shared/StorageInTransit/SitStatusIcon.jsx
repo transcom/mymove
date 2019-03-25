@@ -10,9 +10,9 @@ const SitStatusIcon = props => {
   return (
     <FontAwesomeIcon
       className={classnames(
-        iconStyles.statusIcon,
-        { [iconStyles.statusDefaultColor]: isTspSite },
-        { [iconStyles.statusAttention]: !isTspSite },
+        iconStyles['status-icon'],
+        { [iconStyles['status-default-color']]: isTspSite },
+        { [iconStyles['status-attention']]: !isTspSite },
       )}
       icon={faClock}
     />
