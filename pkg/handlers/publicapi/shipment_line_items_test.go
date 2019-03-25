@@ -414,6 +414,7 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItemUnprocessableEntity() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	//  shipment line item
+	invoice := testdatagen.MakeDefaultInvoice(suite.DB())
 	desc := "description"
 	reas := "reason"
 	centsValue := unit.Cents(12345)
@@ -426,6 +427,7 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItemUnprocessableEntity() {
 			ActualAmountCents: &centsValue,
 			Quantity1:         unit.BaseQuantity(int64(12345)),
 			Notes:             "",
+			InvoiceID:         &invoice.ID,
 		},
 	})
 
