@@ -109,6 +109,7 @@ Cypress.Commands.add(
     expectedRespBody = null,
     sendGorillaCSRF = true,
     sendMaskedGorillaCSRF = true,
+    checkSessionToken = true,
   ) => {
     // setup baseurl
     cy.setupBaseUrl(signInAs);
@@ -176,12 +177,14 @@ Cypress.Commands.add(
     }
 
     // Login should provide named session tokens
-    if (signInAs === milmoveAppName) {
-      cy.getCookie('mil_session_token').should('exist');
-    } else if (signInAs === officeAppName) {
-      cy.getCookie('office_session_token').should('exist');
-    } else if (signInAs === tspAppName) {
-      cy.getCookie('tsp_session_token').should('exist');
+    if (checkSessionToken) {
+      if (signInAs === milmoveAppName) {
+        cy.getCookie('mil_session_token').should('exist');
+      } else if (signInAs === officeAppName) {
+        cy.getCookie('office_session_token').should('exist');
+      } else if (signInAs === tspAppName) {
+        cy.getCookie('tsp_session_token').should('exist');
+      }
     }
   },
 );
