@@ -143,13 +143,13 @@ export class StatusTimelineContainer extends PureComponent {
       statusBlocks.push(
         <StatusBlock
           name={status.name}
+          code={status.code}
+          key={status.code}
+          shipment={this.props.shipment}
           dates={this.getDates(this.props.shipment, status.dates)}
           formatType={formatType}
           completed={this.checkIfCompleted(markedStatuses, status.code)}
           current={this.checkIfCurrent(markedStatuses, status.code)}
-          shipment={this.props.shipment}
-          code={status.code}
-          key={status.code}
         />,
       );
     };
@@ -175,7 +175,7 @@ StatusTimelineContainer.propTypes = {
 export default StatusTimelineContainer;
 
 export const StatusBlock = props => {
-  let classes = ['status_block', props.code.toLowerCase()];
+  const classes = ['status_block', props.code.toLowerCase()];
   if (props.completed) classes.push('status_completed');
   if (props.current) classes.push('status_current');
 
