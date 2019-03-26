@@ -50,10 +50,10 @@ export class StatusTimelineContainer extends PureComponent {
   }
 
   determineCompletedAndCurrentShipmentStatuses(shipment) {
-    const today = moment();
+    const today = this.props.today ? moment(this.props.today) : moment();
     const actualPackDate = get(shipment, 'actual_pack_date', null);
-    const pmSurveyPlannedPackDate = get(shipment, 'pm_survey_planned_pack_date', null);
     const originalPackDate = get(shipment, 'original_pack_date', null);
+    const pmSurveyPlannedPackDate = get(shipment, 'pm_survey_planned_pack_date', null);
     const actualPickupDate = get(shipment, 'actual_pickup_date', null);
     const pmSurveyPlannedPickupDate = get(shipment, 'pm_survey_planned_pickup_date', null);
     const requestedPickupDate = get(shipment, 'requested_pickup_date', null);
@@ -149,6 +149,7 @@ export class StatusTimelineContainer extends PureComponent {
           current={this.checkIfCurrent(markedStatuses, status.code)}
           shipment={this.props.shipment}
           code={status.code}
+          key={status.code}
         />,
       );
     };
@@ -168,11 +169,12 @@ StatusTimelineContainer.propTypes = {
   shipment: PropTypes.object,
   ppm: PropTypes.object,
   profile: PropTypes.object,
+  today: PropTypes.string,
 };
 
 export default StatusTimelineContainer;
 
-const StatusBlock = props => {
+export const StatusBlock = props => {
   let classes = ['status_block', props.code.toLowerCase()];
   if (props.completed) classes.push('status_completed');
   if (props.current) classes.push('status_current');
