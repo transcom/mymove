@@ -1,13 +1,13 @@
 #! /usr/bin/env bash
 #
-# A script to upload secure migrations to all environments
+# A script to download secure migrations from all environments
 # https://github.com/transcom/mymove#secure-migrations
 #
 
 set -eu -o pipefail
 
 readonly aws_command="aws"
-# Environments to upload production migrations to
+# Environments to download production migrations from
 readonly environments=(experimental staging prod)
 readonly aws_bucket_prefix="transcom-ppp-app-"
 readonly aws_bucket_suffix="-us-west-2"
@@ -38,9 +38,6 @@ function run() {
 if [[ -z "${1:-}" ]]; then
   echo "$usage"
   exit 1
-elif [[ ! -f "${1}" ]]; then
-  echo "error: unable to find migration file: ${1}"
-  exit 1
 fi
 readonly production_migration_file="$1"
 
@@ -55,36 +52,24 @@ command -v "$aws_command" 2> /dev/null | grep "ppp-infra/bin/aws" &> /dev/null |
 ${aws_command} s3 ls "${aws_bucket_prefix}${environments[0]}${aws_bucket_suffix}" > /dev/null
 
 #
-# Test local migration
-#
-
-proceed "Testing local migration. This will involve resetting your local dev database. Proceed?"
-run make db_dev_reset
-run make db_dev_migrate || (
-  echo "error: test migrations failed!"
-  echo "Run 'make db_dev_migrate' to see errors."
-  exit 1
-  )
-
-echo "Test migrations successful!"
-echo
-
-#
-# Upload secure migration
+# Download secure migration
 #
 
 for environment in "${environments[@]}"; do
-  echo "Uploading to: $environment"
+  echo "Downloading from: $environment"
   sleep 1
-  run aws s3 cp --sse AES256 \
-    "$production_migration_file" \
-    "s3://${aws_bucket_prefix}${environment}${aws_bucket_suffix}/${aws_path_prefix}/"
+  migration_dir="./tmp/secure_migrations/${environment}"
+  mkdir -p "${migration_dir}"
+  run aws s3 cp \
+    "s3://${aws_bucket_prefix}${environment}${aws_bucket_suffix}/${aws_path_prefix}/${production_migration_file}" \
+    "${migration_dir}/$production_migration_file"
 done
 
-#
-# Cleanup
-#
+echo
+echo "Files have been downloaded to these locations:"
+echo
+find ./tmp/secure_migrations -type f
 
 echo
-echo "Production migration files contain sensitive data and should be deleted after uploading!"
-rm -i "$production_migration_file"
+echo "Please remember to 'rm -rf ./tmp/secure_migrations' when you are finished working"
+echo

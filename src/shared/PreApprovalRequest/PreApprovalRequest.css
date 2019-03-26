@@ -62,6 +62,15 @@
   vertical-align: top;
 }
 
+.pre-approval-icon-container {
+  display: flex;
+}
+
+.pre-approval-icon {
+  display: inline-flex;
+  width: 2em;
+}
+
 .actionable {
   color: #0071bc;
   cursor: pointer;

@@ -123,6 +123,10 @@ const simple105TariffItem = {
   code: '105B',
 };
 
+const simple35ATariffItem = {
+  code: '35A',
+};
+
 const simpleNon105TariffItem = {
   code: '28A',
 };
@@ -212,6 +216,27 @@ describe('PreApprovalForm tests', () => {
     });
     it('renders dimensions forms without crashing', () => {
       expect(wrapper.find('.dimensions-form').length).toBe(2);
+    });
+  });
+  describe('When an APPROVED code 35A request is edited', () => {
+    beforeEach(() => {
+      wrapper = mount(
+        <Provider store={store}>
+          <PreApprovalForm
+            status="APPROVED"
+            ship_line_item_schema={simpleSchema}
+            tariff400ngItems={tariff400ng_items}
+            onSubmit={submit}
+            filteredLocations={['ORIGIN']}
+            tariff400ng_item_code="35A"
+            tariff400ngItem={simple35ATariffItem}
+            initialValues={{ code: '35A' }}
+          />
+        </Provider>,
+      );
+    });
+    it('only the Actual Amount field is editable', () => {
+      expect(wrapper.find('input').length).toBe(1);
     });
   });
 });

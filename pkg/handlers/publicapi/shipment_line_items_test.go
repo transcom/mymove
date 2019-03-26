@@ -319,6 +319,54 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItemOfficeHandler() {
 	}
 }
 
+func (suite *HandlerSuite) TestUpdateShipmentLineItem35AActualAmountCents() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	//  shipment line item
+	desc := "description"
+	reas := "reason"
+	cents := unit.Cents(1234)
+	shipAcc1 := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
+		ShipmentLineItem: models.ShipmentLineItem{
+			Status:              models.ShipmentLineItemStatusAPPROVED,
+			Location:            models.ShipmentLineItemLocationDESTINATION,
+			Description:         &desc,
+			Reason:              &reas,
+			EstimateAmountCents: &cents,
+			Notes:               "",
+		},
+	})
+
+	// create a new tariff400ngItem to test
+	updateAcc1 := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: models.Tariff400ngItem{
+			Code:                "35A",
+			RequiresPreApproval: true,
+		},
+	})
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("PUT", "/shipments", nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+	updateShipmentLineItem := apimessages.ShipmentLineItem{
+		ID:                *handlers.FmtUUID(shipAcc1.ID),
+		Tariff400ngItemID: handlers.FmtUUID(updateAcc1.ID),
+		ActualAmountCents: handlers.FmtInt64(5555), //make sure we can edit actual amount
+	}
+	params := accessorialop.UpdateShipmentLineItemParams{
+		HTTPRequest:        req,
+		ShipmentLineItemID: strfmt.UUID(shipAcc1.ID.String()),
+		Payload:            &updateShipmentLineItem,
+	}
+
+	// And: try to update will succeed because ActualAmountCents is not filled out yet for 35A
+	handler := UpdateShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	suite.Assertions.IsType(&accessorialop.UpdateShipmentLineItemOK{}, response)
+}
+
 func (suite *HandlerSuite) TestUpdateShipmentLineItemForbidden() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
@@ -360,6 +408,63 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItemForbidden() {
 
 	// Then: expect a 403 status code
 	suite.Assertions.IsType(&accessorialop.UpdateShipmentLineItemForbidden{}, response)
+}
+
+func (suite *HandlerSuite) TestUpdateShipmentLineItemUnprocessableEntity() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	//  shipment line item
+	invoice := testdatagen.MakeDefaultInvoice(suite.DB())
+	desc := "description"
+	reas := "reason"
+	centsValue := unit.Cents(12345)
+	shipAcc1 := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
+		ShipmentLineItem: models.ShipmentLineItem{
+			Status:            models.ShipmentLineItemStatusAPPROVED,
+			Location:          models.ShipmentLineItemLocationDESTINATION,
+			Description:       &desc,
+			Reason:            &reas,
+			ActualAmountCents: &centsValue,
+			Quantity1:         unit.BaseQuantity(int64(12345)),
+			Notes:             "",
+			InvoiceID:         &invoice.ID,
+		},
+	})
+
+	// create a new tariff400ngItem to test
+	updateAcc1 := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: models.Tariff400ngItem{
+			Code:                "35A",
+			RequiresPreApproval: true,
+		},
+	})
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("PUT", "/shipments", nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+	updateShipmentLineItem := apimessages.ShipmentLineItem{
+		ID:                *handlers.FmtUUID(shipAcc1.ID),
+		ShipmentID:        *handlers.FmtUUID(shipAcc1.ShipmentID),
+		Tariff400ngItemID: handlers.FmtUUID(updateAcc1.ID),
+		Location:          apimessages.ShipmentLineItemLocationORIGIN,
+		Quantity1:         handlers.FmtInt64(int64(1)),
+		Description:       &desc,
+		Reason:            &reas,
+		ActualAmountCents: handlers.FmtInt64(5555),
+		Notes:             "HELLO",
+	}
+	params := accessorialop.UpdateShipmentLineItemParams{
+		HTTPRequest:        req,
+		ShipmentLineItemID: strfmt.UUID(shipAcc1.ID.String()),
+		Payload:            &updateShipmentLineItem,
+	}
+
+	// And: try to update but will fail because line item status is APPROVED
+	handler := UpdateShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: expect a 422 status code
+	suite.Assertions.IsType(&accessorialop.UpdateShipmentLineItemUnprocessableEntity{}, response)
 }
 
 func (suite *HandlerSuite) TestDeleteShipmentLineItemTSPHandler() {

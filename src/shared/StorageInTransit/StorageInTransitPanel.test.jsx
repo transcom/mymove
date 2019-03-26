@@ -43,7 +43,7 @@ describe('StorageInTransit tests', () => {
       expect(wrapper.find('.add-request').length).toEqual(1);
     });
   });
-  describe('When no items exists and Request SIT does not appears on Office app', () => {
+  describe('When no items exists and Request SIT appears on Office app', () => {
     CONSTANTS.isTspSite = false;
     let wrapper;
     const sitRequests = [];

@@ -2,7 +2,7 @@
 
 set -eu -o pipefail
 
-VERSION="5.0.2(1)-release"
+VERSION="5.0"
 
 # Script helps ensure that /etc/shells has all the correct entries in it
 
@@ -20,10 +20,12 @@ function check_shell () {
 
 check_shell /usr/local/bin/bash
 
-if [[ $BASH_VERSION = *$VERSION* ]]; then
-  echo "$VERSION installed"
+# Knocks off everything after the last decimal
+SHORT_VERSION=${BASH_VERSION%.*}
+if [[ $SHORT_VERSION = *$VERSION* ]]; then
+  echo "$BASH_VERSION installed"
 else
-  echo "$VERSION is required to run this project! Found $BASH_VERSION"
+  echo "$VERSION.x is required to run this project! Found $BASH_VERSION"
   echo "Run 'brew install bash', add '/usr/local/bin/bash' to your /etc/shells file, and restart your terminal"
   exit 1
 fi
