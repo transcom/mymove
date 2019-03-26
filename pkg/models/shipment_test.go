@@ -667,6 +667,57 @@ func (suite *ModelSuite) TestUpdateShipmentLineItemCode35A() {
 	}
 }
 
+// TestUpdateShipmentLineItemCode35AActualAmountCents tests that 35A line items are updated correctly
+func (suite *ModelSuite) TestUpdateShipmentLineItemCode35AActualAmountCents() {
+	acc35A := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "35A",
+		},
+	})
+
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
+	desc := "This is a description"
+	reas := "This is the reason"
+	notes := "Notes"
+	loc := ShipmentLineItemLocationORIGIN
+	estAmt := unit.Cents(1000)
+	lineItem := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
+		ShipmentLineItem: ShipmentLineItem{
+			Tariff400ngItemID:   acc35A.ID,
+			Status:              ShipmentLineItemStatusAPPROVED,
+			Location:            loc,
+			Notes:               notes,
+			Description:         &desc,
+			Reason:              &reas,
+			EstimateAmountCents: &estAmt,
+		},
+	})
+
+	// Update values
+	baseParams := BaseShipmentLineItemParams{
+		Tariff400ngItemID:   acc35A.ID,
+		Tariff400ngItemCode: acc35A.Code,
+	}
+	updateDesc := "updated description"
+	updateReas := "updated reason"
+	updateEstAmt := unit.Cents(2000)
+	actAmt := unit.Cents(2000)
+	additionalParams := AdditionalShipmentLineItemParams{
+		EstimateAmountCents: &updateEstAmt,
+		ActualAmountCents:   &actAmt,
+	}
+
+	verrs, err := shipment.UpdateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams, &lineItem)
+	if suite.noValidationErrors(verrs, err) {
+		suite.NotEqual(updateDesc, *lineItem.Description)
+		suite.NotEqual(updateReas, *lineItem.Reason)
+		suite.NotEqual(updateEstAmt, *lineItem.EstimateAmountCents)
+		suite.Equal(actAmt, *lineItem.ActualAmountCents)
+	}
+}
+
 // TestCreateShipmentLineItemCode105BAndEMissingDimensions tests that missing dimensions for 105B/E throws error
 func (suite *ModelSuite) TestCreateShipmentLineItemCode105BAndEMissingDimensions() {
 	acc105B := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
