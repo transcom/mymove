@@ -39,7 +39,6 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 	moveID, _ := uuid.FromString(params.MoveID.String())
 	payload := params.CreateSignedCertificationPayload
 
-	//TODO Has to be another way.
 	var ppmID *uuid.UUID
 	tmpPpmID, err := uuid.FromString(payload.PersonallyProcuredMoveID.String())
 	if err == nil {
