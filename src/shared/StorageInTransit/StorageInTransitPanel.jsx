@@ -61,11 +61,11 @@ export class StorageInTransitPanel extends Component {
             Entitlement: {storageInTransitEntitlement} days <span className="unbold">({daysRemaining} remaining)</span>
           </div>
           {storageInTransits !== undefined &&
-            storageInTransits.map(storageInTransit => {
-              return <StorageInTransit key={storageInTransit.id} storageInTransit={storageInTransit} />;
-            })}
+          storageInTransits.map(storageInTransit => {
+            return <StorageInTransit key={storageInTransit.id} storageInTransit={storageInTransit} />;
+          })}
           {isCreatorActionable &&
-            isTspSite && <Creator onFormActivation={this.onFormActivation} saveStorageInTransit={this.onSubmit} />}
+          isTspSite && <Creator onFormActivation={this.onFormActivation} saveStorageInTransit={this.onSubmit} />}
         </BasicPanel>
       </div>
     );

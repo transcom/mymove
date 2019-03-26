@@ -11,7 +11,9 @@ import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
 import './StorageInTransit.css';
 import { formatDate4DigitYear } from 'shared/formatters';
 import Editor from 'shared/StorageInTransit/Editor';
+import ApproveSitRequest from 'shared/StorageInTransit/ApproveSitRequest';
 import { updateStorageInTransit } from 'shared/Entities/modules/storageInTransits';
+import { isTspSite } from 'shared/constants.js';
 
 export class StorageInTransit extends Component {
   constructor() {
@@ -51,6 +53,7 @@ export class StorageInTransit extends Component {
             <FontAwesomeIcon className="icon icon-grey" icon={faClock} />
           </span>
           <span>SIT {storageInTransit.status.charAt(0) + storageInTransit.status.slice(1).toLowerCase()} </span>
+          {!isTspSite && <ApproveSitRequest />}
           {showEditForm ? (
             <Editor
               updateStorageInTransit={this.onSubmit}
