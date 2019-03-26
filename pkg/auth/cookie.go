@@ -144,18 +144,6 @@ func DeleteCSRFCookies(w http.ResponseWriter) {
 	DeleteCookie(w, GorillaCSRFToken)
 }
 
-// CSRFErrorHandler handles errors that occur within the CSRF library
-func CSRFErrorHandler(logger Logger, useSecureCookie bool) http.Handler {
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		msg := fmt.Sprintf("%s - %s",
-			http.StatusText(http.StatusForbidden), csrf.FailureReason(r))
-		http.Error(w, msg, http.StatusForbidden)
-		logger.Error(msg)
-	}
-
-	return http.HandlerFunc(handler)
-}
-
 // MaskedCSRFMiddleware handles setting the CSRF Token cookie
 func MaskedCSRFMiddleware(logger Logger, useSecureCookie bool) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
