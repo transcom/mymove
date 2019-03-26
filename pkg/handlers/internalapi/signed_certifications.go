@@ -40,21 +40,23 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 	payload := params.CreateSignedCertificationPayload
 
 	var ppmID *uuid.UUID
-	tmpPpmID, err := uuid.FromString(payload.PersonallyProcuredMoveID.String())
-	if err == nil {
-		ppmID = &tmpPpmID
-		_, err = models.FetchPersonallyProcuredMove(h.DB(), session, *ppmID)
-		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+	if payload.PersonallyProcuredMoveID != nil {
+		ppmID, err := uuid.FromString((*payload.ShipmentID).String())
+		if err == nil {
+			_, err = models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
+			if err != nil {
+				return handlers.ResponseForError(h.Logger(), err)
+			}
 		}
 	}
 	var shipmentID *uuid.UUID
-	tmpShipmentID, err := uuid.FromString(payload.ShipmentID.String())
-	if err == nil {
-		shipmentID = &tmpShipmentID
-		_, err = models.FetchShipment(h.DB(), session, *shipmentID)
-		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+	if payload.ShipmentID != nil {
+		shipmentID, err := uuid.FromString((*payload.ShipmentID).String())
+		if err == nil {
+			_, err = models.FetchShipment(h.DB(), session, shipmentID)
+			if err != nil {
+				return handlers.ResponseForError(h.Logger(), err)
+			}
 		}
 	}
 	certType := models.SignedCertificationType(payload.CertificationType)
