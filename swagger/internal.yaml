@@ -1335,11 +1335,14 @@ definitions:
       personally_procured_move_id:
         type: string
         format: uuid
+        x-nullable: true
       shipment_id:
         type: string
         format: uuid
+        x-nullable: true
       certification_type:
         $ref: '#/definitions/SignedCertificationType'
+        x-nullable: true
     required:
       - date
       - signature

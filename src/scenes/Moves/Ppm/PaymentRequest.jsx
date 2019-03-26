@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import Alert from 'shared/Alert';
 import { get } from 'lodash';
-import { includes } from 'lodash';
-import qs from 'query-string';
 
 import DocumentUploader from 'shared/DocumentViewer/DocumentUploader';
 import { convertDollarsToCents } from 'shared/utils';
@@ -134,20 +132,13 @@ export class PaymentRequest extends Component {
   };
 
   render() {
-    const { location, moveDocuments, updatingPPM, updateError, docTypes, currentPpm } = this.props;
+    const { location, moveDocuments, updatingPPM, updateError, currentPpm } = this.props;
     const numMoveDocs = get(moveDocuments, 'length', 'TBD');
     const atLeastOneMoveDoc = numMoveDocs > 0;
-    // TODO don't think this part does anything possibly delete
-    const moveDocumentType = location ? qs.parse(location.search).moveDocumentType : null;
     const currentPpmStatus = currentPpm ? currentPpm.status : null;
     const initialValues = {};
     const canSubmitPayment = !updatingPPM && atLeastOneMoveDoc && this.state.acceptTerms;
 
-    // TODO don't think this part does anything possibly delete
-    // Verify the provided doc type against the schema
-    if (includes(docTypes, moveDocumentType)) {
-      initialValues.move_document_type = moveDocumentType;
-    }
     return (
       <div className="usa-grid payment-request">
         <div className="usa-width-two-thirds">
@@ -191,7 +182,6 @@ export class PaymentRequest extends Component {
 
 PaymentRequest.propTypes = {
   currentPpm: PropTypes.shape({ id: PropTypes.string.isRequired }),
-  docTypes: PropTypes.arrayOf(PropTypes.string),
   moveDocuments: PropTypes.arrayOf(PropTypes.object).isRequired,
   genericMoveDocSchema: PropTypes.object.isRequired,
   moveDocSchema: PropTypes.object.isRequired,
@@ -204,7 +194,6 @@ const mapStateToProps = (state, props) => ({
   currentPpm: state.ppm.currentPpm,
   updatingPPM: state.ppm.hasSubmitInProgress,
   updateError: state.ppm.hasSubmitError,
-  docTypes: get(state, 'swaggerInternal.spec.definitions.MoveDocumentType.enum', []),
   genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
   moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
 });
