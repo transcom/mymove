@@ -115,7 +115,7 @@ export const SubmittedPpmMoveSummary = props => {
           </div>
 
           <div className="shipment_box_contents">
-            <StatusTimelineContainer ppm={ppm} isDraft={false} shipment={null} />
+            <StatusTimelineContainer ppm={ppm} />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 <div className="step">
@@ -293,7 +293,7 @@ export const ApprovedMoveSummary = props => {
               </Alert>
             )}
 
-            <StatusTimelineContainer ppm={ppm} isDraft={false} shipment={null} />
+            <StatusTimelineContainer ppm={ppm} />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 {!moveInProgress && (
