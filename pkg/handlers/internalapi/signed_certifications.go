@@ -41,7 +41,7 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 
 	var ppmID *uuid.UUID
 	if payload.PersonallyProcuredMoveID != nil {
-		ppmID, err := uuid.FromString((*payload.ShipmentID).String())
+		ppmID, err := uuid.FromString((*payload.PersonallyProcuredMoveID).String())
 		if err == nil {
 			_, err = models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
 			if err != nil {
