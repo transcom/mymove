@@ -3,6 +3,10 @@ package models
 import (
 	"time"
 
+	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/auth"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
@@ -73,4 +77,25 @@ func (s *SignedCertification) ValidateCreate(tx *pop.Connection) (*validate.Erro
 // This method is not required and may be deleted.
 func (s *SignedCertification) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// FetchSignedCertificationsPPMPayment Fetches and Validates a PPM Payment Signature
+func FetchSignedCertificationsPPMPayment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*SignedCertification, error) {
+	var signedCertification SignedCertification
+	err := db.Where("move_id = $1", id.String()).Where("certification_type = $2", SignedCertificationTypePPMPAYMENT).First(&signedCertification)
+
+	if err != nil {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
+			return nil, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return nil, err
+	}
+	// Validate the move is associated to the logged-in service member
+	_, fetchErr := FetchMove(db, session, id)
+	if fetchErr != nil {
+		return nil, ErrFetchForbidden
+	}
+
+	return &signedCertification, nil
 }

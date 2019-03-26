@@ -79,6 +79,7 @@ type ShipmentSummaryWorkSheetShipments struct {
 type ShipmentSummaryWorksheetPage2Values struct {
 	PreparationDate string
 	FormattedMovingExpenses
+	ServiceMemberSignature string
 }
 
 //FormattedMovingExpenses is an object representing the service member's moving expenses formatted for the SSW
@@ -119,6 +120,7 @@ type ShipmentSummaryFormData struct {
 	Obligations             Obligations
 	MovingExpenseDocuments  []MovingExpenseDocument
 	PPMRemainingEntitlement unit.Pound
+	SignedCertification     *SignedCertification
 }
 
 //Obligations an object representing the Max Obligation and Actual Obligation sections of the shipment summary worksheet
@@ -211,6 +213,20 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 
 	ppmRemainingEntitlement := CalculateRemainingPPMEntitlement(move, totalEntitlement)
 
+	var signedCertification *SignedCertification
+	tmpSignedCert, err := FetchSignedCertificationsPPMPayment(db, session, moveID)
+	//TODO do we want to throw error if don't have signature or just print as empty?
+	if err != nil {
+		switch err {
+		case ErrFetchNotFound:
+			signedCertification = nil
+		default:
+			return ShipmentSummaryFormData{}, err
+		}
+	} else {
+		signedCertification = tmpSignedCert
+	}
+
 	ssd := ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
 		Order:                   move.Orders,
@@ -220,6 +236,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		TotalWeightAllotment:    totalEntitlement,
 		Shipments:               move.Shipments,
 		PersonallyProcuredMoves: move.PersonallyProcuredMoves,
+		SignedCertification:     signedCertification,
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
 		MovingExpenseDocuments:  movingExpenses,
 	}
@@ -234,7 +251,7 @@ func CalculateRemainingPPMEntitlement(move Move, totalEntitlement unit.Pound) un
 		hhgActualWeight = *move.Shipments[0].NetWeight
 	}
 	var ppmActualWeight unit.Pound
-	if len(move.PersonallyProcuredMoves) > 0 {
+	if len(move.PersonallyProcuredMoves) > 0 && move.PersonallyProcuredMoves[0].NetWeight != nil {
 		ppmActualWeight = unit.Pound(*move.PersonallyProcuredMoves[0].NetWeight)
 	}
 	switch ppmRemainingEntitlement := totalEntitlement - hhgActualWeight; {
@@ -372,10 +389,24 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData)
 	page2.FormattedMovingExpenses, err = FormatMovingExpenses(data.MovingExpenseDocuments)
 	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
 	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
+	page2.ServiceMemberSignature = FormatSignature(data)
 	if err != nil {
 		return page2, err
 	}
 	return page2, nil
+}
+
+//FormatSignature formats a service member's signature for the Shipment Summary Worksheet
+func FormatSignature(data ShipmentSummaryFormData) string {
+	dateLayout := "02 Jan 2006 at 3:04pm"
+	if data.SignedCertification == nil {
+		return "SIGNATURE MISSING"
+	}
+	dt := data.SignedCertification.Date.Format(dateLayout)
+	first := derefStringTypes(data.ServiceMember.FirstName)
+	last := derefStringTypes(data.ServiceMember.LastName)
+
+	return fmt.Sprintf("%s %s electronically signed on %s", first, last, dt)
 }
 
 //FormatWeightAllotment formats the weight allotment for Shipment Summary Worksheet
