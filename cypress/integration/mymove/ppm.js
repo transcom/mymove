@@ -116,6 +116,9 @@ describe('completing the ppm flow', function() {
       .get('button')
       .contains('Submit Payment')
       .click();
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/$/);
+    });
   });
 });
 
