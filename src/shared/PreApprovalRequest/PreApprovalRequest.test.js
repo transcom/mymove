@@ -14,14 +14,15 @@ function shipmentLineItem(status) {
   };
 }
 
-function shipmentLineItem35A(status, actual_amount_cents) {
+function shipmentLineItem35A(status, invoice_id) {
   return {
     id: 'sldkjf',
+    invoice_id: invoice_id,
     tariff400ng_item: { code: '35A', item: 'Third Party Service' },
     location: 'D',
     quantity_1: 167000,
     estimate_amount_cents: 167000,
-    actual_amount_cents: actual_amount_cents,
+    actual_amount_cents: 167000,
     notes: '',
     created_at: '2018-09-24T14:05:38.847Z',
     status: status || 'SUBMITTED',
@@ -134,7 +135,7 @@ describe('PreApprovalRequest tests', () => {
     });
     it('it shows the appropriate number of icons.', () => {
       const icons = wrapper.find('.icon');
-      expect(icons.length).toBe(1);
+      expect(icons.length).toBe(0);
     });
   });
   describe('When on delete is passed in', () => {
