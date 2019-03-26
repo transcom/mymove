@@ -108,10 +108,29 @@ export const DraftMoveSummary = props => {
 };
 
 export const SubmittedPpmMoveSummary = props => {
-  const { ppm, profile } = props;
+  const { ppm } = props;
   return (
     <Fragment>
       <div>
+        <Alert type="success" heading="Congrats - your move is submitted!">
+          Next, wait for approval. Once approved:<br />
+          <ul>
+            <li>
+              Get certified <strong>weight tickets</strong>, both empty &amp; full
+            </li>
+            <li>
+              Save <strong>expense receipts</strong>, including for storgage
+            </li>
+            <li>
+              Read the{' '}
+              <strong>
+                <a>PPM info sheet</a>
+              </strong>{' '}
+              for more info
+            </li>
+          </ul>
+        </Alert>
+
         <div className="shipment_box">
           <div className="shipment_type">
             <img className="move_sm" src={ppmCar} alt="ppm-car" />
@@ -123,11 +142,16 @@ export const SubmittedPpmMoveSummary = props => {
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 <div className="step">
-                  <div className="title">Next Step: Wait for approval</div>
-                  <div
-                  >{`Your shipment is awaiting approval. This can take up to 3 business days. Questions or need help? Contact your local Transportation Office (PPPO) at ${
-                    profile.current_station.name
-                  }.`}</div>
+                  <div className="title">Next Step: Wait for approval &amp; get ready</div>
+                  <div className="next-step">
+                    You'll be notified when your move is approved (up to 3 days). To get ready to move:
+                    <ul>
+                      <li>
+                        Go to <a>weight scales</a> to get empty &amp; full weight tickets.
+                      </li>
+                      <li>Save expense receipts, including for storage.</li>
+                    </ul>
+                  </div>
                 </div>
               </div>
               <div className="usa-width-one-third">
@@ -142,6 +166,9 @@ export const SubmittedPpmMoveSummary = props => {
                 </div>
               </div>
             </div>
+            <button className="usa-button-secondary" onClick={() => console.log('hi')}>
+              Read PPM Info Sheet
+            </button>
             <div className="step-links">
               <FindWeightScales />
             </div>

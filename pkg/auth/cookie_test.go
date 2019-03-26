@@ -220,7 +220,7 @@ func (suite *authSuite) TestMaskedCSRFMiddleware() {
 	req, _ := http.NewRequest("GET", "/", nil)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := MaskedCSRFMiddleware(suite.logger, false, false)(handler)
+	middleware := MaskedCSRFMiddleware(suite.logger, false)(handler)
 	middleware.ServeHTTP(rr, req)
 
 	// We should get a 200 OK
@@ -231,7 +231,7 @@ func (suite *authSuite) TestMaskedCSRFMiddleware() {
 	suite.Equal(1, len(setCookies), "expected cookie to be set")
 }
 
-func (suite *authSuite) TestMaskedCSRFMiddlewareCreatesOneToken() {
+func (suite *authSuite) TestMaskedCSRFMiddlewareCreatesNewToken() {
 	expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
 
 	rr := httptest.NewRecorder()
@@ -247,7 +247,7 @@ func (suite *authSuite) TestMaskedCSRFMiddlewareCreatesOneToken() {
 	req.AddCookie(&cookie)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := MaskedCSRFMiddleware(suite.logger, false, false)(handler)
+	middleware := MaskedCSRFMiddleware(suite.logger, false)(handler)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -256,7 +256,7 @@ func (suite *authSuite) TestMaskedCSRFMiddlewareCreatesOneToken() {
 
 	// No new cookie should be added to the session
 	setCookies := rr.HeaderMap["Set-Cookie"]
-	suite.Equal(0, len(setCookies), "expected no new cookie to be set")
+	suite.Equal(1, len(setCookies), "expected a new cookie to be set")
 }
 
 func (suite *authSuite) TestMiddlewareConstructor() {
