@@ -121,6 +121,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			session.IDToken = ""
 			session.UserID = uuid.Nil
 			auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
+			auth.DeleteCSRFCookies(w)
 			fmt.Fprint(w, logoutURL)
 		} else {
 			// Can't log out of login.gov without a token, redirect and let them re-auth
