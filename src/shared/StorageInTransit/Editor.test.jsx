@@ -42,7 +42,7 @@ describe('given an editor', () => {
     });
 
     it('renders without crashing', () => {
-      expect(wrapper.exists('div')).toBe(true);
+      expect(wrapper.exists('.storage-in-transit-panel-modal')).toBe(true);
     });
 
     it('buttons are disabled', () => {
@@ -67,7 +67,7 @@ describe('given an editor', () => {
 
     it('renders without crashing', () => {
       // eslint-disable-next-line
-      expect(wrapper.exists('div')).toBe(true);
+      expect(wrapper.exists('.storage-in-transit-panel-modal')).toBe(true);
     });
 
     it('buttons are enabled', () => {
