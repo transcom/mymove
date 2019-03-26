@@ -137,7 +137,7 @@ export class PreApprovalRequest extends Component {
                   this.props.onApproval,
                   this.onDelete,
                   row.id,
-                  row.tariff400ng_item.code === '35A' && row.estimate_amount_cents && !row.actual_amount_cents,
+                  row.tariff400ng_item.code === '35A' && row.estimate_amount_cents && !row.invoice_id,
                 )}
             </td>
           </tr>
