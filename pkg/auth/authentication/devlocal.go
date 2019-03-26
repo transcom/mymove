@@ -67,7 +67,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		  <div class="row mb-3">
 			<div class="col-md-8">
 			  <h2 class="mt-4">Select an Existing User</h1>
-			  <p>Showing the-first 25 users:</p>
+			  <p>Showing the first 25 users:</p>
 			  {{range .}}
 				<form method="post" action="/devlocal-auth/login">
 					<p id="{{.ID}}">
