@@ -8,20 +8,21 @@ import './StatusTimeline.css';
 
 export class StatusTimelineContainer extends PureComponent {
   checkIfCompleted(statuses, statusToCheck) {
-    console.log(statusToCheck);
-    console.log(statuses);
     if (!statuses.includes(statusToCheck)) {
       return false;
     }
     return indexOf(statuses, statusToCheck) < statuses.length;
   }
+
   checkIfCurrent(statuses, statusToCheck) {
-    console.log(statusToCheck);
-    console.log(statuses);
     if (!statuses.includes(statusToCheck)) {
       return false;
     }
     return indexOf(statuses, statusToCheck) === statuses.length - 1;
+  }
+
+  determineCompletedAndCurrentProfileStatuses() {
+    return ['PROFILE', 'ORDERS'];
   }
 
   determineCompletedAndCurrentPPMStatuses(ppm) {
@@ -31,8 +32,7 @@ export class StatusTimelineContainer extends PureComponent {
       return markedStatuses;
     }
 
-    markedStatuses.push('APPROVED');
-
+    markedStatuses.push('PPM_APPROVED');
     if (ppm.status === 'APPROVED') {
       const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
       if (moveInProgress) {
@@ -45,6 +45,8 @@ export class StatusTimelineContainer extends PureComponent {
       markedStatuses.push('IN_PROGRESS');
       markedStatuses.push('COMPLETED');
     }
+
+    return markedStatuses;
   }
 
   determineCompletedAndCurrentShipmentStatuses(shipment) {
@@ -100,11 +102,17 @@ export class StatusTimelineContainer extends PureComponent {
   }
 
   render() {
-    const SUBMITTEDPPMSTATUSES = [
+    const PPMSTATUSES = [
       { name: 'Submitted', code: 'SUBMITTED', dates: null },
-      { name: 'Approved', code: 'APPROVED', dates: null },
+      { name: 'Approved', code: 'PPM_APPROVED', dates: null },
       { name: 'In progress', code: 'IN_PROGRESS', dates: null },
       { name: 'Completed', code: 'COMPLETED', dates: null },
+    ];
+    const PROFILESTATUSES = [
+      { name: 'Profile', code: 'PROFILE', dates: null },
+      { name: 'Orders', code: 'ORDERS', dates: null },
+      { name: 'Move Setup', code: 'MOVE_SETUP', dates: null },
+      { name: 'Review', code: 'REVIEW', dates: null },
     ];
     const HHGSTATUSES = [
       { name: 'Scheduled', code: 'SCHEDULED', dates: 'book_date' },
@@ -113,12 +121,24 @@ export class StatusTimelineContainer extends PureComponent {
       { name: 'In transit', code: 'IN_TRANSIT', dates: 'transit' },
       { name: 'Delivered', code: 'DELIVERED', dates: 'delivery' },
     ];
-    const statuses = this.props.ppm ? SUBMITTEDPPMSTATUSES : HHGSTATUSES;
     const statusBlocks = [];
     const formatType = 'condensed';
-    const markedStatuses = this.props.ppm
-      ? this.determineCompletedAndCurrentPPMStatuses(this.props.ppm)
-      : this.determineCompletedAndCurrentShipmentStatuses(this.props.shipment);
+
+    let statuses = HHGSTATUSES;
+    if (this.props.ppm) {
+      statuses = PPMSTATUSES;
+    } else if (this.props.profile) {
+      statuses = PROFILESTATUSES;
+    }
+    let markedStatuses = [];
+    if (this.props.ppm) {
+      markedStatuses = this.determineCompletedAndCurrentPPMStatuses(this.props.ppm);
+    } else if (this.props.profile) {
+      markedStatuses = this.determineCompletedAndCurrentProfileStatuses(this.props.profile);
+    } else {
+      markedStatuses = this.determineCompletedAndCurrentShipmentStatuses(this.props.shipment);
+    }
+
     const createStatusBlocks = status => {
       statusBlocks.push(
         <StatusBlock
@@ -128,6 +148,7 @@ export class StatusTimelineContainer extends PureComponent {
           completed={this.checkIfCompleted(markedStatuses, status.code)}
           current={this.checkIfCurrent(markedStatuses, status.code)}
           shipment={this.props.shipment}
+          code={status.code}
         />,
       );
     };
@@ -146,18 +167,13 @@ export class StatusTimelineContainer extends PureComponent {
 StatusTimelineContainer.propTypes = {
   shipment: PropTypes.object,
   ppm: PropTypes.object,
+  profile: PropTypes.object,
 };
 
 export default StatusTimelineContainer;
 
 const StatusBlock = props => {
-  let cssName = props.name.toLowerCase();
-  // 'approved' is a shared class name that turns font into green
-  // and we want to avoid that
-  if (cssName === 'approved') {
-    cssName = 'ppm-approved';
-  }
-  let classes = ['status_block', cssName];
+  let classes = ['status_block', props.code.toLowerCase()];
   if (props.completed) classes.push('status_completed');
   if (props.current) classes.push('status_current');
 

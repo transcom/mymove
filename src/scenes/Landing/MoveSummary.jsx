@@ -15,7 +15,6 @@ import { selectReimbursement } from 'shared/Entities/modules/ppms';
 
 import './MoveSummary.css';
 import ppmCar from './images/ppm-car.svg';
-import ppmDraft from './images/ppm-draft.png';
 import StatusTimelineContainer from './StatusTimeline';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -71,7 +70,7 @@ export const DraftMoveSummary = props => {
 
           <div className="shipment_box_contents">
             <div>
-              <img className="status_icon" src={ppmDraft} alt="status" />
+              <StatusTimelineContainer profile={profile} />
               <div className="step-contents">
                 <div className="status_box usa-width-two-thirds">
                   <div className="step">
@@ -116,7 +115,7 @@ export const SubmittedPpmMoveSummary = props => {
           </div>
 
           <div className="shipment_box_contents">
-            <StatusTimelineContainer ppm={ppm} shipment={null} />
+            <StatusTimelineContainer ppm={ppm} isDraft={false} shipment={null} />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 <div className="step">
@@ -294,7 +293,7 @@ export const ApprovedMoveSummary = props => {
               </Alert>
             )}
 
-            <StatusTimelineContainer ppm={ppm} shipment={null} />
+            <StatusTimelineContainer ppm={ppm} isDraft={false} shipment={null} />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 {!moveInProgress && (
