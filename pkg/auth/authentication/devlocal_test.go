@@ -121,3 +121,35 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToOffice() {
 
 	suite.Equal(rr.Result().Header.Get("Location"), "http://office.example.com:1234/")
 }
+
+func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToTSP() {
+	t := suite.T()
+
+	appnames := ApplicationTestServername()
+	callbackPort := 1234
+
+	form := url.Values{}
+	form.Add("userType", "tsp")
+
+	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", appnames.MilServername), strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+	req.ParseForm()
+
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), appnames, FakeRSAKey, false, false)
+
+	rr := httptest.NewRecorder()
+	handler.ServeHTTP(rr, req)
+
+	suite.Equal(http.StatusSeeOther, rr.Code, "handler returned wrong status code")
+	if status := rr.Code; status != http.StatusSeeOther {
+		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusSeeOther)
+	}
+
+	cookies := rr.Result().Cookies()
+	if _, err := getCookie("tsp_session_token", cookies); err != nil {
+		t.Error("could not find session token in response")
+	}
+
+	suite.Equal(rr.Result().Header.Get("Location"), "http://tsp.example.com:1234/")
+}
