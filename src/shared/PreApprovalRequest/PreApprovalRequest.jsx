@@ -28,23 +28,31 @@ export function renderActionIcons(status, onEdit, onApproval, onDelete, shipment
   const isEditable = status === 'SUBMITTED' || (status === 'APPROVED' && canEdit35A);
   return (
     <Fragment>
-      {onApproval &&
-        status === 'SUBMITTED' && (
-          <span data-test="approve-request" onClick={() => onApproval(shipmentLineItemId)}>
-            <FontAwesomeIcon className="icon actionable" icon={faCheck} />
-          </span>
-        )}
-      {onEdit &&
-        isEditable && (
-          <span data-test="edit-request" onClick={onEdit}>
-            <FontAwesomeIcon className="icon actionable" icon={faPencil} />
-          </span>
-        )}
-      {onDelete && (
-        <span data-test="delete-request" onClick={onDelete}>
-          <FontAwesomeIcon className="icon actionable" icon={faTimes} />
-        </span>
-      )}
+      <div className="pre-approval-icon-container">
+        <div className="pre-approval-icon">
+          {onApproval &&
+            status === 'SUBMITTED' && (
+              <span data-test="approve-request" onClick={() => onApproval(shipmentLineItemId)}>
+                <FontAwesomeIcon className="icon actionable" icon={faCheck} />
+              </span>
+            )}
+        </div>
+        <div className="pre-approval-icon">
+          {onEdit &&
+            isEditable && (
+              <span data-test="edit-request" onClick={onEdit}>
+                <FontAwesomeIcon className="icon actionable" icon={faPencil} />
+              </span>
+            )}
+        </div>
+        <div className="pre-approval-icon">
+          {onDelete && (
+            <span data-test="delete-request" onClick={onDelete}>
+              <FontAwesomeIcon className="icon actionable" icon={faTimes} />
+            </span>
+          )}
+        </div>
+      </div>
     </Fragment>
   );
 }
