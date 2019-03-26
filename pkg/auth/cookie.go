@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/csrf"
-	"github.com/honeycombio/beeline-go"
+	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
@@ -45,6 +45,16 @@ func GetExpiryTimeFromMinutes(min int64) time.Time {
 	return time.Now().Add(time.Minute * time.Duration(min))
 }
 
+// GetCookie returns a cookie from a request
+func GetCookie(name string, r *http.Request) (*http.Cookie, error) {
+	for _, cookie := range r.Cookies() {
+		if cookie.Name == name {
+			return cookie, nil
+		}
+	}
+	return nil, errors.Errorf("Unable to find cookie: %s", name)
+}
+
 // SessionClaims wraps StandardClaims with some Session info
 type SessionClaims struct {
 	jwt.StandardClaims
@@ -72,7 +82,7 @@ func signTokenStringWithUserInfo(expiry time.Time, session *Session, secret stri
 	return ss, err
 }
 
-func sessionClaimsFromRequest(logger *zap.Logger, secret string, appName Application, r *http.Request) (claims *SessionClaims, ok bool) {
+func sessionClaimsFromRequest(logger Logger, secret string, appName Application, r *http.Request) (claims *SessionClaims, ok bool) {
 	// Name the cookie with the app name
 	cookieName := fmt.Sprintf("%s_%s", string(appName), UserSessionCookieName)
 	cookie, err := r.Cookie(cookieName)
@@ -101,7 +111,7 @@ func sessionClaimsFromRequest(logger *zap.Logger, secret string, appName Applica
 }
 
 // WriteMaskedCSRFCookie update the masked_gorilla_csrf cookie value
-func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, noSessionTimeout bool, logger *zap.Logger, useSecureCookie bool) {
+func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, noSessionTimeout bool, logger Logger, useSecureCookie bool) {
 
 	expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
 	maxAge := sessionExpiryInSeconds
@@ -118,8 +128,8 @@ func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, noSessionTim
 		Path:     "/",
 		Expires:  expiry,
 		MaxAge:   maxAge,
-		HttpOnly: false, // must be false to be read by client for use in POST/PUT/PATCH/DELETE requests
-		SameSite: http.SameSiteStrictMode,
+		HttpOnly: false,                // must be false to be read by client for use in POST/PUT/PATCH/DELETE requests
+		SameSite: http.SameSiteLaxMode, // Using lax mode for now since strict is causing issues with Firefox/Safari
 		Secure:   useSecureCookie,
 	}
 
@@ -127,10 +137,13 @@ func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, noSessionTim
 }
 
 // MaskedCSRFMiddleware handles setting the CSRF Token cookie
-func MaskedCSRFMiddleware(logger *zap.Logger, noSessionTimeout bool, useSecureCookie bool) func(next http.Handler) http.Handler {
+func MaskedCSRFMiddleware(logger Logger, noSessionTimeout bool, useSecureCookie bool) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			WriteMaskedCSRFCookie(w, csrf.Token(r), noSessionTimeout, logger, useSecureCookie)
+			// Write a CSRF cookie if none exists
+			if _, err := GetCookie(MaskedGorillaCSRFToken, r); err != nil {
+				WriteMaskedCSRFCookie(w, csrf.Token(r), noSessionTimeout, logger, useSecureCookie)
+			}
 			next.ServeHTTP(w, r)
 		}
 		return http.HandlerFunc(mw)
@@ -138,7 +151,7 @@ func MaskedCSRFMiddleware(logger *zap.Logger, noSessionTimeout bool, useSecureCo
 }
 
 // WriteSessionCookie update the cookie for the session
-func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, noSessionTimeout bool, logger *zap.Logger, useSecureCookie bool) {
+func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, noSessionTimeout bool, logger Logger, useSecureCookie bool) {
 
 	// Delete the cookie
 	cookieName := fmt.Sprintf("%s_%s", string(session.ApplicationName), UserSessionCookieName)
@@ -148,7 +161,7 @@ func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, 
 		Path:     "/",
 		Expires:  time.Unix(0, 0),
 		MaxAge:   -1,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteLaxMode, // Using 'strict' breaks the use of the login.gov redirect
 		Secure:   useSecureCookie,
 	}
 
@@ -198,7 +211,7 @@ func ApplicationName(hostname, milHostname, officeHostname, tspHostname string) 
 }
 
 // SessionCookieMiddleware handle serializing and de-serializing the session between the user_session cookie and the request context
-func SessionCookieMiddleware(logger *zap.Logger, secret string, noSessionTimeout bool, milHostname, officeHostname, tspHostname string, useSecureCookie bool) func(next http.Handler) http.Handler {
+func SessionCookieMiddleware(logger Logger, secret string, noSessionTimeout bool, milHostname, officeHostname, tspHostname string, useSecureCookie bool) func(next http.Handler) http.Handler {
 	logger.Info("Creating session", zap.String("milHost", milHostname), zap.String("officeHost", officeHostname), zap.String("tspHost", tspHostname))
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {

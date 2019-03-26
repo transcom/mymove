@@ -1,10 +1,13 @@
 package invoice
 
 import (
-	"github.com/transcom/mymove/pkg/testingsuite"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/gobuffalo/pop"
+
+	"github.com/transcom/mymove/pkg/testingsuite"
 
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -12,7 +15,8 @@ import (
 
 type GexSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
+	db     *pop.Connection
+	logger Logger
 }
 
 func (suite *GexSuite) SetupTest() {
@@ -21,12 +25,9 @@ func (suite *GexSuite) SetupTest() {
 
 func TestGexSuite(t *testing.T) {
 
-	// Use a no-op logger during testing
-	logger := zap.NewNop()
-
 	hs := &GexSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
-		logger:       logger,
+		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, hs)
 }

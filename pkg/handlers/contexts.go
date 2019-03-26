@@ -21,7 +21,7 @@ import (
 // HandlerContext provides access to all the contextual references needed by individual handlers
 type HandlerContext interface {
 	DB() *pop.Connection
-	Logger() *zap.Logger
+	Logger() Logger
 	HoneyZapLogger() *hnyzap.Logger
 	FileStorer() storage.FileStorer
 	SetFileStorer(storer storage.FileStorer)
@@ -53,7 +53,7 @@ type HandlerContext interface {
 // A single handlerContext is passed to each handler
 type handlerContext struct {
 	db                    *pop.Connection
-	logger                *zap.Logger
+	logger                Logger
 	cookieSecret          string
 	noSessionTimeout      bool
 	planner               route.Planner
@@ -68,7 +68,7 @@ type handlerContext struct {
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
-func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
+func NewHandlerContext(db *pop.Connection, logger Logger) HandlerContext {
 	return &handlerContext{
 		db:     db,
 		logger: logger,
@@ -81,13 +81,16 @@ func (hctx *handlerContext) DB() *pop.Connection {
 }
 
 // Logger returns the logger to use in this context
-func (hctx *handlerContext) Logger() *zap.Logger {
+func (hctx *handlerContext) Logger() Logger {
 	return hctx.logger
 }
 
 // HoneyZapLogger returns the logger capable of writing to Honeycomb to use in this context
 func (hctx *handlerContext) HoneyZapLogger() *hnyzap.Logger {
-	return &hnyzap.Logger{Logger: hctx.logger}
+	if zapLogger, ok := hctx.logger.(*zap.Logger); ok {
+		return &hnyzap.Logger{Logger: zapLogger}
+	}
+	return nil
 }
 
 // RespondAndTraceError uses Honeycomb to trace errors and then passes response to the standard ResponseForError

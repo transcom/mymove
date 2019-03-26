@@ -12,7 +12,7 @@ describe('InvoicePanel tests', () => {
       <InvoicePanel
         unbilledShipmentLineItems={shipmentLineItems}
         lineItemsTotal={0}
-        shipmentStatus={'DELIVERED'}
+        shipmentStatus="DELIVERED"
         createInvoiceStatus={{
           error: null,
           isLoading: false,
@@ -49,7 +49,7 @@ describe('InvoicePanel tests', () => {
       <InvoicePanel
         unbilledShipmentLineItems={shipmentLineItems}
         lineItemsTotal={0}
-        shipmentStatus={'DELIVERED'}
+        shipmentStatus="DELIVERED"
         isShipmentDelivered={true}
         createInvoiceStatus={{
           error: null,
@@ -90,7 +90,7 @@ describe('InvoicePanel tests', () => {
       <InvoicePanel
         unbilledShipmentLineItems={shipmentLineItems}
         lineItemsTotal={0}
-        shipmentStatus={'DELIVERED'}
+        shipmentStatus="DELIVERED"
         isShipmentDelivered={true}
         createInvoiceStatus={{
           error: null,

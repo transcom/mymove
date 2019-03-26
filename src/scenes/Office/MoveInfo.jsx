@@ -29,8 +29,11 @@ import PremoveSurvey from './PremoveSurvey';
 import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
+import StorageInTransitPanel from 'shared/StorageInTransit/StorageInTransitPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
-import ComboButton from 'shared/ComboButton';
+import ComboButton from 'shared/ComboButton/index.jsx';
+import ToolTip from 'shared/ToolTip';
+import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';
 
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
@@ -99,6 +102,7 @@ const PPMTabContent = props => {
 
 const HHGTabContent = props => {
   let shipmentStatus = '';
+  let shipmentId = '';
   const {
     allowHhgInvoicePayment,
     canApprovePaymentInvoice,
@@ -106,9 +110,11 @@ const HHGTabContent = props => {
     serviceAgents,
     shipment,
     updatePublicShipment,
+    showSitPanel,
   } = props;
   if (shipment) {
     shipmentStatus = shipment.status;
+    shipmentId = shipment.id;
   }
   return (
     <div className="office-tab">
@@ -124,6 +130,7 @@ const HHGTabContent = props => {
         transportationServiceProviderId={shipment.transportation_service_provider_id}
       />
       <PreApprovalPanel shipmentId={shipment.id} />
+      {showSitPanel && <StorageInTransitPanel shipmentId={shipmentId} moveId={moveId} />}
       <InvoicePanel
         shipmentId={shipment.id}
         shipmentStatus={shipmentStatus}
@@ -266,6 +273,7 @@ class MoveInfo extends Component {
     const hhgDelivered = shipmentStatus === 'DELIVERED';
     const hhgCompleted = shipmentStatus === 'COMPLETED';
     const moveApproved = moveStatus === 'APPROVED';
+    const hhgCantBeCanceled = includes(['IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
 
     const moveDate = isPPM ? ppm.original_move_date : shipment && shipment.requested_pickup_date;
     if (this.state.redirectToHome) {
@@ -369,6 +377,7 @@ class MoveInfo extends Component {
                       shipment={this.props.shipment}
                       shipmentStatus={this.props.shipmentStatus}
                       updatePublicShipment={this.props.updatePublicShipment}
+                      showSitPanel={this.props.context.flags.sitPanel}
                     />
                   )}
                 </PrivateRoute>
@@ -383,20 +392,37 @@ class MoveInfo extends Component {
                 </Alert>
               )}
               <div>
-                {moveInfoComboButton && (
-                  <ComboButton
-                    items={[
-                      { value: 'Approve Basics', disabled: true },
-                      { value: 'Approve HHG', disabled: true },
-                      { value: 'Approve PPM', disabled: true },
-                    ]}
-                    buttonText={'Approve'}
-                    disabled={!ordersComplete}
-                    toolTipText={
-                      'Some information about the move is missing or contains errors. Please fix these problems before approving.'
-                    }
-                  />
-                )}
+                <ToolTip
+                  disabled={ordersComplete}
+                  textStyle="tooltiptext-large"
+                  toolTipText="Some information about the move is missing or contains errors. Please fix these problems before approving."
+                >
+                  {moveInfoComboButton && (
+                    <ComboButton buttonText="Approve" disabled={!ordersComplete}>
+                      <DropDown>
+                        <DropDownItem
+                          value="Approve Basics"
+                          disabled={moveApproved || !ordersComplete}
+                          onClick={this.approveBasics}
+                        />
+                        {(isPPM || isHHGPPM) && (
+                          <DropDownItem
+                            disabled={ppmApproved || !moveApproved || !ordersComplete}
+                            onClick={this.approvePPM}
+                            value="Approve PPM"
+                          />
+                        )}
+                        {(isHHG || isHHGPPM) && (
+                          <DropDownItem
+                            value="Approve HHG"
+                            onClick={this.approveShipment}
+                            disabled={!hhgAccepted || hhgApproved || hhgCompleted || !moveApproved || !ordersComplete}
+                          />
+                        )}
+                      </DropDown>
+                    </ComboButton>
+                  )}
+                </ToolTip>
               </div>
               <button
                 className={`${moveApproved ? 'btn__approve--green' : ''}`}
@@ -449,6 +475,7 @@ class MoveInfo extends Component {
                 reasonPrompt="Why is the move being canceled?"
                 warningPrompt="Are you sure you want to cancel the entire move?"
                 onConfirm={this.cancelMoveAndRedirect}
+                buttonDisabled={hhgCantBeCanceled}
               />
               {/* Disabling until features implemented
               <button>Troubleshoot</button>
@@ -503,7 +530,10 @@ MoveInfo.defaultProps = {
 MoveInfo.propTypes = {
   loadMove: PropTypes.func.isRequired,
   context: PropTypes.shape({
-    flags: PropTypes.shape({ documentViewer: PropTypes.bool }).isRequired,
+    flags: PropTypes.shape({
+      documentViewer: PropTypes.bool,
+      sitPanel: PropTypes.bool,
+    }).isRequired,
   }).isRequired,
 };
 

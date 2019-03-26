@@ -9,7 +9,6 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/dates"
@@ -49,7 +48,7 @@ var nextValidMoveDateMinusFive = dates.NextValidMoveDate(nextValidMoveDate.AddDa
 var nextVAlidMoveDateMinusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
 
 // Run does that data load thing
-func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger *zap.Logger, storer *storage.Memory) {
+func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger Logger, storer *storage.Memory) {
 	/*
 	 * Basic user with tsp access
 	 */
@@ -2189,6 +2188,49 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	hhg35 := offer35.Shipment
 	hhg35.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg35.Move)
+
+	/*
+	 * Service member with a ppm ready to request payment
+	 */
+	email = "ppm@requestingpay.ment"
+	uuidStr = "8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	ppm5 := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("ff1f56c0-544e-4109-8168-f91ebcbbb878"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("RequestingPay"),
+			Edipi:         models.StringPointer("6737033988"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		// These values should be populated for an approved move
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("62341"),
+			OrdersTypeDetail:    &typeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("946a5d40-0636-418f-b457-474915fb0149"),
+			Locator: "REQPAY",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate: &pastTime,
+		},
+		Uploader: loader,
+	})
+	ppm5.Move.Submit()
+	ppm5.Move.Approve()
+	// This is the same PPM model as ppm5, but this is the one that will be saved by SaveMoveDependencies
+	ppm5.Move.PersonallyProcuredMoves[0].Submit()
+	ppm5.Move.PersonallyProcuredMoves[0].Approve()
+	models.SaveMoveDependencies(db, &ppm5.Move)
 }
 
 // MakeHhgWithPpm creates an HHG user who has added a PPM
@@ -2549,7 +2591,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 }
 
 // MakeHhgWithGBL creates a scenario for an approved shipment with a GBL generated
-func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logger, storer *storage.Memory) models.Shipment {
+func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger Logger, storer *storage.Memory) models.Shipment {
 	/*
 	 * Service member with uploaded orders and an approved shipment to be accepted, able to generate GBL
 	 */
@@ -2667,7 +2709,7 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger *zap.Logg
 	return offer.Shipment
 }
 
-func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger *zap.Logger, storer *storage.Memory) models.Shipment {
+func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Logger, storer *storage.Memory) models.Shipment {
 	/*
 	 * Service member with uploaded orders and a delivered shipment, able to generate GBL
 	 */

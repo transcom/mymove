@@ -3,8 +3,6 @@ package handlers
 import (
 	"net/http"
 
-	"go.uber.org/zap"
-
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
@@ -17,13 +15,13 @@ type CookieUpdateResponder struct {
 	session          *auth.Session
 	cookieSecret     string
 	noSessionTimeout bool
-	logger           *zap.Logger
+	logger           Logger
 	Responder        middleware.Responder
 	useSecureCookie  bool
 }
 
 // NewCookieUpdateResponder constructs a wrapper for the responder which will update cookies
-func NewCookieUpdateResponder(request *http.Request, secret string, noSessionTimeout bool, logger *zap.Logger, responder middleware.Responder, useSecureCookie bool) middleware.Responder {
+func NewCookieUpdateResponder(request *http.Request, secret string, noSessionTimeout bool, logger Logger, responder middleware.Responder, useSecureCookie bool) middleware.Responder {
 	return &CookieUpdateResponder{
 		session:          auth.SessionFromRequestContext(request),
 		cookieSecret:     secret,

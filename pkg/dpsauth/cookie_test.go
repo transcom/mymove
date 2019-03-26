@@ -14,7 +14,7 @@ import (
 
 type dpsAuthSuite struct {
 	testingsuite.BaseTestSuite
-	logger *zap.Logger
+	logger Logger
 }
 
 func (suite *dpsAuthSuite) TestCookie() {

@@ -24,6 +24,15 @@ describe('PreApprovalTable tests', () => {
       created_at: '2018-09-24T14:05:38.847Z',
       status: 'SUBMITTED',
     },
+    {
+      id: '3',
+      tariff400ng_item: { code: '35A', item: 'Third Party Service' },
+      location: 'D',
+      base_quantity: 100,
+      notes: 'sample third party service',
+      created_at: '2018-09-24T14:05:38.847Z',
+      status: 'SUBMITTED',
+    },
   ];
   describe('When shipmentLineItems exist', () => {
     it('renders without crashing', () => {
@@ -36,7 +45,7 @@ describe('PreApprovalTable tests', () => {
           onApproval={onEdit}
         />,
       );
-      expect(wrapper.find('PreApprovalRequest').length).toEqual(2);
+      expect(wrapper.find('PreApprovalRequest').length).toEqual(3);
     });
   });
   describe('When no shipmentLineItems exist', () => {
@@ -69,7 +78,7 @@ describe('PreApprovalTable tests', () => {
       );
       wrapper.setState({ actionRequestId: shipmentLineItems[0].id });
       const requests = wrapper.find('PreApprovalRequest');
-      expect(requests.length).toEqual(2);
+      expect(requests.length).toEqual(3);
       requests.forEach(req => {
         if (req.prop('shipmentLineItem').id === shipmentLineItems[0].id) {
           expect(req.prop('isActionable')).toBe(true);

@@ -264,22 +264,29 @@ function serviceMemberEditsDates() {
     .contains('Edit')
     .click();
 
-  cy.contains('Pick a moving date');
-  cy.get('.DayPicker-Body').then($body => {
-    if ($body.find('.DayPicker-Day--transit[aria-disabled=false]').length === 0) {
-      cy.get('.DayPicker-NavButton--next').click();
-    }
-  });
-  cy
-    .get('.DayPicker-Day--transit[aria-disabled=false]') // pick the first transit day that is selectable
-    .first()
-    .click()
-    .should('have.class', 'DayPicker-Day--pickup')
-    .invoke('attr', 'aria-label')
-    .as('dateLabel');
+  // Wait for valid move dates to be loaded from the server
+  cy.waitForLoadingScreen();
 
-  cy.contains('Save').click();
-  checkLoadingDate();
+  cy.contains('Pick a moving date');
+  cy
+    .get('.DayPicker-Body')
+    .then($body => {
+      if ($body.find('.DayPicker-Day--transit[aria-disabled=false]').length === 0) {
+        cy.get('.DayPicker-NavButton--next').click();
+      }
+    })
+    .then(() => {
+      cy
+        .get('.DayPicker-Day--transit[aria-disabled=false]') // pick the first transit day that is selectable
+        .first()
+        .click()
+        .should('have.class', 'DayPicker-Day--pickup')
+        .invoke('attr', 'aria-label')
+        .as('dateLabel');
+
+      cy.contains('Save').click();
+      checkLoadingDate();
+    });
 }
 
 function serviceMemberCancelsDateEdit() {

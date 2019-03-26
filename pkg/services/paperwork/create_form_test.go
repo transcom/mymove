@@ -7,7 +7,6 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/mocks"
 	"github.com/transcom/mymove/pkg/models"
@@ -20,7 +19,6 @@ import (
 
 type CreateFormSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
 }
 
 func (suite *CreateFormSuite) SetupTest() {
@@ -28,12 +26,9 @@ func (suite *CreateFormSuite) SetupTest() {
 }
 
 func TestCreateFormSuite(t *testing.T) {
-	// Use a no-op logger during testing
-	logger := zap.NewNop()
 
 	hs := &CreateFormSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
-		logger:       logger,
 	}
 	suite.Run(t, hs)
 }

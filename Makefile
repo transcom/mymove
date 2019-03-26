@@ -175,11 +175,17 @@ get_goimports: go_deps .get_goimports.stamp
 	go get -u golang.org/x/tools/cmd/goimports
 	touch .get_goimports.stamp
 
+.PHONY: download_rds_certs
+download_rds_certs: .download_rds_certs.stamp
+.download_rds_certs.stamp:
+	curl -o bin/rds-combined-ca-bundle.pem https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+	touch .download_rds_certs.stamp
+
 .PHONY: server_deps
-server_deps: check_hosts go_deps build_chamber build_soda build_callgraph get_goimports .server_deps.stamp
+server_deps: check_hosts go_deps build_chamber build_soda build_callgraph get_goimports download_rds_certs .server_deps.stamp
 .server_deps.stamp:
 	# Unfortunately, dep ensure blows away ./vendor every time so these builds always take a while
-	go install ./vendor/github.com/golang/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
+	go install ./vendor/golang.org/x/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec ./vendor/github.com/securego/gosec/cmd/gosec
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gin ./vendor/github.com/codegangsta/gin
 	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
@@ -267,12 +273,13 @@ webserver_test: server_generate build_chamber
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
-	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 \
+	TEST_ACC_HONEYCOMB=0 \
+	TEST_ACC_CWD=$(PWD) \
 	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver)
 else
 ifndef CIRCLECI
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
-	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 \
+	TEST_ACC_HONEYCOMB=0 \
 	TEST_ACC_CWD=$(PWD) \
 	DISABLE_AWS_VAULT_WRAPPER=1 \
 	aws-vault exec $(AWS_PROFILE) -- \
@@ -280,7 +287,7 @@ ifndef CIRCLECI
 	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver)
 else
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
-	TEST_ACC_DATABASE=0 TEST_ACC_HONEYCOMB=0 \
+	TEST_ACC_HONEYCOMB=0 \
 	TEST_ACC_CWD=$(PWD) \
 	bin/chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
 	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver)

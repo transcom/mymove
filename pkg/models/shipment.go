@@ -687,12 +687,45 @@ func upsertItemCode35ADependency(db *pop.Connection, baseParams *BaseShipmentLin
 	shipmentLineItem.EstimateAmountCents = additionalParams.EstimateAmountCents
 	shipmentLineItem.ActualAmountCents = additionalParams.ActualAmountCents
 
-	// ToDo: Another story to calculate base quantity
-	// if Quantity1 is nil then set it to 0
-	if baseParams.Quantity1 == nil {
+	if shipmentLineItem.ActualAmountCents != nil {
+		if *shipmentLineItem.ActualAmountCents <= *shipmentLineItem.EstimateAmountCents {
+			shipmentLineItem.Quantity1 = unit.BaseQuantityFromCents(*shipmentLineItem.ActualAmountCents)
+		} else {
+			shipmentLineItem.Quantity1 = unit.BaseQuantityFromCents(*shipmentLineItem.EstimateAmountCents)
+		}
+	} else {
+		// If ActualAmountCents is unset, set base quantity to 0.
 		quantity1 := unit.BaseQuantityFromInt(0)
 		shipmentLineItem.Quantity1 = quantity1
 	}
+	return responseVErrors, responseError
+}
+
+// is226AItem determines whether the shipment line item is a new (robust) 226A item.
+func is226AItem(itemCode string, additionalParams *AdditionalShipmentLineItemParams) bool {
+	isRobustItem := additionalParams.Description != nil || additionalParams.Reason != nil || additionalParams.ActualAmountCents != nil
+	if itemCode == "226A" && isRobustItem {
+		return true
+	}
+	return false
+}
+
+// upsertItemCode226ADependency specifically upserts item code 226A for shipmentLineItem passed in
+func upsertItemCode226ADependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	// Required to create 226A line item
+	// Description, Reason and EstimateAmounCents
+	if additionalParams.Description == nil || additionalParams.Reason == nil || additionalParams.ActualAmountCents == nil {
+		responseError = errors.New("Must have Description, Reason and ActualAmountCents params")
+		return responseVErrors, responseError
+	}
+
+	shipmentLineItem.Description = additionalParams.Description
+	shipmentLineItem.Reason = additionalParams.Reason
+	shipmentLineItem.ActualAmountCents = additionalParams.ActualAmountCents
+	shipmentLineItem.Quantity1 = unit.BaseQuantityFromCents(*shipmentLineItem.ActualAmountCents)
 
 	return responseVErrors, responseError
 }
@@ -709,6 +742,8 @@ func upsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineIt
 		responseVErrors, responseError = upsertItemCode105Dependency(db, baseParams, additionalParams, shipmentLineItem)
 	} else if is35AItem(itemCode, additionalParams) {
 		responseVErrors, responseError = upsertItemCode35ADependency(db, baseParams, additionalParams, shipmentLineItem)
+	} else if is226AItem(itemCode, additionalParams) {
+		responseVErrors, responseError = upsertItemCode226ADependency(db, baseParams, additionalParams, shipmentLineItem)
 	} else if baseParams.Quantity1 == nil {
 		// General pre-approval request
 		// Check if base quantity is filled out
@@ -967,12 +1002,18 @@ func AcceptShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.U
 	// by default we should use the address of duty station when a TSP accepts shipment unless actual delivery
 	// shipment address is available at the time
 	destAddOnAcceptance := shipment.Move.Orders.NewDutyStation.Address
-	if shipment.DeliveryAddress != nil {
+	if shipment.HasDeliveryAddress && shipment.DeliveryAddress != nil {
 		destAddOnAcceptance = *shipment.DeliveryAddress
 	}
 
+	// setting id to nil to force a new Address in the db
+	destAddOnAcceptance.ID = uuid.Nil
 	shipment.DestinationAddressOnAcceptance = &destAddOnAcceptance
-	shipment.DestinationAddressOnAcceptanceID = &destAddOnAcceptance.ID
+
+	_, err = SaveDestinationAddress(db, shipment)
+	if err != nil {
+		return shipment, nil, nil, err
+	}
 
 	shipmentOffer, err := FetchShipmentOfferByTSP(db, tspID, shipmentID)
 	if err != nil {
@@ -991,6 +1032,17 @@ func AcceptShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.U
 	}
 
 	return saveShipmentAndOffer(db, shipment, shipmentOffer)
+}
+
+// SaveDestinationAddress saves a DestinationAddressOnAcceptance
+func SaveDestinationAddress(db *pop.Connection, shipment *Shipment) (*validate.Errors, error) {
+	verrs, err := db.ValidateAndSave(shipment.DestinationAddressOnAcceptance)
+	if verrs.HasAny() || err != nil {
+		saveError := errors.Wrap(err, "Error saving shipment")
+		return verrs, saveError
+	}
+	shipment.DestinationAddressOnAcceptanceID = &shipment.DestinationAddressOnAcceptance.ID
+	return verrs, nil
 }
 
 // SaveShipmentAndAddresses saves a Shipment and its Addresses atomically.

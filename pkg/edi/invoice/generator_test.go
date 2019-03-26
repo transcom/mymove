@@ -46,7 +46,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 
 			invoiceModel := helperShipmentInvoice(suite, shipment)
 
-			generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, suite.icnSequencer, clock.NewMock())
+			generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, suite.icnSequencer, clock.NewMock(), suite.logger)
 
 			suite.NoError(err)
 			if suite.NoError(err) {
@@ -61,7 +61,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 	suite.T().Run("usageIndicator='T'", func(t *testing.T) {
 		invoiceModel := helperShipmentInvoice(suite, shipment)
 
-		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, suite.icnSequencer, clock.NewMock())
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, suite.icnSequencer, clock.NewMock(), suite.logger)
 
 		suite.NoError(err)
 		suite.Equal("T", generatedTransactions.ISA.UsageIndicator)
@@ -70,7 +70,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 	suite.T().Run("usageIndicator='P'", func(t *testing.T) {
 		invoiceModel := helperShipmentInvoice(suite, shipment)
 
-		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), true, suite.icnSequencer, clock.NewMock())
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), true, suite.icnSequencer, clock.NewMock(), suite.logger)
 
 		suite.NoError(err)
 		suite.Equal("P", generatedTransactions.ISA.UsageIndicator)
@@ -92,7 +92,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 	suite.T().Run(usageIndicator, func(t *testing.T) {
 		invoiceModel := helperShipmentInvoice(suite, shipment)
 
-		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), sendProdInvoice, suite.icnSequencer, clock.NewMock())
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), sendProdInvoice, suite.icnSequencer, clock.NewMock(), suite.logger)
 
 		suite.NoError(err)
 		suite.Equal(expectedUsageIndicator, generatedTransactions.ISA.UsageIndicator)
@@ -103,7 +103,7 @@ func (suite *InvoiceSuite) TestGenerate858C() {
 		// in the EDI segments; we have other tests in the create invoice service that check the specific format.
 		invoiceModel := helperShipmentInvoice(suite, shipment)
 
-		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, suite.icnSequencer, clock.NewMock())
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, suite.icnSequencer, clock.NewMock(), suite.logger)
 		suite.NoError(err)
 
 		// Find the N9 segment we're interested in.
@@ -140,7 +140,7 @@ func (suite *InvoiceSuite) TestEDIString() {
 
 		invoiceModel := helperShipmentInvoice(suite, shipment)
 
-		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, suite.icnSequencer, clock.NewMock())
+		generatedTransactions, err := ediinvoice.Generate858C(shipment, invoiceModel, suite.DB(), false, suite.icnSequencer, clock.NewMock(), suite.logger)
 		suite.NoError(err, "Failed to generate 858C invoice")
 		actualEDIString, err := generatedTransactions.EDIString()
 		suite.NoError(err, "Failed to get invoice 858C as EDI string")
@@ -289,7 +289,7 @@ func helperLoadExpectedEDI(suite *InvoiceSuite, name string) string {
 
 type InvoiceSuite struct {
 	testingsuite.PopTestSuite
-	logger       *zap.Logger
+	logger       ediinvoice.Logger
 	Viper        *viper.Viper
 	icnSequencer sequence.Sequencer
 }
@@ -348,7 +348,7 @@ func (suite *InvoiceSuite) TestMakeEDISegments() {
 			suite.Equal("SS", hlSegment.HierarchicalLevelCode)
 
 			// Test L0 Segment
-			l0Segment := ediinvoice.MakeL0Segment(lineItem, 20.0000)
+			l0Segment := ediinvoice.MakeL0Segment(lineItem, 20.0000, suite.logger)
 			suite.Equal(1, l0Segment.LadingLineItemNumber)
 
 			if l0Segment.BilledRatedAsQuantity != 0 {

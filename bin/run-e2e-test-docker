@@ -29,6 +29,11 @@ docker system info >> /dev/null
 # Begin setup
 make e2e_clean client_build db_e2e_init_docker server_build_linux
 
+# Download RDS Certificates
+# Dockerfile requires them even though not used locally.
+# Might as well download them so we don't have to split Dockerfile
+make download_rds_certs
+
 # Build the docker container
 docker build --tag e2e:latest .
 
@@ -44,6 +49,8 @@ $DOCKER_RUN \
   -e DOD_CA_PACKAGE="/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b" \
   -e DPS_AUTH_COOKIE_SECRET_KEY \
   -e DPS_COOKIE_EXPIRES_IN_MINUTES \
+  -e EIA_KEY \
+  -e EIA_URL \
   -e ENV="test" \
   -e HERE_MAPS_APP_CODE \
   -e HERE_MAPS_APP_ID \

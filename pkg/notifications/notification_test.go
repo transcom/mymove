@@ -14,7 +14,7 @@ import (
 
 type NotificationSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
+	logger Logger
 }
 
 type testNotification struct {

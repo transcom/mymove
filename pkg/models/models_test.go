@@ -59,7 +59,7 @@ func (suite *ModelSuite) noValidationErrors(verrs *validate.Errors, err error) b
 		}
 	}
 
-	return !suite.NoError(err) && noVerr
+	return suite.NoError(err) && noVerr
 }
 
 func TestModelSuite(t *testing.T) {

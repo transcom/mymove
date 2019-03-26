@@ -10,7 +10,7 @@ import (
 type StubNotificationSender NotificationSendingContext
 
 // NewStubNotificationSender returns a new StubNotificationSender
-func NewStubNotificationSender(domain string, logger *zap.Logger) StubNotificationSender {
+func NewStubNotificationSender(domain string, logger Logger) StubNotificationSender {
 	return StubNotificationSender{
 		domain: domain,
 		logger: logger,

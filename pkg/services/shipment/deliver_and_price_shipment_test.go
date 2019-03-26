@@ -63,7 +63,7 @@ func (suite *DeliverPriceShipmentSuite) TestDeliverPriceShipmentCall() {
 
 type DeliverPriceShipmentSuite struct {
 	testingsuite.PopTestSuite
-	logger *zap.Logger
+	logger Logger
 }
 
 func (suite *DeliverPriceShipmentSuite) SetupTest() {

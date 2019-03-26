@@ -196,12 +196,11 @@ func (suite *ModelSuite) TestAcceptShipmentForTSP() {
 	suite.Equal(ShipmentStatusACCEPTED, newShipment.Status, "expected Accepted")
 	suite.True(*newShipmentOffer.Accepted)
 	suite.Nil(newShipmentOffer.RejectionReason)
-	suite.Equal(shipment.Move.Orders.NewDutyStation.Address.ID, newShipment.DestinationAddressOnAcceptance.ID)
+	suite.NotEqual(shipment.Move.Orders.NewDutyStation.Address.ID, newShipment.DestinationAddressOnAcceptance.ID)
+	suite.Equal(shipment.Move.Orders.NewDutyStation.Address.City, newShipment.DestinationAddressOnAcceptance.City)
 }
 
-// TestAcceptShipmentForTSPWithDeliveryAddress tests that delivery address is used for a shipment when TSP accepts
-// a offer and delivery address is available instead of duty station
-func (suite *ModelSuite) TestAcceptShipmentForTSPWithDeliveryAddress() {
+func createAndAcceptShipmentWithDeliveryAddress(suite *ModelSuite, hasDeliveryAddress bool) (Shipment, Shipment, error) {
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
@@ -223,15 +222,33 @@ func (suite *ModelSuite) TestAcceptShipmentForTSPWithDeliveryAddress() {
 		},
 	}
 
-	//address doesn't matter, as long as we have a valid value
 	deliveryAddress := testdatagen.MakeAddress3(suite.DB(), addressAssertions)
+	shipment.HasDeliveryAddress = hasDeliveryAddress
 	shipment.DeliveryAddress = &deliveryAddress
 	shipment.DeliveryAddressID = &deliveryAddress.ID
 	suite.DB().ValidateAndSave(&shipment)
 
 	newShipment, _, _, err := AcceptShipmentForTSP(suite.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
+
+	return shipment, *newShipment, err
+}
+
+// TestAcceptShipmentForTSPWithDeliveryAddress tests that delivery address is used for a shipment when TSP accepts
+// a offer and delivery address is available instead of duty station
+func (suite *ModelSuite) TestAcceptShipmentForTSPWithDeliveryAddress() {
+	hasDeliveryAddress := true
+	shipment, newShipment, err := createAndAcceptShipmentWithDeliveryAddress(suite, hasDeliveryAddress)
 	suite.NoError(err)
-	suite.Equal(shipment.DeliveryAddress.ID, newShipment.DestinationAddressOnAcceptance.ID)
+	suite.Equal(shipment.DeliveryAddress.City, newShipment.DestinationAddressOnAcceptance.City)
+}
+
+// TestAcceptShipmentForTSPWithDeliveryAddress tests that delivery address is used for a shipment when TSP accepts
+// a offer and delivery address is available instead of duty station
+func (suite *ModelSuite) TestAcceptShipmentForTSPWithDeliveryAddressHasDeliveryAddressFalse() {
+	hasDeliveryAddress := false
+	shipment, newShipment, err := createAndAcceptShipmentWithDeliveryAddress(suite, hasDeliveryAddress)
+	suite.NoError(err)
+	suite.Equal(shipment.Move.Orders.NewDutyStation.Address.City, newShipment.DestinationAddressOnAcceptance.City)
 }
 
 // TestCurrentTransportationServiceProviderID tests that a shipment returns the proper current tsp id
@@ -288,7 +305,7 @@ func (suite *ModelSuite) TestCreateShipmentLineItem() {
 	acc := testdatagen.MakeDefaultTariff400ngItem(suite.DB())
 	shipment := testdatagen.MakeDefaultShipment(suite.DB())
 
-	q1 := unit.BaseQuantity(5)
+	q1 := unit.BaseQuantityFromInt(5)
 	notes := "It's a giant moose head named Fred he seemed rather pleasant"
 	baseParams := BaseShipmentLineItemParams{
 		Tariff400ngItemID: acc.ID,
@@ -301,7 +318,7 @@ func (suite *ModelSuite) TestCreateShipmentLineItem() {
 		baseParams, additionalParams)
 
 	if suite.noValidationErrors(verrs, err) {
-		suite.Equal(5, shipmentLineItem.Quantity1.ToUnitInt())
+		suite.Equal(unit.BaseQuantityFromInt(5), shipmentLineItem.Quantity1)
 		suite.Equal(acc.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
 	}
 }
@@ -330,22 +347,23 @@ func (suite *ModelSuite) TestCreateShipmentLineItemCode105BAndE() {
 	}
 	additionalParams := AdditionalShipmentLineItemParams{
 		ItemDimensions: &AdditionalLineItemDimensions{
-			Length: 100,
-			Width:  100,
-			Height: 100,
+			Length: 10000,
+			Width:  10000,
+			Height: 10000,
 		},
 		CrateDimensions: &AdditionalLineItemDimensions{
-			Length: 100,
-			Width:  100,
-			Height: 100,
+			Length: 10000,
+			Width:  10000,
+			Height: 10000,
 		},
 	}
 	// Create 105B preapproval
 	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(suite.DB(),
 		baseParams, additionalParams)
 
+	// 10x10x10 cubic inches is roughly 0.5787 cubic feet.
 	if suite.noValidationErrors(verrs, err) {
-		suite.Equal(0, shipmentLineItem.Quantity1.ToUnitInt())
+		suite.Equal(unit.BaseQuantity(5787), shipmentLineItem.Quantity1)
 		suite.Equal(acc105B.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
 		suite.NotZero(shipmentLineItem.ItemDimensions.ID)
 		suite.NotZero(shipmentLineItem.CrateDimensions.ID)
@@ -358,7 +376,7 @@ func (suite *ModelSuite) TestCreateShipmentLineItemCode105BAndE() {
 		baseParams, additionalParams)
 
 	if suite.noValidationErrors(verrs, err) {
-		suite.Equal(0, shipmentLineItem.Quantity1.ToUnitInt())
+		suite.Equal(unit.BaseQuantity(5787), shipmentLineItem.Quantity1)
 		suite.Equal(acc105E.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
 		suite.NotZero(shipmentLineItem.ItemDimensions.ID)
 		suite.NotZero(shipmentLineItem.CrateDimensions.ID)
@@ -374,7 +392,7 @@ func (suite *ModelSuite) TestCreateShipmentLineItemCode105BAndE() {
 		baseParams, additionalParams)
 
 	if suite.noValidationErrors(verrs, err) {
-		suite.Equal(1000, shipmentLineItem.Quantity1.ToUnitInt())
+		suite.Equal(unit.BaseQuantity(1000), shipmentLineItem.Quantity1)
 		suite.Equal(acc105E.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
 		suite.Zero(shipmentLineItem.ItemDimensionsID)
 		suite.Zero(shipmentLineItem.CrateDimensionsID)
@@ -407,17 +425,53 @@ func (suite *ModelSuite) TestCreateShipmentLineItemCode35A() {
 		ActualAmountCents:   &actAmt,
 	}
 
-	// Create 105B preapproval
+	// Create 35A preapproval
 	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(suite.DB(),
 		baseParams, additionalParams)
 
 	if suite.noValidationErrors(verrs, err) {
-		// ToDo: will need to update this when we calculate base quantity
-		suite.Equal(0, shipmentLineItem.Quantity1.ToUnitInt())
 		suite.Equal(acc35A.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
 		suite.Equal(desc, *shipmentLineItem.Description)
 		suite.Equal(reas, *shipmentLineItem.Reason)
 		suite.Equal(estAmt, *shipmentLineItem.EstimateAmountCents)
+		suite.Equal(actAmt, *shipmentLineItem.ActualAmountCents)
+		suite.Equal(unit.BaseQuantity(100000), shipmentLineItem.Quantity1)
+	}
+}
+
+// TestCreateShipmentLineItemCode226A tests that 226A line items are created correctly
+func (suite *ModelSuite) TestCreateShipmentLineItemCode226A() {
+	acc226A := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "226A",
+		},
+	})
+
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
+	desc := "This is a description"
+	reas := "This is the reason"
+	actAmt := unit.Cents(1000)
+	baseParams := BaseShipmentLineItemParams{
+		Tariff400ngItemID:   acc226A.ID,
+		Tariff400ngItemCode: acc226A.Code,
+		Location:            "ORIGIN",
+	}
+	additionalParams := AdditionalShipmentLineItemParams{
+		Description:       &desc,
+		Reason:            &reas,
+		ActualAmountCents: &actAmt,
+	}
+
+	// Create 226A preapproval
+	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams)
+
+	if suite.noValidationErrors(verrs, err) {
+		suite.Equal(unit.BaseQuantityFromCents(actAmt), shipmentLineItem.Quantity1)
+		suite.Equal(acc226A.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
+		suite.Equal(desc, *shipmentLineItem.Description)
+		suite.Equal(reas, *shipmentLineItem.Reason)
 		suite.Equal(actAmt, *shipmentLineItem.ActualAmountCents)
 	}
 }
@@ -458,7 +512,7 @@ func (suite *ModelSuite) TestUpdateShipmentLineItem() {
 		baseParams, additionalParams, &lineItem)
 
 	if suite.noValidationErrors(verrs, err) {
-		suite.Equal(unit.BaseQuantityFromInt(1234), lineItem.Quantity1.ToUnitInt())
+		suite.Equal(unit.BaseQuantityFromInt(1234), lineItem.Quantity1)
 		suite.Equal(*baseParams.Notes, lineItem.Notes)
 	}
 }
@@ -503,14 +557,14 @@ func (suite *ModelSuite) TestUpdateShipmentLineItemCode105BAndE() {
 	}
 	additionalParams := AdditionalShipmentLineItemParams{
 		ItemDimensions: &AdditionalLineItemDimensions{
-			Length: unit.ThousandthInches(200),
-			Width:  unit.ThousandthInches(200),
-			Height: unit.ThousandthInches(200),
+			Length: unit.ThousandthInches(20000),
+			Width:  unit.ThousandthInches(20000),
+			Height: unit.ThousandthInches(20000),
 		},
 		CrateDimensions: &AdditionalLineItemDimensions{
-			Length: unit.ThousandthInches(200),
-			Width:  unit.ThousandthInches(200),
-			Height: unit.ThousandthInches(200),
+			Length: unit.ThousandthInches(20000),
+			Width:  unit.ThousandthInches(20000),
+			Height: unit.ThousandthInches(20000),
 		},
 		Description: lineItem.Description,
 	}
@@ -520,10 +574,10 @@ func (suite *ModelSuite) TestUpdateShipmentLineItemCode105BAndE() {
 		baseParams, additionalParams, &lineItem)
 
 	if suite.noValidationErrors(verrs, err) {
-		suite.Equal(0, lineItem.Quantity1.ToUnitInt())
+		suite.Equal(unit.BaseQuantity(46296), lineItem.Quantity1)
 		suite.Equal(acc105B.ID.String(), lineItem.Tariff400ngItem.ID.String())
 		suite.Equal(*baseParams.Notes, lineItem.Notes)
-		suite.Equal(*additionalParams.Description, lineItem.Description)
+		suite.Equal(*additionalParams.Description, *lineItem.Description)
 
 		suite.NotZero(lineItem.ItemDimensions.ID)
 		suite.Equal(additionalParams.ItemDimensions.Length, lineItem.ItemDimensions.Length)
@@ -543,8 +597,8 @@ func (suite *ModelSuite) TestUpdateShipmentLineItemCode105BAndE() {
 		baseParams, additionalParams, &lineItem)
 
 	if suite.noValidationErrors(verrs, err) {
-		suite.Equal(0, lineItem.Quantity1.ToUnitInt())
-		suite.Equal(acc105B.ID.String(), lineItem.Tariff400ngItem.ID.String())
+		suite.Equal(unit.BaseQuantity(46296), lineItem.Quantity1)
+		suite.Equal(acc105E.ID.String(), lineItem.Tariff400ngItem.ID.String())
 		suite.NotZero(lineItem.ItemDimensions.ID)
 		suite.Equal(additionalParams.ItemDimensions.Length, lineItem.ItemDimensions.Length)
 		suite.Equal(additionalParams.ItemDimensions.Width, lineItem.ItemDimensions.Width)
@@ -593,7 +647,7 @@ func (suite *ModelSuite) TestUpdateShipmentLineItemCode35A() {
 	desc = "updated description"
 	reas = "updated reason"
 	estAmt = unit.Cents(2000)
-	actAmt = unit.Cents(2000)
+	actAmt = unit.Cents(1500)
 	additionalParams := AdditionalShipmentLineItemParams{
 		Description:         &desc,
 		Reason:              &reas,
@@ -604,8 +658,7 @@ func (suite *ModelSuite) TestUpdateShipmentLineItemCode35A() {
 	verrs, err := shipment.UpdateShipmentLineItem(suite.DB(),
 		baseParams, additionalParams, &lineItem)
 	if suite.noValidationErrors(verrs, err) {
-		// ToDo: will need to update this when we calculate base quantity
-		suite.Equal(0, lineItem.Quantity1.ToUnitInt())
+		suite.Equal(unit.BaseQuantity(150000), lineItem.Quantity1)
 		suite.Equal(acc35A.ID.String(), lineItem.Tariff400ngItem.ID.String())
 		suite.Equal(desc, *lineItem.Description)
 		suite.Equal(reas, *lineItem.Reason)

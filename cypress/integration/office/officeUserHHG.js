@@ -119,6 +119,12 @@ function officeUserViewsAcceptedShipment() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
   });
+
+  // Since the shipment hasn't been picked up yet, it can be cancelled
+  cy
+    .get('button')
+    .contains('Cancel Move')
+    .should('not.be.disabled');
 }
 
 function officeUserApprovesOnlyBasicsHHG() {
@@ -272,6 +278,12 @@ function officeUserCompletesHHG() {
 
   // Complete HHG
   cy.get('.status').contains('Delivered');
+
+  // Since the shipment has been picked up by TSP, it can't be cancelled.
+  cy
+    .get('button')
+    .contains('Cancel Move')
+    .should('be.disabled');
 
   cy
     .get('button')

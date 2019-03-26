@@ -10,8 +10,6 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
 const (
@@ -42,7 +40,7 @@ type CreateNamedServerInput struct {
 	Name         string
 	Host         string
 	Port         int
-	Logger       *zap.Logger
+	Logger       Logger
 	HTTPHandler  http.Handler
 	ClientAuth   tls.ClientAuthType
 	Certificates []tls.Certificate
@@ -82,14 +80,6 @@ func CreateNamedServer(input *CreateNamedServerInput) (*NamedServer, error) {
 
 	address := fmt.Sprintf("%s:%d", input.Host, input.Port)
 
-	// Creates a *log.logger based off an existing zap.Logger instance.
-	// Some libraries call log.logger directly, which isn't structured as JSON. This method
-	// Will reformat log calls as zap.Error logs.
-	standardLog, err := zap.NewStdLogAt(input.Logger, zapcore.ErrorLevel)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create an error logger")
-	}
-
 	var tlsConfig *tls.Config
 	if len(input.Certificates) > 0 {
 
@@ -126,7 +116,7 @@ func CreateNamedServer(input *CreateNamedServerInput) (*NamedServer, error) {
 		Name: input.Name,
 		Server: &http.Server{
 			Addr:           address,
-			ErrorLog:       standardLog,
+			ErrorLog:       newStandardLogger(input.Logger),
 			Handler:        input.HTTPHandler,
 			IdleTimeout:    idleTimeout,
 			MaxHeaderBytes: maxHeaderSize,

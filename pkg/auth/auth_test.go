@@ -21,7 +21,7 @@ const (
 
 type authSuite struct {
 	testingsuite.BaseTestSuite
-	logger *zap.Logger
+	logger Logger
 }
 
 func TestAuthSuite(t *testing.T) {

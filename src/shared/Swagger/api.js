@@ -4,7 +4,7 @@ import * as Cookies from 'js-cookie';
 let client = null;
 let publicClient = null;
 
-const requestInterceptor = req => {
+export const requestInterceptor = req => {
   if (!req.loadSpec) {
     const token = Cookies.get('masked_gorilla_csrf');
     if (token) {
