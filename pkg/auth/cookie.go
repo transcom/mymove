@@ -160,7 +160,9 @@ func CSRFErrorHandler(logger Logger, useSecureCookie bool) http.Handler {
 func MaskedCSRFMiddleware(logger Logger, useSecureCookie bool) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			// Write a masked CSRF cookie (creates a new one with each request)
+			// Write a masked CSRF cookie (creates a new one with each request).  Per the gorilla/csrf docs:
+			// "This library generates unique-per-request (masked) tokens as a mitigation against the BREACH attack."
+			// https://github.com/gorilla/csrf#design-notes
 			WriteMaskedCSRFCookie(w, csrf.Token(r), logger, useSecureCookie)
 			next.ServeHTTP(w, r)
 		}
