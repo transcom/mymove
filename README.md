@@ -166,14 +166,16 @@ If you are stuck on this step you may need to see the section on Troubleshooting
 
 In rare cases, you may want to run the server standalone, in which case you can run `make server_run_standalone`. This will build both the client and the server and this invocation can be relied upon to be serving the client JS on its own rather than relying on webpack doing so as when you run `make client_run`. You can run this without running `make client_run` and the whole app should work.
 
-Dependencies are managed by [dep](https://github.com/golang/dep). New dependencies are automatically detected in import statements. To add a new dependency to the project, import it in a source file and then run `dep ensure`
+Dependencies are managed by [go modules](https://github.com/golang/go/wiki/Modules). New dependencies are automatically detected in import statements and added to `go.mod` when you run `go build` or `go run`. You can also manually edit `go.mod` as needed.
+
+If you need to add a Go-based tool dependency that is otherwise not imported by our code, import it in `pkg/tools/tools.go`
 
 ### Setup: MilMoveLocal Client
 
 1. add the following line to /etc/hosts
     `127.0.0.1 milmovelocal`
-1. `make client_build` (if setting up for first time)
-1. `make client_run`
+2. `make client_build` (if setting up for first time)
+3. `make client_run`
 
 The above will start the webpack dev server, serving the front-end on port 3000. If paired with `make server_run` then the whole app will work, the webpack dev server proxies all API calls through to the server.
 

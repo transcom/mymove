@@ -18,7 +18,6 @@ function has() {
 has go "brew install go"
 has bash "brew install bash"
 has yarn "brew install yarn"
-has dep "brew install dep"
 has pre-commit "brew install pre-commit"
 has shellcheck "brew install shellcheck"
 has docker "Get Docker CE for Mac from https://download.docker.com/mac/stable/Docker.dmg"
