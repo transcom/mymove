@@ -25,17 +25,18 @@ func getCookie(name string, cookies []*http.Cookie) (*http.Cookie, error) {
 func (suite *AuthSuite) TestCreateUserHandler() {
 	t := suite.T()
 
+	appnames := ApplicationTestServername()
 	callbackPort := 1234
 
 	form := url.Values{}
 	form.Add("userType", "milmove")
 
-	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/create", MilTestHost), strings.NewReader(form.Encode()))
+	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/create", appnames.MilServername), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
-	req.Form = form
+	req.ParseForm()
 
 	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	handler := NewCreateUserHandler(authContext, suite.DB(), "fake key", false, false)
+	handler := NewCreateUserHandler(authContext, suite.DB(), appnames, FakeRSAKey, false, false)
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -60,17 +61,18 @@ func (suite *AuthSuite) TestCreateUserHandler() {
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 	t := suite.T()
 
+	appnames := ApplicationTestServername()
 	callbackPort := 1234
 
 	form := url.Values{}
 	form.Add("userType", "milmove")
 
-	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", MilTestHost), strings.NewReader(form.Encode()))
+	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", appnames.MilServername), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
-	req.Form = form
+	req.ParseForm()
 
 	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), "fake key", false, false)
+	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), appnames, FakeRSAKey, false, false)
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
@@ -91,17 +93,18 @@ func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToOffice() {
 	t := suite.T()
 
+	appnames := ApplicationTestServername()
 	callbackPort := 1234
 
 	form := url.Values{}
 	form.Add("userType", "office")
 
-	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", MilTestHost), strings.NewReader(form.Encode()))
+	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/devlocal-auth/new", appnames.MilServername), strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
-	req.Form = form
+	req.ParseForm()
 
 	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), "fake key", false, false)
+	handler := NewCreateAndLoginUserHandler(authContext, suite.DB(), appnames, FakeRSAKey, false, false)
 
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)

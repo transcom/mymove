@@ -98,6 +98,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type devlocalAuthHandler struct {
 	Context
 	db                  *pop.Connection
+	appnames            auth.ApplicationServername
 	clientAuthSecretKey string
 	noSessionTimeout    bool
 	useSecureCookie     bool
@@ -107,10 +108,11 @@ type devlocalAuthHandler struct {
 type AssignUserHandler devlocalAuthHandler
 
 // NewAssignUserHandler creates a new AssignUserHandler
-func NewAssignUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) AssignUserHandler {
+func NewAssignUserHandler(ac Context, db *pop.Connection, appnames auth.ApplicationServername, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) AssignUserHandler {
 	handler := AssignUserHandler{
 		Context:             ac,
 		db:                  db,
+		appnames:            appnames,
 		clientAuthSecretKey: clientAuthSecretKey,
 		noSessionTimeout:    noSessionTimeout,
 		useSecureCookie:     useSecureCookie,
@@ -147,10 +149,11 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type CreateUserHandler devlocalAuthHandler
 
 // NewCreateUserHandler creates a new CreateUserHandler
-func NewCreateUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) CreateUserHandler {
+func NewCreateUserHandler(ac Context, db *pop.Connection, appnames auth.ApplicationServername, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) CreateUserHandler {
 	handler := CreateUserHandler{
 		Context:             ac,
 		db:                  db,
+		appnames:            appnames,
 		clientAuthSecretKey: clientAuthSecretKey,
 		noSessionTimeout:    noSessionTimeout,
 		useSecureCookie:     useSecureCookie,
@@ -176,10 +179,11 @@ func (h CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type CreateAndLoginUserHandler devlocalAuthHandler
 
 // NewCreateAndLoginUserHandler creates a new CreateAndLoginUserHandler
-func NewCreateAndLoginUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) CreateAndLoginUserHandler {
+func NewCreateAndLoginUserHandler(ac Context, db *pop.Connection, appnames auth.ApplicationServername, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) CreateAndLoginUserHandler {
 	handler := CreateAndLoginUserHandler{
 		Context:             ac,
 		db:                  db,
+		appnames:            appnames,
 		clientAuthSecretKey: clientAuthSecretKey,
 		noSessionTimeout:    noSessionTimeout,
 		useSecureCookie:     useSecureCookie,
@@ -366,25 +370,24 @@ func createSession(h devlocalAuthHandler, user *models.User, w http.ResponseWrit
 	session.Email = userIdentity.Email
 	session.Disabled = userIdentity.Disabled
 
+	// Set default app
+	session.ApplicationName = auth.MilApp
+	session.Hostname = h.appnames.MilServername
+
 	if userIdentity.ServiceMemberID != nil {
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
-		// TODO: pull from startup params
-		session.ApplicationName = auth.MilApp
-		session.Hostname = "milmovelocal"
 	}
 
 	if userIdentity.OfficeUserID != nil {
 		session.OfficeUserID = *(userIdentity.OfficeUserID)
-		// TODO: pull from startup params
 		session.ApplicationName = auth.OfficeApp
-		session.Hostname = "officelocal"
+		session.Hostname = h.appnames.OfficeServername
 	}
 
 	if userIdentity.TspUserID != nil {
 		session.TspUserID = *(userIdentity.TspUserID)
-		// TODO: pull from startup params
 		session.ApplicationName = auth.TspApp
-		session.Hostname = "tsplocal"
+		session.Hostname = h.appnames.TspServername
 	}
 
 	if userIdentity.DpsUserID != nil {
