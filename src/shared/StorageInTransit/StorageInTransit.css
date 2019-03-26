@@ -31,7 +31,7 @@
   width: calc(60% + 1.9rem);
 }
 
-#sit-status-text {
+.sit-status-text {
   margin-left: 1.8em;
 }
 

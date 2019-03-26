@@ -196,12 +196,11 @@ func (suite *ModelSuite) TestAcceptShipmentForTSP() {
 	suite.Equal(ShipmentStatusACCEPTED, newShipment.Status, "expected Accepted")
 	suite.True(*newShipmentOffer.Accepted)
 	suite.Nil(newShipmentOffer.RejectionReason)
-	suite.Equal(shipment.Move.Orders.NewDutyStation.Address.ID, newShipment.DestinationAddressOnAcceptance.ID)
+	suite.NotEqual(shipment.Move.Orders.NewDutyStation.Address.ID, newShipment.DestinationAddressOnAcceptance.ID)
+	suite.Equal(shipment.Move.Orders.NewDutyStation.Address.City, newShipment.DestinationAddressOnAcceptance.City)
 }
 
-// TestAcceptShipmentForTSPWithDeliveryAddress tests that delivery address is used for a shipment when TSP accepts
-// a offer and delivery address is available instead of duty station
-func (suite *ModelSuite) TestAcceptShipmentForTSPWithDeliveryAddress() {
+func createAndAcceptShipmentWithDeliveryAddress(suite *ModelSuite, hasDeliveryAddress bool) (Shipment, Shipment, error) {
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
@@ -223,15 +222,33 @@ func (suite *ModelSuite) TestAcceptShipmentForTSPWithDeliveryAddress() {
 		},
 	}
 
-	//address doesn't matter, as long as we have a valid value
 	deliveryAddress := testdatagen.MakeAddress3(suite.DB(), addressAssertions)
+	shipment.HasDeliveryAddress = hasDeliveryAddress
 	shipment.DeliveryAddress = &deliveryAddress
 	shipment.DeliveryAddressID = &deliveryAddress.ID
 	suite.DB().ValidateAndSave(&shipment)
 
 	newShipment, _, _, err := AcceptShipmentForTSP(suite.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
+
+	return shipment, *newShipment, err
+}
+
+// TestAcceptShipmentForTSPWithDeliveryAddress tests that delivery address is used for a shipment when TSP accepts
+// a offer and delivery address is available instead of duty station
+func (suite *ModelSuite) TestAcceptShipmentForTSPWithDeliveryAddress() {
+	hasDeliveryAddress := true
+	shipment, newShipment, err := createAndAcceptShipmentWithDeliveryAddress(suite, hasDeliveryAddress)
 	suite.NoError(err)
-	suite.Equal(shipment.DeliveryAddress.ID, newShipment.DestinationAddressOnAcceptance.ID)
+	suite.Equal(shipment.DeliveryAddress.City, newShipment.DestinationAddressOnAcceptance.City)
+}
+
+// TestAcceptShipmentForTSPWithDeliveryAddress tests that delivery address is used for a shipment when TSP accepts
+// a offer and delivery address is available instead of duty station
+func (suite *ModelSuite) TestAcceptShipmentForTSPWithDeliveryAddressHasDeliveryAddressFalse() {
+	hasDeliveryAddress := false
+	shipment, newShipment, err := createAndAcceptShipmentWithDeliveryAddress(suite, hasDeliveryAddress)
+	suite.NoError(err)
+	suite.Equal(shipment.Move.Orders.NewDutyStation.Address.City, newShipment.DestinationAddressOnAcceptance.City)
 }
 
 // TestCurrentTransportationServiceProviderID tests that a shipment returns the proper current tsp id
@@ -646,6 +663,57 @@ func (suite *ModelSuite) TestUpdateShipmentLineItemCode35A() {
 		suite.Equal(desc, *lineItem.Description)
 		suite.Equal(reas, *lineItem.Reason)
 		suite.Equal(estAmt, *lineItem.EstimateAmountCents)
+		suite.Equal(actAmt, *lineItem.ActualAmountCents)
+	}
+}
+
+// TestUpdateShipmentLineItemCode35AActualAmountCents tests that 35A line items are updated correctly
+func (suite *ModelSuite) TestUpdateShipmentLineItemCode35AActualAmountCents() {
+	acc35A := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "35A",
+		},
+	})
+
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
+	desc := "This is a description"
+	reas := "This is the reason"
+	notes := "Notes"
+	loc := ShipmentLineItemLocationORIGIN
+	estAmt := unit.Cents(1000)
+	lineItem := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
+		ShipmentLineItem: ShipmentLineItem{
+			Tariff400ngItemID:   acc35A.ID,
+			Status:              ShipmentLineItemStatusAPPROVED,
+			Location:            loc,
+			Notes:               notes,
+			Description:         &desc,
+			Reason:              &reas,
+			EstimateAmountCents: &estAmt,
+		},
+	})
+
+	// Update values
+	baseParams := BaseShipmentLineItemParams{
+		Tariff400ngItemID:   acc35A.ID,
+		Tariff400ngItemCode: acc35A.Code,
+	}
+	updateDesc := "updated description"
+	updateReas := "updated reason"
+	updateEstAmt := unit.Cents(2000)
+	actAmt := unit.Cents(2000)
+	additionalParams := AdditionalShipmentLineItemParams{
+		EstimateAmountCents: &updateEstAmt,
+		ActualAmountCents:   &actAmt,
+	}
+
+	verrs, err := shipment.UpdateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams, &lineItem)
+	if suite.noValidationErrors(verrs, err) {
+		suite.NotEqual(updateDesc, *lineItem.Description)
+		suite.NotEqual(updateReas, *lineItem.Reason)
+		suite.NotEqual(updateEstAmt, *lineItem.EstimateAmountCents)
 		suite.Equal(actAmt, *lineItem.ActualAmountCents)
 	}
 }
