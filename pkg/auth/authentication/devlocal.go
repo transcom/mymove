@@ -58,35 +58,50 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	csrfToken := csrfCookie.Value
 
 	t := template.Must(template.New("users").Parse(`
-		<h1>Select an existing user</h1>
-		<p>Showing the first 25 users:</p>
-		{{range .}}
-			<form method="post" action="/devlocal-auth/login">
-				<p id="{{.ID}}">
-					<input type="hidden" name="gorilla.csrf.Token" value="` + csrfToken + `">
-					{{.Email}}
-					({{if .DpsUserID}}dps{{else if .TspUserID}}tsp{{else if .OfficeUserID}}office{{else}}milmove{{end}})
-					<input type="hidden" name="id" value="{{.ID}}" />
-					<button type="submit" value="{{.ID}}" data-hook="existing-user-login">Login</button>
-				</p>
-			</form>
-		{{else}}
-			<p><em>No users in the system!</em></p>
-		{{end}}
+	  <html>
+	  <head>
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	  </head>
+	  <body class="py-4">
+		<div class="container">
+		  <div class="row mb-3">
+			<div class="col-md-8">
+			  <h2 class="mt-4">Select an Existing User</h1>
+			  <p>Showing the-first 25 users:</p>
+			  {{range .}}
+				<form method="post" action="/devlocal-auth/login">
+					<p id="{{.ID}}">
+						<input type="hidden" name="gorilla.csrf.Token" value="` + csrfToken + `">
+						{{.Email}}
+						({{if .DpsUserID}}dps{{else if .TspUserID}}tsp{{else if .OfficeUserID}}office{{else}}milmove{{end}})
+						<input type="hidden" name="id" value="{{.ID}}" />
+						<button type="submit" value="{{.ID}}" data-hook="existing-user-login">Login</button>
+					</p>
+				</form>
+			  {{else}}
+				<p><em>No users in the system!</em></p>
+			  {{end}}
+			</div>
 
-		<h1>Create a new user</h1>
-		<form method="post" action="/devlocal-auth/new">
-			<p>
-				<input type="hidden" name="gorilla.csrf.Token" value="` + csrfToken + `">
-				<select name="userType">
+			<div class="col-md-4">
+			  <h2 class="mt-4">Create a New User</h1>
+			  <form method="post" action="/devlocal-auth/new">
+				<p>
+				  <input type="hidden" name="gorilla.csrf.Token" value="` + csrfToken + `">
+				  <select name="userType">
 					<option value="milmove">MilMove</option>
 					<option value="office">Office</option>
 					<option value="tsp">TSP</option>
 					<option value="dps">DPS</option>
-				</select>
-				<button type="submit" data-hook="new-user-login">Login as a New User</button>
-			</p>
-		</form>
+				  </select>
+				<button type="submit" data-hook="new-user-login">Create a New User</button>
+				</p>
+			  </form>
+			</div>
+		  </div>
+		</div> <!-- container -->
+	  </body>
+	  </html>
 	`))
 	err = t.Execute(w, identities[:25])
 	if err != nil {
