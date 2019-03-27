@@ -12,6 +12,7 @@ import './StorageInTransit.css';
 import { formatDate4DigitYear } from 'shared/formatters';
 import Editor from 'shared/StorageInTransit/Editor';
 import ApproveSitRequest from 'shared/StorageInTransit/ApproveSitRequest';
+import DenySitRequest from 'shared/StorageInTransit/DenySitRequest';
 import { updateStorageInTransit } from 'shared/Entities/modules/storageInTransits';
 import { isTspSite } from 'shared/constants.js';
 
@@ -54,6 +55,7 @@ export class StorageInTransit extends Component {
           </span>
           <span>SIT {storageInTransit.status.charAt(0) + storageInTransit.status.slice(1).toLowerCase()} </span>
           {!isTspSite && <ApproveSitRequest />}
+          {!isTspSite && <DenySitRequest />}
           {showEditForm ? (
             <Editor
               updateStorageInTransit={this.onSubmit}
