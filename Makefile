@@ -245,7 +245,7 @@ server_run_debug:
 	$(AWS_VAULT) dlv debug cmd/webserver/main.go
 
 .PHONY: build_save_fuel_price_data
-build_save_fuel_price_data: go_deps
+build_save_fuel_price_data: go_deps server_generate
 	go build -i -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
 
 .PHONY: build_tools
@@ -571,12 +571,14 @@ tasks_clean:
 tasks_build: tasks_save_fuel_price_data_build
 
 .PHONY: tasks_save_fuel_price_data_build
-tasks_save_fuel_price_data_build:
+tasks_save_fuel_price_data_build: .tasks_save_fuel_price_data_build.stamp
+.tasks_save_fuel_price_data_build.stamp: server_generate_linux
 	@echo "Build required binaries for the docker scheduled task save-fuel-price-data container..."
 	mkdir -p bin_linux/
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/save-fuel-price-data ./cmd/save_fuel_price_data
 	@echo "Build the docker scheduled task save-fuel-price-data container..."
 	docker build -f Dockerfile.task.save-fuel-price-data_local --tag save-fuel-price-data:latest .
+	touch .tasks_save_fuel_price_data_build.stamp
 
 .PHONY: tasks_save_fuel_price_data
 tasks_save_fuel_price_data: tasks_save_fuel_price_data_build
