@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 )
 
 // StorageInTransitStatus represents the status of a SIT request
@@ -100,13 +101,11 @@ func (s *StorageInTransit) Validate(tx *pop.Connection) (*validate.Errors, error
 	), nil
 }
 
-// FetchStorageInTransitsOnShipment retrieves Storage In Transit objects using the shipment ID
+// FetchStorageInTransitsOnShipment retrieves Storage In Transit objects and their warehouse address using the shipment ID
 func FetchStorageInTransitsOnShipment(tx *pop.Connection, shipmentID uuid.UUID) (StorageInTransits, error) {
 	storageInTransits := StorageInTransits{}
 
-	err := tx.Eager().Where("shipment_id = $1", shipmentID).
-		LeftJoin("addresses", "storage_in_transits.warehouse_address_id=addresses.id").
-		All(&storageInTransits)
+	err := tx.Eager("WarehouseAddress").Where("shipment_id = $1", shipmentID).All(&storageInTransits)
 
 	if err != nil {
 		return nil, err
@@ -116,11 +115,10 @@ func FetchStorageInTransitsOnShipment(tx *pop.Connection, shipmentID uuid.UUID) 
 
 }
 
-// FetchStorageInTransitByID retrieves a single Storage In Transit object based on its own ID
+// FetchStorageInTransitByID retrieves a single Storage In Transit object and their warehouse address based on its own ID
 func FetchStorageInTransitByID(tx *pop.Connection, storageInTransitID uuid.UUID) (*StorageInTransit, error) {
 	var storageInTransit StorageInTransit
-	err := tx.Eager().Where("storage_in_transits.id = $1", storageInTransitID).
-		LeftJoin("addresses", "storage_in_transits.warehouse_address_id=addresses.id").First(&storageInTransit)
+	err := tx.Eager("WarehouseAddress").Where("storage_in_transits.id = $1", storageInTransitID).First(&storageInTransit)
 
 	if err != nil {
 		// If we fail to get rows let's pass up a ErrFetchNotFound so that handlers wind up passing a 404
@@ -156,4 +154,31 @@ func DeleteStorageInTransit(tx *pop.Connection, storageInTransitID uuid.UUID) (e
 
 	return nil
 
+}
+
+// SaveStorageInTransitAndAddress saves a StorageInTransit and its Address atomically.
+func SaveStorageInTransitAndAddress(db *pop.Connection, storageInTransit *StorageInTransit) (*validate.Errors, error) {
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("rollback")
+
+		if verrs, err := db.ValidateAndSave(&storageInTransit.WarehouseAddress); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error saving warehouse address")
+			return transactionError
+		}
+		storageInTransit.WarehouseAddressID = storageInTransit.WarehouseAddress.ID
+
+		if verrs, err := db.ValidateAndSave(storageInTransit); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error saving storage in transit")
+			return transactionError
+		}
+
+		return nil
+	})
+
+	return responseVErrors, responseError
 }

@@ -93,7 +93,7 @@ describe('testing getFormComponent()', () => {
   describe('returns 226A form component with feature flag on', () => {
     featureFlag = true;
 
-    let FormComponent = getFormComponent('226A', featureFlag, initialValuesWithCrateDimensions);
+    let FormComponent = getFormComponent('226A', featureFlag, { actual_amount_cents: true });
     it('for code 226A', () => {
       expect(FormComponent).toBe(Code226Form);
     });
@@ -114,6 +114,11 @@ describe('testing getFormComponent()', () => {
 
     FormComponent = getFormComponent('105E', featureFlag, initialValuesWithoutCrateDimensions);
     it('for code 105E without crate dimensions', () => {
+      expect(FormComponent).toBe(DefaultForm);
+    });
+
+    FormComponent = getFormComponent('226A', featureFlag, initialValuesWithoutCrateDimensions);
+    it('for code 226A without crate dimensions', () => {
       expect(FormComponent).toBe(DefaultForm);
     });
   });
