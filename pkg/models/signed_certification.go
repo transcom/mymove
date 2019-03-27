@@ -9,16 +9,39 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// SignedCertificationType represents the types of certificates
+type SignedCertificationType string
+
+const (
+	// SignedCertificationTypePPM captures enum value "PPM"
+	SignedCertificationTypePPM SignedCertificationType = "PPM"
+
+	// SignedCertificationTypePPMPAYMENT captures enum value "PPM_PAYMENT"
+	SignedCertificationTypePPMPAYMENT SignedCertificationType = "PPM_PAYMENT"
+
+	// SignedCertificationTypeHHG captures enum value "HHG"
+	SignedCertificationTypeHHG SignedCertificationType = "HHG"
+)
+
+var signedCertifications = []string{
+	string(SignedCertificationTypePPM),
+	string(SignedCertificationTypePPMPAYMENT),
+	string(SignedCertificationTypeHHG),
+}
+
 // SignedCertification represents users acceptance
 type SignedCertification struct {
-	ID                uuid.UUID `json:"id" db:"id"`
-	SubmittingUserID  uuid.UUID `json:"submitting_user_id" db:"submitting_user_id"`
-	MoveID            uuid.UUID `json:"move_id" db:"move_id"`
-	CreatedAt         time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt         time.Time `json:"updated_at" db:"updated_at"`
-	CertificationText string    `json:"certification_text" db:"certification_text"`
-	Signature         string    `json:"signature" db:"signature"`
-	Date              time.Time `json:"date" db:"date"`
+	ID                       uuid.UUID                `json:"id" db:"id"`
+	SubmittingUserID         uuid.UUID                `json:"submitting_user_id" db:"submitting_user_id"`
+	MoveID                   uuid.UUID                `json:"move_id" db:"move_id"`
+	PersonallyProcuredMoveID *uuid.UUID               `json:"personally_procured_move_id" db:"personally_procured_move_id"`
+	ShipmentID               *uuid.UUID               `json:"shipment_id" db:"shipment_id"`
+	CertificationType        *SignedCertificationType `json:"certification_type" db:"certification_type"`
+	CreatedAt                time.Time                `json:"created_at" db:"created_at"`
+	UpdatedAt                time.Time                `json:"updated_at" db:"updated_at"`
+	CertificationText        string                   `json:"certification_text" db:"certification_text"`
+	Signature                string                   `json:"signature" db:"signature"`
+	Date                     time.Time                `json:"date" db:"date"`
 }
 
 // SignedCertifications is not required by pop and may be deleted
@@ -27,9 +50,16 @@ type SignedCertifications []SignedCertification
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (s *SignedCertification) Validate(tx *pop.Connection) (*validate.Errors, error) {
+	var ptrCertificationType *string
+	if s.CertificationType != nil {
+		certificationType := string(*s.CertificationType)
+		ptrCertificationType = &certificationType
+	}
+
 	return validate.Validate(
 		&validators.StringIsPresent{Field: s.CertificationText, Name: "CertificationText"},
 		&validators.StringIsPresent{Field: s.Signature, Name: "Signature"},
+		&OptionalStringInclusion{Field: ptrCertificationType, Name: "CertificationType", List: signedCertifications},
 	), nil
 }
 
