@@ -125,6 +125,14 @@ repos:
         files: \.go$
         pass_filenames: false
 
+  - repo: local
+    hooks:
+      - id: gomod
+        name: gomod
+        entry: bin/pre-commit-go-mod
+        language: script
+        files: go.mod
+
   # - repo: local
   #   hooks:
   #     - id: mdspell

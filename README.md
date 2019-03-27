@@ -168,7 +168,9 @@ In rare cases, you may want to run the server standalone, in which case you can 
 
 Dependencies are managed by [go modules](https://github.com/golang/go/wiki/Modules). New dependencies are automatically detected in import statements and added to `go.mod` when you run `go build` or `go run`. You can also manually edit `go.mod` as needed.
 
-If you need to add a Go-based tool dependency that is otherwise not imported by our code, import it in `pkg/tools/tools.go`
+If you need to add a Go-based tool dependency that is otherwise not imported by our code, import it in `pkg/tools/tools.go`.
+
+After importing _any_ go dependency it's a good practice to run `go mod tidy`, which prunes unused dependencies and calculates dependency requirements for all possible system architectures.
 
 ### Setup: MilMoveLocal Client
 
