@@ -27,6 +27,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Setup: MilMoveLocal Client](#setup-milmovelocal-client)
   * [Setup: OfficeLocal client](#setup-officelocal-client)
   * [Setup: TSPLocal client](#setup-tsplocal-client)
+  * [Setup: AdminLocal client](#setup-adminlocal-client)
   * [Setup: DPS user](#setup-dps-user)
   * [Setup: Orders Gateway](#setup-orders-gateway)
   * [Setup: S3](#setup-s3)
@@ -201,6 +202,12 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
     * run `bin/make-tsp-user -email <email>` to set up a TSP user associated with that email address
 3. `make tsp_client_run`
 4. Login with the email used above to access the TSP
+
+### Setup: AdminLocal client
+
+1. add the following line to /etc/hosts
+    `127.0.0.1 adminlocal`
+2. `make admin_client_run`
 
 ### Setup: DPS user
 
