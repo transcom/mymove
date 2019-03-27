@@ -412,26 +412,6 @@ func (s *Shipment) DetermineTrafficDistributionList(db *pop.Connection) (*Traffi
 	return &trafficDistributionList, nil
 }
 
-// BaseShipmentLineItemParams holds the basic parameters for a ShipmentLineItem
-type BaseShipmentLineItemParams struct {
-	Tariff400ngItemID   uuid.UUID
-	Tariff400ngItemCode string
-	Quantity1           *unit.BaseQuantity
-	Quantity2           *unit.BaseQuantity
-	Location            string
-	Notes               *string
-}
-
-// AdditionalShipmentLineItemParams holds any additional parameters for a ShipmentLineItem
-type AdditionalShipmentLineItemParams struct {
-	Description         *string
-	ItemDimensions      *AdditionalLineItemDimensions
-	CrateDimensions     *AdditionalLineItemDimensions
-	Reason              *string
-	EstimateAmountCents *unit.Cents
-	ActualAmountCents   *unit.Cents
-}
-
 // CreateShipmentLineItem creates a new ShipmentLineItem tied to the Shipment
 func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShipmentLineItemParams, additionalParams AdditionalShipmentLineItemParams) (*ShipmentLineItem, *validate.Errors, error) {
 	var quantity2 unit.BaseQuantity

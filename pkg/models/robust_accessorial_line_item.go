@@ -217,3 +217,23 @@ func upsertDefaultDependency(db *pop.Connection, baseParams *BaseShipmentLineIte
 
 	return responseVErrors, responseError
 }
+
+// BaseShipmentLineItemParams holds the basic parameters for a ShipmentLineItem
+type BaseShipmentLineItemParams struct {
+	Tariff400ngItemID   uuid.UUID
+	Tariff400ngItemCode string
+	Quantity1           *unit.BaseQuantity
+	Quantity2           *unit.BaseQuantity
+	Location            string
+	Notes               *string
+}
+
+// AdditionalShipmentLineItemParams holds any additional parameters for a ShipmentLineItem
+type AdditionalShipmentLineItemParams struct {
+	Description         *string
+	ItemDimensions      *AdditionalLineItemDimensions
+	CrateDimensions     *AdditionalLineItemDimensions
+	Reason              *string
+	EstimateAmountCents *unit.Cents
+	ActualAmountCents   *unit.Cents
+}
