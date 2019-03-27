@@ -486,14 +486,18 @@ func (s *Shipment) UpdateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 			return transactionError
 		}
 
-		// Non-specified item code
-		shipmentLineItem.Tariff400ngItemID = baseParams.Tariff400ngItemID
-		if baseParams.Quantity2 != nil {
-			shipmentLineItem.Quantity2 = *baseParams.Quantity2
-		}
-		shipmentLineItem.Location = ShipmentLineItemLocation(baseParams.Location)
-		if baseParams.Notes != nil {
-			shipmentLineItem.Notes = *baseParams.Notes
+		// Don't update these properties if status is APPROVED
+		// This only applies to 35A since an user can still update
+		if shipmentLineItem.Status != ShipmentLineItemStatusAPPROVED {
+			// Non-specified item code
+			shipmentLineItem.Tariff400ngItemID = baseParams.Tariff400ngItemID
+			if baseParams.Quantity2 != nil {
+				shipmentLineItem.Quantity2 = *baseParams.Quantity2
+			}
+			shipmentLineItem.Location = ShipmentLineItemLocation(baseParams.Location)
+			if baseParams.Notes != nil {
+				shipmentLineItem.Notes = *baseParams.Notes
+			}
 		}
 
 		verrs, err = connection.ValidateAndUpdate(shipmentLineItem)

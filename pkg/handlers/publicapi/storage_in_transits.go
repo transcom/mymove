@@ -87,11 +87,6 @@ func processStorageInTransitInput(h handlers.HandlerContext, shipmentID uuid.UUI
 			PostalCode:     *payload.WarehouseAddress.PostalCode,
 			Country:        payload.WarehouseAddress.Country,
 		}
-		_, err := h.DB().ValidateAndCreate(&warehouseAddress)
-
-		if err != nil {
-			return models.StorageInTransit{}, err
-		}
 	}
 
 	newStorageInTransit := models.StorageInTransit{
@@ -109,6 +104,35 @@ func processStorageInTransitInput(h handlers.HandlerContext, shipmentID uuid.UUI
 
 	return newStorageInTransit, nil
 
+}
+
+func patchStorageInTransitWithPayload(storageInTransit *models.StorageInTransit, payload *apimessages.StorageInTransit) {
+	if *payload.Location == "ORIGIN" {
+		storageInTransit.Location = models.StorageInTransitLocationORIGIN
+	} else {
+		storageInTransit.Location = models.StorageInTransitLocationDESTINATION
+	}
+
+	if payload.EstimatedStartDate != nil {
+		storageInTransit.EstimatedStartDate = *(*time.Time)(payload.EstimatedStartDate)
+	}
+
+	storageInTransit.Notes = handlers.FmtStringPtrNonEmpty(payload.Notes)
+
+	if payload.WarehouseID != nil {
+		storageInTransit.WarehouseID = *payload.WarehouseID
+	}
+
+	if payload.WarehouseName != nil {
+		storageInTransit.WarehouseName = *payload.WarehouseName
+	}
+
+	if payload.WarehouseAddress != nil {
+		updateAddressWithPayload(&storageInTransit.WarehouseAddress, payload.WarehouseAddress)
+	}
+
+	storageInTransit.WarehousePhone = handlers.FmtStringPtrNonEmpty(payload.WarehousePhone)
+	storageInTransit.WarehouseEmail = handlers.FmtStringPtrNonEmpty(payload.WarehouseEmail)
 }
 
 // IndexStorageInTransitHandler returns a list of Storage In Transit entries
@@ -176,11 +200,9 @@ func (h CreateStorageInTransitHandler) Handle(params sitop.CreateStorageInTransi
 
 	newStorageInTransit.Status = models.StorageInTransitStatusREQUESTED
 
-	_, err = h.DB().ValidateAndCreate(&newStorageInTransit)
-
-	if err != nil {
-		h.Logger().Error("DB Query", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+	verrs, err := models.SaveStorageInTransitAndAddress(h.DB(), &newStorageInTransit)
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
 	storageInTransitPayload := payloadForStorageInTransitModel(&newStorageInTransit)
@@ -197,7 +219,8 @@ type PatchStorageInTransitHandler struct {
 // Handle handles the handling
 func (h PatchStorageInTransitHandler) Handle(params sitop.PatchStorageInTransitParams) middleware.Responder {
 	payload := params.StorageInTransit
-	shipmentID, err := uuid.FromString(params.ShipmentID.String())
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+	storageInTransitID, _ := uuid.FromString(params.StorageInTransitID.String())
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	isUserAuthorized, err := authorizeStorageInTransitRequest(h.DB(), session, shipmentID, true)
@@ -212,19 +235,27 @@ func (h PatchStorageInTransitHandler) Handle(params sitop.PatchStorageInTransitP
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	newStorageInTransit, err := processStorageInTransitInput(h, shipmentID, *payload)
-
-	_, err = h.DB().ValidateAndSave(&newStorageInTransit)
-
+	storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
 	if err != nil {
-		h.Logger().Error("DB Query", zap.Error(err))
+		h.Logger().Error("Could not find existing SIT record", zap.Error(err))
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	storageInTransitPayload := payloadForStorageInTransitModel(&newStorageInTransit)
+	if storageInTransit.ShipmentID != shipmentID {
+		h.Logger().Error("Shipment ID clash between endpoint URL and SIT record")
+		return sitop.NewPatchStorageInTransitForbidden()
+	}
+
+	patchStorageInTransitWithPayload(storageInTransit, payload)
+
+	verrs, err := models.SaveStorageInTransitAndAddress(h.DB(), storageInTransit)
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+
+	storageInTransitPayload := payloadForStorageInTransitModel(storageInTransit)
 
 	return sitop.NewPatchStorageInTransitOK().WithPayload(storageInTransitPayload)
-
 }
 
 // GetStorageInTransitHandler gets a single Storage In Transit based on its own ID

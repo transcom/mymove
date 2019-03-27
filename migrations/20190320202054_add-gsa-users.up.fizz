@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190320202054_add-gsa-users.sql")

@@ -19,3 +19,4 @@ check_host milmovelocal
 check_host officelocal
 check_host tsplocal
 check_host orderslocal
+check_host adminlocal

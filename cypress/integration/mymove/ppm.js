@@ -79,6 +79,12 @@ describe('completing the ppm flow', function() {
   });
 
   it('allows a SM to request payment', function() {
+    cy.removeFetch();
+    cy.server();
+    cy.route('POST', '**/internal/uploads').as('postUploadDocument');
+    const stub = cy.stub();
+    cy.on('window:alert', stub);
+
     cy.logout();
     //profile@comple.te
     cy.signInAsUser('8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
@@ -89,8 +95,6 @@ describe('completing the ppm flow', function() {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/request-payment/);
     });
     cy.get('input[type="checkbox"]').should('not.be.checked');
-    const stub = cy.stub();
-    cy.on('window:alert', stub);
 
     cy
       .contains('Legal Agreement / Privacy Act')
@@ -99,7 +103,22 @@ describe('completing the ppm flow', function() {
         expect(stub.getCall(0)).to.be.calledWithMatch('LEGAL AGREEMENT / PRIVACY ACT');
       });
     cy.get('input[type="checkbox"]').should('not.be.checked');
-    cy.get('input[type="checkbox"]').check({ force: true });
+    cy.get('select[name="move_document_type"]').select('WEIGHT_TICKET');
+    cy.get('input[name="title"]').type('WEIGHT_TICKET');
+    cy.upload_file('.filepond--root', 'top-secret.png');
+    cy.wait('@postUploadDocument');
+    cy
+      .get('button')
+      .contains('Save')
+      .click();
+    cy.get('input[id="agree-checkbox"]').check({ force: true });
+    cy
+      .get('button')
+      .contains('Submit Payment')
+      .click();
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/$/);
+    });
   });
 });
 

@@ -3,9 +3,9 @@ import { mount } from 'enzyme';
 import ComboButton from './index';
 
 describe('ComboButton tests', () => {
-  const renderComboButton = ({ buttonText = '', disabled = false }) =>
+  const renderComboButton = ({ buttonText = '', disabled = false, allAreApproved = false, ...props }) =>
     mount(
-      <ComboButton buttonText={buttonText} disabled={disabled}>
+      <ComboButton allAreApproved={allAreApproved} buttonText={buttonText} disabled={disabled} {...props}>
         <div className="dropdown">dropDownText</div>
       </ComboButton>,
     );
@@ -23,6 +23,19 @@ describe('ComboButton tests', () => {
 
       it('renders in a disabled state', () => {
         expect(button.props().disabled).toBe(true);
+      });
+
+      describe('when all aspects of move have been approved', () => {
+        const wrapper = renderComboButton({ buttonText: 'Approved', allAreApproved: true });
+        it('shows success green success styling', () => {
+          const greenBtn = wrapper.find('.btn__approve--green');
+          expect(greenBtn.exists()).toBe(true);
+        });
+
+        it('shows the checbmark icon', () => {
+          const checkmarkIcon = wrapper.find('.fa-check');
+          expect(checkmarkIcon.exists()).toBe(true);
+        });
       });
     });
   });

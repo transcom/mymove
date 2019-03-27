@@ -15,6 +15,7 @@ const transportationServiceProvider = {
   id: 'f21cfbfa-3735-4166-97fb-bbc069e52637',
   name: 'Best moving company',
   poc_general_phone: '222-333-4444',
+  poc_claims_phone: '555-666-7777',
 };
 
 const shipment = {
@@ -61,7 +62,7 @@ describe('ContactInfo tests', () => {
     it('renders the file a claim section', () => {
       expect(wrapper.contains('File a Claim')).toBe(true);
       expect(wrapper.contains(transportationServiceProvider.name)).toEqual(true);
-      expect(wrapper.contains(transportationServiceProvider.poc_general_phone)).toEqual(true);
+      expect(wrapper.contains(transportationServiceProvider.poc_claims_phone)).toEqual(true);
     });
   });
 });
