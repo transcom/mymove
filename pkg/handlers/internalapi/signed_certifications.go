@@ -14,9 +14,15 @@ import (
 )
 
 func payloadForSignedCertificationModel(cert models.SignedCertification) *internalmessages.SignedCertificationPayload {
+	var ptrCertificationType *internalmessages.SignedCertificationType
+	if cert.CertificationType != nil {
+		certificationType := internalmessages.SignedCertificationType(*cert.CertificationType)
+		ptrCertificationType = &certificationType
+	}
+
 	return &internalmessages.SignedCertificationPayload{
 		CertificationText:        handlers.FmtString(cert.CertificationText),
-		CertificationType:        internalmessages.SignedCertificationType(cert.CertificationType),
+		CertificationType:        ptrCertificationType,
 		CreatedAt:                handlers.FmtDateTime(cert.CreatedAt),
 		Date:                     handlers.FmtDate(cert.Date),
 		ID:                       handlers.FmtUUID(cert.ID),
@@ -59,7 +65,12 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 			}
 		}
 	}
-	certType := models.SignedCertificationType(payload.CertificationType)
+
+	var ptrCertType *models.SignedCertificationType
+	if payload.CertificationType != nil {
+		certType := models.SignedCertificationType(*payload.CertificationType)
+		ptrCertType = &certType
+	}
 
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
@@ -73,7 +84,7 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 		(time.Time)(*payload.Date),
 		ppmID,
 		shipmentID,
-		certType)
+		ptrCertType)
 	if verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}

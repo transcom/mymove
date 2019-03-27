@@ -461,7 +461,7 @@ func (m Move) CreateSignedCertification(db *pop.Connection,
 	date time.Time,
 	ppmID *uuid.UUID,
 	shipmentID *uuid.UUID,
-	certificationType SignedCertificationType) (*SignedCertification, *validate.Errors, error) {
+	certificationType *SignedCertificationType) (*SignedCertification, *validate.Errors, error) {
 
 	newSignedCertification := SignedCertification{
 		MoveID:                   m.ID,
