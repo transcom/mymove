@@ -179,3 +179,49 @@ func TestOptionalDateIsWorkday_IsValid(t *testing.T) {
 		}
 	})
 }
+
+func TestOptionalStringInclusion_IsValid(t *testing.T) {
+	targetStrings := []string{"aaa", "bbb", "ccc"}
+	fieldName := "test_string"
+
+	t.Run("String in list", func(t *testing.T) {
+		testString := "bbb"
+		validator := models.OptionalStringInclusion{Name: fieldName, List: targetStrings, Field: &testString}
+		errs := validate.NewErrors()
+
+		validator.IsValid(errs)
+
+		if errs.Count() != 0 {
+			t.Fatal("There should be no errors")
+		}
+	})
+
+	t.Run("String not in list", func(t *testing.T) {
+		testString := "zzz"
+		validator := models.OptionalStringInclusion{Name: fieldName, List: targetStrings, Field: &testString}
+		errs := validate.NewErrors()
+
+		validator.IsValid(errs)
+
+		testErrors := errs.Get(fieldName)
+		if len(testErrors) != 1 {
+			t.Fatal("There should be an error")
+		}
+
+		expected := fmt.Sprintf("%s is not in the list [%s].", fieldName, strings.Join(targetStrings, ", "))
+		if testErrors[0] != expected {
+			t.Fatalf("wrong validation message; expected %s, got %s", expected, testErrors[0])
+		}
+	})
+
+	t.Run("String is nil", func(t *testing.T) {
+		validator := models.OptionalStringInclusion{Name: "test_string", List: targetStrings, Field: nil}
+		errs := validate.NewErrors()
+
+		validator.IsValid(errs)
+
+		if errs.Count() != 0 {
+			t.Fatal("There should be no errors")
+		}
+	})
+}
