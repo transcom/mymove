@@ -917,7 +917,7 @@ workflows:
 
       - build_tasks:
           requires:
-            - pre_deps_golang
+            - build_tools
 
       - deploy_experimental_migrations:
           requires:
@@ -935,14 +935,6 @@ workflows:
 
       - deploy_experimental_tasks:
           requires:
-            - pre_test
-            - pre_test
-            - client_test
-            - server_test
-            - acceptance_tests_local
-            - acceptance_tests_experimental
-            # - build_app # app doesn't need to build to deploy tasks to experimental
-            - build_tools
             - build_tasks
           filters:
             branches:
