@@ -1,0 +1,64 @@
+{
+  "name": "app-task-save-fuel-price-data-{{ .environment }}",
+  "image": "{{ .image }}",
+  "essential": true,
+  "entryPoint": [
+    "/bin/chamber",
+    "-r",
+    "{{ .CHAMBER_RETRIES }}",
+    "exec",
+    "app-{{ .environment }}",
+    "--",
+    "/bin/save-fuel-price-data"
+  ],
+  "command": [],
+  "environment": [
+    {
+      "name": "ENVIRONMENT",
+      "value": "{{ .environment }}"
+    },
+    {
+      "name": "DB_HOST",
+      "value": "{{ .db_host }}"
+    },
+    {
+      "name": "DB_PORT",
+      "value": "5432"
+    },
+    {
+      "name": "DB_USER",
+      "value": "master"
+    },
+    {
+      "name": "DB_NAME",
+      "value": "app"
+    },
+    {
+      "name": "CHAMBER_KMS_KEY_ALIAS",
+      "value": "alias/aws/ssm"
+    },
+    {
+      "name": "CHAMBER_USE_PATHS",
+      "value": "1"
+    },
+    {
+      "name": "EIA_KEY",
+      "value": "{{ .eia_key}}"
+    },
+    {
+      "name": "EIA_URL",
+      "value": "{{ .eia_url}}"
+    }
+  ],
+  "logConfiguration": {
+    "logDriver": "awslogs",
+    "options": {
+      "awslogs-group": "ecs-tasks-app-{{ .environment }}",
+      "awslogs-region": "us-west-2",
+      "awslogs-stream-prefix": "app-task-save-fuel-price-data"
+    }
+  },
+  "mountPoints": [],
+  "portMappings": [],
+  "volumesFrom": []
+}

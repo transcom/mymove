@@ -19,6 +19,7 @@ func main() {
 
 	flag := pflag.CommandLine
 
+	flag.String("env", "development", "The environment to run in, which configures the database.")
 	flag.String("eia-key", "", "key for Energy Information Administration (EIA) api")
 	flag.String("eia-url", "", "url for EIA api")
 	flag.Parse(os.Args[1:])
@@ -28,12 +29,14 @@ func main() {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	db, err := pop.Connect("development")
+	env := v.GetString("env")
+
+	db, err := pop.Connect(env)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	logger, err := logging.Config("development", true)
+	logger, err := logging.Config(env, true)
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}

@@ -59,6 +59,19 @@ commands:
           environment:
             CHAMBER_RETRIES: 20
       - announce_failure
+  deploy_tasks_steps:
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - deploy:
+          name: Deploy task service
+          command: bin/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-tasks-container app config/task.save-fuel-price-data.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
+          no_output_timeout: 20m
+      - announce_failure
   deploy_app_steps:
     parameters:
       compare_host:
@@ -74,7 +87,8 @@ commands:
       - restore_cache:
           keys:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
       - deploy:
           name: Deploy app service
           command: bin/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
@@ -101,7 +115,8 @@ commands:
       - restore_cache:
           keys:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
       - deploy:
           name: Deploy app-client-tls service
           command: bin/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
@@ -603,6 +618,23 @@ jobs:
           repo: app-migrations
       - announce_failure
 
+  # `build_tasks` builds the tasks containers and pushes them to the container repository
+  build_tasks:
+    executor: mymove_small
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      - run: make build_save_fuel_price_data
+      - build_tag_push:
+          dockerfile: Dockerfile.task.save-fuel-price-data
+          tag: ppp-save-fuel-price-data:dev
+          repo: app-tasks
+      - announce_failure
+
   # `acceptance_tests_experimental` runs acceptance tests for the webserver against the experimental environment.
   acceptance_tests_experimental:
     executor: mymove_medium
@@ -637,6 +669,14 @@ jobs:
       - APP_ENVIRONMENT: 'experimental'
     steps:
       - deploy_migrations_steps
+
+  # `deploy_experimental_tasks` deploys scheduled tasks to the experimental environment
+  deploy_experimental_tasks:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'experimental'
+    steps:
+      - deploy_tasks_steps
 
   # `deploy_experimental_app` updates the server-TLS app service in the experimental environment
   deploy_experimental_app:
@@ -875,6 +915,10 @@ workflows:
           requires:
             - pre_deps_golang
 
+      - build_tasks:
+          requires:
+            - pre_deps_golang
+
       - deploy_experimental_migrations:
           requires:
             - pre_test
@@ -885,6 +929,21 @@ workflows:
             - build_app
             # - build_tools # tools don't need to build to deploy to experimental
             - build_migrations
+          filters:
+            branches:
+              only: placeholder_branch_name
+
+      - deploy_experimental_tasks:
+          requires:
+            - pre_test
+            - pre_test
+            - client_test
+            - server_test
+            - acceptance_tests_local
+            - acceptance_tests_experimental
+            # - build_app # app doesn't need to build to deploy tasks to experimental
+            - build_tools
+            - build_tasks
           filters:
             branches:
               only: placeholder_branch_name

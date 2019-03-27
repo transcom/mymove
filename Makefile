@@ -244,8 +244,12 @@ server_run_debug:
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) dlv debug cmd/webserver/main.go
 
+.PHONY: build_save_fuel_price_data
+build_save_fuel_price_data: go_deps
+	go build -i -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
+
 .PHONY: build_tools
-build_tools: bash_version server_deps server_generate build_generate_test_data
+build_tools: bash_version server_deps server_generate build_generate_test_data build_save_fuel_price_data
 	go build -i -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare_secure_migrations
 	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
@@ -259,7 +263,6 @@ build_tools: bash_version server_deps server_generate build_generate_test_data
 	go build -i -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
 	go build -i -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
 	go build -i -ldflags "$(LDFLAGS)" -o bin/paperwork ./cmd/paperwork
-	go build -i -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
 	go build -i -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
 	go build -i -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
 
@@ -552,6 +555,48 @@ db_test_e2e_populate: db_test_reset_docker db_test_migrate_docker build_tools db
 
 #
 # ----- END E2E TARGETS -----
+#
+
+#
+# ----- START SCHEDULED TASK TARGETS -----
+#
+
+.PHONY: tasks_clean
+tasks_clean:
+	rm -f .db_test_migrations_build.stamp
+	rm -rf bin_linux/
+	docker rm -f save-fuel-price-data || true
+
+.PHONY: tasks_build
+tasks_build: tasks_save_fuel_price_data_build
+
+.PHONY: tasks_save_fuel_price_data_build
+tasks_save_fuel_price_data_build:
+	@echo "Build required binaries for the docker scheduled task save-fuel-price-data container..."
+	mkdir -p bin_linux/
+	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/save-fuel-price-data ./cmd/save_fuel_price_data
+	@echo "Build the docker scheduled task save-fuel-price-data container..."
+	docker build -f Dockerfile.task.save-fuel-price-data_local --tag save-fuel-price-data:latest .
+
+.PHONY: tasks_save_fuel_price_data
+tasks_save_fuel_price_data: tasks_save_fuel_price_data_build
+	@echo "Saving the fuel price data to the ${DB_NAME_DEV} database with docker command..."
+	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) bin/wait-for-db-docker
+	docker run \
+		-t \
+		-e DB_NAME=$(DB_NAME_DEV) \
+		-e DB_HOST=database \
+		-e DB_PORT=$(DB_PORT_DOCKER) \
+		-e DB_USER=postgres \
+		-e DB_PASSWORD=$(PGPASSWORD) \
+		-e EIA_KEY \
+		-e EIA_URL \
+		--link="$(DB_DOCKER_CONTAINER_TEST):database" \
+		--rm \
+		save-fuel-price-data:latest
+
+#
+# ----- END SCHEDULED TASK TARGETS -----
 #
 
 #
