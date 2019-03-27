@@ -41,3 +41,27 @@ func (suite *ModelSuite) Test_ClientCertValidations() {
 
 	suite.verifyValidationErrors(cert, expErrors)
 }
+
+func (suite *ModelSuite) Test_ClientCertGetAllowedOrdersIssuersReadNone() {
+	cert := models.ClientCert{}
+	suite.Empty(cert.GetAllowedOrdersIssuersRead())
+}
+
+func (suite *ModelSuite) Test_ClientCertGetAllowedOrdersIssuersReadAll() {
+	cert := models.ClientCert{
+		AllowAirForceOrdersRead:    true,
+		AllowArmyOrdersRead:        true,
+		AllowCoastGuardOrdersRead:  true,
+		AllowMarineCorpsOrdersRead: true,
+		AllowNavyOrdersRead:        true,
+	}
+	suite.ElementsMatch(
+		cert.GetAllowedOrdersIssuersRead(),
+		[]string{
+			string(models.IssuerAirForce),
+			string(models.IssuerArmy),
+			string(models.IssuerCoastGuard),
+			string(models.IssuerMarineCorps),
+			string(models.IssuerNavy),
+		})
+}

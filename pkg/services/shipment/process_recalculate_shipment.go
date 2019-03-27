@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -15,7 +14,7 @@ import (
 // ProcessRecalculateShipment is a service object to recalculate a Shipment's Line Items
 type ProcessRecalculateShipment struct {
 	DB     *pop.Connection
-	Logger *zap.Logger
+	Logger Logger
 }
 
 /*

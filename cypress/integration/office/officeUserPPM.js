@@ -1,4 +1,6 @@
 /* global cy */
+import { userCancelsStorageDetails, userSavesStorageDetails } from '../../support/storagePanel';
+
 describe('office user finds the move', function() {
   beforeEach(() => {
     cy.signIntoOffice();
@@ -62,7 +64,17 @@ describe('office user finds the move', function() {
 
   it('edits pickup and destination zip codes in estimates panel and these values are reflected in the storage and incentive calculators', function() {
     officeUserGoesToPPMPanel('FDXTIU');
-    officeUserEditsEstimatesPanel(60606, 72018);
+    officeUserEditsEstimatesPanel(60606, 72018, 6000);
+  });
+
+  it('office user completes storage panel', function() {
+    officeUserGoesToStoragePanel('STORAG');
+    userSavesStorageDetails();
+  });
+
+  it('office user cancels storage panel', function() {
+    officeUserGoesToStoragePanel('NOSTRG');
+    userCancelsStorageDetails();
   });
 });
 
@@ -372,7 +384,7 @@ function officeUserEditsDatesAndLocationsPanel(date) {
     .click();
 }
 
-function officeUserEditsEstimatesPanel(destinationPostalCode, pickupPostalCode) {
+function officeUserEditsEstimatesPanel(destinationPostalCode, pickupPostalCode, weightEstimate) {
   cy
     .get('.editable-panel-header')
     .contains('Estimates')
@@ -389,6 +401,11 @@ function officeUserEditsEstimatesPanel(destinationPostalCode, pickupPostalCode) 
       .get('input[name="PPMEstimate.pickup_postal_code"]')
       .clear()
       .type(pickupPostalCode);
+
+    cy
+      .get('input[name="PPMEstimate.weight_estimate"]')
+      .clear()
+      .type(weightEstimate);
   });
 
   cy
@@ -400,10 +417,33 @@ function officeUserEditsEstimatesPanel(destinationPostalCode, pickupPostalCode) 
     .get('button')
     .contains('Save')
     .click();
+}
 
-  cy.get('.storage-calc').within(() => {
-    cy.get('input[name="destination_postal_code"]').should('have.value', `${destinationPostalCode}`);
-
-    cy.get('input[name="pickup_postal_code"]').should('have.value', `${pickupPostalCode}`);
+function officeUserGoesToStoragePanel(locator) {
+  // Open new moves queue
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new/);
   });
+
+  // Find shipment and open it
+  cy.selectQueueItemMoveLocator(locator);
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
+
+  cy
+    .get('.title')
+    .contains('PPM')
+    .click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);
+  });
+
+  cy
+    .get('.editable-panel-header')
+    .contains('Storage')
+    .siblings()
+    .click();
 }

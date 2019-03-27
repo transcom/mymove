@@ -15,6 +15,7 @@ import { getLastError } from 'shared/Swagger/selectors';
 import { no_op } from 'shared/utils';
 import { formatCents, formatDate } from 'shared/formatters';
 import Alert from 'shared/Alert';
+import ToolTip from 'shared/ToolTip';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
@@ -83,25 +84,27 @@ class PaymentsTable extends Component {
         return <div>{/* Further actions to come*/}</div>;
       } else {
         return (
-          <React.Fragment>
-            <div onClick={this.approveReimbursement}>
+          <div onClick={this.approveReimbursement}>
+            <ToolTip disabled={false} text="Approve" textStyle="tooltiptext-small">
               <FontAwesomeIcon aria-hidden className="icon approval-ready" icon={faCheck} title="Approve" />
-              <span className="tooltiptext">Approve</span>
-            </div>
-          </React.Fragment>
+            </ToolTip>
+          </div>
         );
       }
     } else {
       return (
-        <React.Fragment>
+        <ToolTip
+          disabled={false}
+          text={"Can't approve payment until shipment is approved"}
+          textStyle="tooltiptext-medium"
+        >
           <FontAwesomeIcon
             aria-hidden
             className="icon approval-blocked"
             icon={faCheck}
             title="Can't approve payment until shipment is approved."
           />
-          <span className="tooltiptext tooltiptext-medium">Can't approve payment until shipment is approved.</span>
-        </React.Fragment>
+        </ToolTip>
       );
     }
   };
@@ -156,9 +159,7 @@ class PaymentsTable extends Component {
                       </div>
                     )}
                   </td>
-                  <td className="payment-table-column-content">
-                    <span className="tooltip">{this.renderAdvanceAction()}</span>
-                  </td>
+                  <td className="payment-table-column-content">{this.renderAdvanceAction()}</td>
                 </tr>
               </React.Fragment>
             ) : (

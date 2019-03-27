@@ -111,13 +111,22 @@ function serviceMemberAddsLocations() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-locations/);
   });
-  cy.get('button.next').should('be.disabled');
+  // Note that we are not checking for a disabled save button because we
+  // expect the pickup address to prefill with the SM residential address
+
+  // Pickup address
+  cy.get('input[name="pickup_address.street_address_1"]').should('have.value', '123 Any Street');
+  cy.get('input[name="pickup_address.street_address_2"]').should('have.value', 'P.O. Box 12345');
+  cy.get('input[name="pickup_address.city"]').should('have.value', 'Beverly Hills');
+  cy.get('select[name="pickup_address.state"]').should('have.value', 'CA');
+  cy.get('input[name="pickup_address.postal_code"]').should('have.value', '90210');
 
   // Pickup address
   cy
     .get('input[name="pickup_address.street_address_1"]')
     .clear({ force: true })
     .type('123 Elm Street');
+  cy.get('input[name="pickup_address.street_address_2"]').clear({ force: true });
   cy
     .get('input[name="pickup_address.city"]')
     .clear()
@@ -150,7 +159,10 @@ function serviceMemberAddsLocations() {
     .clear()
     .type('Fremont');
   cy.get('select[name="delivery_address.state"]').select('CA');
-  cy.get('input[name="delivery_address.postal_code"]').type('94567');
+  cy
+    .get('input[name="delivery_address.postal_code"]')
+    .clear()
+    .type('94567');
 
   cy.nextPage();
 }
@@ -252,22 +264,29 @@ function serviceMemberEditsDates() {
     .contains('Edit')
     .click();
 
-  cy.contains('Pick a moving date');
-  cy.get('.DayPicker-Body').then($body => {
-    if ($body.find('.DayPicker-Day--transit[aria-disabled=false]').length === 0) {
-      cy.get('.DayPicker-NavButton--next').click();
-    }
-  });
-  cy
-    .get('.DayPicker-Day--transit[aria-disabled=false]') // pick the first transit day that is selectable
-    .first()
-    .click()
-    .should('have.class', 'DayPicker-Day--pickup')
-    .invoke('attr', 'aria-label')
-    .as('dateLabel');
+  // Wait for valid move dates to be loaded from the server
+  cy.waitForLoadingScreen();
 
-  cy.contains('Save').click();
-  checkLoadingDate();
+  cy.contains('Pick a moving date');
+  cy
+    .get('.DayPicker-Body')
+    .then($body => {
+      if ($body.find('.DayPicker-Day--transit[aria-disabled=false]').length === 0) {
+        cy.get('.DayPicker-NavButton--next').click();
+      }
+    })
+    .then(() => {
+      cy
+        .get('.DayPicker-Day--transit[aria-disabled=false]') // pick the first transit day that is selectable
+        .first()
+        .click()
+        .should('have.class', 'DayPicker-Day--pickup')
+        .invoke('attr', 'aria-label')
+        .as('dateLabel');
+
+      cy.contains('Save').click();
+      checkLoadingDate();
+    });
 }
 
 function serviceMemberCancelsDateEdit() {

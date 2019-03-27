@@ -15,7 +15,7 @@ export const Code105Details = props => {
   let crateDetails = `Crate: ${crateLengthinInches}" x ${crateWidthinInches}" x ${crateHeightinInches}" (${crateCubicFeet})`;
   let ItemDetails = `Item: ${itemLengthinInches}" x ${itemWidthinInches}" x ${itemHeightinInches}"`;
   return (
-    <td data-cy={`${row.tariff400ng_item.code}-details`}>
+    <td details-cy={`${row.tariff400ng_item.code}-details`}>
       {row.description} <br />
       {crateDetails} <br />
       {ItemDetails} <br />

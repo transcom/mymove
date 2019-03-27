@@ -21,13 +21,13 @@ var ErrZeroLengthFile = errors.New("File has length of 0")
 // generating pre-signed URLs for file access, and deleting Uploads.
 type Uploader struct {
 	db               *pop.Connection
-	logger           *zap.Logger
+	logger           Logger
 	Storer           storage.FileStorer
 	UploadStorageKey string
 }
 
 // NewUploader creates and returns a new uploader
-func NewUploader(db *pop.Connection, logger *zap.Logger, storer storage.FileStorer) *Uploader {
+func NewUploader(db *pop.Connection, logger Logger, storer storage.FileStorer) *Uploader {
 	return &Uploader{
 		db:               db,
 		logger:           logger,

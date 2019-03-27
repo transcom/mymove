@@ -54,7 +54,12 @@ export function selectServiceMemberForMove(state, moveId) {
   if (!move) {
     return {};
   }
-  return selectServiceMemberForOrders(state, move.orders_id);
+  const serviceMemberId = move.service_member_id;
+  const serviceMember = selectServiceMember(state, serviceMemberId);
+  if (!serviceMember) {
+    return {};
+  }
+  return serviceMember;
 }
 
 export function selectBackupContactForServiceMember(state, serviceMemberId) {

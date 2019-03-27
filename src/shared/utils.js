@@ -78,7 +78,13 @@ export function formatPayload(payload, def) {
   });
 }
 
-export const convertDollarsToCents = dollars => Math.round(parseFloat(String(dollars).replace(',', '')) * 100);
+export const convertDollarsToCents = dollars => {
+  if (!dollars && dollars !== 0) {
+    return;
+  }
+
+  return Math.round(parseFloat(String(dollars).replace(',', '')) * 100);
+};
 
 export function renderStatusIcon(status) {
   if (!status) {

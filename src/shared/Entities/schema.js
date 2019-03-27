@@ -89,6 +89,9 @@ export const tariff400ngItems = new schema.Array(tariff400ngItem);
 export const invoice = new schema.Entity('invoices');
 export const invoices = new schema.Array(invoice);
 
+// Signed Certificate
+export const signedCertification = new schema.Entity('signedCertification');
+
 // ShipmentLineItem
 export const shipmentLineItem = new schema.Entity('shipmentLineItems', {
   invoice: invoice,

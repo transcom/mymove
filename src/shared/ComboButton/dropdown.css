@@ -1,0 +1,33 @@
+.dropdown {
+  position: absolute;
+  top: 31px;
+  border: 2px solid #0071bc;
+  background-color: white;
+  border-radius: 5px;
+  width: 200px;
+  display: block;
+}
+
+.dropdown > div {
+  padding: 0.5em 1em;
+  color: #0071bc;
+  font-size: 0.85em;
+  cursor: pointer;
+  line-height: normal;
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+.dropdown > div:hover {
+  color: white;
+  background-color: #0071bc;
+}
+
+.dropdown > div.disabled {
+  color: #aeb0b5;
+}
+
+.dropdown > div.disabled:hover {
+  color: #aeb0b5;
+  background-color: white;
+}

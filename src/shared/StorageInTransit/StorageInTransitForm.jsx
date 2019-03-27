@@ -18,7 +18,7 @@ export class StorageInTransitForm extends Component {
           <div className="editable-panel-column">
             <SwaggerField
               fieldName="location"
-              title={'SIT location'}
+              title="SIT location"
               swagger={storageInTransitSchema}
               className="storage-in-transit-location"
               required
@@ -39,12 +39,7 @@ export class StorageInTransitForm extends Component {
               className="storage-in-transit-warehouse-id"
               required
             />
-            <SwaggerField
-              title={'Warehouse name'}
-              fieldName="warehouse_name"
-              swagger={storageInTransitSchema}
-              required
-            />
+            <SwaggerField title="Warehouse name" fieldName="warehouse_name" swagger={storageInTransitSchema} required />
             <SwaggerField fieldName="warehouse_phone" swagger={storageInTransitSchema} />
             <SwaggerField fieldName="warehouse_email" swagger={storageInTransitSchema} />
           </div>

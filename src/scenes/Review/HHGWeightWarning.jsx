@@ -21,7 +21,7 @@ function warning(name, estimatedWeight, allowedWeight) {
   );
 }
 
-export default function HHGWeightSummary(props) {
+export default function HHGWeightWarning(props) {
   const { shipment, entitlements } = props;
 
   return (

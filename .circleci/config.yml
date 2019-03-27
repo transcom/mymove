@@ -15,23 +15,23 @@ executors:
     resource_class: small
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:a1006bfda60d05876196f03119898777542529d5
+      - image: trussworks/circleci-docker-primary:656d30cb106702a0ce7e4a9d2a74b409c121a8e8
   mymove_medium:
     resource_class: medium
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:a1006bfda60d05876196f03119898777542529d5
+      - image: trussworks/circleci-docker-primary:656d30cb106702a0ce7e4a9d2a74b409c121a8e8
   mymove_large:
     resource_class: large
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:a1006bfda60d05876196f03119898777542529d5
+      - image: trussworks/circleci-docker-primary:656d30cb106702a0ce7e4a9d2a74b409c121a8e8
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:a1006bfda60d05876196f03119898777542529d5
+      - image: trussworks/circleci-docker-primary:656d30cb106702a0ce7e4a9d2a74b409c121a8e8
       - image: postgres:10.5
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -56,6 +56,8 @@ commands:
       - run:
           name: Run migrations
           command: bin/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
+          environment:
+            CHAMBER_RETRIES: 20
       - announce_failure
   deploy_app_steps:
     parameters:
@@ -76,6 +78,7 @@ commands:
       - deploy:
           name: Deploy app service
           command: bin/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+          no_output_timeout: 20m
       - run:
           name: Health Check
           command: go run cmd/health_checker/main.go --schemes http,https --hosts << parameters.health_check_hosts >> --tries 10 --backoff 3 --log-level info --timeout 15m
@@ -102,6 +105,7 @@ commands:
       - deploy:
           name: Deploy app-client-tls service
           command: bin/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
+          no_output_timeout: 20m
       - run:
           name: Health Check
           command: |
@@ -375,6 +379,37 @@ jobs:
           path: cypress/results
       - announce_failure
 
+  # `integration_tests_api` runs integration tests using Cypress.  https://www.cypress.io/
+  integration_tests_api:
+    executor: mymove_medium
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+      - restore_cache:
+          keys:
+            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
+      - e2e_tests:
+          spec: 'cypress/integration/api/**/*'
+      - store_artifacts:
+          path: cypress/videos
+          destination: videos
+      - store_artifacts:
+          path: cypress/screenshots
+          destination: screenshots
+      - store_test_results:
+          path: cypress/results
+      - announce_failure
+
   # `server_test` runs the server side Go tests
   server_test:
     executor: mymove_and_postgres_medium
@@ -543,6 +578,7 @@ jobs:
           keys:
             - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make build_chamber
+      - run: make download_rds_certs
       - run: make build
       - build_tag_push:
           dockerfile: Dockerfile
@@ -588,6 +624,7 @@ jobs:
           name: Run acceptance tests
           command: make webserver_test
           environment:
+            CHAMBER_RETRIES: 20
             PWD: /home/circleci/go/src/github.com/transcom/mymove
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             TEST_ACC_ENV: experimental
@@ -650,6 +687,7 @@ jobs:
           name: Run acceptance tests
           command: make webserver_test
           environment:
+            CHAMBER_RETRIES: 20
             PWD: /home/circleci/go/src/github.com/transcom/mymove
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             TEST_ACC_ENV: staging
@@ -797,6 +835,16 @@ workflows:
           #   branches:
           #     ignore: placeholder_branch_name
 
+      - integration_tests_api:
+          requires:
+            - pre_deps_golang
+            - pre_deps_yarn
+            - acceptance_tests_local
+          # if testing on experimental, you can disable these tests by using the commented block below.
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
+
       - client_test:
           requires:
             - pre_deps_yarn
@@ -868,6 +916,7 @@ workflows:
             - integration_tests_mymove
             - integration_tests_office
             - integration_tests_tsp
+            - integration_tests_api
           filters:
             branches:
               only: master

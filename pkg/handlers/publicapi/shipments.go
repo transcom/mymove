@@ -605,7 +605,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 // CreateGovBillOfLadingHandler creates a GBL PDF & uploads it as a document associated to a move doc, shipment and move
 type CreateGovBillOfLadingHandler struct {
 	handlers.HandlerContext
-	createForm services.FormCreator
+	pdfFormCreator services.FormCreator
 }
 
 // Handle generates the GBL PDF & uploads it as a document associated to a move doc, shipment and move
@@ -655,7 +655,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 		h.Logger().Error(errors.Cause(err).Error(), zap.Error(errors.Cause(err)))
 	}
 
-	gblFile, err := h.createForm.CreateForm(template)
+	gblFile, err := h.pdfFormCreator.CreateForm(template)
 	if err != nil {
 		h.Logger().Error(errors.Cause(err).Error(), zap.Error(errors.Cause(err)))
 		return shipmentop.NewCreateGovBillOfLadingInternalServerError()

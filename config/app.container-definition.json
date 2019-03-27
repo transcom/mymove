@@ -11,6 +11,8 @@
   "essential": true,
   "entryPoint": [
     "/bin/chamber",
+    "-r",
+    "{{ .CHAMBER_RETRIES }}",
     "exec",
     "app-{{ .environment }}",
     "--",
@@ -45,6 +47,14 @@
     {
       "name": "DB_NAME",
       "value": "app"
+    },
+    {
+      "name": "DB_SSL_MODE",
+      "value": "{{ .DB_SSL_MODE }}"
+    },
+    {
+      "name": "DB_SSL_ROOT_CERT",
+      "value": "{{ .DB_SSL_ROOT_CERT }}"
     },
     {
       "name": "CHAMBER_KMS_KEY_ALIAS",
@@ -161,6 +171,18 @@
     {
       "name": "SEND_PROD_INVOICE",
       "value": "{{ .SEND_PROD_INVOICE }}"
+    },
+    {
+      "name": "SERVE_SWAGGER_UI",
+      "value": "{{ .SERVE_SWAGGER_UI }}"
+    },
+    {
+      "name": "EIA_KEY",
+      "value": "{{ .EIA_KEY }}"
+    },
+    {
+      "name": "EIA_URL",
+      "value": "https://api.eia.gov/series/"
     }
   ],
   "logConfiguration": {

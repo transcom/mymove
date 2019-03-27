@@ -48,6 +48,7 @@ var (
 		"PickupAddress",
 		"SecondaryPickupAddress",
 		"DeliveryAddress",
+		"DestinationAddressOnAcceptance",
 		"PartialSITDeliveryAddress",
 		"ShipmentOffers.TransportationServiceProviderPerformance.TransportationServiceProvider",
 		"ShippingDistance.OriginAddress",
@@ -91,17 +92,19 @@ type Shipment struct {
 	EstimatedTransitDays *int64 `json:"estimated_transit_days" db:"estimated_transit_days"` // how many days it will take to get to destination
 
 	// addresses
-	PickupAddressID              *uuid.UUID `json:"pickup_address_id" db:"pickup_address_id"`
-	PickupAddress                *Address   `belongs_to:"address"`
-	HasSecondaryPickupAddress    bool       `json:"has_secondary_pickup_address" db:"has_secondary_pickup_address"`
-	SecondaryPickupAddressID     *uuid.UUID `json:"secondary_pickup_address_id" db:"secondary_pickup_address_id"`
-	SecondaryPickupAddress       *Address   `belongs_to:"address"`
-	HasDeliveryAddress           bool       `json:"has_delivery_address" db:"has_delivery_address"`
-	DeliveryAddressID            *uuid.UUID `json:"delivery_address_id" db:"delivery_address_id"`
-	DeliveryAddress              *Address   `belongs_to:"address"`
-	HasPartialSITDeliveryAddress bool       `json:"has_partial_sit_delivery_address" db:"has_partial_sit_delivery_address"`
-	PartialSITDeliveryAddressID  *uuid.UUID `json:"partial_sit_delivery_address_id" db:"partial_sit_delivery_address_id"`
-	PartialSITDeliveryAddress    *Address   `belongs_to:"address"`
+	PickupAddressID                  *uuid.UUID `json:"pickup_address_id" db:"pickup_address_id"`
+	PickupAddress                    *Address   `belongs_to:"address"`
+	HasSecondaryPickupAddress        bool       `json:"has_secondary_pickup_address" db:"has_secondary_pickup_address"`
+	SecondaryPickupAddressID         *uuid.UUID `json:"secondary_pickup_address_id" db:"secondary_pickup_address_id"`
+	SecondaryPickupAddress           *Address   `belongs_to:"address"`
+	HasDeliveryAddress               bool       `json:"has_delivery_address" db:"has_delivery_address"`
+	DeliveryAddressID                *uuid.UUID `json:"delivery_address_id" db:"delivery_address_id"`
+	DeliveryAddress                  *Address   `belongs_to:"address"`
+	HasPartialSITDeliveryAddress     bool       `json:"has_partial_sit_delivery_address" db:"has_partial_sit_delivery_address"`
+	PartialSITDeliveryAddressID      *uuid.UUID `json:"partial_sit_delivery_address_id" db:"partial_sit_delivery_address_id"`
+	PartialSITDeliveryAddress        *Address   `belongs_to:"address"`
+	DestinationAddressOnAcceptanceID *uuid.UUID `json:"destination_address_on_acceptance_id" db:"destination_address_on_acceptance_id"`
+	DestinationAddressOnAcceptance   *Address   `belongs_to:"address"`
 
 	// weights
 	WeightEstimate              *unit.Pound `json:"weight_estimate" db:"weight_estimate"`
@@ -417,13 +420,16 @@ type BaseShipmentLineItemParams struct {
 	Quantity2           *unit.BaseQuantity
 	Location            string
 	Notes               *string
-	Description         *string
 }
 
 // AdditionalShipmentLineItemParams holds any additional parameters for a ShipmentLineItem
 type AdditionalShipmentLineItemParams struct {
-	ItemDimensions  *AdditionalLineItemDimensions
-	CrateDimensions *AdditionalLineItemDimensions
+	Description         *string
+	ItemDimensions      *AdditionalLineItemDimensions
+	CrateDimensions     *AdditionalLineItemDimensions
+	Reason              *string
+	EstimateAmountCents *unit.Cents
+	ActualAmountCents   *unit.Cents
 }
 
 // AdditionalLineItemDimensions holds the length, width and height that will be converted to inches
@@ -454,8 +460,8 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	db.Transaction(func(connection *pop.Connection) error {
 		transactionError := errors.New("Rollback the transaction")
 
-		// NOTE: UpsertItemCodeDependency could update baseParams.Quantity1
-		verrs, err := UpsertItemCodeDependency(connection, &baseParams, &additionalParams, &shipmentLineItem)
+		// NOTE: upsertItemCodeDependency could mutate shipmentLineItem
+		verrs, err := upsertItemCodeDependency(connection, &baseParams, &additionalParams, &shipmentLineItem)
 		if verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error setting up item code dependency: "+baseParams.Tariff400ngItemCode)
@@ -465,13 +471,11 @@ func (s *Shipment) CreateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 		// Non-specified item code
 		shipmentLineItem.ShipmentID = s.ID
 		shipmentLineItem.Tariff400ngItemID = baseParams.Tariff400ngItemID
-		shipmentLineItem.Quantity1 = *baseParams.Quantity1
 		shipmentLineItem.Quantity2 = quantity2
 		shipmentLineItem.Location = ShipmentLineItemLocation(baseParams.Location)
 		shipmentLineItem.Notes = notesVal
 		shipmentLineItem.SubmittedDate = time.Now()
 		shipmentLineItem.Status = ShipmentLineItemStatusSUBMITTED
-		shipmentLineItem.Description = baseParams.Description
 
 		verrs, err = connection.ValidateAndCreate(&shipmentLineItem)
 
@@ -502,25 +506,27 @@ func (s *Shipment) UpdateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	db.Transaction(func(connection *pop.Connection) error {
 		transactionError := errors.New("Rollback the transaction")
 
-		// NOTE: UpsertItemCodeDependency could update baseParams.Quantity1
-		verrs, err := UpsertItemCodeDependency(connection, &baseParams, &additionalParams, shipmentLineItem)
+		// NOTE: upsertItemCodeDependency could mutate shipmentLineItem
+		verrs, err := upsertItemCodeDependency(connection, &baseParams, &additionalParams, shipmentLineItem)
 		if verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error setting up item code dependency: "+baseParams.Tariff400ngItemCode)
 			return transactionError
 		}
 
-		// Non-specified item code
-		shipmentLineItem.Tariff400ngItemID = baseParams.Tariff400ngItemID
-		shipmentLineItem.Quantity1 = unit.BaseQuantity(*baseParams.Quantity1)
-		if baseParams.Quantity2 != nil {
-			shipmentLineItem.Quantity2 = unit.BaseQuantity(*baseParams.Quantity2)
+		// Don't update these properties if status is APPROVED
+		// This only applies to 35A since an user can still update
+		if shipmentLineItem.Status != ShipmentLineItemStatusAPPROVED {
+			// Non-specified item code
+			shipmentLineItem.Tariff400ngItemID = baseParams.Tariff400ngItemID
+			if baseParams.Quantity2 != nil {
+				shipmentLineItem.Quantity2 = *baseParams.Quantity2
+			}
+			shipmentLineItem.Location = ShipmentLineItemLocation(baseParams.Location)
+			if baseParams.Notes != nil {
+				shipmentLineItem.Notes = *baseParams.Notes
+			}
 		}
-		shipmentLineItem.Location = ShipmentLineItemLocation(baseParams.Location)
-		if baseParams.Notes != nil {
-			shipmentLineItem.Notes = *baseParams.Notes
-		}
-		shipmentLineItem.Description = baseParams.Description
 
 		verrs, err = connection.ValidateAndUpdate(shipmentLineItem)
 		if verrs.HasAny() || err != nil {
@@ -542,8 +548,8 @@ func (s *Shipment) UpdateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	return responseVErrors, responseError
 }
 
-// CreateShipmentLineItemDimensions creates new item and crate dimensions for shipment line item
-func CreateShipmentLineItemDimensions(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+// createShipmentLineItemDimensions creates new item and crate dimensions for shipment line item
+func createShipmentLineItemDimensions(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
 	var responseError error
 	responseVErrors := validate.NewErrors()
 
@@ -578,8 +584,8 @@ func CreateShipmentLineItemDimensions(db *pop.Connection, baseParams *BaseShipme
 	return responseVErrors, responseError
 }
 
-// UpdateShipmentLineItemDimensions updates existing shipment line item dimensions
-func UpdateShipmentLineItemDimensions(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+// updateShipmentLineItemDimensions updates existing shipment line item dimensions
+func updateShipmentLineItemDimensions(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
 	var responseError error
 	responseVErrors := validate.NewErrors()
 
@@ -618,57 +624,142 @@ func is105Item(itemCode string, additionalParams *AdditionalShipmentLineItemPara
 	return false
 }
 
-// UpsertItemCodeDependency applies specific validation, creates or updates additional objects/fields for item codes
-func UpsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+// upsertItemCode105Dependency specifically upserts item code 105B/E for shipmentLineItem passed in
+func upsertItemCode105Dependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
 	var responseError error
 	responseVErrors := validate.NewErrors()
 
-	// Backwards compatible with "Old school" 105B/E
-	if is105Item(baseParams.Tariff400ngItemCode, additionalParams) {
-		//Additional validation check if item and crate dimensions exist
-		if additionalParams.ItemDimensions == nil || additionalParams.CrateDimensions == nil {
-			responseError = errors.New("Must have both item and crate dimensions params for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
+	//Additional validation check if item and crate dimensions exist
+	if additionalParams.ItemDimensions == nil || additionalParams.CrateDimensions == nil {
+		responseError = errors.New("Must have both item and crate dimensions params")
+		return responseVErrors, responseError
+	}
+
+	if shipmentLineItem.ItemDimensions.ID == uuid.Nil || shipmentLineItem.CrateDimensions.ID == uuid.Nil {
+		verrs, err := createShipmentLineItemDimensions(db, baseParams, additionalParams, shipmentLineItem)
+		if verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating shipment line item dimensions")
 			return responseVErrors, responseError
 		}
+	} else {
+		verrs, err := updateShipmentLineItemDimensions(db, baseParams, additionalParams, shipmentLineItem)
+		if verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error updating shipment line item dimensions")
+			return responseVErrors, responseError
+		}
+	}
 
-		if shipmentLineItem.ItemDimensions.ID == uuid.Nil || shipmentLineItem.CrateDimensions.ID == uuid.Nil {
-			verrs, err := CreateShipmentLineItemDimensions(db, baseParams, additionalParams, shipmentLineItem)
-			if verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = errors.Wrap(err, "Error creating shipment line item dimensions")
-				return responseVErrors, responseError
-			}
+	// get crate volume in cubic feet
+	crateVolume, err := unit.DimensionToCubicFeet(additionalParams.CrateDimensions.Length, additionalParams.CrateDimensions.Width, additionalParams.CrateDimensions.Height)
+	if err != nil {
+		return nil, errors.Wrap(err, "Dimension units must be greater than 0")
+	}
+
+	// format value to base quantity i.e. times 10,000
+	formattedQuantity1 := unit.BaseQuantityFromFloat(float32(crateVolume))
+	shipmentLineItem.Quantity1 = formattedQuantity1
+	shipmentLineItem.Description = additionalParams.Description
+
+	return responseVErrors, responseError
+}
+
+// is35AItem determines whether the shipment line item is a new (robust) 35A item.
+func is35AItem(itemCode string, additionalParams *AdditionalShipmentLineItemParams) bool {
+	isRobustItem := additionalParams.Reason != nil || additionalParams.EstimateAmountCents != nil || additionalParams.ActualAmountCents != nil
+	if itemCode == "35A" && isRobustItem {
+		return true
+	}
+	return false
+}
+
+// upsertItemCode35ADependency specifically upserts item code 35A for shipmentLineItem passed in
+func upsertItemCode35ADependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	if shipmentLineItem.ID != uuid.Nil && shipmentLineItem.Status == ShipmentLineItemStatusAPPROVED {
+		// Line item exists
+		// Only update the ActualAmountCents
+		shipmentLineItem.ActualAmountCents = additionalParams.ActualAmountCents
+		return responseVErrors, responseError
+	} else if additionalParams.Description == nil || additionalParams.Reason == nil || additionalParams.EstimateAmountCents == nil {
+		// Required to create 35A line item
+		// Description, Reason and EstimateAmounCents
+		responseError = errors.New("Must have Description, Reason and EstimateAmountCents params")
+		return responseVErrors, responseError
+	}
+
+	shipmentLineItem.Description = additionalParams.Description
+	shipmentLineItem.Reason = additionalParams.Reason
+	shipmentLineItem.EstimateAmountCents = additionalParams.EstimateAmountCents
+	shipmentLineItem.ActualAmountCents = additionalParams.ActualAmountCents
+
+	if shipmentLineItem.ActualAmountCents != nil {
+		if *shipmentLineItem.ActualAmountCents <= *shipmentLineItem.EstimateAmountCents {
+			shipmentLineItem.Quantity1 = unit.BaseQuantityFromCents(*shipmentLineItem.ActualAmountCents)
 		} else {
-			verrs, err := UpdateShipmentLineItemDimensions(db, baseParams, additionalParams, shipmentLineItem)
-			if verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = errors.Wrap(err, "Error updating shipment line item dimensions")
-				return responseVErrors, responseError
-			}
+			shipmentLineItem.Quantity1 = unit.BaseQuantityFromCents(*shipmentLineItem.EstimateAmountCents)
 		}
-		// if you are 105b/e item we need to store the crate volume in quantity1 field
-		if is105Item(baseParams.Tariff400ngItemCode, additionalParams) {
-			// get crate volume in cubic feet
-			crateVolume, err := unit.DimensionToCubicFeet(additionalParams.CrateDimensions.Length, additionalParams.CrateDimensions.Width, additionalParams.CrateDimensions.Height)
-			if err != nil {
-				return nil, errors.Wrap(err, "Dimension units must be greater than 0")
-			}
+	} else {
+		// If ActualAmountCents is unset, set base quantity to 0.
+		quantity1 := unit.BaseQuantityFromInt(0)
+		shipmentLineItem.Quantity1 = quantity1
+	}
+	return responseVErrors, responseError
+}
 
-			// format value to base quantity i.e. times 10,000
-			formattedQuantity1 := unit.BaseQuantityFromFloat(float32(crateVolume))
-			baseParams.Quantity1 = &formattedQuantity1
-		}
+// is226AItem determines whether the shipment line item is a new (robust) 226A item.
+func is226AItem(itemCode string, additionalParams *AdditionalShipmentLineItemParams) bool {
+	isRobustItem := additionalParams.Description != nil || additionalParams.Reason != nil || additionalParams.ActualAmountCents != nil
+	if itemCode == "226A" && isRobustItem {
+		return true
+	}
+	return false
+}
 
-		// But if Quantity1 is nil then set it to 0
-		if baseParams.Quantity1 == nil {
-			quantity1 := unit.BaseQuantityFromInt(0)
-			baseParams.Quantity1 = &quantity1
-		}
+// upsertItemCode226ADependency specifically upserts item code 226A for shipmentLineItem passed in
+func upsertItemCode226ADependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	// Required to create 226A line item
+	// Description, Reason and EstimateAmounCents
+	if additionalParams.Description == nil || additionalParams.Reason == nil || additionalParams.ActualAmountCents == nil {
+		responseError = errors.New("Must have Description, Reason and ActualAmountCents params")
+		return responseVErrors, responseError
+	}
+
+	shipmentLineItem.Description = additionalParams.Description
+	shipmentLineItem.Reason = additionalParams.Reason
+	shipmentLineItem.ActualAmountCents = additionalParams.ActualAmountCents
+	shipmentLineItem.Quantity1 = unit.BaseQuantityFromCents(*shipmentLineItem.ActualAmountCents)
+
+	return responseVErrors, responseError
+}
+
+// upsertItemCodeDependency applies specific validation, creates or updates additional objects/fields for item codes.
+// Mutates the shipmentLineItem passed in.
+func upsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+	var responseError error
+	responseVErrors := validate.NewErrors()
+	itemCode := baseParams.Tariff400ngItemCode
+
+	// Backwards compatible with "Old school" base quantity field
+	if is105Item(itemCode, additionalParams) {
+		responseVErrors, responseError = upsertItemCode105Dependency(db, baseParams, additionalParams, shipmentLineItem)
+	} else if is35AItem(itemCode, additionalParams) {
+		responseVErrors, responseError = upsertItemCode35ADependency(db, baseParams, additionalParams, shipmentLineItem)
+	} else if is226AItem(itemCode, additionalParams) {
+		responseVErrors, responseError = upsertItemCode226ADependency(db, baseParams, additionalParams, shipmentLineItem)
 	} else if baseParams.Quantity1 == nil {
 		// General pre-approval request
 		// Check if base quantity is filled out
 		responseError = errors.New("Quantity1 required for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
-		return responseVErrors, responseError
+	} else {
+		// Good to fill out quantity1
+		shipmentLineItem.Quantity1 = *baseParams.Quantity1
 	}
 
 	return responseVErrors, responseError
@@ -917,6 +1008,22 @@ func AcceptShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.U
 		return shipment, nil, nil, err
 	}
 
+	// by default we should use the address of duty station when a TSP accepts shipment unless actual delivery
+	// shipment address is available at the time
+	destAddOnAcceptance := shipment.Move.Orders.NewDutyStation.Address
+	if shipment.HasDeliveryAddress && shipment.DeliveryAddress != nil {
+		destAddOnAcceptance = *shipment.DeliveryAddress
+	}
+
+	// setting id to nil to force a new Address in the db
+	destAddOnAcceptance.ID = uuid.Nil
+	shipment.DestinationAddressOnAcceptance = &destAddOnAcceptance
+
+	_, err = SaveDestinationAddress(db, shipment)
+	if err != nil {
+		return shipment, nil, nil, err
+	}
+
 	shipmentOffer, err := FetchShipmentOfferByTSP(db, tspID, shipmentID)
 	if err != nil {
 		return shipment, shipmentOffer, nil, err
@@ -934,6 +1041,17 @@ func AcceptShipmentForTSP(db *pop.Connection, tspID uuid.UUID, shipmentID uuid.U
 	}
 
 	return saveShipmentAndOffer(db, shipment, shipmentOffer)
+}
+
+// SaveDestinationAddress saves a DestinationAddressOnAcceptance
+func SaveDestinationAddress(db *pop.Connection, shipment *Shipment) (*validate.Errors, error) {
+	verrs, err := db.ValidateAndSave(shipment.DestinationAddressOnAcceptance)
+	if verrs.HasAny() || err != nil {
+		saveError := errors.Wrap(err, "Error saving shipment")
+		return verrs, saveError
+	}
+	shipment.DestinationAddressOnAcceptanceID = &shipment.DestinationAddressOnAcceptance.ID
+	return verrs, nil
 }
 
 // SaveShipmentAndAddresses saves a Shipment and its Addresses atomically.

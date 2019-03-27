@@ -22,29 +22,37 @@ function formatStatus(lineItem) {
   return formattedStatus[0].toUpperCase() + formattedStatus.substring(1).toLowerCase();
 }
 
-export function renderActionIcons(status, onEdit, onApproval, onDelete, shipmentLineItemId) {
+export function renderActionIcons(status, onEdit, onApproval, onDelete, shipmentLineItemId, canEdit35A) {
   // Only office users can approve requests.
   // If the request is approved/invoiced, they cannot be edited, only deleted.
-  //TODO: hiding edit action until we have implementation
+  const isEditable = status === 'SUBMITTED' || (status === 'APPROVED' && canEdit35A);
   return (
     <Fragment>
-      {onApproval &&
-        status === 'SUBMITTED' && (
-          <span data-test="approve-request" onClick={() => onApproval(shipmentLineItemId)}>
-            <FontAwesomeIcon className="icon actionable" icon={faCheck} />
-          </span>
-        )}
-      {onEdit &&
-        status === 'SUBMITTED' && (
-          <span data-test="edit-request" onClick={onEdit}>
-            <FontAwesomeIcon className="icon actionable" icon={faPencil} />
-          </span>
-        )}
-      {onDelete && (
-        <span data-test="delete-request" onClick={onDelete}>
-          <FontAwesomeIcon className="icon actionable" icon={faTimes} />
-        </span>
-      )}
+      <div className="pre-approval-icon-container">
+        <div className="pre-approval-icon">
+          {onApproval &&
+            status === 'SUBMITTED' && (
+              <span data-test="approve-request" onClick={() => onApproval(shipmentLineItemId)}>
+                <FontAwesomeIcon className="icon actionable" icon={faCheck} />
+              </span>
+            )}
+        </div>
+        <div className="pre-approval-icon">
+          {onEdit &&
+            isEditable && (
+              <span data-test="edit-request" onClick={onEdit}>
+                <FontAwesomeIcon className="icon actionable" icon={faPencil} />
+              </span>
+            )}
+        </div>
+        <div className="pre-approval-icon">
+          {onDelete && (
+            <span data-test="delete-request" onClick={onDelete}>
+              <FontAwesomeIcon className="icon actionable" icon={faTimes} />
+            </span>
+          )}
+        </div>
+      </div>
     </Fragment>
   );
 }
@@ -119,7 +127,7 @@ export class PreApprovalRequest extends Component {
 
       return (
         <Fragment>
-          <tr key={row.id} className={deleteActiveClass}>
+          <tr key={row.id} className={deleteActiveClass} data-cy={row.tariff400ng_item.code}>
             <td>{row.tariff400ng_item.code}</td>
             <td>{row.tariff400ng_item.item}</td>
             <td> {row.location[0]} </td>
@@ -130,12 +138,20 @@ export class PreApprovalRequest extends Component {
               {formatStatus(row)}
             </td>
             <td>
-              {showButtons && renderActionIcons(row.status, this.onEdit, this.props.onApproval, this.onDelete, row.id)}
+              {showButtons &&
+                renderActionIcons(
+                  row.status,
+                  this.onEdit,
+                  this.props.onApproval,
+                  this.onDelete,
+                  row.id,
+                  row.tariff400ng_item.code === '35A' && row.estimate_amount_cents && !row.invoice_id,
+                )}
             </td>
           </tr>
           {this.state.showDeleteForm && (
             <tr className="delete-confirm-row">
-              <td colSpan="8" className="delete-confirm">
+              <td colSpan="7" className="delete-confirm">
                 <strong>Are you sure you want to delete?</strong>
                 <button
                   className="usa-button usa-button-secondary"
@@ -159,6 +175,7 @@ export class PreApprovalRequest extends Component {
     }
   }
 }
+
 PreApprovalRequest.propTypes = {
   shipmentLineItem: PropTypes.object.isRequired,
   onEdit: PropTypes.func,

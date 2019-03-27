@@ -9,6 +9,7 @@ import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { getFormComponent } from './DetailsHelper';
 import { selectLocationFromTariff400ngItem } from 'shared/Entities/modules/shipmentLineItems';
+import { convertDollarsToCents } from 'shared/utils';
 
 import './PreApprovalRequest.css';
 
@@ -103,14 +104,53 @@ export class LocationSearch extends Component {
 }
 
 export class PreApprovalForm extends Component {
-  render() {
-    const robustAccessorial = get(this.props, 'context.flags.robustAccessorial', false);
-    const FormComponent = getFormComponent(
-      this.props.tariff400ng_item_code,
-      robustAccessorial,
-      this.props.initialValues,
+  makeStaticForm(FormComponent) {
+    return (
+      <Form className="pre-approval-form" onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
+        <div className="usa-grid-full">
+          <div className="usa-width-one-third">
+            <div className="form-content">
+              <label htmlFor="tariff400ng_item" className="usa-input-label">
+                Code & Item
+              </label>
+              <div>
+                <strong>{getOptionLabel(this.props.initialValues.tariff400ng_item)}</strong>
+              </div>
+              <label htmlFor="location" className="usa-input-label">
+                Location
+              </label>
+              <div>
+                <strong>
+                  {
+                    this.props.ship_line_item_schema.properties.location['x-display-value'][
+                      this.props.initialValues.location
+                    ]
+                  }
+                </strong>
+              </div>
+            </div>
+          </div>
+          <div className="usa-width-one-third">
+            <div className="form-content">
+              <FormComponent {...this.props} />
+            </div>
+          </div>
+          <div className="usa-width-one-third">
+            <div className="form-content">
+              <label htmlFor="notes" className="usa-input-label">
+                Notes
+              </label>
+              <div>
+                <strong>{this.props.initialValues.notes || `None`}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Form>
     );
+  }
 
+  makeEditableForm(FormComponent) {
     return (
       <Form className="pre-approval-form" onSubmit={this.props.handleSubmit(this.props.onSubmit)}>
         <div className="usa-grid-full">
@@ -118,7 +158,7 @@ export class PreApprovalForm extends Component {
             <div className="tariff400-select usa-input">
               <Field
                 name="tariff400ng_item"
-                title="Code & Item"
+                title="Code & item"
                 component={Tariff400ngItemSearch}
                 tariff400ngItems={this.props.tariff400ngItems}
               />
@@ -148,6 +188,17 @@ export class PreApprovalForm extends Component {
       </Form>
     );
   }
+
+  render() {
+    const robustAccessorial = get(this.props, 'context.flags.robustAccessorial', false);
+    const FormComponent = getFormComponent(
+      this.props.tariff400ng_item_code,
+      robustAccessorial,
+      this.props.initialValues,
+    );
+    const isStatic = this.props.status === 'APPROVED';
+    return isStatic ? this.makeStaticForm(FormComponent) : this.makeEditableForm(FormComponent);
+  }
 }
 
 PreApprovalForm.propTypes = {
@@ -176,12 +227,21 @@ const selector = formValueSelector(formName);
 
 function mapStateToProps(state) {
   return {
-    tariff400ng_item_code: get(state, 'form.preapproval_request_form.values.tariff400ng_item.code'),
+    tariff400ng_item_code: selector(state, 'tariff400ng_item.code'),
     ship_line_item_schema: get(state, 'swaggerPublic.spec.definitions.ShipmentLineItem', {}),
     filteredLocations: selectLocationFromTariff400ngItem(state, selector(state, 'tariff400ng_item')),
     selectedLocation: selector(state, 'location'),
     tariff400ngItem: selector(state, 'tariff400ng_item'),
+    status: selector(state, 'status'),
+    showAlert: getActualAmount(state) > getEstimateAmount(state),
   };
+}
+
+function getEstimateAmount(state) {
+  return convertDollarsToCents(selector(state, 'estimate_amount_cents'));
+}
+function getActualAmount(state) {
+  return convertDollarsToCents(selector(state, 'actual_amount_cents'));
 }
 
 export default withContext(connect(mapStateToProps)(PreApprovalForm));

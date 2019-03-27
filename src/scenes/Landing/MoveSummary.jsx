@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { get, includes } from 'lodash';
+import { get, includes, isEmpty } from 'lodash';
 import moment from 'moment';
 import fedHolidays from '@18f/us-federal-holidays';
 
@@ -108,10 +108,29 @@ export const DraftMoveSummary = props => {
 };
 
 export const SubmittedPpmMoveSummary = props => {
-  const { ppm, profile } = props;
+  const { ppm } = props;
   return (
     <Fragment>
       <div>
+        <Alert type="success" heading="Congrats - your move is submitted!">
+          Next, wait for approval. Once approved:<br />
+          <ul>
+            <li>
+              Get certified <strong>weight tickets</strong>, both empty &amp; full
+            </li>
+            <li>
+              Save <strong>expense receipts</strong>, including for storgage
+            </li>
+            <li>
+              Read the{' '}
+              <strong>
+                <a>PPM info sheet</a>
+              </strong>{' '}
+              for more info
+            </li>
+          </ul>
+        </Alert>
+
         <div className="shipment_box">
           <div className="shipment_type">
             <img className="move_sm" src={ppmCar} alt="ppm-car" />
@@ -123,11 +142,16 @@ export const SubmittedPpmMoveSummary = props => {
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 <div className="step">
-                  <div className="title">Next Step: Wait for approval</div>
-                  <div
-                  >{`Your shipment is awaiting approval. This can take up to 3 business days. Questions or need help? Contact your local Transportation Office (PPPO) at ${
-                    profile.current_station.name
-                  }.`}</div>
+                  <div className="title">Next Step: Wait for approval &amp; get ready</div>
+                  <div className="next-step">
+                    You'll be notified when your move is approved (up to 3 days). To get ready to move:
+                    <ul>
+                      <li>
+                        Go to <a>weight scales</a> to get empty &amp; full weight tickets.
+                      </li>
+                      <li>Save expense receipts, including for storage.</li>
+                    </ul>
+                  </div>
                 </div>
               </div>
               <div className="usa-width-one-third">
@@ -142,6 +166,9 @@ export const SubmittedPpmMoveSummary = props => {
                 </div>
               </div>
             </div>
+            <button className="usa-button-secondary" onClick={() => console.log('hi')}>
+              Read PPM Info Sheet
+            </button>
             <div className="step-links">
               <FindWeightScales />
             </div>
@@ -234,19 +261,7 @@ export const SubmittedHhgMoveSummary = props => {
               <div className="status_box usa-width-two-thirds">
                 {showHhgLandingPageText(shipment)}
                 {(shipment.actual_pack_date || today.isSameOrAfter(shipment.pm_survey_planned_pack_date)) && (
-                  <div className="step">
-                    {/* TODO: redo text once we have the proper text to place here.
-                        reference: https://www.pivotaltracker.com/story/show/161939484
-                    <div className="title">File a Claim</div>
-                    <div>
-                      If you have household goods damaged or lost during the move, contact{' '}
-                      <span className="Todo-phase2">Able Movers Claims</span> to file a claim:{' '}
-                      <span className="Todo-phase2">(567) 980-4321.</span> If, after attempting to work with them, you
-                      do not feel that you are receiving adequate compensation, contact the Military Claims Office for
-                      help.
-                    </div>
-                    */}
-                  </div>
+                  <TransportationServiceProviderContactInfo showFileAClaimInfo shipmentId={shipment.id} />
                 )}
               </div>
               <div className="usa-width-one-third">
@@ -427,7 +442,7 @@ const MoveInfoHeader = props => {
         {get(orders, 'new_duty_station.name', 'New move')} (from {get(profile, 'current_station.name', '')})
       </h2>
       {get(move, 'locator') && <div>Move Locator: {get(move, 'locator')}</div>}
-      {entitlement && (
+      {!isEmpty(entitlement) && (
         <div>
           Weight Entitlement: <span>{entitlement.sum.toLocaleString()} lbs</span>
         </div>

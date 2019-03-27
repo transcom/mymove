@@ -245,13 +245,9 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 
 	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(h.DB(), session, moveID)
 	ssfd.PreparationDate = time.Time(params.PreparationDate)
-	ssfd.MaxObligation, err = ppmComputer.ComputeObligations(ssfd, h.Planner(), paperwork.MaxObligation)
+	ssfd.Obligations, err = ppmComputer.ComputeObligations(ssfd, h.Planner())
 	if err != nil {
-		h.Logger().Error("Error calculating PPM max obligations ", zap.Error(err))
-	}
-	ssfd.ActualObligation, err = ppmComputer.ComputeObligations(ssfd, h.Planner(), paperwork.ActualObligation)
-	if err != nil {
-		h.Logger().Error("Error calculating PPM actual obligations ", zap.Error(err))
+		h.Logger().Error("Error calculating obligations ", zap.Error(err))
 	}
 
 	page1Data, page2Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
@@ -265,6 +261,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	// page 1
 	page1Layout := paperwork.ShipmentSummaryPage1Layout
 	page1Template, err := assets.Asset(page1Layout.TemplateImagePath)
+
 	if err != nil {
 		h.Logger().Error("Error reading template file", zap.String("asset", page1Layout.TemplateImagePath), zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
@@ -280,6 +277,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	// page 2
 	page2Layout := paperwork.ShipmentSummaryPage2Layout
 	page2Template, err := assets.Asset(page2Layout.TemplateImagePath)
+
 	if err != nil {
 		h.Logger().Error("Error reading template file", zap.String("asset", page2Layout.TemplateImagePath), zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
