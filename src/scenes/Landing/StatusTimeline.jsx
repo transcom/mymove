@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
-import { get, indexOf, isEmpty } from 'lodash';
+import { get, indexOf } from 'lodash';
 import moment from 'moment';
 
 import { displayDateRange } from 'shared/formatters';
@@ -183,11 +183,8 @@ export const StatusBlock = props => {
     <div className={classes.join(' ')}>
       <div className="status_dot" />
       <div className="status_name">{props.name}</div>
-      {props.shipment && (
-        <div className="status_dates">
-          {isEmpty(props.dates) ? 'TBD' : displayDateRange(props.dates, props.formatType)}
-        </div>
-      )}
+      {props.shipment &&
+        props.dates && <div className="status_dates">{displayDateRange(props.dates, props.formatType)}</div>}
     </div>
   );
 };

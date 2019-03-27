@@ -499,7 +499,6 @@ export const MoveSummary = props => {
   const moveStatus = get(move, 'status', 'DRAFT');
   const moveId = get(move, 'id');
   const selectedMoveType = get(move, 'selected_move_type');
-
   const showHHG = selectedMoveType === 'HHG' || selectedMoveType === 'HHG_PPM';
   const showPPM = selectedMoveType === 'PPM' || selectedMoveType === 'HHG_PPM';
   const hhgStatus = getHHGStatus(moveStatus, shipment);
