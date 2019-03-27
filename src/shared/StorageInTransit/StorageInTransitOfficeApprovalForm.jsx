@@ -21,6 +21,7 @@ export class StorageInTransitOfficeApprovalForm extends Component {
               className="sit-approval-field"
               fieldName="authorized_start_date"
               swagger={storageInTransitSchema}
+              title="Earliest authorized start date"
               required
             />
           </div>
