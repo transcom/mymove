@@ -2,7 +2,7 @@ import { get } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { FormSection, reduxForm } from 'redux-form';
+import { reduxForm } from 'redux-form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { AddressElementEdit } from 'shared/Address';
 
@@ -11,7 +11,6 @@ import './StorageInTransit.css';
 export class StorageInTransitForm extends Component {
   render() {
     const { storageInTransitSchema, addressSchema } = this.props;
-    const warehouseAddress = get(this.props, 'formValues.warehouse_address');
     return (
       <form onSubmit={this.props.handleSubmit(this.props.onSubmit)} className="storage-in-transit-request-form">
         <fieldset key="sit-request-information">
@@ -44,15 +43,7 @@ export class StorageInTransitForm extends Component {
             <SwaggerField fieldName="warehouse_email" swagger={storageInTransitSchema} />
           </div>
           <div className="editable-panel-column">
-            <FormSection name="warehouse_address">
-              <AddressElementEdit
-                addressProps={{
-                  swagger: addressSchema,
-                  values: warehouseAddress,
-                }}
-                zipPattern="USA"
-              />
-            </FormSection>
+            <AddressElementEdit fieldName="warehouse_address" schema={addressSchema} zipPattern="USA" />
           </div>
         </fieldset>
       </form>

@@ -47,22 +47,17 @@ const LocationsEdit = props => {
   const hasDeliveryAddress = get(props, 'formValues.has_delivery_address');
   const hasSecondaryPickupAddress = get(props, 'formValues.has_secondary_pickup_address');
   const secondaryPickupAddress = get(props, 'formValues.secondary_pickup_address', {});
-  const pickupAddress = get(props, 'formValues.pickup_address', {});
   return (
     <Fragment>
       <div className="editable-panel-column">
         <span className="column-subhead">Pickup</span>
-        <FormSection name="pickup_address">
-          <AddressElementEdit
-            addressProps={{
-              swagger: addressSchema,
-              values: pickupAddress,
-            }}
-            title="Primary address"
-            zipPattern="USA"
-            required
-          />
-        </FormSection>
+        <AddressElementEdit
+          fieldName="pickup_address"
+          schema={addressSchema}
+          title="Primary address"
+          zipPattern="USA"
+          required
+        />
         <SwaggerField
           className="radio-title"
           fieldName="has_secondary_pickup_address"
@@ -163,4 +158,4 @@ LocationsPanel.propTypes = {
   initialValues: object.isRequired,
 };
 
-export default LocationsPanel;
+export { LocationsDisplay, LocationsPanel as default };

@@ -1,4 +1,5 @@
-import React, { Fragment } from 'react';
+import React, { Component } from 'react';
+import { FormSection } from 'redux-form';
 import PropTypes from 'prop-types';
 
 import { PanelField } from 'shared/EditablePanel';
@@ -44,14 +45,25 @@ AddressElementDisplay.propTypes = {
   title: PropTypes.string.isRequired,
 };
 
-export const AddressElementEdit = ({ addressProps, title, zipPattern }) => (
-  <Fragment>
-    <div className="panel-subhead">{title}</div>
-    <SwaggerField fieldName="street_address_1" {...addressProps} required />
-    <SwaggerField fieldName="street_address_2" {...addressProps} />
-    <SwaggerField fieldName="street_address_3" {...addressProps} />
-    <SwaggerField fieldName="city" {...addressProps} required />
-    <SwaggerField fieldName="state" {...addressProps} required />
-    <SwaggerField fieldName="postal_code" {...addressProps} zipPattern={zipPattern} required />
-  </Fragment>
-);
+export class AddressElementEdit extends Component {
+  render() {
+    return (
+      <FormSection name={this.props.fieldName}>
+        <div className="panel-subhead">{this.props.title}</div>
+        <SwaggerField fieldName="street_address_1" swagger={this.props.schema} required />
+        <SwaggerField fieldName="street_address_2" swagger={this.props.schema} />
+        <SwaggerField fieldName="street_address_3" swagger={this.props.schema} />
+        <SwaggerField fieldName="city" swagger={this.props.schema} required />
+        <SwaggerField fieldName="state" swagger={this.props.schema} required />
+        <SwaggerField fieldName="postal_code" swagger={this.props.schema} zipPattern={this.props.zipPattern} required />
+      </FormSection>
+    );
+  }
+}
+
+AddressElementEdit.propTypes = {
+  fieldName: PropTypes.string.isRequired,
+  schema: PropTypes.object.isRequired,
+  zipPattern: PropTypes.string,
+  title: PropTypes.string,
+};
