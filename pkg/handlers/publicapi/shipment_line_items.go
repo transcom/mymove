@@ -53,6 +53,9 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 		ActualAmountCents:   handlers.FmtCost(s.ActualAmountCents),
 		AmountCents:         handlers.FmtCost(s.AmountCents),
 		AppliedRate:         handlers.FmtMilliCentsPtr(s.AppliedRate),
+		Date:                handlers.FmtDatePtr(s.Date),
+		Time:                s.Time,
+		Address:             payloadForAddressModel(&s.Address),
 		SubmittedDate:       *handlers.FmtDateTime(s.SubmittedDate),
 		ApprovedDate:        handlers.FmtDateTime(s.ApprovedDate),
 	}
