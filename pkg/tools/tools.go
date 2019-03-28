@@ -9,6 +9,11 @@ package tools
 import (
 	_ "github.com/codegangsta/gin"
 	_ "github.com/go-swagger/go-swagger/cmd/swagger"
+
+	// Packr isn't actually a tool dependency, but it's an indirect dependency that `go vet` and `go mod tidy` disagreed about.
+	// Adding it here is a way to ensure that it isn't tidied up from go.mod
+	_ "github.com/gobuffalo/packr"
+
 	_ "github.com/gobuffalo/pop/soda"
 	_ "github.com/securego/gosec/cmd/gosec"
 	_ "github.com/segmentio/chamber"

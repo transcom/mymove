@@ -39,6 +39,7 @@ require (
 	github.com/go-swagger/scan-repo-boundary v0.0.0-20180623220736-973b3573c013 // indirect
 	github.com/gobuffalo/buffalo-plugins v1.12.1 // indirect
 	github.com/gobuffalo/fizz v1.5.0 // indirect
+	github.com/gobuffalo/packr v1.21.0
 	github.com/gobuffalo/pop v4.9.6+incompatible
 	github.com/gobuffalo/validate v2.0.3+incompatible
 	github.com/gobuffalo/x v0.0.0-20181110221217-14085ca3e1a9 // indirect
