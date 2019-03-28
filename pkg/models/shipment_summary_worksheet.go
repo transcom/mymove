@@ -213,20 +213,11 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 
 	ppmRemainingEntitlement := CalculateRemainingPPMEntitlement(move, totalEntitlement)
 
-	var signedCertification *SignedCertification
-	tmpSignedCert, err := FetchSignedCertificationsPPMPayment(db, session, moveID)
 	//TODO do we want to throw error if don't have signature or just print as empty?
-	if err != nil {
-		switch err {
-		case ErrFetchNotFound:
-			signedCertification = nil
-		default:
-			return ShipmentSummaryFormData{}, err
-		}
-	} else {
-		signedCertification = tmpSignedCert
+	signedCertification, err := FetchSignedCertificationsPPMPayment(db, session, moveID)
+	if err != nil && err != ErrFetchNotFound {
+		return ShipmentSummaryFormData{}, err
 	}
-
 	ssd := ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
 		Order:                   move.Orders,
@@ -398,10 +389,10 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData)
 
 //FormatSignature formats a service member's signature for the Shipment Summary Worksheet
 func FormatSignature(data ShipmentSummaryFormData) string {
-	dateLayout := "02 Jan 2006 at 3:04pm"
 	if data.SignedCertification == nil {
 		return "SIGNATURE MISSING"
 	}
+	dateLayout := "02 Jan 2006 at 3:04pm"
 	dt := data.SignedCertification.Date.Format(dateLayout)
 	first := derefStringTypes(data.ServiceMember.FirstName)
 	last := derefStringTypes(data.ServiceMember.LastName)
