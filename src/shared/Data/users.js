@@ -1,12 +1,11 @@
-import * as Cookies from 'js-cookie';
 import * as helpers from 'shared/ReduxHelpers';
-import { isMilmoveSite, isOfficeSite, isTspSite } from 'shared/constants';
 import { GetLoggedInUser } from 'shared/User/api.js';
 import { pick } from 'lodash';
 import { normalize } from 'normalizr';
 import { ordersArray } from 'shared/Entities/schema';
 import { addEntities } from 'shared/Entities/actions';
 import { getPublicShipment } from 'shared/Entities/modules/shipments';
+import store from 'shared/store';
 
 const getLoggedInUserType = 'GET_LOGGED_IN_USER';
 
@@ -15,8 +14,6 @@ const getLoggedInActions = helpers.generateAsyncActions(getLoggedInUserType);
 
 export function getCurrentUserInfo() {
   return function(dispatch) {
-    const userInfo = getUserInfo();
-    if (!userInfo.isLoggedIn) return Promise.resolve();
     dispatch(getLoggedInActions.start());
     return GetLoggedInUser()
       .then(response => {
@@ -54,25 +51,17 @@ export function selectGetCurrentUserIsError(state) {
   return state.user.hasErrored;
 }
 
-function getUserInfo() {
-  // The prefix should match the lowercased application name set in the server session
-  let cookiePrefix = (isMilmoveSite && 'mil') || (isOfficeSite && 'office') || (isTspSite && 'tsp') || '';
-  const cookieName = cookiePrefix + '_session_token';
-  const cookie = Cookies.get(cookieName);
-  return {
-    isLoggedIn: !!cookie,
-  };
-}
+export const SET_LOGGED_OUT = 'SET_LOGGED_OUT';
+export const setLoggedOut = () => store.dispatch({ type: SET_LOGGED_OUT });
 
 const currentUserReducerDefault = () => ({
   hasSucceeded: false,
   hasErrored: false,
   isLoading: false,
-  userInfo: { email: '', ...getUserInfo() },
+  userInfo: { email: '', isLoggedIn: false },
 });
 
 const currentUserReducer = (state = currentUserReducerDefault(), action) => {
-  const userLogInStatus = getUserInfo();
   switch (action.type) {
     case GET_LOGGED_IN_USER.start:
       return {
@@ -85,7 +74,7 @@ const currentUserReducer = (state = currentUserReducerDefault(), action) => {
       return {
         ...state,
         userInfo: {
-          ...userLogInStatus,
+          isLoggedIn: true,
           ...action.payload,
         },
         hasSucceeded: true,
@@ -99,6 +88,14 @@ const currentUserReducer = (state = currentUserReducerDefault(), action) => {
         hasErrored: true,
         hasSucceeded: false,
         error: action.error,
+      };
+    case SET_LOGGED_OUT:
+      return {
+        ...state,
+        userInfo: { email: '', isLoggedIn: false },
+        hasSucceeded: false,
+        hasErrored: false,
+        isLoading: false,
       };
     default:
       return state;
