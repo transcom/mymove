@@ -4,11 +4,14 @@ codecov:
 
 coverage:
   precision: 2
-  round: down
-  range: "70...100"
+  round: nearest
+  range: "50...70"
 
   status:
-    project: yes
+    project:
+      default: false     # disable the default status that measures entire project
+      go:                # declare a new status context "go"
+        paths: "pkg/"    # only include coverage in "pkg/" folder
     patch: yes
     changes: no
 
@@ -23,4 +26,4 @@ parsers:
 comment:
   layout: "header, diff"
   behavior: default
-  require_changes: no
+  require_changes: yes   # only post a comment if the coverage changes on a PR
