@@ -57,7 +57,7 @@ Cypress.Commands.add('signInAsUser', userId => {
   // make sure we log out first before sign in
   cy.logout();
 
-  cy.visit('/devlocal-auth/login');
+  cy.patientVisit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now
   cy.getCookie('_gorilla_csrf').should('exist');
   cy.getCookie('masked_gorilla_csrf').should('exist');
