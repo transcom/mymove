@@ -1,0 +1,1 @@
+add_column("users", "is_super_user", "bool", {"default": false })
