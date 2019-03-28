@@ -19,3 +19,6 @@ npx cypress open || true
 
 # Terminate the background webserver
 kill %1
+
+# Remvoe the backup of the e2e DB
+make db_test_e2e_cleanup

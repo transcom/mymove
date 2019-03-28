@@ -562,6 +562,10 @@ db_test_e2e_backup:
 db_test_e2e_restore:
 	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) ./bin/db-restore e2e_test
 
+.PHONY: db_test_e2e_cleanup
+db_test_e2e_cleanup:
+	./bin/db-cleanup e2e_test
+
 
 #
 # ----- END E2E TARGETS -----
