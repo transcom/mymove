@@ -554,6 +554,15 @@ db_dev_e2e_populate: db_dev_reset db_dev_migrate build_tools
 .PHONY: db_test_e2e_populate
 db_test_e2e_populate: db_test_reset_docker db_test_migrate_docker build_tools db_e2e_up_docker
 
+.PHONY: db_test_e2e_backup
+db_test_e2e_backup:
+	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) ./bin/db-backup e2e_test
+
+.PHONY: db_test_e2e_restore
+db_test_e2e_restore:
+	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) ./bin/db-restore e2e_test
+
+
 #
 # ----- END E2E TARGETS -----
 #
