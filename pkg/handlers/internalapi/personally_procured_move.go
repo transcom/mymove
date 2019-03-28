@@ -34,6 +34,7 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 		WeightEstimate:                personallyProcuredMove.WeightEstimate,
 		OriginalMoveDate:              handlers.FmtDatePtr(personallyProcuredMove.OriginalMoveDate),
 		ActualMoveDate:                handlers.FmtDatePtr(personallyProcuredMove.ActualMoveDate),
+		SubmitDate:                    handlers.FmtDateTimePtr(personallyProcuredMove.SubmitDate),
 		NetWeight:                     personallyProcuredMove.NetWeight,
 		PickupPostalCode:              personallyProcuredMove.PickupPostalCode,
 		HasAdditionalPostalCode:       personallyProcuredMove.HasAdditionalPostalCode,
@@ -84,7 +85,6 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-
 	payload := params.CreatePersonallyProcuredMovePayload
 
 	var advance *models.Reimbursement
@@ -323,7 +323,8 @@ func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonall
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	err = ppm.Submit()
+	submitDate := time.Time(params.SubmitPersonallyProcuredMovePayload.SubmitDate)
+	err = ppm.Submit(submitDate)
 
 	verrs, err := models.SavePersonallyProcuredMove(h.DB(), ppm)
 	if err != nil || verrs.HasAny() {

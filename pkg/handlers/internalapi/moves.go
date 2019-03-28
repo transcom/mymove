@@ -145,7 +145,6 @@ type SubmitMoveHandler struct {
 
 // Handle ... submit a move for approval
 func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
-
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
@@ -160,7 +159,8 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	err = move.Submit()
+	submitDate := time.Time(params.SubmitMoveForApprovalPayload.PpmSubmitDate)
+	err = move.Submit(submitDate)
 	span.AddField("move-status", string(move.Status))
 	if err != nil {
 		h.HoneyZapLogger().TraceError(ctx, "Failed to change move status to submit",

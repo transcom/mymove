@@ -17,6 +17,7 @@ import reviewGray from 'shared/icon/review-gray.svg';
 import './index.css';
 
 import { loadCertificationText, signAndSubmitForApproval } from './ducks';
+import moment from 'moment';
 
 const formName = 'signature-form';
 const SignatureWizardForm = reduxifyWizardForm(formName);
@@ -33,6 +34,7 @@ export class SignedCertification extends Component {
   handleSubmit = () => {
     const pendingValues = this.props.values;
     const { latestSignedCertification } = this.props;
+    const ppmSubmitDate = moment().format();
 
     if (latestSignedCertification) {
       return this.props.push('/');
@@ -43,7 +45,15 @@ export class SignedCertification extends Component {
       const { certificationText, ppmId } = this.props;
 
       return this.props
-        .signAndSubmitForApproval(moveId, certificationText, pendingValues.signature, pendingValues.date, ppmId)
+        .signAndSubmitForApproval(
+          moveId,
+          certificationText,
+          pendingValues.signature,
+          pendingValues.date,
+          ppmSubmitDate,
+          ppmId,
+          ppmSubmitDate,
+        )
         .then(() => this.props.push('/'));
     }
   };

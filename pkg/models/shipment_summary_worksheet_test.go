@@ -80,10 +80,10 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 		ServiceMemberID: serviceMemberID,
 		ApplicationName: auth.MilApp,
 	}
-	ppm.Move.Submit()
+	ppm.Move.Submit(time.Now())
 	ppm.Move.Approve()
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
-	ppm.Move.PersonallyProcuredMoves[0].Submit()
+	ppm.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm.Move.PersonallyProcuredMoves[0].Approve()
 	ppm.Move.PersonallyProcuredMoves[0].RequestPayment()
 	models.SaveMoveDependencies(suite.DB(), &ppm.Move)

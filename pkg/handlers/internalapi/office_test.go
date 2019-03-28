@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"net/http/httptest"
+	"time"
 
 	"github.com/go-openapi/strfmt"
 
@@ -28,7 +29,7 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// Move is submitted and saved
-	err := move.Submit()
+	err := move.Submit(time.Now())
 	suite.Nil(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 	suite.MustSave(&move)
@@ -60,7 +61,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	// Move is submitted and saved
-	err := move.Submit()
+	err := move.Submit(time.Now())
 	suite.Nil(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 	suite.MustSave(&move)
@@ -115,7 +116,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	suite.Nil(err)
 
 	// Move is submitted
-	err = move.Submit()
+	err = move.Submit(time.Now())
 	suite.Nil(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 

@@ -396,6 +396,12 @@ definitions:
         format: date
         title: When did you actually move?
         x-nullable: true
+      submit_date:
+        type: string
+        format: date-time
+        title: When was the ppm move submitted?
+        example: '2019-03-26T13:19:56-04:00'
+        x-nullable: true
       pickup_postal_code:
         type: string
         format: zip
@@ -492,6 +498,22 @@ definitions:
       - id
       - created_at
       - updated_at
+  SubmitMoveForApprovalPayload:
+    type: object
+    properties:
+      ppm_submit_date:
+        type: string
+        format: date-time
+        title: When was the ppm move submitted?
+        example: '2019-03-26T13:19:56-04:00'
+  SubmitPersonallyProcuredMovePayload:
+    type: object
+    properties:
+      submit_date:
+        type: string
+        format: date-time
+        title: When was the ppm move submitted?
+        example: '2019-03-26T13:19:56-04:00'
   PPMSitEstimate:
     type: object
     properties:
@@ -2835,6 +2857,11 @@ paths:
           format: uuid
           required: true
           description: UUID of the PPM being submitted
+        - name: submitPersonallyProcuredMovePayload
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/SubmitPersonallyProcuredMovePayload'
       responses:
         200:
           description: updated instance of personally_procured_move
@@ -3322,6 +3349,11 @@ paths:
           format: uuid
           required: true
           description: UUID of the move
+        - name: submitMoveForApprovalPayload
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/SubmitMoveForApprovalPayload'
       responses:
         200:
           description: returns updated (submitted) move object

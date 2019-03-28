@@ -29,7 +29,7 @@ const SIGN_AND_SUBMIT_FOR_APPROVAL = ReduxHelpers.generateAsyncActionTypes(signA
 const signAndSubmitForApprovalActions = ReduxHelpers.generateAsyncActions(signAndSubmitForApprovalType);
 const signAndSubmitPpmForApprovalActions = ReduxHelpers.generateAsyncActions(signAndSubmitPpmForApprovalType);
 
-export const signAndSubmitForApproval = (moveId, certificationText, signature, dateSigned) => {
+export const signAndSubmitForApproval = (moveId, certificationText, signature, dateSigned, ppmSubmitDate) => {
   return async function(dispatch, getState) {
     dispatch(signAndSubmitForApprovalActions.start());
     try {
@@ -43,7 +43,13 @@ export const signAndSubmitForApproval = (moveId, certificationText, signature, d
           },
         }),
       );
-      const response = await dispatch(SubmitForApproval(moveId));
+
+      const response = await dispatch(
+        SubmitForApproval(moveId, {
+          ppm_submit_date: ppmSubmitDate,
+        }),
+      );
+
       const data = normalize(response.payload, move);
       const filtered = pick(data.entities, ['shipments', 'moves']);
       dispatch(addEntities(filtered));
@@ -54,7 +60,7 @@ export const signAndSubmitForApproval = (moveId, certificationText, signature, d
   };
 };
 
-export const signAndSubmitPpm = (moveId, certificationText, signature, dateSigned, ppmId) => {
+export const signAndSubmitPpm = (moveId, certificationText, signature, dateSigned, ppmId, ppmSubmitDate) => {
   return async function(dispatch, getState) {
     dispatch(signAndSubmitPpmForApprovalActions.start());
     try {
@@ -68,7 +74,7 @@ export const signAndSubmitPpm = (moveId, certificationText, signature, dateSigne
           },
         }),
       );
-      await dispatch(submitPpm(ppmId));
+      await dispatch(submitPpm(ppmId, ppmSubmitDate));
       return dispatch(signAndSubmitPpmForApprovalActions.success());
     } catch (error) {
       console.log(error);
@@ -77,11 +83,16 @@ export const signAndSubmitPpm = (moveId, certificationText, signature, dateSigne
   };
 };
 
-export function submitPpm(personallyProcuredMoveId) {
+export function submitPpm(personallyProcuredMoveId, personallyProcuredMoveSubmitDate) {
   return swaggerRequest(
     getClient,
     'ppm.submitPersonallyProcuredMove',
-    { personallyProcuredMoveId },
+    {
+      personallyProcuredMoveId,
+      submitPersonallyProcuredMovePayload: {
+        personallyProcuredMoveSubmitDate,
+      },
+    },
     { label: 'submit_ppm' },
   );
 }
