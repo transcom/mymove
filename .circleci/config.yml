@@ -606,10 +606,10 @@ jobs:
       - restore_cache:
           keys:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
-      - run: make build_save_fuel_price_data
+      - run: make tasks_build
       - build_tag_push:
-          dockerfile: Dockerfile.task.save-fuel-price-data
-          tag: ppp-save-fuel-price-data:dev
+          dockerfile: Dockerfile.tasks
+          tag: tasks:dev
           repo: app-tasks
       - announce_failure
 

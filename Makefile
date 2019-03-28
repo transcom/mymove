@@ -569,23 +569,20 @@ db_test_e2e_populate: db_test_reset_docker db_test_migrate_docker build_tools db
 tasks_clean:
 	rm -f .db_test_migrations_build.stamp
 	rm -rf bin_linux/
-	docker rm -f save-fuel-price-data || true
+	docker rm -f tasks || true
 
 .PHONY: tasks_build
-tasks_build: tasks_save_fuel_price_data_build
-
-.PHONY: tasks_save_fuel_price_data_build
-tasks_save_fuel_price_data_build: .tasks_save_fuel_price_data_build.stamp
-.tasks_save_fuel_price_data_build.stamp: server_generate_linux
+tasks_build: .tasks_build.stamp
+.tasks_build.stamp: server_generate_linux
 	@echo "Build required binaries for the docker scheduled task save-fuel-price-data container..."
 	mkdir -p bin_linux/
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/save-fuel-price-data ./cmd/save_fuel_price_data
-	@echo "Build the docker scheduled task save-fuel-price-data container..."
-	docker build -f Dockerfile.task.save-fuel-price-data_local --tag save-fuel-price-data:latest .
-	touch .tasks_save_fuel_price_data_build.stamp
+	@echo "Build the docker scheduled tasks container..."
+	docker build -f Dockerfile.tasks_local --tag tasks:latest .
+	touch .tasks_build.stamp
 
 .PHONY: tasks_save_fuel_price_data
-tasks_save_fuel_price_data: tasks_save_fuel_price_data_build
+tasks_save_fuel_price_data: tasks_build
 	@echo "Saving the fuel price data to the ${DB_NAME_DEV} database with docker command..."
 	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) bin/wait-for-db-docker
 	docker run \
@@ -599,7 +596,8 @@ tasks_save_fuel_price_data: tasks_save_fuel_price_data_build
 		-e EIA_URL \
 		--link="$(DB_DOCKER_CONTAINER_TEST):database" \
 		--rm \
-		save-fuel-price-data:latest
+		tasks:latest \
+		save-fuel-price-data
 
 #
 # ----- END SCHEDULED TASK TARGETS -----

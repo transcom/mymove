@@ -4,4 +4,4 @@ COPY bin_linux/save-fuel-price-data /bin/save-fuel-price-data
 RUN mkdir /config
 COPY config/database.yml /config
 
-ENTRYPOINT ["/bin/save-fuel-price-data"]
+WORKDIR /bin
