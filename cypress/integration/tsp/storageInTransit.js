@@ -1,4 +1,4 @@
-import { fillAndSaveStorageInTransit } from '../../support/testCreateStorageInTransit';
+import { fillAndSaveStorageInTransit, editAndSaveStorageInTransit } from '../../support/testCreateStorageInTransit';
 
 /* global cy */
 describe('TSP user interacts with storage in transit panel', function() {
@@ -10,6 +10,9 @@ describe('TSP user interacts with storage in transit panel', function() {
   });
   it('TSP user starts and then cancels storage in transit request', function() {
     tspUserStartsAndCancelsSitRequest();
+  });
+  it('TSP user edits and saves storage in transit request', function() {
+    tspUserEditsSitRequest();
   });
 });
 
@@ -79,4 +82,36 @@ function tspUserStartsAndCancelsSitRequest() {
       const text = $div.text();
       expect(text).to.not.include('Sit Location');
     });
+}
+
+function tspUserEditsSitRequest() {
+  // Open accepted shipments queue
+  cy.patientVisit('/queues/accepted');
+
+  // Open new shipments queue
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/accepted/);
+  });
+
+  // Find shipment and open it
+  cy.selectQueueItemMoveLocator('SITPAN');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+  });
+
+  cy
+    .get('.storage-in-transit-panel .add-request')
+    .contains('Request SIT')
+    .click();
+
+  fillAndSaveStorageInTransit();
+
+  // click edit
+  cy
+    .get('.sit-edit a')
+    .first()
+    .click();
+
+  editAndSaveStorageInTransit();
 }

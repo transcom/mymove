@@ -2,6 +2,14 @@ h2 {
   margin-bottom: 0;
 }
 
+.usa-alert li {
+  margin-bottom: 0;
+}
+
+.usa-alert ul {
+  padding-left: 3.5rem;
+}
+
 .shipment_box {
   border: 3px solid #f1f1f1;
   overflow: hidden;
@@ -39,6 +47,14 @@ img.status_icon {
 
 .step {
   margin-bottom: 1em;
+}
+
+.next-step {
+  width: 102%;
+}
+
+.next-step li {
+  margin-bottom: 0;
 }
 
 .step-contents {

@@ -4,6 +4,7 @@
 set -eu -o pipefail
 
 readonly db=${DB_NAME:-db_dev}
+readonly port=${DB_PORT:-5432}
 export PGPASSWORD="mysecretpassword"
 
 function list() {
@@ -27,4 +28,4 @@ if [[ ! -f "$path" ]]; then
   exit 1
 fi
 
-psql -h localhost -U postgres -q -d "$db" < "$path" > /dev/null
+psql -h localhost -U postgres -p "$port" -q -d "$db" < "$path" > /dev/null

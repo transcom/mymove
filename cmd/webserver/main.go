@@ -893,7 +893,7 @@ func main() {
 	// Session management and authentication middleware
 	noSessionTimeout := v.GetBool("no-session-timeout")
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout, myHostname, officeHostname, tspHostname, useSecureCookie)
-	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, noSessionTimeout, useSecureCookie)
+	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, useSecureCookie)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 	clientCertMiddleware := authentication.ClientCertMiddleware(logger, dbConnection)
 
@@ -1193,7 +1193,7 @@ func main() {
 		logger.Fatal("Failed to decode csrf auth key", zap.Error(err))
 	}
 	logger.Info("Enabling CSRF protection")
-	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/")))
+	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/"), csrf.CookieName(auth.GorillaCSRFToken)))
 	root.Use(maskedCSRFMiddleware)
 
 	// Sends build variables to honeycomb

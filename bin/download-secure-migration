@@ -1,0 +1,75 @@
+#! /usr/bin/env bash
+#
+# A script to download secure migrations from all environments
+# https://github.com/transcom/mymove#secure-migrations
+#
+
+set -eu -o pipefail
+
+readonly aws_command="aws"
+# Environments to download production migrations from
+readonly environments=(experimental staging prod)
+readonly aws_bucket_prefix="transcom-ppp-app-"
+readonly aws_bucket_suffix="-us-west-2"
+readonly aws_path_prefix="secure-migrations"
+
+readonly usage="usage: $0 <production_migration_file>"
+
+function proceed() {
+  proceed_message=${1:-"proceed"}
+  echo -n "${proceed_message} (y/N) "
+  read -r proceed
+  if [[ "$proceed" =~ ^[^yY]*$ ]]; then
+    echo "exiting"
+    exit 0
+  fi
+}
+
+function run() {
+  command=( "$@" )
+  echo "...executing: ${command[*]}"
+  ${command[*]} &> /dev/null
+}
+
+#
+# Pre-flight checks
+#
+
+if [[ -z "${1:-}" ]]; then
+  echo "$usage"
+  exit 1
+fi
+readonly production_migration_file="$1"
+
+# Ensure our `aws` command is the one infra has wrapped with aws-vault
+command -v "$aws_command" 2> /dev/null | grep "ppp-infra/bin/aws" &> /dev/null || \
+  ( echo "error: aws command not pointing to 'ppp-infra/bin/aws"
+    echo "see https://github.com/transcom/ppp-infra/blob/master/transcom-ppp/README.md#using-aws-vault"
+    exit 1
+  )
+
+# Test AWS command and freshen AWS session token
+${aws_command} s3 ls "${aws_bucket_prefix}${environments[0]}${aws_bucket_suffix}" > /dev/null
+
+#
+# Download secure migration
+#
+
+for environment in "${environments[@]}"; do
+  echo "Downloading from: $environment"
+  sleep 1
+  migration_dir="./tmp/secure_migrations/${environment}"
+  mkdir -p "${migration_dir}"
+  run aws s3 cp \
+    "s3://${aws_bucket_prefix}${environment}${aws_bucket_suffix}/${aws_path_prefix}/${production_migration_file}" \
+    "${migration_dir}/$production_migration_file"
+done
+
+echo
+echo "Files have been downloaded to these locations:"
+echo
+find ./tmp/secure_migrations -type f
+
+echo
+echo "Please remember to 'rm -rf ./tmp/secure_migrations' when you are finished working"
+echo

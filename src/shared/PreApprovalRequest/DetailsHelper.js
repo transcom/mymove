@@ -16,7 +16,7 @@ export function getFormComponent(code, robustAccessorial, initialValues) {
   } else if (robustAccessorial && code.startsWith('35')) {
     if (isNew || get(initialValues, 'estimate_amount_cents')) return Code35Form;
   } else if (robustAccessorial && code.startsWith('226')) {
-    return Code226Form;
+    if (isNew || get(initialValues, 'actual_amount_cents')) return Code226Form;
   }
   return DefaultForm;
 }
