@@ -13,6 +13,7 @@ require (
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
 	github.com/danieljoos/wincred v1.0.1 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/docker/go-units v0.3.3
 	github.com/dustin/go-humanize v1.0.0
 	github.com/dvsekhvalnov/jose2go v0.0.0-20170216131308-f21a8cedbbae // indirect
 	github.com/facebookgo/clock v0.0.0-20150410010913-600d898af40a
