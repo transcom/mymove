@@ -316,6 +316,9 @@ The Dev Commands are used to talk to the dev DB.  If you were working with the t
 * `make db_test_migrate`
 * `make db_test_migrate_standalone`
 * `make db_test_e2e_populate`
+* `make db_test_e2e_backup`
+* `make db_test_e2e_restore`
+* `make db_test_e2e_cleanup`
 
 The test DB commands all talk to the DB over localhost.  But in a docker-only environment (like CircleCI) you may not be able to use those commands, which is why `*_docker` versions exist for all of them:
 
