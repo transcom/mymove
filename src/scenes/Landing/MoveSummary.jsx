@@ -236,8 +236,6 @@ export const SubmittedHhgMoveSummary = props => {
     selectedMoveType === 'HHG' &&
     ['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(move.status);
 
-  let today = moment();
-
   return (
     <Fragment>
       <div>
@@ -252,7 +250,7 @@ export const SubmittedHhgMoveSummary = props => {
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 {showHhgLandingPageText(shipment)}
-                {(shipment.actual_pack_date || today.isSameOrAfter(shipment.pm_survey_planned_pack_date)) && (
+                {(shipment.status === 'DELIVERED' || shipment.status === 'COMPLETED') && (
                   <TransportationServiceProviderContactInfo showFileAClaimInfo shipmentId={shipment.id} />
                 )}
               </div>
