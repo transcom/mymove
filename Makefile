@@ -148,6 +148,7 @@ go_deps: go_version .go_deps.stamp
 	bin/check_gopath.sh
 	go mod tidy
 	go install golang.org/x/lint/golint
+	touch .go_deps.stamp
 
 .PHONY: build_chamber
 build_chamber: go_deps .build_chamber.stamp
