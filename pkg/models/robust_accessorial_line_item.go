@@ -126,11 +126,49 @@ func upsertItemCode105Dependency(db *pop.Connection, baseParams *BaseShipmentLin
 	return responseVErrors, responseError
 }
 
-// AdditionalLineItemDimensions holds the length, width and height that will be converted to inches
-type AdditionalLineItemDimensions struct {
-	Length unit.ThousandthInches
-	Width  unit.ThousandthInches
-	Height unit.ThousandthInches
+// is35AItem determines whether the shipment line item is a new (robust) 35A item.
+func is35AItem(itemCode string, additionalParams *AdditionalShipmentLineItemParams) bool {
+	isRobustItem := additionalParams.Reason != nil || additionalParams.EstimateAmountCents != nil || additionalParams.ActualAmountCents != nil
+	if itemCode == "35A" && isRobustItem {
+		return true
+	}
+	return false
+}
+
+// upsertItemCode35ADependency specifically upserts item code 35A for shipmentLineItem passed in
+func upsertItemCode35ADependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	if shipmentLineItem.ID != uuid.Nil && shipmentLineItem.Status == ShipmentLineItemStatusAPPROVED {
+		// Line item exists
+		// Only update the ActualAmountCents
+		shipmentLineItem.ActualAmountCents = additionalParams.ActualAmountCents
+		return responseVErrors, responseError
+	} else if additionalParams.Description == nil || additionalParams.Reason == nil || additionalParams.EstimateAmountCents == nil {
+		// Required to create 35A line item
+		// Description, Reason and EstimateAmounCents
+		responseError = errors.New("Must have Description, Reason and EstimateAmountCents params")
+		return responseVErrors, responseError
+	}
+
+	shipmentLineItem.Description = additionalParams.Description
+	shipmentLineItem.Reason = additionalParams.Reason
+	shipmentLineItem.EstimateAmountCents = additionalParams.EstimateAmountCents
+	shipmentLineItem.ActualAmountCents = additionalParams.ActualAmountCents
+
+	if shipmentLineItem.ActualAmountCents != nil {
+		if *shipmentLineItem.ActualAmountCents <= *shipmentLineItem.EstimateAmountCents {
+			shipmentLineItem.Quantity1 = unit.BaseQuantityFromCents(*shipmentLineItem.ActualAmountCents)
+		} else {
+			shipmentLineItem.Quantity1 = unit.BaseQuantityFromCents(*shipmentLineItem.EstimateAmountCents)
+		}
+	} else {
+		// If ActualAmountCents is unset, set base quantity to 0.
+		quantity1 := unit.BaseQuantityFromInt(0)
+		shipmentLineItem.Quantity1 = quantity1
+	}
+	return responseVErrors, responseError
 }
 
 // is226AItem determines whether the shipment line item is a new (robust) 226A item.
@@ -159,46 +197,6 @@ func upsertItemCode226ADependency(db *pop.Connection, baseParams *BaseShipmentLi
 	shipmentLineItem.ActualAmountCents = additionalParams.ActualAmountCents
 	shipmentLineItem.Quantity1 = unit.BaseQuantityFromCents(*shipmentLineItem.ActualAmountCents)
 
-	return responseVErrors, responseError
-}
-
-// is35AItem determines whether the shipment line item is a new (robust) 35A item.
-func is35AItem(itemCode string, additionalParams *AdditionalShipmentLineItemParams) bool {
-	isRobustItem := additionalParams.Reason != nil || additionalParams.EstimateAmountCents != nil || additionalParams.ActualAmountCents != nil
-	if itemCode == "35A" && isRobustItem {
-		return true
-	}
-	return false
-}
-
-// upsertItemCode35ADependency specifically upserts item code 35A for shipmentLineItem passed in
-func upsertItemCode35ADependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
-	var responseError error
-	responseVErrors := validate.NewErrors()
-
-	// Required to create 35A line item
-	// Description, Reason and EstimateAmounCents
-	if additionalParams.Description == nil || additionalParams.Reason == nil || additionalParams.EstimateAmountCents == nil {
-		responseError = errors.New("Must have Description, Reason and EstimateAmountCents params")
-		return responseVErrors, responseError
-	}
-
-	shipmentLineItem.Description = additionalParams.Description
-	shipmentLineItem.Reason = additionalParams.Reason
-	shipmentLineItem.EstimateAmountCents = additionalParams.EstimateAmountCents
-	shipmentLineItem.ActualAmountCents = additionalParams.ActualAmountCents
-
-	if shipmentLineItem.ActualAmountCents != nil {
-		if *shipmentLineItem.ActualAmountCents <= *shipmentLineItem.EstimateAmountCents {
-			shipmentLineItem.Quantity1 = unit.BaseQuantityFromCents(*shipmentLineItem.ActualAmountCents)
-		} else {
-			shipmentLineItem.Quantity1 = unit.BaseQuantityFromCents(*shipmentLineItem.EstimateAmountCents)
-		}
-	} else {
-		// If ActualAmountCents is unset, set base quantity to 0.
-		quantity1 := unit.BaseQuantityFromInt(0)
-		shipmentLineItem.Quantity1 = quantity1
-	}
 	return responseVErrors, responseError
 }
 
@@ -236,4 +234,11 @@ type AdditionalShipmentLineItemParams struct {
 	Reason              *string
 	EstimateAmountCents *unit.Cents
 	ActualAmountCents   *unit.Cents
+}
+
+// AdditionalLineItemDimensions holds the length, width and height that will be converted to inches
+type AdditionalLineItemDimensions struct {
+	Length unit.ThousandthInches
+	Width  unit.ThousandthInches
+	Height unit.ThousandthInches
 }
