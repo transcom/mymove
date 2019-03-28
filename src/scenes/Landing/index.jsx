@@ -115,7 +115,7 @@ export class Landing extends Component {
     return (
       <div className="usa-grid">
         {loggedInUserIsLoading && <LoadingPlaceholder />}
-        {!isLoggedIn && <SignIn location={this.props.location} />}
+        {!isLoggedIn && !loggedInUserIsLoading && <SignIn location={this.props.location} />}
         {loggedInUserSuccess && (
           <Fragment>
             <div>
