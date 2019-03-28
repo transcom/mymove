@@ -4,7 +4,12 @@ set -eu -o pipefail
 
 # Runs both the webserver and Cypress in parallel
 trap "kill %1" SIGINT
-./bin/webserver --env test --db-port "$DB_PORT_TEST" --login-gov-callback-port 4000 --no-tls-port 4000 &
+
+ENV=test DB_PORT=5433 LOGIN_GOV_CALLBACK_PORT=4000 NO_TLS_PORT=4000 ./bin/gin --build cmd/webserver \
+		--bin /bin/webserver \
+		--port 8080 --appPort 8081 \
+		--excludeDir vendor --excludeDir node_modules \
+		-i --buildArgs "-i" &
 npx cypress open || true
 
 # Terminate the background webserver
