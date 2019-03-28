@@ -5,7 +5,7 @@ set -eu -o pipefail
 # Runs both the webserver and Cypress in parallel
 trap "kill %1" SIGINT
 
-DB_NAME=test_db DB_PORT="$DB_PORT_TEST" bin/db-backup test
+DB_NAME=test_db DB_PORT="$DB_PORT_TEST" bin/db-backup e2e_test
 
 CYPRESS_PORT=4000
 ENV=test DB_PORT="$DB_PORT_TEST" LOGIN_GOV_CALLBACK_PORT="$CYPRESS_PORT" NO_TLS_PORT="$CYPRESS_PORT" \
