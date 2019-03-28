@@ -21,10 +21,26 @@ export function getFormComponent(code, robustAccessorial, initialValues) {
   return DefaultForm;
 }
 
-export function getDetailsComponent(code, robustccessorial, isNewAccessorial) {
-  if (!isNewAccessorial) return DefaultDetails;
+export function getDetailsComponent(code, robustAccessorialFlag, isRobustAccessorial) {
+  if (!isRobustAccessorial) return DefaultDetails;
   if (code === '105B' || code === '105E') return Code105Details;
-  if (code === '35A' && robustccessorial) return Code35Details;
-  if (code === '226A' && robustccessorial) return Code226Details;
+  if (code === '35A' && robustAccessorialFlag) return Code35Details;
+  if (code === '226A' && robustAccessorialFlag) return Code226Details;
   return DefaultDetails;
 }
+
+export const isRobustAccessorial = item => {
+  if (!item) return false;
+
+  const code = item.tariff400ng_item.code;
+  if ((code === '105B' || code === '105E') && !item.crate_dimensions) {
+    return false;
+  }
+  if (code === '35A' && !item.estimate_amount_cents) {
+    return false;
+  }
+  if (code === '226A' && !item.actual_amount_cents) {
+    return false;
+  }
+  return true;
+};

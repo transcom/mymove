@@ -27,5 +27,5 @@ export function test226A() {
   cy.selectQueueItemMoveLocator('DATESP');
 
   add226A({});
-  cy.get('td[details-cy="226A-details"]').should('contain', 'description description 226A reason reason 226A $250');
+  cy.get('td[details-cy="226A-details"]').should('contain', 'description description 226A reason reason 226A $250.00');
 }

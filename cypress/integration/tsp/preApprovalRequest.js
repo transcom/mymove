@@ -12,7 +12,6 @@ describe('TSP user interacts with pre approval request panel', function() {
   beforeEach(() => {
     cy.signIntoTSP();
   });
-
   it('TSP user creates pre approval request', function() {
     tspUserCreatesPreApprovalRequest();
   });
