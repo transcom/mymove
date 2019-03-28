@@ -34,30 +34,6 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 		return nil
 	}
 
-	var amt *int64
-	if s.AmountCents != nil {
-		intVal := s.AmountCents.Int64()
-		amt = &intVal
-	}
-
-	var rate *int64
-	if s.AppliedRate != nil {
-		intVal := s.AppliedRate.Int64()
-		rate = &intVal
-	}
-
-	var estAmt *int64
-	if s.EstimateAmountCents != nil {
-		intVal := s.EstimateAmountCents.Int64()
-		estAmt = &intVal
-	}
-
-	var actAmt *int64
-	if s.ActualAmountCents != nil {
-		intVal := s.ActualAmountCents.Int64()
-		actAmt = &intVal
-	}
-
 	return &apimessages.ShipmentLineItem{
 		ID:                  *handlers.FmtUUID(s.ID),
 		ShipmentID:          *handlers.FmtUUID(s.ShipmentID),
@@ -73,10 +49,10 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 		InvoiceID:           handlers.FmtUUIDPtr(s.InvoiceID),
 		ItemDimensions:      payloadForDimensionsModel(&s.ItemDimensions),
 		CrateDimensions:     payloadForDimensionsModel(&s.CrateDimensions),
-		EstimateAmountCents: estAmt,
-		ActualAmountCents:   actAmt,
-		AmountCents:         amt,
-		AppliedRate:         rate,
+		EstimateAmountCents: handlers.FmtCost(s.EstimateAmountCents),
+		ActualAmountCents:   handlers.FmtCost(s.ActualAmountCents),
+		AmountCents:         handlers.FmtCost(s.AmountCents),
+		AppliedRate:         handlers.FmtMilliCents(s.AppliedRate),
 		SubmittedDate:       *handlers.FmtDateTime(s.SubmittedDate),
 		ApprovedDate:        handlers.FmtDateTime(s.ApprovedDate),
 	}
