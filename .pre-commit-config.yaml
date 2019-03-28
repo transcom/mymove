@@ -132,6 +132,7 @@ repos:
         entry: bin/pre-commit-go-mod
         language: script
         files: go.mod
+        pass_filenames: false
 
   # - repo: local
   #   hooks:
