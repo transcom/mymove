@@ -5,6 +5,7 @@ set -eu -o pipefail
 
 
 readonly db=${DB_NAME:-db_dev}
+readonly port=${DB_PORT:-5432}
 export PGPASSWORD="mysecretpassword"
 
 function proceed() {
@@ -30,4 +31,4 @@ if [[ -f "$path" ]]; then
   proceed "There is already a backup named '$name'. Do you wish to overwrite it?"
 fi
 
-pg_dump -h localhost -U postgres -c --if-exists "$db" > "$path"
+pg_dump -h localhost -U postgres -p "$port" -c --if-exists "$db" > "$path"

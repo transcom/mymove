@@ -15,23 +15,23 @@ executors:
     resource_class: small
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:a1006bfda60d05876196f03119898777542529d5
+      - image: trussworks/circleci-docker-primary:9ad70927655a601580c036d53456c70061c76cba
   mymove_medium:
     resource_class: medium
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:a1006bfda60d05876196f03119898777542529d5
+      - image: trussworks/circleci-docker-primary:9ad70927655a601580c036d53456c70061c76cba
   mymove_large:
     resource_class: large
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:a1006bfda60d05876196f03119898777542529d5
+      - image: trussworks/circleci-docker-primary:9ad70927655a601580c036d53456c70061c76cba
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:a1006bfda60d05876196f03119898777542529d5
+      - image: trussworks/circleci-docker-primary:9ad70927655a601580c036d53456c70061c76cba
       - image: postgres:10.5
         environment:
           - POSTGRES_PASSWORD: mysecretpassword

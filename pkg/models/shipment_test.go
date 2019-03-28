@@ -439,43 +439,6 @@ func (suite *ModelSuite) TestCreateShipmentLineItemCode35A() {
 	}
 }
 
-// TestCreateShipmentLineItemCode226A tests that 226A line items are created correctly
-func (suite *ModelSuite) TestCreateShipmentLineItemCode226A() {
-	acc226A := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
-		Tariff400ngItem: Tariff400ngItem{
-			Code: "226A",
-		},
-	})
-
-	shipment := testdatagen.MakeDefaultShipment(suite.DB())
-
-	desc := "This is a description"
-	reas := "This is the reason"
-	actAmt := unit.Cents(1000)
-	baseParams := BaseShipmentLineItemParams{
-		Tariff400ngItemID:   acc226A.ID,
-		Tariff400ngItemCode: acc226A.Code,
-		Location:            "ORIGIN",
-	}
-	additionalParams := AdditionalShipmentLineItemParams{
-		Description:       &desc,
-		Reason:            &reas,
-		ActualAmountCents: &actAmt,
-	}
-
-	// Create 226A preapproval
-	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(suite.DB(),
-		baseParams, additionalParams)
-
-	if suite.noValidationErrors(verrs, err) {
-		suite.Equal(unit.BaseQuantityFromCents(actAmt), shipmentLineItem.Quantity1)
-		suite.Equal(acc226A.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
-		suite.Equal(desc, *shipmentLineItem.Description)
-		suite.Equal(reas, *shipmentLineItem.Reason)
-		suite.Equal(actAmt, *shipmentLineItem.ActualAmountCents)
-	}
-}
-
 // TestUpdateShipmentLineItem tests that line items are updated correctly
 func (suite *ModelSuite) TestUpdateShipmentLineItem() {
 	shipment := testdatagen.MakeDefaultShipment(suite.DB())
@@ -663,6 +626,57 @@ func (suite *ModelSuite) TestUpdateShipmentLineItemCode35A() {
 		suite.Equal(desc, *lineItem.Description)
 		suite.Equal(reas, *lineItem.Reason)
 		suite.Equal(estAmt, *lineItem.EstimateAmountCents)
+		suite.Equal(actAmt, *lineItem.ActualAmountCents)
+	}
+}
+
+// TestUpdateShipmentLineItemCode35AActualAmountCents tests that 35A line items are updated correctly
+func (suite *ModelSuite) TestUpdateShipmentLineItemCode35AActualAmountCents() {
+	acc35A := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: Tariff400ngItem{
+			Code: "35A",
+		},
+	})
+
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+
+	desc := "This is a description"
+	reas := "This is the reason"
+	notes := "Notes"
+	loc := ShipmentLineItemLocationORIGIN
+	estAmt := unit.Cents(1000)
+	lineItem := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
+		ShipmentLineItem: ShipmentLineItem{
+			Tariff400ngItemID:   acc35A.ID,
+			Status:              ShipmentLineItemStatusAPPROVED,
+			Location:            loc,
+			Notes:               notes,
+			Description:         &desc,
+			Reason:              &reas,
+			EstimateAmountCents: &estAmt,
+		},
+	})
+
+	// Update values
+	baseParams := BaseShipmentLineItemParams{
+		Tariff400ngItemID:   acc35A.ID,
+		Tariff400ngItemCode: acc35A.Code,
+	}
+	updateDesc := "updated description"
+	updateReas := "updated reason"
+	updateEstAmt := unit.Cents(2000)
+	actAmt := unit.Cents(2000)
+	additionalParams := AdditionalShipmentLineItemParams{
+		EstimateAmountCents: &updateEstAmt,
+		ActualAmountCents:   &actAmt,
+	}
+
+	verrs, err := shipment.UpdateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams, &lineItem)
+	if suite.noValidationErrors(verrs, err) {
+		suite.NotEqual(updateDesc, *lineItem.Description)
+		suite.NotEqual(updateReas, *lineItem.Reason)
+		suite.NotEqual(updateEstAmt, *lineItem.EstimateAmountCents)
 		suite.Equal(actAmt, *lineItem.ActualAmountCents)
 	}
 }
