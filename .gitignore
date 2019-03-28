@@ -5,6 +5,7 @@
 # dependencies
 /vendor
 /node_modules
+/.vendor-new
 
 /pkg/gen
 /pkg/assets
