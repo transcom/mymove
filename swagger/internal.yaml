@@ -1353,6 +1353,7 @@ definitions:
       - PPM
       - PPM_PAYMENT
       - HHG
+    x-nullable: true
   DocumentPayload:
     type: object
     properties:

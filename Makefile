@@ -129,6 +129,10 @@ office_client_run: client_deps
 tsp_client_run: client_deps
 	HOST=tsplocal yarn start
 
+.PHONY: admin_client_run
+admin_client_run: client_deps
+	HOST=adminlocal yarn start
+
 #
 # ----- END CLIENT TARGETS -----
 #
