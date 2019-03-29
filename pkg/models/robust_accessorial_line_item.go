@@ -42,6 +42,25 @@ type AdditionalLineItemDimensions struct {
 	Height unit.ThousandthInches
 }
 
+// upsertItemCodeDependency applies specific validation, creates or updates additional objects/fields for item codes.
+// Mutates the shipmentLineItem passed in.
+func upsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+	itemCode := baseParams.Tariff400ngItemCode
+
+	// Backwards compatible with "Old school" base quantity field
+	if is105Item(itemCode, additionalParams) {
+		return upsertItemCode105Dependency(db, baseParams, additionalParams, shipmentLineItem)
+	} else if is35AItem(itemCode, additionalParams) {
+		return upsertItemCode35ADependency(db, baseParams, additionalParams, shipmentLineItem)
+	} else if is226AItem(itemCode, additionalParams) {
+		return upsertItemCode226ADependency(db, baseParams, additionalParams, shipmentLineItem)
+	} else if is125Item(itemCode, additionalParams) {
+		return upsertItemCode125Dependency(db, baseParams, additionalParams, shipmentLineItem)
+	}
+
+	return upsertDefaultDependency(db, baseParams, additionalParams, shipmentLineItem)
+}
+
 // createShipmentLineItemDimensions creates new item and crate dimensions for shipment line item
 func createShipmentLineItemDimensions(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
 	var responseError error

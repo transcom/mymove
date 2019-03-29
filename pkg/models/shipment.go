@@ -520,25 +520,6 @@ func (s *Shipment) UpdateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	return responseVErrors, responseError
 }
 
-// upsertItemCodeDependency applies specific validation, creates or updates additional objects/fields for item codes.
-// Mutates the shipmentLineItem passed in.
-func upsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
-	itemCode := baseParams.Tariff400ngItemCode
-
-	// Backwards compatible with "Old school" base quantity field
-	if is105Item(itemCode, additionalParams) {
-		return upsertItemCode105Dependency(db, baseParams, additionalParams, shipmentLineItem)
-	} else if is35AItem(itemCode, additionalParams) {
-		return upsertItemCode35ADependency(db, baseParams, additionalParams, shipmentLineItem)
-	} else if is226AItem(itemCode, additionalParams) {
-		return upsertItemCode226ADependency(db, baseParams, additionalParams, shipmentLineItem)
-	} else if is125Item(itemCode, additionalParams) {
-		return upsertItemCode125Dependency(db, baseParams, additionalParams, shipmentLineItem)
-	}
-
-	return upsertDefaultDependency(db, baseParams, additionalParams, shipmentLineItem)
-}
-
 // AssignGBLNumber generates a new valid GBL number for the shipment
 // Note: This doesn't save the Shipment, so this should always be run as part of
 // another transaction that saves the shipment after assigning a GBL number
