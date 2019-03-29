@@ -4,5 +4,3 @@
 #
 
 go mod tidy
-
-git diff
