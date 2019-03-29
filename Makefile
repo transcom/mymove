@@ -367,9 +367,9 @@ db_dev_reset: db_dev_destroy db_dev_run
 .PHONY: db_dev_migrate_standalone
 db_dev_migrate_standalone:
 	@echo "Migrating the ${DB_NAME_DEV} database..."
-	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
-	cd bin && \
-		./soda -c ../config/database.yml -p ../migrations migrate up
+	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
+	cd scripts && \
+		../bin/soda -c ../config/database.yml -p ../migrations migrate up
 
 .PHONY: db_dev_migrate
 db_dev_migrate: server_deps db_dev_migrate_standalone
@@ -440,16 +440,16 @@ db_test_reset_docker: db_test_destroy db_test_run_docker
 db_test_migrate_standalone:
 ifndef CIRCLECI
 	@echo "Migrating the ${DB_NAME_TEST} database..."
-	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration`
+	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd scripts && \
 		DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST)\
-			./soda -c ../config/database.yml -p ../migrations migrate up
+			../bin/soda -c ../config/database.yml -p ../migrations migrate up
 else
 	@echo "Migrating the ${DB_NAME_TEST} database..."
-	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration`
+	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd scripts && \
 		DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_DEV) \
-			./soda -c ../config/database.yml -p ../migrations migrate up
+			../bin/soda -c ../config/database.yml -p ../migrations migrate up
 endif
 
 .PHONY: db_test_migrate
@@ -513,7 +513,7 @@ e2e_clean:
 .PHONY: db_e2e_up
 db_e2e_up: build_generate_test_data
 	@echo "Truncate the ${DB_NAME_TEST} database..."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE;'
+	/usr/local/bin/psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE;'
 	@echo "Populate the ${DB_NAME_TEST} database..."
 	DB_PORT=$(DB_PORT_TEST) bin/generate-test-data -named-scenario="e2e_basic" -env="test"
 

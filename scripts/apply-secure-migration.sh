@@ -57,7 +57,7 @@ case $SECURE_MIGRATION_SOURCE in
     # - The migration is wrapped in a single transaction
     # - Any errors in the migration file will cause a failure
     # shellcheck disable=SC2002
-    cat "$migration" | psql \
+    cat "$migration" | /usr/local/bin/psql \
       --single-transaction \
       --variable "ON_ERROR_STOP=1" \
       "postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=${sslmode}" > /dev/null
@@ -84,7 +84,7 @@ case $SECURE_MIGRATION_SOURCE in
     # Run the migrations file with the following options:
     # - The migration is wrapped in a single transaction
     # - Any errors in the migration file will cause a failure
-    aws s3 cp --quiet "$url" - | psql \
+    aws s3 cp --quiet "$url" - | /usr/local/bin/psql \
     --single-transaction \
     --variable "ON_ERROR_STOP=1" \
     "postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=${sslmode}" > /dev/null

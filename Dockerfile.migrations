@@ -2,7 +2,8 @@ FROM alpine:3.7
 
 COPY bin/soda /bin/soda
 COPY bin/chamber /bin/chamber
-COPY scripts/apply-secure-migration /bin
+RUN mkdir /scripts
+COPY scripts/apply-secure-migration.sh /scripts
 
 COPY migrations /migrate/migrations
 COPY config/database.yml /migrate

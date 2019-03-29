@@ -150,7 +150,7 @@ commands:
             source $BASH_ENV
             make e2e_test_docker
           environment:
-            # Env vars needed by the `scripts/apply-secure-migrations` script
+            # Env vars needed by the `scripts/apply-secure-migration.sh` script
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
@@ -436,7 +436,7 @@ jobs:
           name: make server_test
           command: make server_test
           environment:
-            # Env vars needed by the `scripts/apply-secure-migrations` script
+            # Env vars needed by the `scripts/apply-secure-migration.sh` script
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
@@ -481,7 +481,7 @@ jobs:
           command: |
             make server_test_coverage_generate
           environment:
-            # Env vars needed by the `scripts/apply-secure-migrations` script
+            # Env vars needed by the `scripts/apply-secure-migration.sh` script
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
