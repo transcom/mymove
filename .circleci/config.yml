@@ -231,15 +231,6 @@ jobs:
       - restore_cache:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
-      - run:
-          name: Install prettier
-          command: yarn add prettier@~1.12.0
-      - run:
-          name: Install markdown-spellcheck
-          command: yarn add markdown-spellcheck
-      - run:
-          name: Install markdown-toc
-          command: yarn add markdown-toc
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
       - run: make server_generate
       - run: make build_callgraph
