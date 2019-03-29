@@ -50,7 +50,7 @@ export class StorageInTransitPanel extends Component {
       <div className="storage-in-transit-panel">
         <BasicPanel
           title="Storage in Transit (SIT)"
-          titleExtension={!isTspSite && hasRequestedSIT && <SitStatusIcon isTspSite={isTspSite} />}
+          titleExtension={!isTspSite && hasRequestedSIT ? <SitStatusIcon isTspSite={isTspSite} /> : null}
         >
           {error && (
             <Alert type="error" heading="Oops, something went wrong!" onRemove={this.closeError}>
