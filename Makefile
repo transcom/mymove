@@ -478,7 +478,7 @@ db_test_migrate_docker: db_test_migrations_build
 		-e DB_PASSWORD=$(PGPASSWORD) \
 		--link="$(DB_DOCKER_CONTAINER_TEST):database" \
 		--rm \
-		--entrypoint soda \
+		--entrypoint /bin/soda \
 		e2e_migrations:latest \
 		migrate -c /migrate/database.yml -p /migrate/migrations up
 
@@ -497,6 +497,22 @@ e2e_test: server_deps server_generate server_build client_build db_e2e_init
 .PHONY: e2e_test_docker
 e2e_test_docker:
 	$(AWS_VAULT) ./scripts/run-e2e-test-docker
+
+.PHONY: e2e_test_docker_mymove
+e2e_test_docker_mymove:
+	$(AWS_VAULT) SPEC=cypress/integration/mymove/**/* ./scripts/run-e2e-test-docker
+
+.PHONY: e2e_test_docker_office
+e2e_test_docker_office:
+	$(AWS_VAULT) SPEC=cypress/integration/office/**/* ./scripts/run-e2e-test-docker
+
+.PHONY: e2e_test_docker_tsp
+e2e_test_docker_tsp:
+	$(AWS_VAULT) SPEC=cypress/integration/tsp/**/* ./scripts/run-e2e-test-docker
+
+.PHONY: e2e_test_api
+e2e_test_docker_api:
+	$(AWS_VAULT) SPEC=cypress/integration/api/**/* ./scripts/run-e2e-test-docker
 
 .PHONY: e2e_clean
 e2e_clean:
@@ -536,6 +552,7 @@ db_e2e_up_docker:
 		-e DB_PASSWORD=$(PGPASSWORD) \
 		--link="$(DB_DOCKER_CONTAINER_TEST):database" \
 		--rm \
+		--workdir "/bin" \
 		--entrypoint generate-test-data \
 		e2e_migrations:latest \
 		-config-dir /migrate -named-scenario e2e_basic

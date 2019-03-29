@@ -1,6 +1,6 @@
 FROM gcr.io/distroless/base
 
-COPY scripts/rds-combined-ca-bundle.pem /bin/rds-combined-ca-bundle.pem
+COPY bin/rds-combined-ca-bundle.pem /bin/rds-combined-ca-bundle.pem
 COPY bin/webserver /bin/mymove-server
 COPY bin/chamber /bin/chamber
 
