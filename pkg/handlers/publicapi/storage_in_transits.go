@@ -131,6 +131,37 @@ func patchStorageInTransitWithPayload(storageInTransit *models.StorageInTransit,
 		updateAddressWithPayload(&storageInTransit.WarehouseAddress, payload.WarehouseAddress)
 	}
 
+	//
+	switch payload.Status {
+
+	case string(models.StorageInTransitStatusAPPROVED):
+		storageInTransit.Status = models.StorageInTransitStatusAPPROVED
+
+	case string(models.StorageInTransitStatusDELIVERED):
+		storageInTransit.Status = models.StorageInTransitStatusDELIVERED
+
+	case string(models.StorageInTransitStatusDENIED):
+		storageInTransit.Status = models.StorageInTransitStatusDENIED
+
+	case string(models.StorageInTransitStatusINSIT):
+		storageInTransit.Status = models.StorageInTransitStatusINSIT
+
+	case string(models.StorageInTransitStatusREQUESTED):
+		storageInTransit.Status = models.StorageInTransitStatusREQUESTED
+
+	case string(models.StorageInTransitStatusRELEASED):
+		storageInTransit.Status = models.StorageInTransitStatusRELEASED
+
+	}
+
+	if payload.AuthorizationNotes != nil {
+		storageInTransit.AuthorizationNotes = payload.AuthorizationNotes
+	}
+
+	if payload.AuthorizedStartDate != nil {
+		storageInTransit.AuthorizedStartDate = (*time.Time)(payload.AuthorizedStartDate)
+	}
+
 	storageInTransit.WarehousePhone = handlers.FmtStringPtrNonEmpty(payload.WarehousePhone)
 	storageInTransit.WarehouseEmail = handlers.FmtStringPtrNonEmpty(payload.WarehouseEmail)
 }
@@ -244,6 +275,30 @@ func (h PatchStorageInTransitHandler) Handle(params sitop.PatchStorageInTransitP
 	if storageInTransit.ShipmentID != shipmentID {
 		h.Logger().Error("Shipment ID clash between endpoint URL and SIT record")
 		return sitop.NewPatchStorageInTransitForbidden()
+	}
+
+	// Check if the status is being changed by this request. If so, the user must be an office user
+	// If they are not, return a 403 (Forbidden).
+	if string(storageInTransit.Status) != params.StorageInTransit.Status {
+
+		// If we're not an office user, but we are a TSP user that's setting the status to 'IN_SIT'
+		// allow the request to continue. If not, the 403 happens.
+		if session.IsOfficeUser() != true ||
+			(params.StorageInTransit.Status != string(models.StorageInTransitStatusINSIT) &&
+				session.IsTspUser() != true) {
+
+			return sitop.NewPatchStorageInTransitForbidden()
+		}
+	}
+
+	// If the request is trying to set something for these fields, the user needs to be an office user,
+	// otherwise they get a 403 (Forbidden).
+	if params.StorageInTransit.AuthorizationNotes != nil || params.StorageInTransit.AuthorizedStartDate != nil {
+
+		if session.IsOfficeUser() != true {
+			return sitop.NewPatchStorageInTransitForbidden()
+		}
+
 	}
 
 	patchStorageInTransitWithPayload(storageInTransit, payload)

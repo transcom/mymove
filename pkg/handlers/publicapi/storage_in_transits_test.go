@@ -157,7 +157,6 @@ func (suite *HandlerSuite) TestPatchStorageInTransitHandler() {
 	sit.WarehouseID = "123456"
 	sit.Notes = swag.String("Updated Note")
 	sit.WarehouseEmail = swag.String("updated@email.com")
-	sit.Status = models.StorageInTransitStatusAPPROVED
 
 	sitPayload := payloadForStorageInTransitModel(&sit)
 
@@ -219,11 +218,62 @@ func (suite *HandlerSuite) TestPatchStorageInTransitHandler() {
 	responsePayload = response.(*sitop.PatchStorageInTransitOK).Payload
 	storageInTransitPayloadCompare(suite, sitPayload, responsePayload)
 
-	// Let's also double check to make sure that we didn't change the status. This shouldn't be something we're
-	// doing from the patch handler.
-	savedStorageInTransit, _ := models.FetchStorageInTransitByID(suite.DB(), sit.ID)
-	suite.Equal(models.StorageInTransitStatusREQUESTED, savedStorageInTransit.Status)
+	// Let's make sure we get a forbidden if a non office user tries to change the status
+	sit.Status = "APPROVED"
+	sitPayload = payloadForStorageInTransitModel(&sit)
 
+	req = httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	params.HTTPRequest = req
+	handler = PatchStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler.Handle(params)
+	suite.Error(models.ErrFetchForbidden)
+
+	// Let's make sure we get a forbidden if a non office user tries to change the authorization notes
+	sit.AuthorizationNotes = swag.String("This is a change")
+	sitPayload = payloadForStorageInTransitModel(&sit)
+
+	req = httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	params.HTTPRequest = req
+	handler = PatchStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler.Handle(params)
+	suite.Error(models.ErrFetchForbidden)
+
+	// Let's make sure we get a forbidden if a non office user tries to change the authorization date
+	sit.AuthorizedStartDate = &testdatagen.DateOutsidePerformancePeriod
+	sitPayload = payloadForStorageInTransitModel(&sit)
+
+	req = httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	params.HTTPRequest = req
+	handler = PatchStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler.Handle(params)
+	suite.Error(models.ErrFetchForbidden)
+
+	// A TSP user should be able to set the status to 'IN_SIT'
+	sit.Status = "IN_SIT"
+	sitPayload = payloadForStorageInTransitModel(&sit)
+
+	req = httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	params.HTTPRequest = req
+	handler = PatchStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler.Handle(params)
+	suite.Assertions.IsType(&sitop.PatchStorageInTransitOK{}, response)
+	responsePayload = response.(*sitop.PatchStorageInTransitOK).Payload
+	storageInTransitPayloadCompare(suite, sitPayload, responsePayload)
+
+	// And let's make sure we can successfully change the status to approved through the handler.
+	req = httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateOfficeRequest(req, user)
+	params.HTTPRequest = req
+	handler = PatchStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler.Handle(params)
+
+	suite.Assertions.IsType(&sitop.PatchStorageInTransitOK{}, response)
+	responsePayload = response.(*sitop.PatchStorageInTransitOK).Payload
+	storageInTransitPayloadCompare(suite, sitPayload, responsePayload)
 }
 
 func (suite *HandlerSuite) TestDeleteStorageInTransitHandler() {
