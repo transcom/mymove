@@ -235,14 +235,18 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('logout', () => {
-  cy.clearCookies();
   cy.patientVisit('/');
+
   cy.getCookie('masked_gorilla_csrf').then(cookie => {
-    cy.request({
-      url: '/auth/logout',
-      method: 'POST',
-      headers: { 'x-csrf-token': cookie.value },
-    });
+    cy
+      .request({
+        url: '/auth/logout',
+        method: 'POST',
+        headers: { 'x-csrf-token': cookie.value },
+      })
+      .then(resp => {
+        expect(resp.status).to.equal(200);
+      });
 
     // In case of login redirect we once more go to the homepage
     cy.patientVisit('/');
