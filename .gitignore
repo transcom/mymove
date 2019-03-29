@@ -21,7 +21,7 @@ __snapshots__
 # development
 /tmp
 
-# Special bin folder for e2e test binaries
+# All compiled binaries
 /bin/
 /bin_linux/
 
