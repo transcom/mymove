@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -742,6 +743,47 @@ func upsertItemCode226ADependency(db *pop.Connection, baseParams *BaseShipmentLi
 	return responseVErrors, responseError
 }
 
+// is125Item determines whether the shipment line item is a new (robust) 125 item.
+func is125Item(itemCode string, additionalParams *AdditionalShipmentLineItemParams) bool {
+	isRobustItem := additionalParams.Reason != nil || additionalParams.Date != nil || additionalParams.Time != nil || additionalParams.Address != nil
+	if strings.HasPrefix(itemCode, "125") && isRobustItem {
+		return true
+	}
+	return false
+}
+
+// upsertItemCode125Dependency specifically upserts item code 125 for shipmentLineItem passed in
+func upsertItemCode125Dependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	// Required to create 125A/B/C/D line item
+	if additionalParams.Reason == nil || additionalParams.Date == nil || additionalParams.Address == nil {
+		responseError = errors.New("Must have Reason, Date and Address params")
+		return responseVErrors, responseError
+	}
+
+	shipmentLineItem.Address = *additionalParams.Address
+	// Create address if it doesn't exist
+	if shipmentLineItem.AddressID == nil {
+		verrs, err := db.ValidateAndCreate(&shipmentLineItem.Address)
+		if verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating shipment line item address")
+			return responseVErrors, responseError
+		}
+
+		shipmentLineItem.AddressID = &shipmentLineItem.Address.ID
+	}
+
+	shipmentLineItem.Reason = additionalParams.Reason
+	shipmentLineItem.Date = additionalParams.Date
+	shipmentLineItem.Time = additionalParams.Time
+	shipmentLineItem.Quantity1 = 1 // flat rate, set to 1
+
+	return responseVErrors, responseError
+}
+
 // upsertItemCodeDependency applies specific validation, creates or updates additional objects/fields for item codes.
 // Mutates the shipmentLineItem passed in.
 func upsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
@@ -756,6 +798,8 @@ func upsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineIt
 		responseVErrors, responseError = upsertItemCode35ADependency(db, baseParams, additionalParams, shipmentLineItem)
 	} else if is226AItem(itemCode, additionalParams) {
 		responseVErrors, responseError = upsertItemCode226ADependency(db, baseParams, additionalParams, shipmentLineItem)
+	} else if is125Item(itemCode, additionalParams) {
+		responseError, responseError = upsertItemCode125Dependency(db, baseParams, additionalParams, shipmentLineItem)
 	} else if baseParams.Quantity1 == nil {
 		// General pre-approval request
 		// Check if base quantity is filled out
