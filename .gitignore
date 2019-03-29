@@ -21,9 +21,6 @@ __snapshots__
 # development
 /tmp
 
-# Downloaded certificates
-/bin/rds-combined-ca-bundle.pem
-
 # Special bin folder for e2e test binaries
 /bin/
 /bin_linux/
