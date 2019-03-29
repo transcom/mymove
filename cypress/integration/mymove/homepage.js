@@ -25,5 +25,5 @@ function milmoveUserIsOnSignInPage() {
 
 function milmoveUserIsWelcomed() {
   cy.signIntoMyMoveAsUser('e10d5964-c070-49cb-9bd1-eaf9f7348eb7');
-  cy.get('strong').contains('Welcome, PPM');
+  cy.contains('Welcome, PPM');
 }
