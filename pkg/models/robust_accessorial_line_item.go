@@ -252,22 +252,6 @@ func upsertItemCode226ADependency(db *pop.Connection, baseParams *BaseShipmentLi
 	return responseVErrors, responseError
 }
 
-// upsertDefaultDependency upserts standard shipmentLineItem passed in
-func upsertDefaultDependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
-	var responseError error
-	responseVErrors := validate.NewErrors()
-	if baseParams.Quantity1 == nil {
-		// General pre-approval request
-		// Check if base quantity is filled out
-		responseError = errors.New("Quantity1 required for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
-	} else {
-		// Good to fill out quantity1
-		shipmentLineItem.Quantity1 = *baseParams.Quantity1
-	}
-
-	return responseVErrors, responseError
-}
-
 // is125Item determines whether the shipment line item is a new (robust) 125 item.
 func is125Item(itemCode string, additionalParams *AdditionalShipmentLineItemParams) bool {
 	isRobustItem := additionalParams.Reason != nil || additionalParams.Date != nil || additionalParams.Time != nil || additionalParams.Address != nil
@@ -305,6 +289,22 @@ func upsertItemCode125Dependency(db *pop.Connection, baseParams *BaseShipmentLin
 	shipmentLineItem.Date = additionalParams.Date
 	shipmentLineItem.Time = additionalParams.Time
 	shipmentLineItem.Quantity1 = 1 // flat rate, set to 1
+
+	return responseVErrors, responseError
+}
+
+// upsertDefaultDependency upserts standard shipmentLineItem passed in
+func upsertDefaultDependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+	var responseError error
+	responseVErrors := validate.NewErrors()
+	if baseParams.Quantity1 == nil {
+		// General pre-approval request
+		// Check if base quantity is filled out
+		responseError = errors.New("Quantity1 required for tariff400ngItemCode: " + baseParams.Tariff400ngItemCode)
+	} else {
+		// Good to fill out quantity1
+		shipmentLineItem.Quantity1 = *baseParams.Quantity1
+	}
 
 	return responseVErrors, responseError
 }
