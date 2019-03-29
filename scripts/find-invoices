@@ -55,7 +55,7 @@ function milmove_api() {
     json=$(curl -s "${url}" \
          -H 'accept-encoding: gzip, deflate, br' \
          -H 'accept-language: en-US,en;q=0.9' \
-         -H 'user-agent: curl; bin/find-invoices' \
+         -H 'user-agent: curl; scripts/find-invoices' \
          -H 'accept: */*' \
          -H "cookie: $cookie" \
          --compressed)
