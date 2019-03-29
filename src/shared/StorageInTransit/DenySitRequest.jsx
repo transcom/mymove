@@ -1,61 +1,45 @@
 import React, { Component } from 'react';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faBan from '@fortawesome/fontawesome-free-solid/faBan';
+import PropTypes from 'prop-types';
 import './StorageInTransit.css';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import StorageInTransitOfficeDenyForm from './StorageInTransitOfficeDenyForm.jsx';
 
 export class DenySitRequest extends Component {
-  state = {
-    showForm: false,
-  };
-
-  openForm = () => {
-    this.setState({ showForm: true });
-  };
-
   closeForm = () => {
-    this.setState({ showForm: false });
+    this.props.onClose();
   };
 
   render() {
-    if (this.state.showForm)
-      return (
-        <div className="storage-in-transit-panel-modal">
-          <div className="title">Deny SIT Request</div>
-          <StorageInTransitOfficeDenyForm />
-          <div className="usa-grid-full align-center-vertical">
-            <div className="usa-width-one-half">
-              <p className="cancel-link">
-                <a className="usa-button-secondary" onClick={this.closeForm}>
-                  Cancel
-                </a>
-              </p>
-            </div>
-            <div className="usa-width-one-half align-right">
-              <button
-                className="button usa-button-primary storage-in-transit-request-form-send-request-button"
-                disabled={!this.props.formEnabled}
-              >
-                Deny
-              </button>
-            </div>
+    return (
+      <div className="storage-in-transit-panel-modal">
+        <div className="title">Deny SIT Request</div>
+        <StorageInTransitOfficeDenyForm />
+        <div className="usa-grid-full align-center-vertical">
+          <div className="usa-width-one-half">
+            <p className="cancel-link">
+              <a className="usa-button-secondary" onClick={this.closeForm}>
+                Cancel
+              </a>
+            </p>
+          </div>
+          <div className="usa-width-one-half align-right">
+            <button
+              className="button usa-button-primary storage-in-transit-request-form-send-request-button"
+              disabled={!this.props.formEnabled}
+            >
+              Deny
+            </button>
           </div>
         </div>
-      );
-    return (
-      <span className="deny-sit">
-        <a className="deny-sit-link" onClick={this.openForm}>
-          <FontAwesomeIcon className="icon" icon={faBan} />
-          Deny
-        </a>
-      </span>
+      </div>
     );
   }
 }
 
-DenySitRequest.propTypes = {};
+DenySitRequest.propTypes = {
+  onClose: PropTypes.func.isRequired,
+};
 
 function mapStateToProps(state) {
   return {};

@@ -17,13 +17,7 @@ export class StorageInTransitOfficeDenyForm extends Component {
       <form onSubmit={this.handleSubmit} className="storage-in-transit-office-deny-form">
         <fieldset key="sit-deny-information">
           <div className="editable-panel-column">
-            <SwaggerField
-              className="sit-deny-field"
-              fieldName="notes"
-              swagger={storageInTransitSchema}
-              title="Reason for denial"
-              required
-            />
+            <SwaggerField fieldName="notes" swagger={storageInTransitSchema} title="Reason for denial" required />
           </div>
         </fieldset>
       </form>
