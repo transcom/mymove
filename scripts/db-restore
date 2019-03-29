@@ -28,4 +28,4 @@ if [[ ! -f "$path" ]]; then
   exit 1
 fi
 
-/usr/local/bin/psql -h localhost -U postgres -p "$port" -q -d "$db" < "$path" > /dev/null
+psql -h localhost -U postgres -p "$port" -q -d "$db" < "$path" > /dev/null

@@ -1,6 +1,5 @@
 FROM alpine:3.7
 
-RUN ln -s /usr/bin/psql /usr/local/bin/psql
 COPY bin_linux/soda /bin/soda
 RUN mkdir -p /scripts
 COPY scripts/apply-secure-migration.sh /scripts

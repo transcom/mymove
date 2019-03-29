@@ -1,6 +1,5 @@
 FROM alpine:3.7
 
-RUN ln -s /usr/bin/psql /usr/local/bin/psql
 COPY bin/soda /bin/soda
 COPY bin/chamber /bin/chamber
 RUN mkdir -p /scripts

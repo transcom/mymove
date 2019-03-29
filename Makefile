@@ -529,7 +529,7 @@ e2e_clean:
 .PHONY: db_e2e_up
 db_e2e_up: build_generate_test_data
 	@echo "Truncate the ${DB_NAME_TEST} database..."
-	/usr/local/bin/psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE;'
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE;'
 	@echo "Populate the ${DB_NAME_TEST} database..."
 	DB_PORT=$(DB_PORT_TEST) bin/generate-test-data -named-scenario="e2e_basic" -env="test"
 
