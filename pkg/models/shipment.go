@@ -430,6 +430,9 @@ type AdditionalShipmentLineItemParams struct {
 	Reason              *string
 	EstimateAmountCents *unit.Cents
 	ActualAmountCents   *unit.Cents
+	Date                *time.Time
+	Time                *string
+	Address             *Address
 }
 
 // AdditionalLineItemDimensions holds the length, width and height that will be converted to inches
