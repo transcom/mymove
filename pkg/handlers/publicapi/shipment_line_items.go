@@ -2,6 +2,7 @@ package publicapi
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -226,6 +227,7 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 
 	var estAmtCents *unit.Cents
 	var actAmtCents *unit.Cents
+	var date *time.Time
 	if params.Payload.EstimateAmountCents != nil {
 		centsValue := unit.Cents(*params.Payload.EstimateAmountCents)
 		estAmtCents = &centsValue
@@ -233,6 +235,10 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 	if params.Payload.ActualAmountCents != nil {
 		centsValue := unit.Cents(*params.Payload.ActualAmountCents)
 		actAmtCents = &centsValue
+	}
+	if params.Payload.Date != nil {
+		dateValue := time.Time(*params.Payload.Date)
+		date = &dateValue
 	}
 
 	additionalParams := models.AdditionalShipmentLineItemParams{
@@ -242,6 +248,9 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 		Reason:              params.Payload.Reason,
 		EstimateAmountCents: estAmtCents,
 		ActualAmountCents:   actAmtCents,
+		Date:                date,
+		Time:                params.Payload.Time,
+		Address:             addressModelFromPayload(params.Payload.Address),
 	}
 
 	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(h.DB(),
