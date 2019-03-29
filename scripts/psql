@@ -8,7 +8,7 @@ db_port="${DB_PORT:-5432}"
 command="${*:-}"
 
 if [ -n "${command[*]}" ]; then
-  exec psql --variable "ON_ERROR_STOP=1" postgres://postgres:"${db_password}"@localhost:"${db_port}"/"${DB_NAME}" -c "${command}"
+  exec /usr/local/bin/psql --variable "ON_ERROR_STOP=1" postgres://postgres:"${db_password}"@localhost:"${db_port}"/"${DB_NAME}" -c "${command}"
 else
-  exec psql --variable "ON_ERROR_STOP=1" postgres://postgres:"${db_password}"@localhost:"${db_port}"/"${DB_NAME}"
+  exec /usr/local/bin/psql --variable "ON_ERROR_STOP=1" postgres://postgres:"${db_password}"@localhost:"${db_port}"/"${DB_NAME}"
 fi
