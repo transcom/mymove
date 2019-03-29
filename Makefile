@@ -510,7 +510,7 @@ e2e_test_docker_office:
 e2e_test_docker_tsp:
 	$(AWS_VAULT) SPEC=cypress/integration/tsp/**/* ./scripts/run-e2e-test-docker
 
-.PHONY: e2e_test_api
+.PHONY: e2e_test_docker_api
 e2e_test_docker_api:
 	$(AWS_VAULT) SPEC=cypress/integration/api/**/* ./scripts/run-e2e-test-docker
 
