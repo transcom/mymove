@@ -146,7 +146,7 @@ go_deps_update:
 go_deps: go_version .go_deps.stamp
 .go_deps.stamp: go.mod
 	bin/check_gopath.sh
-	go mod tidy
+	go get
 	go install golang.org/x/lint/golint
 	touch .go_deps.stamp
 
