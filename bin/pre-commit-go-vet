@@ -7,6 +7,3 @@ go_vet_pkgs=$(go list ./... | grep -v /vendor/ | grep -v internal/pkg/dutystatio
 
 # shellcheck disable=SC2086
 go vet $go_vet_pkgs
-
-# go vet will modify go.mod if there are any dependancy discrepancies, so print out any file diffs so we can debug
-git diff --no-ext-diff
