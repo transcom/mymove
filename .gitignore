@@ -5,6 +5,7 @@
 # dependencies
 /vendor
 /node_modules
+/.vendor-new
 
 /pkg/gen
 /pkg/assets
@@ -45,6 +46,7 @@ __snapshots__
 /bin/swagger
 /bin/tsp-award-queue
 /bin/webserver
+/bin/webserver_e2e
 
 /bin/rds-combined-ca-bundle.pem
 

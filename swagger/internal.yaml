@@ -1302,6 +1302,17 @@ definitions:
         title: Signature
       certification_text:
         type: string
+      personally_procured_move_id:
+        type: string
+        format: uuid
+        x-nullable: true
+      shipment_id:
+        type: string
+        format: uuid
+        x-nullable: true
+      certification_type:
+        $ref: '#/definitions/SignedCertificationType'
+        x-nullable: true
     required:
       - id
       - created_at
@@ -1321,10 +1332,28 @@ definitions:
         title: Signature
       certification_text:
         type: string
+      personally_procured_move_id:
+        type: string
+        format: uuid
+        x-nullable: true
+      shipment_id:
+        type: string
+        format: uuid
+        x-nullable: true
+      certification_type:
+        $ref: '#/definitions/SignedCertificationType'
+        x-nullable: true
     required:
       - date
       - signature
       - certification_text
+  SignedCertificationType:
+    type: string
+    enum:
+      - PPM
+      - PPM_PAYMENT
+      - HHG
+    x-nullable: true
   DocumentPayload:
     type: object
     properties:
@@ -2646,6 +2675,8 @@ paths:
       responses:
         201:
           description: created instance of signed_certification
+          schema:
+            $ref: '#/definitions/SignedCertificationPayload'
         400:
           description: invalid request
         401:

@@ -1,0 +1,94 @@
+add_index("backup_contacts", "email", {});
+
+add_index("distance_calculations", "origin_address_id", {});
+add_index("distance_calculations", "destination_address_id", {});
+
+add_index("documents", "service_member_id", {});
+
+add_index("dps_users", "login_gov_email", {});
+
+add_index("duty_stations", "address_id", {});
+add_index("duty_stations", "transportation_office_id", {});
+
+add_index("electronic_orders_revisions", ["electronic_order_id", "seq_num"], {});
+
+add_index("invoices", "shipment_id", {});
+add_index("invoices", "approver_id", {});
+add_index("invoices", "upload_id", {});
+
+
+add_index("move_documents", "document_id", {});
+add_index("move_documents", "personally_procured_move_id", {});
+add_index("move_documents", "shipment_id", {});
+
+add_index("moves", "orders_id", {});
+
+add_index("moving_expense_documents", "move_document_id", {});
+
+add_index("office_emails", "transportation_office_id", {});
+
+add_index("office_phone_lines", "transportation_office_id", {});
+
+add_index("office_users", "user_id", {});
+add_index("office_users", "transportation_office_id", {});
+
+add_index("orders", "service_member_id", {});
+add_index("orders", "new_duty_station_id", {});
+add_index("orders", "uploaded_orders_id", {});
+
+add_index("personally_procured_moves", "move_id", {});
+add_index("personally_procured_moves", "advance_worksheet_id", {});
+
+add_index("service_agents", "shipment_id", {});
+
+add_index("service_members", "user_id", {});
+add_index("service_members", "social_security_number_id", {});
+add_index("service_members", "duty_station_id", {});
+add_index("service_members", "backup_mailing_address_id", {});
+add_index("service_members", "residential_address_id", {});
+add_index("service_members", "personal_email", {});
+
+add_index("shipment_line_items", "tariff400ng_item_id", {});
+add_index("shipment_line_items", "shipment_id", {});
+add_index("shipment_line_items", "item_dimensions_id", {});
+add_index("shipment_line_items", "crate_dimensions_id", {});
+add_index("shipment_line_items", "invoice_id", {});
+
+add_index("shipment_offers", "transportation_service_provider_id", {});
+add_index("shipment_offers", "transportation_service_provider_performance_id", {});
+add_index("shipment_offers", "shipment_id", {});
+
+add_index("shipment_recalculate_logs", "shipment_id", {});
+
+add_index("shipments", "service_member_id", {});
+add_index("shipments", "move_id", {});
+add_index("shipments", "shipping_distance_id", {});
+add_index("shipments", "pickup_address_id", {});
+add_index("shipments", "secondary_pickup_address_id", {});
+add_index("shipments", "delivery_address_id", {});
+add_index("shipments", "partial_sit_delivery_address_id", {});
+add_index("shipments", "destination_address_on_acceptance_id", {});
+add_index("shipments", "status", {});
+add_index("shipments", "actual_pickup_date", {});
+add_index("shipments", "actual_delivery_date", {});
+
+add_index("signed_certifications", "submitting_user_id", {});
+add_index("signed_certifications", "move_id", {});
+
+add_index("storage_in_transits", "shipment_id", {});
+add_index("storage_in_transits", "warehouse_address_id", {});
+
+add_index("transportation_offices", "address_id", {});
+
+add_index("transportation_service_provider_performances", "transportation_service_provider_id", {});
+add_index("transportation_service_provider_performances", "traffic_distribution_list_id", {});
+
+add_index("transportation_service_providers", "poc_general_email", {});
+
+add_index("tsp_users", "user_id", {});
+add_index("tsp_users", "transportation_service_provider_id", {});
+
+add_index("uploads", "uploader_id", {});
+add_index("uploads", "document_id", {});
+
+add_index("users", "login_gov_email", {});

@@ -27,6 +27,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Setup: MilMoveLocal Client](#setup-milmovelocal-client)
   * [Setup: OfficeLocal client](#setup-officelocal-client)
   * [Setup: TSPLocal client](#setup-tsplocal-client)
+  * [Setup: AdminLocal client](#setup-adminlocal-client)
   * [Setup: DPS user](#setup-dps-user)
   * [Setup: Orders Gateway](#setup-orders-gateway)
   * [Setup: S3](#setup-s3)
@@ -206,6 +207,12 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 3. `make tsp_client_run`
 4. Login with the email used above to access the TSP
 
+### Setup: AdminLocal client
+
+1. add the following line to /etc/hosts
+    `127.0.0.1 adminlocal`
+2. `make admin_client_run`
+
 ### Setup: DPS user
 
 1. Ensure that you have a login.gov test account
@@ -241,7 +248,7 @@ This background job is built as a separate binary which can be built using
 When creating new features, it is helpful to have sample data for the feature to interact with. The TSP Award Queue is an example of that--it matches shipments to TSPs, and it's hard to tell if it's working without some shipments and TSPs in the database!
 
 * `make build_tools` will build the fake data generator binary
-* `bin/generate-test-data -named-scenario="e2e_basic"` will populate the database with a handful of users in various stages of progress along the flow. The emails are named accordingly (see [`e2ebasic.go`](https://github.com/transcom/mymove/blob/master/pkg/testdatagen/scenario/e2ebasic.go)). Alternatively, run `make db_populate_e2e` to reset your db and populate it with e2e user flow cases.
+* `bin/generate-test-data -named-scenario="e2e_basic"` will populate the database with a handful of users in various stages of progress along the flow. The emails are named accordingly (see [`e2ebasic.go`](https://github.com/transcom/mymove/blob/master/pkg/testdatagen/scenario/e2ebasic.go)). Alternatively, run `make db_dev_e2e_populate` to reset your db and populate it with e2e user flow cases.
 * `bin/generate-test-data` will run binary and create a preconfigured set of test data. To determine the data scenario you'd like to use, check out scenarios in the `testdatagen` package. Each scenario contains a description of what data will be created when the scenario is run. Pass the scenario in as a flag to the generate-test-data function. A sample command: `./bin/generate-test-data -scenario=2`.
 
 There is also a package (`/pkg/testdatagen`) that can be imported to create arbitrary test data. This could be used in tests, so as not to duplicate functionality.
@@ -313,6 +320,9 @@ The Dev Commands are used to talk to the dev DB.  If you were working with the t
 * `make db_test_migrate`
 * `make db_test_migrate_standalone`
 * `make db_test_e2e_populate`
+* `make db_test_e2e_backup`
+* `make db_test_e2e_restore`
+* `make db_test_e2e_cleanup`
 
 The test DB commands all talk to the DB over localhost.  But in a docker-only environment (like CircleCI) you may not be able to use those commands, which is why `*_docker` versions exist for all of them:
 
