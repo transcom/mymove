@@ -90,7 +90,6 @@ const selectUnbilledShipmentLineItemsByShipmentId = (state, shipmentId) => {
     filterByNoInvoiceId,
     denormItems.bind(this, getEntities(state)),
     filterByLinehaulOrPreApprovals,
-    filterCheck35A,
   ])(getShipmentIds(state));
 };
 
@@ -151,11 +150,4 @@ function filterByNoInvoiceId(items) {
 
 function filterByLinehaulOrPreApprovals(items) {
   return filter(items, item => !item.tariff400ng_item.requires_pre_approval || item.status === 'APPROVED');
-}
-
-function filterCheck35A(items) {
-  return filter(
-    items,
-    item => item.tariff400ng_item.code !== '35A' || (item.tariff400ng_item.code === '35A' && item.actual_amount_cents),
-  );
 }
