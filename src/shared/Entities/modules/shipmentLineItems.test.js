@@ -207,7 +207,7 @@ describe('shipment line items tests', () => {
       };
     });
     it('selectUnbilledShipmentLineItems returns an array of items when shipment id is found', () => {
-      expect(selectUnbilledShipmentLineItems(state, '4612cfed-acbd-47ca-840a-7b7de190d6d2').length).toEqual(1);
+      expect(selectUnbilledShipmentLineItems(state, '4612cfed-acbd-47ca-840a-7b7de190d6d2').length).toEqual(2);
     });
     it('selectSortedPreApprovalShipmentLineItems returns pre-approval line items that are filtered by a shipmentId', () => {
       expect(selectSortedPreApprovalShipmentLineItems(state, '4612cfed-acbd-47ca-840a-7b7de190d6723').length).toEqual(
