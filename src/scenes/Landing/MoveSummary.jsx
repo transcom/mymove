@@ -310,7 +310,9 @@ export const ApprovedMoveSummary = props => {
   const { ppm, move, requestPaymentSuccess, context } = props;
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
   const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
-  const ppmPaymentRequestRoute = context.flags.ppmPaymentRequest ? 'someRoute' : `moves/${move.id}/request-payment`;
+  const ppmPaymentRequestRoute = context.flags.ppmPaymentRequest
+    ? `moves/${move.id}/ppm-payment-request-intro`
+    : `moves/${move.id}/request-payment`;
   return (
     <Fragment>
       <div>
