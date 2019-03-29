@@ -142,36 +142,36 @@ go_deps_update:
 	go get -u=patch
 	go mod tidy
 
-.PHONY: go_deps
-go_deps: go_version .go_deps.stamp
-.go_deps.stamp:
+.PHONY: check_gopath
+check_gopath: go_version .check_gopath.stamp
+.check_gopath.stamp:
 	bin/check_gopath.sh
-	touch .go_deps.stamp
+	touch .check_gopath.stamp
 
 .PHONY: build_chamber
-build_chamber: go_deps .build_chamber.stamp
+build_chamber: check_gopath .build_chamber.stamp
 .build_chamber.stamp:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
 	touch .build_chamber.stamp
 
 .PHONY: build_soda
-build_soda: go_deps .build_soda.stamp
+build_soda: check_gopath .build_soda.stamp
 .build_soda.stamp:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda
 	touch .build_soda.stamp
 
 .PHONY: build_generate_test_data
-build_generate_test_data: go_deps
+build_generate_test_data: check_gopath
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
 
 .PHONY: build_callgraph
-build_callgraph: go_deps .build_callgraph.stamp
+build_callgraph: check_gopath .build_callgraph.stamp
 .build_callgraph.stamp:
 	go build -i -o bin/callgraph golang.org/x/tools/cmd/callgraph
 	touch .build_callgraph.stamp
 
 .PHONY: get_gotools
-get_gotools: go_deps .get_gotools.stamp
+get_gotools: check_gopath .get_gotools.stamp
 .get_gotools.stamp:
 	go install golang.org/x/lint/golint
 	go install golang.org/x/tools/cmd/goimports
@@ -184,7 +184,7 @@ download_rds_certs: .download_rds_certs.stamp
 	touch .download_rds_certs.stamp
 
 .PHONY: server_deps
-server_deps: check_hosts go_deps build_chamber build_soda build_callgraph get_gotools download_rds_certs .server_deps.stamp
+server_deps: check_hosts check_gopath build_chamber build_soda build_callgraph get_gotools download_rds_certs .server_deps.stamp
 .server_deps.stamp:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
@@ -192,7 +192,7 @@ server_deps: check_hosts go_deps build_chamber build_soda build_callgraph get_go
 	touch .server_deps.stamp
 
 .PHONY: server_deps_linux
-server_deps_linux: go_deps .server_deps_linux.stamp
+server_deps_linux: check_gopath .server_deps_linux.stamp
 .server_deps_linux.stamp:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 
