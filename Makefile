@@ -144,10 +144,8 @@ go_deps_update:
 
 .PHONY: go_deps
 go_deps: go_version .go_deps.stamp
-.go_deps.stamp: go.mod
+.go_deps.stamp:
 	bin/check_gopath.sh
-	go get
-	go install golang.org/x/lint/golint
 	touch .go_deps.stamp
 
 .PHONY: build_chamber
@@ -172,11 +170,12 @@ build_callgraph: go_deps .build_callgraph.stamp
 	go build -i -o bin/callgraph golang.org/x/tools/cmd/callgraph
 	touch .build_callgraph.stamp
 
-.PHONY: get_goimports
-get_goimports: go_deps .get_goimports.stamp
-.get_goimports.stamp:
+.PHONY: get_gotools
+get_gotools: go_deps .get_gotools.stamp
+.get_gotools.stamp:
+	go install golang.org/x/lint/golint
 	go install golang.org/x/tools/cmd/goimports
-	touch .get_goimports.stamp
+	touch .get_gotools.stamp
 
 .PHONY: download_rds_certs
 download_rds_certs: .download_rds_certs.stamp
@@ -185,7 +184,7 @@ download_rds_certs: .download_rds_certs.stamp
 	touch .download_rds_certs.stamp
 
 .PHONY: server_deps
-server_deps: check_hosts go_deps build_chamber build_soda build_callgraph get_goimports download_rds_certs .server_deps.stamp
+server_deps: check_hosts go_deps build_chamber build_soda build_callgraph get_gotools download_rds_certs .server_deps.stamp
 .server_deps.stamp:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
