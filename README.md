@@ -123,6 +123,7 @@ All of our code is intermingled in the top level directory of mymove. Here is an
 The following commands will get mymove running on your machine for the first time. Please read below for explanations of each of the commands.
 
 1. `./scripts/prereqs`
+1. `direnv allow`
 1. `make db_dev_run`
 1. `make db_dev_migrate`
 1. `make server_run`
