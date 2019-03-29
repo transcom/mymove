@@ -307,9 +307,10 @@ export const SubmittedHhgMoveSummary = props => {
 };
 
 export const ApprovedMoveSummary = props => {
-  const { ppm, move, requestPaymentSuccess } = props;
+  const { ppm, move, requestPaymentSuccess, context } = props;
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
   const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
+  const ppmPaymentRequestRoute = context.flags.ppmPaymentRequest ? 'someRoute' : `moves/${move.id}/request-payment`;
   return (
     <Fragment>
       <div>
@@ -360,7 +361,7 @@ export const ApprovedMoveSummary = props => {
                       Request a PPM payment, a storage payment, or an advance against your PPM payment before your move
                       is done.
                     </div>
-                    <Link to={`moves/${move.id}/request-payment`} className="usa-button usa-button-secondary">
+                    <Link to={ppmPaymentRequestRoute} className="usa-button usa-button-secondary">
                       Request Payment
                     </Link>
                   </div>
@@ -495,6 +496,7 @@ const getHHGStatus = (moveStatus, shipment) => {
 
 export const MoveSummary = props => {
   const {
+    context,
     profile,
     move,
     orders,
@@ -556,6 +558,7 @@ export const MoveSummary = props => {
           )}
           {showPPM && (
             <PPMComponent
+              context={context}
               className="status-component"
               ppm={ppm}
               shipment={shipment}
