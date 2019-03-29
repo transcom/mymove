@@ -402,12 +402,12 @@ definitions:
         type: string
         description: date of service or charge
         format: date
-        example: 2018-10-21
+        example: '2018-10-21'
         x-nullable: true
       time:
         type: string
         description: time of service or charge in military time
-        example: 0400
+        example: '0400'
         x-nullable: true
       address:
         $ref: '#/definitions/Address'
