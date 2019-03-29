@@ -14,7 +14,7 @@
 * [Engineering](#engineering)
   * [Code Patterns](#code-patterns)
 
-Regenerate with "bin/generate-md-toc.sh"
+Regenerate with "scripts/generate-md-toc"
 
 <!-- tocstop -->
 
