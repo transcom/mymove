@@ -1,7 +1,7 @@
 import { get } from 'lodash';
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { reduxForm, FormSection } from 'redux-form';
+import { reduxForm } from 'redux-form';
 
 import { editablePanelify } from 'shared/EditablePanel';
 import { AddressElementDisplay, AddressElementEdit } from 'shared/Address';
@@ -43,10 +43,8 @@ const LocationsEdit = props => {
     state: props.newDutyStation.state,
     postal_code: props.newDutyStation.postal_code,
   };
-  const deliveryAddress = get(props, 'formValues.delivery_address', {});
   const hasDeliveryAddress = get(props, 'formValues.has_delivery_address');
   const hasSecondaryPickupAddress = get(props, 'formValues.has_secondary_pickup_address');
-  const secondaryPickupAddress = get(props, 'formValues.secondary_pickup_address', {});
   return (
     <Fragment>
       <div className="editable-panel-column">
@@ -65,18 +63,14 @@ const LocationsEdit = props => {
           component={YesNoBoolean}
           title="Are there household goods at any other pickup location?"
         />
-        <FormSection name="secondary_pickup_address">
-          {hasSecondaryPickupAddress && (
-            <AddressElementEdit
-              addressProps={{
-                swagger: addressSchema,
-                values: secondaryPickupAddress,
-              }}
-              title="Additional address"
-              zipPattern="USA"
-            />
-          )}
-        </FormSection>
+        {hasSecondaryPickupAddress && (
+          <AddressElementEdit
+            fieldName="secondary_pickup_address"
+            schema={addressSchema}
+            title="Additional address"
+            zipPattern="USA"
+          />
+        )}
       </div>
       <div className="editable-panel-column">
         <span className="column-subhead">Delivery</span>
@@ -87,20 +81,16 @@ const LocationsEdit = props => {
           component={YesNoBoolean}
           title="Do you know the delivery address at destination yet?"
         />
-        <FormSection name="delivery_address">
-          {hasDeliveryAddress ? (
-            <AddressElementEdit
-              addressProps={{
-                swagger: addressSchema,
-                values: deliveryAddress,
-              }}
-              title="Primary address"
-              zipPattern="USA"
-            />
-          ) : (
-            <AddressElementDisplay address={newDutyStation} title="Delivery Primary (Duty Station)" />
-          )}
-        </FormSection>
+        {hasDeliveryAddress ? (
+          <AddressElementEdit
+            fieldName="delivery_address"
+            schema={addressSchema}
+            title="Primary address"
+            zipPattern="USA"
+          />
+        ) : (
+          <AddressElementDisplay address={newDutyStation} title="Delivery Primary (Duty Station)" />
+        )}
       </div>
     </Fragment>
   );
