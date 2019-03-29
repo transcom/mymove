@@ -25,7 +25,12 @@ export class StorageInTransitOfficeApprovalForm extends Component {
             />
           </div>
           <div className="editable-panel-column">
-            <SwaggerField className="sit-approval-field" fieldName="notes" swagger={storageInTransitSchema} />
+            <SwaggerField
+              className="sit-approval-field"
+              fieldName="authorization_notes"
+              title="Note"
+              swagger={storageInTransitSchema}
+            />
           </div>
         </fieldset>
       </form>
