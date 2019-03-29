@@ -3,13 +3,14 @@ export function createItemRequest({ shipmentId, csrfToken, code, quantity1 }) {
     '105B': { item: 'Pack Reg Crate', id: 'deb28967-d52c-4f04-8a0b-a264c9d80457', location: 'ORIGIN' },
     '105E': { item: 'UnPack Reg Crate', id: '6df4f1aa-a232-4eef-bbe8-f06bfb0b6d40', location: 'DESTINATION' },
     '35A': { item: 'Third Party Service', id: 'c6a865dd-324a-48a5-9b03-5db8dcd044d1', location: 'EITHER' },
+    '226A': { item: 'Miscellaneous Charge', id: 'c5a6b126-de1a-4ab7-a5f4-c6e42cdf443b', location: 'EITHER' },
   };
   let itemDetails;
   if (code in tariff400ng) {
     /* eslint-disable security/detect-object-injection */
     itemDetails = tariff400ng[code];
   } else {
-    itemDetails = { item: 'unknown', id: 'unknown', location: 'EITHER' };
+    return;
   }
 
   return {

@@ -1,11 +1,7 @@
 #! /usr/bin/env bash
-# Restore the contents of the development database from an earlier backup.
+# Remove the database backup.
 
 set -eu -o pipefail
-
-readonly db=${DB_NAME:-db_dev}
-readonly port=${DB_PORT:-5432}
-export PGPASSWORD="mysecretpassword"
 
 function list() {
   echo "Available backups are:"
@@ -16,7 +12,7 @@ function list() {
 
 readonly name=${1:-}
 if [[ -z "$name" ]]; then
-  echo "usage: $0 <name of backup to restore>"
+  echo "usage: $0 <name of backup to cleanup>"
   list
   exit 1
 fi
@@ -28,4 +24,4 @@ if [[ ! -f "$path" ]]; then
   exit 1
 fi
 
-psql -h localhost -U postgres -p "$port" -q -d "$db" < "$path" > /dev/null
+rm -f "tmp/db/$name"
