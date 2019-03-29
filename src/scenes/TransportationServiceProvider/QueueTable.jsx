@@ -128,6 +128,7 @@ class QueueTable extends Component {
             loading={this.state.loading} // Display the loading overlay when we need it
             pageSize={this.state.data.length}
             className="-striped -highlight"
+            showPagination={false}
             getTrProps={(state, rowInfo) => ({
               onDoubleClick: e => this.props.history.push(`/shipments/${rowInfo.original.id}`),
             })}

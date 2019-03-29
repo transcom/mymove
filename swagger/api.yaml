@@ -2132,18 +2132,6 @@ paths:
             - PICKUP_DATE_DESC
             - DELIVERY_DATE_ASC
             - DELIVERY_DATE_DESC
-        - name: limit
-          in: query
-          type: integer
-          description: maximum number of records to return
-          minimum: 1
-          default: 25
-        - name: offset
-          in: query
-          type: integer
-          description: offset into records to select from. Actual offset is this value multiplied by limit.
-          minimum: 1
-          default: 1
       responses:
         200:
           description: returns an array of Shipments
