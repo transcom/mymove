@@ -90,7 +90,8 @@ func (suite *ModelSuite) TestCreateShipmentLineItemCode125() {
 
 	reas := "This is the reason"
 	date := time.Now()
-	militaryTime := "0400"
+	// also testing for military time format
+	militaryTime := "0000"
 
 	baseParams := models.BaseShipmentLineItemParams{
 		Tariff400ngItemID:   item125A.ID,
@@ -130,6 +131,16 @@ func (suite *ModelSuite) TestCreateShipmentLineItemCode125() {
 		Location:            "ORIGIN",
 	}
 
+	// also testing for military time format
+	militaryTime = "23:59"
+
+	additionalParams = models.AdditionalShipmentLineItemParams{
+		Reason:  &reas,
+		Date:    &date,
+		Time:    &militaryTime,
+		Address: &address,
+	}
+
 	shipmentLineItem, verrs, err = shipment.CreateShipmentLineItem(suite.DB(),
 		baseParams, additionalParams)
 
@@ -142,4 +153,58 @@ func (suite *ModelSuite) TestCreateShipmentLineItemCode125() {
 		suite.EqualValues(militaryTime, *shipmentLineItem.Time)
 		suite.NotNil(shipmentLineItem.Address.ID)
 	}
+}
+
+// TestShipmentLineItem125MilitaryTimeValidationErrors tests that 125 line items with wrong military time format
+func (suite *ModelSuite) TestShipmentLineItem125MilitaryTimeValidationErrors() {
+	expErrors := map[string][]string{
+		"time": {"Not in military time. Ex: 0400 or 04:00"},
+	}
+	item125A := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: models.Tariff400ngItem{
+			Code: "125A",
+		},
+	})
+
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+	address := models.Address{
+		StreetAddress1: "123 Test St",
+		City:           "City",
+		State:          "CA",
+		PostalCode:     "94087",
+	}
+
+	reas := "This is the reason"
+	date := time.Now()
+	// test invalid military time
+	invalidMilitaryTime := "2400"
+
+	baseParams := models.BaseShipmentLineItemParams{
+		Tariff400ngItemID:   item125A.ID,
+		Tariff400ngItemCode: item125A.Code,
+		Location:            "ORIGIN",
+	}
+	additionalParams := models.AdditionalShipmentLineItemParams{
+		Reason:  &reas,
+		Date:    &date,
+		Time:    &invalidMilitaryTime,
+		Address: &address,
+	}
+
+	shipmentLineItem, _, _ := shipment.CreateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams)
+	suite.verifyValidationErrors(shipmentLineItem, expErrors)
+
+	// now test another invalid military time format
+	invalidMilitaryTime = "24:00"
+	additionalParams = models.AdditionalShipmentLineItemParams{
+		Reason:  &reas,
+		Date:    &date,
+		Time:    &invalidMilitaryTime,
+		Address: &address,
+	}
+
+	shipmentLineItem, _, _ = shipment.CreateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams)
+	suite.verifyValidationErrors(shipmentLineItem, expErrors)
 }
