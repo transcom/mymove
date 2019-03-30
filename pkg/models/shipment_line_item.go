@@ -93,9 +93,12 @@ func (s *ShipmentLineItem) Validate(tx *pop.Connection) (*validate.Errors, error
 		string(ShipmentLineItemLocationNEITHER),
 	}
 
+	militaryTimeExpr := "^([01]\\d|2[0-3]):?([0-5]\\d)$"
+
 	return validate.Validate(
 		&validators.StringInclusion{Field: string(s.Status), Name: "Status", List: validStatuses},
 		&validators.StringInclusion{Field: string(s.Location), Name: "Locations", List: validLocations},
+		&OptionalRegexMatch{Field: s.Time, Name: "Time", Expr: militaryTimeExpr, Message: "Not in military time. Ex: 0400 or 04:00"},
 	), nil
 }
 
