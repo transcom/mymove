@@ -132,7 +132,8 @@ func (suite *ModelSuite) TestCreateShipmentLineItemCode125() {
 	}
 
 	// also testing for military time format
-	militaryTime = "23:59"
+	// J - Juliet - Local Time
+	militaryTime = "2359J"
 
 	additionalParams = models.AdditionalShipmentLineItemParams{
 		Reason:  &reas,
@@ -158,7 +159,7 @@ func (suite *ModelSuite) TestCreateShipmentLineItemCode125() {
 // TestShipmentLineItem125MilitaryTimeValidationErrors tests that 125 line items with wrong military time format
 func (suite *ModelSuite) TestShipmentLineItem125MilitaryTimeValidationErrors() {
 	expErrors := map[string][]string{
-		"time": {"Not in military time. Ex: 0400 or 04:00"},
+		"time": {"Not in military time. Ex: 0400 or 0400J"},
 	}
 	item125A := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
 		Tariff400ngItem: models.Tariff400ngItem{
@@ -196,7 +197,7 @@ func (suite *ModelSuite) TestShipmentLineItem125MilitaryTimeValidationErrors() {
 	suite.verifyValidationErrors(shipmentLineItem, expErrors)
 
 	// now test another invalid military time format
-	invalidMilitaryTime = "24:00"
+	invalidMilitaryTime = "24:00J"
 	additionalParams = models.AdditionalShipmentLineItemParams{
 		Reason:  &reas,
 		Date:    &date,
