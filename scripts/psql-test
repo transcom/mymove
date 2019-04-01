@@ -3,4 +3,4 @@
 export DB_NAME=test_db
 export DB_PORT=$DB_PORT_TEST
 # shellcheck disable=SC1091,SC1090
-. "$(dirname "$0")"/psql
+. "$(dirname "$0")"/psql-wrapper

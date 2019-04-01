@@ -10,8 +10,7 @@ import Editor from 'shared/PreApprovalRequest/Editor.jsx';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
 import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
-import { isNewAccessorial } from 'shared/preApprovals';
-import { getDetailsComponent } from './DetailsHelper';
+import { getDetailsComponent, isRobustAccessorial } from './DetailsHelper';
 
 function formatStatus(lineItem) {
   let formattedStatus = lineItem.status;
@@ -102,7 +101,7 @@ export class PreApprovalRequest extends Component {
     const DetailsComponent = getDetailsComponent(
       row.tariff400ng_item.code,
       get(this.props, 'context.flags.robustAccessorial', false),
-      isNewAccessorial(row),
+      isRobustAccessorial(row),
     );
     if (this.state.showEditForm) {
       return (

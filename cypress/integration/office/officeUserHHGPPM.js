@@ -34,13 +34,18 @@ describe('office user finds the shipment', function() {
 });
 
 function officeUserApprovesShipment() {
-  const ApproveShipmentButton = cy.get('button').contains('Approve HHG');
+  cy.get('.combo-button').click();
 
-  ApproveShipmentButton.should('be.enabled');
+  // Approve HHG
+  cy
+    .get('.combo-button .dropdown')
+    .contains('Approve HHG')
+    .click();
 
-  ApproveShipmentButton.click();
-
-  ApproveShipmentButton.should('be.disabled');
+  cy
+    .get('.combo-button .dropdown')
+    .contains('Approve HHG')
+    .should('have.class', 'disabled');
 
   cy.get('.status').contains('Approved');
 }
