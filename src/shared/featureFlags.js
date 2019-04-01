@@ -27,12 +27,10 @@ const environmentFlags = {
 
   staging: Object.assign({}, defaultFlags, {
     robustAccessorial: false,
-    moveInfoComboButton: false,
   }),
 
   production: Object.assign({}, defaultFlags, {
     allowHhgInvoicePayment: false,
-    moveInfoComboButton: false,
     robustAccessorial: false,
     sitPanel: false,
   }),
