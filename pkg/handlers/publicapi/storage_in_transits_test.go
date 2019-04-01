@@ -166,9 +166,10 @@ func (suite *HandlerSuite) TestPatchStorageInTransitHandler() {
 	req = suite.AuthenticateOfficeRequest(req, user)
 
 	params := sitop.PatchStorageInTransitParams{
-		HTTPRequest:      req,
-		ShipmentID:       strfmt.UUID(shipment.ID.String()),
-		StorageInTransit: sitPayload,
+		HTTPRequest:        req,
+		ShipmentID:         strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID: strfmt.UUID(sit.ID.String()),
+		StorageInTransit:   sitPayload,
 	}
 
 	handler := PatchStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}

@@ -5,6 +5,7 @@ import {
 } from '../../support/preapprovals/testCreateRequest';
 import { test35A, test35ALegacy } from '../../support/preapprovals/test35a';
 import { test105be, test105beLegacy } from '../../support/preapprovals/test105be';
+import { test226A, test226ALegacy } from '../../support/preapprovals/test226a';
 
 /* global cy */
 describe('TSP user interacts with pre approval request panel', function() {
@@ -31,6 +32,12 @@ describe('TSP user interacts with pre approval request panel', function() {
   });
   it('TSP user creates 105B/E request', function() {
     test105be();
+  });
+  it('Add legacy 226A to verify they display correctly', function() {
+    test226ALegacy();
+  });
+  it('TSP user creates 226A request', function() {
+    test226A();
   });
 });
 

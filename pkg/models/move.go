@@ -458,14 +458,20 @@ func (m Move) CreateSignedCertification(db *pop.Connection,
 	submittingUserID uuid.UUID,
 	certificationText string,
 	signature string,
-	date time.Time) (*SignedCertification, *validate.Errors, error) {
+	date time.Time,
+	ppmID *uuid.UUID,
+	shipmentID *uuid.UUID,
+	certificationType *SignedCertificationType) (*SignedCertification, *validate.Errors, error) {
 
 	newSignedCertification := SignedCertification{
-		MoveID:            m.ID,
-		SubmittingUserID:  submittingUserID,
-		CertificationText: certificationText,
-		Signature:         signature,
-		Date:              date,
+		MoveID:                   m.ID,
+		PersonallyProcuredMoveID: ppmID,
+		ShipmentID:               shipmentID,
+		CertificationType:        certificationType,
+		SubmittingUserID:         submittingUserID,
+		CertificationText:        certificationText,
+		Signature:                signature,
+		Date:                     date,
 	}
 
 	verrs, err := db.ValidateAndCreate(&newSignedCertification)
