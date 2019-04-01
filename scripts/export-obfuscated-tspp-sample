@@ -38,7 +38,7 @@ if [[ -f "${output_file}" ]]; then
   proceed "This will overwrite the contents of ${output_file}"
 fi
 
-bin/psql-dev << SQL
+scripts/psql-dev << SQL
 DROP TABLE IF EXISTS ${TSPP_BACKUP};
 ALTER TABLE ${TSPP} RENAME TO ${TSPP_BACKUP};
 
@@ -57,7 +57,7 @@ SQL
 
 pg_dump -h localhost -d dev_db -U postgres -t ${TSPP} --inserts -O --data-only -f "${output_file}"
 
-bin/psql-dev << SQL
+scripts/psql-dev << SQL
 DROP TABLE ${TSPP};
 ALTER TABLE ${TSPP_BACKUP} RENAME TO ${TSPP};
 SQL
