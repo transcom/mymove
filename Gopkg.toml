@@ -31,3 +31,7 @@ required = [
 [[constraint]]
   branch = "master"
   name = "golang.org/x/lint"
+
+[[constraint]]
+  name = "github.com/aws/aws-sdk-go"
+  version = "1.16.26"
