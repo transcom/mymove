@@ -458,6 +458,13 @@ class MoveInfo extends Component {
                     </ComboButton>
                   )}
                 </ToolTip>
+                <ConfirmWithReasonButton
+                  buttonTitle="Cancel Move"
+                  reasonPrompt="Why is the move being canceled?"
+                  warningPrompt="Are you sure you want to cancel the entire move?"
+                  onConfirm={this.cancelMoveAndRedirect}
+                  buttonDisabled={hhgCantBeCanceled}
+                />
               </div>
 
               {(isHHG || isHHGPPM) && (
@@ -470,13 +477,7 @@ class MoveInfo extends Component {
                   {hhgCompleted && check}
                 </button>
               )}
-              <ConfirmWithReasonButton
-                buttonTitle="Cancel Move"
-                reasonPrompt="Why is the move being canceled?"
-                warningPrompt="Are you sure you want to cancel the entire move?"
-                onConfirm={this.cancelMoveAndRedirect}
-                buttonDisabled={hhgCantBeCanceled}
-              />
+
               {/* Disabling until features implemented
               <button>Troubleshoot</button>
               */}
