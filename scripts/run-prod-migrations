@@ -49,7 +49,7 @@ aws s3 ls "${AWS_S3_BUCKET_NAME}/secure-migrations" > /dev/null
 proceed "Running production migrations against the ${DB_NAME} database. This will delete everything in that db."
 
 export PGPASSWORD=${DB_PASSWORD}
-DB_NAME=postgres ./bin/wait-for-db || make db_dev_run
+DB_NAME=postgres ./scripts/wait-for-db || make db_dev_run
 dropdb -h localhost -U postgres -w --if-exists "${DB_NAME}"
 createdb -h localhost -U postgres -w "${DB_NAME}"
 run make db_dev_migrate || (
