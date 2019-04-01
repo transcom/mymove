@@ -3,6 +3,7 @@ DB_NAME_DEV = dev_db
 DB_NAME_PROD_MIGRATIONS = prod_migrations
 DB_NAME_TEST = test_db
 DB_DOCKER_CONTAINER_DEV = milmove-db-dev
+DB_DOCKER_CONTAINER_PROD_MIGRATIONS = milmove-db-prod-migrations
 DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # The version of the postgres container should match production as closely
 # as possible.
@@ -387,8 +388,8 @@ db_dev_migrate: server_deps db_dev_migrate_standalone
 .PHONY: db_prod_migrations_destroy
 db_prod_migrations_destroy:
 ifndef CIRCLECI
-	@echo "Destroying the ${DB_DOCKER_CONTAINER_DEV} docker database container..."
-	docker rm -f $(DB_DOCKER_CONTAINER_DEV) || \
+	@echo "Destroying the ${DB_DOCKER_CONTAINER_PROD_MIGRATIONS} docker database container..."
+	docker rm -f $(DB_DOCKER_CONTAINER_PROD_MIGRATIONS) || \
 		echo "No database container"
 else
 	@echo "Relying on CircleCI's database setup to destroy the DB."
@@ -399,10 +400,10 @@ db_prod_migrations_start:
 ifndef CIRCLECI
 	brew services stop postgresql 2> /dev/null || true
 endif
-	@echo "Starting the ${DB_DOCKER_CONTAINER_DEV} docker database container..."
+	@echo "Starting the ${DB_DOCKER_CONTAINER_PROD_MIGRATIONS} docker database container..."
 	# If running do nothing, if not running try to start, if can't start then run
-	docker start $(DB_DOCKER_CONTAINER_DEV) || \
-		docker run --name $(DB_DOCKER_CONTAINER_DEV) \
+	docker start $(DB_DOCKER_CONTAINER_PROD_MIGRATIONS) || \
+		docker run --name $(DB_DOCKER_CONTAINER_PROD_MIGRATIONS) \
 			-e \
 			POSTGRES_PASSWORD=$(PGPASSWORD) \
 			-d \
