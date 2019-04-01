@@ -1,12 +1,11 @@
 #! /usr/bin/env bash
 #
 # A script to apply all migrations, including secure migrations, to a local database.
-# https://github.com/transcom/mymove#secure-migrations
-#
-# You can override the database to use by setting DB_NAME outside the script.
+# https://github.com/transcom/mymove/blob/master/docs/how-to/migrate-the-database.md#secure-migrations
 
 set -eu -o pipefail
 
+# Required env vars for apply-secure-migration.sh
 export SECURE_MIGRATION_SOURCE=s3
 export AWS_S3_BUCKET_NAME=transcom-ppp-app-prod-us-west-2
 export PSQL_SSL_MODE=disable
@@ -50,7 +49,7 @@ aws s3 ls "${AWS_S3_BUCKET_NAME}/secure-migrations" > /dev/null
 proceed "Running production migrations against the ${DB_NAME} database. This will delete everything in that db."
 
 export PGPASSWORD=${DB_PASSWORD}
-DB_NAME=postgres DB_PORT="${DB_PORT}" ./scripts/wait-for-db || make db_prod_migrations_reset
+make db_prod_migrations_reset
 run make db_prod_migrations_migrate || (
   echo "error: migrations failed!"
   exit 1
