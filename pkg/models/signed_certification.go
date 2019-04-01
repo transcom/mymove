@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/pkg/errors"
@@ -86,15 +87,16 @@ func FetchSignedCertificationsPPMPayment(db *pop.Connection, session *auth.Sessi
 
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
-			return nil, ErrFetchNotFound
+			msg := fmt.Sprintf("signed_certification: with move_id: %s and certification_type: %s not found", id.String(), SignedCertificationTypePPMPAYMENT)
+			return nil, errors.Wrap(ErrFetchNotFound, msg)
 		}
 		// Otherwise, it's an unexpected err so we return that.
-		return nil, err
+		return nil, errors.Wrap(err, "signed_certification: unable to fetch signed certification")
 	}
 	// Validate the move is associated to the logged-in service member
 	_, fetchErr := FetchMove(db, session, id)
 	if fetchErr != nil {
-		return nil, ErrFetchForbidden
+		return nil, errors.Wrap(ErrFetchForbidden, "signed_certification: unauthorized access")
 	}
 
 	return &signedCertification, nil

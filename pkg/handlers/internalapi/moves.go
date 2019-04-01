@@ -246,11 +246,13 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(h.DB(), session, moveID)
 	if err != nil {
 		h.Logger().Error("Error fetching shipment summary worksheet form data ", zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 	ssfd.PreparationDate = time.Time(params.PreparationDate)
 	ssfd.Obligations, err = ppmComputer.ComputeObligations(ssfd, h.Planner())
 	if err != nil {
 		h.Logger().Error("Error calculating obligations ", zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	page1Data, page2Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)

@@ -120,7 +120,7 @@ type ShipmentSummaryFormData struct {
 	Obligations             Obligations
 	MovingExpenseDocuments  []MovingExpenseDocument
 	PPMRemainingEntitlement unit.Pound
-	SignedCertification     *SignedCertification
+	SignedCertification     SignedCertification
 }
 
 //Obligations an object representing the Max Obligation and Actual Obligation sections of the shipment summary worksheet
@@ -213,10 +213,13 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 
 	ppmRemainingEntitlement := CalculateRemainingPPMEntitlement(move, totalEntitlement)
 
-	//TODO do we want to throw error if don't have signature or just print as empty?
 	signedCertification, err := FetchSignedCertificationsPPMPayment(db, session, moveID)
-	if err != nil && err != ErrFetchNotFound {
+	if err != nil {
 		return ShipmentSummaryFormData{}, err
+	}
+	if signedCertification == nil {
+		return ShipmentSummaryFormData{},
+			errors.New("shipment summary worksheet: signed certification is nil")
 	}
 	ssd := ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
@@ -227,7 +230,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		TotalWeightAllotment:    totalEntitlement,
 		Shipments:               move.Shipments,
 		PersonallyProcuredMoves: move.PersonallyProcuredMoves,
-		SignedCertification:     signedCertification,
+		SignedCertification:     *signedCertification,
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
 		MovingExpenseDocuments:  movingExpenses,
 	}
@@ -389,9 +392,6 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData)
 
 //FormatSignature formats a service member's signature for the Shipment Summary Worksheet
 func FormatSignature(data ShipmentSummaryFormData) string {
-	if data.SignedCertification == nil {
-		return "SIGNATURE MISSING"
-	}
 	dateLayout := "02 Jan 2006 at 3:04pm"
 	dt := data.SignedCertification.Date.Format(dateLayout)
 	first := derefStringTypes(data.ServiceMember.FirstName)

@@ -79,11 +79,11 @@ func main() {
 
 	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(db, &auth.Session{}, parsedID)
 	if err != nil {
-		log.Println(errors.Wrap(err, "Error fetching shipment summary worksheet data "))
+		log.Fatalf("%s", errors.Wrap(err, "Error fetching shipment summary worksheet data "))
 	}
 	ssfd.Obligations, err = ppmComputer.ComputeObligations(ssfd, planner)
 	if err != nil {
-		log.Println(errors.Wrap(err, "Error calculating obligations "))
+		log.Fatalf("%s", errors.Wrap(err, "Error calculating obligations "))
 	}
 
 	page1Data, page2Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)

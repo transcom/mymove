@@ -603,18 +603,10 @@ func (suite *ModelSuite) TestFormatSignature() {
 	}
 	sswfd := models.ShipmentSummaryFormData{
 		ServiceMember:       sm,
-		SignedCertification: &signature,
+		SignedCertification: signature,
 	}
 
 	formattedSignature := models.FormatSignature(sswfd)
 
 	suite.Equal("John Smith electronically signed on 26 Jan 2019 at 2:40pm", formattedSignature)
-}
-
-func (suite *ModelSuite) TestFormatMissingSignature() {
-	sswfd := models.ShipmentSummaryFormData{}
-
-	formattedSignature := models.FormatSignature(sswfd)
-
-	suite.Equal("SIGNATURE MISSING", formattedSignature)
 }

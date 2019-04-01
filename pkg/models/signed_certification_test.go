@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"strings"
+
 	"github.com/transcom/mymove/pkg/auth"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -85,5 +87,5 @@ func (suite *ModelSuite) TestFetchSignedCertificationsPPMPaymentAuth() {
 	})
 
 	_, err := FetchSignedCertificationsPPMPayment(suite.DB(), session, otherPpm.MoveID)
-	suite.Equal(err, ErrFetchForbidden)
+	suite.True(strings.Contains(err.Error(), "FETCH_FORBIDDEN"))
 }
