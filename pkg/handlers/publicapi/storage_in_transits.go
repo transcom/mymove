@@ -131,7 +131,7 @@ func patchStorageInTransitWithPayload(storageInTransit *models.StorageInTransit,
 		updateAddressWithPayload(&storageInTransit.WarehouseAddress, payload.WarehouseAddress)
 	}
 
-	//
+	// This switch maps the incoming string value to an appropriate model constant.
 	switch payload.Status {
 
 	case string(models.StorageInTransitStatusAPPROVED):
