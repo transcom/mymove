@@ -4,7 +4,7 @@ repos:
     hooks:
       - id: go-version
         name: go version
-        entry: bin/check_go_version
+        entry: scripts/check-go-version
         language: script
         types: [go]
 
@@ -85,7 +85,7 @@ repos:
     hooks:
       - id: markdown-toc
         name: markdown-toc
-        entry: bin/generate-md-toc.sh
+        entry: scripts/generate-md-toc
         language: script
         files: \.md$
 
@@ -93,7 +93,7 @@ repos:
     hooks:
       - id: go-imports
         name: go imports
-        entry: bin/pre-commit-go-imports
+        entry: scripts/pre-commit-go-imports
         language: script
         files: \.go$
         exclude: vendor/
@@ -102,7 +102,7 @@ repos:
     hooks:
       - id: go-lint
         name: go lint
-        entry: bin/pre-commit-go-lint
+        entry: scripts/pre-commit-go-lint
         language: script
         files: \.go$
         exclude: vendor/
@@ -111,7 +111,7 @@ repos:
     hooks:
     - id: go-vet
       name: go vet
-      entry: bin/pre-commit-go-vet
+      entry: scripts/pre-commit-go-vet
       language: script
       files: \.go$
       exclude: vendor/
@@ -131,7 +131,7 @@ repos:
   #   hooks:
   #     - id: mdspell
   #       name: mdspell
-  #       entry: bin/pre-commit-spellcheck
+  #       entry: scripts/pre-commit-spellcheck
   #       language: script
   #       files: \.md$
   #       exclude: >
@@ -145,7 +145,7 @@ repos:
     hooks:
       - id: gen-docs
         name: regenerate docs index
-        entry: bin/gen-docs-index
+        entry: scripts/gen-docs-index
         language: script
         files: \.md$
         pass_filenames: false
@@ -154,14 +154,14 @@ repos:
     hooks:
       - id: dep-version
         name: dep version
-        entry: bin/check_dep_version
+        entry: scripts/check-dep-version
         language: script
 
   - repo: local
     hooks:
       - id: dep-check
         name: dep check
-        entry: bin/pre-commit-dep-check
+        entry: scripts/pre-commit-dep-check
         language: script
         files: (\.go|Gopkg\.toml|Gopkg\.lock)$
         pass_filenames: false

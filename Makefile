@@ -6,7 +6,7 @@ DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # The version of the postgres container should match production as closely
 # as possible.
 # https://github.com/transcom/ppp-infra/blob/7ba2e1086ab1b2a0d4f917b407890817327ffb3d/modules/aws-app-environment/database/variables.tf#L48
-DB_DOCKER_CONTAINER_IMAGE = postgres:10.5
+DB_DOCKER_CONTAINER_IMAGE = postgres:10.6
 export PGPASSWORD=mysecretpassword
 
 # if S3 access is enabled, wrap webserver in aws-vault command
@@ -48,15 +48,15 @@ ensure_pre_commit: .git/hooks/pre-commit
 
 .PHONY: prereqs
 prereqs: .prereqs.stamp
-.prereqs.stamp: bin/prereqs
-	bin/prereqs
+.prereqs.stamp: scripts/prereqs
+	scripts/prereqs
 	touch .prereqs.stamp
 
 .PHONY: check_hosts
 check_hosts: .check_hosts.stamp
-.check_hosts.stamp: bin/check-hosts-file
+.check_hosts.stamp: scripts/check-hosts-file
 ifndef CIRCLECI
-	bin/check-hosts-file
+	scripts/check-hosts-file
 else
 	@echo "Not checking hosts on CircleCI."
 endif
@@ -64,15 +64,15 @@ endif
 
 .PHONY: go_version
 go_version: .go_version.stamp
-.go_version.stamp: bin/check_go_version
-	bin/check_go_version
+.go_version.stamp: scripts/check-go-version
+	scripts/check-go-version
 	touch .go_version.stamp
 
 .PHONY: bash_version
 bash_version: .bash_version.stamp
-.bash_version.stamp: bin/check_bash_version
+.bash_version.stamp: scripts/check-bash-version
 ifndef CIRCLECI
-	bin/check_bash_version
+	scripts/check-bash-version
 else
 	@echo "No need to check bash version on CircleCI"
 endif
@@ -100,7 +100,7 @@ client_deps_update:
 client_deps: check_hosts .client_deps.stamp
 .client_deps.stamp: yarn.lock
 	yarn install
-	bin/copy_swagger_ui.sh
+	scripts/copy-swagger-ui
 	touch .client_deps.stamp
 .client_build.stamp: $(shell find src -type f)
 	yarn build
@@ -148,7 +148,7 @@ go_deps_update:
 .PHONY: go_deps
 go_deps: go_version .go_deps.stamp
 .go_deps.stamp: Gopkg.lock
-	bin/check_gopath.sh
+	scripts/check-gopath
 	dep ensure -vendor-only
 
 .PHONY: build_chamber
@@ -182,7 +182,7 @@ get_goimports: go_deps .get_goimports.stamp
 .PHONY: download_rds_certs
 download_rds_certs: .download_rds_certs.stamp
 .download_rds_certs.stamp:
-	curl -o bin/rds-combined-ca-bundle.pem https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+	curl -sSo bin/rds-combined-ca-bundle.pem https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
 	touch .download_rds_certs.stamp
 
 .PHONY: server_deps
@@ -203,13 +203,13 @@ server_deps_linux: go_deps .server_deps_linux.stamp
 .PHONY: server_generate
 server_generate: server_deps server_go_bindata .server_generate.stamp
 .server_generate.stamp: $(shell find swagger -type f -name *.yaml)
-	bin/gen_server.sh
+	scripts/gen-server
 	touch .server_generate.stamp
 
 .PHONY: server_generate_linux
 server_generate_linux: server_deps_linux server_go_bindata .server_generate_linux.stamp
 .server_generate_linux.stamp: $(shell find swagger -type f -name *.yaml)
-	bin/gen_server.sh
+	scripts/gen-server
 	touch .server_generate_linux.stamp
 
 .PHONY: server_go_bindata
@@ -359,7 +359,7 @@ endif
 .PHONY: db_dev_create
 db_dev_create:
 	@echo "Create the ${DB_NAME_DEV} database..."
-	DB_NAME=postgres bin/wait-for-db && \
+	DB_NAME=postgres scripts/wait-for-db && \
 		createdb -p $(DB_PORT_DEV) -h localhost -U postgres $(DB_NAME_DEV) || true
 
 .PHONY: db_dev_run
@@ -371,9 +371,9 @@ db_dev_reset: db_dev_destroy db_dev_run
 .PHONY: db_dev_migrate_standalone
 db_dev_migrate_standalone:
 	@echo "Migrating the ${DB_NAME_DEV} database..."
-	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
-	cd bin && \
-		./soda -c ../config/database.yml -p ../migrations migrate up
+	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
+	cd scripts && \
+		../bin/soda -c ../config/database.yml -p ../migrations migrate up
 
 .PHONY: db_dev_migrate
 db_dev_migrate: server_deps db_dev_migrate_standalone
@@ -416,7 +416,7 @@ endif
 db_test_create:
 ifndef CIRCLECI
 	@echo "Create the ${DB_NAME_TEST} database..."
-	DB_NAME=postgres DB_PORT=$(DB_PORT_TEST) bin/wait-for-db && \
+	DB_NAME=postgres DB_PORT=$(DB_PORT_TEST) scripts/wait-for-db && \
 		createdb -p $(DB_PORT_TEST) -h localhost -U postgres $(DB_NAME_TEST) || true
 else
 	@echo "Relying on CircleCI's database setup to create the DB."
@@ -425,7 +425,7 @@ endif
 .PHONY: db_test_create_docker
 db_test_create_docker:
 	@echo "Create the ${DB_NAME_TEST} database with docker command..."
-	DB_NAME=postgres DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_TEST) bin/wait-for-db-docker && \
+	DB_NAME=postgres DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_TEST) scripts/wait-for-db-docker && \
 		docker exec $(DB_DOCKER_CONTAINER_TEST) createdb -p $(DB_PORT_DOCKER) -h localhost -U postgres $(DB_NAME_TEST) || true
 
 .PHONY: db_test_run
@@ -444,16 +444,16 @@ db_test_reset_docker: db_test_destroy db_test_run_docker
 db_test_migrate_standalone:
 ifndef CIRCLECI
 	@echo "Migrating the ${DB_NAME_TEST} database..."
-	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
-	cd bin && \
+	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
+	cd scripts && \
 		DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST)\
-			./soda -c ../config/database.yml -p ../migrations migrate up
+			../bin/soda -c ../config/database.yml -p ../migrations migrate up
 else
 	@echo "Migrating the ${DB_NAME_TEST} database..."
-	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
-	cd bin && \
+	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
+	cd scripts && \
 		DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_DEV) \
-			./soda -c ../config/database.yml -p ../migrations migrate up
+			../bin/soda -c ../config/database.yml -p ../migrations migrate up
 endif
 
 .PHONY: db_test_migrate
@@ -472,7 +472,7 @@ db_test_migrations_build: .db_test_migrations_build.stamp
 .PHONY: db_test_migrate_docker
 db_test_migrate_docker: db_test_migrations_build
 	@echo "Migrating the ${DB_NAME_TEST} database with docker command..."
-	DB_NAME=$(DB_NAME_TEST) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_TEST) bin/wait-for-db-docker
+	DB_NAME=$(DB_NAME_TEST) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_TEST) scripts/wait-for-db-docker
 	docker run \
 		-t \
 		-e DB_NAME=$(DB_NAME_TEST) \
@@ -482,7 +482,7 @@ db_test_migrate_docker: db_test_migrations_build
 		-e DB_PASSWORD=$(PGPASSWORD) \
 		--link="$(DB_DOCKER_CONTAINER_TEST):database" \
 		--rm \
-		--entrypoint soda \
+		--entrypoint /bin/soda \
 		e2e_migrations:latest \
 		migrate -c /migrate/database.yml -p /migrate/migrations up
 
@@ -496,11 +496,27 @@ db_test_migrate_docker: db_test_migrations_build
 
 .PHONY: e2e_test
 e2e_test: server_deps server_generate server_build client_build db_e2e_init
-	$(AWS_VAULT) ./bin/run-e2e-test
+	$(AWS_VAULT) ./scripts/run-e2e-test
 
 .PHONY: e2e_test_docker
 e2e_test_docker:
-	$(AWS_VAULT) ./bin/run-e2e-test-docker
+	$(AWS_VAULT) ./scripts/run-e2e-test-docker
+
+.PHONY: e2e_test_docker_mymove
+e2e_test_docker_mymove:
+	$(AWS_VAULT) SPEC=cypress/integration/mymove/**/* ./scripts/run-e2e-test-docker
+
+.PHONY: e2e_test_docker_office
+e2e_test_docker_office:
+	$(AWS_VAULT) SPEC=cypress/integration/office/**/* ./scripts/run-e2e-test-docker
+
+.PHONY: e2e_test_docker_tsp
+e2e_test_docker_tsp:
+	$(AWS_VAULT) SPEC=cypress/integration/tsp/**/* ./scripts/run-e2e-test-docker
+
+.PHONY: e2e_test_docker_api
+e2e_test_docker_api:
+	$(AWS_VAULT) SPEC=cypress/integration/api/**/* ./scripts/run-e2e-test-docker
 
 .PHONY: e2e_clean
 e2e_clean:
@@ -540,6 +556,7 @@ db_e2e_up_docker:
 		-e DB_PASSWORD=$(PGPASSWORD) \
 		--link="$(DB_DOCKER_CONTAINER_TEST):database" \
 		--rm \
+		--workdir "/bin" \
 		--entrypoint generate-test-data \
 		e2e_migrations:latest \
 		-config-dir /migrate -named-scenario e2e_basic
@@ -557,6 +574,19 @@ db_dev_e2e_populate: db_dev_reset db_dev_migrate build_tools
 
 .PHONY: db_test_e2e_populate
 db_test_e2e_populate: db_test_reset_docker db_test_migrate_docker build_tools db_e2e_up_docker
+
+.PHONY: db_test_e2e_backup
+db_test_e2e_backup:
+	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) ./scripts/db-backup e2e_test
+
+.PHONY: db_test_e2e_restore
+db_test_e2e_restore:
+	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) ./scripts/db-restore e2e_test
+
+.PHONY: db_test_e2e_cleanup
+db_test_e2e_cleanup:
+	./scripts/db-cleanup e2e_test
+
 
 #
 # ----- END E2E TARGETS -----
@@ -632,6 +662,7 @@ pretty:
 .PHONY: clean
 clean:
 	rm -f .*.stamp
+	rm -rf ./bin
 	rm -rf ./node_modules
 	rm -rf ./vendor
 	rm -rf ./pkg/gen

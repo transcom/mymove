@@ -30,7 +30,7 @@
 * [Environment settings](#environment-settings)
   * [Adding `ulimit`](#adding-ulimit)
 
-Regenerate with "bin/generate-md-toc.sh"
+Regenerate with "scripts/generate-md-toc"
 
 <!-- tocstop -->
 
