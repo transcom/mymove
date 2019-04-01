@@ -264,6 +264,17 @@ func (suite *HandlerSuite) TestPatchStorageInTransitHandler() {
 	responsePayload = response.(*sitop.PatchStorageInTransitOK).Payload
 	storageInTransitPayloadCompare(suite, sitPayload, responsePayload)
 
+	// Let's make sure we get a forbidden if an office user tries to change the status to 'IN_SIT'
+	sit.Status = "IN_SIT"
+	sitPayload = payloadForStorageInTransitModel(&sit)
+
+	req = httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateOfficeRequest(req, user)
+	params.HTTPRequest = req
+	handler = PatchStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler.Handle(params)
+	suite.Error(models.ErrFetchForbidden)
+
 	// And let's make sure we can successfully change the status to approved through the handler.
 	req = httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateOfficeRequest(req, user)
