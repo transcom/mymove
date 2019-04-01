@@ -47,16 +47,48 @@ func (e *errInvalidEnvironment) Error() string {
 	return fmt.Sprintf("invalid environment %q, expecting one of %q", e.Environment, environments)
 }
 
+type errInvalidTemplate struct {
+	Template string
+}
+
+func (e *errInvalidTemplate) Error() string {
+	return fmt.Sprintf("invalid template %q", e.Template)
+}
+
+type errInvalidImage struct {
+	Image string
+}
+
+func (e *errInvalidImage) Error() string {
+	return fmt.Sprintf("invalid image %q", e.Image)
+}
+
 func initFlags(flag *pflag.FlagSet) {
 	flag.String("aws-region", "us-west-2", "The AWS Region")
 	flag.String("aws-profile", "", "The aws-vault profile")
 	flag.String("aws-vault-keychain-name", "", "The aws-vault keychain name")
 	flag.String("service", "", fmt.Sprintf("The service name (choose %q)", services))
 	flag.String("environment", "", fmt.Sprintf("The environment name (choose %q)", environments))
+	flag.String("template", "", "The name of the template to use for rendering the task definition")
+	flag.String("image", "", "The name of the image referenced in the task definition")
 	flag.BoolP("verbose", "v", false, "Print section lines")
 }
 
 func checkConfig(v *viper.Viper) error {
+
+	regions, ok := endpoints.RegionsForService(endpoints.DefaultPartitions(), endpoints.AwsPartitionID, endpoints.EcsServiceID)
+	if !ok {
+		return fmt.Errorf("could not find regions for service %q", endpoints.EcsServiceID)
+	}
+
+	region := v.GetString("aws-region")
+	if len(region) == 0 {
+		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", "aws-region"))
+	}
+
+	if _, ok := regions[region]; !ok {
+		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", "aws-region"))
+	}
 
 	serviceName := v.GetString("service")
 	if len(serviceName) == 0 {
@@ -88,18 +120,25 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(&errInvalidEnvironment{Environment: environment}, fmt.Sprintf("%q is invalid", "environment"))
 	}
 
-	regions, ok := endpoints.RegionsForService(endpoints.DefaultPartitions(), endpoints.AwsPartitionID, endpoints.EcsServiceID)
-	if !ok {
-		return fmt.Errorf("could not find regions for service %q", endpoints.EcsServiceID)
+	template := v.GetString("template")
+	if len(template) == 0 {
+		return errors.Wrap(&errInvalidTemplate{Template: template}, fmt.Sprintf("%q is invalid", "template"))
+	}
+	// Confirm file exists
+	fileInfo, err := os.Stat(template)
+	if err != nil {
+		return errors.Wrap(&errInvalidTemplate{Template: template}, fmt.Sprintf("%q file does not exist", "template"))
+	}
+	if fileInfo.IsDir() {
+		return errors.Wrap(&errInvalidTemplate{Template: template}, fmt.Sprintf("%q is a directory, not a template file", "template"))
+	}
+	if fileInfo.Size() == 0 {
+		return errors.Wrap(&errInvalidTemplate{Template: template}, fmt.Sprintf("%q is an empty template file", "template"))
 	}
 
-	region := v.GetString("aws-region")
-	if len(region) == 0 {
-		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", "aws-region"))
-	}
-
-	if _, ok := regions[region]; !ok {
-		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", "aws-region"))
+	image := v.GetString("image")
+	if len(image) == 0 {
+		return errors.Wrap(&errInvalidImage{Image: image}, fmt.Sprintf("%q is invalid", "image"))
 	}
 
 	return nil
