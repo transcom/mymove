@@ -56,6 +56,15 @@ var (
 	}
 )
 
+var (
+	// ShipmentsAssociationsDefault declares the default eager associations for shipments
+	ShipmentsAssociationsDefault = EagerAssociations{
+		"TrafficDistributionList",
+		"ServiceMember",
+		"Move",
+	}
+)
+
 // Shipment represents a single shipment within a Service Member's move.
 type Shipment struct {
 	ID               uuid.UUID      `json:"id" db:"id"`
@@ -586,7 +595,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 
 	shipments := []Shipment{}
 
-	query := tx.Q().Eager(ShipmentAssociationsDEFAULT...).
+	query := tx.Q().Eager(ShipmentsAssociationsDefault...).
 		Where("shipment_offers.transportation_service_provider_id = $1", tspID).
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id")
 
