@@ -107,3 +107,40 @@ func (suite *ModelSuite) TestDestroyStorageInTransit() {
 	suite.Equal(models.ErrFetchNotFound, err)
 
 }
+
+func (suite *ModelSuite) TestSaveStorageInTransitAndAddress() {
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+	address := models.Address{
+		StreetAddress1: "123 Street",
+		PostalCode:     "12345",
+		State:          "IL",
+		City:           "Chicago",
+	}
+
+	storageInTransit := models.StorageInTransit{
+		Shipment:           shipment,
+		ShipmentID:         shipment.ID,
+		Location:           models.StorageInTransitLocationORIGIN,
+		Status:             models.StorageInTransitStatusREQUESTED,
+		EstimatedStartDate: testdatagen.DateInsidePeakRateCycle,
+		Notes:              swag.String("This is a note"),
+		WarehouseName:      "Warehouse name",
+		WarehouseID:        "12345",
+		WarehousePhone:     swag.String("312-111-1111"),
+		WarehouseEmail:     swag.String("email@thewarehouse"),
+		WarehouseAddress:   address,
+	}
+
+	verrs, err := models.SaveStorageInTransitAndAddress(suite.DB(), &storageInTransit)
+	suite.Nil(err)
+	suite.Equal(0, verrs.Count())
+
+	savedStorageInTransit, err := models.FetchStorageInTransitByID(suite.DB(), storageInTransit.ID)
+
+	suite.Equal(storageInTransit.ID, savedStorageInTransit.ID)
+	suite.Equal(savedStorageInTransit.Status, storageInTransit.Status)
+	suite.Equal(*savedStorageInTransit.Notes, *storageInTransit.Notes)
+	suite.Equal(storageInTransit.WarehouseName, savedStorageInTransit.WarehouseName)
+	suite.Equal(*storageInTransit.WarehousePhone, *savedStorageInTransit.WarehousePhone)
+	suite.Equal(*storageInTransit.WarehouseEmail, *savedStorageInTransit.WarehouseEmail)
+}

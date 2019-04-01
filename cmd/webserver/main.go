@@ -175,6 +175,18 @@ func httpsComplianceMiddleware(inner http.Handler) http.Handler {
 	return http.HandlerFunc(mw)
 }
 
+func validMethodForStaticMiddleware(inner http.Handler) http.Handler {
+	mw := func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "GET" && r.Method != "HEAD" {
+			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
+			return
+		}
+		inner.ServeHTTP(w, r)
+		return
+	}
+	return http.HandlerFunc(mw)
+}
+
 func securityHeadersMiddleware(inner http.Handler) http.Handler {
 	zap.L().Debug("securityHeadersMiddleware installed")
 	mw := func(w http.ResponseWriter, r *http.Request) {
@@ -881,7 +893,7 @@ func main() {
 	// Session management and authentication middleware
 	noSessionTimeout := v.GetBool("no-session-timeout")
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout, myHostname, officeHostname, tspHostname, useSecureCookie)
-	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, noSessionTimeout, useSecureCookie)
+	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, useSecureCookie)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 	clientCertMiddleware := authentication.ClientCertMiddleware(logger, dbConnection)
 
@@ -1109,16 +1121,22 @@ func main() {
 		)
 	})
 
+	staticMux := goji.SubMux()
+	staticMux.Use(validMethodForStaticMiddleware)
+	staticMux.Handle(pat.Get("/*"), clientHandler)
+	// Needed to serve static paths (like favicon)
+	staticMux.Handle(pat.Get(""), clientHandler)
+
 	// Allow public content through without any auth or app checks
-	site.Handle(pat.Get("/static/*"), clientHandler)
-	site.Handle(pat.Get("/downloads/*"), clientHandler)
-	site.Handle(pat.Get("/favicon.ico"), clientHandler)
+	site.Handle(pat.New("/static/*"), staticMux)
+	site.Handle(pat.New("/downloads/*"), staticMux)
+	site.Handle(pat.New("/favicon.ico"), staticMux)
 
 	// Explicitly disable swagger.json route
 	site.Handle(pat.Get("/swagger.json"), http.NotFoundHandler())
 	if v.GetBool(serveSwaggerUIFlag) {
 		logger.Info("Swagger UI static file serving is enabled")
-		site.Handle(pat.Get("/swagger-ui/*"), clientHandler)
+		site.Handle(pat.Get("/swagger-ui/*"), staticMux)
 	} else {
 		site.Handle(pat.Get("/swagger-ui/*"), http.NotFoundHandler())
 	}
@@ -1175,7 +1193,7 @@ func main() {
 		logger.Fatal("Failed to decode csrf auth key", zap.Error(err))
 	}
 	logger.Info("Enabling CSRF protection")
-	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/")))
+	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/"), csrf.CookieName(auth.GorillaCSRFToken)))
 	root.Use(maskedCSRFMiddleware)
 
 	// Sends build variables to honeycomb
@@ -1235,9 +1253,9 @@ func main() {
 		localAuthMux := goji.SubMux()
 		root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)
 		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection))
-		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
+		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
-		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout))
+		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 
 		devlocalCa, err := ioutil.ReadFile(v.GetString("devlocal-ca")) // #nosec
 		if err != nil {

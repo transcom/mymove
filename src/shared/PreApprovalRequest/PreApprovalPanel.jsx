@@ -54,7 +54,7 @@ export class PreApprovalPanel extends Component {
   render() {
     return (
       <div className="pre-approval-panel">
-        <BasicPanel title={'Pre-Approval Requests'}>
+        <BasicPanel title="Pre-Approval Requests">
           {this.state.error && (
             <Alert type="error" heading="Oops, something went wrong!" onRemove={this.closeError}>
               <span className="warning--header">Please refresh the page and try again.</span>

@@ -9,6 +9,7 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -38,29 +39,13 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
 		return
 	}
-
-	// get list of users in system
-	var users []models.User
-	err := h.db.All(&users)
+	identities, err := models.FetchAllUserIdentities(h.db)
 	if err != nil {
 		h.logger.Error("Could not load list of users", zap.Error(err))
 		http.Error(w,
 			fmt.Sprintf("%s - Could not load list of users, try migrating the DB", http.StatusText(500)),
 			http.StatusInternalServerError)
 		return
-	}
-
-	// load user identities
-	var identities []*models.UserIdentity
-	for _, user := range users {
-		uuid := user.LoginGovUUID.String()
-		identity, err := models.FetchUserIdentity(h.db, uuid)
-		if err != nil {
-			h.logger.Error("Could not get user identity", zap.String("userID", uuid), zap.Error(err))
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-			return
-		}
-		identities = append(identities, identity)
 	}
 
 	// Grab the CSRF token from cookies set by the middleware
@@ -115,12 +100,13 @@ type devlocalAuthHandler struct {
 type AssignUserHandler devlocalAuthHandler
 
 // NewAssignUserHandler creates a new AssignUserHandler
-func NewAssignUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) AssignUserHandler {
+func NewAssignUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) AssignUserHandler {
 	handler := AssignUserHandler{
 		Context:             ac,
 		db:                  db,
 		clientAuthSecretKey: clientAuthSecretKey,
 		noSessionTimeout:    noSessionTimeout,
+		useSecureCookie:     useSecureCookie,
 	}
 	return handler
 }
@@ -143,19 +129,24 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 	}
 
-	loginUser(devlocalAuthHandler(h), user, w, r)
+	session := loginUser(devlocalAuthHandler(h), user, w, r)
+	if session == nil {
+		return
+	}
+	http.Redirect(w, r, h.landingURL(session), http.StatusSeeOther)
 }
 
 // CreateUserHandler creates a new user
 type CreateUserHandler devlocalAuthHandler
 
 // NewCreateUserHandler creates a new CreateUserHandler
-func NewCreateUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) CreateUserHandler {
+func NewCreateUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) CreateUserHandler {
 	handler := CreateUserHandler{
 		Context:             ac,
 		db:                  db,
 		clientAuthSecretKey: clientAuthSecretKey,
 		noSessionTimeout:    noSessionTimeout,
+		useSecureCookie:     useSecureCookie,
 	}
 	return handler
 }
@@ -163,32 +154,15 @@ func NewCreateUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey st
 // CreateUserHandler creates a user, primarily used in automated testing
 func (h CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	user := createUser(devlocalAuthHandler(h), w, r)
+	if user == nil {
+		return
+	}
+	session := loginUser(devlocalAuthHandler(h), user, w, r)
+	if session == nil {
+		return
+	}
 	jsonOut, _ := json.Marshal(user)
 	fmt.Fprintf(w, string(jsonOut))
-}
-
-// createUser creates a user
-func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) models.User {
-	id := uuid.Must(uuid.NewV4())
-
-	now := time.Now()
-	email := fmt.Sprintf("%s@example.com", now.Format("20060102150405"))
-
-	user := models.User{
-		LoginGovUUID:  id,
-		LoginGovEmail: email,
-	}
-
-	verrs, err := h.db.ValidateAndCreate(&user)
-	if err != nil {
-		h.logger.Error("could not create user", zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-	}
-	if verrs.Count() != 0 {
-		h.logger.Error("validation errors creating user", zap.Stringer("errors", verrs))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-	}
-	return user
 }
 
 // CreateAndLoginUserHandler creates and then logs in a new user
@@ -208,67 +182,129 @@ func NewCreateAndLoginUserHandler(ac Context, db *pop.Connection, clientAuthSecr
 
 // CreateAndLoginUserHandler creates a user and logs them in
 func (h CreateAndLoginUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
 	user := createUser(devlocalAuthHandler(h), w, r)
-	loginUser(devlocalAuthHandler(h), &user, w, r)
+	if user == nil {
+		return
+	}
+	session := loginUser(devlocalAuthHandler(h), user, w, r)
+	if session == nil {
+		return
+	}
+	http.Redirect(w, r, h.landingURL(session), http.StatusSeeOther)
 }
 
-func loginUser(handler devlocalAuthHandler, user *models.User, w http.ResponseWriter, r *http.Request) {
+// createUser creates a user
+func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) *models.User {
+	id := uuid.Must(uuid.NewV4())
+
+	now := time.Now()
+	email := fmt.Sprintf("%s@example.com", now.Format("20060102150405"))
+
+	user := models.User{
+		LoginGovUUID:  id,
+		LoginGovEmail: email,
+	}
+
+	verrs, err := h.db.ValidateAndCreate(&user)
+	if err != nil {
+		h.logger.Error("could not create user", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return nil
+	}
+	if verrs.Count() != 0 {
+		h.logger.Error("validation errors creating user", zap.Stringer("errors", verrs))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return nil
+	}
+	return &user
+}
+
+// createSession creates a new session for the user
+func createSession(h devlocalAuthHandler, user *models.User, w http.ResponseWriter, r *http.Request) (*auth.Session, error) {
 	session := auth.SessionFromRequestContext(r)
 	if session == nil {
-		handler.logger.Error("Session missing")
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
+		return nil, errors.New("Unable to create session from request context")
 	}
 
-	userIdentity, err := models.FetchUserIdentity(handler.db, user.LoginGovUUID.String())
-	if err == nil { // Someone we know already
-		session.IDToken = "devlocal"
-		session.UserID = userIdentity.ID
-		session.Email = userIdentity.Email
+	lgUUID := user.LoginGovUUID.String()
+	userIdentity, err := models.FetchUserIdentity(h.db, lgUUID)
 
-		if userIdentity.Disabled {
-			handler.logger.Error("Disabled user requesting authentication", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(403), http.StatusForbidden)
-			return
-		}
-
-		if userIdentity.ServiceMemberID != nil {
-			session.ServiceMemberID = *(userIdentity.ServiceMemberID)
-		}
-
-		if userIdentity.DpsUserID != nil {
-			session.DpsUserID = *(userIdentity.DpsUserID)
-		}
-
-		if userIdentity.OfficeUserID != nil {
-			session.OfficeUserID = *(userIdentity.OfficeUserID)
-		} else if session.IsOfficeApp() {
-			handler.logger.Error("Non-office user authenticated at office site", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-			return
-		}
-
-		if userIdentity.TspUserID != nil {
-			session.TspUserID = *(userIdentity.TspUserID)
-		} else if session.IsTspApp() {
-			handler.logger.Error("Non-TSP user authenticated at TSP site", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-			return
-		}
-
-		session.FirstName = userIdentity.FirstName()
-		session.LastName = userIdentity.LastName()
-		session.Middle = userIdentity.Middle()
-	} else {
-		handler.logger.Error("Error loading Identity.", zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
+	if err != nil {
+		return nil, errors.Wrapf(err, "Unable to fetch user identity from LoginGovUUID %s", lgUUID)
 	}
 
-	handler.logger.Info("logged in", zap.Any("session", session))
-	auth.WriteSessionCookie(w, session, handler.clientAuthSecretKey, handler.noSessionTimeout, handler.logger, handler.useSecureCookie)
+	// Assign user identity to session
+	session.IDToken = "devlocal"
+	session.UserID = userIdentity.ID
+	session.Email = userIdentity.Email
+	session.Disabled = userIdentity.Disabled
 
-	lURL := handler.landingURL(session)
-	http.Redirect(w, r, lURL, http.StatusSeeOther)
+	if userIdentity.ServiceMemberID != nil {
+		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
+	}
+
+	if userIdentity.OfficeUserID != nil {
+		session.OfficeUserID = *(userIdentity.OfficeUserID)
+	}
+
+	if userIdentity.TspUserID != nil {
+		session.TspUserID = *(userIdentity.TspUserID)
+	}
+
+	if userIdentity.DpsUserID != nil {
+		session.DpsUserID = *(userIdentity.DpsUserID)
+	}
+
+	session.FirstName = userIdentity.FirstName()
+	session.LastName = userIdentity.LastName()
+	session.Middle = userIdentity.Middle()
+
+	// Writing out the session cookie logs in the user
+	h.logger.Info("logged in", zap.Any("session", session))
+	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
+
+	return session, nil
+}
+
+// verifySessionWithApp returns an error if the user id for a specific app is not available
+func verifySessionWithApp(session *auth.Session) error {
+
+	// TODO: Should this be a check that we do? Or will all office and tsp users also be service members?
+	// if (session.ServiceMemberID == uuid.UUID{}) && session.IsMilApp() {
+	// 	return errors.Errorf("Non-service member user %s authenticated at service member site", session.Email)
+	// }
+
+	if (session.OfficeUserID == uuid.UUID{}) && session.IsOfficeApp() {
+		return errors.Errorf("Non-office user %s authenticated at office site", session.Email)
+	}
+
+	if (session.TspUserID == uuid.UUID{}) && session.IsTspApp() {
+		return errors.Errorf("Non-TSP user %s authenticated at TSP site", session.Email)
+	}
+
+	return nil
+}
+
+// loginUser creates a session for the user and verifies the session against the app
+func loginUser(h devlocalAuthHandler, user *models.User, w http.ResponseWriter, r *http.Request) *auth.Session {
+	session, err := createSession(devlocalAuthHandler(h), user, w, r)
+	if err != nil {
+		h.logger.Error("Could not create session", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return nil
+	}
+
+	if session.Disabled {
+		h.logger.Info("Disabled user requesting authentication", zap.Error(err), zap.String("email", session.Email))
+		http.Error(w, http.StatusText(403), http.StatusForbidden)
+		return nil
+	}
+
+	err = verifySessionWithApp(session)
+	if err != nil {
+		h.logger.Error("User unauthorized", zap.Error(err))
+		http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+		return nil
+	}
+	return session
 }

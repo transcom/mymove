@@ -85,7 +85,7 @@ class PaymentsTable extends Component {
       } else {
         return (
           <div onClick={this.approveReimbursement}>
-            <ToolTip disabled={false} text={'Approve'} textStyle={'tooltiptext-small'}>
+            <ToolTip disabled={false} text="Approve" textStyle="tooltiptext-small">
               <FontAwesomeIcon aria-hidden className="icon approval-ready" icon={faCheck} title="Approve" />
             </ToolTip>
           </div>
@@ -96,7 +96,7 @@ class PaymentsTable extends Component {
         <ToolTip
           disabled={false}
           text={"Can't approve payment until shipment is approved"}
-          textStyle={'tooltiptext-medium'}
+          textStyle="tooltiptext-medium"
         >
           <FontAwesomeIcon
             aria-hidden

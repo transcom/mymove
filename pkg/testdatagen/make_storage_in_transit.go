@@ -31,6 +31,8 @@ func MakeStorageInTransit(db *pop.Connection, assertions Assertions) models.Stor
 		WarehouseAddressID: address.ID,
 		WarehousePhone:     swag.String("(713) 868-3497"),
 		WarehouseEmail:     swag.String("joe@herculeshauling.com"),
+		Shipment:           shipment,
+		WarehouseAddress:   address,
 	}
 
 	// Overwrite values with those from assertions

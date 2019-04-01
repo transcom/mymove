@@ -8,7 +8,7 @@
   display: block;
 }
 
-.dropdown > p {
+.dropdown > div {
   padding: 0.5em 1em;
   color: #0071bc;
   font-size: 0.85em;
@@ -18,16 +18,16 @@
   margin-top: 0;
 }
 
-.dropdown > p:hover {
+.dropdown > div:hover {
   color: white;
   background-color: #0071bc;
 }
 
-.dropdown > p.disabled {
+.dropdown > div.disabled {
   color: #aeb0b5;
 }
 
-.dropdown > p.disabled:hover {
+.dropdown > div.disabled:hover {
   color: #aeb0b5;
   background-color: white;
 }

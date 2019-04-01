@@ -20,6 +20,15 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
+const (
+	// TspTestHost
+	TspTestHost string = "tsp.example.com"
+	// OfficeTestHost
+	OfficeTestHost string = "office.example.com"
+	// MilTestHost
+	MilTestHost string = "mil.example.com"
+)
+
 type AuthSuite struct {
 	testingsuite.PopTestSuite
 	logger Logger
@@ -59,15 +68,14 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 
 	fakeToken := "some_token"
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
-	officeTestHost := "office.example.com"
 	callbackPort := 1234
 
-	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/auth/logout", officeTestHost), nil)
+	req := httptest.NewRequest("POST", fmt.Sprintf("http://%s/auth/logout", OfficeTestHost), nil)
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
 		UserID:          fakeUUID,
 		IDToken:         fakeToken,
-		Hostname:        officeTestHost,
+		Hostname:        OfficeTestHost,
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	req = req.WithContext(ctx)
@@ -90,7 +98,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 
 	postRedirectURI, err := url.Parse(params["post_logout_redirect_uri"][0])
 	suite.Nil(err)
-	suite.Equal(officeTestHost, postRedirectURI.Hostname())
+	suite.Equal(OfficeTestHost, postRedirectURI.Hostname())
 	suite.Equal(strconv.Itoa(callbackPort), postRedirectURI.Port())
 	token := params["id_token_hint"][0]
 	suite.Equal(fakeToken, token, "handler id_token")
@@ -153,12 +161,11 @@ func (suite *AuthSuite) TestAuthorizeDisableUser() {
 
 	fakeToken := "some_token"
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
-	officeTestHost := "office.example.com"
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
 		UserID:          fakeUUID,
 		IDToken:         fakeToken,
-		Hostname:        officeTestHost,
+		Hostname:        OfficeTestHost,
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234

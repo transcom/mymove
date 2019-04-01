@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { capitalize, get, includes } from 'lodash';
+import { capitalize, get, includes, some, isEmpty } from 'lodash';
 
 import { NavTab, RoutedTabs } from 'react-router-tabs';
 import { Link, NavLink, Redirect, Switch } from 'react-router-dom';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import { getStorageInTransitsForShipment, selectStorageInTransits } from 'shared/Entities/modules/storageInTransits';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import LocationsContainer from './Hhg/LocationsContainer';
 import Alert from 'shared/Alert'; // eslint-disable-line
@@ -29,8 +30,9 @@ import PremoveSurvey from './PremoveSurvey';
 import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
+import StorageInTransitPanel from 'shared/StorageInTransit/StorageInTransitPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
-import ComboButton from 'shared/ComboButton/index.jsx';
+import ComboButton from 'shared/ComboButton';
 import ToolTip from 'shared/ToolTip';
 import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';
 
@@ -64,6 +66,7 @@ import {
 } from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
 import { getMoveDocumentsForMove, selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import SitStatusIcon from 'shared/StorageInTransit/SitStatusIcon';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -101,6 +104,7 @@ const PPMTabContent = props => {
 
 const HHGTabContent = props => {
   let shipmentStatus = '';
+  let shipmentId = '';
   const {
     allowHhgInvoicePayment,
     canApprovePaymentInvoice,
@@ -108,9 +112,11 @@ const HHGTabContent = props => {
     serviceAgents,
     shipment,
     updatePublicShipment,
+    showSitPanel,
   } = props;
   if (shipment) {
     shipmentStatus = shipment.status;
+    shipmentId = shipment.id;
   }
   return (
     <div className="office-tab">
@@ -126,6 +132,7 @@ const HHGTabContent = props => {
         transportationServiceProviderId={shipment.transportation_service_provider_id}
       />
       <PreApprovalPanel shipmentId={shipment.id} />
+      {showSitPanel && <StorageInTransitPanel shipmentId={shipmentId} moveId={moveId} />}
       <InvoicePanel
         shipmentId={shipment.id}
         shipmentStatus={shipmentStatus}
@@ -173,12 +180,34 @@ class MoveInfo extends Component {
     this.props.resetRequests();
   }
 
+  get allAreApproved() {
+    const {
+      move: { selected_move_type },
+      moveStatus,
+      ppm,
+      shipmentStatus,
+    } = this.props;
+    const isPPM = selected_move_type === 'PPM';
+    const isHHG = selected_move_type === 'HHG';
+    const moveApproved = moveStatus === 'APPROVED';
+    const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
+    const hhgApproved = includes(['APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
+
+    if (isPPM) {
+      return moveApproved && ppmApproved;
+    } else if (isHHG) {
+      return moveApproved && hhgApproved;
+    }
+    // hhg_ppm move
+    return moveApproved && ppmApproved && hhgApproved;
+  }
   getAllShipmentInfo = shipmentId => {
     this.props.getTspForShipment(shipmentId);
     this.props.getPublicShipment(shipmentId);
     this.props.getAllShipmentLineItems(shipmentId);
     this.props.getAllInvoices(shipmentId);
     this.props.getServiceAgentsForShipment(shipmentId);
+    this.props.getStorageInTransitsForShipment(shipmentId);
   };
 
   approveBasics = () => {
@@ -248,6 +277,7 @@ class MoveInfo extends Component {
       shipment,
       shipmentStatus,
       serviceMember,
+      storageInTransits,
       upload,
     } = this.props;
     const isPPM = move.selected_move_type === 'PPM';
@@ -258,7 +288,7 @@ class MoveInfo extends Component {
     const showDocumentViewer = this.props.context.flags.documentViewer;
     const moveInfoComboButton = this.props.context.flags.moveInfoComboButton;
     const allowHhgInvoicePayment = this.props.context.flags.allowHhgInvoicePayment;
-    let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
+    const check = <FontAwesomeIcon className="icon" icon={faCheck} />;
     const ordersComplete = Boolean(
       orders.orders_number && orders.orders_type_detail && orders.department_indicator && orders.tac,
     );
@@ -268,6 +298,9 @@ class MoveInfo extends Component {
     const hhgDelivered = shipmentStatus === 'DELIVERED';
     const hhgCompleted = shipmentStatus === 'COMPLETED';
     const moveApproved = moveStatus === 'APPROVED';
+    const hhgCantBeCanceled = includes(['IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
+
+    const hasRequestedSIT = !isEmpty(storageInTransits) && some(storageInTransits, sit => sit.status === 'REQUESTED');
 
     const moveDate = isPPM ? ppm.original_move_date : shipment && shipment.requested_pickup_date;
     if (this.state.redirectToHome) {
@@ -341,8 +374,12 @@ class MoveInfo extends Component {
                 <NavTab to="/hhg">
                   <span className="title">HHG</span>
                   <span className="status">
-                    <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
-                    {capitalize(shipmentStatus)}
+                    {hasRequestedSIT ? (
+                      <SitStatusIcon isTspSite={false} />
+                    ) : (
+                      <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
+                    )}
+                    {hasRequestedSIT ? 'SIT requested' : capitalize(shipmentStatus)}
                   </span>
                 </NavTab>
               )}
@@ -371,6 +408,7 @@ class MoveInfo extends Component {
                       shipment={this.props.shipment}
                       shipmentStatus={this.props.shipmentStatus}
                       updatePublicShipment={this.props.updatePublicShipment}
+                      showSitPanel={this.props.context.flags.sitPanel}
                     />
                   )}
                 </PrivateRoute>
@@ -388,16 +426,34 @@ class MoveInfo extends Component {
                 <ToolTip
                   disabled={ordersComplete}
                   textStyle="tooltiptext-large"
-                  toolTipText={
-                    'Some information about the move is missing or contains errors. Please fix these problems before approving.'
-                  }
+                  toolTipText="Some information about the move is missing or contains errors. Please fix these problems before approving."
                 >
                   {moveInfoComboButton && (
-                    <ComboButton buttonText={'Approve'} disabled={!ordersComplete}>
+                    <ComboButton
+                      allAreApproved={this.allAreApproved}
+                      buttonText={`Approve${this.allAreApproved ? 'd' : ''}`}
+                      disabled={this.allAreApproved || !ordersComplete}
+                    >
                       <DropDown>
-                        <DropDownItem value={'Approve Basics'} disabled={moveApproved || !ordersComplete} />
-                        {(isPPM || isHHGPPM) && <DropDownItem value={'Approve PPM'} disabled={true} />}
-                        {(isHHG || isHHGPPM) && <DropDownItem value={'Approve HHG'} disabled={true} />}
+                        <DropDownItem
+                          value="Approve Basics"
+                          disabled={moveApproved || !ordersComplete}
+                          onClick={this.approveBasics}
+                        />
+                        {(isPPM || isHHGPPM) && (
+                          <DropDownItem
+                            disabled={ppmApproved || !moveApproved || !ordersComplete}
+                            onClick={this.approvePPM}
+                            value="Approve PPM"
+                          />
+                        )}
+                        {(isHHG || isHHGPPM) && (
+                          <DropDownItem
+                            value="Approve HHG"
+                            onClick={this.approveShipment}
+                            disabled={!hhgAccepted || hhgApproved || hhgCompleted || !moveApproved || !ordersComplete}
+                          />
+                        )}
                       </DropDown>
                     </ComboButton>
                   )}
@@ -454,6 +510,7 @@ class MoveInfo extends Component {
                 reasonPrompt="Why is the move being canceled?"
                 warningPrompt="Are you sure you want to cancel the entire move?"
                 onConfirm={this.cancelMoveAndRedirect}
+                buttonDisabled={hhgCantBeCanceled}
               />
               {/* Disabling until features implemented
               <button>Troubleshoot</button>
@@ -464,7 +521,7 @@ class MoveInfo extends Component {
                 Documents
                 {!showDocumentViewer && <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />}
                 {showDocumentViewer && (
-                  <Link to={`/moves/${move.id}/documents`} target="_blank">
+                  <Link to={`/moves/${move.id}/documents`} target="_blank" aria-label="Documents">
                     <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
                   </Link>
                 )}
@@ -508,7 +565,10 @@ MoveInfo.defaultProps = {
 MoveInfo.propTypes = {
   loadMove: PropTypes.func.isRequired,
   context: PropTypes.shape({
-    flags: PropTypes.shape({ documentViewer: PropTypes.bool }).isRequired,
+    flags: PropTypes.shape({
+      documentViewer: PropTypes.bool,
+      sitPanel: PropTypes.bool,
+    }).isRequired,
   }).isRequired,
 };
 
@@ -546,6 +606,7 @@ const mapStateToProps = (state, ownProps) => {
     shipmentId,
     shipmentLineItems: selectSortedShipmentLineItems(state),
     shipmentStatus: selectShipmentStatus(state, shipmentId),
+    storageInTransits: selectStorageInTransits(state, shipmentId),
     swaggerError: get(state, 'swagger.hasErrored'),
     tariff400ngItems: selectTariff400ngItems(state),
     upload: get(orders, 'uploaded_orders.uploads.0', {}),
@@ -568,6 +629,7 @@ const mapDispatchToProps = dispatch =>
       getAllInvoices,
       getTspForShipment,
       getServiceAgentsForShipment,
+      getStorageInTransitsForShipment,
       showBanner,
       removeBanner,
       loadMove,

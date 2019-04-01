@@ -2188,6 +2188,96 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	hhg35 := offer35.Shipment
 	hhg35.Move.Submit()
 	models.SaveMoveDependencies(db, &hhg35.Move)
+
+	/*
+	 * Service member with accepted move for use in testing SIT panel with existing SIT request from TSP
+	 */
+	email = "hhg@sit.requested.panel"
+	offer36 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("05796fb0-3f9b-42bf-9873-ba60f23b50e2")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("dcd26e48-18a0-465a-ba36-1f71f6e5cccc"),
+			FirstName:     models.StringPointer("SIT"),
+			LastName:      models.StringPointer("Requested"),
+			Edipi:         models.StringPointer("1357924680"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("34ab47e2-334e-423c-9b24-1d9ce118b1cb"),
+			Locator:          "SITREQ",
+			SelectedMoveType: &selectedMoveTypeHHG,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("84d3a303-9b8b-4f95-8af4-d45e16aeb5c6"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusACCEPTED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID:         offer36.ShipmentID,
+			Shipment:           offer36.Shipment,
+			EstimatedStartDate: time.Date(2019, time.Month(3), 22, 0, 0, 0, 0, time.UTC),
+		},
+	})
+	hhg36 := offer36.Shipment
+	hhg36.Move.Submit()
+	models.SaveMoveDependencies(db, &hhg36.Move)
+
+	/*
+	 * Service member with a ppm ready to request payment
+	 */
+	email = "ppm@requestingpay.ment"
+	uuidStr = "8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	ppm5 := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("ff1f56c0-544e-4109-8168-f91ebcbbb878"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("RequestingPay"),
+			Edipi:         models.StringPointer("6737033988"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		// These values should be populated for an approved move
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("62341"),
+			OrdersTypeDetail:    &typeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("946a5d40-0636-418f-b457-474915fb0149"),
+			Locator: "REQPAY",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate: &pastTime,
+		},
+		Uploader: loader,
+	})
+	ppm5.Move.Submit()
+	ppm5.Move.Approve()
+	// This is the same PPM model as ppm5, but this is the one that will be saved by SaveMoveDependencies
+	ppm5.Move.PersonallyProcuredMoves[0].Submit()
+	ppm5.Move.PersonallyProcuredMoves[0].Approve()
+	models.SaveMoveDependencies(db, &ppm5.Move)
 }
 
 // MakeHhgWithPpm creates an HHG user who has added a PPM

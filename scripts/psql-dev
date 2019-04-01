@@ -1,0 +1,5 @@
+#! /usr/bin/env bash
+
+export DB_NAME=dev_db
+# shellcheck disable=SC1091,SC1090
+. "$(dirname "$0")"/psql-wrapper
