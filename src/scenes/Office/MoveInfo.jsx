@@ -495,16 +495,18 @@ class MoveInfo extends Component {
                   {hhgApproved && check}
                 </button>
               )}
-              {(isHHG || isHHGPPM) && (
-                <button
-                  className={`${hhgCompleted ? 'btn__approve--green' : ''}`}
-                  onClick={this.completeShipment}
-                  disabled={!hhgDelivered || hhgCompleted || !moveApproved || !ordersComplete || currentTab !== 'hhg'}
-                >
-                  Complete Shipments
-                  {hhgCompleted && check}
-                </button>
-              )}
+              {
+                // (isHHG || isHHGPPM) && (
+                //   <button
+                //     className={`${hhgCompleted ? 'btn__approve--green' : ''}`}
+                //     onClick={this.completeShipment}
+                //     disabled={!hhgDelivered || hhgCompleted || !moveApproved || !ordersComplete || currentTab !== 'hhg'}
+                //   >
+                //     Complete Shipments
+                //     {hhgCompleted && check}
+                //   </button>
+                // )
+              }
               <ConfirmWithReasonButton
                 buttonTitle="Cancel Move"
                 reasonPrompt="Why is the move being canceled?"
