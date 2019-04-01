@@ -459,42 +459,7 @@ class MoveInfo extends Component {
                   )}
                 </ToolTip>
               </div>
-              <button
-                className={`${moveApproved ? 'btn__approve--green' : ''}`}
-                onClick={this.approveBasics}
-                disabled={moveApproved || !ordersComplete}
-              >
-                Approve Basics
-                {moveApproved && check}
-              </button>
 
-              {(isPPM || isHHGPPM) && (
-                <button
-                  className={`${ppmApproved ? 'btn__approve--green' : ''}`}
-                  onClick={this.approvePPM}
-                  disabled={ppmApproved || !moveApproved || !ordersComplete}
-                >
-                  Approve PPM
-                  {ppmApproved && check}
-                </button>
-              )}
-              {(isHHG || isHHGPPM) && (
-                <button
-                  className={`${hhgApproved ? 'btn__approve--green' : ''}`}
-                  onClick={this.approveShipment}
-                  disabled={
-                    !hhgAccepted ||
-                    hhgApproved ||
-                    hhgCompleted ||
-                    !moveApproved ||
-                    !ordersComplete ||
-                    currentTab !== 'hhg'
-                  }
-                >
-                  Approve HHG
-                  {hhgApproved && check}
-                </button>
-              )}
               {(isHHG || isHHGPPM) && (
                 <button
                   className={`${hhgCompleted ? 'btn__approve--green' : ''}`}
