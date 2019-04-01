@@ -16,6 +16,7 @@ const defaultFlags = {
   allowHhgInvoicePayment: true,
   robustAccessorial: true,
   sitPanel: true,
+  ppmPaymentRequest: true,
 };
 
 const environmentFlags = {
@@ -27,12 +28,14 @@ const environmentFlags = {
 
   staging: Object.assign({}, defaultFlags, {
     robustAccessorial: false,
+    ppmPaymentRequest: false,
   }),
 
   production: Object.assign({}, defaultFlags, {
     allowHhgInvoicePayment: false,
     robustAccessorial: false,
     sitPanel: false,
+    ppmPaymentRequest: false,
   }),
 };
 
