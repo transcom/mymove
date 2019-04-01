@@ -458,43 +458,15 @@ class MoveInfo extends Component {
                     </ComboButton>
                   )}
                 </ToolTip>
+                <ConfirmWithReasonButton
+                  buttonTitle="Cancel Move"
+                  reasonPrompt="Why is the move being canceled?"
+                  warningPrompt="Are you sure you want to cancel the entire move?"
+                  onConfirm={this.cancelMoveAndRedirect}
+                  buttonDisabled={hhgCantBeCanceled}
+                />
               </div>
-              <button
-                className={`${moveApproved ? 'btn__approve--green' : ''}`}
-                onClick={this.approveBasics}
-                disabled={moveApproved || !ordersComplete}
-              >
-                Approve Basics
-                {moveApproved && check}
-              </button>
 
-              {(isPPM || isHHGPPM) && (
-                <button
-                  className={`${ppmApproved ? 'btn__approve--green' : ''}`}
-                  onClick={this.approvePPM}
-                  disabled={ppmApproved || !moveApproved || !ordersComplete}
-                >
-                  Approve PPM
-                  {ppmApproved && check}
-                </button>
-              )}
-              {(isHHG || isHHGPPM) && (
-                <button
-                  className={`${hhgApproved ? 'btn__approve--green' : ''}`}
-                  onClick={this.approveShipment}
-                  disabled={
-                    !hhgAccepted ||
-                    hhgApproved ||
-                    hhgCompleted ||
-                    !moveApproved ||
-                    !ordersComplete ||
-                    currentTab !== 'hhg'
-                  }
-                >
-                  Approve HHG
-                  {hhgApproved && check}
-                </button>
-              )}
               {(isHHG || isHHGPPM) && (
                 <button
                   className={`${hhgCompleted ? 'btn__approve--green' : ''}`}
@@ -505,13 +477,7 @@ class MoveInfo extends Component {
                   {hhgCompleted && check}
                 </button>
               )}
-              <ConfirmWithReasonButton
-                buttonTitle="Cancel Move"
-                reasonPrompt="Why is the move being canceled?"
-                warningPrompt="Are you sure you want to cancel the entire move?"
-                onConfirm={this.cancelMoveAndRedirect}
-                buttonDisabled={hhgCantBeCanceled}
-              />
+
               {/* Disabling until features implemented
               <button>Troubleshoot</button>
               */}
