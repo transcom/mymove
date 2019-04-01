@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 #
 #   go-find-pattern searchs over all our go source code files for a regex pattern"
-#   For example: bin/go-find-pattern '[.]Info[(]"[^"]+\s+"'
+#   For example: scripts/go-find-pattern '[.]Info[(]"[^"]+\s+"'
 #
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
