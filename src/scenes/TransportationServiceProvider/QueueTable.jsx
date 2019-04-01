@@ -119,6 +119,22 @@ class QueueTable extends Component {
                 Cell: row => <span className="pickup_date">{formatDate(row.value)}</span>,
               },
               {
+                Header: 'Pickup Date',
+                id: 'pickup_date',
+                accessor: d =>
+                  d.actual_pickup_date ||
+                  d.pm_survey_planned_pickup_date ||
+                  d.requested_pickup_date ||
+                  d.original_pickup_date,
+                Cell: row => <span className="pickup_date">{formatDate(row.value)}</span>,
+              },
+              {
+                Header: 'Delivered on',
+                id: 'delivered_on',
+                accessor: 'actual_delivery_date',
+                Cell: row => <span className="delivered_on">{formatDate(row.value)}</span>,
+              },
+              {
                 Header: 'Last modified',
                 accessor: 'updated_at',
                 Cell: row => <span className="updated_at">{formatDateTime(row.value)}</span>,
