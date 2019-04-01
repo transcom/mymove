@@ -20,6 +20,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+var services = []string{"app"}
 var environments = []string{"prod", "staging", "experimental"}
 
 type errInvalidRegion struct {
@@ -30,6 +31,14 @@ func (e *errInvalidRegion) Error() string {
 	return fmt.Sprintf("invalid region %q", e.Region)
 }
 
+type errInvalidService struct {
+	Service string
+}
+
+func (e *errInvalidService) Error() string {
+	return fmt.Sprintf("invalid service %q, expecting one of %q", e.Service, services)
+}
+
 type errInvalidEnvironment struct {
 	Environment string
 }
@@ -38,37 +47,45 @@ func (e *errInvalidEnvironment) Error() string {
 	return fmt.Sprintf("invalid environment %q, expecting one of %q", e.Environment, environments)
 }
 
-type errInvalidCluster struct {
-	Cluster string
-}
-
-func (e *errInvalidCluster) Error() string {
-	return fmt.Sprintf("invalid cluster %q", e.Cluster)
-}
-
-type errInvalidService struct {
-	Service string
-}
-
-func (e *errInvalidService) Error() string {
-	return fmt.Sprintf("invalid service %q", e.Service)
-}
-
 func initFlags(flag *pflag.FlagSet) {
 	flag.String("aws-region", "us-west-2", "The AWS Region")
 	flag.String("aws-profile", "", "The aws-vault profile")
 	flag.String("aws-vault-keychain-name", "", "The aws-vault keychain name")
-	flag.String("cluster", "", "The cluster name")
-	flag.String("environment", "", "The environment name")
-	flag.String("service", "", "The service name")
+	flag.String("service", "", fmt.Sprintf("The service name (choose %q)", services))
+	flag.String("environment", "", fmt.Sprintf("The environment name (choose %q)", environments))
 	flag.BoolP("verbose", "v", false, "Print section lines")
 }
 
 func checkConfig(v *viper.Viper) error {
-	clusterName := v.GetString("cluster")
 
-	if len(clusterName) == 0 {
-		return &errInvalidCluster{Cluster: clusterName}
+	serviceName := v.GetString("service")
+	if len(serviceName) == 0 {
+		return errors.Wrap(&errInvalidService{Service: serviceName}, fmt.Sprintf("%q is invalid", "service"))
+	}
+	validService := false
+	for _, str := range services {
+		if serviceName == str {
+			validService = true
+			break
+		}
+	}
+	if !validService {
+		return errors.Wrap(&errInvalidService{Service: serviceName}, fmt.Sprintf("%q is invalid", "service"))
+	}
+
+	environment := v.GetString("environment")
+	if len(environment) == 0 {
+		return errors.Wrap(&errInvalidEnvironment{Environment: environment}, fmt.Sprintf("%q is invalid", "environment"))
+	}
+	validEnvironment := false
+	for _, str := range environments {
+		if environment == str {
+			validEnvironment = true
+			break
+		}
+	}
+	if !validEnvironment {
+		return errors.Wrap(&errInvalidEnvironment{Environment: environment}, fmt.Sprintf("%q is invalid", "environment"))
 	}
 
 	regions, ok := endpoints.RegionsForService(endpoints.DefaultPartitions(), endpoints.AwsPartitionID, endpoints.EcsServiceID)
