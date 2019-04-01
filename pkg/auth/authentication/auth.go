@@ -240,34 +240,58 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	userIdentity, identityErr := models.FetchUserIdentity(h.db, openIDUser.UserID)
 	if identityErr == models.ErrFetchNotFound {
+		// Base user doesn't exist, initialize new user
 		userIdentity, err = h.userInitializer.InitializeUser(openIDUser)
+		if err != nil {
+			h.logger.Error("Unknown error while initializing new user", zap.Error(err))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
 	} else if identityErr != nil {
 		// An unknown error
 		err = errors.Wrap(identityErr, "Unknown error while fetching user identity")
+		h.logger.Error("Unknown error while fetching user identity", zap.Error(identityErr))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
+	}
+
+	session.IDToken = openIDSession.IDToken
+	session.Email = openIDUser.Email
+	errStatus, err := authorizeSession(session, userIdentity)
+	span.AddField("session.user_id", session.UserID)
+	span.AddField("session.service_member_id", session.ServiceMemberID)
+	span.AddField("session.office_user_id", session.OfficeUserID)
+	span.AddField("session.tsp_user_id", session.TspUserID)
+	if err != nil {
+		h.logger.Error("An error occurred when authorizing the user session", zap.Error(err), zap.String("email", session.Email))
+		http.Error(w, http.StatusText(errStatus), errStatus)
+		return
+	}
+
+	h.logger.Info("logged in", zap.Any("session", session))
+
+	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
+	http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
+}
+
+func authorizeSession(session *auth.Session, userIdentity *models.UserIdentity) (statusCode int, err error) {
+	if userIdentity.Disabled {
+		return http.StatusForbidden, errors.New("Disabled user requesting authentication")
 	}
 
 	if session.IsTspApp() {
 		if userIdentity.TspUserID == nil {
-			h.logger.Error("User does not have required credentials to view TSP site", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-			return
+			return http.StatusUnauthorized, errors.New("User does not have required credentials to view TSP site")
 		}
 		session.TspUserID = *(userIdentity.TspUserID)
 	}
 
 	if session.IsOfficeApp() {
 		if userIdentity.OfficeUserID == nil {
-			h.logger.Error("User does not have required credentials to view Office site", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-			return
+			return http.StatusUnauthorized, errors.New("User does not have required credentials to view Office site")
 		}
 		session.OfficeUserID = *(userIdentity.OfficeUserID)
 	}
-
-	session.IDToken = openIDSession.IDToken
-	session.Email = openIDUser.Email
-	h.logger.Info("New Login", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email), zap.String("Host", session.Hostname))
 
 	session.UserID = userIdentity.ID
 	session.FirstName = userIdentity.FirstName()
@@ -282,10 +306,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		session.DpsUserID = *(userIdentity.DpsUserID)
 	}
 
-	h.logger.Info("logged in", zap.Any("session", session))
-
-	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
-	http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
+	return http.StatusOK, nil
 }
 
 func fetchToken(logger Logger, code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {

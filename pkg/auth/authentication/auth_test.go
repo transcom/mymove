@@ -9,8 +9,6 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/honeycombio/beeline-go/trace"
-
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -157,8 +155,6 @@ func (suite *AuthSuite) TestAuthorizeDisableUser() {
 		Disabled: true,
 	}
 
-	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", "office.example.com"), nil)
-
 	fakeToken := "some_token"
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 	session := auth.Session{
@@ -167,20 +163,95 @@ func (suite *AuthSuite) TestAuthorizeDisableUser() {
 		IDToken:         fakeToken,
 		Hostname:        OfficeTestHost,
 	}
-	ctx := auth.SetSessionInRequestContext(req, &session)
-	callbackPort := 1234
-	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
-	h := CallbackHandler{
-		authContext,
-		suite.DB(),
-		"fake key",
-		false,
-		false,
+	errStatus, err := authorizeSession(&session, &userIdentity)
+
+	if suite.Error(err) {
+		suite.Equal(http.StatusForbidden, errStatus, "authorizer did not recognize disabled user")
 	}
-	rr := httptest.NewRecorder()
-	span := trace.Span{}
-	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
 
-	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled user")
+}
 
+func (suite *AuthSuite) TestAuthorizeNonOfficeUserForbidden() {
+	userID := uuid.Must(uuid.NewV4())
+	userIdentity := models.UserIdentity{
+		Disabled:     true,
+		ID:           userID,
+		OfficeUserID: nil,
+	}
+
+	fakeToken := "some_token"
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          userID,
+		IDToken:         fakeToken,
+		Hostname:        OfficeTestHost,
+	}
+	errStatus, err := authorizeSession(&session, &userIdentity)
+
+	if suite.Error(err) {
+		suite.Equal(http.StatusForbidden, errStatus, "authorizer did not recognize disabled user")
+		suite.Equal(uuid.Nil, session.OfficeUserID)
+	}
+}
+
+func (suite *AuthSuite) TestAuthorizeNonTSPUserForbidden() {
+	userID := uuid.Must(uuid.NewV4())
+	userIdentity := models.UserIdentity{
+		Disabled:  true,
+		ID:        userID,
+		TspUserID: nil,
+	}
+
+	fakeToken := "some_token"
+	session := auth.Session{
+		ApplicationName: auth.TspApp,
+		UserID:          userID,
+		IDToken:         fakeToken,
+		Hostname:        TspTestHost,
+	}
+	errStatus, err := authorizeSession(&session, &userIdentity)
+
+	if suite.Error(err) {
+		suite.Equal(http.StatusForbidden, errStatus, "authorizer did not recognize disabled user")
+		suite.Equal(uuid.Nil, session.TspUserID)
+	}
+}
+
+func (suite *AuthSuite) TestAuthorizeAllowedUser() {
+	userID := uuid.Must(uuid.NewV4())
+	officeUserID := uuid.Must(uuid.NewV4())
+	smID := uuid.Must(uuid.NewV4())
+	dpsID := uuid.Must(uuid.NewV4())
+	fName := "fname"
+	mName := "mname"
+	lName := "lname"
+	userIdentity := models.UserIdentity{
+		Disabled:               false,
+		ID:                     userID,
+		OfficeUserID:           &officeUserID,
+		ServiceMemberFirstName: &fName,
+		ServiceMemberMiddle:    &mName,
+		ServiceMemberLastName:  &lName,
+		ServiceMemberID:        &smID,
+		DpsUserID:              &dpsID,
+	}
+
+	fakeToken := "some_token"
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          userID,
+		IDToken:         fakeToken,
+		Hostname:        OfficeTestHost,
+	}
+	_, err := authorizeSession(&session, &userIdentity)
+
+	if suite.NoError(err) {
+		suite.Equal(userID, session.UserID)
+		suite.Equal(officeUserID, session.OfficeUserID)
+		suite.Equal(smID, session.ServiceMemberID)
+		suite.Equal(dpsID, session.DpsUserID)
+		suite.Equal(fName, session.FirstName)
+		suite.Equal(mName, session.Middle)
+		suite.Equal(lName, session.LastName)
+	}
 }
