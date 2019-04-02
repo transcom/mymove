@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
 
 import './StorageInTransit.css';
@@ -14,6 +13,7 @@ import Editor from 'shared/StorageInTransit/Editor';
 import ApproveSitRequest from 'shared/StorageInTransit/ApproveSitRequest';
 import { updateStorageInTransit } from 'shared/Entities/modules/storageInTransits';
 import { isTspSite } from 'shared/constants.js';
+import SitStatusIcon from './SitStatusIcon';
 
 export class StorageInTransit extends Component {
   constructor() {
@@ -50,7 +50,7 @@ export class StorageInTransit extends Component {
           <span className="unbold">
             {' '}
             <span className="sit-status-text">Status:</span>{' '}
-            <FontAwesomeIcon className="icon icon-grey" icon={faClock} />
+            {storageInTransit.status === 'REQUESTED' && <SitStatusIcon isTspSite={isTspSite} />}
           </span>
           <span>SIT {storageInTransit.status.charAt(0) + storageInTransit.status.slice(1).toLowerCase()} </span>
           {!isTspSite && <ApproveSitRequest />}
@@ -63,7 +63,7 @@ export class StorageInTransit extends Component {
           ) : (
             <span className="sit-actions">
               <span className="sit-edit actionable">
-                {storageInTransit.status !== 'APPROVED' && (
+                {storageInTransit.status === 'APPROVED' && (
                   <a onClick={this.openEditForm}>
                     <FontAwesomeIcon className="icon" icon={faPencil} />
                     Edit
