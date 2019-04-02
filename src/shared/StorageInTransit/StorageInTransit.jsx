@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { capitalize } from 'lodash';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
@@ -12,6 +13,7 @@ import './StorageInTransit.css';
 import { formatDate4DigitYear } from 'shared/formatters';
 import Editor from 'shared/StorageInTransit/Editor';
 import ApproveSitRequest from 'shared/StorageInTransit/ApproveSitRequest';
+import PlaceInSit from 'shared/StorageInTransit/PlaceInSit';
 import { updateStorageInTransit } from 'shared/Entities/modules/storageInTransits';
 import { isTspSite } from 'shared/constants.js';
 
@@ -46,14 +48,15 @@ export class StorageInTransit extends Component {
     return (
       <div className="storage-in-transit">
         <div className="column-head">
-          {storageInTransit.location.charAt(0) + storageInTransit.location.slice(1).toLowerCase()} SIT
+          {capitalize(storageInTransit.location)} SIT
           <span className="unbold">
             {' '}
             <span className="sit-status-text">Status:</span>{' '}
             <FontAwesomeIcon className="icon icon-grey" icon={faClock} />
           </span>
-          <span>SIT {storageInTransit.status.charAt(0) + storageInTransit.status.slice(1).toLowerCase()} </span>
+          <span>SIT {capitalize(storageInTransit.status)} </span>
           {!isTspSite && <ApproveSitRequest />}
+          {isTspSite && storageInTransit.status === 'APPROVED' && <PlaceInSit sit={storageInTransit} />}
           {showEditForm ? (
             <Editor
               updateStorageInTransit={this.onSubmit}
