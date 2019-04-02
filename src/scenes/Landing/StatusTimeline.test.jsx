@@ -1,19 +1,19 @@
 import React from 'react';
-import { shallow } from 'enzyme';
-import { StatusBlock, StatusTimelineContainer } from './StatusTimeline';
+import { shallow, mount } from 'enzyme';
+import { StatusBlock, PPMStatusTimeline, ShipmentStatusTimeline, ProfileStatusTimeline } from './StatusTimeline';
 
 describe('StatusTimeline', () => {
-  describe('ppm timeline', () => {
+  describe('PPMStatusTimeline', () => {
     test('renders timeline', () => {
       const ppm = {};
-      const wrapper = shallow(<StatusTimelineContainer ppm={ppm} />);
+      const wrapper = mount(<PPMStatusTimeline ppm={ppm} />);
 
       expect(wrapper.find(StatusBlock)).toHaveLength(4);
     });
 
     test('renders timeline for submitted ppm', () => {
       const ppm = { status: 'SUBMITTED' };
-      const wrapper = shallow(<StatusTimelineContainer ppm={ppm} />);
+      const wrapper = mount(<PPMStatusTimeline ppm={ppm} />);
 
       const completed = wrapper.findWhere(b => b.prop('completed'));
       expect(completed).toHaveLength(1);
@@ -26,7 +26,7 @@ describe('StatusTimeline', () => {
 
     test('renders timeline for an in-progress ppm', () => {
       const ppm = { status: 'APPROVED', original_move_date: '2019-03-20' };
-      const wrapper = shallow(<StatusTimelineContainer ppm={ppm} />);
+      const wrapper = mount(<PPMStatusTimeline ppm={ppm} />);
 
       const completed = wrapper.findWhere(b => b.prop('completed'));
       expect(completed).toHaveLength(3);
@@ -38,17 +38,17 @@ describe('StatusTimeline', () => {
     });
   });
 
-  describe('hhg timeline', () => {
+  describe('ShipmentStatusTimeline', () => {
     test('renders timeline', () => {
       const shipment = {};
-      const wrapper = shallow(<StatusTimelineContainer shipment={shipment} />);
+      const wrapper = mount(<ShipmentStatusTimeline shipment={shipment} />);
 
       expect(wrapper.find(StatusBlock)).toHaveLength(5);
     });
 
     test('renders timeline for scheduled hhg', () => {
       const shipment = { status: 'SCHEDULED' };
-      const wrapper = shallow(<StatusTimelineContainer shipment={shipment} />);
+      const wrapper = mount(<ShipmentStatusTimeline shipment={shipment} />);
 
       const completed = wrapper.findWhere(b => b.prop('completed'));
       expect(completed).toHaveLength(1);
@@ -61,7 +61,7 @@ describe('StatusTimeline', () => {
 
     test('renders timeline for packed hhg', () => {
       const shipment = { status: 'PACKED', actual_pack_date: '2019-03-20', today: '2019-03-20' };
-      const wrapper = shallow(<StatusTimelineContainer shipment={shipment} />);
+      const wrapper = mount(<ShipmentStatusTimeline shipment={shipment} />);
 
       const completed = wrapper.findWhere(b => b.prop('completed'));
       expect(completed).toHaveLength(2);
@@ -73,10 +73,10 @@ describe('StatusTimeline', () => {
     });
   });
 
-  describe('profile timeline', () => {
+  describe('ProfileStatusTimeline', () => {
     test('renders timeline', () => {
       const profile = {};
-      const wrapper = shallow(<StatusTimelineContainer profile={profile} />);
+      const wrapper = mount(<ProfileStatusTimeline profile={profile} />);
 
       expect(wrapper.find(StatusBlock)).toHaveLength(4);
 
@@ -94,14 +94,7 @@ describe('StatusTimeline', () => {
 describe('StatusBlock', () => {
   test('complete but not current status block', () => {
     const wrapper = shallow(
-      <StatusBlock
-        name="Approved"
-        formatType="condensed"
-        completed={true}
-        current={false}
-        code="PPM_APPROVED"
-        key="PPM_APPROVED"
-      />,
+      <StatusBlock name="Approved" completed={true} current={false} code="PPM_APPROVED" key="PPM_APPROVED" />,
     );
 
     expect(wrapper.hasClass('ppm_approved')).toEqual(true);
@@ -111,14 +104,7 @@ describe('StatusBlock', () => {
 
   test('complete and current status block', () => {
     const wrapper = shallow(
-      <StatusBlock
-        name="In Progress"
-        formatType="condensed"
-        completed={true}
-        current={true}
-        code="IN_PROGRESS"
-        key="IN_PROGRESS"
-      />,
+      <StatusBlock name="In Progress" completed={true} current={true} code="IN_PROGRESS" key="IN_PROGRESS" />,
     );
 
     expect(wrapper.hasClass('in_progress')).toEqual(true);
@@ -128,14 +114,7 @@ describe('StatusBlock', () => {
 
   test('incomplete status block', () => {
     const wrapper = shallow(
-      <StatusBlock
-        name="Delivered"
-        formatType="condensed"
-        completed={false}
-        current={false}
-        code="DELIVERED"
-        key="DELIVERED"
-      />,
+      <StatusBlock name="Delivered" completed={false} current={false} code="DELIVERED" key="DELIVERED" />,
     );
 
     expect(wrapper.hasClass('delivered')).toEqual(true);

@@ -15,7 +15,7 @@ import { selectReimbursement } from 'shared/Entities/modules/ppms';
 
 import './MoveSummary.css';
 import ppmCar from './images/ppm-car.svg';
-import StatusTimelineContainer from './StatusTimeline';
+import { PPMStatusTimeline, ShipmentStatusTimeline, ProfileStatusTimeline } from './StatusTimeline';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlus from '@fortawesome/fontawesome-free-solid/faPlus';
@@ -70,7 +70,7 @@ export const DraftMoveSummary = props => {
 
           <div className="shipment_box_contents">
             <div>
-              <StatusTimelineContainer profile={profile} />
+              <ProfileStatusTimeline profile={profile} />
               <div className="step-contents">
                 <div className="status_box usa-width-two-thirds">
                   <div className="step">
@@ -134,7 +134,7 @@ export const SubmittedPpmMoveSummary = props => {
           </div>
 
           <div className="shipment_box_contents">
-            <StatusTimelineContainer ppm={ppm} />
+            <PPMStatusTimeline ppm={ppm} />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 <div className="step">
@@ -246,7 +246,7 @@ export const SubmittedHhgMoveSummary = props => {
           </div>
 
           <div className="shipment_box_contents">
-            <StatusTimelineContainer shipment={shipment} />
+            <ShipmentStatusTimeline shipment={shipment} />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 {showHhgLandingPageText(shipment)}
@@ -321,7 +321,7 @@ export const ApprovedMoveSummary = props => {
               </Alert>
             )}
 
-            <StatusTimelineContainer ppm={ppm} />
+            <PPMStatusTimeline ppm={ppm} />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 {!moveInProgress && (
