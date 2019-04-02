@@ -402,8 +402,6 @@ func main() {
 		"environment": environment,
 		"image":       v.GetString(imageFlag),
 		"db_host":     dbHost,
-		"eia_key":     "get from env var",
-		"eia_url":     "get from env var",
 	}
 	newDef, err := render(logger, templateFile, variablesFile, templateVars)
 	if err != nil {

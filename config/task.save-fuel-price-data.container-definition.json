@@ -43,11 +43,11 @@
     },
     {
       "name": "EIA_KEY",
-      "value": "{{ .eia_key}}"
+      "value": "{{ .EIA_KEY}}"
     },
     {
       "name": "EIA_URL",
-      "value": "{{ .eia_url}}"
+      "value": "{{ .EIA_URL}}"
     }
   ],
   "logConfiguration": {
