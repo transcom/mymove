@@ -108,10 +108,10 @@ export class StorageInTransit extends Component {
               onClose={this.closeEditForm}
               storageInTransit={storageInTransit}
             />
-          ) : (
+          ) : isOfficeSite ? (
             <span className="sit-actions">
               <span className="sit-edit actionable">
-                {storageInTransit.status !== 'APPROVED' &&
+                {storageInTransit.status === 'APPROVED' &&
                   !showApproveForm &&
                   !showDenyForm && (
                     <a onClick={this.openEditForm}>
@@ -119,6 +119,15 @@ export class StorageInTransit extends Component {
                       Edit
                     </a>
                   )}
+              </span>
+            </span>
+          ) : (
+            <span className="sit-actions">
+              <span className="sit-edit actionable">
+                <a onClick={this.openEditForm}>
+                  <FontAwesomeIcon className="icon" icon={faPencil} />
+                  Edit
+                </a>
               </span>
             </span>
           )}
