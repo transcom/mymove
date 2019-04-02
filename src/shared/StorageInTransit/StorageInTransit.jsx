@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faBan from '@fortawesome/fontawesome-free-solid/faBan';
@@ -16,7 +15,8 @@ import Editor from 'shared/StorageInTransit/Editor';
 import ApproveSitRequest from 'shared/StorageInTransit/ApproveSitRequest';
 import DenySitRequest from 'shared/StorageInTransit/DenySitRequest';
 import { updateStorageInTransit } from 'shared/Entities/modules/storageInTransits';
-import { isOfficeSite } from 'shared/constants.js';
+import { isOfficeSite, isTspSite } from 'shared/constants.js';
+import SitStatusIcon from './SitStatusIcon';
 
 export class StorageInTransit extends Component {
   constructor() {
@@ -71,7 +71,7 @@ export class StorageInTransit extends Component {
           <span className="unbold">
             {' '}
             <span className="sit-status-text">Status:</span>{' '}
-            <FontAwesomeIcon className="icon icon-grey" icon={faClock} />
+            {storageInTransit.status === 'REQUESTED' && <SitStatusIcon isTspSite={isTspSite} />}
           </span>
           <span>SIT {storageInTransit.status.charAt(0) + storageInTransit.status.slice(1).toLowerCase()} </span>
           {showApproveForm ? (
