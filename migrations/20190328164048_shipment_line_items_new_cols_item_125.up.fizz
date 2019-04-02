@@ -1,0 +1,10 @@
+add_column("shipment_line_items", "date", "datetime", {"null": true})
+
+add_column("shipment_line_items", "time", "string", {"null": true})
+
+add_column("shipment_line_items", "address_id", "uuid", {"null": true})
+add_foreign_key("shipment_line_items", "address_id", {"addresses": ["id"]}, {
+    "on_delete": "cascade",
+		"on_update": "cascade",
+})
+add_index("shipment_line_items", "address_id", {});

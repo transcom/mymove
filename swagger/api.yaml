@@ -361,8 +361,10 @@ definitions:
         x-nullable: true
       crate_dimensions:
         $ref: '#/definitions/Dimensions'
+        x-nullable: true
       item_dimensions:
         $ref: '#/definitions/Dimensions'
+        x-nullable: true
       notes:
         type: string
         format: textarea
@@ -395,6 +397,20 @@ definitions:
         minimum: 1
         title: Amount
         description: Unit is cents. Used for storing line haul charges.
+        x-nullable: true
+      date:
+        type: string
+        description: date of service or charge
+        format: date
+        example: '2018-10-21'
+        x-nullable: true
+      time:
+        type: string
+        description: time of service or charge in military time
+        example: '0400'
+        x-nullable: true
+      address:
+        $ref: '#/definitions/Address'
         x-nullable: true
       submitted_date:
         type: string
