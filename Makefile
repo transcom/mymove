@@ -1,7 +1,9 @@
 NAME = ppp
 DB_NAME_DEV = dev_db
+DB_NAME_PROD_MIGRATIONS = prod_migrations
 DB_NAME_TEST = test_db
 DB_DOCKER_CONTAINER_DEV = milmove-db-dev
+DB_DOCKER_CONTAINER_PROD_MIGRATIONS = milmove-db-prod-migrations
 DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # The version of the postgres container should match production as closely
 # as possible.
@@ -25,6 +27,7 @@ endif
 # Convenience for LDFLAGS
 WEBSERVER_LDFLAGS=-X main.gitBranch=$(shell git branch | grep \* | cut -d ' ' -f2) -X main.gitCommit=$(shell git rev-list -1 HEAD)
 DB_PORT_DEV=5432
+DB_PORT_PROD_MIGRATIONS=5434
 DB_PORT_DOCKER=5432
 ifdef CIRCLECI
 	DB_PORT_TEST=5432
@@ -376,6 +379,61 @@ db_dev_migrate: server_deps db_dev_migrate_standalone
 
 #
 # ----- END DB_DEV TARGETS -----
+#
+
+#
+# ----- START DB_PROD_MIGRATIONS TARGETS -----
+#
+
+.PHONY: db_prod_migrations_destroy
+db_prod_migrations_destroy:
+ifndef CIRCLECI
+	@echo "Destroying the ${DB_DOCKER_CONTAINER_PROD_MIGRATIONS} docker database container..."
+	docker rm -f $(DB_DOCKER_CONTAINER_PROD_MIGRATIONS) || \
+		echo "No database container"
+else
+	@echo "Relying on CircleCI's database setup to destroy the DB."
+endif
+
+.PHONY: db_prod_migrations_start
+db_prod_migrations_start:
+ifndef CIRCLECI
+	brew services stop postgresql 2> /dev/null || true
+endif
+	@echo "Starting the ${DB_DOCKER_CONTAINER_PROD_MIGRATIONS} docker database container..."
+	# If running do nothing, if not running try to start, if can't start then run
+	docker start $(DB_DOCKER_CONTAINER_PROD_MIGRATIONS) || \
+		docker run --name $(DB_DOCKER_CONTAINER_PROD_MIGRATIONS) \
+			-e \
+			POSTGRES_PASSWORD=$(PGPASSWORD) \
+			-d \
+			-p $(DB_PORT_PROD_MIGRATIONS):$(DB_PORT_DOCKER)\
+			$(DB_DOCKER_CONTAINER_IMAGE)
+
+.PHONY: db_prod_migrations_create
+db_prod_migrations_create:
+	@echo "Create the ${DB_NAME_PROD_MIGRATIONS} database..."
+	DB_NAME=postgres DB_PORT=$(DB_PORT_PROD_MIGRATIONS) scripts/wait-for-db && \
+		createdb -p $(DB_PORT_PROD_MIGRATIONS) -h localhost -U postgres $(DB_NAME_PROD_MIGRATIONS) || true
+
+.PHONY: db_prod_migrations_run
+db_prod_migrations_run: db_prod_migrations_start db_prod_migrations_create
+
+.PHONY: db_prod_migrations_reset
+db_prod_migrations_reset: db_prod_migrations_destroy db_prod_migrations_run
+
+.PHONY: db_prod_migrations_migrate_standalone
+db_prod_migrations_migrate_standalone:
+	@echo "Migrating the ${DB_NAME_PROD_MIGRATIONS} database..."
+	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
+	cd scripts && \
+		../bin/soda -c ../config/database.yml -p ../migrations migrate up
+
+.PHONY: db_prod_migrations_migrate
+db_prod_migrations_migrate: server_deps db_prod_migrations_migrate_standalone
+
+#
+# ----- END DB_PROD_MIGRATIONS TARGETS -----
 #
 
 #
