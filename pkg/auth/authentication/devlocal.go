@@ -243,11 +243,11 @@ func createSession(h devlocalAuthHandler, user *models.User, w http.ResponseWrit
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
 	}
 
-	if userIdentity.OfficeUserID != nil {
+	if userIdentity.OfficeUserID != nil && session.IsOfficeApp() {
 		session.OfficeUserID = *(userIdentity.OfficeUserID)
 	}
 
-	if userIdentity.TspUserID != nil {
+	if userIdentity.TspUserID != nil && session.IsTspApp() {
 		session.TspUserID = *(userIdentity.TspUserID)
 	}
 
