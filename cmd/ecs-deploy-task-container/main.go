@@ -365,14 +365,14 @@ func main() {
 
 	// Get the current task definition (for rollback)
 	ruleName := v.GetString(ruleFlag)
-	targets, err := serviceCloudWatchEvents.ListTargetsByRule(&cloudwatchevents.ListTargetsByRuleInput{
+	targetsOutput, err := serviceCloudWatchEvents.ListTargetsByRule(&cloudwatchevents.ListTargetsByRuleInput{
 		Rule: aws.String(ruleName),
 	})
 	if err != nil {
 		quit(logger, flag, errors.Wrap(err, "error retrieving targets for rule"))
 	}
 
-	blueTaskDefArn := *targets.Targets[0].EcsParameters.TaskDefinitionArn
+	blueTaskDefArn := *targetsOutput.Targets[0].EcsParameters.TaskDefinitionArn
 	fmt.Println(blueTaskDefArn)
 
 	// aws ecs describe-task-definition --task-definition=app-scheduled-task-save_fuel_price_data-experimental:1
@@ -410,5 +410,22 @@ func main() {
 	fmt.Println(*newDef)
 
 	// Register the new task definition
+	serviceName := v.GetString(serviceFlag)
+	familyName := fmt.Sprintf("%s-%s", serviceName, environmentName)
+	executionTaskRoleArn := fmt.Sprintf("ecs-task-role-%s-%s", serviceName, environmentName)
+	taskDefinitionOutput, err := serviceECS.RegisterTaskDefinition(&ecs.RegisterTaskDefinitionInput{
+		ContainerDefinition: [], // JSON?
+		ExcecutionRoleArn: aws.String(executionRoleArn),
+		Family: aws.String(familyName),
+		NetworkMode: aws.String("awsvpc"),
+		task role arn
+		requires compatibilities fargate
+		execution roel arn
+
+	})
+	if err != nil {
+		quit(logger, flag, errors.Wrap(err, "error registering new task definition"))
+	}
+
 	// aws events puts-target
 }
