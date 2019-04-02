@@ -69,10 +69,12 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	}
 	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
 	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
+	shipmentWeight := unit.Pound(1000)
 	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
 			ServiceMemberID: serviceMemberID,
 			MoveID:          move.ID,
+			NetWeight:       &shipmentWeight,
 		},
 	})
 	session := auth.Session{
