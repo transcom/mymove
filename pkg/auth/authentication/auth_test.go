@@ -182,5 +182,80 @@ func (suite *AuthSuite) TestAuthorizeDisableUser() {
 	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled user")
+}
 
+func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
+	officeUserID := uuid.Must(uuid.NewV4())
+	tspUserID := uuid.Must(uuid.NewV4())
+	userIdentity := models.UserIdentity{
+		Disabled:     false,
+		OfficeUserID: &officeUserID,
+		TspUserID:    &tspUserID,
+	}
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/authorize", "office.example.com"), nil)
+
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        OfficeTestHost,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	// Office app, so should only have office ID information
+	suite.Equal(officeUserID, session.OfficeUserID)
+	suite.Equal(uuid.Nil, session.TspUserID)
+}
+
+func (suite *AuthSuite) TestAuthKnownSingleRoleTSP() {
+	officeUserID := uuid.Must(uuid.NewV4())
+	tspUserID := uuid.Must(uuid.NewV4())
+	userIdentity := models.UserIdentity{
+		Disabled:     false,
+		OfficeUserID: &officeUserID,
+		TspUserID:    &tspUserID,
+	}
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/authorize", "tsp.example.com"), nil)
+
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.TspApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        OfficeTestHost,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	// TSP app, so should only have TSP ID information
+	suite.Equal(tspUserID, session.TspUserID)
+	suite.Equal(uuid.Nil, session.OfficeUserID)
 }
