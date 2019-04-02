@@ -78,6 +78,8 @@
 
 .shipment_box_contents .status_name {
   margin: 1rem 0 0.2rem 0;
+  max-width: 80px;
+  text-align: center;
 }
 
 .status_timeline .legend {
