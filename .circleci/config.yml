@@ -40,7 +40,7 @@ executors:
       - image: trussworks/circleci-docker-primary:9ad70927655a601580c036d53456c70061c76cba
         environment:
           GO111MODULE: "on"
-      - image: postgres:10.5
+      - image: postgres:10.6
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
