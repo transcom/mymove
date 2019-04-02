@@ -255,6 +255,36 @@ func getAWSCredentials(keychainName string, keychainProfile string) (*credential
 	return credentials.NewStaticCredentialsFromCreds(credVals), nil
 }
 
+func updateScheduledTask(logger *log.Logger, serviceCloudWatchEvents *cloudwatchevents.CloudWatchEvents, ruleName string, taskDefArn string, origTaskDef *ecs.TaskDefinition) error {
+	// Get the network configuration from the cluster
+
+	putTargetsOutput, err := serviceCloudWatchEvents.PutTargets(&cloudwatchevents.PutTargetsInput{
+		Rule: aws.String(ruleName),
+		Targets: []*cloudwatchevents.Target{
+			{
+				Id:      aws.String("1"),
+				Arn:     aws.String(""), // ARN of cluster
+				RoleArn: aws.String(""), // ECS Events Role
+				EcsParameters: &cloudwatchevents.EcsParameters{
+					LaunchType: aws.String("FARGATE"),
+					NetworkConfiguration: &cloudwatchevents.NetworkConfiguration{
+						AwsvpcConfiguration: &cloudwatchevents.AwsVpcConfiguration{
+							AssignPublicIp: aws.String("false"),
+						},
+					},
+					TaskCount:         aws.Int64(1),
+					TaskDefinitionArn: aws.String(taskDefArn),
+				},
+			},
+		},
+	})
+	if err != nil {
+		return errors.Wrap(err, "Unable to put new target")
+	}
+	fmt.Println(putTargetsOutput)
+	return nil
+}
+
 func main() {
 	flag := pflag.CommandLine
 	initFlags(flag)
@@ -325,12 +355,13 @@ func main() {
 	fmt.Println(blueTaskDefArn)
 
 	// aws ecs describe-task-definition --task-definition=app-scheduled-task-save_fuel_price_data-experimental:1
-	blueTaskDef, err := serviceECS.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
+	blueTaskDefOutput, err := serviceECS.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
 		TaskDefinition: &blueTaskDefArn,
 	})
 	if err != nil {
 		quit(logger, flag, errors.Wrapf(err, "error retrieving task definition for %s", blueTaskDefArn))
 	}
+	blueTaskDef := blueTaskDefOutput.TaskDefinition
 	fmt.Println(blueTaskDef)
 
 	// Get the database host using the instance identifier
@@ -344,7 +375,7 @@ func main() {
 	}
 	dbHost := *dbInstancesOutput.DBInstances[0].Endpoint.Address
 
-	// Register the new task definition
+	// Set up some key variables
 	serviceName := v.GetString(serviceFlag)
 	imageName := v.GetString(imageFlag)
 	familyName := fmt.Sprintf("%s-%s", serviceName, environmentName)
@@ -364,6 +395,7 @@ func main() {
 	eiaKey := v.GetString(eiaKeyFlag)
 	eiaURL := v.GetString(eiaURLFlag)
 
+	// Register the new task definition
 	taskDefinitionOutput, err := serviceECS.RegisterTaskDefinition(&ecs.RegisterTaskDefinitionInput{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
@@ -442,4 +474,10 @@ func main() {
 	fmt.Println(greenTaskDefArn)
 
 	// aws events puts-target
+	err = updateScheduledTask(logger, serviceCloudWatchEvents, ruleName, greenTaskDefArn, blueTaskDef)
+	if err != nil {
+		// Print logs if any
+		updateScheduledTask(logger, serviceCloudWatchEvents, ruleName, blueTaskDefArn, blueTaskDef)
+		quit(logger, nil, errors.New("Rolled back to previous task definition"))
+	}
 }
