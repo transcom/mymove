@@ -27,7 +27,6 @@
   z-index: 10;
 }
 
-.status_block.status_completed,
 .status_block.status_current .status_name {
   font-weight: bold;
 }
