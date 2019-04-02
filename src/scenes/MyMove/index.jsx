@@ -22,6 +22,7 @@ import EditHHGDates from 'scenes/Review/EditShipment';
 import Header from 'shared/Header/MyMove';
 import PPMPaymentRequestIntro from 'scenes/Moves/Ppm/PPMPaymentRequestIntro';
 import WeightTicket from 'scenes/Moves/Ppm/WeightTicket';
+import AllowableExpenses from 'scenes/Moves/Ppm/AllowableExpenses';
 import PaymentRequest from 'scenes/Moves/Ppm/PaymentRequest';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
@@ -96,6 +97,7 @@ export class AppWrapper extends Component {
                     {/* <PrivateRoute path="/moves/:moveId/review/edit-hhg-weights" component={EditHHGWeights} /> */}
 
                     <PrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
+                    <PrivateRoute exact path="/allowable-expenses" component={AllowableExpenses} />
                     <PrivateRoute path="/moves/:moveId/ppm-payment-request-intro" component={PPMPaymentRequestIntro} />
                     <PrivateRoute path="/moves/:moveId/ppm-weight-ticket" component={WeightTicket} />
                     <PrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
