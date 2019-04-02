@@ -1,14 +1,12 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
 	"strings"
-	"text/template"
 
 	"github.com/99designs/aws-vault/prompt"
 	"github.com/99designs/aws-vault/vault"
@@ -52,22 +50,6 @@ func (e *errInvalidEnvironment) Error() string {
 	return fmt.Sprintf("invalid environment %q, expecting one of %q", e.Environment, environments)
 }
 
-type errInvalidTemplateFile struct {
-	TemplateFile string
-}
-
-func (e *errInvalidTemplateFile) Error() string {
-	return fmt.Sprintf("invalid template %q", e.TemplateFile)
-}
-
-type errInvalidVariablesFile struct {
-	VariablesFile string
-}
-
-func (e *errInvalidVariablesFile) Error() string {
-	return fmt.Sprintf("invalid variables %q", e.VariablesFile)
-}
-
 type errInvalidImage struct {
 	Image string
 }
@@ -93,8 +75,6 @@ const (
 	chamberUsePathsFlag      string = "chamber-use-paths"
 	serviceFlag              string = "service"
 	environmentFlag          string = "environment"
-	templateFlag             string = "template"
-	variablesFlag            string = "variables"
 	imageFlag                string = "image"
 	ruleFlag                 string = "rule"
 	eiaKeyFlag               string = "eia-key"
@@ -117,8 +97,6 @@ func initFlags(flag *pflag.FlagSet) {
 	// Task Definition Settings
 	flag.String(serviceFlag, "", fmt.Sprintf("The service name (choose %q)", services))
 	flag.String(environmentFlag, "", fmt.Sprintf("The environment name (choose %q)", environments))
-	flag.String(templateFlag, "", "The name of the template file to use for rendering the task definition")
-	flag.String(variablesFlag, "", "The name of the variables file to use for rendering the task definition")
 	flag.String(imageFlag, "", "The name of the image referenced in the task definition")
 	flag.String(ruleFlag, "", "The name of the CloudWatch Event Rule targeting the Task Definition")
 
@@ -207,38 +185,6 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(&errInvalidEnvironment{Environment: environmentName}, fmt.Sprintf("%q is invalid", "environment"))
 	}
 
-	templateFile := v.GetString(templateFlag)
-	if len(templateFile) == 0 {
-		return errors.Wrap(&errInvalidTemplateFile{TemplateFile: templateFile}, fmt.Sprintf("%q is invalid", "template"))
-	}
-	// Confirm file exists
-	templateFileInfo, err := os.Stat(templateFile)
-	if err != nil {
-		return errors.Wrap(&errInvalidTemplateFile{TemplateFile: templateFile}, fmt.Sprintf("%q file does not exist", "template"))
-	}
-	if templateFileInfo.IsDir() {
-		return errors.Wrap(&errInvalidTemplateFile{TemplateFile: templateFile}, fmt.Sprintf("%q is a directory, not a file", "template"))
-	}
-	if templateFileInfo.Size() == 0 {
-		return errors.Wrap(&errInvalidTemplateFile{TemplateFile: templateFile}, fmt.Sprintf("%q is an empty file", "template"))
-	}
-
-	variablesFile := v.GetString(variablesFlag)
-	if len(variablesFile) == 0 {
-		return errors.Wrap(&errInvalidVariablesFile{VariablesFile: variablesFile}, fmt.Sprintf("%q is invalid", "variables"))
-	}
-	// Confirm file exists
-	variablesFileInfo, err := os.Stat(variablesFile)
-	if err != nil {
-		return errors.Wrap(&errInvalidVariablesFile{VariablesFile: variablesFile}, fmt.Sprintf("%q file does not exist", "variables"))
-	}
-	if variablesFileInfo.IsDir() {
-		return errors.Wrap(&errInvalidVariablesFile{VariablesFile: variablesFile}, fmt.Sprintf("%q is a directory, not a file", "variables"))
-	}
-	if variablesFileInfo.Size() == 0 {
-		return errors.Wrap(&errInvalidVariablesFile{VariablesFile: variablesFile}, fmt.Sprintf("%q is an empty file", "variables"))
-	}
-
 	image := v.GetString(imageFlag)
 	if len(image) == 0 {
 		return errors.Wrap(&errInvalidImage{Image: image}, fmt.Sprintf("%q is invalid", "image"))
@@ -249,7 +195,7 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(&errInvalidRule{Rule: rule}, fmt.Sprintf("%q is invalid", "rule"))
 	}
 
-	err = checkEIAKey(v)
+	err := checkEIAKey(v)
 	if err != nil {
 		return err
 	}
@@ -307,65 +253,6 @@ func getAWSCredentials(keychainName string, keychainProfile string) (*credential
 		return nil, errors.Wrap(err, "Unable to retrieve aws credentials from aws-vault")
 	}
 	return credentials.NewStaticCredentialsFromCreds(credVals), nil
-}
-
-func render(logger *log.Logger, templateFile string, variablesFile string, templateVars map[string]string) (*string, error) {
-	// Read contents of template file into tmpl
-	// #nosec because we want to read in from a file
-	tmpl, err := ioutil.ReadFile(templateFile)
-	if err != nil {
-		quit(logger, nil, errors.Wrap(err, fmt.Sprintf("unable to read template file %s", templateFile)))
-	}
-
-	ctx := map[string]string{}
-
-	if len(variablesFile) > 0 {
-		// Read contents of variables file into vars
-		// #nosec because we want to read in from a file
-		vars, err := ioutil.ReadFile(variablesFile)
-		if err != nil {
-			quit(logger, nil, errors.Wrap(err, fmt.Sprintf("unable to read variables file %s", variablesFile)))
-		}
-
-		// Adds variables from file into context
-		for _, x := range strings.Split(string(vars), "\n") {
-			// If a line is empty or starts with #, then skip.
-			if len(x) > 0 && x[0] != '#' {
-				// Split each line on the first equals sign into [name, value]
-				pair := strings.SplitAfterN(x, "=", 2)
-				ctx[pair[0][0:len(pair[0])-1]] = pair[1]
-			}
-		}
-	}
-
-	// Adds environment vairables to context
-	// os.Environ() returns a copy of strings representing the environment, in the form "key=value".
-	// https://golang.org/pkg/os/#Environ
-	for _, x := range os.Environ() {
-		// Split each environment variable on the first equals sign into [name, value]
-		pair := strings.SplitAfterN(x, "=", 2)
-		// Add to context
-		ctx[pair[0][0:len(pair[0])-1]] = pair[1]
-	}
-
-	// Adds template variables to context
-	for k, v := range templateVars {
-		ctx[k] = v
-	}
-
-	t, err := template.New("main").Option("missingkey=error").Parse(string(tmpl))
-	if err != nil {
-		quit(logger, nil, errors.Wrap(err, "unable to parse the template"))
-	}
-
-	var tpl bytes.Buffer
-	if err := t.Execute(&tpl, ctx); err != nil {
-		quit(logger, nil, errors.Wrap(err, "unable to render the template"))
-	}
-
-	tplStr := tpl.String()
-
-	return &tplStr, nil
 }
 
 func main() {
@@ -457,23 +344,9 @@ func main() {
 	}
 	dbHost := *dbInstancesOutput.DBInstances[0].Endpoint.Address
 
-	// Build the template
-	imageName := v.GetString(imageFlag)
-	templateFile := v.GetString(templateFlag)
-	variablesFile := v.GetString(variablesFlag)
-	templateVars := map[string]string{
-		"environment": environmentName,
-		"image":       imageName,
-		"db_host":     dbHost,
-	}
-	newDef, err := render(logger, templateFile, variablesFile, templateVars)
-	if err != nil {
-		quit(logger, flag, err)
-	}
-	fmt.Println(*newDef)
-
 	// Register the new task definition
 	serviceName := v.GetString(serviceFlag)
+	imageName := v.GetString(imageFlag)
 	familyName := fmt.Sprintf("%s-%s", serviceName, environmentName)
 	taskRoleArn := fmt.Sprintf("ecs-task-role-%s", familyName)
 	executionRoleArn := fmt.Sprintf("ecs-task-excution-role-%s", familyName)
