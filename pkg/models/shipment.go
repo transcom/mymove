@@ -57,8 +57,8 @@ var (
 )
 
 var (
-	// ShipmentsAssociationsDefault declares the default eager associations for shipments
-	ShipmentsAssociationsDefault = EagerAssociations{
+	// ShipmentsAssociationsDEFAULT declares the default eager associations for shipments
+	ShipmentsAssociationsDEFAULT = EagerAssociations{
 		"TrafficDistributionList",
 		"ServiceMember",
 		"Move",
@@ -595,7 +595,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 
 	shipments := []Shipment{}
 
-	query := tx.Q().Eager(ShipmentsAssociationsDefault...).
+	query := tx.Q().Eager(ShipmentsAssociationsDEFAULT...).
 		Where("shipment_offers.transportation_service_provider_id = $1", tspID).
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id")
 
