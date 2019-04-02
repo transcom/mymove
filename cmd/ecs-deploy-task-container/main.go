@@ -82,17 +82,30 @@ func (e *errInvalidRule) Error() string {
 	return fmt.Sprintf("invalid rule %q", e.Rule)
 }
 
+const (
+	awsRegionFlag            string = "aws-region"
+	awsProfileFlag           string = "aws-profile"
+	awsVaultKeychainNameFlag string = "aws-vault-keychain-name"
+	serviceFlag              string = "service"
+	environmentFlag          string = "environment"
+	templateFlag             string = "template"
+	variablesFlag            string = "variables"
+	imageFlag                string = "image"
+	ruleFlag                 string = "rule"
+	verboseFlag              string = "verbose"
+)
+
 func initFlags(flag *pflag.FlagSet) {
-	flag.String("aws-region", "us-west-2", "The AWS Region")
-	flag.String("aws-profile", "", "The aws-vault profile")
-	flag.String("aws-vault-keychain-name", "", "The aws-vault keychain name")
-	flag.String("service", "", fmt.Sprintf("The service name (choose %q)", services))
-	flag.String("environment", "", fmt.Sprintf("The environment name (choose %q)", environments))
-	flag.String("template", "", "The name of the template file to use for rendering the task definition")
-	flag.String("variables", "", "The name of the variables file to use for rendering the task definition")
-	flag.String("image", "", "The name of the image referenced in the task definition")
-	flag.String("rule", "", "The name of the CloudWatch Event Rule targeting the Task Definition")
-	flag.BoolP("verbose", "v", false, "Print section lines")
+	flag.String(awsRegionFlag, "us-west-2", "The AWS Region")
+	flag.String(awsProfileFlag, "", "The aws-vault profile")
+	flag.String(awsVaultKeychainNameFlag, "", "The aws-vault keychain name")
+	flag.String(serviceFlag, "", fmt.Sprintf("The service name (choose %q)", services))
+	flag.String(environmentFlag, "", fmt.Sprintf("The environment name (choose %q)", environments))
+	flag.String(templateFlag, "", "The name of the template file to use for rendering the task definition")
+	flag.String(variablesFlag, "", "The name of the variables file to use for rendering the task definition")
+	flag.String(imageFlag, "", "The name of the image referenced in the task definition")
+	flag.String(ruleFlag, "", "The name of the CloudWatch Event Rule targeting the Task Definition")
+	flag.BoolP(verboseFlag, "v", false, "Print section lines")
 }
 
 func checkConfig(v *viper.Viper) error {
@@ -102,16 +115,16 @@ func checkConfig(v *viper.Viper) error {
 		return fmt.Errorf("could not find regions for service %q", endpoints.EcsServiceID)
 	}
 
-	region := v.GetString("aws-region")
+	region := v.GetString(awsRegionFlag)
 	if len(region) == 0 {
-		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", "aws-region"))
+		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", awsRegionFlag))
 	}
 
 	if _, ok := regions[region]; !ok {
-		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", "aws-region"))
+		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", awsRegionFlag))
 	}
 
-	serviceName := v.GetString("service")
+	serviceName := v.GetString(serviceFlag)
 	if len(serviceName) == 0 {
 		return errors.Wrap(&errInvalidService{Service: serviceName}, fmt.Sprintf("%q is invalid", "service"))
 	}
@@ -126,7 +139,7 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(&errInvalidService{Service: serviceName}, fmt.Sprintf("%q is invalid", "service"))
 	}
 
-	environment := v.GetString("environment")
+	environment := v.GetString(environmentFlag)
 	if len(environment) == 0 {
 		return errors.Wrap(&errInvalidEnvironment{Environment: environment}, fmt.Sprintf("%q is invalid", "environment"))
 	}
@@ -141,7 +154,7 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(&errInvalidEnvironment{Environment: environment}, fmt.Sprintf("%q is invalid", "environment"))
 	}
 
-	templateFile := v.GetString("template")
+	templateFile := v.GetString(templateFlag)
 	if len(templateFile) == 0 {
 		return errors.Wrap(&errInvalidTemplateFile{TemplateFile: templateFile}, fmt.Sprintf("%q is invalid", "template"))
 	}
@@ -157,7 +170,7 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(&errInvalidTemplateFile{TemplateFile: templateFile}, fmt.Sprintf("%q is an empty file", "template"))
 	}
 
-	variablesFile := v.GetString("variables")
+	variablesFile := v.GetString(variablesFlag)
 	if len(variablesFile) == 0 {
 		return errors.Wrap(&errInvalidVariablesFile{VariablesFile: variablesFile}, fmt.Sprintf("%q is invalid", "variables"))
 	}
@@ -173,12 +186,12 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(&errInvalidVariablesFile{VariablesFile: variablesFile}, fmt.Sprintf("%q is an empty file", "variables"))
 	}
 
-	image := v.GetString("image")
+	image := v.GetString(imageFlag)
 	if len(image) == 0 {
 		return errors.Wrap(&errInvalidImage{Image: image}, fmt.Sprintf("%q is invalid", "image"))
 	}
 
-	rule := v.GetString("rule")
+	rule := v.GetString(ruleFlag)
 	if len(rule) == 0 {
 		return errors.Wrap(&errInvalidRule{Rule: rule}, fmt.Sprintf("%q is invalid", "rule"))
 	}
@@ -306,7 +319,7 @@ func main() {
 	// Remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	if !v.GetBool("verbose") {
+	if !v.GetBool(verboseFlag) {
 		// Disable any logging that isn't attached to the logger unless using the verbose flag
 		log.SetOutput(ioutil.Discard)
 		log.SetFlags(0)
@@ -320,15 +333,15 @@ func main() {
 		quit(logger, flag, err)
 	}
 
-	awsRegion := v.GetString("aws-region")
+	awsRegion := v.GetString(awsRegionFlag)
 
 	awsConfig := &aws.Config{
 		Region: aws.String(awsRegion),
 	}
 
-	verbose := v.GetBool("verbose")
-	keychainName := v.GetString("aws-vault-keychain-name")
-	keychainProfile := v.GetString("aws-profile")
+	verbose := v.GetBool(verboseFlag)
+	keychainName := v.GetString(awsVaultKeychainNameFlag)
+	keychainProfile := v.GetString(awsProfileFlag)
 
 	if len(keychainName) > 0 && len(keychainProfile) > 0 {
 		creds, err := getAWSCredentials(keychainName, keychainProfile)
@@ -349,7 +362,7 @@ func main() {
 	serviceECS := ecs.New(sess)
 
 	// Get the current task definition (for rollback)
-	ruleName := v.GetString("rule")
+	ruleName := v.GetString(ruleFlag)
 	targets, err := serviceCloudWatchEvents.ListTargetsByRule(&cloudwatchevents.ListTargetsByRuleInput{
 		Rule: aws.String(ruleName),
 	})
@@ -372,11 +385,11 @@ func main() {
 	// Get the database host using the instance identifier
 
 	// Build the template
-	templateFile := v.GetString("template")
-	variablesFile := v.GetString("variables")
+	templateFile := v.GetString(templateFlag)
+	variablesFile := v.GetString(variablesFlag)
 	templateVars := map[string]string{
-		"environment": v.GetString("environment"),
-		"image":       v.GetString("image"),
+		"environment": v.GetString(environmentFlag),
+		"image":       v.GetString(imageFlag),
 		"db_host":     "get from aws call",
 		"eia_key":     "get from env var",
 		"eia_url":     "get from env var",
