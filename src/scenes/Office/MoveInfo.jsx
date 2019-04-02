@@ -46,7 +46,7 @@ import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shar
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
 import {
   approveShipment,
-  completeShipment,
+  // completeShipment,
   getPublicShipment,
   selectShipment,
   selectShipmentStatus,
@@ -222,9 +222,9 @@ class MoveInfo extends Component {
     this.props.approveShipment(this.props.shipmentId);
   };
 
-  completeShipment = () => {
-    this.props.completeShipment(this.props.shipmentId);
-  };
+  // completeShipment = () => {
+  //   this.props.completeShipment(this.props.shipmentId);
+  // };
 
   cancelMoveAndRedirect = cancelReason => {
     const messageLines = [
@@ -624,7 +624,7 @@ const mapDispatchToProps = dispatch =>
       approveBasics,
       approvePPM,
       approveShipment,
-      completeShipment,
+      // completeShipment,
       cancelMove,
       getAllTariff400ngItems,
       getAllShipmentLineItems,
