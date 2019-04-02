@@ -1,7 +1,7 @@
 {
-  "name": "app-task-save-fuel-price-data-{{ .environment }}",
+  "name": "app-tasks-{{ .environment }}",
   "image": "{{ .image }}",
-  "essential": true,
+  "essential": false,
   "entryPoint": [
     "/bin/chamber",
     "-r",
@@ -55,7 +55,7 @@
     "options": {
       "awslogs-group": "ecs-tasks-app-{{ .environment }}",
       "awslogs-region": "us-west-2",
-      "awslogs-stream-prefix": "app-task-save-fuel-price-data"
+      "awslogs-stream-prefix": "app-tasks-save-fuel-price-data"
     }
   },
   "mountPoints": [],

@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"text/template"
 
@@ -87,26 +88,62 @@ const (
 	awsRegionFlag            string = "aws-region"
 	awsProfileFlag           string = "aws-profile"
 	awsVaultKeychainNameFlag string = "aws-vault-keychain-name"
+	chamberRetriesFlag       string = "chamber-retries"
+	chamberKMSKeyAliasFlag   string = "chamber-kms-key-alias"
+	chamberUsePathsFlag      string = "chamber-use-paths"
 	serviceFlag              string = "service"
 	environmentFlag          string = "environment"
 	templateFlag             string = "template"
 	variablesFlag            string = "variables"
 	imageFlag                string = "image"
 	ruleFlag                 string = "rule"
+	eiaKeyFlag               string = "eia-key"
+	eiaURLFlag               string = "eia-url"
 	verboseFlag              string = "verbose"
 )
 
 func initFlags(flag *pflag.FlagSet) {
+
+	// AWS Vault Settings
 	flag.String(awsRegionFlag, "us-west-2", "The AWS Region")
 	flag.String(awsProfileFlag, "", "The aws-vault profile")
 	flag.String(awsVaultKeychainNameFlag, "", "The aws-vault keychain name")
+
+	// Chamber Settings
+	flag.Int(chamberRetriesFlag, 20, "Chamber Retries")
+	flag.String(chamberKMSKeyAliasFlag, "alias/aws/ssm", "Chamber KMS Key Alias")
+	flag.Int(chamberUsePathsFlag, 1, "Chamber Use Paths")
+
+	// Task Definition Settings
 	flag.String(serviceFlag, "", fmt.Sprintf("The service name (choose %q)", services))
 	flag.String(environmentFlag, "", fmt.Sprintf("The environment name (choose %q)", environments))
 	flag.String(templateFlag, "", "The name of the template file to use for rendering the task definition")
 	flag.String(variablesFlag, "", "The name of the variables file to use for rendering the task definition")
 	flag.String(imageFlag, "", "The name of the image referenced in the task definition")
 	flag.String(ruleFlag, "", "The name of the CloudWatch Event Rule targeting the Task Definition")
+
+	// EIA Open Data API
+	flag.String(eiaKeyFlag, "", "Key for Energy Information Administration (EIA) api")
+	flag.String(eiaURLFlag, "", "Url for Energy Information Administration (EIA) api")
+
+	// Script settings
 	flag.BoolP(verboseFlag, "v", false, "Print section lines")
+}
+
+func checkEIAKey(v *viper.Viper) error {
+	eiaKey := v.GetString(eiaKeyFlag)
+	if len(eiaKey) != 32 {
+		return fmt.Errorf("expected eia key to be 32 characters long; key is %d chars", len(eiaKey))
+	}
+	return nil
+}
+
+func checkEIAURL(v *viper.Viper) error {
+	eiaURL := v.GetString(eiaURLFlag)
+	if eiaURL != "https://api.eia.gov/series/" {
+		return fmt.Errorf("invalid eia url %s, expecting https://api.eia.gov/series/", eiaURL)
+	}
+	return nil
 }
 
 func checkConfig(v *viper.Viper) error {
@@ -125,6 +162,21 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", awsRegionFlag))
 	}
 
+	chamberRetries := v.GetInt(chamberRetriesFlag)
+	if chamberRetries < 1 && chamberRetries > 20 {
+		return errors.New("Chamber Retries must be greater than or equal to 1 and less than or equal to 20")
+	}
+
+	chamberKMSKeyAlias := v.GetString(chamberKMSKeyAliasFlag)
+	if len(chamberKMSKeyAlias) == 0 {
+		return errors.New("Chamber KMS Key Alias must be set")
+	}
+
+	chamberUsePaths := v.GetInt(chamberUsePathsFlag)
+	if chamberUsePaths < 1 && chamberUsePaths > 20 {
+		return errors.New("Chamber Use Paths must be greater than or equal to 1 and less than or equal to 20")
+	}
+
 	serviceName := v.GetString(serviceFlag)
 	if len(serviceName) == 0 {
 		return errors.Wrap(&errInvalidService{Service: serviceName}, fmt.Sprintf("%q is invalid", "service"))
@@ -140,19 +192,19 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(&errInvalidService{Service: serviceName}, fmt.Sprintf("%q is invalid", "service"))
 	}
 
-	environment := v.GetString(environmentFlag)
-	if len(environment) == 0 {
-		return errors.Wrap(&errInvalidEnvironment{Environment: environment}, fmt.Sprintf("%q is invalid", "environment"))
+	environmentName := v.GetString(environmentFlag)
+	if len(environmentName) == 0 {
+		return errors.Wrap(&errInvalidEnvironment{Environment: environmentName}, fmt.Sprintf("%q is invalid", "environment"))
 	}
 	validEnvironment := false
 	for _, str := range environments {
-		if environment == str {
+		if environmentName == str {
 			validEnvironment = true
 			break
 		}
 	}
 	if !validEnvironment {
-		return errors.Wrap(&errInvalidEnvironment{Environment: environment}, fmt.Sprintf("%q is invalid", "environment"))
+		return errors.Wrap(&errInvalidEnvironment{Environment: environmentName}, fmt.Sprintf("%q is invalid", "environment"))
 	}
 
 	templateFile := v.GetString(templateFlag)
@@ -195,6 +247,16 @@ func checkConfig(v *viper.Viper) error {
 	rule := v.GetString(ruleFlag)
 	if len(rule) == 0 {
 		return errors.Wrap(&errInvalidRule{Rule: rule}, fmt.Sprintf("%q is invalid", "rule"))
+	}
+
+	err = checkEIAKey(v)
+	if err != nil {
+		return err
+	}
+
+	err = checkEIAURL(v)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -385,8 +447,8 @@ func main() {
 	fmt.Println(blueTaskDef)
 
 	// Get the database host using the instance identifier
-	environment := v.GetString(environmentFlag)
-	dbInstanceIdentifier := fmt.Sprintf("app-%s", environment)
+	environmentName := v.GetString(environmentFlag)
+	dbInstanceIdentifier := fmt.Sprintf("app-%s", environmentName)
 	dbInstancesOutput, err := serviceRDS.DescribeDBInstances(&rds.DescribeDBInstancesInput{
 		DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
 	})
@@ -396,11 +458,12 @@ func main() {
 	dbHost := *dbInstancesOutput.DBInstances[0].Endpoint.Address
 
 	// Build the template
+	imageName := v.GetString(imageFlag)
 	templateFile := v.GetString(templateFlag)
 	variablesFile := v.GetString(variablesFlag)
 	templateVars := map[string]string{
-		"environment": environment,
-		"image":       v.GetString(imageFlag),
+		"environment": environmentName,
+		"image":       imageName,
 		"db_host":     dbHost,
 	}
 	newDef, err := render(logger, templateFile, variablesFile, templateVars)
@@ -412,20 +475,98 @@ func main() {
 	// Register the new task definition
 	serviceName := v.GetString(serviceFlag)
 	familyName := fmt.Sprintf("%s-%s", serviceName, environmentName)
-	executionTaskRoleArn := fmt.Sprintf("ecs-task-role-%s-%s", serviceName, environmentName)
-	taskDefinitionOutput, err := serviceECS.RegisterTaskDefinition(&ecs.RegisterTaskDefinitionInput{
-		ContainerDefinition: [], // JSON?
-		ExcecutionRoleArn: aws.String(executionRoleArn),
-		Family: aws.String(familyName),
-		NetworkMode: aws.String("awsvpc"),
-		task role arn
-		requires compatibilities fargate
-		execution roel arn
+	taskRoleArn := fmt.Sprintf("ecs-task-role-%s", familyName)
+	executionRoleArn := fmt.Sprintf("ecs-task-excution-role-%s", familyName)
+	containerDefName := fmt.Sprintf("app-tasks-%s-%s", ruleName, environmentName)
 
+	// AWS Logs Group is related to the cluster and should not be changed
+	awsLogsGroup := fmt.Sprintf("ecs-tasks-app-%s", environmentName)
+
+	// Chamber Settings
+	chamberRetries := v.GetInt(chamberRetriesFlag)
+	chamberKMSKeyAlias := v.GetString(chamberKMSKeyAliasFlag)
+	chamberUsePaths := v.GetInt(chamberUsePathsFlag)
+
+	// Tool Settings
+	eiaKey := v.GetString(eiaKeyFlag)
+	eiaURL := v.GetString(eiaURLFlag)
+
+	taskDefinitionOutput, err := serviceECS.RegisterTaskDefinition(&ecs.RegisterTaskDefinitionInput{
+		ContainerDefinitions: []*ecs.ContainerDefinition{
+			{
+				Name:      aws.String(containerDefName),
+				Image:     aws.String(imageName),
+				Essential: aws.Bool(false),
+				EntryPoint: []*string{
+					aws.String("/bin/chamber"),
+					aws.String("-r"),
+					aws.String(strconv.Itoa(chamberRetries)),
+					aws.String("exec"),
+					aws.String(familyName),
+					aws.String("--"),
+					aws.String(fmt.Sprintf("/bin/%s", ruleName)),
+				},
+				Environment: []*ecs.KeyValuePair{
+					&ecs.KeyValuePair{
+						Name:  aws.String("ENVIRONMENT"),
+						Value: aws.String(environmentName),
+					},
+					&ecs.KeyValuePair{
+						Name:  aws.String("DB_HOST"),
+						Value: aws.String(dbHost),
+					},
+					&ecs.KeyValuePair{
+						Name:  aws.String("DB_PORT"),
+						Value: aws.String("5432"),
+					},
+					&ecs.KeyValuePair{
+						Name:  aws.String("DB_USER"),
+						Value: aws.String("master"),
+					},
+					&ecs.KeyValuePair{
+						Name:  aws.String("DB_NAME"),
+						Value: aws.String("app"),
+					},
+					&ecs.KeyValuePair{
+						Name:  aws.String("CHAMBER_KMS_KEY_ALIAS"),
+						Value: aws.String(chamberKMSKeyAlias),
+					},
+					&ecs.KeyValuePair{
+						Name:  aws.String("CHAMBER_USE_PATHS"),
+						Value: aws.String(strconv.Itoa(chamberUsePaths)),
+					},
+					&ecs.KeyValuePair{
+						Name:  aws.String("EIA_KEY"),
+						Value: aws.String(eiaKey),
+					},
+					&ecs.KeyValuePair{
+						Name:  aws.String("EIA_URL"),
+						Value: aws.String(eiaURL),
+					},
+				},
+				LogConfiguration: &ecs.LogConfiguration{
+					LogDriver: aws.String("awslogs"),
+					Options: map[string]*string{
+						"awslogs-group":         aws.String(awsLogsGroup),
+						"awslogs-region":        aws.String(awsRegion),
+						"awslogs-stream-prefix": aws.String(containerDefName),
+					},
+				},
+			},
+		},
+		Cpu:                     aws.String("256"),
+		ExecutionRoleArn:        aws.String(executionRoleArn),
+		Family:                  aws.String(familyName),
+		Memory:                  aws.String("512"),
+		NetworkMode:             aws.String("awsvpc"),
+		RequiresCompatibilities: []*string{aws.String("FARGATE")},
+		TaskRoleArn:             aws.String(taskRoleArn),
 	})
 	if err != nil {
 		quit(logger, flag, errors.Wrap(err, "error registering new task definition"))
 	}
+	greenTaskDefArn := *taskDefinitionOutput.TaskDefinition.TaskDefinitionArn
+	fmt.Println(greenTaskDefArn)
 
 	// aws events puts-target
 }
