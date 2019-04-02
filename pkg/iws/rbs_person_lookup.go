@@ -106,6 +106,9 @@ func NewRBSPersonLookup(host string, dodCACertPackage string, certString string,
 	}
 	// Add the DOD certs to a copy of the system cert pool
 	caCertPool, err := x509.SystemCertPool()
+	if err != nil {
+		return nil, err
+	}
 	for _, cert := range p7.Certificates {
 		caCertPool.AddCert(cert)
 	}
