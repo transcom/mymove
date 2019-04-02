@@ -152,10 +152,6 @@ function officeUserApprovesOnlyBasicsHHG() {
     .get('button')
     .contains('Approve HHG')
     .should('be.disabled');
-  cy
-    .get('button')
-    .contains('Complete Shipments')
-    .should('be.disabled');
 
   cy.get('.status').contains('Approved');
 
@@ -179,10 +175,6 @@ function officeUserApprovesOnlyBasicsHHG() {
   cy
     .get('button')
     .contains('Approve HHG')
-    .should('be.disabled');
-  cy
-    .get('button')
-    .contains('Complete Shipments')
     .should('be.disabled');
 
   cy.get('.status').contains('Awarded');
@@ -213,10 +205,6 @@ function officeUserApprovesHHG() {
     .get('button')
     .contains('Approve HHG')
     .should('be.disabled');
-  cy
-    .get('button')
-    .contains('Complete Shipments')
-    .should('be.disabled');
 
   cy.get('.status').contains('Accepted');
 
@@ -240,10 +228,6 @@ function officeUserApprovesHHG() {
   cy
     .get('button')
     .contains('Approve HHG')
-    .should('be.disabled');
-  cy
-    .get('button')
-    .contains('Complete Shipments')
     .should('be.disabled');
 
   cy.get('.status').contains('Approved');
@@ -284,11 +268,6 @@ function officeUserCompletesHHG() {
     .get('button')
     .contains('Cancel Move')
     .should('be.disabled');
-
-  cy
-    .get('button')
-    .contains('Complete Shipments')
-    .click();
 
   cy
     .get('button')
