@@ -18,6 +18,7 @@ import (
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchevents"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/aws/aws-sdk-go/service/rds"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -360,6 +361,7 @@ func main() {
 	// Create the Services
 	serviceCloudWatchEvents := cloudwatchevents.New(sess)
 	serviceECS := ecs.New(sess)
+	serviceRDS := rds.New(sess)
 
 	// Get the current task definition (for rollback)
 	ruleName := v.GetString(ruleFlag)
@@ -383,14 +385,23 @@ func main() {
 	fmt.Println(blueTaskDef)
 
 	// Get the database host using the instance identifier
+	environment := v.GetString(environmentFlag)
+	dbInstanceIdentifier := fmt.Sprintf("app-%s", environment)
+	dbInstancesOutput, err := serviceRDS.DescribeDBInstances(&rds.DescribeDBInstancesInput{
+		DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
+	})
+	if err != nil {
+		quit(logger, flag, errors.Wrapf(err, "error retrieving database definition for %s", dbInstanceIdentifier))
+	}
+	dbHost := *dbInstancesOutput.DBInstances[0].Endpoint.Address
 
 	// Build the template
 	templateFile := v.GetString(templateFlag)
 	variablesFile := v.GetString(variablesFlag)
 	templateVars := map[string]string{
-		"environment": v.GetString(environmentFlag),
+		"environment": environment,
 		"image":       v.GetString(imageFlag),
-		"db_host":     "get from aws call",
+		"db_host":     dbHost,
 		"eia_key":     "get from env var",
 		"eia_url":     "get from env var",
 	}
