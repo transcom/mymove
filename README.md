@@ -10,7 +10,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 
 ## Table of Contents
 
-<!-- Table of Contents auto-generated with `bin/generate-md-toc.sh` -->
+<!-- Table of Contents auto-generated with `scripts/generate-md-toc` -->
 
 <!-- toc -->
 
@@ -48,7 +48,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
     * [Postgres Issues](#postgres-issues)
     * [Development Machine Timezone Issues](#development-machine-timezone-issues)
 
-Regenerate with "bin/generate-md-toc.sh"
+Regenerate with "scripts/generate-md-toc"
 
 <!-- tocstop -->
 
@@ -122,7 +122,8 @@ All of our code is intermingled in the top level directory of mymove. Here is an
 
 The following commands will get mymove running on your machine for the first time. Please read below for explanations of each of the commands.
 
-1. `./bin/prereqs`
+1. `./scripts/prereqs`
+1. `direnv allow`
 1. `make db_dev_run`
 1. `make db_dev_migrate`
 1. `make server_run`
@@ -141,7 +142,7 @@ The following commands will get mymove running on your machine for the first tim
   * Update list of shells that users can choose from: `[[ $(cat /etc/shells | grep /usr/local/bin/bash) ]] || echo "/usr/local/bin/bash" | sudo tee -a /etc/shells`
   * If you are using bash as your shell (and not zsh, fish, etc) and want to use the latest shell as well then change it (optional): `chsh -s /usr/local/bin/bash`
   * Ensure that `/usr/local/bin` comes before `/bin` on your `$PATH` by running `echo $PATH`. Modify your path by editing `~/.bashrc` or `~/.bash_profile` and changing the `PATH`.  Then source your profile with `source ~/.bashrc` or `~/.bash_profile` to ensure that your terminal has it.
-* Run `bin/prereqs` and install everything it tells you to. _Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!_
+* Run `scripts/prereqs` and install everything it tells you to. _Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!_
 * For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/). For bash, add the command `eval "$(direnv hook bash)"` to whichever file loads upon opening bash (likely `~./bash_profile`, though instructions say `~/.bashrc`).
 * Run `direnv allow` to load up the `.envrc` file. Add a `.envrc.local` file with any values it asks you to define.
 * Run `make deps`.
@@ -156,8 +157,8 @@ You will need to setup a local database before you can begin working on the loca
 
 1. `make db_dev_migrate`:  Runs all existing database migrations, which does things like creating table structures, etc. You will run this command again anytime you add new migrations to the app (see below for more)
 
-You can validate that your dev database is running by running `bin/psql-dev`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
-You can validate that your test database is running by running `bin/psql-test`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
+You can validate that your dev database is running by running `scripts/psql-dev`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
+You can validate that your test database is running by running `scripts/psql-test`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
 
 If you are stuck on this step you may need to see the section on Troubleshooting.
 
@@ -198,7 +199,7 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
     `127.0.0.1 tsplocal`
 2. Ensure that you have a test account which can log into the TSP site...
     * `make build_tools` to build the tools
-    * run `./bin/generate-test-data -scenario=7` to load test data
+    * run `bin/generate-test-data -scenario=7` to load test data
     * run `bin/make-tsp-user -email <email>` to set up a TSP user associated with that email address
 3. `make tsp_client_run`
 4. Login with the email used above to access the TSP
@@ -316,6 +317,9 @@ The Dev Commands are used to talk to the dev DB.  If you were working with the t
 * `make db_test_migrate`
 * `make db_test_migrate_standalone`
 * `make db_test_e2e_populate`
+* `make db_test_e2e_backup`
+* `make db_test_e2e_restore`
+* `make db_test_e2e_cleanup`
 
 The test DB commands all talk to the DB over localhost.  But in a docker-only environment (like CircleCI) you may not be able to use those commands, which is why `*_docker` versions exist for all of them:
 
@@ -400,7 +404,7 @@ This will let you walk through the caught spelling errors one-by-one and choose 
 ### Troubleshooting
 
 * Random problems may arise if you have old Docker containers running. Run `docker ps` and if you see containers unrelated to our app, consider stopping them.
-* If you happen to have installed pre-commit in a virtual environment not with brew, running bin/prereqs will not alert you. You may run into issues when running `make deps`. To install pre-commit: `brew install pre-commit`.
+* If you happen to have installed pre-commit in a virtual environment not with brew, running `scripts/prereqs` will not alert you. You may run into issues when running `make deps`. To install pre-commit: `brew install pre-commit`.
 * If you're having trouble accessing the API docs or the server is otherwise misbehaving, try stopping the server, running `make client_build`, and then running `make client_run` and `make server_run`.
 
 #### Postgres Issues

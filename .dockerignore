@@ -1,2 +1,57 @@
+*.swp
+
+
+# dependencies
 /vendor
 /node_modules
+
+# testing
+/coverage
+coverage.out
+__snapshots__
+
+# development
+/tmp
+
+# Ignore
+/docs/packages.txt
+
+# pdf artifacts
+/cmd/generate_1203_form/*.pdf
+
+#debugging
+/cmd/webserver/debug
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.idea
+.vscode
+
+# In case somebody accidentally runs npm install instead of using yarn
+package-lock.json
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+*.swp
+*.sublime-*
+
+**/migrations/schema.sql
+
+*.stamp
+
+# Cypress integration tests
+cypress/videos
+cypress/screenshots
+cypress/results
+
+# XLSX backup files
+~$*.xlsx
+
+# SQLEditor
+*.sqs
