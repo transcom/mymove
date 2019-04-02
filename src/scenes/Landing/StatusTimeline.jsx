@@ -6,11 +6,11 @@ import moment from 'moment';
 import { displayDateRange } from 'shared/formatters';
 import './StatusTimeline.css';
 
-function getDates(shipment, datesType) {
-  if (datesType === 'book_date') {
-    return [get(shipment, datesType)];
+function getDates(shipment, dateType) {
+  if (dateType === 'book_date') {
+    return [get(shipment, dateType)];
   }
-  return get(shipment, datesType);
+  return get(shipment, dateType);
 }
 
 function checkIfCompleted(statuses, statusToCheck) {
@@ -131,10 +131,14 @@ export class ShipmentStatusTimeline extends React.Component {
   }
 
   addDates(statuses) {
+    const moveDatesSummary = get(this.props.shipment, 'move_dates_summary');
     return statuses.map(status => {
       return {
         ...status,
-        dates: getDates(this.props.shipment, status.date_type),
+        dates:
+          status.date_type === 'book_date'
+            ? getDates(this.props.shipment, status.date_type)
+            : getDates(moveDatesSummary, status.date_type),
       };
     });
   }
@@ -213,7 +217,8 @@ export const StatusBlock = props => {
     <div className={classes.join(' ')}>
       <div className="status_dot" />
       <div className="status_name">{props.name}</div>
-      {props.dates && <div className="status_dates">{displayDateRange(props.dates, 'condensed')}</div>}
+      {props.dates &&
+        props.dates.length > 0 && <div className="status_dates">{displayDateRange(props.dates, 'condensed')}</div>}
     </div>
   );
 };
