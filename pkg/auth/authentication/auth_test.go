@@ -157,7 +157,7 @@ func (suite *AuthSuite) TestAuthorizeDisableUser() {
 		Disabled: true,
 	}
 
-	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", "office.example.com"), nil)
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", OfficeTestHost), nil)
 
 	fakeToken := "some_token"
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
@@ -193,7 +193,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 		TspUserID:    &tspUserID,
 	}
 
-	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/authorize", "office.example.com"), nil)
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/authorize", OfficeTestHost), nil)
 
 	fakeToken := "some_token"
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
@@ -231,7 +231,7 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleTSP() {
 		TspUserID:    &tspUserID,
 	}
 
-	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/authorize", "tsp.example.com"), nil)
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/authorize", TspTestHost), nil)
 
 	fakeToken := "some_token"
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
