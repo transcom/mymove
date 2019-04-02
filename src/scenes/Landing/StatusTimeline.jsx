@@ -6,11 +6,11 @@ import moment from 'moment';
 import { displayDateRange } from 'shared/formatters';
 import './StatusTimeline.css';
 
-function getDates(shipment, dateType) {
+function getDates(source, dateType) {
   if (dateType === 'book_date') {
-    return [get(shipment, dateType)];
+    return [get(source, dateType)];
   }
-  return get(shipment, dateType);
+  return get(source, dateType);
 }
 
 function checkIfCompleted(statuses, statusToCheck) {
