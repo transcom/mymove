@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { capitalize } from 'lodash';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faSignInAlt from '@fortawesome/fontawesome-free-solid/faSignInAlt';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -15,53 +13,40 @@ export class PlaceInSit extends Component {
     showForm: false,
   };
 
-  openForm = () => {
-    this.setState({ showForm: true });
-  };
-
   closeForm = () => {
-    this.setState({ showForm: false });
+    this.props.onClose();
   };
 
   render() {
-    const { location, estimated_start_date, authorized_start_date } = this.props.sit;
-    const startDatePlaceholder =
-      estimated_start_date >= authorized_start_date ? estimated_start_date : authorized_start_date;
-    if (this.state.showForm)
-      return (
-        <div className="storage-in-transit-panel-modal">
-          <div className="title">Place into SIT at {capitalize(location)}</div>
-          <PlaceInSitForm />
-          <div className="panel-field">
-            <span className="field-title unbold">Earliest authorized start</span>
-            <span>{formatDate4DigitYear(startDatePlaceholder)}</span>
+    const { location, authorized_start_date } = this.props.sit;
+    // const startDatePlaceholder =
+    //   estimated_start_date >= authorized_start_date ? estimated_start_date : authorized_start_date;
+    return (
+      <div className="storage-in-transit-panel-modal">
+        <div className="title">Place into SIT at {capitalize(location)}</div>
+        <PlaceInSitForm />
+        <div className="panel-field">
+          <div className="usa-input-label unbold">Earliest authorized start</div>
+          <div>{formatDate4DigitYear(authorized_start_date)}</div>
+        </div>
+        <div className="usa-grid-full align-center-vertical">
+          <div className="usa-width-one-half">
+            <p className="cancel-link">
+              <a className="usa-button-secondary" onClick={this.closeForm}>
+                Cancel
+              </a>
+            </p>
           </div>
-          <div className="usa-grid-full align-center-vertical">
-            <div className="usa-width-one-half">
-              <p className="cancel-link">
-                <a className="usa-button-secondary" onClick={this.closeForm}>
-                  Cancel
-                </a>
-              </p>
-            </div>
-            <div className="usa-width-one-half align-right">
-              <button
-                className="button usa-button-primary storage-in-transit-request-form-send-request-button"
-                disabled={!this.props.formEnabled}
-              >
-                Approve
-              </button>
-            </div>
+          <div className="usa-width-one-half align-right">
+            <button
+              className="button usa-button-primary storage-in-transit-request-form-send-request-button"
+              disabled={!this.props.formEnabled}
+            >
+              Approve
+            </button>
           </div>
         </div>
-      );
-    return (
-      <span className="approve-sit">
-        <a className="approve-sit-link" onClick={this.openForm}>
-          <FontAwesomeIcon className="icon" icon={faSignInAlt} />
-          Place into SIT
-        </a>
-      </span>
+      </div>
     );
   }
 }
