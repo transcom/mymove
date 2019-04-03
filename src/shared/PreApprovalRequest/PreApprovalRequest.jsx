@@ -17,7 +17,7 @@ function formatStatus(lineItem) {
   if (lineItem.invoice_id) {
     formattedStatus = 'Invoiced';
   }
-
+  if (formattedStatus === 'CONDITIONALLYAPPROVED') return 'Approved';
   return formattedStatus[0].toUpperCase() + formattedStatus.substring(1).toLowerCase();
 }
 
