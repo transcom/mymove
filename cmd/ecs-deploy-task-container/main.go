@@ -16,6 +16,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchevents"
+	"github.com/aws/aws-sdk-go/service/ecr"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/rds"
 	"github.com/pkg/errors"
@@ -26,12 +27,20 @@ import (
 var services = []string{"app"}
 var environments = []string{"prod", "staging", "experimental"}
 
+type errInvalidAccountID struct {
+	AwsAccountID string
+}
+
+func (e *errInvalidAccountID) Error() string {
+	return fmt.Sprintf("invalid AWS account ID %q", e.AwsAccountID)
+}
+
 type errInvalidRegion struct {
 	Region string
 }
 
 func (e *errInvalidRegion) Error() string {
-	return fmt.Sprintf("invalid region %q", e.Region)
+	return fmt.Sprintf("invalid AWS region %q", e.Region)
 }
 
 type errInvalidService struct {
@@ -39,7 +48,7 @@ type errInvalidService struct {
 }
 
 func (e *errInvalidService) Error() string {
-	return fmt.Sprintf("invalid service %q, expecting one of %q", e.Service, services)
+	return fmt.Sprintf("invalid AWS ECS service %q, expecting one of %q", e.Service, services)
 }
 
 type errInvalidEnvironment struct {
@@ -47,15 +56,23 @@ type errInvalidEnvironment struct {
 }
 
 func (e *errInvalidEnvironment) Error() string {
-	return fmt.Sprintf("invalid environment %q, expecting one of %q", e.Environment, environments)
+	return fmt.Sprintf("invalid MilMove environment %q, expecting one of %q", e.Environment, environments)
 }
 
-type errInvalidImage struct {
-	Image string
+type errinvalidRepositoryName struct {
+	RepositoryName string
 }
 
-func (e *errInvalidImage) Error() string {
-	return fmt.Sprintf("invalid image %q", e.Image)
+func (e *errinvalidRepositoryName) Error() string {
+	return fmt.Sprintf("invalid AWS ECR respository name %q", e.RepositoryName)
+}
+
+type errinvalidImageTag struct {
+	ImageTag string
+}
+
+func (e *errinvalidImageTag) Error() string {
+	return fmt.Sprintf("invalid AWS ECR image tag %q", e.ImageTag)
 }
 
 type errInvalidRule struct {
@@ -63,10 +80,11 @@ type errInvalidRule struct {
 }
 
 func (e *errInvalidRule) Error() string {
-	return fmt.Sprintf("invalid rule %q", e.Rule)
+	return fmt.Sprintf("invalid AWS CloudWatch Event Target rule %q", e.Rule)
 }
 
 const (
+	awsAccountIDFlag         string = "aws-account-id"
 	awsRegionFlag            string = "aws-region"
 	awsProfileFlag           string = "aws-profile"
 	awsVaultKeychainNameFlag string = "aws-vault-keychain-name"
@@ -75,7 +93,8 @@ const (
 	chamberUsePathsFlag      string = "chamber-use-paths"
 	serviceFlag              string = "service"
 	environmentFlag          string = "environment"
-	imageFlag                string = "image"
+	repositoryNameFlag       string = "repository-name"
+	imageTagFlag             string = "image-tag"
 	ruleFlag                 string = "rule"
 	eiaKeyFlag               string = "eia-key"
 	eiaURLFlag               string = "eia-url"
@@ -85,6 +104,7 @@ const (
 func initFlags(flag *pflag.FlagSet) {
 
 	// AWS Vault Settings
+	flag.String(awsAccountIDFlag, "", "The AWS Account ID")
 	flag.String(awsRegionFlag, "us-west-2", "The AWS Region")
 	flag.String(awsProfileFlag, "", "The aws-vault profile")
 	flag.String(awsVaultKeychainNameFlag, "", "The aws-vault keychain name")
@@ -97,7 +117,8 @@ func initFlags(flag *pflag.FlagSet) {
 	// Task Definition Settings
 	flag.String(serviceFlag, "", fmt.Sprintf("The service name (choose %q)", services))
 	flag.String(environmentFlag, "", fmt.Sprintf("The environment name (choose %q)", environments))
-	flag.String(imageFlag, "", "The name of the image referenced in the task definition")
+	flag.String(repositoryNameFlag, "", fmt.Sprintf("The name of the repository where the tagged image resides"))
+	flag.String(imageTagFlag, "", "The name of the image tag referenced in the task definition")
 	flag.String(ruleFlag, "", "The name of the CloudWatch Event Rule targeting the Task Definition")
 
 	// EIA Open Data API
@@ -125,6 +146,11 @@ func checkEIAURL(v *viper.Viper) error {
 }
 
 func checkConfig(v *viper.Viper) error {
+
+	awsAccountID := v.GetString(awsAccountIDFlag)
+	if len(awsAccountID) == 0 {
+		return errors.Wrap(&errInvalidAccountID{AwsAccountID: awsAccountID}, fmt.Sprintf("%q is invalid", awsAccountIDFlag))
+	}
 
 	regions, ok := endpoints.RegionsForService(endpoints.DefaultPartitions(), endpoints.AwsPartitionID, endpoints.EcsServiceID)
 	if !ok {
@@ -157,7 +183,7 @@ func checkConfig(v *viper.Viper) error {
 
 	serviceName := v.GetString(serviceFlag)
 	if len(serviceName) == 0 {
-		return errors.Wrap(&errInvalidService{Service: serviceName}, fmt.Sprintf("%q is invalid", "service"))
+		return errors.Wrap(&errInvalidService{Service: serviceName}, fmt.Sprintf("%q is invalid", serviceFlag))
 	}
 	validService := false
 	for _, str := range services {
@@ -167,12 +193,12 @@ func checkConfig(v *viper.Viper) error {
 		}
 	}
 	if !validService {
-		return errors.Wrap(&errInvalidService{Service: serviceName}, fmt.Sprintf("%q is invalid", "service"))
+		return errors.Wrap(&errInvalidService{Service: serviceName}, fmt.Sprintf("%q is invalid", serviceFlag))
 	}
 
 	environmentName := v.GetString(environmentFlag)
 	if len(environmentName) == 0 {
-		return errors.Wrap(&errInvalidEnvironment{Environment: environmentName}, fmt.Sprintf("%q is invalid", "environment"))
+		return errors.Wrap(&errInvalidEnvironment{Environment: environmentName}, fmt.Sprintf("%q is invalid", environmentFlag))
 	}
 	validEnvironment := false
 	for _, str := range environments {
@@ -182,17 +208,22 @@ func checkConfig(v *viper.Viper) error {
 		}
 	}
 	if !validEnvironment {
-		return errors.Wrap(&errInvalidEnvironment{Environment: environmentName}, fmt.Sprintf("%q is invalid", "environment"))
+		return errors.Wrap(&errInvalidEnvironment{Environment: environmentName}, fmt.Sprintf("%q is invalid", environmentFlag))
 	}
 
-	image := v.GetString(imageFlag)
-	if len(image) == 0 {
-		return errors.Wrap(&errInvalidImage{Image: image}, fmt.Sprintf("%q is invalid", "image"))
+	repositoryName := v.GetString(repositoryNameFlag)
+	if len(repositoryName) == 0 {
+		return errors.Wrap(&errinvalidRepositoryName{RepositoryName: repositoryName}, fmt.Sprintf("%q is invalid", repositoryNameFlag))
+	}
+
+	imageTag := v.GetString(imageTagFlag)
+	if len(imageTag) == 0 {
+		return errors.Wrap(&errinvalidImageTag{ImageTag: imageTag}, fmt.Sprintf("%q is invalid", imageTagFlag))
 	}
 
 	rule := v.GetString(ruleFlag)
 	if len(rule) == 0 {
-		return errors.Wrap(&errInvalidRule{Rule: rule}, fmt.Sprintf("%q is invalid", "rule"))
+		return errors.Wrap(&errInvalidRule{Rule: rule}, fmt.Sprintf("%q is invalid", ruleFlag))
 	}
 
 	err := checkEIAKey(v)
@@ -255,36 +286,6 @@ func getAWSCredentials(keychainName string, keychainProfile string) (*credential
 	return credentials.NewStaticCredentialsFromCreds(credVals), nil
 }
 
-func updateScheduledTask(logger *log.Logger, serviceCloudWatchEvents *cloudwatchevents.CloudWatchEvents, ruleName string, taskDefArn string, origTaskDef *ecs.TaskDefinition) error {
-	// Get the network configuration from the cluster
-
-	putTargetsOutput, err := serviceCloudWatchEvents.PutTargets(&cloudwatchevents.PutTargetsInput{
-		Rule: aws.String(ruleName),
-		Targets: []*cloudwatchevents.Target{
-			{
-				Id:      aws.String("1"),
-				Arn:     aws.String(""), // ARN of cluster
-				RoleArn: aws.String(""), // ECS Events Role
-				EcsParameters: &cloudwatchevents.EcsParameters{
-					LaunchType: aws.String("FARGATE"),
-					NetworkConfiguration: &cloudwatchevents.NetworkConfiguration{
-						AwsvpcConfiguration: &cloudwatchevents.AwsVpcConfiguration{
-							AssignPublicIp: aws.String("false"),
-						},
-					},
-					TaskCount:         aws.Int64(1),
-					TaskDefinitionArn: aws.String(taskDefArn),
-				},
-			},
-		},
-	})
-	if err != nil {
-		return errors.Wrap(err, "Unable to put new target")
-	}
-	fmt.Println(putTargetsOutput)
-	return nil
-}
-
 func main() {
 	flag := pflag.CommandLine
 	initFlags(flag)
@@ -326,7 +327,7 @@ func main() {
 	if len(keychainName) > 0 && len(keychainProfile) > 0 {
 		creds, err := getAWSCredentials(keychainName, keychainProfile)
 		if err != nil {
-			quit(logger, flag, errors.Wrap(err, fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, keychainProfile)))
+			quit(logger, nil, errors.Wrap(err, fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, keychainProfile)))
 		}
 		awsConfig.CredentialsChainVerboseErrors = aws.Bool(verbose)
 		awsConfig.Credentials = creds
@@ -334,12 +335,13 @@ func main() {
 
 	sess, err := awssession.NewSession(awsConfig)
 	if err != nil {
-		quit(logger, flag, errors.Wrap(err, "failed to create AWS session"))
+		quit(logger, nil, errors.Wrap(err, "failed to create AWS session"))
 	}
 
 	// Create the Services
 	serviceCloudWatchEvents := cloudwatchevents.New(sess)
 	serviceECS := ecs.New(sess)
+	serviceECR := ecr.New(sess)
 	serviceRDS := rds.New(sess)
 
 	// Get the current task definition (for rollback)
@@ -348,18 +350,38 @@ func main() {
 		Rule: aws.String(ruleName),
 	})
 	if err != nil {
-		quit(logger, flag, errors.Wrap(err, "error retrieving targets for rule"))
+		quit(logger, nil, errors.Wrap(err, "error retrieving targets for rule"))
 	}
 
-	blueTaskDefArn := *targetsOutput.Targets[0].EcsParameters.TaskDefinitionArn
+	blueTarget := targetsOutput.Targets[0]
+	blueTaskDefArn := *blueTarget.EcsParameters.TaskDefinitionArn
 	fmt.Println(blueTaskDefArn)
+
+	// Confirm the image exists
+	imageTag := v.GetString(imageTagFlag)
+	registryID := v.GetString(awsAccountIDFlag)
+	repositoryName := v.GetString(repositoryNameFlag)
+	imageName := fmt.Sprintf("%s.dkr.ecr.%s.amazonaws.com/%s:%s", registryID, awsRegion, repositoryName, imageTag)
+
+	_, err = serviceECR.DescribeImages(&ecr.DescribeImagesInput{
+		ImageIds: []*ecr.ImageIdentifier{
+			{
+				ImageTag: aws.String(imageTag),
+			},
+		},
+		RegistryId:     aws.String(registryID),
+		RepositoryName: aws.String(repositoryName),
+	})
+	if err != nil {
+		quit(logger, nil, errors.Wrapf(err, "unable retrieving image from %s", imageName))
+	}
 
 	// aws ecs describe-task-definition --task-definition=app-scheduled-task-save_fuel_price_data-experimental:1
 	blueTaskDefOutput, err := serviceECS.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
 		TaskDefinition: &blueTaskDefArn,
 	})
 	if err != nil {
-		quit(logger, flag, errors.Wrapf(err, "error retrieving task definition for %s", blueTaskDefArn))
+		quit(logger, nil, errors.Wrapf(err, "error retrieving task definition for %s", blueTaskDefArn))
 	}
 	blueTaskDef := blueTaskDefOutput.TaskDefinition
 	fmt.Println(blueTaskDef)
@@ -371,16 +393,15 @@ func main() {
 		DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
 	})
 	if err != nil {
-		quit(logger, flag, errors.Wrapf(err, "error retrieving database definition for %s", dbInstanceIdentifier))
+		quit(logger, nil, errors.Wrapf(err, "error retrieving database definition for %s", dbInstanceIdentifier))
 	}
 	dbHost := *dbInstancesOutput.DBInstances[0].Endpoint.Address
 
 	// Set up some key variables
 	serviceName := v.GetString(serviceFlag)
-	imageName := v.GetString(imageFlag)
-	familyName := fmt.Sprintf("%s-%s", serviceName, environmentName)
-	taskRoleArn := fmt.Sprintf("ecs-task-role-%s", familyName)
-	executionRoleArn := fmt.Sprintf("ecs-task-excution-role-%s", familyName)
+	clusterName := fmt.Sprintf("%s-%s", serviceName, environmentName)
+	taskRoleArn := fmt.Sprintf("ecs-task-role-%s", clusterName)
+	executionRoleArn := fmt.Sprintf("ecs-task-excution-role-%s", clusterName)
 	containerDefName := fmt.Sprintf("app-tasks-%s-%s", ruleName, environmentName)
 
 	// AWS Logs Group is related to the cluster and should not be changed
@@ -407,7 +428,7 @@ func main() {
 					aws.String("-r"),
 					aws.String(strconv.Itoa(chamberRetries)),
 					aws.String("exec"),
-					aws.String(familyName),
+					aws.String(clusterName),
 					aws.String("--"),
 					aws.String(fmt.Sprintf("/bin/%s", ruleName)),
 				},
@@ -461,23 +482,37 @@ func main() {
 		},
 		Cpu:                     aws.String("256"),
 		ExecutionRoleArn:        aws.String(executionRoleArn),
-		Family:                  aws.String(familyName),
+		Family:                  aws.String(clusterName),
 		Memory:                  aws.String("512"),
 		NetworkMode:             aws.String("awsvpc"),
 		RequiresCompatibilities: []*string{aws.String("FARGATE")},
 		TaskRoleArn:             aws.String(taskRoleArn),
 	})
 	if err != nil {
-		quit(logger, flag, errors.Wrap(err, "error registering new task definition"))
+		quit(logger, nil, errors.Wrap(err, "error registering new task definition"))
 	}
 	greenTaskDefArn := *taskDefinitionOutput.TaskDefinition.TaskDefinitionArn
 	fmt.Println(greenTaskDefArn)
 
-	// aws events puts-target
-	err = updateScheduledTask(logger, serviceCloudWatchEvents, ruleName, greenTaskDefArn, blueTaskDef)
+	// Update the task event target with the new task ECS parameters
+	putTargetsOutput, err := serviceCloudWatchEvents.PutTargets(&cloudwatchevents.PutTargetsInput{
+		Rule: aws.String(ruleName),
+		Targets: []*cloudwatchevents.Target{
+			{
+				Id:      blueTarget.Id,
+				Arn:     blueTarget.Arn,
+				RoleArn: blueTarget.RoleArn,
+				EcsParameters: &cloudwatchevents.EcsParameters{
+					LaunchType:           aws.String("FARGATE"),
+					NetworkConfiguration: blueTarget.EcsParameters.NetworkConfiguration,
+					TaskCount:            aws.Int64(1),
+					TaskDefinitionArn:    aws.String(greenTaskDefArn),
+				},
+			},
+		},
+	})
 	if err != nil {
-		// Print logs if any
-		updateScheduledTask(logger, serviceCloudWatchEvents, ruleName, blueTaskDefArn, blueTaskDef)
-		quit(logger, nil, errors.New("Rolled back to previous task definition"))
+		quit(logger, nil, errors.Wrap(err, "Unable to put new target"))
 	}
+	fmt.Println(putTargetsOutput)
 }
