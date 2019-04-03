@@ -833,9 +833,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #  branches:
-          #    ignore: placeholder_branch_name
+          filters:
+           branches:
+             ignore: cg_163909133_ecs_scheduled_tasks
 
       - integration_tests_office:
           requires:
@@ -843,9 +843,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+            branches:
+              ignore: cg_163909133_ecs_scheduled_tasks
 
       - integration_tests_tsp:
           requires:
@@ -853,9 +853,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+            branches:
+              ignore: cg_163909133_ecs_scheduled_tasks
 
       - integration_tests_api:
           requires:
@@ -863,9 +863,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+            branches:
+              ignore: cg_163909133_ecs_scheduled_tasks
 
       - client_test:
           requires:
