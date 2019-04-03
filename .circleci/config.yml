@@ -70,7 +70,7 @@ commands:
       - restore_cache:
           keys:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
-      - run: make build_tools
+      - run: make build_deploy_tools
       - deploy:
           name: Deploy task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} echo "bin/ecs-deploy-task-container --aws-region ${AWS_DEFAULT_REGION} --service app --environment experimental --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --rule save_fuel_price_data"
