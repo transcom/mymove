@@ -73,7 +73,7 @@ commands:
       - run: make build_tools
       - deploy:
           name: Deploy task service
-          command: bin/do-exclusively --job-name ${CIRCLE_JOB} echo "bin/ecs-deploy-task-container --aws-region ${AWS_DEFAULT_REGION} --service app --environment experimental --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --rule save_fuel_price_data"
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} echo "bin/ecs-deploy-task-container --aws-region ${AWS_DEFAULT_REGION} --service app --environment experimental --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --rule save_fuel_price_data"
           no_output_timeout: 20m
       - announce_failure
   deploy_app_steps:
@@ -914,7 +914,8 @@ workflows:
 
       - deploy_experimental_tasks:
           requires:
-            - deploy_experimental_migrations
+            - build_tasks
+            # - deploy_experimental_migrations # TODO: Before merge this needs to be the blocker
           filters:
             branches:
               only: cg_163909133_ecs_scheduled_tasks
