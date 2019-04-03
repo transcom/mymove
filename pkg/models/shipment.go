@@ -579,7 +579,9 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 
 	query := tx.Q().Eager(ShipmentAssociationsDEFAULT...).
 		Where("shipment_offers.transportation_service_provider_id = $1", tspID).
-		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id")
+		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
+		InnerJoin("moves", "shipments.move_id=moves.id").
+		Where("moves.show is true")
 
 	if len(status) > 0 {
 		statusStrings := make([]interface{}, len(status))
