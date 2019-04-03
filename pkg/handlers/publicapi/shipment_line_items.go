@@ -316,14 +316,12 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 	tariff400ngItemID := uuid.Must(uuid.FromString(params.Payload.Tariff400ngItemID.String()))
 	tariff400ngItem, err := models.FetchTariff400ngItem(h.DB(), tariff400ngItemID)
 	shipment := shipmentLineItem.Shipment
-	// 35A has special functionality to update ActualAmountCents if it is not invoiced and Status is approved
-	canUpdate35A := tariff400ngItem.Code == "35A" && shipmentLineItem.EstimateAmountCents != nil && shipmentLineItem.InvoiceID == nil
 
 	if !tariff400ngItem.RequiresPreApproval {
 		h.Logger().Error("Error: tariff400ng item " + tariff400ngItem.Code + " does not require pre-approval")
 		return accessorialop.NewUpdateShipmentLineItemForbidden()
-	} else if shipmentLineItem.Status == models.ShipmentLineItemStatusAPPROVED && !canUpdate35A {
-		h.Logger().Error("Error: cannot update shipment line item if status is approved or actual amount field already filled for tariff400ng item 35A")
+	} else if shipmentLineItem.Status == models.ShipmentLineItemStatusAPPROVED {
+		h.Logger().Error("Error: cannot update shipment line item if status is Approved")
 		return accessorialop.NewUpdateShipmentLineItemUnprocessableEntity()
 	}
 
@@ -497,7 +495,7 @@ func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipm
 		return accessorialop.NewApproveShipmentLineItemForbidden()
 	}
 
-	if shipmentLineItem.Tariff400ngItem.Code == "35A" && shipmentLineItem.ActualAmountCents == nil {
+	if shipmentLineItem.Tariff400ngItem.Code == "35A" && shipmentLineItem.EstimateAmountCents != nil && shipmentLineItem.ActualAmountCents == nil {
 		// If shipment is delivered, assign the shipment to the shipment line item.
 		if shipmentLineItem.Shipment.Status == models.ShipmentStatusDELIVERED {
 			shipmentLineItem.Shipment = *shipment

@@ -43,20 +43,6 @@ func (f FetchShipmentForInvoice) Call(shipmentID uuid.UUID) (models.Shipment, er
 		Where("shipment_line_items.invoice_id IS NULL").
 		Where("shipment_line_items.shipment_id=?", shipmentID).
 		All(&lineItems)
-	lineItemsFiltered := (filter35AItems(lineItems))
-	shipment.ShipmentLineItems = lineItemsFiltered
+	shipment.ShipmentLineItems = lineItems
 	return shipment, err
-}
-
-// filter35AItems: 35A items are invoiced if they have an `actual_amount_cents` value
-func filter35AItems(lineItems models.ShipmentLineItems) models.ShipmentLineItems {
-	var lineItemsFiltered models.ShipmentLineItems
-	for _, li := range lineItems {
-		if li.Tariff400ngItem.Code == "35A" && li.ActualAmountCents == nil {
-			continue
-		} else {
-			lineItemsFiltered = append(lineItemsFiltered, li)
-		}
-	}
-	return lineItemsFiltered
 }
