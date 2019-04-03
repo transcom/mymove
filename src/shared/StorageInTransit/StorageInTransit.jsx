@@ -6,22 +6,27 @@ import { bindActionCreators } from 'redux';
 import { capitalize } from 'lodash';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
+import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
+import faBan from '@fortawesome/fontawesome-free-solid/faBan';
 
 import './StorageInTransit.css';
 import { formatDate4DigitYear } from 'shared/formatters';
 import Editor from 'shared/StorageInTransit/Editor';
 import ApproveSitRequest from 'shared/StorageInTransit/ApproveSitRequest';
+import DenySitRequest from 'shared/StorageInTransit/DenySitRequest';
 import PlaceInSit from 'shared/StorageInTransit/PlaceInSit';
 import { updateStorageInTransit } from 'shared/Entities/modules/storageInTransits';
-import { isTspSite } from 'shared/constants.js';
+import { isOfficeSite, isTspSite } from 'shared/constants.js';
+import SitStatusIcon from './SitStatusIcon';
 
 export class StorageInTransit extends Component {
   constructor() {
     super();
     this.state = {
       showEditForm: false,
+      showApproveForm: false,
+      showDenyForm: false,
     };
   }
 
@@ -31,6 +36,22 @@ export class StorageInTransit extends Component {
 
   closeEditForm = () => {
     this.setState({ showEditForm: false });
+  };
+
+  openApproveForm = () => {
+    this.setState({ showApproveForm: true });
+  };
+
+  closeApproveForm = () => {
+    this.setState({ showApproveForm: false });
+  };
+
+  openDenyForm = () => {
+    this.setState({ showDenyForm: true });
+  };
+
+  closeDenyForm = () => {
+    this.setState({ showDenyForm: false });
   };
 
   onSubmit = updatePayload => {
@@ -43,7 +64,7 @@ export class StorageInTransit extends Component {
 
   render() {
     const { storageInTransit } = this.props;
-    const { showEditForm } = this.state;
+    const { showEditForm, showApproveForm, showDenyForm } = this.state;
 
     return (
       <div className="storage-in-transit">
@@ -52,10 +73,37 @@ export class StorageInTransit extends Component {
           <span className="unbold">
             {' '}
             <span className="sit-status-text">Status:</span>{' '}
-            <FontAwesomeIcon className="icon icon-grey" icon={faClock} />
+            {storageInTransit.status === 'REQUESTED' && <SitStatusIcon isTspSite={isTspSite} />}
           </span>
-          <span>SIT {capitalize(storageInTransit.status)} </span>
-          {!isTspSite && <ApproveSitRequest />}
+          <span>SIT {storageInTransit.status.charAt(0) + storageInTransit.status.slice(1).toLowerCase()} </span>
+          {showApproveForm ? (
+            <ApproveSitRequest onClose={this.closeApproveForm} />
+          ) : (
+            isOfficeSite &&
+            !showEditForm &&
+            !showDenyForm && (
+              <span className="sit-actions">
+                <a className="approve-sit-link" onClick={this.openApproveForm}>
+                  <FontAwesomeIcon className="icon" icon={faCheck} />
+                  Approve
+                </a>
+              </span>
+            )
+          )}
+          {showDenyForm ? (
+            <DenySitRequest onClose={this.closeDenyForm} />
+          ) : (
+            isOfficeSite &&
+            !showEditForm &&
+            !showApproveForm && (
+              <span className="sit-actions">
+                <a className="deny-sit-link" onClick={this.openDenyForm}>
+                  <FontAwesomeIcon className="icon" icon={faBan} />
+                  Deny
+                </a>
+              </span>
+            )
+          )}
           {isTspSite && storageInTransit.status === 'APPROVED' && <PlaceInSit sit={storageInTransit} />}
           {showEditForm ? (
             <Editor
@@ -63,15 +111,26 @@ export class StorageInTransit extends Component {
               onClose={this.closeEditForm}
               storageInTransit={storageInTransit}
             />
+          ) : isOfficeSite ? (
+            <span className="sit-actions">
+              <span className="sit-edit actionable">
+                {storageInTransit.status === 'APPROVED' &&
+                  !showApproveForm &&
+                  !showDenyForm && (
+                    <a onClick={this.openEditForm}>
+                      <FontAwesomeIcon className="icon" icon={faPencil} />
+                      Edit
+                    </a>
+                  )}
+              </span>
+            </span>
           ) : (
             <span className="sit-actions">
               <span className="sit-edit actionable">
-                {storageInTransit.status !== 'APPROVED' && (
-                  <a onClick={this.openEditForm}>
-                    <FontAwesomeIcon className="icon" icon={faPencil} />
-                    Edit
-                  </a>
-                )}
+                <a onClick={this.openEditForm}>
+                  <FontAwesomeIcon className="icon" icon={faPencil} />
+                  Edit
+                </a>
               </span>
             </span>
           )}

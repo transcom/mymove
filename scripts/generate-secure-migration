@@ -7,7 +7,7 @@
 set -eu -o pipefail
 
 readonly dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-readonly soda="${dir}/soda"
+readonly soda="${dir}/../bin/soda"
 
 readonly local_migrations_dir="${dir}/../local_migrations"
 readonly prod_migrations_temp_dir="${dir}/../tmp"

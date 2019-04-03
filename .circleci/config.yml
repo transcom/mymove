@@ -32,7 +32,7 @@ executors:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:9ad70927655a601580c036d53456c70061c76cba
-      - image: postgres:10.5
+      - image: postgres:10.6
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
