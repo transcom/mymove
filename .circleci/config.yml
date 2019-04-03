@@ -62,14 +62,18 @@ commands:
   deploy_tasks_steps:
     steps:
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
       - restore_cache:
           keys:
             - mymove-vendor-{{ checksum "Gopkg.lock" }}
-      - setup_remote_docker:
-          docker_layer_caching: true
+      - run: make build_tools
       - deploy:
           name: Deploy task service
-          command: bin/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-tasks-container app config/task.save-fuel-price-data.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
+          command: bin/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-region ${AWS_DEFAULT_REGION} --service app --environment experimental --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --rule save_fuel_price_data
           no_output_timeout: 20m
       - announce_failure
   deploy_app_steps:
