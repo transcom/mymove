@@ -121,10 +121,6 @@ class QueueTable extends Component {
                 accessor: 'rank',
               },
               {
-                Header: 'Move type',
-                accessor: 'orders_type',
-              },
-              {
                 Header: 'Move date',
                 accessor: 'move_date',
                 Cell: row => <span className="move_date">{formatDate(row.value)}</span>,
