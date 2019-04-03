@@ -109,8 +109,8 @@ func (suite *ModelSuite) TestCreateShipmentLineItemCode125() {
 		baseParams, additionalParams)
 
 	if suite.noValidationErrors(verrs, err) {
-		// flat rate, quantity 1 should be set to 1
-		suite.EqualValues(unit.BaseQuantity(1), shipmentLineItem.Quantity1)
+		// flat rate, quantity 1 should be set to 1. 10000 bq
+		suite.EqualValues(unit.BaseQuantityFromInt(1), shipmentLineItem.Quantity1)
 		suite.EqualValues(item125A.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
 		suite.EqualValues(reas, *shipmentLineItem.Reason)
 		suite.EqualValues(date, *shipmentLineItem.Date)
@@ -146,8 +146,8 @@ func (suite *ModelSuite) TestCreateShipmentLineItemCode125() {
 		baseParams, additionalParams)
 
 	if suite.noValidationErrors(verrs, err) {
-		// flat rate, quantity 1 should be set to 1
-		suite.EqualValues(unit.BaseQuantity(1), shipmentLineItem.Quantity1)
+		// flat rate, quantity 1 should be set to 1 in base quantity. 10000 bq.
+		suite.EqualValues(unit.BaseQuantityFromInt(1), shipmentLineItem.Quantity1)
 		suite.EqualValues(item125D.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
 		suite.EqualValues(reas, *shipmentLineItem.Reason)
 		suite.EqualValues(date, *shipmentLineItem.Date)

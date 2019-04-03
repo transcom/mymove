@@ -288,7 +288,7 @@ func upsertItemCode125Dependency(db *pop.Connection, baseParams *BaseShipmentLin
 	shipmentLineItem.Reason = additionalParams.Reason
 	shipmentLineItem.Date = additionalParams.Date
 	shipmentLineItem.Time = additionalParams.Time
-	shipmentLineItem.Quantity1 = 1 // flat rate, set to 1
+	shipmentLineItem.Quantity1 = unit.BaseQuantityFromInt(1) // flat rate, set to base quantity 1
 
 	return responseVErrors, responseError
 }
