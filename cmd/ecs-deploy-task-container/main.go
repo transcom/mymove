@@ -387,6 +387,7 @@ func main() {
 	fmt.Println(blueTaskDef)
 
 	// Get the database host using the instance identifier
+	// TODO: Allow passing in from DB_HOST
 	environmentName := v.GetString(environmentFlag)
 	dbInstanceIdentifier := fmt.Sprintf("app-%s", environmentName)
 	dbInstancesOutput, err := serviceRDS.DescribeDBInstances(&rds.DescribeDBInstancesInput{
