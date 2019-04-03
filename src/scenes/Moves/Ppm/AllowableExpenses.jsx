@@ -9,11 +9,11 @@ function AllowableExpenses(props) {
   }
 
   return (
-    <div className="usa-grid">
+    <div className="usa-grid allowable-expenses-container">
       <div>
         <a onClick={goBack}>{'<'} Back</a>
       </div>
-      <h3>Allowable expenses:</h3>
+      <h3 className="title">Allowable expenses:</h3>
       <p>
         <strong>Storage Expenses</strong>
         <br />
@@ -36,9 +36,7 @@ function AllowableExpenses(props) {
           <li>Other</li>
         </ul>
         <br />
-        <br />
-        <FontAwesomeIcon aria-hidden className="icon" icon={faBan} />Claimable expenses include: Non-claimable expenses
-        include:
+        <FontAwesomeIcon aria-hidden className="icon" icon={faBan} />Non-claimable expenses include:
         <ul>
           <li>Animal costs (kennels, transportation)</li>
           <li>Ectra drivers</li>

@@ -1,4 +1,5 @@
-.ppm-payment-req-intro .title {
+.ppm-payment-req-intro .title,
+.allowable-expenses-container .title {
   font-size: 2.2rem;
   font-family: sans-serif;
 }
@@ -7,7 +8,12 @@
   color: #0071bc; /* original link color */
 }
 
+.color_blue_link {
+  color: #205493;
+}
+
 .ppm-payment-request-footer {
+  border-top: 1px solid black;
   display: flex;
   justify-content: space-between;
   border-top: 1px solid black;
@@ -19,4 +25,12 @@
   .ppm-payment-request-footer {
     flex-direction: column;
   }
+}
+
+.allowable-expenses-container li {
+  margin-bottom: 0px;
+}
+
+.allowable-expenses-container .icon {
+  margin-left: 0px;
 }

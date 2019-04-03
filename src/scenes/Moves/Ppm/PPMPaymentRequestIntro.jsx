@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCircle';
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 import './PPMPaymentRequest.css';
 
@@ -11,7 +13,10 @@ const PPMPaymentRequestIntro = props => {
       <p>You'll need the following documents</p>
       <ul>
         <li>
-          <strong>Weight tickets</strong> both empty & full, for each vehicle and trip
+          <strong>Weight tickets</strong> both empty & full, for each vehicle and trip{' '}
+          <Link to="/weight-ticket-examples">
+            <FontAwesomeIcon aria-hidden className="color_blue_link" icon={faQuestionCircle} />
+          </Link>
         </li>
         <li>
           <strong>Storage and moving expenses</strong> (optional), such as:
