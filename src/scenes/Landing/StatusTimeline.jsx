@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
-import { get, findLast } from 'lodash';
+import { get, findLast, includes } from 'lodash';
 import moment from 'moment';
 
 import { displayDateRange } from 'shared/formatters';
@@ -38,12 +38,12 @@ export class PPMStatusTimeline extends React.Component {
     }
 
     if (status === 'PPM_APPROVED') {
-      return ['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'].includes(ppm.status);
+      return includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     }
 
     if (status === 'IN_PROGRESS') {
       const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
-      return moveInProgress && ['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'].includes(ppm.status);
+      return moveInProgress && includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     }
 
     if (status === 'PAYMENT_REQUESTED') {
@@ -124,7 +124,7 @@ export class ShipmentStatusTimeline extends React.Component {
 
     if (status === 'DELIVERED') {
       const actualDeliveryDate = get(shipment, 'actual_delivery_date', null);
-      return actualDeliveryDate || ['DELIVERED', 'COMPLETED'].includes(shipment.status) ? true : false;
+      return actualDeliveryDate || includes(['DELIVERED', 'COMPLETED'], shipment.status) ? true : false;
     }
   }
 
