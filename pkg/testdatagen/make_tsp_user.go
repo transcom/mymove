@@ -1,6 +1,8 @@
 package testdatagen
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -8,18 +10,15 @@ import (
 
 // MakeTspUser creates a single TSP user and associated Transportation Service Provider
 func MakeTspUser(db *pop.Connection, assertions Assertions) models.TspUser {
-	user := assertions.TspUser.User
-	email := "leo_spaceman_tsp@example.com"
 
+	user := assertions.TspUser.User
 	if assertions.TspUser.UserID == nil || isZeroUUID(*assertions.TspUser.UserID) {
 		if assertions.User.LoginGovEmail == "" {
+			// There's a uniqueness constraint on office user emails so add some randomness
+			email := fmt.Sprintf("leo_spaceman_tsp_%s@example.com", makeRandomString(5))
 			assertions.User.LoginGovEmail = email
 		}
 		user = MakeUser(db, assertions)
-	}
-
-	if assertions.User.LoginGovEmail != "" {
-		email = assertions.User.LoginGovEmail
 	}
 
 	var tsp models.TransportationServiceProvider
@@ -39,7 +38,7 @@ func MakeTspUser(db *pop.Connection, assertions Assertions) models.TspUser {
 		TransportationServiceProviderID: tsp.ID,
 		FirstName:                       "Leo",
 		LastName:                        "Spaceman",
-		Email:                           email,
+		Email:                           user.LoginGovEmail,
 		Telephone:                       "415-555-1212",
 	}
 

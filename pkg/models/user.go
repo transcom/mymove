@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"time"
 
 	"strings"
@@ -54,24 +55,34 @@ func GetUser(db *pop.Connection, userID uuid.UUID) (*User, error) {
 	return &user, err
 }
 
-// CreateUser is called upon successful login.gov verification of a new user
-func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, error) {
+// GetUserByLoginGovUUID finds a user by their Login.gov UUID
+func GetUserByLoginGovUUID(db *pop.Connection, loginGovID uuid.UUID) (*User, error) {
+	var user User
+	err := db.Where("login_gov_uuid = $1", loginGovID).First(&user)
+	return &user, err
+}
+
+// CreateUserIfNotExists returns an existing user by loginGovID, or creates if it doesn't exist
+func CreateUserIfNotExists(db *pop.Connection, loginGovID string, email string) (*User, *validate.Errors, error) {
 	lgu, err := uuid.FromString(loginGovID)
 	if err != nil {
-		return nil, err
+		return nil, validate.NewErrors(), err
 	}
-	newUser := User{
-		LoginGovUUID:  lgu,
-		LoginGovEmail: strings.ToLower(email),
+
+	var user *User
+	user, err = GetUserByLoginGovUUID(db, lgu)
+	if errors.Cause(err) == sql.ErrNoRows {
+		user = &User{
+			LoginGovUUID:  lgu,
+			LoginGovEmail: strings.ToLower(email),
+		}
+		verrs, err := db.ValidateAndCreate(user)
+		if verrs.HasAny() || err != nil {
+			err = errors.Wrap(err, "Unable to create user")
+			return nil, verrs, err
+		}
 	}
-	verrs, err := db.ValidateAndCreate(&newUser)
-	if verrs.HasAny() {
-		return nil, verrs
-	} else if err != nil {
-		err = errors.Wrap(err, "Unable to create user")
-		return nil, err
-	}
-	return &newUser, nil
+	return user, validate.NewErrors(), nil
 }
 
 // UserIdentity is summary of the information about a user from the database
@@ -88,10 +99,12 @@ type UserIdentity struct {
 	OfficeUserFirstName    *string    `db:"ou_fname"`
 	OfficeUserLastName     *string    `db:"ou_lname"`
 	OfficeUserMiddle       *string    `db:"ou_middle"`
+	OfficeUserEmail        *string    `db:"ou_email"`
 	TspUserID              *uuid.UUID `db:"tu_id"`
 	TspUserFirstName       *string    `db:"tu_fname"`
 	TspUserLastName        *string    `db:"tu_lname"`
 	TspUserMiddle          *string    `db:"tu_middle"`
+	TspUserEmail           *string    `db:"tu_email"`
 	DpsUserID              *uuid.UUID `db:"du_id"`
 }
 
@@ -110,15 +123,19 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 				ou.first_name AS ou_fname,
 				ou.last_name AS ou_lname,
 				ou.middle_initials AS ou_middle,
+				oue.email AS ou_email,
 				tu.id AS tu_id,
 				tu.first_name AS tu_fname,
 				tu.last_name AS tu_lname,
 				tu.middle_initials AS tu_middle,
+				tue.email AS tu_email,
 				du.id AS du_id
 			FROM users
 			LEFT OUTER JOIN service_members AS sm on sm.user_id = users.id
 			LEFT OUTER JOIN office_users AS ou on ou.user_id = users.id
+			LEFT OUTER JOIN office_users AS oue on oue.email = users.login_gov_email
 			LEFT OUTER JOIN tsp_users AS tu on tu.user_id = users.id
+			LEFT OUTER JOIN tsp_users AS tue on tue.email = users.login_gov_email
 			LEFT OUTER JOIN dps_users AS du on du.login_gov_email = users.login_gov_email
 			WHERE users.login_gov_uuid  = $1`
 	err := db.RawQuery(query, loginGovID).All(&identities)
@@ -127,7 +144,15 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 	} else if len(identities) == 0 {
 		return nil, ErrFetchNotFound
 	}
-	return &identities[0], nil
+
+	identity := identities[0]
+	isUninitializedOfficeUser := identity.OfficeUserID == nil && identity.OfficeUserEmail != nil
+	isUninitializedTSPUser := identity.TspUserID == nil && identity.TspUserID != nil
+	if isUninitializedOfficeUser || isUninitializedTSPUser {
+		return nil, ErrUserNotInitialized
+	}
+
+	return &identity, nil
 }
 
 // FetchAllUserIdentities returns information for all users in the db

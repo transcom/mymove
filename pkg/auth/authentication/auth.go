@@ -12,14 +12,14 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	beeline "github.com/honeycombio/beeline-go"
-	"github.com/honeycombio/beeline-go/trace"
-	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+	authsvc "github.com/transcom/mymove/pkg/services/auth"
 )
 
 // UserAuthMiddleware enforces that the incoming request is tied to a user session
@@ -160,6 +160,7 @@ type CallbackHandler struct {
 	clientAuthSecretKey string
 	noSessionTimeout    bool
 	useSecureCookie     bool
+	userInitializer     services.UserInitializer
 }
 
 // NewCallbackHandler creates a new CallbackHandler
@@ -170,6 +171,7 @@ func NewCallbackHandler(ac Context, db *pop.Connection, clientAuthSecretKey stri
 		clientAuthSecretKey: clientAuthSecretKey,
 		noSessionTimeout:    noSessionTimeout,
 		useSecureCookie:     useSecureCookie,
+		userInitializer:     authsvc.NewUserInitializer(db),
 	}
 	return handler
 }
@@ -236,153 +238,33 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userIdentity, identityErr := models.FetchUserIdentity(h.db, openIDUser.UserID)
+	if identityErr == models.ErrFetchNotFound || identityErr == models.ErrUserNotInitialized {
+		// Need to initialize a new or existing user
+		userIdentity, err = h.userInitializer.InitializeUser(openIDUser)
+		if err != nil {
+			h.logger.Error("Unknown error while initializing new user", zap.Error(err))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+	} else if identityErr != nil {
+		// An unknown error
+		err = errors.Wrap(identityErr, "Unknown error while fetching user identity")
+		h.logger.Error("Unknown error while fetching user identity", zap.Error(identityErr))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
 	session.IDToken = openIDSession.IDToken
 	session.Email = openIDUser.Email
-	h.logger.Info("New Login", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email), zap.String("Host", session.Hostname))
-
-	userIdentity, err := models.FetchUserIdentity(h.db, openIDUser.UserID)
-	if err == nil { // Someone we know already
-		authorizeKnownUser(userIdentity, h, session, w, span, r, landingURL.String())
-		return
-	} else if err == models.ErrFetchNotFound { // Never heard of them so far
-		authorizeUnknownUser(openIDUser, h, session, w, span, r, landingURL.String())
-		return
-	} else {
-		h.logger.Error("Error loading Identity.", zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
-	}
-}
-
-func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, session *auth.Session, w http.ResponseWriter, span *trace.Span, r *http.Request, lURL string) {
-	if userIdentity.Disabled {
-		h.logger.Error("Disabled user requesting authentication", zap.String("email", session.Email))
-		http.Error(w, http.StatusText(403), http.StatusForbidden)
-		return
-	}
-	session.UserID = userIdentity.ID
+	errStatus, err := authorizeSession(session, userIdentity)
 	span.AddField("session.user_id", session.UserID)
-	if userIdentity.ServiceMemberID != nil {
-		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
-		span.AddField("session.service_member_id", session.ServiceMemberID)
-	}
-
-	if userIdentity.DpsUserID != nil {
-		session.DpsUserID = *(userIdentity.DpsUserID)
-	}
-
-	if session.IsOfficeApp() {
-		if userIdentity.OfficeUserID != nil {
-			session.OfficeUserID = *(userIdentity.OfficeUserID)
-		} else {
-			// In case they managed to login before the office_user record was created
-			officeUser, err := models.FetchOfficeUserByEmail(h.db, session.Email)
-			if err == models.ErrFetchNotFound {
-				h.logger.Error("Non-office user authenticated at office site", zap.String("email", session.Email))
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-				return
-			} else if err != nil {
-				h.logger.Error("Checking for office user", zap.String("email", session.Email), zap.Error(err))
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return
-			}
-			session.OfficeUserID = officeUser.ID
-			span.AddField("session.office_user_id", session.OfficeUserID)
-			officeUser.UserID = &userIdentity.ID
-			err = h.db.Save(officeUser)
-			if err != nil {
-				h.logger.Error("Updating office user", zap.String("email", session.Email), zap.Error(err))
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return
-			}
-		}
-	}
-
-	if session.IsTspApp() {
-		if userIdentity.TspUserID != nil {
-			session.TspUserID = *(userIdentity.TspUserID)
-		} else {
-			// In case they managed to login before the tsp_user record was created
-			tspUser, err := models.FetchTspUserByEmail(h.db, session.Email)
-			if err == models.ErrFetchNotFound {
-				h.logger.Error("Non-TSP user authenticated at tsp site", zap.String("email", session.Email))
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-				return
-			} else if err != nil {
-				h.logger.Error("Checking for TSP user", zap.String("email", session.Email), zap.Error(err))
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return
-			}
-			session.TspUserID = tspUser.ID
-			span.AddField("session.tsp_user_id", session.TspUserID)
-			tspUser.UserID = &userIdentity.ID
-			err = h.db.Save(tspUser)
-			if err != nil {
-				h.logger.Error("Updating TSP user", zap.String("email", session.Email), zap.Error(err))
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return
-			}
-		}
-	}
-	session.FirstName = userIdentity.FirstName()
-	session.LastName = userIdentity.LastName()
-	session.Middle = userIdentity.Middle()
-
-	h.logger.Info("logged in", zap.Any("session", session))
-
-	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
-	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
-}
-
-func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth.Session, w http.ResponseWriter, span *trace.Span, r *http.Request, lURL string) {
-	var officeUser *models.OfficeUser
-	var err error
-	if session.IsOfficeApp() { // Look to see if we have OfficeUser with this email address
-		officeUser, err = models.FetchOfficeUserByEmail(h.db, session.Email)
-		if err == models.ErrFetchNotFound {
-			h.logger.Error("No Office user found", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-			return
-		} else if err != nil {
-			h.logger.Error("Checking for office user", zap.String("email", session.Email), zap.Error(err))
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-			return
-		}
-	}
-
-	var tspUser *models.TspUser
-	if session.IsTspApp() { // Look to see if we have TspUser with this email address
-		tspUser, err = models.FetchTspUserByEmail(h.db, session.Email)
-		if err == models.ErrFetchNotFound {
-			h.logger.Error("No TSP user found", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-			return
-		} else if err != nil {
-			h.logger.Error("Checking for TSP user", zap.String("email", session.Email), zap.Error(err))
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-			return
-		}
-	}
-
-	user, err := models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
-	if err == nil { // Successfully created the user
-		session.UserID = user.ID
-		span.AddField("session.user_id", session.UserID)
-		if officeUser != nil {
-			session.OfficeUserID = officeUser.ID
-			span.AddField("session.office_user_id", session.OfficeUserID)
-			officeUser.UserID = &user.ID
-			err = h.db.Save(officeUser)
-		} else if tspUser != nil {
-			session.TspUserID = tspUser.ID
-			span.AddField("session.tsp_user_id", session.TspUserID)
-			tspUser.UserID = &user.ID
-			err = h.db.Save(tspUser)
-		}
-	}
+	span.AddField("session.service_member_id", session.ServiceMemberID)
+	span.AddField("session.office_user_id", session.OfficeUserID)
+	span.AddField("session.tsp_user_id", session.TspUserID)
 	if err != nil {
-		h.logger.Error("Error creating user", zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		h.logger.Error("An error occurred when authorizing the user session", zap.Error(err), zap.String("email", session.Email))
+		http.Error(w, http.StatusText(errStatus), errStatus)
 		return
 	}
 
@@ -390,6 +272,41 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 
 	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
 	http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
+}
+
+func authorizeSession(session *auth.Session, userIdentity *models.UserIdentity) (statusCode int, err error) {
+	if userIdentity.Disabled {
+		return http.StatusForbidden, errors.New("Disabled user requesting authentication")
+	}
+
+	if session.IsTspApp() {
+		if userIdentity.TspUserID == nil {
+			return http.StatusUnauthorized, errors.New("User does not have required credentials to view TSP site")
+		}
+		session.TspUserID = *(userIdentity.TspUserID)
+	}
+
+	if session.IsOfficeApp() {
+		if userIdentity.OfficeUserID == nil {
+			return http.StatusUnauthorized, errors.New("User does not have required credentials to view Office site")
+		}
+		session.OfficeUserID = *(userIdentity.OfficeUserID)
+	}
+
+	session.UserID = userIdentity.ID
+	session.FirstName = userIdentity.FirstName()
+	session.LastName = userIdentity.LastName()
+	session.Middle = userIdentity.Middle()
+
+	if userIdentity.ServiceMemberID != nil {
+		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
+	}
+
+	if userIdentity.DpsUserID != nil {
+		session.DpsUserID = *(userIdentity.DpsUserID)
+	}
+
+	return http.StatusOK, nil
 }
 
 func fetchToken(logger Logger, code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {

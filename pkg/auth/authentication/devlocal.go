@@ -243,16 +243,16 @@ func createSession(h devlocalAuthHandler, user *models.User, w http.ResponseWrit
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
 	}
 
+	if userIdentity.DpsUserID != nil {
+		session.DpsUserID = *(userIdentity.DpsUserID)
+	}
+
 	if userIdentity.OfficeUserID != nil && session.IsOfficeApp() {
 		session.OfficeUserID = *(userIdentity.OfficeUserID)
 	}
 
 	if userIdentity.TspUserID != nil && session.IsTspApp() {
 		session.TspUserID = *(userIdentity.TspUserID)
-	}
-
-	if userIdentity.DpsUserID != nil {
-		session.DpsUserID = *(userIdentity.DpsUserID)
 	}
 
 	session.FirstName = userIdentity.FirstName()
