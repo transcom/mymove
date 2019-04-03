@@ -906,6 +906,7 @@ workflows:
             - acceptance_tests_experimental
             - build_app
             # - build_tools # tools don't need to build to deploy to experimental
+            - build_tasks
             - build_migrations
           filters:
             branches:
@@ -913,10 +914,10 @@ workflows:
 
       - deploy_experimental_tasks:
           requires:
-            - build_tasks
+            - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cg_163909133_ecs_scheduled_tasks
 
       - deploy_experimental_app:
           requires:
@@ -940,6 +941,7 @@ workflows:
             - build_app
             - build_tools
             - build_migrations
+            - build_tasks
             - acceptance_tests_local
             - acceptance_tests_staging
             - integration_tests_mymove
