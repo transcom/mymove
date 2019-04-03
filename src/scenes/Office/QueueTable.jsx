@@ -2,10 +2,12 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import ReactTable from 'react-table';
 import { connect } from 'react-redux';
+import { capitalize } from 'lodash';
 import { get } from 'lodash';
 import 'react-table/react-table.css';
 import { RetrieveMovesForOffice } from './api.js';
 import Alert from 'shared/Alert';
+import { formatDate, formatDateTime } from 'shared/formatters';
 
 class QueueTable extends Component {
   constructor() {
@@ -100,6 +102,7 @@ class QueueTable extends Component {
               {
                 Header: 'Status',
                 accessor: 'synthetic_status',
+                Cell: row => <span className="status">{capitalize(row.value.replace('_', ' '))}</span>,
               },
               {
                 Header: 'Locator #',
@@ -110,7 +113,7 @@ class QueueTable extends Component {
                 accessor: 'customer_name',
               },
               {
-                Header: 'DOD ID',
+                Header: 'DoD ID',
                 accessor: 'edipi',
               },
               {
@@ -124,14 +127,12 @@ class QueueTable extends Component {
               {
                 Header: 'Move date',
                 accessor: 'move_date',
-              },
-              {
-                Header: 'Created',
-                accessor: 'created_at',
+                Cell: row => <span className="move_date">{formatDate(row.value)}</span>,
               },
               {
                 Header: 'Last modified',
                 accessor: 'last_modified_date',
+                Cell: row => <span className="updated_at">{formatDateTime(row.value)}</span>,
               },
             ]}
             data={this.state.data}
