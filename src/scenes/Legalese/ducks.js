@@ -49,7 +49,8 @@ export const signAndSubmitForApproval = (moveId, certificationText, signature, d
       dispatch(addEntities(filtered));
       return dispatch(signAndSubmitForApprovalActions.success());
     } catch (error) {
-      return dispatch(signAndSubmitForApprovalActions.error(error));
+      await dispatch(signAndSubmitForApprovalActions.error(error));
+      throw error;
     }
   };
 };
