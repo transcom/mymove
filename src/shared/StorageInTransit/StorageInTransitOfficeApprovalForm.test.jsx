@@ -19,13 +19,21 @@ const storageInTransitSchema = {
   },
 };
 
+const storageInTransit = {
+  estimated_start_date: '2018-11-11',
+};
+
 describe('StorageInTransitOfficeApprovalForm tests', () => {
   describe('Empty form', () => {
     let wrapper;
     store = mockStore({});
     wrapper = mount(
       <Provider store={store}>
-        <StorageInTransitOfficeApprovalForm onSubmit={submit} storageInTransitSchema={storageInTransitSchema} />
+        <StorageInTransitOfficeApprovalForm
+          onSubmit={submit}
+          storageInTransitSchema={storageInTransitSchema}
+          initialValues={storageInTransit}
+        />
       </Provider>,
     );
 

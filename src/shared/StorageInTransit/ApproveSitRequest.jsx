@@ -12,10 +12,11 @@ export class ApproveSitRequest extends Component {
   };
 
   render() {
+    const { storageInTransit } = this.props;
     return (
       <div className="storage-in-transit-panel-modal">
         <div className="title">Approve SIT Request</div>
-        <StorageInTransitOfficeApprovalForm />
+        <StorageInTransitOfficeApprovalForm initialValues={storageInTransit} />
         <div className="usa-grid-full align-center-vertical">
           <div className="usa-width-one-half">
             <p className="cancel-link">
@@ -40,6 +41,7 @@ export class ApproveSitRequest extends Component {
 
 ApproveSitRequest.propTypes = {
   onClose: PropTypes.func.isRequired,
+  storageInTransit: PropTypes.object.isRequired,
 };
 
 function mapStateToProps(state) {

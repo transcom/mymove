@@ -12,7 +12,8 @@ export class StorageInTransitOfficeApprovalForm extends Component {
   };
 
   render() {
-    const { storageInTransitSchema } = this.props;
+    const { storageInTransitSchema, initialValues } = this.props;
+    initialValues.authorized_start_date = initialValues.estimated_start_date;
     return (
       <form onSubmit={this.handleSubmit} className="storage-in-transit-office-approval-form">
         <fieldset key="sit-approval-information">

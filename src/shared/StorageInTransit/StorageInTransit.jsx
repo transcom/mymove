@@ -75,7 +75,7 @@ export class StorageInTransit extends Component {
           </span>
           <span>SIT {storageInTransit.status.charAt(0) + storageInTransit.status.slice(1).toLowerCase()} </span>
           {showApproveForm ? (
-            <ApproveSitRequest onClose={this.closeApproveForm} />
+            <ApproveSitRequest onClose={this.closeApproveForm} storageInTransit={storageInTransit} />
           ) : (
             isOfficeSite &&
             !showEditForm &&
