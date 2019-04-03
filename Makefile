@@ -7,6 +7,7 @@ DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # as possible.
 # https://github.com/transcom/ppp-infra/blob/7ba2e1086ab1b2a0d4f917b407890817327ffb3d/modules/aws-app-environment/database/variables.tf#L48
 DB_DOCKER_CONTAINER_IMAGE = postgres:10.6
+TASKS_DOCKER_CONTAINER = tasks
 export PGPASSWORD=mysecretpassword
 
 # if S3 access is enabled, wrap webserver in aws-vault command
@@ -604,18 +605,31 @@ tasks_clean:
 
 .PHONY: tasks_build
 tasks_build: .tasks_build.stamp
-.tasks_build.stamp: server_generate_linux
+.tasks_build.stamp: server_generate build_save_fuel_price_data
+
+.PHONY: tasks_build_docker
+tasks_build_docker: tasks_build
+	@echo "Build the docker scheduled tasks container..."
+	docker build -f Dockerfile.tasks --tag $(TASKS_DOCKER_CONTAINER):latest .
+	touch .tasks_build.stamp
+
+.PHONY: tasks_build_linux
+tasks_build_linux: .tasks_build_linux.stamp
+.tasks_build_linux.stamp: server_generate_linux
 	@echo "Build required binaries for the docker scheduled task save-fuel-price-data container..."
 	mkdir -p bin_linux/
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/save-fuel-price-data ./cmd/save_fuel_price_data
+
+.PHONY: tasks_build_linux_docker
+tasks_build_linux_docker: tasks_build_linux
 	@echo "Build the docker scheduled tasks container..."
-	docker build -f Dockerfile.tasks_local --tag tasks:latest .
+	docker build -f Dockerfile.tasks_local --tag $(TASKS_DOCKER_CONTAINER):latest .
 	touch .tasks_build.stamp
 
 .PHONY: tasks_save_fuel_price_data
-tasks_save_fuel_price_data: tasks_build
+tasks_save_fuel_price_data: tasks_build_linux_docker
 	@echo "Saving the fuel price data to the ${DB_NAME_DEV} database with docker command..."
-	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) bin/wait-for-db-docker
+	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
 	docker run \
 		-t \
 		-e DB_NAME=$(DB_NAME_DEV) \
@@ -627,7 +641,7 @@ tasks_save_fuel_price_data: tasks_build
 		-e EIA_URL \
 		--link="$(DB_DOCKER_CONTAINER_TEST):database" \
 		--rm \
-		tasks:latest \
+		$(TASKS_DOCKER_CONTAINER):latest \
 		save-fuel-price-data
 
 #
