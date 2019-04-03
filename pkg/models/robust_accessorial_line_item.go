@@ -283,6 +283,15 @@ func upsertItemCode125Dependency(db *pop.Connection, baseParams *BaseShipmentLin
 		}
 
 		shipmentLineItem.AddressID = &shipmentLineItem.Address.ID
+	} else {
+		//otherwise, update the address
+		shipmentLineItem.Address.ID = *shipmentLineItem.AddressID
+		verrs, err := db.ValidateAndUpdate(&shipmentLineItem.Address)
+		if verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error updating shipment line item address")
+			return responseVErrors, responseError
+		}
 	}
 
 	shipmentLineItem.Reason = additionalParams.Reason
