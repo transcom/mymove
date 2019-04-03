@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
-import { get, indexOf } from 'lodash';
+import { get, findLast } from 'lodash';
 import moment from 'moment';
 
 import { displayDateRange } from 'shared/formatters';
@@ -13,58 +13,60 @@ function getDates(source, dateType) {
   return get(source, dateType);
 }
 
-function checkIfCompleted(statuses, statusToCheck) {
-  if (!statuses.includes(statusToCheck)) {
-    return false;
-  }
-  return indexOf(statuses, statusToCheck) < statuses.length;
-}
-
-function checkIfCurrent(statuses, statusToCheck) {
-  if (!statuses.includes(statusToCheck)) {
-    return false;
-  }
-  return indexOf(statuses, statusToCheck) === statuses.length - 1;
+function getCurrentStatus(statuses) {
+  return findLast(statuses, function(status) {
+    return status.completed;
+  });
 }
 
 export class PPMStatusTimeline extends React.Component {
-  statuses() {
+  getStatuses() {
     return [
       { name: 'Submitted', code: 'SUBMITTED' },
       { name: 'Approved', code: 'PPM_APPROVED' },
       { name: 'In progress', code: 'IN_PROGRESS' },
-      { name: 'Completed', code: 'COMPLETED' },
+      { name: 'Payment requested', code: 'PAYMENT_REQUESTED' },
+      { name: 'Payment approved', code: 'PAYMENT_APPROVED' },
     ];
   }
 
-  markedStatuses() {
+  getCompletedStatus(status) {
     const { ppm } = this.props;
 
-    let markedStatuses = ['SUBMITTED'];
-
-    if (ppm.status === 'SUBMITTED') {
-      return markedStatuses;
+    if (status === 'SUBMITTED') {
+      return true;
     }
 
-    markedStatuses.push('PPM_APPROVED');
-    if (ppm.status === 'APPROVED') {
+    if (status === 'PPM_APPROVED') {
+      return ['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'].includes(ppm.status);
+    }
+
+    if (status === 'IN_PROGRESS') {
       const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
-      if (moveInProgress) {
-        markedStatuses.push('IN_PROGRESS');
-      }
-      return markedStatuses;
+      return moveInProgress;
     }
 
-    if (ppm.status === 'COMPLETED') {
-      markedStatuses.push('IN_PROGRESS');
-      markedStatuses.push('COMPLETED');
+    if (status === 'PAYMENT_REQUESTED') {
+      return ppm.status === 'PAYMENT_REQUESTED';
     }
 
-    return markedStatuses;
+    if (status === 'PAYMENT_APPROVED') {
+      return ppm.status === 'COMPLETED';
+    }
+  }
+
+  addCompleted(statuses) {
+    return statuses.map(status => {
+      return {
+        ...status,
+        completed: this.getCompletedStatus(status.code),
+      };
+    });
   }
 
   render() {
-    return <StatusTimelineContainer statuses={this.statuses()} markedStatuses={this.markedStatuses()} />;
+    const statuses = this.addCompleted(this.getStatuses());
+    return <StatusTimeline statuses={statuses} />;
   }
 }
 
@@ -73,7 +75,7 @@ PPMStatusTimeline.propTypes = {
 };
 
 export class ShipmentStatusTimeline extends React.Component {
-  statuses() {
+  getStatuses() {
     return [
       { name: 'Scheduled', code: 'SCHEDULED', date_type: 'book_date' },
       { name: 'Packed', code: 'PACKED', date_type: 'pack' },
@@ -83,51 +85,47 @@ export class ShipmentStatusTimeline extends React.Component {
     ];
   }
 
-  markedStatuses() {
+  getCompletedStatus(status) {
     const { shipment } = this.props;
     const today = this.props.today ? moment(this.props.today) : moment();
 
-    const actualPackDate = get(shipment, 'actual_pack_date', null);
-    const originalPackDate = get(shipment, 'original_pack_date', null);
-    const pmSurveyPlannedPackDate = get(shipment, 'pm_survey_planned_pack_date', null);
+    if (status === 'SCHEDULED') {
+      return true;
+    }
+
+    if (status === 'PACKED') {
+      const actualPackDate = get(shipment, 'actual_pack_date', null);
+      const originalPackDate = get(shipment, 'original_pack_date', null);
+      const pmSurveyPlannedPackDate = get(shipment, 'pm_survey_planned_pack_date', null);
+      return actualPackDate || today.isSameOrAfter(pmSurveyPlannedPackDate) || today.isSameOrAfter(originalPackDate)
+        ? true
+        : false;
+    }
+
     const actualPickupDate = get(shipment, 'actual_pickup_date', null);
     const pmSurveyPlannedPickupDate = get(shipment, 'pm_survey_planned_pickup_date', null);
     const requestedPickupDate = get(shipment, 'requested_pickup_date', null);
-    const actualDeliveryDate = get(shipment, 'actual_delivery_date', null);
-    let markedStatuses = ['SCHEDULED'];
 
-    if (actualPackDate || today.isSameOrAfter(pmSurveyPlannedPackDate) || today.isSameOrAfter(originalPackDate)) {
-      markedStatuses.push('PACKED');
-    } else {
-      return markedStatuses;
+    if (status === 'LOADED') {
+      return actualPickupDate ||
+        today.isSameOrAfter(pmSurveyPlannedPickupDate, 'day') ||
+        today.isSameOrAfter(requestedPickupDate, 'day')
+        ? true
+        : false;
     }
 
-    if (
-      actualPickupDate ||
-      today.isSameOrAfter(pmSurveyPlannedPickupDate, 'day') ||
-      today.isSameOrAfter(requestedPickupDate, 'day')
-    ) {
-      markedStatuses.push('LOADED');
-    } else {
-      return markedStatuses;
+    if (status === 'IN_TRANSIT') {
+      return (actualPickupDate && today.isAfter(actualPickupDate, 'day')) ||
+        today.isAfter(pmSurveyPlannedPickupDate, 'day') ||
+        today.isAfter(requestedPickupDate, 'day')
+        ? true
+        : false;
     }
 
-    if (
-      (actualPickupDate && today.isAfter(actualPickupDate, 'day')) ||
-      today.isAfter(pmSurveyPlannedPickupDate, 'day') ||
-      today.isAfter(requestedPickupDate, 'day')
-    ) {
-      markedStatuses.push('IN_TRANSIT');
-    } else {
-      return markedStatuses;
+    if (status === 'DELIVERED') {
+      const actualDeliveryDate = get(shipment, 'actual_delivery_date', null);
+      return actualDeliveryDate ? true : false;
     }
-
-    if (actualDeliveryDate) {
-      markedStatuses.push('DELIVERED');
-    } else {
-      return markedStatuses;
-    }
-    return markedStatuses;
   }
 
   addDates(statuses) {
@@ -143,9 +141,18 @@ export class ShipmentStatusTimeline extends React.Component {
     });
   }
 
+  addCompleted(statuses) {
+    return statuses.map(status => {
+      return {
+        ...status,
+        completed: this.getCompletedStatus(status.code),
+      };
+    });
+  }
+
   render() {
-    const statuses = this.addDates(this.statuses());
-    return <StatusTimelineContainer statuses={statuses} markedStatuses={this.markedStatuses()} />;
+    const statuses = this.addCompleted(this.addDates(this.getStatuses()));
+    return <StatusTimeline statuses={statuses} />;
   }
 }
 
@@ -155,21 +162,17 @@ ShipmentStatusTimeline.propTypes = {
 };
 
 export class ProfileStatusTimeline extends React.Component {
-  statuses() {
+  getStatuses() {
     return [
-      { name: 'Profile', code: 'PROFILE' },
-      { name: 'Orders', code: 'ORDERS' },
-      { name: 'Move Setup', code: 'MOVE_SETUP' },
-      { name: 'Review', code: 'REVIEW' },
+      { name: 'Profile', code: 'PROFILE', completed: true },
+      { name: 'Orders', code: 'ORDERS', completed: true },
+      { name: 'Move Setup', code: 'MOVE_SETUP', completed: false },
+      { name: 'Review', code: 'REVIEW', completed: false },
     ];
   }
 
-  markedStatuses() {
-    return ['PROFILE', 'ORDERS'];
-  }
-
   render() {
-    return <StatusTimelineContainer statuses={this.statuses()} markedStatuses={this.markedStatuses()} />;
+    return <StatusTimeline statuses={this.getStatuses()} />;
   }
 }
 
@@ -177,22 +180,23 @@ ProfileStatusTimeline.propTypes = {
   profile: PropTypes.object.isRequired,
 };
 
-class StatusTimelineContainer extends PureComponent {
-  createStatusBlock = (status, markedStatuses) => {
+class StatusTimeline extends PureComponent {
+  createStatusBlock = (status, currentStatus) => {
     return (
       <StatusBlock
         name={status.name}
         code={status.code}
         key={status.code}
         dates={status.dates}
-        completed={checkIfCompleted(markedStatuses, status.code)}
-        current={checkIfCurrent(markedStatuses, status.code)}
+        completed={status.completed}
+        current={currentStatus.code === status.code}
       />
     );
   };
 
   render() {
-    const statusBlocks = this.props.statuses.map(status => this.createStatusBlock(status, this.props.markedStatuses));
+    const currentStatus = getCurrentStatus(this.props.statuses);
+    const statusBlocks = this.props.statuses.map(status => this.createStatusBlock(status, currentStatus));
 
     return (
       <div className="status_timeline">
@@ -203,9 +207,8 @@ class StatusTimelineContainer extends PureComponent {
   }
 }
 
-StatusTimelineContainer.propTypes = {
+StatusTimeline.propTypes = {
   statuses: PropTypes.array.isRequired,
-  markedStatuses: PropTypes.array.isRequired,
 };
 
 export const StatusBlock = props => {

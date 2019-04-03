@@ -3,10 +3,9 @@ import PropTypes from 'prop-types';
 import './StorageInTransit.css';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import StorageInTransitOfficeApprovalForm from './StorageInTransitOfficeApprovalForm.jsx';
-import './StorageInTransit.css';
+import StorageInTransitOfficeDenyForm from './StorageInTransitOfficeDenyForm.jsx';
 
-export class ApproveSitRequest extends Component {
+export class DenySitRequest extends Component {
   closeForm = () => {
     this.props.onClose();
   };
@@ -14,8 +13,8 @@ export class ApproveSitRequest extends Component {
   render() {
     return (
       <div className="storage-in-transit-panel-modal">
-        <div className="title">Approve SIT Request</div>
-        <StorageInTransitOfficeApprovalForm />
+        <div className="title">Deny SIT Request</div>
+        <StorageInTransitOfficeDenyForm />
         <div className="usa-grid-full align-center-vertical">
           <div className="usa-width-one-half">
             <p className="cancel-link">
@@ -29,7 +28,7 @@ export class ApproveSitRequest extends Component {
               className="button usa-button-primary storage-in-transit-request-form-send-request-button"
               disabled={!this.props.formEnabled}
             >
-              Approve
+              Deny
             </button>
           </div>
         </div>
@@ -38,7 +37,7 @@ export class ApproveSitRequest extends Component {
   }
 }
 
-ApproveSitRequest.propTypes = {
+DenySitRequest.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
@@ -50,4 +49,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({}, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ApproveSitRequest);
+export default connect(mapStateToProps, mapDispatchToProps)(DenySitRequest);
