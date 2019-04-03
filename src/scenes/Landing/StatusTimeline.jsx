@@ -43,7 +43,7 @@ export class PPMStatusTimeline extends React.Component {
 
     if (status === 'IN_PROGRESS') {
       const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
-      return moveInProgress;
+      return moveInProgress && ['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'].includes(ppm.status);
     }
 
     if (status === 'PAYMENT_REQUESTED') {
@@ -124,7 +124,7 @@ export class ShipmentStatusTimeline extends React.Component {
 
     if (status === 'DELIVERED') {
       const actualDeliveryDate = get(shipment, 'actual_delivery_date', null);
-      return actualDeliveryDate ? true : false;
+      return actualDeliveryDate || ['DELIVERED', 'COMPLETED'].includes(shipment.status) ? true : false;
     }
   }
 
