@@ -258,7 +258,7 @@ build_deploy_tools: go_deps server_generate
 	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-deploy-task-container ./cmd/ecs-deploy-task-container
 
 .PHONY: build_tools
-build_tools: bash_version server_deps server_generate build_generate_test_data build_save_fuel_price_data build_deploy-tools
+build_tools: bash_version server_deps server_generate build_generate_test_data build_save_fuel_price_data build_deploy_tools
 	go build -i -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare_secure_migrations
 	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
