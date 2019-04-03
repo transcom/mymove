@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { reduxForm } from 'redux-form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-export class StorageInTransitOfficeApprovalForm extends Component {
+export class StorageInTransitOfficeDenyForm extends Component {
   //form submission still to be implemented
   handleSubmit = e => {
     e.preventDefault();
@@ -14,22 +14,14 @@ export class StorageInTransitOfficeApprovalForm extends Component {
   render() {
     const { storageInTransitSchema } = this.props;
     return (
-      <form onSubmit={this.handleSubmit} className="storage-in-transit-office-approval-form">
-        <fieldset key="sit-approval-information">
+      <form onSubmit={this.handleSubmit} className="storage-in-transit-office-deny-form">
+        <fieldset key="sit-deny-information">
           <div className="editable-panel-column">
             <SwaggerField
-              fieldName="authorized_start_date"
-              swagger={storageInTransitSchema}
-              title="Earliest authorized start date"
-              required
-            />
-          </div>
-          <div className="editable-panel-column">
-            <SwaggerField
-              className="sit-approval-field"
               fieldName="authorization_notes"
-              title="Note"
               swagger={storageInTransitSchema}
+              title="Reason for denial"
+              required
             />
           </div>
         </fieldset>
@@ -38,16 +30,16 @@ export class StorageInTransitOfficeApprovalForm extends Component {
   }
 }
 
-StorageInTransitOfficeApprovalForm.propTypes = {
+StorageInTransitOfficeDenyForm.propTypes = {
   storageInTransitSchema: PropTypes.object.isRequired,
 };
 
-const formName = 'storage_in_transit_office_approval_form';
-StorageInTransitOfficeApprovalForm = reduxForm({
+const formName = 'storage_in_transit_office_deny_form';
+StorageInTransitOfficeDenyForm = reduxForm({
   form: formName,
   enableReinitialize: true,
   keepDirtyOnReinitialize: true,
-})(StorageInTransitOfficeApprovalForm);
+})(StorageInTransitOfficeDenyForm);
 
 function mapStateToProps(state) {
   return {
@@ -55,4 +47,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(StorageInTransitOfficeApprovalForm);
+export default connect(mapStateToProps)(StorageInTransitOfficeDenyForm);
