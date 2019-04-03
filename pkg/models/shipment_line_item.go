@@ -23,6 +23,8 @@ const (
 	ShipmentLineItemStatusSUBMITTED ShipmentLineItemStatus = "SUBMITTED"
 	// ShipmentLineItemStatusAPPROVED captures enum value "APPROVED"
 	ShipmentLineItemStatusAPPROVED ShipmentLineItemStatus = "APPROVED"
+	// ShipmentLineItemStatusCONDITIONALLYAPPROVED captures enum value "CONDITIONALLYAPPROVED"
+	ShipmentLineItemStatusCONDITIONALLYAPPROVED ShipmentLineItemStatus = "CONDITIONALLYAPPROVED"
 	// ShipmentLineItemLocationORIGIN captures enum value "ORIGIN"
 	ShipmentLineItemLocationORIGIN ShipmentLineItemLocation = "ORIGIN"
 	// ShipmentLineItemLocationDESTINATION captures enum value "DESTINATION"
@@ -80,6 +82,7 @@ func (s *ShipmentLineItem) Validate(tx *pop.Connection) (*validate.Errors, error
 	validStatuses := []string{
 		string(ShipmentLineItemStatusSUBMITTED),
 		string(ShipmentLineItemStatusAPPROVED),
+		string(ShipmentLineItemStatusCONDITIONALLYAPPROVED),
 	}
 
 	validLocations := []string{
@@ -181,13 +184,23 @@ func FetchShipmentLineItemByID(dbConnection *pop.Connection, shipmentLineItemID 
 	return shipmentLineItem, err
 }
 
-// Approve marks the ShipmentLineItem request as Approved. Must be in a submitted state.
+// Approve marks the ShipmentLineItem request as Approved. Must be in a submitted state or Conditionally Approved state.
 func (s *ShipmentLineItem) Approve() error {
-	if s.Status != ShipmentLineItemStatusSUBMITTED {
+	if !(s.Status == ShipmentLineItemStatusSUBMITTED || (s.Tariff400ngItem.Code == "35A" && s.Status == ShipmentLineItemStatusCONDITIONALLYAPPROVED)) {
 		var logMsg = "func Approve(): Current ShipmentLineItem status is [" + string(s.Status) + "]"
 		return errors.Wrap(ErrInvalidTransition, logMsg)
 	}
 	s.Status = ShipmentLineItemStatusAPPROVED
 	s.ApprovedDate = time.Now()
+	return nil
+}
+
+// ConditionallyApprove marks the ShipmentLineItem request as Conditionally Approved. Must be in a submitted state.
+func (s *ShipmentLineItem) ConditionallyApprove() error {
+	if s.Status != ShipmentLineItemStatusSUBMITTED {
+		var logMsg = "func ConditionallyApprove(): Current ShipmentLineItem status is [" + string(s.Status) + "]"
+		return errors.Wrap(ErrInvalidTransition, logMsg)
+	}
+	s.Status = ShipmentLineItemStatusCONDITIONALLYAPPROVED
 	return nil
 }
