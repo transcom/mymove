@@ -13,7 +13,7 @@ describe('shipments', function() {
       serviceMemberEditsDates();
       serviceMemberCancelsDateEdit();
       serviceMemberReviewsMove();
-      serivceMemberSigns();
+      serviceMemberSigns();
       moveIsSuccessfullyCreated();
     });
   });
@@ -45,7 +45,7 @@ function serviceMemberLogsOutThenContinues(serviceMemberId) {
   // wait returns after the 1st call to getShipments, so if multiple calls
   // placement of server and route are important
   cy.server();
-  cy.route({ url: '**/api/v1/shipments/*' }).as('getShipments');
+  cy.route({ url: '**/internal/shipments/*' }).as('getShipments');
   cy.signInAsUser(serviceMemberId);
   cy.wait('@getShipments');
   cy.contains('Continue Move Setup').click();
@@ -299,7 +299,7 @@ function serviceMemberCancelsDateEdit() {
   checkLoadingDate();
 }
 
-function serivceMemberSigns() {
+function serviceMemberSigns() {
   cy.contains('SIGNATURE');
   cy.get('input[name="signature"]').type('SM Signature');
 
