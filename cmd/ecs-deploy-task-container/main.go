@@ -389,8 +389,9 @@ func main() {
 
 	// Get the database host using the instance identifier
 	// TODO: Allow passing in from DB_HOST
+	serviceName := v.GetString(serviceFlag)
 	environmentName := v.GetString(environmentFlag)
-	dbInstanceIdentifier := fmt.Sprintf("app-%s", environmentName)
+	dbInstanceIdentifier := fmt.Sprintf("%s-%s", serviceName, environmentName)
 	dbInstancesOutput, err := serviceRDS.DescribeDBInstances(&rds.DescribeDBInstancesInput{
 		DBInstanceIdentifier: aws.String(dbInstanceIdentifier),
 	})
@@ -400,17 +401,17 @@ func main() {
 	dbHost := *dbInstancesOutput.DBInstances[0].Endpoint.Address
 
 	// Set up some key variables
-	serviceName := v.GetString(serviceFlag)
 	clusterName := fmt.Sprintf("%s-%s", serviceName, environmentName)
 	taskRoleArn := fmt.Sprintf("ecs-task-role-%s", clusterName)
 	executionRoleArn := fmt.Sprintf("ecs-task-excution-role-%s", clusterName)
-	containerDefName := fmt.Sprintf("app-tasks-%s-%s", ruleName, environmentName)
+	containerDefName := fmt.Sprintf("%s-tasks-%s-%s", serviceName, ruleName, environmentName)
 
 	// familyName is the name used to register the task
 	familyName := fmt.Sprintf("%s-scheduled-task-%s-%s", serviceName, ruleName, environmentName)
 
 	// AWS Logs Group is related to the cluster and should not be changed
-	awsLogsGroup := fmt.Sprintf("ecs-tasks-app-%s", environmentName)
+	awsLogsGroup := fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
+	awsLogsStreamPrefix := fmt.Sprintf("%s-tasks", serviceName)
 
 	// Chamber Settings
 	chamberRetries := v.GetInt(chamberRetriesFlag)
@@ -480,7 +481,7 @@ func main() {
 					Options: map[string]*string{
 						"awslogs-group":         aws.String(awsLogsGroup),
 						"awslogs-region":        aws.String(awsRegion),
-						"awslogs-stream-prefix": aws.String(containerDefName),
+						"awslogs-stream-prefix": aws.String(awsLogsStreamPrefix),
 					},
 				},
 			},
