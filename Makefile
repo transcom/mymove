@@ -647,6 +647,26 @@ db_test_e2e_cleanup:
 #
 
 #
+# ----- START PROD MIGRATION TARGETS -----
+#
+
+.PHONY: run_prod_migrations
+run_prod_migrations:
+	./scripts/run-prod-migrations
+
+.PHONY: run_staging_migrations
+run_staging_migrations:
+	AWS_S3_BUCKET_NAME=transcom-ppp-app-staging-us-west-2 ./scripts/run-prod-migrations
+
+.PHONY: run_experimental_migrations
+run_experimental_migrations:
+	AWS_S3_BUCKET_NAME=transcom-ppp-app-experimental-us-west-2 ./scripts/run-prod-migrations
+
+#
+# ----- END PROD_MIGRATION TARGETS -----
+#
+
+#
 # ----- START RANDOM TARGETS -----
 #
 
