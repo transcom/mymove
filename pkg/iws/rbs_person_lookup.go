@@ -2,6 +2,7 @@ package iws
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -11,7 +12,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/transcom/mymove/pkg/server"
+	"go.mozilla.org/pkcs7"
 )
 
 // RBSPersonLookup handles requests to the Real-Time Broker Service
@@ -92,14 +93,24 @@ func NewRBSPersonLookup(host string, dodCACertPackage string, certString string,
 		return nil, err
 	}
 
-	// Load CA certs
-	pkcs7Package, err := ioutil.ReadFile(filepath.Clean(dodCACertPackage)) // to placate GOSEC
+	// DMDC has switched from a DOD-signed cert to a commercially-signed cert.
+	// Seems prudent to trust both DOD and commercial certs when connecting to
+	// them from now on, just in case they change back.
+	pkcs7Package, err := ioutil.ReadFile(filepath.Clean(dodCACertPackage)) // filepath.Clean placates GOSEC
 	if err != nil {
 		return nil, err
 	}
-	caCertPool, err := server.LoadCertPoolFromPkcs7Package(pkcs7Package)
+	p7, err := pkcs7.Parse(pkcs7Package)
 	if err != nil {
 		return nil, err
+	}
+	// Add the DOD certs to a copy of the system cert pool
+	caCertPool, err := x509.SystemCertPool()
+	if err != nil {
+		return nil, err
+	}
+	for _, cert := range p7.Certificates {
+		caCertPool.AddCert(cert)
 	}
 
 	// Setup HTTPS client
