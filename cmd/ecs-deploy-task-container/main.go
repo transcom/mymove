@@ -355,7 +355,7 @@ func main() {
 
 	blueTarget := targetsOutput.Targets[0]
 	blueTaskDefArn := *blueTarget.EcsParameters.TaskDefinitionArn
-	fmt.Println(blueTaskDefArn)
+	logger.Println(fmt.Sprintf("Blue Task Def Arn: %s", blueTaskDefArn))
 
 	// Confirm the image exists
 	imageTag := v.GetString(imageTagFlag)
@@ -384,7 +384,7 @@ func main() {
 		quit(logger, nil, errors.Wrapf(err, "error retrieving task definition for %s", blueTaskDefArn))
 	}
 	blueTaskDef := blueTaskDefOutput.TaskDefinition
-	fmt.Println(blueTaskDef)
+	logger.Println(blueTaskDef)
 
 	// Get the database host using the instance identifier
 	// TODO: Allow passing in from DB_HOST
@@ -423,7 +423,7 @@ func main() {
 			{
 				Name:      aws.String(containerDefName),
 				Image:     aws.String(imageName),
-				Essential: aws.Bool(false),
+				Essential: aws.Bool(true),
 				EntryPoint: []*string{
 					aws.String("/bin/chamber"),
 					aws.String("-r"),
@@ -483,7 +483,7 @@ func main() {
 		},
 		Cpu:                     aws.String("256"),
 		ExecutionRoleArn:        aws.String(executionRoleArn),
-		Family:                  aws.String(clusterName),
+		Family:                  aws.String("app-scheduled-task-save_fuel_price_data-experimental"),
 		Memory:                  aws.String("512"),
 		NetworkMode:             aws.String("awsvpc"),
 		RequiresCompatibilities: []*string{aws.String("FARGATE")},
@@ -494,7 +494,7 @@ func main() {
 	}
 	greenTaskDefArn := *taskDefinitionOutput.TaskDefinition.TaskDefinitionArn
 	fmt.Println(greenTaskDefArn)
-
+	os.Exit(1)
 	// Update the task event target with the new task ECS parameters
 	putTargetsOutput, err := serviceCloudWatchEvents.PutTargets(&cloudwatchevents.PutTargetsInput{
 		Rule: aws.String(ruleName),
