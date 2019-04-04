@@ -322,6 +322,14 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItemOfficeHandler() {
 func (suite *HandlerSuite) TestUpdateShipmentLineItem35AActualAmountCents() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
+	// create a new tariff400ngItem to test
+	acc35A := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: models.Tariff400ngItem{
+			Code:                "35A",
+			RequiresPreApproval: true,
+		},
+	})
+
 	//  shipment line item
 	desc := "description"
 	reas := "reason"
@@ -334,14 +342,8 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItem35AActualAmountCents() {
 			Reason:              &reas,
 			EstimateAmountCents: &cents,
 			Notes:               "",
-		},
-	})
-
-	// create a new tariff400ngItem to test
-	updateAcc1 := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
-		Tariff400ngItem: models.Tariff400ngItem{
-			Code:                "35A",
-			RequiresPreApproval: true,
+			Tariff400ngItem:     acc35A,
+			Tariff400ngItemID:   acc35A.ID,
 		},
 	})
 
@@ -350,7 +352,7 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItem35AActualAmountCents() {
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 	updateShipmentLineItem := apimessages.ShipmentLineItem{
 		ID:                *handlers.FmtUUID(shipAcc1.ID),
-		Tariff400ngItemID: handlers.FmtUUID(updateAcc1.ID),
+		Tariff400ngItemID: handlers.FmtUUID(acc35A.ID),
 		ActualAmountCents: handlers.FmtInt64(5555), //make sure we can edit actual amount
 	}
 	params := accessorialop.UpdateShipmentLineItemParams{
