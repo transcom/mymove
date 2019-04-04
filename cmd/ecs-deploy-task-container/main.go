@@ -252,7 +252,7 @@ func checkConfig(v *viper.Viper) error {
 
 func quit(logger *log.Logger, flag *pflag.FlagSet, err error) {
 	logger.Println(err.Error())
-	fmt.Println("Usage of ecs-service-logs:")
+	logger.Println("Usage of ecs-service-logs:")
 	if flag != nil {
 		flag.PrintDefaults()
 	}
@@ -387,16 +387,6 @@ func main() {
 		quit(logger, nil, errors.Wrapf(err, "unable retrieving image from %s", imageName))
 	}
 
-	// aws ecs describe-task-definition --task-definition=app-scheduled-task-save_fuel_price_data-experimental:1
-	blueTaskDefOutput, err := serviceECS.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
-		TaskDefinition: &blueTaskDefArn,
-	})
-	if err != nil {
-		quit(logger, nil, errors.Wrapf(err, "error retrieving task definition for %s", blueTaskDefArn))
-	}
-	blueTaskDef := blueTaskDefOutput.TaskDefinition
-	logger.Println(blueTaskDef)
-
 	// Get the database host using the instance identifier
 	// TODO: Allow passing in from DB_HOST
 	environmentName := v.GetString(environmentFlag)
@@ -412,10 +402,12 @@ func main() {
 	// Set up some key variables
 	serviceName := v.GetString(serviceFlag)
 	clusterName := fmt.Sprintf("%s-%s", serviceName, environmentName)
-	familyName := fmt.Sprintf("%s-scheduled-task-%s-%s", serviceName, ruleName, environmentName)
 	taskRoleArn := fmt.Sprintf("ecs-task-role-%s", clusterName)
 	executionRoleArn := fmt.Sprintf("ecs-task-excution-role-%s", clusterName)
 	containerDefName := fmt.Sprintf("app-tasks-%s-%s", ruleName, environmentName)
+
+	// familyName is the name used to register the task
+	familyName := fmt.Sprintf("%s-scheduled-task-%s-%s", serviceName, ruleName, environmentName)
 
 	// AWS Logs Group is related to the cluster and should not be changed
 	awsLogsGroup := fmt.Sprintf("ecs-tasks-app-%s", environmentName)
@@ -505,8 +497,8 @@ func main() {
 		quit(logger, nil, errors.Wrap(err, "error registering new task definition"))
 	}
 	greenTaskDefArn := *taskDefinitionOutput.TaskDefinition.TaskDefinitionArn
-	fmt.Println(greenTaskDefArn)
-	os.Exit(1)
+	logger.Println(fmt.Sprintf("Green Task Def Arn: %s", greenTaskDefArn))
+
 	// Update the task event target with the new task ECS parameters
 	putTargetsOutput, err := serviceCloudWatchEvents.PutTargets(&cloudwatchevents.PutTargetsInput{
 		Rule: aws.String(ruleName),
@@ -527,5 +519,5 @@ func main() {
 	if err != nil {
 		quit(logger, nil, errors.Wrap(err, "Unable to put new target"))
 	}
-	fmt.Println(putTargetsOutput)
+	logger.Println(putTargetsOutput)
 }
