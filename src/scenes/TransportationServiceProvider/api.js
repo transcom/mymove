@@ -18,8 +18,6 @@ export async function RetrieveShipmentsForTSP(queueType) {
   const client = await getPublicClient();
   const response = await client.apis.shipments.indexShipments({
     status,
-    limit: 100,
-    offset: 1,
   });
   checkResponse(response, 'failed to retrieve moves due to server error');
   return response.body;

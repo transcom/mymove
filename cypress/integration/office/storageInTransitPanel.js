@@ -89,6 +89,18 @@ function officeUserStartsAndCancelsSitApproval() {
   });
 
   cy
+    .get('a')
+    .contains('Approve')
+    .click()
+    .get('.storage-in-transit')
+    .should($div => {
+      const text = $div.text();
+      expect(text).to.include('Approve SIT Request');
+      expect(text).to.not.include('Deny');
+      expect(text).to.not.include('Edit');
+    });
+
+  cy
     .get('.usa-button-secondary')
     .contains('Cancel')
     .click()
