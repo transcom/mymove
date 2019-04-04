@@ -40,6 +40,7 @@ func storageInTransitPayloadCompare(suite *HandlerSuite, expected *apimessages.S
 	suite.Equal(*expected.WarehouseName, *actual.WarehouseName)
 	suite.Equal(*expected.WarehousePhone, *actual.WarehousePhone)
 	suite.Equal(expected.EstimatedStartDate.String(), actual.EstimatedStartDate.String())
+	suite.Equal(expected.Status, actual.Status)
 }
 
 func (suite *HandlerSuite) TestIndexStorageInTransitsHandler() {
@@ -151,6 +152,350 @@ func (suite *HandlerSuite) TestCreateStorageInTransitHandler() {
 	storageInTransitPayloadCompare(suite, sitPayload, responsePayload)
 }
 
+func (suite *HandlerSuite) TestApproveStorageInTransitHandler() {
+	shipment, sit, user := setupStorageInTransitHandlerTest(suite)
+	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
+
+	approvePayload := apimessages.StorageInTransitApprovalPayload{
+		AuthorizedStartDate: handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
+		AuthorizationNotes:  *handlers.FmtString("looks good to me"),
+	}
+
+	path := fmt.Sprintf("/shipments/%s/storage_in_transits/%s/approve", shipment.ID.String(), sit.ID.String())
+	req := httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateOfficeRequest(req, user)
+	params := sitop.ApproveStorageInTransitParams{
+		HTTPRequest:                     req,
+		ShipmentID:                      strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID:              strfmt.UUID(sit.ID.String()),
+		StorageInTransitApprovalPayload: &approvePayload,
+	}
+
+	handler := ApproveStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&sitop.ApproveStorageInTransitOK{}, response)
+	responsePayload := response.(*sitop.ApproveStorageInTransitOK).Payload
+
+	suite.Equal(string(models.StorageInTransitStatusAPPROVED), responsePayload.Status)
+
+	// Let's make sure it denies a TSP user.
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	params = sitop.ApproveStorageInTransitParams{
+		HTTPRequest:                     req,
+		ShipmentID:                      strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID:              strfmt.UUID(sit.ID.String()),
+		StorageInTransitApprovalPayload: &approvePayload,
+	}
+
+	handler = ApproveStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response = handler.Handle(params)
+	suite.Assertions.IsType(response.(*sitop.ApproveStorageInTransitForbidden), response)
+
+	// Let's make sure it doesn't work if the status is delivered
+	sit.Status = models.StorageInTransitStatusDELIVERED
+	_, _ = suite.DB().ValidateAndSave(&sit)
+
+	req = suite.AuthenticateOfficeRequest(req, user)
+	params = sitop.ApproveStorageInTransitParams{
+		HTTPRequest:                     req,
+		ShipmentID:                      strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID:              strfmt.UUID(sit.ID.String()),
+		StorageInTransitApprovalPayload: &approvePayload,
+	}
+
+	handler = ApproveStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response = handler.Handle(params)
+	suite.Assertions.IsType(response.(*sitop.ApproveStorageInTransitConflict), response)
+
+}
+
+func (suite *HandlerSuite) TestDenyStorageInTransitHandler() {
+	shipment, sit, user := setupStorageInTransitHandlerTest(suite)
+	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
+
+	denyPayload := apimessages.StorageInTransitApprovalPayload{
+		AuthorizationNotes: *handlers.FmtString("looks bad to me"),
+	}
+
+	path := fmt.Sprintf("/shipments/%s/storage_in_transits/%s/deny", shipment.ID.String(), sit.ID.String())
+	req := httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateOfficeRequest(req, user)
+	params := sitop.DenyStorageInTransitParams{
+		HTTPRequest:                     req,
+		ShipmentID:                      strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID:              strfmt.UUID(sit.ID.String()),
+		StorageInTransitApprovalPayload: &denyPayload,
+	}
+
+	handler := DenyStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&sitop.DenyStorageInTransitOK{}, response)
+	responsePayload := response.(*sitop.DenyStorageInTransitOK).Payload
+
+	suite.Equal(string(models.StorageInTransitStatusDENIED), responsePayload.Status)
+
+	// Let's make sure it denies a TSP user.
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	params = sitop.DenyStorageInTransitParams{
+		HTTPRequest:                     req,
+		ShipmentID:                      strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID:              strfmt.UUID(sit.ID.String()),
+		StorageInTransitApprovalPayload: &denyPayload,
+	}
+
+	handler = DenyStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response = handler.Handle(params)
+	suite.Assertions.IsType(response.(*sitop.DenyStorageInTransitForbidden), response)
+
+	// Let's make sure it doesn't work if the status is delivered
+	sit.Status = models.StorageInTransitStatusDELIVERED
+	_, _ = suite.DB().ValidateAndSave(&sit)
+
+	req = suite.AuthenticateOfficeRequest(req, user)
+	params = sitop.DenyStorageInTransitParams{
+		HTTPRequest:                     req,
+		ShipmentID:                      strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID:              strfmt.UUID(sit.ID.String()),
+		StorageInTransitApprovalPayload: &denyPayload,
+	}
+
+	handler = DenyStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response = handler.Handle(params)
+	suite.Assertions.IsType(response.(*sitop.DenyStorageInTransitConflict), response)
+
+}
+
+func (suite *HandlerSuite) TestInSitStorageInTransitHandler() {
+	shipment, sit, user := setupStorageInTransitHandlerTest(suite)
+	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
+
+	assertions := testdatagen.Assertions{
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			ShipmentID:                      shipment.ID,
+		},
+	}
+	// Create a shipment offer that uses our generated TSP ID and shipment ID so that our TSP has rights to
+	// change the status to in_sit.
+	testdatagen.MakeShipmentOffer(suite.DB(), assertions)
+
+	sit.Status = models.StorageInTransitStatusAPPROVED
+	_, _ = suite.DB().ValidateAndSave(&sit)
+
+	inSitPayload := apimessages.StorageInTransitInSitPayload{
+		ActualStartDate: *handlers.FmtDate(testdatagen.DateInsidePerformancePeriod),
+	}
+
+	path := fmt.Sprintf("/shipments/%s/storage_in_transits/%s/in_sit", shipment.ID.String(), sit.ID.String())
+	req := httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	params := sitop.InSitStorageInTransitParams{
+		HTTPRequest:                  req,
+		ShipmentID:                   strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID:           strfmt.UUID(sit.ID.String()),
+		StorageInTransitInSitPayload: &inSitPayload,
+	}
+
+	handler := InSitStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&sitop.InSitStorageInTransitOK{}, response)
+	responsePayload := response.(*sitop.InSitStorageInTransitOK).Payload
+
+	suite.Equal(string(models.StorageInTransitStatusINSIT), responsePayload.Status)
+	suite.Equal(inSitPayload.ActualStartDate, *responsePayload.ActualStartDate)
+
+	// Let's make sure it denies an office user
+	req = suite.AuthenticateOfficeRequest(req, user)
+	params = sitop.InSitStorageInTransitParams{
+		HTTPRequest:                  req,
+		ShipmentID:                   strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID:           strfmt.UUID(sit.ID.String()),
+		StorageInTransitInSitPayload: &inSitPayload,
+	}
+
+	handler = InSitStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response = handler.Handle(params)
+
+	suite.Assertions.IsType(&sitop.InSitStorageInTransitForbidden{}, response)
+
+	// Let's make sure it won't let us do this if the status is not approved
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	params = sitop.InSitStorageInTransitParams{
+		HTTPRequest:                  req,
+		ShipmentID:                   strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID:           strfmt.UUID(sit.ID.String()),
+		StorageInTransitInSitPayload: &inSitPayload,
+	}
+
+	sit.Status = models.StorageInTransitStatusREQUESTED
+	_, _ = suite.DB().ValidateAndSave(&sit)
+
+	handler = InSitStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response = handler.Handle(params)
+
+	suite.Assertions.IsType(&sitop.InSitStorageInTransitConflict{}, response)
+
+}
+
+func (suite *HandlerSuite) TestDeliverStorageInTransitHandler() {
+	shipment, sit, user := setupStorageInTransitHandlerTest(suite)
+	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
+
+	assertions := testdatagen.Assertions{
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			ShipmentID:                      shipment.ID,
+		},
+	}
+	// Create a shipment offer that uses our generated TSP ID and shipment ID so that our TSP has rights to
+	// change the status to in_sit.
+	testdatagen.MakeShipmentOffer(suite.DB(), assertions)
+
+	sit.Status = models.StorageInTransitStatusINSIT
+	_, _ = suite.DB().ValidateAndSave(&sit)
+
+	path := fmt.Sprintf("/shipments/%s/storage_in_transits/%s/deliver", shipment.ID.String(), sit.ID.String())
+	req := httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	params := sitop.DeliverStorageInTransitParams{
+		HTTPRequest:        req,
+		ShipmentID:         strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID: strfmt.UUID(sit.ID.String()),
+	}
+
+	handler := DeliverStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&sitop.DeliverStorageInTransitOK{}, response)
+	responsePayload := response.(*sitop.DeliverStorageInTransitOK).Payload
+
+	suite.Equal(string(models.StorageInTransitStatusDELIVERED), responsePayload.Status)
+
+	// Let's make sure it also works with the released status
+	sit.Status = models.StorageInTransitStatusRELEASED
+	_, _ = suite.DB().ValidateAndSave(&sit)
+
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	params = sitop.DeliverStorageInTransitParams{
+		HTTPRequest:        req,
+		ShipmentID:         strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID: strfmt.UUID(sit.ID.String()),
+	}
+
+	handler = DeliverStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response = handler.Handle(params)
+
+	suite.Assertions.IsType(&sitop.DeliverStorageInTransitOK{}, response)
+	responsePayload = response.(*sitop.DeliverStorageInTransitOK).Payload
+
+	suite.Equal(string(models.StorageInTransitStatusDELIVERED), responsePayload.Status)
+
+	// Let's make sure it doesn't let us do this if the status isn't in sit or released
+	sit.Status = models.StorageInTransitStatusREQUESTED
+	_, _ = suite.DB().ValidateAndSave(&sit)
+
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	params = sitop.DeliverStorageInTransitParams{
+		HTTPRequest:        req,
+		ShipmentID:         strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID: strfmt.UUID(sit.ID.String()),
+	}
+
+	handler = DeliverStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response = handler.Handle(params)
+
+	suite.Assertions.IsType(&sitop.DeliverStorageInTransitConflict{}, response)
+
+	// Let's make sure this fails with an office user
+	sit.Status = models.StorageInTransitStatusINSIT
+	_, _ = suite.DB().ValidateAndSave(&sit)
+
+	req = httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateOfficeRequest(req, user)
+	params = sitop.DeliverStorageInTransitParams{
+		HTTPRequest:        req,
+		ShipmentID:         strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID: strfmt.UUID(sit.ID.String()),
+	}
+
+	handler = DeliverStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response = handler.Handle(params)
+
+	suite.Assertions.IsType(&sitop.DeliverStorageInTransitForbidden{}, response)
+
+}
+
+func (suite *HandlerSuite) TestReleaseStorageInTransitHandler() {
+	shipment, sit, user := setupStorageInTransitHandlerTest(suite)
+	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
+
+	assertions := testdatagen.Assertions{
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			ShipmentID:                      shipment.ID,
+		},
+	}
+	// Create a shipment offer that uses our generated TSP ID and shipment ID so that our TSP has rights to
+	// change the status to in_sit.
+	testdatagen.MakeShipmentOffer(suite.DB(), assertions)
+
+	sit.Status = models.StorageInTransitStatusINSIT
+	_, _ = suite.DB().ValidateAndSave(&sit)
+
+	path := fmt.Sprintf("/shipments/%s/storage_in_transits/%s/release", shipment.ID.String(), sit.ID.String())
+	req := httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	params := sitop.ReleaseStorageInTransitParams{
+		HTTPRequest:        req,
+		ShipmentID:         strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID: strfmt.UUID(sit.ID.String()),
+	}
+
+	handler := ReleaseStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&sitop.ReleaseStorageInTransitOK{}, response)
+	responsePayload := response.(*sitop.ReleaseStorageInTransitOK).Payload
+
+	suite.Equal(string(models.StorageInTransitStatusRELEASED), responsePayload.Status)
+
+	// Let's make sure this doesn't work if the status isn't 'in sit'
+	sit.Status = models.StorageInTransitStatusREQUESTED
+	_, _ = suite.DB().ValidateAndSave(&sit)
+
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	params = sitop.ReleaseStorageInTransitParams{
+		HTTPRequest:        req,
+		ShipmentID:         strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID: strfmt.UUID(sit.ID.String()),
+	}
+
+	handler = ReleaseStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response = handler.Handle(params)
+
+	suite.Assertions.IsType(&sitop.ReleaseStorageInTransitConflict{}, response)
+
+	// Let's make sure it fails if an office user tries to do it
+	sit.Status = models.StorageInTransitStatusINSIT
+	_, _ = suite.DB().ValidateAndSave(&sit)
+
+	req = suite.AuthenticateOfficeRequest(req, user)
+	params = sitop.ReleaseStorageInTransitParams{
+		HTTPRequest:        req,
+		ShipmentID:         strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID: strfmt.UUID(sit.ID.String()),
+	}
+
+	handler = ReleaseStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response = handler.Handle(params)
+
+	suite.Assertions.IsType(&sitop.ReleaseStorageInTransitForbidden{}, response)
+
+}
+
 func (suite *HandlerSuite) TestPatchStorageInTransitHandler() {
 	shipment, sit, user := setupStorageInTransitHandlerTest(suite)
 
@@ -206,7 +551,7 @@ func (suite *HandlerSuite) TestPatchStorageInTransitHandler() {
 		},
 	}
 	// Create a shipment offer that uses our generated TSP ID and shipment ID so that our TSP has rights to
-	// Use these to create a SIT for them.
+	// Use these to update a SIT for them.
 	testdatagen.MakeShipmentOffer(suite.DB(), assertions)
 	req = httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
@@ -218,73 +563,6 @@ func (suite *HandlerSuite) TestPatchStorageInTransitHandler() {
 	responsePayload = response.(*sitop.PatchStorageInTransitOK).Payload
 	storageInTransitPayloadCompare(suite, sitPayload, responsePayload)
 
-	// Let's make sure we get a forbidden if a non office user tries to change the status
-	sit.Status = "APPROVED"
-	sitPayload = payloadForStorageInTransitModel(&sit)
-
-	req = httptest.NewRequest("POST", path, nil)
-	req = suite.AuthenticateTspRequest(req, tspUser)
-	params.HTTPRequest = req
-	handler = PatchStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	handler.Handle(params)
-	suite.Error(models.ErrFetchForbidden)
-
-	// Let's make sure we get a forbidden if a non office user tries to change the authorization notes
-	sit.AuthorizationNotes = swag.String("This is a change")
-	sitPayload = payloadForStorageInTransitModel(&sit)
-
-	req = httptest.NewRequest("POST", path, nil)
-	req = suite.AuthenticateTspRequest(req, tspUser)
-	params.HTTPRequest = req
-	handler = PatchStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	handler.Handle(params)
-	suite.Error(models.ErrFetchForbidden)
-
-	// Let's make sure we get a forbidden if a non office user tries to change the authorization date
-	sit.AuthorizedStartDate = &testdatagen.DateOutsidePerformancePeriod
-	sitPayload = payloadForStorageInTransitModel(&sit)
-
-	req = httptest.NewRequest("POST", path, nil)
-	req = suite.AuthenticateTspRequest(req, tspUser)
-	params.HTTPRequest = req
-	handler = PatchStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	handler.Handle(params)
-	suite.Error(models.ErrFetchForbidden)
-
-	// A TSP user should be able to set the status to 'IN_SIT'
-	sit.Status = "IN_SIT"
-	sitPayload = payloadForStorageInTransitModel(&sit)
-
-	req = httptest.NewRequest("POST", path, nil)
-	req = suite.AuthenticateTspRequest(req, tspUser)
-	params.HTTPRequest = req
-	handler = PatchStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	handler.Handle(params)
-	suite.Assertions.IsType(&sitop.PatchStorageInTransitOK{}, response)
-	responsePayload = response.(*sitop.PatchStorageInTransitOK).Payload
-	storageInTransitPayloadCompare(suite, sitPayload, responsePayload)
-
-	// Let's make sure we get a forbidden if an office user tries to change the status to 'IN_SIT'
-	sit.Status = "IN_SIT"
-	sitPayload = payloadForStorageInTransitModel(&sit)
-
-	req = httptest.NewRequest("POST", path, nil)
-	req = suite.AuthenticateOfficeRequest(req, user)
-	params.HTTPRequest = req
-	handler = PatchStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	handler.Handle(params)
-	suite.Error(models.ErrFetchForbidden)
-
-	// And let's make sure we can successfully change the status to approved through the handler.
-	req = httptest.NewRequest("POST", path, nil)
-	req = suite.AuthenticateOfficeRequest(req, user)
-	params.HTTPRequest = req
-	handler = PatchStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
-	handler.Handle(params)
-
-	suite.Assertions.IsType(&sitop.PatchStorageInTransitOK{}, response)
-	responsePayload = response.(*sitop.PatchStorageInTransitOK).Payload
-	storageInTransitPayloadCompare(suite, sitPayload, responsePayload)
 }
 
 func (suite *HandlerSuite) TestDeleteStorageInTransitHandler() {

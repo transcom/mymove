@@ -1741,6 +1741,29 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/StorageInTransit'
+  storageInTransitApprovalPayload:
+    type: object
+    properties:
+      authorization_notes:
+        type: string
+        format: textarea
+        example: Good to go!
+        title: Authorization Notes
+      authorized_start_date:
+        type: string
+        format: date
+        x-nullable: true
+        example: '2018-04-26'
+        title: Authorized Start Date
+  storageInTransitInSitPayload:
+    type: object
+    properties:
+      actual_start_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        title: Actual Start date
+
 paths:
   /tariff_400ng_items:
     get:
@@ -2968,6 +2991,200 @@ paths:
           description: not authorized to access the associated storage in transit entry
         404:
           description: no service agent found with that UUID
+        500:
+          description: server error
+  /shipments/{shipmentId}/storage_in_transits/{storageInTransitId}/approve:
+    post:
+      summary: Approves a requested storage in transit
+      operationId: approveStorageInTransit
+      tags:
+        - storageInTransits
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of shipment
+        - name: storageInTransitId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of storage in transit
+        - in: body
+          name: storageInTransitApprovalPayload
+          required: true
+          schema:
+            $ref: '#/definitions/storageInTransitApprovalPayload'
+      responses:
+        200:
+          description: returns storage in transit that was approved
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to approve this storage in transit
+        409:
+          description: the storage in transit is not in an appropriate state to be approved
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        500:
+          description: server error
+  /shipments/{shipmentId}/storage_in_transits/{storageInTransitId}/deny:
+    post:
+      summary: Denies a requested storage in transit
+      operationId: denyStorageInTransit
+      tags:
+        - storageInTransits
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of shipment
+        - name: storageInTransitId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of storage in transit
+        - in: body
+          name: storageInTransitApprovalPayload
+          required: true
+          schema:
+            $ref: '#/definitions/storageInTransitApprovalPayload'
+      responses:
+        200:
+          description: returns storage in transit that was denied
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to deny this storage in transit
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        409:
+          description: the storage in transit is not in an appropriate state to be approved
+        500:
+          description: server error
+  /shipments/{shipmentId}/storage_in_transits/{storageInTransitId}/in_sit:
+    post:
+      summary: Places a storage in transit into 'IN_SIT'
+      operationId: inSitStorageInTransit
+      tags:
+        - storageInTransits
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of shipment
+        - name: storageInTransitId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of storage in transit
+        - name: storageInTransitInSitPayload
+          in: body
+          schema:
+            $ref: '#/definitions/storageInTransitInSitPayload'
+      responses:
+        200:
+          description: returns storage in transit that was put into in_sit
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to in_sit this storage in transit
+        409:
+          description: the storage in transit is not in an appropriate state to be put in_sit
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        500:
+          description: server error
+  /shipments/{shipmentId}/storage_in_transits/{storageInTransitId}/release:
+    post:
+      summary: Releases a requested storage in transit
+      operationId: releaseStorageInTransit
+      tags:
+        - storageInTransits
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of shipment
+        - name: storageInTransitId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of storage in transit
+      responses:
+        200:
+          description: returns storage in transit that was released
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to release this storage in transit
+        409:
+          description: the storage in transit is not in an appropriate state to be released
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        500:
+          description: server error
+  /shipments/{shipmentId}/storage_in_transits/{storageInTransitId}/deliver:
+    post:
+      summary: Delivers a requested storage in transit
+      operationId: deliverStorageInTransit
+      tags:
+        - storageInTransits
+      parameters:
+        - name: shipmentId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of shipment
+        - name: storageInTransitId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of storage in transit
+      responses:
+        200:
+          description: returns storage in transit that was delivered
+          schema:
+            $ref: '#/definitions/StorageInTransit'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to deliver this storage in transit
+        409:
+          description: the storage in transit is not in an appropriate state to be delivered
+          schema:
+            $ref: '#/definitions/StorageInTransit'
         500:
           description: server error
   /tsps:

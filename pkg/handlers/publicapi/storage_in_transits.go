@@ -24,17 +24,20 @@ func payloadForStorageInTransitModel(s *models.StorageInTransit) *apimessages.St
 	status := string(s.Status)
 
 	return &apimessages.StorageInTransit{
-		ID:                 *handlers.FmtUUID(s.ID),
-		ShipmentID:         *handlers.FmtUUID(s.ShipmentID),
-		EstimatedStartDate: handlers.FmtDate(s.EstimatedStartDate),
-		Notes:              handlers.FmtStringPtr(s.Notes),
-		WarehouseAddress:   payloadForAddressModel(&s.WarehouseAddress),
-		WarehouseEmail:     handlers.FmtStringPtr(s.WarehouseEmail),
-		WarehouseID:        handlers.FmtString(s.WarehouseID),
-		WarehouseName:      handlers.FmtString(s.WarehouseName),
-		WarehousePhone:     handlers.FmtStringPtr(s.WarehousePhone),
-		Location:           &location,
-		Status:             *handlers.FmtString(status),
+		ID:                  *handlers.FmtUUID(s.ID),
+		ShipmentID:          *handlers.FmtUUID(s.ShipmentID),
+		EstimatedStartDate:  handlers.FmtDate(s.EstimatedStartDate),
+		Notes:               handlers.FmtStringPtr(s.Notes),
+		WarehouseAddress:    payloadForAddressModel(&s.WarehouseAddress),
+		WarehouseEmail:      handlers.FmtStringPtr(s.WarehouseEmail),
+		WarehouseID:         handlers.FmtString(s.WarehouseID),
+		WarehouseName:       handlers.FmtString(s.WarehouseName),
+		WarehousePhone:      handlers.FmtStringPtr(s.WarehousePhone),
+		Location:            &location,
+		Status:              *handlers.FmtString(status),
+		AuthorizationNotes:  handlers.FmtStringPtr(s.AuthorizationNotes),
+		AuthorizedStartDate: handlers.FmtDatePtr(s.AuthorizedStartDate),
+		ActualStartDate:     handlers.FmtDatePtr(s.ActualStartDate),
 	}
 }
 
@@ -131,37 +134,6 @@ func patchStorageInTransitWithPayload(storageInTransit *models.StorageInTransit,
 		updateAddressWithPayload(&storageInTransit.WarehouseAddress, payload.WarehouseAddress)
 	}
 
-	// This switch maps the incoming string value to an appropriate model constant.
-	switch payload.Status {
-
-	case string(models.StorageInTransitStatusAPPROVED):
-		storageInTransit.Status = models.StorageInTransitStatusAPPROVED
-
-	case string(models.StorageInTransitStatusDELIVERED):
-		storageInTransit.Status = models.StorageInTransitStatusDELIVERED
-
-	case string(models.StorageInTransitStatusDENIED):
-		storageInTransit.Status = models.StorageInTransitStatusDENIED
-
-	case string(models.StorageInTransitStatusINSIT):
-		storageInTransit.Status = models.StorageInTransitStatusINSIT
-
-	case string(models.StorageInTransitStatusREQUESTED):
-		storageInTransit.Status = models.StorageInTransitStatusREQUESTED
-
-	case string(models.StorageInTransitStatusRELEASED):
-		storageInTransit.Status = models.StorageInTransitStatusRELEASED
-
-	}
-
-	if payload.AuthorizationNotes != nil {
-		storageInTransit.AuthorizationNotes = payload.AuthorizationNotes
-	}
-
-	if payload.AuthorizedStartDate != nil {
-		storageInTransit.AuthorizedStartDate = (*time.Time)(payload.AuthorizedStartDate)
-	}
-
 	storageInTransit.WarehousePhone = handlers.FmtStringPtrNonEmpty(payload.WarehousePhone)
 	storageInTransit.WarehouseEmail = handlers.FmtStringPtrNonEmpty(payload.WarehouseEmail)
 }
@@ -242,6 +214,261 @@ func (h CreateStorageInTransitHandler) Handle(params sitop.CreateStorageInTransi
 
 }
 
+// ApproveStorageInTransitHandler approves an existing Storage In Transit
+type ApproveStorageInTransitHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle handles the handling
+func (h ApproveStorageInTransitHandler) Handle(params sitop.ApproveStorageInTransitParams) middleware.Responder {
+	payload := params.StorageInTransitApprovalPayload
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+	storageInTransitID, _ := uuid.FromString(params.StorageInTransitID.String())
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	// Only office users are authorized to do this.
+	if session.IsOfficeUser() {
+		storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
+
+		if err != nil {
+			h.Logger().Error("Could not find existing storage in transit", zap.Error(err))
+			return handlers.ResponseForError(h.Logger(), err)
+		}
+
+		// Verify that the shipment we're getting matches what's in the storage in transit
+		if shipmentID != storageInTransit.ShipmentID {
+			h.Logger().Error("ShipmentID provided does not match the storage in transit")
+			return sitop.NewApproveStorageInTransitForbidden()
+		}
+
+		if storageInTransit.Status == models.StorageInTransitStatusDELIVERED {
+			h.Logger().Error("Cannot approve storage in transit that's already delivered")
+			return sitop.NewApproveStorageInTransitConflict()
+		}
+
+		storageInTransit.Status = models.StorageInTransitStatusAPPROVED
+		storageInTransit.AuthorizationNotes = &payload.AuthorizationNotes
+
+		if payload.AuthorizedStartDate != nil {
+			storageInTransit.AuthorizedStartDate = (*time.Time)(payload.AuthorizedStartDate)
+		} else {
+			storageInTransit.AuthorizedStartDate = &storageInTransit.EstimatedStartDate
+		}
+
+		if verrs, err := h.DB().ValidateAndSave(storageInTransit); verrs.HasAny() || err != nil {
+			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		}
+
+		returnPayload := payloadForStorageInTransitModel(storageInTransit)
+		return sitop.NewApproveStorageInTransitOK().WithPayload(returnPayload)
+
+	}
+
+	return sitop.NewApproveStorageInTransitForbidden()
+}
+
+// DenyStorageInTransitHandler denies an existing storage in transit
+type DenyStorageInTransitHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle handles the handling
+func (h DenyStorageInTransitHandler) Handle(params sitop.DenyStorageInTransitParams) middleware.Responder {
+	payload := params.StorageInTransitApprovalPayload
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+	storageInTransitID, _ := uuid.FromString(params.StorageInTransitID.String())
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	// Only office users are authorized to do this
+	if session.IsOfficeUser() {
+		storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
+
+		if err != nil {
+			h.Logger().Error("Could not find existing storage in transit", zap.Error(err))
+			return handlers.ResponseForError(h.Logger(), err)
+		}
+
+		// Verify that the shipment we're getting matches what's in the storage in transit
+		if shipmentID != storageInTransit.ShipmentID {
+			h.Logger().Error("ShipmentID provided does not match the storage in transit")
+			return sitop.NewDenyStorageInTransitForbidden()
+		}
+
+		if storageInTransit.Status == models.StorageInTransitStatusDELIVERED {
+			h.Logger().Error("Cannot deny storage in transit that's already delivered")
+			return sitop.NewDenyStorageInTransitConflict()
+		}
+
+		storageInTransit.Status = models.StorageInTransitStatusDENIED
+		storageInTransit.AuthorizationNotes = &payload.AuthorizationNotes
+
+		if verrs, err := h.DB().ValidateAndSave(storageInTransit); verrs.HasAny() || err != nil {
+			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		}
+
+		returnPayload := payloadForStorageInTransitModel(storageInTransit)
+		return sitop.NewDenyStorageInTransitOK().WithPayload(returnPayload)
+	}
+	return sitop.NewDenyStorageInTransitForbidden()
+}
+
+// InSitStorageInTransitHandler places storage in transit into in sit
+type InSitStorageInTransitHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle handles the handling
+func (h InSitStorageInTransitHandler) Handle(params sitop.InSitStorageInTransitParams) middleware.Responder {
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+	storageInTransitID, _ := uuid.FromString(params.StorageInTransitID.String())
+	inSitPayload := params.StorageInTransitInSitPayload
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	// Only TSPs are authorized to do this
+	if session.IsTspUser() {
+
+		// Make sure the TSP is authorized for the shipment
+		_, _, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
+
+		if err != nil {
+			sitop.NewIndexStorageInTransitsForbidden()
+		}
+
+		storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
+
+		if err != nil {
+			h.Logger().Error("Could not find existing storage in transit", zap.Error(err))
+			return handlers.ResponseForError(h.Logger(), err)
+		}
+
+		// Verify that the shipment we're getting matches what's in the storage in transit
+		if shipmentID != storageInTransit.ShipmentID {
+			h.Logger().Error("ShipmentID provided does not match the storage in transit")
+			return sitop.NewApproveStorageInTransitForbidden()
+		}
+
+		payloadActualStartDate := (time.Time)(inSitPayload.ActualStartDate)
+
+		if !(storageInTransit.Status == models.StorageInTransitStatusAPPROVED) {
+			h.Logger().Error("Cannot place storage in transit into SIT without approval")
+			return sitop.NewInSitStorageInTransitConflict()
+		}
+
+		storageInTransit.Status = models.StorageInTransitStatusINSIT
+		storageInTransit.ActualStartDate = &payloadActualStartDate
+
+		if verrs, errs := h.DB().ValidateAndSave(storageInTransit); verrs.HasAny() || errs != nil {
+			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		}
+
+		returnPayload := payloadForStorageInTransitModel(storageInTransit)
+		return sitop.NewInSitStorageInTransitOK().WithPayload(returnPayload)
+
+	}
+
+	return sitop.NewInSitStorageInTransitForbidden()
+}
+
+// DeliverStorageInTransitHandler delivers an existing storage in transit
+type DeliverStorageInTransitHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle handles the handling
+func (h DeliverStorageInTransitHandler) Handle(params sitop.DeliverStorageInTransitParams) middleware.Responder {
+	// TODO: it looks like from the wireframes for the delivery status change form that this will also need to edit
+	//  delivery address(es) and the actual delivery date.
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+	storageInTransitID, _ := uuid.FromString(params.StorageInTransitID.String())
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	// Only TSPs are authorized to do this
+	if session.IsTspUser() {
+		// Make sure the TSP is authorized for the shipment
+		_, _, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
+
+		if err != nil {
+			sitop.NewDeliverStorageInTransitForbidden()
+		}
+
+		storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
+
+		if err != nil {
+			h.Logger().Error("Could not find existing storage in transit", zap.Error(err))
+			return handlers.ResponseForError(h.Logger(), err)
+		}
+
+		if !(storageInTransit.Status == models.StorageInTransitStatusINSIT) &&
+			!(storageInTransit.Status == models.StorageInTransitStatusRELEASED) {
+			h.Logger().Error("Cannot deliver if its not in sit or released.")
+			return sitop.NewDeliverStorageInTransitConflict()
+		}
+
+		storageInTransit.Status = models.StorageInTransitStatusDELIVERED
+
+		if verrs, errs := h.DB().ValidateAndSave(storageInTransit); verrs.HasAny() || errs != nil {
+			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		}
+
+		returnPayload := payloadForStorageInTransitModel(storageInTransit)
+		return sitop.NewDeliverStorageInTransitOK().WithPayload(returnPayload)
+
+	}
+
+	return sitop.NewDeliverStorageInTransitForbidden()
+}
+
+// ReleaseStorageInTransitHandler releases an existing storage in transit
+type ReleaseStorageInTransitHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle Handles the handling
+func (h ReleaseStorageInTransitHandler) Handle(params sitop.ReleaseStorageInTransitParams) middleware.Responder {
+	// TODO: There may be other fields that have to be addressed here when we get to the frontend story for this.
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+	storageInTransitID, _ := uuid.FromString(params.StorageInTransitID.String())
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	// Only TSPs are authorized to do this
+	if session.IsTspUser() {
+		// Make sure the TSP is authorized for the shipment
+		_, _, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
+
+		if err != nil {
+			sitop.NewReleaseStorageInTransitForbidden()
+		}
+
+		storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
+
+		if err != nil {
+			h.Logger().Error("Could not find existing storage in transit", zap.Error(err))
+			return handlers.ResponseForError(h.Logger(), err)
+		}
+
+		if !(storageInTransit.Status == models.StorageInTransitStatusINSIT) {
+			h.Logger().Error("Cannot release something from storage in transit that wasn't in it.")
+			return sitop.NewReleaseStorageInTransitConflict()
+		}
+		storageInTransit.Status = models.StorageInTransitStatusRELEASED
+
+		if verrs, errs := h.DB().ValidateAndSave(storageInTransit); verrs.HasAny() || errs != nil {
+			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		}
+
+		returnPayload := payloadForStorageInTransitModel(storageInTransit)
+		return sitop.NewReleaseStorageInTransitOK().WithPayload(returnPayload)
+
+	}
+
+	return sitop.NewReleaseStorageInTransitForbidden()
+
+}
+
 // PatchStorageInTransitHandler updates an existing Storage In Transit entry
 type PatchStorageInTransitHandler struct {
 	handlers.HandlerContext
@@ -275,30 +502,6 @@ func (h PatchStorageInTransitHandler) Handle(params sitop.PatchStorageInTransitP
 	if storageInTransit.ShipmentID != shipmentID {
 		h.Logger().Error("Shipment ID clash between endpoint URL and SIT record")
 		return sitop.NewPatchStorageInTransitForbidden()
-	}
-
-	// Check if the status is being changed by this request. If so, the user must be an office user
-	// If they are not, return a 403 (Forbidden).
-	if string(storageInTransit.Status) != params.StorageInTransit.Status {
-
-		// If we're not an office user, but we are a TSP user that's setting the status to 'IN_SIT'
-		// allow the request to continue. If not, the 403 happens.
-		if session.IsOfficeUser() != true ||
-			(params.StorageInTransit.Status != string(models.StorageInTransitStatusINSIT) &&
-				session.IsTspUser() != true) {
-
-			return sitop.NewPatchStorageInTransitForbidden()
-		}
-	}
-
-	// If the request is trying to set something for these fields, the user needs to be an office user,
-	// otherwise they get a 403 (Forbidden).
-	if params.StorageInTransit.AuthorizationNotes != nil || params.StorageInTransit.AuthorizedStartDate != nil {
-
-		if session.IsOfficeUser() != true {
-			return sitop.NewPatchStorageInTransitForbidden()
-		}
-
 	}
 
 	patchStorageInTransitWithPayload(storageInTransit, payload)
