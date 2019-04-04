@@ -25,7 +25,17 @@ export class StorageInTransit extends Component {
       showEditForm: false,
       showApproveForm: false,
       showDenyForm: false,
+      storageInTransit: {},
     };
+  }
+
+  componentDidMount() {
+    this.setState({
+      storageInTransit: {
+        ...this.props.storageInTransit,
+        authorized_start_date: this.props.storageInTransit.estimated_start_date,
+      },
+    });
   }
 
   openEditForm = () => {
@@ -75,7 +85,7 @@ export class StorageInTransit extends Component {
           </span>
           <span>SIT {storageInTransit.status.charAt(0) + storageInTransit.status.slice(1).toLowerCase()} </span>
           {showApproveForm ? (
-            <ApproveSitRequest onClose={this.closeApproveForm} />
+            <ApproveSitRequest onClose={this.closeApproveForm} storageInTransit={this.state.storageInTransit} />
           ) : (
             isOfficeSite &&
             !showEditForm &&
