@@ -51,6 +51,11 @@ function AllowableExpenses(props) {
           <li>Tire chains</li>
         </ul>
       </p>
+      <div className="usa-grid button-bar">
+        <button className="usa-button-secondary" onClick={goBack}>
+          Back
+        </button>
+      </div>
     </div>
   );
 }

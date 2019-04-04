@@ -1,7 +1,26 @@
 .ppm-payment-req-intro .title,
-.allowable-expenses-container .title {
+.allowable-expenses-container .title,
+.weight-ticket-example-container .title {
   font-size: 2.2rem;
   font-family: sans-serif;
+}
+
+.weight-ticket-example-container .subheader {
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.weight-ticket-example-container p {
+  margin: 0px;
+}
+
+.weight-ticket-example-img {
+  vertical-align: middle;
+}
+
+.dashed-divider {
+  margin-top: 1rem;
+  border-bottom: 1px dashed #e9e8e8;
 }
 
 .ppm-payment-req-intro a:visited {
@@ -33,4 +52,10 @@
 
 .allowable-expenses-container .icon {
   margin-left: 0px;
+}
+
+.button-bar {
+  border-top: 1px solid black;
+  margin-top: 2.3rem;
+  padding-top: 1rem;
 }
