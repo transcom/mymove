@@ -186,12 +186,14 @@ func FetchShipmentLineItemByID(dbConnection *pop.Connection, shipmentLineItemID 
 
 // Approve marks the ShipmentLineItem request as Approved. Must be in a submitted state or Conditionally Approved state.
 func (s *ShipmentLineItem) Approve() error {
-	if !(s.Status == ShipmentLineItemStatusSUBMITTED || (s.Tariff400ngItem.Code == "35A" && s.Status == ShipmentLineItemStatusCONDITIONALLYAPPROVED)) {
+	if !(s.Status == ShipmentLineItemStatusSUBMITTED || (s.Tariff400ngItem.Code == "35A" && (s.Status == ShipmentLineItemStatusAPPROVED || s.Status == ShipmentLineItemStatusCONDITIONALLYAPPROVED))) {
 		var logMsg = "func Approve(): Current ShipmentLineItem status is [" + string(s.Status) + "]"
 		return errors.Wrap(ErrInvalidTransition, logMsg)
 	}
 	s.Status = ShipmentLineItemStatusAPPROVED
-	s.ApprovedDate = time.Now()
+	if s.ApprovedDate.IsZero() {
+		s.ApprovedDate = time.Now()
+	}
 	return nil
 }
 
@@ -202,5 +204,8 @@ func (s *ShipmentLineItem) ConditionallyApprove() error {
 		return errors.Wrap(ErrInvalidTransition, logMsg)
 	}
 	s.Status = ShipmentLineItemStatusCONDITIONALLYAPPROVED
+	if s.ApprovedDate.IsZero() {
+		s.ApprovedDate = time.Now()
+	}
 	return nil
 }

@@ -24,7 +24,8 @@ function formatStatus(lineItem) {
 export function renderActionIcons(status, onEdit, onApproval, onDelete, shipmentLineItemId, canEdit35A) {
   // Only office users can approve requests.
   // If the request is approved/invoiced, they cannot be edited, only deleted.
-  const isEditable = status === 'SUBMITTED' || (status === 'CONDITIONALLYAPPROVED' && canEdit35A);
+  const isEditable =
+    status === 'SUBMITTED' || ((status === 'CONDITIONALLYAPPROVED' || status === 'APPROVED') && canEdit35A);
   return (
     <Fragment>
       <div className="pre-approval-icon-container">

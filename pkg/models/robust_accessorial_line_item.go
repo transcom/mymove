@@ -144,18 +144,17 @@ func upsertItemCode35ADependency(db *pop.Connection, baseParams *BaseShipmentLin
 		// Line item exists
 		// Only update the ActualAmountCents
 		shipmentLineItem.ActualAmountCents = additionalParams.ActualAmountCents
-		return responseVErrors, responseError
 	} else if additionalParams.Description == nil || additionalParams.Reason == nil || additionalParams.EstimateAmountCents == nil {
 		// Required to create 35A line item
 		// Description, Reason and EstimateAmounCents
 		responseError = errors.New("Must have Description, Reason and EstimateAmountCents params")
 		return responseVErrors, responseError
+	} else {
+		shipmentLineItem.Description = additionalParams.Description
+		shipmentLineItem.Reason = additionalParams.Reason
+		shipmentLineItem.EstimateAmountCents = additionalParams.EstimateAmountCents
+		shipmentLineItem.ActualAmountCents = additionalParams.ActualAmountCents
 	}
-
-	shipmentLineItem.Description = additionalParams.Description
-	shipmentLineItem.Reason = additionalParams.Reason
-	shipmentLineItem.EstimateAmountCents = additionalParams.EstimateAmountCents
-	shipmentLineItem.ActualAmountCents = additionalParams.ActualAmountCents
 
 	if shipmentLineItem.ActualAmountCents != nil {
 		if *shipmentLineItem.ActualAmountCents <= *shipmentLineItem.EstimateAmountCents {
