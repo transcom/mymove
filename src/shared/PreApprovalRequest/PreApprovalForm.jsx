@@ -196,7 +196,7 @@ export class PreApprovalForm extends Component {
       robustAccessorial,
       this.props.initialValues,
     );
-    const isStatic = this.props.status === 'CONDITIONALLYAPPROVED';
+    const isStatic = this.props.status === 'CONDITIONALLYAPPROVED' || this.props.status === 'APPROVED';
     return isStatic ? this.makeStaticForm(FormComponent) : this.makeEditableForm(FormComponent);
   }
 }
