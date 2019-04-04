@@ -26,6 +26,7 @@ import (
 
 var services = []string{"app"}
 var environments = []string{"prod", "staging", "experimental"}
+var rules = []string{"save_fuel_price_data"}
 
 type errInvalidAccountID struct {
 	AwsAccountID string
@@ -119,7 +120,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String(environmentFlag, "", fmt.Sprintf("The environment name (choose %q)", environments))
 	flag.String(repositoryNameFlag, "", fmt.Sprintf("The name of the repository where the tagged image resides"))
 	flag.String(imageTagFlag, "", "The name of the image tag referenced in the task definition")
-	flag.String(ruleFlag, "", "The name of the CloudWatch Event Rule targeting the Task Definition")
+	flag.String(ruleFlag, "", fmt.Sprintf("The name of the CloudWatch Event Rule targeting the Task Definition (choose %q)", rules))
 
 	// EIA Open Data API
 	flag.String(eiaKeyFlag, "", "Key for Energy Information Administration (EIA) api")
@@ -221,9 +222,19 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(&errinvalidImageTag{ImageTag: imageTag}, fmt.Sprintf("%q is invalid", imageTagFlag))
 	}
 
-	rule := v.GetString(ruleFlag)
-	if len(rule) == 0 {
-		return errors.Wrap(&errInvalidRule{Rule: rule}, fmt.Sprintf("%q is invalid", ruleFlag))
+	ruleName := v.GetString(ruleFlag)
+	if len(ruleName) == 0 {
+		return errors.Wrap(&errInvalidRule{Rule: ruleName}, fmt.Sprintf("%q is invalid", ruleFlag))
+	}
+	validRule := false
+	for _, str := range rules {
+		if ruleName == str {
+			validRule = true
+			break
+		}
+	}
+	if !validRule {
+		return errors.Wrap(&errInvalidRule{Rule: ruleName}, fmt.Sprintf("%q is invalid", ruleFlag))
 	}
 
 	err := checkEIAKey(v)
@@ -401,6 +412,7 @@ func main() {
 	// Set up some key variables
 	serviceName := v.GetString(serviceFlag)
 	clusterName := fmt.Sprintf("%s-%s", serviceName, environmentName)
+	familyName := fmt.Sprintf("%s-scheduled-task-%s-%s", serviceName, ruleName, environmentName)
 	taskRoleArn := fmt.Sprintf("ecs-task-role-%s", clusterName)
 	executionRoleArn := fmt.Sprintf("ecs-task-excution-role-%s", clusterName)
 	containerDefName := fmt.Sprintf("app-tasks-%s-%s", ruleName, environmentName)
@@ -483,7 +495,7 @@ func main() {
 		},
 		Cpu:                     aws.String("256"),
 		ExecutionRoleArn:        aws.String(executionRoleArn),
-		Family:                  aws.String("app-scheduled-task-save_fuel_price_data-experimental"),
+		Family:                  aws.String(familyName),
 		Memory:                  aws.String("512"),
 		NetworkMode:             aws.String("awsvpc"),
 		RequiresCompatibilities: []*string{aws.String("FARGATE")},
