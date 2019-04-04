@@ -438,7 +438,15 @@ func main() {
 					aws.String("--"),
 					aws.String(fmt.Sprintf("/bin/%s", ruleName)),
 				},
+				Command: []*string{
+					aws.String("--env"),
+					aws.String("container"),
+				},
 				Environment: []*ecs.KeyValuePair{
+					&ecs.KeyValuePair{
+						Name:  aws.String("ENV"),
+						Value: aws.String("container"),
+					},
 					&ecs.KeyValuePair{
 						Name:  aws.String("ENVIRONMENT"),
 						Value: aws.String(environmentName),
