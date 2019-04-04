@@ -2288,6 +2288,10 @@ definitions:
       locator:
         type: string
         example: '12432'
+      gbl_number:
+        type: string
+        example: 'LNK12345'
+        title: GBL Number
       customer_name:
         type: string
         example: Thedog, Nino

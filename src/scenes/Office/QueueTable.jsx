@@ -105,10 +105,6 @@ class QueueTable extends Component {
                 Cell: row => <span className="status">{capitalize(row.value.replace('_', ' '))}</span>,
               },
               {
-                Header: 'Locator #',
-                accessor: 'locator',
-              },
-              {
                 Header: 'Customer name',
                 accessor: 'customer_name',
               },
@@ -119,6 +115,14 @@ class QueueTable extends Component {
               {
                 Header: 'Rank',
                 accessor: 'rank',
+              },
+              {
+                Header: 'Locator #',
+                accessor: 'locator',
+              },
+              {
+                Header: 'GBL',
+                accessor: 'gbl_number',
               },
               {
                 Header: 'Move date',
