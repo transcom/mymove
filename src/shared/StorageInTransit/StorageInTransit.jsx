@@ -30,13 +30,17 @@ export class StorageInTransit extends Component {
   }
 
   componentDidMount() {
+    this.addAuthorizedStartDate();
+  }
+
+  addAuthorizedStartDate = () => {
     this.setState({
       storageInTransit: {
         ...this.props.storageInTransit,
         authorized_start_date: this.props.storageInTransit.estimated_start_date,
       },
     });
-  }
+  };
 
   openEditForm = () => {
     this.setState({ showEditForm: true });
