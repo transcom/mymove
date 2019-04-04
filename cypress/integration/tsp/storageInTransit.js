@@ -14,6 +14,9 @@ describe('TSP user interacts with storage in transit panel', function() {
   it('TSP user edits and saves storage in transit request', function() {
     tspUserEditsSitRequest();
   });
+  it('TSP user starts and then cancels Place into SIT form', function() {
+    tspUserStartsAndCancelsSitPlaceInSit();
+  });
 });
 
 // need to simulate a form submit
@@ -114,4 +117,36 @@ function tspUserEditsSitRequest() {
     .click();
 
   editAndSaveStorageInTransit();
+}
+
+function tspUserStartsAndCancelsSitPlaceInSit() {
+  // Open accepted shipments queue
+  cy.patientVisit('/queues/in_transit');
+
+  // Open new shipments queue
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/in_transit/);
+  });
+
+  // Find shipment and open it
+  cy.selectQueueItemMoveLocator('SITAPR');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+  });
+
+  cy
+    .get('[data-cy=storage-in-transit-panel] [data-cy=place-in-sit-link]')
+    .contains('Place into SIT')
+    .click();
+
+  cy
+    .get('.usa-button-secondary')
+    .contains('Cancel')
+    .click()
+    .get('[data-cy=storage-in-transit-panel] [data-cy=place-in-sit-link]')
+    .should($div => {
+      const text = $div.text();
+      expect(text).to.not.include('Actual start date');
+    });
 }

@@ -118,8 +118,8 @@ export class StorageInTransit extends Component {
           ) : (
             isTspSite &&
             storageInTransit.status === 'APPROVED' && (
-              <span className="approve-sit">
-                <a className="approve-sit-link" onClick={this.openPlaceInSitForm}>
+              <span className="place-in-sit">
+                <a data-cy="place-in-sit-link" onClick={this.openPlaceInSitForm}>
                   <FontAwesomeIcon className="icon" icon={faSignInAlt} />
                   Place into SIT
                 </a>
