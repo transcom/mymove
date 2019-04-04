@@ -71,8 +71,8 @@ func (suite *ModelSuite) TestCreateAndEditShipmentLineItemCode226A() {
 
 }
 
-// TestCreateShipmentLineItemCode125 tests that 125 line items are created correctly
-func (suite *ModelSuite) TestCreateShipmentLineItemCode125() {
+// TestCreateAndEditShipmentLineItemCode125 tests that 125 line items are created and updated correctly
+func (suite *ModelSuite) TestCreateAndEditShipmentLineItemCode125() {
 	// test create 125A preapproval
 	item125A := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
 		Tariff400ngItem: models.Tariff400ngItem{
@@ -118,41 +118,43 @@ func (suite *ModelSuite) TestCreateShipmentLineItemCode125() {
 		suite.NotNil(shipmentLineItem.Address.ID)
 	}
 
-	// test create 125D
-	item125D := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
-		Tariff400ngItem: models.Tariff400ngItem{
-			Code: "125D",
-		},
-	})
+	// test update line item
 
-	baseParams = models.BaseShipmentLineItemParams{
-		Tariff400ngItemID:   item125D.ID,
-		Tariff400ngItemCode: item125D.Code,
-		Location:            "ORIGIN",
-	}
-
+	// fields to update
+	updateReas := "updated reason"
+	updateDate := time.Now().Add(time.Duration(1000))
 	// also testing for military time format
 	// J - Juliet - Local Time
-	militaryTime = "2359J"
-
-	additionalParams = models.AdditionalShipmentLineItemParams{
-		Reason:  &reas,
-		Date:    &date,
-		Time:    &militaryTime,
-		Address: &address,
+	updateMilitaryTime := "2359J"
+	updateAddress := models.Address{
+		ID:             *shipmentLineItem.AddressID,
+		StreetAddress1: "123 Test St, update test",
+		City:           "City Update Test",
+		State:          "CA, Update Test",
+		PostalCode:     "60000",
 	}
 
-	shipmentLineItem, verrs, err = shipment.CreateShipmentLineItem(suite.DB(),
-		baseParams, additionalParams)
+	additionalParams = models.AdditionalShipmentLineItemParams{
+		Reason:  &updateReas,
+		Date:    &updateDate,
+		Time:    &updateMilitaryTime,
+		Address: &updateAddress,
+	}
+
+	verrs, err = shipment.UpdateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams, shipmentLineItem)
 
 	if suite.noValidationErrors(verrs, err) {
 		// flat rate, quantity 1 should be set to 1 in base quantity. 10000 bq.
 		suite.EqualValues(unit.BaseQuantityFromInt(1), shipmentLineItem.Quantity1)
-		suite.EqualValues(item125D.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
-		suite.EqualValues(reas, *shipmentLineItem.Reason)
-		suite.EqualValues(date, *shipmentLineItem.Date)
-		suite.EqualValues(militaryTime, *shipmentLineItem.Time)
-		suite.NotNil(shipmentLineItem.Address.ID)
+		suite.EqualValues(updateReas, *shipmentLineItem.Reason)
+		suite.EqualValues(updateDate, *shipmentLineItem.Date)
+		suite.EqualValues(updateMilitaryTime, *shipmentLineItem.Time)
+		suite.EqualValues(updateAddress.ID, shipmentLineItem.Address.ID)
+		suite.EqualValues(updateAddress.StreetAddress1, shipmentLineItem.Address.StreetAddress1)
+		suite.EqualValues(updateAddress.City, shipmentLineItem.Address.City)
+		suite.EqualValues(updateAddress.State, shipmentLineItem.Address.State)
+		suite.EqualValues(updateAddress.PostalCode, shipmentLineItem.Address.PostalCode)
 	}
 }
 
