@@ -36,7 +36,7 @@ func getHandlerParamsWithToken(ss string, expiry time.Time) (*httptest.ResponseR
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "http://mil.example.com/protected", nil)
 
-	appName, _ := ApplicationName(req.Host, MilTestHost, OfficeTestHost, TspTestHost)
+	appName, _ := ApplicationName(req.Host, MilTestHost, OfficeTestHost, TspTestHost, AdminTestHost)
 
 	// Set a secure cookie on the request
 	cookieName := fmt.Sprintf("%s_%s", strings.ToLower(string(appName)), UserSessionCookieName)
@@ -62,7 +62,7 @@ func (suite *authSuite) TestSessionCookieMiddlewareWithBadToken() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resultingSession = SessionFromRequestContext(r)
 	})
-	middleware := SessionCookieMiddleware(suite.logger, pem, false, MilTestHost, OfficeTestHost, TspTestHost, false)(handler)
+	middleware := SessionCookieMiddleware(suite.logger, pem, false, MilTestHost, OfficeTestHost, TspTestHost, AdminTestHost, false)(handler)
 
 	expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
 	rr, req := getHandlerParamsWithToken(fakeToken, expiry)
@@ -104,7 +104,7 @@ func (suite *authSuite) TestSessionCookieMiddlewareWithValidToken() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resultingSession = SessionFromRequestContext(r)
 	})
-	middleware := SessionCookieMiddleware(suite.logger, pem, false, MilTestHost, OfficeTestHost, TspTestHost, false)(handler)
+	middleware := SessionCookieMiddleware(suite.logger, pem, false, MilTestHost, OfficeTestHost, TspTestHost, AdminTestHost, false)(handler)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -146,7 +146,7 @@ func (suite *authSuite) TestSessionCookieMiddlewareWithExpiredToken() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		resultingSession = SessionFromRequestContext(r)
 	})
-	middleware := SessionCookieMiddleware(suite.logger, pem, false, MilTestHost, OfficeTestHost, TspTestHost, false)(handler)
+	middleware := SessionCookieMiddleware(suite.logger, pem, false, MilTestHost, OfficeTestHost, TspTestHost, AdminTestHost, false)(handler)
 
 	rr, req := getHandlerParamsWithToken(ss, expiry)
 
@@ -194,7 +194,7 @@ func (suite *authSuite) TestSessionCookiePR161162731() {
 		resultingSession = SessionFromRequestContext(r)
 		WriteSessionCookie(w, resultingSession, "freddy", false, suite.logger, false)
 	})
-	middleware := SessionCookieMiddleware(suite.logger, pem, false, MilTestHost, OfficeTestHost, TspTestHost, false)(handler)
+	middleware := SessionCookieMiddleware(suite.logger, pem, false, MilTestHost, OfficeTestHost, TspTestHost, AdminTestHost, false)(handler)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -255,7 +255,7 @@ func (suite *authSuite) TestMaskedCSRFMiddlewareCreatesNewToken() {
 }
 
 func (suite *authSuite) TestMiddlewareConstructor() {
-	adm := SessionCookieMiddleware(suite.logger, "secret", false, MilTestHost, OfficeTestHost, TspTestHost, false)
+	adm := SessionCookieMiddleware(suite.logger, "secret", false, MilTestHost, OfficeTestHost, TspTestHost, AdminTestHost, false)
 	suite.NotNil(adm)
 }
 
@@ -269,7 +269,7 @@ func (suite *authSuite) TestMiddlewareMilApp() {
 		suite.False(session.IsTspApp(), "first should not be tsp app")
 		suite.Equal(MilTestHost, session.Hostname)
 	})
-	milMoveMiddleware := SessionCookieMiddleware(suite.logger, "secret", false, MilTestHost, OfficeTestHost, TspTestHost, false)(milMoveTestHandler)
+	milMoveMiddleware := SessionCookieMiddleware(suite.logger, "secret", false, MilTestHost, OfficeTestHost, TspTestHost, AdminTestHost, false)(milMoveTestHandler)
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/some_url", MilTestHost), nil)
 	milMoveMiddleware.ServeHTTP(rr, req)
@@ -291,7 +291,7 @@ func (suite *authSuite) TestMiddlwareOfficeApp() {
 		suite.False(session.IsTspApp(), "should not be tsp app")
 		suite.Equal(OfficeTestHost, session.Hostname)
 	})
-	officeMiddleware := SessionCookieMiddleware(suite.logger, "secret", false, MilTestHost, OfficeTestHost, TspTestHost, false)(officeTestHandler)
+	officeMiddleware := SessionCookieMiddleware(suite.logger, "secret", false, MilTestHost, OfficeTestHost, TspTestHost, AdminTestHost, false)(officeTestHandler)
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/some_url", OfficeTestHost), nil)
 	officeMiddleware.ServeHTTP(rr, req)
@@ -313,7 +313,7 @@ func (suite *authSuite) TestMiddlwareTspApp() {
 		suite.True(session.IsTspApp(), "should be tsp app")
 		suite.Equal(TspTestHost, session.Hostname)
 	})
-	tspMiddleware := SessionCookieMiddleware(suite.logger, "secret", false, MilTestHost, OfficeTestHost, TspTestHost, false)(tspTestHandler)
+	tspMiddleware := SessionCookieMiddleware(suite.logger, "secret", false, MilTestHost, OfficeTestHost, TspTestHost, AdminTestHost, false)(tspTestHandler)
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/some_url", TspTestHost), nil)
 	tspMiddleware.ServeHTTP(rr, req)
@@ -331,7 +331,7 @@ func (suite *authSuite) TestMiddlewareBadApp() {
 	noAppTestHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		suite.Fail("Should not be called")
 	})
-	noAppMiddleware := SessionCookieMiddleware(suite.logger, "secret", false, MilTestHost, OfficeTestHost, TspTestHost, false)(noAppTestHandler)
+	noAppMiddleware := SessionCookieMiddleware(suite.logger, "secret", false, MilTestHost, OfficeTestHost, TspTestHost, AdminTestHost, false)(noAppTestHandler)
 
 	req := httptest.NewRequest("GET", "http://totally.bogus.hostname/some_url", nil)
 	noAppMiddleware.ServeHTTP(rr, req)
