@@ -23,7 +23,7 @@ type errInvalidHostname struct {
 }
 
 func (e *errInvalidHostname) Error() string {
-	return fmt.Sprintf("invalid hostname %s, must be one of %s, %s, or %s", e.Hostname, e.MilApp, e.OfficeApp, e.TspApp)
+	return fmt.Sprintf("invalid hostname %s, must be one of %s, %s, %s, or %s", e.Hostname, e.MilApp, e.OfficeApp, e.TspApp, e.AdminApp)
 }
 
 // UserSessionCookieName is the key suffix at which we're storing our token cookie
@@ -209,7 +209,7 @@ func ApplicationName(hostname, milHostname, officeHostname, tspHostname string, 
 		return OfficeApp, nil
 	} else if strings.EqualFold(hostname, tspHostname) {
 		return TspApp, nil
-	} else if strings.EqualFold(hostname, tspHostname) {
+	} else if strings.EqualFold(hostname, adminHostname) {
 		return AdminApp, nil
 	}
 	return appName, errors.Wrap(
