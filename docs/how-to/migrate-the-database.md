@@ -44,7 +44,7 @@ We are piggy-backing on the migration system for importing static datasets. This
 3. Copy the production migration into the local test migration.
 4. Scrub the test migration of sensitive data, but use it to test the gist of the production migration operation.
 5. Test the local migration by running `make db_dev_migrate`. You should see it run your local migration.
-6. Test the secure migration by running `scripts/run-prod-migrations` to setup a local  prod_migrations` database. Then run `env DB_NAME=prod_migrations scripts/psql-wrapper < tmp/$NAME_OF_YOUR_SECURE_MIGRATION`. Verify that the updated values are in the database.
+6. Test the secure migration by running `scripts/run-prod-migrations` to setup a local  prod_migrations` database. Then run `psql-prod-migrations< tmp/$NAME_OF_YOUR_SECURE_MIGRATION`. Verify that the updated values are in the database.
 7. If you are wanting to run a secure migration for a specific non-production environment, then **skip to the next section**.
 8. Upload the migration to S3 with: `scripts/upload-secure-migration <production_migration_file>`.
 9. Run `scripts/run-prod-migrations` to verify that the upload worked and that the migration can be applied successfully. If not, you can make changes and run `scripts/upload-secure-migration` again and it will overwrite the old files.
@@ -72,7 +72,7 @@ When secure migrations are run, `soda` will shell out to our script, `apply-secu
 * Look at `$SECURE_MIGRATION_SOURCE` to determine if the migrations should be found locally (`local`, for dev & testing,) or on S3 (`s3`).
 * If the file is to be found on S3, it is downloaded from `${AWS_S3_BUCKET_NAME}/secure-migrations/${FILENAME}`.
 * If it is to be found locally, the script looks for it in `$SECURE_MIGRATION_DIR`.
-* Regardless of where the migration comes from, it is then applied to the database by essentially doing: `scritps/psql-wrapper < ${FILENAME}`.
+* Regardless of where the migration comes from, it is then applied to the database by essentially doing: `psql-prod-migrations < ${FILENAME}`.
 
 There is an example of a secure migration [in the repo](https://github.com/transcom/mymove/blob/master/migrations/20180424010930_test_secure_migrations.up.fizz).
 

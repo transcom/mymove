@@ -211,7 +211,10 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		return ShipmentSummaryFormData{}, err
 	}
 
-	ppmRemainingEntitlement := CalculateRemainingPPMEntitlement(move, totalEntitlement)
+	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)
+	if err != nil {
+		return ShipmentSummaryFormData{}, err
+	}
 
 	signedCertification, err := FetchSignedCertificationsPPMPayment(db, session, moveID)
 	if err != nil {
@@ -239,22 +242,30 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 
 // CalculateRemainingPPMEntitlement calculates the remaining PPM entitlement for PPM moves
 // a PPMs remaining entitlement weight is equal to total entitlement - hhg weight
-func CalculateRemainingPPMEntitlement(move Move, totalEntitlement unit.Pound) unit.Pound {
+func CalculateRemainingPPMEntitlement(move Move, totalEntitlement unit.Pound) (unit.Pound, error) {
 	var hhgActualWeight unit.Pound
-	if len(move.Shipments) > 0 && move.Shipments[0].NetWeight != nil {
+	if len(move.Shipments) > 0 {
+		if move.Shipments[0].NetWeight == nil {
+			return hhgActualWeight, errors.Errorf("Shipment %s does not have NetWeight", move.Shipments[0].ID)
+		}
 		hhgActualWeight = *move.Shipments[0].NetWeight
 	}
+
 	var ppmActualWeight unit.Pound
-	if len(move.PersonallyProcuredMoves) > 0 && move.PersonallyProcuredMoves[0].NetWeight != nil {
+	if len(move.PersonallyProcuredMoves) > 0 {
+		if move.PersonallyProcuredMoves[0].NetWeight == nil {
+			return ppmActualWeight, errors.Errorf("PPM %s does not have NetWeight", move.PersonallyProcuredMoves[0].ID)
+		}
 		ppmActualWeight = unit.Pound(*move.PersonallyProcuredMoves[0].NetWeight)
 	}
+
 	switch ppmRemainingEntitlement := totalEntitlement - hhgActualWeight; {
 	case ppmActualWeight < ppmRemainingEntitlement:
-		return ppmActualWeight
+		return ppmActualWeight, nil
 	case ppmRemainingEntitlement < 0:
-		return 0
+		return 0, nil
 	default:
-		return ppmRemainingEntitlement
+		return ppmRemainingEntitlement, nil
 	}
 }
 

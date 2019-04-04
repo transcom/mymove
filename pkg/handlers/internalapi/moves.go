@@ -245,9 +245,10 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 
 	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(h.DB(), session, moveID)
 	if err != nil {
-		h.Logger().Error("Error fetching shipment summary worksheet form data ", zap.Error(err))
+		h.Logger().Error("Error fetching data for SSW", zap.Error(err))
 		return handlers.ResponseForError(h.Logger(), err)
 	}
+
 	ssfd.PreparationDate = time.Time(params.PreparationDate)
 	ssfd.Obligations, err = ppmComputer.ComputeObligations(ssfd, h.Planner())
 	if err != nil {
