@@ -161,27 +161,27 @@ export class StorageInTransit extends Component {
         {!showEditForm && (
           <div className="usa-width-one-whole">
             <div className="usa-width-one-half">
-              <div className="column-subhead">Dates</div>
-              <div className="panel-field">
+              <div className="column-subhead nested__same-font">Dates</div>
+              <div className="panel-field nested__same-font">
                 <span className="field-title unbold">Est. start date</span>
                 <span className="field-value">{formatDate4DigitYear(storageInTransit.estimated_start_date)}</span>
               </div>
               {storageInTransit.notes !== undefined && (
                 <div className="sit-notes">
-                  <div className="column-subhead">Note</div>
-                  <div className="panel-field">
+                  <div className="column-subhead nested__same-font">Note</div>
+                  <div className="panel-field nested__same-font">
                     <span className="field-title unbold">{storageInTransit.notes}</span>
                   </div>
                 </div>
               )}
             </div>
             <div className="usa-width-one-half">
-              <div className="column-subhead">Warehouse</div>
-              <div className="panel-field">
+              <div className="column-subhead nested__same-font">Warehouse</div>
+              <div className="panel-field nested__same-font">
                 <span className="field-title unbold">Warehouse ID</span>
                 <span className="field-value">{storageInTransit.warehouse_id}</span>
               </div>
-              <div className="panel-field">
+              <div className="panel-field nested__same-font">
                 <span className="field-title unbold">Contact info</span>
                 <span className="field-value">
                   {storageInTransit.warehouse_name}
