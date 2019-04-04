@@ -130,7 +130,7 @@ func (h IndexShipmentsHandler) Handle(params shipmentop.IndexShipmentsParams) mi
 	}
 
 	shipments, err := models.FetchShipmentsByTSP(h.DB(), tspUser.TransportationServiceProviderID,
-		params.Status, params.OrderBy, params.Limit, params.Offset)
+		params.Status, params.OrderBy)
 	if err != nil {
 		h.Logger().Error("DB Query", zap.Error(err))
 		return shipmentop.NewIndexShipmentsBadRequest()

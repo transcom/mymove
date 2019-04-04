@@ -1,6 +1,7 @@
 .queue-table {
   font-size: 0.75em;
   min-width: 1000px;
+  margin-bottom: 4em;
 }
 
 .queue-table-scrollable {

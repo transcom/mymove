@@ -431,10 +431,6 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerPaginated() {
 	tspUser1 := tspUsers[0]
 	tspUser2 := tspUsers[1]
 
-	// Constants
-	limit := int64(25)
-	offset := int64(1)
-
 	// Handler to Test
 	handler := IndexShipmentsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 
@@ -443,8 +439,6 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerPaginated() {
 	req1 = suite.AuthenticateTspRequest(req1, tspUser1)
 	params1 := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req1,
-		Limit:       &limit,
-		Offset:      &offset,
 	}
 
 	response1 := handler.Handle(params1)
@@ -457,8 +451,6 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerPaginated() {
 	req2 = suite.AuthenticateTspRequest(req2, tspUser2)
 	params2 := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req2,
-		Limit:       &limit,
-		Offset:      &offset,
 	}
 
 	response2 := handler.Handle(params2)
@@ -482,13 +474,9 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupAsc() {
 	req := httptest.NewRequest("GET", "/shipments", nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
-	limit := int64(25)
-	offset := int64(1)
 	orderBy := "PICKUP_DATE_ASC"
 	params := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
-		Limit:       &limit,
-		Offset:      &offset,
 		OrderBy:     &orderBy,
 	}
 
@@ -531,13 +519,9 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsPickupDesc() {
 	req := httptest.NewRequest("GET", "/shipments", nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
-	limit := int64(25)
-	offset := int64(1)
 	orderBy := "PICKUP_DATE_DESC"
 	params := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
-		Limit:       &limit,
-		Offset:      &offset,
 		OrderBy:     &orderBy,
 	}
 
@@ -580,13 +564,9 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
 	req := httptest.NewRequest("GET", "/shipments", nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
-	limit := int64(25)
-	offset := int64(1)
 	orderBy := "DELIVERY_DATE_ASC"
 	params := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
-		Limit:       &limit,
-		Offset:      &offset,
 		OrderBy:     &orderBy,
 	}
 
@@ -629,13 +609,9 @@ func (suite *HandlerSuite) TestIndexShipmentsHandlerSortShipmentsDeliveryDesc() 
 	req := httptest.NewRequest("GET", "/shipments", nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
-	limit := int64(25)
-	offset := int64(1)
 	orderBy := "DELIVERY_DATE_DESC"
 	params := shipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
-		Limit:       &limit,
-		Offset:      &offset,
 		OrderBy:     &orderBy,
 	}
 
