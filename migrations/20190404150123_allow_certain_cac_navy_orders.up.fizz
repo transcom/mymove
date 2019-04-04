@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190404150123_allow_certain_cac_navy_orders.sql")
