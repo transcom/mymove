@@ -11,20 +11,27 @@ import './StorageInTransit.css';
 export class PlaceInSit extends Component {
   state = {
     showForm: false,
+    storageInTransit: {},
   };
 
   closeForm = () => {
     this.props.onClose();
   };
 
+  componentDidMount() {
+    const { estimated_start_date, authorized_start_date } = this.props.sit;
+    let startDateValue = estimated_start_date >= authorized_start_date ? estimated_start_date : authorized_start_date;
+    this.setState({
+      storageInTransit: Object.assign({}, this.props.sit, { actual_start_date: startDateValue }),
+    });
+  }
+
   render() {
     const { location, authorized_start_date } = this.props.sit;
-    // const startDatePlaceholder =
-    //   estimated_start_date >= authorized_start_date ? estimated_start_date : authorized_start_date;
     return (
       <div className="storage-in-transit-panel-modal">
         <div className="title">Place into SIT at {capitalize(location)}</div>
-        <PlaceInSitForm />
+        <PlaceInSitForm initialValues={this.state.storageInTransit} />
         <div className="panel-field">
           <div className="usa-input-label unbold">Earliest authorized start</div>
           <div>{formatDate4DigitYear(authorized_start_date)}</div>
