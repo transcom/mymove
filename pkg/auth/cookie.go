@@ -229,7 +229,8 @@ func ApplicationName(hostname string, appnames ApplicationServername) (Applicati
 			MilApp:    appnames.MilServername,
 			OfficeApp: appnames.OfficeServername,
 			TspApp:    appnames.TspServername,
-			AdminApp:  appnames.AdminServername}, fmt.Sprintf("%s is invalid", hostname))
+			AdminApp:  appnames.AdminServername,
+		}, fmt.Sprintf("%s is invalid", hostname))
 }
 
 // SessionCookieMiddleware handle serializing and de-serializing the session between the user_session cookie and the request context

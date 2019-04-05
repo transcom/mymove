@@ -16,6 +16,17 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+const (
+	// MilMoveUserType is the type of user for a Service Member
+	MilMoveUserType string = "milmove"
+	// OfficeUserType is the type of user for an Office user
+	OfficeUserType string = "office"
+	// TspUserType is the type of user for a TSP user
+	TspUserType string = "tsp"
+	// DpsUserType is the type of user for a DPS user
+	DpsUserType string = "dps"
+)
+
 // UserListHandler handles redirection
 type UserListHandler struct {
 	db *pop.Connection
@@ -157,7 +168,7 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 	}
 
-	session := loginUser(devlocalAuthHandler(h), user, w, r)
+	session := loginUser(devlocalAuthHandler(h), user, MilMoveUserType, w, r)
 	if session == nil {
 		return
 	}
@@ -182,11 +193,11 @@ func NewCreateUserHandler(ac Context, db *pop.Connection, appnames auth.Applicat
 
 // CreateUserHandler creates a user, primarily used in automated testing
 func (h CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	user := createUser(devlocalAuthHandler(h), w, r)
+	user, userType := createUser(devlocalAuthHandler(h), w, r)
 	if user == nil {
 		return
 	}
-	session := loginUser(devlocalAuthHandler(h), user, w, r)
+	session := loginUser(devlocalAuthHandler(h), user, userType, w, r)
 	if session == nil {
 		return
 	}
@@ -212,11 +223,11 @@ func NewCreateAndLoginUserHandler(ac Context, db *pop.Connection, appnames auth.
 
 // CreateAndLoginUserHandler creates a user and logs them in
 func (h CreateAndLoginUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	user := createUser(devlocalAuthHandler(h), w, r)
+	user, userType := createUser(devlocalAuthHandler(h), w, r)
 	if user == nil {
 		return
 	}
-	session := loginUser(devlocalAuthHandler(h), user, w, r)
+	session := loginUser(devlocalAuthHandler(h), user, userType, w, r)
 	if session == nil {
 		return
 	}
@@ -224,7 +235,7 @@ func (h CreateAndLoginUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 }
 
 // createUser creates a user
-func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) *models.User {
+func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (*models.User, string) {
 	id := uuid.Must(uuid.NewV4())
 
 	// Set up some defaults that we can pass in from a form
@@ -252,20 +263,21 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) *
 		LoginGovEmail: email,
 	}
 
+	userType := r.Form.Get("userType")
 	verrs, err := h.db.ValidateAndCreate(&user)
 	if err != nil {
 		h.logger.Error("could not create user", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return nil
+		return nil, userType
 	}
 	if verrs.Count() != 0 {
 		h.logger.Error("validation errors creating user", zap.Stringer("errors", verrs))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return nil
+		return nil, userType
 	}
 
-	switch r.Form.Get("userType") {
-	case "office":
+	switch userType {
+	case OfficeUserType:
 		// Now create the Truss JPPSO
 		address := models.Address{
 			StreetAddress1: "1333 Minna St",
@@ -316,7 +328,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) *
 		if verrs.HasAny() {
 			h.logger.Error("validation errors creating office user", zap.Stringer("errors", verrs))
 		}
-	case "tsp":
+	case TspUserType:
 		var tsp models.TransportationServiceProvider
 		h.db.Where("standard_carrier_alpha_code = $1", "TRS1").First(&tsp)
 		if tsp.ID == uuid.Nil {
@@ -351,7 +363,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) *
 		if verrs.HasAny() {
 			h.logger.Error("validation errors creating tsp user", zap.Stringer("errors", verrs))
 		}
-	case "dps":
+	case DpsUserType:
 		dpsUser := models.DpsUser{
 			LoginGovEmail: email,
 		}
@@ -365,11 +377,11 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) *
 		}
 	}
 
-	return &user
+	return &user, userType
 }
 
 // createSession creates a new session for the user
-func createSession(h devlocalAuthHandler, user *models.User, w http.ResponseWriter, r *http.Request) (*auth.Session, error) {
+func createSession(h devlocalAuthHandler, user *models.User, userType string, w http.ResponseWriter, r *http.Request) (*auth.Session, error) {
 	// Preference any session already in the request context. Otherwise just create a new empty session.
 	session := auth.SessionFromRequestContext(r)
 	if session == nil {
@@ -397,20 +409,20 @@ func createSession(h devlocalAuthHandler, user *models.User, w http.ResponseWrit
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
 	}
 
-	if userIdentity.OfficeUserID != nil && session.IsOfficeApp() {
+	if userIdentity.DpsUserID != nil {
+		session.DpsUserID = *(userIdentity.DpsUserID)
+	}
+
+	if userIdentity.OfficeUserID != nil && (session.IsOfficeApp() || userType == OfficeUserType) {
 		session.OfficeUserID = *(userIdentity.OfficeUserID)
 		session.ApplicationName = auth.OfficeApp
 		session.Hostname = h.appnames.OfficeServername
 	}
 
-	if userIdentity.TspUserID != nil && session.IsTspApp() {
+	if userIdentity.TspUserID != nil && (session.IsTspApp() || userType == TspUserType) {
 		session.TspUserID = *(userIdentity.TspUserID)
 		session.ApplicationName = auth.TspApp
 		session.Hostname = h.appnames.TspServername
-	}
-
-	if userIdentity.DpsUserID != nil {
-		session.DpsUserID = *(userIdentity.DpsUserID)
 	}
 
 	session.FirstName = userIdentity.FirstName()
@@ -444,8 +456,8 @@ func verifySessionWithApp(session *auth.Session) error {
 }
 
 // loginUser creates a session for the user and verifies the session against the app
-func loginUser(h devlocalAuthHandler, user *models.User, w http.ResponseWriter, r *http.Request) *auth.Session {
-	session, err := createSession(devlocalAuthHandler(h), user, w, r)
+func loginUser(h devlocalAuthHandler, user *models.User, userType string, w http.ResponseWriter, r *http.Request) *auth.Session {
+	session, err := createSession(devlocalAuthHandler(h), user, userType, w, r)
 	if err != nil {
 		h.logger.Error("Could not create session", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
