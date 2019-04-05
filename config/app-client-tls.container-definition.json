@@ -80,6 +80,10 @@
       "name": "HTTP_TSP_SERVER_NAME",
       "value": "tsp.{{ .domain }}"
     },
+      {
+        "name": "HTTP_ADMIN_SERVER_NAME",
+        "value": "admin.{{ .domain }}"
+      },
     {
       "name": "HTTP_ORDERS_SERVER_NAME",
       "value": "orders.{{ .domain }}"

@@ -17,6 +17,8 @@ const (
 	OfficeTestHost string = "office.example.com"
 	// MilTestHost
 	MilTestHost string = "mil.example.com"
+	// AdminTestHost
+	AdminTestHost string = "admin.example.com"
 )
 
 type authSuite struct {

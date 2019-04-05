@@ -87,10 +87,30 @@
   font-weight: normal;
 }
 
+.deny-sit-link {
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: normal;
+}
+
+.storage-in-transit-office-approval-form {
+  font-weight: normal;
+}
+
 .storage-in-transit-office-approval-form textarea {
   height: 9rem;
 }
 
-.sit-approval-field{
+.storage-in-transit-office-deny-form {
   font-weight: normal;
 }
+
+.storage-in-transit-office-deny-form textarea {
+  width: 45rem;
+  height: 6rem;
+}
+
+.storage-in-transit-request-form {
+  font-weight: normal;
+}
+
