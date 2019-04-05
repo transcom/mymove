@@ -96,7 +96,6 @@ repos:
         entry: scripts/pre-commit-go-imports
         language: script
         files: \.go$
-        exclude: vendor/
 
   - repo: local
     hooks:
@@ -105,7 +104,7 @@ repos:
         entry: scripts/pre-commit-go-lint
         language: script
         files: \.go$
-        exclude: vendor/
+        exclude: pkg/tools/
 
   - repo: local
     hooks:
@@ -114,7 +113,6 @@ repos:
       entry: scripts/pre-commit-go-vet
       language: script
       files: \.go$
-      exclude: vendor/
       pass_filenames: false
 
   - repo: local
@@ -125,6 +123,15 @@ repos:
         language: script
         description: Inspects source code for security problems by scanning the Go AST.
         files: \.go$
+        pass_filenames: false
+
+  - repo: local
+    hooks:
+      - id: gomod
+        name: gomod
+        entry: scripts/pre-commit-go-mod
+        language: script
+        files: go.mod
         pass_filenames: false
 
   # - repo: local
@@ -148,20 +155,4 @@ repos:
         entry: scripts/gen-docs-index
         language: script
         files: \.md$
-        pass_filenames: false
-
-  - repo: local
-    hooks:
-      - id: dep-version
-        name: dep version
-        entry: scripts/check-dep-version
-        language: script
-
-  - repo: local
-    hooks:
-      - id: dep-check
-        name: dep check
-        entry: scripts/pre-commit-dep-check
-        language: script
-        files: (\.go|Gopkg\.toml|Gopkg\.lock)$
         pass_filenames: false

@@ -21,6 +21,8 @@ const (
 	OfficeApp Application = "office"
 	// MilApp indicates my.move.mil (DNS still points to my.move.mil and not mil.move.mil)
 	MilApp Application = "mil"
+	// AdminApp indicates admin.move.mil
+	AdminApp Application = "admin"
 )
 
 // IsTspApp returns true iff the request is for the office.move.mil host
@@ -36,6 +38,11 @@ func (s *Session) IsOfficeApp() bool {
 // IsMilApp returns true iff the request is for the my.move.mil host
 func (s *Session) IsMilApp() bool {
 	return s.ApplicationName == MilApp
+}
+
+// IsAdminApp returns true iff the request is for the admin.move.mil host
+func (s *Session) IsAdminApp() bool {
+	return s.ApplicationName == AdminApp
 }
 
 // Session stores information about the currently logged in session
