@@ -33,7 +33,7 @@ Cypress.Commands.add('signInAsNewUser', () => {
 
   Cypress.Cookies.debug(true);
   cy.clearCookies();
-  cy.getCookies().should('be.empty');
+  cy.reload();
 
   cy.visit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now
@@ -66,7 +66,7 @@ Cypress.Commands.add('signIntoTSP', () => {
 Cypress.Commands.add('signInAsUser', userId => {
   // make sure we log out first before sign in
   cy.clearCookies();
-  cy.getCookies().should('be.empty');
+  cy.reload();
 
   cy.visit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now
