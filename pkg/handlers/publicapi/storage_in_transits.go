@@ -450,7 +450,10 @@ func (h ReleaseStorageInTransitHandler) Handle(params sitop.ReleaseStorageInTran
 			return handlers.ResponseForError(h.Logger(), err)
 		}
 
-		if !(storageInTransit.Status == models.StorageInTransitStatusINSIT) {
+		// Make sure we're not releasing something that wasn't in SIT or in delivered status.
+		// The latter is there so that we can 'undo' a mistaken deliver action.
+		if !(storageInTransit.Status == models.StorageInTransitStatusINSIT) &&
+			!(storageInTransit.Status == models.StorageInTransitStatusDELIVERED) {
 			h.Logger().Error("Cannot release something from storage in transit that wasn't in it.")
 			return sitop.NewReleaseStorageInTransitConflict()
 		}

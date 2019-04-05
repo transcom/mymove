@@ -494,6 +494,23 @@ func (suite *HandlerSuite) TestReleaseStorageInTransitHandler() {
 
 	suite.Assertions.IsType(&sitop.ReleaseStorageInTransitForbidden{}, response)
 
+	// Let's make sure it can change from delivered back to released.
+	sit.Status = models.StorageInTransitStatusDELIVERED
+	_, _ = suite.DB().ValidateAndSave(&sit)
+
+	req = suite.AuthenticateTspRequest(req, tspUser)
+	params = sitop.ReleaseStorageInTransitParams{
+		HTTPRequest:        req,
+		ShipmentID:         strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID: strfmt.UUID(sit.ID.String()),
+	}
+
+	handler = ReleaseStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response = handler.Handle(params)
+	suite.Assertions.IsType(&sitop.ReleaseStorageInTransitOK{}, response)
+	responsePayload = response.(*sitop.ReleaseStorageInTransitOK).Payload
+	suite.Equal(string(models.StorageInTransitStatusRELEASED), responsePayload.Status)
+
 }
 
 func (suite *HandlerSuite) TestPatchStorageInTransitHandler() {
