@@ -143,7 +143,7 @@ func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, logger Logge
 		Value:    csrfToken,
 		Path:     "/",
 		HttpOnly: false,                // must be false to be read by client for use in POST/PUT/PATCH/DELETE requests
-		SameSite: http.SameSiteLaxMode, // Using lax mode for now since strict is causing issues with Firefox/Safari
+		SameSite: http.SameSiteLaxMode, // Using 'lax' mode for now since 'strict' is causing issues with Firefox/Safari
 		Secure:   useSecureCookie,
 	}
 
@@ -173,6 +173,10 @@ func MaskedCSRFMiddleware(logger Logger, useSecureCookie bool) func(next http.Ha
 // WriteSessionCookie update the cookie for the session
 func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, noSessionTimeout bool, logger Logger, useSecureCookie bool) {
 	// Delete the cookie
+	sameSitePolicy := http.SameSiteLaxMode // Using 'lax' mode now since 'strict' breaks the use of the login.gov redirect
+	if session.IDToken == "devlocal" {
+		sameSitePolicy = http.SameSiteDefaultMode // Less restrictive on devlocal so we can set cookies for other subdomains
+	}
 	cookieName := fmt.Sprintf("%s_%s", string(session.ApplicationName), UserSessionCookieName)
 	cookie := http.Cookie{
 		Name:     cookieName,
@@ -180,7 +184,7 @@ func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, 
 		Path:     "/",
 		Expires:  time.Unix(0, 0),
 		MaxAge:   -1,
-		SameSite: http.SameSiteLaxMode, // Using 'strict' breaks the use of the login.gov redirect
+		SameSite: sameSitePolicy,
 		Secure:   useSecureCookie,
 	}
 
