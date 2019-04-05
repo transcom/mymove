@@ -520,22 +520,6 @@ func (s *Shipment) UpdateShipmentLineItem(db *pop.Connection, baseParams BaseShi
 	return responseVErrors, responseError
 }
 
-// upsertItemCodeDependency applies specific validation, creates or updates additional objects/fields for item codes.
-// Mutates the shipmentLineItem passed in.
-func upsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
-	itemCode := baseParams.Tariff400ngItemCode
-
-	// Backwards compatible with "Old school" base quantity field
-	if is105Item(itemCode, additionalParams) {
-		return upsertItemCode105Dependency(db, baseParams, additionalParams, shipmentLineItem)
-	} else if is35AItem(itemCode, additionalParams) {
-		return upsertItemCode35ADependency(db, baseParams, additionalParams, shipmentLineItem)
-	} else if is226AItem(itemCode, additionalParams) {
-		return upsertItemCode226ADependency(db, baseParams, additionalParams, shipmentLineItem)
-	}
-	return upsertDefaultDependency(db, baseParams, additionalParams, shipmentLineItem)
-}
-
 // AssignGBLNumber generates a new valid GBL number for the shipment
 // Note: This doesn't save the Shipment, so this should always be run as part of
 // another transaction that saves the shipment after assigning a GBL number
@@ -589,7 +573,7 @@ func FetchUnofferedShipments(db *pop.Connection) (Shipments, error) {
 }
 
 // FetchShipmentsByTSP looks up all shipments belonging to a TSP ID
-func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, orderBy *string, limit *int64, offset *int64) ([]Shipment, error) {
+func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, orderBy *string) ([]Shipment, error) {
 
 	shipments := []Shipment{}
 
@@ -624,25 +608,6 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 			query.Order(*orderBy)
 		}
 	}
-
-	// Manage limit and offset values
-	var limitVar = 25
-	if limit != nil && *limit > 0 {
-		limitVar = int(*limit)
-	}
-
-	var offsetVar = 1
-	if offset != nil && *offset > 1 {
-		offsetVar = int(*offset)
-	}
-
-	// Pop doesn't have a direct Offset() function and instead paginates. This means the offset isn't actually
-	// the DB offset.  It's first multiplied by the limit and then applied.  Examples:
-	//   - Paginate(0, 25) = LIMIT 25 OFFSET 0  (this is an odd case and is coded into Pop)
-	//   - Paginate(1, 25) = LIMIT 25 OFFSET 0
-	//   - Paginate(2, 25) = LIMIT 25 OFFSET 25
-	//   - Paginate(3, 25) = LIMIT 25 OFFSET 50
-	query.Paginate(offsetVar, limitVar)
 
 	err := query.All(&shipments)
 

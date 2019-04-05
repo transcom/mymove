@@ -20,6 +20,7 @@ type User struct {
 	LoginGovUUID  uuid.UUID `json:"login_gov_uuid" db:"login_gov_uuid"`
 	LoginGovEmail string    `json:"login_gov_email" db:"login_gov_email"`
 	Disabled      bool      `json:"disabled" db:"disabled"`
+	IsSuperuser   bool      `json:"is_superuser" db:"is_superuser"`
 }
 
 // Users is not required by pop and may be deleted
@@ -77,6 +78,7 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 type UserIdentity struct {
 	ID                     uuid.UUID  `db:"id"`
 	Disabled               bool       `db:"disabled"`
+	IsSuperuser            bool       `db:"is_superuser"`
 	Email                  string     `db:"email"`
 	ServiceMemberID        *uuid.UUID `db:"sm_id"`
 	ServiceMemberFirstName *string    `db:"sm_fname"`
@@ -99,6 +101,7 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 	query := `SELECT users.id,
 				users.login_gov_email AS email,
 				users.disabled AS disabled,
+				users.is_superuser AS is_superuser,
 				sm.id AS sm_id,
 				sm.first_name AS sm_fname,
 				sm.last_name AS sm_lname,
@@ -133,6 +136,7 @@ func FetchAllUserIdentities(db *pop.Connection) ([]UserIdentity, error) {
 	query := `SELECT users.id,
 				users.login_gov_email AS email,
 				users.disabled AS disabled,
+				users.is_superuser AS is_superuser,
 				sm.id AS sm_id,
 				sm.first_name AS sm_fname,
 				sm.last_name AS sm_lname,

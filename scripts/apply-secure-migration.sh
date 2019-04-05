@@ -2,7 +2,9 @@
 # Executes an SQL file from S3 against the environment's database.
 #
 # If `SECURE_MIGRATION_SOURCE=local` then we look for a similarly named file in the
-# local repository, instead of pulling from S3.
+# local repository.
+# If `SECURE_MIGRATION_SOURCE=s3` then we look for a similarly named file in the
+# S3 bucket and pull it down.
 
 if [ -z "${SECURE_MIGRATION_SOURCE:-}" ]; then
   echo "error: \$SECURE_MIGRATION_SOURCE needs to be set"

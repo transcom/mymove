@@ -258,6 +258,28 @@ func (v *OptionalStringInclusion) IsValid(errors *validate.Errors) {
 	stringInclusion.IsValid(errors)
 }
 
+// OptionalRegexMatch validates that a field matches the regexp match
+type OptionalRegexMatch struct {
+	Name    string
+	Field   *string
+	Expr    string
+	Message string
+}
+
+// IsValid performs the validation based on the regexp match
+func (v *OptionalRegexMatch) IsValid(errors *validate.Errors) {
+	if v.Field == nil {
+		return
+	}
+	regexMatch := validators.RegexMatch{
+		Name:    v.Name,
+		Field:   *v.Field,
+		Expr:    v.Expr,
+		Message: v.Message,
+	}
+	regexMatch.IsValid(errors)
+}
+
 // ValidateableModel is here simply because `validateable` is private to `pop`
 type ValidateableModel interface {
 	Validate(*pop.Connection) (*validate.Errors, error)
