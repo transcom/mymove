@@ -69,6 +69,9 @@ function tspUserViewsInTransitShipments() {
   // Find title
   cy.get('h1').contains('Queue: In Transit Shipments');
 
+  // Not delivered yet
+  cy.get('.delivered_on').should('be.empty');
+
   // Find in transit (generated in e2ebasic.go) and open it
   cy.selectQueueItemMoveLocator('NINOPK');
 
@@ -91,6 +94,7 @@ function tspUserViewsDeliveredShipments() {
 
   // Find title
   cy.get('h1').contains('Queue: Delivered Shipments');
+  cy.get('.delivered_on').contains(/\d{2}-\w{3}-\d{2}/);
 
   // Find delivered shipment (generated in e2ebasic.go) and open it
   cy.selectQueueItemMoveLocator('SCHNOO');
