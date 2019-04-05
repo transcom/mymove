@@ -15,11 +15,7 @@ import { selectReimbursement } from 'shared/Entities/modules/ppms';
 
 import './MoveSummary.css';
 import ppmCar from './images/ppm-car.svg';
-import ppmDraft from './images/ppm-draft.png';
-import ppmSubmitted from './images/ppm-submitted.png';
-import ppmApproved from './images/ppm-approved.png';
-import ppmInProgress from './images/ppm-in-progress.png';
-import StatusTimelineContainer from './StatusTimeline';
+import { PPMStatusTimeline, ShipmentStatusTimeline, ProfileStatusTimeline } from './StatusTimeline';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlus from '@fortawesome/fontawesome-free-solid/faPlus';
@@ -74,7 +70,7 @@ export const DraftMoveSummary = props => {
 
           <div className="shipment_box_contents">
             <div>
-              <img className="status_icon" src={ppmDraft} alt="status" />
+              <ProfileStatusTimeline profile={profile} />
               <div className="step-contents">
                 <div className="status_box usa-width-two-thirds">
                   <div className="step">
@@ -138,7 +134,7 @@ export const SubmittedPpmMoveSummary = props => {
           </div>
 
           <div className="shipment_box_contents">
-            <img className="status_icon" src={ppmSubmitted} alt="status" />
+            <PPMStatusTimeline ppm={ppm} />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 <div className="step">
@@ -240,8 +236,6 @@ export const SubmittedHhgMoveSummary = props => {
     selectedMoveType === 'HHG' &&
     ['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(move.status);
 
-  let today = moment();
-
   return (
     <Fragment>
       <div>
@@ -252,15 +246,11 @@ export const SubmittedHhgMoveSummary = props => {
           </div>
 
           <div className="shipment_box_contents">
-            <StatusTimelineContainer
-              bookDate={shipment.book_date}
-              moveDates={shipment.move_dates_summary}
-              shipment={shipment}
-            />
+            <ShipmentStatusTimeline shipment={shipment} />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 {showHhgLandingPageText(shipment)}
-                {(shipment.actual_pack_date || today.isSameOrAfter(shipment.pm_survey_planned_pack_date)) && (
+                {(shipment.status === 'DELIVERED' || shipment.status === 'COMPLETED') && (
                   <TransportationServiceProviderContactInfo showFileAClaimInfo shipmentId={shipment.id} />
                 )}
               </div>
@@ -309,9 +299,12 @@ export const SubmittedHhgMoveSummary = props => {
 };
 
 export const ApprovedMoveSummary = props => {
-  const { ppm, move, requestPaymentSuccess } = props;
+  const { ppm, move, requestPaymentSuccess, context } = props;
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
   const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
+  const ppmPaymentRequestRoute = context.flags.ppmPaymentRequest
+    ? `moves/${move.id}/ppm-payment-request-intro`
+    : `moves/${move.id}/request-payment`;
   return (
     <Fragment>
       <div>
@@ -328,12 +321,7 @@ export const ApprovedMoveSummary = props => {
               </Alert>
             )}
 
-            {moveInProgress ? (
-              <img className="status_icon" src={ppmInProgress} alt="status" />
-            ) : (
-              <img className="status_icon" src={ppmApproved} alt="status" />
-            )}
-
+            <PPMStatusTimeline ppm={ppm} />
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 {!moveInProgress && (
@@ -362,7 +350,7 @@ export const ApprovedMoveSummary = props => {
                       Request a PPM payment, a storage payment, or an advance against your PPM payment before your move
                       is done.
                     </div>
-                    <Link to={`moves/${move.id}/request-payment`} className="usa-button usa-button-secondary">
+                    <Link to={ppmPaymentRequestRoute} className="usa-button usa-button-secondary">
                       Request Payment
                     </Link>
                   </div>
@@ -497,6 +485,7 @@ const getHHGStatus = (moveStatus, shipment) => {
 
 export const MoveSummary = props => {
   const {
+    context,
     profile,
     move,
     orders,
@@ -512,7 +501,6 @@ export const MoveSummary = props => {
   const moveStatus = get(move, 'status', 'DRAFT');
   const moveId = get(move, 'id');
   const selectedMoveType = get(move, 'selected_move_type');
-
   const showHHG = selectedMoveType === 'HHG' || selectedMoveType === 'HHG_PPM';
   const showPPM = selectedMoveType === 'PPM' || selectedMoveType === 'HHG_PPM';
   const hhgStatus = getHHGStatus(moveStatus, shipment);
@@ -558,6 +546,7 @@ export const MoveSummary = props => {
           )}
           {showPPM && (
             <PPMComponent
+              context={context}
               className="status-component"
               ppm={ppm}
               shipment={shipment}

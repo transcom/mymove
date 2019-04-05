@@ -113,15 +113,11 @@ function serviceMemberAddsLocations() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/hhg-locations/);
   });
-  // Note that we are not checking for a disabled save button because we
-  // expect the pickup address to prefill with the SM residential address
 
-  // Pickup address
-  cy.get('input[name="pickup_address.street_address_1"]').should('have.value', '123 Any Street');
-  cy.get('input[name="pickup_address.street_address_2"]').should('have.value', 'P.O. Box 12345');
-  cy.get('input[name="pickup_address.city"]').should('have.value', 'Beverly Hills');
-  cy.get('select[name="pickup_address.state"]').should('have.value', 'CA');
-  cy.get('input[name="pickup_address.postal_code"]').should('have.value', '90210');
+  cy
+    .get('button')
+    .contains('Next')
+    .should('be.disabled');
 
   // Pickup address
   cy

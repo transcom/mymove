@@ -1,0 +1,93 @@
+#! /usr/bin/env bash
+#
+# A script to help manage the creation of secure migrations
+# https://github.com/transcom/mymove#secure-migrations
+#
+
+set -eu -o pipefail
+
+readonly dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly soda="${dir}/../bin/soda"
+
+readonly local_migrations_dir="${dir}/../local_migrations"
+readonly prod_migrations_temp_dir="${dir}/../tmp"
+
+#
+# Pre-flight checks
+#
+
+command -v "$soda" &> /dev/null || \
+  ( echo "error: soda binary not found in ${soda}"; exit 1 )
+
+if [[ -z ${1:-} ]]; then
+  echo "usage: $0 <migration_name>"
+  exit 1
+fi
+
+if [[ ! -d "$prod_migrations_temp_dir" ]]; then
+  mkdir "$prod_migrations_temp_dir"
+fi
+
+readonly migration_name="$1"
+
+#
+# Build secure migration file names
+#
+
+readonly migration_output=$($soda generate fizz "$migration_name")
+readonly up_migration_name=$(echo "$migration_output" | grep -o -e 'migrations.*up.fizz$')
+readonly down_migration_name=$(echo "$migration_output" | grep -o -e 'migrations.*down.fizz$')
+
+# We do not use down-mgirations
+rm "$down_migration_name"
+
+# Generate the secure migration filename:
+# - remove ".up.fizz" from filename
+# - remove "migrations/" from filename
+# - append ".sql"
+secure_migration_name="${up_migration_name%.up.fizz}"
+secure_migration_name="${secure_migration_name#migrations/}"
+readonly secure_migration_name="${secure_migration_name}.sql"
+
+readonly local_test_migration_name="${local_migrations_dir}/${secure_migration_name}"
+readonly prod_migration_name="${prod_migrations_temp_dir}/${secure_migration_name}"
+
+#
+# Build secure migration stub content
+#
+
+readonly up_migration_content="exec(\"./apply-secure-migration.sh ${secure_migration_name}\")"
+echo "${up_migration_content}" > "$up_migration_name"
+
+# Create empty file for local test migration
+cat > "${local_test_migration_name}" << EOM
+-- Local test migration.
+-- This will be run on development environments. It should mirror what you
+-- intend to apply on production, but do not include any sensitive data.
+EOM
+
+# Create empty file for real secure migration
+cat > "${prod_migration_name}" << EOM
+-- Production Migration!
+-- This will be distributed to all deployed environments (e.g. staging, prod)
+EOM
+
+#
+# Display next steps for user
+#
+
+cat << EOM
+Generated migration files:
+
+Local test migration: ${local_test_migration_name}
+Production migration: ${prod_migration_name}
+
+Next:
+    1. Edit the production migration to have the actual change you wish to deploy
+    2. Copy the production migration into the local migration, scrubbing sensitive data
+    3. If everything looks good, upload the migration to S3 with this utility:
+       scripts/upload-secure-migration \\
+          ${prod_migration_name}
+    4. Run scripts/run-prod-migrations to verify that the upload worked and that the migration can be applied successfully.
+    5. Open a pull request for this change; when it is accepted, your migration will run on staging.
+EOM

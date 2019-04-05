@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"strings"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -142,6 +143,14 @@ func FmtStringPtr(s *string) *string {
 	return FmtString(*s)
 }
 
+// FmtStringPtrNonEmpty converts an empty string (after trimming) to a nil.
+func FmtStringPtrNonEmpty(s *string) *string {
+	if s == nil || strings.TrimSpace(*s) == "" {
+		return nil
+	}
+	return s
+}
+
 // FmtSSN converts pop type to go-swagger type
 func FmtSSN(s string) *strfmt.SSN {
 	ssn := strfmt.SSN(s)
@@ -160,6 +169,15 @@ func StringFromSSN(ssn *strfmt.SSN) *string {
 
 // FmtCost converts pop type to go-swagger type
 func FmtCost(c *unit.Cents) *int64 {
+	if c == nil {
+		return nil
+	}
+	cost := c.Int64()
+	return &cost
+}
+
+// FmtMilliCentsPtr converts pop type to go-swagger type
+func FmtMilliCentsPtr(c *unit.Millicents) *int64 {
 	if c == nil {
 		return nil
 	}

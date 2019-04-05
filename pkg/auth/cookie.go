@@ -19,6 +19,7 @@ type ApplicationServername struct {
 	MilServername    string
 	OfficeServername string
 	TspServername    string
+	AdminServername  string
 	OrdersServername string
 	DpsServername    string
 	SddcServername   string
@@ -29,10 +30,11 @@ type errInvalidHostname struct {
 	MilApp    string
 	OfficeApp string
 	TspApp    string
+	AdminApp  string
 }
 
 func (e *errInvalidHostname) Error() string {
-	return fmt.Sprintf("invalid hostname %s, must be one of %s, %s, or %s", e.Hostname, e.MilApp, e.OfficeApp, e.TspApp)
+	return fmt.Sprintf("invalid hostname %s, must be one of %s, %s, %s, or %s", e.Hostname, e.MilApp, e.OfficeApp, e.TspApp, e.AdminApp)
 }
 
 // UserSessionCookieName is the key suffix at which we're storing our token cookie
@@ -218,13 +220,16 @@ func ApplicationName(hostname string, appnames ApplicationServername) (Applicati
 		return OfficeApp, nil
 	} else if strings.EqualFold(hostname, appnames.TspServername) {
 		return TspApp, nil
+	} else if strings.EqualFold(hostname, appnames.AdminServername) {
+		return AdminApp, nil
 	}
 	return appName, errors.Wrap(
 		&errInvalidHostname{
 			Hostname:  hostname,
 			MilApp:    appnames.MilServername,
 			OfficeApp: appnames.OfficeServername,
-			TspApp:    appnames.TspServername}, fmt.Sprintf("%s is invalid", hostname))
+			TspApp:    appnames.TspServername,
+			AdminApp:  appnames.AdminServername}, fmt.Sprintf("%s is invalid", hostname))
 }
 
 // SessionCookieMiddleware handle serializing and de-serializing the session between the user_session cookie and the request context
@@ -232,7 +237,8 @@ func SessionCookieMiddleware(logger Logger, secret string, noSessionTimeout bool
 	logger.Info("Creating session",
 		zap.String("milServername", appnames.MilServername),
 		zap.String("officeServername", appnames.OfficeServername),
-		zap.String("tspServername", appnames.TspServername))
+		zap.String("tspServername", appnames.TspServername),
+		zap.String("adminServername", appnames.AdminServername))
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			ctx, span := beeline.StartSpan(r.Context(), "SessionCookieMiddleware")

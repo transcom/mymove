@@ -1,4 +1,4 @@
-import { getFormComponent } from './DetailsHelper';
+import { getFormComponent, isRobustAccessorial } from './DetailsHelper';
 import { DefaultForm } from './DefaultForm';
 import { Code105Form } from './Code105Form';
 import { Code35Form } from './Code35Form';
@@ -93,7 +93,7 @@ describe('testing getFormComponent()', () => {
   describe('returns 226A form component with feature flag on', () => {
     featureFlag = true;
 
-    let FormComponent = getFormComponent('226A', featureFlag, initialValuesWithCrateDimensions);
+    let FormComponent = getFormComponent('226A', featureFlag, { actual_amount_cents: true });
     it('for code 226A', () => {
       expect(FormComponent).toBe(Code226Form);
     });
@@ -115,6 +115,30 @@ describe('testing getFormComponent()', () => {
     FormComponent = getFormComponent('105E', featureFlag, initialValuesWithoutCrateDimensions);
     it('for code 105E without crate dimensions', () => {
       expect(FormComponent).toBe(DefaultForm);
+    });
+
+    FormComponent = getFormComponent('226A', featureFlag, initialValuesWithoutCrateDimensions);
+    it('for code 226A without crate dimensions', () => {
+      expect(FormComponent).toBe(DefaultForm);
+    });
+  });
+});
+
+describe('preApprovals', () => {
+  describe('isNewAccessorial 105B or 105E', () => {
+    it('should return true if new accessorial, false if old accessorial', () => {
+      const item105BOld = { tariff400ng_item: { code: '105B' } };
+      const item105BNew = { tariff400ng_item: { code: '105B' }, crate_dimensions: { length: 1, height: 1, width: 1 } };
+      const item105EOld = { tariff400ng_item: { code: '105E' } };
+      const item105ENew = { tariff400ng_item: { code: '105E' }, crate_dimensions: { length: 1, height: 1, width: 1 } };
+
+      const itemNull = null;
+
+      expect(isRobustAccessorial(item105BOld)).toEqual(false);
+      expect(isRobustAccessorial(item105BNew)).toEqual(true);
+      expect(isRobustAccessorial(item105EOld)).toEqual(false);
+      expect(isRobustAccessorial(item105ENew)).toEqual(true);
+      expect(isRobustAccessorial(itemNull)).toEqual(false);
     });
   });
 });

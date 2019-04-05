@@ -6,6 +6,9 @@ describe('office user finds the shipment', function() {
   it('office user views storage in transit panel', function() {
     officeUserViewsSITPanel();
   });
+  it('office user starts and cancels sit approval', function() {
+    officeUserStartsAndCancelsSitApproval();
+  });
 });
 
 function officeUserViewsSITPanel() {
@@ -62,4 +65,48 @@ function officeUserViewsSITPanel() {
       .siblings()
       .contains('(713) 868-3497');
   });
+}
+
+function officeUserStartsAndCancelsSitApproval() {
+  cy.patientVisit('/queues/hhg_accepted');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
+  });
+
+  cy.selectQueueItemMoveLocator('SITREQ');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
+
+  cy
+    .get('a')
+    .contains('HHG')
+    .click(); // navtab
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
+  });
+
+  cy
+    .get('a')
+    .contains('Approve')
+    .click()
+    .get('.storage-in-transit')
+    .should($div => {
+      const text = $div.text();
+      expect(text).to.include('Approve SIT Request');
+      expect(text).to.not.include('Deny');
+      expect(text).to.not.include('Edit');
+    });
+
+  cy
+    .get('.usa-button-secondary')
+    .contains('Cancel')
+    .click()
+    .get('.storage-in-transit-panel .add-request')
+    .should($div => {
+      const text = $div.text();
+      expect(text).to.not.include('Approve SIT Request');
+    });
 }

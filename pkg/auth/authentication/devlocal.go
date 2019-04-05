@@ -47,6 +47,10 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.StatusInternalServerError)
 		return
 	}
+	// Truncate the list if larger than 25
+	if len(identities) > 25 {
+		identities = identities[:25]
+	}
 
 	// Grab the CSRF token from cookies set by the middleware
 	csrfCookie, err := auth.GetCookie(auth.MaskedGorillaCSRFToken, r)
@@ -103,7 +107,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	  </body>
 	  </html>
 	`))
-	err = t.Execute(w, identities[:25])
+	err = t.Execute(w, identities)
 	if err != nil {
 		h.logger.Error("Could not render template", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -393,13 +397,13 @@ func createSession(h devlocalAuthHandler, user *models.User, w http.ResponseWrit
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
 	}
 
-	if userIdentity.OfficeUserID != nil {
+	if userIdentity.OfficeUserID != nil && session.IsOfficeApp() {
 		session.OfficeUserID = *(userIdentity.OfficeUserID)
 		session.ApplicationName = auth.OfficeApp
 		session.Hostname = h.appnames.OfficeServername
 	}
 
-	if userIdentity.TspUserID != nil {
+	if userIdentity.TspUserID != nil && session.IsTspApp() {
 		session.TspUserID = *(userIdentity.TspUserID)
 		session.ApplicationName = auth.TspApp
 		session.Hostname = h.appnames.TspServername
