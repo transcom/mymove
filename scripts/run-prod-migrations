@@ -7,7 +7,7 @@ set -eu -o pipefail
 
 # Required env vars for apply-secure-migration.sh
 export SECURE_MIGRATION_SOURCE=s3
-export SECURE_MIGRATIONS_BUCKET_NAME="${SECURE_MIGRATIONS_BUCKET_NAME:-transcom-ppp-app-prod-us-west-2}"
+export SECURE_MIGRATION_BUCKET_NAME="${SECURE_MIGRATION_BUCKET_NAME:-transcom-ppp-app-prod-us-west-2}"
 export PSQL_SSL_MODE=disable
 export DB_NAME="${DB_NAME_PROD_MIGRATIONS:-prod_migrations}"
 export DB_PORT="${DB_PORT_PROD_MIGRATIONS:-5434}"
@@ -40,14 +40,14 @@ command -v aws 2> /dev/null | grep "ppp-infra/bin/aws" &> /dev/null || \
   )
 
 # Test AWS command and freshen AWS session token
-aws s3 ls "${SECURE_MIGRATIONS_BUCKET_NAME}/secure-migrations" > /dev/null
+aws s3 ls "${SECURE_MIGRATION_BUCKET_NAME}/secure-migrations" > /dev/null
 
 #
 # Run migrations
 #
 
 echo
-echo -e "\e[33mUsing ${SECURE_MIGRATIONS_BUCKET_NAME} to gather secure migrations\e[39m"
+echo -e "\e[33mUsing ${SECURE_MIGRATION_BUCKET_NAME} to gather secure migrations\e[39m"
 echo
 proceed "Running production migrations against the ${DB_NAME} database. This will delete everything in that db."
 

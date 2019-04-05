@@ -656,11 +656,11 @@ run_prod_migrations:
 
 .PHONY: run_staging_migrations
 run_staging_migrations:
-	SECURE_MIGRATIONS_BUCKET_NAME=transcom-ppp-app-staging-us-west-2 ./scripts/run-prod-migrations
+	SECURE_MIGRATION_BUCKET_NAME=transcom-ppp-app-staging-us-west-2 ./scripts/run-prod-migrations
 
 .PHONY: run_experimental_migrations
 run_experimental_migrations:
-	SECURE_MIGRATIONS_BUCKET_NAME=transcom-ppp-app-experimental-us-west-2 ./scripts/run-prod-migrations
+	SECURE_MIGRATION_BUCKET_NAME=transcom-ppp-app-experimental-us-west-2 ./scripts/run-prod-migrations
 
 #
 # ----- END PROD_MIGRATION TARGETS -----
