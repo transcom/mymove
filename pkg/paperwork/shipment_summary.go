@@ -266,7 +266,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		return models.Obligations{}, errors.New("error calculating distance")
 	}
 	maxCost, err := sswPpmComputer.ComputePPMIncludingLHDiscount(
-		unit.Pound(ssfd.TotalWeightAllotment),
+		ssfd.WeightAllotment.TotalWeight,
 		*firstPPM.PickupPostalCode,
 		*firstPPM.DestinationPostalCode,
 		distanceMiles,
@@ -277,7 +277,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		return models.Obligations{}, errors.New("error calculating PPM max obligations")
 	}
 	actualCost, err := sswPpmComputer.ComputePPMIncludingLHDiscount(
-		unit.Pound(ssfd.PPMRemainingEntitlement),
+		ssfd.PPMRemainingEntitlement,
 		*firstPPM.PickupPostalCode,
 		*firstPPM.DestinationPostalCode,
 		distanceMiles,

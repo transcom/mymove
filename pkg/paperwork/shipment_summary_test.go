@@ -82,7 +82,7 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 	}
 	params := models.ShipmentSummaryFormData{
 		PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
-		TotalWeightAllotment:    totalWeightEntitlement,
+		WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
 	}
 	suite.Run("TestComputeObligations", func() {
@@ -135,7 +135,7 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 		}
 		params := models.ShipmentSummaryFormData{
 			PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
-			TotalWeightAllotment:    totalWeightEntitlement,
+			WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
 		}
 		mockComputer := mockPPMComputer{
 			costComputation: rateengine.CostComputation{SITMax: unit.Cents(500)},
