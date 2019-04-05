@@ -2,6 +2,7 @@ package publicapi
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -34,30 +35,6 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 		return nil
 	}
 
-	var amt *int64
-	if s.AmountCents != nil {
-		intVal := s.AmountCents.Int64()
-		amt = &intVal
-	}
-
-	var rate *int64
-	if s.AppliedRate != nil {
-		intVal := s.AppliedRate.Int64()
-		rate = &intVal
-	}
-
-	var estAmt *int64
-	if s.EstimateAmountCents != nil {
-		intVal := s.EstimateAmountCents.Int64()
-		estAmt = &intVal
-	}
-
-	var actAmt *int64
-	if s.ActualAmountCents != nil {
-		intVal := s.ActualAmountCents.Int64()
-		actAmt = &intVal
-	}
-
 	return &apimessages.ShipmentLineItem{
 		ID:                  *handlers.FmtUUID(s.ID),
 		ShipmentID:          *handlers.FmtUUID(s.ShipmentID),
@@ -73,10 +50,13 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 		InvoiceID:           handlers.FmtUUIDPtr(s.InvoiceID),
 		ItemDimensions:      payloadForDimensionsModel(&s.ItemDimensions),
 		CrateDimensions:     payloadForDimensionsModel(&s.CrateDimensions),
-		EstimateAmountCents: estAmt,
-		ActualAmountCents:   actAmt,
-		AmountCents:         amt,
-		AppliedRate:         rate,
+		EstimateAmountCents: handlers.FmtCost(s.EstimateAmountCents),
+		ActualAmountCents:   handlers.FmtCost(s.ActualAmountCents),
+		AmountCents:         handlers.FmtCost(s.AmountCents),
+		AppliedRate:         handlers.FmtMilliCentsPtr(s.AppliedRate),
+		Date:                handlers.FmtDatePtr(s.Date),
+		Time:                s.Time,
+		Address:             payloadForAddressModel(&s.Address),
 		SubmittedDate:       *handlers.FmtDateTime(s.SubmittedDate),
 		ApprovedDate:        handlers.FmtDateTime(s.ApprovedDate),
 	}
@@ -247,6 +227,7 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 
 	var estAmtCents *unit.Cents
 	var actAmtCents *unit.Cents
+	var date *time.Time
 	if params.Payload.EstimateAmountCents != nil {
 		centsValue := unit.Cents(*params.Payload.EstimateAmountCents)
 		estAmtCents = &centsValue
@@ -254,6 +235,10 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 	if params.Payload.ActualAmountCents != nil {
 		centsValue := unit.Cents(*params.Payload.ActualAmountCents)
 		actAmtCents = &centsValue
+	}
+	if params.Payload.Date != nil {
+		dateValue := time.Time(*params.Payload.Date)
+		date = &dateValue
 	}
 
 	additionalParams := models.AdditionalShipmentLineItemParams{
@@ -263,6 +248,9 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 		Reason:              params.Payload.Reason,
 		EstimateAmountCents: estAmtCents,
 		ActualAmountCents:   actAmtCents,
+		Date:                date,
+		Time:                params.Payload.Time,
+		Address:             addressModelFromPayload(params.Payload.Address),
 	}
 
 	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(h.DB(),

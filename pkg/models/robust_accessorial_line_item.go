@@ -1,6 +1,9 @@
 package models
 
 import (
+	"strings"
+	"time"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
@@ -8,6 +11,55 @@ import (
 
 	"github.com/transcom/mymove/pkg/unit"
 )
+
+// BaseShipmentLineItemParams holds the basic parameters for a ShipmentLineItem
+type BaseShipmentLineItemParams struct {
+	Tariff400ngItemID   uuid.UUID
+	Tariff400ngItemCode string
+	Quantity1           *unit.BaseQuantity
+	Quantity2           *unit.BaseQuantity
+	Location            string
+	Notes               *string
+}
+
+// AdditionalShipmentLineItemParams holds any additional parameters for a ShipmentLineItem
+type AdditionalShipmentLineItemParams struct {
+	Description         *string
+	ItemDimensions      *AdditionalLineItemDimensions
+	CrateDimensions     *AdditionalLineItemDimensions
+	Reason              *string
+	EstimateAmountCents *unit.Cents
+	ActualAmountCents   *unit.Cents
+	Date                *time.Time
+	Time                *string
+	Address             *Address
+}
+
+// AdditionalLineItemDimensions holds the length, width and height that will be converted to inches
+type AdditionalLineItemDimensions struct {
+	Length unit.ThousandthInches
+	Width  unit.ThousandthInches
+	Height unit.ThousandthInches
+}
+
+// upsertItemCodeDependency applies specific validation, creates or updates additional objects/fields for item codes.
+// Mutates the shipmentLineItem passed in.
+func upsertItemCodeDependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+	itemCode := baseParams.Tariff400ngItemCode
+
+	// Backwards compatible with "Old school" base quantity field
+	if is105Item(itemCode, additionalParams) {
+		return upsertItemCode105Dependency(db, baseParams, additionalParams, shipmentLineItem)
+	} else if is35AItem(itemCode, additionalParams) {
+		return upsertItemCode35ADependency(db, baseParams, additionalParams, shipmentLineItem)
+	} else if is226AItem(itemCode, additionalParams) {
+		return upsertItemCode226ADependency(db, baseParams, additionalParams, shipmentLineItem)
+	} else if is125Item(itemCode, additionalParams) {
+		return upsertItemCode125Dependency(db, baseParams, additionalParams, shipmentLineItem)
+	}
+
+	return upsertDefaultDependency(db, baseParams, additionalParams, shipmentLineItem)
+}
 
 // createShipmentLineItemDimensions creates new item and crate dimensions for shipment line item
 func createShipmentLineItemDimensions(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
@@ -199,6 +251,47 @@ func upsertItemCode226ADependency(db *pop.Connection, baseParams *BaseShipmentLi
 	return responseVErrors, responseError
 }
 
+// is125Item determines whether the shipment line item is a new (robust) 125 item.
+func is125Item(itemCode string, additionalParams *AdditionalShipmentLineItemParams) bool {
+	isRobustItem := additionalParams.Reason != nil || additionalParams.Date != nil || additionalParams.Time != nil || additionalParams.Address != nil
+	if strings.HasPrefix(itemCode, "125") && isRobustItem {
+		return true
+	}
+	return false
+}
+
+// upsertItemCode125Dependency specifically upserts item code 125 for shipmentLineItem passed in
+func upsertItemCode125Dependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	// Required to create 125A/B/C/D line item
+	if additionalParams.Reason == nil || additionalParams.Date == nil || additionalParams.Address == nil {
+		responseError = errors.New("Must have Reason, Date and Address params")
+		return responseVErrors, responseError
+	}
+
+	shipmentLineItem.Address = *additionalParams.Address
+	// Create address if it doesn't exist
+	if shipmentLineItem.AddressID == nil {
+		verrs, err := db.ValidateAndCreate(&shipmentLineItem.Address)
+		if verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating shipment line item address")
+			return responseVErrors, responseError
+		}
+
+		shipmentLineItem.AddressID = &shipmentLineItem.Address.ID
+	}
+
+	shipmentLineItem.Reason = additionalParams.Reason
+	shipmentLineItem.Date = additionalParams.Date
+	shipmentLineItem.Time = additionalParams.Time
+	shipmentLineItem.Quantity1 = 1 // flat rate, set to 1
+
+	return responseVErrors, responseError
+}
+
 // upsertDefaultDependency upserts standard shipmentLineItem passed in
 func upsertDefaultDependency(db *pop.Connection, baseParams *BaseShipmentLineItemParams, additionalParams *AdditionalShipmentLineItemParams, shipmentLineItem *ShipmentLineItem) (*validate.Errors, error) {
 	var responseError error
@@ -213,31 +306,4 @@ func upsertDefaultDependency(db *pop.Connection, baseParams *BaseShipmentLineIte
 	}
 
 	return responseVErrors, responseError
-}
-
-// BaseShipmentLineItemParams holds the basic parameters for a ShipmentLineItem
-type BaseShipmentLineItemParams struct {
-	Tariff400ngItemID   uuid.UUID
-	Tariff400ngItemCode string
-	Quantity1           *unit.BaseQuantity
-	Quantity2           *unit.BaseQuantity
-	Location            string
-	Notes               *string
-}
-
-// AdditionalShipmentLineItemParams holds any additional parameters for a ShipmentLineItem
-type AdditionalShipmentLineItemParams struct {
-	Description         *string
-	ItemDimensions      *AdditionalLineItemDimensions
-	CrateDimensions     *AdditionalLineItemDimensions
-	Reason              *string
-	EstimateAmountCents *unit.Cents
-	ActualAmountCents   *unit.Cents
-}
-
-// AdditionalLineItemDimensions holds the length, width and height that will be converted to inches
-type AdditionalLineItemDimensions struct {
-	Length unit.ThousandthInches
-	Width  unit.ThousandthInches
-	Height unit.ThousandthInches
 }
