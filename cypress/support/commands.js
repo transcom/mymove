@@ -31,29 +31,42 @@ import { milmoveAppName, officeAppName, tspAppName, longPageLoadTimeout } from '
 Cypress.Commands.add('signInAsNewUser', () => {
   // make sure we log out first before sign in
 
+  Cypress.Cookies.debug(true);
+  cy.clearCookies();
+  cy.getCookies().should('be.empty');
+
   cy.visit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now
   cy.getCookie('_gorilla_csrf').should('exist');
   cy.getCookie('masked_gorilla_csrf').should('exist');
   cy.get('button[data-hook="new-user-login"]').click();
+  Cypress.Cookies.debug(false);
 });
 
 Cypress.Commands.add('signIntoMyMoveAsUser', userId => {
+  Cypress.Cookies.debug(true);
   cy.setupBaseUrl(milmoveAppName);
   cy.signInAsUser(userId);
+  Cypress.Cookies.debug(false);
 });
 Cypress.Commands.add('signIntoOffice', () => {
+  Cypress.Cookies.debug(true);
   cy.setupBaseUrl(officeAppName);
   cy.signInAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
   cy.waitForReactTableLoad();
+  Cypress.Cookies.debug(false);
 });
 Cypress.Commands.add('signIntoTSP', () => {
+  Cypress.Cookies.debug(true);
   cy.setupBaseUrl(tspAppName);
   cy.signInAsUser('6cd03e5b-bee8-4e97-a340-fecb8f3d5465');
   cy.waitForReactTableLoad();
+  Cypress.Cookies.debug(false);
 });
 Cypress.Commands.add('signInAsUser', userId => {
   // make sure we log out first before sign in
+  cy.clearCookies();
+  cy.getCookies().should('be.empty');
 
   cy.visit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now
