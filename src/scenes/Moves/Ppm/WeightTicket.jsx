@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
@@ -12,7 +12,7 @@ import './PPMPaymentRequest.css';
 let WeightTicket = props => {
   const { schema } = props;
   return (
-    <div className="usa-grid">
+    <Fragment>
       <WizardHeader
         title="Weight tickets"
         right={
@@ -23,12 +23,14 @@ let WeightTicket = props => {
           </ProgressTimeline>
         }
       />
-      <SwaggerField fieldName="vehicle_options" swagger={schema} required />
-      <SwaggerField fieldName="vehicle_nickname" swagger={schema} required />
+      <div className="usa-grid">
+        <SwaggerField fieldName="vehicle_options" swagger={schema} required />
+        <SwaggerField fieldName="vehicle_nickname" swagger={schema} required />
 
-      {/* TODO: change onclick handler to go to next page in flow */}
-      <PPMPaymentRequestActionBtns onClick={() => {}} nextBtnLabel="Save & Add Another" />
-    </div>
+        {/* TODO: change onclick handler to go to next page in flow */}
+        <PPMPaymentRequestActionBtns onClick={() => {}} nextBtnLabel="Save & Add Another" />
+      </div>
+    </Fragment>
   );
 };
 
@@ -46,9 +48,7 @@ WeightTicket.propTypes = {
 function mapStateToProps(state) {
   const props = {
     schema: get(state, 'swaggerInternal.spec.definitions.WeightTicketPayload', {}),
-    //values: getFormValues(formName)(state),
   };
-  console.log(props.schema);
   return props;
 }
 export default connect(mapStateToProps)(WeightTicket);
