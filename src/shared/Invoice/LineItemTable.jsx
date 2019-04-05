@@ -1,5 +1,7 @@
 import React, { PureComponent } from 'react';
+import { get } from 'lodash';
 import PropTypes from 'prop-types';
+import { withContext } from 'shared/AppContext';
 
 import { formatCents } from 'shared/formatters';
 import { displayBaseQuantityUnits } from 'shared/lineItems';
@@ -8,7 +10,7 @@ import './InvoicePanel.css';
 
 class LineItemTable extends PureComponent {
   render() {
-    const showItem35Missing = item => item.tariff400ng_item.code === '35A' && 'actual_amount_cents' in item === false;
+    const showItem35Missing = item => isRobust35A(item, this.props);
     return (
       <div>
         {this.props.title}
@@ -60,4 +62,14 @@ LineItemTable.propTypes = {
   totalAmount: PropTypes.number,
 };
 
-export default LineItemTable;
+function isRobust35A(item, props) {
+  const robustAccessorialFlag = get(props, 'context.flags.robustAccessorial', false);
+  return (
+    robustAccessorialFlag &&
+    item.tariff400ng_item.code === '35A' &&
+    item.estimate_amount_cents &&
+    !item.actual_amount_cents
+  );
+}
+
+export default withContext(LineItemTable);

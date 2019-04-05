@@ -103,7 +103,8 @@ func (suite *InvoiceServiceSuite) TestFetchInvoiceForShipmentCall() {
 }
 
 func (suite *InvoiceServiceSuite) TestFetchInvoiceWith35AValid() {
-	shipment, lineItem := makeLineItem35A(suite.DB(), true)
+	shipment := makeShipment(suite.DB())
+	lineItem := makeLineItem35A(suite.DB(), shipment, true)
 
 	f := FetchShipmentForInvoice{suite.DB()}
 	actualShipment, err := f.Call(shipment.ID)
@@ -113,12 +114,25 @@ func (suite *InvoiceServiceSuite) TestFetchInvoiceWith35AValid() {
 }
 
 func (suite *InvoiceServiceSuite) TestFetchInvoiceWith35AInvalid() {
-	shipment, _ := makeLineItem35A(suite.DB(), false)
+	shipment := makeShipment(suite.DB())
+	lineItem := makeLineItem35A(suite.DB(), shipment, false)
 
 	f := FetchShipmentForInvoice{suite.DB()}
 	actualShipment, err := f.Call(shipment.ID)
 	suite.NoError(err)
 	suite.Equal(0, len(actualShipment.ShipmentLineItems))
+	suite.Nil(lineItem)
+}
+
+func (suite *InvoiceServiceSuite) TestFetchInvoiceWith35ALegacy() {
+	shipment := makeShipment(suite.DB())
+	lineItem := makeLineItem35ALegacy(suite.DB(), shipment)
+
+	f := FetchShipmentForInvoice{suite.DB()}
+	actualShipment, err := f.Call(shipment.ID)
+	suite.NoError(err)
+	suite.Equal(1, len(actualShipment.ShipmentLineItems))
+	suite.Equal(lineItem.ID, actualShipment.ShipmentLineItems[0].ID)
 }
 
 func helperSetupLineItem(shipment models.Shipment, tv testValues, db *pop.Connection) models.ShipmentLineItem {
@@ -139,9 +153,11 @@ func helperSetupLineItem(shipment models.Shipment, tv testValues, db *pop.Connec
 	return testdatagen.MakeCompleteShipmentLineItem(db, assertions)
 }
 
-func makeLineItem35A(DB *pop.Connection, hasActAmt bool) (models.Shipment, models.ShipmentLineItem) {
-	shipment := testdatagen.MakeDefaultShipment(DB)
+func makeShipment(DB *pop.Connection) models.Shipment {
+	return testdatagen.MakeDefaultShipment(DB)
+}
 
+func makeLineItem35A(DB *pop.Connection, shipment models.Shipment, hasActAmt bool) models.ShipmentLineItem {
 	acc35A := testdatagen.MakeTariff400ngItem(DB, testdatagen.Assertions{
 		Tariff400ngItem: models.Tariff400ngItem{
 			Code: "35A",
@@ -169,5 +185,27 @@ func makeLineItem35A(DB *pop.Connection, hasActAmt bool) (models.Shipment, model
 	}
 	lineItem := testdatagen.MakeCompleteShipmentLineItem(DB, assertions)
 
-	return shipment, lineItem
+	return lineItem
+}
+
+func makeLineItem35ALegacy(DB *pop.Connection, shipment models.Shipment) models.ShipmentLineItem {
+	// shipment := testdatagen.MakeDefaultShipment(DB)
+
+	acc35A := testdatagen.MakeTariff400ngItem(DB, testdatagen.Assertions{
+		Tariff400ngItem: models.Tariff400ngItem{
+			Code: "35A",
+			Item: "Third Party Service",
+		},
+	})
+
+	assertions := testdatagen.Assertions{
+		ShipmentLineItem: models.ShipmentLineItem{
+			Shipment:        shipment,
+			ShipmentID:      shipment.ID,
+			Status:          models.ShipmentLineItemStatusAPPROVED,
+			Tariff400ngItem: acc35A,
+		},
+	}
+
+	return testdatagen.MakeCompleteShipmentLineItem(DB, assertions)
 }
