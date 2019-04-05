@@ -1,6 +1,6 @@
 import React from 'react';
-import './PPMPaymentRequest.css';
 import { withRouter } from 'react-router-dom';
+import './PPMPaymentRequest.css';
 
 const PPMPaymentRequestActionBtns = props => {
   const { nextBtnLabel, onClick, history } = props;

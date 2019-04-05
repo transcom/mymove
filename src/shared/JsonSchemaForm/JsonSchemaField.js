@@ -234,11 +234,13 @@ export const SwaggerField = props => {
     hideLabel,
   } = props;
   let swaggerField;
+  console.log(swagger);
   if (swagger.properties) {
     // eslint-disable-next-line security/detect-object-injection
     swaggerField = swagger.properties[fieldName];
   }
 
+  console.log(swaggerField);
   if (swaggerField === undefined) {
     return null;
   }

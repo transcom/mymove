@@ -2396,6 +2396,29 @@ definitions:
     required:
       - start_date
       - available
+  VehicleOptions:
+    type: string
+    x-nullable: true
+    title: What type of vehicle are these weight tickets for?
+    enum: &VehicleOptions
+      - CAR
+      - CAR_TRAILER
+      - BOX_TRUCK
+    x-display-value:
+      CAR: Car
+      CAR_TRAILER: Car + Trailer
+      BOX_TRUCK: Box truck
+  WeightTicketPayload:
+    type: object
+    properties:
+      vehicle_options:
+        $ref: '#/definitions/VehicleOptions'
+      vehicle_nickname:
+        $ref: '#/definitions/VehicleNickname'
+  VehicleNickname:
+    type: string
+    x-nullable: true
+    title: Vehicle nickname (ex. "My car")
 paths:
   /estimates/ppm:
     get:

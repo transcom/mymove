@@ -3,11 +3,16 @@ import React from 'react';
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 import './PPMPaymentRequest.css';
 
-const PPMPaymentRequestIntro = () => {
+const PPMPaymentRequestIntro = props => {
+  const { history, match } = props;
   return (
     <div className="usa-grid">
-      {/* TODO: change onclick handler to go to next page in flow */}
-      <PPMPaymentRequestActionBtns onClick={() => {}} nextBtnLabel="Get Started" />
+      <PPMPaymentRequestActionBtns
+        onClick={() => {
+          history.push(`/moves/${match.params.moveId}/ppm-weight-ticket`);
+        }}
+        nextBtnLabel="Get Started"
+      />
     </div>
   );
 };
