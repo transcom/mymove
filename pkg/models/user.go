@@ -132,6 +132,10 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 				du.id AS du_id
 			FROM users
 			LEFT OUTER JOIN service_members AS sm on sm.user_id = users.id
+			/*
+			 * Join twice on office_users and tsp_users. If joining by email succeeds
+			 * and joining by user_id fails then the user needs to be properly initialized
+			 */
 			LEFT OUTER JOIN office_users AS ou on ou.user_id = users.id
 			LEFT OUTER JOIN office_users AS oue on oue.email = users.login_gov_email
 			LEFT OUTER JOIN tsp_users AS tu on tu.user_id = users.id
