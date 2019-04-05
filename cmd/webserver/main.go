@@ -215,6 +215,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("http-my-server-name", "milmovelocal", "Hostname according to environment.")
 	flag.String("http-office-server-name", "officelocal", "Hostname according to environment.")
 	flag.String("http-tsp-server-name", "tsplocal", "Hostname according to environment.")
+	flag.String("http-admin-server-name", "adminlocal", "Hostname according to environment.")
 	flag.String("http-orders-server-name", "orderslocal", "Hostname according to environment.")
 	flag.String("http-dps-server-name", "dpslocal", "Hostname according to environment.")
 
@@ -605,6 +606,7 @@ func checkHosts(v *viper.Viper) error {
 		"http-my-server-name",
 		"http-office-server-name",
 		"http-tsp-server-name",
+		"http-admin-server-name",
 		"http-orders-server-name",
 		"http-dps-server-name",
 		"http-sddc-server-name",
@@ -873,6 +875,7 @@ func main() {
 	myHostname := v.GetString("http-my-server-name")
 	officeHostname := v.GetString("http-office-server-name")
 	tspHostname := v.GetString("http-tsp-server-name")
+	adminHostname := v.GetString("http-admin-server-name")
 
 	// Register Login.gov authentication provider for My.(move.mil)
 	loginGovProvider := authentication.NewLoginGovProvider(loginGovHostname, loginGovSecretKey, logger)
@@ -892,7 +895,7 @@ func main() {
 	useSecureCookie := !isDevOrTest
 	// Session management and authentication middleware
 	noSessionTimeout := v.GetBool("no-session-timeout")
-	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout, myHostname, officeHostname, tspHostname, useSecureCookie)
+	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout, myHostname, officeHostname, tspHostname, adminHostname, useSecureCookie)
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, useSecureCookie)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 	clientCertMiddleware := authentication.ClientCertMiddleware(logger, dbConnection)

@@ -16,22 +16,30 @@ executors:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:9ad70927655a601580c036d53456c70061c76cba
+        environment:
+            GO111MODULE: "on"
   mymove_medium:
     resource_class: medium
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:9ad70927655a601580c036d53456c70061c76cba
+        environment:
+          GO111MODULE: "on"
   mymove_large:
     resource_class: large
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:9ad70927655a601580c036d53456c70061c76cba
+        environment:
+          GO111MODULE: "on"
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
   mymove_and_postgres_medium:
     resource_class: medium
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:9ad70927655a601580c036d53456c70061c76cba
+        environment:
+          GO111MODULE: "on"
       - image: postgres:10.6
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -188,30 +196,21 @@ commands:
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
 
 jobs:
-  # `pre_deps_golang` is used for cache dep soruces and the vendor directory for mymove.
+  # `pre_deps_golang` is used for caching Go module sources
   pre_deps_golang:
     executor: mymove_small
     steps:
       - checkout
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
       - run:
           name: Install dependencies
-          command: dep ensure -vendor-only
-      # `go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}` is used to caches sources for dep, the Go dependency manager.
+          command: go get
       - save_cache:
-          key: go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
+          key: go-mod-souces-v1-{{ checksum "go.sum" }}
           paths:
-            - ~/go/pkg/dep/sources
-      # `mymove-vendor-{{ checksum "Gopkg.lock" }}` is used for caching the vendor directory for mymove.
-      - save_cache:
-          key: mymove-vendor-{{ checksum "Gopkg.lock" }}
-          paths:
-            - ~/go/src/github.com/transcom/mymove/vendor
+            - "/go/pkg/mod"
       - announce_failure
 
   # `pre_deps_yarn` is used to cache yarn sources and installed node modules.
@@ -247,10 +246,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
       - restore_cache:
           keys:
             - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
@@ -260,15 +256,6 @@ jobs:
       - restore_cache:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
-      - run:
-          name: Install prettier
-          command: yarn add prettier@~1.12.0
-      - run:
-          name: Install markdown-spellcheck
-          command: yarn add markdown-spellcheck
-      - run:
-          name: Install markdown-toc
-          command: yarn add markdown-toc
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
       - run: make server_generate
       - run: make build_callgraph
@@ -289,10 +276,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
       - run:
           name: Run make server_generate
           command: make server_generate
@@ -314,10 +298,7 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
       - restore_cache:
           keys:
             - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
@@ -345,10 +326,7 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
       - restore_cache:
           keys:
             - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
@@ -376,10 +354,7 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
       - restore_cache:
           keys:
             - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
@@ -407,10 +382,7 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
       - restore_cache:
           keys:
             - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
@@ -438,10 +410,7 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
       - run:
           # This is needed to use `psql` to test DB connectivity, until the app
           # itself starts making database connections.
@@ -474,10 +443,7 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
       - run:
           # This is needed to use `psql` to test DB connectivity, until the app
           # itself starts making database connections.
@@ -548,10 +514,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
       - run: make build_tools
       - announce_failure
 
@@ -564,10 +527,7 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
       - restore_cache:
           keys:
             - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
@@ -590,9 +550,6 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
       - run: make build_chamber build_soda
       - build_tag_push:
           dockerfile: Dockerfile.migrations
@@ -624,10 +581,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
       - run:
           name: Run make server_generate
           command: make server_generate
@@ -695,10 +649,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
       - run:
           name: Run make server_generate
           command: make server_generate
@@ -779,10 +730,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
       - run:
           name: Add ~/go/bin to path for golint
           command: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
