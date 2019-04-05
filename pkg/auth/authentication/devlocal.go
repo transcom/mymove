@@ -78,6 +78,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		OfficeUserType  string
 		TspUserType     string
 		DpsUserType     string
+		CsrfToken       string
 	}
 
 	templateData := TemplateData{
@@ -86,6 +87,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		OfficeUserType:  OfficeUserType,
 		TspUserType:     TspUserType,
 		DpsUserType:     DpsUserType,
+		CsrfToken:       csrfToken,
 	}
 
 	t := template.Must(template.New("users").Parse(`
@@ -102,7 +104,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			  {{range .Identities}}
 				<form method="post" action="/devlocal-auth/login">
 					<p id="{{.ID}}">
-						<input type="hidden" name="gorilla.csrf.Token" value="` + csrfToken + `">
+						<input type="hidden" name="gorilla.csrf.Token" value="{{$.CsrfToken}}">
 						{{.Email}}
 						({{if .DpsUserID}}dps{{else if .TspUserID}}tsp{{else if .OfficeUserID}}office{{else}}milmove{{end}})
 						<input type="hidden" name="id" value="{{.ID}}" />
@@ -118,14 +120,30 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			  <h2 class="mt-4">Create a New User</h1>
 			  <form method="post" action="/devlocal-auth/new">
 				<p>
-				  <input type="hidden" name="gorilla.csrf.Token" value="` + csrfToken + `">
-				  <select name="userType">
-					<option value="milmove">MilMove</option>
-					<option value="office">Office</option>
-					<option value="tsp">TSP</option>
-					<option value="dps">DPS</option>
-				  </select>
-				<button type="submit" data-hook="new-user-login">Create a New User</button>
+				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+				  <input type="hidden" name="userType" value="{{.MilMoveUserType}}">
+				  <button type="submit" data-hook="new-user-login">Create a New {{.MilMoveUserType}} User</button>
+				</p>
+			  </form>
+			  <form method="post" action="/devlocal-auth/new">
+				<p>
+				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+				  <input type="hidden" name="userType" value="{{.OfficeUserType}}">
+				  <button type="submit" data-hook="new-user-login">Create a New {{.OfficeUserType}} User</button>
+				</p>
+			  </form>
+			  <form method="post" action="/devlocal-auth/new">
+				<p>
+				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+				  <input type="hidden" name="userType" value="{{.TspUserType}}">
+				  <button type="submit" data-hook="new-user-login">Create a New {{.TspUserType}} User</button>
+				</p>
+			  </form>
+			  <form method="post" action="/devlocal-auth/new">
+				<p>
+				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+				  <input type="hidden" name="userType" value="{{.DpsUserType}}">
+				  <button type="submit" data-hook="new-user-login">Create a New {{.DpsUserType}} User</button>
 				</p>
 			  </form>
 			</div>
@@ -417,9 +435,20 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 	session.Email = userIdentity.Email
 	session.Disabled = userIdentity.Disabled
 
-	// Set default app
-	session.ApplicationName = auth.MilApp
-	session.Hostname = h.appnames.MilServername
+	// Set the app
+
+	// Keep the logic for redirection separate from setting the session user ids
+	switch userType {
+	case OfficeUserType:
+		session.ApplicationName = auth.OfficeApp
+		session.Hostname = h.appnames.OfficeServername
+	case TspUserType:
+		session.ApplicationName = auth.TspApp
+		session.Hostname = h.appnames.TspServername
+	default:
+		session.ApplicationName = auth.MilApp
+		session.Hostname = h.appnames.MilServername
+	}
 
 	if userIdentity.ServiceMemberID != nil {
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
@@ -435,16 +464,6 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 
 	if userIdentity.DpsUserID != nil {
 		session.DpsUserID = *(userIdentity.DpsUserID)
-	}
-
-	// Keep the logic for redirection separate from setting the session user ids
-	switch userType {
-	case OfficeUserType:
-		session.ApplicationName = auth.OfficeApp
-		session.Hostname = h.appnames.OfficeServername
-	case TspUserType:
-		session.ApplicationName = auth.TspApp
-		session.Hostname = h.appnames.TspServername
 	}
 
 	session.FirstName = userIdentity.FirstName()
