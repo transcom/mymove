@@ -2336,6 +2336,7 @@ definitions:
       - ppm_status
       - hhg_status
       - locator
+      - gbl_number
       - customer_name
       - edipi
       - rank
