@@ -58,7 +58,7 @@ export class Code35Form extends Component {
   render() {
     return (
       <Fragment>
-        {this.props.status === 'CONDITIONALLYAPPROVED' ? this.makeStaticFields() : this.makeEditableFields()}
+        {this.props.status === 'CONDITIONALLY_APPROVED' ? this.makeStaticFields() : this.makeEditableFields()}
         <SwaggerField
           title="Actual amount of service"
           fieldName="actual_amount_cents"

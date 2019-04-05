@@ -180,12 +180,12 @@ definitions:
       - SUBMITTED
       - APPROVED
       - INVOICED
-      - CONDITIONALLYAPPROVED
+      - CONDITIONALLY_APPROVED
     x-display-value:
       SUBMITTED: Submitted
       APPROVED: Approved
       INVOICED: Invoiced
-      CONDITIONALLYAPPROVED: Conditionally Approved
+      CONDITIONALLY_APPROVED: Conditionally Approved
   Dimensions:
     type: object
     format: dimensions
