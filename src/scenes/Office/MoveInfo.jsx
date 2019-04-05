@@ -46,7 +46,6 @@ import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shar
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
 import {
   approveShipment,
-  // completeShipment,
   getPublicShipment,
   selectShipment,
   selectShipmentStatus,
@@ -221,10 +220,6 @@ class MoveInfo extends Component {
   approveShipment = () => {
     this.props.approveShipment(this.props.shipmentId);
   };
-
-  // completeShipment = () => {
-  //   this.props.completeShipment(this.props.shipmentId);
-  // };
 
   cancelMoveAndRedirect = cancelReason => {
     const messageLines = [
@@ -495,18 +490,6 @@ class MoveInfo extends Component {
                   {hhgApproved && check}
                 </button>
               )}
-              {
-                // (isHHG || isHHGPPM) && (
-                //   <button
-                //     className={`${hhgCompleted ? 'btn__approve--green' : ''}`}
-                //     onClick={this.completeShipment}
-                //     disabled={!hhgDelivered || hhgCompleted || !moveApproved || !ordersComplete || currentTab !== 'hhg'}
-                //   >
-                //     Complete Shipments
-                //     {hhgCompleted && check}
-                //   </button>
-                // )
-              }
               <ConfirmWithReasonButton
                 buttonTitle="Cancel Move"
                 reasonPrompt="Why is the move being canceled?"
@@ -624,7 +607,6 @@ const mapDispatchToProps = dispatch =>
       approveBasics,
       approvePPM,
       approveShipment,
-      // completeShipment,
       cancelMove,
       getAllTariff400ngItems,
       getAllShipmentLineItems,
