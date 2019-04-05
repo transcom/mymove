@@ -140,6 +140,7 @@ function tspUserStartsAndCancelsSitPlaceInSit() {
     .contains('Place into SIT')
     .click();
 
+  cy.get('input[name=actual_start_date').should('have.value', '3/26/2019');
   cy
     .get('.usa-button-secondary')
     .contains('Cancel')
