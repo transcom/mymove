@@ -72,6 +72,22 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	csrfToken := csrfCookie.Value
 
+	type TemplateData struct {
+		Identities      []models.UserIdentity
+		MilMoveUserType string
+		OfficeUserType  string
+		TspUserType     string
+		DpsUserType     string
+	}
+
+	templateData := TemplateData{
+		Identities:      identities,
+		MilMoveUserType: MilMoveUserType,
+		OfficeUserType:  OfficeUserType,
+		TspUserType:     TspUserType,
+		DpsUserType:     DpsUserType,
+	}
+
 	t := template.Must(template.New("users").Parse(`
 	  <html>
 	  <head>
@@ -83,7 +99,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			<div class="col-md-8">
 			  <h2 class="mt-4">Select an Existing User</h1>
 			  <p>Showing the first 25 users:</p>
-			  {{range .}}
+			  {{range .Identities}}
 				<form method="post" action="/devlocal-auth/login">
 					<p id="{{.ID}}">
 						<input type="hidden" name="gorilla.csrf.Token" value="` + csrfToken + `">
@@ -118,7 +134,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	  </body>
 	  </html>
 	`))
-	err = t.Execute(w, identities)
+	err = t.Execute(w, templateData)
 	if err != nil {
 		h.logger.Error("Could not render template", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -409,18 +425,24 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
 	}
 
-	if userIdentity.DpsUserID != nil {
-		session.DpsUserID = *(userIdentity.DpsUserID)
-	}
-
 	if userIdentity.OfficeUserID != nil && (session.IsOfficeApp() || userType == OfficeUserType) {
 		session.OfficeUserID = *(userIdentity.OfficeUserID)
-		session.ApplicationName = auth.OfficeApp
-		session.Hostname = h.appnames.OfficeServername
 	}
 
 	if userIdentity.TspUserID != nil && (session.IsTspApp() || userType == TspUserType) {
 		session.TspUserID = *(userIdentity.TspUserID)
+	}
+
+	if userIdentity.DpsUserID != nil {
+		session.DpsUserID = *(userIdentity.DpsUserID)
+	}
+
+	// Keep the logic for redirection separate from setting the session user ids
+	switch userType {
+	case OfficeUserType:
+		session.ApplicationName = auth.OfficeApp
+		session.Hostname = h.appnames.OfficeServername
+	case TspUserType:
 		session.ApplicationName = auth.TspApp
 		session.Hostname = h.appnames.TspServername
 	}
