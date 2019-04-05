@@ -30,7 +30,6 @@ import { milmoveAppName, officeAppName, tspAppName, longPageLoadTimeout } from '
 
 Cypress.Commands.add('signInAsNewUser', () => {
   // make sure we log out first before sign in
-  cy.logout();
 
   cy.visit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now
@@ -55,7 +54,6 @@ Cypress.Commands.add('signIntoTSP', () => {
 });
 Cypress.Commands.add('signInAsUser', userId => {
   // make sure we log out first before sign in
-  cy.logout();
 
   cy.visit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now

@@ -9,6 +9,7 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
+	"github.com/gorilla/csrf"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
@@ -48,14 +49,8 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Grab the CSRF token from cookies set by the middleware
-	csrfCookie, err := auth.GetCookie(auth.MaskedGorillaCSRFToken, r)
-	if err != nil {
-		h.logger.Error("CSRF Cookie was not set via middleware")
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
-	}
-	csrfToken := csrfCookie.Value
+	// Generate a CSRF token
+	csrfToken := csrf.Token(r)
 
 	t := template.Must(template.New("users").Parse(`
 		<h1>Select an existing user</h1>
