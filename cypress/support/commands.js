@@ -49,8 +49,7 @@ Cypress.Commands.add('signInAsNewUser', userType => {
   cy.getCookie('_gorilla_csrf').should('exist');
   cy.getCookie('masked_gorilla_csrf').should('exist');
   // select the user type and then login as new user
-  cy.get('select[name=userType]').select(userType);
-  cy.get('button[data-hook="new-user-login"]').click();
+  cy.get('button[data-hook="new-user-login-' + userType + '"]').click();
 });
 
 Cypress.Commands.add('signInAsNewMilMoveUser', () => {

@@ -122,28 +122,28 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				<p>
 				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
 				  <input type="hidden" name="userType" value="{{.MilMoveUserType}}">
-				  <button type="submit" data-hook="new-user-login">Create a New {{.MilMoveUserType}} User</button>
+				  <button type="submit" data-hook="new-user-login-{{.MilMoveUserType}}">Create a New {{.MilMoveUserType}} User</button>
 				</p>
 			  </form>
 			  <form method="post" action="/devlocal-auth/new">
 				<p>
 				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
 				  <input type="hidden" name="userType" value="{{.OfficeUserType}}">
-				  <button type="submit" data-hook="new-user-login">Create a New {{.OfficeUserType}} User</button>
+				  <button type="submit" data-hook="new-user-login-{{.OfficeUserType}}">Create a New {{.OfficeUserType}} User</button>
 				</p>
 			  </form>
 			  <form method="post" action="/devlocal-auth/new">
 				<p>
 				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
 				  <input type="hidden" name="userType" value="{{.TspUserType}}">
-				  <button type="submit" data-hook="new-user-login">Create a New {{.TspUserType}} User</button>
+				  <button type="submit" data-hook="new-user-login-{{.TspUserType}}">Create a New {{.TspUserType}} User</button>
 				</p>
 			  </form>
 			  <form method="post" action="/devlocal-auth/new">
 				<p>
 				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
 				  <input type="hidden" name="userType" value="{{.DpsUserType}}">
-				  <button type="submit" data-hook="new-user-login">Create a New {{.DpsUserType}} User</button>
+				  <button type="submit" data-hook="new-user-login-{{.DpsUserType}}">Create a New {{.DpsUserType}} User</button>
 				</p>
 			  </form>
 			</div>
