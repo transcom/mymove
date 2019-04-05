@@ -146,41 +146,43 @@ admin_client_run: client_deps
 
 .PHONY: go_deps_update
 go_deps_update:
-	dep ensure -v -update
+	go get -u=patch
+	go mod tidy
 
-.PHONY: go_deps
-go_deps: go_version .go_deps.stamp
-.go_deps.stamp: Gopkg.lock
+.PHONY: check_gopath
+check_gopath: go_version .check_gopath.stamp
+.check_gopath.stamp:
 	scripts/check-gopath
-	dep ensure -vendor-only
+	touch .check_gopath.stamp
 
 .PHONY: build_chamber
-build_chamber: go_deps .build_chamber.stamp
+build_chamber: check_gopath .build_chamber.stamp
 .build_chamber.stamp:
-	go build -i -ldflags "$(LDFLAGS)" -o bin/chamber ./vendor/github.com/segmentio/chamber
+	go build -i -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
 	touch .build_chamber.stamp
 
 .PHONY: build_soda
-build_soda: go_deps .build_soda.stamp
+build_soda: check_gopath .build_soda.stamp
 .build_soda.stamp:
-	go build -i -ldflags "$(LDFLAGS)" -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
+	go build -i -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda
 	touch .build_soda.stamp
 
 .PHONY: build_generate_test_data
-build_generate_test_data: go_deps
+build_generate_test_data: check_gopath
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
 
 .PHONY: build_callgraph
-build_callgraph: go_deps .build_callgraph.stamp
+build_callgraph: check_gopath .build_callgraph.stamp
 .build_callgraph.stamp:
-	go build -i -o bin/callgraph ./vendor/golang.org/x/tools/cmd/callgraph
+	go build -i -o bin/callgraph golang.org/x/tools/cmd/callgraph
 	touch .build_callgraph.stamp
 
-.PHONY: get_goimports
-get_goimports: go_deps .get_goimports.stamp
-.get_goimports.stamp:
-	go get -u golang.org/x/tools/cmd/goimports
-	touch .get_goimports.stamp
+.PHONY: get_gotools
+get_gotools: check_gopath .get_gotools.stamp
+.get_gotools.stamp:
+	go install golang.org/x/lint/golint
+	go install golang.org/x/tools/cmd/goimports
+	touch .get_gotools.stamp
 
 .PHONY: download_rds_certs
 download_rds_certs: .download_rds_certs.stamp
@@ -189,19 +191,17 @@ download_rds_certs: .download_rds_certs.stamp
 	touch .download_rds_certs.stamp
 
 .PHONY: server_deps
-server_deps: check_hosts go_deps build_chamber build_soda build_callgraph get_goimports download_rds_certs .server_deps.stamp
+server_deps: check_hosts check_gopath build_chamber build_soda build_callgraph get_gotools download_rds_certs .server_deps.stamp
 .server_deps.stamp:
-	# Unfortunately, dep ensure blows away ./vendor every time so these builds always take a while
-	go install ./vendor/golang.org/x/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
-	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec ./vendor/github.com/securego/gosec/cmd/gosec
-	go build -i -ldflags "$(LDFLAGS)" -o bin/gin ./vendor/github.com/codegangsta/gin
-	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
+	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
+	go build -i -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
+	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 	touch .server_deps.stamp
 
 .PHONY: server_deps_linux
-server_deps_linux: go_deps .server_deps_linux.stamp
+server_deps_linux: check_gopath .server_deps_linux.stamp
 .server_deps_linux.stamp:
-	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
+	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 
 .PHONY: server_generate
 server_generate: server_deps server_go_bindata .server_generate.stamp
@@ -228,7 +228,7 @@ server_build: server_deps server_generate
 server_build_linux: server_deps_linux server_generate_linux
 	# These don't need to go in bin_linux/ because local devs don't use them
 	# Additionally it would not work with the default Dockerfile
-	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin/chamber ./vendor/github.com/segmentio/chamber
+	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
 	GOOS=linux GOARCH=amd64 go build -gcflags=-trimpath=$(GOPATH) -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/webserver ./cmd/webserver
 
 # This command is for running the server by itself, it will serve the compiled frontend on its own
@@ -243,7 +243,7 @@ server_run_default: server_deps server_generate db_dev_run
 	$(AWS_VAULT) ./bin/gin --build ./cmd/webserver \
 		--bin /bin/webserver \
 		--port 8080 --appPort 8081 \
-		--excludeDir vendor --excludeDir node_modules \
+		--excludeDir node_modules \
 		-i --buildArgs "-i -ldflags=\"$(WEBSERVER_LDFLAGS)\""
 
 .PHONY: server_run_debug
@@ -518,7 +518,7 @@ db_test_migrations_build: .db_test_migrations_build.stamp
 .db_test_migrations_build.stamp: server_deps_linux server_generate_linux
 	@echo "Build required binaries for the docker migration container..."
 	mkdir -p bin_linux/
-	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/soda ./vendor/github.com/gobuffalo/pop/soda
+	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/soda github.com/gobuffalo/pop/soda
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate_test_data
 	@echo "Build the docker migration container..."
 	docker build -f Dockerfile.migrations_local --tag e2e_migrations:latest .
@@ -696,16 +696,13 @@ clean:
 	rm -f .*.stamp
 	rm -rf ./bin
 	rm -rf ./node_modules
-	rm -rf ./vendor
 	rm -rf ./pkg/gen
 	rm -rf ./public/swagger-ui/*.{css,js,png}
-	rm -rf $$GOPATH/pkg/dep/sources
 
 .PHONY: spellcheck
 spellcheck:
 	node_modules/.bin/mdspell --ignore-numbers --ignore-acronyms --en-us \
 		`find . -type f -name "*.md" \
-			-not -path "./vendor/*" \
 			-not -path "./node_modules/*" \
 			-not -path "./docs/adr/index.md"`
 
