@@ -30,8 +30,10 @@ import { milmoveAppName, officeAppName, tspAppName, longPageLoadTimeout } from '
 
 Cypress.Commands.add('signInAsNewUser', () => {
   Cypress.Cookies.debug(true);
+  cy.setupBaseUrl(milmoveAppName);
   cy.visit('/');
   cy.clearAllCookies();
+  cy.setupBaseUrl(milmoveAppName);
 
   cy.visit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now
@@ -46,11 +48,13 @@ Cypress.Commands.add('signIntoMyMoveAsUser', userId => {
   cy.visit('/');
   cy.clearAllCookies();
   cy.setupBaseUrl(milmoveAppName);
+  cy.visit('/');
   cy.signInAsUser(userId);
   Cypress.Cookies.debug(false);
 });
 Cypress.Commands.add('signIntoOffice', () => {
   Cypress.Cookies.debug(true);
+  cy.setupBaseUrl(officeAppName);
   cy.visit('/');
   cy.clearAllCookies();
   cy.setupBaseUrl(officeAppName);
@@ -60,6 +64,7 @@ Cypress.Commands.add('signIntoOffice', () => {
 });
 Cypress.Commands.add('signIntoTSP', () => {
   Cypress.Cookies.debug(true);
+  cy.setupBaseUrl(tspAppName);
   cy.visit('/');
   cy.clearAllCookies();
   cy.setupBaseUrl(tspAppName);
