@@ -45,10 +45,10 @@ Cypress.Commands.add('signInAsNewUser', () => {
 
 Cypress.Commands.add('signIntoMyMoveAsUser', userId => {
   Cypress.Cookies.debug(true);
+  cy.setupBaseUrl(milmoveAppName);
   cy.visit('/');
   cy.clearAllCookies();
   cy.setupBaseUrl(milmoveAppName);
-  cy.visit('/');
   cy.signInAsUser(userId);
   Cypress.Cookies.debug(false);
 });
