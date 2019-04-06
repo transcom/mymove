@@ -311,7 +311,7 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 		h.Logger().Error("Error: tariff400ng item " + tariff400ngItem.Code + " does not require pre-approval")
 		return accessorialop.NewUpdateShipmentLineItemForbidden()
 	} else if shipmentLineItem.Status == models.ShipmentLineItemStatusAPPROVED && !canUpdate35A {
-		h.Logger().Error("Error: cannot update shipment line item if status is approved or actual amount field is uneditable for tariff400ng item 35A")
+		h.Logger().Error("Error: cannot update shipment line item if status is approved (or status is invoiced for tariff400ng item 35A)")
 		return accessorialop.NewUpdateShipmentLineItemUnprocessableEntity()
 	}
 
@@ -372,13 +372,6 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 	if (shipmentLineItem.Status == models.ShipmentLineItemStatusCONDITIONALLYAPPROVED || shipmentLineItem.Status == models.ShipmentLineItemStatusAPPROVED) && shipmentLineItem.ActualAmountCents != nil {
 		// If shipment is delivered, price single shipment line item
 		if shipmentLineItem.Shipment.Status == models.ShipmentStatusDELIVERED {
-			var fetchedShipment *models.Shipment
-			fetchedShipment, err = models.FetchShipment(h.DB(), session, shipmentLineItem.ShipmentID)
-			if err != nil {
-				h.Logger().Error("Error fetching shipment for tsp user", zap.Error(err))
-				return handlers.ResponseForError(h.Logger(), err)
-			}
-			shipmentLineItem.Shipment = *fetchedShipment
 			engine := rateengine.NewRateEngine(h.DB(), h.Logger())
 			err = engine.PricePreapprovalRequest(&shipmentLineItem)
 			if err != nil {
