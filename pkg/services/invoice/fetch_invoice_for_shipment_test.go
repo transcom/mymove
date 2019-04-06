@@ -115,13 +115,12 @@ func (suite *InvoiceServiceSuite) TestFetchInvoiceWith35AValid() {
 
 func (suite *InvoiceServiceSuite) TestFetchInvoiceWith35AInvalid() {
 	shipment := makeShipment(suite.DB())
-	lineItem := makeLineItem35A(suite.DB(), shipment, false)
+	_ = makeLineItem35A(suite.DB(), shipment, false)
 
 	f := FetchShipmentForInvoice{suite.DB()}
 	actualShipment, err := f.Call(shipment.ID)
 	suite.NoError(err)
 	suite.Equal(0, len(actualShipment.ShipmentLineItems))
-	suite.Nil(lineItem)
 }
 
 func (suite *InvoiceServiceSuite) TestFetchInvoiceWith35ALegacy() {
