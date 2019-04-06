@@ -462,7 +462,7 @@ func (suite *HandlerSuite) TestShipmentInvoiceHandler() {
 	handler := ShipmentInvoiceHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 
 	path := "/shipments/shipment_id/invoice"
-req := httptest.NewRequest("POST", path, nil)
+	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	params := shipmentop.SendHHGInvoiceParams{
