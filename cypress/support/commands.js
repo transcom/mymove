@@ -30,6 +30,7 @@ import { milmoveAppName, officeAppName, tspAppName, longPageLoadTimeout } from '
 
 Cypress.Commands.add('signInAsNewUser', () => {
   Cypress.Cookies.debug(true);
+  cy.visit('/');
   cy.clearAllCookies();
 
   cy.visit('/devlocal-auth/login');
@@ -42,6 +43,7 @@ Cypress.Commands.add('signInAsNewUser', () => {
 
 Cypress.Commands.add('signIntoMyMoveAsUser', userId => {
   Cypress.Cookies.debug(true);
+  cy.visit('/');
   cy.clearAllCookies();
   cy.setupBaseUrl(milmoveAppName);
   cy.signInAsUser(userId);
@@ -49,6 +51,7 @@ Cypress.Commands.add('signIntoMyMoveAsUser', userId => {
 });
 Cypress.Commands.add('signIntoOffice', () => {
   Cypress.Cookies.debug(true);
+  cy.visit('/');
   cy.clearAllCookies();
   cy.setupBaseUrl(officeAppName);
   cy.signInAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
@@ -57,6 +60,7 @@ Cypress.Commands.add('signIntoOffice', () => {
 });
 Cypress.Commands.add('signIntoTSP', () => {
   Cypress.Cookies.debug(true);
+  cy.visit('/');
   cy.clearAllCookies();
   cy.setupBaseUrl(tspAppName);
   cy.signInAsUser('6cd03e5b-bee8-4e97-a340-fecb8f3d5465');
