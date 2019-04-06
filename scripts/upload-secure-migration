@@ -58,15 +58,11 @@ ${aws_command} s3 ls "${aws_bucket_prefix}${environments[0]}${aws_bucket_suffix}
 # Test local migration
 #
 
-proceed "Testing local migration. This will involve resetting your local dev database. Proceed?"
-run make db_dev_reset
-run make db_dev_migrate || (
-  echo "error: test migrations failed!"
-  echo "Run 'make db_dev_migrate' to see errors."
-  exit 1
-  )
+echo "Testing migrations ... (This could be several minutes!)"
 
-echo "Test migrations successful!"
+run make run_prod_migrations
+
+echo "Testing migrations was successful!"
 echo
 
 #
