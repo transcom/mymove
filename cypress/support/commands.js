@@ -29,48 +29,28 @@ import { milmoveAppName, officeAppName, tspAppName, longPageLoadTimeout } from '
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
 Cypress.Commands.add('signInAsNewUser', () => {
-  Cypress.Cookies.debug(true);
-  cy.setupBaseUrl(milmoveAppName);
-  cy.visit('/');
-  cy.clearAllCookies();
-  cy.setupBaseUrl(milmoveAppName);
+  cy.clearAllCookies(milmoveAppName);
 
   cy.visit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now
   cy.getCookie('_gorilla_csrf').should('exist');
   cy.getCookie('masked_gorilla_csrf').should('exist');
   cy.get('button[data-hook="new-user-login"]').click();
-  Cypress.Cookies.debug(false);
 });
 
 Cypress.Commands.add('signIntoMyMoveAsUser', userId => {
-  Cypress.Cookies.debug(true);
-  cy.setupBaseUrl(milmoveAppName);
-  cy.visit('/');
-  cy.clearAllCookies();
-  cy.setupBaseUrl(milmoveAppName);
+  cy.clearAllCookies(milmoveAppName);
   cy.signInAsUser(userId);
-  Cypress.Cookies.debug(false);
 });
 Cypress.Commands.add('signIntoOffice', () => {
-  Cypress.Cookies.debug(true);
-  cy.setupBaseUrl(officeAppName);
-  cy.visit('/');
-  cy.clearAllCookies();
-  cy.setupBaseUrl(officeAppName);
+  cy.clearAllCookies(officeAppName);
   cy.signInAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
   cy.waitForReactTableLoad();
-  Cypress.Cookies.debug(false);
 });
 Cypress.Commands.add('signIntoTSP', () => {
-  Cypress.Cookies.debug(true);
-  cy.setupBaseUrl(tspAppName);
-  cy.visit('/');
-  cy.clearAllCookies();
-  cy.setupBaseUrl(tspAppName);
+  cy.clearAllCookies(tspAppName);
   cy.signInAsUser('6cd03e5b-bee8-4e97-a340-fecb8f3d5465');
   cy.waitForReactTableLoad();
-  Cypress.Cookies.debug(false);
 });
 Cypress.Commands.add('signInAsUser', userId => {
   cy.visit('/devlocal-auth/login');
@@ -213,13 +193,16 @@ Cypress.Commands.add('logout', () => {
   });
 });
 
-Cypress.Commands.add('clearAllCookies', () => {
+Cypress.Commands.add('clearAllCookies', baseUrl => {
+  cy.setupBaseUrl(baseUrl);
+  cy.visit('/');
   Cypress.config('baseUrl', 'http://milmovelocal:4000');
   cy.clearCookies();
   Cypress.config('baseUrl', 'http://officelocal:4000');
   cy.clearCookies();
   Cypress.config('baseUrl', 'http://tsplocal:4000');
   cy.clearCookies();
+  cy.setupBaseUrl(baseUrl);
 });
 
 Cypress.Commands.add('nextPage', () => {
