@@ -17,7 +17,7 @@ readonly usage="usage: $0 <production_migration_file>"
 
 function proceed() {
   proceed_message=${1:-"proceed"}
-  echo -n "${proceed_message} (y/N) "
+  echo -en "\e[31m${proceed_message} (y/N) \e[39m"
   read -r proceed
   if [[ "$proceed" =~ ^[^yY]*$ ]]; then
     echo "exiting"
@@ -68,6 +68,8 @@ echo
 #
 # Upload secure migration
 #
+
+proceed "Are you ready to upload the migrations? This will overwrite files of the same name in S3."
 
 for environment in "${environments[@]}"; do
   echo "Uploading to: $environment"
