@@ -453,15 +453,14 @@ class MoveInfo extends Component {
                     </ComboButton>
                   )}
                 </ToolTip>
+                <ConfirmWithReasonButton
+                  buttonTitle="Cancel Move"
+                  reasonPrompt="Why is the move being canceled?"
+                  warningPrompt="Are you sure you want to cancel the entire move?"
+                  onConfirm={this.cancelMoveAndRedirect}
+                  buttonDisabled={hhgCantBeCanceled}
+                />
               </div>
-              <button
-                className={`${moveApproved ? 'btn__approve--green' : ''}`}
-                onClick={this.approveBasics}
-                disabled={moveApproved || !ordersComplete}
-              >
-                Approve Basics
-                {moveApproved && check}
-              </button>
 
               {(isPPM || isHHGPPM) && (
                 <button
@@ -473,6 +472,7 @@ class MoveInfo extends Component {
                   {ppmApproved && check}
                 </button>
               )}
+
               {(isHHG || isHHGPPM) && (
                 <button
                   className={`${hhgApproved ? 'btn__approve--green' : ''}`}

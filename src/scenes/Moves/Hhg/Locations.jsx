@@ -11,7 +11,12 @@ import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Address from 'scenes/Moves/Hhg/Address';
 
-import { createOrUpdateShipment, getShipment, getShipmentLabel } from 'shared/Entities/modules/shipments';
+import {
+  createOrUpdateShipment,
+  getShipment,
+  getShipmentLabel,
+  selectShipmentForMove,
+} from 'shared/Entities/modules/shipments';
 
 import './ShipmentWizard.css';
 
@@ -97,15 +102,15 @@ Locations.propTypes = {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ createOrUpdateShipment, setCurrentShipmentID, getShipment }, dispatch);
 }
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
   const shipment = getCurrentShipment(state);
-  const smAddress = get(state, 'serviceMember.currentServiceMember.residential_address', {});
+  const { pickup_address } = selectShipmentForMove(state, ownProps.match.params.moveId);
   const props = {
     schema: getInternalSwaggerDefinition(state, 'Shipment'),
     move: get(state, 'moves.currentMove', {}),
     formValues: getFormValues(formName)(state),
     currentShipment: shipment,
-    initialValues: { pickup_address: smAddress },
+    initialValues: { pickup_address },
     error: getLastError(state, getShipmentLabel),
   };
   return props;

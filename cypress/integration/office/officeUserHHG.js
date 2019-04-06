@@ -138,17 +138,15 @@ function officeUserApprovesOnlyBasicsHHG() {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
+  cy.get('.combo-button').click();
+
   // Approve basics
   cy
-    .get('button')
+    .get('.combo-button .dropdown')
     .contains('Approve Basics')
     .click();
 
-  // disabled because not on hhg tab
-  cy
-    .get('button')
-    .contains('Approve HHG')
-    .should('be.disabled');
+  cy.get('.combo-button').click();
 
   cy.get('.status').contains('Approved');
 
@@ -163,16 +161,15 @@ function officeUserApprovesOnlyBasicsHHG() {
   });
 
   // disabled because shipment not yet accepted
-  cy
-    .get('button')
-    .contains('Approve HHG')
-    .should('be.disabled');
+  cy.get('.combo-button').click();
 
   // Disabled because already approved and not delivered
   cy
-    .get('button')
+    .get('.combo-button .dropdown')
     .contains('Approve HHG')
-    .should('be.disabled');
+    .should('have.class', 'disabled');
+
+  cy.get('.combo-button').click();
 
   cy.get('.status').contains('Awarded');
 }
@@ -191,17 +188,15 @@ function officeUserApprovesHHG() {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
+  cy.get('.combo-button').click();
+
   // Approve basics
   cy
-    .get('button')
+    .get('.combo-button .dropdown')
     .contains('Approve Basics')
     .click();
 
-  // disabled because not on hhg tab
-  cy
-    .get('button')
-    .contains('Approve HHG')
-    .should('be.disabled');
+  cy.get('.combo-button').click();
 
   cy.get('.status').contains('Accepted');
 
@@ -215,9 +210,12 @@ function officeUserApprovesHHG() {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
   });
 
+  cy.get('.combo-button').click();
+
   // Approve HHG
+
   cy
-    .get('button')
+    .get('.combo-button .dropdown')
     .contains('Approve HHG')
     .click();
 
