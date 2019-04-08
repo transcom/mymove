@@ -16,3 +16,11 @@ export const milmoveUserType = 'milmove';
 export const officeUserType = 'office';
 export const tspUserType = 'tsp';
 export const dpsUserType = 'dps';
+
+// User Types to Base URLs
+export const userTypeToBaseURL = {
+  milmoveUserType: milmoveBaseURL,
+  officeUserType: officeBaseURL,
+  tspUserType: tspBaseURL,
+  dpsUserType: milmoveBaseURL,
+};

@@ -47,7 +47,7 @@ export class StorageInTransitPanel extends Component {
     const hasRequestedSIT = some(storageInTransits, sit => sit.status === 'REQUESTED');
 
     return (
-      <div className="storage-in-transit-panel">
+      <div className="storage-in-transit-panel" data-cy="storage-in-transit-panel">
         <BasicPanel
           title="Storage in Transit (SIT)"
           titleExtension={!isTspSite && hasRequestedSIT ? <SitStatusIcon isTspSite={isTspSite} /> : null}

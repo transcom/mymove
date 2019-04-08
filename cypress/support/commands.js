@@ -10,6 +10,7 @@ import {
   officeUserType,
   tspUserType,
   dpsUserType,
+  userTypeToBaseURL,
   longPageLoadTimeout,
 } from './constants';
 
@@ -41,8 +42,9 @@ import {
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
 Cypress.Commands.add('signInAsNewUser', userType => {
-  // make sure we log out first before sign in
-  cy.logout();
+  // make sure we visit all app urls and clear cookies
+  const baseURL = userTypeToBaseURL.get(userType);
+  cy.setBaseUrlAndClearAllCookies(baseURL);
 
   cy.visit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now
@@ -147,7 +149,8 @@ Cypress.Commands.add(
     checkSessionToken = true,
   ) => {
     // setup baseurl
-    cy.setupBaseUrl(signInAs);
+    const baseURL = userTypeToBaseURL.get(signInAs);
+    cy.setBaseUrlAndClearAllCookies(baseURL);
 
     // request use to log in
     let sendRequest = (appName, maskedCSRFToken) => {
@@ -245,6 +248,19 @@ Cypress.Commands.add('logout', () => {
     // In case of login redirect we once more go to the homepage
     cy.patientVisit('/');
   });
+});
+
+Cypress.Commands.add('setBaseUrlAndClearAllCookies', baseUrl => {
+  cy.setupBaseUrl(baseUrl);
+  cy.visit('/');
+  Cypress.config('baseUrl', 'http://milmovelocal:4000');
+  cy.clearCookies();
+  Cypress.config('baseUrl', 'http://officelocal:4000');
+  cy.clearCookies();
+  Cypress.config('baseUrl', 'http://tsplocal:4000');
+  cy.clearCookies();
+  cy.setupBaseUrl(baseUrl);
+  cy.visit('/');
 });
 
 Cypress.Commands.add('nextPage', () => {

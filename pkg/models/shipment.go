@@ -172,7 +172,7 @@ var BaseShipmentLineItems = []BaseShipmentLineItem{
 func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	calendar := dates.NewUSCalendar()
 
-	return validate.Validate(
+	validations := []validate.Validator{
 		&validators.UUIDIsPresent{Field: s.MoveID, Name: "move_id"},
 		&validators.StringIsPresent{Field: string(s.Status), Name: "status"},
 		&OptionalInt64IsPositive{Field: s.EstimatedPackDays, Name: "estimated_pack_days"},
@@ -216,7 +216,16 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 			Field:    s.ActualDeliveryDate,
 			Name:     "actual_delivery_date",
 			Calendar: calendar},
-	), nil
+	}
+
+	if s.Status == ShipmentStatusSUBMITTED {
+		var pickupAddressID uuid.UUID
+		if s.PickupAddressID != nil {
+			pickupAddressID = *s.PickupAddressID
+		}
+		validations = append(validations, &validators.UUIDIsPresent{Field: pickupAddressID, Name: "pickup_address_id"})
+	}
+	return validate.Validate(validations...), nil
 }
 
 // CurrentTransportationServiceProviderID returns the id for the current TSP for a shipment
