@@ -14,7 +14,7 @@ const PPMPaymentRequestIntro = props => {
       <ul>
         <li>
           <strong>Weight tickets</strong> both empty & full, for each vehicle and trip{' '}
-          <Link to="/weight-ticket-examples">
+          <Link className="weight-ticket-examples-link" to="/weight-ticket-examples">
             <FontAwesomeIcon aria-hidden className="color_blue_link" icon={faQuestionCircle} />
           </Link>
         </li>
