@@ -171,7 +171,7 @@ func MaskedCSRFMiddleware(logger Logger, useSecureCookie bool) func(next http.Ha
 }
 
 // WriteSessionCookie update the cookie for the session
-func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, noSessionTimeout bool, logger Logger, useSecureCookie bool) *http.Cookie {
+func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, noSessionTimeout bool, logger Logger, useSecureCookie bool) {
 	// Delete the cookie
 	sameSitePolicy := http.SameSiteLaxMode // Using 'lax' mode now since 'strict' breaks the use of the login.gov redirect
 	if session.IDToken == "devlocal" {
@@ -213,8 +213,6 @@ func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, 
 	// session token is lost.  However, we would normally use http.SetCookie for any other cookie operations
 	// so as not to delete the session token.
 	w.Header().Set("Set-Cookie", cookie.String())
-
-	return &cookie
 }
 
 // ApplicationName returns the application name given the hostname

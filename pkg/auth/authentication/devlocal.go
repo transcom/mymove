@@ -202,7 +202,7 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 	}
 
-	session, cookie, err := loginUser(devlocalAuthHandler(h), user, MilMoveUserType, w, r)
+	session, err := loginUser(devlocalAuthHandler(h), user, MilMoveUserType, w, r)
 	if err != nil {
 		return
 	}
@@ -210,8 +210,6 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, h.landingURL(session), http.StatusSeeOther)
-	cookie.Domain = h.landingURL(session)
-	http.SetCookie(w, cookie)
 }
 
 // CreateUserHandler creates a new user
@@ -236,7 +234,7 @@ func (h CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if user == nil {
 		return
 	}
-	session, cookie, err := loginUser(devlocalAuthHandler(h), user, userType, w, r)
+	session, err := loginUser(devlocalAuthHandler(h), user, userType, w, r)
 	if err != nil {
 		return
 	}
@@ -245,8 +243,6 @@ func (h CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	jsonOut, _ := json.Marshal(user)
 	fmt.Fprintf(w, string(jsonOut))
-	cookie.Domain = h.landingURL(session)
-	http.SetCookie(w, cookie)
 }
 
 // CreateAndLoginUserHandler creates and then logs in a new user
@@ -271,7 +267,7 @@ func (h CreateAndLoginUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 	if user == nil {
 		return
 	}
-	session, cookie, err := loginUser(devlocalAuthHandler(h), user, userType, w, r)
+	session, err := loginUser(devlocalAuthHandler(h), user, userType, w, r)
 	if err != nil {
 		return
 	}
@@ -279,8 +275,6 @@ func (h CreateAndLoginUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	http.Redirect(w, r, h.landingURL(session), http.StatusSeeOther)
-	cookie.Domain = h.landingURL(session)
-	http.SetCookie(w, cookie)
 }
 
 // createUser creates a user
@@ -430,7 +424,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 }
 
 // createSession creates a new session for the user
-func createSession(h devlocalAuthHandler, user *models.User, userType string, w http.ResponseWriter, r *http.Request) (*auth.Session, *http.Cookie, error) {
+func createSession(h devlocalAuthHandler, user *models.User, userType string, w http.ResponseWriter, r *http.Request) (*auth.Session, error) {
 	// Preference any session already in the request context. Otherwise just create a new empty session.
 	session := auth.SessionFromRequestContext(r)
 	if session == nil {
@@ -441,7 +435,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 	userIdentity, err := models.FetchUserIdentity(h.db, lgUUID)
 
 	if err != nil {
-		return nil, nil, errors.Wrapf(err, "Unable to fetch user identity from LoginGovUUID %s", lgUUID)
+		return nil, errors.Wrapf(err, "Unable to fetch user identity from LoginGovUUID %s", lgUUID)
 	}
 
 	// Assign user identity to session
@@ -487,9 +481,9 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 
 	// Writing out the session cookie logs in the user
 	h.logger.Info("logged in", zap.Any("session", session))
-	cookie := auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
+	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
 
-	return session, cookie, nil
+	return session, nil
 }
 
 // verifySessionWithApp returns an error if the user id for a specific app is not available
@@ -512,25 +506,25 @@ func verifySessionWithApp(session *auth.Session) error {
 }
 
 // loginUser creates a session for the user and verifies the session against the app
-func loginUser(h devlocalAuthHandler, user *models.User, userType string, w http.ResponseWriter, r *http.Request) (*auth.Session, *http.Cookie, error) {
-	session, cookie, err := createSession(devlocalAuthHandler(h), user, userType, w, r)
+func loginUser(h devlocalAuthHandler, user *models.User, userType string, w http.ResponseWriter, r *http.Request) (*auth.Session, error) {
+	session, err := createSession(devlocalAuthHandler(h), user, userType, w, r)
 	if err != nil {
 		h.logger.Error("Could not create session", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return nil, nil, err
+		return nil, err
 	}
 
 	if session.Disabled {
 		h.logger.Info("Disabled user requesting authentication", zap.Error(err), zap.String("email", session.Email))
 		http.Error(w, http.StatusText(403), http.StatusForbidden)
-		return nil, nil, nil
+		return nil, nil
 	}
 
 	err = verifySessionWithApp(session)
 	if err != nil {
 		h.logger.Error("User unauthorized", zap.Error(err))
 		http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-		return nil, nil, err
+		return nil, err
 	}
-	return session, cookie, nil
+	return session, nil
 }
