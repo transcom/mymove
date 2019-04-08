@@ -283,17 +283,21 @@ func getHeadingSegments(db *pop.Connection, shipment models.Shipment, invoiceMod
 			CountryCode:         country,
 		},
 		// Origin installation information
+		// This is the N104 Buyer ID field
+		// TODO: This field was previously set to the shipment.SourceGBLOC and has since been determined to need to be set to
+		// TODO: other values. We'll be temporarily setting this to DDSAOFM to get through our initial invoicing payments
+		// TODO: changes for this will be coming down the line.
 		&edisegment.N1{
 			EntityIdentifierCode:        "RG", // Issuing office name qualifier
 			Name:                        originTransportationOfficeName,
-			IdentificationCodeQualifier: "27", // GBLOC
-			IdentificationCode:          *shipment.SourceGBLOC,
+			IdentificationCodeQualifier: "27", // BuyerID
+			IdentificationCode:          "DDSAOFM",
 		},
 		// Destination installation information
 		&edisegment.N1{
 			EntityIdentifierCode:        "RH", // Destination name qualifier
 			Name:                        destinationTransportationOfficeName,
-			IdentificationCodeQualifier: "27", // GBLOC
+			IdentificationCodeQualifier: "27", // SupplierID -- using destination GBLOC
 			IdentificationCode:          *shipment.DestinationGBLOC,
 		},
 		// Accounting info

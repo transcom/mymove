@@ -105,6 +105,10 @@
   font-weight: normal;
 }
 
+.place-in-sit-form {
+  font-weight: normal;
+}
+
 .storage-in-transit-office-deny-form textarea {
   width: 45rem;
   height: 6rem;
