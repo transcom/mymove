@@ -46,6 +46,7 @@ import (
 	"github.com/transcom/mymove/pkg/dpsauth"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/adminapi"
 	"github.com/transcom/mymove/pkg/handlers/dpsapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
@@ -235,6 +236,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
 	flag.String("orders-swagger", "swagger/orders.yaml", "The location of the Orders API swagger definition")
 	flag.String("dps-swagger", "swagger/dps.yaml", "The location of the DPS API swagger definition")
+	flag.String("admin-swagger", "swagger/admin.yaml", "The location of the admin API swagger definition")
 	flag.Bool(serveSwaggerUIFlag, false, "Whether to serve swagger UI for the APIs")
 
 	flag.Bool("debug-logging", false, "log messages at the debug level.")
@@ -259,6 +261,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("login-gov-my-client-id", "", "Client ID registered with login gov.")
 	flag.String("login-gov-office-client-id", "", "Client ID registered with login gov.")
 	flag.String("login-gov-tsp-client-id", "", "Client ID registered with login gov.")
+	flag.String("login-gov-admin-client-id", "", "Client ID registered with login gov.")
 	flag.String("login-gov-hostname", "", "Hostname for communicating with login gov.")
 
 	/* For bing Maps use the following
@@ -886,6 +889,8 @@ func main() {
 		v.GetString("login-gov-office-client-id"),
 		tspHostname,
 		v.GetString("login-gov-tsp-client-id"),
+		adminHostname,
+		v.GetString("login-gov-admin-client-id"),
 		loginGovCallbackProtocol,
 		loginGovCallbackPort)
 	if err != nil {
@@ -1243,6 +1248,22 @@ func main() {
 	internalAPIMux.Use(userAuthMiddleware)
 	internalAPIMux.Use(noCacheMiddleware)
 	internalAPIMux.Handle(pat.New("/*"), internalapi.NewInternalAPIHandler(handlerContext))
+
+	adminMux := goji.SubMux()
+	root.Handle(pat.New("/admin/v1/*"), adminMux)
+	adminMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("admin-swagger")))
+	if v.GetBool(serveSwaggerUIFlag) {
+		logger.Info("Admin API Swagger UI serving is enabled")
+		adminMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "admin.html")))
+	} else {
+		adminMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+	}
+	// Mux for admin API that enforces auth
+	adminAPIMux := goji.SubMux()
+	adminMux.Handle(pat.New("/*"), adminAPIMux)
+	adminAPIMux.Use(userAuthMiddleware)
+	adminAPIMux.Use(noCacheMiddleware)
+	adminAPIMux.Handle(pat.New("/*"), adminapi.NewAdminAPIHandler(handlerContext))
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
 	authMux := goji.SubMux()

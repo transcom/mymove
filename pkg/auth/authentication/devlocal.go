@@ -203,6 +203,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) *
 	user := models.User{
 		LoginGovUUID:  id,
 		LoginGovEmail: email,
+		IsSuperuser:   false,
 	}
 
 	verrs, err := h.db.ValidateAndCreate(&user)
@@ -238,6 +239,7 @@ func createSession(h devlocalAuthHandler, user *models.User, w http.ResponseWrit
 	session.UserID = userIdentity.ID
 	session.Email = userIdentity.Email
 	session.Disabled = userIdentity.Disabled
+	session.IsSuperuser = userIdentity.IsSuperuser
 
 	if userIdentity.ServiceMemberID != nil {
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
@@ -280,6 +282,10 @@ func verifySessionWithApp(session *auth.Session) error {
 
 	if (session.TspUserID == uuid.UUID{}) && session.IsTspApp() {
 		return errors.Errorf("Non-TSP user %s authenticated at TSP site", session.Email)
+	}
+
+	if !session.IsSuperuser && session.IsAdminApp() {
+		return errors.Errorf("Non-superuser %s authenticated at admin site", session.Email)
 	}
 
 	return nil

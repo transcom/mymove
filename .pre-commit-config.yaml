@@ -80,6 +80,13 @@ repos:
       entry: bin/swagger validate swagger/dps.yaml
       language: script
 
+  - repo: local
+    hooks:
+      - id: swagger
+        name: Admin Swagger
+        entry: bin/swagger validate swagger/admin.yaml
+        language: script
+
   # Ensure markdown files have updated table of contents
   - repo: local
     hooks:
