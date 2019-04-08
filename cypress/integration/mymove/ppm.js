@@ -147,7 +147,7 @@ describe('editing ppm only move', () => {
 });
 
 function serviceMemberVisitsIntroToPPMPaymentRequest() {
-  cy.signInAsUser('8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
+  cy.signInAsUserPostRequest(milmoveAppName, '8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
   cy.contains('Fort Gordon (from Yuma AFB)');
   cy.contains('Request Payment').click();
 
