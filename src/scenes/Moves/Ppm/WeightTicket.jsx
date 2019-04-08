@@ -1,4 +1,6 @@
-import React, { Fragment } from 'react';
+import React, { Component, Fragment } from 'react';
+import helpIcon from 'shared/images/help-icon.png';
+import Select, { components } from 'react-select';
 import { reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
@@ -9,30 +11,53 @@ import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline'
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import './PPMPaymentRequest.css';
 
-let WeightTicket = props => {
-  const { schema } = props;
-  return (
-    <Fragment>
-      <WizardHeader
-        title="Weight tickets"
-        right={
-          <ProgressTimeline>
-            <ProgressTimelineStep name="Weight" current />
-            <ProgressTimelineStep name="Expenses" />
-            <ProgressTimelineStep name="Review" />
-          </ProgressTimeline>
-        }
-      />
-      <div className="usa-grid">
-        <SwaggerField fieldName="vehicle_options" swagger={schema} required />
-        <SwaggerField fieldName="vehicle_nickname" swagger={schema} required />
+const { Option } = components;
+// make x-display-value values into an array with the img as label and x-display-value value
+// the value is the key of the x-display-value
+// refer to line 40 & 41 in JsonSchemaField.js
+const vehicleTypes = [
+  {
+    value: 'Stuffs',
+    label: (
+      <Fragment>
+        <img src={helpIcon} alt="" /> Stuffs
+      </Fragment>
+    ),
+  },
+];
+export class WeightTicket extends Component {
+  state = { vehicleOptions: '' };
 
-        {/* TODO: change onclick handler to go to next page in flow */}
-        <PPMPaymentRequestActionBtns onClick={() => {}} nextBtnLabel="Save & Add Another" />
-      </div>
-    </Fragment>
-  );
-};
+  renderOption() {
+    return <Option>Whatever</Option>;
+  }
+
+  render() {
+    const { vehicleOptions } = this.state;
+    const { schema } = this.props;
+    return (
+      <Fragment>
+        <WizardHeader
+          title="Weight tickets"
+          right={
+            <ProgressTimeline>
+              <ProgressTimelineStep name="Weight" current />
+              <ProgressTimelineStep name="Expenses" />
+              <ProgressTimelineStep name="Review" />
+            </ProgressTimeline>
+          }
+        />
+        <div className="usa-grid">
+          <Select value={vehicleOptions} options={vehicleTypes} />
+          {/*<SwaggerField fieldName="vehicle_options" swagger={schema} required />*/}
+          <SwaggerField fieldName="vehicle_nickname" swagger={schema} required />
+          {/* TODO: change onclick handler to go to next page in flow */}
+          <PPMPaymentRequestActionBtns onClick={() => {}} nextBtnLabel="Save & Add Another" />
+        </div>
+      </Fragment>
+    );
+  }
+}
 
 const formName = 'weight_ticket_wizard';
 WeightTicket = reduxForm({
