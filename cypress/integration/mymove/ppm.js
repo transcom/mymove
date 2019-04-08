@@ -3,7 +3,7 @@
 describe('completing the ppm flow', function() {
   it('progresses thru forms', function() {
     //profile@comple.te
-    cy.signInAsUser('13f3949d-0d53-4be4-b1b1-ae4314793f34');
+    cy.signIntoMyMoveAsUser('13f3949d-0d53-4be4-b1b1-ae4314793f34');
     cy.contains('Fort Gordon (from Yuma AFB)');
     cy.get('.whole_box > div > :nth-child(3) > span').contains('10,500 lbs');
     cy.contains('Continue Move Setup').click();
@@ -92,7 +92,7 @@ describe('completing the ppm flow', function() {
 
     cy.logout();
     //profile@comple.te
-    cy.signInAsUser('8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
+    cy.signIntoMyMoveAsUser('8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
     cy.setFeatureFlag('ppmPaymentRequest', '/');
     cy.contains('Fort Gordon (from Yuma AFB)');
     cy.contains('Request Payment').click();
@@ -131,7 +131,7 @@ describe('completing the ppm flow', function() {
 
 describe('editing ppm only move', () => {
   it('sees only details relevant to PPM only move', () => {
-    cy.signInAsUser('e10d5964-c070-49cb-9bd1-eaf9f7348eb6');
+    cy.signIntoMyMoveAsUser('e10d5964-c070-49cb-9bd1-eaf9f7348eb6');
     cy
       .get('.sidebar button')
       .contains('Edit Move')
@@ -145,7 +145,7 @@ describe('editing ppm only move', () => {
 });
 
 function serviceMemberVisitsIntroToPPMPaymentRequest() {
-  cy.signInAsUser('8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
+  cy.signIntoMyMoveAsUser('8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
   cy.contains('Fort Gordon (from Yuma AFB)');
   cy.contains('Request Payment').click();
 
