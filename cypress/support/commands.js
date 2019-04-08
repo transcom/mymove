@@ -139,7 +139,7 @@ Cypress.Commands.add('setFeatureFlag', (flagVal, url = '/queues/new') => {
 Cypress.Commands.add(
   'signInAsUserPostRequest',
   (
-    signInAs,
+    userType,
     userId,
     expectedStatusCode = 200,
     expectedRespBody = null,
@@ -148,10 +148,10 @@ Cypress.Commands.add(
     checkSessionToken = true,
   ) => {
     // setup baseurl
-    cy.setBaseUrlAndClearAllCookies(signInAs);
+    cy.setBaseUrlAndClearAllCookies(userType);
 
     // request use to log in
-    let sendRequest = (appName, maskedCSRFToken) => {
+    let sendRequest = (sendRequestUserType, maskedCSRFToken) => {
       cy
         .request({
           url: '/devlocal-auth/login',
@@ -161,6 +161,7 @@ Cypress.Commands.add(
           },
           body: {
             id: userId,
+            userType: sendRequestUserType,
           },
           form: true,
           failOnStatusCode: false,
@@ -178,17 +179,17 @@ Cypress.Commands.add(
           if (checkSessionToken) {
             // Check that two CSRF cookies and one session cookie exists
             cy.getCookies().should('have.length', 3);
-            if (appName === milmoveAppName) {
+            if (sendRequestUserType === milmoveAppName) {
               cy.getCookie('mil_session_token').should('exist');
-              cy.getCookie('office_session_token').should.not('exist');
-              cy.getCookie('tsp_session_token').should.not('exist');
-            } else if (appName === officeAppName) {
-              cy.getCookie('mil_session_token').should.not('exist');
+              cy.getCookie('office_session_token').should('not.exist');
+              cy.getCookie('tsp_session_token').should('not.exist');
+            } else if (sendRequestUserType === officeAppName) {
+              cy.getCookie('mil_session_token').should('not.exist');
               cy.getCookie('office_session_token').should('exist');
-              cy.getCookie('tsp_session_token').should.not('exist');
-            } else if (appName === tspAppName) {
-              cy.getCookie('mil_session_token').should.not('exist');
-              cy.getCookie('office_session_token').should.not('exist');
+              cy.getCookie('tsp_session_token').should('not.exist');
+            } else if (sendRequestUserType === tspAppName) {
+              cy.getCookie('mil_session_token').should('not.exist');
+              cy.getCookie('office_session_token').should('not.exist');
               cy.getCookie('tsp_session_token').should('exist');
             }
           }
@@ -219,7 +220,7 @@ Cypress.Commands.add(
         .should('not.exist')
         .then(() => {
           // null token will omit the 'X-CSRF-HEADER' from request
-          sendRequest(signInAs);
+          sendRequest(userType);
         });
     } else {
       // Send request with masked token
@@ -227,7 +228,7 @@ Cypress.Commands.add(
         .getCookie('masked_gorilla_csrf')
         .should('exist')
         .then(cookie => {
-          sendRequest(signInAs, cookie.value);
+          sendRequest(userType, cookie.value);
         });
     }
   },
