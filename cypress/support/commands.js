@@ -43,8 +43,7 @@ import {
 
 Cypress.Commands.add('signInAsNewUser', userType => {
   // make sure we visit all app urls and clear cookies
-  const baseURL = userTypeToBaseURL.get(userType);
-  cy.setBaseUrlAndClearAllCookies(baseURL);
+  cy.setBaseUrlAndClearAllCookies(userType);
 
   cy.visit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now
@@ -68,7 +67,7 @@ Cypress.Commands.add('signInAsNewOfficeUser', () => {
 
 Cypress.Commands.add('signInAsNewTSPUser', () => {
   cy.signInAsNewUser(tspUserType);
-  cy.url().should('contain', tspBaseURL + '/queues/new');
+  cy.url().should('eq', tspBaseURL + '/queues/new');
 });
 
 Cypress.Commands.add('signInAsNewDPSUser', () => {
@@ -149,8 +148,7 @@ Cypress.Commands.add(
     checkSessionToken = true,
   ) => {
     // setup baseurl
-    const baseURL = userTypeToBaseURL.get(signInAs);
-    cy.setBaseUrlAndClearAllCookies(baseURL);
+    cy.setBaseUrlAndClearAllCookies(signInAs);
 
     // request use to log in
     let sendRequest = (appName, maskedCSRFToken) => {
@@ -250,16 +248,16 @@ Cypress.Commands.add('logout', () => {
   });
 });
 
-Cypress.Commands.add('setBaseUrlAndClearAllCookies', baseUrl => {
-  cy.setupBaseUrl(baseUrl);
+Cypress.Commands.add('setBaseUrlAndClearAllCookies', userType => {
+  const baseUrl = userTypeToBaseURL[userType]; // eslint-disable-line security/detect-object-injection
+  Cypress.config('baseUrl', baseUrl);
   cy.visit('/');
-  Cypress.config('baseUrl', 'http://milmovelocal:4000');
-  cy.clearCookies();
-  Cypress.config('baseUrl', 'http://officelocal:4000');
-  cy.clearCookies();
-  Cypress.config('baseUrl', 'http://tsplocal:4000');
-  cy.clearCookies();
-  cy.setupBaseUrl(baseUrl);
+  [milmoveBaseURL, officeBaseURL, tspBaseURL].forEach(url => {
+    Cypress.config('baseUrl', url);
+    cy.visit('/');
+    cy.clearCookies();
+  });
+  Cypress.config('baseUrl', baseUrl);
   cy.visit('/');
 });
 

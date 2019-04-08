@@ -18,9 +18,10 @@ export const tspUserType = 'tsp';
 export const dpsUserType = 'dps';
 
 // User Types to Base URLs
-export const userTypeToBaseURL = {
-  milmoveUserType: milmoveBaseURL,
-  officeUserType: officeBaseURL,
-  tspUserType: tspBaseURL,
-  dpsUserType: milmoveBaseURL,
-};
+/* eslint-disable security/detect-object-injection */
+export const userTypeToBaseURL = {};
+userTypeToBaseURL[milmoveUserType] = milmoveBaseURL;
+userTypeToBaseURL[officeUserType] = officeBaseURL;
+userTypeToBaseURL[tspUserType] = tspBaseURL;
+userTypeToBaseURL[dpsUserType] = milmoveBaseURL;
+/* eslint-enable security/detect-object-injection */
