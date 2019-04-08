@@ -380,12 +380,13 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 		}
 
 		// Approve the shipment line item
-		err = shipmentLineItem.Approve()
-		if err != nil {
-			h.Logger().Error("Error approving shipment line item for shipment", zap.Error(err))
-			return accessorialop.NewApproveShipmentLineItemForbidden()
+		if shipmentLineItem.Status == models.ShipmentLineItemStatusCONDITIONALLYAPPROVED {
+			err = shipmentLineItem.Approve()
+			if err != nil {
+				h.Logger().Error("Error approving shipment line item for shipment", zap.Error(err))
+				return accessorialop.NewApproveShipmentLineItemForbidden()
+			}
 		}
-
 	}
 
 	h.DB().ValidateAndUpdate(&shipmentLineItem)
@@ -482,11 +483,6 @@ func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipm
 	}
 
 	if shipmentLineItem.Tariff400ngItem.Code == "35A" && shipmentLineItem.EstimateAmountCents != nil && shipmentLineItem.ActualAmountCents == nil {
-		// If shipment is delivered, assign the shipment to the shipment line item.
-		if shipmentLineItem.Shipment.Status == models.ShipmentStatusDELIVERED {
-			shipmentLineItem.Shipment = *shipment
-		}
-
 		// Conditionally approve and save the shipment line item
 		err = shipmentLineItem.ConditionallyApprove()
 		if err != nil {
@@ -494,21 +490,21 @@ func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipm
 			return accessorialop.NewApproveShipmentLineItemForbidden()
 		}
 	} else {
-		// If shipment is delivered, price single shipment line item
-		if shipmentLineItem.Shipment.Status == models.ShipmentStatusDELIVERED {
-			shipmentLineItem.Shipment = *shipment
-			engine := rateengine.NewRateEngine(h.DB(), h.Logger())
-			err = engine.PricePreapprovalRequest(&shipmentLineItem)
-			if err != nil {
-				return handlers.ResponseForError(h.Logger(), err)
-			}
-		}
-
 		// Approve the shipment line item
 		err = shipmentLineItem.Approve()
 		if err != nil {
 			h.Logger().Error("Error approving shipment line item for shipment", zap.Error(err))
 			return accessorialop.NewApproveShipmentLineItemForbidden()
+		}
+	}
+
+	// If shipment is delivered and line item is approved, price single shipment line item
+	if shipmentLineItem.Shipment.Status == models.ShipmentStatusDELIVERED && shipmentLineItem.Status == models.ShipmentLineItemStatusAPPROVED {
+		shipmentLineItem.Shipment = *shipment
+		engine := rateengine.NewRateEngine(h.DB(), h.Logger())
+		err = engine.PricePreapprovalRequest(&shipmentLineItem)
+		if err != nil {
+			return handlers.ResponseForError(h.Logger(), err)
 		}
 	}
 
