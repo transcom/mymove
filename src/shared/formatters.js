@@ -192,6 +192,15 @@ export function formatDateTime(date) {
   }
 }
 
+// Format a date, include its time and timezone, e.g. 03-Jan-2018 21:23 ET
+export function formatDateTimeWithTZ(date) {
+  var zone = new Date().toLocaleTimeString('en-us', { timeZoneName: 'short' }).split(' ')[2];
+
+  if (date) {
+    return moment(date).format('DD-MMM-YY HH:mm') + ` ${zone}`;
+  }
+}
+
 // truncate a number and return appropiate decimal places... (watch out for negitive numbers: floor(-5.1) === -6)
 // see test for examples of how this works
 export const truncateNumber = (num, decimalPlaces = 0) => {
