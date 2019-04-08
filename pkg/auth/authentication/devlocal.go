@@ -118,6 +118,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 			<div class="col-md-4">
 			  <h2 class="mt-4">Create a New User</h1>
+			  <p>Creating new users for different sites will mean you need to redirect and log in yourself.</p>
 			  <form method="post" action="/devlocal-auth/new">
 				<p>
 				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
