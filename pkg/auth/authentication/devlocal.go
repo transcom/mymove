@@ -106,7 +106,19 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					<p id="{{.ID}}">
 						<input type="hidden" name="gorilla.csrf.Token" value="{{$.CsrfToken}}">
 						{{.Email}}
-						({{if .DpsUserID}}dps{{else if .TspUserID}}tsp{{else if .OfficeUserID}}office{{else}}milmove{{end}})
+						{{if .DpsUserID}}
+						  ({{$.DpsUserType}})
+						  <input type="hidden" name="userType" value="{{$.DpsUserType}}">
+						{{else if .TspUserID}}
+						  ({{$.TspUserType}})
+						  <input type="hidden" name="userType" value="{{$.TspUserType}}">
+						{{else if .OfficeUserID}}
+						  ({{$.OfficeUserType}})
+						  <input type="hidden" name="userType" value="{{$.OfficeUserType}}">
+						{{else}}
+						  ({{$.MilMoveUserType}})
+						  <input type="hidden" name="userType" value="{{$.MilMoveUserType}}">
+						{{end}}
 						<input type="hidden" name="id" value="{{.ID}}" />
 						<button type="submit" value="{{.ID}}" data-hook="existing-user-login">Login</button>
 					</p>
@@ -203,7 +215,8 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 	}
 
-	session, err := loginUser(devlocalAuthHandler(h), user, MilMoveUserType, w, r)
+	userType := r.Form.Get("userType")
+	session, err := loginUser(devlocalAuthHandler(h), user, userType, w, r)
 	if err != nil {
 		return
 	}
