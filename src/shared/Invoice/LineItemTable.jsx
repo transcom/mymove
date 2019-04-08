@@ -10,7 +10,16 @@ import './InvoicePanel.css';
 
 class LineItemTable extends PureComponent {
   render() {
-    const showItem35Missing = item => isRobust35A(item, this.props);
+    const showItem35Missing = item => {
+      const robustAccessorialFlag = get(this.props, 'context.flags.robustAccessorial', false);
+      return (
+        robustAccessorialFlag &&
+        item.tariff400ng_item.code === '35A' &&
+        item.estimate_amount_cents &&
+        !item.actual_amount_cents
+      );
+    };
+
     return (
       <div>
         {this.props.title}
@@ -61,15 +70,5 @@ LineItemTable.propTypes = {
   shipmentLineItems: PropTypes.array,
   totalAmount: PropTypes.number,
 };
-
-function isRobust35A(item, props) {
-  const robustAccessorialFlag = get(props, 'context.flags.robustAccessorial', false);
-  return (
-    robustAccessorialFlag &&
-    item.tariff400ng_item.code === '35A' &&
-    item.estimate_amount_cents &&
-    !item.actual_amount_cents
-  );
-}
 
 export default withContext(LineItemTable);
