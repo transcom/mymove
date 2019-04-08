@@ -23,12 +23,10 @@ const PPMPaymentRequestActionBtns = props => {
 };
 function mapStateToProps(state) {
   const { form } = state;
-  let isDisabled = false;
-  if (form.weight_ticket_wizard) {
+  let isDisabled = true;
+  if (form.weight_ticket_wizard && form.weight_ticket_wizard.values) {
     isDisabled = !(
-      form.weight_ticket_wizard.values &&
-      form.weight_ticket_wizard.values.vehicle_nickname &&
-      form.weight_ticket_wizard.values.vehicle_options
+      form.weight_ticket_wizard.values.vehicle_nickname && form.weight_ticket_wizard.values.vehicle_options
     );
   }
   return {
