@@ -249,14 +249,12 @@ Cypress.Commands.add('logout', () => {
 });
 
 Cypress.Commands.add('setBaseUrlAndClearAllCookies', userType => {
-  const baseUrl = userTypeToBaseURL[userType]; // eslint-disable-line security/detect-object-injection
-  Cypress.config('baseUrl', baseUrl);
-  cy.visit('/');
   [milmoveBaseURL, officeBaseURL, tspBaseURL].forEach(url => {
     Cypress.config('baseUrl', url);
     cy.visit('/');
     cy.clearCookies();
   });
+  const baseUrl = userTypeToBaseURL[userType]; // eslint-disable-line security/detect-object-injection
   Cypress.config('baseUrl', baseUrl);
   cy.visit('/');
 });
