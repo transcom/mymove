@@ -29,7 +29,7 @@ import { milmoveAppName, officeAppName, tspAppName, longPageLoadTimeout } from '
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
 Cypress.Commands.add('signInAsNewUser', () => {
-  cy.clearAllCookies(milmoveAppName);
+  cy.setBaseUrlAndClearAllCookies(milmoveAppName);
 
   cy.visit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now
@@ -39,16 +39,16 @@ Cypress.Commands.add('signInAsNewUser', () => {
 });
 
 Cypress.Commands.add('signIntoMyMoveAsUser', userId => {
-  cy.clearAllCookies(milmoveAppName);
+  cy.setBaseUrlAndClearAllCookies(milmoveAppName);
   cy.signInAsUser(userId);
 });
 Cypress.Commands.add('signIntoOffice', () => {
-  cy.clearAllCookies(officeAppName);
+  cy.setBaseUrlAndClearAllCookies(officeAppName);
   cy.signInAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
   cy.waitForReactTableLoad();
 });
 Cypress.Commands.add('signIntoTSP', () => {
-  cy.clearAllCookies(tspAppName);
+  cy.setBaseUrlAndClearAllCookies(tspAppName);
   cy.signInAsUser('6cd03e5b-bee8-4e97-a340-fecb8f3d5465');
   cy.waitForReactTableLoad();
 });
@@ -193,7 +193,7 @@ Cypress.Commands.add('logout', () => {
   });
 });
 
-Cypress.Commands.add('clearAllCookies', baseUrl => {
+Cypress.Commands.add('setBaseUrlAndClearAllCookies', baseUrl => {
   cy.setupBaseUrl(baseUrl);
   cy.visit('/');
   Cypress.config('baseUrl', 'http://milmovelocal:4000');
