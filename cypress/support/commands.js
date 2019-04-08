@@ -203,6 +203,7 @@ Cypress.Commands.add('clearAllCookies', baseUrl => {
   Cypress.config('baseUrl', 'http://tsplocal:4000');
   cy.clearCookies();
   cy.setupBaseUrl(baseUrl);
+  cy.visit('/');
 });
 
 Cypress.Commands.add('nextPage', () => {
