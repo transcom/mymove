@@ -4,7 +4,7 @@ describe('shipments', function() {
   describe('completing the hhg flow', function() {
     it('selects hhg and progresses thru form', function() {
       // sm_hhg@example.com
-      cy.signInAsUser('4b389406-9258-4695-a091-0bf97b5a132f');
+      cy.signIntoMyMoveAsUser('4b389406-9258-4695-a091-0bf97b5a132f');
       serviceMemberAddsHHG();
       serviceMemberAddsMoveDates();
       serviceMemberAddsLocations();
@@ -24,7 +24,7 @@ describe('shipments', function() {
       const firstIncompletePage = /^\/moves\/[^/]+\/hhg-weight/;
 
       cy.removeFetch();
-      cy.signInAsUser(serviceMemberId);
+      cy.signIntoMyMoveAsUser(serviceMemberId);
       serviceMemberAddsHHG();
       serviceMemberAddsMoveDates();
       serviceMemberAddsLocations();
@@ -46,7 +46,7 @@ function serviceMemberLogsOutThenContinues(serviceMemberId) {
   // placement of server and route are important
   cy.server();
   cy.route({ url: '**/api/v1/shipments/*' }).as('getShipments');
-  cy.signInAsUser(serviceMemberId);
+  cy.signIntoMyMoveAsUser(serviceMemberId);
   cy.wait('@getShipments');
   cy.contains('Continue Move Setup').click();
 }
