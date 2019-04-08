@@ -29,8 +29,7 @@ import { milmoveAppName, officeAppName, tspAppName, longPageLoadTimeout } from '
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
 Cypress.Commands.add('signInAsNewUser', () => {
-  // make sure we log out first before sign in
-  cy.logout();
+  cy.setBaseUrlAndClearAllCookies(milmoveAppName);
 
   cy.visit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now
@@ -40,23 +39,20 @@ Cypress.Commands.add('signInAsNewUser', () => {
 });
 
 Cypress.Commands.add('signIntoMyMoveAsUser', userId => {
-  cy.setupBaseUrl(milmoveAppName);
+  cy.setBaseUrlAndClearAllCookies(milmoveAppName);
   cy.signInAsUser(userId);
 });
 Cypress.Commands.add('signIntoOffice', () => {
-  cy.setupBaseUrl(officeAppName);
+  cy.setBaseUrlAndClearAllCookies(officeAppName);
   cy.signInAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
   cy.waitForReactTableLoad();
 });
 Cypress.Commands.add('signIntoTSP', () => {
-  cy.setupBaseUrl(tspAppName);
+  cy.setBaseUrlAndClearAllCookies(tspAppName);
   cy.signInAsUser('6cd03e5b-bee8-4e97-a340-fecb8f3d5465');
   cy.waitForReactTableLoad();
 });
 Cypress.Commands.add('signInAsUser', userId => {
-  // make sure we log out first before sign in
-  cy.logout();
-
   cy.visit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now
   cy.getCookie('_gorilla_csrf').should('exist');
@@ -195,6 +191,19 @@ Cypress.Commands.add('logout', () => {
     // In case of login redirect we once more go to the homepage
     cy.patientVisit('/');
   });
+});
+
+Cypress.Commands.add('setBaseUrlAndClearAllCookies', baseUrl => {
+  cy.setupBaseUrl(baseUrl);
+  cy.visit('/');
+  Cypress.config('baseUrl', 'http://milmovelocal:4000');
+  cy.clearCookies();
+  Cypress.config('baseUrl', 'http://officelocal:4000');
+  cy.clearCookies();
+  Cypress.config('baseUrl', 'http://tsplocal:4000');
+  cy.clearCookies();
+  cy.setupBaseUrl(baseUrl);
+  cy.visit('/');
 });
 
 Cypress.Commands.add('nextPage', () => {
