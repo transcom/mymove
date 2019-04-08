@@ -59,3 +59,11 @@
   margin-top: 2.3rem;
   padding-top: 1rem;
 }
+
+.text-gray {
+  color: #767676;
+}
+
+.secondary-label {
+  font-size: 1.5rem;
+}

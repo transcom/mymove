@@ -51,6 +51,22 @@ function AllowableExpenses(props) {
           <li>Tire chains</li>
         </ul>
       </p>
+      <p>
+        <strong>Gas and fuel expenses</strong>
+        <br />
+        Fuel expenses may no longer be claimed in conjunction with a PPM unless the amount of fuel exceeds the amount
+        paid for Mileage and Per Diem fees on your travel pay. The IRS will not allow you to claim an expense if you
+        were paid for the mileage already. Doing so could result in an IRS audit. However, if your fuel costs exceed the
+        Per Diem payment you received, you may claim the portion that exceeds that amount.
+      </p>
+      <p>
+        <strong>When are receipts required?</strong>
+        <br />
+        Receipts are required for any contracted expenses, storage facilities, and for any expense over $75. If you have
+        an expense under $75, you will only need a receipt if you have multiple expenses within that same expense
+      </p>
+      {/* TODO: Copy WIP still*/}
+      <p>If you are missing a required receipt, you can fill out a missing/lost receipt form to submit to Finance.</p>
       <div className="usa-grid button-bar">
         <button className="usa-button-secondary" onClick={goBack}>
           Back
