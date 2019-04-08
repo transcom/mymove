@@ -150,7 +150,7 @@ Cypress.Commands.add(
     cy.setupBaseUrl(signInAs);
 
     // request use to log in
-    let sendRequest = maskedCSRFToken => {
+    let sendRequest = (appName, maskedCSRFToken) => {
       cy
         .request({
           url: '/devlocal-auth/login',
@@ -171,6 +171,25 @@ Cypress.Commands.add(
           // check response body if needed
           if (expectedRespBody) {
             expect(resp.body).to.eq(expectedRespBody);
+          }
+
+          // Login should provide named session tokens
+          if (checkSessionToken) {
+            // Check that two CSRF cookies and one session cookie exists
+            cy.getCookies().should('have.length', 3);
+            if (appName === milmoveAppName) {
+              cy.getCookie('mil_session_token').should('exist');
+              cy.getCookie('office_session_token').should.not('exist');
+              cy.getCookie('tsp_session_token').should.not('exist');
+            } else if (appName === officeAppName) {
+              cy.getCookie('mil_session_token').should.not('exist');
+              cy.getCookie('office_session_token').should('exist');
+              cy.getCookie('tsp_session_token').should.not('exist');
+            } else if (appName === tspAppName) {
+              cy.getCookie('mil_session_token').should.not('exist');
+              cy.getCookie('office_session_token').should.not('exist');
+              cy.getCookie('tsp_session_token').should('exist');
+            }
           }
         });
     };
@@ -199,7 +218,7 @@ Cypress.Commands.add(
         .should('not.exist')
         .then(() => {
           // null token will omit the 'X-CSRF-HEADER' from request
-          sendRequest();
+          sendRequest(signInAs);
         });
     } else {
       // Send request with masked token
@@ -207,19 +226,8 @@ Cypress.Commands.add(
         .getCookie('masked_gorilla_csrf')
         .should('exist')
         .then(cookie => {
-          sendRequest(cookie.value);
+          sendRequest(signInAs, cookie.value);
         });
-    }
-
-    // Login should provide named session tokens
-    if (checkSessionToken) {
-      if (signInAs === milmoveAppName) {
-        cy.getCookie('mil_session_token').should('exist');
-      } else if (signInAs === officeAppName) {
-        cy.getCookie('office_session_token').should('exist');
-      } else if (signInAs === tspAppName) {
-        cy.getCookie('tsp_session_token').should('exist');
-      }
     }
   },
 );
