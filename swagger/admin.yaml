@@ -20,5 +20,5 @@ paths:
       tags:
         - placeholder
       responses:
-        200:
+        501:
           description: nothing to see here
