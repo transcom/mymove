@@ -1295,7 +1295,7 @@ definitions:
         format: date-time
       date:
         type: string
-        format: date
+        format: date-time
         title: Date
       signature:
         type: string
@@ -1325,7 +1325,7 @@ definitions:
     properties:
       date:
         type: string
-        format: date
+        format: date-time
         title: Date
       signature:
         type: string

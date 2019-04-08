@@ -1,5 +1,7 @@
 /* global cy */
 
+import { milmoveAppName } from '../../support/constants';
+
 describe('service member adds a ppm to an hhg', function() {
   it('service member clicks on Add PPM (DITY) Move', function() {
     serviceMemberSignsIn('f83bc69f-10aa-48b7-b9fe-425b393d49b8');
@@ -307,7 +309,7 @@ function serviceMemberClicksEditMove() {
 }
 
 function serviceMemberSignsIn(uuid) {
-  cy.signInAsUser(uuid);
+  cy.signInAsUserPostRequest(milmoveAppName, uuid);
 }
 
 function serviceMemberAddsPPMToHHG() {

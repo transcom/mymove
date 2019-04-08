@@ -43,20 +43,28 @@ func (f FetchShipmentForInvoice) Call(shipmentID uuid.UUID) (models.Shipment, er
 		Where("shipment_line_items.invoice_id IS NULL").
 		Where("shipment_line_items.shipment_id=?", shipmentID).
 		All(&lineItems)
-	lineItemsFiltered := (filter35AItems(lineItems))
+	lineItemsFiltered := (filterRobust35AItems(lineItems))
 	shipment.ShipmentLineItems = lineItemsFiltered
 	return shipment, err
 }
 
-// filter35AItems: 35A items are invoiced if they have an `actual_amount_cents` value
-func filter35AItems(lineItems models.ShipmentLineItems) models.ShipmentLineItems {
+// filterRobust35AItems: robust 35A items are invoiced only if they have an `actual_amount_cents` value or are 35A legacy item
+func filterRobust35AItems(lineItems models.ShipmentLineItems) models.ShipmentLineItems {
 	var lineItemsFiltered models.ShipmentLineItems
 	for _, li := range lineItems {
-		if li.Tariff400ngItem.Code == "35A" && li.ActualAmountCents == nil {
+		if is35AItemMissingActualAmount(li) {
 			continue
 		} else {
 			lineItemsFiltered = append(lineItemsFiltered, li)
 		}
 	}
 	return lineItemsFiltered
+}
+
+// is35AItemMissingActualAmount check if 35A item is robust but has no actual_amount
+func is35AItemMissingActualAmount(item models.ShipmentLineItem) bool {
+	if item.Tariff400ngItem.Code == "35A" {
+		return item.Description != nil && item.Reason != nil && item.EstimateAmountCents != nil && item.ActualAmountCents == nil
+	}
+	return false
 }
