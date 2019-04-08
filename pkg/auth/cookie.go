@@ -19,10 +19,11 @@ type errInvalidHostname struct {
 	MilApp    string
 	OfficeApp string
 	TspApp    string
+	AdminApp  string
 }
 
 func (e *errInvalidHostname) Error() string {
-	return fmt.Sprintf("invalid hostname %s, must be one of %s, %s, or %s", e.Hostname, e.MilApp, e.OfficeApp, e.TspApp)
+	return fmt.Sprintf("invalid hostname %s, must be one of %s, %s, %s, or %s", e.Hostname, e.MilApp, e.OfficeApp, e.TspApp, e.AdminApp)
 }
 
 // UserSessionCookieName is the key suffix at which we're storing our token cookie
@@ -200,7 +201,7 @@ func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, 
 }
 
 // ApplicationName returns the application name given the hostname
-func ApplicationName(hostname, milHostname, officeHostname, tspHostname string) (Application, error) {
+func ApplicationName(hostname, milHostname, officeHostname, tspHostname string, adminHostname string) (Application, error) {
 	var appName Application
 	if strings.EqualFold(hostname, milHostname) {
 		return MilApp, nil
@@ -208,18 +209,28 @@ func ApplicationName(hostname, milHostname, officeHostname, tspHostname string) 
 		return OfficeApp, nil
 	} else if strings.EqualFold(hostname, tspHostname) {
 		return TspApp, nil
+	} else if strings.EqualFold(hostname, adminHostname) {
+		return AdminApp, nil
 	}
 	return appName, errors.Wrap(
 		&errInvalidHostname{
 			Hostname:  hostname,
 			MilApp:    milHostname,
 			OfficeApp: officeHostname,
-			TspApp:    tspHostname}, fmt.Sprintf("%s is invalid", hostname))
+			TspApp:    tspHostname,
+			AdminApp:  adminHostname,
+		}, fmt.Sprintf("%s is invalid", hostname))
 }
 
 // SessionCookieMiddleware handle serializing and de-serializing the session between the user_session cookie and the request context
-func SessionCookieMiddleware(logger Logger, secret string, noSessionTimeout bool, milHostname, officeHostname, tspHostname string, useSecureCookie bool) func(next http.Handler) http.Handler {
-	logger.Info("Creating session", zap.String("milHost", milHostname), zap.String("officeHost", officeHostname), zap.String("tspHost", tspHostname))
+func SessionCookieMiddleware(logger Logger, secret string, noSessionTimeout bool, milHostname, officeHostname, tspHostname string, adminHostname string, useSecureCookie bool) func(next http.Handler) http.Handler {
+	logger.Info(
+		"Creating session",
+		zap.String("milHost", milHostname),
+		zap.String("officeHost", officeHostname),
+		zap.String("tspHost", tspHostname),
+		zap.String("adminHost", adminHostname),
+	)
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			ctx, span := beeline.StartSpan(r.Context(), "SessionCookieMiddleware")
@@ -230,7 +241,7 @@ func SessionCookieMiddleware(logger Logger, secret string, noSessionTimeout bool
 
 			// Split the hostname from the port
 			hostname := strings.Split(r.Host, ":")[0]
-			appName, err := ApplicationName(hostname, milHostname, officeHostname, tspHostname)
+			appName, err := ApplicationName(hostname, milHostname, officeHostname, tspHostname, adminHostname)
 			if err != nil {
 				logger.Error("Bad Hostname", zap.Error(err))
 				http.Error(w, http.StatusText(400), http.StatusBadRequest)

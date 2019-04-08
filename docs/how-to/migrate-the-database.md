@@ -44,10 +44,10 @@ We are piggy-backing on the migration system for importing static datasets. This
 3. Copy the production migration into the local test migration.
 4. Scrub the test migration of sensitive data, but use it to test the gist of the production migration operation.
 5. Test the local migration by running `make db_dev_migrate`. You should see it run your local migration.
-6. Test the secure migration by running `scripts/run-prod-migrations` to setup a local  prod_migrations` database. Then run `psql-prod-migrations< tmp/$NAME_OF_YOUR_SECURE_MIGRATION`. Verify that the updated values are in the database.
+6. Test the secure migration by running `make run_prod_migrations` to setup a local  prod_migrations` database. Then run `psql-prod-migrations< tmp/$NAME_OF_YOUR_SECURE_MIGRATION`. Verify that the updated values are in the database.
 7. If you are wanting to run a secure migration for a specific non-production environment, then **skip to the next section**.
 8. Upload the migration to S3 with: `scripts/upload-secure-migration <production_migration_file>`.
-9. Run `scripts/run-prod-migrations` to verify that the upload worked and that the migration can be applied successfully. If not, you can make changes and run `scripts/upload-secure-migration` again and it will overwrite the old files.
+9. Run `make run_prod_migrations` to verify that the upload worked and that the migration can be applied successfully. If not, you can make changes and run `scripts/upload-secure-migration` again and it will overwrite the old files.
 10. Once the migration is working properly, **delete the secure migration from your `tmp` directory** if you didn't delete it in step 8.
 11. Open a pull request!
 12. When the pull request lands, the production migrations will be run on Staging and Prod.
@@ -58,12 +58,16 @@ We are piggy-backing on the migration system for importing static datasets. This
 
 To run a secure migration on ONLY staging (or other chosen environment), upload the migration only to the S3 environment and blank files to the others:
 
-7. Instead of the "Upload the migration" step above, run `aws s3 cp --sse AES256 $YOUR_TMP_MIGRATION_FILE s3://transcom-ppp-app-staging-us-west-2/secure-migrations/`
-8. Check that it is listed in the S3 staging secure-migrations folder: `aws s3 ls s3://transcom-ppp-app-staging-us-west-2/secure-migrations/`
-9. Check that it is NOT listed in the S3 production folder: `aws s3 ls s3://transcom-ppp-app-prod-us-west-2/secure-migrations/`
-10. Now upload empty files of the same name to the prod environment: `aws s3 cp --sse AES256 $YOUR_EMPTY_TMP_MIGRATION_FILE s3://transcom-ppp-app-prod-us-west-2/secure-migrations/`
-11. Now upload empty files of the same name to the experimental environment: `aws s3 cp --sse AES256 $YOUR_EMPTY_TMP_MIGRATION_FILE s3://transcom-ppp-app-experimental-us-west-2/secure-migrations/`
-12. To verify upload and that the migration can be applied, temporarily change the S3 bucket to the staging bucket in the run-prod-migration file and then run `scripts/run-prod-migrations`
+1. Instead of the "Upload the migration" step above, run `aws s3 cp --sse AES256 $YOUR_TMP_MIGRATION_FILE s3://transcom-ppp-app-staging-us-west-2/secure-migrations/`
+2. Check that it is listed in the S3 staging secure-migrations folder: `aws s3 ls s3://transcom-ppp-app-staging-us-west-2/secure-migrations/`
+3. Check that it is NOT listed in the S3 production folder: `aws s3 ls s3://transcom-ppp-app-prod-us-west-2/secure-migrations/`
+4. Now upload empty files of the same name to the prod environment: `aws s3 cp --sse AES256 $YOUR_EMPTY_TMP_MIGRATION_FILE s3://transcom-ppp-app-prod-us-west-2/secure-migrations/`
+5. Now upload empty files of the same name to the experimental environment: `aws s3 cp --sse AES256 $YOUR_EMPTY_TMP_MIGRATION_FILE s3://transcom-ppp-app-experimental-us-west-2/secure-migrations/`
+6. To verify upload and that the migration can be applied use the make target corresponding to your environment:
+
+* `make run_prod_migrations`
+* `make run_staging_migrations`
+* `make run_experimental_migrations`
 
 ### How Secure Migrations Work
 

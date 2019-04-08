@@ -84,14 +84,14 @@ describe('testing landing pages', function() {
 });
 
 function draftMove(userId) {
-  cy.signInAsUser(userId);
+  cy.signIntoMyMoveAsUser(userId);
   cy.contains('Move to be scheduled');
   cy.contains('Next Step: Finish setting up your move');
   cy.logout();
 }
 
 function ppmSubmitted(userId) {
-  cy.signInAsUser(userId);
+  cy.signIntoMyMoveAsUser(userId);
   cy.contains('Move your own stuff (PPM)');
   cy.contains('Next Step: Wait for approval');
   cy.should('not.contain', 'Add PPM (DITY) Move');
@@ -99,7 +99,7 @@ function ppmSubmitted(userId) {
 }
 
 function ppmApproved(userId) {
-  cy.signInAsUser(userId);
+  cy.signIntoMyMoveAsUser(userId);
   cy.contains('Move your own stuff (PPM)');
   cy.contains('Next Step: Get ready to move');
   cy.contains('Next Step: Request payment');
@@ -107,7 +107,7 @@ function ppmApproved(userId) {
 }
 
 function ppmPaymentRequested(userId) {
-  cy.signInAsUser(userId);
+  cy.signIntoMyMoveAsUser(userId);
   cy.contains('Move your own stuff (PPM)');
   cy.contains('Your payment is in review');
   cy.contains('You will receive a notification from your destination PPPO office when it has been reviewed.');
@@ -115,7 +115,7 @@ function ppmPaymentRequested(userId) {
 }
 
 function hhgMoveSummary(userId) {
-  cy.signInAsUser(userId);
+  cy.signIntoMyMoveAsUser(userId);
   cy.contains('Government Movers and Packers (HHG)');
   cy.contains('Next Step: Prepare for move');
   cy.contains('Add PPM (DITY) Move');
@@ -123,14 +123,14 @@ function hhgMoveSummary(userId) {
 }
 
 function hhgDeliveredOrCompletedMoveSummary(userId) {
-  cy.signInAsUser(userId);
+  cy.signIntoMyMoveAsUser(userId);
   cy.contains('Government Movers and Packers (HHG)');
   cy.contains('Next Step: Survey');
   cy.logout();
 }
 
 function canceledMove(userId) {
-  cy.signInAsUser(userId);
+  cy.signIntoMyMoveAsUser(userId);
   cy.contains('New move');
   cy.contains('Start here');
   cy.logout();

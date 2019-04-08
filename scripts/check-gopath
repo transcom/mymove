@@ -8,16 +8,6 @@ fi
 # Strip a trailing slash off of gpath if it exists (makes binpath below more robust)
 gpath=${gpath%/}
 
-goodpath=$gpath/src/github.com/transcom/mymove
-
-if [ ! "$PWD" -ef "$goodpath" ]; then
-  echo "In order to build the server, the project must be checked out into your gopath"
-  echo "read more at https://golang.org/doc/code.html#Workspaces"
-  echo "Expected: $goodpath"
-  echo "Actual: $PWD"
-  exit 1
-fi
-
 # shellcheck disable=SC2154
 if [[ "$gpath" == *"$home" ]]; then
   if [[ ! ":$PATH:" == *":$gpath/bin:"* ]] && [[ ! ":$PATH:" == *":~${gpath#$HOME}/bin:"* ]]; then

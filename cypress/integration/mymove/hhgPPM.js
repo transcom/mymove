@@ -307,7 +307,7 @@ function serviceMemberClicksEditMove() {
 }
 
 function serviceMemberSignsIn(uuid) {
-  cy.signInAsUser(uuid);
+  cy.signIntoMyMoveAsUser(uuid);
 }
 
 function serviceMemberAddsPPMToHHG() {

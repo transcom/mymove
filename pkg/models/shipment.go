@@ -172,7 +172,7 @@ var BaseShipmentLineItems = []BaseShipmentLineItem{
 func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	calendar := dates.NewUSCalendar()
 
-	return validate.Validate(
+	validations := []validate.Validator{
 		&validators.UUIDIsPresent{Field: s.MoveID, Name: "move_id"},
 		&validators.StringIsPresent{Field: string(s.Status), Name: "status"},
 		&OptionalInt64IsPositive{Field: s.EstimatedPackDays, Name: "estimated_pack_days"},
@@ -216,7 +216,16 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 			Field:    s.ActualDeliveryDate,
 			Name:     "actual_delivery_date",
 			Calendar: calendar},
-	), nil
+	}
+
+	if s.Status == ShipmentStatusSUBMITTED {
+		var pickupAddressID uuid.UUID
+		if s.PickupAddressID != nil {
+			pickupAddressID = *s.PickupAddressID
+		}
+		validations = append(validations, &validators.UUIDIsPresent{Field: pickupAddressID, Name: "pickup_address_id"})
+	}
+	return validate.Validate(validations...), nil
 }
 
 // CurrentTransportationServiceProviderID returns the id for the current TSP for a shipment
@@ -573,7 +582,7 @@ func FetchUnofferedShipments(db *pop.Connection) (Shipments, error) {
 }
 
 // FetchShipmentsByTSP looks up all shipments belonging to a TSP ID
-func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, orderBy *string, limit *int64, offset *int64) ([]Shipment, error) {
+func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, orderBy *string) ([]Shipment, error) {
 
 	shipments := []Shipment{}
 
@@ -608,25 +617,6 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 			query.Order(*orderBy)
 		}
 	}
-
-	// Manage limit and offset values
-	var limitVar = 25
-	if limit != nil && *limit > 0 {
-		limitVar = int(*limit)
-	}
-
-	var offsetVar = 1
-	if offset != nil && *offset > 1 {
-		offsetVar = int(*offset)
-	}
-
-	// Pop doesn't have a direct Offset() function and instead paginates. This means the offset isn't actually
-	// the DB offset.  It's first multiplied by the limit and then applied.  Examples:
-	//   - Paginate(0, 25) = LIMIT 25 OFFSET 0  (this is an odd case and is coded into Pop)
-	//   - Paginate(1, 25) = LIMIT 25 OFFSET 0
-	//   - Paginate(2, 25) = LIMIT 25 OFFSET 25
-	//   - Paginate(3, 25) = LIMIT 25 OFFSET 50
-	query.Paginate(offsetVar, limitVar)
 
 	err := query.All(&shipments)
 
