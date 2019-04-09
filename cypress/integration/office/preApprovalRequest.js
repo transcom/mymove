@@ -243,4 +243,32 @@ function officeUserCreates35APreApprovalRequest() {
     .get('.invoice-panel-table-cont tbody')
     .contains('220.0000')
     .should('exist');
+
+  // Unset the actual amount
+  cy
+    .get('[data-test=edit-request]')
+    .first()
+    .click();
+
+  cy.clearInput({ name: 'actual_amount_cents' });
+
+  cy
+    .get('button')
+    .contains('Save')
+    .should('be.enabled');
+
+  cy
+    .get('button')
+    .contains('Save')
+    .click();
+
+  cy
+    .get('td[details-cy="35A-details"]')
+    .should('contain', 'description description 35A reason reason 35A Est. not to exceed: $250.00 Actual amount: --');
+
+  // The edit should propagate to the Invoice panel
+  cy
+    .get('.invoice-panel-table-cont tbody')
+    .contains('Missing actual amount')
+    .parent();
 }

@@ -330,6 +330,13 @@ Cypress.Commands.add('typeInInput', ({ name, value }) => {
     .blur();
 });
 
+Cypress.Commands.add('clearInput', ({ name }) => {
+  cy
+    .get(`input[name="${name}"]`)
+    .clear()
+    .blur();
+});
+
 // function typeInTextArea({ name, value }) {
 Cypress.Commands.add('typeInTextarea', ({ name, value }) => {
   cy

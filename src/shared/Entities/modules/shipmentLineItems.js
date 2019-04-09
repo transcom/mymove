@@ -149,5 +149,11 @@ function filterByNoInvoiceId(items) {
 }
 
 function filterByLinehaulOrPreApprovals(items) {
-  return filter(items, item => !item.tariff400ng_item.requires_pre_approval || item.status === 'APPROVED');
+  return filter(
+    items,
+    item =>
+      !item.tariff400ng_item.requires_pre_approval ||
+      item.status === 'APPROVED' ||
+      item.status === 'CONDITIONALLY_APPROVED',
+  );
 }
