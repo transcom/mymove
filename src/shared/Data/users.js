@@ -6,7 +6,7 @@ import { pick } from 'lodash';
 import { normalize } from 'normalizr';
 import { ordersArray } from 'shared/Entities/schema';
 import { addEntities } from 'shared/Entities/actions';
-import { getPublicShipment } from 'shared/Entities/modules/shipments';
+import { getShipment } from 'shared/Entities/modules/shipments';
 
 const getLoggedInUserType = 'GET_LOGGED_IN_USER';
 
@@ -24,7 +24,7 @@ export function getCurrentUserInfo() {
           const data = normalize(response.service_member.orders, ordersArray);
           if (data.entities.shipments) {
             const shipmentIds = Object.keys(data.entities.shipments);
-            shipmentIds.map(id => dispatch(getPublicShipment(id)));
+            shipmentIds.map(id => dispatch(getShipment(id)));
           }
 
           // Only store addresses in a normalized way. This prevents
