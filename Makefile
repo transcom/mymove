@@ -253,11 +253,11 @@ server_run_debug:
 	$(AWS_VAULT) dlv debug cmd/webserver/main.go
 
 .PHONY: build_save_fuel_price_data
-build_save_fuel_price_data: go_deps server_generate
+build_save_fuel_price_data: server_deps server_generate
 	go build -i -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
 
 .PHONY: build_deploy_tools
-build_deploy_tools: go_deps server_generate
+build_deploy_tools: server_deps server_generate
 	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-deploy-task-container ./cmd/ecs-deploy-task-container
 
 .PHONY: build_tools
