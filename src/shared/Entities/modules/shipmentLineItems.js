@@ -103,7 +103,7 @@ export const selectInvoiceShipmentLineItems = createSelector([selectInvoicesShip
 
 export const selectTotalFromUnbilledLineItems = createSelector([selectUnbilledShipmentLineItemsByShipmentId], items => {
   return items.reduce((acm, item) => {
-    return acm + item.amount_cents;
+    return acm + (item.amount_cents ? item.amount_cents : 0);
   }, 0);
 });
 
