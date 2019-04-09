@@ -353,7 +353,7 @@ func (h InSitStorageInTransitHandler) Handle(params sitop.InSitStorageInTransitP
 		_, _, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
 
 		if err != nil {
-			sitop.NewIndexStorageInTransitsForbidden()
+			sitop.NewInSitStorageInTransitForbidden()
 		}
 
 		storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
