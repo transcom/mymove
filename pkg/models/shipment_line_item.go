@@ -167,7 +167,7 @@ func FetchApprovedPreapprovalRequestsByShipment(dbConnection *pop.Connection, sh
 	query := dbConnection.Q().
 		LeftJoin("tariff400ng_items", "shipment_line_items.tariff400ng_item_id=tariff400ng_items.id").
 		Where("shipment_id = ?", shipment.ID).
-		Where("status = ?", ShipmentLineItemStatusAPPROVED).
+		Where("status in (?)", ShipmentLineItemStatusAPPROVED, ShipmentLineItemStatusCONDITIONALLYAPPROVED).
 		Where("tariff400ng_items.requires_pre_approval = true").
 		Eager("Tariff400ngItem")
 
