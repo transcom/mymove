@@ -1,10 +1,12 @@
 /* global cy, Cypress */
 
+import { milmoveAppName } from '../../support/constants';
+
 describe('shipments', function() {
   describe('completing the hhg flow', function() {
     it('selects hhg and progresses thru form', function() {
       // sm_hhg@example.com
-      cy.signIntoMyMoveAsUser('4b389406-9258-4695-a091-0bf97b5a132f');
+      cy.signInAsUserPostRequest(milmoveAppName, '4b389406-9258-4695-a091-0bf97b5a132f');
       serviceMemberAddsHHG();
       serviceMemberAddsMoveDates();
       serviceMemberAddsLocations();
@@ -24,7 +26,7 @@ describe('shipments', function() {
       const firstIncompletePage = /^\/moves\/[^/]+\/hhg-weight/;
 
       cy.removeFetch();
-      cy.signIntoMyMoveAsUser(serviceMemberId);
+      cy.signInAsUserPostRequest(milmoveAppName, serviceMemberId);
       serviceMemberAddsHHG();
       serviceMemberAddsMoveDates();
       serviceMemberAddsLocations();
