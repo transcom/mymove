@@ -72,6 +72,11 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.StorageInTransitsIndexStorageInTransitsHandler = IndexStorageInTransitHandler{context}
 	publicAPI.StorageInTransitsDeleteStorageInTransitHandler = DeleteStorageInTransitHandler{context}
 	publicAPI.StorageInTransitsPatchStorageInTransitHandler = PatchStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsApproveStorageInTransitHandler = ApproveStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsDenyStorageInTransitHandler = DenyStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsInSitStorageInTransitHandler = InSitStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsReleaseStorageInTransitHandler = ReleaseStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsDeliverStorageInTransitHandler = DeliverStorageInTransitHandler{context}
 
 	return publicAPI.Serve(nil)
 }

@@ -3,6 +3,7 @@ package publicapi
 import (
 	"fmt"
 	"net/http/httptest"
+	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -176,11 +177,29 @@ func (suite *HandlerSuite) TestApproveStorageInTransitHandler() {
 
 	suite.Assertions.IsType(&sitop.ApproveStorageInTransitOK{}, response)
 	responsePayload := response.(*sitop.ApproveStorageInTransitOK).Payload
-
 	suite.Equal(string(models.StorageInTransitStatusAPPROVED), responsePayload.Status)
+
+	// Let's try it with a nil date.
+	req = httptest.NewRequest("POST", path, nil)
+	req = suite.AuthenticateOfficeRequest(req, user)
+	approvePayload.AuthorizedStartDate = nil
+	params = sitop.ApproveStorageInTransitParams{
+		HTTPRequest:                     req,
+		ShipmentID:                      strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID:              strfmt.UUID(sit.ID.String()),
+		StorageInTransitApprovalPayload: &approvePayload,
+	}
+
+	handler = ApproveStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response = handler.Handle(params)
+
+	suite.Assertions.IsType(&sitop.ApproveStorageInTransitOK{}, response)
+	suite.Equal(string(models.StorageInTransitStatusAPPROVED), responsePayload.Status)
+	suite.Equal(sit.EstimatedStartDate, (time.Time)(*responsePayload.AuthorizedStartDate))
 
 	// Let's make sure it denies a TSP user.
 	req = suite.AuthenticateTspRequest(req, tspUser)
+	approvePayload.AuthorizedStartDate = handlers.FmtDate(testdatagen.DateInsidePeakRateCycle)
 	params = sitop.ApproveStorageInTransitParams{
 		HTTPRequest:                     req,
 		ShipmentID:                      strfmt.UUID(shipment.ID.String()),
