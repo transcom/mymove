@@ -389,6 +389,23 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 		}
 	}
 
+	if (shipmentLineItem.Status == models.ShipmentLineItemStatusCONDITIONALLYAPPROVED || shipmentLineItem.Status == models.ShipmentLineItemStatusAPPROVED) && shipmentLineItem.ActualAmountCents == nil {
+		if shipmentLineItem.Shipment.Status == models.ShipmentStatusDELIVERED {
+			// Unprice request
+			shipmentLineItem.AmountCents = nil
+			shipmentLineItem.AppliedRate = nil
+		}
+
+		if shipmentLineItem.Status == models.ShipmentLineItemStatusAPPROVED {
+			// Conditionally approve the shipment line item
+			err = shipmentLineItem.ConditionallyApprove()
+			if err != nil {
+				h.Logger().Error("Error conditionally approving shipment line item for shipment", zap.Error(err))
+				return accessorialop.NewApproveShipmentLineItemForbidden()
+			}
+		}
+	}
+
 	h.DB().ValidateAndUpdate(&shipmentLineItem)
 
 	payload := payloadForShipmentLineItemModel(&shipmentLineItem)
@@ -483,7 +500,7 @@ func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipm
 	}
 
 	if shipmentLineItem.Tariff400ngItem.Code == "35A" && shipmentLineItem.EstimateAmountCents != nil && shipmentLineItem.ActualAmountCents == nil {
-		// Conditionally approve and save the shipment line item
+		// Conditionally approve the shipment line item
 		err = shipmentLineItem.ConditionallyApprove()
 		if err != nil {
 			h.Logger().Error("Error conditionally approving shipment line item for shipment", zap.Error(err))

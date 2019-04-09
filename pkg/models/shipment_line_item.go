@@ -208,7 +208,7 @@ func (s *ShipmentLineItem) Approve() error {
 
 // ConditionallyApprove marks the ShipmentLineItem request as Conditionally Approved. Must be in a submitted state.
 func (s *ShipmentLineItem) ConditionallyApprove() error {
-	if s.Status != ShipmentLineItemStatusSUBMITTED {
+	if !(s.Status == ShipmentLineItemStatusSUBMITTED || (s.Tariff400ngItem.Code == "35A" && s.Status == ShipmentLineItemStatusAPPROVED)) {
 		var logMsg = "func ConditionallyApprove(): Current ShipmentLineItem status is [" + string(s.Status) + "]"
 		return errors.Wrap(ErrInvalidTransition, logMsg)
 	}
