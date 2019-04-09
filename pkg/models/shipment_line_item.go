@@ -185,7 +185,7 @@ func FetchShipmentLineItemByID(dbConnection *pop.Connection, shipmentLineItemID 
 
 	shipmentLineItem := ShipmentLineItem{}
 
-	err = dbConnection.Eager("Shipment.PickupAddress").Find(&shipmentLineItem, shipmentLineItemID)
+	err = dbConnection.Eager().Find(&shipmentLineItem, shipmentLineItemID)
 	if err != nil {
 		return shipmentLineItem, errors.Wrap(err, "Shipment line items query failed")
 	}
