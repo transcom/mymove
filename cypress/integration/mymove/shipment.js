@@ -48,7 +48,7 @@ function serviceMemberLogsOutThenContinues(serviceMemberId) {
   // placement of server and route are important
   cy.server();
   cy.route({ url: '**/internal/shipments/*' }).as('getShipments');
-  cy.signInAsUser(serviceMemberId);
+  cy.signInAsUserPostRequest(milmoveAppName, serviceMemberId);
   cy.wait('@getShipments');
   cy.contains('Continue Move Setup').click();
 }
