@@ -8,9 +8,19 @@ const loadPPMsLabel = 'office.loadPPMs';
 const updatePPMLabel = 'office.updatePPM';
 const approveReimbursementLabel = 'office.approveReimbursement';
 
-export function approvePPM(personallyProcuredMoveId, label = approvePpmLabel) {
+export function approvePPM(personallyProcuredMoveId, personallyProcuredMoveApproveDate, label = approvePpmLabel) {
   const swaggerTag = 'office.approvePPM';
-  return swaggerRequest(getClient, swaggerTag, { personallyProcuredMoveId }, { label });
+  return swaggerRequest(
+    getClient,
+    swaggerTag,
+    {
+      personallyProcuredMoveId,
+      approvePersonallyProcuredMovePayload: {
+        approve_date: personallyProcuredMoveApproveDate,
+      },
+    },
+    { label },
+  );
 }
 
 export function loadPPMs(moveId, label = loadPPMsLabel) {

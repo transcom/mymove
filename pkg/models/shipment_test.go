@@ -61,6 +61,20 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 	suite.verifyValidationErrors(shipment, expErrors)
 }
 
+func (suite *ModelSuite) Test_ShipmentValidationsSubmittedMove() {
+	shipment := &Shipment{
+		Status: ShipmentStatusSUBMITTED,
+	}
+
+	verrs, err := shipment.Validate(suite.DB())
+	suite.Nil(err)
+
+	pickupAddressErrors := verrs.Get("pickup_address_id")
+	suite.Equal(1, len(pickupAddressErrors), "expected one error on pickup_address_id, but there were %d: %v", len(pickupAddressErrors), pickupAddressErrors)
+
+	suite.Equal(pickupAddressErrors[0], "pickup_address_id can not be blank.", "expected pickup_address_id to be required, but it was not")
+}
+
 // Test_FetchUnofferedShipments tests that a shipment is returned when we fetch shipments with offers.
 func (suite *ModelSuite) Test_FetchUnofferedShipments() {
 	t := suite.T()
