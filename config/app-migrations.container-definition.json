@@ -33,6 +33,10 @@
       "value": "/migrate/secure/"
     },
     {
+      "name": "SECURE_MIGRATION_BUCKET_NAME",
+      "value": "transcom-ppp-app-{{ .environment }}-us-west-2"
+    },
+    {
       "name": "DB_HOST",
       "value": "{{ .db_host }}"
     },

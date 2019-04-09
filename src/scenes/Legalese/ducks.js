@@ -7,6 +7,7 @@ import { move } from 'shared/Entities/schema';
 import { addEntities } from 'shared/Entities/actions';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
+import moment from 'moment';
 
 const signAndSubmitForApprovalType = 'SIGN_AND_SUBMIT_FOR_APPROVAL';
 const signAndSubmitPpmForApprovalType = 'SIGN_AND_SUBMIT_PPM_FOR_APPROVAL';
@@ -29,8 +30,13 @@ const SIGN_AND_SUBMIT_FOR_APPROVAL = ReduxHelpers.generateAsyncActionTypes(signA
 const signAndSubmitForApprovalActions = ReduxHelpers.generateAsyncActions(signAndSubmitForApprovalType);
 const signAndSubmitPpmForApprovalActions = ReduxHelpers.generateAsyncActions(signAndSubmitPpmForApprovalType);
 
+export function dateToTimestamp(dt) {
+  return moment(dt).format();
+}
+
 export const signAndSubmitForApproval = (moveId, certificationText, signature, dateSigned) => {
   return async function(dispatch, getState) {
+    const dateTimeSigned = dateToTimestamp(dateSigned);
     dispatch(signAndSubmitForApprovalActions.start());
     try {
       await dispatch(
@@ -39,7 +45,7 @@ export const signAndSubmitForApproval = (moveId, certificationText, signature, d
           createSignedCertificationPayload: {
             certification_text: certificationText,
             signature,
-            date: dateSigned,
+            date: dateTimeSigned,
           },
         }),
       );
@@ -49,13 +55,15 @@ export const signAndSubmitForApproval = (moveId, certificationText, signature, d
       dispatch(addEntities(filtered));
       return dispatch(signAndSubmitForApprovalActions.success());
     } catch (error) {
-      return dispatch(signAndSubmitForApprovalActions.error(error));
+      await dispatch(signAndSubmitForApprovalActions.error(error));
+      throw error;
     }
   };
 };
 
 export const signAndSubmitPpm = (moveId, certificationText, signature, dateSigned, ppmId) => {
   return async function(dispatch, getState) {
+    const dateTimeSigned = dateToTimestamp(dateSigned);
     dispatch(signAndSubmitPpmForApprovalActions.start());
     try {
       await dispatch(
@@ -64,7 +72,7 @@ export const signAndSubmitPpm = (moveId, certificationText, signature, dateSigne
           createSignedCertificationPayload: {
             certification_text: certificationText,
             signature,
-            date: dateSigned,
+            date: dateTimeSigned,
           },
         }),
       );

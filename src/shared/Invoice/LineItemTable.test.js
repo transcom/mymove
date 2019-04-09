@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { mount } from 'enzyme';
 import LineItemTable from './LineItemTable';
 
 describe('LineItemTable tests', () => {
@@ -23,7 +23,7 @@ describe('LineItemTable tests', () => {
 
   describe('When shipmentLineItems exist', () => {
     it('renders without crashing', () => {
-      wrapper = shallow(
+      wrapper = mount(
         <LineItemTable shipmentLineItems={shipmentLineItems} totalAmount={10} shipmentStatus="delivered" />,
       );
       expect(wrapper.find('table').length).toEqual(1);

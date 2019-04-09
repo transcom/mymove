@@ -16,15 +16,15 @@ describe('testing CSRF protection for dev login', function() {
   });
 
   it('tests dev login with masked token only', function() {
-    cy.signInAsUserPostRequest(milmoveAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, false, true);
+    cy.signInAsUserPostRequest(milmoveAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, false, true, false);
   });
 
   it('tests dev login with unmasked token only', function() {
-    cy.signInAsUserPostRequest(milmoveAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, true, false);
+    cy.signInAsUserPostRequest(milmoveAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, true, false, false);
   });
 
   it('tests dev login without unmasked and masked token', function() {
-    cy.signInAsUserPostRequest(milmoveAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, false, false);
+    cy.signInAsUserPostRequest(milmoveAppName, userId, csrfForbiddenRespCode, csrfForbiddenMsg, false, false, false);
   });
 });
 

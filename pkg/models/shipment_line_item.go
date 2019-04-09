@@ -121,13 +121,19 @@ func (s *ShipmentLineItem) AfterDestroy(tx *pop.Connection) error {
 	if s.ItemDimensionsID != nil {
 		err := tx.Destroy(&s.ItemDimensions)
 		if err != nil {
-			return ErrDestroyForbidden
+			return err
 		}
 	}
 	if s.CrateDimensionsID != nil {
 		err := tx.Destroy(&s.CrateDimensions)
 		if err != nil {
-			return ErrDestroyForbidden
+			return err
+		}
+	}
+	if s.AddressID != nil {
+		err := tx.Destroy(&s.Address)
+		if err != nil {
+			return err
 		}
 	}
 

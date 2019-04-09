@@ -444,42 +444,6 @@ func (h ApproveHHGHandler) Handle(params shipmentop.ApproveHHGParams) middleware
 	return shipmentop.NewApproveHHGOK().WithPayload(shipmentPayload)
 }
 
-// CompleteHHGHandler completes an HHG
-type CompleteHHGHandler struct {
-	handlers.HandlerContext
-}
-
-// Handle is the handler
-func (h CompleteHHGHandler) Handle(params shipmentop.CompleteHHGParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	if !session.IsOfficeUser() {
-		return shipmentop.NewCompleteHHGForbidden()
-	}
-
-	// #nosec UUID is pattern matched by swagger and will be ok
-	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
-	shipment, err := models.FetchShipment(h.DB(), session, shipmentID)
-	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-	err = shipment.Complete()
-	if err != nil {
-		h.Logger().Error("Attempted to complete HHG, got invalid transition", zap.Error(err), zap.String("shipment_status", string(shipment.Status)))
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-	verrs, err := h.DB().ValidateAndUpdate(shipment)
-	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
-	}
-
-	shipmentPayload, err := payloadForShipmentModel(*shipment)
-	if err != nil {
-		h.Logger().Error("Error in shipment payload: ", zap.Error(err))
-	}
-
-	return shipmentop.NewCompleteHHGOK().WithPayload(shipmentPayload)
-}
-
 // ShipmentInvoiceHandler sends an invoice through GEX to Syncada
 type ShipmentInvoiceHandler struct {
 	handlers.HandlerContext
