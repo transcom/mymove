@@ -362,7 +362,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	ppm2.Move.Approve()
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
 	ppm2.Move.PersonallyProcuredMoves[0].Submit()
-	ppm2.Move.PersonallyProcuredMoves[0].Approve()
+	ppm2.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	models.SaveMoveDependencies(db, &ppm2.Move)
 
 	/*
@@ -410,7 +410,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	ppm3.Move.Approve()
 	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
 	ppm3.Move.PersonallyProcuredMoves[0].Submit()
-	ppm3.Move.PersonallyProcuredMoves[0].Approve()
+	ppm3.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppm3.Move.PersonallyProcuredMoves[0].RequestPayment()
 	models.SaveMoveDependencies(db, &ppm3.Move)
 
@@ -2326,7 +2326,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	ppm5.Move.Approve()
 	// This is the same PPM model as ppm5, but this is the one that will be saved by SaveMoveDependencies
 	ppm5.Move.PersonallyProcuredMoves[0].Submit()
-	ppm5.Move.PersonallyProcuredMoves[0].Approve()
+	ppm5.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	models.SaveMoveDependencies(db, &ppm5.Move)
 }
 

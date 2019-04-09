@@ -76,6 +76,7 @@ import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
+import moment from 'moment';
 
 const BasicsTabContent = props => {
   return (
@@ -214,7 +215,8 @@ class MoveInfo extends Component {
   };
 
   approvePPM = () => {
-    this.props.approvePPM(this.props.ppm.id);
+    const approveDate = moment().format();
+    this.props.approvePPM(this.props.ppm.id, approveDate);
   };
 
   approveShipment = () => {
