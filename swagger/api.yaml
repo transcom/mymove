@@ -1564,7 +1564,7 @@ definitions:
       - APPROVED
       - IN_TRANSIT
       - DELIVERED
-      - COMPLETED
+      # - COMPLETED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
@@ -1573,7 +1573,7 @@ definitions:
       APPROVED: Approved
       IN_TRANSIT: In Transit
       DELIVERED: Delivered
-      COMPLETED: Completed
+      # COMPLETED: Completed
   TransportPayload:
     type: object
     properties:
