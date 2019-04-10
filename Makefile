@@ -156,11 +156,8 @@ check_gopath: go_version .check_gopath.stamp
 	scripts/check-gopath
 	touch .check_gopath.stamp
 
-.PHONY: build_chamber
-build_chamber: check_gopath .build_chamber.stamp
-.build_chamber.stamp:
+bin/chamber: check_gopath
 	go build -i -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
-	touch .build_chamber.stamp
 
 .PHONY: build_soda
 build_soda: check_gopath .build_soda.stamp
@@ -192,7 +189,7 @@ download_rds_certs: .download_rds_certs.stamp
 	touch .download_rds_certs.stamp
 
 .PHONY: server_deps
-server_deps: check_hosts check_gopath build_chamber build_soda build_callgraph get_gotools download_rds_certs .server_deps.stamp
+server_deps: check_hosts check_gopath bin/chamber build_soda build_callgraph get_gotools download_rds_certs .server_deps.stamp
 .server_deps.stamp:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
@@ -252,16 +249,19 @@ server_run_debug:
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) dlv debug cmd/webserver/main.go
 
-.PHONY: build_save_fuel_price_data
-build_save_fuel_price_data: server_deps server_generate
+bin/save-fuel-price-data: server_deps server_generate
 	go build -i -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
+
+bin_linux/save-fuel-price-data: server_generate_linux
+	mkdir -p bin_linux/
+	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/save-fuel-price-data ./cmd/save_fuel_price_data
 
 .PHONY: build_deploy_tools
 build_deploy_tools: server_deps server_generate
 	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-deploy-task-container ./cmd/ecs-deploy-task-container
 
 .PHONY: build_tools
-build_tools: bash_version server_deps server_generate build_generate_test_data build_save_fuel_price_data build_deploy_tools
+build_tools: bash_version server_deps server_generate build_generate_test_data bin/save-fuel-price-data build_deploy_tools
 	go build -i -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare_secure_migrations
 	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
@@ -284,7 +284,7 @@ build: server_build build_tools client_build
 # webserver_test runs a few acceptance tests against a local or remote environment.
 # This can help identify potential errors before deploying a container.
 .PHONY: webserver_test
-webserver_test: server_generate build_chamber
+webserver_test: server_generate bin/chamber
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
@@ -665,27 +665,17 @@ tasks_clean:
 	docker rm -f tasks || true
 
 .PHONY: tasks_build
-tasks_build: .tasks_build.stamp
-.tasks_build.stamp: server_generate build_save_fuel_price_data
+tasks_build: server_generate bin/save-fuel-price-data
 
 .PHONY: tasks_build_docker
-tasks_build_docker: tasks_build
+tasks_build_docker: bin/chamber server_generate bin/save-fuel-price-data
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks --tag $(TASKS_DOCKER_CONTAINER):latest .
-	touch .tasks_build.stamp
-
-.PHONY: tasks_build_linux
-tasks_build_linux: .tasks_build_linux.stamp
-.tasks_build_linux.stamp: server_generate_linux
-	@echo "Build required binaries for the docker scheduled task save-fuel-price-data container..."
-	mkdir -p bin_linux/
-	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/save-fuel-price-data ./cmd/save_fuel_price_data
 
 .PHONY: tasks_build_linux_docker
-tasks_build_linux_docker: tasks_build_linux
+tasks_build_linux_docker: bin_linux/save-fuel-price-data
 	@echo "Build the docker scheduled tasks container..."
 	docker build -f Dockerfile.tasks_local --tag $(TASKS_DOCKER_CONTAINER):latest .
-	touch .tasks_build.stamp
 
 .PHONY: tasks_save_fuel_price_data
 tasks_save_fuel_price_data: tasks_build_linux_docker

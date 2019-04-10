@@ -111,6 +111,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String(awsVaultKeychainNameFlag, "", "The aws-vault keychain name")
 
 	// Chamber Settings
+	// TODO: Add chamberBinaryFlag and set default to /bin/chamber
 	flag.Int(chamberRetriesFlag, 20, "Chamber Retries")
 	flag.String(chamberKMSKeyAliasFlag, "alias/aws/ssm", "Chamber KMS Key Alias")
 	flag.Int(chamberUsePathsFlag, 1, "Chamber Use Paths")
@@ -438,10 +439,7 @@ func main() {
 					aws.String("--"),
 					aws.String(fmt.Sprintf("/bin/%s", ruleName)),
 				},
-				Command: []*string{
-					aws.String("--env"),
-					aws.String("container"),
-				},
+				Command: []*string{},
 				Environment: []*ecs.KeyValuePair{
 					&ecs.KeyValuePair{
 						Name:  aws.String("ENV"),

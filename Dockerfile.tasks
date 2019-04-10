@@ -1,5 +1,6 @@
 FROM alpine:3.7
 
+COPY bin/chamber /bin/chamber
 COPY bin/save-fuel-price-data /bin/save-fuel-price-data
 RUN mkdir /config
 COPY config/database.yml /config
