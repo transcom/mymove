@@ -23,7 +23,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 	date := time.Now()
 	certPayload := internalmessages.CreateSignedCertificationPayload{
 		CertificationText: swag.String("lorem ipsum"),
-		Date:              (*strfmt.Date)(&date),
+		Date:              (*strfmt.DateTime)(&date),
 		Signature:         swag.String("Scruff McGruff"),
 	}
 	params := certop.CreateSignedCertificationParams{
@@ -67,7 +67,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 	date := time.Now()
 	certPayload := internalmessages.CreateSignedCertificationPayload{
 		CertificationText: swag.String("lorem ipsum"),
-		Date:              (*strfmt.Date)(&date),
+		Date:              (*strfmt.DateTime)(&date),
 		Signature:         swag.String("Scruff McGruff"),
 	}
 	params := certop.CreateSignedCertificationParams{
@@ -101,7 +101,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 	date := time.Now()
 	certPayload := internalmessages.CreateSignedCertificationPayload{
 		CertificationText: swag.String("lorem ipsum"),
-		Date:              (*strfmt.Date)(&date),
+		Date:              (*strfmt.DateTime)(&date),
 		Signature:         swag.String("Scruff McGruff"),
 	}
 

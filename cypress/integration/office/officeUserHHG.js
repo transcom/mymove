@@ -21,9 +21,6 @@ describe('office user finds the shipment', function() {
   it('office user approves basics for move, verifies and approves HHG shipment', function() {
     officeUserApprovesHHG();
   });
-  it('office user with approved move completes delivered HHG shipment', function() {
-    officeUserCompletesHHG();
-  });
 });
 
 function officeUserViewsMoves() {
@@ -151,11 +148,6 @@ function officeUserApprovesOnlyBasicsHHG() {
 
   cy.get('.combo-button').click();
 
-  cy
-    .get('button')
-    .contains('Complete Shipments')
-    .should('be.disabled');
-
   cy.get('.status').contains('Approved');
 
   // Click on HHG tab
@@ -178,11 +170,6 @@ function officeUserApprovesOnlyBasicsHHG() {
     .should('have.class', 'disabled');
 
   cy.get('.combo-button').click();
-
-  cy
-    .get('button')
-    .contains('Complete Shipments')
-    .should('be.disabled');
 
   cy.get('.status').contains('Awarded');
 }
@@ -232,54 +219,5 @@ function officeUserApprovesHHG() {
     .contains('Approve HHG')
     .click();
 
-  cy
-    .get('button')
-    .contains('Complete Shipments')
-    .should('be.disabled');
-
   cy.get('.status').contains('Approved');
-}
-
-function officeUserCompletesHHG() {
-  // Open delivered hhg queue
-  cy.patientVisit('/queues/hhg_delivered');
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/hhg_delivered/);
-  });
-
-  // Find move and open it
-  cy.selectQueueItemMoveLocator('SSETZN');
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
-  });
-
-  // Basics Approved
-  cy.get('.status').contains('Approved');
-
-  // Click on HHG tab
-  cy
-    .get('span')
-    .contains('HHG')
-    .click();
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
-  });
-
-  // Complete HHG
-  cy.get('.status').contains('Delivered');
-
-  // Since the shipment has been picked up by TSP, it can't be cancelled.
-  cy
-    .get('button')
-    .contains('Cancel Move')
-    .should('be.disabled');
-
-  cy
-    .get('button')
-    .contains('Complete Shipments')
-    .click();
-
-  cy.get('.status').contains('Completed');
 }

@@ -234,7 +234,7 @@ export const SubmittedHhgMoveSummary = props => {
   const moveId = get(move, 'id');
   const showAddShipmentLink =
     selectedMoveType === 'HHG' &&
-    ['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(move.status);
+    includes(['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'], move.status);
 
   return (
     <Fragment>
@@ -476,7 +476,8 @@ const getHHGStatus = (moveStatus, shipment) => {
     return moveStatus;
   }
   const shipmentStatus = get(shipment, 'status', 'DRAFT');
-  return ['SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(
+  return includes(
+    ['SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'],
     shipmentStatus,
   )
     ? shipmentStatus
@@ -508,10 +509,10 @@ export const MoveSummary = props => {
   const PPMComponent = ppmSummaryStatusComponents[getPPMStatus(moveStatus, ppm, selectedMoveType)];
   const showAddShipmentLink =
     selectedMoveType === 'HHG' &&
-    ['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(move.status);
+    includes(['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'], move.status);
   const showTsp =
     move.selected_move_type !== 'PPM' &&
-    ['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'].includes(hhgStatus);
+    includes(['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'], hhgStatus);
   return (
     <div className="move-summary">
       {move.status === 'CANCELED' && (

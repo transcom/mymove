@@ -196,18 +196,17 @@ func upsertItemCode35ADependency(db *pop.Connection, baseParams *BaseShipmentLin
 		// Line item exists
 		// Only update the ActualAmountCents
 		shipmentLineItem.ActualAmountCents = additionalParams.ActualAmountCents
-		return responseVErrors, responseError
 	} else if additionalParams.Description == nil || additionalParams.Reason == nil || additionalParams.EstimateAmountCents == nil {
 		// Required to create 35A line item
 		// Description, Reason and EstimateAmounCents
 		responseError = errors.New("Must have Description, Reason and EstimateAmountCents params")
 		return responseVErrors, responseError
+	} else {
+		shipmentLineItem.Description = additionalParams.Description
+		shipmentLineItem.Reason = additionalParams.Reason
+		shipmentLineItem.EstimateAmountCents = additionalParams.EstimateAmountCents
+		shipmentLineItem.ActualAmountCents = additionalParams.ActualAmountCents
 	}
-
-	shipmentLineItem.Description = additionalParams.Description
-	shipmentLineItem.Reason = additionalParams.Reason
-	shipmentLineItem.EstimateAmountCents = additionalParams.EstimateAmountCents
-	shipmentLineItem.ActualAmountCents = additionalParams.ActualAmountCents
 
 	if shipmentLineItem.ActualAmountCents != nil {
 		if *shipmentLineItem.ActualAmountCents <= *shipmentLineItem.EstimateAmountCents {
@@ -283,12 +282,21 @@ func upsertItemCode125Dependency(db *pop.Connection, baseParams *BaseShipmentLin
 		}
 
 		shipmentLineItem.AddressID = &shipmentLineItem.Address.ID
+	} else {
+		//otherwise, update the address
+		shipmentLineItem.Address.ID = *shipmentLineItem.AddressID
+		verrs, err := db.ValidateAndUpdate(&shipmentLineItem.Address)
+		if verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error updating shipment line item address")
+			return responseVErrors, responseError
+		}
 	}
 
 	shipmentLineItem.Reason = additionalParams.Reason
 	shipmentLineItem.Date = additionalParams.Date
 	shipmentLineItem.Time = additionalParams.Time
-	shipmentLineItem.Quantity1 = 1 // flat rate, set to 1
+	shipmentLineItem.Quantity1 = unit.BaseQuantityFromInt(1) // flat rate, set to base quantity 1
 
 	return responseVErrors, responseError
 }

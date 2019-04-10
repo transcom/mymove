@@ -5,6 +5,9 @@ describe('The Home Page', function() {
   beforeEach(() => {
     cy.setupBaseUrl(milmoveAppName);
   });
+  it('creates new devlocal user', function() {
+    cy.signInAsNewMilMoveUser();
+  });
   it('successfully loads when not logged in', function() {
     cy.logout();
     milmoveUserIsOnSignInPage();
