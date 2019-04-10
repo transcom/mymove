@@ -184,13 +184,11 @@ get_gotools: check_gopath .get_gotools.stamp
 	go install golang.org/x/tools/cmd/goimports
 	touch .get_gotools.stamp
 
-.PHONY: download_rds_certs
-download_rds_certs: bin/rds-combined-ca-bundle.pem
 bin/rds-combined-ca-bundle.pem:
 	curl -sSo bin/rds-combined-ca-bundle.pem https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
 
 .PHONY: server_deps
-server_deps: check_hosts check_gopath build_chamber build_soda build_callgraph get_gotools download_rds_certs .server_deps.stamp
+server_deps: check_hosts check_gopath build_chamber build_soda build_callgraph get_gotools bin/rds-combined-ca-bundle.pem .server_deps.stamp
 .server_deps.stamp:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
