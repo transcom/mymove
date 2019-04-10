@@ -46,7 +46,6 @@ import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shar
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
 import {
   approveShipment,
-  completeShipment,
   getPublicShipment,
   selectShipment,
   selectShipmentStatus,
@@ -77,6 +76,7 @@ import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
+import moment from 'moment';
 
 const BasicsTabContent = props => {
   return (
@@ -215,15 +215,12 @@ class MoveInfo extends Component {
   };
 
   approvePPM = () => {
-    this.props.approvePPM(this.props.ppm.id);
+    const approveDate = moment().format();
+    this.props.approvePPM(this.props.ppm.id, approveDate);
   };
 
   approveShipment = () => {
     this.props.approveShipment(this.props.shipmentId);
-  };
-
-  completeShipment = () => {
-    this.props.completeShipment(this.props.shipmentId);
   };
 
   cancelMoveAndRedirect = cancelReason => {
@@ -458,15 +455,14 @@ class MoveInfo extends Component {
                     </ComboButton>
                   )}
                 </ToolTip>
+                <ConfirmWithReasonButton
+                  buttonTitle="Cancel Move"
+                  reasonPrompt="Why is the move being canceled?"
+                  warningPrompt="Are you sure you want to cancel the entire move?"
+                  onConfirm={this.cancelMoveAndRedirect}
+                  buttonDisabled={hhgCantBeCanceled}
+                />
               </div>
-              <button
-                className={`${moveApproved ? 'btn__approve--green' : ''}`}
-                onClick={this.approveBasics}
-                disabled={moveApproved || !ordersComplete}
-              >
-                Approve Basics
-                {moveApproved && check}
-              </button>
 
               {(isPPM || isHHGPPM) && (
                 <button
@@ -478,6 +474,7 @@ class MoveInfo extends Component {
                   {ppmApproved && check}
                 </button>
               )}
+
               {(isHHG || isHHGPPM) && (
                 <button
                   className={`${hhgApproved ? 'btn__approve--green' : ''}`}
@@ -493,16 +490,6 @@ class MoveInfo extends Component {
                 >
                   Approve HHG
                   {hhgApproved && check}
-                </button>
-              )}
-              {(isHHG || isHHGPPM) && (
-                <button
-                  className={`${hhgCompleted ? 'btn__approve--green' : ''}`}
-                  onClick={this.completeShipment}
-                  disabled={!hhgDelivered || hhgCompleted || !moveApproved || !ordersComplete || currentTab !== 'hhg'}
-                >
-                  Complete Shipments
-                  {hhgCompleted && check}
                 </button>
               )}
               <ConfirmWithReasonButton
@@ -622,7 +609,6 @@ const mapDispatchToProps = dispatch =>
       approveBasics,
       approvePPM,
       approveShipment,
-      completeShipment,
       cancelMove,
       getAllTariff400ngItems,
       getAllShipmentLineItems,

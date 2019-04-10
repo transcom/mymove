@@ -16,6 +16,17 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+const (
+	// MilMoveUserType is the type of user for a Service Member
+	MilMoveUserType string = "milmove"
+	// OfficeUserType is the type of user for an Office user
+	OfficeUserType string = "office"
+	// TspUserType is the type of user for a TSP user
+	TspUserType string = "tsp"
+	// DpsUserType is the type of user for a DPS user
+	DpsUserType string = "dps"
+)
+
 // UserListHandler handles redirection
 type UserListHandler struct {
 	db *pop.Connection
@@ -47,6 +58,10 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.StatusInternalServerError)
 		return
 	}
+	// Truncate the list if larger than 25
+	if len(identities) > 25 {
+		identities = identities[:25]
+	}
 
 	// Grab the CSRF token from cookies set by the middleware
 	csrfCookie, err := auth.GetCookie(auth.MaskedGorillaCSRFToken, r)
@@ -57,31 +72,100 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	csrfToken := csrfCookie.Value
 
-	t := template.Must(template.New("users").Parse(`
-		<h1>Select an existing user</h1>
-		{{range .}}
-			<form method="post" action="/devlocal-auth/login">
-				<p id="{{.ID}}">
-					<input type="hidden" name="gorilla.csrf.Token" value="` + csrfToken + `">
-					{{.Email}}
-					({{if .DpsUserID}}dps{{else if .TspUserID}}tsp{{else if .OfficeUserID}}office{{else}}milmove{{end}})
-					<input type="hidden" name="id" value="{{.ID}}" />
-					<button type="submit" value="{{.ID}}" data-hook="existing-user-login">Login</button>
-				</p>
-			</form>
-		{{else}}
-			<p><em>No users in the system!</em></p>
-		{{end}}
+	type TemplateData struct {
+		Identities      []models.UserIdentity
+		MilMoveUserType string
+		OfficeUserType  string
+		TspUserType     string
+		DpsUserType     string
+		CsrfToken       string
+	}
 
-		<h1>Create a new user</h1>
-		<form method="post" action="/devlocal-auth/new">
-			<p>
-				<input type="hidden" name="gorilla.csrf.Token" value="` + csrfToken + `">
-				<button type="submit" data-hook="new-user-login">Login as New User</button>
-			</p>
-		</form>
+	templateData := TemplateData{
+		Identities:      identities,
+		MilMoveUserType: MilMoveUserType,
+		OfficeUserType:  OfficeUserType,
+		TspUserType:     TspUserType,
+		DpsUserType:     DpsUserType,
+		CsrfToken:       csrfToken,
+	}
+
+	t := template.Must(template.New("users").Parse(`
+	  <html>
+	  <head>
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	  </head>
+	  <body class="py-4">
+		<div class="container">
+		  <div class="row mb-3">
+			<div class="col-md-8">
+			  <h2 class="mt-4">Select an Existing User</h1>
+			  <p>Showing the first 25 users:</p>
+			  {{range .Identities}}
+				<form method="post" action="/devlocal-auth/login">
+					<p id="{{.ID}}">
+						<input type="hidden" name="gorilla.csrf.Token" value="{{$.CsrfToken}}">
+						{{.Email}}
+						{{if .DpsUserID}}
+						  ({{$.DpsUserType}})
+						  <input type="hidden" name="userType" value="{{$.DpsUserType}}">
+						{{else if .TspUserID}}
+						  ({{$.TspUserType}})
+						  <input type="hidden" name="userType" value="{{$.TspUserType}}">
+						{{else if .OfficeUserID}}
+						  ({{$.OfficeUserType}})
+						  <input type="hidden" name="userType" value="{{$.OfficeUserType}}">
+						{{else}}
+						  ({{$.MilMoveUserType}})
+						  <input type="hidden" name="userType" value="{{$.MilMoveUserType}}">
+						{{end}}
+						<input type="hidden" name="id" value="{{.ID}}" />
+						<button type="submit" value="{{.ID}}" data-hook="existing-user-login">Login</button>
+					</p>
+				</form>
+			  {{else}}
+				<p><em>No users in the system!</em></p>
+			  {{end}}
+			</div>
+
+			<div class="col-md-4">
+			  <h2 class="mt-4">Create a New User</h1>
+			  <p>Creating new users for different sites will mean you need to redirect and log in yourself.</p>
+			  <form method="post" action="/devlocal-auth/new">
+				<p>
+				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+				  <input type="hidden" name="userType" value="{{.MilMoveUserType}}">
+				  <button type="submit" data-hook="new-user-login-{{.MilMoveUserType}}">Create a New {{.MilMoveUserType}} User</button>
+				</p>
+			  </form>
+			  <form method="post" action="/devlocal-auth/new">
+				<p>
+				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+				  <input type="hidden" name="userType" value="{{.OfficeUserType}}">
+				  <button type="submit" data-hook="new-user-login-{{.OfficeUserType}}">Create a New {{.OfficeUserType}} User</button>
+				</p>
+			  </form>
+			  <form method="post" action="/devlocal-auth/new">
+				<p>
+				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+				  <input type="hidden" name="userType" value="{{.TspUserType}}">
+				  <button type="submit" data-hook="new-user-login-{{.TspUserType}}">Create a New {{.TspUserType}} User</button>
+				</p>
+			  </form>
+			  <form method="post" action="/devlocal-auth/new">
+				<p>
+				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+				  <input type="hidden" name="userType" value="{{.DpsUserType}}">
+				  <button type="submit" data-hook="new-user-login-{{.DpsUserType}}">Create a New {{.DpsUserType}} User</button>
+				</p>
+			  </form>
+			</div>
+		  </div>
+		</div> <!-- container -->
+	  </body>
+	  </html>
 	`))
-	err = t.Execute(w, identities)
+	err = t.Execute(w, templateData)
 	if err != nil {
 		h.logger.Error("Could not render template", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -91,6 +175,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type devlocalAuthHandler struct {
 	Context
 	db                  *pop.Connection
+	appnames            auth.ApplicationServername
 	clientAuthSecretKey string
 	noSessionTimeout    bool
 	useSecureCookie     bool
@@ -100,10 +185,11 @@ type devlocalAuthHandler struct {
 type AssignUserHandler devlocalAuthHandler
 
 // NewAssignUserHandler creates a new AssignUserHandler
-func NewAssignUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) AssignUserHandler {
+func NewAssignUserHandler(ac Context, db *pop.Connection, appnames auth.ApplicationServername, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) AssignUserHandler {
 	handler := AssignUserHandler{
 		Context:             ac,
 		db:                  db,
+		appnames:            appnames,
 		clientAuthSecretKey: clientAuthSecretKey,
 		noSessionTimeout:    noSessionTimeout,
 		useSecureCookie:     useSecureCookie,
@@ -129,7 +215,11 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 	}
 
-	session := loginUser(devlocalAuthHandler(h), user, w, r)
+	userType := r.Form.Get("userType")
+	session, err := loginUser(devlocalAuthHandler(h), user, userType, w, r)
+	if err != nil {
+		return
+	}
 	if session == nil {
 		return
 	}
@@ -140,10 +230,11 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type CreateUserHandler devlocalAuthHandler
 
 // NewCreateUserHandler creates a new CreateUserHandler
-func NewCreateUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) CreateUserHandler {
+func NewCreateUserHandler(ac Context, db *pop.Connection, appnames auth.ApplicationServername, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) CreateUserHandler {
 	handler := CreateUserHandler{
 		Context:             ac,
 		db:                  db,
+		appnames:            appnames,
 		clientAuthSecretKey: clientAuthSecretKey,
 		noSessionTimeout:    noSessionTimeout,
 		useSecureCookie:     useSecureCookie,
@@ -153,11 +244,14 @@ func NewCreateUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey st
 
 // CreateUserHandler creates a user, primarily used in automated testing
 func (h CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	user := createUser(devlocalAuthHandler(h), w, r)
+	user, userType := createUser(devlocalAuthHandler(h), w, r)
 	if user == nil {
 		return
 	}
-	session := loginUser(devlocalAuthHandler(h), user, w, r)
+	session, err := loginUser(devlocalAuthHandler(h), user, userType, w, r)
+	if err != nil {
+		return
+	}
 	if session == nil {
 		return
 	}
@@ -169,10 +263,11 @@ func (h CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type CreateAndLoginUserHandler devlocalAuthHandler
 
 // NewCreateAndLoginUserHandler creates a new CreateAndLoginUserHandler
-func NewCreateAndLoginUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) CreateAndLoginUserHandler {
+func NewCreateAndLoginUserHandler(ac Context, db *pop.Connection, appnames auth.ApplicationServername, clientAuthSecretKey string, noSessionTimeout bool, useSecureCookie bool) CreateAndLoginUserHandler {
 	handler := CreateAndLoginUserHandler{
 		Context:             ac,
 		db:                  db,
+		appnames:            appnames,
 		clientAuthSecretKey: clientAuthSecretKey,
 		noSessionTimeout:    noSessionTimeout,
 		useSecureCookie:     useSecureCookie,
@@ -182,11 +277,14 @@ func NewCreateAndLoginUserHandler(ac Context, db *pop.Connection, clientAuthSecr
 
 // CreateAndLoginUserHandler creates a user and logs them in
 func (h CreateAndLoginUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	user := createUser(devlocalAuthHandler(h), w, r)
+	user, userType := createUser(devlocalAuthHandler(h), w, r)
 	if user == nil {
 		return
 	}
-	session := loginUser(devlocalAuthHandler(h), user, w, r)
+	session, err := loginUser(devlocalAuthHandler(h), user, userType, w, r)
+	if err != nil {
+		return
+	}
 	if session == nil {
 		return
 	}
@@ -194,36 +292,157 @@ func (h CreateAndLoginUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Requ
 }
 
 // createUser creates a user
-func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) *models.User {
+func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (*models.User, string) {
 	id := uuid.Must(uuid.NewV4())
 
-	now := time.Now()
-	email := fmt.Sprintf("%s@example.com", now.Format("20060102150405"))
+	// Set up some defaults that we can pass in from a form
+	firstName := r.Form.Get("firstName")
+	if firstName == "" {
+		firstName = "Alice"
+	}
+	lastName := r.Form.Get("lastName")
+	if lastName == "" {
+		lastName = "Bob"
+	}
+	telephone := r.Form.Get("telephone")
+	if telephone == "" {
+		telephone = "333-333-3333"
+	}
+	email := r.Form.Get("email")
+	if email == "" {
+		now := time.Now()
+		email = fmt.Sprintf("%s@example.com", now.Format("20060102150405"))
+	}
 
+	// Create the User (which is the basis of all Service Members)
 	user := models.User{
 		LoginGovUUID:  id,
 		LoginGovEmail: email,
 	}
 
+	userType := r.Form.Get("userType")
 	verrs, err := h.db.ValidateAndCreate(&user)
 	if err != nil {
 		h.logger.Error("could not create user", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return nil
+		return nil, userType
 	}
 	if verrs.Count() != 0 {
 		h.logger.Error("validation errors creating user", zap.Stringer("errors", verrs))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return nil
+		return nil, userType
 	}
-	return &user
+
+	switch userType {
+	case OfficeUserType:
+		// Now create the Truss JPPSO
+		address := models.Address{
+			StreetAddress1: "1333 Minna St",
+			City:           "San Francisco",
+			State:          "CA",
+			PostalCode:     "94115",
+		}
+
+		verrs, err := h.db.ValidateAndSave(&address)
+		if err != nil {
+			h.logger.Error("could not create address", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating address", zap.Stringer("errors", verrs))
+		}
+
+		office := models.TransportationOffice{
+			Name:      "Truss",
+			AddressID: address.ID,
+			Latitude:  37.7678355,
+			Longitude: -122.4199298,
+			Hours:     models.StringPointer("0900-1800 Mon-Sat"),
+		}
+
+		verrs, err = h.db.ValidateAndSave(&office)
+		if err != nil {
+			h.logger.Error("could not create office", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating office", zap.Stringer("errors", verrs))
+		}
+
+		officeUser := models.OfficeUser{
+			FirstName:              firstName,
+			LastName:               lastName,
+			Telephone:              telephone,
+			TransportationOfficeID: office.ID,
+			Email:                  email,
+		}
+		if user.ID != uuid.Nil {
+			officeUser.UserID = &user.ID
+		}
+
+		verrs, err = h.db.ValidateAndSave(&officeUser)
+		if err != nil {
+			h.logger.Error("could not create office user", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating office user", zap.Stringer("errors", verrs))
+		}
+	case TspUserType:
+		var tsp models.TransportationServiceProvider
+		h.db.Where("standard_carrier_alpha_code = $1", "TRS1").First(&tsp)
+		if tsp.ID == uuid.Nil {
+			// TSP not found, create one for Truss
+			tsp = models.TransportationServiceProvider{
+				StandardCarrierAlphaCode: "TRSS",
+			}
+			verrs, err := h.db.ValidateAndSave(&tsp)
+			if err != nil {
+				h.logger.Error("could not create TSP", zap.Error(err))
+			}
+			if verrs.HasAny() {
+				h.logger.Error("validation errors creating TSP", zap.Stringer("errors", verrs))
+			}
+		}
+
+		tspUser := models.TspUser{
+			FirstName:                       firstName,
+			LastName:                        lastName,
+			Telephone:                       telephone,
+			TransportationServiceProviderID: tsp.ID,
+			Email:                           email,
+		}
+		if user.ID != uuid.Nil {
+			tspUser.UserID = &user.ID
+		}
+
+		verrs, err := h.db.ValidateAndSave(&tspUser)
+		if err != nil {
+			h.logger.Error("could not create tsp user", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating tsp user", zap.Stringer("errors", verrs))
+		}
+	case DpsUserType:
+		dpsUser := models.DpsUser{
+			LoginGovEmail: email,
+		}
+
+		verrs, err := h.db.ValidateAndSave(&dpsUser)
+		if err != nil {
+			h.logger.Error("could not create dps user", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating dps user", zap.Stringer("errors", verrs))
+		}
+	}
+
+	return &user, userType
 }
 
 // createSession creates a new session for the user
-func createSession(h devlocalAuthHandler, user *models.User, w http.ResponseWriter, r *http.Request) (*auth.Session, error) {
+func createSession(h devlocalAuthHandler, user *models.User, userType string, w http.ResponseWriter, r *http.Request) (*auth.Session, error) {
+	// Preference any session already in the request context. Otherwise just create a new empty session.
 	session := auth.SessionFromRequestContext(r)
 	if session == nil {
-		return nil, errors.New("Unable to create session from request context")
+		session = &auth.Session{}
 	}
 
 	lgUUID := user.LoginGovUUID.String()
@@ -239,15 +458,30 @@ func createSession(h devlocalAuthHandler, user *models.User, w http.ResponseWrit
 	session.Email = userIdentity.Email
 	session.Disabled = userIdentity.Disabled
 
+	// Set the app
+
+	// Keep the logic for redirection separate from setting the session user ids
+	switch userType {
+	case OfficeUserType:
+		session.ApplicationName = auth.OfficeApp
+		session.Hostname = h.appnames.OfficeServername
+	case TspUserType:
+		session.ApplicationName = auth.TspApp
+		session.Hostname = h.appnames.TspServername
+	default:
+		session.ApplicationName = auth.MilApp
+		session.Hostname = h.appnames.MilServername
+	}
+
 	if userIdentity.ServiceMemberID != nil {
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
 	}
 
-	if userIdentity.OfficeUserID != nil {
+	if userIdentity.OfficeUserID != nil && (session.IsOfficeApp() || userType == OfficeUserType) {
 		session.OfficeUserID = *(userIdentity.OfficeUserID)
 	}
 
-	if userIdentity.TspUserID != nil {
+	if userIdentity.TspUserID != nil && (session.IsTspApp() || userType == TspUserType) {
 		session.TspUserID = *(userIdentity.TspUserID)
 	}
 
@@ -286,25 +520,25 @@ func verifySessionWithApp(session *auth.Session) error {
 }
 
 // loginUser creates a session for the user and verifies the session against the app
-func loginUser(h devlocalAuthHandler, user *models.User, w http.ResponseWriter, r *http.Request) *auth.Session {
-	session, err := createSession(devlocalAuthHandler(h), user, w, r)
+func loginUser(h devlocalAuthHandler, user *models.User, userType string, w http.ResponseWriter, r *http.Request) (*auth.Session, error) {
+	session, err := createSession(devlocalAuthHandler(h), user, userType, w, r)
 	if err != nil {
 		h.logger.Error("Could not create session", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return nil
+		return nil, err
 	}
 
 	if session.Disabled {
 		h.logger.Info("Disabled user requesting authentication", zap.Error(err), zap.String("email", session.Email))
 		http.Error(w, http.StatusText(403), http.StatusForbidden)
-		return nil
+		return nil, nil
 	}
 
 	err = verifySessionWithApp(session)
 	if err != nil {
 		h.logger.Error("User unauthorized", zap.Error(err))
 		http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-		return nil
+		return nil, err
 	}
-	return session
+	return session, nil
 }

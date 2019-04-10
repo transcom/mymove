@@ -14,6 +14,7 @@ export const hostname = window && window.location && window.location.hostname;
 export const isMilmoveSite = hostname.startsWith('my') || hostname.startsWith('mil') || '';
 export const isOfficeSite = hostname.startsWith('office') || '';
 export const isTspSite = hostname.startsWith('tsp') || '';
+export const isAdminSite = hostname.startsWith('admin') || '';
 
 export const titleCase = str => {
   return str.charAt(0).toUpperCase() + str.slice(1);

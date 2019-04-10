@@ -236,6 +236,50 @@ func (v *OptionalDateIsWorkday) IsValid(errors *validate.Errors) {
 	dateIsWorkday.IsValid(errors)
 }
 
+// OptionalStringInclusion validates that a field is in a list of strings if the field exists
+type OptionalStringInclusion struct {
+	Name    string
+	Field   *string
+	List    []string
+	Message string
+}
+
+// IsValid adds error if field is non-nil and not in the list of strings
+func (v *OptionalStringInclusion) IsValid(errors *validate.Errors) {
+	if v.Field == nil {
+		return
+	}
+	stringInclusion := validators.StringInclusion{
+		Name:    v.Name,
+		Field:   *v.Field,
+		List:    v.List,
+		Message: v.Message,
+	}
+	stringInclusion.IsValid(errors)
+}
+
+// OptionalRegexMatch validates that a field matches the regexp match
+type OptionalRegexMatch struct {
+	Name    string
+	Field   *string
+	Expr    string
+	Message string
+}
+
+// IsValid performs the validation based on the regexp match
+func (v *OptionalRegexMatch) IsValid(errors *validate.Errors) {
+	if v.Field == nil {
+		return
+	}
+	regexMatch := validators.RegexMatch{
+		Name:    v.Name,
+		Field:   *v.Field,
+		Expr:    v.Expr,
+		Message: v.Message,
+	}
+	regexMatch.IsValid(errors)
+}
+
 // ValidateableModel is here simply because `validateable` is private to `pop`
 type ValidateableModel interface {
 	Validate(*pop.Connection) (*validate.Errors, error)

@@ -69,10 +69,12 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	}
 	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
 	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
+	shipmentWeight := unit.Pound(1000)
 	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
 			ServiceMemberID: serviceMemberID,
 			MoveID:          move.ID,
+			NetWeight:       &shipmentWeight,
 		},
 	})
 	session := auth.Session{
@@ -84,9 +86,20 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	ppm.Move.Approve()
 	// This is the same PPM model as ppm, but this is the one that will be saved by SaveMoveDependencies
 	ppm.Move.PersonallyProcuredMoves[0].Submit()
-	ppm.Move.PersonallyProcuredMoves[0].Approve()
+	ppm.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppm.Move.PersonallyProcuredMoves[0].RequestPayment()
 	models.SaveMoveDependencies(suite.DB(), &ppm.Move)
+	certificationType := models.SignedCertificationTypePPMPAYMENT
+	signedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			MoveID:                   moveID,
+			PersonallyProcuredMoveID: &ppm.ID,
+			CertificationType:        &certificationType,
+			CertificationText:        "LEGAL",
+			Signature:                "ACCEPT",
+			Date:                     testdatagen.NextValidMoveDate,
+		},
+	})
 	ssd, err := models.FetchDataShipmentSummaryWorksheetFormData(suite.DB(), &session, moveID)
 
 	suite.NoError(err)
@@ -113,6 +126,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	suite.Require().NotNil(ssd.PersonallyProcuredMoves[0].Advance)
 	suite.Equal(ppm.Advance.ID, ssd.PersonallyProcuredMoves[0].Advance.ID)
 	suite.Equal(unit.Cents(1000), ssd.PersonallyProcuredMoves[0].Advance.RequestedAmount)
+	suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
 }
 
 func (suite *ModelSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() {
@@ -535,7 +549,8 @@ func (suite *ModelSuite) TestCalculatePPMEntitlementNoHHGPPMLessThanMaxEntitleme
 		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
 	}
 
-	ppmRemainingEntitlement := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
+	ppmRemainingEntitlement, err := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
+	suite.Nil(err)
 
 	suite.Equal(unit.Pound(ppmWeight), ppmRemainingEntitlement)
 }
@@ -547,7 +562,8 @@ func (suite *ModelSuite) TestCalculatePPMEntitlementNoHHGPPMGreaterThanMaxEntitl
 		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
 	}
 
-	ppmRemainingEntitlement := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
+	ppmRemainingEntitlement, err := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
+	suite.Nil(err)
 
 	suite.Equal(totalEntitlement, ppmRemainingEntitlement)
 }
@@ -561,7 +577,8 @@ func (suite *ModelSuite) TestCalculatePPMEntitlementPPMGreaterThanRemainingEntit
 		Shipments:               models.Shipments{models.Shipment{NetWeight: &hhg}},
 	}
 
-	ppmRemainingEntitlement := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
+	ppmRemainingEntitlement, err := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
+	suite.Nil(err)
 
 	suite.Equal(totalEntitlement-hhg, ppmRemainingEntitlement)
 }
@@ -575,7 +592,27 @@ func (suite *ModelSuite) TestCalculatePPMEntitlementPPMLessThanRemainingEntitlem
 		Shipments:               models.Shipments{models.Shipment{NetWeight: &hhg}},
 	}
 
-	ppmRemainingEntitlement := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
+	ppmRemainingEntitlement, err := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
+	suite.Nil(err)
 
 	suite.Equal(unit.Pound(ppmWeight), ppmRemainingEntitlement)
+}
+
+func (suite *ModelSuite) TestFormatSignature() {
+	signatureDate := time.Date(2019, time.January, 26, 14, 40, 0, 0, time.UTC)
+	sm := models.ServiceMember{
+		FirstName: models.StringPointer("John"),
+		LastName:  models.StringPointer("Smith"),
+	}
+	signature := models.SignedCertification{
+		Date: signatureDate,
+	}
+	sswfd := models.ShipmentSummaryFormData{
+		ServiceMember:       sm,
+		SignedCertification: signature,
+	}
+
+	formattedSignature := models.FormatSignature(sswfd)
+
+	suite.Equal("John Smith electronically signed on 26 Jan 2019 at 2:40pm", formattedSignature)
 }

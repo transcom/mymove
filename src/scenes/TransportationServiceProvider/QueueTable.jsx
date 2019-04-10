@@ -119,15 +119,23 @@ class QueueTable extends Component {
                 Cell: row => <span className="pickup_date">{formatDate(row.value)}</span>,
               },
               {
+                Header: 'Delivered on',
+                id: 'delivered_on',
+                accessor: 'actual_delivery_date',
+                Cell: row => <span className="delivered_on">{formatDate(row.value)}</span>,
+              },
+              {
                 Header: 'Last modified',
                 accessor: 'updated_at',
                 Cell: row => <span className="updated_at">{formatDateTime(row.value)}</span>,
               },
             ]}
             data={this.state.data}
+            defaultSorted={[{ id: 'pickup_date', asc: true }]}
             loading={this.state.loading} // Display the loading overlay when we need it
             pageSize={this.state.data.length}
             className="-striped -highlight"
+            showPagination={false}
             getTrProps={(state, rowInfo) => ({
               onDoubleClick: e => this.props.history.push(`/shipments/${rowInfo.original.id}`),
             })}

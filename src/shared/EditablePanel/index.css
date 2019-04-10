@@ -200,3 +200,7 @@
 .editable-panel.is-editable .usa-input-label {
   font-size: 1.4rem;
 }
+
+.nested__same-font {
+  font-size: 1em;
+}

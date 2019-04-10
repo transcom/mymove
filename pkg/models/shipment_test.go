@@ -61,6 +61,20 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 	suite.verifyValidationErrors(shipment, expErrors)
 }
 
+func (suite *ModelSuite) Test_ShipmentValidationsSubmittedMove() {
+	shipment := &Shipment{
+		Status: ShipmentStatusSUBMITTED,
+	}
+
+	verrs, err := shipment.Validate(suite.DB())
+	suite.Nil(err)
+
+	pickupAddressErrors := verrs.Get("pickup_address_id")
+	suite.Equal(1, len(pickupAddressErrors), "expected one error on pickup_address_id, but there were %d: %v", len(pickupAddressErrors), pickupAddressErrors)
+
+	suite.Equal(pickupAddressErrors[0], "pickup_address_id can not be blank.", "expected pickup_address_id to be required, but it was not")
+}
+
 // Test_FetchUnofferedShipments tests that a shipment is returned when we fetch shipments with offers.
 func (suite *ModelSuite) Test_FetchUnofferedShipments() {
 	t := suite.T()
@@ -436,43 +450,6 @@ func (suite *ModelSuite) TestCreateShipmentLineItemCode35A() {
 		suite.Equal(estAmt, *shipmentLineItem.EstimateAmountCents)
 		suite.Equal(actAmt, *shipmentLineItem.ActualAmountCents)
 		suite.Equal(unit.BaseQuantity(100000), shipmentLineItem.Quantity1)
-	}
-}
-
-// TestCreateShipmentLineItemCode226A tests that 226A line items are created correctly
-func (suite *ModelSuite) TestCreateShipmentLineItemCode226A() {
-	acc226A := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
-		Tariff400ngItem: Tariff400ngItem{
-			Code: "226A",
-		},
-	})
-
-	shipment := testdatagen.MakeDefaultShipment(suite.DB())
-
-	desc := "This is a description"
-	reas := "This is the reason"
-	actAmt := unit.Cents(1000)
-	baseParams := BaseShipmentLineItemParams{
-		Tariff400ngItemID:   acc226A.ID,
-		Tariff400ngItemCode: acc226A.Code,
-		Location:            "ORIGIN",
-	}
-	additionalParams := AdditionalShipmentLineItemParams{
-		Description:       &desc,
-		Reason:            &reas,
-		ActualAmountCents: &actAmt,
-	}
-
-	// Create 226A preapproval
-	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(suite.DB(),
-		baseParams, additionalParams)
-
-	if suite.noValidationErrors(verrs, err) {
-		suite.Equal(unit.BaseQuantityFromCents(actAmt), shipmentLineItem.Quantity1)
-		suite.Equal(acc226A.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
-		suite.Equal(desc, *shipmentLineItem.Description)
-		suite.Equal(reas, *shipmentLineItem.Reason)
-		suite.Equal(actAmt, *shipmentLineItem.ActualAmountCents)
 	}
 }
 

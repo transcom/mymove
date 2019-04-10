@@ -26,3 +26,8 @@
 .approval-problem {
   color: #cd3504;
 }
+
+.shipment-line-item-warning {
+  color: #cd3504;
+  font-style: italic;
+}

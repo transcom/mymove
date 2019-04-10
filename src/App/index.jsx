@@ -4,9 +4,15 @@ import { Provider } from 'react-redux';
 import Loadable from 'react-loadable';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import { isOfficeSite, isTspSite } from 'shared/constants.js';
+import { isOfficeSite, isTspSite, isAdminSite } from 'shared/constants.js';
 import { store } from 'shared/store';
-import { AppContext, defaultTspContext, defaultOfficeContext, defaultMyMoveContext } from 'shared/AppContext';
+import {
+  AppContext,
+  defaultTspContext,
+  defaultOfficeContext,
+  defaultMyMoveContext,
+  defaultAdminContext,
+} from 'shared/AppContext';
 import { detectFlags } from 'shared/featureFlags.js';
 
 import './index.css';
@@ -26,11 +32,17 @@ const MyMove = Loadable({
   loading: () => <LoadingPlaceholder />,
 });
 
+const Admin = Loadable({
+  loader: () => import('scenes/Admin'),
+  loading: () => <LoadingPlaceholder />,
+});
+
 const flags = detectFlags(process.env['NODE_ENV'], window.location.host, window.location.search);
 
 const tspContext = Object.assign({}, defaultTspContext, { flags });
 const officeContext = Object.assign({}, defaultOfficeContext, { flags });
 const myMoveContext = Object.assign({}, defaultMyMoveContext, { flags });
+const adminContext = Object.assign({}, defaultAdminContext, { flags });
 
 const App = () => {
   if (isOfficeSite)
@@ -46,6 +58,14 @@ const App = () => {
       <Provider store={store}>
         <AppContext.Provider value={tspContext}>
           <Tsp />
+        </AppContext.Provider>
+      </Provider>
+    );
+  else if (isAdminSite)
+    return (
+      <Provider store={store}>
+        <AppContext.Provider value={adminContext}>
+          <Admin />
         </AppContext.Provider>
       </Provider>
     );

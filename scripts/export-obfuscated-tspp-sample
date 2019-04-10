@@ -1,0 +1,63 @@
+#! /usr/bin/env bash
+#
+# Export a subset of rows from the transportation_service_provider_performances table:
+#   2 TSPs per TDL
+#   best_value_score, linehaul_rate, and sit_rate replaced with random values
+#
+# This data will be written to tspp_sample.sql
+
+set -eu -o pipefail
+
+export TSPP="transportation_service_provider_performances"
+export TSPP_BACKUP="transportation_service_provider_performances_backup"
+export PGPASSWORD="mysecretpassword"
+
+readonly usage="usage: $0 <output_file>"
+readonly output_file="${1:-}"
+
+function proceed() {
+  proceed_message=${1:-"proceed"}
+  echo -n "${proceed_message} (y/N) "
+  read -r proceed
+  if [[ "$proceed" =~ ^[^yY]*$ ]]; then
+    echo "exiting"
+    exit 0
+  fi
+}
+
+#
+# Pre-flight checks
+#
+
+if [[ -z "${output_file:-}" ]]; then
+  echo "$usage"
+  exit 1
+fi
+
+if [[ -f "${output_file}" ]]; then
+  proceed "This will overwrite the contents of ${output_file}"
+fi
+
+scripts/psql-dev << SQL
+DROP TABLE IF EXISTS ${TSPP_BACKUP};
+ALTER TABLE ${TSPP} RENAME TO ${TSPP_BACKUP};
+
+CREATE TABLE ${TSPP} AS
+    SELECT (tspp).* FROM (
+        SELECT (tspp), rank() OVER (PARTITION BY traffic_distribution_list_id ORDER BY best_value_score DESC)
+        FROM ${TSPP_BACKUP} tspp
+    ) ranked
+    WHERE rank < 3;
+
+UPDATE ${TSPP} SET
+	best_value_score = round((random() * 30 + 70)::numeric, 2),
+	linehaul_rate = round((random() * .2 + 0.4)::numeric, 2),
+	sit_rate = round((random() * .2 + 0.4)::numeric, 2);
+SQL
+
+pg_dump -h localhost -d dev_db -U postgres -t ${TSPP} --inserts -O --data-only -f "${output_file}"
+
+scripts/psql-dev << SQL
+DROP TABLE ${TSPP};
+ALTER TABLE ${TSPP_BACKUP} RENAME TO ${TSPP};
+SQL

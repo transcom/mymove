@@ -21,6 +21,7 @@
   * [Libraries](#libraries)
     * [Pop](#pop)
   * [Learning](#learning)
+  * [Service Objects](#service-objects)
   * [Testing](#testing)
     * [General](#general)
     * [Coverage](#coverage)
@@ -30,7 +31,7 @@
 * [Environment settings](#environment-settings)
   * [Adding `ulimit`](#adding-ulimit)
 
-Regenerate with "bin/generate-md-toc.sh"
+Regenerate with "scripts/generate-md-toc"
 
 <!-- tocstop -->
 
@@ -308,6 +309,10 @@ Additional resources:
 * Advanced Testing with Go [Video](https://www.youtube.com/watch?v=yszygk1cpEc) and [Article](https://about.sourcegraph.com/go/advanced-testing-in-go) (great overview of useful techniques, useful for all Go programmers)
 * _Book_: [The Go Programming Language](http://www.gopl.io/)
 * _Article_: [Copying data from S3 to EBS 30x faster using Golang](https://medium.com/@venks.sa/copying-data-from-s3-to-ebs-30x-faster-using-go-e2cdb1093284)
+
+### Service Objects
+
+Service Objects are an architectural design pattern we use to encapsulate business logic. Service objects allow for better unit testing, re-usability, and organization of code in the MilMove project. For more information on service objects, including how we use them and how to write them, please see the [documentation](backend/service-objects.md)
 
 ### Testing
 
