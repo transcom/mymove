@@ -6,7 +6,7 @@ import { getClient, getPublicClient } from 'shared/Swagger/api';
 
 const approveShipmentLabel = 'Shipments.approveShipment';
 export const getShipmentLabel = 'Shipments.getShipment';
-const getPublicShipmentLabel = 'Shipments.getPublicShipment';
+export const getPublicShipmentLabel = 'Shipments.getPublicShipment';
 const createShipmentLabel = 'Shipments.createShipment';
 const updateShipmentLabel = 'shipments.updateShipment';
 const updatePublicShipmentLabel = 'shipments.updatePublicShipment';

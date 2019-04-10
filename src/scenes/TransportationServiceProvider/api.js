@@ -22,16 +22,6 @@ export async function RetrieveShipmentsForTSP(queueType) {
   return response.body;
 }
 
-// SHIPMENT
-export async function LoadShipment(shipmentId) {
-  const client = await getPublicClient();
-  const response = await client.apis.shipments.getShipment({
-    shipmentId,
-  });
-  checkResponse(response, 'failed to load shipment due to server error');
-  return response.body;
-}
-
 // SHIPMENT ACCEPT
 export async function AcceptShipment(shipmentId) {
   const client = await getPublicClient();
@@ -61,16 +51,6 @@ export async function DeliverShipment(shipmentId, payload) {
     payload: formatPayload(payload, payloadDef),
   });
   checkResponse(response, 'failed to deliver shipment due to server error');
-  return response.body;
-}
-
-export async function PatchShipment(shipmentId, shipment) {
-  const client = await getPublicClient();
-  const response = await client.apis.shipments.patchShipment({
-    shipmentId,
-    update: shipment,
-  });
-  checkResponse(response, 'failed to load shipment due to server error');
   return response.body;
 }
 

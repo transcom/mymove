@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { loadShipmentDependencies } from './ducks';
+import { getPublicShipment } from 'shared/Entities/modules/shipments';
 import MoveDocumentView from 'shared/DocumentViewer/MoveDocumentView';
 import {
   getAllShipmentDocuments,
@@ -40,7 +40,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   const { shipmentId } = ownProps.match.params;
   return {
     onDidMount: () => {
-      dispatch(loadShipmentDependencies(shipmentId));
+      dispatch(getPublicShipment(shipmentId));
       dispatch(getAllShipmentDocuments(shipmentId));
     },
   };
