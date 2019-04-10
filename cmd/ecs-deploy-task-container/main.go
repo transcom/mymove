@@ -466,6 +466,14 @@ func main() {
 						Value: aws.String("app"),
 					},
 					&ecs.KeyValuePair{
+						Name:  aws.String("DB_SSL_MODE"),
+						Value: aws.String("{{ .DB_SSL_MODE }}"),
+					},
+					&ecs.KeyValuePair{
+						Name:  aws.String("DB_SSL_ROOT_CERT"),
+						Value: aws.String("{{ .DB_SSL_ROOT_CERT }}"),
+					},
+					&ecs.KeyValuePair{
 						Name:  aws.String("CHAMBER_KMS_KEY_ALIAS"),
 						Value: aws.String(chamberKMSKeyAlias),
 					},

@@ -28,11 +28,9 @@ import (
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/gobuffalo/pop"
 	"github.com/gorilla/csrf"
 	beeline "github.com/honeycombio/beeline-go"
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
-	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -42,6 +40,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
+	"github.com/transcom/mymove/pkg/db/connection"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
@@ -70,18 +69,6 @@ const maxBodySize int64 = 200 * 1000 * 1000
 
 // hereRequestTimeout is how long to wait on HERE request before timing out (15 seconds).
 const hereRequestTimeout = time.Duration(15) * time.Second
-
-// The dependency https://github.com/lib/pq only supports a limited subset of SSL Modes and returns the error:
-// pq: unsupported sslmode \"prefer\"; only \"require\" (default), \"verify-full\", \"verify-ca\", and \"disable\" supported
-// - https://www.postgresql.org/docs/10/libpq-ssl.html
-var allSSLModes = []string{
-	"disable",
-	//"allow",
-	//"prefer",
-	"require",
-	"verify-ca",
-	"verify-full",
-}
 
 type errInvalidSSLMode struct {
 	Mode  string
@@ -299,13 +286,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("iws-rbs-host", "", "Hostname for the IWS RBS")
 
 	// DB Config
-	flag.String("db-name", "dev_db", "Database Name")
-	flag.String("db-host", "localhost", "Database Hostname")
-	flag.Int("db-port", 5432, "Database Port")
-	flag.String("db-user", "postgres", "Database Username")
-	flag.String("db-password", "", "Database Password")
-	flag.String("db-ssl-mode", "disable", "Database SSL Mode: "+strings.Join(allSSLModes, ", "))
-	flag.String("db-ssl-root-cert", "", "Path to the database root certificate file used for database connections")
+	connection.InitDatabaseFlags(flag)
 
 	// CSRF Protection
 	flag.String("csrf-auth-key", "", "CSRF Auth Key, 32 byte long")
@@ -449,78 +430,6 @@ func initRBSPersonLookup(v *viper.Viper, logger logger) (*iws.RBSPersonLookup, e
 		v.GetString("move-mil-dod-tls-key"))
 }
 
-func initDatabase(v *viper.Viper, logger logger) (*pop.Connection, error) {
-
-	env := v.GetString("env")
-	dbName := v.GetString("db-name")
-	dbHost := v.GetString("db-host")
-	dbPort := strconv.Itoa(v.GetInt("db-port"))
-	dbUser := v.GetString("db-user")
-	dbPassword := v.GetString("db-password")
-
-	// Modify DB options by environment
-	dbOptions := map[string]string{
-		"sslmode": v.GetString("db-ssl-mode"),
-	}
-
-	if env == "test" {
-		// Leave the test database name hardcoded, since we run tests in the same
-		// environment as development, and it's extra confusing to have to swap env
-		// variables before running tests.
-		dbName = "test_db"
-	}
-
-	if str := v.GetString("db-ssl-root-cert"); len(str) > 0 {
-		dbOptions["sslrootcert"] = str
-	}
-
-	// Construct a safe URL and log it
-	s := "postgres://%s:%s@%s:%s/%s?sslmode=%s"
-	dbURL := fmt.Sprintf(s, dbUser, "*****", dbHost, dbPort, dbName, dbOptions["sslmode"])
-	logger.Info("Connecting to the database", zap.String("url", dbURL), zap.String("db-ssl-root-cert", v.GetString("db-ssl-root-cert")))
-
-	// Configure DB connection details
-	dbConnectionDetails := pop.ConnectionDetails{
-		Dialect:  "postgres",
-		Database: dbName,
-		Host:     dbHost,
-		Port:     dbPort,
-		User:     dbUser,
-		Password: dbPassword,
-		Options:  dbOptions,
-	}
-	err := dbConnectionDetails.Finalize()
-	if err != nil {
-		logger.Error("Failed to finalize DB connection details", zap.Error(err))
-		return nil, err
-	}
-
-	// Set up the connection
-	connection, err := pop.NewConnection(&dbConnectionDetails)
-	if err != nil {
-		logger.Error("Failed create DB connection", zap.Error(err))
-		return nil, err
-	}
-
-	// Open the connection
-	err = connection.Open()
-	if err != nil {
-		logger.Error("Failed to open DB connection", zap.Error(err))
-		return nil, err
-	}
-
-	// Check the connection
-	db, err := sqlx.Open(connection.Dialect.Details().Dialect, connection.Dialect.URL())
-	err = db.Ping()
-	if err != nil {
-		logger.Warn("Failed to ping DB connection", zap.Error(err))
-		return connection, err
-	}
-
-	// Return the open connection
-	return connection, nil
-}
-
 func checkConfig(v *viper.Viper, logger logger) error {
 
 	logger.Info("checking webserver config")
@@ -575,7 +484,7 @@ func checkConfig(v *viper.Viper, logger logger) error {
 		return err
 	}
 
-	err = checkDatabase(v, logger)
+	err = connection.CheckDatabase(v, logger)
 	if err != nil {
 		return err
 	}
@@ -613,7 +522,7 @@ func checkHosts(v *viper.Viper) error {
 		"dps-cookie-domain",
 		"login-gov-hostname",
 		"iws-rbs-host",
-		"db-host",
+		connection.DbHostFlag,
 	}
 
 	for _, c := range hostVars {
@@ -631,7 +540,7 @@ func checkPorts(v *viper.Viper) error {
 		"tls-port",
 		"no-tls-port",
 		"login-gov-callback-port",
-		"db-port",
+		connection.DbPortFlag,
 	}
 
 	for _, c := range portVars {
@@ -752,31 +661,6 @@ func checkStorage(v *viper.Viper) error {
 	return nil
 }
 
-func checkDatabase(v *viper.Viper, logger logger) error {
-
-	env := v.GetString("env")
-
-	sslMode := v.GetString("db-ssl-mode")
-	if len(sslMode) == 0 || !stringSliceContains(allSSLModes, sslMode) {
-		return &errInvalidSSLMode{Mode: sslMode, Modes: allSSLModes}
-	}
-
-	if modes := []string{"require", "verify-ca", "verify-full"}; env == "container" && !stringSliceContains(modes, sslMode) {
-		return errors.Wrap(&errInvalidSSLMode{Mode: sslMode, Modes: modes}, "container envrionment requires ssl connection to database")
-	}
-
-	if filename := v.GetString("db-ssl-root-cert"); len(filename) > 0 {
-		b, err := ioutil.ReadFile(filename) // #nosec
-		if err != nil {
-			return errors.Wrap(err, fmt.Sprintf("error reading db-ssl-root-cert at %q", filename))
-		}
-		tlsCerts := parseCertificates(string(b))
-		logger.Info("certificate chain from db-ssl-root-cert parsed", zap.Any("count", len(tlsCerts)))
-	}
-
-	return nil
-}
-
 func startListener(srv *server.NamedServer, logger logger, useTLS bool) {
 	logger.Info("Starting listener",
 		zap.String("name", srv.Name),
@@ -860,7 +744,7 @@ func main() {
 	}
 
 	// Create a connection to the DB
-	dbConnection, err := initDatabase(v, logger)
+	dbConnection, err := connection.InitDatabase(v, logger)
 	if err != nil {
 		if dbConnection == nil {
 			// No connection object means that the configuraton failed to validate and we should kill server startup
