@@ -253,15 +253,18 @@ bin/save-fuel-price-data: server_deps server_generate
 	go build -i -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
 
 bin_linux/save-fuel-price-data: server_generate_linux
-	mkdir -p bin_linux/
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/save-fuel-price-data ./cmd/save_fuel_price_data
 
-.PHONY: build_deploy_tools
-build_deploy_tools: server_deps server_generate
+bin/ecs-deploy-task-container: server_deps server_generate
 	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-deploy-task-container ./cmd/ecs-deploy-task-container
 
 .PHONY: build_tools
-build_tools: bash_version server_deps server_generate build_generate_test_data bin/save-fuel-price-data build_deploy_tools
+build_tools: bash_version \
+ server_deps \
+ server_generate \
+ build_generate_test_data \
+ bin/save-fuel-price-data \
+ bin/ecs-deploy-task-container
 	go build -i -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare_secure_migrations
 	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
@@ -525,7 +528,6 @@ db_test_migrate: server_deps db_test_migrate_standalone
 db_test_migrations_build: .db_test_migrations_build.stamp
 .db_test_migrations_build.stamp: server_deps_linux server_generate_linux
 	@echo "Build required binaries for the docker migration container..."
-	mkdir -p bin_linux/
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/soda github.com/gobuffalo/pop/soda
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate_test_data
 	@echo "Build the docker migration container..."

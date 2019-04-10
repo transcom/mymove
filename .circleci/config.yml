@@ -75,7 +75,7 @@ commands:
       - restore_cache:
           keys:
             - go-mod-souces-v1-{{ checksum "go.sum" }}
-      - run: make build_deploy_tools
+      - run: make bin/ecs-deploy-task-container
       - deploy:
           name: Deploy task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-region ${AWS_DEFAULT_REGION} --service app --environment experimental --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --rule save_fuel_price_data
@@ -531,7 +531,7 @@ jobs:
       - restore_cache:
           keys:
             - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - run: make build_chamber
+      - run: make bin/chamber
       - run: make download_rds_certs
       - run: make build
       - build_tag_push:
@@ -547,7 +547,8 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
-      - run: make build_chamber build_soda
+      - run: make bin/chamber
+      - run: make build_soda
       - build_tag_push:
           dockerfile: Dockerfile.migrations
           tag: ppp-migrations:dev
@@ -584,7 +585,7 @@ jobs:
           command: make server_generate
       - run:
           name: Build Chamber
-          command: make build_chamber
+          command: make bin/chamber
       - run:
           name: Run acceptance tests
           command: make webserver_test
@@ -652,7 +653,7 @@ jobs:
           command: make server_generate
       - run:
           name: Build Chamber
-          command: make build_chamber
+          command: make bin/chamber
       - run:
           name: Run acceptance tests
           command: make webserver_test
