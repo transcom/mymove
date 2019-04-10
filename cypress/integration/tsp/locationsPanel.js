@@ -8,7 +8,6 @@ describe('TSP User Checks Shipment Locations', function() {
     const address = {
       street_1: '123 Any Street',
       street_2: 'P.O. Box 12345',
-      street_3: 'c/o Some Person',
       city: 'Beverly Hills',
       state: 'CA',
       postal_code: '90210',
@@ -16,7 +15,6 @@ describe('TSP User Checks Shipment Locations', function() {
     const expectation = text => {
       expect(text).to.include(address.street_1);
       expect(text).to.include(address.street_2);
-      expect(text).to.include(address.street_3);
       expect(text).to.include(`${address.city}, ${address.state} ${address.postal_code}`);
     };
 
@@ -26,7 +24,6 @@ describe('TSP User Checks Shipment Locations', function() {
     const address = {
       street_1: '987 Any Avenue',
       street_2: 'P.O. Box 9876',
-      street_3: 'c/o Some Person',
       city: 'Fairfield',
       state: 'CA',
       postal_code: '94535',
@@ -34,7 +31,6 @@ describe('TSP User Checks Shipment Locations', function() {
     const expectation = text => {
       expect(text).to.include(address.street_1);
       expect(text).to.include(address.street_2);
-      expect(text).to.include(address.street_3);
       expect(text).to.include(`${address.city}, ${address.state} ${address.postal_code}`);
     };
 

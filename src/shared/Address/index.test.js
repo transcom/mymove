@@ -28,27 +28,27 @@ describe('Address component test', () => {
       expect(lineBreak.type).toBe('br');
     });
     it('should not render addresses not present', () => {
-      const street_address_2 = fields[2];
+      const street_address_2 = fields[1];
       expect(street_address_2).toBeFalsy();
     });
     it('should render the city', () => {
-      const city = fields[3];
+      const city = fields[2];
       expect(city).toBe(address.city);
     });
     it('should have a comma in between the address', () => {
-      const comma = fields[4];
+      const comma = fields[3];
       expect(comma).toBe(', ');
     });
     it('should render the state', () => {
-      const state = fields[5];
+      const state = fields[4];
       expect(state).toBe(address.state);
     });
     it('should render a space between state and postal code', () => {
-      const space = fields[6];
+      const space = fields[5];
       expect(space).toBe(' ');
     });
     it('should render the postal code', () => {
-      const postalCode = fields[7];
+      const postalCode = fields[6];
       expect(postalCode).toBe(address.postal_code);
     });
   });
@@ -89,16 +89,15 @@ describe('Address component test', () => {
     });
     it('should not render line breaks', () => {
       expect(fields[1]).toBeFalsy();
-      expect(fields[2]).toBeFalsy();
     });
     it('should render city', () => {
-      expect(fields[3]).toBe(address.city);
+      expect(fields[2]).toBe(address.city);
     });
     it('should render state', () => {
-      expect(fields[5]).toBe(address.state);
+      expect(fields[4]).toBe(address.state);
     });
     it('should render postal_code', () => {
-      expect(fields[7]).toBe(address.postal_code);
+      expect(fields[6]).toBe(address.postal_code);
     });
   });
 });
