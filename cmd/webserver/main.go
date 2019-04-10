@@ -895,7 +895,7 @@ func main() {
 		v.GetString("login-gov-office-client-id"),
 		appnames.TspServername,
 		v.GetString("login-gov-tsp-client-id"),
-		adminHostname,
+		appnames.AdminServername,
 		v.GetString("login-gov-admin-client-id"),
 		loginGovCallbackProtocol,
 		loginGovCallbackPort)
