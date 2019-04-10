@@ -119,11 +119,12 @@ export class Landing extends Component {
         {loggedInUserSuccess && (
           <Fragment>
             <div>
-              {moveSubmitSuccess && (
-                <Alert type="success" heading="Success">
-                  You've submitted your move
-                </Alert>
-              )}
+              {moveSubmitSuccess &&
+                !ppm && (
+                  <Alert type="success" heading="Success">
+                    You've submitted your move
+                  </Alert>
+                )}
               {isHHGPPMComboMove &&
                 hasSubmitSuccess && (
                   <Alert type="success" heading="You've added a PPM shipment">
