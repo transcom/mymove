@@ -24,7 +24,7 @@ Upgrading the Go version that we use happens in roughly these steps:
 ## Update MilMove Repo
 
 - After your Docker image PR lands, grab the git hash from [Docker](https://hub.docker.com/r/trussworks/circleci-docker-primary/tags) that corresponds with your merged code
-- Update `.circleci/config.yml`, `README.md`, and `bin/check_go_version` with the updated Docker image git hash and Go version
+- Update `.circleci/config.yml`, `README.md`, and `scripts/check-go-version` with the updated Docker image git hash and Go version
   - See [this PR](https://github.com/transcom/mymove/pull/1383/files) as an example
 - Rerun the Go formatter on the codebase with `pre-commit run go-fmt --all-files`
 - Commit the above changes and any reformatted code and make sure everything builds correctly on CircleCI

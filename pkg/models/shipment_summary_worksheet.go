@@ -79,6 +79,7 @@ type ShipmentSummaryWorkSheetShipments struct {
 type ShipmentSummaryWorksheetPage2Values struct {
 	PreparationDate string
 	FormattedMovingExpenses
+	ServiceMemberSignature string
 }
 
 //FormattedMovingExpenses is an object representing the service member's moving expenses formatted for the SSW
@@ -119,6 +120,7 @@ type ShipmentSummaryFormData struct {
 	Obligations             Obligations
 	MovingExpenseDocuments  []MovingExpenseDocument
 	PPMRemainingEntitlement unit.Pound
+	SignedCertification     SignedCertification
 }
 
 //Obligations an object representing the Max Obligation and Actual Obligation sections of the shipment summary worksheet
@@ -209,8 +211,19 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		return ShipmentSummaryFormData{}, err
 	}
 
-	ppmRemainingEntitlement := CalculateRemainingPPMEntitlement(move, totalEntitlement)
+	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(move, totalEntitlement)
+	if err != nil {
+		return ShipmentSummaryFormData{}, err
+	}
 
+	signedCertification, err := FetchSignedCertificationsPPMPayment(db, session, moveID)
+	if err != nil {
+		return ShipmentSummaryFormData{}, err
+	}
+	if signedCertification == nil {
+		return ShipmentSummaryFormData{},
+			errors.New("shipment summary worksheet: signed certification is nil")
+	}
 	ssd := ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
 		Order:                   move.Orders,
@@ -220,6 +233,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		TotalWeightAllotment:    totalEntitlement,
 		Shipments:               move.Shipments,
 		PersonallyProcuredMoves: move.PersonallyProcuredMoves,
+		SignedCertification:     *signedCertification,
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
 		MovingExpenseDocuments:  movingExpenses,
 	}
@@ -228,22 +242,30 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 
 // CalculateRemainingPPMEntitlement calculates the remaining PPM entitlement for PPM moves
 // a PPMs remaining entitlement weight is equal to total entitlement - hhg weight
-func CalculateRemainingPPMEntitlement(move Move, totalEntitlement unit.Pound) unit.Pound {
+func CalculateRemainingPPMEntitlement(move Move, totalEntitlement unit.Pound) (unit.Pound, error) {
 	var hhgActualWeight unit.Pound
-	if len(move.Shipments) > 0 && move.Shipments[0].NetWeight != nil {
+	if len(move.Shipments) > 0 {
+		if move.Shipments[0].NetWeight == nil {
+			return hhgActualWeight, errors.Errorf("Shipment %s does not have NetWeight", move.Shipments[0].ID)
+		}
 		hhgActualWeight = *move.Shipments[0].NetWeight
 	}
+
 	var ppmActualWeight unit.Pound
 	if len(move.PersonallyProcuredMoves) > 0 {
+		if move.PersonallyProcuredMoves[0].NetWeight == nil {
+			return ppmActualWeight, errors.Errorf("PPM %s does not have NetWeight", move.PersonallyProcuredMoves[0].ID)
+		}
 		ppmActualWeight = unit.Pound(*move.PersonallyProcuredMoves[0].NetWeight)
 	}
+
 	switch ppmRemainingEntitlement := totalEntitlement - hhgActualWeight; {
 	case ppmActualWeight < ppmRemainingEntitlement:
-		return ppmActualWeight
+		return ppmActualWeight, nil
 	case ppmRemainingEntitlement < 0:
-		return 0
+		return 0, nil
 	default:
-		return ppmRemainingEntitlement
+		return ppmRemainingEntitlement, nil
 	}
 }
 
@@ -372,10 +394,21 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData)
 	page2.FormattedMovingExpenses, err = FormatMovingExpenses(data.MovingExpenseDocuments)
 	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
 	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
+	page2.ServiceMemberSignature = FormatSignature(data)
 	if err != nil {
 		return page2, err
 	}
 	return page2, nil
+}
+
+//FormatSignature formats a service member's signature for the Shipment Summary Worksheet
+func FormatSignature(data ShipmentSummaryFormData) string {
+	dateLayout := "02 Jan 2006 at 3:04pm"
+	dt := data.SignedCertification.Date.Format(dateLayout)
+	first := derefStringTypes(data.ServiceMember.FirstName)
+	last := derefStringTypes(data.ServiceMember.LastName)
+
+	return fmt.Sprintf("%s %s electronically signed on %s", first, last, dt)
 }
 
 //FormatWeightAllotment formats the weight allotment for Shipment Summary Worksheet

@@ -3,10 +3,12 @@ package invoice
 import (
 	"testing"
 
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 type testValues struct {
@@ -100,6 +102,38 @@ func (suite *InvoiceServiceSuite) TestFetchInvoiceForShipmentCall() {
 	})
 }
 
+func (suite *InvoiceServiceSuite) TestFetchInvoiceWith35AValid() {
+	shipment := makeShipment(suite.DB())
+	lineItem := makeLineItem35A(suite.DB(), shipment, true)
+
+	f := FetchShipmentForInvoice{suite.DB()}
+	actualShipment, err := f.Call(shipment.ID)
+	suite.NoError(err)
+	suite.Equal(1, len(actualShipment.ShipmentLineItems))
+	suite.Equal(lineItem.ID, actualShipment.ShipmentLineItems[0].ID)
+}
+
+func (suite *InvoiceServiceSuite) TestFetchInvoiceWith35AInvalid() {
+	shipment := makeShipment(suite.DB())
+	_ = makeLineItem35A(suite.DB(), shipment, false)
+
+	f := FetchShipmentForInvoice{suite.DB()}
+	actualShipment, err := f.Call(shipment.ID)
+	suite.NoError(err)
+	suite.Equal(0, len(actualShipment.ShipmentLineItems))
+}
+
+func (suite *InvoiceServiceSuite) TestFetchInvoiceWith35ALegacy() {
+	shipment := makeShipment(suite.DB())
+	lineItem := makeLineItem35ALegacy(suite.DB(), shipment)
+
+	f := FetchShipmentForInvoice{suite.DB()}
+	actualShipment, err := f.Call(shipment.ID)
+	suite.NoError(err)
+	suite.Equal(1, len(actualShipment.ShipmentLineItems))
+	suite.Equal(lineItem.ID, actualShipment.ShipmentLineItems[0].ID)
+}
+
 func helperSetupLineItem(shipment models.Shipment, tv testValues, db *pop.Connection) models.ShipmentLineItem {
 	assertions := testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
@@ -116,4 +150,63 @@ func helperSetupLineItem(shipment models.Shipment, tv testValues, db *pop.Connec
 		assertions.ShipmentLineItem.InvoiceID = &invoice.ID
 	}
 	return testdatagen.MakeCompleteShipmentLineItem(db, assertions)
+}
+
+func makeShipment(DB *pop.Connection) models.Shipment {
+	return testdatagen.MakeDefaultShipment(DB)
+}
+
+func makeLineItem35A(DB *pop.Connection, shipment models.Shipment, hasActAmt bool) models.ShipmentLineItem {
+	acc35A := testdatagen.MakeTariff400ngItem(DB, testdatagen.Assertions{
+		Tariff400ngItem: models.Tariff400ngItem{
+			Code:                "35A",
+			Item:                "Third Party Service",
+			RequiresPreApproval: true,
+		},
+	})
+
+	estAmt := unit.Cents(1234)
+	assertions := testdatagen.Assertions{
+		ShipmentLineItem: models.ShipmentLineItem{
+			Shipment:            shipment,
+			ShipmentID:          shipment.ID,
+			Status:              models.ShipmentLineItemStatusCONDITIONALLYAPPROVED,
+			Tariff400ngItem:     acc35A,
+			Location:            "ORIGIN",
+			Description:         swag.String("This is a Description"),
+			Reason:              swag.String("this is a reason"),
+			EstimateAmountCents: &estAmt,
+		},
+	}
+
+	if hasActAmt {
+		actAmt := unit.Cents(1000)
+		assertions.ShipmentLineItem.ActualAmountCents = &actAmt
+		assertions.ShipmentLineItem.Status = models.ShipmentLineItemStatusAPPROVED
+	}
+	lineItem := testdatagen.MakeCompleteShipmentLineItem(DB, assertions)
+
+	return lineItem
+}
+
+func makeLineItem35ALegacy(DB *pop.Connection, shipment models.Shipment) models.ShipmentLineItem {
+	// shipment := testdatagen.MakeDefaultShipment(DB)
+
+	acc35A := testdatagen.MakeTariff400ngItem(DB, testdatagen.Assertions{
+		Tariff400ngItem: models.Tariff400ngItem{
+			Code: "35A",
+			Item: "Third Party Service",
+		},
+	})
+
+	assertions := testdatagen.Assertions{
+		ShipmentLineItem: models.ShipmentLineItem{
+			Shipment:        shipment,
+			ShipmentID:      shipment.ID,
+			Status:          models.ShipmentLineItemStatusAPPROVED,
+			Tariff400ngItem: acc35A,
+		},
+	}
+
+	return testdatagen.MakeCompleteShipmentLineItem(DB, assertions)
 }

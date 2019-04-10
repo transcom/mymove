@@ -344,7 +344,7 @@ TRUNCATE transportation_service_provider_performances CASCADE;
 * Load the file created from the `pg_dump`:
 
 ```sh
-bin/psql < tspp_data_dump.pgsql
+scripts/psql-wrapper < tspp_data_dump.pgsql
 ```
 
 * Reduce the number of TSPs to two (2) TSPs per TDL:

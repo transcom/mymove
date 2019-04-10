@@ -10,7 +10,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
-	beeline "github.com/honeycombio/beeline-go"
+	"github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/assets"
@@ -244,10 +244,16 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(h.DB(), h.Logger()))
 
 	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(h.DB(), session, moveID)
+	if err != nil {
+		h.Logger().Error("Error fetching data for SSW", zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
 	ssfd.PreparationDate = time.Time(params.PreparationDate)
 	ssfd.Obligations, err = ppmComputer.ComputeObligations(ssfd, h.Planner())
 	if err != nil {
 		h.Logger().Error("Error calculating obligations ", zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	page1Data, page2Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)

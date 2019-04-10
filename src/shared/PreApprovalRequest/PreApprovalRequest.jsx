@@ -10,22 +10,22 @@ import Editor from 'shared/PreApprovalRequest/Editor.jsx';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
 import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
-import { isNewAccessorial } from 'shared/preApprovals';
-import { getDetailsComponent } from './DetailsHelper';
+import { getDetailsComponent, isRobustAccessorial } from './DetailsHelper';
 
 function formatStatus(lineItem) {
   let formattedStatus = lineItem.status;
   if (lineItem.invoice_id) {
     formattedStatus = 'Invoiced';
   }
-
+  if (formattedStatus === 'CONDITIONALLY_APPROVED') return 'Approved';
   return formattedStatus[0].toUpperCase() + formattedStatus.substring(1).toLowerCase();
 }
 
 export function renderActionIcons(status, onEdit, onApproval, onDelete, shipmentLineItemId, canEdit35A) {
   // Only office users can approve requests.
   // If the request is approved/invoiced, they cannot be edited, only deleted.
-  const isEditable = status === 'SUBMITTED' || (status === 'APPROVED' && canEdit35A);
+  const isEditable =
+    status === 'SUBMITTED' || ((status === 'CONDITIONALLY_APPROVED' || status === 'APPROVED') && canEdit35A);
   return (
     <Fragment>
       <div className="pre-approval-icon-container">
@@ -102,7 +102,7 @@ export class PreApprovalRequest extends Component {
     const DetailsComponent = getDetailsComponent(
       row.tariff400ng_item.code,
       get(this.props, 'context.flags.robustAccessorial', false),
-      isNewAccessorial(row),
+      isRobustAccessorial(row),
     );
     if (this.state.showEditForm) {
       return (

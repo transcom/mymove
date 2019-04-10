@@ -96,7 +96,7 @@ export function renderStatusIcon(status) {
   if (status === 'OK') {
     return <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />;
   }
-  if (status === 'APPROVED' || status === 'INVOICED') {
+  if (status === 'APPROVED' || status === 'INVOICED' || status === 'CONDITIONALLY_APPROVED') {
     return <FontAwesomeIcon className="icon approved" icon={faCheck} />;
   }
   if (status === 'HAS_ISSUE') {

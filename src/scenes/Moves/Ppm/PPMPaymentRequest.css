@@ -1,0 +1,69 @@
+.ppm-payment-req-intro .title,
+.allowable-expenses-container .title,
+.weight-ticket-example-container .title {
+  font-size: 2.2rem;
+  font-family: sans-serif;
+}
+
+.weight-ticket-example-container .subheader {
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.weight-ticket-example-container p {
+  margin: 0px;
+}
+
+.weight-ticket-example-img {
+  vertical-align: middle;
+}
+
+.dashed-divider {
+  margin-top: 1rem;
+  border-bottom: 1px dashed #e9e8e8;
+}
+
+.ppm-payment-req-intro a:visited {
+  color: #0071bc; /* original link color */
+}
+
+.color_blue_link {
+  color: #205493;
+}
+
+.ppm-payment-request-footer {
+  border-top: 1px solid black;
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid black;
+  margin-top: 2.3rem;
+  padding-top: 0.5rem;
+}
+
+@media only screen and (max-width: 481px) {
+  .ppm-payment-request-footer {
+    flex-direction: column;
+  }
+}
+
+.allowable-expenses-container li {
+  margin-bottom: 0px;
+}
+
+.allowable-expenses-container .icon {
+  margin-left: 0px;
+}
+
+.button-bar {
+  border-top: 1px solid black;
+  margin-top: 2.3rem;
+  padding-top: 1rem;
+}
+
+.text-gray {
+  color: #767676;
+}
+
+.secondary-label {
+  font-size: 1.5rem;
+}

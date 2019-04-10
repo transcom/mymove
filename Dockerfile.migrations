@@ -2,12 +2,13 @@ FROM alpine:3.7
 
 COPY bin/soda /bin/soda
 COPY bin/chamber /bin/chamber
-COPY bin/apply-secure-migration.sh /bin
+RUN mkdir -p /scripts
+COPY scripts/apply-secure-migration.sh /scripts
 
 COPY migrations /migrate/migrations
 COPY config/database.yml /migrate
 
-RUN mkdir /migrate/secure
+RUN mkdir -p /migrate/secure
 
 ENV GO_ENV=container
 
@@ -16,8 +17,8 @@ RUN apk update
 RUN apk add postgresql-client python3 ca-certificates bash
 RUN pip3 install awscli
 
-WORKDIR /bin
-ENTRYPOINT ["soda"]
+WORKDIR /scripts
+ENTRYPOINT ["/bin/soda"]
 CMD ["migrate", \
      "-c", "/migrate/database.yml", \
      "-p", "/migrate/migrations", \

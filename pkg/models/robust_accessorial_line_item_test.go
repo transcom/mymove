@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"time"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -67,4 +69,145 @@ func (suite *ModelSuite) TestCreateAndEditShipmentLineItemCode226A() {
 		suite.Equal(actAmtUpdated, *shipmentLineItem.ActualAmountCents)
 	}
 
+}
+
+// TestCreateAndEditShipmentLineItemCode125 tests that 125 line items are created and updated correctly
+func (suite *ModelSuite) TestCreateAndEditShipmentLineItemCode125() {
+	// test create 125A preapproval
+	item125A := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: models.Tariff400ngItem{
+			Code: "125A",
+		},
+	})
+
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+	address := models.Address{
+		StreetAddress1: "123 Test St",
+		City:           "City",
+		State:          "CA",
+		PostalCode:     "94087",
+	}
+
+	reas := "This is the reason"
+	date := time.Now()
+	// also testing for military time format
+	militaryTime := "0000"
+
+	baseParams := models.BaseShipmentLineItemParams{
+		Tariff400ngItemID:   item125A.ID,
+		Tariff400ngItemCode: item125A.Code,
+		Location:            "ORIGIN",
+	}
+	additionalParams := models.AdditionalShipmentLineItemParams{
+		Reason:  &reas,
+		Date:    &date,
+		Time:    &militaryTime,
+		Address: &address,
+	}
+
+	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams)
+
+	if suite.noValidationErrors(verrs, err) {
+		// flat rate, quantity 1 should be set to 1. 10000 bq
+		suite.EqualValues(unit.BaseQuantityFromInt(1), shipmentLineItem.Quantity1)
+		suite.EqualValues(item125A.ID.String(), shipmentLineItem.Tariff400ngItem.ID.String())
+		suite.EqualValues(reas, *shipmentLineItem.Reason)
+		suite.EqualValues(date, *shipmentLineItem.Date)
+		suite.EqualValues(militaryTime, *shipmentLineItem.Time)
+		suite.NotNil(shipmentLineItem.Address.ID)
+	}
+
+	// test update line item
+
+	// fields to update
+	updateReas := "updated reason"
+	updateDate := time.Now().Add(time.Duration(1000))
+	// also testing for military time format
+	// J - Juliet - Local Time
+	updateMilitaryTime := "2359J"
+	updateAddress := models.Address{
+		ID:             *shipmentLineItem.AddressID,
+		StreetAddress1: "123 Test St, update test",
+		City:           "City Update Test",
+		State:          "CA, Update Test",
+		PostalCode:     "60000",
+	}
+
+	additionalParams = models.AdditionalShipmentLineItemParams{
+		Reason:  &updateReas,
+		Date:    &updateDate,
+		Time:    &updateMilitaryTime,
+		Address: &updateAddress,
+	}
+
+	verrs, err = shipment.UpdateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams, shipmentLineItem)
+
+	if suite.noValidationErrors(verrs, err) {
+		// flat rate, quantity 1 should be set to 1 in base quantity. 10000 bq.
+		suite.EqualValues(unit.BaseQuantityFromInt(1), shipmentLineItem.Quantity1)
+		suite.EqualValues(updateReas, *shipmentLineItem.Reason)
+		suite.EqualValues(updateDate, *shipmentLineItem.Date)
+		suite.EqualValues(updateMilitaryTime, *shipmentLineItem.Time)
+		suite.EqualValues(updateAddress.ID, shipmentLineItem.Address.ID)
+		suite.EqualValues(updateAddress.StreetAddress1, shipmentLineItem.Address.StreetAddress1)
+		suite.EqualValues(updateAddress.City, shipmentLineItem.Address.City)
+		suite.EqualValues(updateAddress.State, shipmentLineItem.Address.State)
+		suite.EqualValues(updateAddress.PostalCode, shipmentLineItem.Address.PostalCode)
+	}
+}
+
+// TestShipmentLineItem125MilitaryTimeValidationErrors tests that 125 line items with wrong military time format
+func (suite *ModelSuite) TestShipmentLineItem125MilitaryTimeValidationErrors() {
+	expErrors := map[string][]string{
+		"time": {"Not in military time. Ex: 0400 or 0400J"},
+	}
+	item125A := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: models.Tariff400ngItem{
+			Code: "125A",
+		},
+	})
+
+	shipment := testdatagen.MakeDefaultShipment(suite.DB())
+	address := models.Address{
+		StreetAddress1: "123 Test St",
+		City:           "City",
+		State:          "CA",
+		PostalCode:     "94087",
+	}
+
+	reas := "This is the reason"
+	date := time.Now()
+	// test invalid military time
+	invalidMilitaryTime := "2400"
+
+	baseParams := models.BaseShipmentLineItemParams{
+		Tariff400ngItemID:   item125A.ID,
+		Tariff400ngItemCode: item125A.Code,
+		Location:            "ORIGIN",
+	}
+	additionalParams := models.AdditionalShipmentLineItemParams{
+		Reason:  &reas,
+		Date:    &date,
+		Time:    &invalidMilitaryTime,
+		Address: &address,
+	}
+
+	shipmentLineItem, _, _ := shipment.CreateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams)
+	suite.verifyValidationErrors(shipmentLineItem, expErrors)
+
+	// now test another invalid military time format
+	invalidMilitaryTime = "24:00J"
+	additionalParams = models.AdditionalShipmentLineItemParams{
+		Reason:  &reas,
+		Date:    &date,
+		Time:    &invalidMilitaryTime,
+		Address: &address,
+	}
+
+	shipmentLineItem, _, _ = shipment.CreateShipmentLineItem(suite.DB(),
+		baseParams, additionalParams)
+	suite.verifyValidationErrors(shipmentLineItem, expErrors)
 }

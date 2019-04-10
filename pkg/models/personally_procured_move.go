@@ -44,6 +44,7 @@ type PersonallyProcuredMove struct {
 	WeightEstimate                *int64                       `json:"weight_estimate" db:"weight_estimate"`
 	OriginalMoveDate              *time.Time                   `json:"original_move_date" db:"original_move_date"`
 	ActualMoveDate                *time.Time                   `json:"actual_move_date" db:"actual_move_date"`
+	ApproveDate                   *time.Time                   `json:"approve_date" db:"approve_date"`
 	NetWeight                     *int64                       `json:"net_weight" db:"net_weight"`
 	PickupPostalCode              *string                      `json:"pickup_postal_code" db:"pickup_postal_code"`
 	HasAdditionalPostalCode       *bool                        `json:"has_additional_postal_code" db:"has_additional_postal_code"`
@@ -103,12 +104,17 @@ func (p *PersonallyProcuredMove) Submit() error {
 }
 
 // Approve approves the PPM to go forward.
-func (p *PersonallyProcuredMove) Approve() error {
+func (p *PersonallyProcuredMove) Approve(approveDate time.Time) error {
 	if !(p.Status == PPMStatusSUBMITTED || p.Status == PPMStatusDRAFT) {
-		return errors.Wrap(ErrInvalidTransition, "Approve")
+		return errors.Wrap(ErrInvalidTransition, "Approve - status change")
+	}
+
+	if p.ApproveDate != nil {
+		return errors.Wrap(ErrInvalidTransition, "Aprove - approve date change")
 	}
 
 	p.Status = PPMStatusAPPROVED
+	p.ApproveDate = &approveDate
 	return nil
 }
 
