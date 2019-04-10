@@ -22,7 +22,7 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	selectedMoveType := models.SelectedMoveTypeHHGPPM
 
-	move, verrs, locErr := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	move, verrs, locErr := orders.CreateNewMove(suite.DB(), &selectedMoveType, nil)
 	suite.False(verrs.HasAny(), "failed to create new move")
 	suite.Nil(locErr)
 
@@ -381,12 +381,12 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 
 	selectedMoveType := models.SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType, nil)
 	suite.Nil(err, "Failed to save move")
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 
-	move2, verrs, err := orders1.CreateNewMove(suite.DB(), &selectedMoveType)
+	move2, verrs, err := orders1.CreateNewMove(suite.DB(), &selectedMoveType, nil)
 	suite.Nil(err, "Failed to save move")
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move2.Orders = orders1

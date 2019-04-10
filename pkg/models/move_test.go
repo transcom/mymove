@@ -26,7 +26,7 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	selectedMoveType := SelectedMoveTypeHHG
 
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType, nil)
 
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
@@ -34,6 +34,33 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 	suite.Regexp("^[346789BCDFGHJKMPQRTVWXY]+$", move.Locator)
 	// Verify invalid items are not in locator - this should produce "non-word" locators
 	suite.NotRegexp("[0125AEIOULNSZ]", move.Locator)
+}
+
+func (suite *ModelSuite) TestCreateNewGoldenTicketMove() {
+	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	selectedMoveType := SelectedMoveTypeHHG
+	gt, verrs, err := MakeGoldenTicket(suite.DB(), SelectedMoveTypeHHG)
+	suite.Nil(err)
+	suite.False(verrs.HasAny())
+
+	_, verrs, err = orders.CreateNewMove(suite.DB(), &selectedMoveType, &gt.Code)
+
+	suite.Nil(err)
+	suite.NoVerrs(verrs)
+}
+
+func (suite *ModelSuite) TestCreateInvalidGoldenTicketMove() {
+	orders := testdatagen.MakeDefaultOrder(suite.DB())
+	selectedMoveType := SelectedMoveTypeHHG
+	_, verrs, err := MakeGoldenTicket(suite.DB(), SelectedMoveTypeHHG)
+	suite.Nil(err)
+	suite.False(verrs.HasAny())
+
+	gtCode := "INVALID_CODE"
+	_, verrs, err = orders.CreateNewMove(suite.DB(), &selectedMoveType, &gtCode)
+
+	suite.NotNil(err)
+	suite.NoVerrs(verrs)
 }
 
 func (suite *ModelSuite) TestFetchMove() {
@@ -56,7 +83,7 @@ func (suite *ModelSuite) TestFetchMove() {
 	}
 	selectedMoveType := SelectedMoveTypeHHG
 
-	move, verrs, err := order1.CreateNewMove(suite.DB(), &selectedMoveType)
+	move, verrs, err := order1.CreateNewMove(suite.DB(), &selectedMoveType, nil)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	suite.Equal(6, len(move.Locator))
@@ -99,7 +126,7 @@ func (suite *ModelSuite) TestMoveCancellationWithReason() {
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType, nil)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
@@ -125,7 +152,7 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType, nil)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	reason := ""
@@ -193,7 +220,7 @@ func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType, nil)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
@@ -227,7 +254,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType, nil)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
@@ -243,7 +270,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType, nil)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
@@ -273,7 +300,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 	orders.Status = OrderStatusSUBMITTED
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType, nil)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 

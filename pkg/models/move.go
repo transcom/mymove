@@ -545,6 +545,36 @@ func createNewMove(db *pop.Connection,
 	return nil, verrs, ErrLocatorGeneration
 }
 
+// createNewMove adds a new Move record into the DB. In the (unlikely) event that we have a clash on Locators we
+// retry with a new record locator.
+func createGoldenTicketMove(db *pop.Connection,
+	orders Order,
+	selectedType *SelectedMoveType, goldenTicket string) (*Move, *validate.Errors, error) {
+	responseVErrors := validate.NewErrors()
+	var move *Move
+	var responseError error
+	err := db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+		verrs := validate.NewErrors()
+		var err error
+		if move, verrs, err = createNewMove(db, orders, selectedType); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error using golden ticket")
+			return transactionError
+		}
+		if _, verrs, err := UseGoldenTicket(db, goldenTicket, *move); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error using golden ticket")
+			return transactionError
+		}
+		return nil
+	})
+	if err != nil {
+		return move, responseVErrors, responseError
+	}
+	return move, responseVErrors, responseError
+}
+
 // SaveMoveDependencies safely saves a Move status, ppms' advances' statuses, orders statuses,
 // and shipment GBLOCs.
 func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, error) {

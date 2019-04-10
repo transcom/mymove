@@ -230,7 +230,7 @@ func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
 	suite.MustSave(&orders)
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType, nil)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders

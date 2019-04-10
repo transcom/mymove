@@ -108,7 +108,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 
 	selectedMoveType := models.SelectedMoveTypePPM
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType, nil)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())

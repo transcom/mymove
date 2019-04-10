@@ -114,7 +114,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	newMove, verrs, err := newOrder.CreateNewMove(h.DB(), nil)
+	newMove, verrs, err := newOrder.CreateNewMove(h.DB(), nil, nil)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}

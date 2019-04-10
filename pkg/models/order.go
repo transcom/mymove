@@ -207,7 +207,10 @@ func FetchOrderForPDFConversion(db *pop.Connection, id uuid.UUID) (Order, error)
 }
 
 // CreateNewMove creates a move associated with these Orders
-func (o *Order) CreateNewMove(db *pop.Connection, moveType *SelectedMoveType) (*Move, *validate.Errors, error) {
+func (o *Order) CreateNewMove(db *pop.Connection, moveType *SelectedMoveType, goldenTicketCode *string) (*Move, *validate.Errors, error) {
+	if goldenTicketCode != nil {
+		return createGoldenTicketMove(db, *o, moveType, *goldenTicketCode)
+	}
 	return createNewMove(db, *o, moveType)
 }
 

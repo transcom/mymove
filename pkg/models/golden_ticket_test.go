@@ -15,41 +15,13 @@ type GoldenTicketSuite struct {
 	testingsuite.PopTestSuite
 }
 
+func (suite *GoldenTicketSuite) SetupTest() {
+	suite.DB().TruncateAll()
+}
+
 func TestGoldenTicketSuite(t *testing.T) {
 	hs := &GoldenTicketSuite{PopTestSuite: testingsuite.NewPopTestSuite()}
 	suite.Run(t, hs)
-}
-
-func (suite *GoldenTicketSuite) SetupTest() {
-	goldenTicketDDL := suite.DB().RawQuery(`
-CREATE TABLE IF NOT EXISTS golden_tickets
-(
-  id         uuid CONSTRAINT golden_tickets_pk PRIMARY KEY,
-  move_id    uuid CONSTRAINT move_id__fk REFERENCES moves,
-  code       text,
-  move_type text,
-  created_at timestamp NOT NULL,
-  updated_at timestamp NOT NULL
-);
-
-CREATE UNIQUE INDEX IF NOT EXISTS golden_tickets_code_uindex
-  ON golden_tickets (code);`)
-
-	err := goldenTicketDDL.Exec()
-	suite.Nil(err)
-
-}
-func (suite *GoldenTicketSuite) TearDownTest() {
-	removeGoldenTicket := suite.DB().RawQuery(`drop table if exists golden_tickets;`)
-	err := removeGoldenTicket.Exec()
-	suite.Nil(err)
-}
-
-func (suite *GoldenTicketSuite) TestGoldenTicket() {
-	exists := suite.DB().RawQuery(`select 1 from golden_tickets;`)
-	err := exists.Exec()
-
-	suite.Nil(err)
 }
 
 func (suite *GoldenTicketSuite) TestMakeGoldenTicket() {
