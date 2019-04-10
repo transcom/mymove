@@ -38,6 +38,7 @@ type Assertions struct {
 	Order                                    models.Order
 	PersonallyProcuredMove                   models.PersonallyProcuredMove
 	Reimbursement                            models.Reimbursement
+	SignedCertification                      models.SignedCertification
 	ServiceAgent                             models.ServiceAgent
 	ServiceMember                            models.ServiceMember
 	Shipment                                 models.Shipment

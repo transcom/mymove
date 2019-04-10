@@ -62,3 +62,23 @@ func IsDPSUser(db *pop.Connection, email string) (bool, error) {
 	}
 	return count > 0, nil
 }
+
+// FetchDPSUserByEmail looks for an DPS user with a specific email
+func FetchDPSUserByEmail(tx *pop.Connection, email string) (*DpsUser, error) {
+	var users DpsUsers
+	err := tx.Where("login_gov_email = $1", strings.ToLower(email)).All(&users)
+	if err != nil {
+		return nil, err
+	}
+	if len(users) == 0 {
+		return nil, ErrFetchNotFound
+	}
+	return &users[0], nil
+}
+
+// FetchDPSUserByID fetches an DPS user by ID
+func FetchDPSUserByID(tx *pop.Connection, id uuid.UUID) (*DpsUser, error) {
+	var user DpsUser
+	err := tx.Find(&user, id)
+	return &user, err
+}

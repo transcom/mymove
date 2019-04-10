@@ -4,10 +4,6 @@
   margin-bottom: 4em;
 }
 
-.queue-table-scrollable {
-  overflow-x: scroll;
-}
-
 .fake-link {
   text-decoration: underline;
   color: blue;

@@ -100,6 +100,8 @@ function officeUserStartsAndCancelsSitApproval() {
       expect(text).to.not.include('Edit');
     });
 
+  cy.get('input[name="authorized_start_date"]').should('have.value', '3/22/2019');
+
   cy
     .get('.usa-button-secondary')
     .contains('Cancel')
