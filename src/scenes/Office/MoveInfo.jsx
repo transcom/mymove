@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { capitalize, get, includes } from 'lodash';
+import { capitalize, get, includes, some, isEmpty } from 'lodash';
 
 import { NavTab, RoutedTabs } from 'react-router-tabs';
 import { Link, NavLink, Redirect, Switch } from 'react-router-dom';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import { getStorageInTransitsForShipment, selectStorageInTransits } from 'shared/Entities/modules/storageInTransits';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import LocationsContainer from './Hhg/LocationsContainer';
 import Alert from 'shared/Alert'; // eslint-disable-line
@@ -31,7 +32,7 @@ import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
 import StorageInTransitPanel from 'shared/StorageInTransit/StorageInTransitPanel.jsx';
 import InvoicePanel from 'shared/Invoice/InvoicePanel.jsx';
-import ComboButton from 'shared/ComboButton/index.jsx';
+import ComboButton from 'shared/ComboButton';
 import ToolTip from 'shared/ToolTip';
 import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';
 
@@ -45,7 +46,6 @@ import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shar
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
 import {
   approveShipment,
-  completeShipment,
   getPublicShipment,
   selectShipment,
   selectShipmentStatus,
@@ -65,6 +65,7 @@ import {
 } from 'shared/Entities/modules/moves';
 import { formatDate } from 'shared/formatters';
 import { getMoveDocumentsForMove, selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import SitStatusIcon from 'shared/StorageInTransit/SitStatusIcon';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -75,6 +76,7 @@ import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
+import moment from 'moment';
 
 const BasicsTabContent = props => {
   return (
@@ -178,12 +180,34 @@ class MoveInfo extends Component {
     this.props.resetRequests();
   }
 
+  get allAreApproved() {
+    const {
+      move: { selected_move_type },
+      moveStatus,
+      ppm,
+      shipmentStatus,
+    } = this.props;
+    const isPPM = selected_move_type === 'PPM';
+    const isHHG = selected_move_type === 'HHG';
+    const moveApproved = moveStatus === 'APPROVED';
+    const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
+    const hhgApproved = includes(['APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
+
+    if (isPPM) {
+      return moveApproved && ppmApproved;
+    } else if (isHHG) {
+      return moveApproved && hhgApproved;
+    }
+    // hhg_ppm move
+    return moveApproved && ppmApproved && hhgApproved;
+  }
   getAllShipmentInfo = shipmentId => {
     this.props.getTspForShipment(shipmentId);
     this.props.getPublicShipment(shipmentId);
     this.props.getAllShipmentLineItems(shipmentId);
     this.props.getAllInvoices(shipmentId);
     this.props.getServiceAgentsForShipment(shipmentId);
+    this.props.getStorageInTransitsForShipment(shipmentId);
   };
 
   approveBasics = () => {
@@ -191,15 +215,12 @@ class MoveInfo extends Component {
   };
 
   approvePPM = () => {
-    this.props.approvePPM(this.props.ppm.id);
+    const approveDate = moment().format();
+    this.props.approvePPM(this.props.ppm.id, approveDate);
   };
 
   approveShipment = () => {
     this.props.approveShipment(this.props.shipmentId);
-  };
-
-  completeShipment = () => {
-    this.props.completeShipment(this.props.shipmentId);
   };
 
   cancelMoveAndRedirect = cancelReason => {
@@ -253,17 +274,15 @@ class MoveInfo extends Component {
       shipment,
       shipmentStatus,
       serviceMember,
+      storageInTransits,
       upload,
     } = this.props;
     const isPPM = move.selected_move_type === 'PPM';
     const isHHG = move.selected_move_type === 'HHG';
     const isHHGPPM = move.selected_move_type === 'HHG_PPM';
-    const pathnames = this.props.location.pathname.split('/');
-    const currentTab = pathnames[pathnames.length - 1];
     const showDocumentViewer = this.props.context.flags.documentViewer;
     const moveInfoComboButton = this.props.context.flags.moveInfoComboButton;
     const allowHhgInvoicePayment = this.props.context.flags.allowHhgInvoicePayment;
-    let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
     const ordersComplete = Boolean(
       orders.orders_number && orders.orders_type_detail && orders.department_indicator && orders.tac,
     );
@@ -274,6 +293,8 @@ class MoveInfo extends Component {
     const hhgCompleted = shipmentStatus === 'COMPLETED';
     const moveApproved = moveStatus === 'APPROVED';
     const hhgCantBeCanceled = includes(['IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
+
+    const hasRequestedSIT = !isEmpty(storageInTransits) && some(storageInTransits, sit => sit.status === 'REQUESTED');
 
     const moveDate = isPPM ? ppm.original_move_date : shipment && shipment.requested_pickup_date;
     if (this.state.redirectToHome) {
@@ -347,8 +368,12 @@ class MoveInfo extends Component {
                 <NavTab to="/hhg">
                   <span className="title">HHG</span>
                   <span className="status">
-                    <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
-                    {capitalize(shipmentStatus)}
+                    {hasRequestedSIT ? (
+                      <SitStatusIcon isTspSite={false} />
+                    ) : (
+                      <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
+                    )}
+                    {hasRequestedSIT ? 'SIT requested' : capitalize(shipmentStatus)}
                   </span>
                 </NavTab>
               )}
@@ -398,7 +423,11 @@ class MoveInfo extends Component {
                   toolTipText="Some information about the move is missing or contains errors. Please fix these problems before approving."
                 >
                   {moveInfoComboButton && (
-                    <ComboButton buttonText="Approve" disabled={!ordersComplete}>
+                    <ComboButton
+                      allAreApproved={this.allAreApproved}
+                      buttonText={`Approve${this.allAreApproved ? 'd' : ''}`}
+                      disabled={this.allAreApproved || !ordersComplete}
+                    >
                       <DropDown>
                         <DropDownItem
                           value="Approve Basics"
@@ -423,70 +452,21 @@ class MoveInfo extends Component {
                     </ComboButton>
                   )}
                 </ToolTip>
+                <ConfirmWithReasonButton
+                  buttonTitle="Cancel Move"
+                  reasonPrompt="Why is the move being canceled?"
+                  warningPrompt="Are you sure you want to cancel the entire move?"
+                  onConfirm={this.cancelMoveAndRedirect}
+                  buttonDisabled={hhgCantBeCanceled}
+                />
               </div>
-              <button
-                className={`${moveApproved ? 'btn__approve--green' : ''}`}
-                onClick={this.approveBasics}
-                disabled={moveApproved || !ordersComplete}
-              >
-                Approve Basics
-                {moveApproved && check}
-              </button>
-
-              {(isPPM || isHHGPPM) && (
-                <button
-                  className={`${ppmApproved ? 'btn__approve--green' : ''}`}
-                  onClick={this.approvePPM}
-                  disabled={ppmApproved || !moveApproved || !ordersComplete}
-                >
-                  Approve PPM
-                  {ppmApproved && check}
-                </button>
-              )}
-              {(isHHG || isHHGPPM) && (
-                <button
-                  className={`${hhgApproved ? 'btn__approve--green' : ''}`}
-                  onClick={this.approveShipment}
-                  disabled={
-                    !hhgAccepted ||
-                    hhgApproved ||
-                    hhgCompleted ||
-                    !moveApproved ||
-                    !ordersComplete ||
-                    currentTab !== 'hhg'
-                  }
-                >
-                  Approve HHG
-                  {hhgApproved && check}
-                </button>
-              )}
-              {(isHHG || isHHGPPM) && (
-                <button
-                  className={`${hhgCompleted ? 'btn__approve--green' : ''}`}
-                  onClick={this.completeShipment}
-                  disabled={!hhgDelivered || hhgCompleted || !moveApproved || !ordersComplete || currentTab !== 'hhg'}
-                >
-                  Complete Shipments
-                  {hhgCompleted && check}
-                </button>
-              )}
-              <ConfirmWithReasonButton
-                buttonTitle="Cancel Move"
-                reasonPrompt="Why is the move being canceled?"
-                warningPrompt="Are you sure you want to cancel the entire move?"
-                onConfirm={this.cancelMoveAndRedirect}
-                buttonDisabled={hhgCantBeCanceled}
-              />
-              {/* Disabling until features implemented
-              <button>Troubleshoot</button>
-              */}
             </div>
             <div className="documents">
               <h2 className="extras usa-heading">
                 Documents
                 {!showDocumentViewer && <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />}
                 {showDocumentViewer && (
-                  <Link to={`/moves/${move.id}/documents`} target="_blank">
+                  <Link to={`/moves/${move.id}/documents`} target="_blank" aria-label="Documents">
                     <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
                   </Link>
                 )}
@@ -571,6 +551,7 @@ const mapStateToProps = (state, ownProps) => {
     shipmentId,
     shipmentLineItems: selectSortedShipmentLineItems(state),
     shipmentStatus: selectShipmentStatus(state, shipmentId),
+    storageInTransits: selectStorageInTransits(state, shipmentId),
     swaggerError: get(state, 'swagger.hasErrored'),
     tariff400ngItems: selectTariff400ngItems(state),
     upload: get(orders, 'uploaded_orders.uploads.0', {}),
@@ -586,13 +567,13 @@ const mapDispatchToProps = dispatch =>
       approveBasics,
       approvePPM,
       approveShipment,
-      completeShipment,
       cancelMove,
       getAllTariff400ngItems,
       getAllShipmentLineItems,
       getAllInvoices,
       getTspForShipment,
       getServiceAgentsForShipment,
+      getStorageInTransitsForShipment,
       showBanner,
       removeBanner,
       loadMove,

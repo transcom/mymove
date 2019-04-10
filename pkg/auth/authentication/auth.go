@@ -121,6 +121,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			session.IDToken = ""
 			session.UserID = uuid.Nil
 			auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
+			auth.DeleteCSRFCookies(w)
 			fmt.Fprint(w, logoutURL)
 		} else {
 			// Can't log out of login.gov without a token, redirect and let them re-auth
@@ -270,53 +271,57 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 		session.DpsUserID = *(userIdentity.DpsUserID)
 	}
 
-	if userIdentity.OfficeUserID != nil {
-		session.OfficeUserID = *(userIdentity.OfficeUserID)
-	} else if session.IsOfficeApp() {
-		// In case they managed to login before the office_user record was created
-		officeUser, err := models.FetchOfficeUserByEmail(h.db, session.Email)
-		if err == models.ErrFetchNotFound {
-			h.logger.Error("Non-office user authenticated at office site", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-			return
-		} else if err != nil {
-			h.logger.Error("Checking for office user", zap.String("email", session.Email), zap.Error(err))
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-			return
-		}
-		session.OfficeUserID = officeUser.ID
-		span.AddField("session.office_user_id", session.OfficeUserID)
-		officeUser.UserID = &userIdentity.ID
-		err = h.db.Save(officeUser)
-		if err != nil {
-			h.logger.Error("Updating office user", zap.String("email", session.Email), zap.Error(err))
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-			return
+	if session.IsOfficeApp() {
+		if userIdentity.OfficeUserID != nil {
+			session.OfficeUserID = *(userIdentity.OfficeUserID)
+		} else {
+			// In case they managed to login before the office_user record was created
+			officeUser, err := models.FetchOfficeUserByEmail(h.db, session.Email)
+			if err == models.ErrFetchNotFound {
+				h.logger.Error("Non-office user authenticated at office site", zap.String("email", session.Email))
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			} else if err != nil {
+				h.logger.Error("Checking for office user", zap.String("email", session.Email), zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+			session.OfficeUserID = officeUser.ID
+			span.AddField("session.office_user_id", session.OfficeUserID)
+			officeUser.UserID = &userIdentity.ID
+			err = h.db.Save(officeUser)
+			if err != nil {
+				h.logger.Error("Updating office user", zap.String("email", session.Email), zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
 		}
 	}
 
-	if userIdentity.TspUserID != nil {
-		session.TspUserID = *(userIdentity.TspUserID)
-	} else if session.IsTspApp() {
-		// In case they managed to login before the tsp_user record was created
-		tspUser, err := models.FetchTspUserByEmail(h.db, session.Email)
-		if err == models.ErrFetchNotFound {
-			h.logger.Error("Non-TSP user authenticated at tsp site", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-			return
-		} else if err != nil {
-			h.logger.Error("Checking for TSP user", zap.String("email", session.Email), zap.Error(err))
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-			return
-		}
-		session.TspUserID = tspUser.ID
-		span.AddField("session.tsp_user_id", session.TspUserID)
-		tspUser.UserID = &userIdentity.ID
-		err = h.db.Save(tspUser)
-		if err != nil {
-			h.logger.Error("Updating TSP user", zap.String("email", session.Email), zap.Error(err))
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-			return
+	if session.IsTspApp() {
+		if userIdentity.TspUserID != nil {
+			session.TspUserID = *(userIdentity.TspUserID)
+		} else {
+			// In case they managed to login before the tsp_user record was created
+			tspUser, err := models.FetchTspUserByEmail(h.db, session.Email)
+			if err == models.ErrFetchNotFound {
+				h.logger.Error("Non-TSP user authenticated at tsp site", zap.String("email", session.Email))
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			} else if err != nil {
+				h.logger.Error("Checking for TSP user", zap.String("email", session.Email), zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+			session.TspUserID = tspUser.ID
+			span.AddField("session.tsp_user_id", session.TspUserID)
+			tspUser.UserID = &userIdentity.ID
+			err = h.db.Save(tspUser)
+			if err != nil {
+				h.logger.Error("Updating TSP user", zap.String("email", session.Email), zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
 		}
 	}
 	session.FirstName = userIdentity.FirstName()

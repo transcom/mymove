@@ -199,9 +199,13 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 	req := httptest.NewRequest("POST", "/personally_procured_moves/some_id/approve", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
+	newApprovePersonallyProcuredMovePayload := internalmessages.ApprovePersonallyProcuredMovePayload{
+		ApproveDate: strfmt.DateTime(time.Now()),
+	}
 	params := officeop.ApprovePPMParams{
-		HTTPRequest:              req,
-		PersonallyProcuredMoveID: strfmt.UUID(ppm.ID.String()),
+		HTTPRequest:                          req,
+		PersonallyProcuredMoveID:             strfmt.UUID(ppm.ID.String()),
+		ApprovePersonallyProcuredMovePayload: &newApprovePersonallyProcuredMovePayload,
 	}
 
 	// And: a ppm is approved
@@ -227,9 +231,13 @@ func (suite *HandlerSuite) TestApprovePPMHandlerForbidden() {
 	req := httptest.NewRequest("POST", "/personally_procured_moves/some_id/approve", nil)
 	req = suite.AuthenticateRequest(req, user)
 
+	newApprovePersonallyProcuredMovePayload := internalmessages.ApprovePersonallyProcuredMovePayload{
+		ApproveDate: strfmt.DateTime(time.Now()),
+	}
 	params := officeop.ApprovePPMParams{
-		HTTPRequest:              req,
-		PersonallyProcuredMoveID: strfmt.UUID(ppm.ID.String()),
+		HTTPRequest:                          req,
+		PersonallyProcuredMoveID:             strfmt.UUID(ppm.ID.String()),
+		ApprovePersonallyProcuredMovePayload: &newApprovePersonallyProcuredMovePayload,
 	}
 
 	// And: a ppm is approved

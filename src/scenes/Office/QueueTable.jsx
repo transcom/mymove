@@ -136,8 +136,10 @@ class QueueTable extends Component {
             ]}
             data={this.state.data}
             loading={this.state.loading} // Display the loading overlay when we need it
+            defaultSorted={[{ id: 'move_date', asc: true }]}
             pageSize={this.state.data.length}
             className="-striped -highlight"
+            showPagination={false}
             getTrProps={(state, rowInfo) => ({
               onDoubleClick: e => this.props.history.push(`new/moves/${rowInfo.original.id}`),
             })}

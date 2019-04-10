@@ -32,5 +32,3 @@ If you would like to run an individual hook, for example if you want to only run
 | go-vet | Attempts to examines Go source code and reports suspicious constructs, such as Printf calls whose arguments do not align with the format string.
 | gosec | Inspects source code for security problems by scanning the Go AST. For more see [here](https://github.com/securego/gosec).
 | gen-docs |Attempts to generate table of contents for the [docs/README](docs/README.md) file in doc folder.
-| dep-version | checks the dep version.
-| dep-check | Runs the command `dep check` to ensure dependencies are in sync with the `Gopkg.toml` file.

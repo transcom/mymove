@@ -215,6 +215,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("http-my-server-name", "milmovelocal", "Hostname according to environment.")
 	flag.String("http-office-server-name", "officelocal", "Hostname according to environment.")
 	flag.String("http-tsp-server-name", "tsplocal", "Hostname according to environment.")
+	flag.String("http-admin-server-name", "adminlocal", "Hostname according to environment.")
 	flag.String("http-orders-server-name", "orderslocal", "Hostname according to environment.")
 	flag.String("http-dps-server-name", "dpslocal", "Hostname according to environment.")
 
@@ -605,6 +606,7 @@ func checkHosts(v *viper.Viper) error {
 		"http-my-server-name",
 		"http-office-server-name",
 		"http-tsp-server-name",
+		"http-admin-server-name",
 		"http-orders-server-name",
 		"http-dps-server-name",
 		"http-sddc-server-name",
@@ -870,18 +872,25 @@ func main() {
 		}
 	}
 
-	myHostname := v.GetString("http-my-server-name")
-	officeHostname := v.GetString("http-office-server-name")
-	tspHostname := v.GetString("http-tsp-server-name")
+	// Collect the servernames into a handy struct
+	appnames := auth.ApplicationServername{
+		MilServername:    v.GetString("http-my-server-name"),
+		OfficeServername: v.GetString("http-office-server-name"),
+		TspServername:    v.GetString("http-tsp-server-name"),
+		AdminServername:  v.GetString("http-admin-server-name"),
+		OrdersServername: v.GetString("http-orders-server-name"),
+		DpsServername:    v.GetString("http-dps-server-name"),
+		SddcServername:   v.GetString("http-sddc-server-name"),
+	}
 
 	// Register Login.gov authentication provider for My.(move.mil)
 	loginGovProvider := authentication.NewLoginGovProvider(loginGovHostname, loginGovSecretKey, logger)
 	err = loginGovProvider.RegisterProvider(
-		myHostname,
+		appnames.MilServername,
 		v.GetString("login-gov-my-client-id"),
-		officeHostname,
+		appnames.OfficeServername,
 		v.GetString("login-gov-office-client-id"),
-		tspHostname,
+		appnames.TspServername,
 		v.GetString("login-gov-tsp-client-id"),
 		loginGovCallbackProtocol,
 		loginGovCallbackPort)
@@ -892,8 +901,8 @@ func main() {
 	useSecureCookie := !isDevOrTest
 	// Session management and authentication middleware
 	noSessionTimeout := v.GetBool("no-session-timeout")
-	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout, myHostname, officeHostname, tspHostname, useSecureCookie)
-	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, noSessionTimeout, useSecureCookie)
+	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout, appnames, useSecureCookie)
+	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, useSecureCookie)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 	clientCertMiddleware := authentication.ClientCertMiddleware(logger, dbConnection)
 
@@ -1037,7 +1046,6 @@ func main() {
 	}
 	handlerContext.SetIWSPersonLookup(*rbs)
 
-	sddcHostname := v.GetString("http-sddc-server-name")
 	dpsAuthSecretKey := v.GetString("dps-auth-secret-key")
 	dpsCookieDomain := v.GetString("dps-cookie-domain")
 	dpsCookieSecret := []byte(v.GetString("dps-auth-cookie-secret-key"))
@@ -1045,7 +1053,7 @@ func main() {
 	handlerContext.SetDPSAuthParams(
 		dpsauth.Params{
 			SDDCProtocol:   v.GetString("http-sddc-protocol"),
-			SDDCHostname:   sddcHostname,
+			SDDCHostname:   appnames.SddcServername,
 			SDDCPort:       v.GetString("http-sddc-port"),
 			SecretKey:      dpsAuthSecretKey,
 			DPSRedirectURL: v.GetString("dps-redirect-url"),
@@ -1142,7 +1150,7 @@ func main() {
 	}
 
 	ordersMux := goji.SubMux()
-	ordersDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, v.GetString("http-orders-server-name"))
+	ordersDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.OrdersServername)
 	ordersMux.Use(ordersDetectionMiddleware)
 	ordersMux.Use(noCacheMiddleware)
 	ordersMux.Use(clientCertMiddleware)
@@ -1157,7 +1165,7 @@ func main() {
 	site.Handle(pat.New("/orders/v1/*"), ordersMux)
 
 	dpsMux := goji.SubMux()
-	dpsDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, v.GetString("http-dps-server-name"))
+	dpsDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.DpsServername)
 	dpsMux.Use(dpsDetectionMiddleware)
 	dpsMux.Use(noCacheMiddleware)
 	dpsMux.Use(clientCertMiddleware)
@@ -1172,7 +1180,7 @@ func main() {
 	site.Handle(pat.New("/dps/v0/*"), dpsMux)
 
 	sddcDPSMux := goji.SubMux()
-	sddcDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, sddcHostname)
+	sddcDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.SddcServername)
 	sddcDPSMux.Use(sddcDetectionMiddleware)
 	sddcDPSMux.Use(noCacheMiddleware)
 	site.Handle(pat.New("/dps_auth/*"), sddcDPSMux)
@@ -1193,7 +1201,7 @@ func main() {
 		logger.Fatal("Failed to decode csrf auth key", zap.Error(err))
 	}
 	logger.Info("Enabling CSRF protection")
-	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/")))
+	root.Use(csrf.Protect(csrfAuthKey, csrf.Secure(!isDevOrTest), csrf.Path("/"), csrf.CookieName(auth.GorillaCSRFToken)))
 	root.Use(maskedCSRFMiddleware)
 
 	// Sends build variables to honeycomb
@@ -1253,9 +1261,9 @@ func main() {
 		localAuthMux := goji.SubMux()
 		root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)
 		localAuthMux.Handle(pat.Get("/login"), authentication.NewUserListHandler(authContext, dbConnection))
-		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
-		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
-		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
+		localAuthMux.Handle(pat.Post("/login"), authentication.NewAssignUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
+		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
+		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 
 		devlocalCa, err := ioutil.ReadFile(v.GetString("devlocal-ca")) // #nosec
 		if err != nil {

@@ -12,7 +12,7 @@ Use soda (a part of [pop](https://github.com/gobuffalo/pop/)) to generate migrat
 
 ### Generating a New Model
 
-If you are generating a new model, use: `./bin/gen_model model-name column-name:type column-name:type ...`. The fields `id`, `created_at`, and `updated_at` are all created automatically.
+If you are generating a new model, use: `./scripts/gen-model model-name column-name:type column-name:type ...`. The fields `id`, `created_at`, and `updated_at` are all created automatically.
 
 ### Modifying an Existing Model
 
@@ -35,33 +35,39 @@ Similarly, if a column needs to be dropped, we should deprecate the column in on
 
 We are piggy-backing on the migration system for importing static datasets. This approach causes problems if the data isn't public, as all of the migrations are in this open source repository. To address this, we have what are called "secure migrations."
 
-To create a secure migration:
+### Creating Secure Migrations
 
-1. Generate new migration files: `bin/generate-secure-migration <migration_name>`. This creates two migration files:
+1. Generate new migration files: `scripts/generate-secure-migration <migration_name>`. This creates two migration files:
     * a local test file with no secret data
     * a production file to be uploaded to S3 and contain sensitive data
 2. Edit the production migration first, and put whatever sensitive data in it that you need to.
 3. Copy the production migration into the local test migration.
 4. Scrub the test migration of sensitive data, but use it to test the gist of the production migration operation.
 5. Test the local migration by running `make db_dev_migrate`. You should see it run your local migration.
-6. Test the secure migration by running `bin/run-prod-migrations` to setup a local  prod_migrations` database. Then run `env DB_NAME=prod_migrations bin/psql < tmp/$NAME_OF_YOUR_SECURE_MIGRATION`. Verify that the updated values are in the database.
+6. Test the secure migration by running `make run_prod_migrations` to setup a local  prod_migrations` database. Then run `psql-prod-migrations< tmp/$NAME_OF_YOUR_SECURE_MIGRATION`. Verify that the updated values are in the database.
 7. If you are wanting to run a secure migration for a specific non-production environment, then **skip to the next section**.
-8. Upload the migration to S3 with: `bin/upload-secure-migration <production_migration_file>`.
-9. Run `bin/run-prod-migrations` to verify that the upload worked and that the migration can be applied successfully. If not, you can make changes and run `bin/upload-secure-migration` again and it will overwrite the old files.
+8. Upload the migration to S3 with: `scripts/upload-secure-migration <production_migration_file>`.
+9. Run `make run_prod_migrations` to verify that the upload worked and that the migration can be applied successfully. If not, you can make changes and run `scripts/upload-secure-migration` again and it will overwrite the old files.
 10. Once the migration is working properly, **delete the secure migration from your `tmp` directory** if you didn't delete it in step 8.
 11. Open a pull request!
 12. When the pull request lands, the production migrations will be run on Staging and Prod.
 
 ### Running a Secure Migration on Specific Environments
 
+### Secure Migrations for One Environment
+
 To run a secure migration on ONLY staging (or other chosen environment), upload the migration only to the S3 environment and blank files to the others:
 
-7. Instead of the "Upload the migration" step above, run `aws s3 cp --sse AES256 $YOUR_TMP_MIGRATION_FILE s3://transcom-ppp-app-staging-us-west-2/secure-migrations/`
-8. Check that it is listed in the S3 staging secure-migrations folder: `aws s3 ls s3://transcom-ppp-app-staging-us-west-2/secure-migrations/`
-9. Check that it is NOT listed in the S3 production folder: `aws s3 ls s3://transcom-ppp-app-prod-us-west-2/secure-migrations/`
-10. Now upload empty files of the same name to the prod environment: `aws s3 cp --sse AES256 $YOUR_EMPTY_TMP_MIGRATION_FILE s3://transcom-ppp-app-prod-us-west-2/secure-migrations/`
-11. Now upload empty files of the same name to the experimental environment: `aws s3 cp --sse AES256 $YOUR_EMPTY_TMP_MIGRATION_FILE s3://transcom-ppp-app-experimental-us-west-2/secure-migrations/`
-12. To verify upload and that the migration can be applied, temporarily change the S3 bucket to the staging bucket in the run-prod-migration file and then run `bin/run-prod-migrations`
+1. Instead of the "Upload the migration" step above, run `aws s3 cp --sse AES256 $YOUR_TMP_MIGRATION_FILE s3://transcom-ppp-app-staging-us-west-2/secure-migrations/`
+2. Check that it is listed in the S3 staging secure-migrations folder: `aws s3 ls s3://transcom-ppp-app-staging-us-west-2/secure-migrations/`
+3. Check that it is NOT listed in the S3 production folder: `aws s3 ls s3://transcom-ppp-app-prod-us-west-2/secure-migrations/`
+4. Now upload empty files of the same name to the prod environment: `aws s3 cp --sse AES256 $YOUR_EMPTY_TMP_MIGRATION_FILE s3://transcom-ppp-app-prod-us-west-2/secure-migrations/`
+5. Now upload empty files of the same name to the experimental environment: `aws s3 cp --sse AES256 $YOUR_EMPTY_TMP_MIGRATION_FILE s3://transcom-ppp-app-experimental-us-west-2/secure-migrations/`
+6. To verify upload and that the migration can be applied use the make target corresponding to your environment:
+
+* `make run_prod_migrations`
+* `make run_staging_migrations`
+* `make run_experimental_migrations`
 
 ### How Secure Migrations Work
 
@@ -70,6 +76,18 @@ When secure migrations are run, `soda` will shell out to our script, `apply-secu
 * Look at `$SECURE_MIGRATION_SOURCE` to determine if the migrations should be found locally (`local`, for dev & testing,) or on S3 (`s3`).
 * If the file is to be found on S3, it is downloaded from `${AWS_S3_BUCKET_NAME}/secure-migrations/${FILENAME}`.
 * If it is to be found locally, the script looks for it in `$SECURE_MIGRATION_DIR`.
-* Regardless of where the migration comes from, it is then applied to the database by essentially doing: `psql < ${FILENAME}`.
+* Regardless of where the migration comes from, it is then applied to the database by essentially doing: `psql-prod-migrations < ${FILENAME}`.
 
 There is an example of a secure migration [in the repo](https://github.com/transcom/mymove/blob/master/migrations/20180424010930_test_secure_migrations.up.fizz).
+
+### Downloading Secure Migrations
+
+**NOTE:** Be careful with downloading secure migrations. They often contain sensitive input and should be treated with care. When
+you are done with these secure migrations please delete them from your computer.
+
+You may need to download and inspect secure migrations. Or perhaps you need to correct a file you uploaded by mistake. Here is how you download the secure migrations:
+
+* Download the migration to S3 with: `scripts/download-secure-migration <production_migration_file>`
+* This will put files in `./tmp/secure_migrations/${environment}`.
+
+You can now inspect or modify and re-upload those files as needed.

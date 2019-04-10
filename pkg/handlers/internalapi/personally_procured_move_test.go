@@ -639,7 +639,7 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 	if err != nil {
 		t.Fatal("Should transition.")
 	}
-	err = ppm1.Approve()
+	err = ppm1.Approve(time.Now())
 	if err != nil {
 		t.Fatal("Should transition.")
 	}

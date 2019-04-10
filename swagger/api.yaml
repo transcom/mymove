@@ -361,8 +361,10 @@ definitions:
         x-nullable: true
       crate_dimensions:
         $ref: '#/definitions/Dimensions'
+        x-nullable: true
       item_dimensions:
         $ref: '#/definitions/Dimensions'
+        x-nullable: true
       notes:
         type: string
         format: textarea
@@ -395,6 +397,20 @@ definitions:
         minimum: 1
         title: Amount
         description: Unit is cents. Used for storing line haul charges.
+        x-nullable: true
+      date:
+        type: string
+        description: date of service or charge
+        format: date
+        example: '2018-10-21'
+        x-nullable: true
+      time:
+        type: string
+        description: time of service or charge in military time
+        example: '0400'
+        x-nullable: true
+      address:
+        $ref: '#/definitions/Address'
         x-nullable: true
       submitted_date:
         type: string
@@ -1704,14 +1720,14 @@ definitions:
       warehouse_phone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: '^$|^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
         title: Phone
       warehouse_email:
         type: string
         format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        pattern: '^$|^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
         title: Email
@@ -2132,18 +2148,6 @@ paths:
             - PICKUP_DATE_DESC
             - DELIVERY_DATE_ASC
             - DELIVERY_DATE_DESC
-        - name: limit
-          in: query
-          type: integer
-          description: maximum number of records to return
-          minimum: 1
-          default: 25
-        - name: offset
-          in: query
-          type: integer
-          description: offset into records to select from. Actual offset is this value multiplied by limit.
-          minimum: 1
-          default: 1
       responses:
         200:
           description: returns an array of Shipments
@@ -2744,6 +2748,8 @@ paths:
           description: user is not authorized
         404:
           description: shipment line item not found
+        422:
+          description: shipment line item not in state to update
         500:
           description: internal server error
     delete:

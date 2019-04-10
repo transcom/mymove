@@ -2,7 +2,7 @@
   border: 3px dashed #00a6d2;
   padding-left: 1.7rem;
   padding-right: 1.7rem;
-  padding-top: 8px;
+  padding-top: 16px;
   padding-bottom: 9px;
   margin-top: 20px;
 }
@@ -10,6 +10,7 @@
 .storage-in-transit-panel-modal .title {
   font-size: 2rem;
   font-weight: bold;
+  margin-top: 0.2em;
 }
 
 .storage-in-transit-hr-top {
@@ -30,7 +31,7 @@
   width: calc(60% + 1.9rem);
 }
 
-#sit-status-text {
+.sit-status-text {
   margin-left: 1.8em;
 }
 
@@ -60,9 +61,60 @@
 .column-subhead {
   margin-bottom: 4px;
   line-height: 1.5em;
-
 }
 
 .sit-notes .field-title {
   width: 100%;
 }
+
+.storage-in-transit-panel .sit-actions {
+  font-weight: normal;
+  margin-left: 1.5em;
+}
+
+.storage-in-transit-panel .sit-actions a {
+  text-decoration: none;
+}
+
+.storage-in-transit-panel-modal .usa-grid-full {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.approve-sit-link {
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: normal;
+}
+
+.deny-sit-link {
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: normal;
+}
+
+.storage-in-transit-office-approval-form {
+  font-weight: normal;
+}
+
+.storage-in-transit-office-approval-form textarea {
+  height: 9rem;
+}
+
+.storage-in-transit-office-deny-form {
+  font-weight: normal;
+}
+
+.place-in-sit-form {
+  font-weight: normal;
+}
+
+.storage-in-transit-office-deny-form textarea {
+  width: 45rem;
+  height: 6rem;
+}
+
+.storage-in-transit-request-form {
+  font-weight: normal;
+}
+

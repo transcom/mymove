@@ -5,3 +5,7 @@
 .combo-button-icon {
   margin-left: 20px;
 }
+
+.combo-button .btn__approve--green {
+  padding-left: 5px;
+}

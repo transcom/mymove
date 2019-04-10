@@ -1,10 +1,7 @@
 .queue-table {
   font-size: 0.75em;
   min-width: 1000px;
-}
-
-.queue-table-scrollable {
-  overflow-x: scroll;
+  margin-bottom: 4em;
 }
 
 .fake-link {

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -e
+
+# skip analyzing dutystationsloader until repeated tags from embedded types are fixed in Go1.12.2
+# https://github.com/golang/go/issues/30465
+go_vet_pkgs=$(go list ./... | grep -v /vendor/ | grep -v internal/pkg/dutystationsloader | tr "\n" " ")
+
+# shellcheck disable=SC2086
+go vet $go_vet_pkgs

@@ -362,7 +362,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	ppm2.Move.Approve()
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
 	ppm2.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	ppm2.Move.PersonallyProcuredMoves[0].Approve()
+	ppm2.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	models.SaveMoveDependencies(db, &ppm2.Move)
 
 	/*
@@ -410,7 +410,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	ppm3.Move.Approve()
 	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
 	ppm3.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	ppm3.Move.PersonallyProcuredMoves[0].Approve()
+	ppm3.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppm3.Move.PersonallyProcuredMoves[0].RequestPayment()
 	models.SaveMoveDependencies(db, &ppm3.Move)
 
@@ -1075,7 +1075,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			Status: models.ShipmentStatusDELIVERED,
+			Status:           models.ShipmentStatusDELIVERED,
+			ActualPickupDate: &nextValidMoveDateMinusFive,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -1116,7 +1117,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			Status: models.ShipmentStatusCOMPLETED,
+			Status:           models.ShipmentStatusCOMPLETED,
+			ActualPickupDate: &nextValidMoveDateMinusFive,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -1164,7 +1166,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			Status: models.ShipmentStatusDELIVERED,
+			Status:           models.ShipmentStatusDELIVERED,
+			ActualPickupDate: &nextValidMoveDateMinusFive,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -2190,6 +2193,103 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	models.SaveMoveDependencies(db, &hhg35.Move)
 
 	/*
+	 * Service member with accepted move for use in testing SIT panel with existing SIT request from TSP
+	 */
+	email = "hhg@sit.requested.panel"
+	offer36 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("05796fb0-3f9b-42bf-9873-ba60f23b50e2")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("dcd26e48-18a0-465a-ba36-1f71f6e5cccc"),
+			FirstName:     models.StringPointer("SIT"),
+			LastName:      models.StringPointer("Requested"),
+			Edipi:         models.StringPointer("1357924680"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("34ab47e2-334e-423c-9b24-1d9ce118b1cb"),
+			Locator:          "SITREQ",
+			SelectedMoveType: &selectedMoveTypeHHG,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("84d3a303-9b8b-4f95-8af4-d45e16aeb5c6"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusACCEPTED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID:         offer36.ShipmentID,
+			Shipment:           offer36.Shipment,
+			EstimatedStartDate: time.Date(2019, time.Month(3), 22, 0, 0, 0, 0, time.UTC),
+		},
+	})
+	hhg36 := offer36.Shipment
+	hhg36.Move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &hhg36.Move)
+
+	/*
+	 * Service member with in-transit shipment and approved SIT to be placed in SIT
+	 */
+	email = "hhg@sit.approved"
+	offer37 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("e558f9bc-5996-47dc-83fd-b8ee8bc78537")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("a6d36c52-f84e-46fd-b2d6-e9e56cfcc6b8"),
+			FirstName:     models.StringPointer("SIT"),
+			LastName:      models.StringPointer("Approved"),
+			Edipi:         models.StringPointer("1357924680"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("98c8ba5a-92ed-4e1d-b669-9dd41243b615"),
+			Locator:          "SITAPR",
+			SelectedMoveType: &selectedMoveTypeHHG,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("0e036dff-5843-48ce-bcd5-1b248635c1bd"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusINTRANSIT,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	authorizedStartDate := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID:          offer37.ShipmentID,
+			Shipment:            offer37.Shipment,
+			Status:              models.StorageInTransitStatusAPPROVED,
+			EstimatedStartDate:  time.Date(2019, time.Month(3), 22, 0, 0, 0, 0, time.UTC),
+			AuthorizedStartDate: &authorizedStartDate,
+		},
+	})
+	hhg37 := offer37.Shipment
+	hhg37.Move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &hhg37.Move)
+
+	/*
 	 * Service member with a ppm ready to request payment
 	 */
 	email = "ppm@requestingpay.ment"
@@ -2229,7 +2329,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	ppm5.Move.Approve()
 	// This is the same PPM model as ppm5, but this is the one that will be saved by SaveMoveDependencies
 	ppm5.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	ppm5.Move.PersonallyProcuredMoves[0].Approve()
+	ppm5.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	models.SaveMoveDependencies(db, &ppm5.Move)
 }
 

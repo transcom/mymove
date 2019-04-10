@@ -34,30 +34,6 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 		return nil
 	}
 
-	var amt *int64
-	if s.AmountCents != nil {
-		intVal := s.AmountCents.Int64()
-		amt = &intVal
-	}
-
-	var rate *int64
-	if s.AppliedRate != nil {
-		intVal := s.AppliedRate.Int64()
-		rate = &intVal
-	}
-
-	var estAmt *int64
-	if s.EstimateAmountCents != nil {
-		intVal := s.EstimateAmountCents.Int64()
-		estAmt = &intVal
-	}
-
-	var actAmt *int64
-	if s.ActualAmountCents != nil {
-		intVal := s.ActualAmountCents.Int64()
-		actAmt = &intVal
-	}
-
 	return &apimessages.ShipmentLineItem{
 		ID:                  *handlers.FmtUUID(s.ID),
 		ShipmentID:          *handlers.FmtUUID(s.ShipmentID),
@@ -73,10 +49,13 @@ func payloadForShipmentLineItemModel(s *models.ShipmentLineItem) *apimessages.Sh
 		InvoiceID:           handlers.FmtUUIDPtr(s.InvoiceID),
 		ItemDimensions:      payloadForDimensionsModel(&s.ItemDimensions),
 		CrateDimensions:     payloadForDimensionsModel(&s.CrateDimensions),
-		EstimateAmountCents: estAmt,
-		ActualAmountCents:   actAmt,
-		AmountCents:         amt,
-		AppliedRate:         rate,
+		EstimateAmountCents: handlers.FmtCost(s.EstimateAmountCents),
+		ActualAmountCents:   handlers.FmtCost(s.ActualAmountCents),
+		AmountCents:         handlers.FmtCost(s.AmountCents),
+		AppliedRate:         handlers.FmtMilliCentsPtr(s.AppliedRate),
+		Date:                handlers.FmtDatePtr(s.Date),
+		Time:                s.Time,
+		Address:             payloadForAddressModel(&s.Address),
 		SubmittedDate:       *handlers.FmtDateTime(s.SubmittedDate),
 		ApprovedDate:        handlers.FmtDateTime(s.ApprovedDate),
 	}
@@ -245,24 +224,16 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 		}
 	}
 
-	var estAmtCents *unit.Cents
-	var actAmtCents *unit.Cents
-	if params.Payload.EstimateAmountCents != nil {
-		centsValue := unit.Cents(*params.Payload.EstimateAmountCents)
-		estAmtCents = &centsValue
-	}
-	if params.Payload.ActualAmountCents != nil {
-		centsValue := unit.Cents(*params.Payload.ActualAmountCents)
-		actAmtCents = &centsValue
-	}
-
 	additionalParams := models.AdditionalShipmentLineItemParams{
 		ItemDimensions:      itemDimensions,
 		CrateDimensions:     crateDimensions,
 		Description:         params.Payload.Description,
 		Reason:              params.Payload.Reason,
-		EstimateAmountCents: estAmtCents,
-		ActualAmountCents:   actAmtCents,
+		EstimateAmountCents: handlers.FmtInt64PtrToPopPtr(params.Payload.EstimateAmountCents),
+		ActualAmountCents:   handlers.FmtInt64PtrToPopPtr(params.Payload.ActualAmountCents),
+		Date:                handlers.FmtDatePtrToPopPtr(params.Payload.Date),
+		Time:                params.Payload.Time,
+		Address:             addressModelFromPayload(params.Payload.Address),
 	}
 
 	shipmentLineItem, verrs, err := shipment.CreateShipmentLineItem(h.DB(),
@@ -316,9 +287,15 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 	tariff400ngItemID := uuid.Must(uuid.FromString(params.Payload.Tariff400ngItemID.String()))
 	tariff400ngItem, err := models.FetchTariff400ngItem(h.DB(), tariff400ngItemID)
 	shipment := shipmentLineItem.Shipment
+	// 35A has special functionality to update ActualAmountCents if it is not invoiced and Status is approved
+	canUpdate35A := tariff400ngItem.Code == "35A" && shipmentLineItem.EstimateAmountCents != nil && shipmentLineItem.InvoiceID == nil
 
 	if !tariff400ngItem.RequiresPreApproval {
+		h.Logger().Error("Error: tariff400ng item " + tariff400ngItem.Code + " does not require pre-approval")
 		return accessorialop.NewUpdateShipmentLineItemForbidden()
+	} else if shipmentLineItem.Status == models.ShipmentLineItemStatusAPPROVED && !canUpdate35A {
+		h.Logger().Error("Error: cannot update shipment line item if status is approved or actual amount field already filled for tariff400ng item 35A")
+		return accessorialop.NewUpdateShipmentLineItemUnprocessableEntity()
 	}
 
 	baseParams := models.BaseShipmentLineItemParams{
@@ -346,23 +323,16 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 		}
 	}
 
-	var estAmtCents *unit.Cents
-	var actAmtCents *unit.Cents
-	if params.Payload.EstimateAmountCents != nil {
-		centsValue := unit.Cents(*params.Payload.EstimateAmountCents)
-		estAmtCents = &centsValue
-	}
-	if params.Payload.ActualAmountCents != nil {
-		centsValue := unit.Cents(*params.Payload.ActualAmountCents)
-		actAmtCents = &centsValue
-	}
 	additionalParams := models.AdditionalShipmentLineItemParams{
 		ItemDimensions:      itemDimensions,
 		CrateDimensions:     crateDimensions,
 		Description:         params.Payload.Description,
 		Reason:              params.Payload.Reason,
-		EstimateAmountCents: estAmtCents,
-		ActualAmountCents:   actAmtCents,
+		EstimateAmountCents: handlers.FmtInt64PtrToPopPtr(params.Payload.EstimateAmountCents),
+		ActualAmountCents:   handlers.FmtInt64PtrToPopPtr(params.Payload.ActualAmountCents),
+		Date:                handlers.FmtDatePtrToPopPtr(params.Payload.Date),
+		Time:                params.Payload.Time,
+		Address:             addressModelFromPayload(params.Payload.Address),
 	}
 
 	verrs, err := shipment.UpdateShipmentLineItem(h.DB(),

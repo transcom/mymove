@@ -35,6 +35,7 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 		OriginalMoveDate:              handlers.FmtDatePtr(personallyProcuredMove.OriginalMoveDate),
 		ActualMoveDate:                handlers.FmtDatePtr(personallyProcuredMove.ActualMoveDate),
 		SubmitDate:                    handlers.FmtDateTimePtr(personallyProcuredMove.SubmitDate),
+		ApproveDate:                   handlers.FmtDateTimePtr(personallyProcuredMove.ApproveDate),
 		NetWeight:                     personallyProcuredMove.NetWeight,
 		PickupPostalCode:              personallyProcuredMove.PickupPostalCode,
 		HasAdditionalPostalCode:       personallyProcuredMove.HasAdditionalPostalCode,
