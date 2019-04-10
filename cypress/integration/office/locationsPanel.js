@@ -164,12 +164,8 @@ function officeUserEntersLocations() {
     .clear()
     .type(pickupAddress.city)
     .blur();
-  cy
-    .get('input[name="pickup_address.state"]')
-    .first()
-    .clear()
-    .type(pickupAddress.state)
-    .blur();
+  cy.get('select[name="pickup_address.state"]').select(pickupAddress.state);
+
   cy
     .get('input[name="pickup_address.postal_code"]')
     .first()
@@ -222,12 +218,7 @@ function officeUserEntersLocations() {
     .clear()
     .type(secondaryPickupAddress.city)
     .blur();
-  cy
-    .get('input[name="secondary_pickup_address.state"]')
-    .first()
-    .clear()
-    .type(secondaryPickupAddress.state)
-    .blur();
+  cy.get('select[name="secondary_pickup_address.state"]').select(secondaryPickupAddress.state);
   cy
     .get('input[name="secondary_pickup_address.postal_code"]')
     .first()
@@ -269,12 +260,8 @@ function officeUserEntersLocations() {
     .clear()
     .type(deliveryAddress.city)
     .blur();
-  cy
-    .get('input[name="delivery_address.state"]')
-    .first()
-    .clear()
-    .type(deliveryAddress.state)
-    .blur();
+  cy.get('select[name="delivery_address.state"]').select(deliveryAddress.state);
+
   cy
     .get('input[name="delivery_address.postal_code"]')
     .first()
