@@ -1878,8 +1878,8 @@ definitions:
           TN: TN
           TX: TX
           UT: UT
-          VT: VT
           VA: VA
+          VT: VT
           WA: WA
           WV: WV
           WI: WI
@@ -1930,8 +1930,8 @@ definitions:
           - TN
           - TX
           - UT
-          - VT
           - VA
+          - VT
           - WA
           - WV
           - WI

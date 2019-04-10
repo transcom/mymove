@@ -19,12 +19,6 @@ export const AddressElementDisplay = ({ address, title }) => (
         <br />
       </span>
     )}
-    {address.street_address_3 && (
-      <span>
-        {address.street_address_3}
-        <br />
-      </span>
-    )}
     {address.city}, {address.state} {address.postal_code}
   </PanelField>
 );
@@ -37,7 +31,6 @@ AddressElementDisplay.propTypes = {
   address: PropTypes.shape({
     street_address_1: PropTypes.string,
     street_address_2: PropTypes.string,
-    street_address_3: PropTypes.string,
     city: PropTypes.string.isRequired,
     state: PropTypes.string.isRequired,
     postal_code: PropTypes.string.isRequired,
@@ -52,10 +45,18 @@ export class AddressElementEdit extends Component {
         <div className="panel-subhead">{this.props.title}</div>
         <SwaggerField fieldName="street_address_1" swagger={this.props.schema} required />
         <SwaggerField fieldName="street_address_2" swagger={this.props.schema} />
-        <SwaggerField fieldName="street_address_3" swagger={this.props.schema} />
         <SwaggerField fieldName="city" swagger={this.props.schema} required />
-        <SwaggerField fieldName="state" swagger={this.props.schema} required />
-        <SwaggerField fieldName="postal_code" swagger={this.props.schema} zipPattern={this.props.zipPattern} required />
+        <div className="usa-input">
+          <div />
+          <SwaggerField className="usa-width-one-half" fieldName="state" swagger={this.props.schema} required />
+          <SwaggerField
+            className="usa-width-one-half"
+            fieldName="postal_code"
+            swagger={this.props.schema}
+            zipPattern={this.props.zipPattern}
+            required
+          />
+        </div>
       </FormSection>
     );
   }
