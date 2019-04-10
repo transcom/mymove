@@ -146,7 +146,7 @@ admin_client_run: client_deps
 
 .PHONY: go_deps_update
 go_deps_update:
-	go get -u=patch
+	go get -u=patch -v
 	go mod tidy
 
 .PHONY: check_gopath
