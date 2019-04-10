@@ -13,6 +13,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+//GoldenTicket used to represent app access codes
 type GoldenTicket struct {
 	ID        uuid.UUID  `json:"id" db:"id"`
 	MoveID    *uuid.UUID `json:"move_id" db:"move_id"`
@@ -59,6 +60,7 @@ func (g *GoldenTicket) ValidateUpdate(tx *pop.Connection) (*validate.Errors, err
 	), nil
 }
 
+//MakeGoldenTicket generates a single GoldenTicket for a move type
 func MakeGoldenTicket(db *pop.Connection, moveType SelectedMoveType) (*GoldenTicket, *validate.Errors, error) {
 	var err error
 	var responseError error
@@ -75,15 +77,12 @@ func MakeGoldenTicket(db *pop.Connection, moveType SelectedMoveType) (*GoldenTic
 		responseError = errors.Wrap(err, "Error creating golden ticket")
 		return &GoldenTicket{}, responseVErrors, responseError
 	}
-	if err != nil {
-		responseError = errors.Wrap(err, "Error creating golden ticket")
-		return &GoldenTicket{}, responseVErrors, err
-	}
 	return &gt, responseVErrors, err
 }
 
+//GenerateGoldenTicketCode generates the codes associated with GoldenTickets
 func GenerateGoldenTicketCode() (string, error) {
-	// Not committing to uuid, yet, but just use a placeholder for now
+	// TODO Not committing to uuid, yet, but just use a placeholder for now
 	id, err := uuid.NewV4()
 	if err == nil {
 		return string(id.String()), nil
@@ -91,6 +90,7 @@ func GenerateGoldenTicketCode() (string, error) {
 	return "", err
 }
 
+//ValidateGoldenTicket checks whether a golden ticket code is valid and unused
 func ValidateGoldenTicket(db *pop.Connection, code string, move Move) (*GoldenTicket, bool) {
 	gt := GoldenTicket{}
 	err := db.
@@ -106,6 +106,7 @@ func ValidateGoldenTicket(db *pop.Connection, code string, move Move) (*GoldenTi
 	return &gt, true
 }
 
+//UseGoldenTicket associates a GoldenTicket w/ a move, effectively uses that code
 func UseGoldenTicket(db *pop.Connection, code string, move Move) (*GoldenTicket, *validate.Errors, error) {
 	var err error
 	var responseError error
@@ -128,8 +129,10 @@ func UseGoldenTicket(db *pop.Connection, code string, move Move) (*GoldenTicket,
 	return gt, responseVErrors, responseError
 }
 
+//GoldenTicketCounts map of move types and counts used to generate golden tickets
 type GoldenTicketCounts map[SelectedMoveType]int
 
+//MakeGoldenTickets generates a series of golden tickets as specified by GoldenTicketCounts
 func MakeGoldenTickets(db *pop.Connection, moveTypes GoldenTicketCounts) (GoldenTickets, *validate.Errors, error) {
 	verrs := validate.NewErrors()
 	var goldenTickets []GoldenTicket

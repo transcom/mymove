@@ -39,28 +39,32 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 func (suite *ModelSuite) TestCreateNewGoldenTicketMove() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	selectedMoveType := SelectedMoveTypeHHG
-	gt, verrs, err := MakeGoldenTicket(suite.DB(), SelectedMoveTypeHHG)
-	suite.Nil(err)
+	gt, verrs, gtErr := MakeGoldenTicket(suite.DB(), SelectedMoveTypeHHG)
+	suite.Nil(gtErr)
 	suite.False(verrs.HasAny())
 
-	_, verrs, err = orders.CreateNewMove(suite.DB(), &selectedMoveType, &gt.Code)
+	_, verrs, gtErr = orders.CreateNewMove(suite.DB(), &selectedMoveType, &gt.Code)
+	count, countErr := suite.DB().Count(&Move{})
 
-	suite.Nil(err)
+	suite.Nil(gtErr)
 	suite.NoVerrs(verrs)
+	suite.Nil(countErr)
+	suite.Equal(1, count)
 }
 
 func (suite *ModelSuite) TestCreateInvalidGoldenTicketMove() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	selectedMoveType := SelectedMoveTypeHHG
-	_, verrs, err := MakeGoldenTicket(suite.DB(), SelectedMoveTypeHHG)
-	suite.Nil(err)
-	suite.False(verrs.HasAny())
+	_, verrs, gtErr := MakeGoldenTicket(suite.DB(), SelectedMoveTypeHHG)
 
 	gtCode := "INVALID_CODE"
-	_, verrs, err = orders.CreateNewMove(suite.DB(), &selectedMoveType, &gtCode)
+	_, verrs, gtErr = orders.CreateNewMove(suite.DB(), &selectedMoveType, &gtCode)
+	count, countErr := suite.DB().Count(&Move{})
 
-	suite.NotNil(err)
+	suite.NotNil(gtErr)
 	suite.NoVerrs(verrs)
+	suite.Nil(countErr)
+	suite.Equal(0, count)
 }
 
 func (suite *ModelSuite) TestFetchMove() {
