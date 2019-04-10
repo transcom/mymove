@@ -103,7 +103,7 @@ export const selectInvoiceShipmentLineItems = createSelector([selectInvoicesShip
 
 export const selectTotalFromUnbilledLineItems = createSelector([selectUnbilledShipmentLineItemsByShipmentId], items => {
   return items.reduce((acm, item) => {
-    return acm + item.amount_cents;
+    return acm + (item.amount_cents ? item.amount_cents : 0);
   }, 0);
 });
 
@@ -149,5 +149,11 @@ function filterByNoInvoiceId(items) {
 }
 
 function filterByLinehaulOrPreApprovals(items) {
-  return filter(items, item => !item.tariff400ng_item.requires_pre_approval || item.status === 'APPROVED');
+  return filter(
+    items,
+    item =>
+      !item.tariff400ng_item.requires_pre_approval ||
+      item.status === 'APPROVED' ||
+      item.status === 'CONDITIONALLY_APPROVED',
+  );
 }
