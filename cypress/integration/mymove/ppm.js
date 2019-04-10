@@ -75,7 +75,7 @@ describe('completing the ppm flow', function() {
       expect(loc.pathname).to.match(/^\/$/);
     });
 
-    cy.contains('Success');
+    cy.contains('Congrats - your move is submitted!');
     cy.contains('Next Step: Wait for approval');
     cy.contains('Advance Requested: $1,333.91');
   });
