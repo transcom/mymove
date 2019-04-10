@@ -29,8 +29,7 @@ describe('Address component test', () => {
     });
     it('should not render addresses not present', () => {
       const street_address_2 = fields[2];
-      const street_address_3 = fields[3];
-      expect(street_address_2 && street_address_3).toBeFalsy();
+      expect(street_address_2).toBeFalsy();
     });
     it('should render the city', () => {
       const city = fields[3];
@@ -54,28 +53,10 @@ describe('Address component test', () => {
     });
   });
   describe('when address component is provided optional additional addresses', () => {
-    it('should render street_address_2 and not street_address_3', () => {
+    it('should render street_address_2', () => {
       const address = {
         street_address_1: '560 State Street',
         street_address_2: 'PO Box 123',
-        city: 'New York City',
-        state: 'NY',
-        postal_code: '11217',
-      };
-
-      const wrapper = shallow(<AddressElementDisplay address={address} title="primary" />)
-        .find(PanelField)
-        .dive();
-      const [, address_2, address_3] = wrapper.find('.field-value').props().children;
-
-      expect(address_2.props.children[0]).toBe(address.street_address_2);
-      expect(address_3).toBeFalsy();
-    });
-    it('should render street_address_2 and street_address_3', () => {
-      const address = {
-        street_address_1: '560 State Street',
-        street_address_2: 'PO Box 123',
-        street_address_3: 'c/o Harry Potter',
         city: 'New York City',
         state: 'NY',
         postal_code: '11217',
@@ -89,14 +70,8 @@ describe('Address component test', () => {
         .children()
         .at(1)
         .props().children[0];
-      const address_3 = wrapper
-        .find('.field-value')
-        .children()
-        .at(2)
-        .props().children[0];
 
       expect(address_2).toBe(address.street_address_2);
-      expect(address_3).toBe(address.street_address_3);
     });
   });
   describe('when address component is provided only city, state, postal_code', () => {

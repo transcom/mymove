@@ -106,7 +106,6 @@ const propTypes = {
       state: string.isRequired,
       street_address_1: string.isRequired,
       street_address_2: string,
-      street_address_3: string,
     }),
     has_secondary_pickup_address: bool.isRequired,
     secondary_pickup_address: shape({
@@ -115,7 +114,6 @@ const propTypes = {
       state: string.isRequired,
       street_address_1: string.isRequired,
       street_address_2: string,
-      street_address_3: string,
     }),
     has_delivery_address: bool.isRequired,
     delivery_address: shape({
@@ -124,7 +122,6 @@ const propTypes = {
       state: string.isRequired,
       street_address_1: string,
       street_address_2: string,
-      street_address_3: string,
     }),
   }),
   addressSchema: object.isRequired,
