@@ -5,6 +5,9 @@ describe('Office Home Page', function() {
   beforeEach(() => {
     cy.setupBaseUrl(officeAppName);
   });
+  it('creates new devlocal user', function() {
+    cy.signInAsNewOfficeUser();
+  });
   it('successfully loads when not logged in', function() {
     cy.logout();
     officeUserIsOnSignInPage();

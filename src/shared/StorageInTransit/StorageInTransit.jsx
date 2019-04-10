@@ -3,19 +3,22 @@ import PropTypes from 'prop-types';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { capitalize } from 'lodash';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faBan from '@fortawesome/fontawesome-free-solid/faBan';
+import faSignInAlt from '@fortawesome/fontawesome-free-solid/faSignInAlt';
 
 import './StorageInTransit.css';
 import { formatDate4DigitYear } from 'shared/formatters';
 import Editor from 'shared/StorageInTransit/Editor';
 import ApproveSitRequest from 'shared/StorageInTransit/ApproveSitRequest';
 import DenySitRequest from 'shared/StorageInTransit/DenySitRequest';
+import PlaceInSit from 'shared/StorageInTransit/PlaceInSit';
 import { updateStorageInTransit } from 'shared/Entities/modules/storageInTransits';
-import { isOfficeSite, isTspSite } from 'shared/constants.js';
+import { isOfficeSite, isTspSite } from 'shared/constants';
 import SitStatusIcon from './SitStatusIcon';
 
 export class StorageInTransit extends Component {
@@ -25,6 +28,7 @@ export class StorageInTransit extends Component {
       showEditForm: false,
       showApproveForm: false,
       showDenyForm: false,
+      showPlaceInSitForm: false,
       storageInTransit: {},
     };
   }
@@ -73,6 +77,14 @@ export class StorageInTransit extends Component {
     this.setState({ showDenyForm: false });
   };
 
+  openPlaceInSitForm = () => {
+    this.setState({ showPlaceInSitForm: true });
+  };
+
+  closePlaceInSitForm = () => {
+    this.setState({ showPlaceInSitForm: false });
+  };
+
   onSubmit = updatePayload => {
     this.props.updateStorageInTransit(
       this.props.storageInTransit.shipment_id,
@@ -83,18 +95,17 @@ export class StorageInTransit extends Component {
 
   render() {
     const { storageInTransit } = this.props;
-    const { showEditForm, showApproveForm, showDenyForm } = this.state;
-
+    const { showEditForm, showApproveForm, showDenyForm, showPlaceInSitForm } = this.state;
     return (
       <div className="storage-in-transit">
         <div className="column-head">
-          {storageInTransit.location.charAt(0) + storageInTransit.location.slice(1).toLowerCase()} SIT
+          {capitalize(storageInTransit.location)} SIT
           <span className="unbold">
             {' '}
             <span className="sit-status-text">Status:</span>{' '}
             {storageInTransit.status === 'REQUESTED' && <SitStatusIcon isTspSite={isTspSite} />}
           </span>
-          <span>SIT {storageInTransit.status.charAt(0) + storageInTransit.status.slice(1).toLowerCase()} </span>
+          <span>SIT {capitalize(storageInTransit.status)} </span>
           {showApproveForm ? (
             <ApproveSitRequest onClose={this.closeApproveForm} storageInTransit={this.state.storageInTransit} />
           ) : (
@@ -123,6 +134,19 @@ export class StorageInTransit extends Component {
               </span>
             )
           )}
+          {showPlaceInSitForm ? (
+            <PlaceInSit sit={storageInTransit} onClose={this.closePlaceInSitForm} />
+          ) : (
+            isTspSite &&
+            storageInTransit.status === 'APPROVED' && (
+              <span className="place-in-sit">
+                <a data-cy="place-in-sit-link" onClick={this.openPlaceInSitForm}>
+                  <FontAwesomeIcon className="icon" icon={faSignInAlt} />
+                  Place into SIT
+                </a>
+              </span>
+            )
+          )}
           {showEditForm ? (
             <Editor
               updateStorageInTransit={this.onSubmit}
@@ -143,40 +167,42 @@ export class StorageInTransit extends Component {
               </span>
             </span>
           ) : (
-            <span className="sit-actions">
-              <span className="sit-edit actionable">
-                <a onClick={this.openEditForm}>
-                  <FontAwesomeIcon className="icon" icon={faPencil} />
-                  Edit
-                </a>
+            storageInTransit.status !== 'APPROVED' && (
+              <span className="sit-actions">
+                <span className="sit-edit actionable">
+                  <a onClick={this.openEditForm}>
+                    <FontAwesomeIcon className="icon" icon={faPencil} />
+                    Edit
+                  </a>
+                </span>
               </span>
-            </span>
+            )
           )}
         </div>
         {!showEditForm && (
           <div className="usa-width-one-whole">
             <div className="usa-width-one-half">
-              <div className="column-subhead">Dates</div>
-              <div className="panel-field">
+              <div className="column-subhead nested__same-font">Dates</div>
+              <div className="panel-field nested__same-font">
                 <span className="field-title unbold">Est. start date</span>
                 <span className="field-value">{formatDate4DigitYear(storageInTransit.estimated_start_date)}</span>
               </div>
               {storageInTransit.notes !== undefined && (
                 <div className="sit-notes">
-                  <div className="column-subhead">Note</div>
-                  <div className="panel-field">
+                  <div className="column-subhead nested__same-font">Note</div>
+                  <div className="panel-field nested__same-font">
                     <span className="field-title unbold">{storageInTransit.notes}</span>
                   </div>
                 </div>
               )}
             </div>
             <div className="usa-width-one-half">
-              <div className="column-subhead">Warehouse</div>
-              <div className="panel-field">
+              <div className="column-subhead nested__same-font">Warehouse</div>
+              <div className="panel-field nested__same-font">
                 <span className="field-title unbold">Warehouse ID</span>
                 <span className="field-value">{storageInTransit.warehouse_id}</span>
               </div>
-              <div className="panel-field">
+              <div className="panel-field nested__same-font">
                 <span className="field-title unbold">Contact info</span>
                 <span className="field-value">
                   {storageInTransit.warehouse_name}

@@ -46,7 +46,6 @@ import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shar
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
 import {
   approveShipment,
-  completeShipment,
   getPublicShipment,
   selectShipment,
   selectShipmentStatus,
@@ -77,6 +76,7 @@ import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
+import moment from 'moment';
 
 const BasicsTabContent = props => {
   return (
@@ -215,15 +215,12 @@ class MoveInfo extends Component {
   };
 
   approvePPM = () => {
-    this.props.approvePPM(this.props.ppm.id);
+    const approveDate = moment().format();
+    this.props.approvePPM(this.props.ppm.id, approveDate);
   };
 
   approveShipment = () => {
     this.props.approveShipment(this.props.shipmentId);
-  };
-
-  completeShipment = () => {
-    this.props.completeShipment(this.props.shipmentId);
   };
 
   cancelMoveAndRedirect = cancelReason => {
@@ -283,12 +280,9 @@ class MoveInfo extends Component {
     const isPPM = move.selected_move_type === 'PPM';
     const isHHG = move.selected_move_type === 'HHG';
     const isHHGPPM = move.selected_move_type === 'HHG_PPM';
-    const pathnames = this.props.location.pathname.split('/');
-    const currentTab = pathnames[pathnames.length - 1];
     const showDocumentViewer = this.props.context.flags.documentViewer;
     const moveInfoComboButton = this.props.context.flags.moveInfoComboButton;
     const allowHhgInvoicePayment = this.props.context.flags.allowHhgInvoicePayment;
-    const check = <FontAwesomeIcon className="icon" icon={faCheck} />;
     const ordersComplete = Boolean(
       orders.orders_number && orders.orders_type_detail && orders.department_indicator && orders.tac,
     );
@@ -466,21 +460,6 @@ class MoveInfo extends Component {
                   buttonDisabled={hhgCantBeCanceled}
                 />
               </div>
-
-              {(isHHG || isHHGPPM) && (
-                <button
-                  className={`${hhgCompleted ? 'btn__approve--green' : ''}`}
-                  onClick={this.completeShipment}
-                  disabled={!hhgDelivered || hhgCompleted || !moveApproved || !ordersComplete || currentTab !== 'hhg'}
-                >
-                  Complete Shipments
-                  {hhgCompleted && check}
-                </button>
-              )}
-
-              {/* Disabling until features implemented
-              <button>Troubleshoot</button>
-              */}
             </div>
             <div className="documents">
               <h2 className="extras usa-heading">
@@ -588,7 +567,6 @@ const mapDispatchToProps = dispatch =>
       approveBasics,
       approvePPM,
       approveShipment,
-      completeShipment,
       cancelMove,
       getAllTariff400ngItems,
       getAllShipmentLineItems,

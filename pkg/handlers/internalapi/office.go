@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"reflect"
+	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -123,7 +124,6 @@ type ApprovePPMHandler struct {
 
 // Handle ... approves a Personally Procured Move from a request payload
 func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.Responder {
-
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
@@ -140,7 +140,8 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 	moveID := ppm.MoveID
-	err = ppm.Approve()
+	approveDate := time.Time(params.ApprovePersonallyProcuredMovePayload.ApproveDate)
+	err = ppm.Approve(approveDate)
 	if err != nil {
 		h.Logger().Error("Attempted to approve PPM, got invalid transition", zap.Error(err), zap.String("move_status", string(ppm.Status)))
 		return handlers.ResponseForError(h.Logger(), err)

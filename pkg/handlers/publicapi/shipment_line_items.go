@@ -2,7 +2,6 @@ package publicapi
 
 import (
 	"database/sql"
-	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -225,30 +224,14 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 		}
 	}
 
-	var estAmtCents *unit.Cents
-	var actAmtCents *unit.Cents
-	var date *time.Time
-	if params.Payload.EstimateAmountCents != nil {
-		centsValue := unit.Cents(*params.Payload.EstimateAmountCents)
-		estAmtCents = &centsValue
-	}
-	if params.Payload.ActualAmountCents != nil {
-		centsValue := unit.Cents(*params.Payload.ActualAmountCents)
-		actAmtCents = &centsValue
-	}
-	if params.Payload.Date != nil {
-		dateValue := time.Time(*params.Payload.Date)
-		date = &dateValue
-	}
-
 	additionalParams := models.AdditionalShipmentLineItemParams{
 		ItemDimensions:      itemDimensions,
 		CrateDimensions:     crateDimensions,
 		Description:         params.Payload.Description,
 		Reason:              params.Payload.Reason,
-		EstimateAmountCents: estAmtCents,
-		ActualAmountCents:   actAmtCents,
-		Date:                date,
+		EstimateAmountCents: handlers.FmtInt64PtrToPopPtr(params.Payload.EstimateAmountCents),
+		ActualAmountCents:   handlers.FmtInt64PtrToPopPtr(params.Payload.ActualAmountCents),
+		Date:                handlers.FmtDatePtrToPopPtr(params.Payload.Date),
 		Time:                params.Payload.Time,
 		Address:             addressModelFromPayload(params.Payload.Address),
 	}
@@ -340,23 +323,16 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 		}
 	}
 
-	var estAmtCents *unit.Cents
-	var actAmtCents *unit.Cents
-	if params.Payload.EstimateAmountCents != nil {
-		centsValue := unit.Cents(*params.Payload.EstimateAmountCents)
-		estAmtCents = &centsValue
-	}
-	if params.Payload.ActualAmountCents != nil {
-		centsValue := unit.Cents(*params.Payload.ActualAmountCents)
-		actAmtCents = &centsValue
-	}
 	additionalParams := models.AdditionalShipmentLineItemParams{
 		ItemDimensions:      itemDimensions,
 		CrateDimensions:     crateDimensions,
 		Description:         params.Payload.Description,
 		Reason:              params.Payload.Reason,
-		EstimateAmountCents: estAmtCents,
-		ActualAmountCents:   actAmtCents,
+		EstimateAmountCents: handlers.FmtInt64PtrToPopPtr(params.Payload.EstimateAmountCents),
+		ActualAmountCents:   handlers.FmtInt64PtrToPopPtr(params.Payload.ActualAmountCents),
+		Date:                handlers.FmtDatePtrToPopPtr(params.Payload.Date),
+		Time:                params.Payload.Time,
+		Address:             addressModelFromPayload(params.Payload.Address),
 	}
 
 	verrs, err := shipment.UpdateShipmentLineItem(h.DB(),

@@ -18,6 +18,7 @@ import PropTypes from 'prop-types';
 import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
 import CustomerAgreement from 'scenes/Legalese/CustomerAgreement';
 import { ppmPaymentLegal } from 'scenes/Legalese/legaleseText';
+import moment from 'moment';
 
 export class PaymentRequest extends Component {
   state = {
@@ -73,9 +74,10 @@ export class PaymentRequest extends Component {
   };
 
   submitCertificate = () => {
+    const signatureTime = moment().format();
     const certificate = {
       certification_text: ppmPaymentLegal,
-      date: PaymentRequest.getUserDate(),
+      date: signatureTime,
       signature: 'CHECKBOX',
       personally_procured_move_id: this.props.currentPpm.id,
       certification_type: 'PPM_PAYMENT',
@@ -96,10 +98,6 @@ export class PaymentRequest extends Component {
         scrollToTop();
       });
   };
-
-  static getUserDate() {
-    return new Date().toISOString().split('T')[0];
-  }
 
   renderCustomerAgreement = (ppmStatus, canSubmitPayment) => {
     switch (ppmStatus) {

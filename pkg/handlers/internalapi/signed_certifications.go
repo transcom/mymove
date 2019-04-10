@@ -24,7 +24,7 @@ func payloadForSignedCertificationModel(cert models.SignedCertification) *intern
 		CertificationText:        handlers.FmtString(cert.CertificationText),
 		CertificationType:        ptrCertificationType,
 		CreatedAt:                handlers.FmtDateTime(cert.CreatedAt),
-		Date:                     handlers.FmtDate(cert.Date),
+		Date:                     handlers.FmtDateTime(cert.Date),
 		ID:                       handlers.FmtUUID(cert.ID),
 		PersonallyProcuredMoveID: handlers.FmtUUIDPtr(cert.PersonallyProcuredMoveID),
 		ShipmentID:               handlers.FmtUUIDPtr(cert.ShipmentID),

@@ -1,10 +1,13 @@
 .ppm-payment-request-footer {
   display: flex;
   justify-content: space-between;
+  border-top: 1px solid black;
+  margin-top: 2.3rem;
+  padding-top: 0.5rem;
 }
 
 @media only screen and (max-width: 481px) {
-  ..ppm-payment-request-footer {
+  .ppm-payment-request-footer {
     flex-direction: column;
   }
 }

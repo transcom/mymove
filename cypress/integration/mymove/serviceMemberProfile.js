@@ -1,7 +1,7 @@
 /* global cy */
 describe('setting up service member profile', function() {
   beforeEach(() => {
-    cy.signInAsNewUser();
+    cy.signInAsNewMilMoveUser();
   });
   it('progresses thru forms', function() {
     serviceMemberProfile();

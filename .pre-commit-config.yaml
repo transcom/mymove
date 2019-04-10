@@ -21,6 +21,7 @@ repos:
             config/tls/devlocal-.+\.key$|
             pkg/server/testdata/localhost.key$|
             pkg/server/testdata/officelocal.key$|
+            pkg/auth/authentication/auth_test.go$|
           )$
       - id: trailing-whitespace
         exclude: public/swagger-ui/*
