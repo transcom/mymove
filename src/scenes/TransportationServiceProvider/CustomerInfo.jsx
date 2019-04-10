@@ -124,7 +124,8 @@ CustomerInfo.propTypes = {
   }).isRequired,
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, ownProps) => {
+  const shipment = ownProps.shipment;
   const defaultServiceMember = {
     backupContacts: [],
     id: '',
@@ -152,8 +153,8 @@ const mapStateToProps = state => {
     email: '',
     phone: '',
   };
-  const serviceMember = get(state, 'tsp.shipment.service_member', defaultServiceMember);
-  const backupContact = get(state, 'tsp.shipment.service_member.backup_contacts[0]', defaultBackupContact);
+  const serviceMember = shipment.service_member || defaultServiceMember;
+  const backupContact = shipment.service_member.backup_contacts[0] || defaultBackupContact;
 
   return {
     serviceMember,

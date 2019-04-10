@@ -1,7 +1,5 @@
-import { isNull, get } from 'lodash';
+import { isNull } from 'lodash';
 import {
-  LoadShipment,
-  PatchShipment,
   AcceptShipment,
   TransportShipment,
   DeliverShipment,
@@ -14,10 +12,9 @@ import {
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { getEntitlements } from 'shared/entitlements.js';
+import { selectShipment } from 'shared/Entities/modules/shipments';
 
 // SINGLE RESOURCE ACTION TYPES
-const loadShipmentType = 'LOAD_SHIPMENT';
-const patchShipmentType = 'PATCH_SHIPMENT';
 const acceptShipmentType = 'ACCEPT_SHIPMENT';
 const transportShipmentType = 'TRANSPORT_SHIPMENT';
 const deliverShipmentType = 'DELIVER_SHIPMENT';
@@ -32,8 +29,6 @@ const updateServiceAgentsType = 'UPDATE_SERVICE_AGENTS';
 const loadTspDependenciesType = 'LOAD_TSP_DEPENDENCIES';
 
 // SINGLE RESOURCE ACTION TYPES
-const LOAD_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(loadShipmentType);
-const PATCH_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(patchShipmentType);
 const ACCEPT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(acceptShipmentType);
 const TRANSPORT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(transportShipmentType);
 const DELIVER_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(deliverShipmentType);
@@ -51,10 +46,6 @@ const UPDATE_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(updateServic
 const LOAD_TSP_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(loadTspDependenciesType);
 
 // SINGLE-RESOURCE ACTION CREATORS
-
-export const loadShipment = ReduxHelpers.generateAsyncActionCreator(loadShipmentType, LoadShipment);
-
-export const patchShipment = ReduxHelpers.generateAsyncActionCreator(patchShipmentType, PatchShipment);
 
 export const acceptShipment = ReduxHelpers.generateAsyncActionCreator(acceptShipmentType, AcceptShipment);
 
@@ -104,25 +95,14 @@ export function createOrUpdateServiceAgent(shipmentId, serviceAgent) {
   };
 }
 
-export function loadShipmentDependencies(shipmentId) {
-  const actions = ReduxHelpers.generateAsyncActions(loadTspDependenciesType);
-  return async function(dispatch, getState) {
-    dispatch(actions.start());
-    try {
-      await Promise.all([dispatch(loadShipment(shipmentId)), dispatch(indexServiceAgents(shipmentId))]);
-      return dispatch(actions.success());
-    } catch (ex) {
-      dispatch(actions.error(ex));
-      throw new Error(ex);
-    }
-  };
-}
-
 // Selectors
 export function loadEntitlements(state) {
-  const hasDependents = get(state, 'tsp.shipment.move.has_dependents', null);
-  const spouseHasProGear = get(state, 'tsp.shipment.move.spouse_has_pro_gear', null);
-  const rank = get(state, 'tsp.shipment.service_member.rank', null);
+  const shipmentId = Object.keys(state.entities.shipments)[0];
+  const shipment = selectShipment(state, shipmentId);
+  const hasDependents = shipment.move.has_dependents;
+  const spouseHasProGear = shipment.move.spouse_has_progear;
+  const rank = shipment.service_member.rank;
+
   if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
     return null;
   }
@@ -133,8 +113,6 @@ const initialState = {
   shipmentIsLoading: false,
   shipmentHasLoadSuccess: false,
   shipmentHasLoadError: null,
-  shipmentPatchSuccess: false,
-  shipmentPatchError: null,
   shipmentIsAccepting: false,
   shipmentHasAcceptError: null,
   shipmentHasAcceptSuccess: false,
@@ -173,42 +151,6 @@ export function tspReducer(state = initialState, action) {
   switch (action.type) {
     // SINGLE-RESOURCE ACTION TYPES
 
-    // SHIPMENTS
-    case LOAD_SHIPMENT.start:
-      return Object.assign({}, state, {
-        shipmentIsLoading: true,
-        shipmentHasLoadSuccess: false,
-      });
-    case LOAD_SHIPMENT.success:
-      return Object.assign({}, state, {
-        shipmentIsLoading: false,
-        shipmentHasLoadSuccess: true,
-        shipmentHasLoadError: false,
-        shipment: action.payload,
-      });
-    case LOAD_SHIPMENT.failure:
-      return Object.assign({}, state, {
-        shipmentIsLoading: false,
-        shipmentHasLoadSuccess: false,
-        shipmentHasLoadError: null,
-        error: action.error.message,
-      });
-    case PATCH_SHIPMENT.start:
-      return Object.assign({}, state, {
-        shipmentPatchSuccess: false,
-      });
-    case PATCH_SHIPMENT.success:
-      return Object.assign({}, state, {
-        shipmentPatchSuccess: true,
-        shipmentPatchError: false,
-        shipment: action.payload,
-      });
-    case PATCH_SHIPMENT.failure:
-      return Object.assign({}, state, {
-        shipmentPatchSuccess: false,
-        shipmentPatchError: null,
-        error: action.error.message,
-      });
     case ACCEPT_SHIPMENT.start:
       return Object.assign({}, state, {
         shipmentIsAccepting: true,
