@@ -54,7 +54,6 @@ export class SignedCertification extends Component {
           certificationText,
           pendingValues.signature,
           pendingValues.date,
-          ppmSubmitDate,
           ppmId,
           ppmSubmitDate,
         )
