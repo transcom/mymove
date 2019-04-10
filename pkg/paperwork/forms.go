@@ -134,6 +134,7 @@ func NewFormFiller() *FormFiller {
 	pdf := gofpdf.New(pageOrientation, distanceUnit, pageSize, fontDir)
 	pdf.SetMargins(0, 0, 0)
 	pdf.SetFont(fontFamily, fontStyle, fontSize)
+	pdf.SetAutoPageBreak(false, 0)
 
 	return &FormFiller{
 		debug: false,

@@ -8,6 +8,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
@@ -76,9 +78,12 @@ func main() {
 	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(db, logger))
 
 	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(db, &auth.Session{}, parsedID)
+	if err != nil {
+		log.Fatalf("%s", errors.Wrap(err, "Error fetching shipment summary worksheet data "))
+	}
 	ssfd.Obligations, err = ppmComputer.ComputeObligations(ssfd, planner)
 	if err != nil {
-		log.Println("Error calculating obligations ")
+		log.Fatalf("%s", errors.Wrap(err, "Error calculating obligations "))
 	}
 
 	page1Data, page2Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)

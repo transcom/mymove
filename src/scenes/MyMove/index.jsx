@@ -21,6 +21,7 @@ import EditWeight from 'scenes/Review/EditWeight';
 import EditHHGDates from 'scenes/Review/EditShipment';
 import Header from 'shared/Header/MyMove';
 import PPMPaymentRequestIntro from 'scenes/Moves/Ppm/PPMPaymentRequestIntro';
+import WeightTicket from 'scenes/Moves/Ppm/WeightTicket';
 import PaymentRequest from 'scenes/Moves/Ppm/PaymentRequest';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
@@ -96,6 +97,7 @@ export class AppWrapper extends Component {
 
                     <PrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
                     <PrivateRoute path="/moves/:moveId/ppm-payment-request-intro" component={PPMPaymentRequestIntro} />
+                    <PrivateRoute path="/moves/:moveId/ppm-weight-ticket" component={WeightTicket} />
                     <PrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
                     <Route exact path="/forbidden">
                       <div className="usa-grid">
