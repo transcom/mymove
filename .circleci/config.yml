@@ -74,10 +74,7 @@ commands:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - go-pkg-dep-sources-{{ checksum "Gopkg.lock" }}
-      - restore_cache:
-          keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
       - run: make build_deploy_tools
       - deploy:
           name: Deploy task service
@@ -98,7 +95,7 @@ commands:
             [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1
       - restore_cache:
           keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
       - setup_remote_docker:
           docker_layer_caching: true
       - deploy:
@@ -126,7 +123,7 @@ commands:
             [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1 ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
       - restore_cache:
           keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
       - setup_remote_docker:
           docker_layer_caching: true
       - deploy:
@@ -566,7 +563,7 @@ jobs:
           docker_layer_caching: true
       - restore_cache:
           keys:
-            - mymove-vendor-{{ checksum "Gopkg.lock" }}
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
       - run: make tasks_build
       - build_tag_push:
           dockerfile: Dockerfile.tasks
