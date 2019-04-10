@@ -40,8 +40,8 @@ const (
 )
 
 var (
-	// ShipmentAssociationsDEFAULT declares the default eager associations for a shipment
-	ShipmentAssociationsDEFAULT = EagerAssociations{
+	// ShipmentAssociationsDefault declares the default eager associations for a shipment
+	ShipmentAssociationsDefault = EagerAssociations{
 		"TrafficDistributionList",
 		"ServiceMember.BackupContacts",
 		"Move.Orders.NewDutyStation.Address",
@@ -53,6 +53,15 @@ var (
 		"ShipmentOffers.TransportationServiceProviderPerformance.TransportationServiceProvider",
 		"ShippingDistance.OriginAddress",
 		"ShippingDistance.DestinationAddress",
+	}
+)
+
+var (
+	// ShipmentListAssociationsDefault declares the default eager associations for shipments
+	ShipmentListAssociationsDefault = EagerAssociations{
+		"TrafficDistributionList",
+		"ServiceMember",
+		"Move",
 	}
 )
 
@@ -586,7 +595,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 
 	shipments := []Shipment{}
 
-	query := tx.Q().Eager(ShipmentAssociationsDEFAULT...).
+	query := tx.Q().Eager(ShipmentListAssociationsDefault...).
 		Where("shipment_offers.transportation_service_provider_id = $1", tspID).
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
 		InnerJoin("moves", "shipments.move_id=moves.id").
@@ -628,7 +637,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 // FetchShipment Fetches and Validates a Shipment model
 func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Shipment, error) {
 	var shipment Shipment
-	err := db.Eager(ShipmentAssociationsDEFAULT...).Find(&shipment, id)
+	err := db.Eager(ShipmentAssociationsDefault...).Find(&shipment, id)
 
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
@@ -654,7 +663,7 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 
 	shipments := []Shipment{}
 
-	err := tx.Eager(ShipmentAssociationsDEFAULT...).
+	err := tx.Eager(ShipmentAssociationsDefault...).
 		Where("shipment_offers.transportation_service_provider_id = $1 and shipments.id = $2", tspID, shipmentID).
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
 		All(&shipments)

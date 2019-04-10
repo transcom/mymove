@@ -131,6 +131,7 @@ class QueueTable extends Component {
               },
             ]}
             data={this.state.data}
+            defaultSorted={[{ id: 'pickup_date', asc: true }]}
             loading={this.state.loading} // Display the loading overlay when we need it
             pageSize={this.state.data.length}
             className="-striped -highlight"
