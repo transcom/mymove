@@ -6,7 +6,8 @@ import LineItemTable from 'shared/Invoice/LineItemTable';
 import Alert from 'shared/Alert';
 import { isLoading } from 'shared/constants';
 
-import './InvoicePanel.css';
+import './InvoicePanel.scss';
+import styles from './UnbilledTable.module.scss';
 
 export class UnbilledTable extends PureComponent {
   constructor(props) {
@@ -57,7 +58,7 @@ export class UnbilledTable extends PureComponent {
             <h5>Unbilled line items</h5>
           </div>
           {allowPayments && (
-            <div className="usa-width-one-half align-right">
+            <div className={`usa-width-one-half ${styles['button__approve-payment']}`}>
               <button className="button button-secondary" onClick={this.draftInvoice}>
                 Approve Payment
               </button>
