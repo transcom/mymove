@@ -3,6 +3,7 @@ import {
   addCommasToNumberString,
   formatFromBaseQuantity,
   convertFromBaseQuantity,
+  formatBaseQuantityAsCents,
 } from 'shared/formatters';
 import { isRobustAccessorial } from 'shared/PreApprovalRequest/DetailsHelper';
 
@@ -26,7 +27,11 @@ export const displayBaseQuantityUnits = (item, scale) => {
     const decimalPlaces = 2;
     const volume = convertTruncateAddCommas(itemQuantity1, decimalPlaces);
     return `${volume} cu ft`;
+  } else if (isPrice(itemCode) && isRobustAccessorial(item)) {
+    const price = formatBaseQuantityAsCents(itemQuantity1);
+    return `$${price}`;
   }
+
   return formatFromBaseQuantity(itemQuantity1);
 };
 
@@ -43,6 +48,11 @@ function isVolume(itemCode) {
 function isWeightDistance(itemCode) {
   const lbsMiItems = ['LHS', '16A'];
   return lbsMiItems.includes(itemCode);
+}
+
+function isPrice(itemCode) {
+  const priceItems = ['226A', '35A'];
+  return priceItems.includes(itemCode);
 }
 
 function convertTruncateAddCommas(value, decimalPlaces) {
