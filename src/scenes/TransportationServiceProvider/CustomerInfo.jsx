@@ -125,7 +125,6 @@ CustomerInfo.propTypes = {
 };
 
 const mapStateToProps = (state, ownProps) => {
-  const shipment = ownProps.shipment;
   const defaultServiceMember = {
     backupContacts: [],
     id: '',
@@ -153,8 +152,8 @@ const mapStateToProps = (state, ownProps) => {
     email: '',
     phone: '',
   };
-  const serviceMember = shipment.service_member || defaultServiceMember;
-  const backupContact = shipment.service_member.backup_contacts[0] || defaultBackupContact;
+  const serviceMember = ownProps.serviceMember || defaultServiceMember;
+  const backupContact = ownProps.serviceMember.backup_contacts[0] || defaultBackupContact;
 
   return {
     serviceMember,
