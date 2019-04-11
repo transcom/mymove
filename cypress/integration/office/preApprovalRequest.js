@@ -241,7 +241,7 @@ function officeUserCreates35APreApprovalRequest() {
   // The edit should propagate to the Invoice panel
   cy
     .get('.invoice-panel-table-cont tbody')
-    .contains('220.0000')
+    .contains('$220.00')
     .should('exist');
 
   // Unset the actual amount

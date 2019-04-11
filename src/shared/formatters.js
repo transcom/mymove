@@ -21,6 +21,11 @@ export function formatCents(cents) {
   });
 }
 
+// Format base quantity as cents
+export function formatBaseQuantityAsDollars(baseQuantity) {
+  return formatCents(baseQuantity / 100);
+}
+
 // Format a base quantity into a user-friendly number string, e.g. 167000 -> "16.7000"
 export function formatFromBaseQuantity(baseQuantity) {
   if (!isFinite(baseQuantity)) {
