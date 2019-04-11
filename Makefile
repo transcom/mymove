@@ -265,7 +265,6 @@ build_tools: bash_version server_deps server_generate build_generate_test_data
 	go build -i -ldflags "$(LDFLAGS)" -o bin/make-dps-user ./cmd/make_dps_user
 	go build -i -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
 	go build -i -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
-	go build -i -ldflags "$(LDFLAGS)" -o bin/paperwork ./cmd/paperwork
 	go build -i -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
 	go build -i -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
 	go build -i -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
