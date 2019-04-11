@@ -185,6 +185,7 @@ get_gotools: check_gopath .get_gotools.stamp
 	touch .get_gotools.stamp
 
 bin/rds-combined-ca-bundle.pem:
+	mkdir -p bin/
 	curl -sSo bin/rds-combined-ca-bundle.pem https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
 
 .PHONY: server_deps
