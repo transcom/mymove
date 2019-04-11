@@ -22,7 +22,7 @@ export function formatCents(cents) {
 }
 
 // Format base quantity as cents
-export function formatBaseQuantityAsCents(baseQuantity) {
+export function formatBaseQuantityAsDollars(baseQuantity) {
   return formatCents(baseQuantity / 100);
 }
 

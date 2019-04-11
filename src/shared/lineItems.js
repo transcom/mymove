@@ -3,7 +3,7 @@ import {
   addCommasToNumberString,
   formatFromBaseQuantity,
   convertFromBaseQuantity,
-  formatBaseQuantityAsCents,
+  formatBaseQuantityAsDollars,
 } from 'shared/formatters';
 import { isRobustAccessorial } from 'shared/PreApprovalRequest/DetailsHelper';
 
@@ -28,7 +28,7 @@ export const displayBaseQuantityUnits = (item, scale) => {
     const volume = convertTruncateAddCommas(itemQuantity1, decimalPlaces);
     return `${volume} cu ft`;
   } else if (isPrice(itemCode) && isRobustAccessorial(item)) {
-    const price = formatBaseQuantityAsCents(itemQuantity1);
+    const price = formatBaseQuantityAsDollars(itemQuantity1);
     return `$${price}`;
   }
 
