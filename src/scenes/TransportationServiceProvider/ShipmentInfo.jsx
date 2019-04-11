@@ -419,7 +419,7 @@ class ShipmentInfo extends Component {
             <div className="usa-width-one-third">
               <div className="customer-info">
                 <h2 className="extras usa-heading">Customer Info</h2>
-                <CustomerInfo shipment={this.props.shipment} />
+                <CustomerInfo serviceMember={this.props.shipment.service_member} />
               </div>
               <div className="documents">
                 <h2 className="extras usa-heading">
