@@ -182,7 +182,6 @@ class ShipmentInfo extends Component {
         }
       })
       .catch(err => {
-        console.log(err);
         this.props.history.replace('/');
       });
   }
