@@ -6,10 +6,7 @@
 # If `SECURE_MIGRATION_SOURCE=s3` then we look for a similarly named file in the
 # S3 bucket and pull it down.
 
-if [ -z "${SECURE_MIGRATION_SOURCE:-}" ]; then
-  echo "error: \$SECURE_MIGRATION_SOURCE needs to be set"
-  exit 1
-fi
+SECURE_MIGRATION_SOURCE=${SECURE_MIGRATION_SOURCE:-local}
 
 if [ -z "${DB_USER:-}" ]; then
   echo "error: \$DB_USER needs to be set"
