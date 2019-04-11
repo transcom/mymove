@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import StorageInTransitForm, { formName as StorageInTransitFormName } from './StorageInTransitForm.jsx';
 
-export class Editor extends Component {
+export class TspEditor extends Component {
   state = {
     closeOnSubmit: true,
   };
@@ -62,7 +62,7 @@ export class Editor extends Component {
   }
 }
 
-Editor.propTypes = {
+TspEditor.propTypes = {
   updateStorageInTransit: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
   storageInTransit: PropTypes.object.isRequired,
@@ -85,4 +85,4 @@ function mapDispatchToProps(dispatch) {
     dispatch,
   );
 }
-export default connect(mapStateToProps, mapDispatchToProps)(Editor);
+export default connect(mapStateToProps, mapDispatchToProps)(TspEditor);

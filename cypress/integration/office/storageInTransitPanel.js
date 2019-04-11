@@ -9,6 +9,9 @@ describe('office user finds the shipment', function() {
   it('office user starts and cancels sit approval', function() {
     officeUserStartsAndCancelsSitApproval();
   });
+  it('office user starts and cancels sit edit', function() {
+    officeUserStartsAndCancelsSitEdit();
+  });
 });
 
 function officeUserViewsSITPanel() {
@@ -110,5 +113,48 @@ function officeUserStartsAndCancelsSitApproval() {
     .should($div => {
       const text = $div.text();
       expect(text).to.not.include('Approve SIT Request');
+    });
+}
+
+function officeUserStartsAndCancelsSitEdit() {
+  cy.patientVisit('/queues/new');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new/);
+  });
+
+  cy.selectQueueItemMoveLocator('SITAPR');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
+
+  cy
+    .get('a')
+    .contains('HHG')
+    .click(); // navtab
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
+  });
+
+  cy
+    .get('.storage-in-transit')
+    .contains('Edit')
+    .click()
+    .get('.sit-authorization')
+    .should($div => {
+      const text = $div.text();
+      expect(text).to.include('Edit SIT authorization');
+    });
+
+  cy
+    .get('.usa-button-secondary')
+    .contains('Cancel')
+    .click()
+    .get('.storage-in-transit')
+    .should($div => {
+      const text = $div.text();
+      expect(text).to.include('Approved');
+      expect(text).to.not.include('Edit SIT authorization');
     });
 }
