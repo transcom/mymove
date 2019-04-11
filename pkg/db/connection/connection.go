@@ -1,0 +1,162 @@
+package connection
+
+import (
+	"fmt"
+	"io/ioutil"
+	"strconv"
+	"strings"
+
+	"github.com/gobuffalo/pop"
+	"github.com/jmoiron/sqlx"
+	"github.com/pkg/errors"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
+)
+
+const (
+	DbNameFlag        string = "db-name"
+	DbHostFlag        string = "db-host"
+	DbPortFlag        string = "db-port"
+	DbUserFlag        string = "db-user"
+	DbPasswordFlag    string = "db-password"
+	DbSSLModeFlag     string = "db-ssl-mode"
+	DbSSLRootCertFlag string = "db-ssl-root-cert"
+)
+
+// The dependency https://github.com/lib/pq only supports a limited subset of SSL Modes and returns the error:
+// pq: unsupported sslmode \"prefer\"; only \"require\" (default), \"verify-full\", \"verify-ca\", and \"disable\" supported
+// - https://www.postgresql.org/docs/10/libpq-ssl.html
+var allSSLModes = []string{
+	"disable",
+	//"allow",
+	//"prefer",
+	"require",
+	"verify-ca",
+	"verify-full",
+}
+
+type errInvalidSSLMode struct {
+	Mode  string
+	Modes []string
+}
+
+func (e *errInvalidSSLMode) Error() string {
+	return fmt.Sprintf("invalid ssl mode %s, must be one of: "+strings.Join(e.Modes, ", "), e.Mode)
+}
+
+func stringSliceContains(stringSlice []string, value string) bool {
+	for _, x := range stringSlice {
+		if value == x {
+			return true
+		}
+	}
+	return false
+}
+
+func InitDatabaseFlags(flag *pflag.FlagSet) {
+	flag.String(DbNameFlag, "dev_db", "Database Name")
+	flag.String(DbHostFlag, "localhost", "Database Hostname")
+	flag.Int(DbPortFlag, 5432, "Database Port")
+	flag.String(DbUserFlag, "postgres", "Database Username")
+	flag.String(DbPasswordFlag, "", "Database Password")
+	flag.String(DbSSLModeFlag, "disable", "Database SSL Mode: "+strings.Join(allSSLModes, ", "))
+	flag.String(DbSSLRootCertFlag, "", "Path to the database root certificate file used for database connections")
+}
+
+func CheckDatabase(v *viper.Viper, logger *zap.Logger) error {
+
+	env := v.GetString("env")
+
+	sslMode := v.GetString("db-ssl-mode")
+	if len(sslMode) == 0 || !stringSliceContains(allSSLModes, sslMode) {
+		return &errInvalidSSLMode{Mode: sslMode, Modes: allSSLModes}
+	}
+
+	if modes := []string{"require", "verify-ca", "verify-full"}; env == "container" && !stringSliceContains(modes, sslMode) {
+		return errors.Wrap(&errInvalidSSLMode{Mode: sslMode, Modes: modes}, "container envrionment requires ssl connection to database")
+	}
+
+	if filename := v.GetString("db-ssl-root-cert"); len(filename) > 0 {
+		b, err := ioutil.ReadFile(filename) // #nosec
+		if err != nil {
+			return errors.Wrap(err, fmt.Sprintf("error reading db-ssl-root-cert at %q", filename))
+		}
+		tlsCerts := parseCertificates(string(b))
+		logger.Info("certificate chain from db-ssl-root-cert parsed", zap.Any("count", len(tlsCerts)))
+	}
+
+	return nil
+}
+
+func InitDatabase(v *viper.Viper, logger *zap.Logger) (*pop.Connection, error) {
+
+	env := v.GetString("env")
+	dbName := v.GetString("db-name")
+	dbHost := v.GetString("db-host")
+	dbPort := strconv.Itoa(v.GetInt("db-port"))
+	dbUser := v.GetString("db-user")
+	dbPassword := v.GetString("db-password")
+
+	// Modify DB options by environment
+	dbOptions := map[string]string{
+		"sslmode": v.GetString("db-ssl-mode"),
+	}
+
+	if env == "test" {
+		// Leave the test database name hardcoded, since we run tests in the same
+		// environment as development, and it's extra confusing to have to swap env
+		// variables before running tests.
+		dbName = "test_db"
+	}
+
+	if str := v.GetString("db-ssl-root-cert"); len(str) > 0 {
+		dbOptions["sslrootcert"] = str
+	}
+
+	// Construct a safe URL and log it
+	s := "postgres://%s:%s@%s:%s/%s?sslmode=%s"
+	dbURL := fmt.Sprintf(s, dbUser, "*****", dbHost, dbPort, dbName, dbOptions["sslmode"])
+	logger.Info("Connecting to the database", zap.String("url", dbURL), zap.String("db-ssl-root-cert", v.GetString("db-ssl-root-cert")))
+
+	// Configure DB connection details
+	dbConnectionDetails := pop.ConnectionDetails{
+		Dialect:  "postgres",
+		Database: dbName,
+		Host:     dbHost,
+		Port:     dbPort,
+		User:     dbUser,
+		Password: dbPassword,
+		Options:  dbOptions,
+	}
+	err := dbConnectionDetails.Finalize()
+	if err != nil {
+		logger.Error("Failed to finalize DB connection details", zap.Error(err))
+		return nil, err
+	}
+
+	// Set up the connection
+	connection, err := pop.NewConnection(&dbConnectionDetails)
+	if err != nil {
+		logger.Error("Failed create DB connection", zap.Error(err))
+		return nil, err
+	}
+
+	// Open the connection
+	err = connection.Open()
+	if err != nil {
+		logger.Error("Failed to open DB connection", zap.Error(err))
+		return nil, err
+	}
+
+	// Check the connection
+	db, err := sqlx.Open(connection.Dialect.Details().Dialect, connection.Dialect.URL())
+	err = db.Ping()
+	if err != nil {
+		logger.Warn("Failed to ping DB connection", zap.Error(err))
+		return connection, err
+	}
+
+	// Return the open connection
+	return connection, nil
+}
