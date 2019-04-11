@@ -6,7 +6,7 @@ import { get, capitalize } from 'lodash';
 import 'react-table/react-table.css';
 import { RetrieveMovesForOffice } from './api.js';
 import Alert from 'shared/Alert';
-import { formatDate, formatDateTime } from 'shared/formatters';
+import { formatDate, formatDateTimeWithTZ } from 'shared/formatters';
 
 class QueueTable extends Component {
   constructor() {
@@ -114,6 +114,7 @@ class QueueTable extends Component {
               {
                 Header: 'Rank',
                 accessor: 'rank',
+                Cell: row => <span className="rank">{row.value.replace('_', '-')}</span>,
               },
               {
                 Header: 'Locator #',
@@ -131,7 +132,7 @@ class QueueTable extends Component {
               {
                 Header: 'Last modified',
                 accessor: 'last_modified_date',
-                Cell: row => <span className="updated_at">{formatDateTime(row.value)}</span>,
+                Cell: row => <span className="updated_at">{formatDateTimeWithTZ(row.value)}</span>,
               },
             ]}
             data={this.state.data}
