@@ -132,7 +132,6 @@ class ShipmentInfo extends Component {
         this.props.getStorageInTransitsForShipment(shipmentId);
       })
       .catch(err => {
-        console.log(err);
         this.props.history.replace('/');
       });
   }
