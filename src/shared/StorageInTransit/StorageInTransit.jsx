@@ -181,7 +181,7 @@ export class StorageInTransit extends Component {
             />
           ) : (
             isTspSite &&
-            storageInTransit.status === 'APPROVED' && (
+            storageInTransit.status !== 'APPROVED' && (
               <span className="sit-actions">
                 <span className="sit-edit actionable">
                   <a onClick={this.openTspEditForm}>
