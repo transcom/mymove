@@ -7,7 +7,7 @@ import Alert from 'shared/Alert';
 import { formatTime, formatDate4DigitYear } from 'shared/formatters';
 import { isError, isLoading, isSuccess } from 'shared/constants';
 
-import './InvoicePanel.css';
+import './InvoicePaymentAlert.module.scss';
 
 class InvoicePaymentAlert extends PureComponent {
   render() {
