@@ -6,7 +6,7 @@ import { withContext } from 'shared/AppContext';
 import { formatCents } from 'shared/formatters';
 import { displayBaseQuantityUnits } from 'shared/lineItems';
 
-import './InvoicePanel.css';
+import './InvoicePanel.scss';
 
 class LineItemTable extends PureComponent {
   render() {

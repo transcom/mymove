@@ -23,7 +23,7 @@ import InvoicePaymentAlert from './InvoicePaymentAlert';
 import { isError, isLoading, isSuccess } from 'shared/constants';
 import { getLastError } from 'shared/Swagger/selectors';
 
-import './InvoicePanel.css';
+import './InvoicePanel.scss';
 
 export class InvoicePanel extends PureComponent {
   constructor(props) {
