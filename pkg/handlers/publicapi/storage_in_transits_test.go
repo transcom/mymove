@@ -158,7 +158,7 @@ func (suite *HandlerSuite) TestApproveStorageInTransitHandler() {
 	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
 
 	approvePayload := apimessages.StorageInTransitApprovalPayload{
-		AuthorizedStartDate: handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
+		AuthorizedStartDate: *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
 		AuthorizationNotes:  *handlers.FmtString("looks good to me"),
 	}
 
@@ -179,17 +179,6 @@ func (suite *HandlerSuite) TestApproveStorageInTransitHandler() {
 	responsePayload := response.(*sitop.ApproveStorageInTransitOK).Payload
 	suite.Equal(string(models.StorageInTransitStatusAPPROVED), responsePayload.Status)
 
-	// Let's try it with a nil date.
-	req = httptest.NewRequest("POST", path, nil)
-	req = suite.AuthenticateOfficeRequest(req, user)
-	approvePayload.AuthorizedStartDate = nil
-	params = sitop.ApproveStorageInTransitParams{
-		HTTPRequest:                     req,
-		ShipmentID:                      strfmt.UUID(shipment.ID.String()),
-		StorageInTransitID:              strfmt.UUID(sit.ID.String()),
-		StorageInTransitApprovalPayload: &approvePayload,
-	}
-
 	handler = ApproveStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response = handler.Handle(params)
 
@@ -199,7 +188,7 @@ func (suite *HandlerSuite) TestApproveStorageInTransitHandler() {
 
 	// Let's make sure it denies a TSP user.
 	req = suite.AuthenticateTspRequest(req, tspUser)
-	approvePayload.AuthorizedStartDate = handlers.FmtDate(testdatagen.DateInsidePeakRateCycle)
+	approvePayload.AuthorizedStartDate = *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle)
 	params = sitop.ApproveStorageInTransitParams{
 		HTTPRequest:                     req,
 		ShipmentID:                      strfmt.UUID(shipment.ID.String()),
@@ -233,7 +222,7 @@ func (suite *HandlerSuite) TestDenyStorageInTransitHandler() {
 	shipment, sit, user := setupStorageInTransitHandlerTest(suite)
 	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
 
-	denyPayload := apimessages.StorageInTransitApprovalPayload{
+	denyPayload := apimessages.StorageInTransitDenialPayload{
 		AuthorizationNotes: *handlers.FmtString("looks bad to me"),
 	}
 

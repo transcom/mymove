@@ -267,12 +267,7 @@ func (h ApproveStorageInTransitHandler) Handle(params sitop.ApproveStorageInTran
 
 	storageInTransit.Status = models.StorageInTransitStatusAPPROVED
 	storageInTransit.AuthorizationNotes = &payload.AuthorizationNotes
-
-	if payload.AuthorizedStartDate != nil {
-		storageInTransit.AuthorizedStartDate = (*time.Time)(payload.AuthorizedStartDate)
-	} else {
-		storageInTransit.AuthorizedStartDate = &storageInTransit.EstimatedStartDate
-	}
+	storageInTransit.AuthorizedStartDate = (*time.Time)(&payload.AuthorizedStartDate)
 
 	if verrs, err := h.DB().ValidateAndSave(storageInTransit); verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)

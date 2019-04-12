@@ -1757,7 +1757,7 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/StorageInTransit'
-  storageInTransitApprovalPayload:
+  StorageInTransitApprovalPayload:
     type: object
     properties:
       authorization_notes:
@@ -1768,10 +1768,17 @@ definitions:
       authorized_start_date:
         type: string
         format: date
-        x-nullable: true
         example: '2018-04-26'
         title: Authorized Start Date
-  storageInTransitInSitPayload:
+  StorageInTransitDenialPayload:
+    type: object
+    properties:
+      authorization_notes:
+        type: string
+        format: textarea
+        example: Good to go!
+        title: Authorization Notes
+  StorageInTransitInSitPayload:
     type: object
     properties:
       actual_start_date:
@@ -3020,7 +3027,7 @@ paths:
           name: storageInTransitApprovalPayload
           required: true
           schema:
-            $ref: '#/definitions/storageInTransitApprovalPayload'
+            $ref: '#/definitions/StorageInTransitApprovalPayload'
       responses:
         200:
           description: returns storage in transit that was approved
@@ -3061,7 +3068,7 @@ paths:
           name: storageInTransitApprovalPayload
           required: true
           schema:
-            $ref: '#/definitions/storageInTransitApprovalPayload'
+            $ref: '#/definitions/StorageInTransitDenialPayload'
       responses:
         200:
           description: returns storage in transit that was denied
@@ -3101,7 +3108,7 @@ paths:
         - name: storageInTransitInSitPayload
           in: body
           schema:
-            $ref: '#/definitions/storageInTransitInSitPayload'
+            $ref: '#/definitions/StorageInTransitInSitPayload'
       responses:
         200:
           description: returns storage in transit that was put into in_sit
