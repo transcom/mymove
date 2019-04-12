@@ -116,7 +116,7 @@ func (p *PersonallyProcuredMove) Approve(approveDate time.Time) error {
 	}
 
 	if p.ApproveDate != nil {
-		return errors.Wrap(ErrInvalidTransition, "Aprove - approve date change")
+		return errors.Wrap(ErrInvalidTransition, "Approve - approve date change")
 	}
 
 	p.Status = PPMStatusAPPROVED

@@ -39,24 +39,16 @@ export class SignedCertification extends Component {
     const pendingValues = this.props.values;
     const { latestSignedCertification } = this.props;
     const ppmSubmitDate = moment().format();
-
     if (latestSignedCertification) {
       return this.props.push('/');
     }
 
     if (pendingValues) {
       const moveId = this.props.match.params.moveId;
-      const { certificationText, ppmId } = this.props;
+      const { certificationText } = this.props;
 
       return this.props
-        .signAndSubmitForApproval(
-          moveId,
-          certificationText,
-          pendingValues.signature,
-          pendingValues.date,
-          ppmId,
-          ppmSubmitDate,
-        )
+        .signAndSubmitForApproval(moveId, certificationText, pendingValues.signature, pendingValues.date, ppmSubmitDate)
         .then(() => this.props.push('/'))
         .catch(() => this.setState({ hasMoveSubmitError: true }));
     }

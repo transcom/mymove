@@ -68,7 +68,7 @@ export const signAndSubmitForApproval = (moveId, certificationText, signature, d
 };
 
 export const signAndSubmitPpm = (moveId, certificationText, signature, dateSigned, ppmId, ppmSubmitDate) => {
-  return async function(dispatch, getState) {
+  return async function(dispatch) {
     const dateTimeSigned = dateToTimestamp(dateSigned);
     dispatch(signAndSubmitPpmForApprovalActions.start());
     try {
@@ -98,7 +98,7 @@ export function submitPpm(personallyProcuredMoveId, personallyProcuredMoveSubmit
     {
       personallyProcuredMoveId,
       submitPersonallyProcuredMovePayload: {
-        personallyProcuredMoveSubmitDate,
+        submit_date: personallyProcuredMoveSubmitDate,
       },
     },
     { label: 'submit_ppm' },

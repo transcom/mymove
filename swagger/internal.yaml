@@ -512,6 +512,8 @@ definitions:
         format: date-time
         title: When was the ppm move submitted?
         example: '2019-03-26T13:19:56-04:00'
+    required:
+      - ppm_submit_date
   SubmitPersonallyProcuredMovePayload:
     type: object
     properties:
@@ -520,6 +522,8 @@ definitions:
         format: date-time
         title: When was the ppm move submitted?
         example: '2019-03-26T13:19:56-04:00'
+    required:
+      - submit_date
   PPMSitEstimate:
     type: object
     properties:
@@ -592,6 +596,8 @@ definitions:
         format: date-time
         title: When was the ppm move approved?
         example: '2019-03-26T13:19:56-04:00'
+    required:
+      - approve_date
   IndexPersonallyProcuredMovePayload:
     type: array
     items:

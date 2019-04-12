@@ -10,7 +10,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
+	beeline "github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/assets"
@@ -159,7 +159,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	submitDate := time.Time(params.SubmitMoveForApprovalPayload.PpmSubmitDate)
+	submitDate := time.Time(*params.SubmitMoveForApprovalPayload.PpmSubmitDate)
 	err = move.Submit(submitDate)
 	span.AddField("move-status", string(move.Status))
 	if err != nil {

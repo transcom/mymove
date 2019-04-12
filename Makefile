@@ -249,7 +249,7 @@ server_run_default: server_deps server_generate db_dev_run
 .PHONY: server_run_debug
 server_run_debug:
 	INTERFACE=localhost DEBUG_LOGGING=true \
-	$(AWS_VAULT) dlv debug cmd/webserver/main.go
+	$(AWS_VAULT) dlv debug cmd/webserver/main.go cmd/webserver/logger.go
 
 .PHONY: build_tools
 build_tools: bash_version server_deps server_generate build_generate_test_data

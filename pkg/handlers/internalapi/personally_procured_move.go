@@ -24,7 +24,6 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 	if err != nil {
 		return nil, err
 	}
-
 	ppmPayload := internalmessages.PersonallyProcuredMovePayload{
 		ID:                            handlers.FmtUUID(personallyProcuredMove.ID),
 		MoveID:                        *handlers.FmtUUID(personallyProcuredMove.MoveID),
@@ -324,7 +323,10 @@ func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonall
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	submitDate := time.Time(params.SubmitPersonallyProcuredMovePayload.SubmitDate)
+	var submitDate time.Time
+	if params.SubmitPersonallyProcuredMovePayload.SubmitDate != nil {
+		submitDate = time.Time(*params.SubmitPersonallyProcuredMovePayload.SubmitDate)
+	}
 	err = ppm.Submit(submitDate)
 
 	verrs, err := models.SavePersonallyProcuredMove(h.DB(), ppm)

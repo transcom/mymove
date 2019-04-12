@@ -184,9 +184,10 @@ func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+	submitDate := strfmt.DateTime(time.Now())
 
 	newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{
-		PpmSubmitDate: strfmt.DateTime(time.Now()),
+		PpmSubmitDate: &submitDate,
 	}
 
 	params := moveop.SubmitMoveForApprovalParams{
@@ -226,9 +227,10 @@ func (suite *HandlerSuite) TestSubmitHHGMoveForApprovalHandler() {
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+	submitDate := strfmt.DateTime(time.Now())
 
 	newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{
-		PpmSubmitDate: strfmt.DateTime(time.Now()),
+		PpmSubmitDate: &submitDate,
 	}
 
 	params := moveop.SubmitMoveForApprovalParams{

@@ -198,9 +198,10 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/personally_procured_moves/some_id/approve", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
+	approveDate := strfmt.DateTime(time.Now())
 
 	newApprovePersonallyProcuredMovePayload := internalmessages.ApprovePersonallyProcuredMovePayload{
-		ApproveDate: strfmt.DateTime(time.Now()),
+		ApproveDate: &approveDate,
 	}
 	params := officeop.ApprovePPMParams{
 		HTTPRequest:                          req,
@@ -230,9 +231,10 @@ func (suite *HandlerSuite) TestApprovePPMHandlerForbidden() {
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/personally_procured_moves/some_id/approve", nil)
 	req = suite.AuthenticateRequest(req, user)
+	approveDate := strfmt.DateTime(time.Now())
 
 	newApprovePersonallyProcuredMovePayload := internalmessages.ApprovePersonallyProcuredMovePayload{
-		ApproveDate: strfmt.DateTime(time.Now()),
+		ApproveDate: &approveDate,
 	}
 	params := officeop.ApprovePPMParams{
 		HTTPRequest:                          req,

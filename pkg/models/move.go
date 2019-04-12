@@ -113,7 +113,8 @@ func (m *Move) Submit(ppmSubmitDate time.Time) error {
 
 	// Update PPM status too
 	for i := range m.PersonallyProcuredMoves {
-		err := m.PersonallyProcuredMoves[i].Submit(ppmSubmitDate)
+		ppm := &m.PersonallyProcuredMoves[i]
+		err := ppm.Submit(ppmSubmitDate)
 		if err != nil {
 			return err
 		}

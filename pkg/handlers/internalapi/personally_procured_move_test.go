@@ -81,9 +81,9 @@ func (suite *HandlerSuite) TestSubmitPPMHandler() {
 
 	req := httptest.NewRequest("POST", "/fake/path", nil)
 	req = suite.AuthenticateRequest(req, move1.Orders.ServiceMember)
-
+	submitDate := strfmt.DateTime(time.Now())
 	newSubmitPersonallyProcuredMovePayload := internalmessages.SubmitPersonallyProcuredMovePayload{
-		SubmitDate: strfmt.DateTime(time.Now()),
+		SubmitDate: &submitDate,
 	}
 
 	submitPPMParams := ppmop.SubmitPersonallyProcuredMoveParams{
