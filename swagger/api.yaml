@@ -3079,7 +3079,7 @@ paths:
           description: the storage in transit is not in an appropriate state to be approved
         500:
           description: server error
-  /shipments/{shipmentId}/storage_in_transits/{storageInTransitId}/in_sit:
+  /shipments/{shipmentId}/storage_in_transits/{storageInTransitId}/place_in_sit:
     post:
       summary: Places a storage in transit into 'IN_SIT'
       operationId: inSitStorageInTransit

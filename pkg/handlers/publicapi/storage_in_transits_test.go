@@ -307,7 +307,7 @@ func (suite *HandlerSuite) TestInSitStorageInTransitHandler() {
 		ActualStartDate: *handlers.FmtDate(testdatagen.DateInsidePerformancePeriod),
 	}
 
-	path := fmt.Sprintf("/shipments/%s/storage_in_transits/%s/in_sit", shipment.ID.String(), sit.ID.String())
+	path := fmt.Sprintf("/shipments/%s/storage_in_transits/%s/place_in_sit", shipment.ID.String(), sit.ID.String())
 	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 	params := sitop.InSitStorageInTransitParams{

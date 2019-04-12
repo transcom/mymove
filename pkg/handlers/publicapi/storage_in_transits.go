@@ -144,7 +144,8 @@ type IndexStorageInTransitHandler struct {
 	handlers.HandlerContext
 }
 
-// Handle returns a list of Storage In Transit entries
+// Handle handles the handling
+// This is meant to return a list of storage in transits using their shipment ID.
 func (h IndexStorageInTransitHandler) Handle(params sitop.IndexStorageInTransitsParams) middleware.Responder {
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
@@ -183,6 +184,7 @@ type CreateStorageInTransitHandler struct {
 }
 
 // Handle handles the handling
+// This is meant to create a storage in transit and return it in a payload
 func (h CreateStorageInTransitHandler) Handle(params sitop.CreateStorageInTransitParams) middleware.Responder {
 	payload := params.StorageInTransit
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
@@ -226,6 +228,8 @@ type ApproveStorageInTransitHandler struct {
 }
 
 // Handle handles the handling
+// This is meant to set the status for a storage in transit to approved, save the authorization notes that
+// support that status, save the authorization date, and return the saved object in a payload.
 func (h ApproveStorageInTransitHandler) Handle(params sitop.ApproveStorageInTransitParams) middleware.Responder {
 	payload := params.StorageInTransitApprovalPayload
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
@@ -285,6 +289,8 @@ type DenyStorageInTransitHandler struct {
 }
 
 // Handle handles the handling
+// This is meant to set the status for a storage in transit to denied, save the supporting authorization notes,
+// and return the saved object in a payload.
 func (h DenyStorageInTransitHandler) Handle(params sitop.DenyStorageInTransitParams) middleware.Responder {
 	payload := params.StorageInTransitApprovalPayload
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
@@ -339,6 +345,7 @@ type InSitStorageInTransitHandler struct {
 }
 
 // Handle handles the handling
+// This is meant to set the status for a storage in transit to 'in SIT' and return the saved object in a payload.
 func (h InSitStorageInTransitHandler) Handle(params sitop.InSitStorageInTransitParams) middleware.Responder {
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
 	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
@@ -401,6 +408,7 @@ type DeliverStorageInTransitHandler struct {
 }
 
 // Handle handles the handling
+// This is meant to set the status for a storage in transit to delivered and return the saved object in a payload.
 func (h DeliverStorageInTransitHandler) Handle(params sitop.DeliverStorageInTransitParams) middleware.Responder {
 	// TODO: it looks like from the wireframes for the delivery status change form that this will also need to edit
 	//  delivery address(es) and the actual delivery date.
@@ -459,6 +467,8 @@ type ReleaseStorageInTransitHandler struct {
 }
 
 // Handle Handles the handling
+// This is meant to set the status of a storage in transit to released, save the actual date that supports that,
+// and return the saved object in a payload.
 func (h ReleaseStorageInTransitHandler) Handle(params sitop.ReleaseStorageInTransitParams) middleware.Responder {
 	// TODO: There may be other fields that have to be addressed here when we get to the frontend story for this.
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
@@ -514,6 +524,8 @@ type PatchStorageInTransitHandler struct {
 }
 
 // Handle handles the handling
+// This is meant to edit a storage in transit object based on provided parameters and return the saved object
+// in a payload
 func (h PatchStorageInTransitHandler) Handle(params sitop.PatchStorageInTransitParams) middleware.Responder {
 	payload := params.StorageInTransit
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
@@ -561,6 +573,7 @@ type GetStorageInTransitHandler struct {
 }
 
 // Handle handles the handling
+// This is meant to fetch a single storage in transit using its shipment and object IDs
 func (h GetStorageInTransitHandler) Handle(params sitop.GetStorageInTransitParams) middleware.Responder {
 	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
@@ -596,6 +609,7 @@ type DeleteStorageInTransitHandler struct {
 }
 
 // Handle handles the handling
+// This is meant to delete a storage in transit object using its own shipment and object IDs
 func (h DeleteStorageInTransitHandler) Handle(params sitop.DeleteStorageInTransitParams) middleware.Responder {
 	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
