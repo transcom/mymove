@@ -96,12 +96,13 @@ export function createOrUpdateServiceAgent(shipmentId, serviceAgent) {
 }
 
 // Selectors
-export function loadEntitlements(state) {
-  const shipmentId = Object.keys(state.entities.shipments)[0];
+export function loadEntitlements(state, shipmentId) {
   const shipment = selectShipment(state, shipmentId);
-  const hasDependents = shipment.move.has_dependents;
-  const spouseHasProGear = shipment.move.spouse_has_progear;
-  const rank = shipment.service_member.rank;
+  const move = shipment.move || {};
+  const serviceMember = shipment.service_member || {};
+  const hasDependents = move.has_dependents;
+  const spouseHasProGear = move.spouse_has_progear;
+  const rank = serviceMember.rank;
 
   if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
     return null;
