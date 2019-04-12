@@ -541,7 +541,8 @@ func (h RequestPPMExpenseSummaryHandler) Handle(params ppmop.RequestPPMExpenseSu
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
 
 	// Fetch all approved expense documents for a PPM
-	moveDocsExpense, err := models.FetchApprovedMovingExpenseDocuments(h.DB(), session, ppmID)
+	status := models.MoveDocumentStatusOK
+	moveDocsExpense, err := models.FetchMovingExpenseDocuments(h.DB(), session, ppmID, &status)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
