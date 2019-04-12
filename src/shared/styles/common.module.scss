@@ -1,0 +1,10 @@
+@import './themes.scss';
+
+.align-right {
+  text-align: right;
+}
+
+.warning {
+  color: $warning;
+  font-style: italic;
+}
