@@ -98,7 +98,7 @@ _Regardless of where your go code is located_, you need to add `$GOPATH/bin` to 
 export PATH=$(go env GOPATH)/bin:$PATH
 ```
 
-Once that's done, you have go installed, and you've re-sourced your profile, you can checkout this repository by running `go get github.com/transcom/mymove/cmd/webserver` (This will emit an error "can't load package:" or multiple errors with "Cannot find package" but will have cloned the source correctly). You will then find the code at `$GOPATH/src/github.com/transcom/mymove`
+Once that's done, you have go installed, and you've re-sourced your profile, you can checkout this repository by running `go get github.com/transcom/mymove/cmd/milmove` (This will emit an error "can't load package:" or multiple errors with "Cannot find package" but will have cloned the source correctly). You will then find the code at `$GOPATH/src/github.com/transcom/mymove`
 
 If you have already checked out the code somewhere else, you can just move it to be in the above location and everything will work correctly.
 
