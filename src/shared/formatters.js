@@ -194,13 +194,16 @@ export function formatDateTime(date) {
 
 // Format a date, include its time and timezone, e.g. 03-Jan-2018 21:23 ET
 export function formatDateTimeWithTZ(date) {
-  if (date) {
-    let zone = new Date().toLocaleTimeString('en-us', { timeZoneName: 'short' }).split(' ')[2];
-    if (zone.length === 3 && !(zone === 'UTC')) {
-      zone = zone.slice(0, 1) + zone.slice(2, 3);
-    }
-    return moment(date, moment.ISO_8601, true).format('DD-MMM-YY HH:mm') + ` ${zone}`;
+  if (!date) return undefined;
+
+  let zone = new Date().toLocaleTimeString('en-us', { timeZoneName: 'short' }).split(' ')[2];
+
+  // Converting timezones like CDT and EST to CT and ET
+  if (zone.length === 3 && zone !== 'UTC') {
+    zone = zone.slice(0, 1) + zone.slice(2, 3);
   }
+
+  return moment(date, moment.ISO_8601, true).format('DD-MMM-YY HH:mm') + ` ${zone}`;
 }
 
 // truncate a number and return appropiate decimal places... (watch out for negitive numbers: floor(-5.1) === -6)
