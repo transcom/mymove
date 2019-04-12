@@ -453,13 +453,18 @@ func (suite *HandlerSuite) TestReleaseStorageInTransitHandler() {
 	sit.Status = models.StorageInTransitStatusINSIT
 	_, _ = suite.DB().ValidateAndSave(&sit)
 
+	releaseSITPayload := apimessages.StorageInTransitReleasePayload{
+		ReleasedOn: *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
+	}
+
 	path := fmt.Sprintf("/shipments/%s/storage_in_transits/%s/release", shipment.ID.String(), sit.ID.String())
 	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 	params := sitop.ReleaseStorageInTransitParams{
-		HTTPRequest:        req,
-		ShipmentID:         strfmt.UUID(shipment.ID.String()),
-		StorageInTransitID: strfmt.UUID(sit.ID.String()),
+		HTTPRequest:                      req,
+		ShipmentID:                       strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID:               strfmt.UUID(sit.ID.String()),
+		StorageInTransitOnReleasePayload: &releaseSITPayload,
 	}
 
 	handler := ReleaseStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
@@ -469,6 +474,7 @@ func (suite *HandlerSuite) TestReleaseStorageInTransitHandler() {
 	responsePayload := response.(*sitop.ReleaseStorageInTransitOK).Payload
 
 	suite.Equal(string(models.StorageInTransitStatusRELEASED), responsePayload.Status)
+	suite.Equal(releaseSITPayload.ReleasedOn, *responsePayload.OutDate)
 
 	// Let's make sure this doesn't work if the status isn't 'in sit'
 	sit.Status = models.StorageInTransitStatusREQUESTED
@@ -508,9 +514,10 @@ func (suite *HandlerSuite) TestReleaseStorageInTransitHandler() {
 
 	req = suite.AuthenticateTspRequest(req, tspUser)
 	params = sitop.ReleaseStorageInTransitParams{
-		HTTPRequest:        req,
-		ShipmentID:         strfmt.UUID(shipment.ID.String()),
-		StorageInTransitID: strfmt.UUID(sit.ID.String()),
+		HTTPRequest:                      req,
+		ShipmentID:                       strfmt.UUID(shipment.ID.String()),
+		StorageInTransitID:               strfmt.UUID(sit.ID.String()),
+		StorageInTransitOnReleasePayload: &releaseSITPayload,
 	}
 
 	handler = ReleaseStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
@@ -518,6 +525,7 @@ func (suite *HandlerSuite) TestReleaseStorageInTransitHandler() {
 	suite.Assertions.IsType(&sitop.ReleaseStorageInTransitOK{}, response)
 	responsePayload = response.(*sitop.ReleaseStorageInTransitOK).Payload
 	suite.Equal(string(models.StorageInTransitStatusRELEASED), responsePayload.Status)
+	suite.Equal(releaseSITPayload.ReleasedOn, *responsePayload.OutDate)
 
 }
 

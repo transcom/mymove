@@ -39,6 +39,7 @@ func payloadForStorageInTransitModel(s *models.StorageInTransit) *apimessages.St
 		AuthorizationNotes:  handlers.FmtStringPtr(s.AuthorizationNotes),
 		AuthorizedStartDate: handlers.FmtDatePtr(s.AuthorizedStartDate),
 		ActualStartDate:     handlers.FmtDatePtr(s.ActualStartDate),
+		OutDate:             handlers.FmtDatePtr(s.OutDate),
 	}
 }
 
@@ -468,6 +469,7 @@ func (h ReleaseStorageInTransitHandler) Handle(params sitop.ReleaseStorageInTran
 	// TODO: There may be other fields that have to be addressed here when we get to the frontend story for this.
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
 	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
+	payload := params.StorageInTransitOnReleasePayload
 
 	if err != nil {
 		h.Logger().Error("UUID Parsing", zap.Error(err))
@@ -503,6 +505,7 @@ func (h ReleaseStorageInTransitHandler) Handle(params sitop.ReleaseStorageInTran
 		return sitop.NewReleaseStorageInTransitConflict()
 	}
 	storageInTransit.Status = models.StorageInTransitStatusRELEASED
+	storageInTransit.OutDate = (*time.Time)(&payload.ReleasedOn)
 
 	if verrs, errs := h.DB().ValidateAndSave(storageInTransit); verrs.HasAny() || errs != nil {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)

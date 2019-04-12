@@ -1786,6 +1786,14 @@ definitions:
         format: date
         example: '2018-04-26'
         title: Actual Start date
+  StorageInTransitReleasePayload:
+    type: object
+    properties:
+      released_on:
+        type: string
+        format: date
+        example: '2018-04-26'
+        title: Released On Date
 
 paths:
   /tariff_400ng_items:
@@ -3145,6 +3153,10 @@ paths:
           format: uuid
           required: true
           description: UUID of storage in transit
+        - name: storageInTransitOnReleasePayload
+          in: body
+          schema:
+            $ref: '#/definitions/StorageInTransitReleasePayload'
       responses:
         200:
           description: returns storage in transit that was released
