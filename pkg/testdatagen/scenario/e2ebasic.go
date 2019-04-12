@@ -103,6 +103,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	makeHhgReadyToInvoice(db, tspUser, logger, storer)
 
 	/*
+	 * Service member new ppm move
+	 */
+	makeNewPPM(db, tspUser, loader)
+
+	/*
 	 * Service member with no uploaded orders
 	 */
 	email = "needs@orde.rs"
@@ -2946,4 +2951,43 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Lo
 	)
 
 	return offer.Shipment
+}
+
+func makeNewPPM(db *pop.Connection, tspUser models.TspUser, loader *uploader.Uploader) {
+	/*
+	 * Service member with uploaded orders and a new ppm
+	 */
+	email := "ppm@incomple.te"
+	uuidStr := "1d4aad25-b31b-486f-bfae-09d77e729044"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
+	ppm0 := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("c61cae62-b086-411e-a9f9-e75319037a28"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("Submitted"),
+			Edipi:         models.StringPointer("1234567890"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("360fe5ef-b9e5-4183-9766-3efaeb8113d1"),
+			Locator:          "PZCPPP",
+			SelectedMoveType: &selectedMoveTypeHHG,
+			Show:             swag.Bool(false),
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate:    &nextValidMoveDate,
+			Advance:             &advance,
+			AdvanceID:           &advance.ID,
+			HasRequestedAdvance: true,
+		},
+		Uploader: loader,
+	})
+	ppm0.Move.Submit()
 }
