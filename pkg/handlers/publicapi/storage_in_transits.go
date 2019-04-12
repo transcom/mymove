@@ -1,6 +1,7 @@
 package publicapi
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -237,44 +238,45 @@ func (h ApproveStorageInTransitHandler) Handle(params sitop.ApproveStorageInTran
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// Only office users are authorized to do this.
-	if session.IsOfficeUser() {
-		storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
 
-		if err != nil {
-			h.Logger().Error("Could not find existing storage in transit", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
-		}
-
-		// Verify that the shipment we're getting matches what's in the storage in transit
-		if shipmentID != storageInTransit.ShipmentID {
-			h.Logger().Error("ShipmentID provided does not match the storage in transit")
-			return sitop.NewApproveStorageInTransitForbidden()
-		}
-
-		if storageInTransit.Status == models.StorageInTransitStatusDELIVERED {
-			h.Logger().Error("Cannot approve storage in transit that's already delivered")
-			return sitop.NewApproveStorageInTransitConflict()
-		}
-
-		storageInTransit.Status = models.StorageInTransitStatusAPPROVED
-		storageInTransit.AuthorizationNotes = &payload.AuthorizationNotes
-
-		if payload.AuthorizedStartDate != nil {
-			storageInTransit.AuthorizedStartDate = (*time.Time)(payload.AuthorizedStartDate)
-		} else {
-			storageInTransit.AuthorizedStartDate = &storageInTransit.EstimatedStartDate
-		}
-
-		if verrs, err := h.DB().ValidateAndSave(storageInTransit); verrs.HasAny() || err != nil {
-			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
-		}
-
-		returnPayload := payloadForStorageInTransitModel(storageInTransit)
-		return sitop.NewApproveStorageInTransitOK().WithPayload(returnPayload)
-
+	if !session.IsOfficeUser() {
+		return sitop.NewApproveStorageInTransitForbidden()
 	}
 
-	return sitop.NewApproveStorageInTransitForbidden()
+	storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
+
+	if err != nil {
+		h.Logger().Error(fmt.Sprintf("Could not find existing storage in transit with id: %s ", storageInTransitID), zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	// Verify that the shipment we're getting matches what's in the storage in transit
+	if shipmentID != storageInTransit.ShipmentID {
+		h.Logger().Error(fmt.Sprintf("ShipmentID: ( %s ) provided does not match the storage in transit", shipmentID))
+		return sitop.NewApproveStorageInTransitForbidden()
+	}
+
+	if storageInTransit.Status == models.StorageInTransitStatusDELIVERED {
+		h.Logger().Error(fmt.Sprintf("Cannot approve storage in transit that's already delivered. ID: %s", storageInTransitID))
+		return sitop.NewApproveStorageInTransitConflict()
+	}
+
+	storageInTransit.Status = models.StorageInTransitStatusAPPROVED
+	storageInTransit.AuthorizationNotes = &payload.AuthorizationNotes
+
+	if payload.AuthorizedStartDate != nil {
+		storageInTransit.AuthorizedStartDate = (*time.Time)(payload.AuthorizedStartDate)
+	} else {
+		storageInTransit.AuthorizedStartDate = &storageInTransit.EstimatedStartDate
+	}
+
+	if verrs, err := h.DB().ValidateAndSave(storageInTransit); verrs.HasAny() || err != nil {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+
+	returnPayload := payloadForStorageInTransitModel(storageInTransit)
+	return sitop.NewApproveStorageInTransitOK().WithPayload(returnPayload)
+
 }
 
 // DenyStorageInTransitHandler denies an existing storage in transit
@@ -296,36 +298,39 @@ func (h DenyStorageInTransitHandler) Handle(params sitop.DenyStorageInTransitPar
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	// Only office users are authorized to do this
-	if session.IsOfficeUser() {
-		storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
+	if !session.IsOfficeUser() {
 
-		if err != nil {
-			h.Logger().Error("Could not find existing storage in transit", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
-		}
-
-		// Verify that the shipment we're getting matches what's in the storage in transit
-		if shipmentID != storageInTransit.ShipmentID {
-			h.Logger().Error("ShipmentID provided does not match the storage in transit")
-			return sitop.NewDenyStorageInTransitForbidden()
-		}
-
-		if storageInTransit.Status == models.StorageInTransitStatusDELIVERED {
-			h.Logger().Error("Cannot deny storage in transit that's already delivered")
-			return sitop.NewDenyStorageInTransitConflict()
-		}
-
-		storageInTransit.Status = models.StorageInTransitStatusDENIED
-		storageInTransit.AuthorizationNotes = &payload.AuthorizationNotes
-
-		if verrs, err := h.DB().ValidateAndSave(storageInTransit); verrs.HasAny() || err != nil {
-			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
-		}
-
-		returnPayload := payloadForStorageInTransitModel(storageInTransit)
-		return sitop.NewDenyStorageInTransitOK().WithPayload(returnPayload)
+		return sitop.NewDenyStorageInTransitForbidden()
 	}
-	return sitop.NewDenyStorageInTransitForbidden()
+
+	storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
+
+	if err != nil {
+		h.Logger().Error(fmt.Sprintf("Could not find existing storage in transit with id: %s ", storageInTransitID), zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	// Verify that the shipment we're getting matches what's in the storage in transit
+	if shipmentID != storageInTransit.ShipmentID {
+		h.Logger().Error(fmt.Sprintf("ShipmentID: ( %s ) provided does not match the storage in transit", shipmentID))
+		return sitop.NewDenyStorageInTransitForbidden()
+	}
+
+	if storageInTransit.Status == models.StorageInTransitStatusDELIVERED {
+		h.Logger().Error(fmt.Sprintf("Cannot approve storage in transit that's already delivered. ID: %s", storageInTransitID))
+		return sitop.NewDenyStorageInTransitConflict()
+	}
+
+	storageInTransit.Status = models.StorageInTransitStatusDENIED
+	storageInTransit.AuthorizationNotes = &payload.AuthorizationNotes
+
+	if verrs, err := h.DB().ValidateAndSave(storageInTransit); verrs.HasAny() || err != nil {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+
+	returnPayload := payloadForStorageInTransitModel(storageInTransit)
+	return sitop.NewDenyStorageInTransitOK().WithPayload(returnPayload)
+
 }
 
 // InSitStorageInTransitHandler places storage in transit into in sit
@@ -347,48 +352,47 @@ func (h InSitStorageInTransitHandler) Handle(params sitop.InSitStorageInTransitP
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	// Only TSPs are authorized to do this
-	if session.IsTspUser() {
-
-		// Make sure the TSP is authorized for the shipment
-		_, _, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
-
-		if err != nil {
-			sitop.NewInSitStorageInTransitForbidden()
-		}
-
-		storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
-
-		if err != nil {
-			h.Logger().Error("Could not find existing storage in transit", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
-		}
-
-		// Verify that the shipment we're getting matches what's in the storage in transit
-		if shipmentID != storageInTransit.ShipmentID {
-			h.Logger().Error("ShipmentID provided does not match the storage in transit")
-			return sitop.NewApproveStorageInTransitForbidden()
-		}
-
-		payloadActualStartDate := (time.Time)(inSitPayload.ActualStartDate)
-
-		if !(storageInTransit.Status == models.StorageInTransitStatusAPPROVED) {
-			h.Logger().Error("Cannot place storage in transit into SIT without approval")
-			return sitop.NewInSitStorageInTransitConflict()
-		}
-
-		storageInTransit.Status = models.StorageInTransitStatusINSIT
-		storageInTransit.ActualStartDate = &payloadActualStartDate
-
-		if verrs, errs := h.DB().ValidateAndSave(storageInTransit); verrs.HasAny() || errs != nil {
-			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
-		}
-
-		returnPayload := payloadForStorageInTransitModel(storageInTransit)
-		return sitop.NewInSitStorageInTransitOK().WithPayload(returnPayload)
-
+	if !session.IsTspUser() {
+		return sitop.NewInSitStorageInTransitForbidden()
 	}
 
-	return sitop.NewInSitStorageInTransitForbidden()
+	// Make sure the TSP is authorized for the shipment
+	_, _, err = models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
+
+	if err != nil {
+		return sitop.NewInSitStorageInTransitForbidden()
+	}
+
+	storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
+
+	if err != nil {
+		h.Logger().Error(fmt.Sprintf("Could not find existing storage in transit with id: %s ", storageInTransitID), zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	// Verify that the shipment we're getting matches what's in the storage in transit
+	if shipmentID != storageInTransit.ShipmentID {
+		h.Logger().Error(fmt.Sprintf("ShipmentID: ( %s ) provided does not match the storage in transit", shipmentID))
+		return sitop.NewApproveStorageInTransitForbidden()
+	}
+
+	payloadActualStartDate := (time.Time)(inSitPayload.ActualStartDate)
+
+	if !(storageInTransit.Status == models.StorageInTransitStatusAPPROVED) {
+		h.Logger().Error(fmt.Sprintf("Cannot place into SIT without approval. ID: %s ", storageInTransitID))
+		return sitop.NewInSitStorageInTransitConflict()
+	}
+
+	storageInTransit.Status = models.StorageInTransitStatusINSIT
+	storageInTransit.ActualStartDate = &payloadActualStartDate
+
+	if verrs, errs := h.DB().ValidateAndSave(storageInTransit); verrs.HasAny() || errs != nil {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+
+	returnPayload := payloadForStorageInTransitModel(storageInTransit)
+	return sitop.NewInSitStorageInTransitOK().WithPayload(returnPayload)
+
 }
 
 // DeliverStorageInTransitHandler delivers an existing storage in transit
@@ -410,40 +414,43 @@ func (h DeliverStorageInTransitHandler) Handle(params sitop.DeliverStorageInTran
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
+	fmt.Println(session.IsTspUser())
+
 	// Only TSPs are authorized to do this
-	if session.IsTspUser() {
-		// Make sure the TSP is authorized for the shipment
-		_, _, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
-
-		if err != nil {
-			sitop.NewDeliverStorageInTransitForbidden()
-		}
-
-		storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
-
-		if err != nil {
-			h.Logger().Error("Could not find existing storage in transit", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
-		}
-
-		if !(storageInTransit.Status == models.StorageInTransitStatusINSIT) &&
-			!(storageInTransit.Status == models.StorageInTransitStatusRELEASED) {
-			h.Logger().Error("Cannot deliver if its not in sit or released.")
-			return sitop.NewDeliverStorageInTransitConflict()
-		}
-
-		storageInTransit.Status = models.StorageInTransitStatusDELIVERED
-
-		if verrs, errs := h.DB().ValidateAndSave(storageInTransit); verrs.HasAny() || errs != nil {
-			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
-		}
-
-		returnPayload := payloadForStorageInTransitModel(storageInTransit)
-		return sitop.NewDeliverStorageInTransitOK().WithPayload(returnPayload)
-
+	if !session.IsTspUser() {
+		fmt.Println("was false")
+		return sitop.NewDeliverStorageInTransitForbidden()
 	}
 
-	return sitop.NewDeliverStorageInTransitForbidden()
+	// Make sure the TSP is authorized for the shipment
+	_, _, err = models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
+
+	if err != nil {
+		return sitop.NewDeliverStorageInTransitForbidden()
+	}
+
+	storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
+
+	if err != nil {
+		h.Logger().Error(fmt.Sprintf("Could not find existing storage in transit with id: %s ", storageInTransitID), zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	if !(storageInTransit.Status == models.StorageInTransitStatusINSIT) &&
+		!(storageInTransit.Status == models.StorageInTransitStatusRELEASED) {
+		h.Logger().Error(fmt.Sprintf("Cannot deliver if its not in sit or released. ID: %s", storageInTransitID))
+		return sitop.NewDeliverStorageInTransitConflict()
+	}
+
+	storageInTransit.Status = models.StorageInTransitStatusDELIVERED
+
+	if verrs, errs := h.DB().ValidateAndSave(storageInTransit); verrs.HasAny() || errs != nil {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+
+	returnPayload := payloadForStorageInTransitModel(storageInTransit)
+	return sitop.NewDeliverStorageInTransitOK().WithPayload(returnPayload)
+
 }
 
 // ReleaseStorageInTransitHandler releases an existing storage in transit
@@ -465,40 +472,39 @@ func (h ReleaseStorageInTransitHandler) Handle(params sitop.ReleaseStorageInTran
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	// Only TSPs are authorized to do this
-	if session.IsTspUser() {
-		// Make sure the TSP is authorized for the shipment
-		_, _, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
-
-		if err != nil {
-			sitop.NewReleaseStorageInTransitForbidden()
-		}
-
-		storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
-
-		if err != nil {
-			h.Logger().Error("Could not find existing storage in transit", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
-		}
-
-		// Make sure we're not releasing something that wasn't in SIT or in delivered status.
-		// The latter is there so that we can 'undo' a mistaken deliver action.
-		if !(storageInTransit.Status == models.StorageInTransitStatusINSIT) &&
-			!(storageInTransit.Status == models.StorageInTransitStatusDELIVERED) {
-			h.Logger().Error("Cannot release something from storage in transit that wasn't in it.")
-			return sitop.NewReleaseStorageInTransitConflict()
-		}
-		storageInTransit.Status = models.StorageInTransitStatusRELEASED
-
-		if verrs, errs := h.DB().ValidateAndSave(storageInTransit); verrs.HasAny() || errs != nil {
-			return handlers.ResponseForVErrors(h.Logger(), verrs, err)
-		}
-
-		returnPayload := payloadForStorageInTransitModel(storageInTransit)
-		return sitop.NewReleaseStorageInTransitOK().WithPayload(returnPayload)
-
+	if !session.IsTspUser() {
+		return sitop.NewReleaseStorageInTransitForbidden()
 	}
 
-	return sitop.NewReleaseStorageInTransitForbidden()
+	// Make sure the TSP is authorized for the shipment
+	_, _, err = models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
+
+	if err != nil {
+		return sitop.NewReleaseStorageInTransitForbidden()
+	}
+
+	storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
+
+	if err != nil {
+		h.Logger().Error(fmt.Sprintf("Could not find existing storage in transit with id: %s ", storageInTransitID), zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	// Make sure we're not releasing something that wasn't in SIT or in delivered status.
+	// The latter is there so that we can 'undo' a mistaken deliver action.
+	if !(storageInTransit.Status == models.StorageInTransitStatusINSIT) &&
+		!(storageInTransit.Status == models.StorageInTransitStatusDELIVERED) {
+		h.Logger().Error(fmt.Sprintf("Cannot release something from storage in transit that wasn't in it. ID: %s", storageInTransitID))
+		return sitop.NewReleaseStorageInTransitConflict()
+	}
+	storageInTransit.Status = models.StorageInTransitStatusRELEASED
+
+	if verrs, errs := h.DB().ValidateAndSave(storageInTransit); verrs.HasAny() || errs != nil {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+
+	returnPayload := payloadForStorageInTransitModel(storageInTransit)
+	return sitop.NewReleaseStorageInTransitOK().WithPayload(returnPayload)
 
 }
 
