@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { FormSection } from 'redux-form';
 import PropTypes from 'prop-types';
+import style from './index.module.scss';
 
 import { PanelField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -46,7 +47,7 @@ export class AddressElementEdit extends Component {
         <SwaggerField fieldName="street_address_1" swagger={this.props.schema} required />
         <SwaggerField fieldName="street_address_2" swagger={this.props.schema} />
         <SwaggerField fieldName="city" swagger={this.props.schema} required />
-        <div className="usa-input">
+        <div className={style['state-zip']}>
           <div />
           <SwaggerField className="usa-width-one-half" fieldName="state" swagger={this.props.schema} required />
           <SwaggerField
