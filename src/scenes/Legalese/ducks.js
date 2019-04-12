@@ -34,7 +34,7 @@ export function dateToTimestamp(dt) {
   return moment(dt).format();
 }
 
-export const signAndSubmitForApproval = (moveId, certificationText, signature, dateSigned, ppmSubmitDate) => {
+export const signAndSubmitForApproval = (moveId, certificationText, signature, dateSigned, ppmId, ppmSubmitDate) => {
   return async function(dispatch, getState) {
     const dateTimeSigned = dateToTimestamp(dateSigned);
     dispatch(signAndSubmitForApprovalActions.start());
@@ -57,7 +57,7 @@ export const signAndSubmitForApproval = (moveId, certificationText, signature, d
       );
 
       const data = normalize(response.payload, move);
-      const filtered = pick(data.entities, ['shipments', 'moves']);
+      const filtered = pick(data.entities, ['shipments', 'moves', 'personallyProcuredMoves']);
       dispatch(addEntities(filtered));
       return dispatch(signAndSubmitForApprovalActions.success());
     } catch (error) {

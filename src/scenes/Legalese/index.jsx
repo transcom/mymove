@@ -37,7 +37,7 @@ export class SignedCertification extends Component {
 
   handleSubmit = () => {
     const pendingValues = this.props.values;
-    const { latestSignedCertification } = this.props;
+    const { latestSignedCertification, ppmId } = this.props;
     const ppmSubmitDate = moment().format();
     if (latestSignedCertification) {
       return this.props.push('/');
@@ -48,7 +48,14 @@ export class SignedCertification extends Component {
       const { certificationText } = this.props;
 
       return this.props
-        .signAndSubmitForApproval(moveId, certificationText, pendingValues.signature, pendingValues.date, ppmSubmitDate)
+        .signAndSubmitForApproval(
+          moveId,
+          certificationText,
+          pendingValues.signature,
+          pendingValues.date,
+          ppmId,
+          ppmSubmitDate,
+        )
         .then(() => this.props.push('/'))
         .catch(() => this.setState({ hasMoveSubmitError: true }));
     }
@@ -155,6 +162,7 @@ function mapStateToProps(state) {
     hasLoggedInUser: selectGetCurrentUserIsSuccess(state),
     values: getFormValues(formName)(state),
     ...state.signedCertification,
+    ppmId: get(state.ppm, 'currentPpm.id', null),
     has_sit: get(state.ppm, 'currentPpm.has_sit', false),
     has_advance: get(state.ppm, 'currentPpm.has_requested_advance', false),
     selectedMoveType: get(state.moves.currentMove, 'selected_move_type', null),
