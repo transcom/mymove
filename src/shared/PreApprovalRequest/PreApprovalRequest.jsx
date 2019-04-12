@@ -17,14 +17,15 @@ function formatStatus(lineItem) {
   if (lineItem.invoice_id) {
     formattedStatus = 'Invoiced';
   }
-
+  if (formattedStatus === 'CONDITIONALLY_APPROVED') return 'Approved';
   return formattedStatus[0].toUpperCase() + formattedStatus.substring(1).toLowerCase();
 }
 
 export function renderActionIcons(status, onEdit, onApproval, onDelete, shipmentLineItemId, canEdit35A) {
   // Only office users can approve requests.
   // If the request is approved/invoiced, they cannot be edited, only deleted.
-  const isEditable = status === 'SUBMITTED' || (status === 'APPROVED' && canEdit35A);
+  const isEditable =
+    status === 'SUBMITTED' || ((status === 'CONDITIONALLY_APPROVED' || status === 'APPROVED') && canEdit35A);
   return (
     <Fragment>
       <div className="pre-approval-icon-container">

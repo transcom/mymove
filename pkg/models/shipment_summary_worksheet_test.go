@@ -59,7 +59,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 			MoveID:                   ppm.Move.ID,
 			Move:                     ppm.Move,
 			PersonallyProcuredMoveID: &ppm.ID,
-			Status:                   "OK",
+			Status:                   models.MoveDocumentStatusAWAITINGREVIEW,
 			MoveDocumentType:         "EXPENSE",
 		},
 		Document: models.Document{
