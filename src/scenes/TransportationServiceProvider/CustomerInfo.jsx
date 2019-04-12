@@ -152,13 +152,13 @@ const mapStateToProps = (state, ownProps) => {
     email: '',
     phone: '',
   };
-  const serviceMember = ownProps.serviceMember || defaultServiceMember;
-  const backupContact = ownProps.serviceMember.backup_contacts[0] || defaultBackupContact;
+  const serviceMember = ownProps.shipment.service_member || defaultServiceMember;
+  const backupContact = ownProps.shipment.service_member.backup_contacts[0] || defaultBackupContact;
 
   return {
     serviceMember,
     backupContact,
-    entitlements: loadEntitlements(state),
+    entitlements: loadEntitlements(state, ownProps.shipment.id),
   };
 };
 
