@@ -108,13 +108,15 @@ const normalizeZip = (value, previousValue) => {
   return normalizedZip;
 };
 
-const normalizeEdipi = (value, previousValue) => {
-  if (!value) {
-    return value;
-  }
+const createDigitNormalizer = maxLength => {
+  return value => {
+    if (!value) {
+      return value;
+    }
 
-  // only numbers up to 10 digits
-  return value.replace(/[^\d]/g, '').substr(0, 10);
+    // only numbers up to 10 digits
+    return value.replace(/[^\d]/g, '').substr(0, maxLength);
+  };
 };
 
 const createDecimalNormalizer = decimalDigits => {
@@ -162,5 +164,5 @@ export default {
   normalizeZip,
   patternMatches,
   createDecimalNormalizer,
-  normalizeEdipi,
+  createDigitNormalizer,
 };
