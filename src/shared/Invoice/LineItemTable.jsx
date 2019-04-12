@@ -6,7 +6,8 @@ import { withContext } from 'shared/AppContext';
 import { formatCents } from 'shared/formatters';
 import { displayBaseQuantityUnits } from 'shared/lineItems';
 
-import './InvoicePanel.scss';
+import styles from './InvoicePanel.module.scss';
+import common from 'shared/styles/common.module.scss';
 
 class LineItemTable extends PureComponent {
   render() {
@@ -23,7 +24,7 @@ class LineItemTable extends PureComponent {
     return (
       <div>
         {this.props.title}
-        <table cellSpacing={0}>
+        <table cellSpacing={0} className={styles['invoice-panel__table']}>
           <tbody>
             <tr data-cy="table--header">
               <th>Code</th>
@@ -41,7 +42,7 @@ class LineItemTable extends PureComponent {
                     {showItem35Missing(item) && (
                       <span>
                         <br />
-                        <span className="shipment-line-item-warning">Missing actual amount</span>
+                        <span className={common.warning}>Missing actual amount</span>
                       </span>
                     )}
                   </td>

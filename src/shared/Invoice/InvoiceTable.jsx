@@ -11,11 +11,12 @@ import {
 import LineItemTable from 'shared/Invoice/LineItemTable';
 
 import styles from './InvoiceTable.module.scss';
+import panelStyles from './InvoicePanel.module.scss';
 
 class InvoiceTable extends PureComponent {
   render() {
     const tableTitle = (
-      <div className="invoice-panel-header-cont">
+      <div className={panelStyles['invoice-panel__header-cont']}>
         <div>
           <h5 data-cy="invoice--detail">
             Invoice {this.props.invoice.invoice_number}{' '}
@@ -29,7 +30,7 @@ class InvoiceTable extends PureComponent {
     );
 
     return (
-      <div className="invoice-panel-table-cont" data-cy="invoice-table">
+      <div className={panelStyles['invoice-panel__table-cont']} data-cy="invoice-table">
         <LineItemTable
           shipmentLineItems={this.props.lineItems}
           totalAmount={this.props.lineItemsTotal}

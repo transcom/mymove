@@ -6,8 +6,8 @@ import LineItemTable from 'shared/Invoice/LineItemTable';
 import Alert from 'shared/Alert';
 import { isLoading } from 'shared/constants';
 
-import './InvoicePanel.scss';
 import styles from './UnbilledTable.module.scss';
+import panelStyles from './InvoicePanel.module.scss';
 
 export class UnbilledTable extends PureComponent {
   constructor(props) {
@@ -42,7 +42,7 @@ export class UnbilledTable extends PureComponent {
     if (this.state.draftInvoice) {
       header = (
         <Alert type="warning" heading="Approve payment?">
-          <span className="warning--header">Please make sure you've double-checked everything.</span>
+          <span className={panelStyles['warning--header']}>Please make sure you've double-checked everything.</span>
           <button className="button usa-button-secondary" onClick={this.cancelPayment}>
             Cancel
           </button>
@@ -53,7 +53,7 @@ export class UnbilledTable extends PureComponent {
       );
     } else {
       header = (
-        <div className="invoice-panel-header-cont">
+        <div className={panelStyles['invoice-panel__header-cont']}>
           <div className="usa-width-one-half">
             <h5>Unbilled line items</h5>
           </div>
@@ -76,7 +76,7 @@ export class UnbilledTable extends PureComponent {
     }
 
     return (
-      <div className="invoice-panel-table-cont" data-cy="unbilled-table">
+      <div className={panelStyles['invoice-panel__table-cont']} data-cy="unbilled-table">
         {header}
         {itemsComponent}
       </div>
