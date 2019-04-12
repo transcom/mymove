@@ -75,7 +75,7 @@ describe('completing the ppm flow', function() {
       expect(loc.pathname).to.match(/^\/$/);
     });
 
-    cy.contains('Success');
+    cy.contains('Congrats - your move is submitted!');
     cy.contains('Next Step: Wait for approval');
     cy.contains('Advance Requested: $1,333.91');
   });
@@ -154,6 +154,37 @@ function serviceMemberVisitsIntroToPPMPaymentRequest() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-request-intro/);
   });
+
+  cy.get('h3').contains('Request PPM Payment');
+
+  cy.get('.weight-ticket-examples-link').click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/weight-ticket-examples/);
+  });
+
+  cy.get('h3').contains('Example weight ticket scenarios');
+
+  cy
+    .get('button')
+    .contains('Back')
+    .click();
+
+  cy
+    .get('a')
+    .contains('List of allowable expenses')
+    .click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/allowable-expenses/);
+  });
+
+  cy.get('h3').contains('Allowable expenses');
+
+  cy
+    .get('button')
+    .contains('Back')
+    .click();
 
   cy.get('button').contains('Get Started');
 
