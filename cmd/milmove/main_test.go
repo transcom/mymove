@@ -142,10 +142,6 @@ func (suite *webServerSuite) TestConfigStorage() {
 	suite.Nil(checkStorage(suite.viper))
 }
 
-func (suite *webServerSuite) TestConfigDatabase() {
-	suite.Nil(checkDatabase(suite.viper, suite.logger))
-}
-
 func (suite *webServerSuite) TestDODCertificates() {
 
 	if os.Getenv("TEST_ACC_DOD_CERTIFICATES") != "1" {
@@ -166,18 +162,6 @@ func (suite *webServerSuite) TestHoneycomb() {
 
 	enabled := initHoneycomb(suite.viper, suite.logger)
 	suite.True(enabled)
-}
-
-func (suite *webServerSuite) TestInitDatabase() {
-
-	if os.Getenv("TEST_ACC_INIT_DATABASE") != "1" {
-		suite.logger.Info("skipping TestInitDatabase")
-		return
-	}
-
-	conn, err := initDatabase(suite.viper, suite.logger)
-	suite.Nil(err)
-	suite.NotNil(conn)
 }
 
 func (suite *webServerSuite) TestStaticReqMethodMiddleware() {

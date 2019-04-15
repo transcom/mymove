@@ -1,4 +1,4 @@
-package connection
+package cli
 
 import (
 	"fmt"
@@ -15,12 +15,19 @@ import (
 )
 
 const (
-	DbNameFlag        string = "db-name"
-	DbHostFlag        string = "db-host"
-	DbPortFlag        string = "db-port"
-	DbUserFlag        string = "db-user"
-	DbPasswordFlag    string = "db-password"
-	DbSSLModeFlag     string = "db-ssl-mode"
+	// DbNameFlag is the DB name flag
+	DbNameFlag string = "db-name"
+	// DbHostFlag is the DB host flag
+	DbHostFlag string = "db-host"
+	// DbPortFlag is the DB port flag
+	DbPortFlag string = "db-port"
+	// DbUserFlag is the DB user flag
+	DbUserFlag string = "db-user"
+	// DbPasswordFlag is the DB password flag
+	DbPasswordFlag string = "db-password"
+	// DbSSLModeFlag is the DB SSL Mode flag
+	DbSSLModeFlag string = "db-ssl-mode"
+	// DbSSLRootCertFlag is the DB SSL Root Cert flag
 	DbSSLRootCertFlag string = "db-ssl-root-cert"
 )
 
@@ -54,6 +61,7 @@ func stringSliceContains(stringSlice []string, value string) bool {
 	return false
 }
 
+// InitDatabaseFlags initializes DB command line flags
 func InitDatabaseFlags(flag *pflag.FlagSet) {
 	flag.String(DbNameFlag, "dev_db", "Database Name")
 	flag.String(DbHostFlag, "localhost", "Database Hostname")
@@ -64,7 +72,8 @@ func InitDatabaseFlags(flag *pflag.FlagSet) {
 	flag.String(DbSSLRootCertFlag, "", "Path to the database root certificate file used for database connections")
 }
 
-func CheckDatabase(v *viper.Viper, logger *zap.Logger) error {
+// CheckDatabase validates DB command line flags
+func CheckDatabase(v *viper.Viper, logger logger) error {
 
 	env := v.GetString("env")
 
@@ -82,14 +91,15 @@ func CheckDatabase(v *viper.Viper, logger *zap.Logger) error {
 		if err != nil {
 			return errors.Wrap(err, fmt.Sprintf("error reading db-ssl-root-cert at %q", filename))
 		}
-		tlsCerts := parseCertificates(string(b))
+		tlsCerts := ParseCertificates(string(b))
 		logger.Info("certificate chain from db-ssl-root-cert parsed", zap.Any("count", len(tlsCerts)))
 	}
 
 	return nil
 }
 
-func InitDatabase(v *viper.Viper, logger *zap.Logger) (*pop.Connection, error) {
+// InitDatabase initializes a Pop connection from command line flags
+func InitDatabase(v *viper.Viper, logger logger) (*pop.Connection, error) {
 
 	env := v.GetString("env")
 	dbName := v.GetString("db-name")

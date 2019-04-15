@@ -16,7 +16,6 @@ import (
 	"os/signal"
 	"path"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -41,7 +40,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
-	"github.com/transcom/mymove/pkg/db/connection"
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
@@ -287,7 +286,7 @@ func initServeFlags(flag *pflag.FlagSet) {
 	flag.String("iws-rbs-host", "", "Hostname for the IWS RBS")
 
 	// DB Config
-	connection.InitDatabaseFlags(flag)
+	cli.InitDatabaseFlags(flag)
 
 	// CSRF Protection
 	flag.String("csrf-auth-key", "", "CSRF Auth Key, 32 byte long")
@@ -297,29 +296,6 @@ func initServeFlags(flag *pflag.FlagSet) {
 	flag.String("eia-url", "", "Url for Energy Information Administration (EIA) api")
 }
 
-func parseCertificates(str string) []string {
-
-	certFormat := "-----BEGIN CERTIFICATE-----\n%s\n-----END CERTIFICATE-----"
-
-	// https://tools.ietf.org/html/rfc7468#section-2
-	//	- https://stackoverflow.com/questions/20173472/does-go-regexps-any-charcter-match-newline
-	re := regexp.MustCompile("(?s)([-]{5}BEGIN CERTIFICATE[-]{5})(\\s*)(.+?)(\\s*)([-]{5}END CERTIFICATE[-]{5})")
-	matches := re.FindAllStringSubmatch(str, -1)
-
-	certs := make([]string, 0, len(matches))
-	for _, m := range matches {
-		// each match will include a slice of strings starting with
-		// (0) the full match, then
-		// (1) "-----BEGIN CERTIFICATE-----",
-		// (2) whitespace if any,
-		// (3) base64-encoded certificate data,
-		// (4) whitespace if any, and then
-		// (5) -----END CERTIFICATE-----
-		certs = append(certs, fmt.Sprintf(certFormat, m[3]))
-	}
-	return certs
-}
-
 func initDODCertificates(v *viper.Viper, logger logger) ([]tls.Certificate, *x509.CertPool, error) {
 
 	tlsCertString := v.GetString("move-mil-dod-tls-cert")
@@ -327,7 +303,7 @@ func initDODCertificates(v *viper.Viper, logger logger) ([]tls.Certificate, *x50
 		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing", "move-mil-dod-tls-cert")
 	}
 
-	tlsCerts := parseCertificates(tlsCertString)
+	tlsCerts := cli.ParseCertificates(tlsCertString)
 	if len(tlsCerts) == 0 {
 		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing certificate PEM block", "move-mil-dod-tls-cert")
 	}
@@ -342,7 +318,7 @@ func initDODCertificates(v *viper.Viper, logger logger) ([]tls.Certificate, *x50
 		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing", "move-mil-dod-ca-cert")
 	}
 
-	caCerts := parseCertificates(caCertString)
+	caCerts := cli.ParseCertificates(caCertString)
 	if len(caCerts) == 0 {
 		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing certificate PEM block", "move-mil-dod-tls-cert")
 	}
@@ -431,7 +407,7 @@ func initRBSPersonLookup(v *viper.Viper, logger logger) (*iws.RBSPersonLookup, e
 		v.GetString("move-mil-dod-tls-key"))
 }
 
-func checkConfig(v *viper.Viper, logger logger) error {
+func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 
 	logger.Info("checking webserver config")
 
@@ -485,7 +461,7 @@ func checkConfig(v *viper.Viper, logger logger) error {
 		return err
 	}
 
-	err = connection.CheckDatabase(v, logger)
+	err = cli.CheckDatabase(v, logger)
 	if err != nil {
 		return err
 	}
@@ -523,7 +499,7 @@ func checkHosts(v *viper.Viper) error {
 		"dps-cookie-domain",
 		"login-gov-hostname",
 		"iws-rbs-host",
-		connection.DbHostFlag,
+		cli.DbHostFlag,
 	}
 
 	for _, c := range hostVars {
@@ -541,7 +517,7 @@ func checkPorts(v *viper.Viper) error {
 		"tls-port",
 		"no-tls-port",
 		"login-gov-callback-port",
-		connection.DbPortFlag,
+		cli.DbPortFlag,
 	}
 
 	for _, c := range portVars {
@@ -760,7 +736,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Create a connection to the DB
-	dbConnection, err := connection.InitDatabase(v, logger)
+	dbConnection, err := cli.InitDatabase(v, logger)
 	if err != nil {
 		if dbConnection == nil {
 			// No connection object means that the configuraton failed to validate and we should kill server startup
