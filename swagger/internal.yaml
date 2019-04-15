@@ -1316,6 +1316,9 @@ definitions:
         title: Signature
       certification_text:
         type: string
+      move_id:
+        type: string
+        format: uuid
       personally_procured_move_id:
         type: string
         format: uuid
@@ -1329,6 +1332,7 @@ definitions:
         x-nullable: true
     required:
       - id
+      - move_id
       - created_at
       - updated_at
       - date
@@ -1361,6 +1365,10 @@ definitions:
       - date
       - signature
       - certification_text
+  SignedCertifications:
+    type: array
+    items:
+      $ref: '#/definitions/SignedCertificationPayload'
   SignedCertificationType:
     type: string
     enum:
@@ -2725,6 +2733,33 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to sign for this move
+        404:
+          description: move not found
+        500:
+          description: internal server error
+    get:
+      summary: gets the signed certifications for the given move ID
+      description: returns a list of all signed_certifications associated with the move ID
+      operationId: indexSignedCertification
+      tags:
+        - certification
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        200:
+          description: returns a list of signed certifications
+          schema:
+            $ref: '#/definitions/SignedCertifications'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
         404:
           description: move not found
         500:
