@@ -32,10 +32,7 @@ func checkConfig(v *viper.Viper, logger logger) error {
 	return nil
 }
 
-// Command: go run cmd/save_fuel_price_data/main.go
-func main() {
-
-	flag := pflag.CommandLine
+func initFlags(flag *pflag.FlagSet) {
 
 	flag.String("env", "development", "The environment to run in, which configures the database.")
 
@@ -48,7 +45,15 @@ func main() {
 	// Verbose
 	cli.InitVerboseFlags(flag)
 
+	// Don't sort flags
 	flag.SortFlags = false
+}
+
+// Command: go run cmd/save_fuel_price_data/main.go
+func main() {
+
+	flag := pflag.CommandLine
+	initFlags(flag)
 	flag.Parse(os.Args[1:])
 
 	v := viper.New()
