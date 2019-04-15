@@ -17,7 +17,7 @@ export class PpmSizeWizardPage extends Component {
     const moveId = this.props.match.params.moveId;
     if (pendingPpmSize) {
       let weight = currentPpm.weight_estimate;
-      if (!isFinite(weight)) {
+      if (currentPpm.size !== pendingPpmSize || !isFinite(weight)) {
         // Initialize weight to be mid-range
         // eslint-disable-next-line security/detect-object-injection
         let weightRange = weightInfo[pendingPpmSize];
