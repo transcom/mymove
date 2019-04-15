@@ -532,7 +532,6 @@ jobs:
           keys:
             - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make bin/chamber
-      - run: make download_rds_certs
       - run: make bin/rds-combined-ca-bundle.pem
       - run: make build
       - build_tag_push:
@@ -566,6 +565,8 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-souces-v1-{{ checksum "go.sum" }}
+      - run: make bin/chamber
+      - run: make bin/rds-combined-ca-bundle.pem
       - run: make tasks_build
       - build_tag_push:
           dockerfile: Dockerfile.tasks
