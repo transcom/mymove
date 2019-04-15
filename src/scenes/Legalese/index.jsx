@@ -22,6 +22,10 @@ const formName = 'signature-form';
 const SignatureWizardForm = reduxifyWizardForm(formName);
 
 export class SignedCertification extends Component {
+  state = {
+    hasMoveSubmitError: false,
+  };
+
   componentDidMount() {
     const { hasLoggedInUser, certificationText, has_advance, has_sit, selectedMoveType } = this.props;
     if (hasLoggedInUser && !certificationText) {
@@ -44,7 +48,8 @@ export class SignedCertification extends Component {
 
       return this.props
         .signAndSubmitForApproval(moveId, certificationText, pendingValues.signature, pendingValues.date, ppmId)
-        .then(() => this.props.push('/'));
+        .then(() => this.props.push('/'))
+        .catch(() => this.setState({ hasMoveSubmitError: true }));
     }
   };
   print() {
@@ -119,9 +124,9 @@ export class SignedCertification extends Component {
                     </div>
                   </div>
 
-                  {hasSubmitError && (
+                  {(hasSubmitError || this.state.hasMoveSubmitError) && (
                     <Alert type="error" heading="Server Error">
-                      There was a problem saving your signature. Please reload the page.
+                      There was a problem saving your signature.
                     </Alert>
                   )}
                 </div>

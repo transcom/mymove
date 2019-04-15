@@ -6,10 +6,7 @@
 # If `SECURE_MIGRATION_SOURCE=s3` then we look for a similarly named file in the
 # S3 bucket and pull it down.
 
-if [ -z "${SECURE_MIGRATION_SOURCE:-}" ]; then
-  echo "error: \$SECURE_MIGRATION_SOURCE needs to be set"
-  exit 1
-fi
+SECURE_MIGRATION_SOURCE=${SECURE_MIGRATION_SOURCE:-local}
 
 if [ -z "${DB_USER:-}" ]; then
   echo "error: \$DB_USER needs to be set"
@@ -69,12 +66,12 @@ case $SECURE_MIGRATION_SOURCE in
 
     sslmode=${PSQL_SSL_MODE:-require}
 
-    if [ -z "${AWS_S3_BUCKET_NAME:-}" ]; then
-      echo "error: \$AWS_S3_BUCKET_NAME needs to be set"
+    if [ -z "${SECURE_MIGRATION_BUCKET_NAME:-}" ]; then
+      echo "error: \$SECURE_MIGRATION_BUCKET_NAME needs to be set"
       exit 1
     fi
 
-    readonly url="s3://${AWS_S3_BUCKET_NAME}/secure-migrations/$1"
+    readonly url="s3://${SECURE_MIGRATION_BUCKET_NAME}/secure-migrations/$1"
 
     echo "Applying secure migrations from S3 using url $url"
 

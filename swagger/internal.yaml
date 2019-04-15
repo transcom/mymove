@@ -396,6 +396,12 @@ definitions:
         format: date
         title: When did you actually move?
         x-nullable: true
+      approve_date:
+        type: string
+        format: date-time
+        title: When was the ppm move approved?
+        example: '2019-03-26T13:19:56-04:00'
+        x-nullable: true
       pickup_postal_code:
         type: string
         format: zip
@@ -556,6 +562,14 @@ definitions:
         type: integer
       GTCC:
         type: integer
+  ApprovePersonallyProcuredMovePayload:
+    type: object
+    properties:
+      approve_date:
+        type: string
+        format: date-time
+        title: When was the ppm move approved?
+        example: '2019-03-26T13:19:56-04:00'
   IndexPersonallyProcuredMovePayload:
     type: array
     items:
@@ -1295,7 +1309,7 @@ definitions:
         format: date-time
       date:
         type: string
-        format: date
+        format: date-time
         title: Date
       signature:
         type: string
@@ -1325,7 +1339,7 @@ definitions:
     properties:
       date:
         type: string
-        format: date
+        format: date-time
         title: Date
       signature:
         type: string
@@ -2274,6 +2288,10 @@ definitions:
       locator:
         type: string
         example: '12432'
+      gbl_number:
+        type: string
+        example: 'LNK12345'
+        title: GBL Number
       customer_name:
         type: string
         example: Thedog, Nino
@@ -2318,6 +2336,7 @@ definitions:
       - ppm_status
       - hhg_status
       - locator
+      - gbl_number
       - customer_name
       - edipi
       - rank
@@ -2396,6 +2415,29 @@ definitions:
     required:
       - start_date
       - available
+  VehicleOptions:
+    type: string
+    x-nullable: true
+    title: What type of vehicle are these weight tickets for?
+    enum: &VehicleOptions
+      - CAR
+      - CAR_TRAILER
+      - BOX_TRUCK
+    x-display-value:
+      CAR: Car
+      CAR_TRAILER: Car + Trailer
+      BOX_TRUCK: Box truck
+  WeightTicketPayload:
+    type: object
+    properties:
+      vehicle_options:
+        $ref: '#/definitions/VehicleOptions'
+      vehicle_nickname:
+        $ref: '#/definitions/VehicleNickname'
+  VehicleNickname:
+    type: string
+    x-nullable: true
+    title: Vehicle nickname (ex. "My car")
 paths:
   /estimates/ppm:
     get:
@@ -3534,6 +3576,11 @@ paths:
           format: uuid
           required: true
           description: UUID of the PPM being updated
+        - name: approvePersonallyProcuredMovePayload
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ApprovePersonallyProcuredMovePayload'
       responses:
         200:
           description: updated instance of personally_procured_move

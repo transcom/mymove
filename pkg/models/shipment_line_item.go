@@ -23,6 +23,8 @@ const (
 	ShipmentLineItemStatusSUBMITTED ShipmentLineItemStatus = "SUBMITTED"
 	// ShipmentLineItemStatusAPPROVED captures enum value "APPROVED"
 	ShipmentLineItemStatusAPPROVED ShipmentLineItemStatus = "APPROVED"
+	// ShipmentLineItemStatusCONDITIONALLYAPPROVED captures enum value "CONDITIONALLY_APPROVED"
+	ShipmentLineItemStatusCONDITIONALLYAPPROVED ShipmentLineItemStatus = "CONDITIONALLY_APPROVED"
 	// ShipmentLineItemLocationORIGIN captures enum value "ORIGIN"
 	ShipmentLineItemLocationORIGIN ShipmentLineItemLocation = "ORIGIN"
 	// ShipmentLineItemLocationDESTINATION captures enum value "DESTINATION"
@@ -85,6 +87,7 @@ func (s *ShipmentLineItem) Validate(tx *pop.Connection) (*validate.Errors, error
 	validStatuses := []string{
 		string(ShipmentLineItemStatusSUBMITTED),
 		string(ShipmentLineItemStatusAPPROVED),
+		string(ShipmentLineItemStatusCONDITIONALLYAPPROVED),
 	}
 
 	validLocations := []string{
@@ -118,13 +121,19 @@ func (s *ShipmentLineItem) AfterDestroy(tx *pop.Connection) error {
 	if s.ItemDimensionsID != nil {
 		err := tx.Destroy(&s.ItemDimensions)
 		if err != nil {
-			return ErrDestroyForbidden
+			return err
 		}
 	}
 	if s.CrateDimensionsID != nil {
 		err := tx.Destroy(&s.CrateDimensions)
 		if err != nil {
-			return ErrDestroyForbidden
+			return err
+		}
+	}
+	if s.AddressID != nil {
+		err := tx.Destroy(&s.Address)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -190,13 +199,28 @@ func FetchShipmentLineItemByID(dbConnection *pop.Connection, shipmentLineItemID 
 	return shipmentLineItem, err
 }
 
-// Approve marks the ShipmentLineItem request as Approved. Must be in a submitted state.
+// Approve marks the ShipmentLineItem request as Approved. Must be in a submitted state or Conditionally Approved state.
 func (s *ShipmentLineItem) Approve() error {
-	if s.Status != ShipmentLineItemStatusSUBMITTED {
+	if !(s.Status == ShipmentLineItemStatusSUBMITTED || (s.Tariff400ngItem.Code == "35A" && s.Status == ShipmentLineItemStatusCONDITIONALLYAPPROVED)) {
 		var logMsg = "func Approve(): Current ShipmentLineItem status is [" + string(s.Status) + "]"
 		return errors.Wrap(ErrInvalidTransition, logMsg)
 	}
 	s.Status = ShipmentLineItemStatusAPPROVED
-	s.ApprovedDate = time.Now()
+	if s.ApprovedDate.IsZero() {
+		s.ApprovedDate = time.Now()
+	}
+	return nil
+}
+
+// ConditionallyApprove marks the ShipmentLineItem request as Conditionally Approved. Must be in a submitted state.
+func (s *ShipmentLineItem) ConditionallyApprove() error {
+	if !(s.Status == ShipmentLineItemStatusSUBMITTED || (s.Tariff400ngItem.Code == "35A" && s.Status == ShipmentLineItemStatusAPPROVED)) {
+		var logMsg = "func ConditionallyApprove(): Current ShipmentLineItem status is [" + string(s.Status) + "]"
+		return errors.Wrap(ErrInvalidTransition, logMsg)
+	}
+	s.Status = ShipmentLineItemStatusCONDITIONALLYAPPROVED
+	if s.ApprovedDate.IsZero() {
+		s.ApprovedDate = time.Now()
+	}
 	return nil
 }

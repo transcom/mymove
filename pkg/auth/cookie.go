@@ -14,6 +14,17 @@ import (
 	"go.uber.org/zap"
 )
 
+// ApplicationServername is a collection of all the servernames for the application
+type ApplicationServername struct {
+	MilServername    string
+	OfficeServername string
+	TspServername    string
+	AdminServername  string
+	OrdersServername string
+	DpsServername    string
+	SddcServername   string
+}
+
 type errInvalidHostname struct {
 	Hostname  string
 	MilApp    string
@@ -132,7 +143,7 @@ func WriteMaskedCSRFCookie(w http.ResponseWriter, csrfToken string, logger Logge
 		Value:    csrfToken,
 		Path:     "/",
 		HttpOnly: false,                // must be false to be read by client for use in POST/PUT/PATCH/DELETE requests
-		SameSite: http.SameSiteLaxMode, // Using lax mode for now since strict is causing issues with Firefox/Safari
+		SameSite: http.SameSiteLaxMode, // Using 'lax' mode for now since 'strict' is causing issues with Firefox/Safari
 		Secure:   useSecureCookie,
 	}
 
@@ -169,7 +180,7 @@ func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, 
 		Path:     "/",
 		Expires:  time.Unix(0, 0),
 		MaxAge:   -1,
-		SameSite: http.SameSiteLaxMode, // Using 'strict' breaks the use of the login.gov redirect
+		SameSite: http.SameSiteLaxMode, // Using 'lax' mode now since 'strict' breaks the use of the login.gov redirect
 		Secure:   useSecureCookie,
 	}
 
@@ -201,36 +212,34 @@ func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, 
 }
 
 // ApplicationName returns the application name given the hostname
-func ApplicationName(hostname, milHostname, officeHostname, tspHostname string, adminHostname string) (Application, error) {
+func ApplicationName(hostname string, appnames ApplicationServername) (Application, error) {
 	var appName Application
-	if strings.EqualFold(hostname, milHostname) {
+	if strings.EqualFold(hostname, appnames.MilServername) {
 		return MilApp, nil
-	} else if strings.EqualFold(hostname, officeHostname) {
+	} else if strings.EqualFold(hostname, appnames.OfficeServername) {
 		return OfficeApp, nil
-	} else if strings.EqualFold(hostname, tspHostname) {
+	} else if strings.EqualFold(hostname, appnames.TspServername) {
 		return TspApp, nil
-	} else if strings.EqualFold(hostname, adminHostname) {
+	} else if strings.EqualFold(hostname, appnames.AdminServername) {
 		return AdminApp, nil
 	}
 	return appName, errors.Wrap(
 		&errInvalidHostname{
 			Hostname:  hostname,
-			MilApp:    milHostname,
-			OfficeApp: officeHostname,
-			TspApp:    tspHostname,
-			AdminApp:  adminHostname,
+			MilApp:    appnames.MilServername,
+			OfficeApp: appnames.OfficeServername,
+			TspApp:    appnames.TspServername,
+			AdminApp:  appnames.AdminServername,
 		}, fmt.Sprintf("%s is invalid", hostname))
 }
 
 // SessionCookieMiddleware handle serializing and de-serializing the session between the user_session cookie and the request context
-func SessionCookieMiddleware(logger Logger, secret string, noSessionTimeout bool, milHostname, officeHostname, tspHostname string, adminHostname string, useSecureCookie bool) func(next http.Handler) http.Handler {
-	logger.Info(
-		"Creating session",
-		zap.String("milHost", milHostname),
-		zap.String("officeHost", officeHostname),
-		zap.String("tspHost", tspHostname),
-		zap.String("adminHost", adminHostname),
-	)
+func SessionCookieMiddleware(logger Logger, secret string, noSessionTimeout bool, appnames ApplicationServername, useSecureCookie bool) func(next http.Handler) http.Handler {
+	logger.Info("Creating session",
+		zap.String("milServername", appnames.MilServername),
+		zap.String("officeServername", appnames.OfficeServername),
+		zap.String("tspServername", appnames.TspServername),
+		zap.String("adminServername", appnames.AdminServername))
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			ctx, span := beeline.StartSpan(r.Context(), "SessionCookieMiddleware")
@@ -241,7 +250,7 @@ func SessionCookieMiddleware(logger Logger, secret string, noSessionTimeout bool
 
 			// Split the hostname from the port
 			hostname := strings.Split(r.Host, ":")[0]
-			appName, err := ApplicationName(hostname, milHostname, officeHostname, tspHostname, adminHostname)
+			appName, err := ApplicationName(hostname, appnames)
 			if err != nil {
 				logger.Error("Bad Hostname", zap.Error(err))
 				http.Error(w, http.StatusText(400), http.StatusBadRequest)

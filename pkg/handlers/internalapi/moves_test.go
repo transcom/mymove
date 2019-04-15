@@ -456,13 +456,22 @@ func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 		})
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
-	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			MoveID:                move.ID,
 			ActualMoveDate:        &testdatagen.DateInsidePerformancePeriod,
 			NetWeight:             models.Int64Pointer(1000),
 			PickupPostalCode:      models.StringPointer("50303"),
 			DestinationPostalCode: models.StringPointer("30814"),
+		},
+	})
+	certificationType := models.SignedCertificationTypePPMPAYMENT
+	testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+		SignedCertification: models.SignedCertification{
+			SubmittingUserID:         move.Orders.ServiceMember.UserID,
+			MoveID:                   move.ID,
+			PersonallyProcuredMoveID: &ppm.ID,
+			CertificationType:        &certificationType,
 		},
 	})
 

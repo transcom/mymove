@@ -322,6 +322,14 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItemOfficeHandler() {
 func (suite *HandlerSuite) TestUpdateShipmentLineItem35AActualAmountCents() {
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
+	// create a new tariff400ngItem to test
+	acc35A := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: models.Tariff400ngItem{
+			Code:                "35A",
+			RequiresPreApproval: true,
+		},
+	})
+
 	//  shipment line item
 	desc := "description"
 	reas := "reason"
@@ -334,14 +342,8 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItem35AActualAmountCents() {
 			Reason:              &reas,
 			EstimateAmountCents: &cents,
 			Notes:               "",
-		},
-	})
-
-	// create a new tariff400ngItem to test
-	updateAcc1 := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
-		Tariff400ngItem: models.Tariff400ngItem{
-			Code:                "35A",
-			RequiresPreApproval: true,
+			Tariff400ngItem:     acc35A,
+			Tariff400ngItemID:   acc35A.ID,
 		},
 	})
 
@@ -350,7 +352,7 @@ func (suite *HandlerSuite) TestUpdateShipmentLineItem35AActualAmountCents() {
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 	updateShipmentLineItem := apimessages.ShipmentLineItem{
 		ID:                *handlers.FmtUUID(shipAcc1.ID),
-		Tariff400ngItemID: handlers.FmtUUID(updateAcc1.ID),
+		Tariff400ngItemID: handlers.FmtUUID(acc35A.ID),
 		ActualAmountCents: handlers.FmtInt64(5555), //make sure we can edit actual amount
 	}
 	params := accessorialop.UpdateShipmentLineItemParams{
@@ -616,6 +618,55 @@ func (suite *HandlerSuite) TestDeleteShipmentLineItemOfficeHandler() {
 	if suite.Assertions.IsType(&accessorialop.DeleteShipmentLineItemOK{}, response) {
 		// Check if we actually deleted the shipment line item
 		err := suite.DB().Find(&shipAcc1, shipAcc1.ID)
+		suite.Error(err)
+	}
+}
+
+func (suite *HandlerSuite) TestDeleteShipmentLineItemAddressHandler() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	item125A := testdatagen.MakeTariff400ngItem(suite.DB(), testdatagen.Assertions{
+		Tariff400ngItem: models.Tariff400ngItem{
+			Code:                "125A",
+			RequiresPreApproval: true,
+		},
+	})
+
+	address := testdatagen.MakeDefaultAddress(suite.DB())
+	time := time.Now()
+	shipAcc1 := testdatagen.MakeShipmentLineItem(suite.DB(), testdatagen.Assertions{
+		ShipmentLineItem: models.ShipmentLineItem{
+			Tariff400ngItemID: item125A.ID,
+			Tariff400ngItem:   item125A,
+			Location:          models.ShipmentLineItemLocationDESTINATION,
+			Reason:            handlers.FmtString("Reason"),
+			Date:              &time,
+			Time:              handlers.FmtString("1000J"),
+			AddressID:         &address.ID,
+			Address:           address,
+		},
+	})
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("DELETE", "/shipments/accessorials/"+shipAcc1.ID.String(), nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	params := accessorialop.DeleteShipmentLineItemParams{
+		HTTPRequest:        req,
+		ShipmentLineItemID: strfmt.UUID(shipAcc1.ID.String()),
+	}
+
+	// And: get shipment is returned
+	handler := DeleteShipmentLineItemHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	if suite.Assertions.IsType(&accessorialop.DeleteShipmentLineItemOK{}, response) {
+		// Check if we actually deleted the shipment line item
+		err := suite.DB().Find(&shipAcc1, shipAcc1.ID)
+		suite.Error(err)
+		// also check if we actually deleted the associated address
+		err = suite.DB().Find(&address, address.ID)
 		suite.Error(err)
 	}
 }

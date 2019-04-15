@@ -80,6 +80,7 @@ type ShipmentSummaryWorkSheetShipments struct {
 type ShipmentSummaryWorksheetPage2Values struct {
 	PreparationDate string
 	FormattedMovingExpenses
+	ServiceMemberSignature string
 }
 
 //FormattedMovingExpenses is an object representing the service member's moving expenses formatted for the SSW
@@ -119,6 +120,7 @@ type ShipmentSummaryFormData struct {
 	Obligations             Obligations
 	MovingExpenseDocuments  []MovingExpenseDocument
 	PPMRemainingEntitlement unit.Pound
+	SignedCertification     SignedCertification
 }
 
 //Obligations an object representing the Max Obligation and Actual Obligation sections of the shipment summary worksheet
@@ -208,6 +210,14 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		return ShipmentSummaryFormData{}, err
 	}
 
+	signedCertification, err := FetchSignedCertificationsPPMPayment(db, session, moveID)
+	if err != nil {
+		return ShipmentSummaryFormData{}, err
+	}
+	if signedCertification == nil {
+		return ShipmentSummaryFormData{},
+			errors.New("shipment summary worksheet: signed certification is nil")
+	}
 	ssd := ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
 		Order:                   move.Orders,
@@ -216,6 +226,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		WeightAllotment:         weightAllotment,
 		Shipments:               move.Shipments,
 		PersonallyProcuredMoves: move.PersonallyProcuredMoves,
+		SignedCertification:     *signedCertification,
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
 		MovingExpenseDocuments:  movingExpenses,
 	}
@@ -291,7 +302,7 @@ func FetchMovingExpensesShipmentSummaryWorksheet(move Move, db *pop.Connection, 
 	var movingExpenses []MovingExpenseDocument
 	if len(move.PersonallyProcuredMoves) > 0 {
 		ppm := move.PersonallyProcuredMoves[0]
-		moveDocuments, err := FetchApprovedMovingExpenseDocuments(db, session, ppm.ID)
+		moveDocuments, err := FetchMovingExpenseDocuments(db, session, ppm.ID, nil)
 		if err != nil {
 			return movingExpenses, err
 		}
@@ -411,10 +422,21 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData)
 	page2.FormattedMovingExpenses, err = FormatMovingExpenses(data.MovingExpenseDocuments)
 	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
 	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
+	page2.ServiceMemberSignature = FormatSignature(data)
 	if err != nil {
 		return page2, err
 	}
 	return page2, nil
+}
+
+//FormatSignature formats a service member's signature for the Shipment Summary Worksheet
+func FormatSignature(data ShipmentSummaryFormData) string {
+	dateLayout := "02 Jan 2006 at 3:04pm"
+	dt := data.SignedCertification.Date.Format(dateLayout)
+	first := derefStringTypes(data.ServiceMember.FirstName)
+	last := derefStringTypes(data.ServiceMember.LastName)
+
+	return fmt.Sprintf("%s %s electronically signed on %s", first, last, dt)
 }
 
 //FormatLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet

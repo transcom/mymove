@@ -1,10 +1,12 @@
 /* global cy, Cypress */
 
+import { milmoveAppName } from '../../support/constants';
+
 describe('shipments', function() {
   describe('completing the hhg flow', function() {
     it('selects hhg and progresses thru form', function() {
       // sm_hhg@example.com
-      cy.signInAsUser('4b389406-9258-4695-a091-0bf97b5a132f');
+      cy.signInAsUserPostRequest(milmoveAppName, '4b389406-9258-4695-a091-0bf97b5a132f');
       serviceMemberAddsHHG();
       serviceMemberAddsMoveDates();
       serviceMemberAddsLocations();
@@ -13,7 +15,7 @@ describe('shipments', function() {
       serviceMemberEditsDates();
       serviceMemberCancelsDateEdit();
       serviceMemberReviewsMove();
-      serivceMemberSigns();
+      serviceMemberSigns();
       moveIsSuccessfullyCreated();
     });
   });
@@ -24,7 +26,7 @@ describe('shipments', function() {
       const firstIncompletePage = /^\/moves\/[^/]+\/hhg-weight/;
 
       cy.removeFetch();
-      cy.signInAsUser(serviceMemberId);
+      cy.signInAsUserPostRequest(milmoveAppName, serviceMemberId);
       serviceMemberAddsHHG();
       serviceMemberAddsMoveDates();
       serviceMemberAddsLocations();
@@ -45,8 +47,8 @@ function serviceMemberLogsOutThenContinues(serviceMemberId) {
   // wait returns after the 1st call to getShipments, so if multiple calls
   // placement of server and route are important
   cy.server();
-  cy.route({ url: '**/api/v1/shipments/*' }).as('getShipments');
-  cy.signInAsUser(serviceMemberId);
+  cy.route({ url: '**/internal/shipments/*' }).as('getShipments');
+  cy.signInAsUserPostRequest(milmoveAppName, serviceMemberId);
   cy.wait('@getShipments');
   cy.contains('Continue Move Setup').click();
 }
@@ -295,7 +297,7 @@ function serviceMemberCancelsDateEdit() {
   checkLoadingDate();
 }
 
-function serivceMemberSigns() {
+function serviceMemberSigns() {
   cy.contains('SIGNATURE');
   cy.get('input[name="signature"]').type('SM Signature');
 

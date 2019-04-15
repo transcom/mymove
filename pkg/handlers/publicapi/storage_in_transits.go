@@ -24,17 +24,19 @@ func payloadForStorageInTransitModel(s *models.StorageInTransit) *apimessages.St
 	status := string(s.Status)
 
 	return &apimessages.StorageInTransit{
-		ID:                 *handlers.FmtUUID(s.ID),
-		ShipmentID:         *handlers.FmtUUID(s.ShipmentID),
-		EstimatedStartDate: handlers.FmtDate(s.EstimatedStartDate),
-		Notes:              handlers.FmtStringPtr(s.Notes),
-		WarehouseAddress:   payloadForAddressModel(&s.WarehouseAddress),
-		WarehouseEmail:     handlers.FmtStringPtr(s.WarehouseEmail),
-		WarehouseID:        handlers.FmtString(s.WarehouseID),
-		WarehouseName:      handlers.FmtString(s.WarehouseName),
-		WarehousePhone:     handlers.FmtStringPtr(s.WarehousePhone),
-		Location:           &location,
-		Status:             *handlers.FmtString(status),
+		ID:                  *handlers.FmtUUID(s.ID),
+		ShipmentID:          *handlers.FmtUUID(s.ShipmentID),
+		EstimatedStartDate:  handlers.FmtDate(s.EstimatedStartDate),
+		AuthorizedStartDate: handlers.FmtDatePtr(s.AuthorizedStartDate),
+		ActualStartDate:     handlers.FmtDatePtr(s.ActualStartDate),
+		Notes:               handlers.FmtStringPtr(s.Notes),
+		WarehouseAddress:    payloadForAddressModel(&s.WarehouseAddress),
+		WarehouseEmail:      handlers.FmtStringPtr(s.WarehouseEmail),
+		WarehouseID:         handlers.FmtString(s.WarehouseID),
+		WarehouseName:       handlers.FmtString(s.WarehouseName),
+		WarehousePhone:      handlers.FmtStringPtr(s.WarehousePhone),
+		Location:            &location,
+		Status:              *handlers.FmtString(status),
 	}
 }
 
