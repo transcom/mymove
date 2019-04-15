@@ -178,7 +178,7 @@ AND
 Check for null TDL IDs:
 
 ```sql
-select count(distinct scac) from tdl_scores_and_discounts where tsd_id is null;
+SELECT count(DISTINCT scac) FROM tdl_scores_and_discounts WHERE tsd_id IS NULL;
 ```
 
 If count returns anything but 0, you'll need to add new TDL entries.
@@ -208,7 +208,7 @@ We'll now create a new migration with that data (replace your migration filename
 ./bin/soda generate sql add_new_scacs
 rm migrations/20190410152949_add_new_tdls.down.sql
 echo -e "INSERT INTO traffic_distribution_lists (id, source_rate_area, destination_region, code_of_service, created_at, updated_at) \nVALUES\n$(
-./scripts/psql-prod-migrations "\copy (select id, source_rate_area, destination_region, code_of_service from temp_tdls where import = true) to stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
+./scripts/psql-prod-migrations "\copy (SELECT id, source_rate_area, destination_region, code_of_service FROM temp_tdls WHERE import = true) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
   | awk '{print "  ("$0", now(), now()),"}' \
   | sed '$ s/.$//');" \
   > migrations/20190410152949_add_new_tdls.up.sql
@@ -269,7 +269,7 @@ Generate the migration (replacing your migration filename):
 rm migrations/20190409010258_add_new_scacs.down.sql
 
 echo -e "INSERT INTO transportation_service_providers (id, standard_carrier_alpha_code, created_at, updated_at, name) \nVALUES\n$(
-./scripts/psql-prod-migrations "\copy (select id, standard_carrier_alpha_code from temp_tsps) to stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
+./scripts/psql-prod-migrations "\copy (SELECT id, standard_carrier_alpha_code from temp_tsps) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
   | awk '{print "  ("$0", now(), now(), '\''),"}' \
   | sed '$ s/.$//');" \
   > migrations/20190409010258_add_new_scacs.up.sql
