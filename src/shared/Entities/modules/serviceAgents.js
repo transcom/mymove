@@ -34,25 +34,17 @@ export function updateServiceAgentsForShipment(shipmentId, serviceAgents, label 
 
 export function handleServiceAgents(shipmentId, serviceAgents) {
   return async function(dispatch) {
-    for (const serviceAgent in serviceAgents) {
-      /* eslint-disable security/detect-object-injection */
-      dispatch(createOrUpdateServiceAgent(shipmentId, serviceAgents[serviceAgent]));
-      /* eslint-enable security/detect-object-injection */
-    }
-  };
-}
-
-export function createOrUpdateServiceAgent(shipmentId, serviceAgent) {
-  return async function(dispatch, getState) {
-    if (serviceAgent.id) {
-      return dispatch(updateServiceAgentForShipment(shipmentId, serviceAgent.id, serviceAgent));
-    } else if (!serviceAgent.company || !serviceAgent.email || !serviceAgent.phone_number) {
-      // Don't send the service agent if it's not got enough details
-      // Currently, it should only be the destination agent that gets skipped
-      return;
-    } else {
-      return dispatch(createServiceAgentForShipment(shipmentId, serviceAgent));
-    }
+    Object.values(serviceAgents).map(serviceAgent => {
+      if (serviceAgent.id) {
+        return dispatch(updateServiceAgentForShipment(shipmentId, serviceAgent.id, serviceAgent));
+      } else if (!serviceAgent.company || !serviceAgent.email || !serviceAgent.phone_number) {
+        // Don't send the service agent if it's not got enough details
+        // Currently, it should only be the destination agent that gets skipped
+        return undefined;
+      } else {
+        return dispatch(createServiceAgentForShipment(shipmentId, serviceAgent));
+      }
+    });
   };
 }
 
