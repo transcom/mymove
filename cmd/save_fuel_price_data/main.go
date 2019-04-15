@@ -78,13 +78,15 @@ func main() {
 	}
 
 	clock := clock.New()
+	eiaKey := v.GetString(cli.EIAKeyFlag)
+	eiaURL := v.GetString(cli.EIAURLFlag)
 	fuelPrices := fuelprice.NewDieselFuelPriceStorer(
 		dbConnection,
 		logger,
 		clock,
 		fuelprice.FetchFuelPriceData,
-		v.GetString("eia-key"),
-		v.GetString("eia-url"),
+		eiaKey,
+		eiaURL,
 	)
 
 	verrs, err := fuelPrices.StoreFuelPrices(12)
