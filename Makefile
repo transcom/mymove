@@ -693,7 +693,7 @@ tasks_save_fuel_price_data: tasks_build_linux_docker
 		-e DB_PASSWORD \
 		-e EIA_KEY \
 		-e EIA_URL \
-		--link="$(DB_DOCKER_CONTAINER_TEST):database" \
+		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
 		--rm \
 		$(TASKS_DOCKER_CONTAINER):latest \
 		save-fuel-price-data
