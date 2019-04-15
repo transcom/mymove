@@ -408,7 +408,7 @@ func initRBSPersonLookup(v *viper.Viper, logger logger) (*iws.RBSPersonLookup, e
 		v.GetString("move-mil-dod-tls-key"))
 }
 
-func checkConfig(v *viper.Viper, logger *zap.Logger) error {
+func checkConfig(v *viper.Viper, logger logger) error {
 
 	logger.Info("checking webserver config")
 
