@@ -383,6 +383,7 @@ func main() {
 	dbHost := *dbInstancesOutput.DBInstances[0].Endpoint.Address
 
 	// Set up some key variables
+	// TODO: Validate all of these variables to ensure they can be used
 	clusterName := fmt.Sprintf("%s-%s", serviceName, environmentName)
 	taskRoleArn := fmt.Sprintf("ecs-task-events-role-%s", clusterName)
 	executionRoleArn := fmt.Sprintf("ecs-task-events-execution-role-%s", clusterName)
