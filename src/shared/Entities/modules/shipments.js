@@ -10,6 +10,7 @@ export const getPublicShipmentLabel = 'Shipments.getPublicShipment';
 const createShipmentLabel = 'Shipments.createShipment';
 const updateShipmentLabel = 'shipments.updateShipment';
 const updatePublicShipmentLabel = 'shipments.updatePublicShipment';
+const acceptPublicShipmentLabel = 'shipments.acceptShipment';
 
 export function createOrUpdateShipment(moveId, shipment, id, label) {
   if (id) {
@@ -64,6 +65,10 @@ export function approveShipment(shipmentId, shipmentApproveDate, label = approve
     },
     { label },
   );
+}
+
+export function acceptShipment(shipmentId, label = acceptPublicShipmentLabel) {
+  return swaggerRequest(getPublicClient, label, { shipmentId }, { label });
 }
 
 export function selectShipment(state, id) {

@@ -30,6 +30,7 @@ import {
   getPublicShipment,
   selectShipment,
   getPublicShipmentLabel,
+  acceptShipment,
 } from 'shared/Entities/modules/shipments';
 import { getServiceAgentsForShipment, selectServiceAgentsForShipment } from 'shared/Entities/modules/serviceAgents';
 
@@ -44,7 +45,7 @@ import Dates from 'shared/ShipmentDates';
 import LocationsContainer from 'shared/LocationsPanel/LocationsContainer';
 import { getLastRequestIsSuccess, getLastRequestIsLoading, getLastError } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
-import { completePmSurvey, acceptShipment, transportShipment, deliverShipment, handleServiceAgents } from './ducks';
+import { completePmSurvey, transportShipment, deliverShipment, handleServiceAgents } from './ducks';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
