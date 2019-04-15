@@ -346,9 +346,9 @@ func main() {
 		quit(logger, nil, errors.Wrap(err, "error retrieving targets for rule"))
 	}
 
-	blueTarget := targetsOutput.Targets[0]
-	blueTaskDefArn := *blueTarget.EcsParameters.TaskDefinitionArn
-	logger.Println(fmt.Sprintf("Blue Task Def Arn: %s", blueTaskDefArn))
+	currentTarget := targetsOutput.Targets[0]
+	currentTaskDefArn := *currentTarget.EcsParameters.TaskDefinitionArn
+	logger.Println(fmt.Sprintf("Blue Task Def Arn: %s", currentTaskDefArn))
 
 	// Confirm the image exists
 	imageTag := v.GetString(imageTagFlag)
@@ -495,22 +495,22 @@ func main() {
 	if err != nil {
 		quit(logger, nil, errors.Wrap(err, "error registering new task definition"))
 	}
-	greenTaskDefArn := *taskDefinitionOutput.TaskDefinition.TaskDefinitionArn
-	logger.Println(fmt.Sprintf("Green Task Def Arn: %s", greenTaskDefArn))
+	newTaskDefArn := *taskDefinitionOutput.TaskDefinition.TaskDefinitionArn
+	logger.Println(fmt.Sprintf("Green Task Def Arn: %s", newTaskDefArn))
 
 	// Update the task event target with the new task ECS parameters
 	putTargetsOutput, err := serviceCloudWatchEvents.PutTargets(&cloudwatchevents.PutTargetsInput{
 		Rule: aws.String(ruleName),
 		Targets: []*cloudwatchevents.Target{
 			{
-				Id:      blueTarget.Id,
-				Arn:     blueTarget.Arn,
-				RoleArn: blueTarget.RoleArn,
+				Id:      currentTarget.Id,
+				Arn:     currentTarget.Arn,
+				RoleArn: currentTarget.RoleArn,
 				EcsParameters: &cloudwatchevents.EcsParameters{
 					LaunchType:           aws.String("FARGATE"),
-					NetworkConfiguration: blueTarget.EcsParameters.NetworkConfiguration,
+					NetworkConfiguration: currentTarget.EcsParameters.NetworkConfiguration,
 					TaskCount:            aws.Int64(1),
-					TaskDefinitionArn:    aws.String(greenTaskDefArn),
+					TaskDefinitionArn:    aws.String(newTaskDefArn),
 				},
 			},
 		},
