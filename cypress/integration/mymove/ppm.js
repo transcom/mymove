@@ -1,9 +1,11 @@
 /* global cy */
 
+import { milmoveAppName } from '../../support/constants';
+
 describe('completing the ppm flow', function() {
   it('progresses thru forms', function() {
     //profile@comple.te
-    cy.signInAsUser('13f3949d-0d53-4be4-b1b1-ae4314793f34');
+    cy.signInAsUserPostRequest(milmoveAppName, '13f3949d-0d53-4be4-b1b1-ae4314793f34');
     cy.contains('Fort Gordon (from Yuma AFB)');
     cy.get('.whole_box > div > :nth-child(3) > span').contains('10,500 lbs');
     cy.contains('Continue Move Setup').click();
@@ -73,7 +75,7 @@ describe('completing the ppm flow', function() {
       expect(loc.pathname).to.match(/^\/$/);
     });
 
-    cy.contains('Success');
+    cy.contains('Congrats - your move is submitted!');
     cy.contains('Next Step: Wait for approval');
     cy.contains('Advance Requested: $1,333.91');
   });
@@ -92,7 +94,7 @@ describe('completing the ppm flow', function() {
 
     cy.logout();
     //profile@comple.te
-    cy.signInAsUser('8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
+    cy.signInAsUserPostRequest(milmoveAppName, '8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
     cy.setFeatureFlag('ppmPaymentRequest', '/');
     cy.contains('Fort Gordon (from Yuma AFB)');
     cy.contains('Request Payment').click();
@@ -131,7 +133,7 @@ describe('completing the ppm flow', function() {
 
 describe('editing ppm only move', () => {
   it('sees only details relevant to PPM only move', () => {
-    cy.signInAsUser('e10d5964-c070-49cb-9bd1-eaf9f7348eb6');
+    cy.signInAsUserPostRequest(milmoveAppName, 'e10d5964-c070-49cb-9bd1-eaf9f7348eb6');
     cy
       .get('.sidebar button')
       .contains('Edit Move')
@@ -145,13 +147,44 @@ describe('editing ppm only move', () => {
 });
 
 function serviceMemberVisitsIntroToPPMPaymentRequest() {
-  cy.signInAsUser('8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
+  cy.signInAsUserPostRequest(milmoveAppName, '8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
   cy.contains('Fort Gordon (from Yuma AFB)');
   cy.contains('Request Payment').click();
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-request-intro/);
   });
+
+  cy.get('h3').contains('Request PPM Payment');
+
+  cy.get('.weight-ticket-examples-link').click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/weight-ticket-examples/);
+  });
+
+  cy.get('h3').contains('Example weight ticket scenarios');
+
+  cy
+    .get('button')
+    .contains('Back')
+    .click();
+
+  cy
+    .get('a')
+    .contains('List of allowable expenses')
+    .click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/allowable-expenses/);
+  });
+
+  cy.get('h3').contains('Allowable expenses');
+
+  cy
+    .get('button')
+    .contains('Back')
+    .click();
 
   cy.get('button').contains('Get Started');
 

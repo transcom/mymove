@@ -16,7 +16,8 @@
     "exec",
     "app-{{ .environment }}",
     "--",
-    "/bin/mymove-server"
+    "/bin/milmove",
+    "serve"
   ],
   "command": [
     "--env",

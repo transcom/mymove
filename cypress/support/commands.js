@@ -1,5 +1,18 @@
 import * as mime from 'mime-types';
-import { milmoveAppName, officeAppName, tspAppName, longPageLoadTimeout } from './constants';
+import {
+  milmoveBaseURL,
+  officeBaseURL,
+  tspBaseURL,
+  milmoveAppName,
+  officeAppName,
+  tspAppName,
+  milmoveUserType,
+  officeUserType,
+  tspUserType,
+  dpsUserType,
+  userTypeToBaseURL,
+  longPageLoadTimeout,
+} from './constants';
 
 /* global Cypress, cy */
 // ***********************************************
@@ -28,40 +41,58 @@ import { milmoveAppName, officeAppName, tspAppName, longPageLoadTimeout } from '
 // -- This is will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
-Cypress.Commands.add('signInAsNewUser', () => {
-  // make sure we log out first before sign in
-  cy.logout();
+Cypress.Commands.add('signInAsNewUser', userType => {
+  // make sure we visit all app urls and clear cookies
+  cy.setBaseUrlAndClearAllCookies(userType);
 
   cy.visit('/devlocal-auth/login');
   // should have both our csrf cookie tokens now
   cy.getCookie('_gorilla_csrf').should('exist');
   cy.getCookie('masked_gorilla_csrf').should('exist');
-  cy.get('button[data-hook="new-user-login"]').click();
+  // select the user type and then login as new user
+  cy.get('button[data-hook="new-user-login-' + userType + '"]').click();
+});
+
+Cypress.Commands.add('signInAsNewMilMoveUser', () => {
+  cy.signInAsNewUser(milmoveUserType);
+  cy.url().should('contain', milmoveBaseURL);
+  cy.location('pathname').should('contain', 'service-member');
+  cy.location('pathname').should('contain', 'create');
+});
+
+Cypress.Commands.add('signInAsNewOfficeUser', () => {
+  cy.signInAsNewUser(officeUserType);
+  cy.url().should('eq', officeBaseURL + '/queues/new');
+});
+
+Cypress.Commands.add('signInAsNewTSPUser', () => {
+  cy.signInAsNewUser(tspUserType);
+  cy.url().should('eq', tspBaseURL + '/queues/new');
+});
+
+Cypress.Commands.add('signInAsNewDPSUser', () => {
+  cy.signInAsNewUser(dpsUserType);
+  cy.url().should('contain', 'milmovelocal');
 });
 
 Cypress.Commands.add('signIntoMyMoveAsUser', userId => {
-  cy.setupBaseUrl(milmoveAppName);
-  cy.signInAsUser(userId);
+  cy.signInAsUserPostRequest(milmoveAppName, userId);
+});
+
+Cypress.Commands.add('signIntoOfficeAsUser', userId => {
+  cy.signInAsUserPostRequest(officeAppName, userId);
+  cy.waitForReactTableLoad();
 });
 Cypress.Commands.add('signIntoOffice', () => {
-  cy.setupBaseUrl(officeAppName);
-  cy.signInAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
+  cy.signIntoOfficeAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
+});
+
+Cypress.Commands.add('signIntoTSPAsUser', userId => {
+  cy.signInAsUserPostRequest(tspAppName, userId);
   cy.waitForReactTableLoad();
 });
 Cypress.Commands.add('signIntoTSP', () => {
-  cy.setupBaseUrl(tspAppName);
-  cy.signInAsUser('6cd03e5b-bee8-4e97-a340-fecb8f3d5465');
-  cy.waitForReactTableLoad();
-});
-Cypress.Commands.add('signInAsUser', userId => {
-  // make sure we log out first before sign in
-  cy.logout();
-
-  cy.visit('/devlocal-auth/login');
-  // should have both our csrf cookie tokens now
-  cy.getCookie('_gorilla_csrf').should('exist');
-  cy.getCookie('masked_gorilla_csrf').should('exist');
-  cy.get('button[value="' + userId + '"]').click();
+  cy.signIntoTSPAsUser('6cd03e5b-bee8-4e97-a340-fecb8f3d5465');
 });
 
 // Reloads the page but makes an attempt to wait for the loading screen to disappear
@@ -108,18 +139,19 @@ Cypress.Commands.add('setFeatureFlag', (flagVal, url = '/queues/new') => {
 Cypress.Commands.add(
   'signInAsUserPostRequest',
   (
-    signInAs,
+    userType,
     userId,
     expectedStatusCode = 200,
     expectedRespBody = null,
     sendGorillaCSRF = true,
     sendMaskedGorillaCSRF = true,
+    checkSessionToken = true,
   ) => {
     // setup baseurl
-    cy.setupBaseUrl(signInAs);
+    cy.setBaseUrlAndClearAllCookies(userType);
 
     // request use to log in
-    let sendRequest = maskedCSRFToken => {
+    let sendRequest = (sendRequestUserType, maskedCSRFToken) => {
       cy
         .request({
           url: '/devlocal-auth/login',
@@ -129,6 +161,7 @@ Cypress.Commands.add(
           },
           body: {
             id: userId,
+            userType: sendRequestUserType,
           },
           form: true,
           failOnStatusCode: false,
@@ -140,6 +173,25 @@ Cypress.Commands.add(
           // check response body if needed
           if (expectedRespBody) {
             expect(resp.body).to.eq(expectedRespBody);
+          }
+
+          // Login should provide named session tokens
+          if (checkSessionToken) {
+            // Check that two CSRF cookies and one session cookie exists
+            cy.getCookies().should('have.length', 3);
+            if (sendRequestUserType === milmoveAppName) {
+              cy.getCookie('mil_session_token').should('exist');
+              cy.getCookie('office_session_token').should('not.exist');
+              cy.getCookie('tsp_session_token').should('not.exist');
+            } else if (sendRequestUserType === officeAppName) {
+              cy.getCookie('mil_session_token').should('not.exist');
+              cy.getCookie('office_session_token').should('exist');
+              cy.getCookie('tsp_session_token').should('not.exist');
+            } else if (sendRequestUserType === tspAppName) {
+              cy.getCookie('mil_session_token').should('not.exist');
+              cy.getCookie('office_session_token').should('not.exist');
+              cy.getCookie('tsp_session_token').should('exist');
+            }
           }
         });
     };
@@ -168,7 +220,7 @@ Cypress.Commands.add(
         .should('not.exist')
         .then(() => {
           // null token will omit the 'X-CSRF-HEADER' from request
-          sendRequest();
+          sendRequest(userType);
         });
     } else {
       // Send request with masked token
@@ -176,7 +228,7 @@ Cypress.Commands.add(
         .getCookie('masked_gorilla_csrf')
         .should('exist')
         .then(cookie => {
-          sendRequest(cookie.value);
+          sendRequest(userType, cookie.value);
         });
     }
   },
@@ -195,6 +247,17 @@ Cypress.Commands.add('logout', () => {
     // In case of login redirect we once more go to the homepage
     cy.patientVisit('/');
   });
+});
+
+Cypress.Commands.add('setBaseUrlAndClearAllCookies', userType => {
+  [milmoveBaseURL, officeBaseURL, tspBaseURL].forEach(url => {
+    Cypress.config('baseUrl', url);
+    cy.visit('/');
+    cy.clearCookies();
+  });
+  const baseUrl = userTypeToBaseURL[userType]; // eslint-disable-line security/detect-object-injection
+  Cypress.config('baseUrl', baseUrl);
+  cy.visit('/');
 });
 
 Cypress.Commands.add('nextPage', () => {
@@ -267,6 +330,13 @@ Cypress.Commands.add('typeInInput', ({ name, value }) => {
     .blur();
 });
 
+Cypress.Commands.add('clearInput', ({ name }) => {
+  cy
+    .get(`input[name="${name}"]`)
+    .clear()
+    .blur();
+});
+
 // function typeInTextArea({ name, value }) {
 Cypress.Commands.add('typeInTextarea', ({ name, value }) => {
   cy
@@ -291,13 +361,13 @@ Cypress.Commands.add('setupBaseUrl', appname => {
   // setup baseurl
   switch (appname) {
     case milmoveAppName:
-      Cypress.config('baseUrl', 'http://milmovelocal:4000');
+      Cypress.config('baseUrl', milmoveBaseURL);
       break;
     case officeAppName:
-      Cypress.config('baseUrl', 'http://officelocal:4000');
+      Cypress.config('baseUrl', officeBaseURL);
       break;
     case tspAppName:
-      Cypress.config('baseUrl', 'http://tsplocal:4000');
+      Cypress.config('baseUrl', tspBaseURL);
       break;
     default:
       break;

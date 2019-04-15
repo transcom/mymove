@@ -21,6 +21,7 @@ repos:
             config/tls/devlocal-.+\.key$|
             pkg/server/testdata/localhost.key$|
             pkg/server/testdata/officelocal.key$|
+            pkg/auth/authentication/auth_test.go$|
           )$
       - id: trailing-whitespace
         exclude: public/swagger-ui/*
@@ -114,16 +115,6 @@ repos:
       language: script
       files: \.go$
       pass_filenames: false
-
-  - repo: local
-    hooks:
-      - id: gosec
-        name: gosec scanner
-        entry: bin/gosec -exclude=G104 -fmt text ./...
-        language: script
-        description: Inspects source code for security problems by scanning the Go AST.
-        files: \.go$
-        pass_filenames: false
 
   - repo: local
     hooks:

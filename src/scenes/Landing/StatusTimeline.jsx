@@ -1,16 +1,16 @@
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
-import { get, findLast } from 'lodash';
+import { get, findLast, includes } from 'lodash';
 import moment from 'moment';
 
 import { displayDateRange } from 'shared/formatters';
 import './StatusTimeline.css';
 
-function getDates(shipment, datesType) {
-  if (datesType === 'book_date') {
-    return [get(shipment, datesType)];
+function getDates(source, dateType) {
+  if (dateType === 'book_date') {
+    return [get(source, dateType)];
   }
-  return get(shipment, datesType);
+  return get(source, dateType);
 }
 
 function getCurrentStatus(statuses) {
@@ -38,12 +38,12 @@ export class PPMStatusTimeline extends React.Component {
     }
 
     if (status === 'PPM_APPROVED') {
-      return ['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'].includes(ppm.status);
+      return includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     }
 
     if (status === 'IN_PROGRESS') {
       const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
-      return moveInProgress;
+      return moveInProgress && includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     }
 
     if (status === 'PAYMENT_REQUESTED') {
@@ -124,15 +124,19 @@ export class ShipmentStatusTimeline extends React.Component {
 
     if (status === 'DELIVERED') {
       const actualDeliveryDate = get(shipment, 'actual_delivery_date', null);
-      return actualDeliveryDate ? true : false;
+      return actualDeliveryDate || includes(['DELIVERED', 'COMPLETED'], shipment.status) ? true : false;
     }
   }
 
   addDates(statuses) {
+    const moveDatesSummary = get(this.props.shipment, 'move_dates_summary');
     return statuses.map(status => {
       return {
         ...status,
-        dates: getDates(this.props.shipment, status.date_type),
+        dates:
+          status.date_type === 'book_date'
+            ? getDates(this.props.shipment, status.date_type)
+            : getDates(moveDatesSummary, status.date_type),
       };
     });
   }
@@ -216,7 +220,8 @@ export const StatusBlock = props => {
     <div className={classes.join(' ')}>
       <div className="status_dot" />
       <div className="status_name">{props.name}</div>
-      {props.dates && <div className="status_dates">{displayDateRange(props.dates, 'condensed')}</div>}
+      {props.dates &&
+        props.dates.length > 0 && <div className="status_dates">{displayDateRange(props.dates, 'condensed')}</div>}
     </div>
   );
 };

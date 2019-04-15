@@ -17,6 +17,7 @@ type MoveQueueItem struct {
 	Rank             *internalmessages.ServiceMemberRank `json:"rank" db:"rank"`
 	CustomerName     string                              `json:"customer_name" db:"customer_name"`
 	Locator          string                              `json:"locator" db:"locator"`
+	GBLNumber        *string                             `json:"gbl_number" db:"gbl_number"`
 	Status           string                              `json:"status" db:"status"`
 	PpmStatus        *string                             `json:"ppm_status" db:"ppm_status"`
 	HhgStatus        *string                             `json:"hhg_status" db:"hhg_status"`
@@ -44,10 +45,12 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				moves.created_at as created_at,
 				moves.updated_at as last_modified_date,
 				moves.status as status,
-				ppm.status as ppm_status
+				ppm.status as ppm_status,
+				shipment.gbl_number as gbl_number
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
+			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
 			LEFT JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
 			WHERE moves.status = 'SUBMITTED'
 		`
@@ -63,11 +66,13 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				moves.created_at as created_at,
 				moves.updated_at as last_modified_date,
 				moves.status as status,
-				ppm.status as ppm_status
+				ppm.status as ppm_status,
+				shipment.gbl_number as gbl_number
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
+			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
 			WHERE moves.status = 'APPROVED'
 		`
 	} else if lifecycleState == "hhg_accepted" {
@@ -84,7 +89,8 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				moves.created_at as created_at,
 				moves.updated_at as last_modified_date,
 				moves.status as status,
-				shipment.status as hhg_status
+				shipment.status as hhg_status,
+				shipment.gbl_number as gbl_number
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
@@ -104,7 +110,8 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				moves.created_at as created_at,
 				moves.updated_at as last_modified_date,
 				moves.status as status,
-				shipment.status as hhg_status
+				shipment.status as hhg_status,
+				shipment.gbl_number as gbl_number
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
@@ -124,7 +131,8 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				moves.created_at as created_at,
 				moves.updated_at as last_modified_date,
 				moves.status as status,
-				shipment.status as hhg_status
+				shipment.status as hhg_status,
+				shipment.gbl_number as gbl_number
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
@@ -144,7 +152,8 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				moves.created_at as created_at,
 				moves.updated_at as last_modified_date,
 				moves.status as status,
-				shipment.status as hhg_status
+				shipment.status as hhg_status,
+				shipment.gbl_number as gbl_number
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
@@ -163,10 +172,12 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				moves.created_at as created_at,
 				moves.updated_at as last_modified_date,
 				moves.status as status,
-				ppm.status as ppm_status
+				ppm.status as ppm_status,
+				shipment.gbl_number as gbl_number
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
+			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
 			LEFT JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
 		`
 	}

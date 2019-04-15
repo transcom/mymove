@@ -34,6 +34,7 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 		WeightEstimate:                personallyProcuredMove.WeightEstimate,
 		OriginalMoveDate:              handlers.FmtDatePtr(personallyProcuredMove.OriginalMoveDate),
 		ActualMoveDate:                handlers.FmtDatePtr(personallyProcuredMove.ActualMoveDate),
+		ApproveDate:                   handlers.FmtDateTimePtr(personallyProcuredMove.ApproveDate),
 		NetWeight:                     personallyProcuredMove.NetWeight,
 		PickupPostalCode:              personallyProcuredMove.PickupPostalCode,
 		HasAdditionalPostalCode:       personallyProcuredMove.HasAdditionalPostalCode,
@@ -539,7 +540,8 @@ func (h RequestPPMExpenseSummaryHandler) Handle(params ppmop.RequestPPMExpenseSu
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
 
 	// Fetch all approved expense documents for a PPM
-	moveDocsExpense, err := models.FetchApprovedMovingExpenseDocuments(h.DB(), session, ppmID)
+	status := models.MoveDocumentStatusOK
+	moveDocsExpense, err := models.FetchMovingExpenseDocuments(h.DB(), session, ppmID, &status)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}

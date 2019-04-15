@@ -28,7 +28,7 @@ type webServerSuite struct {
 func TestWebServerSuite(t *testing.T) {
 
 	flag := pflag.CommandLine
-	initFlags(flag)
+	initServeFlags(flag)
 	flag.Parse([]string{})
 
 	v := viper.New()

@@ -17,7 +17,7 @@ readonly usage="usage: $0 <production_migration_file>"
 
 function proceed() {
   proceed_message=${1:-"proceed"}
-  echo -n "${proceed_message} (y/N) "
+  echo -en "\e[31m${proceed_message} (y/N) \e[39m"
   read -r proceed
   if [[ "$proceed" =~ ^[^yY]*$ ]]; then
     echo "exiting"
@@ -58,20 +58,18 @@ ${aws_command} s3 ls "${aws_bucket_prefix}${environments[0]}${aws_bucket_suffix}
 # Test local migration
 #
 
-proceed "Testing local migration. This will involve resetting your local dev database. Proceed?"
-run make db_dev_reset
-run make db_dev_migrate || (
-  echo "error: test migrations failed!"
-  echo "Run 'make db_dev_migrate' to see errors."
-  exit 1
-  )
+echo "Testing migrations ... (This could be several minutes!)"
 
-echo "Test migrations successful!"
+SECURE_MIGRATION_SOURCE=local make run_prod_migrations
+
+echo "Testing migrations was successful!"
 echo
 
 #
 # Upload secure migration
 #
+
+proceed "Are you ready to upload the migrations? This will overwrite files of the same name in S3."
 
 for environment in "${environments[@]}"; do
   echo "Uploading to: $environment"
