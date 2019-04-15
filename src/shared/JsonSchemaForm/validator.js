@@ -114,7 +114,7 @@ const createDigitNormalizer = maxLength => {
       return value;
     }
 
-    // only numbers up to 10 digits
+    // only digits up to the max length
     return value.replace(/[^\d]/g, '').substr(0, maxLength);
   };
 };
