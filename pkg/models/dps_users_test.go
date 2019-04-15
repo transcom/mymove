@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"strings"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -30,4 +32,18 @@ func (suite *ModelSuite) Test_DpsUserValidations() {
 	}
 
 	suite.verifyValidationErrors(document, expErrors)
+}
+
+func (suite *ModelSuite) TestFetchDPSUserByEmailCaseSensitivity() {
+	email := "Test@example.com"
+
+	dpsUser := models.DpsUser{
+		LoginGovEmail: email,
+	}
+
+	suite.MustSave(&dpsUser)
+	user, err := models.FetchDPSUserByEmail(suite.DB(), strings.ToLower(email))
+	suite.Nil(err)
+	suite.NotNil(user)
+	suite.Equal(user.LoginGovEmail, email)
 }
