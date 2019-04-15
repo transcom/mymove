@@ -35,7 +35,7 @@ import {
 import {
   getServiceAgentsForShipment,
   selectServiceAgentsForShipment,
-  handleServiceAgents,
+  updateServiceAgentsForShipment,
 } from 'shared/Entities/modules/serviceAgents';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -218,7 +218,7 @@ class ShipmentInfo extends Component {
     if (values['origin_service_agent']) {
       values['origin_service_agent']['role'] = 'ORIGIN';
     }
-    this.props.handleServiceAgents(this.props.shipment.id, values);
+    this.props.updateServiceAgentsForShipment(this.props.shipment.id, values);
   };
 
   transportShipment = values => this.props.transportShipment(this.props.shipment.id, values);
@@ -506,7 +506,7 @@ const mapDispatchToProps = dispatch =>
       updatePublicShipment,
       acceptShipment,
       generateGBL,
-      handleServiceAgents,
+      updateServiceAgentsForShipment,
       transportShipment,
       deliverShipment,
       getAllShipmentDocuments,
