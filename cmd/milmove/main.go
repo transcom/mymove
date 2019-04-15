@@ -292,8 +292,7 @@ func initServeFlags(flag *pflag.FlagSet) {
 	flag.String("csrf-auth-key", "", "CSRF Auth Key, 32 byte long")
 
 	// EIA Open Data API
-	flag.String("eia-key", "", "Key for Energy Information Administration (EIA) api")
-	flag.String("eia-url", "", "Url for Energy Information Administration (EIA) api")
+	cli.InitEIAFlags(flag)
 }
 
 func initDODCertificates(v *viper.Viper, logger logger) ([]tls.Certificate, *x509.CertPool, error) {
@@ -451,12 +450,7 @@ func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 		return err
 	}
 
-	err = checkEIAKey(v)
-	if err != nil {
-		return err
-	}
-
-	err = checkEIAURL(v)
+	err = cli.CheckEIA(v)
 	if err != nil {
 		return err
 	}
@@ -588,22 +582,6 @@ func checkGEX(v *viper.Viper) error {
 		}
 	}
 
-	return nil
-}
-
-func checkEIAKey(v *viper.Viper) error {
-	eiaKey := v.GetString("eia-key")
-	if len(eiaKey) != 32 {
-		return fmt.Errorf("expected eia key to be 32 characters long; key is %d chars", len(eiaKey))
-	}
-	return nil
-}
-
-func checkEIAURL(v *viper.Viper) error {
-	eiaURL := v.GetString("eia-url")
-	if eiaURL != "https://api.eia.gov/series/" {
-		return fmt.Errorf("invalid eia url %s, expecting https://api.eia.gov/series/", eiaURL)
-	}
 	return nil
 }
 

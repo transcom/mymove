@@ -686,11 +686,11 @@ tasks_save_fuel_price_data: tasks_build_linux_docker
 	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
 	docker run \
 		-t \
-		-e DB_NAME=$(DB_NAME_DEV) \
-		-e DB_HOST=database \
-		-e DB_PORT=$(DB_PORT_DOCKER) \
-		-e DB_USER=postgres \
-		-e DB_PASSWORD=$(PGPASSWORD) \
+		-e DB_HOST="database" \
+		-e DB_NAME \
+		-e DB_PORT \
+		-e DB_USER \
+		-e DB_PASSWORD \
 		-e EIA_KEY \
 		-e EIA_URL \
 		--link="$(DB_DOCKER_CONTAINER_TEST):database" \

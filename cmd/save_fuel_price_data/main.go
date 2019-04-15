@@ -19,7 +19,12 @@ func checkConfig(v *viper.Viper, logger logger) error {
 
 	logger.Info("checking config")
 
-	err := cli.CheckDatabase(v, logger)
+	err := cli.CheckEIA(v)
+	if err != nil {
+		return err
+	}
+
+	err = cli.CheckDatabase(v, logger)
 	if err != nil {
 		return err
 	}
@@ -33,13 +38,13 @@ func main() {
 	flag := pflag.CommandLine
 
 	flag.String("env", "development", "The environment to run in, which configures the database.")
+	flag.BoolP("debug-logging", "v", false, "log messages at the debug level.")
 
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
 	// EIA Open Data API
-	flag.String("eia-key", "", "key for Energy Information Administration (EIA) api")
-	flag.String("eia-url", "", "url for EIA api")
+	cli.InitEIAFlags(flag)
 
 	flag.SortFlags = false
 	flag.Parse(os.Args[1:])
@@ -55,9 +60,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
-
-	fields := make([]zap.Field, 0)
-	logger = logger.With(fields...)
 	zap.ReplaceGlobals(logger)
 
 	err = checkConfig(v, logger)
