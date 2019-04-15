@@ -40,10 +40,11 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	})
 
 	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
+	netWeight := unit.Pound(10000)
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			MoveID:              move.ID,
-			NetWeight:           models.Int64Pointer(10000),
+			NetWeight:           &netWeight,
 			HasRequestedAdvance: true,
 			AdvanceID:           &advance.ID,
 			Advance:             &advance,
@@ -203,11 +204,12 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		},
 	}
 	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
+	netWeight := unit.Pound(4000)
 	personallyProcuredMoves := []models.PersonallyProcuredMove{
 		{
 			OriginalMoveDate: &pickupDate,
 			Status:           models.PPMStatusPAYMENTREQUESTED,
-			NetWeight:        models.Int64Pointer(4000),
+			NetWeight:        &netWeight,
 			Advance:          &advance,
 		},
 	}
@@ -545,7 +547,7 @@ func (suite *ModelSuite) TestFormatServiceMemberAffiliation() {
 }
 
 func (suite *ModelSuite) TestFormatPPMWeight() {
-	var pounds int64 = 1000
+	pounds := unit.Pound(1000)
 	ppm := models.PersonallyProcuredMove{NetWeight: &pounds}
 	noWtg := models.PersonallyProcuredMove{NetWeight: nil}
 
@@ -554,7 +556,7 @@ func (suite *ModelSuite) TestFormatPPMWeight() {
 }
 
 func (suite *ModelSuite) TestCalculatePPMEntitlementNoHHGPPMLessThanMaxEntitlement() {
-	ppmWeight := int64(900)
+	ppmWeight := unit.Pound(900)
 	totalEntitlement := unit.Pound(1000)
 	move := models.Move{
 		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
@@ -567,7 +569,7 @@ func (suite *ModelSuite) TestCalculatePPMEntitlementNoHHGPPMLessThanMaxEntitleme
 }
 
 func (suite *ModelSuite) TestCalculatePPMEntitlementNoHHGPPMGreaterThanMaxEntitlement() {
-	ppmWeight := int64(1100)
+	ppmWeight := unit.Pound(1100)
 	totalEntitlement := unit.Pound(1000)
 	move := models.Move{
 		PersonallyProcuredMoves: models.PersonallyProcuredMoves{models.PersonallyProcuredMove{NetWeight: &ppmWeight}},
@@ -580,7 +582,7 @@ func (suite *ModelSuite) TestCalculatePPMEntitlementNoHHGPPMGreaterThanMaxEntitl
 }
 
 func (suite *ModelSuite) TestCalculatePPMEntitlementPPMGreaterThanRemainingEntitlement() {
-	ppmWeight := int64(1100)
+	ppmWeight := unit.Pound(1100)
 	totalEntitlement := unit.Pound(1000)
 	hhg := unit.Pound(100)
 	move := models.Move{
@@ -595,7 +597,7 @@ func (suite *ModelSuite) TestCalculatePPMEntitlementPPMGreaterThanRemainingEntit
 }
 
 func (suite *ModelSuite) TestCalculatePPMEntitlementPPMLessThanRemainingEntitlement() {
-	ppmWeight := int64(500)
+	ppmWeight := unit.Pound(500)
 	totalEntitlement := unit.Pound(1000)
 	hhg := unit.Pound(100)
 	move := models.Move{
