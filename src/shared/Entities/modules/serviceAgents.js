@@ -25,7 +25,7 @@ export function createServiceAgentForShipment(shipmentId, serviceAgent, label = 
   return swaggerRequest(getPublicClient, swaggerTag, { shipmentId, serviceAgent }, { label });
 }
 
-export function handleServiceAgents(shipmentId, serviceAgents) {
+export function updateServiceAgentsForShipment(shipmentId, serviceAgents) {
   return async function(dispatch) {
     Object.values(serviceAgents).map(serviceAgent => {
       if (serviceAgent.id) {
