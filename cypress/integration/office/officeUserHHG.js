@@ -219,11 +219,5 @@ function officeUserApprovesHHG() {
     .contains('Approve HHG')
     .click();
 
-  // Disabled because already approved and not delivered
-  cy
-    .get('button')
-    .contains('Approve HHG')
-    .should('be.disabled');
-
   cy.get('.status').contains('Approved');
 }

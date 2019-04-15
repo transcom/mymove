@@ -533,6 +533,7 @@ jobs:
             - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make bin/chamber
       - run: make download_rds_certs
+      - run: make bin/rds-combined-ca-bundle.pem
       - run: make build
       - build_tag_push:
           dockerfile: Dockerfile

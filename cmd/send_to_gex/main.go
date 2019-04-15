@@ -94,7 +94,7 @@ func main() {
 	fmt.Printf("status code: %v, error: %v \n", resp.StatusCode, err)
 }
 
-//TODO: Infra will work to refactor and reduce duplication (also found in webserver/main.go)
+//TODO: Infra will work to refactor and reduce duplication (also found in cmd/milmove/main.go)
 func initDODCertificates(v *viper.Viper, logger *zap.Logger) ([]tls.Certificate, *x509.CertPool, error) {
 
 	tlsCert := v.GetString("move-mil-dod-tls-cert")
