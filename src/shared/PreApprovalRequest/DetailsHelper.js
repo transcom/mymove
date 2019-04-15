@@ -8,14 +8,14 @@ import { Code105Details } from './Code105Details';
 import { DefaultDetails } from './DefaultDetails';
 import { Code226Details } from './Code226Details';
 
-export function getFormComponent(code, robustAccessorial, initialValues) {
+export function getFormComponent(code, robustAccessorialFlag, initialValues) {
   code = code ? code.toLowerCase() : '';
   const isNew = !initialValues;
   if (code.startsWith('105b') || code.startsWith('105e')) {
     if (isNew || get(initialValues, 'crate_dimensions', false)) return Code105Form;
   } else if (code.startsWith('35')) {
     if (isNew || get(initialValues, 'estimate_amount_cents')) return Code35Form;
-  } else if (robustAccessorial && code.startsWith('226')) {
+  } else if (robustAccessorialFlag && code.startsWith('226')) {
     if (isNew || get(initialValues, 'actual_amount_cents')) return Code226Form;
   }
   return DefaultForm;
