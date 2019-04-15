@@ -4,7 +4,7 @@ import { getFormValues } from 'redux-form';
 import { bindActionCreators } from 'redux';
 
 import TspServiceAgents from './TspServiceAgents';
-import { handleServiceAgents } from 'scenes/TransportationServiceProvider/ducks';
+import { handleServiceAgents } from 'shared/Entities/modules/serviceAgents';
 
 import { getPublicSwaggerDefinition } from 'shared/Swagger/selectors';
 import { selectTspById } from 'shared/Entities/modules/transportationServiceProviders';

@@ -1,12 +1,9 @@
 import { isNull } from 'lodash';
 import {
-  AcceptShipment,
   TransportShipment,
   DeliverShipment,
   CompletePmSurvey,
-  CreateServiceAgent,
   IndexServiceAgents,
-  UpdateServiceAgent,
   GetAllShipmentDocuments,
 } from './api.js';
 
@@ -15,21 +12,17 @@ import { getEntitlements } from 'shared/entitlements.js';
 import { selectShipment } from 'shared/Entities/modules/shipments';
 
 // SINGLE RESOURCE ACTION TYPES
-const acceptShipmentType = 'ACCEPT_SHIPMENT';
 const transportShipmentType = 'TRANSPORT_SHIPMENT';
 const deliverShipmentType = 'DELIVER_SHIPMENT';
 const loadShipmentDocumentsType = 'LOAD_SHIPMENT_DOCUMENTS';
 const completePmSurveyType = 'COMPLETE_PM_SURVEY';
 
 const indexServiceAgentsType = 'INDEX_SERVICE_AGENTS';
-const createServiceAgentsType = 'CREATE_SERVICE_AGENTS';
-const updateServiceAgentsType = 'UPDATE_SERVICE_AGENTS';
 
 // MULTIPLE-RESOURCE ACTION TYPES
 const loadTspDependenciesType = 'LOAD_TSP_DEPENDENCIES';
 
 // SINGLE RESOURCE ACTION TYPES
-const ACCEPT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(acceptShipmentType);
 const TRANSPORT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(transportShipmentType);
 const DELIVER_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(deliverShipmentType);
 const COMPLETE_PM_SURVEY = ReduxHelpers.generateAsyncActionTypes(completePmSurveyType);
@@ -37,17 +30,11 @@ const LOAD_SHIPMENT_DOCUMENTS = ReduxHelpers.generateAsyncActionTypes(loadShipme
 
 const INDEX_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(indexServiceAgentsType);
 
-const CREATE_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(createServiceAgentsType);
-
-const UPDATE_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(updateServiceAgentsType);
-
 // MULTIPLE-RESOURCE ACTION TYPES
 
 const LOAD_TSP_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(loadTspDependenciesType);
 
 // SINGLE-RESOURCE ACTION CREATORS
-
-export const acceptShipment = ReduxHelpers.generateAsyncActionCreator(acceptShipmentType, AcceptShipment);
 
 export const transportShipment = ReduxHelpers.generateAsyncActionCreator(transportShipmentType, TransportShipment);
 
@@ -62,40 +49,6 @@ export const getAllShipmentDocuments = ReduxHelpers.generateAsyncActionCreator(
 
 export const indexServiceAgents = ReduxHelpers.generateAsyncActionCreator(indexServiceAgentsType, IndexServiceAgents);
 
-export const createServiceAgent = ReduxHelpers.generateAsyncActionCreator(createServiceAgentsType, CreateServiceAgent);
-
-export const updateServiceAgent = ReduxHelpers.generateAsyncActionCreator(updateServiceAgentsType, UpdateServiceAgent);
-
-// MULTIPLE-RESOURCE ACTION CREATORS
-//
-// These action types typically dispatch to other actions above to
-// perform their work and exist to encapsulate when multiple requests
-// need to be made in response to a user action.
-
-export function handleServiceAgents(shipmentId, serviceAgents) {
-  return async function(dispatch, getState) {
-    for (const serviceAgent in serviceAgents) {
-      // eslint-disable-next-line security/detect-object-injection
-      dispatch(createOrUpdateServiceAgent(shipmentId, serviceAgents[serviceAgent]));
-    }
-  };
-}
-
-export function createOrUpdateServiceAgent(shipmentId, serviceAgent) {
-  return async function(dispatch, getState) {
-    if (serviceAgent.id) {
-      return dispatch(updateServiceAgent(serviceAgent));
-    } else if (!serviceAgent.company || !serviceAgent.email || !serviceAgent.phone_number) {
-      // Don't send the service agent if it's not got enough details
-      // Currently, it should only be the destination agent that gets skipped
-      return;
-    } else {
-      return dispatch(createServiceAgent(shipmentId, serviceAgent));
-    }
-  };
-}
-
-// Selectors
 export function loadEntitlements(state, shipmentId) {
   const shipment = selectShipment(state, shipmentId);
   const move = shipment.move || {};
@@ -126,15 +79,6 @@ const initialState = {
   shipmentIsDelivering: false,
   shipmentHasDeliverError: null,
   shipmentHasDeliverSuccess: false,
-  serviceAgentsAreLoading: false,
-  serviceAgentsHasLoadSucces: false,
-  serviceAgentsHasLoadError: null,
-  serviceAgentIsCreating: false,
-  serviceAgentHasCreatedSucces: false,
-  serviceAgentHasCreatedError: null,
-  serviceAgentIsUpdating: false,
-  serviceAgentHasUpdatedSucces: false,
-  serviceAgentHasUpdatedError: null,
   storageInTransitIsCreating: false,
   storageInTransitHasCreatedSuccess: false,
   storageInTransitHasCreatedError: null,
@@ -145,32 +89,12 @@ const initialState = {
   loadTspDependenciesHasSuccess: false,
   loadTspDependenciesHasError: null,
   flashMessage: false,
-  serviceAgents: [],
 };
 
 export function tspReducer(state = initialState, action) {
   switch (action.type) {
     // SINGLE-RESOURCE ACTION TYPES
 
-    case ACCEPT_SHIPMENT.start:
-      return Object.assign({}, state, {
-        shipmentIsAccepting: true,
-        shipmentHasAcceptSuccess: false,
-      });
-    case ACCEPT_SHIPMENT.success:
-      return Object.assign({}, state, {
-        shipmentIsAccepting: false,
-        shipmentHasAcceptSuccess: true,
-        shipmentHasAcceptError: false,
-        shipment: action.payload,
-      });
-    case ACCEPT_SHIPMENT.failure:
-      return Object.assign({}, state, {
-        shipmentIsAccepting: false,
-        shipmentHasAcceptSuccess: false,
-        shipmentHasAcceptError: null,
-        error: action.error.message,
-      });
     case TRANSPORT_SHIPMENT.start:
       return Object.assign({}, state, {
         shipmentIsSendingTransport: true,
@@ -270,66 +194,6 @@ export function tspReducer(state = initialState, action) {
         serviceAgentsAreLoading: false,
         serviceAgentsHasLoadSucces: false,
         serviceAgentsHasLoadError: null,
-        serviceAgents: [],
-        error: action.error.message,
-      });
-
-    case CREATE_SERVICE_AGENTS.start:
-      return Object.assign({}, state, {
-        serviceAgentIsCreating: true,
-        serviceAgentHasCreatedSucces: false,
-      });
-    case CREATE_SERVICE_AGENTS.success:
-      const serviceAgents = state.serviceAgents;
-      serviceAgents.push(action.payload);
-      return Object.assign({}, state, {
-        serviceAgentIsCreating: false,
-        serviceAgentHasCreatedSucces: true,
-        serviceAgentHasCreatedError: false,
-        serviceAgents,
-      });
-    case CREATE_SERVICE_AGENTS.failure:
-      return Object.assign({}, state, {
-        serviceAgentIsCreating: false,
-        serviceAgentHasCreatedSucces: false,
-        serviceAgentHasCreatedError: null,
-        serviceAgents: [],
-        error: action.error.message,
-      });
-
-    case UPDATE_SERVICE_AGENTS.start:
-      return Object.assign({}, state, {
-        serviceAgentIsUpdating: true,
-        serviceAgentHasUpdatedSucces: false,
-      });
-    case UPDATE_SERVICE_AGENTS.success:
-      const updatedAgent = action.payload;
-      const updatedAgents = [];
-      let extant = false;
-      state.serviceAgents.forEach(agent => {
-        if (agent.id === updatedAgent.id) {
-          extant = true;
-          updatedAgents.push(updatedAgent);
-        } else {
-          updatedAgents.push(agent);
-        }
-      });
-      if (!extant) {
-        console.log('WARNING: An updated Agent did not exist before updating: ', updatedAgent.id);
-        updatedAgents.push(updatedAgent);
-      }
-
-      return Object.assign({}, state, {
-        serviceAgentIsUpdating: false,
-        serviceAgentHasUpdatedSucces: true,
-        serviceAgentHasUpdatedError: false,
-        serviceAgents: updatedAgents,
-      });
-    case UPDATE_SERVICE_AGENTS.failure:
-      return Object.assign({}, state, {
-        serviceAgentIsUpdating: false,
-        serviceAgentHasUpdatedSucces: false,
-        serviceAgentHasUpdatedError: null,
         serviceAgents: [],
         error: action.error.message,
       });
