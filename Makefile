@@ -156,27 +156,30 @@ check_gopath: go_version .check_gopath.stamp
 	scripts/check-gopath
 	touch .check_gopath.stamp
 
-bin/chamber: check_gopath
+bin/chamber: .check_gopath.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
 
+bin/swagger: .check_gopath.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
+
 .PHONY: build_soda
-build_soda: check_gopath .build_soda.stamp
+build_soda: .check_gopath.stamp .build_soda.stamp
 .build_soda.stamp:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda
 	touch .build_soda.stamp
 
 .PHONY: build_generate_test_data
-build_generate_test_data: check_gopath
+build_generate_test_data: .check_gopath.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
 
 .PHONY: build_callgraph
-build_callgraph: check_gopath .build_callgraph.stamp
+build_callgraph: .check_gopath.stamp .build_callgraph.stamp
 .build_callgraph.stamp:
 	go build -i -o bin/callgraph golang.org/x/tools/cmd/callgraph
 	touch .build_callgraph.stamp
 
 .PHONY: get_gotools
-get_gotools: check_gopath .get_gotools.stamp
+get_gotools: .check_gopath.stamp .get_gotools.stamp
 .get_gotools.stamp:
 	go install golang.org/x/lint/golint
 	go install golang.org/x/tools/cmd/goimports
@@ -187,17 +190,11 @@ bin/rds-combined-ca-bundle.pem:
 	curl -sSo bin/rds-combined-ca-bundle.pem https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
 
 .PHONY: server_deps
-server_deps: check_hosts check_gopath bin/chamber build_soda build_callgraph get_gotools bin/rds-combined-ca-bundle.pem .server_deps.stamp
+server_deps: check_hosts .check_gopath.stamp bin/chamber bin/swagger build_soda build_callgraph get_gotools bin/rds-combined-ca-bundle.pem .server_deps.stamp
 .server_deps.stamp:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
-	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 	touch .server_deps.stamp
-
-.PHONY: server_deps_linux
-server_deps_linux: check_gopath .server_deps_linux.stamp
-.server_deps_linux.stamp:
-	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 
 .PHONY: server_generate
 server_generate: server_deps server_go_bindata .server_generate.stamp
@@ -206,7 +203,7 @@ server_generate: server_deps server_go_bindata .server_generate.stamp
 	touch .server_generate.stamp
 
 .PHONY: server_generate_linux
-server_generate_linux: server_deps_linux server_go_bindata .server_generate_linux.stamp
+server_generate_linux: bin/swagger server_go_bindata .server_generate_linux.stamp
 .server_generate_linux.stamp: $(shell find swagger -type f -name *.yaml)
 	scripts/gen-server
 	touch .server_generate_linux.stamp
@@ -221,7 +218,7 @@ server_build: server_deps server_generate
 	go build -gcflags=-trimpath=$(GOPATH) -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
 .PHONY: server_build_linux
-server_build_linux: server_deps_linux server_generate_linux
+server_build_linux: bin/swagger server_generate_linux
 	# These don't need to go in bin_linux/ because local devs don't use them
 	# Additionally it would not work with the default Dockerfile
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
