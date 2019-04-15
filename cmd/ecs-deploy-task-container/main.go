@@ -385,7 +385,7 @@ func main() {
 	// Set up some key variables
 	clusterName := fmt.Sprintf("%s-%s", serviceName, environmentName)
 	taskRoleArn := fmt.Sprintf("ecs-task-role-%s", clusterName)
-	executionRoleArn := fmt.Sprintf("ecs-task-excution-role-%s", clusterName)
+	executionRoleArn := fmt.Sprintf("ecs-task-execution-role-%s", clusterName)
 	containerDefName := fmt.Sprintf("%s-tasks-%s-%s", serviceName, ruleName, environmentName)
 
 	// familyName is the name used to register the task
@@ -420,7 +420,9 @@ func main() {
 					aws.String("--"),
 					aws.String(fmt.Sprintf("/bin/%s", ruleName)),
 				},
-				Command: []*string{},
+				Command: []*string{
+					aws.String("--debug-logging"),
+				},
 				Environment: []*ecs.KeyValuePair{
 					&ecs.KeyValuePair{
 						Name:  aws.String("ENV"),
