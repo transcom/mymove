@@ -141,4 +141,16 @@ describe('preApprovals', () => {
       expect(isRobustAccessorial(itemNull)).toEqual(false);
     });
   });
+
+  describe('isNewAccessorial 35A', () => {
+    it('should return true if new accessorial, false if old accessorial', () => {
+      const item35AOld = { tariff400ng_item: { code: '35A' } };
+      const item35ANew = { tariff400ng_item: { code: '35A' }, estimate_amount_cents: 1 };
+      const itemNull = null;
+
+      expect(isRobustAccessorial(item35AOld)).toEqual(false);
+      expect(isRobustAccessorial(item35ANew)).toEqual(true);
+      expect(isRobustAccessorial(itemNull)).toEqual(false);
+    });
+  });
 });
