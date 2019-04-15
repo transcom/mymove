@@ -384,8 +384,8 @@ func main() {
 
 	// Set up some key variables
 	clusterName := fmt.Sprintf("%s-%s", serviceName, environmentName)
-	taskRoleArn := fmt.Sprintf("ecs-task-role-%s", clusterName)
-	executionRoleArn := fmt.Sprintf("ecs-task-execution-role-%s", clusterName)
+	taskRoleArn := fmt.Sprintf("ecs-task-events-role-%s", clusterName)
+	executionRoleArn := fmt.Sprintf("ecs-task-events-execution-role-%s", clusterName)
 	containerDefName := fmt.Sprintf("%s-tasks-%s-%s", serviceName, ruleName, environmentName)
 
 	// familyName is the name used to register the task
