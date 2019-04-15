@@ -91,6 +91,7 @@ const (
 	awsRegionFlag            string = "aws-region"
 	awsProfileFlag           string = "aws-profile"
 	awsVaultKeychainNameFlag string = "aws-vault-keychain-name"
+	chamberBinaryFlag        string = "chamber-binary"
 	chamberRetriesFlag       string = "chamber-retries"
 	chamberKMSKeyAliasFlag   string = "chamber-kms-key-alias"
 	chamberUsePathsFlag      string = "chamber-use-paths"
@@ -110,7 +111,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String(awsVaultKeychainNameFlag, "", "The aws-vault keychain name")
 
 	// Chamber Settings
-	// TODO: Add chamberBinaryFlag and set default to /bin/chamber
+	flag.String(chamberBinaryFlag, "/bin/chamber", "Chamber Binary")
 	flag.Int(chamberRetriesFlag, 20, "Chamber Retries")
 	flag.String(chamberKMSKeyAliasFlag, "alias/aws/ssm", "Chamber KMS Key Alias")
 	flag.Int(chamberUsePathsFlag, 1, "Chamber Use Paths")
@@ -397,6 +398,7 @@ func main() {
 	awsLogsStreamPrefix := fmt.Sprintf("%s-tasks", serviceName)
 
 	// Chamber Settings
+	chamberBinary := v.GetString(chamberBinaryFlag)
 	chamberRetries := v.GetInt(chamberRetriesFlag)
 	chamberKMSKeyAlias := v.GetString(chamberKMSKeyAliasFlag)
 	chamberUsePaths := v.GetInt(chamberUsePathsFlag)
@@ -413,7 +415,7 @@ func main() {
 				Image:     aws.String(imageName),
 				Essential: aws.Bool(true),
 				EntryPoint: []*string{
-					aws.String("/bin/chamber"),
+					aws.String(chamberBinary),
 					aws.String("-r"),
 					aws.String(strconv.Itoa(chamberRetries)),
 					aws.String("exec"),
