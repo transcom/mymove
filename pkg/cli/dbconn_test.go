@@ -4,11 +4,11 @@ import (
 	"os"
 )
 
-func (suite *cliServerSuite) TestConfigDatabase() {
+func (suite *cliTestSuite) TestConfigDatabase() {
 	suite.Nil(CheckDatabase(suite.viper, suite.logger))
 }
 
-func (suite *cliServerSuite) TestInitDatabase() {
+func (suite *cliTestSuite) TestInitDatabase() {
 
 	if os.Getenv("TEST_ACC_INIT_DATABASE") != "1" {
 		suite.logger.Info("skipping TestInitDatabase")

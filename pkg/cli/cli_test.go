@@ -5,7 +5,7 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type cliServerSuite struct {
+type cliTestSuite struct {
 	suite.Suite
 	viper  *viper.Viper
 	logger logger

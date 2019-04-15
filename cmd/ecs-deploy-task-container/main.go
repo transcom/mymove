@@ -22,6 +22,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+
+	"github.com/transcom/mymove/pkg/cli"
 )
 
 var services = []string{"app"}
@@ -97,9 +99,6 @@ const (
 	repositoryNameFlag       string = "repository-name"
 	imageTagFlag             string = "image-tag"
 	ruleFlag                 string = "rule"
-	eiaKeyFlag               string = "eia-key"
-	eiaURLFlag               string = "eia-url"
-	verboseFlag              string = "verbose"
 )
 
 func initFlags(flag *pflag.FlagSet) {
@@ -124,27 +123,14 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String(ruleFlag, "", fmt.Sprintf("The name of the CloudWatch Event Rule targeting the Task Definition (choose %q)", rules))
 
 	// EIA Open Data API
-	flag.String(eiaKeyFlag, "", "Key for Energy Information Administration (EIA) api")
-	flag.String(eiaURLFlag, "", "Url for Energy Information Administration (EIA) api")
+	// The EIA Key is set in the Local or CircleCI environment and not in Chamber.
+	cli.InitEIAFlags(flag)
 
-	// Script settings
-	flag.BoolP(verboseFlag, "v", false, "Print section lines")
-}
+	// Verbose
+	cli.InitVerboseFlags(flag)
 
-func checkEIAKey(v *viper.Viper) error {
-	eiaKey := v.GetString(eiaKeyFlag)
-	if len(eiaKey) != 32 {
-		return fmt.Errorf("expected eia key to be 32 characters long; key is %d chars", len(eiaKey))
-	}
-	return nil
-}
-
-func checkEIAURL(v *viper.Viper) error {
-	eiaURL := v.GetString(eiaURLFlag)
-	if eiaURL != "https://api.eia.gov/series/" {
-		return fmt.Errorf("invalid eia url %s, expecting https://api.eia.gov/series/", eiaURL)
-	}
-	return nil
+	// Don't sort flags
+	flag.SortFlags = false
 }
 
 func checkConfig(v *viper.Viper) error {
@@ -238,12 +224,7 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(&errInvalidRule{Rule: ruleName}, fmt.Sprintf("%q is invalid", ruleFlag))
 	}
 
-	err := checkEIAKey(v)
-	if err != nil {
-		return err
-	}
-
-	err = checkEIAURL(v)
+	err := cli.CheckEIA(v)
 	if err != nil {
 		return err
 	}
@@ -312,7 +293,8 @@ func main() {
 	// Remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	if !v.GetBool(verboseFlag) {
+	verbose := v.GetBool(cli.VerboseFlag)
+	if !verbose {
 		// Disable any logging that isn't attached to the logger unless using the verbose flag
 		log.SetOutput(ioutil.Discard)
 		log.SetFlags(0)
@@ -332,7 +314,6 @@ func main() {
 		Region: aws.String(awsRegion),
 	}
 
-	verbose := v.GetBool(verboseFlag)
 	keychainName := v.GetString(awsVaultKeychainNameFlag)
 	keychainProfile := v.GetString(awsProfileFlag)
 
@@ -420,8 +401,8 @@ func main() {
 	chamberUsePaths := v.GetInt(chamberUsePathsFlag)
 
 	// Tool Settings
-	eiaKey := v.GetString(eiaKeyFlag)
-	eiaURL := v.GetString(eiaURLFlag)
+	eiaKey := v.GetString(cli.EIAKeyFlag)
+	eiaURL := v.GetString(cli.EIAURLFlag)
 
 	// Register the new task definition
 	taskDefinitionOutput, err := serviceECS.RegisterTaskDefinition(&ecs.RegisterTaskDefinitionInput{
@@ -467,11 +448,11 @@ func main() {
 					},
 					&ecs.KeyValuePair{
 						Name:  aws.String("DB_SSL_MODE"),
-						Value: aws.String("{{ .DB_SSL_MODE }}"),
+						Value: aws.String("verify-full"),
 					},
 					&ecs.KeyValuePair{
 						Name:  aws.String("DB_SSL_ROOT_CERT"),
-						Value: aws.String("{{ .DB_SSL_ROOT_CERT }}"),
+						Value: aws.String("/bin/rds-combined-ca-bundle.pem"),
 					},
 					&ecs.KeyValuePair{
 						Name:  aws.String("CHAMBER_KMS_KEY_ALIAS"),

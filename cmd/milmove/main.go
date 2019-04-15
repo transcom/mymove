@@ -224,7 +224,6 @@ func initServeFlags(flag *pflag.FlagSet) {
 	flag.String("dps-swagger", "swagger/dps.yaml", "The location of the DPS API swagger definition")
 	flag.Bool(serveSwaggerUIFlag, false, "Whether to serve swagger UI for the APIs")
 
-	flag.BoolP("debug-logging", "v", false, "log messages at the debug level.")
 	flag.String("client-auth-secret-key", "", "Client auth secret JWT key.")
 	flag.Bool("no-session-timeout", false, "whether user sessions should timeout.")
 
@@ -291,8 +290,11 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// CSRF Protection
 	flag.String("csrf-auth-key", "", "CSRF Auth Key, 32 byte long")
 
-	// EIA Open Data API
-	cli.InitEIAFlags(flag)
+	// Verbose
+	cli.InitVerboseFlags(flag)
+
+	// Don't sort flags
+	flag.SortFlags = false
 }
 
 func initDODCertificates(v *viper.Viper, logger logger) ([]tls.Certificate, *x509.CertPool, error) {
@@ -446,11 +448,6 @@ func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 	}
 
 	err = checkGEX(v)
-	if err != nil {
-		return err
-	}
-
-	err = cli.CheckEIA(v)
 	if err != nil {
 		return err
 	}
@@ -664,7 +661,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	env := v.GetString("env")
 
-	logger, err := logging.Config(env, v.GetBool("debug-logging"))
+	logger, err := logging.Config(env, v.GetBool(cli.VerboseFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}

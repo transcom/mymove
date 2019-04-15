@@ -1,5 +1,5 @@
 package cli
 
-func (suite *cliServerSuite) TestConfigEIA() {
+func (suite *cliTestSuite) TestConfigEIA() {
 	suite.Nil(CheckEIA(suite.viper))
 }

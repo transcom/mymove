@@ -38,13 +38,15 @@ func main() {
 	flag := pflag.CommandLine
 
 	flag.String("env", "development", "The environment to run in, which configures the database.")
-	flag.BoolP("debug-logging", "v", false, "log messages at the debug level.")
 
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
 	// EIA Open Data API
 	cli.InitEIAFlags(flag)
+
+	// Verbose
+	cli.InitVerboseFlags(flag)
 
 	flag.SortFlags = false
 	flag.Parse(os.Args[1:])
@@ -56,7 +58,7 @@ func main() {
 
 	env := v.GetString("env")
 
-	logger, err := logging.Config(env, v.GetBool("debug-logging"))
+	logger, err := logging.Config(env, v.GetBool(cli.VerboseFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}

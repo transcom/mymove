@@ -17,7 +17,7 @@ const (
 // InitEIAFlags initializes EIA command line flags
 func InitEIAFlags(flag *pflag.FlagSet) {
 	flag.String(EIAKeyFlag, "", "Key for Energy Information Administration (EIA) api")
-	flag.String(EIAURLFlag, "", "Url for Energy Information Administration (EIA) api")
+	flag.String(EIAURLFlag, "https://api.eia.gov/series/", "Url for Energy Information Administration (EIA) api")
 }
 
 // CheckEIA validates EIA command line flags

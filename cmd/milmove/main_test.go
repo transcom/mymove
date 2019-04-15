@@ -16,6 +16,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 )
 
@@ -36,7 +37,7 @@ func TestWebServerSuite(t *testing.T) {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	logger, err := logging.Config(v.GetString("env"), v.GetBool("debug-logging"))
+	logger, err := logging.Config(v.GetString("env"), v.GetBool(cli.VerboseFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
