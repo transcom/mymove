@@ -46,4 +46,11 @@ describe('formatters', () => {
       expect(formatters.addCommasToNumberString('0', 2)).toEqual('0.00');
     });
   });
+
+  describe('formatDateTimeWithTZ', () => {
+    it('should include the timezone shortcode', () => {
+      const formattedDate = formatters.formatDateTimeWithTZ(new Date());
+      expect(formattedDate).toMatch(/\d{2}-\w{3}-\d{2} \d{2}:\d{2} \w{2,3}/);
+    });
+  });
 });

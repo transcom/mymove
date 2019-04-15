@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/unit"
+
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -456,11 +458,12 @@ func (suite *HandlerSuite) TestShowShipmentSummaryWorksheet() {
 		})
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
+	netWeight := unit.Pound(1000)
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			MoveID:                move.ID,
 			ActualMoveDate:        &testdatagen.DateInsidePerformancePeriod,
-			NetWeight:             models.Int64Pointer(1000),
+			NetWeight:             &netWeight,
 			PickupPostalCode:      models.StringPointer("50303"),
 			DestinationPostalCode: models.StringPointer("30814"),
 		},

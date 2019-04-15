@@ -13,7 +13,6 @@ const defaultFlags = {
   hhg: true,
   documentViewer: true,
   moveInfoComboButton: true,
-  allowHhgInvoicePayment: true,
   robustAccessorial: true,
   sitPanel: true,
   ppmPaymentRequest: true,
@@ -32,7 +31,6 @@ const environmentFlags = {
   }),
 
   production: Object.assign({}, defaultFlags, {
-    allowHhgInvoicePayment: false,
     robustAccessorial: false,
     sitPanel: false,
     ppmPaymentRequest: false,

@@ -1,5 +1,4 @@
 import React, { PureComponent } from 'react';
-import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import { withContext } from 'shared/AppContext';
 
@@ -12,13 +11,7 @@ import common from 'shared/styles/common.module.scss';
 class LineItemTable extends PureComponent {
   render() {
     const showItem35Missing = item => {
-      const robustAccessorialFlag = get(this.props, 'context.flags.robustAccessorial', false);
-      return (
-        robustAccessorialFlag &&
-        item.tariff400ng_item.code === '35A' &&
-        item.estimate_amount_cents &&
-        !item.actual_amount_cents
-      );
+      return item.tariff400ng_item.code === '35A' && item.estimate_amount_cents && !item.actual_amount_cents;
     };
 
     return (
