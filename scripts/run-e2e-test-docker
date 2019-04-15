@@ -32,7 +32,7 @@ make e2e_clean client_build db_e2e_init_docker server_build_linux
 # Download RDS Certificates
 # Dockerfile requires them even though not used locally.
 # Might as well download them so we don't have to split Dockerfile
-make download_rds_certs
+make bin/rds-combined-ca-bundle.pem
 
 # Build the docker container
 docker build --tag e2e:latest .

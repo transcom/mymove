@@ -146,7 +146,7 @@ admin_client_run: client_deps
 
 .PHONY: go_deps_update
 go_deps_update:
-	go get -u=patch
+	go get -u=patch -v
 	go mod tidy
 
 .PHONY: check_gopath
@@ -184,14 +184,12 @@ get_gotools: check_gopath .get_gotools.stamp
 	go install golang.org/x/tools/cmd/goimports
 	touch .get_gotools.stamp
 
-.PHONY: download_rds_certs
-download_rds_certs: .download_rds_certs.stamp
-.download_rds_certs.stamp:
+bin/rds-combined-ca-bundle.pem:
+	mkdir -p bin/
 	curl -sSo bin/rds-combined-ca-bundle.pem https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
-	touch .download_rds_certs.stamp
 
 .PHONY: server_deps
-server_deps: check_hosts check_gopath build_chamber build_soda build_callgraph get_gotools download_rds_certs .server_deps.stamp
+server_deps: check_hosts check_gopath build_chamber build_soda build_callgraph get_gotools bin/rds-combined-ca-bundle.pem .server_deps.stamp
 .server_deps.stamp:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
@@ -222,34 +220,37 @@ pkg/assets/assets.go: pkg/paperwork/formtemplates/*
 
 .PHONY: server_build
 server_build: server_deps server_generate
-	go build -gcflags=-trimpath=$(GOPATH) -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/webserver ./cmd/webserver
+	go build -gcflags=-trimpath=$(GOPATH) -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
 .PHONY: server_build_linux
 server_build_linux: server_deps_linux server_generate_linux
 	# These don't need to go in bin_linux/ because local devs don't use them
 	# Additionally it would not work with the default Dockerfile
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
-	GOOS=linux GOARCH=amd64 go build -gcflags=-trimpath=$(GOPATH) -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/webserver ./cmd/webserver
+	GOOS=linux GOARCH=amd64 go build -gcflags=-trimpath=$(GOPATH) -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 server_run_standalone: client_build server_build db_dev_run
-	DEBUG_LOGGING=true $(AWS_VAULT) ./bin/webserver
+	DEBUG_LOGGING=true $(AWS_VAULT) ./bin/milmove serve
 # This command will rebuild the swagger go code and rerun server on any changes
 server_run:
 	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run_default
 # This command runs the server behind gin, a hot-reload server
 server_run_default: server_deps server_generate db_dev_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
-	$(AWS_VAULT) ./bin/gin --build ./cmd/webserver \
-		--bin /bin/webserver \
+	$(AWS_VAULT) ./bin/gin \
+		--build ./cmd/milmove \
+		--bin /bin/milmove \
 		--port 8080 --appPort 8081 \
 		--excludeDir node_modules \
-		-i --buildArgs "-i -ldflags=\"$(WEBSERVER_LDFLAGS)\""
+		--immediate \
+		--buildArgs "-i -ldflags=\"$(WEBSERVER_LDFLAGS)\"" \
+		serve
 
 .PHONY: server_run_debug
 server_run_debug:
 	INTERFACE=localhost DEBUG_LOGGING=true \
-	$(AWS_VAULT) dlv debug cmd/webserver/main.go
+	$(AWS_VAULT) dlv debug cmd/milmove/main.go serve
 
 .PHONY: build_tools
 build_tools: bash_version server_deps server_generate build_generate_test_data
@@ -282,7 +283,7 @@ ifndef TEST_ACC_ENV
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
 	TEST_ACC_HONEYCOMB=0 \
 	TEST_ACC_CWD=$(PWD) \
-	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver)
+	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 else
 ifndef CIRCLECI
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
@@ -291,13 +292,13 @@ ifndef CIRCLECI
 	DISABLE_AWS_VAULT_WRAPPER=1 \
 	aws-vault exec $(AWS_PROFILE) -- \
 	bin/chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
-	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver)
+	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 else
 	@echo "Running acceptance tests for webserver with environment $$TEST_ACC_ENV."
 	TEST_ACC_HONEYCOMB=0 \
 	TEST_ACC_CWD=$(PWD) \
 	bin/chamber -r $(CHAMBER_RETRIES) exec app-$(TEST_ACC_ENV) -- \
-	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/webserver)
+	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 endif
 endif
 

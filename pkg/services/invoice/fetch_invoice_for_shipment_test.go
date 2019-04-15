@@ -159,8 +159,9 @@ func makeShipment(DB *pop.Connection) models.Shipment {
 func makeLineItem35A(DB *pop.Connection, shipment models.Shipment, hasActAmt bool) models.ShipmentLineItem {
 	acc35A := testdatagen.MakeTariff400ngItem(DB, testdatagen.Assertions{
 		Tariff400ngItem: models.Tariff400ngItem{
-			Code: "35A",
-			Item: "Third Party Service",
+			Code:                "35A",
+			Item:                "Third Party Service",
+			RequiresPreApproval: true,
 		},
 	})
 
@@ -169,7 +170,7 @@ func makeLineItem35A(DB *pop.Connection, shipment models.Shipment, hasActAmt boo
 		ShipmentLineItem: models.ShipmentLineItem{
 			Shipment:            shipment,
 			ShipmentID:          shipment.ID,
-			Status:              models.ShipmentLineItemStatusAPPROVED,
+			Status:              models.ShipmentLineItemStatusCONDITIONALLYAPPROVED,
 			Tariff400ngItem:     acc35A,
 			Location:            "ORIGIN",
 			Description:         swag.String("This is a Description"),
@@ -181,6 +182,7 @@ func makeLineItem35A(DB *pop.Connection, shipment models.Shipment, hasActAmt boo
 	if hasActAmt {
 		actAmt := unit.Cents(1000)
 		assertions.ShipmentLineItem.ActualAmountCents = &actAmt
+		assertions.ShipmentLineItem.Status = models.ShipmentLineItemStatusAPPROVED
 	}
 	lineItem := testdatagen.MakeCompleteShipmentLineItem(DB, assertions)
 

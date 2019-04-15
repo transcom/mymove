@@ -34,6 +34,7 @@ import (
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -204,11 +205,11 @@ func securityHeadersMiddleware(inner http.Handler) http.Handler {
 	return http.HandlerFunc(mw)
 }
 
-func initFlags(flag *pflag.FlagSet) {
+func initServeFlags(flag *pflag.FlagSet) {
 
 	flag.String("build", "build", "the directory to serve static files from.")
 	flag.String("config-dir", "config", "The location of server config files")
-	flag.String("env", "development", "The environment to run in, which configures the database.")
+	flag.StringP("env", "e", "development", "The environment to run in, which configures the database.")
 	flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	flag.String("service-name", "app", "The service name identifies the application for instrumentation.")
 	flag.Duration("graceful-shutdown-timeout", 25*time.Second, "The duration for which the server gracefully wait for existing connections to finish.  AWS ECS only gives you 30 seconds before sending SIGKILL.")
@@ -239,7 +240,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("admin-swagger", "swagger/admin.yaml", "The location of the admin API swagger definition")
 	flag.Bool(serveSwaggerUIFlag, false, "Whether to serve swagger UI for the APIs")
 
-	flag.Bool("debug-logging", false, "log messages at the debug level.")
+	flag.BoolP("debug-logging", "v", false, "log messages at the debug level.")
 	flag.String("client-auth-secret-key", "", "Client auth secret JWT key.")
 	flag.Bool("no-session-timeout", false, "whether user sessions should timeout.")
 
@@ -302,7 +303,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("iws-rbs-host", "", "Hostname for the IWS RBS")
 
 	// DB Config
-	flag.String("db-name", "dev_db", "Database Name")
+	flag.StringP("db-name", "d", "dev_db", "Database Name")
 	flag.String("db-host", "localhost", "Database Hostname")
 	flag.Int("db-port", 5432, "Database Port")
 	flag.String("db-user", "postgres", "Database Username")
@@ -800,11 +801,26 @@ func startListener(srv *server.NamedServer, logger logger, useTLS bool) {
 	}
 }
 
-func main() {
+func versionFunction(cmd *cobra.Command, args []string) error {
+	str, err := json.Marshal(map[string]interface{}{
+		"gitBranch": gitBranch,
+		"gitCommit": gitCommit,
+	})
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(str))
+	return nil
+}
 
-	flag := pflag.CommandLine
-	initFlags(flag)
-	flag.Parse(os.Args[1:])
+func serveFunction(cmd *cobra.Command, args []string) error {
+
+	err := cmd.ParseFlags(os.Args[1:])
+	if err != nil {
+		return err
+	}
+
+	flag := cmd.Flags()
 
 	v := viper.New()
 	v.BindPFlags(flag)
@@ -1422,6 +1438,48 @@ func main() {
 	if shutdownError {
 		os.Exit(1)
 	}
+
+	return nil
+}
+
+func main() {
+
+	root := cobra.Command{
+		Use:   "milmove [flags]",
+		Short: "Webserver for MilMove",
+		Long:  "Webserver for MilMove",
+	}
+
+	root.AddCommand(&cobra.Command{
+		Use:   "version",
+		Short: "Print version information to stdout",
+		Long:  "Print version information to stdout",
+		RunE:  versionFunction,
+	})
+
+	serveCommand := &cobra.Command{
+		Use:   "serve",
+		Short: "Runs MilMove webserver",
+		Long:  "Runs MilMove webserver",
+		RunE:  serveFunction,
+	}
+	initServeFlags(serveCommand.Flags())
+	root.AddCommand(serveCommand)
+
+	completionCommand := &cobra.Command{
+		Use:   "completion",
+		Short: "Generates bash completion scripts",
+		Long:  "To install completion scripts run:\n\nmilmove completion > /usr/local/etc/bash_completion.d/milmove",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return root.GenBashCompletion(os.Stdout)
+		},
+	}
+	root.AddCommand(completionCommand)
+
+	if err := root.Execute(); err != nil {
+		panic(err)
+	}
+
 }
 
 // fileHandler serves up a single file

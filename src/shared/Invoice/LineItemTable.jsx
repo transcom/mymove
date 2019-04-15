@@ -47,7 +47,7 @@ class LineItemTable extends PureComponent {
                   </td>
                   <td>{item.location[0]}</td>
                   <td>{displayBaseQuantityUnits(item)}</td>
-                  <td>${formatCents(item.amount_cents)}</td>
+                  <td>${formatCents(item.amount_cents ? item.amount_cents : 0)}</td>
                 </tr>
               );
             })}
