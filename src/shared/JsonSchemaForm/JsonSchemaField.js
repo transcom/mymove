@@ -144,7 +144,7 @@ const configureTextField = (swaggerField, props) => {
 const configureEdipiField = (swaggerField, props) => {
   const maxLengthDodID = 10;
   props.normalize = validator.createDigitNormalizer(maxLengthDodID);
-  props.validate.push(validator.patternMatches(swaggerField.pattern, 'Must be a valid DoD ID #'));
+  props.validate.push(validator.patternMatches(swaggerField.pattern, 'Must be a valid DoD ID # (10 digits long)'));
   props.type = 'text';
 
   return props;
