@@ -175,6 +175,52 @@ AND
   tdl.code_of_service = tsd.cos;
 ```
 
+Check for null TDL IDs:
+
+```sql
+select count(distinct scac) from tdl_scores_and_discounts where tsd_id is null;
+```
+
+If count returns anything but 0, you'll need to add new TDL entries.
+Check for new entries on the
+[Domestic Channel Control List](https://move.mil/sites/default/files/2019-01/2019%20Domestic%20Channel%20Control%20List.pdf).
+They'll be highlighted in red.
+Create a new temp table for TDLs and add the new entries as follows:
+
+```sql
+CREATE TABLE temp_tdls AS SELECT * FROM traffic_distribution_lists;
+ALTER TABLE temp_tdls ADD COLUMN import boolean;
+INSERT INTO temp_tdls (id, source_rate_area, destination_region, code_of_service, created_at, updated_at, import)
+VALUES
+  (uuid_generate_v4(), 'US4965500', '1', '2', now(), now(), true),
+  (uuid_generate_v4(), 'US4965500', '1', 'D', now(), now(), true),
+  /* ... */
+  (uuid_generate_v4(), 'US4965500', '10', '2', now(), now(), true);
+```
+
+This will add the new entries to the temporary TDL table,
+forcing them to adhere to adhere to any table constraints
+and generating new UUIDs to be consistent across environments.
+
+We'll now create a new migration with that data (replace your migration filename:
+
+```bash
+./bin/soda generate sql add_new_scacs
+rm migrations/20190410152949_add_new_tdls.down.sql
+echo -e "INSERT INTO traffic_distribution_lists (id, source_rate_area, destination_region, code_of_service, created_at, updated_at) \nVALUES\n$(
+./scripts/psql-prod-migrations "\copy (select id, source_rate_area, destination_region, code_of_service from temp_tdls where import = true) to stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
+  | awk '{print "  ("$0", now(), now()),"}' \
+  | sed '$ s/.$//');" \
+  > migrations/20190410152949_add_new_tdls.up.sql
+```
+
+You can also use `pg_dump` to generate this migration,
+however replacing the timestamps with `now()` allows the environments
+to have true `created_at` and `updated_at` timestamps.
+Not your locally inserted time.
+
+Once this migration is written, run it and rejoin the TDLs as above.
+
 Make room for TSP IDs:
 
 ```sql
@@ -193,6 +239,43 @@ FROM
 WHERE
   tsd.scac = tsp.standard_carrier_alpha_code;
 ```
+
+Similar to TDLs,
+there may be missing TSPs.
+Currently, we're not using any of this TSP data for production moves,
+but we have to satisfie the foreign key constraints for the TSPP data.
+
+Check for missing TSP IDs:
+
+```sql
+SELECT count(DISTINCT scac) FROM tdl_scores_and_discounts WHERE tsp_id IS NULL;
+```
+
+If this is not 0, add the TSPs:
+
+```sql
+CREATE TABLE temp_tsps AS SELECT * FROM transportation_service_providers;
+ALTER TABLE temp_tsps ADD COLUMN import boolean;
+INSERT INTO temp_tsps (standard_carrier_alpha_code, id, import)
+  SELECT DISTNCT ON (scac) scac AS standard_carrier_alpha_code, uuid_generate_v4() AS id, true AS import
+  FROM tdl_scores_and_discounts
+  WHERE tsp_id IS NULL;
+```
+
+Generate the migration (replacing your migration filename):
+
+```bash
+./bin/soda generate sql add_new_scacs
+rm migrations/20190409010258_add_new_scacs.down.sql
+
+echo -e "INSERT INTO transportation_service_providers (id, standard_carrier_alpha_code, created_at, updated_at, name) \nVALUES\n$(
+./scripts/psql-prod-migrations "\copy (select id, standard_carrier_alpha_code from temp_tsps) to stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
+  | awk '{print "  ("$0", now(), now(), '\''),"}' \
+  | sed '$ s/.$//');" \
+  > migrations/20190409010258_add_new_scacs.up.sql
+```
+
+Run this migration and rejoin the TSP IDs as above.
 
 Now we're ready to combine the datasets together into one table. First, be sure to clear out the `transportation_service_provider_performances` table in case it already contains data:
 
