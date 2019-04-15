@@ -4,14 +4,14 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/transcom/mymove/pkg/paperwork"
-	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
-
 	"github.com/go-openapi/loads"
 
 	"github.com/transcom/mymove/pkg/gen/restapi"
 	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/paperwork"
+	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
+	sitservice "github.com/transcom/mymove/pkg/services/storage_in_transit"
 )
 
 // NewPublicAPIHandler returns a handler for the public API
@@ -68,7 +68,10 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	// Storage In Transits
 	publicAPI.StorageInTransitsCreateStorageInTransitHandler = CreateStorageInTransitHandler{context}
-	publicAPI.StorageInTransitsGetStorageInTransitHandler = GetStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsGetStorageInTransitHandler = GetStorageInTransitHandler{
+		context,
+		sitservice.NewStorageInTransitByIDFetcher(context.DB()),
+	}
 	publicAPI.StorageInTransitsIndexStorageInTransitsHandler = IndexStorageInTransitHandler{context}
 	publicAPI.StorageInTransitsDeleteStorageInTransitHandler = DeleteStorageInTransitHandler{context}
 	publicAPI.StorageInTransitsPatchStorageInTransitHandler = PatchStorageInTransitHandler{context}

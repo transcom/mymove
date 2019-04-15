@@ -12,6 +12,7 @@ import (
 	sitop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/storage_in_transits"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	sitservice "github.com/transcom/mymove/pkg/services/storage_in_transit"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -93,7 +94,10 @@ func (suite *HandlerSuite) TestGetStorageInTransitHandler() {
 		StorageInTransitID: strfmt.UUID(sit.ID.String()),
 	}
 
-	handler := GetStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := GetStorageInTransitHandler{
+		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		sitservice.NewStorageInTransitByIDFetcher(suite.DB()),
+	}
 	response := handler.Handle(params)
 	suite.Assertions.IsType(&sitop.GetStorageInTransitOK{}, response)
 

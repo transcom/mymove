@@ -14,6 +14,7 @@ import (
 	sitop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/storage_in_transits"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 func payloadForStorageInTransitModel(s *models.StorageInTransit) *apimessages.StorageInTransit {
@@ -568,6 +569,7 @@ func (h PatchStorageInTransitHandler) Handle(params sitop.PatchStorageInTransitP
 // GetStorageInTransitHandler gets a single Storage In Transit based on its own ID
 type GetStorageInTransitHandler struct {
 	handlers.HandlerContext
+	storageInTransitFetcher services.StorageInTransitByIDFetcher
 }
 
 // Handle handles the handling
@@ -582,15 +584,8 @@ func (h GetStorageInTransitHandler) Handle(params sitop.GetStorageInTransitParam
 	}
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	isUserAuthorized, err := authorizeStorageInTransitRequest(h.DB(), session, shipmentID, true)
 
-	if isUserAuthorized == false {
-		h.Logger().Error("User is unauthorized", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
-
+	storageInTransit, err := h.storageInTransitFetcher.FetchStorageInTransitByID(storageInTransitID, shipmentID, session)
 	if err != nil {
 		h.Logger().Error("DB Query", zap.Error(err))
 		return handlers.ResponseForError(h.Logger(), err)
@@ -598,7 +593,6 @@ func (h GetStorageInTransitHandler) Handle(params sitop.GetStorageInTransitParam
 
 	storageInTransitPayload := payloadForStorageInTransitModel(storageInTransit)
 	return sitop.NewGetStorageInTransitOK().WithPayload(storageInTransitPayload)
-
 }
 
 // DeleteStorageInTransitHandler deletes a Storage in Transit based on the provided ID
