@@ -114,11 +114,13 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheet() {
 	suite.Equal(fortGordon.ID, ssd.NewDutyStation.ID)
 	suite.Equal(fortGordon.Address.ID, ssd.NewDutyStation.Address.ID)
 	rankWtgAllotment := models.GetWeightAllotment(rank)
-	suite.Equal(rankWtgAllotment, ssd.WeightAllotment)
+	suite.Equal(unit.Pound(rankWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
+	suite.Equal(unit.Pound(rankWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
+	suite.Equal(unit.Pound(0), ssd.WeightAllotment.SpouseProGear)
 	suite.Require().NotNil(ssd.ServiceMember.Rank)
 	totalEntitlement, err := models.GetEntitlement(*ssd.ServiceMember.Rank, ssd.Order.HasDependents, ssd.Order.SpouseHasProGear)
 	suite.Require().Nil(err)
-	suite.Equal(unit.Pound(totalEntitlement), ssd.TotalWeightAllotment)
+	suite.Equal(unit.Pound(totalEntitlement), ssd.WeightAllotment.TotalWeight)
 	suite.Require().Len(ssd.MovingExpenseDocuments, 2)
 	suite.NotNil(ssd.MovingExpenseDocuments[0].ID)
 	suite.NotNil(ssd.MovingExpenseDocuments[1].ID)
@@ -155,12 +157,13 @@ func (suite *ModelSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() 
 func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
 	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
-	wtgEntitlements := models.WeightAllotment{
-		TotalWeightSelf:               13000,
-		TotalWeightSelfPlusDependents: 15000,
-		ProGearWeight:                 2000,
-		ProGearWeightSpouse:           500,
+	wtgEntitlements := models.SSWMaxWeightEntitlement{
+		Entitlement:   15000,
+		ProGear:       2000,
+		SpouseProGear: 500,
+		TotalWeight:   17500,
 	}
+
 	serviceMemberID, _ := uuid.NewV4()
 	serviceBranch := models.AffiliationAIRFORCE
 	rank := models.ServiceMemberRankE9
@@ -215,7 +218,6 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
 		NewDutyStation:          fortGordon,
 		PPMRemainingEntitlement: 3000,
 		WeightAllotment:         wtgEntitlements,
-		TotalWeightAllotment:    17500,
 		Shipments:               shipments,
 		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
 		PersonallyProcuredMoves: personallyProcuredMoves,
@@ -394,23 +396,32 @@ func (suite *ModelSuite) TestGroupExpenses() {
 
 }
 
-func (suite *ModelSuite) TestFormatWeightAllotment() {
-	hasDependant := models.ShipmentSummaryFormData{
-		Order: models.Order{HasDependents: true},
-		WeightAllotment: models.WeightAllotment{
-			TotalWeightSelf:               1000,
-			TotalWeightSelfPlusDependents: 2000,
-		},
-	}
-	noDependant := models.ShipmentSummaryFormData{
-		WeightAllotment: models.WeightAllotment{
-			TotalWeightSelf:               1000,
-			TotalWeightSelfPlusDependents: 2000,
-		},
-	}
+func (suite *ModelSuite) TestFormatSSWGetEntitlement() {
+	spouseHasProGear := true
+	hasDependants := true
+	allotment := models.GetWeightAllotment(models.ServiceMemberRankE1)
+	totalEntitlement, err := models.GetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
+	suite.Nil(err)
+	sswEntitlement := models.SSWGetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
 
-	suite.Equal("2,000", models.FormatWeightAllotment(hasDependant))
-	suite.Equal("1,000", models.FormatWeightAllotment(noDependant))
+	suite.Equal(unit.Pound(totalEntitlement), sswEntitlement.TotalWeight)
+	suite.Equal(unit.Pound(allotment.TotalWeightSelfPlusDependents), sswEntitlement.Entitlement)
+	suite.Equal(unit.Pound(allotment.ProGearWeightSpouse), sswEntitlement.SpouseProGear)
+	suite.Equal(unit.Pound(allotment.ProGearWeight), sswEntitlement.ProGear)
+}
+
+func (suite *ModelSuite) TestFormatSSWGetEntitlementNoDependants() {
+	spouseHasProGear := false
+	hasDependants := false
+	allotment := models.GetWeightAllotment(models.ServiceMemberRankE1)
+	totalEntitlement, err := models.GetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
+	suite.Nil(err)
+	sswEntitlement := models.SSWGetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
+
+	suite.Equal(unit.Pound(totalEntitlement), sswEntitlement.TotalWeight)
+	suite.Equal(unit.Pound(allotment.TotalWeightSelf), sswEntitlement.Entitlement)
+	suite.Equal(unit.Pound(allotment.ProGearWeight), sswEntitlement.ProGear)
+	suite.Equal(unit.Pound(0), sswEntitlement.SpouseProGear)
 }
 
 func (suite *ModelSuite) TestFormatLocation() {
