@@ -105,15 +105,7 @@ const PPMTabContent = props => {
 const HHGTabContent = props => {
   let shipmentStatus = '';
   let shipmentId = '';
-  const {
-    allowHhgInvoicePayment,
-    canApprovePaymentInvoice,
-    moveId,
-    serviceAgents,
-    shipment,
-    updatePublicShipment,
-    showSitPanel,
-  } = props;
+  const { canApprovePaymentInvoice, moveId, serviceAgents, shipment, updatePublicShipment, showSitPanel } = props;
   if (shipment) {
     shipmentStatus = shipment.status;
     shipmentId = shipment.id;
@@ -133,12 +125,7 @@ const HHGTabContent = props => {
       />
       <PreApprovalPanel shipmentId={shipment.id} />
       {showSitPanel && <StorageInTransitPanel shipmentId={shipmentId} moveId={moveId} />}
-      <InvoicePanel
-        shipmentId={shipment.id}
-        shipmentStatus={shipmentStatus}
-        canApprove={canApprovePaymentInvoice}
-        allowPayments={allowHhgInvoicePayment}
-      />
+      <InvoicePanel shipmentId={shipment.id} shipmentStatus={shipmentStatus} canApprove={canApprovePaymentInvoice} />
     </div>
   );
 };
@@ -280,12 +267,8 @@ class MoveInfo extends Component {
     const isPPM = move.selected_move_type === 'PPM';
     const isHHG = move.selected_move_type === 'HHG';
     const isHHGPPM = move.selected_move_type === 'HHG_PPM';
-    const pathnames = this.props.location.pathname.split('/');
-    const currentTab = pathnames[pathnames.length - 1];
     const showDocumentViewer = this.props.context.flags.documentViewer;
     const moveInfoComboButton = this.props.context.flags.moveInfoComboButton;
-    const allowHhgInvoicePayment = this.props.context.flags.allowHhgInvoicePayment;
-    const check = <FontAwesomeIcon className="icon" icon={faCheck} />;
     const ordersComplete = Boolean(
       orders.orders_number && orders.orders_type_detail && orders.department_indicator && orders.tac,
     );
@@ -398,7 +381,6 @@ class MoveInfo extends Component {
                 <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   {this.props.shipment && (
                     <HHGTabContent
-                      allowHhgInvoicePayment={allowHhgInvoicePayment}
                       canApprovePaymentInvoice={hhgDelivered}
                       moveId={this.props.moveId}
                       serviceAgents={this.props.serviceAgents}
@@ -463,45 +445,6 @@ class MoveInfo extends Component {
                   buttonDisabled={hhgCantBeCanceled}
                 />
               </div>
-
-              {(isPPM || isHHGPPM) && (
-                <button
-                  className={`${ppmApproved ? 'btn__approve--green' : ''}`}
-                  onClick={this.approvePPM}
-                  disabled={ppmApproved || !moveApproved || !ordersComplete}
-                >
-                  Approve PPM
-                  {ppmApproved && check}
-                </button>
-              )}
-
-              {(isHHG || isHHGPPM) && (
-                <button
-                  className={`${hhgApproved ? 'btn__approve--green' : ''}`}
-                  onClick={this.approveShipment}
-                  disabled={
-                    !hhgAccepted ||
-                    hhgApproved ||
-                    hhgCompleted ||
-                    !moveApproved ||
-                    !ordersComplete ||
-                    currentTab !== 'hhg'
-                  }
-                >
-                  Approve HHG
-                  {hhgApproved && check}
-                </button>
-              )}
-              <ConfirmWithReasonButton
-                buttonTitle="Cancel Move"
-                reasonPrompt="Why is the move being canceled?"
-                warningPrompt="Are you sure you want to cancel the entire move?"
-                onConfirm={this.cancelMoveAndRedirect}
-                buttonDisabled={hhgCantBeCanceled}
-              />
-              {/* Disabling until features implemented
-              <button>Troubleshoot</button>
-              */}
             </div>
             <div className="documents">
               <h2 className="extras usa-heading">

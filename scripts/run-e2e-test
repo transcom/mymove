@@ -10,11 +10,13 @@ make db_test_e2e_backup
 
 CYPRESS_PORT=4000
 ENV=test DB_PORT="$DB_PORT_TEST" LOGIN_GOV_CALLBACK_PORT="$CYPRESS_PORT" NO_TLS_PORT="$CYPRESS_PORT" \
-    ./bin/gin --build cmd/webserver \
+    ./bin/gin \
+    --build cmd/milmove \
 		--bin /bin/webserver_e2e \
 		--port 8090 --appPort 8091 \
 		--excludeDir vendor --excludeDir node_modules \
-		-i --buildArgs "-i" &
+    --immediate \
+		--buildArgs "-i" serve &
 npx cypress open || true
 
 # Terminate the background webserver

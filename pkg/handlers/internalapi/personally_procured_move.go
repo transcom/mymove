@@ -31,11 +31,11 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 		CreatedAt:                     handlers.FmtDateTime(personallyProcuredMove.CreatedAt),
 		UpdatedAt:                     handlers.FmtDateTime(personallyProcuredMove.UpdatedAt),
 		Size:                          personallyProcuredMove.Size,
-		WeightEstimate:                personallyProcuredMove.WeightEstimate,
+		WeightEstimate:                handlers.FmtPoundPtr(personallyProcuredMove.WeightEstimate),
 		OriginalMoveDate:              handlers.FmtDatePtr(personallyProcuredMove.OriginalMoveDate),
 		ActualMoveDate:                handlers.FmtDatePtr(personallyProcuredMove.ActualMoveDate),
 		ApproveDate:                   handlers.FmtDateTimePtr(personallyProcuredMove.ApproveDate),
-		NetWeight:                     personallyProcuredMove.NetWeight,
+		NetWeight:                     handlers.FmtPoundPtr(personallyProcuredMove.NetWeight),
 		PickupPostalCode:              personallyProcuredMove.PickupPostalCode,
 		HasAdditionalPostalCode:       personallyProcuredMove.HasAdditionalPostalCode,
 		AdditionalPickupPostalCode:    personallyProcuredMove.AdditionalPickupPostalCode,
@@ -96,7 +96,7 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 
 	newPPM, verrs, err := move.CreatePPM(h.DB(),
 		payload.Size,
-		payload.WeightEstimate,
+		handlers.PoundPtrFromInt64Ptr(payload.WeightEstimate),
 		(*time.Time)(payload.OriginalMoveDate),
 		payload.PickupPostalCode,
 		payload.HasAdditionalPostalCode,
@@ -157,10 +157,10 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 		ppm.Size = payload.Size
 	}
 	if payload.WeightEstimate != nil {
-		ppm.WeightEstimate = payload.WeightEstimate
+		ppm.WeightEstimate = handlers.PoundPtrFromInt64Ptr(payload.WeightEstimate)
 	}
 	if payload.NetWeight != nil {
-		ppm.NetWeight = payload.NetWeight
+		ppm.NetWeight = handlers.PoundPtrFromInt64Ptr(payload.NetWeight)
 	}
 	if payload.OriginalMoveDate != nil {
 		ppm.OriginalMoveDate = (*time.Time)(payload.OriginalMoveDate)
@@ -283,7 +283,12 @@ func (h PatchPersonallyProcuredMoveHandler) ppmNeedsEstimatesRecalculated(ppm *m
 	// should be used in the calculation
 	origin, originChanged, originOK := stringForComparison(ppm.PickupPostalCode, originPtr)
 	destination, destinationChanged, destinationOK := stringForComparison(ppm.DestinationPostalCode, destinationPtr)
-	weight, weightChanged, weightOK := int64ForComparison(ppm.WeightEstimate, weightPtr)
+	var prevWeightEstimate *int64
+	if ppm.WeightEstimate != nil {
+		tmp := int64(*ppm.WeightEstimate)
+		prevWeightEstimate = &tmp
+	}
+	weight, weightChanged, weightOK := int64ForComparison(prevWeightEstimate, weightPtr)
 	date, dateChanged, dateOK := dateForComparison(ppm.OriginalMoveDate, (*time.Time)(datePtr))
 	daysInStorage, daysChanged, _ := int64ForComparison(ppm.DaysInStorage, daysPtr)
 
@@ -540,7 +545,8 @@ func (h RequestPPMExpenseSummaryHandler) Handle(params ppmop.RequestPPMExpenseSu
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
 
 	// Fetch all approved expense documents for a PPM
-	moveDocsExpense, err := models.FetchApprovedMovingExpenseDocuments(h.DB(), session, ppmID)
+	status := models.MoveDocumentStatusOK
+	moveDocsExpense, err := models.FetchMovingExpenseDocuments(h.DB(), session, ppmID, &status)
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
