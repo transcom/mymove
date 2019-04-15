@@ -6,13 +6,26 @@ import (
 	"strings"
 
 	"github.com/facebookgo/clock"
-	"github.com/gobuffalo/pop"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/services/fuelprice"
 )
+
+func checkConfig(v *viper.Viper, logger logger) error {
+
+	logger.Info("checking config")
+
+	err := cli.CheckDatabase(v, logger)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 // Command: go run cmd/save_fuel_price_data/main.go
 func main() {
@@ -20,8 +33,15 @@ func main() {
 	flag := pflag.CommandLine
 
 	flag.String("env", "development", "The environment to run in, which configures the database.")
+
+	// DB Config
+	cli.InitDatabaseFlags(flag)
+
+	// EIA Open Data API
 	flag.String("eia-key", "", "key for Energy Information Administration (EIA) api")
 	flag.String("eia-url", "", "url for EIA api")
+
+	flag.SortFlags = false
 	flag.Parse(os.Args[1:])
 
 	v := viper.New()
@@ -31,19 +51,31 @@ func main() {
 
 	env := v.GetString("env")
 
-	db, err := pop.Connect(env)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	logger, err := logging.Config(env, true)
+	logger, err := logging.Config(env, v.GetBool("debug-logging"))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
 
+	fields := make([]zap.Field, 0)
+	logger = logger.With(fields...)
+	zap.ReplaceGlobals(logger)
+
+	err = checkConfig(v, logger)
+	if err != nil {
+		logger.Fatal("invalid configuration", zap.Error(err))
+	}
+
+	// Create a connection to the DB
+	dbConnection, err := cli.InitDatabase(v, logger)
+	if err != nil {
+		// No connection object means that the configuraton failed to validate and we should not startup
+		// A valid connection object that still has an error indicates that the DB is not up and we should not startup
+		logger.Fatal("Connecting to DB", zap.Error(err))
+	}
+
 	clock := clock.New()
 	fuelPrices := fuelprice.NewDieselFuelPriceStorer(
-		db,
+		dbConnection,
 		logger,
 		clock,
 		fuelprice.FetchFuelPriceData,
