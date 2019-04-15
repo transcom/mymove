@@ -12,6 +12,7 @@ import (
 	"github.com/99designs/aws-vault/vault"
 	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
@@ -348,8 +349,18 @@ func main() {
 	}
 
 	currentTarget := targetsOutput.Targets[0]
-	currentTaskDefArn := *currentTarget.EcsParameters.TaskDefinitionArn
-	logger.Println(fmt.Sprintf("Blue Task Def Arn: %s", currentTaskDefArn))
+
+	// Get the current task definition
+	currentTaskDefArnStr := *currentTarget.EcsParameters.TaskDefinitionArn
+	logger.Println(fmt.Sprintf("Current Task Def Arn: %s", currentTaskDefArnStr))
+	currentTaskDefArn, err := arn.Parse(currentTaskDefArnStr)
+	currentDescribeTaskDefinitionOutput, err := serviceECS.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
+		TaskDefinition: aws.String(currentTaskDefArn.Resource),
+	})
+	if err != nil {
+		quit(logger, nil, errors.Wrapf(err, "unable to parse current task arn %s", currentTaskDefArnStr))
+	}
+	currentTaskDef := *currentDescribeTaskDefinitionOutput.TaskDefinition
 
 	// Confirm the image exists
 	imageTag := v.GetString(imageTagFlag)
@@ -383,15 +394,8 @@ func main() {
 	}
 	dbHost := *dbInstancesOutput.DBInstances[0].Endpoint.Address
 
-	// Set up some key variables
-	// TODO: Validate all of these variables to ensure they can be used
-	clusterName := fmt.Sprintf("%s-%s", serviceName, environmentName)
-	taskRoleArn := fmt.Sprintf("ecs-task-events-role-%s", clusterName)
-	executionRoleArn := fmt.Sprintf("ecs-task-events-execution-role-%s", clusterName)
+	// Name the container definition and verify it exists
 	containerDefName := fmt.Sprintf("%s-tasks-%s-%s", serviceName, ruleName, environmentName)
-
-	// familyName is the name used to register the task
-	familyName := fmt.Sprintf("%s-scheduled-task-%s-%s", serviceName, ruleName, environmentName)
 
 	// AWS Logs Group is related to the cluster and should not be changed
 	awsLogsGroup := fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
@@ -402,6 +406,7 @@ func main() {
 	chamberRetries := v.GetInt(chamberRetriesFlag)
 	chamberKMSKeyAlias := v.GetString(chamberKMSKeyAliasFlag)
 	chamberUsePaths := v.GetInt(chamberUsePathsFlag)
+	chamberStore := fmt.Sprintf("%s-%s", serviceName, environmentName)
 
 	// Tool Settings
 	eiaKey := v.GetString(cli.EIAKeyFlag)
@@ -419,7 +424,7 @@ func main() {
 					aws.String("-r"),
 					aws.String(strconv.Itoa(chamberRetries)),
 					aws.String("exec"),
-					aws.String(clusterName),
+					aws.String(chamberStore),
 					aws.String("--"),
 					aws.String(fmt.Sprintf("/bin/%s", ruleName)),
 				},
@@ -486,19 +491,19 @@ func main() {
 				},
 			},
 		},
-		Cpu:                     aws.String("256"),
-		ExecutionRoleArn:        aws.String(executionRoleArn),
-		Family:                  aws.String(familyName),
-		Memory:                  aws.String("512"),
-		NetworkMode:             aws.String("awsvpc"),
-		RequiresCompatibilities: []*string{aws.String("FARGATE")},
-		TaskRoleArn:             aws.String(taskRoleArn),
+		Cpu:                     currentTaskDef.Cpu,
+		ExecutionRoleArn:        currentTaskDef.ExecutionRoleArn,
+		Family:                  currentTaskDef.Family,
+		Memory:                  currentTaskDef.Memory,
+		NetworkMode:             currentTaskDef.NetworkMode,
+		RequiresCompatibilities: currentTaskDef.RequiresCompatibilities,
+		TaskRoleArn:             currentTaskDef.TaskRoleArn,
 	})
 	if err != nil {
 		quit(logger, nil, errors.Wrap(err, "error registering new task definition"))
 	}
 	newTaskDefArn := *taskDefinitionOutput.TaskDefinition.TaskDefinitionArn
-	logger.Println(fmt.Sprintf("Green Task Def Arn: %s", newTaskDefArn))
+	logger.Println(fmt.Sprintf("New Task Def Arn: %s", newTaskDefArn))
 
 	// Update the task event target with the new task ECS parameters
 	putTargetsOutput, err := serviceCloudWatchEvents.PutTargets(&cloudwatchevents.PutTargetsInput{
