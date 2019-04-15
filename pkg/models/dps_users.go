@@ -66,7 +66,7 @@ func IsDPSUser(db *pop.Connection, email string) (bool, error) {
 // FetchDPSUserByEmail looks for an DPS user with a specific email
 func FetchDPSUserByEmail(tx *pop.Connection, email string) (*DpsUser, error) {
 	var users DpsUsers
-	err := tx.Where("login_gov_email = $1", strings.ToLower(email)).All(&users)
+	err := tx.Where("LOWER(login_gov_email) = $1", strings.ToLower(email)).All(&users)
 	if err != nil {
 		return nil, err
 	}

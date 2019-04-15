@@ -67,7 +67,7 @@ func FetchTspUserByID(tx *pop.Connection, id uuid.UUID) (*TspUser, error) {
 // FetchTspUserByEmail looks for an tsp user with a specific email
 func FetchTspUserByEmail(tx *pop.Connection, email string) (*TspUser, error) {
 	var users TspUsers
-	err := tx.Where("email = $1", strings.ToLower(email)).All(&users)
+	err := tx.Where("LOWER(email) = $1", strings.ToLower(email)).All(&users)
 	if err != nil {
 		return nil, err
 	}
