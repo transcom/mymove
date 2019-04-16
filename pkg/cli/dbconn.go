@@ -92,7 +92,7 @@ func CheckDatabase(v *viper.Viper, logger logger) error {
 			return errors.Wrap(err, fmt.Sprintf("error reading db-ssl-root-cert at %q", filename))
 		}
 		tlsCerts := ParseCertificates(string(b))
-		logger.Info("certificate chain from db-ssl-root-cert parsed", zap.Any("count", len(tlsCerts)))
+		logger.Debug("certificate chain from db-ssl-root-cert parsed", zap.Any("count", len(tlsCerts)))
 	}
 
 	return nil

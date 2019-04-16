@@ -17,7 +17,7 @@ import (
 
 func checkConfig(v *viper.Viper, logger logger) error {
 
-	logger.Info("checking config")
+	logger.Debug("checking config")
 
 	err := cli.CheckEIA(v)
 	if err != nil {
