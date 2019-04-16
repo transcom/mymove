@@ -354,6 +354,8 @@ func main() {
 	currentTaskDefArnStr := *currentTarget.EcsParameters.TaskDefinitionArn
 	logger.Println(fmt.Sprintf("Current Task Def Arn: %s", currentTaskDefArnStr))
 	currentTaskDefArn, err := arn.Parse(currentTaskDefArnStr)
+
+	// TODO: This isn't clean and could probably use a regex
 	currentTaskDefName := strings.Split(currentTaskDefArn.Resource, ":")[0]
 	currentTaskDefName = strings.Split(currentTaskDefName, "/")[1]
 	currentDescribeTaskDefinitionOutput, err := serviceECS.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
