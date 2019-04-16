@@ -354,8 +354,10 @@ func main() {
 	currentTaskDefArnStr := *currentTarget.EcsParameters.TaskDefinitionArn
 	logger.Println(fmt.Sprintf("Current Task Def Arn: %s", currentTaskDefArnStr))
 	currentTaskDefArn, err := arn.Parse(currentTaskDefArnStr)
+	currentTaskDefName := strings.Split(currentTaskDefArn.Resource, ":")[0]
+	currentTaskDefName = strings.Split(currentTaskDefName, "/")[1]
 	currentDescribeTaskDefinitionOutput, err := serviceECS.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
-		TaskDefinition: aws.String(currentTaskDefArn.Resource),
+		TaskDefinition: aws.String(currentTaskDefName),
 	})
 	if err != nil {
 		quit(logger, nil, errors.Wrapf(err, "unable to parse current task arn %s", currentTaskDefArnStr))
@@ -417,7 +419,7 @@ func main() {
 	eiaURL := v.GetString(cli.EIAURLFlag)
 
 	// Register the new task definition
-	taskDefinitionOutput, err := serviceECS.RegisterTaskDefinition(&ecs.RegisterTaskDefinitionInput{
+	newTaskDefOutput, err := serviceECS.RegisterTaskDefinition(&ecs.RegisterTaskDefinitionInput{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
 				Name:      aws.String(containerDefName),
@@ -506,7 +508,7 @@ func main() {
 	if err != nil {
 		quit(logger, nil, errors.Wrap(err, "error registering new task definition"))
 	}
-	newTaskDefArn := *taskDefinitionOutput.TaskDefinition.TaskDefinitionArn
+	newTaskDefArn := *newTaskDefOutput.TaskDefinition.TaskDefinitionArn
 	logger.Println(fmt.Sprintf("New Task Def Arn: %s", newTaskDefArn))
 
 	// Update the task event target with the new task ECS parameters
