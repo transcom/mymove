@@ -74,6 +74,7 @@ const createDigitNormalizer = maxLength => {
     }
 
     // only digits up to the max length
+    // if undefined, max length is length of string
     return value.replace(/[^\d]/g, '').substr(0, maxLength);
   };
 };
