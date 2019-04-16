@@ -436,9 +436,7 @@ func main() {
 					aws.String("--"),
 					aws.String(fmt.Sprintf("/bin/%s", ruleBinary)),
 				},
-				Command: []*string{
-					aws.String("--debug-logging"),
-				},
+				Command: []*string{},
 				Environment: []*ecs.KeyValuePair{
 					&ecs.KeyValuePair{
 						Name:  aws.String("ENV"),
