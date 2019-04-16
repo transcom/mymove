@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190415193743_update_tsp_supplier_id.sql")
