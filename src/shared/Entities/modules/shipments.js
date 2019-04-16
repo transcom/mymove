@@ -11,6 +11,7 @@ const createShipmentLabel = 'Shipments.createShipment';
 const updateShipmentLabel = 'shipments.updateShipment';
 const updatePublicShipmentLabel = 'shipments.updatePublicShipment';
 const acceptPublicShipmentLabel = 'shipments.acceptShipment';
+const completePmSurveyLabel = 'shipments.completePmSurvey';
 
 export function createOrUpdateShipment(moveId, shipment, id, label) {
   if (id) {
@@ -69,6 +70,10 @@ export function approveShipment(shipmentId, shipmentApproveDate, label = approve
 
 export function acceptShipment(shipmentId, label = acceptPublicShipmentLabel) {
   return swaggerRequest(getPublicClient, label, { shipmentId }, { label });
+}
+
+export function completePmSurvey(shipmentId, label = completePmSurveyLabel) {
+  return swaggerRequest(getPublicClient, label, { shipmentId }, label);
 }
 
 export function selectShipment(state, id) {
