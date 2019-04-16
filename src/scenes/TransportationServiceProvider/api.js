@@ -55,15 +55,6 @@ export async function DeliverShipment(shipmentId, payload) {
   return response.body;
 }
 
-export async function CompletePmSurvey(shipmentId) {
-  const client = await getPublicClient();
-  const response = await client.apis.shipments.completePmSurvey({
-    shipmentId,
-  });
-  checkResponse(response, 'failed to complete pre-move survey due to server error');
-  return response.body;
-}
-
 // ServiceAgents
 export async function IndexServiceAgents(shipmentId) {
   const client = await getPublicClient();
