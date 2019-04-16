@@ -194,7 +194,6 @@ func initServeFlags(flag *pflag.FlagSet) {
 
 	flag.String("build", "build", "the directory to serve static files from.")
 	flag.String("config-dir", "config", "The location of server config files")
-	flag.StringP("env", "e", "development", "The environment to run in, which configures the database.")
 	flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	flag.String("service-name", "app", "The service name identifies the application for instrumentation.")
 	flag.Duration("graceful-shutdown-timeout", 25*time.Second, "The duration for which the server gracefully wait for existing connections to finish.  AWS ECS only gives you 30 seconds before sending SIGKILL.")
@@ -659,9 +658,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	env := v.GetString("env")
+	dbEnv := v.GetString(cli.DbEnvFlag)
 
-	logger, err := logging.Config(env, v.GetBool(cli.VerboseFlag))
+	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
@@ -683,9 +682,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		logger.Fatal("invalid configuration", zap.Error(err))
 	}
 
-	isDevOrTest := env == "development" || env == "test"
+	isDevOrTest := dbEnv == "development" || dbEnv == "test"
 	if isDevOrTest {
-		logger.Info(fmt.Sprintf("Starting in %s mode, which enables additional features", env))
+		logger.Info(fmt.Sprintf("Starting in %s mode, which enables additional features", dbEnv))
 	}
 
 	// Honeycomb

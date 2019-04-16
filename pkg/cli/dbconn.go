@@ -15,6 +15,8 @@ import (
 )
 
 const (
+	// DbEnvFlag is the DB environment flag
+	DbEnvFlag string = "env"
 	// DbNameFlag is the DB name flag
 	DbNameFlag string = "db-name"
 	// DbHostFlag is the DB host flag
@@ -63,6 +65,7 @@ func stringSliceContains(stringSlice []string, value string) bool {
 
 // InitDatabaseFlags initializes DB command line flags
 func InitDatabaseFlags(flag *pflag.FlagSet) {
+	flag.StringP(DbEnvFlag, "e", "development", "The Database  environment in which to run.")
 	flag.String(DbNameFlag, "dev_db", "Database Name")
 	flag.String(DbHostFlag, "localhost", "Database Hostname")
 	flag.Int(DbPortFlag, 5432, "Database Port")
@@ -75,24 +78,24 @@ func InitDatabaseFlags(flag *pflag.FlagSet) {
 // CheckDatabase validates DB command line flags
 func CheckDatabase(v *viper.Viper, logger logger) error {
 
-	env := v.GetString("env")
+	dbEnv := v.GetString(DbEnvFlag)
 
-	sslMode := v.GetString("db-ssl-mode")
+	sslMode := v.GetString(DbSSLModeFlag)
 	if len(sslMode) == 0 || !stringSliceContains(allSSLModes, sslMode) {
 		return &errInvalidSSLMode{Mode: sslMode, Modes: allSSLModes}
 	}
 
-	if modes := []string{"require", "verify-ca", "verify-full"}; env == "container" && !stringSliceContains(modes, sslMode) {
+	if modes := []string{"require", "verify-ca", "verify-full"}; dbEnv == "container" && !stringSliceContains(modes, sslMode) {
 		return errors.Wrap(&errInvalidSSLMode{Mode: sslMode, Modes: modes}, "container envrionment requires ssl connection to database")
 	}
 
-	if filename := v.GetString("db-ssl-root-cert"); len(filename) > 0 {
+	if filename := v.GetString(DbSSLRootCertFlag); len(filename) > 0 {
 		b, err := ioutil.ReadFile(filename) // #nosec
 		if err != nil {
-			return errors.Wrap(err, fmt.Sprintf("error reading db-ssl-root-cert at %q", filename))
+			return errors.Wrap(err, fmt.Sprintf("error reading %s at %q", DbSSLRootCertFlag, filename))
 		}
 		tlsCerts := ParseCertificates(string(b))
-		logger.Debug("certificate chain from db-ssl-root-cert parsed", zap.Any("count", len(tlsCerts)))
+		logger.Debug(fmt.Sprintf("certificate chain from %s parsed", DbSSLRootCertFlag), zap.Any("count", len(tlsCerts)))
 	}
 
 	return nil
@@ -101,33 +104,33 @@ func CheckDatabase(v *viper.Viper, logger logger) error {
 // InitDatabase initializes a Pop connection from command line flags
 func InitDatabase(v *viper.Viper, logger logger) (*pop.Connection, error) {
 
-	env := v.GetString("env")
-	dbName := v.GetString("db-name")
-	dbHost := v.GetString("db-host")
-	dbPort := strconv.Itoa(v.GetInt("db-port"))
-	dbUser := v.GetString("db-user")
-	dbPassword := v.GetString("db-password")
+	dbEnv := v.GetString(DbEnvFlag)
+	dbName := v.GetString(DbNameFlag)
+	dbHost := v.GetString(DbHostFlag)
+	dbPort := strconv.Itoa(v.GetInt(DbPortFlag))
+	dbUser := v.GetString(DbUserFlag)
+	dbPassword := v.GetString(DbPasswordFlag)
 
 	// Modify DB options by environment
 	dbOptions := map[string]string{
-		"sslmode": v.GetString("db-ssl-mode"),
+		"sslmode": v.GetString(DbSSLModeFlag),
 	}
 
-	if env == "test" {
+	if dbEnv == "test" {
 		// Leave the test database name hardcoded, since we run tests in the same
-		// environment as development, and it's extra confusing to have to swap env
+		// environment as development, and it's extra confusing to have to swap environment
 		// variables before running tests.
 		dbName = "test_db"
 	}
 
-	if str := v.GetString("db-ssl-root-cert"); len(str) > 0 {
+	if str := v.GetString(DbSSLRootCertFlag); len(str) > 0 {
 		dbOptions["sslrootcert"] = str
 	}
 
 	// Construct a safe URL and log it
 	s := "postgres://%s:%s@%s:%s/%s?sslmode=%s"
 	dbURL := fmt.Sprintf(s, dbUser, "*****", dbHost, dbPort, dbName, dbOptions["sslmode"])
-	logger.Info("Connecting to the database", zap.String("url", dbURL), zap.String("db-ssl-root-cert", v.GetString("db-ssl-root-cert")))
+	logger.Info("Connecting to the database", zap.String("url", dbURL), zap.String(DbSSLRootCertFlag, v.GetString(DbSSLRootCertFlag)))
 
 	// Configure DB connection details
 	dbConnectionDetails := pop.ConnectionDetails{
