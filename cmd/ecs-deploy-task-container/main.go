@@ -122,7 +122,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String(environmentFlag, "", fmt.Sprintf("The environment name (choose %q)", environments))
 	flag.String(repositoryNameFlag, "", fmt.Sprintf("The name of the repository where the tagged image resides"))
 	flag.String(imageTagFlag, "", "The name of the image tag referenced in the task definition")
-	flag.String(ruleFlag, "", fmt.Sprintf("The name of the CloudWatch Event Rule targeting the Task Definition (choose %q). Also describes the binary used in the container which replaces underscores with dashses.", rules))
+	flag.String(ruleFlag, "", fmt.Sprintf("The name of the CloudWatch Event Rule targeting the Task Definition (choose %q). This should be the name of the binary in the container.", rules))
 
 	// EIA Open Data API
 	// The EIA Key is set in the Local or CircleCI environment and not in Chamber.
@@ -412,10 +412,6 @@ func main() {
 	chamberUsePaths := v.GetInt(chamberUsePathsFlag)
 	chamberStore := fmt.Sprintf("%s-%s", serviceName, environmentName)
 
-	// Binary Information (ruleName with all underscores replaced by dashes)
-	// TODO: This ought to be a flag passed in
-	ruleBinary := strings.Replace(ruleName, "_", "-", -1)
-
 	// Tool Settings
 	eiaKey := v.GetString(cli.EIAKeyFlag)
 	eiaURL := v.GetString(cli.EIAURLFlag)
@@ -434,7 +430,7 @@ func main() {
 					aws.String("exec"),
 					aws.String(chamberStore),
 					aws.String("--"),
-					aws.String(fmt.Sprintf("/bin/%s", ruleBinary)),
+					aws.String(fmt.Sprintf("/bin/%s", ruleName)),
 				},
 				Command: []*string{},
 				Environment: []*ecs.KeyValuePair{
