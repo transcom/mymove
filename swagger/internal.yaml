@@ -865,6 +865,8 @@ definitions:
         format: edipi
         example: '5789345789'
         pattern: '^[0-9]{10}$'
+        minLength: 10
+        maxLength: 10
         x-nullable: true
         title: DoD ID number
       orders:
@@ -967,6 +969,8 @@ definitions:
         type: string
         format: edipi
         pattern: '^[0-9]{10}$'
+        minLength: 10
+        maxLength: 10
         example: '5789345789'
         x-nullable: true
         title: 'DoD ID number'
@@ -1055,6 +1059,8 @@ definitions:
         type: string
         format: edipi
         pattern: '^[0-9]{10}$'
+        minLength: 10
+        maxLength: 10
         example: '5789345789'
         x-nullable: true
         title: DoD ID number
@@ -2300,6 +2306,8 @@ definitions:
         type: string
         format: edipi
         pattern: '^[0-9]{10}$'
+        minLength: 10
+        maxLength: 10
         example: '5789345789'
         title: 'DoD ID #'
       rank:
