@@ -29,6 +29,8 @@ import (
 
 var services = []string{"app"}
 var environments = []string{"prod", "staging", "experimental"}
+
+// Rules should be the name of the binary found in the /bin directory in the container
 var rules = []string{"save-fuel-price-data"}
 
 type errInvalidAccountID struct {
