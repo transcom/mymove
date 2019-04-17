@@ -29,7 +29,7 @@ import (
 
 var services = []string{"app"}
 var environments = []string{"prod", "staging", "experimental"}
-var rules = []string{"save_fuel_price_data"}
+var rules = []string{"save-fuel-price-data"}
 
 type errInvalidAccountID struct {
 	AwsAccountID string
