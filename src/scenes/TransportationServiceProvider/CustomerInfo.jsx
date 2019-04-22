@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 
-import { loadEntitlements } from './ducks';
+import { calculateEntitlementsForShipment } from 'shared/Entities/modules/shipments';
 import { formatWeight } from 'shared/formatters';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -158,7 +158,7 @@ const mapStateToProps = (state, ownProps) => {
   return {
     serviceMember,
     backupContact,
-    entitlements: loadEntitlements(state, ownProps.shipment.id),
+    entitlements: calculateEntitlementsForShipment(state, ownProps.shipment.id),
   };
 };
 
