@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"os"
 	"strings"
 	"testing"
 
@@ -24,7 +25,9 @@ type initFlags func(f *pflag.FlagSet)
 func initNull(flag *pflag.FlagSet) {}
 
 func (suite *cliTestSuite) Setup(fn initFlags) {
-	flag := pflag.CommandLine
+	suite.viper = nil
+
+	flag := pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
 	fn(flag)
 	flag.Parse([]string{})
 
@@ -33,6 +36,10 @@ func (suite *cliTestSuite) Setup(fn initFlags) {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
+	suite.SetViper(v)
+}
+
+func (suite *cliTestSuite) SetViper(v *viper.Viper) {
 	suite.viper = v
 }
 

@@ -29,7 +29,7 @@ type errInvalidHost struct {
 }
 
 func (e *errInvalidHost) Error() string {
-	return fmt.Sprintf("invalid host %s, must not contain whitespace, :, /, or \\", e.Host)
+	return fmt.Sprintf("invalid host '%s', must not contain whitespace, :, /, or \\", e.Host)
 }
 
 // InitHostFlags initializes the Hosts command line flags
