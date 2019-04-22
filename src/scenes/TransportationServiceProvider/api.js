@@ -22,16 +22,6 @@ export async function RetrieveShipmentsForTSP(queueType) {
   return response.body;
 }
 
-// ServiceAgents
-export async function IndexServiceAgents(shipmentId) {
-  const client = await getPublicClient();
-  const response = await client.apis.service_agents.indexServiceAgents({
-    shipmentId,
-  });
-  checkResponse(response, 'failed to load service agents due to server error');
-  return response.body;
-}
-
 // All documents for shipment
 export async function GetAllShipmentDocuments(shipmentId) {
   const client = await getPublicClient();
