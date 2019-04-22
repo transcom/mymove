@@ -196,7 +196,7 @@ class ShipmentInfo extends Component {
     } = this.props;
     const { service_member: serviceMember = {}, move = {}, gbl_number: gbl } = shipment;
 
-    const shipmentId = this.props.match.params.shipmentId;
+    const shipmentId = this.props.shipmentId;
     const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
     const showDocumentViewer = context.flags.documentViewer;
     const showSitPanel = context.flags.sitPanel;
@@ -368,6 +368,7 @@ class ShipmentInfo extends Component {
                 )}
               {canEnterPreMoveSurvey && (
                 <FormButton
+                  shipmentId={shipmentId}
                   FormComponent={PremoveSurveyForm}
                   schema={this.props.shipmentSchema}
                   onSubmit={this.enterPreMoveSurvey}
@@ -376,6 +377,7 @@ class ShipmentInfo extends Component {
               )}
               {canAssignServiceAgents && (
                 <FormButton
+                  shipmentId={shipmentId}
                   serviceAgents={this.props.serviceAgents}
                   FormComponent={ServiceAgentForm}
                   schema={this.props.serviceAgentSchema}
@@ -394,6 +396,7 @@ class ShipmentInfo extends Component {
               )}
               {canEnterPackAndPickup && (
                 <FormButton
+                  shipmentId={shipmentId}
                   FormComponent={PickupForm}
                   schema={this.props.transportSchema}
                   onSubmit={this.transportShipment}
