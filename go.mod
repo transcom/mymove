@@ -49,8 +49,8 @@ require (
 	github.com/gorilla/handlers v1.4.0 // indirect
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
 	github.com/hashicorp/go-multierror v1.0.0
-	github.com/honeycombio/beeline-go v0.3.4
-	github.com/honeycombio/libhoney-go v1.8.2 // indirect
+	github.com/honeycombio/beeline-go v0.4.4
+	github.com/honeycombio/libhoney-go v1.10.0 // indirect
 	github.com/imdario/mergo v0.3.7
 	github.com/jackc/pgx v3.3.0+incompatible // indirect
 	github.com/jessevdk/go-flags v1.4.0

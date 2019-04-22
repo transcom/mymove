@@ -387,10 +387,10 @@ github.com/hashicorp/go-multierror v1.0.0 h1:iVjPR7a6H0tWELX5NxNe7bYopibicUzc7uP
 github.com/hashicorp/go-multierror v1.0.0/go.mod h1:dHtQlpGsu+cZNNAkkCN/P3hoUDHhCYQXV3UM06sGGrk=
 github.com/hashicorp/hcl v1.0.0 h1:0Anlzjpi4vEasTeNFn2mLJgTSwt0+6sfsiTG8qcWGx4=
 github.com/hashicorp/hcl v1.0.0/go.mod h1:E5yfLk+7swimpb2L/Alb/PJmXilQ/rhwaUYs4T20WEQ=
-github.com/honeycombio/beeline-go v0.3.4 h1:FvR+w6BIBz+4hotz3LALePASDEpo3MEM55vGNoQ4uys=
-github.com/honeycombio/beeline-go v0.3.4/go.mod h1:xZNfHCpYQFjVS4Xuc8eMKhBclLnW/PvBz5L1Dwcp81Y=
-github.com/honeycombio/libhoney-go v1.8.2 h1:stYQJi/21p37Qan2DlSkXDuIrup9zxOul2UyeqMAqX0=
-github.com/honeycombio/libhoney-go v1.8.2/go.mod h1:jdLxh51fcBTy6XIpx1efuJmHePs2xUfVkw25lr+hsmg=
+github.com/honeycombio/beeline-go v0.4.4 h1:fafAE/05lfxctzKBNejs/cUPemKJvNdifjVwLXO0Wm8=
+github.com/honeycombio/beeline-go v0.4.4/go.mod h1:xZNfHCpYQFjVS4Xuc8eMKhBclLnW/PvBz5L1Dwcp81Y=
+github.com/honeycombio/libhoney-go v1.10.0 h1:eZ5VauogxgWlw26CDkeAmEK/CuhsIVlLgGuKtHdp2c8=
+github.com/honeycombio/libhoney-go v1.10.0/go.mod h1:jdLxh51fcBTy6XIpx1efuJmHePs2xUfVkw25lr+hsmg=
 github.com/hpcloud/tail v1.0.0 h1:nfCOvKYfkgYP8hkirhJocXT2+zOD8yUNjXaWfTlyFKI=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/imdario/mergo v0.3.7 h1:Y+UAYTZ7gDEuOfhxKWy+dvb5dRQ6rJjFSdX2HZY1/gI=
