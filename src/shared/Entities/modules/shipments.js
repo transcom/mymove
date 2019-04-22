@@ -12,6 +12,7 @@ const updateShipmentLabel = 'shipments.updateShipment';
 const updatePublicShipmentLabel = 'shipments.updatePublicShipment';
 const acceptPublicShipmentLabel = 'shipments.acceptShipment';
 const transportPublicShipmentLabel = 'shipments.transportShipment';
+const deliverPublicShipmentLabel = 'shipments.deliverShipment';
 const completePmSurveyLabel = 'shipments.completePmSurvey';
 
 export function createOrUpdateShipment(moveId, shipment, id, label) {
@@ -65,6 +66,11 @@ export function acceptShipment(shipmentId, label = acceptPublicShipmentLabel) {
 
 export function transportShipment(shipmentId, payload, label = transportPublicShipmentLabel) {
   const swaggerTag = 'shipments.transportShipment';
+  return swaggerRequest(getPublicClient, swaggerTag, { shipmentId, payload }, label);
+}
+
+export function deliverShipment(shipmentId, payload, label = deliverPublicShipmentLabel) {
+  const swaggerTag = 'shipments.deliverShipment';
   return swaggerRequest(getPublicClient, swaggerTag, { shipmentId, payload }, label);
 }
 
