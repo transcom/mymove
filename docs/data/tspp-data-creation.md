@@ -199,13 +199,13 @@ VALUES
 ```
 
 This will add the new entries to the temporary TDL table,
-forcing them to adhere to adhere to any table constraints
+forcing them to adhere to any table constraints
 and generating new UUIDs to be consistent across environments.
 
-We'll now create a new migration with that data (replace your migration filename:
+We'll now create a new migration with that data (replace your migration filename):
 
 ```bash
-./bin/soda generate sql add_new_scacs
+./bin/soda generate sql add_new_tdls
 rm migrations/20190410152949_add_new_tdls.down.sql
 echo -e "INSERT INTO traffic_distribution_lists (id, source_rate_area, destination_region, code_of_service, created_at, updated_at) \nVALUES\n$(
 ./scripts/psql-prod-migrations "\copy (SELECT id, source_rate_area, destination_region, code_of_service FROM temp_tdls WHERE import = true) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
@@ -214,6 +214,8 @@ echo -e "INSERT INTO traffic_distribution_lists (id, source_rate_area, destinati
   > migrations/20190410152949_add_new_tdls.up.sql
 ```
 
+This will copy all rows from the table that were included in the new TDL import
+and create an insert statement for the data.
 You can also use `pg_dump` to generate this migration,
 however replacing the timestamps with `now()` allows the environments
 to have true `created_at` and `updated_at` timestamps.
@@ -243,7 +245,7 @@ WHERE
 Similar to TDLs,
 there may be missing TSPs.
 Currently, we're not using any of this TSP data for production moves,
-but we have to satisfie the foreign key constraints for the TSPP data.
+but we have to satisfy the foreign key constraints for the TSPP data.
 
 Check for missing TSP IDs:
 
