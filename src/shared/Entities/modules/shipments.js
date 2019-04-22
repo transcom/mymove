@@ -63,7 +63,8 @@ export function acceptShipment(shipmentId, label = acceptPublicShipmentLabel) {
 }
 
 export function completePmSurvey(shipmentId, label = completePmSurveyLabel) {
-  return swaggerRequest(getPublicClient, label, { shipmentId }, label);
+  const swaggerTag = 'shipments.completePmSurvey';
+  return swaggerRequest(getPublicClient, swaggerTag, { shipmentId }, label);
 }
 
 export function selectShipment(state, id) {
