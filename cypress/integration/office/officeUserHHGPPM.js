@@ -34,7 +34,7 @@ describe('office user finds the shipment', function() {
     officeUserApprovesShipment();
   });
   it.only('office user uploads document', function() {
-    officeUserSubmitsDocuemnt();
+    officeUserSubmitsDocument();
   });
 });
 
@@ -98,7 +98,7 @@ function officeUserViewsMove(locator) {
   });
 }
 
-function officeUserSubmitsDocuemnt() {
+function officeUserSubmitsDocument() {
   cy.patientVisit('moves/27266e89-df79-4469-8843-05b45741a818/documents/new');
 
   cy.contains('Upload a new document');
