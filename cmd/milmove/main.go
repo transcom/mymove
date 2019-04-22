@@ -45,6 +45,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
+	"github.com/transcom/mymove/pkg/ecs"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/dpsapi"
@@ -212,6 +213,8 @@ func initServeFlags(flag *pflag.FlagSet) {
 	flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	flag.String("service-name", "app", "The service name identifies the application for instrumentation.")
 	flag.Duration("graceful-shutdown-timeout", 25*time.Second, "The duration for which the server gracefully wait for existing connections to finish.  AWS ECS only gives you 30 seconds before sending SIGKILL.")
+
+	flag.Bool("log-task-metadata", false, "Fetch AWS Task Metadata and add to log.")
 
 	flag.String("http-my-server-name", "milmovelocal", "Hostname according to environment.")
 	flag.String("http-office-server-name", "officelocal", "Hostname according to environment.")
@@ -839,6 +842,34 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		fields = append(fields, zap.String("git_commit", gitCommit))
 	}
 	logger = logger.With(fields...)
+
+	if v.GetBool("log-task-metadata") {
+		resp, err := http.Get("http://169.254.170.2/v2/metadata")
+		if err != nil {
+			logger.Error(errors.Wrap(err, "could not fetch task metadata").Error())
+		} else {
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				logger.Error(errors.Wrap(err, "could not read task metadata").Error())
+			} else {
+				taskMetadata := &ecs.TaskMetadata{}
+				err := json.Unmarshal(body, taskMetadata)
+				if err != nil {
+					logger.Error(errors.Wrap(err, "could not parse task metadata").Error())
+				} else {
+					logger = logger.With(
+						zap.String("ecs_cluster", taskMetadata.Cluster),
+						zap.String("ecs_task_def_family", taskMetadata.Family),
+						zap.String("ecs_task_def_revision", taskMetadata.Revision),
+					)
+				}
+			}
+			err = resp.Body.Close()
+			if err != nil {
+				logger.Error(errors.Wrap(err, "could not close task metadata response").Error())
+			}
+		}
+	}
 	zap.ReplaceGlobals(logger)
 
 	logger.Info("webserver starting up")
