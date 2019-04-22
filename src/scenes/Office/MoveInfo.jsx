@@ -94,9 +94,14 @@ const PPMTabContent = props => {
     <div className="office-tab">
       <PaymentsPanel title="Payments" moveId={props.moveId} />
       <ExpensesPanel title="Expenses" moveId={props.moveId} />
-      <StoragePanel title="Storage" moveId={props.moveId} />
-      <DatesAndLocationPanel title="Dates & Locations" moveId={props.moveId} />
-      <NetWeightPanel title="Weights" moveId={props.moveId} />
+      {props.ppmPaymentRequested && (
+        <>
+          <StoragePanel title="Storage" moveId={props.moveId} />
+          <DatesAndLocationPanel title="Dates & Locations" moveId={props.moveId} />
+          <NetWeightPanel title="Weights" moveId={props.moveId} />
+        </>
+      )}
+
       <PPMEstimatesPanel title="Estimates" moveId={props.moveId} />
     </div>
   );
@@ -272,6 +277,7 @@ class MoveInfo extends Component {
     const ordersComplete = Boolean(
       orders.orders_number && orders.orders_type_detail && orders.department_indicator && orders.tac,
     );
+    const ppmPaymentRequested = includes(['PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     const hhgApproved = includes(['APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
     const hhgAccepted = shipmentStatus === 'ACCEPTED';
@@ -376,7 +382,7 @@ class MoveInfo extends Component {
                   <BasicsTabContent moveId={this.props.moveId} serviceMember={this.props.serviceMember} />
                 </PrivateRoute>
                 <PrivateRoute path={`${this.props.match.path}/ppm`}>
-                  <PPMTabContent moveId={this.props.moveId} />
+                  <PPMTabContent moveId={this.props.moveId} ppmPaymentRequested={ppmPaymentRequested} />
                 </PrivateRoute>
                 <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   {this.props.shipment && (
