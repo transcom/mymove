@@ -1,29 +1,16 @@
 import { isNull } from 'lodash';
-import { GetAllShipmentDocuments } from './api.js';
-
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { getEntitlements } from 'shared/entitlements.js';
 import { selectShipment } from 'shared/Entities/modules/shipments';
 
-// SINGLE RESOURCE ACTION TYPES
-const loadShipmentDocumentsType = 'LOAD_SHIPMENT_DOCUMENTS';
-
 // MULTIPLE-RESOURCE ACTION TYPES
 const loadTspDependenciesType = 'LOAD_TSP_DEPENDENCIES';
-
-// SINGLE RESOURCE ACTION TYPES
-const LOAD_SHIPMENT_DOCUMENTS = ReduxHelpers.generateAsyncActionTypes(loadShipmentDocumentsType);
 
 // MULTIPLE-RESOURCE ACTION TYPES
 
 const LOAD_TSP_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(loadTspDependenciesType);
 
 // SINGLE-RESOURCE ACTION CREATORS
-
-export const getAllShipmentDocuments = ReduxHelpers.generateAsyncActionCreator(
-  loadShipmentDocumentsType,
-  GetAllShipmentDocuments,
-);
 
 export function loadEntitlements(state, shipmentId) {
   const shipment = selectShipment(state, shipmentId);
@@ -54,27 +41,6 @@ const initialState = {
 
 export function tspReducer(state = initialState, action) {
   switch (action.type) {
-    // LOAD SHIPMENT DOCUMENTS
-    case LOAD_SHIPMENT_DOCUMENTS.start:
-      return Object.assign({}, state, {
-        loadingShipmentDocuments: true,
-        loadShipmentDocumentsSuccess: false,
-      });
-    case LOAD_SHIPMENT_DOCUMENTS.success:
-      return Object.assign({}, state, {
-        loadingShipmentDocuments: false,
-        loadShipmentDocumentsSuccess: true,
-        loadingShipmentDocumentsError: false,
-        shipmentDocuments: action.payload,
-      });
-    case LOAD_SHIPMENT_DOCUMENTS.failure:
-      return Object.assign({}, state, {
-        loadingShipmentDocuments: false,
-        loadShipmentDocumentsSuccess: false,
-        loadingShipmentDocumentsError: true,
-        error: action.error.message,
-      });
-
     // MULTIPLE-RESOURCE ACTION TYPES
     //
     // These action types typically dispatch to other actions above to
