@@ -144,16 +144,12 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(&errInvalidAccountID{AwsAccountID: awsAccountID}, fmt.Sprintf("%q is invalid", awsAccountIDFlag))
 	}
 
-	regions, ok := endpoints.RegionsForService(endpoints.DefaultPartitions(), endpoints.AwsPartitionID, endpoints.EcsServiceID)
-	if !ok {
-		return fmt.Errorf("could not find regions for service %q", endpoints.EcsServiceID)
-	}
-
 	region := v.GetString(awsRegionFlag)
 	if len(region) == 0 {
 		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", awsRegionFlag))
 	}
 
+	regions := endpoints.AwsPartition().Services()[ecs.ServiceName].Regions()
 	if _, ok := regions[region]; !ok {
 		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", awsRegionFlag))
 	}
@@ -249,12 +245,15 @@ func quit(logger *log.Logger, flag *pflag.FlagSet, err error) {
 func getAWSCredentials(keychainName string, keychainProfile string) (*credentials.Credentials, error) {
 
 	// Open the keyring which holds the credentials
-	ring, _ := keyring.Open(keyring.Config{
+	ring, err := keyring.Open(keyring.Config{
 		ServiceName:              "aws-vault",
 		AllowedBackends:          []keyring.BackendType{keyring.KeychainBackend},
 		KeychainName:             keychainName,
 		KeychainTrustApplication: true,
 	})
+	if err != nil {
+		return nil, errors.Wrap(err, "Unable to configure and open keyring")
+	}
 
 	// Prepare options for the vault before creating the provider
 	vConfig, err := vault.LoadConfigFromEnv()
@@ -284,18 +283,24 @@ func getAWSCredentials(keychainName string, keychainProfile string) (*credential
 }
 
 func main() {
-	flag := pflag.CommandLine
-	initFlags(flag)
-	flag.Parse(os.Args[1:])
-
-	v := viper.New()
-	v.BindPFlags(flag)
-	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-	v.AutomaticEnv()
-
 	// Create the logger
 	// Remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
+
+	flag := pflag.CommandLine
+	initFlags(flag)
+	err := flag.Parse(os.Args[1:])
+	if err != nil {
+		quit(logger, flag, err)
+	}
+
+	v := viper.New()
+	pflagsErr := v.BindPFlags(flag)
+	if pflagsErr != nil {
+		quit(logger, flag, err)
+	}
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
 
 	verbose := v.GetBool(cli.VerboseFlag)
 	if !verbose {
@@ -307,8 +312,8 @@ func main() {
 		logger.SetFlags(0)
 	}
 
-	err := checkConfig(v)
-	if err != nil {
+	checkConfigErr := checkConfig(v)
+	if checkConfigErr != nil {
 		quit(logger, flag, err)
 	}
 
@@ -356,6 +361,9 @@ func main() {
 	currentTaskDefArnStr := *currentTarget.EcsParameters.TaskDefinitionArn
 	logger.Println(fmt.Sprintf("Current Task Def Arn: %s", currentTaskDefArnStr))
 	currentTaskDefArn, err := arn.Parse(currentTaskDefArnStr)
+	if err != nil {
+		quit(logger, nil, errors.Wrap(err, "Unable to parse current task definition arn"))
+	}
 
 	// TODO: This isn't clean and could probably use a regex
 	currentTaskDefName := strings.Split(currentTaskDefArn.Resource, ":")[0]
@@ -436,51 +444,51 @@ func main() {
 				},
 				Command: []*string{},
 				Environment: []*ecs.KeyValuePair{
-					&ecs.KeyValuePair{
+					{
 						Name:  aws.String("ENV"),
 						Value: aws.String("container"),
 					},
-					&ecs.KeyValuePair{
+					{
 						Name:  aws.String("ENVIRONMENT"),
 						Value: aws.String(environmentName),
 					},
-					&ecs.KeyValuePair{
+					{
 						Name:  aws.String("DB_HOST"),
 						Value: aws.String(dbHost),
 					},
-					&ecs.KeyValuePair{
+					{
 						Name:  aws.String("DB_PORT"),
 						Value: aws.String("5432"),
 					},
-					&ecs.KeyValuePair{
+					{
 						Name:  aws.String("DB_USER"),
 						Value: aws.String("master"),
 					},
-					&ecs.KeyValuePair{
+					{
 						Name:  aws.String("DB_NAME"),
 						Value: aws.String("app"),
 					},
-					&ecs.KeyValuePair{
+					{
 						Name:  aws.String("DB_SSL_MODE"),
 						Value: aws.String("verify-full"),
 					},
-					&ecs.KeyValuePair{
+					{
 						Name:  aws.String("DB_SSL_ROOT_CERT"),
 						Value: aws.String("/bin/rds-combined-ca-bundle.pem"),
 					},
-					&ecs.KeyValuePair{
+					{
 						Name:  aws.String("CHAMBER_KMS_KEY_ALIAS"),
 						Value: aws.String(chamberKMSKeyAlias),
 					},
-					&ecs.KeyValuePair{
+					{
 						Name:  aws.String("CHAMBER_USE_PATHS"),
 						Value: aws.String(strconv.Itoa(chamberUsePaths)),
 					},
-					&ecs.KeyValuePair{
+					{
 						Name:  aws.String("EIA_KEY"),
 						Value: aws.String(eiaKey),
 					},
-					&ecs.KeyValuePair{
+					{
 						Name:  aws.String("EIA_URL"),
 						Value: aws.String(eiaURL),
 					},
