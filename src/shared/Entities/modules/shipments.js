@@ -1,8 +1,9 @@
 import { denormalize } from 'normalizr';
-
 import { shipments } from '../schema';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient, getPublicClient } from 'shared/Swagger/api';
+import { isNull } from 'lodash';
+import { getEntitlements } from 'shared/entitlements.js';
 
 const approveShipmentLabel = 'Shipments.approveShipment';
 export const getShipmentLabel = 'Shipments.getShipment';
@@ -77,6 +78,20 @@ export function deliverShipment(shipmentId, payload, label = deliverPublicShipme
 export function completePmSurvey(shipmentId, label = completePmSurveyLabel) {
   const swaggerTag = 'shipments.completePmSurvey';
   return swaggerRequest(getPublicClient, swaggerTag, { shipmentId }, label);
+}
+
+export function calculateEntitlementsForShipment(state, shipmentId) {
+  const shipment = selectShipment(state, shipmentId);
+  const move = shipment.move || {};
+  const serviceMember = shipment.service_member || {};
+  const hasDependents = move.has_dependents;
+  const spouseHasProGear = move.spouse_has_progear;
+  const rank = serviceMember.rank;
+
+  if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
+    return null;
+  }
+  return getEntitlements(rank, hasDependents, spouseHasProGear);
 }
 
 export function selectShipment(state, id) {

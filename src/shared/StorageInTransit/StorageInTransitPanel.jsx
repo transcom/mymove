@@ -11,7 +11,7 @@ import Alert from 'shared/Alert';
 import StorageInTransit from 'shared/StorageInTransit/StorageInTransit';
 import Creator from 'shared/StorageInTransit/Creator';
 import { selectStorageInTransits, createStorageInTransit } from 'shared/Entities/modules/storageInTransits';
-import { loadEntitlements } from '../../scenes/TransportationServiceProvider/ducks';
+import { calculateEntitlementsForShipment } from 'shared/Entities/modules/shipments';
 import { calculateEntitlementsForMove } from 'shared/Entities/modules/moves';
 
 import { isTspSite } from 'shared/constants.js';
@@ -87,7 +87,7 @@ StorageInTransitPanel.propTypes = {
 function getStorageInTransitEntitlement(state, resourceId) {
   let storageInTransitEntitlement = 0;
   if (isTspSite) {
-    storageInTransitEntitlement = loadEntitlements(state, resourceId).storage_in_transit;
+    storageInTransitEntitlement = calculateEntitlementsForShipment(state, resourceId).storage_in_transit;
   } else {
     storageInTransitEntitlement = calculateEntitlementsForMove(state, resourceId).storage_in_transit;
   }
