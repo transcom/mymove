@@ -36,7 +36,7 @@ const (
 func InitDPSFlags(flag *pflag.FlagSet) {
 	flag.String(HTTPSDDCServerNameFlag, "sddclocal", "Hostname according to envrionment.")
 	flag.String(HTTPSDDCProtocolFlag, "https", "Protocol for sddc")
-	flag.String(HTTPSDDCPortFlag, "", "The port for sddc")
+	flag.String(HTTPSDDCPortFlag, "443", "The port for sddc")
 	flag.String(DPSAuthSecretKeyFlag, "", "DPS auth JWT secret key")
 	flag.String(DPSRedirectURLFlag, "", "DPS url to redirect to")
 	flag.String(DPSCookieNameFlag, "", "Name of the DPS cookie")
