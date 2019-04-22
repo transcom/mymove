@@ -173,10 +173,11 @@ class ShipmentInfo extends Component {
   };
 
   componentDidMount() {
+    const shipmentId = this.props.shipmentId;
+
     this.props
-      .getPublicShipment(this.props.shipmentId)
+      .getPublicShipment(shipmentId)
       .then(() => {
-        const shipmentId = this.props.shipment.id;
         this.props.getServiceAgentsForShipment(shipmentId);
         this.props.getTspForShipment(shipmentId);
         this.props.getAllShipmentDocuments(shipmentId);
