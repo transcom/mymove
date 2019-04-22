@@ -85,7 +85,7 @@ export function calculateEntitlementsForShipment(state, shipmentId) {
   const move = shipment.move || {};
   const serviceMember = shipment.service_member || {};
   const hasDependents = move.has_dependents;
-  const spouseHasProGear = move.spouse_has_progear;
+  const spouseHasProGear = move.spouse_has_pro_gear;
   const rank = serviceMember.rank;
 
   if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
