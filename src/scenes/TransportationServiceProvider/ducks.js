@@ -1,5 +1,5 @@
 import { isNull } from 'lodash';
-import { IndexServiceAgents, GetAllShipmentDocuments } from './api.js';
+import { GetAllShipmentDocuments } from './api.js';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { getEntitlements } from 'shared/entitlements.js';
@@ -8,15 +8,11 @@ import { selectShipment } from 'shared/Entities/modules/shipments';
 // SINGLE RESOURCE ACTION TYPES
 const loadShipmentDocumentsType = 'LOAD_SHIPMENT_DOCUMENTS';
 
-const indexServiceAgentsType = 'INDEX_SERVICE_AGENTS';
-
 // MULTIPLE-RESOURCE ACTION TYPES
 const loadTspDependenciesType = 'LOAD_TSP_DEPENDENCIES';
 
 // SINGLE RESOURCE ACTION TYPES
 const LOAD_SHIPMENT_DOCUMENTS = ReduxHelpers.generateAsyncActionTypes(loadShipmentDocumentsType);
-
-const INDEX_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(indexServiceAgentsType);
 
 // MULTIPLE-RESOURCE ACTION TYPES
 
@@ -28,8 +24,6 @@ export const getAllShipmentDocuments = ReduxHelpers.generateAsyncActionCreator(
   loadShipmentDocumentsType,
   GetAllShipmentDocuments,
 );
-
-export const indexServiceAgents = ReduxHelpers.generateAsyncActionCreator(indexServiceAgentsType, IndexServiceAgents);
 
 export function loadEntitlements(state, shipmentId) {
   const shipment = selectShipment(state, shipmentId);
@@ -46,15 +40,6 @@ export function loadEntitlements(state, shipmentId) {
 }
 // Reducer
 const initialState = {
-  shipmentIsLoading: false,
-  shipmentHasLoadSuccess: false,
-  shipmentHasLoadError: null,
-  shipmentIsRejecting: false,
-  shipmentHasRejectError: null,
-  shipmentHasRejectSuccess: false,
-  shipmentIsDelivering: false,
-  shipmentHasDeliverError: null,
-  shipmentHasDeliverSuccess: false,
   storageInTransitIsCreating: false,
   storageInTransitHasCreatedSuccess: false,
   storageInTransitHasCreatedError: null,
@@ -87,28 +72,6 @@ export function tspReducer(state = initialState, action) {
         loadingShipmentDocuments: false,
         loadShipmentDocumentsSuccess: false,
         loadingShipmentDocumentsError: true,
-        error: action.error.message,
-      });
-
-    // SERVICE AGENTS
-    case INDEX_SERVICE_AGENTS.start:
-      return Object.assign({}, state, {
-        serviceAgentsAreLoading: true,
-        serviceAgentsHasLoadSucces: false,
-      });
-    case INDEX_SERVICE_AGENTS.success:
-      return Object.assign({}, state, {
-        serviceAgentsAreLoading: false,
-        serviceAgentsHasLoadSucces: true,
-        serviceAgentsHasLoadError: false,
-        serviceAgents: action.payload,
-      });
-    case INDEX_SERVICE_AGENTS.failure:
-      return Object.assign({}, state, {
-        serviceAgentsAreLoading: false,
-        serviceAgentsHasLoadSucces: false,
-        serviceAgentsHasLoadError: null,
-        serviceAgents: [],
         error: action.error.message,
       });
 
