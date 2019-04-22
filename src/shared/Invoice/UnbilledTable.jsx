@@ -53,7 +53,7 @@ export class UnbilledTable extends PureComponent {
       );
     } else {
       header = (
-        <div className={panelStyles['invoice-panel__header-cont']}>
+        <div className={panelStyles['invoice-panel__header-cont']} data-cy="invoice-panel__header-cont">
           <div className="usa-width-one-half">
             <h5>Unbilled line items</h5>
           </div>
