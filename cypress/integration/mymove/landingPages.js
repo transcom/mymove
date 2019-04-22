@@ -73,10 +73,10 @@ describe('testing landing pages', function() {
   });
 
   // HHG: COMPLETED
-  it('tests completed HHG', function() {
-    // hhg@com.pleted
-    hhgDeliveredOrCompletedMoveSummary('4449dd2a-a23f-4967-a035-3bc9987c6848');
-  });
+  // it('tests completed HHG', function() {
+  //   // hhg@com.pleted
+  //   hhgDeliveredOrCompletedMoveSummary('4449dd2a-a23f-4967-a035-3bc9987c6848');
+  // });
 
   // HHG: CANCELED
   it('tests canceled HHG', function() {

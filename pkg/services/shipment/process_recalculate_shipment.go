@@ -53,7 +53,7 @@ func (r ProcessRecalculateShipment) Call(shipment *models.Shipment, lineItems mo
 
 	// If the Shipment is in the DELIVERED or COMPLETED state continue
 	shipmentStatus := shipment.Status
-	if shipmentStatus != models.ShipmentStatusDELIVERED && shipmentStatus != models.ShipmentStatusCOMPLETED {
+	if shipmentStatus != models.ShipmentStatusDELIVERED { //&& shipmentStatus != models.ShipmentStatusCOMPLETED
 		return false, nil
 	}
 

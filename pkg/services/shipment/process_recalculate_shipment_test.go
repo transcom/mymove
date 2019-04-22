@@ -107,7 +107,7 @@ func (suite *ProcessRecalculateShipmentSuite) TestProcessRecalculateShipmentCall
 	//
 
 	suite.NotEqual(models.ShipmentStatusDELIVERED, shipment.Status)
-	suite.NotEqual(models.ShipmentStatusCOMPLETED, shipment.Status)
+	// suite.NotEqual(models.ShipmentStatusCOMPLETED, shipment.Status)
 
 	update, err = ProcessRecalculateShipment{
 		DB:     suite.DB(),
