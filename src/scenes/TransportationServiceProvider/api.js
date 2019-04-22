@@ -1,5 +1,4 @@
 import { getPublicClient, checkResponse } from 'shared/Swagger/api';
-import { formatPayload } from 'shared/utils';
 
 // SHIPMENT QUEUE
 export async function RetrieveShipmentsForTSP(queueType) {
@@ -20,38 +19,6 @@ export async function RetrieveShipmentsForTSP(queueType) {
     status,
   });
   checkResponse(response, 'failed to retrieve moves due to server error');
-  return response.body;
-}
-
-// SHIPMENT ACCEPT
-export async function AcceptShipment(shipmentId) {
-  const client = await getPublicClient();
-  const response = await client.apis.shipments.acceptShipment({
-    shipmentId: shipmentId,
-  });
-  checkResponse(response, 'failed to accept shipment due to server error');
-  return response.body;
-}
-
-export async function TransportShipment(shipmentId, payload) {
-  const client = await getPublicClient();
-  const payloadDef = client.spec.definitions.TransportPayload;
-  const response = await client.apis.shipments.transportShipment({
-    shipmentId,
-    payload: formatPayload(payload, payloadDef),
-  });
-  checkResponse(response, 'failed to pick up shipment due to server error');
-  return response.body;
-}
-
-export async function DeliverShipment(shipmentId, payload) {
-  const client = await getPublicClient();
-  const payloadDef = client.spec.definitions.ActualDeliveryDate;
-  const response = await client.apis.shipments.deliverShipment({
-    shipmentId,
-    payload: formatPayload(payload, payloadDef),
-  });
-  checkResponse(response, 'failed to deliver shipment due to server error');
   return response.body;
 }
 
