@@ -1,13 +1,11 @@
 import { isNull } from 'lodash';
-import { TransportShipment, DeliverShipment, IndexServiceAgents, GetAllShipmentDocuments } from './api.js';
+import { IndexServiceAgents, GetAllShipmentDocuments } from './api.js';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { getEntitlements } from 'shared/entitlements.js';
 import { selectShipment } from 'shared/Entities/modules/shipments';
 
 // SINGLE RESOURCE ACTION TYPES
-const transportShipmentType = 'TRANSPORT_SHIPMENT';
-const deliverShipmentType = 'DELIVER_SHIPMENT';
 const loadShipmentDocumentsType = 'LOAD_SHIPMENT_DOCUMENTS';
 
 const indexServiceAgentsType = 'INDEX_SERVICE_AGENTS';
@@ -16,8 +14,6 @@ const indexServiceAgentsType = 'INDEX_SERVICE_AGENTS';
 const loadTspDependenciesType = 'LOAD_TSP_DEPENDENCIES';
 
 // SINGLE RESOURCE ACTION TYPES
-const TRANSPORT_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(transportShipmentType);
-const DELIVER_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(deliverShipmentType);
 const LOAD_SHIPMENT_DOCUMENTS = ReduxHelpers.generateAsyncActionTypes(loadShipmentDocumentsType);
 
 const INDEX_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(indexServiceAgentsType);
@@ -27,10 +23,6 @@ const INDEX_SERVICE_AGENTS = ReduxHelpers.generateAsyncActionTypes(indexServiceA
 const LOAD_TSP_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(loadTspDependenciesType);
 
 // SINGLE-RESOURCE ACTION CREATORS
-
-export const transportShipment = ReduxHelpers.generateAsyncActionCreator(transportShipmentType, TransportShipment);
-
-export const deliverShipment = ReduxHelpers.generateAsyncActionCreator(deliverShipmentType, DeliverShipment);
 
 export const getAllShipmentDocuments = ReduxHelpers.generateAsyncActionCreator(
   loadShipmentDocumentsType,
@@ -57,15 +49,9 @@ const initialState = {
   shipmentIsLoading: false,
   shipmentHasLoadSuccess: false,
   shipmentHasLoadError: null,
-  shipmentIsAccepting: false,
-  shipmentHasAcceptError: null,
-  shipmentHasAcceptSuccess: false,
   shipmentIsRejecting: false,
   shipmentHasRejectError: null,
   shipmentHasRejectSuccess: false,
-  shipmentIsSendingTransport: false,
-  shipmentHasTransportError: null,
-  shipmentHasTransportSuccess: false,
   shipmentIsDelivering: false,
   shipmentHasDeliverError: null,
   shipmentHasDeliverSuccess: false,
@@ -83,47 +69,6 @@ const initialState = {
 
 export function tspReducer(state = initialState, action) {
   switch (action.type) {
-    // SINGLE-RESOURCE ACTION TYPES
-
-    case TRANSPORT_SHIPMENT.start:
-      return Object.assign({}, state, {
-        shipmentIsSendingTransport: true,
-        shipmentHasTransportSuccess: false,
-      });
-    case TRANSPORT_SHIPMENT.success:
-      return Object.assign({}, state, {
-        shipmentIsSendingTransport: false,
-        shipmentHasTransportSuccess: true,
-        shipmentHasTransportError: false,
-        shipment: action.payload,
-      });
-    case TRANSPORT_SHIPMENT.failure:
-      return Object.assign({}, state, {
-        shipmentIsSendingTransport: false,
-        shipmentHasTransportSuccess: false,
-        shipmentHasTransportError: null,
-        error: action.error.message,
-      });
-    case DELIVER_SHIPMENT.start:
-      return Object.assign({}, state, {
-        shipmentIsDelivering: true,
-        shipmentHasDeliverSuccess: false,
-      });
-    case DELIVER_SHIPMENT.success:
-      return Object.assign({}, state, {
-        shipmentIsDelivering: false,
-        shipmentHasDeliverSuccess: true,
-        shipmentHasDeliverError: false,
-        shipment: action.payload,
-      });
-    case DELIVER_SHIPMENT.failure:
-      return Object.assign({}, state, {
-        shipmentIsDelivering: false,
-        shipmentHasDeliverSuccess: false,
-        shipmentHasDeliverError: null,
-        error: action.error.message,
-      });
-
     // LOAD SHIPMENT DOCUMENTS
     case LOAD_SHIPMENT_DOCUMENTS.start:
       return Object.assign({}, state, {
