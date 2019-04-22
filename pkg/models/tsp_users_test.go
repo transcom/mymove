@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"strings"
+
 	"github.com/gofrs/uuid"
 
 	. "github.com/transcom/mymove/pkg/models"
@@ -67,4 +69,22 @@ func (suite *ModelSuite) TestFetchTspUserByEmail() {
 	suite.Nil(err)
 	suite.NotNil(user)
 	suite.Equal(newUser.ID, user.ID)
+}
+
+func (suite *ModelSuite) TestFetchTspUserByEmailCaseSensitivity() {
+	email := "Jimbo.work@government.gov"
+	tsp := CreateTestTsp(suite)
+	tspUser := TspUser{
+		LastName:                        "Tester",
+		FirstName:                       "JimBo",
+		Email:                           email,
+		Telephone:                       "(807) 553-1122",
+		TransportationServiceProviderID: tsp.ID,
+	}
+	suite.MustSave(&tspUser)
+
+	user, err := FetchTspUserByEmail(suite.DB(), strings.ToLower(email))
+	suite.Nil(err)
+	suite.NotNil(user)
+	suite.Equal(user.Email, email)
 }

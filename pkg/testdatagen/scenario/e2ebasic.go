@@ -221,6 +221,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Uploader: loader,
 	})
 	ppmStorage.Move.Submit()
+	ppmStorage.Move.Approve()
+	ppmStorage.Move.PersonallyProcuredMoves[0].Submit()
+	ppmStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	ppmStorage.Move.PersonallyProcuredMoves[0].RequestPayment()
 	models.SaveMoveDependencies(db, &ppmStorage.Move)
 
 	/*
@@ -252,6 +256,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		Uploader: loader,
 	})
 	ppmNoStorage.Move.Submit()
+	ppmNoStorage.Move.Approve()
+	ppmNoStorage.Move.PersonallyProcuredMoves[0].Submit()
+	ppmNoStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	ppmNoStorage.Move.PersonallyProcuredMoves[0].RequestPayment()
 	models.SaveMoveDependencies(db, &ppmNoStorage.Move)
 
 	/*
@@ -321,9 +329,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	models.SaveMoveDependencies(db, &ppm1.Move)
 
 	/*
-	 * Service member with a ppm move approved, but not in progress
+	 * Service member with a ppm move with payment requested
 	 */
-	email = "ppm@approv.ed"
+	email = "ppm@paymentrequest.ed"
 	uuidStr = "1842091b-b9a0-4d4a-ba22-1e2f38f26317"
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
@@ -337,8 +345,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("9ce5a930-2446-48ec-a9c0-17bc65e8522d"),
 			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("PPM"),
-			LastName:      models.StringPointer("Approved"),
+			FirstName:     models.StringPointer("PPMPayment"),
+			LastName:      models.StringPointer("Requested"),
 			Edipi:         models.StringPointer("7617033988"),
 			PersonalEmail: models.StringPointer(email),
 		},
@@ -363,6 +371,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
 	ppm2.Move.PersonallyProcuredMoves[0].Submit()
 	ppm2.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	ppm2.Move.PersonallyProcuredMoves[0].RequestPayment()
 	models.SaveMoveDependencies(db, &ppm2.Move)
 
 	/*
@@ -2331,6 +2340,51 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	ppm5.Move.PersonallyProcuredMoves[0].Submit()
 	ppm5.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	models.SaveMoveDependencies(db, &ppm5.Move)
+
+	/*
+	 * Service member with a ppm move approved, but not in progress
+	 */
+	email = "ppm@approv.ed"
+	uuidStr = "70665111-7bbb-4876-a53d-18bb125c943e"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	inProgressDate := nextValidMoveDatePlusTen
+	typeDetails := internalmessages.OrdersTypeDetailPCSTDY
+	ppmApproved := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("acfed739-9e7a-4d95-9a56-698ef0392500"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("Approved"),
+			Edipi:         models.StringPointer("7617044099"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		// These values should be populated for an approved move
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("12345"),
+			OrdersTypeDetail:    &typeDetails,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("bd3d46b3-cb76-40d5-a622-6ada239e5504"),
+			Locator: "APPROV",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate: &inProgressDate,
+		},
+		Uploader: loader,
+	})
+	ppmApproved.Move.Submit()
+	ppmApproved.Move.Approve()
+	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
+	ppmApproved.Move.PersonallyProcuredMoves[0].Submit()
+	ppmApproved.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	models.SaveMoveDependencies(db, &ppmApproved.Move)
 }
 
 // MakeHhgWithPpm creates an HHG user who has added a PPM

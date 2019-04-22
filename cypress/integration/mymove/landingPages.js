@@ -18,7 +18,7 @@ describe('testing landing pages', function() {
   // PPM: APPROVED
   it('tests approved PPM', function() {
     // ppm@approv.ed
-    ppmApproved('1842091b-b9a0-4d4a-ba22-1e2f38f26317');
+    ppmApproved('70665111-7bbb-4876-a53d-18bb125c943e');
   });
 
   // PPM: PAYMENT_REQUESTED

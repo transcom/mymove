@@ -5,7 +5,6 @@ import (
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	entitlementop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
@@ -22,7 +21,8 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns200() {
 
 	// When: rank is E1, the orders have dependents and spouse gear, and
 	// the weight estimate stored is under entitlement of 10500
-	ppm.WeightEstimate = swag.Int64(10000)
+	wtgEst := unit.Pound(10000)
+	ppm.WeightEstimate = &wtgEst
 	suite.MustSave(&ppm)
 
 	// And: the context contains the auth values
@@ -49,7 +49,8 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns409IfPPM() {
 
 	// When: rank is E1, the orders have dependents and spouse gear, and
 	// the weight estimate stored is over entitlement of 10500
-	ppm.WeightEstimate = swag.Int64(14000)
+	wtgEst := unit.Pound(14000)
+	ppm.WeightEstimate = &wtgEst
 	suite.MustSave(&ppm)
 
 	// And: the context contains the auth values
@@ -116,7 +117,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns409IfComboMove()
 	shipment.WeightEstimate = &weight
 	suite.MustSave(&shipment)
 
-	ppmWeight := int64(weight)
+	ppmWeight := unit.Pound(weight)
 	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			Move:           move,
@@ -202,7 +203,8 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoRank() {
 
 	// When: rank is E1, the orders have dependents and spouse gear, and
 	// the weight estimate stored is under entitlement of 10500
-	ppm.WeightEstimate = swag.Int64(10000)
+	wtgEst := unit.Pound(10000)
+	ppm.WeightEstimate = &wtgEst
 	suite.MustSave(&ppm)
 
 	move.Orders.ServiceMember.Rank = nil
