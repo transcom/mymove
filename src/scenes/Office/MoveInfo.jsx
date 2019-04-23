@@ -94,9 +94,14 @@ const PPMTabContent = props => {
     <div className="office-tab">
       <PaymentsPanel title="Payments" moveId={props.moveId} />
       <ExpensesPanel title="Expenses" moveId={props.moveId} />
-      <StoragePanel title="Storage" moveId={props.moveId} />
-      <DatesAndLocationPanel title="Dates & Locations" moveId={props.moveId} />
-      <NetWeightPanel title="Weights" moveId={props.moveId} />
+      {props.ppmPaymentRequested && (
+        <>
+          <StoragePanel title="Storage" moveId={props.moveId} />
+          <DatesAndLocationPanel title="Dates & Locations" moveId={props.moveId} />
+          <NetWeightPanel title="Weights" moveId={props.moveId} />
+        </>
+      )}
+
       <PPMEstimatesPanel title="Estimates" moveId={props.moveId} />
     </div>
   );
@@ -105,15 +110,7 @@ const PPMTabContent = props => {
 const HHGTabContent = props => {
   let shipmentStatus = '';
   let shipmentId = '';
-  const {
-    allowHhgInvoicePayment,
-    canApprovePaymentInvoice,
-    moveId,
-    serviceAgents,
-    shipment,
-    updatePublicShipment,
-    showSitPanel,
-  } = props;
+  const { canApprovePaymentInvoice, moveId, serviceAgents, shipment, updatePublicShipment, showSitPanel } = props;
   if (shipment) {
     shipmentStatus = shipment.status;
     shipmentId = shipment.id;
@@ -133,12 +130,7 @@ const HHGTabContent = props => {
       />
       <PreApprovalPanel shipmentId={shipment.id} />
       {showSitPanel && <StorageInTransitPanel shipmentId={shipmentId} moveId={moveId} />}
-      <InvoicePanel
-        shipmentId={shipment.id}
-        shipmentStatus={shipmentStatus}
-        canApprove={canApprovePaymentInvoice}
-        allowPayments={allowHhgInvoicePayment}
-      />
+      <InvoicePanel shipmentId={shipment.id} shipmentStatus={shipmentStatus} canApprove={canApprovePaymentInvoice} />
     </div>
   );
 };
@@ -282,10 +274,10 @@ class MoveInfo extends Component {
     const isHHGPPM = move.selected_move_type === 'HHG_PPM';
     const showDocumentViewer = this.props.context.flags.documentViewer;
     const moveInfoComboButton = this.props.context.flags.moveInfoComboButton;
-    const allowHhgInvoicePayment = this.props.context.flags.allowHhgInvoicePayment;
     const ordersComplete = Boolean(
       orders.orders_number && orders.orders_type_detail && orders.department_indicator && orders.tac,
     );
+    const ppmPaymentRequested = includes(['PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     const hhgApproved = includes(['APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
     const hhgAccepted = shipmentStatus === 'ACCEPTED';
@@ -390,12 +382,11 @@ class MoveInfo extends Component {
                   <BasicsTabContent moveId={this.props.moveId} serviceMember={this.props.serviceMember} />
                 </PrivateRoute>
                 <PrivateRoute path={`${this.props.match.path}/ppm`}>
-                  <PPMTabContent moveId={this.props.moveId} />
+                  <PPMTabContent moveId={this.props.moveId} ppmPaymentRequested={ppmPaymentRequested} />
                 </PrivateRoute>
                 <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   {this.props.shipment && (
                     <HHGTabContent
-                      allowHhgInvoicePayment={allowHhgInvoicePayment}
                       canApprovePaymentInvoice={hhgDelivered}
                       moveId={this.props.moveId}
                       serviceAgents={this.props.serviceAgents}

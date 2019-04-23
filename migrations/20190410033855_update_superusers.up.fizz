@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190410033855_update_superusers.sql")

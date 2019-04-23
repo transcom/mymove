@@ -61,7 +61,6 @@ require (
 	github.com/markbates/going v1.0.3 // indirect
 	github.com/markbates/goth v1.49.0
 	github.com/mattn/go-shellwords v1.0.3 // indirect
-	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/namsral/flag v1.7.4-pre
 	github.com/nbutton23/zxcvbn-go v0.0.0-20171102151520-eafdab6b0663 // indirect
@@ -72,8 +71,9 @@ require (
 	github.com/segmentio/chamber v0.0.0-20181114190714-9ae7098a0534
 	github.com/smartystreets/goconvey v0.0.0-20190306220146-200a235640ff // indirect
 	github.com/spf13/afero v1.2.1
-	github.com/spf13/pflag v1.0.3
-	github.com/spf13/viper v1.3.1
+	github.com/spf13/cobra v0.0.4-0.20190321000552-67fc4837d267
+	github.com/spf13/pflag v1.0.4-0.20181223182923-24fa6976df40
+	github.com/spf13/viper v1.3.3-0.20190408140645-7a605a50e69c
 	github.com/stretchr/testify v1.3.0
 	github.com/tealeg/xlsx v1.0.3
 	github.com/toqueteos/webbrowser v1.1.0 // indirect

@@ -124,7 +124,8 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 		ServiceMemberID: sm.ID,
 	}
 
-	moveDocs, err := FetchApprovedMovingExpenseDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID)
+	status := MoveDocumentStatusOK
+	moveDocs, err := FetchMovingExpenseDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status)
 
 	if suite.NoError(err) {
 		suite.Equal(2, len(moveDocs))
@@ -139,7 +140,7 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 	// When: the user is not authorized to fetch movedocs
 	session.UserID = uuid.Must(uuid.NewV4())
 	session.ServiceMemberID = uuid.Must(uuid.NewV4())
-	_, err = FetchApprovedMovingExpenseDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID)
+	_, err = FetchMovingExpenseDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchForbidden, err)
 	}
@@ -150,7 +151,7 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 	session.OfficeUserID = officeUser.ID
 	session.ApplicationName = auth.OfficeApp
 
-	moveDocsOffice, err := FetchApprovedMovingExpenseDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID)
+	moveDocsOffice, err := FetchMovingExpenseDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status)
 	if suite.NoError(err) {
 		for _, moveDoc := range moveDocsOffice {
 			suite.Equal(moveDoc.MoveID, ppm.Move.ID)
@@ -158,6 +159,93 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 			suite.Equal(moveDoc.MoveDocumentType, MoveDocumentTypeEXPENSE)
 		}
 	}
+}
+
+func (suite *ModelSuite) TestFetchMovingExpenseDocuments() {
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	sm := ppm.Move.Orders.ServiceMember
+	awaitingReview := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm.Move.ID,
+			Move:                     ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:                   MoveDocumentStatusAWAITINGREVIEW,
+			MoveDocumentType:         "EXPENSE",
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+		},
+	}
+	status := MoveDocumentStatusOK
+	ok := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm.Move.ID,
+			Move:                     ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:                   status,
+			MoveDocumentType:         "EXPENSE",
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+		},
+	}
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), awaitingReview)
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), ok)
+	session := &auth.Session{
+		ApplicationName: auth.MilApp,
+		UserID:          sm.UserID,
+		ServiceMemberID: sm.ID,
+	}
+
+	allExpenses, err := FetchMovingExpenseDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, nil)
+	approvedExpenses, err := FetchMovingExpenseDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status)
+
+	if suite.NoError(err) {
+		suite.Equal(2, len(allExpenses))
+		for _, moveDoc := range allExpenses {
+			suite.Equal(moveDoc.MoveID, ppm.Move.ID)
+			suite.Equal(*moveDoc.PersonallyProcuredMoveID, ppm.ID)
+		}
+	}
+
+	if suite.NoError(err) {
+		suite.Equal(1, len(approvedExpenses))
+		for _, moveDoc := range approvedExpenses {
+			suite.Equal(moveDoc.MoveID, ppm.Move.ID)
+			suite.Equal(*moveDoc.PersonallyProcuredMoveID, ppm.ID)
+		}
+	}
+
+}
+
+func (suite *ModelSuite) TestFetchMovingExpenseDocumentsAuth() {
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	sm := ppm.Move.Orders.ServiceMember
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	authorizedSession := &auth.Session{
+		ApplicationName: auth.MilApp,
+		UserID:          sm.UserID,
+		ServiceMemberID: sm.ID,
+	}
+	officeSession := &auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          *officeUser.UserID,
+		OfficeUserID:    officeUser.ID,
+		ServiceMemberID: sm.ID,
+	}
+	unauthorizedSession := &auth.Session{
+		ApplicationName: auth.MilApp,
+	}
+
+	_, err1 := FetchMovingExpenseDocuments(suite.DB(), authorizedSession, ppm.Move.PersonallyProcuredMoves[0].ID, nil)
+	_, err2 := FetchMovingExpenseDocuments(suite.DB(), officeSession, ppm.Move.PersonallyProcuredMoves[0].ID, nil)
+	_, err3 := FetchMovingExpenseDocuments(suite.DB(), unauthorizedSession, ppm.Move.PersonallyProcuredMoves[0].ID, nil)
+
+	suite.Nil(err1)
+	suite.Nil(err2)
+	suite.Equal(ErrFetchForbidden, err3)
 }
 
 func (suite *ModelSuite) TestFetchMoveDocument() {
