@@ -47,14 +47,35 @@ func InitCertFlags(flag *pflag.FlagSet) {
 	flag.String(MoveMilDoDTLSKeyFlag, "", "The private key for the DoD-signed TLS certificate for various move.mil services.")
 }
 
+// CheckCert validates Cert command line flags
+func CheckCert(v *viper.Viper) error {
+
+	tlsCertString := v.GetString(MoveMilDoDTLSCertFlag)
+	if len(tlsCertString) == 0 {
+		return errors.Errorf("%s is missing", MoveMilDoDTLSCertFlag)
+	}
+
+	caCertString := v.GetString(MoveMilDoDCACertFlag)
+	if len(caCertString) == 0 {
+		return errors.Errorf("%s is missing", MoveMilDoDCACertFlag)
+	}
+
+	key := v.GetString(MoveMilDoDTLSKeyFlag)
+	if len(key) == 0 {
+		return errors.Errorf("%s is missing", MoveMilDoDTLSKeyFlag)
+	}
+	pathToPackage := v.GetString(DoDCAPackageFlag)
+	if len(pathToPackage) == 0 {
+		return errors.Wrap(&errInvalidPKCS7{Path: pathToPackage}, fmt.Sprintf("%s is missing", DoDCAPackageFlag))
+	}
+
+	return nil
+}
+
 // InitDoDCertificates initializes the DoD Certificates
 func InitDoDCertificates(v *viper.Viper, logger logger) ([]tls.Certificate, *x509.CertPool, error) {
 
 	tlsCertString := v.GetString(MoveMilDoDTLSCertFlag)
-	if len(tlsCertString) == 0 {
-		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing", MoveMilDoDTLSCertFlag)
-	}
-
 	tlsCerts := ParseCertificates(tlsCertString)
 	if len(tlsCerts) == 0 {
 		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing certificate PEM block", MoveMilDoDTLSCertFlag)
@@ -66,10 +87,6 @@ func InitDoDCertificates(v *viper.Viper, logger logger) ([]tls.Certificate, *x50
 	logger.Info(fmt.Sprintf("certitficate chain from %s parsed", MoveMilDoDTLSCertFlag), zap.Any("count", len(tlsCerts)))
 
 	caCertString := v.GetString(MoveMilDoDCACertFlag)
-	if len(caCertString) == 0 {
-		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing", MoveMilDoDCACertFlag)
-	}
-
 	caCerts := ParseCertificates(caCertString)
 	if len(caCerts) == 0 {
 		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing certificate PEM block", MoveMilDoDTLSCertFlag)
@@ -81,10 +98,6 @@ func InitDoDCertificates(v *viper.Viper, logger logger) ([]tls.Certificate, *x50
 	cert := strings.Join(append(append(make([]string, 0), tlsCerts...), caCerts...), "\n")
 
 	key := v.GetString(MoveMilDoDTLSKeyFlag)
-	if len(key) == 0 {
-		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing", MoveMilDoDTLSKeyFlag)
-	}
-
 	keyPair, err := tls.X509KeyPair([]byte(cert), []byte(key))
 	if err != nil {
 		return make([]tls.Certificate, 0), nil, errors.Wrap(err, "failed to parse DOD x509 keypair for server")
@@ -93,10 +106,6 @@ func InitDoDCertificates(v *viper.Viper, logger logger) ([]tls.Certificate, *x50
 	logger.Info("DOD keypair", zap.Any("certificates", len(keyPair.Certificate)))
 
 	pathToPackage := v.GetString(DoDCAPackageFlag)
-	if len(pathToPackage) == 0 {
-		return make([]tls.Certificate, 0), nil, errors.Wrap(&errInvalidPKCS7{Path: pathToPackage}, fmt.Sprintf("%s is missing", DoDCAPackageFlag))
-	}
-
 	pkcs7Package, err := ioutil.ReadFile(pathToPackage) // #nosec
 	if err != nil {
 		return make([]tls.Certificate, 0), nil, errors.Wrap(err, fmt.Sprintf("%s is invalid", DoDCAPackageFlag))

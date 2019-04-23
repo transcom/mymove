@@ -1,6 +1,10 @@
 package cli
 
-import "github.com/spf13/pflag"
+import (
+	"github.com/pkg/errors"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+)
 
 const (
 	// SwaggerFlag is the Public Swagger Flag
@@ -22,4 +26,22 @@ func InitSwaggerFlags(flag *pflag.FlagSet) {
 	flag.String(OrdersSwaggerFlag, "swagger/orders.yaml", "The location of the Orders API swagger definition")
 	flag.String(DPSSwaggerFlag, "swagger/dps.yaml", "The location of the DPS API swagger definition")
 	flag.Bool(ServeSwaggerUIFlag, false, "Whether to serve swagger UI for the APIs")
+}
+
+// CheckSwagger validates Swagger command line flags
+func CheckSwagger(v *viper.Viper) error {
+	swaggerVars := []string{
+		SwaggerFlag,
+		InternalSwaggerFlag,
+		OrdersSwaggerFlag,
+		DPSSwaggerFlag,
+	}
+
+	for _, c := range swaggerVars {
+		if swaggerFile := v.GetString(c); swaggerFile == "" {
+			return errors.Errorf("Swagger file for %s cannot be blank", c)
+		}
+	}
+
+	return nil
 }

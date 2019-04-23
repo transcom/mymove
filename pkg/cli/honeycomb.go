@@ -2,6 +2,7 @@ package cli
 
 import (
 	beeline "github.com/honeycombio/beeline-go"
+	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -58,4 +59,13 @@ func InitHoneycomb(v *viper.Viper, logger logger) bool {
 
 	logger.Debug("Honeycomb Integration disabled")
 	return false
+}
+
+// CheckHoneycomb validates Honeycomb command line flags
+func CheckHoneycomb(v *viper.Viper) error {
+	if serviceName := v.GetString(ServiceNameFlag); len(serviceName) == 0 {
+		return errors.Errorf("Must provide service name for honeycomb")
+	}
+
+	return nil
 }

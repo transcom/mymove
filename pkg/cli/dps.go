@@ -1,8 +1,6 @@
 package cli
 
 import (
-	"strconv"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -94,7 +92,7 @@ func CheckDPS(v *viper.Viper) error {
 
 	dpsCookieSecret := []byte(v.GetString(DPSAuthCookieSecretKeyFlag))
 	if len(dpsCookieSecret) != 32 {
-		return errors.New("DPS Cookie Secret Key is not 32 bytes. Cookie Secret Key length: " + strconv.Itoa(len(dpsCookieSecret)))
+		return errors.Errorf("DPS Cookie Secret Key is not 32 bytes. Cookie Secret Key length: %d", len(dpsCookieSecret))
 	}
 
 	return nil

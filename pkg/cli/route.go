@@ -43,3 +43,19 @@ func InitRoutePlanner(v *viper.Viper, logger logger) route.Planner {
 		v.GetString(HEREMapsAppIDFlag),
 		v.GetString(HEREMapsAppCodeFlag))
 }
+
+// CheckRoute validates Route command line flags
+func CheckRoute(v *viper.Viper) error {
+	urlVars := []string{
+		HEREMapsGeocodeEndpointFlag,
+		HEREMapsRoutingEndpointFlag,
+	}
+
+	for _, c := range urlVars {
+		err := ValidateURL(v, c)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}

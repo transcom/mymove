@@ -182,56 +182,67 @@ func checkConfig(v *viper.Viper, logger logger) error {
 
 	logger.Info("checking webserver config")
 
-	err := cli.CheckProtocols(v)
-	if err != nil {
+	if err := cli.CheckBuild(v); err != nil {
 		return err
 	}
 
-	err = cli.CheckHosts(v)
-	if err != nil {
+	if err := cli.CheckHosts(v); err != nil {
 		return err
 	}
 
-	err = cli.CheckPorts(v)
-	if err != nil {
+	if err := cli.CheckDPS(v); err != nil {
 		return err
 	}
 
-	if err = cli.CheckAuth(v); err != nil {
+	if err := cli.CheckSwagger(v); err != nil {
 		return err
 	}
 
-	if err = cli.CheckIWS(v); err != nil {
+	if err := cli.CheckCert(v); err != nil {
 		return err
 	}
 
-	err = cli.CheckDPS(v)
-	if err != nil {
+	if err := cli.CheckPorts(v); err != nil {
 		return err
 	}
 
-	err = cli.CheckCSRF(v)
-	if err != nil {
+	if err := cli.CheckAuth(v); err != nil {
 		return err
 	}
 
-	err = cli.CheckEmail(v)
-	if err != nil {
+	if err := cli.CheckRoute(v); err != nil {
 		return err
 	}
 
-	err = cli.CheckStorage(v)
-	if err != nil {
+	if err := cli.CheckGEX(v); err != nil {
 		return err
 	}
 
-	err = cli.CheckGEX(v)
-	if err != nil {
+	if err := cli.CheckStorage(v); err != nil {
 		return err
 	}
 
-	err = cli.CheckDatabase(v, logger)
-	if err != nil {
+	if err := cli.CheckEmail(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckHoneycomb(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckIWS(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckDatabase(v, logger); err != nil {
+		return err
+	}
+
+	if err := cli.CheckCSRF(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckVerbose(v); err != nil {
 		return err
 	}
 
