@@ -27,10 +27,10 @@ import (
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
 	"github.com/gorilla/csrf"
-	beeline "github.com/honeycombio/beeline-go"
+	"github.com/honeycombio/beeline-go"
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
@@ -160,6 +160,20 @@ func noCacheMiddleware(inner http.Handler) http.Handler {
 		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 		inner.ServeHTTP(w, r)
 		return
+	}
+	return http.HandlerFunc(mw)
+}
+
+func recoveryMiddleware(inner http.Handler) http.Handler {
+	zap.L().Debug("recovery installed")
+	mw := func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if r := recover(); r != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				log.Printf("panic: %s\n", r)
+			}
+		}()
+		inner.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(mw)
 }
@@ -1247,6 +1261,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	apiMux.Handle(pat.New("/*"), externalAPIMux)
 	externalAPIMux.Use(noCacheMiddleware)
 	externalAPIMux.Use(userAuthMiddleware)
+	//externalAPIMux.Use(gorillahandlers.RecoveryHandler())
+	externalAPIMux.Use(recoveryMiddleware)
 	externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext))
 
 	internalMux := goji.SubMux()
@@ -1263,6 +1279,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	internalMux.Handle(pat.New("/*"), internalAPIMux)
 	internalAPIMux.Use(userAuthMiddleware)
 	internalAPIMux.Use(noCacheMiddleware)
+	//internalAPIMux.Use(gorillahandlers.RecoveryHandler())
+	internalAPIMux.Use(recoveryMiddleware)
 	internalAPIMux.Handle(pat.New("/*"), internalapi.NewInternalAPIHandler(handlerContext))
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)

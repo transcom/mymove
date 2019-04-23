@@ -11,6 +11,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gorilla/handlers"
+
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
@@ -203,4 +205,30 @@ func (suite *webServerSuite) TestStaticReqMethodMiddleware() {
 	req = httptest.NewRequest("POST", "http://mil.example.com/static/something", nil)
 	middleware.ServeHTTP(rr, req)
 	suite.Equal(http.StatusMethodNotAllowed, rr.Code, "handler returned wrong status code")
+}
+
+func (suite *webServerSuite) TestRecoverMiddleware() {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		panic("panic")
+	})
+	middleware := recoveryMiddleware(handler)
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "http://mil.example.com/static/something", nil)
+
+	middleware.ServeHTTP(rr, req)
+
+	suite.Equal(http.StatusInternalServerError, rr.Code)
+}
+
+func (suite *webServerSuite) TestGorillaRecoverMiddleware() {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		panic("panic")
+	})
+	middleware := handlers.RecoveryHandler()
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "http://mil.example.com/static/something", nil)
+
+	middleware(handler).ServeHTTP(rr, req)
+
+	suite.Equal(http.StatusInternalServerError, rr.Code)
 }
