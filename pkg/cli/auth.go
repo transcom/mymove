@@ -56,7 +56,7 @@ func InitAuthFlags(flag *pflag.FlagSet) {
 	flag.String(LoginGovMyClientIDFlag, "", "Client ID registered with login gov.")
 	flag.String(LoginGovOfficeClientIDFlag, "", "Client ID registered with login gov.")
 	flag.String(LoginGovTSPClientIDFlag, "", "Client ID registered with login gov.")
-	flag.String(LoginGovHostnameFlag, "", "Hostname for communicating with login gov.")
+	flag.String(LoginGovHostnameFlag, "secure.login.gov", "Hostname for communicating with login gov.")
 }
 
 // InitAuth initializes the Login.gov provider
@@ -88,6 +88,12 @@ func CheckAuth(v *viper.Viper) error {
 
 	if err := ValidateHost(v, LoginGovHostnameFlag); err != nil {
 		return err
+	}
+
+	secureLoginGov := "secure.login.gov"
+	sandboxLoginGov := "idp.int.identitysandbox.gov"
+	if loginGovHostname := v.GetString(LoginGovHostnameFlag); loginGovHostname != secureLoginGov && loginGovHostname != sandboxLoginGov {
+		return errors.Wrap(&errInvalidHost{Host: loginGovHostname}, fmt.Sprintf("%s is invalid, expected %s or %s", LoginGovHostnameFlag, secureLoginGov, sandboxLoginGov))
 	}
 
 	if err := ValidatePort(v, LoginGovCallbackPortFlag); err != nil {
