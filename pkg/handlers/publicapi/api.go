@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/restapi"
 	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/handlers"
+	sitservice "github.com/transcom/mymove/pkg/services/storage_in_transit"
 )
 
 // NewPublicAPIHandler returns a handler for the public API
@@ -67,14 +68,29 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.TspsGetTspShipmentsHandler = TspsGetTspShipmentsHandler{context}
 
 	// Storage In Transits
-	publicAPI.StorageInTransitsCreateStorageInTransitHandler = CreateStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsCreateStorageInTransitHandler = CreateStorageInTransitHandler{
+		context,
+		sitservice.NewStorageInTransitCreator(context.DB()),
+	}
 	publicAPI.StorageInTransitsGetStorageInTransitHandler = GetStorageInTransitHandler{context}
-	publicAPI.StorageInTransitsIndexStorageInTransitsHandler = IndexStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsIndexStorageInTransitsHandler = IndexStorageInTransitHandler{
+		context,
+		sitservice.NewStorageInTransitIndexer(context.DB()),
+	}
 	publicAPI.StorageInTransitsDeleteStorageInTransitHandler = DeleteStorageInTransitHandler{context}
 	publicAPI.StorageInTransitsPatchStorageInTransitHandler = PatchStorageInTransitHandler{context}
-	publicAPI.StorageInTransitsApproveStorageInTransitHandler = ApproveStorageInTransitHandler{context}
-	publicAPI.StorageInTransitsDenyStorageInTransitHandler = DenyStorageInTransitHandler{context}
-	publicAPI.StorageInTransitsInSitStorageInTransitHandler = InSitStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsApproveStorageInTransitHandler = ApproveStorageInTransitHandler{
+		context,
+		sitservice.NewStorageInTransitApprover(context.DB()),
+	}
+	publicAPI.StorageInTransitsDenyStorageInTransitHandler = DenyStorageInTransitHandler{
+		context,
+		sitservice.NewStorageInTransitDenier(context.DB()),
+	}
+	publicAPI.StorageInTransitsInSitStorageInTransitHandler = InSitStorageInTransitHandler{
+		context,
+		sitservice.NewStorageInTransitInSITPlacer(context.DB()),
+	}
 	publicAPI.StorageInTransitsReleaseStorageInTransitHandler = ReleaseStorageInTransitHandler{context}
 	publicAPI.StorageInTransitsDeliverStorageInTransitHandler = DeliverStorageInTransitHandler{context}
 

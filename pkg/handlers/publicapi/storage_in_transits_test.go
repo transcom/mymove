@@ -2,6 +2,7 @@ package publicapi
 
 import (
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	sitop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/storage_in_transits"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	sitservice "github.com/transcom/mymove/pkg/services/storage_in_transit"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -56,7 +58,10 @@ func (suite *HandlerSuite) TestIndexStorageInTransitsHandler() {
 		ShipmentID:  strfmt.UUID(shipment.ID.String()),
 	}
 
-	handler := IndexStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := IndexStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(),
+		suite.TestLogger()),
+		sitservice.NewStorageInTransitIndexer(suite.DB()),
+	}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&sitop.IndexStorageInTransitsOK{}, response)
@@ -73,7 +78,6 @@ func (suite *HandlerSuite) TestIndexStorageInTransitsHandler() {
 		ShipmentID:  strfmt.UUID(shipment.ID.String()),
 	}
 
-	handler = IndexStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	_ = handler.Handle(params)
 
 	suite.Assertions.Error(models.ErrFetchForbidden)
@@ -129,7 +133,11 @@ func (suite *HandlerSuite) TestCreateStorageInTransitHandler() {
 		StorageInTransit: sitPayload,
 	}
 
-	handler := CreateStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := CreateStorageInTransitHandler{
+		handlers.NewHandlerContext(suite.DB(),
+			suite.TestLogger()),
+		sitservice.NewStorageInTransitCreator(suite.DB()),
+	}
 	_ = handler.Handle(params)
 
 	// we expect this to fail with a forbidden message. The generated TSP does not have rights to the shipment.
@@ -172,14 +180,17 @@ func (suite *HandlerSuite) TestApproveStorageInTransitHandler() {
 		StorageInTransitApprovalPayload: &approvePayload,
 	}
 
-	handler := ApproveStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := ApproveStorageInTransitHandler{
+		handlers.NewHandlerContext(suite.DB(),
+			suite.TestLogger()),
+		sitservice.NewStorageInTransitApprover(suite.DB()),
+	}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&sitop.ApproveStorageInTransitOK{}, response)
 	responsePayload := response.(*sitop.ApproveStorageInTransitOK).Payload
 	suite.Equal(string(models.StorageInTransitStatusAPPROVED), responsePayload.Status)
 
-	handler = ApproveStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response = handler.Handle(params)
 
 	suite.Assertions.IsType(&sitop.ApproveStorageInTransitOK{}, response)
@@ -196,9 +207,9 @@ func (suite *HandlerSuite) TestApproveStorageInTransitHandler() {
 		StorageInTransitApprovalPayload: &approvePayload,
 	}
 
-	handler = ApproveStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response = handler.Handle(params)
-	suite.Assertions.IsType(response.(*sitop.ApproveStorageInTransitForbidden), response)
+	suite.Assertions.IsType(response.(*handlers.ErrResponse), response)
+	suite.Assertions.Equal(http.StatusForbidden, response.(*handlers.ErrResponse).Code)
 
 	// Let's make sure it doesn't work if the status is delivered
 	sit.Status = models.StorageInTransitStatusDELIVERED
@@ -212,9 +223,9 @@ func (suite *HandlerSuite) TestApproveStorageInTransitHandler() {
 		StorageInTransitApprovalPayload: &approvePayload,
 	}
 
-	handler = ApproveStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response = handler.Handle(params)
-	suite.Assertions.IsType(response.(*sitop.ApproveStorageInTransitConflict), response)
+	suite.Assertions.IsType(response.(*handlers.ErrResponse), response)
+	suite.Assertions.Equal(http.StatusConflict, response.(*handlers.ErrResponse).Code)
 
 }
 
@@ -236,7 +247,11 @@ func (suite *HandlerSuite) TestDenyStorageInTransitHandler() {
 		StorageInTransitApprovalPayload: &denyPayload,
 	}
 
-	handler := DenyStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := DenyStorageInTransitHandler{
+		handlers.NewHandlerContext(suite.DB(),
+			suite.TestLogger()),
+		sitservice.NewStorageInTransitDenier(suite.DB()),
+	}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&sitop.DenyStorageInTransitOK{}, response)
@@ -253,9 +268,9 @@ func (suite *HandlerSuite) TestDenyStorageInTransitHandler() {
 		StorageInTransitApprovalPayload: &denyPayload,
 	}
 
-	handler = DenyStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response = handler.Handle(params)
-	suite.Assertions.IsType(response.(*sitop.DenyStorageInTransitForbidden), response)
+	suite.Assertions.IsType(response.(*handlers.ErrResponse), response)
+	suite.Assertions.Equal(http.StatusForbidden, response.(*handlers.ErrResponse).Code)
 
 	// Let's make sure it doesn't work if the status is delivered
 	sit.Status = models.StorageInTransitStatusDELIVERED
@@ -269,9 +284,9 @@ func (suite *HandlerSuite) TestDenyStorageInTransitHandler() {
 		StorageInTransitApprovalPayload: &denyPayload,
 	}
 
-	handler = DenyStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response = handler.Handle(params)
-	suite.Assertions.IsType(response.(*sitop.DenyStorageInTransitConflict), response)
+	suite.Assertions.IsType(response.(*handlers.ErrResponse), response)
+	suite.Assertions.Equal(http.StatusConflict, response.(*handlers.ErrResponse).Code)
 
 }
 
@@ -306,7 +321,11 @@ func (suite *HandlerSuite) TestInSitStorageInTransitHandler() {
 		StorageInTransitInSitPayload: &inSitPayload,
 	}
 
-	handler := InSitStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := InSitStorageInTransitHandler{
+		handlers.NewHandlerContext(suite.DB(),
+			suite.TestLogger()),
+		sitservice.NewStorageInTransitInSITPlacer(suite.DB()),
+	}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&sitop.InSitStorageInTransitOK{}, response)
@@ -324,10 +343,9 @@ func (suite *HandlerSuite) TestInSitStorageInTransitHandler() {
 		StorageInTransitInSitPayload: &inSitPayload,
 	}
 
-	handler = InSitStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response = handler.Handle(params)
-
-	suite.Assertions.IsType(&sitop.InSitStorageInTransitForbidden{}, response)
+	suite.Assertions.IsType(response.(*handlers.ErrResponse), response)
+	suite.Assertions.Equal(http.StatusForbidden, response.(*handlers.ErrResponse).Code)
 
 	// Let's make sure it won't let us do this if the status is not approved
 	req = suite.AuthenticateTspRequest(req, tspUser)
@@ -341,10 +359,9 @@ func (suite *HandlerSuite) TestInSitStorageInTransitHandler() {
 	sit.Status = models.StorageInTransitStatusREQUESTED
 	_, _ = suite.DB().ValidateAndSave(&sit)
 
-	handler = InSitStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response = handler.Handle(params)
-
-	suite.Assertions.IsType(&sitop.InSitStorageInTransitConflict{}, response)
+	suite.Assertions.IsType(response.(*handlers.ErrResponse), response)
+	suite.Assertions.Equal(http.StatusConflict, response.(*handlers.ErrResponse).Code)
 
 }
 
