@@ -2,13 +2,15 @@ package publicapi
 
 import (
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
-	"github.com/stretchr/testify/mock"
+
+	"github.com/transcom/mymove/pkg/auth"
 
 	"github.com/transcom/mymove/mocks"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
@@ -114,11 +116,10 @@ func (suite *HandlerSuite) TestGetStorageInTransitHandler() {
 	returnSit := models.StorageInTransit{ID: storageInTransitID}
 	storageInTransitByIDFetcher.On(
 		"FetchStorageInTransitByID",
-		mock.AnythingOfType("uuid.UUID"),
-		mock.AnythingOfType("uuid.UUID"),
-		mock.AnythingOfType("*auth.Session"),
-	).
-		Return(&returnSit, nil)
+		storageInTransitID,
+		shipmentID,
+		auth.SessionFromRequestContext(params.HTTPRequest),
+	).Return(&returnSit, nil).Once()
 	response := handler.Handle(params)
 	suite.Assertions.IsType(&sitop.GetStorageInTransitOK{}, response)
 
@@ -126,17 +127,21 @@ func (suite *HandlerSuite) TestGetStorageInTransitHandler() {
 
 	suite.Equal(sitPayload.ID, responsePayload.ID)
 
-	// Let's make sure it fails when a TSP who doesn't own the shipment tries to do a GET on this
-	tspUserID, err := uuid.NewV4()
-	suite.NoError(err)
-	userID, err = uuid.NewV4()
-	suite.NoError(err)
-	tspUser := models.TspUser{ID: tspUserID, UserID: &userID}
-	req = httptest.NewRequest("GET", path, nil)
-	req = suite.AuthenticateTspRequest(req, tspUser)
-	params.HTTPRequest = req
-	handler.Handle(params)
-	suite.Error(models.ErrFetchForbidden)
+	expectedError := models.ErrFetchForbidden
+	storageInTransitByIDFetcher.On(
+		"FetchStorageInTransitByID",
+		storageInTransitID,
+		shipmentID,
+		auth.SessionFromRequestContext(params.HTTPRequest),
+	).Return(nil, expectedError).Once()
+
+	response = handler.Handle(params)
+
+	expectedResponse := &handlers.ErrResponse{
+		Code: http.StatusForbidden,
+		Err:  expectedError,
+	}
+	suite.Equal(expectedResponse, response)
 }
 
 func (suite *HandlerSuite) TestCreateStorageInTransitHandler() {
