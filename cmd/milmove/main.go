@@ -17,6 +17,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync"
@@ -170,7 +171,7 @@ func recoveryMiddleware(inner http.Handler) http.Handler {
 		defer func() {
 			if r := recover(); r != nil {
 				w.WriteHeader(http.StatusInternalServerError)
-				log.Printf("panic: %s\n", r)
+				zap.L().Error(fmt.Sprintf("%s: %s", r, debug.Stack()))
 			}
 		}()
 		inner.ServeHTTP(w, r)
@@ -1261,7 +1262,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	apiMux.Handle(pat.New("/*"), externalAPIMux)
 	externalAPIMux.Use(noCacheMiddleware)
 	externalAPIMux.Use(userAuthMiddleware)
-	//externalAPIMux.Use(gorillahandlers.RecoveryHandler())
+	//gl := &GorillaLogger{logger}
+	//rmw := gorillahandlers.RecoveryHandler(gorillahandlers.RecoveryLogger(gl), gorillahandlers.PrintRecoveryStack(false))
+	//externalAPIMux.Use(rmw)
 	externalAPIMux.Use(recoveryMiddleware)
 	externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext))
 
@@ -1279,7 +1282,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	internalMux.Handle(pat.New("/*"), internalAPIMux)
 	internalAPIMux.Use(userAuthMiddleware)
 	internalAPIMux.Use(noCacheMiddleware)
-	//internalAPIMux.Use(gorillahandlers.RecoveryHandler())
 	internalAPIMux.Use(recoveryMiddleware)
 	internalAPIMux.Handle(pat.New("/*"), internalapi.NewInternalAPIHandler(handlerContext))
 

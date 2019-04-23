@@ -224,7 +224,9 @@ func (suite *webServerSuite) TestGorillaRecoverMiddleware() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		panic("panic")
 	})
-	middleware := handlers.RecoveryHandler()
+	logger, _ := logging.Config("development", true)
+	gl := &GorillaLogger{logger}
+	middleware := handlers.RecoveryHandler(handlers.RecoveryLogger(gl), handlers.PrintRecoveryStack(false))
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "http://mil.example.com/static/something", nil)
 
