@@ -123,6 +123,7 @@ class QueueTable extends Component {
               {
                 Header: 'GBL',
                 accessor: 'gbl_number',
+                show: this.props.queueType !== 'ppm',
               },
               {
                 Header: 'Move date',
