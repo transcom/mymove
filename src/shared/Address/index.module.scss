@@ -1,3 +1,9 @@
 .state-zip {
   max-width: 46rem;
 }
+
+.state-zip:after {
+  content: " ";
+  display: block;
+  clear: both;
+}
