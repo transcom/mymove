@@ -130,8 +130,9 @@ func CheckAuth(v *viper.Viper) error {
 func ValidateClientID(v *viper.Viper, flagname string) error {
 	clientID := v.GetString(flagname)
 	clientIDParts := strings.Split(clientID, ":")
-	if len(clientIDParts) != 8 {
-		return errors.Wrap(&errInvalidClientID{ClientID: clientID}, fmt.Sprintf("%s is invalid due to length", flagname))
+	clientIDLen := 8
+	if len(clientIDParts) != clientIDLen {
+		return errors.Wrap(&errInvalidClientID{ClientID: clientID}, fmt.Sprintf("%s is invalid due to length, found %d parts, expected %d. ClientID was %s.", flagname, len(clientIDParts), clientIDLen, clientID))
 	}
 	openIDFormat := []string{"urn", "gov", "gsa", "openidconnect.profiles", "sp", "sso", "dod"}
 	for i, v := range clientIDParts {
