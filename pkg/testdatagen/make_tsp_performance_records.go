@@ -23,7 +23,7 @@ func GetDateInRateCycle(year int, peak bool) time.Time {
 }
 
 // MakeTSPPerformance makes a single transportation service provider record.
-func MakeTSPPerformance(db *pop.Connection, assertions Assertions) models.TransportationServiceProviderPerformance {
+func MakeTSPPerformance(db *pop.Connection, assertions Assertions) (models.TransportationServiceProviderPerformance, error) {
 
 	var tsp models.TransportationServiceProvider
 	id := assertions.TransportationServiceProviderPerformance.TransportationServiceProviderID
@@ -68,11 +68,11 @@ func MakeTSPPerformance(db *pop.Connection, assertions Assertions) models.Transp
 		log.Panic(err)
 	}
 
-	return tspp
+	return tspp, err
 }
 
 // MakeDefaultTSPPerformance makes a TransportationServiceProviderPerformance with default values
-func MakeDefaultTSPPerformance(db *pop.Connection) models.TransportationServiceProviderPerformance {
+func MakeDefaultTSPPerformance(db *pop.Connection) (models.TransportationServiceProviderPerformance, error) {
 	return MakeTSPPerformance(db, Assertions{})
 }
 
