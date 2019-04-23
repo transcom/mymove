@@ -314,7 +314,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 	logger = logger.With(fields...)
 
-	if v.GetBool("log-task-metadata") {
+	if v.GetBool(cli.LogTaskMetadataFlag) {
 		resp, err := http.Get("http://169.254.170.2/v2/metadata")
 		if err != nil {
 			logger.Error(errors.Wrap(err, "could not fetch task metadata").Error())
