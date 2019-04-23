@@ -40,6 +40,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0031](0031-css-tooling.md) - CSS Tooling
 - [ADR-0032](0032-csrf-protection.md) - CSRF Protection for the Application
 - [ADR-0033](0033-service-object-layer.md) - Mocking Approach and Tooling
+- [ADR-0034](0034-working-with-mocks-generation-and-assertion.md) - Working With Mocks: Generation and Assertion
 
 <!-- adrlogstop -->
 
