@@ -18,6 +18,8 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/pkg/errors"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/csrf"
 	"github.com/honeycombio/beeline-go"
@@ -34,6 +36,7 @@ import (
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
+	"github.com/transcom/mymove/pkg/ecs"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/dpsapi"
@@ -310,6 +313,34 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		fields = append(fields, zap.String("git_commit", gitCommit))
 	}
 	logger = logger.With(fields...)
+
+	if v.GetBool("log-task-metadata") {
+		resp, err := http.Get("http://169.254.170.2/v2/metadata")
+		if err != nil {
+			logger.Error(errors.Wrap(err, "could not fetch task metadata").Error())
+		} else {
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				logger.Error(errors.Wrap(err, "could not read task metadata").Error())
+			} else {
+				taskMetadata := &ecs.TaskMetadata{}
+				err := json.Unmarshal(body, taskMetadata)
+				if err != nil {
+					logger.Error(errors.Wrap(err, "could not parse task metadata").Error())
+				} else {
+					logger = logger.With(
+						zap.String("ecs_cluster", taskMetadata.Cluster),
+						zap.String("ecs_task_def_family", taskMetadata.Family),
+						zap.String("ecs_task_def_revision", taskMetadata.Revision),
+					)
+				}
+			}
+			err = resp.Body.Close()
+			if err != nil {
+				logger.Error(errors.Wrap(err, "could not close task metadata response").Error())
+			}
+		}
+	}
 	zap.ReplaceGlobals(logger)
 
 	logger.Info("webserver starting up")
@@ -604,7 +635,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	root := goji.NewMux()
 	root.Use(sessionCookieMiddleware)
-	root.Use(logging.LogRequestMiddleware(gitBranch, gitCommit))
+	root.Use(logging.LogRequestMiddleware(logger))
 
 	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
 	csrfAuthKey, err := hex.DecodeString(v.GetString(cli.CSRFAuthKeyFlag))

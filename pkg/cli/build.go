@@ -17,6 +17,8 @@ const (
 	InterfaceFlag string = "interface"
 	// GracefulShutdownTimeoutFlag is the Graceful Shutdown Timeout Flag
 	GracefulShutdownTimeoutFlag string = "graceful-shutdown-timeout"
+	// LogTaskMetadataFlag is the Log Task Metadata Flag
+	LogTaskMetadataFlag string = "log-task-metadata"
 )
 
 // InitBuildFlags initializes the Build command line flags
@@ -24,6 +26,7 @@ func InitBuildFlags(flag *pflag.FlagSet) {
 	flag.String(BuildFlag, "build", "the directory to serve static files from.")
 	flag.String(InterfaceFlag, "", "The interface spec to listen for connections on. Default of empty string means all interfaces. Accepts 'localhost' or IPv4 addresses as well.")
 	flag.Duration(GracefulShutdownTimeoutFlag, 25*time.Second, "The duration for which the server gracefully wait for existing connections to finish.  AWS ECS only gives you 30 seconds before sending SIGKILL.")
+	flag.Bool(LogTaskMetadataFlag, false, "Fetch AWS Task Metadata and add to log.")
 }
 
 // CheckBuild validates the Build command line flags
