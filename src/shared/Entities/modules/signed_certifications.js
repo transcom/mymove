@@ -31,7 +31,7 @@ export function selectPaymentRequestCertificationForMove(state, moveId) {
   const signedCertifications = filter(state.entities.signedCertifications, cert => {
     return cert.certification_type === 'PPM_PAYMENT' && cert.move_id === moveId;
   });
-  if (!Array.isArray(signedCertifications) || !signedCertifications.length) {
+  if (!signedCertifications.length) {
     return {};
   }
   return signedCertifications[0];

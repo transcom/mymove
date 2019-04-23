@@ -35,16 +35,9 @@ const attachmentsErrorMessages = {
 };
 
 export function sswIsDisabled(ppm, signedCertification, shipment) {
-  if (missingSignature(signedCertification)) {
-    return true;
-  }
-  if (missingNetWeightOrActualMoveDate(ppm)) {
-    return true;
-  }
-  if (isComboAndNotDelivered(shipment)) {
-    return true;
-  }
-  return false;
+  return (
+    missingSignature(signedCertification) || missingNetWeightOrActualMoveDate(ppm) || isComboAndNotDelivered(shipment)
+  );
 }
 
 function missingSignature(signedCertification) {
