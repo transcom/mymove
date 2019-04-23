@@ -676,9 +676,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 
-		devlocalCa, err := ioutil.ReadFile(v.GetString(cli.DevlocalCAFlag)) // #nosec
+		devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
+		devlocalCa, err := ioutil.ReadFile(devlocalCAPath) // #nosec
 		if err != nil {
-			logger.Error("No devlocal CA path defined")
+			logger.Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(err))
 		} else {
 			rootCAs.AppendCertsFromPEM(devlocalCa)
 		}

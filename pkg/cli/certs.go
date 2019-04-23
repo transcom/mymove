@@ -50,6 +50,12 @@ func InitCertFlags(flag *pflag.FlagSet) {
 // CheckCert validates Cert command line flags
 func CheckCert(v *viper.Viper) error {
 
+	dbEnv := v.GetString(DbEnvFlag)
+	isDevOrTest := dbEnv == "development" || dbEnv == "test"
+	if devlocalCAPath := v.GetString(DevlocalCAFlag); isDevOrTest && devlocalCAPath == "" {
+		return errors.Errorf("No devlocal CA path defined")
+	}
+
 	tlsCertString := v.GetString(MoveMilDoDTLSCertFlag)
 	if len(tlsCertString) == 0 {
 		return errors.Errorf("%s is missing", MoveMilDoDTLSCertFlag)
