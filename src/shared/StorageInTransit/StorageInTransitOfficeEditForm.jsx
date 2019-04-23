@@ -28,7 +28,7 @@ export class StorageInTransitOfficeEditForm extends Component {
 
     return (
       <form onSubmit={this.props.handleSubmit(this.props.onSubmit)} className="storage-in-transit-office-edit-form">
-        <div className="editable-panel-2-column">
+        <div className="editable-panel-column">
           <PanelSwaggerField fieldName="location" required title="SIT location" {...fieldProps} />
           <PanelSwaggerField fieldName="estimated_start_date" required title="Estimated start date" {...fieldProps} />
           <PanelField value="n/a" fieldName="actual_start_date" required title="Actual start date" {...fieldProps} />
@@ -37,26 +37,24 @@ export class StorageInTransitOfficeEditForm extends Component {
           <PanelField value="n/a" fieldName="expires" required title="Expires" {...fieldProps} />
           <PanelSwaggerField fieldName="notes" optional title="Note" {...fieldProps} />
         </div>
-        <div className="editable-panel-2-column">
+        <div className="editable-panel-column">
           <div className="panel-subhead">Authorization</div>
           <PanelField value={sitStatus()} fieldName="status" required title="SIT Approved" {...fieldProps} />
-          <PanelField
-            value="n/a"
+          <SwaggerField
             fieldName="authorized_start_date"
-            required
+            swagger={storageInTransitSchema}
             title="Earliest authorized start"
-            {...fieldProps}
+            required
           />
           <SwaggerField
             className="sit-approval-field"
             fieldName="authorization_notes"
             title="Note from reviewer"
             swagger={storageInTransitSchema}
-            required
           />
           <PanelField value="9999999999" fieldName="sit_number" title="SIT number" {...fieldProps} />
           <div className="panel-field">
-            <span className="field-value">Warehouse</span>
+            <span className="field-value warehouse-field-margin">Warehouse</span>
             <span className="field-title">{storageInTransit.warehouse_name}</span>
             <span className="field-title">{storageInTransit.warehouse_address.street_address_1}</span>
             <span className="field-title">{storageInTransit.warehouse_address.street_address_2}</span>
