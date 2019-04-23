@@ -23,7 +23,7 @@ func InitGEXFlags(flag *pflag.FlagSet) {
 	flag.String(GEXBasicAuthUsernameFlag, "", "GEX api auth username")
 	flag.String(GEXBasicAuthPasswordFlag, "", "GEX api auth password")
 	flag.Bool(GEXSendProdInvoiceFlag, false, "Flag (bool) for EDI Invoices to signify if they should be sent with Production or Test indicator")
-	flag.String(GEXURLFlag, "https://gexweba.daas.dla.mil/msg_data/submit/", "URL for sending an HTTP POST request to GEX")
+	flag.String(GEXURLFlag, "", "URL for sending an HTTP POST request to GEX")
 }
 
 // CheckGEX validates GEX command line flags
