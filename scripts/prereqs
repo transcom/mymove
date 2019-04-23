@@ -34,6 +34,7 @@ if [[ -z ${CIRCLECI-} ]]; then
     has direnv "brew install direnv"
     has aws-vault "brew cask install aws-vault"
     has entr "brew install entr"
+    has circleci "brew install circleci"
 fi
 
 has node "test"

@@ -1,4 +1,4 @@
-import { get, isEmpty } from 'lodash';
+import { get, isEmpty, includes } from 'lodash';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
@@ -24,12 +24,32 @@ import faPlusSquare from '@fortawesome/fontawesome-free-solid/faPlusSquare';
 import faMinusSquare from '@fortawesome/fontawesome-free-solid/faMinusSquare';
 
 import './PaymentsPanel.css';
+import { getSignedCertification } from 'shared/Entities/modules/signed_certifications';
+import { selectPaymentRequestCertificationForMove } from 'shared/Entities/modules/signed_certifications';
+import { selectShipmentForMove } from 'shared/Entities/modules/shipments';
 
 const attachmentsErrorMessages = {
   422: 'Encountered an error while trying to create attachments bundle: Document is in the wrong format',
   424: 'Could not find any receipts or documents for this PPM',
   500: 'An unexpected error has occurred',
 };
+
+export function sswIsDisabled(ppm, signedCertification, shipment) {
+  return (
+    missingSignature(signedCertification) || missingNetWeightOrActualMoveDate(ppm) || isComboAndNotDelivered(shipment)
+  );
+}
+
+function missingSignature(signedCertification) {
+  return isEmpty(signedCertification) || signedCertification.certification_type !== 'PPM_PAYMENT';
+}
+
+function missingNetWeightOrActualMoveDate(ppm) {
+  return isEmpty(ppm) || !ppm.net_weight || !ppm.actual_move_date;
+}
+function isComboAndNotDelivered(shipment) {
+  return !isEmpty(shipment) && !includes(['DELIVERED', 'COMPLETED'], shipment.status);
+}
 
 function getUserDate() {
   return new Date().toISOString().split('T')[0];
@@ -40,6 +60,13 @@ class PaymentsTable extends Component {
     showPaperwork: false,
     disableDownload: false,
   };
+
+  componentDidMount() {
+    const { moveId } = this.props;
+    if (moveId != null) {
+      this.props.getSignedCertification(moveId);
+    }
+  }
 
   approveReimbursement = () => {
     this.props.approveReimbursement(this.props.advance.id);
@@ -135,7 +162,7 @@ class PaymentsTable extends Component {
                   </th>
                 </tr>
                 <tr>
-                  <td className="payment-table-column-content">Advance </td>
+                  <td className="payment-table-column-content">Advance</td>
                   <td className="payment-table-column-content">
                     ${formatCents(get(advance, 'requested_amount')).toLocaleString()}
                   </td>
@@ -190,7 +217,9 @@ class PaymentsTable extends Component {
                     <p>Download Shipment Summary Worksheet</p>
                     <p>Download and complete the worksheet, which is a fill-in PDF form.</p>
                   </div>
-                  <button onClick={this.downloadShipmentSummary}>Download Worksheet (PDF)</button>
+                  <button disabled={this.props.disableSSW} onClick={this.downloadShipmentSummary}>
+                    Download Worksheet (PDF)
+                  </button>
                 </div>
 
                 <hr />
@@ -250,9 +279,13 @@ class PaymentsTable extends Component {
 const mapStateToProps = (state, ownProps) => {
   const { moveId } = ownProps;
   const ppm = selectPPMForMove(state, moveId);
+  const shipment = selectShipmentForMove(state, moveId);
   const advance = selectReimbursement(state, ppm.advance);
+  const signedCertifications = selectPaymentRequestCertificationForMove(state, moveId);
+  const disableSSW = sswIsDisabled(ppm, signedCertifications, shipment);
   return {
     ppm,
+    disableSSW,
     moveId,
     advance,
     attachmentsError: getLastError(state, downloadPPMAttachmentsLabel),
@@ -262,6 +295,7 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
+      getSignedCertification,
       approveReimbursement,
       update: no_op,
       downloadPPMAttachments,
