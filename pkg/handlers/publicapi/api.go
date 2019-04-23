@@ -77,8 +77,14 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		sitservice.NewStorageInTransitIndexer(context.DB()),
 	}
-	publicAPI.StorageInTransitsDeleteStorageInTransitHandler = DeleteStorageInTransitHandler{context}
-	publicAPI.StorageInTransitsPatchStorageInTransitHandler = PatchStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsDeleteStorageInTransitHandler = DeleteStorageInTransitHandler{
+		context,
+		sitservice.NewStorageInTransitDeleter(context.DB()),
+	}
+	publicAPI.StorageInTransitsPatchStorageInTransitHandler = PatchStorageInTransitHandler{
+		context,
+		sitservice.NewStorageInTransitPatcher(context.DB()),
+	}
 	publicAPI.StorageInTransitsApproveStorageInTransitHandler = ApproveStorageInTransitHandler{
 		context,
 		sitservice.NewStorageInTransitApprover(context.DB()),
@@ -91,8 +97,14 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		sitservice.NewStorageInTransitInSITPlacer(context.DB()),
 	}
-	publicAPI.StorageInTransitsReleaseStorageInTransitHandler = ReleaseStorageInTransitHandler{context}
-	publicAPI.StorageInTransitsDeliverStorageInTransitHandler = DeliverStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsReleaseStorageInTransitHandler = ReleaseStorageInTransitHandler{
+		context,
+		sitservice.NewStorageInTransitInReleaser(context.DB()),
+	}
+	publicAPI.StorageInTransitsDeliverStorageInTransitHandler = DeliverStorageInTransitHandler{
+		context,
+		sitservice.NewStorageInTransitInDeliverer(context.DB()),
+	}
 
 	return publicAPI.Serve(nil)
 }

@@ -36,12 +36,20 @@ type StorageInTransitInSITPlacer interface {
 
 // StorageInTransitDeliverer is the service object for delivering a Storage In Transit
 type StorageInTransitDeliverer interface {
+	DeliverStorageInTransit(shipmentID uuid.UUID, session *auth.Session, storageInTransitID uuid.UUID) (*models.StorageInTransit, *validate.Errors, error)
 }
 
 // StorageInTransitReleaser is the service object for releasing a Storage In Transit
 type StorageInTransitReleaser interface {
+	ReleaseStorageInTransit(payload apimessages.StorageInTransitReleasePayload, shipmentID uuid.UUID, session *auth.Session, storageInTransitID uuid.UUID) (*models.StorageInTransit, *validate.Errors, error)
 }
 
 // StorageInTransitDeleter is the service object for deleting a Storage In Transit
 type StorageInTransitDeleter interface {
+	DeleteStorageInTransit(shipmentID uuid.UUID, storageInTransitID uuid.UUID, session *auth.Session) error
+}
+
+// StorageInTransitPatcher is the service object for editing a Storage In Transit
+type StorageInTransitPatcher interface {
+	PatchStorageInTransit(payload apimessages.StorageInTransit, shipmentID uuid.UUID, storageInTransitID uuid.UUID, session *auth.Session) (*models.StorageInTransit, *validate.Errors, error)
 }
