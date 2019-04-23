@@ -4,29 +4,38 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
+
 	"github.com/gofrs/uuid"
 )
 
 // AccessCode is an object representing an access code for a service member
 type AccessCode struct {
-	ID        uuid.UUID        `json:"id" db:"id"`
-	MoveID    uuid.UUID        `json:"move_id" db:"move_id"`
-	Code      string           `json:"code" db:"code"`
-	MoveType  SelectedMoveType `json:"move_type" db:"move_type"`
-	CreatedAt time.Time        `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time        `json:"updated_at" db:"updated_at"`
+	ID        uuid.UUID         `json:"id" db:"id"`
+	MoveID    uuid.UUID         `json:"move_id" db:"move_id"`
+	Code      string            `json:"code" db:"code"`
+	MoveType  *SelectedMoveType `json:"move_type" db:"move_type"`
+	CreatedAt time.Time         `json:"created_at" db:"created_at"`
+	UpdatedAt time.Time         `json:"updated_at" db:"updated_at"`
 }
 
-//ValidateAccessCode checks whether an access code is valid and unused
-func ValidateAccessCode(db *pop.Connection, code string, moveType SelectedMoveType) (*AccessCode, bool) {
-	ac := AccessCode{}
-	err := db.
-		Where("code = ?", code).
-		Where("move_id IS NULL").
-		Where("move_type = ?", moveType).
-		First(&ac)
-	if err != nil {
-		return &ac, false
-	}
-	return &ac, true
+// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
+// This method is not required and may be deleted.
+func (ac *AccessCode) Validate(tx *pop.Connection) (*validate.Errors, error) {
+	return validate.Validate(
+		&validators.StringIsPresent{Field: string(ac.Code), Name: "Code"},
+	), nil
+}
+
+// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
+// This method is not required and may be deleted.
+func (ac *AccessCode) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
+	return validate.NewErrors(), nil
+}
+
+// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
+// This method is not required and may be deleted.
+func (ac *AccessCode) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
+	return validate.NewErrors(), nil
 }

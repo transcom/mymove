@@ -3148,6 +3148,7 @@ paths:
     get:
       summary: Validate if an access code has been unused and associated with the correct move type.
       description: Verifies if access code is both unused and correctly associated with a move type.
+      operationId: validateAccessCode
       tags:
         - accesscode
       parameters:
@@ -3155,10 +3156,6 @@ paths:
           name: code
           type: string
           description: the code the access code represents and verifies if in use
-        - in: query
-          name: move_type
-          type: string
-          description: the move type to verify what type of move the access code is for
       responses:
         200:
           description: access code is invalid or valid
@@ -3166,7 +3163,7 @@ paths:
             $ref: '#/definitions/ValidateAccessCodePayload'
         400:
           description: invalid request
-        403:
+        401:
           description: not authorized to validate access code
         404:
           description: access code not found in system
