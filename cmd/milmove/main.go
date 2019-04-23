@@ -1209,7 +1209,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	root := goji.NewMux()
 	root.Use(sessionCookieMiddleware)
-	root.Use(logging.LogRequestMiddleware(gitBranch, gitCommit))
+	root.Use(logging.LogRequestMiddleware(logger))
 
 	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
 	csrfAuthKey, err := hex.DecodeString(v.GetString("csrf-auth-key"))
