@@ -202,7 +202,7 @@ definitions:
         x-nullable: true
       weight_estimate:
         type: integer
-        minimum: 1
+        minimum: 0
         title: Weight Estimate
         x-nullable: true
       net_weight:
@@ -280,7 +280,7 @@ definitions:
         x-nullable: true
       weight_estimate:
         type: integer
-        minimum: 1
+        minimum: 0
         title: Weight Estimate
         x-nullable: true
       net_weight:
@@ -355,7 +355,7 @@ definitions:
         x-nullable: true
       weight_estimate:
         type: integer
-        minimum: 1
+        minimum: 0
         title: Weight Estimate
         x-nullable: true
       net_weight:
@@ -443,7 +443,7 @@ definitions:
         x-nullable: true
       weight_estimate:
         type: integer
-        minimum: 1
+        minimum: 0
         title: Weight Estimate
         x-nullable: true
         x-formatting: weight
