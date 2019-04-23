@@ -31,6 +31,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
 	"github.com/gorilla/csrf"
+	gorillahandlers "github.com/gorilla/handlers"
 	"github.com/honeycombio/beeline-go"
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
 	"github.com/jmoiron/sqlx"
@@ -165,18 +166,20 @@ func noCacheMiddleware(inner http.Handler) http.Handler {
 	return http.HandlerFunc(mw)
 }
 
-func recoveryMiddleware(inner http.Handler) http.Handler {
+func recoveryMiddleware(logger logger) func(inner http.Handler) http.Handler {
 	zap.L().Debug("recovery installed")
-	mw := func(w http.ResponseWriter, r *http.Request) {
-		defer func() {
-			if r := recover(); r != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				zap.L().Error(fmt.Sprintf("%s: %s", r, debug.Stack()))
-			}
-		}()
-		inner.ServeHTTP(w, r)
+	return func(inner http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			defer func() {
+				if r := recover(); r != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					logger.Error(fmt.Sprintf("%s: %s", r, debug.Stack()))
+				}
+			}()
+			inner.ServeHTTP(w, r)
+		}
+		return http.HandlerFunc(mw)
 	}
-	return http.HandlerFunc(mw)
 }
 
 func httpsComplianceMiddleware(inner http.Handler) http.Handler {
@@ -1262,10 +1265,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	apiMux.Handle(pat.New("/*"), externalAPIMux)
 	externalAPIMux.Use(noCacheMiddleware)
 	externalAPIMux.Use(userAuthMiddleware)
-	//gl := &GorillaLogger{logger}
-	//rmw := gorillahandlers.RecoveryHandler(gorillahandlers.RecoveryLogger(gl), gorillahandlers.PrintRecoveryStack(false))
-	//externalAPIMux.Use(rmw)
-	externalAPIMux.Use(recoveryMiddleware)
+	gl := &GorillaLogger{logger}
+	rmw := gorillahandlers.RecoveryHandler(gorillahandlers.RecoveryLogger(gl), gorillahandlers.PrintRecoveryStack(false))
+	externalAPIMux.Use(rmw)
 	externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext))
 
 	internalMux := goji.SubMux()
@@ -1282,7 +1284,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	internalMux.Handle(pat.New("/*"), internalAPIMux)
 	internalAPIMux.Use(userAuthMiddleware)
 	internalAPIMux.Use(noCacheMiddleware)
-	internalAPIMux.Use(recoveryMiddleware)
+	internalAPIMux.Use(recoveryMiddleware(logger))
 	internalAPIMux.Handle(pat.New("/*"), internalapi.NewInternalAPIHandler(handlerContext))
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)

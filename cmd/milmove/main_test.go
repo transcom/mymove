@@ -211,7 +211,8 @@ func (suite *webServerSuite) TestRecoverMiddleware() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		panic("panic")
 	})
-	middleware := recoveryMiddleware(handler)
+	logger, _ := logging.Config("development", false)
+	middleware := recoveryMiddleware(logger)(handler)
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "http://mil.example.com/static/something", nil)
 
