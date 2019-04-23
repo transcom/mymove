@@ -22,7 +22,7 @@ const (
 // InitBuildFlags initializes the Build command line flags
 func InitBuildFlags(flag *pflag.FlagSet) {
 	flag.String(BuildFlag, "build", "the directory to serve static files from.")
-	flag.String(InterfaceFlag, "localhost", "The interface spec to listen for connections on. Default is all.")
+	flag.String(InterfaceFlag, "", "The interface spec to listen for connections on. Default of empty string means all interfaces. Accepts 'localhost' or IPv4 addresses as well.")
 	flag.Duration(GracefulShutdownTimeoutFlag, 25*time.Second, "The duration for which the server gracefully wait for existing connections to finish.  AWS ECS only gives you 30 seconds before sending SIGKILL.")
 }
 
@@ -33,7 +33,7 @@ func CheckBuild(v *viper.Viper) error {
 	}
 
 	iface := v.GetString(InterfaceFlag)
-	if iface != "localhost" {
+	if !(iface == "localhost" || iface == "") {
 		addr, err := net.ResolveIPAddr("tcp", iface)
 		if err != nil {
 			return errors.Errorf("Unable to resolve IP address %s", iface)
