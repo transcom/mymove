@@ -24,10 +24,19 @@ func CheckProtocols(v *viper.Viper) error {
 	}
 
 	for _, c := range protocolVars {
-		if p := v.GetString(c); p != "http" && p != "https" {
-			return errors.Wrap(&errInvalidProtocol{Protocol: p}, fmt.Sprintf("%s is invalid", c))
+		err := ValidateProtocol(v, c)
+		if err != nil {
+			return err
 		}
 	}
 
+	return nil
+}
+
+// ValidateProtocol validates a Protocol passed in from the command line
+func ValidateProtocol(v *viper.Viper, flagname string) error {
+	if p := v.GetString(flagname); p != "http" && p != "https" {
+		return errors.Wrap(&errInvalidProtocol{Protocol: p}, fmt.Sprintf("%s is invalid", flagname))
+	}
 	return nil
 }

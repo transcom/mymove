@@ -44,7 +44,6 @@ func InitHostFlags(flag *pflag.FlagSet) {
 
 // CheckHosts validates the Hosts command line flags
 func CheckHosts(v *viper.Viper) error {
-	invalidChars := ":/\\ \t\n\v\f\r"
 
 	hostVars := []string{
 		HTTPMyServerNameFlag,
@@ -61,10 +60,20 @@ func CheckHosts(v *viper.Viper) error {
 	}
 
 	for _, c := range hostVars {
-		if h := v.GetString(c); len(h) == 0 || strings.ContainsAny(h, invalidChars) {
-			return errors.Wrap(&errInvalidHost{Host: h}, fmt.Sprintf("%s is invalid", c))
+		err := ValidateHost(v, c)
+		if err != nil {
+			return err
 		}
 	}
 
+	return nil
+}
+
+// ValidateHost validates a Hostname passed in from the command line
+func ValidateHost(v *viper.Viper, flagname string) error {
+	invalidChars := ":/\\ \t\n\v\f\r"
+	if h := v.GetString(flagname); len(h) == 0 || strings.ContainsAny(h, invalidChars) {
+		return errors.Wrap(&errInvalidHost{Host: h}, fmt.Sprintf("%s is invalid", flagname))
+	}
 	return nil
 }

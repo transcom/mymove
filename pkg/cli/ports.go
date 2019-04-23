@@ -44,10 +44,19 @@ func CheckPorts(v *viper.Viper) error {
 	}
 
 	for _, c := range portVars {
-		if p := v.GetInt(c); p <= 0 || p > 65535 {
-			return errors.Wrap(&errInvalidPort{Port: p}, fmt.Sprintf("%s is invalid", c))
+		err := ValidatePort(v, c)
+		if err != nil {
+			return err
 		}
 	}
 
+	return nil
+}
+
+// ValidatePort validates a Port passed in from the command line
+func ValidatePort(v *viper.Viper, flagname string) error {
+	if p := v.GetInt(flagname); p <= 0 || p > 65535 {
+		return errors.Wrap(&errInvalidPort{Port: p}, fmt.Sprintf("%s is invalid", flagname))
+	}
 	return nil
 }
