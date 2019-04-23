@@ -82,7 +82,7 @@ $DOCKER_RUN \
   ${CONTAINER}:latest
 
 # If your container is exiting unexpectedly try uncommenting this code to see the output:
-# docker logs -f ${CONTAINER}
+docker logs -f ${CONTAINER}
 
 # Grab the IP address of the running container
 E2E_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${CONTAINER})
