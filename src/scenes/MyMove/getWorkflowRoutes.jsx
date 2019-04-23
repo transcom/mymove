@@ -232,7 +232,7 @@ const pages = {
   '/moves/:moveId/ppm-incentive': {
     isInFlow: hasPPM,
     isComplete: ({ sm, orders, move, ppm }) =>
-      get(ppm, 'weight_estimate', null) && get(ppm, 'weight_estimate', null) !== 0,
+      get(ppm, 'weight_estimate', null) && get(ppm, 'weight_estimate', 0) !== 0,
     render: (key, pages) => ({ match }) => <PpmWeight pages={pages} pageKey={key} match={match} />,
   },
   '/moves/:moveId/review': {
