@@ -18,6 +18,8 @@ const (
 	HTTPSDDCProtocolFlag string = "http-sddc-protocol"
 	// HTTPSDDCPortFlag is the HTTP SDDC Port Flag
 	HTTPSDDCPortFlag string = "http-sddc-port"
+	// HTTPDPSServerNameFlag is the HTTP DPS Server Name Flag
+	HTTPDPSServerNameFlag string = "http-dps-server-name"
 	// DPSAuthSecretKeyFlag is the DPS Auth Secret Key Flag
 	DPSAuthSecretKeyFlag string = "dps-auth-secret-key"
 	// DPSRedirectURLFlag is the DPS Redirect URL Flag
@@ -37,6 +39,8 @@ func InitDPSFlags(flag *pflag.FlagSet) {
 	flag.String(HTTPSDDCServerNameFlag, "sddclocal", "Hostname according to envrionment.")
 	flag.String(HTTPSDDCProtocolFlag, "https", "Protocol for sddc")
 	flag.Int(HTTPSDDCPortFlag, 443, "The port for sddc")
+
+	flag.String(HTTPDPSServerNameFlag, "dpslocal", "Hostname according to environment.")
 	flag.String(DPSAuthSecretKeyFlag, "", "DPS auth JWT secret key")
 	flag.String(DPSRedirectURLFlag, "", "DPS url to redirect to")
 	flag.String(DPSCookieNameFlag, "", "Name of the DPS cookie")
@@ -67,7 +71,28 @@ func InitDPSAuthParams(v *viper.Viper, appnames auth.ApplicationServername) dpsa
 // CheckDPS validates DPS command line flags
 func CheckDPS(v *viper.Viper) error {
 
-	dpsCookieSecret := []byte(v.GetString("dps-auth-cookie-secret-key"))
+	if err := ValidateProtocol(v, HTTPSDDCProtocolFlag); err != nil {
+		return err
+	}
+
+	hostVars := []string{
+		HTTPSDDCServerNameFlag,
+		HTTPDPSServerNameFlag,
+		DPSCookieDomainFlag,
+	}
+
+	for _, c := range hostVars {
+		err := ValidateHost(v, c)
+		if err != nil {
+			return err
+		}
+	}
+
+	if err := ValidatePort(v, HTTPSDDCPortFlag); err != nil {
+		return err
+	}
+
+	dpsCookieSecret := []byte(v.GetString(DPSAuthCookieSecretKeyFlag))
 	if len(dpsCookieSecret) != 32 {
 		return errors.New("DPS Cookie Secret Key is not 32 bytes. Cookie Secret Key length: " + strconv.Itoa(len(dpsCookieSecret)))
 	}

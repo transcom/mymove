@@ -25,3 +25,11 @@ func InitRBSPersonLookup(v *viper.Viper, logger logger) (*iws.RBSPersonLookup, e
 		v.GetString("move-mil-dod-tls-cert"),
 		v.GetString("move-mil-dod-tls-key"))
 }
+
+// CheckIWS validates IWS command line flags
+func CheckIWS(v *viper.Viper) error {
+	if err := ValidateHost(v, IWSRBSHostFlag); err != nil {
+		return err
+	}
+	return nil
+}

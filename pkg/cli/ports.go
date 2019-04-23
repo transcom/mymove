@@ -38,9 +38,6 @@ func CheckPorts(v *viper.Viper) error {
 		MutualTLSPortFlag,
 		TLSPortFlag,
 		NoTLSPortFlag,
-		LoginGovCallbackPortFlag,
-		DbPortFlag,
-		HTTPSDDCPortFlag,
 	}
 
 	for _, c := range portVars {

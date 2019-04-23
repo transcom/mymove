@@ -1,6 +1,11 @@
 package cli
 
 import (
+	"fmt"
+	"regexp"
+	"strings"
+
+	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
@@ -11,6 +16,7 @@ import (
 const (
 	// ClientAuthSecretKeyFlag is the Client Auth Secret Key Flag
 	ClientAuthSecretKeyFlag string = "client-auth-secret-key"
+
 	// NoSessionTimeoutFlag is the No Session Timeout Flag
 	NoSessionTimeoutFlag string = "no-session-timeout"
 
@@ -30,9 +36,18 @@ const (
 	LoginGovHostnameFlag string = "login-gov-hostname"
 )
 
+type errInvalidClientID struct {
+	ClientID string
+}
+
+func (e *errInvalidClientID) Error() string {
+	return fmt.Sprintf("invalid client ID %s, must be of format 'urn:gov:gsa:openidconnect.profiles:sp:sso:dod:IDENTIFIER'", e.ClientID)
+}
+
 // InitAuthFlags initializes Auth command line flags
 func InitAuthFlags(flag *pflag.FlagSet) {
 	flag.String(ClientAuthSecretKeyFlag, "", "Client auth secret JWT key.")
+
 	flag.Bool(NoSessionTimeoutFlag, false, "whether user sessions should timeout.")
 
 	flag.String(LoginGovCallbackProtocolFlag, "https", "Protocol for non local environments.")
@@ -62,4 +77,88 @@ func InitAuth(v *viper.Viper, logger logger, appnames auth.ApplicationServername
 		loginGovCallbackProtocol,
 		loginGovCallbackPort)
 	return loginGovProvider, err
+}
+
+// CheckAuth validates Auth command line flags
+func CheckAuth(v *viper.Viper) error {
+
+	if err := ValidateProtocol(v, LoginGovCallbackProtocolFlag); err != nil {
+		return err
+	}
+
+	if err := ValidateHost(v, LoginGovHostnameFlag); err != nil {
+		return err
+	}
+
+	if err := ValidatePort(v, LoginGovCallbackPortFlag); err != nil {
+		return err
+	}
+
+	clientIDVars := []string{
+		LoginGovMyClientIDFlag,
+		LoginGovOfficeClientIDFlag,
+		LoginGovTSPClientIDFlag,
+	}
+
+	for _, c := range clientIDVars {
+		err := ValidateClientID(v, c)
+		if err != nil {
+			return err
+		}
+	}
+
+	privateKey := v.GetString(LoginGovSecretKeyFlag)
+	if len(privateKey) == 0 {
+		return errors.Errorf("%s is missing", LoginGovSecretKeyFlag)
+	}
+
+	keys := ParsePrivateKey(privateKey)
+	if len(keys) == 0 {
+		return errors.Errorf("%s is missing key block", LoginGovSecretKeyFlag)
+	}
+
+	return nil
+}
+
+// ValidateClientID validates a proper Login.gov ClientID was passed
+func ValidateClientID(v *viper.Viper, flagname string) error {
+	clientID := v.GetString(flagname)
+	clientIDParts := strings.Split(clientID, ":")
+	if len(clientIDParts) != 8 {
+		return errors.Wrap(&errInvalidClientID{ClientID: clientID}, fmt.Sprintf("%s is invalid due to length", flagname))
+	}
+	openIDFormat := []string{"urn", "gov", "gsa", "openidconnect.profiles", "sp", "sso", "dod"}
+	for i, v := range clientIDParts {
+		if i == 7 {
+			break
+		}
+		if v != openIDFormat[i] {
+			return errors.Wrap(&errInvalidClientID{ClientID: clientID}, fmt.Sprintf("%s is not using OpenID connect", flagname))
+		}
+	}
+	return nil
+}
+
+// ParsePrivateKey takes a private key and parses it into an slice of individual keys
+func ParsePrivateKey(str string) []string {
+
+	privateKeyFormat := "-----BEGIN PRIVATE KEY-----\n%s\n-----END PRIVATE KEY-----"
+
+	// https://tools.ietf.org/html/rfc7468#section-2
+	//	- https://stackoverflow.com/questions/20173472/does-go-regexps-any-charcter-match-newline
+	re := regexp.MustCompile("(?s)([-]{5}BEGIN PRIVATE KEY[-]{5})(\\s*)(.+?)(\\s*)([-]{5}END PRIVATE KEY[-]{5})")
+	matches := re.FindAllStringSubmatch(str, -1)
+
+	privateKeys := make([]string, 0, len(matches))
+	for _, m := range matches {
+		// each match will include a slice of strings starting with
+		// (0) the full match, then
+		// (1) -----BEGIN PRIVATE KEY-----,
+		// (2) whitespace if any,
+		// (3) base64-encoded privateKey data,
+		// (4) whitespace if any, and then
+		// (5) -----END PRIVATE KEY-----,
+		privateKeys = append(privateKeys, fmt.Sprintf(privateKeyFormat, m[3]))
+	}
+	return privateKeys
 }

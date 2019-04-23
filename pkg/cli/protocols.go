@@ -18,10 +18,7 @@ func (e *errInvalidProtocol) Error() string {
 // CheckProtocols validates the Protocol command line flags
 func CheckProtocols(v *viper.Viper) error {
 
-	protocolVars := []string{
-		LoginGovCallbackProtocolFlag,
-		HTTPSDDCProtocolFlag,
-	}
+	protocolVars := []string{}
 
 	for _, c := range protocolVars {
 		err := ValidateProtocol(v, c)

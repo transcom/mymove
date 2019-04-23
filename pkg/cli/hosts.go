@@ -20,8 +20,6 @@ const (
 	HTTPAdminServerNameFlag string = "http-admin-server-name"
 	// HTTPOrdersServerNameFlag is the HTTP Orders Server Name Flag
 	HTTPOrdersServerNameFlag string = "http-orders-server-name"
-	// HTTPDPSServerNameFlag is the HTTP DPS Server Name Flag
-	HTTPDPSServerNameFlag string = "http-dps-server-name"
 )
 
 type errInvalidHost struct {
@@ -39,7 +37,6 @@ func InitHostFlags(flag *pflag.FlagSet) {
 	flag.String(HTTPTSPServerNameFlag, "tsplocal", "Hostname according to environment.")
 	flag.String(HTTPAdminServerNameFlag, "adminlocal", "Hostname according to environment.")
 	flag.String(HTTPOrdersServerNameFlag, "orderslocal", "Hostname according to environment.")
-	flag.String(HTTPDPSServerNameFlag, "dpslocal", "Hostname according to environment.")
 }
 
 // CheckHosts validates the Hosts command line flags
@@ -51,12 +48,6 @@ func CheckHosts(v *viper.Viper) error {
 		HTTPTSPServerNameFlag,
 		HTTPAdminServerNameFlag,
 		HTTPOrdersServerNameFlag,
-		HTTPDPSServerNameFlag,
-		HTTPSDDCServerNameFlag,
-		DPSCookieDomainFlag,
-		LoginGovHostnameFlag,
-		IWSRBSHostFlag,
-		DbHostFlag,
 	}
 
 	for _, c := range hostVars {

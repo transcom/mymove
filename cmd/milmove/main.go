@@ -197,6 +197,14 @@ func checkConfig(v *viper.Viper, logger logger) error {
 		return err
 	}
 
+	if err = cli.CheckAuth(v); err != nil {
+		return err
+	}
+
+	if err = cli.CheckIWS(v); err != nil {
+		return err
+	}
+
 	err = cli.CheckDPS(v)
 	if err != nil {
 		return err
