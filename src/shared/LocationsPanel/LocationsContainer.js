@@ -6,7 +6,7 @@ import { getPublicSwaggerDefinition } from 'shared/Swagger/selectors';
 import LocationsPanel from './LocationsPanel';
 
 const mapStateToProps = (state, ownProps) => {
-  const shipment = ownProps.shipment;
+  const { shipment } = ownProps;
   const formName = 'shipment_locations';
   const newDutyStation = get(shipment, 'move.new_duty_station.address', {});
   const schema = getPublicSwaggerDefinition(state, 'Shipment');
