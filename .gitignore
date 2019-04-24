@@ -32,6 +32,7 @@ __snapshots__
 /cmd/generate_1203_form/*.pdf
 
 #debugging
+/cmd/milmove/debug
 /cmd/webserver/debug
 
 # misc

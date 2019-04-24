@@ -310,6 +310,24 @@ describe('SchemaField tests', () => {
 
     testField(dimensionsField, dimensionTests);
   });
+
+  describe('DoD ID # field', () => {
+    const dodIDField = {
+      type: 'string',
+      format: 'edipi',
+      example: '5789345789',
+      pattern: '^[0-9]{10}$',
+    };
+
+    const expectedError = 'Must be a valid DoD ID # (10 digits long)';
+    const dodIDTests = [
+      ['1234567890', '1234567890', null],
+      ['asdf1234', '1234', expectedError],
+      ['123456789', '123456789', expectedError],
+    ];
+
+    testField(dodIDField, dodIDTests);
+  });
 });
 
 describe('fields required tests', () => {

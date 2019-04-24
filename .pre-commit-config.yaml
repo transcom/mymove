@@ -118,16 +118,6 @@ repos:
 
   - repo: local
     hooks:
-      - id: gosec
-        name: gosec scanner
-        entry: bin/gosec -exclude=G104 -fmt text ./...
-        language: script
-        description: Inspects source code for security problems by scanning the Go AST.
-        files: \.go$
-        pass_filenames: false
-
-  - repo: local
-    hooks:
       - id: gomod
         name: gomod
         entry: scripts/pre-commit-go-mod
@@ -157,3 +147,13 @@ repos:
         language: script
         files: \.md$
         pass_filenames: false
+
+
+  - repo: local
+    hooks:
+    - id: circleci-validate
+      name: circleci validate
+      entry: scripts/pre-commit-circleci-validate
+      language: script
+      files: '[.]circleci/config.yml$'
+      pass_filenames: false

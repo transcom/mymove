@@ -12,7 +12,9 @@ class BasicPanel extends Component {
         <div className="basic-panel-title">
           {title} {titleExtension}
         </div>
-        <div className={classnames('basic-panel-content', className)}>{children}</div>
+        <div className={classnames('basic-panel-content', className)} data-cy="basic-panel-content">
+          {children}
+        </div>
       </div>
     );
   }

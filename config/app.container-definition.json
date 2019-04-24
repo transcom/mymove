@@ -16,12 +16,14 @@
     "exec",
     "app-{{ .environment }}",
     "--",
-    "/bin/mymove-server"
+    "/bin/milmove",
+    "serve"
   ],
   "command": [
     "--env",
     "container",
-    "--debug-logging"
+    "--debug-logging",
+    "--log-task-metadata"
   ],
   "environment": [
     {

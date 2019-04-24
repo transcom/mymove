@@ -8,14 +8,14 @@ import { Code105Details } from './Code105Details';
 import { DefaultDetails } from './DefaultDetails';
 import { Code226Details } from './Code226Details';
 
-export function getFormComponent(code, robustAccessorial, initialValues) {
+export function getFormComponent(code, robustAccessorialFlag, initialValues) {
   code = code ? code.toLowerCase() : '';
   const isNew = !initialValues;
   if (code.startsWith('105b') || code.startsWith('105e')) {
     if (isNew || get(initialValues, 'crate_dimensions', false)) return Code105Form;
-  } else if (robustAccessorial && code.startsWith('35')) {
+  } else if (code.startsWith('35')) {
     if (isNew || get(initialValues, 'estimate_amount_cents')) return Code35Form;
-  } else if (robustAccessorial && code.startsWith('226')) {
+  } else if (code.startsWith('226')) {
     if (isNew || get(initialValues, 'actual_amount_cents')) return Code226Form;
   }
   return DefaultForm;
@@ -24,8 +24,8 @@ export function getFormComponent(code, robustAccessorial, initialValues) {
 export function getDetailsComponent(code, robustAccessorialFlag, isRobustAccessorial) {
   if (!isRobustAccessorial) return DefaultDetails;
   if (code === '105B' || code === '105E') return Code105Details;
-  if (code === '35A' && robustAccessorialFlag) return Code35Details;
-  if (code === '226A' && robustAccessorialFlag) return Code226Details;
+  if (code === '35A') return Code35Details;
+  if (code === '226A') return Code226Details;
   return DefaultDetails;
 }
 

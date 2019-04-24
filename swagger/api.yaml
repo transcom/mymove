@@ -1028,7 +1028,9 @@ definitions:
         type: string
         format: edipi
         example: '5789345789'
-        pattern: '^[0-9]{10}$'
+        pattern: '^\d{10}$'
+        minLength: 10
+        maxLength: 10
         x-nullable: true
         title: DoD ID number
       affiliation:

@@ -34,6 +34,7 @@ import (
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -44,6 +45,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
+	"github.com/transcom/mymove/pkg/ecs"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/dpsapi"
@@ -203,14 +205,16 @@ func securityHeadersMiddleware(inner http.Handler) http.Handler {
 	return http.HandlerFunc(mw)
 }
 
-func initFlags(flag *pflag.FlagSet) {
+func initServeFlags(flag *pflag.FlagSet) {
 
 	flag.String("build", "build", "the directory to serve static files from.")
 	flag.String("config-dir", "config", "The location of server config files")
-	flag.String("env", "development", "The environment to run in, which configures the database.")
+	flag.StringP("env", "e", "development", "The environment to run in, which configures the database.")
 	flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	flag.String("service-name", "app", "The service name identifies the application for instrumentation.")
 	flag.Duration("graceful-shutdown-timeout", 25*time.Second, "The duration for which the server gracefully wait for existing connections to finish.  AWS ECS only gives you 30 seconds before sending SIGKILL.")
+
+	flag.Bool("log-task-metadata", false, "Fetch AWS Task Metadata and add to log.")
 
 	flag.String("http-my-server-name", "milmovelocal", "Hostname according to environment.")
 	flag.String("http-office-server-name", "officelocal", "Hostname according to environment.")
@@ -237,7 +241,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("dps-swagger", "swagger/dps.yaml", "The location of the DPS API swagger definition")
 	flag.Bool(serveSwaggerUIFlag, false, "Whether to serve swagger UI for the APIs")
 
-	flag.Bool("debug-logging", false, "log messages at the debug level.")
+	flag.BoolP("debug-logging", "v", false, "log messages at the debug level.")
 	flag.String("client-auth-secret-key", "", "Client auth secret JWT key.")
 	flag.Bool("no-session-timeout", false, "whether user sessions should timeout.")
 
@@ -299,7 +303,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("iws-rbs-host", "", "Hostname for the IWS RBS")
 
 	// DB Config
-	flag.String("db-name", "dev_db", "Database Name")
+	flag.StringP("db-name", "d", "dev_db", "Database Name")
 	flag.String("db-host", "localhost", "Database Hostname")
 	flag.Int("db-port", 5432, "Database Port")
 	flag.String("db-user", "postgres", "Database Username")
@@ -797,11 +801,26 @@ func startListener(srv *server.NamedServer, logger logger, useTLS bool) {
 	}
 }
 
-func main() {
+func versionFunction(cmd *cobra.Command, args []string) error {
+	str, err := json.Marshal(map[string]interface{}{
+		"gitBranch": gitBranch,
+		"gitCommit": gitCommit,
+	})
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(str))
+	return nil
+}
 
-	flag := pflag.CommandLine
-	initFlags(flag)
-	flag.Parse(os.Args[1:])
+func serveFunction(cmd *cobra.Command, args []string) error {
+
+	err := cmd.ParseFlags(os.Args[1:])
+	if err != nil {
+		return err
+	}
+
+	flag := cmd.Flags()
 
 	v := viper.New()
 	v.BindPFlags(flag)
@@ -823,6 +842,34 @@ func main() {
 		fields = append(fields, zap.String("git_commit", gitCommit))
 	}
 	logger = logger.With(fields...)
+
+	if v.GetBool("log-task-metadata") {
+		resp, err := http.Get("http://169.254.170.2/v2/metadata")
+		if err != nil {
+			logger.Error(errors.Wrap(err, "could not fetch task metadata").Error())
+		} else {
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				logger.Error(errors.Wrap(err, "could not read task metadata").Error())
+			} else {
+				taskMetadata := &ecs.TaskMetadata{}
+				err := json.Unmarshal(body, taskMetadata)
+				if err != nil {
+					logger.Error(errors.Wrap(err, "could not parse task metadata").Error())
+				} else {
+					logger = logger.With(
+						zap.String("ecs_cluster", taskMetadata.Cluster),
+						zap.String("ecs_task_def_family", taskMetadata.Family),
+						zap.String("ecs_task_def_revision", taskMetadata.Revision),
+					)
+				}
+			}
+			err = resp.Body.Close()
+			if err != nil {
+				logger.Error(errors.Wrap(err, "could not close task metadata response").Error())
+			}
+		}
+	}
 	zap.ReplaceGlobals(logger)
 
 	logger.Info("webserver starting up")
@@ -1109,9 +1156,8 @@ func main() {
 		} else {
 			protocol = "https"
 		}
-		logger.Info("Request",
-			zap.String("git-branch", gitBranch),
-			zap.String("git-commit", gitCommit),
+
+		fields := []zap.Field{
 			zap.String("accepted-language", r.Header.Get("accepted-language")),
 			zap.Int64("content-length", r.ContentLength),
 			zap.String("host", r.Host),
@@ -1122,11 +1168,19 @@ func main() {
 			zap.String("source", r.RemoteAddr),
 			zap.String("url", r.URL.String()),
 			zap.String("user-agent", r.UserAgent()),
-			zap.String("x-amzn-trace-id", r.Header.Get("x-amzn-trace-id")),
-			zap.String("x-forwarded-for", r.Header.Get("x-forwarded-for")),
-			zap.String("x-forwarded-host", r.Header.Get("x-forwarded-host")),
-			zap.String("x-forwarded-proto", r.Header.Get("x-forwarded-proto")),
-		)
+		}
+
+		// Append x- headers, e.g., x-forwarded-for.
+		for name, values := range r.Header {
+			if nameLowerCase := strings.ToLower(name); strings.HasPrefix(nameLowerCase, "x-") {
+				if len(values) > 0 {
+					fields = append(fields, zap.String(nameLowerCase, values[0]))
+				}
+			}
+		}
+
+		logger.Info("Request", fields...)
+
 	})
 
 	staticMux := goji.SubMux()
@@ -1193,7 +1247,7 @@ func main() {
 
 	root := goji.NewMux()
 	root.Use(sessionCookieMiddleware)
-	root.Use(logging.LogRequestMiddleware(gitBranch, gitCommit))
+	root.Use(logging.LogRequestMiddleware(logger))
 
 	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
 	csrfAuthKey, err := hex.DecodeString(v.GetString("csrf-auth-key"))
@@ -1401,6 +1455,48 @@ func main() {
 	if shutdownError {
 		os.Exit(1)
 	}
+
+	return nil
+}
+
+func main() {
+
+	root := cobra.Command{
+		Use:   "milmove [flags]",
+		Short: "Webserver for MilMove",
+		Long:  "Webserver for MilMove",
+	}
+
+	root.AddCommand(&cobra.Command{
+		Use:   "version",
+		Short: "Print version information to stdout",
+		Long:  "Print version information to stdout",
+		RunE:  versionFunction,
+	})
+
+	serveCommand := &cobra.Command{
+		Use:   "serve",
+		Short: "Runs MilMove webserver",
+		Long:  "Runs MilMove webserver",
+		RunE:  serveFunction,
+	}
+	initServeFlags(serveCommand.Flags())
+	root.AddCommand(serveCommand)
+
+	completionCommand := &cobra.Command{
+		Use:   "completion",
+		Short: "Generates bash completion scripts",
+		Long:  "To install completion scripts run:\n\nmilmove completion > /usr/local/etc/bash_completion.d/milmove",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return root.GenBashCompletion(os.Stdout)
+		},
+	}
+	root.AddCommand(completionCommand)
+
+	if err := root.Execute(); err != nil {
+		panic(err)
+	}
+
 }
 
 // fileHandler serves up a single file
