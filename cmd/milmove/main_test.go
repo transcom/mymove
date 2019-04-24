@@ -66,6 +66,12 @@ func TestWebServerSuite(t *testing.T) {
 	suite.Run(t, ss)
 }
 
+// TestCheckConfig is the acceptance test for the milmove webserver
+// This will run all checks against the local environment and fail if something isn't configured
+func (suite *webServerSuite) TestCheckConfig() {
+	suite.Nil(checkConfig(suite.viper, suite.logger))
+}
+
 func (suite *webServerSuite) loadContext(variablesFile string) map[string]string {
 	ctx := map[string]string{}
 	if len(variablesFile) > 0 {
