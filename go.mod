@@ -46,7 +46,7 @@ require (
 	github.com/godbus/dbus v0.0.0-20181101234600-2ff6f7ffd60f // indirect
 	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/gorilla/csrf v1.5.1
-	github.com/gorilla/handlers v1.4.0
+	github.com/gorilla/handlers v1.4.0 // indirect
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/honeycombio/beeline-go v0.3.4
