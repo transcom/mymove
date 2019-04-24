@@ -1,10 +1,9 @@
 import React, { Fragment } from 'react';
 
+import * as normalizer from './reduxFieldNormalizer';
 import validator from './validator';
 import { Field } from 'redux-form';
-import moment from 'moment';
 import SingleDatePicker from './SingleDatePicker';
-import { swaggerDateFormat } from 'shared/utils';
 export const ALWAYS_REQUIRED_KEY = 'x-always-required';
 
 // ---- Parsers -----
@@ -87,7 +86,7 @@ const configureCentsField = (swaggerField, props) => {
 // This field allows the form field to accept floats and converts values to
 // decimal units for db storage (value * (10 ^ decimalLength))
 const configureDecimalField = (swaggerField, props, decimalLength, warningMessage) => {
-  props.normalize = validator.createDecimalNormalizer(decimalLength);
+  props.normalize = normalizer.createDecimalNormalizer(decimalLength);
   props.validate.push(validator.patternMatches(swaggerField.pattern, warningMessage));
   props.validate.push(validator.isNumber);
   props.type = 'text';
@@ -95,7 +94,7 @@ const configureDecimalField = (swaggerField, props, decimalLength, warningMessag
 };
 
 const configureTelephoneField = (swaggerField, props) => {
-  props.normalize = validator.normalizePhone;
+  props.normalize = normalizer.normalizePhone;
   props.validate.push(
     validator.patternMatches(swaggerField.pattern, 'Number must have 10 digits and a valid area code.'),
   );
@@ -105,7 +104,7 @@ const configureTelephoneField = (swaggerField, props) => {
 };
 
 const configureZipField = (swaggerField, props, zipPattern) => {
-  props.normalize = validator.normalizeZip;
+  props.normalize = normalizer.normalizeZip;
   if (zipPattern) {
     if (zipPattern === 'USA') {
       const zipRegex = '^[0-9]{5}(?:-[0-9]{4})?$';
@@ -119,14 +118,10 @@ const configureZipField = (swaggerField, props, zipPattern) => {
   return props;
 };
 
-const normalizeDates = value => {
-  return value ? moment(value).format(swaggerDateFormat) : value;
-};
-
 const configureDateField = (swaggerField, props) => {
   props.type = 'date';
   props.customComponent = SingleDatePicker;
-  props.normalize = normalizeDates;
+  props.normalize = normalizer.normalizeDates;
   return props;
 };
 
@@ -142,7 +137,8 @@ const configureTextField = (swaggerField, props) => {
 };
 
 const configureEdipiField = (swaggerField, props) => {
-  props.validate.push(validator.patternMatches(swaggerField.pattern, 'Must be a valid DoD ID #'));
+  props.normalize = normalizer.createDigitNormalizer(swaggerField.maxLength);
+  props.validate.push(validator.patternMatches(swaggerField.pattern, 'Must be a valid DoD ID # (10 digits long)'));
   props.type = 'text';
 
   return props;

@@ -54,80 +54,6 @@ const isDate = value => {
   }
 };
 
-const normalizePhone = (value, previousValue) => {
-  if (!value) {
-    return value;
-  }
-  const onlyNums = value.replace(/[^\d]/g, '');
-  let normalizedPhone = '';
-  for (let i = 0; i < 10; i++) {
-    if (i >= onlyNums.length) {
-      break;
-    }
-    if (i === 3 || i === 6) {
-      normalizedPhone += '-';
-    }
-    normalizedPhone += onlyNums[i]; // eslint-disable-line security/detect-object-injection
-  }
-  return normalizedPhone;
-};
-
-const normalizeSSN = (value, previousValue) => {
-  if (!value) {
-    return value;
-  }
-  const onlyNums = value.replace(/[^\d]/g, '');
-  let normalizedSSN = '';
-  for (let i = 0; i < 9; i++) {
-    if (i >= onlyNums.length) {
-      break;
-    }
-    if (i === 3 || i === 5) {
-      normalizedSSN += '-';
-    }
-    normalizedSSN += onlyNums[i]; // eslint-disable-line security/detect-object-injection
-  }
-  return normalizedSSN;
-};
-
-const normalizeZip = (value, previousValue) => {
-  if (!value) {
-    return value;
-  }
-  const onlyNums = value.replace(/[^\d]/g, '');
-  let normalizedZip = '';
-  for (let i = 0; i < 9; i++) {
-    if (i >= onlyNums.length) {
-      break;
-    }
-    if (i === 5) {
-      normalizedZip += '-';
-    }
-    normalizedZip += onlyNums[i]; // eslint-disable-line security/detect-object-injection
-  }
-  return normalizedZip;
-};
-
-const createDecimalNormalizer = decimalDigits => {
-  return value => {
-    if (!value) {
-      return value;
-    }
-    value = value.replace(/[^\d.]/g, '');
-
-    if (value.indexOf('.') >= 0) {
-      value =
-        value.substr(0, value.indexOf('.')) +
-        '.' +
-        value
-          .substr(value.indexOf('.') + 1)
-          .replace(/[^\d]/g, '')
-          .substr(0, decimalDigits);
-    }
-    return value;
-  };
-};
-
 const patternMatches = memoize((pattern, message) => {
   const regex = RegExp(pattern);
   return value => {
@@ -148,9 +74,5 @@ export default {
   isNumber,
   isInteger,
   isDate,
-  normalizePhone,
-  normalizeSSN,
-  normalizeZip,
   patternMatches,
-  createDecimalNormalizer,
 };
