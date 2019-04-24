@@ -53,3 +53,8 @@ type StorageInTransitDeleter interface {
 type StorageInTransitPatcher interface {
 	PatchStorageInTransit(payload apimessages.StorageInTransit, shipmentID uuid.UUID, storageInTransitID uuid.UUID, session *auth.Session) (*models.StorageInTransit, *validate.Errors, error)
 }
+
+// StorageInTransitByIDFetcher is the service object for fetching a Storage In Transit
+type StorageInTransitByIDFetcher interface {
+	FetchStorageInTransitByID(storageInTransitID uuid.UUID, shipmentID uuid.UUID, session *auth.Session) (*models.StorageInTransit, error)
+}

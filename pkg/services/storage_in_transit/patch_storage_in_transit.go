@@ -47,18 +47,6 @@ func patchStorageInTransitWithPayload(storageInTransit *models.StorageInTransit,
 	storageInTransit.WarehouseEmail = handlers.FmtStringPtrNonEmpty(payload.WarehouseEmail)
 }
 
-// Stole this local function from publicapi/addresses.go
-// TODO: How should we handle this on the services side? We should figure out how these shared resources should operate.
-func updateAddressWithPayload(a *models.Address, payload *apimessages.Address) {
-	a.StreetAddress1 = *payload.StreetAddress1
-	a.StreetAddress2 = payload.StreetAddress2
-	a.StreetAddress3 = payload.StreetAddress3
-	a.City = *payload.City
-	a.State = *payload.State
-	a.PostalCode = *payload.PostalCode
-	a.Country = payload.Country
-}
-
 // PatchStorageInTransit edits an existing storage in transit and returns the updated object.
 func (p patchStorageInTransit) PatchStorageInTransit(payload apimessages.StorageInTransit, shipmentID uuid.UUID, storageInTransitID uuid.UUID, session *auth.Session) (*models.StorageInTransit, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()

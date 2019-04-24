@@ -1,23 +1,49 @@
 package storageintransit
 
 import (
-	"testing"
-
-	"github.com/transcom/mymove/pkg/testingsuite"
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/gen/apimessages"
+	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-type PlaceIntoSITStorageInTransitSuite struct {
-	testingsuite.PopTestSuite
-}
+func (suite *StorageInTransitServiceSuite) TestPlaceIntoSITStorageInTransit() {
+	shipment, sit, user := setupStorageInTransitServiceTest(suite)
+	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
+	session := auth.Session{
+		ApplicationName: auth.TspApp,
+		UserID:          *tspUser.UserID,
+		IDToken:         "fake token",
+		TspUserID:       tspUser.ID,
+	}
+	payload := apimessages.StorageInTransitInSitPayload{
+		ActualStartDate: *handlers.FmtDate(testdatagen.DateInsidePerformancePeriod),
+	}
 
-func (suite *PlaceIntoSITStorageInTransitSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
+	inSITPlacer := NewStorageInTransitInSITPlacer(suite.DB())
 
-func TestPlaceIntoSITStorageInTransitSuite(t *testing.T) {
+	// Happy path
+	actualStorageInTransit, verrs, err := inSITPlacer.PlaceIntoSITStorageInTransit(payload, shipment.ID, &session, sit.ID)
+	suite.NoError(err)
+	suite.False(verrs.HasAny())
+	storageInTransitCompare(suite, *actualStorageInTransit, sit)
 
-}
+	// Shouldn't work with an office user
+	session = auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          *user.UserID,
+		IDToken:         "fake token",
+		OfficeUserID:    user.ID,
+	}
 
-func (suite *PlaceIntoSITStorageInTransitSuite) TestPlaceIntoSITStorageInTransit() {
+	_, _, err = inSITPlacer.PlaceIntoSITStorageInTransit(payload, shipment.ID, &session, sit.ID)
+	suite.Error(err, "FETCH_FORBIDDEN")
 
+	// Shouldn't work if status is not approved
+	sit.Status = models.StorageInTransitStatusREQUESTED
+	_, _ = suite.DB().ValidateAndSave(&sit)
+
+	_, _, err = inSITPlacer.PlaceIntoSITStorageInTransit(payload, shipment.ID, &session, sit.ID)
+	suite.Error(err, "FETCH_FORBIDDEN")
 }

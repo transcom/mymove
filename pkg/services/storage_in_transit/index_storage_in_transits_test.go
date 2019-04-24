@@ -1,23 +1,31 @@
 package storageintransit
 
 import (
-	"testing"
-
-	"github.com/transcom/mymove/pkg/testingsuite"
+	"github.com/transcom/mymove/pkg/auth"
 )
 
-type IndexStorageInTransitsSuite struct {
-	testingsuite.PopTestSuite
-}
+func (suite *StorageInTransitServiceSuite) TestIndexStorageInTransits() {
+	shipment, _, user := setupStorageInTransitServiceTest(suite)
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          *user.UserID,
+		IDToken:         "fake token",
+		OfficeUserID:    user.ID,
+	}
+	// Happy path. This should succeed.
+	indexer := NewStorageInTransitIndexer(suite.DB())
+	actualStorageInTransits, err := indexer.IndexStorageInTransits(shipment.ID, &session)
+	suite.NoError(err)
+	suite.Equal(2, len(actualStorageInTransits))
 
-func (suite *IndexStorageInTransitsSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
+	// Let's make sure this fails for a servicemember user
+	session = auth.Session{
+		ApplicationName: auth.MilApp,
+		UserID:          *user.UserID,
+		IDToken:         "fake token",
+		ServiceMemberID: user.ID,
+	}
 
-func TestIndexStorageInTransitsSuite(t *testing.T) {
-
-}
-
-func (suite *CreateStorageInTransitSuite) TestIndexStorageInTransits() {
-
+	_, err = indexer.IndexStorageInTransits(shipment.ID, &session)
+	suite.Error(err, "FETCH_FORBIDDEN")
 }

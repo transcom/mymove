@@ -3,6 +3,9 @@ package storageintransit
 import (
 	"testing"
 
+	"github.com/transcom/mymove/pkg/gen/apimessages"
+	"github.com/transcom/mymove/pkg/handlers"
+
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -54,4 +57,31 @@ func storageInTransitCompare(suite *StorageInTransitServiceSuite, expected model
 	suite.Equal(expected.WarehousePhone, actual.WarehousePhone)
 	suite.True(expected.EstimatedStartDate.Equal(actual.EstimatedStartDate))
 	suite.Equal(expected.Status, actual.Status)
+}
+
+func payloadForStorageInTransitModel(s *models.StorageInTransit) *apimessages.StorageInTransit {
+	if s == nil {
+		return nil
+	}
+
+	location := string(s.Location)
+	status := string(s.Status)
+
+	return &apimessages.StorageInTransit{
+		ID:                  *handlers.FmtUUID(s.ID),
+		ShipmentID:          *handlers.FmtUUID(s.ShipmentID),
+		EstimatedStartDate:  handlers.FmtDate(s.EstimatedStartDate),
+		Notes:               handlers.FmtStringPtr(s.Notes),
+		WarehouseAddress:    payloadForAddressModel(&s.WarehouseAddress),
+		WarehouseEmail:      handlers.FmtStringPtr(s.WarehouseEmail),
+		WarehouseID:         handlers.FmtString(s.WarehouseID),
+		WarehouseName:       handlers.FmtString(s.WarehouseName),
+		WarehousePhone:      handlers.FmtStringPtr(s.WarehousePhone),
+		Location:            &location,
+		Status:              *handlers.FmtString(status),
+		AuthorizationNotes:  handlers.FmtStringPtr(s.AuthorizationNotes),
+		AuthorizedStartDate: handlers.FmtDatePtr(s.AuthorizedStartDate),
+		ActualStartDate:     handlers.FmtDatePtr(s.ActualStartDate),
+		OutDate:             handlers.FmtDatePtr(s.OutDate),
+	}
 }

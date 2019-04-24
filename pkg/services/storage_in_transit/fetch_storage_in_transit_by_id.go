@@ -13,24 +13,6 @@ type storageInTransitFetcher struct {
 	db *pop.Connection
 }
 
-func authorizeStorageInTransitRequest(db *pop.Connection, session *auth.Session, shipmentID uuid.UUID, allowOffice bool) (isUserAuthorized bool, err error) {
-	if session.IsTspUser() {
-		_, _, err := models.FetchShipmentForVerifiedTSPUser(db, session.TspUserID, shipmentID)
-
-		if err != nil {
-			return false, err
-		}
-		return true, nil
-	} else if session.IsOfficeUser() {
-		if allowOffice {
-			return true, nil
-		}
-	} else {
-		return false, models.ErrFetchForbidden
-	}
-	return false, models.ErrFetchForbidden
-}
-
 // FetchStorageInTransitbyID gets a Storage In Transit record by ID
 // Authorizes based on session and shipment ID
 func (s storageInTransitFetcher) FetchStorageInTransitByID(storageInTransitID uuid.UUID, shipmentID uuid.UUID, session *auth.Session) (*models.StorageInTransit, error) {

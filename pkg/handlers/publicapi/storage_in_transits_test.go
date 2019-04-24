@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/gobuffalo/validate"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -51,40 +53,65 @@ func storageInTransitPayloadCompare(suite *HandlerSuite, expected *apimessages.S
 }
 
 func (suite *HandlerSuite) TestIndexStorageInTransitsHandler() {
+	shipmentID, err := uuid.NewV4()
+	suite.NoError(err)
 
-	shipment, _, user := setupStorageInTransitHandlerTest(suite)
+	storageInTransitID, err := uuid.NewV4()
+	suite.NoError(err)
 
-	path := fmt.Sprintf("/shipments/%s/storage_in_transits", shipment.ID.String())
+	storageInTransitID2, err := uuid.NewV4()
+	suite.NoError(err)
+
+	officeUserID, err := uuid.NewV4()
+	suite.NoError(err)
+
+	userID, err := uuid.NewV4()
+	suite.NoError(err)
+
+	user := models.OfficeUser{ID: officeUserID, UserID: &userID}
+
+	path := fmt.Sprintf("/shipments/%s/storage_in_transits", shipmentID)
 	req := httptest.NewRequest("GET", path, nil)
 	req = suite.AuthenticateOfficeRequest(req, user)
 	params := sitop.IndexStorageInTransitsParams{
 		HTTPRequest: req,
-		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+		ShipmentID:  strfmt.UUID(shipmentID.String()),
 	}
+
+	storageInTransitIndexer := &mocks.StorageInTransitsIndexer{}
 
 	handler := IndexStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(),
 		suite.TestLogger()),
-		sitservice.NewStorageInTransitIndexer(suite.DB()),
+		storageInTransitIndexer,
 	}
+
+	returnSits := []models.StorageInTransit{
+		{ID: storageInTransitID},
+		{ID: storageInTransitID2},
+	}
+
+	storageInTransitIndexer.On("IndexStorageInTransits",
+		shipmentID,
+		auth.SessionFromRequestContext(params.HTTPRequest),
+	).Return(returnSits, nil).Once()
+
 	response := handler.Handle(params)
-
 	suite.Assertions.IsType(&sitop.IndexStorageInTransitsOK{}, response)
-	okResponse := response.(*sitop.IndexStorageInTransitsOK)
+	responsePayload := response.(*sitop.IndexStorageInTransitsOK).Payload
+	suite.Equal(2, len(responsePayload))
 
-	suite.Equal(2, len(okResponse.Payload))
+	expectedError := models.ErrFetchForbidden
+	storageInTransitIndexer.On("IndexStorageInTransits",
+		shipmentID,
+		auth.SessionFromRequestContext(params.HTTPRequest),
+	).Return(nil, expectedError).Once()
 
-	// Let's make sure it doesn't authorize with a servicemember user
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
-	serviceMemberReq := httptest.NewRequest("GET", path, nil)
-	serviceMemberReq = suite.AuthenticateRequest(serviceMemberReq, serviceMember)
-	params = sitop.IndexStorageInTransitsParams{
-		HTTPRequest: serviceMemberReq,
-		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+	response = handler.Handle(params)
+	expectedResponse := &handlers.ErrResponse{
+		Code: http.StatusForbidden,
+		Err:  expectedError,
 	}
-
-	_ = handler.Handle(params)
-
-	suite.Assertions.Error(models.ErrFetchForbidden)
+	suite.Equal(expectedResponse, response)
 
 }
 
@@ -148,50 +175,64 @@ func (suite *HandlerSuite) TestGetStorageInTransitHandler() {
 }
 
 func (suite *HandlerSuite) TestCreateStorageInTransitHandler() {
+	shipmentID, err := uuid.NewV4()
+	suite.NoError(err)
 
-	shipment, sit, _ := setupStorageInTransitHandlerTest(suite)
-	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
+	storageInTransitID, err := uuid.NewV4()
+	suite.NoError(err)
+	storageInTransit := models.StorageInTransit{ID: storageInTransitID}
+	payload := payloadForStorageInTransitModel(&storageInTransit)
 
-	sit.WarehouseID = "12345"
+	tspUserID, err := uuid.NewV4()
+	suite.NoError(err)
 
-	sitPayload := payloadForStorageInTransitModel(&sit)
+	userID, err := uuid.NewV4()
+	suite.NoError(err)
 
-	path := fmt.Sprintf("/shipments/%s/storage_in_transits", shipment.ID.String())
+	tspUser := models.TspUser{ID: tspUserID, UserID: &userID}
+
+	path := fmt.Sprintf("/shipments/%s/storage_in_transits", shipmentID)
 	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateTspRequest(req, tspUser)
 
 	params := sitop.CreateStorageInTransitParams{
 		HTTPRequest:      req,
-		ShipmentID:       strfmt.UUID(shipment.ID.String()),
-		StorageInTransit: sitPayload,
+		ShipmentID:       strfmt.UUID(shipmentID.String()),
+		StorageInTransit: payload,
 	}
+
+	storageInTransitCreator := &mocks.StorageInTransitCreator{}
 
 	handler := CreateStorageInTransitHandler{
 		handlers.NewHandlerContext(suite.DB(),
 			suite.TestLogger()),
-		sitservice.NewStorageInTransitCreator(suite.DB()),
+		storageInTransitCreator,
 	}
-	_ = handler.Handle(params)
 
-	// we expect this to fail with a forbidden message. The generated TSP does not have rights to the shipment.
-	suite.Error(models.ErrFetchForbidden)
-
-	// Now let's do a working one
-	assertions := testdatagen.Assertions{
-		ShipmentOffer: models.ShipmentOffer{
-			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
-			ShipmentID:                      shipment.ID,
-		},
-	}
-	// Create a shipment offer that uses our generated TSP ID and shipment ID so that our TSP has rights to
-	// Use these to create a SIT for them.
-	testdatagen.MakeShipmentOffer(suite.DB(), assertions)
+	storageInTransitCreator.On("CreateStorageInTransit",
+		*payload,
+		shipmentID,
+		auth.SessionFromRequestContext(params.HTTPRequest),
+	).Return(&storageInTransit, validate.NewErrors(), nil).Once()
 
 	response := handler.Handle(params)
-
 	suite.Assertions.IsType(&sitop.CreateStorageInTransitCreated{}, response)
 	responsePayload := response.(*sitop.CreateStorageInTransitCreated).Payload
-	storageInTransitPayloadCompare(suite, sitPayload, responsePayload)
+	suite.Equal(storageInTransit.ID.String(), responsePayload.ID.String())
+
+	expectedError := models.ErrFetchForbidden
+	storageInTransitCreator.On("CreateStorageInTransit",
+		*payload,
+		shipmentID,
+		auth.SessionFromRequestContext(params.HTTPRequest),
+	).Return(nil, validate.NewErrors(), expectedError).Once()
+
+	response = handler.Handle(params)
+	expectedResponse := &handlers.ErrResponse{
+		Code: http.StatusForbidden,
+		Err:  expectedError,
+	}
+	suite.Equal(expectedResponse, response)
 }
 
 func (suite *HandlerSuite) TestApproveStorageInTransitHandler() {

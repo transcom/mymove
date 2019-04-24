@@ -71,7 +71,10 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		sitservice.NewStorageInTransitCreator(context.DB()),
 	}
-	publicAPI.StorageInTransitsGetStorageInTransitHandler = GetStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsGetStorageInTransitHandler = GetStorageInTransitHandler{
+		context,
+		sitservice.NewStorageInTransitByIDFetcher(context.DB()),
+	}
 	publicAPI.StorageInTransitsIndexStorageInTransitsHandler = IndexStorageInTransitHandler{
 		context,
 		sitservice.NewStorageInTransitIndexer(context.DB()),

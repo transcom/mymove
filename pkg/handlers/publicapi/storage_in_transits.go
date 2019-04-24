@@ -16,7 +16,6 @@ import (
 	sitop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/storage_in_transits"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 func payloadForStorageInTransitModel(s *models.StorageInTransit) *apimessages.StorageInTransit {
