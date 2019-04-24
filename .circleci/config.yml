@@ -408,7 +408,10 @@ jobs:
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
       - run:
           name: make server_test
-          command: make server_test
+          command: |
+            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+            source $BASH_ENV
+            make server_test
           environment:
             # Env vars needed by the `scripts/apply-secure-migration.sh` script
             DB_PASSWORD: mysecretpassword
@@ -450,6 +453,8 @@ jobs:
       - run:
           name: make server_test_coverage_generate
           command: |
+            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+            source $BASH_ENV
             make server_test_coverage_generate
           environment:
             # Env vars needed by the `scripts/apply-secure-migration.sh` script
