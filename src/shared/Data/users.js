@@ -1,6 +1,6 @@
 import * as Cookies from 'js-cookie';
 import * as helpers from 'shared/ReduxHelpers';
-import { isMilmoveSite, isOfficeSite, isTspSite } from 'shared/constants';
+import { isMilmoveSite, isOfficeSite, isTspSite, isAdminSite } from 'shared/constants';
 import { GetLoggedInUser } from 'shared/User/api.js';
 import { pick } from 'lodash';
 import { normalize } from 'normalizr';
@@ -56,7 +56,8 @@ export function selectGetCurrentUserIsError(state) {
 
 function getUserInfo() {
   // The prefix should match the lowercased application name set in the server session
-  let cookiePrefix = (isMilmoveSite && 'mil') || (isOfficeSite && 'office') || (isTspSite && 'tsp') || '';
+  let cookiePrefix =
+    (isMilmoveSite && 'mil') || (isOfficeSite && 'office') || (isTspSite && 'tsp') || (isAdminSite && 'admin') || '';
   const cookieName = cookiePrefix + '_session_token';
   const cookie = Cookies.get(cookieName);
   return {
