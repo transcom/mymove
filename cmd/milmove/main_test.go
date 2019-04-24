@@ -11,8 +11,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gorilla/handlers"
-
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
@@ -217,21 +215,6 @@ func (suite *webServerSuite) TestRecoverMiddleware() {
 	req := httptest.NewRequest("GET", "http://mil.example.com/static/something", nil)
 
 	middleware.ServeHTTP(rr, req)
-
-	suite.Equal(http.StatusInternalServerError, rr.Code)
-}
-
-func (suite *webServerSuite) TestGorillaRecoverMiddleware() {
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		panic("panic")
-	})
-	logger, _ := logging.Config("development", true)
-	gl := &GorillaLogger{logger}
-	middleware := handlers.RecoveryHandler(handlers.RecoveryLogger(gl), handlers.PrintRecoveryStack(false))
-	rr := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "http://mil.example.com/static/something", nil)
-
-	middleware(handler).ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusInternalServerError, rr.Code)
 }

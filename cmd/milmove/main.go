@@ -31,7 +31,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
 	"github.com/gorilla/csrf"
-	gorillahandlers "github.com/gorilla/handlers"
 	"github.com/honeycombio/beeline-go"
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
 	"github.com/jmoiron/sqlx"
@@ -1265,9 +1264,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	apiMux.Handle(pat.New("/*"), externalAPIMux)
 	externalAPIMux.Use(noCacheMiddleware)
 	externalAPIMux.Use(userAuthMiddleware)
-	gl := &GorillaLogger{logger}
-	rmw := gorillahandlers.RecoveryHandler(gorillahandlers.RecoveryLogger(gl), gorillahandlers.PrintRecoveryStack(false))
-	externalAPIMux.Use(rmw)
+	externalAPIMux.Use(recoveryMiddleware(logger))
 	externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext))
 
 	internalMux := goji.SubMux()
