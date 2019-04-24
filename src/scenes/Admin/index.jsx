@@ -10,6 +10,7 @@ import { getCurrentUserInfo } from 'shared/Data/users';
 import { no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
+import { loadPublicSchema } from 'shared/Swagger/ducks';
 
 class AdminWelcome extends Component {
   render() {
@@ -20,6 +21,7 @@ class AdminWelcome extends Component {
 class AdminWrapper extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Admin';
+    this.props.loadPublicSchema();
     this.props.getCurrentUserInfo();
   }
 
@@ -56,6 +58,7 @@ class AdminWrapper extends Component {
 }
 
 AdminWrapper.defaultProps = {
+  loadPublicSchema: no_op,
   getCurrentUserInfo: no_op,
 };
 
@@ -63,6 +66,6 @@ const mapStateToProps = state => ({
   swaggerError: state.swaggerInternal.hasErrored,
 });
 
-const mapDispatchToProps = dispatch => bindActionCreators({ getCurrentUserInfo }, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators({ loadPublicSchema, getCurrentUserInfo }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(AdminWrapper);
