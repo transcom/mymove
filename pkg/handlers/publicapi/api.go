@@ -67,19 +67,43 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.TspsGetTspShipmentsHandler = TspsGetTspShipmentsHandler{context}
 
 	// Storage In Transits
-	publicAPI.StorageInTransitsCreateStorageInTransitHandler = CreateStorageInTransitHandler{context}
-	publicAPI.StorageInTransitsGetStorageInTransitHandler = GetStorageInTransitHandler{
+	publicAPI.StorageInTransitsCreateStorageInTransitHandler = CreateStorageInTransitHandler{
 		context,
-		sitservice.NewStorageInTransitByIDFetcher(context.DB()),
+		sitservice.NewStorageInTransitCreator(context.DB()),
 	}
-	publicAPI.StorageInTransitsIndexStorageInTransitsHandler = IndexStorageInTransitHandler{context}
-	publicAPI.StorageInTransitsDeleteStorageInTransitHandler = DeleteStorageInTransitHandler{context}
-	publicAPI.StorageInTransitsPatchStorageInTransitHandler = PatchStorageInTransitHandler{context}
-	publicAPI.StorageInTransitsApproveStorageInTransitHandler = ApproveStorageInTransitHandler{context}
-	publicAPI.StorageInTransitsDenyStorageInTransitHandler = DenyStorageInTransitHandler{context}
-	publicAPI.StorageInTransitsInSitStorageInTransitHandler = InSitStorageInTransitHandler{context}
-	publicAPI.StorageInTransitsReleaseStorageInTransitHandler = ReleaseStorageInTransitHandler{context}
-	publicAPI.StorageInTransitsDeliverStorageInTransitHandler = DeliverStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsGetStorageInTransitHandler = GetStorageInTransitHandler{context}
+	publicAPI.StorageInTransitsIndexStorageInTransitsHandler = IndexStorageInTransitHandler{
+		context,
+		sitservice.NewStorageInTransitIndexer(context.DB()),
+	}
+	publicAPI.StorageInTransitsDeleteStorageInTransitHandler = DeleteStorageInTransitHandler{
+		context,
+		sitservice.NewStorageInTransitDeleter(context.DB()),
+	}
+	publicAPI.StorageInTransitsPatchStorageInTransitHandler = PatchStorageInTransitHandler{
+		context,
+		sitservice.NewStorageInTransitPatcher(context.DB()),
+	}
+	publicAPI.StorageInTransitsApproveStorageInTransitHandler = ApproveStorageInTransitHandler{
+		context,
+		sitservice.NewStorageInTransitApprover(context.DB()),
+	}
+	publicAPI.StorageInTransitsDenyStorageInTransitHandler = DenyStorageInTransitHandler{
+		context,
+		sitservice.NewStorageInTransitDenier(context.DB()),
+	}
+	publicAPI.StorageInTransitsInSitStorageInTransitHandler = InSitStorageInTransitHandler{
+		context,
+		sitservice.NewStorageInTransitInSITPlacer(context.DB()),
+	}
+	publicAPI.StorageInTransitsReleaseStorageInTransitHandler = ReleaseStorageInTransitHandler{
+		context,
+		sitservice.NewStorageInTransitInReleaser(context.DB()),
+	}
+	publicAPI.StorageInTransitsDeliverStorageInTransitHandler = DeliverStorageInTransitHandler{
+		context,
+		sitservice.NewStorageInTransitInDeliverer(context.DB()),
+	}
 
 	return publicAPI.Serve(nil)
 }
