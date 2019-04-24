@@ -11,6 +11,8 @@ import (
 	"strings"
 	"testing"
 
+	"go.uber.org/zap/zaptest"
+
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
@@ -209,7 +211,7 @@ func (suite *webServerSuite) TestRecoverMiddleware() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		panic("panic")
 	})
-	logger, _ := logging.Config("development", false)
+	logger := zaptest.NewLogger(suite.T(), zaptest.Level(zap.ErrorLevel))
 	middleware := recoveryMiddleware(logger)(handler)
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "http://mil.example.com/static/something", nil)

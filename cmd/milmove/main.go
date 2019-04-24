@@ -172,7 +172,9 @@ func recoveryMiddleware(logger logger) func(inner http.Handler) http.Handler {
 			defer func() {
 				if r := recover(); r != nil {
 					w.WriteHeader(http.StatusInternalServerError)
-					logger.Error(fmt.Sprintf("%s: %s", r, debug.Stack()))
+					errorMsg := fmt.Sprint(r)
+					stacktrace := fmt.Sprintf("%s", debug.Stack())
+					logger.Error("panic recovery", zap.String("error", errorMsg), zap.String("stacktrace", stacktrace))
 				}
 			}()
 			inner.ServeHTTP(w, r)
