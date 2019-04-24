@@ -86,9 +86,9 @@ func LogRequestMiddleware(logger Logger) func(inner http.Handler) http.Handler {
 
 			// Append x- headers, e.g., x-forwarded-for.
 			for name, values := range r.Header {
-				if strings.HasPrefix(name, "x-") {
+				if nameLowerCase := strings.ToLower(name); strings.HasPrefix(nameLowerCase, "x-") {
 					if len(values) > 0 {
-						fields = append(fields, zap.String(name, values[0]))
+						fields = append(fields, zap.String(nameLowerCase, values[0]))
 					}
 				}
 			}

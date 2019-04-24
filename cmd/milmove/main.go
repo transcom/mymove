@@ -1156,9 +1156,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		} else {
 			protocol = "https"
 		}
-		logger.Info("Request",
-			zap.String("git-branch", gitBranch),
-			zap.String("git-commit", gitCommit),
+
+		fields := []zap.Field{
 			zap.String("accepted-language", r.Header.Get("accepted-language")),
 			zap.Int64("content-length", r.ContentLength),
 			zap.String("host", r.Host),
@@ -1169,11 +1168,19 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			zap.String("source", r.RemoteAddr),
 			zap.String("url", r.URL.String()),
 			zap.String("user-agent", r.UserAgent()),
-			zap.String("x-amzn-trace-id", r.Header.Get("x-amzn-trace-id")),
-			zap.String("x-forwarded-for", r.Header.Get("x-forwarded-for")),
-			zap.String("x-forwarded-host", r.Header.Get("x-forwarded-host")),
-			zap.String("x-forwarded-proto", r.Header.Get("x-forwarded-proto")),
-		)
+		}
+
+		// Append x- headers, e.g., x-forwarded-for.
+		for name, values := range r.Header {
+			if nameLowerCase := strings.ToLower(name); strings.HasPrefix(nameLowerCase, "x-") {
+				if len(values) > 0 {
+					fields = append(fields, zap.String(nameLowerCase, values[0]))
+				}
+			}
+		}
+
+		logger.Info("Request", fields...)
+
 	})
 
 	staticMux := goji.SubMux()
