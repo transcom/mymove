@@ -4,14 +4,13 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/transcom/mymove/pkg/paperwork"
-	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
-
 	"github.com/go-openapi/loads"
 
 	"github.com/transcom/mymove/pkg/gen/restapi"
 	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/paperwork"
+	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
 	sitservice "github.com/transcom/mymove/pkg/services/storage_in_transit"
 )
 

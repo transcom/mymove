@@ -8,7 +8,11 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/auth"
+
+	"github.com/transcom/mymove/mocks"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	sitop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/storage_in_transits"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -85,33 +89,62 @@ func (suite *HandlerSuite) TestIndexStorageInTransitsHandler() {
 }
 
 func (suite *HandlerSuite) TestGetStorageInTransitHandler() {
-	shipment, sit, user := setupStorageInTransitHandlerTest(suite)
-	sitPayload := payloadForStorageInTransitModel(&sit)
+	shipmentID, err := uuid.NewV4()
+	suite.NoError(err)
+	storageInTransitID, err := uuid.NewV4()
+	suite.NoError(err)
+	sitPayload := apimessages.StorageInTransit{
+		ID: strfmt.UUID(storageInTransitID.String()),
+	}
 
-	path := fmt.Sprintf("/shipments/%s/storage_in_transits/%s", shipment.ID.String(), sit.ID.String())
+	path := fmt.Sprintf("/shipments/%s/storage_in_transits/%s", shipmentID, storageInTransitID)
 	req := httptest.NewRequest("GET", path, nil)
+	officeUserID, err := uuid.NewV4()
+	suite.NoError(err)
+	userID, err := uuid.NewV4()
+	suite.NoError(err)
+	user := models.OfficeUser{ID: officeUserID, UserID: &userID}
 	req = suite.AuthenticateOfficeRequest(req, user)
 	params := sitop.GetStorageInTransitParams{
 		HTTPRequest:        req,
-		ShipmentID:         strfmt.UUID(shipment.ID.String()),
-		StorageInTransitID: strfmt.UUID(sit.ID.String()),
+		ShipmentID:         strfmt.UUID(shipmentID.String()),
+		StorageInTransitID: strfmt.UUID(storageInTransitID.String()),
 	}
 
-	handler := GetStorageInTransitHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	storageInTransitByIDFetcher := &mocks.StorageInTransitByIDFetcher{}
+	handler := GetStorageInTransitHandler{
+		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		storageInTransitByIDFetcher,
+	}
+	returnSit := models.StorageInTransit{ID: storageInTransitID}
+	storageInTransitByIDFetcher.On(
+		"FetchStorageInTransitByID",
+		storageInTransitID,
+		shipmentID,
+		auth.SessionFromRequestContext(params.HTTPRequest),
+	).Return(&returnSit, nil).Once()
 	response := handler.Handle(params)
 	suite.Assertions.IsType(&sitop.GetStorageInTransitOK{}, response)
 
 	responsePayload := response.(*sitop.GetStorageInTransitOK).Payload
 
-	storageInTransitPayloadCompare(suite, sitPayload, responsePayload)
+	suite.Equal(sitPayload.ID, responsePayload.ID)
 
-	// Let's make sure it fails when a TSP who doesn't own the shipment tries to do a GET on this
-	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
-	req = httptest.NewRequest("GET", path, nil)
-	req = suite.AuthenticateTspRequest(req, tspUser)
-	params.HTTPRequest = req
-	handler.Handle(params)
-	suite.Error(models.ErrFetchForbidden)
+	expectedError := models.ErrFetchForbidden
+	storageInTransitByIDFetcher.On(
+		"FetchStorageInTransitByID",
+		storageInTransitID,
+		shipmentID,
+		auth.SessionFromRequestContext(params.HTTPRequest),
+	).Return(nil, expectedError).Once()
+
+	response = handler.Handle(params)
+
+	expectedResponse := &handlers.ErrResponse{
+		Code: http.StatusForbidden,
+		Err:  expectedError,
+	}
+	suite.Equal(expectedResponse, response)
 }
 
 func (suite *HandlerSuite) TestCreateStorageInTransitHandler() {
