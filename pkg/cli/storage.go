@@ -72,7 +72,7 @@ func CheckStorage(v *viper.Viper) error {
 }
 
 // InitStorage initializes the storage backend
-func InitStorage(v *viper.Viper, logger logger) storage.FileStorer {
+func InitStorage(v *viper.Viper, logger Logger) storage.FileStorer {
 	storageBackend := v.GetString(StorageBackendFlag)
 	localStorageRoot := v.GetString(LocalStorageRootFlag)
 	localStorageWebRoot := v.GetString(LocalStorageWebRootFlag)

@@ -16,7 +16,7 @@ import (
 type cliTestSuite struct {
 	suite.Suite
 	viper  *viper.Viper
-	logger logger
+	logger Logger
 }
 
 type initFlags func(f *pflag.FlagSet)

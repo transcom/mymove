@@ -67,7 +67,7 @@ func InitDatabaseFlags(flag *pflag.FlagSet) {
 }
 
 // CheckDatabase validates DB command line flags
-func CheckDatabase(v *viper.Viper, logger logger) error {
+func CheckDatabase(v *viper.Viper, logger Logger) error {
 
 	if err := ValidateHost(v, DbHostFlag); err != nil {
 		return err
@@ -100,7 +100,7 @@ func CheckDatabase(v *viper.Viper, logger logger) error {
 }
 
 // InitDatabase initializes a Pop connection from command line flags
-func InitDatabase(v *viper.Viper, logger logger) (*pop.Connection, error) {
+func InitDatabase(v *viper.Viper, logger Logger) (*pop.Connection, error) {
 
 	dbEnv := v.GetString(DbEnvFlag)
 	dbName := v.GetString(DbNameFlag)

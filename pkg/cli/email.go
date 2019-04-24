@@ -53,7 +53,7 @@ func CheckEmail(v *viper.Viper) error {
 }
 
 // InitEmail initializes the email backend
-func InitEmail(v *viper.Viper, logger logger) notifications.NotificationSender {
+func InitEmail(v *viper.Viper, logger Logger) notifications.NotificationSender {
 	if v.GetString(EmailBackendFlag) == "ses" {
 		// Setup Amazon SES (email) service
 		// TODO: This might be able to be combined with the AWS Session that we're using for S3 down

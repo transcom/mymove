@@ -33,7 +33,7 @@ func InitRouteFlags(flag *pflag.FlagSet) {
 }
 
 // InitRoutePlanner validates Route Planner command line flags
-func InitRoutePlanner(v *viper.Viper, logger logger) route.Planner {
+func InitRoutePlanner(v *viper.Viper, logger Logger) route.Planner {
 	hereClient := &http.Client{Timeout: hereRequestTimeout}
 	return route.NewHEREPlanner(
 		logger,

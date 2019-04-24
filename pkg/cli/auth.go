@@ -60,7 +60,7 @@ func InitAuthFlags(flag *pflag.FlagSet) {
 }
 
 // InitAuth initializes the Login.gov provider
-func InitAuth(v *viper.Viper, logger logger, appnames auth.ApplicationServername) (authentication.LoginGovProvider, error) {
+func InitAuth(v *viper.Viper, logger Logger, appnames auth.ApplicationServername) (authentication.LoginGovProvider, error) {
 	loginGovCallbackProtocol := v.GetString(LoginGovCallbackProtocolFlag)
 	loginGovCallbackPort := v.GetInt(LoginGovCallbackPortFlag)
 	loginGovSecretKey := v.GetString(LoginGovSecretKeyFlag)

@@ -34,7 +34,7 @@ func InitHoneycombFlags(flag *pflag.FlagSet) {
 }
 
 // InitHoneycomb initilizes the honeycomb service
-func InitHoneycomb(v *viper.Viper, logger logger) bool {
+func InitHoneycomb(v *viper.Viper, logger Logger) bool {
 
 	honeycombEnabled := v.GetBool(HoneycombEnabledFlag)
 	honeycombAPIHost := v.GetString(HoneycombAPIHostFlag)

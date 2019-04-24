@@ -79,7 +79,7 @@ func CheckCert(v *viper.Viper) error {
 }
 
 // InitDoDCertificates initializes the DoD Certificates
-func InitDoDCertificates(v *viper.Viper, logger logger) ([]tls.Certificate, *x509.CertPool, error) {
+func InitDoDCertificates(v *viper.Viper, logger Logger) ([]tls.Certificate, *x509.CertPool, error) {
 
 	tlsCertString := v.GetString(MoveMilDoDTLSCertFlag)
 	tlsCerts := ParseCertificates(tlsCertString)

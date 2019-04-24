@@ -18,7 +18,7 @@ func InitIWSFlags(flag *pflag.FlagSet) {
 }
 
 // InitRBSPersonLookup is the RBS Person Lookup service
-func InitRBSPersonLookup(v *viper.Viper, logger logger) (*iws.RBSPersonLookup, error) {
+func InitRBSPersonLookup(v *viper.Viper, logger Logger) (*iws.RBSPersonLookup, error) {
 	return iws.NewRBSPersonLookup(
 		v.GetString(IWSRBSHostFlag),
 		v.GetString("dod-ca-package"),
