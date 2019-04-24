@@ -1227,6 +1227,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			dpsCookieExpires))
 
 	root := goji.NewMux()
+	root.Use(recoveryMiddleware(logger))
 	root.Use(sessionCookieMiddleware)
 	root.Use(logging.LogRequestMiddleware(gitBranch, gitCommit))
 
@@ -1266,7 +1267,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	apiMux.Handle(pat.New("/*"), externalAPIMux)
 	externalAPIMux.Use(noCacheMiddleware)
 	externalAPIMux.Use(userAuthMiddleware)
-	externalAPIMux.Use(recoveryMiddleware(logger))
 	externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext))
 
 	internalMux := goji.SubMux()
@@ -1283,7 +1283,6 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	internalMux.Handle(pat.New("/*"), internalAPIMux)
 	internalAPIMux.Use(userAuthMiddleware)
 	internalAPIMux.Use(noCacheMiddleware)
-	internalAPIMux.Use(recoveryMiddleware(logger))
 	internalAPIMux.Handle(pat.New("/*"), internalapi.NewInternalAPIHandler(handlerContext))
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
