@@ -32,6 +32,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -46,6 +47,18 @@ var regexpTaskArnOld = regexp.MustCompile("^arn:aws:ecs:([^:]+?):([^:]+?):task/(
 //	- https://docs.aws.amazon.com/sdk-for-go/api/service/ecs/#ECS.ListTasks
 var regexpServiceEventStoppedTask = regexp.MustCompile("^[(]service ([0-9a-zA-Z_-]+)[)] has stopped (\\d+) running tasks:\\s+(.+)[.]")
 var regexpServiceEventStoppedTaskID = regexp.MustCompile("[(]task ([0-9a-z-]+)[)]")
+
+const (
+	flagTaskDefinitionFamily   string = "ecs-task-def-family"
+	flagTaskDefinitionRevision string = "ecs-task-def-revision"
+	flagGitBranch              string = "git-branch"
+	flagGitCommit              string = "git-commit"
+
+	logTaskDefinitionFamily   string = "ecs_task_def_family"
+	logTaskDefinitionRevision string = "ecs_task_def_revision"
+	logGitBranch                     = "git_branch"
+	logGitCommit                     = "git_commit"
+)
 
 var environments = []string{"prod", "staging", "experimental"}
 var ecsTaskStatuses = []string{"RUNNING", "STOPPED"}
@@ -127,13 +140,15 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String("aws-region", "us-west-2", "The AWS Region")
 	flag.String("aws-profile", "", "The aws-vault profile")
 	flag.String("aws-vault-keychain-name", "", "The aws-vault keychain name")
-	flag.String("cluster", "", "The cluster name")
-	flag.String("environment", "", "The environment name")
-	flag.String("service", "", "The service name")
+	flag.StringP("cluster", "c", "", "The cluster name")
+	flag.StringP("environment", "e", "", "The environment name")
+	flag.StringP("service", "s", "", "The service name")
 	flag.String("status", "", "The task status: "+strings.Join(ecsTaskStatuses, ", "))
-	flag.String("git-branch", "", "The git branch")
-	flag.String("git-commit", "", "The git commit")
-	flag.Int("limit", -1, "The log limit.  If 1 and above, will limit the results returned by each log stream.")
+	flag.StringP(flagGitBranch, "b", "", "The git branch")
+	flag.String(flagGitCommit, "", "The git commit")
+	flag.StringP(flagTaskDefinitionFamily, "f", "", "The ECS task definition family.")
+	flag.StringP(flagTaskDefinitionRevision, "r", "", "The ECS task definition revision.")
+	flag.IntP("limit", "l", -1, "The log limit.  If 1 and above, will limit the results returned by each log stream.")
 	flag.BoolP("verbose", "v", false, "Print section lines")
 }
 
@@ -186,17 +201,15 @@ func checkConfig(v *viper.Viper) error {
 			if !valid {
 				return errors.Wrap(&errInvalidEnvironment{Environment: environment}, fmt.Sprintf("%q is invalid", "environment"))
 			}
+
+			serviceName := v.GetString("service")
+			if len(serviceName) == 0 {
+				return &errInvalidService{Service: serviceName}
+			}
 		}
 	}
 
 	return nil
-}
-
-func quit(logger *log.Logger, flag *pflag.FlagSet, err error) {
-	logger.Println(err.Error())
-	fmt.Println("Usage of ecs-service-logs:")
-	flag.PrintDefaults()
-	os.Exit(1)
 }
 
 // Job is struct linking a task id to a given CloudWatch Log Stream.
@@ -246,12 +259,50 @@ func getAWSCredentials(keychainName string, keychainProfile string) (*credential
 }
 
 func main() {
-	flag := pflag.CommandLine
-	initFlags(flag)
-	flag.Parse(os.Args[1:])
+	root := cobra.Command{
+		Use:   "ecs-service-logs [flags]",
+		Short: "Show application logs for ECS Service",
+		Long:  "Show application logs for ECS Service",
+	}
+
+	completionCommand := &cobra.Command{
+		Use:   "completion",
+		Short: "Generates bash completion scripts",
+		Long:  "To install completion scripts run:\necs-service-logs completion > /usr/local/etc/bash_completion.d/ecs-service-logs",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return root.GenBashCompletion(os.Stdout)
+		},
+	}
+	root.AddCommand(completionCommand)
+
+	showCommand := &cobra.Command{
+		Use:   "show [flags]",
+		Short: "Show application logs for ECS Service",
+		Long:  "Show application logs for ECS Service",
+		RunE:  showFunction,
+	}
+	initFlags(showCommand.Flags())
+	root.AddCommand(showCommand)
+
+	if err := root.Execute(); err != nil {
+		panic(err)
+	}
+}
+
+func showFunction(cmd *cobra.Command, args []string) error {
+
+	err := cmd.ParseFlags(args)
+	if err != nil {
+		return err
+	}
+
+	flag := cmd.Flags()
 
 	v := viper.New()
-	v.BindPFlags(flag)
+	err = v.BindPFlags(flag)
+	if err != nil {
+		return err
+	}
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
@@ -268,9 +319,9 @@ func main() {
 		logger.SetFlags(0)
 	}
 
-	err := checkConfig(v)
+	err = checkConfig(v)
 	if err != nil {
-		quit(logger, flag, err)
+		return err
 	}
 
 	awsRegion := v.GetString("aws-region")
@@ -286,7 +337,7 @@ func main() {
 	if len(keychainName) > 0 && len(keychainProfile) > 0 {
 		creds, err := getAWSCredentials(keychainName, keychainProfile)
 		if err != nil {
-			quit(logger, flag, errors.Wrap(err, fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, keychainProfile)))
+			return errors.Wrap(err, fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, keychainProfile))
 		}
 		awsConfig.CredentialsChainVerboseErrors = aws.Bool(verbose)
 		awsConfig.Credentials = creds
@@ -294,7 +345,7 @@ func main() {
 
 	sess, err := awssession.NewSession(awsConfig)
 	if err != nil {
-		quit(logger, flag, errors.Wrap(err, "failed to create AWS session"))
+		return errors.Wrap(err, "failed to create AWS session")
 	}
 
 	serviceECS := ecs.New(sess)
@@ -319,7 +370,7 @@ func main() {
 		}
 		describeServicesOutput, err := serviceECS.DescribeServices(describeServicesInput)
 		if err != nil {
-			quit(logger, flag, err)
+			return errors.Wrap(err, fmt.Sprintf("error describing services with cluster name %q", clusterName))
 		}
 		for _, service := range describeServicesOutput.Services {
 			for _, event := range service.Events {
@@ -335,7 +386,7 @@ func main() {
 
 		// If there are no tasks returned from the query then simply exit.
 		if len(stoppedTaskIds) == 0 {
-			return
+			return nil
 		}
 
 		for _, taskID := range stoppedTaskIds {
@@ -369,7 +420,7 @@ func main() {
 			}
 			listTasksOutput, err := serviceECS.ListTasks(listTasksInput)
 			if err != nil {
-				quit(logger, flag, err)
+				return err
 			}
 			taskArns = append(taskArns, listTasksOutput.TaskArns...)
 
@@ -381,7 +432,7 @@ func main() {
 
 		// If there are no tasks returned from the query then simply exit.
 		if len(taskArns) == 0 {
-			return
+			return nil
 		}
 
 		describeTasksOutput, err := serviceECS.DescribeTasks(&ecs.DescribeTasksInput{
@@ -389,7 +440,7 @@ func main() {
 			Tasks:   taskArns,
 		})
 		if err != nil {
-			quit(logger, flag, err)
+			return errors.Wrap(err, fmt.Sprintf("error describing tasks in cluster %q ", clusterName))
 		}
 
 		tasks := describeTasksOutput.Tasks
@@ -405,7 +456,7 @@ func main() {
 				TaskDefinition: aws.String(taskDefinitionArn),
 			})
 			if err != nil {
-				panic(err)
+				return err
 			}
 			taskDefinitions[taskDefinitionArn] = describeTaskDefinitionOutput.TaskDefinition
 		}
@@ -420,7 +471,7 @@ func main() {
 
 			taskDefinition, ok := taskDefinitions[*task.TaskDefinitionArn]
 			if !ok {
-				quit(logger, flag, fmt.Errorf("missing task definition with arn %s for task %s", *task.TaskDefinitionArn, *task.TaskArn))
+				return fmt.Errorf("missing task definition with arn %s for task %s", *task.TaskDefinitionArn, *task.TaskArn)
 			}
 
 			for _, containerDefinition := range taskDefinition.ContainerDefinitions {
@@ -429,12 +480,12 @@ func main() {
 
 				logDriver := *containerDefinition.LogConfiguration.LogDriver
 				if logDriver != "awslogs" {
-					quit(logger, flag, fmt.Errorf("found log driver %s, expecting %s", logDriver, "awslogs"))
+					return fmt.Errorf("found log driver %s, expecting %s", logDriver, "awslogs")
 				}
 
 				logConfigurationOptions := containerDefinition.LogConfiguration.Options
 				if len(logConfigurationOptions) == 0 {
-					quit(logger, flag, fmt.Errorf("log configuration options is empty"))
+					return fmt.Errorf("log configuration options is empty")
 				}
 
 				logGroupName := logConfigurationOptions["awslogs-group"]
@@ -458,15 +509,24 @@ func main() {
 		}
 	}
 
-	gitBranch := v.GetString("git-branch")
-	gitCommit := v.GetString("git-commit")
 	filters := map[string]string{}
-	if len(gitBranch) > 0 {
-		filters["git-branch"] = gitBranch
+
+	if gitBranch := v.GetString(flagGitBranch); len(gitBranch) > 0 {
+		filters[logGitBranch] = gitBranch
 	}
-	if len(gitCommit) > 0 {
-		filters["git-commit"] = gitCommit
+
+	if gitCommit := v.GetString(flagGitCommit); len(gitCommit) > 0 {
+		filters[logGitCommit] = gitCommit
 	}
+
+	if family := v.GetString(flagTaskDefinitionFamily); len(family) > 0 {
+		filters[logTaskDefinitionFamily] = family
+	}
+
+	if revision := v.GetString(flagTaskDefinitionRevision); len(revision) > 0 {
+		filters[logTaskDefinitionRevision] = revision
+	}
+
 	filterPattern := ""
 	if len(filters) > 0 {
 		parts := make([]string, 0, len(filters))
@@ -495,11 +555,12 @@ func main() {
 		}
 		getLogEventsOutput, err := serviceCloudWatchLogs.FilterLogEvents(filterLogEventsInput)
 		if err != nil {
-			quit(logger, flag, errors.Wrap(err, "error retrieving log events"))
+			return errors.Wrap(err, "error retrieving log events")
 		}
 		for _, event := range getLogEventsOutput.Events {
 			fmt.Println(*event.Message)
 		}
 	}
 
+	return nil
 }

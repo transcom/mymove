@@ -48,7 +48,7 @@ function tspUserCreatesSitRequest() {
       expect(text).to.include('SIT location');
       expect(text).to.include('Warehouse ID number');
       expect(text).to.include('Warehouse name');
-      expect(text).to.include('Address Line 1');
+      expect(text).to.include('Address line 1');
     });
 
   // fill out and submit the form
