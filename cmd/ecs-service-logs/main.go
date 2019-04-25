@@ -49,11 +49,13 @@ var regexpServiceEventStoppedTask = regexp.MustCompile("^[(]service ([0-9a-zA-Z_
 var regexpServiceEventStoppedTaskID = regexp.MustCompile("[(]task ([0-9a-z-]+)[)]")
 
 const (
+	flagLogLevel               string = "level"
 	flagTaskDefinitionFamily   string = "ecs-task-def-family"
 	flagTaskDefinitionRevision string = "ecs-task-def-revision"
 	flagGitBranch              string = "git-branch"
 	flagGitCommit              string = "git-commit"
 
+	logLevel                  string = "level"
 	logTaskDefinitionFamily   string = "ecs_task_def_family"
 	logTaskDefinitionRevision string = "ecs_task_def_revision"
 	logGitBranch                     = "git_branch"
@@ -62,6 +64,7 @@ const (
 
 var environments = []string{"prod", "staging", "experimental"}
 var ecsTaskStatuses = []string{"RUNNING", "STOPPED"}
+var logLevels = []string{"debug", "info", "warn", "error", "panic", "fatal"}
 
 func parseTaskID(taskArn string) string {
 
@@ -120,6 +123,14 @@ func (e *errInvalidTaskStatus) Error() string {
 	return fmt.Sprintf("invalid status %q, expecting one of %q", e.Status, ecsTaskStatuses)
 }
 
+type errInvalidLogLevel struct {
+	Level string
+}
+
+func (e *errInvalidLogLevel) Error() string {
+	return fmt.Sprintf("invalid log level %q, expecting one of %q", e.Level, logLevels)
+}
+
 type errInvalidCluster struct {
 	Cluster string
 }
@@ -144,6 +155,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.StringP("environment", "e", "", "The environment name")
 	flag.StringP("service", "s", "", "The service name")
 	flag.String("status", "", "The task status: "+strings.Join(ecsTaskStatuses, ", "))
+	flag.String(flagLogLevel, "", "The log level: "+strings.Join(logLevels, ", "))
 	flag.StringP(flagGitBranch, "b", "", "The git branch")
 	flag.String(flagGitCommit, "", "The git commit")
 	flag.StringP(flagTaskDefinitionFamily, "f", "", "The ECS task definition family.")
@@ -173,8 +185,24 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", "aws-region"))
 	}
 
-	status := v.GetString("status")
+	logLevel := strings.ToLower(v.GetString(flagLogLevel))
+	if len(logLevel) > 0 {
+		valid := false
+		for _, str := range logLevels {
+			if logLevel == str {
+				valid = true
+				break
+			}
+		}
+
+		if !valid {
+			return errors.Wrap(&errInvalidLogLevel{Level: logLevel}, fmt.Sprintf("%q is invalid", "level"))
+		}
+	}
+
+	status := strings.ToUpper(v.GetString("status"))
 	if len(status) > 0 {
+
 		valid := false
 		for _, str := range ecsTaskStatuses {
 			if status == str {
@@ -182,6 +210,7 @@ func checkConfig(v *viper.Viper) error {
 				break
 			}
 		}
+
 		if !valid {
 			return errors.Wrap(&errInvalidTaskStatus{Status: status}, fmt.Sprintf("%q is invalid", "status"))
 		}
@@ -527,6 +556,10 @@ func showFunction(cmd *cobra.Command, args []string) error {
 		filters[logTaskDefinitionRevision] = revision
 	}
 
+	if level := strings.ToLower(v.GetString(flagLogLevel)); len(level) > 0 {
+		filters[logLevel] = level
+	}
+
 	filterPattern := ""
 	if len(filters) > 0 {
 		parts := make([]string, 0, len(filters))
@@ -543,23 +576,32 @@ func showFunction(cmd *cobra.Command, args []string) error {
 			fmt.Println("-----------------------------------------")
 		}
 
-		filterLogEventsInput := &cloudwatchlogs.FilterLogEventsInput{
-			LogGroupName:   aws.String(job.LogGroupName),
-			LogStreamNames: []*string{aws.String(job.LogStreamName)},
+		var nextToken *string
+		for {
+			filterLogEventsInput := &cloudwatchlogs.FilterLogEventsInput{
+				LogGroupName:   aws.String(job.LogGroupName),
+				LogStreamNames: []*string{aws.String(job.LogStreamName)},
+				NextToken:      nextToken,
+			}
+			if job.Limit >= 0 {
+				filterLogEventsInput.Limit = aws.Int64(int64(job.Limit))
+			}
+			if len(filterPattern) > 0 {
+				filterLogEventsInput.FilterPattern = aws.String(filterPattern)
+			}
+			getLogEventsOutput, err := serviceCloudWatchLogs.FilterLogEvents(filterLogEventsInput)
+			if err != nil {
+				return errors.Wrap(err, "error retrieving log events")
+			}
+			for _, event := range getLogEventsOutput.Events {
+				fmt.Println(*event.Message)
+			}
+			if getLogEventsOutput.NextToken == nil {
+				break
+			}
+			nextToken = getLogEventsOutput.NextToken
 		}
-		if job.Limit >= 0 {
-			filterLogEventsInput.Limit = aws.Int64(int64(job.Limit))
-		}
-		if len(filterPattern) > 0 {
-			filterLogEventsInput.FilterPattern = aws.String(filterPattern)
-		}
-		getLogEventsOutput, err := serviceCloudWatchLogs.FilterLogEvents(filterLogEventsInput)
-		if err != nil {
-			return errors.Wrap(err, "error retrieving log events")
-		}
-		for _, event := range getLogEventsOutput.Events {
-			fmt.Println(*event.Message)
-		}
+
 	}
 
 	return nil
