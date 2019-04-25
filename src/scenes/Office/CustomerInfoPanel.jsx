@@ -72,10 +72,6 @@ const CustomerInfoDisplay = props => {
 
 const CustomerInfoEdit = props => {
   const schema = props.serviceMemberSchema;
-  let addressProps = {
-    swagger: props.addressSchema,
-    values: props.initialValues.address,
-  };
 
   return (
     <React.Fragment>
@@ -116,9 +112,7 @@ const CustomerInfoEdit = props => {
         </div>
 
         <div className="editable-panel-column">
-          <FormSection name="address">
-            <AddressElementEdit addressProps={addressProps} title="Current Residence Address" />
-          </FormSection>
+          <AddressElementEdit fieldName="address" schema={props.addressSchema} title="Current Residence Address" />
         </div>
       </div>
     </React.Fragment>

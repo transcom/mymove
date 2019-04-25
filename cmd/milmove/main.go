@@ -17,6 +17,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync"
@@ -163,6 +164,24 @@ func noCacheMiddleware(inner http.Handler) http.Handler {
 		return
 	}
 	return http.HandlerFunc(mw)
+}
+
+func recoveryMiddleware(logger logger) func(inner http.Handler) http.Handler {
+	zap.L().Debug("recovery installed")
+	return func(inner http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			defer func() {
+				if r := recover(); r != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					errorMsg := fmt.Sprint(r)
+					stacktrace := fmt.Sprintf("%s", debug.Stack())
+					logger.Error("panic recovery", zap.String("error", errorMsg), zap.String("stacktrace", stacktrace))
+				}
+			}()
+			inner.ServeHTTP(w, r)
+		}
+		return http.HandlerFunc(mw)
+	}
 }
 
 func httpsComplianceMiddleware(inner http.Handler) http.Handler {
@@ -1246,6 +1265,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			dpsCookieExpires))
 
 	root := goji.NewMux()
+	root.Use(recoveryMiddleware(logger))
 	root.Use(sessionCookieMiddleware)
 	root.Use(logging.LogRequestMiddleware(logger))
 
