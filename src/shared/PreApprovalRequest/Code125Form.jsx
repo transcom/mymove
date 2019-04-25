@@ -19,9 +19,12 @@ export const Code125Form = props => {
       <AddressElementEdit
         fieldName="address"
         schema={get(ship_line_item_schema, 'properties.address')}
-        title="Starting Location"
+        title="Truck-to-truck transfer location"
         zipPattern="USA"
       />
+      <div className="bq-explanation">
+        <p>Enter amount after service is completed</p>
+      </div>
     </Fragment>
   );
 };
