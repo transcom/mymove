@@ -100,7 +100,8 @@ func (aq *AwardQueue) attemptShipmentOffer(ctx context.Context, shipment models.
 				return nil, shipmentWithinBlackoutDatesErr
 			}
 
-			shipmentOffer, createShipmentOfferErr := models.CreateShipmentOffer(aq.db, shipment.ID, tsp.ID, tspPerformance.ID, isAdministrativeShipment)
+			var createShipmentOfferErr error
+			shipmentOffer, createShipmentOfferErr = models.CreateShipmentOffer(aq.db, shipment.ID, tsp.ID, tspPerformance.ID, isAdministrativeShipment)
 			if createShipmentOfferErr == nil {
 				if tspPerformance, err := models.IncrementTSPPerformanceOfferCount(aq.db, tspPerformance.ID); err == nil {
 					if isAdministrativeShipment == true {
