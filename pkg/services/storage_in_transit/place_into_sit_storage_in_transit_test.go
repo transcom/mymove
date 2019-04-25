@@ -24,10 +24,22 @@ func (suite *StorageInTransitServiceSuite) TestPlaceIntoSITStorageInTransit() {
 	inSITPlacer := NewStorageInTransitInSITPlacer(suite.DB())
 
 	// Happy path
+	sit.Status = models.StorageInTransitStatusAPPROVED
+	_, _ = suite.DB().ValidateAndSave(&sit)
+	assertions := testdatagen.Assertions{
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			ShipmentID:                      shipment.ID,
+		},
+	}
+	// Create a shipment offer that uses our generated TSP ID and shipment ID so that our TSP has rights to
+	// change the status to in_sit.
+	testdatagen.MakeShipmentOffer(suite.DB(), assertions)
+
 	actualStorageInTransit, verrs, err := inSITPlacer.PlaceIntoSITStorageInTransit(payload, shipment.ID, &session, sit.ID)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
-	storageInTransitCompare(suite, *actualStorageInTransit, sit)
+	suite.Equal(models.StorageInTransitStatusINSIT, actualStorageInTransit.Status)
 
 	// Shouldn't work with an office user
 	session = auth.Session{

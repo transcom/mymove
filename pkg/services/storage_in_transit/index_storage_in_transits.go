@@ -1,8 +1,6 @@
 package storageintransit
 
 import (
-	"fmt"
-
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
@@ -18,7 +16,6 @@ type indexStorageInTransits struct {
 // IndexStorageInTransits returns a collection of Storage In Transits that are associated with a specific shipmentID
 func (i indexStorageInTransits) IndexStorageInTransits(shipmentID uuid.UUID, session *auth.Session) ([]models.StorageInTransit, error) {
 	isUserAuthorized, err := authorizeStorageInTransitRequest(i.db, session, shipmentID, true)
-	fmt.Println(session.IsServiceMember())
 	if err != nil {
 		return nil, err
 	}

@@ -335,28 +335,10 @@ func (h PatchStorageInTransitHandler) Handle(params sitop.PatchStorageInTransitP
 	}
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	isUserAuthorized, err := authorizeStorageInTransitRequest(h.DB(), session, shipmentID, true)
+	storageInTransit, verrs, err := h.patchStorageInTransit.PatchStorageInTransit(*payload, shipmentID, storageInTransitID, session)
 
-	if isUserAuthorized == false {
-		h.Logger().Error("User is unauthorized", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	storageInTransit, err := models.FetchStorageInTransitByID(h.DB(), storageInTransitID)
-	if err != nil {
-		h.Logger().Error("Could not find existing SIT record", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	if storageInTransit.ShipmentID != shipmentID {
-		h.Logger().Error("Shipment ID clash between endpoint URL and SIT record")
-		return sitop.NewPatchStorageInTransitForbidden()
-	}
-
-	patchStorageInTransitWithPayload(storageInTransit, payload)
-
-	verrs, err := models.SaveStorageInTransitAndAddress(h.DB(), storageInTransit)
 	if err != nil || verrs.HasAny() {
+		h.Logger().Error(fmt.Sprintf("Patch SIT failed for ID: %s on shipment: %s", storageInTransitID, shipmentID), zap.Error(err), zap.Error(verrs))
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
