@@ -151,8 +151,7 @@ admin_client_run: client_deps
 
 .PHONY: go_deps_update
 go_deps_update:
-	go get -u=patch -v
-	go mod tidy
+	go run cmd/update_deps/main.go
 
 .PHONY: check_gopath
 check_gopath: go_version .check_gopath.stamp

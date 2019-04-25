@@ -66,6 +66,7 @@ require (
 	github.com/nbutton23/zxcvbn-go v0.0.0-20171102151520-eafdab6b0663 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/rickar/cal v1.0.0
+	github.com/rogpeppe/go-internal v1.1.0
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/securego/gosec v0.0.0-20190128083818-04ce7baf6c55
 	github.com/segmentio/chamber v0.0.0-20181114190714-9ae7098a0534
