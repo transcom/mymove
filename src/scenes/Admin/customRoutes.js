@@ -4,6 +4,6 @@ import AdminHome from './AdminHome';
 import AdminUsers from './AdminUsers';
 
 export default [
-  <Route exact path="/portal" component={AdminHome} />,
-  <Route exact path="/portal/users" component={AdminUsers} />,
+  <Route exact path="/system" component={AdminHome} />,
+  <Route exact path="/system/users" component={AdminUsers} />,
 ];

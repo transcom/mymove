@@ -12,9 +12,11 @@ const i18nProvider = () => defaultMessages;
 
 const AdminWrapper = () => (
   <Provider store={adminReducer({ dataProvider, i18nProvider, history })}>
-    <Admin customRoutes={customRoutes} dataProvider={dataProvider} history={history}>
-      <Resource />
-    </Admin>
+    <div className="admin-system-wrapper">
+      <Admin customRoutes={customRoutes} dataProvider={dataProvider} history={history}>
+        <Resource />
+      </Admin>
+    </div>
   </Provider>
 );
 
