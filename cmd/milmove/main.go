@@ -863,18 +863,18 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	logger = logger.With(fields...)
 
 	if v.GetBool("log-task-metadata") {
-		resp, err := http.Get("http://169.254.170.2/v2/metadata")
-		if err != nil {
-			logger.Error(errors.Wrap(err, "could not fetch task metadata").Error())
+		resp, httpGetErr := http.Get("http://169.254.170.2/v2/metadata")
+		if httpGetErr != nil {
+			logger.Error(errors.Wrap(httpGetErr, "could not fetch task metadata").Error())
 		} else {
-			body, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				logger.Error(errors.Wrap(err, "could not read task metadata").Error())
+			body, readAllErr := ioutil.ReadAll(resp.Body)
+			if readAllErr != nil {
+				logger.Error(errors.Wrap(readAllErr, "could not read task metadata").Error())
 			} else {
 				taskMetadata := &ecs.TaskMetadata{}
-				err := json.Unmarshal(body, taskMetadata)
-				if err != nil {
-					logger.Error(errors.Wrap(err, "could not parse task metadata").Error())
+				unmarshallErr := json.Unmarshal(body, taskMetadata)
+				if unmarshallErr != nil {
+					logger.Error(errors.Wrap(unmarshallErr, "could not parse task metadata").Error())
 				} else {
 					logger = logger.With(
 						zap.String("ecs_cluster", taskMetadata.Cluster),
@@ -915,11 +915,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	// Assert that our secret keys can be parsed into actual private keys
 	// TODO: Store the parsed key in handlers/AppContext instead of parsing every time
-	if _, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(loginGovSecretKey)); err != nil {
-		logger.Fatal("Login.gov private key", zap.Error(err))
+	if _, parseRSAPrivateKeyFromPEMErr := jwt.ParseRSAPrivateKeyFromPEM([]byte(loginGovSecretKey)); parseRSAPrivateKeyFromPEMErr != nil {
+		logger.Fatal("Login.gov private key", zap.Error(parseRSAPrivateKeyFromPEMErr))
 	}
-	if _, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(clientAuthSecretKey)); err != nil {
-		logger.Fatal("Client auth private key", zap.Error(err))
+	if _, parseRSAPrivateKeyFromPEMErr := jwt.ParseRSAPrivateKeyFromPEM([]byte(clientAuthSecretKey)); parseRSAPrivateKeyFromPEMErr != nil {
+		logger.Fatal("Client auth private key", zap.Error(parseRSAPrivateKeyFromPEMErr))
 	}
 	if len(loginGovHostname) == 0 {
 		logger.Fatal("Must provide the Login.gov hostname parameter, exiting")
@@ -988,11 +988,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		logger.Info("Using ses email backend",
 			zap.String("region", awsSESRegion),
 			zap.String("domain", awsSESDomain))
-		sesSession, err := awssession.NewSession(&aws.Config{
+		sesSession, newSessionErr := awssession.NewSession(&aws.Config{
 			Region: aws.String(awsSESRegion),
 		})
-		if err != nil {
-			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
+		if newSessionErr != nil {
+			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(newSessionErr))
 		}
 		sesService := ses.New(sesSession)
 		handlerContext.SetNotificationSender(notifications.NewNotificationSender(sesService, awsSESDomain, logger))
@@ -1163,9 +1163,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			data["database"] = dbErr == nil
 		}
 
-		err := json.NewEncoder(w).Encode(data)
-		if err != nil {
-			logger.Error("Failed encoding health check response", zap.Error(err))
+		newEncoderErr := json.NewEncoder(w).Encode(data)
+		if newEncoderErr != nil {
+			logger.Error("Failed encoding health check response", zap.Error(newEncoderErr))
 		}
 
 		// We are not using request middleware here so logging directly in the check
@@ -1339,9 +1339,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 
-		devlocalCa, err := ioutil.ReadFile(v.GetString("devlocal-ca")) // #nosec
-		if err != nil {
-			logger.Error("No devlocal CA path defined")
+		devlocalCa, readFileErr := ioutil.ReadFile(v.GetString("devlocal-ca")) // #nosec
+		if readFileErr != nil {
+			logger.Error("No devlocal CA path defined", zap.Error(readFileErr))
 		} else {
 			rootCAs.AppendCertsFromPEM(devlocalCa)
 		}
