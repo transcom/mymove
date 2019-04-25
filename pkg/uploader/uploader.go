@@ -49,7 +49,7 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 
 	info, fileStatErr := file.Stat()
 	if fileStatErr != nil {
-		u.logger.Error("Could not get file info", zap.Error(fileStatErr ))
+		u.logger.Error("Could not get file info", zap.Error(fileStatErr))
 	}
 
 	if info.Size() == 0 {

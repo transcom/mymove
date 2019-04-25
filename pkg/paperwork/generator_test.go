@@ -101,7 +101,7 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	for _, file := range files {
 		checksum, sha256ForPathErr := suite.sha256ForPath(path.Join(tmpdir, file.Name()), generator.fs)
 		suite.FatalNil(sha256ForPathErr, "error calculating hash")
-		if sha256ForPathErr!= nil {
+		if sha256ForPathErr != nil {
 			suite.FailNow(sha256ForPathErr.Error())
 		}
 		checksums = append(checksums, checksum)

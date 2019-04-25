@@ -165,7 +165,7 @@ func processInvoice(db *pop.Connection, shipment models.Shipment, invoiceModel m
 	if sendToGex {
 		fmt.Println("Sending to GEX. . .")
 		invoice858CString, invoice858CErr := invoice858C.EDIString()
-		if invoice858CErr!= nil {
+		if invoice858CErr != nil {
 			return nil, invoice858CErr
 		}
 		resp, sendToGexErr := gexSender.SendToGex(invoice858CString, *transactionName)

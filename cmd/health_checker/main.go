@@ -214,7 +214,7 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) 
 		}
 
 		clientCert, clientCertErr := base64.StdEncoding.DecodeString(clientCertEncoded)
-		if clientCertErr!= nil {
+		if clientCertErr != nil {
 			return nil, errors.Wrap(clientCertErr, "error decoding client cert")
 		}
 
@@ -242,7 +242,7 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) 
 
 			clientKey, clientKeyErr := ioutil.ReadFile(clientKeyFile) // #nosec b/c we need to read a file from a user-defined path
 			if clientKeyErr != nil {
-				return nil, errors.Wrap(clientKeyErr , "error reading client key file at "+clientKeyFile)
+				return nil, errors.Wrap(clientKeyErr, "error reading client key file at "+clientKeyFile)
 			}
 
 			clientCert, clientCertErr := ioutil.ReadFile(clientCertFile) // #nosec b/c we need to read a file from a user-defined path
