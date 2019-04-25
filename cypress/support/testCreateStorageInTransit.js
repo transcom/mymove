@@ -37,10 +37,7 @@ export function fillAndSaveStorageInTransit() {
     .first()
     .type('Citycitycity', { force: true, delay: 150 });
 
-  cy
-    .get('input[name="warehouse_address.state"]')
-    .first()
-    .type('State', { force: true, delay: 150 });
+  cy.get('select[name="warehouse_address.state"]').select('NY');
 
   cy
     .get('input[name="warehouse_address.postal_code"]')
@@ -71,7 +68,7 @@ export function fillAndSaveStorageInTransit() {
     expect(text).to.include('Contact info');
     expect(text).to.include('123 Anystreet St.');
     expect(text).to.include('Citycitycity');
-    expect(text).to.include('State');
+    expect(text).to.include('NY');
     expect(text).to.include('94703');
   });
 }
@@ -98,7 +95,7 @@ export function editAndSaveStorageInTransit() {
     expect(text).to.include('Contact info');
     expect(text).to.include('123 Anystreet St.');
     expect(text).to.include('Citycitycity');
-    expect(text).to.include('State');
+    expect(text).to.include('NY');
     expect(text).to.include('94703');
   });
 }

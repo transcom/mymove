@@ -26,6 +26,7 @@ func payloadForSignedCertificationModel(cert models.SignedCertification) *intern
 		CreatedAt:                handlers.FmtDateTime(cert.CreatedAt),
 		Date:                     handlers.FmtDateTime(cert.Date),
 		ID:                       handlers.FmtUUID(cert.ID),
+		MoveID:                   handlers.FmtUUID(cert.MoveID),
 		PersonallyProcuredMoveID: handlers.FmtUUIDPtr(cert.PersonallyProcuredMoveID),
 		ShipmentID:               handlers.FmtUUIDPtr(cert.ShipmentID),
 		Signature:                handlers.FmtString(cert.Signature),
@@ -93,7 +94,28 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 	return certop.NewCreateSignedCertificationCreated().WithPayload(signedCertificationPayload)
 }
 
-// IndexSignedCertificationsHandler creates a new issue via POST /issue
+// IndexSignedCertificationsHandler gets all signed certifications associated with a move
 type IndexSignedCertificationsHandler struct {
 	handlers.HandlerContext
+}
+
+// Handle gets a list of SignedCertifications for a move
+func (h IndexSignedCertificationsHandler) Handle(params certop.IndexSignedCertificationParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	moveID, _ := uuid.FromString(params.MoveID.String())
+
+	_, err := models.FetchMove(h.DB(), session, moveID)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	signedCertifications, err := models.FetchSignedCertifications(h.DB(), session, moveID)
+	var signedCertificationsPayload internalmessages.SignedCertifications
+	for _, sc := range signedCertifications {
+		signedCertificationsPayload = append(signedCertificationsPayload, payloadForSignedCertificationModel(*sc))
+	}
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	return certop.NewIndexSignedCertificationOK().WithPayload(signedCertificationsPayload)
 }

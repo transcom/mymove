@@ -283,7 +283,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 	}
 
 	var newMoveDocument *MoveDocument
-	if moveType == SelectedMoveTypeHHG || moveType == SelectedMoveTypeHHGPPM {
+	if moveType == SelectedMoveTypeHHG {
 		newMoveDocument = &MoveDocument{
 			Move:             m,
 			MoveID:           m.ID,
@@ -415,7 +415,7 @@ func (m Move) CreateMovingExpenseDocument(
 // CreatePPM creates a new PPM associated with this move
 func (m Move) CreatePPM(db *pop.Connection,
 	size *internalmessages.TShirtSize,
-	weightEstimate *int64,
+	weightEstimate *unit.Pound,
 	originalMoveDate *time.Time,
 	pickupPostalCode *string,
 	hasAdditionalPostalCode *bool,

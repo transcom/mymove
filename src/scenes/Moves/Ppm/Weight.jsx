@@ -130,24 +130,41 @@ export class PpmWeight extends Component {
     this.state = {
       pendingPpmWeight: null,
     };
+
+    this.onWeightSelected = this.onWeightSelected.bind(this);
+  }
+
+  getWeightClassMedian() {
+    const { selectedWeightInfo } = this.props;
+    return selectedWeightInfo.min + (selectedWeightInfo.max - selectedWeightInfo.min) / 2;
   }
 
   componentDidMount() {
     const { currentPpm } = this.props;
     if (currentPpm) {
-      this.setState({
-        pendingPpmWeight: currentPpm.weight_estimate,
-      });
-      this.updateIncentive();
+      this.setState(
+        {
+          pendingPpmWeight:
+            currentPpm.weight_estimate && currentPpm.weight_estimate !== 0
+              ? currentPpm.weight_estimate
+              : this.getWeightClassMedian(),
+        },
+        this.updateIncentive,
+      );
     }
   }
   componentDidUpdate(prevProps, prevState) {
     const { currentPpm, hasLoadSuccess } = this.props;
     if (!prevProps.hasLoadSuccess && hasLoadSuccess && currentPpm) {
-      this.setState({
-        pendingPpmWeight: currentPpm.weight_estimate,
-      });
-      this.updateIncentive();
+      this.setState(
+        {
+          pendingPpmWeight:
+            currentPpm.weight_estimate && currentPpm.weight_estimate !== 0
+              ? currentPpm.weight_estimate
+              : this.getWeightClassMedian(),
+        },
+        this.updateIncentive,
+      );
     }
   }
   // this method is used to set the incentive on page load
@@ -156,13 +173,14 @@ export class PpmWeight extends Component {
   updateIncentive() {
     const { currentWeight, currentPpm } = this.props;
     const weight_estimate = get(this.props, 'currentPpm.weight_estimate');
-    if (![this.state.pendingPpmWeight, weight_estimate].includes(currentWeight)) {
-      this.onWeightSelecting(currentWeight);
+    if (![this.state.pendingPpmWeight, weight_estimate].includes(currentWeight) || !currentWeight) {
+      const newWeight = currentWeight && currentWeight !== 0 ? currentWeight : this.state.pendingPpmWeight;
+      this.onWeightSelecting(newWeight);
       this.props.getPpmWeightEstimate(
         currentPpm.original_move_date,
         currentPpm.pickup_postal_code,
         currentPpm.destination_postal_code,
-        currentWeight,
+        newWeight,
       );
     }
   }
@@ -189,7 +207,7 @@ export class PpmWeight extends Component {
       pendingPpmWeight: value,
     });
   };
-  onWeightSelected = value => {
+  onWeightSelected() {
     const { currentPpm } = this.props;
     this.props.getPpmWeightEstimate(
       currentPpm.original_move_date,
@@ -197,7 +215,7 @@ export class PpmWeight extends Component {
       currentPpm.destination_postal_code,
       this.state.pendingPpmWeight,
     );
-  };
+  }
   render() {
     const {
       currentPpm,

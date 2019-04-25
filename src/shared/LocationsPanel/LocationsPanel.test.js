@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import { AddressElementDisplay } from 'shared/Address';
-import { LocationsDisplay } from './Locations';
+import { LocationsDisplay } from './LocationsPanel';
 
 const defaultProps = {
   addressSchema: {},

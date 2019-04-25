@@ -196,14 +196,23 @@ export function formatDateTime(date) {
 export function formatDateTimeWithTZ(date) {
   if (!date) return undefined;
 
-  let zone = new Date().toLocaleTimeString('en-us', { timeZoneName: 'short' }).split(' ')[2];
+  // This gets us a date string that includes the browser timezone
+  // e.g. Mon Apr 22 2019 09:08:10 GMT-0500 (Central Daylight Time)
+  // If this looks a bit strange, it's a workaround for IE11 not
+  // supporting the timeZoneName: 'short' option in Date.toLocaleString
+  const newDateString = String(moment(date).toDate());
+  const longZone = newDateString.substring(newDateString.lastIndexOf('(') + 1, newDateString.lastIndexOf(')'));
+  let shortZone = longZone
+    .split(' ')
+    .map(word => word[0])
+    .join('');
 
   // Converting timezones like CDT and EST to CT and ET
-  if (zone.length === 3 && zone !== 'UTC') {
-    zone = zone.slice(0, 1) + zone.slice(2, 3);
+  if (shortZone.length === 3 && shortZone !== 'UTC') {
+    shortZone = shortZone.slice(0, 1) + shortZone.slice(2, 3);
   }
 
-  return moment(date, moment.ISO_8601, true).format('DD-MMM-YY HH:mm') + ` ${zone}`;
+  return moment(date, moment.ISO_8601, true).format('DD-MMM-YY HH:mm') + ` ${shortZone}`;
 }
 
 // truncate a number and return appropiate decimal places... (watch out for negitive numbers: floor(-5.1) === -6)
