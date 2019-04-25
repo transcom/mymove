@@ -12,7 +12,6 @@ export const Code125Details = props => {
           {`Time of service: ${row.time}`} <br />
         </Fragment>
       )}
-      <br />
       {row.address.street_address_1} <br />
       {row.address.street_address_2 && (
         <Fragment>
