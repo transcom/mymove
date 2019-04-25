@@ -1849,39 +1849,39 @@ definitions:
         x-display-value:
           AL: AL
           AK: AK
-          AZ: AZ
           AR: AR
+          AZ: AZ
           CA: CA
           CO: CO
           CT: CT
-          DE: DE
           DC: DC
+          DE: DE
           FL: FL
           GA: GA
           HI: HI
+          IA: IA
           ID: ID
           IL: IL
           IN: IN
-          IA: IA
           KS: KS
           KY: KY
           LA: LA
-          ME: ME
-          MD: MD
           MA: MA
+          MD: MD
+          ME: ME
           MI: MI
           MN: MN
-          MS: MS
           MO: MO
+          MS: MS
           MT: MT
+          NC: NC
+          ND: ND
           NE: NE
-          NV: NV
           NH: NH
           NJ: NJ
           NM: NM
+          NV: NV
           NY: NY
-          NC: NC
-          ND: ND
           OH: OH
           OK: OK
           OR: OR
@@ -1892,48 +1892,48 @@ definitions:
           TN: TN
           TX: TX
           UT: UT
-          VT: VT
           VA: VA
+          VT: VT
           WA: WA
-          WV: WV
           WI: WI
+          WV: WV
           WY: WY
         enum:
           - AL
           - AK
-          - AZ
           - AR
+          - AZ
           - CA
           - CO
           - CT
-          - DE
           - DC
+          - DE
           - FL
           - GA
           - HI
+          - IA
           - ID
           - IL
           - IN
-          - IA
           - KS
           - KY
           - LA
-          - ME
-          - MD
           - MA
+          - MD
+          - ME
           - MI
           - MN
-          - MS
           - MO
+          - MS
           - MT
+          - NC
+          - ND
           - NE
-          - NV
           - NH
           - NJ
           - NM
+          - NV
           - NY
-          - NC
-          - ND
           - OH
           - OK
           - OR
@@ -1944,11 +1944,11 @@ definitions:
           - TN
           - TX
           - UT
-          - VT
           - VA
+          - VT
           - WA
-          - WV
           - WI
+          - WV
           - WY
       postal_code:
         type: string
