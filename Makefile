@@ -76,6 +76,12 @@ go_version: .go_version.stamp
 	scripts/check-go-version
 	touch .go_version.stamp
 
+.PHONY: check_gopath
+check_gopath: .go_version.stamp .check_gopath.stamp
+.check_gopath.stamp:
+	scripts/check-gopath
+	touch .check_gopath.stamp
+
 .PHONY: bash_version
 bash_version: .bash_version.stamp
 .bash_version.stamp: scripts/check-bash-version
@@ -146,6 +152,93 @@ admin_client_run: client_deps
 #
 
 #
+# ----- START BIN TARGETS -----
+#
+
+### Go Tool Targets
+
+bin/callgraph: .check_gopath.stamp
+	go build -i -o bin/callgraph golang.org/x/tools/cmd/callgraph
+
+bin/chamber: .check_gopath.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
+
+bin/gosec: .check_gopath.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
+
+bin/gin: .check_gopath.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
+
+bin/soda: .check_gopath.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda
+
+bin/swagger: .check_gopath.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
+
+### Cert Targets
+
+bin/rds-combined-ca-bundle.pem:
+	mkdir -p bin/
+	curl -sSo bin/rds-combined-ca-bundle.pem https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+
+### MilMove Targets
+
+bin/compare-secure-migrations:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare_secure_migrations
+
+bin/ecs-service-logs:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
+
+bin/generate-1203-form:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
+
+bin/generate-shipment-edi:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-edi ./cmd/generate_shipment_edi
+
+bin/generate-shipment-summary:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
+
+bin/generate-test-data: .check_gopath.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
+
+bin/health_checker:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/health_checker ./cmd/health_checker
+
+bin/iws:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/demo/iws.go
+
+bin/load-office-data:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/load-office-data ./cmd/load_office_data
+
+bin/load-user-gen:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/load-user-gen ./cmd/load_user_gen
+
+bin/make-dps-user:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/make-dps-user ./cmd/make_dps_user
+
+bin/make-office-user:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
+
+bin/make-tsp-user:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
+
+bin/milmove:
+	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
+
+bin/save-fuel-price-data:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
+
+bin/send-to-gex:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
+
+bin/tsp-award-queue:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
+
+#
+# ----- END BIN TARGETS -----
+#
+
+#
 # ----- START SERVER TARGETS -----
 #
 
@@ -154,57 +247,23 @@ go_deps_update:
 	go get -u=patch -v
 	go mod tidy
 
-.PHONY: check_gopath
-check_gopath: go_version .check_gopath.stamp
-.check_gopath.stamp:
-	scripts/check-gopath
-	touch .check_gopath.stamp
-
-.PHONY: build_chamber
-build_chamber: check_gopath .build_chamber.stamp
-.build_chamber.stamp:
-	go build -i -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
-	touch .build_chamber.stamp
-
-.PHONY: build_soda
-build_soda: check_gopath .build_soda.stamp
-.build_soda.stamp:
-	go build -i -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda
-	touch .build_soda.stamp
-
-.PHONY: build_generate_test_data
-build_generate_test_data: check_gopath
-	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
-
-.PHONY: build_callgraph
-build_callgraph: check_gopath .build_callgraph.stamp
-.build_callgraph.stamp:
-	go build -i -o bin/callgraph golang.org/x/tools/cmd/callgraph
-	touch .build_callgraph.stamp
-
 .PHONY: get_gotools
-get_gotools: check_gopath .get_gotools.stamp
+get_gotools: .check_gopath.stamp .get_gotools.stamp
 .get_gotools.stamp:
 	go install golang.org/x/lint/golint
 	go install golang.org/x/tools/cmd/goimports
 	touch .get_gotools.stamp
 
-bin/rds-combined-ca-bundle.pem:
-	mkdir -p bin/
-	curl -sSo bin/rds-combined-ca-bundle.pem https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
-
 .PHONY: server_deps
-server_deps: check_hosts check_gopath build_chamber build_soda build_callgraph get_gotools bin/rds-combined-ca-bundle.pem .server_deps.stamp
-.server_deps.stamp:
-	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
-	go build -i -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
-	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
-	touch .server_deps.stamp
-
-.PHONY: server_deps_linux
-server_deps_linux: check_gopath .server_deps_linux.stamp
-.server_deps_linux.stamp:
-	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
+server_deps: check_hosts \
+	get_gotools \
+	bin/callgraph \
+	bin/chamber \
+	bin/gosec \
+	bin/gin \
+	bin/soda \
+	bin/swagger \
+	bin/rds-combined-ca-bundle.pem
 
 .PHONY: server_generate
 server_generate: server_deps server_go_bindata .server_generate.stamp
@@ -213,7 +272,7 @@ server_generate: server_deps server_go_bindata .server_generate.stamp
 	touch .server_generate.stamp
 
 .PHONY: server_generate_linux
-server_generate_linux: server_deps_linux server_go_bindata .server_generate_linux.stamp
+server_generate_linux: bin/swagger server_go_bindata .server_generate_linux.stamp
 .server_generate_linux.stamp: $(shell find swagger -type f -name *.yaml)
 	scripts/gen-server
 	touch .server_generate_linux.stamp
@@ -224,11 +283,10 @@ pkg/assets/assets.go: pkg/paperwork/formtemplates/*
 	go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/
 
 .PHONY: server_build
-server_build: server_deps server_generate
-	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
+server_build: server_deps server_generate bin/milmove
 
 .PHONY: server_build_linux
-server_build_linux: server_deps_linux server_generate_linux
+server_build_linux: server_generate_linux
 	# These don't need to go in bin_linux/ because local devs don't use them
 	# Additionally it would not work with the default Dockerfile
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
@@ -245,7 +303,7 @@ server_run_default: server_deps server_generate db_dev_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) ./bin/gin \
 		--build ./cmd/milmove \
-		--bin /bin/milmove \
+		--bin /bin/milmove_gin \
 		--port 8080 --appPort 8081 \
 		--excludeDir node_modules \
 		--immediate \
@@ -258,22 +316,25 @@ server_run_debug:
 	$(AWS_VAULT) dlv debug cmd/milmove/main.go serve
 
 .PHONY: build_tools
-build_tools: bash_version server_deps server_generate build_generate_test_data
-	go build -i -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare_secure_migrations
-	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
-	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
-	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-edi ./cmd/generate_shipment_edi
-	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
-	go build -i -ldflags "$(LDFLAGS)" -o bin/health_checker ./cmd/health_checker
-	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/demo/iws.go
-	go build -i -ldflags "$(LDFLAGS)" -o bin/load-office-data ./cmd/load_office_data
-	go build -i -ldflags "$(LDFLAGS)" -o bin/load-user-gen ./cmd/load_user_gen
-	go build -i -ldflags "$(LDFLAGS)" -o bin/make-dps-user ./cmd/make_dps_user
-	go build -i -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
-	go build -i -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
-	go build -i -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
-	go build -i -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
-	go build -i -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
+build_tools: .bash_version.stamp \
+	server_deps \
+	server_generate \
+	bin/compare-secure-migrations \
+	bin/ecs-service-logs \
+	bin/generate-1203-form \
+	bin/generate-shipment-edi \
+	bin/generate-shipment-summary \
+	bin/generate-test-data \
+	bin/health_checker \
+	bin/iws \
+	bin/load-office-data \
+	bin/load-user-gen \
+	bin/make-dps-user \
+	bin/make-office-user \
+	bin/make-tsp-user \
+	bin/save-fuel-price-data \
+	bin/send-to-gex \
+	bin/tsp-award-queue
 
 .PHONY: build
 build: server_build build_tools client_build
@@ -281,7 +342,7 @@ build: server_build build_tools client_build
 # webserver_test runs a few acceptance tests against a local or remote environment.
 # This can help identify potential errors before deploying a container.
 .PHONY: webserver_test
-webserver_test: server_generate build_chamber
+webserver_test: server_generate bin/chamber
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
@@ -520,9 +581,8 @@ db_test_migrate: server_deps db_test_migrate_standalone
 
 .PHONY: db_test_migrations_build
 db_test_migrations_build: .db_test_migrations_build.stamp
-.db_test_migrations_build.stamp: server_deps_linux server_generate_linux
+.db_test_migrations_build.stamp: bin/swagger server_generate_linux
 	@echo "Build required binaries for the docker migration container..."
-	mkdir -p bin_linux/
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/soda github.com/gobuffalo/pop/soda
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate_test_data
 	@echo "Build the docker migration container..."
@@ -590,7 +650,7 @@ e2e_clean:
 	docker rm -f e2e_migrations || true
 
 .PHONY: db_e2e_up
-db_e2e_up: build_generate_test_data
+db_e2e_up: bin/generate-test-data
 	@echo "Truncate the ${DB_NAME_TEST} database..."
 	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE;'
 	@echo "Populate the ${DB_NAME_TEST} database..."
