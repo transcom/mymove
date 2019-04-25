@@ -103,7 +103,8 @@ func (aq *AwardQueue) attemptShipmentOffer(ctx context.Context, shipment models.
 			var createShipmentOfferErr error
 			shipmentOffer, createShipmentOfferErr = models.CreateShipmentOffer(aq.db, shipment.ID, tsp.ID, tspPerformance.ID, isAdministrativeShipment)
 			if createShipmentOfferErr == nil {
-				if tspPerformance, err := models.IncrementTSPPerformanceOfferCount(aq.db, tspPerformance.ID); err == nil {
+				var tspPerformanceErr error
+				if tspPerformance, tspPerformanceErr = models.IncrementTSPPerformanceOfferCount(aq.db, tspPerformance.ID); tspPerformanceErr == nil {
 					if isAdministrativeShipment == true {
 						aq.logger.TraceInfo(ctx, "Shipment pickup date is during a blackout period. Awarding Administrative Shipment to TSP.")
 					} else {
@@ -118,16 +119,16 @@ func (aq *AwardQueue) attemptShipmentOffer(ctx context.Context, shipment models.
 						foundAvailableTSP = true
 
 						// Award the shipment
-						if awardShipmentErr := models.AwardShipment(aq.db, shipment.ID); err != nil {
+						if awardShipmentErr := models.AwardShipment(aq.db, shipment.ID); awardShipmentErr != nil {
 							aq.logger.TraceError(ctx, "Failed to set shipment as awarded", zap.Error(awardShipmentErr))
 							return nil, awardShipmentErr
 						}
 					}
 				} else {
-					aq.logger.TraceError(ctx, "Failed to increment offer count", zap.Error(err))
+					aq.logger.TraceError(ctx, "Failed to increment offer count", zap.Error(tspPerformanceErr))
 				}
 			} else {
-				aq.logger.TraceError(ctx, "Failed to offer to TSP", zap.Error(err))
+				aq.logger.TraceError(ctx, "Failed to offer to TSP", zap.Error(createShipmentOfferErr))
 			}
 		}
 
