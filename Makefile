@@ -248,7 +248,7 @@ go_deps_update:
 	go mod tidy
 
 .PHONY: get_gotools
-get_gotools: .check_gopath.stamp .get_gotools.stamp
+get_gotools: check_gopath .get_gotools.stamp
 .get_gotools.stamp:
 	go install golang.org/x/lint/golint
 	go install golang.org/x/tools/cmd/goimports
