@@ -7,6 +7,8 @@ import 'react-table/react-table.css';
 import { RetrieveMovesForOffice } from './api.js';
 import Alert from 'shared/Alert';
 import { formatDate, formatDateTimeWithTZ } from 'shared/formatters';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 
 class QueueTable extends Component {
   constructor() {
@@ -102,6 +104,20 @@ class QueueTable extends Component {
                 Header: 'Status',
                 accessor: 'synthetic_status',
                 Cell: row => <span className="status">{capitalize(row.value.replace('_', ' '))}</span>,
+              },
+              {
+                Header: '',
+                accessor: 'synthetic_status',
+                show: this.props.queueType === 'ppm',
+                Cell: row => (
+                  <span className="">
+                    {row.value === 'PAYMENT_REQUESTED' || row.value === 'SUBMITTED' ? (
+                      <FontAwesomeIcon icon={faClock} />
+                    ) : (
+                      ''
+                    )}
+                  </span>
+                ),
               },
               {
                 Header: 'Customer name',
