@@ -8,7 +8,7 @@ DIR="$(dirname "${DIR}")"
 
 # skip analyzing dutystationsloader until repeated tags from embedded types are fixed in Go1.12.2
 # https://github.com/golang/go/issues/30465
-go_vet_pkgs=$(go list "${DIR}"/... | grep -v /vendor/ | grep -v /pkg/gen/ | grep -v internal/pkg/dutystationsloader | tr "\n" " ")
+go_vet_pkgs=$(go list "${DIR}"/... | grep -v /pkg/gen/ | grep -v internal/pkg/dutystationsloader | tr "\n" " ")
 
 # shellcheck disable=SC2086
 go vet -vettool="$(command -v shadow)" $go_vet_pkgs
