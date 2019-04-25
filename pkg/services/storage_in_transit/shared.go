@@ -11,7 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func authorizeStorageInTransitRequest(db *pop.Connection, session *auth.Session, shipmentID uuid.UUID, allowOffice bool) (isUserAuthorized bool, err error) {
+func authorizeStorageInTransitHTTPRequest(db *pop.Connection, session *auth.Session, shipmentID uuid.UUID, allowOffice bool) (isUserAuthorized bool, err error) {
 	if session.IsTspUser() {
 		_, _, err := models.FetchShipmentForVerifiedTSPUser(db, session.TspUserID, shipmentID)
 
@@ -19,12 +19,12 @@ func authorizeStorageInTransitRequest(db *pop.Connection, session *auth.Session,
 			return false, err
 		}
 		return true, nil
-	} else if session.IsOfficeUser() {
+	}
+
+	if session.IsOfficeUser() {
 		if allowOffice {
 			return true, nil
 		}
-	} else {
-		return false, models.ErrFetchForbidden
 	}
 	return false, models.ErrFetchForbidden
 }

@@ -17,7 +17,7 @@ type deleteStorageInTransit struct {
 func (d deleteStorageInTransit) DeleteStorageInTransit(shipmentID uuid.UUID, storageInTransitID uuid.UUID, session *auth.Session) error {
 
 	// TSPs can delete their own SIT requests
-	isAuthorized, err := authorizeStorageInTransitRequest(d.db, session, shipmentID, false)
+	isAuthorized, err := authorizeStorageInTransitHTTPRequest(d.db, session, shipmentID, false)
 
 	if err != nil {
 		return err

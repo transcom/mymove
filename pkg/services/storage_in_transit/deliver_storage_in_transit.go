@@ -19,13 +19,9 @@ func (d deliverStorageInTransit) DeliverStorageInTransit(shipmentID uuid.UUID, s
 	returnVerrs := validate.NewErrors()
 
 	// Only TSP users are authorized to do this.
-	isUserAuthorized, err := authorizeStorageInTransitRequest(d.db, session, shipmentID, false)
+	isUserAuthorized, err := authorizeStorageInTransitHTTPRequest(d.db, session, shipmentID, false)
 
-	if err != nil {
-		return nil, returnVerrs, err
-	}
-
-	if !isUserAuthorized {
+	if err != nil || !isUserAuthorized {
 		return nil, returnVerrs, err
 	}
 
@@ -40,16 +36,10 @@ func (d deliverStorageInTransit) DeliverStorageInTransit(shipmentID uuid.UUID, s
 		return nil, returnVerrs, models.ErrFetchForbidden
 	}
 
-	// Don't want to deliver something that's already delivered
-	if storageInTransit.Status == models.StorageInTransitStatusDELIVERED {
-		return nil, returnVerrs, models.ErrWriteConflict
-	}
-
 	// Make sure we're not trying to set delivered for something that isn't either IN SIT or RELEASED
 	if !(storageInTransit.Status == models.StorageInTransitStatusINSIT) &&
 		!(storageInTransit.Status == models.StorageInTransitStatusRELEASED) {
 		return nil, returnVerrs, models.ErrWriteConflict
-
 	}
 
 	storageInTransit.Status = models.StorageInTransitStatusDELIVERED
@@ -60,7 +50,6 @@ func (d deliverStorageInTransit) DeliverStorageInTransit(shipmentID uuid.UUID, s
 	}
 
 	return storageInTransit, returnVerrs, nil
-
 }
 
 // NewStorageInTransitInDeliverer is the public constructor for a `NewStorageInTransitInDeliverer`

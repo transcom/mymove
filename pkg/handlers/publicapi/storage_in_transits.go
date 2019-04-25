@@ -2,12 +2,10 @@ package publicapi
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -43,53 +41,6 @@ func payloadForStorageInTransitModel(s *models.StorageInTransit) *apimessages.St
 		ActualStartDate:     handlers.FmtDatePtr(s.ActualStartDate),
 		OutDate:             handlers.FmtDatePtr(s.OutDate),
 	}
-}
-
-func authorizeStorageInTransitRequest(db *pop.Connection, session *auth.Session, shipmentID uuid.UUID, allowOffice bool) (isUserAuthorized bool, err error) {
-	if session.IsTspUser() {
-		_, _, err := models.FetchShipmentForVerifiedTSPUser(db, session.TspUserID, shipmentID)
-
-		if err != nil {
-			return false, err
-		}
-		return true, nil
-	} else if session.IsOfficeUser() {
-		if allowOffice {
-			return true, nil
-		}
-	} else {
-		return false, models.ErrFetchForbidden
-	}
-	return false, models.ErrFetchForbidden
-}
-
-func patchStorageInTransitWithPayload(storageInTransit *models.StorageInTransit, payload *apimessages.StorageInTransit) {
-	if *payload.Location == "ORIGIN" {
-		storageInTransit.Location = models.StorageInTransitLocationORIGIN
-	} else {
-		storageInTransit.Location = models.StorageInTransitLocationDESTINATION
-	}
-
-	if payload.EstimatedStartDate != nil {
-		storageInTransit.EstimatedStartDate = *(*time.Time)(payload.EstimatedStartDate)
-	}
-
-	storageInTransit.Notes = handlers.FmtStringPtrNonEmpty(payload.Notes)
-
-	if payload.WarehouseID != nil {
-		storageInTransit.WarehouseID = *payload.WarehouseID
-	}
-
-	if payload.WarehouseName != nil {
-		storageInTransit.WarehouseName = *payload.WarehouseName
-	}
-
-	if payload.WarehouseAddress != nil {
-		updateAddressWithPayload(&storageInTransit.WarehouseAddress, payload.WarehouseAddress)
-	}
-
-	storageInTransit.WarehousePhone = handlers.FmtStringPtrNonEmpty(payload.WarehousePhone)
-	storageInTransit.WarehouseEmail = handlers.FmtStringPtrNonEmpty(payload.WarehouseEmail)
 }
 
 // IndexStorageInTransitHandler returns a list of Storage In Transit entries
@@ -291,7 +242,6 @@ type ReleaseStorageInTransitHandler struct {
 // This is meant to set the status of a storage in transit to released, save the actual date that supports that,
 // and return the saved object in a payload.
 func (h ReleaseStorageInTransitHandler) Handle(params sitop.ReleaseStorageInTransitParams) middleware.Responder {
-	// TODO: There may be other fields that have to be addressed here when we get to the frontend story for this.
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
 	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
 	payload := params.StorageInTransitOnReleasePayload

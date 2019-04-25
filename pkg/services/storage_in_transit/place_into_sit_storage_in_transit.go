@@ -22,7 +22,7 @@ func (p placeIntoSITStorageInTransit) PlaceIntoSITStorageInTransit(payload apime
 	returnVerrs := validate.NewErrors()
 
 	// Only TSP users are authorized to do this.
-	isUserAuthorized, err := authorizeStorageInTransitRequest(p.db, session, shipmentID, false)
+	isUserAuthorized, err := authorizeStorageInTransitHTTPRequest(p.db, session, shipmentID, false)
 
 	if err != nil {
 		return nil, returnVerrs, err
@@ -43,13 +43,8 @@ func (p placeIntoSITStorageInTransit) PlaceIntoSITStorageInTransit(payload apime
 		return nil, returnVerrs, models.ErrFetchForbidden
 	}
 
-	if storageInTransit.Status == models.StorageInTransitStatusDELIVERED {
-		return nil, returnVerrs, models.ErrWriteConflict
-	}
-
 	if !(storageInTransit.Status == models.StorageInTransitStatusAPPROVED) {
 		return nil, returnVerrs, models.ErrWriteConflict
-
 	}
 
 	payloadActualStartDate := (time.Time)(payload.ActualStartDate)

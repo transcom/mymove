@@ -22,7 +22,7 @@ func (r releaseStorageInTransit) ReleaseStorageInTransit(payload apimessages.Sto
 	returnVerrs := validate.NewErrors()
 
 	// Only TSPs are authorized to do this and they should only be able to on their own shipments
-	isAuthorized, err := authorizeStorageInTransitRequest(r.db, session, shipmentID, false)
+	isAuthorized, err := authorizeStorageInTransitHTTPRequest(r.db, session, shipmentID, false)
 
 	if err != nil {
 		return nil, returnVerrs, err

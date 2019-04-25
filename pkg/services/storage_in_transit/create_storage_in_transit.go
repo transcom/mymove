@@ -21,7 +21,7 @@ type createStorageInTransit struct {
 func (c createStorageInTransit) CreateStorageInTransit(storageInTransitPayload apimessages.StorageInTransit, shipmentID uuid.UUID, session *auth.Session) (*models.StorageInTransit, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 
-	isUserAuthorized, err := authorizeStorageInTransitRequest(c.db, session, shipmentID, false)
+	isUserAuthorized, err := authorizeStorageInTransitHTTPRequest(c.db, session, shipmentID, false)
 
 	if err != nil {
 		return nil, returnVerrs, err

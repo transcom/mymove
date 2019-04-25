@@ -52,7 +52,7 @@ func (p patchStorageInTransit) PatchStorageInTransit(payload apimessages.Storage
 	returnVerrs := validate.NewErrors()
 
 	// Both TSPs and Office users can do this. TSPs can edit based on whether or not its their shipment.
-	isAuthorized, err := authorizeStorageInTransitRequest(p.db, session, shipmentID, true)
+	isAuthorized, err := authorizeStorageInTransitHTTPRequest(p.db, session, shipmentID, true)
 
 	if err != nil {
 		return nil, returnVerrs, err
