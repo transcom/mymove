@@ -27,6 +27,12 @@ func MakeTSPPerformance(db *pop.Connection, assertions Assertions) (models.Trans
 
 	var tsp models.TransportationServiceProvider
 	id := assertions.TransportationServiceProviderPerformance.TransportationServiceProviderID
+	qualityBand := assertions.TransportationServiceProviderPerformance.QualityBand
+	score := assertions.TransportationServiceProviderPerformance.BestValueScore
+	offerCount := assertions.TransportationServiceProviderPerformance.OfferCount
+	linehaulRate := assertions.TransportationServiceProviderPerformance.LinehaulRate
+	sitRate := assertions.TransportationServiceProviderPerformance.SITRate
+
 	if id == uuid.Nil {
 		tsp = MakeDefaultTSP(db)
 	} else {
@@ -35,13 +41,25 @@ func MakeTSPPerformance(db *pop.Connection, assertions Assertions) (models.Trans
 
 	var tdl models.TrafficDistributionList
 	id = assertions.TransportationServiceProviderPerformance.TrafficDistributionListID
+
 	if id == uuid.Nil {
 		tdl = MakeDefaultTDL(db)
 	} else {
 		tdl = assertions.TransportationServiceProviderPerformance.TrafficDistributionList
 	}
 
-	qualityBand := 1
+	if score == 0 {
+		score = 0.88
+	}
+
+	if linehaulRate == 0 {
+		linehaulRate = 0.34
+	}
+
+	if sitRate == 0 {
+		sitRate = 0.45
+	}
+
 	tspp := models.TransportationServiceProviderPerformance{
 		TransportationServiceProvider:   tsp,
 		TransportationServiceProviderID: tsp.ID,
@@ -51,11 +69,11 @@ func MakeTSPPerformance(db *pop.Connection, assertions Assertions) (models.Trans
 		RateCycleStart:            PeakRateCycleStart,
 		RateCycleEnd:              PeakRateCycleEnd,
 		TrafficDistributionListID: tdl.ID,
-		QualityBand:               &qualityBand,
-		BestValueScore:            0.88,
-		OfferCount:                0,
-		LinehaulRate:              0.34,
-		SITRate:                   0.45,
+		QualityBand:               qualityBand,
+		BestValueScore:            score,
+		OfferCount:                offerCount,
+		LinehaulRate:              linehaulRate,
+		SITRate:                   sitRate,
 	}
 
 	mergeModels(&tspp, assertions.TransportationServiceProviderPerformance)

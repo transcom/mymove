@@ -55,6 +55,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 			TransportationServiceProvider:   tsp,
 			TransportationServiceProviderID: tsp.ID,
 			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
 		},
 	})
 
@@ -129,6 +130,7 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 			TransportationServiceProvider:   tsp,
 			TransportationServiceProviderID: tsp.ID,
 			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
 		},
 	})
 
@@ -313,6 +315,7 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 			TransportationServiceProvider:   tsp,
 			TransportationServiceProviderID: tsp.ID,
 			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
 		},
 	})
 	suite.Nil(err)
@@ -381,6 +384,7 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 			TransportationServiceProvider:   tsp,
 			TransportationServiceProviderID: tsp.ID,
 			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
 		},
 	})
 
@@ -436,6 +440,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 			TransportationServiceProvider:   tsp,
 			TransportationServiceProviderID: tsp.ID,
 			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
 		},
 	})
 
@@ -510,6 +515,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 			TransportationServiceProvider:   tsp1,
 			TransportationServiceProviderID: tsp1.ID,
 			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
 		},
 	})
 	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
@@ -517,6 +523,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 			TransportationServiceProvider:   tsp2,
 			TransportationServiceProviderID: tsp2.ID,
 			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
 		},
 	})
 	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
@@ -524,6 +531,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 			TransportationServiceProvider:   tsp3,
 			TransportationServiceProviderID: tsp3.ID,
 			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
 		},
 	})
 	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
@@ -531,6 +539,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 			TransportationServiceProvider:   tsp4,
 			TransportationServiceProviderID: tsp4.ID,
 			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
 		},
 	})
 	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
@@ -538,6 +547,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 			TransportationServiceProvider:   tsp5,
 			TransportationServiceProviderID: tsp5.ID,
 			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
 		},
 	})
 
@@ -599,6 +609,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 				TransportationServiceProvider:   tsp,
 				TransportationServiceProviderID: tsp.ID,
 				TrafficDistributionListID:       tdl.ID,
+				QualityBand:                     swag.Int(1),
 			},
 		})
 
