@@ -79,7 +79,7 @@ class QueueTable extends Component {
     };
 
     this.state.data.forEach(row => {
-      if (row.ppm_status === 'PAYMENT_REQUESTED') {
+      if (this.props.queueType === 'ppm' && row.ppm_status !== null) {
         row.synthetic_status = row.ppm_status;
       } else {
         row.synthetic_status = row.status;
