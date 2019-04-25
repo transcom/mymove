@@ -103,21 +103,20 @@ class QueueTable extends Component {
               {
                 Header: 'Status',
                 accessor: 'synthetic_status',
-                Cell: row => <span className="status">{capitalize(row.value.replace('_', ' '))}</span>,
-              },
-              {
-                Header: '',
-                accessor: 'synthetic_status',
-                show: this.props.queueType === 'ppm',
-                Cell: row => (
-                  <span className="">
-                    {row.value === 'PAYMENT_REQUESTED' || row.value === 'SUBMITTED' ? (
+                Cell: row => {
+                  const actionIcon =
+                    row.value === 'PAYMENT_REQUESTED' || row.value === 'SUBMITTED' ? (
                       <FontAwesomeIcon icon={faClock} />
                     ) : (
                       ''
-                    )}
-                  </span>
-                ),
+                    );
+                  return (
+                    <span className="status">
+                      {capitalize(row.value.replace('_', ' '))}
+                      {actionIcon}
+                    </span>
+                  );
+                },
               },
               {
                 Header: 'Customer name',

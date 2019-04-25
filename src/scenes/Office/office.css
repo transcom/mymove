@@ -42,6 +42,11 @@
   text-align: left;
 }
 
+.queue-table .status {
+  display: flex;
+  justify-content: space-between;
+}
+
 /* Use with .usa-grid for a liquid and nearly full-width grid layout. */
 .grid-wide {
   max-width: 2000px;
