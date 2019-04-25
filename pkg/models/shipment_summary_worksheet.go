@@ -156,9 +156,9 @@ func (obligation Obligation) MaxAdvance() float64 {
 }
 
 // FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
-func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth.Session, moveID uuid.UUID) (data ShipmentSummaryFormData, err error) {
+func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth.Session, moveID uuid.UUID) (ShipmentSummaryFormData, error) {
 	move := Move{}
-	err = db.Q().Eager(
+	dbQErr := db.Q().Eager(
 		"Orders",
 		"Orders.NewDutyStation.Address",
 		"Orders.ServiceMember",
@@ -166,6 +166,13 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 		"Shipments",
 		"PersonallyProcuredMoves",
 	).Find(&move, moveID)
+
+	if dbQErr != nil {
+		if errors.Cause(dbQErr).Error() == recordNotFoundErrorString {
+			return ShipmentSummaryFormData{}, ErrFetchNotFound
+		}
+		return ShipmentSummaryFormData{}, dbQErr
+	}
 
 	for i, ppm := range move.PersonallyProcuredMoves {
 		ppmDetails, err := FetchPersonallyProcuredMove(db, session, ppm.ID)
@@ -178,13 +185,6 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 				move.PersonallyProcuredMoves[i].Advance = ppmDetails.Advance
 			}
 		}
-	}
-
-	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
-			return ShipmentSummaryFormData{}, ErrFetchNotFound
-		}
-		return ShipmentSummaryFormData{}, err
 	}
 
 	_, authErr := FetchOrderForUser(db, session, move.OrdersID)
