@@ -10,11 +10,11 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-type storageInTransitNumberGenerator struct {
+type generateStorageInTransitNumber struct {
 	db *pop.Connection
 }
 
-func (s storageInTransitNumberGenerator) generateSequenceNumber(year int, dayOfYear int) (int, error) {
+func (s generateStorageInTransitNumber) generateSequenceNumber(year int, dayOfYear int) (int, error) {
 	if year <= 0 {
 		return 0, errors.Errorf("Year (%d) must be non-negative", year)
 	}
@@ -43,7 +43,7 @@ func (s storageInTransitNumberGenerator) generateSequenceNumber(year int, dayOfY
 }
 
 // GenerateStorageInTransitNumber creates a new storage in transit number
-func (s storageInTransitNumberGenerator) GenerateStorageInTransitNumber(placeInSitTime time.Time) (string, error) {
+func (s generateStorageInTransitNumber) GenerateStorageInTransitNumber(placeInSitTime time.Time) (string, error) {
 	utcTime := placeInSitTime.UTC()
 
 	fullYear := utcTime.Year()
@@ -58,5 +58,5 @@ func (s storageInTransitNumberGenerator) GenerateStorageInTransitNumber(placeInS
 
 // NewStorageInTransitNumberGenerator instantiates a new storage in transit number generator implementation
 func NewStorageInTransitNumberGenerator(db *pop.Connection) services.StorageInTransitNumberGenerator {
-	return storageInTransitNumberGenerator{db}
+	return generateStorageInTransitNumber{db}
 }
