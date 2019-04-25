@@ -64,7 +64,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				ord.orders_type as orders_type,
 				ppm.original_move_date as move_date,
 				moves.created_at as created_at,
-				moves.updated_at as last_modified_date,
+				ppm.updated_at as last_modified_date,
 				moves.status as status,
 				ppm.status as ppm_status,
 				shipment.gbl_number as gbl_number
