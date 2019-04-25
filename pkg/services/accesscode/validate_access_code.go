@@ -24,7 +24,7 @@ func (v validateAccessCode) ValidateAccessCode(code string, moveType models.Sele
 
 	err := v.DB.
 		Where("code = ?", code).
-		Where("move_id IS NULL").
+		Where("user_id IS NULL").
 		Where("move_type = ?", moveType).
 		First(&ac)
 

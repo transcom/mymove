@@ -1,7 +1,7 @@
 create_table("access_codes") {
 	t.Column("id", "uuid", {"primary": true})
-    t.Column("move_id", "uuid", {"null": true})
+    t.Column("user_id", "uuid", {"null": true})
     t.Column("move_type", "string")
     t.Column("code", "string", {"unique": true})
-	t.ForeignKey("move_id", {"moves": ["id"]}, {})
+	t.ForeignKey("user_id", {"users": ["id"]}, {})
 }

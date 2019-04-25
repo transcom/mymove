@@ -34,7 +34,6 @@ func (suite *ValidateAccessCodeTestSuite) TestValidateAccessCode_ValidAccessCode
 		MoveType: &selectedMoveType,
 	}
 	suite.MustSave(&accessCode)
-
 	validateAccessCode := NewAccessCodeValidator(suite.DB())
 	ac, valid, _ := validateAccessCode.ValidateAccessCode(code, selectedMoveType)
 	suite.True(valid)
@@ -42,19 +41,14 @@ func (suite *ValidateAccessCodeTestSuite) TestValidateAccessCode_ValidAccessCode
 }
 
 func (suite *ValidateAccessCodeTestSuite) TestValidateAccessCode_InvalidAccessCode() {
-	orders := testdatagen.MakeDefaultOrder(suite.DB())
-	orders.Status = models.OrderStatusSUBMITTED
-	suite.MustSave(&orders)
+	user := testdatagen.MakeDefaultUser(suite.DB())
 	selectedMoveType := models.SelectedMoveTypePPM
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
-	suite.Nil(err)
-	suite.False(verrs.HasAny(), "failed to validate move")
 
 	code := "CODE1"
 	accessCode := models.AccessCode{
 		Code:     code,
-		MoveType: move.SelectedMoveType,
-		MoveID:   move.ID,
+		MoveType: &selectedMoveType,
+		UserID:   &user.ID,
 	}
 	suite.MustSave(&accessCode)
 	validateAccessCode := NewAccessCodeValidator(suite.DB())

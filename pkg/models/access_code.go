@@ -13,7 +13,7 @@ import (
 // AccessCode is an object representing an access code for a service member
 type AccessCode struct {
 	ID        uuid.UUID         `json:"id" db:"id"`
-	MoveID    uuid.UUID         `json:"move_id" db:"move_id"`
+	UserID    *uuid.UUID        `json:"user_id" db:"user_id"`
 	Code      string            `json:"code" db:"code"`
 	MoveType  *SelectedMoveType `json:"move_type" db:"move_type"`
 	CreatedAt time.Time         `json:"created_at" db:"created_at"`

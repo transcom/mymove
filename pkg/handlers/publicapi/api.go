@@ -4,10 +4,11 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/transcom/mymove/pkg/paperwork"
-	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
-
 	"github.com/go-openapi/loads"
+
+	"github.com/transcom/mymove/pkg/paperwork"
+	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
+	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
 
 	"github.com/transcom/mymove/pkg/gen/restapi"
 	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
@@ -73,5 +74,7 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.StorageInTransitsDeleteStorageInTransitHandler = DeleteStorageInTransitHandler{context}
 	publicAPI.StorageInTransitsPatchStorageInTransitHandler = PatchStorageInTransitHandler{context}
 
+	// Access Codes
+	publicAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{context, accesscodeservice.NewAccessCodeValidator(context.DB())}
 	return publicAPI.Serve(nil)
 }
