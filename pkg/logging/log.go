@@ -2,6 +2,7 @@ package logging
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/felixge/httpsnoop"
 	"github.com/gofrs/uuid"
@@ -34,7 +35,7 @@ func Config(env string, debugLogging bool) (*zap.Logger, error) {
 }
 
 // LogRequestMiddleware generates an HTTP/HTTPS request logs using Zap
-func LogRequestMiddleware(gitBranch string, gitCommit string) func(inner http.Handler) http.Handler {
+func LogRequestMiddleware(logger Logger) func(inner http.Handler) http.Handler {
 	return func(inner http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			var protocol, tspUserID, officeUserID, serviceMemberID, userID string
@@ -62,9 +63,8 @@ func LogRequestMiddleware(gitBranch string, gitCommit string) func(inner http.Ha
 			}
 
 			metrics := httpsnoop.CaptureMetrics(inner, w, r)
-			zap.L().Info("Request",
-				zap.String("git-branch", gitBranch),
-				zap.String("git-commit", gitCommit),
+
+			fields := []zap.Field{
 				zap.String("accepted-language", r.Header.Get("accepted-language")),
 				zap.Int64("content-length", r.ContentLength),
 				zap.Duration("duration", metrics.Duration),
@@ -82,11 +82,18 @@ func LogRequestMiddleware(gitBranch string, gitCommit string) func(inner http.Ha
 				zap.String("url", r.URL.String()),
 				zap.String("user-agent", r.UserAgent()),
 				zap.String("user-id", userID),
-				zap.String("x-amzn-trace-id", r.Header.Get("x-amzn-trace-id")),
-				zap.String("x-forwarded-for", r.Header.Get("x-forwarded-for")),
-				zap.String("x-forwarded-host", r.Header.Get("x-forwarded-host")),
-				zap.String("x-forwarded-proto", r.Header.Get("x-forwarded-proto")),
-			)
+			}
+
+			// Append x- headers, e.g., x-forwarded-for.
+			for name, values := range r.Header {
+				if nameLowerCase := strings.ToLower(name); strings.HasPrefix(nameLowerCase, "x-") {
+					if len(values) > 0 {
+						fields = append(fields, zap.String(nameLowerCase, values[0]))
+					}
+				}
+			}
+
+			logger.Info("Request", fields...)
 
 		}
 		return http.HandlerFunc(mw)

@@ -1,0 +1,26 @@
+@import 'shared/styles/themes.scss';
+
+.invoice-panel {
+  font-size: 0.8em;
+
+  h1,h2,h3,h4,h5{
+    font-family: sans-serif;
+  }
+}
+
+// used in child components InvoiceTable.jsx and UnbilledTable.jsx
+.invoice-panel__table-cont {
+  width: 90%;
+}
+
+.invoice-panel__header-cont {
+  margin-top: .2em;
+  display: flex;
+  align-items: center;
+}
+
+// used in child components UnbilledTable.jsx and InvoicePaymentAlert.jsx
+.warning--header {
+  font-size: 1.2em;
+  display: block;
+}

@@ -26,6 +26,7 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{context}
 
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{context}
+	internalAPI.CertificationIndexSignedCertificationHandler = IndexSignedCertificationsHandler{context}
 
 	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler{context}
 	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler{context}

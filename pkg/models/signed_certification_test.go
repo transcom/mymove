@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -88,4 +89,63 @@ func (suite *ModelSuite) TestFetchSignedCertificationsPPMPaymentAuth() {
 
 	_, err := FetchSignedCertificationsPPMPayment(suite.DB(), session, otherPpm.MoveID)
 	suite.Equal(errors.Cause(err), ErrFetchForbidden)
+}
+
+func (suite *ModelSuite) TestFetchSignedCertifications() {
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	move := ppm.Move
+	sm := ppm.Move.Orders.ServiceMember
+
+	session := &auth.Session{
+		UserID:          sm.UserID,
+		ServiceMemberID: sm.ID,
+		ApplicationName: auth.MilApp,
+	}
+
+	ppmPayment := SignedCertificationTypePPMPAYMENT
+	ppmPaymentsignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+		SignedCertification: SignedCertification{
+			MoveID:                   ppm.Move.ID,
+			SubmittingUserID:         sm.User.ID,
+			PersonallyProcuredMoveID: &ppm.ID,
+			CertificationType:        &ppmPayment,
+			CertificationText:        "LEGAL",
+			Signature:                "ACCEPT",
+			Date:                     testdatagen.NextValidMoveDate,
+		},
+	})
+	ppmCert := SignedCertificationTypePPM
+	ppmSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+		SignedCertification: SignedCertification{
+			MoveID:                   ppm.Move.ID,
+			SubmittingUserID:         sm.User.ID,
+			PersonallyProcuredMoveID: &ppm.ID,
+			CertificationType:        &ppmCert,
+			CertificationText:        "LEGAL",
+			Signature:                "ACCEPT",
+			Date:                     testdatagen.NextValidMoveDate,
+		},
+	})
+	hhgCert := SignedCertificationTypeHHG
+	hhgSignedCertification := testdatagen.MakeSignedCertification(suite.DB(), testdatagen.Assertions{
+		SignedCertification: SignedCertification{
+			MoveID:                   ppm.Move.ID,
+			SubmittingUserID:         sm.User.ID,
+			PersonallyProcuredMoveID: &ppm.ID,
+			CertificationType:        &hhgCert,
+			CertificationText:        "LEGAL",
+			Signature:                "ACCEPT",
+			Date:                     testdatagen.NextValidMoveDate,
+		},
+	})
+
+	scs, err := FetchSignedCertifications(suite.DB(), session, move.ID)
+	var ids []uuid.UUID
+	for _, sc := range scs {
+		ids = append(ids, sc.ID)
+	}
+
+	suite.Len(scs, 3)
+	suite.Nil(err)
+	suite.ElementsMatch(ids, []uuid.UUID{hhgSignedCertification.ID, ppmSignedCertification.ID, ppmPaymentsignedCertification.ID})
 }
