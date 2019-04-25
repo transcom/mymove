@@ -39,10 +39,12 @@ func payloadForAccessCodeModel(accessCode models.AccessCode) *apimessages.Access
 func (h ValidateAccessCodeHandler) Handle(params accesscodeop.ValidateAccessCodeParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
+	// TODO ask in PR if better session checking is needed
 	if session == nil {
 		return accesscodeop.NewValidateAccessCodeUnauthorized()
 	}
 
+	// `PPM-12345` `PPM.12345`
 	// TODO: handle edge cases around Code better
 	splitParams := strings.Split(*params.Code, "-")
 	moveType, code := splitParams[0], splitParams[1]

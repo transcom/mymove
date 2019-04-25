@@ -18,7 +18,7 @@ func NewAccessCodeValidator(db *pop.Connection) services.AccessCodeValidator {
 }
 
 // ValidateAccessCode validates an access code based upon the code and move type. A valid access
-// code is assumed to have no `move_id`
+// code is assumed to have no `user_id`
 func (v validateAccessCode) ValidateAccessCode(code string, moveType models.SelectedMoveType) (*models.AccessCode, bool, error) {
 	ac := models.AccessCode{}
 
