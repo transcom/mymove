@@ -335,9 +335,9 @@ func showFunction(cmd *cobra.Command, args []string) error {
 	keychainProfile := v.GetString("aws-profile")
 
 	if len(keychainName) > 0 && len(keychainProfile) > 0 {
-		creds, err := getAWSCredentials(keychainName, keychainProfile)
+		creds, getAWSCredentialsErr := getAWSCredentials(keychainName, keychainProfile)
 		if err != nil {
-			return errors.Wrap(err, fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, keychainProfile))
+			return errors.Wrap(getAWSCredentialsErr, fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, keychainProfile))
 		}
 		awsConfig.CredentialsChainVerboseErrors = aws.Bool(verbose)
 		awsConfig.Credentials = creds
