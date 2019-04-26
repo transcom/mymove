@@ -128,30 +128,30 @@ client_deps: .check_hosts.stamp .client_deps.stamp
 	touch .client_build.stamp
 
 .PHONY: client_build
-client_build: client_deps .client_build.stamp
+client_build: .client_deps.stamp .client_build.stamp
 
 .PHONY: client_run
-client_run: client_deps
+client_run: .client_deps.stamp
 	HOST=milmovelocal yarn start
 
 .PHONY: client_test
-client_test: client_deps
+client_test: .client_deps.stamp
 	yarn test
 
 .PHONY: client_test_coverage
-client_test_coverage : client_deps
+client_test_coverage : .client_deps.stamp
 	yarn test:coverage
 
 .PHONY: office_client_run
-office_client_run: client_deps
+office_client_run: .client_deps.stamp
 	HOST=officelocal yarn start
 
 .PHONY: tsp_client_run
-tsp_client_run: client_deps
+tsp_client_run: .client_deps.stamp
 	HOST=tsplocal yarn start
 
 .PHONY: admin_client_run
-admin_client_run: client_deps
+admin_client_run: .client_deps.stamp
 	HOST=adminlocal yarn start
 
 #
