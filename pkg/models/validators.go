@@ -135,6 +135,22 @@ func (v *DiscountRateIsValid) IsValid(errors *validate.Errors) {
 	}
 }
 
+// DateNotBefore validates that a date is not before the earliest allowable date
+type DateNotBefore struct {
+	Name    string
+	Date    *time.Time
+	MinDate *time.Time
+}
+
+// IsValid adds an error if there is not a not-before date or the date is before the not-before date
+func (v *DateNotBefore) IsValid(errors *validate.Errors) {
+	if v.MinDate == nil {
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("cannot create this date without a no-earlier-than date"))
+	} else if (*v.Date).Before(*v.MinDate) {
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s must be on or after %s", *v.Date, *v.MinDate))
+	}
+}
+
 type container interface {
 	Contains(string) bool
 	Contents() []string

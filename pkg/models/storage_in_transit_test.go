@@ -1,7 +1,9 @@
 package models_test
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -29,6 +31,34 @@ func (suite *ModelSuite) TestStorageInTransitValidations() {
 			"warehouse_address_id": {"WarehouseAddressID can not be blank."},
 		}
 		suite.verifyValidationErrors(invalidStorageInTransit, expErrors)
+	})
+
+	suite.T().Run("test actual start date cannot be before the authorized start date", func(t *testing.T) {
+		shipment := testdatagen.MakeDefaultShipment(suite.DB())
+		//authorizedStartDate := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
+		actualStartDate := time.Date(2019, time.Month(3), 25, 0, 0, 0, 0, time.UTC)
+
+		assertions := testdatagen.Assertions{
+			StorageInTransit: models.StorageInTransit{
+				Location:            models.StorageInTransitLocationORIGIN,
+				ShipmentID:          shipment.ID,
+				EstimatedStartDate:  testdatagen.DateInsidePeakRateCycle,
+				AuthorizedStartDate: nil,
+				ActualStartDate:     &actualStartDate,
+			},
+		}
+		sitWithNoAuthorizedStartDate := testdatagen.MakeStorageInTransit(suite.DB(), assertions)
+
+		suite.verifyValidationErrors(&sitWithNoAuthorizedStartDate, map[string][]string{
+			"actual_start_date": {fmt.Sprintf("cannot create this date without a no-earlier-than date")},
+		})
+
+		//stringAuthorizedStartDate := authorizedStartDate.Format("2006-01-02 15:04:05 -0700 UTC")
+		//stringActualStartDate := actualStartDate.Format("2006-01-02 15:04:05 -0700 UTC")
+
+		//suite.verifyValidationErrors(&sitWithInvalidActualStartDate, map[string][]string{
+		//	"actual_start_date" : {fmt.Sprintf("%s must be on or after %s", stringActualStartDate, stringAuthorizedStartDate)},
+		//})
 	})
 }
 
