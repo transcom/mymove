@@ -101,22 +101,20 @@ class QueueTable extends Component {
           <ReactTable
             columns={[
               {
+                Header: <FontAwesomeIcon icon={faClock} />,
+                accessor: 'synthetic_status',
+                Cell: row =>
+                  row.value === 'PAYMENT_REQUESTED' || row.value === 'SUBMITTED' ? (
+                    <FontAwesomeIcon icon={faClock} style={{ color: 'orange' }} />
+                  ) : (
+                    ''
+                  ),
+                width: 50,
+              },
+              {
                 Header: 'Status',
                 accessor: 'synthetic_status',
-                Cell: row => {
-                  const actionIcon =
-                    row.value === 'PAYMENT_REQUESTED' || row.value === 'SUBMITTED' ? (
-                      <FontAwesomeIcon icon={faClock} />
-                    ) : (
-                      ''
-                    );
-                  return (
-                    <span className="status">
-                      {capitalize(row.value.replace('_', ' '))}
-                      {actionIcon}
-                    </span>
-                  );
-                },
+                Cell: row => <span className="status">{capitalize(row.value.replace('_', ' '))}</span>,
               },
               {
                 Header: 'Customer name',
