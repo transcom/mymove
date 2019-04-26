@@ -35,7 +35,7 @@ Be sure to pass the derived context from `beeline.StartSpan(...)` rather than th
 Useful fields can be added to the span that would help with debugging. To do this you can use [span.AddField](https://github.com/honeycombio/beeline-go/blob/master/trace/trace.go#L173).
 
 ```golang
-    err = move.Submit()
+    err = move.Submit(time.Now())
     span.AddField("move-status", string(move.Status))
 ```
 

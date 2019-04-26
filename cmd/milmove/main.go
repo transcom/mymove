@@ -14,6 +14,7 @@ import (
 	"os"
 	"os/signal"
 	"path"
+	"runtime/debug"
 	"strings"
 	"sync"
 	"syscall"
@@ -84,6 +85,24 @@ func noCacheMiddleware(inner http.Handler) http.Handler {
 		return
 	}
 	return http.HandlerFunc(mw)
+}
+
+func recoveryMiddleware(logger logger) func(inner http.Handler) http.Handler {
+	zap.L().Debug("recovery installed")
+	return func(inner http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			defer func() {
+				if r := recover(); r != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					errorMsg := fmt.Sprint(r)
+					stacktrace := fmt.Sprintf("%s", debug.Stack())
+					logger.Error("panic recovery", zap.String("error", errorMsg), zap.String("stacktrace", stacktrace))
+				}
+			}()
+			inner.ServeHTTP(w, r)
+		}
+		return http.HandlerFunc(mw)
+	}
 }
 
 func httpsComplianceMiddleware(inner http.Handler) http.Handler {
@@ -551,9 +570,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		} else {
 			protocol = "https"
 		}
-		logger.Info("Request",
-			zap.String("git-branch", gitBranch),
-			zap.String("git-commit", gitCommit),
+
+		fields := []zap.Field{
 			zap.String("accepted-language", r.Header.Get("accepted-language")),
 			zap.Int64("content-length", r.ContentLength),
 			zap.String("host", r.Host),
@@ -564,11 +582,19 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			zap.String("source", r.RemoteAddr),
 			zap.String("url", r.URL.String()),
 			zap.String("user-agent", r.UserAgent()),
-			zap.String("x-amzn-trace-id", r.Header.Get("x-amzn-trace-id")),
-			zap.String("x-forwarded-for", r.Header.Get("x-forwarded-for")),
-			zap.String("x-forwarded-host", r.Header.Get("x-forwarded-host")),
-			zap.String("x-forwarded-proto", r.Header.Get("x-forwarded-proto")),
-		)
+		}
+
+		// Append x- headers, e.g., x-forwarded-for.
+		for name, values := range r.Header {
+			if nameLowerCase := strings.ToLower(name); strings.HasPrefix(nameLowerCase, "x-") {
+				if len(values) > 0 {
+					fields = append(fields, zap.String(nameLowerCase, values[0]))
+				}
+			}
+		}
+
+		logger.Info("Request", fields...)
+
 	})
 
 	staticMux := goji.SubMux()
@@ -634,6 +660,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			dpsCookieExpires))
 
 	root := goji.NewMux()
+	root.Use(recoveryMiddleware(logger))
 	root.Use(sessionCookieMiddleware)
 	root.Use(logging.LogRequestMiddleware(logger))
 
