@@ -19,7 +19,7 @@ export function getFormComponent(code, robustAccessorialFlag, initialValues) {
   } else if (code.startsWith('226')) {
     if (isNew || get(initialValues, 'actual_amount_cents')) return Code226Form;
   } else if (robustAccessorialFlag && code.startsWith('125')) {
-    if (isNew || true) return Code125Form;
+    if (isNew || get(initialValues, 'address')) return Code125Form;
   }
   return DefaultForm;
 }

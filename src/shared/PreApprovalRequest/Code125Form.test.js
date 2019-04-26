@@ -14,12 +14,31 @@ describe('code 125 details component', () => {
     wrapper = shallow(<Code125Form ship_line_item_schema={simpleSchema} />);
 
     it('without crashing', () => {
-      // eslint-disable-next-line
       expect(wrapper.exists('SwaggerField')).toBe(true);
     });
 
-    it('contains address', () => {
+    it('contains address with correct props', () => {
       expect(wrapper.exists('AddressElementEdit[fieldName="address"]')).toBe(true);
+      expect(wrapper.find('AddressElementEdit').prop('zipPattern')).toEqual('USA');
+      expect(wrapper.find('AddressElementEdit').prop('title')).toEqual('Truck-to-truck transfer location');
+    });
+
+    it('date is required', () => {
+      expect(
+        wrapper
+          .find('SwaggerField')
+          .at(1)
+          .prop('required'),
+      ).toBe(true);
+    });
+
+    it('time is optional', () => {
+      expect(
+        wrapper
+          .find('SwaggerField')
+          .at(2)
+          .prop('required'),
+      ).toBeFalsy();
     });
   });
 });
