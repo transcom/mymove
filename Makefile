@@ -265,8 +265,7 @@ get_gotools: .check_gopath.stamp .get_gotools.stamp
 	touch .get_gotools.stamp
 
 .PHONY: server_deps
-server_deps: .check_hosts.stamp \
-	get_gotools \
+server_deps: get_gotools \
 	bin/callgraph \
 	bin/chamber \
 	bin/gosec \
