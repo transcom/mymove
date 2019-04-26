@@ -346,7 +346,7 @@ build: server_build build_tools client_build
 # webserver_test runs a few acceptance tests against a local or remote environment.
 # This can help identify potential errors before deploying a container.
 .PHONY: webserver_test
-webserver_test: server_generate bin/chamber
+webserver_test: bin/rds-combined-ca-bundle.pem server_generate bin/chamber
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
