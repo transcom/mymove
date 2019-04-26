@@ -1,15 +1,12 @@
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
-import { get, findLast, includes } from 'lodash';
+import { get, filter, findLast, includes } from 'lodash';
 import moment from 'moment';
 
 import { displayDateRange } from 'shared/formatters';
 import './StatusTimeline.css';
 
 function getDates(source, dateType) {
-  if (dateType === 'book_date') {
-    return [get(source, dateType)];
-  }
   return get(source, dateType);
 }
 
@@ -22,11 +19,10 @@ function getCurrentStatus(statuses) {
 export class PPMStatusTimeline extends React.Component {
   getStatuses() {
     return [
-      { name: 'Submitted', code: 'SUBMITTED' },
-      { name: 'Approved', code: 'PPM_APPROVED' },
+      { name: 'Submitted', code: 'SUBMITTED', date_type: 'submit_date' },
+      { name: 'Approved', code: 'PPM_APPROVED', date_type: 'approve_date' },
       { name: 'In progress', code: 'IN_PROGRESS' },
       { name: 'Payment requested', code: 'PAYMENT_REQUESTED' },
-      { name: 'Payment approved', code: 'PAYMENT_APPROVED' },
     ];
   }
 
@@ -47,12 +43,17 @@ export class PPMStatusTimeline extends React.Component {
     }
 
     if (status === 'PAYMENT_REQUESTED') {
-      return ppm.status === 'PAYMENT_REQUESTED';
+      return includes(['PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     }
+  }
 
-    if (status === 'PAYMENT_APPROVED') {
-      return ppm.status === 'COMPLETED';
-    }
+  addDates(statuses) {
+    return statuses.map(status => {
+      return {
+        ...status,
+        dates: [getDates(this.props.ppm, status.date_type)],
+      };
+    });
   }
 
   addCompleted(statuses) {
@@ -65,7 +66,7 @@ export class PPMStatusTimeline extends React.Component {
   }
 
   render() {
-    const statuses = this.addCompleted(this.getStatuses());
+    const statuses = this.addCompleted(this.addDates(this.getStatuses()));
     return <StatusTimeline statuses={statuses} />;
   }
 }
@@ -135,7 +136,7 @@ export class ShipmentStatusTimeline extends React.Component {
         ...status,
         dates:
           status.date_type === 'book_date'
-            ? getDates(this.props.shipment, status.date_type)
+            ? [getDates(this.props.shipment, status.date_type)]
             : getDates(moveDatesSummary, status.date_type),
       };
     });
@@ -187,7 +188,9 @@ class StatusTimeline extends PureComponent {
         name={status.name}
         code={status.code}
         key={status.code}
-        dates={status.dates}
+        dates={filter(status.dates, date => {
+          return date;
+        })}
         completed={status.completed}
         current={currentStatus.code === status.code}
       />
