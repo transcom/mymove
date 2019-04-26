@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"log"
 	"os"
 	"strings"
 	"testing"
@@ -32,7 +33,10 @@ func (suite *cliTestSuite) Setup(fn initFlags) {
 	flag.Parse([]string{})
 
 	v := viper.New()
-	v.BindPFlags(flag)
+	err := v.BindPFlags(flag)
+	if err != nil {
+		suite.logger.Fatal("could not bind flags", zap.Error(err))
+	}
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
@@ -45,7 +49,10 @@ func (suite *cliTestSuite) SetViper(v *viper.Viper) {
 
 func TestCLISuite(t *testing.T) {
 
-	logger, _ := logging.Config("development", true)
+	logger, err := logging.Config("development", true)
+	if err != nil {
+		log.Fatalf("Failed to initialize Zap logging due to %v", err)
+	}
 	zap.ReplaceGlobals(logger)
 
 	ss := &cliTestSuite{

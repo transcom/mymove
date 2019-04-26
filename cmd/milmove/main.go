@@ -307,13 +307,16 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	err := cmd.ParseFlags(os.Args[1:])
 	if err != nil {
-		return err
+		return errors.Wrap(err, "Could not parse flags")
 	}
 
 	flag := cmd.Flags()
 
 	v := viper.New()
-	v.BindPFlags(flag)
+	err = v.BindPFlags(flag)
+	if err != nil {
+		return errors.Wrap(err, "Could not bind flags")
+	}
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
