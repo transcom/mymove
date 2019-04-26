@@ -54,6 +54,8 @@ const (
 	flagTaskDefinitionRevision string = "ecs-task-def-revision"
 	flagGitBranch              string = "git-branch"
 	flagGitCommit              string = "git-commit"
+	flagPageSize               string = "page-size"
+	flagLimit                  string = "limit"
 
 	logLevel                  string = "level"
 	logTaskDefinitionFamily   string = "ecs_task_def_family"
@@ -155,12 +157,13 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.StringP("environment", "e", "", "The environment name")
 	flag.StringP("service", "s", "", "The service name")
 	flag.String("status", "", "The task status: "+strings.Join(ecsTaskStatuses, ", "))
-	flag.String(flagLogLevel, "", "The log level: "+strings.Join(logLevels, ", "))
+	flag.StringP(flagLogLevel, "l", "", "The log level: "+strings.Join(logLevels, ", "))
 	flag.StringP(flagGitBranch, "b", "", "The git branch")
 	flag.String(flagGitCommit, "", "The git commit")
 	flag.StringP(flagTaskDefinitionFamily, "f", "", "The ECS task definition family.")
 	flag.StringP(flagTaskDefinitionRevision, "r", "", "The ECS task definition revision.")
-	flag.IntP("limit", "l", -1, "The log limit.  If 1 and above, will limit the results returned by each log stream.")
+	flag.IntP(flagPageSize, "p", -1, "The page size or maximum number of log events to return during each API call.  The default is 10,000 log events.")
+	flag.IntP(flagLimit, "n", -1, "If 1 or above, the maximum number of log events to print to stdout.")
 	flag.BoolP("verbose", "v", false, "Print section lines")
 }
 
@@ -384,7 +387,7 @@ func showFunction(cmd *cobra.Command, args []string) error {
 	clusterName := v.GetString("cluster")
 	serviceName := v.GetString("service")
 	status := v.GetString("status")
-	limit := v.GetInt("limit")
+	pageSize := v.GetInt(flagPageSize)
 	environment := v.GetString("environment")
 
 	jobs := make([]Job, 0)
@@ -429,8 +432,8 @@ func showFunction(cmd *cobra.Command, args []string) error {
 				LogStreamName: logStreamName,
 				Limit:         -1,
 			}
-			if limit > 0 {
-				job.Limit = limit
+			if pageSize > 0 {
+				job.Limit = pageSize
 			}
 			jobs = append(jobs, job)
 		}
@@ -529,8 +532,8 @@ func showFunction(cmd *cobra.Command, args []string) error {
 					LogStreamName: logStreamName,
 					Limit:         -1,
 				}
-				if limit > 0 {
-					job.Limit = limit
+				if pageSize > 0 {
+					job.Limit = pageSize
 				}
 				jobs = append(jobs, job)
 			}
@@ -569,6 +572,8 @@ func showFunction(cmd *cobra.Command, args []string) error {
 		filterPattern = "{" + strings.Join(parts, " && ") + "}"
 	}
 
+	limit := v.GetInt(flagLimit)
+	count := 0
 	for _, job := range jobs {
 
 		if verbose {
@@ -584,7 +589,11 @@ func showFunction(cmd *cobra.Command, args []string) error {
 				NextToken:      nextToken,
 			}
 			if job.Limit >= 0 {
-				filterLogEventsInput.Limit = aws.Int64(int64(job.Limit))
+				if (limit > 0) && ((limit - count) < job.Limit) {
+					filterLogEventsInput.Limit = aws.Int64(int64(limit - count))
+				} else {
+					filterLogEventsInput.Limit = aws.Int64(int64(job.Limit))
+				}
 			}
 			if len(filterPattern) > 0 {
 				filterLogEventsInput.FilterPattern = aws.String(filterPattern)
@@ -595,11 +604,30 @@ func showFunction(cmd *cobra.Command, args []string) error {
 			}
 			for _, event := range getLogEventsOutput.Events {
 				fmt.Println(*event.Message)
+				count++
+
+				// break the print loop
+				if (limit > 0) && (count == limit) {
+					break
+				}
 			}
+
+			// if there are no more events
 			if getLogEventsOutput.NextToken == nil {
 				break
 			}
+
+			// break the pagination loop
+			if (limit > 0) && (count == limit) {
+				break
+			}
+
 			nextToken = getLogEventsOutput.NextToken
+		}
+
+		// Break the outer loop
+		if (limit > 0) && (count == limit) {
+			break
 		}
 
 	}
