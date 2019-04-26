@@ -104,7 +104,7 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 // Avoid calling Move.Status = ... ever. Use these methods to change the state.
 
 // Submit submits the Move
-func (m *Move) Submit() error {
+func (m *Move) Submit(ppmSubmitDate time.Time) error {
 	if m.Status != MoveStatusDRAFT {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
@@ -113,7 +113,8 @@ func (m *Move) Submit() error {
 
 	// Update PPM status too
 	for i := range m.PersonallyProcuredMoves {
-		err := m.PersonallyProcuredMoves[i].Submit()
+		ppm := &m.PersonallyProcuredMoves[i]
+		err := ppm.Submit(ppmSubmitDate)
 		if err != nil {
 			return err
 		}
