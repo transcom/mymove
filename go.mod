@@ -58,7 +58,6 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/rickar/cal v1.0.1
 	github.com/rogpeppe/go-internal v1.3.0
-	github.com/securego/gosec v0.0.0-20190425072532-85d180848dbb
 	github.com/segmentio/chamber v0.0.0-20190313180807-07d3d8eeb33f
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cobra v0.0.4-0.20190321000552-67fc4837d267
@@ -76,6 +75,7 @@ require (
 	golang.org/x/lint v0.0.0-20190409202823-959b441ac422
 	golang.org/x/net v0.0.0-20190424112056-4829fb13d2c6
 	golang.org/x/oauth2 v0.0.0-20190402181905-9f3314589c9a // indirect
+	golang.org/x/sys v0.0.0-20190416152802-12500544f89f // indirect
 	golang.org/x/text v0.3.1
 	golang.org/x/tools v0.0.0-20190425163242-31fd60d6bfdc
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
