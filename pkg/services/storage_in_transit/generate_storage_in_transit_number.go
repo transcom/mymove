@@ -14,7 +14,7 @@ type generateStorageInTransitNumber struct {
 	db *pop.Connection
 }
 
-func (s generateStorageInTransitNumber) generateSequenceNumber(year int, dayOfYear int) (int, error) {
+func (s *generateStorageInTransitNumber) generateSequenceNumber(year int, dayOfYear int) (int, error) {
 	if year <= 0 {
 		return 0, errors.Errorf("Year (%d) must be non-negative", year)
 	}
@@ -43,7 +43,7 @@ func (s generateStorageInTransitNumber) generateSequenceNumber(year int, dayOfYe
 }
 
 // GenerateStorageInTransitNumber creates a new storage in transit number
-func (s generateStorageInTransitNumber) GenerateStorageInTransitNumber(placeInSitTime time.Time) (string, error) {
+func (s *generateStorageInTransitNumber) GenerateStorageInTransitNumber(placeInSitTime time.Time) (string, error) {
 	utcTime := placeInSitTime.UTC()
 
 	fullYear := utcTime.Year()
@@ -58,5 +58,5 @@ func (s generateStorageInTransitNumber) GenerateStorageInTransitNumber(placeInSi
 
 // NewStorageInTransitNumberGenerator instantiates a new storage in transit number generator implementation
 func NewStorageInTransitNumberGenerator(db *pop.Connection) services.StorageInTransitNumberGenerator {
-	return generateStorageInTransitNumber{db}
+	return &generateStorageInTransitNumber{db}
 }
