@@ -41,12 +41,12 @@ type PersonallyProcuredMove struct {
 	CreatedAt                     time.Time                    `json:"created_at" db:"created_at"`
 	UpdatedAt                     time.Time                    `json:"updated_at" db:"updated_at"`
 	Size                          *internalmessages.TShirtSize `json:"size" db:"size"`
-	WeightEstimate                *int64                       `json:"weight_estimate" db:"weight_estimate"`
+	WeightEstimate                *unit.Pound                  `json:"weight_estimate" db:"weight_estimate"`
 	OriginalMoveDate              *time.Time                   `json:"original_move_date" db:"original_move_date"`
 	ActualMoveDate                *time.Time                   `json:"actual_move_date" db:"actual_move_date"`
 	SubmitDate                    *time.Time                   `json:"submit_date" db:"submit_date"`
 	ApproveDate                   *time.Time                   `json:"approve_date" db:"approve_date"`
-	NetWeight                     *int64                       `json:"net_weight" db:"net_weight"`
+	NetWeight                     *unit.Pound                  `json:"net_weight" db:"net_weight"`
 	PickupPostalCode              *string                      `json:"pickup_postal_code" db:"pickup_postal_code"`
 	HasAdditionalPostalCode       *bool                        `json:"has_additional_postal_code" db:"has_additional_postal_code"`
 	AdditionalPickupPostalCode    *string                      `json:"additional_pickup_postal_code" db:"additional_pickup_postal_code"`

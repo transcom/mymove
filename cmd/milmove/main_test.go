@@ -11,6 +11,8 @@ import (
 	"strings"
 	"testing"
 
+	"go.uber.org/zap/zaptest"
+
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
@@ -28,7 +30,7 @@ type webServerSuite struct {
 func TestWebServerSuite(t *testing.T) {
 
 	flag := pflag.CommandLine
-	initFlags(flag)
+	initServeFlags(flag)
 	flag.Parse([]string{})
 
 	v := viper.New()
@@ -203,4 +205,18 @@ func (suite *webServerSuite) TestStaticReqMethodMiddleware() {
 	req = httptest.NewRequest("POST", "http://mil.example.com/static/something", nil)
 	middleware.ServeHTTP(rr, req)
 	suite.Equal(http.StatusMethodNotAllowed, rr.Code, "handler returned wrong status code")
+}
+
+func (suite *webServerSuite) TestRecoverMiddleware() {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		panic("panic")
+	})
+	logger := zaptest.NewLogger(suite.T(), zaptest.Level(zap.ErrorLevel))
+	middleware := recoveryMiddleware(logger)(handler)
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "http://mil.example.com/static/something", nil)
+
+	middleware.ServeHTTP(rr, req)
+
+	suite.Equal(http.StatusInternalServerError, rr.Code)
 }

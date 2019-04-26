@@ -44,6 +44,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Documentation](#documentation)
   * [Spellcheck](#spellcheck)
     * [Tips for staying sane](#tips-for-staying-sane)
+  * [GoLand](#goland)
   * [Troubleshooting](#troubleshooting)
     * [Postgres Issues](#postgres-issues)
     * [Development Machine Timezone Issues](#development-machine-timezone-issues)
@@ -98,7 +99,7 @@ _Regardless of where your go code is located_, you need to add `$GOPATH/bin` to 
 export PATH=$(go env GOPATH)/bin:$PATH
 ```
 
-Once that's done, you have go installed, and you've re-sourced your profile, you can checkout this repository by running `go get github.com/transcom/mymove/cmd/webserver` (This will emit an error "can't load package:" or multiple errors with "Cannot find package" but will have cloned the source correctly). You will then find the code at `$GOPATH/src/github.com/transcom/mymove`
+Once that's done, you have go installed, and you've re-sourced your profile, you can checkout this repository by running `go get github.com/transcom/mymove/cmd/milmove` (This will emit an error "can't load package:" or multiple errors with "Cannot find package" but will have cloned the source correctly). You will then find the code at `$GOPATH/src/github.com/transcom/mymove`
 
 If you have already checked out the code somewhere else, you can just move it to be in the above location and everything will work correctly.
 
@@ -404,6 +405,10 @@ This will let you walk through the caught spelling errors one-by-one and choose 
 #### Tips for staying sane
 
 * If you want to use a bare hyperlink, wrap it in angle braces: `<http://example.com>`
+
+### GoLand
+
+* GoLand supports [attaching the debugger to a running process](https://blog.jetbrains.com/go/2019/02/06/debugging-with-goland-getting-started/#debugging-a-running-application-on-the-local-machine), however this requires that the server has been built with specific flags. If you wish to use this feature in development add the following line `export GOLAND=1` to your `.envrc.local`. Once the server starts follow the steps outlined in the article above and you should now be able to set breakpoints using the GoLand debugger.
 
 ### Troubleshooting
 
