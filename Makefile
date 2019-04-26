@@ -189,49 +189,49 @@ bin/compare-secure-migrations:
 bin/ecs-service-logs:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 
-bin/generate-1203-form:
+bin/generate-1203-form: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
 
-bin/generate-shipment-edi:
+bin/generate-shipment-edi: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-edi ./cmd/generate_shipment_edi
 
-bin/generate-shipment-summary:
+bin/generate-shipment-summary: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
 
-bin/generate-test-data: .check_gopath.stamp
+bin/generate-test-data: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
 
 bin/health_checker:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/health_checker ./cmd/health_checker
 
-bin/iws:
+bin/iws: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/demo/iws.go
 
-bin/load-office-data:
+bin/load-office-data: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/load-office-data ./cmd/load_office_data
 
-bin/load-user-gen:
+bin/load-user-gen: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/load-user-gen ./cmd/load_user_gen
 
-bin/make-dps-user:
+bin/make-dps-user: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/make-dps-user ./cmd/make_dps_user
 
-bin/make-office-user:
+bin/make-office-user: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
 
-bin/make-tsp-user:
+bin/make-tsp-user: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
 
-bin/milmove:
+bin/milmove: .server_generate.stamp
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
-bin/save-fuel-price-data:
+bin/save-fuel-price-data: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
 
-bin/send-to-gex:
+bin/send-to-gex: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
 
-bin/tsp-award-queue:
+bin/tsp-award-queue: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
 
 #
@@ -318,7 +318,6 @@ server_run_debug:
 .PHONY: build_tools
 build_tools: .bash_version.stamp \
 	server_deps \
-	server_generate \
 	bin/compare-secure-migrations \
 	bin/ecs-service-logs \
 	bin/generate-1203-form \
