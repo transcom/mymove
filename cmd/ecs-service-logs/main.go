@@ -386,7 +386,7 @@ func showFunction(cmd *cobra.Command, args []string) error {
 
 	clusterName := v.GetString("cluster")
 	serviceName := v.GetString("service")
-	status := v.GetString("status")
+	status := strings.ToUpper(v.GetString("status"))
 	pageSize := v.GetInt(flagPageSize)
 	environment := v.GetString("environment")
 
