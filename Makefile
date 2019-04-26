@@ -70,30 +70,37 @@ else
 endif
 	touch .check_hosts.stamp
 
-.PHONY: go_version
-go_version: .go_version.stamp
-.go_version.stamp: scripts/check-go-version
+.PHONY: check_go_version
+check_go_version: .check_go_version.stamp
+.check_go_version.stamp: scripts/check-go-version
 	scripts/check-go-version
-	touch .go_version.stamp
+	touch .check_go_version.stamp
 
 .PHONY: check_gopath
-check_gopath: .go_version.stamp .check_gopath.stamp
+check_gopath: .check_gopath.stamp
 .check_gopath.stamp:
 	scripts/check-gopath
 	touch .check_gopath.stamp
 
-.PHONY: bash_version
-bash_version: .bash_version.stamp
-.bash_version.stamp: scripts/check-bash-version
+.PHONY: check_bash_version
+check_bash_version: .check_bash_version.stamp
+.check_bash_version.stamp: scripts/check-bash-version
 ifndef CIRCLECI
 	scripts/check-bash-version
 else
 	@echo "No need to check bash version on CircleCI"
 endif
-	touch .bash_version.stamp
+	touch .check_bash_version.stamp
 
 .PHONY: deps
-deps: prereqs check_hosts ensure_pre_commit client_deps server_deps
+deps: prereqs \
+	check_hosts \
+	check_go_version \
+	check_gopath \
+	check_bash_version \
+	ensure_pre_commit \
+	client_deps \
+	server_deps
 
 .PHONY: test
 test: client_test server_test e2e_test
@@ -111,12 +118,12 @@ client_deps_update:
 	yarn upgrade
 
 .PHONY: client_deps
-client_deps: check_hosts .client_deps.stamp
+client_deps: .check_hosts.stamp .client_deps.stamp
 .client_deps.stamp: yarn.lock
 	yarn install
 	scripts/copy-swagger-ui
 	touch .client_deps.stamp
-.client_build.stamp: $(shell find src -type f)
+.client_build.stamp:
 	yarn build
 	touch .client_build.stamp
 
@@ -157,22 +164,22 @@ admin_client_run: client_deps
 
 ### Go Tool Targets
 
-bin/callgraph: .check_gopath.stamp
+bin/callgraph: .check_go_version.stamp .check_gopath.stamp
 	go build -i -o bin/callgraph golang.org/x/tools/cmd/callgraph
 
-bin/chamber: .check_gopath.stamp
+bin/chamber: .check_go_version.stamp .check_gopath.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
 
-bin/gosec: .check_gopath.stamp
+bin/gosec: .check_go_version.stamp .check_gopath.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
 
-bin/gin: .check_gopath.stamp
+bin/gin: .check_go_version.stamp .check_gopath.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
 
-bin/soda: .check_gopath.stamp
+bin/soda: .check_go_version.stamp .check_gopath.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda
 
-bin/swagger: .check_gopath.stamp
+bin/swagger: .check_go_version.stamp .check_gopath.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 
 ### Cert Targets
@@ -198,7 +205,7 @@ bin/generate-shipment-edi: .server_generate.stamp
 bin/generate-shipment-summary: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
 
-bin/generate-test-data: .server_generate.stamp
+bin/generate-test-data: pkg/assets/assets.go .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
 
 bin/health_checker:
@@ -234,6 +241,9 @@ bin/send-to-gex: .server_generate.stamp
 bin/tsp-award-queue: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
 
+pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
+	go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/
+
 #
 # ----- END BIN TARGETS -----
 #
@@ -248,14 +258,14 @@ go_deps_update:
 	go mod tidy
 
 .PHONY: get_gotools
-get_gotools: check_gopath .get_gotools.stamp
+get_gotools: .check_gopath.stamp .get_gotools.stamp
 .get_gotools.stamp:
 	go install golang.org/x/lint/golint
 	go install golang.org/x/tools/cmd/goimports
 	touch .get_gotools.stamp
 
 .PHONY: server_deps
-server_deps: check_hosts \
+server_deps: .check_hosts.stamp \
 	get_gotools \
 	bin/callgraph \
 	bin/chamber \
@@ -266,21 +276,16 @@ server_deps: check_hosts \
 	bin/rds-combined-ca-bundle.pem
 
 .PHONY: server_generate
-server_generate: server_deps server_go_bindata .server_generate.stamp
+server_generate: .check_go_version.stamp .check_gopath.stamp pkg/assets/assets.go bin/swagger .server_generate.stamp
 .server_generate.stamp: $(shell find swagger -type f -name *.yaml)
 	scripts/gen-server
 	touch .server_generate.stamp
 
 .PHONY: server_generate_linux
-server_generate_linux: bin/swagger server_go_bindata .server_generate_linux.stamp
+server_generate_linux: .check_go_version.stamp .check_gopath.stamp pkg/assets/assets.go bin/swagger .server_generate_linux.stamp
 .server_generate_linux.stamp: $(shell find swagger -type f -name *.yaml)
 	scripts/gen-server
 	touch .server_generate_linux.stamp
-
-.PHONY: server_go_bindata
-server_go_bindata: pkg/assets/assets.go
-pkg/assets/assets.go: pkg/paperwork/formtemplates/*
-	go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/
 
 .PHONY: server_build
 server_build: server_deps server_generate bin/milmove
@@ -299,7 +304,7 @@ server_run_standalone: client_build server_build db_dev_run
 server_run:
 	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run_default
 # This command runs the server behind gin, a hot-reload server
-server_run_default: server_deps server_generate db_dev_run
+server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp bin/gin build/favicon.ico server_generate db_dev_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) ./bin/gin \
 		--build ./cmd/milmove \
@@ -316,7 +321,7 @@ server_run_debug:
 	$(AWS_VAULT) dlv debug cmd/milmove/main.go serve
 
 .PHONY: build_tools
-build_tools: .bash_version.stamp \
+build_tools: .check_gopath.stamp \
 	server_deps \
 	bin/compare-secure-migrations \
 	bin/ecs-service-logs \
@@ -433,7 +438,7 @@ db_dev_run: db_dev_start db_dev_create
 db_dev_reset: db_dev_destroy db_dev_run
 
 .PHONY: db_dev_migrate_standalone
-db_dev_migrate_standalone:
+db_dev_migrate_standalone: bin/soda
 	@echo "Migrating the ${DB_NAME_DEV} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd scripts && \
@@ -488,7 +493,7 @@ db_prod_migrations_run: db_prod_migrations_start db_prod_migrations_create
 db_prod_migrations_reset: db_prod_migrations_destroy db_prod_migrations_run
 
 .PHONY: db_prod_migrations_migrate_standalone
-db_prod_migrations_migrate_standalone:
+db_prod_migrations_migrate_standalone: bin/soda
 	@echo "Migrating the ${DB_NAME_PROD_MIGRATIONS} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd scripts && \
@@ -560,7 +565,7 @@ db_test_reset: db_test_destroy db_test_run
 db_test_reset_docker: db_test_destroy db_test_run_docker
 
 .PHONY: db_test_migrate_standalone
-db_test_migrate_standalone:
+db_test_migrate_standalone: bin/soda
 ifndef CIRCLECI
 	@echo "Migrating the ${DB_NAME_TEST} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
@@ -580,7 +585,7 @@ db_test_migrate: server_deps db_test_migrate_standalone
 
 .PHONY: db_test_migrations_build
 db_test_migrations_build: .db_test_migrations_build.stamp
-.db_test_migrations_build.stamp: bin/swagger server_generate_linux
+.db_test_migrations_build.stamp: server_generate_linux
 	@echo "Build required binaries for the docker migration container..."
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/soda github.com/gobuffalo/pop/soda
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate_test_data
@@ -613,7 +618,7 @@ db_test_migrate_docker: db_test_migrations_build
 #
 
 .PHONY: e2e_test
-e2e_test: server_deps server_generate server_build client_build db_e2e_init
+e2e_test: bin/gin server_generate server_build client_build db_e2e_init
 	$(AWS_VAULT) ./scripts/run-e2e-test
 
 .PHONY: e2e_test_docker
@@ -743,7 +748,7 @@ adr_update:
 	yarn run adr-log
 
 .PHONY: tsp_run
-tsp_run: build_tools db_dev_run
+tsp_run: bin/tsp-award-queue db_dev_run
 	./bin/tsp-award-queue
 
 .PHONY: pre_commit_tests
@@ -758,10 +763,16 @@ pretty:
 .PHONY: clean
 clean:
 	rm -f .*.stamp
+	rm -f coverage.out
 	rm -rf ./bin
+	rm -rf ./bin_linux
+	rm -rf ./build
 	rm -rf ./node_modules
 	rm -rf ./pkg/gen
+	rm -f ./pkg/assets/assets.go
 	rm -rf ./public/swagger-ui/*.{css,js,png}
+	rm -rf ./tmp/secure_migrations
+	rm -rf ./tmp/storage
 
 .PHONY: spellcheck
 spellcheck:
