@@ -123,7 +123,7 @@ client_deps: .check_hosts.stamp .client_deps.stamp
 	yarn install
 	scripts/copy-swagger-ui
 	touch .client_deps.stamp
-.client_build.stamp:
+.client_build.stamp: $(shell find src -type f)
 	yarn build
 	touch .client_build.stamp
 
