@@ -19,10 +19,11 @@ export async function UpdateMove(moveId, payload /*shape: { selected_move_type }
   return response.body;
 }
 
-export async function SubmitMoveForApproval(moveId) {
+export async function SubmitMoveForApproval(moveId, payload) {
   const client = await getClient();
   const response = await client.apis.moves.submitMoveForApproval({
     moveId,
+    submitMoveForApprovalPayload: payload,
   });
   checkResponse(response, 'failed to submit move for approval due to server error');
   return response.body;

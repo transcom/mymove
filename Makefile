@@ -316,8 +316,7 @@ server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.sta
 
 .PHONY: server_run_debug
 server_run_debug:
-	INTERFACE=localhost DEBUG_LOGGING=true \
-	$(AWS_VAULT) dlv debug cmd/milmove/main.go serve
+	$(AWS_VAULT) dlv debug cmd/milmove/main.go cmd/milmove/logger.go -- serve
 
 .PHONY: build_tools
 build_tools: server_deps \

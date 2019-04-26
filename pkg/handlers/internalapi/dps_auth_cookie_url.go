@@ -46,11 +46,7 @@ func (h DPSAuthGetCookieURLHandler) Handle(params dps_auth.GetCookieURLParams) m
 	}
 
 	dpsParams := h.DPSAuthParams()
-	portSuffix := ""
-	if dpsParams.SDDCPort != "" {
-		portSuffix = fmt.Sprintf(":%s", dpsParams.SDDCPort)
-	}
-	url, err := url.Parse(fmt.Sprintf("%s://%s%s%s", dpsParams.SDDCProtocol, dpsParams.SDDCHostname, portSuffix, dpsauth.SetCookiePath))
+	url, err := url.Parse(fmt.Sprintf("%s://%s:%d%s", dpsParams.SDDCProtocol, dpsParams.SDDCHostname, dpsParams.SDDCPort, dpsauth.SetCookiePath))
 	if err != nil {
 		h.Logger().Error("Parsing cookie URL", zap.Error(err))
 		return dps_auth.NewGetCookieURLInternalServerError()

@@ -16,7 +16,7 @@ func (suite *HandlerSuite) TestDPSAuthCookieURLHandler() {
 	dpsAuthParams := dpsauth.Params{
 		SDDCProtocol:   "http",
 		SDDCHostname:   "testhost",
-		SDDCPort:       "100",
+		SDDCPort:       100,
 		SecretKey:      "secretkey",
 		DPSRedirectURL: "http://example.com",
 		CookieName:     "test",
@@ -53,7 +53,7 @@ func (suite *HandlerSuite) TestDPSAuthCookieURLHandler() {
 	okResponse := response.(*dps_auth.GetCookieURLOK)
 	url, _ := url.Parse(okResponse.Payload.CookieURL.String())
 	suite.Equal(url.Scheme, dpsAuthParams.SDDCProtocol)
-	suite.Equal(url.Host, fmt.Sprintf("%s:%s", dpsAuthParams.SDDCHostname, dpsAuthParams.SDDCPort))
+	suite.Equal(url.Host, fmt.Sprintf("%s:%d", dpsAuthParams.SDDCHostname, dpsAuthParams.SDDCPort))
 	suite.Contains(url.Query(), "token")
 	suite.True(ok)
 }

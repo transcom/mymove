@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
-	"github.com/honeycombio/beeline-go"
+	beeline "github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -140,7 +140,10 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 	moveID := ppm.MoveID
-	approveDate := time.Time(params.ApprovePersonallyProcuredMovePayload.ApproveDate)
+	var approveDate time.Time
+	if params.ApprovePersonallyProcuredMovePayload.ApproveDate != nil {
+		approveDate = time.Time(*params.ApprovePersonallyProcuredMovePayload.ApproveDate)
+	}
 	err = ppm.Approve(approveDate)
 	if err != nil {
 		h.Logger().Error("Attempted to approve PPM, got invalid transition", zap.Error(err), zap.String("move_status", string(ppm.Status)))
