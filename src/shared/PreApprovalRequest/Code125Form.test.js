@@ -24,21 +24,11 @@ describe('code 125 details component', () => {
     });
 
     it('date is required', () => {
-      expect(
-        wrapper
-          .find('SwaggerField')
-          .at(1)
-          .prop('required'),
-      ).toBe(true);
+      expect(wrapper.find('SwaggerField[fieldName="date"]').prop('required')).toBe(true);
     });
 
     it('time is optional', () => {
-      expect(
-        wrapper
-          .find('SwaggerField')
-          .at(2)
-          .prop('required'),
-      ).toBeFalsy();
+      expect(wrapper.find('SwaggerField[fieldName="time"]').prop('required')).toBeFalsy();
     });
   });
 });
