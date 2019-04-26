@@ -299,6 +299,7 @@ func initServeFlags(flag *pflag.FlagSet) {
 	flag.String("gex-basic-auth-username", "", "GEX api auth username")
 	flag.String("gex-basic-auth-password", "", "GEX api auth password")
 	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should be sent with Production or Test indicator")
+
 	flag.String("gex-url", "", "URL for sending an HTTP POST request to GEX")
 
 	flag.String("storage-backend", "local", "Storage backend to use, either local, memory or s3.")
@@ -336,6 +337,8 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// EIA Open Data API
 	flag.String("eia-key", "", "Key for Energy Information Administration (EIA) api")
 	flag.String("eia-url", "", "Url for Energy Information Administration (EIA) api")
+
+	flag.Bool("feature-flag", false, "Feature flag (bool) to enable feature flag")
 }
 
 func parseCertificates(str string) []string {
@@ -1018,6 +1021,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	storageBackend := v.GetString("storage-backend")
 	localStorageRoot := v.GetString("local-storage-root")
 	localStorageWebRoot := v.GetString("local-storage-web-root")
+
+	handlerContext.SetFeatureFlag(v.GetBool("feature-flag"))
 
 	var storer storage.FileStorer
 	if storageBackend == "s3" {

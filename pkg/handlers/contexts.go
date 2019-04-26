@@ -39,6 +39,8 @@ type HandlerContext interface {
 	SetSendProductionInvoice(sendProductionInvoice bool)
 	UseSecureCookie() bool
 	SetUseSecureCookie(useSecureCookie bool)
+	SetFeatureFlag(featureFlagIsActive bool)
+	FeatureFlag() bool
 
 	GexSender() services.GexSender
 	SetGexSender(gexSender services.GexSender)
@@ -61,6 +63,7 @@ type handlerContext struct {
 	notificationSender    notifications.NotificationSender
 	iwsPersonLookup       iws.PersonLookup
 	sendProductionInvoice bool
+	featureFlag           bool
 	dpsAuthParams         dpsauth.Params
 	senderToGex           services.GexSender
 	icnSequencer          sequence.Sequencer
@@ -205,4 +208,12 @@ func (hctx *handlerContext) UseSecureCookie() bool {
 // Sets flag for using Secure cookie
 func (hctx *handlerContext) SetUseSecureCookie(useSecureCookie bool) {
 	hctx.useSecureCookie = useSecureCookie
+}
+
+func (hctx *handlerContext) SetFeatureFlag(featureFlagIsActive bool) {
+	hctx.featureFlag = featureFlagIsActive
+}
+
+func (hctx *handlerContext) FeatureFlag() bool {
+	return hctx.featureFlag
 }

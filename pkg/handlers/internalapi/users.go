@@ -1,7 +1,10 @@
 package internalapi
 
 import (
+	"net/http"
 	"reflect"
+
+	"github.com/go-openapi/runtime"
 
 	"github.com/go-openapi/runtime/middleware"
 	beeline "github.com/honeycombio/beeline-go"
@@ -20,9 +23,27 @@ type ShowLoggedInUserHandler struct {
 	handlers.HandlerContext
 }
 
+//FeatureFlagResponseWriter writes response
+type FeatureFlagResponseWriter struct {
+	handlers.HandlerContext
+}
+
+//WriteResponse writes response
+func (f *FeatureFlagResponseWriter) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(200)
+	payload := "FEATURE FLAG ON!!!!"
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+}
+
 // Handle returns the logged in user
 func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) middleware.Responder {
 
+	if h.HandlerContext.FeatureFlag() {
+		return &FeatureFlagResponseWriter{}
+	}
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
