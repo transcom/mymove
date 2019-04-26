@@ -609,7 +609,6 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 				TransportationServiceProvider:   tsp,
 				TransportationServiceProviderID: tsp.ID,
 				TrafficDistributionListID:       tdl.ID,
-				QualityBand:                     swag.Int(1),
 			},
 		})
 
@@ -637,10 +636,11 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 		t.Errorf("Failed to fetch TSPPerformances: %v", err)
 	}
 
-	expectedBands := []int{1, 1, 1, 1, 1}
+	expectedBands := []int{1, 1, 2, 3, 4}
 
 	for i, perf := range perfs {
 		band := expectedBands[i]
+
 		if perf.QualityBand == nil {
 			t.Errorf("No quality band assigned for Performance #%v, got nil", perf.ID)
 		} else if (*perf.QualityBand) != band {
