@@ -722,18 +722,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
-	_, err = testdatagen.MakeTSPPerformanceDeprecated(db,
-		tspUser.TransportationServiceProvider,
-		*offer2.Shipment.TrafficDistributionList,
-		models.IntPointer(3),
-		0.40,
-		5,
-		unit.DiscountRate(0.50),
-		unit.DiscountRate(0.55))
-	if err != nil {
-		log.Panic(err)
-	}
-
 	hhg2 := offer2.Shipment
 	hhg2.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg2.Move)
@@ -2703,6 +2691,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 			DestinationRegion: "11",
 			CodeOfService:     "D",
 		},
+
 		Shipment: models.Shipment{
 			ID:                          uuid.FromStringOrNil("a4013cee-aa0a-41a3-b5f5-b9eed0758e1d 0xc42022c070"),
 			Status:                      models.ShipmentStatusAPPROVED,
@@ -2721,15 +2710,6 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 			Accepted:                        models.BoolPointer(true),
 		},
 	})
-
-	testdatagen.MakeTSPPerformanceDeprecated(db,
-		tspUser.TransportationServiceProvider,
-		*offer9.Shipment.TrafficDistributionList,
-		models.IntPointer(3),
-		0.40,
-		5,
-		unit.DiscountRate(0.50),
-		unit.DiscountRate(0.55))
 
 	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
 		ServiceAgent: models.ServiceAgent{
@@ -2809,15 +2789,6 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger Logger, s
 			Accepted:                        models.BoolPointer(true),
 		},
 	})
-
-	testdatagen.MakeTSPPerformanceDeprecated(db,
-		tspUser.TransportationServiceProvider,
-		*offer.Shipment.TrafficDistributionList,
-		models.IntPointer(3),
-		0.40,
-		5,
-		unit.DiscountRate(0.50),
-		unit.DiscountRate(0.55))
 
 	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
 		ServiceAgent: models.ServiceAgent{
@@ -2945,18 +2916,6 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Lo
 		fmt.Println(verrs.String())
 		log.Panic(err)
 	}
-
-	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
-		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{TransportationServiceProvider: tspUser.TransportationServiceProvider,
-			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
-			TrafficDistributionListID:       *offer.Shipment.TrafficDistributionListID,
-			QualityBand:                     models.IntPointer(3),
-			BestValueScore:                  0.40,
-			OfferCount:                      5,
-			LinehaulRate:                    unit.DiscountRate(0.50),
-			SITRate:                         unit.DiscountRate(0.55),
-		},
-	})
 
 	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
 		ServiceAgent: models.ServiceAgent{
