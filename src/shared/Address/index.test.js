@@ -16,8 +16,8 @@ describe('Address component test', () => {
     const wrapperDisplay = wrapper.find(AddressDisplay).dive();
     const fields = wrapperDisplay.find('Fragment').props().children;
     it("should render the address' label", () => {
-      const Label = wrapperElementDisplay.find('.field-title').text();
-      expect(Label).toBe('Primary');
+      const label = wrapperElementDisplay.find('.field-title').text();
+      expect(label).toBe('Primary');
     });
     it('should render the address itself', () => {
       const addressInfo = fields[0].props.children[0];
