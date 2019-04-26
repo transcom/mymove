@@ -18,7 +18,7 @@ type placeIntoSITStorageInTransit struct {
 }
 
 // PlaceIntoSITStorageInTransit sets the status of a Storage In Transit to IN SIT, saves its ActualStartDate, and returns the updated object.
-func (p placeIntoSITStorageInTransit) PlaceIntoSITStorageInTransit(payload apimessages.StorageInTransitInSitPayload, shipmentID uuid.UUID, session *auth.Session, storageInTransitID uuid.UUID) (*models.StorageInTransit, *validate.Errors, error) {
+func (p *placeIntoSITStorageInTransit) PlaceIntoSITStorageInTransit(payload apimessages.StorageInTransitInSitPayload, shipmentID uuid.UUID, session *auth.Session, storageInTransitID uuid.UUID) (*models.StorageInTransit, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 
 	// Only TSP users are authorized to do this.
@@ -64,5 +64,5 @@ func (p placeIntoSITStorageInTransit) PlaceIntoSITStorageInTransit(payload apime
 // NewStorageInTransitInSITPlacer is the public constructor for a `NewStorageInTransitInSITPlacer`
 // using Pop
 func NewStorageInTransitInSITPlacer(db *pop.Connection) services.StorageInTransitInSITPlacer {
-	return placeIntoSITStorageInTransit{db}
+	return &placeIntoSITStorageInTransit{db}
 }

@@ -15,7 +15,7 @@ type deliverStorageInTransit struct {
 }
 
 // DeliverStorageInTransit sets the status of a Storage In Transit to delivered and returns the updated object.
-func (d deliverStorageInTransit) DeliverStorageInTransit(shipmentID uuid.UUID, session *auth.Session, storageInTransitID uuid.UUID) (*models.StorageInTransit, *validate.Errors, error) {
+func (d *deliverStorageInTransit) DeliverStorageInTransit(shipmentID uuid.UUID, session *auth.Session, storageInTransitID uuid.UUID) (*models.StorageInTransit, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 
 	// Only TSP users are authorized to do this.
@@ -55,5 +55,5 @@ func (d deliverStorageInTransit) DeliverStorageInTransit(shipmentID uuid.UUID, s
 // NewStorageInTransitInDeliverer is the public constructor for a `NewStorageInTransitInDeliverer`
 // using Pop
 func NewStorageInTransitInDeliverer(db *pop.Connection) services.StorageInTransitDeliverer {
-	return deliverStorageInTransit{db}
+	return &deliverStorageInTransit{db}
 }

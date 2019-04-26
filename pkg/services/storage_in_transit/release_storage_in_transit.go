@@ -18,7 +18,7 @@ type releaseStorageInTransit struct {
 }
 
 // ReleaseStorageInTransit sets the status of a Storage In Transit to released, saves its released on date, and returns the updated object.
-func (r releaseStorageInTransit) ReleaseStorageInTransit(payload apimessages.StorageInTransitReleasePayload, shipmentID uuid.UUID, session *auth.Session, storageInTransitID uuid.UUID) (*models.StorageInTransit, *validate.Errors, error) {
+func (r *releaseStorageInTransit) ReleaseStorageInTransit(payload apimessages.StorageInTransitReleasePayload, shipmentID uuid.UUID, session *auth.Session, storageInTransitID uuid.UUID) (*models.StorageInTransit, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 
 	// Only TSPs are authorized to do this and they should only be able to on their own shipments
@@ -62,5 +62,5 @@ func (r releaseStorageInTransit) ReleaseStorageInTransit(payload apimessages.Sto
 // NewStorageInTransitInReleaser is the public constructor for a `NewStorageInTransitInReleaser`
 // using Pop
 func NewStorageInTransitInReleaser(db *pop.Connection) services.StorageInTransitReleaser {
-	return releaseStorageInTransit{db}
+	return &releaseStorageInTransit{db}
 }

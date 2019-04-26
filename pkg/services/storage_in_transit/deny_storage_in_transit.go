@@ -16,7 +16,7 @@ type denyStorageInTransit struct {
 }
 
 // DenyStorageInTransit sets the status of a Storage In Transit to denied, saves its Authorization Notes, and returns the updated object.
-func (d denyStorageInTransit) DenyStorageInTransit(payload apimessages.StorageInTransitDenialPayload, shipmentID uuid.UUID, session *auth.Session, storageInTransitID uuid.UUID) (*models.StorageInTransit, *validate.Errors, error) {
+func (d *denyStorageInTransit) DenyStorageInTransit(payload apimessages.StorageInTransitDenialPayload, shipmentID uuid.UUID, session *auth.Session, storageInTransitID uuid.UUID) (*models.StorageInTransit, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 
 	// Only office users are authorized to do this.
@@ -54,5 +54,5 @@ func (d denyStorageInTransit) DenyStorageInTransit(payload apimessages.StorageIn
 // NewStorageInTransitDenier is the public constructor for a `StorageInTransitDenier`
 // using Pop
 func NewStorageInTransitDenier(db *pop.Connection) services.StorageInTransitDenier {
-	return denyStorageInTransit{db}
+	return &denyStorageInTransit{db}
 }

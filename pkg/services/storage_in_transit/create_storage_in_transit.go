@@ -18,7 +18,7 @@ type createStorageInTransit struct {
 }
 
 // CreateStorageInTransit creates a new Storage In Transit for a shipment and returns the newly created object.
-func (c createStorageInTransit) CreateStorageInTransit(storageInTransitPayload apimessages.StorageInTransit, shipmentID uuid.UUID, session *auth.Session) (*models.StorageInTransit, *validate.Errors, error) {
+func (c *createStorageInTransit) CreateStorageInTransit(storageInTransitPayload apimessages.StorageInTransit, shipmentID uuid.UUID, session *auth.Session) (*models.StorageInTransit, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 
 	isUserAuthorized, err := authorizeStorageInTransitHTTPRequest(c.db, session, shipmentID, false)
@@ -102,5 +102,5 @@ func processStorageInTransitInput(shipmentID uuid.UUID, payload apimessages.Stor
 // NewStorageInTransitCreator is the public constructor for a `StorageInTransitCreator`
 // using Pop
 func NewStorageInTransitCreator(db *pop.Connection) services.StorageInTransitCreator {
-	return createStorageInTransit{db}
+	return &createStorageInTransit{db}
 }

@@ -14,7 +14,7 @@ type deleteStorageInTransit struct {
 }
 
 // DeleteStorageInTransit deletes an existing storage in transit object and returns nil if successful, an error otherwise.
-func (d deleteStorageInTransit) DeleteStorageInTransit(shipmentID uuid.UUID, storageInTransitID uuid.UUID, session *auth.Session) error {
+func (d *deleteStorageInTransit) DeleteStorageInTransit(shipmentID uuid.UUID, storageInTransitID uuid.UUID, session *auth.Session) error {
 
 	// TSPs can delete their own SIT requests
 	isAuthorized, err := authorizeStorageInTransitHTTPRequest(d.db, session, shipmentID, false)
@@ -39,5 +39,5 @@ func (d deleteStorageInTransit) DeleteStorageInTransit(shipmentID uuid.UUID, sto
 // NewStorageInTransitDeleter is the public constructor for a `NewStorageInTransitDeleter`
 // using Pop
 func NewStorageInTransitDeleter(db *pop.Connection) services.StorageInTransitDeleter {
-	return deleteStorageInTransit{db}
+	return &deleteStorageInTransit{db}
 }

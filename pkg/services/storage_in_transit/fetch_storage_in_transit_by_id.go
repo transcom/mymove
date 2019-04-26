@@ -15,7 +15,7 @@ type storageInTransitFetcher struct {
 
 // FetchStorageInTransitbyID gets a Storage In Transit record by ID
 // Authorizes based on session and shipment ID
-func (s storageInTransitFetcher) FetchStorageInTransitByID(storageInTransitID uuid.UUID, shipmentID uuid.UUID, session *auth.Session) (*models.StorageInTransit, error) {
+func (s *storageInTransitFetcher) FetchStorageInTransitByID(storageInTransitID uuid.UUID, shipmentID uuid.UUID, session *auth.Session) (*models.StorageInTransit, error) {
 	isAuthorized, err := authorizeStorageInTransitHTTPRequest(s.db, session, shipmentID, true)
 	if err != nil {
 		return nil, err
@@ -29,5 +29,5 @@ func (s storageInTransitFetcher) FetchStorageInTransitByID(storageInTransitID uu
 // NewStorageInTransitByIDFetcher is the public constructor for a `StorageInTransitFetcher`
 // using Pop
 func NewStorageInTransitByIDFetcher(db *pop.Connection) services.StorageInTransitByIDFetcher {
-	return storageInTransitFetcher{db}
+	return &storageInTransitFetcher{db}
 }

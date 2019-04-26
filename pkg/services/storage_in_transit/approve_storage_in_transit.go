@@ -18,7 +18,7 @@ type approveStorageInTransit struct {
 }
 
 // ApproveStorageInTransit sets the status of a Storage In Transit to approved, saves its Authorization Notes, saves its ActualDate, and returns the updated object.
-func (a approveStorageInTransit) ApproveStorageInTransit(payload apimessages.StorageInTransitApprovalPayload, shipmentID uuid.UUID, session *auth.Session, storageInTransitID uuid.UUID) (*models.StorageInTransit, *validate.Errors, error) {
+func (a *approveStorageInTransit) ApproveStorageInTransit(payload apimessages.StorageInTransitApprovalPayload, shipmentID uuid.UUID, session *auth.Session, storageInTransitID uuid.UUID) (*models.StorageInTransit, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 
 	// Only office users are authorized to do this.
@@ -56,5 +56,5 @@ func (a approveStorageInTransit) ApproveStorageInTransit(payload apimessages.Sto
 // NewStorageInTransitApprover is the public constructor for a `StorageInTransitApprover`
 // using Pop
 func NewStorageInTransitApprover(db *pop.Connection) services.StorageInTransitApprover {
-	return approveStorageInTransit{db}
+	return &approveStorageInTransit{db}
 }

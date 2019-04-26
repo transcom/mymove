@@ -48,7 +48,7 @@ func patchStorageInTransitWithPayload(storageInTransit *models.StorageInTransit,
 }
 
 // PatchStorageInTransit edits an existing storage in transit and returns the updated object.
-func (p patchStorageInTransit) PatchStorageInTransit(payload apimessages.StorageInTransit, shipmentID uuid.UUID, storageInTransitID uuid.UUID, session *auth.Session) (*models.StorageInTransit, *validate.Errors, error) {
+func (p *patchStorageInTransit) PatchStorageInTransit(payload apimessages.StorageInTransit, shipmentID uuid.UUID, storageInTransitID uuid.UUID, session *auth.Session) (*models.StorageInTransit, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 
 	// Both TSPs and Office users can do this. TSPs can edit based on whether or not its their shipment.
@@ -82,5 +82,5 @@ func (p patchStorageInTransit) PatchStorageInTransit(payload apimessages.Storage
 // NewStorageInTransitPatcher is the public constructor for a `NewStorageInTransitPatcher`
 // using Pop
 func NewStorageInTransitPatcher(db *pop.Connection) services.StorageInTransitPatcher {
-	return patchStorageInTransit{db}
+	return &patchStorageInTransit{db}
 }
