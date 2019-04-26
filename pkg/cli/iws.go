@@ -21,9 +21,9 @@ func InitIWSFlags(flag *pflag.FlagSet) {
 func InitRBSPersonLookup(v *viper.Viper, logger Logger) (*iws.RBSPersonLookup, error) {
 	return iws.NewRBSPersonLookup(
 		v.GetString(IWSRBSHostFlag),
-		v.GetString("dod-ca-package"),
-		v.GetString("move-mil-dod-tls-cert"),
-		v.GetString("move-mil-dod-tls-key"))
+		v.GetString(DoDCAPackageFlag),
+		v.GetString(MoveMilDoDTLSCertFlag),
+		v.GetString(MoveMilDoDTLSKeyFlag))
 }
 
 // CheckIWS validates IWS command line flags
