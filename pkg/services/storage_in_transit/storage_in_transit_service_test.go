@@ -8,16 +8,16 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type StorageInTransitSuite struct {
+type StorageInTransitServiceSuite struct {
 	testingsuite.PopTestSuite
 }
 
-func (suite *StorageInTransitSuite) SetupTest() {
+func (suite *StorageInTransitServiceSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
 
-func TestStorageInTransitSuite(t *testing.T) {
-	hs := &StorageInTransitSuite{
+func TestStorageInTransitServiceSuite(t *testing.T) {
+	hs := &StorageInTransitServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(),
 	}
 	suite.Run(t, hs)

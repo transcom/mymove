@@ -7,7 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *StorageInTransitSuite) TestGenerateStorageInTransitNumber() {
+func (suite *StorageInTransitServiceSuite) TestGenerateStorageInTransitNumber() {
 	var storageInTransitNumberTestCases = []struct {
 		name                           string
 		placeInSitTime                 time.Time
