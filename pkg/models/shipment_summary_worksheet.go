@@ -320,7 +320,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1 := ShipmentSummaryWorksheetPage1Values{}
 	page1.MaxSITStorageEntitlement = "90 days per each shipment"
 	// We don't currently know what allows POV to be authorized, so we are hardcoding it to "No" to start
-	page1.POVAuthorized = "NO"
+	page1.POVAuthorized = "No"
 	page1.PreparationDate = FormatDate(data.PreparationDate)
 
 	sm := data.ServiceMember
