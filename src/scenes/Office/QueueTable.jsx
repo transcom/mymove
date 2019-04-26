@@ -110,6 +110,7 @@ class QueueTable extends Component {
                     ''
                   ),
                 width: 50,
+                show: this.props.queueType === 'ppm',
               },
               {
                 Header: 'Status',
