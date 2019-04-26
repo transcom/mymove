@@ -34,7 +34,10 @@ export class PlaceInSit extends Component {
     return (
       <div className="storage-in-transit-panel-modal">
         <div className="title">Place into SIT at {capitalize(location)}</div>
-        <PlaceInSitForm initialValues={this.state.storageInTransit} />
+        <PlaceInSitForm
+          initialValues={this.state.storageInTransit}
+          minDate={this.state.storageInTransit.authorized_start_date}
+        />
         <div className="panel-field nested__same-font">
           <div className="usa-input-label unbold">Earliest authorized start</div>
           <div>{formatDate4DigitYear(authorized_start_date)}</div>

@@ -12,7 +12,7 @@ export class PlaceInSitForm extends Component {
   };
 
   render() {
-    const { storageInTransitSchema } = this.props;
+    const { storageInTransitSchema, minDate } = this.props;
     return (
       <form onSubmit={this.handleSubmit} className="place-in-sit-form">
         <div className="editable-panel-column">
@@ -21,6 +21,8 @@ export class PlaceInSitForm extends Component {
             fieldName="actual_start_date"
             swagger={storageInTransitSchema}
             title="Actual start date"
+            onChange={this.onChange}
+            minDate={minDate}
             required
           />
         </div>
@@ -33,7 +35,7 @@ PlaceInSitForm.propTypes = {
   storageInTransitSchema: PropTypes.object.isRequired,
 };
 
-const formName = 'place_in_sit_form';
+export const formName = 'place_in_sit_form';
 PlaceInSitForm = reduxForm({
   form: formName,
   enableReinitialize: true,

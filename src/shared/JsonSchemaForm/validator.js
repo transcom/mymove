@@ -139,6 +139,14 @@ const patternMatches = memoize((pattern, message) => {
   };
 });
 
+const minDateValidation = memoize((minDate = null, message) => {
+  return value => {
+    if (minDate && moment(value).isBefore(moment(minDate))) {
+      return message;
+    }
+  };
+});
+
 export default {
   maxLength,
   minLength,
@@ -151,6 +159,7 @@ export default {
   normalizePhone,
   normalizeSSN,
   normalizeZip,
+  minDateValidation,
   patternMatches,
   createDecimalNormalizer,
 };

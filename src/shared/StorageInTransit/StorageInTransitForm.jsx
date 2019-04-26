@@ -12,6 +12,7 @@ export class StorageInTransitForm extends Component {
   render() {
     const { storageInTransitSchema, addressSchema } = this.props;
     const warehouseAddress = get(this.props, 'formValues.warehouse_address');
+
     return (
       <form onSubmit={this.props.handleSubmit(this.props.onSubmit)} className="storage-in-transit-request-form">
         <fieldset key="sit-request-information">
