@@ -320,8 +320,7 @@ server_run_debug:
 	$(AWS_VAULT) dlv debug cmd/milmove/main.go serve
 
 .PHONY: build_tools
-build_tools: .check_gopath.stamp \
-	server_deps \
+build_tools: server_deps \
 	bin/compare-secure-migrations \
 	bin/ecs-service-logs \
 	bin/generate-1203-form \
