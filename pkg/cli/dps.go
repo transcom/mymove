@@ -49,20 +49,16 @@ func InitDPSFlags(flag *pflag.FlagSet) {
 
 // InitDPSAuthParams initializes the DPS Auth Params
 func InitDPSAuthParams(v *viper.Viper, appnames auth.ApplicationServername) dpsauth.Params {
-	dpsAuthSecretKey := v.GetString(DPSAuthSecretKeyFlag)
-	dpsCookieDomain := v.GetString(DPSCookieDomainFlag)
-	dpsCookieSecret := []byte(v.GetString(DPSAuthCookieSecretKeyFlag))
-	dpsCookieExpires := v.GetInt(DPSCookieExpiresInMinutesFlag)
 	return dpsauth.Params{
 		SDDCProtocol:   v.GetString(HTTPSDDCProtocolFlag),
 		SDDCHostname:   appnames.SddcServername,
 		SDDCPort:       v.GetInt(HTTPSDDCPortFlag),
-		SecretKey:      dpsAuthSecretKey,
+		SecretKey:      v.GetString(DPSAuthSecretKeyFlag),
 		DPSRedirectURL: v.GetString(DPSRedirectURLFlag),
 		CookieName:     v.GetString(DPSCookieNameFlag),
-		CookieDomain:   dpsCookieDomain,
-		CookieSecret:   dpsCookieSecret,
-		CookieExpires:  dpsCookieExpires,
+		CookieDomain:   v.GetString(DPSCookieDomainFlag),
+		CookieSecret:   []byte(v.GetString(DPSAuthCookieSecretKeyFlag)),
+		CookieExpires:  v.GetInt(DPSCookieExpiresInMinutesFlag),
 	}
 }
 
