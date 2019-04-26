@@ -9,7 +9,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 // GetDateInRateCycle returns a date that is guaranteed to be in the requested
@@ -92,41 +91,4 @@ func MakeTSPPerformance(db *pop.Connection, assertions Assertions) (models.Trans
 // MakeDefaultTSPPerformance makes a TransportationServiceProviderPerformance with default values
 func MakeDefaultTSPPerformance(db *pop.Connection) (models.TransportationServiceProviderPerformance, error) {
 	return MakeTSPPerformance(db, Assertions{})
-}
-
-// MakeTSPPerformanceDeprecated makes a single best_value_score record
-//
-// Deprecated: Use MakeTSPPErformance or MakeDEfaultTSPPERformance instead.
-func MakeTSPPerformanceDeprecated(db *pop.Connection,
-	tsp models.TransportationServiceProvider,
-	tdl models.TrafficDistributionList,
-	qualityBand *int,
-	score float64,
-	offerCount int,
-	linehaulDiscountRate unit.DiscountRate,
-	SITDiscountRate unit.DiscountRate) (models.TransportationServiceProviderPerformance, error) {
-
-	tspPerformance := models.TransportationServiceProviderPerformance{
-		PerformancePeriodStart:          PerformancePeriodStart,
-		PerformancePeriodEnd:            PerformancePeriodEnd,
-		RateCycleStart:                  PeakRateCycleStart,
-		RateCycleEnd:                    PeakRateCycleEnd,
-		TransportationServiceProviderID: tsp.ID,
-		TrafficDistributionListID:       tdl.ID,
-		QualityBand:                     qualityBand,
-		BestValueScore:                  score,
-		OfferCount:                      offerCount,
-		LinehaulRate:                    linehaulDiscountRate,
-		SITRate:                         SITDiscountRate,
-	}
-
-	verrs, err := db.ValidateAndCreate(&tspPerformance)
-	if verrs.HasAny() {
-		err = fmt.Errorf("TSP Performance validation errors: %v", verrs)
-	}
-	if err != nil {
-		log.Panic(err)
-	}
-
-	return tspPerformance, err
 }

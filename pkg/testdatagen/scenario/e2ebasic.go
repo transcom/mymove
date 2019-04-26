@@ -722,14 +722,19 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
-	_, err = testdatagen.MakeTSPPerformanceDeprecated(db,
-		tspUser.TransportationServiceProvider,
-		*offer2.Shipment.TrafficDistributionList,
-		models.IntPointer(3),
-		0.40,
-		5,
-		unit.DiscountRate(0.50),
-		unit.DiscountRate(0.55))
+	_, err = testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tspUser.TransportationServiceProvider,
+			TransportationServiceProviderID: tspUser.TransportationServiceProvider.ID,
+			TrafficDistributionListID:       uuid.FromStringOrNil("5f86c201-1abf-4f9d-8dcb-d039cb1c6bfc"),
+			QualityBand:                     models.IntPointer(3),
+			BestValueScore:                  0.40,
+			OfferCount:                      5,
+			LinehaulRate:                    unit.DiscountRate(0.50),
+			SITRate:                         unit.DiscountRate(0.55),
+		},
+	})
+
 	if err != nil {
 		log.Panic(err)
 	}
@@ -2722,14 +2727,17 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 		},
 	})
 
-	testdatagen.MakeTSPPerformanceDeprecated(db,
-		tspUser.TransportationServiceProvider,
-		*offer9.Shipment.TrafficDistributionList,
-		models.IntPointer(3),
-		0.40,
-		5,
-		unit.DiscountRate(0.50),
-		unit.DiscountRate(0.55))
+	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tspUser.TransportationServiceProvider,
+			TransportationServiceProviderID: tspUser.TransportationServiceProvider.ID,
+			QualityBand:                     models.IntPointer(3),
+			BestValueScore:                  0.40,
+			OfferCount:                      5,
+			LinehaulRate:                    unit.DiscountRate(0.50),
+			SITRate:                         unit.DiscountRate(0.55),
+		},
+	})
 
 	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
 		ServiceAgent: models.ServiceAgent{
@@ -2810,14 +2818,17 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger Logger, s
 		},
 	})
 
-	testdatagen.MakeTSPPerformanceDeprecated(db,
-		tspUser.TransportationServiceProvider,
-		*offer.Shipment.TrafficDistributionList,
-		models.IntPointer(3),
-		0.40,
-		5,
-		unit.DiscountRate(0.50),
-		unit.DiscountRate(0.55))
+	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tspUser.TransportationServiceProvider,
+			TransportationServiceProviderID: tspUser.TransportationServiceProvider.ID,
+			QualityBand:                     models.IntPointer(3),
+			BestValueScore:                  0.40,
+			OfferCount:                      5,
+			LinehaulRate:                    unit.DiscountRate(0.50),
+			SITRate:                         unit.DiscountRate(0.55),
+		},
+	})
 
 	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
 		ServiceAgent: models.ServiceAgent{
@@ -2947,9 +2958,9 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Lo
 	}
 
 	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
-		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{TransportationServiceProvider: tspUser.TransportationServiceProvider,
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tspUser.TransportationServiceProvider,
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
-			TrafficDistributionListID:       *offer.Shipment.TrafficDistributionListID,
 			QualityBand:                     models.IntPointer(3),
 			BestValueScore:                  0.40,
 			OfferCount:                      5,

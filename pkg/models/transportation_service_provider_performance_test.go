@@ -692,14 +692,14 @@ func (suite *ModelSuite) Test_FetchUnbandedTSPPerformanceGroups() {
 
 	suite.Equal(perfGroups[0].TrafficDistributionListID, foundPerfGroup.TrafficDistributionListID,
 		"TrafficDistributionListID in TSPP group did not match")
-	// suite.True(perfGroups[0].PerformancePeriodStart.Equal(foundPerfGroup.PerformancePeriodStart),
-	// 	"PerformancePeriodStart in TSPP group did not match")
-	// suite.True(perfGroups[0].PerformancePeriodEnd.Equal(foundPerfGroup.PerformancePeriodEnd),
-	// 	"PerformancePeriodEnd in TSPP group did not match")
-	// suite.True(perfGroups[0].RateCycleStart.Equal(foundPerfGroup.RateCycleStart),
-	// 	"RateCycleStart in TSPP group did not match")
-	// suite.True(perfGroups[0].RateCycleEnd.Equal(foundPerfGroup.RateCycleEnd),
-	// 	"RateCycleEnd in TSPP group did not match")
+	suite.True(perfGroups[0].PerformancePeriodStart.Equal(foundPerfGroup.PerformancePeriodStart),
+		"PerformancePeriodStart in TSPP group did not match")
+	suite.True(perfGroups[0].PerformancePeriodEnd.Equal(foundPerfGroup.PerformancePeriodEnd),
+		"PerformancePeriodEnd in TSPP group did not match")
+	suite.True(perfGroups[0].RateCycleStart.Equal(foundPerfGroup.RateCycleStart),
+		"RateCycleStart in TSPP group did not match")
+	suite.True(perfGroups[0].RateCycleEnd.Equal(foundPerfGroup.RateCycleEnd),
+		"RateCycleEnd in TSPP group did not match")
 }
 
 // Test_FetchDiscountRates tests that the discount rate for the TSP with the best BVS
