@@ -17,6 +17,14 @@ var customBranches = map[string]string{
 	"github.com/trussworks/pdfcpu": "afero",
 }
 
+// This program exists so that we can work around go mod's MVS behavior.
+// For each dependency listed in go.mod, this program will update that dependency
+// to either the latest released patch (using go get -u=patch) or the latest commit
+// on the master branch based on if we're currently using a tagged version or a
+// commit.
+//
+// There is a special case for pdfcpu, where we need to pull in the latest commit on a
+// non-master branch.
 func main() {
 	content, readErr := ioutil.ReadFile("go.mod")
 	if readErr != nil {
