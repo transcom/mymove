@@ -1,21 +1,14 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { Provider } from 'react-redux';
-import configureStore from 'redux-mock-store';
 import AdminWrapper from './index';
+import restProvider from 'ra-data-simple-rest';
 
-let store;
-const mockStore = configureStore();
+const dataProvider = restProvider('http://admin/v1/...');
 
 describe('AdminIndex tests', () => {
   describe('AdminIndex home page', () => {
     let wrapper;
-    store = mockStore({});
-    wrapper = mount(
-      <Provider store={store}>
-        <AdminWrapper />
-      </Provider>,
-    );
+    wrapper = mount(<AdminWrapper dataProvider={dataProvider} />);
 
     it('renders without crashing', () => {
       expect(wrapper.find('.admin-system-wrapper').length).toEqual(1);
