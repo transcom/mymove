@@ -38,6 +38,7 @@ describe('office user finds the move', function() {
     cy.get('.weights').should('not.exist');
     cy.get('.dates').should('not.exist');
     cy.get('.storage').should('not.exist');
+    cy.get('.expense-panel').should('not.exist');
   });
   it('office user views actual move date', function() {
     officeUserGoesToPPMPanel('PAYMNT');
