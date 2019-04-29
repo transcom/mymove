@@ -106,7 +106,7 @@ func (suite *ModelSuite) TestMoveCancellationWithReason() {
 	reason := "SM's orders revoked"
 
 	// Check to ensure move shows SUBMITTED before Cancel()
-	err = move.Submit()
+	err = move.Submit(time.Now())
 	suite.Nil(err)
 	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
 
@@ -171,7 +171,8 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	move.Shipments = append(move.Shipments, shipment)
 
 	// Once submitted
-	err = move.Submit()
+	currentTime := time.Now()
+	err = move.Submit(currentTime)
 	suite.MustSave(move)
 	suite.DB().Reload(move)
 	suite.Nil(err)
@@ -206,7 +207,7 @@ func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
 
 	// Associate PPM with the move it's on.
 	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, *ppm)
-	err = move.Submit()
+	err = move.Submit(time.Now())
 	suite.Nil(err)
 	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
 

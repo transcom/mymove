@@ -23,7 +23,7 @@ import InvoicePaymentAlert from './InvoicePaymentAlert';
 import { isError, isLoading, isSuccess } from 'shared/constants';
 import { getLastError } from 'shared/Swagger/selectors';
 
-import './InvoicePanel.css';
+import styles from './InvoicePanel.module.scss';
 
 export class InvoicePanel extends PureComponent {
   constructor(props) {
@@ -58,7 +58,7 @@ export class InvoicePanel extends PureComponent {
     const hasUnbilled = Boolean(get(this.props, 'unbilledShipmentLineItems.length'));
     const hasInvoices = Boolean(get(this.props, 'invoices.length'));
     return (
-      <div className="invoice-panel">
+      <div className={styles['invoice-panel']} data-cy="invoice-panel">
         <BasicPanel title="Invoicing">
           <InvoicePaymentAlert
             createInvoiceStatus={this.state.createInvoiceRequestStatus}

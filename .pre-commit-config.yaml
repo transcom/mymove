@@ -22,6 +22,7 @@ repos:
             pkg/server/testdata/localhost.key$|
             pkg/server/testdata/officelocal.key$|
             pkg/auth/authentication/auth_test.go$|
+            pkg/cli/auth.go$|
           )$
       - id: trailing-whitespace
         exclude: public/swagger-ui/*
@@ -147,3 +148,13 @@ repos:
         language: script
         files: \.md$
         pass_filenames: false
+
+
+  - repo: local
+    hooks:
+    - id: circleci-validate
+      name: circleci validate
+      entry: scripts/pre-commit-circleci-validate
+      language: script
+      files: '[.]circleci/config.yml$'
+      pass_filenames: false

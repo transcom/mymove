@@ -22,12 +22,12 @@ func InitEIAFlags(flag *pflag.FlagSet) {
 
 // CheckEIA validates EIA command line flags
 func CheckEIA(v *viper.Viper) error {
-	eiaKey := v.GetString("eia-key")
+	eiaKey := v.GetString(EIAKeyFlag)
 	if len(eiaKey) != 32 {
 		return fmt.Errorf("expected eia key to be 32 characters long; key is %d chars", len(eiaKey))
 	}
 
-	eiaURL := v.GetString("eia-url")
+	eiaURL := v.GetString(EIAURLFlag)
 	if eiaURL != "https://api.eia.gov/series/" {
 		return fmt.Errorf("invalid eia url %s, expecting https://api.eia.gov/series/", eiaURL)
 	}

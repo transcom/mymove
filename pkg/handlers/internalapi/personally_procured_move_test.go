@@ -4,6 +4,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/unit"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
@@ -67,10 +69,11 @@ func (suite *HandlerSuite) TestSubmitPPMHandler() {
 
 	// create a ppm
 	move1 := testdatagen.MakeDefaultMove(suite.DB())
+	wtgEst := unit.Pound(1)
 	ppm := models.PersonallyProcuredMove{
 		MoveID:         move1.ID,
 		Move:           move1,
-		WeightEstimate: swag.Int64(1),
+		WeightEstimate: &wtgEst,
 		Status:         models.PPMStatusDRAFT,
 	}
 
@@ -81,10 +84,15 @@ func (suite *HandlerSuite) TestSubmitPPMHandler() {
 
 	req := httptest.NewRequest("POST", "/fake/path", nil)
 	req = suite.AuthenticateRequest(req, move1.Orders.ServiceMember)
+	submitDate := strfmt.DateTime(time.Now())
+	newSubmitPersonallyProcuredMovePayload := internalmessages.SubmitPersonallyProcuredMovePayload{
+		SubmitDate: &submitDate,
+	}
 
 	submitPPMParams := ppmop.SubmitPersonallyProcuredMoveParams{
-		PersonallyProcuredMoveID: strfmt.UUID(ppm.ID.String()),
-		HTTPRequest:              req,
+		PersonallyProcuredMoveID:            strfmt.UUID(ppm.ID.String()),
+		HTTPRequest:                         req,
+		SubmitPersonallyProcuredMovePayload: &newSubmitPersonallyProcuredMovePayload,
 	}
 
 	// submit the PPM
@@ -104,22 +112,25 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 	move1 := testdatagen.MakeDefaultMove(suite.DB())
 	move2 := testdatagen.MakeDefaultMove(suite.DB())
 
+	wtgEst1 := unit.Pound(1)
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:         move1.ID,
 		Move:           move1,
-		WeightEstimate: swag.Int64(1),
+		WeightEstimate: &wtgEst1,
 		Status:         models.PPMStatusDRAFT,
 	}
+	wtgEst2 := unit.Pound(2)
 	ppm2 := models.PersonallyProcuredMove{
 		MoveID:         move1.ID,
 		Move:           move1,
-		WeightEstimate: swag.Int64(2),
+		WeightEstimate: &wtgEst2,
 		Status:         models.PPMStatusDRAFT,
 	}
+	wtgEst3 := unit.Pound(4)
 	otherPPM := models.PersonallyProcuredMove{
 		MoveID:         move2.ID,
 		Move:           move2,
-		WeightEstimate: swag.Int64(4),
+		WeightEstimate: &wtgEst3,
 		Status:         models.PPMStatusDRAFT,
 	}
 
@@ -169,7 +180,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	initialSize := internalmessages.TShirtSize("S")
 	newSize := internalmessages.TShirtSize("L")
 
-	initialWeight := swag.Int64(4100)
+	initialWeight := unit.Pound(4100)
 	newWeight := swag.Int64(4105)
 
 	// Date picked essentialy at random, but needs to be within TestYear
@@ -199,7 +210,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		MoveID:                     move.ID,
 		Move:                       move,
 		Size:                       &initialSize,
-		WeightEstimate:             initialWeight,
+		WeightEstimate:             &initialWeight,
 		OriginalMoveDate:           &initialMoveDate,
 		HasAdditionalPostalCode:    hasAdditionalPostalCode,
 		AdditionalPickupPostalCode: additionalPickupPostalCode,
@@ -251,7 +262,6 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 }
 
 func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
-	t := suite.T()
 	scenario.RunRateEngineScenario1(suite.DB())
 
 	weight := swag.Int64(4100)
@@ -296,10 +306,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	okResponse := response.(*ppmop.PatchPersonallyProcuredMoveOK)
 	patchPPMPayload := okResponse.Payload
 
-	if patchPPMPayload.WeightEstimate != weight {
-		t.Error("Weight should have been updated.")
-	}
-
+	suite.Assertions.Equal(int64(*weight), *patchPPMPayload.WeightEstimate)
 	suite.Assertions.Equal(int64(900), *patchPPMPayload.Mileage)
 	suite.Assertions.Equal(int64(242246), *patchPPMPayload.IncentiveEstimateMin)
 	suite.Assertions.Equal(int64(267746), *patchPPMPayload.IncentiveEstimateMax)
@@ -327,7 +334,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	initialSize := internalmessages.TShirtSize("S")
 	newSize := internalmessages.TShirtSize("L")
-	initialWeight := swag.Int64(1)
+	initialWeight := unit.Pound(1)
 	newWeight := swag.Int64(5)
 
 	// Date picked essentialy at random, but needs to be within TestYear
@@ -341,7 +348,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 		MoveID:           move.ID,
 		Move:             move,
 		Size:             &initialSize,
-		WeightEstimate:   initialWeight,
+		WeightEstimate:   &initialWeight,
 		OriginalMoveDate: &initialMoveDate,
 		Status:           models.PPMStatusDRAFT,
 	}
@@ -373,7 +380,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 	initialSize := internalmessages.TShirtSize("S")
 	newSize := internalmessages.TShirtSize("L")
-	initialWeight := swag.Int64(1)
+	initialWeight := unit.Pound(1)
 	newWeight := swag.Int64(5)
 
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
@@ -395,7 +402,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 		MoveID:         move2.ID,
 		Move:           *move2,
 		Size:           &initialSize,
-		WeightEstimate: initialWeight,
+		WeightEstimate: &initialWeight,
 		Status:         models.PPMStatusDRAFT,
 	}
 	suite.MustSave(&ppm1)
@@ -425,7 +432,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 
 	initialSize := internalmessages.TShirtSize("S")
 	newSize := internalmessages.TShirtSize("L")
-	initialWeight := swag.Int64(1)
+	initialWeight := unit.Pound(1)
 	newWeight := swag.Int64(5)
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
@@ -436,7 +443,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 		MoveID:         move.ID,
 		Move:           move,
 		Size:           &initialSize,
-		WeightEstimate: initialWeight,
+		WeightEstimate: &initialWeight,
 		Status:         models.PPMStatusDRAFT,
 	}
 	suite.MustSave(&ppm1)
@@ -470,7 +477,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 	t := suite.T()
 
 	initialSize := internalmessages.TShirtSize("S")
-	initialWeight := swag.Int64(1)
+	initialWeight := unit.Pound(1)
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
@@ -478,7 +485,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 		MoveID:         move.ID,
 		Move:           move,
 		Size:           &initialSize,
-		WeightEstimate: initialWeight,
+		WeightEstimate: &initialWeight,
 		Status:         models.PPMStatusDRAFT,
 	}
 	suite.MustSave(&ppm1)
@@ -543,7 +550,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerEdgeCases() {
 	t := suite.T()
 
 	initialSize := internalmessages.TShirtSize("S")
-	initialWeight := swag.Int64(1)
+	initialWeight := unit.Pound(1)
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
@@ -551,7 +558,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerEdgeCases() {
 		MoveID:         move.ID,
 		Move:           move,
 		Size:           &initialSize,
-		WeightEstimate: initialWeight,
+		WeightEstimate: &initialWeight,
 		Status:         models.PPMStatusDRAFT,
 	}
 	suite.MustSave(&ppm1)
@@ -604,11 +611,11 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 	t := suite.T()
 
 	initialSize := internalmessages.TShirtSize("S")
-	initialWeight := swag.Int64(1)
+	initialWeight := unit.Pound(1)
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
-	err := move.Submit()
+	err := move.Submit(time.Now())
 	if err != nil {
 		t.Fatal("Should transition.")
 	}
@@ -627,10 +634,10 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 		MoveID:         move.ID,
 		Move:           move,
 		Size:           &initialSize,
-		WeightEstimate: initialWeight,
+		WeightEstimate: &initialWeight,
 		Status:         models.PPMStatusDRAFT,
 	}
-	err = ppm1.Submit()
+	err = ppm1.Submit(time.Now())
 	if err != nil {
 		t.Fatal("Should transition.")
 	}

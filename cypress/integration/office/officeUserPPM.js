@@ -33,6 +33,13 @@ describe('office user finds the move', function() {
       .contains('Approved')
       .should('be.disabled');
   });
+  it('office user can not see storage, weight, expenses, and locations panels if payment has not been requested', function() {
+    officeUserGoesToPPMPanel('APPROV');
+    cy.get('.weights').should('not.exist');
+    cy.get('.dates').should('not.exist');
+    cy.get('.storage').should('not.exist');
+    cy.get('.expense-panel').should('not.exist');
+  });
   it('office user views actual move date', function() {
     officeUserGoesToPPMPanel('PAYMNT');
     cy.get('.actual_move_date').should($div => {
@@ -87,7 +94,7 @@ function officeUserEditsNetWeight() {
     expect(loc.pathname).to.match(/^\/queues\/ppm/);
   });
 
-  cy.selectQueueItemMoveLocator('VGHEIS');
+  cy.selectQueueItemMoveLocator('FDXTIU');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -436,9 +443,11 @@ function officeUserEditsEstimatesPanel(destinationPostalCode, pickupPostalCode, 
 }
 
 function officeUserGoesToStoragePanel(locator) {
-  // Open new moves queue
+  cy.patientVisit('/queues/all');
+
+  // Open all moves queue
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new/);
+    expect(loc.pathname).to.match(/^\/queues\/all/);
   });
 
   // Find shipment and open it

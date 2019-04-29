@@ -8,7 +8,6 @@ describe('Office User Checks Shipment Locations', function() {
     const address = {
       street_1: '123 Any Street',
       street_2: 'P.O. Box 12345',
-      street_3: 'c/o Some Person',
       city: 'Beverly Hills',
       state: 'CA',
       postal_code: '90210',
@@ -16,7 +15,6 @@ describe('Office User Checks Shipment Locations', function() {
     const expectation = text => {
       expect(text).to.include(address.street_1);
       expect(text).to.include(address.street_2);
-      expect(text).to.include(address.street_3);
       expect(text).to.include(`${address.city}, ${address.state} ${address.postal_code}`);
     };
 
@@ -27,7 +25,6 @@ describe('Office User Checks Shipment Locations', function() {
     const address = {
       street_1: '987 Any Avenue',
       street_2: 'P.O. Box 9876',
-      street_3: 'c/o Some Person',
       city: 'Fairfield',
       state: 'CA',
       postal_code: '94535',
@@ -35,7 +32,6 @@ describe('Office User Checks Shipment Locations', function() {
     const expectation = text => {
       expect(text).to.include(address.street_1);
       expect(text).to.include(address.street_2);
-      expect(text).to.include(address.street_3);
       expect(text).to.include(`${address.city}, ${address.state} ${address.postal_code}`);
     };
 
@@ -168,12 +164,8 @@ function officeUserEntersLocations() {
     .clear()
     .type(pickupAddress.city)
     .blur();
-  cy
-    .get('input[name="pickup_address.state"]')
-    .first()
-    .clear()
-    .type(pickupAddress.state)
-    .blur();
+  cy.get('select[name="pickup_address.state"]').select(pickupAddress.state);
+
   cy
     .get('input[name="pickup_address.postal_code"]')
     .first()
@@ -226,12 +218,7 @@ function officeUserEntersLocations() {
     .clear()
     .type(secondaryPickupAddress.city)
     .blur();
-  cy
-    .get('input[name="secondary_pickup_address.state"]')
-    .first()
-    .clear()
-    .type(secondaryPickupAddress.state)
-    .blur();
+  cy.get('select[name="secondary_pickup_address.state"]').select(secondaryPickupAddress.state);
   cy
     .get('input[name="secondary_pickup_address.postal_code"]')
     .first()
@@ -273,12 +260,8 @@ function officeUserEntersLocations() {
     .clear()
     .type(deliveryAddress.city)
     .blur();
-  cy
-    .get('input[name="delivery_address.state"]')
-    .first()
-    .clear()
-    .type(deliveryAddress.state)
-    .blur();
+  cy.get('select[name="delivery_address.state"]').select(deliveryAddress.state);
+
   cy
     .get('input[name="delivery_address.postal_code"]')
     .first()

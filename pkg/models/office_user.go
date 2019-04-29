@@ -57,7 +57,7 @@ func (o *OfficeUser) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error
 // FetchOfficeUserByEmail looks for an office user with a specific email
 func FetchOfficeUserByEmail(tx *pop.Connection, email string) (*OfficeUser, error) {
 	var users OfficeUsers
-	err := tx.Where("email = $1", strings.ToLower(email)).All(&users)
+	err := tx.Where("LOWER(email) = $1", strings.ToLower(email)).All(&users)
 	if err != nil {
 		return nil, err
 	}

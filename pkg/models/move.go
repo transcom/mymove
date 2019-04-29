@@ -104,7 +104,7 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 // Avoid calling Move.Status = ... ever. Use these methods to change the state.
 
 // Submit submits the Move
-func (m *Move) Submit() error {
+func (m *Move) Submit(ppmSubmitDate time.Time) error {
 	if m.Status != MoveStatusDRAFT {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
@@ -113,7 +113,8 @@ func (m *Move) Submit() error {
 
 	// Update PPM status too
 	for i := range m.PersonallyProcuredMoves {
-		err := m.PersonallyProcuredMoves[i].Submit()
+		ppm := &m.PersonallyProcuredMoves[i]
+		err := ppm.Submit(ppmSubmitDate)
 		if err != nil {
 			return err
 		}
@@ -283,7 +284,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 	}
 
 	var newMoveDocument *MoveDocument
-	if moveType == SelectedMoveTypeHHG || moveType == SelectedMoveTypeHHGPPM {
+	if moveType == SelectedMoveTypeHHG {
 		newMoveDocument = &MoveDocument{
 			Move:             m,
 			MoveID:           m.ID,
@@ -415,7 +416,7 @@ func (m Move) CreateMovingExpenseDocument(
 // CreatePPM creates a new PPM associated with this move
 func (m Move) CreatePPM(db *pop.Connection,
 	size *internalmessages.TShirtSize,
-	weightEstimate *int64,
+	weightEstimate *unit.Pound,
 	originalMoveDate *time.Time,
 	pickupPostalCode *string,
 	hasAdditionalPostalCode *bool,

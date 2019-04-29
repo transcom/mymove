@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"crypto/tls"
-	"crypto/x509"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -15,22 +14,17 @@ import (
 	"os"
 	"os/signal"
 	"path"
-	"path/filepath"
-	"strconv"
+	"runtime/debug"
 	"strings"
 	"sync"
 	"syscall"
-	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/endpoints"
-	awssession "github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/ses"
-	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/gorilla/csrf"
-	beeline "github.com/honeycombio/beeline-go"
-	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
 	"github.com/pkg/errors"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/csrf"
+	"github.com/honeycombio/beeline-go"
+	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -43,16 +37,14 @@ import (
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
+	"github.com/transcom/mymove/pkg/ecs"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/dpsapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
 	"github.com/transcom/mymove/pkg/handlers/publicapi"
-	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/logging"
-	"github.com/transcom/mymove/pkg/notifications"
-	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/invoice"
@@ -67,67 +59,12 @@ var gitCommit string
 // max request body size is 20 mb
 const maxBodySize int64 = 200 * 1000 * 1000
 
-// hereRequestTimeout is how long to wait on HERE request before timing out (15 seconds).
-const hereRequestTimeout = time.Duration(15) * time.Second
-
-type errInvalidSSLMode struct {
-	Mode  string
-	Modes []string
-}
-
-func (e *errInvalidSSLMode) Error() string {
-	return fmt.Sprintf("invalid ssl mode %s, must be one of: "+strings.Join(e.Modes, ", "), e.Mode)
-}
-
-type errInvalidProtocol struct {
-	Protocol string
-}
-
-func (e *errInvalidProtocol) Error() string {
-	return fmt.Sprintf("invalid protocol %s, must be http or https", e.Protocol)
-}
-
-type errInvalidPort struct {
-	Port int
-}
-
-func (e *errInvalidPort) Error() string {
-	return fmt.Sprintf("invalid port %d, must be > 0 and <= 65535", e.Port)
-}
-
 type errInvalidHost struct {
 	Host string
 }
 
 func (e *errInvalidHost) Error() string {
 	return fmt.Sprintf("invalid host %s, must not contain whitespace, :, /, or \\", e.Host)
-}
-
-type errInvalidRegion struct {
-	Region string
-}
-
-func (e *errInvalidRegion) Error() string {
-	return fmt.Sprintf("invalid region %s", e.Region)
-}
-
-type errInvalidPKCS7 struct {
-	Path string
-}
-
-const serveSwaggerUIFlag string = "serve-swagger-ui"
-
-func (e *errInvalidPKCS7) Error() string {
-	return fmt.Sprintf("invalid DER encoded PKCS7 package: %s", e.Path)
-}
-
-func stringSliceContains(stringSlice []string, value string) bool {
-	for _, x := range stringSlice {
-		if value == x {
-			return true
-		}
-	}
-	return false
 }
 
 func limitBodySizeMiddleware(inner http.Handler) http.Handler {
@@ -148,6 +85,24 @@ func noCacheMiddleware(inner http.Handler) http.Handler {
 		return
 	}
 	return http.HandlerFunc(mw)
+}
+
+func recoveryMiddleware(logger logger) func(inner http.Handler) http.Handler {
+	zap.L().Debug("recovery installed")
+	return func(inner http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			defer func() {
+				if r := recover(); r != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					errorMsg := fmt.Sprint(r)
+					stacktrace := fmt.Sprintf("%s", debug.Stack())
+					logger.Error("panic recovery", zap.String("error", errorMsg), zap.String("stacktrace", stacktrace))
+				}
+			}()
+			inner.ServeHTTP(w, r)
+		}
+		return http.HandlerFunc(mw)
+	}
 }
 
 func httpsComplianceMiddleware(inner http.Handler) http.Handler {
@@ -190,104 +145,53 @@ func securityHeadersMiddleware(inner http.Handler) http.Handler {
 	return http.HandlerFunc(mw)
 }
 
+// initServeFlags - Order matters!
 func initServeFlags(flag *pflag.FlagSet) {
 
-	flag.String("build", "build", "the directory to serve static files from.")
-	flag.String("config-dir", "config", "The location of server config files")
-	flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
-	flag.String("service-name", "app", "The service name identifies the application for instrumentation.")
-	flag.Duration("graceful-shutdown-timeout", 25*time.Second, "The duration for which the server gracefully wait for existing connections to finish.  AWS ECS only gives you 30 seconds before sending SIGKILL.")
+	// Build Server
+	cli.InitBuildFlags(flag)
 
-	flag.String("http-my-server-name", "milmovelocal", "Hostname according to environment.")
-	flag.String("http-office-server-name", "officelocal", "Hostname according to environment.")
-	flag.String("http-tsp-server-name", "tsplocal", "Hostname according to environment.")
-	flag.String("http-admin-server-name", "adminlocal", "Hostname according to environment.")
-	flag.String("http-orders-server-name", "orderslocal", "Hostname according to environment.")
-	flag.String("http-dps-server-name", "dpslocal", "Hostname according to environment.")
+	// Hosts
+	cli.InitHostFlags(flag)
 
 	// SDDC + DPS Auth config
-	flag.String("http-sddc-server-name", "sddclocal", "Hostname according to envrionment.")
-	flag.String("http-sddc-protocol", "https", "Protocol for sddc")
-	flag.String("http-sddc-port", "", "The port for sddc")
-	flag.String("dps-auth-secret-key", "", "DPS auth JWT secret key")
-	flag.String("dps-redirect-url", "", "DPS url to redirect to")
-	flag.String("dps-cookie-name", "", "Name of the DPS cookie")
-	flag.String("dps-cookie-domain", "sddclocal", "Domain of the DPS cookie")
-	flag.String("dps-auth-cookie-secret-key", "", "DPS auth cookie secret key, 32 byte long")
-	flag.Int("dps-cookie-expires-in-minutes", 240, "DPS cookie expiration in minutes")
+	cli.InitDPSFlags(flag)
 
 	// Initialize Swagger
-	flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
-	flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
-	flag.String("orders-swagger", "swagger/orders.yaml", "The location of the Orders API swagger definition")
-	flag.String("dps-swagger", "swagger/dps.yaml", "The location of the DPS API swagger definition")
-	flag.Bool(serveSwaggerUIFlag, false, "Whether to serve swagger UI for the APIs")
+	cli.InitSwaggerFlags(flag)
 
-	flag.String("client-auth-secret-key", "", "Client auth secret JWT key.")
-	flag.Bool("no-session-timeout", false, "whether user sessions should timeout.")
-
-	flag.String("devlocal-ca", "", "Path to PEM-encoded devlocal CA certificate, enabled in development and test builds")
-	flag.String("dod-ca-package", "", "Path to PKCS#7 package containing certificates of all DoD root and intermediate CAs")
-	flag.String("move-mil-dod-ca-cert", "", "The DoD CA certificate used to sign the move.mil TLS certificate.")
-	flag.String("move-mil-dod-tls-cert", "", "The DoD-signed TLS certificate for various move.mil services.")
-	flag.String("move-mil-dod-tls-key", "", "The private key for the DoD-signed TLS certificate for various move.mil services.")
+	// Certs
+	cli.InitCertFlags(flag)
 
 	// Ports to listen to
-	flag.Int("mutual-tls-port", 9443, "The `port` for the mutual TLS listener.")
-	flag.Int("tls-port", 8443, "the `port` for the server side TLS listener.")
-	flag.Int("no-tls-port", 8080, "the `port` for the listener not requiring any TLS.")
+	cli.InitPortFlags(flag)
 
-	// Login.Gov config
-	flag.String("login-gov-callback-protocol", "https", "Protocol for non local environments.")
-	flag.Int("login-gov-callback-port", 443, "The port for callback urls.")
-	flag.String("login-gov-secret-key", "", "Login.gov auth secret JWT key.")
-	flag.String("login-gov-my-client-id", "", "Client ID registered with login gov.")
-	flag.String("login-gov-office-client-id", "", "Client ID registered with login gov.")
-	flag.String("login-gov-tsp-client-id", "", "Client ID registered with login gov.")
-	flag.String("login-gov-hostname", "", "Hostname for communicating with login gov.")
+	// Login.Gov Auth config
+	cli.InitAuthFlags(flag)
 
-	/* For bing Maps use the following
-	bingMapsEndpoint := flag.String("bing_maps_endpoint", "", "URL for the Bing Maps Truck endpoint to use")
-	bingMapsKey := flag.String("bing_maps_key", "", "Authentication key to use for the Bing Maps endpoint")
-	*/
-
-	// HERE Maps Config
-	flag.String("here-maps-geocode-endpoint", "", "URL for the HERE maps geocoder endpoint")
-	flag.String("here-maps-routing-endpoint", "", "URL for the HERE maps routing endpoint")
-	flag.String("here-maps-app-id", "", "HERE maps App ID for this application")
-	flag.String("here-maps-app-code", "", "HERE maps App API code")
+	// HERE Route Config
+	cli.InitRouteFlags(flag)
 
 	// EDI Invoice Config
-	flag.String("gex-basic-auth-username", "", "GEX api auth username")
-	flag.String("gex-basic-auth-password", "", "GEX api auth password")
-	flag.Bool("send-prod-invoice", false, "Flag (bool) for EDI Invoices to signify if they should be sent with Production or Test indicator")
-	flag.String("gex-url", "", "URL for sending an HTTP POST request to GEX")
+	cli.InitGEXFlags(flag)
 
-	flag.String("storage-backend", "local", "Storage backend to use, either local, memory or s3.")
-	flag.String("local-storage-root", "tmp", "Local storage root directory. Default is tmp.")
-	flag.String("local-storage-web-root", "storage", "Local storage web root directory. Default is storage.")
-	flag.String("email-backend", "local", "Email backend to use, either SES or local")
-	flag.String("aws-s3-bucket-name", "", "S3 bucket used for file storage")
-	flag.String("aws-s3-region", "", "AWS region used for S3 file storage")
-	flag.String("aws-s3-key-namespace", "", "Key prefix for all objects written to S3")
-	flag.String("aws-ses-region", "", "AWS region used for SES")
-	flag.String("aws-ses-domain", "", "Domain used for SES")
+	// Storage
+	cli.InitStorageFlags(flag)
+
+	// Email
+	cli.InitEmailFlags(flag)
 
 	// Honeycomb Config
-	flag.Bool("honeycomb-enabled", false, "Honeycomb enabled")
-	flag.String("honeycomb-api-host", "https://api.honeycomb.io/", "API Host for Honeycomb")
-	flag.String("honeycomb-api-key", "", "API Key for Honeycomb")
-	flag.String("honeycomb-dataset", "", "Dataset for Honeycomb")
-	flag.Bool("honeycomb-debug", false, "Debug honeycomb using stdout.")
+	cli.InitHoneycombFlags(flag)
 
 	// IWS
-	flag.String("iws-rbs-host", "", "Hostname for the IWS RBS")
+	cli.InitIWSFlags(flag)
 
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
 	// CSRF Protection
-	flag.String("csrf-auth-key", "", "CSRF Auth Key, 32 byte long")
+	cli.InitCSRFFlags(flag)
 
 	// Verbose
 	cli.InitVerboseFlags(flag)
@@ -296,317 +200,72 @@ func initServeFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-func initDODCertificates(v *viper.Viper, logger logger) ([]tls.Certificate, *x509.CertPool, error) {
-
-	tlsCertString := v.GetString("move-mil-dod-tls-cert")
-	if len(tlsCertString) == 0 {
-		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing", "move-mil-dod-tls-cert")
-	}
-
-	tlsCerts := cli.ParseCertificates(tlsCertString)
-	if len(tlsCerts) == 0 {
-		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing certificate PEM block", "move-mil-dod-tls-cert")
-	}
-	if len(tlsCerts) > 1 {
-		return make([]tls.Certificate, 0), nil, errors.Errorf("%s has too many certificate PEM blocks", "move-mil-dod-tls-cert")
-	}
-
-	logger.Info("certitficate chain from move-mil-dod-tls-cert parsed", zap.Any("count", len(tlsCerts)))
-
-	caCertString := v.GetString("move-mil-dod-ca-cert")
-	if len(caCertString) == 0 {
-		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing", "move-mil-dod-ca-cert")
-	}
-
-	caCerts := cli.ParseCertificates(caCertString)
-	if len(caCerts) == 0 {
-		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing certificate PEM block", "move-mil-dod-tls-cert")
-	}
-
-	logger.Info("certitficate chain from move-mil-dod-ca-cert parsed", zap.Any("count", len(caCerts)))
-
-	//Append move.mil cert with intermediate CA to create a validate certificate chain
-	cert := strings.Join(append(append(make([]string, 0), tlsCerts...), caCerts...), "\n")
-
-	key := v.GetString("move-mil-dod-tls-key")
-	if len(key) == 0 {
-		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing", "move-mil-dod-tls-key")
-	}
-
-	keyPair, err := tls.X509KeyPair([]byte(cert), []byte(key))
-	if err != nil {
-		return make([]tls.Certificate, 0), nil, errors.Wrap(err, "failed to parse DOD x509 keypair for server")
-	}
-
-	logger.Info("DOD keypair", zap.Any("certificates", len(keyPair.Certificate)))
-
-	pathToPackage := v.GetString("dod-ca-package")
-	if len(pathToPackage) == 0 {
-		return make([]tls.Certificate, 0), nil, errors.Wrap(&errInvalidPKCS7{Path: pathToPackage}, fmt.Sprintf("%s is missing", "dod-ca-package"))
-	}
-
-	pkcs7Package, err := ioutil.ReadFile(pathToPackage) // #nosec
-	if err != nil {
-		return make([]tls.Certificate, 0), nil, errors.Wrap(err, fmt.Sprintf("%s is invalid", "dod-ca-package"))
-	}
-
-	if len(pkcs7Package) == 0 {
-		return make([]tls.Certificate, 0), nil, errors.Wrap(&errInvalidPKCS7{Path: pathToPackage}, fmt.Sprintf("%s is an empty file", "dod-ca-package"))
-	}
-
-	dodCACertPool, err := server.LoadCertPoolFromPkcs7Package(pkcs7Package)
-	if err != nil {
-		return make([]tls.Certificate, 0), dodCACertPool, errors.Wrap(err, "Failed to parse DoD CA certificate package")
-	}
-
-	return []tls.Certificate{keyPair}, dodCACertPool, nil
-
-}
-
-func initRoutePlanner(v *viper.Viper, logger logger) route.Planner {
-	hereClient := &http.Client{Timeout: hereRequestTimeout}
-	return route.NewHEREPlanner(
-		logger,
-		hereClient,
-		v.GetString("here-maps-geocode-endpoint"),
-		v.GetString("here-maps-routing-endpoint"),
-		v.GetString("here-maps-app-id"),
-		v.GetString("here-maps-app-code"))
-}
-
-func initHoneycomb(v *viper.Viper, logger logger) bool {
-
-	honeycombAPIHost := v.GetString("honeycomb-api-host")
-	honeycombAPIKey := v.GetString("honeycomb-api-key")
-	honeycombDataset := v.GetString("honeycomb-dataset")
-	honeycombServiceName := v.GetString("service-name")
-
-	if v.GetBool("honeycomb-enabled") && len(honeycombAPIKey) > 0 && len(honeycombDataset) > 0 && len(honeycombServiceName) > 0 {
-		logger.Debug("Honeycomb Integration enabled",
-			zap.String("honeycomb-api-host", honeycombAPIHost),
-			zap.String("honeycomb-dataset", honeycombDataset))
-		beeline.Init(beeline.Config{
-			APIHost:     honeycombAPIHost,
-			WriteKey:    honeycombAPIKey,
-			Dataset:     honeycombDataset,
-			Debug:       v.GetBool("honeycomb-debug"),
-			ServiceName: honeycombServiceName,
-		})
-		return true
-	}
-
-	logger.Debug("Honeycomb Integration disabled")
-	return false
-}
-
-func initRBSPersonLookup(v *viper.Viper, logger logger) (*iws.RBSPersonLookup, error) {
-	return iws.NewRBSPersonLookup(
-		v.GetString("iws-rbs-host"),
-		v.GetString("dod-ca-package"),
-		v.GetString("move-mil-dod-tls-cert"),
-		v.GetString("move-mil-dod-tls-key"))
-}
-
 func checkConfig(v *viper.Viper, logger logger) error {
 
 	logger.Info("checking webserver config")
 
-	err := checkProtocols(v)
-	if err != nil {
+	if err := cli.CheckBuild(v); err != nil {
 		return err
 	}
 
-	err = checkHosts(v)
-	if err != nil {
+	if err := cli.CheckHosts(v); err != nil {
 		return err
 	}
 
-	err = checkPorts(v)
-	if err != nil {
+	if err := cli.CheckDPS(v); err != nil {
 		return err
 	}
 
-	err = checkDPS(v)
-	if err != nil {
+	if err := cli.CheckSwagger(v); err != nil {
 		return err
 	}
 
-	err = checkCSRF(v)
-	if err != nil {
+	if err := cli.CheckCert(v); err != nil {
 		return err
 	}
 
-	err = checkEmail(v)
-	if err != nil {
+	if err := cli.CheckPorts(v); err != nil {
 		return err
 	}
 
-	err = checkStorage(v)
-	if err != nil {
+	if err := cli.CheckAuth(v); err != nil {
 		return err
 	}
 
-	err = checkGEX(v)
-	if err != nil {
+	if err := cli.CheckRoute(v); err != nil {
 		return err
 	}
 
-	err = cli.CheckDatabase(v, logger)
-	if err != nil {
+	if err := cli.CheckGEX(v); err != nil {
 		return err
 	}
 
-	return nil
-}
-
-func checkProtocols(v *viper.Viper) error {
-
-	protocolVars := []string{
-		"login-gov-callback-protocol",
-		"http-sddc-protocol",
+	if err := cli.CheckStorage(v); err != nil {
+		return err
 	}
 
-	for _, c := range protocolVars {
-		if p := v.GetString(c); p != "http" && p != "https" {
-			return errors.Wrap(&errInvalidProtocol{Protocol: p}, fmt.Sprintf("%s is invalid", c))
-		}
+	if err := cli.CheckEmail(v); err != nil {
+		return err
 	}
 
-	return nil
-}
-
-func checkHosts(v *viper.Viper) error {
-	invalidChars := ":/\\ \t\n\v\f\r"
-
-	hostVars := []string{
-		"http-my-server-name",
-		"http-office-server-name",
-		"http-tsp-server-name",
-		"http-admin-server-name",
-		"http-orders-server-name",
-		"http-dps-server-name",
-		"http-sddc-server-name",
-		"dps-cookie-domain",
-		"login-gov-hostname",
-		"iws-rbs-host",
-		cli.DbHostFlag,
+	if err := cli.CheckHoneycomb(v); err != nil {
+		return err
 	}
 
-	for _, c := range hostVars {
-		if h := v.GetString(c); len(h) == 0 || strings.ContainsAny(h, invalidChars) {
-			return errors.Wrap(&errInvalidHost{Host: h}, fmt.Sprintf("%s is invalid", c))
-		}
+	if err := cli.CheckIWS(v); err != nil {
+		return err
 	}
 
-	return nil
-}
-
-func checkPorts(v *viper.Viper) error {
-	portVars := []string{
-		"mutual-tls-port",
-		"tls-port",
-		"no-tls-port",
-		"login-gov-callback-port",
-		cli.DbPortFlag,
+	if err := cli.CheckDatabase(v, logger); err != nil {
+		return err
 	}
 
-	for _, c := range portVars {
-		if p := v.GetInt(c); p <= 0 || p > 65535 {
-			return errors.Wrap(&errInvalidPort{Port: p}, fmt.Sprintf("%s is invalid", c))
-		}
+	if err := cli.CheckCSRF(v); err != nil {
+		return err
 	}
 
-	return nil
-}
-
-func checkDPS(v *viper.Viper) error {
-
-	dpsCookieSecret := []byte(v.GetString("dps-auth-cookie-secret-key"))
-	if len(dpsCookieSecret) != 32 {
-		return errors.New("DPS Cookie Secret Key is not 32 bytes. Cookie Secret Key length: " + strconv.Itoa(len(dpsCookieSecret)))
-	}
-
-	return nil
-}
-
-func checkCSRF(v *viper.Viper) error {
-
-	csrfAuthKey, err := hex.DecodeString(v.GetString("csrf-auth-key"))
-	if err != nil {
-		return errors.Wrap(err, "Error decoding CSRF Auth Key")
-	}
-	if len(csrfAuthKey) != 32 {
-		return errors.New("CSRF Auth Key is not 32 bytes. Auth Key length: " + strconv.Itoa(len(csrfAuthKey)))
-	}
-
-	return nil
-}
-
-func checkEmail(v *viper.Viper) error {
-	emailBackend := v.GetString("email-backend")
-	if !stringSliceContains([]string{"local", "ses"}, emailBackend) {
-		return fmt.Errorf("invalid email-backend %s, expecting local or ses", emailBackend)
-	}
-
-	if emailBackend == "ses" {
-		// SES is only available in 3 regions: us-east-1, us-west-2, and eu-west-1
-		// - see https://docs.aws.amazon.com/ses/latest/DeveloperGuide/regions.html#region-endpoints
-		if r := v.GetString("aws-ses-region"); len(r) == 0 || !stringSliceContains([]string{"us-east-1", "us-west-2", "eu-west-1"}, r) {
-			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-ses-region"))
-		}
-		if h := v.GetString("aws-ses-domain"); len(h) == 0 {
-			return errors.Wrap(&errInvalidHost{Host: h}, fmt.Sprintf("%s is invalid", "aws-ses-domain"))
-		}
-	}
-
-	return nil
-}
-
-func checkGEX(v *viper.Viper) error {
-	gexURL := v.GetString("gex-url")
-	if len(gexURL) > 0 && gexURL != "https://gexweba.daas.dla.mil/msg_data/submit/" {
-		return fmt.Errorf("invalid gexUrl %s, expecting "+
-			"https://gexweba.daas.dla.mil/msg_data/submit/ or an empty string", gexURL)
-	}
-
-	if len(gexURL) > 0 {
-		if len(v.GetString("gex-basic-auth-username")) == 0 {
-			return fmt.Errorf("GEX_BASIC_AUTH_USERNAME is missing")
-		}
-		if len(v.GetString("gex-basic-auth-password")) == 0 {
-			return fmt.Errorf("GEX_BASIC_AUTH_PASSWORD is missing")
-		}
-	}
-
-	return nil
-}
-
-func checkStorage(v *viper.Viper) error {
-
-	storageBackend := v.GetString("storage-backend")
-	if !stringSliceContains([]string{"local", "memory", "s3"}, storageBackend) {
-		return fmt.Errorf("invalid storage-backend %s, expecting local, memory or s3", storageBackend)
-	}
-
-	if storageBackend == "s3" {
-		regions, ok := endpoints.RegionsForService(endpoints.DefaultPartitions(), endpoints.AwsPartitionID, endpoints.S3ServiceID)
-		if !ok {
-			return fmt.Errorf("could not find regions for service %s", endpoints.S3ServiceID)
-		}
-
-		r := v.GetString("aws-s3-region")
-		if len(r) == 0 {
-			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-s3-region"))
-		}
-
-		if _, ok := regions[r]; !ok {
-			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-s3-region"))
-		}
-	} else if storageBackend == "local" {
-		localStorageRoot := v.GetString("local-storage-root")
-		if _, err := filepath.Abs(localStorageRoot); err != nil {
-			return fmt.Errorf("could not get absolute path for %s", localStorageRoot)
-		}
+	if err := cli.CheckVerbose(v); err != nil {
+		return err
 	}
 
 	return nil
@@ -648,13 +307,16 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	err := cmd.ParseFlags(os.Args[1:])
 	if err != nil {
-		return err
+		return errors.Wrap(err, "Could not parse flags")
 	}
 
 	flag := cmd.Flags()
 
 	v := viper.New()
-	v.BindPFlags(flag)
+	err = v.BindPFlags(flag)
+	if err != nil {
+		return errors.Wrap(err, "Could not bind flags")
+	}
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
@@ -673,6 +335,34 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		fields = append(fields, zap.String("git_commit", gitCommit))
 	}
 	logger = logger.With(fields...)
+
+	if v.GetBool(cli.LogTaskMetadataFlag) {
+		resp, err := http.Get("http://169.254.170.2/v2/metadata")
+		if err != nil {
+			logger.Error(errors.Wrap(err, "could not fetch task metadata").Error())
+		} else {
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				logger.Error(errors.Wrap(err, "could not read task metadata").Error())
+			} else {
+				taskMetadata := &ecs.TaskMetadata{}
+				err := json.Unmarshal(body, taskMetadata)
+				if err != nil {
+					logger.Error(errors.Wrap(err, "could not parse task metadata").Error())
+				} else {
+					logger = logger.With(
+						zap.String("ecs_cluster", taskMetadata.Cluster),
+						zap.String("ecs_task_def_family", taskMetadata.Family),
+						zap.String("ecs_task_def_revision", taskMetadata.Revision),
+					)
+				}
+			}
+			err = resp.Body.Close()
+			if err != nil {
+				logger.Error(errors.Wrap(err, "could not close task metadata response").Error())
+			}
+		}
+	}
 	zap.ReplaceGlobals(logger)
 
 	logger.Info("webserver starting up")
@@ -687,15 +377,14 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		logger.Info(fmt.Sprintf("Starting in %s mode, which enables additional features", dbEnv))
 	}
 
-	// Honeycomb
-	useHoneycomb := initHoneycomb(v, logger)
+	// Honeycomb initialization also initializes beeline, so keep this near the top of the stack
+	useHoneycomb := cli.InitHoneycomb(v, logger)
 
-	clientAuthSecretKey := v.GetString("client-auth-secret-key")
-
-	loginGovCallbackProtocol := v.GetString("login-gov-callback-protocol")
-	loginGovCallbackPort := v.GetInt("login-gov-callback-port")
-	loginGovSecretKey := v.GetString("login-gov-secret-key")
-	loginGovHostname := v.GetString("login-gov-hostname")
+	clientAuthSecretKey := v.GetString(cli.ClientAuthSecretKeyFlag)
+	loginGovCallbackProtocol := v.GetString(cli.LoginGovCallbackProtocolFlag)
+	loginGovCallbackPort := v.GetInt(cli.LoginGovCallbackPortFlag)
+	loginGovSecretKey := v.GetString(cli.LoginGovSecretKeyFlag)
+	loginGovHostname := v.GetString(cli.LoginGovHostnameFlag)
 
 	// Assert that our secret keys can be parsed into actual private keys
 	// TODO: Store the parsed key in handlers/AppContext instead of parsing every time
@@ -724,33 +413,24 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	// Collect the servernames into a handy struct
 	appnames := auth.ApplicationServername{
-		MilServername:    v.GetString("http-my-server-name"),
-		OfficeServername: v.GetString("http-office-server-name"),
-		TspServername:    v.GetString("http-tsp-server-name"),
-		AdminServername:  v.GetString("http-admin-server-name"),
-		OrdersServername: v.GetString("http-orders-server-name"),
-		DpsServername:    v.GetString("http-dps-server-name"),
-		SddcServername:   v.GetString("http-sddc-server-name"),
+		MilServername:    v.GetString(cli.HTTPMyServerNameFlag),
+		OfficeServername: v.GetString(cli.HTTPOfficeServerNameFlag),
+		TspServername:    v.GetString(cli.HTTPTSPServerNameFlag),
+		AdminServername:  v.GetString(cli.HTTPAdminServerNameFlag),
+		OrdersServername: v.GetString(cli.HTTPOrdersServerNameFlag),
+		DpsServername:    v.GetString(cli.HTTPDPSServerNameFlag),
+		SddcServername:   v.GetString(cli.HTTPSDDCServerNameFlag),
 	}
 
 	// Register Login.gov authentication provider for My.(move.mil)
-	loginGovProvider := authentication.NewLoginGovProvider(loginGovHostname, loginGovSecretKey, logger)
-	err = loginGovProvider.RegisterProvider(
-		appnames.MilServername,
-		v.GetString("login-gov-my-client-id"),
-		appnames.OfficeServername,
-		v.GetString("login-gov-office-client-id"),
-		appnames.TspServername,
-		v.GetString("login-gov-tsp-client-id"),
-		loginGovCallbackProtocol,
-		loginGovCallbackPort)
+	loginGovProvider, err := cli.InitAuth(v, logger, appnames)
 	if err != nil {
 		logger.Fatal("Registering login provider", zap.Error(err))
 	}
 
 	useSecureCookie := !isDevOrTest
 	// Session management and authentication middleware
-	noSessionTimeout := v.GetBool("no-session-timeout")
+	noSessionTimeout := v.GetBool(cli.NoSessionTimeoutFlag)
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, clientAuthSecretKey, noSessionTimeout, appnames, useSecureCookie)
 	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(logger, useSecureCookie)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
@@ -763,84 +443,28 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		handlerContext.SetNoSessionTimeout()
 	}
 
-	if v.GetString("email-backend") == "ses" {
-		// Setup Amazon SES (email) service
-		// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
-		// below.
-		awsSESRegion := v.GetString("aws-ses-region")
-		awsSESDomain := v.GetString("aws-ses-domain")
-		logger.Info("Using ses email backend",
-			zap.String("region", awsSESRegion),
-			zap.String("domain", awsSESDomain))
-		sesSession, err := awssession.NewSession(&aws.Config{
-			Region: aws.String(awsSESRegion),
-		})
-		if err != nil {
-			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
-		}
-		sesService := ses.New(sesSession)
-		handlerContext.SetNotificationSender(notifications.NewNotificationSender(sesService, awsSESDomain, logger))
-	} else {
-		domain := "milmovelocal"
-		logger.Info("Using local email backend", zap.String("domain", domain))
-		handlerContext.SetNotificationSender(notifications.NewStubNotificationSender(domain, logger))
-	}
+	// Email
+	notificationSender := cli.InitEmail(v, logger)
+	handlerContext.SetNotificationSender(notificationSender)
 
-	build := v.GetString("build")
+	build := v.GetString(cli.BuildFlag)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(build))
 
 	// Get route planner for handlers to calculate transit distances
 	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
-	routePlanner := initRoutePlanner(v, logger)
+	routePlanner := cli.InitRoutePlanner(v, logger)
 	handlerContext.SetPlanner(routePlanner)
 
 	// Set SendProductionInvoice for ediinvoice
-	handlerContext.SetSendProductionInvoice(v.GetBool("send-prod-invoice"))
+	handlerContext.SetSendProductionInvoice(v.GetBool(cli.GEXSendProdInvoiceFlag))
 
-	storageBackend := v.GetString("storage-backend")
-	localStorageRoot := v.GetString("local-storage-root")
-	localStorageWebRoot := v.GetString("local-storage-web-root")
-
-	var storer storage.FileStorer
-	if storageBackend == "s3" {
-		awsS3Bucket := v.GetString("aws-s3-bucket-name")
-		awsS3Region := v.GetString("aws-s3-region")
-		awsS3KeyNamespace := v.GetString("aws-s3-key-namespace")
-		logger.Info("Using s3 storage backend",
-			zap.String("bucket", awsS3Bucket),
-			zap.String("region", awsS3Region),
-			zap.String("key", awsS3KeyNamespace))
-		if len(awsS3Bucket) == 0 {
-			logger.Fatal("must provide aws-s3-bucket-name parameter, exiting")
-		}
-		if len(awsS3Region) == 0 {
-			logger.Fatal("Must provide aws-s3-region parameter, exiting")
-		}
-		if len(awsS3KeyNamespace) == 0 {
-			logger.Fatal("Must provide aws_s3_key_namespace parameter, exiting")
-		}
-		aws := awssession.Must(awssession.NewSession(&aws.Config{
-			Region: aws.String(awsS3Region),
-		}))
-		storer = storage.NewS3(awsS3Bucket, awsS3KeyNamespace, logger, aws)
-	} else if storageBackend == "memory" {
-		logger.Info("Using memory storage backend",
-			zap.String("root", path.Join(localStorageRoot, localStorageWebRoot)),
-			zap.String("web root", localStorageWebRoot))
-		fsParams := storage.NewMemoryParams(localStorageRoot, localStorageWebRoot, logger)
-		storer = storage.NewMemory(fsParams)
-	} else {
-		logger.Info("Using local storage backend",
-			zap.String("root", path.Join(localStorageRoot, localStorageWebRoot)),
-			zap.String("web root", localStorageWebRoot))
-		fsParams := storage.NewFilesystemParams(localStorageRoot, localStorageWebRoot, logger)
-		storer = storage.NewFilesystem(fsParams)
-	}
+	// Storage
+	storer := cli.InitStorage(v, logger)
 	handlerContext.SetFileStorer(storer)
 
-	certificates, rootCAs, err := initDODCertificates(v, logger)
+	certificates, rootCAs, err := cli.InitDoDCertificates(v, logger)
 	if certificates == nil || rootCAs == nil || err != nil {
 		logger.Fatal("Failed to initialize DOD certificates", zap.Error(err))
 	}
@@ -851,7 +475,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	// Set the GexSender() and GexSender fields
 	tlsConfig := &tls.Config{Certificates: certificates, RootCAs: rootCAs}
 	var gexRequester services.GexSender
-	gexURL := v.GetString("gex-url")
+	gexURL := v.GetString(cli.GEXURLFlag)
 	if len(gexURL) == 0 {
 		// this spins up a local test server
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -866,11 +490,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		)
 	} else {
 		gexRequester = invoice.NewGexSenderHTTP(
-			v.GetString("gex-url"),
+			gexURL,
 			true,
 			tlsConfig,
-			v.GetString("gex-basic-auth-username"),
-			v.GetString("gex-basic-auth-password"),
+			v.GetString(cli.GEXBasicAuthUsernameFlag),
+			v.GetString(cli.GEXBasicAuthPasswordFlag),
 		)
 	}
 	handlerContext.SetGexSender(gexRequester)
@@ -890,29 +514,19 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 	handlerContext.SetICNSequencer(icnSequencer)
 
-	rbs, err := initRBSPersonLookup(v, logger)
+	rbs, err := cli.InitRBSPersonLookup(v, logger)
 	if err != nil {
 		logger.Fatal("Could not instantiate IWS RBS", zap.Error(err))
 	}
 	handlerContext.SetIWSPersonLookup(*rbs)
 
-	dpsAuthSecretKey := v.GetString("dps-auth-secret-key")
-	dpsCookieDomain := v.GetString("dps-cookie-domain")
-	dpsCookieSecret := []byte(v.GetString("dps-auth-cookie-secret-key"))
-	dpsCookieExpires := v.GetInt("dps-cookie-expires-in-minutes")
-	handlerContext.SetDPSAuthParams(
-		dpsauth.Params{
-			SDDCProtocol:   v.GetString("http-sddc-protocol"),
-			SDDCHostname:   appnames.SddcServername,
-			SDDCPort:       v.GetString("http-sddc-port"),
-			SecretKey:      dpsAuthSecretKey,
-			DPSRedirectURL: v.GetString("dps-redirect-url"),
-			CookieName:     v.GetString("dps-cookie-name"),
-			CookieDomain:   dpsCookieDomain,
-			CookieSecret:   dpsCookieSecret,
-			CookieExpires:  dpsCookieExpires,
-		},
-	)
+	dpsAuthSecretKey := v.GetString(cli.DPSAuthSecretKeyFlag)
+	dpsCookieDomain := v.GetString(cli.DPSCookieDomainFlag)
+	dpsCookieSecret := []byte(v.GetString(cli.DPSAuthCookieSecretKeyFlag))
+	dpsCookieExpires := v.GetInt(cli.DPSCookieExpiresInMinutesFlag)
+
+	dpsAuthParams := cli.InitDPSAuthParams(v, appnames)
+	handlerContext.SetDPSAuthParams(dpsAuthParams)
 
 	// Base routes
 	site := goji.NewMux()
@@ -959,9 +573,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		} else {
 			protocol = "https"
 		}
-		logger.Info("Request",
-			zap.String("git-branch", gitBranch),
-			zap.String("git-commit", gitCommit),
+
+		fields := []zap.Field{
 			zap.String("accepted-language", r.Header.Get("accepted-language")),
 			zap.Int64("content-length", r.ContentLength),
 			zap.String("host", r.Host),
@@ -972,11 +585,19 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			zap.String("source", r.RemoteAddr),
 			zap.String("url", r.URL.String()),
 			zap.String("user-agent", r.UserAgent()),
-			zap.String("x-amzn-trace-id", r.Header.Get("x-amzn-trace-id")),
-			zap.String("x-forwarded-for", r.Header.Get("x-forwarded-for")),
-			zap.String("x-forwarded-host", r.Header.Get("x-forwarded-host")),
-			zap.String("x-forwarded-proto", r.Header.Get("x-forwarded-proto")),
-		)
+		}
+
+		// Append x- headers, e.g., x-forwarded-for.
+		for name, values := range r.Header {
+			if nameLowerCase := strings.ToLower(name); strings.HasPrefix(nameLowerCase, "x-") {
+				if len(values) > 0 {
+					fields = append(fields, zap.String(nameLowerCase, values[0]))
+				}
+			}
+		}
+
+		logger.Info("Request", fields...)
+
 	})
 
 	staticMux := goji.SubMux()
@@ -992,7 +613,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	// Explicitly disable swagger.json route
 	site.Handle(pat.Get("/swagger.json"), http.NotFoundHandler())
-	if v.GetBool(serveSwaggerUIFlag) {
+	if v.GetBool(cli.ServeSwaggerUIFlag) {
 		logger.Info("Swagger UI static file serving is enabled")
 		site.Handle(pat.Get("/swagger-ui/*"), staticMux)
 	} else {
@@ -1004,8 +625,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	ordersMux.Use(ordersDetectionMiddleware)
 	ordersMux.Use(noCacheMiddleware)
 	ordersMux.Use(clientCertMiddleware)
-	ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("orders-swagger")))
-	if v.GetBool(serveSwaggerUIFlag) {
+	ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.OrdersSwaggerFlag)))
+	if v.GetBool(cli.ServeSwaggerUIFlag) {
 		logger.Info("Orders API Swagger UI serving is enabled")
 		ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "orders.html")))
 	} else {
@@ -1019,8 +640,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	dpsMux.Use(dpsDetectionMiddleware)
 	dpsMux.Use(noCacheMiddleware)
 	dpsMux.Use(clientCertMiddleware)
-	dpsMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("dps-swagger")))
-	if v.GetBool(serveSwaggerUIFlag) {
+	dpsMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.DPSSwaggerFlag)))
+	if v.GetBool(cli.ServeSwaggerUIFlag) {
 		logger.Info("DPS API Swagger UI serving is enabled")
 		dpsMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "dps.html")))
 	} else {
@@ -1042,11 +663,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			dpsCookieExpires))
 
 	root := goji.NewMux()
+	root.Use(recoveryMiddleware(logger))
 	root.Use(sessionCookieMiddleware)
-	root.Use(logging.LogRequestMiddleware(gitBranch, gitCommit))
+	root.Use(logging.LogRequestMiddleware(logger))
 
 	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
-	csrfAuthKey, err := hex.DecodeString(v.GetString("csrf-auth-key"))
+	csrfAuthKey, err := hex.DecodeString(v.GetString(cli.CSRFAuthKeyFlag))
 	if err != nil {
 		logger.Fatal("Failed to decode csrf auth key", zap.Error(err))
 	}
@@ -1070,8 +692,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	apiMux := goji.SubMux()
 	root.Handle(pat.New("/api/v1/*"), apiMux)
-	apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("swagger")))
-	if v.GetBool(serveSwaggerUIFlag) {
+	apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.SwaggerFlag)))
+	if v.GetBool(cli.ServeSwaggerUIFlag) {
 		logger.Info("Public API Swagger UI serving is enabled")
 		apiMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "api.html")))
 	} else {
@@ -1085,8 +707,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	internalMux := goji.SubMux()
 	root.Handle(pat.New("/internal/*"), internalMux)
-	internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString("internal-swagger")))
-	if v.GetBool(serveSwaggerUIFlag) {
+	internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.InternalSwaggerFlag)))
+	if v.GetBool(cli.ServeSwaggerUIFlag) {
 		logger.Info("Internal API Swagger UI serving is enabled")
 		internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "internal.html")))
 	} else {
@@ -1115,15 +737,20 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 
-		devlocalCa, err := ioutil.ReadFile(v.GetString("devlocal-ca")) // #nosec
+		devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
+		devlocalCa, err := ioutil.ReadFile(devlocalCAPath) // #nosec
 		if err != nil {
-			logger.Error("No devlocal CA path defined")
+			logger.Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(err))
 		} else {
 			rootCAs.AppendCertsFromPEM(devlocalCa)
 		}
 	}
 
+	storageBackend := v.GetString(cli.StorageBackendFlag)
 	if storageBackend == "local" {
+		localStorageRoot := v.GetString(cli.LocalStorageRootFlag)
+		localStorageWebRoot := v.GetString(cli.LocalStorageWebRootFlag)
+
 		// Add a file handler to provide access to files uploaded in development
 		fs := storage.NewFilesystemHandler(localStorageRoot)
 		root.Handle(pat.Get(path.Join("/", localStorageWebRoot, "/*")), fs)
@@ -1139,12 +766,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		httpHandler = site
 	}
 
-	listenInterface := v.GetString("interface")
+	listenInterface := v.GetString(cli.InterfaceFlag)
 
 	noTLSServer, err := server.CreateNamedServer(&server.CreateNamedServerInput{
 		Name:        "no-tls",
 		Host:        listenInterface,
-		Port:        v.GetInt("no-tls-port"),
+		Port:        v.GetInt(cli.NoTLSPortFlag),
 		Logger:      logger,
 		HTTPHandler: httpHandler,
 	})
@@ -1156,7 +783,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	tlsServer, err := server.CreateNamedServer(&server.CreateNamedServerInput{
 		Name:         "tls",
 		Host:         listenInterface,
-		Port:         v.GetInt("tls-port"),
+		Port:         v.GetInt(cli.TLSPortFlag),
 		Logger:       logger,
 		HTTPHandler:  httpHandler,
 		ClientAuth:   tls.NoClientCert,
@@ -1170,7 +797,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	mutualTLSServer, err := server.CreateNamedServer(&server.CreateNamedServerInput{
 		Name:         "mutual-tls",
 		Host:         listenInterface,
-		Port:         v.GetInt("mutual-tls-port"),
+		Port:         v.GetInt(cli.MutualTLSPortFlag),
 		Logger:       logger,
 		HTTPHandler:  httpHandler,
 		ClientAuth:   tls.RequireAndVerifyClientCert,
@@ -1199,7 +826,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	// flush message that we received signal
 	logger.Sync()
 
-	gracefulShutdownTimeout := v.GetDuration("graceful-shutdown-timeout")
+	gracefulShutdownTimeout := v.GetDuration(cli.GracefulShutdownTimeoutFlag)
 
 	ctx, cancel := context.WithTimeout(context.Background(), gracefulShutdownTimeout)
 	defer cancel()

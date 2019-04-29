@@ -54,15 +54,6 @@ func (e *errInvalidSSLMode) Error() string {
 	return fmt.Sprintf("invalid ssl mode %s, must be one of: "+strings.Join(e.Modes, ", "), e.Mode)
 }
 
-func stringSliceContains(stringSlice []string, value string) bool {
-	for _, x := range stringSlice {
-		if value == x {
-			return true
-		}
-	}
-	return false
-}
-
 // InitDatabaseFlags initializes DB command line flags
 func InitDatabaseFlags(flag *pflag.FlagSet) {
 	flag.StringP(DbEnvFlag, "e", "development", "The Database  environment in which to run.")
@@ -76,15 +67,22 @@ func InitDatabaseFlags(flag *pflag.FlagSet) {
 }
 
 // CheckDatabase validates DB command line flags
-func CheckDatabase(v *viper.Viper, logger logger) error {
+func CheckDatabase(v *viper.Viper, logger Logger) error {
 
-	dbEnv := v.GetString(DbEnvFlag)
+	if err := ValidateHost(v, DbHostFlag); err != nil {
+		return err
+	}
+
+	if err := ValidatePort(v, DbPortFlag); err != nil {
+		return err
+	}
 
 	sslMode := v.GetString(DbSSLModeFlag)
 	if len(sslMode) == 0 || !stringSliceContains(allSSLModes, sslMode) {
 		return &errInvalidSSLMode{Mode: sslMode, Modes: allSSLModes}
 	}
 
+	dbEnv := v.GetString(DbEnvFlag)
 	if modes := []string{"require", "verify-ca", "verify-full"}; dbEnv == "container" && !stringSliceContains(modes, sslMode) {
 		return errors.Wrap(&errInvalidSSLMode{Mode: sslMode, Modes: modes}, "container envrionment requires ssl connection to database")
 	}
@@ -102,7 +100,7 @@ func CheckDatabase(v *viper.Viper, logger logger) error {
 }
 
 // InitDatabase initializes a Pop connection from command line flags
-func InitDatabase(v *viper.Viper, logger logger) (*pop.Connection, error) {
+func InitDatabase(v *viper.Viper, logger Logger) (*pop.Connection, error) {
 
 	dbEnv := v.GetString(DbEnvFlag)
 	dbName := v.GetString(DbNameFlag)

@@ -11,6 +11,8 @@ import (
 	"strings"
 	"testing"
 
+	"go.uber.org/zap/zaptest"
+
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
@@ -37,7 +39,7 @@ func TestWebServerSuite(t *testing.T) {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	logger, err := logging.Config(v.GetString("env"), v.GetBool(cli.VerboseFlag))
+	logger, err := logging.Config(v.GetString(cli.DbEnvFlag), v.GetBool(cli.VerboseFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
@@ -64,6 +66,12 @@ func TestWebServerSuite(t *testing.T) {
 	}
 
 	suite.Run(t, ss)
+}
+
+// TestCheckConfig is the acceptance test for the milmove webserver
+// This will run all checks against the local environment and fail if something isn't configured
+func (suite *webServerSuite) TestCheckConfig() {
+	suite.Nil(checkConfig(suite.viper, suite.logger))
 }
 
 func (suite *webServerSuite) loadContext(variablesFile string) map[string]string {
@@ -104,60 +112,6 @@ func (suite *webServerSuite) applyContext(ctx map[string]string) {
 	}
 }
 
-func (suite *webServerSuite) TestConfigProtocols() {
-	suite.Nil(checkProtocols(suite.viper))
-}
-
-func (suite *webServerSuite) TestConfigHosts() {
-	suite.Nil(checkHosts(suite.viper))
-}
-
-func (suite *webServerSuite) TestConfigPorts() {
-	suite.Nil(checkPorts(suite.viper))
-}
-
-func (suite *webServerSuite) TestConfigDPS() {
-	suite.Nil(checkDPS(suite.viper))
-}
-
-func (suite *webServerSuite) TestConfigCSRF() {
-	suite.Nil(checkCSRF(suite.viper))
-}
-
-func (suite *webServerSuite) TestConfigEmail() {
-	suite.Nil(checkEmail(suite.viper))
-}
-
-func (suite *webServerSuite) TestConfigGEX() {
-	suite.Nil(checkGEX(suite.viper))
-}
-
-func (suite *webServerSuite) TestConfigStorage() {
-	suite.Nil(checkStorage(suite.viper))
-}
-
-func (suite *webServerSuite) TestDODCertificates() {
-
-	if os.Getenv("TEST_ACC_DOD_CERTIFICATES") != "1" {
-		suite.logger.Info("skipping TestDODCertificates")
-		return
-	}
-
-	_, _, err := initDODCertificates(suite.viper, suite.logger)
-	suite.Nil(err)
-}
-
-func (suite *webServerSuite) TestHoneycomb() {
-
-	if os.Getenv("TEST_ACC_HONEYCOMB") != "1" {
-		suite.logger.Info("skipping TestHoneycomb")
-		return
-	}
-
-	enabled := initHoneycomb(suite.viper, suite.logger)
-	suite.True(enabled)
-}
-
 func (suite *webServerSuite) TestStaticReqMethodMiddleware() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -181,4 +135,18 @@ func (suite *webServerSuite) TestStaticReqMethodMiddleware() {
 	req = httptest.NewRequest("POST", "http://mil.example.com/static/something", nil)
 	middleware.ServeHTTP(rr, req)
 	suite.Equal(http.StatusMethodNotAllowed, rr.Code, "handler returned wrong status code")
+}
+
+func (suite *webServerSuite) TestRecoverMiddleware() {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		panic("panic")
+	})
+	logger := zaptest.NewLogger(suite.T(), zaptest.Level(zap.ErrorLevel))
+	middleware := recoveryMiddleware(logger)(handler)
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "http://mil.example.com/static/something", nil)
+
+	middleware.ServeHTTP(rr, req)
+
+	suite.Equal(http.StatusInternalServerError, rr.Code)
 }
