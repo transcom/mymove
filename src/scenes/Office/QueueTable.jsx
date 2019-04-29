@@ -102,7 +102,8 @@ class QueueTable extends Component {
             columns={[
               {
                 Header: <FontAwesomeIcon icon={faClock} />,
-                accessor: 'synthetic_status',
+                id: 'clockIcon',
+                accessor: row => row.synthetic_status,
                 Cell: row =>
                   row.value === 'PAYMENT_REQUESTED' || row.value === 'SUBMITTED' ? (
                     <span data-cy="ppm-queue-icon">
