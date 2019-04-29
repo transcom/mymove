@@ -254,8 +254,7 @@ server_run_default: server_deps server_generate db_dev_run
 
 .PHONY: server_run_debug
 server_run_debug:
-	INTERFACE=localhost DEBUG_LOGGING=true \
-	$(AWS_VAULT) dlv debug cmd/milmove/main.go serve
+	$(AWS_VAULT) dlv debug cmd/milmove/main.go cmd/milmove/logger.go -- serve
 
 .PHONY: build_tools
 build_tools: bash_version server_deps server_generate build_generate_test_data
