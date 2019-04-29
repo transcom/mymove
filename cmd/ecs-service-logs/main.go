@@ -49,6 +49,13 @@ var regexpServiceEventStoppedTask = regexp.MustCompile("^[(]service ([0-9a-zA-Z_
 var regexpServiceEventStoppedTaskID = regexp.MustCompile("[(]task ([0-9a-z-]+)[)]")
 
 const (
+	flagAWSRegion            string = "aws-region"
+	flagAWSProfile           string = "aws-profile"
+	flagAWSVaultKeychainName string = "aws-vault-keychain-name"
+
+	flagCluster                       = "cluster"
+	flagService                       = "service"
+	flagEnvironment                   = "environment"
 	flagLogLevel               string = "level"
 	flagTaskDefinitionFamily   string = "ecs-task-def-family"
 	flagTaskDefinitionRevision string = "ecs-task-def-revision"
@@ -56,6 +63,8 @@ const (
 	flagGitCommit              string = "git-commit"
 	flagPageSize               string = "page-size"
 	flagLimit                  string = "limit"
+	flagStatus                 string = "status"
+	flagVerbose                string = "verbose"
 
 	logLevel                  string = "level"
 	logTaskDefinitionFamily   string = "ecs_task_def_family"
@@ -150,13 +159,13 @@ func (e *errInvalidService) Error() string {
 }
 
 func initFlags(flag *pflag.FlagSet) {
-	flag.String("aws-region", "us-west-2", "The AWS Region")
-	flag.String("aws-profile", "", "The aws-vault profile")
-	flag.String("aws-vault-keychain-name", "", "The aws-vault keychain name")
-	flag.StringP("cluster", "c", "", "The cluster name")
-	flag.StringP("environment", "e", "", "The environment name")
-	flag.StringP("service", "s", "", "The service name")
-	flag.String("status", "", "The task status: "+strings.Join(ecsTaskStatuses, ", "))
+	flag.String(flagAWSRegion, "us-west-2", "The AWS Region")
+	flag.String(flagAWSProfile, "", "The aws-vault profile")
+	flag.String(flagAWSVaultKeychainName, "", "The aws-vault keychain name")
+	flag.StringP(flagCluster, "c", "", "The cluster name")
+	flag.StringP(flagEnvironment, "e", "", "The environment name")
+	flag.StringP(flagService, "s", "", "The service name")
+	flag.String(flagStatus, "", "The task status: "+strings.Join(ecsTaskStatuses, ", "))
 	flag.StringP(flagLogLevel, "l", "", "The log level: "+strings.Join(logLevels, ", "))
 	flag.StringP(flagGitBranch, "b", "", "The git branch")
 	flag.String(flagGitCommit, "", "The git commit")
@@ -164,7 +173,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.StringP(flagTaskDefinitionRevision, "r", "", "The ECS task definition revision.")
 	flag.IntP(flagPageSize, "p", -1, "The page size or maximum number of log events to return during each API call.  The default is 10,000 log events.")
 	flag.IntP(flagLimit, "n", -1, "If 1 or above, the maximum number of log events to print to stdout.")
-	flag.BoolP("verbose", "v", false, "Print section lines")
+	flag.BoolP(flagVerbose, "v", false, "Print section lines")
 }
 
 func checkConfig(v *viper.Viper) error {
@@ -179,13 +188,13 @@ func checkConfig(v *viper.Viper) error {
 		return fmt.Errorf("could not find regions for service %q", endpoints.EcsServiceID)
 	}
 
-	region := v.GetString("aws-region")
+	region := v.GetString(flagAWSRegion)
 	if len(region) == 0 {
-		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", "aws-region"))
+		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", flagAWSRegion))
 	}
 
 	if _, ok := regions[region]; !ok {
-		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", "aws-region"))
+		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", flagAWSRegion))
 	}
 
 	logLevel := strings.ToLower(v.GetString(flagLogLevel))
@@ -199,11 +208,11 @@ func checkConfig(v *viper.Viper) error {
 		}
 
 		if !valid {
-			return errors.Wrap(&errInvalidLogLevel{Level: logLevel}, fmt.Sprintf("%q is invalid", "level"))
+			return errors.Wrap(&errInvalidLogLevel{Level: logLevel}, fmt.Sprintf("%q is invalid", flagLogLevel))
 		}
 	}
 
-	status := strings.ToUpper(v.GetString("status"))
+	status := strings.ToUpper(v.GetString(flagStatus))
 	if len(status) > 0 {
 
 		valid := false
@@ -215,11 +224,11 @@ func checkConfig(v *viper.Viper) error {
 		}
 
 		if !valid {
-			return errors.Wrap(&errInvalidTaskStatus{Status: status}, fmt.Sprintf("%q is invalid", "status"))
+			return errors.Wrap(&errInvalidTaskStatus{Status: status}, fmt.Sprintf("%q is invalid", flagStatus))
 		}
 
 		if status == "STOPPED" {
-			environment := v.GetString("environment")
+			environment := v.GetString(flagEnvironment)
 			if len(environment) == 0 {
 				return errors.New("when status is set to STOPPED then environment must be set")
 			}
@@ -231,11 +240,10 @@ func checkConfig(v *viper.Viper) error {
 				}
 			}
 			if !valid {
-				return errors.Wrap(&errInvalidEnvironment{Environment: environment}, fmt.Sprintf("%q is invalid", "environment"))
+				return errors.Wrap(&errInvalidEnvironment{Environment: environment}, fmt.Sprintf("%q is invalid", flagEnvironment))
 			}
 
-			serviceName := v.GetString("service")
-			if len(serviceName) == 0 {
+			if serviceName := v.GetString(flagService); len(serviceName) == 0 {
 				return &errInvalidService{Service: serviceName}
 			}
 		}
@@ -342,7 +350,7 @@ func showFunction(cmd *cobra.Command, args []string) error {
 	// Remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	if !v.GetBool("verbose") {
+	if !v.GetBool(flagVerbose) {
 		// Disable any logging that isn't attached to the logger unless using the verbose flag
 		log.SetOutput(ioutil.Discard)
 		log.SetFlags(0)
@@ -362,9 +370,9 @@ func showFunction(cmd *cobra.Command, args []string) error {
 		Region: aws.String(awsRegion),
 	}
 
-	verbose := v.GetBool("verbose")
-	keychainName := v.GetString("aws-vault-keychain-name")
-	keychainProfile := v.GetString("aws-profile")
+	verbose := v.GetBool(flagVerbose)
+	keychainName := v.GetString(flagAWSVaultKeychainName)
+	keychainProfile := v.GetString(flagAWSProfile)
 
 	if len(keychainName) > 0 && len(keychainProfile) > 0 {
 		creds, err := getAWSCredentials(keychainName, keychainProfile)
@@ -384,11 +392,11 @@ func showFunction(cmd *cobra.Command, args []string) error {
 
 	serviceCloudWatchLogs := cloudwatchlogs.New(sess)
 
-	clusterName := v.GetString("cluster")
-	serviceName := v.GetString("service")
-	status := strings.ToUpper(v.GetString("status"))
+	clusterName := v.GetString(flagCluster)
+	serviceName := v.GetString(flagService)
+	status := strings.ToUpper(v.GetString(flagStatus))
 	pageSize := v.GetInt(flagPageSize)
-	environment := v.GetString("environment")
+	environment := v.GetString(flagEnvironment)
 
 	jobs := make([]Job, 0)
 
