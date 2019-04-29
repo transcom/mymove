@@ -44,6 +44,7 @@ type PersonallyProcuredMove struct {
 	WeightEstimate                *unit.Pound                  `json:"weight_estimate" db:"weight_estimate"`
 	OriginalMoveDate              *time.Time                   `json:"original_move_date" db:"original_move_date"`
 	ActualMoveDate                *time.Time                   `json:"actual_move_date" db:"actual_move_date"`
+	SubmitDate                    *time.Time                   `json:"submit_date" db:"submit_date"`
 	ApproveDate                   *time.Time                   `json:"approve_date" db:"approve_date"`
 	NetWeight                     *unit.Pound                  `json:"net_weight" db:"net_weight"`
 	PickupPostalCode              *string                      `json:"pickup_postal_code" db:"pickup_postal_code"`
@@ -94,12 +95,17 @@ func (p *PersonallyProcuredMove) ValidateUpdate(tx *pop.Connection) (*validate.E
 // Avoid calling PersonallyProcuredMove.Status = ... ever. Use these methods to change the state.
 
 // Submit marks the PPM request for review
-func (p *PersonallyProcuredMove) Submit() error {
+func (p *PersonallyProcuredMove) Submit(submitDate time.Time) error {
 	if p.Status != PPMStatusDRAFT {
-		return errors.Wrap(ErrInvalidTransition, "Submit")
+		return errors.Wrap(ErrInvalidTransition, "Submit - status change")
+	}
+
+	if p.SubmitDate != nil {
+		return errors.Wrap(ErrInvalidTransition, "Submit - submit date change")
 	}
 
 	p.Status = PPMStatusSUBMITTED
+	p.SubmitDate = &submitDate
 	return nil
 }
 
@@ -110,7 +116,7 @@ func (p *PersonallyProcuredMove) Approve(approveDate time.Time) error {
 	}
 
 	if p.ApproveDate != nil {
-		return errors.Wrap(ErrInvalidTransition, "Aprove - approve date change")
+		return errors.Wrap(ErrInvalidTransition, "Approve - approve date change")
 	}
 
 	p.Status = PPMStatusAPPROVED

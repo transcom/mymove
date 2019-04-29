@@ -257,11 +257,22 @@ jobs:
           command: make server_generate
       - run:
           name: Run acceptance tests
-          command: make webserver_test
+          command: |
+            echo 'export MOVE_MIL_DOD_CA_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-ca.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_CERT=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-https.pem)' >> $BASH_ENV
+            echo 'export MOVE_MIL_DOD_TLS_KEY=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-https.key)' >> $BASH_ENV
+            echo 'export CLIENT_AUTH_SECRET_KEY=$(cat /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-client_auth_secret.key)' >> $BASH_ENV
+            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+            echo 'export LOGIN_GOV_HOSTNAME=$E2E_LOGIN_GOV_HOSTNAME' >> $BASH_ENV
+            echo 'export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID' >> $BASH_ENV
+            echo 'export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE' >> $BASH_ENV
+            source $BASH_ENV
+            make webserver_test
           environment:
             PWD: /home/circleci/go/src/github.com/transcom/mymove
             LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
+            DEVLOCAL_CA: /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-ca.pem
       - announce_failure
 
   # `integration_tests_mymove` runs integration tests using Cypress.  https://www.cypress.io/
@@ -397,7 +408,10 @@ jobs:
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
       - run:
           name: make server_test
-          command: make server_test
+          command: |
+            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+            source $BASH_ENV
+            make server_test
           environment:
             # Env vars needed by the `scripts/apply-secure-migration.sh` script
             DB_PASSWORD: mysecretpassword
@@ -439,6 +453,8 @@ jobs:
       - run:
           name: make server_test_coverage_generate
           command: |
+            echo 'export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)' >> $BASH_ENV
+            source $BASH_ENV
             make server_test_coverage_generate
           environment:
             # Env vars needed by the `scripts/apply-secure-migration.sh` script
