@@ -84,10 +84,15 @@ func (suite *HandlerSuite) TestSubmitPPMHandler() {
 
 	req := httptest.NewRequest("POST", "/fake/path", nil)
 	req = suite.AuthenticateRequest(req, move1.Orders.ServiceMember)
+	submitDate := strfmt.DateTime(time.Now())
+	newSubmitPersonallyProcuredMovePayload := internalmessages.SubmitPersonallyProcuredMovePayload{
+		SubmitDate: &submitDate,
+	}
 
 	submitPPMParams := ppmop.SubmitPersonallyProcuredMoveParams{
-		PersonallyProcuredMoveID: strfmt.UUID(ppm.ID.String()),
-		HTTPRequest:              req,
+		PersonallyProcuredMoveID:            strfmt.UUID(ppm.ID.String()),
+		HTTPRequest:                         req,
+		SubmitPersonallyProcuredMovePayload: &newSubmitPersonallyProcuredMovePayload,
 	}
 
 	// submit the PPM
@@ -610,7 +615,7 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 
 	move := testdatagen.MakeDefaultMove(suite.DB())
 
-	err := move.Submit()
+	err := move.Submit(time.Now())
 	if err != nil {
 		t.Fatal("Should transition.")
 	}
@@ -632,7 +637,7 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 		WeightEstimate: &initialWeight,
 		Status:         models.PPMStatusDRAFT,
 	}
-	err = ppm1.Submit()
+	err = ppm1.Submit(time.Now())
 	if err != nil {
 		t.Fatal("Should transition.")
 	}
