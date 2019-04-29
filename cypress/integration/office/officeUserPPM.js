@@ -33,7 +33,7 @@ describe('office user finds the move', function() {
       .contains('Approved')
       .should('be.disabled');
   });
-  it('office user can not see storage, weight, and locations panels if payment has not been requested', function() {
+  it('office user can not see storage, weight, expenses, and locations panels if payment has not been requested', function() {
     officeUserGoesToPPMPanel('APPROV');
     cy.get('.weights').should('not.exist');
     cy.get('.dates').should('not.exist');
