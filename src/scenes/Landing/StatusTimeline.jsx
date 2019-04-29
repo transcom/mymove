@@ -88,7 +88,7 @@ export class PPMStatusTimeline extends React.Component {
 
   render() {
     const statuses = this.addDates(this.addCompleted(this.getStatuses()));
-    return <StatusTimeline statuses={statuses} />;
+    return <StatusTimeline statuses={statuses} showEstimated={false} />;
   }
 }
 
@@ -174,7 +174,7 @@ export class ShipmentStatusTimeline extends React.Component {
 
   render() {
     const statuses = this.addDates(this.addCompleted(this.getStatuses()));
-    return <StatusTimeline statuses={statuses} />;
+    return <StatusTimeline statuses={statuses} showEstimated={true} />;
   }
 }
 
@@ -194,7 +194,7 @@ export class ProfileStatusTimeline extends React.Component {
   }
 
   render() {
-    return <StatusTimeline statuses={this.getStatuses()} />;
+    return <StatusTimeline statuses={this.getStatuses()} showEstimated={false} />;
   }
 }
 
@@ -225,7 +225,7 @@ class StatusTimeline extends PureComponent {
     return (
       <div className="status_timeline">
         {statusBlocks}
-        <div className="legend">* Estimated</div>
+        {this.props.showEstimated && <div className="legend">* Estimated</div>}
       </div>
     );
   }
