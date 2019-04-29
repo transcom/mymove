@@ -34,8 +34,6 @@ func checkConfig(v *viper.Viper, logger logger) error {
 
 func initFlags(flag *pflag.FlagSet) {
 
-	flag.String("env", "development", "The environment to run in, which configures the database.")
-
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
@@ -61,9 +59,9 @@ func main() {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	env := v.GetString("env")
+	dbEnv := v.GetString(cli.DbEnvFlag)
 
-	logger, err := logging.Config(env, v.GetBool(cli.VerboseFlag))
+	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
