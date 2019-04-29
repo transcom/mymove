@@ -27,7 +27,7 @@ const DateAndLocationWizardForm = reduxifyWizardForm(formName);
 
 const validateDifferentZip = (value, formValues) => {
   if (value && value === formValues.pickup_postal_code) {
-    return 'Pickup location zip and destination location zip cannot be the same';
+    return 'You entered the same zip code for your origin and destination. Please change one of them.';
   }
 };
 
