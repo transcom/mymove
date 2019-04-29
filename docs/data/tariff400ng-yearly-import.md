@@ -65,9 +65,11 @@ We're going to make use of the work that Patrick Stanger delivered in [this PR](
 
 1. Open [this google sheet](https://docs.google.com/spreadsheets/d/1z1O6hvditeVE4AX1UI-XGu0puwIidXA08tVT6VkG254/edit#gid=138983343) alongside the 400ng data you have received for the upcoming year.
 2. Visit the `Accessorials` tab in both spreadsheets.
-3. In the new data sheet, within the main section and the Alaska waterhaul section, copy all the values to the left of where it says "weight".
+3. In the new data sheet, within the main section and the Alaska waterhaul section, copy all the values to the left of where it says "weight". Start with the cells marked in the screenshot below:
+    ![accessorials sheet](./accessorials_spreadsheet.png)
 4. Paste those values into the corresponding `Accessorials` tab in the other sheet.
-5. Repeat this same process for the `Additonal Rates` tab.
+5. Repeat this same process for the `Additonal Rates` tab. Starting at the cell marked in the screenshot below:
+    ![additional rates sheet](./additional_rates_spreadsheet.png)
 6. Head over to the `migration work` tab. Here, you'll find that queries have been generated for you to insert records into the milmove database.
 7. Copy all of the values in the `query` column for both the `Additional Rates` table at the top of the sheet and the `Accessorials` table below it.
 8. Replace
