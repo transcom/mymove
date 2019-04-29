@@ -23,7 +23,18 @@ describe('completing the ppm flow', function() {
       .get('input[name="pickup_postal_code"]')
       .clear()
       .type('80913');
-    cy.get('input[name="destination_postal_code"]').type('76127');
+
+    // same destination postal code and pickup postal code is not allowed
+    cy
+      .get('input[name="destination_postal_code"]')
+      .type('80913')
+      .blur();
+    cy.get('#destination_postal_code-error').should('exist');
+
+    cy
+      .get('input[name="destination_postal_code"]')
+      .clear()
+      .type('76127');
 
     cy.nextPage();
 
