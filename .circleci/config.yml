@@ -690,6 +690,14 @@ jobs:
     steps:
       - deploy_migrations_steps
 
+  # `deploy_staging_tasks` deploys scheduled tasks to the staging environment
+  deploy_staging_tasks:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'staging'
+    steps:
+      - deploy_tasks_steps
+
   # `deploy_staging_app` updates the server-TLS app service in staging environment
   deploy_staging_app:
     executor: mymove_small
@@ -717,6 +725,14 @@ jobs:
       - APP_ENVIRONMENT: 'prod'
     steps:
       - deploy_migrations_steps
+
+  # `deploy_prod_tasks` deploys scheduled tasks to the prod environment
+  deploy_prod_tasks:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'prod'
+    steps:
+      - deploy_tasks_steps
 
   # `deploy_prod_app` updates the server-TLS app service in the prod environment
   deploy_prod_app:
@@ -797,9 +813,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          filters:
-           branches:
-             ignore: cg_163909133_ecs_scheduled_tasks
+          # filters:
+          #  branches:
+          #    ignore: placeholder_branch_name
 
       - integration_tests_office:
           requires:
@@ -807,9 +823,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          filters:
-            branches:
-              ignore: cg_163909133_ecs_scheduled_tasks
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
 
       - integration_tests_tsp:
           requires:
@@ -817,9 +833,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          filters:
-            branches:
-              ignore: cg_163909133_ecs_scheduled_tasks
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
 
       - integration_tests_api:
           requires:
@@ -827,9 +843,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          filters:
-            branches:
-              ignore: cg_163909133_ecs_scheduled_tasks
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
 
       - client_test:
           requires:
@@ -878,11 +894,10 @@ workflows:
 
       - deploy_experimental_tasks:
           requires:
-            - build_tasks
-            # - deploy_experimental_migrations # TODO: Before merge this needs to be the blocker
+            - deploy_experimental_migrations
           filters:
             branches:
-              only: cg_163909133_ecs_scheduled_tasks
+              only: placeholder_branch_name
 
       - deploy_experimental_app:
           requires:
@@ -924,6 +939,13 @@ workflows:
             branches:
               only: master
 
+      - deploy_staging_tasks:
+          requires:
+            - deploy_staging_migrations
+          filters:
+            branches:
+              only: master
+
       - deploy_staging_app:
           requires:
             - deploy_staging_migrations
@@ -941,12 +963,20 @@ workflows:
       - approve_prod_deploy:
           type: approval
           requires:
+            - deploy_staging_tasks
             - deploy_staging_app
             - deploy_staging_app_client_tls
 
       - deploy_prod_migrations:
           requires:
             - approve_prod_deploy
+          filters:
+            branches:
+              only: master
+
+      - deploy_prod_tasks:
+          requires:
+            - deploy_prod_migrations
           filters:
             branches:
               only: master
