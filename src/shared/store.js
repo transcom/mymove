@@ -1,6 +1,6 @@
 import { createStore, applyMiddleware } from 'redux';
 import { appReducer, tspAppReducer, adminAppReducer } from 'appReducer';
-import createHistory from 'history/createBrowserHistory';
+import { createBrowserHistory } from 'history';
 import { routerMiddleware } from 'react-router-redux';
 import thunk from 'redux-thunk';
 
@@ -10,7 +10,7 @@ import { isDevelopment, isTspSite, isAdminSite } from 'shared/constants';
 import logger from './reduxLogger';
 import * as schema from 'shared/Entities/schema';
 
-export const history = createHistory();
+export const history = createBrowserHistory();
 
 const middlewares = [thunk.withExtraArgument({ schema }), routerMiddleware(history)];
 
