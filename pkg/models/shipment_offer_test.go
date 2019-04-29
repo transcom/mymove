@@ -30,7 +30,7 @@ func (suite *ModelSuite) Test_CreateShipmentOffer() {
 	deliveryDate := dates.NextWorkday(*calendar, pickupDate)
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 	tsp := testdatagen.MakeDefaultTSP(suite.DB())
-	tspp := testdatagen.MakeDefaultTSPPerformance(suite.DB())
+	tspp, _ := testdatagen.MakeDefaultTSPPerformance(suite.DB())
 
 	sourceGBLOC := "KKFA"
 	destinationGBLOC := "HAFC"

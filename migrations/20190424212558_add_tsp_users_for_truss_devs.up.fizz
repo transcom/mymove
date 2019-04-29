@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190424212558_add_tsp_users_for_truss_devs.sql")

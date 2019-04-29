@@ -162,7 +162,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
-	ppm0.Move.Submit()
+	ppm0.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &ppm0.Move)
 
 	/*
@@ -194,7 +194,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
-	ppmNoAdvance.Move.Submit()
+	ppmNoAdvance.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &ppmNoAdvance.Move)
 
 	/*
@@ -225,9 +225,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
-	ppmStorage.Move.Submit()
+	ppmStorage.Move.Submit(time.Now())
 	ppmStorage.Move.Approve()
-	ppmStorage.Move.PersonallyProcuredMoves[0].Submit()
+	ppmStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppmStorage.Move.PersonallyProcuredMoves[0].RequestPayment()
 	models.SaveMoveDependencies(db, &ppmStorage.Move)
@@ -260,9 +260,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
-	ppmNoStorage.Move.Submit()
+	ppmNoStorage.Move.Submit(time.Now())
 	ppmNoStorage.Move.Approve()
-	ppmNoStorage.Move.PersonallyProcuredMoves[0].Submit()
+	ppmNoStorage.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmNoStorage.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppmNoStorage.Move.PersonallyProcuredMoves[0].RequestPayment()
 	models.SaveMoveDependencies(db, &ppmNoStorage.Move)
@@ -296,7 +296,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
-	ppmToCancel.Move.Submit()
+	ppmToCancel.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &ppmToCancel.Move)
 
 	/*
@@ -329,7 +329,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
-	ppm1.Move.Submit()
+	ppm1.Move.Submit(time.Now())
 	ppm1.Move.Approve()
 	models.SaveMoveDependencies(db, &ppm1.Move)
 
@@ -371,10 +371,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
-	ppm2.Move.Submit()
+	ppm2.Move.Submit(time.Now())
 	ppm2.Move.Approve()
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
-	ppm2.Move.PersonallyProcuredMoves[0].Submit()
+	ppm2.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm2.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppm2.Move.PersonallyProcuredMoves[0].RequestPayment()
 	models.SaveMoveDependencies(db, &ppm2.Move)
@@ -420,10 +420,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
-	ppm3.Move.Submit()
+	ppm3.Move.Submit(time.Now())
 	ppm3.Move.Approve()
 	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
-	ppm3.Move.PersonallyProcuredMoves[0].Submit()
+	ppm3.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm3.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	ppm3.Move.PersonallyProcuredMoves[0].RequestPayment()
 	models.SaveMoveDependencies(db, &ppm3.Move)
@@ -457,7 +457,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
-	ppmCanceled.Move.Submit()
+	ppmCanceled.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &ppmCanceled.Move)
 	ppmCanceled.Move.Cancel("reasons")
 	models.SaveMoveDependencies(db, &ppmCanceled.Move)
@@ -619,7 +619,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		log.Panic(err)
 	}
 
-	hhg0.Move.Submit()
+	hhg0.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg0.Move)
 
 	/*
@@ -664,7 +664,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg1 := offer1.Shipment
-	hhg1.Move.Submit()
+	hhg1.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg1.Move)
 
 	/*
@@ -727,20 +727,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
-	_, err = testdatagen.MakeTSPPerformanceDeprecated(db,
-		tspUser.TransportationServiceProvider,
-		*offer2.Shipment.TrafficDistributionList,
-		models.IntPointer(3),
-		0.40,
-		5,
-		unit.DiscountRate(0.50),
-		unit.DiscountRate(0.55))
-	if err != nil {
-		log.Panic(err)
-	}
-
 	hhg2 := offer2.Shipment
-	hhg2.Move.Submit()
+	hhg2.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg2.Move)
 
 	/*
@@ -788,7 +776,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg3 := offer3.Shipment
-	hhg3.Move.Submit()
+	hhg3.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg3.Move)
 
 	/*
@@ -834,7 +822,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg4 := offer4.Shipment
-	hhg4.Move.Submit()
+	hhg4.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg4.Move)
 
 	/*
@@ -880,7 +868,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg5 := offer5.Shipment
-	hhg5.Move.Submit()
+	hhg5.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg5.Move)
 
 	/*
@@ -926,7 +914,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg6 := offer6.Shipment
-	hhg6.Move.Submit()
+	hhg6.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg6.Move)
 
 	/*
@@ -968,7 +956,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg7 := offer7.Shipment
-	hhg7.Move.Submit()
+	hhg7.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg7.Move)
 
 	/*
@@ -1015,7 +1003,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg8 := offer8.Shipment
-	hhg8.Move.Submit()
+	hhg8.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg8.Move)
 
 	/*
@@ -1057,7 +1045,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Role:       models.RoleDESTINATION,
 		},
 	})
-	hhg9.Move.Submit()
+	hhg9.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg9.Move)
 
 	/*
@@ -1099,7 +1087,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg10 := offer10.Shipment
-	hhg10.Move.Submit()
+	hhg10.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg10.Move)
 
 	/*
@@ -1141,7 +1129,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg11 := offer11.Shipment
-	hhg11.Move.Submit()
+	hhg11.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg11.Move)
 
 	/*
@@ -1190,7 +1178,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg12 := offer12.Shipment
-	hhg12.Move.Submit()
+	hhg12.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg12.Move)
 
 	/*
@@ -1230,7 +1218,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg13 := offer13.Shipment
-	hhg13.Move.Submit()
+	hhg13.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg13.Move)
 
 	/*
@@ -1271,7 +1259,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg14 := offer14.Shipment
-	hhg14.Move.Submit()
+	hhg14.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg14.Move)
 
 	/* Service member with an in progress for doc testing on TSP side
@@ -1311,7 +1299,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg15 := offer15.Shipment
-	hhg15.Move.Submit()
+	hhg15.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg15.Move)
 
 	/* Service member with an in progress for testing delivery address
@@ -1351,7 +1339,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg16 := offer16.Shipment
-	hhg16.Move.Submit()
+	hhg16.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg16.Move)
 
 	/*
@@ -1393,7 +1381,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg17 := offer17.Shipment
-	hhg17.Move.Submit()
+	hhg17.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg17.Move)
 
 	/*
@@ -1439,7 +1427,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg18 := offer18.Shipment
-	hhg18.Move.Submit()
+	hhg18.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg18.Move)
 
 	/*
@@ -1480,7 +1468,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg19 := offer19.Shipment
-	hhg19.Move.Submit()
+	hhg19.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg19.Move)
 
 	/*
@@ -1521,7 +1509,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg20 := offer20.Shipment
-	hhg20.Move.Submit()
+	hhg20.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg20.Move)
 
 	/* Service member with a doc for testing on TSP side
@@ -1574,7 +1562,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg21 := offer21.Shipment
-	hhg21.Move.Submit()
+	hhg21.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg21.Move)
 
 	/*
@@ -1626,7 +1614,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg22 := offer22.Shipment
-	hhg22.Move.Submit()
+	hhg22.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg22.Move)
 
 	/*
@@ -1664,7 +1652,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 	hhg23 := offer23.Shipment
-	hhg23.Move.Submit()
+	hhg23.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg23.Move)
 
 	/*
@@ -1709,7 +1697,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg24 := offer24.Shipment
-	hhg24.Move.Submit()
+	hhg24.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg24.Move)
 
 	/*
@@ -1742,7 +1730,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
-	hhg25.Move.Submit()
+	hhg25.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg25.Move)
 	hhg25.Move.Cancel("reasons")
 	models.SaveMoveDependencies(db, &hhg25.Move)
@@ -1784,7 +1772,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg26 := offer26.Shipment
-	hhg26.Move.Submit()
+	hhg26.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg26.Move)
 
 	/*
@@ -1817,7 +1805,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
-	hhg27.Move.Submit()
+	hhg27.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg27.Move)
 
 	/*
@@ -1849,7 +1837,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			CodeOfService:     "D",
 		},
 	})
-	hhg28.Move.Submit()
+	hhg28.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg28.Move)
 
 	/*
@@ -1895,7 +1883,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg29 := offer29.Shipment
-	hhg29.Move.Submit()
+	hhg29.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg29.Move)
 
 	/*
@@ -1951,7 +1939,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Role:       models.RoleDESTINATION,
 		},
 	})
-	hhg30.Move.Submit()
+	hhg30.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg30.Move)
 
 	/*
@@ -2016,7 +2004,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Role:       models.RoleDESTINATION,
 		},
 	})
-	hhg31.Move.Submit()
+	hhg31.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg31.Move)
 
 	/*
@@ -2080,7 +2068,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg32 := offer32.Shipment
-	hhg32.Move.Submit()
+	hhg32.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg32.Move)
 
 	/*
@@ -2126,7 +2114,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg33 := offer33.Shipment
-	hhg33.Move.Submit()
+	hhg33.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg33.Move)
 
 	/*
@@ -2164,7 +2152,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 	hhg34 := offer34.Shipment
-	hhg34.Move.Submit()
+	hhg34.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg34.Move)
 
 	/*
@@ -2203,7 +2191,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 	hhg35 := offer35.Shipment
-	hhg35.Move.Submit()
+	hhg35.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg35.Move)
 
 	/*
@@ -2250,7 +2238,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 	hhg36 := offer36.Shipment
-	hhg36.Move.Submit()
+	hhg36.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg36.Move)
 
 	/*
@@ -2300,7 +2288,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 	hhg37 := offer37.Shipment
-	hhg37.Move.Submit()
+	hhg37.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg37.Move)
 
 	/*
@@ -2339,10 +2327,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
-	ppm5.Move.Submit()
+	ppm5.Move.Submit(time.Now())
 	ppm5.Move.Approve()
 	// This is the same PPM model as ppm5, but this is the one that will be saved by SaveMoveDependencies
-	ppm5.Move.PersonallyProcuredMoves[0].Submit()
+	ppm5.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm5.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	models.SaveMoveDependencies(db, &ppm5.Move)
 
@@ -2384,10 +2372,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
-	ppmApproved.Move.Submit()
+	ppmApproved.Move.Submit(time.Now())
 	ppmApproved.Move.Approve()
 	// This is the same PPM model as ppm2, but this is the one that will be saved by SaveMoveDependencies
-	ppmApproved.Move.PersonallyProcuredMoves[0].Submit()
+	ppmApproved.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmApproved.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	models.SaveMoveDependencies(db, &ppmApproved.Move)
 }
@@ -2448,7 +2436,7 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 		},
 		Uploader: loader,
 	})
-	ppm.Move.Submit()
+	ppm.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &ppm.Move)
 
 	email2 := "hhgwithppm@approve.shipment"
@@ -2508,7 +2496,7 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 		},
 		Uploader: loader,
 	})
-	ppm2.Move.Submit()
+	ppm2.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &ppm2.Move)
 
 	email3 := "delivered@hhg.ppm"
@@ -2588,7 +2576,7 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 		},
 		Uploader: loader,
 	})
-	ppm3.Move.Submit()
+	ppm3.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &ppm3.Move)
 
 	email4 := "completed@hhg.ppm"
@@ -2658,7 +2646,7 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 		},
 		Uploader: loader,
 	})
-	ppm4.Move.Submit()
+	ppm4.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &ppm4.Move)
 }
 
@@ -2708,6 +2696,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 			DestinationRegion: "11",
 			CodeOfService:     "D",
 		},
+
 		Shipment: models.Shipment{
 			ID:                          uuid.FromStringOrNil("a4013cee-aa0a-41a3-b5f5-b9eed0758e1d 0xc42022c070"),
 			Status:                      models.ShipmentStatusAPPROVED,
@@ -2727,15 +2716,6 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 		},
 	})
 
-	testdatagen.MakeTSPPerformanceDeprecated(db,
-		tspUser.TransportationServiceProvider,
-		*offer9.Shipment.TrafficDistributionList,
-		models.IntPointer(3),
-		0.40,
-		5,
-		unit.DiscountRate(0.50),
-		unit.DiscountRate(0.55))
-
 	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
 		ServiceAgent: models.ServiceAgent{
 			Shipment:   &offer9.Shipment,
@@ -2744,7 +2724,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 	})
 
 	hhg2 := offer9.Shipment
-	hhg2.Move.Submit()
+	hhg2.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg2.Move)
 	return offer9.Shipment
 }
@@ -2815,15 +2795,6 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger Logger, s
 		},
 	})
 
-	testdatagen.MakeTSPPerformanceDeprecated(db,
-		tspUser.TransportationServiceProvider,
-		*offer.Shipment.TrafficDistributionList,
-		models.IntPointer(3),
-		0.40,
-		5,
-		unit.DiscountRate(0.50),
-		unit.DiscountRate(0.55))
-
 	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
 		ServiceAgent: models.ServiceAgent{
 			Shipment:   &offer.Shipment,
@@ -2833,7 +2804,7 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger Logger, s
 
 	hhg := offer.Shipment
 	hhgID := offer.ShipmentID
-	hhg.Move.Submit()
+	hhg.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg.Move)
 
 	// Create PDF for GBL
@@ -2951,18 +2922,6 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Lo
 		log.Panic(err)
 	}
 
-	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
-		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{TransportationServiceProvider: tspUser.TransportationServiceProvider,
-			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
-			TrafficDistributionListID:       *offer.Shipment.TrafficDistributionListID,
-			QualityBand:                     models.IntPointer(3),
-			BestValueScore:                  0.40,
-			OfferCount:                      5,
-			LinehaulRate:                    unit.DiscountRate(0.50),
-			SITRate:                         unit.DiscountRate(0.55),
-		},
-	})
-
 	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
 		ServiceAgent: models.ServiceAgent{
 			Shipment:   &offer.Shipment,
@@ -2972,7 +2931,7 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Lo
 
 	hhg := offer.Shipment
 	hhgID := offer.ShipmentID
-	hhg.Move.Submit()
+	hhg.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg.Move)
 
 	// Create PDF for GBL
