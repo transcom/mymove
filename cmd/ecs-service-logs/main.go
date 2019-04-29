@@ -49,13 +49,16 @@ var regexpServiceEventStoppedTask = regexp.MustCompile("^[(]service ([0-9a-zA-Z_
 var regexpServiceEventStoppedTaskID = regexp.MustCompile("[(]task ([0-9a-z-]+)[)]")
 
 const (
-	flagAWSRegion            string = "aws-region"
-	flagAWSProfile           string = "aws-profile"
-	flagAWSVaultKeychainName string = "aws-vault-keychain-name"
+	flagAWSRegion       string = "aws-region"
+	flagAWSProfile      string = "aws-profile"
+	flagAWSSessionToken string = "aws-session-token"
 
-	flagCluster                       = "cluster"
-	flagService                       = "service"
-	flagEnvironment                   = "environment"
+	flagAWSVaultKeychainName string = "aws-vault-keychain-name"
+	flagAWSVaultProfile      string = "aws-vault"
+
+	flagCluster                string = "cluster"
+	flagService                string = "service"
+	flagEnvironment            string = "environment"
 	flagLogLevel               string = "level"
 	flagTaskDefinitionFamily   string = "ecs-task-def-family"
 	flagTaskDefinitionRevision string = "ecs-task-def-revision"
@@ -66,11 +69,13 @@ const (
 	flagStatus                 string = "status"
 	flagVerbose                string = "verbose"
 
+	defaultAWSRegion string = "us-west-2"
+
 	logLevel                  string = "level"
 	logTaskDefinitionFamily   string = "ecs_task_def_family"
 	logTaskDefinitionRevision string = "ecs_task_def_revision"
-	logGitBranch                     = "git_branch"
-	logGitCommit                     = "git_commit"
+	logGitBranch              string = "git_branch"
+	logGitCommit              string = "git_commit"
 )
 
 var environments = []string{"prod", "staging", "experimental"}
@@ -159,7 +164,7 @@ func (e *errInvalidService) Error() string {
 }
 
 func initFlags(flag *pflag.FlagSet) {
-	flag.String(flagAWSRegion, "us-west-2", "The AWS Region")
+	flag.String(flagAWSRegion, defaultAWSRegion, "The AWS Region")
 	flag.String(flagAWSProfile, "", "The aws-vault profile")
 	flag.String(flagAWSVaultKeychainName, "", "The aws-vault keychain name")
 	flag.StringP(flagCluster, "c", "", "The cluster name")
@@ -183,18 +188,25 @@ func checkConfig(v *viper.Viper) error {
 		return &errInvalidCluster{Cluster: clusterName}
 	}
 
-	regions, ok := endpoints.RegionsForService(endpoints.DefaultPartitions(), endpoints.AwsPartitionID, endpoints.EcsServiceID)
-	if !ok {
-		return fmt.Errorf("could not find regions for service %q", endpoints.EcsServiceID)
-	}
+	if awsVaultProfile := v.GetString(flagAWSVaultProfile); len(awsVaultProfile) > 0 {
+		sessionToken := v.GetString(flagAWSSessionToken)
+		if len(sessionToken) == 0 {
+			return fmt.Errorf("in aws-vault session, but missing aws-session-token")
+		}
+	} else {
+		regions, ok := endpoints.RegionsForService(endpoints.DefaultPartitions(), endpoints.AwsPartitionID, endpoints.EcsServiceID)
+		if !ok {
+			return fmt.Errorf("could not find regions for service %q", endpoints.EcsServiceID)
+		}
 
-	region := v.GetString(flagAWSRegion)
-	if len(region) == 0 {
-		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", flagAWSRegion))
-	}
+		region := v.GetString(flagAWSRegion)
+		if len(region) == 0 {
+			return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", flagAWSRegion))
+		}
 
-	if _, ok := regions[region]; !ok {
-		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", flagAWSRegion))
+		if _, ok := regions[region]; !ok {
+			return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", flagAWSRegion))
+		}
 	}
 
 	logLevel := strings.ToLower(v.GetString(flagLogLevel))
@@ -371,16 +383,18 @@ func showFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	verbose := v.GetBool(flagVerbose)
-	keychainName := v.GetString(flagAWSVaultKeychainName)
-	keychainProfile := v.GetString(flagAWSProfile)
 
-	if len(keychainName) > 0 && len(keychainProfile) > 0 {
-		creds, err := getAWSCredentials(keychainName, keychainProfile)
-		if err != nil {
-			return errors.Wrap(err, fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, keychainProfile))
+	if awsVaultProfile := v.GetString(flagAWSVaultProfile); len(awsVaultProfile) == 0 {
+		keychainName := v.GetString(flagAWSVaultKeychainName)
+		keychainProfile := v.GetString(flagAWSProfile)
+		if len(keychainName) > 0 && len(keychainProfile) > 0 {
+			creds, err := getAWSCredentials(keychainName, keychainProfile)
+			if err != nil {
+				return errors.Wrap(err, fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, keychainProfile))
+			}
+			awsConfig.CredentialsChainVerboseErrors = aws.Bool(verbose)
+			awsConfig.Credentials = creds
 		}
-		awsConfig.CredentialsChainVerboseErrors = aws.Bool(verbose)
-		awsConfig.Credentials = creds
 	}
 
 	sess, err := awssession.NewSession(awsConfig)
