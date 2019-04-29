@@ -35,6 +35,7 @@ const initialState = {
   personallyProcuredMoves: {},
   reimbursements: {},
   serviceAgents: {},
+  signedCertifications: {},
   shipmentLineItems: {},
   shipments: {},
   storageInTransits: {},

@@ -101,3 +101,25 @@ func FetchSignedCertificationsPPMPayment(db *pop.Connection, session *auth.Sessi
 
 	return &signedCertification, nil
 }
+
+// FetchSignedCertifications Fetches and Validates a all signed certifications associated with a move
+func FetchSignedCertifications(db *pop.Connection, session *auth.Session, id uuid.UUID) ([]*SignedCertification, error) {
+	var signedCertification []*SignedCertification
+	err := db.Where("move_id = $1", id.String()).All(&signedCertification)
+
+	if err != nil {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
+			msg := fmt.Sprintf("signed_certification: with move_id: %s not found", id.String())
+			return nil, errors.Wrap(ErrFetchNotFound, msg)
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return nil, errors.Wrap(err, "signed_certification: unable to fetch signed certification")
+	}
+	// Validate the move is associated to the logged-in service member
+	_, fetchErr := FetchMove(db, session, id)
+	if fetchErr != nil {
+		return nil, errors.Wrap(ErrFetchForbidden, "signed_certification: unauthorized access")
+	}
+
+	return signedCertification, nil
+}

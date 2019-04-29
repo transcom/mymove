@@ -240,7 +240,7 @@ function officeUserCreates35APreApprovalRequest() {
 
   // The edit should propagate to the Invoice panel
   cy
-    .get('.invoice-panel-table-cont tbody')
+    .get('[data-cy=unbilled-table] tbody')
     .contains('$220.00')
     .should('exist');
 
@@ -268,7 +268,7 @@ function officeUserCreates35APreApprovalRequest() {
 
   // The edit should propagate to the Invoice panel
   cy
-    .get('.invoice-panel-table-cont tbody')
+    .get('[data-cy=unbilled-table] tbody')
     .contains('Missing actual amount')
     .parent();
 }

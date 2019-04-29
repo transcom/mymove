@@ -17,6 +17,7 @@ import (
 	"path"
 	"path/filepath"
 	"regexp"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync"
@@ -45,6 +46,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
+	"github.com/transcom/mymove/pkg/ecs"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/dpsapi"
@@ -164,6 +166,24 @@ func noCacheMiddleware(inner http.Handler) http.Handler {
 	return http.HandlerFunc(mw)
 }
 
+func recoveryMiddleware(logger logger) func(inner http.Handler) http.Handler {
+	zap.L().Debug("recovery installed")
+	return func(inner http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			defer func() {
+				if r := recover(); r != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					errorMsg := fmt.Sprint(r)
+					stacktrace := fmt.Sprintf("%s", debug.Stack())
+					logger.Error("panic recovery", zap.String("error", errorMsg), zap.String("stacktrace", stacktrace))
+				}
+			}()
+			inner.ServeHTTP(w, r)
+		}
+		return http.HandlerFunc(mw)
+	}
+}
+
 func httpsComplianceMiddleware(inner http.Handler) http.Handler {
 	zap.L().Debug("httpsComplianceMiddleware installed")
 	mw := func(w http.ResponseWriter, r *http.Request) {
@@ -212,6 +232,8 @@ func initServeFlags(flag *pflag.FlagSet) {
 	flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	flag.String("service-name", "app", "The service name identifies the application for instrumentation.")
 	flag.Duration("graceful-shutdown-timeout", 25*time.Second, "The duration for which the server gracefully wait for existing connections to finish.  AWS ECS only gives you 30 seconds before sending SIGKILL.")
+
+	flag.Bool("log-task-metadata", false, "Fetch AWS Task Metadata and add to log.")
 
 	flag.String("http-my-server-name", "milmovelocal", "Hostname according to environment.")
 	flag.String("http-office-server-name", "officelocal", "Hostname according to environment.")
@@ -839,6 +861,34 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		fields = append(fields, zap.String("git_commit", gitCommit))
 	}
 	logger = logger.With(fields...)
+
+	if v.GetBool("log-task-metadata") {
+		resp, err := http.Get("http://169.254.170.2/v2/metadata")
+		if err != nil {
+			logger.Error(errors.Wrap(err, "could not fetch task metadata").Error())
+		} else {
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				logger.Error(errors.Wrap(err, "could not read task metadata").Error())
+			} else {
+				taskMetadata := &ecs.TaskMetadata{}
+				err := json.Unmarshal(body, taskMetadata)
+				if err != nil {
+					logger.Error(errors.Wrap(err, "could not parse task metadata").Error())
+				} else {
+					logger = logger.With(
+						zap.String("ecs_cluster", taskMetadata.Cluster),
+						zap.String("ecs_task_def_family", taskMetadata.Family),
+						zap.String("ecs_task_def_revision", taskMetadata.Revision),
+					)
+				}
+			}
+			err = resp.Body.Close()
+			if err != nil {
+				logger.Error(errors.Wrap(err, "could not close task metadata response").Error())
+			}
+		}
+	}
 	zap.ReplaceGlobals(logger)
 
 	logger.Info("webserver starting up")
@@ -1125,9 +1175,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		} else {
 			protocol = "https"
 		}
-		logger.Info("Request",
-			zap.String("git-branch", gitBranch),
-			zap.String("git-commit", gitCommit),
+
+		fields := []zap.Field{
 			zap.String("accepted-language", r.Header.Get("accepted-language")),
 			zap.Int64("content-length", r.ContentLength),
 			zap.String("host", r.Host),
@@ -1138,11 +1187,19 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			zap.String("source", r.RemoteAddr),
 			zap.String("url", r.URL.String()),
 			zap.String("user-agent", r.UserAgent()),
-			zap.String("x-amzn-trace-id", r.Header.Get("x-amzn-trace-id")),
-			zap.String("x-forwarded-for", r.Header.Get("x-forwarded-for")),
-			zap.String("x-forwarded-host", r.Header.Get("x-forwarded-host")),
-			zap.String("x-forwarded-proto", r.Header.Get("x-forwarded-proto")),
-		)
+		}
+
+		// Append x- headers, e.g., x-forwarded-for.
+		for name, values := range r.Header {
+			if nameLowerCase := strings.ToLower(name); strings.HasPrefix(nameLowerCase, "x-") {
+				if len(values) > 0 {
+					fields = append(fields, zap.String(nameLowerCase, values[0]))
+				}
+			}
+		}
+
+		logger.Info("Request", fields...)
+
 	})
 
 	staticMux := goji.SubMux()
@@ -1208,8 +1265,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			dpsCookieExpires))
 
 	root := goji.NewMux()
+	root.Use(recoveryMiddleware(logger))
 	root.Use(sessionCookieMiddleware)
-	root.Use(logging.LogRequestMiddleware(gitBranch, gitCommit))
+	root.Use(logging.LogRequestMiddleware(logger))
 
 	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
 	csrfAuthKey, err := hex.DecodeString(v.GetString("csrf-auth-key"))
