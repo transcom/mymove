@@ -229,6 +229,64 @@ class ShipmentInfo extends Component {
     if (!loadTspDependenciesHasSuccess) {
       return <LoadingPlaceholder />;
     }
+
+    let referrerQueueLink;
+    if (this.props.history.location.state) {
+      switch (this.props.history.location.state.referrerPathname) {
+        case '/queues/new':
+          referrerQueueLink = (
+            <NavLink to="/queues/new" activeClassName="usa-current">
+              <span>New Shipments Queue</span>
+            </NavLink>
+          );
+          break;
+        case '/queues/accepted':
+          referrerQueueLink = (
+            <NavLink to="/queues/accepted" activeClassName="usa-current">
+              <span>Accepted Shipments Queue</span>
+            </NavLink>
+          );
+          break;
+        case '/queues/approved':
+          referrerQueueLink = (
+            <NavLink to="/queues/approved" activeClassName="usa-current">
+              <span>Approved Shipments Queue</span>
+            </NavLink>
+          );
+          break;
+        case '/queues/in_transit':
+          referrerQueueLink = (
+            <NavLink to="/queues/in_transit" activeClassName="usa-current">
+              <span>In Transit Shipments Queue</span>
+            </NavLink>
+          );
+          break;
+        case '/queues/delivered':
+          referrerQueueLink = (
+            <NavLink to="/queues/delivered" activeClassName="usa-current">
+              <span>Delivered Shipments Queue</span>
+            </NavLink>
+          );
+          break;
+        case '/queues/completed':
+          referrerQueueLink = (
+            <NavLink to="/queues/completed" activeClassName="usa-current">
+              <span>Completed Shipments Queue</span>
+            </NavLink>
+          );
+          break;
+        default:
+          break;
+      }
+    }
+    if (!referrerQueueLink) {
+      referrerQueueLink = (
+        <NavLink to="/queues/new" activeClassName="usa-current">
+          <span>New Shipments Queue</span>
+        </NavLink>
+      );
+    }
+
     return (
       <div>
         <div className="usa-grid grid-wide">
@@ -243,48 +301,7 @@ class ShipmentInfo extends Component {
             </div>
             <div className="shipment-status">Status: {statusText}</div>
           </div>
-          <div className="usa-width-one-third nav-controls">
-            {awarded && (
-              <NavLink to="/queues/new" activeClassName="usa-current">
-                <span>New Shipments Queue</span>
-              </NavLink>
-            )}
-            {accepted && (
-              <NavLink to="/queues/accepted" activeClassName="usa-current">
-                <span>Accepted Shipments Queue</span>
-              </NavLink>
-            )}
-            {approved && (
-              <NavLink to="/queues/approved" activeClassName="usa-current">
-                <span>Approved Shipments Queue</span>
-              </NavLink>
-            )}
-            {inTransit && (
-              <NavLink to="/queues/in_transit" activeClassName="usa-current">
-                <span>In Transit Shipments Queue</span>
-              </NavLink>
-            )}
-            {delivered && (
-              <NavLink to="/queues/delivered" activeClassName="usa-current">
-                <span>Delivered Shipments Queue</span>
-              </NavLink>
-            )}
-            {completed && (
-              <NavLink to="/queues/completed" activeClassName="usa-current">
-                <span>Completed Shipments Queue</span>
-              </NavLink>
-            )}
-            {!awarded &&
-              !accepted &&
-              !approved &&
-              !inTransit &&
-              !delivered &&
-              !completed && (
-                <NavLink to="/queues/all" activeClassName="usa-current">
-                  <span>All Shipments Queue</span>
-                </NavLink>
-              )}
-          </div>
+          <div className="usa-width-one-third nav-controls">{referrerQueueLink}</div>
         </div>
         <div className="usa-grid grid-wide">
           <div className="usa-width-one-whole">
