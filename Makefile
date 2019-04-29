@@ -195,7 +195,7 @@ bin/rds-combined-ca-bundle.pem:
 .PHONY: server_deps
 server_deps: check_hosts check_gopath build_chamber build_soda build_callgraph get_gotools bin/rds-combined-ca-bundle.pem .server_deps.stamp
 .server_deps.stamp:
-	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
+#	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
 	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 	touch .server_deps.stamp
