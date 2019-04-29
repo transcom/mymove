@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { FormSection } from 'redux-form';
 import PropTypes from 'prop-types';
 import style from './index.module.scss';
@@ -6,8 +6,8 @@ import style from './index.module.scss';
 import { PanelField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-export const AddressDisplay = ({ address }) => (
-  <Fragment>
+export const AddressElementDisplay = ({ address, title }) => (
+  <PanelField title={title}>
     {address.street_address_1 && (
       <span>
         {address.street_address_1}
@@ -21,12 +21,6 @@ export const AddressDisplay = ({ address }) => (
       </span>
     )}
     {address.city}, {address.state} {address.postal_code}
-  </Fragment>
-);
-
-export const AddressElementDisplay = ({ address, title }) => (
-  <PanelField title={title}>
-    <AddressDisplay address={address} />
   </PanelField>
 );
 
