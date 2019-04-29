@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import { PanelField } from 'shared/EditablePanel';
-import { AddressDisplay, AddressElementDisplay } from '.';
+import { AddressElementDisplay } from '.';
 
 describe('Address component test', () => {
   describe('when address has required data', () => {
@@ -11,13 +11,13 @@ describe('Address component test', () => {
       state: 'NY',
       postal_code: '11217',
     };
-    const wrapper = shallow(<AddressElementDisplay address={address} title="Primary" />);
-    const wrapperElementDisplay = wrapper.find(PanelField).dive();
-    const wrapperDisplay = wrapper.find(AddressDisplay).dive();
-    const fields = wrapperDisplay.find('Fragment').props().children;
+    const wrapper = shallow(<AddressElementDisplay address={address} title="Primary" />)
+      .find(PanelField)
+      .dive();
+    const fields = wrapper.find('.field-value').props().children;
     it("should render the address' label", () => {
-      const label = wrapperElementDisplay.find('.field-title').text();
-      expect(label).toBe('Primary');
+      const Label = wrapper.find('.field-title').text();
+      expect(Label).toBe('Primary');
     });
     it('should render the address itself', () => {
       const addressInfo = fields[0].props.children[0];
@@ -62,11 +62,11 @@ describe('Address component test', () => {
         postal_code: '11217',
       };
       const wrapper = shallow(<AddressElementDisplay address={address} title="primary" />)
-        .find(AddressDisplay)
+        .find(PanelField)
         .dive();
 
       const address_2 = wrapper
-        .find('Fragment')
+        .find('.field-value')
         .children()
         .at(1)
         .props().children[0];
@@ -81,9 +81,9 @@ describe('Address component test', () => {
       postal_code: '11217',
     };
     const wrapper = shallow(<AddressElementDisplay address={address} title="Primary" />)
-      .find(AddressDisplay)
+      .find(PanelField)
       .dive();
-    const fields = wrapper.find('Fragment').props().children;
+    const fields = wrapper.find('.field-value').props().children;
     it('should not render street address if not provided', () => {
       expect(fields[0]).toBeFalsy();
     });
