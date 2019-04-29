@@ -120,7 +120,9 @@ export const SubmittedPpmMoveSummary = props => {
             <li>
               Read the{' '}
               <strong>
-                <a>PPM info sheet</a>
+                <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
+                  PPM info sheet
+                </a>
               </strong>{' '}
               for more info
             </li>
@@ -162,7 +164,8 @@ export const SubmittedPpmMoveSummary = props => {
                 </div>
               </div>
             </div>
-            <button className="usa-button-secondary" onClick={() => console.log('hi')}>
+            {/* eslint-disable-next-line security/detect-non-literal-fs-filename */}
+            <button className="usa-button-secondary" onClick={() => window.open(`${ppmInfoPacket}`)}>
               Read PPM Info Sheet
             </button>
             <div className="step-links">
