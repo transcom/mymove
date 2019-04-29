@@ -7,6 +7,27 @@ import { displayDateRange } from 'shared/formatters';
 import './StatusTimeline.css';
 
 function getDates(source, dateType) {
+  // The in progress state in PPMStatusTimeline has different expectations
+  if (dateType === 'actual_move_date') {
+    // if there's no approve date, then the PPM hasn't been approved yet
+    // and the in progress date should not be shown
+    const approveDate = get(source, 'approve_date');
+    if (approveDate) {
+      let date = undefined;
+      // if there's an actual move date that is known and passed, show it
+      // else show original move date if it has passed
+      const actualMoveDate = get(source, dateType);
+      const originalMoveDate = get(source, 'original_move_date');
+      if (actualMoveDate && moment(actualMoveDate, 'YYYY-MM-DD').isSameOrBefore()) {
+        date = actualMoveDate;
+      } else if (moment(originalMoveDate, 'YYYY-MM-DD').isSameOrBefore()) {
+        date = originalMoveDate;
+      }
+      return date;
+    }
+
+    return;
+  }
   return get(source, dateType);
 }
 
@@ -21,7 +42,7 @@ export class PPMStatusTimeline extends React.Component {
     return [
       { name: 'Submitted', code: 'SUBMITTED', date_type: 'submit_date' },
       { name: 'Approved', code: 'PPM_APPROVED', date_type: 'approve_date' },
-      { name: 'In progress', code: 'IN_PROGRESS' },
+      { name: 'In progress', code: 'IN_PROGRESS', date_type: 'actual_move_date' },
       { name: 'Payment requested', code: 'PAYMENT_REQUESTED' },
     ];
   }
@@ -66,7 +87,7 @@ export class PPMStatusTimeline extends React.Component {
   }
 
   render() {
-    const statuses = this.addCompleted(this.addDates(this.getStatuses()));
+    const statuses = this.addDates(this.addCompleted(this.getStatuses()));
     return <StatusTimeline statuses={statuses} />;
   }
 }
@@ -152,7 +173,7 @@ export class ShipmentStatusTimeline extends React.Component {
   }
 
   render() {
-    const statuses = this.addCompleted(this.addDates(this.getStatuses()));
+    const statuses = this.addDates(this.addCompleted(this.getStatuses()));
     return <StatusTimeline statuses={statuses} />;
   }
 }
