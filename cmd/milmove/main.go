@@ -19,6 +19,8 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/gobuffalo/pop"
+
 	"github.com/pkg/errors"
 
 	"github.com/dgrijalva/jwt-go"
@@ -884,6 +886,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 func main() {
 
+	pop.Debug = true
 	root := cobra.Command{
 		Use:   "milmove [flags]",
 		Short: "Webserver for MilMove",

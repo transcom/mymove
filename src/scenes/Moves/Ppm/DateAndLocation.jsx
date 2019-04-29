@@ -9,6 +9,7 @@ import {
   createOrUpdatePpm,
   getDestinationPostalCode,
   getPpmSitEstimate,
+  getPpmWeightEstimate,
   isHHGPPMComboMove,
   setInitialFormValues,
 } from './ducks';
@@ -22,6 +23,7 @@ import './DateAndLocation.css';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 
 const sitEstimateDebounceTime = 300;
+const weightEstimateDebounce = 300;
 const formName = 'ppp_date_and_location';
 const DateAndLocationWizardForm = reduxifyWizardForm(formName);
 
@@ -77,6 +79,24 @@ export class DateAndLocation extends Component {
     );
   };
 
+  debouncedGetPpmWeightEstimate = debounce(this.props.getPpmWeightEstimate, weightEstimateDebounce);
+
+  getdebouncedGetPpmWeightEstimate = (e, value, _, field) => {
+    const { formValues, entitlement } = this.props;
+    const estimateValues = cloneDeep(formValues);
+    estimateValues[field] = value; // eslint-disable-line security/detect-object-injection
+    if (value) {
+      this.debouncedGetPpmWeightEstimate(
+        estimateValues.original_move_date,
+        estimateValues.pickup_postal_code,
+        estimateValues.destination_postal_code,
+        entitlement.sum,
+      );
+    } else {
+      this.debouncedGetPpmWeightEstimate.cancel();
+    }
+  };
+
   render() {
     const {
       pages,
@@ -116,14 +136,14 @@ export class DateAndLocation extends Component {
           <h3> Move Date </h3>
           <SwaggerField
             fieldName="original_move_date"
-            onChange={this.getDebouncedSitEstimate}
+            validate={this.getdebouncedGetPpmWeightEstimate}
             swagger={this.props.schema}
             required
           />
           <h3>Pickup Location</h3>
           <SwaggerField
             fieldName="pickup_postal_code"
-            onChange={this.getDebouncedSitEstimate}
+            validate={this.getdebouncedGetPpmWeightEstimate}
             swagger={this.props.schema}
             required
           />
@@ -239,7 +259,10 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createOrUpdatePpm, getPpmSitEstimate, setInitialFormValues }, dispatch);
+  return bindActionCreators(
+    { createOrUpdatePpm, getPpmSitEstimate, getPpmWeightEstimate, setInitialFormValues },
+    dispatch,
+  );
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(DateAndLocation);
