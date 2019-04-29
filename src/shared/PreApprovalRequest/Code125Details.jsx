@@ -1,6 +1,5 @@
 import React, { Fragment } from 'react';
 import { formatDate } from 'shared/formatters';
-import { AddressDisplay } from 'shared/Address';
 
 export const Code125Details = props => {
   const row = props.shipmentLineItem;
@@ -13,7 +12,13 @@ export const Code125Details = props => {
           {`Time of service: ${row.time}`} <br />
         </Fragment>
       )}
-      <AddressDisplay address={row.address} />
+      {row.address.street_address_1} <br />
+      {row.address.street_address_2 && (
+        <Fragment>
+          {row.address.street_address_2} <br />
+        </Fragment>
+      )}
+      {row.address.city}, {row.address.state} {row.address.postal_code} <br />
     </td>
   );
 };
