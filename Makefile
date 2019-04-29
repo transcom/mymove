@@ -528,7 +528,7 @@ db_test_migrate: server_deps db_test_migrate_standalone
 
 .PHONY: db_test_migrations_build
 db_test_migrations_build: .db_test_migrations_build.stamp
-.db_test_migrations_build.stamp: server_deps_linux server_generate_linux
+.db_test_migrations_build.stamp: bin/swagger server_generate_linux
 	@echo "Build required binaries for the docker migration container..."
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/soda github.com/gobuffalo/pop/soda
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate_test_data
