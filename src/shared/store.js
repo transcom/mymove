@@ -20,8 +20,16 @@ if (isDevelopment && !window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
 
 const composeEnhancers = composeWithDevTools({});
 
-export const store = composeEnhancers(applyMiddleware(...middlewares))(createStore)(
-  isTspSite ? tspAppReducer : isAdminSite ? adminAppReducer : appReducer,
-);
+function appSelector() {
+  if (isTspSite) {
+    return tspAppReducer;
+  } else if (isAdminSite) {
+    return adminAppReducer;
+  } else {
+    return appReducer;
+  }
+}
+
+export const store = composeEnhancers(applyMiddleware(...middlewares))(createStore)(appSelector());
 
 export default store;
