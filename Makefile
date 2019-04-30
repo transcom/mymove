@@ -254,8 +254,7 @@ pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
 
 .PHONY: go_deps_update
 go_deps_update:
-	go get -u=patch -v
-	go mod tidy
+	go run cmd/update_deps/main.go
 
 .PHONY: get_gotools
 get_gotools: .check_gopath.stamp .get_gotools.stamp

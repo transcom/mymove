@@ -25,7 +25,7 @@ const LocationsDisplay = props => {
     <Fragment>
       <div className="editable-panel-column">
         <span className="column-subhead">Pickup</span>
-        <AddressElementDisplay address={pickupAddress} title="Primary" />
+        {pickupAddress && <AddressElementDisplay address={pickupAddress} title="Primary" />}
         {hasSecondaryPickupAddress && <AddressElementDisplay address={secondaryPickupAddress} title="Additional" />}
       </div>
       <div className="editable-panel-column">

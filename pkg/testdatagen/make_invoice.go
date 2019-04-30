@@ -26,7 +26,7 @@ func MakeInvoice(db *pop.Connection, assertions Assertions) models.Invoice {
 	if invoiceNumber == "" {
 		scac := "ABBV"
 		year := shipment.CreatedAt.UTC().Year()
-		invoiceNumber = fmt.Sprintf("%s%d%04d", scac, year%100, 1+rand.Intn(9999))
+		invoiceNumber = fmt.Sprintf("%s%02d%04d", scac, year%100, 1+rand.Intn(9999))
 	}
 
 	// filled in dummy data
