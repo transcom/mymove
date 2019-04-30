@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190416164921_remove_expired_marine_orders_certs.sql")

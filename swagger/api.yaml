@@ -408,7 +408,7 @@ definitions:
         x-nullable: true
       time:
         type: string
-        description: time of service or charge in military time
+        description: Free form text. Generally used to input time of service or charge in military time.
         example: '0400'
         x-nullable: true
       address:

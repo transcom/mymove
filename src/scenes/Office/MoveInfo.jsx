@@ -92,9 +92,9 @@ const PPMTabContent = props => {
   return (
     <div className="office-tab">
       <PaymentsPanel title="Payments" moveId={props.moveId} />
-      <ExpensesPanel title="Expenses" moveId={props.moveId} />
       {props.ppmPaymentRequested && (
         <>
+          <ExpensesPanel title="Expenses" moveId={props.moveId} />
           <StoragePanel title="Storage" moveId={props.moveId} />
           <DatesAndLocationPanel title="Dates & Locations" moveId={props.moveId} />
           <NetWeightPanel title="Weights" moveId={props.moveId} />

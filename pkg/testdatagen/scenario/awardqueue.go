@@ -3,7 +3,6 @@ package scenario
 import (
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -55,11 +54,45 @@ func RunAwardQueueScenario1(db *pop.Connection) {
 	tsp5 := testdatagen.MakeDefaultTSP(db)
 
 	// TSPs should be ordered by offer_count first, then BVS.
-	testdatagen.MakeTSPPerformanceDeprecated(db, tsp1, tdl, swag.Int(1), 5, 0, 0.42, 0.42)
-	testdatagen.MakeTSPPerformanceDeprecated(db, tsp2, tdl, swag.Int(1), 4, 0, 0.33, 0.33)
-	testdatagen.MakeTSPPerformanceDeprecated(db, tsp3, tdl, swag.Int(2), 3, 0, 0.21, 0.21)
-	testdatagen.MakeTSPPerformanceDeprecated(db, tsp4, tdl, swag.Int(3), 2, 0, 0.11, 0.11)
-	testdatagen.MakeTSPPerformanceDeprecated(db, tsp5, tdl, swag.Int(4), 1, 0, 0.05, 0.05)
+	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp1,
+			TransportationServiceProviderID: tsp1.ID,
+			TrafficDistributionListID:       tdl.ID,
+		},
+	})
+
+	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp2,
+			TransportationServiceProviderID: tsp2.ID,
+			TrafficDistributionListID:       tdl.ID,
+		},
+	})
+
+	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp3,
+			TransportationServiceProviderID: tsp3.ID,
+			TrafficDistributionListID:       tdl.ID,
+		},
+	})
+
+	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp4,
+			TransportationServiceProviderID: tsp4.ID,
+			TrafficDistributionListID:       tdl.ID,
+		},
+	})
+
+	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp5,
+			TransportationServiceProviderID: tsp5.ID,
+			TrafficDistributionListID:       tdl.ID,
+		},
+	})
 }
 
 // RunAwardQueueScenario2 creates 9 shipments to be divided between 5 TSPs in 1 TDL and 10 shipments to be divided among 4 TSPs in TDL 2.
@@ -131,16 +164,71 @@ func RunAwardQueueScenario2(db *pop.Connection) {
 	tsp9 := testdatagen.MakeDefaultTSP(db) // V v bad TSP
 
 	// Put TSPs in 2 TDLs to handle these shipments
-	testdatagen.MakeTSPPerformanceDeprecated(db, tsp1, tdl, swag.Int(1), 5, 0, 0.42, 0.44)
-	testdatagen.MakeTSPPerformanceDeprecated(db, tsp2, tdl, swag.Int(1), 4, 0, 0.31, 0.32)
-	testdatagen.MakeTSPPerformanceDeprecated(db, tsp3, tdl, swag.Int(2), 3, 0, 0.24, 0.25)
-	testdatagen.MakeTSPPerformanceDeprecated(db, tsp4, tdl, swag.Int(3), 2, 0, 0.11, 0.13)
-	testdatagen.MakeTSPPerformanceDeprecated(db, tsp5, tdl, swag.Int(4), 1, 0, 0.05, 0.08)
+	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp1,
+			TransportationServiceProviderID: tsp1.ID,
+			TrafficDistributionListID:       tdl.ID,
+		},
+	})
+	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp2,
+			TransportationServiceProviderID: tsp2.ID,
+			TrafficDistributionListID:       tdl.ID,
+		},
+	})
+	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp3,
+			TransportationServiceProviderID: tsp3.ID,
+			TrafficDistributionListID:       tdl.ID,
+		},
+	})
+	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp4,
+			TransportationServiceProviderID: tsp4.ID,
+			TrafficDistributionListID:       tdl.ID,
+		},
+	})
+	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp5,
+			TransportationServiceProviderID: tsp5.ID,
+			TrafficDistributionListID:       tdl.ID,
+		},
+	})
 
-	testdatagen.MakeTSPPerformanceDeprecated(db, tsp6, tdl2, swag.Int(1), 5, 0, 0.42, 0.44)
-	testdatagen.MakeTSPPerformanceDeprecated(db, tsp7, tdl2, swag.Int(2), 4, 0, 0.31, 0.32)
-	testdatagen.MakeTSPPerformanceDeprecated(db, tsp8, tdl2, swag.Int(3), 2, 0, 0.11, 0.13)
-	testdatagen.MakeTSPPerformanceDeprecated(db, tsp9, tdl2, swag.Int(4), 1, 0, 0.05, 0.08)
+	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp6,
+			TransportationServiceProviderID: tsp6.ID,
+			TrafficDistributionListID:       tdl2.ID,
+		},
+	})
+	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp7,
+			TransportationServiceProviderID: tsp7.ID,
+			TrafficDistributionListID:       tdl2.ID,
+		},
+	})
+	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp8,
+			TransportationServiceProviderID: tsp8.ID,
+			TrafficDistributionListID:       tdl2.ID,
+		},
+	})
+	testdatagen.MakeTSPPerformance(db, testdatagen.Assertions{
+		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp9,
+			TransportationServiceProviderID: tsp9.ID,
+			TrafficDistributionListID:       tdl2.ID,
+		},
+	})
+
 	// Add blackout dates
 	blackoutStart := shipmentDate.AddDate(0, 0, -3)
 	blackoutEnd := shipmentDate.AddDate(0, 0, 3)

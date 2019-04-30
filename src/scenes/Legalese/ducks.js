@@ -34,7 +34,7 @@ export function dateToTimestamp(dt) {
   return moment(dt).format();
 }
 
-export const signAndSubmitForApproval = (moveId, certificationText, signature, dateSigned) => {
+export const signAndSubmitForApproval = (moveId, certificationText, signature, dateSigned, _ppmId, ppmSubmitDate) => {
   return async function(dispatch, getState) {
     const dateTimeSigned = dateToTimestamp(dateSigned);
     dispatch(signAndSubmitForApprovalActions.start());
@@ -49,9 +49,15 @@ export const signAndSubmitForApproval = (moveId, certificationText, signature, d
           },
         }),
       );
-      const response = await dispatch(SubmitForApproval(moveId));
+
+      const response = await dispatch(
+        SubmitForApproval(moveId, {
+          ppm_submit_date: ppmSubmitDate,
+        }),
+      );
+
       const data = normalize(response.payload, move);
-      const filtered = pick(data.entities, ['shipments', 'moves']);
+      const filtered = pick(data.entities, ['shipments', 'moves', 'personallyProcuredMoves']);
       dispatch(addEntities(filtered));
       return dispatch(signAndSubmitForApprovalActions.success());
     } catch (error) {
@@ -61,8 +67,9 @@ export const signAndSubmitForApproval = (moveId, certificationText, signature, d
   };
 };
 
-export const signAndSubmitPpm = (moveId, certificationText, signature, dateSigned, ppmId) => {
-  return async function(dispatch, getState) {
+// this function signature needs to match signAndSubmitForApproval
+export const signAndSubmitPpm = (moveId, certificationText, signature, dateSigned, ppmId, ppmSubmitDate) => {
+  return async function(dispatch) {
     const dateTimeSigned = dateToTimestamp(dateSigned);
     dispatch(signAndSubmitPpmForApprovalActions.start());
     try {
@@ -76,7 +83,7 @@ export const signAndSubmitPpm = (moveId, certificationText, signature, dateSigne
           },
         }),
       );
-      await dispatch(submitPpm(ppmId));
+      await dispatch(submitPpm(ppmId, ppmSubmitDate));
       return dispatch(signAndSubmitPpmForApprovalActions.success());
     } catch (error) {
       console.log(error);
@@ -85,11 +92,16 @@ export const signAndSubmitPpm = (moveId, certificationText, signature, dateSigne
   };
 };
 
-export function submitPpm(personallyProcuredMoveId) {
+export function submitPpm(personallyProcuredMoveId, personallyProcuredMoveSubmitDate) {
   return swaggerRequest(
     getClient,
     'ppm.submitPersonallyProcuredMove',
-    { personallyProcuredMoveId },
+    {
+      personallyProcuredMoveId,
+      submitPersonallyProcuredMovePayload: {
+        submit_date: personallyProcuredMoveSubmitDate,
+      },
+    },
     { label: 'submit_ppm' },
   );
 }

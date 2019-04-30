@@ -186,10 +186,16 @@ func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+	submitDate := strfmt.DateTime(time.Now())
+
+	newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{
+		PpmSubmitDate: &submitDate,
+	}
 
 	params := moveop.SubmitMoveForApprovalParams{
-		HTTPRequest: req,
-		MoveID:      strfmt.UUID(move.ID.String()),
+		HTTPRequest:                  req,
+		MoveID:                       strfmt.UUID(move.ID.String()),
+		SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
 	}
 	// And: a move is submitted
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -223,10 +229,16 @@ func (suite *HandlerSuite) TestSubmitHHGMoveForApprovalHandler() {
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
 	req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+	submitDate := strfmt.DateTime(time.Now())
+
+	newSubmitMoveForApprovalPayload := internalmessages.SubmitMoveForApprovalPayload{
+		PpmSubmitDate: &submitDate,
+	}
 
 	params := moveop.SubmitMoveForApprovalParams{
-		HTTPRequest: req,
-		MoveID:      strfmt.UUID(move.ID.String()),
+		HTTPRequest:                  req,
+		MoveID:                       strfmt.UUID(move.ID.String()),
+		SubmitMoveForApprovalPayload: &newSubmitMoveForApprovalPayload,
 	}
 
 	// And: a move is submitted

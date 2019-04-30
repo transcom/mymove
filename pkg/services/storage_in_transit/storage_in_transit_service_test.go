@@ -11,6 +11,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -84,4 +85,10 @@ func payloadForStorageInTransitModel(s *models.StorageInTransit) *apimessages.St
 		ActualStartDate:     handlers.FmtDatePtr(s.ActualStartDate),
 		OutDate:             handlers.FmtDatePtr(s.OutDate),
 	}
+}
+func TestStorageInTransitServiceSuite(t *testing.T) {
+	hs := &StorageInTransitServiceSuite{
+		PopTestSuite: testingsuite.NewPopTestSuite(),
+	}
+	suite.Run(t, hs)
 }

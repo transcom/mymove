@@ -1,6 +1,8 @@
 package services
 
 import (
+	"time"
+
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 
@@ -57,4 +59,9 @@ type StorageInTransitPatcher interface {
 // StorageInTransitByIDFetcher is the service object for fetching a Storage In Transit
 type StorageInTransitByIDFetcher interface {
 	FetchStorageInTransitByID(storageInTransitID uuid.UUID, shipmentID uuid.UUID, session *auth.Session) (*models.StorageInTransit, error)
+}
+
+// StorageInTransitNumberGenerator is an interface for generating a storage in transit number
+type StorageInTransitNumberGenerator interface {
+	GenerateStorageInTransitNumber(placeInSitTime time.Time) (string, error)
 }
