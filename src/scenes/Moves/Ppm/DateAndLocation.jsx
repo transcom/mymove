@@ -227,7 +227,6 @@ function mapStateToProps(state) {
     ...state.ppm,
     currentOrders: state.orders.currentOrders,
     formValues: getFormValues(formName)(state),
-    rateEngineError: get(state, 'ppm.rateEngineError'),
     entitlement: loadEntitlementsFromState(state),
     hasEstimateError: state.ppm.hasEstimateError,
     isHHGPPMComboMove: isHHGPPMComboMove(state),
