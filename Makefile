@@ -217,7 +217,7 @@ bin/health_checker:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/health_checker ./cmd/health_checker
 
 bin/iws:
-	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/demo/iws.go
+	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/iws/iws.go
 
 bin/load-office-data: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/load-office-data ./cmd/load_office_data
