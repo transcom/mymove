@@ -22,9 +22,6 @@ export const Code125Form = props => {
         title="Truck-to-truck transfer location"
         zipPattern="USA"
       />
-      <div className="bq-explanation">
-        <p>Enter amount after service is completed</p>
-      </div>
     </Fragment>
   );
 };
