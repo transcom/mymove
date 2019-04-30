@@ -216,7 +216,7 @@ bin/generate-test-data: pkg/assets/assets.go .server_generate.stamp
 bin/health_checker:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/health_checker ./cmd/health_checker
 
-bin/iws: .server_generate.stamp
+bin/iws:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/demo/iws.go
 
 bin/load-office-data: .server_generate.stamp
