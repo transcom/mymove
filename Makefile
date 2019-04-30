@@ -173,8 +173,10 @@ bin/callgraph: .check_go_version.stamp .check_gopath.stamp
 bin/chamber: .check_go_version.stamp .check_gopath.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
 
-bin/gosec: .check_go_version.stamp .check_gopath.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
+# Disabled until gosec supports go modules
+# Add to server_deps target when re-enabling
+# bin/gosec: .check_go_version.stamp .check_gopath.stamp
+# 	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
 
 bin/gin: .check_go_version.stamp .check_gopath.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
@@ -270,7 +272,6 @@ get_gotools: .check_gopath.stamp .get_gotools.stamp
 server_deps: get_gotools \
 	bin/callgraph \
 	bin/chamber \
-	bin/gosec \
 	bin/gin \
 	bin/soda \
 	bin/swagger \
