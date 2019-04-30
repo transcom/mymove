@@ -140,7 +140,8 @@ export class DateAndLocation extends Component {
           <h2>PPM Dates & Locations</h2>
           {this.state.invalidPPMParams && (
             <Alert type="error" heading="">
-              There was an issue with your move. Please verify the move date, origin zip and destination zip.
+              We can't schedule a move that far in the future. You can try an earlier date, or contact your PPPO for
+              help.
             </Alert>
           )}
           {isHHGPPMComboMove && <div>Great! Let's review your pickup and destination information.</div>}
