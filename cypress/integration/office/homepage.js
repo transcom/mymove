@@ -37,5 +37,5 @@ function officeAllMoves() {
     expect(loc.pathname).to.match(/^\/queues\/all/);
   });
 
-  cy.get('.rt-tr-group').should('have.length', 65);
+  cy.get('.rt-tr-group').should('have.length', 66);
 }

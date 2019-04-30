@@ -520,6 +520,7 @@ func createNewMove(db *pop.Connection,
 	if selectedType != nil {
 		stringSelectedType = SelectedMoveType(*selectedType)
 	}
+	showMove := true
 	for i := 0; i < maxLocatorAttempts; i++ {
 		move := Move{
 			Orders:           orders,
@@ -527,6 +528,7 @@ func createNewMove(db *pop.Connection,
 			Locator:          GenerateLocator(),
 			SelectedMoveType: &stringSelectedType,
 			Status:           MoveStatusDRAFT,
+			Show:             &showMove,
 		}
 		verrs, err := db.ValidateAndCreate(&move)
 		if verrs.HasAny() {

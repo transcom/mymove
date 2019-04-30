@@ -3002,5 +3002,5 @@ func makeNewPPM(db *pop.Connection, tspUser models.TspUser, loader *uploader.Upl
 		},
 		Uploader: loader,
 	})
-	ppm0.Move.Submit()
+	ppm0.Move.Submit(time.Now())
 }
