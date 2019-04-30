@@ -28,7 +28,7 @@ const formName = 'ppp_date_and_location';
 const DateAndLocationWizardForm = reduxifyWizardForm(formName);
 
 export class DateAndLocation extends Component {
-  state = { showInfo: false, outOfRangeError: false };
+  state = { showInfo: false, invalidPPMParams: false };
 
   componentDidMount() {
     if (!this.props.currentPpm && this.props.isHHGPPMComboMove) {
@@ -46,7 +46,8 @@ export class DateAndLocation extends Component {
 
   handleSubmit = () => {
     const { entitlement } = this.props;
-    const wtgEstEntitlement = entitlement ? entitlement : 2000;
+    const wtgEstEntitlement = get(entitlement, 'sum', 2000);
+    console.log(wtgEstEntitlement);
     const pendingValues = Object.assign({}, this.props.formValues);
     if (pendingValues) {
       pendingValues.has_additional_postal_code = pendingValues.has_additional_postal_code || false;
@@ -63,13 +64,13 @@ export class DateAndLocation extends Component {
         wtgEstEntitlement,
       )
         .then(() => {
-          if (this.state.outOfRangeError) {
-            this.setState({ outOfRangeError: false });
+          if (this.state.invalidPPMParams) {
+            this.setState({ invalidPPMParams: false });
           }
           this.props.createOrUpdatePpm(moveId, pendingValues);
         })
         .catch(e => {
-          this.setState({ outOfRangeError: true });
+          this.setState({ invalidPPMParams: true });
           throw e;
         });
     }
@@ -132,7 +133,7 @@ export class DateAndLocation extends Component {
           enableReinitialize={true} //this is needed as the pickup_postal_code value needs to be initialized to the users residential address
         >
           <h2>PPM Dates & Locations</h2>
-          {this.state.outOfRangeError && (
+          {this.state.invalidPPMParams && (
             <Alert type="error" heading="">
               The was an issue with your move. Please check the move date and origin and destination zip
             </Alert>

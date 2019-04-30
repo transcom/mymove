@@ -131,6 +131,35 @@ describe('completing the ppm flow', function() {
   });
 });
 
+describe('check invalid ppm inputs', () => {
+  it.only('doesnt allow SM to progress if dont have rate data for move dates + zips"', function() {
+    cy.signInAsUserPostRequest(milmoveAppName, '99360a51-8cfa-4e25-ae57-24e66077305f');
+    cy.contains('Continue Move Setup').click();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
+    });
+    cy.get('.wizard-header').should('not.exist');
+    cy
+      .get('input[name="original_move_date"]')
+      .first()
+      .type('6/3/2100{enter}')
+      .blur();
+    cy
+      .get('input[name="pickup_postal_code"]')
+      .clear()
+      .type('80913');
+    cy.get('input[name="destination_postal_code"]').type('76127');
+
+    cy.nextPage();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
+    });
+    cy.get('.usa-alert-text').should('exist');
+  });
+});
+
 describe('editing ppm only move', () => {
   it('sees only details relevant to PPM only move', () => {
     cy.signInAsUserPostRequest(milmoveAppName, 'e10d5964-c070-49cb-9bd1-eaf9f7348eb6');
