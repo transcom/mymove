@@ -21,13 +21,10 @@ require (
 	github.com/facebookgo/subset v0.0.0-20150612182917-8dac2c3c4870 // indirect
 	github.com/felixge/httpsnoop v1.0.0
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
-	github.com/go-openapi/errors v0.19.0
 	github.com/go-openapi/loads v0.19.0
 	github.com/go-openapi/runtime v0.19.0
-	github.com/go-openapi/spec v0.19.0
 	github.com/go-openapi/strfmt v0.19.0
 	github.com/go-openapi/swag v0.19.0
-	github.com/go-openapi/validate v0.19.0
 	github.com/go-swagger/go-swagger v0.19.1-0.20190418040917-7c42b9948129
 	github.com/gobuffalo/fizz v1.7.0 // indirect
 	github.com/gobuffalo/helpers v0.0.0-20190425165706-cddb8b03d1d1 // indirect
@@ -45,7 +42,6 @@ require (
 	github.com/honeycombio/libhoney-go v1.10.0 // indirect
 	github.com/imdario/mergo v0.3.7
 	github.com/jackc/pgx v3.3.0+incompatible // indirect
-	github.com/jessevdk/go-flags v1.4.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/jung-kurt/gofpdf v1.1.1
 	github.com/karrick/godirwalk v1.8.2 // indirect
@@ -73,7 +69,7 @@ require (
 	goji.io v2.0.2+incompatible
 	golang.org/x/crypto v0.0.0-20190424203555-c05e17bb3b2d
 	golang.org/x/lint v0.0.0-20190409202823-959b441ac422
-	golang.org/x/net v0.0.0-20190424112056-4829fb13d2c6
+	golang.org/x/net v0.0.0-20190424112056-4829fb13d2c6 // indirect
 	golang.org/x/oauth2 v0.0.0-20190402181905-9f3314589c9a // indirect
 	golang.org/x/sys v0.0.0-20190416152802-12500544f89f // indirect
 	golang.org/x/text v0.3.1
