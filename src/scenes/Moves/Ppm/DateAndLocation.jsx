@@ -1,4 +1,4 @@
-import { debounce, get, bind, cloneDeep } from 'lodash';
+import { isEmpty, debounce, get, has, bind, cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
@@ -9,7 +9,6 @@ import {
   createOrUpdatePpm,
   getDestinationPostalCode,
   getPpmSitEstimate,
-  getPpmWeightEstimate,
   isHHGPPMComboMove,
   setInitialFormValues,
 } from './ducks';
@@ -21,11 +20,31 @@ import WizardHeader from '../WizardHeader';
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import './DateAndLocation.css';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
+import { GetPpmWeightEstimate } from './api';
 
 const sitEstimateDebounceTime = 300;
-const weightEstimateDebounce = 300;
 const formName = 'ppp_date_and_location';
-const DateAndLocationWizardForm = reduxifyWizardForm(formName);
+
+const canCalculateEntitlement = (values, form) => {
+  // https://redux-form.com/6.6.3/examples/fieldlevelvalidation/
+  const requiredFields = ['original_move_date', 'pickup_postal_code', 'destination_postal_code'];
+  if (
+    has(values, requiredFields[0]) &&
+    has(values, requiredFields[1]) &&
+    has(values, requiredFields[2])
+  ) {
+    // GetPpmWeightEstimate(values.original_move_date, values.pickup_postal_code, values.destination_postal_code, 2000)
+    //   .then(res  => {
+    //     return undefined;
+    //   })
+    //   .catch(e => {
+    //     return e;
+    //   });
+    return "ERROR";
+  }
+};
+
+const DateAndLocationWizardForm = reduxifyWizardForm(formName, canCalculateEntitlement);
 
 export class DateAndLocation extends Component {
   state = { showInfo: false };
@@ -79,24 +98,6 @@ export class DateAndLocation extends Component {
     );
   };
 
-  debouncedGetPpmWeightEstimate = debounce(this.props.getPpmWeightEstimate, weightEstimateDebounce);
-
-  getdebouncedGetPpmWeightEstimate = (e, value, _, field) => {
-    const { formValues, entitlement } = this.props;
-    const estimateValues = cloneDeep(formValues);
-    estimateValues[field] = value; // eslint-disable-line security/detect-object-injection
-    if (value) {
-      this.debouncedGetPpmWeightEstimate(
-        estimateValues.original_move_date,
-        estimateValues.pickup_postal_code,
-        estimateValues.destination_postal_code,
-        entitlement.sum,
-      );
-    } else {
-      this.debouncedGetPpmWeightEstimate.cancel();
-    }
-  };
-
   render() {
     const {
       pages,
@@ -134,19 +135,9 @@ export class DateAndLocation extends Component {
           <h2>PPM Dates & Locations</h2>
           {isHHGPPMComboMove && <div>Great! Let's review your pickup and destination information.</div>}
           <h3> Move Date </h3>
-          <SwaggerField
-            fieldName="original_move_date"
-            validate={this.getdebouncedGetPpmWeightEstimate}
-            swagger={this.props.schema}
-            required
-          />
+          <SwaggerField fieldName="original_move_date" swagger={this.props.schema} required />
           <h3>Pickup Location</h3>
-          <SwaggerField
-            fieldName="pickup_postal_code"
-            validate={this.getdebouncedGetPpmWeightEstimate}
-            swagger={this.props.schema}
-            required
-          />
+          <SwaggerField fieldName="pickup_postal_code" swagger={this.props.schema} required />
           {!isHHGPPMComboMove && (
             <SwaggerField fieldName="has_additional_postal_code" swagger={this.props.schema} component={YesNoBoolean} />
           )}
@@ -231,6 +222,7 @@ function mapStateToProps(state) {
     ...state.ppm,
     currentOrders: state.orders.currentOrders,
     formValues: getFormValues(formName)(state),
+    rateEngineError: get(state, 'ppm.rateEngineError'),
     entitlement: loadEntitlementsFromState(state),
     hasEstimateError: state.ppm.hasEstimateError,
     isHHGPPMComboMove: isHHGPPMComboMove(state),
@@ -259,10 +251,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { createOrUpdatePpm, getPpmSitEstimate, getPpmWeightEstimate, setInitialFormValues },
-    dispatch,
-  );
+  return bindActionCreators({ createOrUpdatePpm, getPpmSitEstimate, setInitialFormValues }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(DateAndLocation);
