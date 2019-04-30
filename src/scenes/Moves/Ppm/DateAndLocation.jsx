@@ -53,7 +53,6 @@ export class DateAndLocation extends Component {
   handleSubmit = () => {
     const { entitlement } = this.props;
     const wtgEstEntitlement = get(entitlement, 'sum', 2000);
-    console.log(wtgEstEntitlement);
     const pendingValues = Object.assign({}, this.props.formValues);
     if (pendingValues) {
       pendingValues.has_additional_postal_code = pendingValues.has_additional_postal_code || false;
@@ -62,7 +61,7 @@ export class DateAndLocation extends Component {
         pendingValues.days_in_storage = null;
       }
       const moveId = this.props.match.params.moveId;
-      // call GetPpmWeightEstimate verifies that we have rate data for this move date and locations
+      // the call to GetPpmWeightEstimate verifies that we have rate data for these locations and move date
       return GetPpmWeightEstimate(
         this.props.formValues.original_move_date,
         this.props.formValues.pickup_postal_code,
@@ -141,7 +140,7 @@ export class DateAndLocation extends Component {
           <h2>PPM Dates & Locations</h2>
           {this.state.invalidPPMParams && (
             <Alert type="error" heading="">
-              The was an issue with your move. Please check the move date and origin and destination zip
+              There was an issue with your move. Please verify the move date, origin zip and destination zip.
             </Alert>
           )}
           {isHHGPPMComboMove && <div>Great! Let's review your pickup and destination information.</div>}
