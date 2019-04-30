@@ -322,7 +322,7 @@ func FetchDiscountRates(db *pop.Connection, originZip string, destinationZip str
 
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
-			return 0.0, 0.0, errors.Wrapf(ErrFetchNotFound, "could not find the tsp performance for rate area: %s, region: %s and date: %s", rateArea, region, date)
+			return 0.0, 0.0, ErrFetchNotFound
 		}
 		return 0.0, 0.0, errors.Wrap(err, "could find the tsp performance")
 	}
