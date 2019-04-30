@@ -7,12 +7,13 @@ import Alert from 'shared/Alert';
 import { formatTime, formatDate4DigitYear } from 'shared/formatters';
 import { isError, isLoading, isSuccess } from 'shared/constants';
 
-import './InvoicePanel.css';
+import styles from './InvoicePanel.module.scss';
 
 class InvoicePaymentAlert extends PureComponent {
   render() {
     let paymentAlert;
     const status = this.props.createInvoiceStatus;
+    const warningHeaderStyle = styles['warning--header'];
 
     if (status === isError) {
       //handle 409 status: shipment invoice already processed
@@ -25,7 +26,7 @@ class InvoicePaymentAlert extends PureComponent {
         paymentAlert = (
           <div>
             <Alert type="success" heading="Already approved">
-              <span className="warning--header">
+              <span className={warningHeaderStyle}>
                 {aproverFirstName} {aproverLastName} approved this invoice on {invoiceDate.format('DD-MMM-YYYY')} at{' '}
                 {invoiceDate.format('kk:mm')}.
               </span>
@@ -36,7 +37,7 @@ class InvoicePaymentAlert extends PureComponent {
         paymentAlert = (
           <div>
             <Alert type="success" heading="Already submitted">
-              <span className="warning--header">
+              <span className={warningHeaderStyle}>
                 A payment request was made by {aproverFirstName} {aproverLastName} at {formatTime(invoiceDate)} on{' '}
                 {formatDate4DigitYear(invoiceDate)} andis already in process.<br />
                 Please refresh this screen for updated details.
@@ -47,21 +48,21 @@ class InvoicePaymentAlert extends PureComponent {
       } else {
         paymentAlert = (
           <Alert type="error" heading="Oops, something went wrong!">
-            <span className="warning--header">Please try again.</span>
+            <span className={warningHeaderStyle}>Please try again.</span>
           </Alert>
         );
       }
     } else if (status === isLoading) {
       paymentAlert = (
         <Alert type="loading" heading="Creating invoice">
-          <span className="warning--header">Sending information to USBank/Syncada.</span>
+          <span className={warningHeaderStyle}>Sending information to USBank/Syncada.</span>
         </Alert>
       );
     } else if (status === isSuccess) {
       paymentAlert = (
         <div>
           <Alert type="success" heading="Success!">
-            <span className="warning--header">The invoice has been created and will be paid soon.</span>
+            <span className={warningHeaderStyle}>The invoice has been created and will be paid soon.</span>
           </Alert>
         </div>
       );

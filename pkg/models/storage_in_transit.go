@@ -130,7 +130,6 @@ func FetchStorageInTransitByID(tx *pop.Connection, storageInTransitID uuid.UUID)
 	}
 
 	return &storageInTransit, nil
-
 }
 
 // DeleteStorageInTransit deletes a Storage In Transit object based on the provided ID

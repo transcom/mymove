@@ -107,5 +107,5 @@ func (c CreateInvoice) generateBaseInvoiceNumber(scac string, year int) (string,
 		return "", errors.Wrapf(err, "Error when incrementing invoice sequence number for %s/%d", scac, year)
 	}
 
-	return fmt.Sprintf("%s%d%04d", scac, year%100, sequenceNumber), nil
+	return fmt.Sprintf("%s%02d%04d", scac, year%100, sequenceNumber), nil
 }
