@@ -23,7 +23,18 @@ describe('completing the ppm flow', function() {
       .get('input[name="pickup_postal_code"]')
       .clear()
       .type('80913');
-    cy.get('input[name="destination_postal_code"]').type('76127');
+
+    // same destination postal code and pickup postal code is not allowed
+    cy
+      .get('input[name="destination_postal_code"]')
+      .type('80913')
+      .blur();
+    cy.get('#destination_postal_code-error').should('exist');
+
+    cy
+      .get('input[name="destination_postal_code"]')
+      .clear()
+      .type('76127');
 
     cy.nextPage();
 
@@ -178,6 +189,9 @@ describe('editing ppm only move', () => {
 function serviceMemberVisitsIntroToPPMPaymentRequest() {
   cy.signInAsUserPostRequest(milmoveAppName, '8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
   cy.contains('Fort Gordon (from Yuma AFB)');
+  cy.get('.submitted .status_dates').should('exist');
+  cy.get('.ppm_approved .status_dates').should('exist');
+  cy.get('.in_progress .status_dates').should('exist');
   cy.contains('Request Payment').click();
 
   cy.location().should(loc => {
