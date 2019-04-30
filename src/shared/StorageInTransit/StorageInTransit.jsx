@@ -42,8 +42,16 @@ export class StorageInTransit extends Component {
   authorizedStartDate = () => {
     const { storageInTransit } = this.props;
     return storageInTransit.authorized_start_date
-      ? storageInTransit.authorized_start_date
+      ? this.storageInTransitAuthorizedStartDate()
       : this.assignEstimatedStartDateToAuthorizedStartDate();
+  };
+
+  storageInTransitAuthorizedStartDate = () => {
+    this.setState({
+      storageInTransit: {
+        ...this.props.storageInTransit,
+      },
+    });
   };
 
   assignEstimatedStartDateToAuthorizedStartDate = () => {
