@@ -11,13 +11,13 @@
 
 ## Obtain yearly rates `xlsx` file from ustranscom
 
-1. visit: [https://www.ustranscom.mil/dp3/hhg.cfm](https://www.ustranscom.mil/dp3/hhg.cfm) (for some reason, I had to load hit this url twice... the first visit redirected to another page).
+1. Visit: [https://www.ustranscom.mil/dp3/hhg.cfm](https://www.ustranscom.mil/dp3/hhg.cfm) (for some reason, I had to load hit this url twice... the first visit redirected to another page).
 2. Look under “Special Requirements and Rates Team” -> “Domestic” -> “400NG Baseline Rates” and download yearly rate file.
 3. Copy the file to DP3 Google drive: DP3 -> Engineering -> Reference Docs -> rate engine: filing
 
 ## Importing `full_pack_rates`, `full_unpack_rates`, `linehaul_rates`, `service_areas`, and `shorthaul_rates`
 
-### extract data from `xlsx` file via `Ruby` scripts
+### Extract data from `xlsx` file via `Ruby` scripts
 
 1. Clone the Truss fork of the [move.mil repository](https://github.com/trussworks/move.mil)
 2. Run `bin/setup` on the command line and make sure there were no errors in populating the seed data.
@@ -34,21 +34,21 @@
 6. Run `rails db:reset` to drop the database, re-run migrations, and re-run the seeds import.
 7. Dump the tables: `pg_dump --inserts -t full_packs -t full_unpacks -t linehauls -t service_areas -t shorthauls move_mil_development`
 
-### Load dumped tables into database via migrations`
+### Load dumped tables into database via migrations
 
-#### related prs
+#### Related prs
 
 * [2018 data load](https://github.com/transcom/mymove/pull/338)
 * [2019 data load](https://github.com/transcom/mymove/pull/2036)
 
-1. create migration to load dump tables into `temp tables`. (see pr for example)
-2. create migration to transform `temp table` data into `MilMove` table structures. (see pr for example)
+1. Create migration to load dump tables into `temp tables`. (see pr for example).
+2. Create migration to transform `temp table` data into `MilMove` table structures. (see pr for example).
 
-## add additional `sit` data to `tariff400ng_service_areas` table
+## Add additional `sit` data to `tariff400ng_service_areas` table
 
 ### The extracted data from the ruby scripts doesn't contain all the data we need. We also need `185A SIT First Day & Whouse`, `185B SIT Addl Days`, and `SIT PD Schedule` found on the `Geographical Schedule` sheet
 
-#### related prs
+#### Related prs
 
 * [2018 data load](https://github.com/transcom/mymove/pull/382)
 * [2019 data load](https://github.com/transcom/mymove/pull/2036)
@@ -76,17 +76,27 @@ We're going to make use of the work that Patrick Stanger delivered in [this PR](
 
 ### Load item rates into database
 
-#### related prs
+#### Related prs
 
 * [2018 data load](https://github.com/transcom/mymove/pull/1286)
 * [2019 data load](https://github.com/transcom/mymove/pull/2036)
 
-1. create migration to load `insert` statements generated from the sheet above.
-2. replace `ID_HERE` with `uuid_generate_v4()` to generate a uuid.
+1. Create migration to load `insert` statements generated from the sheet above.
+2. Replace `ID_HERE` with `uuid_generate_v4()` to generate a uuid.
+
+### Fix certain item rates. Update `weight_lbs_lower` and update `rate_cents` for specific codes
+
+#### Related prs
+
+* [2018 data load](https://github.com/transcom/mymove/pull/1313)
+* [2019 data load](https://github.com/transcom/mymove/pull/2060)
+
+1. Create migration to modify `weight_lbs_lower` and `rate_cents` (see pr for example).
+  Note - This step could be addressed when origionally tranforming the data in the `xlsx`.
 
 ## Spot check for correct data
 
-Ensure the data loaded looks correct by checking a count of row numbers grouped by date
+Ensure the data loaded looks correct by checking a count of row numbers grouped by date.
 
 1. ```select effective_date_lower, effective_date_upper, count(*) from tariff400ng_full_pack_rates group by effective_date_lower, effective_date_upper order by effective_date_lower DESC;```
 
@@ -103,4 +113,5 @@ Ensure the data loaded looks correct by checking a count of row numbers grouped 
 ## Test
 
 1. Deploy branch in `experimental`.
-2. Create a move for a date that uses data loaded by these migrations and ensure the app doesn't crash.
+2. Create a move for a date that is between the `effective_date_lower` and `effective_date_upper`.
+3. Watch the console and ensure the app doesn't throw any errors.
