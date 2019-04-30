@@ -34,7 +34,7 @@ func MakeShipmentOffer(db *pop.Connection, assertions Assertions) models.Shipmen
 
 	tspp := assertions.ShipmentOffer.TransportationServiceProviderPerformance
 	if isZeroUUID(tspp.ID) || isZeroUUID(assertions.ShipmentOffer.TransportationServiceProviderPerformanceID) {
-		tspp = MakeTSPPerformance(db, assertions)
+		tspp, _ = MakeTSPPerformance(db, assertions)
 	}
 
 	shipmentOffer := models.ShipmentOffer{

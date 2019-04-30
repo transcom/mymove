@@ -21,6 +21,7 @@ If you are looking to understand choices made in this project, see the list of [
 * [display dates and times](how-to/display-dates-and-times.md#how-to-display-dates-and-times)
 * [Generate Mocks with Mockery](how-to/generate-mocks-with-mockery.md#how-to-generate-mocks-with-mockery)
 * [Instrument Data in Honeycomb](how-to/instrument-data-in-honeycomb.md#how-to-instrument-data-in-honeycomb)
+* [Manage Dependencies With go mod](how-to/manage-dependencies-with-go-mod.md#how-to-manage-dependencies-with-go-mod)
 * [Manage Docker Locally](how-to/manage-docker-locally.md#how-to-manage-docker-locally)
 * [Migrate the Database](how-to/migrate-the-database.md#how-to-migrate-the-database)
 * [revert a change](how-to/revert-a-change.md#how-to-revert-a-change)
@@ -71,5 +72,6 @@ If you are looking to understand choices made in this project, see the list of [
 * 0031 [*CSS Tooling*](adr/0031-css-tooling.md#css-tooling)
 * 0032 [CSRF Protection for the Application](adr/0032-csrf-protection.md#csrf-protection-for-the-application)
 * 0033 [*Service Object Layer*](adr/0033-service-object-layer.md#service-object-layer)
+* 0034 [*Working With Mocks: Generation and Assertion*](adr/0034-working-with-mocks-generation-and-assertion.md#working-with-mocks-generation-and-assertion)
 
 <!--endindex-->

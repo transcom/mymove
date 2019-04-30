@@ -202,7 +202,7 @@ definitions:
         x-nullable: true
       weight_estimate:
         type: integer
-        minimum: 1
+        minimum: 0
         title: Weight Estimate
         x-nullable: true
       net_weight:
@@ -280,7 +280,7 @@ definitions:
         x-nullable: true
       weight_estimate:
         type: integer
-        minimum: 1
+        minimum: 0
         title: Weight Estimate
         x-nullable: true
       net_weight:
@@ -355,7 +355,7 @@ definitions:
         x-nullable: true
       weight_estimate:
         type: integer
-        minimum: 1
+        minimum: 0
         title: Weight Estimate
         x-nullable: true
       net_weight:
@@ -395,6 +395,12 @@ definitions:
         example: '2018-04-26'
         format: date
         title: When did you actually move?
+        x-nullable: true
+      submit_date:
+        type: string
+        format: date-time
+        title: When was the ppm move submitted?
+        example: '2019-03-26T13:19:56-04:00'
         x-nullable: true
       approve_date:
         type: string
@@ -443,7 +449,7 @@ definitions:
         x-nullable: true
       weight_estimate:
         type: integer
-        minimum: 1
+        minimum: 0
         title: Weight Estimate
         x-nullable: true
         x-formatting: weight
@@ -498,6 +504,26 @@ definitions:
       - id
       - created_at
       - updated_at
+  SubmitMoveForApprovalPayload:
+    type: object
+    properties:
+      ppm_submit_date:
+        type: string
+        format: date-time
+        title: When was the ppm move submitted?
+        example: '2019-03-26T13:19:56-04:00'
+    required:
+      - ppm_submit_date
+  SubmitPersonallyProcuredMovePayload:
+    type: object
+    properties:
+      submit_date:
+        type: string
+        format: date-time
+        title: When was the ppm move submitted?
+        example: '2019-03-26T13:19:56-04:00'
+    required:
+      - submit_date
   PPMSitEstimate:
     type: object
     properties:
@@ -570,6 +596,8 @@ definitions:
         format: date-time
         title: When was the ppm move approved?
         example: '2019-03-26T13:19:56-04:00'
+    required:
+      - approve_date
   IndexPersonallyProcuredMovePayload:
     type: array
     items:
@@ -864,7 +892,9 @@ definitions:
         type: string
         format: edipi
         example: '5789345789'
-        pattern: '^[0-9]{10}$'
+        pattern: '^\d{10}$'
+        minLength: 10
+        maxLength: 10
         x-nullable: true
         title: DoD ID number
       orders:
@@ -966,7 +996,9 @@ definitions:
       edipi:
         type: string
         format: edipi
-        pattern: '^[0-9]{10}$'
+        pattern: '^\d{10}$'
+        minLength: 10
+        maxLength: 10
         example: '5789345789'
         x-nullable: true
         title: 'DoD ID number'
@@ -1054,7 +1086,9 @@ definitions:
       edipi:
         type: string
         format: edipi
-        pattern: '^[0-9]{10}$'
+        pattern: '^\d{10}$'
+        minLength: 10
+        maxLength: 10
         example: '5789345789'
         x-nullable: true
         title: DoD ID number
@@ -1316,6 +1350,9 @@ definitions:
         title: Signature
       certification_text:
         type: string
+      move_id:
+        type: string
+        format: uuid
       personally_procured_move_id:
         type: string
         format: uuid
@@ -1329,6 +1366,7 @@ definitions:
         x-nullable: true
     required:
       - id
+      - move_id
       - created_at
       - updated_at
       - date
@@ -1361,6 +1399,10 @@ definitions:
       - date
       - signature
       - certification_text
+  SignedCertifications:
+    type: array
+    items:
+      $ref: '#/definitions/SignedCertificationPayload'
   SignedCertificationType:
     type: string
     enum:
@@ -1835,39 +1877,39 @@ definitions:
         x-display-value:
           AL: AL
           AK: AK
-          AZ: AZ
           AR: AR
+          AZ: AZ
           CA: CA
           CO: CO
           CT: CT
-          DE: DE
           DC: DC
+          DE: DE
           FL: FL
           GA: GA
           HI: HI
+          IA: IA
           ID: ID
           IL: IL
           IN: IN
-          IA: IA
           KS: KS
           KY: KY
           LA: LA
-          ME: ME
-          MD: MD
           MA: MA
+          MD: MD
+          ME: ME
           MI: MI
           MN: MN
-          MS: MS
           MO: MO
+          MS: MS
           MT: MT
+          NC: NC
+          ND: ND
           NE: NE
-          NV: NV
           NH: NH
           NJ: NJ
           NM: NM
+          NV: NV
           NY: NY
-          NC: NC
-          ND: ND
           OH: OH
           OK: OK
           OR: OR
@@ -1878,48 +1920,48 @@ definitions:
           TN: TN
           TX: TX
           UT: UT
-          VT: VT
           VA: VA
+          VT: VT
           WA: WA
-          WV: WV
           WI: WI
+          WV: WV
           WY: WY
         enum:
           - AL
           - AK
-          - AZ
           - AR
+          - AZ
           - CA
           - CO
           - CT
-          - DE
           - DC
+          - DE
           - FL
           - GA
           - HI
+          - IA
           - ID
           - IL
           - IN
-          - IA
           - KS
           - KY
           - LA
-          - ME
-          - MD
           - MA
+          - MD
+          - ME
           - MI
           - MN
-          - MS
           - MO
+          - MS
           - MT
+          - NC
+          - ND
           - NE
-          - NV
           - NH
           - NJ
           - NM
+          - NV
           - NY
-          - NC
-          - ND
           - OH
           - OK
           - OR
@@ -1930,11 +1972,11 @@ definitions:
           - TN
           - TX
           - UT
-          - VT
           - VA
+          - VT
           - WA
-          - WV
           - WI
+          - WV
           - WY
       postal_code:
         type: string
@@ -2297,7 +2339,9 @@ definitions:
       edipi:
         type: string
         format: edipi
-        pattern: '^[0-9]{10}$'
+        pattern: '^\d{10}$'
+        minLength: 10
+        maxLength: 10
         example: '5789345789'
         title: 'DoD ID #'
       rank:
@@ -2727,6 +2771,33 @@ paths:
           description: move not found
         500:
           description: internal server error
+    get:
+      summary: gets the signed certifications for the given move ID
+      description: returns a list of all signed_certifications associated with the move ID
+      operationId: indexSignedCertification
+      tags:
+        - certification
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        200:
+          description: returns a list of signed certifications
+          schema:
+            $ref: '#/definitions/SignedCertifications'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move not found
+        500:
+          description: internal server error
   /moves/{moveId}/personally_procured_move:
     post:
       summary: Creates a new PPM for the given move
@@ -2906,6 +2977,11 @@ paths:
           format: uuid
           required: true
           description: UUID of the PPM being submitted
+        - name: submitPersonallyProcuredMovePayload
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/SubmitPersonallyProcuredMovePayload'
       responses:
         200:
           description: updated instance of personally_procured_move
@@ -3362,6 +3438,11 @@ paths:
           format: uuid
           required: true
           description: UUID of the move
+        - name: submitMoveForApprovalPayload
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/SubmitMoveForApprovalPayload'
       responses:
         200:
           description: returns updated (submitted) move object

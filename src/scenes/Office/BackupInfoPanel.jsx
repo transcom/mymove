@@ -47,10 +47,6 @@ const BackupInfoEdit = props => {
     swagger: props.backupContactSchema,
     values: props.backupContact,
   };
-  let backupMailingAddressProps = {
-    swagger: props.addressSchema,
-    values: props.backupMailingAddress,
-  };
   return (
     <React.Fragment>
       <div className="editable-panel-column">
@@ -67,9 +63,11 @@ const BackupInfoEdit = props => {
       </div>
 
       <div className="editable-panel-column">
-        <FormSection name="backupMailingAddress">
-          <AddressElementEdit addressProps={backupMailingAddressProps} title="Backup mailing address" />
-        </FormSection>
+        <AddressElementEdit
+          fieldName="backupMailingAddress"
+          schema={props.addressSchema}
+          title="Backup mailing address"
+        />
       </div>
     </React.Fragment>
   );

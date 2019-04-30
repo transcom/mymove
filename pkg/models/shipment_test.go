@@ -110,7 +110,7 @@ func (suite *ModelSuite) Test_FetchUnofferedShipments() {
 			Status:                  ShipmentStatusSUBMITTED,
 		},
 	})
-	tspp := testdatagen.MakeDefaultTSPPerformance(suite.DB())
+	tspp, _ := testdatagen.MakeDefaultTSPPerformance(suite.DB())
 	CreateShipmentOffer(suite.DB(), shipment.ID, tspp.TransportationServiceProviderID, tspp.ID, false)
 	shipments, err := FetchUnofferedShipments(suite.DB())
 
