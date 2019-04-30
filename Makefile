@@ -123,12 +123,15 @@ client_deps: .check_hosts.stamp .client_deps.stamp
 	yarn install
 	scripts/copy-swagger-ui
 	touch .client_deps.stamp
+
 .client_build.stamp: $(shell find src -type f)
 	yarn build
 	touch .client_build.stamp
 
 .PHONY: client_build
 client_build: .client_deps.stamp .client_build.stamp
+
+build/favicon.ico: client_build
 
 .PHONY: client_run
 client_run: .client_deps.stamp
@@ -274,8 +277,8 @@ server_deps: get_gotools \
 	bin/rds-combined-ca-bundle.pem
 
 .PHONY: server_generate
-server_generate: .check_go_version.stamp .check_gopath.stamp pkg/assets/assets.go bin/swagger .server_generate.stamp
-.server_generate.stamp: $(shell find swagger -type f -name *.yaml)
+server_generate: .check_go_version.stamp .check_gopath.stamp .server_generate.stamp
+.server_generate.stamp: pkg/assets/assets.go bin/swagger $(shell find swagger -type f -name *.yaml)
 	scripts/gen-server
 	touch .server_generate.stamp
 
