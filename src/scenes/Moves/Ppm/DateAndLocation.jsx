@@ -1,4 +1,4 @@
-import { isEmpty, debounce, get, has, bind, cloneDeep } from 'lodash';
+import { debounce, get, bind, cloneDeep } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
@@ -25,29 +25,10 @@ import { GetPpmWeightEstimate } from './api';
 const sitEstimateDebounceTime = 300;
 const formName = 'ppp_date_and_location';
 
-const canCalculateEntitlement = (values, form) => {
-  // https://redux-form.com/6.6.3/examples/fieldlevelvalidation/
-  const requiredFields = ['original_move_date', 'pickup_postal_code', 'destination_postal_code'];
-  if (
-    has(values, requiredFields[0]) &&
-    has(values, requiredFields[1]) &&
-    has(values, requiredFields[2])
-  ) {
-    // GetPpmWeightEstimate(values.original_move_date, values.pickup_postal_code, values.destination_postal_code, 2000)
-    //   .then(res  => {
-    //     return undefined;
-    //   })
-    //   .catch(e => {
-    //     return e;
-    //   });
-    return "ERROR";
-  }
-};
-
-const DateAndLocationWizardForm = reduxifyWizardForm(formName, canCalculateEntitlement);
+const DateAndLocationWizardForm = reduxifyWizardForm(formName);
 
 export class DateAndLocation extends Component {
-  state = { showInfo: false };
+  state = { showInfo: false, outOfRangeError: false };
 
   componentDidMount() {
     if (!this.props.currentPpm && this.props.isHHGPPMComboMove) {
@@ -64,6 +45,8 @@ export class DateAndLocation extends Component {
   };
 
   handleSubmit = () => {
+    const { entitlement } = this.props;
+    const wtgEstEntitlement = entitlement ? entitlement : 2000;
     const pendingValues = Object.assign({}, this.props.formValues);
     if (pendingValues) {
       pendingValues.has_additional_postal_code = pendingValues.has_additional_postal_code || false;
@@ -72,7 +55,23 @@ export class DateAndLocation extends Component {
         pendingValues.days_in_storage = null;
       }
       const moveId = this.props.match.params.moveId;
-      return this.props.createOrUpdatePpm(moveId, pendingValues);
+      // call GetPpmWeightEstimate verifies that we have rate data for this move date and locations
+      return GetPpmWeightEstimate(
+        this.props.formValues.original_move_date,
+        this.props.formValues.pickup_postal_code,
+        this.props.formValues.destination_postal_code,
+        wtgEstEntitlement,
+      )
+        .then(() => {
+          if (this.state.outOfRangeError) {
+            this.setState({ outOfRangeError: false });
+          }
+          this.props.createOrUpdatePpm(moveId, pendingValues);
+        })
+        .catch(e => {
+          this.setState({ outOfRangeError: true });
+          throw e;
+        });
     }
   };
 
@@ -133,6 +132,11 @@ export class DateAndLocation extends Component {
           enableReinitialize={true} //this is needed as the pickup_postal_code value needs to be initialized to the users residential address
         >
           <h2>PPM Dates & Locations</h2>
+          {this.state.outOfRangeError && (
+            <Alert type="error" heading="">
+              The was an issue with your move. Please check the move date and origin and destination zip
+            </Alert>
+          )}
           {isHHGPPMComboMove && <div>Great! Let's review your pickup and destination information.</div>}
           <h3> Move Date </h3>
           <SwaggerField fieldName="original_move_date" swagger={this.props.schema} required />
