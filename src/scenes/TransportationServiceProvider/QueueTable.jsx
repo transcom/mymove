@@ -136,9 +136,12 @@ class QueueTable extends Component {
             pageSize={this.state.data.length}
             className="-striped -highlight"
             showPagination={false}
-            getTrProps={(state, rowInfo) => ({
-              onDoubleClick: e => this.props.history.push(`/shipments/${rowInfo.original.id}`),
-            })}
+            getTrProps={(state, rowInfo) => {
+              return {
+                onDoubleClick: e => this.props.history.push(`/shipments/${rowInfo.original.id}`),
+                'data-cy': 'queue-table-row',
+              };
+            }}
           />
         </div>
       </div>

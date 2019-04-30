@@ -37,5 +37,5 @@ function tspAllMoves() {
     expect(loc.pathname).to.match(/^\/queues\/all/);
   });
 
-  cy.get('.rt-tr-group').should('have.length', 40);
+  cy.get('[data-cy=queue-table-row]').should('have.length', 40);
 }
