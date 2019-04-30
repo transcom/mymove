@@ -10,7 +10,9 @@ import (
 	_ "github.com/codegangsta/gin"
 	_ "github.com/go-swagger/go-swagger/cmd/swagger"
 	_ "github.com/gobuffalo/pop/soda"
-	_ "github.com/securego/gosec/cmd/gosec"
+
+	// Disabled until gosec supports go modules
+	//_ "github.com/securego/gosec/cmd/gosec"
 	_ "github.com/segmentio/chamber"
 	_ "golang.org/x/lint/golint"
 	_ "golang.org/x/tools/cmd/callgraph"

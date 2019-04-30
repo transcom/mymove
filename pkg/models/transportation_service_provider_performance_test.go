@@ -95,7 +95,13 @@ func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 
 	tdl := testdatagen.MakeDefaultTDL(suite.DB())
 	tsp := testdatagen.MakeDefaultTSP(suite.DB())
-	perf, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp, tdl, nil, mps, 0, .2, .1)
+	perf, _ := testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp,
+			TransportationServiceProviderID: tsp.ID,
+			TrafficDistributionListID:       tdl.ID,
+		},
+	})
 
 	// Increment offer count twice
 	performance, err := IncrementTSPPerformanceOfferCount(suite.DB(), perf.ID)
@@ -133,7 +139,13 @@ func (suite *ModelSuite) Test_AssignQualityBandToTSPPerformance() {
 		},
 	})
 	tsp := testdatagen.MakeDefaultTSP(suite.DB())
-	perf, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp, tdl, nil, mps, 0, .2, .3)
+	perf, _ := testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp,
+			TransportationServiceProviderID: tsp.ID,
+			TrafficDistributionListID:       tdl.ID,
+		},
+	})
 	band := 1
 
 	err := AssignQualityBandToTSPPerformance(context.Background(), suite.DB(), band, perf.ID)
@@ -167,11 +179,24 @@ func (suite *ModelSuite) Test_BVSWithLowMPS() {
 	// Make 5 (not divisible by 4) TSPs in this TDL with BVSs above MPS threshold
 	for i := 0; i < tspsToMake; i++ {
 		tsp := testdatagen.MakeDefaultTSP(suite.DB())
-		testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp, tdl, nil, 15, 0, .5, .6)
+
+		testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+			TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+				TransportationServiceProvider:   tsp,
+				TransportationServiceProviderID: tsp.ID,
+				TrafficDistributionListID:       tdl.ID,
+			},
+		})
 	}
 	// Make 1 TSP in this TDL with BVS below the MPS threshold
 	mpsTSP := testdatagen.MakeDefaultTSP(suite.DB())
-	lastTSPP, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), mpsTSP, tdl, nil, mps-1, 0, .2, .9)
+	lastTSPP, _ := testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   mpsTSP,
+			TransportationServiceProviderID: mpsTSP.ID,
+			TrafficDistributionListID:       tdl.ID,
+		},
+	})
 
 	perfGroup := TSPPerformanceGroup{
 		TrafficDistributionListID: lastTSPP.TrafficDistributionListID,
@@ -206,9 +231,33 @@ func (suite *ModelSuite) Test_FetchNextQualityBandTSPPerformance() {
 	tsp3 := testdatagen.MakeDefaultTSP(suite.DB())
 
 	// TSPs should be orderd by offer_count first, then BVS.
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp1, tdl, swag.Int(1), mps+1, 0, .4, .4)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp2, tdl, swag.Int(1), mps+3, 0, .4, .4)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp3, tdl, swag.Int(1), mps+2, 0, .4, .4)
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp1,
+			TransportationServiceProviderID: tsp1.ID,
+			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
+			BestValueScore:                  mps + 1,
+		},
+	})
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp2,
+			TransportationServiceProviderID: tsp2.ID,
+			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
+			BestValueScore:                  mps + 3,
+		},
+	})
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp3,
+			TransportationServiceProviderID: tsp3.ID,
+			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
+			BestValueScore:                  mps + 2,
+		},
+	})
 
 	tspp, err := NextTSPPerformanceInQualityBand(suite.DB(), tdl.ID, 1, testdatagen.DateInsidePerformancePeriod,
 		testdatagen.DateInsidePeakRateCycle)
@@ -389,12 +438,47 @@ func (suite *ModelSuite) Test_GatherNextEligibleTSPPerformances() {
 	tsp3 := testdatagen.MakeDefaultTSP(suite.DB())
 	tsp4 := testdatagen.MakeDefaultTSP(suite.DB())
 	tsp5 := testdatagen.MakeDefaultTSP(suite.DB())
+
 	// TSPs should be orderd by offer_count first, then BVS.
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp1, tdl, swag.Int(1), mps+5, 0, .4, .4)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp2, tdl, swag.Int(1), mps+4, 0, .3, .3)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp3, tdl, swag.Int(2), mps+3, 0, .2, .2)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp4, tdl, swag.Int(3), mps+2, 0, .1, .1)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp5, tdl, swag.Int(4), mps+1, 0, .1, .1)
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp1,
+			TransportationServiceProviderID: tsp1.ID,
+			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(1),
+		},
+	})
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp2,
+			TransportationServiceProviderID: tsp2.ID,
+			TrafficDistributionListID:       tdl.ID,
+		},
+	})
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp3,
+			TransportationServiceProviderID: tsp3.ID,
+			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(2),
+		},
+	})
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp4,
+			TransportationServiceProviderID: tsp4.ID,
+			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(3),
+		},
+	})
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp5,
+			TransportationServiceProviderID: tsp5.ID,
+			TrafficDistributionListID:       tdl.ID,
+			QualityBand:                     swag.Int(4),
+		},
+	})
 
 	tsps, err := GatherNextEligibleTSPPerformances(suite.DB(), tdl.ID, testdatagen.DateInsidePerformancePeriod,
 		testdatagen.DateInsidePeakRateCycle)
@@ -428,9 +512,30 @@ func (suite *ModelSuite) Test_FetchTSPPerformancesForQualityBandAssignment() {
 	tsp2 := testdatagen.MakeDefaultTSP(suite.DB())
 	tsp3 := testdatagen.MakeDefaultTSP(suite.DB())
 	// What matter is the BVS score order; offer count has no influence.
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp1, tdl, nil, 90, 0, .5, .5)
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp2, tdl, nil, 50, 1, .3, .9)
-	lastTSPP, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp3, tdl, nil, 15, 1, .1, .3)
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp1,
+			TransportationServiceProviderID: tsp1.ID,
+			TrafficDistributionListID:       tdl.ID,
+			BestValueScore:                  90,
+		},
+	})
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp2,
+			TransportationServiceProviderID: tsp2.ID,
+			TrafficDistributionListID:       tdl.ID,
+			BestValueScore:                  50,
+		},
+	})
+	lastTSPP, _ := testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp3,
+			TransportationServiceProviderID: tsp3.ID,
+			TrafficDistributionListID:       tdl.ID,
+			BestValueScore:                  15,
+		},
+	})
 
 	perfGroup := TSPPerformanceGroup{
 		TrafficDistributionListID: lastTSPP.TrafficDistributionListID,
@@ -467,8 +572,22 @@ func (suite *ModelSuite) Test_MinimumPerformanceScore() {
 	tsp1 := testdatagen.MakeDefaultTSP(suite.DB())
 	tsp2 := testdatagen.MakeDefaultTSP(suite.DB())
 	// Make 2 TSPs, one with a BVS above the MPS and one below the MPS.
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp1, tdl, nil, mps+1, 0, .3, .4)
-	lastTSPP, _ := testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), tsp2, tdl, nil, mps-1, 1, .9, .7)
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp1,
+			TransportationServiceProviderID: tsp1.ID,
+			TrafficDistributionListID:       tdl.ID,
+			BestValueScore:                  mps + 1,
+		},
+	})
+	lastTSPP, _ := testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   tsp2,
+			TransportationServiceProviderID: tsp2.ID,
+			TrafficDistributionListID:       tdl.ID,
+			BestValueScore:                  mps - 1,
+		},
+	})
 
 	perfGroup := TSPPerformanceGroup{
 		TrafficDistributionListID: lastTSPP.TrafficDistributionListID,
@@ -502,7 +621,15 @@ func (suite *ModelSuite) Test_FetchUnbandedTSPPerformanceGroups() {
 		},
 	})
 	foundTSP := testdatagen.MakeDefaultTSP(suite.DB())
-	foundTSPP, err := testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), foundTSP, foundTDL, nil, float64(mps+1), 0, .2, .3)
+	foundTSPP, err := testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   foundTSP,
+			TransportationServiceProviderID: foundTSP.ID,
+			TrafficDistributionListID:       foundTDL.ID,
+			LinehaulRate:                    0.2,
+			SITRate:                         0.3,
+		},
+	})
 	if err != nil {
 		t.Errorf("Failed to MakeTSPPerformance for found TSPP: %v", err)
 	}
@@ -522,7 +649,16 @@ func (suite *ModelSuite) Test_FetchUnbandedTSPPerformanceGroups() {
 		},
 	})
 	notFoundTSP := testdatagen.MakeDefaultTSP(suite.DB())
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), notFoundTSP, notFoundTDL, swag.Int(1), float64(mps+1), 0, .4, .3)
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   notFoundTSP,
+			TransportationServiceProviderID: notFoundTSP.ID,
+			TrafficDistributionListID:       notFoundTDL.ID,
+			QualityBand:                     swag.Int(1),
+			LinehaulRate:                    0.4,
+			SITRate:                         0.3,
+		},
+	})
 
 	unenrolledTDL := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
 		TrafficDistributionList: TrafficDistributionList{
@@ -537,8 +673,15 @@ func (suite *ModelSuite) Test_FetchUnbandedTSPPerformanceGroups() {
 			Enrolled: false,
 		},
 	})
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), unenrolledTSP, unenrolledTDL, nil, float64(mps+1), 0, .4, .3)
-
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   unenrolledTSP,
+			TransportationServiceProviderID: unenrolledTSP.ID,
+			TrafficDistributionListID:       unenrolledTDL.ID,
+			LinehaulRate:                    0.4,
+			SITRate:                         0.3,
+		},
+	})
 	perfGroups, err := FetchUnbandedTSPPerformanceGroups(suite.DB())
 	if err != nil {
 		t.Fatal(err)

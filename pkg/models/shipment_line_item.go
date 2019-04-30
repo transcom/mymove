@@ -47,7 +47,7 @@ type ShipmentLineItem struct {
 	// Crating: enter "47.4" for crate size of 47.4 cu. ft.
 	// 3rd-party service: enter "1299.99" for cost of $1,299.99.
 	// Bulky item: enter "1" for a single item.
-	// Time - Military time. Ex: 0400
+	// Time - Free form text
 	Quantity1           unit.BaseQuantity          `json:"quantity_1" db:"quantity_1"`
 	Quantity2           unit.BaseQuantity          `json:"quantity_2" db:"quantity_2"`
 	Notes               string                     `json:"notes" db:"notes"`
@@ -96,13 +96,9 @@ func (s *ShipmentLineItem) Validate(tx *pop.Connection) (*validate.Errors, error
 		string(ShipmentLineItemLocationNEITHER),
 	}
 
-	// military time format: 0000 - 2359 with an optional timezone indicator letter. Ex: 0400J
-	militaryTimeExpr := "^([01]\\d|2[0-3])([0-5]\\d)([A-Z]?)$"
-
 	return validate.Validate(
 		&validators.StringInclusion{Field: string(s.Status), Name: "Status", List: validStatuses},
 		&validators.StringInclusion{Field: string(s.Location), Name: "Locations", List: validLocations},
-		&OptionalRegexMatch{Field: s.Time, Name: "Time", Expr: militaryTimeExpr, Message: "Not in military time. Ex: 0400 or 0400J"},
 	), nil
 }
 

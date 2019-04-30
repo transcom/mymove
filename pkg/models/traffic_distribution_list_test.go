@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"github.com/go-openapi/swag"
-
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -50,7 +48,13 @@ func (suite *ModelSuite) Test_FetchOrCreateTDL() {
 		},
 	})
 	foundTSP := testdatagen.MakeDefaultTSP(suite.DB())
-	testdatagen.MakeTSPPerformanceDeprecated(suite.DB(), foundTSP, foundTDL, swag.Int(1), float64(mps+1), 0, .2, .3)
+	testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+		TransportationServiceProviderPerformance: TransportationServiceProviderPerformance{
+			TransportationServiceProvider:   foundTSP,
+			TransportationServiceProviderID: foundTSP.ID,
+			TrafficDistributionListID:       foundTDL.ID,
+		},
+	})
 
 	fetchedTDL, err := FetchOrCreateTDL(suite.DB(), "US28", "4", "2")
 	if err != nil {

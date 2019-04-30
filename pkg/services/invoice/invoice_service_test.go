@@ -62,7 +62,7 @@ func helperShipmentUsingScac(suite *InvoiceServiceSuite, scac string) models.Shi
 		},
 	})
 
-	tspp := testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
+	tspp, _ := testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
 		TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
 			TransportationServiceProvider:   tsp,
 			TransportationServiceProviderID: tsp.ID,

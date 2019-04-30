@@ -1,5 +1,3 @@
-import { selectPreMoveSurveyPanel, fillAndSavePremoveSurvey } from '../../support/testPremoveSurvey';
-
 /* global cy */
 describe('Office User Interacts With the Weights & Items Panel', function() {
   beforeEach(() => {
@@ -8,10 +6,6 @@ describe('Office User Interacts With the Weights & Items Panel', function() {
 
   it('office user enters net weight', function() {
     officeUserEntersNetWeight();
-  });
-
-  it('office user sees estimated weights from the customer and office', function() {
-    officeUserSeesEstimatedWeights();
   });
 });
 
@@ -23,39 +17,6 @@ function withinWeightsAndItemsPanel(func) {
     .within(panel => {
       func(panel);
     });
-}
-
-function testReadOnlyWeights() {
-  cy.get('.weight_estimate').should($div => {
-    const text = $div.text();
-    expect(text).to.include('Customer estimate');
-    expect(text).to.include('2,000 lbs');
-  });
-  cy.get('.pm_survey_weight_estimate').should($div => {
-    const text = $div.text();
-    expect(text).to.include('TSP estimate');
-    expect(text).to.include('6,000 lbs');
-  });
-  cy.get('.progear_weight_estimate').should($div => {
-    const text = $div.text();
-    expect(text).to.include('Customer estimate');
-    expect(text).to.include('225 lbs');
-  });
-  cy.get('.pm_survey_progear_weight_estimate').should($div => {
-    const text = $div.text();
-    expect(text).to.include('TSP estimate');
-    expect(text).to.include('4,000 lbs');
-  });
-  cy.get('.spouse_progear_weight_estimate').should($div => {
-    const text = $div.text();
-    expect(text).to.include('Customer estimate');
-    expect(text).to.include('3,120 lbs');
-  });
-  cy.get('.pm_survey_spouse_progear_weight_estimate').should($div => {
-    const text = $div.text();
-    expect(text).to.include('TSP estimate');
-    expect(text).to.include('800 lbs');
-  });
 }
 
 function openMoveHhgPanel() {
@@ -73,35 +34,6 @@ function openMoveHhgPanel() {
   cy
     .get('.nav-tab')
     .contains('HHG')
-    .click();
-}
-
-function officeUserSeesEstimatedWeights() {
-  openMoveHhgPanel();
-  selectPreMoveSurveyPanel();
-  fillAndSavePremoveSurvey();
-
-  // Check that the display view is correct for the estimated weights
-  withinWeightsAndItemsPanel(() => testReadOnlyWeights);
-
-  cy
-    .get('.editable-panel-header')
-    .contains('Weights & Items')
-    .siblings()
-    .click();
-
-  // Check that the edit view is correct for the estimated weights
-  withinWeightsAndItemsPanel(() => testReadOnlyWeights);
-
-  // Verify the user can cancel
-  cy
-    .get('button')
-    .contains('Cancel')
-    .should('be.enabled');
-
-  cy
-    .get('button')
-    .contains('Cancel')
     .click();
 }
 

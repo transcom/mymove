@@ -26,12 +26,17 @@ endif
 
 # Convenience for LDFLAGS
 WEBSERVER_LDFLAGS=-X main.gitBranch=$(shell git branch | grep \* | cut -d ' ' -f2) -X main.gitCommit=$(shell git rev-list -1 HEAD)
+GC_FLAGS=-trimpath=$(GOPATH)
 DB_PORT_DEV=5432
 DB_PORT_PROD_MIGRATIONS=5434
 DB_PORT_DOCKER=5432
 ifdef CIRCLECI
 	DB_PORT_TEST=5432
 	LDFLAGS=-linkmode external -extldflags -static
+endif
+
+ifdef GOLAND
+	GOLAND_GC_FLAGS=all=-N -l
 endif
 
 #
@@ -146,8 +151,7 @@ admin_client_run: client_deps
 
 .PHONY: go_deps_update
 go_deps_update:
-	go get -u=patch -v
-	go mod tidy
+	go run cmd/update_deps/main.go
 
 .PHONY: check_gopath
 check_gopath: go_version .check_gopath.stamp
@@ -191,7 +195,7 @@ bin/rds-combined-ca-bundle.pem:
 .PHONY: server_deps
 server_deps: check_hosts check_gopath build_chamber build_soda build_callgraph get_gotools bin/rds-combined-ca-bundle.pem .server_deps.stamp
 .server_deps.stamp:
-	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
+#	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
 	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 	touch .server_deps.stamp
@@ -220,14 +224,14 @@ pkg/assets/assets.go: pkg/paperwork/formtemplates/*
 
 .PHONY: server_build
 server_build: server_deps server_generate
-	go build -gcflags=-trimpath=$(GOPATH) -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
+	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
 .PHONY: server_build_linux
 server_build_linux: server_deps_linux server_generate_linux
 	# These don't need to go in bin_linux/ because local devs don't use them
 	# Additionally it would not work with the default Dockerfile
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
-	GOOS=linux GOARCH=amd64 go build -gcflags=-trimpath=$(GOPATH) -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
+	GOOS=linux GOARCH=amd64 go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 server_run_standalone: client_build server_build db_dev_run
@@ -249,8 +253,7 @@ server_run_default: server_deps server_generate db_dev_run
 
 .PHONY: server_run_debug
 server_run_debug:
-	INTERFACE=localhost DEBUG_LOGGING=true \
-	$(AWS_VAULT) dlv debug cmd/milmove/main.go serve
+	$(AWS_VAULT) dlv debug cmd/milmove/main.go cmd/milmove/logger.go -- serve
 
 .PHONY: build_tools
 build_tools: bash_version server_deps server_generate build_generate_test_data

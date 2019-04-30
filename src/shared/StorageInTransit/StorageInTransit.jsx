@@ -215,12 +215,6 @@ export class StorageInTransit extends Component {
                       <br />
                     </span>
                   )}
-                  {storageInTransit.warehouse_address.street_address_3 && (
-                    <span>
-                      {storageInTransit.warehouse_address.street_address_3}
-                      <br />
-                    </span>
-                  )}
                   {storageInTransit.warehouse_address.city}, {storageInTransit.warehouse_address.state}{' '}
                   {storageInTransit.warehouse_address.postal_code}
                   {storageInTransit.warehouse_phone && (

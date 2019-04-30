@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190416164922_new_marine_orders_testing_cert.sql")

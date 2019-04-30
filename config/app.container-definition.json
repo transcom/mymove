@@ -22,7 +22,8 @@
   "command": [
     "--env",
     "container",
-    "--debug-logging"
+    "--debug-logging",
+    "--log-task-metadata"
   ],
   "environment": [
     {

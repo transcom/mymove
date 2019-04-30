@@ -107,8 +107,8 @@ describe('The document viewer', function() {
     cy.selectQueueItemMoveLocator('DOOB');
 
     cy
-      .get('.invoice-panel')
-      .get('.invoice-panel-table-cont')
+      .get('[data-cy=invoice-panel]')
+      .get('[data-cy=unbilled-table]')
       .find('tbody tr')
       .should(rows => {
         expect(rows).to.have.length.of.at.least(3);

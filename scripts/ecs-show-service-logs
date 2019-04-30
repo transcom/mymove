@@ -7,7 +7,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../bin" && pwd )"
 readonly DIR
 
 usage() {
-    echo "$0 <name> <environment> [git-branch [git-commit]] | less"
+    echo "${0##*/} <name> <environment> [git-branch [git-commit]] | less"
     exit 1
 }
 
@@ -16,4 +16,4 @@ set -u
 
 [[ -f "$DIR/ecs-service-logs" ]] || (echo "Missing $DIR/ecs-service-logs. Run make build_tools" && exit 1)
 
-"$DIR/ecs-service-logs" --cluster "app-${2}" --service "${1}" --git-branch "${3:-}" --git-commit "${4:-}" --status "RUNNING" --verbose
+"$DIR/ecs-service-logs" show --cluster "app-${2}" --service "${1}" --git-branch "${3:-}" --git-commit "${4:-}" --status "RUNNING" --verbose

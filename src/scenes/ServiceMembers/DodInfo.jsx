@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import { Field } from 'redux-form';
-import validator from 'shared/JsonSchemaForm/validator';
+import { normalizeSSN } from 'shared/JsonSchemaForm/reduxFieldNormalizer';
 
 import { updateServiceMember } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
@@ -123,12 +123,7 @@ export class DodInfo extends Component {
         <p>Before we can schedule your move, we need to know a little more about you.</p>
         <SwaggerField fieldName="affiliation" swagger={schema} required />
         <SwaggerField fieldName="edipi" swagger={schema} required />
-        <Field
-          name="social_security_number"
-          component={SSNField}
-          ssnOnServer={ssnOnServer}
-          normalize={validator.normalizeSSN}
-        />
+        <Field name="social_security_number" component={SSNField} ssnOnServer={ssnOnServer} normalize={normalizeSSN} />
         <SwaggerField fieldName="rank" swagger={schema} required />
       </DodWizardForm>
     );

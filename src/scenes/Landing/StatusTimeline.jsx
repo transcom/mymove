@@ -1,14 +1,32 @@
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
-import { get, findLast, includes } from 'lodash';
+import { get, filter, findLast, includes } from 'lodash';
 import moment from 'moment';
 
 import { displayDateRange } from 'shared/formatters';
 import './StatusTimeline.css';
 
 function getDates(source, dateType) {
-  if (dateType === 'book_date') {
-    return [get(source, dateType)];
+  // The in progress state in PPMStatusTimeline has different expectations
+  if (dateType === 'actual_move_date') {
+    // if there's no approve date, then the PPM hasn't been approved yet
+    // and the in progress date should not be shown
+    const approveDate = get(source, 'approve_date');
+    if (approveDate) {
+      let date = undefined;
+      // if there's an actual move date that is known and passed, show it
+      // else show original move date if it has passed
+      const actualMoveDate = get(source, dateType);
+      const originalMoveDate = get(source, 'original_move_date');
+      if (actualMoveDate && moment(actualMoveDate, 'YYYY-MM-DD').isSameOrBefore()) {
+        date = actualMoveDate;
+      } else if (moment(originalMoveDate, 'YYYY-MM-DD').isSameOrBefore()) {
+        date = originalMoveDate;
+      }
+      return date;
+    }
+
+    return;
   }
   return get(source, dateType);
 }
@@ -22,11 +40,10 @@ function getCurrentStatus(statuses) {
 export class PPMStatusTimeline extends React.Component {
   getStatuses() {
     return [
-      { name: 'Submitted', code: 'SUBMITTED' },
-      { name: 'Approved', code: 'PPM_APPROVED' },
-      { name: 'In progress', code: 'IN_PROGRESS' },
+      { name: 'Submitted', code: 'SUBMITTED', date_type: 'submit_date' },
+      { name: 'Approved', code: 'PPM_APPROVED', date_type: 'approve_date' },
+      { name: 'In progress', code: 'IN_PROGRESS', date_type: 'actual_move_date' },
       { name: 'Payment requested', code: 'PAYMENT_REQUESTED' },
-      { name: 'Payment approved', code: 'PAYMENT_APPROVED' },
     ];
   }
 
@@ -47,12 +64,17 @@ export class PPMStatusTimeline extends React.Component {
     }
 
     if (status === 'PAYMENT_REQUESTED') {
-      return ppm.status === 'PAYMENT_REQUESTED';
+      return includes(['PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     }
+  }
 
-    if (status === 'PAYMENT_APPROVED') {
-      return ppm.status === 'COMPLETED';
-    }
+  addDates(statuses) {
+    return statuses.map(status => {
+      return {
+        ...status,
+        dates: [getDates(this.props.ppm, status.date_type)],
+      };
+    });
   }
 
   addCompleted(statuses) {
@@ -65,8 +87,8 @@ export class PPMStatusTimeline extends React.Component {
   }
 
   render() {
-    const statuses = this.addCompleted(this.getStatuses());
-    return <StatusTimeline statuses={statuses} />;
+    const statuses = this.addDates(this.addCompleted(this.getStatuses()));
+    return <StatusTimeline statuses={statuses} showEstimated={false} />;
   }
 }
 
@@ -135,7 +157,7 @@ export class ShipmentStatusTimeline extends React.Component {
         ...status,
         dates:
           status.date_type === 'book_date'
-            ? getDates(this.props.shipment, status.date_type)
+            ? [getDates(this.props.shipment, status.date_type)]
             : getDates(moveDatesSummary, status.date_type),
       };
     });
@@ -151,8 +173,8 @@ export class ShipmentStatusTimeline extends React.Component {
   }
 
   render() {
-    const statuses = this.addCompleted(this.addDates(this.getStatuses()));
-    return <StatusTimeline statuses={statuses} />;
+    const statuses = this.addDates(this.addCompleted(this.getStatuses()));
+    return <StatusTimeline statuses={statuses} showEstimated={true} />;
   }
 }
 
@@ -172,7 +194,7 @@ export class ProfileStatusTimeline extends React.Component {
   }
 
   render() {
-    return <StatusTimeline statuses={this.getStatuses()} />;
+    return <StatusTimeline statuses={this.getStatuses()} showEstimated={false} />;
   }
 }
 
@@ -187,7 +209,9 @@ class StatusTimeline extends PureComponent {
         name={status.name}
         code={status.code}
         key={status.code}
-        dates={status.dates}
+        dates={filter(status.dates, date => {
+          return date;
+        })}
         completed={status.completed}
         current={currentStatus.code === status.code}
       />
@@ -201,7 +225,7 @@ class StatusTimeline extends PureComponent {
     return (
       <div className="status_timeline">
         {statusBlocks}
-        <div className="legend">* Estimated</div>
+        {this.props.showEstimated && <div className="legend">* Estimated</div>}
       </div>
     );
   }
