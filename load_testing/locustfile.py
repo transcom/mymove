@@ -1,8 +1,43 @@
 from locust import (HttpLocust, TaskSet, TaskSequence, task, seq_task)
 from locust import events
 from bravado.client import SwaggerClient
+from bravado_core.formatter import SwaggerFormat
 from bravado.requests_client import RequestsClient
 from bravado.exception import HTTPError
+
+
+def get_swagger_config():
+    """
+    Generate the config used in generating the swagger client from the spec
+    """
+
+    # MilMove uses custom formats for some fields. Without wanting to duplicate them here but
+    # still wanting to not get warnings about them being undefined the UDFs are created here.
+    # See https://bravado-core.readthedocs.io/en/stable/formats.html
+    milmove_formats = []
+    string_fmt_list = [
+        "edipi",
+        "ssn",
+        "telephone",
+        "uuid",
+        "x-email",
+        "zip",
+    ]
+    for fmt in string_fmt_list:
+        swagger_fmt = SwaggerFormat(
+            format=fmt,
+            to_wire=lambda s: str(s),
+            to_python=lambda s: str(s),
+            validate=lambda x: x,
+            description='Converts [wire]string:string <=> python string',
+        )
+        milmove_formats.append(swagger_fmt)
+    swagger_config = {
+        'validate_requests': False,
+        'validate_responses': False,
+        'formats': milmove_formats,
+    }
+    return swagger_config
 
 
 class AnonBehavior(TaskSet):
@@ -146,10 +181,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
                 "http://milmovelocal:8080/internal/swagger.yaml",
                 request_headers={'x-csrf-token': self.csrf},
                 http_client=self.requests_client,
-                config={
-                    'validate_requests': False,
-                    'validate_responses': False,
-                })
+                config=get_swagger_config())
         except Exception:
             print(resp.content)
 
@@ -273,10 +305,7 @@ class OfficeUserBehavior(BaseTaskSequence, InternalAPIMixin):
                 "http://officelocal:8080/internal/swagger.yaml",
                 request_headers={'x-csrf-token': self.csrf},
                 http_client=self.requests_client,
-                config={
-                    'validate_requests': False,
-                    'validate_responses': False,
-                })
+                config=get_swagger_config())
         except Exception:
             print(resp.content)
 
