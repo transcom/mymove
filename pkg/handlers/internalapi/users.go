@@ -32,7 +32,10 @@ type FeatureFlagResponseWriter struct {
 func (f *FeatureFlagResponseWriter) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
 	rw.WriteHeader(200)
-	payload := "FEATURE FLAG ON!!!!"
+	payload := "feature flag for require-access-code is on!!!!"
+	if f.HandlerContext.GetFeatureFlag("new-ppm-flow") {
+		payload += "\nand so is feature flage for new-ppm-flow!!!!"
+	}
 	if err := producer.Produce(rw, payload); err != nil {
 		panic(err) // let the recovery middleware deal with this
 	}
@@ -41,8 +44,8 @@ func (f *FeatureFlagResponseWriter) WriteResponse(rw http.ResponseWriter, produc
 // Handle returns the logged in user
 func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) middleware.Responder {
 
-	if h.HandlerContext.FeatureFlag() {
-		return &FeatureFlagResponseWriter{}
+	if h.HandlerContext.GetFeatureFlag("require-access-code") {
+		return &FeatureFlagResponseWriter{h}
 	}
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()

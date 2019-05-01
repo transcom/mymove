@@ -6,13 +6,16 @@ import (
 )
 
 const (
-	// FeatureFlag is the Feature Flag
-	FeatureFlag string = "feature-flag"
+	//NewPPMFlow flag
+	NewPPMFlow string = "new-ppm-flow"
+	//RequireAccessCode flag
+	RequireAccessCode string = "require-access-code"
 )
 
 // InitFeatureFlag initializes FeatureFlags command line flags
 func InitFeatureFlag(flag *pflag.FlagSet) {
-	flag.BoolP(FeatureFlag, "f", false, "Flag (bool) to enable the feature-flag")
+	flag.Bool(NewPPMFlow, false, "Flag (bool) to enable the new-ppm-flow")
+	flag.Bool(RequireAccessCode, false, "Flag (bool) to enable the require-access-code")
 }
 
 // CheckFeatureFlag validates Verbose command line flags

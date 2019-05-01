@@ -505,7 +505,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	handlerContext.SetGexSender(gexRequester)
 
 	// Set feature flag
-	handlerContext.SetFeatureFlag(v.GetBool(cli.FeatureFlag))
+	handlerContext.SetFeatureFlags(
+		handlers.FeatureFlag{Name: cli.NewPPMFlow, Active: v.GetBool(cli.NewPPMFlow)},
+		handlers.FeatureFlag{Name: cli.RequireAccessCode, Active: v.GetBool(cli.RequireAccessCode)},
+	)
 
 	// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
 	// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate
