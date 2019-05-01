@@ -14,7 +14,8 @@ class AnonBehavior(TaskSet):
 
 class AnonUser(HttpLocust):
     host = "http://milmovelocal:8080"
-    weight = 5  # 5x more likely than other users
+    # weight = 5  # 5x more likely than other users
+    weight = 1
     task_set = AnonBehavior
 
 
@@ -89,7 +90,7 @@ class MilMoveUserBehavior(TaskSequence):
 
     @seq_task(1)
     def login(self):
-        resp = self.client.post('/devlocal-auth/create')
+        resp = self.client.post('/devlocal-auth/create', data={"userType": "milmove"})
         try:
             self.login_gov_user = resp.json()
             self.session_token = self.client.cookies.get('mil_session_token')
@@ -204,5 +205,119 @@ class MilMoveUser(HttpLocust):
     host = "http://milmovelocal:8080"
     weight = 1
     task_set = MilMoveUserBehavior
+    min_wait = 1000
+    max_wait = 5000
+
+
+class OfficeUserBehavior(TaskSequence):
+
+    swagger = None
+    login_gov_user = None
+    csrf = None
+    session_token = None
+    user = {}
+
+    def _get_csrf_token(self):
+        """
+        Pull the CSRF token from the website by hitting the root URL.
+
+        The token is set as a cookie with the name `masked_gorilla_csrf`
+        """
+        self.client.get('/')
+        self.csrf = self.client.cookies.get('masked_gorilla_csrf')
+        self.client.headers.update({'x-csrf-token': self.csrf})
+
+    def on_start(self):
+        """ on_start is called when a Locust start before any task is scheduled """
+        self._get_csrf_token()
+
+    def on_stop(self):
+        """ on_stop is called when the TaskSet is stopping """
+        pass
+
+    def swagger_wrapper(self, callable_operation, *args, **kwargs):
+        """
+        Swagger client uses requests send() method instead of request(). This means we need to send off
+        events to Locust on our own.
+        """
+        method = callable_operation.operation.http_method.upper()
+        path_name = callable_operation.operation.path_name
+        response_future = callable_operation(*args, **kwargs)
+        try:
+            response = response_future.response()
+        except HTTPError as e:
+            events.request_failure.fire(
+                request_type=method,
+                name=path_name,
+                response_time=0,  # Not clear how to get this
+                exception=e,
+            )
+            return e.swagger_result
+        else:
+            metadata = response.metadata
+
+            events.request_success.fire(
+                request_type=method,
+                name=path_name,
+                response_time=metadata.elapsed_time,
+                response_length=len(metadata.incoming_response.raw_bytes),
+            )
+            return response.result
+
+    @task(2)
+    def load_swagger_file_internal(self):
+        self.client.get("/internal/swagger.yaml")
+
+    @task(2)
+    def load_swagger_file_public(self):
+        self.client.get("/api/v1/swagger.yaml")
+
+    @seq_task(1)
+    def login(self):
+        resp = self.client.post('/devlocal-auth/create', data={"userType": "office"})
+        try:
+            self.login_gov_user = resp.json()
+            self.session_token = self.client.cookies.get('office_session_token')
+            self.requests_client = RequestsClient()
+            # Set the session to be the same session as locust uses
+            self.requests_client.session = self.client
+            # Set the csrf token in the global headers for all requests
+            # Don't validate requests or responses because we're using OpenAPI Spec 2.0 which doesn't respect
+            # nullable sub-definitions
+            self.swagger = SwaggerClient.from_url(
+                "http://officelocal:8080/internal/swagger.yaml",
+                request_headers={'x-csrf-token': self.csrf},
+                http_client=self.requests_client,
+                config={
+                    'validate_requests': False,
+                    'validate_responses': False,
+                })
+        except Exception:
+            print(resp.content)
+
+    @seq_task(2)
+    def retrieve_user(self):
+        resp = self.client.get("/internal/users/logged_in")
+        self.user = resp.json()
+        # check response for 200
+
+    @seq_task(3)
+    def view_new_moves_queue(self):
+        self.swagger_wrapper(
+            self.swagger.queues.showQueue,
+            queueType="new")
+
+    @seq_task(4)
+    def logout(self):
+        self.client.post("/auth/logout")
+        self.login_gov_user = None
+        self.session_token = None
+        self.user = {}
+
+
+class OfficeUser(HttpLocust):
+    host = "http://officelocal:8080"
+    weight = 1
+    task_set = OfficeUserBehavior
     min_wait = 1000
     max_wait = 5000
