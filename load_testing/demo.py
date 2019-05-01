@@ -15,6 +15,7 @@ class Demo(object):
         self.csrf = None
         self.user = None
         self.token = None
+        self.logged_in = None
 
     def _get_csrf_token(self):
         """
@@ -46,7 +47,10 @@ class Demo(object):
         Get the logged in user information
         """
         resp = self.session.get(urllib.parse.urljoin(self.url, 'internal/users/logged_in'))
-        self.logged_in = resp.json()
+        try:
+            self.logged_in = resp.json()
+        except Exception:
+            print(resp.content)
 
 
 if __name__ == "__main__":
