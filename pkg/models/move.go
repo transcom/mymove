@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
@@ -75,6 +76,12 @@ type Move struct {
 	SignedCertifications    SignedCertifications    `has_many:"signed_certifications" order_by:"created_at desc"`
 	CancelReason            *string                 `json:"cancel_reason" db:"cancel_reason"`
 	Show                    *bool                   `json:"show" db:"show"`
+}
+
+// MoveOptions is used when creating new moves based on parameters
+type MoveOptions struct {
+	SelectedType *SelectedMoveType
+	Show         *bool
 }
 
 // Moves is not required by pop and may be deleted
@@ -514,13 +521,18 @@ func GenerateLocator() string {
 // retry with a new record locator.
 func createNewMove(db *pop.Connection,
 	orders Order,
-	selectedType *SelectedMoveType) (*Move, *validate.Errors, error) {
+	moveOptions MoveOptions) (*Move, *validate.Errors, error) {
 
 	var stringSelectedType SelectedMoveType
-	if selectedType != nil {
-		stringSelectedType = SelectedMoveType(*selectedType)
+	if moveOptions.SelectedType != nil {
+		stringSelectedType = SelectedMoveType(*moveOptions.SelectedType)
 	}
-	showMove := true
+
+	show := swag.Bool(true)
+	if moveOptions.Show != nil {
+		show = moveOptions.Show
+	}
+
 	for i := 0; i < maxLocatorAttempts; i++ {
 		move := Move{
 			Orders:           orders,
@@ -528,7 +540,7 @@ func createNewMove(db *pop.Connection,
 			Locator:          GenerateLocator(),
 			SelectedMoveType: &stringSelectedType,
 			Status:           MoveStatusDRAFT,
-			Show:             &showMove,
+			Show:             show,
 		}
 		verrs, err := db.ValidateAndCreate(&move)
 		if verrs.HasAny() {
