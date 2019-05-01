@@ -3124,7 +3124,7 @@ paths:
       summary: Approves a requested storage in transit
       operationId: approveStorageInTransit
       tags:
-        - storageInTransits
+        - storage_in_transits
       parameters:
         - name: shipmentId
           in: path
@@ -3165,7 +3165,7 @@ paths:
       summary: Denies a requested storage in transit
       operationId: denyStorageInTransit
       tags:
-        - storageInTransits
+        - storage_in_transits
       parameters:
         - name: shipmentId
           in: path
@@ -3206,7 +3206,7 @@ paths:
       summary: Places a storage in transit into 'IN_SIT'
       operationId: inSitStorageInTransit
       tags:
-        - storageInTransits
+        - storage_in_transits
       parameters:
         - name: shipmentId
           in: path
@@ -3246,7 +3246,7 @@ paths:
       summary: Releases a requested storage in transit
       operationId: releaseStorageInTransit
       tags:
-        - storageInTransits
+        - storage_in_transits
       parameters:
         - name: shipmentId
           in: path
@@ -3286,7 +3286,7 @@ paths:
       summary: Delivers a requested storage in transit
       operationId: deliverStorageInTransit
       tags:
-        - storageInTransits
+        - storage_in_transits
       parameters:
         - name: shipmentId
           in: path

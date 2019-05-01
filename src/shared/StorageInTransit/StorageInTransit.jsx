@@ -105,13 +105,15 @@ export class StorageInTransit extends Component {
             <span className="sit-status-text">Status:</span>{' '}
             {storageInTransit.status === 'REQUESTED' && <SitStatusIcon isTspSite={isTspSite} />}
           </span>
-          <span>SIT {capitalize(storageInTransit.status)} </span>
+          <span data-cy="storage-in-transit-status">SIT {capitalize(storageInTransit.status)} </span>
           {showApproveForm ? (
             <ApproveSitRequest onClose={this.closeApproveForm} storageInTransit={this.state.storageInTransit} />
           ) : (
             isOfficeSite &&
             !showEditForm &&
-            !showDenyForm && (
+            !showDenyForm &&
+            storageInTransit.status !== 'APPROVED' &&
+            storageInTransit.status !== 'DELIVERED' && (
               <span className="sit-actions">
                 <a className="approve-sit-link" onClick={this.openApproveForm}>
                   <FontAwesomeIcon className="icon" icon={faCheck} />
