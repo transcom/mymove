@@ -42,7 +42,7 @@ function tspUserCreatesSitRequest() {
     .get('.storage-in-transit-panel .add-request')
     .contains('Request SIT')
     .click()
-    .get('.storage-in-transit-request-form')
+    .get('.storage-in-transit-form')
     .should($div => {
       const text = $div.text();
       expect(text).to.include('SIT location');
