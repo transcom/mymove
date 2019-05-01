@@ -36,11 +36,11 @@ function officeUserViewsSITPanel() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
   });
-  cy.get('.storage-in-transit-panel').contains('Storage in Transit');
-  cy.get('.storage-in-transit').within(() => {
+  cy.get('[data-cy=storage-in-transit-panel]').contains('Storage in Transit');
+  cy.get('[data-cy=storage-in-transit]').within(() => {
     cy.contains('Destination SIT');
     cy
-      .get('.sit-status-text')
+      .get('[data-cy=sit-status-text]')
       .contains('Status')
       .parent()
       .siblings()
@@ -95,7 +95,7 @@ function officeUserStartsAndCancelsSitApproval() {
     .get('a')
     .contains('Approve')
     .click()
-    .get('.storage-in-transit')
+    .get('[data-cy=storage-in-transit]')
     .should($div => {
       const text = $div.text();
       expect(text).to.include('Approve SIT Request');
@@ -109,7 +109,7 @@ function officeUserStartsAndCancelsSitApproval() {
     .get('.usa-button-secondary')
     .contains('Cancel')
     .click()
-    .get('.storage-in-transit-panel .add-request')
+    .get('[data-cy=storage-in-transit-panel] [data-cy=add-request]')
     .should($div => {
       const text = $div.text();
       expect(text).to.not.include('Approve SIT Request');
@@ -138,7 +138,7 @@ function officeUserStartsAndCancelsSitEdit() {
   });
 
   cy
-    .get('.storage-in-transit')
+    .get('[data-cy=storage-in-transit]')
     .contains('Edit')
     .click()
     .get('.sit-authorization')
@@ -151,7 +151,7 @@ function officeUserStartsAndCancelsSitEdit() {
     .get('.usa-button-secondary')
     .contains('Cancel')
     .click()
-    .get('.storage-in-transit')
+    .get('[data-cy=storage-in-transit]')
     .should($div => {
       const text = $div.text();
       expect(text).to.include('Approved');

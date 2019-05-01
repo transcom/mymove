@@ -115,12 +115,14 @@ export class StorageInTransit extends Component {
     const { storageInTransit } = this.props;
     const { showTspEditForm, showOfficeEditForm, showApproveForm, showDenyForm, showPlaceInSitForm } = this.state;
     return (
-      <div className="storage-in-transit">
+      <div className="storage-in-transit" data-cy="storage-in-transit">
         <div className="column-head">
           {capitalize(storageInTransit.location)} SIT
           <span className="unbold">
             {' '}
-            <span className="sit-status-text">Status:</span>{' '}
+            <span className="sit-status-text" data-cy="sit-status-text">
+              Status:
+            </span>{' '}
             {storageInTransit.status === 'REQUESTED' && <SitStatusIcon isTspSite={isTspSite} />}
           </span>
           {storageInTransit.status === 'APPROVED' ? (
