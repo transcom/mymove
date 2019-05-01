@@ -135,19 +135,21 @@ func (v *DiscountRateIsValid) IsValid(errors *validate.Errors) {
 	}
 }
 
-// DateNotBefore validates that a date is not before the earliest allowable date
-type DateNotBefore struct {
+// OptionalDateNotBefore validates that a date is not before the earliest allowable date
+type OptionalDateNotBefore struct {
 	Name    string
-	Date    *time.Time
+	Field   *time.Time
 	MinDate *time.Time
 }
 
-// IsValid adds an error if there is not a not-before date or the date is before the not-before date
-func (v *DateNotBefore) IsValid(errors *validate.Errors) {
-	if v.MinDate == nil {
-		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("cannot create this date without a no-earlier-than date"))
-	} else if (*v.Date).Before(*v.MinDate) {
-		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s must be on or after %s", *v.Date, *v.MinDate))
+// IsValid adds an error if the field has a value and there is not a not-before date or the date is before the not-before date
+func (v *OptionalDateNotBefore) IsValid(errors *validate.Errors) {
+	if v.Field != nil {
+		if v.MinDate == nil {
+			errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("cannot create this date without a no-earlier-than date"))
+		} else if (*v.Field).Before(*v.MinDate) {
+			errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s must be on or after %s", *v.Field, *v.MinDate))
+		}
 	}
 }
 
