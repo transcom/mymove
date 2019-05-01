@@ -129,7 +129,9 @@ class ShipmentInfo extends Component {
         this.props.getAllTariff400ngItems(true);
         this.props.getAllShipmentLineItems(shipmentId);
         this.props.getAllInvoices(shipmentId);
-        this.props.getStorageInTransitsForShipment(shipmentId);
+        if (this.props.context.flags.sitPanel) {
+          this.props.getStorageInTransitsForShipment(shipmentId);
+        }
       })
       .catch(err => {
         this.props.history.replace('/');

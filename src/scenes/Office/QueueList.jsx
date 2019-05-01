@@ -13,7 +13,7 @@ export default class QueueList extends Component {
             </NavLink>
           </li>
           <li>
-            <NavLink to="/queues/ppm" activeClassName="usa-current">
+            <NavLink to="/queues/ppm" activeClassName="usa-current" data-cy="ppm-queue">
               <span>PPMs</span>
             </NavLink>
           </li>

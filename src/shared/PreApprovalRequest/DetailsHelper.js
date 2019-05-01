@@ -7,6 +7,7 @@ import { Code35Details } from './Code35Details';
 import { Code105Details } from './Code105Details';
 import { DefaultDetails } from './DefaultDetails';
 import { Code226Details } from './Code226Details';
+import { Code125Form } from './Code125Form';
 import { Code125Details } from './Code125Details';
 
 export function getFormComponent(code, robustAccessorialFlag, initialValues) {
@@ -18,6 +19,8 @@ export function getFormComponent(code, robustAccessorialFlag, initialValues) {
     if (isNew || get(initialValues, 'estimate_amount_cents')) return Code35Form;
   } else if (code.startsWith('226')) {
     if (isNew || get(initialValues, 'actual_amount_cents')) return Code226Form;
+  } else if (robustAccessorialFlag && code.startsWith('125')) {
+    if (isNew || get(initialValues, 'address')) return Code125Form;
   }
   return DefaultForm;
 }
