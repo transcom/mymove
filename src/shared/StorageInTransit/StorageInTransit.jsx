@@ -97,7 +97,7 @@ export class StorageInTransit extends Component {
     const { storageInTransit } = this.props;
     const { showEditForm, showApproveForm, showDenyForm, showPlaceInSitForm } = this.state;
     return (
-      <div className="storage-in-transit">
+      <div data-cy="storage-in-transit" className="storage-in-transit">
         <div className="column-head">
           {capitalize(storageInTransit.location)} SIT
           <span className="unbold">

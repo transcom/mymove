@@ -40,12 +40,18 @@ export class ApproveSitRequest extends Component {
     const { storageInTransit } = this.props;
     return (
       <div className="storage-in-transit-panel-modal">
-        <div className="title">Approve SIT Request</div>
+        <div data-cy="approve-sit-request-title" className="title">
+          Approve SIT Request
+        </div>
         <StorageInTransitOfficeApprovalForm onSubmit={this.onSubmit} initialValues={storageInTransit} />
         <div className="usa-grid-full align-center-vertical">
           <div className="usa-width-one-half">
             <p className="cancel-link">
-              <a className="usa-button-secondary" onClick={this.closeForm}>
+              <a
+                data-cy="storage-in-transit-approve-cancel-link"
+                className="usa-button-secondary"
+                onClick={this.closeForm}
+              >
                 Cancel
               </a>
             </p>

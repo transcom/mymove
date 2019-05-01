@@ -106,10 +106,10 @@ function officeUserStartsAndCancelsSitApproval() {
   cy.get('input[name="authorized_start_date"]').should('have.value', '3/22/2019');
 
   cy
-    .get('.usa-button-secondary')
+    .get('[data-cy="storage-in-transit-approve-cancel-link"]')
     .contains('Cancel')
     .click()
-    .get('.storage-in-transit-panel .add-request')
+    .get('[data-cy="approve-sit-request-title"]')
     .should($div => {
       const text = $div.text();
       expect(text).to.not.include('Approve SIT Request');
@@ -141,7 +141,7 @@ function officeUserApprovesSITRequest() {
     .get('a')
     .contains('Approve')
     .click()
-    .get('.storage-in-transit')
+    .get('[data-cy="storage-in-transit"]')
     .should($div => {
       const text = $div.text();
       expect(text).to.include('Approve SIT Request');
