@@ -164,10 +164,14 @@ export const SubmittedPpmMoveSummary = props => {
                 </div>
               </div>
             </div>
-            {/* eslint-disable-next-line security/detect-non-literal-fs-filename */}
-            <button className="usa-button-secondary" onClick={() => window.open(`${ppmInfoPacket}`)}>
+            <a
+              className="usa-button usa-button-secondary"
+              href={ppmInfoPacket}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Read PPM Info Sheet
-            </button>
+            </a>
             <div className="step-links">
               <FindWeightScales />
             </div>
