@@ -145,9 +145,7 @@ export class StorageInTransit extends Component {
           ) : (
             isOfficeSite &&
             !showOfficeEditForm &&
-            !showDenyForm &&
-            storageInTransit.status !== 'APPROVED' &&
-            storageInTransit.status !== 'DELIVERED' && (
+            !showDenyForm && (
               <span className="sit-actions">
                 <a className="approve-sit-link" onClick={this.openApproveForm}>
                   <FontAwesomeIcon className="icon" icon={faCheck} />
@@ -243,6 +241,24 @@ export class StorageInTransit extends Component {
                 </div>
               )}
             </div>
+            {storageInTransit.status === 'APPROVED' && (
+              <div className="usa-width-one-half">
+                <div className="column-subhead nested__same-font">Authorization</div>
+                <div className="panel-field nested__same-font">
+                  <span className="field-title unbold">SIT approved</span>
+                  <span className="field-value">Yes</span>
+                </div>
+                <div className="panel-field nested__same-font">
+                  <span className="field-title unbold">Earliest start date</span>
+                  <span className="field-value">{formatDate4DigitYear(storageInTransit.authorized_start_date)}</span>
+                </div>
+                <div className="panel-field nested__same-font">
+                  <span className="field-title unbold">Note</span>
+                  <span className="field-value">{storageInTransit.authorization_notes}</span>
+                </div>
+              </div>
+            )}
+
             <div className="usa-width-one-half">
               <div className="column-subhead nested__same-font">Warehouse</div>
               <div className="panel-field nested__same-font">

@@ -12,7 +12,7 @@ export class StorageInTransitOfficeApprovalForm extends Component {
       <form
         data-cy="storage-in-transit-office-approval-form"
         onSubmit={this.props.handleSubmit(this.props.onSubmit)}
-        className="storage-in-transit-office-approval-form"
+        className="storage-in-transit-form"
       >
         <fieldset key="sit-approval-information">
           <div className="editable-panel-column">
