@@ -42,18 +42,24 @@ export class Orders extends Component {
   };
 
   render() {
-    const { pages, pageKey, error, currentOrders, serviceMemberId } = this.props;
+    const { formValues, current_duty_station_name, pages, pageKey, error, currentOrders, serviceMemberId } = this.props;
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentOrders ? currentOrders : null;
+    const new_duty_station = get(formValues, 'new_duty_station.name', '');
+    const dutyStationErrorMsg =
+      new_duty_station === current_duty_station_name
+        ? 'You entered the same duty station for your origin and destination. Please change one of them.'
+        : '';
     return (
       <OrdersWizardForm
-        handleSubmit={this.handleSubmit}
-        className={formName}
-        pageList={pages}
-        pageKey={pageKey}
-        serverError={error}
-        initialValues={initialValues}
         additionalParams={{ serviceMemberId }}
+        className={formName}
+        handleSubmit={this.handleSubmit}
+        initialValues={initialValues}
+        nextIsDisabled={!!dutyStationErrorMsg}
+        pageKey={pageKey}
+        pageList={pages}
+        serverError={error}
       >
         <h1 className="sm-heading">Tell Us About Your Move Orders</h1>
         <SwaggerField fieldName="orders_type" swagger={this.props.schema} required />
@@ -71,7 +77,12 @@ export class Orders extends Component {
             />
           </Fragment>
         )}
-        <Field name="new_duty_station" component={DutyStationSearchBox} title="New duty station" />
+        <Field
+          name="new_duty_station"
+          component={DutyStationSearchBox}
+          errorMsg={dutyStationErrorMsg}
+          title="New duty station"
+        />
       </OrdersWizardForm>
     );
   }
@@ -86,9 +97,9 @@ Orders.propTypes = {
 function mapStateToProps(state) {
   const props = {
     serviceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
+    current_duty_station_name: get(state, 'serviceMember.currentServiceMember.current_station.name'),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
     formValues: getFormValues(formName)(state),
-    currentOrders: state.orders.currentOrders,
   };
   return props;
 }

@@ -1,6 +1,7 @@
-import { debounce, sortBy, get } from 'lodash';
-import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
+import PropTypes from 'prop-types';
+import classNames from 'classnames';
+import { debounce, sortBy, get } from 'lodash';
 import AsyncSelect from 'react-select/lib/Async';
 import Alert from 'shared/Alert';
 import { components } from 'react-select';
@@ -87,7 +88,9 @@ export class DutyStationSearchBox extends Component {
     );
   }
   render() {
+    const { errorMsg } = this.props;
     const defaultTitle = 'Name of Duty Station:';
+    const inputContainerClasses = classNames({ 'usa-input-error': errorMsg });
     // api for duty station always returns an object, even when duty station is not set
     // if there is no duty station, that object will have a null uuid
     const isEmptyStation = get(this.props, 'input.value.id', NULL_UUID) === NULL_UUID;
@@ -101,26 +104,28 @@ export class DutyStationSearchBox extends Component {
               </Alert>
             </div>
           )}
-          <p>{this.props.title || defaultTitle}</p>
-          <AsyncSelect
-            isClearable
-            className={`duty-input-box ${this.props.input.name}`}
-            cacheOptions
-            getOptionLabel={getOptionName}
-            getOptionValue={getOptionName}
-            loadOptions={this.getDebouncedOptions}
-            onChange={this.localOnChange}
-            onInputChange={this.onInputChange}
-            components={{ Option: this.renderOption }}
-            value={isEmptyStation ? null : this.props.input.value}
-            placeholder="Start typing a duty station..."
-          />
-          {!isEmptyStation && (
-            <p className="location">
-              {this.props.input.value.address.city}, {this.props.input.value.address.state}{' '}
-              {this.props.input.value.address.postal_code}
-            </p>
-          )}
+          <div className={inputContainerClasses}>
+            <p>{this.props.title || defaultTitle}</p>
+            {this.props.errorMsg && <span className="usa-input-error-message">{this.props.errorMsg}</span>}
+            <AsyncSelect
+              className={`duty-input-box ${this.props.input.name}`}
+              cacheOptions
+              getOptionLabel={getOptionName}
+              getOptionValue={getOptionName}
+              loadOptions={this.getDebouncedOptions}
+              onChange={this.localOnChange}
+              onInputChange={this.onInputChange}
+              components={{ Option: this.renderOption }}
+              value={isEmptyStation ? null : this.props.input.value}
+              placeholder="Start typing a duty station..."
+            />
+            {!isEmptyStation && (
+              <p className="location">
+                {this.props.input.value.address.city}, {this.props.input.value.address.state}{' '}
+                {this.props.input.value.address.postal_code}
+              </p>
+            )}
+          </div>
         </div>
       </Fragment>
     );
