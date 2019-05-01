@@ -31,12 +31,13 @@ class Demo(object):
         Create a new user for local testing using the CSRF token in the header
         """
         resp = self.session.post(urllib.parse.urljoin(self.url, 'devlocal-auth/create'),
-                                 headers={'x-csrf-token': self._get_csrf_token()})
+                                 headers={'x-csrf-token': self._get_csrf_token()},
+                                 data={"userType": "milmove"})
         try:
             self.user = resp.json()
         except Exception:
             print(resp.content)
-        self.token = self.session.cookies.get('session_token')
+        self.token = self.session.cookies.get('mil_session_token')
 
 
 if __name__ == "__main__":
