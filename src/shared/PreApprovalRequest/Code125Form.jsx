@@ -22,6 +22,9 @@ export const Code125Form = props => {
         title="Truck-to-truck transfer location"
         zipPattern="USA"
       />
+      <div className="bq-explanation">
+        <p>If this address changes last minute, notify your PPPO.</p>
+      </div>
     </Fragment>
   );
 };
