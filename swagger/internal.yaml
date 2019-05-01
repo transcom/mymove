@@ -2324,9 +2324,11 @@ definitions:
       ppm_status:
         type: string
         example: PAYMENT_REQUESTED
+        x-nullable: true
       hhg_status:
         type: string
         example: ACCEPTED
+        x-nullable: true
       locator:
         type: string
         example: '12432'
@@ -2334,6 +2336,7 @@ definitions:
         type: string
         example: 'LNK12345'
         title: GBL Number
+        x-nullable: true
       customer_name:
         type: string
         example: Thedog, Nino
@@ -2373,10 +2376,7 @@ definitions:
     required:
       - id
       - status
-      - ppm_status
-      - hhg_status
       - locator
-      - gbl_number
       - customer_name
       - edipi
       - rank
