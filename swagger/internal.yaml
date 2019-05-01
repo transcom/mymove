@@ -2360,10 +2360,6 @@ definitions:
         type: string
         format: date
         example: 2018-04-25
-      customer_deadline:
-        type: string
-        format: date
-        example: 2018-07-20
       last_modified_date:
         type: string
         format: date-time
@@ -2386,7 +2382,6 @@ definitions:
       - rank
       - orders_type
       - move_date
-      - customer_deadline
       - last_modified_date
       - last_modified_name
       - created_at
