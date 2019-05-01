@@ -30,9 +30,16 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 			defer span.Send()
 
 			session := auth.SessionFromRequestContext(r)
-			// We must have a logged in session and a user
-			if session == nil || session.UserID == uuid.Nil {
-				logger.Error("unauthorized access")
+			// We must have a logged in session
+			if session == nil {
+				logger.Error("unauthorized access, no session token")
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			}
+
+			// This must be the right type of user for the application
+			if session.IsMilApp() && session.UserID == uuid.Nil {
+				logger.Error("unauthorized access for my.move.mil", zap.String("email", session.Email))
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
