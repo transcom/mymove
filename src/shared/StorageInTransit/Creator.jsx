@@ -58,7 +58,7 @@ export class Creator extends Component {
             </div>
             <div className="usa-width-one-half align-right">
               <button
-                className="button usa-button-primary storage-in-transit-request-form-send-request-button"
+                className="button usa-button-primary"
                 disabled={!this.props.formEnabled}
                 onClick={this.saveAndClose}
               >
