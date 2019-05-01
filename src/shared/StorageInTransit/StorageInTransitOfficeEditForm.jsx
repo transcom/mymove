@@ -20,9 +20,9 @@ export class StorageInTransitOfficeEditForm extends Component {
 
     const sitStatus = () => {
       if (storageInTransit.status === 'APPROVED') {
-        return <span>Yes</span>;
+        return 'Yes';
       } else {
-        return <span>No</span>;
+        return 'No';
       }
     };
 
