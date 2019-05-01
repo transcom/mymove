@@ -2363,6 +2363,7 @@ definitions:
         type: string
         format: date
         example: 2018-04-25
+        x-nullable: true
       last_modified_date:
         type: string
         format: date-time
@@ -2381,7 +2382,6 @@ definitions:
       - edipi
       - rank
       - orders_type
-      - move_date
       - last_modified_date
       - last_modified_name
       - created_at
