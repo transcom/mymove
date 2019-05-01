@@ -3,6 +3,10 @@
   margin-top: 3rem;
 }
 
+.pre-approval-form .par-time-input {
+  display: inline-block;
+}
+
 /*PreApproval Table styles*/
 .pre-approval-panel {
   border-width: 3px;
