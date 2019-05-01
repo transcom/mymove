@@ -102,6 +102,62 @@ const DeliveryDateFormView = props => {
   );
 };
 
+const ReferrerQueueLink = props => {
+  if (props.history.location.state) {
+    switch (props.history.location.state.referrerPathname) {
+      case '/queues/new':
+        return (
+          <NavLink to="/queues/new" activeClassName="usa-current">
+            <span>New Shipments Queue</span>
+          </NavLink>
+        );
+      case '/queues/accepted':
+        return (
+          <NavLink to="/queues/accepted" activeClassName="usa-current">
+            <span>Accepted Shipments Queue</span>
+          </NavLink>
+        );
+      case '/queues/approved':
+        return (
+          <NavLink to="/queues/approved" activeClassName="usa-current">
+            <span>Approved Shipments Queue</span>
+          </NavLink>
+        );
+      case '/queues/in_transit':
+        return (
+          <NavLink to="/queues/in_transit" activeClassName="usa-current">
+            <span>In Transit Shipments Queue</span>
+          </NavLink>
+        );
+      case '/queues/delivered':
+        return (
+          <NavLink to="/queues/delivered" activeClassName="usa-current">
+            <span>Delivered Shipments Queue</span>
+          </NavLink>
+        );
+      case '/queues/completed':
+        return (
+          <NavLink to="/queues/completed" activeClassName="usa-current">
+            <span>Completed Shipments Queue</span>
+          </NavLink>
+        );
+      case '/queues/all':
+        return (
+          <NavLink to="/queues/all" activeClassName="usa-current">
+            <span>All Shipments Queue</span>
+          </NavLink>
+        );
+      default:
+        break;
+    }
+  }
+  return (
+    <NavLink to="/queues/new" activeClassName="usa-current">
+      <span>New Shipments Queue</span>
+    </NavLink>
+  );
+};
+
 const DeliveryDateForm = reduxForm({ form: 'deliver_shipment' })(DeliveryDateFormView);
 
 // Action Buttons Conditions
@@ -230,63 +286,6 @@ class ShipmentInfo extends Component {
       return <LoadingPlaceholder />;
     }
 
-    let referrerQueueLink;
-    if (this.props.history.location.state) {
-      switch (this.props.history.location.state.referrerPathname) {
-        case '/queues/new':
-          referrerQueueLink = (
-            <NavLink to="/queues/new" activeClassName="usa-current">
-              <span>New Shipments Queue</span>
-            </NavLink>
-          );
-          break;
-        case '/queues/accepted':
-          referrerQueueLink = (
-            <NavLink to="/queues/accepted" activeClassName="usa-current">
-              <span>Accepted Shipments Queue</span>
-            </NavLink>
-          );
-          break;
-        case '/queues/approved':
-          referrerQueueLink = (
-            <NavLink to="/queues/approved" activeClassName="usa-current">
-              <span>Approved Shipments Queue</span>
-            </NavLink>
-          );
-          break;
-        case '/queues/in_transit':
-          referrerQueueLink = (
-            <NavLink to="/queues/in_transit" activeClassName="usa-current">
-              <span>In Transit Shipments Queue</span>
-            </NavLink>
-          );
-          break;
-        case '/queues/delivered':
-          referrerQueueLink = (
-            <NavLink to="/queues/delivered" activeClassName="usa-current">
-              <span>Delivered Shipments Queue</span>
-            </NavLink>
-          );
-          break;
-        case '/queues/completed':
-          referrerQueueLink = (
-            <NavLink to="/queues/completed" activeClassName="usa-current">
-              <span>Completed Shipments Queue</span>
-            </NavLink>
-          );
-          break;
-        default:
-          break;
-      }
-    }
-    if (!referrerQueueLink) {
-      referrerQueueLink = (
-        <NavLink to="/queues/new" activeClassName="usa-current">
-          <span>New Shipments Queue</span>
-        </NavLink>
-      );
-    }
-
     return (
       <div>
         <div className="usa-grid grid-wide">
@@ -301,7 +300,9 @@ class ShipmentInfo extends Component {
             </div>
             <div className="shipment-status">Status: {statusText}</div>
           </div>
-          <div className="usa-width-one-third nav-controls">{referrerQueueLink}</div>
+          <div className="usa-width-one-third nav-controls">
+            <ReferrerQueueLink history={this.props.history} />
+          </div>
         </div>
         <div className="usa-grid grid-wide">
           <div className="usa-width-one-whole">
@@ -518,4 +519,4 @@ const mapDispatchToProps = dispatch =>
 
 const connectedShipmentInfo = withContext(connect(mapStateToProps, mapDispatchToProps)(ShipmentInfo));
 
-export { DeliveryDateFormView, connectedShipmentInfo as default };
+export { DeliveryDateFormView, connectedShipmentInfo as default, ReferrerQueueLink };
