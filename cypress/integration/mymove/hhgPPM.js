@@ -392,7 +392,6 @@ function serviceMemberSelectsWeightRange() {
   });
   //todo verify entitlement
   cy.contains('A trailer').click();
-
   cy.nextPage();
 }
 

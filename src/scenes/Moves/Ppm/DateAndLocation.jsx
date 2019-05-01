@@ -72,7 +72,7 @@ export class DateAndLocation extends Component {
           if (this.state.invalidPPMParams) {
             this.setState({ invalidPPMParams: false });
           }
-          this.props.createOrUpdatePpm(moveId, pendingValues);
+          return this.props.createOrUpdatePpm(moveId, pendingValues);
         })
         .catch(e => {
           this.setState({ invalidPPMParams: true });
