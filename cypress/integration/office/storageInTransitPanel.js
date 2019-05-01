@@ -9,8 +9,11 @@ describe('office user finds the shipment', function() {
   it('office user starts and cancels sit approval', function() {
     officeUserStartsAndCancelsSitApproval();
   });
-  it('office user approves sit request', function() {
+  it('office approves sit', function() {
     officeUserApprovesSITRequest();
+  });
+  it('office user starts and cancels sit edit', function() {
+    officeUserStartsAndCancelsSitEdit();
   });
 });
 
@@ -36,11 +39,11 @@ function officeUserViewsSITPanel() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
   });
-  cy.get('.storage-in-transit-panel').contains('Storage in Transit');
-  cy.get('.storage-in-transit').within(() => {
+  cy.get('[data-cy=storage-in-transit-panel]').contains('Storage in Transit');
+  cy.get('[data-cy=storage-in-transit]').within(() => {
     cy.contains('Destination SIT');
     cy
-      .get('.sit-status-text')
+      .get('[data-cy=sit-status-text]')
       .contains('Status')
       .parent()
       .siblings()
@@ -95,7 +98,7 @@ function officeUserStartsAndCancelsSitApproval() {
     .get('a')
     .contains('Approve')
     .click()
-    .get('.storage-in-transit')
+    .get('[data-cy=storage-in-transit]')
     .should($div => {
       const text = $div.text();
       expect(text).to.include('Approve SIT Request');
@@ -106,13 +109,56 @@ function officeUserStartsAndCancelsSitApproval() {
   cy.get('input[name="authorized_start_date"]').should('have.value', '3/22/2019');
 
   cy
-    .get('[data-cy="storage-in-transit-approve-cancel-link"]')
+    .get('.usa-button-secondary')
     .contains('Cancel')
     .click()
-    .get('[data-cy="approve-sit-request-title"]')
+    .get('[data-cy=storage-in-transit-panel] [data-cy=add-request]')
     .should($div => {
       const text = $div.text();
       expect(text).to.not.include('Approve SIT Request');
+    });
+}
+
+function officeUserStartsAndCancelsSitEdit() {
+  cy.patientVisit('/queues/new');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new/);
+  });
+
+  cy.selectQueueItemMoveLocator('SITAPR');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
+
+  cy
+    .get('a')
+    .contains('HHG')
+    .click(); // navtab
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
+  });
+
+  cy
+    .get('[data-cy=storage-in-transit]')
+    .contains('Edit')
+    .click()
+    .get('.sit-authorization')
+    .should($div => {
+      const text = $div.text();
+      expect(text).to.include('Edit SIT authorization');
+    });
+
+  cy
+    .get('.usa-button-secondary')
+    .contains('Cancel')
+    .click()
+    .get('[data-cy=storage-in-transit]')
+    .should($div => {
+      const text = $div.text();
+      expect(text).to.include('Approved');
+      expect(text).to.not.include('Edit SIT authorization');
     });
 }
 
@@ -161,5 +207,5 @@ function officeUserApprovesSITRequest() {
   // Refresh browser and make sure changes persist
   cy.patientReload();
 
-  cy.get('[data-cy="storage-in-transit-status"]').contains('SIT Approved');
+  cy.get('[data-cy="storage-in-transit-status"]').contains('Approved');
 }

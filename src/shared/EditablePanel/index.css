@@ -126,6 +126,7 @@
   width: 40%;
   display: inline-block;
   vertical-align: top;
+  font-weight: normal;
 }
 
 .field-value {
