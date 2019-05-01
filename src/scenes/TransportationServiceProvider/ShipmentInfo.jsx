@@ -103,59 +103,57 @@ const DeliveryDateFormView = props => {
 };
 
 const ReferrerQueueLink = props => {
-  if (props.history.location.state) {
-    switch (props.history.location.state.referrerPathname) {
-      case '/queues/new':
-        return (
-          <NavLink to="/queues/new" activeClassName="usa-current">
-            <span>New Shipments Queue</span>
-          </NavLink>
-        );
-      case '/queues/accepted':
-        return (
-          <NavLink to="/queues/accepted" activeClassName="usa-current">
-            <span>Accepted Shipments Queue</span>
-          </NavLink>
-        );
-      case '/queues/approved':
-        return (
-          <NavLink to="/queues/approved" activeClassName="usa-current">
-            <span>Approved Shipments Queue</span>
-          </NavLink>
-        );
-      case '/queues/in_transit':
-        return (
-          <NavLink to="/queues/in_transit" activeClassName="usa-current">
-            <span>In Transit Shipments Queue</span>
-          </NavLink>
-        );
-      case '/queues/delivered':
-        return (
-          <NavLink to="/queues/delivered" activeClassName="usa-current">
-            <span>Delivered Shipments Queue</span>
-          </NavLink>
-        );
-      case '/queues/completed':
-        return (
-          <NavLink to="/queues/completed" activeClassName="usa-current">
-            <span>Completed Shipments Queue</span>
-          </NavLink>
-        );
-      case '/queues/all':
-        return (
-          <NavLink to="/queues/all" activeClassName="usa-current">
-            <span>All Shipments Queue</span>
-          </NavLink>
-        );
-      default:
-        break;
-    }
+  const pathname = props.history.location.state ? props.history.location.state.referrerPathname : '';
+  switch (pathname) {
+    case '/queues/new':
+      return (
+        <NavLink to="/queues/new" activeClassName="usa-current">
+          <span>New Shipments Queue</span>
+        </NavLink>
+      );
+    case '/queues/accepted':
+      return (
+        <NavLink to="/queues/accepted" activeClassName="usa-current">
+          <span>Accepted Shipments Queue</span>
+        </NavLink>
+      );
+    case '/queues/approved':
+      return (
+        <NavLink to="/queues/approved" activeClassName="usa-current">
+          <span>Approved Shipments Queue</span>
+        </NavLink>
+      );
+    case '/queues/in_transit':
+      return (
+        <NavLink to="/queues/in_transit" activeClassName="usa-current">
+          <span>In Transit Shipments Queue</span>
+        </NavLink>
+      );
+    case '/queues/delivered':
+      return (
+        <NavLink to="/queues/delivered" activeClassName="usa-current">
+          <span>Delivered Shipments Queue</span>
+        </NavLink>
+      );
+    case '/queues/completed':
+      return (
+        <NavLink to="/queues/completed" activeClassName="usa-current">
+          <span>Completed Shipments Queue</span>
+        </NavLink>
+      );
+    case '/queues/all':
+      return (
+        <NavLink to="/queues/all" activeClassName="usa-current">
+          <span>All Shipments Queue</span>
+        </NavLink>
+      );
+    default:
+      return (
+        <NavLink to="/queues/new" activeClassName="usa-current">
+          <span>New Shipments Queue</span>
+        </NavLink>
+      );
   }
-  return (
-    <NavLink to="/queues/new" activeClassName="usa-current">
-      <span>New Shipments Queue</span>
-    </NavLink>
-  );
 };
 
 const DeliveryDateForm = reduxForm({ form: 'deliver_shipment' })(DeliveryDateFormView);
