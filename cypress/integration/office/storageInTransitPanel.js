@@ -208,4 +208,6 @@ function officeUserApprovesSITRequest() {
   cy.patientReload();
 
   cy.get('[data-cy="storage-in-transit-status"]').contains('Approved');
+  cy.get('[data-cy="sit-authorized-start-date"]').contains('22-Mar-2019');
+  cy.get('[data-cy="sit-authorization-notes"]').contains('this is a note');
 }
