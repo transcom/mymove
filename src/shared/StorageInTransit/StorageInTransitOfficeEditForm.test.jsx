@@ -69,7 +69,7 @@ describe('StorageInTransitOfficeEditForm tests', () => {
     );
 
     it('renders without crashing', () => {
-      expect(wrapper.find('.storage-in-transit-office-edit-form').length).toEqual(1);
+      expect(wrapper.find('.storage-in-transit-form').length).toEqual(1);
     });
   });
 });

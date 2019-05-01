@@ -27,7 +27,7 @@ export class StorageInTransitOfficeEditForm extends Component {
     };
 
     return (
-      <form onSubmit={this.props.handleSubmit(this.props.onSubmit)} className="storage-in-transit-office-edit-form">
+      <form onSubmit={this.props.handleSubmit(this.props.onSubmit)} className="storage-in-transit-form">
         <div className="editable-panel-column">
           <PanelSwaggerField fieldName="location" required title="SIT location" {...fieldProps} />
           <PanelSwaggerField fieldName="estimated_start_date" required title="Estimated start date" {...fieldProps} />
