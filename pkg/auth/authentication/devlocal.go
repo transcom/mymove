@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -310,8 +311,12 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 	}
 	email := r.Form.Get("email")
 	if email == "" {
+		// Time alone doesn't guarantee uniqueness if a system is being automated
+		// To add some more uniqueness without making the email unreadable a UUID adds a nonce
 		now := time.Now()
-		email = fmt.Sprintf("%s@example.com", now.Format("20060102150405"))
+		guid, _ := uuid.NewV4()
+		nonce := strings.Split(guid.String(), "-")[4]
+		email = fmt.Sprintf("%s-%s@example.com", now.Format("20060102150405"), nonce)
 	}
 
 	// Create the User (which is the basis of all Service Members)
