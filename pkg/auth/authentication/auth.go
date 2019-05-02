@@ -36,12 +36,7 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
-			// This must be the right type of user for the application
-			if session.IsMilApp() && session.ServiceMemberID == uuid.Nil {
-				logger.Error("unauthorized user for my.move.mil", zap.String("email", session.Email))
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-				return
-			}
+			// DO NOT CHECK MILMOVE SESSION BECAUSE NEW SERVICE MEMBERS WON'T HAVE AN ID RIGHT AWAY
 			// This must be the right type of user for the application
 			if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
 				logger.Error("unauthorized user for office.move.mil", zap.String("email", session.Email))
