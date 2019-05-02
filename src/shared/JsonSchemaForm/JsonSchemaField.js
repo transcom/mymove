@@ -159,7 +159,7 @@ const renderInputField = ({
   always_required,
   componentNameOverride,
   customComponent,
-  meta: { touched, error, warning },
+  meta: { touched, error, warning, asyncValidate },
   children,
   className,
   inputProps,
@@ -224,6 +224,8 @@ export const SwaggerField = props => {
     component,
     title,
     onChange,
+    asyncValidate,
+    asyncBlurFields,
     validate,
     zipPattern,
     filteredEnumListOverride,
@@ -260,6 +262,8 @@ export const SwaggerField = props => {
     zipPattern,
     filteredEnumListOverride,
     hideLabel,
+    asyncValidate,
+    asyncBlurFields,
   );
 };
 
@@ -278,6 +282,8 @@ const createSchemaField = (
   zipPattern,
   filteredEnumListOverride,
   hideLabel,
+  asyncValidate,
+  asyncBlurFields,
 ) => {
   // Early return here, this is an edge case for label placement.
   // USWDS CSS only renders a checkbox if it is followed by its label
@@ -301,6 +307,8 @@ const createSchemaField = (
   fieldProps.title = title || swaggerField.title || fieldName;
   fieldProps.component = renderInputField;
   fieldProps.validate = [];
+  fieldProps.asyncValidate = asyncValidate;
+  fieldProps.asyncBlurFields = asyncBlurFields;
   // eslint-disable-next-line security/detect-object-injection
   fieldProps.always_required = swaggerField[ALWAYS_REQUIRED_KEY];
 

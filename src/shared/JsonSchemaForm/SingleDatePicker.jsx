@@ -27,16 +27,17 @@ function formatDate(date, format = 'L', locale = 'en') {
 }
 
 export default function SingleDatePicker(props) {
-  const { value = null, onChange, disabled, name } = props;
+  const { value = null, onChange, onBlur, onFocus, disabled, name } = props;
   const formatted = parseDate(value);
   return (
-    <DayPickerInput
-      onDayChange={onChange}
-      placeholder=""
-      parseDate={parseDate}
-      formatDate={formatDate}
-      value={formatted}
-      inputProps={{ disabled, name }}
-    />
+      <DayPickerInput
+        onDayChange={onChange}
+        placeholder=""
+        keepFocus={false}
+        parseDate={parseDate}
+        formatDate={formatDate}
+        value={formatted}
+        inputProps={{ disabled, name, onBlur, onFocus}}
+      />
   );
 }

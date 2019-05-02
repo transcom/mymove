@@ -27,6 +27,28 @@ const formName = 'ppp_date_and_location';
 
 const DateAndLocationWizardForm = reduxifyWizardForm(formName);
 
+const AlertText =
+  "We can 't schedule a move that far in the future. You can try an earlier date, or contact your PPPO for help.";
+
+const canCalculateEntitlement = (values, dispatch) => {
+  const { original_move_date, pickup_postal_code, destination_postal_code } = values;
+  return new Promise((resolve, reject) => {
+    if (original_move_date !== '' && pickup_postal_code !== '' && destination_postal_code !== '') {
+      GetPpmWeightEstimate(values.original_move_date, values.pickup_postal_code, values.destination_postal_code, 2000)
+        .then(() => {
+          resolve();
+        })
+        .catch(() => {
+          reject({
+            original_move_date: AlertText,
+          });
+        });
+    } else {
+      resolve();
+    }
+  });
+};
+
 const validateDifferentZip = (value, formValues) => {
   if (value && value === formValues.pickup_postal_code) {
     return 'You entered the same zip code for your origin and destination. Please change one of them.';
@@ -135,16 +157,17 @@ export class DateAndLocation extends Component {
           pageKey={pageKey}
           serverError={error}
           initialValues={initialValues}
+          asyncValidate={canCalculateEntitlement}
+          asyncBlurFields={['original_move_date']}
           enableReinitialize={true} //this is needed as the pickup_postal_code value needs to be initialized to the users residential address
         >
           <h2>PPM Dates & Locations</h2>
+          {isHHGPPMComboMove && <div>Great! Let's review your pickup and destination information.</div>}
           {this.state.invalidPPMParams && (
             <Alert type="error" heading="">
-              We can't schedule a move that far in the future. You can try an earlier date, or contact your PPPO for
-              help.
+              {AlertText}
             </Alert>
           )}
-          {isHHGPPMComboMove && <div>Great! Let's review your pickup and destination information.</div>}
           <h3> Move Date </h3>
           <SwaggerField fieldName="original_move_date" swagger={this.props.schema} required />
           <h3>Pickup Location</h3>
