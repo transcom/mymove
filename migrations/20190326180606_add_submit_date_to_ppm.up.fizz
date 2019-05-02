@@ -1,0 +1,1 @@
+add_column("personally_procured_moves", "submit_date", "timestamptz", {"null": true})

@@ -15,7 +15,7 @@ function checkNoUnbilledLineItems() {
 
   // The invoice table should be empty.
   cy
-    .get('.invoice-panel .basic-panel-content')
+    .get('[data-cy=invoice-panel] [data-cy=basic-panel-content]')
     .find('span.empty-content')
     .should('have.text', 'No line items');
 }
@@ -26,7 +26,7 @@ function checkExistUnbilledLineItems() {
 
   // The invoice table should display the unbilled line items.
   cy
-    .get('.invoice-panel .basic-panel-content tbody')
+    .get('[data-cy=invoice-panel] [data-cy=basic-panel-content] tbody')
     .children()
     // For each line item, I should see item code, description, etc.
     .each((row, index, lst) => {

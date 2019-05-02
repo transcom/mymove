@@ -1,0 +1,38 @@
+@import 'shared/styles/themes.scss';
+
+.invoice-panel__table {
+  table-layout: fixed;
+  display: table;
+  width: 100%;
+  border-spacing: 2px;
+  text-align: left;
+  /* Custom widths for columns in the invoice panel table */
+  /* Code */
+  th {
+    &:nth-child(1) { width: 10% }; /* Code */
+    &:nth-child(2) { width: 25% };  /* Item */
+    &:nth-child(3) { width: 8% }; /* Loc. */
+    &:nth-child(4) { width: 15% };  /*Base Quantity*/
+    &:nth-child(5) {
+      width: 15%;
+      text-align: right;
+    };/*Invoice Amount*/
+    border: none;
+    font-weight: bold;
+    border-bottom: solid 1px $table-border-primary;
+    padding: 0rem 1rem 1rem 0rem;
+  }
+  td{
+    &:nth-child(5) { text-align: right }
+    border: none;
+    border-bottom: 1px solid $table-border-secondary;
+    padding: 1rem 1rem 1rem 0rem;
+  }
+  /* Total border */
+  tr{
+    &:nth-last-child(2) td {
+      border-bottom: solid 1px $table-border-primary;
+    }
+    &:last-child td {  border-bottom: none };
+  }
+}

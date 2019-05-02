@@ -19,6 +19,11 @@ import transportationOfficeReducer from 'shared/TransportationOffices/ducks';
 import { officeFlashMessagesReducer } from 'scenes/Office/ducks';
 import { tspReducer } from 'scenes/TransportationServiceProvider/ducks';
 import officePpmReducer from 'scenes/Office/Ppm/ducks';
+import { adminReducer, i18nReducer } from 'react-admin';
+import defaultMessages from 'ra-language-english';
+
+const locale = 'en';
+const i18nProvider = () => defaultMessages;
 
 const defaultReducers = {
   form: formReducer,
@@ -48,6 +53,14 @@ export const appReducer = combineReducers({
 export const tspAppReducer = combineReducers({
   ...defaultReducers,
   tsp: tspReducer,
+});
+
+export const adminAppReducer = combineReducers({
+  ...defaultReducers,
+  admin: adminReducer,
+  i18n: i18nReducer(locale, i18nProvider(locale)),
+  form: formReducer,
+  router: routerReducer,
 });
 
 export default appReducer;

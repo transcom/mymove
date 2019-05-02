@@ -14,7 +14,7 @@ export class StorageInTransitOfficeApprovalForm extends Component {
   render() {
     const { storageInTransitSchema } = this.props;
     return (
-      <form onSubmit={this.handleSubmit} className="storage-in-transit-office-approval-form">
+      <form onSubmit={this.handleSubmit} className="storage-in-transit-form">
         <fieldset key="sit-approval-information">
           <div className="editable-panel-column">
             <SwaggerField

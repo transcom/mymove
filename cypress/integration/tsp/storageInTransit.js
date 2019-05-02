@@ -42,13 +42,13 @@ function tspUserCreatesSitRequest() {
     .get('.storage-in-transit-panel .add-request')
     .contains('Request SIT')
     .click()
-    .get('.storage-in-transit-request-form')
+    .get('.storage-in-transit-form')
     .should($div => {
       const text = $div.text();
       expect(text).to.include('SIT location');
       expect(text).to.include('Warehouse ID number');
       expect(text).to.include('Warehouse name');
-      expect(text).to.include('Address Line 1');
+      expect(text).to.include('Address line 1');
     });
 
   // fill out and submit the form
