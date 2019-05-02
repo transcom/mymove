@@ -28,7 +28,7 @@ func TestValidateAccessCodeTestSuite(t *testing.T) {
 func (suite *ValidateAccessCodeTestSuite) TestValidateAccessCode_ValidAccessCode() {
 	selectedMoveType := models.SelectedMoveTypePPM
 
-	code := "CODE2"
+	code := "CODE12"
 	accessCode := models.AccessCode{
 		Code:     code,
 		MoveType: &selectedMoveType,
@@ -36,21 +36,22 @@ func (suite *ValidateAccessCodeTestSuite) TestValidateAccessCode_ValidAccessCode
 	suite.MustSave(&accessCode)
 	validateAccessCode := NewAccessCodeValidator(suite.DB())
 	ac, valid, _ := validateAccessCode.ValidateAccessCode(code, selectedMoveType)
+
 	suite.True(valid)
 	suite.Equal(ac.Code, accessCode.Code, "expected CODE2")
 }
 
 func (suite *ValidateAccessCodeTestSuite) TestValidateAccessCode_InvalidAccessCode() {
-	user := testdatagen.MakeDefaultUser(suite.DB())
-	selectedMoveType := models.SelectedMoveTypePPM
+	user := testdatagen.MakeDefaultServiceMember(suite.DB())
+	selectedMoveType := models.SelectedMoveTypeHHG
 
-	code := "CODE1"
-	accessCode := models.AccessCode{
-		Code:     code,
-		MoveType: &selectedMoveType,
-		UserID:   &user.ID,
+	code := "CODE12"
+	usedAccessCode := models.AccessCode{
+		Code:            code,
+		MoveType:        &selectedMoveType,
+		ServiceMemberID: &user.ID,
 	}
-	suite.MustSave(&accessCode)
+	suite.MustSave(&usedAccessCode)
 	validateAccessCode := NewAccessCodeValidator(suite.DB())
 	_, valid, _ := validateAccessCode.ValidateAccessCode(code, selectedMoveType)
 	suite.False(valid)

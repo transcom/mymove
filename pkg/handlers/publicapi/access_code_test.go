@@ -3,11 +3,15 @@ package publicapi
 import (
 	"fmt"
 	"net/http/httptest"
+	"time"
+
+	"github.com/stretchr/testify/mock"
+
+	"github.com/transcom/mymove/mocks"
 
 	accesscodeops "github.com/transcom/mymove/pkg/gen/restapi/apioperations/accesscode"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -34,7 +38,11 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Valid() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	accessCodeValidator := accesscodeservice.NewAccessCodeValidator(suite.DB())
+	accessCodeValidator := &mocks.AccessCodeValidator{}
+	accessCodeValidator.On("ValidateAccessCode",
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("models.SelectedMoveType"),
+	).Return(&accessCode, true, nil)
 
 	handler := ValidateAccessCodeHandler{context, accessCodeValidator}
 	response := handler.Handle(params)
@@ -52,16 +60,19 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Invalid() {
 	// create user
 	user := testdatagen.MakeDefaultUser(suite.DB())
 	selectedMoveType := models.SelectedMoveTypeHHG
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	// creates access code
 	code := "TEST2"
-	accessCode := models.AccessCode{
-		Code:     code,
-		MoveType: &selectedMoveType,
-		UserID:   &user.ID,
+	claimedTime := time.Now()
+	invalidAccessCode := models.AccessCode{
+		Code:            code,
+		MoveType:        &selectedMoveType,
+		ServiceMemberID: &serviceMember.ID,
+		ClaimedAt:       &claimedTime,
 	}
 	fullCode := fmt.Sprintf("%s-%s", selectedMoveType, code)
-	suite.MustSave(&accessCode)
+	suite.MustSave(&invalidAccessCode)
 	// makes request
 	request := httptest.NewRequest("GET", fmt.Sprintf("/accesscode/valid?code=%s", fullCode), nil)
 	request = suite.AuthenticateUserRequest(request, user)
@@ -72,7 +83,11 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Invalid() {
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
-	accessCodeValidator := accesscodeservice.NewAccessCodeValidator(suite.DB())
+	accessCodeValidator := &mocks.AccessCodeValidator{}
+	accessCodeValidator.On("ValidateAccessCode",
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("models.SelectedMoveType"),
+	).Return(&invalidAccessCode, false, nil)
 
 	handler := ValidateAccessCodeHandler{context, accessCodeValidator}
 	response := handler.Handle(params)

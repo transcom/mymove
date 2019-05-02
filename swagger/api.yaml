@@ -1766,7 +1766,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      user_id:
+      service_member_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -1775,23 +1775,25 @@ definitions:
         example: CODE456
       move_type:
         type: string
-        example: PPM
+        title: Selectred Move Type
+        enum:
+          - HHG
+          - PPM
       created_at:
         type: string
         format: datetime
         example: 2018-04-12T23:20:50.52Z
         description: when the access code was created
-      updated_at:
+      claimed_at:
         type: string
         format: datetime
         example: 2018-04-12T23:20:50.52Z
-        description: when the access code was last updated
+        description: when the access code was claimed or used
     required:
       - id
       - code
       - move_type
       - created_at
-      - updated_at
   ValidateAccessCodePayload:
     type: object
     properties:
@@ -3144,7 +3146,7 @@ paths:
           description: TSP UUID not found in system
         500:
           description: server error
-  /accesscode/valid:
+  /access_codes/valid:
     get:
       summary: Validate if an access code has been unused and associated with the correct move type.
       description: Verifies if access code is both unused and correctly associated with a move type.
