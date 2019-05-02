@@ -14,8 +14,9 @@
   * [Naming and Defining Service Object Execution Method](#naming-and-defining-service-object-execution-method)
   * [Instantiating Service Objects](#instantiating-service-objects)
 * [Testing Service Objects with Mocks](#testing-service-objects-with-mocks)
+* [Resources](#resources)
 
-Regenerate with "bin/generate-md-toc.sh"
+Regenerate with "scripts/generate-md-toc"
 
 <!-- tocstop -->
 
@@ -325,4 +326,8 @@ to minimize side affects and allows us as developers to focus on what we are tru
 *Use `MockedInterface.On()` to mock a method. See their [docs](https://godoc.org/github.com/stretchr/testify/mock#Call.On) for more information.*
 *Use `MockedInterface.AssertExpectations` to validate expectations, such as parameter type and number of times the method was called.*
 
-Click [here](TODO) to see the recorded conversation on service objects.
+## Resources
+
+* Pairing session on creating the storage in transit GET handler with a service layer:
+  [video](https://drive.google.com/open?id=1gqjlL8rmOEqkHVPjuJrhVH5_Ybazzoso)
+  and [pull request](https://github.com/transcom/mymove/pull/2017)
