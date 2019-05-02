@@ -17,7 +17,10 @@ describe('The Home Page', function() {
   });
   it('contains the link to customer service', function() {
     cy.visit('/');
-    cy.contains('Customer service');
+    cy.get('address').within(() => {
+      cy.contains('Contact Us');
+      cy.get('a').should('have.attr', 'href', 'https://move.mil/customer-service');
+    });
   });
 });
 
