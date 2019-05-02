@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { capitalize } from 'lodash';
 import { connect } from 'react-redux';
-import { isValid, isSubmitting } from 'redux-form';
+import { isValid, isSubmitting, submit, hasSubmitSucceeded } from 'redux-form';
 import { bindActionCreators } from 'redux';
 
 import { formatDate4DigitYear } from 'shared/formatters';
@@ -21,12 +21,28 @@ export class PlaceInSit extends Component {
     this.props.onClose();
   };
 
+  onSubmit = values => {
+    this.props.updateSitPlaceIntoSit(this.props.sit.shipment_id, this.props.sit.id, values);
+  };
+
+  submitPlaceInSitAndClose = () => {
+    this.setState({ closeOnSubmit: true }, () => {
+      this.props.submitForm();
+    });
+  };
+
   componentDidMount() {
     const { estimated_start_date, authorized_start_date } = this.props.sit;
     let startDateValue = estimated_start_date >= authorized_start_date ? estimated_start_date : authorized_start_date;
     this.setState({
       storageInTransit: Object.assign({}, this.props.sit, { actual_start_date: startDateValue }),
     });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.hasSubmitSucceeded && !prevProps.hasSubmitSucceeded) {
+      this.props.onClose();
+    }
   }
 
   render() {
@@ -37,6 +53,7 @@ export class PlaceInSit extends Component {
         <PlaceInSitForm
           initialValues={this.state.storageInTransit}
           minDate={this.state.storageInTransit.authorized_start_date}
+          onSubmit={this.onSubmit}
         />
         <div className="panel-field nested__same-font">
           <div className="usa-input-label unbold">Earliest authorized start</div>
@@ -55,6 +72,7 @@ export class PlaceInSit extends Component {
               className="button usa-button-primary"
               data-cy="place-in-sit-button"
               disabled={!this.props.formEnabled}
+              onClick={this.submitPlaceInSitAndClose}
             >
               Place Into SIT
             </button>
@@ -68,14 +86,18 @@ export class PlaceInSit extends Component {
 PlaceInSit.propTypes = {
   sit: PropTypes.object.isRequired,
   formEnabled: PropTypes.bool.isRequired,
+  updateSitPlaceIntoSit: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
-  return { formEnabled: isValid(PlaceInSitFormName)(state) && !isSubmitting(PlaceInSitFormName)(state) };
+  return {
+    formEnabled: isValid(PlaceInSitFormName)(state) && !isSubmitting(PlaceInSitFormName)(state),
+    hasSubmitSucceeded: hasSubmitSucceeded(PlaceInSitFormName),
+  };
 }
 function mapDispatchToProps(dispatch) {
   // Bind an action, which submit the form by its name
-  return bindActionCreators({ updateSitPlaceIntoSit }, dispatch);
+  return bindActionCreators({ submitForm: () => submit(PlaceInSitFormName), updateSitPlaceIntoSit }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(PlaceInSit);

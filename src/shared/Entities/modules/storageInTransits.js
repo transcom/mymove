@@ -4,7 +4,7 @@ import { getPublicClient } from 'shared/Swagger/api';
 const createStorageInTransitLabel = 'StorageInTransits.createStorageInTransit';
 const getStorageInTransitsLabel = 'StorageInTransits.getStorageInTransitsForShipment';
 const updateStorageInTransitLabel = 'StorageInTransits.updateStorageInTransit';
-const updateSitPlaceIntoSitLabel = 'StorageInTransits.updateSitPlaceIntoSit';
+const updateSitPlaceIntoSitLabel = 'StorageInTransits.inSitStorageInTransit';
 
 export const selectStorageInTransits = (state, shipmentId) => {
   const storageInTransits = Object.values(state.entities.storageInTransits).filter(
@@ -41,17 +41,16 @@ export function updateStorageInTransit(
   );
 }
 
-// guessing at handler TODO: adjust when PR is available
 export function updateSitPlaceIntoSit(
   shipmentId,
   storageInTransitId,
-  storageInTransit,
+  StorageInTransitInSitPayload,
   label = updateSitPlaceIntoSitLabel,
 ) {
   return swaggerRequest(
     getPublicClient,
-    'storage_in_transits.placeIntoSITStorageInTransit',
-    { shipmentId, storageInTransitId, storageInTransit },
+    'storage_in_transits.inSitStorageInTransit',
+    { shipmentId, storageInTransitId, StorageInTransitInSitPayload },
     { label },
   );
 }

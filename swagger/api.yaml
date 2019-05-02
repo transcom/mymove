@@ -3206,7 +3206,7 @@ paths:
       summary: Places a storage in transit into 'IN_SIT'
       operationId: inSitStorageInTransit
       tags:
-        - storageInTransits
+        - storage_in_transits
       parameters:
         - name: shipmentId
           in: path
