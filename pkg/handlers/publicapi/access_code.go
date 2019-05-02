@@ -1,7 +1,6 @@
 package publicapi
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -33,7 +32,6 @@ func payloadForAccessCodeModel(accessCode models.AccessCode) *apimessages.Access
 	}
 
 	if accessCode.ClaimedAt != nil {
-		fmt.Println("hit 4")
 		payload.ClaimedAt = *handlers.FmtDateTime(*accessCode.ClaimedAt)
 	}
 

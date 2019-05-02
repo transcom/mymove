@@ -1928,7 +1928,7 @@ definitions:
         example: CODE456
       move_type:
         type: string
-        title: Selectred Move Type
+        title: Selected Move Type
         enum:
           - HHG
           - PPM
