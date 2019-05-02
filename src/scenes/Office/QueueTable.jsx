@@ -120,7 +120,7 @@ class QueueTable extends Component {
                 accessor: 'synthetic_status',
                 Cell: row => (
                   <span className="status" data-cy="status">
-                    {capitalize(row.value.replace('_', ' '))}
+                    {capitalize(row.value && row.value.replace('_', ' '))}
                   </span>
                 ),
               },
@@ -135,7 +135,7 @@ class QueueTable extends Component {
               {
                 Header: 'Rank',
                 accessor: 'rank',
-                Cell: row => <span className="rank">{row.value.replace('_', '-')}</span>,
+                Cell: row => <span className="rank">{row.value && row.value.replace('_', '-')}</span>,
               },
               {
                 Header: 'Locator #',
