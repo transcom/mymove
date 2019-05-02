@@ -148,6 +148,9 @@ func securityHeadersMiddleware(inner http.Handler) http.Handler {
 // initServeFlags - Order matters!
 func initServeFlags(flag *pflag.FlagSet) {
 
+	// Environment
+	cli.InitEnvironmentFlags(flag)
+
 	// Build Server
 	cli.InitBuildFlags(flag)
 
@@ -168,6 +171,9 @@ func initServeFlags(flag *pflag.FlagSet) {
 
 	// Login.Gov Auth config
 	cli.InitAuthFlags(flag)
+
+	// Devlocal Auth config
+	cli.InitDevlocalFlags(flag)
 
 	// HERE Route Config
 	cli.InitRouteFlags(flag)
@@ -204,6 +210,10 @@ func checkConfig(v *viper.Viper, logger logger) error {
 
 	logger.Info("checking webserver config")
 
+	if err := cli.CheckEnvironment(v); err != nil {
+		return err
+	}
+
 	if err := cli.CheckBuild(v); err != nil {
 		return err
 	}
@@ -229,6 +239,10 @@ func checkConfig(v *viper.Viper, logger logger) error {
 	}
 
 	if err := cli.CheckAuth(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckDevlocal(v); err != nil {
 		return err
 	}
 
@@ -728,7 +742,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 
-	if isDevOrTest {
+	if v.GetBool(cli.DevlocalAuthFlag) {
 		logger.Info("Enabling devlocal auth")
 		localAuthMux := goji.SubMux()
 		root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)

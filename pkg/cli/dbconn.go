@@ -56,7 +56,7 @@ func (e *errInvalidSSLMode) Error() string {
 
 // InitDatabaseFlags initializes DB command line flags
 func InitDatabaseFlags(flag *pflag.FlagSet) {
-	flag.StringP(DbEnvFlag, "e", "development", "The Database  environment in which to run.")
+	flag.String(DbEnvFlag, "development", "The Database  environment in which to run.")
 	flag.String(DbNameFlag, "dev_db", "Database Name")
 	flag.String(DbHostFlag, "localhost", "Database Hostname")
 	flag.Int(DbPortFlag, 5432, "Database Port")
