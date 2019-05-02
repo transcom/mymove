@@ -80,7 +80,6 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       name:
         type: string
-        format: string
         example: Fort Bragg North Station
       address:
         $ref: '#/definitions/Address'
@@ -110,7 +109,6 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       name:
         type: string
-        format: string
         example: Fort Bragg North Station
       address:
         $ref: '#/definitions/Address'
@@ -123,7 +121,6 @@ definitions:
           example: 212-555-5555
       gbloc:
         type: string
-        format: string
         pattern: '^[A-Z]{4}$'
         example: JENQ
       latitude:
@@ -1449,7 +1446,6 @@ definitions:
         example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
       filename:
         type: string
-        format: string
         example: filename.pdf
       content_type:
         type: string
@@ -4113,7 +4109,6 @@ paths:
         - in: query
           name: search
           type: string
-          format: string
           required: true
           description: Search string for duty stations
       responses:
