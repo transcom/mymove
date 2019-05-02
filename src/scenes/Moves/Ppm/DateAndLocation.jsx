@@ -25,6 +25,12 @@ const sitEstimateDebounceTime = 300;
 const formName = 'ppp_date_and_location';
 const DateAndLocationWizardForm = reduxifyWizardForm(formName);
 
+const validateDifferentZip = (value, formValues) => {
+  if (value && value === formValues.pickup_postal_code) {
+    return 'You entered the same zip code for your origin and destination. Please change one of them.';
+  }
+};
+
 export class DateAndLocation extends Component {
   state = { showInfo: false };
 
@@ -158,6 +164,7 @@ export class DateAndLocation extends Component {
             fieldName="destination_postal_code"
             swagger={this.props.schema}
             onChange={this.getDebouncedSitEstimate}
+            validate={validateDifferentZip}
             required
           />
           <span className="grey">

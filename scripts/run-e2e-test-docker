@@ -46,6 +46,7 @@ $DOCKER_RUN \
   -e DB_PASSWORD \
   -e DB_PORT \
   -e DB_USER \
+  -e DEVLOCAL_CA="/config/tls/devlocal-ca.pem" \
   -e DOD_CA_PACKAGE="/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b" \
   -e DPS_AUTH_COOKIE_SECRET_KEY \
   -e DPS_COOKIE_EXPIRES_IN_MINUTES \

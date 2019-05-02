@@ -151,8 +151,7 @@ admin_client_run: client_deps
 
 .PHONY: go_deps_update
 go_deps_update:
-	go get -u=patch -v
-	go mod tidy
+	go run cmd/update_deps/main.go
 
 .PHONY: check_gopath
 check_gopath: go_version .check_gopath.stamp
@@ -196,7 +195,7 @@ bin/rds-combined-ca-bundle.pem:
 .PHONY: server_deps
 server_deps: check_hosts check_gopath build_chamber build_soda build_callgraph get_gotools bin/rds-combined-ca-bundle.pem .server_deps.stamp
 .server_deps.stamp:
-	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
+#	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
 	go build -i -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
 	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 	touch .server_deps.stamp
@@ -254,8 +253,7 @@ server_run_default: server_deps server_generate db_dev_run
 
 .PHONY: server_run_debug
 server_run_debug:
-	INTERFACE=localhost DEBUG_LOGGING=true \
-	$(AWS_VAULT) dlv debug cmd/milmove/main.go serve
+	$(AWS_VAULT) dlv debug cmd/milmove/main.go cmd/milmove/logger.go -- serve
 
 .PHONY: build_tools
 build_tools: bash_version server_deps server_generate build_generate_test_data

@@ -1,7 +1,7 @@
 import { get } from 'lodash';
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { reduxForm, FormSection } from 'redux-form';
+import { reduxForm } from 'redux-form';
 
 import { editablePanelify } from 'shared/EditablePanel';
 import { AddressElementDisplay, AddressElementEdit } from 'shared/Address';
@@ -25,7 +25,7 @@ const LocationsDisplay = props => {
     <Fragment>
       <div className="editable-panel-column">
         <span className="column-subhead">Pickup</span>
-        <AddressElementDisplay address={pickupAddress} title="Primary" />
+        {pickupAddress && <AddressElementDisplay address={pickupAddress} title="Primary" />}
         {hasSecondaryPickupAddress && <AddressElementDisplay address={secondaryPickupAddress} title="Additional" />}
       </div>
       <div className="editable-panel-column">
@@ -43,26 +43,19 @@ const LocationsEdit = props => {
     state: props.newDutyStation.state,
     postal_code: props.newDutyStation.postal_code,
   };
-  const deliveryAddress = get(props, 'formValues.delivery_address', {});
   const hasDeliveryAddress = get(props, 'formValues.has_delivery_address');
   const hasSecondaryPickupAddress = get(props, 'formValues.has_secondary_pickup_address');
-  const secondaryPickupAddress = get(props, 'formValues.secondary_pickup_address', {});
-  const pickupAddress = get(props, 'formValues.pickup_address', {});
   return (
     <Fragment>
       <div className="editable-panel-column">
         <span className="column-subhead">Pickup</span>
-        <FormSection name="pickup_address">
-          <AddressElementEdit
-            addressProps={{
-              swagger: addressSchema,
-              values: pickupAddress,
-            }}
-            title="Primary address"
-            zipPattern="USA"
-            required
-          />
-        </FormSection>
+        <AddressElementEdit
+          fieldName="pickup_address"
+          schema={addressSchema}
+          title="Primary address"
+          zipPattern="USA"
+          required
+        />
         <SwaggerField
           className="radio-title"
           fieldName="has_secondary_pickup_address"
@@ -70,18 +63,14 @@ const LocationsEdit = props => {
           component={YesNoBoolean}
           title="Are there household goods at any other pickup location?"
         />
-        <FormSection name="secondary_pickup_address">
-          {hasSecondaryPickupAddress && (
-            <AddressElementEdit
-              addressProps={{
-                swagger: addressSchema,
-                values: secondaryPickupAddress,
-              }}
-              title="Additional address"
-              zipPattern="USA"
-            />
-          )}
-        </FormSection>
+        {hasSecondaryPickupAddress && (
+          <AddressElementEdit
+            fieldName="secondary_pickup_address"
+            schema={addressSchema}
+            title="Additional address"
+            zipPattern="USA"
+          />
+        )}
       </div>
       <div className="editable-panel-column">
         <span className="column-subhead">Delivery</span>
@@ -92,20 +81,16 @@ const LocationsEdit = props => {
           component={YesNoBoolean}
           title="Do you know the delivery address at destination yet?"
         />
-        <FormSection name="delivery_address">
-          {hasDeliveryAddress ? (
-            <AddressElementEdit
-              addressProps={{
-                swagger: addressSchema,
-                values: deliveryAddress,
-              }}
-              title="Primary address"
-              zipPattern="USA"
-            />
-          ) : (
-            <AddressElementDisplay address={newDutyStation} title="Delivery Primary (Duty Station)" />
-          )}
-        </FormSection>
+        {hasDeliveryAddress ? (
+          <AddressElementEdit
+            fieldName="delivery_address"
+            schema={addressSchema}
+            title="Primary address"
+            zipPattern="USA"
+          />
+        ) : (
+          <AddressElementDisplay address={newDutyStation} title="Delivery Primary (Duty Station)" />
+        )}
       </div>
     </Fragment>
   );
@@ -121,7 +106,6 @@ const propTypes = {
       state: string.isRequired,
       street_address_1: string.isRequired,
       street_address_2: string,
-      street_address_3: string,
     }),
     has_secondary_pickup_address: bool.isRequired,
     secondary_pickup_address: shape({
@@ -130,7 +114,6 @@ const propTypes = {
       state: string.isRequired,
       street_address_1: string.isRequired,
       street_address_2: string,
-      street_address_3: string,
     }),
     has_delivery_address: bool.isRequired,
     delivery_address: shape({
@@ -139,7 +122,6 @@ const propTypes = {
       state: string.isRequired,
       street_address_1: string,
       street_address_2: string,
-      street_address_3: string,
     }),
   }),
   addressSchema: object.isRequired,
@@ -163,4 +145,4 @@ LocationsPanel.propTypes = {
   initialValues: object.isRequired,
 };
 
-export default LocationsPanel;
+export { LocationsDisplay, LocationsPanel as default };

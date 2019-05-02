@@ -26,7 +26,6 @@ import Dates from 'shared/ShipmentDates';
 import RoutingPanel from './Hhg/RoutingPanel';
 import ServiceAgentsContainer from './Hhg/ServiceAgentsContainer';
 import Weights from 'shared/ShipmentWeights';
-import PremoveSurvey from './PremoveSurvey';
 import { withContext } from 'shared/AppContext';
 import ConfirmWithReasonButton from 'shared/ConfirmWithReasonButton';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
@@ -93,9 +92,9 @@ const PPMTabContent = props => {
   return (
     <div className="office-tab">
       <PaymentsPanel title="Payments" moveId={props.moveId} />
-      <ExpensesPanel title="Expenses" moveId={props.moveId} />
       {props.ppmPaymentRequested && (
         <>
+          <ExpensesPanel title="Expenses" moveId={props.moveId} />
           <StoragePanel title="Storage" moveId={props.moveId} />
           <DatesAndLocationPanel title="Dates & Locations" moveId={props.moveId} />
           <NetWeightPanel title="Weights" moveId={props.moveId} />
@@ -121,7 +120,6 @@ const HHGTabContent = props => {
       <Dates title="Dates" shipment={shipment} update={updatePublicShipment} />
       <LocationsContainer update={updatePublicShipment} shipmentId={shipment.id} />
       <Weights title="Weights & Items" shipment={shipment} update={updatePublicShipment} />
-      <PremoveSurvey title="Premove Survey" shipment={shipment} update={updatePublicShipment} />
       <ServiceAgentsContainer
         title="TSP & Servicing Agents"
         shipment={shipment}

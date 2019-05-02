@@ -11,12 +11,18 @@ import { no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import { loadPublicSchema } from 'shared/Swagger/ducks';
+import restProvider from 'ra-data-simple-rest';
+import { Admin } from 'react-admin';
 
-class AdminWelcome extends Component {
-  render() {
-    return <div>Welcome to the Admin App!!!</div>;
-  }
-}
+const dataProvider = restProvider('http://admin/v1/...');
+
+const AdminHome = () => (
+  <div className="admin-system-wrapper">
+    <Admin dataProvider={dataProvider} history={history}>
+      {/*<Resource />*/}
+    </Admin>
+  </div>
+);
 
 class AdminWrapper extends Component {
   componentDidMount() {
@@ -42,12 +48,12 @@ class AdminWrapper extends Component {
                       from="/"
                       to={{
                         ...location,
-                        pathname: '/welcome',
+                        pathname: '/system',
                       }}
                     />
                   )}
                 />
-                <PrivateRoute path="/welcome" component={AdminWelcome} />
+                <PrivateRoute path="/system" component={AdminHome} />
               </Switch>
             </div>
           </main>
@@ -63,7 +69,7 @@ AdminWrapper.defaultProps = {
 };
 
 const mapStateToProps = state => ({
-  swaggerError: state.swaggerInternal.hasErrored,
+  swaggerError: state.swaggerPublic.hasErrored,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({ loadPublicSchema, getCurrentUserInfo }, dispatch);

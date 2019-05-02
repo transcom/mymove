@@ -32,6 +32,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -47,8 +48,39 @@ var regexpTaskArnOld = regexp.MustCompile("^arn:aws:ecs:([^:]+?):([^:]+?):task/(
 var regexpServiceEventStoppedTask = regexp.MustCompile("^[(]service ([0-9a-zA-Z_-]+)[)] has stopped (\\d+) running tasks:\\s+(.+)[.]")
 var regexpServiceEventStoppedTaskID = regexp.MustCompile("[(]task ([0-9a-z-]+)[)]")
 
+const (
+	flagAWSRegion       string = "aws-region"
+	flagAWSProfile      string = "aws-profile"
+	flagAWSSessionToken string = "aws-session-token"
+
+	flagAWSVaultKeychainName string = "aws-vault-keychain-name"
+	flagAWSVaultProfile      string = "aws-vault"
+
+	flagCluster                string = "cluster"
+	flagService                string = "service"
+	flagEnvironment            string = "environment"
+	flagLogLevel               string = "level"
+	flagTaskDefinitionFamily   string = "ecs-task-def-family"
+	flagTaskDefinitionRevision string = "ecs-task-def-revision"
+	flagGitBranch              string = "git-branch"
+	flagGitCommit              string = "git-commit"
+	flagPageSize               string = "page-size"
+	flagLimit                  string = "limit"
+	flagStatus                 string = "status"
+	flagVerbose                string = "verbose"
+
+	defaultAWSRegion string = "us-west-2"
+
+	logLevel                  string = "level"
+	logTaskDefinitionFamily   string = "ecs_task_def_family"
+	logTaskDefinitionRevision string = "ecs_task_def_revision"
+	logGitBranch              string = "git_branch"
+	logGitCommit              string = "git_commit"
+)
+
 var environments = []string{"prod", "staging", "experimental"}
 var ecsTaskStatuses = []string{"RUNNING", "STOPPED"}
+var logLevels = []string{"debug", "info", "warn", "error", "panic", "fatal"}
 
 func parseTaskID(taskArn string) string {
 
@@ -107,6 +139,14 @@ func (e *errInvalidTaskStatus) Error() string {
 	return fmt.Sprintf("invalid status %q, expecting one of %q", e.Status, ecsTaskStatuses)
 }
 
+type errInvalidLogLevel struct {
+	Level string
+}
+
+func (e *errInvalidLogLevel) Error() string {
+	return fmt.Sprintf("invalid log level %q, expecting one of %q", e.Level, logLevels)
+}
+
 type errInvalidCluster struct {
 	Cluster string
 }
@@ -124,17 +164,21 @@ func (e *errInvalidService) Error() string {
 }
 
 func initFlags(flag *pflag.FlagSet) {
-	flag.String("aws-region", "us-west-2", "The AWS Region")
-	flag.String("aws-profile", "", "The aws-vault profile")
-	flag.String("aws-vault-keychain-name", "", "The aws-vault keychain name")
-	flag.String("cluster", "", "The cluster name")
-	flag.String("environment", "", "The environment name")
-	flag.String("service", "", "The service name")
-	flag.String("status", "", "The task status: "+strings.Join(ecsTaskStatuses, ", "))
-	flag.String("git-branch", "", "The git branch")
-	flag.String("git-commit", "", "The git commit")
-	flag.Int("limit", -1, "The log limit.  If 1 and above, will limit the results returned by each log stream.")
-	flag.BoolP("verbose", "v", false, "Print section lines")
+	flag.String(flagAWSRegion, defaultAWSRegion, "The AWS Region")
+	flag.String(flagAWSProfile, "", "The aws-vault profile")
+	flag.String(flagAWSVaultKeychainName, "", "The aws-vault keychain name")
+	flag.StringP(flagCluster, "c", "", "The cluster name")
+	flag.StringP(flagEnvironment, "e", "", "The environment name")
+	flag.StringP(flagService, "s", "", "The service name")
+	flag.String(flagStatus, "", "The task status: "+strings.Join(ecsTaskStatuses, ", "))
+	flag.StringP(flagLogLevel, "l", "", "The log level: "+strings.Join(logLevels, ", "))
+	flag.StringP(flagGitBranch, "b", "", "The git branch")
+	flag.String(flagGitCommit, "", "The git commit")
+	flag.StringP(flagTaskDefinitionFamily, "f", "", "The ECS task definition family.")
+	flag.StringP(flagTaskDefinitionRevision, "r", "", "The ECS task definition revision.")
+	flag.IntP(flagPageSize, "p", -1, "The page size or maximum number of log events to return during each API call.  The default is 10,000 log events.")
+	flag.IntP(flagLimit, "n", -1, "If 1 or above, the maximum number of log events to print to stdout.")
+	flag.BoolP(flagVerbose, "v", false, "Print section lines")
 }
 
 func checkConfig(v *viper.Viper) error {
@@ -144,22 +188,45 @@ func checkConfig(v *viper.Viper) error {
 		return &errInvalidCluster{Cluster: clusterName}
 	}
 
-	regions, ok := endpoints.RegionsForService(endpoints.DefaultPartitions(), endpoints.AwsPartitionID, endpoints.EcsServiceID)
-	if !ok {
-		return fmt.Errorf("could not find regions for service %q", endpoints.EcsServiceID)
+	if awsVaultProfile := v.GetString(flagAWSVaultProfile); len(awsVaultProfile) > 0 {
+		sessionToken := v.GetString(flagAWSSessionToken)
+		if len(sessionToken) == 0 {
+			return fmt.Errorf("in aws-vault session, but missing aws-session-token")
+		}
+	} else {
+		regions, ok := endpoints.RegionsForService(endpoints.DefaultPartitions(), endpoints.AwsPartitionID, endpoints.EcsServiceID)
+		if !ok {
+			return fmt.Errorf("could not find regions for service %q", endpoints.EcsServiceID)
+		}
+
+		region := v.GetString(flagAWSRegion)
+		if len(region) == 0 {
+			return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", flagAWSRegion))
+		}
+
+		if _, ok := regions[region]; !ok {
+			return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", flagAWSRegion))
+		}
 	}
 
-	region := v.GetString("aws-region")
-	if len(region) == 0 {
-		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", "aws-region"))
+	logLevel := strings.ToLower(v.GetString(flagLogLevel))
+	if len(logLevel) > 0 {
+		valid := false
+		for _, str := range logLevels {
+			if logLevel == str {
+				valid = true
+				break
+			}
+		}
+
+		if !valid {
+			return errors.Wrap(&errInvalidLogLevel{Level: logLevel}, fmt.Sprintf("%q is invalid", flagLogLevel))
+		}
 	}
 
-	if _, ok := regions[region]; !ok {
-		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", "aws-region"))
-	}
-
-	status := v.GetString("status")
+	status := strings.ToUpper(v.GetString(flagStatus))
 	if len(status) > 0 {
+
 		valid := false
 		for _, str := range ecsTaskStatuses {
 			if status == str {
@@ -167,12 +234,13 @@ func checkConfig(v *viper.Viper) error {
 				break
 			}
 		}
+
 		if !valid {
-			return errors.Wrap(&errInvalidTaskStatus{Status: status}, fmt.Sprintf("%q is invalid", "status"))
+			return errors.Wrap(&errInvalidTaskStatus{Status: status}, fmt.Sprintf("%q is invalid", flagStatus))
 		}
 
 		if status == "STOPPED" {
-			environment := v.GetString("environment")
+			environment := v.GetString(flagEnvironment)
 			if len(environment) == 0 {
 				return errors.New("when status is set to STOPPED then environment must be set")
 			}
@@ -184,19 +252,16 @@ func checkConfig(v *viper.Viper) error {
 				}
 			}
 			if !valid {
-				return errors.Wrap(&errInvalidEnvironment{Environment: environment}, fmt.Sprintf("%q is invalid", "environment"))
+				return errors.Wrap(&errInvalidEnvironment{Environment: environment}, fmt.Sprintf("%q is invalid", flagEnvironment))
+			}
+
+			if serviceName := v.GetString(flagService); len(serviceName) == 0 {
+				return &errInvalidService{Service: serviceName}
 			}
 		}
 	}
 
 	return nil
-}
-
-func quit(logger *log.Logger, flag *pflag.FlagSet, err error) {
-	logger.Println(err.Error())
-	fmt.Println("Usage of ecs-service-logs:")
-	flag.PrintDefaults()
-	os.Exit(1)
 }
 
 // Job is struct linking a task id to a given CloudWatch Log Stream.
@@ -246,12 +311,50 @@ func getAWSCredentials(keychainName string, keychainProfile string) (*credential
 }
 
 func main() {
-	flag := pflag.CommandLine
-	initFlags(flag)
-	flag.Parse(os.Args[1:])
+	root := cobra.Command{
+		Use:   "ecs-service-logs [flags]",
+		Short: "Show application logs for ECS Service",
+		Long:  "Show application logs for ECS Service",
+	}
+
+	completionCommand := &cobra.Command{
+		Use:   "completion",
+		Short: "Generates bash completion scripts",
+		Long:  "To install completion scripts run:\necs-service-logs completion > /usr/local/etc/bash_completion.d/ecs-service-logs",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return root.GenBashCompletion(os.Stdout)
+		},
+	}
+	root.AddCommand(completionCommand)
+
+	showCommand := &cobra.Command{
+		Use:   "show [flags]",
+		Short: "Show application logs for ECS Service",
+		Long:  "Show application logs for ECS Service",
+		RunE:  showFunction,
+	}
+	initFlags(showCommand.Flags())
+	root.AddCommand(showCommand)
+
+	if err := root.Execute(); err != nil {
+		panic(err)
+	}
+}
+
+func showFunction(cmd *cobra.Command, args []string) error {
+
+	err := cmd.ParseFlags(args)
+	if err != nil {
+		return err
+	}
+
+	flag := cmd.Flags()
 
 	v := viper.New()
-	v.BindPFlags(flag)
+	err = v.BindPFlags(flag)
+	if err != nil {
+		return err
+	}
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
@@ -259,7 +362,7 @@ func main() {
 	// Remove the prefix and any datetime data
 	logger := log.New(os.Stdout, "", log.LstdFlags)
 
-	if !v.GetBool("verbose") {
+	if !v.GetBool(flagVerbose) {
 		// Disable any logging that isn't attached to the logger unless using the verbose flag
 		log.SetOutput(ioutil.Discard)
 		log.SetFlags(0)
@@ -268,9 +371,9 @@ func main() {
 		logger.SetFlags(0)
 	}
 
-	err := checkConfig(v)
+	err = checkConfig(v)
 	if err != nil {
-		quit(logger, flag, err)
+		return err
 	}
 
 	awsRegion := v.GetString("aws-region")
@@ -279,33 +382,35 @@ func main() {
 		Region: aws.String(awsRegion),
 	}
 
-	verbose := v.GetBool("verbose")
-	keychainName := v.GetString("aws-vault-keychain-name")
-	keychainProfile := v.GetString("aws-profile")
+	verbose := v.GetBool(flagVerbose)
 
-	if len(keychainName) > 0 && len(keychainProfile) > 0 {
-		creds, err := getAWSCredentials(keychainName, keychainProfile)
-		if err != nil {
-			quit(logger, flag, errors.Wrap(err, fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, keychainProfile)))
+	if awsVaultProfile := v.GetString(flagAWSVaultProfile); len(awsVaultProfile) == 0 {
+		keychainName := v.GetString(flagAWSVaultKeychainName)
+		keychainProfile := v.GetString(flagAWSProfile)
+		if len(keychainName) > 0 && len(keychainProfile) > 0 {
+			creds, err := getAWSCredentials(keychainName, keychainProfile)
+			if err != nil {
+				return errors.Wrap(err, fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, keychainProfile))
+			}
+			awsConfig.CredentialsChainVerboseErrors = aws.Bool(verbose)
+			awsConfig.Credentials = creds
 		}
-		awsConfig.CredentialsChainVerboseErrors = aws.Bool(verbose)
-		awsConfig.Credentials = creds
 	}
 
 	sess, err := awssession.NewSession(awsConfig)
 	if err != nil {
-		quit(logger, flag, errors.Wrap(err, "failed to create AWS session"))
+		return errors.Wrap(err, "failed to create AWS session")
 	}
 
 	serviceECS := ecs.New(sess)
 
 	serviceCloudWatchLogs := cloudwatchlogs.New(sess)
 
-	clusterName := v.GetString("cluster")
-	serviceName := v.GetString("service")
-	status := v.GetString("status")
-	limit := v.GetInt("limit")
-	environment := v.GetString("environment")
+	clusterName := v.GetString(flagCluster)
+	serviceName := v.GetString(flagService)
+	status := strings.ToUpper(v.GetString(flagStatus))
+	pageSize := v.GetInt(flagPageSize)
+	environment := v.GetString(flagEnvironment)
 
 	jobs := make([]Job, 0)
 
@@ -319,7 +424,7 @@ func main() {
 		}
 		describeServicesOutput, err := serviceECS.DescribeServices(describeServicesInput)
 		if err != nil {
-			quit(logger, flag, err)
+			return errors.Wrap(err, fmt.Sprintf("error describing services with cluster name %q", clusterName))
 		}
 		for _, service := range describeServicesOutput.Services {
 			for _, event := range service.Events {
@@ -335,7 +440,7 @@ func main() {
 
 		// If there are no tasks returned from the query then simply exit.
 		if len(stoppedTaskIds) == 0 {
-			return
+			return nil
 		}
 
 		for _, taskID := range stoppedTaskIds {
@@ -349,8 +454,8 @@ func main() {
 				LogStreamName: logStreamName,
 				Limit:         -1,
 			}
-			if limit > 0 {
-				job.Limit = limit
+			if pageSize > 0 {
+				job.Limit = pageSize
 			}
 			jobs = append(jobs, job)
 		}
@@ -369,7 +474,7 @@ func main() {
 			}
 			listTasksOutput, err := serviceECS.ListTasks(listTasksInput)
 			if err != nil {
-				quit(logger, flag, err)
+				return err
 			}
 			taskArns = append(taskArns, listTasksOutput.TaskArns...)
 
@@ -381,7 +486,7 @@ func main() {
 
 		// If there are no tasks returned from the query then simply exit.
 		if len(taskArns) == 0 {
-			return
+			return nil
 		}
 
 		describeTasksOutput, err := serviceECS.DescribeTasks(&ecs.DescribeTasksInput{
@@ -389,7 +494,7 @@ func main() {
 			Tasks:   taskArns,
 		})
 		if err != nil {
-			quit(logger, flag, err)
+			return errors.Wrap(err, fmt.Sprintf("error describing tasks in cluster %q ", clusterName))
 		}
 
 		tasks := describeTasksOutput.Tasks
@@ -405,7 +510,7 @@ func main() {
 				TaskDefinition: aws.String(taskDefinitionArn),
 			})
 			if err != nil {
-				panic(err)
+				return err
 			}
 			taskDefinitions[taskDefinitionArn] = describeTaskDefinitionOutput.TaskDefinition
 		}
@@ -420,7 +525,7 @@ func main() {
 
 			taskDefinition, ok := taskDefinitions[*task.TaskDefinitionArn]
 			if !ok {
-				quit(logger, flag, fmt.Errorf("missing task definition with arn %s for task %s", *task.TaskDefinitionArn, *task.TaskArn))
+				return fmt.Errorf("missing task definition with arn %s for task %s", *task.TaskDefinitionArn, *task.TaskArn)
 			}
 
 			for _, containerDefinition := range taskDefinition.ContainerDefinitions {
@@ -429,12 +534,12 @@ func main() {
 
 				logDriver := *containerDefinition.LogConfiguration.LogDriver
 				if logDriver != "awslogs" {
-					quit(logger, flag, fmt.Errorf("found log driver %s, expecting %s", logDriver, "awslogs"))
+					return fmt.Errorf("found log driver %s, expecting %s", logDriver, "awslogs")
 				}
 
 				logConfigurationOptions := containerDefinition.LogConfiguration.Options
 				if len(logConfigurationOptions) == 0 {
-					quit(logger, flag, fmt.Errorf("log configuration options is empty"))
+					return fmt.Errorf("log configuration options is empty")
 				}
 
 				logGroupName := logConfigurationOptions["awslogs-group"]
@@ -449,8 +554,8 @@ func main() {
 					LogStreamName: logStreamName,
 					Limit:         -1,
 				}
-				if limit > 0 {
-					job.Limit = limit
+				if pageSize > 0 {
+					job.Limit = pageSize
 				}
 				jobs = append(jobs, job)
 			}
@@ -458,15 +563,28 @@ func main() {
 		}
 	}
 
-	gitBranch := v.GetString("git-branch")
-	gitCommit := v.GetString("git-commit")
 	filters := map[string]string{}
-	if len(gitBranch) > 0 {
-		filters["git-branch"] = gitBranch
+
+	if gitBranch := v.GetString(flagGitBranch); len(gitBranch) > 0 {
+		filters[logGitBranch] = gitBranch
 	}
-	if len(gitCommit) > 0 {
-		filters["git-commit"] = gitCommit
+
+	if gitCommit := v.GetString(flagGitCommit); len(gitCommit) > 0 {
+		filters[logGitCommit] = gitCommit
 	}
+
+	if family := v.GetString(flagTaskDefinitionFamily); len(family) > 0 {
+		filters[logTaskDefinitionFamily] = family
+	}
+
+	if revision := v.GetString(flagTaskDefinitionRevision); len(revision) > 0 {
+		filters[logTaskDefinitionRevision] = revision
+	}
+
+	if level := strings.ToLower(v.GetString(flagLogLevel)); len(level) > 0 {
+		filters[logLevel] = level
+	}
+
 	filterPattern := ""
 	if len(filters) > 0 {
 		parts := make([]string, 0, len(filters))
@@ -476,6 +594,8 @@ func main() {
 		filterPattern = "{" + strings.Join(parts, " && ") + "}"
 	}
 
+	limit := v.GetInt(flagLimit)
+	count := 0
 	for _, job := range jobs {
 
 		if verbose {
@@ -483,23 +603,56 @@ func main() {
 			fmt.Println("-----------------------------------------")
 		}
 
-		filterLogEventsInput := &cloudwatchlogs.FilterLogEventsInput{
-			LogGroupName:   aws.String(job.LogGroupName),
-			LogStreamNames: []*string{aws.String(job.LogStreamName)},
+		var nextToken *string
+		for {
+			filterLogEventsInput := &cloudwatchlogs.FilterLogEventsInput{
+				LogGroupName:   aws.String(job.LogGroupName),
+				LogStreamNames: []*string{aws.String(job.LogStreamName)},
+				NextToken:      nextToken,
+			}
+			if job.Limit >= 0 {
+				if (limit > 0) && ((limit - count) < job.Limit) {
+					filterLogEventsInput.Limit = aws.Int64(int64(limit - count))
+				} else {
+					filterLogEventsInput.Limit = aws.Int64(int64(job.Limit))
+				}
+			}
+			if len(filterPattern) > 0 {
+				filterLogEventsInput.FilterPattern = aws.String(filterPattern)
+			}
+			getLogEventsOutput, err := serviceCloudWatchLogs.FilterLogEvents(filterLogEventsInput)
+			if err != nil {
+				return errors.Wrap(err, "error retrieving log events")
+			}
+			for _, event := range getLogEventsOutput.Events {
+				fmt.Println(*event.Message)
+				count++
+
+				// break the print loop
+				if (limit > 0) && (count == limit) {
+					break
+				}
+			}
+
+			// if there are no more events
+			if getLogEventsOutput.NextToken == nil {
+				break
+			}
+
+			// break the pagination loop
+			if (limit > 0) && (count == limit) {
+				break
+			}
+
+			nextToken = getLogEventsOutput.NextToken
 		}
-		if job.Limit >= 0 {
-			filterLogEventsInput.Limit = aws.Int64(int64(job.Limit))
+
+		// Break the outer loop
+		if (limit > 0) && (count == limit) {
+			break
 		}
-		if len(filterPattern) > 0 {
-			filterLogEventsInput.FilterPattern = aws.String(filterPattern)
-		}
-		getLogEventsOutput, err := serviceCloudWatchLogs.FilterLogEvents(filterLogEventsInput)
-		if err != nil {
-			quit(logger, flag, errors.Wrap(err, "error retrieving log events"))
-		}
-		for _, event := range getLogEventsOutput.Events {
-			fmt.Println(*event.Message)
-		}
+
 	}
 
+	return nil
 }
