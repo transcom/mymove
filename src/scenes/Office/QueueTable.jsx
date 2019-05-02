@@ -140,6 +140,7 @@ class QueueTable extends Component {
               {
                 Header: 'Locator #',
                 accessor: 'locator',
+                Cell: row => <span data-cy="locator">{row.value}</span>,
               },
               {
                 Header: 'GBL',

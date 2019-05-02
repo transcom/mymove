@@ -37,5 +37,8 @@ function officeAllMoves() {
     expect(loc.pathname).to.match(/^\/queues\/all/);
   });
 
-  cy.get('[data-cy=queue-table-row]').should('have.length', 66);
+  cy
+    .get('[data-cy=locator]')
+    .contains('PZCPPP')
+    .should('not.exist');
 }
