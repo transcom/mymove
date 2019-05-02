@@ -69,7 +69,7 @@ function Footer() {
             <address>
               <h3 className="usa-footer-contact-heading">Contact Us</h3>
               <p>
-                <a href="https://move.mil/customer-service">Customer Service</a>
+                <a href="https://move.mil/customer-service">Customer service</a>
               </p>
             </address>
           </div>
