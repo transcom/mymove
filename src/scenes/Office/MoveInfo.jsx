@@ -133,6 +133,54 @@ const HHGTabContent = props => {
   );
 };
 
+const ReferrerQueueLink = props => {
+  const pathname = props.history.location.state ? props.history.location.state.referrerPathname : '';
+  switch (pathname) {
+    case '/queues/new':
+      return (
+        <NavLink to="/queues/new" activeClassName="usa-current">
+          <span>New Moves Queue</span>
+        </NavLink>
+      );
+    case '/queues/ppm':
+      return (
+        <NavLink to="/queues/ppm" activeClassName="usa-current">
+          <span>PPM Queue</span>
+        </NavLink>
+      );
+    case '/queues/hhg_accepted':
+      return (
+        <NavLink to="/queues/hhg_accepted" activeClassName="usa-current">
+          <span>Accepted HHG Queue</span>
+        </NavLink>
+      );
+    case '/queues/hhg_delivered':
+      return (
+        <NavLink to="/queues/hhg_delivered" activeClassName="usa-current">
+          <span>Delivered HHG Queue</span>
+        </NavLink>
+      );
+    case '/queues/hhg_completed':
+      return (
+        <NavLink to="/queues/hhg_completed" activeClassName="usa-current">
+          <span>Completed HHG Queue</span>
+        </NavLink>
+      );
+    case '/queues/all':
+      return (
+        <NavLink to="/queues/all" activeClassName="usa-current">
+          <span>All Moves Queue</span>
+        </NavLink>
+      );
+    default:
+      return (
+        <NavLink to="/queues/new" activeClassName="usa-current">
+          <span>New Moves Queue</span>
+        </NavLink>
+      );
+  }
+};
+
 class MoveInfo extends Component {
   state = {
     redirectToHome: false,
@@ -312,9 +360,7 @@ class MoveInfo extends Component {
             </h1>
           </div>
           <div className="usa-width-one-third nav-controls">
-            <NavLink to="/queues/new" activeClassName="usa-current">
-              <span>New Moves Queue</span>
-            </NavLink>
+            <ReferrerQueueLink history={this.props.history} />
           </div>
         </div>
         <div className="usa-grid grid-wide">
@@ -374,7 +420,12 @@ class MoveInfo extends Component {
                 <PrivateRoute
                   exact
                   path={`${this.props.match.url}`}
-                  render={() => <Redirect replace to={`${this.props.match.url}/basics`} />}
+                  render={() => (
+                    <Redirect
+                      replace
+                      to={{ pathname: `${this.props.match.url}/basics`, state: this.props.history.location.state }}
+                    />
+                  )}
                 />
                 <PrivateRoute path={`${this.props.match.path}/basics`}>
                   <BasicsTabContent moveId={this.props.moveId} serviceMember={this.props.serviceMember} />
@@ -575,4 +626,5 @@ const mapDispatchToProps = dispatch =>
     dispatch,
   );
 
-export default withContext(connect(mapStateToProps, mapDispatchToProps)(MoveInfo));
+const connectedMoveInfo = withContext(connect(mapStateToProps, mapDispatchToProps)(MoveInfo));
+export { connectedMoveInfo as default, ReferrerQueueLink };
