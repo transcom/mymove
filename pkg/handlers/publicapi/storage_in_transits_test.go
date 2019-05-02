@@ -226,7 +226,7 @@ func (suite *HandlerSuite) TestApproveStorageInTransitHandler() {
 
 	payload := apimessages.StorageInTransitApprovalPayload{
 		AuthorizedStartDate: *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
-		AuthorizationNotes:  *handlers.FmtString("looks good to me"),
+		AuthorizationNotes:  handlers.FmtString("looks good to me"),
 	}
 
 	path := fmt.Sprintf("/shipments/%s/storage_in_transits/%s/approve", shipmentID, storageInTransitID)

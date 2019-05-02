@@ -29,7 +29,6 @@ export class StorageInTransitOfficeApprovalForm extends Component {
               fieldName="authorization_notes"
               title="Note"
               swagger={storageInTransitSchema}
-              required
             />
           </div>
         </fieldset>

@@ -1872,6 +1872,7 @@ definitions:
         format: textarea
         example: Good to go!
         title: Authorization Notes
+        x-nullable: true
       authorized_start_date:
         type: string
         format: date

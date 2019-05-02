@@ -15,7 +15,7 @@ export class ApproveSitRequest extends Component {
     closeOnSubmit: true,
   };
 
-  componentDidUpdate(prevProps, prevState, snapshot) {
+  componentDidUpdate(prevProps, prevState) {
     if (this.props.hasSubmitSucceeded && !prevProps.hasSubmitSucceeded) {
       this.props.onClose();
     }
