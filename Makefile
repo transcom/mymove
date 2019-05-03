@@ -743,10 +743,6 @@ run_experimental_migrations:
 adr_update: .client_deps.stamp
 	yarn run adr-log
 
-.PHONY: tsp_run
-tsp_run: bin/tsp-award-queue db_dev_run
-	./bin/tsp-award-queue
-
 .PHONY: pre_commit_tests
 pre_commit_tests: .server_generate.stamp .client_deps.stamp
 	pre-commit run --all-files
