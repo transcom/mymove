@@ -739,10 +739,6 @@ run_experimental_migrations:
 # ----- START RANDOM TARGETS -----
 #
 
-.PHONY: 1203_form
-1203_form:
-	find ./cmd/generate_1203_form -type f -name "main.go" | entr -c -r go run ./cmd/generate_1203_form/main.go
-
 .PHONY: adr_update
 adr_update: .client_deps.stamp
 	yarn run adr-log
