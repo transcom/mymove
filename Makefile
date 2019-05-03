@@ -202,6 +202,9 @@ bin/rds-combined-ca-bundle.pem:
 bin/compare-secure-migrations:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare_secure_migrations
 
+bin/ecs-deploy-task-container: server_deps server_generate
+	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-deploy-task-container ./cmd/ecs-deploy-task-container
+
 bin/ecs-service-logs:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 
@@ -331,12 +334,10 @@ server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.sta
 server_run_debug:
 	$(AWS_VAULT) dlv debug cmd/milmove/main.go cmd/milmove/logger.go -- serve
 
-bin/ecs-deploy-task-container: server_deps server_generate
-	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-deploy-task-container ./cmd/ecs-deploy-task-container
-
 .PHONY: build_tools
 build_tools: server_deps \
 	bin/compare-secure-migrations \
+	bin/ecs-deploy-task-container \
 	bin/ecs-service-logs \
 	bin/generate-1203-form \
 	bin/generate-shipment-edi \
