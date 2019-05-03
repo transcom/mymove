@@ -53,8 +53,17 @@ export function selectUplodsForOrders(state, ordersId) {
   const orders = selectOrders(state, ordersId);
   const uploadedOrders = get(state, `entities.documents.${orders.uploaded_orders}`);
   if (uploadedOrders) {
-    return uploadedOrders.uploads.map(uploadId => get(state, `entities.uploads.${uploadId}`));
+    let uploads = uploadedOrders.uploads.map(uploadId => {
+      return { ...get(state, `entities.uploads.${uploadId}`), ...{ orientation: 180 } };
+    });
+
+    return uploads;
   } else {
     return [];
   }
+}
+
+export function changeUploadOrientation(uploadId, direction) {
+  // const upload = selectUpload(uploadId);
+  // return swaggerRequest(getClient, swaggerTag, { ordersId, updateOrders: orders }, { label });
 }

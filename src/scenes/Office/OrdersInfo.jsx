@@ -10,7 +10,12 @@ import DocumentContent from 'shared/DocumentViewer/DocumentContent';
 import OrdersViewerPanel from './OrdersViewerPanel';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { loadMove, selectMove } from 'shared/Entities/modules/moves';
-import { loadOrders, loadOrdersLabel, selectUplodsForOrders } from 'shared/Entities/modules/orders';
+import {
+  loadOrders,
+  loadOrdersLabel,
+  selectUplodsForOrders,
+  changeUploadOrientation,
+} from 'shared/Entities/modules/orders';
 import { loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { stringifyName } from 'shared/utils/serviceMember';
 
@@ -56,6 +61,9 @@ class OrdersInfo extends Component {
                 url={upload.url}
                 filename={upload.filename}
                 contentType={upload.content_type}
+                uploadId={upload.id}
+                orientation={270}
+                rotate={changeUploadOrientation}
               />
             ))}
           </div>
