@@ -490,38 +490,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	/*
-	 * Another service member with orders and a move
-	 */
-	email = "profile@co.mple.te"
-	uuidStr = "99360a51-8cfa-4e25-ae57-24e66077305f"
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovEmail: email,
-		},
-	})
-
-	testdatagen.MakeMove(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("2672baac-53a1-4767-b4a3-976e53cc224e"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("Another Profile"),
-			LastName:      models.StringPointer("Complete"),
-			Edipi:         models.StringPointer("8893105161"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Order: models.Order{
-			HasDependents:    true,
-			SpouseHasProGear: true,
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("6f6ac599-e23f-43af-9b83-5d75a78e933f"),
-			Locator: "COMPLE",
-		},
-		Uploader: loader,
-	})
-
-	/*
 	 * Service member with orders and a move, but no move type selected to select HHG
 	 */
 	email = "sm_hhg@example.com"
@@ -2405,6 +2373,38 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	ppmApproved.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmApproved.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	models.SaveMoveDependencies(db, &ppmApproved.Move)
+
+	/*
+	 * Another service member with orders and a move
+	 */
+	email = "profile@co.mple.te"
+	uuidStr = "99360a51-8cfa-4e25-ae57-24e66077305f"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("2672baac-53a1-4767-b4a3-976e53cc224e"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Another Profile"),
+			LastName:      models.StringPointer("Complete"),
+			Edipi:         models.StringPointer("8893105161"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("6f6ac599-e23f-43af-9b83-5d75a78e933f"),
+			Locator: "COMPLE",
+		},
+		Uploader: loader,
+	})
 }
 
 // MakeHhgWithPpm creates an HHG user who has added a PPM
