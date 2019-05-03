@@ -155,12 +155,10 @@ describe('check invalid ppm inputs', () => {
       .type('80913');
     cy.get('input[name="destination_postal_code"]').type('76127');
 
-    cy.nextPage();
-
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
     });
-    cy.get('.usa-alert-text').should('exist');
+    cy.get('#original_move_date-error').should('exist');
   });
 
   it('doesnt allow same origin and destination zip', function() {

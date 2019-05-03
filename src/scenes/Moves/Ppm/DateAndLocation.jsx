@@ -33,7 +33,7 @@ const AlertText =
 const canCalculateEntitlement = (values, dispatch) => {
   const { original_move_date, pickup_postal_code, destination_postal_code } = values;
   return new Promise((resolve, reject) => {
-    if (original_move_date !== '' && pickup_postal_code !== '' && destination_postal_code !== '') {
+    if (original_move_date !== '' && pickup_postal_code.length !== '' && destination_postal_code.length !== '') {
       GetPpmWeightEstimate(values.original_move_date, values.pickup_postal_code, values.destination_postal_code, 2000)
         .then(() => {
           resolve();
@@ -158,7 +158,7 @@ export class DateAndLocation extends Component {
           serverError={error}
           initialValues={initialValues}
           asyncValidate={canCalculateEntitlement}
-          asyncBlurFields={['original_move_date']}
+          asyncChangeFields={['original_move_date']}
           enableReinitialize={true} //this is needed as the pickup_postal_code value needs to be initialized to the users residential address
         >
           <h2>PPM Dates & Locations</h2>
