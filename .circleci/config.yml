@@ -254,8 +254,9 @@ jobs:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+      - run: make get_gotools
+      - run: make bin/callgraph
       - run: make server_generate
-      - run: make build_callgraph
       - run:
           name: Run pre-commit tests
           command: pre-commit run --all-files
@@ -564,7 +565,7 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - run: make bin/chamber
-      - run: make build_soda
+      - run: make bin/soda
       - build_tag_push:
           dockerfile: Dockerfile.migrations
           tag: ppp-migrations:dev

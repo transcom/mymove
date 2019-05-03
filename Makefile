@@ -71,24 +71,37 @@ else
 endif
 	touch .check_hosts.stamp
 
-.PHONY: go_version
-go_version: .go_version.stamp
-.go_version.stamp: scripts/check-go-version
+.PHONY: check_go_version
+check_go_version: .check_go_version.stamp
+.check_go_version.stamp: scripts/check-go-version
 	scripts/check-go-version
-	touch .go_version.stamp
+	touch .check_go_version.stamp
 
-.PHONY: bash_version
-bash_version: .bash_version.stamp
-.bash_version.stamp: scripts/check-bash-version
+.PHONY: check_gopath
+check_gopath: .check_gopath.stamp
+.check_gopath.stamp:
+	scripts/check-gopath
+	touch .check_gopath.stamp
+
+.PHONY: check_bash_version
+check_bash_version: .check_bash_version.stamp
+.check_bash_version.stamp: scripts/check-bash-version
 ifndef CIRCLECI
 	scripts/check-bash-version
 else
 	@echo "No need to check bash version on CircleCI"
 endif
-	touch .bash_version.stamp
+	touch .check_bash_version.stamp
 
 .PHONY: deps
-deps: prereqs check_hosts ensure_pre_commit client_deps server_deps
+deps: prereqs \
+	check_hosts \
+	check_go_version \
+	check_gopath \
+	check_bash_version \
+	ensure_pre_commit \
+	client_deps \
+	server_deps
 
 .PHONY: test
 test: client_test server_test e2e_test
@@ -106,44 +119,139 @@ client_deps_update:
 	yarn upgrade
 
 .PHONY: client_deps
-client_deps: check_hosts .client_deps.stamp
+client_deps: .check_hosts.stamp .client_deps.stamp
 .client_deps.stamp: yarn.lock
 	yarn install
 	scripts/copy-swagger-ui
 	touch .client_deps.stamp
+
 .client_build.stamp: $(shell find src -type f)
 	yarn build
 	touch .client_build.stamp
 
 .PHONY: client_build
-client_build: client_deps .client_build.stamp
+client_build: .client_deps.stamp .client_build.stamp
+
+build/favicon.ico: client_build
 
 .PHONY: client_run
-client_run: client_deps
+client_run: .client_deps.stamp
 	HOST=milmovelocal yarn start
 
 .PHONY: client_test
-client_test: client_deps
+client_test: .client_deps.stamp
 	yarn test
 
 .PHONY: client_test_coverage
-client_test_coverage : client_deps
+client_test_coverage : .client_deps.stamp
 	yarn test:coverage
 
 .PHONY: office_client_run
-office_client_run: client_deps
+office_client_run: .client_deps.stamp
 	HOST=officelocal yarn start
 
 .PHONY: tsp_client_run
-tsp_client_run: client_deps
+tsp_client_run: .client_deps.stamp
 	HOST=tsplocal yarn start
 
 .PHONY: admin_client_run
-admin_client_run: client_deps
+admin_client_run: .client_deps.stamp
 	HOST=adminlocal yarn start
 
 #
 # ----- END CLIENT TARGETS -----
+#
+
+#
+# ----- START BIN TARGETS -----
+#
+
+### Go Tool Targets
+
+bin/callgraph: .check_go_version.stamp .check_gopath.stamp
+	go build -i -o bin/callgraph golang.org/x/tools/cmd/callgraph
+
+bin/chamber: .check_go_version.stamp .check_gopath.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
+
+# Disabled until gosec supports go modules
+# Add to server_deps target when re-enabling
+# bin/gosec: .check_go_version.stamp .check_gopath.stamp
+# 	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
+
+bin/gin: .check_go_version.stamp .check_gopath.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
+
+bin/soda: .check_go_version.stamp .check_gopath.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda
+
+bin/swagger: .check_go_version.stamp .check_gopath.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
+
+### Cert Targets
+
+bin/rds-combined-ca-bundle.pem:
+	mkdir -p bin/
+	curl -sSo bin/rds-combined-ca-bundle.pem https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
+
+### MilMove Targets
+
+bin/compare-secure-migrations:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare_secure_migrations
+
+bin/ecs-service-logs:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
+
+bin/generate-1203-form: .server_generate.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
+
+bin/generate-shipment-edi: .server_generate.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-edi ./cmd/generate_shipment_edi
+
+bin/generate-shipment-summary: .server_generate.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
+
+bin/generate-test-data: pkg/assets/assets.go .server_generate.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
+
+bin/health_checker:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/health_checker ./cmd/health_checker
+
+bin/iws:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/iws/iws.go
+
+bin/load-office-data: .server_generate.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/load-office-data ./cmd/load_office_data
+
+bin/load-user-gen: .server_generate.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/load-user-gen ./cmd/load_user_gen
+
+bin/make-dps-user: .server_generate.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/make-dps-user ./cmd/make_dps_user
+
+bin/make-office-user: .server_generate.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
+
+bin/make-tsp-user: .server_generate.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
+
+bin/milmove: .server_generate.stamp
+	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
+
+bin/save-fuel-price-data: .server_generate.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
+
+bin/send-to-gex: .server_generate.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
+
+bin/tsp-award-queue: .server_generate.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
+
+pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
+	go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/
+
+#
+# ----- END BIN TARGETS -----
 #
 
 #
@@ -152,36 +260,7 @@ admin_client_run: client_deps
 
 .PHONY: go_deps_update
 go_deps_update:
-	go get -u=patch -v
-	go mod tidy
-
-.PHONY: check_gopath
-check_gopath: go_version .check_gopath.stamp
-.check_gopath.stamp:
-	scripts/check-gopath
-	touch .check_gopath.stamp
-
-bin/chamber: .check_gopath.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
-
-bin/swagger: .check_gopath.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
-
-.PHONY: build_soda
-build_soda: .check_gopath.stamp .build_soda.stamp
-.build_soda.stamp:
-	go build -i -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda
-	touch .build_soda.stamp
-
-.PHONY: build_generate_test_data
-build_generate_test_data: .check_gopath.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
-
-.PHONY: build_callgraph
-build_callgraph: .check_gopath.stamp .build_callgraph.stamp
-.build_callgraph.stamp:
-	go build -i -o bin/callgraph golang.org/x/tools/cmd/callgraph
-	touch .build_callgraph.stamp
+	go run cmd/update_deps/main.go
 
 .PHONY: get_gotools
 get_gotools: .check_gopath.stamp .get_gotools.stamp
@@ -190,40 +269,32 @@ get_gotools: .check_gopath.stamp .get_gotools.stamp
 	go install golang.org/x/tools/cmd/goimports
 	touch .get_gotools.stamp
 
-bin/rds-combined-ca-bundle.pem:
-	mkdir -p bin/
-	curl -sSo bin/rds-combined-ca-bundle.pem https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem
-
 .PHONY: server_deps
-server_deps: check_hosts .check_gopath.stamp bin/chamber bin/swagger build_soda build_callgraph get_gotools bin/rds-combined-ca-bundle.pem .server_deps.stamp
-.server_deps.stamp:
-	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
-	go build -i -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
-	touch .server_deps.stamp
+server_deps: get_gotools \
+	bin/callgraph \
+	bin/chamber \
+	bin/gin \
+	bin/soda \
+	bin/swagger \
+	bin/rds-combined-ca-bundle.pem
 
 .PHONY: server_generate
-server_generate: server_deps server_go_bindata .server_generate.stamp
-.server_generate.stamp: $(shell find swagger -type f -name *.yaml)
+server_generate: .check_go_version.stamp .check_gopath.stamp .server_generate.stamp
+.server_generate.stamp: pkg/assets/assets.go bin/swagger $(shell find swagger -type f -name *.yaml)
 	scripts/gen-server
 	touch .server_generate.stamp
 
 .PHONY: server_generate_linux
-server_generate_linux: bin/swagger server_go_bindata .server_generate_linux.stamp
+server_generate_linux: .check_go_version.stamp .check_gopath.stamp pkg/assets/assets.go bin/swagger .server_generate_linux.stamp
 .server_generate_linux.stamp: $(shell find swagger -type f -name *.yaml)
 	scripts/gen-server
 	touch .server_generate_linux.stamp
 
-.PHONY: server_go_bindata
-server_go_bindata: pkg/assets/assets.go
-pkg/assets/assets.go: pkg/paperwork/formtemplates/*
-	go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/
-
 .PHONY: server_build
-server_build: server_deps server_generate
-	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
+server_build: server_deps server_generate bin/milmove
 
 .PHONY: server_build_linux
-server_build_linux: bin/swagger server_generate_linux
+server_build_linux: server_generate_linux
 	# These don't need to go in bin_linux/ because local devs don't use them
 	# Additionally it would not work with the default Dockerfile
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
@@ -236,11 +307,11 @@ server_run_standalone: client_build server_build db_dev_run
 server_run:
 	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run_default
 # This command runs the server behind gin, a hot-reload server
-server_run_default: server_deps server_generate db_dev_run
+server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp bin/gin build/favicon.ico server_generate db_dev_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) ./bin/gin \
 		--build ./cmd/milmove \
-		--bin /bin/milmove \
+		--bin /bin/milmove_gin \
 		--port 8080 --appPort 8081 \
 		--excludeDir node_modules \
 		--immediate \
@@ -261,27 +332,23 @@ bin/ecs-deploy-task-container: server_deps server_generate
 	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-deploy-task-container ./cmd/ecs-deploy-task-container
 
 .PHONY: build_tools
-build_tools: bash_version \
- server_deps \
- server_generate \
- build_generate_test_data \
- bin/save-fuel-price-data \
- bin/ecs-deploy-task-container
-	go build -i -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare_secure_migrations
-	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
-	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
-	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-edi ./cmd/generate_shipment_edi
-	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
-	go build -i -ldflags "$(LDFLAGS)" -o bin/health_checker ./cmd/health_checker
-	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/demo/iws.go
-	go build -i -ldflags "$(LDFLAGS)" -o bin/load-office-data ./cmd/load_office_data
-	go build -i -ldflags "$(LDFLAGS)" -o bin/load-user-gen ./cmd/load_user_gen
-	go build -i -ldflags "$(LDFLAGS)" -o bin/make-dps-user ./cmd/make_dps_user
-	go build -i -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
-	go build -i -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
-	go build -i -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
-	go build -i -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
-	go build -i -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
+build_tools: server_deps \
+	bin/compare-secure-migrations \
+	bin/ecs-service-logs \
+	bin/generate-1203-form \
+	bin/generate-shipment-edi \
+	bin/generate-shipment-summary \
+	bin/generate-test-data \
+	bin/health_checker \
+	bin/iws \
+	bin/load-office-data \
+	bin/load-user-gen \
+	bin/make-dps-user \
+	bin/make-office-user \
+	bin/make-tsp-user \
+	bin/save-fuel-price-data \
+	bin/send-to-gex \
+	bin/tsp-award-queue
 
 .PHONY: build
 build: server_build build_tools client_build
@@ -289,7 +356,7 @@ build: server_build build_tools client_build
 # webserver_test runs a few acceptance tests against a local or remote environment.
 # This can help identify potential errors before deploying a container.
 .PHONY: webserver_test
-webserver_test: server_generate bin/chamber
+webserver_test: bin/rds-combined-ca-bundle.pem server_generate bin/chamber
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
@@ -381,7 +448,7 @@ db_dev_run: db_dev_start db_dev_create
 db_dev_reset: db_dev_destroy db_dev_run
 
 .PHONY: db_dev_migrate_standalone
-db_dev_migrate_standalone:
+db_dev_migrate_standalone: bin/soda
 	@echo "Migrating the ${DB_NAME_DEV} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd scripts && \
@@ -436,7 +503,7 @@ db_prod_migrations_run: db_prod_migrations_start db_prod_migrations_create
 db_prod_migrations_reset: db_prod_migrations_destroy db_prod_migrations_run
 
 .PHONY: db_prod_migrations_migrate_standalone
-db_prod_migrations_migrate_standalone:
+db_prod_migrations_migrate_standalone: bin/soda
 	@echo "Migrating the ${DB_NAME_PROD_MIGRATIONS} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd scripts && \
@@ -508,7 +575,7 @@ db_test_reset: db_test_destroy db_test_run
 db_test_reset_docker: db_test_destroy db_test_run_docker
 
 .PHONY: db_test_migrate_standalone
-db_test_migrate_standalone:
+db_test_migrate_standalone: bin/soda
 ifndef CIRCLECI
 	@echo "Migrating the ${DB_NAME_TEST} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
@@ -528,7 +595,7 @@ db_test_migrate: server_deps db_test_migrate_standalone
 
 .PHONY: db_test_migrations_build
 db_test_migrations_build: .db_test_migrations_build.stamp
-.db_test_migrations_build.stamp: bin/swagger server_generate_linux
+.db_test_migrations_build.stamp: server_generate_linux
 	@echo "Build required binaries for the docker migration container..."
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/soda github.com/gobuffalo/pop/soda
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate_test_data
@@ -561,7 +628,7 @@ db_test_migrate_docker: db_test_migrations_build
 #
 
 .PHONY: e2e_test
-e2e_test: server_deps server_generate server_build client_build db_e2e_init
+e2e_test: bin/gin server_generate server_build client_build db_e2e_init
 	$(AWS_VAULT) ./scripts/run-e2e-test
 
 .PHONY: e2e_test_docker
@@ -597,7 +664,7 @@ e2e_clean:
 	docker rm -f e2e_migrations || true
 
 .PHONY: db_e2e_up
-db_e2e_up: build_generate_test_data
+db_e2e_up: bin/generate-test-data
 	@echo "Truncate the ${DB_NAME_TEST} database..."
 	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE;'
 	@echo "Populate the ${DB_NAME_TEST} database..."
@@ -727,20 +794,12 @@ run_experimental_migrations:
 # ----- START RANDOM TARGETS -----
 #
 
-.PHONY: 1203_form
-1203_form:
-	find ./cmd/generate_1203_form -type f -name "main.go" | entr -c -r go run ./cmd/generate_1203_form/main.go
-
 .PHONY: adr_update
-adr_update:
+adr_update: .client_deps.stamp
 	yarn run adr-log
 
-.PHONY: tsp_run
-tsp_run: build_tools db_dev_run
-	./bin/tsp-award-queue
-
 .PHONY: pre_commit_tests
-pre_commit_tests:
+pre_commit_tests: .server_generate.stamp .client_deps.stamp
 	pre-commit run --all-files
 
 .PHONY: pretty
@@ -751,13 +810,19 @@ pretty:
 .PHONY: clean
 clean:
 	rm -f .*.stamp
+	rm -f coverage.out
 	rm -rf ./bin
+	rm -rf ./bin_linux
+	rm -rf ./build
 	rm -rf ./node_modules
 	rm -rf ./pkg/gen
+	rm -f ./pkg/assets/assets.go
 	rm -rf ./public/swagger-ui/*.{css,js,png}
+	rm -rf ./tmp/secure_migrations
+	rm -rf ./tmp/storage
 
 .PHONY: spellcheck
-spellcheck:
+spellcheck: .client_deps.stamp
 	node_modules/.bin/mdspell --ignore-numbers --ignore-acronyms --en-us \
 		`find . -type f -name "*.md" \
 			-not -path "./node_modules/*" \
