@@ -4,7 +4,6 @@ import { Code105Form } from './Code105Form';
 import { Code35Form } from './Code35Form';
 import { Code226Form } from './Code226Form';
 
-let featureFlag = false;
 let initialValuesWithoutCrateDimensions = {};
 let initialValuesWithCrateDimensions = { crate_dimensions: true };
 describe('testing getFormComponent()', () => {
@@ -16,87 +15,54 @@ describe('testing getFormComponent()', () => {
     });
   });
 
-  describe('returns default form component with feature flag off', () => {
-    //pass in known code item with feature flag off
-    featureFlag = false;
-
-    let FormComponent;
-    it('for code 105', () => {
-      FormComponent = getFormComponent('105', featureFlag, initialValuesWithCrateDimensions);
-      expect(FormComponent).toBe(DefaultForm);
-    });
-
-    //testing for non-existing code
-    it('for code 4A', () => {
-      FormComponent = getFormComponent('4A', featureFlag, initialValuesWithCrateDimensions);
-      expect(FormComponent).toBe(DefaultForm);
-    });
-
-    it('for code 105D', () => {
-      FormComponent = getFormComponent('105D', featureFlag, initialValuesWithCrateDimensions);
-      expect(FormComponent).toBe(DefaultForm);
-    });
-
-    it('for code 105D', () => {
-      FormComponent = getFormComponent('105D', featureFlag, null);
-      expect(FormComponent).toBe(DefaultForm);
-    });
-  });
-
-  describe('returns 105B/E form component with feature flag on', () => {
-    featureFlag = true;
+  describe('returns 105B/E form component', () => {
     let FormComponent;
 
     it('for code 105B', () => {
-      FormComponent = getFormComponent('105B', featureFlag, initialValuesWithCrateDimensions);
+      FormComponent = getFormComponent('105B', initialValuesWithCrateDimensions);
       expect(FormComponent).toBe(Code105Form);
     });
 
     it('for code 105E', () => {
-      FormComponent = getFormComponent('105E', featureFlag, initialValuesWithCrateDimensions);
+      FormComponent = getFormComponent('105E', initialValuesWithCrateDimensions);
       expect(FormComponent).toBe(Code105Form);
     });
   });
 
-  describe('returns 35A form component with feature flag on', () => {
-    featureFlag = true;
-
+  describe('returns 35A form component', () => {
     it('for code 35A', () => {
-      let FormComponent = getFormComponent('35A', featureFlag, { estimate_amount_cents: true });
+      let FormComponent = getFormComponent('35A', { estimate_amount_cents: true });
       expect(FormComponent).toBe(Code35Form);
     });
   });
 
-  describe('returns 226A form component with feature flag on', () => {
-    featureFlag = true;
-
+  describe('returns 226A form component', () => {
     it('for code 226A', () => {
-      let FormComponent = getFormComponent('226A', featureFlag, { actual_amount_cents: true });
+      let FormComponent = getFormComponent('226A', { actual_amount_cents: true });
       expect(FormComponent).toBe(Code226Form);
     });
   });
 
-  describe('returns default form component with feature flag on', () => {
-    featureFlag = true;
+  describe('returns default form component without robust fields', () => {
     let FormComponent;
 
     it('for code 105D', () => {
-      FormComponent = getFormComponent('105D', featureFlag);
+      FormComponent = getFormComponent('105D');
       expect(FormComponent).toBe(DefaultForm);
     });
 
     it('for code 105B without crate dimensions', () => {
-      FormComponent = getFormComponent('105B', featureFlag, initialValuesWithoutCrateDimensions);
+      FormComponent = getFormComponent('105B', initialValuesWithoutCrateDimensions);
       expect(FormComponent).toBe(DefaultForm);
     });
 
     it('for code 105E without crate dimensions', () => {
-      FormComponent = getFormComponent('105E', featureFlag, initialValuesWithoutCrateDimensions);
+      FormComponent = getFormComponent('105E', initialValuesWithoutCrateDimensions);
       expect(FormComponent).toBe(DefaultForm);
     });
 
     it('for code 226A without crate dimensions', () => {
-      FormComponent = getFormComponent('226A', featureFlag, initialValuesWithoutCrateDimensions);
+      FormComponent = getFormComponent('226A', initialValuesWithoutCrateDimensions);
       expect(FormComponent).toBe(DefaultForm);
     });
   });
