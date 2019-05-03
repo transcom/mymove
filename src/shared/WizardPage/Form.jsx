@@ -65,7 +65,17 @@ export class WizardFormPage extends Component {
 
   render() {
     const isMobile = this.props.windowWidth < mobileSize;
-    const { handleSubmit, className, pageKey, pageList, children, serverError, valid, dirty } = this.props;
+    const {
+      handleSubmit,
+      className,
+      pageKey,
+      pageList,
+      children,
+      serverError,
+      valid,
+      dirty,
+      myHandleSubmit,
+    } = this.props;
     const canMoveForward = valid;
     const canMoveBackward = (valid || !dirty) && !isFirstPage(pageList, pageKey);
     const hideBackBtn = isFirstPage(pageList, pageKey);
@@ -79,37 +89,42 @@ export class WizardFormPage extends Component {
           </div>
         )}
         <div className="usa-width-one-whole">
-          <form className={className} onSubmit={handleSubmit}>
+          <form className={className} onSubmit={handleSubmit(myHandleSubmit)}>
             {children}
-          </form>
-        </div>
-        <div className="usa-width-one-whole lower-nav-btns">
-          {!isMobile && (
-            <div className="left cancel">
-              <button className="usa-button-secondary" onClick={this.cancelFlow}>
-                Cancel
-              </button>
+            <div className="usa-width-one-whole lower-nav-btns">
+              {!isMobile && (
+                <div className="left cancel">
+                  <button className="usa-button-secondary" onClick={this.cancelFlow}>
+                    Cancel
+                  </button>
+                </div>
+              )}
+              <div className="prev-next">
+                <button
+                  className={'usa-button-secondary prev ' + (hideBackBtn && 'hide-btn')}
+                  onClick={this.previousPage}
+                  disabled={!canMoveBackward}
+                >
+                  Back
+                </button>
+                {!isLastPage(pageList, pageKey) && (
+                  <button
+                    className="usa-button-primary next"
+                    type="submit"
+                    // onClick={this.nextPage}
+                    disabled={!canMoveForward}
+                  >
+                    Next
+                  </button>
+                )}
+                {isLastPage(pageList, pageKey) && (
+                  <button className="usa-button-primary next" onClick={myHandleSubmit} disabled={!canMoveForward}>
+                    Complete
+                  </button>
+                )}
+              </div>
             </div>
-          )}
-          <div className="prev-next">
-            <button
-              className={'usa-button-secondary prev ' + (hideBackBtn && 'hide-btn')}
-              onClick={this.previousPage}
-              disabled={!canMoveBackward}
-            >
-              Back
-            </button>
-            {!isLastPage(pageList, pageKey) && (
-              <button className="usa-button-primary next" onClick={this.nextPage} disabled={!canMoveForward}>
-                Next
-              </button>
-            )}
-            {isLastPage(pageList, pageKey) && (
-              <button className="usa-button-primary next" onClick={handleSubmit} disabled={!canMoveForward}>
-                Complete
-              </button>
-            )}
-          </div>
+          </form>
         </div>
       </div>
     );

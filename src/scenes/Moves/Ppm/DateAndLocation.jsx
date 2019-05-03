@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getFormValues } from 'redux-form';
+import { getFormValues, SubmissionError } from 'redux-form';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import {
   createOrUpdatePpm,
@@ -30,25 +30,6 @@ const DateAndLocationWizardForm = reduxifyWizardForm(formName);
 const AlertText =
   "We can 't schedule a move that far in the future. You can try an earlier date, or contact your PPPO for help.";
 
-const canCalculateEntitlement = (values, dispatch) => {
-  const { original_move_date, pickup_postal_code, destination_postal_code } = values;
-  return new Promise((resolve, reject) => {
-    if (original_move_date !== '' && pickup_postal_code.length !== '' && destination_postal_code.length !== '') {
-      GetPpmWeightEstimate(values.original_move_date, values.pickup_postal_code, values.destination_postal_code, 2000)
-        .then(() => {
-          resolve();
-        })
-        .catch(() => {
-          reject({
-            original_move_date: AlertText,
-          });
-        });
-    } else {
-      resolve();
-    }
-  });
-};
-
 const validateDifferentZip = (value, formValues) => {
   if (value && value === formValues.pickup_postal_code) {
     return 'You entered the same zip code for your origin and destination. Please change one of them.';
@@ -73,6 +54,8 @@ export class DateAndLocation extends Component {
   };
 
   handleSubmit = () => {
+    const { entitlement } = this.props;
+    const wtgEstEntitlement = get(entitlement, 'sum', 2000);
     const pendingValues = Object.assign({}, this.props.formValues);
     if (pendingValues) {
       pendingValues.has_additional_postal_code = pendingValues.has_additional_postal_code || false;
@@ -81,7 +64,21 @@ export class DateAndLocation extends Component {
         pendingValues.days_in_storage = null;
       }
       const moveId = this.props.match.params.moveId;
-      return this.props.createOrUpdatePpm(moveId, pendingValues);
+      // the call to GetPpmWeightEstimate verifies that we have rate data for these locations and move date
+      return GetPpmWeightEstimate(
+        this.props.formValues.original_move_date,
+        this.props.formValues.pickup_postal_code,
+        this.props.formValues.destination_postal_code,
+        wtgEstEntitlement,
+      )
+        .then(() => {
+          return this.props.createOrUpdatePpm(moveId, pendingValues);
+        })
+        .catch(e => {
+          throw new SubmissionError({
+            original_move_date: AlertText,
+          });
+        });
     }
   };
 
@@ -134,13 +131,11 @@ export class DateAndLocation extends Component {
           />
         )}
         <DateAndLocationWizardForm
-          handleSubmit={this.handleSubmit}
+          myHandleSubmit={this.handleSubmit}
           pageList={pages}
           pageKey={pageKey}
           serverError={error}
           initialValues={initialValues}
-          asyncValidate={canCalculateEntitlement}
-          asyncChangeFields={['original_move_date']}
           enableReinitialize={true} //this is needed as the pickup_postal_code value needs to be initialized to the users residential address
         >
           <h2>PPM Dates & Locations</h2>
