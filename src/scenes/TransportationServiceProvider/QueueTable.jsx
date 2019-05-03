@@ -137,7 +137,10 @@ class QueueTable extends Component {
             className="-striped -highlight"
             showPagination={false}
             getTrProps={(state, rowInfo) => ({
-              onDoubleClick: e => this.props.history.push(`/shipments/${rowInfo.original.id}`),
+              onDoubleClick: e =>
+                this.props.history.push(`/shipments/${rowInfo.original.id}`, {
+                  referrerPathname: this.props.history.location.pathname,
+                }),
             })}
           />
         </div>

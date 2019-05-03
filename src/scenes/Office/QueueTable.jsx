@@ -7,6 +7,8 @@ import 'react-table/react-table.css';
 import { RetrieveMovesForOffice } from './api.js';
 import Alert from 'shared/Alert';
 import { formatDate, formatDateTimeWithTZ } from 'shared/formatters';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 
 class QueueTable extends Component {
   constructor() {
@@ -79,7 +81,7 @@ class QueueTable extends Component {
     };
 
     this.state.data.forEach(row => {
-      if (row.ppm_status === 'PAYMENT_REQUESTED') {
+      if (this.props.queueType === 'ppm' && row.ppm_status !== null) {
         row.synthetic_status = row.ppm_status;
       } else {
         row.synthetic_status = row.status;
@@ -99,9 +101,28 @@ class QueueTable extends Component {
           <ReactTable
             columns={[
               {
+                Header: <FontAwesomeIcon icon={faClock} />,
+                id: 'clockIcon',
+                accessor: row => row.synthetic_status,
+                Cell: row =>
+                  row.value === 'PAYMENT_REQUESTED' || row.value === 'SUBMITTED' ? (
+                    <span data-cy="ppm-queue-icon">
+                      <FontAwesomeIcon icon={faClock} style={{ color: 'orange' }} />
+                    </span>
+                  ) : (
+                    ''
+                  ),
+                width: 50,
+                show: this.props.queueType === 'ppm',
+              },
+              {
                 Header: 'Status',
                 accessor: 'synthetic_status',
-                Cell: row => <span className="status">{capitalize(row.value.replace('_', ' '))}</span>,
+                Cell: row => (
+                  <span className="status" data-cy="status">
+                    {capitalize(row.value && row.value.replace('_', ' '))}
+                  </span>
+                ),
               },
               {
                 Header: 'Customer name',
@@ -114,7 +135,7 @@ class QueueTable extends Component {
               {
                 Header: 'Rank',
                 accessor: 'rank',
-                Cell: row => <span className="rank">{row.value.replace('_', '-')}</span>,
+                Cell: row => <span className="rank">{row.value && row.value.replace('_', '-')}</span>,
               },
               {
                 Header: 'Locator #',
@@ -123,6 +144,7 @@ class QueueTable extends Component {
               {
                 Header: 'GBL',
                 accessor: 'gbl_number',
+                show: this.props.queueType !== 'ppm',
               },
               {
                 Header: 'Move date',
@@ -142,7 +164,10 @@ class QueueTable extends Component {
             className="-striped -highlight"
             showPagination={false}
             getTrProps={(state, rowInfo) => ({
-              onDoubleClick: e => this.props.history.push(`new/moves/${rowInfo.original.id}`),
+              onDoubleClick: e =>
+                this.props.history.push(`new/moves/${rowInfo.original.id}`, {
+                  referrerPathname: this.props.history.location.pathname,
+                }),
             })}
           />
         </div>
