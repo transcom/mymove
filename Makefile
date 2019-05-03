@@ -185,6 +185,9 @@ bin/gin: .check_go_version.stamp .check_gopath.stamp
 bin/soda: .check_go_version.stamp .check_gopath.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda
 
+bin_linux/soda: .server_generate_linux.stamp
+	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/soda github.com/gobuffalo/pop/soda
+
 bin/swagger: .check_go_version.stamp .check_gopath.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 
@@ -214,6 +217,9 @@ bin/generate-shipment-summary: .server_generate.stamp
 bin/generate-test-data: pkg/assets/assets.go .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
 
+bin_linux/generate-test-data: pkg/assets/assets.go .server_generate_linux.stamp
+	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate_test_data
+
 bin/health_checker:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/health_checker ./cmd/health_checker
 
@@ -240,6 +246,9 @@ bin/milmove: .server_generate.stamp
 
 bin/save-fuel-price-data: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
+
+bin_linux/save-fuel-price-data: .server_generate_linux.stamp
+	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/save-fuel-price-data ./cmd/save_fuel_price_data
 
 bin/send-to-gex: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
@@ -321,12 +330,6 @@ server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.sta
 .PHONY: server_run_debug
 server_run_debug:
 	$(AWS_VAULT) dlv debug cmd/milmove/main.go cmd/milmove/logger.go -- serve
-
-bin/save-fuel-price-data: server_deps server_generate
-	go build -i -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
-
-bin_linux/save-fuel-price-data: server_generate_linux
-	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/save-fuel-price-data ./cmd/save_fuel_price_data
 
 bin/ecs-deploy-task-container: server_deps server_generate
 	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-deploy-task-container ./cmd/ecs-deploy-task-container
@@ -595,10 +598,7 @@ db_test_migrate: server_deps db_test_migrate_standalone
 
 .PHONY: db_test_migrations_build
 db_test_migrations_build: .db_test_migrations_build.stamp
-.db_test_migrations_build.stamp: server_generate_linux
-	@echo "Build required binaries for the docker migration container..."
-	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/soda github.com/gobuffalo/pop/soda
-	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate_test_data
+.db_test_migrations_build.stamp: server_generate_linux bin_linux/soda bin_linux/generate-test-data
 	@echo "Build the docker migration container..."
 	docker build -f Dockerfile.migrations_local --tag e2e_migrations:latest .
 
