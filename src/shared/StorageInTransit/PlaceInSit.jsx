@@ -25,7 +25,7 @@ export class PlaceInSit extends Component {
   };
 
   submitPlaceInSitAndClose = () => {
-    this.props.submitForm(); //.then(() => this.props.onClose());
+    this.props.submitForm();
   };
 
   componentDidMount() {
@@ -36,7 +36,7 @@ export class PlaceInSit extends Component {
     });
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     if (this.props.hasSubmitSucceeded && !prevProps.hasSubmitSucceeded) {
       this.props.onClose();
     }
@@ -51,6 +51,7 @@ export class PlaceInSit extends Component {
           initialValues={this.state.storageInTransit}
           minDate={this.state.storageInTransit.authorized_start_date}
           onSubmit={this.onSubmit}
+          closeForm={this.closeForm}
         />
         <div className="panel-field nested__same-font">
           <div className="usa-input-label unbold">Earliest authorized start</div>
@@ -89,7 +90,7 @@ PlaceInSit.propTypes = {
 function mapStateToProps(state) {
   return {
     formEnabled: isValid(PlaceInSitFormName)(state) && !isSubmitting(PlaceInSitFormName)(state),
-    hasSubmitSucceeded: hasSubmitSucceeded(PlaceInSitFormName),
+    hasSubmitSucceeded: hasSubmitSucceeded(PlaceInSitFormName)(state),
   };
 }
 function mapDispatchToProps(dispatch) {

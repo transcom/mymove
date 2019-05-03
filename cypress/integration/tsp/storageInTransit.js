@@ -203,7 +203,7 @@ function tspUserSubmitsPlaceInSit() {
     .get('[data-cy=place-in-sit-button]')
     .contains('Place Into SIT')
     .click()
-    .get('[data-cy=storage-in-transit-panel] [data-cy=place-in-sit-link]')
+    .get('[data-cy=storage-in-transit-panel]')
     .should($div => {
       const text = $div.text();
       expect(text).to.include('Actual start date');

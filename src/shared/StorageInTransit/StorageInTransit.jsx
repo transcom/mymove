@@ -186,10 +186,18 @@ export class StorageInTransit extends Component {
         {!showEditForm && (
           <div className="usa-width-one-whole">
             <div className="usa-width-one-half">
-              <div className="column-subhead nested__same-font">Dates</div>
-              <div className="panel-field nested__same-font">
-                <span className="field-title unbold">Est. start date</span>
-                <span className="field-value">{formatDate4DigitYear(storageInTransit.estimated_start_date)}</span>
+              <div className="sit-dates">
+                <div className="column-subhead nested__same-font">Dates</div>
+                <div className="panel-field nested__same-font">
+                  <span className="field-title unbold">Est. start date</span>
+                  <span className="field-value">{formatDate4DigitYear(storageInTransit.estimated_start_date)}</span>
+                </div>
+                {storageInTransit.actual_start_date && (
+                  <div className="panel-field nested__same-font">
+                    <span className="field-title unbold">Actual start date</span>
+                    <span className="field-value">{formatDate4DigitYear(storageInTransit.actual_start_date)}</span>
+                  </div>
+                )}
               </div>
               {storageInTransit.notes !== undefined && (
                 <div className="sit-notes">
