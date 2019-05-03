@@ -744,7 +744,7 @@ run_experimental_migrations:
 	find ./cmd/generate_1203_form -type f -name "main.go" | entr -c -r go run ./cmd/generate_1203_form/main.go
 
 .PHONY: adr_update
-adr_update:
+adr_update: .client_deps.stamp
 	yarn run adr-log
 
 .PHONY: tsp_run
@@ -752,7 +752,7 @@ tsp_run: bin/tsp-award-queue db_dev_run
 	./bin/tsp-award-queue
 
 .PHONY: pre_commit_tests
-pre_commit_tests:
+pre_commit_tests: .server_generate.stamp .client_deps.stamp
 	pre-commit run --all-files
 
 .PHONY: pretty
@@ -775,7 +775,7 @@ clean:
 	rm -rf ./tmp/storage
 
 .PHONY: spellcheck
-spellcheck:
+spellcheck: .client_deps.stamp
 	node_modules/.bin/mdspell --ignore-numbers --ignore-acronyms --en-us \
 		`find . -type f -name "*.md" \
 			-not -path "./node_modules/*" \
