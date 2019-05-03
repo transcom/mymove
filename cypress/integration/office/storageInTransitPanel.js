@@ -29,7 +29,7 @@ function officeUserViewsSITPanel() {
   });
 
   cy
-    .get('a')
+    .get('a.nav-tab')
     .contains('HHG')
     .click(); // navtab
 
@@ -83,7 +83,7 @@ function officeUserStartsAndCancelsSitApproval() {
   });
 
   cy
-    .get('a')
+    .get('a.nav-tab')
     .contains('HHG')
     .click(); // navtab
 
@@ -129,7 +129,7 @@ function officeUserStartsAndCancelsSitEdit() {
   });
 
   cy
-    .get('a')
+    .get('a.nav-tab')
     .contains('HHG')
     .click(); // navtab
 

@@ -101,7 +101,7 @@ function officeUserEditsNetWeight() {
   });
 
   cy
-    .get('span')
+    .get('a.nav-tab')
     .contains('PPM')
     .click();
 
@@ -313,9 +313,10 @@ function officeUserApprovesMoveAndPPM(moveLocator) {
 
   // Click on PPM tab
   cy
-    .get('span')
+    .get('a.nav-tab')
     .contains('PPM')
     .click();
+
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);
   });
@@ -373,7 +374,7 @@ function officeUserGoesToPPMPanel(locator) {
   });
 
   cy
-    .get('.title')
+    .get('a.nav-tab')
     .contains('PPM')
     .click();
 
@@ -458,7 +459,7 @@ function officeUserGoesToStoragePanel(locator) {
   });
 
   cy
-    .get('.title')
+    .get('a.nav-tab')
     .contains('PPM')
     .click();
 

@@ -216,7 +216,7 @@ describe('The document viewer', function() {
       });
 
       cy
-        .get('a')
+        .get('a.nav-tab')
         .contains('HHG')
         .click(); // navtab
 

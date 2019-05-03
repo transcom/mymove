@@ -37,7 +37,7 @@ function officeUserViewsMoves() {
   });
 
   cy
-    .get('a')
+    .get('a.nav-tab')
     .contains('HHG')
     .click(); // navtab
 
@@ -61,7 +61,7 @@ function officeUserViewsDeliveredShipment() {
   });
 
   cy
-    .get('a')
+    .get('a.nav-tab')
     .contains('HHG')
     .click(); // navtab
 
@@ -85,7 +85,7 @@ function officeUserViewsCompletedShipment() {
   });
 
   cy
-    .get('a')
+    .get('a.nav-tab')
     .contains('HHG')
     .click(); // navtab
 
@@ -109,7 +109,7 @@ function officeUserViewsAcceptedShipment() {
   });
 
   cy
-    .get('a')
+    .get('a.nav-tab')
     .contains('HHG')
     .click(); // navtab
 
@@ -152,7 +152,7 @@ function officeUserApprovesOnlyBasicsHHG() {
 
   // Click on HHG tab
   cy
-    .get('span')
+    .get('a.nav-tab')
     .contains('HHG')
     .click();
 
@@ -202,7 +202,7 @@ function officeUserApprovesHHG() {
 
   // Click on HHG tab
   cy
-    .get('span')
+    .get('a.nav-tab')
     .contains('HHG')
     .click();
 
