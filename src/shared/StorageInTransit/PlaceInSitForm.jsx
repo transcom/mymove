@@ -6,15 +6,10 @@ import { reduxForm } from 'redux-form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 export class PlaceInSitForm extends Component {
-  //form submission still to be implemented
-  handleSubmit = e => {
-    e.preventDefault();
-  };
-
   render() {
-    const { storageInTransitSchema, minDate } = this.props;
+    const { storageInTransitSchema, minDate, onSubmit } = this.props;
     return (
-      <form onSubmit={this.handleSubmit} className="place-in-sit-form">
+      <form onSubmit={this.props.handleSubmit(onSubmit)} className="place-in-sit-form">
         <div className="editable-panel-column">
           <SwaggerField
             className="place-in-sit-field"
@@ -33,6 +28,7 @@ export class PlaceInSitForm extends Component {
 
 PlaceInSitForm.propTypes = {
   storageInTransitSchema: PropTypes.object.isRequired,
+  onSubmit: PropTypes.func.isRequired,
 };
 
 export const formName = 'place_in_sit_form';

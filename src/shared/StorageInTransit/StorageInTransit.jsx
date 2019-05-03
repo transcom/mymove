@@ -105,7 +105,11 @@ export class StorageInTransit extends Component {
             <span className="sit-status-text">Status:</span>{' '}
             {storageInTransit.status === 'REQUESTED' && <SitStatusIcon isTspSite={isTspSite} />}
           </span>
-          <span>SIT {capitalize(storageInTransit.status)} </span>
+          {storageInTransit.status === 'IN_SIT' ? (
+            <span>In SIT</span>
+          ) : (
+            <span>SIT {capitalize(storageInTransit.status)} </span>
+          )}
           {showApproveForm ? (
             <ApproveSitRequest onClose={this.closeApproveForm} storageInTransit={this.state.storageInTransit} />
           ) : (

@@ -13,7 +13,6 @@ import './StorageInTransit.css';
 
 export class PlaceInSit extends Component {
   state = {
-    showForm: false,
     storageInTransit: {},
   };
 
@@ -26,9 +25,7 @@ export class PlaceInSit extends Component {
   };
 
   submitPlaceInSitAndClose = () => {
-    this.setState({ closeOnSubmit: true }, () => {
-      this.props.submitForm();
-    });
+    this.props.submitForm(); //.then(() => this.props.onClose());
   };
 
   componentDidMount() {

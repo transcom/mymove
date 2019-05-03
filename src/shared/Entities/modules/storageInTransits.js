@@ -44,13 +44,13 @@ export function updateStorageInTransit(
 export function updateSitPlaceIntoSit(
   shipmentId,
   storageInTransitId,
-  StorageInTransitInSitPayload,
+  storageInTransitInSitPayload,
   label = updateSitPlaceIntoSitLabel,
 ) {
   return swaggerRequest(
     getPublicClient,
     'storage_in_transits.inSitStorageInTransit',
-    { shipmentId, storageInTransitId, StorageInTransitInSitPayload },
+    { shipmentId, storageInTransitId, storageInTransitInSitPayload },
     { label },
   );
 }
