@@ -15,7 +15,12 @@ export const Code125Form = props => {
         required
       />
       <SwaggerField title="Date of service" fieldName="date" swagger={ship_line_item_schema} required />
-      <SwaggerField title="Time of service" fieldName="time" swagger={ship_line_item_schema} />
+      <SwaggerField
+        className="par-time-input"
+        title="Time of service"
+        fieldName="time"
+        swagger={ship_line_item_schema}
+      />
       <AddressElementEdit
         fieldName="address"
         schema={get(ship_line_item_schema, 'properties.address')}
@@ -23,7 +28,7 @@ export const Code125Form = props => {
         zipPattern="USA"
       />
       <div className="bq-explanation">
-        <p>Enter amount after service is completed</p>
+        <p>If this address changes last minute, notify your PPPO.</p>
       </div>
     </Fragment>
   );
