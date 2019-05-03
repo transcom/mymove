@@ -56,7 +56,7 @@ const validateDifferentZip = (value, formValues) => {
 };
 
 export class DateAndLocation extends Component {
-  state = { showInfo: false, invalidPPMParams: false };
+  state = { showInfo: false };
 
   componentDidMount() {
     if (!this.props.currentPpm && this.props.isHHGPPMComboMove) {
@@ -73,8 +73,6 @@ export class DateAndLocation extends Component {
   };
 
   handleSubmit = () => {
-    const { entitlement } = this.props;
-    const wtgEstEntitlement = get(entitlement, 'sum', 2000);
     const pendingValues = Object.assign({}, this.props.formValues);
     if (pendingValues) {
       pendingValues.has_additional_postal_code = pendingValues.has_additional_postal_code || false;
@@ -83,23 +81,7 @@ export class DateAndLocation extends Component {
         pendingValues.days_in_storage = null;
       }
       const moveId = this.props.match.params.moveId;
-      // the call to GetPpmWeightEstimate verifies that we have rate data for these locations and move date
-      return GetPpmWeightEstimate(
-        this.props.formValues.original_move_date,
-        this.props.formValues.pickup_postal_code,
-        this.props.formValues.destination_postal_code,
-        wtgEstEntitlement,
-      )
-        .then(() => {
-          if (this.state.invalidPPMParams) {
-            this.setState({ invalidPPMParams: false });
-          }
-          return this.props.createOrUpdatePpm(moveId, pendingValues);
-        })
-        .catch(e => {
-          this.setState({ invalidPPMParams: true });
-          throw e;
-        });
+      return this.props.createOrUpdatePpm(moveId, pendingValues);
     }
   };
 
@@ -163,11 +145,6 @@ export class DateAndLocation extends Component {
         >
           <h2>PPM Dates & Locations</h2>
           {isHHGPPMComboMove && <div>Great! Let's review your pickup and destination information.</div>}
-          {this.state.invalidPPMParams && (
-            <Alert type="error" heading="">
-              {AlertText}
-            </Alert>
-          )}
           <h3> Move Date </h3>
           <SwaggerField fieldName="original_move_date" swagger={this.props.schema} required />
           <h3>Pickup Location</h3>
