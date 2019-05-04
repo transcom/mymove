@@ -1,9 +1,6 @@
 .storage-in-transit-panel-modal {
   border: 3px dashed #00a6d2;
-  padding-left: 1.7rem;
-  padding-right: 1.7rem;
-  padding-top: 16px;
-  padding-bottom: 9px;
+  padding: 16px 1.7rem 9px 1.7rem;
   margin-top: 20px;
 }
 
@@ -23,10 +20,6 @@
   width: calc(60% + 1.9rem);
 }
 
-.storage-in-transit-request-form textarea {
-  height: 9rem;
-}
-
 .storage-in-transit-warehouse-id {
   width: calc(60% + 1.9rem);
 }
@@ -43,7 +36,6 @@
 .add-storage-in-transit {
   border-top: 1px solid #f1f1f1;
   padding-top: 0.5em;
-
 }
 
 .storage-in-transit {
@@ -93,19 +85,19 @@
   font-weight: normal;
 }
 
-.storage-in-transit-office-approval-form {
+.storage-in-transit-form {
   font-weight: normal;
 }
 
-.storage-in-transit-office-approval-form textarea {
+.storage-in-transit-form textarea {
   height: 9rem;
 }
 
-.storage-in-transit-office-deny-form {
+.place-in-sit-form {
   font-weight: normal;
 }
 
-.place-in-sit-form {
+.storage-in-transit-office-deny-form {
   font-weight: normal;
 }
 
@@ -114,7 +106,12 @@
   height: 6rem;
 }
 
-.storage-in-transit-request-form {
+.storage-in-transit-status {
+  color: #0071bc;
   font-weight: normal;
+}
+
+.warehouse-field-margin {
+  margin-top: 10px;
 }
 

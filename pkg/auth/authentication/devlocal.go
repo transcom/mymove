@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -215,7 +216,7 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 	}
 
-	userType := r.Form.Get("userType")
+	userType := r.PostFormValue("userType")
 	session, err := loginUser(devlocalAuthHandler(h), user, userType, w, r)
 	if err != nil {
 		return
@@ -296,22 +297,26 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 	id := uuid.Must(uuid.NewV4())
 
 	// Set up some defaults that we can pass in from a form
-	firstName := r.Form.Get("firstName")
+	firstName := r.PostFormValue("firstName")
 	if firstName == "" {
 		firstName = "Alice"
 	}
-	lastName := r.Form.Get("lastName")
+	lastName := r.PostFormValue("lastName")
 	if lastName == "" {
 		lastName = "Bob"
 	}
-	telephone := r.Form.Get("telephone")
+	telephone := r.PostFormValue("telephone")
 	if telephone == "" {
 		telephone = "333-333-3333"
 	}
-	email := r.Form.Get("email")
+	email := r.PostFormValue("email")
 	if email == "" {
+		// Time alone doesn't guarantee uniqueness if a system is being automated
+		// To add some more uniqueness without making the email unreadable a UUID adds a nonce
 		now := time.Now()
-		email = fmt.Sprintf("%s@example.com", now.Format("20060102150405"))
+		guid, _ := uuid.NewV4()
+		nonce := strings.Split(guid.String(), "-")[4]
+		email = fmt.Sprintf("%s-%s@example.com", now.Format("20060102150405"), nonce)
 	}
 
 	// Create the User (which is the basis of all Service Members)
@@ -320,7 +325,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		LoginGovEmail: email,
 	}
 
-	userType := r.Form.Get("userType")
+	userType := r.PostFormValue("userType")
 	verrs, err := h.db.ValidateAndCreate(&user)
 	if err != nil {
 		h.logger.Error("could not create user", zap.Error(err))
