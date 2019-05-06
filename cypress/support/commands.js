@@ -317,7 +317,7 @@ function genericSelect(inputData, fieldName, classSelector) {
   // Click on the first presented option
   cy
     .get(classSelector)
-    .find('div[role="option"]')
+    .find('div[id="react-select-2-option-0"]')
     .first()
     .click();
 }
