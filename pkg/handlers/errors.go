@@ -65,7 +65,7 @@ func ResponseForError(logger Logger, err error) middleware.Responder {
 
 	// get development flag value for more verbose data
 	dbEnv := os.Getenv(cli.DbEnvFlag)
-	isDev := dbEnv == "development" || dbEnv == "test"
+	isDev := dbEnv == "development"
 
 	cause := errors.Cause(err)
 	switch e := cause.(type) {
@@ -82,6 +82,7 @@ func ResponseForError(logger Logger, err error) middleware.Responder {
 		}
 	case *pq.Error:
 		skipLogger.Info("SQL error encountered", zap.Error(e))
+		//if dev environment then return sql error
 		if isDev {
 			return newErrResponse(http.StatusInternalServerError, err)
 		}
