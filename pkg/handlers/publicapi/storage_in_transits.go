@@ -40,6 +40,7 @@ func payloadForStorageInTransitModel(s *models.StorageInTransit) *apimessages.St
 		AuthorizedStartDate: handlers.FmtDatePtr(s.AuthorizedStartDate),
 		ActualStartDate:     handlers.FmtDatePtr(s.ActualStartDate),
 		OutDate:             handlers.FmtDatePtr(s.OutDate),
+		SitNumber:           s.SITNumber,
 	}
 }
 

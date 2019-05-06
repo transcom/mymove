@@ -252,6 +252,18 @@ export class StorageInTransit extends Component {
               )}
             </div>
             <div className="usa-width-one-half">
+              {storageInTransit.status !== 'REQUESTED' && (
+                <div className="authorization">
+                  <div className="column-subhead nested__same-font">Authorization</div>
+                  {storageInTransit.sit_number && (
+                    <div className="panel-field nested__same-font">
+                      <span className="field-title unbold">SIT Number</span>
+                      <span className="field-value">{storageInTransit.sit_number}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="column-subhead nested__same-font">Warehouse</div>
               <div className="panel-field nested__same-font">
                 <span className="field-title unbold">Warehouse ID</span>
