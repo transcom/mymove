@@ -147,8 +147,7 @@ describe('check invalid ppm inputs', () => {
     cy
       .get('input[name="original_move_date"]')
       .first()
-      .type('6/3/2100{enter}')
-      .blur();
+      .type('6/3/2100{enter}');
     cy
       .get('input[name="pickup_postal_code"]')
       .clear()
@@ -158,6 +157,8 @@ describe('check invalid ppm inputs', () => {
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
     });
+
+    cy.nextPage();
     cy.get('#original_move_date-error').should('exist');
   });
 

@@ -54,7 +54,6 @@ export class DateAndLocation extends Component {
   };
 
   validateAndSavePPM = () => {
-    debugger;
     const { entitlement } = this.props;
     const wtgEstEntitlement = get(entitlement, 'sum', 2000);
     const pendingValues = Object.assign({}, this.props.formValues);

@@ -9,7 +9,7 @@ import Alert from 'shared/Alert'; // eslint-disable-line
 import generatePath from './generatePath';
 import './index.css';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
-import {reduxForm, SubmissionError} from 'redux-form';
+import { reduxForm } from 'redux-form';
 import { mobileSize } from 'shared/constants';
 import scrollToTop from 'shared/scrollToTop';
 
@@ -56,12 +56,9 @@ export class WizardFormPage extends Component {
   }
   nextPage() {
     if (this.props.sendData) {
-      return this.props.handleSubmit(() => this.props.sendData());
-      // this.beforeTransition(getNextPagePath, false);
+      return this.props.sendData().then(() => this.beforeTransition(getNextPagePath, false));
     }
-    else {
-      this.beforeTransition(getNextPagePath);
-    }
+    return this.beforeTransition(getNextPagePath);
   }
 
   previousPage() {
@@ -71,7 +68,7 @@ export class WizardFormPage extends Component {
 
   render() {
     const isMobile = this.props.windowWidth < mobileSize;
-    const { handleSubmit, className, pageKey, pageList, children, serverError, valid, dirty, sendData } = this.props;
+    const { handleSubmit, className, pageKey, pageList, children, serverError, valid, dirty } = this.props;
     const canMoveForward = valid;
     const canMoveBackward = (valid || !dirty) && !isFirstPage(pageList, pageKey);
     const hideBackBtn = isFirstPage(pageList, pageKey);
@@ -85,37 +82,39 @@ export class WizardFormPage extends Component {
           </div>
         )}
         <div className="usa-width-one-whole">
-          <form className={className}>
-            {children}
-            <div className="usa-width-one-whole lower-nav-btns">
-              {!isMobile && (
-                <div className="left cancel">
-                  <button className="usa-button-secondary" onClick={this.cancelFlow}>
-                    Cancel
-                  </button>
-                </div>
-              )}
-              <div className="prev-next">
-                <button
-                  className={'usa-button-secondary prev ' + (hideBackBtn && 'hide-btn')}
-                  onClick={this.previousPage}
-                  disabled={!canMoveBackward}
-                >
-                  Back
+          <form className={className}>{children}</form>
+          <div className="usa-width-one-whole lower-nav-btns">
+            {!isMobile && (
+              <div className="left cancel">
+                <button className="usa-button-secondary" onClick={this.cancelFlow}>
+                  Cancel
                 </button>
-                {!isLastPage(pageList, pageKey) && (
-                  <button className="usa-button-primary next" onClick={this.props.handleSubmit(() => Promise.reject(new SubmissionError({original_move_date: "hhhhhey"})))} disabled={!canMoveForward}>
-                    Next
-                  </button>
-                )}
-                {isLastPage(pageList, pageKey) && (
-                  <button className="usa-button-primary next" disabled={!canMoveForward}>
-                    Complete
-                  </button>
-                )}
               </div>
+            )}
+            <div className="prev-next">
+              <button
+                className={'usa-button-secondary prev ' + (hideBackBtn && 'hide-btn')}
+                onClick={this.previousPage}
+                disabled={!canMoveBackward}
+              >
+                Back
+              </button>
+              {!isLastPage(pageList, pageKey) && (
+                <button
+                  className="usa-button-primary next"
+                  onClick={handleSubmit(this.nextPage)}
+                  disabled={!canMoveForward}
+                >
+                  Next
+                </button>
+              )}
+              {isLastPage(pageList, pageKey) && (
+                <button className="usa-button-primary next" disabled={!canMoveForward}>
+                  Complete
+                </button>
+              )}
             </div>
-          </form>
+          </div>
         </div>
       </div>
     );
