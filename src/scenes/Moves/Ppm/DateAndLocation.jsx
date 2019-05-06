@@ -32,21 +32,23 @@ const AlertText =
 
 const canCalculateEntitlement = (values, dispatch) => {
   const { original_move_date, pickup_postal_code, destination_postal_code } = values;
-  return new Promise((resolve, reject) => {
-    if (original_move_date !== '' && pickup_postal_code.length === 5 && destination_postal_code.length === 5) {
-      GetPpmWeightEstimate(values.original_move_date, values.pickup_postal_code, values.destination_postal_code, 2000)
-        .then(() => {
-          resolve();
-        })
-        .catch(() => {
-          reject({
-            original_move_date: AlertText,
-          });
-        });
-    } else {
-      resolve();
-    }
-  });
+  if (
+    original_move_date !== '' &&
+    pickup_postal_code &&
+    pickup_postal_code.length === 5 &&
+    destination_postal_code &&
+    destination_postal_code.length === 5
+  ) {
+    return GetPpmWeightEstimate(
+      values.original_move_date,
+      values.pickup_postal_code,
+      values.destination_postal_code,
+      2000,
+    ).catch(() => {
+      throw { original_move_date: AlertText };
+    });
+  }
+  return Promise.resolve();
 };
 
 const validateDifferentZip = (value, formValues) => {
@@ -182,7 +184,7 @@ export class DateAndLocation extends Component {
             swagger={this.props.schema}
             onChange={this.getDebouncedSitEstimate}
             validate={validateDifferentZip}
-            required
+            // required
           />
           <span className="grey">
             The ZIP code for {currentOrders && currentOrders.new_duty_station.name} is{' '}
