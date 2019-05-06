@@ -1,42 +1,66 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import './index.css';
 
-const DocumentContent = ({ url, filename, contentType, uploadId, rotate, orientation }) => {
-  const imgHeight = document.querySelector('.page img').getBoundingClientRect().height;
+export class DocumentContent extends Component {
+  imgEl = React.createRef();
 
-  return (
-    <div
-      className="page"
-      style={{ minHeight: imgHeight + 50, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
-    >
-      {contentType === 'application/pdf' ? (
-        <div className="pdf-placeholder">
-          {filename && <span className="filename">{filename}</span>}
-          This PDF can be{' '}
-          <a target="_blank" href={url}>
-            viewed here
-          </a>
-          .
-        </div>
-      ) : (
-        <div style={{ marginTop: imgHeight / 5, marginBottom: imgHeight / 5 }}>
-          <img src={url} style={{ transform: `rotate(${orientation}deg)` }} alt="document upload" />
-        </div>
-      )}
+  state = {
+    imgHeight: 0,
+  };
 
-      <div>
-        <button onClick={rotate.bind(this, uploadId, 'left')} data-direction="left">
-          rotate left
-        </button>
-        <button onClick={rotate.bind(this, uploadId, 'right')} data-direction="right">
-          rotate right
-        </button>
+  adjustContainerHeight() {
+    const imgHeight = this.imgEl.current.getBoundingClientRect().height;
+    this.setState({
+      imgHeight: imgHeight,
+    });
+  }
+
+  render() {
+    return (
+      <div
+        className="page"
+        style={{
+          minHeight: this.state.imgHeight + 50,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+        }}
+      >
+        {this.props.contentType === 'application/pdf' ? (
+          <div className="pdf-placeholder">
+            {this.props.filename && <span className="filename">{this.props.filename}</span>}
+            This PDF can be{' '}
+            <a target="_blank" href={this.props.url}>
+              viewed here
+            </a>
+            .
+          </div>
+        ) : (
+          <div style={{ marginTop: this.state.imgHeight / 5, marginBottom: this.state.imgHeight / 5 }}>
+            <img
+              src={this.props.url}
+              ref={this.imgEl}
+              style={{ transform: `rotate(${this.props.orientation}deg)` }}
+              onLoad={this.adjustContainerHeight.bind(this)}
+              alt="document upload"
+            />
+          </div>
+        )}
+
+        <div>
+          <button onClick={this.props.rotate.bind(this, this.props.uploadId, 'left')} data-direction="left">
+            rotate left
+          </button>
+          <button onClick={this.props.rotate.bind(this, this.props.uploadId, 'right')} data-direction="right">
+            rotate right
+          </button>
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
+}
 
 DocumentContent.propTypes = {
   contentType: PropTypes.string.isRequired,
