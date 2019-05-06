@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/mocks"
@@ -27,7 +28,6 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Valid() {
 		MoveType: &selectedMoveType,
 	}
 	fullCode := fmt.Sprintf("%s-%s", selectedMoveType, code)
-	suite.MustSave(&accessCode)
 	// makes request
 	request := httptest.NewRequest("GET", fmt.Sprintf("/accesscode/valid?code=%s", fullCode), nil)
 	request = suite.AuthenticateUserRequest(request, user)
@@ -60,7 +60,7 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Invalid() {
 	// create user
 	user := testdatagen.MakeDefaultUser(suite.DB())
 	selectedMoveType := models.SelectedMoveTypeHHG
-	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+	smID, _ := uuid.NewV4()
 
 	// creates access code
 	code := "TEST2"
@@ -68,11 +68,11 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Invalid() {
 	invalidAccessCode := models.AccessCode{
 		Code:            code,
 		MoveType:        &selectedMoveType,
-		ServiceMemberID: &serviceMember.ID,
+		ServiceMemberID: &smID,
 		ClaimedAt:       &claimedTime,
 	}
 	fullCode := fmt.Sprintf("%s-%s", selectedMoveType, code)
-	suite.MustSave(&invalidAccessCode)
+
 	// makes request
 	request := httptest.NewRequest("GET", fmt.Sprintf("/accesscode/valid?code=%s", fullCode), nil)
 	request = suite.AuthenticateUserRequest(request, user)
