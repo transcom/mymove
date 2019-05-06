@@ -165,16 +165,26 @@ function tspUserEntersInvalidActualStartDate() {
     .contains('Place into SIT')
     .click();
 
+  // calendar date picker date should be disabled
   cy
     .get('input[name=actual_start_date]')
     .should('have.value', '3/26/2019')
     // chooses invalid 3/22/2019
     .click()
     .get('.DayPickerInput-Overlay .DayPicker-Day')
-    .contains('22')
-    .click();
-  cy.get('input[name=actual_start_date]').should('have.value', '3/22/2019');
-  // .expect validation message
+    .contains('25')
+    .should('have.class', 'DayPicker-Day--disabled');
+
+  // submit should be disabled typed invalid date input
+  cy
+    .get('input[name=actual_start_date]')
+    .should('have.value', '3/26/2019')
+    .click()
+    .clear()
+    .type('3/25/2019');
+
+  cy.get('[data-cy=storage-in-transit-panel]').click(); // click out of input field to hide datepicker
+  cy.get('input[name=actual_start_date]').should('have.value', '3/25/2019');
   // expect submit to be disabled
   cy.get('[data-cy=place-in-sit-button]').should('be.disabled');
   cy

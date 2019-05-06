@@ -8,6 +8,15 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 export class PlaceInSitForm extends Component {
   render() {
     const { storageInTransitSchema, minDate, onSubmit } = this.props;
+
+    const minActualStartDate = new Date(minDate);
+    const utcMinDate = new Date(
+      minActualStartDate.getUTCFullYear(),
+      minActualStartDate.getUTCMonth(),
+      minActualStartDate.getUTCDate(),
+    );
+    const disabledDaysForDayPicker = [{ before: utcMinDate }];
+
     return (
       <form onSubmit={this.props.handleSubmit(onSubmit)} className="place-in-sit-form">
         <div className="editable-panel-column">
@@ -18,6 +27,7 @@ export class PlaceInSitForm extends Component {
             title="Actual start date"
             onChange={this.onChange}
             minDate={minDate}
+            disabledDays={disabledDaysForDayPicker}
             required
           />
         </div>

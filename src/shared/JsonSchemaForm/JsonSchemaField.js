@@ -235,6 +235,7 @@ export const SwaggerField = props => {
     onChange,
     validate,
     minDate,
+    disabledDays,
     zipPattern,
     filteredEnumListOverride,
     hideLabel,
@@ -267,6 +268,7 @@ export const SwaggerField = props => {
     onChange,
     validate,
     minDate,
+    disabledDays,
     zipPattern,
     filteredEnumListOverride,
     hideLabel,
@@ -286,6 +288,7 @@ const createSchemaField = (
   onChange,
   validate,
   minDate,
+  disabledDays,
   zipPattern,
   filteredEnumListOverride,
   hideLabel,
@@ -355,6 +358,7 @@ const createSchemaField = (
   } else if (swaggerField.type === 'string') {
     const fieldFormat = swaggerField.format;
     if (fieldFormat === 'date' && !isNil(minDate)) {
+      inputProps.disabledDays = disabledDays ? disabledDays : undefined;
       fieldProps = configureRestrictedDateField(swaggerField, fieldProps, minDate);
     } else if (fieldFormat === 'date') {
       fieldProps = configureDateField(swaggerField, fieldProps);
@@ -387,6 +391,7 @@ const createSchemaField = (
   } else {
     console.error('ERROR: This is an unimplemented type in our JSONSchemaForm implementation');
   }
+
   return (
     <Field
       key={fieldName}
