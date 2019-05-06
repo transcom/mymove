@@ -47,7 +47,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-// Command: go run cmd/save_fuel_price_data/main.go
+// Command: go run github.com/transcom/mymove/cmd/save_fuel_price_data
 func main() {
 
 	flag := pflag.CommandLine
