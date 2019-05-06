@@ -120,7 +120,7 @@ class QueueTable extends Component {
                 accessor: 'synthetic_status',
                 Cell: row => (
                   <span className="status" data-cy="status">
-                    {capitalize(row.value.replace('_', ' '))}
+                    {capitalize(row.value && row.value.replace('_', ' '))}
                   </span>
                 ),
               },
@@ -135,7 +135,7 @@ class QueueTable extends Component {
               {
                 Header: 'Rank',
                 accessor: 'rank',
-                Cell: row => <span className="rank">{row.value.replace('_', '-')}</span>,
+                Cell: row => <span className="rank">{row.value && row.value.replace('_', '-')}</span>,
               },
               {
                 Header: 'Locator #',
@@ -164,12 +164,12 @@ class QueueTable extends Component {
             pageSize={this.state.data.length}
             className="-striped -highlight"
             showPagination={false}
-            getTrProps={(state, rowInfo) => {
-              return {
-                onDoubleClick: e => this.props.history.push(`new/moves/${rowInfo.original.id}`),
-                'data-cy': 'queue-table-row',
-              };
-            }}
+            getTrProps={(state, rowInfo) => ({
+              onDoubleClick: e =>
+                this.props.history.push(`new/moves/${rowInfo.original.id}`, {
+                  referrerPathname: this.props.history.location.pathname,
+                }),
+            })}
           />
         </div>
       </div>

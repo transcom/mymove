@@ -145,8 +145,6 @@ function tspUserAcceptsShipment() {
 
   // Status should be Accepted
   tspUserVerifiesShipmentStatus('Shipment accepted');
-
-  cy.get('a').contains('Accepted Shipments Queue');
 }
 
 function tspUserClicksAssignServiceAgent(locator) {

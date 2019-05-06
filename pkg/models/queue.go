@@ -23,7 +23,6 @@ type MoveQueueItem struct {
 	HhgStatus        *string                             `json:"hhg_status" db:"hhg_status"`
 	OrdersType       string                              `json:"orders_type" db:"orders_type"`
 	MoveDate         *time.Time                          `json:"move_date" db:"move_date"`
-	CustomerDeadline time.Time                           `json:"customer_deadline" db:"customer_deadline"`
 	LastModifiedDate time.Time                           `json:"last_modified_date" db:"last_modified_date"`
 	LastModifiedName string                              `json:"last_modified_name" db:"last_modified_name"`
 }

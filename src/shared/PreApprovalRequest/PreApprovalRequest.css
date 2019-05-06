@@ -1,3 +1,12 @@
+.pre-approval-form .usa-width-one-half > :first-child,
+.pre-approval-form .panel-subhead {
+  margin-top: 3rem;
+}
+
+.pre-approval-form .par-time-input {
+  display: inline-block;
+}
+
 /*PreApproval Table styles*/
 .pre-approval-panel {
   border-width: 3px;
@@ -128,6 +137,7 @@
 
 .bq-explanation {
   font-size: 0.9em;
+  color: grey;
 }
 
 .bq-explanation p {

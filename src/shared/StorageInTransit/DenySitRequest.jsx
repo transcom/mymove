@@ -24,10 +24,7 @@ export class DenySitRequest extends Component {
             </p>
           </div>
           <div className="usa-width-one-half align-right">
-            <button
-              className="button usa-button-primary storage-in-transit-request-form-send-request-button"
-              disabled={!this.props.formEnabled}
-            >
+            <button className="button usa-button-primary" disabled={!this.props.formEnabled}>
               Deny
             </button>
           </div>

@@ -13,7 +13,6 @@ const defaultFlags = {
   hhg: true,
   documentViewer: true,
   moveInfoComboButton: true,
-  robustAccessorial: true,
   sitPanel: true,
   ppmPaymentRequest: true,
 };
@@ -26,12 +25,10 @@ const environmentFlags = {
   experimental: Object.assign({}, defaultFlags),
 
   staging: Object.assign({}, defaultFlags, {
-    robustAccessorial: false,
     ppmPaymentRequest: false,
   }),
 
   production: Object.assign({}, defaultFlags, {
-    robustAccessorial: false,
     sitPanel: false,
     ppmPaymentRequest: false,
   }),

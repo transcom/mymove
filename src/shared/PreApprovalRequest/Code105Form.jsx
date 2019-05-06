@@ -3,14 +3,15 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { DimensionsField } from '../JsonSchemaForm/DimensionsField';
 
 export const Code105Form = props => {
-  const { ship_line_item_schema } = props;
+  const { ship_line_item_schema, initialValues } = props;
+  const labelItem = initialValues ? 'Actual item' : 'Item';
   return (
     <Fragment>
       <SwaggerField className="textarea-half" fieldName="description" swagger={ship_line_item_schema} required />
       <DimensionsField
         fieldName="item_dimensions"
         swagger={ship_line_item_schema}
-        labelText="Item dimensions (inches)"
+        labelText={`${labelItem} dimensions (inches)`}
         isRequired={true}
       />
       <DimensionsField

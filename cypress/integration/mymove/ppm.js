@@ -88,6 +88,12 @@ describe('completing the ppm flow', function() {
 
     cy.contains('Congrats - your move is submitted!');
     cy.contains('Next Step: Wait for approval');
+    cy
+      .get('a')
+      .contains('PPM info sheet')
+      .should('have.attr', 'href')
+      .and('include', '/downloads/ppm_info_sheet.pdf');
+
     cy.contains('Advance Requested: $1,333.91');
   });
 
