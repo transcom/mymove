@@ -31,7 +31,7 @@ var services = []string{"app"}
 var environments = []string{"prod", "staging", "experimental"}
 
 // Rules should be the name of the binary found in the /bin directory in the container
-var rules = []string{"save-fuel-price-data"}
+var commands = []string{"save-fuel-price-data"}
 
 type errInvalidAccountID struct {
 	AwsAccountID string
@@ -81,12 +81,12 @@ func (e *errinvalidImageTag) Error() string {
 	return fmt.Sprintf("invalid AWS ECR image tag %q", e.ImageTag)
 }
 
-type errInvalidRule struct {
-	Rule string
+type errInvalidCommand struct {
+	Command string
 }
 
-func (e *errInvalidRule) Error() string {
-	return fmt.Sprintf("invalid AWS CloudWatch Event Target rule %q", e.Rule)
+func (e *errInvalidCommand) Error() string {
+	return fmt.Sprintf("invalid command in the /bin folder %q", e.Command)
 }
 
 const (
@@ -102,7 +102,7 @@ const (
 	environmentFlag          string = "environment"
 	repositoryNameFlag       string = "repository-name"
 	imageTagFlag             string = "image-tag"
-	ruleFlag                 string = "rule"
+	commandFlag              string = "command"
 )
 
 func initFlags(flag *pflag.FlagSet) {
@@ -124,7 +124,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String(environmentFlag, "", fmt.Sprintf("The environment name (choose %q)", environments))
 	flag.String(repositoryNameFlag, "", fmt.Sprintf("The name of the repository where the tagged image resides"))
 	flag.String(imageTagFlag, "", "The name of the image tag referenced in the task definition")
-	flag.String(ruleFlag, "", fmt.Sprintf("The name of the CloudWatch Event Rule targeting the Task Definition (choose %q). This should be the name of the binary in the container.", rules))
+	flag.String(commandFlag, "", fmt.Sprintf("The name of the command to run inside the docker container (choose %q)", commands))
 
 	// EIA Open Data API
 	// The EIA Key is set in the Local or CircleCI environment and not in Chamber.
@@ -209,19 +209,19 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(&errinvalidImageTag{ImageTag: imageTag}, fmt.Sprintf("%q is invalid", imageTagFlag))
 	}
 
-	ruleName := v.GetString(ruleFlag)
-	if len(ruleName) == 0 {
-		return errors.Wrap(&errInvalidRule{Rule: ruleName}, fmt.Sprintf("%q is invalid", ruleFlag))
+	commandName := v.GetString(commandFlag)
+	if len(commandName) == 0 {
+		return errors.Wrap(&errInvalidCommand{Command: commandName}, fmt.Sprintf("%q is invalid", commandFlag))
 	}
 	validRule := false
-	for _, str := range rules {
-		if ruleName == str {
+	for _, str := range commands {
+		if commandName == str {
 			validRule = true
 			break
 		}
 	}
 	if !validRule {
-		return errors.Wrap(&errInvalidRule{Rule: ruleName}, fmt.Sprintf("%q is invalid", ruleFlag))
+		return errors.Wrap(&errInvalidCommand{Command: commandName}, fmt.Sprintf("%q is invalid", commandFlag))
 	}
 
 	err := cli.CheckEIA(v)
@@ -347,7 +347,8 @@ func main() {
 	serviceRDS := rds.New(sess)
 
 	// Get the current task definition (for rollback)
-	ruleName := v.GetString(ruleFlag)
+	commandName := v.GetString(commandFlag)
+	ruleName := fmt.Sprintf("%s-%s", commandName, v.GetString(environmentFlag))
 	targetsOutput, err := serviceCloudWatchEvents.ListTargetsByRule(&cloudwatchevents.ListTargetsByRuleInput{
 		Rule: aws.String(ruleName),
 	})
@@ -409,7 +410,7 @@ func main() {
 	dbHost := *dbInstancesOutput.DBInstances[0].Endpoint.Address
 
 	// Name the container definition and verify it exists
-	containerDefName := fmt.Sprintf("%s-tasks-%s-%s", serviceName, ruleName, environmentName)
+	containerDefName := fmt.Sprintf("%s-tasks-%s-%s", serviceName, commandName, environmentName)
 
 	// AWS Logs Group is related to the cluster and should not be changed
 	awsLogsGroup := fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environmentName)
@@ -440,7 +441,7 @@ func main() {
 					aws.String("exec"),
 					aws.String(chamberStore),
 					aws.String("--"),
-					aws.String(fmt.Sprintf("/bin/%s", ruleName)),
+					aws.String(fmt.Sprintf("/bin/%s", commandName)),
 				},
 				Command: []*string{},
 				Environment: []*ecs.KeyValuePair{
