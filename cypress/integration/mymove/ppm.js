@@ -136,7 +136,7 @@ describe('completing the ppm flow', function() {
 });
 
 describe('check invalid ppm inputs', () => {
-  it.only('doesnt allow SM to progress if dont have rate data for move dates + zips"', function() {
+  it('doesnt allow SM to progress if dont have rate data for move dates + zips"', function() {
     cy.signInAsUserPostRequest(milmoveAppName, '99360a51-8cfa-4e25-ae57-24e66077305f');
     cy.contains('Continue Move Setup').click();
 
