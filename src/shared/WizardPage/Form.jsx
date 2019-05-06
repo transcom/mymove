@@ -9,7 +9,7 @@ import Alert from 'shared/Alert'; // eslint-disable-line
 import generatePath from './generatePath';
 import './index.css';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
-import { reduxForm } from 'redux-form';
+import {reduxForm, SubmissionError} from 'redux-form';
 import { mobileSize } from 'shared/constants';
 import scrollToTop from 'shared/scrollToTop';
 
@@ -55,7 +55,13 @@ export class WizardFormPage extends Component {
     this.props.push(`/`);
   }
   nextPage() {
-    this.beforeTransition(getNextPagePath);
+    if (this.props.sendData) {
+      return this.props.handleSubmit(() => this.props.sendData());
+      // this.beforeTransition(getNextPagePath, false);
+    }
+    else {
+      this.beforeTransition(getNextPagePath);
+    }
   }
 
   previousPage() {
@@ -65,17 +71,7 @@ export class WizardFormPage extends Component {
 
   render() {
     const isMobile = this.props.windowWidth < mobileSize;
-    const {
-      handleSubmit,
-      className,
-      pageKey,
-      pageList,
-      children,
-      serverError,
-      valid,
-      dirty,
-      myHandleSubmit,
-    } = this.props;
+    const { handleSubmit, className, pageKey, pageList, children, serverError, valid, dirty, sendData } = this.props;
     const canMoveForward = valid;
     const canMoveBackward = (valid || !dirty) && !isFirstPage(pageList, pageKey);
     const hideBackBtn = isFirstPage(pageList, pageKey);
@@ -89,7 +85,7 @@ export class WizardFormPage extends Component {
           </div>
         )}
         <div className="usa-width-one-whole">
-          <form className={className} onSubmit={handleSubmit(myHandleSubmit)}>
+          <form className={className}>
             {children}
             <div className="usa-width-one-whole lower-nav-btns">
               {!isMobile && (
@@ -108,17 +104,12 @@ export class WizardFormPage extends Component {
                   Back
                 </button>
                 {!isLastPage(pageList, pageKey) && (
-                  <button
-                    className="usa-button-primary next"
-                    type="submit"
-                    // onClick={this.nextPage}
-                    disabled={!canMoveForward}
-                  >
+                  <button className="usa-button-primary next" onClick={this.props.handleSubmit(() => Promise.reject(new SubmissionError({original_move_date: "hhhhhey"})))} disabled={!canMoveForward}>
                     Next
                   </button>
                 )}
                 {isLastPage(pageList, pageKey) && (
-                  <button className="usa-button-primary next" onClick={myHandleSubmit} disabled={!canMoveForward}>
+                  <button className="usa-button-primary next" disabled={!canMoveForward}>
                     Complete
                   </button>
                 )}
@@ -133,6 +124,7 @@ export class WizardFormPage extends Component {
 
 WizardFormPage.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
+  sendData: PropTypes.func.isRequired,
   serverError: PropTypes.object,
   pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
   pageKey: PropTypes.string.isRequired,

@@ -53,7 +53,8 @@ export class DateAndLocation extends Component {
     this.setState({ showInfo: false });
   };
 
-  handleSubmit = () => {
+  validateAndSavePPM = () => {
+    debugger;
     const { entitlement } = this.props;
     const wtgEstEntitlement = get(entitlement, 'sum', 2000);
     const pendingValues = Object.assign({}, this.props.formValues);
@@ -131,7 +132,7 @@ export class DateAndLocation extends Component {
           />
         )}
         <DateAndLocationWizardForm
-          myHandleSubmit={this.handleSubmit}
+          sendData={this.validateAndSavePPM}
           pageList={pages}
           pageKey={pageKey}
           serverError={error}
