@@ -3,14 +3,12 @@ package handlers
 import (
 	"log"
 	"net/http"
-	"os"
 	"testing"
 
 	"github.com/lib/pq"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging/hnyzap"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
@@ -38,14 +36,12 @@ func TestErrorsSuite(t *testing.T) {
 }
 
 func (suite *ErrorsSuite) TestResponseForErrorWhenASQLErrorIsEncounteredInDevEnv() {
-	// get development flag value for more verbose data
-	os.Setenv(cli.DbEnvFlag, "development")
 	err := &pq.Error{}
+	actual := ResponseForError(suite.logger, err)
 
-	sut := ResponseForError(suite.logger, err)
 	expectedResponse := &ErrResponse{
 		Code: http.StatusInternalServerError,
 		Err:  err,
 	}
-	suite.Equal(expectedResponse, sut)
+	suite.Equal(expectedResponse, actual)
 }
