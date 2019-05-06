@@ -23,7 +23,7 @@ export async function beforeTransition(func, shouldHandleSubmit = true) {
   // If so, do it and make sure it succeeds before moving on
   const handleSubmit = this.props.handleSubmit;
   let gotoNext = true;
-  if (this.props.dirty && handleSubmit && shouldHandleSubmit) {
+  if (this.props.dirty && handleSubmit && shouldHandleSubmit && !this.props.sendData) {
     const awaitSubmit = await handleSubmit(); // may cause pagelist to change
     if (awaitSubmit && awaitSubmit.error) {
       console.error(awaitSubmit.error);

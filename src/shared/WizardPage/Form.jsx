@@ -55,7 +55,10 @@ export class WizardFormPage extends Component {
     this.props.push(`/`);
   }
   nextPage() {
-    this.beforeTransition(getNextPagePath);
+    if (this.props.sendData) {
+      return this.props.sendData().then(() => this.beforeTransition(getNextPagePath, false));
+    }
+    return this.beforeTransition(getNextPagePath);
   }
 
   previousPage() {
@@ -79,36 +82,38 @@ export class WizardFormPage extends Component {
           </div>
         )}
         <div className="usa-width-one-whole">
-          <form className={className} onSubmit={handleSubmit}>
-            {children}
-          </form>
-        </div>
-        <div className="usa-width-one-whole lower-nav-btns">
-          {!isMobile && (
-            <div className="left cancel">
-              <button className="usa-button-secondary" onClick={this.cancelFlow}>
-                Cancel
+          <form className={className}>{children}</form>
+          <div className="usa-width-one-whole lower-nav-btns">
+            {!isMobile && (
+              <div className="left cancel">
+                <button className="usa-button-secondary" onClick={this.cancelFlow}>
+                  Cancel
+                </button>
+              </div>
+            )}
+            <div className="prev-next">
+              <button
+                className={'usa-button-secondary prev ' + (hideBackBtn && 'hide-btn')}
+                onClick={this.previousPage}
+                disabled={!canMoveBackward}
+              >
+                Back
               </button>
+              {!isLastPage(pageList, pageKey) && (
+                <button
+                  className="usa-button-primary next"
+                  onClick={handleSubmit(this.nextPage)}
+                  disabled={!canMoveForward}
+                >
+                  Next
+                </button>
+              )}
+              {isLastPage(pageList, pageKey) && (
+                <button className="usa-button-primary next" disabled={!canMoveForward}>
+                  Complete
+                </button>
+              )}
             </div>
-          )}
-          <div className="prev-next">
-            <button
-              className={'usa-button-secondary prev ' + (hideBackBtn && 'hide-btn')}
-              onClick={this.previousPage}
-              disabled={!canMoveBackward}
-            >
-              Back
-            </button>
-            {!isLastPage(pageList, pageKey) && (
-              <button className="usa-button-primary next" onClick={this.nextPage} disabled={!canMoveForward}>
-                Next
-              </button>
-            )}
-            {isLastPage(pageList, pageKey) && (
-              <button className="usa-button-primary next" onClick={handleSubmit} disabled={!canMoveForward}>
-                Complete
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -118,6 +123,7 @@ export class WizardFormPage extends Component {
 
 WizardFormPage.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
+  sendData: PropTypes.func.isRequired,
   serverError: PropTypes.object,
   pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
   pageKey: PropTypes.string.isRequired,

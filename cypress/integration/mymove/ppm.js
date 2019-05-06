@@ -152,10 +152,13 @@ describe('check invalid ppm inputs', () => {
       .get('input[name="pickup_postal_code"]')
       .clear()
       .type('80913');
-    // TODO onChange is not causing async to fire. Just adding a blur makes async validation run
-    // TODO and cause test to pass
-    // cy.get('input[name="destination_postal_code"]').type('76127').blur();
     cy.get('input[name="destination_postal_code"]').type('76127');
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
+    });
+
+    cy.nextPage();
     cy.get('#original_move_date-error').should('exist');
   });
 
