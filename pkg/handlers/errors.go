@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/lib/pq"
+
 	"github.com/transcom/mymove/pkg/route"
 
 	"github.com/go-openapi/runtime"
@@ -71,6 +73,13 @@ func ResponseForError(logger Logger, err error) middleware.Responder {
 		default:
 			return newErrResponse(http.StatusInternalServerError, err)
 		}
+	case *pq.Error:
+		skipLogger.Info("SQL error encountered", zap.Error(e))
+		// if in development environment then return sql err for easy debugging
+		//if isDev {
+		//	return  newErrResponse(http.StatusInternalServerError, err)
+		//}
+		return newErrResponse(http.StatusInternalServerError, errors.New("unexpected error from db"))
 	default:
 		return responseForBaseError(skipLogger, err)
 	}
