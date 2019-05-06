@@ -3,7 +3,10 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"os"
 	"strings"
+
+	"github.com/transcom/mymove/pkg/cli"
 
 	"github.com/lib/pq"
 
@@ -60,6 +63,10 @@ func ResponseForError(logger Logger, err error) middleware.Responder {
 	// AddCallerSkip(1) prevents log statements from listing this file and func as the caller
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
 
+	// get development flag value for more verbose data
+	dbEnv := os.Getenv(cli.DbEnvFlag)
+	isDev := dbEnv == "development" || dbEnv == "test"
+
 	cause := errors.Cause(err)
 	switch e := cause.(type) {
 	case route.Error:
@@ -75,10 +82,9 @@ func ResponseForError(logger Logger, err error) middleware.Responder {
 		}
 	case *pq.Error:
 		skipLogger.Info("SQL error encountered", zap.Error(e))
-		// if in development environment then return sql err for easy debugging
-		//if isDev {
-		//	return  newErrResponse(http.StatusInternalServerError, err)
-		//}
+		if isDev {
+			return newErrResponse(http.StatusInternalServerError, err)
+		}
 		return newErrResponse(http.StatusInternalServerError, errors.New("unexpected error from db"))
 	default:
 		return responseForBaseError(skipLogger, err)
