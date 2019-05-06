@@ -207,5 +207,6 @@ function tspUserSubmitsPlaceInSit() {
     .should($div => {
       const text = $div.text();
       expect(text).to.include('Actual start date');
+      expect(text).to.include('SIT Number');
     });
 }
