@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 
-import { Editor } from './Editor';
+import { OfficeEditor } from './OfficeEditor';
 
 const storageInTransit = {
   estimated_start_date: '2019-02-12',
@@ -30,7 +30,7 @@ describe('given an editor', () => {
     beforeEach(() => {
       cancel.mockClear();
       wrapper = shallow(
-        <Editor
+        <OfficeEditor
           updateStorageInTransit={updateStorageInTransit}
           onClose={onClose}
           storageInTransit={storageInTransit}
@@ -54,7 +54,7 @@ describe('given an editor', () => {
     beforeEach(() => {
       cancel.mockClear();
       wrapper = shallow(
-        <Editor
+        <OfficeEditor
           updateStorageInTransit={updateStorageInTransit}
           onClose={onClose}
           storageInTransit={storageInTransit}
