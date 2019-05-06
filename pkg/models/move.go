@@ -122,7 +122,7 @@ func (m *Move) Submit(ppmSubmitDate time.Time) error {
 
 	// Update HHG (Shipment) status too
 	for i := range m.Shipments {
-		err := m.Shipments[i].Submit()
+		err := m.Shipments[i].Submit(ppmSubmitDate)
 		if err != nil {
 			return err
 		}
