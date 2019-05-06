@@ -78,7 +78,7 @@ commands:
       - run: make bin/ecs-deploy-task-container
       - deploy:
           name: Deploy task service
-          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment experimental --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --rule save-fuel-price-data
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --rule save-fuel-price-data
           no_output_timeout: 20m
       - announce_failure
   deploy_app_steps:
