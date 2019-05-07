@@ -91,9 +91,17 @@ export class DutyStationSearchBox extends Component {
     const { errorMsg } = this.props;
     const defaultTitle = 'Name of Duty Station:';
     const inputContainerClasses = classNames({ 'usa-input-error': errorMsg });
+    const searchBoxHeaderClasses = classNames({ 'duty-station-header': errorMsg });
+    const dutyInputClasses = classNames({
+      'duty-input-box': true,
+      [this.props.input.name]: true,
+      'duty-input-box-error': errorMsg,
+    });
+    const locationClasses = classNames({ location: true, 'location-error': errorMsg });
     // api for duty station always returns an object, even when duty station is not set
     // if there is no duty station, that object will have a null uuid
     const isEmptyStation = get(this.props, 'input.value.id', NULL_UUID) === NULL_UUID;
+    const title = this.props.title || defaultTitle;
     return (
       <Fragment>
         <div className="duty-station-search">
@@ -105,10 +113,10 @@ export class DutyStationSearchBox extends Component {
             </div>
           )}
           <div className={inputContainerClasses}>
-            <p>{this.props.title || defaultTitle}</p>
+            <p className={searchBoxHeaderClasses}>{errorMsg ? <strong>{title}</strong> : title}</p>
             {this.props.errorMsg && <span className="usa-input-error-message">{this.props.errorMsg}</span>}
             <AsyncSelect
-              className={`duty-input-box ${this.props.input.name}`}
+              className={dutyInputClasses}
               cacheOptions
               getOptionLabel={getOptionName}
               getOptionValue={getOptionName}
@@ -120,7 +128,7 @@ export class DutyStationSearchBox extends Component {
               placeholder="Start typing a duty station..."
             />
             {!isEmptyStation && (
-              <p className="location">
+              <p className={locationClasses}>
                 {this.props.input.value.address.city}, {this.props.input.value.address.state}{' '}
                 {this.props.input.value.address.postal_code}
               </p>
