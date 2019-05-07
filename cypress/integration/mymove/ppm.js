@@ -144,8 +144,8 @@ describe('completing the ppm flow', function() {
 describe('check invalid ppm inputs', () => {
   it('doesnt allow SM to progress if dont have rate data for move dates + zips"', function() {
     cy.signInAsUserPostRequest(milmoveAppName, '99360a51-8cfa-4e25-ae57-24e66077305f');
-    cy.contains('Continue Move Setup').click();
 
+    cy.contains('Continue Move Setup').click();
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
     });
@@ -159,19 +159,17 @@ describe('check invalid ppm inputs', () => {
       .clear()
       .type('80913');
     cy.get('input[name="destination_postal_code"]').type('76127');
-
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
     });
-
     cy.nextPage();
+
     cy.get('#original_move_date-error').should('exist');
   });
 
   it('doesnt allow same origin and destination zip', function() {
     cy.signInAsUserPostRequest(milmoveAppName, '99360a51-8cfa-4e25-ae57-24e66077305f');
     cy.contains('Continue Move Setup').click();
-
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
     });
@@ -185,12 +183,11 @@ describe('check invalid ppm inputs', () => {
       .get('input[name="pickup_postal_code"]')
       .clear()
       .type('80913');
-
-    // same destination postal code and pickup postal code is not allowed
     cy
       .get('input[name="destination_postal_code"]')
       .type('80913')
       .blur();
+
     cy.get('#destination_postal_code-error').should('exist');
   });
 });

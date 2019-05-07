@@ -27,7 +27,7 @@ const formName = 'ppp_date_and_location';
 
 const DateAndLocationWizardForm = reduxifyWizardForm(formName);
 
-const AlertText =
+const InvalidMoveParamsErrorMsg =
   "We can 't schedule a move that far in the future. You can try an earlier date, or contact your PPPO for help.";
 
 const validateDifferentZip = (value, formValues) => {
@@ -64,11 +64,13 @@ export class DateAndLocation extends Component {
         pendingValues.days_in_storage = null;
       }
       const moveId = this.props.match.params.moveId;
-      // the call to GetPpmWeightEstimate verifies that we have rate data for these locations and move date
+
+      // the call to GetPpmWeightEstimate verifies that we have rate data for
+      // these locations and move date before saving the move
       return GetPpmWeightEstimate(
-        this.props.formValues.original_move_date,
-        this.props.formValues.pickup_postal_code,
-        this.props.formValues.destination_postal_code,
+        pendingValues.original_move_date,
+        pendingValues.pickup_postal_code,
+        pendingValues.destination_postal_code,
         wtgEstEntitlement,
       )
         .then(() => {
@@ -76,7 +78,7 @@ export class DateAndLocation extends Component {
         })
         .catch(e => {
           throw new SubmissionError({
-            original_move_date: AlertText,
+            original_move_date: InvalidMoveParamsErrorMsg,
           });
         });
     }
@@ -131,7 +133,7 @@ export class DateAndLocation extends Component {
           />
         )}
         <DateAndLocationWizardForm
-          sendData={this.validateAndSavePPM}
+          ReduxFormSumbit={this.validateAndSavePPM}
           pageList={pages}
           pageKey={pageKey}
           serverError={error}
@@ -141,9 +143,19 @@ export class DateAndLocation extends Component {
           <h2>PPM Dates & Locations</h2>
           {isHHGPPMComboMove && <div>Great! Let's review your pickup and destination information.</div>}
           <h3> Move Date </h3>
-          <SwaggerField fieldName="original_move_date" swagger={this.props.schema} required />
+          <SwaggerField
+            fieldName="original_move_date"
+            swagger={this.props.schema}
+            onChange={this.getDebouncedSitEstimate}
+            required
+          />
           <h3>Pickup Location</h3>
-          <SwaggerField fieldName="pickup_postal_code" swagger={this.props.schema} required />
+          <SwaggerField
+            fieldName="pickup_postal_code"
+            swagger={this.props.schema}
+            onChange={this.getDebouncedSitEstimate}
+            required
+          />
           {!isHHGPPMComboMove && (
             <SwaggerField fieldName="has_additional_postal_code" swagger={this.props.schema} component={YesNoBoolean} />
           )}

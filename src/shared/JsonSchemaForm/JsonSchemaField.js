@@ -159,7 +159,7 @@ const renderInputField = ({
   always_required,
   componentNameOverride,
   customComponent,
-  meta: { touched, error, warning, asyncValidate },
+  meta: { touched, error, warning },
   children,
   className,
   inputProps,
