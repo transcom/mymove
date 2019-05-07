@@ -204,6 +204,9 @@ bin/ecs-service-logs:
 bin/generate-1203-form: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
 
+bin/generate-access-codes: .server_generate.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
+
 bin/generate-shipment-edi: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-edi ./cmd/generate_shipment_edi
 
