@@ -31,10 +31,7 @@ function officeUserViewsSITPanel() {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
-  cy
-    .get('a')
-    .contains('HHG')
-    .click(); // navtab
+  cy.get('[data-cy="hhg-tab"]').click();
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
@@ -85,10 +82,7 @@ function officeUserStartsAndCancelsSitApproval() {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
-  cy
-    .get('a')
-    .contains('HHG')
-    .click(); // navtab
+  cy.get('[data-cy="hhg-tab"]').click();
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
@@ -131,10 +125,7 @@ function officeUserStartsAndCancelsSitEdit() {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
-  cy
-    .get('a')
-    .contains('HHG')
-    .click(); // navtab
+  cy.get('[data-cy="hhg-tab"]').click();
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
