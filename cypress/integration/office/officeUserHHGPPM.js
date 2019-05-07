@@ -33,7 +33,7 @@ describe('office user finds the shipment', function() {
     officeUserVisitsHHGTab();
     officeUserApprovesShipment();
   });
-  it.only('office user uploads document', function() {
+  it('office user uploads document', function() {
     officeUserSubmitsDocument();
   });
 });

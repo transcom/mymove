@@ -10,6 +10,8 @@ import (
 	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/paperwork"
+
+	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
 	sitservice "github.com/transcom/mymove/pkg/services/storage_in_transit"
 )
@@ -108,5 +110,7 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 		sitservice.NewStorageInTransitInDeliverer(context.DB()),
 	}
 
+	// Access Codes
+	publicAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{context, accesscodeservice.NewAccessCodeValidator(context.DB())}
 	return publicAPI.Serve(nil)
 }

@@ -37,10 +37,10 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0028](0028-config-management.md) - Config Management
 - [ADR-0029](0029-honeycomb-integration.md) - Honeycomb Integration
 - [ADR-0030](0030-rds-iam.md) - IAM Authentication for Database
-- [ADR-0031](0031-css-tooling.md) - CSS Tooling
+- [ADR-0031](0031-css-tooling.md) - *CSS Tooling*
 - [ADR-0032](0032-csrf-protection.md) - CSRF Protection for the Application
-- [ADR-0033](0033-service-object-layer.md) - Mocking Approach and Tooling
-- [ADR-0034](0034-working-with-mocks-generation-and-assertion.md) - Working With Mocks: Generation and Assertion
+- [ADR-0033](0033-service-object-layer.md) - *Service Object Layer*
+- [ADR-0034](0034-working-with-mocks-generation-and-assertion.md) - *Working With Mocks: Generation and Assertion*
 
 <!-- adrlogstop -->
 

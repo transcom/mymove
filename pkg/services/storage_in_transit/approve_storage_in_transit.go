@@ -42,7 +42,7 @@ func (a *approveStorageInTransit) ApproveStorageInTransit(payload apimessages.St
 	}
 
 	storageInTransit.Status = models.StorageInTransitStatusAPPROVED
-	storageInTransit.AuthorizationNotes = &payload.AuthorizationNotes
+	storageInTransit.AuthorizationNotes = payload.AuthorizationNotes
 	storageInTransit.AuthorizedStartDate = (*time.Time)(&payload.AuthorizedStartDate)
 
 	if verrs, err := a.db.ValidateAndSave(storageInTransit); verrs.HasAny() || err != nil {

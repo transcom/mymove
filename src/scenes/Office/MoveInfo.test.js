@@ -5,6 +5,8 @@ import MockRouter from 'react-mock-router';
 
 import MoveInfo from './MoveInfo';
 import store from 'shared/store';
+import { mount } from 'enzyme/build';
+import { ReferrerQueueLink } from './MoveInfo';
 
 const dummyFunc = () => {};
 const loadDependenciesHasError = null;
@@ -37,5 +39,31 @@ describe('Loads MoveInfo', () => {
       </Provider>,
       div,
     );
+  });
+});
+
+let wrapper;
+describe('ShipmentInfo tests', () => {
+  describe('Shows correct queue to return to', () => {
+    it('when a referrer is set in history', () => {
+      wrapper = mount(
+        <Provider store={store}>
+          <MockRouter push={jest.fn()}>
+            <ReferrerQueueLink history={{ location: { state: { referrerPathname: '/queues/hhg_accepted' } } }} />
+          </MockRouter>
+        </Provider>,
+      );
+      expect(wrapper.text()).toEqual('Accepted HHG Queue');
+    });
+    it('when no referrer is set', () => {
+      wrapper = mount(
+        <Provider store={store}>
+          <MockRouter push={jest.fn()}>
+            <ReferrerQueueLink history={{ location: {} }} />
+          </MockRouter>
+        </Provider>,
+      );
+      expect(wrapper.text()).toEqual('New Moves Queue');
+    });
   });
 });
