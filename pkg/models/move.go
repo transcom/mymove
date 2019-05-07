@@ -35,6 +35,10 @@ const (
 // SelectedMoveType represents the type of move being represented
 type SelectedMoveType string
 
+func (s SelectedMoveType) String() string {
+	return string(s)
+}
+
 // This lists available move types in the system
 // Combination move types like HHG+PPM should be added as an underscore separated list
 // The list should be lexigraphically sorted. Ex: UB + PPM will always be 'PPM_UB'
