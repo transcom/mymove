@@ -16,7 +16,7 @@ If you are generating a new model, use: `./scripts/gen-model model-name column-n
 
 ### Modifying an Existing Model
 
-If you are modifying an existing model, use `./bin/soda generate migration migration-name` and add the [Fizz commands](https://github.com/gobuffalo/fizz) yourself to the created `{migration_name}.up.fizz` file. Delete the `down.fizz` file, as we aren't using those (see note below.)
+If you are modifying an existing model, use `./bin/soda generate migration migration_name` and add the [Fizz commands](https://github.com/gobuffalo/fizz) yourself to the created `{migration_name}.up.fizz` file. Delete the `down.fizz` file, as we aren't using those (see note below.)
 
 ## Zero-Downtime Migrations
 
