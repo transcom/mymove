@@ -54,7 +54,7 @@ export function selectUplodsForOrders(state, ordersId) {
   const uploadedOrders = get(state, `entities.documents.${orders.uploaded_orders}`);
   if (uploadedOrders) {
     let uploads = uploadedOrders.uploads.map(uploadId => {
-      return { ...get(state, `entities.uploads.${uploadId}`), ...{ orientation: 180 } };
+      return { ...get(state, `entities.uploads.${uploadId}`) };
     });
 
     return uploads;

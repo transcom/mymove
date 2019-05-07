@@ -36,5 +36,5 @@ export const selectUpload = (state, id) => {
 };
 
 export function updateUpload(uploadId, params, label = updateUploadLabel) {
-  return swaggerRequest(getClient, label, { uploadId, params }, { label });
+  return swaggerRequest(getClient, label, { uploadId, ...params }, { label });
 }

@@ -28,6 +28,7 @@ type Upload struct {
 	StorageKey  string     `db:"storage_key"`
 	CreatedAt   time.Time  `db:"created_at"`
 	UpdatedAt   time.Time  `db:"updated_at"`
+	Orientation int64      `db:"orientation"`
 }
 
 // Uploads is not required by pop and may be deleted
@@ -85,6 +86,11 @@ func FetchUpload(ctx context.Context, db *pop.Connection, session *auth.Session,
 		return Upload{}, errors.Wrap(ErrFetchNotFound, "user ID doesn't match uploader ID")
 	}
 	return upload, nil
+}
+
+// SaveUpload saves and validates an upload
+func SaveUpload(db *pop.Connection, upload *Upload) (*validate.Errors, error) {
+	return db.ValidateAndSave(upload)
 }
 
 // DeleteUpload deletes an upload from the database

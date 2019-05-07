@@ -1453,6 +1453,8 @@ definitions:
         example: application/pdf
       bytes:
         type: integer
+      orientation:
+        type: integer
       created_at:
         type: string
         format: date-time
@@ -1470,10 +1472,6 @@ definitions:
   UpdateUploadPayload:
     type: object
     properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       orientation:
         type: integer
         example: "90, 180, 270"
@@ -3784,9 +3782,8 @@ paths:
           required: true
           description: UUID of the upload to be updated
         - in: body
-          name: UpdateUploadPayload
+          name: UpdateUpload
           required: true
-          description: Orientation of the uploaded image, e.g. 90 degrees
           schema:
             $ref: '#/definitions/UpdateUploadPayload'
       responses:

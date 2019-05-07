@@ -26,6 +26,7 @@ func payloadForUploadModel(upload models.Upload, url string) *internalmessages.U
 		ContentType: swag.String(upload.ContentType),
 		URL:         handlers.FmtURI(url),
 		Bytes:       &upload.Bytes,
+		Orientation: upload.Orientation,
 		CreatedAt:   handlers.FmtDateTime(upload.CreatedAt),
 		UpdatedAt:   handlers.FmtDateTime(upload.UpdatedAt),
 	}
@@ -154,12 +155,30 @@ func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middle
 	return uploadop.NewDeleteUploadsNoContent()
 }
 
-// UpdateUploadsHandler updates an upload
-type UpdateUploadsHandler struct {
+// UpdateUploadHandler updates an upload
+type UpdateUploadHandler struct {
 	handlers.HandlerContext
 }
 
 // Handle method
-func (h UpdateUploadsHandler) Handle(params uploadop.UpdateUploadParams) middleware.Responder {
-	return uploadop.NewUpdateUploadOK()
+func (h UpdateUploadHandler) Handle(params uploadop.UpdateUploadParams) middleware.Responder {
+	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	defer span.Send()
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	uploadID := params.UploadID
+	uuid, _ := uuid.FromString(uploadID.String())
+	upload, err := models.FetchUpload(ctx, h.DB(), session, uuid)
+	if err != nil {
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	upload.Orientation = params.UpdateUpload.Orientation
+	verrs, err := models.SaveUpload(h.DB(), &upload)
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+	}
+	uploader := uploaderpkg.NewUploader(h.DB(), h.Logger(), h.FileStorer())
+	url, err := uploader.PresignedURL(&upload)
+	uploadPayload := payloadForUploadModel(upload, url)
+	return uploadop.NewUpdateUploadOK().WithPayload(uploadPayload)
 }

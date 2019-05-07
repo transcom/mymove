@@ -33,7 +33,7 @@ class OrdersInfo extends Component {
   }
 
   changeUploadOrientation(uploadId, orientation) {
-    updateUpload(uploadId, { uploadId, orientation });
+    this.props.updateUpload(uploadId, { UpdateUpload: { orientation } });
   }
 
   render() {
@@ -55,17 +55,19 @@ class OrdersInfo extends Component {
       <div>
         <div className="usa-grid">
           <div className="usa-width-two-thirds document-contents">
-            {uploads.map(upload => (
-              <DocumentContent
-                key={upload.url}
-                url={upload.url}
-                filename={upload.filename}
-                contentType={upload.content_type}
-                uploadId={upload.id}
-                orientation={270}
-                rotate={this.changeUploadOrientation}
-              />
-            ))}
+            {uploads.map(upload => {
+              return (
+                <DocumentContent
+                  key={upload.url}
+                  url={upload.url}
+                  filename={upload.filename}
+                  contentType={upload.content_type}
+                  uploadId={upload.id}
+                  orientation={upload.orientation}
+                  rotate={this.changeUploadOrientation.bind(this)}
+                />
+              );
+            })}
           </div>
           <div className="usa-width-one-third orders-page-fields">
             <OrdersViewerPanel title={name} className="document-viewer" moveId={this.props.match.params.moveId} />

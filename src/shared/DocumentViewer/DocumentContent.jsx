@@ -7,6 +7,7 @@ export class DocumentContent extends Component {
   imgEl = React.createRef();
 
   state = {
+    orientation: this.props.orientation,
     imgHeight: 0,
   };
 
@@ -15,6 +16,18 @@ export class DocumentContent extends Component {
     this.setState({
       imgHeight: imgHeight,
     });
+  }
+
+  handleRotate(direction) {
+    if (direction === 'right') {
+      console.log(this.state.orientation, this.state.orientation - 90);
+      this.setState({ orientation: this.state.orientation - 90 });
+      this.props.rotate(this.props.uploadId, this.state.orientation - 90);
+    } else {
+      console.log(this.state.orientation, this.state.orientation + 90);
+      this.setState({ orientation: this.state.orientation + 90 });
+      this.props.rotate(this.props.uploadId, this.state.orientation + 90);
+    }
   }
 
   render() {
@@ -42,7 +55,7 @@ export class DocumentContent extends Component {
             <img
               src={this.props.url}
               ref={this.imgEl}
-              style={{ transform: `rotate(${this.props.orientation}deg)` }}
+              style={{ transform: `rotate(${this.state.orientation}deg)` }}
               onLoad={this.adjustContainerHeight.bind(this)}
               alt="document upload"
             />
@@ -50,18 +63,8 @@ export class DocumentContent extends Component {
         )}
 
         <div>
-          <button
-            onClick={this.props.rotate.bind(this, this.props.uploadId, this.props.orientation + 90)}
-            data-direction="left"
-          >
-            rotate left
-          </button>
-          <button
-            onClick={this.props.rotate.bind(this, this.props.uploadId, this.props.orientation - 90)}
-            data-direction="right"
-          >
-            rotate right
-          </button>
+          <button onClick={this.handleRotate.bind(this, 'left')}>rotate left</button>
+          <button onClick={this.handleRotate.bind(this, 'right')}>rotate right</button>
         </div>
       </div>
     );
