@@ -388,7 +388,9 @@ class MoveInfo extends Component {
           <div className="usa-width-three-fourths">
             <RoutedTabs startPathWith={this.props.match.url}>
               <NavTab to="/basics">
-                <span className="title">Basics</span>
+                <span className="title" data-cy="basics-tab">
+                  Basics
+                </span>
                 <span className="status">
                   <FontAwesomeIcon className="icon" icon={faPlayCircle} />
                   {capitalize(this.props.moveStatus)}
@@ -396,13 +398,17 @@ class MoveInfo extends Component {
               </NavTab>
               {(isPPM || isHHGPPM) && (
                 <NavTab to="/ppm">
-                  <span className="title">PPM</span>
+                  <span className="title" data-cy="ppm-tab">
+                    PPM
+                  </span>
                   {this.renderPPMTabStatus()}
                 </NavTab>
               )}
               {(isHHG || isHHGPPM) && (
                 <NavTab to="/hhg">
-                  <span className="title">HHG</span>
+                  <span className="title" data-cy="hhg-tab">
+                    HHG
+                  </span>
                   <span className="status">
                     {hasRequestedSIT ? (
                       <SitStatusIcon isTspSite={false} />
