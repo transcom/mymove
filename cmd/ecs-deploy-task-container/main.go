@@ -366,7 +366,6 @@ func main() {
 		quit(logger, nil, errors.Wrap(err, "Unable to parse current task definition arn"))
 	}
 
-	// TODO: This isn't clean and could probably use a regex
 	currentTaskDefName := strings.Split(currentTaskDefArn.Resource, ":")[0]
 	currentTaskDefName = strings.Split(currentTaskDefName, "/")[1]
 	currentDescribeTaskDefinitionOutput, err := serviceECS.DescribeTaskDefinition(&ecs.DescribeTaskDefinitionInput{
@@ -397,7 +396,6 @@ func main() {
 	}
 
 	// Get the database host using the instance identifier
-	// TODO: Allow passing in from DB_HOST
 	serviceName := v.GetString(serviceFlag)
 	environmentName := v.GetString(environmentFlag)
 	dbInstanceIdentifier := fmt.Sprintf("%s-%s", serviceName, environmentName)
