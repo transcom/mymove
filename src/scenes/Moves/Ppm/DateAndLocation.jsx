@@ -133,7 +133,7 @@ export class DateAndLocation extends Component {
           />
         )}
         <DateAndLocationWizardForm
-          reduxFormSumbit={this.validateAndSavePPM}
+          reduxFormSubmit={this.validateAndSavePPM}
           pageList={pages}
           pageKey={pageKey}
           serverError={error}

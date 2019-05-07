@@ -55,26 +55,30 @@ export class WizardFormPage extends Component {
     this.props.push(`/`);
   }
   nextPage() {
-    if (this.props.reduxFormSumbit) {
-      return this.props.reduxFormSumbit().then(() => this.beforeTransition(getNextPagePath, false));
+    if (this.props.reduxFormSubmit) {
+      return this.props.reduxFormSubmit().then(() => this.beforeTransition(getNextPagePath, false));
     }
     return this.beforeTransition(getNextPagePath);
   }
 
   previousPage() {
     const shouldHandleSubmit = !this.props.discardOnBack;
+    if (this.props.reduxFormSubmit && shouldHandleSubmit) {
+      return this.props.reduxFormSubmit().then(() => this.beforeTransition(getPreviousPagePath, false));
+    }
     this.beforeTransition(getPreviousPagePath, shouldHandleSubmit);
   }
 
   submit() {
-    if (this.props.reduxFormSumbit) {
-      return this.props.handleSubmit(this.props.reduxFormSumbit)();
+    if (this.props.reduxFormSubmit) {
+      return this.props.handleSubmit(this.props.reduxFormSubmit)();
     }
     return this.props.handleSubmit();
   }
 
   render() {
     const isMobile = this.props.windowWidth < mobileSize;
+    const hasReduxFormSubmitHandler = !!this.props.reduxFormSubmit;
     const { handleSubmit, className, pageKey, pageList, children, serverError, valid, dirty } = this.props;
     const canMoveForward = valid;
     const canMoveBackward = (valid || !dirty) && !isFirstPage(pageList, pageKey);
@@ -102,7 +106,7 @@ export class WizardFormPage extends Component {
           <div className="prev-next">
             <button
               className={'usa-button-secondary prev ' + (hideBackBtn && 'hide-btn')}
-              onClick={this.previousPage}
+              onClick={hasReduxFormSubmitHandler ? handleSubmit(this.previousPage) : this.previousPage}
               disabled={!canMoveBackward}
             >
               Back
@@ -110,14 +114,18 @@ export class WizardFormPage extends Component {
             {!isLastPage(pageList, pageKey) && (
               <button
                 className="usa-button-primary next"
-                onClick={handleSubmit(this.nextPage)}
+                onClick={hasReduxFormSubmitHandler ? handleSubmit(this.nextPage) : this.nextPage}
                 disabled={!canMoveForward}
               >
                 Next
               </button>
             )}
             {isLastPage(pageList, pageKey) && (
-              <button className="usa-button-primary next" onClick={this.submit} disabled={!canMoveForward}>
+              <button
+                className="usa-button-primary next"
+                onClick={hasReduxFormSubmitHandler ? handleSubmit(this.nextPage) : this.nextPage}
+                disabled={!canMoveForward}
+              >
                 Complete
               </button>
             )}
@@ -130,7 +138,7 @@ export class WizardFormPage extends Component {
 
 WizardFormPage.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
-  reduxFormSumbit: PropTypes.func.isRequired,
+  reduxFormSubmit: PropTypes.func.isRequired,
   serverError: PropTypes.object,
   pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
   pageKey: PropTypes.string.isRequired,
