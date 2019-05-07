@@ -116,7 +116,6 @@ definitions:
         example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
       filename:
         type: string
-        format: string
         example: filename.pdf
       content_type:
         type: string
@@ -990,7 +989,6 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       name:
         type: string
-        format: string
         example: Fort Bragg North Station
       address:
         $ref: '#/definitions/Address'
@@ -1902,7 +1900,52 @@ definitions:
         format: date
         example: '2018-04-26'
         title: Released On Date
-
+  ValidateAccessCodePayload:
+    type: object
+    properties:
+      valid:
+        type: boolean
+        example: false
+      access_code:
+        $ref: '#/definitions/AccessCodePayload'
+    required:
+      - valid
+      - access_code
+  AccessCodePayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      code:
+        type: string
+        example: CODE456
+      move_type:
+        type: string
+        title: Selected Move Type
+        enum:
+          - HHG
+          - PPM
+      created_at:
+        type: string
+        format: datetime
+        example: 2018-04-12T23:20:50.52Z
+        description: when the access code was created
+      claimed_at:
+        type: string
+        format: datetime
+        example: 2018-04-12T23:20:50.52Z
+        description: when the access code was claimed or used
+    required:
+      - id
+      - code
+      - move_type
+      - created_at
 paths:
   /tariff_400ng_items:
     get:
@@ -3440,5 +3483,30 @@ paths:
           description: not authorized to get list of blackouts for this TSP
         404:
           description: TSP UUID not found in system
+        500:
+          description: server error
+  /access_codes/valid:
+    get:
+      summary: Validate if an access code has been unused and associated with the correct move type.
+      description: Verifies if access code is both unused and correctly associated with a move type.
+      operationId: validateAccessCode
+      tags:
+        - accesscode
+      parameters:
+        - in: query
+          name: code
+          type: string
+          description: the code the access code represents and verifies if in use
+      responses:
+        200:
+          description: access code is invalid or valid
+          schema:
+            $ref: '#/definitions/ValidateAccessCodePayload'
+        400:
+          description: invalid request
+        401:
+          description: not authorized to validate access code
+        404:
+          description: access code not found in system
         500:
           description: server error

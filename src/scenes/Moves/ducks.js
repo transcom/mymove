@@ -27,7 +27,7 @@ export function updateMove(moveId, moveType) {
     dispatch(action.start());
     return UpdateMove(moveId, { selected_move_type: moveType })
       .then(item => dispatch(action.success(item)))
-      .catch(error => dispatch(action.failure(error)));
+      .catch(error => dispatch(action.error(error)));
   };
 }
 
@@ -37,7 +37,7 @@ export function loadMove(moveId) {
     dispatch(action.start());
     return GetMove(moveId)
       .then(item => dispatch(action.success(item)))
-      .catch(error => dispatch(action.success(error)));
+      .catch(error => dispatch(action.error(error)));
   };
 }
 
