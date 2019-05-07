@@ -215,10 +215,7 @@ describe('The document viewer', function() {
         expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
       });
 
-      cy
-        .get('a')
-        .contains('HHG')
-        .click(); // navtab
+      cy.get('[data-cy="hhg-tab"]').click();
 
       cy
         .get('[data-cy=invoice-panel]')

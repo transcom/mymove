@@ -4,6 +4,7 @@ import { getPublicClient } from 'shared/Swagger/api';
 const createStorageInTransitLabel = 'StorageInTransits.createStorageInTransit';
 const getStorageInTransitsLabel = 'StorageInTransits.getStorageInTransitsForShipment';
 const updateStorageInTransitLabel = 'StorageInTransits.updateStorageInTransit';
+const approveStorageInTransitLabel = 'StorageInTransits.approveStorageInTransit';
 
 export const selectStorageInTransits = (state, shipmentId) => {
   const storageInTransits = Object.values(state.entities.storageInTransits).filter(
@@ -36,6 +37,24 @@ export function updateStorageInTransit(
     getPublicClient,
     'storage_in_transits.patchStorageInTransit',
     { shipmentId, storageInTransitId, storageInTransit },
+    { label },
+  );
+}
+
+export function approveStorageInTransit(
+  shipmentId,
+  storageInTransitId,
+  storageInTransitApprovalPayload,
+  label = approveStorageInTransitLabel,
+) {
+  return swaggerRequest(
+    getPublicClient,
+    'storage_in_transits.approveStorageInTransit',
+    {
+      shipmentId,
+      storageInTransitId,
+      storageInTransitApprovalPayload,
+    },
     { label },
   );
 }
