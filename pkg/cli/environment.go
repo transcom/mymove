@@ -41,7 +41,7 @@ func (e *errInvalidEnvironment) Error() string {
 
 // InitEnvironmentFlags initializes the Environment command line flags
 func InitEnvironmentFlags(flag *pflag.FlagSet) {
-	flag.StringP(EnvironmentFlag, "e", EnvironmentFlag, fmt.Sprintf("The environment name, one of %v", environments))
+	flag.StringP(EnvironmentFlag, "e", EnvironmentDevelopment, fmt.Sprintf("The environment name, one of %v", environments))
 }
 
 // CheckEnvironment validates the Environment command line flags
