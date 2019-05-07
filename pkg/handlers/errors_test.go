@@ -2,8 +2,9 @@ package handlers
 
 import (
 	"log"
-	"net/http"
 	"testing"
+
+	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/lib/pq"
 	"github.com/stretchr/testify/suite"
@@ -35,13 +36,28 @@ func TestErrorsSuite(t *testing.T) {
 	suite.Run(t, hs)
 }
 
-func (suite *ErrorsSuite) TestResponseForErrorWhenASQLErrorIsEncounteredInDevEnv() {
+func (suite *ErrorsSuite) TestResponseForErrorWhenASQLErrorIsEncountered() {
 	err := &pq.Error{}
-	actual := ResponseForError(suite.logger, err)
-
-	expectedResponse := &ErrResponse{
-		Code: http.StatusInternalServerError,
-		Err:  err,
+	var actual middleware.Responder
+	errTypes := []string{
+		"connection_exception",
+		"invalid_escape_character",
+		"integrity_constraint_violation",
+		"invalid_schema_name",
+		"foreign_key_violation",
+		"undefined_table",
+		"disk_full",
+		"too_many_columns",
+		"index_corrupted",
+		"invalid_transaction_state",
 	}
-	suite.Equal(expectedResponse, actual)
+
+	for _, errT := range errTypes {
+		err.Message = errT
+		actual = ResponseForError(suite.logger, err)
+		res, ok := actual.(*ErrResponse)
+		suite.True(ok)
+		suite.Equal(res.Code, 500)
+		suite.Equal(res.Err.Error(), SQLErrMessage)
+	}
 }
