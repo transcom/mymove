@@ -232,8 +232,9 @@ jobs:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+      - run: make get_gotools
+      - run: make bin/callgraph
       - run: make server_generate
-      - run: make build_callgraph
       - run:
           name: Run pre-commit tests
           command: pre-commit run --all-files
@@ -525,7 +526,7 @@ jobs:
       - restore_cache:
           keys:
             - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - run: make build_chamber
+      - run: make bin/chamber
       - run: make bin/rds-combined-ca-bundle.pem
       - run: make build
       - build_tag_push:
@@ -541,7 +542,8 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
-      - run: make build_chamber build_soda
+      - run: make bin/chamber
+      - run: make bin/soda
       - build_tag_push:
           dockerfile: Dockerfile.migrations
           tag: ppp-migrations:dev
@@ -561,7 +563,7 @@ jobs:
           command: make server_generate
       - run:
           name: Build Chamber
-          command: make build_chamber
+          command: make bin/chamber
       - run:
           name: Run acceptance tests
           command: make webserver_test
@@ -621,7 +623,7 @@ jobs:
           command: make server_generate
       - run:
           name: Build Chamber
-          command: make build_chamber
+          command: make bin/chamber
       - run:
           name: Run acceptance tests
           command: make webserver_test

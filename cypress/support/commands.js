@@ -317,8 +317,7 @@ function genericSelect(inputData, fieldName, classSelector) {
   // Click on the first presented option
   cy
     .get(classSelector)
-    .find('div[role="option"]')
-    .first()
+    .find('div[class*="option"]')
     .click();
 }
 
