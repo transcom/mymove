@@ -33,7 +33,6 @@ export default function SingleDatePicker(props) {
     <DayPickerInput
       onDayChange={onChange}
       placeholder=""
-      keepFocus={false}
       parseDate={parseDate}
       formatDate={formatDate}
       value={formatted}

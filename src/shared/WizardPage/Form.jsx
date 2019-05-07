@@ -55,8 +55,8 @@ export class WizardFormPage extends Component {
     this.props.push(`/`);
   }
   nextPage() {
-    if (this.props.ReduxFormSumbit) {
-      return this.props.ReduxFormSubmit().then(() => this.beforeTransition(getNextPagePath, false));
+    if (this.props.reduxFormSumbit) {
+      return this.props.reduxFormSumbit().then(() => this.beforeTransition(getNextPagePath, false));
     }
     return this.beforeTransition(getNextPagePath);
   }
@@ -67,8 +67,8 @@ export class WizardFormPage extends Component {
   }
 
   submit() {
-    if (this.props.ReduxFormSumbit) {
-      return this.props.handleSubmit(this.props.ReduxFormSubmit)();
+    if (this.props.reduxFormSumbit) {
+      return this.props.handleSubmit(this.props.reduxFormSumbit)();
     }
     return this.props.handleSubmit();
   }
@@ -130,7 +130,7 @@ export class WizardFormPage extends Component {
 
 WizardFormPage.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
-  ReduxFormSubmit: PropTypes.func.isRequired,
+  reduxFormSumbit: PropTypes.func.isRequired,
   serverError: PropTypes.object,
   pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
   pageKey: PropTypes.string.isRequired,

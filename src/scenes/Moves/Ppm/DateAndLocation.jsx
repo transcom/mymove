@@ -133,7 +133,7 @@ export class DateAndLocation extends Component {
           />
         )}
         <DateAndLocationWizardForm
-          ReduxFormSumbit={this.validateAndSavePPM}
+          reduxFormSumbit={this.validateAndSavePPM}
           pageList={pages}
           pageKey={pageKey}
           serverError={error}
@@ -145,15 +145,15 @@ export class DateAndLocation extends Component {
           <h3> Move Date </h3>
           <SwaggerField
             fieldName="original_move_date"
-            swagger={this.props.schema}
             onChange={this.getDebouncedSitEstimate}
+            swagger={this.props.schema}
             required
           />
           <h3>Pickup Location</h3>
           <SwaggerField
             fieldName="pickup_postal_code"
-            swagger={this.props.schema}
             onChange={this.getDebouncedSitEstimate}
+            swagger={this.props.schema}
             required
           />
           {!isHHGPPMComboMove && (
