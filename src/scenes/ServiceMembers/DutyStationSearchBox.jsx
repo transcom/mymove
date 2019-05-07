@@ -103,6 +103,7 @@ export class DutyStationSearchBox extends Component {
           )}
           <p>{this.props.title || defaultTitle}</p>
           <AsyncSelect
+            isClearable
             className={`duty-input-box ${this.props.input.name}`}
             cacheOptions
             getOptionLabel={getOptionName}
