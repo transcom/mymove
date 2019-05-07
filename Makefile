@@ -736,6 +736,23 @@ run_experimental_migrations:
 #
 
 #
+# ----- START DEPENDENCY UPDATE TARGETS -----
+#
+
+.PHONY: dependency_update
+dependency_update: go_deps_update client_deps_update
+	git --no-pager status
+	git --no-pager diff --ignore-all-space --color
+
+.PHONY: dependency_update_test
+dependency_update_test:
+	docker build . -f Dockerfile.dep_updater
+
+#
+# ----- END DEPENDENCY UPDATE TARGETS -----
+#
+
+#
 # ----- START RANDOM TARGETS -----
 #
 
