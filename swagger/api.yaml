@@ -116,7 +116,6 @@ definitions:
         example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
       filename:
         type: string
-        format: string
         example: filename.pdf
       content_type:
         type: string
@@ -990,7 +989,6 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       name:
         type: string
-        format: string
         example: Fort Bragg North Station
       address:
         $ref: '#/definitions/Address'
