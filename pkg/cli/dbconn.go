@@ -31,6 +31,17 @@ const (
 	DbSSLModeFlag string = "db-ssl-mode"
 	// DbSSLRootCertFlag is the DB SSL Root Cert flag
 	DbSSLRootCertFlag string = "db-ssl-root-cert"
+
+	// DBEnvProd is the Production DB Env name
+	DBEnvProd string = "prod"
+	// DBEnvStaging is the Staging DB Env name
+	DBEnvStaging string = "staging"
+	// DBEnvExperimental is the Experimental DB Env name
+	DBEnvExperimental string = "experimental"
+	// DBEnvTest is the Test DB Env name
+	DBEnvTest string = "test"
+	// DBEnvDevelopment is the Development DB Env name
+	DBEnvDevelopment string = "development"
 )
 
 // The dependency https://github.com/lib/pq only supports a limited subset of SSL Modes and returns the error:

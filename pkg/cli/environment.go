@@ -19,8 +19,8 @@ const (
 	EnvironmentExperimental string = "experimental"
 	// EnvironmentTest is the Test Environment name
 	EnvironmentTest string = "test"
-	// EnvironmentDevlocal is the Devlocal Environment name
-	EnvironmentDevlocal string = "devlocal"
+	// EnvironmentDevelopment is the Development Environment name
+	EnvironmentDevelopment string = "development"
 )
 
 var environments = []string{
@@ -28,7 +28,7 @@ var environments = []string{
 	EnvironmentStaging,
 	EnvironmentExperimental,
 	EnvironmentTest,
-	EnvironmentDevlocal,
+	EnvironmentDevelopment,
 }
 
 type errInvalidEnvironment struct {

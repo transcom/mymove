@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -18,56 +20,61 @@ func InitDevlocalFlags(flag *pflag.FlagSet) {
 
 // CheckDevlocal validates the Devlocal command line flags
 func CheckDevlocal(v *viper.Viper) error {
-	environment := v.GetString(EnvironmentFlag)
 	if devlocalAuthEnabled := v.GetBool(DevlocalAuthFlag); devlocalAuthEnabled {
-		// Check against the DB Environment
-		allowedDBEnvironments := []string{
-			EnvironmentExperimental,
+		// Check against the Environment
+		allowedEnvironments := []string{
+			EnvironmentDevelopment,
 			EnvironmentTest,
-			EnvironmentDevlocal,
+			EnvironmentExperimental,
 		}
-		if !stringSliceContains(allowedDBEnvironments, environment) {
-			return errors.Errorf("Devlocal Auth cannot run in the '%s' environment, only in %v", environment, allowedDBEnvironments)
+		if environment := v.GetString(EnvironmentFlag); !stringSliceContains(allowedEnvironments, environment) {
+			return errors.Errorf("Devlocal Auth cannot run in the '%s' environment, only in %v", environment, allowedEnvironments)
+		}
+
+		// Check against the DB Env
+		allowedDBEnvs := []string{
+			DBEnvDevelopment,
+			DBEnvTest,
+			DBEnvExperimental,
+		}
+		if dbEnv := v.GetString(DbEnvFlag); !stringSliceContains(allowedDBEnvs, dbEnv) {
+			return errors.Errorf("Devlocal Auth cannot run in the '%s' database, only in %v", dbEnv, allowedDBEnvs)
 		}
 
 		// Check against My Server Names
 		allowedMyServerNames := []string{
-			"milmovelocal",
-			"my.test.move.mil",
-			"my.experimental.move.mil",
+			HTTPMyServerNameLocal,
+			fmt.Sprintf("my.%s.move.mil", EnvironmentExperimental),
 		}
 		if serverName := v.GetString(HTTPMyServerNameFlag); !stringSliceContains(allowedMyServerNames, serverName) {
-			return errors.Errorf("Devlocal Auth cannot run in the '%s' server name, only in %v", serverName, allowedMyServerNames)
+			return errors.Errorf("Devlocal Auth cannot run in the '%s' my server name, only in %v", serverName, allowedMyServerNames)
 		}
 
 		// Check against Office Server Names
 		allowedOfficeServerNames := []string{
-			"officelocal",
-			"office.test.move.mil",
-			"office.experimental.move.mil",
+			HTTPOfficeServerNameLocal,
+			fmt.Sprintf("office.%s.move.mil", EnvironmentExperimental),
 		}
 		if serverName := v.GetString(HTTPOfficeServerNameFlag); !stringSliceContains(allowedOfficeServerNames, serverName) {
-			return errors.Errorf("Devlocal Auth cannot run in the '%s' server name, only in %v", serverName, allowedOfficeServerNames)
+			return errors.Errorf("Devlocal Auth cannot run in the '%s' office server name, only in %v", serverName, allowedOfficeServerNames)
 		}
 
 		// Check against TSP Server Names
 		allowedTSPServerNames := []string{
-			"tsplocal",
-			"tsp.test.move.mil",
-			"tsp.experimental.move.mil",
+			HTTPTSPServerNameLocal,
+			fmt.Sprintf("tsp.%s.move.mil", EnvironmentExperimental),
 		}
 		if serverName := v.GetString(HTTPTSPServerNameFlag); !stringSliceContains(allowedTSPServerNames, serverName) {
-			return errors.Errorf("Devlocal Auth cannot run in the '%s' server name, only in %v", serverName, allowedTSPServerNames)
+			return errors.Errorf("Devlocal Auth cannot run in the '%s' tsp server name, only in %v", serverName, allowedTSPServerNames)
 		}
 
 		// Check against Admin Server Names
 		allowedAdminServerNames := []string{
-			"adminlocal",
-			"admin.test.move.mil",
-			"admin.experimental.move.mil",
+			HTTPAdminServerNameLocal,
+			fmt.Sprintf("admin.%s.move.mil", EnvironmentExperimental),
 		}
 		if serverName := v.GetString(HTTPAdminServerNameFlag); !stringSliceContains(allowedAdminServerNames, serverName) {
-			return errors.Errorf("Devlocal Auth cannot run in the '%s' server name, only in %v", serverName, allowedAdminServerNames)
+			return errors.Errorf("Devlocal Auth cannot run in the '%s' admin server name, only in %v", serverName, allowedAdminServerNames)
 		}
 	}
 	return nil
