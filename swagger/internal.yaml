@@ -1467,6 +1467,16 @@ definitions:
       - bytes
       - created_at
       - updated_at
+  UpdateUploadPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      orientation:
+        type: integer
+        example: "90, 180, 270"
   DPSAuthCookieURLPayload:
     type: object
     properties:
@@ -3760,6 +3770,40 @@ paths:
         500:
           description: server error
   /uploads/{uploadId}:
+    patch:
+      summary: Updates and upload
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: updateUpload
+      tags:
+        - uploads
+      parameters:
+        - in: path
+          name: uploadId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the upload to be updated
+        - in: body
+          name: UpdateUploadPayload
+          required: true
+          description: Orientation of the uploaded image, e.g. 90 degrees
+          schema:
+            $ref: '#/definitions/UpdateUploadPayload'
+      responses:
+        200:
+          description: updated
+          schema:
+            $ref: '#/definitions/UploadPayload'
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        403:
+          description: not authorized
+        404:
+          description: not found
+        500:
+          description: server error
     delete:
       summary: Deletes an upload
       description: Uploads represent a single digital file, such as a JPEG or PDF.

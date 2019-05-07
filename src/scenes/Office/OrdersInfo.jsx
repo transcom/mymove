@@ -10,12 +10,8 @@ import DocumentContent from 'shared/DocumentViewer/DocumentContent';
 import OrdersViewerPanel from './OrdersViewerPanel';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { loadMove, selectMove } from 'shared/Entities/modules/moves';
-import {
-  loadOrders,
-  loadOrdersLabel,
-  selectUplodsForOrders,
-  changeUploadOrientation,
-} from 'shared/Entities/modules/orders';
+import { loadOrders, loadOrdersLabel, selectUplodsForOrders } from 'shared/Entities/modules/orders';
+import { updateUpload } from 'shared/Entities/modules/uploads';
 import { loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { stringifyName } from 'shared/utils/serviceMember';
 
@@ -34,6 +30,10 @@ class OrdersInfo extends Component {
       this.props.loadServiceMember(serviceMemberId);
       this.props.loadOrders(ordersId);
     }
+  }
+
+  changeUploadOrientation(uploadId, orientation) {
+    updateUpload(uploadId, { uploadId, orientation });
   }
 
   render() {
@@ -63,7 +63,7 @@ class OrdersInfo extends Component {
                 contentType={upload.content_type}
                 uploadId={upload.id}
                 orientation={270}
-                rotate={changeUploadOrientation}
+                rotate={this.changeUploadOrientation}
               />
             ))}
           </div>
@@ -102,6 +102,15 @@ const mapStateToProps = (state, ownProps) => {
   };
 };
 
-const mapDispatchToProps = dispatch => bindActionCreators({ loadMove, loadOrders, loadServiceMember }, dispatch);
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      loadMove,
+      loadOrders,
+      loadServiceMember,
+      updateUpload,
+    },
+    dispatch,
+  );
 
 export default connect(mapStateToProps, mapDispatchToProps)(OrdersInfo);

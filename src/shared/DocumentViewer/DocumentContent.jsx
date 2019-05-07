@@ -50,10 +50,16 @@ export class DocumentContent extends Component {
         )}
 
         <div>
-          <button onClick={this.props.rotate.bind(this, this.props.uploadId, 'left')} data-direction="left">
+          <button
+            onClick={this.props.rotate.bind(this, this.props.uploadId, this.props.orientation + 90)}
+            data-direction="left"
+          >
             rotate left
           </button>
-          <button onClick={this.props.rotate.bind(this, this.props.uploadId, 'right')} data-direction="right">
+          <button
+            onClick={this.props.rotate.bind(this, this.props.uploadId, this.props.orientation - 90)}
+            data-direction="right"
+          >
             rotate right
           </button>
         </div>
@@ -67,7 +73,7 @@ DocumentContent.propTypes = {
   filename: PropTypes.string.isRequired,
   url: PropTypes.string.isRequired,
   uploadId: PropTypes.string.isRequired,
-  orientation: PropTypes.string,
+  orientation: PropTypes.number,
   rotate: PropTypes.func.isRequired,
 };
 

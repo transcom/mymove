@@ -153,3 +153,13 @@ func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middle
 
 	return uploadop.NewDeleteUploadsNoContent()
 }
+
+// UpdateUploadsHandler updates an upload
+type UpdateUploadsHandler struct {
+	handlers.HandlerContext
+}
+
+// Handle method
+func (h UpdateUploadsHandler) Handle(params uploadop.UpdateUploadParams) middleware.Responder {
+	return uploadop.NewUpdateUploadOK()
+}
