@@ -177,7 +177,7 @@ export class StorageInTransit extends Component {
           ) : (
             isTspSite &&
             storageInTransit.status === 'APPROVED' && (
-              <span className="place-in-sit">
+              <span className="place-in-sit sit-actions">
                 <a data-cy="place-in-sit-link" onClick={this.openPlaceInSitForm}>
                   <FontAwesomeIcon className="icon" icon={faSignInAlt} />
                   Place into SIT
@@ -265,12 +265,14 @@ export class StorageInTransit extends Component {
                       {formatDate4DigitYear(storageInTransit.authorized_start_date)}
                     </span>
                   </div>
-                  <div className="panel-field nested__same-font">
-                    <span className="field-title unbold">Note</span>
-                    <span data-cy="sit-authorization-notes" className="field-value">
-                      {storageInTransit.authorization_notes}
-                    </span>
-                  </div>
+                  {storageInTransit.authorization_notes && (
+                    <div className="panel-field nested__same-font">
+                      <span className="field-title unbold">Note</span>
+                      <span data-cy="sit-authorization-notes" className="field-value">
+                        {storageInTransit.authorization_notes}
+                      </span>
+                    </div>
+                  )}
                   {storageInTransit.sit_number && (
                     <div className="panel-field nested__same-font">
                       <span className="field-title unbold">SIT Number</span>
