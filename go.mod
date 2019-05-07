@@ -63,7 +63,7 @@ require (
 	github.com/spf13/cobra v0.0.4-0.20190321000552-67fc4837d267
 	github.com/spf13/pflag v1.0.4-0.20181223182923-24fa6976df40
 	github.com/spf13/viper v1.3.3-0.20190408140645-7a605a50e69c
-	github.com/stretchr/testify v1.3.0
+	github.com/stretchr/testify v1.3.1-0.20190311161405-34c6fa2dc709
 	github.com/tealeg/xlsx v1.0.3
 	github.com/trussworks/pdfcpu v0.1.15-0.20180823221217-a53781a43f9d
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
