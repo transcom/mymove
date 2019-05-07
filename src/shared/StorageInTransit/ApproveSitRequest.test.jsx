@@ -10,30 +10,28 @@ const submit = jest.fn();
 
 const storageInTransitSchema = {
   properties: {
-    estimate_start_date: {
+    authorized_start_date: {
       type: 'string',
       format: 'date',
       example: '2018-04-26',
-      title: 'Estimated start date',
+      title: 'Actual start date',
+    },
+    authorization_notes: {
+      type: 'string',
+      format: 'textarea',
+      example: 'this is a note',
+      title: 'Note',
     },
   },
 };
 
-const storageInTransit = {
-  estimated_start_date: '2018-11-11',
-};
-
-describe('StorageInTransitOfficeApprovalForm tests', () => {
-  describe('Empty form', () => {
+describe('ApproveSitForm tests', () => {
+  describe('Pre-filled form', () => {
     let wrapper;
     store = mockStore({});
     wrapper = mount(
       <Provider store={store}>
-        <StorageInTransitOfficeApprovalForm
-          onSubmit={submit}
-          storageInTransitSchema={storageInTransitSchema}
-          initialValues={storageInTransit}
-        />
+        <StorageInTransitOfficeApprovalForm onSubmit={submit} storageInTransitSchema={storageInTransitSchema} />
       </Provider>,
     );
 
