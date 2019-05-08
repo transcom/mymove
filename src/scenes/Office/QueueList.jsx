@@ -3,6 +3,12 @@ import { NavLink } from 'react-router-dom';
 
 export default class QueueList extends Component {
   render() {
+    // Used for the isActive attribute in NavLink.
+    // True, if any params are included in the location path. False, otherwise.
+    const isActive = (...args) => (match, location) => {
+      return args.some(element => location.pathname.includes(element));
+    };
+
     return (
       <div>
         <h2>Queues</h2>
@@ -18,7 +24,11 @@ export default class QueueList extends Component {
             </NavLink>
           </li>
           <li>
-            <NavLink to="#hhgshipments" activeClassName="usa-current">
+            <NavLink
+              to="#hhgshipments"
+              activeClassName="usa-current"
+              isActive={isActive('hhg_accepted', 'hhg_delivered', 'hhg_completed')}
+            >
               <span>HHG shipments:</span>
             </NavLink>
             <ul className="usa-sidenav-sub_list">
