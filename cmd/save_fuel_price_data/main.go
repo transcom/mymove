@@ -6,21 +6,52 @@ import (
 	"strings"
 
 	"github.com/facebookgo/clock"
-	"github.com/gobuffalo/pop"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/services/fuelprice"
 )
 
-// Command: go run cmd/save_fuel_price_data/main.go
+func checkConfig(v *viper.Viper, logger logger) error {
+
+	logger.Debug("checking config")
+
+	err := cli.CheckEIA(v)
+	if err != nil {
+		return err
+	}
+
+	err = cli.CheckDatabase(v, logger)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func initFlags(flag *pflag.FlagSet) {
+
+	// DB Config
+	cli.InitDatabaseFlags(flag)
+
+	// EIA Open Data API
+	cli.InitEIAFlags(flag)
+
+	// Verbose
+	cli.InitVerboseFlags(flag)
+
+	// Don't sort flags
+	flag.SortFlags = false
+}
+
+// Command: go run github.com/transcom/mymove/cmd/save_fuel_price_data
 func main() {
 
 	flag := pflag.CommandLine
-
-	flag.String("eia-key", "", "key for Energy Information Administration (EIA) api")
-	flag.String("eia-url", "", "url for EIA api")
+	initFlags(flag)
 	flag.Parse(os.Args[1:])
 
 	v := viper.New()
@@ -28,24 +59,37 @@ func main() {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	db, err := pop.Connect("development")
-	if err != nil {
-		log.Fatal(err)
-	}
+	dbEnv := v.GetString(cli.DbEnvFlag)
 
-	logger, err := logging.Config("development", true)
+	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
+	zap.ReplaceGlobals(logger)
+
+	err = checkConfig(v, logger)
+	if err != nil {
+		logger.Fatal("invalid configuration", zap.Error(err))
+	}
+
+	// Create a connection to the DB
+	dbConnection, err := cli.InitDatabase(v, logger)
+	if err != nil {
+		// No connection object means that the configuraton failed to validate and we should not startup
+		// A valid connection object that still has an error indicates that the DB is not up and we should not startup
+		logger.Fatal("Connecting to DB", zap.Error(err))
+	}
 
 	clock := clock.New()
+	eiaKey := v.GetString(cli.EIAKeyFlag)
+	eiaURL := v.GetString(cli.EIAURLFlag)
 	fuelPrices := fuelprice.NewDieselFuelPriceStorer(
-		db,
+		dbConnection,
 		logger,
 		clock,
 		fuelprice.FetchFuelPriceData,
-		v.GetString("eia-key"),
-		v.GetString("eia-url"),
+		eiaKey,
+		eiaURL,
 	)
 
 	verrs, err := fuelPrices.StoreFuelPrices(12)

@@ -108,7 +108,7 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 // Avoid calling Move.Status = ... ever. Use these methods to change the state.
 
 // Submit submits the Move
-func (m *Move) Submit(ppmSubmitDate time.Time) error {
+func (m *Move) Submit(submitDate time.Time) error {
 	if m.Status != MoveStatusDRAFT {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
@@ -118,7 +118,7 @@ func (m *Move) Submit(ppmSubmitDate time.Time) error {
 	// Update PPM status too
 	for i := range m.PersonallyProcuredMoves {
 		ppm := &m.PersonallyProcuredMoves[i]
-		err := ppm.Submit(ppmSubmitDate)
+		err := ppm.Submit(submitDate)
 		if err != nil {
 			return err
 		}
@@ -126,7 +126,7 @@ func (m *Move) Submit(ppmSubmitDate time.Time) error {
 
 	// Update HHG (Shipment) status too
 	for i := range m.Shipments {
-		err := m.Shipments[i].Submit()
+		err := m.Shipments[i].Submit(submitDate)
 		if err != nil {
 			return err
 		}
@@ -269,10 +269,10 @@ func (m Move) createMoveDocumentWithoutTransaction(
 		ServiceMemberID: m.Orders.ServiceMemberID,
 		Uploads:         uploads,
 	}
-	verrs, err := db.ValidateAndCreate(&newDoc)
-	if err != nil || verrs.HasAny() {
-		responseVErrors.Append(verrs)
-		responseError = errors.Wrap(err, "Error creating document for move document")
+	newDocVerrs, newDocErr := db.ValidateAndCreate(&newDoc)
+	if newDocErr != nil || newDocVerrs.HasAny() {
+		responseVErrors.Append(newDocVerrs)
+		responseError = errors.Wrap(newDocErr, "Error creating document for move document")
 		return nil, responseVErrors, responseError
 	}
 
@@ -314,7 +314,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 		}
 	}
 
-	verrs, err = db.ValidateAndCreate(newMoveDocument)
+	verrs, err := db.ValidateAndCreate(newMoveDocument)
 	if err != nil || verrs.HasAny() {
 		responseVErrors.Append(verrs)
 		responseError = errors.Wrap(err, "Error creating move document")

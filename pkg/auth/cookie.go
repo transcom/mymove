@@ -117,8 +117,8 @@ func sessionClaimsFromRequest(logger Logger, secret string, appName Application,
 	}
 
 	token, err := jwt.ParseWithClaims(cookie.Value, &SessionClaims{}, func(token *jwt.Token) (interface{}, error) {
-		rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(secret))
-		return &rsaKey.PublicKey, err
+		rsaKey, parseRSAPrivateKeyFromPEMErr := jwt.ParseRSAPrivateKeyFromPEM([]byte(secret))
+		return &rsaKey.PublicKey, parseRSAPrivateKeyFromPEMErr
 	})
 
 	if err != nil || token == nil || !token.Valid {
