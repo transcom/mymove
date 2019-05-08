@@ -199,7 +199,6 @@ class ShipmentInfo extends Component {
     const approved = shipment.status === 'APPROVED';
     const inTransit = shipment.status === 'IN_TRANSIT';
     const delivered = shipment.status === 'DELIVERED';
-    const completed = shipment.status === 'COMPLETED';
     const pmSurveyComplete = Boolean(shipment.pm_survey_completed_at);
     const canAssignServiceAgents = (approved || accepted) && !hasOriginServiceAgent(serviceAgents);
     const canEnterPreMoveSurvey =
@@ -220,7 +219,7 @@ class ShipmentInfo extends Component {
       statusText = 'Outbound';
     } else if (inTransit) {
       statusText = 'Inbound';
-    } else if (delivered || completed) {
+    } else if (delivered) {
       statusText = 'Delivered';
     }
 
@@ -271,17 +270,11 @@ class ShipmentInfo extends Component {
                 <span>Delivered Shipments Queue</span>
               </NavLink>
             )}
-            {completed && (
-              <NavLink to="/queues/completed" activeClassName="usa-current">
-                <span>Completed Shipments Queue</span>
-              </NavLink>
-            )}
             {!awarded &&
               !accepted &&
               !approved &&
               !inTransit &&
-              !delivered &&
-              !completed && (
+              !delivered && (
                 <NavLink to="/queues/all" activeClassName="usa-current">
                   <span>All Shipments Queue</span>
                 </NavLink>

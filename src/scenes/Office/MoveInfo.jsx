@@ -181,7 +181,7 @@ class MoveInfo extends Component {
     const isHHG = selected_move_type === 'HHG';
     const moveApproved = moveStatus === 'APPROVED';
     const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
-    const hhgApproved = includes(['APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
+    const hhgApproved = includes(['APPROVED', 'IN_TRANSIT', 'DELIVERED'], shipmentStatus);
 
     if (isPPM) {
       return moveApproved && ppmApproved;
@@ -277,12 +277,11 @@ class MoveInfo extends Component {
     );
     const ppmPaymentRequested = includes(['PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
-    const hhgApproved = includes(['APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
+    const hhgApproved = includes(['APPROVED', 'IN_TRANSIT', 'DELIVERED'], shipmentStatus);
     const hhgAccepted = shipmentStatus === 'ACCEPTED';
     const hhgDelivered = shipmentStatus === 'DELIVERED';
-    const hhgCompleted = shipmentStatus === 'COMPLETED';
     const moveApproved = moveStatus === 'APPROVED';
-    const hhgCantBeCanceled = includes(['IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
+    const hhgCantBeCanceled = includes(['IN_TRANSIT', 'DELIVERED'], shipmentStatus);
 
     const hasRequestedSIT = !isEmpty(storageInTransits) && some(storageInTransits, sit => sit.status === 'REQUESTED');
 
@@ -434,7 +433,7 @@ class MoveInfo extends Component {
                           <DropDownItem
                             value="Approve HHG"
                             onClick={this.approveShipment}
-                            disabled={!hhgAccepted || hhgApproved || hhgCompleted || !moveApproved || !ordersComplete}
+                            disabled={!hhgAccepted || hhgApproved || !moveApproved || !ordersComplete}
                           />
                         )}
                       </DropDown>
