@@ -2,7 +2,6 @@ import { get, includes, reject } from 'lodash';
 import React, { Component, Fragment } from 'react';
 import Select, { createFilter } from 'react-select';
 import { connect } from 'react-redux';
-import { withContext } from 'shared/AppContext';
 import PropTypes from 'prop-types';
 import { reduxForm, Form, Field, formValueSelector } from 'redux-form';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
@@ -190,12 +189,7 @@ export class PreApprovalForm extends Component {
   }
 
   render() {
-    const robustAccessorial = get(this.props, 'context.flags.robustAccessorial', false);
-    const FormComponent = getFormComponent(
-      this.props.tariff400ng_item_code,
-      robustAccessorial,
-      this.props.initialValues,
-    );
+    const FormComponent = getFormComponent(this.props.tariff400ng_item_code, this.props.initialValues);
     const isStatic = this.props.status === 'CONDITIONALLY_APPROVED' || this.props.status === 'APPROVED';
     return isStatic ? this.makeStaticForm(FormComponent) : this.makeEditableForm(FormComponent);
   }
@@ -244,4 +238,4 @@ function getActualAmount(state) {
   return convertDollarsToCents(selector(state, 'actual_amount_cents'));
 }
 
-export default withContext(connect(mapStateToProps)(PreApprovalForm));
+export default connect(mapStateToProps)(PreApprovalForm);

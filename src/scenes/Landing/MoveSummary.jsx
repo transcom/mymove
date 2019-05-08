@@ -120,7 +120,9 @@ export const SubmittedPpmMoveSummary = props => {
             <li>
               Read the{' '}
               <strong>
-                <a>PPM info sheet</a>
+                <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
+                  PPM info sheet
+                </a>
               </strong>{' '}
               for more info
             </li>
@@ -162,9 +164,14 @@ export const SubmittedPpmMoveSummary = props => {
                 </div>
               </div>
             </div>
-            <button className="usa-button-secondary" onClick={() => console.log('hi')}>
+            <a
+              className="usa-button usa-button-secondary"
+              href={ppmInfoPacket}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Read PPM Info Sheet
-            </button>
+            </a>
             <div className="step-links">
               <FindWeightScales />
             </div>

@@ -1,8 +1,6 @@
-import { get } from 'lodash';
 import React, { Component, Fragment } from 'react';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import PropTypes from 'prop-types';
-import { withContext } from 'shared/AppContext';
 import { renderStatusIcon } from 'shared/utils';
 import { isOfficeSite } from 'shared/constants.js';
 import { formatDate } from 'shared/formatters';
@@ -99,11 +97,7 @@ export class PreApprovalRequest extends Component {
     const hasInvoice = Boolean(row.invoice_id);
     const isShowingForm = Boolean(this.state.showDeleteForm || this.state.showEditForm);
     const showButtons = this.props.isActionable && !isShowingForm && !hasInvoice;
-    const DetailsComponent = getDetailsComponent(
-      row.tariff400ng_item.code,
-      get(this.props, 'context.flags.robustAccessorial', false),
-      isRobustAccessorial(row),
-    );
+    const DetailsComponent = getDetailsComponent(row.tariff400ng_item.code, isRobustAccessorial(row));
     if (this.state.showEditForm) {
       return (
         <tr>
@@ -186,5 +180,5 @@ PreApprovalRequest.propTypes = {
   tariff400ngItems: PropTypes.array,
 };
 
-export default withContext(PreApprovalRequest);
+export default PreApprovalRequest;
 export { PreApprovalRequest as BasicPreApprovalRequest };
