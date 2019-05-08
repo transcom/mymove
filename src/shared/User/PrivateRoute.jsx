@@ -12,6 +12,7 @@ class PrivateRouteContainer extends React.Component {
     const { isLoggedIn, path, ...props } = this.props;
     if (isLoggedIn) return <Route {...props} />;
     else return <Route path={path} component={SignIn} />;
+    //<PrivateRoute exact path={defaultPath} render={() => <Redirect replace to={newUrl} />} />
   }
 }
 const mapStateToProps = state => {

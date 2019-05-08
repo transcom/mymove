@@ -976,6 +976,8 @@ definitions:
       updated_at:
         type: string
         format: date-time
+      requires_access_code:
+        type: boolean
     required:
       - id
       - user_id
@@ -983,6 +985,7 @@ definitions:
       - has_social_security_number
       - created_at
       - updated_at
+      - requires_access_code
   CreateServiceMemberPayload:
     type: object
     properties:
