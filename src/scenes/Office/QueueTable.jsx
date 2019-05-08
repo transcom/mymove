@@ -4,7 +4,6 @@ import ReactTable from 'react-table';
 import { connect } from 'react-redux';
 import { get, capitalize } from 'lodash';
 import 'react-table/react-table.css';
-import { RetrieveMovesForOffice } from './api.js';
 import Alert from 'shared/Alert';
 import { formatDate, formatDateTimeWithTZ } from 'shared/formatters';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -22,12 +21,12 @@ class QueueTable extends Component {
   }
 
   componentDidMount() {
-    this.fetchData();
+    this.fetchData(this.props.retrieveMoves);
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.queueType !== prevProps.queueType) {
-      this.fetchData();
+      this.fetchData(this.props.retrieveMoves);
     }
   }
 
@@ -37,7 +36,7 @@ class QueueTable extends Component {
     lastName: '',
   };
 
-  async fetchData() {
+  async fetchData(retrieveMoves) {
     const loadingQueueType = this.props.queueType;
 
     this.setState({
@@ -49,7 +48,7 @@ class QueueTable extends Component {
 
     // Catch any errors here and render an empty queue
     try {
-      const body = await RetrieveMovesForOffice(this.props.queueType);
+      const body = await retrieveMoves(this.props.queueType);
 
       // Only update the queue list if the request that is returning
       // is for the same queue as the most recent request.
@@ -81,6 +80,14 @@ class QueueTable extends Component {
     };
 
     this.state.data.forEach(row => {
+      if (row.ppm_status && row.hhg_status) {
+        row.shipments = 'HHG, PPM';
+      } else if (row.ppm_status && !row.hhg_status) {
+        row.shipments = 'PPM';
+      } else {
+        row.shipments = 'HHG';
+      }
+
       if (this.props.queueType === 'ppm' && row.ppm_status !== null) {
         row.synthetic_status = row.ppm_status;
       } else {
@@ -136,6 +143,10 @@ class QueueTable extends Component {
                 Header: 'Rank',
                 accessor: 'rank',
                 Cell: row => <span className="rank">{row.value && row.value.replace('_', '-')}</span>,
+              },
+              {
+                Header: 'Shipments',
+                accessor: 'shipments',
               },
               {
                 Header: 'Locator #',
