@@ -32,28 +32,58 @@ const (
 	// DbSSLRootCertFlag is the DB SSL Root Cert flag
 	DbSSLRootCertFlag string = "db-ssl-root-cert"
 
-	// DBEnvProd is the Production DB Env name
-	DBEnvProd string = "prod"
-	// DBEnvStaging is the Staging DB Env name
-	DBEnvStaging string = "staging"
-	// DBEnvExperimental is the Experimental DB Env name
-	DBEnvExperimental string = "experimental"
-	// DBEnvTest is the Test DB Env name
-	DBEnvTest string = "test"
-	// DBEnvDevelopment is the Development DB Env name
-	DBEnvDevelopment string = "development"
+	// DbEnvContainer is the Container DB Env name
+	DbEnvContainer string = "container"
+	// DbEnvTest is the Test DB Env name
+	DbEnvTest string = "test"
+	// DbEnvDevelopment is the Development DB Env name
+	DbEnvDevelopment string = "development"
+
+	// SSLModeDisable is the disable SSL Mode
+	SSLModeDisable string = "disable"
+	// SSLModeAllow is the allow SSL Mode
+	SSLModeAllow string = "allow"
+	// SSLModePrefer is the prefer SSL Mode
+	SSLModePrefer string = "prefer"
+	// SSLModeRequire is the require SSL Mode
+	SSLModeRequire string = "require"
+	// SSLModeVerifyCA is the verify-ca SSL Mode
+	SSLModeVerifyCA string = "verify-ca"
+	// SSLModeVerifyFull is the verify-full SSL Mode
+	SSLModeVerifyFull string = "verify-full"
 )
 
 // The dependency https://github.com/lib/pq only supports a limited subset of SSL Modes and returns the error:
 // pq: unsupported sslmode \"prefer\"; only \"require\" (default), \"verify-full\", \"verify-ca\", and \"disable\" supported
 // - https://www.postgresql.org/docs/10/libpq-ssl.html
 var allSSLModes = []string{
-	"disable",
-	//"allow",
-	//"prefer",
-	"require",
-	"verify-ca",
-	"verify-full",
+	SSLModeDisable,
+	// SSLModeAllow,
+	// SSLModePrefer,
+	SSLModeRequire,
+	SSLModeVerifyCA,
+	SSLModeVerifyFull,
+}
+
+var containerSSLModes = []string{
+	SSLModeRequire,
+	SSLModeVerifyCA,
+	SSLModeVerifyFull,
+}
+
+var allDbEnvs = []string{
+	DbEnvContainer,
+	DbEnvTest,
+	DbEnvDevelopment,
+}
+
+type errInvalidDbEnv struct {
+	DbEnv  string
+	DbEnvs []string
+}
+
+func (e *errInvalidDbEnv) Error() string {
+	return fmt.Sprintf("invalid db env %s, must be one of: "+strings.Join(e.DbEnvs, ", "), e.DbEnv)
 }
 
 type errInvalidSSLMode struct {
@@ -67,7 +97,7 @@ func (e *errInvalidSSLMode) Error() string {
 
 // InitDatabaseFlags initializes DB command line flags
 func InitDatabaseFlags(flag *pflag.FlagSet) {
-	flag.String(DbEnvFlag, DBEnvDevelopment, "The Database  environment in which to run.")
+	flag.String(DbEnvFlag, DbEnvDevelopment, "The Database  environment in which to run.")
 	flag.String(DbNameFlag, "dev_db", "Database Name")
 	flag.String(DbHostFlag, "localhost", "Database Hostname")
 	flag.Int(DbPortFlag, 5432, "Database Port")
@@ -88,14 +118,19 @@ func CheckDatabase(v *viper.Viper, logger Logger) error {
 		return err
 	}
 
+	dbEnv := v.GetString(DbEnvFlag)
+	if !stringSliceContains(allDbEnvs, dbEnv) {
+		return &errInvalidDbEnv{DbEnv: dbEnv, DbEnvs: allDbEnvs}
+	}
+
 	sslMode := v.GetString(DbSSLModeFlag)
 	if len(sslMode) == 0 || !stringSliceContains(allSSLModes, sslMode) {
 		return &errInvalidSSLMode{Mode: sslMode, Modes: allSSLModes}
 	}
-
-	dbEnv := v.GetString(DbEnvFlag)
-	if modes := []string{"require", "verify-ca", "verify-full"}; dbEnv == "container" && !stringSliceContains(modes, sslMode) {
-		return errors.Wrap(&errInvalidSSLMode{Mode: sslMode, Modes: modes}, "container envrionment requires ssl connection to database")
+	if dbEnv == DbEnvContainer && !stringSliceContains(containerSSLModes, sslMode) {
+		return errors.Wrap(&errInvalidSSLMode{Mode: sslMode, Modes: containerSSLModes}, "container envrionment requires ssl connection to database")
+	} else if dbEnv != DbEnvContainer && !stringSliceContains(allSSLModes, sslMode) {
+		return errors.Wrapf(&errInvalidSSLMode{Mode: sslMode, Modes: allSSLModes}, "%s environment requires ssl connection to database", dbEnv)
 	}
 
 	if filename := v.GetString(DbSSLRootCertFlag); len(filename) > 0 {

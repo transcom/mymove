@@ -31,16 +31,6 @@ func CheckDevlocal(v *viper.Viper) error {
 			return errors.Errorf("Devlocal Auth cannot run in the '%s' environment, only in %v", environment, allowedEnvironments)
 		}
 
-		// Check against the DB Env
-		allowedDBEnvs := []string{
-			DBEnvDevelopment,
-			DBEnvTest,
-			DBEnvExperimental,
-		}
-		if dbEnv := v.GetString(DbEnvFlag); !stringSliceContains(allowedDBEnvs, dbEnv) {
-			return errors.Errorf("Devlocal Auth cannot run in the '%s' database, only in %v", dbEnv, allowedDBEnvs)
-		}
-
 		// Check against My Server Names
 		allowedMyServerNames := []string{
 			HTTPMyServerNameLocal,
