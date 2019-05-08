@@ -269,10 +269,10 @@ func (m Move) createMoveDocumentWithoutTransaction(
 		ServiceMemberID: m.Orders.ServiceMemberID,
 		Uploads:         uploads,
 	}
-	verrs, err := db.ValidateAndCreate(&newDoc)
-	if err != nil || verrs.HasAny() {
-		responseVErrors.Append(verrs)
-		responseError = errors.Wrap(err, "Error creating document for move document")
+	newDocVerrs, newDocErr := db.ValidateAndCreate(&newDoc)
+	if newDocErr != nil || newDocVerrs.HasAny() {
+		responseVErrors.Append(newDocVerrs)
+		responseError = errors.Wrap(newDocErr, "Error creating document for move document")
 		return nil, responseVErrors, responseError
 	}
 
@@ -314,7 +314,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 		}
 	}
 
-	verrs, err = db.ValidateAndCreate(newMoveDocument)
+	verrs, err := db.ValidateAndCreate(newMoveDocument)
 	if err != nil || verrs.HasAny() {
 		responseVErrors.Append(verrs)
 		responseError = errors.Wrap(err, "Error creating move document")

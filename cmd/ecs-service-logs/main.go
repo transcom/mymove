@@ -71,7 +71,7 @@ const (
 
 	defaultAWSRegion string = "us-west-2"
 
-	logLevel                  string = "level"
+	filterLogLevel            string = "level"
 	logTaskDefinitionFamily   string = "ecs_task_def_family"
 	logTaskDefinitionRevision string = "ecs_task_def_revision"
 	logGitBranch              string = "git_branch"
@@ -388,9 +388,9 @@ func showFunction(cmd *cobra.Command, args []string) error {
 		keychainName := v.GetString(flagAWSVaultKeychainName)
 		keychainProfile := v.GetString(flagAWSProfile)
 		if len(keychainName) > 0 && len(keychainProfile) > 0 {
-			creds, err := getAWSCredentials(keychainName, keychainProfile)
-			if err != nil {
-				return errors.Wrap(err, fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, keychainProfile))
+			creds, credsErr := getAWSCredentials(keychainName, keychainProfile)
+			if credsErr != nil {
+				return errors.Wrap(credsErr, fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, keychainProfile))
 			}
 			awsConfig.CredentialsChainVerboseErrors = aws.Bool(verbose)
 			awsConfig.Credentials = creds
@@ -582,7 +582,7 @@ func showFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	if level := strings.ToLower(v.GetString(flagLogLevel)); len(level) > 0 {
-		filters[logLevel] = level
+		filters[filterLogLevel] = level
 	}
 
 	filterPattern := ""

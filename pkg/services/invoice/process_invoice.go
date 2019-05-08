@@ -27,8 +27,8 @@ func (p ProcessInvoice) Call(invoice *models.Invoice, shipment models.Shipment) 
 	ediString, err := p.generateAndSendInvoiceData(invoice, shipment)
 	if err != nil {
 		// The invoice submission has failed, so we record the failure.
-		verrs, err := p.updateInvoiceFailed(invoice, models.InvoiceStatusSUBMISSIONFAILURE, validate.NewErrors(), err)
-		return ediString, verrs, err
+		updateInvoiceFailedVerrs, updateInvoiceFailedErr := p.updateInvoiceFailed(invoice, models.InvoiceStatusSUBMISSIONFAILURE, validate.NewErrors(), err)
+		return ediString, updateInvoiceFailedVerrs, updateInvoiceFailedErr
 	}
 
 	// Update invoice record as submitted
@@ -36,8 +36,8 @@ func (p ProcessInvoice) Call(invoice *models.Invoice, shipment models.Shipment) 
 	if err != nil || verrs.HasAny() {
 		// Updating as submitted failed (although the invoice submission succeeded), so we try to mark it as a
 		// status update failure to prevent the invoice from being submitted again.
-		verrs, err := p.updateInvoiceFailed(invoice, models.InvoiceStatusUPDATEFAILURE, verrs, err)
-		return ediString, verrs, err
+		updateInvoiceFailedVerrs, updateInvoiceFailedErr := p.updateInvoiceFailed(invoice, models.InvoiceStatusUPDATEFAILURE, verrs, err)
+		return ediString, updateInvoiceFailedVerrs, updateInvoiceFailedErr
 	}
 
 	// If we get here, everything should be good.
