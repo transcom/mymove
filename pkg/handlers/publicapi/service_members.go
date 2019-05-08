@@ -27,7 +27,6 @@ func payloadForServiceMemberModel(serviceMember *models.ServiceMember) *apimessa
 		TextMessageIsPreferred: serviceMember.TextMessageIsPreferred,
 		EmailIsPreferred:       serviceMember.EmailIsPreferred,
 		BackupContacts:         contactPayloads,
-		//RequiresAccessCode:     serviceMember.RequiresAccessCode,
 	}
 
 	return &serviceMemberPayload

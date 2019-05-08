@@ -56,6 +56,7 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		HasSocialSecurityNumber: handlers.FmtBool(serviceMember.SocialSecurityNumberID != nil),
 		IsProfileComplete:       handlers.FmtBool(serviceMember.IsProfileComplete()),
 		CurrentStation:          payloadForDutyStationModel(serviceMember.DutyStation),
+		RequiresAccessCode:      serviceMember.RequiresAccessCode,
 	}
 	return &serviceMemberPayload
 }
