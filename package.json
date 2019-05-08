@@ -9,6 +9,7 @@
     "classnames": "^2.2.5",
     "enzyme": "^3.2.0",
     "enzyme-adapter-react-16": "^1.1.1",
+    "eslint-plugin-no-only-tests": "^2.3.0",
     "eslint-plugin-security": "^1.4.0",
     "filepond-plugin-file-validate-type": "^1.0.3",
     "filepond-plugin-image-exif-orientation": "^1.0.1",
