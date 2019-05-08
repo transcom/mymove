@@ -12,6 +12,12 @@ import (
 	"github.com/rogpeppe/go-internal/semver"
 )
 
+const (
+	// Some dependencies take longer than 10 seconds to load, this increases the timeout
+	// to deal with network latency
+	cmdTimeout time.Duration = 30 * time.Second
+)
+
 // Use a custom branch for the following dependencies
 var customBranches = map[string]string{
 	"github.com/trussworks/pdfcpu": "afero",
@@ -39,7 +45,7 @@ func main() {
 	for _, req := range file.Require {
 		fmt.Printf("%s", req.Mod.Path)
 
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
 		args := updateArgs(req)
 
 		out, cmdErr := exec.CommandContext(ctx, "go", args...).CombinedOutput()
