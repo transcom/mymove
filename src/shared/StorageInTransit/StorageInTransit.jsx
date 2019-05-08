@@ -138,7 +138,7 @@ export class StorageInTransit extends Component {
           ) : storageInTransit.status === 'IN_SIT' ? (
             <span>In SIT</span>
           ) : (
-            <span>SIT {capitalize(storageInTransit.status)} </span>
+            <span>SIT {capitalize(storageInTransit.status)}</span>
           )}
           {showApproveForm ? (
             <ApproveSitRequest onClose={this.closeApproveForm} storageInTransit={this.state.storageInTransit} />
@@ -177,11 +177,13 @@ export class StorageInTransit extends Component {
           ) : (
             isTspSite &&
             storageInTransit.status === 'APPROVED' && (
-              <span className="place-in-sit sit-actions">
-                <a data-cy="place-in-sit-link" onClick={this.openPlaceInSitForm}>
-                  <FontAwesomeIcon className="icon" icon={faSignInAlt} />
-                  Place into SIT
-                </a>
+              <span className="sit-actions">
+                <span className="place-in-sit">
+                  <a data-cy="place-in-sit-link" onClick={this.openPlaceInSitForm}>
+                    <FontAwesomeIcon className="icon" icon={faSignInAlt} />
+                    Place into SIT
+                  </a>
+                </span>
               </span>
             )
           )}
