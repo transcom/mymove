@@ -690,9 +690,9 @@ jobs:
           compare_host: gex.move.mil
           health_check_hosts: gex.move.mil,dps.move.mil,orders.move.mil
 
-  # `update_dependencies` periodically updates pre-commit, yarn, and Go dependencies.
+  # `update_dependencies_go` periodically updates Go dependencies.
   # The changes are submitted as a pull request for review.
-  update_dependencies:
+  update_dependencies_go:
     executor: mymove_small
     steps:
       - checkout
@@ -702,9 +702,45 @@ jobs:
       - run:
           name: Add ~/go/bin to path for golint
           command: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
-      - run: pre-commit autoupdate
       - run: make go_deps_update
+      - run:
+          name: Display changes
+          command: |
+            git --no-pager status
+            git --no-pager diff --ignore-all-space --color
+      - run:
+          name: Push changes
+          command: scripts/circleci-push-dependency-updates
+
+  # `update_dependencies_js` periodically updates yarn dependencies.
+  # The changes are submitted as a pull request for review.
+  update_dependencies_js:
+    executor: mymove_small
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make client_deps_update
+      - run:
+          name: Display changes
+          command: |
+            git --no-pager status
+            git --no-pager diff --ignore-all-space --color
+      - run:
+          name: Push changes
+          command: scripts/circleci-push-dependency-updates
+
+  # `update_dependencies_pre_commit` periodically updates pre-commit dependencies.
+  # The changes are submitted as a pull request for review.
+  update_dependencies_pre_commit:
+    executor: mymove_small
+    steps:
+      - checkout
+      - run: pre-commit autoupdate
       - run:
           name: Display changes
           command: |
@@ -903,7 +939,7 @@ workflows:
             branches:
               only: master
 
-  dependency_updater:
+  dependency_updater_go:
     triggers:
       - schedule:
           # Monday at 4am/7am PST/EST
@@ -912,7 +948,29 @@ workflows:
             branches:
               only: master
     jobs:
-      - update_dependencies
+      - update_dependencies_go
+
+  dependency_updater_js:
+    triggers:
+      - schedule:
+          # Monday at 4am/7am PST/EST
+          cron: '0 12 * * 1'
+          filters:
+            branches:
+              only: master
+    jobs:
+      - update_dependencies_js
+
+  dependency_updater_pre_commit:
+    triggers:
+      - schedule:
+          # Monday at 4am/7am PST/EST
+          cron: '0 12 * * 1'
+          filters:
+            branches:
+              only: master
+    jobs:
+      - update_dependencies_pre_commit
 
 experimental:
   notify:

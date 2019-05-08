@@ -11,7 +11,7 @@ import { SearchDutyStations } from './api.js';
 import './DutyStation.css';
 
 const inputDebounceTime = 200;
-const minSearchLength = 2;
+const minSearchLength = 1;
 const getOptionName = option => (option ? option.name : '');
 
 export class DutyStationSearchBox extends Component {
@@ -103,6 +103,7 @@ export class DutyStationSearchBox extends Component {
           )}
           <p>{this.props.title || defaultTitle}</p>
           <AsyncSelect
+            isClearable
             className={`duty-input-box ${this.props.input.name}`}
             cacheOptions
             getOptionLabel={getOptionName}
