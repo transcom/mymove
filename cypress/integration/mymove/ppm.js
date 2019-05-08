@@ -159,11 +159,11 @@ describe('check invalid ppm inputs', () => {
       .clear()
       .type('80913');
     cy.get('input[name="destination_postal_code"]').type('76127');
+    cy.nextPage();
+
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
     });
-    cy.nextPage();
-
     cy.get('#original_move_date-error').should('exist');
   });
 
