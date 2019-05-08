@@ -10,16 +10,16 @@ const PPMPaymentRequestIntro = props => {
   return (
     <div className="usa-grid ppm-payment-req-intro">
       <h3 className="title">Request PPM Payment</h3>
-      <p>You'll need the following documents</p>
+      <p>Gather these documents:</p>
       <ul>
         <li>
-          <strong>Weight tickets</strong> both empty & full, for each vehicle and trip{' '}
+          <strong>Weight tickets,</strong> both empty & full, for <em>each</em> vehicle and trip{' '}
           <Link className="weight-ticket-examples-link" to="/weight-ticket-examples">
             <FontAwesomeIcon aria-hidden className="color_blue_link" icon={faQuestionCircle} />
           </Link>
         </li>
         <li>
-          <strong>Storage and moving expenses</strong> (optional), such as:
+          <strong>Storage and moving expenses</strong> (if used), such as:
           <ul>
             <li>storage</li>
             <li>tolls & weighing fees</li>
@@ -28,7 +28,7 @@ const PPMPaymentRequestIntro = props => {
         </li>
       </ul>
       <p>
-        <Link to="/allowable-expenses">List of allowable expenses</Link>
+        <Link to="/allowable-expenses">What expenses are allowed?</Link>
       </p>
       {/* TODO: change onclick handler to go to next page in flow */}
       <PPMPaymentRequestActionBtns
