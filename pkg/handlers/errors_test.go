@@ -47,18 +47,21 @@ func (suite *ErrorsSuite) TestResponseForErrorWhenASQLErrorIsEncountered() {
 	var actual middleware.Responder
 	var signedCertification []*models.SignedCertification
 	var noTableModel []*fakeModel
+	var invalidShipmentOffer = models.ShipmentOffer{}
 
 	// invalid column
 	errInvalidColumn := suite.DB().Where("move_iid = $1", "123").All(&signedCertification)
-
 	// invalid arguments
-	errInvalidArguments := suite.DB().Where("id in (?) and foo = ?", 1, 2, 3, "bar").All(&signedCertification)
-
+	errInvalidArguments := suite.DB().Where("id in (?) and foo = ?", 1, 2, 3, "bar").All(signedCertification)
 	// invalid table
 	errNoTable := suite.DB().Where("1=1").First(noTableModel)
+	// invalid sql
+	errInvalidQuery := suite.DB().Where("this should not compile").All(&signedCertification)
+	// key constraint error
+	errFK := suite.DB().Create(&invalidShipmentOffer)
 
-	//slice to hold all errors and assert against
-	errs := []error{errInvalidColumn, errNoTable, errInvalidArguments}
+	// slice to hold all errors and assert against
+	errs := []error{errInvalidColumn, errNoTable, errInvalidArguments, errInvalidQuery, errFK}
 
 	for _, err := range errs {
 		actual = ResponseForError(suite.logger, err)
