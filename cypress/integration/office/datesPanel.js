@@ -9,7 +9,7 @@ describe('office user interacts with dates panel', function() {
     officeUserGoesToDatesPanel('ODATES');
     userEntersDates();
   });
-  it('office user completes dates panel and zeroes it out', function() {
+  it.only('office user completes dates panel and zeroes it out', function() {
     officeUserGoesToDatesPanel('ODATE0');
     userEntersAndRemovesDates();
   });

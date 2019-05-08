@@ -22,6 +22,7 @@ export class WizardFormPage extends Component {
     this.previousPage = this.previousPage.bind(this);
     this.cancelFlow = this.cancelFlow.bind(this);
     this.beforeTransition = beforeTransition.bind(this);
+    this.submit = this.submit.bind(this);
   }
   componentDidUpdate(prevProps) {
     if (this.props.additionalValues) {
@@ -71,7 +72,7 @@ export class WizardFormPage extends Component {
 
   submit() {
     if (this.props.reduxFormSubmit) {
-      return this.props.handleSubmit(this.props.reduxFormSubmit)();
+      return this.props.reduxFormSubmit();
     }
     return this.props.handleSubmit();
   }
@@ -123,7 +124,7 @@ export class WizardFormPage extends Component {
             {isLastPage(pageList, pageKey) && (
               <button
                 className="usa-button-primary next"
-                onClick={hasReduxFormSubmitHandler ? handleSubmit(this.nextPage) : this.nextPage}
+                onClick={hasReduxFormSubmitHandler ? handleSubmit(this.submit) : this.submit}
                 disabled={!canMoveForward}
               >
                 Complete
