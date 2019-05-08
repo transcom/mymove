@@ -9,6 +9,7 @@ DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # as possible.
 # https://github.com/transcom/ppp-infra/blob/7ba2e1086ab1b2a0d4f917b407890817327ffb3d/modules/aws-app-environment/database/variables.tf#L48
 DB_DOCKER_CONTAINER_IMAGE = postgres:10.6
+TASKS_DOCKER_CONTAINER = tasks
 export PGPASSWORD=mysecretpassword
 
 # if S3 access is enabled, wrap webserver in aws-vault command
@@ -184,6 +185,9 @@ bin/gin: .check_go_version.stamp .check_gopath.stamp
 bin/soda: .check_go_version.stamp .check_gopath.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda
 
+bin_linux/soda: .server_generate_linux.stamp
+	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/soda github.com/gobuffalo/pop/soda
+
 bin/swagger: .check_go_version.stamp .check_gopath.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 
@@ -197,6 +201,9 @@ bin/rds-combined-ca-bundle.pem:
 
 bin/compare-secure-migrations:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare_secure_migrations
+
+bin/ecs-deploy-task-container: server_deps server_generate
+	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-deploy-task-container ./cmd/ecs-deploy-task-container
 
 bin/ecs-service-logs:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
@@ -212,6 +219,9 @@ bin/generate-shipment-summary: .server_generate.stamp
 
 bin/generate-test-data: pkg/assets/assets.go .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
+
+bin_linux/generate-test-data: pkg/assets/assets.go .server_generate_linux.stamp
+	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate_test_data
 
 bin/health_checker:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/health_checker ./cmd/health_checker
@@ -239,6 +249,9 @@ bin/milmove: .server_generate.stamp
 
 bin/save-fuel-price-data: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
+
+bin_linux/save-fuel-price-data: .server_generate_linux.stamp
+	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/save-fuel-price-data ./cmd/save_fuel_price_data
 
 bin/send-to-gex: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
@@ -324,6 +337,7 @@ server_run_debug:
 .PHONY: build_tools
 build_tools: server_deps \
 	bin/compare-secure-migrations \
+	bin/ecs-deploy-task-container \
 	bin/ecs-service-logs \
 	bin/generate-1203-form \
 	bin/generate-shipment-edi \
@@ -585,10 +599,7 @@ db_test_migrate: server_deps db_test_migrate_standalone
 
 .PHONY: db_test_migrations_build
 db_test_migrations_build: .db_test_migrations_build.stamp
-.db_test_migrations_build.stamp: server_generate_linux
-	@echo "Build required binaries for the docker migration container..."
-	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/soda github.com/gobuffalo/pop/soda
-	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate_test_data
+.db_test_migrations_build.stamp: server_generate_linux bin_linux/soda bin_linux/generate-test-data
 	@echo "Build the docker migration container..."
 	docker build -f Dockerfile.migrations_local --tag e2e_migrations:latest .
 
@@ -713,6 +724,51 @@ db_test_e2e_cleanup:
 
 #
 # ----- END E2E TARGETS -----
+#
+
+#
+# ----- START SCHEDULED TASK TARGETS -----
+#
+
+.PHONY: tasks_clean
+tasks_clean:
+	rm -f .db_test_migrations_build.stamp
+	rm -rf bin_linux/
+	docker rm -f tasks || true
+
+.PHONY: tasks_build
+tasks_build: server_generate bin/save-fuel-price-data
+
+.PHONY: tasks_build_docker
+tasks_build_docker: bin/chamber server_generate bin/save-fuel-price-data
+	@echo "Build the docker scheduled tasks container..."
+	docker build -f Dockerfile.tasks --tag $(TASKS_DOCKER_CONTAINER):latest .
+
+.PHONY: tasks_build_linux_docker
+tasks_build_linux_docker: bin_linux/save-fuel-price-data
+	@echo "Build the docker scheduled tasks container..."
+	docker build -f Dockerfile.tasks_local --tag $(TASKS_DOCKER_CONTAINER):latest .
+
+.PHONY: tasks_save_fuel_price_data
+tasks_save_fuel_price_data: tasks_build_linux_docker
+	@echo "Saving the fuel price data to the ${DB_NAME_DEV} database with docker command..."
+	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
+	docker run \
+		-t \
+		-e DB_HOST="database" \
+		-e DB_NAME \
+		-e DB_PORT \
+		-e DB_USER \
+		-e DB_PASSWORD \
+		-e EIA_KEY \
+		-e EIA_URL \
+		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
+		--rm \
+		$(TASKS_DOCKER_CONTAINER):latest \
+		save-fuel-price-data
+
+#
+# ----- END SCHEDULED TASK TARGETS -----
 #
 
 #
