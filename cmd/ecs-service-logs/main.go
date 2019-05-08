@@ -1,16 +1,8 @@
 //
 // ecs-service-logs is a simple program to print ECS Service logs to stdout.
+// ecs-service-logs is built using cobra and supports subcommands.
+// Use ecs-service-logs with no arguments to bring up help.
 //
-//	Usage of ecs-service-logs:
-//	      --aws-profile string               The aws-vault profile
-//	      --aws-region string                The AWS Region (default "us-west-2")
-//	      --aws-vault-keychain-name string   The aws-vault keychain name
-//	      --cluster string                   The cluster name
-//	      --environment string               The environment name
-//	      --limit int                        The log limit.  If 1 and above, will limit the results returned by each log stream. (default -1)
-//	      --service string                   The service name
-//	      --status string                    The task status: RUNNING, STOPPED
-//	      --verbose                          Print section lines
 //
 package main
 
@@ -328,10 +320,11 @@ func main() {
 	root.AddCommand(completionCommand)
 
 	showCommand := &cobra.Command{
-		Use:   "show [flags]",
-		Short: "Show application logs for ECS Service",
-		Long:  "Show application logs for ECS Service",
-		RunE:  showFunction,
+		Use:                   "show [flags] [msg=XYZ] [referer=XYZ]...",
+		DisableFlagsInUseLine: true,
+		Short:                 "Show application logs for ECS Service",
+		Long:                  "Show application logs for ECS Service",
+		RunE:                  showFunction,
 	}
 	initFlags(showCommand.Flags())
 	root.AddCommand(showCommand)
@@ -583,6 +576,17 @@ func showFunction(cmd *cobra.Command, args []string) error {
 
 	if level := strings.ToLower(v.GetString(flagLogLevel)); len(level) > 0 {
 		filters[logLevel] = level
+	}
+
+	// Adds command line arguments as custom filters.
+	// For example: ecs-show-service-logs show [FLAGS] trace=XYZ
+	if len(args) > 0 {
+		for _, arg := range args {
+			parts := strings.SplitN(arg, "=", 2)
+			if len(parts) == 2 {
+				filters[parts[0]] = parts[1]
+			}
+		}
 	}
 
 	filterPattern := ""
