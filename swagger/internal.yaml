@@ -4142,7 +4142,6 @@ paths:
             - ppm
             - hhg_accepted
             - hhg_delivered
-            - hhg_completed
             - all
           required: true
           description: Queue type to show
