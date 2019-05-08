@@ -38,7 +38,7 @@ export class SignedCertification extends Component {
   handleSubmit = () => {
     const pendingValues = this.props.values;
     const { latestSignedCertification, ppmId } = this.props;
-    const ppmSubmitDate = moment().format();
+    const submitDate = moment().format();
     if (latestSignedCertification) {
       return this.props.push('/');
     }
@@ -54,7 +54,7 @@ export class SignedCertification extends Component {
           pendingValues.signature,
           pendingValues.date,
           ppmId,
-          ppmSubmitDate,
+          submitDate,
         )
         .then(() => this.props.push('/'))
         .catch(() => this.setState({ hasMoveSubmitError: true }));
