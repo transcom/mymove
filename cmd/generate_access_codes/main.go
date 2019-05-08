@@ -41,7 +41,6 @@ func main() {
 	if *hhg == 0 && *ppm == 0 {
 		log.Fatal("Usage: generate_access_codes -ppm 1000 -hhg 4000")
 	}
-
 	// go run cmd/generate_access_codes/main.go -ppm 2000 -hhg 500
 	for i := 0; i < *hhg; i++ {
 		selectedMoveType := models.SelectedMoveTypeHHG
