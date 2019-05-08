@@ -327,9 +327,9 @@ func main() {
 	keychainProfile := v.GetString(awsProfileFlag)
 
 	if len(keychainName) > 0 && len(keychainProfile) > 0 {
-		creds, err := getAWSCredentials(keychainName, keychainProfile)
-		if err != nil {
-			quit(logger, nil, errors.Wrap(err, fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, keychainProfile)))
+		creds, getAWSCredsErr := getAWSCredentials(keychainName, keychainProfile)
+		if getAWSCredsErr != nil {
+			quit(logger, nil, errors.Wrap(getAWSCredsErr, fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, keychainProfile)))
 		}
 		awsConfig.CredentialsChainVerboseErrors = aws.Bool(verbose)
 		awsConfig.Credentials = creds
