@@ -35,30 +35,47 @@ func (suite *ModelSuite) TestStorageInTransitValidations() {
 
 	suite.T().Run("test actual start date cannot be before the authorized start date", func(t *testing.T) {
 		shipment := testdatagen.MakeDefaultShipment(suite.DB())
-		//authorizedStartDate := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
 		actualStartDate := time.Date(2019, time.Month(3), 25, 0, 0, 0, 0, time.UTC)
+		uuid, _ := uuid.NewV4()
 
-		assertions := testdatagen.Assertions{
-			StorageInTransit: models.StorageInTransit{
-				Location:            models.StorageInTransitLocationORIGIN,
-				ShipmentID:          shipment.ID,
-				EstimatedStartDate:  testdatagen.DateInsidePeakRateCycle,
-				AuthorizedStartDate: nil,
-				ActualStartDate:     &actualStartDate,
-			},
+		sitWithNoAuthorizedStartDate := models.StorageInTransit{
+			Location:            models.StorageInTransitLocationORIGIN,
+			ShipmentID:          shipment.ID,
+			EstimatedStartDate:  testdatagen.DateInsidePeakRateCycle,
+			WarehouseID:         "000383",
+			WarehouseName:       "Hercules Hauling",
+			WarehouseAddressID:  uuid,
+			WarehousePhone:      swag.String("(713) 868-3497"),
+			WarehouseEmail:      swag.String("joe@herculeshauling.com"),
+			Status:              "APPROVED",
+			AuthorizedStartDate: nil,
+			ActualStartDate:     &actualStartDate,
 		}
-		sitWithNoAuthorizedStartDate := testdatagen.MakeStorageInTransit(suite.DB(), assertions)
 
 		suite.verifyValidationErrors(&sitWithNoAuthorizedStartDate, map[string][]string{
 			"actual_start_date": {fmt.Sprintf("cannot create this date without a no-earlier-than date")},
 		})
 
-		//stringAuthorizedStartDate := authorizedStartDate.Format("2006-01-02 15:04:05 -0700 UTC")
-		//stringActualStartDate := actualStartDate.Format("2006-01-02 15:04:05 -0700 UTC")
+		authorizedStartDate := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
+		stringAuthorizedStartDate := authorizedStartDate.Format("2006-01-02 15:04:05 -0700 UTC")
+		stringActualStartDate := actualStartDate.Format("2006-01-02 15:04:05 -0700 UTC")
 
-		//suite.verifyValidationErrors(&sitWithInvalidActualStartDate, map[string][]string{
-		//	"actual_start_date" : {fmt.Sprintf("%s must be on or after %s", stringActualStartDate, stringAuthorizedStartDate)},
-		//})
+		sitWithInvalidActualStartDate := models.StorageInTransit{
+			Location:            models.StorageInTransitLocationORIGIN,
+			ShipmentID:          shipment.ID,
+			EstimatedStartDate:  testdatagen.DateInsidePeakRateCycle,
+			WarehouseID:         "000383",
+			WarehouseName:       "Hercules Hauling",
+			WarehouseAddressID:  uuid,
+			WarehousePhone:      swag.String("(713) 868-3497"),
+			WarehouseEmail:      swag.String("joe@herculeshauling.com"),
+			Status:              "APPROVED",
+			AuthorizedStartDate: &authorizedStartDate,
+			ActualStartDate:     &actualStartDate,
+		}
+		suite.verifyValidationErrors(&sitWithInvalidActualStartDate, map[string][]string{
+			"actual_start_date": {fmt.Sprintf("%s must be on or after %s", stringActualStartDate, stringAuthorizedStartDate)},
+		})
 	})
 }
 

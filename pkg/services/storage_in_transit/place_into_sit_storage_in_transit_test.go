@@ -17,6 +17,9 @@ func (suite *StorageInTransitServiceSuite) TestPlaceIntoSITStorageInTransit() {
 		IDToken:         "fake token",
 		TspUserID:       tspUser.ID,
 	}
+
+	sit.AuthorizedStartDate = &testdatagen.DateInsidePerformancePeriod
+	suite.DB().Save(&sit)
 	payload := apimessages.StorageInTransitInSitPayload{
 		ActualStartDate: *handlers.FmtDate(testdatagen.DateInsidePerformancePeriod),
 	}
