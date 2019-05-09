@@ -139,7 +139,7 @@ export class StorageInTransit extends Component {
             <span>SIT {capitalize(storageInTransit.status)} </span>
           )}
           {showApproveForm ? (
-            <ApproveSitRequest onClose={this.closeApproveForm} storageInTransit={this.state.storageInTransit} />
+            <ApproveSitRequest onClose={this.closeApproveForm} storageInTransit={storageInTransit} />
           ) : storageInTransit.status === 'APPROVED' || storageInTransit.status === 'DENIED' ? (
             <span>{null}</span>
           ) : (
@@ -155,7 +155,7 @@ export class StorageInTransit extends Component {
             )
           )}
           {showDenyForm ? (
-            <DenySitRequest onClose={this.closeDenyForm} />
+            <DenySitRequest onClose={this.closeDenyForm} storageInTransit={storageInTransit} />
           ) : storageInTransit.status === 'APPROVED' || storageInTransit.status === 'DENIED' ? (
             <span>{null}</span>
           ) : (

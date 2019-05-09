@@ -5,6 +5,7 @@ const createStorageInTransitLabel = 'StorageInTransits.createStorageInTransit';
 const getStorageInTransitsLabel = 'StorageInTransits.getStorageInTransitsForShipment';
 const updateStorageInTransitLabel = 'StorageInTransits.updateStorageInTransit';
 const approveStorageInTransitLabel = 'StorageInTransits.approveStorageInTransit';
+const denyStorageInTransitLabel = 'StorageInTransits.denyStorageInTransit';
 
 export const selectStorageInTransits = (state, shipmentId) => {
   const storageInTransits = Object.values(state.entities.storageInTransits).filter(
@@ -54,6 +55,25 @@ export function approveStorageInTransit(
       shipmentId,
       storageInTransitId,
       storageInTransitApprovalPayload,
+    },
+    { label },
+  );
+}
+
+export function denyStorageInTransit(
+  shipmentId,
+  storageInTransitId,
+  storageInTransitDenyPayload,
+  label = denyStorageInTransitLabel,
+) {
+  console.log('inside denyStorageInTransit');
+  return swaggerRequest(
+    getPublicClient,
+    'storage_in_transits.denyStorageInTransit',
+    {
+      shipmentId,
+      storageInTransitId,
+      storageInTransitDenyPayload,
     },
     { label },
   );
