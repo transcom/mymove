@@ -114,6 +114,7 @@ export class StorageInTransit extends Component {
   render() {
     const { storageInTransit } = this.props;
     const { showTspEditForm, showOfficeEditForm, showApproveForm, showDenyForm, showPlaceInSitForm } = this.state;
+    const isDenied = storageInTransit.status === 'DENIED';
     return (
       <div data-cy="storage-in-transit" className="storage-in-transit">
         <div className="column-head">
@@ -163,7 +164,7 @@ export class StorageInTransit extends Component {
             !showTspEditForm &&
             !showApproveForm && (
               <span className="sit-actions">
-                <a className="deny-sit-link" onClick={this.openDenyForm}>
+                <a className="deny-sit-link" data-cy="deny-sit-link" onClick={this.openDenyForm}>
                   <FontAwesomeIcon className="icon" icon={faBan} />
                   Deny
                 </a>
@@ -242,25 +243,36 @@ export class StorageInTransit extends Component {
               )}
             </div>
             <div className="usa-width-one-half">
-              {storageInTransit.status === 'APPROVED' && (
+              {storageInTransit.status !== 'REQUESTED' && (
                 <div className="sit-authorization-wrapper">
                   <div className="column-subhead nested__same-font">Authorization</div>
                   <div className="panel-field nested__same-font">
                     <span className="field-title unbold">SIT approved</span>
-                    <span className="field-value">Yes</span>
+                    <span className="field-value">{isDenied ? 'No' : 'Yes'}</span>
                   </div>
-                  <div className="panel-field nested__same-font">
-                    <span className="field-title unbold">Earliest start date</span>
-                    <span data-cy="sit-authorized-start-date" className="field-value">
-                      {formatDate4DigitYear(storageInTransit.authorized_start_date)}
-                    </span>
-                  </div>
-                  <div className="panel-field nested__same-font">
-                    <span className="field-title unbold">Note</span>
-                    <span data-cy="sit-authorization-notes" className="field-value">
-                      {storageInTransit.authorization_notes}
-                    </span>
-                  </div>
+                  {!isDenied && (
+                    <div className="panel-field nested__same-font">
+                      <span className="field-title unbold">Earliest start date</span>
+                      <span data-cy="sit-authorized-start-date" className="field-value">
+                        {formatDate4DigitYear(storageInTransit.authorized_start_date)}
+                      </span>
+                    </div>
+                  )}
+
+                  {storageInTransit.authorization_notes && (
+                    <div className="panel-field nested__same-font">
+                      <span className="field-title unbold">Note</span>
+                      <span data-cy="sit-authorization-notes" className="field-value">
+                        {storageInTransit.authorization_notes}
+                      </span>
+                    </div>
+                  )}
+                  {storageInTransit.sit_number && (
+                    <div className="panel-field nested__same-font">
+                      <span className="field-title unbold">SIT Number</span>
+                      <span className="field-value">{storageInTransit.sit_number}</span>
+                    </div>
+                  )}
                 </div>
               )}
 
