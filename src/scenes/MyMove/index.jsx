@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { get } from 'lodash';
 import { LastLocationProvider } from 'react-router-last-location';
 
-import PrivateRoute from 'shared/User/PrivateRoute';
+import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
 import { Route, Switch } from 'react-router-dom';
 import { ConnectedRouter, push, goBack } from 'react-router-redux';
 import { connect } from 'react-redux';
@@ -84,26 +84,39 @@ export class AppWrapper extends Component {
                     <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />
                     <Route path="/accessibility" component={AccessibilityStatement} />
                     {getWorkflowRoutes(props)}
-                    <PrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
-                    <PrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
-                    <PrivateRoute exact path="/moves/review/edit-backup-contact" component={EditBackupContact} />
-                    <PrivateRoute exact path="/moves/review/edit-contact-info" component={EditContactInfo} />
+                    <ValidatedPrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
+                    <ValidatedPrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
+                    <ValidatedPrivateRoute
+                      exact
+                      path="/moves/review/edit-backup-contact"
+                      component={EditBackupContact}
+                    />
+                    <ValidatedPrivateRoute exact path="/moves/review/edit-contact-info" component={EditContactInfo} />
 
-                    <PrivateRoute path="/moves/:moveId/review/edit-orders" component={EditOrders} />
-                    <PrivateRoute path="/moves/:moveId/review/edit-date-and-location" component={EditDateAndLocation} />
-                    <PrivateRoute path="/moves/:moveId/review/edit-weight" component={EditWeight} />
+                    <ValidatedPrivateRoute path="/moves/:moveId/review/edit-orders" component={EditOrders} />
+                    <ValidatedPrivateRoute
+                      path="/moves/:moveId/review/edit-date-and-location"
+                      component={EditDateAndLocation}
+                    />
+                    <ValidatedPrivateRoute path="/moves/:moveId/review/edit-weight" component={EditWeight} />
 
-                    <PrivateRoute path="/shipments/:shipmentId/review/edit-hhg-dates" component={EditHHGDates} />
-                    {/* <PrivateRoute path="/moves/:moveId/review/edit-hhg-locations" component={EditHHGLocations} /> */}
-                    {/* <PrivateRoute path="/moves/:moveId/review/edit-hhg-weights" component={EditHHGWeights} /> */}
+                    <ValidatedPrivateRoute
+                      path="/shipments/:shipmentId/review/edit-hhg-dates"
+                      component={EditHHGDates}
+                    />
+                    {/* <ValidatedPrivateRoute path="/moves/:moveId/review/edit-hhg-locations" component={EditHHGLocations} /> */}
+                    {/* <ValidatedPrivateRoute path="/moves/:moveId/review/edit-hhg-weights" component={EditHHGWeights} /> */}
 
-                    <PrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
-                    <PrivateRoute exact path="/weight-ticket-examples" component={WeightTicketExamples} />
+                    <ValidatedPrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
+                    <ValidatedPrivateRoute exact path="/weight-ticket-examples" component={WeightTicketExamples} />
 
-                    <PrivateRoute exact path="/allowable-expenses" component={AllowableExpenses} />
-                    <PrivateRoute path="/moves/:moveId/ppm-payment-request-intro" component={PPMPaymentRequestIntro} />
-                    <PrivateRoute path="/moves/:moveId/ppm-weight-ticket" component={WeightTicket} />
-                    <PrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
+                    <ValidatedPrivateRoute exact path="/allowable-expenses" component={AllowableExpenses} />
+                    <ValidatedPrivateRoute
+                      path="/moves/:moveId/ppm-payment-request-intro"
+                      component={PPMPaymentRequestIntro}
+                    />
+                    <ValidatedPrivateRoute path="/moves/:moveId/ppm-weight-ticket" component={WeightTicket} />
+                    <ValidatedPrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
                     <Route exact path="/forbidden">
                       <div className="usa-grid">
                         <h2>You are forbidden to use this endpoint</h2>

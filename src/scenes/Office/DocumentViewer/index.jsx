@@ -13,7 +13,7 @@ import { loadMove, loadMoveLabel } from 'shared/Entities/modules/moves';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import PrivateRoute from 'shared/User/PrivateRoute';
+import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
 import { Switch, Redirect, Link } from 'react-router-dom';
 
 import DocumentUploadViewer from 'shared/DocumentViewer/DocumentUploadViewer';
@@ -139,16 +139,16 @@ class DocumentViewer extends Component {
         <div className="usa-width-two-thirds">
           <div className="tab-content">
             <Switch>
-              <PrivateRoute exact path={defaultPath} render={() => <Redirect replace to={newUrl} />} />
-              <PrivateRoute
+              <ValidatedPrivateRoute exact path={defaultPath} render={() => <Redirect replace to={newUrl} />} />
+              <ValidatedPrivateRoute
                 path={newPath}
                 moveId={moveId}
                 render={() => {
                   return <DocumentUploader {...this.getDocumentUploaderProps} />;
                 }}
               />
-              <PrivateRoute path={documentPath} component={DocumentUploadViewer} />
-              <PrivateRoute path={defaultUrl} render={() => <div> document viewer coming soon</div>} />
+              <ValidatedPrivateRoute path={documentPath} component={DocumentUploadViewer} />
+              <ValidatedPrivateRoute path={defaultUrl} render={() => <div> document viewer coming soon</div>} />
             </Switch>
           </div>
         </div>

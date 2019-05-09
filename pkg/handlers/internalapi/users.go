@@ -104,20 +104,11 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	}
 
 	// Fetch the access code associated with the service member if one exists
-	var code *models.AccessCode
-	accessCode, err := h.accessCodeFetcher.FetchAccessCode(serviceMember.ID)
-	if err != nil {
-		// The absence of an access code shouldn't render the entire request a 404
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	if accessCode != nil {
-		code = accessCode
-	}
+	accessCode, _ := h.accessCodeFetcher.FetchAccessCode(serviceMember.ID)
 
 	userPayload := internalmessages.LoggedInUserPayload{
 		ID:            handlers.FmtUUID(session.UserID),
-		ServiceMember: payloadForServiceMemberModel(h.FileStorer(), serviceMember, code.Code),
+		ServiceMember: payloadForServiceMemberModel(h.FileStorer(), serviceMember, accessCode.Code),
 		FirstName:     session.FirstName,
 		Email:         session.Email,
 	}

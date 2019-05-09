@@ -10,7 +10,7 @@ import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadPublicSchema } from 'shared/Swagger/ducks';
 import { no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
-import PrivateRoute from 'shared/User/PrivateRoute';
+import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
 import ScratchPad from 'shared/ScratchPad';
 import { isProduction } from 'shared/constants';
 import DocumentViewer from './DocumentViewerContainer';
@@ -65,15 +65,18 @@ class TspWrapper extends Component {
                     />
                   )}
                 />
-                <PrivateRoute path="/shipments/:shipmentId/documents/new" component={NewDocument} />
-                <PrivateRoute path="/shipments/:shipmentId/documents/:moveDocumentId" component={DocumentViewer} />
-                <PrivateRoute path="/shipments/:shipmentId" component={ShipmentInfo} />
+                <ValidatedPrivateRoute path="/shipments/:shipmentId/documents/new" component={NewDocument} />
+                <ValidatedPrivateRoute
+                  path="/shipments/:shipmentId/documents/:moveDocumentId"
+                  component={DocumentViewer}
+                />
+                <ValidatedPrivateRoute path="/shipments/:shipmentId" component={ShipmentInfo} />
                 {/* Be specific about available routes by listing them */}
-                <PrivateRoute
+                <ValidatedPrivateRoute
                   path="/queues/:queueType(new|accepted|approved|in_transit|delivered|completed|all)"
                   component={Queues}
                 />
-                {!isProduction && <PrivateRoute path="/playground" component={ScratchPad} />}
+                {!isProduction && <ValidatedPrivateRoute path="/playground" component={ScratchPad} />}
                 {/* TODO: cgilmer (2018/07/31) Need a NotFound component to route to */}
                 <Redirect from="*" to="/queues/new" component={Queues} />
               </Switch>
