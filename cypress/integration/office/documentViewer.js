@@ -206,7 +206,7 @@ describe('The document viewer', function() {
 
       cy
         .get('div')
-        .contains('Delivered HHGs')
+        .contains('Delivered')
         .click();
 
       cy.selectQueueItemMoveLocator('DOOB');
