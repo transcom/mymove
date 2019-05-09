@@ -145,7 +145,7 @@ The following commands will get mymove running on your machine for the first tim
   * Ensure that `/usr/local/bin` comes before `/bin` on your `$PATH` by running `echo $PATH`. Modify your path by editing `~/.bashrc` or `~/.bash_profile` and changing the `PATH`.  Then source your profile with `source ~/.bashrc` or `~/.bash_profile` to ensure that your terminal has it.
 * Run `scripts/prereqs` and install everything it tells you to. _Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!_
 * For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/). For bash, add the command `eval "$(direnv hook bash)"` to whichever file loads upon opening bash (likely `~./bash_profile`, though instructions say `~/.bashrc`).
-* Run `direnv allow` to load up the `.envrc` file. Add a `.envrc.local` file with any values it asks you to define.
+* Run `direnv allow` to load up the `.envrc` file. Add a `.envrc.local` file and add any values that the output asks you to define. Alternatively run `cp .envrc.chamber.template .envrc.chamber` to enable getting secret values from `chamber`.
 * Run `make deps`.
 * [EditorConfig](http://editorconfig.org/) allows us to manage editor configuration (like indent sizes,) with a [file](https://github.com/transcom/ppp/blob/master/.editorconfig) in the repo. Install the appropriate plugin in your editor to take advantage of that.
 * Run `pre-commit install` to install a pre-commit hook into `./git/hooks/pre-commit`.  This is different than `brew install pre-commit` and must be done so that the hook will check files you are about to commit to the repository.  Also, using this hook is much faster than attempting to create your own with `pre-commit run -a`.
@@ -228,7 +228,7 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
 ### Setup: S3
 
-If you want to develop against the live S3 service, you will need to configure the following values in your `.envrc`:
+If you want to develop against the live S3 service, you will need to configure the following values in your `.envrc.local`:
 
 ```text
 AWS_S3_BUCKET_NAME
@@ -365,8 +365,12 @@ In development, we use [direnv](https://direnv.net/) to setup environment variab
     # or
 
     # Specify that an environment variable must be defined in .envrc.local
-    require NEW_ENV_VAR "Look for info on this value in Google Drive"
+    require NEW_ENV_VAR "Look for info on this value in chamber and Google Drive"
     ```
+
+Required variables should be placed in google docs and linked in `.envrc`. The value should also be placed in `chamber`
+with `chamber write app-devlocal <key> <value>`. For long blocks of text like certificates you can write them with
+`echo "$LONG_VALUE" | chamber write app-devlocal <key> -`.
 
 For per-tier environment variables (that are not secret), simply add the variables to the relevant `config/env/[experimental|staging|prod].env` file with the format `NAME=VALUE` on each line.  Then add the relevant section to `config/app.container-definition.json`.  The deploy process uses Go's [template package](https://golang.org/pkg/text/template/) for rendering the container definition.  For example,
 
