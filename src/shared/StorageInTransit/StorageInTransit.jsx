@@ -258,7 +258,7 @@ export class StorageInTransit extends Component {
               )}
             </div>
             <div className="usa-width-one-half">
-              {storageInTransit.status !== 'REQUESTED' && (
+              {!isRequested && (
                 <div className="sit-authorization-wrapper">
                   <div className="column-subhead nested__same-font">Authorization</div>
                   <div className="panel-field nested__same-font">
