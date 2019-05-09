@@ -439,9 +439,14 @@ func (suite *HandlerSuite) TestApproveHHGHandler() {
 	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
+	approveDate := strfmt.DateTime(time.Now())
+	newApproveShipmentPayload := internalmessages.ApproveShipmentPayload{
+		ApproveDate: &approveDate,
+	}
 	params := shipmentop.ApproveHHGParams{
-		HTTPRequest: req,
-		ShipmentID:  strfmt.UUID(shipment.ID.String()),
+		HTTPRequest:            req,
+		ShipmentID:             strfmt.UUID(shipment.ID.String()),
+		ApproveShipmentPayload: &newApproveShipmentPayload,
 	}
 
 	// assert we got back the 200 response

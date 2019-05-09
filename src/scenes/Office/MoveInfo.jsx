@@ -258,7 +258,8 @@ class MoveInfo extends Component {
   };
 
   approveShipment = () => {
-    this.props.approveShipment(this.props.shipmentId);
+    const approveDate = moment().format();
+    this.props.approveShipment(this.props.shipmentId, approveDate);
   };
 
   cancelMoveAndRedirect = cancelReason => {
