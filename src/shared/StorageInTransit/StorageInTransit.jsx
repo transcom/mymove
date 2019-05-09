@@ -115,6 +115,7 @@ export class StorageInTransit extends Component {
     const { storageInTransit } = this.props;
     const { showTspEditForm, showOfficeEditForm, showApproveForm, showDenyForm, showPlaceInSitForm } = this.state;
     const isDenied = storageInTransit.status === 'DENIED';
+    const isRequested = storageInTransit.status === 'REQUESTED';
     return (
       <div data-cy="storage-in-transit" className="storage-in-transit">
         <div className="column-head">
@@ -124,7 +125,7 @@ export class StorageInTransit extends Component {
             <span className="sit-status-text" data-cy="sit-status-text">
               Status:
             </span>{' '}
-            {storageInTransit.status === 'REQUESTED' && <SitStatusIcon isTspSite={isTspSite} />}
+            {isRequested && <SitStatusIcon isTspSite={isTspSite} />}
           </span>
           {storageInTransit.status === 'APPROVED' ? (
             <span data-cy="storage-in-transit-status">
@@ -148,7 +149,8 @@ export class StorageInTransit extends Component {
           ) : (
             isOfficeSite &&
             !showOfficeEditForm &&
-            !showDenyForm && (
+            !showDenyForm &&
+            isRequested && (
               <span className="sit-actions">
                 <a className="approve-sit-link" onClick={this.openApproveForm}>
                   <FontAwesomeIcon className="icon" icon={faCheck} />
@@ -164,7 +166,8 @@ export class StorageInTransit extends Component {
           ) : (
             isOfficeSite &&
             !showTspEditForm &&
-            !showApproveForm && (
+            !showApproveForm &&
+            isRequested && (
               <span className="sit-actions">
                 <a className="deny-sit-link" data-cy="deny-sit-link" onClick={this.openDenyForm}>
                   <FontAwesomeIcon className="icon" icon={faBan} />
