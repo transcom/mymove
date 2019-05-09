@@ -59,6 +59,8 @@ describe('Shipments column', () => {
 });
 
 function retrieveMoves(params) {
+  // This is meant as a stub that will act in place of
+  // `RetrieveMovesForOffice` from Office/api.js
   return async () => {
     return [
       {
@@ -84,6 +86,11 @@ function getMove(wrapper) {
 }
 
 function resolveAllPromises() {
+  // Forces all promises that are returned inside the
+  // component to resolve before the one returned here,
+  // effectively giving us the end state of the component
+  // as it would be rendered on the page.
+
   return new Promise(resolve => {
     setTimeout(resolve, 0);
   });
