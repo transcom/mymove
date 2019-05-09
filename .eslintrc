@@ -1,7 +1,8 @@
 {
-  "plugins": ["security"],
+  "plugins": ["security", "no-only-tests"],
   "extends": ["react-app", "plugin:security/recommended"],
   "rules": {
+    "no-only-tests/no-only-tests": "error",
     "no-debugger": "warn",
     "jsx-a11y/anchor-is-valid": "off",
     "react/jsx-no-target-blank": "off",

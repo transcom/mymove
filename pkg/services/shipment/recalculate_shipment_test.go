@@ -89,9 +89,9 @@ func (suite *RecalculateShipmentSuite) TestRecalculateShipmentCall() {
 	for _, item := range fetchedLineItems {
 		if item.Tariff400ngItem.Code == "16A" {
 			fuelSurcharge = item
-			err := suite.DB().Destroy(&fuelSurcharge)
-			if err != nil {
-				suite.logger.Fatal("Error Removing Fuel Surcharge")
+			destroyErr := suite.DB().Destroy(&fuelSurcharge)
+			if destroyErr != nil {
+				suite.logger.Fatal("Error Removing Fuel Surcharge", zap.Error(destroyErr))
 			}
 			removedFuelSurcharge = true
 		}

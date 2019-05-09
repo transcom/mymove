@@ -4,14 +4,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http"
-	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
-
-	"go.uber.org/zap/zaptest"
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -110,43 +106,4 @@ func (suite *webServerSuite) applyContext(ctx map[string]string) {
 		suite.logger.Info("overriding " + k)
 		suite.viper.Set(strings.Replace(strings.ToLower(k), "_", "-", -1), v)
 	}
-}
-
-func (suite *webServerSuite) TestStaticReqMethodMiddleware() {
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	})
-	middleware := validMethodForStaticMiddleware(handler)
-
-	// For a GET request, we should get a 200
-	rr := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "http://mil.example.com/static/something", nil)
-	middleware.ServeHTTP(rr, req)
-	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
-
-	// For a HEAD request, we should also get a 200
-	rr = httptest.NewRecorder()
-	req = httptest.NewRequest("HEAD", "http://mil.example.com/static/something", nil)
-	middleware.ServeHTTP(rr, req)
-	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
-
-	// For a POST request, we should get a 405 response
-	rr = httptest.NewRecorder()
-	req = httptest.NewRequest("POST", "http://mil.example.com/static/something", nil)
-	middleware.ServeHTTP(rr, req)
-	suite.Equal(http.StatusMethodNotAllowed, rr.Code, "handler returned wrong status code")
-}
-
-func (suite *webServerSuite) TestRecoverMiddleware() {
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		panic("panic")
-	})
-	logger := zaptest.NewLogger(suite.T(), zaptest.Level(zap.ErrorLevel))
-	middleware := recoveryMiddleware(logger)(handler)
-	rr := httptest.NewRecorder()
-	req := httptest.NewRequest("GET", "http://mil.example.com/static/something", nil)
-
-	middleware.ServeHTTP(rr, req)
-
-	suite.Equal(http.StatusInternalServerError, rr.Code)
 }

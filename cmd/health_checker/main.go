@@ -208,14 +208,14 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) 
 
 	if len(clientKeyEncoded) > 0 && len(clientCertEncoded) > 0 {
 
-		clientKey, err := base64.StdEncoding.DecodeString(clientKeyEncoded)
-		if err != nil {
-			return nil, errors.Wrap(err, "error decoding client key")
+		clientKey, clientKeyErr := base64.StdEncoding.DecodeString(clientKeyEncoded)
+		if clientKeyErr != nil {
+			return nil, errors.Wrap(clientKeyErr, "error decoding client key")
 		}
 
-		clientCert, err := base64.StdEncoding.DecodeString(clientCertEncoded)
-		if err != nil {
-			return nil, errors.Wrap(err, "error decoding client cert")
+		clientCert, clientCertErr := base64.StdEncoding.DecodeString(clientCertEncoded)
+		if clientCertErr != nil {
+			return nil, errors.Wrap(clientCertErr, "error decoding client cert")
 		}
 
 		caBytes := make([]byte, 0)
@@ -227,9 +227,10 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) 
 			caBytes = []byte(caString)
 		}
 
-		tlsConfig, err = createTLSConfig([]byte(clientKey), []byte(clientCert), caBytes, false)
-		if err != nil {
-			return nil, errors.Wrap(err, "error creating TLS config")
+		var tlsConfigErr error
+		tlsConfig, tlsConfigErr = createTLSConfig([]byte(clientKey), []byte(clientCert), caBytes, false)
+		if tlsConfigErr != nil {
+			return nil, errors.Wrap(tlsConfigErr, "error creating TLS config")
 		}
 
 	} else {
@@ -239,14 +240,14 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) 
 
 		if len(clientKeyFile) > 0 && len(clientCertFile) > 0 {
 
-			clientKey, err := ioutil.ReadFile(clientKeyFile) // #nosec b/c we need to read a file from a user-defined path
-			if err != nil {
-				return nil, errors.Wrap(err, "error reading client key file at "+clientKeyFile)
+			clientKey, clientKeyErr := ioutil.ReadFile(clientKeyFile) // #nosec b/c we need to read a file from a user-defined path
+			if clientKeyErr != nil {
+				return nil, errors.Wrap(clientKeyErr, "error reading client key file at "+clientKeyFile)
 			}
 
-			clientCert, err := ioutil.ReadFile(clientCertFile) // #nosec b/c we need to read a file from a user-defined path
-			if err != nil {
-				return nil, errors.Wrap(err, "error reading client cert file at "+clientKeyFile)
+			clientCert, clientCertErr := ioutil.ReadFile(clientCertFile) // #nosec b/c we need to read a file from a user-defined path
+			if clientCertErr != nil {
+				return nil, errors.Wrap(clientCertErr, "error reading client cert file at "+clientKeyFile)
 			}
 
 			caBytes := make([]byte, 0)
@@ -257,10 +258,10 @@ func createHTTPClient(v *viper.Viper, logger *zap.Logger) (*http.Client, error) 
 				}
 				caBytes = content
 			}
-
-			tlsConfig, err = createTLSConfig(clientKey, clientCert, caBytes, false)
-			if err != nil {
-				return nil, errors.Wrap(err, "error creating TLS config")
+			var tlsConfigErr error
+			tlsConfig, tlsConfigErr = createTLSConfig(clientKey, clientCert, caBytes, false)
+			if tlsConfigErr != nil {
+				return nil, errors.Wrap(tlsConfigErr, "error creating TLS config")
 			}
 		}
 	}

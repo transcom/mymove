@@ -67,9 +67,9 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 	uploads := models.Uploads{}
 	for _, id := range uploadIds {
 		converted := uuid.Must(uuid.FromString(id.String()))
-		upload, err := models.FetchUpload(ctx, h.DB(), session, converted)
-		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+		upload, fetchUploadErr := models.FetchUpload(ctx, h.DB(), session, converted)
+		if fetchUploadErr != nil {
+			return handlers.ResponseForError(h.Logger(), fetchUploadErr)
 		}
 		uploads = append(uploads, upload)
 	}
@@ -79,9 +79,9 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		id := uuid.Must(uuid.FromString(payload.PersonallyProcuredMoveID.String()))
 
 		// Enforce that the ppm's move_id matches our move
-		ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, id)
-		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+		ppm, fetchPPMErr := models.FetchPersonallyProcuredMove(h.DB(), session, id)
+		if fetchPPMErr != nil {
+			return handlers.ResponseForError(h.Logger(), fetchPPMErr)
 		}
 		if ppm.MoveID != moveID {
 			return movedocop.NewCreateGenericMoveDocumentBadRequest()

@@ -23,7 +23,7 @@ describe('StorageInTransit tests', () => {
     );
 
     it('renders without crashing', () => {
-      expect(wrapper.find('.storage-in-transit-panel').length).toEqual(1);
+      expect(wrapper.find('[data-cy="storage-in-transit-panel"]').length).toEqual(1);
     });
   });
   describe('When no items exists and Request SIT appears on TSP app', () => {
@@ -39,8 +39,8 @@ describe('StorageInTransit tests', () => {
     );
 
     it('renders without crashing', () => {
-      expect(wrapper.find('.storage-in-transit-panel').length).toEqual(1);
-      expect(wrapper.find('.add-request').length).toEqual(1);
+      expect(wrapper.find('[data-cy="storage-in-transit-panel"]').length).toEqual(1);
+      expect(wrapper.find('[data-cy="add-request"]').length).toEqual(1);
     });
   });
   describe('When no items exists and Request SIT appears on Office app', () => {
@@ -56,8 +56,8 @@ describe('StorageInTransit tests', () => {
     );
 
     it('renders without crashing', () => {
-      expect(wrapper.find('.storage-in-transit-panel').length).toEqual(1);
-      expect(wrapper.find('.add-request').length).toEqual(0);
+      expect(wrapper.find('[data-cy="storage-in-transit-panel"]').length).toEqual(1);
+      expect(wrapper.find('[data-cy="add-request"]').length).toEqual(0);
     });
   });
 
@@ -108,7 +108,7 @@ describe('StorageInTransit tests', () => {
     );
 
     it('renders without crashing', () => {
-      expect(wrapper.find('.storage-in-transit-panel').length).toEqual(1);
+      expect(wrapper.find('[data-cy="storage-in-transit-panel"]').length).toEqual(1);
     });
 
     it('renders the first mocked Storage In Transit request', () => {

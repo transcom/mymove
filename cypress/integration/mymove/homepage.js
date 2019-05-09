@@ -15,9 +15,12 @@ describe('The Home Page', function() {
   it('milmove user is properly welcomed', function() {
     milmoveUserIsWelcomed();
   });
-  it('contains the correct phone number contact information', function() {
+  it('contains the link to customer service', function() {
     cy.visit('/');
-    cy.contains('(833) 645-6683');
+    cy.get('address').within(() => {
+      cy.contains('Contact Us');
+      cy.get('a').should('have.attr', 'href', 'https://move.mil/customer-service');
+    });
   });
 });
 

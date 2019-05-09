@@ -14,7 +14,6 @@ import (
 	"os"
 	"os/signal"
 	"path"
-	"runtime/debug"
 	"strings"
 	"sync"
 	"syscall"
@@ -46,6 +45,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
 	"github.com/transcom/mymove/pkg/handlers/publicapi"
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/middleware"
 	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/invoice"
@@ -57,93 +57,12 @@ import (
 var gitBranch string
 var gitCommit string
 
-// max request body size is 20 mb
-const maxBodySize int64 = 200 * 1000 * 1000
-
 type errInvalidHost struct {
 	Host string
 }
 
 func (e *errInvalidHost) Error() string {
 	return fmt.Sprintf("invalid host %s, must not contain whitespace, :, /, or \\", e.Host)
-}
-
-func limitBodySizeMiddleware(inner http.Handler) http.Handler {
-	zap.L().Debug("limitBodySizeMiddleware installed")
-	mw := func(w http.ResponseWriter, r *http.Request) {
-		r.Body = http.MaxBytesReader(w, r.Body, maxBodySize)
-		inner.ServeHTTP(w, r)
-		return
-	}
-	return http.HandlerFunc(mw)
-}
-
-func noCacheMiddleware(inner http.Handler) http.Handler {
-	zap.L().Debug("noCacheMiddleware installed")
-	mw := func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-		inner.ServeHTTP(w, r)
-		return
-	}
-	return http.HandlerFunc(mw)
-}
-
-func recoveryMiddleware(logger logger) func(inner http.Handler) http.Handler {
-	zap.L().Debug("recovery installed")
-	return func(inner http.Handler) http.Handler {
-		mw := func(w http.ResponseWriter, r *http.Request) {
-			defer func() {
-				if r := recover(); r != nil {
-					w.WriteHeader(http.StatusInternalServerError)
-					errorMsg := fmt.Sprint(r)
-					stacktrace := fmt.Sprintf("%s", debug.Stack())
-					logger.Error("panic recovery", zap.String("error", errorMsg), zap.String("stacktrace", stacktrace))
-				}
-			}()
-			inner.ServeHTTP(w, r)
-		}
-		return http.HandlerFunc(mw)
-	}
-}
-
-func httpsComplianceMiddleware(inner http.Handler) http.Handler {
-	zap.L().Debug("httpsComplianceMiddleware installed")
-	mw := func(w http.ResponseWriter, r *http.Request) {
-		// set the HSTS header using values recommended by OWASP
-		// https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet#Examples
-		w.Header().Set("strict-transport-security", "max-age=31536000; includeSubdomains; preload")
-		inner.ServeHTTP(w, r)
-		return
-	}
-	return http.HandlerFunc(mw)
-}
-
-func validMethodForStaticMiddleware(inner http.Handler) http.Handler {
-	mw := func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != "GET" && r.Method != "HEAD" {
-			http.Error(w, http.StatusText(405), http.StatusMethodNotAllowed)
-			return
-		}
-		inner.ServeHTTP(w, r)
-		return
-	}
-	return http.HandlerFunc(mw)
-}
-
-func securityHeadersMiddleware(inner http.Handler) http.Handler {
-	zap.L().Debug("securityHeadersMiddleware installed")
-	mw := func(w http.ResponseWriter, r *http.Request) {
-		// Sets headers to prevent rendering our page in an iframe, prevents clickjacking
-		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
-		w.Header().Set("X-Frame-Options", "deny")
-		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
-		w.Header().Set("Content-Security-Policy", "frame-ancestors 'none'")
-		// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
-		w.Header().Set("X-XSS-Protection", "1; mode=block")
-		inner.ServeHTTP(w, r)
-		return
-	}
-	return http.HandlerFunc(mw)
 }
 
 // initServeFlags - Order matters!
@@ -193,6 +112,9 @@ func initServeFlags(flag *pflag.FlagSet) {
 
 	// CSRF Protection
 	cli.InitCSRFFlags(flag)
+
+	// Middleware
+	cli.InitMiddlewareFlags(flag)
 
 	// Verbose
 	cli.InitVerboseFlags(flag)
@@ -262,6 +184,10 @@ func checkConfig(v *viper.Viper, logger logger) error {
 	}
 
 	if err := cli.CheckCSRF(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckMiddleWare(v); err != nil {
 		return err
 	}
 
@@ -338,18 +264,18 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	logger = logger.With(fields...)
 
 	if v.GetBool(cli.LogTaskMetadataFlag) {
-		resp, err := http.Get("http://169.254.170.2/v2/metadata")
-		if err != nil {
-			logger.Error(errors.Wrap(err, "could not fetch task metadata").Error())
+		resp, httpGetErr := http.Get("http://169.254.170.2/v2/metadata")
+		if httpGetErr != nil {
+			logger.Error(errors.Wrap(httpGetErr, "could not fetch task metadata").Error())
 		} else {
-			body, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				logger.Error(errors.Wrap(err, "could not read task metadata").Error())
+			body, readAllErr := ioutil.ReadAll(resp.Body)
+			if readAllErr != nil {
+				logger.Error(errors.Wrap(readAllErr, "could not read task metadata").Error())
 			} else {
 				taskMetadata := &ecs.TaskMetadata{}
-				err := json.Unmarshal(body, taskMetadata)
-				if err != nil {
-					logger.Error(errors.Wrap(err, "could not parse task metadata").Error())
+				unmarshallErr := json.Unmarshal(body, taskMetadata)
+				if unmarshallErr != nil {
+					logger.Error(errors.Wrap(unmarshallErr, "could not parse task metadata").Error())
 				} else {
 					logger = logger.With(
 						zap.String("ecs_cluster", taskMetadata.Cluster),
@@ -389,11 +315,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	// Assert that our secret keys can be parsed into actual private keys
 	// TODO: Store the parsed key in handlers/AppContext instead of parsing every time
-	if _, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(loginGovSecretKey)); err != nil {
-		logger.Fatal("Login.gov private key", zap.Error(err))
+	if _, parseRSAPrivateKeyFromPEMErr := jwt.ParseRSAPrivateKeyFromPEM([]byte(loginGovSecretKey)); parseRSAPrivateKeyFromPEMErr != nil {
+		logger.Fatal("Login.gov private key", zap.Error(parseRSAPrivateKeyFromPEMErr))
 	}
-	if _, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(clientAuthSecretKey)); err != nil {
-		logger.Fatal("Client auth private key", zap.Error(err))
+	if _, parseRSAPrivateKeyFromPEMErr := jwt.ParseRSAPrivateKeyFromPEM([]byte(clientAuthSecretKey)); parseRSAPrivateKeyFromPEMErr != nil {
+		logger.Fatal("Client auth private key", zap.Error(parseRSAPrivateKeyFromPEMErr))
 	}
 	if len(loginGovHostname) == 0 {
 		logger.Fatal("Must provide the Login.gov hostname parameter, exiting")
@@ -535,9 +461,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	// are added, but the resulting http.Handlers execute in "normal" order
 	// (i.e., the http.Handler returned by the first Middleware added gets
 	// called first).
-	site.Use(httpsComplianceMiddleware)
-	site.Use(securityHeadersMiddleware)
-	site.Use(limitBodySizeMiddleware)
+	site.Use(middleware.SecurityHeaders(logger))
+	if maxBodySize := v.GetInt64(cli.MaxBodySizeFlag); maxBodySize > 0 {
+		site.Use(middleware.LimitBodySize(maxBodySize, logger))
+	}
 
 	// Stub health check
 	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {
@@ -562,9 +489,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			data["database"] = dbErr == nil
 		}
 
-		err := json.NewEncoder(w).Encode(data)
-		if err != nil {
-			logger.Error("Failed encoding health check response", zap.Error(err))
+		newEncoderErr := json.NewEncoder(w).Encode(data)
+		if newEncoderErr != nil {
+			logger.Error("Failed encoding health check response", zap.Error(newEncoderErr))
 		}
 
 		// We are not using request middleware here so logging directly in the check
@@ -602,7 +529,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	})
 
 	staticMux := goji.SubMux()
-	staticMux.Use(validMethodForStaticMiddleware)
+	staticMux.Use(middleware.ValidMethodsStatic(logger))
 	staticMux.Handle(pat.Get("/*"), clientHandler)
 	// Needed to serve static paths (like favicon)
 	staticMux.Handle(pat.Get(""), clientHandler)
@@ -624,7 +551,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	ordersMux := goji.SubMux()
 	ordersDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.OrdersServername)
 	ordersMux.Use(ordersDetectionMiddleware)
-	ordersMux.Use(noCacheMiddleware)
+	ordersMux.Use(middleware.NoCache(logger))
 	ordersMux.Use(clientCertMiddleware)
 	ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.OrdersSwaggerFlag)))
 	if v.GetBool(cli.ServeSwaggerUIFlag) {
@@ -639,7 +566,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	dpsMux := goji.SubMux()
 	dpsDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.DpsServername)
 	dpsMux.Use(dpsDetectionMiddleware)
-	dpsMux.Use(noCacheMiddleware)
+	dpsMux.Use(middleware.NoCache(logger))
 	dpsMux.Use(clientCertMiddleware)
 	dpsMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.DPSSwaggerFlag)))
 	if v.GetBool(cli.ServeSwaggerUIFlag) {
@@ -654,7 +581,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	sddcDPSMux := goji.SubMux()
 	sddcDetectionMiddleware := auth.HostnameDetectorMiddleware(logger, appnames.SddcServername)
 	sddcDPSMux.Use(sddcDetectionMiddleware)
-	sddcDPSMux.Use(noCacheMiddleware)
+	sddcDPSMux.Use(middleware.NoCache(logger))
 	site.Handle(pat.New("/dps_auth/*"), sddcDPSMux)
 	sddcDPSMux.Handle(pat.Get("/set_cookie"),
 		dpsauth.NewSetCookieHandler(logger,
@@ -664,9 +591,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			dpsCookieExpires))
 
 	root := goji.NewMux()
-	root.Use(recoveryMiddleware(logger))
+	root.Use(middleware.Recovery(logger))
 	root.Use(sessionCookieMiddleware)
-	root.Use(logging.LogRequestMiddleware(logger))
+	root.Use(middleware.RequestLogger(logger))
 
 	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
 	csrfAuthKey, err := hex.DecodeString(v.GetString(cli.CSRFAuthKeyFlag))
@@ -702,7 +629,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 	externalAPIMux := goji.SubMux()
 	apiMux.Handle(pat.New("/*"), externalAPIMux)
-	externalAPIMux.Use(noCacheMiddleware)
+	externalAPIMux.Use(middleware.NoCache(logger))
 	externalAPIMux.Use(userAuthMiddleware)
 	externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext))
 
@@ -719,7 +646,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	internalAPIMux := goji.SubMux()
 	internalMux.Handle(pat.New("/*"), internalAPIMux)
 	internalAPIMux.Use(userAuthMiddleware)
-	internalAPIMux.Use(noCacheMiddleware)
+	internalAPIMux.Use(middleware.NoCache(logger))
 	internalAPIMux.Handle(pat.New("/*"), internalapi.NewInternalAPIHandler(handlerContext))
 
 	adminMux := goji.SubMux()
@@ -755,9 +682,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 
 		devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
-		devlocalCa, err := ioutil.ReadFile(devlocalCAPath) // #nosec
-		if err != nil {
-			logger.Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(err))
+		devlocalCa, readFileErr := ioutil.ReadFile(devlocalCAPath) // #nosec
+		if readFileErr != nil {
+			logger.Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(readFileErr))
 		} else {
 			rootCAs.AppendCertsFromPEM(devlocalCa)
 		}
