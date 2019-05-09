@@ -136,8 +136,10 @@ export class StorageInTransit extends Component {
               <FontAwesomeIcon className="icon approval-problem" icon={faBan} />
               Denied
             </span>
+          ) : storageInTransit.status === 'IN_SIT' ? (
+            <span>In SIT</span>
           ) : (
-            <span>SIT {capitalize(storageInTransit.status)} </span>
+            <span>SIT {capitalize(storageInTransit.status)}</span>
           )}
           {showApproveForm ? (
             <ApproveSitRequest onClose={this.closeApproveForm} storageInTransit={storageInTransit} />
@@ -176,11 +178,13 @@ export class StorageInTransit extends Component {
           ) : (
             isTspSite &&
             storageInTransit.status === 'APPROVED' && (
-              <span className="place-in-sit">
-                <a data-cy="place-in-sit-link" onClick={this.openPlaceInSitForm}>
-                  <FontAwesomeIcon className="icon" icon={faSignInAlt} />
-                  Place into SIT
-                </a>
+              <span className="sit-actions">
+                <span className="place-in-sit">
+                  <a data-cy="place-in-sit-link" onClick={this.openPlaceInSitForm}>
+                    <FontAwesomeIcon className="icon" icon={faSignInAlt} />
+                    Place into SIT
+                  </a>
+                </span>
               </span>
             )
           )}
@@ -228,10 +232,18 @@ export class StorageInTransit extends Component {
         {!showTspEditForm && (
           <div className="usa-width-one-whole">
             <div className="usa-width-one-half">
-              <div className="column-subhead nested__same-font">Dates</div>
-              <div className="panel-field nested__same-font">
-                <span className="field-title unbold">Est. start date</span>
-                <span className="field-value">{formatDate4DigitYear(storageInTransit.estimated_start_date)}</span>
+              <div className="sit-dates">
+                <div className="column-subhead nested__same-font">Dates</div>
+                <div className="panel-field nested__same-font">
+                  <span className="field-title unbold">Est. start date</span>
+                  <span className="field-value">{formatDate4DigitYear(storageInTransit.estimated_start_date)}</span>
+                </div>
+                {storageInTransit.actual_start_date && (
+                  <div className="panel-field nested__same-font">
+                    <span className="field-title unbold">Actual start date</span>
+                    <span className="field-value">{formatDate4DigitYear(storageInTransit.actual_start_date)}</span>
+                  </div>
+                )}
               </div>
               {storageInTransit.notes !== undefined && (
                 <div className="sit-notes">
