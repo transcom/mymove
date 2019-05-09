@@ -1,17 +1,16 @@
 package handlers
 
 import (
-	"log"
 	"testing"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest"
 
 	"github.com/go-openapi/runtime/middleware"
 
-	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
-
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/suite"
 
-	"github.com/transcom/mymove/pkg/logging/hnyzap"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
@@ -23,7 +22,7 @@ type fakeModel struct {
 
 type ErrorsSuite struct {
 	testingsuite.PopTestSuite
-	logger *hnyzap.Logger
+	logger Logger
 }
 
 func (suite *ErrorsSuite) SetupTest() {
@@ -31,14 +30,12 @@ func (suite *ErrorsSuite) SetupTest() {
 }
 
 func TestErrorsSuite(t *testing.T) {
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Panic(err)
-	}
+	logger := zaptest.NewLogger(t)
+	zap.ReplaceGlobals(logger)
 
 	hs := &ErrorsSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(),
-		logger:       &hnyzap.Logger{Logger: logger},
+		logger:       logger,
 	}
 	suite.Run(t, hs)
 }
