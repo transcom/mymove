@@ -22,7 +22,6 @@ export class DenySitRequest extends Component {
   };
 
   onSubmit = values => {
-    console.log('values', values);
     this.props.denyStorageInTransit(this.props.storageInTransit.shipment_id, this.props.storageInTransit.id, values);
   };
 
@@ -46,7 +45,12 @@ export class DenySitRequest extends Component {
             </p>
           </div>
           <div className="usa-width-one-half align-right">
-            <button className="button usa-button-primary" disabled={!this.props.formEnabled} onClick={this.denySit}>
+            <button
+              className="button usa-button-primary"
+              data-cy="storage-in-transit-deny-button"
+              disabled={!this.props.formEnabled}
+              onClick={this.denySit}
+            >
               Deny
             </button>
           </div>

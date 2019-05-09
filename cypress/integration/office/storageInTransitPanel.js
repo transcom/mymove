@@ -229,15 +229,15 @@ function officeUserDeniesSITRequest() {
     .should($div => {
       const text = $div.text();
       expect(text).to.include('Deny SIT Request');
-      expect(text).to.not.include('Deny');
+      expect(text).to.not.include('Approve');
       expect(text).to.not.include('Edit');
     });
   cy.get('textarea[name="authorization_notes"]').type('this is a denial note');
   cy
-    .get('[data-cy="storage-in-transit-approve-button"]')
+    .get('[data-cy="storage-in-transit-deny-button"]')
     .contains('Deny')
     .click();
 
-  cy.get('[data-cy="storage-in-transit-status"]').contains('Denied');
+  cy.get('[data-cy="storage-in-transit-status-denied"]').contains('Denied');
   cy.get('[data-cy="sit-authorization-notes"]').contains('this is a denial note');
 }

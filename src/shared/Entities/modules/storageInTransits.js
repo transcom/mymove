@@ -81,7 +81,6 @@ export function denyStorageInTransit(
   storageInTransitDenyPayload,
   label = denyStorageInTransitLabel,
 ) {
-  console.log('inside denyStorageInTransit');
   return swaggerRequest(
     getPublicClient,
     'storage_in_transits.denyStorageInTransit',

@@ -132,7 +132,7 @@ export class StorageInTransit extends Component {
               Approved
             </span>
           ) : storageInTransit.status === 'DENIED' ? (
-            <span className="storage-in-transit-status">
+            <span className="storage-in-transit-status" data-cy="storage-in-transit-status-denied">
               <FontAwesomeIcon className="icon approval-problem" icon={faBan} />
               Denied
             </span>
@@ -142,7 +142,7 @@ export class StorageInTransit extends Component {
             <span>SIT {capitalize(storageInTransit.status)}</span>
           )}
           {showApproveForm ? (
-            <ApproveSitRequest onClose={this.closeApproveForm} storageInTransit={storageInTransit} />
+            <ApproveSitRequest onClose={this.closeApproveForm} storageInTransit={this.state.storageInTransit} />
           ) : storageInTransit.status === 'APPROVED' || storageInTransit.status === 'DENIED' ? (
             <span>{null}</span>
           ) : (
