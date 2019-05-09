@@ -978,8 +978,12 @@ definitions:
         format: date-time
       requires_access_code:
         type: boolean
-        x-nullable: true
+        x-nullable: false
         title: Requires Access Code
+      access_code:
+        type: string
+        title: Access Code
+        example: CODE456
     required:
       - id
       - user_id

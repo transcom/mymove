@@ -13,11 +13,13 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 // ShowLoggedInUserHandler returns the logged in user
 type ShowLoggedInUserHandler struct {
 	handlers.HandlerContext
+	accessCodeFetcher services.AccessCodeFetcher
 }
 
 // Handle returns the logged in user
@@ -101,9 +103,21 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		}
 	}
 
+	// Fetch the access code associated with the service member if one exists
+	var code *models.AccessCode
+	accessCode, err := h.accessCodeFetcher.FetchAccessCode(serviceMember.ID)
+	if err != nil {
+		// The absence of an access code shouldn't render the entire request a 404
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+
+	if accessCode != nil {
+		code = accessCode
+	}
+
 	userPayload := internalmessages.LoggedInUserPayload{
 		ID:            handlers.FmtUUID(session.UserID),
-		ServiceMember: payloadForServiceMemberModel(h.FileStorer(), serviceMember),
+		ServiceMember: payloadForServiceMemberModel(h.FileStorer(), serviceMember, code.Code),
 		FirstName:     session.FirstName,
 		Email:         session.Email,
 	}

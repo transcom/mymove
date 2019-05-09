@@ -3,6 +3,9 @@ package internalapi
 import (
 	"net/http/httptest"
 
+	"github.com/stretchr/testify/mock"
+
+	"github.com/transcom/mymove/mocks"
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -19,7 +22,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), &mocks.AccessCodeFetcher{}}
 
 	response := handler.Handle(params)
 
@@ -43,13 +46,28 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	// creates access code
+	code := "TEST1"
+	selectedMoveType := models.SelectedMoveTypePPM
+	accessCode := models.AccessCode{
+		Code:     code,
+		MoveType: &selectedMoveType,
+	}
+	suite.MustSave(&accessCode)
+
+	accessCodeFetcher := &mocks.AccessCodeFetcher{}
+	accessCodeFetcher.On("FetchAccessCode",
+		mock.AnythingOfType("UUID"),
+	).Return(&accessCode, nil)
+
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), accessCodeFetcher}
 
 	response := handler.Handle(params)
 
 	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
 	suite.True(ok)
 	suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
+	suite.Equal(okResponse.Payload.ServiceMember.AccessCode, code)
 	suite.Equal("Joseph", *okResponse.Payload.ServiceMember.FirstName)
 }
 
@@ -73,7 +91,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), &mocks.AccessCodeFetcher{}}
 
 	response := handler.Handle(params)
 

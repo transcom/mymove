@@ -7,7 +7,7 @@ import SignIn from './SignIn';
 
 // this was adapted from https://github.com/ReactTraining/react-router/blob/master/packages/react-router-redux/examples/AuthExample.js
 // note that it does not work if the route is not inside a Switch
-class PrivateRouteContainer extends React.Component {
+class ValidatedPrivateRouteContainer extends React.Component {
   render() {
     const { isLoggedIn, path, ...props } = this.props;
     if (isLoggedIn) return <Route {...props} />;
@@ -21,6 +21,6 @@ const mapStateToProps = state => {
     isLoggedIn: user.isLoggedIn,
   };
 };
-const PrivateRoute = connect(mapStateToProps)(PrivateRouteContainer);
+const ValidatedPrivateRoute = connect(mapStateToProps)(ValidatedPrivateRouteContainer);
 
-export default PrivateRoute;
+export default ValidatedPrivateRoute;
