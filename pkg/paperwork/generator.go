@@ -216,13 +216,13 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 		file, _ := g.fs.Open(image.Path)
 		if image.ContentType == "image/png" {
 			// gofpdf isn't able to process 16-bit PNGs, so to be safe we convert all PNGs to an 8-bit color depth
-			newFile, err := g.newTempFile()
-			if err != nil {
-				return "", errors.Wrap(err, "Creating temp file for png conversion")
+			newFile, newTemplateFileErr := g.newTempFile()
+			if newTemplateFileErr != nil {
+				return "", errors.Wrap(newTemplateFileErr, "Creating temp file for png conversion")
 			}
-			err = convertTo8BitPNG(file, newFile)
-			if err != nil {
-				return "", errors.Wrap(err, "Converting to 8-bit png")
+			convertTo8BitPNGErr := convertTo8BitPNG(file, newFile)
+			if convertTo8BitPNGErr != nil {
+				return "", errors.Wrap(convertTo8BitPNGErr, "Converting to 8-bit png")
 			}
 			defer file.Close()
 			file = newFile
