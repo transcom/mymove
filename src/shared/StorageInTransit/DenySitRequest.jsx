@@ -13,19 +13,12 @@ import StorageInTransitOfficeDenyForm, {
 } from './StorageInTransitOfficeDenyForm.jsx';
 
 export class DenySitRequest extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { closeOnSubmit: true };
-  }
-
   closeForm = () => {
     this.props.onClose();
   };
 
-  denyAndClose = () => {
-    this.setState({ closeOnSubmit: true }, () => {
-      this.props.submitForm();
-    });
+  denySit = () => {
+    this.props.submitForm();
   };
 
   onSubmit = values => {
@@ -53,11 +46,7 @@ export class DenySitRequest extends Component {
             </p>
           </div>
           <div className="usa-width-one-half align-right">
-            <button
-              className="button usa-button-primary"
-              disabled={!this.props.formEnabled}
-              onClick={this.denyAndClose}
-            >
+            <button className="button usa-button-primary" disabled={!this.props.formEnabled} onClick={this.denySit}>
               Deny
             </button>
           </div>
