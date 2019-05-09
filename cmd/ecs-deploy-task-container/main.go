@@ -8,12 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/99designs/aws-vault/prompt"
-	"github.com/99designs/aws-vault/vault"
-	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/arn"
-	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchevents"
@@ -90,28 +86,28 @@ func (e *errInvalidCommand) Error() string {
 }
 
 const (
-	awsAccountIDFlag         string = "aws-account-id"
-	awsRegionFlag            string = "aws-region"
-	awsProfileFlag           string = "aws-profile"
-	awsVaultKeychainNameFlag string = "aws-vault-keychain-name"
-	chamberBinaryFlag        string = "chamber-binary"
-	chamberRetriesFlag       string = "chamber-retries"
-	chamberKMSKeyAliasFlag   string = "chamber-kms-key-alias"
-	chamberUsePathsFlag      string = "chamber-use-paths"
-	serviceFlag              string = "service"
-	environmentFlag          string = "environment"
-	repositoryNameFlag       string = "repository-name"
-	imageTagFlag             string = "image-tag"
-	commandFlag              string = "command"
+	awsAccountIDFlag       string = "aws-account-id"
+	chamberBinaryFlag      string = "chamber-binary"
+	chamberRetriesFlag     string = "chamber-retries"
+	chamberKMSKeyAliasFlag string = "chamber-kms-key-alias"
+	chamberUsePathsFlag    string = "chamber-use-paths"
+	serviceFlag            string = "service"
+	environmentFlag        string = "environment"
+	repositoryNameFlag     string = "repository-name"
+	imageTagFlag           string = "image-tag"
+	commandFlag            string = "command"
 )
 
 func initFlags(flag *pflag.FlagSet) {
 
-	// AWS Vault Settings
+	// AWS Account
 	flag.String(awsAccountIDFlag, "", "The AWS Account ID")
-	flag.String(awsRegionFlag, "us-west-2", "The AWS Region")
-	flag.String(awsProfileFlag, "", "The aws-vault profile")
-	flag.String(awsVaultKeychainNameFlag, "", "The aws-vault keychain name")
+
+	// AWS Flags
+	cli.InitAWSFlags(flag)
+
+	// Vault Flags
+	cli.InitVaultFlags(flag)
 
 	// Chamber Settings
 	flag.String(chamberBinaryFlag, "/bin/chamber", "Chamber Binary")
@@ -144,14 +140,22 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(&errInvalidAccountID{AwsAccountID: awsAccountID}, fmt.Sprintf("%q is invalid", awsAccountIDFlag))
 	}
 
-	region := v.GetString(awsRegionFlag)
+	if err := cli.CheckAWS(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckVault(v); err != nil {
+		return err
+	}
+
+	region := v.GetString(cli.AWSRegionFlag)
 	if len(region) == 0 {
-		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", awsRegionFlag))
+		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", cli.AWSRegionFlag))
 	}
 
 	regions := endpoints.AwsPartition().Services()[ecs.ServiceName].Regions()
 	if _, ok := regions[region]; !ok {
-		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", awsRegionFlag))
+		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", cli.AWSRegionFlag))
 	}
 
 	chamberRetries := v.GetInt(chamberRetriesFlag)
@@ -241,47 +245,6 @@ func quit(logger *log.Logger, flag *pflag.FlagSet, err error) {
 	os.Exit(1)
 }
 
-// getAWSCredentials uses aws-vault to return AWS credentials
-func getAWSCredentials(keychainName string, keychainProfile string) (*credentials.Credentials, error) {
-
-	// Open the keyring which holds the credentials
-	ring, err := keyring.Open(keyring.Config{
-		ServiceName:              "aws-vault",
-		AllowedBackends:          []keyring.BackendType{keyring.KeychainBackend},
-		KeychainName:             keychainName,
-		KeychainTrustApplication: true,
-	})
-	if err != nil {
-		return nil, errors.Wrap(err, "Unable to configure and open keyring")
-	}
-
-	// Prepare options for the vault before creating the provider
-	vConfig, err := vault.LoadConfigFromEnv()
-	if err != nil {
-		return nil, errors.Wrap(err, "Unable to load AWS config from environment")
-	}
-	vOptions := vault.VaultOptions{
-		Config:    vConfig,
-		MfaPrompt: prompt.Method("terminal"),
-	}
-	vOptions = vOptions.ApplyDefaults()
-	err = vOptions.Validate()
-	if err != nil {
-		return nil, errors.Wrap(err, "Unable to validate aws-vault options")
-	}
-
-	// Get a new provider to retrieve the credentials
-	provider, err := vault.NewVaultProvider(ring, keychainProfile, vOptions)
-	if err != nil {
-		return nil, errors.Wrap(err, "Unable to create aws-vault provider")
-	}
-	credVals, err := provider.Retrieve()
-	if err != nil {
-		return nil, errors.Wrap(err, "Unable to retrieve aws credentials from aws-vault")
-	}
-	return credentials.NewStaticCredentialsFromCreds(credVals), nil
-}
-
 func main() {
 	// Create the logger
 	// Remove the prefix and any datetime data
@@ -317,22 +280,9 @@ func main() {
 		quit(logger, flag, err)
 	}
 
-	awsRegion := v.GetString(awsRegionFlag)
-
-	awsConfig := &aws.Config{
-		Region: aws.String(awsRegion),
-	}
-
-	keychainName := v.GetString(awsVaultKeychainNameFlag)
-	keychainProfile := v.GetString(awsProfileFlag)
-
-	if len(keychainName) > 0 && len(keychainProfile) > 0 {
-		creds, getAWSCredsErr := getAWSCredentials(keychainName, keychainProfile)
-		if getAWSCredsErr != nil {
-			quit(logger, nil, errors.Wrap(getAWSCredsErr, fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, keychainProfile)))
-		}
-		awsConfig.CredentialsChainVerboseErrors = aws.Bool(verbose)
-		awsConfig.Credentials = creds
+	awsConfig, err := cli.GetAWSConfig(v, verbose)
+	if err != nil {
+		quit(logger, nil, err)
 	}
 
 	sess, err := awssession.NewSession(awsConfig)
@@ -377,6 +327,7 @@ func main() {
 	currentTaskDef := *currentDescribeTaskDefinitionOutput.TaskDefinition
 
 	// Confirm the image exists
+	awsRegion := v.GetString(cli.AWSRegionFlag)
 	imageTag := v.GetString(imageTagFlag)
 	registryID := v.GetString(awsAccountIDFlag)
 	repositoryName := v.GetString(repositoryNameFlag)

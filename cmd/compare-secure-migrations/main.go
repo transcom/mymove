@@ -4,6 +4,8 @@ import (
 	"crypto/md5" // #nosec
 	"encoding/hex"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -17,6 +19,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+
+	"github.com/transcom/mymove/pkg/cli"
 )
 
 type errInvalidRegion struct {
@@ -36,9 +40,21 @@ func (e *errInvalidComparison) Error() string {
 }
 
 func initFlags(flag *pflag.FlagSet) {
-	flag.String("aws-s3-region", "", "AWS region used for S3 file storage")
+
+	// AWS Flags
+	cli.InitAWSFlags(flag)
+
+	// Vault Flags
+	cli.InitVaultFlags(flag)
+
 	flag.String("comparison", "size", "Comparison used against files, either 'size' or 'md5'")
 	flag.Int64("max-object-size", 10, "The maximum size of files to download in MB for use with md5 comparison")
+
+	// Verbose
+	cli.InitVerboseFlags(flag)
+
+	// Don't sort flags
+	flag.SortFlags = false
 }
 
 func hashObjectMd5(buff *aws.WriteAtBuffer) string {
@@ -67,13 +83,13 @@ func checkRegion(v *viper.Viper) error {
 		return fmt.Errorf("could not find regions for service %s", endpoints.S3ServiceID)
 	}
 
-	r := v.GetString("aws-s3-region")
+	r := v.GetString(cli.AWSRegionFlag)
 	if len(r) == 0 {
-		return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-s3-region"))
+		return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", cli.AWSRegionFlag))
 	}
 
 	if _, ok := regions[r]; !ok {
-		return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-s3-region"))
+		return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", cli.AWSRegionFlag))
 	}
 
 	return nil
@@ -88,39 +104,78 @@ func checkComparison(v *viper.Viper) error {
 
 func checkConfig(v *viper.Viper) error {
 
-	err := checkRegion(v)
-	if err != nil {
+	if err := cli.CheckAWS(v); err != nil {
 		return err
 	}
 
-	err = checkComparison(v)
-	if err != nil {
+	if err := cli.CheckVault(v); err != nil {
+		return err
+	}
+
+	if err := checkRegion(v); err != nil {
+		return err
+	}
+
+	if err := checkComparison(v); err != nil {
 		return err
 	}
 
 	return nil
 }
 
+func quit(logger *log.Logger, flag *pflag.FlagSet, err error) {
+	logger.Println(err.Error())
+	logger.Println("Usage of compare-secure-migrations:")
+	if flag != nil {
+		flag.PrintDefaults()
+	}
+	os.Exit(1)
+}
+
 func main() {
+	// Create the logger
+	// Remove the prefix and any datetime data
+	logger := log.New(os.Stdout, "", log.LstdFlags)
 
 	flag := pflag.CommandLine
 	initFlags(flag)
-	flag.Parse(os.Args[1:])
+	err := flag.Parse(os.Args[1:])
+	if err != nil {
+		quit(logger, flag, err)
+	}
 
 	v := viper.New()
-	v.BindPFlags(flag)
+	pflagsErr := v.BindPFlags(flag)
+	if pflagsErr != nil {
+		quit(logger, flag, err)
+	}
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	err := checkConfig(v)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	verbose := v.GetBool(cli.VerboseFlag)
+	if !verbose {
+		// Disable any logging that isn't attached to the logger unless using the verbose flag
+		log.SetOutput(ioutil.Discard)
+		log.SetFlags(0)
+
+		// Remove the flags for the logger
+		logger.SetFlags(0)
 	}
 
-	sess := awssession.Must(awssession.NewSession(&aws.Config{
-		Region: aws.String(v.GetString("aws-s3-region")),
-	}))
+	checkConfigErr := checkConfig(v)
+	if checkConfigErr != nil {
+		quit(logger, flag, err)
+	}
+
+	awsConfig, err := cli.GetAWSConfig(v, verbose)
+	if err != nil {
+		quit(logger, nil, err)
+	}
+
+	sess, err := awssession.NewSession(awsConfig)
+	if err != nil {
+		quit(logger, nil, errors.Wrap(err, "failed to create AWS session"))
+	}
 
 	s3Service := s3.New(sess)
 	downloader := s3manager.NewDownloader(sess, func(d *s3manager.Downloader) {
