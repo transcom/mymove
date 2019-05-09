@@ -46,8 +46,8 @@ require (
 	github.com/jackc/pgx v3.4.0+incompatible // indirect
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jmoiron/sqlx v1.2.0
-	github.com/jung-kurt/gofpdf v1.1.1
-	github.com/karrick/godirwalk v1.8.2 // indirect
+	github.com/jung-kurt/gofpdf v1.3.3
+	github.com/karrick/godirwalk v1.9.1 // indirect
 	github.com/lib/pq v1.0.0
 	github.com/markbates/going v1.0.3 // indirect
 	github.com/markbates/goth v1.50.0
