@@ -23,7 +23,6 @@ type MoveQueueItem struct {
 	HhgStatus        *string                             `json:"hhg_status" db:"hhg_status"`
 	OrdersType       string                              `json:"orders_type" db:"orders_type"`
 	MoveDate         *time.Time                          `json:"move_date" db:"move_date"`
-	CustomerDeadline time.Time                           `json:"customer_deadline" db:"customer_deadline"`
 	LastModifiedDate time.Time                           `json:"last_modified_date" db:"last_modified_date"`
 	LastModifiedName string                              `json:"last_modified_name" db:"last_modified_name"`
 }
@@ -62,9 +61,9 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
 				moves.locator as locator,
 				ord.orders_type as orders_type,
-				ppm.original_move_date as move_date,
+				COALESCE(ppm.actual_move_date, ppm.original_move_date) as move_date,
 				moves.created_at as created_at,
-				moves.updated_at as last_modified_date,
+				ppm.updated_at as last_modified_date,
 				moves.status as status,
 				ppm.status as ppm_status,
 				shipment.gbl_number as gbl_number

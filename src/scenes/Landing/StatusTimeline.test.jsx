@@ -8,7 +8,7 @@ describe('StatusTimeline', () => {
       const ppm = {};
       const wrapper = mount(<PPMStatusTimeline ppm={ppm} />);
 
-      expect(wrapper.find(StatusBlock)).toHaveLength(5);
+      expect(wrapper.find(StatusBlock)).toHaveLength(4);
     });
 
     test('renders timeline for submitted ppm', () => {

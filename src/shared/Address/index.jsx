@@ -35,7 +35,7 @@ AddressElementDisplay.propTypes = {
     city: PropTypes.string.isRequired,
     state: PropTypes.string.isRequired,
     postal_code: PropTypes.string.isRequired,
-  }),
+  }).isRequired,
   title: PropTypes.string.isRequired,
 };
 

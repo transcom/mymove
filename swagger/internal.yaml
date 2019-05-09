@@ -80,7 +80,6 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       name:
         type: string
-        format: string
         example: Fort Bragg North Station
       address:
         $ref: '#/definitions/Address'
@@ -110,7 +109,6 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       name:
         type: string
-        format: string
         example: Fort Bragg North Station
       address:
         $ref: '#/definitions/Address'
@@ -123,7 +121,6 @@ definitions:
           example: 212-555-5555
       gbloc:
         type: string
-        format: string
         pattern: '^[A-Z]{4}$'
         example: JENQ
       latitude:
@@ -396,6 +393,12 @@ definitions:
         format: date
         title: When did you actually move?
         x-nullable: true
+      submit_date:
+        type: string
+        format: date-time
+        title: When was the ppm move submitted?
+        example: '2019-03-26T13:19:56-04:00'
+        x-nullable: true
       approve_date:
         type: string
         format: date-time
@@ -498,6 +501,26 @@ definitions:
       - id
       - created_at
       - updated_at
+  SubmitMoveForApprovalPayload:
+    type: object
+    properties:
+      ppm_submit_date:
+        type: string
+        format: date-time
+        title: When was the ppm move submitted?
+        example: '2019-03-26T13:19:56-04:00'
+    required:
+      - ppm_submit_date
+  SubmitPersonallyProcuredMovePayload:
+    type: object
+    properties:
+      submit_date:
+        type: string
+        format: date-time
+        title: When was the ppm move submitted?
+        example: '2019-03-26T13:19:56-04:00'
+    required:
+      - submit_date
   PPMSitEstimate:
     type: object
     properties:
@@ -570,6 +593,8 @@ definitions:
         format: date-time
         title: When was the ppm move approved?
         example: '2019-03-26T13:19:56-04:00'
+    required:
+      - approve_date
   IndexPersonallyProcuredMovePayload:
     type: array
     items:
@@ -1421,7 +1446,6 @@ definitions:
         example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
       filename:
         type: string
-        format: string
         example: filename.pdf
       content_type:
         type: string
@@ -2296,9 +2320,11 @@ definitions:
       ppm_status:
         type: string
         example: PAYMENT_REQUESTED
+        x-nullable: true
       hhg_status:
         type: string
         example: ACCEPTED
+        x-nullable: true
       locator:
         type: string
         example: '12432'
@@ -2306,6 +2332,7 @@ definitions:
         type: string
         example: 'LNK12345'
         title: GBL Number
+        x-nullable: true
       customer_name:
         type: string
         example: Thedog, Nino
@@ -2332,10 +2359,7 @@ definitions:
         type: string
         format: date
         example: 2018-04-25
-      customer_deadline:
-        type: string
-        format: date
-        example: 2018-07-20
+        x-nullable: true
       last_modified_date:
         type: string
         format: date-time
@@ -2349,16 +2373,11 @@ definitions:
     required:
       - id
       - status
-      - ppm_status
-      - hhg_status
       - locator
-      - gbl_number
       - customer_name
       - edipi
       - rank
       - orders_type
-      - move_date
-      - customer_deadline
       - last_modified_date
       - last_modified_name
       - created_at
@@ -2951,6 +2970,11 @@ paths:
           format: uuid
           required: true
           description: UUID of the PPM being submitted
+        - name: submitPersonallyProcuredMovePayload
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/SubmitPersonallyProcuredMovePayload'
       responses:
         200:
           description: updated instance of personally_procured_move
@@ -3438,6 +3462,11 @@ paths:
           format: uuid
           required: true
           description: UUID of the move
+        - name: submitMoveForApprovalPayload
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/SubmitMoveForApprovalPayload'
       responses:
         200:
           description: returns updated (submitted) move object
@@ -4075,7 +4104,6 @@ paths:
         - in: query
           name: search
           type: string
-          format: string
           required: true
           description: Search string for duty stations
       responses:
