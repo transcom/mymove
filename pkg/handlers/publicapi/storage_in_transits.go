@@ -145,7 +145,7 @@ type DenyStorageInTransitHandler struct {
 // This is meant to set the status for a storage in transit to denied, save the supporting authorization notes,
 // and return the saved object in a payload.
 func (h DenyStorageInTransitHandler) Handle(params sitop.DenyStorageInTransitParams) middleware.Responder {
-	payload := params.StorageInTransitApprovalPayload
+	payload := params.StorageInTransitDenyPayload
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
 	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
 

@@ -12,9 +12,10 @@ import { formName as PlaceInSitFormName } from 'shared/StorageInTransit/PlaceInS
 import './StorageInTransit.css';
 
 export class PlaceInSit extends Component {
-  state = {
-    storageInTransit: {},
-  };
+  constructor(props) {
+    super(props);
+    this.state = { storageInTransit: {} };
+  }
 
   closeForm = () => {
     this.props.onClose();
@@ -24,7 +25,7 @@ export class PlaceInSit extends Component {
     this.props.updateSitPlaceIntoSit(this.props.sit.shipment_id, this.props.sit.id, values);
   };
 
-  submitPlaceInSitAndClose = () => {
+  submitPlaceInSit = () => {
     this.props.submitForm();
   };
 
@@ -70,7 +71,7 @@ export class PlaceInSit extends Component {
               className="button usa-button-primary"
               data-cy="place-in-sit-button"
               disabled={!this.props.formEnabled}
-              onClick={this.submitPlaceInSitAndClose}
+              onClick={this.submitPlaceInSit}
             >
               Place Into SIT
             </button>

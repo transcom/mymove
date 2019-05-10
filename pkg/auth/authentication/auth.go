@@ -42,19 +42,22 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 				logger.Error("unauthorized user for office.move.mil", zap.String("email", session.Email))
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
-			}
-			// This must be the right type of user for the application
-			if session.IsTspApp() && session.TspUserID == uuid.Nil {
+			} else if session.IsTspApp() && session.TspUserID == uuid.Nil {
 				logger.Error("unauthorized user for tsp.move.mil", zap.String("email", session.Email))
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			} else if session.IsAdminApp() && !session.IsSuperuser {
+				logger.Error("unauthorized user for admin.move.mil", zap.String("email", session.Email))
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
 
-			// Include session office, service member, tsp and user IDs to the beeline event
+			// Include session office ID, service member ID, tsp ID, user ID, and superuser status to the beeline event
 			span.AddTraceField("auth.office_user_id", session.OfficeUserID)
 			span.AddTraceField("auth.service_member_id", session.ServiceMemberID)
 			span.AddTraceField("auth.tsp_user_id", session.TspUserID)
 			span.AddTraceField("auth.user_id", session.UserID)
+			span.AddTraceField("auth.is_superuser", session.IsSuperuser)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 			return
@@ -260,8 +263,13 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 		http.Error(w, http.StatusText(403), http.StatusForbidden)
 		return
 	}
+
 	session.UserID = userIdentity.ID
 	span.AddField("session.user_id", session.UserID)
+
+	session.IsSuperuser = userIdentity.IsSuperuser
+	span.AddField("session.is_superuser", session.IsSuperuser)
+
 	if userIdentity.ServiceMemberID != nil {
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
 		span.AddField("session.service_member_id", session.ServiceMemberID)
@@ -362,6 +370,12 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
+	}
+
+	if session.IsAdminApp() {
+		h.logger.Error("No superuser found", zap.String("email", session.Email))
+		http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+		return
 	}
 
 	user, err := models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)

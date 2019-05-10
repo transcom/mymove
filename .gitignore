@@ -1,6 +1,8 @@
 *.swp
 
+# direnv
 .envrc.local
+.envrc.chamber
 
 # dependencies
 /vendor
@@ -61,6 +63,7 @@ yarn-error.log*
 public/swagger-ui/*
 !public/swagger-ui/api.html
 !public/swagger-ui/internal.html
+!public/swagger-ui/admin.html
 
 # Cypress integration tests
 cypress/videos

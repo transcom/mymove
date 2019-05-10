@@ -48,6 +48,7 @@ require (
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/jung-kurt/gofpdf v1.3.3
 	github.com/karrick/godirwalk v1.9.1 // indirect
+	github.com/lib/pq v1.0.0
 	github.com/markbates/going v1.0.3 // indirect
 	github.com/markbates/goth v1.50.0
 	github.com/mattn/go-shellwords v1.0.5 // indirect
