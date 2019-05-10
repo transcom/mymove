@@ -116,6 +116,7 @@ export class StorageInTransit extends Component {
     const { showTspEditForm, showOfficeEditForm, showApproveForm, showDenyForm, showPlaceInSitForm } = this.state;
     const isDenied = storageInTransit.status === 'DENIED';
     const isRequested = storageInTransit.status === 'REQUESTED';
+    const isApproved = storageInTransit.status === 'APPROVED';
     return (
       <div data-cy="storage-in-transit" className="storage-in-transit">
         <div className="column-head">
@@ -127,12 +128,12 @@ export class StorageInTransit extends Component {
             </span>{' '}
             {isRequested && <SitStatusIcon isTspSite={isTspSite} />}
           </span>
-          {storageInTransit.status === 'APPROVED' ? (
+          {isApproved ? (
             <span data-cy="storage-in-transit-status">
               <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />
               Approved
             </span>
-          ) : storageInTransit.status === 'DENIED' ? (
+          ) : isDenied ? (
             <span data-cy="storage-in-transit-status-denied">
               <FontAwesomeIcon className="icon approval-problem" icon={faBan} />
               Denied
@@ -144,7 +145,7 @@ export class StorageInTransit extends Component {
           )}
           {showApproveForm ? (
             <ApproveSitRequest onClose={this.closeApproveForm} storageInTransit={this.state.storageInTransit} />
-          ) : storageInTransit.status === 'APPROVED' || storageInTransit.status === 'DENIED' ? (
+          ) : isApproved || isDenied ? (
             <span>{null}</span>
           ) : (
             isOfficeSite &&
@@ -161,7 +162,7 @@ export class StorageInTransit extends Component {
           )}
           {showDenyForm ? (
             <DenySitRequest onClose={this.closeDenyForm} storageInTransit={storageInTransit} />
-          ) : storageInTransit.status === 'APPROVED' || storageInTransit.status === 'DENIED' ? (
+          ) : isApproved || isDenied ? (
             <span>{null}</span>
           ) : (
             isOfficeSite &&
@@ -180,7 +181,7 @@ export class StorageInTransit extends Component {
             <PlaceInSit sit={storageInTransit} onClose={this.closePlaceInSitForm} />
           ) : (
             isTspSite &&
-            storageInTransit.status === 'APPROVED' && (
+            isApproved && (
               <span className="sit-actions">
                 <span className="place-in-sit">
                   <a data-cy="place-in-sit-link" onClick={this.openPlaceInSitForm}>
@@ -199,7 +200,8 @@ export class StorageInTransit extends Component {
             />
           ) : (
             isTspSite &&
-            storageInTransit.status !== 'APPROVED' && (
+            storageInTransit.status !== 'APPROVED' &&
+            !isDenied && (
               <span className="sit-actions">
                 <span className="sit-edit actionable">
                   <a onClick={this.openTspEditForm}>
@@ -217,7 +219,7 @@ export class StorageInTransit extends Component {
               storageInTransit={this.state.storageInTransit}
             />
           ) : (
-            (storageInTransit.status === 'APPROVED' || storageInTransit.status === 'DENIED') &&
+            (isApproved || isDenied) &&
             isOfficeSite &&
             !showApproveForm &&
             !showDenyForm && (
