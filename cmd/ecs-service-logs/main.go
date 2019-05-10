@@ -41,13 +41,11 @@ var regexpServiceEventStoppedTask = regexp.MustCompile("^[(]service ([0-9a-zA-Z_
 var regexpServiceEventStoppedTaskID = regexp.MustCompile("[(]task ([0-9a-z-]+)[)]")
 
 const (
-	flagAWSRegion            string = "aws-region"
-	flagAWSProfile           string = "aws-profile"
-	flagAWSVaultKeychainName string = "aws-vault-keychain-name"
-	flagAWSVaultProfile      string = "aws-vault"
-
-	flagAWSSessionToken string = "aws-session-token"
-
+	flagAWSRegion              string = "aws-region"
+	flagAWSProfile             string = "aws-profile"
+	flagAWSSessionToken        string = "aws-session-token"
+	flagAWSVaultKeychainName   string = "aws-vault-keychain-name"
+	flagAWSVaultProfile        string = "aws-vault"
 	flagCluster                string = "cluster"
 	flagService                string = "service"
 	flagEnvironment            string = "environment"
@@ -159,7 +157,6 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String(flagAWSRegion, defaultAWSRegion, "The AWS Region")
 	flag.String(flagAWSProfile, "", "The aws-vault profile")
 	flag.String(flagAWSVaultKeychainName, "", "The aws-vault keychain name")
-
 	flag.StringP(flagCluster, "c", "", "The cluster name")
 	flag.StringP(flagEnvironment, "e", "", "The environment name")
 	flag.StringP(flagService, "s", "", "The service name")
