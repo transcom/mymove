@@ -21,12 +21,12 @@ class QueueTable extends Component {
   }
 
   componentDidMount() {
-    this.fetchData(this.props.retrieveMoves);
+    this.fetchData();
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.queueType !== prevProps.queueType) {
-      this.fetchData(this.props.retrieveMoves);
+      this.fetchData();
     }
   }
 
@@ -36,7 +36,7 @@ class QueueTable extends Component {
     lastName: '',
   };
 
-  async fetchData(retrieveMoves) {
+  async fetchData() {
     const loadingQueueType = this.props.queueType;
 
     this.setState({
@@ -48,7 +48,7 @@ class QueueTable extends Component {
 
     // Catch any errors here and render an empty queue
     try {
-      const body = await retrieveMoves(this.props.queueType);
+      const body = await this.props.retrieveMoves(this.props.queueType);
 
       // Only update the queue list if the request that is returning
       // is for the same queue as the most recent request.
@@ -80,7 +80,7 @@ class QueueTable extends Component {
     };
 
     this.state.data.forEach(row => {
-      if (row.ppm_status && row.hhg_status) {
+      if (this.props.queueType === 'new' && row.ppm_status && row.hhg_status) {
         row.shipments = 'HHG, PPM';
       } else if (row.ppm_status && !row.hhg_status) {
         row.shipments = 'PPM';
@@ -147,6 +147,7 @@ class QueueTable extends Component {
               {
                 Header: 'Shipments',
                 accessor: 'shipments',
+                show: this.props.queueType === 'new',
               },
               {
                 Header: 'Locator #',

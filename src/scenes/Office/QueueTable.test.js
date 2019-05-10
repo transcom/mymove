@@ -59,6 +59,23 @@ describe('Shipments column', () => {
       done();
     });
   });
+
+  it('does not display when the queue type is anything other than "new"', done => {
+    wrapper = mountComponents(
+      retrieveMovesStub({
+        ppm_status: undefined,
+        hhg_status: undefined,
+      }),
+      'ppm',
+    );
+
+    setTimeout(() => {
+      const move = getMove(wrapper);
+      expect(move.shipments);
+
+      done();
+    });
+  });
 });
 
 function retrieveMovesStub(params) {
@@ -76,11 +93,11 @@ function retrieveMovesStub(params) {
   };
 }
 
-function mountComponents(getMoves) {
+function mountComponents(getMoves, queueType = 'new') {
   return mount(
     <Provider store={store}>
       <MockRouter push={push}>
-        <QueueTable queueType="new" retrieveMoves={getMoves} />
+        <QueueTable queueType={queueType} retrieveMoves={getMoves} />
       </MockRouter>
     </Provider>,
   );

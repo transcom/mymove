@@ -18,7 +18,7 @@ import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import ScratchPad from 'shared/ScratchPad';
 import { isProduction } from 'shared/constants';
-import { RetrieveMovesForOffice } from './api.js';
+import { RetrieveMovesForOffice } from './api';
 
 import './office.css';
 
