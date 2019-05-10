@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
-import { updateMove, loadMove } from './ducks';
+import { updateMove, loadMove } from 'shared/Entities/modules/moves';
 import WizardPage from 'shared/WizardPage';
 import MoveType from './MoveType';
 
