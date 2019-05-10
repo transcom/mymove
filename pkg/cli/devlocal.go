@@ -20,7 +20,7 @@ func InitDevlocalFlags(flag *pflag.FlagSet) {
 
 // CheckDevlocal validates the Devlocal command line flags
 func CheckDevlocal(v *viper.Viper) error {
-	if devlocalAuthEnabled := v.GetBool(DevlocalAuthFlag); devlocalAuthEnabled {
+	if v.GetBool(DevlocalAuthFlag) {
 		// Check against the Environment
 		allowedEnvironments := []string{
 			EnvironmentDevelopment,
