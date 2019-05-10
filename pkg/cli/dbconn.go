@@ -103,7 +103,7 @@ func InitDatabaseFlags(flag *pflag.FlagSet) {
 	flag.Int(DbPortFlag, 5432, "Database Port")
 	flag.String(DbUserFlag, "postgres", "Database Username")
 	flag.String(DbPasswordFlag, "", "Database Password")
-	flag.String(DbSSLModeFlag, "disable", "Database SSL Mode: "+strings.Join(allSSLModes, ", "))
+	flag.String(DbSSLModeFlag, SSLModeDisable, "Database SSL Mode: "+strings.Join(allSSLModes, ", "))
 	flag.String(DbSSLRootCertFlag, "", "Path to the database root certificate file used for database connections")
 }
 
