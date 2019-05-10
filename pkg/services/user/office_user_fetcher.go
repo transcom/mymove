@@ -6,15 +6,15 @@ import (
 )
 
 type officeUserQueryBuilder interface {
-	FetchOne(model interface{}, field string, value string) error
+	FetchOne(model interface{}, field string, value interface{}) error
 }
 
 type officeUserFetcher struct {
 	builder officeUserQueryBuilder
 }
 
-func (o officeUserFetcher) FetchOfficeUser(field string, value string) (models.OfficeUser, error) {
-	officeUser := models.OfficeUser{}
+func (o officeUserFetcher) FetchOfficeUser(field string, value interface{}) (models.OfficeUser, error) {
+	var officeUser models.OfficeUser
 	error := o.builder.FetchOne(&officeUser, field, value)
 	return officeUser, error
 }

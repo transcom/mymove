@@ -12,7 +12,7 @@ func (suite *UserServiceSuite) TestFetchOfficeUser() {
 	builder := query.NewPopQueryBuilder(suite.DB())
 	fetcher := NewOfficeUserFetcher(builder)
 	pop.Debug = true
-	officeUser, err := fetcher.FetchOfficeUser("office_users.id", user.ID.String())
+	officeUser, err := fetcher.FetchOfficeUser("id", user.ID.String())
 	pop.Debug = false
 	suite.NoError(err)
 	suite.T().Log(officeUser)
