@@ -32,10 +32,13 @@ function tspUserIsWelcomed() {
 }
 
 function tspAllMoves() {
-  cy.visit('/queues/all');
+  cy.patientVisit('/queues/all');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/all/);
   });
 
-  cy.get('[data-cy=queue-table-row]').should('have.length', 40);
+  cy
+    .get('[data-cy=locator]')
+    .contains('NOSHOW')
+    .should('not.exist');
 }

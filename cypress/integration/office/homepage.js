@@ -39,6 +39,6 @@ function officeAllMoves() {
 
   cy
     .get('[data-cy=locator]')
-    .contains('PZCPPP')
+    .contains('NOSHOW')
     .should('not.exist');
 }

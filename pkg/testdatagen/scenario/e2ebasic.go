@@ -103,9 +103,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	makeHhgReadyToInvoice(db, tspUser, logger, storer)
 
 	/*
-	 * Service member new ppm move
+	 * Service member with uploaded orders and an approved shipment but show in the moves table is false
 	 */
-	makeNewPPM(db, tspUser, loader)
+	makeHhgShipment(db, tspUser)
 
 	/*
 	 * Service member with no uploaded orders
@@ -2966,41 +2966,46 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Lo
 	return offer.Shipment
 }
 
-func makeNewPPM(db *pop.Connection, tspUser models.TspUser, loader *uploader.Uploader) {
+func makeHhgShipment(db *pop.Connection, tspUser models.TspUser) {
 	/*
-	 * Service member with uploaded orders and a new ppm
+	 * Service member with uploaded orders and an approved shipment with show = false
 	 */
-	email := "ppm@incomple.te"
-	uuidStr := "1d4aad25-b31b-486f-bfae-09d77e729044"
-	testdatagen.MakeUser(db, testdatagen.Assertions{
+	email := "hhg@dates.panel"
+
+	offer := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			ID:            uuid.Must(uuid.FromString("1d4aad25-b31b-486f-bfae-09d77e729044")),
 			LoginGovEmail: email,
 		},
-	})
-	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
-	ppm0 := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("c61cae62-b086-411e-a9f9-e75319037a28"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("PPM"),
+			FirstName:     models.StringPointer("HHG"),
 			LastName:      models.StringPointer("Submitted"),
-			Edipi:         models.StringPointer("1234567890"),
+			Edipi:         models.StringPointer("4444567890"),
 			PersonalEmail: models.StringPointer(email),
 		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("360fe5ef-b9e5-4183-9766-3efaeb8113d1"),
-			Locator:          "PZCPPP",
+			Locator:          "NOSHOW",
 			SelectedMoveType: &selectedMoveTypeHHG,
 			Show:             swag.Bool(false),
 		},
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			OriginalMoveDate:    &nextValidMoveDate,
-			Advance:             &advance,
-			AdvanceID:           &advance.ID,
-			HasRequestedAdvance: true,
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("2bfb3da2-481e-42de-ae8f-fb10a2b030ca"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
 		},
-		Uploader: loader,
+		Shipment: models.Shipment{
+			Status:             models.ShipmentStatusAWARDED,
+			ActualDeliveryDate: nil,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+		},
 	})
-	ppm0.Move.Submit(time.Now())
+
+	hhg := offer.Shipment
+	hhg.Move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &hhg.Move)
 }
