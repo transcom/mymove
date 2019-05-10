@@ -12,62 +12,67 @@ const push = jest.fn();
 describe('Shipments column', () => {
   let wrapper;
 
-  it('renders "PPM" when it is a PPM move', async () => {
+  it('renders "PPM" when it is a PPM move', done => {
     wrapper = mountComponents(
-      retrieveMoves({
+      retrieveMovesStub({
         ppm_status: 'PAYMENT_REQUESTED',
         hhg_status: undefined,
       }),
     );
 
-    await resolveAllPromises();
+    setTimeout(() => {
+      const move = getMove(wrapper);
+      expect(move.shipments).toEqual('PPM');
 
-    const move = getMove(wrapper);
-
-    expect(move.shipments).toEqual('PPM');
+      done();
+    });
   });
 
-  it('renders "HHG" when it is a HHG move', async () => {
+  it('renders "HHG" when it is a HHG move', done => {
     wrapper = mountComponents(
-      retrieveMoves({
+      retrieveMovesStub({
         ppm_status: undefined,
         hhg_status: 'APPROVED',
       }),
     );
 
-    await resolveAllPromises();
+    setTimeout(() => {
+      const move = getMove(wrapper);
+      expect(move.shipments).toEqual('HHG');
 
-    const move = getMove(wrapper);
-
-    expect(move.shipments).toEqual('HHG');
+      done();
+    });
   });
 
-  it('renders "HHG, PPM" when it is a combo move', async () => {
+  it('renders "HHG, PPM" when it is a combo move', done => {
     wrapper = mountComponents(
-      retrieveMoves({
+      retrieveMovesStub({
         ppm_status: 'PAYMENT_REQUESTED',
         hhg_status: 'APPROVED',
       }),
     );
 
-    await resolveAllPromises();
+    setTimeout(() => {
+      const move = getMove(wrapper);
+      expect(move.shipments).toEqual('HHG, PPM');
 
-    const move = getMove(wrapper);
-
-    expect(move.shipments).toEqual('HHG, PPM');
+      done();
+    });
   });
 });
 
-function retrieveMoves(params) {
+function retrieveMovesStub(params) {
   // This is meant as a stub that will act in place of
   // `RetrieveMovesForOffice` from Office/api.js
   return async () => {
-    return [
-      {
-        id: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
-        ...params,
-      },
-    ];
+    return await new Promise(resolve => {
+      resolve([
+        {
+          id: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
+          ...params,
+        },
+      ]);
+    });
   };
 }
 
@@ -83,15 +88,4 @@ function mountComponents(getMoves) {
 
 function getMove(wrapper) {
   return wrapper.find(ReactTable).state().data[0];
-}
-
-function resolveAllPromises() {
-  // Forces all promises that are returned inside the
-  // component to resolve before the one returned here,
-  // effectively giving us the end state of the component
-  // as it would be rendered on the page.
-
-  return new Promise(resolve => {
-    setTimeout(resolve, 0);
-  });
 }
