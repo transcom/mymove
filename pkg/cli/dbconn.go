@@ -128,7 +128,7 @@ func CheckDatabase(v *viper.Viper, logger Logger) error {
 		return &errInvalidSSLMode{Mode: sslMode, Modes: allSSLModes}
 	}
 	if dbEnv == DbEnvContainer && !stringSliceContains(containerSSLModes, sslMode) {
-		return errors.Wrapf(&errInvalidSSLMode{Mode: sslMode, Modes: containerSSLModes}, "container db env requires SSL connection to the database")
+		return errors.Wrap(&errInvalidSSLMode{Mode: sslMode, Modes: containerSSLModes}, "container db env requires SSL connection to the database")
 	} else if dbEnv != DbEnvContainer && !stringSliceContains(allSSLModes, sslMode) {
 		return &errInvalidSSLMode{Mode: sslMode, Modes: allSSLModes}
 	}
