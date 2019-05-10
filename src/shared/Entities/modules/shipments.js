@@ -51,9 +51,19 @@ export function updatePublicShipment(
   return swaggerRequest(getPublicClient, 'shipments.patchShipment', { shipmentId, update: shipment }, { label });
 }
 
-export function approveShipment(shipmentId, label = approveShipmentLabel) {
+export function approveShipment(shipmentId, shipmentApproveDate, label = approveShipmentLabel) {
   const swaggerTag = 'shipments.approveHHG';
-  return swaggerRequest(getClient, swaggerTag, { shipmentId }, { label });
+  return swaggerRequest(
+    getClient,
+    swaggerTag,
+    {
+      shipmentId,
+      approveShipmentPayload: {
+        approve_date: shipmentApproveDate,
+      },
+    },
+    { label },
+  );
 }
 
 export function selectShipment(state, id) {

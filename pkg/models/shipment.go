@@ -95,6 +95,8 @@ type Shipment struct {
 	RequestedPickupDate  *time.Time `json:"requested_pickup_date" db:"requested_pickup_date"`   // when shipment was originally scheduled to be picked up
 	OriginalDeliveryDate *time.Time `json:"original_delivery_date" db:"original_delivery_date"` // when shipment is to be delivered
 	OriginalPackDate     *time.Time `json:"original_pack_date" db:"original_pack_date"`         // when packing is to begin
+	ApproveDate          *time.Time `json:"approve_date" db:"approve_date"`                     // when shipment is approved by office user
+	SubmitDate           *time.Time `json:"submit_date" db:"submit_date"`                       // when shipment was submitted by SM
 
 	// calculated durations
 	EstimatedPackDays    *int64 `json:"estimated_pack_days" db:"estimated_pack_days"`       // how many days it will take to pack
@@ -254,12 +256,13 @@ func (s *Shipment) CurrentTransportationServiceProviderID() uuid.UUID {
 // Avoid calling Shipment.Status = ... ever. Use these methods to change the state.
 
 // Submit marks the Shipment request for review
-func (s *Shipment) Submit() error {
+func (s *Shipment) Submit(hhgSubmitDate time.Time) error {
 	if s.Status != ShipmentStatusDRAFT {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
 	now := time.Now()
 	s.BookDate = &now
+	s.SubmitDate = &hhgSubmitDate
 	s.Status = ShipmentStatusSUBMITTED
 	return nil
 }
@@ -292,11 +295,16 @@ func (s *Shipment) Reject() error {
 }
 
 // Approve marks the Shipment request as Approved. Must be in an Accepted state.
-func (s *Shipment) Approve() error {
+func (s *Shipment) Approve(approveDate time.Time) error {
 	if s.Status != ShipmentStatusACCEPTED {
-		return errors.Wrap(ErrInvalidTransition, "Approve")
+		return errors.Wrap(ErrInvalidTransition, "Approve - status change")
+	}
+
+	if s.ApproveDate != nil {
+		return errors.Wrap(ErrInvalidTransition, "Aprove - approve date change")
 	}
 	s.Status = ShipmentStatusAPPROVED
+	s.ApproveDate = &approveDate
 	return nil
 }
 

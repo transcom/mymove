@@ -128,7 +128,7 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	suite.Equal(ShipmentStatusDRAFT, shipment.Status, "expected Draft")
 
 	// Can submit shipment
-	err := shipment.Submit()
+	err := shipment.Submit(time.Now())
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusSUBMITTED, shipment.Status, "expected Submitted")
 
@@ -143,7 +143,7 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	suite.Equal(ShipmentStatusACCEPTED, shipment.Status, "expected Accepted")
 
 	// Can approve shipment (HHG)
-	err = shipment.Approve()
+	err = shipment.Approve(time.Now())
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusAPPROVED, shipment.Status, "expected Approved")
 
@@ -182,7 +182,7 @@ func (suite *ModelSuite) TestSetBookDateWhenSubmitted() {
 	suite.Nil(shipment.BookDate)
 
 	// Can submit shipment
-	err := shipment.Submit()
+	err := shipment.Submit(time.Now())
 	suite.Nil(err)
 	suite.NotNil(shipment.BookDate)
 }
@@ -858,7 +858,7 @@ func (suite *ModelSuite) TestAcceptedShipmentOffer() {
 	suite.Len(shipment.ShipmentOffers, 1)
 
 	// Can submit shipment
-	err = shipment.Submit()
+	err = shipment.Submit(time.Now())
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusSUBMITTED, shipment.Status, "expected Submitted")
 

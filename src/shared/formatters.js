@@ -142,7 +142,7 @@ const formatDateForDateRange = (date, formatType) => {
       format = 'ddd, MMM DD';
       break;
     case 'condensed':
-      format = 'MMM DD';
+      format = 'MMM D';
       break;
     default:
       format = 'ddd, MMM DD';

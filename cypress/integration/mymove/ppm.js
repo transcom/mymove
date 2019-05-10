@@ -192,7 +192,7 @@ function serviceMemberVisitsIntroToPPMPaymentRequest() {
 
   cy
     .get('a')
-    .contains('List of allowable expenses')
+    .contains('What expenses are allowed?')
     .click();
 
   cy.location().should(loc => {

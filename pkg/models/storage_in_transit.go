@@ -90,6 +90,7 @@ func (s *StorageInTransit) Validate(tx *pop.Connection) (*validate.Errors, error
 		&validators.TimeIsPresent{Field: s.EstimatedStartDate, Name: "EstimatedStartDate"},
 		&OptionalTimeIsPresent{Field: s.AuthorizedStartDate, Name: "AuthorizedStartDate"},
 		&OptionalTimeIsPresent{Field: s.ActualStartDate, Name: "ActualStartDate"},
+		&OptionalDateNotBefore{Field: s.ActualStartDate, MinDate: s.AuthorizedStartDate, Name: "ActualStartDate"},
 		&OptionalTimeIsPresent{Field: s.OutDate, Name: "OutDate"},
 		&StringIsNilOrNotBlank{Field: s.Notes, Name: "Notes"},
 		&StringIsNilOrNotBlank{Field: s.AuthorizationNotes, Name: "AuthorizationNotes"},

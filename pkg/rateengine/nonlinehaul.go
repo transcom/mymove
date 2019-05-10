@@ -147,15 +147,15 @@ func (re *RateEngine) SitCharge(cwt unit.CWT, daysInSIT int, zip3 string, date t
 		//   (185B SIT additional day rate * additional days * CWT) +
 		//   210A SIT PD 30 miles or less for SIT PD schedule of service area +
 		//   225A SIT PD Self/Mini Storage for services schedule of service area
-		rate210A, err := models.FetchTariff400ngItemRate(re.db, "210A", sa.SITPDSchedule, effectiveCWT.ToPounds(), date)
-		if err != nil {
-			return SITComputation{}, errors.Wrapf(err, "No 210A rate found for schedule %v, %v pounds, date %v", sa.SITPDSchedule, effectiveCWT.ToPounds(), date)
+		rate210A, rate210AErr := models.FetchTariff400ngItemRate(re.db, "210A", sa.SITPDSchedule, effectiveCWT.ToPounds(), date)
+		if rate210AErr != nil {
+			return SITComputation{}, errors.Wrapf(rate210AErr, "No 210A rate found for schedule %v, %v pounds, date %v", sa.SITPDSchedule, effectiveCWT.ToPounds(), date)
 		}
 		sitPart = sitPart.AddCents(rate210A.RateCents)
 
-		rate225A, err := models.FetchTariff400ngItemRate(re.db, "225A", sa.ServicesSchedule, effectiveCWT.ToPounds(), date)
-		if err != nil {
-			return SITComputation{}, errors.Wrapf(err, "No 225A rate found for schedule %v, %v pounds, date %v", sa.ServicesSchedule, effectiveCWT.ToPounds(), date)
+		rate225A, rate225AErr := models.FetchTariff400ngItemRate(re.db, "225A", sa.ServicesSchedule, effectiveCWT.ToPounds(), date)
+		if rate225AErr != nil {
+			return SITComputation{}, errors.Wrapf(rate225AErr, "No 225A rate found for schedule %v, %v pounds, date %v", sa.ServicesSchedule, effectiveCWT.ToPounds(), date)
 		}
 		linehaulPart = rate225A.RateCents
 

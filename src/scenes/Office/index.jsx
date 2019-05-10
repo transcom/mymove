@@ -19,7 +19,7 @@ import PrivateRoute from 'shared/User/PrivateRoute';
 import ScratchPad from 'shared/ScratchPad';
 import { isProduction } from 'shared/constants';
 
-import './office.css';
+import './office.scss';
 
 class Queues extends Component {
   render() {

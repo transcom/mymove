@@ -17,7 +17,7 @@ type placeIntoSITStorageInTransit struct {
 	db *pop.Connection
 }
 
-// PlaceIntoSITStorageInTransit sets the status of a Storage In Transit to IN SIT, saves its ActualStartDate, and returns the updated object.
+// PlaceIntoSITStorageInTransit sets the status of a Storage In Transit to IN SIT, saves its ActualStartDate and the generated SIT number, and returns the updated object.
 func (p *placeIntoSITStorageInTransit) PlaceIntoSITStorageInTransit(payload apimessages.StorageInTransitInSitPayload, shipmentID uuid.UUID, session *auth.Session, storageInTransitID uuid.UUID) (*models.StorageInTransit, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 
@@ -51,6 +51,14 @@ func (p *placeIntoSITStorageInTransit) PlaceIntoSITStorageInTransit(payload apim
 
 	storageInTransit.Status = models.StorageInTransitStatusINSIT
 	storageInTransit.ActualStartDate = &payloadActualStartDate
+
+	storageInTransitNumberGenerator := NewStorageInTransitNumberGenerator(p.db)
+	storageInTransitNumber, err := storageInTransitNumberGenerator.GenerateStorageInTransitNumber(*storageInTransit.ActualStartDate)
+	if err != nil {
+		return nil, returnVerrs, err
+	}
+
+	storageInTransit.SITNumber = &storageInTransitNumber
 
 	if verrs, err := p.db.ValidateAndSave(storageInTransit); verrs.HasAny() || err != nil {
 		returnVerrs.Append(verrs)
