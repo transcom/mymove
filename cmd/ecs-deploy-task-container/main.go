@@ -282,7 +282,7 @@ func main() {
 
 	checkConfigErr := checkConfig(v)
 	if checkConfigErr != nil {
-		quit(logger, flag, err)
+		quit(logger, flag, checkConfigErr)
 	}
 
 	awsConfig, err := cli.GetAWSConfig(v, verbose)
