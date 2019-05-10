@@ -5,9 +5,9 @@ import { normalize } from 'normalizr';
 import { ordersArray } from 'shared/Entities/schema';
 import { addEntities } from 'shared/Entities/actions';
 import { getShipment } from 'shared/Entities/modules/shipments';
-import store from 'shared/store';
 
 const getLoggedInUserType = 'GET_LOGGED_IN_USER';
+export const SET_LOGGED_OUT = 'SET_LOGGED_OUT';
 
 export const GET_LOGGED_IN_USER = helpers.generateAsyncActionTypes(getLoggedInUserType);
 const getLoggedInActions = helpers.generateAsyncActions(getLoggedInUserType);
@@ -34,6 +34,11 @@ export function getCurrentUserInfo() {
       .catch(error => dispatch(getLoggedInActions.error(error)));
   };
 }
+export function setLoggedOut() {
+  return function(dispatch) {
+    dispatch({ type: SET_LOGGED_OUT });
+  };
+}
 
 export function selectCurrentUser(state) {
   return state.user.userInfo || {};
@@ -51,14 +56,16 @@ export function selectGetCurrentUserIsError(state) {
   return state.user.hasErrored;
 }
 
-export const SET_LOGGED_OUT = 'SET_LOGGED_OUT';
-export const setLoggedOut = () => store.dispatch({ type: SET_LOGGED_OUT });
+const userInfoDefault = () => ({
+  email: '',
+  isLoggedIn: false,
+});
 
 const currentUserReducerDefault = () => ({
   hasSucceeded: false,
   hasErrored: false,
   isLoading: false,
-  userInfo: { email: '', isLoggedIn: false },
+  userInfo: userInfoDefault(),
 });
 
 const currentUserReducer = (state = currentUserReducerDefault(), action) => {
@@ -81,13 +88,14 @@ const currentUserReducer = (state = currentUserReducerDefault(), action) => {
         hasErrored: false,
         isLoading: false,
       };
-    case GET_LOGGED_IN_USER.error:
+    case GET_LOGGED_IN_USER.failure:
       return {
         ...state,
         isLoading: false,
         hasErrored: true,
         hasSucceeded: false,
         error: action.error,
+        userInfo: userInfoDefault(),
       };
     case SET_LOGGED_OUT:
       return {
