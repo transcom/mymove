@@ -1,6 +1,8 @@
 *.swp
 
+# direnv
 .envrc.local
+.envrc.chamber
 
 # dependencies
 /vendor
