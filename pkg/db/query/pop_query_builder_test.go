@@ -22,7 +22,7 @@ func (suite *PopQueryBuilderSuite) TestFetchMany() {
 	var officeUsers models.OfficeUsers
 	suite.T().Run("fetches many with filter", func(t *testing.T) {
 		filters := map[string]interface{}{
-			"id": user2.ID,
+			"id":    user2.ID,
 			"email": email,
 		}
 		err := builder.FetchMany(&officeUsers, filters)
@@ -34,7 +34,7 @@ func (suite *PopQueryBuilderSuite) TestFetchMany() {
 
 	suite.T().Run("fails with invalid column", func(t *testing.T) {
 		filters := map[string]interface{}{
-			"id": user2.ID,
+			"id":          user2.ID,
 			"fake_column": email,
 		}
 		err := builder.FetchMany(&officeUsers, filters)

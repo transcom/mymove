@@ -20,8 +20,8 @@ func (t *testOfficeUserQueryBuilder) FetchOne(model interface{}, field string, v
 }
 
 func (suite *UserServiceSuite) TestFetchOfficeUser() {
-	suite.T().Run("if the user it fetched, it should be returned", func(t *testing.T){
-		id , err := uuid.NewV4()
+	suite.T().Run("if the user it fetched, it should be returned", func(t *testing.T) {
+		id, err := uuid.NewV4()
 		suite.NoError(err)
 		fakeFetchOne := func(model interface{}) error {
 			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(id))
