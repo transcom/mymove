@@ -36,14 +36,6 @@ func (e *errInvalidAccountID) Error() string {
 	return fmt.Sprintf("invalid AWS account ID %q", e.AwsAccountID)
 }
 
-type errInvalidRegion struct {
-	Region string
-}
-
-func (e *errInvalidRegion) Error() string {
-	return fmt.Sprintf("invalid AWS region %q", e.Region)
-}
-
 type errInvalidService struct {
 	Service string
 }
