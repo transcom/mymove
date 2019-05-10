@@ -14,7 +14,7 @@ import { loadOrders, loadOrdersLabel, selectUplodsForOrders } from 'shared/Entit
 import { loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { stringifyName } from 'shared/utils/serviceMember';
 
-import './office.css';
+import './office.scss';
 
 class OrdersInfo extends Component {
   componentDidMount() {

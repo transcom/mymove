@@ -419,16 +419,16 @@ func (h DeleteShipmentLineItemHandler) Handle(params accessorialop.DeleteShipmen
 	shipmentID := uuid.Must(uuid.FromString(shipmentLineItem.ShipmentID.String()))
 	if session.IsTspUser() {
 		// Check that the TSP user can access the shipment
-		_, _, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
-		if err != nil {
-			h.Logger().Error("Error fetching shipment for TSP user", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+		_, _, fetchShipmentForVerifiedTSPUserErr := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
+		if fetchShipmentForVerifiedTSPUserErr != nil {
+			h.Logger().Error("Error fetching shipment for TSP user", zap.Error(fetchShipmentForVerifiedTSPUserErr))
+			return handlers.ResponseForError(h.Logger(), fetchShipmentForVerifiedTSPUserErr)
 		}
 	} else if session.IsOfficeUser() {
-		_, err := models.FetchShipment(h.DB(), session, shipmentID)
-		if err != nil {
-			h.Logger().Error("Error fetching shipment for office user", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+		_, fetchShipmentErr := models.FetchShipment(h.DB(), session, shipmentID)
+		if fetchShipmentErr != nil {
+			h.Logger().Error("Error fetching shipment for office user", zap.Error(fetchShipmentErr))
+			return handlers.ResponseForError(h.Logger(), fetchShipmentErr)
 		}
 	} else {
 		return accessorialop.NewDeleteShipmentLineItemForbidden()

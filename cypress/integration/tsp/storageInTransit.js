@@ -14,8 +14,11 @@ describe('TSP user interacts with storage in transit panel', function() {
   it('TSP user edits and saves storage in transit request', function() {
     tspUserEditsSitRequest();
   });
-  it('TSP user starts and then cancels Place into SIT form', function() {
+  it('TSP user starts and then cancels then completes Place into SIT form', function() {
+    tspUserGoesToAcceptedSIT();
     tspUserStartsAndCancelsSitPlaceInSit();
+    tspUserEntersInvalidActualStartDate();
+    tspUserSubmitsPlaceInSit();
   });
 });
 
@@ -42,7 +45,7 @@ function tspUserCreatesSitRequest() {
     .get('.storage-in-transit-panel .add-request')
     .contains('Request SIT')
     .click()
-    .get('.storage-in-transit-request-form')
+    .get('.storage-in-transit-form')
     .should($div => {
       const text = $div.text();
       expect(text).to.include('SIT location');
@@ -119,7 +122,7 @@ function tspUserEditsSitRequest() {
   editAndSaveStorageInTransit();
 }
 
-function tspUserStartsAndCancelsSitPlaceInSit() {
+function tspUserGoesToAcceptedSIT() {
   // Open accepted shipments queue
   cy.patientVisit('/queues/in_transit');
 
@@ -134,20 +137,86 @@ function tspUserStartsAndCancelsSitPlaceInSit() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
+}
 
+function tspUserStartsAndCancelsSitPlaceInSit() {
+  // User starts from Accepted SIT
   cy
     .get('[data-cy=storage-in-transit-panel] [data-cy=place-in-sit-link]')
     .contains('Place into SIT')
     .click();
 
-  cy.get('input[name=actual_start_date').should('have.value', '3/26/2019');
+  cy.get('input[name=actual_start_date]').should('have.value', '3/26/2019');
   cy
-    .get('.usa-button-secondary')
+    .get('[data-cy=place-into-sit-cancel]')
     .contains('Cancel')
     .click()
     .get('[data-cy=storage-in-transit-panel] [data-cy=place-in-sit-link]')
     .should($div => {
       const text = $div.text();
       expect(text).to.not.include('Actual start date');
+    });
+}
+
+function tspUserEntersInvalidActualStartDate() {
+  // User starts from Accepted SIT
+  cy
+    .get('[data-cy=storage-in-transit-panel] [data-cy=place-in-sit-link]')
+    .contains('Place into SIT')
+    .click();
+
+  // calendar date picker date should be disabled
+  cy
+    .get('input[name=actual_start_date]')
+    .should('have.value', '3/26/2019')
+    // chooses invalid 3/22/2019
+    .click()
+    .get('.DayPickerInput-Overlay .DayPicker-Day')
+    .contains('25')
+    .should('have.class', 'DayPicker-Day--disabled');
+
+  // submit should be disabled typed invalid date input
+  cy
+    .get('input[name=actual_start_date]')
+    .should('have.value', '3/26/2019')
+    .click()
+    .clear()
+    .type('3/25/2019');
+
+  cy.get('[data-cy=storage-in-transit-panel]').click(); // click out of input field to hide datepicker
+  cy.get('input[name=actual_start_date]').should('have.value', '3/25/2019');
+  // expect submit to be disabled
+  cy.get('[data-cy=place-in-sit-button]').should('be.disabled');
+  cy
+    .get('[data-cy=place-into-sit-cancel]')
+    .contains('Cancel')
+    .click();
+}
+
+function tspUserSubmitsPlaceInSit() {
+  // User starts from Accepted SIT
+  cy
+    .get('[data-cy=storage-in-transit-panel] [data-cy=place-in-sit-link]')
+    .contains('Place into SIT')
+    .click();
+
+  cy
+    .get('input[name=actual_start_date')
+    .should('have.value', '3/26/2019')
+    // Chooses valid 3/30/2019
+    .click()
+    .get('.DayPickerInput-Overlay .DayPicker-Day')
+    .contains('30')
+    .click();
+  cy.get('input[name=actual_start_date]').should('have.value', '3/30/2019');
+  cy
+    .get('[data-cy=place-in-sit-button]')
+    .contains('Place Into SIT')
+    .click()
+    .get('[data-cy=storage-in-transit-panel]')
+    .should($div => {
+      const text = $div.text();
+      expect(text).to.include('Actual start date');
+      expect(text).to.include('SIT Number');
     });
 }

@@ -80,7 +80,6 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       name:
         type: string
-        format: string
         example: Fort Bragg North Station
       address:
         $ref: '#/definitions/Address'
@@ -110,7 +109,6 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       name:
         type: string
-        format: string
         example: Fort Bragg North Station
       address:
         $ref: '#/definitions/Address'
@@ -123,7 +121,6 @@ definitions:
           example: 212-555-5555
       gbloc:
         type: string
-        format: string
         pattern: '^[A-Z]{4}$'
         example: JENQ
       latitude:
@@ -602,6 +599,16 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/PersonallyProcuredMovePayload'
+  ApproveShipmentPayload:
+    type: object
+    properties:
+      approve_date:
+        type: string
+        format: date-time
+        title: When was the shipment approved?
+        example: '2019-03-26T13:19:56-04:00'
+    required:
+      - approve_date
   MovePayload:
     type: object
     properties:
@@ -1449,7 +1456,6 @@ definitions:
         example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
       filename:
         type: string
-        format: string
         example: filename.pdf
       content_type:
         type: string
@@ -1662,6 +1668,12 @@ definitions:
         format: date
         example: '2018-04-26'
         readOnly: true
+        x-nullable: true
+      approve_date:
+        type: string
+        format: date-time
+        title: When was the ppm move approved?
+        example: '2019-03-26T13:19:56-04:00'
         x-nullable: true
       estimated_pack_days:
         type: integer
@@ -2324,9 +2336,11 @@ definitions:
       ppm_status:
         type: string
         example: PAYMENT_REQUESTED
+        x-nullable: true
       hhg_status:
         type: string
         example: ACCEPTED
+        x-nullable: true
       locator:
         type: string
         example: '12432'
@@ -2334,6 +2348,7 @@ definitions:
         type: string
         example: 'LNK12345'
         title: GBL Number
+        x-nullable: true
       customer_name:
         type: string
         example: Thedog, Nino
@@ -2360,10 +2375,7 @@ definitions:
         type: string
         format: date
         example: 2018-04-25
-      customer_deadline:
-        type: string
-        format: date
-        example: 2018-07-20
+        x-nullable: true
       last_modified_date:
         type: string
         format: date-time
@@ -2377,16 +2389,11 @@ definitions:
     required:
       - id
       - status
-      - ppm_status
-      - hhg_status
       - locator
-      - gbl_number
       - customer_name
       - edipi
       - rank
       - orders_type
-      - move_date
-      - customer_deadline
       - last_modified_date
       - last_modified_name
       - created_at
@@ -3167,6 +3174,11 @@ paths:
           format: uuid
           required: true
           description: UUID of the shipment
+        - name: approveShipmentPayload
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ApproveShipmentPayload'
       responses:
         200:
           description: returns updated (approved) shipment object
@@ -4113,7 +4125,6 @@ paths:
         - in: query
           name: search
           type: string
-          format: string
           required: true
           description: Search string for duty stations
       responses:

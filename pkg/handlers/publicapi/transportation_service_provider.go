@@ -45,9 +45,9 @@ func (h GetTransportationServiceProviderHandler) Handle(params tspop.GetTranspor
 
 	if session.IsTspUser() {
 		// TODO (2018_08_27 cgilmer): Find a way to check Shipment belongs to TSP without 2 queries
-		tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
-		if err != nil {
-			h.Logger().Error("DB Query", zap.Error(err))
+		tspUser, fetchTSPByUserErr := models.FetchTspUserByID(h.DB(), session.TspUserID)
+		if fetchTSPByUserErr != nil {
+			h.Logger().Error("DB Query", zap.Error(fetchTSPByUserErr))
 			// return tspop.NewGetTransporationServiceProviderForbidden()
 		}
 

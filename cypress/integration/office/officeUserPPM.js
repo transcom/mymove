@@ -100,10 +100,7 @@ function officeUserEditsNetWeight() {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
-  cy
-    .get('span')
-    .contains('PPM')
-    .click();
+  cy.get('[data-cy="ppm-tab"]').click();
 
   cy.get('.net_weight').contains('missing');
 
@@ -312,10 +309,8 @@ function officeUserApprovesMoveAndPPM(moveLocator) {
   });
 
   // Click on PPM tab
-  cy
-    .get('span')
-    .contains('PPM')
-    .click();
+  cy.get('[data-cy="ppm-tab"]').click();
+
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);
   });
@@ -372,10 +367,7 @@ function officeUserGoesToPPMPanel(locator) {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
-  cy
-    .get('.title')
-    .contains('PPM')
-    .click();
+  cy.get('[data-cy="ppm-tab"]').click();
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);
@@ -457,10 +449,7 @@ function officeUserGoesToStoragePanel(locator) {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
-  cy
-    .get('.title')
-    .contains('PPM')
-    .click();
+  cy.get('[data-cy="ppm-tab"]').click();
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);

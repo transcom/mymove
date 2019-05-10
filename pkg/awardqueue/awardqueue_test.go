@@ -11,6 +11,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/testingsuite"
+	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
@@ -603,12 +604,18 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 	var lastTSPP models.TransportationServiceProviderPerformance
 	for i := 0; i < tspsToMake; i++ {
 		tsp := testdatagen.MakeDefaultTSP(suite.DB())
+		score := float64(mps + i + 1)
+		rate := unit.NewDiscountRateFromPercent(45.3)
+
 		var err error
 		lastTSPP, err = testdatagen.MakeTSPPerformance(suite.DB(), testdatagen.Assertions{
 			TransportationServiceProviderPerformance: models.TransportationServiceProviderPerformance{
 				TransportationServiceProvider:   tsp,
 				TransportationServiceProviderID: tsp.ID,
 				TrafficDistributionListID:       tdl.ID,
+				BestValueScore:                  score,
+				LinehaulRate:                    rate,
+				SITRate:                         rate,
 			},
 		})
 

@@ -67,6 +67,20 @@ commands:
           environment:
             CHAMBER_RETRIES: 20
       - announce_failure
+  deploy_tasks_steps:
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
+      - run: make bin/ecs-deploy-task-container
+      - deploy:
+          name: Deploy task service
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command save-fuel-price-data
+          no_output_timeout: 20m
+      - announce_failure
   deploy_app_steps:
     parameters:
       compare_host:
@@ -79,7 +93,11 @@ commands:
           name: Compare against deployed commit
           command: |
             [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1
-      - setup_remote_docker
+      - restore_cache:
+          keys:
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
+      - setup_remote_docker:
+          docker_layer_caching: true
       - deploy:
           name: Deploy app service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
@@ -103,7 +121,11 @@ commands:
           name: Compare against deployed commit
           command: |
             [[ -z "<< parameters.compare_host >>" ]] || scripts/compare-deployed-commit "<< parameters.compare_host >>" $CIRCLE_SHA1 ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
-      - setup_remote_docker
+      - restore_cache:
+          keys:
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
+      - setup_remote_docker:
+          docker_layer_caching: true
       - deploy:
           name: Deploy app-client-tls service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
@@ -232,8 +254,9 @@ jobs:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+      - run: make get_gotools
+      - run: make bin/callgraph
       - run: make server_generate
-      - run: make build_callgraph
       - run:
           name: Run pre-commit tests
           command: pre-commit run --all-files
@@ -527,7 +550,7 @@ jobs:
       - restore_cache:
           keys:
             - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - run: make build_chamber
+      - run: make bin/chamber
       - run: make bin/rds-combined-ca-bundle.pem
       - run: make build
       - build_tag_push:
@@ -543,11 +566,31 @@ jobs:
       - checkout
       - setup_remote_docker:
           docker_layer_caching: true
-      - run: make build_chamber build_soda
+      - run: make bin/chamber
+      - run: make bin/soda
       - build_tag_push:
           dockerfile: Dockerfile.migrations
           tag: ppp-migrations:dev
           repo: app-migrations
+      - announce_failure
+
+  # `build_tasks` builds the tasks containers and pushes them to the container repository
+  build_tasks:
+    executor: mymove_small
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - restore_cache:
+          keys:
+            - go-mod-souces-v1-{{ checksum "go.sum" }}
+      - run: make bin/chamber
+      - run: make bin/rds-combined-ca-bundle.pem
+      - run: make tasks_build
+      - build_tag_push:
+          dockerfile: Dockerfile.tasks
+          tag: tasks:dev
+          repo: app-tasks
       - announce_failure
 
   # `acceptance_tests_experimental` runs acceptance tests for the webserver against the experimental environment.
@@ -563,7 +606,7 @@ jobs:
           command: make server_generate
       - run:
           name: Build Chamber
-          command: make build_chamber
+          command: make bin/chamber
       - run:
           name: Run acceptance tests
           command: make webserver_test
@@ -581,6 +624,14 @@ jobs:
       - APP_ENVIRONMENT: 'experimental'
     steps:
       - deploy_migrations_steps
+
+  # `deploy_experimental_tasks` deploys scheduled tasks to the experimental environment
+  deploy_experimental_tasks:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'experimental'
+    steps:
+      - deploy_tasks_steps
 
   # `deploy_experimental_app` updates the server-TLS app service in the experimental environment
   deploy_experimental_app:
@@ -623,7 +674,7 @@ jobs:
           command: make server_generate
       - run:
           name: Build Chamber
-          command: make build_chamber
+          command: make bin/chamber
       - run:
           name: Run acceptance tests
           command: make webserver_test
@@ -641,6 +692,14 @@ jobs:
       - APP_ENVIRONMENT: 'staging'
     steps:
       - deploy_migrations_steps
+
+  # `deploy_staging_tasks` deploys scheduled tasks to the staging environment
+  deploy_staging_tasks:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'staging'
+    steps:
+      - deploy_tasks_steps
 
   # `deploy_staging_app` updates the server-TLS app service in staging environment
   deploy_staging_app:
@@ -670,6 +729,14 @@ jobs:
     steps:
       - deploy_migrations_steps
 
+  # `deploy_prod_tasks` deploys scheduled tasks to the prod environment
+  deploy_prod_tasks:
+    executor: mymove_small
+    environment:
+      - APP_ENVIRONMENT: 'prod'
+    steps:
+      - deploy_tasks_steps
+
   # `deploy_prod_app` updates the server-TLS app service in the prod environment
   deploy_prod_app:
     executor: mymove_small
@@ -690,9 +757,9 @@ jobs:
           compare_host: gex.move.mil
           health_check_hosts: gex.move.mil,dps.move.mil,orders.move.mil
 
-  # `update_dependencies` periodically updates pre-commit, yarn, and Go dependencies.
+  # `update_dependencies_go` periodically updates Go dependencies.
   # The changes are submitted as a pull request for review.
-  update_dependencies:
+  update_dependencies_go:
     executor: mymove_small
     steps:
       - checkout
@@ -702,9 +769,45 @@ jobs:
       - run:
           name: Add ~/go/bin to path for golint
           command: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
-      - run: pre-commit autoupdate
       - run: make go_deps_update
+      - run:
+          name: Display changes
+          command: |
+            git --no-pager status
+            git --no-pager diff --ignore-all-space --color
+      - run:
+          name: Push changes
+          command: scripts/circleci-push-dependency-updates
+
+  # `update_dependencies_js` periodically updates yarn dependencies.
+  # The changes are submitted as a pull request for review.
+  update_dependencies_js:
+    executor: mymove_small
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-cache-yarn-v2-{{ checksum "yarn.lock" }}
+      - restore_cache:
+          keys:
+            - v1-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make client_deps_update
+      - run:
+          name: Display changes
+          command: |
+            git --no-pager status
+            git --no-pager diff --ignore-all-space --color
+      - run:
+          name: Push changes
+          command: scripts/circleci-push-dependency-updates
+
+  # `update_dependencies_pre_commit` periodically updates pre-commit dependencies.
+  # The changes are submitted as a pull request for review.
+  update_dependencies_pre_commit:
+    executor: mymove_small
+    steps:
+      - checkout
+      - run: pre-commit autoupdate
       - run:
           name: Display changes
           command: |
@@ -809,6 +912,10 @@ workflows:
           requires:
             - pre_deps_golang
 
+      - build_tasks:
+          requires:
+            - build_tools
+
       - deploy_experimental_migrations:
           requires:
             - pre_test
@@ -818,7 +925,15 @@ workflows:
             - acceptance_tests_experimental
             - build_app
             # - build_tools # tools don't need to build to deploy to experimental
+            - build_tasks
             - build_migrations
+          filters:
+            branches:
+              only: placeholder_branch_name
+
+      - deploy_experimental_tasks:
+          requires:
+            - deploy_experimental_migrations
           filters:
             branches:
               only: placeholder_branch_name
@@ -845,6 +960,7 @@ workflows:
             - build_app
             - build_tools
             - build_migrations
+            - build_tasks
             - acceptance_tests_local
             - acceptance_tests_staging
             - integration_tests_mymove
@@ -858,6 +974,13 @@ workflows:
       - deploy_staging_migrations:
           requires:
             - check_circle_against_staging_sha
+          filters:
+            branches:
+              only: master
+
+      - deploy_staging_tasks:
+          requires:
+            - deploy_staging_migrations
           filters:
             branches:
               only: master
@@ -879,12 +1002,20 @@ workflows:
       - approve_prod_deploy:
           type: approval
           requires:
+            - deploy_staging_tasks
             - deploy_staging_app
             - deploy_staging_app_client_tls
 
       - deploy_prod_migrations:
           requires:
             - approve_prod_deploy
+          filters:
+            branches:
+              only: master
+
+      - deploy_prod_tasks:
+          requires:
+            - deploy_prod_migrations
           filters:
             branches:
               only: master
@@ -903,7 +1034,7 @@ workflows:
             branches:
               only: master
 
-  dependency_updater:
+  dependency_updater_go:
     triggers:
       - schedule:
           # Monday at 4am/7am PST/EST
@@ -912,7 +1043,29 @@ workflows:
             branches:
               only: master
     jobs:
-      - update_dependencies
+      - update_dependencies_go
+
+  dependency_updater_js:
+    triggers:
+      - schedule:
+          # Monday at 4am/7am PST/EST
+          cron: '0 12 * * 1'
+          filters:
+            branches:
+              only: master
+    jobs:
+      - update_dependencies_js
+
+  dependency_updater_pre_commit:
+    triggers:
+      - schedule:
+          # Monday at 4am/7am PST/EST
+          cron: '0 12 * * 1'
+          filters:
+            branches:
+              only: master
+    jobs:
+      - update_dependencies_pre_commit
 
 experimental:
   notify:
