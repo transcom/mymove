@@ -273,6 +273,8 @@ In addition, internal services, i.e. endpoints only intended for use by the Reac
 
 The Orders Gateway's API is defined in the file `swagger/orders.yaml` and served at `/orders/v0/orders.yaml`.
 
+The Admin API is defined in the file `swagger/admin.yaml` and served at `/admin/v1/swagger.yaml`.
+
 You can view the API's documentation (powered by Swagger UI) at <http://localhost:3000/api/v1/docs> when a local server is running.
 
 ### Testing
