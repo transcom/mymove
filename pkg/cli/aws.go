@@ -9,6 +9,7 @@ import (
 )
 
 const (
+	// AWSRegionFlag is the generic AWS Region Flag
 	AWSRegionFlag string = "aws-region"
 )
 
@@ -20,10 +21,12 @@ func (e *errInvalidRegion) Error() string {
 	return fmt.Sprintf("invalid region %s", e.Region)
 }
 
+// InitAWSFlags initializes AWS command line flags
 func InitAWSFlags(flag *pflag.FlagSet) {
 	flag.String(AWSRegionFlag, "us-west-2", "The AWS Region")
 }
 
+// CheckAWS validates AWS command line flags
 func CheckAWS(v *viper.Viper) error {
 	region := v.GetString(AWSRegionFlag)
 	if len(region) == 0 {

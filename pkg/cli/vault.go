@@ -14,8 +14,15 @@ import (
 )
 
 const (
+	// VaultKeychainNameFlag is the aws-vault keychain name Flag
 	VaultKeychainNameFlag string = "aws-vault-keychain-name"
-	VaultProfileFlag      string = "aws-profile"
+	// VaultProfileFlag is the aws-vault profile name Flag
+	VaultProfileFlag string = "aws-profile"
+
+	// VaultKeychainNameDefault is the aws-vault default keychain name
+	VaultKeychainNameDefault string = "login"
+	// VaultProfileDefault is the aws-vault default profile name
+	VaultProfileDefault string = "transcom-ppp"
 )
 
 type errInvalidKeychainName struct {
@@ -34,11 +41,13 @@ func (e *errInvalidProfile) Error() string {
 	return fmt.Sprintf("invalid profile %s", e.Profile)
 }
 
+// InitVaultFlags initializes Vault command line flags
 func InitVaultFlags(flag *pflag.FlagSet) {
-	flag.String(VaultKeychainNameFlag, "", "The aws-vault keychain name")
-	flag.String(VaultProfileFlag, "", "The aws-vault profile")
+	flag.String(VaultKeychainNameFlag, VaultKeychainNameDefault, "The aws-vault keychain name")
+	flag.String(VaultProfileFlag, VaultProfileDefault, "The aws-vault profile")
 }
 
+// CheckVault validates Vault command line flags
 func CheckVault(v *viper.Viper) error {
 	keychainName := v.GetString(VaultKeychainNameFlag)
 	if len(keychainName) == 0 {
@@ -93,7 +102,7 @@ func GetAWSCredentials(keychainName string, keychainProfile string) (*credential
 	return credentials.NewStaticCredentialsFromCreds(credVals), nil
 }
 
-// GetAWSConfig
+// GetAWSConfig returns an AWS Config struct using aws-vault credentials for use in an AWS session
 func GetAWSConfig(v *viper.Viper, verbose bool) (*aws.Config, error) {
 
 	awsRegion := v.GetString(AWSRegionFlag)
