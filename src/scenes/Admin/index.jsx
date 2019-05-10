@@ -11,18 +11,7 @@ import { no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import { loadPublicSchema } from 'shared/Swagger/ducks';
-import restProvider from 'ra-data-simple-rest';
-import { Admin } from 'react-admin';
-
-const dataProvider = restProvider('http://admin/v1/...');
-
-const AdminHome = () => (
-  <div className="admin-system-wrapper">
-    <Admin dataProvider={dataProvider} history={history}>
-      {/*<Resource />*/}
-    </Admin>
-  </div>
-);
+import AdminHome from 'scenes/Admin/AdminHome';
 
 class AdminWrapper extends Component {
   componentDidMount() {

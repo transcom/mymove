@@ -662,7 +662,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	adminAPIMux := goji.SubMux()
 	adminMux.Handle(pat.New("/*"), adminAPIMux)
 	adminAPIMux.Use(userAuthMiddleware)
-	adminAPIMux.Use(noCacheMiddleware)
+	adminAPIMux.Use(middleware.NoCache(logger))
 	adminAPIMux.Handle(pat.New("/*"), adminapi.NewAdminAPIHandler(handlerContext))
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
