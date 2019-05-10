@@ -1,19 +1,30 @@
 package user
 
-import (
-	"github.com/gobuffalo/pop"
+import "github.com/transcom/mymove/pkg/models"
 
-	"github.com/transcom/mymove/pkg/db/query"
-	"github.com/transcom/mymove/pkg/testdatagen"
-)
+type testOfficeUserQueryBuilder struct {
+	fakeFetchOne func(model interface{}) error
+}
+
+func (t *testOfficeUserQueryBuilder) FetchOne(model interface{}, field string, value interface{}) error {
+	m := t.fakeFetchOne(model)
+	return m
+}
 
 func (suite *UserServiceSuite) TestFetchOfficeUser() {
-	user := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	builder := query.NewPopQueryBuilder(suite.DB())
+	testEmail := "test@example.com"
+	fakeFetchOne := func(model interface{}) error {
+		*model = models.OfficeUser{Email: testEmail}
+		return nil
+	}
+
+	builder := &testOfficeUserQueryBuilder{
+		fakeFetchOne: fakeFetchOne,
+	}
 	fetcher := NewOfficeUserFetcher(builder)
-	pop.Debug = true
-	officeUser, err := fetcher.FetchOfficeUser("id", user.ID.String())
-	pop.Debug = false
+
+	officeUser, err := fetcher.FetchOfficeUser("id", "1")
+
 	suite.NoError(err)
-	suite.T().Log(officeUser)
+	suite.Equal(testEmail, officeUser.Email)
 }

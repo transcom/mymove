@@ -11,8 +11,8 @@ type popQueryBuilder struct {
 	db *pop.Connection
 }
 
-func NewPopQueryBuilder(db *pop.Connection) popQueryBuilder {
-	return popQueryBuilder{db}
+func NewPopQueryBuilder(db *pop.Connection) *popQueryBuilder {
+	return &popQueryBuilder{db}
 }
 
 type InvalidInputError struct {
@@ -33,7 +33,7 @@ func getDBColumn(t reflect.Type, field string) (string, bool) {
 	return "", false
 }
 
-func (p popQueryBuilder) FetchOne(model interface{}, field string, value interface{}) error {
+func (p *popQueryBuilder) FetchOne(model interface{}, field string, value interface{}) error {
 	// todo: pointer check on type
 	column, ok := getDBColumn(reflect.TypeOf(model).Elem(), field)
 	if !ok {
@@ -44,7 +44,7 @@ func (p popQueryBuilder) FetchOne(model interface{}, field string, value interfa
 	return query.First(model)
 }
 
-func (p popQueryBuilder) FetchMany(model interface{}, filters map[string]interface{}) error {
+func (p *popQueryBuilder) FetchMany(model interface{}, filters map[string]interface{}) error {
 	query := p.db.Q()
 	invalidFields := make([]string, 0)
 	t := reflect.TypeOf(model).Elem().Elem() // todo: add slice check
