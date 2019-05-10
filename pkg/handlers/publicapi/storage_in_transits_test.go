@@ -317,10 +317,10 @@ func (suite *HandlerSuite) TestDenyStorageInTransitHandler() {
 	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateOfficeRequest(req, user)
 	params := sitop.DenyStorageInTransitParams{
-		HTTPRequest:                     req,
-		ShipmentID:                      strfmt.UUID(shipmentID.String()),
-		StorageInTransitID:              strfmt.UUID(storageInTransitID.String()),
-		StorageInTransitApprovalPayload: &payload,
+		HTTPRequest:                 req,
+		ShipmentID:                  strfmt.UUID(shipmentID.String()),
+		StorageInTransitID:          strfmt.UUID(storageInTransitID.String()),
+		StorageInTransitDenyPayload: &payload,
 	}
 
 	storageInTransitDenier := &mocks.StorageInTransitDenier{}
