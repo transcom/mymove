@@ -1,1 +1,0 @@
-add_column("service_members", "requires_access_code", "bool", {"default": true })
