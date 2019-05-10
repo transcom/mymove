@@ -41,11 +41,13 @@ var regexpServiceEventStoppedTask = regexp.MustCompile("^[(]service ([0-9a-zA-Z_
 var regexpServiceEventStoppedTaskID = regexp.MustCompile("[(]task ([0-9a-z-]+)[)]")
 
 const (
-	flagAWSRegion              string = "aws-region"
-	flagAWSProfile             string = "aws-profile"
-	flagAWSSessionToken        string = "aws-session-token"
-	flagAWSVaultKeychainName   string = "aws-vault-keychain-name"
-	flagAWSVaultProfile        string = "aws-vault"
+	flagAWSRegion       string = "aws-region"
+	flagAWSProfile      string = "aws-profile"
+	flagAWSSessionToken string = "aws-session-token"
+
+	flagAWSVaultKeychainName string = "aws-vault-keychain-name"
+	flagAWSVaultProfile      string = "aws-vault"
+
 	flagCluster                string = "cluster"
 	flagService                string = "service"
 	flagEnvironment            string = "environment"
