@@ -23,7 +23,7 @@ import Alert from 'shared/Alert';
 import SignIn from 'shared/User/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
-import { updateMove } from 'scenes/Moves/ducks';
+import { updateMove } from 'shared/Entities/modules/moves';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { selectShipment } from 'shared/Entities/modules/shipments';
 
