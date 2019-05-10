@@ -10,7 +10,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/arn"
-	"github.com/aws/aws-sdk-go/aws/endpoints"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchevents"
 	"github.com/aws/aws-sdk-go/service/ecr"
@@ -140,22 +139,29 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(&errInvalidAccountID{AwsAccountID: awsAccountID}, fmt.Sprintf("%q is invalid", awsAccountIDFlag))
 	}
 
-	if err := cli.CheckAWS(v); err != nil {
-		return err
+	region, err := cli.CheckAWSRegion(v)
+	if err != nil {
+		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecs.ServiceName))
+	}
+
+	if err := cli.CheckAWSRegionForService(v, region, cloudwatchevents.ServiceName); err != nil {
+		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecs.ServiceName))
+	}
+
+	if err := cli.CheckAWSRegionForService(v, region, ecs.ServiceName); err != nil {
+		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecs.ServiceName))
+	}
+
+	if err := cli.CheckAWSRegionForService(v, region, ecr.ServiceName); err != nil {
+		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecs.ServiceName))
+	}
+
+	if err := cli.CheckAWSRegionForService(v, region, rds.ServiceName); err != nil {
+		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecs.ServiceName))
 	}
 
 	if err := cli.CheckVault(v); err != nil {
 		return err
-	}
-
-	region := v.GetString(cli.AWSRegionFlag)
-	if len(region) == 0 {
-		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", cli.AWSRegionFlag))
-	}
-
-	regions := endpoints.AwsPartition().Services()[ecs.ServiceName].Regions()
-	if _, ok := regions[region]; !ok {
-		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", cli.AWSRegionFlag))
 	}
 
 	chamberRetries := v.GetInt(chamberRetriesFlag)
@@ -228,8 +234,7 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(&errInvalidCommand{Command: commandName}, fmt.Sprintf("%q is invalid", commandFlag))
 	}
 
-	err := cli.CheckEIA(v)
-	if err != nil {
+	if err := cli.CheckEIA(v); err != nil {
 		return err
 	}
 

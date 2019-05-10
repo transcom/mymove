@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"github.com/pkg/errors"
+	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -26,11 +26,20 @@ func InitAWSFlags(flag *pflag.FlagSet) {
 	flag.String(AWSRegionFlag, "us-west-2", "The AWS Region")
 }
 
-// CheckAWS validates AWS command line flags
-func CheckAWS(v *viper.Viper) error {
+// CheckAWSRegion validates the AWS Region command line flags
+func CheckAWSRegion(v *viper.Viper) (string, error) {
 	region := v.GetString(AWSRegionFlag)
 	if len(region) == 0 {
-		return errors.Wrap(&errInvalidRegion{Region: region}, fmt.Sprintf("%q is invalid", AWSRegionFlag))
+		return "", &errInvalidRegion{Region: region}
+	}
+	return region, nil
+}
+
+// CheckAWSRegionForService validates AWS command line flags against a region
+func CheckAWSRegionForService(v *viper.Viper, region, awsServiceName string) error {
+	regions := endpoints.AwsPartition().Services()[awsServiceName].Regions()
+	if _, ok := regions[region]; !ok {
+		return &errInvalidRegion{Region: region}
 	}
 	return nil
 }

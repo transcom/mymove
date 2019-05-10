@@ -12,7 +12,6 @@ import (
 	"sync"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/endpoints"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
@@ -76,25 +75,6 @@ func stringSliceContains(stringSlice []string, value string) bool {
 	return false
 }
 
-func checkRegion(v *viper.Viper) error {
-
-	regions, ok := endpoints.RegionsForService(endpoints.DefaultPartitions(), endpoints.AwsPartitionID, endpoints.S3ServiceID)
-	if !ok {
-		return fmt.Errorf("could not find regions for service %s", endpoints.S3ServiceID)
-	}
-
-	r := v.GetString(cli.AWSRegionFlag)
-	if len(r) == 0 {
-		return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", cli.AWSRegionFlag))
-	}
-
-	if _, ok := regions[r]; !ok {
-		return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", cli.AWSRegionFlag))
-	}
-
-	return nil
-}
-
 func checkComparison(v *viper.Viper) error {
 	if c := v.GetString("comparison"); len(c) == 0 || !stringSliceContains([]string{"size", "md5"}, c) {
 		return errors.Wrap(&errInvalidComparison{Comparison: c}, fmt.Sprintf("%s is invalid", "comparison"))
@@ -104,15 +84,16 @@ func checkComparison(v *viper.Viper) error {
 
 func checkConfig(v *viper.Viper) error {
 
-	if err := cli.CheckAWS(v); err != nil {
+	region, err := cli.CheckAWSRegion(v)
+	if err != nil {
+		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, s3.ServiceName))
+	}
+
+	if err := cli.CheckAWSRegionForService(v, region, s3.ServiceName); err != nil {
 		return err
 	}
 
 	if err := cli.CheckVault(v); err != nil {
-		return err
-	}
-
-	if err := checkRegion(v); err != nil {
 		return err
 	}
 
@@ -177,7 +158,7 @@ func main() {
 		quit(logger, nil, errors.Wrap(err, "failed to create AWS session"))
 	}
 
-	s3Service := s3.New(sess)
+	serviceS3 := s3.New(sess)
 	downloader := s3manager.NewDownloader(sess, func(d *s3manager.Downloader) {
 		d.PartSize = 128 * 1024 * 1024 // 128MB per part
 		d.Concurrency = 100
@@ -198,7 +179,7 @@ func main() {
 	maxObjectSize := v.GetInt64("max-object-size")
 
 	for _, bucket := range bucketNames {
-		resp, err := s3Service.ListObjects(&s3.ListObjectsInput{
+		resp, err := serviceS3.ListObjects(&s3.ListObjectsInput{
 			Bucket: aws.String(bucket),
 			Marker: aws.String("secure-migrations"),
 		})
