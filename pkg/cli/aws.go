@@ -23,7 +23,7 @@ func (e *errInvalidRegion) Error() string {
 
 // InitAWSFlags initializes AWS command line flags
 func InitAWSFlags(flag *pflag.FlagSet) {
-	flag.String(AWSRegionFlag, "us-west-2", "The AWS Region")
+	flag.String(AWSRegionFlag, endpoints.UsWest2RegionID, "The AWS Region")
 }
 
 // CheckAWSRegion validates the AWS Region command line flags
@@ -36,7 +36,7 @@ func CheckAWSRegion(v *viper.Viper) (string, error) {
 }
 
 // CheckAWSRegionForService validates AWS command line flags against a region
-func CheckAWSRegionForService(v *viper.Viper, region, awsServiceName string) error {
+func CheckAWSRegionForService(region, awsServiceName string) error {
 	regions := endpoints.AwsPartition().Services()[awsServiceName].Regions()
 	if _, ok := regions[region]; !ok {
 		return &errInvalidRegion{Region: region}

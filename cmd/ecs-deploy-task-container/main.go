@@ -144,19 +144,19 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecs.ServiceName))
 	}
 
-	if err := cli.CheckAWSRegionForService(v, region, cloudwatchevents.ServiceName); err != nil {
+	if err := cli.CheckAWSRegionForService(region, cloudwatchevents.ServiceName); err != nil {
 		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecs.ServiceName))
 	}
 
-	if err := cli.CheckAWSRegionForService(v, region, ecs.ServiceName); err != nil {
+	if err := cli.CheckAWSRegionForService(region, ecs.ServiceName); err != nil {
 		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecs.ServiceName))
 	}
 
-	if err := cli.CheckAWSRegionForService(v, region, ecr.ServiceName); err != nil {
+	if err := cli.CheckAWSRegionForService(region, ecr.ServiceName); err != nil {
 		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecs.ServiceName))
 	}
 
-	if err := cli.CheckAWSRegionForService(v, region, rds.ServiceName); err != nil {
+	if err := cli.CheckAWSRegionForService(region, rds.ServiceName); err != nil {
 		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecs.ServiceName))
 	}
 

@@ -199,7 +199,7 @@ bin/rds-combined-ca-bundle.pem:
 
 ### MilMove Targets
 
-bin/compare-secure-migrations: server_generate
+bin/compare-secure-migrations: server_deps server_generate
 	go build -i -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
 
 bin/ecs-deploy-task-container: server_deps server_generate

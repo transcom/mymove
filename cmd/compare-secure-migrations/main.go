@@ -89,7 +89,7 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, s3.ServiceName))
 	}
 
-	if err := cli.CheckAWSRegionForService(v, region, s3.ServiceName); err != nil {
+	if err := cli.CheckAWSRegionForService(region, s3.ServiceName); err != nil {
 		return err
 	}
 
