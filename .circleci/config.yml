@@ -295,7 +295,6 @@ jobs:
             PWD: /home/circleci/go/src/github.com/transcom/mymove
             LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
-            DEVLOCAL_CA: /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-ca.pem
       - announce_failure
 
   # `integration_tests_mymove` runs integration tests using Cypress.  https://www.cypress.io/

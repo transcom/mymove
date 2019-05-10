@@ -1,6 +1,16 @@
 package cli
 
+import (
+	"fmt"
+)
+
 func (suite *cliTestSuite) TestConfigAWS() {
-	suite.Setup(InitAWSFlags)
-	suite.Nil(CheckAWSRegion(suite.viper))
+	expectedRegion := "us-west-2"
+	flagSet := []string{
+		fmt.Sprintf("--%s=%s", AWSRegionFlag, expectedRegion),
+	}
+	suite.Setup(InitAWSFlags, flagSet)
+	region, err := CheckAWSRegion(suite.viper)
+	suite.Nil(err)
+	suite.Equal(region, expectedRegion)
 }
