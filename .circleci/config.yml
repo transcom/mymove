@@ -851,9 +851,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #  branches:
-          #    ignore: placeholder_branch_name
+          filters:
+           branches:
+             ignore: sb_164585573-add-httponly-attribute-session
 
       - integration_tests_office:
           requires:
@@ -861,9 +861,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+            branches:
+              ignore: sb_164585573-add-httponly-attribute-session
 
       - integration_tests_tsp:
           requires:
@@ -871,9 +871,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+            branches:
+              ignore: sb_164585573-add-httponly-attribute-session
 
       - integration_tests_api:
           requires:
@@ -881,9 +881,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+            branches:
+              ignore: sb_164585573-add-httponly-attribute-session
 
       - client_test:
           requires:
@@ -928,28 +928,28 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: sb_164585573-add-httponly-attribute-session
 
       - deploy_experimental_tasks:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: sb_164585573-add-httponly-attribute-session
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: sb_164585573-add-httponly-attribute-session
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: sb_164585573-add-httponly-attribute-session
 
       - check_circle_against_staging_sha:
           requires:
