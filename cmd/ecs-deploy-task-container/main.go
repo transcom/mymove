@@ -141,7 +141,7 @@ func checkConfig(v *viper.Viper) error {
 
 	region, err := cli.CheckAWSRegion(v)
 	if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, ecs.ServiceName))
+		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid", cli.AWSRegionFlag))
 	}
 
 	if err := cli.CheckAWSRegionForService(region, cloudwatchevents.ServiceName); err != nil {

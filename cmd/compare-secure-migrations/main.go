@@ -86,11 +86,11 @@ func checkConfig(v *viper.Viper) error {
 
 	region, err := cli.CheckAWSRegion(v)
 	if err != nil {
-		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, s3.ServiceName))
+		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid", cli.AWSRegionFlag))
 	}
 
 	if err := cli.CheckAWSRegionForService(region, s3.ServiceName); err != nil {
-		return err
+		return errors.Wrap(err, fmt.Sprintf("'%q' is invalid for service %s", cli.AWSRegionFlag, s3.ServiceName))
 	}
 
 	if err := cli.CheckVault(v); err != nil {
