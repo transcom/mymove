@@ -121,7 +121,7 @@ func (re *RateEngine) fuelSurchargeComputation(totalLinehaulCost unit.Cents, boo
 	fuelEIADieselPriceSlice := []models.FuelEIADieselPrice{}
 
 	// Changing the format of the date to remove the time portion so it plays nicely with db
-	bookDateString := bookDate.Format("2006-01-02")
+	bookDateString := bookDate.UTC().Format("2006-01-02")
 
 	query := re.db.Where("rate_start_date <= ?", bookDateString).Where("rate_end_date >= ?", bookDateString)
 	err1 := query.All(&fuelEIADieselPriceSlice)

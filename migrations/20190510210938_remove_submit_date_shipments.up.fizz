@@ -1,0 +1,3 @@
+drop_column("shipments", "submit_date")
+
+sql("ALTER TABLE shipments ALTER COLUMN book_date TYPE timestamptz USING book_date AT TIME ZONE 'UTC';")

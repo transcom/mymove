@@ -125,7 +125,7 @@ func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID,
 		`
 
 	tspp := TransportationServiceProviderPerformance{}
-	err := tx.RawQuery(sql, tdlID, qualityBand, bookDate, requestedPickupDate).First(&tspp)
+	err := tx.RawQuery(sql, tdlID, qualityBand, bookDate.UTC(), requestedPickupDate).First(&tspp)
 
 	return tspp, err
 }
