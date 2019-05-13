@@ -6,15 +6,10 @@ import { reduxForm } from 'redux-form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 export class StorageInTransitOfficeDenyForm extends Component {
-  //form submission still to be implemented
-  handleSubmit = e => {
-    e.preventDefault();
-  };
-
   render() {
     const { storageInTransitSchema } = this.props;
     return (
-      <form onSubmit={this.handleSubmit} className="storage-in-transit-office-deny-form">
+      <form onSubmit={this.props.handleSubmit(this.props.onSubmit)} className="storage-in-transit-office-deny-form">
         <fieldset key="sit-deny-information">
           <div className="editable-panel-column">
             <SwaggerField
@@ -34,7 +29,7 @@ StorageInTransitOfficeDenyForm.propTypes = {
   storageInTransitSchema: PropTypes.object.isRequired,
 };
 
-const formName = 'storage_in_transit_office_deny_form';
+export const formName = 'storage_in_transit_office_deny_form';
 StorageInTransitOfficeDenyForm = reduxForm({
   form: formName,
   enableReinitialize: true,

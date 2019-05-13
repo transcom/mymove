@@ -3224,7 +3224,7 @@ paths:
           required: true
           description: UUID of storage in transit
         - in: body
-          name: storageInTransitApprovalPayload
+          name: storageInTransitDenyPayload
           required: true
           schema:
             $ref: '#/definitions/StorageInTransitDenialPayload'

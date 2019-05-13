@@ -39,6 +39,7 @@ import (
 	"github.com/transcom/mymove/pkg/ecs"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/adminapi"
 	"github.com/transcom/mymove/pkg/handlers/dpsapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
@@ -647,6 +648,22 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	internalAPIMux.Use(userAuthMiddleware)
 	internalAPIMux.Use(middleware.NoCache(logger))
 	internalAPIMux.Handle(pat.New("/*"), internalapi.NewInternalAPIHandler(handlerContext))
+
+	adminMux := goji.SubMux()
+	root.Handle(pat.New("/admin/v1/*"), adminMux)
+	adminMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.AdminSwaggerFlag)))
+	if v.GetBool(cli.ServeSwaggerUIFlag) {
+		logger.Info("Admin API Swagger UI serving is enabled")
+		adminMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "admin.html")))
+	} else {
+		adminMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+	}
+	// Mux for admin API that enforces auth
+	adminAPIMux := goji.SubMux()
+	adminMux.Handle(pat.New("/*"), adminAPIMux)
+	adminAPIMux.Use(userAuthMiddleware)
+	adminAPIMux.Use(middleware.NoCache(logger))
+	adminAPIMux.Handle(pat.New("/*"), adminapi.NewAdminAPIHandler(handlerContext))
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
 	authMux := goji.SubMux()
