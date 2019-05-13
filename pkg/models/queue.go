@@ -45,6 +45,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				moves.updated_at as last_modified_date,
 				moves.status as status,
 				ppm.status as ppm_status,
+				shipment.status as hhg_status,
 				shipment.gbl_number as gbl_number
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
