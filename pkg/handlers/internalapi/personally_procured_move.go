@@ -406,9 +406,9 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 	if ppm.HasSit != nil && *ppm.HasSit == true {
 		cwtWeight := unit.Pound(*ppm.WeightEstimate).ToCWT()
 		sitZip3 := rateengine.Zip5ToZip3(*ppm.DestinationPostalCode)
-		sitComputation, err := re.SitCharge(cwtWeight, daysInSIT, sitZip3, *ppm.OriginalMoveDate, true)
-		if err != nil {
-			return err
+		sitComputation, sitChargeErr := re.SitCharge(cwtWeight, daysInSIT, sitZip3, *ppm.OriginalMoveDate, true)
+		if sitChargeErr != nil {
+			return sitChargeErr
 		}
 		sitCharge := float64(sitComputation.ApplyDiscount(lhDiscount, sitDiscount))
 		reimbursementString := fmt.Sprintf("$%.2f", sitCharge/100)

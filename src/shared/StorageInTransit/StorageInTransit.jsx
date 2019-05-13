@@ -114,8 +114,11 @@ export class StorageInTransit extends Component {
   render() {
     const { storageInTransit } = this.props;
     const { showTspEditForm, showOfficeEditForm, showApproveForm, showDenyForm, showPlaceInSitForm } = this.state;
+    const isDenied = storageInTransit.status === 'DENIED';
+    const isRequested = storageInTransit.status === 'REQUESTED';
+    const isApproved = storageInTransit.status === 'APPROVED';
     return (
-      <div className="storage-in-transit" data-cy="storage-in-transit">
+      <div data-cy="storage-in-transit" className="storage-in-transit">
         <div className="column-head">
           {capitalize(storageInTransit.location)} SIT
           <span className="unbold">
@@ -123,29 +126,32 @@ export class StorageInTransit extends Component {
             <span className="sit-status-text" data-cy="sit-status-text">
               Status:
             </span>{' '}
-            {storageInTransit.status === 'REQUESTED' && <SitStatusIcon isTspSite={isTspSite} />}
+            {isRequested && <SitStatusIcon isTspSite={isTspSite} />}
           </span>
-          {storageInTransit.status === 'APPROVED' ? (
-            <span>
+          {isApproved ? (
+            <span data-cy="storage-in-transit-status">
               <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />
               Approved
             </span>
-          ) : storageInTransit.status === 'DENIED' ? (
-            <span className="storage-in-transit-status">
+          ) : isDenied ? (
+            <span data-cy="storage-in-transit-status-denied">
               <FontAwesomeIcon className="icon approval-problem" icon={faBan} />
               Denied
             </span>
+          ) : storageInTransit.status === 'IN_SIT' ? (
+            <span>In SIT</span>
           ) : (
-            <span>SIT {capitalize(storageInTransit.status)} </span>
+            <span>SIT {capitalize(storageInTransit.status)}</span>
           )}
           {showApproveForm ? (
             <ApproveSitRequest onClose={this.closeApproveForm} storageInTransit={this.state.storageInTransit} />
-          ) : storageInTransit.status === 'APPROVED' || storageInTransit.status === 'DENIED' ? (
+          ) : isApproved || isDenied ? (
             <span>{null}</span>
           ) : (
             isOfficeSite &&
-            !showTspEditForm &&
-            !showDenyForm && (
+            !showOfficeEditForm &&
+            !showDenyForm &&
+            isRequested && (
               <span className="sit-actions">
                 <a className="approve-sit-link" onClick={this.openApproveForm}>
                   <FontAwesomeIcon className="icon" icon={faCheck} />
@@ -155,15 +161,16 @@ export class StorageInTransit extends Component {
             )
           )}
           {showDenyForm ? (
-            <DenySitRequest onClose={this.closeDenyForm} />
-          ) : storageInTransit.status === 'APPROVED' || storageInTransit.status === 'DENIED' ? (
+            <DenySitRequest onClose={this.closeDenyForm} storageInTransit={storageInTransit} />
+          ) : isApproved || isDenied ? (
             <span>{null}</span>
           ) : (
             isOfficeSite &&
             !showTspEditForm &&
-            !showApproveForm && (
+            !showApproveForm &&
+            isRequested && (
               <span className="sit-actions">
-                <a className="deny-sit-link" onClick={this.openDenyForm}>
+                <a className="deny-sit-link" data-cy="deny-sit-link" onClick={this.openDenyForm}>
                   <FontAwesomeIcon className="icon" icon={faBan} />
                   Deny
                 </a>
@@ -174,12 +181,14 @@ export class StorageInTransit extends Component {
             <PlaceInSit sit={storageInTransit} onClose={this.closePlaceInSitForm} />
           ) : (
             isTspSite &&
-            storageInTransit.status === 'APPROVED' && (
-              <span className="place-in-sit">
-                <a data-cy="place-in-sit-link" onClick={this.openPlaceInSitForm}>
-                  <FontAwesomeIcon className="icon" icon={faSignInAlt} />
-                  Place into SIT
-                </a>
+            isApproved && (
+              <span className="sit-actions">
+                <span className="place-in-sit">
+                  <a data-cy="place-in-sit-link" onClick={this.openPlaceInSitForm}>
+                    <FontAwesomeIcon className="icon" icon={faSignInAlt} />
+                    Place into SIT
+                  </a>
+                </span>
               </span>
             )
           )}
@@ -191,7 +200,8 @@ export class StorageInTransit extends Component {
             />
           ) : (
             isTspSite &&
-            storageInTransit.status !== 'APPROVED' && (
+            storageInTransit.status !== 'APPROVED' &&
+            !isDenied && (
               <span className="sit-actions">
                 <span className="sit-edit actionable">
                   <a onClick={this.openTspEditForm}>
@@ -209,7 +219,7 @@ export class StorageInTransit extends Component {
               storageInTransit={this.state.storageInTransit}
             />
           ) : (
-            (storageInTransit.status === 'APPROVED' || storageInTransit.status === 'DENIED') &&
+            (isApproved || isDenied) &&
             isOfficeSite &&
             !showApproveForm &&
             !showDenyForm && (
@@ -227,10 +237,18 @@ export class StorageInTransit extends Component {
         {!showTspEditForm && (
           <div className="usa-width-one-whole">
             <div className="usa-width-one-half">
-              <div className="column-subhead nested__same-font">Dates</div>
-              <div className="panel-field nested__same-font">
-                <span className="field-title unbold">Est. start date</span>
-                <span className="field-value">{formatDate4DigitYear(storageInTransit.estimated_start_date)}</span>
+              <div className="sit-dates">
+                <div className="column-subhead nested__same-font">Dates</div>
+                <div className="panel-field nested__same-font">
+                  <span className="field-title unbold">Est. start date</span>
+                  <span className="field-value">{formatDate4DigitYear(storageInTransit.estimated_start_date)}</span>
+                </div>
+                {storageInTransit.actual_start_date && (
+                  <div className="panel-field nested__same-font">
+                    <span className="field-title unbold">Actual start date</span>
+                    <span className="field-value">{formatDate4DigitYear(storageInTransit.actual_start_date)}</span>
+                  </div>
+                )}
               </div>
               {storageInTransit.notes !== undefined && (
                 <div className="sit-notes">
@@ -242,6 +260,39 @@ export class StorageInTransit extends Component {
               )}
             </div>
             <div className="usa-width-one-half">
+              {!isRequested && (
+                <div className="sit-authorization-wrapper">
+                  <div className="column-subhead nested__same-font">Authorization</div>
+                  <div className="panel-field nested__same-font">
+                    <span className="field-title unbold">SIT approved</span>
+                    <span className="field-value">{isDenied ? 'No' : 'Yes'}</span>
+                  </div>
+                  {!isDenied && (
+                    <div className="panel-field nested__same-font">
+                      <span className="field-title unbold">Earliest start date</span>
+                      <span data-cy="sit-authorized-start-date" className="field-value">
+                        {formatDate4DigitYear(storageInTransit.authorized_start_date)}
+                      </span>
+                    </div>
+                  )}
+
+                  {storageInTransit.authorization_notes && (
+                    <div className="panel-field nested__same-font">
+                      <span className="field-title unbold">Note</span>
+                      <span data-cy="sit-authorization-notes" className="field-value">
+                        {storageInTransit.authorization_notes}
+                      </span>
+                    </div>
+                  )}
+                  {storageInTransit.sit_number && (
+                    <div className="panel-field nested__same-font">
+                      <span className="field-title unbold">SIT Number</span>
+                      <span className="field-value">{storageInTransit.sit_number}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="column-subhead nested__same-font">Warehouse</div>
               <div className="panel-field nested__same-font">
                 <span className="field-title unbold">Warehouse ID</span>

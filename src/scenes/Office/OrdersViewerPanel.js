@@ -13,7 +13,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import { renderStatusIcon } from 'shared/utils';
 
-import './office.css';
+import './office.scss';
 
 const OrdersViewerDisplay = props => {
   const orders = props.orders;

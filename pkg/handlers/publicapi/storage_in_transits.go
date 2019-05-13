@@ -40,6 +40,7 @@ func payloadForStorageInTransitModel(s *models.StorageInTransit) *apimessages.St
 		AuthorizedStartDate: handlers.FmtDatePtr(s.AuthorizedStartDate),
 		ActualStartDate:     handlers.FmtDatePtr(s.ActualStartDate),
 		OutDate:             handlers.FmtDatePtr(s.OutDate),
+		SitNumber:           s.SITNumber,
 	}
 }
 
@@ -144,7 +145,7 @@ type DenyStorageInTransitHandler struct {
 // This is meant to set the status for a storage in transit to denied, save the supporting authorization notes,
 // and return the saved object in a payload.
 func (h DenyStorageInTransitHandler) Handle(params sitop.DenyStorageInTransitParams) middleware.Responder {
-	payload := params.StorageInTransitApprovalPayload
+	payload := params.StorageInTransitDenyPayload
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
 	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
 
@@ -178,13 +179,11 @@ type InSitStorageInTransitHandler struct {
 func (h InSitStorageInTransitHandler) Handle(params sitop.InSitStorageInTransitParams) middleware.Responder {
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
 	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
-	inSitPayload := params.StorageInTransitInSitPayload
-
 	if err != nil {
 		h.Logger().Error("UUID Parsing", zap.Error(err))
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-
+	inSitPayload := params.StorageInTransitInSitPayload
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	storageInTransit, verrs, err := h.storageInTransitInSITPlacer.PlaceIntoSITStorageInTransit(*inSitPayload, shipmentID, session, storageInTransitID)

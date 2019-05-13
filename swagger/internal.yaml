@@ -599,6 +599,16 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/PersonallyProcuredMovePayload'
+  ApproveShipmentPayload:
+    type: object
+    properties:
+      approve_date:
+        type: string
+        format: date-time
+        title: When was the shipment approved?
+        example: '2019-03-26T13:19:56-04:00'
+    required:
+      - approve_date
   MovePayload:
     type: object
     properties:
@@ -1658,6 +1668,12 @@ definitions:
         format: date
         example: '2018-04-26'
         readOnly: true
+        x-nullable: true
+      approve_date:
+        type: string
+        format: date-time
+        title: When was the ppm move approved?
+        example: '2019-03-26T13:19:56-04:00'
         x-nullable: true
       estimated_pack_days:
         type: integer
@@ -3154,6 +3170,11 @@ paths:
           format: uuid
           required: true
           description: UUID of the shipment
+        - name: approveShipmentPayload
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ApproveShipmentPayload'
       responses:
         200:
           description: returns updated (approved) shipment object

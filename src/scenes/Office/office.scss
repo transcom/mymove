@@ -1,3 +1,13 @@
+@import 'shared/styles/fonts.scss';
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: $font-stack-primary;
+}
+
 .queue-table {
   font-size: 0.75em;
   min-width: 1000px;
