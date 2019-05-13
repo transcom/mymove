@@ -18,12 +18,12 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/pkg/errors"
-
 	"github.com/dgrijalva/jwt-go"
+	sodaCmd "github.com/gobuffalo/pop/soda/cmd"
 	"github.com/gorilla/csrf"
 	"github.com/honeycombio/beeline-go"
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -849,6 +849,11 @@ func main() {
 	}
 	initServeFlags(serveCommand.Flags())
 	root.AddCommand(serveCommand)
+
+	migrateCommand := sodaCmd.RootCmd
+	migrateCommand.Use = "migrate"
+	migrateCommand.Short = "Runs MilMove migrations"
+	root.AddCommand(migrateCommand)
 
 	completionCommand := &cobra.Command{
 		Use:   "completion",
