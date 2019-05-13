@@ -102,7 +102,7 @@ class QueueTable extends Component {
             <br />
           </Alert>
         ) : null}
-        <h1>Queue: {titles[this.props.queueType]}</h1>
+        <h1 className="queue-heading">Queue: {titles[this.props.queueType]}</h1>
         <div className="queue-table">
           <ReactTable
             columns={[
