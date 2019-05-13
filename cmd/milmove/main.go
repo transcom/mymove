@@ -856,10 +856,6 @@ func checkMigrateConfig(v *viper.Viper, logger logger) error {
 }
 
 func migrateFunction(cmd *cobra.Command, args []string) error {
-	// https://github.com/gobuffalo/pop/blob/master/soda/cmd/migrate.go
-	// if len(args) > 0 {
-	// 	return errors.New("migrate command does not accept any argument")
-	// }
 
 	err := cmd.ParseFlags(os.Args[1:])
 	if err != nil {
