@@ -19,7 +19,7 @@ import (
 	"syscall"
 
 	"github.com/dgrijalva/jwt-go"
-	sodaCmd "github.com/gobuffalo/pop/soda/cmd"
+	"github.com/gobuffalo/pop"
 	"github.com/gorilla/csrf"
 	"github.com/honeycombio/beeline-go"
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
@@ -826,6 +826,100 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+// initMigrateFlags - Order matters!
+func initMigrateFlags(flag *pflag.FlagSet) {
+	flag.StringP("path", "p", "./migrations", "Path to the migrations folder")
+
+	// DB Config
+	cli.InitDatabaseFlags(flag)
+
+	// Verbose
+	cli.InitVerboseFlags(flag)
+
+	// Don't sort flags
+	flag.SortFlags = false
+}
+
+func checkMigrateConfig(v *viper.Viper, logger logger) error {
+
+	logger.Info("checking migration config")
+
+	if err := cli.CheckDatabase(v, logger); err != nil {
+		return err
+	}
+
+	if err := cli.CheckVerbose(v); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func migrateFunction(cmd *cobra.Command, args []string) error {
+	// https://github.com/gobuffalo/pop/blob/master/soda/cmd/migrate.go
+	// if len(args) > 0 {
+	// 	return errors.New("migrate command does not accept any argument")
+	// }
+
+	err := cmd.ParseFlags(os.Args[1:])
+	if err != nil {
+		return errors.Wrap(err, "Could not parse flags")
+	}
+
+	flag := cmd.Flags()
+
+	v := viper.New()
+	err = v.BindPFlags(flag)
+	if err != nil {
+		return errors.Wrap(err, "Could not bind flags")
+	}
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+
+	dbEnv := v.GetString(cli.DbEnvFlag)
+
+	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	if err != nil {
+		log.Fatalf("Failed to initialize Zap logging due to %v", err)
+	}
+
+	fields := make([]zap.Field, 0)
+	if len(gitBranch) > 0 {
+		fields = append(fields, zap.String("git_branch", gitBranch))
+	}
+	if len(gitCommit) > 0 {
+		fields = append(fields, zap.String("git_commit", gitCommit))
+	}
+	logger = logger.With(fields...)
+	zap.ReplaceGlobals(logger)
+
+	logger.Info("migrator starting up")
+
+	err = checkMigrateConfig(v, logger)
+	if err != nil {
+		logger.Fatal("invalid configuration", zap.Error(err))
+	}
+
+	// Create a connection to the DB
+	dbConnection, err := cli.InitDatabase(v, logger)
+	if err != nil {
+		if dbConnection == nil {
+			// No connection object means that the configuraton failed to validate and we should kill server startup
+			logger.Fatal("Connecting to DB", zap.Error(err))
+		} else {
+			// A valid connection object that still has an error indicates that the DB is not up but we
+			// can proceed (this avoids a failure loop when deploying containers).
+			logger.Warn("Starting server without DB connection")
+		}
+	}
+
+	mig, err := pop.NewFileMigrator(v.GetString("path"), dbConnection)
+	if err != nil {
+		return err
+	}
+	return mig.Up()
+}
+
 func main() {
 
 	root := cobra.Command{
@@ -850,9 +944,12 @@ func main() {
 	initServeFlags(serveCommand.Flags())
 	root.AddCommand(serveCommand)
 
-	migrateCommand := sodaCmd.RootCmd
-	migrateCommand.Use = "migrate"
-	migrateCommand.Short = "Runs MilMove migrations"
+	migrateCommand := &cobra.Command{
+		Use:   "migrate",
+		Short: "Runs MilMove migrations",
+		RunE:  migrateFunction,
+	}
+	initMigrateFlags(migrateCommand.Flags())
 	root.AddCommand(migrateCommand)
 
 	completionCommand := &cobra.Command{
