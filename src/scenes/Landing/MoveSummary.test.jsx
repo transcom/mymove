@@ -426,30 +426,4 @@ describe('MoveSummary', () => {
       ).toEqual('<div class="title">Next Step: Survey</div>');
     });
   });
-  describe('when an hhg is in completed state', () => {
-    it('renders submitted content', () => {
-      const moveObj = { selected_move_type: 'HHG' };
-      const ppmObj = {};
-      const hhgObj = { status: 'COMPLETED' };
-      const subComponent = getShallowRender(
-        entitlementObj,
-        serviceMember,
-        ordersObj,
-        moveObj,
-        ppmObj,
-        hhgObj,
-        editMoveFn,
-        resumeMoveFn,
-      ).find(SubmittedHhgMoveSummary);
-      expect(subComponent.find(SubmittedHhgMoveSummary).length).toBe(1);
-      expect(
-        subComponent
-          .dive()
-          .find('.step')
-          .find('div.title')
-          .first()
-          .html(),
-      ).toEqual('<div class="title">Next Step: Survey</div>');
-    });
-  });
 });

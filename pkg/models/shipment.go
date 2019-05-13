@@ -35,8 +35,6 @@ const (
 	ShipmentStatusINTRANSIT ShipmentStatus = "IN_TRANSIT"
 	// ShipmentStatusDELIVERED captures enum value "DELIVERED"
 	ShipmentStatusDELIVERED ShipmentStatus = "DELIVERED"
-	// ShipmentStatusCOMPLETED captures enum value "COMPLETED"
-	ShipmentStatusCOMPLETED ShipmentStatus = "COMPLETED"
 )
 
 var (
@@ -335,15 +333,6 @@ func (s *Shipment) Deliver(actualDeliveryDate time.Time) error {
 	}
 	s.Status = ShipmentStatusDELIVERED
 	s.ActualDeliveryDate = &actualDeliveryDate
-	return nil
-}
-
-// Complete marks the Shipment request as Completed. Must be in a Delivered state.
-func (s *Shipment) Complete() error {
-	if s.Status != ShipmentStatusDELIVERED {
-		return errors.Wrap(ErrInvalidTransition, "Completed")
-	}
-	s.Status = ShipmentStatusCOMPLETED
 	return nil
 }
 
@@ -955,8 +944,7 @@ func (s *Shipment) requireAnAcceptedTSP() bool {
 	if s.Status == ShipmentStatusACCEPTED ||
 		s.Status == ShipmentStatusAPPROVED ||
 		s.Status == ShipmentStatusINTRANSIT ||
-		s.Status == ShipmentStatusDELIVERED ||
-		s.Status == ShipmentStatusCOMPLETED {
+		s.Status == ShipmentStatusDELIVERED {
 		return true
 	}
 	return false
