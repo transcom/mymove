@@ -11,7 +11,6 @@ describe('office user finds the shipment', function() {
     ppm: 'ppm',
     acceptedHHG: 'hhg_accepted',
     deliveredHHG: 'hhg_delivered',
-    completedHHG: 'hhg_completed',
     all: 'all',
   };
   it('office user sees accepted HHG in Accepted HHGs queue', function() {
@@ -21,10 +20,6 @@ describe('office user finds the shipment', function() {
   it('office user sees delivered HHG in Delivered HHG queue', function() {
     officeUserVisitsQueue(queues.deliveredHHG);
     officeUserViewsMove('COMBO3');
-  });
-  it('office user sees completed HHG in Completed HHGs queue', function() {
-    officeUserVisitsQueue(queues.completedHHG);
-    officeUserViewsMove('COMBO4');
   });
   it('office user approves shipment', function() {
     officeUserVisitsQueue(queues.all);

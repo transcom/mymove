@@ -32,7 +32,7 @@ type ProcessRecalculateShipment struct {
     The database table shipment_recalculate_log contains a record entry for each shipment that was recalculated.
 
     Currently to recalculate a shipment we are looking for the following:
-      - Shipment is in DELIVERED or COMPLETED state
+      - Shipment is in DELIVERED state
       - If the Shipment was created within the specified recalculation date range
       - Shipment has a line item that has been updated before the date shipment_recalculate.updated_before
       - If there is an approved accessorial, this line item must be preserved to maintain the approved status
@@ -51,9 +51,9 @@ func (r ProcessRecalculateShipment) Call(shipment *models.Shipment, lineItems mo
 		return false, nil
 	}
 
-	// If the Shipment is in the DELIVERED or COMPLETED state continue
+	// If the Shipment is in DELIVERED state continue
 	shipmentStatus := shipment.Status
-	if shipmentStatus != models.ShipmentStatusDELIVERED && shipmentStatus != models.ShipmentStatusCOMPLETED {
+	if shipmentStatus != models.ShipmentStatusDELIVERED {
 		return false, nil
 	}
 

@@ -4,7 +4,6 @@ import ReactTable from 'react-table';
 import { connect } from 'react-redux';
 import { get, capitalize } from 'lodash';
 import 'react-table/react-table.css';
-import { RetrieveMovesForOffice } from './api.js';
 import Alert from 'shared/Alert';
 import { formatDate, formatDateTimeWithTZ } from 'shared/formatters';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -49,7 +48,7 @@ class QueueTable extends Component {
 
     // Catch any errors here and render an empty queue
     try {
-      const body = await RetrieveMovesForOffice(this.props.queueType);
+      const body = await this.props.retrieveMoves(this.props.queueType);
 
       // Only update the queue list if the request that is returning
       // is for the same queue as the most recent request.
@@ -76,11 +75,18 @@ class QueueTable extends Component {
       ppm: 'PPMs',
       hhg_accepted: 'Accepted HHGs',
       hhg_delivered: 'Delivered HHGs',
-      hhg_completed: 'Completed HHGs',
       all: 'All Moves',
     };
 
     this.state.data.forEach(row => {
+      if (this.props.queueType === 'new' && row.ppm_status && row.hhg_status) {
+        row.shipments = 'HHG, PPM';
+      } else if (row.ppm_status && !row.hhg_status) {
+        row.shipments = 'PPM';
+      } else {
+        row.shipments = 'HHG';
+      }
+
       if (this.props.queueType === 'ppm' && row.ppm_status !== null) {
         row.synthetic_status = row.ppm_status;
       } else {
@@ -96,7 +102,7 @@ class QueueTable extends Component {
             <br />
           </Alert>
         ) : null}
-        <h1>Queue: {titles[this.props.queueType]}</h1>
+        <h1 className="queue-heading">Queue: {titles[this.props.queueType]}</h1>
         <div className="queue-table">
           <ReactTable
             columns={[
@@ -136,6 +142,11 @@ class QueueTable extends Component {
                 Header: 'Rank',
                 accessor: 'rank',
                 Cell: row => <span className="rank">{row.value && row.value.replace('_', '-')}</span>,
+              },
+              {
+                Header: 'Shipments',
+                accessor: 'shipments',
+                show: this.props.queueType === 'new',
               },
               {
                 Header: 'Locator #',

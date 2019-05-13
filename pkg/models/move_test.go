@@ -91,6 +91,20 @@ func (suite *ModelSuite) TestFetchMove() {
 	suite.Equal(fetchedMove.ID, move.ID, "Expected new move to match move.")
 	suite.Equal(fetchedMove.Shipments[0].PickupAddressID, shipment.PickupAddressID)
 
+	// We're asserting that if for any reason
+	// a move gets into the remove "COMPLETED" state
+	// it does not fail being queried
+	move.Status = "COMPLETED"
+	suite.DB().Save(move)
+
+	actualMove, err := FetchMove(suite.DB(), session, move.ID)
+
+	suite.NoError(err, "Failed fetching completed move")
+	suite.Equal("COMPLETED", string(actualMove.Status))
+
+	move.Status = MoveStatusDRAFT
+	suite.DB().Save(move) // teardown/reset back to draft
+
 	// Bad Move
 	fetchedMove, err = FetchMove(suite.DB(), session, uuid.Must(uuid.NewV4()))
 	suite.Equal(ErrFetchNotFound, err, "Expected to get FetchNotFound.")
