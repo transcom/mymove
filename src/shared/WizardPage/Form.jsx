@@ -79,6 +79,9 @@ export class WizardFormPage extends Component {
 
   render() {
     const isMobile = this.props.windowWidth < mobileSize;
+    // when reduxFormSubmit is supplied it's expected that the form will use redux-form's handlesubmit prop
+    // and accompanying submit validation https://redux-form.com/8.2.0/examples/submitvalidation/
+    // while forms that provide their own handlesubmit prop are expected to not be using redux-form's submit validation
     const hasReduxFormSubmitHandler = !!this.props.reduxFormSubmit;
     const { handleSubmit, className, pageKey, pageList, children, serverError, valid, dirty } = this.props;
     const canMoveForward = valid;
@@ -139,7 +142,7 @@ export class WizardFormPage extends Component {
 
 WizardFormPage.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
-  reduxFormSubmit: PropTypes.func.isRequired,
+  reduxFormSubmit: PropTypes.func.isRequired, // function supplied to use w/ redux-form's submit validation
   serverError: PropTypes.object,
   pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
   pageKey: PropTypes.string.isRequired,
