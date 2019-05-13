@@ -1,12 +1,11 @@
 FROM alpine:3.7
 
-COPY bin/soda /bin/soda
+COPY bin/milmove /bin/milmove
 COPY bin/chamber /bin/chamber
 RUN mkdir -p /scripts
 COPY scripts/apply-secure-migration.sh /scripts
 
 COPY migrations /migrate/migrations
-COPY config/database.yml /migrate
 
 RUN mkdir -p /migrate/secure
 
@@ -18,8 +17,6 @@ RUN apk add postgresql-client python3 ca-certificates bash
 RUN pip3 install awscli
 
 WORKDIR /scripts
-ENTRYPOINT ["/bin/soda"]
+ENTRYPOINT ["/bin/milmove"]
 CMD ["migrate", \
-     "-c", "/migrate/database.yml", \
-     "-p", "/migrate/migrations", \
-     "up"]
+     "-p", "/migrate/migrations"[

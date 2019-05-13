@@ -9,15 +9,12 @@
     "exec",
     "app-{{ .environment }}",
     "--",
-    "/bin/soda"
+    "/bin/milmove"
   ],
   "command": [
     "migrate",
-    "-c",
-    "/migrate/database.yml",
     "-p",
-    "/migrate/migrations",
-    "up"
+    "/migrate/migrations"
   ],
   "environment": [
     {
