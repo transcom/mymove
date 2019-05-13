@@ -88,6 +88,7 @@ func payloadForShipmentModel(s models.Shipment) (*internalmessages.Shipment, err
 		OriginalDeliveryDate: handlers.FmtDatePtr(s.OriginalDeliveryDate),
 		OriginalPackDate:     handlers.FmtDatePtr(s.OriginalPackDate),
 		MoveDatesSummary:     &moveDatesSummary,
+		ApproveDate:          handlers.FmtDateTimePtr(s.ApproveDate),
 
 		// calculated durations
 		EstimatedPackDays:    s.EstimatedPackDays,
@@ -426,7 +427,11 @@ func (h ApproveHHGHandler) Handle(params shipmentop.ApproveHHGParams) middleware
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	err = shipment.Approve()
+	var approveDate time.Time
+	if params.ApproveShipmentPayload.ApproveDate != nil {
+		approveDate = time.Time(*params.ApproveShipmentPayload.ApproveDate)
+	}
+	err = shipment.Approve(approveDate)
 	if err != nil {
 		h.Logger().Error("Attempted to approve HHG, got invalid transition", zap.Error(err), zap.String("shipment_status", string(shipment.Status)))
 		return handlers.ResponseForError(h.Logger(), err)
@@ -462,7 +467,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	if shipment.Status != models.ShipmentStatusDELIVERED && shipment.Status != models.ShipmentStatusCOMPLETED {
+	if shipment.Status != models.ShipmentStatusDELIVERED {
 		h.Logger().Error("Shipment status not in delivered state.")
 		return shipmentop.NewCreateAndSendHHGInvoicePreconditionFailed()
 	}

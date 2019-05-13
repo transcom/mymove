@@ -9,7 +9,7 @@
 # XYZ is the name of your app: mil, office, or tsp. It's a very long string.
 #
 # Valid environments: staging, prod, experimental
-# Valid queue names:  all, hhg_delivered, hhg_accepted, hhg_completed
+# Valid queue names:  all, hhg_delivered, hhg_accepted
 #
 
 function usage() {

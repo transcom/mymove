@@ -1,14 +1,14 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import AdminWrapper from './index';
 import restProvider from 'ra-data-simple-rest';
+import AdminHome from 'scenes/Admin/AdminHome';
 
 const dataProvider = restProvider('http://admin/v1/...');
 
-describe('AdminIndex tests', () => {
-  describe('AdminIndex home page', () => {
+describe('AdminHome tests', () => {
+  describe('AdminHome component', () => {
     let wrapper;
-    wrapper = mount(<AdminWrapper dataProvider={dataProvider} />);
+    wrapper = mount(<AdminHome dataProvider={dataProvider} />);
 
     it('renders without crashing', () => {
       expect(wrapper.find('.admin-system-wrapper').length).toEqual(1);
