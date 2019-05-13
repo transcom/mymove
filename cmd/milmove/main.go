@@ -947,6 +947,7 @@ func main() {
 	migrateCommand := &cobra.Command{
 		Use:   "migrate",
 		Short: "Runs MilMove migrations",
+		Long:  "Runs MilMove migrations",
 		RunE:  migrateFunction,
 	}
 	initMigrateFlags(migrateCommand.Flags())
