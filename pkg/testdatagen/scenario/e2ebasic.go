@@ -2966,7 +2966,7 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Lo
 	return offer.Shipment
 }
 
-func makeHhgShipment(db *pop.Connection, tspUser models.TspUser) {
+func makeHhgShipment(db *pop.Connection, tspUser models.TspUser) models.Shipment {
 	/*
 	 * Service member with uploaded orders and an approved shipment with show = false
 	 */
@@ -3008,4 +3008,6 @@ func makeHhgShipment(db *pop.Connection, tspUser models.TspUser) {
 	hhg := offer.Shipment
 	hhg.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg.Move)
+
+	return offer.Shipment
 }
