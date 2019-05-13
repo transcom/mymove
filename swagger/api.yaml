@@ -831,13 +831,11 @@ definitions:
       - DRAFT
       - SUBMITTED
       - APPROVED
-      - COMPLETED
       - CANCELED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
       APPROVED: Approved
-      COMPLETED: Completed
       CANCELED: Canceled
   MoveDocumentType:
     type: string
@@ -1669,7 +1667,6 @@ definitions:
       - APPROVED
       - IN_TRANSIT
       - DELIVERED
-      - COMPLETED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
@@ -1678,7 +1675,6 @@ definitions:
       APPROVED: Approved
       IN_TRANSIT: In Transit
       DELIVERED: Delivered
-      COMPLETED: Completed
   TransportPayload:
     type: object
     properties:
