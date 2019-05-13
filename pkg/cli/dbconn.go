@@ -103,7 +103,7 @@ func InitDatabaseFlags(flag *pflag.FlagSet) {
 	flag.Int(DbPortFlag, 5432, "Database Port")
 	flag.String(DbUserFlag, "postgres", "Database Username")
 	flag.String(DbPasswordFlag, "", "Database Password")
-	flag.String(DbSSLModeFlag, "disable", "Database SSL Mode: "+strings.Join(allSSLModes, ", "))
+	flag.String(DbSSLModeFlag, SSLModeDisable, "Database SSL Mode: "+strings.Join(allSSLModes, ", "))
 	flag.String(DbSSLRootCertFlag, "", "Path to the database root certificate file used for database connections")
 }
 
@@ -128,9 +128,9 @@ func CheckDatabase(v *viper.Viper, logger Logger) error {
 		return &errInvalidSSLMode{Mode: sslMode, Modes: allSSLModes}
 	}
 	if dbEnv == DbEnvContainer && !stringSliceContains(containerSSLModes, sslMode) {
-		return errors.Wrap(&errInvalidSSLMode{Mode: sslMode, Modes: containerSSLModes}, "container envrionment requires ssl connection to database")
+		return errors.Wrap(&errInvalidSSLMode{Mode: sslMode, Modes: containerSSLModes}, "container db env requires SSL connection to the database")
 	} else if dbEnv != DbEnvContainer && !stringSliceContains(allSSLModes, sslMode) {
-		return errors.Wrapf(&errInvalidSSLMode{Mode: sslMode, Modes: allSSLModes}, "%s environment requires ssl connection to database", dbEnv)
+		return &errInvalidSSLMode{Mode: sslMode, Modes: allSSLModes}
 	}
 
 	if filename := v.GetString(DbSSLRootCertFlag); len(filename) > 0 {
