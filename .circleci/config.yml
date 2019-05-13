@@ -566,7 +566,7 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - run: make bin/chamber
-      - run: make bin/soda
+      - run: make bin/milmove
       - build_tag_push:
           dockerfile: Dockerfile.migrations
           tag: ppp-migrations:dev
