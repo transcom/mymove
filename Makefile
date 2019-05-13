@@ -199,6 +199,8 @@ bin/rds-combined-ca-bundle.pem:
 
 ### MilMove Targets
 
+# server_deps and server_generate required for this binary, because go build expects
+# github.com/transcom/mymove/pkg/gen/internalmessages, even though it is not used for this program.
 bin/compare-secure-migrations: server_deps server_generate
 	go build -i -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
 
