@@ -623,10 +623,6 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 	if err != nil {
 		t.Fatal("Should transition.")
 	}
-	err = move.Complete()
-	if err != nil {
-		t.Fatal("Should transition.")
-	}
 
 	suite.MustSave(&move)
 

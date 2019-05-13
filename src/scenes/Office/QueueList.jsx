@@ -42,14 +42,8 @@ export default class QueueList extends Component {
                   <span>Delivered</span>
                 </NavLink>
               </li>
-              <li>
-                <NavLink to="/queues/hhg_completed" activeClassName="usa-current">
-                  <span>Completed</span>
-                </NavLink>
-              </li>
             </ul>
           </li>
-
           <li>
             <NavLink to="/queues/all" activeClassName="usa-current">
               <span>All Moves</span>

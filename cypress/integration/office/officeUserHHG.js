@@ -12,9 +12,6 @@ describe('office user finds the shipment', function() {
   it('office user views delivered hhg moves in queue Delivered HHGs', function() {
     officeUserViewsDeliveredShipment();
   });
-  it('office user views completed hhg moves in queue Completed HHGs', function() {
-    officeUserViewsCompletedShipment();
-  });
   it('office user approves basics for move, cannot approve HHG shipment', function() {
     officeUserApprovesOnlyBasicsHHG();
   });
@@ -52,27 +49,6 @@ function officeUserViewsDeliveredShipment() {
 
   // Find move (generated in e2ebasic.go) and open it
   cy.selectQueueItemMoveLocator('SCHNOO');
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
-  });
-
-  cy.get('[data-cy="hhg-tab"]').click();
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
-  });
-}
-
-function officeUserViewsCompletedShipment() {
-  // Open new moves queue
-  cy.patientVisit('/queues/hhg_completed');
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/hhg_completed/);
-  });
-
-  // Find move (generated in e2ebasic.go) and open it
-  cy.selectQueueItemMoveLocator('NOCHKA');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);

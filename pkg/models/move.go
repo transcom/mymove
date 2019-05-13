@@ -26,8 +26,6 @@ const (
 	MoveStatusSUBMITTED MoveStatus = "SUBMITTED"
 	// MoveStatusAPPROVED captures enum value "APPROVED"
 	MoveStatusAPPROVED MoveStatus = "APPROVED"
-	// MoveStatusCOMPLETED captures enum value "COMPLETED"
-	MoveStatusCOMPLETED MoveStatus = "COMPLETED"
 	// MoveStatusCANCELED captures enum value "CANCELED"
 	MoveStatusCANCELED MoveStatus = "CANCELED"
 )
@@ -153,20 +151,10 @@ func (m *Move) Approve() error {
 	return nil
 }
 
-// Complete Completes the Move
-func (m *Move) Complete() error {
-	if m.Status != MoveStatusAPPROVED {
-		return errors.Wrap(ErrInvalidTransition, "Complete")
-	}
-
-	m.Status = MoveStatusCOMPLETED
-	return nil
-}
-
 // Cancel cancels the Move and its associated PPMs
 func (m *Move) Cancel(reason string) error {
 	// We can cancel any move that isn't already complete.
-	if m.Status == MoveStatusCOMPLETED || m.Status == MoveStatusCANCELED {
+	if m.Status == MoveStatusCANCELED {
 		return errors.Wrap(ErrInvalidTransition, "Cancel")
 	}
 
