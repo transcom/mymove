@@ -33,6 +33,8 @@ const (
 	DpsTestHost string = "dps.example.com"
 	// SddcTestHost
 	SddcTestHost string = "sddc.example.com"
+	// AdminTestHost
+	AdminTestHost string = "admin.example.com"
 	// FakeRSAKey generated with `bin/generate-devlocal-cert.sh -o Test -u Application -n test.mil -f test`
 	FakeRSAKey string = `-----BEGIN RSA PRIVATE KEY-----
 MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDB8iPy8nfNMBR6
@@ -73,6 +75,7 @@ func ApplicationTestServername() auth.ApplicationServername {
 		OrdersServername: OrdersTestHost,
 		DpsServername:    DpsTestHost,
 		SddcServername:   SddcTestHost,
+		AdminServername:  AdminTestHost,
 	}
 	return appnames
 }

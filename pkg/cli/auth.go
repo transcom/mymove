@@ -32,6 +32,8 @@ const (
 	LoginGovOfficeClientIDFlag string = "login-gov-office-client-id"
 	// LoginGovTSPClientIDFlag is the Login.gov TSP Client ID Flag
 	LoginGovTSPClientIDFlag string = "login-gov-tsp-client-id"
+	// LoginGovAdminClientIDFlag is the Login.gov Admin Client ID Flag
+	LoginGovAdminClientIDFlag string = "login-gov-admin-client-id"
 	// LoginGovHostnameFlag is the Login.gov Hostname Flag
 	LoginGovHostnameFlag string = "login-gov-hostname"
 )
@@ -56,6 +58,7 @@ func InitAuthFlags(flag *pflag.FlagSet) {
 	flag.String(LoginGovMyClientIDFlag, "", "Client ID registered with login gov.")
 	flag.String(LoginGovOfficeClientIDFlag, "", "Client ID registered with login gov.")
 	flag.String(LoginGovTSPClientIDFlag, "", "Client ID registered with login gov.")
+	flag.String(LoginGovAdminClientIDFlag, "", "Client ID registered with login gov.")
 	flag.String(LoginGovHostnameFlag, "secure.login.gov", "Hostname for communicating with login gov.")
 }
 
@@ -74,6 +77,8 @@ func InitAuth(v *viper.Viper, logger Logger, appnames auth.ApplicationServername
 		v.GetString(LoginGovOfficeClientIDFlag),
 		appnames.TspServername,
 		v.GetString(LoginGovTSPClientIDFlag),
+		appnames.AdminServername,
+		v.GetString(LoginGovAdminClientIDFlag),
 		loginGovCallbackProtocol,
 		loginGovCallbackPort)
 	return loginGovProvider, err
@@ -104,6 +109,7 @@ func CheckAuth(v *viper.Viper) error {
 		LoginGovMyClientIDFlag,
 		LoginGovOfficeClientIDFlag,
 		LoginGovTSPClientIDFlag,
+		LoginGovAdminClientIDFlag,
 	}
 
 	for _, c := range clientIDVars {

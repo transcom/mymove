@@ -63,11 +63,11 @@ func InitEmail(v *viper.Viper, logger Logger) notifications.NotificationSender {
 		logger.Info("Using ses email backend",
 			zap.String("region", awsSESRegion),
 			zap.String("domain", awsSESDomain))
-		sesSession, err := awssession.NewSession(&aws.Config{
+		sesSession, newSessionErr := awssession.NewSession(&aws.Config{
 			Region: aws.String(awsSESRegion),
 		})
-		if err != nil {
-			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
+		if newSessionErr != nil {
+			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(newSessionErr))
 		}
 		sesService := ses.New(sesSession)
 		return notifications.NewNotificationSender(sesService, awsSESDomain, logger)

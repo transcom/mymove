@@ -39,6 +39,7 @@ import (
 	"github.com/transcom/mymove/pkg/ecs"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/adminapi"
 	"github.com/transcom/mymove/pkg/handlers/dpsapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
@@ -263,18 +264,18 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	logger = logger.With(fields...)
 
 	if v.GetBool(cli.LogTaskMetadataFlag) {
-		resp, err := http.Get("http://169.254.170.2/v2/metadata")
-		if err != nil {
-			logger.Error(errors.Wrap(err, "could not fetch task metadata").Error())
+		resp, httpGetErr := http.Get("http://169.254.170.2/v2/metadata")
+		if httpGetErr != nil {
+			logger.Error(errors.Wrap(httpGetErr, "could not fetch task metadata").Error())
 		} else {
-			body, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				logger.Error(errors.Wrap(err, "could not read task metadata").Error())
+			body, readAllErr := ioutil.ReadAll(resp.Body)
+			if readAllErr != nil {
+				logger.Error(errors.Wrap(readAllErr, "could not read task metadata").Error())
 			} else {
 				taskMetadata := &ecs.TaskMetadata{}
-				err := json.Unmarshal(body, taskMetadata)
-				if err != nil {
-					logger.Error(errors.Wrap(err, "could not parse task metadata").Error())
+				unmarshallErr := json.Unmarshal(body, taskMetadata)
+				if unmarshallErr != nil {
+					logger.Error(errors.Wrap(unmarshallErr, "could not parse task metadata").Error())
 				} else {
 					logger = logger.With(
 						zap.String("ecs_cluster", taskMetadata.Cluster),
@@ -314,11 +315,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	// Assert that our secret keys can be parsed into actual private keys
 	// TODO: Store the parsed key in handlers/AppContext instead of parsing every time
-	if _, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(loginGovSecretKey)); err != nil {
-		logger.Fatal("Login.gov private key", zap.Error(err))
+	if _, parseRSAPrivateKeyFromPEMErr := jwt.ParseRSAPrivateKeyFromPEM([]byte(loginGovSecretKey)); parseRSAPrivateKeyFromPEMErr != nil {
+		logger.Fatal("Login.gov private key", zap.Error(parseRSAPrivateKeyFromPEMErr))
 	}
-	if _, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(clientAuthSecretKey)); err != nil {
-		logger.Fatal("Client auth private key", zap.Error(err))
+	if _, parseRSAPrivateKeyFromPEMErr := jwt.ParseRSAPrivateKeyFromPEM([]byte(clientAuthSecretKey)); parseRSAPrivateKeyFromPEMErr != nil {
+		logger.Fatal("Client auth private key", zap.Error(parseRSAPrivateKeyFromPEMErr))
 	}
 	if len(loginGovHostname) == 0 {
 		logger.Fatal("Must provide the Login.gov hostname parameter, exiting")
@@ -488,9 +489,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			data["database"] = dbErr == nil
 		}
 
-		err := json.NewEncoder(w).Encode(data)
-		if err != nil {
-			logger.Error("Failed encoding health check response", zap.Error(err))
+		newEncoderErr := json.NewEncoder(w).Encode(data)
+		if newEncoderErr != nil {
+			logger.Error("Failed encoding health check response", zap.Error(newEncoderErr))
 		}
 
 		// We are not using request middleware here so logging directly in the check
@@ -592,7 +593,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	root := goji.NewMux()
 	root.Use(middleware.Recovery(logger))
 	root.Use(sessionCookieMiddleware)
-	root.Use(logging.LogRequestMiddleware(logger))
+	root.Use(middleware.RequestLogger(logger))
 
 	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
 	csrfAuthKey, err := hex.DecodeString(v.GetString(cli.CSRFAuthKeyFlag))
@@ -648,6 +649,22 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	internalAPIMux.Use(middleware.NoCache(logger))
 	internalAPIMux.Handle(pat.New("/*"), internalapi.NewInternalAPIHandler(handlerContext))
 
+	adminMux := goji.SubMux()
+	root.Handle(pat.New("/admin/v1/*"), adminMux)
+	adminMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.AdminSwaggerFlag)))
+	if v.GetBool(cli.ServeSwaggerUIFlag) {
+		logger.Info("Admin API Swagger UI serving is enabled")
+		adminMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "admin.html")))
+	} else {
+		adminMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+	}
+	// Mux for admin API that enforces auth
+	adminAPIMux := goji.SubMux()
+	adminMux.Handle(pat.New("/*"), adminAPIMux)
+	adminAPIMux.Use(userAuthMiddleware)
+	adminAPIMux.Use(middleware.NoCache(logger))
+	adminAPIMux.Handle(pat.New("/*"), adminapi.NewAdminAPIHandler(handlerContext))
+
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
@@ -665,9 +682,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 
 		devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
-		devlocalCa, err := ioutil.ReadFile(devlocalCAPath) // #nosec
-		if err != nil {
-			logger.Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(err))
+		devlocalCa, readFileErr := ioutil.ReadFile(devlocalCAPath) // #nosec
+		if readFileErr != nil {
+			logger.Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(readFileErr))
 		} else {
 			rootCAs.AppendCertsFromPEM(devlocalCa)
 		}

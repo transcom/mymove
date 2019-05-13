@@ -68,13 +68,13 @@ func FetchTDL(db *pop.Connection, rateArea string, region string, codeOfService 
 // and creates one to return if it doesn't already exist.
 func FetchOrCreateTDL(db *pop.Connection, rateArea string, region string, codeOfService string) (TrafficDistributionList, error) {
 	// Fetch TDL and return it immediately if found.
-	trafficDistributionList, err := FetchTDL(db, rateArea, region, codeOfService)
-	if err == nil {
-		return trafficDistributionList, err
+	trafficDistributionList, fetchTDLErr := FetchTDL(db, rateArea, region, codeOfService)
+	if fetchTDLErr == nil {
+		return trafficDistributionList, fetchTDLErr
 	}
 
 	// If we didn't find the TDL, create it.
-	if err == ErrFetchNotFound {
+	if fetchTDLErr == ErrFetchNotFound {
 		trafficDistributionList := TrafficDistributionList{
 			SourceRateArea:    rateArea,
 			DestinationRegion: region,
@@ -92,5 +92,5 @@ func FetchOrCreateTDL(db *pop.Connection, rateArea string, region string, codeOf
 	}
 
 	// If we get here, an unexpected error occurred.
-	return TrafficDistributionList{}, err
+	return TrafficDistributionList{}, fetchTDLErr
 }

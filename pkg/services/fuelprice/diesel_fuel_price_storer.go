@@ -96,18 +96,18 @@ func (u DieselFuelPriceStorer) StoreFuelPrices(numMonths int) (*validate.Errors,
 		}
 		pricePerGallon := fuelValues.price
 		pubDateString := fuelValues.dateString
-		pubDate, err := time.Parse("20060102", pubDateString) // must use this date Jan 2 2006 for layout
-		if err != nil {
-			return verrs, errors.Wrap(err, "unable to convert pubDate datestring to date")
+		pubDate, parseErr := time.Parse("20060102", pubDateString) // must use this date Jan 2 2006 for layout
+		if parseErr != nil {
+			return verrs, errors.Wrap(parseErr, "unable to convert pubDate datestring to date")
 		}
 		year := pubDate.Year()
 		month := pubDate.Month()
 
 		startDate := time.Date(year, month, 15, 0, 0, 0, 0, time.UTC)
 		endDate := time.Date(year, month+1, 14, 0, 0, 0, 0, time.UTC)
-		baselineRate, err := u.calculateFuelSurchargeBaselineRate(pricePerGallon)
-		if err != nil {
-			return verrs, errors.Wrap(err, "Cannot calculate baseline rate")
+		baselineRate, calculateFuelSurchargeBaseLineRateErr := u.calculateFuelSurchargeBaselineRate(pricePerGallon)
+		if calculateFuelSurchargeBaseLineRateErr != nil {
+			return verrs, errors.Wrap(calculateFuelSurchargeBaseLineRateErr, "Cannot calculate baseline rate")
 		}
 		dollarPricePerGallon := unit.Dollars(pricePerGallon)
 
@@ -122,11 +122,11 @@ func (u DieselFuelPriceStorer) StoreFuelPrices(numMonths int) (*validate.Errors,
 			BaselineRate:                baselineRate,
 		}
 		responseVErrors := validate.NewErrors()
-		verrs, err := u.DB.ValidateAndSave(&fuelPrice)
+		validateAndSaveVerrs, validateAndSaveErr := u.DB.ValidateAndSave(&fuelPrice)
 
-		if err != nil || verrs.HasAny() {
-			responseVErrors.Append(verrs)
-			return responseVErrors, errors.Wrap(err, "Cannot validate and save fuel diesel price")
+		if validateAndSaveErr != nil || validateAndSaveVerrs.HasAny() {
+			responseVErrors.Append(validateAndSaveVerrs)
+			return responseVErrors, errors.Wrap(validateAndSaveErr, "Cannot validate and save fuel diesel price")
 		}
 		u.logger.Info("Fuel Data added \n", zap.String("start date month", month.String()), zap.Time("pubDate", pubDate))
 	}
@@ -175,9 +175,9 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 		monthString := fmt.Sprintf("%02s", strconv.Itoa(month))
 		startDateString = fmt.Sprintf("%d%s%s", year, monthString, startDayString)
 		endDateString = fmt.Sprintf("%d%s%s", year, monthString, endDayString)
-		parsedURL, err := url.Parse(u.url)
-		if err != nil {
-			log.Fatal(err)
+		parsedURL, parseErr := url.Parse(u.url)
+		if parseErr != nil {
+			log.Fatal(parseErr)
 		}
 
 		query := parsedURL.Query()
@@ -189,9 +189,9 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 		finalURL := parsedURL.String()
 
 		// fetch the data
-		result, err := u.FetchFuelData(finalURL)
-		if err != nil {
-			return nil, errors.Wrap(err, "problem fetching fuel data")
+		result, fetchFuelDataErr := u.FetchFuelData(finalURL)
+		if fetchFuelDataErr != nil {
+			return nil, errors.Wrap(fetchFuelDataErr, "problem fetching fuel data")
 		}
 
 		// handle all possible responses
@@ -227,9 +227,9 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 				if !ok {
 					return nil, errors.New("data returned as fuel price failed float64 type assertion")
 				}
-				pubDateAsInt, err := strconv.Atoi(dateString)
-				if err != nil {
-					return nil, errors.Wrap(err, "pubDate conversion from string to int")
+				pubDateAsInt, atoiErr := strconv.Atoi(dateString)
+				if atoiErr != nil {
+					return nil, errors.Wrap(atoiErr, "pubDate conversion from string to int")
 				}
 				if i == 0 || pubDateAsInt < min {
 					min = pubDateAsInt
@@ -250,8 +250,7 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 				firstMondayOrNonHolidayAfter := getFirstMondayOrNonHolidayAfter(time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC))
 				todayIsAfterPostingDate := !firstMondayOrNonHolidayAfter.After(currentDate)
 				if todayIsAfterPostingDate {
-					err := errors.Errorf("Expected data, but no fuel data available for %d %d", time.Month(month), year)
-					return []fuelData{}, err
+					return []fuelData{}, errors.Errorf("Expected data, but no fuel data available for %d %d", time.Month(month), year)
 				}
 			}
 			log.Printf("No fueldata available yet for %d %d \n", time.Month(month), year)

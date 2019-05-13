@@ -11,10 +11,6 @@ import { approveStorageInTransit } from 'shared/Entities/modules/storageInTransi
 import './StorageInTransit.css';
 
 export class ApproveSitRequest extends Component {
-  state = {
-    closeOnSubmit: true,
-  };
-
   componentDidUpdate(prevProps, prevState) {
     if (this.props.hasSubmitSucceeded && !prevProps.hasSubmitSucceeded) {
       this.props.onClose();
@@ -25,10 +21,8 @@ export class ApproveSitRequest extends Component {
     this.props.onClose();
   };
 
-  approveAndClose = () => {
-    this.setState({ closeOnSubmit: true }, () => {
-      this.props.submitForm();
-    });
+  approveSit = () => {
+    this.props.submitForm();
   };
 
   onSubmit = values => {
@@ -60,7 +54,7 @@ export class ApproveSitRequest extends Component {
               data-cy="storage-in-transit-approve-button"
               className="button usa-button-primary storage-in-transit-request-form-send-request-button"
               disabled={!this.props.formEnabled}
-              onClick={this.approveAndClose}
+              onClick={this.approveSit}
             >
               Approve
             </button>

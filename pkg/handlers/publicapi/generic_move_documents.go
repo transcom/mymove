@@ -109,9 +109,9 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 	uploads := models.Uploads{}
 	for _, id := range uploadIds {
 		converted := uuid.Must(uuid.FromString(id.String()))
-		upload, err := models.FetchUpload(ctx, h.DB(), session, converted)
-		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+		upload, fetchUploadErr := models.FetchUpload(ctx, h.DB(), session, converted)
+		if fetchUploadErr != nil {
+			return handlers.ResponseForError(h.Logger(), fetchUploadErr)
 		}
 		uploads = append(uploads, upload)
 	}

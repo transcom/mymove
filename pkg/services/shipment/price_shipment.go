@@ -64,9 +64,9 @@ func (c PriceShipment) Call(shipment *models.Shipment, price PricingType) (*vali
 		}
 
 		// Save and validate Shipment after deleting Base Shipment Line Items
-		verrs, err := models.SaveShipment(c.DB, shipment)
-		if verrs.HasAny() || err != nil {
-			saveError := errors.Wrap(err, "Error saving shipment for ShipmentPriceRECALCULATE")
+		verrs, saveShipmentErr := models.SaveShipment(c.DB, shipment)
+		if verrs.HasAny() || saveShipmentErr != nil {
+			saveError := errors.Wrap(saveShipmentErr, "Error saving shipment for ShipmentPriceRECALCULATE")
 			return verrs, saveError
 		}
 	}
