@@ -34,11 +34,6 @@ export function getCurrentUserInfo() {
       .catch(error => dispatch(getLoggedInActions.error(error)));
   };
 }
-export function setLoggedOut() {
-  return function(dispatch) {
-    dispatch({ type: SET_LOGGED_OUT });
-  };
-}
 
 export function selectCurrentUser(state) {
   return state.user.userInfo || {};
