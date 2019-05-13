@@ -22,14 +22,6 @@ import (
 	"github.com/transcom/mymove/pkg/cli"
 )
 
-type errInvalidRegion struct {
-	Region string
-}
-
-func (e *errInvalidRegion) Error() string {
-	return fmt.Sprintf("invalid region %s", e.Region)
-}
-
 type errInvalidComparison struct {
 	Comparison string
 }
