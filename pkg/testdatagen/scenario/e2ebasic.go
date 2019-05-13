@@ -1086,48 +1086,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	models.SaveMoveDependencies(db, &hhg10.Move)
 
 	/*
-	 * Service member with completed shipment
-	 */
-	email = "hhg@com.pleted"
-
-	offer11 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString("4449dd2a-a23f-4967-a035-3bc9987c6848")),
-			LoginGovEmail: email,
-		},
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("5559dd2a-a23f-4967-a035-3bc9987c6824"),
-			FirstName:     models.StringPointer("HHG"),
-			LastName:      models.StringPointer("ReadyForApprove"),
-			Edipi:         models.StringPointer("4444567890"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Move: models.Move{
-			ID:               uuid.FromStringOrNil("9992270d-4a6f-44ea-82f6-ae3cf3277c5d"),
-			Locator:          "NOCHKA",
-			SelectedMoveType: &selectedMoveTypeHHG,
-		},
-		TrafficDistributionList: models.TrafficDistributionList{
-			ID:                uuid.FromStringOrNil("777f8b8b-67a6-4ce3-b5c3-bd48c82512fc"),
-			SourceRateArea:    "US62",
-			DestinationRegion: "11",
-			CodeOfService:     "D",
-		},
-		Shipment: models.Shipment{
-			Status:           models.ShipmentStatusCOMPLETED,
-			ActualPickupDate: &nextValidMoveDateMinusFive,
-		},
-		ShipmentOffer: models.ShipmentOffer{
-			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
-			Accepted:                        models.BoolPointer(true),
-		},
-	})
-
-	hhg11 := offer11.Shipment
-	hhg11.Move.Submit(time.Now())
-	models.SaveMoveDependencies(db, &hhg11.Move)
-
-	/*
 	 * Service member with approved basics and accepted shipment to be approved
 	 */
 	email = "hhg@delivered.tocomplete"
@@ -2420,6 +2378,38 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	ppmApproved.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmApproved.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	models.SaveMoveDependencies(db, &ppmApproved.Move)
+
+	/*
+	 * Another service member with orders and a move
+	 */
+	email = "profile@co.mple.te"
+	uuidStr = "99360a51-8cfa-4e25-ae57-24e66077305f"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+
+	testdatagen.MakeMove(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("2672baac-53a1-4767-b4a3-976e53cc224e"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("Another Profile"),
+			LastName:      models.StringPointer("Complete"),
+			Edipi:         models.StringPointer("8893105161"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			HasDependents:    true,
+			SpouseHasProGear: true,
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("6f6ac599-e23f-43af-9b83-5d75a78e933f"),
+			Locator: "COMPLE",
+		},
+		Uploader: loader,
+	})
 }
 
 // MakeHhgWithPpm creates an HHG user who has added a PPM
@@ -2620,76 +2610,6 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 	})
 	ppm3.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &ppm3.Move)
-
-	email4 := "completed@hhg.ppm"
-	userID4 := uuid.Must(uuid.FromString("c361b804-fac8-4c58-9efb-6f6fdcc364f5"))
-	moveID4 := uuid.FromStringOrNil("c4691535-4d5d-4dee-82ec-5be5e296f0c6")
-	smID4 := uuid.FromStringOrNil("357c70b4-d925-45a6-9f53-02f32e763a91")
-
-	testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            userID4,
-			LoginGovEmail: email4,
-		},
-		ServiceMember: models.ServiceMember{
-			ID:            smID4,
-			FirstName:     models.StringPointer("HHGPPM"),
-			LastName:      models.StringPointer("Completed"),
-			Edipi:         models.StringPointer("4224567890"),
-			PersonalEmail: models.StringPointer(email4),
-		},
-		Order: models.Order{
-			IssueDate:        time.Date(2018, time.May, 20, 0, 0, 0, 0, time.UTC),
-			OrdersTypeDetail: &ordersTypeDetail,
-		},
-		Move: models.Move{
-			ID:               moveID4,
-			Locator:          "COMBO4",
-			SelectedMoveType: &selectedMoveTypeHHGPPM,
-			Status:           models.MoveStatusAPPROVED,
-		},
-		TrafficDistributionList: models.TrafficDistributionList{
-			ID:                uuid.FromStringOrNil("37f33cb7-97b0-432f-bfc0-a7bee1cb6ec9"),
-			SourceRateArea:    "US62",
-			DestinationRegion: "11",
-			CodeOfService:     "D",
-		},
-		Shipment: models.Shipment{
-			Status:             models.ShipmentStatusCOMPLETED,
-			HasDeliveryAddress: true,
-			GBLNumber:          models.StringPointer("LKNQ7123456"),
-
-			ActualPickupDate:            &nextValidMoveDateMinusFive,
-			PmSurveyMethod:              "PHONE",
-			PmSurveyPlannedPackDate:     &nextValidMoveDatePlusOne,
-			PmSurveyPlannedPickupDate:   &nextValidMoveDatePlusFive,
-			PmSurveyConductedDate:       &nextValidMoveDatePlusOne,
-			PmSurveyCompletedAt:         &nextValidMoveDatePlusOne,
-			PmSurveyPlannedDeliveryDate: &nextValidMoveDatePlusTen,
-			PmSurveyWeightEstimate:      &weightEstimate,
-			SourceGBLOC:                 &sourceOffice.Gbloc,
-			DestinationGBLOC:            &destOffice.Gbloc,
-		},
-		ShipmentOffer: models.ShipmentOffer{
-			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
-		},
-	})
-
-	ppm4 := testdatagen.MakePPM(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID: smID4,
-		},
-		Move: models.Move{
-			ID: moveID4,
-		},
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			OriginalMoveDate: &nextValidMoveDate,
-			MoveID:           moveID4,
-		},
-		Uploader: loader,
-	})
-	ppm4.Move.Submit(time.Now())
-	models.SaveMoveDependencies(db, &ppm4.Move)
 }
 
 // MakeHhgFromAwardedToAcceptedGBLReady creates a scenario for an approved shipment ready for GBL generation
