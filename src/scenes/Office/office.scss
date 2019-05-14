@@ -444,3 +444,15 @@ head .panel-subhead {
   white-space: normal;
   word-wrap: break-word;
 }
+
+.refresh {
+  display: inline-block;
+  cursor: pointer;
+  margin-bottom: 0.3em;
+  padding: 0.3em 0;
+  border: 1px solid white;
+
+  &.focused {
+    border: 1px dashed gray;
+  }
+}
