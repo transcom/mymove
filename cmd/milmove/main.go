@@ -828,7 +828,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 // initMigrateFlags - Order matters!
 func initMigrateFlags(flag *pflag.FlagSet) {
-	flag.StringP("path", "p", "./migrations", "Path to the migrations folder")
+	// Migration Config
+	cli.InitMigrationFlags(flag)
 
 	// DB Config
 	cli.InitDatabaseFlags(flag)
@@ -843,6 +844,10 @@ func initMigrateFlags(flag *pflag.FlagSet) {
 func checkMigrateConfig(v *viper.Viper, logger logger) error {
 
 	logger.Info("checking migration config")
+
+	if err := cli.CheckMigration(v); err != nil {
+		return err
+	}
 
 	if err := cli.CheckDatabase(v, logger); err != nil {
 		return err
@@ -909,7 +914,7 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	mig, err := pop.NewFileMigrator(v.GetString("path"), dbConnection)
+	mig, err := pop.NewFileMigrator(v.GetString(cli.MigrationPathFlag), dbConnection)
 	if err != nil {
 		return err
 	}
