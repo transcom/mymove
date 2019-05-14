@@ -21,6 +21,7 @@ export default function uiReducer(state = initialState, action) {
         return {
           ...state,
           currentShipmentID: activeShipment ? activeShipment.id : null,
+          currentMoveID: activeMove ? activeMove.id : null,
         };
       } catch (e) {
         console.error(e);
@@ -49,4 +50,8 @@ export function getCurrentShipmentID(state) {
 
 export function getCurrentShipment(state) {
   return selectShipment(state, get(state, 'ui.currentShipmentID'));
+}
+
+export function getCurrentMoveID(state) {
+  return get(state, 'ui.currentMoveID');
 }
