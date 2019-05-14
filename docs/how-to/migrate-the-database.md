@@ -4,6 +4,21 @@ If you need to change the database schema, you'll need to write a migration.
 
 <!-- markdownlint-disable MD029 MD038 -->
 
+## Running Migrations
+
+To run a migration you should use the `milmove migrate` command. Under the hood this is running the `soda migrate`
+command but uses our DB connection code instead. This avoids us having to use the `database.yaml` as a config file
+and allows us to leverage different authentication methods for migrations in development and in production using
+the same code.  To migrate you should use a command based on your DB:
+
+* `make db_dev_migrate`
+* `make db_test_migrate`
+* `make db_prod_migrations_migrate`
+
+The reason to use a `make` target is because it will put you into the `scripts/` directory from which it is required
+you run the migration so that `scripts/apply-secure-migrations.sh` is called with the correct paths for the different
+files in the `./migrations` folder.
+
 ## Creating a migration
 
 Use soda (a part of [pop](https://github.com/gobuffalo/pop/)) to generate migrations. In order to make using soda easy, a wrapper is in `./bin/soda` that sets the go environment and working directory correctly.
