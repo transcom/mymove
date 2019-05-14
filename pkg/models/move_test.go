@@ -3,6 +3,7 @@ package models_test
 import (
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -26,7 +27,12 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	selectedMoveType := SelectedMoveTypeHHG
 
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	moveOptions := MoveOptions{
+		SelectedType: &selectedMoveType,
+		Show:         swag.Bool(true),
+	}
+	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
+	//move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType, true)
 
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
@@ -56,7 +62,11 @@ func (suite *ModelSuite) TestFetchMove() {
 	}
 	selectedMoveType := SelectedMoveTypeHHG
 
-	move, verrs, err := order1.CreateNewMove(suite.DB(), &selectedMoveType)
+	moveOptions := MoveOptions{
+		SelectedType: &selectedMoveType,
+		Show:         swag.Bool(true),
+	}
+	move, verrs, err := order1.CreateNewMove(suite.DB(), moveOptions)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	suite.Equal(6, len(move.Locator))
@@ -113,7 +123,11 @@ func (suite *ModelSuite) TestMoveCancellationWithReason() {
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	moveOptions := MoveOptions{
+		SelectedType: &selectedMoveType,
+		Show:         swag.Bool(true),
+	}
+	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
@@ -139,7 +153,11 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	moveOptions := MoveOptions{
+		SelectedType: &selectedMoveType,
+		Show:         swag.Bool(true),
+	}
+	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	reason := ""
@@ -208,7 +226,11 @@ func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	moveOptions := MoveOptions{
+		SelectedType: &selectedMoveType,
+		Show:         swag.Bool(true),
+	}
+	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
@@ -242,7 +264,11 @@ func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	moveOptions := MoveOptions{
+		SelectedType: &selectedMoveType,
+		Show:         swag.Bool(true),
+	}
+	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
@@ -258,7 +284,11 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	moveOptions := MoveOptions{
+		SelectedType: &selectedMoveType,
+		Show:         swag.Bool(true),
+	}
+	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
@@ -288,7 +318,11 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 	orders.Status = OrderStatusSUBMITTED
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	moveOptions := MoveOptions{
+		SelectedType: &selectedMoveType,
+		Show:         swag.Bool(true),
+	}
+	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 
