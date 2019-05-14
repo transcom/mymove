@@ -201,6 +201,9 @@ Cypress.Commands.add(
     // GET landing page to get csrf cookies
     cy.request('/');
 
+    // Wait for cookies to be present to make sure the page is fully loaded
+    // Otherwise we delete cookies before they exist
+    cy.getCookie('_gorilla_csrf').should('exist');
     // Clear out cookies if we don't want to send in request
     if (!sendGorillaCSRF) {
       // Don't include cookie in request header
