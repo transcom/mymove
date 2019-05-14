@@ -24,6 +24,11 @@ export class WizardFormPage extends Component {
     this.beforeTransition = beforeTransition.bind(this);
     this.submit = this.submit.bind(this);
   }
+
+  static defaultProps = {
+    readyToSubmit: true,
+  };
+
   componentDidUpdate(prevProps) {
     if (this.props.additionalValues) {
       /* eslint-disable security/detect-object-injection */
