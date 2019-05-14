@@ -19,6 +19,12 @@ describe('Office Home Page', function() {
     cy.signIntoOffice();
     officeAllMoves();
   });
+  it('office user can use a single click to view move info', function() {
+    cy.waitForReactTableLoad();
+
+    cy.get('[data-cy=queueTableRow]:first').click();
+    cy.url().should('include', '/moves/');
+  });
 });
 
 function officeUserIsOnSignInPage() {
