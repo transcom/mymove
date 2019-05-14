@@ -67,48 +67,6 @@ export class Uploader extends Component {
     return isIdle;
   }
 
-  handlePondInit() {
-    // If this component is unloaded quickly, this function can be called after the ref is deleted,
-    // so check that the ref still exists before continuing
-    if (!this.pond) {
-      return;
-    }
-
-    const { labelIdle } = this.props;
-    this.pond._pond.setOptions({
-      allowMultiple: true,
-      server: {
-        url: '/',
-        process: this.processFile,
-        revert: this.revertFile,
-      },
-      iconUndo: this.pond._pond.iconRemove,
-      imagePreviewMaxHeight: 100,
-      labelIdle: labelIdle || 'Drag & drop or <span class="filepond--label-action">click to upload</span>',
-      labelTapToUndo: 'tap to delete',
-      acceptedFileTypes: ['image/jpeg', 'image/png', 'application/pdf'],
-    });
-
-    this.pond._pond.on('processfile', e => {
-      if (this.props.onChange) {
-        this.props.onChange(this.state.files, this.isIdle());
-      }
-    });
-
-    this.pond._pond.on('addfilestart', e => {
-      if (this.props.onAddFile) {
-        this.props.onAddFile();
-      }
-    });
-
-    // Don't mention drag and drop if on mobile device
-    if (isMobile()) {
-      this.pond._pond.setOptions({
-        labelIdle: '<span class="filepond--label-action">Upload</span>',
-      });
-    }
-  }
-
   processFile = (fieldName, file, metadata, load, error, progress, abort) => {
     const { document, isPublic } = this.props;
     const self = this;
@@ -141,6 +99,52 @@ export class Uploader extends Component {
       })
       .catch(error);
   };
+
+  handlePondInit() {
+    // If this component is unloaded quickly, this function can be called after the ref is deleted,
+    // so check that the ref still exists before continuing
+    if (!this.pond) {
+      return;
+    }
+    this.setPondOptions();
+
+    this.pond._pond.on('processfile', e => {
+      if (this.props.onChange) {
+        this.props.onChange(this.state.files, this.isIdle());
+      }
+    });
+
+    this.pond._pond.on('addfilestart', e => {
+      if (this.props.onAddFile) {
+        this.props.onAddFile();
+      }
+    });
+
+    // Don't mention drag and drop if on mobile device
+    if (isMobile()) {
+      this.pond._pond.setOptions({
+        labelIdle: '<span class="filepond--label-action">Upload</span>',
+      });
+    }
+  }
+
+  setPondOptions() {
+    const { options } = this.props;
+    const defaultOptions = {
+      allowMultiple: true,
+      server: {
+        url: '/',
+        process: this.processFile,
+        revert: this.revertFile,
+      },
+      iconUndo: this.pond._pond.iconRemove,
+      imagePreviewMaxHeight: 100,
+      labelIdle: 'Drag & drop or <span class="filepond--label-action">click to upload</span>',
+      labelTapToUndo: 'tap to delete',
+      acceptedFileTypes: ['image/jpeg', 'image/png', 'application/pdf'],
+    };
+    this.pond._pond.setOptions({ ...defaultOptions, ...options });
+  }
 
   render() {
     return (

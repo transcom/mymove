@@ -74,7 +74,11 @@ export class UploadOrders extends Component {
         )}
         {currentOrders && (
           <div className="uploader-box">
-            <Uploader document={currentOrders.uploaded_orders} onChange={this.onChange} labelIdle={uploaderLabelIdle} />
+            <Uploader
+              document={currentOrders.uploaded_orders}
+              onChange={this.onChange}
+              options={{ labelIdle: uploaderLabelIdle }}
+            />
             <div className="hint">(Each page must be clear and legible)</div>
           </div>
         )}
