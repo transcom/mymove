@@ -203,33 +203,20 @@ Cypress.Commands.add(
 
     // Clear out cookies if we don't want to send in request
     if (!sendGorillaCSRF) {
-      cy.clearCookie('_gorilla_csrf');
       // Don't include cookie in request header
-      cy.getCookie('_gorilla_csrf').should('not.exist');
-    } else {
-      // Include cookie in request header
-      cy.getCookie('_gorilla_csrf').should('exist');
+      cy.clearCookie('_gorilla_csrf');
     }
 
     if (!sendMaskedGorillaCSRF) {
       // Clear out the masked CSRF token
       cy.clearCookie('masked_gorilla_csrf');
       // Send request without masked token
-      cy
-        .getCookie('masked_gorilla_csrf')
-        .should('not.exist')
-        .then(() => {
-          // null token will omit the 'X-CSRF-HEADER' from request
-          sendRequest(userType);
-        });
+      sendRequest(userType);
     } else {
       // Send request with masked token
-      cy
-        .getCookie('masked_gorilla_csrf')
-        .should('exist')
-        .then(cookie => {
-          sendRequest(userType, cookie.value);
-        });
+      cy.getCookie('masked_gorilla_csrf').then(cookie => {
+        sendRequest(userType, cookie.value);
+      });
     }
   },
 );
