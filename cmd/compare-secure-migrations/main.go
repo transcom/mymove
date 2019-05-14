@@ -97,7 +97,9 @@ func checkConfig(v *viper.Viper) error {
 }
 
 func quit(logger *log.Logger, flag *pflag.FlagSet, err error) {
-	logger.Println(err.Error())
+	if err != nil {
+		logger.Println(err.Error())
+	}
 	logger.Println("Usage of compare-secure-migrations:")
 	if flag != nil {
 		flag.PrintDefaults()
@@ -137,7 +139,7 @@ func main() {
 
 	checkConfigErr := checkConfig(v)
 	if checkConfigErr != nil {
-		quit(logger, flag, err)
+		quit(logger, flag, checkConfigErr)
 	}
 
 	awsConfig, err := cli.GetAWSConfig(v, verbose)

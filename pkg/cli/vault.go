@@ -14,15 +14,19 @@ import (
 )
 
 const (
-	// VaultKeychainNameFlag is the aws-vault keychain name Flag
-	VaultKeychainNameFlag string = "aws-vault-keychain-name"
-	// VaultProfileFlag is the aws-vault profile name Flag
-	VaultProfileFlag string = "aws-profile"
+	// VaultAWSKeychainNameFlag is the aws-vault keychain name Flag
+	VaultAWSKeychainNameFlag string = "aws-vault-keychain-name"
+	// VaultAWSProfileFlag is the aws-vault profile name Flag
+	VaultAWSProfileFlag string = "aws-profile"
+	// VaultAWSVaultFlag is the aws-vault flag
+	VaultAWSVaultFlag string = "aws-vault"
+	// VaultAWSSessionTokenFlag is the AWS session token flag
+	VaultAWSSessionTokenFlag string = "aws-session-token"
 
-	// VaultKeychainNameDefault is the aws-vault default keychain name
-	VaultKeychainNameDefault string = "login"
-	// VaultProfileDefault is the aws-vault default profile name
-	VaultProfileDefault string = "transcom-ppp"
+	// VaultAWSKeychainNameDefault is the aws-vault default keychain name
+	VaultAWSKeychainNameDefault string = "login"
+	// VaultAWSProfileDefault is the aws-vault default profile name
+	VaultAWSProfileDefault string = "transcom-ppp"
 )
 
 type errInvalidKeychainName struct {
@@ -43,20 +47,26 @@ func (e *errInvalidProfile) Error() string {
 
 // InitVaultFlags initializes Vault command line flags
 func InitVaultFlags(flag *pflag.FlagSet) {
-	flag.String(VaultKeychainNameFlag, VaultKeychainNameDefault, "The aws-vault keychain name")
-	flag.String(VaultProfileFlag, VaultProfileDefault, "The aws-vault profile")
+	flag.String(VaultAWSKeychainNameFlag, VaultAWSKeychainNameDefault, "The aws-vault keychain name")
+	flag.String(VaultAWSProfileFlag, VaultAWSProfileDefault, "The aws-vault profile")
 }
 
 // CheckVault validates Vault command line flags
 func CheckVault(v *viper.Viper) error {
-	keychainName := v.GetString(VaultKeychainNameFlag)
-	if len(keychainName) == 0 {
-		return errors.Wrap(&errInvalidKeychainName{KeychainName: keychainName}, fmt.Sprintf("%q is invalid", VaultKeychainNameFlag))
+	if awsVault := v.GetString(VaultAWSVaultFlag); len(awsVault) > 0 {
+		if sessionToken := v.GetString(VaultAWSSessionTokenFlag); len(sessionToken) == 0 {
+			return errors.New("in aws-vault session, but missing aws-session-token")
+		}
 	}
 
-	keychainProfile := v.GetString(VaultProfileFlag)
+	keychainName := v.GetString(VaultAWSKeychainNameFlag)
+	if len(keychainName) == 0 {
+		return errors.Wrap(&errInvalidKeychainName{KeychainName: keychainName}, fmt.Sprintf("%q is invalid", VaultAWSKeychainNameFlag))
+	}
+
+	keychainProfile := v.GetString(VaultAWSProfileFlag)
 	if len(keychainProfile) == 0 {
-		return errors.Wrap(&errInvalidProfile{Profile: keychainName}, fmt.Sprintf("%q is invalid", VaultProfileFlag))
+		return errors.Wrap(&errInvalidProfile{Profile: keychainName}, fmt.Sprintf("%q is invalid", VaultAWSProfileFlag))
 	}
 	return nil
 }
@@ -111,16 +121,18 @@ func GetAWSConfig(v *viper.Viper, verbose bool) (*aws.Config, error) {
 		Region: aws.String(awsRegion),
 	}
 
-	keychainName := v.GetString(VaultKeychainNameFlag)
-	keychainProfile := v.GetString(VaultProfileFlag)
-
-	if len(keychainName) > 0 && len(keychainProfile) > 0 {
-		creds, getAWSCredsErr := GetAWSCredentials(keychainName, keychainProfile)
-		if getAWSCredsErr != nil {
-			return nil, errors.Wrap(getAWSCredsErr, fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, keychainProfile))
+	// If program is not wrapped in aws-vault wrapper then get credentials
+	if awsVault := v.GetString(VaultAWSVaultFlag); len(awsVault) == 0 {
+		keychainName := v.GetString(VaultAWSKeychainNameFlag)
+		keychainProfile := v.GetString(VaultAWSProfileFlag)
+		if len(keychainName) > 0 && len(keychainProfile) > 0 {
+			creds, getAWSCredsErr := GetAWSCredentials(keychainName, keychainProfile)
+			if getAWSCredsErr != nil {
+				return nil, errors.Wrap(getAWSCredsErr, fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, keychainProfile))
+			}
+			awsConfig.CredentialsChainVerboseErrors = aws.Bool(verbose)
+			awsConfig.Credentials = creds
 		}
-		awsConfig.CredentialsChainVerboseErrors = aws.Bool(verbose)
-		awsConfig.Credentials = creds
 	}
 	return awsConfig, nil
 }
