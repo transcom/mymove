@@ -210,7 +210,7 @@ export class StorageInTransit extends Component {
             <OfficeEditor
               updateStorageInTransit={this.onSubmit}
               onClose={this.closeOfficeEditForm}
-              storageInTransit={this.state.storageInTransit}
+              storageInTransit={storageInTransit}
             />
           ) : (
             (storageInTransit.status === 'APPROVED' || storageInTransit.status === 'DENIED') &&
