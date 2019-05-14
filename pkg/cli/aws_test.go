@@ -2,15 +2,16 @@ package cli
 
 import (
 	"fmt"
+
+	"github.com/aws/aws-sdk-go/aws/endpoints"
 )
 
 func (suite *cliTestSuite) TestConfigAWS() {
-	expectedRegion := "us-west-2"
 	flagSet := []string{
-		fmt.Sprintf("--%s=%s", AWSRegionFlag, expectedRegion),
+		fmt.Sprintf("--%s=%s", AWSRegionFlag, endpoints.UsWest2RegionID),
 	}
 	suite.Setup(InitAWSFlags, flagSet)
 	region, err := CheckAWSRegion(suite.viper)
 	suite.Nil(err)
-	suite.Equal(region, expectedRegion)
+	suite.Equal(endpoints.UsWest2RegionID, region)
 }
