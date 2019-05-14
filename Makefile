@@ -215,10 +215,10 @@ bin/generate-shipment-summary: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
 
 bin/generate-test-data: pkg/assets/assets.go .server_generate.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
 
 bin_linux/generate-test-data: pkg/assets/assets.go .server_generate_linux.stamp
-	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate_test_data
+	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate-test-data
 
 bin/health_checker:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/health_checker ./cmd/health_checker
