@@ -1,5 +1,5 @@
 import { get, head, pick } from 'lodash';
-import { SubmitMoveForApproval } from './api.js';
+import { UpdateMove, GetMove, SubmitMoveForApproval } from './api.js';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive } from 'shared/utils';
 
@@ -19,6 +19,26 @@ export const SUBMIT_FOR_APPROVAL = ReduxHelpers.generateAsyncActionTypes(submitF
 // Action creation
 export function setPendingMoveType(value) {
   return { type: SET_PENDING_MOVE_TYPE, payload: value };
+}
+
+export function updateMove(moveId, moveType) {
+  return function(dispatch) {
+    const action = ReduxHelpers.generateAsyncActions(createOrUpdateMoveType);
+    dispatch(action.start());
+    return UpdateMove(moveId, { selected_move_type: moveType })
+      .then(item => dispatch(action.success(item)))
+      .catch(error => dispatch(action.error(error)));
+  };
+}
+
+export function loadMove(moveId) {
+  return function(dispatch, getState) {
+    const action = ReduxHelpers.generateAsyncActions(getMoveType);
+    dispatch(action.start());
+    return GetMove(moveId)
+      .then(item => dispatch(action.success(item)))
+      .catch(error => dispatch(action.error(error)));
+  };
 }
 
 export const SubmitForApproval = ReduxHelpers.generateAsyncActionCreator(submitForApprovalType, SubmitMoveForApproval);
