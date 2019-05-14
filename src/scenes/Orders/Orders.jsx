@@ -55,7 +55,7 @@ export class Orders extends Component {
         className={formName}
         handleSubmit={this.handleSubmit}
         initialValues={initialValues}
-        nextIsDisabled={!!newDutyStationErrorMsg}
+        readyToSubmit={!newDutyStationErrorMsg}
         pageKey={pageKey}
         pageList={pages}
         serverError={error}

@@ -92,9 +92,9 @@ export class WizardFormPage extends Component {
       serverError,
       valid,
       dirty,
-      nextIsDisabled,
+      readyToSubmit,
     } = this.props;
-    const canMoveForward = valid && !nextIsDisabled;
+    const canMoveForward = valid && readyToSubmit;
     const canMoveBackward = (valid || !dirty) && !isFirstPage(pageList, pageKey);
     const hideBackBtn = isFirstPage(pageList, pageKey);
     return (
