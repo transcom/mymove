@@ -182,6 +182,7 @@ class QueueTable extends Component {
             className="-striped -highlight"
             showPagination={false}
             getTrProps={(state, rowInfo) => ({
+              'data-cy': 'queueTableRow',
               onDoubleClick: _ => this.openMove(rowInfo),
               onClick: _ => this.openMove(rowInfo),
             })}
