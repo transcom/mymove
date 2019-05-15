@@ -3,6 +3,7 @@ import { get } from 'lodash';
 import { fetchActive, fetchActiveShipment } from 'shared/utils';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { selectShipment } from 'shared/Entities/modules/shipments';
+import { selectMove } from 'shared/Entities/modules/moves';
 
 const initialState = {
   currentShipmentID: null,
@@ -54,4 +55,8 @@ export function getCurrentShipment(state) {
 
 export function getCurrentMoveID(state) {
   return get(state, 'ui.currentMoveID');
+}
+
+export function getCurrentMove(state) {
+  return selectMove(state, getCurrentMoveID(state));
 }
