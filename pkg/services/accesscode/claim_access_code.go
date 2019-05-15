@@ -1,7 +1,6 @@
 package accesscode
 
 import (
-	"log"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -43,12 +42,11 @@ func (v claimAccessCode) ClaimAccessCode(code string, serviceMemberID uuid.UUID)
 	accessCode, err := v.FetchAccessCode(code)
 
 	if err != nil {
-		return &models.AccessCode{}, errors.Wrap(err, "Unable to find access code")
+		return accessCode, errors.Wrap(err, "Unable to find access code")
 	}
 
 	if accessCode.ServiceMemberID != nil {
-		log.Print(err)
-		return &models.AccessCode{}, errors.New("Access code already claimed")
+		return accessCode, errors.New("Access code already claimed")
 	}
 
 	transactionErr := v.DB.Transaction(func(connection *pop.Connection) error {
@@ -65,7 +63,7 @@ func (v claimAccessCode) ClaimAccessCode(code string, serviceMemberID uuid.UUID)
 	})
 
 	if transactionErr != nil {
-		return &models.AccessCode{}, errors.Wrap(transactionErr, "Unable to claim access code")
+		return accessCode, errors.Wrap(transactionErr, "Unable to claim access code")
 	}
 
 	return accessCode, nil

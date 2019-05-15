@@ -1,7 +1,6 @@
 package accesscode
 
 import (
-	"log"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -69,8 +68,7 @@ func (suite *ClaimAccessCodeTestSuite) TestClaimAccessCode_Failed() {
 
 	_, err2 := claimAccessCode.ClaimAccessCode(code, serviceMember.ID)
 
-	log.Print(err2)
-	suite.NotNil(err2)
+	suite.Equal(err2.Error(), "Access code already claimed")
 }
 
 func (suite *ClaimAccessCodeTestSuite) TestFetchAccessCode_InvalidAccessCode() {
@@ -80,5 +78,6 @@ func (suite *ClaimAccessCodeTestSuite) TestFetchAccessCode_InvalidAccessCode() {
 
 	claimAccessCode := NewAccessCodeClaimer(suite.DB())
 	_, err := claimAccessCode.ClaimAccessCode(code, serviceMember.ID)
-	suite.NotNil(err)
+
+	suite.Equal(err.Error(), "Unable to find access code: sql: no rows in result set")
 }
