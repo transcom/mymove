@@ -257,11 +257,13 @@ export class StorageInTransit extends Component {
                     </div>
                     <div className="panel-field nested__same-font">
                       <span className="field-title unbold">Days used</span>
-                      <span className="field-value">{daysUsed} days</span>
+                      <span data-cy="sit-days-used" className="field-value">
+                        {daysUsed} days
+                      </span>
                     </div>
                     <div className="panel-field nested__same-font">
                       <span className="field-title unbold">Expires</span>
-                      <span className="field-value">
+                      <span data-cy="sit-expires" className="field-value">
                         {isInSit
                           ? formatDate4DigitYear(
                               moment(storageInTransit.actual_start_date).add(daysRemaining + daysUsed, 'days'),
