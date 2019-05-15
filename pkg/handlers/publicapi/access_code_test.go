@@ -109,13 +109,6 @@ func (suite *HandlerSuite) TestClaimAccessCodeHandler_Success() {
 	code := "TEST2"
 	claimedAt := time.Now()
 
-	claimedAccessCode := models.AccessCode{
-		Code:            code,
-		MoveType:        &selectedMoveType,
-		ClaimedAt:       &claimedAt,
-		ServiceMemberID: &serviceMember.ID,
-	}
-
 	// makes request
 	request := httptest.NewRequest("PATCH", "/access_codes/invalid", nil)
 	request = suite.AuthenticateRequest(request, serviceMember)
@@ -125,6 +118,12 @@ func (suite *HandlerSuite) TestClaimAccessCodeHandler_Success() {
 		AccessCodePayload: accesscodeops.ClaimAccessCodeBody{Code: &code},
 	}
 
+	claimedAccessCode := models.AccessCode{
+		Code:            code,
+		MoveType:        &selectedMoveType,
+		ClaimedAt:       &claimedAt,
+		ServiceMemberID: &serviceMember.ID,
+	}
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	accessCodeClaimer := &mocks.AccessCodeClaimer{}
 	accessCodeClaimer.On("ClaimAccessCode",
