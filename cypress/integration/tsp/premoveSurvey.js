@@ -30,10 +30,10 @@ describe('TSP User And the Premove Survey Button', function() {
 });
 
 function tspUserClicksEnterPreMoveSurvey() {
-  const button = cy.contains('Enter pre-move survey');
-
-  button.should('be.enabled');
-  button.click();
+  cy
+    .contains('Enter pre-move survey')
+    .should('be.enabled')
+    .click();
 }
 
 function tspUserFillsInPreMoveSurveyWizard() {

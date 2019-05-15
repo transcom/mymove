@@ -72,7 +72,8 @@ export function approveShipment(shipmentId, shipmentApproveDate, label = approve
 }
 
 export function acceptShipment(shipmentId, label = acceptPublicShipmentLabel) {
-  return swaggerRequest(getPublicClient, label, { shipmentId }, { label });
+  const swaggerTag = 'shipments.acceptShipment';
+  return swaggerRequest(getPublicClient, swaggerTag, { shipmentId }, { label });
 }
 
 export function transportShipment(shipmentId, payload, label = transportPublicShipmentLabel) {
