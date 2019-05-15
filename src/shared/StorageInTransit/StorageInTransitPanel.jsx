@@ -16,6 +16,7 @@ import { calculateEntitlementsForMove } from 'shared/Entities/modules/moves';
 
 import { isTspSite } from 'shared/constants.js';
 import SitStatusIcon from './SitStatusIcon';
+import { sitTotalDaysUsed } from 'shared/StorageInTransit/calculator';
 
 export class StorageInTransitPanel extends Component {
   constructor() {
@@ -42,9 +43,9 @@ export class StorageInTransitPanel extends Component {
   render() {
     const { storageInTransitEntitlement, storageInTransits } = this.props;
     const { error, isCreatorActionable } = this.state;
-    const daysUsed = 0; // placeholder
-    const daysRemaining = storageInTransitEntitlement - daysUsed;
     const hasRequestedSIT = some(storageInTransits, sit => sit.status === 'REQUESTED');
+    const hasInSIT = some(storageInTransits, sit => sit.status === 'IN_SIT');
+    const daysRemaining = storageInTransitEntitlement - sitTotalDaysUsed(storageInTransits);
 
     return (
       <div className="storage-in-transit-panel" data-cy="storage-in-transit-panel">
@@ -58,11 +59,18 @@ export class StorageInTransitPanel extends Component {
             </Alert>
           )}
           <div className="column-head">
-            Entitlement: {storageInTransitEntitlement} days <span className="unbold">({daysRemaining} remaining)</span>
+            Entitlement: {storageInTransitEntitlement} days
+            {hasInSIT && <span className="unbold"> ({daysRemaining} remaining)</span>}
           </div>
           {storageInTransits !== undefined &&
             storageInTransits.map(storageInTransit => {
-              return <StorageInTransit key={storageInTransit.id} storageInTransit={storageInTransit} />;
+              return (
+                <StorageInTransit
+                  key={storageInTransit.id}
+                  storageInTransit={storageInTransit}
+                  daysRemaining={daysRemaining}
+                />
+              );
             })}
           {isCreatorActionable &&
             isTspSite && <Creator onFormActivation={this.onFormActivation} saveStorageInTransit={this.onSubmit} />}
