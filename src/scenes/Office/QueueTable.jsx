@@ -30,6 +30,12 @@ class QueueTable extends Component {
     }
   }
 
+  openMove(rowInfo) {
+    this.props.history.push(`new/moves/${rowInfo.original.id}`, {
+      referrerPathname: this.props.history.location.pathname,
+    });
+  }
+
   static defaultProps = {
     moveLocator: '',
     firstName: '',
@@ -151,6 +157,7 @@ class QueueTable extends Component {
               {
                 Header: 'Locator #',
                 accessor: 'locator',
+                Cell: row => <span data-cy="locator">{row.value}</span>,
               },
               {
                 Header: 'GBL',
@@ -175,10 +182,9 @@ class QueueTable extends Component {
             className="-striped -highlight"
             showPagination={false}
             getTrProps={(state, rowInfo) => ({
-              onDoubleClick: e =>
-                this.props.history.push(`new/moves/${rowInfo.original.id}`, {
-                  referrerPathname: this.props.history.location.pathname,
-                }),
+              'data-cy': 'queueTableRow',
+              onDoubleClick: _ => this.openMove(rowInfo),
+              onClick: _ => this.openMove(rowInfo),
             })}
           />
         </div>

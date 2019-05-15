@@ -53,6 +53,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
 			LEFT JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
 			WHERE moves.status = 'SUBMITTED'
+			and moves.show is true
 		`
 	} else if lifecycleState == "ppm" {
 		query = `
@@ -74,6 +75,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
 			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
 			WHERE moves.status = 'APPROVED'
+			and moves.show is true
 		`
 	} else if lifecycleState == "hhg_accepted" {
 		// Move date is the Requested Pickup Date because accepted shipments haven't yet gone through the
@@ -96,6 +98,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
 			WHERE shipment.status = 'ACCEPTED'
+			and moves.show is true
 		`
 	} else if lifecycleState == "hhg_in_transit" {
 		// Move date is the Actual Pickup Date.
@@ -117,6 +120,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
 			WHERE shipment.status = 'IN_TRANSIT'
+			and moves.show is true
 		`
 	} else if lifecycleState == "hhg_delivered" {
 		// Move date is the Actual Pickup Date.
@@ -138,6 +142,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
 			WHERE shipment.status = 'DELIVERED'
+			and moves.show is true
 		`
 	} else if lifecycleState == "all" {
 		query = `
@@ -158,6 +163,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
 			LEFT JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
+			WHERE moves.show is true
 		`
 	}
 
