@@ -9,7 +9,6 @@ import { withContext } from 'shared/AppContext';
 import { MoveSummary } from './MoveSummary';
 import { isHHGPPMComboMove } from 'scenes/Moves/Ppm/ducks';
 import { lastMoveIsCanceled } from 'scenes/Moves/ducks';
-import { selectedMoveType } from 'shared/Entities/modules/move';
 
 import { getCurrentShipment, getCurrentMoveID } from 'shared/UI/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
@@ -25,7 +24,7 @@ import Alert from 'shared/Alert';
 import SignIn from 'shared/User/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
-import { updateMove, selectMove } from 'shared/Entities/modules/moves';
+import { updateMove, selectMove, selectedMoveType } from 'shared/Entities/modules/moves';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { selectShipment } from 'shared/Entities/modules/shipments';
 

@@ -30,7 +30,9 @@ import Footer from 'shared/Footer';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement';
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
-import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
+import { lastMoveIsCanceled } from 'scenes/Moves/ducks';
+import { selectedMoveType } from 'shared/Entities/modules/moves';
+
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadInternalSchema } from 'shared/Swagger/ducks';

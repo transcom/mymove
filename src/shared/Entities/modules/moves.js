@@ -97,7 +97,7 @@ export function selectMoveStatus(state, moveId) {
   return move.status;
 }
 
-export function selectMoveType(state, moveId) {
+export function selectedMoveType(state, moveId) {
   const move = selectMove(state, moveId);
   return move.selected_move_type;
 }

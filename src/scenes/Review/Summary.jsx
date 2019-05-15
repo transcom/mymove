@@ -10,7 +10,9 @@ import { loadMove, selectMove } from 'shared/Entities/modules/moves';
 import { getCurrentShipmentID } from 'shared/UI/ducks';
 
 import { getPPM } from 'scenes/Moves/Ppm/ducks.js';
-import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
+import { lastMoveIsCanceled } from 'scenes/Moves/ducks';
+import { moveIsApproved } from 'shared/Entities/modules/moves';
+
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import Alert from 'shared/Alert';
 import { titleCase } from 'shared/constants.js';
