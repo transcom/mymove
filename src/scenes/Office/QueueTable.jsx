@@ -112,12 +112,6 @@ class QueueTable extends Component {
       }
     });
 
-    let refreshIconClassList = ['refresh'];
-
-    if (this.state.refreshing) {
-      refreshIconClassList.push('focused');
-    }
-
     return (
       <div>
         {this.props.showFlashMessage ? (
@@ -128,7 +122,7 @@ class QueueTable extends Component {
         ) : null}
         <h1 className="queue-heading">Queue: {titles[this.props.queueType]}</h1>
         <div className="queue-table">
-          <span className={refreshIconClassList.join(' ')} title="Refresh" aria-label="Refresh">
+          <span className={'refresh' + (this.state.refreshing ? ' focused' : '')} title="Refresh" aria-label="Refresh">
             <FontAwesomeIcon
               data-cy="refreshQueue"
               className="link-blue"
