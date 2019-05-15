@@ -216,7 +216,7 @@ export class StorageInTransit extends Component {
             <OfficeEditor
               updateStorageInTransit={this.onSubmit}
               onClose={this.closeOfficeEditForm}
-              storageInTransit={this.state.storageInTransit}
+              storageInTransit={storageInTransit}
             />
           ) : (
             (isApproved || isDenied) &&
@@ -224,7 +224,7 @@ export class StorageInTransit extends Component {
             !showApproveForm &&
             !showDenyForm && (
               <span className="sit-actions">
-                <span className="sit-edit actionable">
+                <span data-cy="sit-edit-link" className="sit-edit actionable">
                   <a onClick={this.openOfficeEditForm}>
                     <FontAwesomeIcon className="icon" icon={faPencil} />
                     Edit

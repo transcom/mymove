@@ -9,7 +9,7 @@ describe('office user finds the shipment', function() {
   it('office user starts and cancels sit approval', function() {
     officeUserStartsAndCancelsSitApproval();
   });
-  it('office approves sit', function() {
+  it('office approves sit and edits the approval', function() {
     officeUserApprovesSITRequest();
   });
   it('office user starts and cancels sit edit', function() {
@@ -201,6 +201,20 @@ function officeUserApprovesSITRequest() {
   cy.get('[data-cy="storage-in-transit-status"]').contains('Approved');
   cy.get('[data-cy="sit-authorized-start-date"]').contains('22-Mar-2019');
   cy.get('[data-cy="sit-authorization-notes"]').contains('this is a note');
+
+  cy.get('[data-cy="sit-edit-link"]').click();
+
+  cy.get('input[name="authorized_start_date"]').type('3/23/2019', { force: true, delay: 150 });
+  cy.get('textarea[name="authorization_notes"]').type('this is also a note', { force: true, delay: 150 });
+
+  cy
+    .get('[data-cy="sit-editor-save-button"]')
+    .contains('Save')
+    .click();
+
+  cy.patientReload();
+
+  cy.get('[data-cy="sit-authorization-notes"]').contains('this is also a note');
 }
 
 function officeUserDeniesSITRequest() {
