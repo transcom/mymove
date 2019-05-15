@@ -11,7 +11,7 @@ import Alert from 'shared/Alert';
 import StorageInTransit from 'shared/StorageInTransit/StorageInTransit';
 import Creator from 'shared/StorageInTransit/Creator';
 import { selectStorageInTransits, createStorageInTransit } from 'shared/Entities/modules/storageInTransits';
-import { loadEntitlements } from '../../scenes/TransportationServiceProvider/ducks';
+import { calculateEntitlementsForShipment } from 'shared/Entities/modules/shipments';
 import { calculateEntitlementsForMove } from 'shared/Entities/modules/moves';
 
 import { isTspSite } from 'shared/constants.js';
@@ -84,21 +84,22 @@ StorageInTransitPanel.propTypes = {
 // moveId is needed to find the entitlement on the Office side. It is
 // not needed to pull entitlement from the TSP side.
 // calculateEntitlementsForMove is a more up-to-date way of storing data
-function getStorageInTransitEntitlement(state, moveId) {
+function getStorageInTransitEntitlement(state, resourceId) {
   let storageInTransitEntitlement = 0;
   if (isTspSite) {
-    storageInTransitEntitlement = loadEntitlements(state).storage_in_transit;
+    storageInTransitEntitlement = calculateEntitlementsForShipment(state, resourceId).storage_in_transit;
   } else {
-    storageInTransitEntitlement = calculateEntitlementsForMove(state, moveId).storage_in_transit;
+    storageInTransitEntitlement = calculateEntitlementsForMove(state, resourceId).storage_in_transit;
   }
   return storageInTransitEntitlement;
 }
 
 function mapStateToProps(state, ownProps) {
-  const moveId = ownProps.moveId;
+  const resourceId = isTspSite ? ownProps.shipmentId : ownProps.moveId;
+
   return {
     storageInTransits: selectStorageInTransits(state, ownProps.shipmentId),
-    storageInTransitEntitlement: getStorageInTransitEntitlement(state, moveId),
+    storageInTransitEntitlement: getStorageInTransitEntitlement(state, resourceId),
     shipmentId: ownProps.shipmentId,
   };
 }
