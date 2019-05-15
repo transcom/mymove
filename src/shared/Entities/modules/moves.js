@@ -103,6 +103,6 @@ export function selectedMoveType(state, moveId) {
 }
 
 export const moveIsApproved = (state, moveId) => {
-  const move = selectMoveStatus(state, moveId);
-  return move.status === 'APPROVED';
+  const status = selectMoveStatus(state, moveId);
+  return status === 'APPROVED';
 };
