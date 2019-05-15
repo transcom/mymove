@@ -8,7 +8,8 @@ import { Field, reduxForm, getFormValues } from 'redux-form';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import SaveCancelButtons from './SaveCancelButtons';
 import DatePicker from 'scenes/Moves/Hhg/DatePicker';
-import { moveIsApproved } from 'scenes/Moves/ducks';
+import { moveIsApproved } from 'shared/Entities/modules/moves';
+
 import { updateShipment, getShipment } from 'shared/Entities/modules/shipments';
 
 import './Review.css';
