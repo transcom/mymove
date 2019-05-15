@@ -15,7 +15,7 @@ describe('office user finds the shipment', function() {
   it('office user starts and cancels sit edit', function() {
     officeUserStartsAndCancelsSitEdit();
   });
-  it('office user denies sit request', function() {
+  it('office user denies and edits denied sit request', function() {
     officeUserDeniesSITRequest();
   });
 });
@@ -254,4 +254,17 @@ function officeUserDeniesSITRequest() {
 
   cy.get('[data-cy="storage-in-transit-status-denied"]').contains('Denied');
   cy.get('[data-cy="sit-authorization-notes"]').contains('this is a denial note');
+
+  cy.get('[data-cy="sit-edit-link"]').click();
+
+  cy.get('textarea[name="authorization_notes"]').type('this is also a note', { force: true, delay: 150 });
+
+  cy
+    .get('[data-cy="sit-editor-save-button"]')
+    .contains('Save')
+    .click();
+
+  cy.patientReload();
+
+  cy.get('[data-cy="sit-authorization-notes"]').contains('this is also a note');
 }
