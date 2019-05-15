@@ -8,6 +8,7 @@ import Alert from 'shared/Alert';
 import { formatDate, formatDateTimeWithTZ } from 'shared/formatters';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
+import './office.scss';
 
 class QueueTable extends Component {
   constructor() {
@@ -183,8 +184,8 @@ class QueueTable extends Component {
             showPagination={false}
             getTrProps={(state, rowInfo) => ({
               'data-cy': 'queueTableRow',
-              onDoubleClick: _ => this.openMove(rowInfo),
-              onClick: _ => this.openMove(rowInfo),
+              onDoubleClick: () => this.openMove(rowInfo),
+              onClick: () => this.openMove(rowInfo),
             })}
           />
         </div>
