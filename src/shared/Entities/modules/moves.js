@@ -96,3 +96,13 @@ export function selectMoveStatus(state, moveId) {
   const move = selectMove(state, moveId);
   return move.status;
 }
+
+export function selectMoveType(state, moveId) {
+  const move = selectMove(state, moveId);
+  return move.selected_move_type;
+}
+
+export const moveIsApproved = (state, moveId) => {
+  const move = selectMoveStatus(state, moveId);
+  return move.status === 'APPROVED';
+};
