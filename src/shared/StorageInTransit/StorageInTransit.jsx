@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { capitalize } from 'lodash';
+import moment from 'moment';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
@@ -21,6 +22,7 @@ import PlaceInSit from 'shared/StorageInTransit/PlaceInSit';
 import { updateStorageInTransit } from 'shared/Entities/modules/storageInTransits';
 import { isOfficeSite, isTspSite } from 'shared/constants';
 import SitStatusIcon from './SitStatusIcon';
+import { sitDaysUsed } from 'shared/StorageInTransit/calculator';
 
 export class StorageInTransit extends Component {
   constructor() {
@@ -112,11 +114,15 @@ export class StorageInTransit extends Component {
   };
 
   render() {
-    const { storageInTransit } = this.props;
+    const { storageInTransit, daysRemaining } = this.props;
     const { showTspEditForm, showOfficeEditForm, showApproveForm, showDenyForm, showPlaceInSitForm } = this.state;
     const isDenied = storageInTransit.status === 'DENIED';
     const isRequested = storageInTransit.status === 'REQUESTED';
     const isApproved = storageInTransit.status === 'APPROVED';
+    const isInSit = storageInTransit.status === 'IN_SIT';
+
+    const daysUsed = sitDaysUsed(storageInTransit);
+
     return (
       <div data-cy="storage-in-transit" className="storage-in-transit">
         <div className="column-head">
@@ -138,8 +144,8 @@ export class StorageInTransit extends Component {
               <FontAwesomeIcon className="icon approval-problem" icon={faBan} />
               Denied
             </span>
-          ) : storageInTransit.status === 'IN_SIT' ? (
-            <span>In SIT</span>
+          ) : isInSit ? (
+            <span>In SIT{daysRemaining < 0 ? ' - SIT Expired' : ''}</span>
           ) : (
             <span>SIT {capitalize(storageInTransit.status)}</span>
           )}
@@ -200,7 +206,7 @@ export class StorageInTransit extends Component {
             />
           ) : (
             isTspSite &&
-            storageInTransit.status !== 'APPROVED' &&
+            !isApproved &&
             !isDenied && (
               <span className="sit-actions">
                 <span className="sit-edit actionable">
@@ -244,9 +250,27 @@ export class StorageInTransit extends Component {
                   <span className="field-value">{formatDate4DigitYear(storageInTransit.estimated_start_date)}</span>
                 </div>
                 {storageInTransit.actual_start_date && (
-                  <div className="panel-field nested__same-font">
-                    <span className="field-title unbold">Actual start date</span>
-                    <span className="field-value">{formatDate4DigitYear(storageInTransit.actual_start_date)}</span>
+                  <div>
+                    <div className="panel-field nested__same-font">
+                      <span className="field-title unbold">Actual start date</span>
+                      <span className="field-value">{formatDate4DigitYear(storageInTransit.actual_start_date)}</span>
+                    </div>
+                    <div className="panel-field nested__same-font">
+                      <span className="field-title unbold">Days used</span>
+                      <span data-cy="sit-days-used" className="field-value">
+                        {daysUsed} days
+                      </span>
+                    </div>
+                    <div className="panel-field nested__same-font">
+                      <span className="field-title unbold">Expires</span>
+                      <span data-cy="sit-expires" className="field-value">
+                        {isInSit
+                          ? formatDate4DigitYear(
+                              moment(storageInTransit.actual_start_date).add(daysRemaining + daysUsed, 'days'),
+                            )
+                          : 'na'}
+                      </span>
+                    </div>
                   </div>
                 )}
               </div>
@@ -337,6 +361,7 @@ export class StorageInTransit extends Component {
 
 StorageInTransit.propTypes = {
   storageInTransit: PropTypes.object.isRequired,
+  daysRemaining: PropTypes.number,
 };
 
 function mapDispatchToProps(dispatch) {

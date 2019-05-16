@@ -50,9 +50,9 @@ echo "Get the DB address for app-${environment}"
 db_host=$(aws rds describe-db-instances --db-instance-identifier "app-$environment" --query 'DBInstances[0].Endpoint.Address' | jq -r .)
 readonly db_host
 
-# $DIR/../cmd/renderer/main.go builds its template context from (1) environment variables, (2) file at -v FILE, and (3) positional command line args.
+# renderer builds its template context from (1) environment variables, (2) file at -v FILE, and (3) positional command line args.
 echo "Get the container definition from template ${template} for environment ${environment} with image ${image} and db host ${db_host}"
-container_definition_json=$(go run "$DIR"/../cmd/renderer/main.go -t "$template" environment="$environment" image="$image" db_host="$db_host")
+container_definition_json=$("$DIR"/../bin/renderer -t "$template" environment="$environment" image="$image" db_host="$db_host")
 readonly container_definition_json
 
 # create new task definition with the given image

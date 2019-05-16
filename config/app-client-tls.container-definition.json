@@ -23,7 +23,9 @@
     "--env",
     "container",
     "--debug-logging",
-    "--log-task-metadata"
+    "--log-task-metadata",
+    "--tls-enabled",
+    "--mutual-tls-enabled"
   ],
     "environment": [
     {
