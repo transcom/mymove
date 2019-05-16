@@ -37,9 +37,11 @@ func CheckAWSRegion(v *viper.Viper) (string, error) {
 
 // CheckAWSRegionForService validates AWS command line flags against a region
 func CheckAWSRegionForService(region, awsServiceName string) error {
-	regions := endpoints.AwsPartition().Services()[awsServiceName].Regions()
-	if _, ok := regions[region]; !ok {
-		return &errInvalidRegion{Region: region}
+	if service, ok := endpoints.AwsPartition().Services()[awsServiceName]; ok {
+		regions := service.Regions()
+		if _, ok := regions[region]; !ok {
+			return &errInvalidRegion{Region: region}
+		}
 	}
 	return nil
 }
