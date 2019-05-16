@@ -304,6 +304,7 @@ jobs:
             LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             DEVLOCAL_CA: /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-ca.pem
+            NO_TLS_ENABLED: true
       - announce_failure
 
   # `integration_tests_mymove` runs integration tests using Cypress.  https://www.cypress.io/
@@ -628,6 +629,7 @@ jobs:
             PWD: /home/circleci/go/src/github.com/transcom/mymove
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             TEST_ACC_ENV: experimental
+            NO_TLS_ENABLED: true
       - announce_failure
 
   # `deploy_experimental_migrations` deploys migrations to the experimental environment
@@ -696,6 +698,7 @@ jobs:
             PWD: /home/circleci/go/src/github.com/transcom/mymove
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             TEST_ACC_ENV: staging
+            NO_TLS_ENABLED: true
       - announce_failure
 
   # `deploy_staging_migrations` deploys migrations to the staging environment
