@@ -44,6 +44,7 @@ executors:
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
+        command: "-c fsync=off -c full_page_writes=off -c max_connections=200"
 
 commands:
   announce_failure:
