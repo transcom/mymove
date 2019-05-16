@@ -258,11 +258,6 @@ describe('Ppm Reducer', () => {
     describe('when there is an estimated remaining weight from a pre move survey', () => {
       it('should return the proper estimated remaining weight based on the pre move survey', () => {
         const state = {
-          moves: {
-            currentMove: {
-              selected_move_type: 'HHG_PPM',
-            },
-          },
           orders: {
             currentOrders: {
               id: '9dd3e284-ac16-43db-a3a2-20397f0072d7',
@@ -283,6 +278,7 @@ describe('Ppm Reducer', () => {
           },
           ui: {
             currentShipmentID: '0194fb44-3762-4d1c-b58a-f6daf984813b',
+            currentMoveID: '56b8ef45-8145-487b-9b59-0e30d0d465fa',
           },
           entities: {
             shipments: {
@@ -299,6 +295,12 @@ describe('Ppm Reducer', () => {
                 weight_estimate: 2000,
               },
             },
+            moves: {
+              '56b8ef45-8145-487b-9b59-0e30d0d465fa': {
+                id: '56b8ef45-8145-487b-9b59-0e30d0d465fa',
+                selected_move_type: 'HHG_PPM',
+              },
+            },
           },
         };
         expect(getEstimatedRemainingWeight(state)).toEqual(5500);
@@ -308,11 +310,6 @@ describe('Ppm Reducer', () => {
     describe('when there is an estimated remaining weight from a service member entered weight', () => {
       it('should return the proper estimated remaining weight based on the entered values', () => {
         const state = {
-          moves: {
-            currentMove: {
-              selected_move_type: 'HHG_PPM',
-            },
-          },
           orders: {
             currentOrders: {
               id: '9dd3e284-ac16-43db-a3a2-20397f0072d7',
@@ -333,6 +330,7 @@ describe('Ppm Reducer', () => {
           },
           ui: {
             currentShipmentID: '0194fb44-3762-4d1c-b58a-f6daf984813b',
+            currentMoveID: '56b8ef45-8145-487b-9b59-0e30d0d465fa',
           },
           entities: {
             shipments: {
@@ -348,6 +346,12 @@ describe('Ppm Reducer', () => {
                 weight_estimate: 2000,
               },
             },
+            moves: {
+              '56b8ef45-8145-487b-9b59-0e30d0d465fa': {
+                id: '56b8ef45-8145-487b-9b59-0e30d0d465fa',
+                selected_move_type: 'HHG_PPM',
+              },
+            },
           },
         };
         expect(getEstimatedRemainingWeight(state)).toEqual(8500);
@@ -358,11 +362,6 @@ describe('Ppm Reducer', () => {
       describe('when there is an actual weight', () => {
         it('should return the proper actual weight', () => {
           const state = {
-            moves: {
-              currentMove: {
-                selected_move_type: 'HHG_PPM',
-              },
-            },
             orders: {
               currentOrders: {
                 id: '9dd3e284-ac16-43db-a3a2-20397f0072d7',
@@ -383,6 +382,7 @@ describe('Ppm Reducer', () => {
             },
             ui: {
               currentShipmentID: '0194fb44-3762-4d1c-b58a-f6daf984813b',
+              currentMoveID: '56b8ef45-8145-487b-9b59-0e30d0d465fa',
             },
             entities: {
               shipments: {
@@ -397,6 +397,12 @@ describe('Ppm Reducer', () => {
                   status: 'AWARDED',
                   tare_weight: 1500,
                   weight_estimate: 2000,
+                },
+              },
+              moves: {
+                '56b8ef45-8145-487b-9b59-0e30d0d465fa': {
+                  id: '56b8ef45-8145-487b-9b59-0e30d0d465fa',
+                  selected_move_type: 'HHG_PPM',
                 },
               },
             },
