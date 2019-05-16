@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"fmt"
 	"os"
 )
 
@@ -12,10 +11,7 @@ func (suite *cliTestSuite) TestDODCertificates() {
 		return
 	}
 
-	flagSet := []string{
-		fmt.Sprintf("--%s=%s", DevlocalCAFlag, "github.com/transcom/mymove/config/tls/devlocal-ca.pem"),
-	}
-	suite.Setup(InitCertFlags, flagSet)
+	suite.Setup(InitCertFlags, []string{})
 	_, _, err := InitDoDCertificates(suite.viper, suite.logger)
 	suite.Nil(err)
 }
