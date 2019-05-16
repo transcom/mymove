@@ -9,6 +9,7 @@ import WizardPage from 'shared/WizardPage';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import PpmSize from './Size';
+import { getCurrentMove } from 'shared/UI/ducks';
 
 export class PpmSizeWizardPage extends Component {
   handleSubmit = () => {
@@ -73,7 +74,10 @@ function mapStateToProps(state) {
   return {
     ...state.ppm,
     isHHGPPMComboMove: isHHGPPMComboMove(state),
-    move: state.moves,
+    move: {
+      currentMove: getCurrentMove(state),
+      pendingMoveType: state.moves.pendingMoveType,
+    },
     weightInfo: getRawWeightInfo(state),
   };
 }
