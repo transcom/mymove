@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190515164502_add-sba-tsp-users-051509.sql")
