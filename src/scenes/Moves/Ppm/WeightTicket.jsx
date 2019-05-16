@@ -44,7 +44,7 @@ class WeightTicket extends Component {
           />
           {this.state.value !== '' && (
             <div className="uploader-box">
-              <Uploader options={{ allowMultiple: false, labelIdle: this.labelIdle, allowReplace: false }} />
+              <Uploader options={{ allowMultiple: true, labelIdle: this.labelIdle }} />
             </div>
           )}
           <SwaggerField fieldName="vehicle_nickname" swagger={schema} required />
