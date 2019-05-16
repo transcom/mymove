@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { isEmpty } from 'lodash';
+import { isEmpty, get } from 'lodash';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
@@ -8,7 +8,6 @@ import { withContext } from 'shared/AppContext';
 
 import { MoveSummary, PPMAlert } from './MoveSummary';
 import { isHHGPPMComboMove } from 'scenes/Moves/Ppm/ducks';
-import { lastMoveIsCanceled } from 'scenes/Moves/ducks';
 
 import { getCurrentShipment, getCurrentMoveID } from 'shared/UI/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
@@ -24,7 +23,7 @@ import Alert from 'shared/Alert';
 import SignIn from 'shared/User/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
-import { updateMove, selectMove, selectedMoveType } from 'shared/Entities/modules/moves';
+import { updateMove, selectMove, selectedMoveType, isLastMoveCanceled } from 'shared/Entities/modules/moves';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { selectShipment } from 'shared/Entities/modules/shipments';
 
@@ -171,7 +170,7 @@ const mapStateToProps = state => {
   const moveId = getCurrentMoveID(state);
   const user = selectCurrentUser(state);
   const props = {
-    lastMoveIsCanceled: lastMoveIsCanceled(state),
+    lastMoveIsCanceled: isLastMoveCanceled(state, moveId),
     selectedMoveType: selectedMoveType(state, moveId),
     isLoggedIn: user.isLoggedIn,
     isProfileComplete: isProfileComplete(state),

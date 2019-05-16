@@ -10,8 +10,7 @@ import { loadMove } from 'shared/Entities/modules/moves';
 import { getCurrentShipmentID, getCurrentMove } from 'shared/UI/ducks';
 
 import { getPPM } from 'scenes/Moves/Ppm/ducks.js';
-import { lastMoveIsCanceled } from 'scenes/Moves/ducks';
-import { moveIsApproved } from 'shared/Entities/modules/moves';
+import { moveIsApproved, isLastMoveCanceled } from 'shared/Entities/modules/moves';
 
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import Alert from 'shared/Alert';
@@ -136,7 +135,11 @@ Summary.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
+<<<<<<< HEAD
   const move = getCurrentMove(state);
+=======
+  const moveId = ownProps.match.params.moveId;
+>>>>>>> Migrate lastMoveIsCanceled and isPpm to entities
   return {
     currentPpm: getPPM(state),
     currentShipment: selectShipment(state, getCurrentShipmentID(state)),
@@ -148,7 +151,7 @@ function mapStateToProps(state, ownProps) {
     schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),
     schemaAffiliation: getInternalSwaggerDefinition(state, 'Affiliation'),
     moveIsApproved: moveIsApproved(state),
-    lastMoveIsCanceled: lastMoveIsCanceled(state),
+    lastMoveIsCanceled: isLastMoveCanceled(state, moveId),
     reviewState: state.review,
     entitlement: loadEntitlementsFromState(state),
     isHHGPPMComboMove: get(move, 'selected_move_type') === 'HHG_PPM',

@@ -24,9 +24,7 @@ export function setPendingMoveType(value) {
 export const SubmitForApproval = ReduxHelpers.generateAsyncActionCreator(submitForApprovalType, SubmitMoveForApproval);
 //selector
 
-export const lastMoveIsCanceled = state => get(state, 'moves.latestMove.status') === 'CANCELED';
-
-export const isPpm = state => Boolean(get(state, 'ppm.currentPpm', false));
+export const selectedMoveType = state => get(state, 'moves.currentMove.selected_move_type');
 
 // Reducer
 const initialState = {

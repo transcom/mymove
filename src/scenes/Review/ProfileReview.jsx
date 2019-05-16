@@ -4,10 +4,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
-
-import { lastMoveIsCanceled } from 'scenes/Moves/ducks';
-import { selectedMoveType } from 'shared/Entities/modules/moves';
-
+import { selectedMoveType, isLastMoveCanceled } from 'shared/Entities/modules/moves';
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 
 import ServiceMemberSummary from './ServiceMemberSummary';
@@ -61,10 +58,11 @@ ProfileReview.propTypes = {
   serviceMember: PropTypes.object,
 };
 
-function mapStateToProps(state) {
+function mapStateToProps(state, ownProps) {
+  const moveId = ownProps.match.params.moveId;
   return {
     serviceMember: state.serviceMember.currentServiceMember,
-    lastMoveIsCanceled: lastMoveIsCanceled(state),
+    lastMoveIsCanceled: isLastMoveCanceled(state, moveId),
     selectedMoveType: selectedMoveType(state),
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
     schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),

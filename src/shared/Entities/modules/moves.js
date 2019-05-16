@@ -102,7 +102,16 @@ export function selectedMoveType(state, moveId) {
   return move.selected_move_type;
 }
 
-export const moveIsApproved = (state, moveId) => {
+export const moveIsApproved = (state, moveId) =>
   const status = selectMoveStatus(state, moveId);
   return status === 'APPROVED';
 };
+
+export function isLastMoveCanceled(state, moveId) {
+  return selectMove(state, moveId).status === 'CANCELED';
+}
+
+export function isPpm(state) {
+  return Boolean(get(state, 'ppm.currentPpm', false));
+}
+
