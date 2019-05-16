@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Component, Fragment } from 'react';
 import { reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
@@ -8,31 +8,54 @@ import WizardHeader from '../WizardHeader';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import './PPMPaymentRequest.css';
+import Uploader from 'shared/Uploader';
 
-let WeightTicket = props => {
-  const { schema } = props;
-  return (
-    <Fragment>
-      <WizardHeader
-        title="Weight tickets"
-        right={
-          <ProgressTimeline>
-            <ProgressTimelineStep name="Weight" current />
-            <ProgressTimelineStep name="Expenses" />
-            <ProgressTimelineStep name="Review" />
-          </ProgressTimeline>
-        }
-      />
-      <div className="usa-grid">
-        <SwaggerField fieldName="vehicle_options" swagger={schema} required />
-        <SwaggerField fieldName="vehicle_nickname" swagger={schema} required />
+class WeightTicket extends Component {
+  state = {
+    value: '',
+  };
+  labelIdle = 'Drag & drop or <span class="filepond--label-action">click to upload upload empty weight ticket</span>';
 
-        {/* TODO: change onclick handler to go to next page in flow */}
-        <PPMPaymentRequestActionBtns onClick={() => {}} nextBtnLabel="Save & Add Another" />
-      </div>
-    </Fragment>
-  );
-};
+  handleChange = event => {
+    this.setState({ value: event.target.value });
+  };
+
+  render() {
+    const { schema } = this.props;
+    return (
+      <Fragment>
+        <WizardHeader
+          title="Weight tickets"
+          right={
+            <ProgressTimeline>
+              <ProgressTimelineStep name="Weight" current />
+              <ProgressTimelineStep name="Expenses" />
+              <ProgressTimelineStep name="Review" />
+            </ProgressTimeline>
+          }
+        />
+        <div className="usa-grid">
+          <SwaggerField
+            fieldName="vehicle_options"
+            swagger={schema}
+            onChange={this.handleChange}
+            value={this.state.value}
+            required
+          />
+          {this.state.value !== '' && (
+            <div className="uploader-box">
+              <Uploader options={{ allowMultiple: true, labelIdle: this.labelIdle }} />
+            </div>
+          )}
+          <SwaggerField fieldName="vehicle_nickname" swagger={schema} required />
+
+          {/* TODO: change onclick handler to go to next page in flow */}
+          <PPMPaymentRequestActionBtns onClick={() => {}} nextBtnLabel="Save & Add Another" />
+        </div>
+      </Fragment>
+    );
+  }
+}
 
 const formName = 'weight_ticket_wizard';
 WeightTicket = reduxForm({
