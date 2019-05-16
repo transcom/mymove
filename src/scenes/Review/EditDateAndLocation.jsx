@@ -15,6 +15,8 @@ import { loadEntitlementsFromState } from 'shared/entitlements';
 import 'scenes/Moves/Ppm/DateAndLocation.css';
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import { isHHGPPMComboMove } from '../Moves/Ppm/ducks';
+import { getCurrentMove } from 'shared/UI/ducks';
+
 import scrollToTop from 'shared/scrollToTop';
 
 const sitEstimateDebounceTime = 300;
@@ -169,10 +171,11 @@ EditDateAndLocation.propTypes = {
   error: PropTypes.object,
 };
 function mapStateToProps(state) {
+  const move = getCurrentMove(state);
   const props = {
     schema: get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {}),
     ...state.ppm,
-    move: get(state, 'moves.currentMove'),
+    move: move,
     currentOrders: get(state.orders, 'currentOrders'),
     currentPpm: get(state.ppm, 'currentPpm'),
     formValues: getFormValues(editDateAndLocationFormName)(state),

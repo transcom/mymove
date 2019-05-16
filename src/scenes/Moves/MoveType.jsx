@@ -5,6 +5,8 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 
 import { setPendingMoveType } from './ducks';
+import { getCurrentMove } from 'shared/UI/ducks';
+
 import BigButton from 'shared/BigButton';
 import trailerGray from 'shared/icon/trailer-gray.svg';
 import truckGray from 'shared/icon/truck-gray.svg';
@@ -185,7 +187,10 @@ MoveType.propTypes = {
 };
 
 function mapStateToProps(state) {
-  return state.moves;
+  return {
+    currentMove: getCurrentMove(state),
+    pendingMoveType: state.moves.pendingMoveType, //ToDo: need to figure out how to migrate this
+  };
 }
 
 function mapDispatchToProps(dispatch) {
