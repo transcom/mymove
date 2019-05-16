@@ -314,7 +314,9 @@ function serviceMemberSignsIn(uuid) {
 
 function serviceMemberAddsPPMToHHG() {
   cy
-    .get('.sidebar > div > button')
+    .get('.sidebar > div')
+    .find('button')
+    .should('contain', 'Add PPM (DITY) Move')
     .contains('Add PPM (DITY) Move')
     .click();
 
