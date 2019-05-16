@@ -20,9 +20,6 @@ describe('TSP User Views Shipment', function() {
   it('tsp user views shipments in delivered shipments queue', function() {
     tspUserViewsDeliveredShipments();
   });
-  it('tsp user views shipments in completed shipments queue', function() {
-    tspUserViewsCompletedShipments();
-  });
 });
 
 function tspUserViewsNewShipments() {
@@ -157,27 +154,4 @@ function tspUserViewsApprovedShipments() {
   tspUserVerifiesShipmentStatus('Awaiting pre-move survey');
 
   cy.get('a').contains('Approved Shipments Queue');
-}
-
-function tspUserViewsCompletedShipments() {
-  // Open completed shipments queue
-  cy
-    .get('div')
-    .contains('Completed Shipments')
-    .click();
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/completed/);
-  });
-
-  // Find title
-  cy.get('h1').contains('Queue: Completed Shipments');
-
-  // Find shipment
-  cy.selectQueueItemMoveLocator('NOCHKA');
-
-  // Status
-  tspUserVerifiesShipmentStatus('Delivered');
-
-  cy.get('a').contains('Completed Shipments Queue');
 }

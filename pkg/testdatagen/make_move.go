@@ -1,6 +1,7 @@
 package testdatagen
 
 import (
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -27,6 +28,7 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 		SelectedMoveType: selectedMoveType,
 		Status:           models.MoveStatusDRAFT,
 		Locator:          models.GenerateLocator(),
+		Show:             setShow(assertions.Move.Show),
 	}
 
 	// Overwrite values with those from assertions
@@ -51,6 +53,7 @@ func MakeMoveWithoutMoveType(db *pop.Connection, assertions Assertions) models.M
 		OrdersID: orders.ID,
 		Status:   models.MoveStatusDRAFT,
 		Locator:  models.GenerateLocator(),
+		Show:     setShow(assertions.Move.Show),
 	}
 
 	// Overwrite values with those from assertions
@@ -77,4 +80,12 @@ func MakeMoveData(db *pop.Connection) {
 		move.Approve()
 		db.ValidateAndUpdate(&move)
 	}
+}
+
+func setShow(assertionShow *bool) *bool {
+	show := swag.Bool(true)
+	if assertionShow != nil {
+		show = assertionShow
+	}
+	return show
 }

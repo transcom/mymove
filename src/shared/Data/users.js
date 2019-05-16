@@ -1,6 +1,4 @@
-import * as Cookies from 'js-cookie';
 import * as helpers from 'shared/ReduxHelpers';
-import { isMilmoveSite, isOfficeSite, isTspSite } from 'shared/constants';
 import { GetLoggedInUser } from 'shared/User/api.js';
 import { pick } from 'lodash';
 import { normalize } from 'normalizr';
@@ -15,8 +13,6 @@ const getLoggedInActions = helpers.generateAsyncActions(getLoggedInUserType);
 
 export function getCurrentUserInfo() {
   return function(dispatch) {
-    const userInfo = getUserInfo();
-    if (!userInfo.isLoggedIn) return Promise.resolve();
     dispatch(getLoggedInActions.start());
     return GetLoggedInUser()
       .then(response => {
@@ -54,25 +50,19 @@ export function selectGetCurrentUserIsError(state) {
   return state.user.hasErrored;
 }
 
-function getUserInfo() {
-  // The prefix should match the lowercased application name set in the server session
-  let cookiePrefix = (isMilmoveSite && 'mil') || (isOfficeSite && 'office') || (isTspSite && 'tsp') || '';
-  const cookieName = cookiePrefix + '_session_token';
-  const cookie = Cookies.get(cookieName);
-  return {
-    isLoggedIn: !!cookie,
-  };
-}
+const userInfoDefault = () => ({
+  email: '',
+  isLoggedIn: false,
+});
 
 const currentUserReducerDefault = () => ({
   hasSucceeded: false,
   hasErrored: false,
   isLoading: false,
-  userInfo: { email: '', ...getUserInfo() },
+  userInfo: userInfoDefault(),
 });
 
 const currentUserReducer = (state = currentUserReducerDefault(), action) => {
-  const userLogInStatus = getUserInfo();
   switch (action.type) {
     case GET_LOGGED_IN_USER.start:
       return {
@@ -85,20 +75,21 @@ const currentUserReducer = (state = currentUserReducerDefault(), action) => {
       return {
         ...state,
         userInfo: {
-          ...userLogInStatus,
+          isLoggedIn: true,
           ...action.payload,
         },
         hasSucceeded: true,
         hasErrored: false,
         isLoading: false,
       };
-    case GET_LOGGED_IN_USER.error:
+    case GET_LOGGED_IN_USER.failure:
       return {
         ...state,
         isLoading: false,
         hasErrored: true,
         hasSucceeded: false,
         error: action.error,
+        userInfo: userInfoDefault(),
       };
     default:
       return state;

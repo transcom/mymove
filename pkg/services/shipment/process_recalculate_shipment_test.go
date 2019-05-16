@@ -103,17 +103,16 @@ func (suite *ProcessRecalculateShipmentSuite) TestProcessRecalculateShipmentCall
 	suite.Nil(err)
 
 	//
-	// TEST: shipment is not in DELIVERED or COMPLETED state (return false)
+	// TEST: shipment is not in DELIVERED state (return false)
 	//
 
 	suite.NotEqual(models.ShipmentStatusDELIVERED, shipment.Status)
-	suite.NotEqual(models.ShipmentStatusCOMPLETED, shipment.Status)
 
 	update, err = ProcessRecalculateShipment{
 		DB:     suite.DB(),
 		Logger: suite.logger,
 	}.Call(shipment, shipmentLineItems, *planner)
-	// TEST Validation: shipment is not in DELIVERED or COMPLETED state (return false)
+	// TEST Validation: shipment is not in DELIVERED state (return false)
 	suite.Nil(err)
 	suite.Equal(false, update)
 

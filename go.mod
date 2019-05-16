@@ -6,11 +6,11 @@ require (
 	github.com/0xAX/notificator v0.0.0-20181105090803-d81462e38c21 // indirect
 	github.com/99designs/aws-vault v0.0.0-20190321042810-2bec5348b22f
 	github.com/99designs/keyring v0.0.0-20190110203331-82da6802f65f
-	github.com/aws/aws-sdk-go v1.19.26
+	github.com/aws/aws-sdk-go v1.19.28
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
-	github.com/danieljoos/wincred v1.0.2-0.20190202162700-b892d337201d // indirect
+	github.com/danieljoos/wincred v1.0.2 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/dustin/go-humanize v1.0.0
 	github.com/facebookgo/clock v0.0.0-20150410010913-600d898af40a
@@ -28,8 +28,8 @@ require (
 	github.com/go-openapi/strfmt v0.19.0
 	github.com/go-openapi/swag v0.19.0
 	github.com/go-openapi/validate v0.19.0
-	github.com/go-swagger/go-swagger v0.19.1-0.20190501234515-ffefbd274717
-	github.com/gobuffalo/fizz v1.7.0 // indirect
+	github.com/go-swagger/go-swagger v0.19.1-0.20190513062051-8ce1ff423c5a
+	github.com/gobuffalo/fizz v1.7.1 // indirect
 	github.com/gobuffalo/helpers v0.0.0-20190506214229-8e6f634af7c3 // indirect
 	github.com/gobuffalo/nulls v0.0.0-20190305142546-85f3c9250d87 // indirect
 	github.com/gobuffalo/packr v1.25.0
@@ -46,11 +46,11 @@ require (
 	github.com/jackc/pgx v3.4.0+incompatible // indirect
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jmoiron/sqlx v1.2.0
-	github.com/jung-kurt/gofpdf v1.3.3
-	github.com/karrick/godirwalk v1.9.1 // indirect
-	github.com/lib/pq v1.0.0
+	github.com/jung-kurt/gofpdf v1.4.0
+	github.com/karrick/godirwalk v1.10.3 // indirect
+	github.com/lib/pq v1.1.1
 	github.com/markbates/going v1.0.3 // indirect
-	github.com/markbates/goth v1.50.0
+	github.com/markbates/goth v1.51.0
 	github.com/mattn/go-shellwords v1.0.5 // indirect
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/namsral/flag v1.7.4-alpha.0.20170814194028-67f268f20922
@@ -72,12 +72,12 @@ require (
 	go.uber.org/multierr v1.1.0 // indirect
 	go.uber.org/zap v1.10.0
 	goji.io v2.0.2+incompatible
-	golang.org/x/crypto v0.0.0-20190506204251-e1dfcc566284
+	golang.org/x/crypto v0.0.0-20190510104115-cbcb75029529
 	golang.org/x/lint v0.0.0-20190409202823-959b441ac422
-	golang.org/x/net v0.0.0-20190503192946-f4e77d36d62c
+	golang.org/x/net v0.0.0-20190509222800-a4d6f7feada5
 	golang.org/x/oauth2 v0.0.0-20190402181905-9f3314589c9a // indirect
 	golang.org/x/text v0.3.2
-	golang.org/x/tools v0.0.0-20190506145303-2d16b83fe98c
+	golang.org/x/tools v0.0.0-20190511041617-99f201b6807e
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/alexcesaro/statsd.v2 v2.0.0 // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect

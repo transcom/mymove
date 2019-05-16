@@ -20,6 +20,12 @@ describe('TSP user interacts with storage in transit panel', function() {
     tspUserEntersInvalidActualStartDate();
     tspUserSubmitsPlaceInSit();
   });
+  it('TSP user views remaining days and status of shipment in SIT (with frozen clock)', function() {
+    tspUserEntitlementRemainingDays();
+  });
+  it('TSP user views remaining days and status of shipment expired in SIT (with frozen clock)', function() {
+    tspUserEntitlementRemainingDaysExpired();
+  });
 });
 
 // need to simulate a form submit
@@ -42,7 +48,13 @@ function tspUserCreatesSitRequest() {
 
   // Click on Request SIT and see SIT Request form
   cy
-    .get('.storage-in-transit-panel .add-request')
+    .get('[data-cy=storage-in-transit-panel]')
+    .should($div => {
+      const text = $div.text();
+      expect(text).to.include('Entitlement: 90 days');
+      expect(text).to.not.include(' remaining)');
+    })
+    .get('[data-cy=storage-in-transit-panel] [data-cy=add-request]')
     .contains('Request SIT')
     .click()
     .get('.storage-in-transit-form')
@@ -75,7 +87,7 @@ function tspUserStartsAndCancelsSitRequest() {
   });
 
   cy
-    .get('.storage-in-transit-panel .add-request')
+    .get('[data-cy=storage-in-transit-panel] [data-cy=add-request]')
     .contains('Request SIT')
     .click();
 
@@ -83,7 +95,7 @@ function tspUserStartsAndCancelsSitRequest() {
     .get('.usa-button-secondary')
     .contains('Cancel')
     .click()
-    .get('.storage-in-transit-panel .add-request')
+    .get('[data-cy=storage-in-transit-panel] [data-cy=add-request]')
     .should($div => {
       const text = $div.text();
       expect(text).to.not.include('Sit Location');
@@ -107,7 +119,7 @@ function tspUserEditsSitRequest() {
   });
 
   cy
-    .get('.storage-in-transit-panel .add-request')
+    .get('[data-cy=storage-in-transit-panel] [data-cy=add-request]')
     .contains('Request SIT')
     .click();
 
@@ -216,7 +228,51 @@ function tspUserSubmitsPlaceInSit() {
     .get('[data-cy=storage-in-transit-panel]')
     .should($div => {
       const text = $div.text();
+      expect(text).to.include('Entitlement: 90 days');
+      expect(text).to.include(' remaining)');
       expect(text).to.include('Actual start date');
       expect(text).to.include('SIT Number');
+      expect(text).to.include('Days used');
+      expect(text).to.include('Expires');
     });
+}
+
+function tspUserEntitlementRemainingDays() {
+  // Freeze the clock so we can test a specific remaining days.
+  let now = new Date(Date.UTC(2019, 3, 10)).getTime(); // 4/10/2019
+  cy.clock(now);
+
+  tspUserGoesToAcceptedSIT();
+
+  cy
+    .get('[data-cy=storage-in-transit-panel]')
+    .should($div => {
+      const text = $div.text();
+      expect(text).to.include('In SIT');
+      expect(text).to.include('Entitlement: 90 days (78 remaining)');
+    })
+    .get('[data-cy=storage-in-transit] [data-cy=sit-days-used]')
+    .contains('12 days')
+    .get('[data-cy=storage-in-transit] [data-cy=sit-expires]')
+    .contains('28-Jun-2019');
+}
+
+function tspUserEntitlementRemainingDaysExpired() {
+  // Freeze the clock so we can test a specific remaining days.
+  let now = new Date(Date.UTC(2019, 6, 10)).getTime(); // 7/10/2019
+  cy.clock(now);
+
+  tspUserGoesToAcceptedSIT();
+
+  cy
+    .get('[data-cy=storage-in-transit-panel]')
+    .should($div => {
+      const text = $div.text();
+      expect(text).to.include('In SIT - SIT Expired');
+      expect(text).to.include('Entitlement: 90 days (-13 remaining)');
+    })
+    .get('[data-cy=storage-in-transit] [data-cy=sit-days-used]')
+    .contains('103 days')
+    .get('[data-cy=storage-in-transit] [data-cy=sit-expires]')
+    .contains('28-Jun-2019');
 }
