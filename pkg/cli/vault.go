@@ -47,8 +47,9 @@ func (e *errInvalidProfile) Error() string {
 
 // InitVaultFlags initializes Vault command line flags
 func InitVaultFlags(flag *pflag.FlagSet) {
-	flag.String(VaultAWSKeychainNameFlag, VaultAWSKeychainNameDefault, "The aws-vault keychain name")
-	flag.String(VaultAWSProfileFlag, VaultAWSProfileDefault, "The aws-vault profile")
+	// Flags default to empty string to facilitate deploys from CircleCI
+	flag.String(VaultAWSKeychainNameFlag, "", "The aws-vault keychain name")
+	flag.String(VaultAWSProfileFlag, "", "The aws-vault profile")
 }
 
 // CheckVault validates Vault command line flags
