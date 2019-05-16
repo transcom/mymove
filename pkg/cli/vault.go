@@ -29,20 +29,13 @@ const (
 	VaultAWSProfileDefault string = "transcom-ppp"
 )
 
-type errInvalidKeychainName struct {
+type errInvalidVault struct {
 	KeychainName string
+	Profile      string
 }
 
-func (e *errInvalidKeychainName) Error() string {
-	return fmt.Sprintf("invalid keychain name %s", e.KeychainName)
-}
-
-type errInvalidProfile struct {
-	Profile string
-}
-
-func (e *errInvalidProfile) Error() string {
-	return fmt.Sprintf("invalid profile %s", e.Profile)
+func (e *errInvalidVault) Error() string {
+	return fmt.Sprintf("invalid keychain name '%s' or profile '%s'", e.KeychainName, e.Profile)
 }
 
 // InitVaultFlags initializes Vault command line flags
@@ -60,20 +53,19 @@ func CheckVault(v *viper.Viper) error {
 		}
 	}
 
+	// Both keychain name and profile are required or both must be missing
 	keychainName := v.GetString(VaultAWSKeychainNameFlag)
-	if len(keychainName) == 0 {
-		return errors.Wrap(&errInvalidKeychainName{KeychainName: keychainName}, fmt.Sprintf("%q is invalid", VaultAWSKeychainNameFlag))
-	}
-
-	keychainProfile := v.GetString(VaultAWSProfileFlag)
-	if len(keychainProfile) == 0 {
-		return errors.Wrap(&errInvalidProfile{Profile: keychainName}, fmt.Sprintf("%q is invalid", VaultAWSProfileFlag))
+	awsProfile := v.GetString(VaultAWSProfileFlag)
+	if len(keychainName) != 0 && len(awsProfile) == 0 {
+		return &errInvalidVault{KeychainName: keychainName, Profile: awsProfile}
+	} else if len(keychainName) == 0 && len(awsProfile) != 0 {
+		return &errInvalidVault{KeychainName: keychainName, Profile: awsProfile}
 	}
 	return nil
 }
 
 // GetAWSCredentials uses aws-vault to return AWS credentials
-func GetAWSCredentials(keychainName string, keychainProfile string) (*credentials.Credentials, error) {
+func GetAWSCredentials(keychainName string, awsProfile string) (*credentials.Credentials, error) {
 
 	// Open the keyring which holds the credentials
 	ring, err := keyring.Open(keyring.Config{
@@ -102,7 +94,7 @@ func GetAWSCredentials(keychainName string, keychainProfile string) (*credential
 	}
 
 	// Get a new provider to retrieve the credentials
-	provider, err := vault.NewVaultProvider(ring, keychainProfile, vOptions)
+	provider, err := vault.NewVaultProvider(ring, awsProfile, vOptions)
 	if err != nil {
 		return nil, errors.Wrap(err, "Unable to create aws-vault provider")
 	}
@@ -125,11 +117,11 @@ func GetAWSConfig(v *viper.Viper, verbose bool) (*aws.Config, error) {
 	// If program is not wrapped in aws-vault wrapper then get credentials
 	if awsVault := v.GetString(VaultAWSVaultFlag); len(awsVault) == 0 {
 		keychainName := v.GetString(VaultAWSKeychainNameFlag)
-		keychainProfile := v.GetString(VaultAWSProfileFlag)
-		if len(keychainName) > 0 && len(keychainProfile) > 0 {
-			creds, getAWSCredsErr := GetAWSCredentials(keychainName, keychainProfile)
+		awsProfile := v.GetString(VaultAWSProfileFlag)
+		if len(keychainName) > 0 && len(awsProfile) > 0 {
+			creds, getAWSCredsErr := GetAWSCredentials(keychainName, awsProfile)
 			if getAWSCredsErr != nil {
-				return nil, errors.Wrap(getAWSCredsErr, fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, keychainProfile))
+				return nil, errors.Wrap(getAWSCredsErr, fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, awsProfile))
 			}
 			awsConfig.CredentialsChainVerboseErrors = aws.Bool(verbose)
 			awsConfig.Credentials = creds
