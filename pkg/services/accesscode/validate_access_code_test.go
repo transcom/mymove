@@ -20,7 +20,7 @@ func (suite *ValidateAccessCodeTestSuite) SetupTest() {
 
 func TestValidateAccessCodeTestSuite(t *testing.T) {
 	ts := &ValidateAccessCodeTestSuite{
-		testingsuite.NewPopTestSuite(),
+		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
 	suite.Run(t, ts)
 }
