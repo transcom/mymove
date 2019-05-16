@@ -201,7 +201,10 @@ function officeUserApprovesSITRequest() {
 
   cy.get('[data-cy="sit-edit-link"]').click();
 
+  cy.get('input[name="authorized_start_date"]').clear();
   cy.get('input[name="authorized_start_date"]').type('3/23/2019', { force: true, delay: 150 });
+  cy.get('input[name="authorized_start_date"]').should('have.value', '3/23/2019');
+
   cy.get('textarea[name="authorization_notes"]').type('this is also a note', { force: true, delay: 150 });
 
   cy
@@ -212,4 +215,5 @@ function officeUserApprovesSITRequest() {
   cy.patientReload();
 
   cy.get('[data-cy="sit-authorization-notes"]').contains('this is also a note');
+  cy.get('[data-cy="sit-authorized-start-date"]').contains('23-Mar-2019');
 }
