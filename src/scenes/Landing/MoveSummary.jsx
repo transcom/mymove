@@ -104,30 +104,32 @@ export const DraftMoveSummary = props => {
 };
 
 export const SubmittedPpmMoveSummary = props => {
-  const { ppm } = props;
+  const { ppm, moveSubmitSuccess } = props;
   return (
     <Fragment>
       <div>
-        <Alert type="success" heading="Congrats - your move is submitted!">
-          Next, wait for approval. Once approved:<br />
-          <ul>
-            <li>
-              Get certified <strong>weight tickets</strong>, both empty &amp; full
-            </li>
-            <li>
-              Save <strong>expense receipts</strong>, including for storgage
-            </li>
-            <li>
-              Read the{' '}
-              <strong>
-                <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
-                  PPM info sheet
-                </a>
-              </strong>{' '}
-              for more info
-            </li>
-          </ul>
-        </Alert>
+        {moveSubmitSuccess && (
+          <Alert type="success" heading="Congrats - your move is submitted!">
+            Next, wait for approval. Once approved:<br />
+            <ul>
+              <li>
+                Get certified <strong>weight tickets</strong>, both empty &amp; full
+              </li>
+              <li>
+                Save <strong>expense receipts</strong>, including for storgage
+              </li>
+              <li>
+                Read the{' '}
+                <strong>
+                  <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
+                    PPM info sheet
+                  </a>
+                </strong>{' '}
+                for more info
+              </li>
+            </ul>
+          </Alert>
+        )}
 
         <div className="shipment_box">
           <div className="shipment_type">
@@ -500,6 +502,7 @@ export const MoveSummary = props => {
     resumeMove,
     reviewProfile,
     requestPaymentSuccess,
+    moveSubmitSuccess,
     addPPMShipment,
   } = props;
   const moveStatus = get(move, 'status', 'DRAFT');
@@ -559,6 +562,7 @@ export const MoveSummary = props => {
               entitlement={entitlement}
               resumeMove={resumeMove}
               reviewProfile={reviewProfile}
+              moveSubmitSuccess={moveSubmitSuccess}
               requestPaymentSuccess={requestPaymentSuccess}
             />
           )}
