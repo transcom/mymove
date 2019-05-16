@@ -15,6 +15,8 @@ import { isPpm } from 'scenes/Moves/ducks';
 import { moveIsApproved } from 'shared/Entities/modules/moves';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
+import { getCurrentMove } from 'shared/UI/ducks';
+
 import scrollToTop from 'shared/scrollToTop';
 
 import './Review.css';
@@ -137,9 +139,10 @@ class EditProfile extends Component {
 }
 
 function mapStateToProps(state) {
+  const move = getCurrentMove(state);
   return {
     serviceMember: get(state, 'serviceMember.currentServiceMember'),
-    move: get(state, 'moves.currentMove'),
+    move: move,
     error: get(state, 'serviceMember.error'),
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
