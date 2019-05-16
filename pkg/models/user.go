@@ -63,6 +63,7 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 	newUser := User{
 		LoginGovUUID:  lgu,
 		LoginGovEmail: strings.ToLower(email),
+		IsSuperuser:   false,
 	}
 	verrs, err := db.ValidateAndCreate(&newUser)
 	if verrs.HasAny() {

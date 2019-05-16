@@ -1,9 +1,8 @@
-.state-zip {
+.state-zip-container {
   max-width: 46rem;
-  margin-right: 1.5rem;
 }
 
-.state-zip:after {
+.state-zip-container:after {
   content: " ";
   display: block;
   clear: both;

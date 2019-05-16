@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190515160313_add-sba-office-user-051509.sql")

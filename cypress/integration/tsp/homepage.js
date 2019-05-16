@@ -15,6 +15,10 @@ describe('TSP Home Page', function() {
   it('tsp user is properly welcomed', function() {
     tspUserIsWelcomed();
   });
+  it('tsp user sees all showable moves', function() {
+    cy.signIntoTSP();
+    tspAllMoves();
+  });
 });
 
 function tspUserIsOnSignInPage() {
@@ -25,4 +29,16 @@ function tspUserIsOnSignInPage() {
 function tspUserIsWelcomed() {
   cy.signIntoTSP();
   cy.get('strong').contains('Welcome, Leo');
+}
+
+function tspAllMoves() {
+  cy.patientVisit('/queues/all');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/all/);
+  });
+
+  cy
+    .get('[data-cy=locator]')
+    .contains('NOSHOW')
+    .should('not.exist');
 }

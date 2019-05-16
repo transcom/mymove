@@ -1,3 +1,11 @@
+.queue-heading {
+  margin-top: 0;
+}
+
+.queue-list-heading {
+  margin-top: 0.4em;
+}
+
 .queue-table {
   font-size: 0.75em;
   min-width: 1000px;

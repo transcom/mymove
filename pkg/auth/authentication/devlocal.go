@@ -26,6 +26,8 @@ const (
 	TspUserType string = "tsp"
 	// DpsUserType is the type of user for a DPS user
 	DpsUserType string = "dps"
+	// AdminUserType is the type of user for an admin user
+	AdminUserType string = "admin"
 )
 
 // UserListHandler handles redirection
@@ -79,6 +81,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		OfficeUserType  string
 		TspUserType     string
 		DpsUserType     string
+		AdminUserType   string
 		CsrfToken       string
 	}
 
@@ -88,6 +91,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		OfficeUserType:  OfficeUserType,
 		TspUserType:     TspUserType,
 		DpsUserType:     DpsUserType,
+		AdminUserType:   AdminUserType,
 		CsrfToken:       csrfToken,
 	}
 
@@ -107,7 +111,10 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					<p id="{{.ID}}">
 						<input type="hidden" name="gorilla.csrf.Token" value="{{$.CsrfToken}}">
 						{{.Email}}
-						{{if .DpsUserID}}
+						{{if .IsSuperuser}}
+						  ({{$.AdminUserType}})
+						  <input type="hidden" name="userType" value="{{$.AdminUserType}}">
+						{{else if .DpsUserID}}
 						  ({{$.DpsUserType}})
 						  <input type="hidden" name="userType" value="{{$.DpsUserType}}">
 						{{else if .TspUserID}}
@@ -158,6 +165,13 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
 				  <input type="hidden" name="userType" value="{{.DpsUserType}}">
 				  <button type="submit" data-hook="new-user-login-{{.DpsUserType}}">Create a New {{.DpsUserType}} User</button>
+				</p>
+			  </form>
+			  <form method="post" action="/devlocal-auth/new">
+				<p>
+				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+				  <input type="hidden" name="userType" value="{{.AdminUserType}}">
+				  <button type="submit" data-hook="new-user-login-{{.AdminUserType}}">Create a New {{.AdminUserType}} User</button>
 				</p>
 			  </form>
 			</div>
@@ -323,6 +337,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 	user := models.User{
 		LoginGovUUID:  id,
 		LoginGovEmail: email,
+		IsSuperuser:   false,
 	}
 
 	userType := r.PostFormValue("userType")
@@ -437,6 +452,15 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		if verrs.HasAny() {
 			h.logger.Error("validation errors creating dps user", zap.Stringer("errors", verrs))
 		}
+	case AdminUserType:
+		user.IsSuperuser = true
+		verrs, err := h.db.ValidateAndSave(&user)
+		if err != nil {
+			h.logger.Error("could not create admin user", zap.Error(err))
+		}
+		if verrs.HasAny() {
+			h.logger.Error("validation errors creating admin user", zap.Stringer("errors", verrs))
+		}
 	}
 
 	return &user, userType
@@ -462,6 +486,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 	session.UserID = userIdentity.ID
 	session.Email = userIdentity.Email
 	session.Disabled = userIdentity.Disabled
+	session.IsSuperuser = userIdentity.IsSuperuser
 
 	// Set the app
 
@@ -473,6 +498,9 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 	case TspUserType:
 		session.ApplicationName = auth.TspApp
 		session.Hostname = h.appnames.TspServername
+	case AdminUserType:
+		session.ApplicationName = auth.AdminApp
+		session.Hostname = h.appnames.AdminServername
 	default:
 		session.ApplicationName = auth.MilApp
 		session.Hostname = h.appnames.MilServername
@@ -519,6 +547,10 @@ func verifySessionWithApp(session *auth.Session) error {
 
 	if (session.TspUserID == uuid.UUID{}) && session.IsTspApp() {
 		return errors.Errorf("Non-TSP user %s authenticated at TSP site", session.Email)
+	}
+
+	if !session.IsSuperuser && session.IsAdminApp() {
+		return errors.Errorf("Non-superuser %s authenticated at admin site", session.Email)
 	}
 
 	return nil

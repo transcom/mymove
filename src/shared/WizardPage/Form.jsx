@@ -22,7 +22,13 @@ export class WizardFormPage extends Component {
     this.previousPage = this.previousPage.bind(this);
     this.cancelFlow = this.cancelFlow.bind(this);
     this.beforeTransition = beforeTransition.bind(this);
+    this.submit = this.submit.bind(this);
   }
+
+  static defaultProps = {
+    readyToSubmit: true,
+  };
+
   componentDidUpdate(prevProps) {
     if (this.props.additionalValues) {
       /* eslint-disable security/detect-object-injection */
@@ -55,18 +61,45 @@ export class WizardFormPage extends Component {
     this.props.push(`/`);
   }
   nextPage() {
-    this.beforeTransition(getNextPagePath);
+    if (this.props.reduxFormSubmit) {
+      return this.props.reduxFormSubmit().then(() => this.beforeTransition(getNextPagePath, false));
+    }
+    return this.beforeTransition(getNextPagePath);
   }
 
   previousPage() {
     const shouldHandleSubmit = !this.props.discardOnBack;
+    if (this.props.reduxFormSubmit && shouldHandleSubmit) {
+      return this.props.reduxFormSubmit().then(() => this.beforeTransition(getPreviousPagePath, false));
+    }
     this.beforeTransition(getPreviousPagePath, shouldHandleSubmit);
+  }
+
+  submit() {
+    if (this.props.reduxFormSubmit) {
+      return this.props.reduxFormSubmit();
+    }
+    return this.props.handleSubmit();
   }
 
   render() {
     const isMobile = this.props.windowWidth < mobileSize;
-    const { handleSubmit, className, pageKey, pageList, children, serverError, valid, dirty } = this.props;
-    const canMoveForward = valid;
+    // when reduxFormSubmit is supplied it's expected that the form will use redux-form's handlesubmit prop
+    // and accompanying submit validation https://redux-form.com/8.2.0/examples/submitvalidation/
+    // while forms that provide their own handlesubmit prop are expected to not be using redux-form's submit validation
+    const hasReduxFormSubmitHandler = !!this.props.reduxFormSubmit;
+    const {
+      handleSubmit,
+      className,
+      pageKey,
+      pageList,
+      children,
+      serverError,
+      valid,
+      dirty,
+      readyToSubmit,
+    } = this.props;
+    const canMoveForward = valid && readyToSubmit;
     const canMoveBackward = (valid || !dirty) && !isFirstPage(pageList, pageKey);
     const hideBackBtn = isFirstPage(pageList, pageKey);
     return (
@@ -79,9 +112,7 @@ export class WizardFormPage extends Component {
           </div>
         )}
         <div className="usa-width-one-whole">
-          <form className={className} onSubmit={handleSubmit}>
-            {children}
-          </form>
+          <form className={className}>{children}</form>
         </div>
         <div className="usa-width-one-whole lower-nav-btns">
           {!isMobile && (
@@ -94,18 +125,26 @@ export class WizardFormPage extends Component {
           <div className="prev-next">
             <button
               className={'usa-button-secondary prev ' + (hideBackBtn && 'hide-btn')}
-              onClick={this.previousPage}
+              onClick={hasReduxFormSubmitHandler ? handleSubmit(this.previousPage) : this.previousPage}
               disabled={!canMoveBackward}
             >
               Back
             </button>
             {!isLastPage(pageList, pageKey) && (
-              <button className="usa-button-primary next" onClick={this.nextPage} disabled={!canMoveForward}>
+              <button
+                className="usa-button-primary next"
+                onClick={hasReduxFormSubmitHandler ? handleSubmit(this.nextPage) : this.nextPage}
+                disabled={!canMoveForward}
+              >
                 Next
               </button>
             )}
             {isLastPage(pageList, pageKey) && (
-              <button className="usa-button-primary next" onClick={handleSubmit} disabled={!canMoveForward}>
+              <button
+                className="usa-button-primary next"
+                onClick={hasReduxFormSubmitHandler ? handleSubmit(this.submit) : this.submit}
+                disabled={!canMoveForward}
+              >
                 Complete
               </button>
             )}
@@ -118,6 +157,7 @@ export class WizardFormPage extends Component {
 
 WizardFormPage.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
+  reduxFormSubmit: PropTypes.func.isRequired, // function supplied to use w/ redux-form's submit validation
   serverError: PropTypes.object,
   pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
   pageKey: PropTypes.string.isRequired,

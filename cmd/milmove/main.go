@@ -39,6 +39,7 @@ import (
 	"github.com/transcom/mymove/pkg/ecs"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/handlers/adminapi"
 	"github.com/transcom/mymove/pkg/handlers/dpsapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
@@ -84,6 +85,9 @@ func initServeFlags(flag *pflag.FlagSet) {
 
 	// Ports to listen to
 	cli.InitPortFlags(flag)
+
+	// Enable listeners
+	cli.InitListenerFlags(flag)
 
 	// Login.Gov Auth config
 	cli.InitAuthFlags(flag)
@@ -143,6 +147,10 @@ func checkConfig(v *viper.Viper, logger logger) error {
 	}
 
 	if err := cli.CheckCert(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckListeners(v); err != nil {
 		return err
 	}
 
@@ -648,6 +656,22 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	internalAPIMux.Use(middleware.NoCache(logger))
 	internalAPIMux.Handle(pat.New("/*"), internalapi.NewInternalAPIHandler(handlerContext))
 
+	adminMux := goji.SubMux()
+	root.Handle(pat.New("/admin/v1/*"), adminMux)
+	adminMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.AdminSwaggerFlag)))
+	if v.GetBool(cli.ServeSwaggerUIFlag) {
+		logger.Info("Admin API Swagger UI serving is enabled")
+		adminMux.Handle(pat.Get("/docs"), fileHandler(path.Join(build, "swagger-ui", "admin.html")))
+	} else {
+		adminMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
+	}
+	// Mux for admin API that enforces auth
+	adminAPIMux := goji.SubMux()
+	adminMux.Handle(pat.New("/*"), adminAPIMux)
+	adminAPIMux.Use(userAuthMiddleware)
+	adminAPIMux.Use(middleware.NoCache(logger))
+	adminAPIMux.Handle(pat.New("/*"), adminapi.NewAdminAPIHandler(handlerContext))
+
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
@@ -695,46 +719,58 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	listenInterface := v.GetString(cli.InterfaceFlag)
 
-	noTLSServer, err := server.CreateNamedServer(&server.CreateNamedServerInput{
-		Name:        "no-tls",
-		Host:        listenInterface,
-		Port:        v.GetInt(cli.NoTLSPortFlag),
-		Logger:      logger,
-		HTTPHandler: httpHandler,
-	})
-	if err != nil {
-		logger.Fatal("error creating no-tls server", zap.Error(err))
+	noTLSEnabled := v.GetBool(cli.NoTLSListenerFlag)
+	var noTLSServer *server.NamedServer
+	if noTLSEnabled {
+		noTLSServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
+			Name:        "no-tls",
+			Host:        listenInterface,
+			Port:        v.GetInt(cli.NoTLSPortFlag),
+			Logger:      logger,
+			HTTPHandler: httpHandler,
+		})
+		if err != nil {
+			logger.Fatal("error creating no-tls server", zap.Error(err))
+		}
+		go startListener(noTLSServer, logger, false)
 	}
-	go startListener(noTLSServer, logger, false)
 
-	tlsServer, err := server.CreateNamedServer(&server.CreateNamedServerInput{
-		Name:         "tls",
-		Host:         listenInterface,
-		Port:         v.GetInt(cli.TLSPortFlag),
-		Logger:       logger,
-		HTTPHandler:  httpHandler,
-		ClientAuth:   tls.NoClientCert,
-		Certificates: certificates,
-	})
-	if err != nil {
-		logger.Fatal("error creating tls server", zap.Error(err))
+	tlsEnabled := v.GetBool(cli.TLSListenerFlag)
+	var tlsServer *server.NamedServer
+	if tlsEnabled {
+		tlsServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
+			Name:         "tls",
+			Host:         listenInterface,
+			Port:         v.GetInt(cli.TLSPortFlag),
+			Logger:       logger,
+			HTTPHandler:  httpHandler,
+			ClientAuth:   tls.NoClientCert,
+			Certificates: certificates,
+		})
+		if err != nil {
+			logger.Fatal("error creating tls server", zap.Error(err))
+		}
+		go startListener(tlsServer, logger, true)
 	}
-	go startListener(tlsServer, logger, true)
 
-	mutualTLSServer, err := server.CreateNamedServer(&server.CreateNamedServerInput{
-		Name:         "mutual-tls",
-		Host:         listenInterface,
-		Port:         v.GetInt(cli.MutualTLSPortFlag),
-		Logger:       logger,
-		HTTPHandler:  httpHandler,
-		ClientAuth:   tls.RequireAndVerifyClientCert,
-		Certificates: certificates,
-		ClientCAs:    rootCAs,
-	})
-	if err != nil {
-		logger.Fatal("error creating mutual-tls server", zap.Error(err))
+	mutualTLSEnabled := v.GetBool(cli.MutualTLSListenerFlag)
+	var mutualTLSServer *server.NamedServer
+	if mutualTLSEnabled {
+		mutualTLSServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
+			Name:         "mutual-tls",
+			Host:         listenInterface,
+			Port:         v.GetInt(cli.MutualTLSPortFlag),
+			Logger:       logger,
+			HTTPHandler:  httpHandler,
+			ClientAuth:   tls.RequireAndVerifyClientCert,
+			Certificates: certificates,
+			ClientCAs:    rootCAs,
+		})
+		if err != nil {
+			logger.Fatal("error creating mutual-tls server", zap.Error(err))
+		}
+		go startListener(mutualTLSServer, logger, true)
 	}
-	go startListener(mutualTLSServer, logger, true)
 
 	// make sure we flush any pending startup messages
 	logger.Sync()
@@ -766,23 +802,29 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	wg := &sync.WaitGroup{}
 	var shutdownErrors sync.Map
 
-	wg.Add(1)
-	go func() {
-		shutdownErrors.Store(noTLSServer, noTLSServer.Shutdown(ctx))
-		wg.Done()
-	}()
+	if noTLSEnabled {
+		wg.Add(1)
+		go func() {
+			shutdownErrors.Store(noTLSServer, noTLSServer.Shutdown(ctx))
+			wg.Done()
+		}()
+	}
 
-	wg.Add(1)
-	go func() {
-		shutdownErrors.Store(tlsServer, tlsServer.Shutdown(ctx))
-		wg.Done()
-	}()
+	if tlsEnabled {
+		wg.Add(1)
+		go func() {
+			shutdownErrors.Store(tlsServer, tlsServer.Shutdown(ctx))
+			wg.Done()
+		}()
+	}
 
-	wg.Add(1)
-	go func() {
-		shutdownErrors.Store(mutualTLSServer, mutualTLSServer.Shutdown(ctx))
-		wg.Done()
-	}()
+	if mutualTLSEnabled {
+		wg.Add(1)
+		go func() {
+			shutdownErrors.Store(mutualTLSServer, mutualTLSServer.Shutdown(ctx))
+			wg.Done()
+		}()
+	}
 
 	wg.Wait()
 	logger.Info("All listeners are shutdown")

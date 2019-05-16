@@ -15,6 +15,9 @@ describe('office user finds the shipment', function() {
   it('office user starts and cancels sit edit', function() {
     officeUserStartsAndCancelsSitEdit();
   });
+  it('office user denies sit request', function() {
+    officeUserDeniesSITRequest();
+  });
 });
 
 function officeUserViewsSITPanel() {
@@ -198,4 +201,43 @@ function officeUserApprovesSITRequest() {
   cy.get('[data-cy="storage-in-transit-status"]').contains('Approved');
   cy.get('[data-cy="sit-authorized-start-date"]').contains('22-Mar-2019');
   cy.get('[data-cy="sit-authorization-notes"]').contains('this is a note');
+}
+
+function officeUserDeniesSITRequest() {
+  cy.patientVisit('/queues/hhg_accepted');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
+  });
+
+  cy.selectQueueItemMoveLocator('SITDEN');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
+
+  cy.get('[data-cy="hhg-tab"]').click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
+  });
+
+  cy
+    .get('a[data-cy="deny-sit-link"]')
+    .contains('Deny')
+    .click()
+    .get('[data-cy="storage-in-transit"]')
+    .should($div => {
+      const text = $div.text();
+      expect(text).to.include('Deny SIT Request');
+      expect(text).to.not.include('Approve');
+      expect(text).to.not.include('Edit');
+    });
+  cy.get('textarea[name="authorization_notes"]').type('this is a denial note');
+  cy
+    .get('[data-cy="storage-in-transit-deny-button"]')
+    .contains('Deny')
+    .click();
+
+  cy.get('[data-cy="storage-in-transit-status-denied"]').contains('Denied');
+  cy.get('[data-cy="sit-authorization-notes"]').contains('this is a denial note');
 }
