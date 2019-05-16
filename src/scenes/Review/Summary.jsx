@@ -10,7 +10,7 @@ import { loadMove, selectMove } from 'shared/Entities/modules/moves';
 import { getCurrentShipmentID } from 'shared/UI/ducks';
 
 import { getPPM } from 'scenes/Moves/Ppm/ducks.js';
-import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
+import { moveIsApproved } from 'scenes/Moves/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import Alert from 'shared/Alert';
 import { titleCase } from 'shared/constants.js';
@@ -21,6 +21,7 @@ import PPMShipmentSummary from './PPMShipmentSummary';
 import HHGShipmentSummary from './HHGShipmentSummary';
 
 import './Review.css';
+import { isLastMoveCanceled } from '../../shared/Entities/modules/moves';
 
 export class Summary extends Component {
   componentDidMount() {
@@ -134,6 +135,7 @@ Summary.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
+  const moveId = ownProps.match.params.moveId;
   return {
     currentPpm: getPPM(state),
     currentShipment: selectShipment(state, getCurrentShipmentID(state)),
@@ -145,7 +147,7 @@ function mapStateToProps(state, ownProps) {
     schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),
     schemaAffiliation: getInternalSwaggerDefinition(state, 'Affiliation'),
     moveIsApproved: moveIsApproved(state),
-    lastMoveIsCanceled: lastMoveIsCanceled(state),
+    lastMoveIsCanceled: isLastMoveCanceled(state, moveId),
     reviewState: state.review,
     entitlement: loadEntitlementsFromState(state),
     isHHGPPMComboMove: get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM',

@@ -30,13 +30,14 @@ import Footer from 'shared/Footer';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement';
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
-import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
+import { selectedMoveType } from 'scenes/Moves/ducks';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
 import FailWhale from 'shared/FailWhale';
 import { no_op } from 'shared/utils';
 import DPSAuthCookie from 'scenes/DPSAuthCookie';
+import { isLastMoveCanceled } from '../../shared/Entities/modules/moves';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
@@ -131,9 +132,10 @@ AppWrapper.defaultProps = {
 };
 
 const mapStateToProps = state => {
+  const moveId = get(state, 'moves.latestMove.id');
   return {
     currentServiceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
-    lastMoveIsCanceled: lastMoveIsCanceled(state),
+    lastMoveIsCanceled: isLastMoveCanceled(state, moveId),
     latestMove: get(state, 'moves.latestMove'),
     moveId: get(state, 'moves.currentMove.id'),
     selectedMoveType: selectedMoveType(state),

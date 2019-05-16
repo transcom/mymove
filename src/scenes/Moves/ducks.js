@@ -45,11 +45,7 @@ export const SubmitForApproval = ReduxHelpers.generateAsyncActionCreator(submitF
 //selector
 export const moveIsApproved = state => get(state, 'moves.currentMove.status') === 'APPROVED';
 
-export const lastMoveIsCanceled = state => get(state, 'moves.latestMove.status') === 'CANCELED';
-
 export const selectedMoveType = state => get(state, 'moves.currentMove.selected_move_type');
-
-export const isPpm = state => Boolean(get(state, 'ppm.currentPpm', false));
 
 // Reducer
 const initialState = {

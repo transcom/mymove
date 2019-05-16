@@ -14,10 +14,10 @@ import Uploader from 'shared/Uploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
 import SaveCancelButtons from './SaveCancelButtons';
 import { updateOrders, deleteUploads, addUploads } from 'scenes/Orders/ducks';
-import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
+import { moveIsApproved } from 'scenes/Moves/ducks';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
-
+import { isPpm } from '../../shared/Entities/modules/moves';
 import './Review.css';
 import profileImage from './images/profile.png';
 

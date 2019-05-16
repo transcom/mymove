@@ -11,13 +11,13 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 import SaveCancelButtons from './SaveCancelButtons';
 import { updateServiceMember } from 'scenes/ServiceMembers/ducks';
-import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
+import { moveIsApproved } from 'scenes/Moves/ducks';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
-
 import './Review.css';
 import profileImage from './images/profile.png';
+import { isPpm } from '../../shared/Entities/modules/moves';
 
 const editProfileFormName = 'edit_profile';
 
