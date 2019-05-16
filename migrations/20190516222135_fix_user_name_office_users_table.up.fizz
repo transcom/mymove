@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190516222135_fix_user_name_office_users_table.sql")
