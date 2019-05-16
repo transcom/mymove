@@ -22,6 +22,7 @@ const storageInTransit = {
 let wrapper;
 const cancel = jest.fn();
 const approveStorageInTransit = jest.fn();
+const denyStorageInTransit = jest.fn();
 const onClose = jest.fn();
 const saveAndClose = jest.fn();
 
@@ -32,6 +33,7 @@ describe('given an editor', () => {
       wrapper = shallow(
         <OfficeEditor
           approveStorageInTransit={approveStorageInTransit}
+          denyStorageInTransit={denyStorageInTransit}
           onClose={onClose}
           storageInTransit={storageInTransit}
           submitForm={saveAndClose}
@@ -56,6 +58,7 @@ describe('given an editor', () => {
       wrapper = shallow(
         <OfficeEditor
           approveStorageInTransit={approveStorageInTransit}
+          denyStorageInTransit={denyStorageInTransit}
           onClose={onClose}
           storageInTransit={storageInTransit}
           submitForm={saveAndClose}

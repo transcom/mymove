@@ -7,7 +7,7 @@ import { isValid, isSubmitting, submit, hasSubmitSucceeded } from 'redux-form';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { approveStorageInTransit } from 'shared/Entities/modules/storageInTransits';
+import { approveStorageInTransit, denyStorageInTransit } from 'shared/Entities/modules/storageInTransits';
 import StorageInTransitOfficeEditForm, {
   formName as StorageInTransitOfficeEditFormName,
 } from './StorageInTransitOfficeEditForm.jsx';
@@ -40,6 +40,9 @@ export class OfficeEditor extends Component {
         this.props.storageInTransit.id,
         values,
       );
+    }
+    if (this.props.storageInTransit.status === 'DENIED') {
+      this.props.denyStorageInTransit(this.props.storageInTransit.shipment_id, this.props.storageInTransit.id, values);
     }
   };
 
@@ -81,6 +84,7 @@ OfficeEditor.propTypes = {
   onClose: PropTypes.func.isRequired,
   storageInTransit: PropTypes.object.isRequired,
   submitForm: PropTypes.func.isRequired,
+  denyStorageInTransit: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -97,6 +101,7 @@ function mapDispatchToProps(dispatch) {
     {
       submitForm: () => submit(StorageInTransitOfficeEditFormName),
       approveStorageInTransit,
+      denyStorageInTransit,
     },
     dispatch,
   );

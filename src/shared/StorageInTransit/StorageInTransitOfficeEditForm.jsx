@@ -48,7 +48,13 @@ export class StorageInTransitOfficeEditForm extends Component {
               required
             />
           ) : (
-            <PanelField fieldName="authorized_start_date" required title="Earliest authorized start" {...fieldProps} />
+            <PanelField
+              value="n/a"
+              fieldName="authorized_start_date"
+              required
+              title="Earliest authorized start"
+              {...fieldProps}
+            />
           )}
           <SwaggerField
             className="sit-approval-field"
