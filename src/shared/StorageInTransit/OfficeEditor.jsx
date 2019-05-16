@@ -84,6 +84,7 @@ OfficeEditor.propTypes = {
   onClose: PropTypes.func.isRequired,
   storageInTransit: PropTypes.object.isRequired,
   submitForm: PropTypes.func.isRequired,
+  denyStorageInTransit: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
