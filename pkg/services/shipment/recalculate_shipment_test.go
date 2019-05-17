@@ -1,9 +1,6 @@
 package shipment
 
 import (
-	"testing"
-
-	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -11,11 +8,10 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services/invoice"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *RecalculateShipmentSuite) helperDeliverAndPriceShipment() *models.Shipment {
+func (suite *ShipmentServiceSuite) helperDeliverAndPriceShipment() *models.Shipment {
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
@@ -66,7 +62,7 @@ func (suite *RecalculateShipmentSuite) helperDeliverAndPriceShipment() *models.S
 	return &shipment
 }
 
-func (suite *RecalculateShipmentSuite) TestRecalculateShipmentCall() {
+func (suite *ShipmentServiceSuite) TestRecalculateShipmentCall() {
 
 	shipment := suite.helperDeliverAndPriceShipment()
 	shipmentID := shipment.ID
@@ -161,23 +157,4 @@ func (suite *RecalculateShipmentSuite) TestRecalculateShipmentCall() {
 	for _, item := range fetchedLineItems {
 		suite.NotEqual(zeroCents, *item.AmountCents)
 	}
-}
-
-type RecalculateShipmentSuite struct {
-	testingsuite.PopTestSuite
-	logger Logger
-}
-
-func (suite *RecalculateShipmentSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-func TestRecalculateShipmentSuite(t *testing.T) {
-	// Use a no-op logger during testing
-	logger := zap.NewNop()
-
-	hs := &RecalculateShipmentSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
-		logger:       logger,
-	}
-	suite.Run(t, hs)
 }
