@@ -203,7 +203,7 @@ func TestProcessRecalculateShipmentSuite(t *testing.T) {
 	logger := zap.NewNop()
 
 	hs := &ProcessRecalculateShipmentSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("process_recalculate_shipment")),
 		logger:       logger,
 	}
 	suite.Run(t, hs)

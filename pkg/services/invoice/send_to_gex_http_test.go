@@ -26,7 +26,7 @@ func (suite *GexSuite) SetupTest() {
 func TestGexSuite(t *testing.T) {
 
 	hs := &GexSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("gex")),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, hs)

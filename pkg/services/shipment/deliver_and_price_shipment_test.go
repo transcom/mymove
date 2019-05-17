@@ -74,7 +74,7 @@ func TestDeliverPriceShipmentSuite(t *testing.T) {
 	logger := zap.NewNop()
 
 	hs := &DeliverPriceShipmentSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("deliver_price_shipment")),
 		logger:       logger,
 	}
 	suite.Run(t, hs)

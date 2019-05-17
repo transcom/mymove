@@ -26,7 +26,7 @@ func (suite *StorageInTransitServiceSuite) SetupTest() {
 
 func TestStorageInTransitSuite(t *testing.T) {
 	hs := &StorageInTransitServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix(("storage_in_transit"))),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, hs)
@@ -88,7 +88,7 @@ func payloadForStorageInTransitModel(s *models.StorageInTransit) *apimessages.St
 }
 func TestStorageInTransitServiceSuite(t *testing.T) {
 	hs := &StorageInTransitServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("storage_in_transit_service")),
 	}
 	suite.Run(t, hs)
 }

@@ -75,6 +75,12 @@ func (pn PackageName) String() string {
 	return string(pn)
 }
 
+// Suffix returns a new PackageName with an underscore and the suffix appended to the end
+// suffix should be a snake case string
+func (pn PackageName) Suffix(suffix string) PackageName {
+	return PackageName(pn.String() + "_" + suffix)
+}
+
 // CurrentPackage returns the project-relative name of the caller's package.
 //
 // "github.com/transcom/mymove/pkg/" is removed from the beginning of the absolute package name, so
