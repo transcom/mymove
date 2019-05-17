@@ -7,6 +7,7 @@ import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 import WizardHeader from '../WizardHeader';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+
 import './PPMPaymentRequest.css';
 import Uploader from 'shared/Uploader';
 
@@ -15,10 +16,6 @@ class WeightTicket extends Component {
     value: '',
   };
   labelIdle = 'Drag & drop or <span class="filepond--label-action">click to upload upload empty weight ticket</span>';
-
-  handleChange = event => {
-    this.setState({ value: event.target.value });
-  };
 
   render() {
     const { schema } = this.props;

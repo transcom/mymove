@@ -67,3 +67,8 @@
 .secondary-label {
   font-size: 1.5rem;
 }
+
+.dashed-divider {
+  border-bottom: 1px dashed #e9e8e8;
+  padding: 1rem;
+}
