@@ -42,18 +42,23 @@ export class Orders extends Component {
   };
 
   render() {
-    const { pages, pageKey, error, currentOrders, serviceMemberId } = this.props;
+    const { pages, pageKey, error, currentOrders, serviceMemberId, newDutyStation, currentStation } = this.props;
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentOrders ? currentOrders : null;
+    const newDutyStationErrorMsg =
+      newDutyStation.name === currentStation.name
+        ? 'You entered the same duty station for your origin and destination. Please change one of them.'
+        : '';
     return (
       <OrdersWizardForm
-        handleSubmit={this.handleSubmit}
-        className={formName}
-        pageList={pages}
-        pageKey={pageKey}
-        serverError={error}
-        initialValues={initialValues}
         additionalParams={{ serviceMemberId }}
+        className={formName}
+        handleSubmit={this.handleSubmit}
+        initialValues={initialValues}
+        readyToSubmit={!newDutyStationErrorMsg}
+        pageKey={pageKey}
+        pageList={pages}
+        serverError={error}
       >
         <h1 className="sm-heading">Tell Us About Your Move Orders</h1>
         <SwaggerField fieldName="orders_type" swagger={this.props.schema} required />
@@ -71,7 +76,12 @@ export class Orders extends Component {
             />
           </Fragment>
         )}
-        <Field name="new_duty_station" component={DutyStationSearchBox} title="New duty station" />
+        <Field
+          name="new_duty_station"
+          component={DutyStationSearchBox}
+          errorMsg={newDutyStationErrorMsg}
+          title="New duty station"
+        />
       </OrdersWizardForm>
     );
   }
@@ -84,13 +94,15 @@ Orders.propTypes = {
 };
 
 function mapStateToProps(state) {
-  const props = {
+  const formValues = getFormValues(formName)(state);
+  return {
     serviceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
-    formValues: getFormValues(formName)(state),
+    formValues,
     currentOrders: state.orders.currentOrders,
+    currentStation: get(state, 'serviceMember.currentServiceMember.current_station', {}),
+    newDutyStation: get(formValues, 'new_duty_station', {}),
   };
-  return props;
 }
 
 function mapDispatchToProps(dispatch) {

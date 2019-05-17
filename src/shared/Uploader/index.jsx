@@ -73,21 +73,7 @@ export class Uploader extends Component {
     if (!this.pond) {
       return;
     }
-
-    const { labelIdle } = this.props;
-    this.pond._pond.setOptions({
-      allowMultiple: true,
-      server: {
-        url: '/',
-        process: this.processFile,
-        revert: this.revertFile,
-      },
-      iconUndo: this.pond._pond.iconRemove,
-      imagePreviewMaxHeight: 100,
-      labelIdle: labelIdle || 'Drag & drop or <span class="filepond--label-action">click to upload</span>',
-      labelTapToUndo: 'tap to delete',
-      acceptedFileTypes: ['image/jpeg', 'image/png', 'application/pdf'],
-    });
+    this.setPondOptions();
 
     this.pond._pond.on('processfile', e => {
       if (this.props.onChange) {
@@ -141,6 +127,24 @@ export class Uploader extends Component {
       })
       .catch(error);
   };
+
+  setPondOptions() {
+    const { options } = this.props;
+    const defaultOptions = {
+      allowMultiple: true,
+      server: {
+        url: '/',
+        process: this.processFile,
+        revert: this.revertFile,
+      },
+      iconUndo: this.pond._pond.iconRemove,
+      imagePreviewMaxHeight: 100,
+      labelIdle: 'Drag & drop or <span class="filepond--label-action">click to upload</span>',
+      labelTapToUndo: 'tap to delete',
+      acceptedFileTypes: ['image/jpeg', 'image/png', 'application/pdf'],
+    };
+    this.pond._pond.setOptions({ ...defaultOptions, ...options });
+  }
 
   render() {
     return (

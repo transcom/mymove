@@ -88,6 +88,7 @@
     "mocha": "^5.2.0",
     "mocha-junit-reporter": "^1.18.0",
     "mocha-multi-reporters": "^1.1.7",
+    "mockdate": "^2.0.2",
     "prettier": "=1.12.1",
     "react-mock-router": "^1.0.15"
   },

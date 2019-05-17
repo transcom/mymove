@@ -24,6 +24,11 @@ export class WizardFormPage extends Component {
     this.beforeTransition = beforeTransition.bind(this);
     this.submit = this.submit.bind(this);
   }
+
+  static defaultProps = {
+    readyToSubmit: true,
+  };
+
   componentDidUpdate(prevProps) {
     if (this.props.additionalValues) {
       /* eslint-disable security/detect-object-injection */
@@ -83,8 +88,18 @@ export class WizardFormPage extends Component {
     // and accompanying submit validation https://redux-form.com/8.2.0/examples/submitvalidation/
     // while forms that provide their own handlesubmit prop are expected to not be using redux-form's submit validation
     const hasReduxFormSubmitHandler = !!this.props.reduxFormSubmit;
-    const { handleSubmit, className, pageKey, pageList, children, serverError, valid, dirty } = this.props;
-    const canMoveForward = valid;
+    const {
+      handleSubmit,
+      className,
+      pageKey,
+      pageList,
+      children,
+      serverError,
+      valid,
+      dirty,
+      readyToSubmit,
+    } = this.props;
+    const canMoveForward = valid && readyToSubmit;
     const canMoveBackward = (valid || !dirty) && !isFirstPage(pageList, pageKey);
     const hideBackBtn = isFirstPage(pageList, pageKey);
     return (

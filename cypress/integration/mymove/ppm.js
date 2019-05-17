@@ -90,10 +90,6 @@ describe('completing the ppm flow', function() {
     cy.contains('Advance Requested: $1,333.91');
   });
 
-  it('allows a SM to request ppm payment', function() {
-    serviceMemberVisitsIntroToPPMPaymentRequest();
-  });
-
   //TODO: remove when done with the new flow to request payment
   it('allows a SM to request payment', function() {
     cy.removeFetch();
@@ -207,12 +203,38 @@ describe('editing ppm only move', () => {
   });
 });
 
-function serviceMemberVisitsIntroToPPMPaymentRequest() {
+it('allows a SM to request ppm payment', function() {
+  cy.removeFetch();
+  cy.server();
+  cy.route('POST', '**/internal/uploads').as('postUploadDocument');
+
   cy.signInAsUserPostRequest(milmoveAppName, '8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
   cy.contains('Fort Gordon (from Yuma AFB)');
   cy.get('.submitted .status_dates').should('exist');
   cy.get('.ppm_approved .status_dates').should('exist');
   cy.get('.in_progress .status_dates').should('exist');
+  serviceMemberCanCancel();
+  serviceMemberVisitsIntroToPPMPaymentRequest();
+  serviceMemberUploadsWeightTicket();
+});
+
+function serviceMemberCanCancel() {
+  cy.contains('Request Payment').click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-request-intro/);
+  });
+  cy
+    .get('button')
+    .contains('Cancel')
+    .click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\//);
+  });
+}
+
+function serviceMemberVisitsIntroToPPMPaymentRequest() {
   cy.contains('Request Payment').click();
 
   cy.location().should(loc => {
@@ -234,6 +256,10 @@ function serviceMemberVisitsIntroToPPMPaymentRequest() {
     .contains('Back')
     .click();
 
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-request-intro/);
+  });
+
   cy
     .get('a')
     .contains('What expenses are allowed?')
@@ -250,14 +276,17 @@ function serviceMemberVisitsIntroToPPMPaymentRequest() {
     .contains('Back')
     .click();
 
-  cy.get('button').contains('Get Started');
-
   cy
     .get('button')
-    .contains('Cancel')
+    .contains('Get Started')
     .click();
+}
 
+function serviceMemberUploadsWeightTicket() {
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\//);
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-weight-ticket/);
   });
+  cy.get('select[name="vehicle_options"]').select('CAR');
+  cy.upload_file('.filepond--root', 'top-secret.png');
+  cy.wait('@postUploadDocument');
 }

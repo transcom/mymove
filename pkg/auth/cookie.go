@@ -180,6 +180,7 @@ func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, 
 		Path:     "/",
 		Expires:  time.Unix(0, 0),
 		MaxAge:   -1,
+		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode, // Using 'lax' mode now since 'strict' breaks the use of the login.gov redirect
 		Secure:   useSecureCookie,
 	}

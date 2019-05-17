@@ -448,4 +448,15 @@ head .panel-subhead {
 .ReactTable.-highlight .rt-tbody .rt-tr:not(.-padRow):hover {
   background-color: #E2F1FB;
   color: #0071bb
+
+.refresh {
+  display: inline-block;
+  cursor: pointer;
+  margin-bottom: 0.3em;
+  padding: 0.3em 0;
+  border: 1px solid white;
+
+  &.focused {
+    border: 1px dashed gray;
+  }
 }
