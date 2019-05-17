@@ -399,7 +399,7 @@ server_test: server_deps server_generate db_test_reset db_test_migrate
 
 server_test_build:
 	# Try to compile tests, but don't run them.
-	go test -run=nope $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+	go test -run=nope -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 server_test_all: server_deps server_generate db_dev_reset db_dev_migrate
 	# Like server_test but runs extended tests that may hit external services.
