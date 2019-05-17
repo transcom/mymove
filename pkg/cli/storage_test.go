@@ -1,6 +1,6 @@
 package cli
 
 func (suite *cliTestSuite) TestConfigStorage() {
-	suite.Setup(InitStorageFlags)
+	suite.Setup(InitStorageFlags, []string{})
 	suite.Nil(CheckStorage(suite.viper))
 }
