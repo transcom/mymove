@@ -28,7 +28,7 @@ function proceed() {
 function run() {
   command=( "$@" )
   echo "...executing: ${command[*]}"
-  ${command[*]} &> /dev/null
+  ${command[*]} &> /dev/null || (echo "Failed!!" && exit 1)
 }
 
 #
