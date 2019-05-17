@@ -37,7 +37,7 @@ func CheckDevlocal(v *viper.Viper) error {
 			fmt.Sprintf("my.%s.move.mil", EnvironmentExperimental),
 		}
 		if serverName := v.GetString(HTTPMyServerNameFlag); !stringSliceContains(allowedMyServerNames, serverName) {
-			return errors.Errorf("Devlocal Auth cannot run in the '%s' my server name, only in %v", serverName, allowedMyServerNames)
+			return errors.Errorf("Devlocal Auth cannot run with the '%s' my server name, only in %v", serverName, allowedMyServerNames)
 		}
 
 		// Check against Office Server Names
@@ -46,7 +46,7 @@ func CheckDevlocal(v *viper.Viper) error {
 			fmt.Sprintf("office.%s.move.mil", EnvironmentExperimental),
 		}
 		if serverName := v.GetString(HTTPOfficeServerNameFlag); !stringSliceContains(allowedOfficeServerNames, serverName) {
-			return errors.Errorf("Devlocal Auth cannot run in the '%s' office server name, only in %v", serverName, allowedOfficeServerNames)
+			return errors.Errorf("Devlocal Auth cannot run with the '%s' office server name, only in %v", serverName, allowedOfficeServerNames)
 		}
 
 		// Check against TSP Server Names
@@ -55,7 +55,7 @@ func CheckDevlocal(v *viper.Viper) error {
 			fmt.Sprintf("tsp.%s.move.mil", EnvironmentExperimental),
 		}
 		if serverName := v.GetString(HTTPTSPServerNameFlag); !stringSliceContains(allowedTSPServerNames, serverName) {
-			return errors.Errorf("Devlocal Auth cannot run in the '%s' tsp server name, only in %v", serverName, allowedTSPServerNames)
+			return errors.Errorf("Devlocal Auth cannot run with the '%s' tsp server name, only in %v", serverName, allowedTSPServerNames)
 		}
 
 		// Check against Admin Server Names
@@ -64,7 +64,7 @@ func CheckDevlocal(v *viper.Viper) error {
 			fmt.Sprintf("admin.%s.move.mil", EnvironmentExperimental),
 		}
 		if serverName := v.GetString(HTTPAdminServerNameFlag); !stringSliceContains(allowedAdminServerNames, serverName) {
-			return errors.Errorf("Devlocal Auth cannot run in the '%s' admin server name, only in %v", serverName, allowedAdminServerNames)
+			return errors.Errorf("Devlocal Auth cannot run with the '%s' admin server name, only in %v", serverName, allowedAdminServerNames)
 		}
 	}
 	return nil
