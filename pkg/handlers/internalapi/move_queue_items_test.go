@@ -26,9 +26,11 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 		//  A set of orders and a move belonging to those orders
 		order := testdatagen.MakeDefaultOrder(suite.DB())
 
+		moveShow := true
 		newMove := models.Move{
 			OrdersID: order.ID,
 			Status:   models.MoveStatus(status),
+			Show:     &moveShow,
 		}
 		suite.MustSave(&newMove)
 

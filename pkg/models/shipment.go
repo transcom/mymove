@@ -35,8 +35,6 @@ const (
 	ShipmentStatusINTRANSIT ShipmentStatus = "IN_TRANSIT"
 	// ShipmentStatusDELIVERED captures enum value "DELIVERED"
 	ShipmentStatusDELIVERED ShipmentStatus = "DELIVERED"
-	// ShipmentStatusCOMPLETED captures enum value "COMPLETED"
-	ShipmentStatusCOMPLETED ShipmentStatus = "COMPLETED"
 )
 
 var (
@@ -338,15 +336,6 @@ func (s *Shipment) Deliver(actualDeliveryDate time.Time) error {
 	return nil
 }
 
-// Complete marks the Shipment request as Completed. Must be in a Delivered state.
-func (s *Shipment) Complete() error {
-	if s.Status != ShipmentStatusDELIVERED {
-		return errors.Wrap(ErrInvalidTransition, "Completed")
-	}
-	s.Status = ShipmentStatusCOMPLETED
-	return nil
-}
-
 // BeforeSave will run before each create/update of a Shipment.
 func (s *Shipment) BeforeSave(tx *pop.Connection) error {
 	// To be safe, we will always try to determine the correct TDL anytime a shipment record
@@ -605,7 +594,9 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 
 	query := tx.Q().Eager(ShipmentListAssociationsDefault...).
 		Where("shipment_offers.transportation_service_provider_id = $1", tspID).
-		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id")
+		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
+		InnerJoin("moves", "shipments.move_id=moves.id").
+		Where("moves.show is true")
 
 	if len(status) > 0 {
 		statusStrings := make([]interface{}, len(status))
@@ -955,8 +946,7 @@ func (s *Shipment) requireAnAcceptedTSP() bool {
 	if s.Status == ShipmentStatusACCEPTED ||
 		s.Status == ShipmentStatusAPPROVED ||
 		s.Status == ShipmentStatusINTRANSIT ||
-		s.Status == ShipmentStatusDELIVERED ||
-		s.Status == ShipmentStatusCOMPLETED {
+		s.Status == ShipmentStatusDELIVERED {
 		return true
 	}
 	return false

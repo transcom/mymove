@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 	"github.com/honeycombio/beeline-go"
 
@@ -114,7 +115,11 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	newMove, verrs, err := newOrder.CreateNewMove(h.DB(), nil)
+	moveOptions := models.MoveOptions{
+		SelectedType: nil,
+		Show:         swag.Bool(true),
+	}
+	newMove, verrs, err := newOrder.CreateNewMove(h.DB(), moveOptions)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}

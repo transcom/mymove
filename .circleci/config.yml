@@ -58,6 +58,8 @@ commands:
   deploy_migrations_steps:
     steps:
       - checkout
+      - attach_workspace:
+          at: bin
       - run:
           name: Snapshot database
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/rds-snapshot-app-db $APP_ENVIRONMENT
@@ -75,7 +77,8 @@ commands:
       - restore_cache:
           keys:
             - go-mod-souces-v1-{{ checksum "go.sum" }}
-      - run: make bin/ecs-deploy-task-container
+      - attach_workspace:
+          at: bin
       - deploy:
           name: Deploy task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command save-fuel-price-data
@@ -96,6 +99,8 @@ commands:
       - restore_cache:
           keys:
             - go-mod-souces-v1-{{ checksum "go.sum" }}
+      - attach_workspace:
+          at: bin
       - setup_remote_docker:
           docker_layer_caching: true
       - deploy:
@@ -104,7 +109,7 @@ commands:
           no_output_timeout: 20m
       - run:
           name: Health Check
-          command: go run cmd/health_checker/main.go --schemes http,https --hosts << parameters.health_check_hosts >> --tries 10 --backoff 3 --log-level info --timeout 15m
+          command: bin/health-checker --schemes http,https --hosts << parameters.health_check_hosts >> --tries 10 --backoff 3 --log-level info --timeout 15m
       - run:
           name: Check deployed commits
           command: scripts/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1"
@@ -126,6 +131,8 @@ commands:
             - go-mod-souces-v1-{{ checksum "go.sum" }}
       - setup_remote_docker:
           docker_layer_caching: true
+      - attach_workspace:
+          at: bin
       - deploy:
           name: Deploy app-client-tls service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-service-container app-client-tls config/app-client-tls.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
@@ -133,7 +140,7 @@ commands:
       - run:
           name: Health Check
           command: |
-            go run cmd/health_checker/main.go --schemes https --hosts << parameters.health_check_hosts >> --key ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} --cert ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} --ca ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 15m
+            bin/health-checker --schemes https --hosts << parameters.health_check_hosts >> --key ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} --cert ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} --ca ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 15m
       - run:
           name: Check deployed commits
           command: scripts/check-deployed-commit "<< parameters.health_check_hosts >>" "$CIRCLE_SHA1" ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_KEY} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CERT} ${EXPERIMENTAL_MOVE_MIL_DOD_TLS_CA}
@@ -299,6 +306,7 @@ jobs:
             LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             DEVLOCAL_CA: /home/circleci/go/src/github.com/transcom/mymove/config/tls/devlocal-ca.pem
+            NO_TLS_ENABLED: true
       - announce_failure
 
   # `integration_tests_mymove` runs integration tests using Cypress.  https://www.cypress.io/
@@ -537,6 +545,13 @@ jobs:
           keys:
             - go-mod-souces-v1-{{ checksum "go.sum" }}
       - run: make build_tools
+      - persist_to_workspace:
+          root: bin
+          paths:
+            - renderer # for rendering ECS task definition
+            - health-checker # for confirming deploy success.
+            - ecs-service-logs # for showing logs on failed deploy
+            - ecs-deploy-task-container # for deploying task container
       - announce_failure
 
   # `build_app` builds the application container and pushes to the container repository
@@ -622,6 +637,7 @@ jobs:
             PWD: /home/circleci/go/src/github.com/transcom/mymove
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             TEST_ACC_ENV: experimental
+            NO_TLS_ENABLED: true
       - announce_failure
 
   # `deploy_experimental_migrations` deploys migrations to the experimental environment
@@ -692,6 +708,7 @@ jobs:
             PWD: /home/circleci/go/src/github.com/transcom/mymove
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
             TEST_ACC_ENV: staging
+            NO_TLS_ENABLED: true
       - announce_failure
 
   # `deploy_staging_migrations` deploys migrations to the staging environment
@@ -933,7 +950,7 @@ workflows:
             - acceptance_tests_local
             - acceptance_tests_experimental
             - build_app
-            # - build_tools # tools don't need to build to deploy to experimental
+            - build_tools
             - build_tasks
             - build_migrations
           filters:

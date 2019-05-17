@@ -83,8 +83,8 @@ readonly db_host
 echo "* Looking up client auth CA certificate"
 move_mil_dod_ca_cert=$(awk '{printf "%s\\n", $0}' "$DIR"/../config/tls/dod-sw-ca-54.pem)
 
-# $DIR/../cmd/renderer/main.go builds its template context from (1) environment variables, (2) file at -v FILE, and (3) positional command line args.
-container_definition_json=$(go run "$DIR"/../cmd/renderer/main.go -t "$template" -v "$DIR"/../config/env/"${environment}".env environment="$environment" image="$image" db_host="$db_host" domain="$domain" move_mil_dod_ca_cert="$move_mil_dod_ca_cert")
+# renderer builds its template context from (1) environment variables, (2) file at -v FILE, and (3) positional command line args.
+container_definition_json=$("$DIR"/../bin/renderer -t "$template" -v "$DIR"/../config/env/"${environment}".env environment="$environment" image="$image" db_host="$db_host" domain="$domain" move_mil_dod_ca_cert="$move_mil_dod_ca_cert")
 readonly container_definition_json
 
 # create new task definition with the given image

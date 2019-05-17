@@ -21,7 +21,8 @@ const storageInTransit = {
 
 let wrapper;
 const cancel = jest.fn();
-const updateStorageInTransit = jest.fn();
+const approveStorageInTransit = jest.fn();
+const denyStorageInTransit = jest.fn();
 const onClose = jest.fn();
 const saveAndClose = jest.fn();
 
@@ -31,7 +32,8 @@ describe('given an editor', () => {
       cancel.mockClear();
       wrapper = shallow(
         <OfficeEditor
-          updateStorageInTransit={updateStorageInTransit}
+          approveStorageInTransit={approveStorageInTransit}
+          denyStorageInTransit={denyStorageInTransit}
           onClose={onClose}
           storageInTransit={storageInTransit}
           submitForm={saveAndClose}
@@ -55,7 +57,8 @@ describe('given an editor', () => {
       cancel.mockClear();
       wrapper = shallow(
         <OfficeEditor
-          updateStorageInTransit={updateStorageInTransit}
+          approveStorageInTransit={approveStorageInTransit}
+          denyStorageInTransit={denyStorageInTransit}
           onClose={onClose}
           storageInTransit={storageInTransit}
           submitForm={saveAndClose}
