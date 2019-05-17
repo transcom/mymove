@@ -82,6 +82,11 @@ describe('completing the ppm flow', function() {
     cy.contains('Congrats - your move is submitted!');
     cy.contains('Next Step: Wait for approval');
     cy
+      .get('.next-step')
+      .contains('Go to weight scales')
+      .children('a')
+      .should('have.attr', 'href', 'https://move.mil/resources/locator-maps');
+    cy
       .get('a')
       .contains('PPM info sheet')
       .should('have.attr', 'href')
