@@ -95,7 +95,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerNoValues() {
 	suite.Assertions.IsType(&servicememberop.CreateServiceMemberCreated{}, unwrappedResponse)
 
 	// Then: we expect a servicemember to have been created for the user
-	query := suite.DB().Where(fmt.Sprintf("user_id='%v'", user.ID))
+	query := suite.DB().Where("user_id = ?", user.ID)
 	var serviceMembers models.ServiceMembers
 	query.All(&serviceMembers)
 
@@ -160,7 +160,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	suite.Assertions.IsType(&servicememberop.CreateServiceMemberCreated{}, unwrappedResponse)
 
 	// Then: we expect a servicemember to have been created for the user
-	query := suite.DB().Where(fmt.Sprintf("user_id='%v'", user.ID))
+	query := suite.DB().Where("user_id = ?", user.ID)
 	var serviceMembers models.ServiceMembers
 	query.All(&serviceMembers)
 
@@ -202,7 +202,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	suite.Assertions.True(*okResponse.Payload.HasSocialSecurityNumber)
 
 	// Then: we expect a ServiceMember to have been created for the user
-	query := suite.DB().Where(fmt.Sprintf("user_id='%v'", user.ID))
+	query := suite.DB().Where("user_id = ?", user.ID)
 	var serviceMembers models.ServiceMembers
 	query.All(&serviceMembers)
 
