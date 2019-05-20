@@ -65,6 +65,15 @@ func (e *errInvalidHost) Error() string {
 	return fmt.Sprintf("invalid host %s, must not contain whitespace, :, /, or \\", e.Host)
 }
 
+func stringSliceContains(stringSlice []string, value string) bool {
+	for _, x := range stringSlice {
+		if value == x {
+			return true
+		}
+	}
+	return false
+}
+
 // initServeFlags - Order matters!
 func initServeFlags(flag *pflag.FlagSet) {
 
@@ -702,12 +711,15 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 
-		devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
-		devlocalCa, readFileErr := ioutil.ReadFile(devlocalCAPath) // #nosec
-		if readFileErr != nil {
-			logger.Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(readFileErr))
-		} else {
-			rootCAs.AppendCertsFromPEM(devlocalCa)
+		if stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment}, v.GetString(cli.EnvironmentFlag)) {
+			logger.Info("Adding devlocal CA to root CAs")
+			devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
+			devlocalCa, readFileErr := ioutil.ReadFile(devlocalCAPath) // #nosec
+			if readFileErr != nil {
+				logger.Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(readFileErr))
+			} else {
+				rootCAs.AppendCertsFromPEM(devlocalCa)
+			}
 		}
 	}
 
