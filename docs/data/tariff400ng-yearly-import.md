@@ -24,6 +24,7 @@
 3. Add the new `xlsx` file to the `lib/data` directory in the following format: `{YEAR} 400NG Baseline Rate.xlsx`.
 4. Open `db/seeds.rb`
 5. Near the bottom of the file, you'll see some commented code that imports baseline rates for previous years. Add the following and change the date range as needed:
+
     ```ruby
     puts '-- Seeding 2019 400NG baseline rates...'
     Seeds::BaselineRates.new(
@@ -31,6 +32,7 @@
       file_path: Rails.root.join('lib', 'data', '2019 400NG Baseline Rates.xlsx')
     ).seed!
     ```
+
 6. Run `rails db:reset` to drop the database, re-run migrations, and re-run the seeds import.
 7. Dump the tables: `pg_dump --inserts -t full_packs -t full_unpacks -t linehauls -t service_areas -t shorthauls move_mil_development`
 
