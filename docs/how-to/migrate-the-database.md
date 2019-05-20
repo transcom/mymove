@@ -6,7 +6,7 @@ If you need to change the database schema, you'll need to write a migration.
 
 ## Running Migrations
 
-To run a migration you should use the `milmove migrate` command. Under the hood this is running the `soda migrate`
+To run a migration you should use the `milmove migrate` command. This is done in a similar way to the `soda migrate`
 command but uses our DB connection code instead. This avoids us having to use the `database.yaml` as a config file
 and allows us to leverage different authentication methods for migrations in development and in production using
 the same code.  To migrate you should use a command based on your DB:
