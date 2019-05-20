@@ -18,5 +18,5 @@ RUN apk add postgresql-client python3 ca-certificates bash
 RUN pip3 install awscli
 
 WORKDIR /scripts
-ENTRYPOINT ["/bin/milmove", "migrate"]
-CMD ["-p", "/migrate/migrations"[
+ENTRYPOINT ["/bin/milmove"]
+CMD ["migrate", "-p", "/migrate/migrations"]
