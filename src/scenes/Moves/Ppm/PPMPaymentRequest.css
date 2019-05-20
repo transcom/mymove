@@ -67,3 +67,23 @@
 .secondary-label {
   font-size: 1.5rem;
 }
+
+.dashed-divider {
+  border-bottom: 1px dashed #e9e8e8;
+  padding: 1rem;
+}
+
+.radio-group-header {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+.short-field {
+  max-width: 46rem;
+  display: inline-block;
+  margin-right: 0px;
+}
+
+.uploader-container {
+  padding-top: 1.5em;
+}
