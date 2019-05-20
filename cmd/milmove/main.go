@@ -939,7 +939,9 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	mig, err := pop.NewFileMigrator(v.GetString(cli.MigrationPathFlag), dbConnection)
+	migrationPath := v.GetString(cli.MigrationPathFlag)
+	logger.Info(fmt.Sprintf("using migration path %q", migrationPath))
+	mig, err := pop.NewFileMigrator(migrationPath, dbConnection)
 	if err != nil {
 		return err
 	}
