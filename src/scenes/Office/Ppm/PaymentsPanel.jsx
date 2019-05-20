@@ -48,7 +48,7 @@ function missingNetWeightOrActualMoveDate(ppm) {
   return isEmpty(ppm) || !ppm.net_weight || !ppm.actual_move_date;
 }
 function isComboAndNotDelivered(shipment) {
-  return !isEmpty(shipment) && shipment.status === 'DELIVERED';
+  return !isEmpty(shipment) && shipment.status !== 'DELIVERED';
 }
 
 function getUserDate() {
