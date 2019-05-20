@@ -18,7 +18,7 @@ type errInvalidMigrationPath struct {
 }
 
 func (e *errInvalidMigrationPath) Error() string {
-	return fmt.Sprintf("invalid migration path '%s'", e.Path)
+	return fmt.Sprintf("invalid migration path %q", e.Path)
 }
 
 // InitMigrationFlags initializes the Migration command line flags
