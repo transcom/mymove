@@ -49,10 +49,33 @@ class WeightTicket extends Component {
           />
           <SwaggerField fieldName="vehicle_nickname" swagger={schema} required />
           <div className="dashed-divider" />
-          <SwaggerField fieldName="empty_weight" swagger={schema} title="Empty Weight" required />
-          <Uploader options={{ labelIdle: this.labelIdle }} />
-          <SwaggerField fieldName="full_weight" swagger={schema} title="Full Weight" required />
-          <Uploader options={{ labelIdle: this.labelIdle }} />
+
+          <div className="usa-grid-full">
+            <div className="usa-width-one-third">
+              <SwaggerField className="short-field" fieldName="empty_weight" swagger={schema} title=" " required /> lbs
+            </div>
+            <div className="usa-width-two-third">
+              <Uploader options={{ labelIdle: this.labelIdle }} />
+            </div>
+          </div>
+
+          <div className="usa-grid-full">
+            <div className="usa-width-one-third">
+              <SwaggerField
+                className="short-field"
+                fieldName="full_weight"
+                swagger={schema}
+                title="Full weight at destination"
+                required
+              />{' '}
+              lbs
+            </div>
+
+            <div className="usa-width-two-third uploader-container">
+              <Uploader options={{ labelIdle: this.labelIdle }} />
+            </div>
+          </div>
+
           <SwaggerField fieldName="weight_ticket_date" swagger={schema} required />
           <div className="dashed-divider" />
 

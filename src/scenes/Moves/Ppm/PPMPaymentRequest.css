@@ -77,3 +77,13 @@
   margin-top: 1em;
   margin-bottom: 0.5em;
 }
+
+.short-field {
+  max-width: 46rem;
+  display: inline-block;
+  margin-right: 0px;
+}
+
+.uploader-container {
+  padding-top: 1.5em;
+}
