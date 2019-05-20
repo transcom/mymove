@@ -63,7 +63,11 @@ let EditOrdersForm = props => {
       <p>Uploads:</p>
       {Boolean(visibleUploads.length) && <UploadsTable uploads={visibleUploads} onDelete={onDelete} />}
       {Boolean(get(initialValues, 'uploaded_orders')) && (
-        <Uploader document={initialValues.uploaded_orders} onChange={onUpload} labelIdle={uploaderLabelIdle} />
+        <Uploader
+          document={initialValues.uploaded_orders}
+          onChange={onUpload}
+          options={{ labelIdle: uploaderLabelIdle }}
+        />
       )}
       <SaveCancelButtons valid={valid} submitting={submitting} />
     </form>
