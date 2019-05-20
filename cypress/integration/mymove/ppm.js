@@ -79,7 +79,7 @@ describe('completing the ppm flow', function() {
       expect(loc.pathname).to.match(/^\/$/);
     });
 
-    cy.get('.usa-alert-success').contains('Your PPM shipment is submitted');
+    cy.get('.usa-alert-success').contains('Congrats - your move is submitted!');
     cy.contains('Next Step: Wait for approval');
     cy
       .get('.next-step')

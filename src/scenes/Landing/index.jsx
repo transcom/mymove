@@ -101,6 +101,7 @@ export class Landing extends Component {
       isProfileComplete,
       createdServiceMemberError,
       moveSubmitSuccess,
+      hasSubmitSuccess,
       isHHGPPMComboMove,
       entitlement,
       serviceMember,
@@ -111,7 +112,6 @@ export class Landing extends Component {
       requestPaymentSuccess,
       updateMove,
     } = this.props;
-    console.log('isHHGPPMComboMove ', isHHGPPMComboMove);
     return (
       <div className="usa-grid">
         {loggedInUserIsLoading && <LoadingPlaceholder />}
@@ -125,7 +125,8 @@ export class Landing extends Component {
                     You've submitted your move
                   </Alert>
                 )}
-              {isHHGPPMComboMove && moveSubmitSuccess && <PPMAlert heading="Your PPM shipment is submitted" />}
+              {isHHGPPMComboMove && hasSubmitSuccess && <PPMAlert heading="Your PPM shipment is submitted" />}
+              {ppm && moveSubmitSuccess && <PPMAlert heading="Congrats - your move is submitted!" />}
               {loggedInUserError && (
                 <Alert type="error" heading="An error occurred">
                   There was an error loading your user information.
