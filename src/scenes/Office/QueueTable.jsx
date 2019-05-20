@@ -4,11 +4,12 @@ import ReactTable from 'react-table';
 import { connect } from 'react-redux';
 import { get, capitalize } from 'lodash';
 import 'react-table/react-table.css';
-import { RetrieveMovesForOffice } from './api.js';
 import Alert from 'shared/Alert';
 import { formatDate, formatDateTimeWithTZ } from 'shared/formatters';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
+import './office.scss';
+import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
 
 class QueueTable extends Component {
   constructor() {
@@ -17,6 +18,7 @@ class QueueTable extends Component {
       data: [],
       pages: null,
       loading: true,
+      refreshing: false, // only true when the user clicks the refresh button
     };
     this.fetchData = this.fetchData.bind(this);
   }
@@ -29,6 +31,12 @@ class QueueTable extends Component {
     if (this.props.queueType !== prevProps.queueType) {
       this.fetchData();
     }
+  }
+
+  openMove(rowInfo) {
+    this.props.history.push(`new/moves/${rowInfo.original.id}`, {
+      referrerPathname: this.props.history.location.pathname,
+    });
   }
 
   static defaultProps = {
@@ -49,7 +57,7 @@ class QueueTable extends Component {
 
     // Catch any errors here and render an empty queue
     try {
-      const body = await RetrieveMovesForOffice(this.props.queueType);
+      const body = await this.props.retrieveMoves(this.props.queueType);
 
       // Only update the queue list if the request that is returning
       // is for the same queue as the most recent request.
@@ -58,6 +66,7 @@ class QueueTable extends Component {
           data: body,
           pages: 1,
           loading: false,
+          refreshing: false,
         });
       }
     } catch (e) {
@@ -65,8 +74,17 @@ class QueueTable extends Component {
         data: [],
         pages: 1,
         loading: false,
+        refreshing: false,
       });
     }
+  }
+
+  refresh() {
+    this.setState({
+      refreshing: true,
+    });
+
+    this.fetchData();
   }
 
   render() {
@@ -76,11 +94,18 @@ class QueueTable extends Component {
       ppm: 'PPMs',
       hhg_accepted: 'Accepted HHGs',
       hhg_delivered: 'Delivered HHGs',
-      hhg_completed: 'Completed HHGs',
       all: 'All Moves',
     };
 
     this.state.data.forEach(row => {
+      if (this.props.queueType === 'new' && row.ppm_status && row.hhg_status) {
+        row.shipments = 'HHG, PPM';
+      } else if (row.ppm_status && !row.hhg_status) {
+        row.shipments = 'PPM';
+      } else {
+        row.shipments = 'HHG';
+      }
+
       if (this.props.queueType === 'ppm' && row.ppm_status !== null) {
         row.synthetic_status = row.ppm_status;
       } else {
@@ -96,8 +121,19 @@ class QueueTable extends Component {
             <br />
           </Alert>
         ) : null}
-        <h1>Queue: {titles[this.props.queueType]}</h1>
+        <h1 className="queue-heading">Queue: {titles[this.props.queueType]}</h1>
         <div className="queue-table">
+          <span className={'refresh' + (this.state.refreshing ? ' focused' : '')} title="Refresh" aria-label="Refresh">
+            <FontAwesomeIcon
+              data-cy="refreshQueue"
+              className="link-blue"
+              icon={faSyncAlt}
+              onClick={this.refresh.bind(this)}
+              color="blue"
+              size="lg"
+              spin={!this.state.refreshing && this.state.loading}
+            />
+          </span>
           <ReactTable
             columns={[
               {
@@ -138,8 +174,14 @@ class QueueTable extends Component {
                 Cell: row => <span className="rank">{row.value && row.value.replace('_', '-')}</span>,
               },
               {
+                Header: 'Shipments',
+                accessor: 'shipments',
+                show: this.props.queueType === 'new',
+              },
+              {
                 Header: 'Locator #',
                 accessor: 'locator',
+                Cell: row => <span data-cy="locator">{row.value}</span>,
               },
               {
                 Header: 'GBL',
@@ -164,10 +206,9 @@ class QueueTable extends Component {
             className="-striped -highlight"
             showPagination={false}
             getTrProps={(state, rowInfo) => ({
-              onDoubleClick: e =>
-                this.props.history.push(`new/moves/${rowInfo.original.id}`, {
-                  referrerPathname: this.props.history.location.pathname,
-                }),
+              'data-cy': 'queueTableRow',
+              onDoubleClick: () => this.openMove(rowInfo),
+              onClick: () => this.openMove(rowInfo),
             })}
           />
         </div>

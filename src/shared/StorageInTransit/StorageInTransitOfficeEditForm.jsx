@@ -40,19 +40,29 @@ export class StorageInTransitOfficeEditForm extends Component {
         <div className="editable-panel-column">
           <div className="panel-subhead">Authorization</div>
           <PanelField value={sitStatus()} fieldName="status" required title="SIT Approved" {...fieldProps} />
-          <SwaggerField
-            fieldName="authorized_start_date"
-            swagger={storageInTransitSchema}
-            title="Earliest authorized start"
-            required
-          />
+          {storageInTransit.status === 'APPROVED' ? (
+            <SwaggerField
+              fieldName="authorized_start_date"
+              swagger={storageInTransitSchema}
+              title="Earliest authorized start"
+              required
+            />
+          ) : (
+            <PanelField
+              value="n/a"
+              fieldName="authorized_start_date"
+              required
+              title="Earliest authorized start"
+              {...fieldProps}
+            />
+          )}
           <SwaggerField
             className="sit-approval-field"
             fieldName="authorization_notes"
             title="Note from reviewer"
             swagger={storageInTransitSchema}
           />
-          <PanelField value="9999999999" fieldName="sit_number" title="SIT number" {...fieldProps} />
+          <PanelField value="n/a" fieldName="sit_number" title="SIT number" {...fieldProps} />
           <div className="panel-field">
             <span className="field-value warehouse-field-margin">Warehouse</span>
             <span className="field-title">{storageInTransit.warehouse_name}</span>

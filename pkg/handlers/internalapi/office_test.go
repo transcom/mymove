@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 
 	officeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -109,7 +110,11 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 
 	selectedMoveType := models.SelectedMoveTypePPM
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	moveOptions := models.MoveOptions{
+		SelectedType: &selectedMoveType,
+		Show:         swag.Bool(true),
+	}
+	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())

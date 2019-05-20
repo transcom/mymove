@@ -6,13 +6,12 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
-	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/notifications"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/notifications"
 )
 
 const (
@@ -39,13 +38,12 @@ func CheckEmail(v *viper.Viper) error {
 	}
 
 	if emailBackend == "ses" {
-		// SES is only available in 3 regions: us-east-1, us-west-2, and eu-west-1
-		// - see https://docs.aws.amazon.com/ses/latest/DeveloperGuide/regions.html#region-endpoints
-		if r := v.GetString("aws-ses-region"); len(r) == 0 || !stringSliceContains([]string{"us-east-1", "us-west-2", "eu-west-1"}, r) {
-			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-ses-region"))
+		r := v.GetString(AWSSESRegionFlag)
+		if err := CheckAWSRegionForService(r, ses.ServiceName); err != nil {
+			return errors.Wrap(err, fmt.Sprintf("%s is invalid", AWSSESRegionFlag))
 		}
-		if h := v.GetString("aws-ses-domain"); len(h) == 0 {
-			return errors.Wrap(&errInvalidHost{Host: h}, fmt.Sprintf("%s is invalid", "aws-ses-domain"))
+		if h := v.GetString(AWSSESDomainFlag); len(h) == 0 {
+			return errors.Wrap(&errInvalidHost{Host: h}, fmt.Sprintf("%s is invalid", AWSSESDomainFlag))
 		}
 	}
 
@@ -63,11 +61,11 @@ func InitEmail(v *viper.Viper, logger Logger) notifications.NotificationSender {
 		logger.Info("Using ses email backend",
 			zap.String("region", awsSESRegion),
 			zap.String("domain", awsSESDomain))
-		sesSession, err := awssession.NewSession(&aws.Config{
+		sesSession, newSessionErr := awssession.NewSession(&aws.Config{
 			Region: aws.String(awsSESRegion),
 		})
-		if err != nil {
-			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
+		if newSessionErr != nil {
+			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(newSessionErr))
 		}
 		sesService := ses.New(sesSession)
 		return notifications.NewNotificationSender(sesService, awsSESDomain, logger)

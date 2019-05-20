@@ -104,30 +104,32 @@ export const DraftMoveSummary = props => {
 };
 
 export const SubmittedPpmMoveSummary = props => {
-  const { ppm } = props;
+  const { ppm, moveSubmitSuccess } = props;
   return (
     <Fragment>
       <div>
-        <Alert type="success" heading="Congrats - your move is submitted!">
-          Next, wait for approval. Once approved:<br />
-          <ul>
-            <li>
-              Get certified <strong>weight tickets</strong>, both empty &amp; full
-            </li>
-            <li>
-              Save <strong>expense receipts</strong>, including for storgage
-            </li>
-            <li>
-              Read the{' '}
-              <strong>
-                <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
-                  PPM info sheet
-                </a>
-              </strong>{' '}
-              for more info
-            </li>
-          </ul>
-        </Alert>
+        {moveSubmitSuccess && (
+          <Alert type="success" heading="Congrats - your move is submitted!">
+            Next, wait for approval. Once approved:<br />
+            <ul>
+              <li>
+                Get certified <strong>weight tickets</strong>, both empty &amp; full
+              </li>
+              <li>
+                Save <strong>expense receipts</strong>, including for storgage
+              </li>
+              <li>
+                Read the{' '}
+                <strong>
+                  <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
+                    PPM info sheet
+                  </a>
+                </strong>{' '}
+                for more info
+              </li>
+            </ul>
+          </Alert>
+        )}
 
         <div className="shipment_box">
           <div className="shipment_type">
@@ -145,7 +147,8 @@ export const SubmittedPpmMoveSummary = props => {
                     You'll be notified when your move is approved (up to 3 days). To get ready to move:
                     <ul>
                       <li>
-                        Go to <a>weight scales</a> to get empty &amp; full weight tickets.
+                        Go to <a href="https://move.mil/resources/locator-maps">weight scales</a> to get empty &amp;
+                        full weight tickets.
                       </li>
                       <li>Save expense receipts, including for storage.</li>
                     </ul>
@@ -199,7 +202,7 @@ const getTenDaysBookedDate = bookDate => {
 
 const showHhgLandingPageText = shipment => {
   const today = moment();
-  if (shipment.status === 'DELIVERED' || shipment.status === 'COMPLETED') {
+  if (shipment.status === 'DELIVERED') {
     return (
       <div className="step">
         <div className="title">Next Step: Survey</div>
@@ -241,7 +244,7 @@ export const SubmittedHhgMoveSummary = props => {
   const moveId = get(move, 'id');
   const showAddShipmentLink =
     selectedMoveType === 'HHG' &&
-    includes(['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'], move.status);
+    includes(['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED'], move.status);
 
   return (
     <Fragment>
@@ -257,7 +260,7 @@ export const SubmittedHhgMoveSummary = props => {
             <div className="step-contents">
               <div className="status_box usa-width-two-thirds">
                 {showHhgLandingPageText(shipment)}
-                {(shipment.status === 'DELIVERED' || shipment.status === 'COMPLETED') && (
+                {shipment.status === 'DELIVERED' && (
                   <TransportationServiceProviderContactInfo showFileAClaimInfo shipmentId={shipment.id} />
                 )}
               </div>
@@ -462,7 +465,6 @@ const hhgSummaryStatusComponents = {
   APPROVED: SubmittedHhgMoveSummary,
   IN_TRANSIT: SubmittedHhgMoveSummary,
   DELIVERED: SubmittedHhgMoveSummary,
-  COMPLETED: SubmittedHhgMoveSummary,
   CANCELED: CanceledMoveSummary,
 };
 
@@ -483,10 +485,7 @@ const getHHGStatus = (moveStatus, shipment) => {
     return moveStatus;
   }
   const shipmentStatus = get(shipment, 'status', 'DRAFT');
-  return includes(
-    ['SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'],
-    shipmentStatus,
-  )
+  return includes(['SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED'], shipmentStatus)
     ? shipmentStatus
     : 'DRAFT';
 };
@@ -504,6 +503,7 @@ export const MoveSummary = props => {
     resumeMove,
     reviewProfile,
     requestPaymentSuccess,
+    moveSubmitSuccess,
     addPPMShipment,
   } = props;
   const moveStatus = get(move, 'status', 'DRAFT');
@@ -516,10 +516,9 @@ export const MoveSummary = props => {
   const PPMComponent = ppmSummaryStatusComponents[getPPMStatus(moveStatus, ppm, selectedMoveType)];
   const showAddShipmentLink =
     selectedMoveType === 'HHG' &&
-    includes(['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'], move.status);
+    includes(['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED'], move.status);
   const showTsp =
-    move.selected_move_type !== 'PPM' &&
-    includes(['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'], hhgStatus);
+    move.selected_move_type !== 'PPM' && includes(['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED'], hhgStatus);
   return (
     <div className="move-summary">
       {move.status === 'CANCELED' && (
@@ -564,6 +563,7 @@ export const MoveSummary = props => {
               entitlement={entitlement}
               resumeMove={resumeMove}
               reviewProfile={reviewProfile}
+              moveSubmitSuccess={moveSubmitSuccess}
               requestPaymentSuccess={requestPaymentSuccess}
             />
           )}

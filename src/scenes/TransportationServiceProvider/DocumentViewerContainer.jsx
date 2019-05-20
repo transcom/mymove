@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { loadShipmentDependencies } from './ducks';
+import { getPublicShipment, selectShipment } from 'shared/Entities/modules/shipments';
 import MoveDocumentView from 'shared/DocumentViewer/MoveDocumentView';
 import {
   getAllShipmentDocuments,
@@ -11,9 +11,8 @@ import { get } from 'lodash';
 
 const mapStateToProps = (state, ownProps) => {
   const { shipmentId, moveDocumentId } = ownProps.match.params;
-  const {
-    tsp: { shipment: { move = {}, service_member: serviceMember = {} } = {} },
-  } = state;
+  const shipment = selectShipment(state, shipmentId);
+  const { move = {}, service_member: serviceMember = {} } = shipment;
   const { locator: moveLocator } = move;
   const { edipi = '' } = serviceMember;
   const name = stringifyName(serviceMember);
@@ -40,7 +39,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   const { shipmentId } = ownProps.match.params;
   return {
     onDidMount: () => {
-      dispatch(loadShipmentDependencies(shipmentId));
+      dispatch(getPublicShipment(shipmentId));
       dispatch(getAllShipmentDocuments(shipmentId));
     },
   };

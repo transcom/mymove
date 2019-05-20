@@ -1,3 +1,21 @@
+@import 'shared/styles/fonts.scss';
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: $font-stack-primary;
+}
+
+.queue-heading {
+  margin-top: 0;
+}
+
+.queue-list-heading {
+  margin-top: 0.4em;
+}
+
 .queue-table {
   font-size: 0.75em;
   min-width: 1000px;
@@ -40,6 +58,10 @@
 
 .ReactTable .rt-thead .rt-resizable-header-content {
   text-align: left;
+}
+
+.rt-tr-group {
+  cursor: pointer;
 }
 
 /* Use with .usa-grid for a liquid and nearly full-width grid layout. */
@@ -421,4 +443,21 @@ head .panel-subhead {
 .notes {
   white-space: normal;
   word-wrap: break-word;
+}
+
+.ReactTable.-highlight .rt-tbody .rt-tr:not(.-padRow):hover {
+  background-color: #E2F1FB;
+  color: #0071bb
+}
+
+.refresh {
+  display: inline-block;
+  cursor: pointer;
+  margin-bottom: 0.3em;
+  padding: 0.3em 0;
+  border: 1px solid white;
+
+  &.focused {
+    border: 1px dashed gray;
+  }
 }

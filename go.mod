@@ -6,11 +6,11 @@ require (
 	github.com/0xAX/notificator v0.0.0-20181105090803-d81462e38c21 // indirect
 	github.com/99designs/aws-vault v0.0.0-20190321042810-2bec5348b22f
 	github.com/99designs/keyring v0.0.0-20190110203331-82da6802f65f
-	github.com/aws/aws-sdk-go v1.19.17
+	github.com/aws/aws-sdk-go v1.19.28
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
-	github.com/danieljoos/wincred v1.0.2-0.20190202162700-b892d337201d // indirect
+	github.com/danieljoos/wincred v1.0.2 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/dustin/go-humanize v1.0.0
 	github.com/facebookgo/clock v0.0.0-20150410010913-600d898af40a
@@ -28,13 +28,12 @@ require (
 	github.com/go-openapi/strfmt v0.19.0
 	github.com/go-openapi/swag v0.19.0
 	github.com/go-openapi/validate v0.19.0
-	github.com/go-swagger/go-swagger v0.19.1-0.20190418040917-7c42b9948129
-	github.com/gobuffalo/fizz v1.7.0 // indirect
-	github.com/gobuffalo/helpers v0.0.0-20190425165706-cddb8b03d1d1 // indirect
+	github.com/go-swagger/go-swagger v0.19.1-0.20190513062051-8ce1ff423c5a
+	github.com/gobuffalo/fizz v1.7.1 // indirect
+	github.com/gobuffalo/helpers v0.0.0-20190506214229-8e6f634af7c3 // indirect
 	github.com/gobuffalo/nulls v0.0.0-20190305142546-85f3c9250d87 // indirect
 	github.com/gobuffalo/packr v1.25.0
-	github.com/gobuffalo/pop v4.10.0+incompatible
-	github.com/gobuffalo/tags v2.1.0+incompatible // indirect
+	github.com/gobuffalo/pop v4.11.0+incompatible
 	github.com/gobuffalo/validate v2.0.3+incompatible
 	github.com/gobuffalo/x v0.0.0-20190224155809-6bb134105960 // indirect
 	github.com/godbus/dbus v0.0.0-20190422162347-ade71ed3457e // indirect
@@ -44,40 +43,41 @@ require (
 	github.com/honeycombio/beeline-go v0.4.4
 	github.com/honeycombio/libhoney-go v1.10.0 // indirect
 	github.com/imdario/mergo v0.3.7
-	github.com/jackc/pgx v3.3.0+incompatible // indirect
+	github.com/jackc/pgx v3.4.0+incompatible // indirect
 	github.com/jessevdk/go-flags v1.4.0
 	github.com/jmoiron/sqlx v1.2.0
-	github.com/jung-kurt/gofpdf v1.1.1
-	github.com/karrick/godirwalk v1.8.2 // indirect
-	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
+	github.com/jung-kurt/gofpdf v1.4.0
+	github.com/karrick/godirwalk v1.10.3 // indirect
+	github.com/lib/pq v1.1.1
 	github.com/markbates/going v1.0.3 // indirect
-	github.com/markbates/goth v1.50.0
+	github.com/markbates/goth v1.51.0
 	github.com/mattn/go-shellwords v1.0.5 // indirect
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/namsral/flag v1.7.4-alpha.0.20170814194028-67f268f20922
+	github.com/onsi/ginkgo v1.8.0 // indirect
+	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/rickar/cal v1.0.1
 	github.com/rogpeppe/go-internal v1.3.0
-	github.com/segmentio/chamber v0.0.0-20190313180807-07d3d8eeb33f
+	github.com/segmentio/chamber v0.0.0-20190506230340-4ac61adfff7e
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cobra v0.0.4-0.20190321000552-67fc4837d267
 	github.com/spf13/pflag v1.0.4-0.20181223182923-24fa6976df40
 	github.com/spf13/viper v1.3.3-0.20190408140645-7a605a50e69c
-	github.com/stretchr/testify v1.3.0
+	github.com/stretchr/testify v1.3.1-0.20190311161405-34c6fa2dc709
 	github.com/tealeg/xlsx v1.0.3
 	github.com/trussworks/pdfcpu v0.1.15-0.20180823221217-a53781a43f9d
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
-	go.uber.org/atomic v1.3.2 // indirect
+	go.uber.org/atomic v1.4.0 // indirect
 	go.uber.org/multierr v1.1.0 // indirect
-	go.uber.org/zap v1.9.1
+	go.uber.org/zap v1.10.0
 	goji.io v2.0.2+incompatible
-	golang.org/x/crypto v0.0.0-20190424203555-c05e17bb3b2d
+	golang.org/x/crypto v0.0.0-20190510104115-cbcb75029529
 	golang.org/x/lint v0.0.0-20190409202823-959b441ac422
-	golang.org/x/net v0.0.0-20190424112056-4829fb13d2c6
+	golang.org/x/net v0.0.0-20190509222800-a4d6f7feada5
 	golang.org/x/oauth2 v0.0.0-20190402181905-9f3314589c9a // indirect
-	golang.org/x/sys v0.0.0-20190416152802-12500544f89f // indirect
-	golang.org/x/text v0.3.1
-	golang.org/x/tools v0.0.0-20190425163242-31fd60d6bfdc
+	golang.org/x/text v0.3.2
+	golang.org/x/tools v0.0.0-20190511041617-99f201b6807e
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/alexcesaro/statsd.v2 v2.0.0 // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect

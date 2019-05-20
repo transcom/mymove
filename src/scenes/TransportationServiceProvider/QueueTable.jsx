@@ -73,7 +73,7 @@ class QueueTable extends Component {
 
     return (
       <div>
-        <h1>Queue: {titles[this.props.queueType]}</h1>
+        <h1 className="queue-heading">Queue: {titles[this.props.queueType]}</h1>
         <div className="queue-table">
           <ReactTable
             columns={[
@@ -98,6 +98,7 @@ class QueueTable extends Component {
               {
                 Header: 'Locator #',
                 accessor: 'move.locator',
+                Cell: row => <span data-cy="locator">{row.value}</span>,
               },
               {
                 Header: 'Channel',

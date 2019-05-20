@@ -226,7 +226,7 @@ func (suite *HandlerSuite) TestApproveStorageInTransitHandler() {
 
 	payload := apimessages.StorageInTransitApprovalPayload{
 		AuthorizedStartDate: *handlers.FmtDate(testdatagen.DateInsidePeakRateCycle),
-		AuthorizationNotes:  *handlers.FmtString("looks good to me"),
+		AuthorizationNotes:  handlers.FmtString("looks good to me"),
 	}
 
 	path := fmt.Sprintf("/shipments/%s/storage_in_transits/%s/approve", shipmentID, storageInTransitID)
@@ -317,10 +317,10 @@ func (suite *HandlerSuite) TestDenyStorageInTransitHandler() {
 	req := httptest.NewRequest("POST", path, nil)
 	req = suite.AuthenticateOfficeRequest(req, user)
 	params := sitop.DenyStorageInTransitParams{
-		HTTPRequest:                     req,
-		ShipmentID:                      strfmt.UUID(shipmentID.String()),
-		StorageInTransitID:              strfmt.UUID(storageInTransitID.String()),
-		StorageInTransitApprovalPayload: &payload,
+		HTTPRequest:                 req,
+		ShipmentID:                  strfmt.UUID(shipmentID.String()),
+		StorageInTransitID:          strfmt.UUID(storageInTransitID.String()),
+		StorageInTransitDenyPayload: &payload,
 	}
 
 	storageInTransitDenier := &mocks.StorageInTransitDenier{}

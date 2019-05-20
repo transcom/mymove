@@ -133,6 +133,54 @@ const HHGTabContent = props => {
   );
 };
 
+const ReferrerQueueLink = props => {
+  const pathname = props.history.location.state ? props.history.location.state.referrerPathname : '';
+  switch (pathname) {
+    case '/queues/new':
+      return (
+        <NavLink to="/queues/new" activeClassName="usa-current">
+          <span>New Moves Queue</span>
+        </NavLink>
+      );
+    case '/queues/ppm':
+      return (
+        <NavLink to="/queues/ppm" activeClassName="usa-current">
+          <span>PPM Queue</span>
+        </NavLink>
+      );
+    case '/queues/hhg_accepted':
+      return (
+        <NavLink to="/queues/hhg_accepted" activeClassName="usa-current">
+          <span>Accepted HHG Queue</span>
+        </NavLink>
+      );
+    case '/queues/hhg_delivered':
+      return (
+        <NavLink to="/queues/hhg_delivered" activeClassName="usa-current">
+          <span>Delivered HHG Queue</span>
+        </NavLink>
+      );
+    case '/queues/hhg_completed':
+      return (
+        <NavLink to="/queues/hhg_completed" activeClassName="usa-current">
+          <span>Completed HHG Queue</span>
+        </NavLink>
+      );
+    case '/queues/all':
+      return (
+        <NavLink to="/queues/all" activeClassName="usa-current">
+          <span>All Moves Queue</span>
+        </NavLink>
+      );
+    default:
+      return (
+        <NavLink to="/queues/new" activeClassName="usa-current">
+          <span>New Moves Queue</span>
+        </NavLink>
+      );
+  }
+};
+
 class MoveInfo extends Component {
   state = {
     redirectToHome: false,
@@ -181,7 +229,7 @@ class MoveInfo extends Component {
     const isHHG = selected_move_type === 'HHG';
     const moveApproved = moveStatus === 'APPROVED';
     const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
-    const hhgApproved = includes(['APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
+    const hhgApproved = includes(['APPROVED', 'IN_TRANSIT', 'DELIVERED'], shipmentStatus);
 
     if (isPPM) {
       return moveApproved && ppmApproved;
@@ -210,7 +258,8 @@ class MoveInfo extends Component {
   };
 
   approveShipment = () => {
-    this.props.approveShipment(this.props.shipmentId);
+    const approveDate = moment().format();
+    this.props.approveShipment(this.props.shipmentId, approveDate);
   };
 
   cancelMoveAndRedirect = cancelReason => {
@@ -277,12 +326,11 @@ class MoveInfo extends Component {
     );
     const ppmPaymentRequested = includes(['PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
-    const hhgApproved = includes(['APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
+    const hhgApproved = includes(['APPROVED', 'IN_TRANSIT', 'DELIVERED'], shipmentStatus);
     const hhgAccepted = shipmentStatus === 'ACCEPTED';
     const hhgDelivered = shipmentStatus === 'DELIVERED';
-    const hhgCompleted = shipmentStatus === 'COMPLETED';
     const moveApproved = moveStatus === 'APPROVED';
-    const hhgCantBeCanceled = includes(['IN_TRANSIT', 'DELIVERED', 'COMPLETED'], shipmentStatus);
+    const hhgCantBeCanceled = includes(['IN_TRANSIT', 'DELIVERED'], shipmentStatus);
 
     const hasRequestedSIT = !isEmpty(storageInTransits) && some(storageInTransits, sit => sit.status === 'REQUESTED');
 
@@ -312,9 +360,7 @@ class MoveInfo extends Component {
             </h1>
           </div>
           <div className="usa-width-one-third nav-controls">
-            <NavLink to="/queues/new" activeClassName="usa-current">
-              <span>New Moves Queue</span>
-            </NavLink>
+            <ReferrerQueueLink history={this.props.history} />
           </div>
         </div>
         <div className="usa-grid grid-wide">
@@ -342,7 +388,9 @@ class MoveInfo extends Component {
           <div className="usa-width-three-fourths">
             <RoutedTabs startPathWith={this.props.match.url}>
               <NavTab to="/basics">
-                <span className="title">Basics</span>
+                <span className="title" data-cy="basics-tab">
+                  Basics
+                </span>
                 <span className="status">
                   <FontAwesomeIcon className="icon" icon={faPlayCircle} />
                   {capitalize(this.props.moveStatus)}
@@ -350,13 +398,17 @@ class MoveInfo extends Component {
               </NavTab>
               {(isPPM || isHHGPPM) && (
                 <NavTab to="/ppm">
-                  <span className="title">PPM</span>
+                  <span className="title" data-cy="ppm-tab">
+                    PPM
+                  </span>
                   {this.renderPPMTabStatus()}
                 </NavTab>
               )}
               {(isHHG || isHHGPPM) && (
                 <NavTab to="/hhg">
-                  <span className="title">HHG</span>
+                  <span className="title" data-cy="hhg-tab">
+                    HHG
+                  </span>
                   <span className="status">
                     {hasRequestedSIT ? (
                       <SitStatusIcon isTspSite={false} />
@@ -374,7 +426,12 @@ class MoveInfo extends Component {
                 <PrivateRoute
                   exact
                   path={`${this.props.match.url}`}
-                  render={() => <Redirect replace to={`${this.props.match.url}/basics`} />}
+                  render={() => (
+                    <Redirect
+                      replace
+                      to={{ pathname: `${this.props.match.url}/basics`, state: this.props.history.location.state }}
+                    />
+                  )}
                 />
                 <PrivateRoute path={`${this.props.match.path}/basics`}>
                   <BasicsTabContent moveId={this.props.moveId} serviceMember={this.props.serviceMember} />
@@ -434,7 +491,7 @@ class MoveInfo extends Component {
                           <DropDownItem
                             value="Approve HHG"
                             onClick={this.approveShipment}
-                            disabled={!hhgAccepted || hhgApproved || hhgCompleted || !moveApproved || !ordersComplete}
+                            disabled={!hhgAccepted || hhgApproved || !moveApproved || !ordersComplete}
                           />
                         )}
                       </DropDown>
@@ -575,4 +632,5 @@ const mapDispatchToProps = dispatch =>
     dispatch,
   );
 
-export default withContext(connect(mapStateToProps, mapDispatchToProps)(MoveInfo));
+const connectedMoveInfo = withContext(connect(mapStateToProps, mapDispatchToProps)(MoveInfo));
+export { connectedMoveInfo as default, ReferrerQueueLink };

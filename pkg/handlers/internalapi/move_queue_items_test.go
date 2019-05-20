@@ -26,9 +26,11 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 		//  A set of orders and a move belonging to those orders
 		order := testdatagen.MakeDefaultOrder(suite.DB())
 
+		moveShow := true
 		newMove := models.Move{
 			OrdersID: order.ID,
 			Status:   models.MoveStatus(status),
+			Show:     &moveShow,
 		}
 		suite.MustSave(&newMove)
 
@@ -88,4 +90,58 @@ func (suite *HandlerSuite) TestShowQueueHandlerForbidden() {
 		// Then: Expect a 403 status code
 		suite.Assertions.IsType(&queueop.ShowQueueForbidden{}, showResponse)
 	}
+}
+
+func (suite *HandlerSuite) TestGetMoveQueueItemsComboMoveDate() {
+	suite.SetupTest()
+
+	// Given: An office user
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	// Make a PPM
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{},
+	})
+
+	move := &ppm.Move
+	move.Status = "SUBMITTED"
+	suite.DB().Save(move)
+
+	pickupDate := testdatagen.NextValidMoveDate
+
+	// Make a shipment
+	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
+		Shipment: models.Shipment{
+			RequestedPickupDate: &pickupDate,
+			ActualPickupDate:    &pickupDate,
+			Status:              models.ShipmentStatusSUBMITTED,
+			Move:                ppm.Move,
+			MoveID:              ppm.Move.ID,
+		},
+	})
+
+	// And: the context contains the auth values
+	path := "/queues/new"
+	req := httptest.NewRequest("GET", path, nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+	params := queueop.ShowQueueParams{
+		HTTPRequest: req,
+		QueueType:   "new",
+	}
+
+	// And: show Queue is queried
+	showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	showResponse := showHandler.Handle(params)
+
+	// Then: Expect a 200 status code
+	okResponse := showResponse.(*queueop.ShowQueueOK)
+
+	suite.NotEmpty(okResponse.Payload)
+
+	moveQueueItem := okResponse.Payload[0]
+
+	// And: expect the moveQueueItem's move date to be the actual pickup date
+	expectedMoveDate := fmt.Sprintf("%v", handlers.FmtDate(*shipment.ActualPickupDate))
+	actualMoveDate := fmt.Sprintf("%v", *moveQueueItem.MoveDate)
+	suite.Equal(expectedMoveDate, actualMoveDate)
 }

@@ -113,7 +113,6 @@ export const validateRequiredFields = (values, form) => {
 export const validateAdditionalFields = additionalFields => {
   return (values, form) => {
     let errors = {};
-
     additionalFields.forEach(fieldName => {
       if (values[fieldName] === undefined || values[fieldName] === '' || values[fieldName] === null) {
         errors[fieldName] = 'Required.';

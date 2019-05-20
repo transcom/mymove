@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { reduxForm } from 'redux-form';
+import { selectShipment } from 'shared/Entities/modules/shipments';
 
 let PremoveSurveyForm = props => {
   const { schema, onCancel, handleSubmit, submitting, valid } = props;
@@ -60,7 +61,8 @@ PremoveSurveyForm.propTypes = {
 };
 
 const mapStateToProps = (state, ownProps) => {
-  const { shipment } = state.tsp;
+  const { shipmentId } = ownProps;
+  const shipment = selectShipment(state, shipmentId);
   return {
     ...ownProps,
     initialValues: shipment,

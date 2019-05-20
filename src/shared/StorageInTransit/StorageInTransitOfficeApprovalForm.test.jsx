@@ -38,7 +38,7 @@ describe('StorageInTransitOfficeApprovalForm tests', () => {
     );
 
     it('renders without crashing', () => {
-      expect(wrapper.find('.storage-in-transit-form').length).toEqual(1);
+      expect(wrapper.find('[data-cy="storage-in-transit-office-approval-form"]').length).toEqual(1);
     });
   });
 });

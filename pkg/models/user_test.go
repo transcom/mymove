@@ -93,9 +93,10 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 
 	alice := testdatagen.MakeDefaultUser(suite.DB())
 	identity, err = FetchUserIdentity(suite.DB(), alice.LoginGovUUID.String())
-	suite.Nil(err, "loading sally's identity")
+	suite.Nil(err, "loading alice's identity")
 	suite.NotNil(identity)
 	suite.Equal(alice.ID, identity.ID)
+	suite.False(identity.IsSuperuser)
 	suite.Equal(alice.LoginGovEmail, identity.Email)
 	suite.Nil(identity.ServiceMemberID)
 	suite.Nil(identity.OfficeUserID)
@@ -106,6 +107,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Nil(err, "loading bob's identity")
 	suite.NotNil(identity)
 	suite.Equal(bob.UserID, identity.ID)
+	suite.False(identity.IsSuperuser)
 	suite.Equal(bob.User.LoginGovEmail, identity.Email)
 	suite.Equal(bob.ID, *identity.ServiceMemberID)
 	suite.Nil(identity.OfficeUserID)
@@ -116,6 +118,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Nil(err, "loading carol's identity")
 	suite.NotNil(identity)
 	suite.Equal(*carol.UserID, identity.ID)
+	suite.False(identity.IsSuperuser)
 	suite.Equal(carol.User.LoginGovEmail, identity.Email)
 	suite.Nil(identity.ServiceMemberID)
 	suite.Equal(carol.ID, *identity.OfficeUserID)
@@ -126,10 +129,26 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Nil(err, "loading danielle's identity")
 	suite.NotNil(identity)
 	suite.Equal(*danielle.UserID, identity.ID)
+	suite.False(identity.IsSuperuser)
 	suite.Equal(danielle.User.LoginGovEmail, identity.Email)
 	suite.Nil(identity.ServiceMemberID)
 	suite.Nil(identity.OfficeUserID)
 	suite.Equal(danielle.ID, *identity.TspUserID)
+
+	superuser := testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
+		User: User{
+			IsSuperuser: true,
+		},
+	})
+	identity, err = FetchUserIdentity(suite.DB(), superuser.LoginGovUUID.String())
+	suite.Nil(err, "loading superuser's identity")
+	suite.NotNil(identity)
+	suite.Equal(superuser.ID, identity.ID)
+	suite.True(identity.IsSuperuser)
+	suite.Equal(superuser.LoginGovEmail, identity.Email)
+	suite.Nil(identity.ServiceMemberID)
+	suite.Nil(identity.OfficeUserID)
+	suite.Nil(identity.TspUserID)
 }
 
 func (suite *ModelSuite) TestFetchAllUserIdentities() {
@@ -137,25 +156,39 @@ func (suite *ModelSuite) TestFetchAllUserIdentities() {
 	testdatagen.MakeDefaultServiceMember(suite.DB())
 	testdatagen.MakeDefaultOfficeUser(suite.DB())
 	testdatagen.MakeDefaultTspUser(suite.DB())
+	testdatagen.MakeUser(suite.DB(), testdatagen.Assertions{
+		User: User{
+			IsSuperuser: true,
+		},
+	})
 
 	identities, err := FetchAllUserIdentities(suite.DB())
 	suite.Nil(err)
 	suite.NotEmpty(identities)
-	suite.Equal(len(identities), 4)
+	suite.Equal(len(identities), 5)
 
 	suite.Nil(identities[0].ServiceMemberID)
 	suite.Nil(identities[0].OfficeUserID)
 	suite.Nil(identities[0].TspUserID)
+	suite.False(identities[0].IsSuperuser)
 
 	suite.NotNil(identities[1].ServiceMemberID)
 	suite.Nil(identities[1].OfficeUserID)
 	suite.Nil(identities[1].TspUserID)
+	suite.False(identities[1].IsSuperuser)
 
 	suite.Nil(identities[2].ServiceMemberID)
 	suite.NotNil(identities[2].OfficeUserID)
 	suite.Nil(identities[2].TspUserID)
+	suite.False(identities[2].IsSuperuser)
 
 	suite.Nil(identities[3].ServiceMemberID)
 	suite.Nil(identities[3].OfficeUserID)
 	suite.NotNil(identities[3].TspUserID)
+	suite.False(identities[3].IsSuperuser)
+
+	suite.Nil(identities[0].ServiceMemberID)
+	suite.Nil(identities[0].OfficeUserID)
+	suite.Nil(identities[0].TspUserID)
+	suite.True(identities[4].IsSuperuser)
 }

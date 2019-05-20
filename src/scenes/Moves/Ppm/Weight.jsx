@@ -190,7 +190,7 @@ export class PpmWeight extends Component {
     const ppmBody = {
       weight_estimate: this.state.pendingPpmWeight,
     };
-    if (advanceFormValues.has_requested_advance) {
+    if (advanceFormValues && advanceFormValues.has_requested_advance) {
       ppmBody.has_requested_advance = true;
       const requestedAmount = convertDollarsToCents(advanceFormValues.requested_amount);
       ppmBody.advance = {
