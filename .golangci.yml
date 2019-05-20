@@ -1,0 +1,27 @@
+linters-settings:
+  govet:
+    check-shadowing: true
+    settings:
+      printf:
+        funcs:
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Infof
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
+linters:
+  enable:
+     - govet
+#    - gosec
+#    - deadcode
+#    - errcheck
+#    - gosimple
+#    - ineffassign
+#    - staticcheck
+#    - structcheck
+#    - typecheck
+#    - varcheck
+#    - goimports
+#    - gofmt
+#    - golint
+  disable:
+    - unused #deprecated https://github.com/dominikh/go-tools/tree/master/cmd/unused

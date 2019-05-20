@@ -27,6 +27,11 @@ repos:
       - id: trailing-whitespace
         exclude: public/swagger-ui/*
 
+  - repo: git://github.com/golangci/golangci-lint
+    rev: v1.16.0
+    hooks:
+      - id: golangci-lint
+
   - repo: git://github.com/igorshubovych/markdownlint-cli
     rev: v0.16.0
     hooks:
@@ -88,15 +93,6 @@ repos:
         language: script
         files: \.go$
         exclude: pkg/tools/
-
-  - repo: local
-    hooks:
-    - id: go-vet
-      name: go vet
-      entry: scripts/pre-commit-go-vet
-      language: script
-      files: \.go$
-      pass_filenames: false
 
   - repo: local
     hooks:
