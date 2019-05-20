@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190507213921_add_access_codes.sql")
