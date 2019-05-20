@@ -3,30 +3,32 @@ import { reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
-import { uniqueId } from 'lodash';
 
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 import WizardHeader from '../WizardHeader';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-
+import RadioButton from 'shared/RadioButton';
 import './PPMPaymentRequest.css';
 import Uploader from 'shared/Uploader';
 
 class WeightTicket extends Component {
   state = {
-    value: 'Yes',
+    vehicleType: '',
+    additionalWeightTickets: 'Yes',
   };
 
-  labelIdle = 'Drag & drop or <span class="filepond--label-action">click to upload upload empty weight ticket</span>';
-
-  handleRadioChange = event => {
-    this.setState({ value: event.target.value });
+  //  handleChange for vehicleType and additionalWeightTickets
+  handleChange = (event, type) => {
+    this.setState({ [type]: event.target.value });
   };
 
   render() {
-    const { value } = this.state;
+    const { additionalWeightTickets, vehicleType } = this.state;
     const { schema } = this.props;
+    const labelIdle =
+      'Drag & drop or <span class="filepond--label-action">click to upload upload empty weight ticket</span>';
+
     return (
       <Fragment>
         <WizardHeader
@@ -43,62 +45,78 @@ class WeightTicket extends Component {
           <SwaggerField
             fieldName="vehicle_options"
             swagger={schema}
-            onChange={this.handleChange}
-            value={this.state.value}
+            onChange={event => this.handleChange(event, 'vehicleType')}
+            value={vehicleType}
             required
           />
           <SwaggerField fieldName="vehicle_nickname" swagger={schema} required />
-          <div className="dashed-divider" />
+          {(vehicleType === 'CAR' || vehicleType === 'BOX_TRUCK') && (
+            <>
+              <div className="dashed-divider" />
 
-          <div className="usa-grid-full">
-            <div className="usa-width-one-third">
-              <SwaggerField className="short-field" fieldName="empty_weight" swagger={schema} title=" " required /> lbs
-            </div>
-            <div className="usa-width-two-third">
-              <Uploader options={{ labelIdle: this.labelIdle }} />
-            </div>
-          </div>
+              <div className="usa-grid-full" style={{ marginTop: '1em' }}>
+                <div className="usa-width-one-third">
+                  <strong className="input-header">Empty Weight</strong>
+                  <SwaggerField
+                    className="short-field"
+                    fieldName="empty_weight"
+                    swagger={schema}
+                    hideLabel
+                    required
+                  />{' '}
+                  lbs
+                </div>
+                <div className="usa-width-two-third uploader-wrapper">
+                  <Uploader options={{ labelIdle }} />
+                </div>
+              </div>
 
-          <div className="usa-grid-full">
-            <div className="usa-width-one-third">
-              <SwaggerField
-                className="short-field"
-                fieldName="full_weight"
-                swagger={schema}
-                title="Full weight at destination"
-                required
-              />{' '}
-              lbs
-            </div>
+              <div className="usa-grid-full" style={{ marginTop: '1em' }}>
+                <div className="usa-width-one-third">
+                  <strong className="input-header">Full Weight</strong>
+                  <label className="full-weight-label">Full weight at destination</label>
+                  <SwaggerField
+                    className="short-field"
+                    fieldName="full_weight"
+                    swagger={schema}
+                    hideLabel
+                    required
+                  />{' '}
+                  lbs
+                </div>
 
-            <div className="usa-width-two-third uploader-container">
-              <Uploader options={{ labelIdle: this.labelIdle }} />
-            </div>
-          </div>
+                <div className="usa-width-two-third uploader-wrapper">
+                  <Uploader options={{ labelIdle }} />
+                </div>
+              </div>
 
-          <SwaggerField fieldName="weight_ticket_date" swagger={schema} required />
-          <div className="dashed-divider" />
+              <SwaggerField fieldName="weight_ticket_date" swagger={schema} required />
+              <div className="dashed-divider" />
 
-          <p className="radio-group-header">Do you have more weight tickets for another vehicle or trip?</p>
-          <RadioBtn
-            inputClassName="inline_radio"
-            labelClassName="inline_radio"
-            label="Yes"
-            value="Yes"
-            name="additional_weight_ticket"
-            checked={value === 'Yes'}
-            onChange={this.handleRadioChange}
-          />
+              <div className="radio-group-wrapper">
+                <p className="radio-group-header">Do you have more weight tickets for another vehicle or trip?</p>
+                <RadioButton
+                  inputClassName="inline_radio"
+                  labelClassName="inline_radio"
+                  label="Yes"
+                  value="Yes"
+                  name="additional_weight_ticket"
+                  checked={additionalWeightTickets === 'Yes'}
+                  onChange={event => this.handleChange(event, 'additionalWeightTickets')}
+                />
 
-          <RadioBtn
-            inputClassName="inline_radio"
-            labelClassName="inline_radio"
-            label="No"
-            value="No"
-            name="additional_weight_ticket"
-            checked={value === 'No'}
-            onChange={this.handleRadioChange}
-          />
+                <RadioButton
+                  inputClassName="inline_radio"
+                  labelClassName="inline_radio"
+                  label="No"
+                  value="No"
+                  name="additional_weight_ticket"
+                  checked={additionalWeightTickets === 'No'}
+                  onChange={event => this.handleChange(event, 'additionalWeightTickets')}
+                />
+              </div>
+            </>
+          )}
 
           {/* TODO: change onclick handler to go to next page in flow */}
           <PPMPaymentRequestActionBtns onClick={() => {}} nextBtnLabel="Save & Add Another" />
@@ -107,25 +125,6 @@ class WeightTicket extends Component {
     );
   }
 }
-const RadioBtn = ({ name, label, onChange, value, checked, inputClassName, labelClassName }) => {
-  const radioId = uniqueId(label);
-  return (
-    <>
-      <input
-        className={inputClassName}
-        id={radioId}
-        type="radio"
-        name={name}
-        value={value}
-        checked={checked}
-        onChange={onChange}
-      />
-      <label className={labelClassName} htmlFor={radioId}>
-        {label}
-      </label>
-    </>
-  );
-};
 
 const formName = 'weight_ticket_wizard';
 WeightTicket = reduxForm({
