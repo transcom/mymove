@@ -451,6 +451,7 @@ jobs:
             DB_HOST: localhost
             DB_PORT: 5432
             DB_NAME: test_db
+            MIGRATION_PATH: /home/circleci/go/src/github.com/transcom/mymove/migrations
             SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
       - announce_failure
@@ -495,6 +496,7 @@ jobs:
             DB_HOST: localhost
             DB_PORT: 5432
             DB_NAME: test_db
+            MIGRATION_PATH: /home/circleci/go/src/github.com/transcom/mymove/migrations
             SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
           working_directory: /home/circleci/go/src/github.com/transcom/mymove
