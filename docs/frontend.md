@@ -118,7 +118,7 @@ Adhere to Airbnb's [JavaScript Style Guide](https://github.com/airbnb/javascript
 
 ### Styling Standards
 
-MilMove is transitioning from anarchistic styling to more organized and standardized styling, so much of the existing code is not yet organized to the current standards.  You can find an example of refactored code styling of `InvoicePane.jsx` in `InvoicePanel.modules.scss` and its child components and corresponding stylesheets.  All new components/styling should utilize the below standards. When we touch an existing component, we should try to adjust the styling to follow the standards.
+MilMove is transitioning from anarchistic styling to more organized and standardized styling, so much of the existing code is not yet organized to the current standards.  You can find an example of refactored code styling of `InvoicePane.jsx` in `InvoicePanel.module.scss` and its child components and corresponding stylesheets.  All new components/styling should utilize the below standards. When we touch an existing component, we should try to adjust the styling to follow the standards.
 
 #### Using Sass and CSS Modules
 
@@ -128,11 +128,11 @@ MilMove is transitioning from anarchistic styling to more organized and standard
   * For global styles, such as colors and themes, utilize global variables in files such as `colors.scss`
   * Styles shared across the app should go into `src/shared/styles`.  Most common styles can fit into `common.module.scss`, though additional files may be appropriate.
   * Styles unique to a component should go into a corresponding component style file (`<component>.module.sccss`)
-  * Sibling components that share styles: share styles through the parent component's stylesheet (ex. `StorageInTransitApproveForm.jsx` and `StorageInTransitDenyForm.jsx` could share styles that would go into their parent `StorageInTransit.jsx`'s stylesheet `StorageInTransit.modules.scss`)
+  * Sibling components that share styles: share styles through the parent component's stylesheet (ex. `StorageInTransitApproveForm.jsx` and `StorageInTransitDenyForm.jsx` could share styles that would go into their parent `StorageInTransit.jsx`'s stylesheet `StorageInTransit.module.scss`)
 * Syntax
-  * Import styles from a component's stylesheet as `import styles from 'InvoicePanel.modules.scss'`.  If more than one stylesheet needs to be imported, use `styles` for the component's style, and another name for the secondary stylesheets (ex. `iconStyles`)
+  * Import styles from a component's stylesheet as `import styles from 'InvoicePanel.module.scss'`.  If more than one stylesheet needs to be imported, use `styles` for the component's style, and another name for the secondary stylesheets (ex. `iconStyles`)
   * Access the styles with dot notation `styles.myclassname`.  If the class name uses a hyphen, like `invoice-panel`, it must be accessed with this notation: `styles['invoice-panel']`
-  * If fewer than 50% of the styles are used from a stylesheet, import only the styles used (ex. `import { myclassname } from 'MyComponent.modules.scss'`)
+  * If fewer than 50% of the styles are used from a stylesheet, import only the styles used (ex. `import { myclassname } from 'MyComponent.module.scss'`)
 * Tests
   * Add `data-cy` as an attribute on the elements you want to identify in your tests, and use that attribute instead of the class name to identify an element in your test (see [Cypress best practices](https://docs.cypress.io/guides/references/best-practices.html#Selecting-Elements)).  CSS modules tags on a unique identifier to create local classes.  This means that tests that use just the class name will fail.
   * Ex. Rather than `cy.get('.invoice-detail')`, use `cy.get('[data-cy="invoice-detail"]')` when your element looks like `<div classname=styles["invoice-detail"] data-cy="invoice-detail"></div>`
