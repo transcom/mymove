@@ -116,7 +116,7 @@ export class Landing extends Component {
     return (
       <div className="usa-grid">
         {loggedInUserIsLoading && <LoadingPlaceholder />}
-        {!isLoggedIn && <SignIn location={this.props.location} />}
+        {!isLoggedIn && !loggedInUserIsLoading && <SignIn location={this.props.location} />}
         {loggedInUserSuccess && (
           <Fragment>
             <div>
@@ -159,6 +159,7 @@ export class Landing extends Component {
                   resumeMove={this.resumeMove}
                   reviewProfile={this.reviewProfile}
                   requestPaymentSuccess={requestPaymentSuccess}
+                  moveSubmitSuccess={moveSubmitSuccess}
                   updateMove={updateMove}
                   addPPMShipment={this.addPPMShipment}
                 />

@@ -199,8 +199,10 @@ bin/rds-combined-ca-bundle.pem:
 
 ### MilMove Targets
 
-bin/compare-secure-migrations:
-	go build -i -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare_secure_migrations
+# server_deps and server_generate required for this binary, because go build expects
+# github.com/transcom/mymove/pkg/gen/internalmessages, even though it is not used for this program.
+bin/compare-secure-migrations: server_deps server_generate
+	go build -i -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
 
 bin/ecs-deploy-task-container: server_deps server_generate
 	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-deploy-task-container ./cmd/ecs-deploy-task-container
@@ -210,6 +212,9 @@ bin/ecs-service-logs:
 
 bin/generate-1203-form: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
+
+bin/generate-access-codes: .server_generate.stamp
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
 
 bin/generate-shipment-edi: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-edi ./cmd/generate_shipment_edi
@@ -223,8 +228,8 @@ bin/generate-test-data: pkg/assets/assets.go .server_generate.stamp
 bin_linux/generate-test-data: pkg/assets/assets.go .server_generate_linux.stamp
 	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate_test_data
 
-bin/health_checker:
-	go build -i -ldflags "$(LDFLAGS)" -o bin/health_checker ./cmd/health_checker
+bin/health-checker:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/health-checker ./cmd/health-checker
 
 bin/iws:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/iws/iws.go
@@ -246,6 +251,11 @@ bin/make-tsp-user: .server_generate.stamp
 
 bin/milmove: .server_generate.stamp
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
+
+bin/renderer:
+	# do not build with LDFLAGS since errors on alpine and dynamic linking is fine
+	# throws errors loadinternal: cannot find runtime/cgo
+	go build -i -o bin/renderer ./cmd/renderer
 
 bin/save-fuel-price-data: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
@@ -340,16 +350,18 @@ build_tools: server_deps \
 	bin/ecs-deploy-task-container \
 	bin/ecs-service-logs \
 	bin/generate-1203-form \
+	bin/generate-access-codes \
 	bin/generate-shipment-edi \
 	bin/generate-shipment-summary \
 	bin/generate-test-data \
-	bin/health_checker \
+	bin/health-checker \
 	bin/iws \
 	bin/load-office-data \
 	bin/load-user-gen \
 	bin/make-dps-user \
 	bin/make-office-user \
 	bin/make-tsp-user \
+	bin/renderer \
 	bin/save-fuel-price-data \
 	bin/send-to-gex \
 	bin/tsp-award-queue
