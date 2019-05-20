@@ -137,7 +137,6 @@ export const SubmittedPpmMoveSummary = props => {
           <img className="move_sm" src={ppmCar} alt="ppm-car" />
           Move your own stuff (PPM)
         </div>
-
         <div className="shipment_box_contents">
           <PPMStatusTimeline ppm={ppm} />
           <div className="step-contents">
