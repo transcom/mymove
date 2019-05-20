@@ -878,9 +878,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #  branches:
-          #    ignore: placeholder_branch_name
+          filters:
+           branches:
+             ignore: cg_enable_devlocal_auth_with_environment_checking
 
       - integration_tests_office:
           requires:
@@ -888,9 +888,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+            branches:
+              ignore: cg_enable_devlocal_auth_with_environment_checking
 
       - integration_tests_tsp:
           requires:
@@ -898,9 +898,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+            branches:
+              ignore: cg_enable_devlocal_auth_with_environment_checking
 
       - integration_tests_api:
           requires:
@@ -908,9 +908,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+            branches:
+              ignore: cg_enable_devlocal_auth_with_environment_checking
 
       - client_test:
           requires:
@@ -955,28 +955,28 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cg_enable_devlocal_auth_with_environment_checking
 
       - deploy_experimental_tasks:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cg_enable_devlocal_auth_with_environment_checking
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cg_enable_devlocal_auth_with_environment_checking
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: placeholder_branch_name
+              only: cg_enable_devlocal_auth_with_environment_checking
 
       - check_circle_against_staging_sha:
           requires:
