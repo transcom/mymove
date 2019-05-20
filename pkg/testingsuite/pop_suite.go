@@ -91,9 +91,6 @@ func CurrentPackage() PackageName {
 
 	fnName := strings.Replace(caller.Name(), "github.com/transcom/mymove/pkg/", "", 1)
 	pkg := strings.Split(fnName, ".")[0]
-	fmt.Println(caller.Name())
-	fmt.Println(fnName)
-	fmt.Println(pkg)
 	return PackageName(pkg)
 }
 
