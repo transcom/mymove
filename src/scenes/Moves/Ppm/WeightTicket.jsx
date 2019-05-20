@@ -3,13 +3,12 @@ import { reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
-import { uniqueId } from 'lodash';
 
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 import WizardHeader from '../WizardHeader';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-
+import RadioButton from 'shared/RadioButton';
 import './PPMPaymentRequest.css';
 import Uploader from 'shared/Uploader';
 
@@ -80,7 +79,7 @@ class WeightTicket extends Component {
           <div className="dashed-divider" />
 
           <p className="radio-group-header">Do you have more weight tickets for another vehicle or trip?</p>
-          <RadioBtn
+          <RadioButton
             inputClassName="inline_radio"
             labelClassName="inline_radio"
             label="Yes"
@@ -90,7 +89,7 @@ class WeightTicket extends Component {
             onChange={this.handleRadioChange}
           />
 
-          <RadioBtn
+          <RadioButton
             inputClassName="inline_radio"
             labelClassName="inline_radio"
             label="No"
@@ -107,25 +106,6 @@ class WeightTicket extends Component {
     );
   }
 }
-const RadioBtn = ({ name, label, onChange, value, checked, inputClassName, labelClassName }) => {
-  const radioId = uniqueId(label);
-  return (
-    <>
-      <input
-        className={inputClassName}
-        id={radioId}
-        type="radio"
-        name={name}
-        value={value}
-        checked={checked}
-        onChange={onChange}
-      />
-      <label className={labelClassName} htmlFor={radioId}>
-        {label}
-      </label>
-    </>
-  );
-};
 
 const formName = 'weight_ticket_wizard';
 WeightTicket = reduxForm({
