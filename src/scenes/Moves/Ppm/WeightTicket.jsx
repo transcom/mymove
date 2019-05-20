@@ -12,7 +12,15 @@ import RadioButton from 'shared/RadioButton';
 import './PPMPaymentRequest.css';
 import Uploader from 'shared/Uploader';
 
-class WeightTicket extends Component {
+export const SaveAddAnotherButton = () => (
+  <PPMPaymentRequestActionBtns onClick={() => {}} nextBtnLabel="Save & Add Another" />
+);
+
+export const SaveContinueButton = () => (
+  <PPMPaymentRequestActionBtns onClick={() => {}} nextBtnLabel="Save & Continue" />
+);
+
+export class WeightTicket extends Component {
   state = {
     value: 'Yes',
   };
@@ -100,7 +108,11 @@ class WeightTicket extends Component {
           />
 
           {/* TODO: change onclick handler to go to next page in flow */}
-          <PPMPaymentRequestActionBtns onClick={() => {}} nextBtnLabel="Save & Add Another" />
+          {value === 'Yes' ? (
+            <SaveAddAnotherButton moreWeightTickets={value} />
+          ) : (
+            <SaveContinueButton moreWeightTickets={value} />
+          )}
         </div>
       </Fragment>
     );
