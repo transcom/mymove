@@ -10,7 +10,7 @@ import (
 
 const (
 	// MigrationPathFlag is the migration path flag
-	MigrationPathFlag string = "path"
+	MigrationPathFlag string = "migration-path"
 )
 
 type errInvalidMigrationPath struct {
