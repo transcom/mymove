@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
@@ -28,8 +29,12 @@ func InitMigrationFlags(flag *pflag.FlagSet) {
 
 // CheckMigration validates migration command line flags
 func CheckMigration(v *viper.Viper) error {
-	if migrationPath := v.GetString(MigrationPathFlag); len(migrationPath) == 0 {
+	migrationPath := v.GetString(MigrationPathFlag)
+	if len(migrationPath) == 0 {
 		return errors.Wrap(&errInvalidMigrationPath{Path: migrationPath}, "Expected a migration path to be set")
+	}
+	if _, err := os.Stat(migrationPath); os.IsNotExist(err) {
+		return errors.Wrapf(&errInvalidMigrationPath{Path: migrationPath}, "Expected %s to exist", migrationPath)
 	}
 	return nil
 }
