@@ -140,8 +140,8 @@ describe('HomePage tests', () => {
             .html(),
         ).toEqual('<div class="title">Next Step: Finish setting up your move</div>');
       });
-      describe('When a ppm move is submitted', () => {
-        it('Renders the PPM specific alert', () => {
+      describe('When a ppm only move is submitted', () => {
+        it('renders the ppm only alert', () => {
           const moveObj = { selected_move_type: 'PPM', status: 'SUBMITTED', moveSubmitSuccess: true };
           wrapper = shallow(
             <Landing
@@ -157,29 +157,31 @@ describe('HomePage tests', () => {
           );
           const ppmAlert = wrapper.find(PPMAlert).shallow();
 
-          expect(ppmAlert.length).toBe(1);
+          expect(ppmAlert.length).toEqual(1);
           expect(ppmAlert.props().heading).toEqual('Congrats - your move is submitted!');
         });
-        it('Renders the PPM combo move alert', () => {
-          const moveObj = { selected_move_type: 'HHG_PPM', status: 'SUBMITTED', hasSubmitSuccess: true };
-          wrapper = shallow(
-            <Landing
-              move={moveObj}
-              moveSubmitSuccess={moveObj.moveSubmitSuccess}
-              serviceMember={service_member}
-              ppm={ppmObj}
-              orders={orders}
-              isLoggedIn={true}
-              loggedInUserSuccess={true}
-              isProfileComplete={true}
-              hasSubmitSuccess={true}
-              isHHGPPMComboMove={true}
-            />,
-          );
-          const ppmAlert = wrapper.find(PPMAlert).shallow();
+        describe('When a ppm is added to a combo move', () => {
+          it('renders the ppm added to combo move alert', () => {
+            const moveObj = { selected_move_type: 'HHG_PPM', status: 'SUBMITTED', hasSubmitSuccess: true };
+            wrapper = shallow(
+              <Landing
+                move={moveObj}
+                moveSubmitSuccess={moveObj.moveSubmitSuccess}
+                serviceMember={service_member}
+                ppm={ppmObj}
+                orders={orders}
+                isLoggedIn={true}
+                loggedInUserSuccess={true}
+                isProfileComplete={true}
+                hasSubmitSuccess={true}
+                isHHGPPMComboMove={true}
+              />,
+            );
+            const ppmAlert = wrapper.find(PPMAlert).shallow();
 
-          expect(ppmAlert.length).toBe(1);
-          expect(ppmAlert.props().heading).toEqual('Your PPM shipment is submitted');
+            expect(ppmAlert.length).toEqual(1);
+            expect(ppmAlert.props().heading).toEqual('Your PPM shipment is submitted');
+          });
         });
       });
     });
