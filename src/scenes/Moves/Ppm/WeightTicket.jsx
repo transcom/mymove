@@ -26,9 +26,10 @@ class WeightTicket extends Component {
   render() {
     const { additionalWeightTickets, vehicleType } = this.state;
     const { schema } = this.props;
-    const labelIdle =
-      'Drag & drop or <span class="filepond--label-action">click to upload upload empty weight ticket</span>';
-
+    const uploadEmptyTicketLabel =
+      '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload upload empty weight ticket</span></span>';
+    const uploadFullTicketLabel =
+      '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload upload full weight ticket</span></span>';
     return (
       <Fragment>
         <WizardHeader
@@ -67,7 +68,7 @@ class WeightTicket extends Component {
                   lbs
                 </div>
                 <div className="usa-width-two-third uploader-wrapper">
-                  <Uploader options={{ labelIdle }} />
+                  <Uploader options={{ labelIdle: uploadEmptyTicketLabel }} />
                 </div>
               </div>
 
@@ -86,7 +87,7 @@ class WeightTicket extends Component {
                 </div>
 
                 <div className="usa-width-two-third uploader-wrapper">
-                  <Uploader options={{ labelIdle }} />
+                  <Uploader options={{ labelIdle: uploadFullTicketLabel }} />
                 </div>
               </div>
 
