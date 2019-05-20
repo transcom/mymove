@@ -20,6 +20,17 @@ const (
 	HTTPAdminServerNameFlag string = "http-admin-server-name"
 	// HTTPOrdersServerNameFlag is the HTTP Orders Server Name Flag
 	HTTPOrdersServerNameFlag string = "http-orders-server-name"
+
+	// HTTPMyServerNameLocal is the HTTP My Server Name for Local
+	HTTPMyServerNameLocal string = "milmovelocal"
+	// HTTPOfficeServerNameLocal is the HTTP Office Server Name for Local
+	HTTPOfficeServerNameLocal string = "officelocal"
+	// HTTPTSPServerNameLocal is the HTTP TSP Server Name for Local
+	HTTPTSPServerNameLocal string = "tsplocal"
+	// HTTPAdminServerNameLocal is the HTTP Admin Server Name for Local
+	HTTPAdminServerNameLocal string = "adminlocal"
+	// HTTPOrdersServerNameLocal is the HTTP Orders Server Name for Local
+	HTTPOrdersServerNameLocal string = "orderslocal"
 )
 
 type errInvalidHost struct {
@@ -32,11 +43,11 @@ func (e *errInvalidHost) Error() string {
 
 // InitHostFlags initializes the Hosts command line flags
 func InitHostFlags(flag *pflag.FlagSet) {
-	flag.String(HTTPMyServerNameFlag, "milmovelocal", "Hostname according to environment.")
-	flag.String(HTTPOfficeServerNameFlag, "officelocal", "Hostname according to environment.")
-	flag.String(HTTPTSPServerNameFlag, "tsplocal", "Hostname according to environment.")
-	flag.String(HTTPAdminServerNameFlag, "adminlocal", "Hostname according to environment.")
-	flag.String(HTTPOrdersServerNameFlag, "orderslocal", "Hostname according to environment.")
+	flag.String(HTTPMyServerNameFlag, HTTPMyServerNameLocal, "Hostname according to environment.")
+	flag.String(HTTPOfficeServerNameFlag, HTTPOfficeServerNameLocal, "Hostname according to environment.")
+	flag.String(HTTPTSPServerNameFlag, HTTPTSPServerNameLocal, "Hostname according to environment.")
+	flag.String(HTTPAdminServerNameFlag, HTTPAdminServerNameLocal, "Hostname according to environment.")
+	flag.String(HTTPOrdersServerNameFlag, HTTPOrdersServerNameLocal, "Hostname according to environment.")
 }
 
 // CheckHosts validates the Hosts command line flags
