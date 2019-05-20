@@ -65,19 +65,19 @@ func main() {
 		numShipments := 25
 		numShipmentOfferSplit := []int{15, 10}
 		// TSPs should never be able to see DRAFT or SUBMITTED or AWARDING shipments.
-		status := []models.ShipmentStatus{"AWARDED", "ACCEPTED", "APPROVED", "IN_TRANSIT", "DELIVERED", "COMPLETED"}
-		_, _, _, err := testdatagen.CreateShipmentOfferData(db, numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
-		if err != nil {
-			log.Panic(err)
+		status := []models.ShipmentStatus{"AWARDED", "ACCEPTED", "APPROVED", "IN_TRANSIT", "DELIVERED"}
+		_, _, _, createShipmentOfferDataErr := testdatagen.CreateShipmentOfferData(db, numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
+		if createShipmentOfferDataErr != nil {
+			log.Panic(createShipmentOfferDataErr)
 		}
 		// Create an office user
 		testdatagen.MakeDefaultOfficeUser(db)
 		log.Print("Success! Created TSP test data.")
 	} else if *namedScenario == tdgs.E2eBasicScenario.Name {
 		// Initialize logger
-		logger, err := zap.NewDevelopment()
-		if err != nil {
-			log.Panic(err)
+		logger, newDevelopmentErr := zap.NewDevelopment()
+		if newDevelopmentErr != nil {
+			log.Panic(newDevelopmentErr)
 		}
 
 		// Initialize storage and uploader

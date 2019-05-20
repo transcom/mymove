@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/dates"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -143,7 +144,7 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	suite.Equal(ShipmentStatusACCEPTED, shipment.Status, "expected Accepted")
 
 	// Can approve shipment (HHG)
-	err = shipment.Approve()
+	err = shipment.Approve(time.Now())
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusAPPROVED, shipment.Status, "expected Approved")
 
@@ -166,11 +167,6 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusDELIVERED, shipment.Status, "expected Delivered")
 	suite.Equal(*shipment.ActualDeliveryDate, shipDate, "expected Actual Delivery Date to be set")
-
-	// Can complete shipment
-	err = shipment.Complete()
-	suite.Nil(err)
-	suite.Equal(ShipmentStatusCOMPLETED, shipment.Status, "expected Completed")
 }
 
 func (suite *ModelSuite) TestSetBookDateWhenSubmitted() {
@@ -909,4 +905,22 @@ func (suite *ModelSuite) TestAcceptedShipmentOffer() {
 	suite.NotEmpty(acceptedShipmentOffer.TransportationServiceProviderPerformance.TransportationServiceProvider.ID.String())
 	suite.Equal(acceptedShipmentOffer.TransportationServiceProviderPerformance.TransportationServiceProvider.ID,
 		shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.TransportationServiceProvider.ID)
+}
+
+// We're asserting that if for any reason
+// a shipment gets into the remove "COMPLETED" state
+// it does not fail being queried
+func (suite *ModelSuite) TestFetchShipment() {
+	shipment := testdatagen.MakeShipment(
+		suite.DB(),
+		testdatagen.Assertions{Shipment: Shipment{Status: "COMPLETED"}},
+	)
+	session := &auth.Session{
+		ApplicationName: auth.OfficeApp,
+	}
+
+	actualShipment, err := FetchShipment(suite.DB(), session, shipment.ID)
+
+	suite.NoError(err, "Did not fail fetching completed shipment")
+	suite.Equal("COMPLETED", string(actualShipment.Status))
 }

@@ -35,8 +35,8 @@ func main() {
 
 	if len(variablesFile) > 0 {
 		// Read contents of variables file into vars
-		vars, err := ioutil.ReadFile(variablesFile)
-		if err != nil {
+		vars, readFileErr := ioutil.ReadFile(variablesFile)
+		if readFileErr != nil {
 			log.Fatal(errors.New("error reading variables file"))
 		}
 

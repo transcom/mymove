@@ -13,6 +13,8 @@ CONTAINER_CYPRESS=cypress
 MILMOVEHOST=milmovelocal
 OFFICEHOST=officelocal
 TSPHOST=tsplocal
+ADMINHOST=adminlocal
+ORDERSHOST=orderslocal
 
 # Change the port for tests
 HTTP_PORT=4000
@@ -47,17 +49,23 @@ $DOCKER_RUN \
   -e DB_PORT \
   -e DB_USER \
   -e DEVLOCAL_CA="/config/tls/devlocal-ca.pem" \
+  -e DEVLOCAL_AUTH="true" \
   -e DOD_CA_PACKAGE="/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b" \
   -e DPS_AUTH_COOKIE_SECRET_KEY \
   -e DPS_COOKIE_EXPIRES_IN_MINUTES \
   -e EIA_KEY \
   -e EIA_URL \
   -e ENV="test" \
+  -e ENVIRONMENT="test" \
   -e HERE_MAPS_APP_CODE \
   -e HERE_MAPS_APP_ID \
   -e HERE_MAPS_GEOCODE_ENDPOINT \
   -e HERE_MAPS_ROUTING_ENDPOINT \
   -e HTTP_MY_SERVER_NAME="${MILMOVEHOST}" \
+  -e HTTP_OFFICE_SERVER_NAME="${OFFICEHOST}" \
+  -e HTTP_TSP_SERVER_NAME="${TSPHOST}" \
+  -e HTTP_ADMIN_SERVER_NAME="${ADMINHOST}" \
+  -e HTTP_ORDERS_SERVER_NAME="${ORDERSHOST}" \
   -e IWS_RBS_HOST \
   -e LOGIN_GOV_CALLBACK_PORT="${HTTP_PORT}" \
   -e LOGIN_GOV_CALLBACK_PROTOCOL \
@@ -66,9 +74,11 @@ $DOCKER_RUN \
   -e LOGIN_GOV_OFFICE_CLIENT_ID \
   -e LOGIN_GOV_SECRET_KEY \
   -e LOGIN_GOV_TSP_CLIENT_ID \
+  -e LOGIN_GOV_ADMIN_CLIENT_ID \
   -e MOVE_MIL_DOD_CA_CERT \
   -e MOVE_MIL_DOD_TLS_CERT \
   -e MOVE_MIL_DOD_TLS_KEY \
+  -e NO_TLS_ENABLED=1 \
   -e NO_TLS_PORT="${HTTP_PORT}" \
   -e SECURE_MIGRATION_DIR \
   -e SECURE_MIGRATION_SOURCE \
@@ -105,6 +115,7 @@ $DOCKER_RUN \
   --add-host ${MILMOVEHOST}:"${E2E_IP}" \
   --add-host ${OFFICEHOST}:"${E2E_IP}" \
   --add-host ${TSPHOST}:"${E2E_IP}" \
+  --add-host ${ADMINHOST}:"${E2E_IP}" \
   --name="${CONTAINER_CYPRESS}" \
   --link="${CONTAINER}" \
   --ipc=host \

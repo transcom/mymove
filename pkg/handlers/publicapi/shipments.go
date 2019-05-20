@@ -157,9 +157,9 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 
 	if session.IsTspUser() {
 		// Check that the TSP user can access the shipment
-		tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
-		if err != nil {
-			h.Logger().Error("Error retrieving authenticated TSP user", zap.Error(err))
+		tspUser, fetchTspByIDErr := models.FetchTspUserByID(h.DB(), session.TspUserID)
+		if fetchTspByIDErr != nil {
+			h.Logger().Error("Error retrieving authenticated TSP user", zap.Error(fetchTspByIDErr))
 			return shipmentop.NewGetShipmentForbidden()
 		}
 		shipment, err = models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
@@ -571,9 +571,9 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	// authorization
 	if session.IsTspUser() {
 		// Check that the TSP user can access the shipment
-		tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
-		if err != nil {
-			h.Logger().Error("Error retrieving authenticated TSP user", zap.Error(err))
+		tspUser, fetchTspByIDErr := models.FetchTspUserByID(h.DB(), session.TspUserID)
+		if fetchTspByIDErr != nil {
+			h.Logger().Error("Error retrieving authenticated TSP user", zap.Error(fetchTspByIDErr))
 			return shipmentop.NewGetShipmentForbidden()
 		}
 		shipment, err = models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)

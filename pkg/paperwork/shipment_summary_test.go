@@ -133,7 +133,7 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 			PickupPostalCode:      &pickupPostalCode,
 			DestinationPostalCode: &destinationPostalCode,
 		}
-		params := models.ShipmentSummaryFormData{
+		shipmentSummaryFormParams := models.ShipmentSummaryFormData{
 			PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
 			WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
 		}
@@ -141,7 +141,7 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 			costComputation: rateengine.CostComputation{SITMax: unit.Cents(500)},
 		}
 		ppmComputer := NewSSWPPMComputer(&mockComputer)
-		obligations, err := ppmComputer.ComputeObligations(params, planner)
+		obligations, err := ppmComputer.ComputeObligations(shipmentSummaryFormParams, planner)
 
 		suite.Nil(err)
 		suite.Equal(unit.Cents(0), obligations.ActualObligation.SIT)

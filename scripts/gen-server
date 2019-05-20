@@ -10,3 +10,4 @@ mkdir -p $gendir
 ./bin/swagger generate server -q -f swagger/api.yaml -t $gendir --model-package apimessages --server-package restapi --api-package apioperations --exclude-main -A mymove
 ./bin/swagger generate server -q -f swagger/orders.yaml -t $gendir --model-package ordersmessages --server-package ordersapi --api-package ordersoperations --exclude-main -A mymove
 ./bin/swagger generate server -q -f swagger/dps.yaml -t $gendir --model-package dpsmessages --server-package dpsapi --api-package dpsoperations --exclude-main -A mymove
+./bin/swagger generate server -q -f swagger/admin.yaml -t $gendir --model-package adminmessages --server-package adminapi --api-package adminoperations --exclude-main -A mymove

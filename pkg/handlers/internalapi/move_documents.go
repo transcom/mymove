@@ -161,9 +161,9 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 			// (because the document has been toggled between OK and HAS_ISSUE and back)
 			// then don't complete it again.
 			if ppm.Status != models.PPMStatusCOMPLETED {
-				err := ppm.Complete()
-				if err != nil {
-					return handlers.ResponseForError(h.Logger(), err)
+				completeErr := ppm.Complete()
+				if completeErr != nil {
+					return handlers.ResponseForError(h.Logger(), completeErr)
 				}
 			}
 		}

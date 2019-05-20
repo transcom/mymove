@@ -47,19 +47,19 @@ func (u *Uploader) SetUploadStorageKey(key string) {
 func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UUID, file afero.File, allowedTypes AllowedFileTypes) (*models.Upload, *validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 
-	info, err := file.Stat()
-	if err != nil {
-		u.logger.Error("Could not get file info", zap.Error(err))
+	info, fileStatErr := file.Stat()
+	if fileStatErr != nil {
+		u.logger.Error("Could not get file info", zap.Error(fileStatErr))
 	}
 
 	if info.Size() == 0 {
 		return nil, responseVErrors, ErrZeroLengthFile
 	}
 
-	contentType, err := storage.DetectContentType(file)
-	if err != nil {
-		u.logger.Error("Could not detect content type", zap.Error(err))
-		return nil, responseVErrors, err
+	contentType, detectContentTypeErr := storage.DetectContentType(file)
+	if detectContentTypeErr != nil {
+		u.logger.Error("Could not detect content type", zap.Error(detectContentTypeErr))
+		return nil, responseVErrors, detectContentTypeErr
 	}
 
 	validator := models.NewStringInList(contentType, "ContentType", allowedTypes)
@@ -69,10 +69,10 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 		return nil, responseVErrors, nil
 	}
 
-	checksum, err := storage.ComputeChecksum(file)
-	if err != nil {
-		u.logger.Error("Could not compute checksum", zap.Error(err))
-		return nil, responseVErrors, err
+	checksum, computeChecksumErr := storage.ComputeChecksum(file)
+	if computeChecksumErr != nil {
+		u.logger.Error("Could not compute checksum", zap.Error(computeChecksumErr))
+		return nil, responseVErrors, computeChecksumErr
 	}
 
 	id := uuid.Must(uuid.NewV4())
@@ -93,7 +93,7 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 	}
 
 	var uploadError error
-	err = u.db.Transaction(func(db *pop.Connection) error {
+	err := u.db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
 		verrs, err := db.ValidateAndCreate(newUpload)

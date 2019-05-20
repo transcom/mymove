@@ -25,6 +25,22 @@ import { getAllShipmentLineItems, selectSortedShipmentLineItems } from 'shared/E
 import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { getStorageInTransitsForShipment } from 'shared/Entities/modules/storageInTransits';
+import {
+  updatePublicShipment,
+  getPublicShipment,
+  selectShipment,
+  getPublicShipmentLabel,
+  acceptShipment,
+  acceptPublicShipmentLabel,
+  completePmSurvey,
+  transportShipment,
+  deliverShipment,
+} from 'shared/Entities/modules/shipments';
+import {
+  getServiceAgentsForShipment,
+  selectServiceAgentsForShipment,
+  updateServiceAgentsForShipment,
+} from 'shared/Entities/modules/serviceAgents';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -35,17 +51,8 @@ import TspContainer from 'shared/TspPanel/TspContainer';
 import Weights from 'shared/ShipmentWeights';
 import Dates from 'shared/ShipmentDates';
 import LocationsContainer from 'shared/LocationsPanel/LocationsContainer';
-import { getLastRequestIsSuccess, getLastRequestIsLoading } from 'shared/Swagger/selectors';
+import { getLastRequestIsSuccess, getLastRequestIsLoading, getLastError } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
-import {
-  loadShipmentDependencies,
-  completePmSurvey,
-  patchShipment,
-  acceptShipment,
-  transportShipment,
-  deliverShipment,
-  handleServiceAgents,
-} from './ducks';
 import FormButton from './FormButton';
 import CustomerInfo from './CustomerInfo';
 import PreApprovalPanel from 'shared/PreApprovalRequest/PreApprovalPanel.jsx';
@@ -135,12 +142,6 @@ const ReferrerQueueLink = props => {
           <span>Delivered Shipments Queue</span>
         </NavLink>
       );
-    case '/queues/completed':
-      return (
-        <NavLink to="/queues/completed" activeClassName="usa-current">
-          <span>Completed Shipments Queue</span>
-        </NavLink>
-      );
     case '/queues/all':
       return (
         <NavLink to="/queues/all" activeClassName="usa-current">
@@ -174,10 +175,12 @@ class ShipmentInfo extends Component {
   };
 
   componentDidMount() {
+    const shipmentId = this.props.shipmentId;
+
     this.props
-      .loadShipmentDependencies(this.props.match.params.shipmentId)
+      .getPublicShipment(shipmentId)
       .then(() => {
-        const shipmentId = this.props.shipment.id;
+        this.props.getServiceAgentsForShipment(shipmentId);
         this.props.getTspForShipment(shipmentId);
         this.props.getAllShipmentDocuments(shipmentId);
         this.props.getAllTariff400ngItems(true);
@@ -205,7 +208,7 @@ class ShipmentInfo extends Component {
   };
 
   enterPreMoveSurvey = values => {
-    this.props.patchShipment(this.props.shipment.id, values).then(() => {
+    this.props.updatePublicShipment(this.props.shipment.id, values).then(() => {
       if (this.props.shipment.pm_survey_completed_at === undefined) {
         this.props.completePmSurvey(this.props.shipment.id);
       }
@@ -219,7 +222,7 @@ class ShipmentInfo extends Component {
     if (values['origin_service_agent']) {
       values['origin_service_agent']['role'] = 'ORIGIN';
     }
-    this.props.handleServiceAgents(this.props.shipment.id, values);
+    this.props.updateServiceAgentsForShipment(this.props.shipment.id, values);
   };
 
   transportShipment = values => this.props.transportShipment(this.props.shipment.id, values);
@@ -244,7 +247,7 @@ class ShipmentInfo extends Component {
     } = this.props;
     const { service_member: serviceMember = {}, move = {}, gbl_number: gbl } = shipment;
 
-    const shipmentId = this.props.match.params.shipmentId;
+    const shipmentId = this.props.shipmentId;
     const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
     const showDocumentViewer = context.flags.documentViewer;
     const showSitPanel = context.flags.sitPanel;
@@ -253,7 +256,6 @@ class ShipmentInfo extends Component {
     const approved = shipment.status === 'APPROVED';
     const inTransit = shipment.status === 'IN_TRANSIT';
     const delivered = shipment.status === 'DELIVERED';
-    const completed = shipment.status === 'COMPLETED';
     const pmSurveyComplete = Boolean(shipment.pm_survey_completed_at);
     const canAssignServiceAgents = (approved || accepted) && !hasOriginServiceAgent(serviceAgents);
     const canEnterPreMoveSurvey =
@@ -274,7 +276,7 @@ class ShipmentInfo extends Component {
       statusText = 'Outbound';
     } else if (inTransit) {
       statusText = 'Inbound';
-    } else if (delivered || completed) {
+    } else if (delivered) {
       statusText = 'Delivered';
     }
 
@@ -378,6 +380,7 @@ class ShipmentInfo extends Component {
                 )}
               {canEnterPreMoveSurvey && (
                 <FormButton
+                  shipmentId={shipmentId}
                   FormComponent={PremoveSurveyForm}
                   schema={this.props.shipmentSchema}
                   onSubmit={this.enterPreMoveSurvey}
@@ -386,6 +389,7 @@ class ShipmentInfo extends Component {
               )}
               {canAssignServiceAgents && (
                 <FormButton
+                  shipmentId={shipmentId}
                   serviceAgents={this.props.serviceAgents}
                   FormComponent={ServiceAgentForm}
                   schema={this.props.serviceAgentSchema}
@@ -404,6 +408,7 @@ class ShipmentInfo extends Component {
               )}
               {canEnterPackAndPickup && (
                 <FormButton
+                  shipmentId={shipmentId}
                   FormComponent={PickupForm}
                   schema={this.props.transportSchema}
                   onSubmit={this.transportShipment}
@@ -412,9 +417,13 @@ class ShipmentInfo extends Component {
               )}
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
-                  <Dates title="Dates" shipment={this.props.shipment} update={this.props.patchShipment} />
-                  <Weights title="Weights & Items" shipment={this.props.shipment} update={this.props.patchShipment} />
-                  <LocationsContainer update={this.props.patchShipment} />
+                  <Dates title="Dates" shipment={this.props.shipment} update={this.props.updatePublicShipment} />
+                  <Weights
+                    title="Weights & Items"
+                    shipment={this.props.shipment}
+                    update={this.props.updatePublicShipment}
+                  />
+                  <LocationsContainer shipment={this.props.shipment} update={this.props.updatePublicShipment} />
                   <PreApprovalPanel shipmentId={this.props.match.params.shipmentId} />
                   {showSitPanel && <StorageInTransitPanel shipmentId={this.props.shipmentId} />}
 
@@ -432,7 +441,7 @@ class ShipmentInfo extends Component {
             <div className="usa-width-one-third">
               <div className="customer-info">
                 <h2 className="extras usa-heading">Customer Info</h2>
-                <CustomerInfo />
+                <CustomerInfo shipment={this.props.shipment} />
               </div>
               <div className="documents">
                 <h2 className="extras usa-heading">
@@ -465,7 +474,7 @@ class ShipmentInfo extends Component {
 
 const mapStateToProps = (state, props) => {
   const shipmentId = props.match.params.shipmentId;
-  const shipment = get(state, 'tsp.shipment', {});
+  const shipment = selectShipment(state, shipmentId);
   const shipmentDocuments = selectShipmentDocuments(state, shipment.id) || {};
   const gbl = shipmentDocuments.find(element => element.move_document_type === 'GOV_BILL_OF_LADING');
   const gblGenerated = !!gbl;
@@ -477,11 +486,11 @@ const mapStateToProps = (state, props) => {
     gblGenerated,
     tariff400ngItems: selectTariff400ngItems(state),
     shipmentLineItems: selectSortedShipmentLineItems(state),
-    serviceAgents: get(state, 'tsp.serviceAgents', []),
+    serviceAgents: selectServiceAgentsForShipment(state, shipmentId),
     tsp: get(state, 'tsp'),
-    loadTspDependenciesHasSuccess: get(state, 'tsp.loadTspDependenciesHasSuccess'),
-    loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
-    acceptError: get(state, 'tsp.shipmentHasAcceptError'),
+    loadTspDependenciesHasSuccess: getLastRequestIsSuccess(state, getPublicShipmentLabel),
+    loadTspDependenciesHasError: getLastError(state, getPublicShipmentLabel),
+    acceptError: getLastError(state, acceptPublicShipmentLabel),
     generateGBLError: get(state, 'tsp.generateGBLError'),
     generateGBLInProgress: getLastRequestIsLoading(state, generateGBLLabel),
     generateGBLSuccess: getLastRequestIsSuccess(state, generateGBLLabel),
@@ -498,12 +507,13 @@ const mapStateToProps = (state, props) => {
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
-      loadShipmentDependencies,
+      getPublicShipment,
+      getServiceAgentsForShipment,
       completePmSurvey,
-      patchShipment,
+      updatePublicShipment,
       acceptShipment,
       generateGBL,
-      handleServiceAgents,
+      updateServiceAgentsForShipment,
       transportShipment,
       deliverShipment,
       getAllShipmentDocuments,

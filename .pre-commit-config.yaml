@@ -9,7 +9,7 @@ repos:
         types: [go]
 
   - repo: git://github.com/pre-commit/pre-commit-hooks
-    rev: v2.1.0
+    rev: v2.2.3
     hooks:
       - id: check-json
       - id: check-merge-conflict
@@ -28,7 +28,7 @@ repos:
         exclude: public/swagger-ui/*
 
   - repo: git://github.com/igorshubovych/markdownlint-cli
-    rev: v0.13.0
+    rev: v0.16.0
     hooks:
       - id: markdownlint
         entry: markdownlint --ignore .github/*.md
@@ -58,29 +58,41 @@ repos:
     hooks:
       - id: swagger
         name: API Swagger
-        entry: bin/swagger validate swagger/api.yaml
+        entry: bin/swagger validate
         language: script
+        files: swagger/api.yaml
 
   - repo: local
     hooks:
       - id: swagger
         name: Internal Swagger
-        entry: bin/swagger validate swagger/internal.yaml
+        entry: bin/swagger validate
         language: script
+        files: swagger/internal.yaml
 
   - repo: local
     hooks:
       - id: swagger
         name: Orders Swagger
-        entry: bin/swagger validate swagger/orders.yaml
+        entry: bin/swagger validate
         language: script
+        files: swagger/orders.yaml
 
   - repo: local
     hooks:
     - id: swagger
       name: DPS Swagger
-      entry: bin/swagger validate swagger/dps.yaml
+      entry: bin/swagger validate
       language: script
+      files: swagger/dps.yaml
+
+  - repo: local
+    hooks:
+      - id: swagger
+        name: Admin Swagger
+        entry: bin/swagger validate
+        language: script
+        files: swagger/admin.yaml
 
   # Ensure markdown files have updated table of contents
   - repo: local

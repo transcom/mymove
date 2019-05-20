@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"github.com/go-openapi/swag"
+
 	"github.com/transcom/mymove/pkg/auth"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -56,7 +58,11 @@ func (suite *ModelSuite) TestPPMStateMachine() {
 
 	selectedMoveType := SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	moveOptions := MoveOptions{
+		SelectedType: &selectedMoveType,
+		Show:         swag.Bool(true),
+	}
+	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders

@@ -45,7 +45,7 @@ export function fetchActiveShipment(shipments) {
     find(shipments, i =>
       includes(
         // For now, this include all statuses, but this may be re-evaluated in the future.
-        ['DRAFT', 'SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED', 'COMPLETED'],
+        ['DRAFT', 'SUBMITTED', 'AWARDED', 'ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED'],
         get(i, 'status'),
       ),
     ) || null

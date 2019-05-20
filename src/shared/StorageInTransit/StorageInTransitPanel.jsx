@@ -11,11 +11,12 @@ import Alert from 'shared/Alert';
 import StorageInTransit from 'shared/StorageInTransit/StorageInTransit';
 import Creator from 'shared/StorageInTransit/Creator';
 import { selectStorageInTransits, createStorageInTransit } from 'shared/Entities/modules/storageInTransits';
-import { loadEntitlements } from '../../scenes/TransportationServiceProvider/ducks';
+import { calculateEntitlementsForShipment } from 'shared/Entities/modules/shipments';
 import { calculateEntitlementsForMove } from 'shared/Entities/modules/moves';
 
 import { isTspSite } from 'shared/constants.js';
 import SitStatusIcon from './SitStatusIcon';
+import { sitTotalDaysUsed } from 'shared/StorageInTransit/calculator';
 
 export class StorageInTransitPanel extends Component {
   constructor() {
@@ -42,9 +43,9 @@ export class StorageInTransitPanel extends Component {
   render() {
     const { storageInTransitEntitlement, storageInTransits } = this.props;
     const { error, isCreatorActionable } = this.state;
-    const daysUsed = 0; // placeholder
-    const daysRemaining = storageInTransitEntitlement - daysUsed;
     const hasRequestedSIT = some(storageInTransits, sit => sit.status === 'REQUESTED');
+    const hasInSIT = some(storageInTransits, sit => sit.status === 'IN_SIT');
+    const daysRemaining = storageInTransitEntitlement - sitTotalDaysUsed(storageInTransits);
 
     return (
       <div className="storage-in-transit-panel" data-cy="storage-in-transit-panel">
@@ -58,11 +59,18 @@ export class StorageInTransitPanel extends Component {
             </Alert>
           )}
           <div className="column-head">
-            Entitlement: {storageInTransitEntitlement} days <span className="unbold">({daysRemaining} remaining)</span>
+            Entitlement: {storageInTransitEntitlement} days
+            {hasInSIT && <span className="unbold"> ({daysRemaining} remaining)</span>}
           </div>
           {storageInTransits !== undefined &&
             storageInTransits.map(storageInTransit => {
-              return <StorageInTransit key={storageInTransit.id} storageInTransit={storageInTransit} />;
+              return (
+                <StorageInTransit
+                  key={storageInTransit.id}
+                  storageInTransit={storageInTransit}
+                  daysRemaining={daysRemaining}
+                />
+              );
             })}
           {isCreatorActionable &&
             isTspSite && <Creator onFormActivation={this.onFormActivation} saveStorageInTransit={this.onSubmit} />}
@@ -84,21 +92,22 @@ StorageInTransitPanel.propTypes = {
 // moveId is needed to find the entitlement on the Office side. It is
 // not needed to pull entitlement from the TSP side.
 // calculateEntitlementsForMove is a more up-to-date way of storing data
-function getStorageInTransitEntitlement(state, moveId) {
+function getStorageInTransitEntitlement(state, resourceId) {
   let storageInTransitEntitlement = 0;
   if (isTspSite) {
-    storageInTransitEntitlement = loadEntitlements(state).storage_in_transit;
+    storageInTransitEntitlement = calculateEntitlementsForShipment(state, resourceId).storage_in_transit;
   } else {
-    storageInTransitEntitlement = calculateEntitlementsForMove(state, moveId).storage_in_transit;
+    storageInTransitEntitlement = calculateEntitlementsForMove(state, resourceId).storage_in_transit;
   }
   return storageInTransitEntitlement;
 }
 
 function mapStateToProps(state, ownProps) {
-  const moveId = ownProps.moveId;
+  const resourceId = isTspSite ? ownProps.shipmentId : ownProps.moveId;
+
   return {
     storageInTransits: selectStorageInTransits(state, ownProps.shipmentId),
-    storageInTransitEntitlement: getStorageInTransitEntitlement(state, moveId),
+    storageInTransitEntitlement: getStorageInTransitEntitlement(state, resourceId),
     shipmentId: ownProps.shipmentId,
   };
 }

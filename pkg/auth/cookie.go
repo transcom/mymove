@@ -117,8 +117,8 @@ func sessionClaimsFromRequest(logger Logger, secret string, appName Application,
 	}
 
 	token, err := jwt.ParseWithClaims(cookie.Value, &SessionClaims{}, func(token *jwt.Token) (interface{}, error) {
-		rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(secret))
-		return &rsaKey.PublicKey, err
+		rsaKey, parseRSAPrivateKeyFromPEMErr := jwt.ParseRSAPrivateKeyFromPEM([]byte(secret))
+		return &rsaKey.PublicKey, parseRSAPrivateKeyFromPEMErr
 	})
 
 	if err != nil || token == nil || !token.Valid {
@@ -180,6 +180,7 @@ func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, 
 		Path:     "/",
 		Expires:  time.Unix(0, 0),
 		MaxAge:   -1,
+		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode, // Using 'lax' mode now since 'strict' breaks the use of the login.gov redirect
 		Secure:   useSecureCookie,
 	}

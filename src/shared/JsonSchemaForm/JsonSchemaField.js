@@ -4,6 +4,7 @@ import * as normalizer from './reduxFieldNormalizer';
 import validator from './validator';
 import { Field } from 'redux-form';
 import SingleDatePicker from './SingleDatePicker';
+import { isNil } from 'lodash';
 export const ALWAYS_REQUIRED_KEY = 'x-always-required';
 
 // ---- Parsers -----
@@ -125,6 +126,14 @@ const configureDateField = (swaggerField, props) => {
   return props;
 };
 
+const configureRestrictedDateField = (swaggerField, props, minDate) => {
+  props.type = 'date';
+  props.customComponent = SingleDatePicker;
+  props.normalize = normalizer.normalizeDates;
+  props.validate.push(validator.minDateValidation(minDate, `Date must be no earlier than ${minDate}`));
+  return props;
+};
+
 const configureTextField = (swaggerField, props) => {
   if (swaggerField.maxLength) {
     props.validate.push(validator.maxLength(swaggerField.maxLength));
@@ -225,6 +234,8 @@ export const SwaggerField = props => {
     title,
     onChange,
     validate,
+    minDate,
+    disabledDays,
     zipPattern,
     filteredEnumListOverride,
     hideLabel,
@@ -234,7 +245,6 @@ export const SwaggerField = props => {
     // eslint-disable-next-line security/detect-object-injection
     swaggerField = swagger.properties[fieldName];
   }
-
   if (swaggerField === undefined) {
     return null;
   }
@@ -257,6 +267,8 @@ export const SwaggerField = props => {
     title,
     onChange,
     validate,
+    minDate,
+    disabledDays,
     zipPattern,
     filteredEnumListOverride,
     hideLabel,
@@ -275,6 +287,8 @@ const createSchemaField = (
   title,
   onChange,
   validate,
+  minDate,
+  disabledDays,
   zipPattern,
   filteredEnumListOverride,
   hideLabel,
@@ -299,6 +313,7 @@ const createSchemaField = (
   let fieldProps = {};
   fieldProps.name = nameAttr;
   fieldProps.title = title || swaggerField.title || fieldName;
+  fieldProps.onChange = onChange;
   fieldProps.component = renderInputField;
   fieldProps.validate = [];
   // eslint-disable-next-line security/detect-object-injection
@@ -342,7 +357,10 @@ const createSchemaField = (
     }
   } else if (swaggerField.type === 'string') {
     const fieldFormat = swaggerField.format;
-    if (fieldFormat === 'date') {
+    if (fieldFormat === 'date' && !isNil(minDate)) {
+      inputProps.disabledDays = disabledDays ? disabledDays : undefined;
+      fieldProps = configureRestrictedDateField(swaggerField, fieldProps, minDate);
+    } else if (fieldFormat === 'date') {
       fieldProps = configureDateField(swaggerField, fieldProps);
     } else if (fieldFormat === 'telephone') {
       fieldProps = configureTelephoneField(swaggerField, fieldProps);
@@ -373,6 +391,7 @@ const createSchemaField = (
   } else {
     console.error('ERROR: This is an unimplemented type in our JSONSchemaForm implementation');
   }
+
   return (
     <Field
       key={fieldName}

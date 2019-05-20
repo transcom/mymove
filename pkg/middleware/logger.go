@@ -11,4 +11,5 @@ type Logger interface {
 	Error(msg string, fields ...zap.Field)
 	Warn(msg string, fields ...zap.Field)
 	Fatal(msg string, fields ...zap.Field)
+	WithOptions(options ...zap.Option) *zap.Logger
 }

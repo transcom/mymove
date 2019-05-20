@@ -47,16 +47,18 @@ export class AddressElementEdit extends Component {
         <SwaggerField fieldName="street_address_1" swagger={this.props.schema} required />
         <SwaggerField fieldName="street_address_2" swagger={this.props.schema} />
         <SwaggerField fieldName="city" swagger={this.props.schema} required />
-        <div className={style['state-zip']}>
-          <div />
-          <SwaggerField className="usa-width-one-half" fieldName="state" swagger={this.props.schema} required />
-          <SwaggerField
-            className="usa-width-one-half"
-            fieldName="postal_code"
-            swagger={this.props.schema}
-            zipPattern={this.props.zipPattern}
-            required
-          />
+        <div className={style['state-zip-container']}>
+          <div className="usa-width-one-half">
+            <SwaggerField fieldName="state" swagger={this.props.schema} required />
+          </div>
+          <div className="usa-width-one-half">
+            <SwaggerField
+              fieldName="postal_code"
+              swagger={this.props.schema}
+              zipPattern={this.props.zipPattern}
+              required
+            />
+          </div>
         </div>
       </FormSection>
     );

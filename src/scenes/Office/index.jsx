@@ -18,8 +18,9 @@ import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import ScratchPad from 'shared/ScratchPad';
 import { isProduction } from 'shared/constants';
+import { RetrieveMovesForOffice } from './api';
 
-import './office.css';
+import './office.scss';
 
 class Queues extends Component {
   render() {
@@ -29,7 +30,7 @@ class Queues extends Component {
           <QueueList />
         </div>
         <div className="queue-list-column">
-          <QueueTable queueType={this.props.match.params.queueType} />
+          <QueueTable queueType={this.props.match.params.queueType} retrieveMoves={RetrieveMovesForOffice} />
         </div>
       </div>
     );

@@ -8,6 +8,7 @@ import {
   SubmittedHhgMoveSummary,
 } from './MoveSummary';
 import moment from 'moment';
+import Alert from 'shared/Alert';
 
 describe('MoveSummary', () => {
   const editMoveFn = jest.fn();
@@ -36,6 +37,7 @@ describe('MoveSummary', () => {
         ppm={ppmObj}
         shipment={hhgObj}
         editMove={editMoveFn}
+        moveSubmitSuccess={moveObj.moveSubmitSuccess}
         resumeMove={resumeMoveFn}
         addPPMShipment={addPPMShipmentFn}
       />,
@@ -74,8 +76,41 @@ describe('MoveSummary', () => {
       ).toEqual('<h2>New move</h2>');
     });
   });
-  describe('when a move with a ppm is in submitted state', () => {
-    it('renders submitted content', () => {
+  describe('when a move with a ppm has successfully been submitted', () => {
+    it('renders submitted content and alert with summary information', () => {
+      const moveObj = { selected_move_type: 'PPM', status: 'SUBMITTED', moveSubmitSuccess: true };
+      const futureFortNight = moment().add(14, 'day');
+      const ppmObj = {
+        original_move_date: futureFortNight,
+        weight_estimate: '10000',
+        estimated_incentive: '$24665.59 - 27261.97',
+      };
+      const hhgObj = {};
+      const subComponent = getShallowRender(
+        entitlementObj,
+        serviceMember,
+        ordersObj,
+        moveObj,
+        ppmObj,
+        hhgObj,
+        editMoveFn,
+        resumeMoveFn,
+      ).find(SubmittedPpmMoveSummary);
+      expect(subComponent.find(SubmittedPpmMoveSummary).length).toBe(1);
+      expect(subComponent.dive().find(Alert).length).toBe(1);
+      expect(
+        subComponent
+          .find(SubmittedPpmMoveSummary)
+          .dive()
+          .find('.step')
+          .find('div.title')
+          .first()
+          .html(),
+      ).toEqual('<div class="title">Next Step: Wait for approval &amp; get ready</div>');
+    });
+  });
+  describe('when a move with a ppm is in submitted state after initial submission', () => {
+    it('renders submitted content (but no alert)', () => {
       const moveObj = { selected_move_type: 'PPM', status: 'SUBMITTED' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
@@ -95,6 +130,7 @@ describe('MoveSummary', () => {
         resumeMoveFn,
       ).find(SubmittedPpmMoveSummary);
       expect(subComponent.find(SubmittedPpmMoveSummary).length).toBe(1);
+      expect(subComponent.dive().find(Alert).length).toBe(0);
       expect(
         subComponent
           .find(SubmittedPpmMoveSummary)
@@ -106,6 +142,7 @@ describe('MoveSummary', () => {
       ).toEqual('<div class="title">Next Step: Wait for approval &amp; get ready</div>');
     });
   });
+
   describe('when a move is in approved state but ppm is submitted state', () => {
     it('renders submitted rather than approved content', () => {
       const moveObj = { selected_move_type: 'PPM', status: 'APPROVED' };
@@ -405,32 +442,6 @@ describe('MoveSummary', () => {
       const moveObj = { selected_move_type: 'HHG' };
       const ppmObj = {};
       const hhgObj = { status: 'DELIVERED' };
-      const subComponent = getShallowRender(
-        entitlementObj,
-        serviceMember,
-        ordersObj,
-        moveObj,
-        ppmObj,
-        hhgObj,
-        editMoveFn,
-        resumeMoveFn,
-      ).find(SubmittedHhgMoveSummary);
-      expect(subComponent.find(SubmittedHhgMoveSummary).length).toBe(1);
-      expect(
-        subComponent
-          .dive()
-          .find('.step')
-          .find('div.title')
-          .first()
-          .html(),
-      ).toEqual('<div class="title">Next Step: Survey</div>');
-    });
-  });
-  describe('when an hhg is in completed state', () => {
-    it('renders submitted content', () => {
-      const moveObj = { selected_move_type: 'HHG' };
-      const ppmObj = {};
-      const hhgObj = { status: 'COMPLETED' };
       const subComponent = getShallowRender(
         entitlementObj,
         serviceMember,

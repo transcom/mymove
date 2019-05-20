@@ -143,9 +143,9 @@ func (h PatchServiceAgentHandler) Handle(params serviceagentop.PatchServiceAgent
 	serviceAgentID, _ := uuid.FromString(params.ServiceAgentID.String())
 
 	if session.IsTspUser() {
-		tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
-		if err != nil {
-			h.Logger().Error("DB Query", zap.Error(err))
+		tspUser, fetchTspUserByIDErr := models.FetchTspUserByID(h.DB(), session.TspUserID)
+		if fetchTspUserByIDErr != nil {
+			h.Logger().Error("DB Query", zap.Error(fetchTspUserByIDErr))
 			return serviceagentop.NewPatchServiceAgentForbidden()
 		}
 
