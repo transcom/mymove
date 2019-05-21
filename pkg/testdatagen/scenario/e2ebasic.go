@@ -178,6 +178,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			ServiceMemberID: &smID,
 		},
 	})
+
 	/*
 	 * Service member with uploaded orders and a new ppm
 	 */

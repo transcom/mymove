@@ -5,7 +5,7 @@ describe('setting up service member profile', function() {
   beforeEach(() => {
     // cy.signInAsNewMilMoveUser();
 
-    cy.signInAsUserPostRequest(milmoveAppName, '5057efbe-c021-47b4-99bb-8ef3857e972e');
+    cy.signInAsUserPostRequest(milmoveAppName, 'f285bfea-573b-4216-8e0e-5cf2d9834368');
   });
   it('progresses thru forms', function() {
     serviceMemberProfile();
