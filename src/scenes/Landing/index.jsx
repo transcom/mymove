@@ -9,7 +9,7 @@ import { withContext } from 'shared/AppContext';
 import { MoveSummary, PPMAlert } from './MoveSummary';
 import { isHHGPPMComboMove } from 'scenes/Moves/Ppm/ducks';
 import { lastMoveIsCanceled } from 'scenes/Moves/ducks';
-import { getCurrentShipment, getCurrentMoveID, getLatestMoveID } from 'shared/UI/ducks';
+import { getCurrentShipment, getCurrentMoveID } from 'shared/UI/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import {
@@ -170,7 +170,7 @@ const mapStateToProps = state => {
   const user = selectCurrentUser(state);
   // Canceled moves won't return a move ID in the UI redux store
   // need to get the latest move id instead
-  const moveId = getCurrentMoveID(state) || getLatestMoveID(state);
+  const moveId = getCurrentMoveID(state);
   const props = {
     lastMoveIsCanceled: isLastMoveCanceled(state, moveId),
     selectedMoveType: selectedMoveType(state, moveId),

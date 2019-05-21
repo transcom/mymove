@@ -6,7 +6,7 @@ import { fetchActive } from 'shared/utils';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCents } from 'shared/formatters';
 import { selectShipment } from 'shared/Entities/modules/shipments';
-import { getCurrentShipmentID, getCurrentMove, getCurrentMoveID, getLatestMoveID } from 'shared/UI/ducks';
+import { getCurrentShipmentID, getCurrentMove, getCurrentMoveID } from 'shared/UI/ducks';
 import { change } from 'redux-form';
 
 // Types
@@ -222,7 +222,7 @@ export function getDestinationPostalCode(state) {
 }
 
 export function getPPM(state) {
-  const moveId = getCurrentMoveID(state) || getLatestMoveID(state);
+  const moveId = getCurrentMoveID(state);
   const ppmFromEntities = Object.values(state.entities.personallyProcuredMoves).find(ppm => ppm.move_id === moveId);
   return ppmFromEntities || state.ppm.currentPpm;
 }

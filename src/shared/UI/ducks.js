@@ -76,11 +76,3 @@ export function getCurrentMoveID(state) {
 export function getCurrentMove(state) {
   return selectMove(state, getCurrentMoveID(state));
 }
-
-export function getLatestMoveID(state) {
-  return get(state, 'ui.latestMoveID');
-}
-
-export function getLatestMove(state) {
-  return selectMove(state, getLatestMoveID(state));
-}
