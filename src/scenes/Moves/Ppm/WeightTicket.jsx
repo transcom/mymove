@@ -120,16 +120,16 @@ class WeightTicket extends Component {
           )}
 
           {/* TODO: change onclick handler to go to next page in flow */}
-          {additionalWeightTickets === 'Yes' ? <SaveAddAnotherButton /> : <SaveContinueButton />}
+          {additionalWeightTickets === 'Yes' ? (
+            <PPMPaymentRequestActionBtns nextBtnLabel="Save & Add Another" />
+          ) : (
+            <PPMPaymentRequestActionBtns nextBtnLabel="Save & Continue" />
+          )}
         </div>
       </Fragment>
     );
   }
 }
-
-const SaveAddAnotherButton = () => <PPMPaymentRequestActionBtns onClick={() => {}} nextBtnLabel="Save & Add Another" />;
-
-const SaveContinueButton = () => <PPMPaymentRequestActionBtns onClick={() => {}} nextBtnLabel="Save & Continue" />;
 
 const formName = 'weight_ticket_wizard';
 WeightTicket = reduxForm({
