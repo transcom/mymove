@@ -36,6 +36,10 @@ export const upsert = (arr, newValue) => {
   }
 };
 
+export function fetchFirst(collection) {
+  return find(collection) || null;
+}
+
 export function fetchActive(foos) {
   return find(foos, i => includes(['DRAFT', 'SUBMITTED', 'APPROVED', 'PAYMENT_REQUESTED'], get(i, 'status'))) || null;
 }
