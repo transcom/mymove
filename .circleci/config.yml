@@ -455,6 +455,7 @@ jobs:
             DB_NAME: test_db
             ENV: test
             ENVIRONMENT: test
+            MIGRATION_PATH: /home/circleci/go/src/github.com/transcom/mymove/migrations
             SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
       - announce_failure
@@ -501,6 +502,7 @@ jobs:
             DB_NAME: test_db
             ENV: test
             ENVIRONMENT: test
+            MIGRATION_PATH: /home/circleci/go/src/github.com/transcom/mymove/migrations
             SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
           working_directory: /home/circleci/go/src/github.com/transcom/mymove
@@ -587,7 +589,8 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - run: make bin/chamber
-      - run: make bin/soda
+      - run: make bin/rds-combined-ca-bundle.pem
+      - run: make bin/milmove
       - build_tag_push:
           dockerfile: Dockerfile.migrations
           tag: ppp-migrations:dev

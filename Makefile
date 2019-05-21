@@ -185,9 +185,6 @@ bin/gin: .check_go_version.stamp .check_gopath.stamp
 bin/soda: .check_go_version.stamp .check_gopath.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda
 
-bin_linux/soda: .server_generate_linux.stamp
-	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/soda github.com/gobuffalo/pop/soda
-
 bin/swagger: .check_go_version.stamp .check_gopath.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 
@@ -223,10 +220,10 @@ bin/generate-shipment-summary: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
 
 bin/generate-test-data: pkg/assets/assets.go .server_generate.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
 
 bin_linux/generate-test-data: pkg/assets/assets.go .server_generate_linux.stamp
-	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate_test_data
+	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate-test-data
 
 bin/health-checker:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/health-checker ./cmd/health-checker
@@ -251,6 +248,9 @@ bin/make-tsp-user: .server_generate.stamp
 
 bin/milmove: .server_generate.stamp
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
+
+bin_linux/milmove: .server_generate_linux.stamp
+	GOOS=linux GOARCH=amd64 go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove ./cmd/milmove
 
 bin/renderer:
 	# do not build with LDFLAGS since errors on alpine and dynamic linking is fine
@@ -464,11 +464,11 @@ db_dev_run: db_dev_start db_dev_create
 db_dev_reset: db_dev_destroy db_dev_run
 
 .PHONY: db_dev_migrate_standalone
-db_dev_migrate_standalone: bin/soda
+db_dev_migrate_standalone: bin/milmove
 	@echo "Migrating the ${DB_NAME_DEV} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd scripts && \
-		../bin/soda -c ../config/database.yml -p ../migrations migrate up
+		../bin/milmove migrate -p ../migrations
 
 .PHONY: db_dev_migrate
 db_dev_migrate: server_deps db_dev_migrate_standalone
@@ -519,11 +519,11 @@ db_prod_migrations_run: db_prod_migrations_start db_prod_migrations_create
 db_prod_migrations_reset: db_prod_migrations_destroy db_prod_migrations_run
 
 .PHONY: db_prod_migrations_migrate_standalone
-db_prod_migrations_migrate_standalone: bin/soda
+db_prod_migrations_migrate_standalone: bin/milmove
 	@echo "Migrating the ${DB_NAME_PROD_MIGRATIONS} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd scripts && \
-		../bin/soda -c ../config/database.yml -p ../migrations migrate up
+		../bin/milmove migrate -p ../migrations
 
 .PHONY: db_prod_migrations_migrate
 db_prod_migrations_migrate: server_deps db_prod_migrations_migrate_standalone
@@ -591,19 +591,19 @@ db_test_reset: db_test_destroy db_test_run
 db_test_reset_docker: db_test_destroy db_test_run_docker
 
 .PHONY: db_test_migrate_standalone
-db_test_migrate_standalone: bin/soda
+db_test_migrate_standalone: bin/milmove
 ifndef CIRCLECI
 	@echo "Migrating the ${DB_NAME_TEST} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd scripts && \
 		DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST)\
-			../bin/soda -c ../config/database.yml -p ../migrations migrate up
+			../bin/milmove migrate -p ../migrations
 else
 	@echo "Migrating the ${DB_NAME_TEST} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd scripts && \
 		DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_DEV) \
-			../bin/soda -c ../config/database.yml -p ../migrations migrate up
+			../bin/milmove migrate -p ../migrations
 endif
 
 .PHONY: db_test_migrate
@@ -611,7 +611,7 @@ db_test_migrate: server_deps db_test_migrate_standalone
 
 .PHONY: db_test_migrations_build
 db_test_migrations_build: .db_test_migrations_build.stamp
-.db_test_migrations_build.stamp: server_generate_linux bin_linux/soda bin_linux/generate-test-data
+.db_test_migrations_build.stamp: server_generate_linux bin_linux/milmove bin_linux/generate-test-data
 	@echo "Build the docker migration container..."
 	docker build -f Dockerfile.migrations_local --tag e2e_migrations:latest .
 
@@ -628,9 +628,9 @@ db_test_migrate_docker: db_test_migrations_build
 		-e DB_PASSWORD=$(PGPASSWORD) \
 		--link="$(DB_DOCKER_CONTAINER_TEST):database" \
 		--rm \
-		--entrypoint /bin/soda \
+		--entrypoint /bin/milmove\
 		e2e_migrations:latest \
-		migrate -c /migrate/database.yml -p /migrate/migrations up
+		migrate -p /migrate/migrations
 
 #
 # ----- END DB_TEST TARGETS -----
@@ -681,7 +681,7 @@ db_e2e_up: bin/generate-test-data
 	@echo "Truncate the ${DB_NAME_TEST} database..."
 	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE;'
 	@echo "Populate the ${DB_NAME_TEST} database..."
-	DB_PORT=$(DB_PORT_TEST) bin/generate-test-data -named-scenario="e2e_basic" -env="test"
+	DB_PORT=$(DB_PORT_TEST) bin/generate-test-data --named-scenario="e2e_basic" -env="test"
 
 .PHONY: db_e2e_up_docker
 db_e2e_up_docker:
@@ -705,7 +705,7 @@ db_e2e_up_docker:
 		--workdir "/bin" \
 		--entrypoint generate-test-data \
 		e2e_migrations:latest \
-		-config-dir /migrate -named-scenario e2e_basic
+		--named-scenario e2e_basic
 
 .PHONY: db_e2e_init
 db_e2e_init: db_test_reset db_test_migrate db_e2e_up
@@ -716,7 +716,7 @@ db_e2e_init_docker: db_test_reset_docker db_test_migrate_docker db_e2e_up_docker
 .PHONY: db_dev_e2e_populate
 db_dev_e2e_populate: db_dev_reset db_dev_migrate build_tools
 	@echo "Populate the ${DB_NAME_DEV} database with docker command..."
-	bin/generate-test-data -named-scenario="e2e_basic" -env="development"
+	bin/generate-test-data --named-scenario="e2e_basic" -env="development"
 
 .PHONY: db_test_e2e_populate
 db_test_e2e_populate: db_test_reset_docker db_test_migrate_docker build_tools db_e2e_up_docker
