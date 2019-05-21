@@ -103,81 +103,75 @@ export const DraftMoveSummary = props => {
   );
 };
 
+export const PPMAlert = props => {
+  return (
+    <Alert type="success" heading={props.heading}>
+      Next, wait for approval. Once approved:<br />
+      <ul>
+        <li>
+          Get certified <strong>weight tickets</strong>, both empty &amp; full
+        </li>
+        <li>
+          Save <strong>expense receipts</strong>, including for storgage
+        </li>
+        <li>
+          Read the{' '}
+          <strong>
+            <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
+              PPM info sheet
+            </a>
+          </strong>{' '}
+          for more info
+        </li>
+      </ul>
+    </Alert>
+  );
+};
+
 export const SubmittedPpmMoveSummary = props => {
-  const { ppm, moveSubmitSuccess } = props;
+  const { ppm } = props;
   return (
     <Fragment>
-      <div>
-        {moveSubmitSuccess && (
-          <Alert type="success" heading="Congrats - your move is submitted!">
-            Next, wait for approval. Once approved:<br />
-            <ul>
-              <li>
-                Get certified <strong>weight tickets</strong>, both empty &amp; full
-              </li>
-              <li>
-                Save <strong>expense receipts</strong>, including for storgage
-              </li>
-              <li>
-                Read the{' '}
-                <strong>
+      <div className="shipment_box">
+        <div className="shipment_type">
+          <img className="move_sm" src={ppmCar} alt="ppm-car" />
+          Move your own stuff (PPM)
+        </div>
+        <div className="shipment_box_contents">
+          <PPMStatusTimeline ppm={ppm} />
+          <div className="step-contents">
+            <div className="status_box usa-width-two-thirds">
+              <div className="step">
+                <div className="title">Next Step: Wait for approval &amp; get ready</div>
+                <div className="next-step">
+                  You'll be notified when your move is approved (up to 3 days). To get ready to move:
+                  <ul>
+                    <li>
+                      Go to <a href="https://move.mil/resources/locator-maps">weight scales</a> to get empty &amp; full
+                      weight tickets.
+                    </li>
+                    <li>Save expense receipts, including for storage.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div className="usa-width-one-third">
+              <PPMMoveDetails ppm={ppm} />
+              <div className="titled_block">
+                <div className="title">Documents</div>
+                <div className="details-links">
                   <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
-                    PPM info sheet
+                    PPM Info Packet
                   </a>
-                </strong>{' '}
-                for more info
-              </li>
-            </ul>
-          </Alert>
-        )}
-
-        <div className="shipment_box">
-          <div className="shipment_type">
-            <img className="move_sm" src={ppmCar} alt="ppm-car" />
-            Move your own stuff (PPM)
+                </div>
+              </div>
+            </div>
           </div>
-
-          <div className="shipment_box_contents">
-            <PPMStatusTimeline ppm={ppm} />
-            <div className="step-contents">
-              <div className="status_box usa-width-two-thirds">
-                <div className="step">
-                  <div className="title">Next Step: Wait for approval &amp; get ready</div>
-                  <div className="next-step">
-                    You'll be notified when your move is approved (up to 3 days). To get ready to move:
-                    <ul>
-                      <li>
-                        Go to <a href="https://move.mil/resources/locator-maps">weight scales</a> to get empty &amp;
-                        full weight tickets.
-                      </li>
-                      <li>Save expense receipts, including for storage.</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div className="usa-width-one-third">
-                <PPMMoveDetails ppm={ppm} />
-                <div className="titled_block">
-                  <div className="title">Documents</div>
-                  <div className="details-links">
-                    <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
-                      PPM Info Packet
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <a
-              className="usa-button usa-button-secondary"
-              href={ppmInfoPacket}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Read PPM Info Sheet
-            </a>
-            <div className="step-links">
-              <FindWeightScales />
-            </div>
+          <a className="usa-button usa-button-secondary" href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
+            Read PPM Info Sheet
+          </a>
+          <div className="step-links">
+            <FindWeightScales />
           </div>
         </div>
       </div>
@@ -503,7 +497,6 @@ export const MoveSummary = props => {
     resumeMove,
     reviewProfile,
     requestPaymentSuccess,
-    moveSubmitSuccess,
     addPPMShipment,
   } = props;
   const moveStatus = get(move, 'status', 'DRAFT');
@@ -563,7 +556,6 @@ export const MoveSummary = props => {
               entitlement={entitlement}
               resumeMove={resumeMove}
               reviewProfile={reviewProfile}
-              moveSubmitSuccess={moveSubmitSuccess}
               requestPaymentSuccess={requestPaymentSuccess}
             />
           )}

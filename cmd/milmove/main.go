@@ -65,8 +65,20 @@ func (e *errInvalidHost) Error() string {
 	return fmt.Sprintf("invalid host %s, must not contain whitespace, :, /, or \\", e.Host)
 }
 
+func stringSliceContains(stringSlice []string, value string) bool {
+	for _, x := range stringSlice {
+		if value == x {
+			return true
+		}
+	}
+	return false
+}
+
 // initServeFlags - Order matters!
 func initServeFlags(flag *pflag.FlagSet) {
+
+	// Environment
+	cli.InitEnvironmentFlags(flag)
 
 	// Build Server
 	cli.InitBuildFlags(flag)
@@ -91,6 +103,9 @@ func initServeFlags(flag *pflag.FlagSet) {
 
 	// Login.Gov Auth config
 	cli.InitAuthFlags(flag)
+
+	// Devlocal Auth config
+	cli.InitDevlocalFlags(flag)
 
 	// HERE Route Config
 	cli.InitRouteFlags(flag)
@@ -130,6 +145,10 @@ func checkConfig(v *viper.Viper, logger logger) error {
 
 	logger.Info("checking webserver config")
 
+	if err := cli.CheckEnvironment(v); err != nil {
+		return err
+	}
+
 	if err := cli.CheckBuild(v); err != nil {
 		return err
 	}
@@ -159,6 +178,10 @@ func checkConfig(v *viper.Viper, logger logger) error {
 	}
 
 	if err := cli.CheckAuth(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckDevlocal(v); err != nil {
 		return err
 	}
 
@@ -679,7 +702,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 
-	if isDevOrTest {
+	if v.GetBool(cli.DevlocalAuthFlag) {
 		logger.Info("Enabling devlocal auth")
 		localAuthMux := goji.SubMux()
 		root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)
@@ -688,12 +711,15 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 
-		devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
-		devlocalCa, readFileErr := ioutil.ReadFile(devlocalCAPath) // #nosec
-		if readFileErr != nil {
-			logger.Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(readFileErr))
-		} else {
-			rootCAs.AppendCertsFromPEM(devlocalCa)
+		if stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment}, v.GetString(cli.EnvironmentFlag)) {
+			logger.Info("Adding devlocal CA to root CAs")
+			devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
+			devlocalCa, readFileErr := ioutil.ReadFile(devlocalCAPath) // #nosec
+			if readFileErr != nil {
+				logger.Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(readFileErr))
+			} else {
+				rootCAs.AppendCertsFromPEM(devlocalCa)
+			}
 		}
 	}
 

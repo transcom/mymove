@@ -300,6 +300,8 @@ jobs:
             source $BASH_ENV
             make webserver_test
           environment:
+            ENV: test
+            ENVIRONMENT: test
             PWD: /home/circleci/go/src/github.com/transcom/mymove
             LOGIN_GOV_HOSTNAME: idp.int.identitysandbox.gov
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
@@ -451,6 +453,8 @@ jobs:
             DB_HOST: localhost
             DB_PORT: 5432
             DB_NAME: test_db
+            ENV: test
+            ENVIRONMENT: test
             MIGRATION_PATH: /home/circleci/go/src/github.com/transcom/mymove/migrations
             SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
@@ -496,6 +500,8 @@ jobs:
             DB_HOST: localhost
             DB_PORT: 5432
             DB_NAME: test_db
+            ENV: test
+            ENVIRONMENT: test
             MIGRATION_PATH: /home/circleci/go/src/github.com/transcom/mymove/migrations
             SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
@@ -628,6 +634,8 @@ jobs:
           name: Run acceptance tests
           command: make webserver_test
           environment:
+            ENV: test
+            ENVIRONMENT: experimental
             CHAMBER_RETRIES: 20
             PWD: /home/circleci/go/src/github.com/transcom/mymove
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
@@ -697,6 +705,8 @@ jobs:
           name: Run acceptance tests
           command: make webserver_test
           environment:
+            ENV: test
+            ENVIRONMENT: staging
             CHAMBER_RETRIES: 20
             PWD: /home/circleci/go/src/github.com/transcom/mymove
             DOD_CA_PACKAGE: /home/circleci/go/src/github.com/transcom/mymove/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
