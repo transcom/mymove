@@ -104,30 +104,32 @@ export const DraftMoveSummary = props => {
 };
 
 export const SubmittedPpmMoveSummary = props => {
-  const { ppm } = props;
+  const { ppm, moveSubmitSuccess } = props;
   return (
     <Fragment>
       <div>
-        <Alert type="success" heading="Congrats - your move is submitted!">
-          Next, wait for approval. Once approved:<br />
-          <ul>
-            <li>
-              Get certified <strong>weight tickets</strong>, both empty &amp; full
-            </li>
-            <li>
-              Save <strong>expense receipts</strong>, including for storgage
-            </li>
-            <li>
-              Read the{' '}
-              <strong>
-                <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
-                  PPM info sheet
-                </a>
-              </strong>{' '}
-              for more info
-            </li>
-          </ul>
-        </Alert>
+        {moveSubmitSuccess && (
+          <Alert type="success" heading="Congrats - your move is submitted!">
+            Next, wait for approval. Once approved:<br />
+            <ul>
+              <li>
+                Get certified <strong>weight tickets</strong>, both empty &amp; full
+              </li>
+              <li>
+                Save <strong>expense receipts</strong>, including for storgage
+              </li>
+              <li>
+                Read the{' '}
+                <strong>
+                  <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
+                    PPM info sheet
+                  </a>
+                </strong>{' '}
+                for more info
+              </li>
+            </ul>
+          </Alert>
+        )}
 
         <div className="shipment_box">
           <div className="shipment_type">
@@ -145,7 +147,8 @@ export const SubmittedPpmMoveSummary = props => {
                     You'll be notified when your move is approved (up to 3 days). To get ready to move:
                     <ul>
                       <li>
-                        Go to <a>weight scales</a> to get empty &amp; full weight tickets.
+                        Go to <a href="https://move.mil/resources/locator-maps">weight scales</a> to get empty &amp;
+                        full weight tickets.
                       </li>
                       <li>Save expense receipts, including for storage.</li>
                     </ul>
@@ -500,6 +503,7 @@ export const MoveSummary = props => {
     resumeMove,
     reviewProfile,
     requestPaymentSuccess,
+    moveSubmitSuccess,
     addPPMShipment,
   } = props;
   const moveStatus = get(move, 'status', 'DRAFT');
@@ -559,6 +563,7 @@ export const MoveSummary = props => {
               entitlement={entitlement}
               resumeMove={resumeMove}
               reviewProfile={reviewProfile}
+              moveSubmitSuccess={moveSubmitSuccess}
               requestPaymentSuccess={requestPaymentSuccess}
             />
           )}

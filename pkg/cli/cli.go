@@ -8,14 +8,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-type errInvalidRegion struct {
-	Region string
-}
-
-func (e *errInvalidRegion) Error() string {
-	return fmt.Sprintf("invalid region %s", e.Region)
-}
-
 type errInvalidProtocol struct {
 	Protocol string
 }

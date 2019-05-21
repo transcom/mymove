@@ -8,7 +8,7 @@ set -eu -o pipefail
 
 readonly aws_command="aws"
 # Environments to upload production migrations to
-readonly environments=(experimental staging prod)
+readonly environments=("${ENVIRONMENTS:-experimental staging prod}")
 readonly aws_bucket_prefix="transcom-ppp-app-"
 readonly aws_bucket_suffix="-us-west-2"
 readonly aws_path_prefix="secure-migrations"
@@ -28,7 +28,7 @@ function proceed() {
 function run() {
   command=( "$@" )
   echo "...executing: ${command[*]}"
-  ${command[*]} &> /dev/null
+  ${command[*]} &> /dev/null || (echo "Failed!!" && exit 1)
 }
 
 #

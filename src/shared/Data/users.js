@@ -7,7 +7,6 @@ import { addEntities } from 'shared/Entities/actions';
 import { getShipment } from 'shared/Entities/modules/shipments';
 
 const getLoggedInUserType = 'GET_LOGGED_IN_USER';
-export const SET_LOGGED_OUT = 'SET_LOGGED_OUT';
 
 export const GET_LOGGED_IN_USER = helpers.generateAsyncActionTypes(getLoggedInUserType);
 const getLoggedInActions = helpers.generateAsyncActions(getLoggedInUserType);
@@ -91,14 +90,6 @@ const currentUserReducer = (state = currentUserReducerDefault(), action) => {
         hasSucceeded: false,
         error: action.error,
         userInfo: userInfoDefault(),
-      };
-    case SET_LOGGED_OUT:
-      return {
-        ...state,
-        userInfo: { email: '', isLoggedIn: false },
-        hasSucceeded: false,
-        hasErrored: false,
-        isLoading: false,
       };
     default:
       return state;

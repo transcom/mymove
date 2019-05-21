@@ -26,7 +26,9 @@ func MakeTDL(db *pop.Connection, assertions Assertions) models.TrafficDistributi
 	}
 
 	tdls := []models.TrafficDistributionList{}
-	query := db.Where(fmt.Sprintf("source_rate_area = '%s' AND destination_region = '%s' AND code_of_service = '%s'", source, dest, cos))
+	query := db.Where("source_rate_area = ?", source).
+		Where("destination_region = ?", dest).
+		Where("code_of_service = ?", cos)
 	err := query.All(&tdls)
 	if err != nil {
 		log.Panic(err)
