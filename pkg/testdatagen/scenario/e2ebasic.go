@@ -2297,6 +2297,58 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	models.SaveMoveDependencies(db, &hhg38.Move)
 
 	/*
+	 * Service member with in-transit shipment and Origin InSIT SIT
+	 */
+	email = "hhg@sit.insit.origin"
+	offer39 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("569283cf-7b36-11e9-b8cf-f218989021c1")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("78fbb4e3-7b36-11e9-8189-f218989021c1"),
+			FirstName:     models.StringPointer("ORIGIN-SIT"),
+			LastName:      models.StringPointer("InSIT"),
+			Edipi:         models.StringPointer("1857924699"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("84870ff3-7b36-11e9-8576-f218989021c1"),
+			Locator:          "SITOIN",
+			SelectedMoveType: &selectedMoveTypeHHG,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("8c146f1c-7b36-11e9-8bda-f218989021c1"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusINTRANSIT,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	authorizedStartDateOffer39 := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID:          offer39.ShipmentID,
+			Shipment:            offer39.Shipment,
+			Location:            models.StorageInTransitLocationORIGIN,
+			Status:              models.StorageInTransitStatusINSIT,
+			EstimatedStartDate:  time.Date(2019, time.Month(3), 22, 0, 0, 0, 0, time.UTC),
+			ActualStartDate:     &authorizedStartDateOffer39,
+			AuthorizedStartDate: &authorizedStartDateOffer39,
+		},
+	})
+	hhg39 := offer39.Shipment
+	hhg39.Move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &hhg39.Move)
+
+	/*
 	 * Service member with a ppm ready to request payment
 	 */
 	email = "ppm@requestingpay.ment"
