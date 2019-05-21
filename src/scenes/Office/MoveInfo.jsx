@@ -160,12 +160,6 @@ const ReferrerQueueLink = props => {
           <span>Delivered HHG Queue</span>
         </NavLink>
       );
-    case '/queues/hhg_completed':
-      return (
-        <NavLink to="/queues/hhg_completed" activeClassName="usa-current">
-          <span>Completed HHG Queue</span>
-        </NavLink>
-      );
     case '/queues/all':
       return (
         <NavLink to="/queues/all" activeClassName="usa-current">
