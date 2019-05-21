@@ -20,7 +20,7 @@ import WizardHeader from '../WizardHeader';
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import './DateAndLocation.css';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
-import { GetPpmWeightEstimate } from './api';
+import { GetPpmWeightEstimate, ValidateZipRateData } from './api';
 
 const sitEstimateDebounceTime = 300;
 const formName = 'ppp_date_and_location';
@@ -30,11 +30,41 @@ const DateAndLocationWizardForm = reduxifyWizardForm(formName);
 const InvalidMoveParamsErrorMsg =
   "We can 't schedule a move that far in the future. You can try an earlier date, or contact your PPPO for help.";
 
+const UnsupportedZipCodeErrorMsg =
+  "Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.";
+
 const validateDifferentZip = (value, formValues) => {
   if (value && value === formValues.pickup_postal_code) {
     return 'You entered the same zip code for your origin and destination. Please change one of them.';
   }
 };
+
+const validateZipData = (value, formValues, props, fieldName) => {
+  if (value && value.length < 5) {
+    return undefined;
+  }
+
+  const zip = value && value.slice(0, 5);
+  if (zip && fieldName === 'destination_postal_code') {
+    return ValidateZipRateData(zip, 'destination')
+      .then((responseBody) => {
+        console.log(responseBody)
+        return responseBody.valid
+      })
+      .catch(err => {
+        return { error: err };
+      });
+  } else if (zip && fieldName === 'pickup_postal_code') {
+    ValidateZipRateData(zip, 'origin')
+      .then((responseBody) => {
+
+        return responseBody.valid
+      })
+      .catch(err => {
+        return { error: err };
+      });
+  }
+}
 
 export class DateAndLocation extends Component {
   state = { showInfo: false };
@@ -106,6 +136,22 @@ export class DateAndLocation extends Component {
     );
   };
 
+  validateDestinationZip = (value, formValues, props, name) => {
+    let sameZipError = validateDifferentZip(value, formValues)
+    if (sameZipError) {
+      return sameZipError
+    }
+    let validity = validateZipData(value, formValues, props, name)
+    console.log(validity)
+    return validity ? undefined : UnsupportedZipCodeErrorMsg
+  }
+
+  validateOriginZip = (value, formValues, props, name) => {
+    let validity = validateZipData(value, formValues, props, name)
+    console.log(validity)
+    return validity ? undefined : UnsupportedZipCodeErrorMsg
+  }
+
   render() {
     const {
       pages,
@@ -138,6 +184,8 @@ export class DateAndLocation extends Component {
           pageKey={pageKey}
           serverError={error}
           initialValues={initialValues}
+          asyncValidate={validateZipData}
+          asyncChangeFields={['destination_postal_code']}
           enableReinitialize={true} //this is needed as the pickup_postal_code value needs to be initialized to the users residential address
         >
           <h2>PPM Dates & Locations</h2>
@@ -154,6 +202,7 @@ export class DateAndLocation extends Component {
             fieldName="pickup_postal_code"
             onChange={this.getDebouncedSitEstimate}
             swagger={this.props.schema}
+            validate={validateZipData}
             required
           />
           {!isHHGPPMComboMove && (
@@ -187,7 +236,7 @@ export class DateAndLocation extends Component {
             fieldName="destination_postal_code"
             swagger={this.props.schema}
             onChange={this.getDebouncedSitEstimate}
-            validate={validateDifferentZip}
+            validate={this.validateDestinationZip}
             required
           />
           <span className="grey">
