@@ -12,8 +12,6 @@ import AccessCode from './AccessCode';
 class ValidatedPrivateRouteContainer extends React.Component {
   render() {
     const { isLoggedIn, requiresAccessCode, accessCode, path, ...props } = this.props;
-    console.log('Requires access code', requiresAccessCode);
-    console.log('Access code', accessCode);
     if (!isLoggedIn) return <Route path={path} component={SignIn} />;
     if (isLoggedIn && requiresAccessCode && !accessCode) return <Route path={path} component={AccessCode} />;
     return <Route {...props} />;
@@ -24,7 +22,7 @@ const mapStateToProps = state => {
   const serviceMember = get(state, 'serviceMember.currentServiceMember');
   return {
     isLoggedIn: user.isLoggedIn,
-    requiresAccessCode: true, //get(serviceMember, 'requires_access_code'),
+    requiresAccessCode: get(serviceMember, 'requires_access_code'),
     accessCode: get(serviceMember, 'access_code'),
   };
 };
