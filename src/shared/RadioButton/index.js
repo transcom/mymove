@@ -1,4 +1,5 @@
 import React from 'react';
+import { string, func, bool } from 'prop-types';
 import { uniqueId } from 'lodash';
 
 const RadioButton = ({ name, label, onChange, value, checked, inputClassName, labelClassName }) => {
@@ -19,6 +20,16 @@ const RadioButton = ({ name, label, onChange, value, checked, inputClassName, la
       </label>
     </>
   );
+};
+
+RadioButton.propTypes = {
+  name: string.isRequired,
+  label: string.isRequired,
+  onChange: func.isRequired,
+  value: string.isRequired,
+  checked: bool.isRequired,
+  inputClassName: string,
+  labelClassName: string,
 };
 
 export default RadioButton;
