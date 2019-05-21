@@ -6,9 +6,8 @@ import { fetchActive } from 'shared/utils';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCents } from 'shared/formatters';
 import { selectShipment } from 'shared/Entities/modules/shipments';
-import { getCurrentShipmentID } from 'shared/UI/ducks';
+import { getCurrentShipmentID, getCurrentMove, getCurrentMoveID, getLatestMoveID } from 'shared/UI/ducks';
 import { change } from 'redux-form';
-import { getCurrentMove } from 'shared/UI/ducks';
 
 // Types
 export const SET_PENDING_PPM_SIZE = 'SET_PENDING_PPM_SIZE';
@@ -223,8 +222,7 @@ export function getDestinationPostalCode(state) {
 }
 
 export function getPPM(state) {
-  const move = getCurrentMove(state);
-  const moveId = move.id;
+  const moveId = getCurrentMoveID(state) || getLatestMoveID(state);
   const ppmFromEntities = Object.values(state.entities.personallyProcuredMoves).find(ppm => ppm.move_id === moveId);
   return ppmFromEntities || state.ppm.currentPpm;
 }

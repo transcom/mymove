@@ -9,8 +9,8 @@ import { withContext } from 'shared/AppContext';
 import { MoveSummary } from './MoveSummary';
 import { isHHGPPMComboMove } from 'scenes/Moves/Ppm/ducks';
 import { lastMoveIsCanceled } from 'scenes/Moves/ducks';
+import { getCurrentShipment, getCurrentMoveID, getLatestMoveID } from 'shared/UI/ducks';
 
-import { getCurrentShipment, getCurrentMoveID } from 'shared/UI/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import {
@@ -173,8 +173,10 @@ export class Landing extends Component {
 
 const mapStateToProps = state => {
   const shipmentId = getCurrentShipment(state);
-  const moveId = getCurrentMoveID(state);
   const user = selectCurrentUser(state);
+  // Canceled moves won't return a move ID in the UI redux store
+  // need to get the latest move id instead
+  const moveId = getCurrentMoveID(state) || getLatestMoveID(state);
   const props = {
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     selectedMoveType: selectedMoveType(state, moveId),
@@ -184,7 +186,7 @@ const mapStateToProps = state => {
     serviceMember: state.serviceMember.currentServiceMember || {},
     backupContacts: state.serviceMember.currentBackupContacts || [],
     orders: state.orders.currentOrders || {},
-    move: selectMove(state, moveId) || {},
+    move: selectMove(state, moveId),
     hhg: selectShipment(state, shipmentId),
     ppm: getPPM(state),
     currentShipment: shipmentId || {},
