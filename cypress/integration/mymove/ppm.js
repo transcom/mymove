@@ -146,7 +146,13 @@ describe('check invalid ppm inputs', () => {
   it('doesnt allow SM to progress if dont have rate data for move dates + zips"', function() {
     cy.signInAsUserPostRequest(milmoveAppName, '99360a51-8cfa-4e25-ae57-24e66077305f');
 
+    //ToDo: Figure out a better way to wait for the 'moveId' to load
+    // Clicking 'Continue Move Setup' too fast results in a null 'moveId' because
+    // the Redux reducers are still loading the data
+    cy.wait(500);
+
     cy.contains('Continue Move Setup').click();
+
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
     });
@@ -170,6 +176,12 @@ describe('check invalid ppm inputs', () => {
 
   it('doesnt allow same origin and destination zip', function() {
     cy.signInAsUserPostRequest(milmoveAppName, '99360a51-8cfa-4e25-ae57-24e66077305f');
+
+    //ToDo: Figure out a better way to wait for the 'moveId' to load
+    // Clicking 'Continue Move Setup' too fast results in a null 'moveId' because
+    // the Redux reducers are still loading the data.
+    cy.wait(500);
+
     cy.contains('Continue Move Setup').click();
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
