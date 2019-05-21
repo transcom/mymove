@@ -48,6 +48,6 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ updateMove, loadMove }, dispatch);
 }
 function mapStateToProps(state) {
-  return state.moves;
+  return { ...state.moves, pendingMoveType: state.ui.pendingMoveType };
 }
 export default connect(mapStateToProps, mapDispatchToProps)(MoveTypeWizardPage);
