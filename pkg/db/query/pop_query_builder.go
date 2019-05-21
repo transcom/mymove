@@ -1,6 +1,7 @@
 package query
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 
@@ -39,9 +40,18 @@ func getDBColumn(t reflect.Type, field string) (string, bool) {
 }
 
 // FetchOne fetches a single model record using pop's First method
+// Will return error if model is not pointer to struct
 func (p *PopQueryBuilder) FetchOne(model interface{}, field string, value interface{}) error {
 	// todo: pointer check on type
-	column, ok := getDBColumn(reflect.TypeOf(model).Elem(), field)
+	t := reflect.TypeOf(model)
+	if t.Kind() != reflect.Ptr {
+		return errors.New("Model should be pointer to struct")
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Struct {
+		return errors.New("Model should be pointer to struct")
+	}
+	column, ok := getDBColumn(t, field)
 	if !ok {
 		return &InvalidInputError{[]string{field}}
 	}
@@ -51,10 +61,22 @@ func (p *PopQueryBuilder) FetchOne(model interface{}, field string, value interf
 }
 
 // FetchMany fetches multiple model records using pop's All method
+// Will return error if model is not pointer to slice of structs
 func (p *PopQueryBuilder) FetchMany(model interface{}, filters map[string]interface{}) error {
 	query := p.db.Q()
 	invalidFields := make([]string, 0)
-	t := reflect.TypeOf(model).Elem().Elem() // todo: add slice check
+	t := reflect.TypeOf(model)
+	if t.Kind() != reflect.Ptr {
+		return errors.New("Model should be pointer to slice of structs")
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Slice {
+		return errors.New("Model should be pointer to slice of structs")
+	}
+	t = t.Elem()
+	if t.Kind() != reflect.Struct {
+		return errors.New("Model should be pointer to slice of structs")
+	}
 	for field, value := range filters {
 		column, ok := getDBColumn(t, field)
 		if !ok {
