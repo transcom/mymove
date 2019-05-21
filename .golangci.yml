@@ -11,17 +11,17 @@ linters-settings:
 linters:
   enable:
      - govet
-#    - gosec
-#    - deadcode
-#    - errcheck
-#    - gosimple
-#    - ineffassign
-#    - staticcheck
-#    - structcheck
-#    - typecheck
-#    - varcheck
-#    - goimports
-#    - gofmt
-#    - golint
   disable:
     - unused #deprecated https://github.com/dominikh/go-tools/tree/master/cmd/unused
+    - gosec
+    - deadcode
+    - errcheck
+    - gosimple
+    - ineffassign
+    - staticcheck
+    - structcheck
+    - typecheck
+    - varcheck
+    - goimports
+    - gofmt
+    - golint
