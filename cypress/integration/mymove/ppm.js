@@ -79,20 +79,24 @@ describe('completing the ppm flow', function() {
       expect(loc.pathname).to.match(/^\/$/);
     });
 
-    cy.contains('Congrats - your move is submitted!');
-    cy.contains('Next Step: Wait for approval');
-    cy
-      .get('.next-step')
-      .contains('Go to weight scales')
-      .children('a')
-      .should('have.attr', 'href', 'https://move.mil/resources/locator-maps');
-    cy
-      .get('a')
-      .contains('PPM info sheet')
-      .should('have.attr', 'href')
-      .and('include', '/downloads/ppm_info_sheet.pdf');
+    cy.get('.usa-alert-success').within(() => {
+      cy.contains('Congrats - your move is submitted!');
+      cy.contains('Next, wait for approval. Once approved:');
+      cy
+        .get('a')
+        .contains('PPM info sheet')
+        .should('have.attr', 'href')
+        .and('include', '/downloads/ppm_info_sheet.pdf');
+    });
 
-    cy.contains('Advance Requested: $1,333.91');
+    cy.get('.usa-width-three-fourths').within(() => {
+      cy.contains('Next Step: Wait for approval');
+      cy
+        .contains('Go to weight scales')
+        .children('a')
+        .should('have.attr', 'href', 'https://move.mil/resources/locator-maps');
+      cy.contains('Advance Requested: $1,333.91');
+    });
   });
 
   //TODO: remove when done with the new flow to request payment
