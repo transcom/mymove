@@ -45,6 +45,18 @@ executors:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
         command: "-c fsync=off -c full_page_writes=off -c max_connections=200"
+  mymove_and_postgres_large:
+    resource_class: large
+    working_directory: ~/go/src/github.com/transcom/mymove
+    docker:
+      - image: trussworks/circleci-docker-primary:9ad70927655a601580c036d53456c70061c76cba
+        environment:
+          GO111MODULE: "on"
+      - image: postgres:10.6
+        environment:
+          - POSTGRES_PASSWORD: mysecretpassword
+          - POSTGRES_DB: test_db
+        command: "-c fsync=off -c full_page_writes=off -c max_connections=200"
 
 commands:
   announce_failure:
@@ -422,7 +434,7 @@ jobs:
 
   # `server_test` runs the server side Go tests
   server_test:
-    executor: mymove_and_postgres_medium
+    executor: mymove_and_postgres_large
     steps:
       - checkout
       - setup_remote_docker:
