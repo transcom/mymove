@@ -126,6 +126,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		BackupMailingAddress:   backupMailingAddress,
 		SocialSecurityNumber:   ssn,
 		DutyStation:            station,
+		RequiresAccessCode:     true,
 		DutyStationID:          stationID,
 	}
 	smVerrs, err := models.SaveServiceMember(ctx, h.DB(), &newServiceMember)

@@ -105,7 +105,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	/*
 	 * Service member with no uploaded orders
 	 */
-	email = "needs@orde.rssssss"
+	email = "needs@orde.rs"
 	uuidStr := "feac0e92-66ec-4cab-ad29-538129bf918e"
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
