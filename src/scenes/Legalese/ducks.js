@@ -46,7 +46,11 @@ export const signAndSubmitForApproval = (moveId, certificationText, signature, d
         }),
       );
 
-      await dispatch(submitForApproval(moveId, submitDate));
+      await dispatch(
+        SubmitForApproval(moveId, {
+          ppm_submit_date: submitDate,
+        }),
+      );
       return dispatch(signAndSubmitForApprovalActions.success());
     } catch (error) {
       await dispatch(signAndSubmitForApprovalActions.error(error));
@@ -54,12 +58,6 @@ export const signAndSubmitForApproval = (moveId, certificationText, signature, d
     }
   };
 };
-
-export function submitForApproval(moveId, submitDate) {
-  return SubmitForApproval(moveId, {
-    ppm_submit_date: submitDate,
-  });
-}
 
 // this function signature needs to match signAndSubmitForApproval
 export const signAndSubmitPpm = (moveId, certificationText, signature, dateSigned, ppmId, ppmSubmitDate) => {
