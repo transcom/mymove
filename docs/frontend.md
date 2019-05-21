@@ -16,9 +16,12 @@
   * [Function Declarations](#function-declarations)
   * [Ordering imports](#ordering-imports)
   * [Using Redux](#using-redux)
-* [CSS](#css)
-  * [BEM](#bem)
-  * [USWDS](#uswds)
+  * [Styling Standards](#styling-standards)
+    * [Using Sass and CSS Modules](#using-sass-and-css-modules)
+    * [Classnames](#classnames)
+    * [rem vs. em](#rem-vs-em)
+    * [BEM](#bem)
+    * [USWDS](#uswds)
 * [Tooling](#tooling)
   * [Sublime Plugins](#sublime-plugins)
   * [WebStorm](#webstorm)
@@ -113,16 +116,46 @@ Adhere to Airbnb's [JavaScript Style Guide](https://github.com/airbnb/javascript
 * Connect higher level components to Redux, pass down props to less significant children. (Avoid connecting everything to Redux.)
 * Use [ducks](https://github.com/erikras/ducks-modular-redux) for organizing code.
 
-## CSS
+### Styling Standards
 
-### BEM
+MilMove is transitioning from anarchistic styling to more organized and standardized styling, so much of the existing code is not yet organized to the current standards.  You can find an example of refactored code styling of `InvoicePane.jsx` in `InvoicePanel.module.scss` and its child components and corresponding stylesheets.  All new components/styling should utilize the below standards. When we touch an existing component, we should try to adjust the styling to follow the standards.
+
+#### Using Sass and CSS Modules
+
+* All new components should utilize [Sass](https://sass-lang.com/documentation/file.SASS_REFERENCE.html) and [CSS modules](https://github.com/css-modules/css-modules) (See [ADR](https://github.com/transcom/mymove/blob/master/docs/adr/0031-css-tooling.md)).  To apply Sass and CSS Modules, name files  with this syntax: `<component>.module.scss`
+* Use CSS Modules' [`composes`](https://bambielli.com/til/2017-08-11-css-modules-composes/#) to build a new class out of other pre-defined classes
+* Where to put styles?
+  * For global styles, such as colors and themes, utilize global variables in files such as `colors.scss`
+  * Styles shared across the app should go into `src/shared/styles`.  Most common styles can fit into `common.module.scss`, though additional files may be appropriate.
+  * Styles unique to a component should go into a corresponding component style file (`<component>.module.sccss`)
+  * Sibling components that share styles: share styles through the parent component's stylesheet (ex. `StorageInTransitApproveForm.jsx` and `StorageInTransitDenyForm.jsx` could share styles that would go into their parent `StorageInTransit.jsx`'s stylesheet `StorageInTransit.module.scss`)
+* Syntax
+  * Import styles from a component's stylesheet as `import styles from 'InvoicePanel.module.scss'`.  If more than one stylesheet needs to be imported, use `styles` for the component's style, and another name for the secondary stylesheets (ex. `iconStyles`)
+  * Access the styles with dot notation `styles.myclassname`.  If the class name uses a hyphen, like `invoice-panel`, it must be accessed with this notation: `styles['invoice-panel']`
+  * If fewer than 50% of the styles are used from a stylesheet, import only the styles used (ex. `import { myclassname } from 'MyComponent.module.scss'`)
+* Tests
+  * Add `data-cy` as an attribute on the elements you want to identify in your tests, and use that attribute instead of the class name to identify an element in your test (see [Cypress best practices](https://docs.cypress.io/guides/references/best-practices.html#Selecting-Elements)).  CSS modules tags on a unique identifier to create local classes.  This means that tests that use just the class name will fail.
+  * Ex. Rather than `cy.get('.invoice-detail')`, use `cy.get('[data-cy="invoice-detail"]')` when your element looks like `<div classname=styles["invoice-detail"] data-cy="invoice-detail"></div>`
+* Resources
+  * [Beginners Guide to Sass](https://coolestguidesontheplanet.com/guide-beginning-sass-css/)
+  * CSS Modules with React: [The Complete Guide](https://blog.yipl.com.np/css-modules-with-react-the-complete-guide-a98737f79c7c)
+
+#### Classnames
+
+* Use [`classnames`](https://github.com/JedWatson/classnames) package for assigning classes based on boolean values
+
+#### rem vs. em
+
+Understand the [difference between rem and em](https://zellwk.com/blog/rem-vs-em/). Which one you use can impact styling elsewhere on the webpage.
+
+#### BEM
 
 * Where we need to write CSS, follow the BEM naming convention to increase readability & reusability.
   * BEM is short for Block, Element, Modifier which are the three components of classnames.
   * From [CSS Tricks](https://css-tricks.com/bem-101/): "In this CSS methodology a block is a top-level abstraction of a new component, for example a button: `.btn { }`. This block should be thought of as a parent. Child items, or elements, can be placed inside and these are denoted by two underscores following the name of the block like `.btn__price { }`. Finally, modifiers can manipulate the block so that we can theme or style that particular component without inflicting changes on a completely unrelated module. This is done by appending two hyphens to the name of the block just like `btn--orange`."
   * Expanding on this, a modified child class would have a class name like `.btn__price--orange`.
 
-### USWDS
+#### USWDS
 
 * Check the [USWDS Design Standards](https://standards.usa.gov/components/) for a component that matches your needs. Maximize the code view to see what classes to use to replicate the component styles.
 * USWDS has a [Slack chat](https://chat.18f.gov/) you can go to for help. Get invited to it by filling out this form.
