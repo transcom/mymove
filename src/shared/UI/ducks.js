@@ -10,6 +10,7 @@ const initialState = {
 };
 
 const SET_CURRENT_SHIPMENT_ID = 'SET_CURRENT_SHIPMENT_ID';
+const SET_CURRENT_MOVE_ID = 'SET_CURRENT_MOVE_ID';
 
 export default function uiReducer(state = initialState, action) {
   switch (action.type) {
@@ -25,8 +26,7 @@ export default function uiReducer(state = initialState, action) {
         return {
           ...state,
           currentShipmentID: activeShipment ? activeShipment.id : null,
-          currentMoveID: activeMove ? activeMove.id : null,
-          latestMoveID: latestMove ? latestMove.id : null,
+          currentMoveID: get(activeMove, 'id', null) || get(latestMove, 'id', null),
         };
       } catch (e) {
         console.error(e);
@@ -37,9 +37,21 @@ export default function uiReducer(state = initialState, action) {
         ...state,
         currentShipmentID: action.shipmentID,
       };
+    case SET_CURRENT_MOVE_ID:
+      return {
+        ...state,
+        currentMoveID: action.moveID,
+      };
     default:
       return state;
   }
+}
+
+export function setCurrentMoveIDAction(moveID) {
+  return {
+    type: SET_CURRENT_MOVE_ID,
+    moveID,
+  };
 }
 
 export function setCurrentShipmentID(shipmentID) {
