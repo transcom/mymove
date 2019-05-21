@@ -1,4 +1,4 @@
-import { reject, pick, cloneDeep, concat, includes, get } from 'lodash';
+import { reject, pick, cloneDeep, concat, includes, get, head } from 'lodash';
 import { CreateOrders, UpdateOrders, GetOrders, ShowServiceMemberOrders } from './api.js';
 import { DeleteUploads } from 'shared/api';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
@@ -6,7 +6,8 @@ import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive } from 'shared/utils';
 import { normalize } from 'normalizr';
 import { moves } from 'shared/Entities/schema';
-import { loadMove } from 'shared/Entities/modules/moves';
+import { addEntities } from 'shared/Entities/actions.js';
+import { setCurrentMoveIDAction } from 'shared/UI/ducks';
 
 // Types
 const getOrdersType = 'GET_ORDERS';
@@ -38,10 +39,11 @@ export function createOrders(ordersPayload) {
     if (!currentOrders) {
       return CreateOrders(ordersPayload)
         .then(item => {
-          const data = normalize(item.moves, moves);
-          if (data.entities.moves) {
-            const moveIds = Object.keys(data.entities.moves);
-            moveIds.map(id => dispatch(loadMove(id)));
+          const move = head(item.moves);
+          if (move) {
+            const data = normalize(item.moves, moves);
+            dispatch(addEntities({ moves: data.entities.moves }));
+            dispatch(setCurrentMoveIDAction(move.id));
           }
 
           dispatch(action.success(item));
