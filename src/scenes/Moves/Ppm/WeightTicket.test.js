@@ -15,7 +15,7 @@ function mountComponents(moreWeightTickets = 'Yes') {
     </Provider>,
   );
   const wt = wrapper.find('WeightTicket');
-  wt.setState({ value: moreWeightTickets });
+  wt.setState({ additionalWeightTickets: moreWeightTickets });
   wt.update();
   return wrapper.find('WeightTicket');
 }
