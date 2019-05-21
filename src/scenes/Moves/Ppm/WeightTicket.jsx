@@ -26,6 +26,7 @@ class WeightTicket extends Component {
   render() {
     const { additionalWeightTickets, vehicleType } = this.state;
     const { schema } = this.props;
+    const nextBtnLabel = additionalWeightTickets === 'Yes' ? 'Save & Add Another' : 'Save & Continue';
     const uploadEmptyTicketLabel =
       '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload upload empty weight ticket</span></span>';
     const uploadFullTicketLabel =
@@ -120,11 +121,7 @@ class WeightTicket extends Component {
           )}
 
           {/* TODO: change onclick handler to go to next page in flow */}
-          {additionalWeightTickets === 'Yes' ? (
-            <PPMPaymentRequestActionBtns nextBtnLabel="Save & Add Another" />
-          ) : (
-            <PPMPaymentRequestActionBtns nextBtnLabel="Save & Continue" />
-          )}
+          <PPMPaymentRequestActionBtns nextBtnLabel={nextBtnLabel} />
         </div>
       </Fragment>
     );
