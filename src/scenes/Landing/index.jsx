@@ -168,8 +168,6 @@ export class Landing extends Component {
 const mapStateToProps = state => {
   const shipmentId = getCurrentShipment(state);
   const user = selectCurrentUser(state);
-  // Canceled moves won't return a move ID in the UI redux store
-  // need to get the latest move id instead
   const moveId = getCurrentMoveID(state);
   const props = {
     lastMoveIsCanceled: isLastMoveCanceled(state, moveId),
