@@ -7,7 +7,7 @@ import configureStore from 'redux-mock-store';
 import { shallow, mount } from 'enzyme';
 
 import { Landing } from '.';
-import { MoveSummary } from './MoveSummary';
+import { MoveSummary, PPMAlert } from './MoveSummary';
 
 describe('HomePage tests', () => {
   let wrapper;
@@ -139,6 +139,50 @@ describe('HomePage tests', () => {
             .first()
             .html(),
         ).toEqual('<div class="title">Next Step: Finish setting up your move</div>');
+      });
+      describe('When a ppm only move is submitted', () => {
+        it('renders the ppm only alert', () => {
+          const moveObj = { selected_move_type: 'PPM', status: 'SUBMITTED', moveSubmitSuccess: true };
+          wrapper = shallow(
+            <Landing
+              move={moveObj}
+              moveSubmitSuccess={moveObj.moveSubmitSuccess}
+              serviceMember={service_member}
+              ppm={ppmObj}
+              orders={orders}
+              isLoggedIn={true}
+              loggedInUserSuccess={true}
+              isProfileComplete={true}
+            />,
+          );
+          const ppmAlert = wrapper.find(PPMAlert).shallow();
+
+          expect(ppmAlert.length).toEqual(1);
+          expect(ppmAlert.props().heading).toEqual('Congrats - your move is submitted!');
+        });
+        describe('When a ppm is added to a combo move', () => {
+          it('renders the ppm added to combo move alert', () => {
+            const moveObj = { selected_move_type: 'HHG_PPM', status: 'SUBMITTED', hasSubmitSuccess: true };
+            wrapper = shallow(
+              <Landing
+                move={moveObj}
+                moveSubmitSuccess={moveObj.moveSubmitSuccess}
+                serviceMember={service_member}
+                ppm={ppmObj}
+                orders={orders}
+                isLoggedIn={true}
+                loggedInUserSuccess={true}
+                isProfileComplete={true}
+                hasSubmitSuccess={true}
+                isHHGPPMComboMove={true}
+              />,
+            );
+            const ppmAlert = wrapper.find(PPMAlert).shallow();
+
+            expect(ppmAlert.length).toEqual(1);
+            expect(ppmAlert.props().heading).toEqual('Your PPM shipment is submitted');
+          });
+        });
       });
     });
   });

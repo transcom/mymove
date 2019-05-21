@@ -1,4 +1,4 @@
-import { get, isEmpty, includes } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
@@ -48,7 +48,7 @@ function missingNetWeightOrActualMoveDate(ppm) {
   return isEmpty(ppm) || !ppm.net_weight || !ppm.actual_move_date;
 }
 function isComboAndNotDelivered(shipment) {
-  return !isEmpty(shipment) && !includes(['DELIVERED', 'COMPLETED'], shipment.status);
+  return !isEmpty(shipment) && shipment.status !== 'DELIVERED';
 }
 
 function getUserDate() {
