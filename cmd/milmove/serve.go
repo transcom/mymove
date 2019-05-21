@@ -118,7 +118,7 @@ func initServeFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-func checkConfig(v *viper.Viper, logger logger) error {
+func checkServeConfig(v *viper.Viper, logger logger) error {
 
 	logger.Info("checking webserver config")
 
@@ -316,7 +316,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	logger.Info("webserver starting up")
 
-	err = checkConfig(v, logger)
+	err = checkServeConfig(v, logger)
 	if err != nil {
 		logger.Fatal("invalid configuration", zap.Error(err))
 	}
