@@ -60,6 +60,10 @@
       "value": "{{ .DB_SSL_ROOT_CERT }}"
     },
     {
+      "name": "DEVLOCAL_AUTH",
+      "value": "{{ .DEVLOCAL_AUTH }}"
+    },
+    {
       "name": "CHAMBER_KMS_KEY_ALIAS",
       "value": "alias/aws/ssm"
     },
