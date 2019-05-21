@@ -42,6 +42,36 @@ func (suite *PopQueryBuilderSuite) TestFetchMany() {
 		suite.Error(err)
 		suite.Equal(err.Error(), "[fake_column] is not valid input")
 	})
+
+	suite.T().Run("fails when not pointer", func(t *testing.T) {
+		var officeUsers models.OfficeUsers
+		filters := map[string]interface{}{}
+
+		err := builder.FetchMany(officeUsers, filters)
+
+		suite.Error(err)
+		suite.Equal(err.Error(), "Model should be pointer to slice of structs")
+	})
+
+	suite.T().Run("fails when not pointer to slice", func(t *testing.T) {
+		var officeUser models.OfficeUser
+		filters := map[string]interface{}{}
+
+		err := builder.FetchMany(&officeUser, filters)
+
+		suite.Error(err)
+		suite.Equal(err.Error(), "Model should be pointer to slice of structs")
+	})
+
+	suite.T().Run("fails when not pointer to slice of structs", func(t *testing.T) {
+		var intSlice []int
+		filters := map[string]interface{}{}
+
+		err := builder.FetchMany(&intSlice, filters)
+
+		suite.Error(err)
+		suite.Equal(err.Error(), "Model should be pointer to slice of structs")
+	})
 }
 
 func (suite *PopQueryBuilderSuite) TestFetchOne() {
@@ -62,6 +92,25 @@ func (suite *PopQueryBuilderSuite) TestFetchOne() {
 		suite.Error(err)
 		suite.Equal(err.Error(), "[fake_column] is not valid input")
 	})
+
+	suite.T().Run("fails when not pointer", func(t *testing.T) {
+		var officeUser models.OfficeUser
+
+		err := builder.FetchOne(officeUser, "id", 1)
+
+		suite.Error(err)
+		suite.Equal(err.Error(), "Model should be pointer to slice of structs")
+	})
+
+	suite.T().Run("fails when not pointer", func(t *testing.T) {
+		var i int
+
+		err := builder.FetchOne(&i, "id", 1)
+
+		suite.Error(err)
+		suite.Equal(err.Error(), "Model should be pointer to slice of structs")
+	})
+
 }
 
 type PopQueryBuilderSuite struct {
