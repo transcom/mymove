@@ -189,7 +189,7 @@ MoveType.propTypes = {
 function mapStateToProps(state) {
   return {
     currentMove: getCurrentMove(state),
-    pendingMoveType: state.moves.pendingMoveType, //ToDo: need to figure out how to migrate this
+    pendingMoveType: state.ui.pendingMoveType,
   };
 }
 
