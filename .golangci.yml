@@ -10,10 +10,10 @@ linters-settings:
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
 linters:
   enable:
-     - govet
+     - gosec
   disable:
+    - govet
     - unused #deprecated https://github.com/dominikh/go-tools/tree/master/cmd/unused
-    - gosec
     - deadcode
     - errcheck
     - gosimple
