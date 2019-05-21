@@ -211,7 +211,7 @@ jobs:
             - go-mod-souces-v1-{{ checksum "go.sum" }}
       - run:
           name: Install dependencies
-          command: go get
+          command: for i in $(seq 1 5); do go get && s=0 && break || s=$? && sleep 5; done; (exit $s)
       - save_cache:
           key: go-mod-souces-v1-{{ checksum "go.sum" }}
           paths:
