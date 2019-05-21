@@ -237,6 +237,8 @@ function serviceMemberFillsOutWeightTicket(vehicleType) {
 
   cy.get('select[name="vehicle_options"]').select(vehicleType);
 
+  cy.get('input[name="vehicle_nickname"]').type('Nickname');
+
   cy.get('input[name="empty_weight"]').type('1000');
   cy.upload_file('.filepond--root:first', 'top-secret.png');
   cy.wait('@postUploadDocument');
