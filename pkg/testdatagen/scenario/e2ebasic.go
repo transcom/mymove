@@ -105,7 +105,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	/*
 	 * Service member with no uploaded orders
 	 */
-	email = "needs@orde.rs"
+	email = "needs@orde.rssssss"
 	uuidStr := "feac0e92-66ec-4cab-ad29-538129bf918e"
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
@@ -121,6 +121,29 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			FirstName:     models.StringPointer("NEEDS"),
 			LastName:      models.StringPointer("ORDERS"),
 			PersonalEmail: models.StringPointer(email),
+		},
+	})
+
+	/*
+	 * Service member with no uploaded orders and requires access code
+	 */
+	email = "requires@access.code"
+	uuidStr = "5057efbe-c021-47b4-99bb-8ef3857e972e"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+
+	testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:                 uuid.FromStringOrNil("a0bb6379-f2a1-4191-8a86-a5087e4a3bdd"),
+			UserID:             uuid.FromStringOrNil(uuidStr),
+			FirstName:          models.StringPointer("REQUIRES"),
+			LastName:           models.StringPointer("ACCESSCODE"),
+			PersonalEmail:      models.StringPointer(email),
+			RequiresAccessCode: true,
 		},
 	})
 
@@ -2373,6 +2396,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	ppmApproved.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppmApproved.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	models.SaveMoveDependencies(db, &ppmApproved.Move)
+
 }
 
 // MakeHhgWithPpm creates an HHG user who has added a PPM
