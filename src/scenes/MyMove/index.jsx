@@ -79,7 +79,7 @@ export class AppWrapper extends Component {
               {!this.state.hasError &&
                 !props.swaggerError && (
                   <Switch>
-                    <Route exact path="/" component={Landing} />
+                    <ValidatedPrivateRoute exact path="/" component={Landing} />
                     <Route exact path="/sm_style_guide" component={StyleGuide} />
                     <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />
                     <Route path="/accessibility" component={AccessibilityStatement} />

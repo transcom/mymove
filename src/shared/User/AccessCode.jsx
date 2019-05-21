@@ -2,7 +2,7 @@ import React from 'react';
 
 class AccessCode extends React.Component {
   render() {
-    return <div>Hello World!</div>;
+    return <div>Access Code Page Goes Here!</div>;
   }
 }
 

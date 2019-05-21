@@ -60,9 +60,9 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// // Truncate the list if larger than 25
-	// if len(identities) > 25 {
-	// 	identities = identities[:25]
-	// }
+	if len(identities) > 25 {
+		identities = identities[:25]
+	}
 
 	// Grab the CSRF token from cookies set by the middleware
 	csrfCookie, err := auth.GetCookie(auth.MaskedGorillaCSRFToken, r)

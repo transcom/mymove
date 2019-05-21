@@ -148,6 +148,37 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	/*
+	 * Service member with no uploaded orders and has already claimed an access code
+	 */
+	email = "claimed@access.code"
+	uuidStr = "f285bfea-573b-4216-8e0e-5cf2d9834368"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+
+	testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:                 uuid.FromStringOrNil("58c04285-0752-4735-977c-eaa92d20d154"),
+			UserID:             uuid.FromStringOrNil(uuidStr),
+			FirstName:          models.StringPointer("CLAIMED"),
+			LastName:           models.StringPointer("ACCESSCODE"),
+			PersonalEmail:      models.StringPointer(email),
+			RequiresAccessCode: true,
+		},
+	})
+
+	claimedAt := time.Now()
+	smID := uuid.FromStringOrNil("58c04285-0752-4735-977c-eaa92d20d154")
+	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
+		AccessCode: models.AccessCode{
+			ClaimedAt:       &claimedAt,
+			ServiceMemberID: &smID,
+		},
+	})
+	/*
 	 * Service member with uploaded orders and a new ppm
 	 */
 	email = "ppm@incomple.te"

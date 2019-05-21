@@ -1,7 +1,11 @@
 /* global cy */
+import { milmoveAppName } from '../../support/constants';
+
 describe('setting up service member profile', function() {
   beforeEach(() => {
-    cy.signInAsNewMilMoveUser();
+    // cy.signInAsNewMilMoveUser();
+
+    cy.signInAsUserPostRequest(milmoveAppName, '5057efbe-c021-47b4-99bb-8ef3857e972e');
   });
   it('progresses thru forms', function() {
     serviceMemberProfile();
