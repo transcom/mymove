@@ -71,7 +71,7 @@ func (suite *ClaimAccessCodeTestSuite) TestClaimAccessCode_Failed() {
 	suite.Equal(err2.Error(), "Access code already claimed")
 }
 
-func (suite *ClaimAccessCodeTestSuite) TestFetchAccessCode_InvalidAccessCode() {
+func (suite *ClaimAccessCodeTestSuite) TestClaimAccessCode_InvalidAccessCode() {
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	code := "CODE12"
