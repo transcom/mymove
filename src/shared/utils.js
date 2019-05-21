@@ -1,5 +1,5 @@
 import React from 'react';
-import { get, includes, find, mapValues, capitalize } from 'lodash';
+import { get, includes, head, find, mapValues, capitalize } from 'lodash';
 import moment from 'moment';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
@@ -37,7 +37,7 @@ export const upsert = (arr, newValue) => {
 };
 
 export function fetchFirst(collection) {
-  return find(collection) || null;
+  return head(collection) || null;
 }
 
 export function fetchActive(foos) {
