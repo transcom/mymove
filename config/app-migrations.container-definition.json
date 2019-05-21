@@ -10,10 +10,10 @@
     "exec",
     "app-{{ .environment }}",
     "--",
-    "/bin/milmove",
-    "migrate"
+    "/bin/milmove"
   ],
   "command": [
+    "migrate",
     "--env",
     "container",
     "-p",
