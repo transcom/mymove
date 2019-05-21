@@ -37,7 +37,7 @@ export const upsert = (arr, newValue) => {
 };
 
 export function fetchFirst(collection) {
-  return head(collection) || null;
+  return head(collection);
 }
 
 export function fetchActive(foos) {
