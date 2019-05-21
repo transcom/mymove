@@ -4,18 +4,22 @@ import { connect } from 'react-redux';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
 
-import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
-import WizardHeader from '../WizardHeader';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import RadioButton from 'shared/RadioButton';
-import './PPMPaymentRequest.css';
+import Checkbox from 'shared/Checkbox';
 import Uploader from 'shared/Uploader';
+
+import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
+import WizardHeader from '../WizardHeader';
+import './PPMPaymentRequest.css';
 
 class WeightTicket extends Component {
   state = {
-    vehicleType: '',
+    vehicleType: 'CAR',
     additionalWeightTickets: 'Yes',
+    missingEmptyWeightTicket: false,
+    missingFullWeightTicket: false,
   };
 
   //  handleChange for vehicleType and additionalWeightTickets
@@ -23,8 +27,14 @@ class WeightTicket extends Component {
     this.setState({ [type]: event.target.value });
   };
 
+  handleCheckboxChange = event => {
+    this.setState({
+      [event.target.name]: event.target.checked,
+    });
+  };
+
   render() {
-    const { additionalWeightTickets, vehicleType } = this.state;
+    const { additionalWeightTickets, vehicleType, missingEmptyWeightTicket, missingFullWeightTicket } = this.state;
     const { schema } = this.props;
     const nextBtnLabel = additionalWeightTickets === 'Yes' ? 'Save & Add Another' : 'Save & Continue';
     const uploadEmptyTicketLabel =
@@ -70,6 +80,12 @@ class WeightTicket extends Component {
                 </div>
                 <div className="usa-width-two-third uploader-wrapper">
                   <Uploader options={{ labelIdle: uploadEmptyTicketLabel }} />
+                  <Checkbox
+                    label="I'm missing this weight ticket"
+                    name="missingEmptyWeightTicket"
+                    checked={missingEmptyWeightTicket}
+                    onChange={this.handleCheckboxChange}
+                  />
                 </div>
               </div>
 
@@ -89,6 +105,12 @@ class WeightTicket extends Component {
 
                 <div className="usa-width-two-third uploader-wrapper">
                   <Uploader options={{ labelIdle: uploadFullTicketLabel }} />
+                  <Checkbox
+                    label="I'm missing this weight ticket"
+                    name="missingFullWeightTicket"
+                    checked={missingFullWeightTicket}
+                    onChange={this.handleCheckboxChange}
+                  />
                 </div>
               </div>
 
