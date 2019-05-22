@@ -5,8 +5,6 @@ import { fetchActive } from 'shared/utils';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 // Types
-const SET_PENDING_MOVE_TYPE = 'SET_PENDING_MOVE_TYPE';
-
 export const getMoveType = 'GET_MOVE';
 export const GET_MOVE = ReduxHelpers.generateAsyncActionTypes(getMoveType);
 
@@ -15,11 +13,6 @@ export const CREATE_OR_UPDATE_MOVE = ReduxHelpers.generateAsyncActionTypes(creat
 
 export const submitForApprovalType = 'SUBMIT_FOR_APPROVAL';
 export const SUBMIT_FOR_APPROVAL = ReduxHelpers.generateAsyncActionTypes(submitForApprovalType);
-
-// Action creation
-export function setPendingMoveType(value) {
-  return { type: SET_PENDING_MOVE_TYPE, payload: value };
-}
 
 export const SubmitForApproval = ReduxHelpers.generateAsyncActionCreator(submitForApprovalType, SubmitMoveForApproval);
 //selector
@@ -54,10 +47,6 @@ export function moveReducer(state = initialState, action) {
         currentMove: reshapeMove(activeMove),
         hasLoadError: false,
         hasLoadSuccess: true,
-      });
-    case SET_PENDING_MOVE_TYPE:
-      return Object.assign({}, state, {
-        pendingMoveType: action.payload,
       });
     case CREATE_OR_UPDATE_MOVE.success:
       return Object.assign({}, state, {

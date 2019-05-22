@@ -3,10 +3,6 @@ import { connect } from 'react-redux';
 import windowSize from 'react-window-size';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-
-import { setPendingMoveType } from './ducks';
-import { getCurrentMove } from 'shared/UI/ducks';
-
 import BigButton from 'shared/BigButton';
 import trailerGray from 'shared/icon/trailer-gray.svg';
 import truckGray from 'shared/icon/truck-gray.svg';
@@ -15,6 +11,7 @@ import './MoveType.css';
 
 import { mobileSize } from 'shared/constants';
 import { withContext } from 'shared/AppContext';
+import { setPendingMoveType, getCurrentMove } from '../../shared/UI/ducks';
 
 class BigButtonGroup extends Component {
   constructor() {
@@ -189,7 +186,7 @@ MoveType.propTypes = {
 function mapStateToProps(state) {
   return {
     currentMove: getCurrentMove(state),
-    pendingMoveType: state.moves.pendingMoveType, //ToDo: need to figure out how to migrate this
+    pendingMoveType: state.ui.pendingMoveType,
   };
 }
 

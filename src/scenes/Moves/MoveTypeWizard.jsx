@@ -54,7 +54,7 @@ function mapStateToProps(state) {
 
   return {
     currentMove: move,
-    pendingMoveType: get(state, 'moves.pendingMoveType'), //ToDo: will want to move away from using the move reducer later for this...
+    pendingMoveType: state.ui.pendingMoveType,
   };
 }
 export default connect(mapStateToProps, mapDispatchToProps)(MoveTypeWizardPage);

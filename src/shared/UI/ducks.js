@@ -11,6 +11,12 @@ const initialState = {
 
 const SET_CURRENT_SHIPMENT_ID = 'SET_CURRENT_SHIPMENT_ID';
 const SET_CURRENT_MOVE_ID = 'SET_CURRENT_MOVE_ID';
+const SET_PENDING_MOVE_TYPE = 'SET_PENDING_MOVE_TYPE';
+
+// Action Creation
+export function setPendingMoveType(value) {
+  return { type: SET_PENDING_MOVE_TYPE, payload: value };
+}
 
 export default function uiReducer(state = initialState, action) {
   switch (action.type) {
@@ -42,6 +48,10 @@ export default function uiReducer(state = initialState, action) {
         ...state,
         currentMoveID: action.moveID,
       };
+    case SET_PENDING_MOVE_TYPE:
+      return Object.assign({}, state, {
+        pendingMoveType: action.payload,
+      });
     default:
       return state;
   }
