@@ -15,3 +15,8 @@ type AccessCodeValidator interface {
 type AccessCodeFetcher interface {
 	FetchAccessCode(serviceMemberID uuid.UUID) (*models.AccessCode, error)
 }
+
+// AccessCodeClaimer is the service object interface for ValidateAccessCode
+type AccessCodeClaimer interface {
+	ClaimAccessCode(code string, serviceMemberID uuid.UUID) (*models.AccessCode, error)
+}

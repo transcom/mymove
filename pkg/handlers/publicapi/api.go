@@ -112,5 +112,6 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	// Access Codes
 	publicAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{context, accesscodeservice.NewAccessCodeValidator(context.DB())}
+	publicAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{context, accesscodeservice.NewAccessCodeClaimer(context.DB())}
 	return publicAPI.Serve(nil)
 }

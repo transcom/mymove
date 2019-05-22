@@ -3,7 +3,10 @@ package publicapi
 import (
 	"strings"
 
+	"go.uber.org/zap"
+
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
@@ -66,4 +69,30 @@ func (h ValidateAccessCodeHandler) Handle(params accesscodeop.ValidateAccessCode
 	}
 
 	return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload)
+}
+
+// ClaimAccessCodeHandler updates an access code to mark it as claimed
+type ClaimAccessCodeHandler struct {
+	handlers.HandlerContext
+	accessCodeClaimer services.AccessCodeClaimer
+}
+
+// Handle accepts the code - updates the access code
+func (h ClaimAccessCodeHandler) Handle(params accesscodeop.ClaimAccessCodeParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	if session == nil || session.ServiceMemberID == uuid.Nil {
+		return accesscodeop.NewClaimAccessCodeUnauthorized()
+	}
+
+	accessCode, err := h.accessCodeClaimer.ClaimAccessCode(*params.AccessCodePayload.Code, session.ServiceMemberID)
+
+	if err != nil {
+		h.Logger().Error("Unable to update access code", zap.Error(err))
+		return accesscodeop.NewClaimAccessCodeNotFound()
+	}
+
+	accessCodePayload := payloadForAccessCodeModel(*accessCode)
+
+	return accesscodeop.NewClaimAccessCodeOK().WithPayload(accessCodePayload)
 }
