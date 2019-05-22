@@ -40,11 +40,18 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
 				moves.locator as locator,
 				ord.orders_type as orders_type,
-				ppm.original_move_date as move_date,
+				COALESCE(
+					shipment.actual_pickup_date,
+					shipment.pm_survey_planned_pickup_date,
+					shipment.requested_pickup_date,
+					ppm.actual_move_date,
+					ppm.original_move_date
+				) as move_date,
 				moves.created_at as created_at,
 				moves.updated_at as last_modified_date,
 				moves.status as status,
 				ppm.status as ppm_status,
+				shipment.status as hhg_status,
 				shipment.gbl_number as gbl_number
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
@@ -52,6 +59,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
 			LEFT JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
 			WHERE moves.status = 'SUBMITTED'
+			and moves.show is true
 		`
 	} else if lifecycleState == "ppm" {
 		query = `
@@ -73,6 +81,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
 			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
 			WHERE moves.status = 'APPROVED'
+			and moves.show is true
 		`
 	} else if lifecycleState == "hhg_accepted" {
 		// Move date is the Requested Pickup Date because accepted shipments haven't yet gone through the
@@ -95,6 +104,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
 			WHERE shipment.status = 'ACCEPTED'
+			and moves.show is true
 		`
 	} else if lifecycleState == "hhg_in_transit" {
 		// Move date is the Actual Pickup Date.
@@ -116,6 +126,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
 			WHERE shipment.status = 'IN_TRANSIT'
+			and moves.show is true
 		`
 	} else if lifecycleState == "hhg_delivered" {
 		// Move date is the Actual Pickup Date.
@@ -137,27 +148,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
 			WHERE shipment.status = 'DELIVERED'
-		`
-	} else if lifecycleState == "hhg_completed" {
-		// Move date is the Actual Pickup Date.
-		query = `
-			SELECT moves.ID,
-				COALESCE(sm.edipi, '*missing*') as edipi,
-				COALESCE(sm.rank, '*missing*') as rank,
-				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
-				moves.locator as locator,
-				ord.orders_type as orders_type,
-				shipment.actual_pickup_date as move_date,
-				moves.created_at as created_at,
-				moves.updated_at as last_modified_date,
-				moves.status as status,
-				shipment.status as hhg_status,
-				shipment.gbl_number as gbl_number
-			FROM moves
-			JOIN orders as ord ON moves.orders_id = ord.id
-			JOIN service_members AS sm ON ord.service_member_id = sm.id
-			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
-			WHERE shipment.status = 'COMPLETED'
+			and moves.show is true
 		`
 	} else if lifecycleState == "all" {
 		query = `
@@ -167,7 +158,13 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
 				moves.locator as locator,
 				ord.orders_type as orders_type,
-				ppm.original_move_date as move_date,
+				COALESCE(
+					shipment.actual_pickup_date,
+					shipment.pm_survey_planned_pickup_date,
+					shipment.requested_pickup_date,
+					ppm.actual_move_date,
+					ppm.original_move_date
+				) as move_date,
 				moves.created_at as created_at,
 				moves.updated_at as last_modified_date,
 				moves.status as status,
@@ -178,6 +175,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
 			LEFT JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
+			WHERE moves.show is true
 		`
 	}
 

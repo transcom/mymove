@@ -7,39 +7,11 @@ import (
 	"time"
 
 	"github.com/facebookgo/clock"
-	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/storage"
-	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testingsuite"
 )
-
-type FuelPriceServiceSuite struct {
-	testingsuite.PopTestSuite
-	logger *zap.Logger
-	storer storage.FileStorer
-}
-
-func (suite *FuelPriceServiceSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
-func TestFuelPriceSuite(t *testing.T) {
-	// Use a no-op logger during testing
-	logger := zap.NewNop()
-
-	fakeS3 := storageTest.NewFakeS3Storage(true)
-
-	hs := &FuelPriceServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
-		logger:       logger,
-		storer:       fakeS3,
-	}
-	suite.Run(t, hs)
-}
 
 func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	testClock := clock.NewMock()
@@ -58,13 +30,13 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 	queryForThisMonth := suite.DB().RawQuery(
 		"SELECT * FROM fuel_eia_diesel_prices WHERE (date_part('year', pub_date) = $1 "+
 			"AND date_part('month', pub_date) = $2)", currentDate.Year(), int(currentDate.Month()))
-	err := queryForThisMonth.All(&thisMonthPrices)
-	if err != nil {
-		suite.logger.Error(err.Error())
+	queryForThisMonthErr := queryForThisMonth.All(&thisMonthPrices)
+	if queryForThisMonthErr != nil {
+		suite.logger.Error(queryForThisMonthErr.Error())
 	}
-	err = suite.DB().Destroy(&thisMonthPrices)
-	if err != nil {
-		suite.logger.Error("Error deleting eia diesel price", zap.Error(err))
+	destroyErr := suite.DB().Destroy(&thisMonthPrices)
+	if destroyErr != nil {
+		suite.logger.Error("Error deleting eia diesel price", zap.Error(destroyErr))
 	}
 
 	numMonthsToVerify := 10
@@ -149,7 +121,7 @@ func (suite *FuelPriceServiceSuite) TestStoreFuelPrices() {
 		queryForPriorMonth := suite.DB().RawQuery(
 			"SELECT * FROM fuel_eia_diesel_prices WHERE (date_part('year', pub_date) = $1 "+
 				"AND date_part('month', pub_date) = $2)", currentDate.AddDate(0, -3, 0).Year(), int(currentDate.AddDate(0, -3, 0).Month()))
-		err = queryForPriorMonth.All(&priorMonthsToRemove)
+		err := queryForPriorMonth.All(&priorMonthsToRemove)
 		if err != nil {
 			suite.logger.Error(err.Error())
 		}

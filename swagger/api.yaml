@@ -831,13 +831,11 @@ definitions:
       - DRAFT
       - SUBMITTED
       - APPROVED
-      - COMPLETED
       - CANCELED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
       APPROVED: Approved
-      COMPLETED: Completed
       CANCELED: Canceled
   MoveDocumentType:
     type: string
@@ -1669,7 +1667,6 @@ definitions:
       - APPROVED
       - IN_TRANSIT
       - DELIVERED
-      - COMPLETED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
@@ -1678,7 +1675,6 @@ definitions:
       APPROVED: Approved
       IN_TRANSIT: In Transit
       DELIVERED: Delivered
-      COMPLETED: Completed
   TransportPayload:
     type: object
     properties:
@@ -1870,6 +1866,7 @@ definitions:
         format: textarea
         example: Good to go!
         title: Authorization Notes
+        x-nullable: true
       authorized_start_date:
         type: string
         format: date
@@ -3167,7 +3164,7 @@ paths:
       summary: Approves a requested storage in transit
       operationId: approveStorageInTransit
       tags:
-        - storageInTransits
+        - storage_in_transits
       parameters:
         - name: shipmentId
           in: path
@@ -3208,7 +3205,7 @@ paths:
       summary: Denies a requested storage in transit
       operationId: denyStorageInTransit
       tags:
-        - storageInTransits
+        - storage_in_transits
       parameters:
         - name: shipmentId
           in: path
@@ -3223,7 +3220,7 @@ paths:
           required: true
           description: UUID of storage in transit
         - in: body
-          name: storageInTransitApprovalPayload
+          name: storageInTransitDenyPayload
           required: true
           schema:
             $ref: '#/definitions/StorageInTransitDenialPayload'
@@ -3249,7 +3246,7 @@ paths:
       summary: Places a storage in transit into 'IN_SIT'
       operationId: inSitStorageInTransit
       tags:
-        - storageInTransits
+        - storage_in_transits
       parameters:
         - name: shipmentId
           in: path
@@ -3289,7 +3286,7 @@ paths:
       summary: Releases a requested storage in transit
       operationId: releaseStorageInTransit
       tags:
-        - storageInTransits
+        - storage_in_transits
       parameters:
         - name: shipmentId
           in: path
@@ -3329,7 +3326,7 @@ paths:
       summary: Delivers a requested storage in transit
       operationId: deliverStorageInTransit
       tags:
-        - storageInTransits
+        - storage_in_transits
       parameters:
         - name: shipmentId
           in: path

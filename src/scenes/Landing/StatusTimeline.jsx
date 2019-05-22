@@ -146,7 +146,7 @@ export class ShipmentStatusTimeline extends React.Component {
 
     if (status === 'DELIVERED') {
       const actualDeliveryDate = get(shipment, 'actual_delivery_date', null);
-      return actualDeliveryDate || includes(['DELIVERED', 'COMPLETED'], shipment.status) ? true : false;
+      return actualDeliveryDate || shipment.status === 'DELIVERED' ? true : false;
     }
   }
 

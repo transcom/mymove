@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/lib/pq"
+
 	"github.com/transcom/mymove/pkg/route"
 
 	"github.com/go-openapi/runtime"
@@ -16,6 +18,9 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
+
+// SQLErrMessage represents string value to represent generic sql error to avoid leaking implementation details
+const SQLErrMessage string = "Unhandled SQL error encountered"
 
 // ValidationErrorsResponse is a middleware.Responder for a set of validation errors
 type ValidationErrorsResponse struct {
@@ -71,6 +76,9 @@ func ResponseForError(logger Logger, err error) middleware.Responder {
 		default:
 			return newErrResponse(http.StatusInternalServerError, err)
 		}
+	case *pq.Error:
+		skipLogger.Info(SQLErrMessage, zap.Error(e))
+		return newErrResponse(http.StatusInternalServerError, errors.New(SQLErrMessage))
 	default:
 		return responseForBaseError(skipLogger, err)
 	}

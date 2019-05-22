@@ -24,13 +24,6 @@ describe('completing the ppm flow', function() {
       .clear()
       .type('80913');
 
-    // same destination postal code and pickup postal code is not allowed
-    cy
-      .get('input[name="destination_postal_code"]')
-      .type('80913')
-      .blur();
-    cy.get('#destination_postal_code-error').should('exist');
-
     cy
       .get('input[name="destination_postal_code"]')
       .clear()
@@ -86,19 +79,24 @@ describe('completing the ppm flow', function() {
       expect(loc.pathname).to.match(/^\/$/);
     });
 
-    cy.contains('Congrats - your move is submitted!');
-    cy.contains('Next Step: Wait for approval');
-    cy
-      .get('a')
-      .contains('PPM info sheet')
-      .should('have.attr', 'href')
-      .and('include', '/downloads/ppm_info_sheet.pdf');
+    cy.get('.usa-alert-success').within(() => {
+      cy.contains('Congrats - your move is submitted!');
+      cy.contains('Next, wait for approval. Once approved:');
+      cy
+        .get('a')
+        .contains('PPM info sheet')
+        .should('have.attr', 'href')
+        .and('include', '/downloads/ppm_info_sheet.pdf');
+    });
 
-    cy.contains('Advance Requested: $1,333.91');
-  });
-
-  it('allows a SM to request ppm payment', function() {
-    serviceMemberVisitsIntroToPPMPaymentRequest();
+    cy.get('.usa-width-three-fourths').within(() => {
+      cy.contains('Next Step: Wait for approval');
+      cy
+        .contains('Go to weight scales')
+        .children('a')
+        .should('have.attr', 'href', 'https://move.mil/resources/locator-maps');
+      cy.contains('Advance Requested: $1,333.91');
+    });
   });
 
   //TODO: remove when done with the new flow to request payment
@@ -148,6 +146,57 @@ describe('completing the ppm flow', function() {
   });
 });
 
+describe('check invalid ppm inputs', () => {
+  it('doesnt allow SM to progress if dont have rate data for move dates + zips"', function() {
+    cy.signInAsUserPostRequest(milmoveAppName, '99360a51-8cfa-4e25-ae57-24e66077305f');
+
+    cy.contains('Continue Move Setup').click();
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
+    });
+    cy.get('.wizard-header').should('not.exist');
+    cy
+      .get('input[name="original_move_date"]')
+      .first()
+      .type('6/3/2100{enter}');
+    cy
+      .get('input[name="pickup_postal_code"]')
+      .clear()
+      .type('80913');
+    cy.get('input[name="destination_postal_code"]').type('76127');
+    cy.nextPage();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
+    });
+    cy.get('#original_move_date-error').should('exist');
+  });
+
+  it('doesnt allow same origin and destination zip', function() {
+    cy.signInAsUserPostRequest(milmoveAppName, '99360a51-8cfa-4e25-ae57-24e66077305f');
+    cy.contains('Continue Move Setup').click();
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
+    });
+    cy.get('.wizard-header').should('not.exist');
+    cy
+      .get('input[name="original_move_date"]')
+      .first()
+      .type('9/2/2018{enter}')
+      .blur();
+    cy
+      .get('input[name="pickup_postal_code"]')
+      .clear()
+      .type('80913');
+    cy
+      .get('input[name="destination_postal_code"]')
+      .type('80913')
+      .blur();
+
+    cy.get('#destination_postal_code-error').should('exist');
+  });
+});
+
 describe('editing ppm only move', () => {
   it('sees only details relevant to PPM only move', () => {
     cy.signInAsUserPostRequest(milmoveAppName, 'e10d5964-c070-49cb-9bd1-eaf9f7348eb6');
@@ -163,12 +212,66 @@ describe('editing ppm only move', () => {
   });
 });
 
-function serviceMemberVisitsIntroToPPMPaymentRequest() {
+it('allows a SM to request ppm payment', function() {
+  cy.removeFetch();
+  cy.server();
+  cy.route('POST', '**/internal/uploads').as('postUploadDocument');
+
   cy.signInAsUserPostRequest(milmoveAppName, '8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
   cy.contains('Fort Gordon (from Yuma AFB)');
   cy.get('.submitted .status_dates').should('exist');
   cy.get('.ppm_approved .status_dates').should('exist');
   cy.get('.in_progress .status_dates').should('exist');
+  serviceMemberCanCancel();
+  serviceMemberVisitsIntroToPPMPaymentRequest();
+  serviceMemberFillsOutWeightTicket('Car');
+  // TODO: remove when we are doing something with the data
+  cy.reload();
+  serviceMemberFillsOutWeightTicket('Box truck');
+});
+
+function serviceMemberFillsOutWeightTicket(vehicleType) {
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-weight-ticket/);
+  });
+
+  cy.get('select[name="vehicle_options"]').select(vehicleType);
+
+  cy.get('input[name="empty_weight"]').type('1000');
+  cy.upload_file('.filepond--root:first', 'top-secret.png');
+  cy.wait('@postUploadDocument');
+
+  cy.get('input[name="full_weight"]').type('5000');
+  cy.upload_file('.filepond--root:last', 'top-secret.png');
+  cy.wait('@postUploadDocument');
+  cy
+    .get('input[name="weight_ticket_date"]')
+    .type('6/2/2018{enter}')
+    .blur();
+
+  cy
+    .get('[type="radio"]')
+    .first()
+    .should('be.checked');
+}
+
+function serviceMemberCanCancel() {
+  cy.contains('Request Payment').click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-request-intro/);
+  });
+  cy
+    .get('button')
+    .contains('Cancel')
+    .click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\//);
+  });
+}
+
+function serviceMemberVisitsIntroToPPMPaymentRequest() {
   cy.contains('Request Payment').click();
 
   cy.location().should(loc => {
@@ -190,9 +293,13 @@ function serviceMemberVisitsIntroToPPMPaymentRequest() {
     .contains('Back')
     .click();
 
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-request-intro/);
+  });
+
   cy
     .get('a')
-    .contains('List of allowable expenses')
+    .contains('What expenses are allowed?')
     .click();
 
   cy.location().should(loc => {
@@ -206,14 +313,8 @@ function serviceMemberVisitsIntroToPPMPaymentRequest() {
     .contains('Back')
     .click();
 
-  cy.get('button').contains('Get Started');
-
   cy
     .get('button')
-    .contains('Cancel')
+    .contains('Get Started')
     .click();
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\//);
-  });
 }

@@ -599,6 +599,16 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/PersonallyProcuredMovePayload'
+  ApproveShipmentPayload:
+    type: object
+    properties:
+      approve_date:
+        type: string
+        format: date-time
+        title: When was the shipment approved?
+        example: '2019-03-26T13:19:56-04:00'
+    required:
+      - approve_date
   MovePayload:
     type: object
     properties:
@@ -1668,6 +1678,12 @@ definitions:
         example: '2018-04-26'
         readOnly: true
         x-nullable: true
+      approve_date:
+        type: string
+        format: date-time
+        title: When was the ppm move approved?
+        example: '2019-03-26T13:19:56-04:00'
+        x-nullable: true
       estimated_pack_days:
         type: integer
         minimum: 0
@@ -2071,13 +2087,11 @@ definitions:
       - DRAFT
       - SUBMITTED
       - APPROVED
-      - COMPLETED
       - CANCELED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
       APPROVED: Approved
-      COMPLETED: Completed
       CANCELED: Canceled
   ShipmentStatus:
     type: string
@@ -2090,7 +2104,6 @@ definitions:
       - APPROVED
       - IN_TRANSIT
       - DELIVERED
-      - COMPLETED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
@@ -2099,7 +2112,6 @@ definitions:
       APPROVED: Approved
       IN_TRANSIT: In Transit
       DELIVERED: Delivered
-      COMPLETED: Completed
   PPMStatus:
     type: string
     title: PPM status
@@ -2478,6 +2490,18 @@ definitions:
         $ref: '#/definitions/VehicleOptions'
       vehicle_nickname:
         $ref: '#/definitions/VehicleNickname'
+      empty_weight:
+        type: number
+        x-nullable: true
+      full_weight:
+        type: number
+        x-nullable: true
+      weight_ticket_date:
+        type: string
+        example: '2018-04-26'
+        format: date
+        title: Weight ticket date
+        x-nullable: true
   VehicleNickname:
     type: string
     x-nullable: true
@@ -3167,6 +3191,11 @@ paths:
           format: uuid
           required: true
           description: UUID of the shipment
+        - name: approveShipmentPayload
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ApproveShipmentPayload'
       responses:
         200:
           description: returns updated (approved) shipment object
@@ -3180,37 +3209,6 @@ paths:
           description: not authorized to approve this shipment
         409:
           description: the shipment is not in a state to be approved
-          schema:
-            $ref: '#/definitions/Shipment'
-        500:
-          description: server error
-  /shipments/{shipmentId}/complete:
-    post:
-      summary: Completes a delivered shipment
-      description: Completes a shipment delivered by a TSP. The status of the Shipment will be updated to COMPLETED.
-      operationId: completeHHG
-      tags:
-        - shipments
-      parameters:
-        - name: shipmentId
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the shipment
-      responses:
-        200:
-          description: returns updated (completed) shipment object
-          schema:
-            $ref: '#/definitions/Shipment'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to complete this shipment
-        409:
-          description: the shipment is not in a state to be completed
           schema:
             $ref: '#/definitions/Shipment'
         500:
@@ -4176,7 +4174,6 @@ paths:
             - ppm
             - hhg_accepted
             - hhg_delivered
-            - hhg_completed
             - all
           required: true
           description: Queue type to show

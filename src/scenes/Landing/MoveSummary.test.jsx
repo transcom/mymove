@@ -36,6 +36,7 @@ describe('MoveSummary', () => {
         ppm={ppmObj}
         shipment={hhgObj}
         editMove={editMoveFn}
+        moveSubmitSuccess={moveObj.moveSubmitSuccess}
         resumeMove={resumeMoveFn}
         addPPMShipment={addPPMShipmentFn}
       />,
@@ -106,6 +107,7 @@ describe('MoveSummary', () => {
       ).toEqual('<div class="title">Next Step: Wait for approval &amp; get ready</div>');
     });
   });
+
   describe('when a move is in approved state but ppm is submitted state', () => {
     it('renders submitted rather than approved content', () => {
       const moveObj = { selected_move_type: 'PPM', status: 'APPROVED' };
@@ -405,32 +407,6 @@ describe('MoveSummary', () => {
       const moveObj = { selected_move_type: 'HHG' };
       const ppmObj = {};
       const hhgObj = { status: 'DELIVERED' };
-      const subComponent = getShallowRender(
-        entitlementObj,
-        serviceMember,
-        ordersObj,
-        moveObj,
-        ppmObj,
-        hhgObj,
-        editMoveFn,
-        resumeMoveFn,
-      ).find(SubmittedHhgMoveSummary);
-      expect(subComponent.find(SubmittedHhgMoveSummary).length).toBe(1);
-      expect(
-        subComponent
-          .dive()
-          .find('.step')
-          .find('div.title')
-          .first()
-          .html(),
-      ).toEqual('<div class="title">Next Step: Survey</div>');
-    });
-  });
-  describe('when an hhg is in completed state', () => {
-    it('renders submitted content', () => {
-      const moveObj = { selected_move_type: 'HHG' };
-      const ppmObj = {};
-      const hhgObj = { status: 'COMPLETED' };
       const subComponent = getShallowRender(
         entitlementObj,
         serviceMember,

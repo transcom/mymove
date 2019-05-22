@@ -1,12 +1,9 @@
 package paperwork
 
 import (
-	"testing"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/mocks"
 	"github.com/transcom/mymove/pkg/models"
@@ -14,26 +11,9 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
-	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type CreateFormSuite struct {
-	testingsuite.PopTestSuite
-}
-
-func (suite *CreateFormSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
-func TestCreateFormSuite(t *testing.T) {
-
-	hs := &CreateFormSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
-	}
-	suite.Run(t, hs)
-}
-
-func (suite *CreateFormSuite) GenerateGBLFormValues() models.GovBillOfLadingFormValues {
+func (suite *PaperworkServiceSuite) GenerateGBLFormValues() models.GovBillOfLadingFormValues {
 	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
 	shipment := scenario.MakeHhgFromAwardedToAcceptedGBLReady(suite.DB(), tspUser)
 	shipment.Move.Orders.TAC = models.StringPointer("NTA4")
@@ -43,7 +23,7 @@ func (suite *CreateFormSuite) GenerateGBLFormValues() models.GovBillOfLadingForm
 	return gbl
 }
 
-func (suite *CreateFormSuite) TestCreateFormServiceSuccess() {
+func (suite *PaperworkServiceSuite) TestCreateFormServiceSuccess() {
 	FileStorer := &mocks.FileStorer{}
 	FormFiller := &mocks.FormFiller{}
 
@@ -75,7 +55,7 @@ func (suite *CreateFormSuite) TestCreateFormServiceSuccess() {
 	FormFiller.AssertExpectations(suite.T())
 }
 
-func (suite *CreateFormSuite) TestCreateFormServiceFormFillerAppendPageFailure() {
+func (suite *PaperworkServiceSuite) TestCreateFormServiceFormFillerAppendPageFailure() {
 	FileStorer := &mocks.FileStorer{}
 	FormFiller := &mocks.FormFiller{}
 
@@ -99,7 +79,7 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerAppendPageFailure()
 	FormFiller.AssertExpectations(suite.T())
 }
 
-func (suite *CreateFormSuite) TestCreateFormServiceFileStorerCreateFailure() {
+func (suite *PaperworkServiceSuite) TestCreateFormServiceFileStorerCreateFailure() {
 	FileStorer := &mocks.FileStorer{}
 	FormFiller := &mocks.FormFiller{}
 
@@ -127,7 +107,7 @@ func (suite *CreateFormSuite) TestCreateFormServiceFileStorerCreateFailure() {
 	FormFiller.AssertExpectations(suite.T())
 }
 
-func (suite *CreateFormSuite) TestCreateFormServiceFormFillerOutputFailure() {
+func (suite *PaperworkServiceSuite) TestCreateFormServiceFormFillerOutputFailure() {
 	FileStorer := &mocks.FileStorer{}
 	FormFiller := &mocks.FormFiller{}
 
@@ -162,7 +142,7 @@ func (suite *CreateFormSuite) TestCreateFormServiceFormFillerOutputFailure() {
 	FormFiller.AssertExpectations(suite.T())
 }
 
-func (suite *CreateFormSuite) TestCreateFormServiceCreateAssetByteReaderFailure() {
+func (suite *PaperworkServiceSuite) TestCreateFormServiceCreateAssetByteReaderFailure() {
 	badAssetPath := "pkg/paperwork/formtemplates/someUndefinedTemplatePath.png"
 	templateBuffer, err := createAssetByteReader(badAssetPath)
 	suite.Nil(templateBuffer)

@@ -9,6 +9,7 @@ DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # as possible.
 # https://github.com/transcom/ppp-infra/blob/7ba2e1086ab1b2a0d4f917b407890817327ffb3d/modules/aws-app-environment/database/variables.tf#L48
 DB_DOCKER_CONTAINER_IMAGE = postgres:10.6
+TASKS_DOCKER_CONTAINER = tasks
 export PGPASSWORD=mysecretpassword
 
 # if S3 access is enabled, wrap webserver in aws-vault command
@@ -195,8 +196,13 @@ bin/rds-combined-ca-bundle.pem:
 
 ### MilMove Targets
 
-bin/compare-secure-migrations:
-	go build -i -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare_secure_migrations
+# server_deps and server_generate required for this binary, because go build expects
+# github.com/transcom/mymove/pkg/gen/internalmessages, even though it is not used for this program.
+bin/compare-secure-migrations: server_deps server_generate
+	go build -i -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
+
+bin/ecs-deploy-task-container: server_deps server_generate
+	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-deploy-task-container ./cmd/ecs-deploy-task-container
 
 bin/ecs-service-logs:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
@@ -214,10 +220,13 @@ bin/generate-shipment-summary: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
 
 bin/generate-test-data: pkg/assets/assets.go .server_generate.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate_test_data
+	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
 
-bin/health_checker:
-	go build -i -ldflags "$(LDFLAGS)" -o bin/health_checker ./cmd/health_checker
+bin_linux/generate-test-data: pkg/assets/assets.go .server_generate_linux.stamp
+	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate-test-data
+
+bin/health-checker:
+	go build -i -ldflags "$(LDFLAGS)" -o bin/health-checker ./cmd/health-checker
 
 bin/iws:
 	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/iws/iws.go
@@ -240,8 +249,19 @@ bin/make-tsp-user: .server_generate.stamp
 bin/milmove: .server_generate.stamp
 	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
+bin_linux/milmove: .server_generate_linux.stamp
+	GOOS=linux GOARCH=amd64 go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove ./cmd/milmove
+
+bin/renderer:
+	# do not build with LDFLAGS since errors on alpine and dynamic linking is fine
+	# throws errors loadinternal: cannot find runtime/cgo
+	go build -i -o bin/renderer ./cmd/renderer
+
 bin/save-fuel-price-data: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
+
+bin_linux/save-fuel-price-data: .server_generate_linux.stamp
+	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/save-fuel-price-data ./cmd/save_fuel_price_data
 
 bin/send-to-gex: .server_generate.stamp
 	go build -i -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
@@ -327,19 +347,21 @@ server_run_debug:
 .PHONY: build_tools
 build_tools: server_deps \
 	bin/compare-secure-migrations \
+	bin/ecs-deploy-task-container \
 	bin/ecs-service-logs \
 	bin/generate-1203-form \
 	bin/generate-access-codes \
 	bin/generate-shipment-edi \
 	bin/generate-shipment-summary \
 	bin/generate-test-data \
-	bin/health_checker \
+	bin/health-checker \
 	bin/iws \
 	bin/load-office-data \
 	bin/load-user-gen \
 	bin/make-dps-user \
 	bin/make-office-user \
 	bin/make-tsp-user \
+	bin/renderer \
 	bin/save-fuel-price-data \
 	bin/send-to-gex \
 	bin/tsp-award-queue
@@ -442,11 +464,11 @@ db_dev_run: db_dev_start db_dev_create
 db_dev_reset: db_dev_destroy db_dev_run
 
 .PHONY: db_dev_migrate_standalone
-db_dev_migrate_standalone: bin/soda
+db_dev_migrate_standalone: bin/milmove
 	@echo "Migrating the ${DB_NAME_DEV} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd scripts && \
-		../bin/soda -c ../config/database.yml -p ../migrations migrate up
+		../bin/milmove migrate -p ../migrations
 
 .PHONY: db_dev_migrate
 db_dev_migrate: server_deps db_dev_migrate_standalone
@@ -497,11 +519,11 @@ db_prod_migrations_run: db_prod_migrations_start db_prod_migrations_create
 db_prod_migrations_reset: db_prod_migrations_destroy db_prod_migrations_run
 
 .PHONY: db_prod_migrations_migrate_standalone
-db_prod_migrations_migrate_standalone: bin/soda
+db_prod_migrations_migrate_standalone: bin/milmove
 	@echo "Migrating the ${DB_NAME_PROD_MIGRATIONS} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd scripts && \
-		../bin/soda -c ../config/database.yml -p ../migrations migrate up
+		../bin/milmove migrate -p ../migrations
 
 .PHONY: db_prod_migrations_migrate
 db_prod_migrations_migrate: server_deps db_prod_migrations_migrate_standalone
@@ -569,19 +591,19 @@ db_test_reset: db_test_destroy db_test_run
 db_test_reset_docker: db_test_destroy db_test_run_docker
 
 .PHONY: db_test_migrate_standalone
-db_test_migrate_standalone: bin/soda
+db_test_migrate_standalone: bin/milmove
 ifndef CIRCLECI
 	@echo "Migrating the ${DB_NAME_TEST} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd scripts && \
 		DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST)\
-			../bin/soda -c ../config/database.yml -p ../migrations migrate up
+			../bin/milmove migrate -p ../migrations
 else
 	@echo "Migrating the ${DB_NAME_TEST} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd scripts && \
 		DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_DEV) \
-			../bin/soda -c ../config/database.yml -p ../migrations migrate up
+			../bin/milmove migrate -p ../migrations
 endif
 
 .PHONY: db_test_migrate
@@ -589,10 +611,7 @@ db_test_migrate: server_deps db_test_migrate_standalone
 
 .PHONY: db_test_migrations_build
 db_test_migrations_build: .db_test_migrations_build.stamp
-.db_test_migrations_build.stamp: server_generate_linux
-	@echo "Build required binaries for the docker migration container..."
-	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/soda github.com/gobuffalo/pop/soda
-	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate_test_data
+.db_test_migrations_build.stamp: server_generate_linux bin_linux/milmove bin_linux/generate-test-data
 	@echo "Build the docker migration container..."
 	docker build -f Dockerfile.migrations_local --tag e2e_migrations:latest .
 
@@ -609,9 +628,9 @@ db_test_migrate_docker: db_test_migrations_build
 		-e DB_PASSWORD=$(PGPASSWORD) \
 		--link="$(DB_DOCKER_CONTAINER_TEST):database" \
 		--rm \
-		--entrypoint /bin/soda \
+		--entrypoint /bin/milmove\
 		e2e_migrations:latest \
-		migrate -c /migrate/database.yml -p /migrate/migrations up
+		migrate -p /migrate/migrations
 
 #
 # ----- END DB_TEST TARGETS -----
@@ -662,7 +681,7 @@ db_e2e_up: bin/generate-test-data
 	@echo "Truncate the ${DB_NAME_TEST} database..."
 	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE;'
 	@echo "Populate the ${DB_NAME_TEST} database..."
-	DB_PORT=$(DB_PORT_TEST) bin/generate-test-data -named-scenario="e2e_basic" -env="test"
+	DB_PORT=$(DB_PORT_TEST) bin/generate-test-data --named-scenario="e2e_basic" -env="test"
 
 .PHONY: db_e2e_up_docker
 db_e2e_up_docker:
@@ -686,7 +705,7 @@ db_e2e_up_docker:
 		--workdir "/bin" \
 		--entrypoint generate-test-data \
 		e2e_migrations:latest \
-		-config-dir /migrate -named-scenario e2e_basic
+		--named-scenario e2e_basic
 
 .PHONY: db_e2e_init
 db_e2e_init: db_test_reset db_test_migrate db_e2e_up
@@ -697,7 +716,7 @@ db_e2e_init_docker: db_test_reset_docker db_test_migrate_docker db_e2e_up_docker
 .PHONY: db_dev_e2e_populate
 db_dev_e2e_populate: db_dev_reset db_dev_migrate build_tools
 	@echo "Populate the ${DB_NAME_DEV} database with docker command..."
-	bin/generate-test-data -named-scenario="e2e_basic" -env="development"
+	bin/generate-test-data --named-scenario="e2e_basic" -env="development"
 
 .PHONY: db_test_e2e_populate
 db_test_e2e_populate: db_test_reset_docker db_test_migrate_docker build_tools db_e2e_up_docker
@@ -720,6 +739,51 @@ db_test_e2e_cleanup:
 #
 
 #
+# ----- START SCHEDULED TASK TARGETS -----
+#
+
+.PHONY: tasks_clean
+tasks_clean:
+	rm -f .db_test_migrations_build.stamp
+	rm -rf bin_linux/
+	docker rm -f tasks || true
+
+.PHONY: tasks_build
+tasks_build: server_generate bin/save-fuel-price-data
+
+.PHONY: tasks_build_docker
+tasks_build_docker: bin/chamber server_generate bin/save-fuel-price-data
+	@echo "Build the docker scheduled tasks container..."
+	docker build -f Dockerfile.tasks --tag $(TASKS_DOCKER_CONTAINER):latest .
+
+.PHONY: tasks_build_linux_docker
+tasks_build_linux_docker: bin_linux/save-fuel-price-data
+	@echo "Build the docker scheduled tasks container..."
+	docker build -f Dockerfile.tasks_local --tag $(TASKS_DOCKER_CONTAINER):latest .
+
+.PHONY: tasks_save_fuel_price_data
+tasks_save_fuel_price_data: tasks_build_linux_docker
+	@echo "Saving the fuel price data to the ${DB_NAME_DEV} database with docker command..."
+	DB_NAME=$(DB_NAME_DEV) DB_DOCKER_CONTAINER=$(DB_DOCKER_CONTAINER_DEV) scripts/wait-for-db-docker
+	docker run \
+		-t \
+		-e DB_HOST="database" \
+		-e DB_NAME \
+		-e DB_PORT \
+		-e DB_USER \
+		-e DB_PASSWORD \
+		-e EIA_KEY \
+		-e EIA_URL \
+		--link="$(DB_DOCKER_CONTAINER_DEV):database" \
+		--rm \
+		$(TASKS_DOCKER_CONTAINER):latest \
+		save-fuel-price-data
+
+#
+# ----- END SCHEDULED TASK TARGETS -----
+#
+
+#
 # ----- START PROD MIGRATION TARGETS -----
 #
 
@@ -737,6 +801,23 @@ run_experimental_migrations:
 
 #
 # ----- END PROD_MIGRATION TARGETS -----
+#
+
+#
+# ----- START DEPENDENCY UPDATE TARGETS -----
+#
+
+.PHONY: dependency_update
+dependency_update: go_deps_update client_deps_update
+	git --no-pager status
+	git --no-pager diff --ignore-all-space --color
+
+.PHONY: dependency_update_test
+dependency_update_test:
+	docker build . -f Dockerfile.dep_updater
+
+#
+# ----- END DEPENDENCY UPDATE TARGETS -----
 #
 
 #

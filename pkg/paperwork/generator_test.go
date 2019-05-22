@@ -70,8 +70,8 @@ func (suite *PaperworkSuite) setupOrdersDocument() (*Generator, models.Order) {
 }
 
 func (suite *PaperworkSuite) TestPDFFromImages() {
-	generator, err := NewGenerator(suite.DB(), suite.logger, suite.uploader)
-	suite.FatalNil(err)
+	generator, newGeneratorErr := NewGenerator(suite.DB(), suite.logger, suite.uploader)
+	suite.FatalNil(newGeneratorErr)
 
 	images := []inputFile{
 		{Path: "testdata/orders1.jpg", ContentType: "image/jpeg"},
@@ -99,10 +99,10 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	suite.Equal(2, len(files), "did not find 2 images")
 
 	for _, file := range files {
-		checksum, err := suite.sha256ForPath(path.Join(tmpdir, file.Name()), generator.fs)
-		suite.FatalNil(err, "error calculating hash")
-		if err != nil {
-			suite.FailNow(err.Error())
+		checksum, sha256ForPathErr := suite.sha256ForPath(path.Join(tmpdir, file.Name()), generator.fs)
+		suite.FatalNil(sha256ForPathErr, "error calculating hash")
+		if sha256ForPathErr != nil {
+			suite.FailNow(sha256ForPathErr.Error())
 		}
 		checksums = append(checksums, checksum)
 	}

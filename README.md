@@ -70,8 +70,10 @@ The client application (i.e. website) makes outbound requests to the following d
 
 Use your work email when making commits to our repositories. The simplest path to correctness is setting global config:
 
-    git config --global user.email "trussel@truss.works"
-    git config --global user.name "Trusty Trussel"
+   ```bash
+   git config --global user.email "trussel@truss.works"
+   git config --global user.name "Trusty Trussel"
+   ```
 
 If you drop the `--global` flag these settings will only apply to the current repo. If you ever re-clone that repo or clone another repo, you will need to remember to set the local config again. You won't. Use the global config. :-)
 
@@ -83,21 +85,21 @@ Note that with 2-factor-authentication enabled, in order to push local code to G
 
 All of Go's tooling expects Go code to be checked out in a specific location. Please read about [Go workspaces](https://golang.org/doc/code.html#Workspaces) for a full explanation. If you just want to get started, then decide where you want all your go code to live and configure the GOPATH environment variable accordingly. For example, if you want your go code to live at `~/code/go`, you should add the following like to your `.bash_profile`:
 
-```bash
-export GOPATH=~/code/go
-```
+  ```bash
+  export GOPATH=~/code/go
+  ```
 
 A few of our custom tools expect the `GOPATH` environment variable to be defined.  If you'd like to use the default location, then add the following to your `.bash_profile` or hardcode the default value.  This line will set the GOPATH environment variable to the value of `go env GOPATH` if it is not already set.
 
-```bash
-export GOPATH=${GOPATH:-$(go env GOPATH)}
-```
+  ```bash
+  export GOPATH=${GOPATH:-$(go env GOPATH)}
+  ```
 
 _Regardless of where your go code is located_, you need to add `$GOPATH/bin` to your `PATH` so that executables installed with the go tooling can be found. Add the following to your `.bash_profile`:
 
-```bash
-export PATH=$(go env GOPATH)/bin:$PATH
-```
+  ```bash
+  export PATH=$(go env GOPATH)/bin:$PATH
+  ```
 
 Once that's done, you have go installed, and you've re-sourced your profile, you can checkout this repository by running `go get github.com/transcom/mymove/cmd/milmove` (This will emit an error "can't load package:" or multiple errors with "Cannot find package" but will have cloned the source correctly). You will then find the code at `$GOPATH/src/github.com/transcom/mymove`
 
@@ -145,7 +147,9 @@ The following commands will get mymove running on your machine for the first tim
   * Ensure that `/usr/local/bin` comes before `/bin` on your `$PATH` by running `echo $PATH`. Modify your path by editing `~/.bashrc` or `~/.bash_profile` and changing the `PATH`.  Then source your profile with `source ~/.bashrc` or `~/.bash_profile` to ensure that your terminal has it.
 * Run `scripts/prereqs` and install everything it tells you to. _Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!_
 * For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/). For bash, add the command `eval "$(direnv hook bash)"` to whichever file loads upon opening bash (likely `~./bash_profile`, though instructions say `~/.bashrc`).
-* Run `direnv allow` to load up the `.envrc` file. Add a `.envrc.local` file with any values it asks you to define.
+* Run `direnv allow` to load up the `.envrc` file. It should complain that you have missing variables which you will rectify in one of the following ways.
+  * You can add a `.envrc.local` file. One way to do this is to run `chamber env app-devlocal >> .envrc.local`. If you don't have access to chamber you can also `touch .envrc.local` and add any values that the output from direnv asks you to define. Instructions are in the error messages.
+  * If you wish to not maintain a `.envrc.local` you can alternatively run `cp .envrc.chamber.template .envrc.chamber` to enable getting secret values from `chamber`. **Note** that this method does not work for users of the `fish` shell unless you replace `direnv allow` with `direnv export fish | source`.
 * Run `make deps`.
 * [EditorConfig](http://editorconfig.org/) allows us to manage editor configuration (like indent sizes,) with a [file](https://github.com/transcom/ppp/blob/master/.editorconfig) in the repo. Install the appropriate plugin in your editor to take advantage of that.
 * Run `pre-commit install` to install a pre-commit hook into `./git/hooks/pre-commit`.  This is different than `brew install pre-commit` and must be done so that the hook will check files you are about to commit to the repository.  Also, using this hook is much faster than attempting to create your own with `pre-commit run -a`.
@@ -228,15 +232,15 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
 ### Setup: S3
 
-If you want to develop against the live S3 service, you will need to configure the following values in your `.envrc`:
+If you want to develop against the live S3 service, you will need to configure the following values in your `.envrc.local`:
 
-```text
-AWS_S3_BUCKET_NAME
-AWS_S3_KEY_NAMESPACE
-AWS_REGION
-AWS_PROFILE
-PPP_INFRA_PATH
-```
+  ```text
+  AWS_S3_BUCKET_NAME
+  AWS_S3_KEY_NAMESPACE
+  AWS_REGION
+  AWS_PROFILE
+  PPP_INFRA_PATH
+  ```
 
 AWS credentials are managed via `aws-vault`. See the [the instructions in transcom-ppp](https://github.com/transcom/ppp-infra/blob/master/transcom-ppp/README.md#setup) to set things up.
 
@@ -272,6 +276,8 @@ The public API is defined in a single file: `swagger/api.yaml` and served at `/a
 In addition, internal services, i.e. endpoints only intended for use by the React client are defined in `swagger/internal.yaml` and served at `/internal/swagger.yaml`. These are, as the name suggests, internal endpoints and not intended for use by external clients.
 
 The Orders Gateway's API is defined in the file `swagger/orders.yaml` and served at `/orders/v0/orders.yaml`.
+
+The Admin API is defined in the file `swagger/admin.yaml` and served at `/admin/v1/swagger.yaml`.
 
 You can view the API's documentation (powered by Swagger UI) at <http://localhost:3000/api/v1/docs> when a local server is running.
 
@@ -365,8 +371,12 @@ In development, we use [direnv](https://direnv.net/) to setup environment variab
     # or
 
     # Specify that an environment variable must be defined in .envrc.local
-    require NEW_ENV_VAR "Look for info on this value in Google Drive"
+    require NEW_ENV_VAR "Look for info on this value in chamber and Google Drive"
     ```
+
+Required variables should be placed in google docs and linked in `.envrc`. The value should also be placed in `chamber`
+with `chamber write app-devlocal <key> <value>`. For long blocks of text like certificates you can write them with
+`echo "$LONG_VALUE" | chamber write app-devlocal <key> -`.
 
 For per-tier environment variables (that are not secret), simply add the variables to the relevant `config/env/[experimental|staging|prod].env` file with the format `NAME=VALUE` on each line.  Then add the relevant section to `config/app.container-definition.json`.  The deploy process uses Go's [template package](https://golang.org/pkg/text/template/) for rendering the container definition.  For example,
 

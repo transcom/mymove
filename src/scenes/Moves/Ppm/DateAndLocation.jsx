@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getFormValues } from 'redux-form';
+import { getFormValues, SubmissionError } from 'redux-form';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import {
   createOrUpdatePpm,
@@ -20,10 +20,15 @@ import WizardHeader from '../WizardHeader';
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import './DateAndLocation.css';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
+import { GetPpmWeightEstimate } from './api';
 
 const sitEstimateDebounceTime = 300;
 const formName = 'ppp_date_and_location';
+
 const DateAndLocationWizardForm = reduxifyWizardForm(formName);
+
+const InvalidMoveParamsErrorMsg =
+  "We can 't schedule a move that far in the future. You can try an earlier date, or contact your PPPO for help.";
 
 const validateDifferentZip = (value, formValues) => {
   if (value && value === formValues.pickup_postal_code) {
@@ -48,7 +53,9 @@ export class DateAndLocation extends Component {
     this.setState({ showInfo: false });
   };
 
-  handleSubmit = () => {
+  validateAndSavePPM = () => {
+    const { entitlement } = this.props;
+    const wtgEstEntitlement = get(entitlement, 'sum', 2000);
     const pendingValues = Object.assign({}, this.props.formValues);
     if (pendingValues) {
       pendingValues.has_additional_postal_code = pendingValues.has_additional_postal_code || false;
@@ -57,7 +64,23 @@ export class DateAndLocation extends Component {
         pendingValues.days_in_storage = null;
       }
       const moveId = this.props.match.params.moveId;
-      return this.props.createOrUpdatePpm(moveId, pendingValues);
+
+      // the call to GetPpmWeightEstimate verifies that we have rate data for
+      // these locations and move date before saving the move
+      return GetPpmWeightEstimate(
+        pendingValues.original_move_date,
+        pendingValues.pickup_postal_code,
+        pendingValues.destination_postal_code,
+        wtgEstEntitlement,
+      )
+        .then(() => {
+          return this.props.createOrUpdatePpm(moveId, pendingValues);
+        })
+        .catch(e => {
+          throw new SubmissionError({
+            original_move_date: InvalidMoveParamsErrorMsg,
+          });
+        });
     }
   };
 
@@ -110,7 +133,7 @@ export class DateAndLocation extends Component {
           />
         )}
         <DateAndLocationWizardForm
-          handleSubmit={this.handleSubmit}
+          reduxFormSubmit={this.validateAndSavePPM}
           pageList={pages}
           pageKey={pageKey}
           serverError={error}

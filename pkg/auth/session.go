@@ -25,7 +25,7 @@ const (
 	AdminApp Application = "admin"
 )
 
-// IsTspApp returns true iff the request is for the office.move.mil host
+// IsTspApp returns true iff the request is for the tsp.move.mil host
 func (s *Session) IsTspApp() bool {
 	return s.ApplicationName == TspApp
 }
@@ -51,6 +51,7 @@ type Session struct {
 	Hostname        string
 	IDToken         string
 	Disabled        bool
+	IsSuperuser     bool
 	UserID          uuid.UUID
 	Email           string
 	FirstName       string
@@ -88,6 +89,11 @@ func (s *Session) IsOfficeUser() bool {
 // IsTspUser checks whether the authenticated user is a TspUser
 func (s *Session) IsTspUser() bool {
 	return s.TspUserID != uuid.Nil
+}
+
+// IsAdminUser checks whether the authenticated user is an AdminUser
+func (s *Session) IsAdminUser() bool {
+	return s.IsSuperuser
 }
 
 // IsDpsUser checks whether the authenticated user is a DpsUser

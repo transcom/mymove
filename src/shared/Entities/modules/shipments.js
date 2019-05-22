@@ -1,15 +1,20 @@
 import { denormalize } from 'normalizr';
-
 import { shipments } from '../schema';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient, getPublicClient } from 'shared/Swagger/api';
+import { isNull } from 'lodash';
+import { getEntitlements } from 'shared/entitlements.js';
 
 const approveShipmentLabel = 'Shipments.approveShipment';
 export const getShipmentLabel = 'Shipments.getShipment';
-const getPublicShipmentLabel = 'Shipments.getPublicShipment';
+export const getPublicShipmentLabel = 'Shipments.getPublicShipment';
 const createShipmentLabel = 'Shipments.createShipment';
 const updateShipmentLabel = 'shipments.updateShipment';
 const updatePublicShipmentLabel = 'shipments.updatePublicShipment';
+export const acceptPublicShipmentLabel = 'shipments.acceptShipment';
+const transportPublicShipmentLabel = 'shipments.transportShipment';
+const deliverPublicShipmentLabel = 'shipments.deliverShipment';
+const completePmSurveyLabel = 'shipments.completePmSurvey';
 
 export function createOrUpdateShipment(moveId, shipment, id, label) {
   if (id) {
@@ -51,9 +56,53 @@ export function updatePublicShipment(
   return swaggerRequest(getPublicClient, 'shipments.patchShipment', { shipmentId, update: shipment }, { label });
 }
 
-export function approveShipment(shipmentId, label = approveShipmentLabel) {
+export function approveShipment(shipmentId, shipmentApproveDate, label = approveShipmentLabel) {
   const swaggerTag = 'shipments.approveHHG';
-  return swaggerRequest(getClient, swaggerTag, { shipmentId }, { label });
+  return swaggerRequest(
+    getClient,
+    swaggerTag,
+    {
+      shipmentId,
+      approveShipmentPayload: {
+        approve_date: shipmentApproveDate,
+      },
+    },
+    { label },
+  );
+}
+
+export function acceptShipment(shipmentId, label = acceptPublicShipmentLabel) {
+  const swaggerTag = 'shipments.acceptShipment';
+  return swaggerRequest(getPublicClient, swaggerTag, { shipmentId }, { label });
+}
+
+export function transportShipment(shipmentId, payload, label = transportPublicShipmentLabel) {
+  const swaggerTag = 'shipments.transportShipment';
+  return swaggerRequest(getPublicClient, swaggerTag, { shipmentId, payload }, label);
+}
+
+export function deliverShipment(shipmentId, payload, label = deliverPublicShipmentLabel) {
+  const swaggerTag = 'shipments.deliverShipment';
+  return swaggerRequest(getPublicClient, swaggerTag, { shipmentId, payload }, label);
+}
+
+export function completePmSurvey(shipmentId, label = completePmSurveyLabel) {
+  const swaggerTag = 'shipments.completePmSurvey';
+  return swaggerRequest(getPublicClient, swaggerTag, { shipmentId }, label);
+}
+
+export function calculateEntitlementsForShipment(state, shipmentId) {
+  const shipment = selectShipment(state, shipmentId);
+  const move = shipment.move || {};
+  const serviceMember = shipment.service_member || {};
+  const hasDependents = move.has_dependents;
+  const spouseHasProGear = move.spouse_has_pro_gear;
+  const rank = serviceMember.rank;
+
+  if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
+    return null;
+  }
+  return getEntitlements(rank, hasDependents, spouseHasProGear);
 }
 
 export function selectShipment(state, id) {

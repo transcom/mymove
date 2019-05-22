@@ -24,7 +24,11 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 	orders := testdatagen.MakeDefaultOrder(suite.DB())
 	selectedMoveType := models.SelectedMoveTypeHHGPPM
 
-	move, verrs, locErr := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	moveOptions := models.MoveOptions{
+		SelectedType: &selectedMoveType,
+		Show:         swag.Bool(true),
+	}
+	move, verrs, locErr := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.False(verrs.HasAny(), "failed to create new move")
 	suite.Nil(locErr)
 
@@ -388,12 +392,16 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 
 	selectedMoveType := models.SelectedMoveTypeHHGPPM
 
-	move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType)
+	moveOptions := models.MoveOptions{
+		SelectedType: &selectedMoveType,
+		Show:         swag.Bool(true),
+	}
+	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.Nil(err, "Failed to save move")
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 
-	move2, verrs, err := orders1.CreateNewMove(suite.DB(), &selectedMoveType)
+	move2, verrs, err := orders1.CreateNewMove(suite.DB(), moveOptions)
 	suite.Nil(err, "Failed to save move")
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move2.Orders = orders1
@@ -620,10 +628,6 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 		t.Fatal("Should transition.")
 	}
 	err = move.Approve()
-	if err != nil {
-		t.Fatal("Should transition.")
-	}
-	err = move.Complete()
 	if err != nil {
 		t.Fatal("Should transition.")
 	}
