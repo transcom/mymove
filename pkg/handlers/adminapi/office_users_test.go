@@ -5,10 +5,13 @@ import (
 
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	req := httptest.NewRequest("GET", "/office_users", nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	params := officeuserop.IndexOfficeUsersParams{
 		HTTPRequest: req,
