@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190522173249_add-staging-users.sql")
