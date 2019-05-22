@@ -30,12 +30,12 @@ func newSuccessfulGeocodeResponseBody() GeocodeResponseBody {
 	return GeocodeResponseBody{
 		GeocodeResponse{
 			[]HereSearchResultsViewType{
-				HereSearchResultsViewType{
+				{
 					[]HereSearchResultType{
-						HereSearchResultType{
+						{
 							HereSearchLocation{
 								[]HerePosition{
-									HerePosition{0.0, 0.0},
+									{0.0, 0.0},
 								},
 							},
 						},
@@ -50,7 +50,7 @@ func newSuccessfulRoutingResponseBody(distance int) RoutingResponseBody {
 	return RoutingResponseBody{
 		RoutingResponse{
 			[]HereRoute{
-				HereRoute{HereRouteSummary{distance}},
+				{HereRouteSummary{distance}},
 			},
 		},
 	}
