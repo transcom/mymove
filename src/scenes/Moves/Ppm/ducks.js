@@ -1,5 +1,12 @@
 import { get, every, isNull, isNumber, isEmpty } from 'lodash';
-import { CreatePpm, UpdatePpm, GetPpm, GetPpmWeightEstimate, GetPpmSitEstimate, RequestPayment } from './api.js';
+import {
+  CreatePpm,
+  UpdatePpm,
+  GetPpm,
+  GetPpmWeightEstimate,
+  GetPpmSitEstimate,
+  RequestPayment,
+  ValidateZipRateData } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive } from 'shared/utils';
@@ -16,6 +23,7 @@ const CLEAR_SIT_ESTIMATE = 'CLEAR_SIT_ESTIMATE';
 export const CREATE_OR_UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes('CREATE_OR_UPDATE_PPM');
 export const GET_PPM = ReduxHelpers.generateAsyncActionTypes('GET_PPM');
 export const GET_PPM_ESTIMATE = ReduxHelpers.generateAsyncActionTypes('GET_PPM_ESTIMATE');
+export const VALIDATE_ZIP_CODE = ReduxHelpers.generateAsyncActionTypes('VALIDATE_ZIP_CODE');
 export const GET_SIT_ESTIMATE = ReduxHelpers.generateAsyncActionTypes('GET_SIT_ESTIMATE');
 
 // Action creation
@@ -53,6 +61,16 @@ export function getPpmSitEstimate(moveDate, sitDays, originZip, destZip, weightE
 
 export function clearPpmSitEstimate() {
   return { type: CLEAR_SIT_ESTIMATE };
+}
+
+export function validateZipRateData(zipCode, zipCodeType) {
+  const action = ReduxHelpers.generateAsyncActions('VALIDATE_ZIP_CODE');
+  return function(dispatch, getState) {
+    dispatch(action.start());
+    ValidateZipRateData(zipCode, zipCodeType)
+      .then(item => dispatch(action.success(item)))
+      .catch(error => dispatch(action.error(error)));
+  };
 }
 
 export function createOrUpdatePpm(moveId, ppm) {

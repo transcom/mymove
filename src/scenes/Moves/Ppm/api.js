@@ -66,7 +66,7 @@ export async function ValidateZipRateData(zipCode, zipType) {
   const client = await getPublicClient();
   const response = await client.apis.postal_codes.validatePostalCode({
     postal_code: zipCode,
-    postal_code_type: zipType
+    postal_code_type: zipType,
   });
   checkResponse(response, 'some error around validating');
   return response.body;

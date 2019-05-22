@@ -31,7 +31,7 @@ const InvalidMoveParamsErrorMsg =
   "We can 't schedule a move that far in the future. You can try an earlier date, or contact your PPPO for help.";
 
 const UnsupportedZipCodeErrorMsg =
-  "Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.";
+  'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.';
 
 const validateDifferentZip = (value, formValues) => {
   if (value && value === formValues.pickup_postal_code) {
@@ -46,28 +46,26 @@ const validateZipData = (value, formValues, props, fieldName) => {
 
   const zip = value && value.slice(0, 5);
   if (zip && fieldName === 'destination_postal_code') {
-    return ValidateZipRateData(zip, 'destination')
-      .then((responseBody) => {
-        console.log(responseBody)
-        return responseBody.valid
+    ValidateZipRateData(zip, 'destination')
+      .then(responseBody => {
+        return responseBody.valid ? undefined : UnsupportedZipCodeErrorMsg;
       })
       .catch(err => {
         return { error: err };
       });
   } else if (zip && fieldName === 'pickup_postal_code') {
     ValidateZipRateData(zip, 'origin')
-      .then((responseBody) => {
-
-        return responseBody.valid
+      .then(responseBody => {
+        return responseBody.valid ? undefined : UnsupportedZipCodeErrorMsg;
       })
       .catch(err => {
         return { error: err };
       });
   }
-}
+};
 
 export class DateAndLocation extends Component {
-  state = { showInfo: false };
+  state = { showInfo: false, pickupZipError: "", destinationZipError: "" };
 
   componentDidMount() {
     if (!this.props.currentPpm && this.props.isHHGPPMComboMove) {
@@ -137,20 +135,21 @@ export class DateAndLocation extends Component {
   };
 
   validateDestinationZip = (value, formValues, props, name) => {
-    let sameZipError = validateDifferentZip(value, formValues)
+    let sameZipError = validateDifferentZip(value, formValues);
     if (sameZipError) {
-      return sameZipError
+      return sameZipError;
     }
-    let validity = validateZipData(value, formValues, props, name)
-    console.log(validity)
-    return validity ? undefined : UnsupportedZipCodeErrorMsg
-  }
+    let validity = validateZipData(value, formValues, props, name);
+    console.log(validity);
+
+    return validity;
+  };
 
   validateOriginZip = (value, formValues, props, name) => {
-    let validity = validateZipData(value, formValues, props, name)
-    console.log(validity)
-    return validity ? undefined : UnsupportedZipCodeErrorMsg
-  }
+    let validity = validateZipData(value, formValues, props, name);
+    console.log(validity);
+    return validity ? undefined : UnsupportedZipCodeErrorMsg;
+  };
 
   render() {
     const {
