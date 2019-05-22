@@ -840,6 +840,7 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 
 	actualSit, err := models.FetchStorageInTransitByID(suite.DB(), storageInTransit.ID)
 	suite.Equal(models.StorageInTransitStatusDELIVERED, actualSit.Status)
+	suite.Equal(actualDeliveryDate, actualSit.OutDate)
 
 	// Check for ShipmentLineItems
 	addedLineItems, _ := models.FetchLineItemsByShipmentID(suite.DB(), &shipment.ID)
