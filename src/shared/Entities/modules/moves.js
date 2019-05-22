@@ -11,6 +11,9 @@ import { selectServiceMemberForMove } from 'shared/Entities/modules/serviceMembe
 export const STATE_KEY = 'moves';
 const approveBasicsLabel = 'Moves.ApproveBasics';
 const cancelMoveLabel = 'Moves.CancelMove';
+
+export const submitForApprovalLabel = 'Moves.submitForApproval';
+export const updateMoveLabel = 'Moves.updateMove';
 export const loadMoveLabel = 'Moves.loadMove';
 export const getMoveDatesSummaryLabel = 'Moves.getMoveDatesSummary';
 
@@ -25,6 +28,24 @@ export default function reducer(state = {}, action) {
     default:
       return state;
   }
+}
+
+export function SubmitForApproval(moveId, payload, label = submitForApprovalLabel) {
+  return swaggerRequest(
+    getClient,
+    'moves.submitMoveForApproval',
+    { moveId, submitMoveForApprovalPayload: payload },
+    { label },
+  );
+}
+
+export function updateMove(moveId, moveType, label = updateMoveLabel) {
+  return swaggerRequest(
+    getClient,
+    'moves.patchMove',
+    { moveId, patchMovePayload: { selected_move_type: moveType } },
+    { label },
+  );
 }
 
 export function loadMove(moveId, label = loadMoveLabel) {
@@ -83,3 +104,13 @@ export function isLastMoveCanceled(state, moveId) {
 export function isPpm(state) {
   return Boolean(get(state, 'ppm.currentPpm', false));
 }
+
+export function selectedMoveType(state, moveId) {
+  const move = selectMove(state, moveId);
+  return move.selected_move_type;
+}
+
+export const moveIsApproved = (state, moveId) => {
+  const status = selectMoveStatus(state, moveId);
+  return status === 'APPROVED';
+};

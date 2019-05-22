@@ -14,10 +14,9 @@ import Uploader from 'shared/Uploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
 import SaveCancelButtons from './SaveCancelButtons';
 import { updateOrders, deleteUploads, addUploads } from 'scenes/Orders/ducks';
-import { moveIsApproved } from 'scenes/Moves/ducks';
+import { moveIsApproved, isPpm } from 'shared/Entities/modules/moves';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
-import { isPpm } from '../../shared/Entities/modules/moves';
 import './Review.css';
 import profileImage from './images/profile.png';
 
@@ -63,7 +62,11 @@ let EditOrdersForm = props => {
       <p>Uploads:</p>
       {Boolean(visibleUploads.length) && <UploadsTable uploads={visibleUploads} onDelete={onDelete} />}
       {Boolean(get(initialValues, 'uploaded_orders')) && (
-        <Uploader document={initialValues.uploaded_orders} onChange={onUpload} labelIdle={uploaderLabelIdle} />
+        <Uploader
+          document={initialValues.uploaded_orders}
+          onChange={onUpload}
+          options={{ labelIdle: uploaderLabelIdle }}
+        />
       )}
       <SaveCancelButtons valid={valid} submitting={submitting} />
     </form>

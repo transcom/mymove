@@ -1,26 +1,38 @@
 import { get } from 'lodash';
 
-import { fetchActive, fetchActiveShipment } from 'shared/utils';
+import { fetchFirst, fetchActive, fetchActiveShipment } from 'shared/utils';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { selectShipment } from 'shared/Entities/modules/shipments';
+import { selectMove } from 'shared/Entities/modules/moves';
 
 const initialState = {
   currentShipmentID: null,
 };
 
 const SET_CURRENT_SHIPMENT_ID = 'SET_CURRENT_SHIPMENT_ID';
+const SET_CURRENT_MOVE_ID = 'SET_CURRENT_MOVE_ID';
+const SET_PENDING_MOVE_TYPE = 'SET_PENDING_MOVE_TYPE';
+
+// Action Creation
+export function setPendingMoveType(value) {
+  return { type: SET_PENDING_MOVE_TYPE, payload: value };
+}
 
 export default function uiReducer(state = initialState, action) {
   switch (action.type) {
     case GET_LOGGED_IN_USER.success:
       try {
-        const activeOrders = fetchActive(get(action.payload, 'service_member.orders'));
+        const orders = get(action.payload, 'service_member.orders');
+        const activeOrders = fetchActive(orders);
         const activeMove = fetchActive(get(activeOrders, 'moves'));
         const activeShipment = fetchActiveShipment(get(activeMove, 'shipments'));
+        const latestOrder = fetchFirst(orders);
+        const latestMove = fetchFirst(get(latestOrder, 'moves'));
 
         return {
           ...state,
           currentShipmentID: activeShipment ? activeShipment.id : null,
+          currentMoveID: get(activeMove, 'id', null) || get(latestMove, 'id', null),
         };
       } catch (e) {
         console.error(e);
@@ -31,9 +43,25 @@ export default function uiReducer(state = initialState, action) {
         ...state,
         currentShipmentID: action.shipmentID,
       };
+    case SET_CURRENT_MOVE_ID:
+      return {
+        ...state,
+        currentMoveID: action.moveID,
+      };
+    case SET_PENDING_MOVE_TYPE:
+      return Object.assign({}, state, {
+        pendingMoveType: action.payload,
+      });
     default:
       return state;
   }
+}
+
+export function setCurrentMoveIDAction(moveID) {
+  return {
+    type: SET_CURRENT_MOVE_ID,
+    moveID,
+  };
 }
 
 export function setCurrentShipmentID(shipmentID) {
@@ -49,4 +77,12 @@ export function getCurrentShipmentID(state) {
 
 export function getCurrentShipment(state) {
   return selectShipment(state, get(state, 'ui.currentShipmentID'));
+}
+
+export function getCurrentMoveID(state) {
+  return get(state, 'ui.currentMoveID');
+}
+
+export function getCurrentMove(state) {
+  return selectMove(state, getCurrentMoveID(state));
 }

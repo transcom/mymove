@@ -1,10 +1,13 @@
-import { reject, pick, cloneDeep, concat, includes, get } from 'lodash';
+import { reject, pick, cloneDeep, concat, includes, get, head } from 'lodash';
 import { CreateOrders, UpdateOrders, GetOrders, ShowServiceMemberOrders } from './api.js';
-import { createOrUpdateMoveType } from 'scenes/Moves/ducks';
 import { DeleteUploads } from 'shared/api';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive } from 'shared/utils';
+import { normalize } from 'normalizr';
+import { moves } from 'shared/Entities/schema';
+import { addEntities } from 'shared/Entities/actions.js';
+import { setCurrentMoveIDAction } from 'shared/UI/ducks';
 
 // Types
 const getOrdersType = 'GET_ORDERS';
@@ -31,15 +34,19 @@ export const showServiceMemberOrders = ReduxHelpers.generateAsyncActionCreator(
 export function createOrders(ordersPayload) {
   return function(dispatch, getState) {
     const action = ReduxHelpers.generateAsyncActions(createOrUpdateOrdersType);
-    const moveAction = ReduxHelpers.generateAsyncActions(createOrUpdateMoveType);
     const state = getState();
     const currentOrders = state.orders.currentOrders;
     if (!currentOrders) {
       return CreateOrders(ordersPayload)
         .then(item => {
-          const newMove = get(item, 'moves.0', null);
+          const move = head(item.moves);
+          if (move) {
+            const data = normalize(item.moves, moves);
+            dispatch(addEntities({ moves: data.entities.moves }));
+            dispatch(setCurrentMoveIDAction(move.id));
+          }
+
           dispatch(action.success(item));
-          dispatch(moveAction.success(newMove));
         })
         .catch(error => dispatch(action.error(error)));
     } else {

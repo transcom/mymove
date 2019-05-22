@@ -62,7 +62,7 @@ export class StorageInTransitOfficeEditForm extends Component {
             title="Note from reviewer"
             swagger={storageInTransitSchema}
           />
-          <PanelField value="9999999999" fieldName="sit_number" title="SIT number" {...fieldProps} />
+          <PanelField value="n/a" fieldName="sit_number" title="SIT number" {...fieldProps} />
           <div className="panel-field">
             <span className="field-value warehouse-field-margin">Warehouse</span>
             <span className="field-title">{storageInTransit.warehouse_name}</span>

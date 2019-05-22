@@ -5,7 +5,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
 
-import { selectedMoveType } from 'scenes/Moves/ducks';
+import { selectedMoveType } from 'shared/Entities/modules/moves';
+
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 
 import ServiceMemberSummary from './ServiceMemberSummary';

@@ -6,11 +6,12 @@ import PropTypes from 'prop-types';
 
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 import { getShipment, selectShipment } from 'shared/Entities/modules/shipments';
-import { loadMove, selectMove } from 'shared/Entities/modules/moves';
-import { getCurrentShipmentID } from 'shared/UI/ducks';
+import { loadMove } from 'shared/Entities/modules/moves';
+import { getCurrentShipmentID, getCurrentMove } from 'shared/UI/ducks';
 
 import { getPPM } from 'scenes/Moves/Ppm/ducks.js';
-import { moveIsApproved } from 'scenes/Moves/ducks';
+import { moveIsApproved } from 'shared/Entities/modules/moves';
+
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import Alert from 'shared/Alert';
 import { titleCase } from 'shared/constants.js';
@@ -22,6 +23,7 @@ import HHGShipmentSummary from './HHGShipmentSummary';
 
 import './Review.css';
 import { isLastMoveCanceled } from '../../shared/Entities/modules/moves';
+import { getCurrentMoveID } from '../../shared/UI/ducks';
 
 export class Summary extends Component {
   componentDidMount() {
@@ -135,12 +137,13 @@ Summary.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-  const moveId = ownProps.match.params.moveId;
+  const move = getCurrentMove(state);
+  const moveId = getCurrentMoveID(state);
   return {
     currentPpm: getPPM(state),
     currentShipment: selectShipment(state, getCurrentShipmentID(state)),
     serviceMember: state.serviceMember.currentServiceMember,
-    currentMove: selectMove(state, ownProps.match.params.moveId),
+    currentMove: move,
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders: state.orders.currentOrders,
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
@@ -150,7 +153,7 @@ function mapStateToProps(state, ownProps) {
     lastMoveIsCanceled: isLastMoveCanceled(state, moveId),
     reviewState: state.review,
     entitlement: loadEntitlementsFromState(state),
-    isHHGPPMComboMove: get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM',
+    isHHGPPMComboMove: get(move, 'selected_move_type') === 'HHG_PPM',
   };
 }
 function mapDispatchToProps(dispatch, ownProps) {

@@ -30,7 +30,9 @@ import Footer from 'shared/Footer';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement';
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
-import { selectedMoveType } from 'scenes/Moves/ducks';
+import { selectedMoveType } from 'shared/Entities/modules/moves';
+import { getCurrentMoveID } from 'shared/UI/ducks';
+
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
@@ -132,13 +134,13 @@ AppWrapper.defaultProps = {
 };
 
 const mapStateToProps = state => {
-  const moveId = get(state, 'moves.latestMove.id');
+  const moveId = getCurrentMoveID(state);
   return {
     currentServiceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
-    lastMoveIsCanceled: isLastMoveCanceled(state, moveId),
-    latestMove: get(state, 'moves.latestMove'),
-    moveId: get(state, 'moves.currentMove.id'),
-    selectedMoveType: selectedMoveType(state),
+    lastMoveIsCanceled: isLastMoveCanceled(state),
+    latestMove: get(state, 'moves.latestMove'), //ToDo: will want to move away from using this later...
+    moveId: moveId,
+    selectedMoveType: selectedMoveType(state, moveId),
     swaggerError: state.swaggerInternal.hasErrored,
   };
 };

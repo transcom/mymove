@@ -13,6 +13,9 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { formatSwaggerDate } from 'shared/formatters';
 import WizardHeader from 'scenes/Moves/WizardHeader';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
+import { getCurrentMoveID } from 'shared/UI/ducks';
+import { selectedMoveType } from 'shared/Entities/modules/moves';
+
 import reviewGray from 'shared/icon/review-gray.svg';
 import './index.css';
 
@@ -157,6 +160,8 @@ SignedCertification.propTypes = {
 };
 
 function mapStateToProps(state) {
+  const moveId = getCurrentMoveID(state);
+
   return {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateSignedCertificationPayload', {}),
     hasLoggedInUser: selectGetCurrentUserIsSuccess(state),
@@ -165,7 +170,7 @@ function mapStateToProps(state) {
     ppmId: get(state.ppm, 'currentPpm.id', null),
     has_sit: get(state.ppm, 'currentPpm.has_sit', false),
     has_advance: get(state.ppm, 'currentPpm.has_requested_advance', false),
-    selectedMoveType: get(state.moves.currentMove, 'selected_move_type', null),
+    selectedMoveType: selectedMoveType(state, moveId),
   };
 }
 

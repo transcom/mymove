@@ -7,10 +7,13 @@ import { bindActionCreators } from 'redux';
 import { loadCertificationText, signAndSubmitPpm } from './ducks';
 import { isHHGPPMComboMove } from 'scenes/Moves/Ppm/ducks';
 import { selectGetCurrentUserIsSuccess } from 'shared/Data/users';
+import { getCurrentMoveID } from 'shared/UI/ducks';
+import { selectedMoveType } from 'shared/Entities/modules/moves';
 
 const formName = 'signature-form';
 
 function mapStateToProps(state) {
+  const moveId = getCurrentMoveID(state);
   return {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateSignedCertificationPayload', {}),
     hasLoggedInUser: selectGetCurrentUserIsSuccess(state),
@@ -18,7 +21,7 @@ function mapStateToProps(state) {
     ...state.signedCertification,
     has_sit: get(state.ppm, 'currentPpm.has_sit', false),
     has_advance: get(state.ppm, 'currentPpm.has_requested_advance', false),
-    selectedMoveType: get(state.moves.currentMove, 'selected_move_type', null),
+    selectedMoveType: selectedMoveType(state, moveId),
     ppmId: get(state, 'ppm.currentPpm.id'),
     isHHGPPMComboMove: isHHGPPMComboMove(state),
   };

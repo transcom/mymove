@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { isEmpty, get } from 'lodash';
+import { isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
@@ -8,8 +8,8 @@ import { withContext } from 'shared/AppContext';
 
 import { MoveSummary } from './MoveSummary';
 import { isHHGPPMComboMove } from 'scenes/Moves/Ppm/ducks';
-import { selectedMoveType } from 'scenes/Moves/ducks';
-import { getCurrentShipment } from 'shared/UI/ducks';
+import { getCurrentShipment, getCurrentMoveID } from 'shared/UI/ducks';
+
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import {
@@ -23,7 +23,7 @@ import Alert from 'shared/Alert';
 import SignIn from 'shared/User/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
-import { updateMove } from 'scenes/Moves/ducks';
+import { updateMove, selectMove, selectedMoveType } from 'shared/Entities/modules/moves';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { selectShipment } from 'shared/Entities/modules/shipments';
 import { isLastMoveCanceled } from '../../shared/Entities/modules/moves';
@@ -116,7 +116,7 @@ export class Landing extends Component {
     return (
       <div className="usa-grid">
         {loggedInUserIsLoading && <LoadingPlaceholder />}
-        {!isLoggedIn && <SignIn location={this.props.location} />}
+        {!isLoggedIn && !loggedInUserIsLoading && <SignIn location={this.props.location} />}
         {loggedInUserSuccess && (
           <Fragment>
             <div>
@@ -159,6 +159,7 @@ export class Landing extends Component {
                   resumeMove={this.resumeMove}
                   reviewProfile={this.reviewProfile}
                   requestPaymentSuccess={requestPaymentSuccess}
+                  moveSubmitSuccess={moveSubmitSuccess}
                   updateMove={updateMove}
                   addPPMShipment={this.addPPMShipment}
                 />
@@ -172,18 +173,18 @@ export class Landing extends Component {
 
 const mapStateToProps = state => {
   const shipmentId = getCurrentShipment(state);
-  const moveId = get(state, 'moves.latestMove.id');
   const user = selectCurrentUser(state);
+  const moveId = getCurrentMoveID(state);
   const props = {
     lastMoveIsCanceled: isLastMoveCanceled(state, moveId),
-    selectedMoveType: selectedMoveType(state),
+    selectedMoveType: selectedMoveType(state, moveId),
     isLoggedIn: user.isLoggedIn,
     isProfileComplete: isProfileComplete(state),
     isHHGPPMComboMove: isHHGPPMComboMove(state),
     serviceMember: state.serviceMember.currentServiceMember || {},
     backupContacts: state.serviceMember.currentBackupContacts || [],
     orders: state.orders.currentOrders || {},
-    move: state.moves.currentMove || state.moves.latestMove || {},
+    move: selectMove(state, moveId),
     hhg: selectShipment(state, shipmentId),
     ppm: getPPM(state),
     currentShipment: shipmentId || {},
