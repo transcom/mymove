@@ -14,7 +14,7 @@ type testOfficeUserQueryBuilder struct {
 	fakeFetchOne func(model interface{}) error
 }
 
-func (t *testOfficeUserQueryBuilder) FetchOne(model interface{}, field string, value interface{}) error {
+func (t *testOfficeUserQueryBuilder) FetchOne(model interface{}, filters map[string]interface{}) error {
 	m := t.fakeFetchOne(model)
 	return m
 }
@@ -33,7 +33,7 @@ func (suite *UserServiceSuite) TestFetchOfficeUser() {
 		}
 		fetcher := NewOfficeUserFetcher(builder)
 
-		officeUser, err := fetcher.FetchOfficeUser("id", id)
+		officeUser, err := fetcher.FetchOfficeUser(map[string]interface{}{"id": id})
 
 		suite.NoError(err)
 		suite.Equal(id, officeUser.ID)
@@ -48,7 +48,7 @@ func (suite *UserServiceSuite) TestFetchOfficeUser() {
 		}
 		fetcher := NewOfficeUserFetcher(builder)
 
-		officeUser, err := fetcher.FetchOfficeUser("id", 1)
+		officeUser, err := fetcher.FetchOfficeUser(map[string]interface{}{"id": 1})
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")
