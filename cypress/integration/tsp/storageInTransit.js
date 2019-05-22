@@ -26,6 +26,9 @@ describe('TSP user interacts with storage in transit panel', function() {
   it('TSP user views remaining days and status of shipment expired in SIT (with frozen clock)', function() {
     tspUserEntitlementRemainingDaysExpired();
   });
+  it('TSP user releases SIT IN-SIT at ORIGIN', function() {
+    tspUserSubmitsReleaseSit();
+  });
 });
 
 // need to simulate a form submit
@@ -275,4 +278,50 @@ function tspUserEntitlementRemainingDaysExpired() {
     .contains('103 days')
     .get('[data-cy=storage-in-transit] [data-cy=sit-expires]')
     .contains('28-Jun-2019');
+}
+
+// copying from tspUserSubmitsPlaceInSit
+function tspUserSubmitsReleaseSit() {
+  // Open in transit shipments queue
+  cy.patientVisit('/queues/in_transit');
+
+  //
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/in_transit/);
+  });
+
+  // Find shipment that is inSIT at ORIGIN and open it
+  cy.selectQueueItemMoveLocator('SITOIN');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+  });
+
+  cy
+    .get('[data-cy=storage-in-transit-panel] [data-cy=release-from-sit-link]')
+    .contains('Release From SIT')
+    .click();
+
+  cy
+    .get('input[name=released_on]')
+    .type('5/26/2019')
+    .blur();
+
+  cy
+    .get('[data-cy=release-from-sit-button]')
+    .contains('Done')
+    .click()
+    .get('[data-cy=storage-in-transit-panel]')
+    .should($div => {
+      const text = $div.text();
+      expect(text).to.include('Origin SIT');
+      expect(text).to.include('Entitlement: 90 days');
+      expect(text).to.include(' remaining)');
+      expect(text).to.include('Actual start date');
+      expect(text).to.include('SIT Number');
+      expect(text).to.include('Days used');
+      expect(text).to.include('Expires');
+      expect(text).to.include('Date out');
+      expect(text).to.include('5/26/2019');
+    });
 }

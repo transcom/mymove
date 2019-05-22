@@ -10,11 +10,11 @@ const submit = jest.fn();
 
 const storageInTransitSchema = {
   properties: {
-    actual_start_date: {
+    released_on: {
       type: 'string',
       format: 'date',
       example: '2018-04-26',
-      title: 'Actual start date',
+      title: 'Released on',
     },
   },
 };

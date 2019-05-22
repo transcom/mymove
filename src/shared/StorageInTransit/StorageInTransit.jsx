@@ -139,6 +139,7 @@ export class StorageInTransit extends Component {
     const isApproved = storageInTransit.status === 'APPROVED';
     const isInSit = storageInTransit.status === 'IN_SIT';
     const isReleased = storageInTransit.status === 'RELEASED';
+    const isDelivered = storageInTransit.status === 'DELIVERED';
     const isOrigin = storageInTransit.location === 'ORIGIN';
 
     const daysUsed = sitDaysUsed(storageInTransit);
@@ -294,7 +295,7 @@ export class StorageInTransit extends Component {
                       <span className="field-title unbold">Actual start date</span>
                       <span className="field-value">{formatDate4DigitYear(storageInTransit.actual_start_date)}</span>
                     </div>
-                    {isReleased && (
+                    {(isReleased || isDelivered) && (
                       <div className="panel-field nested__same-font">
                         <span className="field-title unbold">Date out</span>
                         <span data-cy="sit-expires" className="field-value">

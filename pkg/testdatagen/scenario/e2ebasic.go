@@ -2217,7 +2217,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("98c8ba5a-92ed-4e1d-b669-9dd41243b615"),
-			Locator:          "SITAPR",
+			Locator:          "SITAPR", //SITAPR
 			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
@@ -2314,7 +2314,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("84870ff3-7b36-11e9-8576-f218989021c1"),
-			Locator:          "SITOIN",
+			Locator:          "SITOIN", // SIT Origin InSIT
 			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
