@@ -9,7 +9,7 @@ repos:
         types: [go]
 
   - repo: git://github.com/pre-commit/pre-commit-hooks
-    rev: v2.1.0
+    rev: v2.2.3
     hooks:
       - id: check-json
       - id: check-merge-conflict
@@ -28,7 +28,7 @@ repos:
         exclude: public/swagger-ui/*
 
   - repo: git://github.com/igorshubovych/markdownlint-cli
-    rev: v0.13.0
+    rev: v0.16.0
     hooks:
       - id: markdownlint
         entry: markdownlint --ignore .github/*.md

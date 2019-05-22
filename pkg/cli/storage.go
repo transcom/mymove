@@ -5,11 +5,9 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/aws/aws-sdk-go/service/s3"
-
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/endpoints"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -53,13 +51,8 @@ func CheckStorage(v *viper.Viper) error {
 
 	if storageBackend == "s3" {
 		r := v.GetString(AWSS3RegionFlag)
-		if len(r) == 0 {
-			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-s3-region"))
-		}
-
-		regions := endpoints.AwsPartition().Services()[s3.ServiceName].Regions()
-		if _, ok := regions[r]; !ok {
-			return errors.Wrap(&errInvalidRegion{Region: r}, fmt.Sprintf("%s is invalid", "aws-s3-region"))
+		if err := CheckAWSRegionForService(r, s3.ServiceName); err != nil {
+			return errors.Wrap(err, fmt.Sprintf("%s is invalid", AWSS3RegionFlag))
 		}
 	} else if storageBackend == "local" {
 		localStorageRoot := v.GetString(LocalStorageRootFlag)

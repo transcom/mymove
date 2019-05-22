@@ -23,7 +23,8 @@
     "--env",
     "container",
     "--debug-logging",
-    "--log-task-metadata"
+    "--log-task-metadata",
+    "--tls-enabled"
   ],
   "environment": [
     {
@@ -57,6 +58,10 @@
     {
       "name": "DB_SSL_ROOT_CERT",
       "value": "{{ .DB_SSL_ROOT_CERT }}"
+    },
+    {
+      "name": "DEVLOCAL_AUTH",
+      "value": "{{ .DEVLOCAL_AUTH }}"
     },
     {
       "name": "CHAMBER_KMS_KEY_ALIAS",

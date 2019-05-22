@@ -477,10 +477,15 @@ function serviceMemberViewsUpdatedHomePage() {
     expect(loc.pathname).to.eq('/');
   });
 
-  cy.get('.usa-alert-success').contains("You've added a PPM shipment");
-  cy
-    .get('.usa-alert-success')
-    .contains('Next, your shipment is awaiting approval and this can take up to 3 business days');
+  cy.get('.usa-alert-success').within(() => {
+    cy.contains('Your PPM shipment is submitted');
+    cy.contains('Next, wait for approval. Once approved:');
+    cy
+      .get('a')
+      .contains('PPM info sheet')
+      .should('have.attr', 'href')
+      .and('include', '/downloads/ppm_info_sheet.pdf');
+  });
 
   cy.get('body').should($div => {
     expect($div.text()).to.include('Government Movers and Packers');
@@ -488,11 +493,14 @@ function serviceMemberViewsUpdatedHomePage() {
     expect($div.text()).to.not.include('Add PPM (DITY) Move');
   });
 
-  cy.get('.usa-width-three-fourths').should($div => {
-    const text = $div.text();
+  cy.get('.usa-width-three-fourths').within(() => {
     // PPM information and details
-    expect(text).to.include('Next Step: Wait for approval');
-    expect(text).to.include('Weight (est.): 150');
-    expect(text).to.include('Incentive (est.): $2,677.52 - 2,959.36');
+    cy.contains('Next Step: Wait for approval');
+    cy
+      .contains('Go to weight scales')
+      .children('a')
+      .should('have.attr', 'href', 'https://move.mil/resources/locator-maps');
+    cy.contains('Weight (est.): 150');
+    cy.contains('Incentive (est.): $2,677.52 - 2,959.36');
   });
 }

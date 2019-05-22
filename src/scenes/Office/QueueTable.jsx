@@ -5,9 +5,11 @@ import { connect } from 'react-redux';
 import { get, capitalize } from 'lodash';
 import 'react-table/react-table.css';
 import Alert from 'shared/Alert';
-import { formatDate, formatDateTimeWithTZ } from 'shared/formatters';
+import { formatDate, formatDateTimeWithTZ, formatTimeAgo } from 'shared/formatters';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
+import './office.scss';
+import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
 
 class QueueTable extends Component {
   constructor() {
@@ -16,6 +18,14 @@ class QueueTable extends Component {
       data: [],
       pages: null,
       loading: true,
+      refreshing: false, // only true when the user clicks the refresh button
+      lastLoadedAt: new Date(),
+      lastLoadedAtText: formatTimeAgo(new Date()),
+      interval: setInterval(() => {
+        this.setState({
+          lastLoadedAtText: formatTimeAgo(this.state.lastLoadedAt),
+        });
+      }, 5000),
     };
     this.fetchData = this.fetchData.bind(this);
   }
@@ -28,6 +38,12 @@ class QueueTable extends Component {
     if (this.props.queueType !== prevProps.queueType) {
       this.fetchData();
     }
+  }
+
+  openMove(rowInfo) {
+    this.props.history.push(`new/moves/${rowInfo.original.id}`, {
+      referrerPathname: this.props.history.location.pathname,
+    });
   }
 
   static defaultProps = {
@@ -57,6 +73,8 @@ class QueueTable extends Component {
           data: body,
           pages: 1,
           loading: false,
+          refreshing: false,
+          lastLoadedAt: new Date(),
         });
       }
     } catch (e) {
@@ -64,8 +82,26 @@ class QueueTable extends Component {
         data: [],
         pages: 1,
         loading: false,
+        refreshing: false,
+        lastLoadedAt: new Date(),
       });
     }
+  }
+
+  refresh() {
+    clearInterval(this.state.interval);
+
+    this.setState({
+      refreshing: true,
+      lastLoadedAt: new Date(),
+      interval: setInterval(() => {
+        this.setState({
+          lastLoadedAtText: formatTimeAgo(this.state.lastLoadedAt),
+        });
+      }, 5000),
+    });
+
+    this.fetchData();
   }
 
   render() {
@@ -104,6 +140,20 @@ class QueueTable extends Component {
         ) : null}
         <h1 className="queue-heading">Queue: {titles[this.props.queueType]}</h1>
         <div className="queue-table">
+          <span className="staleness-indicator" data-cy="staleness-indicator">
+            Last updated {formatTimeAgo(this.state.lastLoadedAt)}
+          </span>
+          <span className={'refresh' + (this.state.refreshing ? ' focused' : '')} title="Refresh" aria-label="Refresh">
+            <FontAwesomeIcon
+              data-cy="refreshQueue"
+              className="link-blue"
+              icon={faSyncAlt}
+              onClick={this.refresh.bind(this)}
+              color="blue"
+              size="lg"
+              spin={!this.state.refreshing && this.state.loading}
+            />
+          </span>
           <ReactTable
             columns={[
               {
@@ -176,10 +226,9 @@ class QueueTable extends Component {
             className="-striped -highlight"
             showPagination={false}
             getTrProps={(state, rowInfo) => ({
-              onDoubleClick: e =>
-                this.props.history.push(`new/moves/${rowInfo.original.id}`, {
-                  referrerPathname: this.props.history.location.pathname,
-                }),
+              'data-cy': 'queueTableRow',
+              onDoubleClick: () => this.openMove(rowInfo),
+              onClick: () => this.openMove(rowInfo),
             })}
           />
         </div>

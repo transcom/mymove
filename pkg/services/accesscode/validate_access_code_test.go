@@ -1,31 +1,11 @@
 package accesscode
 
 import (
-	"testing"
-
-	"github.com/stretchr/testify/suite"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type ValidateAccessCodeTestSuite struct {
-	testingsuite.PopTestSuite
-}
-
-func (suite *ValidateAccessCodeTestSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
-func TestValidateAccessCodeTestSuite(t *testing.T) {
-	ts := &ValidateAccessCodeTestSuite{
-		testingsuite.NewPopTestSuite(),
-	}
-	suite.Run(t, ts)
-}
-
-func (suite *ValidateAccessCodeTestSuite) TestValidateAccessCode_ValidAccessCode() {
+func (suite *AccessCodeServiceSuite) TestValidateAccessCode_ValidAccessCode() {
 	selectedMoveType := models.SelectedMoveTypePPM
 
 	code := "CODE12"
@@ -41,7 +21,7 @@ func (suite *ValidateAccessCodeTestSuite) TestValidateAccessCode_ValidAccessCode
 	suite.Equal(ac.Code, accessCode.Code, "expected CODE2")
 }
 
-func (suite *ValidateAccessCodeTestSuite) TestValidateAccessCode_InvalidAccessCode() {
+func (suite *AccessCodeServiceSuite) TestValidateAccessCode_InvalidAccessCode() {
 	user := testdatagen.MakeDefaultServiceMember(suite.DB())
 	selectedMoveType := models.SelectedMoveTypeHHG
 

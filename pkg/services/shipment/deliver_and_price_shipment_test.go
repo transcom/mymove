@@ -1,19 +1,13 @@
 package shipment
 
 import (
-	"testing"
-
-	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-func (suite *DeliverPriceShipmentSuite) TestDeliverPriceShipmentCall() {
+func (suite *ShipmentServiceSuite) TestDeliverPriceShipmentCall() {
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
@@ -59,23 +53,4 @@ func (suite *DeliverPriceShipmentSuite) TestDeliverPriceShipmentCall() {
 	for _, item := range fetchedLineItems {
 		suite.NotNil(item.AmountCents, item.Tariff400ngItem.Code)
 	}
-}
-
-type DeliverPriceShipmentSuite struct {
-	testingsuite.PopTestSuite
-	logger Logger
-}
-
-func (suite *DeliverPriceShipmentSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-func TestDeliverPriceShipmentSuite(t *testing.T) {
-	// Use a no-op logger during testing
-	logger := zap.NewNop()
-
-	hs := &DeliverPriceShipmentSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
-		logger:       logger,
-	}
-	suite.Run(t, hs)
 }

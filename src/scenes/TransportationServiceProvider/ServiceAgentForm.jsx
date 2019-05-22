@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import { reduxForm, FormSection } from 'redux-form';
-
+import { selectShipment } from 'shared/Entities/modules/shipments';
 import { ServiceAgentEdit, OptionalServiceAgentEdit } from 'shared/TspPanel/ServiceAgentViews';
 
 let ServiceAgentForm = props => {
@@ -58,7 +58,8 @@ ServiceAgentForm.propTypes = {
 };
 
 const mapStateToProps = (state, ownProps) => {
-  const { shipment } = state.tsp;
+  const { shipmentId } = ownProps;
+  const shipment = selectShipment(state, shipmentId);
   return {
     ...ownProps,
     initialValues: shipment,

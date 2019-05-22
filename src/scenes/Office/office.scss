@@ -60,6 +60,10 @@ h5 {
   text-align: left;
 }
 
+.rt-tr-group {
+  cursor: pointer;
+}
+
 /* Use with .usa-grid for a liquid and nearly full-width grid layout. */
 .grid-wide {
   max-width: 2000px;
@@ -439,4 +443,26 @@ head .panel-subhead {
 .notes {
   white-space: normal;
   word-wrap: break-word;
+}
+
+.ReactTable.-highlight .rt-tbody .rt-tr:not(.-padRow):hover {
+  background-color: #E2F1FB;
+  color: #0071bb
+}
+
+.staleness-indicator {
+  color: gray;
+}
+
+.refresh {
+  display: inline-block;
+  cursor: pointer;
+  margin-left: 0.3em;
+  margin-bottom: 0.3em;
+  padding: 0.3em 0;
+  border: 1px solid white;
+
+  &.focused {
+    border: 1px dashed gray;
+  }
 }

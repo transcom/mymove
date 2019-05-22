@@ -1,7 +1,6 @@
 package internalapi
 
 import (
-	"fmt"
 	"net/http/httptest"
 	"time"
 
@@ -44,7 +43,8 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 		t.Fatalf("Request failed: %#v", response)
 	}
 
-	query := suite.DB().Where(fmt.Sprintf("submitting_user_id='%v'", move.Orders.ServiceMember.User.ID)).Where(fmt.Sprintf("move_id='%v'", move.ID))
+	query := suite.DB().Where("submitting_user_id = ?", move.Orders.ServiceMember.User.ID).
+		Where("move_id = ?", move.ID)
 	certs := []models.SignedCertification{}
 	query.All(&certs)
 

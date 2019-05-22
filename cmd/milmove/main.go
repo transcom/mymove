@@ -18,12 +18,12 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/pkg/errors"
-
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gobuffalo/pop"
 	"github.com/gorilla/csrf"
 	"github.com/honeycombio/beeline-go"
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -65,8 +65,20 @@ func (e *errInvalidHost) Error() string {
 	return fmt.Sprintf("invalid host %s, must not contain whitespace, :, /, or \\", e.Host)
 }
 
+func stringSliceContains(stringSlice []string, value string) bool {
+	for _, x := range stringSlice {
+		if value == x {
+			return true
+		}
+	}
+	return false
+}
+
 // initServeFlags - Order matters!
 func initServeFlags(flag *pflag.FlagSet) {
+
+	// Environment
+	cli.InitEnvironmentFlags(flag)
 
 	// Build Server
 	cli.InitBuildFlags(flag)
@@ -86,8 +98,14 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// Ports to listen to
 	cli.InitPortFlags(flag)
 
+	// Enable listeners
+	cli.InitListenerFlags(flag)
+
 	// Login.Gov Auth config
 	cli.InitAuthFlags(flag)
+
+	// Devlocal Auth config
+	cli.InitDevlocalFlags(flag)
 
 	// HERE Route Config
 	cli.InitRouteFlags(flag)
@@ -127,6 +145,10 @@ func checkConfig(v *viper.Viper, logger logger) error {
 
 	logger.Info("checking webserver config")
 
+	if err := cli.CheckEnvironment(v); err != nil {
+		return err
+	}
+
 	if err := cli.CheckBuild(v); err != nil {
 		return err
 	}
@@ -147,11 +169,19 @@ func checkConfig(v *viper.Viper, logger logger) error {
 		return err
 	}
 
+	if err := cli.CheckListeners(v); err != nil {
+		return err
+	}
+
 	if err := cli.CheckPorts(v); err != nil {
 		return err
 	}
 
 	if err := cli.CheckAuth(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckDevlocal(v); err != nil {
 		return err
 	}
 
@@ -330,11 +360,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		if dbConnection == nil {
 			// No connection object means that the configuraton failed to validate and we should kill server startup
-			logger.Fatal("Connecting to DB", zap.Error(err))
+			logger.Fatal("Invalid DB Configuration", zap.Error(err))
 		} else {
 			// A valid connection object that still has an error indicates that the DB is not up but we
 			// can proceed (this avoids a failure loop when deploying containers).
-			logger.Warn("Starting server without DB connection")
+			logger.Warn("DB is not ready for connections", zap.Error(err))
 		}
 	}
 
@@ -672,7 +702,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 
-	if isDevOrTest {
+	if v.GetBool(cli.DevlocalAuthFlag) {
 		logger.Info("Enabling devlocal auth")
 		localAuthMux := goji.SubMux()
 		root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)
@@ -681,12 +711,15 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		localAuthMux.Handle(pat.Post("/new"), authentication.NewCreateAndLoginUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 		localAuthMux.Handle(pat.Post("/create"), authentication.NewCreateUserHandler(authContext, dbConnection, appnames, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 
-		devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
-		devlocalCa, readFileErr := ioutil.ReadFile(devlocalCAPath) // #nosec
-		if readFileErr != nil {
-			logger.Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(readFileErr))
-		} else {
-			rootCAs.AppendCertsFromPEM(devlocalCa)
+		if stringSliceContains([]string{cli.EnvironmentTest, cli.EnvironmentDevelopment}, v.GetString(cli.EnvironmentFlag)) {
+			logger.Info("Adding devlocal CA to root CAs")
+			devlocalCAPath := v.GetString(cli.DevlocalCAFlag)
+			devlocalCa, readFileErr := ioutil.ReadFile(devlocalCAPath) // #nosec
+			if readFileErr != nil {
+				logger.Error(fmt.Sprintf("Unable to read devlocal CA from path %s", devlocalCAPath), zap.Error(readFileErr))
+			} else {
+				rootCAs.AppendCertsFromPEM(devlocalCa)
+			}
 		}
 	}
 
@@ -712,46 +745,58 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	listenInterface := v.GetString(cli.InterfaceFlag)
 
-	noTLSServer, err := server.CreateNamedServer(&server.CreateNamedServerInput{
-		Name:        "no-tls",
-		Host:        listenInterface,
-		Port:        v.GetInt(cli.NoTLSPortFlag),
-		Logger:      logger,
-		HTTPHandler: httpHandler,
-	})
-	if err != nil {
-		logger.Fatal("error creating no-tls server", zap.Error(err))
+	noTLSEnabled := v.GetBool(cli.NoTLSListenerFlag)
+	var noTLSServer *server.NamedServer
+	if noTLSEnabled {
+		noTLSServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
+			Name:        "no-tls",
+			Host:        listenInterface,
+			Port:        v.GetInt(cli.NoTLSPortFlag),
+			Logger:      logger,
+			HTTPHandler: httpHandler,
+		})
+		if err != nil {
+			logger.Fatal("error creating no-tls server", zap.Error(err))
+		}
+		go startListener(noTLSServer, logger, false)
 	}
-	go startListener(noTLSServer, logger, false)
 
-	tlsServer, err := server.CreateNamedServer(&server.CreateNamedServerInput{
-		Name:         "tls",
-		Host:         listenInterface,
-		Port:         v.GetInt(cli.TLSPortFlag),
-		Logger:       logger,
-		HTTPHandler:  httpHandler,
-		ClientAuth:   tls.NoClientCert,
-		Certificates: certificates,
-	})
-	if err != nil {
-		logger.Fatal("error creating tls server", zap.Error(err))
+	tlsEnabled := v.GetBool(cli.TLSListenerFlag)
+	var tlsServer *server.NamedServer
+	if tlsEnabled {
+		tlsServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
+			Name:         "tls",
+			Host:         listenInterface,
+			Port:         v.GetInt(cli.TLSPortFlag),
+			Logger:       logger,
+			HTTPHandler:  httpHandler,
+			ClientAuth:   tls.NoClientCert,
+			Certificates: certificates,
+		})
+		if err != nil {
+			logger.Fatal("error creating tls server", zap.Error(err))
+		}
+		go startListener(tlsServer, logger, true)
 	}
-	go startListener(tlsServer, logger, true)
 
-	mutualTLSServer, err := server.CreateNamedServer(&server.CreateNamedServerInput{
-		Name:         "mutual-tls",
-		Host:         listenInterface,
-		Port:         v.GetInt(cli.MutualTLSPortFlag),
-		Logger:       logger,
-		HTTPHandler:  httpHandler,
-		ClientAuth:   tls.RequireAndVerifyClientCert,
-		Certificates: certificates,
-		ClientCAs:    rootCAs,
-	})
-	if err != nil {
-		logger.Fatal("error creating mutual-tls server", zap.Error(err))
+	mutualTLSEnabled := v.GetBool(cli.MutualTLSListenerFlag)
+	var mutualTLSServer *server.NamedServer
+	if mutualTLSEnabled {
+		mutualTLSServer, err = server.CreateNamedServer(&server.CreateNamedServerInput{
+			Name:         "mutual-tls",
+			Host:         listenInterface,
+			Port:         v.GetInt(cli.MutualTLSPortFlag),
+			Logger:       logger,
+			HTTPHandler:  httpHandler,
+			ClientAuth:   tls.RequireAndVerifyClientCert,
+			Certificates: certificates,
+			ClientCAs:    rootCAs,
+		})
+		if err != nil {
+			logger.Fatal("error creating mutual-tls server", zap.Error(err))
+		}
+		go startListener(mutualTLSServer, logger, true)
 	}
-	go startListener(mutualTLSServer, logger, true)
 
 	// make sure we flush any pending startup messages
 	logger.Sync()
@@ -783,23 +828,29 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	wg := &sync.WaitGroup{}
 	var shutdownErrors sync.Map
 
-	wg.Add(1)
-	go func() {
-		shutdownErrors.Store(noTLSServer, noTLSServer.Shutdown(ctx))
-		wg.Done()
-	}()
+	if noTLSEnabled {
+		wg.Add(1)
+		go func() {
+			shutdownErrors.Store(noTLSServer, noTLSServer.Shutdown(ctx))
+			wg.Done()
+		}()
+	}
 
-	wg.Add(1)
-	go func() {
-		shutdownErrors.Store(tlsServer, tlsServer.Shutdown(ctx))
-		wg.Done()
-	}()
+	if tlsEnabled {
+		wg.Add(1)
+		go func() {
+			shutdownErrors.Store(tlsServer, tlsServer.Shutdown(ctx))
+			wg.Done()
+		}()
+	}
 
-	wg.Add(1)
-	go func() {
-		shutdownErrors.Store(mutualTLSServer, mutualTLSServer.Shutdown(ctx))
-		wg.Done()
-	}()
+	if mutualTLSEnabled {
+		wg.Add(1)
+		go func() {
+			shutdownErrors.Store(mutualTLSServer, mutualTLSServer.Shutdown(ctx))
+			wg.Done()
+		}()
+	}
 
 	wg.Wait()
 	logger.Info("All listeners are shutdown")
@@ -826,6 +877,103 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+// initMigrateFlags - Order matters!
+func initMigrateFlags(flag *pflag.FlagSet) {
+	// Migration Config
+	cli.InitMigrationFlags(flag)
+
+	// DB Config
+	cli.InitDatabaseFlags(flag)
+
+	// Verbose
+	cli.InitVerboseFlags(flag)
+
+	// Don't sort flags
+	flag.SortFlags = false
+}
+
+func checkMigrateConfig(v *viper.Viper, logger logger) error {
+
+	logger.Info("checking migration config")
+
+	if err := cli.CheckMigration(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckDatabase(v, logger); err != nil {
+		return err
+	}
+
+	if err := cli.CheckVerbose(v); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func migrateFunction(cmd *cobra.Command, args []string) error {
+
+	err := cmd.ParseFlags(os.Args[1:])
+	if err != nil {
+		return errors.Wrap(err, "Could not parse flags")
+	}
+
+	flag := cmd.Flags()
+
+	v := viper.New()
+	err = v.BindPFlags(flag)
+	if err != nil {
+		return errors.Wrap(err, "Could not bind flags")
+	}
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
+
+	dbEnv := v.GetString(cli.DbEnvFlag)
+
+	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	if err != nil {
+		log.Fatalf("Failed to initialize Zap logging due to %v", err)
+	}
+
+	fields := make([]zap.Field, 0)
+	if len(gitBranch) > 0 {
+		fields = append(fields, zap.String("git_branch", gitBranch))
+	}
+	if len(gitCommit) > 0 {
+		fields = append(fields, zap.String("git_commit", gitCommit))
+	}
+	logger = logger.With(fields...)
+	zap.ReplaceGlobals(logger)
+
+	logger.Info("migrator starting up")
+
+	err = checkMigrateConfig(v, logger)
+	if err != nil {
+		logger.Fatal("invalid configuration", zap.Error(err))
+	}
+
+	// Create a connection to the DB
+	dbConnection, err := cli.InitDatabase(v, logger)
+	if err != nil {
+		if dbConnection == nil {
+			// No connection object means that the configuraton failed to validate and we should kill server startup
+			logger.Fatal("Invalid DB Configuration", zap.Error(err))
+		} else {
+			// A valid connection object that still has an error indicates that the DB is not up and
+			// thus is not ready for migrations
+			logger.Fatal("DB is not ready for connections", zap.Error(err))
+		}
+	}
+
+	migrationPath := v.GetString(cli.MigrationPathFlag)
+	logger.Info(fmt.Sprintf("using migration path %q", migrationPath))
+	mig, err := pop.NewFileMigrator(migrationPath, dbConnection)
+	if err != nil {
+		return err
+	}
+	return mig.Up()
+}
+
 func main() {
 
 	root := cobra.Command{
@@ -849,6 +997,15 @@ func main() {
 	}
 	initServeFlags(serveCommand.Flags())
 	root.AddCommand(serveCommand)
+
+	migrateCommand := &cobra.Command{
+		Use:   "migrate",
+		Short: "Runs MilMove migrations",
+		Long:  "Runs MilMove migrations",
+		RunE:  migrateFunction,
+	}
+	initMigrateFlags(migrateCommand.Flags())
+	root.AddCommand(migrateCommand)
 
 	completionCommand := &cobra.Command{
 		Use:   "completion",

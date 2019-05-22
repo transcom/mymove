@@ -78,6 +78,28 @@ describe('Shipments column', () => {
   });
 });
 
+describe('Refreshing', () => {
+  let wrapper;
+  it('loads the data again', done => {
+    const refreshSpy = jest.spyOn(QueueTable.WrappedComponent.prototype, 'refresh');
+    const fetchDataSpy = jest.spyOn(QueueTable.WrappedComponent.prototype, 'fetchData');
+
+    wrapper = mountComponents(retrieveMovesStub());
+
+    wrapper
+      .find('[data-cy="refreshQueue"]')
+      .at(0)
+      .simulate('click');
+
+    setTimeout(() => {
+      expect(refreshSpy).toHaveBeenCalled();
+      expect(fetchDataSpy).toHaveBeenCalled();
+
+      done();
+    });
+  });
+});
+
 function retrieveMovesStub(params) {
   // This is meant as a stub that will act in place of
   // `RetrieveMovesForOffice` from Office/api.js
