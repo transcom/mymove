@@ -478,7 +478,7 @@ jobs:
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
             chmod +x ./cc-test-reporter
             ./cc-test-reporter before-build -d
-          working_directory: /home/circleci/go/src
+          working_directory: /home/circleci/
       - run:
           name: make server_test_coverage_generate
           command: |
@@ -508,11 +508,11 @@ jobs:
       - run:
           name: upload code coverage to code climate
           command: |
-            export GIT_COMMITTED_AT=`git -C "github.com/transcom/mymove" log -1 --pretty=format:%ct`
+            export GIT_COMMITTED_AT=`git -C "transcom/mymove" log -1 --pretty=format:%ct`
             ./cc-test-reporter format-coverage github.com/transcom/mymove/coverage.out -t gocov -d
             ./cc-test-reporter upload-coverage -d
           # needs to run from this directory so that it can find the source code.
-          working_directory: /home/circleci/go/src
+          working_directory: /home/circleci/
 
   # `client_test` runs the client side Javascript tests
   client_test:
