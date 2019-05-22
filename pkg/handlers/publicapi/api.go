@@ -107,7 +107,7 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	}
 	publicAPI.StorageInTransitsDeliverStorageInTransitHandler = DeliverStorageInTransitHandler{
 		context,
-		sitservice.NewStorageInTransitInDeliverer(context.DB()),
+		sitservice.NewStorageInTransitDeliverer(context.DB()),
 	}
 
 	// Access Codes

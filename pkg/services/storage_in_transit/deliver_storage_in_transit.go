@@ -20,13 +20,11 @@ func (d *deliverStorageInTransit) DeliverStorageInTransit(shipmentID uuid.UUID, 
 
 	// Only TSP users are authorized to do this.
 	isUserAuthorized, err := authorizeStorageInTransitHTTPRequest(d.db, session, shipmentID, false)
-
 	if err != nil || !isUserAuthorized {
 		return nil, returnVerrs, err
 	}
 
 	storageInTransit, err := models.FetchStorageInTransitByID(d.db, storageInTransitID)
-
 	if err != nil {
 		return nil, returnVerrs, err
 	}
@@ -52,8 +50,8 @@ func (d *deliverStorageInTransit) DeliverStorageInTransit(shipmentID uuid.UUID, 
 	return storageInTransit, returnVerrs, nil
 }
 
-// NewStorageInTransitInDeliverer is the public constructor for a `NewStorageInTransitInDeliverer`
+// NewStorageInTransitDeliverer is the public constructor for a `NewStorageInTransitInDeliverer`
 // using Pop
-func NewStorageInTransitInDeliverer(db *pop.Connection) services.StorageInTransitDeliverer {
+func NewStorageInTransitDeliverer(db *pop.Connection) services.StorageInTransitDeliverer {
 	return &deliverStorageInTransit{db}
 }

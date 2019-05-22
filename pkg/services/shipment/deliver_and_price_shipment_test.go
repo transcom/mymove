@@ -23,15 +23,6 @@ func (suite *DeliverPriceShipmentSuite) TestDeliverPriceShipmentCall() {
 
 	shipment := shipments[0]
 
-	storageInTransit := testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
-		StorageInTransit: models.StorageInTransit{
-			ShipmentID: shipment.ID,
-			Shipment:   shipment,
-			Status:     models.StorageInTransitStatusINSIT,
-			// default is a DESTINATION sit
-		},
-	})
-
 	// And an unpriced, approved pre-approval
 	testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
@@ -61,7 +52,6 @@ func (suite *DeliverPriceShipmentSuite) TestDeliverPriceShipmentCall() {
 	suite.FatalFalse(verrs.HasAny())
 
 	suite.Equal(models.ShipmentStatusDELIVERED, shipment.Status)
-	suite.Equal(models.StorageInTransitStatusDELIVERED, storageInTransit.Status)
 
 	fetchedLineItems, err := models.FetchLineItemsByShipmentID(suite.DB(), &shipment.ID)
 	suite.FatalNoError(err)

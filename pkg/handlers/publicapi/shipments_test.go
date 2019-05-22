@@ -786,6 +786,15 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
 
+	storageInTransit := testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID: shipment.ID,
+			Shipment:   shipment,
+			Status:     models.StorageInTransitStatusINSIT,
+			// default is a DESTINATION sit
+		},
+	})
+
 	// Add a line item that's ready to be priced
 	preApproval := testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
@@ -828,6 +837,9 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	okResponse := response.(*shipmentop.DeliverShipmentOK)
 	suite.Equal("DELIVERED", string(okResponse.Payload.Status))
 	suite.Equal(actualDeliveryDate, time.Time(*okResponse.Payload.ActualDeliveryDate))
+
+	actualSit, err := models.FetchStorageInTransitByID(suite.DB(), storageInTransit.ID)
+	suite.Equal(models.StorageInTransitStatusDELIVERED, actualSit.Status)
 
 	// Check for ShipmentLineItems
 	addedLineItems, _ := models.FetchLineItemsByShipmentID(suite.DB(), &shipment.ID)

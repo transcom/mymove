@@ -16,7 +16,7 @@ func (suite *StorageInTransitServiceSuite) TestDeliverStorageInTransit() {
 		TspUserID:       tspUser.ID,
 	}
 
-	deliverer := NewStorageInTransitInDeliverer(suite.DB())
+	deliverer := NewStorageInTransitDeliverer(suite.DB())
 	sit.Status = models.StorageInTransitStatusINSIT
 	_, _ = suite.DB().ValidateAndSave(&sit)
 
