@@ -37,34 +37,27 @@ func (suite *PopQueryBuilderSuite) TestFetchOne() {
 	suite.T().Run("fetches one with filter", func(t *testing.T) {
 		// create extra record to make sure we filter
 		user2 := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		filters := map[string]interface{}{
-			"id": user.ID,
-		}
+		filter := builder.EqualsUUID("id", user.ID)
 
-		err := builder.FetchOne(&actualUser, filters)
+		err := builder.FetchOne(&actualUser, filter)
 
 		suite.NoError(err)
 		suite.Equal(user.ID, actualUser.ID)
 
 		// do the reverse to make sure we don't get the same record every time
-		filters = map[string]interface{}{
-			"id": user2.ID,
-		}
+		filter = builder.EqualsUUID("id", user2.ID)
 
-		err = builder.FetchOne(&actualUser, filters)
+		err = builder.FetchOne(&actualUser, filter)
 
 		suite.NoError(err)
 		suite.Equal(user2.ID, actualUser.ID)
 	})
 
 	suite.T().Run("returns error on invalid column", func(t *testing.T) {
-		filters := map[string]interface{}{
-			"id":          user.ID,
-			"fake_column": "test@example.com",
-		}
+		filter := builder.EqualsUUID("fake_column", user.ID)
 		var actualUser models.OfficeUser
 
-		err := builder.FetchOne(&actualUser, filters)
+		err := builder.FetchOne(&actualUser, filter)
 
 		suite.Error(err)
 		suite.Equal("[fake_column] is not valid input", err.Error())
@@ -72,10 +65,9 @@ func (suite *PopQueryBuilderSuite) TestFetchOne() {
 	})
 
 	suite.T().Run("fails when not pointer", func(t *testing.T) {
-		filters := map[string]interface{}{}
 		var actualUser models.OfficeUser
 
-		err := builder.FetchOne(actualUser, filters)
+		err := builder.FetchOne(actualUser)
 
 		suite.Error(err)
 		suite.Equal("Model should be pointer to struct", err.Error())
@@ -84,9 +76,8 @@ func (suite *PopQueryBuilderSuite) TestFetchOne() {
 
 	suite.T().Run("fails when not pointer to struct", func(t *testing.T) {
 		var i int
-		filters := map[string]interface{}{}
 
-		err := builder.FetchOne(&i, filters)
+		err := builder.FetchOne(&i)
 
 		suite.Error(err)
 		suite.Equal("Model should be pointer to struct", err.Error())
@@ -103,24 +94,19 @@ func (suite *PopQueryBuilderSuite) TestFetchMany() {
 
 	suite.T().Run("fetches many with filter", func(t *testing.T) {
 		user2 := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		filters := map[string]interface{}{
-			"id": user2.ID,
-		}
+		filter := builder.EqualsUUID("id", user2.ID)
 
-		err := builder.FetchMany(&actualUsers, filters)
+		err := builder.FetchMany(&actualUsers, filter)
 
 		suite.NoError(err)
 		suite.Len(actualUsers, 1)
 		suite.Equal(user2.ID, actualUsers[0].ID)
 
 		// do the reverse to make sure we don't get the same record every time
-		filters = map[string]interface{}{
-			"id": user.ID,
-		}
-
+		filter = builder.EqualsUUID("id", user.ID)
 		var actualUsers models.OfficeUsers
 
-		err = builder.FetchMany(&actualUsers, filters)
+		err = builder.FetchMany(&actualUsers, filter)
 
 		suite.NoError(err)
 		suite.Len(actualUsers, 1)
@@ -129,12 +115,9 @@ func (suite *PopQueryBuilderSuite) TestFetchMany() {
 
 	suite.T().Run("fails with invalid column", func(t *testing.T) {
 		var actualUsers models.OfficeUsers
-		filters := map[string]interface{}{
-			"id":          user.ID,
-			"fake_column": "test@example.com",
-		}
+		filter := builder.EqualsUUID("fake_column", user.ID)
 
-		err := builder.FetchMany(&actualUsers, filters)
+		err := builder.FetchMany(&actualUsers, filter)
 
 		suite.Error(err)
 		suite.Equal("[fake_column] is not valid input", err.Error())
@@ -143,9 +126,8 @@ func (suite *PopQueryBuilderSuite) TestFetchMany() {
 
 	suite.T().Run("fails when not pointer", func(t *testing.T) {
 		var actualUsers models.OfficeUsers
-		filters := map[string]interface{}{}
 
-		err := builder.FetchMany(actualUsers, filters)
+		err := builder.FetchMany(actualUsers)
 
 		suite.Error(err)
 		suite.Equal("Model should be pointer to slice of structs", err.Error())
@@ -154,9 +136,8 @@ func (suite *PopQueryBuilderSuite) TestFetchMany() {
 
 	suite.T().Run("fails when not pointer to slice", func(t *testing.T) {
 		var actualUser models.OfficeUser
-		filters := map[string]interface{}{}
 
-		err := builder.FetchMany(&actualUser, filters)
+		err := builder.FetchMany(&actualUser)
 
 		suite.Error(err)
 		suite.Equal("Model should be pointer to slice of structs", err.Error())
@@ -165,11 +146,8 @@ func (suite *PopQueryBuilderSuite) TestFetchMany() {
 
 	suite.T().Run("fails when not pointer to slice of structs", func(t *testing.T) {
 		var intSlice []int
-		filters := map[string]interface{}{
-			"id": user.ID,
-		}
 
-		err := builder.FetchMany(&intSlice, filters)
+		err := builder.FetchMany(&intSlice)
 
 		suite.Error(err)
 		suite.Equal("Model should be pointer to slice of structs", err.Error())
