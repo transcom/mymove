@@ -219,6 +219,12 @@ class QueueTable extends Component {
                 Cell: row => <span className="updated_at">{formatDateTimeWithTZ(row.value)}</span>,
                 show: this.props.queueType !== 'new',
               },
+              {
+                Header: 'Submitted date',
+                accessor: 'submitted_date',
+                Cell: row => <span className="submitted_date">{formatDateTimeWithTZ(row.value)}</span>,
+                show: this.props.queueType === 'new',
+              },
             ]}
             data={this.state.data}
             loading={this.state.loading} // Display the loading overlay when we need it
