@@ -35,7 +35,7 @@ const getDayPickerProps = disabledDays => {
 };
 
 export default function SingleDatePicker(props) {
-  const { value = null, onChange, disabled, name, disabledDays } = props;
+  const { value = null, onChange, onBlur, disabled, name, disabledDays } = props;
   const formatted = parseDate(value);
   return (
     <DayPickerInput
@@ -45,7 +45,7 @@ export default function SingleDatePicker(props) {
       formatDate={formatDate}
       value={formatted}
       dayPickerProps={getDayPickerProps(disabledDays)}
-      inputProps={{ disabled, name }}
+      inputProps={{ disabled, name, onChange, onBlur }}
     />
   );
 }
