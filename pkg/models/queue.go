@@ -58,8 +58,12 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
 			LEFT JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
-			WHERE moves.status = 'SUBMITTED'
-			and moves.show is true
+			WHERE (moves.status = 'SUBMITTED'
+			OR (shipment.status = 'SUBMITTED'
+			OR shipment.status = 'AWARDED'
+			OR shipment.status = 'ACCEPTED'
+			OR ppm.status = 'SUBMITTED') AND moves.status != 'CANCELED')
+			AND moves.show is true
 		`
 	} else if lifecycleState == "ppm" {
 		query = `
