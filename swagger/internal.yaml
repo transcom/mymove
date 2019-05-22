@@ -2372,6 +2372,11 @@ definitions:
         format: date
         example: 2018-04-25
         x-nullable: true
+      submitted_date:
+        type: string
+        format: date
+        example: 2018-04-25
+        x-nullable: true
       last_modified_date:
         type: string
         format: date-time
