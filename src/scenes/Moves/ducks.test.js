@@ -1,4 +1,4 @@
-import { CREATE_OR_UPDATE_MOVE, GET_MOVE, SUBMIT_FOR_APPROVAL, moveReducer } from './ducks';
+import { CREATE_OR_UPDATE_MOVE, GET_MOVE, moveReducer } from './ducks';
 import loggedInUserPayload, { emptyPayload } from 'shared/User/sampleLoggedInUserPayload';
 
 const expectedMove = {
@@ -134,35 +134,6 @@ describe('move Reducer', () => {
         latestMove: null,
         hasLoadError: true,
         hasLoadSuccess: false,
-        error: 'No bueno.',
-      });
-    });
-  });
-
-  describe('SUBMIT_FOR_APPROVAL', () => {
-    it('Should handle SUCCESS', () => {
-      const initialState = {};
-      const newState = moveReducer(initialState, {
-        type: SUBMIT_FOR_APPROVAL.success,
-        payload: { ...movePayload, status: 'APPROVED' },
-      });
-
-      expect(newState).toEqual({
-        currentMove: { ...expectedMove, status: 'APPROVED' },
-        submittedForApproval: true,
-      });
-    });
-
-    it('Should handle FAILURE', () => {
-      const initialState = {};
-
-      const newState = moveReducer(initialState, {
-        type: SUBMIT_FOR_APPROVAL.failure,
-        error: 'No bueno.',
-      });
-
-      expect(newState).toEqual({
-        submittedForApproval: false,
         error: 'No bueno.',
       });
     });
