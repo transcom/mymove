@@ -826,7 +826,7 @@ dependency_update_test:
 
 .PHONY: make_test
 make_test:
-	scripts/make_test
+	scripts/make-test
 
 #
 # ----- END MAKE TEST TARGETS -----
