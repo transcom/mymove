@@ -8,11 +8,17 @@ linters-settings:
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
           - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
+  goimports:
+    # put imports beginning with prefix after 3rd-party packages;
+    # it's a comma-separated list of prefixes
+    local-prefixes: github.com/transcom/mymove
+
 linters:
   enable:
      - gosec
      - golint
      - gofmt
+     - goimports
   disable:
     - govet
     - unused #deprecated https://github.com/dominikh/go-tools/tree/master/cmd/unused
@@ -24,4 +30,3 @@ linters:
     - structcheck
     - typecheck
     - varcheck
-    - goimports

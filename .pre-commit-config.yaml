@@ -79,14 +79,6 @@ repos:
 
   - repo: local
     hooks:
-      - id: go-imports
-        name: go imports
-        entry: scripts/pre-commit-go-imports
-        language: script
-        files: \.go$
-
-  - repo: local
-    hooks:
       - id: gomod
         name: gomod
         entry: scripts/pre-commit-go-mod
