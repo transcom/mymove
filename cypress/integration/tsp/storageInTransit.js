@@ -280,7 +280,6 @@ function tspUserEntitlementRemainingDaysExpired() {
     .contains('28-Jun-2019');
 }
 
-// copying from tspUserSubmitsPlaceInSit
 function tspUserSubmitsReleaseSit() {
   // Open in transit shipments queue
   cy.patientVisit('/queues/in_transit');
@@ -297,16 +296,20 @@ function tspUserSubmitsReleaseSit() {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
+  // click release shipment link
   cy
     .get('[data-cy=storage-in-transit-panel] [data-cy=release-from-sit-link]')
     .contains('Release From SIT')
     .click();
 
+  // enter in date released on
   cy
     .get('input[name=released_on]')
     .type('5/26/2019')
     .blur();
 
+  // press button to release shipment and confirm the expected information on the panel
+  // after releasing the shipment
   cy
     .get('[data-cy=release-from-sit-button]')
     .contains('Done')
@@ -315,13 +318,13 @@ function tspUserSubmitsReleaseSit() {
     .should($div => {
       const text = $div.text();
       expect(text).to.include('Origin SIT');
+      expect(text).to.include('Released');
       expect(text).to.include('Entitlement: 90 days');
-      expect(text).to.include(' remaining)');
       expect(text).to.include('Actual start date');
       expect(text).to.include('SIT Number');
       expect(text).to.include('Days used');
       expect(text).to.include('Expires');
       expect(text).to.include('Date out');
-      expect(text).to.include('5/26/2019');
+      expect(text).to.include('26-May-2019');
     });
 }

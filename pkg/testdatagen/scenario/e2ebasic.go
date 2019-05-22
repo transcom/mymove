@@ -10,6 +10,11 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/gen/apimessages"
+	"github.com/transcom/mymove/pkg/handlers"
+	storageintransit "github.com/transcom/mymove/pkg/services/storage_in_transit"
+
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -2333,12 +2338,14 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	authorizedStartDateOffer39 := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
+	sitID := uuid.FromStringOrNil("91051af8-7ccb-11e9-8e2c-acde48001122")
 	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
 		StorageInTransit: models.StorageInTransit{
+			ID:                  sitID,
 			ShipmentID:          offer39.ShipmentID,
 			Shipment:            offer39.Shipment,
 			Location:            models.StorageInTransitLocationORIGIN,
-			Status:              models.StorageInTransitStatusINSIT,
+			Status:              models.StorageInTransitStatusAPPROVED,
 			EstimatedStartDate:  time.Date(2019, time.Month(3), 22, 0, 0, 0, 0, time.UTC),
 			ActualStartDate:     &authorizedStartDateOffer39,
 			AuthorizedStartDate: &authorizedStartDateOffer39,
@@ -2347,6 +2354,24 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	hhg39 := offer39.Shipment
 	hhg39.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg39.Move)
+
+	//-- to make the SIT Number appear for an In SIT story, have to run through the place in to SIT handler
+
+	payload := apimessages.StorageInTransitInSitPayload{
+		ActualStartDate: *handlers.FmtDate(authorizedStartDateOffer39),
+	}
+	session := auth.Session{
+		ApplicationName: auth.TspApp,
+		UserID:          *tspUser.UserID,
+		IDToken:         "fake token",
+		TspUserID:       tspUser.ID,
+	}
+	inSITPlacer := storageintransit.NewStorageInTransitInSITPlacer(db)
+	_, verrs, err := inSITPlacer.PlaceIntoSITStorageInTransit(payload, offer39.ShipmentID, &session, sitID)
+	if verrs.HasAny() || err != nil {
+		fmt.Println(verrs.String())
+		log.Panic(err)
+	}
 
 	/*
 	 * Service member with a ppm ready to request payment
