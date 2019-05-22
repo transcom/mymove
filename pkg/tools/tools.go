@@ -16,8 +16,6 @@ import (
 
 	// Install for getting access to production secrets
 	_ "github.com/segmentio/chamber"
-	// Install for pre-commit go-lint
-	_ "golang.org/x/lint/golint"
 	// Install for pre-commit circleci testing
 	_ "golang.org/x/tools/cmd/callgraph"
 	// Install for pre-commit go-imports

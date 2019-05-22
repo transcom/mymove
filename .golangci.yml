@@ -11,6 +11,7 @@ linters-settings:
 linters:
   enable:
      - gosec
+     - golint
   disable:
     - govet
     - unused #deprecated https://github.com/dominikh/go-tools/tree/master/cmd/unused
@@ -24,4 +25,3 @@ linters:
     - varcheck
     - goimports
     - gofmt
-    - golint

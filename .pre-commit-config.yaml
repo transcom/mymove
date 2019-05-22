@@ -87,15 +87,6 @@ repos:
 
   - repo: local
     hooks:
-      - id: go-lint
-        name: go lint
-        entry: scripts/pre-commit-go-lint
-        language: script
-        files: \.go$
-        exclude: pkg/tools/
-
-  - repo: local
-    hooks:
       - id: gomod
         name: gomod
         entry: scripts/pre-commit-go-mod
