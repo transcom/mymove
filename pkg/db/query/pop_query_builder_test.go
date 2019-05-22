@@ -62,21 +62,24 @@ func (suite *PopQueryBuilderSuite) TestFetchOne() {
 			"id":          user.ID,
 			"fake_column": "test@example.com",
 		}
+		var actualUser models.OfficeUser
 
 		err := builder.FetchOne(&actualUser, filters)
 
 		suite.Error(err)
 		suite.Equal("[fake_column] is not valid input", err.Error())
+		suite.Zero(actualUser)
 	})
 
 	suite.T().Run("fails when not pointer", func(t *testing.T) {
 		filters := map[string]interface{}{}
-		var officeUser models.OfficeUser
+		var actualUser models.OfficeUser
 
-		err := builder.FetchOne(officeUser, filters)
+		err := builder.FetchOne(actualUser, filters)
 
 		suite.Error(err)
 		suite.Equal("Model should be pointer to struct", err.Error())
+		suite.Zero(actualUser)
 	})
 
 	suite.T().Run("fails when not pointer to struct", func(t *testing.T) {
@@ -95,53 +98,69 @@ func (suite *PopQueryBuilderSuite) TestFetchMany() {
 	// this should be stubbed out with a model that is agnostic to our code
 	// similar to how the pop repo tests might work
 	user := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	email := "test@example.com"
-	assertions := testdatagen.Assertions{OfficeUser: models.OfficeUser{Email: email}}
-	user2 := testdatagen.MakeOfficeUser(suite.DB(), assertions)
 	builder := NewPopQueryBuilder(suite.DB())
 	var actualUsers models.OfficeUsers
 
 	suite.T().Run("fetches many with filter", func(t *testing.T) {
+		user2 := testdatagen.MakeDefaultOfficeUser(suite.DB())
 		filters := map[string]interface{}{
-			"id":    user2.ID,
-			"email": email,
+			"id": user2.ID,
 		}
+
 		err := builder.FetchMany(&actualUsers, filters)
 
 		suite.NoError(err)
 		suite.Len(actualUsers, 1)
-		suite.Equal(email, actualUsers[0].Email)
+		suite.Equal(user2.ID, actualUsers[0].ID)
+
+		// do the reverse to make sure we don't get the same record every time
+		filters = map[string]interface{}{
+			"id": user.ID,
+		}
+
+		var actualUsers models.OfficeUsers
+
+		err = builder.FetchMany(&actualUsers, filters)
+
+		suite.NoError(err)
+		suite.Len(actualUsers, 1)
+		suite.Equal(user.ID, actualUsers[0].ID)
 	})
 
 	suite.T().Run("fails with invalid column", func(t *testing.T) {
+		var actualUsers models.OfficeUsers
 		filters := map[string]interface{}{
-			"id":          user2.ID,
-			"fake_column": email,
+			"id":          user.ID,
+			"fake_column": "test@example.com",
 		}
+
 		err := builder.FetchMany(&actualUsers, filters)
 
 		suite.Error(err)
 		suite.Equal("[fake_column] is not valid input", err.Error())
+		suite.Empty(actualUsers)
 	})
 
 	suite.T().Run("fails when not pointer", func(t *testing.T) {
-		var officeUsers models.OfficeUsers
+		var actualUsers models.OfficeUsers
 		filters := map[string]interface{}{}
 
-		err := builder.FetchMany(officeUsers, filters)
+		err := builder.FetchMany(actualUsers, filters)
 
 		suite.Error(err)
 		suite.Equal("Model should be pointer to slice of structs", err.Error())
+		suite.Empty(actualUsers)
 	})
 
 	suite.T().Run("fails when not pointer to slice", func(t *testing.T) {
-		var officeUser models.OfficeUser
+		var actualUser models.OfficeUser
 		filters := map[string]interface{}{}
 
-		err := builder.FetchMany(&officeUser, filters)
+		err := builder.FetchMany(&actualUser, filters)
 
 		suite.Error(err)
 		suite.Equal("Model should be pointer to slice of structs", err.Error())
+		suite.Empty(actualUser)
 	})
 
 	suite.T().Run("fails when not pointer to slice of structs", func(t *testing.T) {

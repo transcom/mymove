@@ -15,6 +15,7 @@ type PopQueryBuilder struct {
 }
 
 // NewPopQueryBuilder returns a new query builder implemented with pop
+// constructor is for Dependency Injection frameworks requiring a function instead of struct
 func NewPopQueryBuilder(db *pop.Connection) *PopQueryBuilder {
 	return &PopQueryBuilder{db}
 }
@@ -29,6 +30,7 @@ func (e *InvalidInputError) Error() string {
 	return fmt.Sprintf("%v is not valid input", e.input)
 }
 
+// Lookup to check if a specific string is inside the db field tags of the type
 func getDBColumn(t reflect.Type, field string) (string, bool) {
 	for i := 0; i < t.NumField(); i++ {
 		dbTag, ok := t.Field(i).Tag.Lookup("db")
