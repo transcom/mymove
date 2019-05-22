@@ -22,6 +22,9 @@ export function getCurrentUserInfo() {
             const shipmentIds = Object.keys(data.entities.shipments);
             shipmentIds.map(id => dispatch(getShipment(id)));
           }
+          if (data.entities.moves) {
+            dispatch(addEntities({ moves: data.entities.moves }));
+          }
 
           // Only store addresses in a normalized way. This prevents
           // data duplication while we're using both Redux approaches.

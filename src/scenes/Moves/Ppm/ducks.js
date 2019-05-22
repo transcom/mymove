@@ -6,7 +6,7 @@ import { fetchActive } from 'shared/utils';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCents } from 'shared/formatters';
 import { selectShipment } from 'shared/Entities/modules/shipments';
-import { getCurrentShipmentID } from 'shared/UI/ducks';
+import { getCurrentShipmentID, getCurrentMove, getCurrentMoveID } from 'shared/UI/ducks';
 import { change } from 'redux-form';
 
 // Types
@@ -164,7 +164,8 @@ export function getSelectedWeightInfo(state) {
 }
 
 export function isHHGPPMComboMove(state) {
-  return get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM';
+  const move = getCurrentMove(state);
+  return get(move, 'selected_move_type') === 'HHG_PPM';
 }
 
 const estimatedRemainingWeight = (sum, weight) => {
@@ -221,8 +222,7 @@ export function getDestinationPostalCode(state) {
 }
 
 export function getPPM(state) {
-  const move = state.moves.currentMove || state.moves.latestMove || {};
-  const moveId = move.id;
+  const moveId = getCurrentMoveID(state);
   const ppmFromEntities = Object.values(state.entities.personallyProcuredMoves).find(ppm => ppm.move_id === moveId);
   return ppmFromEntities || state.ppm.currentPpm;
 }

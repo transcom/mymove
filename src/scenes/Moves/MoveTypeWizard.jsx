@@ -3,7 +3,9 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { get } from 'lodash';
-import { updateMove, loadMove } from './ducks';
+import { updateMove, loadMove } from 'shared/Entities/modules/moves';
+import { getCurrentMove } from 'shared/UI/ducks';
+
 import WizardPage from 'shared/WizardPage';
 import MoveType from './MoveType';
 
@@ -48,6 +50,11 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ updateMove, loadMove }, dispatch);
 }
 function mapStateToProps(state) {
-  return { ...state.moves, pendingMoveType: state.ui.pendingMoveType };
+  const move = getCurrentMove(state);
+
+  return {
+    currentMove: move,
+    pendingMoveType: state.ui.pendingMoveType,
+  };
 }
 export default connect(mapStateToProps, mapDispatchToProps)(MoveTypeWizardPage);

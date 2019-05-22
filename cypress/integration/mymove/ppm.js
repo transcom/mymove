@@ -147,6 +147,7 @@ describe('check invalid ppm inputs', () => {
     cy.signInAsUserPostRequest(milmoveAppName, '99360a51-8cfa-4e25-ae57-24e66077305f');
 
     cy.contains('Continue Move Setup').click();
+
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
     });
@@ -170,6 +171,7 @@ describe('check invalid ppm inputs', () => {
 
   it('doesnt allow same origin and destination zip', function() {
     cy.signInAsUserPostRequest(milmoveAppName, '99360a51-8cfa-4e25-ae57-24e66077305f');
+
     cy.contains('Continue Move Setup').click();
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);

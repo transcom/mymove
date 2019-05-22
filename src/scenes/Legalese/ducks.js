@@ -1,10 +1,6 @@
 import { GetCertificationText, CreateCertification } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
-import { pick } from 'lodash';
-import { SubmitForApproval } from '../Moves/ducks.js';
-import { normalize } from 'normalizr';
-import { move } from 'shared/Entities/schema';
-import { addEntities } from 'shared/Entities/actions';
+import { SubmitForApproval } from 'shared/Entities/modules/moves';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
 import moment from 'moment';
@@ -35,7 +31,7 @@ export function dateToTimestamp(dt) {
 }
 
 export const signAndSubmitForApproval = (moveId, certificationText, signature, dateSigned, _ppmId, submitDate) => {
-  return async function(dispatch, getState) {
+  return async function(dispatch) {
     const dateTimeSigned = dateToTimestamp(dateSigned);
     dispatch(signAndSubmitForApprovalActions.start());
     try {
@@ -50,15 +46,11 @@ export const signAndSubmitForApproval = (moveId, certificationText, signature, d
         }),
       );
 
-      const response = await dispatch(
+      await dispatch(
         SubmitForApproval(moveId, {
           ppm_submit_date: submitDate,
         }),
       );
-
-      const data = normalize(response.payload, move);
-      const filtered = pick(data.entities, ['shipments', 'moves', 'personallyProcuredMoves']);
-      dispatch(addEntities(filtered));
       return dispatch(signAndSubmitForApprovalActions.success());
     } catch (error) {
       await dispatch(signAndSubmitForApprovalActions.error(error));

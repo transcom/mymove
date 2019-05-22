@@ -8,7 +8,9 @@ import { Field, reduxForm, getFormValues } from 'redux-form';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import SaveCancelButtons from './SaveCancelButtons';
 import DatePicker from 'scenes/Moves/Hhg/DatePicker';
-import { moveIsApproved } from 'scenes/Moves/ducks';
+import { moveIsApproved } from 'shared/Entities/modules/moves';
+import { getCurrentMove } from 'shared/UI/ducks';
+
 import { updateShipment, getShipment } from 'shared/Entities/modules/shipments';
 
 import './Review.css';
@@ -78,9 +80,10 @@ class EditShipment extends Component {
 
 function mapStateToProps(state, ownProps) {
   const shipment = selectShipment(state, ownProps.match.params.shipmentId);
+  const move = getCurrentMove(state);
   return {
     shipment,
-    move: get(state, 'moves.currentMove'),
+    move,
     error: get(state, 'serviceMember.error'),
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     moveIsApproved: moveIsApproved(state),

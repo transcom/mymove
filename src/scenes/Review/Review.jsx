@@ -6,6 +6,8 @@ import { connect } from 'react-redux';
 import { get } from 'lodash';
 import WizardHeader from 'scenes/Moves/WizardHeader';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
+import { getCurrentMove } from 'shared/UI/ducks';
+
 import scrollToTop from 'shared/scrollToTop';
 
 import reviewGray from 'shared/icon/review-gray.svg';
@@ -44,9 +46,12 @@ class Review extends Component {
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({
-  isHHGPPMComboMove: get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM',
-  ...ownProps,
-});
+const mapStateToProps = (state, ownProps) => {
+  const move = getCurrentMove(state);
+  return {
+    isHHGPPMComboMove: get(move, 'selected_move_type') === 'HHG_PPM',
+    ...ownProps,
+  };
+};
 
 export default connect(mapStateToProps)(Review);

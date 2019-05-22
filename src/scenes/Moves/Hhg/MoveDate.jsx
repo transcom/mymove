@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues, Field } from 'redux-form';
 
-import { setCurrentShipmentID, getCurrentShipment } from 'shared/UI/ducks';
+import { setCurrentShipmentID, getCurrentShipment, getCurrentMove } from 'shared/UI/ducks';
 import { getLastError } from 'shared/Swagger/selectors';
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
@@ -116,8 +116,9 @@ function mapDispatchToProps(dispatch) {
 }
 function mapStateToProps(state) {
   const shipment = getCurrentShipment(state);
+  const move = getCurrentMove(state);
   const props = {
-    move: get(state, 'moves.currentMove', {}),
+    move: move,
     formValues: getFormValues(formName)(state),
     currentShipment: shipment,
     initialValues: shipment,

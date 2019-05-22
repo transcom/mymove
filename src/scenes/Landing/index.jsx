@@ -8,8 +8,9 @@ import { withContext } from 'shared/AppContext';
 
 import { MoveSummary } from './MoveSummary';
 import { isHHGPPMComboMove } from 'scenes/Moves/Ppm/ducks';
-import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
-import { getCurrentShipment } from 'shared/UI/ducks';
+import { lastMoveIsCanceled } from 'scenes/Moves/ducks';
+import { getCurrentShipment, getCurrentMoveID } from 'shared/UI/ducks';
+
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import {
@@ -23,7 +24,7 @@ import Alert from 'shared/Alert';
 import SignIn from 'shared/User/SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import scrollToTop from 'shared/scrollToTop';
-import { updateMove } from 'scenes/Moves/ducks';
+import { updateMove, selectMove, selectedMoveType } from 'shared/Entities/modules/moves';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { selectShipment } from 'shared/Entities/modules/shipments';
 
@@ -173,16 +174,17 @@ export class Landing extends Component {
 const mapStateToProps = state => {
   const shipmentId = getCurrentShipment(state);
   const user = selectCurrentUser(state);
+  const moveId = getCurrentMoveID(state);
   const props = {
     lastMoveIsCanceled: lastMoveIsCanceled(state),
-    selectedMoveType: selectedMoveType(state),
+    selectedMoveType: selectedMoveType(state, moveId),
     isLoggedIn: user.isLoggedIn,
     isProfileComplete: isProfileComplete(state),
     isHHGPPMComboMove: isHHGPPMComboMove(state),
     serviceMember: state.serviceMember.currentServiceMember || {},
     backupContacts: state.serviceMember.currentBackupContacts || [],
     orders: state.orders.currentOrders || {},
-    move: state.moves.currentMove || state.moves.latestMove || {},
+    move: selectMove(state, moveId),
     hhg: selectShipment(state, shipmentId),
     ppm: getPPM(state),
     currentShipment: shipmentId || {},
