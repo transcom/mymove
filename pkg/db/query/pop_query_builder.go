@@ -41,8 +41,7 @@ func getDBColumn(t reflect.Type, field string) (string, bool) {
 
 // FetchOne fetches a single model record using pop's First method
 // Will return error if model is not pointer to struct
-func (p *PopQueryBuilder) FetchOne(model interface{}, field string, value interface{}) error {
-	// todo: pointer check on type
+func (p *PopQueryBuilder) FetchOne(model interface{}, filters map[string]interface{}) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New("Model should be pointer to struct")
@@ -51,20 +50,25 @@ func (p *PopQueryBuilder) FetchOne(model interface{}, field string, value interf
 	if t.Kind() != reflect.Struct {
 		return errors.New("Model should be pointer to struct")
 	}
-	column, ok := getDBColumn(t, field)
-	if !ok {
-		return &InvalidInputError{[]string{field}}
+	query := p.db.Q()
+	invalidFields := make([]string, 0)
+	for field, value := range filters {
+		column, ok := getDBColumn(t, field)
+		if !ok {
+			invalidFields = append(invalidFields, field)
+		}
+		columnQuery := fmt.Sprintf("%s = ?", column)
+		query = query.Where(columnQuery, value)
 	}
-	columnQuery := fmt.Sprintf("%s = ?", column)
-	query := p.db.Where(columnQuery, value)
+	if len(invalidFields) != 0 {
+		return &InvalidInputError{invalidFields}
+	}
 	return query.First(model)
 }
 
 // FetchMany fetches multiple model records using pop's All method
 // Will return error if model is not pointer to slice of structs
 func (p *PopQueryBuilder) FetchMany(model interface{}, filters map[string]interface{}) error {
-	query := p.db.Q()
-	invalidFields := make([]string, 0)
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New("Model should be pointer to slice of structs")
@@ -77,6 +81,8 @@ func (p *PopQueryBuilder) FetchMany(model interface{}, filters map[string]interf
 	if t.Kind() != reflect.Struct {
 		return errors.New("Model should be pointer to slice of structs")
 	}
+	query := p.db.Q()
+	invalidFields := make([]string, 0)
 	for field, value := range filters {
 		column, ok := getDBColumn(t, field)
 		if !ok {
