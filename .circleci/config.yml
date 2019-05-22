@@ -475,10 +475,9 @@ jobs:
           name: Setup Code Climate test-reporter
           command: |
             # download test reporter as a static binary
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-            chmod +x ./cc-test-reporter
-            ./cc-test-reporter before-build -d
-          working_directory: /home/circleci/
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > /home/circleci/cc-test-reporter
+            chmod +x /home/circleci/cc-test-reporter
+            /home/circleci/cc-test-reporter before-build -d
       - run:
           name: make server_test_coverage_generate
           command: |
@@ -497,22 +496,18 @@ jobs:
             MIGRATION_PATH: /home/circleci/transcom/mymove/migrations
             SECURE_MIGRATION_DIR: /home/circleci/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
-          working_directory: /home/circleci/transcom/mymove
       - run:
           name: upload code coverage to codecov
           command: |
-            curl -s https://codecov.io/bash > codecov
-            chmod +x codecov
-            ./codecov -F go -f coverage.out
-          working_directory: /home/circleci/transcom/mymove
+            curl -s https://codecov.io/bash > /home/circleci/codecov
+            chmod +x /home/circleci/codecov
+            /home/circleci/codecov -F go -f coverage.out
       - run:
           name: upload code coverage to code climate
           command: |
-            export GIT_COMMITTED_AT=`git -C "transcom/mymove" log -1 --pretty=format:%ct`
-            ./cc-test-reporter format-coverage transcom/mymove/coverage.out -t gocov -d
-            ./cc-test-reporter upload-coverage -d
-          # needs to run from this directory so that it can find the source code.
-          working_directory: /home/circleci/
+            export GIT_COMMITTED_AT=`git log -1 --pretty=format:%ct`
+            /home/circleci/cc-test-reporter format-coverage coverage.out -t gocov -d
+            /home/circleci/cc-test-reporter upload-coverage -d
 
   # `client_test` runs the client side Javascript tests
   client_test:
