@@ -48,6 +48,10 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 					ppm.actual_move_date,
 					ppm.original_move_date
 				) as move_date,
+				COALESCE(
+					shipment.submit_date,
+					ppm.submit_date
+				) as submitted_date,
 				moves.created_at as created_at,
 				moves.status as status,
 				ppm.status as ppm_status,
