@@ -509,7 +509,7 @@ jobs:
           name: upload code coverage to code climate
           command: |
             export GIT_COMMITTED_AT=`git -C "transcom/mymove" log -1 --pretty=format:%ct`
-            ./cc-test-reporter format-coverage github.com/transcom/mymove/coverage.out -t gocov -d
+            ./cc-test-reporter format-coverage transcom/mymove/coverage.out -t gocov -d
             ./cc-test-reporter upload-coverage -d
           # needs to run from this directory so that it can find the source code.
           working_directory: /home/circleci/
