@@ -15,21 +15,21 @@ executors:
     resource_class: small
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:9ad70927655a601580c036d53456c70061c76cba
+      - image: trussworks/circleci-docker-primary:9b7bfbf6bfae544566ade0c896f8aacbd16281e5
         environment:
             GO111MODULE: "on"
   mymove_medium:
     resource_class: medium
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:9ad70927655a601580c036d53456c70061c76cba
+      - image: trussworks/circleci-docker-primary:9b7bfbf6bfae544566ade0c896f8aacbd16281e5
         environment:
           GO111MODULE: "on"
   mymove_large:
     resource_class: large
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:9ad70927655a601580c036d53456c70061c76cba
+      - image: trussworks/circleci-docker-primary:9b7bfbf6bfae544566ade0c896f8aacbd16281e5
         environment:
           GO111MODULE: "on"
   # `mymove_and_postgres_medium` adds a secondary postgres container to be used during testing.
@@ -37,7 +37,7 @@ executors:
     resource_class: medium
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:9ad70927655a601580c036d53456c70061c76cba
+      - image: trussworks/circleci-docker-primary:9b7bfbf6bfae544566ade0c896f8aacbd16281e5
         environment:
           GO111MODULE: "on"
       - image: postgres:10.6
