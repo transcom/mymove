@@ -235,9 +235,10 @@ paths:
         - office
       parameters:
         - in: query
-          name: transportationOfficeId
-          type: string
-          format: uuid
+          name: filter
+          type: array
+          items:
+            type: string
       responses:
         200:
           description: success

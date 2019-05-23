@@ -9,9 +9,9 @@ import (
 )
 
 func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	user := testdatagen.MakeDefaultUser(suite.DB())
 	req := httptest.NewRequest("GET", "/office_users", nil)
-	req = suite.AuthenticateOfficeRequest(req, officeUser)
+	req = suite.AuthenticateUserRequest(req, user)
 
 	params := officeuserop.IndexOfficeUsersParams{
 		HTTPRequest: req,
