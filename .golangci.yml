@@ -19,8 +19,8 @@ linters:
      - golint
      - gofmt
      - goimports
+     - govet
   disable:
-    - govet
     - unused #deprecated https://github.com/dominikh/go-tools/tree/master/cmd/unused
     - deadcode
     - errcheck
@@ -30,3 +30,9 @@ linters:
     - structcheck
     - typecheck
     - varcheck
+issues:
+  exclude-rules:
+    # skip analyzing dutystationsloader until repeated tags from embedded types are fixed
+    - path: internal/pkg/dutystationsloader/duty_stations_loader.go
+      linters:
+        - govet
