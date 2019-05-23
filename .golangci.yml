@@ -32,7 +32,7 @@ linters:
     - varcheck
 issues:
   exclude-rules:
-    # skip analyzing dutystationsloader until repeated tags from embedded types are fixed
+    # skip analyzing dutystationsloader until repeated tags from embedded types are fixed https://github.com/golang/go/issues/30846
     - path: internal/pkg/dutystationsloader/duty_stations_loader.go
       linters:
         - govet
