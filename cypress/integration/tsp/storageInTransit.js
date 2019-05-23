@@ -302,6 +302,23 @@ function tspUserSubmitsReleaseSit() {
     .contains('Release From SIT')
     .click();
 
+  // Test canceling after clicking release shipment link
+  cy
+    .get('[data-cy=release-from-sit-cancel]')
+    .contains('Cancel')
+    .click()
+    .get('[data-cy=storage-in-transit-panel] [data-cy=release-from-sit-link]')
+    .should($div => {
+      const text = $div.text();
+      expect(text).to.not.include('Date out');
+    });
+
+  // click release shipment link
+  cy
+    .get('[data-cy=storage-in-transit-panel] [data-cy=release-from-sit-link]')
+    .contains('Release From SIT')
+    .click();
+
   // enter in date released on
   cy
     .get('input[name=released_on]')
