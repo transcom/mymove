@@ -6,7 +6,8 @@ import {
   GetPpmWeightEstimate,
   GetPpmSitEstimate,
   RequestPayment,
-  ValidateZipRateData } from './api.js';
+  ValidateZipRateData,
+} from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
 import { fetchActive } from 'shared/utils';
