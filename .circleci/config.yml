@@ -502,12 +502,6 @@ jobs:
             curl -s https://codecov.io/bash > /home/circleci/codecov
             chmod +x /home/circleci/codecov
             /home/circleci/codecov -F go -f coverage.out
-      - run:
-          name: upload code coverage to code climate
-          command: |
-            export GIT_COMMITTED_AT=`git log -1 --pretty=format:%ct`
-            /home/circleci/cc-test-reporter format-coverage coverage.out -t gocov -d
-            /home/circleci/cc-test-reporter upload-coverage -d
 
   # `client_test` runs the client side Javascript tests
   client_test:
