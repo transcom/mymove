@@ -30,14 +30,12 @@ func (suite *StorageInTransitServiceSuite) TestDeliverStorageInTransits() {
 	// Create a shipment offer that uses our generated TSP ID and shipment ID so that our TSP has rights to
 	// change the status to in_sit.
 	testdatagen.MakeShipmentOffer(suite.DB(), assertions)
+	shipment.ActualDeliveryDate = &testdatagen.DateInsidePeakRateCycle
+	actualStorageInTransit, verrs, err := deliverer.DeliverStorageInTransits(shipment.ID, shipment.ActualDeliveryDate, &session)
 
-	actualStorageInTransit, verrs, err := deliverer.DeliverStorageInTransits(shipment.ID, &session)
 	suite.NoError(err)
 	suite.Equal(false, verrs.HasAny())
 	suite.Equal(models.StorageInTransitStatusDELIVERED, actualStorageInTransit[0].Status)
+	suite.NotNil(actualStorageInTransit[0].OutDate)
 	suite.Equal(shipment.ActualDeliveryDate, actualStorageInTransit[0].OutDate)
-
-	// It should not work if we're coming back from released status
-	sit.Status = models.StorageInTransitStatusRELEASED
-	_, _ = suite.DB().ValidateAndSave(&sit)
 }

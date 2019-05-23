@@ -255,6 +255,12 @@ export class StorageInTransit extends Component {
                       <span className="field-title unbold">Actual start date</span>
                       <span className="field-value">{formatDate4DigitYear(storageInTransit.actual_start_date)}</span>
                     </div>
+                    {storageInTransit.out_date && (
+                      <div className="panel-field nested__same-font">
+                        <span className="field-title unbold">Out date</span>
+                        <span className="field-value">{formatDate4DigitYear(storageInTransit.out_date)}</span>
+                      </div>
+                    )}
                     <div className="panel-field nested__same-font">
                       <span className="field-title unbold">Days used</span>
                       <span data-cy="sit-days-used" className="field-value">

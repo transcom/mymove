@@ -22,6 +22,7 @@ type DeliverAndPriceShipment struct {
 
 // Call delivers a Shipment and prices associated line items
 func (c DeliverAndPriceShipment) Call(deliveryDate time.Time, shipment *models.Shipment, session *auth.Session) (*validate.Errors, error) {
+	verrs := validate.NewErrors()
 
 	err := shipment.Deliver(deliveryDate)
 	if err != nil {
@@ -29,7 +30,9 @@ func (c DeliverAndPriceShipment) Call(deliveryDate time.Time, shipment *models.S
 	}
 
 	sitDeliverer := sitservice.NewStorageInTransitsDeliverer(c.DB)
-	sitDeliverer.DeliverStorageInTransits(shipment.ID, session)
-
+	_, verrs, err = sitDeliverer.DeliverStorageInTransits(shipment.ID, &deliveryDate, session)
+	if err != nil {
+		return verrs, err
+	}
 	return PriceShipment{DB: c.DB, Engine: c.Engine, Planner: c.Planner}.Call(shipment, ShipmentPriceNEW)
 }
