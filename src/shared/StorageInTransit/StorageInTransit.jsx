@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 
 import { connect } from 'react-redux';
@@ -11,6 +11,7 @@ import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faBan from '@fortawesome/fontawesome-free-solid/faBan';
 import faSignInAlt from '@fortawesome/fontawesome-free-solid/faSignInAlt';
+import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
 
 import './StorageInTransit.css';
 import { formatDate4DigitYear } from 'shared/formatters';
@@ -113,6 +114,146 @@ export class StorageInTransit extends Component {
     );
   };
 
+  renderSitActions() {
+    if (isOfficeSite) {
+      return this.renderOfficeSitActions();
+    } else if (isTspSite) {
+      return this.renderTspSitActions();
+    } else {
+      return null;
+    }
+  }
+
+  renderOfficeSitActions() {
+    const { storageInTransit } = this.props;
+
+    switch (storageInTransit.status) {
+      case 'REQUESTED':
+        return (
+          <Fragment>
+            <span className="sit-action">
+              <a onClick={this.openApproveForm}>
+                <FontAwesomeIcon className="icon" icon={faCheck} />
+                Approve
+              </a>
+            </span>
+            <span className="sit-action">
+              <a data-cy="deny-sit-link" onClick={this.openDenyForm}>
+                <FontAwesomeIcon className="icon" icon={faBan} />
+                Deny
+              </a>
+            </span>
+          </Fragment>
+        );
+      case 'APPROVED':
+      case 'DENIED':
+        return (
+          <span className="sit-action sit-edit" data-cy="sit-edit-link">
+            <a onClick={this.openOfficeEditForm}>
+              <FontAwesomeIcon className="icon" icon={faPencil} />
+              Edit
+            </a>
+          </span>
+        );
+      // NOTE: No actions for IN_SIT, RELEASED, or DELIVERED statuses.
+      default:
+        return null;
+    }
+  }
+
+  renderTspSitActions() {
+    const { storageInTransit } = this.props;
+
+    switch (storageInTransit.status) {
+      case 'REQUESTED':
+        return (
+          <Fragment>
+            <span className="sit-action sit-edit" data-cy="sit-edit-link">
+              <a onClick={this.openTspEditForm}>
+                <FontAwesomeIcon className="icon" icon={faPencil} />
+                Edit
+              </a>
+            </span>
+            <span data-cy="sit-delete-link" className="sit-action sit-delete">
+              <a>
+                <FontAwesomeIcon className="icon" icon={faTimes} />
+                Delete
+              </a>
+            </span>
+          </Fragment>
+        );
+      case 'APPROVED':
+        return (
+          <Fragment>
+            <span className="sit-action place-in-sit">
+              <a data-cy="place-in-sit-link" onClick={this.openPlaceInSitForm}>
+                <FontAwesomeIcon className="icon" icon={faSignInAlt} />
+                Place into SIT
+              </a>
+            </span>
+            <span className="sit-action sit-delete">
+              <a data-cy="sit-delete-link">
+                <FontAwesomeIcon className="icon" icon={faTimes} />
+                Delete
+              </a>
+            </span>
+          </Fragment>
+        );
+      case 'DENIED':
+        return (
+          <span className="sit-action sit-delete">
+            <a data-cy="sit-delete-link">
+              <FontAwesomeIcon className="icon" icon={faTimes} />
+              Delete
+            </a>
+          </span>
+        );
+      case 'IN_SIT':
+        if (storageInTransit.location === 'ORIGIN') {
+          // TODO: Release from SIT
+          return (
+            <span data-cy="sit-edit-link" className="sit-action sit-edit">
+              <a onClick={this.openTspEditForm}>
+                <FontAwesomeIcon className="icon" icon={faPencil} />
+                Edit
+              </a>
+            </span>
+          );
+        } else if (storageInTransit.location === 'DESTINATION') {
+          return (
+            <Fragment>
+              <span data-cy="sit-edit-link" className="sit-action sit-edit">
+                <a onClick={this.openTspEditForm}>
+                  <FontAwesomeIcon className="icon" icon={faPencil} />
+                  Edit
+                </a>
+              </span>
+              <span data-cy="sit-delete-link" className="sit-action sit-delete">
+                <a>
+                  <FontAwesomeIcon className="icon" icon={faTimes} />
+                  Delete
+                </a>
+              </span>
+            </Fragment>
+          );
+        } else {
+          return null;
+        }
+      case 'RELEASED':
+      case 'DELIVERED':
+        return (
+          <span data-cy="sit-edit-link" className="sit-action sit-edit">
+            <a onClick={this.openTspEditForm}>
+              <FontAwesomeIcon className="icon" icon={faPencil} />
+              Edit
+            </a>
+          </span>
+        );
+      default:
+        return null;
+    }
+  }
+
   render() {
     const { storageInTransit, daysRemaining } = this.props;
     const { showTspEditForm, showOfficeEditForm, showApproveForm, showDenyForm, showPlaceInSitForm } = this.state;
@@ -151,93 +292,24 @@ export class StorageInTransit extends Component {
           )}
           {showApproveForm ? (
             <ApproveSitRequest onClose={this.closeApproveForm} storageInTransit={this.state.storageInTransit} />
-          ) : isApproved || isDenied ? (
-            <span>{null}</span>
-          ) : (
-            isOfficeSite &&
-            !showOfficeEditForm &&
-            !showDenyForm &&
-            isRequested && (
-              <span className="sit-actions">
-                <a className="approve-sit-link" onClick={this.openApproveForm}>
-                  <FontAwesomeIcon className="icon" icon={faCheck} />
-                  Approve
-                </a>
-              </span>
-            )
-          )}
-          {showDenyForm ? (
+          ) : showDenyForm ? (
             <DenySitRequest onClose={this.closeDenyForm} storageInTransit={storageInTransit} />
-          ) : isApproved || isDenied ? (
-            <span>{null}</span>
-          ) : (
-            isOfficeSite &&
-            !showTspEditForm &&
-            !showApproveForm &&
-            isRequested && (
-              <span className="sit-actions">
-                <a className="deny-sit-link" data-cy="deny-sit-link" onClick={this.openDenyForm}>
-                  <FontAwesomeIcon className="icon" icon={faBan} />
-                  Deny
-                </a>
-              </span>
-            )
-          )}
-          {showPlaceInSitForm ? (
+          ) : showPlaceInSitForm ? (
             <PlaceInSit sit={storageInTransit} onClose={this.closePlaceInSitForm} />
-          ) : (
-            isTspSite &&
-            isApproved && (
-              <span className="sit-actions">
-                <span className="place-in-sit">
-                  <a data-cy="place-in-sit-link" onClick={this.openPlaceInSitForm}>
-                    <FontAwesomeIcon className="icon" icon={faSignInAlt} />
-                    Place into SIT
-                  </a>
-                </span>
-              </span>
-            )
-          )}
-          {showTspEditForm ? (
+          ) : showTspEditForm ? (
             <TspEditor
               updateStorageInTransit={this.onSubmit}
               onClose={this.closeTspEditForm}
               storageInTransit={storageInTransit}
             />
-          ) : (
-            isTspSite &&
-            !isApproved &&
-            !isDenied && (
-              <span className="sit-actions">
-                <span className="sit-edit actionable">
-                  <a onClick={this.openTspEditForm}>
-                    <FontAwesomeIcon className="icon" icon={faPencil} />
-                    Edit
-                  </a>
-                </span>
-              </span>
-            )
-          )}
-          {showOfficeEditForm ? (
+          ) : showOfficeEditForm ? (
             <OfficeEditor
               updateStorageInTransit={this.onSubmit}
               onClose={this.closeOfficeEditForm}
               storageInTransit={storageInTransit}
             />
           ) : (
-            (isApproved || isDenied) &&
-            isOfficeSite &&
-            !showApproveForm &&
-            !showDenyForm && (
-              <span className="sit-actions">
-                <span data-cy="sit-edit-link" className="sit-edit actionable">
-                  <a onClick={this.openOfficeEditForm}>
-                    <FontAwesomeIcon className="icon" icon={faPencil} />
-                    Edit
-                  </a>
-                </span>
-              </span>
-            )
+            <span className="sit-actions">{this.renderSitActions()}</span>
           )}
         </div>
         {!showTspEditForm && (
