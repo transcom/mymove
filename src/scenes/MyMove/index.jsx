@@ -37,6 +37,7 @@ import { loadInternalSchema } from 'shared/Swagger/ducks';
 import FailWhale from 'shared/FailWhale';
 import { no_op } from 'shared/utils';
 import DPSAuthCookie from 'scenes/DPSAuthCookie';
+import { detectIE11 } from '../../shared/utils';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
@@ -61,63 +62,132 @@ export class AppWrapper extends Component {
 
   render() {
     const props = this.props;
+    let isIE = detectIE11();
     return (
       <ConnectedRouter history={history}>
         <LastLocationProvider>
           <div className="my-move site">
             <Header />
-            <main className="site__content my-move-container">
-              <div className="usa-grid">
-                <LogoutOnInactivity />
-                {props.swaggerError && (
-                  <Alert type="error" heading="An error occurred">
-                    There was an error contacting the server.
-                  </Alert>
-                )}
+            {isIE && (
+              <div role="main" className="site__content my-move-container">
+                <div className="usa-grid">
+                  <LogoutOnInactivity />
+                  {props.swaggerError && (
+                    <Alert type="error" heading="An error occurred">
+                      There was an error contacting the server.
+                    </Alert>
+                  )}
+                </div>
+                {this.state.hasError && <FailWhale />}
+                {!this.state.hasError &&
+                  !props.swaggerError && (
+                    <Switch>
+                      <Route exact path="/" component={Landing} />
+                      <Route exact path="/sm_style_guide" component={StyleGuide} />
+                      <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />
+                      <Route path="/accessibility" component={AccessibilityStatement} />
+                      {getWorkflowRoutes(props)}
+                      <PrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
+                      <PrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
+                      <PrivateRoute exact path="/moves/review/edit-backup-contact" component={EditBackupContact} />
+                      <PrivateRoute exact path="/moves/review/edit-contact-info" component={EditContactInfo} />
+
+                      <PrivateRoute path="/moves/:moveId/review/edit-orders" component={EditOrders} />
+                      <PrivateRoute
+                        path="/moves/:moveId/review/edit-date-and-location"
+                        component={EditDateAndLocation}
+                      />
+                      <PrivateRoute path="/moves/:moveId/review/edit-weight" component={EditWeight} />
+
+                      <PrivateRoute path="/shipments/:shipmentId/review/edit-hhg-dates" component={EditHHGDates} />
+                      {/* <PrivateRoute path="/moves/:moveId/review/edit-hhg-locations" component={EditHHGLocations} /> */}
+                      {/* <PrivateRoute path="/moves/:moveId/review/edit-hhg-weights" component={EditHHGWeights} /> */}
+
+                      <PrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
+                      <PrivateRoute exact path="/weight-ticket-examples" component={WeightTicketExamples} />
+
+                      <PrivateRoute exact path="/allowable-expenses" component={AllowableExpenses} />
+                      <PrivateRoute
+                        path="/moves/:moveId/ppm-payment-request-intro"
+                        component={PPMPaymentRequestIntro}
+                      />
+                      <PrivateRoute path="/moves/:moveId/ppm-weight-ticket" component={WeightTicket} />
+                      <PrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
+                      <Route exact path="/forbidden">
+                        <div className="usa-grid">
+                          <h2>You are forbidden to use this endpoint</h2>
+                        </div>
+                      </Route>
+                      <Route exact path="/server_error">
+                        <div className="usa-grid">
+                          <h2>We are experiencing an internal server error</h2>
+                        </div>
+                      </Route>
+                      <Route component={this.noMatch} />
+                    </Switch>
+                  )}
               </div>
-              {this.state.hasError && <FailWhale />}
-              {!this.state.hasError &&
-                !props.swaggerError && (
-                  <Switch>
-                    <Route exact path="/" component={Landing} />
-                    <Route exact path="/sm_style_guide" component={StyleGuide} />
-                    <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />
-                    <Route path="/accessibility" component={AccessibilityStatement} />
-                    {getWorkflowRoutes(props)}
-                    <PrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
-                    <PrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
-                    <PrivateRoute exact path="/moves/review/edit-backup-contact" component={EditBackupContact} />
-                    <PrivateRoute exact path="/moves/review/edit-contact-info" component={EditContactInfo} />
+            )}
+            {!isIE && (
+              <main className="site__content my-move-container">
+                <div className="usa-grid">
+                  <LogoutOnInactivity />
+                  {props.swaggerError && (
+                    <Alert type="error" heading="An error occurred">
+                      There was an error contacting the server.
+                    </Alert>
+                  )}
+                </div>
+                {this.state.hasError && <FailWhale />}
+                {!this.state.hasError &&
+                  !props.swaggerError && (
+                    <Switch>
+                      <Route exact path="/" component={Landing} />
+                      <Route exact path="/sm_style_guide" component={StyleGuide} />
+                      <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />
+                      <Route path="/accessibility" component={AccessibilityStatement} />
+                      {getWorkflowRoutes(props)}
+                      <PrivateRoute exact path="/moves/:moveId/edit" component={Edit} />
+                      <PrivateRoute exact path="/moves/review/edit-profile" component={EditProfile} />
+                      <PrivateRoute exact path="/moves/review/edit-backup-contact" component={EditBackupContact} />
+                      <PrivateRoute exact path="/moves/review/edit-contact-info" component={EditContactInfo} />
 
-                    <PrivateRoute path="/moves/:moveId/review/edit-orders" component={EditOrders} />
-                    <PrivateRoute path="/moves/:moveId/review/edit-date-and-location" component={EditDateAndLocation} />
-                    <PrivateRoute path="/moves/:moveId/review/edit-weight" component={EditWeight} />
+                      <PrivateRoute path="/moves/:moveId/review/edit-orders" component={EditOrders} />
+                      <PrivateRoute
+                        path="/moves/:moveId/review/edit-date-and-location"
+                        component={EditDateAndLocation}
+                      />
+                      <PrivateRoute path="/moves/:moveId/review/edit-weight" component={EditWeight} />
 
-                    <PrivateRoute path="/shipments/:shipmentId/review/edit-hhg-dates" component={EditHHGDates} />
-                    {/* <PrivateRoute path="/moves/:moveId/review/edit-hhg-locations" component={EditHHGLocations} /> */}
-                    {/* <PrivateRoute path="/moves/:moveId/review/edit-hhg-weights" component={EditHHGWeights} /> */}
+                      <PrivateRoute path="/shipments/:shipmentId/review/edit-hhg-dates" component={EditHHGDates} />
+                      {/* <PrivateRoute path="/moves/:moveId/review/edit-hhg-locations" component={EditHHGLocations} /> */}
+                      {/* <PrivateRoute path="/moves/:moveId/review/edit-hhg-weights" component={EditHHGWeights} /> */}
 
-                    <PrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
-                    <PrivateRoute exact path="/weight-ticket-examples" component={WeightTicketExamples} />
+                      <PrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
+                      <PrivateRoute exact path="/weight-ticket-examples" component={WeightTicketExamples} />
 
-                    <PrivateRoute exact path="/allowable-expenses" component={AllowableExpenses} />
-                    <PrivateRoute path="/moves/:moveId/ppm-payment-request-intro" component={PPMPaymentRequestIntro} />
-                    <PrivateRoute path="/moves/:moveId/ppm-weight-ticket" component={WeightTicket} />
-                    <PrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
-                    <Route exact path="/forbidden">
-                      <div className="usa-grid">
-                        <h2>You are forbidden to use this endpoint</h2>
-                      </div>
-                    </Route>
-                    <Route exact path="/server_error">
-                      <div className="usa-grid">
-                        <h2>We are experiencing an internal server error</h2>
-                      </div>
-                    </Route>
-                    <Route component={this.noMatch} />
-                  </Switch>
-                )}
-            </main>
+                      <PrivateRoute exact path="/allowable-expenses" component={AllowableExpenses} />
+                      <PrivateRoute
+                        path="/moves/:moveId/ppm-payment-request-intro"
+                        component={PPMPaymentRequestIntro}
+                      />
+                      <PrivateRoute path="/moves/:moveId/ppm-weight-ticket" component={WeightTicket} />
+                      <PrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
+                      <Route exact path="/forbidden">
+                        <div className="usa-grid">
+                          <h2>You are forbidden to use this endpoint</h2>
+                        </div>
+                      </Route>
+                      <Route exact path="/server_error">
+                        <div className="usa-grid">
+                          <h2>We are experiencing an internal server error</h2>
+                        </div>
+                      </Route>
+                      <Route component={this.noMatch} />
+                    </Switch>
+                  )}
+              </main>
+            )}
             <Footer />
           </div>
         </LastLocationProvider>
