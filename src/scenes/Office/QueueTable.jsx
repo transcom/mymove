@@ -220,7 +220,7 @@ class QueueTable extends Component {
                 show: this.props.queueType !== 'new',
               },
               {
-                Header: 'Submitted date',
+                Header: 'Submitted',
                 accessor: 'submitted_date',
                 Cell: row => <span className="submitted_date">{formatDateTimeWithTZ(row.value)}</span>,
                 show: this.props.queueType === 'new',
