@@ -4235,6 +4235,7 @@ paths:
             - troubleshooting
             - ppm
             - hhg_accepted
+            - hhg_approved
             - hhg_delivered
             - all
           required: true

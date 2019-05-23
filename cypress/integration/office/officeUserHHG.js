@@ -7,7 +7,7 @@ describe('office user finds the shipment', function() {
     officeUserViewsMoves();
   });
   it('office user views accepted hhg moves in queue Accepted HHGs', function() {
-    officeUserViewsAcceptedShipment();
+    officeUserViewsApprovedShipment();
   });
   it('office user views delivered hhg moves in queue Delivered HHGs', function() {
     officeUserViewsDeliveredShipment();
@@ -63,15 +63,15 @@ function officeUserViewsDeliveredShipment() {
   });
 }
 
-function officeUserViewsAcceptedShipment() {
+function officeUserViewsApprovedShipment() {
   // Open new moves queue
-  cy.patientVisit('/queues/hhg_accepted');
+  cy.patientVisit('/queues/hhg_approved');
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
+    expect(loc.pathname).to.match(/^\/queues\/hhg_approved/);
   });
 
   // Find move (generated in e2ebasic.go) and open it
-  cy.selectQueueItemMoveLocator('BACON3');
+  cy.selectQueueItemMoveLocator('GBLGBL');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
@@ -82,12 +82,6 @@ function officeUserViewsAcceptedShipment() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
   });
-
-  // Since the shipment hasn't been picked up yet, it can be cancelled
-  cy
-    .get('button')
-    .contains('Cancel Move')
-    .should('not.be.disabled');
 }
 
 function officeUserApprovesOnlyBasicsHHG() {
@@ -153,7 +147,7 @@ function officeUserApprovesHHG() {
 
   cy.get('.combo-button').click();
 
-  // Approve basics
+  // Approve basic
   cy
     .get('.combo-button .dropdown')
     .contains('Approve Basics')

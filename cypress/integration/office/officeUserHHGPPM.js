@@ -9,12 +9,12 @@ describe('office user finds the shipment', function() {
   const queues = {
     new: 'new',
     ppm: 'ppm',
-    acceptedHHG: 'hhg_accepted',
+    approvedHHG: 'hhg_approved',
     deliveredHHG: 'hhg_delivered',
     all: 'all',
   };
-  it('office user sees accepted HHG in Accepted HHGs queue', function() {
-    officeUserVisitsQueue(queues.acceptedHHG);
+  it('office user sees approved HHG in Approved HHGs queue', function() {
+    officeUserVisitsQueue(queues.approvedHHG);
     officeUserViewsMove('COMBO2');
   });
   it('office user sees delivered HHG in Delivered HHG queue', function() {
