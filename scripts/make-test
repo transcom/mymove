@@ -1,0 +1,29 @@
+#! /usr/bin/env bash
+
+#
+# A script that runs common developer make targets.
+#
+# Typically these are things not run by CircleCI because they can't be run in the same manner with
+# CircleCI's docker constraints.
+#
+
+set -eu -o pipefail
+
+# Test clean
+
+make clean build_tools
+
+# Test DB
+
+make db_dev_reset db_dev_migrate db_dev_e2e_populate
+make db_test_reset db_test_migrate db_test_e2e_populate
+make db_prod_migrations_reset db_prod_migrations_migrate
+
+# Test e2e Init
+
+make e2e_clean db_e2e_init
+
+# Test tasks
+
+make tasks_clean tasks_build_docker
+make tasks_clean tasks_build_linux_docker

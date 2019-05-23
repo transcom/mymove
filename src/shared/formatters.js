@@ -215,6 +215,15 @@ export function formatDateTimeWithTZ(date) {
   return moment(date, moment.ISO_8601, true).format('DD-MMM-YY HH:mm') + ` ${shortZone}`;
 }
 
+export function formatTimeAgo(date) {
+  if (!date) return undefined;
+
+  return moment(date)
+    .fromNow()
+    .replace('minute', 'min')
+    .replace(/a min\s/, '1 min ');
+}
+
 // truncate a number and return appropiate decimal places... (watch out for negitive numbers: floor(-5.1) === -6)
 // see test for examples of how this works
 export const truncateNumber = (num, decimalPlaces = 0) => {
