@@ -1,0 +1,11 @@
+.usa-input,
+.usa-input-error {
+  display: inline-block;
+  width: 350px;
+  margin-right: 40px;
+}
+
+.usa-button-primary {
+  height: 46px;
+  width: 150px;
+}

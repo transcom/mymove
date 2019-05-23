@@ -3,7 +3,7 @@ import { Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import { selectCurrentUser } from 'shared/Data/users';
-import { get } from 'lodash';
+import { get, isUndefined } from 'lodash';
 import SignIn from './SignIn';
 import AccessCode from './AccessCode';
 
@@ -12,8 +12,11 @@ import AccessCode from './AccessCode';
 class ValidatedPrivateRouteContainer extends React.Component {
   render() {
     const { isLoggedIn, requiresAccessCode, accessCode, path, ...props } = this.props;
+    console.log('Access code required: ', requiresAccessCode);
+    console.log('Access code: ', accessCode);
     if (!isLoggedIn) return <Route path={path} component={SignIn} />;
-    if (isLoggedIn && requiresAccessCode && !accessCode) return <Route path={path} component={AccessCode} />;
+    if (isLoggedIn && (requiresAccessCode || isUndefined(requiresAccessCode)) && !accessCode)
+      return <Route path={path} component={AccessCode} />;
     return <Route {...props} />;
   }
 }
