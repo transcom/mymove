@@ -41,8 +41,10 @@ import DPSAuthCookie from 'scenes/DPSAuthCookie';
 export class AppWrapper extends Component {
   state = { hasError: false };
   componentDidMount() {
+    console.log('Hi');
     this.props.loadInternalSchema();
     this.props.getCurrentUserInfo();
+    console.log('Bye');
   }
 
   componentDidCatch(error, info) {

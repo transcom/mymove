@@ -12,8 +12,6 @@ import AccessCode from './AccessCode';
 class ValidatedPrivateRouteContainer extends React.Component {
   render() {
     const { isLoggedIn, requiresAccessCode, accessCode, path, ...props } = this.props;
-    console.log('Access code required: ', requiresAccessCode);
-    console.log('Access code: ', accessCode);
     if (!isLoggedIn) return <Route path={path} component={SignIn} />;
     if (isLoggedIn && (requiresAccessCode || isUndefined(requiresAccessCode)) && !accessCode)
       return <Route path={path} component={AccessCode} />;
