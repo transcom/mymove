@@ -2222,7 +2222,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("98c8ba5a-92ed-4e1d-b669-9dd41243b615"),
-			Locator:          "SITAPR", //SITAPR
+			Locator:          "SITAPR",
 			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
@@ -2302,10 +2302,62 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	models.SaveMoveDependencies(db, &hhg38.Move)
 
 	/*
+	 * Service member with in-transit move for use in testing "in sit" entitlement remaining days
+	 * (for both office and TSP)
+	 */
+	email = "hhg@sit.insit"
+	offer39 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("367a6772-e5b6-477e-b1d9-938439b56c00")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("47817aa2-d30c-4f53-8f7d-abd14a000ebb"),
+			FirstName:     models.StringPointer("SIT"),
+			LastName:      models.StringPointer("InSIT"),
+			Edipi:         models.StringPointer("1357924680"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("3b351688-6108-4d3b-9cc0-8a6a1250cda3"),
+			Locator:          "SITIN1",
+			SelectedMoveType: &selectedMoveTypeHHG,
+			Status:           models.MoveStatusAPPROVED,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("3b351688-6108-4d3b-9cc0-8a6a1250cda3"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusINTRANSIT,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID:          offer39.ShipmentID,
+			Shipment:            offer39.Shipment,
+			Status:              models.StorageInTransitStatusINSIT,
+			EstimatedStartDate:  time.Date(2019, time.Month(3), 29, 0, 0, 0, 0, time.UTC),
+			AuthorizedStartDate: swag.Time(time.Date(2019, time.Month(3), 29, 0, 0, 0, 0, time.UTC)),
+			ActualStartDate:     swag.Time(time.Date(2019, time.Month(3), 30, 0, 0, 0, 0, time.UTC)),
+		},
+	})
+	hhg39 := offer39.Shipment
+	hhg39.Move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &hhg39.Move)
+
+	/*
 	 * Service member with in-transit shipment and Origin InSIT SIT
 	 */
 	email = "hhg@sit.insit.origin"
-	offer39 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+	offer40 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("569283cf-7b36-11e9-b8cf-f218989021c1")),
 			LoginGovEmail: email,
@@ -2337,28 +2389,28 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
-	authorizedStartDateOffer39 := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
+	authorizedStartDateOffer40 := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
 	sitID := uuid.FromStringOrNil("91051af8-7ccb-11e9-8e2c-acde48001122")
 	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
 		StorageInTransit: models.StorageInTransit{
 			ID:                  sitID,
-			ShipmentID:          offer39.ShipmentID,
-			Shipment:            offer39.Shipment,
+			ShipmentID:          offer40.ShipmentID,
+			Shipment:            offer40.Shipment,
 			Location:            models.StorageInTransitLocationORIGIN,
 			Status:              models.StorageInTransitStatusAPPROVED,
 			EstimatedStartDate:  time.Date(2019, time.Month(3), 22, 0, 0, 0, 0, time.UTC),
-			ActualStartDate:     &authorizedStartDateOffer39,
-			AuthorizedStartDate: &authorizedStartDateOffer39,
+			ActualStartDate:     &authorizedStartDateOffer40,
+			AuthorizedStartDate: &authorizedStartDateOffer40,
 		},
 	})
-	hhg39 := offer39.Shipment
-	hhg39.Move.Submit(time.Now())
-	models.SaveMoveDependencies(db, &hhg39.Move)
+	hhg40 := offer40.Shipment
+	hhg40.Move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &hhg40.Move)
 
 	//-- to make the SIT Number appear for an In SIT story, have to run through the place in to SIT handler
 
 	payload := apimessages.StorageInTransitInSitPayload{
-		ActualStartDate: *handlers.FmtDate(authorizedStartDateOffer39),
+		ActualStartDate: *handlers.FmtDate(authorizedStartDateOffer40),
 	}
 	session := auth.Session{
 		ApplicationName: auth.TspApp,
@@ -2367,7 +2419,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		TspUserID:       tspUser.ID,
 	}
 	inSITPlacer := storageintransit.NewStorageInTransitInSITPlacer(db)
-	_, verrs, err := inSITPlacer.PlaceIntoSITStorageInTransit(payload, offer39.ShipmentID, &session, sitID)
+	_, verrs, err := inSITPlacer.PlaceIntoSITStorageInTransit(payload, offer40.ShipmentID, &session, sitID)
 	if verrs.HasAny() || err != nil {
 		fmt.Println(verrs.String())
 		log.Panic(err)

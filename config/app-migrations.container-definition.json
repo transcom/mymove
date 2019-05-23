@@ -1,6 +1,7 @@
 {
   "name": "app-migrations-{{ .environment }}",
   "image": "{{ .image }}",
+  "portMappings": [],
   "essential": true,
   "entryPoint": [
     "/bin/chamber",
@@ -9,15 +10,14 @@
     "exec",
     "app-{{ .environment }}",
     "--",
-    "/bin/soda"
+    "/bin/milmove"
   ],
   "command": [
     "migrate",
-    "-c",
-    "/migrate/database.yml",
+    "--env",
+    "container",
     "-p",
-    "/migrate/migrations",
-    "up"
+    "/migrate/migrations"
   ],
   "environment": [
     {
@@ -53,6 +53,14 @@
       "value": "app"
     },
     {
+      "name": "DB_SSL_MODE",
+      "value": "{{ .DB_SSL_MODE }}"
+    },
+    {
+      "name": "DB_SSL_ROOT_CERT",
+      "value": "{{ .DB_SSL_ROOT_CERT }}"
+    },
+    {
       "name": "CHAMBER_KMS_KEY_ALIAS",
       "value": "alias/aws/ssm"
     },
@@ -74,6 +82,5 @@
     }
   },
   "mountPoints": [],
-  "portMappings": [],
   "volumesFrom": []
 }

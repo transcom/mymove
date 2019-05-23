@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 import { withLastLocation } from 'react-router-last-location';
 import { withContext } from 'shared/AppContext';
 
-import { MoveSummary } from './MoveSummary';
+import { MoveSummary, PPMAlert } from './MoveSummary';
 import { isHHGPPMComboMove } from 'scenes/Moves/Ppm/ducks';
 import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { getCurrentShipment } from 'shared/UI/ducks';
@@ -98,11 +98,11 @@ export class Landing extends Component {
       loggedInUserIsLoading,
       loggedInUserSuccess,
       loggedInUserError,
-      hasSubmitSuccess,
       isProfileComplete,
-      isHHGPPMComboMove,
       createdServiceMemberError,
       moveSubmitSuccess,
+      hasSubmitSuccess,
+      isHHGPPMComboMove,
       entitlement,
       serviceMember,
       orders,
@@ -125,12 +125,8 @@ export class Landing extends Component {
                     You've submitted your move
                   </Alert>
                 )}
-              {isHHGPPMComboMove &&
-                hasSubmitSuccess && (
-                  <Alert type="success" heading="You've added a PPM shipment">
-                    Next, your shipment is awaiting approval and this can take up to 3 business days
-                  </Alert>
-                )}
+              {isHHGPPMComboMove && hasSubmitSuccess && <PPMAlert heading="Your PPM shipment is submitted" />}
+              {ppm && moveSubmitSuccess && <PPMAlert heading="Congrats - your move is submitted!" />}
               {loggedInUserError && (
                 <Alert type="error" heading="An error occurred">
                   There was an error loading your user information.

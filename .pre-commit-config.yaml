@@ -9,7 +9,7 @@ repos:
         types: [go]
 
   - repo: git://github.com/pre-commit/pre-commit-hooks
-    rev: v2.2.1
+    rev: v2.2.3
     hooks:
       - id: check-json
       - id: check-merge-conflict
