@@ -1,12 +1,13 @@
 package shipment
 
 import (
+	"errors"
 	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
@@ -21,18 +22,30 @@ type DeliverAndPriceShipment struct {
 }
 
 // Call delivers a Shipment and prices associated line items
-func (c DeliverAndPriceShipment) Call(deliveryDate time.Time, shipment *models.Shipment, session *auth.Session) (*validate.Errors, error) {
+func (c DeliverAndPriceShipment) Call(deliveryDate time.Time, shipment *models.Shipment, tspID uuid.UUID) (*validate.Errors, error) {
 	verrs := validate.NewErrors()
+	var err error
+	c.DB.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("rollback")
 
-	err := shipment.Deliver(deliveryDate)
-	if err != nil {
-		return validate.NewErrors(), err
-	}
+		err = shipment.Deliver(deliveryDate)
+		if err != nil {
+			return err
+		}
 
-	sitDeliverer := sitservice.NewStorageInTransitsDeliverer(c.DB)
-	_, verrs, err = sitDeliverer.DeliverStorageInTransits(shipment.ID, &deliveryDate, session)
-	if err != nil {
-		return verrs, err
-	}
-	return PriceShipment{DB: c.DB, Engine: c.Engine, Planner: c.Planner}.Call(shipment, ShipmentPriceNEW)
+		verrs, err = PriceShipment{DB: c.DB, Engine: c.Engine, Planner: c.Planner}.Call(shipment, ShipmentPriceNEW)
+		if err != nil || verrs.HasAny() {
+			return transactionError
+		}
+
+		sitDeliverer := sitservice.NewStorageInTransitsDeliverer(c.DB)
+		_, verrs, err = sitDeliverer.DeliverStorageInTransits(shipment.ID, tspID)
+		if err != nil || verrs.HasAny() {
+			return transactionError
+		}
+
+		return nil
+	})
+
+	return verrs, err
 }

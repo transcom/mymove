@@ -361,7 +361,7 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 		DB:      h.DB(),
 		Engine:  engine,
 		Planner: h.Planner(),
-	}.Call(actualDeliveryDate, shipment, session)
+	}.Call(actualDeliveryDate, shipment, tspUser.TransportationServiceProviderID)
 
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)

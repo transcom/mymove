@@ -2884,13 +2884,22 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Lo
 		},
 	})
 
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID: offer.ShipmentID,
+			Shipment:   offer.Shipment,
+			Status:     models.StorageInTransitStatusINSIT,
+			Location:   models.StorageInTransitLocationDESTINATION,
+		},
+	})
+
 	planner := route.NewTestingPlanner(1234)
 	engine := rateengine.NewRateEngine(db, logger)
 	verrs, err := shipmentservice.DeliverAndPriceShipment{
 		DB:      db,
 		Engine:  engine,
 		Planner: planner,
-	}.Call(nextValidMoveDateMinusOne, &offer.Shipment, session)
+	}.Call(nextValidMoveDateMinusOne, &offer.Shipment, offer.TransportationServiceProviderID)
 
 	if verrs.HasAny() || err != nil {
 		fmt.Println(verrs.String())
