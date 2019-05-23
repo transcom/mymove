@@ -169,24 +169,24 @@ admin_client_run: .client_deps.stamp
 ### Go Tool Targets
 
 bin/callgraph: .check_go_version.stamp .check_gopath.stamp
-	go build -i -o bin/callgraph golang.org/x/tools/cmd/callgraph
+	go build -o bin/callgraph golang.org/x/tools/cmd/callgraph
 
 bin/chamber: .check_go_version.stamp .check_gopath.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
+	go build -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
 
 # Disabled until gosec supports go modules
 # Add to server_deps target when re-enabling
 # bin/gosec: .check_go_version.stamp .check_gopath.stamp
-# 	go build -i -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
+# 	go build -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
 
 bin/gin: .check_go_version.stamp .check_gopath.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
+	go build -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
 
 bin/soda: .check_go_version.stamp .check_gopath.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda
+	go build -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda
 
 bin/swagger: .check_go_version.stamp .check_gopath.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
+	go build -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 
 ### Cert Targets
 
@@ -199,75 +199,75 @@ bin/rds-combined-ca-bundle.pem:
 # server_deps and server_generate required for this binary, because go build expects
 # github.com/transcom/mymove/pkg/gen/internalmessages, even though it is not used for this program.
 bin/compare-secure-migrations: server_deps server_generate
-	go build -i -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
+	go build -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
 
 bin/ecs-deploy-task-container: server_deps server_generate
-	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-deploy-task-container ./cmd/ecs-deploy-task-container
+	go build -ldflags "$(LDFLAGS)" -o bin/ecs-deploy-task-container ./cmd/ecs-deploy-task-container
 
 bin/ecs-service-logs:
-	go build -i -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
+	go build -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 
 bin/generate-1203-form: .server_generate.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
+	go build -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
 
 bin/generate-access-codes: .server_generate.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
+	go build -ldflags "$(LDFLAGS)" -o bin/generate-access-codes ./cmd/generate_access_codes
 
 bin/generate-shipment-edi: .server_generate.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-edi ./cmd/generate_shipment_edi
+	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-edi ./cmd/generate_shipment_edi
 
 bin/generate-shipment-summary: .server_generate.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
+	go build -ldflags "$(LDFLAGS)" -o bin/generate-shipment-summary ./cmd/generate_shipment_summary
 
 bin/generate-test-data: pkg/assets/assets.go .server_generate.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
+	go build -ldflags "$(LDFLAGS)" -o bin/generate-test-data ./cmd/generate-test-data
 
 bin_linux/generate-test-data: pkg/assets/assets.go .server_generate_linux.stamp
-	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate-test-data
+	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/generate-test-data ./cmd/generate-test-data
 
 bin/health-checker:
-	go build -i -ldflags "$(LDFLAGS)" -o bin/health-checker ./cmd/health-checker
+	go build -ldflags "$(LDFLAGS)" -o bin/health-checker ./cmd/health-checker
 
 bin/iws:
-	go build -i -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/iws/iws.go
+	go build -ldflags "$(LDFLAGS)" -o bin/iws ./cmd/iws/iws.go
 
 bin/load-office-data: .server_generate.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/load-office-data ./cmd/load_office_data
+	go build -ldflags "$(LDFLAGS)" -o bin/load-office-data ./cmd/load_office_data
 
 bin/load-user-gen: .server_generate.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/load-user-gen ./cmd/load_user_gen
+	go build -ldflags "$(LDFLAGS)" -o bin/load-user-gen ./cmd/load_user_gen
 
 bin/make-dps-user: .server_generate.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/make-dps-user ./cmd/make_dps_user
+	go build -ldflags "$(LDFLAGS)" -o bin/make-dps-user ./cmd/make_dps_user
 
 bin/make-office-user: .server_generate.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
+	go build -ldflags "$(LDFLAGS)" -o bin/make-office-user ./cmd/make_office_user
 
 bin/make-tsp-user: .server_generate.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
+	go build -ldflags "$(LDFLAGS)" -o bin/make-tsp-user ./cmd/make_tsp_user
 
 bin/milmove: .server_generate.stamp
-	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
+	go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
 bin_linux/milmove: .server_generate_linux.stamp
-	GOOS=linux GOARCH=amd64 go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove ./cmd/milmove
+	GOOS=linux GOARCH=amd64 go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin_linux/milmove ./cmd/milmove
 
 bin/renderer:
 	# do not build with LDFLAGS since errors on alpine and dynamic linking is fine
 	# throws errors loadinternal: cannot find runtime/cgo
-	go build -i -o bin/renderer ./cmd/renderer
+	go build -o bin/renderer ./cmd/renderer
 
 bin/save-fuel-price-data: .server_generate.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
+	go build -ldflags "$(LDFLAGS)" -o bin/save-fuel-price-data ./cmd/save_fuel_price_data
 
 bin_linux/save-fuel-price-data: .server_generate_linux.stamp
-	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin_linux/save-fuel-price-data ./cmd/save_fuel_price_data
+	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin_linux/save-fuel-price-data ./cmd/save_fuel_price_data
 
 bin/send-to-gex: .server_generate.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
+	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
 
 bin/tsp-award-queue: .server_generate.stamp
-	go build -i -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
+	go build -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
 
 pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
 	go-bindata -o pkg/assets/assets.go -pkg assets pkg/paperwork/formtemplates/
@@ -319,8 +319,8 @@ server_build: server_deps server_generate bin/milmove
 server_build_linux: server_generate_linux
 	# These don't need to go in bin_linux/ because local devs don't use them
 	# Additionally it would not work with the default Dockerfile
-	GOOS=linux GOARCH=amd64 go build -i -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
-	GOOS=linux GOARCH=amd64 go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -i -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
+	GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
+	GOOS=linux GOARCH=amd64 go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 server_run_standalone: client_build server_build db_dev_run
