@@ -11,6 +11,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/assets"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -67,6 +68,13 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
+	session := auth.Session{
+		ApplicationName: auth.TspApp,
+		UserID:          *tspUser.UserID,
+		IDToken:         "fake token",
+		TspUserID:       tspUser.ID,
+	}
+
 	/*
 	 * Basic user with office access
 	 */
@@ -100,7 +108,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	/*
 	 * Service member with uploaded orders and a delivered shipment, able to generate GBL
 	 */
-	makeHhgReadyToInvoice(db, tspUser, logger, storer)
+	makeHhgReadyToInvoice(db, tspUser, logger, storer, &session)
 
 	/*
 	 * Service member with uploaded orders and an approved shipment but show in the moves table is false
@@ -2806,7 +2814,7 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger Logger, s
 	return offer.Shipment
 }
 
-func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Logger, storer *storage.Memory) models.Shipment {
+func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Logger, storer *storage.Memory, session *auth.Session) models.Shipment {
 	/*
 	 * Service member with uploaded orders and a delivered shipment, able to generate GBL
 	 */
@@ -2882,7 +2890,7 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Lo
 		DB:      db,
 		Engine:  engine,
 		Planner: planner,
-	}.Call(nextValidMoveDateMinusOne, &offer.Shipment)
+	}.Call(nextValidMoveDateMinusOne, &offer.Shipment, session)
 
 	if verrs.HasAny() || err != nil {
 		fmt.Println(verrs.String())

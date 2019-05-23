@@ -18,14 +18,12 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
-	sitop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/storage_in_transits"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/rateengine"
 	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
 	shipmentservice "github.com/transcom/mymove/pkg/services/shipment"
-	sitservice "github.com/transcom/mymove/pkg/services/storage_in_transit"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -332,6 +330,7 @@ func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentPara
 // DeliverShipmentHandler allows a TSP to start transporting a particular shipment
 type DeliverShipmentHandler struct {
 	handlers.HandlerContext
+	storageInTransitDeliverer services.StorageInTransitDeliverer
 }
 
 // Handle delivers the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
@@ -362,29 +361,12 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 		DB:      h.DB(),
 		Engine:  engine,
 		Planner: h.Planner(),
-	}.Call(actualDeliveryDate, shipment)
+	}.Call(actualDeliveryDate, shipment, session)
 
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
-	// Change the status of storage_in_transits IN_SIT to DELIVERED
-	storageInTransits, err := models.FetchStorageInTransitsOnShipment(h.DB(), shipment.ID)
-	if err != nil {
-		h.Logger().Error("DB Query", zap.Error(err))
-		return sitop.NewDeliverStorageInTransitInternalServerError()
-	}
-	storageInTransitDeliverer := sitservice.NewStorageInTransitDeliverer(h.DB())
-	for _, sit := range storageInTransits {
-		if sit.Status == models.StorageInTransitStatusINSIT {
-			sit, verrs, err := storageInTransitDeliverer.DeliverStorageInTransit(shipment.ID, session, sit.ID)
-			if err != nil || verrs.HasAny() {
-				h.Logger().Error(fmt.Sprintf("delivery of SIT failed for sit: %s on shipment: %s", sit.ID, shipmentID), zap.Error(err), zap.Error(verrs))
-				return handlers.ResponseForVErrors(h.Logger(), verrs, err)
-			}
-			// TODO: also apply the ActualDeliverDate to the SIT OutDate
-		}
-	}
 	sp := payloadForShipmentModel(*shipment)
 	return shipmentop.NewDeliverShipmentOK().WithPayload(sp)
 }

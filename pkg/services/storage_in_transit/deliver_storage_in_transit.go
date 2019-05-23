@@ -14,34 +14,59 @@ type deliverStorageInTransit struct {
 	db *pop.Connection
 }
 
-// DeliverStorageInTransit sets the status of a Storage In Transit to delivered and returns the updated object.
-func (d *deliverStorageInTransit) DeliverStorageInTransit(shipmentID uuid.UUID, session *auth.Session, storageInTransitID uuid.UUID) (*models.StorageInTransit, *validate.Errors, error) {
-	returnVerrs := validate.NewErrors()
+// DeliverStorageInTransits delivers multiple SITS
+func (d *deliverStorageInTransit) DeliverStorageInTransits(shipmentID uuid.UUID, session *auth.Session) ([]models.StorageInTransit, *validate.Errors, error) {
+	// TODO: it looks like from the wireframes for the delivery status change form that this will also need to edit
+	//  delivery address(es) and the actual delivery date.
+	verrs := validate.NewErrors()
 
-	// Only TSP users are authorized to do this.
-	isUserAuthorized, err := authorizeStorageInTransitHTTPRequest(d.db, session, shipmentID, false)
-	if err != nil || !isUserAuthorized {
-		return nil, returnVerrs, err
+	storageInTransits, err := models.FetchStorageInTransitsOnShipment(d.db, shipmentID)
+	if err != nil {
+		return nil, verrs, err
 	}
+	sitsToReturn := []models.StorageInTransit{}
+	for _, sit := range storageInTransits {
+		// only deliver DESTINATION Sits that are IN_SIT
+		if session.IsTspUser() && sit.Status == models.StorageInTransitStatusINSIT &&
+			sit.Location == models.StorageInTransitLocationDESTINATION {
+			modifiedSit, verrs, err := d.deliverStorageInTransit(shipmentID, sit.ID, session)
+			if verrs.HasAny() || err != nil {
+				verrs.Append(verrs)
+				return nil, verrs, err
+			}
+			sitsToReturn = append(sitsToReturn, *modifiedSit)
+		} else {
+			sitsToReturn = append(sitsToReturn, sit)
+		}
+	}
+	return sitsToReturn, verrs, err
+}
+
+// DeliverStorageInTransit sets the status of a Storage In Transit to delivered and returns the updated object.
+func (d *deliverStorageInTransit) deliverStorageInTransit(shipmentID uuid.UUID, storageInTransitID uuid.UUID, session *auth.Session) (*models.StorageInTransit, *validate.Errors, error) {
+	returnVerrs := validate.NewErrors()
 
 	storageInTransit, err := models.FetchStorageInTransitByID(d.db, storageInTransitID)
 	if err != nil {
 		return nil, returnVerrs, err
 	}
-
 	// Verify that the shipment we're getting matches what's in the storage in transit
 	if shipmentID != storageInTransit.ShipmentID {
 		return nil, returnVerrs, models.ErrFetchForbidden
 	}
 
-	// Make sure we're not trying to set delivered for something that isn't either IN SIT or RELEASED
-	if !(storageInTransit.Status == models.StorageInTransitStatusINSIT) &&
-		!(storageInTransit.Status == models.StorageInTransitStatusRELEASED) {
-		return nil, returnVerrs, models.ErrWriteConflict
+	shipment, err := models.FetchShipment(d.db, session, shipmentID)
+	if err != nil {
+		return storageInTransit, returnVerrs, err
+	}
+	// Make sure we're not trying to set delivered for something that isn't both IN SIT and a DESTINATION SIT
+	if !(storageInTransit.Status == models.StorageInTransitStatusINSIT &&
+		storageInTransit.Location == models.StorageInTransitLocationDESTINATION) {
+		return storageInTransit, returnVerrs, models.ErrWriteConflict
 	}
 
 	storageInTransit.Status = models.StorageInTransitStatusDELIVERED
-
+	storageInTransit.OutDate = shipment.ActualDeliveryDate
 	if verrs, err := d.db.ValidateAndSave(storageInTransit); verrs.HasAny() || err != nil {
 		returnVerrs.Append(verrs)
 		return nil, returnVerrs, err
@@ -50,8 +75,8 @@ func (d *deliverStorageInTransit) DeliverStorageInTransit(shipmentID uuid.UUID, 
 	return storageInTransit, returnVerrs, nil
 }
 
-// NewStorageInTransitDeliverer is the public constructor for a `NewStorageInTransitInDeliverer`
+// NewStorageInTransitsDeliverer is the public constructor for a `NewStorageInTransitInDeliverer`
 // using Pop
-func NewStorageInTransitDeliverer(db *pop.Connection) services.StorageInTransitDeliverer {
+func NewStorageInTransitsDeliverer(db *pop.Connection) services.StorageInTransitDeliverer {
 	return &deliverStorageInTransit{db}
 }

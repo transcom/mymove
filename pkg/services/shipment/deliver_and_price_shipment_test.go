@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
@@ -14,6 +15,15 @@ import (
 )
 
 func (suite *DeliverPriceShipmentSuite) TestDeliverPriceShipmentCall() {
+
+	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
+	session := auth.Session{
+		ApplicationName: auth.TspApp,
+		UserID:          *tspUser.UserID,
+		IDToken:         "fake token",
+		TspUserID:       tspUser.ID,
+	}
+
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
@@ -46,7 +56,7 @@ func (suite *DeliverPriceShipmentSuite) TestDeliverPriceShipmentCall() {
 		DB:      suite.DB(),
 		Engine:  engine,
 		Planner: route.NewTestingPlanner(1044),
-	}.Call(deliveryDate, &shipment)
+	}.Call(deliveryDate, &shipment, &session)
 
 	suite.FatalNoError(err)
 	suite.FatalFalse(verrs.HasAny())

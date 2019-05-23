@@ -6,8 +6,8 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *StorageInTransitServiceSuite) TestDeliverStorageInTransit() {
-	shipment, sit, user := setupStorageInTransitServiceTest(suite)
+func (suite *StorageInTransitServiceSuite) TestDeliverStorageInTransits() {
+	shipment, sit, _ := setupStorageInTransitServiceTest(suite)
 	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
 	session := auth.Session{
 		ApplicationName: auth.TspApp,
@@ -16,13 +16,9 @@ func (suite *StorageInTransitServiceSuite) TestDeliverStorageInTransit() {
 		TspUserID:       tspUser.ID,
 	}
 
-	deliverer := NewStorageInTransitDeliverer(suite.DB())
+	deliverer := NewStorageInTransitsDeliverer(suite.DB())
 	sit.Status = models.StorageInTransitStatusINSIT
 	_, _ = suite.DB().ValidateAndSave(&sit)
-
-	// Should fail if TSP doesn't 'own' the storage in transit
-	_, _, err := deliverer.DeliverStorageInTransit(shipment.ID, &session, sit.ID)
-	suite.Error(err, "WRITE_CONFLICT")
 
 	// Happy path
 	assertions := testdatagen.Assertions{
@@ -35,38 +31,13 @@ func (suite *StorageInTransitServiceSuite) TestDeliverStorageInTransit() {
 	// change the status to in_sit.
 	testdatagen.MakeShipmentOffer(suite.DB(), assertions)
 
-	actualStorageInTransit, verrs, err := deliverer.DeliverStorageInTransit(shipment.ID, &session, sit.ID)
+	actualStorageInTransit, verrs, err := deliverer.DeliverStorageInTransits(shipment.ID, &session)
 	suite.NoError(err)
 	suite.Equal(false, verrs.HasAny())
-	suite.Equal(models.StorageInTransitStatusDELIVERED, actualStorageInTransit.Status)
+	suite.Equal(models.StorageInTransitStatusDELIVERED, actualStorageInTransit[0].Status)
+	suite.Equal(shipment.ActualDeliveryDate, actualStorageInTransit[0].OutDate)
 
-	// It should also work if we're coming back from released status
+	// It should not work if we're coming back from released status
 	sit.Status = models.StorageInTransitStatusRELEASED
 	_, _ = suite.DB().ValidateAndSave(&sit)
-
-	actualStorageInTransit, verrs, err = deliverer.DeliverStorageInTransit(shipment.ID, &session, sit.ID)
-	suite.NoError(err)
-	suite.Equal(false, verrs.HasAny())
-	suite.Equal(models.StorageInTransitStatusDELIVERED, actualStorageInTransit.Status)
-
-	// It should fail if we're skipping a step (going from requested to delivered)
-	sit.Status = models.StorageInTransitStatusREQUESTED
-	_, _ = suite.DB().ValidateAndSave(&sit)
-
-	actualStorageInTransit, verrs, err = deliverer.DeliverStorageInTransit(shipment.ID, &session, sit.ID)
-	suite.Error(err, "WRITE_CONFLICT")
-
-	// Should fail for an office user
-	session = auth.Session{
-		ApplicationName: auth.OfficeApp,
-		UserID:          *user.UserID,
-		IDToken:         "fake token",
-		OfficeUserID:    user.ID,
-	}
-
-	sit.Status = models.StorageInTransitStatusINSIT
-	_, _ = suite.DB().ValidateAndSave(&sit)
-
-	actualStorageInTransit, verrs, err = deliverer.DeliverStorageInTransit(shipment.ID, &session, sit.ID)
-	suite.Error(err, "FETCH_FORBIDDEN")
 }

@@ -42,7 +42,7 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.ShipmentsPatchShipmentHandler = PatchShipmentHandler{context}
 	publicAPI.ShipmentsAcceptShipmentHandler = AcceptShipmentHandler{context}
 	publicAPI.ShipmentsTransportShipmentHandler = TransportShipmentHandler{context}
-	publicAPI.ShipmentsDeliverShipmentHandler = DeliverShipmentHandler{context}
+	publicAPI.ShipmentsDeliverShipmentHandler = DeliverShipmentHandler{context, sitservice.NewStorageInTransitsDeliverer(context.DB())}
 	publicAPI.ShipmentsGetShipmentInvoicesHandler = GetShipmentInvoicesHandler{context}
 
 	publicAPI.ShipmentsCompletePmSurveyHandler = CompletePmSurveyHandler{context}
@@ -104,10 +104,6 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.StorageInTransitsReleaseStorageInTransitHandler = ReleaseStorageInTransitHandler{
 		context,
 		sitservice.NewStorageInTransitInReleaser(context.DB()),
-	}
-	publicAPI.StorageInTransitsDeliverStorageInTransitHandler = DeliverStorageInTransitHandler{
-		context,
-		sitservice.NewStorageInTransitDeliverer(context.DB()),
 	}
 
 	// Access Codes
