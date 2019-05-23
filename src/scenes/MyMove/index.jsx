@@ -137,7 +137,7 @@ const mapStateToProps = state => {
   const moveId = getCurrentMoveID(state);
   return {
     currentServiceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
-    lastMoveIsCanceled: isLastMoveCanceled(state),
+    lastMoveIsCanceled: isLastMoveCanceled(state, moveId),
     latestMove: get(state, 'moves.latestMove'), //ToDo: will want to move away from using this later...
     moveId: moveId,
     selectedMoveType: selectedMoveType(state, moveId),
