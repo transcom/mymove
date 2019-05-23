@@ -1,9 +1,10 @@
 package internalapi
 
 import (
-	"github.com/transcom/mymove/pkg/testingsuite"
 	"log"
 	"testing"
+
+	"github.com/transcom/mymove/pkg/testingsuite"
 
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
