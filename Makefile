@@ -821,6 +821,18 @@ dependency_update_test:
 #
 
 #
+# ----- START MAKE TEST TARGETS -----
+#
+
+.PHONY: make_test
+make_test:
+	scripts/make-test
+
+#
+# ----- END MAKE TEST TARGETS -----
+#
+
+#
 # ----- START RANDOM TARGETS -----
 #
 
