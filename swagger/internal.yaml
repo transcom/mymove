@@ -2506,6 +2506,15 @@ definitions:
     type: string
     x-nullable: true
     title: Vehicle nickname (ex. "My car")
+  ClaimAccessCodePayload:
+    type: object
+    properties:
+      claim_access_code:
+        $ref: '#/definitions/ClaimAccessCode'
+  ClaimAccessCode:
+    type: string
+    x-nullable: false
+    title: MilMove access code
 paths:
   /estimates/ppm:
     get:
