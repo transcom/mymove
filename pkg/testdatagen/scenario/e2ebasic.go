@@ -2451,7 +2451,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		GBLNumber:              "010041",
 		ServiceMemberFirstName: "Origin-SIT",
 		ServiceMemberLastName:  "ShipmentDelivered",
-		Locator:                "DOOB2",
+		Locator:                "DISIT1",
 		PlannerDistance:        1234,
 	}
 
@@ -2498,7 +2498,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		GBLNumber:              "010042",
 		ServiceMemberFirstName: "Origin-SIT",
 		ServiceMemberLastName:  "ShipmentDelivered",
-		Locator:                "DOOB3",
+		Locator:                "DISIT2",
 		PlannerDistance:        1234,
 	}
 

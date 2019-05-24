@@ -355,9 +355,9 @@ function tspUserSubmitsReleaseSit() {
       expect(text).to.include('26-May-2019');
     });
 
-  // DOOB2 - Origin SIT added after Shipment is Delivered
+  // DISIT1 - Origin SIT added after Shipment is Delivered
 
-  // Testing other Origin SIT release flows DOOB2
+  // Testing other Origin SIT release flows DISIT1
   // Open delivered shipments queue
   cy.patientVisit('/queues/delivered');
 
@@ -367,7 +367,7 @@ function tspUserSubmitsReleaseSit() {
   });
 
   // Find shipment that is inSIT at ORIGIN and open it
-  cy.selectQueueItemMoveLocator('DOOB2');
+  cy.selectQueueItemMoveLocator('DISIT1');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -405,9 +405,9 @@ function tspUserSubmitsReleaseSit() {
       expect(text).to.include('26-May-2019');
     });
 
-  // DOOB3 - Origin SIT added to Shipment in Transit and then Shipment is Delivered
+  // DISIT2 - Origin SIT added to Shipment in Transit and then Shipment is Delivered
 
-  // Testing other Origin SIT release flows DOOB3
+  // Testing other Origin SIT release flows DISIT2
   // Open delivered shipments queue
   cy.patientVisit('/queues/delivered');
 
@@ -417,7 +417,7 @@ function tspUserSubmitsReleaseSit() {
   });
 
   // Find shipment that is inSIT at ORIGIN and open it
-  cy.selectQueueItemMoveLocator('DOOB3');
+  cy.selectQueueItemMoveLocator('DISIT2');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
