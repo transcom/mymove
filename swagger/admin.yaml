@@ -228,8 +228,8 @@ definitions:
 paths:
   /office_users:
     get:
-      summary: List the office users for a specific office
-      description: Returns a list of office users given an office ID
+      summary: List office users
+      description: Returns a list of office users
       operationId: indexOfficeUsers
       tags:
         - office
