@@ -3,6 +3,7 @@ import { reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
+import Alert from 'shared/Alert';
 
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -78,17 +79,21 @@ class WeightTicket extends Component {
                   />{' '}
                   lbs
                 </div>
-                <div className="usa-width-two-third uploader-wrapper">
+                <div className="usa-width-two-thirds uploader-wrapper">
                   <Uploader options={{ labelIdle: uploadEmptyTicketLabel }} />
                   <Checkbox
                     label="I'm missing this weight ticket"
                     name="missingEmptyWeightTicket"
                     checked={missingEmptyWeightTicket}
                     onChange={this.handleCheckboxChange}
+                    normalizeLabel
                   />
+                  <Alert type="warning">
+                    Contact your local Transportation Office (PPPO) to let them know you’re missing this weight ticket.
+                    For now, keep going and enter the info you do have.
+                  </Alert>
                 </div>
               </div>
-
               <div className="usa-grid-full" style={{ marginTop: '1em' }}>
                 <div className="usa-width-one-third">
                   <strong className="input-header">Full Weight</strong>
@@ -103,13 +108,14 @@ class WeightTicket extends Component {
                   lbs
                 </div>
 
-                <div className="usa-width-two-third uploader-wrapper">
+                <div className="usa-width-two-thirds uploader-wrapper">
                   <Uploader options={{ labelIdle: uploadFullTicketLabel }} />
                   <Checkbox
                     label="I'm missing this weight ticket"
                     name="missingFullWeightTicket"
                     checked={missingFullWeightTicket}
                     onChange={this.handleCheckboxChange}
+                    normalizeLabel
                   />
                 </div>
               </div>

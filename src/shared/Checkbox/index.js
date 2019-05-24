@@ -1,9 +1,13 @@
 import React from 'react';
 import { string, func, bool } from 'prop-types';
 import { uniqueId } from 'lodash';
+import classNames from 'classnames';
 
-const Checkbox = ({ name, label, onChange, value, checked, inputClassName, labelClassName }) => {
+import './Checkbox.css';
+
+const Checkbox = ({ name, label, onChange, value, checked, inputClassName, labelClassName, normalizeLabel }) => {
   const checkboxId = uniqueId(label);
+  const labelClasses = classNames({ 'normalize-label': normalizeLabel }, labelClassName);
   return (
     <>
       <input
@@ -15,7 +19,7 @@ const Checkbox = ({ name, label, onChange, value, checked, inputClassName, label
         checked={checked}
         onChange={onChange}
       />
-      <label className={labelClassName} htmlFor={checkboxId}>
+      <label className={labelClasses} htmlFor={checkboxId}>
         {label}
       </label>
     </>
@@ -29,6 +33,7 @@ Checkbox.propTypes = {
   checked: bool.isRequired,
   inputClassName: string,
   labelClassName: string,
+  normalizeLabel: bool,
 };
 
 export default Checkbox;
