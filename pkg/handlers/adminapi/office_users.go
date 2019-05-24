@@ -12,7 +12,7 @@ import (
 
 // TODO: fill this in
 func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
-	return &adminmessages.OfficeUser{}
+	return &adminmessages.OfficeUser{ID: *handlers.FmtUUID(o.ID)}
 }
 
 // IndexOfficeUsersHandler returns a list of office users via GET /office_users
@@ -26,7 +26,7 @@ type IndexOfficeUsersHandler struct {
 func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersParams) middleware.Responder {
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 	queryFilters := []services.QueryFilter{
-		h.NewQueryFilter("id", "=", "1"),
+		h.NewQueryFilter("id", "=", "d874d002-5582-4a91-97d3-786e8f66c763"),
 	}
 
 	officeUsers, err := h.OfficeUserListFetcher.FetchOfficeUserList(queryFilters)
