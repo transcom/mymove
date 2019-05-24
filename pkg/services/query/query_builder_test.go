@@ -12,18 +12,18 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type PopQueryBuilderSuite struct {
+type QueryBuilderSuite struct {
 	testingsuite.PopTestSuite
 	logger Logger
 }
 
-func (suite *PopQueryBuilderSuite) SetupTest() {
+func (suite *QueryBuilderSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
 
 func TestUserSuite(t *testing.T) {
 
-	hs := &PopQueryBuilderSuite{
+	hs := &QueryBuilderSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
@@ -48,9 +48,9 @@ func (f testQueryFilter) Value() string {
 	return f.value
 }
 
-func (suite *PopQueryBuilderSuite) TestFetchOne() {
+func (suite *QueryBuilderSuite) TestFetchOne() {
 	user := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	builder := NewPopQueryBuilder(suite.DB())
+	builder := NewQueryBuilder(suite.DB())
 	var actualUser models.OfficeUser
 
 	suite.T().Run("fetches one with filter", func(t *testing.T) {
@@ -123,11 +123,11 @@ func (suite *PopQueryBuilderSuite) TestFetchOne() {
 
 }
 
-func (suite *PopQueryBuilderSuite) TestFetchMany() {
+func (suite *QueryBuilderSuite) TestFetchMany() {
 	// this should be stubbed out with a model that is agnostic to our code
 	// similar to how the pop repo tests might work
 	user := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	builder := NewPopQueryBuilder(suite.DB())
+	builder := NewQueryBuilder(suite.DB())
 	var actualUsers models.OfficeUsers
 
 	suite.T().Run("fetches many with filter", func(t *testing.T) {

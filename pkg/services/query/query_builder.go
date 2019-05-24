@@ -13,16 +13,16 @@ import (
 // allowed comparators for this query builder implementation
 const equals = "="
 
-// PopQueryBuilder is a wrapper aroudn pop
+// Builder is a wrapper aroudn pop
 // with more flexible query patterns to MilMove
-type PopQueryBuilder struct {
+type Builder struct {
 	db *pop.Connection
 }
 
-// NewPopQueryBuilder returns a new query builder implemented with pop
+// NewQueryBuilder returns a new query builder implemented with pop
 // constructor is for Dependency Injection frameworks requiring a function instead of struct
-func NewPopQueryBuilder(db *pop.Connection) *PopQueryBuilder {
-	return &PopQueryBuilder{db}
+func NewQueryBuilder(db *pop.Connection) Builder {
+	return Builder{db}
 }
 
 // Lookup to check if a specific string is inside the db field tags of the type
@@ -74,7 +74,7 @@ func filteredQuery(query *pop.Query, filters []services.QueryFilter, t reflect.T
 
 // FetchOne fetches a single model record using pop's First method
 // Will return error if model is not pointer to struct
-func (p *PopQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
+func (p Builder) FetchOne(model interface{}, filters []services.QueryFilter) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New("Model should be pointer to struct")
@@ -93,7 +93,7 @@ func (p *PopQueryBuilder) FetchOne(model interface{}, filters []services.QueryFi
 
 // FetchMany fetches multiple model records using pop's All method
 // Will return error if model is not pointer to slice of structs
-func (p *PopQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter) error {
+func (p Builder) FetchMany(model interface{}, filters []services.QueryFilter) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New("Model should be pointer to slice of structs")
