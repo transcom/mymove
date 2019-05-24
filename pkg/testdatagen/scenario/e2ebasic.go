@@ -2463,7 +2463,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	approvedSITParams41 := approvedSITParams{
 		SITID:               uuid.Must(uuid.NewV4()),
 		AuthorizedStartDate: &authorizedStartDateOffer41,
-		EstimatedStartDate:  authorizedStartDateOffer41.AddDate(0, 0, -2),
+		EstimatedStartDate:  authorizedStartDateOffer41,
 		Location:            models.StorageInTransitLocationORIGIN,
 		ShipmentID:          hhg41.ID,
 		Shipment:            hhg41,

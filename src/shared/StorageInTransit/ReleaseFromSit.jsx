@@ -28,10 +28,9 @@ export class ReleaseFromSit extends Component {
   };
 
   componentDidMount() {
-    const { estimated_start_date, authorized_start_date } = this.props.sit;
-    let startDateValue = estimated_start_date >= authorized_start_date ? estimated_start_date : authorized_start_date;
+    const { actual_start_date } = this.props.sit;
     this.setState({
-      storageInTransit: Object.assign({}, this.props.sit, { actual_start_date: startDateValue }),
+      storageInTransit: Object.assign({}, this.props.sit, { actual_start_date: actual_start_date }),
     });
   }
 

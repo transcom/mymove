@@ -85,6 +85,12 @@
   font-weight: normal;
 }
 
+.release-from-sit-link {
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: normal;
+}
+
 .storage-in-transit-form {
   font-weight: normal;
 }
