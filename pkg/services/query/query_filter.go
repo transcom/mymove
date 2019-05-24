@@ -25,7 +25,7 @@ func (f queryFilter) Value() string {
 	return f.value
 }
 
-// NewQueryFilter is a buidler for query filters to be used by handlers
+// NewQueryFilter is a builder for query filters to be used by handlers
 // and talk to services that require query filters
 func NewQueryFilter(column string, comparator string, value string) services.QueryFilter {
 	return queryFilter{
