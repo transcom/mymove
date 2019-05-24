@@ -62,7 +62,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.StatusInternalServerError)
 		return
 	}
-	// // Truncate the list if larger than 25
+	// Truncate the list if larger than 25
 	if len(identities) > 25 {
 		identities = identities[:25]
 	}
