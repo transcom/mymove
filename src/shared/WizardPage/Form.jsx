@@ -156,8 +156,8 @@ export class WizardFormPage extends Component {
 }
 
 WizardFormPage.propTypes = {
-  handleSubmit: PropTypes.func.isRequired,
-  reduxFormSubmit: PropTypes.func.isRequired, // function supplied to use w/ redux-form's submit validation
+  handleSubmit: PropTypes.func,
+  reduxFormSubmit: PropTypes.func, // function supplied to use w/ redux-form's submit validation
   serverError: PropTypes.object,
   pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
   pageKey: PropTypes.string.isRequired,

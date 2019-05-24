@@ -36,6 +36,7 @@ describe('MoveSummary', () => {
         ppm={ppmObj}
         shipment={hhgObj}
         editMove={editMoveFn}
+        moveSubmitSuccess={moveObj.moveSubmitSuccess}
         resumeMove={resumeMoveFn}
         addPPMShipment={addPPMShipmentFn}
       />,
@@ -106,6 +107,7 @@ describe('MoveSummary', () => {
       ).toEqual('<div class="title">Next Step: Wait for approval &amp; get ready</div>');
     });
   });
+
   describe('when a move is in approved state but ppm is submitted state', () => {
     it('renders submitted rather than approved content', () => {
       const moveObj = { selected_move_type: 'PPM', status: 'APPROVED' };

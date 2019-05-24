@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190521184855_add-office-tsp-user.sql")

@@ -268,7 +268,7 @@ export class StorageInTransit extends Component {
                           ? formatDate4DigitYear(
                               moment(storageInTransit.actual_start_date).add(daysRemaining + daysUsed, 'days'),
                             )
-                          : 'na'}
+                          : 'n/a'}
                       </span>
                     </div>
                   </div>

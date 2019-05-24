@@ -22,7 +22,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI := adminops.NewMymoveAPI(adminSpec)
 
-	// TODO: Wire up admin endpoints here.
+	adminAPI.OfficeIndexOfficeUsersHandler = IndexOfficeUsersHandler{context}
 
 	return adminAPI.Serve(nil)
 }

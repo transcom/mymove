@@ -445,9 +445,19 @@ head .panel-subhead {
   word-wrap: break-word;
 }
 
+.ReactTable.-highlight .rt-tbody .rt-tr:not(.-padRow):hover {
+  background-color: #E2F1FB;
+  color: #0071bb
+}
+
+.staleness-indicator {
+  color: gray;
+}
+
 .refresh {
   display: inline-block;
   cursor: pointer;
+  margin-left: 0.3em;
   margin-bottom: 0.3em;
   padding: 0.3em 0;
   border: 1px solid white;

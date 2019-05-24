@@ -71,6 +71,7 @@ application testing
 | generate-devlocal-cert | Convenience script for creating a new certificate signed by the devlocal CA. |
 | go-find-pattern |  searchs over all our go source code files for a regex pattern |
 | merge-pr |  A script to automate the landing of your GitHub pull requests. |
+| make-test | A script to test common developer make targets. |
 
 ### Building
 
