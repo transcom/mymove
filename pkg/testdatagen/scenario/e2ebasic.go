@@ -71,6 +71,12 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			StandardCarrierAlphaCode: "J12K",
 		},
 	})
+	tspUserSession := auth.Session{
+		ApplicationName: auth.TspApp,
+		UserID:          *tspUser.UserID,
+		IDToken:         "fake token",
+		TspUserID:       tspUser.ID,
+	}
 
 	/*
 	 * Basic user with office access
@@ -2354,6 +2360,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	models.SaveMoveDependencies(db, &hhg39.Move)
 
 	/*
+	 * HHG40
 	 * Service member with in-transit shipment and Origin InSIT SIT
 	 */
 	email = "hhg@sit.insit.origin"
@@ -2390,7 +2397,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	authorizedStartDateOffer40 := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
-	sitID := uuid.FromStringOrNil("91051af8-7ccb-11e9-8e2c-acde48001122")
+	sitID := uuid.Must(uuid.NewV4())
 	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
 		StorageInTransit: models.StorageInTransit{
 			ID:                  sitID,
@@ -2407,7 +2414,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	hhg40.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg40.Move)
 
-	//-- to make the SIT Number appear for an In SIT story, have to run through the place in to SIT handler
+	// Transition SIT to InSIT
+	// To make the SIT Number appear for an In SIT story, have to run through the place in to SIT handler
 
 	payload := apimessages.StorageInTransitInSitPayload{
 		ActualStartDate: *handlers.FmtDate(authorizedStartDateOffer40),
@@ -2418,12 +2426,102 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		IDToken:         "fake token",
 		TspUserID:       tspUser.ID,
 	}
-	inSITPlacer := storageintransit.NewStorageInTransitInSITPlacer(db)
-	_, verrs, err := inSITPlacer.PlaceIntoSITStorageInTransit(payload, offer40.ShipmentID, &session, sitID)
+	inSITPlacer40 := storageintransit.NewStorageInTransitInSITPlacer(db)
+	_, verrs, err := inSITPlacer40.PlaceIntoSITStorageInTransit(payload, offer40.ShipmentID, &session, sitID)
 	if verrs.HasAny() || err != nil {
 		fmt.Println(verrs.String())
 		log.Panic(err)
 	}
+
+	/*
+	 * HHG41
+	 * Service member with delivered Shipment and Origin InSIT SIT (SIT added after shipment is delivered)
+	 */
+
+	// Info used to create a delivered shipment ready for invoice
+	shipmentHhgParams41 := hhgReadyToInvoiceParams{
+		TspUser:                tspUser,
+		Logger:                 logger,
+		Storer:                 storer,
+		Email:                  "hhg@delivered.insit.origin",
+		NetWeight:              3000,
+		WeightEstimate:         5000,
+		SourceGBLOC:            "ABCD",
+		DestGBLOC:              "QRED",
+		GBLNumber:              "010041",
+		ServiceMemberFirstName: "Origin-SIT",
+		ServiceMemberLastName:  "ShipmentDelivered",
+		Locator:                "DOOB2",
+		PlannerDistance:        1234,
+	}
+
+	// create and return a delivered shipment ready for invoice
+	hhg41 := makeHhgReadyToInvoiceWithSIT(db, shipmentHhgParams41)
+
+	// Add Approved SIT to shipment after shipment is delivered
+	authorizedStartDateOffer41 := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
+	approvedSITParams41 := approvedSITParams{
+		SITID:               uuid.Must(uuid.NewV4()),
+		AuthorizedStartDate: &authorizedStartDateOffer41,
+		EstimatedStartDate:  authorizedStartDateOffer41.AddDate(0, 0, -2),
+		Location:            models.StorageInTransitLocationORIGIN,
+		ShipmentID:          hhg41.ID,
+		Shipment:            hhg41,
+	}
+	addApprovedSIT(db, approvedSITParams41)
+
+	// Transition SIT to InSIT/IN_SIT
+	// To make the SIT Number appear for an In SIT story, have to run through the place in to SIT handler
+	placeInSITParams41 := placeInSITParams{
+		SITID:           approvedSITParams41.SITID,
+		ShipmentID:      hhg41.ID,
+		Shipment:        hhg41,
+		ActualStartDate: authorizedStartDateOffer41,
+	}
+	sitPlaceInSIT(db, placeInSITParams41, tspUserSession)
+
+	/*
+	 * HHG42
+	 * Service member with delivered Shipment and Origin InSIT SIT (SIT added while shipment is in Transit)
+	 */
+
+	// Info used to create a delivered shipment ready for invoice
+	shipmentHhgParams42 := hhgReadyToInvoiceParams{
+		TspUser:                tspUser,
+		Logger:                 logger,
+		Storer:                 storer,
+		Email:                  "hhg@delivered.insit.origin2",
+		NetWeight:              3000,
+		WeightEstimate:         5000,
+		SourceGBLOC:            "ABCD",
+		DestGBLOC:              "QRED",
+		GBLNumber:              "010042",
+		ServiceMemberFirstName: "Origin-SIT",
+		ServiceMemberLastName:  "ShipmentDelivered",
+		Locator:                "DOOB3",
+		PlannerDistance:        1234,
+	}
+
+	authorizedStartDate42 := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
+	approvedSITParams42 := approvedSITParams{
+		SITID:               uuid.Must(uuid.NewV4()),
+		AuthorizedStartDate: &authorizedStartDate42,
+		Location:            models.StorageInTransitLocationORIGIN,
+	}
+	shipmentHhgParams42.ApprovedSITs = append(shipmentHhgParams42.ApprovedSITs, approvedSITParams42)
+
+	// create and return a delivered shipment ready for invoice
+	hhg42 := makeHhgReadyToInvoiceWithSIT(db, shipmentHhgParams42)
+
+	// Transition SIT to InSIT/IN_SIT
+	// To make the SIT Number appear for an In SIT story, have to run through the place in to SIT handler
+	placeInSITParams42 := placeInSITParams{
+		SITID:           approvedSITParams42.SITID,
+		ShipmentID:      hhg42.ID,
+		Shipment:        hhg42,
+		ActualStartDate: *approvedSITParams42.AuthorizedStartDate,
+	}
+	sitPlaceInSIT(db, placeInSITParams42, tspUserSession)
 
 	/*
 	 * Service member with a ppm ready to request payment
@@ -2930,6 +3028,212 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger Logger, s
 		string("Government Bill Of Lading"),
 		swag.String(""),
 		models.SelectedMoveTypeHHG,
+	)
+
+	return offer.Shipment
+}
+
+type approvedSITParams struct {
+	Location            models.StorageInTransitLocation
+	ShipmentID          uuid.UUID
+	Shipment            models.Shipment
+	EstimatedStartDate  time.Time
+	AuthorizedStartDate *time.Time
+	SITID               uuid.UUID
+}
+
+func addApprovedSIT(db *pop.Connection, params approvedSITParams) {
+
+	// Create and add to shipment a SIT at Origin that is Approved
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ID:                  params.SITID,
+			ShipmentID:          params.ShipmentID,
+			Shipment:            params.Shipment,
+			Location:            params.Location,
+			Status:              models.StorageInTransitStatusAPPROVED,
+			EstimatedStartDate:  params.EstimatedStartDate,
+			AuthorizedStartDate: params.AuthorizedStartDate,
+		},
+	})
+}
+
+type placeInSITParams struct {
+	SITID           uuid.UUID
+	ShipmentID      uuid.UUID
+	Shipment        models.Shipment
+	ActualStartDate time.Time
+}
+
+func sitPlaceInSIT(db *pop.Connection, params placeInSITParams, tspUserSession auth.Session) {
+	// Transition SIT to InSIT
+	// To make the SIT Number appear for an In SIT story, have to run through the place in to SIT handler
+	payload := apimessages.StorageInTransitInSitPayload{
+		ActualStartDate: *handlers.FmtDate(params.ActualStartDate),
+	}
+
+	inSITPlacer := storageintransit.NewStorageInTransitInSITPlacer(db)
+	_, verrs, err := inSITPlacer.PlaceIntoSITStorageInTransit(payload, params.Shipment.ID, &tspUserSession, params.SITID)
+	if verrs.HasAny() || err != nil {
+		fmt.Println(verrs.String())
+		log.Panic(err)
+	}
+}
+
+type hhgReadyToInvoiceParams struct {
+	TspUser                models.TspUser
+	Logger                 Logger
+	Storer                 *storage.Memory
+	Email                  string
+	NetWeight              unit.Pound
+	WeightEstimate         unit.Pound
+	SourceGBLOC            string
+	DestGBLOC              string
+	GBLNumber              string
+	ServiceMemberFirstName string
+	ServiceMemberLastName  string
+	EDIPI                  string
+	Locator                string
+	PlannerDistance        int
+	ApprovedSITs           []approvedSITParams
+}
+
+// makeHhgReadyToInvoiceWithSIT creates a shipment that is delivered and invoice ready with the option
+// to add a SIT while shipment is in-transit
+func makeHhgReadyToInvoiceWithSIT(db *pop.Connection, params hhgReadyToInvoiceParams) models.Shipment {
+	/*
+	 * Service member with uploaded orders and a delivered shipment, able to generate GBL
+	 */
+	email := params.Email
+	netWeight := unit.Pound(params.NetWeight)
+	weightEstimate := unit.Pound(params.WeightEstimate)
+	sourceOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: params.SourceGBLOC,
+		},
+	})
+	destOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: params.DestGBLOC,
+		},
+	})
+	GBLNumber := destOffice.Gbloc + params.GBLNumber
+
+	offer := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.NewV4()),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.Must(uuid.NewV4()),
+			FirstName:     models.StringPointer(params.ServiceMemberFirstName),
+			LastName:      models.StringPointer(params.ServiceMemberLastName),
+			Edipi:         models.StringPointer(params.EDIPI),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			DepartmentIndicator: models.StringPointer("17"),
+			TAC:                 models.StringPointer("NTA4"),
+			SAC:                 models.StringPointer("1234567890 9876543210"),
+		},
+		Move: models.Move{
+			ID:               uuid.Must(uuid.NewV4()),
+			Locator:          params.Locator,
+			SelectedMoveType: &selectedMoveTypeHHG,
+			Status:           models.MoveStatusAPPROVED,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.Must(uuid.NewV4()),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			ID:                          uuid.Must(uuid.NewV4()),
+			Status:                      models.ShipmentStatusINTRANSIT,
+			PmSurveyMethod:              "PHONE",
+			PmSurveyPlannedPackDate:     &nextVAlidMoveDateMinusTen,
+			PmSurveyPlannedPickupDate:   &nextValidMoveDateMinusFive,
+			PmSurveyPlannedDeliveryDate: &nextValidMoveDateMinusOne,
+			NetWeight:                   &netWeight,
+			ActualPickupDate:            &nextValidMoveDateMinusFive,
+			OriginalDeliveryDate:        &nextValidMoveDateMinusOne,
+			PmSurveyWeightEstimate:      &weightEstimate,
+			SourceGBLOC:                 &sourceOffice.Gbloc,
+			DestinationGBLOC:            &destOffice.Gbloc,
+			GBLNumber:                   &GBLNumber,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: params.TspUser.TransportationServiceProviderID,
+			TransportationServiceProvider:   params.TspUser.TransportationServiceProvider,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	//
+	// Add SIT before delivering shipment -- this seems like the typical flow a shipment will go through
+	//
+	for _, sit := range params.ApprovedSITs {
+		sit.ShipmentID = offer.Shipment.ID
+		sit.Shipment = offer.Shipment
+		addApprovedSIT(db, sit)
+	}
+
+	//
+	// Get Planner and Deliver shipment
+	//
+	planner := route.NewTestingPlanner(params.PlannerDistance)
+	engine := rateengine.NewRateEngine(db, params.Logger)
+	verrs, err := shipmentservice.DeliverAndPriceShipment{
+		DB:      db,
+		Engine:  engine,
+		Planner: planner,
+	}.Call(nextValidMoveDateMinusOne, &offer.Shipment)
+
+	if verrs.HasAny() || err != nil {
+		fmt.Println(verrs.String())
+		log.Panic(err)
+	}
+
+	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
+		ServiceAgent: models.ServiceAgent{
+			Shipment:   &offer.Shipment,
+			ShipmentID: offer.ShipmentID,
+		},
+	})
+
+	hhg := offer.Shipment
+	hhgID := offer.ShipmentID
+	hhg.Move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &hhg.Move)
+
+	// Create PDF for GBL
+	gbl, _ := models.FetchGovBillOfLadingFormValues(db, hhgID)
+	formLayout := paperwork.Form1203Layout
+
+	// Read in bytes from Asset pkg
+	data, _ := assets.Asset(formLayout.TemplateImagePath)
+	f := bytes.NewReader(data)
+
+	formFiller := paperwork.NewFormFiller()
+	formFiller.AppendPage(f, formLayout.FieldsLayout, gbl)
+
+	// Write to a temporary file system
+	aFile, _ := params.Storer.TempFileSystem().Create(gbl.GBLNumber1)
+	formFiller.Output(aFile)
+
+	uploader := uploaderpkg.NewUploader(db, params.Logger, params.Storer)
+	upload, _, _ := uploader.CreateUpload(*params.TspUser.UserID, &aFile, uploaderpkg.AllowedTypesPDF)
+	uploads := []models.Upload{*upload}
+
+	// Create GBL move document associated to the shipment
+	hhg.Move.CreateMoveDocument(db,
+		uploads,
+		&hhgID,
+		models.MoveDocumentTypeGOVBILLOFLADING,
+		string("Government Bill Of Lading"),
+		swag.String(""),
+		selectedMoveTypeHHG,
 	)
 
 	return offer.Shipment
