@@ -26,6 +26,9 @@ describe('TSP user interacts with storage in transit panel', function() {
   it('TSP user views remaining days and status of shipment expired in SIT (with frozen clock)', function() {
     tspUserEntitlementRemainingDaysExpired();
   });
+  it('TSP user views denied SIT', function() {
+    tspUserViewsDeniedSit();
+  });
 });
 
 // need to simulate a form submit
@@ -302,4 +305,20 @@ function tspUserEntitlementRemainingDaysExpired() {
     .contains('28-Jun-2019');
 }
 
-// TODO: Need a test to look at denied SIT action links.
+function tspUserViewsDeniedSit() {
+  // Open in_transit shipments queue
+  cy.patientVisit('/queues/in_transit');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/in_transit/);
+  });
+
+  // Find shipment and open it
+  cy.selectQueueItemMoveLocator('SITDN2');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+  });
+
+  // Verify action links
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-delete-link]').contains('Delete');
+}
