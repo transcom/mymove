@@ -1,6 +1,7 @@
 package adminapi
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
@@ -84,5 +85,29 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		okResponse := response.(*officeuserop.IndexOfficeUsersOK)
 		suite.Len(okResponse.Payload, 1)
 		suite.Equal(uuidString, okResponse.Payload[0].ID.String())
+	})
+
+	suite.T().Run("unsuccesful response when fetch fails", func(t *testing.T) {
+		params := officeuserop.IndexOfficeUsersParams{
+			HTTPRequest: req,
+		}
+		expectedError := models.ErrFetchNotFound
+		officeUserListFetcher := &mocks.OfficeUserListFetcher{}
+		officeUserListFetcher.On("FetchOfficeUserList",
+			mock.Anything,
+		).Return(nil, expectedError).Once()
+		handler := IndexOfficeUsersHandler{
+			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			NewQueryFilter:        newQueryFilter,
+			OfficeUserListFetcher: officeUserListFetcher,
+		}
+
+		response := handler.Handle(params)
+
+		expectedResponse := &handlers.ErrResponse{
+			Code: http.StatusNotFound,
+			Err:  expectedError,
+		}
+		suite.Equal(expectedResponse, response)
 	})
 }
