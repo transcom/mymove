@@ -6,6 +6,8 @@ import (
 	"reflect"
 
 	"github.com/gobuffalo/pop"
+
+	"github.com/transcom/mymove/pkg/services"
 )
 
 // allowed comparators for this query builder implementation
@@ -44,7 +46,7 @@ func getComparator(comparator string) (string, bool) {
 	}
 }
 
-func filteredQuery(query *pop.Query, filters []filter, t reflect.Type) (*pop.Query, error) {
+func filteredQuery(query *pop.Query, filters []services.QueryFilter, t reflect.Type) (*pop.Query, error) {
 	invalidFields := make([]string, 0)
 	for _, f := range filters {
 		column, ok := getDBColumn(t, f.Column())
@@ -72,7 +74,7 @@ func filteredQuery(query *pop.Query, filters []filter, t reflect.Type) (*pop.Que
 
 // FetchOne fetches a single model record using pop's First method
 // Will return error if model is not pointer to struct
-func (p *PopQueryBuilder) FetchOne(model interface{}, filters ...filter) error {
+func (p *PopQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New("Model should be pointer to struct")
@@ -91,7 +93,7 @@ func (p *PopQueryBuilder) FetchOne(model interface{}, filters ...filter) error {
 
 // FetchMany fetches multiple model records using pop's All method
 // Will return error if model is not pointer to slice of structs
-func (p *PopQueryBuilder) FetchMany(model interface{}, filters ...filter) error {
+func (p *PopQueryBuilder) FetchMany(model interface{}, filters []services.QueryFilter) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New("Model should be pointer to slice of structs")
@@ -110,11 +112,4 @@ func (p *PopQueryBuilder) FetchMany(model interface{}, filters ...filter) error 
 		return err
 	}
 	return query.All(model)
-}
-
-// Interface to allow passing a list of query filters
-type filter interface {
-	Column() string
-	Comparator() string
-	Value() string
 }

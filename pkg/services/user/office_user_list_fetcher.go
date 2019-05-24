@@ -14,7 +14,7 @@ type officeUserListFetcher struct {
 }
 
 // FetchOfficeUserList is uses the passed query builder to fetch a list of office users
-func (o officeUserListFetcher) FetchOfficeUserList(filters []services.QueryFilter) (models.OfficeUsers, error) {
+func (o *officeUserListFetcher) FetchOfficeUserList(filters []services.QueryFilter) (models.OfficeUsers, error) {
 	var officeUsers models.OfficeUsers
 	error := o.builder.FetchMany(&officeUsers, filters)
 	return officeUsers, error
@@ -22,5 +22,5 @@ func (o officeUserListFetcher) FetchOfficeUserList(filters []services.QueryFilte
 
 // NewOfficeUserListFetcher returns an implementation of OfficeUserListFetcher
 func NewOfficeUserListFetcher(builder officeUserListQueryBuilder) services.OfficeUserListFetcher {
-	return officeUserListFetcher{builder}
+	return &officeUserListFetcher{builder}
 }

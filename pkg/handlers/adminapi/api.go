@@ -9,6 +9,8 @@ import (
 	adminops "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations"
 	"github.com/transcom/mymove/pkg/gen/restapi"
 	"github.com/transcom/mymove/pkg/handlers"
+	query2 "github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/services/user"
 )
 
 // NewAdminAPIHandler returns a handler for the admin API
@@ -22,7 +24,12 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI := adminops.NewMymoveAPI(adminSpec)
 
-	adminAPI.OfficeIndexOfficeUsersHandler = IndexOfficeUsersHandler{context}
+	queryBuilder := query2.NewPopQueryBuilder(context.DB())
+	adminAPI.OfficeIndexOfficeUsersHandler = IndexOfficeUsersHandler{
+		HandlerContext:        context,
+		NewQueryFilter:        query2.NewQueryFilter,
+		OfficeUserListFetcher: user.NewOfficeUserListFetcher(queryBuilder),
+	}
 
 	return adminAPI.Serve(nil)
 }

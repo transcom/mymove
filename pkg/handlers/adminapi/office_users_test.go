@@ -5,6 +5,8 @@ import (
 
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/services/query"
+	user2 "github.com/transcom/mymove/pkg/services/user"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -17,7 +19,12 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		HTTPRequest: req,
 	}
 
-	handler := IndexOfficeUsersHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	queryBuilder := query.NewPopQueryBuilder(suite.DB())
+	handler := IndexOfficeUsersHandler{
+		HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		NewQueryFilter:        query.NewQueryFilter,
+		OfficeUserListFetcher: user2.NewOfficeUserListFetcher(queryBuilder),
+	}
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
