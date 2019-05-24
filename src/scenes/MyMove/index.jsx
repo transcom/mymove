@@ -41,10 +41,8 @@ import DPSAuthCookie from 'scenes/DPSAuthCookie';
 export class AppWrapper extends Component {
   state = { hasError: false };
   componentDidMount() {
-    console.log('Hi');
     this.props.loadInternalSchema();
     this.props.getCurrentUserInfo();
-    console.log('Bye');
   }
 
   componentDidCatch(error, info) {
@@ -81,7 +79,7 @@ export class AppWrapper extends Component {
               {!this.state.hasError &&
                 !props.swaggerError && (
                   <Switch>
-                    <ValidatedPrivateRoute exact path="/" component={Landing} />
+                    <Route exact path="/" component={Landing} />
                     <Route exact path="/sm_style_guide" component={StyleGuide} />
                     <Route path="/privacy-and-security-policy" component={PrivacyPolicyStatement} />
                     <Route path="/accessibility" component={AccessibilityStatement} />
