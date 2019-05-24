@@ -21,8 +21,8 @@ type Builder struct {
 
 // NewQueryBuilder returns a new query builder implemented with pop
 // constructor is for Dependency Injection frameworks requiring a function instead of struct
-func NewQueryBuilder(db *pop.Connection) Builder {
-	return Builder{db}
+func NewQueryBuilder(db *pop.Connection) *Builder {
+	return &Builder{db}
 }
 
 // Lookup to check if a specific string is inside the db field tags of the type
@@ -74,7 +74,7 @@ func filteredQuery(query *pop.Query, filters []services.QueryFilter, t reflect.T
 
 // FetchOne fetches a single model record using pop's First method
 // Will return error if model is not pointer to struct
-func (p Builder) FetchOne(model interface{}, filters []services.QueryFilter) error {
+func (p *Builder) FetchOne(model interface{}, filters []services.QueryFilter) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New("Model should be pointer to struct")
@@ -93,7 +93,7 @@ func (p Builder) FetchOne(model interface{}, filters []services.QueryFilter) err
 
 // FetchMany fetches multiple model records using pop's All method
 // Will return error if model is not pointer to slice of structs
-func (p Builder) FetchMany(model interface{}, filters []services.QueryFilter) error {
+func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
 		return errors.New("Model should be pointer to slice of structs")
