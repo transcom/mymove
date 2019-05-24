@@ -33,8 +33,6 @@ describe('TSP user interacts with storage in transit panel', function() {
 function tspUserCreatesSitRequest() {
   // Open accepted shipments queue
   cy.patientVisit('/queues/accepted');
-
-  // Open new shipments queue
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/accepted/);
   });
@@ -80,8 +78,6 @@ function tspUserCreatesSitRequest() {
 function tspUserStartsAndCancelsSitRequest() {
   // Open accepted shipments queue
   cy.patientVisit('/queues/accepted');
-
-  // Open new shipments queue
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/accepted/);
   });
@@ -112,8 +108,6 @@ function tspUserStartsAndCancelsSitRequest() {
 function tspUserEditsSitRequest() {
   // Open accepted shipments queue
   cy.patientVisit('/queues/accepted');
-
-  // Open new shipments queue
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/accepted/);
   });
@@ -144,8 +138,6 @@ function tspUserEditsSitRequest() {
 function tspUserGoesToApprovedSit() {
   // Open in_transit shipments queue
   cy.patientVisit('/queues/in_transit');
-
-  // Open new shipments queue
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/in_transit/);
   });
@@ -255,12 +247,27 @@ function tspUserSubmitsPlaceInSit() {
     .contains('Delete');
 }
 
+function tspUserGoesToPlacedSit() {
+  // Open in_transit shipments queue
+  cy.patientVisit('/queues/in_transit');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/in_transit/);
+  });
+
+  // Find shipment and open it
+  cy.selectQueueItemMoveLocator('SITIN1');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+  });
+}
+
 function tspUserEntitlementRemainingDays() {
   // Freeze the clock so we can test a specific remaining days.
   let now = new Date(Date.UTC(2019, 3, 10)).getTime(); // 4/10/2019
   cy.clock(now);
 
-  tspUserGoesToApprovedSit();
+  tspUserGoesToPlacedSit();
 
   cy
     .get('[data-cy=storage-in-transit-panel]')
@@ -280,7 +287,7 @@ function tspUserEntitlementRemainingDaysExpired() {
   let now = new Date(Date.UTC(2019, 6, 10)).getTime(); // 7/10/2019
   cy.clock(now);
 
-  tspUserGoesToApprovedSit();
+  tspUserGoesToPlacedSit();
 
   cy
     .get('[data-cy=storage-in-transit-panel]')

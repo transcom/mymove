@@ -18,10 +18,16 @@ describe('office user finds the shipment', function() {
   it('office user denies and edits denied sit request', function() {
     officeUserDeniesSITRequest();
   });
+  it('office user views remaining days and status of shipment in SIT (with frozen clock)', function() {
+    officeUserEntitlementRemainingDays();
+  });
+  it('office user views remaining days and status of shipment expired in SIT (with frozen clock)', function() {
+    officeUserEntitlementRemainingDaysExpired();
+  });
 });
 
 function officeUserViewsSITPanel() {
-  // Open new moves queue
+  // Open hhg_accepted moves queue
   cy.patientVisit('/queues/hhg_accepted');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
@@ -74,11 +80,13 @@ function officeUserViewsSITPanel() {
 }
 
 function officeUserStartsAndCancelsSitApproval() {
+  // Open hhg_accepted moves queue
   cy.patientVisit('/queues/hhg_accepted');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
   });
 
+  // Find move (generated in e2ebasic.go) and open it
   cy.selectQueueItemMoveLocator('SITREQ');
 
   cy.location().should(loc => {
@@ -117,11 +125,13 @@ function officeUserStartsAndCancelsSitApproval() {
 }
 
 function officeUserStartsAndCancelsSitEdit() {
+  // Open new moves queue
   cy.patientVisit('/queues/new');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
+  // Find move (generated in e2ebasic.go) and open it
   cy.selectQueueItemMoveLocator('SITAPR');
 
   cy.location().should(loc => {
@@ -157,11 +167,13 @@ function officeUserStartsAndCancelsSitEdit() {
 }
 
 function officeUserApprovesSITRequest() {
+  // Open hhg_accepted moves queue
   cy.patientVisit('/queues/hhg_accepted');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
   });
 
+  // Find move (generated in e2ebasic.go) and open it
   cy.selectQueueItemMoveLocator('SITREQ');
 
   cy.location().should(loc => {
@@ -222,11 +234,13 @@ function officeUserApprovesSITRequest() {
 }
 
 function officeUserDeniesSITRequest() {
+  // Open hhg_accepted moves queue
   cy.patientVisit('/queues/hhg_accepted');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
   });
 
+  // Find move (generated in e2ebasic.go) and open it
   cy.selectQueueItemMoveLocator('SITDEN');
 
   cy.location().should(loc => {
@@ -271,4 +285,65 @@ function officeUserDeniesSITRequest() {
   cy.patientReload();
 
   cy.get('[data-cy="sit-authorization-notes"]').contains('this is also a note');
+}
+
+function officeUserGoesToPlacedSIT() {
+  // Open all moves queue
+  cy.patientVisit('/queues/all');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/all/);
+  });
+
+  // Find move (generated in e2ebasic.go) and open it
+  cy.selectQueueItemMoveLocator('SITIN1');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
+
+  cy.get('[data-cy="hhg-tab"]').click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/hhg/);
+  });
+}
+
+function officeUserEntitlementRemainingDays() {
+  // Freeze the clock so we can test a specific remaining days.
+  let now = new Date(Date.UTC(2019, 3, 10)).getTime(); // 4/10/2019
+  cy.clock(now);
+
+  officeUserGoesToPlacedSIT();
+
+  cy
+    .get('[data-cy=storage-in-transit-panel]')
+    .should($div => {
+      const text = $div.text();
+      expect(text).to.include('In SIT');
+      expect(text).to.include('Entitlement: 90 days (78 remaining)');
+    })
+    .get('[data-cy=storage-in-transit] [data-cy=sit-days-used]')
+    .contains('12 days')
+    .get('[data-cy=storage-in-transit] [data-cy=sit-expires]')
+    .contains('28-Jun-2019');
+}
+
+function officeUserEntitlementRemainingDaysExpired() {
+  // Freeze the clock so we can test a specific remaining days.
+  let now = new Date(Date.UTC(2019, 6, 10)).getTime(); // 7/10/2019
+  cy.clock(now);
+
+  officeUserGoesToPlacedSIT();
+
+  cy
+    .get('[data-cy=storage-in-transit-panel]')
+    .should($div => {
+      const text = $div.text();
+      expect(text).to.include('In SIT - SIT Expired');
+      expect(text).to.include('Entitlement: 90 days (-13 remaining)');
+    })
+    .get('[data-cy=storage-in-transit] [data-cy=sit-days-used]')
+    .contains('103 days')
+    .get('[data-cy=storage-in-transit] [data-cy=sit-expires]')
+    .contains('28-Jun-2019');
 }
