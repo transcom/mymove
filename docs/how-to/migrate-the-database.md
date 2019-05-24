@@ -4,9 +4,24 @@ If you need to change the database schema, you'll need to write a migration.
 
 <!-- markdownlint-disable MD029 MD038 -->
 
+## Running Migrations
+
+To run a migration you should use the `milmove migrate` command. This is done in a similar way to the `soda migrate`
+command but uses our DB connection code instead. This avoids us having to use the `database.yaml` as a config file
+and allows us to leverage different authentication methods for migrations in development and in production using
+the same code.  To migrate you should use a command based on your DB:
+
+* `make db_dev_migrate`
+* `make db_test_migrate`
+* `make db_prod_migrations_migrate`
+
+The reason to use a `make` target is because it will put you into the `scripts/` directory from which it is required
+you run the migration so that `scripts/apply-secure-migrations.sh` is called with the correct paths for the different
+files in the `./migrations` folder.
+
 ## Creating a migration
 
-Use soda (a part of [pop](https://github.com/gobuffalo/pop/)) to generate migrations. In order to make using soda easy, a wrapper is in `./bin/soda` that sets the go environment and working directory correctly.
+Use soda (a part of [pop](https://github.com/gobuffalo/pop/)) to generate models and migrations.
 
 > **We don't use down-migrations to revert changes to the schema; any problems are to be fixed by a follow-up migration.**
 
@@ -16,7 +31,7 @@ If you are generating a new model, use: `gen-model model-name column-name:type c
 
 ### Modifying an Existing Model
 
-If you are modifying an existing model, use `./bin/soda generate migration migration_name` and add the [Fizz commands](https://github.com/gobuffalo/fizz) yourself to the created `{migration_name}.up.fizz` file. Delete the `down.fizz` file, as we aren't using those (see note below.)
+If you are modifying an existing model, use `soda generate migration migration_name` and add the [Fizz commands](https://github.com/gobuffalo/fizz) yourself to the created `{migration_name}.up.fizz` file. Delete the `down.fizz` file, as we aren't using those (see note below.)
 
 ## Zero-Downtime Migrations
 
