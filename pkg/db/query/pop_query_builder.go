@@ -23,16 +23,6 @@ func NewPopQueryBuilder(db *pop.Connection) *PopQueryBuilder {
 	return &PopQueryBuilder{db}
 }
 
-// InvalidInputError is an error for when query inputs are incorrect
-type InvalidInputError struct {
-	input []string
-}
-
-// Error returns the error message
-func (e *InvalidInputError) Error() string {
-	return fmt.Sprintf("%v is not valid input", e.input)
-}
-
 // Lookup to check if a specific string is inside the db field tags of the type
 func getDBColumn(t reflect.Type, field string) (string, bool) {
 	for i := 0; i < t.NumField(); i++ {
@@ -69,7 +59,7 @@ func filteredQuery(query *pop.Query, filters []filter, t reflect.Type) (*pop.Que
 		query = query.Where(columnQuery, f.Value())
 	}
 	if len(invalidFields) != 0 {
-		return query, &InvalidInputError{invalidFields}
+		return query, fmt.Errorf("%v is not valid input", invalidFields)
 	}
 	return query, nil
 }
