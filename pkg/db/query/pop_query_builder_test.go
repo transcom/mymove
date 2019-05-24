@@ -78,7 +78,18 @@ func (suite *PopQueryBuilderSuite) TestFetchOne() {
 		err := builder.FetchOne(&actualUser, filter)
 
 		suite.Error(err)
-		suite.Equal("[fake_column] is not valid input", err.Error())
+		suite.Equal("[fake_column =] is not valid input", err.Error())
+		suite.Zero(actualUser)
+	})
+
+	suite.T().Run("returns error on invalid comparator", func(t *testing.T) {
+		filter := testQueryFilter{"id", "*", user.ID.String()}
+		var actualUser models.OfficeUser
+
+		err := builder.FetchOne(&actualUser, filter)
+
+		suite.Error(err)
+		suite.Equal("[id *] is not valid input", err.Error())
 		suite.Zero(actualUser)
 	})
 
@@ -138,7 +149,18 @@ func (suite *PopQueryBuilderSuite) TestFetchMany() {
 		err := builder.FetchMany(&actualUsers, filter)
 
 		suite.Error(err)
-		suite.Equal("[fake_column] is not valid input", err.Error())
+		suite.Equal("[fake_column =] is not valid input", err.Error())
+		suite.Empty(actualUsers)
+	})
+
+	suite.T().Run("fails with invalid column", func(t *testing.T) {
+		var actualUsers models.OfficeUsers
+		filter := testQueryFilter{"id", "*", user.ID.String()}
+
+		err := builder.FetchMany(&actualUsers, filter)
+
+		suite.Error(err)
+		suite.Equal("[id *] is not valid input", err.Error())
 		suite.Empty(actualUsers)
 	})
 

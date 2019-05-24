@@ -49,11 +49,17 @@ func filteredQuery(query *pop.Query, filters []filter, t reflect.Type) (*pop.Que
 	for _, f := range filters {
 		column, ok := getDBColumn(t, f.Column())
 		if !ok {
-			invalidFields = append(invalidFields, f.Column())
+			invalidFields = append(
+				invalidFields,
+				fmt.Sprintf("%s %s", f.Column(), f.Comparator()),
+			)
 		}
 		comparator, ok := getComparator(f.Comparator())
 		if !ok {
-			invalidFields = append(invalidFields, f.Column())
+			invalidFields = append(
+				invalidFields,
+				fmt.Sprintf("%s %s", f.Column(), f.Comparator()),
+			)
 		}
 		columnQuery := fmt.Sprintf("%s %s ?", column, comparator)
 		query = query.Where(columnQuery, f.Value())
