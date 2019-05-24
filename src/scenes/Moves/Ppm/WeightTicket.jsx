@@ -17,7 +17,7 @@ import './PPMPaymentRequest.css';
 
 class WeightTicket extends Component {
   state = {
-    vehicleType: 'CAR',
+    vehicleType: '',
     additionalWeightTickets: 'Yes',
     missingEmptyWeightTicket: false,
     missingFullWeightTicket: false,
@@ -39,9 +39,9 @@ class WeightTicket extends Component {
     const { schema } = this.props;
     const nextBtnLabel = additionalWeightTickets === 'Yes' ? 'Save & Add Another' : 'Save & Continue';
     const uploadEmptyTicketLabel =
-      '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload upload empty weight ticket</span></span>';
+      '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload empty weight ticket</span></span>';
     const uploadFullTicketLabel =
-      '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload upload full weight ticket</span></span>';
+      '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload full weight ticket</span></span>';
     return (
       <Fragment>
         <WizardHeader
@@ -88,10 +88,12 @@ class WeightTicket extends Component {
                     onChange={this.handleCheckboxChange}
                     normalizeLabel
                   />
-                  <Alert type="warning">
-                    Contact your local Transportation Office (PPPO) to let them know you’re missing this weight ticket.
-                    For now, keep going and enter the info you do have.
-                  </Alert>
+                  {missingEmptyWeightTicket && (
+                    <Alert type="warning">
+                      Contact your local Transportation Office (PPPO) to let them know you’re missing this weight
+                      ticket. For now, keep going and enter the info you do have.
+                    </Alert>
+                  )}
                 </div>
               </div>
               <div className="usa-grid-full" style={{ marginTop: '1em' }}>
@@ -117,6 +119,12 @@ class WeightTicket extends Component {
                     onChange={this.handleCheckboxChange}
                     normalizeLabel
                   />
+                  {missingFullWeightTicket && (
+                    <Alert type="warning">
+                      Contact your local Transportation Office (PPPO) to let them know you’re missing this weight
+                      ticket. For now, keep going and enter the info you do have.
+                    </Alert>
+                  )}
                 </div>
               </div>
 
