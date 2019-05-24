@@ -29,6 +29,24 @@ func TestUserSuite(t *testing.T) {
 	suite.Run(t, hs)
 }
 
+type testQueryFilter struct {
+	column     string
+	comparator string
+	value      string
+}
+
+func (f testQueryFilter) Column() string {
+	return f.column
+}
+
+func (f testQueryFilter) Comparator() string {
+	return f.comparator
+}
+
+func (f testQueryFilter) Value() string {
+	return f.value
+}
+
 func (suite *PopQueryBuilderSuite) TestFetchOne() {
 	user := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	builder := NewPopQueryBuilder(suite.DB())
@@ -37,7 +55,7 @@ func (suite *PopQueryBuilderSuite) TestFetchOne() {
 	suite.T().Run("fetches one with filter", func(t *testing.T) {
 		// create extra record to make sure we filter
 		user2 := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		filter := builder.EqualsUUID("id", user.ID)
+		filter := testQueryFilter{"id", equals, user.ID.String()}
 
 		err := builder.FetchOne(&actualUser, filter)
 
@@ -45,7 +63,7 @@ func (suite *PopQueryBuilderSuite) TestFetchOne() {
 		suite.Equal(user.ID, actualUser.ID)
 
 		// do the reverse to make sure we don't get the same record every time
-		filter = builder.EqualsUUID("id", user2.ID)
+		filter = testQueryFilter{"id", equals, user2.ID.String()}
 
 		err = builder.FetchOne(&actualUser, filter)
 
@@ -54,7 +72,7 @@ func (suite *PopQueryBuilderSuite) TestFetchOne() {
 	})
 
 	suite.T().Run("returns error on invalid column", func(t *testing.T) {
-		filter := builder.EqualsUUID("fake_column", user.ID)
+		filter := testQueryFilter{"fake_column", equals, user.ID.String()}
 		var actualUser models.OfficeUser
 
 		err := builder.FetchOne(&actualUser, filter)
@@ -94,7 +112,7 @@ func (suite *PopQueryBuilderSuite) TestFetchMany() {
 
 	suite.T().Run("fetches many with filter", func(t *testing.T) {
 		user2 := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		filter := builder.EqualsUUID("id", user2.ID)
+		filter := testQueryFilter{"id", equals, user2.ID.String()}
 
 		err := builder.FetchMany(&actualUsers, filter)
 
@@ -103,7 +121,7 @@ func (suite *PopQueryBuilderSuite) TestFetchMany() {
 		suite.Equal(user2.ID, actualUsers[0].ID)
 
 		// do the reverse to make sure we don't get the same record every time
-		filter = builder.EqualsUUID("id", user.ID)
+		filter = testQueryFilter{"id", equals, user.ID.String()}
 		var actualUsers models.OfficeUsers
 
 		err = builder.FetchMany(&actualUsers, filter)
@@ -115,7 +133,7 @@ func (suite *PopQueryBuilderSuite) TestFetchMany() {
 
 	suite.T().Run("fails with invalid column", func(t *testing.T) {
 		var actualUsers models.OfficeUsers
-		filter := builder.EqualsUUID("fake_column", user.ID)
+		filter := testQueryFilter{"fake_column", equals, user.ID.String()}
 
 		err := builder.FetchMany(&actualUsers, filter)
 

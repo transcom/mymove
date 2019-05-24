@@ -6,7 +6,7 @@ import (
 )
 
 type officeUserQueryBuilder interface {
-	FetchOne(model interface{}, fitlers map[string]interface{}) error
+	FetchOne(model interface{}, fitlers []services.QueryFilter) error
 }
 
 type officeUserFetcher struct {
@@ -14,7 +14,7 @@ type officeUserFetcher struct {
 }
 
 // FetchOfficeUser fetches an office user for the given a slice of filters
-func (o officeUserFetcher) FetchOfficeUser(filters map[string]interface{}) (models.OfficeUser, error) {
+func (o officeUserFetcher) FetchOfficeUser(filters []services.QueryFilter) (models.OfficeUser, error) {
 	var officeUser models.OfficeUser
 	error := o.builder.FetchOne(&officeUser, filters)
 	return officeUser, error

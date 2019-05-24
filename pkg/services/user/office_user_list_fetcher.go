@@ -6,7 +6,7 @@ import (
 )
 
 type officeUserListQueryBuilder interface {
-	FetchMany(model interface{}, fitlers map[string]interface{}) error
+	FetchMany(model interface{}, fitlers []services.QueryFilter) error
 }
 
 type officeUserListFetcher struct {
@@ -14,7 +14,7 @@ type officeUserListFetcher struct {
 }
 
 // FetchOfficeUserList is uses the passed query builder to fetch a list of office users
-func (o officeUserListFetcher) FetchOfficeUserList(filters map[string]interface{}) (models.OfficeUsers, error) {
+func (o officeUserListFetcher) FetchOfficeUserList(filters []services.QueryFilter) (models.OfficeUsers, error) {
 	var officeUsers models.OfficeUsers
 	error := o.builder.FetchMany(&officeUsers, filters)
 	return officeUsers, error

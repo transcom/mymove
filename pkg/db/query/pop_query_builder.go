@@ -6,9 +6,9 @@ import (
 	"reflect"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gofrs/uuid"
 )
 
+// allowed comparators for this query builder implementation
 const equals = "="
 
 // PopQueryBuilder is a wrapper aroudn pop
@@ -116,39 +116,9 @@ func (p *PopQueryBuilder) FetchMany(model interface{}, filters ...filter) error 
 	return query.All(model)
 }
 
-// EqualsUUID creates a PopFilter based on the given column and UUID
-func (p *PopQueryBuilder) EqualsUUID(column string, value uuid.UUID) PopFilter {
-	return PopFilter{
-		column:     column,
-		comparator: equals,
-		value:      value.String(),
-	}
-}
-
+// Interface to allow passing a list of query filters
 type filter interface {
 	Column() string
 	Comparator() string
 	Value() string
-}
-
-// PopFilter is a filter used by the pop query builder
-type PopFilter struct {
-	column     string
-	comparator string
-	value      string
-}
-
-// Column returns the filter's column as a string
-func (f PopFilter) Column() string {
-	return f.column
-}
-
-// Comparator returns the filter's comparator as a string
-func (f PopFilter) Comparator() string {
-	return f.comparator
-}
-
-// Value returns the filter's value as a string
-func (f PopFilter) Value() string {
-	return f.value
 }

@@ -8,13 +8,15 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 type testOfficeUserQueryBuilder struct {
 	fakeFetchOne func(model interface{}) error
 }
 
-func (t *testOfficeUserQueryBuilder) FetchOne(model interface{}, filters map[string]interface{}) error {
+func (t *testOfficeUserQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
 	m := t.fakeFetchOne(model)
 	return m
 }
@@ -32,8 +34,9 @@ func (suite *UserServiceSuite) TestFetchOfficeUser() {
 			fakeFetchOne: fakeFetchOne,
 		}
 		fetcher := NewOfficeUserFetcher(builder)
+		filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 
-		officeUser, err := fetcher.FetchOfficeUser(map[string]interface{}{"id": id})
+		officeUser, err := fetcher.FetchOfficeUser(filters)
 
 		suite.NoError(err)
 		suite.Equal(id, officeUser.ID)
@@ -48,7 +51,7 @@ func (suite *UserServiceSuite) TestFetchOfficeUser() {
 		}
 		fetcher := NewOfficeUserFetcher(builder)
 
-		officeUser, err := fetcher.FetchOfficeUser(map[string]interface{}{"id": 1})
+		officeUser, err := fetcher.FetchOfficeUser([]services.QueryFilter{})
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")

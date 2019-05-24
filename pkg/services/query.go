@@ -1,0 +1,13 @@
+package services
+
+// QueryFilter is an interface to allow passing filter values into query interfaces
+// Ex `FetchMany` takes a list of filters
+type QueryFilter interface {
+	Column() string
+	Comparator() string
+	Value() string
+}
+
+// NewQueryFilter is a function type definition for building a QueryFilter
+// Should allow handlers to parse query params into QueryFilters for services
+type NewQueryFilter func(column string, comparator string, value string) QueryFilter
