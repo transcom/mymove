@@ -15,7 +15,7 @@ describe('TSP user interacts with storage in transit panel', function() {
     tspUserEditsSitRequest();
   });
   it('TSP user starts and then cancels then completes Place into SIT form', function() {
-    tspUserGoesToAcceptedSIT();
+    tspUserGoesToApprovedSit();
     tspUserStartsAndCancelsSitPlaceInSit();
     tspUserEntersInvalidActualStartDate();
     tspUserSubmitsPlaceInSit();
@@ -68,6 +68,13 @@ function tspUserCreatesSitRequest() {
 
   // fill out and submit the form
   fillAndSaveStorageInTransit();
+
+  // Verify action links
+  cy
+    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
+    .contains('Edit')
+    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-delete-link]')
+    .contains('Delete');
 }
 
 function tspUserStartsAndCancelsSitRequest() {
@@ -127,15 +134,15 @@ function tspUserEditsSitRequest() {
 
   // click edit
   cy
-    .get('.sit-edit a')
+    .get('[data-cy="sit-edit-link"]')
     .first()
     .click();
 
   editAndSaveStorageInTransit();
 }
 
-function tspUserGoesToAcceptedSIT() {
-  // Open accepted shipments queue
+function tspUserGoesToApprovedSit() {
+  // Open in_transit shipments queue
   cy.patientVisit('/queues/in_transit');
 
   // Open new shipments queue
@@ -152,9 +159,13 @@ function tspUserGoesToAcceptedSIT() {
 }
 
 function tspUserStartsAndCancelsSitPlaceInSit() {
-  // User starts from Accepted SIT
+  // User starts from Approved SIT
+
+  // Verify action links
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-delete-link]').contains('Delete');
+
   cy
-    .get('[data-cy=storage-in-transit-panel] [data-cy=place-in-sit-link]')
+    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-place-into-sit-link]')
     .contains('Place into SIT')
     .click();
 
@@ -163,7 +174,7 @@ function tspUserStartsAndCancelsSitPlaceInSit() {
     .get('[data-cy=place-into-sit-cancel]')
     .contains('Cancel')
     .click()
-    .get('[data-cy=storage-in-transit-panel] [data-cy=place-in-sit-link]')
+    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-place-into-sit-link]')
     .should($div => {
       const text = $div.text();
       expect(text).to.not.include('Actual start date');
@@ -171,9 +182,9 @@ function tspUserStartsAndCancelsSitPlaceInSit() {
 }
 
 function tspUserEntersInvalidActualStartDate() {
-  // User starts from Accepted SIT
+  // User starts from Approved SIT
   cy
-    .get('[data-cy=storage-in-transit-panel] [data-cy=place-in-sit-link]')
+    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-place-into-sit-link]')
     .contains('Place into SIT')
     .click();
 
@@ -206,9 +217,9 @@ function tspUserEntersInvalidActualStartDate() {
 }
 
 function tspUserSubmitsPlaceInSit() {
-  // User starts from Accepted SIT
+  // User starts from Approved SIT
   cy
-    .get('[data-cy=storage-in-transit-panel] [data-cy=place-in-sit-link]')
+    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-place-into-sit-link]')
     .contains('Place into SIT')
     .click();
 
@@ -235,6 +246,13 @@ function tspUserSubmitsPlaceInSit() {
       expect(text).to.include('Days used');
       expect(text).to.include('Expires');
     });
+
+  // Verify action links
+  cy
+    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
+    .contains('Edit')
+    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-delete-link]')
+    .contains('Delete');
 }
 
 function tspUserEntitlementRemainingDays() {
@@ -242,7 +260,7 @@ function tspUserEntitlementRemainingDays() {
   let now = new Date(Date.UTC(2019, 3, 10)).getTime(); // 4/10/2019
   cy.clock(now);
 
-  tspUserGoesToAcceptedSIT();
+  tspUserGoesToApprovedSit();
 
   cy
     .get('[data-cy=storage-in-transit-panel]')
@@ -262,7 +280,7 @@ function tspUserEntitlementRemainingDaysExpired() {
   let now = new Date(Date.UTC(2019, 6, 10)).getTime(); // 7/10/2019
   cy.clock(now);
 
-  tspUserGoesToAcceptedSIT();
+  tspUserGoesToApprovedSit();
 
   cy
     .get('[data-cy=storage-in-transit-panel]')
@@ -276,3 +294,5 @@ function tspUserEntitlementRemainingDaysExpired() {
     .get('[data-cy=storage-in-transit] [data-cy=sit-expires]')
     .contains('28-Jun-2019');
 }
+
+// TODO: Need a test to look at denied SIT action links.

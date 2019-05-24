@@ -24,6 +24,7 @@ import { updateStorageInTransit } from 'shared/Entities/modules/storageInTransit
 import { isOfficeSite, isTspSite } from 'shared/constants';
 import SitStatusIcon from './SitStatusIcon';
 import { sitDaysUsed } from 'shared/StorageInTransit/calculator';
+import SitAction from 'shared/StorageInTransit/SitAction';
 
 export class StorageInTransit extends Component {
   constructor() {
@@ -34,6 +35,7 @@ export class StorageInTransit extends Component {
       showApproveForm: false,
       showDenyForm: false,
       showPlaceInSitForm: false,
+      showDeleteWarning: false,
       storageInTransit: {},
     };
   }
@@ -106,6 +108,14 @@ export class StorageInTransit extends Component {
     this.setState({ showPlaceInSitForm: false });
   };
 
+  openDeleteWarning = () => {
+    this.setState({ showDeleteWarning: true });
+  };
+
+  closeDeleteWarning = () => {
+    this.setState({ showDeleteWarning: false });
+  };
+
   onSubmit = updatePayload => {
     this.props.updateStorageInTransit(
       this.props.storageInTransit.shipment_id,
@@ -131,32 +141,15 @@ export class StorageInTransit extends Component {
       case 'REQUESTED':
         return (
           <Fragment>
-            <span className="sit-action">
-              <a onClick={this.openApproveForm}>
-                <FontAwesomeIcon className="icon" icon={faCheck} />
-                Approve
-              </a>
-            </span>
-            <span className="sit-action">
-              <a data-cy="deny-sit-link" onClick={this.openDenyForm}>
-                <FontAwesomeIcon className="icon" icon={faBan} />
-                Deny
-              </a>
-            </span>
+            <SitAction action="Approve" onClick={this.openApproveForm} icon={faCheck} />
+            <SitAction action="Deny" onClick={this.openDenyForm} icon={faBan} />
           </Fragment>
         );
       case 'APPROVED':
       case 'DENIED':
-        return (
-          <span className="sit-action sit-edit" data-cy="sit-edit-link">
-            <a onClick={this.openOfficeEditForm}>
-              <FontAwesomeIcon className="icon" icon={faPencil} />
-              Edit
-            </a>
-          </span>
-        );
-      // NOTE: No actions for IN_SIT, RELEASED, or DELIVERED statuses.
+        return <SitAction action="Edit" onClick={this.openOfficeEditForm} icon={faPencil} />;
       default:
+        // NOTE: No actions for IN_SIT, RELEASED, or DELIVERED statuses.
         return null;
     }
   }
@@ -168,87 +161,30 @@ export class StorageInTransit extends Component {
       case 'REQUESTED':
         return (
           <Fragment>
-            <span className="sit-action sit-edit" data-cy="sit-edit-link">
-              <a onClick={this.openTspEditForm}>
-                <FontAwesomeIcon className="icon" icon={faPencil} />
-                Edit
-              </a>
-            </span>
-            <span data-cy="sit-delete-link" className="sit-action sit-delete">
-              <a>
-                <FontAwesomeIcon className="icon" icon={faTimes} />
-                Delete
-              </a>
-            </span>
+            <SitAction action="Edit" onClick={this.openTspEditForm} icon={faPencil} />
+            <SitAction action="Delete" onClick={this.openDeleteWarning} icon={faTimes} />
           </Fragment>
         );
       case 'APPROVED':
         return (
           <Fragment>
-            <span className="sit-action place-in-sit">
-              <a data-cy="place-in-sit-link" onClick={this.openPlaceInSitForm}>
-                <FontAwesomeIcon className="icon" icon={faSignInAlt} />
-                Place into SIT
-              </a>
-            </span>
-            <span className="sit-action sit-delete">
-              <a data-cy="sit-delete-link">
-                <FontAwesomeIcon className="icon" icon={faTimes} />
-                Delete
-              </a>
-            </span>
+            <SitAction action="Place into SIT" onClick={this.openPlaceInSitForm} icon={faSignInAlt} />
+            <SitAction action="Delete" onClick={this.openDeleteWarning} icon={faTimes} />
           </Fragment>
         );
       case 'DENIED':
-        return (
-          <span className="sit-action sit-delete">
-            <a data-cy="sit-delete-link">
-              <FontAwesomeIcon className="icon" icon={faTimes} />
-              Delete
-            </a>
-          </span>
-        );
+        return <SitAction action="Delete" onClick={this.openDeleteWarning} icon={faTimes} />;
       case 'IN_SIT':
-        if (storageInTransit.location === 'ORIGIN') {
-          // TODO: Release from SIT
-          return (
-            <span data-cy="sit-edit-link" className="sit-action sit-edit">
-              <a onClick={this.openTspEditForm}>
-                <FontAwesomeIcon className="icon" icon={faPencil} />
-                Edit
-              </a>
-            </span>
-          );
-        } else if (storageInTransit.location === 'DESTINATION') {
-          return (
-            <Fragment>
-              <span data-cy="sit-edit-link" className="sit-action sit-edit">
-                <a onClick={this.openTspEditForm}>
-                  <FontAwesomeIcon className="icon" icon={faPencil} />
-                  Edit
-                </a>
-              </span>
-              <span data-cy="sit-delete-link" className="sit-action sit-delete">
-                <a>
-                  <FontAwesomeIcon className="icon" icon={faTimes} />
-                  Delete
-                </a>
-              </span>
-            </Fragment>
-          );
-        } else {
-          return null;
-        }
+        // TODO: Release from SIT only when storageInTransit.location === 'ORIGIN'
+        return (
+          <Fragment>
+            <SitAction action="Edit" onClick={this.openTspEditForm} icon={faPencil} />
+            <SitAction action="Delete" onClick={this.openDeleteWarning} icon={faTimes} />
+          </Fragment>
+        );
       case 'RELEASED':
       case 'DELIVERED':
-        return (
-          <span data-cy="sit-edit-link" className="sit-action sit-edit">
-            <a onClick={this.openTspEditForm}>
-              <FontAwesomeIcon className="icon" icon={faPencil} />
-              Edit
-            </a>
-          </span>
-        );
+        return <SitAction action="Edit" onClick={this.openTspEditForm} icon={faPencil} />;
       default:
         return null;
     }
