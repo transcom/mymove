@@ -1,3 +1,5 @@
+from urllib.parse import urljoin
+
 from locust import seq_task
 from bravado.client import SwaggerClient
 from bravado.requests_client import RequestsClient
@@ -34,7 +36,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
             # Don't validate requests or responses because we're using OpenAPI Spec 2.0 which doesn't respect
             # nullable sub-definitions
             self.swagger_internal = SwaggerClient.from_url(
-                "http://milmovelocal:8080/internal/swagger.yaml",
+                urljoin(self.parent.host, "internal/swagger.yaml"),
                 request_headers={'x-csrf-token': self.csrf},
                 http_client=self.requests_client,
                 config=get_swagger_config())
