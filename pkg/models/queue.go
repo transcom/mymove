@@ -52,6 +52,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 					ppm.submit_date
 				) as submitted_date,
 				moves.created_at as created_at,
+				moves.updated_at as last_modified_date,
 				moves.status as status,
 				ppm.status as ppm_status,
 				shipment.status as hhg_status,
