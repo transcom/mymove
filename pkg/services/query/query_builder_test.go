@@ -3,6 +3,7 @@ package query
 import (
 	"testing"
 
+	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -30,24 +31,6 @@ func TestUserSuite(t *testing.T) {
 	suite.Run(t, hs)
 }
 
-type testQueryFilter struct {
-	column     string
-	comparator string
-	value      string
-}
-
-func (f testQueryFilter) Column() string {
-	return f.column
-}
-
-func (f testQueryFilter) Comparator() string {
-	return f.comparator
-}
-
-func (f testQueryFilter) Value() string {
-	return f.value
-}
-
 func (suite *QueryBuilderSuite) TestFetchOne() {
 	user := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	builder := NewQueryBuilder(suite.DB())
@@ -57,7 +40,7 @@ func (suite *QueryBuilderSuite) TestFetchOne() {
 		// create extra record to make sure we filter
 		user2 := testdatagen.MakeDefaultOfficeUser(suite.DB())
 		filters := []services.QueryFilter{
-			testQueryFilter{"id", equals, user.ID.String()},
+			NewQueryFilter("id", equals, user.ID.String()),
 		}
 
 		err := builder.FetchOne(&actualUser, filters)
@@ -67,7 +50,7 @@ func (suite *QueryBuilderSuite) TestFetchOne() {
 
 		// do the reverse to make sure we don't get the same record every time
 		filters = []services.QueryFilter{
-			testQueryFilter{"id", equals, user2.ID.String()},
+			NewQueryFilter("id", equals, user2.ID.String()),
 		}
 
 		err = builder.FetchOne(&actualUser, filters)
@@ -78,7 +61,7 @@ func (suite *QueryBuilderSuite) TestFetchOne() {
 
 	suite.T().Run("returns error on invalid column", func(t *testing.T) {
 		filters := []services.QueryFilter{
-			testQueryFilter{"fake_column", equals, user.ID.String()},
+			NewQueryFilter("fake_column", equals, user.ID.String()),
 		}
 		var actualUser models.OfficeUser
 
@@ -91,7 +74,7 @@ func (suite *QueryBuilderSuite) TestFetchOne() {
 
 	suite.T().Run("returns error on invalid comparator", func(t *testing.T) {
 		filters := []services.QueryFilter{
-			testQueryFilter{"id", "*", user.ID.String()},
+			NewQueryFilter("id", "*", user.ID.String()),
 		}
 		var actualUser models.OfficeUser
 
@@ -127,13 +110,13 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 	// this should be stubbed out with a model that is agnostic to our code
 	// similar to how the pop repo tests might work
 	user := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	user2 := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	builder := NewQueryBuilder(suite.DB())
 	var actualUsers models.OfficeUsers
 
-	suite.T().Run("fetches many with filter", func(t *testing.T) {
-		user2 := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	suite.T().Run("fetches many with uuid filter", func(t *testing.T) {
 		filters := []services.QueryFilter{
-			testQueryFilter{"id", equals, user2.ID.String()},
+			NewQueryFilter("id", equals, user2.ID.String()),
 		}
 
 		err := builder.FetchMany(&actualUsers, filters)
@@ -144,7 +127,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 
 		// do the reverse to make sure we don't get the same record every time
 		filters = []services.QueryFilter{
-			testQueryFilter{"id", equals, user.ID.String()},
+			NewQueryFilter("id", equals, user.ID.String()),
 		}
 		var actualUsers models.OfficeUsers
 
@@ -155,10 +138,25 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		suite.Equal(user.ID, actualUsers[0].ID)
 	})
 
+	suite.T().Run("fetches many with time filter", func(t *testing.T) {
+		filters := []services.QueryFilter{
+			NewQueryFilter("created_at", greaterThan, user.CreatedAt),
+		}
+		var actualUsers models.OfficeUsers
+
+		pop.Debug = true
+		err := builder.FetchMany(&actualUsers, filters)
+		pop.Debug = false
+
+		suite.NoError(err)
+		suite.Len(actualUsers, 1)
+		suite.Equal(user2.ID, actualUsers[0].ID)
+	})
+
 	suite.T().Run("fails with invalid column", func(t *testing.T) {
 		var actualUsers models.OfficeUsers
 		filters := []services.QueryFilter{
-			testQueryFilter{"fake_column", equals, user.ID.String()},
+			NewQueryFilter("fake_column", equals, user.ID.String()),
 		}
 
 		err := builder.FetchMany(&actualUsers, filters)
@@ -171,7 +169,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 	suite.T().Run("fails with invalid column", func(t *testing.T) {
 		var actualUsers models.OfficeUsers
 		filters := []services.QueryFilter{
-			testQueryFilter{"id", "*", user.ID.String()},
+			NewQueryFilter("id", "*", user.ID.String()),
 		}
 
 		err := builder.FetchMany(&actualUsers, filters)

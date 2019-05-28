@@ -12,8 +12,9 @@ import (
 
 // allowed comparators for this query builder implementation
 const equals = "="
+const greaterThan = ">"
 
-// Builder is a wrapper aroudn pop
+// Builder is a wrapper around pop
 // with more flexible query patterns to MilMove
 type Builder struct {
 	db *pop.Connection
@@ -41,6 +42,8 @@ func getComparator(comparator string) (string, bool) {
 	switch comparator {
 	case equals:
 		return equals, true
+	case greaterThan:
+		return greaterThan, true
 	default:
 		return "", false
 	}

@@ -38,14 +38,16 @@ func (_m *QueryFilter) Comparator() string {
 }
 
 // Value provides a mock function with given fields:
-func (_m *QueryFilter) Value() string {
+func (_m *QueryFilter) Value() interface{} {
 	ret := _m.Called()
 
-	var r0 string
-	if rf, ok := ret.Get(0).(func() string); ok {
+	var r0 interface{}
+	if rf, ok := ret.Get(0).(func() interface{}); ok {
 		r0 = rf()
 	} else {
-		r0 = ret.Get(0).(string)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(interface{})
+		}
 	}
 
 	return r0

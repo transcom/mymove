@@ -5,9 +5,9 @@ package services
 type QueryFilter interface {
 	Column() string
 	Comparator() string
-	Value() string
+	Value() interface{}
 }
 
 // NewQueryFilter is a function type definition for building a QueryFilter
 // Should allow handlers to parse query params into QueryFilters for services
-type NewQueryFilter func(column string, comparator string, value string) QueryFilter
+type NewQueryFilter func(column string, comparator string, value interface{}) QueryFilter

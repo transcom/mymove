@@ -19,7 +19,7 @@ import (
 )
 
 func newMockQueryFilterBuilder(filter *mocks.QueryFilter) services.NewQueryFilter {
-	return func(column string, comparator string, value string) services.QueryFilter {
+	return func(column string, comparator string, value interface{}) services.QueryFilter {
 		return filter
 	}
 }

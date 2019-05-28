@@ -7,7 +7,7 @@ import "github.com/transcom/mymove/pkg/services"
 type queryFilter struct {
 	column     string
 	comparator string
-	value      string
+	value      interface{}
 }
 
 // Column returns the filter's column as a string
@@ -21,13 +21,13 @@ func (f queryFilter) Comparator() string {
 }
 
 // Value returns the filter's value as a string
-func (f queryFilter) Value() string {
+func (f queryFilter) Value() interface{} {
 	return f.value
 }
 
 // NewQueryFilter is a builder for query filters to be used by handlers
 // and talk to services that require query filters
-func NewQueryFilter(column string, comparator string, value string) services.QueryFilter {
+func NewQueryFilter(column string, comparator string, value interface{}) services.QueryFilter {
 	return queryFilter{
 		column,
 		comparator,
