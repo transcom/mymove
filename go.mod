@@ -38,7 +38,6 @@ require (
 	github.com/gobuffalo/x v0.0.0-20190224155809-6bb134105960 // indirect
 	github.com/godbus/dbus v0.0.0-20190422162347-ade71ed3457e // indirect
 	github.com/gofrs/uuid v3.2.0+incompatible
-	github.com/golangci/golangci-lint v1.16.0
 	github.com/gorilla/csrf v1.5.1
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/honeycombio/beeline-go v0.4.4
@@ -74,7 +73,6 @@ require (
 	go.uber.org/zap v1.10.0
 	goji.io v2.0.2+incompatible
 	golang.org/x/crypto v0.0.0-20190510104115-cbcb75029529
-	golang.org/x/lint v0.0.0-20190409202823-959b441ac422
 	golang.org/x/net v0.0.0-20190509222800-a4d6f7feada5
 	golang.org/x/oauth2 v0.0.0-20190402181905-9f3314589c9a // indirect
 	golang.org/x/text v0.3.2
