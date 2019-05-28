@@ -73,7 +73,6 @@ type testClient struct {
 	geoResponse       GeocodeResponseBody
 	routingStatusCode int
 	routingErr        error
-	routingResponse   RoutingResponseBody
 }
 
 func (t *testClient) Get(getURL string) (*http.Response, error) {
