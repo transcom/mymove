@@ -46,16 +46,6 @@ func newSuccessfulGeocodeResponseBody() GeocodeResponseBody {
 	}
 }
 
-func newSuccessfulRoutingResponseBody(distance int) RoutingResponseBody {
-	return RoutingResponseBody{
-		RoutingResponse{
-			[]HereRoute{
-				{HereRouteSummary{distance}},
-			},
-		},
-	}
-}
-
 // Tests that do hit the HERE API
 type HereFullSuite struct {
 	PlannerFullSuite

@@ -23,9 +23,9 @@ linters:
      - varcheck
      - typecheck
      - structcheck
+     - deadcode
   disable:
     - unused #deprecated https://github.com/dominikh/go-tools/tree/master/cmd/unused
-    - deadcode
     - errcheck #requires patching code
     - gosimple
     - ineffassign
