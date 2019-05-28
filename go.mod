@@ -38,6 +38,7 @@ require (
 	github.com/gobuffalo/x v0.0.0-20190224155809-6bb134105960 // indirect
 	github.com/godbus/dbus v0.0.0-20190422162347-ade71ed3457e // indirect
 	github.com/gofrs/uuid v3.2.0+incompatible
+	github.com/golangci/golangci-lint v1.16.0
 	github.com/gorilla/csrf v1.5.1
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/honeycombio/beeline-go v0.4.4
