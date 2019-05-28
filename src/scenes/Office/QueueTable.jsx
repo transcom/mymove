@@ -217,6 +217,13 @@ class QueueTable extends Component {
                 Header: 'Last modified',
                 accessor: 'last_modified_date',
                 Cell: row => <span className="updated_at">{formatDateTimeWithTZ(row.value)}</span>,
+                show: this.props.queueType !== 'new',
+              },
+              {
+                Header: 'Submitted',
+                accessor: 'submitted_date',
+                Cell: row => <span className="submitted_date">{formatDateTimeWithTZ(row.value)}</span>,
+                show: this.props.queueType === 'new',
               },
             ]}
             data={this.state.data}
