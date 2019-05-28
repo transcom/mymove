@@ -22,8 +22,8 @@ type ValidateAccessCodeHandler struct {
 	accessCodeValidator services.AccessCodeValidator
 }
 
-func payloadForAccessCodeModel(accessCode models.AccessCode) *apimessages.AccessCodePayload {
-	payload := &apimessages.AccessCodePayload{
+func payloadForAccessCodeModel(accessCode models.AccessCode) *apimessages.AccessCode {
+	payload := &apimessages.AccessCode{
 		ID:        handlers.FmtUUID(accessCode.ID),
 		Code:      handlers.FmtStringPtr(&accessCode.Code),
 		MoveType:  handlers.FmtString(accessCode.MoveType.String()),
@@ -53,17 +53,17 @@ func (h ValidateAccessCodeHandler) Handle(params accesscodeop.ValidateAccessCode
 	moveType, code := splitParams[0], splitParams[1]
 
 	accessCode, valid, _ := h.accessCodeValidator.ValidateAccessCode(code, models.SelectedMoveType(moveType))
-	var validateAccessCodePayload *apimessages.ValidateAccessCodePayload
+	var validateAccessCodePayload *apimessages.ValidateAccessCode
 
 	if !valid {
 		h.Logger().Warn("Access code not valid")
-		validateAccessCodePayload = &apimessages.ValidateAccessCodePayload{
+		validateAccessCodePayload = &apimessages.ValidateAccessCode{
 			Valid: &valid,
 		}
 	}
 
 	accessCodePayload := payloadForAccessCodeModel(*accessCode)
-	validateAccessCodePayload = &apimessages.ValidateAccessCodePayload{
+	validateAccessCodePayload = &apimessages.ValidateAccessCode{
 		Valid:      &valid,
 		AccessCode: accessCodePayload,
 	}
