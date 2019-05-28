@@ -21,6 +21,7 @@ linters:
      - goimports
      - govet
      - varcheck
+     - typecheck
   disable:
     - unused #deprecated https://github.com/dominikh/go-tools/tree/master/cmd/unused
     - deadcode
@@ -29,7 +30,6 @@ linters:
     - ineffassign
     - staticcheck
     - structcheck
-    - typecheck
 issues:
   exclude-rules:
     # skip analyzing dutystationsloader until repeated tags from embedded types are fixed https://github.com/golang/go/issues/30846
