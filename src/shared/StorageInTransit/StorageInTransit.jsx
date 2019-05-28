@@ -231,7 +231,7 @@ export class StorageInTransit extends Component {
                 <span className="release-from-sit">
                   <a data-cy="release-from-sit-link" onClick={this.openReleaseFromSitForm}>
                     <FontAwesomeIcon className="icon" icon={faSignOutAlt} />
-                    Release From SIT
+                    Release from SIT
                   </a>
                 </span>
               </span>

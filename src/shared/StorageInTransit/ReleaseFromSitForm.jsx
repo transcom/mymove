@@ -39,6 +39,7 @@ export class ReleaseFromSitForm extends Component {
 ReleaseFromSitForm.propTypes = {
   storageInTransitSchema: PropTypes.object.isRequired,
   onSubmit: PropTypes.func.isRequired,
+  minDate: PropTypes.instanceOf(Date).isRequired,
 };
 
 export const formName = 'release_from_sit_form';
@@ -50,7 +51,6 @@ ReleaseFromSitForm = reduxForm({
 
 function mapStateToProps(state) {
   return {
-    //storageInTransitSchema: get(state, 'swaggerPublic.spec.definitions.StorageInTransit', {}), //out_date
     storageInTransitSchema: get(state, 'swaggerPublic.spec.definitions.StorageInTransitReleasePayload', {}), //released_on
   };
 }

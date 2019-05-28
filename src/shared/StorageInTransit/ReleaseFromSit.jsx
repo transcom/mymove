@@ -44,12 +44,7 @@ export class ReleaseFromSit extends Component {
     return (
       <div className="storage-in-transit-panel-modal">
         <div className="title">Release shipment from SIT</div>
-        <ReleaseFromSitForm
-          initialValues={this.state.storageInTransit}
-          minDate={this.state.storageInTransit.actual_start_date}
-          onSubmit={this.onSubmit}
-          closeForm={this.closeForm}
-        />
+        <ReleaseFromSitForm minDate={this.state.storageInTransit.actual_start_date} onSubmit={this.onSubmit} />
 
         <div className="usa-grid-full align-center-vertical">
           <div className="usa-width-one-half">
@@ -79,6 +74,7 @@ ReleaseFromSit.propTypes = {
   sit: PropTypes.object.isRequired,
   formEnabled: PropTypes.bool.isRequired,
   updateSitReleaseFromSit: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {

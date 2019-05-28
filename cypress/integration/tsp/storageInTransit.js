@@ -316,12 +316,12 @@ function tspUserSubmitsReleaseSit() {
   cy
     .get('[data-cy=release-from-sit-cancel]')
     .contains('Cancel')
-    .click()
-    .get('[data-cy=storage-in-transit-panel] [data-cy=release-from-sit-link]')
-    .should($div => {
-      const text = $div.text();
-      expect(text).to.not.include('Date out');
-    });
+    .click();
+
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=release-from-sit-link]').should($div => {
+    const text = $div.text();
+    expect(text).to.not.include('Date out');
+  });
 
   // click release shipment link
   cy
@@ -340,20 +340,20 @@ function tspUserSubmitsReleaseSit() {
   cy
     .get('[data-cy=release-from-sit-button]')
     .contains('Done')
-    .click()
-    .get('[data-cy=storage-in-transit-panel]')
-    .should($div => {
-      const text = $div.text();
-      expect(text).to.include('Origin SIT');
-      expect(text).to.include('Released');
-      expect(text).to.include('Entitlement: 90 days');
-      expect(text).to.include('Actual start date');
-      expect(text).to.include('SIT Number');
-      expect(text).to.include('Days used');
-      expect(text).to.include('Expires');
-      expect(text).to.include('Date out');
-      expect(text).to.include('26-May-2019');
-    });
+    .click();
+
+  cy.get('[data-cy=storage-in-transit-panel]').should($div => {
+    const text = $div.text();
+    expect(text).to.include('Origin SIT');
+    expect(text).to.include('Released');
+    expect(text).to.include('Entitlement: 90 days');
+    expect(text).to.include('Actual start date');
+    expect(text).to.include('SIT Number');
+    expect(text).to.include('Days used');
+    expect(text).to.include('Expires');
+    expect(text).to.include('Date out');
+    expect(text).to.include('26-May-2019');
+  });
 
   // DISIT1 - Origin SIT added after Shipment is Delivered
 
@@ -390,20 +390,20 @@ function tspUserSubmitsReleaseSit() {
   cy
     .get('[data-cy=release-from-sit-button]')
     .contains('Done')
-    .click()
-    .get('[data-cy=storage-in-transit-panel]')
-    .should($div => {
-      const text = $div.text();
-      expect(text).to.include('Origin SIT');
-      expect(text).to.include('Released');
-      expect(text).to.include('Entitlement: 90 days');
-      expect(text).to.include('Actual start date');
-      expect(text).to.include('SIT Number');
-      expect(text).to.include('Days used');
-      expect(text).to.include('Expires');
-      expect(text).to.include('Date out');
-      expect(text).to.include('26-May-2019');
-    });
+    .click();
+
+  cy.get('[data-cy=storage-in-transit-panel]').should($div => {
+    const text = $div.text();
+    expect(text).to.include('Origin SIT');
+    expect(text).to.include('Released');
+    expect(text).to.include('Entitlement: 90 days');
+    expect(text).to.include('Actual start date');
+    expect(text).to.include('SIT Number');
+    expect(text).to.include('Days used');
+    expect(text).to.include('Expires');
+    expect(text).to.include('Date out');
+    expect(text).to.include('26-May-2019');
+  });
 
   // DISIT2 - Origin SIT added to Shipment in Transit and then Shipment is Delivered
 
@@ -440,18 +440,18 @@ function tspUserSubmitsReleaseSit() {
   cy
     .get('[data-cy=release-from-sit-button]')
     .contains('Done')
-    .click()
-    .get('[data-cy=storage-in-transit-panel]')
-    .should($div => {
-      const text = $div.text();
-      expect(text).to.include('Origin SIT');
-      expect(text).to.include('Released');
-      expect(text).to.include('Entitlement: 90 days');
-      expect(text).to.include('Actual start date');
-      expect(text).to.include('SIT Number');
-      expect(text).to.include('Days used');
-      expect(text).to.include('Expires');
-      expect(text).to.include('Date out');
-      expect(text).to.include('26-May-2019');
-    });
+    .click();
+
+  cy.get('[data-cy=storage-in-transit-panel]').should($div => {
+    const text = $div.text();
+    expect(text).to.include('Origin SIT');
+    expect(text).to.include('Released');
+    expect(text).to.include('Entitlement: 90 days');
+    expect(text).to.include('Actual start date');
+    expect(text).to.include('SIT Number');
+    expect(text).to.include('Days used');
+    expect(text).to.include('Expires');
+    expect(text).to.include('Date out');
+    expect(text).to.include('26-May-2019');
+  });
 }

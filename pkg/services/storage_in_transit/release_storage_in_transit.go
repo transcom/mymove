@@ -43,7 +43,7 @@ func (r *releaseStorageInTransit) ReleaseStorageInTransit(payload apimessages.St
 	}
 
 	// Make sure this is a SIT at origin
-	if !(storageInTransit.Location == models.StorageInTransitLocationORIGIN) {
+	if storageInTransit.Location != models.StorageInTransitLocationORIGIN {
 		return nil, returnVerrs, models.ErrInvalidTransition
 	}
 
