@@ -37,66 +37,6 @@ class Queues extends Component {
   }
 }
 
-function DivTag() {
-  return (
-    <ConnectedRouter history={history}>
-      <div className="TSP site">
-        <TspHeader />
-        <div role="main" className="site__content">
-          <MainContent />
-        </div>
-      </div>
-    </ConnectedRouter>
-  );
-}
-
-function MainTag() {
-  return (
-    <ConnectedRouter history={history}>
-      <div className="TSP site">
-        <TspHeader />
-        <main className="site__content">
-          <MainContent />
-        </main>
-      </div>
-    </ConnectedRouter>
-  );
-}
-
-function MainContent() {
-  return (
-    <div>
-      <LogoutOnInactivity />
-      <Switch>
-        <Route
-          exact
-          path="/"
-          component={({ location }) => (
-            <Redirect
-              from="/"
-              to={{
-                ...location,
-                pathname: '/queues/new',
-              }}
-            />
-          )}
-        />
-        <PrivateRoute path="/shipments/:shipmentId/documents/new" component={NewDocument} />
-        <PrivateRoute path="/shipments/:shipmentId/documents/:moveDocumentId" component={DocumentViewer} />
-        <PrivateRoute path="/shipments/:shipmentId" component={ShipmentInfo} />
-        {/* Be specific about available routes by listing them */}
-        <PrivateRoute
-          path="/queues/:queueType(new|accepted|approved|in_transit|delivered|completed|all)"
-          component={Queues}
-        />
-        {!isProduction && <PrivateRoute path="/playground" component={ScratchPad} />}
-        {/* TODO: cgilmer (2018/07/31) Need a NotFound component to route to */}
-        <Redirect from="*" to="/queues/new" component={Queues} />
-      </Switch>
-    </div>
-  );
-}
-
 class TspWrapper extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: TSP';
@@ -105,16 +45,45 @@ class TspWrapper extends Component {
   }
 
   render() {
-    // Internet Explorer detection.
-    let isIE = detectIE11();
-
-    // If we detect IE we'll make use of a component that uses <div role="main"> instead of <main>
-    // so that we're compatible with IE11. Otherwise we'll do the normal <main>.
-    if (isIE) {
-      return <DivTag />;
-    } else {
-      return <MainTag />;
-    }
+    const Tag = detectIE11() ? 'div' : 'main';
+    return (
+      <ConnectedRouter history={history}>
+        <div className="TSP site">
+          <TspHeader />
+          <Tag role="main" className="site__content">
+            <div>
+              <LogoutOnInactivity />
+              <Switch>
+                <Route
+                  exact
+                  path="/"
+                  component={({ location }) => (
+                    <Redirect
+                      from="/"
+                      to={{
+                        ...location,
+                        pathname: '/queues/new',
+                      }}
+                    />
+                  )}
+                />
+                <PrivateRoute path="/shipments/:shipmentId/documents/new" component={NewDocument} />
+                <PrivateRoute path="/shipments/:shipmentId/documents/:moveDocumentId" component={DocumentViewer} />
+                <PrivateRoute path="/shipments/:shipmentId" component={ShipmentInfo} />
+                {/* Be specific about available routes by listing them */}
+                <PrivateRoute
+                  path="/queues/:queueType(new|accepted|approved|in_transit|delivered|completed|all)"
+                  component={Queues}
+                />
+                {!isProduction && <PrivateRoute path="/playground" component={ScratchPad} />}
+                {/* TODO: cgilmer (2018/07/31) Need a NotFound component to route to */}
+                <Redirect from="*" to="/queues/new" component={Queues} />
+              </Switch>
+            </div>
+          </Tag>
+        </div>
+      </ConnectedRouter>
+    );
   }
 }
 

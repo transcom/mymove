@@ -38,60 +38,6 @@ class Queues extends Component {
   }
 }
 
-function DivTag() {
-  return (
-    <ConnectedRouter history={history}>
-      <div className="Office site">
-        <QueueHeader />
-        <div role="main" className="site__content">
-          <MainContent />
-        </div>
-      </div>
-    </ConnectedRouter>
-  );
-}
-
-function MainTag() {
-  return (
-    <ConnectedRouter history={history}>
-      <div className="Office site">
-        <QueueHeader />
-        <main className="site__content">
-          <MainContent />
-        </main>
-      </div>
-    </ConnectedRouter>
-  );
-}
-
-function MainContent() {
-  return (
-    <div>
-      <LogoutOnInactivity />
-      <Switch>
-        <Route
-          exact
-          path="/"
-          component={({ location }) => (
-            <Redirect
-              from="/"
-              to={{
-                ...location,
-                pathname: '/queues/new',
-              }}
-            />
-          )}
-        />
-        <PrivateRoute path="/queues/:queueType/moves/:moveId" component={MoveInfo} />
-        <PrivateRoute path="/queues/:queueType" component={Queues} />
-        <PrivateRoute path="/moves/:moveId/orders" component={OrdersInfo} />
-        <PrivateRoute path="/moves/:moveId/documents/:moveDocumentId?" component={DocumentViewer} />
-        {!isProduction && <PrivateRoute path="/playground" component={ScratchPad} />}
-      </Switch>
-    </div>
-  );
-}
-
 class OfficeWrapper extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Office';
@@ -101,14 +47,39 @@ class OfficeWrapper extends Component {
   }
 
   render() {
-    let isIE = detectIE11();
-    // If we detect IE we'll make use of a component that uses <div role="main"> instead of <main>
-    // so that we're compatible with IE11. Otherwise we'll do the normal <main>.
-    if (isIE) {
-      return <DivTag />;
-    } else {
-      return <MainTag />;
-    }
+    const Tag = detectIE11() ? 'div' : 'main';
+    return (
+      <ConnectedRouter history={history}>
+        <div className="Office site">
+          <QueueHeader />
+          <Tag role="main" className="site__content">
+            <div>
+              <LogoutOnInactivity />
+              <Switch>
+                <Route
+                  exact
+                  path="/"
+                  component={({ location }) => (
+                    <Redirect
+                      from="/"
+                      to={{
+                        ...location,
+                        pathname: '/queues/new',
+                      }}
+                    />
+                  )}
+                />
+                <PrivateRoute path="/queues/:queueType/moves/:moveId" component={MoveInfo} />
+                <PrivateRoute path="/queues/:queueType" component={Queues} />
+                <PrivateRoute path="/moves/:moveId/orders" component={OrdersInfo} />
+                <PrivateRoute path="/moves/:moveId/documents/:moveDocumentId?" component={DocumentViewer} />
+                {!isProduction && <PrivateRoute path="/playground" component={ScratchPad} />}
+              </Switch>
+            </div>
+          </Tag>
+        </div>
+      </ConnectedRouter>
+    );
   }
 }
 
