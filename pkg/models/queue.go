@@ -25,7 +25,6 @@ type MoveQueueItem struct {
 	MoveDate         *time.Time                          `json:"move_date" db:"move_date"`
 	SubmittedDate    *time.Time                          `json:"submitted_date" db:"submitted_date"`
 	LastModifiedDate time.Time                           `json:"last_modified_date" db:"last_modified_date"`
-	LastModifiedName string                              `json:"last_modified_name" db:"last_modified_name"`
 }
 
 // GetMoveQueueItems gets all moveQueueItems for a specific lifecycleState

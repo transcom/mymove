@@ -28,7 +28,6 @@ func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessag
 		MoveDate:         handlers.FmtDatePtr(MoveQueueItem.MoveDate),
 		SubmittedDate:    handlers.FmtDatePtr(MoveQueueItem.SubmittedDate),
 		LastModifiedDate: handlers.FmtDateTime(MoveQueueItem.LastModifiedDate),
-		LastModifiedName: swag.String(MoveQueueItem.LastModifiedName),
 	}
 	return &MoveQueueItemPayload
 }
