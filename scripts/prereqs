@@ -23,6 +23,7 @@ has shellcheck "brew install shellcheck"
 has docker "Get Docker CE for Mac from https://download.docker.com/mac/stable/Docker.dmg"
 has psql "brew install postgresql"
 has go-bindata "brew install go-bindata"
+has node "brew install node"
 
 # macOS only
 if [[ $(uname -s) = Darwin ]]; then
@@ -37,7 +38,6 @@ if [[ -z ${CIRCLECI-} ]]; then
     has circleci "brew install circleci"
 fi
 
-has node "test"
 
 if [[ $prereqs_found == "true" ]]; then
     echo "OK: all prereqs found"

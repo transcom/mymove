@@ -11,14 +11,242 @@ consumes:
   - application/json
 produces:
   - application/json
+definitions:
+  OfficeUser:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      first_name:
+        type: string
+      last_name:
+        type: string
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+      transportation_office:
+        $ref: '#/definitions/TransportationOffice'
+  OfficeUsers:
+    type: array
+    items:
+      $ref: '#/definitions/OfficeUser'
+  TransportationOffice:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        name:
+          type: string
+          example: Fort Bragg North Station
+        address:
+          $ref: '#/definitions/Address'
+        phone_lines:
+          type: array
+          items:
+            type: string
+            format: telephone
+            pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+            example: 212-555-5555
+        gbloc:
+          type: string
+          pattern: '^[A-Z]{4}$'
+          example: JENQ
+        latitude:
+          type: number
+          format: float
+          example: 29.382973
+        longitude:
+          type: number
+          format: float
+          example: -98.62759
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - address
+        - created_at
+        - updated_at
+  Address:
+    type: object
+    properties:
+      street_address_1:
+        type: string
+        example: 123 Main Ave
+        title: Address line 1
+      street_address_2:
+        type: string
+        example: Apartment 9000
+        x-nullable: true
+        title: Address line 2
+      street_address_3:
+        type: string
+        example: Montmârtre
+        x-nullable: true
+        title: Address line 3
+      city:
+        type: string
+        example: Anytown
+        title: City
+      state:
+        title: State
+        type: string
+        x-display-value:
+          AL: AL
+          AK: AK
+          AR: AR
+          AZ: AZ
+          CA: CA
+          CO: CO
+          CT: CT
+          DC: DC
+          DE: DE
+          FL: FL
+          GA: GA
+          HI: HI
+          IA: IA
+          ID: ID
+          IL: IL
+          IN: IN
+          KS: KS
+          KY: KY
+          LA: LA
+          MA: MA
+          MD: MD
+          ME: ME
+          MI: MI
+          MN: MN
+          MO: MO
+          MS: MS
+          MT: MT
+          NC: NC
+          ND: ND
+          NE: NE
+          NH: NH
+          NJ: NJ
+          NM: NM
+          NV: NV
+          NY: NY
+          OH: OH
+          OK: OK
+          OR: OR
+          PA: PA
+          RI: RI
+          SC: SC
+          SD: SD
+          TN: TN
+          TX: TX
+          UT: UT
+          VA: VA
+          VT: VT
+          WA: WA
+          WI: WI
+          WV: WV
+          WY: WY
+        enum:
+          - AL
+          - AK
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+      postal_code:
+        type: string
+        description: zip code, international allowed
+        format: zip
+        title: ZIP
+        example: "'90210' or 'N15 3NL'"
+      country:
+        type: string
+        title: Country
+        x-nullable: true
+        example: 'USA'
+        default: USA
+    required:
+      - street_address_1
+      - state
+      - city
+      - postal_code
 paths:
-  /placeholder:
+  /office_users:
     get:
-      summary: Placeholder until we get real endpoints
-      description: Just a placeholder
-      operationId: placeholder
+      summary: List office users
+      description: Returns a list of office users
+      operationId: indexOfficeUsers
       tags:
-        - placeholder
+        - office
+      parameters:
+        - in: query
+          name: filter
+          type: array
+          items:
+            type: string
       responses:
-        501:
-          description: nothing to see here
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/OfficeUsers'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: office not found
