@@ -19,9 +19,6 @@ import (
 	// Install for pre-commit circleci testing
 	_ "golang.org/x/tools/cmd/callgraph"
 
-	// Install for pre-commit linters
-	_ "github.com/golangci/golangci-lint"
-
 	// Packr isn't actually a tool dependency, but it's an indirect dependency that `go vet` and `go mod tidy` disagreed about.
 	// Adding it here is a way to ensure that it isn't tidied up from go.mod
 	_ "github.com/gobuffalo/packr"
