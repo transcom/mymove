@@ -13,7 +13,7 @@ import OrdersInfo from './OrdersInfo';
 import DocumentViewer from './DocumentViewer';
 import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadInternalSchema, loadPublicSchema } from 'shared/Swagger/ducks';
-import { no_op } from 'shared/utils';
+import { detectIE11, no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import ScratchPad from 'shared/ScratchPad';
@@ -21,7 +21,6 @@ import { isProduction } from 'shared/constants';
 import { RetrieveMovesForOffice } from './api';
 
 import './office.scss';
-import { detectIE11 } from '../../shared/utils';
 
 class Queues extends Component {
   render() {

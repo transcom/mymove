@@ -35,9 +35,8 @@ import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
 import FailWhale from 'shared/FailWhale';
-import { no_op } from 'shared/utils';
+import { detectIE11, no_op } from 'shared/utils';
 import DPSAuthCookie from 'scenes/DPSAuthCookie';
-import { detectIE11 } from '../../shared/utils';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
