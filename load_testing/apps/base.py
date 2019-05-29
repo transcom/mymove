@@ -39,6 +39,36 @@ def get_swagger_config():
     return swagger_config
 
 
+def swagger_request(callable_operation, *args, **kwargs):
+    """
+    Swagger client uses requests send() method instead of request(). This means we need to send off
+    events to Locust on our own.
+    """
+    method = callable_operation.operation.http_method.upper()
+    path_name = callable_operation.operation.path_name
+    response_future = callable_operation(*args, **kwargs)
+    try:
+        response = response_future.response()
+    except HTTPError as e:
+        events.request_failure.fire(
+            request_type=method,
+            name=path_name,
+            response_time=0,  # Not clear how to get this
+            exception=e,
+        )
+        return e.swagger_result
+    else:
+        metadata = response.metadata
+
+        events.request_success.fire(
+            request_type=method,
+            name=path_name,
+            response_time=metadata.elapsed_time,
+            response_length=len(metadata.incoming_response.raw_bytes),
+        )
+        return response.result
+
+
 class BaseTaskSequence(TaskSequence):
 
     csrf = None
@@ -65,35 +95,6 @@ class BaseTaskSequence(TaskSequence):
 class InternalAPIMixin(object):
     swagger_internal = None
 
-    def swagger_internal_wrapper(self, callable_operation, *args, **kwargs):
-        """
-        Swagger client uses requests send() method instead of request(). This means we need to send off
-        events to Locust on our own.
-        """
-        method = callable_operation.operation.http_method.upper()
-        path_name = callable_operation.operation.path_name
-        response_future = callable_operation(*args, **kwargs)
-        try:
-            response = response_future.response()
-        except HTTPError as e:
-            events.request_failure.fire(
-                request_type=method,
-                name=path_name,
-                response_time=0,  # Not clear how to get this
-                exception=e,
-            )
-            return e.swagger_result
-        else:
-            metadata = response.metadata
-
-            events.request_success.fire(
-                request_type=method,
-                name=path_name,
-                response_time=metadata.elapsed_time,
-                response_length=len(metadata.incoming_response.raw_bytes),
-            )
-            return response.result
-
     @task(2)
     def load_swagger_file_internal(self):
         self.client.get("/internal/swagger.yaml")
@@ -101,35 +102,6 @@ class InternalAPIMixin(object):
 
 class PublicAPIMixin(object):
     swagger_public = None
-
-    def swagger_public_wrapper(self, callable_operation, *args, **kwargs):
-        """
-        Swagger client uses requests send() method instead of request(). This means we need to send off
-        events to Locust on our own.
-        """
-        method = callable_operation.operation.http_method.upper()
-        path_name = callable_operation.operation.path_name
-        response_future = callable_operation(*args, **kwargs)
-        try:
-            response = response_future.response()
-        except HTTPError as e:
-            events.request_failure.fire(
-                request_type=method,
-                name=path_name,
-                response_time=0,  # Not clear how to get this
-                exception=e,
-            )
-            return e.swagger_result
-        else:
-            metadata = response.metadata
-
-            events.request_success.fire(
-                request_type=method,
-                name=path_name,
-                response_time=metadata.elapsed_time,
-                response_length=len(metadata.incoming_response.raw_bytes),
-            )
-            return response.result
 
     @task(2)
     def load_swagger_file_public(self):

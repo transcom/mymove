@@ -7,6 +7,7 @@ from bravado.requests_client import RequestsClient
 from .base import BaseTaskSequence
 from .base import InternalAPIMixin
 from .base import get_swagger_config
+from .base import swagger_request
 
 
 class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
@@ -53,7 +54,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
     def create_service_member(self):
         model = self.swagger_internal.get_model("CreateServiceMemberPayload")
         payload = model(user_id=self.user["id"])
-        service_member = self.swagger_internal_wrapper(
+        service_member = swagger_request(
             self.swagger_internal.service_members.createServiceMember,
             createServiceMemberPayload=payload)
         self.update_service_member(service_member)
@@ -67,7 +68,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
             rank="E_5",  # Rotate
             social_security_number="333-33-3333",  # Random
         )
-        service_member = self.swagger_internal_wrapper(
+        service_member = swagger_request(
             self.swagger_internal.service_members.patchServiceMember,
             serviceMemberId=self.user["service_member"].id,
             patchServiceMemberPayload=payload)
@@ -82,7 +83,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
             middle_name="Carol",
             suffix="",
         )
-        service_member = self.swagger_internal_wrapper(
+        service_member = swagger_request(
             self.swagger_internal.service_members.patchServiceMember,
             serviceMemberId=self.user["service_member"].id,
             patchServiceMemberPayload=payload)
@@ -98,7 +99,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
             secondary_telephone="333-333-3333",
             telephone="333-333-3333",
         )
-        service_member = self.swagger_internal_wrapper(
+        service_member = swagger_request(
             self.swagger_internal.service_members.patchServiceMember,
             serviceMemberId=self.user["service_member"].id,
             patchServiceMemberPayload=payload)
@@ -108,7 +109,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
     def search_for_duty_station(self):
         station_list = ["b", "buck", "buckley"]
         for station in station_list:
-            duty_stations = self.swagger_internal_wrapper(
+            duty_stations = swagger_request(
                 self.swagger_internal.duty_stations.searchDutyStations,
                 search=station)
             self.update_duty_stations(duty_stations)
@@ -119,7 +120,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         payload = model(
             current_station_id=self.user["duty_stations"][0].id
         )
-        service_member = self.swagger_internal_wrapper(
+        service_member = swagger_request(
             self.swagger_internal.service_members.patchServiceMember,
             serviceMemberId=self.user["service_member"].id,
             patchServiceMemberPayload=payload)

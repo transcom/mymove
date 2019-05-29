@@ -7,6 +7,7 @@ from bravado.requests_client import RequestsClient
 from .base import BaseTaskSequence
 from .base import InternalAPIMixin
 from .base import get_swagger_config
+from .base import swagger_request
 
 
 class TSPUserBehavior(BaseTaskSequence, InternalAPIMixin):
@@ -43,7 +44,7 @@ class TSPUserBehavior(BaseTaskSequence, InternalAPIMixin):
 
     @seq_task(3)
     def view_new_moves_queue(self):
-        self.swagger_internal_wrapper(
+        swagger_request(
             self.swagger_internal.queues.showQueue,
             queueType="new")
 
