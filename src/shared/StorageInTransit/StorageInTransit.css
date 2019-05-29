@@ -61,28 +61,20 @@
 
 .storage-in-transit-panel .sit-actions {
   font-weight: normal;
-  margin-left: 1.7em;
 }
 
 .storage-in-transit-panel .sit-actions a {
   text-decoration: none;
 }
 
+.sit-actions .sit-action {
+  cursor: pointer;
+  margin-left: 1.7em;
+}
+
 .storage-in-transit-panel-modal .usa-grid-full {
   margin-top: 16px;
   margin-bottom: 16px;
-}
-
-.approve-sit-link {
-  text-decoration: none;
-  cursor: pointer;
-  font-weight: normal;
-}
-
-.deny-sit-link {
-  text-decoration: none;
-  cursor: pointer;
-  font-weight: normal;
 }
 
 .release-from-sit {
