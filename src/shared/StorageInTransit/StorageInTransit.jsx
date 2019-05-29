@@ -135,11 +135,11 @@ export class StorageInTransit extends Component {
     );
   };
 
-  renderSitActions(isOrigin) {
+  renderSitActions() {
     if (isOfficeSite) {
       return this.renderOfficeSitActions();
     } else if (isTspSite) {
-      return this.renderTspSitActions(isOrigin);
+      return this.renderTspSitActions();
     } else {
       return null;
     }
@@ -165,8 +165,9 @@ export class StorageInTransit extends Component {
     }
   }
 
-  renderTspSitActions(isOrigin) {
+  renderTspSitActions() {
     const { storageInTransit } = this.props;
+    const isOrigin = storageInTransit.location === 'ORIGIN';
 
     switch (storageInTransit.status) {
       case 'REQUESTED':
@@ -219,7 +220,6 @@ export class StorageInTransit extends Component {
     const isInSit = storageInTransit.status === 'IN_SIT';
     const isReleased = storageInTransit.status === 'RELEASED';
     const isDelivered = storageInTransit.status === 'DELIVERED';
-    const isOrigin = storageInTransit.location === 'ORIGIN';
 
     const daysUsed = sitDaysUsed(storageInTransit);
 
@@ -272,7 +272,7 @@ export class StorageInTransit extends Component {
               storageInTransit={storageInTransit}
             />
           ) : (
-            <span className="sit-actions">{this.renderSitActions(isOrigin)}</span>
+            <span className="sit-actions">{this.renderSitActions()}</span>
           )}
         </div>
         {!showTspEditForm && (
