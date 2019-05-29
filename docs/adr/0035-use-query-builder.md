@@ -2,9 +2,9 @@
 
 **User Story:**
 
-Both System Admins (MilMove Engineers)
-and Program Admins (folks at Transcom)
-require flexible querying of MilMove data.
+System Admins (MilMove Engineers)
+require flexible querying of MilMove data
+to debug and fix production data issues.
 For example, if an Engineer is debugging a recent bug with shipments,
 they may want to view all shipments created or updated recently.
 Maybe the bug seems to be related to a certain set of moves
@@ -27,6 +27,11 @@ the current model fetching models are inconsistent across the codebase.
 Filters, sorting, or joins are ad hoc based on handler or feature needs.
 This causes issues with maintenance, performance consistency, and security scoping.
 
+This ADR will mostly focus on filtering data,
+because it is the primary required feature.
+However, similar patterns can be applied to other querying features,
+such as sorting and association embedding.
+
 ## Considered Alternatives
 
 * *Standardize model querying and use code generation for query methods*
@@ -42,8 +47,8 @@ type ShipmentQueryFilter interface {
     ApplyQuery(q pop.Query)  pop.Query // would apply a Where clause for the column
 }
 
-type CreateAtFilter struct {
-     createAt time.Time
+type CreatedtFilter struct {
+     createdAt time.Time
      comparator Comparator // string of possible comparators (=, >, <...)
 }
 
@@ -90,7 +95,7 @@ func (h ListShipmentsHandler) Handle(params shipmentop.ListShipmentParams) middl
   if params.CreatedAt{
     filters = append(
       filters,
-      CreatedAtFilter{uuid.FromString(params.CreateAt),
+      CreatedAtFilter{time.Time(params.CreateAt).String(),
       })
   }
   if params.MoveID {
@@ -107,6 +112,8 @@ func (h ListShipmentsHandler) Handle(params shipmentop.ListShipmentParams) middl
 ```
 
 The swagger definition would then list all the possible column filters.
+These would be arrays (ex. `move_ids`),
+rather than the singular parameters in our current API specs.
 
 * *Use a third party query builder library*
 
@@ -135,7 +142,7 @@ The proof of oncept is as follows:
 type QueryFilter interface {
   Column() string
   Comparator() string
-  Value() string
+  Value() interface{}
 }
 
 // Lookup to check if a specific string is inside the db field tags of the type
@@ -197,9 +204,11 @@ func (o *shipmentListFetcher) FetchShipmentList(filters []services.QueryFilter) 
 ```
 
 In this case, the API uses a generic filter parameter, such as:
-`shipments?filter=created_at.gt:2019,moveID.eq:100`
+`shipments?filter=created_at.gt:2019,moveID.eq:100`.
+Note that we're going to run into object nesting issues discussed in this
+[Open API Spec Issue](https://github.com/OAI/OpenAPI-Specification/issues/1706)
 
-The handler marshalls those filters into a `QueryFilter`
+The handler (or middleware) marshalls those filters into a `QueryFilter`
 and passes them to the service
 
 ## Decision Outcome
@@ -234,5 +243,7 @@ and passes them to the service
 * `+` Allows us to abstract the db connector/ORM through our own interface
 * `+` Utilizes metadata already on models with little/no code generation
 * `+` Reduces the API surface and boilerplate parameter definitions
-* `-` Loses a lot of type safety with columns being strings
+* `-` Loses a lot of type safety with columns being strings.
+  OpenAPI 2 does not support objects in query params.
+  OpenAPI does, however it does not support them nested within an array.
 * `-` Uses reflection (note this is already being used by Pop to create queries)
