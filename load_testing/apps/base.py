@@ -2,6 +2,7 @@ from locust import TaskSequence
 from locust import task
 from locust import events
 from bravado_core.formatter import SwaggerFormat
+from bravado_core.exception import SwaggerMappingError
 from bravado.exception import HTTPError
 
 
@@ -57,6 +58,15 @@ def swagger_request(callable_operation, *args, **kwargs):
             exception=e,
         )
         return e.swagger_result
+    except SwaggerMappingError as e:
+        # Even though we don't return the result here we at least fire off the failure event
+        events.request_failure.fire(
+            request_type=method,
+            name=path_name,
+            response_time=0,  # Not clear how to get this
+            exception=e,
+        )
+        raise e
     else:
         metadata = response.metadata
 
