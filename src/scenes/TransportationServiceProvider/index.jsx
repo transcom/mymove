@@ -19,7 +19,7 @@ import ShipmentInfo from './ShipmentInfo';
 import QueueList from './QueueList';
 import QueueTable from './QueueTable';
 
-import './tsp.css';
+import './tsp.scss';
 
 class Queues extends Component {
   render() {
