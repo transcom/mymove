@@ -34,7 +34,8 @@ such as sorting and association embedding.
 
 ## Considered Alternatives
 
-* *Standardize model querying and use code generation for query methods*
+* **Standardize model querying and use code generation for query methods**
+
 Let's continue with our shipment example.
 Note that we'll use Pop here,
 but we could also generate sqlx similarly.
@@ -115,7 +116,7 @@ The swagger definition would then list all the possible column filters.
 These would be arrays (ex. `move_ids`),
 rather than the singular parameters in our current API specs.
 
-* *Use a third party query builder library*
+* **Use a third party query builder library**
 
 Some Go sql libraries offer more flexibility than Pop or sqlx.
 For example, [goqu](https://github.com/doug-martin/goqu)
@@ -134,7 +135,7 @@ sql, _, _ := db.From("items").Where(goqu.Ex{
 }).ToSql()
 ```
 
-* *Write a generic query interface that accepts any model*
+* **Write a generic query interface that accepts any model**
 Another option is to write a query builder as a dependency to handlers/services.
 The proof of oncept is as follows:
 
@@ -213,7 +214,7 @@ and passes them to the service
 
 ## Decision Outcome
 
-* Chosen Alternative: *write a generic query builder*
+* Chosen Alternative: **write a generic query builder**
 * The main motivators of this decision are:
   * It accomplishes our desired feature set
   * It is relatively simple to implement
