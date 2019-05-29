@@ -9,12 +9,11 @@ import { mount } from 'enzyme/build';
 const push = jest.fn();
 
 describe('Refreshing', () => {
-  let wrapper;
   it('loads the data again', done => {
     const refreshSpy = jest.spyOn(QueueTable.WrappedComponent.prototype, 'refresh');
     const fetchDataSpy = jest.spyOn(QueueTable.WrappedComponent.prototype, 'fetchData');
 
-    wrapper = mountComponents(retrieveShipmentsStub());
+    const wrapper = mountComponents(retrieveShipmentsStub());
 
     wrapper
       .find('[data-cy="refreshQueue"]')
