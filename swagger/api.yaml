@@ -3493,7 +3493,7 @@ paths:
           name: code
           type: string
           description: the code the access code represents and verifies if in use
-          pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+          pattern: '^(HHG|PPM)-[A-Z0-9]{6}$'
           x-nullable: false
       responses:
         200:

@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import { bindActionCreators } from 'redux';
 import { getFormValues, reduxForm, SubmissionError } from 'redux-form';
+import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { get } from 'lodash';
@@ -10,12 +11,11 @@ import { validateAccessCode, claimAccessCode } from 'shared/Entities/modules/acc
 
 class AccessCode extends React.Component {
   validateAndClaimAccessCode = () => {
-    const { history, formValues, validateAccessCode, claimAccessCode, serviceMemberId } = this.props;
+    const { history, formValues, validateAccessCode, claimAccessCode } = this.props;
     return validateAccessCode(formValues.claim_access_code)
       .then(res => {
         const { body } = get(res, 'response');
         const { valid: isValid, access_code: accessCode } = body;
-        console.log(accessCode);
         if (!isValid) {
           throw new SubmissionError({
             claim_access_code: 'This code is invalid',
@@ -24,7 +24,7 @@ class AccessCode extends React.Component {
         }
         claimAccessCode(accessCode)
           .then(() => {
-            history.push(`/service-member/${serviceMemberId}/create`);
+            history.push(`/`);
           })
           .catch(err => {
             console.log(err);
@@ -79,4 +79,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ validateAccessCode, claimAccessCode }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AccessCode);
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(AccessCode));
