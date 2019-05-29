@@ -58,70 +58,61 @@ class OfficeUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
                 queueType=q_type)
             # Only look at up to 5 randomly chosen items
             for item in random.sample(queue, min(len(queue), 5)):
-                # These are all the requests you'd see loaded in a single move
+                # These are all the requests you'd see loaded in a single move in rough order of execution
 
+                # Move Requests
                 move_id = item["id"]
-                # http://officelocal:3001/internal/moves/60098ff1-8dc9-4318-a2e8-47bc8aac11a4
                 move = swagger_request(
                     self.swagger_internal.moves.showMove,
                     moveId=move_id)
-                # http://officelocal:3001/internal/moves/60098ff1-8dc9-4318-a2e8-47bc8aac11a4/move_documents
                 swagger_request(
                     self.swagger_internal.move_docs.indexMoveDocuments,
                     moveId=move_id)
-                # http://officelocal:3001/api/v1/tariff_400ng_items?requires_pre_approval=true
                 swagger_request(
                     self.swagger_public.accessorials.getTariff400ngItems,
                     requires_pre_approval=True)
-                # http://officelocal:3001/internal/moves/60098ff1-8dc9-4318-a2e8-47bc8aac11a4/personally_procured_move
                 swagger_request(
                     self.swagger_internal.ppm.indexPersonallyProcuredMoves,
                     moveId=move_id)
 
+                # Orders Requests
                 orders_id = move["orders_id"]
-                # http://officelocal:3001/internal/orders/a680accb-cc73-4af2-bd9c-283826cdd88f
                 orders = swagger_request(
                     self.swagger_internal.orders.showOrders,
                     ordersId=orders_id)
 
+                # Service Member Requests
                 service_member_id = move["service_member_id"]
-                # http://officelocal:3001/internal/service_members/61473913-36b8-425d-b46a-cee488a4ae71
                 swagger_request(
                     self.swagger_internal.service_members.showServiceMember,
                     serviceMemberId=service_member_id)
 
-                # http://officelocal:3001/internal/service_members/61473913-36b8-425d-b46a-cee488a4ae71/backup_contacts
                 swagger_request(
                     self.swagger_internal.backup_contacts.indexServiceMemberBackupContacts,
                     serviceMemberId=service_member_id)
 
+                # Shipment Requests
                 shipment_id = orders["moves"][0]["shipments"][0]["id"]
-                # http://officelocal:3001/api/v1/shipments/0ffa777e-3ea0-4f8f-b44b-ae0af309ebf4
                 swagger_request(
                     self.swagger_public.shipments.getShipment,
                     shipmentId=shipment_id)
 
-                # http://officelocal:3001/api/v1/shipments/0ffa777e-3ea0-4f8f-b44b-ae0af309ebf4/transportation_service_provider
                 swagger_request(
                     self.swagger_public.transportation_service_provider.getTransportationServiceProvider,
                     shipmentId=shipment_id)
 
-                # http://officelocal:3001/api/v1/shipments/0ffa777e-3ea0-4f8f-b44b-ae0af309ebf4/accessorials
                 swagger_request(
                     self.swagger_public.accessorials.getShipmentLineItems,
                     shipmentId=shipment_id)
 
-                # http://officelocal:3001/api/v1/shipments/0ffa777e-3ea0-4f8f-b44b-ae0af309ebf4/invoices
                 swagger_request(
                     self.swagger_public.shipments.getShipmentInvoices,
                     shipmentId=shipment_id)
 
-                # http://officelocal:3001/api/v1/shipments/0ffa777e-3ea0-4f8f-b44b-ae0af309ebf4/service_agents
                 swagger_request(
                     self.swagger_public.service_agents.indexServiceAgents,
                     shipmentId=shipment_id)
 
-                # http://officelocal:3001/api/v1/shipments/0ffa777e-3ea0-4f8f-b44b-ae0af309ebf4/storage_in_transits
                 swagger_request(
                     self.swagger_public.storage_in_transits.indexStorageInTransits,
                     shipmentId=shipment_id)
