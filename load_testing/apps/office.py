@@ -65,8 +65,11 @@ class OfficeUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
             self.swagger_internal.queues.showQueue,
             queueType=q_type)
 
-        # Only look at up to 5 randomly chosen items
+        # Pick a random move
+        if len(queue) == 0:
+            return
         item = random.choice(queue)
+
         # These are all the requests you'd see loaded in a single move in rough order of execution
 
         # Move Requests

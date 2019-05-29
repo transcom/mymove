@@ -1,6 +1,8 @@
+import random
 from urllib.parse import urljoin
 
 from locust import seq_task
+from locust import task
 from bravado.client import SwaggerClient
 from bravado.requests_client import RequestsClient
 
@@ -49,10 +51,54 @@ class TSPUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
         # check response for 200
 
     @seq_task(3)
-    def view_new_shipments_queue(self):
-        swagger_request(
+    @task(10)
+    def view_shipment_in_random_queue(self):
+        queue_types = ["AWARDED", "ACCEPTED", "APPROVED", "IN_TRANSIT", "DELIVERED"]
+        q_type = random.choice(queue_types)
+
+        queue = swagger_request(
             self.swagger_public.shipments.indexShipments,
-            status=["AWARDED"])
+            status=[q_type])
+
+        # Pick a random shipment
+        if len(queue) == 0:
+            return
+        item = random.choice(queue)
+
+        # These are all the requests you'd see loaded in a single move in rough order of execution
+
+        shipment_id = item["id"]
+        swagger_request(
+            self.swagger_public.shipments.getShipment,
+            shipmentId=shipment_id)
+
+        swagger_request(
+            self.swagger_public.service_agents.indexServiceAgents,
+            shipmentId=shipment_id)
+
+        swagger_request(
+            self.swagger_public.transportation_service_provider.getTransportationServiceProvider,
+            shipmentId=shipment_id)
+
+        swagger_request(
+            self.swagger_public.move_docs.indexMoveDocuments,
+            shipmentId=shipment_id)
+
+        swagger_request(
+            self.swagger_public.accessorials.getTariff400ngItems,
+            requires_pre_approval=True)
+
+        swagger_request(
+            self.swagger_public.accessorials.getShipmentLineItems,
+            shipmentId=shipment_id)
+
+        swagger_request(
+            self.swagger_public.shipments.getShipmentInvoices,
+            shipmentId=shipment_id)
+
+        swagger_request(
+            self.swagger_public.storage_in_transits.indexStorageInTransits,
+            shipmentId=shipment_id)
 
     @seq_task(4)
     def logout(self):
