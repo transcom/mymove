@@ -15,20 +15,6 @@ import Uploader from 'shared/Uploader';
 import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import Alert from 'shared/Alert';
 
-export const missingWeightTickets = uploaders => {
-  if (isEmpty(uploaders)) {
-    return true;
-  }
-  const uploadersKeys = Object.keys(uploaders);
-  for (const key of uploadersKeys) {
-    // eslint-disable-next-line security/detect-object-injection
-    if (uploaders[key].isEmpty()) {
-      return true;
-    }
-  }
-  return false;
-};
-
 class WeightTicket extends Component {
   state = {
     uploaderIsIdle: {},
@@ -36,6 +22,20 @@ class WeightTicket extends Component {
     additionalWeightTickets: 'Yes',
   };
   uploaders = {};
+
+  missingWeightTickets = uploaders => {
+    if (isEmpty(uploaders)) {
+      return true;
+    }
+    const uploadersKeys = Object.keys(uploaders);
+    for (const key of uploadersKeys) {
+      // eslint-disable-next-line security/detect-object-injection
+      if (uploaders[key].isEmpty()) {
+        return true;
+      }
+    }
+    return false;
+  };
 
   //  handleChange for vehicleType and additionalWeightTickets
   handleChange = (event, type) => {
@@ -100,7 +100,7 @@ class WeightTicket extends Component {
   };
 
   render() {
-    const missingWeightTicket = missingWeightTickets(this.uploaders);
+    const missingWeightTicket = this.missingWeightTickets(this.uploaders);
     const { additionalWeightTickets, vehicleType } = this.state;
     const { error, handleSubmit, submitting, schema } = this.props;
     const nextBtnLabel = additionalWeightTickets === 'Yes' ? 'Save & Add Another' : 'Save & Continue';
