@@ -20,6 +20,7 @@ import OfficeEditor from 'shared/StorageInTransit/OfficeEditor';
 import ApproveSitRequest from 'shared/StorageInTransit/ApproveSitRequest';
 import DenySitRequest from 'shared/StorageInTransit/DenySitRequest';
 import PlaceInSit from 'shared/StorageInTransit/PlaceInSit';
+import DeleteSitRequest from 'shared/StorageInTransit/DeleteSitRequest';
 import { updateStorageInTransit } from 'shared/Entities/modules/storageInTransits';
 import { isOfficeSite, isTspSite } from 'shared/constants';
 import SitStatusIcon from './SitStatusIcon';
@@ -192,7 +193,14 @@ export class StorageInTransit extends Component {
 
   render() {
     const { storageInTransit, daysRemaining } = this.props;
-    const { showTspEditForm, showOfficeEditForm, showApproveForm, showDenyForm, showPlaceInSitForm } = this.state;
+    const {
+      showTspEditForm,
+      showOfficeEditForm,
+      showApproveForm,
+      showDenyForm,
+      showPlaceInSitForm,
+      showDeleteWarning,
+    } = this.state;
     const isDenied = storageInTransit.status === 'DENIED';
     const isRequested = storageInTransit.status === 'REQUESTED';
     const isApproved = storageInTransit.status === 'APPROVED';
@@ -244,6 +252,8 @@ export class StorageInTransit extends Component {
               onClose={this.closeOfficeEditForm}
               storageInTransit={storageInTransit}
             />
+          ) : showDeleteWarning ? (
+            <DeleteSitRequest storageInTransit={storageInTransit} onClose={this.closeDeleteWarning} />
           ) : (
             <span className="sit-actions">{this.renderSitActions()}</span>
           )}
