@@ -6,11 +6,12 @@ from bravado.requests_client import RequestsClient
 
 from .base import BaseTaskSequence
 from .base import InternalAPIMixin
+from .base import PublicAPIMixin
 from .base import get_swagger_config
 from .base import swagger_request
 
 
-class TSPUserBehavior(BaseTaskSequence, InternalAPIMixin):
+class TSPUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
 
     login_gov_user = None
     session_token = None
@@ -33,6 +34,11 @@ class TSPUserBehavior(BaseTaskSequence, InternalAPIMixin):
                 request_headers={'x-csrf-token': self.csrf},
                 http_client=self.requests_client,
                 config=get_swagger_config())
+            self.swagger_public = SwaggerClient.from_url(
+                urljoin(self.parent.host, "api/v1/swagger.yaml"),
+                request_headers={'x-csrf-token': self.csrf},
+                http_client=self.requests_client,
+                config=get_swagger_config())
         except Exception:
             print(resp.content)
 
@@ -43,10 +49,10 @@ class TSPUserBehavior(BaseTaskSequence, InternalAPIMixin):
         # check response for 200
 
     @seq_task(3)
-    def view_new_moves_queue(self):
+    def view_new_shipments_queue(self):
         swagger_request(
-            self.swagger_internal.queues.showQueue,
-            queueType="new")
+            self.swagger_public.shipments.indexShipments,
+            status=["AWARDED"])
 
     @seq_task(4)
     def logout(self):
