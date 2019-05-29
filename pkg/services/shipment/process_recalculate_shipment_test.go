@@ -1,18 +1,15 @@
 package shipment
 
 import (
-	"testing"
 	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services/invoice"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 // Deliver marks the Shipment request as Delivered. Must be IN TRANSIT state.
@@ -27,7 +24,7 @@ func helperForceDeliver(s *models.Shipment, actualDeliveryDate time.Time) error 
 	return nil
 }
 
-func (suite *ProcessRecalculateShipmentSuite) helperCreateShipmentAndPlanner() (*models.Shipment, *route.Planner) {
+func (suite *ShipmentServiceSuite) helperCreateShipmentAndPlanner() (*models.Shipment, *route.Planner) {
 	numTspUsers := 1
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
@@ -60,7 +57,7 @@ func (suite *ProcessRecalculateShipmentSuite) helperCreateShipmentAndPlanner() (
 	return &shipment, &planner
 }
 
-func (suite *ProcessRecalculateShipmentSuite) TestProcessRecalculateShipmentCall() {
+func (suite *ShipmentServiceSuite) TestProcessRecalculateShipmentCall() {
 
 	shipment, planner := suite.helperCreateShipmentAndPlanner()
 	shipmentID := shipment.ID
@@ -188,23 +185,4 @@ func (suite *ProcessRecalculateShipmentSuite) TestProcessRecalculateShipmentCall
 	// TEST Validation:  Do not recalculate shipment all line items are up to date (return false)
 	suite.Nil(err)
 	suite.Equal(false, update)
-}
-
-type ProcessRecalculateShipmentSuite struct {
-	testingsuite.PopTestSuite
-	logger *zap.Logger
-}
-
-func (suite *ProcessRecalculateShipmentSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-func TestProcessRecalculateShipmentSuite(t *testing.T) {
-	// Use a no-op logger during testing
-	logger := zap.NewNop()
-
-	hs := &ProcessRecalculateShipmentSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
-		logger:       logger,
-	}
-	suite.Run(t, hs)
 }

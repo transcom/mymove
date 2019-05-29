@@ -2372,6 +2372,11 @@ definitions:
         format: date
         example: 2018-04-25
         x-nullable: true
+      submitted_date:
+        type: string
+        format: date
+        example: 2018-04-25
+        x-nullable: true
       last_modified_date:
         type: string
         format: date-time
@@ -2481,6 +2486,18 @@ definitions:
         $ref: '#/definitions/VehicleOptions'
       vehicle_nickname:
         $ref: '#/definitions/VehicleNickname'
+      empty_weight:
+        type: number
+        x-nullable: true
+      full_weight:
+        type: number
+        x-nullable: true
+      weight_ticket_date:
+        type: string
+        example: '2018-04-26'
+        format: date
+        title: Weight ticket date
+        x-nullable: true
   VehicleNickname:
     type: string
     x-nullable: true

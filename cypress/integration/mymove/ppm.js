@@ -79,20 +79,24 @@ describe('completing the ppm flow', function() {
       expect(loc.pathname).to.match(/^\/$/);
     });
 
-    cy.contains('Congrats - your move is submitted!');
-    cy.contains('Next Step: Wait for approval');
-    cy
-      .get('.next-step')
-      .contains('Go to weight scales')
-      .children('a')
-      .should('have.attr', 'href', 'https://move.mil/resources/locator-maps');
-    cy
-      .get('a')
-      .contains('PPM info sheet')
-      .should('have.attr', 'href')
-      .and('include', '/downloads/ppm_info_sheet.pdf');
+    cy.get('.usa-alert-success').within(() => {
+      cy.contains('Congrats - your move is submitted!');
+      cy.contains('Next, wait for approval. Once approved:');
+      cy
+        .get('a')
+        .contains('PPM info sheet')
+        .should('have.attr', 'href')
+        .and('include', '/downloads/ppm_info_sheet.pdf');
+    });
 
-    cy.contains('Advance Requested: $1,333.91');
+    cy.get('.usa-width-three-fourths').within(() => {
+      cy.contains('Next Step: Wait for approval');
+      cy
+        .contains('Go to weight scales')
+        .children('a')
+        .should('have.attr', 'href', 'https://move.mil/resources/locator-maps');
+      cy.contains('Advance Requested: $1,333.91');
+    });
   });
 
   //TODO: remove when done with the new flow to request payment
@@ -220,8 +224,38 @@ it('allows a SM to request ppm payment', function() {
   cy.get('.in_progress .status_dates').should('exist');
   serviceMemberCanCancel();
   serviceMemberVisitsIntroToPPMPaymentRequest();
-  serviceMemberUploadsWeightTicket();
+  serviceMemberFillsOutWeightTicket('Car');
+  // TODO: remove when we are doing something with the data
+  cy.reload();
+  serviceMemberFillsOutWeightTicket('Box truck');
 });
+
+function serviceMemberFillsOutWeightTicket(vehicleType) {
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-weight-ticket/);
+  });
+
+  cy.get('select[name="vehicle_options"]').select(vehicleType);
+
+  cy.get('input[name="vehicle_nickname"]').type('Nickname');
+
+  cy.get('input[name="empty_weight"]').type('1000');
+  cy.upload_file('.filepond--root:first', 'top-secret.png');
+  cy.wait('@postUploadDocument');
+
+  cy.get('input[name="full_weight"]').type('5000');
+  cy.upload_file('.filepond--root:last', 'top-secret.png');
+  cy.wait('@postUploadDocument');
+  cy
+    .get('input[name="weight_ticket_date"]')
+    .type('6/2/2018{enter}')
+    .blur();
+
+  cy
+    .get('[type="radio"]')
+    .first()
+    .should('be.checked');
+}
 
 function serviceMemberCanCancel() {
   cy.contains('Request Payment').click();
@@ -285,13 +319,4 @@ function serviceMemberVisitsIntroToPPMPaymentRequest() {
     .get('button')
     .contains('Get Started')
     .click();
-}
-
-function serviceMemberUploadsWeightTicket() {
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-weight-ticket/);
-  });
-  cy.get('select[name="vehicle_options"]').select('CAR');
-  cy.upload_file('.filepond--root', 'top-secret.png');
-  cy.wait('@postUploadDocument');
 }
