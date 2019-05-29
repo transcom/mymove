@@ -19,6 +19,9 @@ Please update this document with a brief description of the pairing session.
 
 ## Sessions
 
+* [2015-05-29 Query Builder Pairing](https://drive.google.com/file/d/1r1hAs0bdyFmrvSa8T9B3fq8u4Lq0iQLh/view)
+  Code overview of the [Query Builder implementation](https://github.com/transcom/mymove/pull/2120/files)
+  for the Admin APIs
 * [2015-05-15 Query Builder Discussion](https://drive.google.com/file/d/1G7UYQbI41beY2yngvUlrGjuFMCXeq3qS/view)
   A discussion about a [proof of concept](https://github.com/transcom/mymove/pull/2120/files)
   for implementing a Query Builder to support the Admin APIs
