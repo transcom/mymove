@@ -2,12 +2,13 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import ReactTable from 'react-table';
 import { connect } from 'react-redux';
-import { get, capitalize } from 'lodash';
+import { get } from 'lodash';
 import 'react-table/react-table.css';
 import Alert from 'shared/Alert';
-import { formatDate, formatDateTimeWithTZ, formatTimeAgo } from 'shared/formatters';
+import { formatTimeAgo } from 'shared/formatters';
+import { newColumns, ppmColumns, defaultColumns } from './queueTableColumns';
+
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 import './office.scss';
 import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
 
@@ -114,6 +115,17 @@ class QueueTable extends Component {
       all: 'All Moves',
     };
 
+    const showColumns = queueType => {
+      switch (queueType) {
+        case 'new':
+          return newColumns;
+        case 'ppm':
+          return ppmColumns;
+        default:
+          return defaultColumns;
+      }
+    };
+
     this.state.data.forEach(row => {
       if (this.props.queueType === 'new' && row.ppm_status && row.hhg_status) {
         row.shipments = 'HHG, PPM';
@@ -155,77 +167,7 @@ class QueueTable extends Component {
             />
           </span>
           <ReactTable
-            columns={[
-              {
-                Header: <FontAwesomeIcon icon={faClock} />,
-                id: 'clockIcon',
-                accessor: row => row.synthetic_status,
-                Cell: row =>
-                  row.value === 'PAYMENT_REQUESTED' || row.value === 'SUBMITTED' ? (
-                    <span data-cy="ppm-queue-icon">
-                      <FontAwesomeIcon icon={faClock} style={{ color: 'orange' }} />
-                    </span>
-                  ) : (
-                    ''
-                  ),
-                width: 50,
-                show: this.props.queueType === 'ppm',
-              },
-              {
-                Header: 'Status',
-                accessor: 'synthetic_status',
-                Cell: row => (
-                  <span className="status" data-cy="status">
-                    {capitalize(row.value && row.value.replace('_', ' '))}
-                  </span>
-                ),
-              },
-              {
-                Header: 'Customer name',
-                accessor: 'customer_name',
-              },
-              {
-                Header: 'DoD ID',
-                accessor: 'edipi',
-              },
-              {
-                Header: 'Rank',
-                accessor: 'rank',
-                Cell: row => <span className="rank">{row.value && row.value.replace('_', '-')}</span>,
-              },
-              {
-                Header: 'Shipments',
-                accessor: 'shipments',
-                show: this.props.queueType === 'new',
-              },
-              {
-                Header: 'Locator #',
-                accessor: 'locator',
-                Cell: row => <span data-cy="locator">{row.value}</span>,
-              },
-              {
-                Header: 'GBL',
-                accessor: 'gbl_number',
-                show: this.props.queueType !== 'ppm',
-              },
-              {
-                Header: 'Move date',
-                accessor: 'move_date',
-                Cell: row => <span className="move_date">{formatDate(row.value)}</span>,
-              },
-              {
-                Header: 'Last modified',
-                accessor: 'last_modified_date',
-                Cell: row => <span className="updated_at">{formatDateTimeWithTZ(row.value)}</span>,
-                show: this.props.queueType !== 'new',
-              },
-              {
-                Header: 'Submitted',
-                accessor: 'submitted_date',
-                Cell: row => <span className="submitted_date">{formatDateTimeWithTZ(row.value)}</span>,
-                show: this.props.queueType === 'new',
-              },
-            ]}
+            columns={showColumns(this.props.queueType)}
             data={this.state.data}
             loading={this.state.loading} // Display the loading overlay when we need it
             defaultSorted={[{ id: 'move_date', asc: true }]}
