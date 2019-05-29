@@ -19,6 +19,13 @@ describe('TSP Home Page', function() {
     cy.signIntoTSP();
     tspAllMoves();
   });
+  it('office user can use a single click to view shipment info', function() {
+    cy.signIntoTSP();
+    cy.waitForReactTableLoad();
+
+    cy.get('[data-cy=queueTableRow]:first').click();
+    cy.url().should('include', '/shipments/');
+  });
 });
 
 function tspUserIsOnSignInPage() {

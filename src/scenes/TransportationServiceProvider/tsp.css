@@ -288,3 +288,7 @@ label.inline_radio {
 	margin-top: 1px;
 	margin-bottom: 1px;
 }
+
+.rt-tr-group {
+  cursor: pointer;
+}
