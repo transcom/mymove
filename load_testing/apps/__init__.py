@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from .anon import AnonBehavior  # noqa
 from .milmove import MilMoveUserBehavior  # noqa
 from .office import OfficeUserBehavior  # noqa

@@ -8,13 +8,25 @@ repos:
         language: script
         types: [go]
 
+  - repo: https://github.com/ambv/black
+    rev: stable
+    hooks:
+      - id: black
+        language_version: python3.7
+        exclude: >
+          (?x)^(
+            scripts/gen-docs-index|
+          )$
+
   - repo: git://github.com/pre-commit/pre-commit-hooks
     rev: v2.2.3
     hooks:
+      - id: check-ast
       - id: check-json
       - id: check-merge-conflict
       - id: check-yaml
         exclude: config/database.yml # database.yml is not a valid yaml file, it contains go templating
+      - id: debug-statements
       - id: detect-private-key
         exclude: >
           (?x)^(
@@ -23,6 +35,12 @@ repos:
             pkg/server/testdata/officelocal.key$|
             pkg/auth/authentication/auth_test.go$|
             pkg/cli/auth.go$|
+          )$
+      - id: fix-encoding-pragma
+      - id: flake8
+        exclude: >
+          (?x)^(
+            scripts/gen-docs-index|
           )$
       - id: trailing-whitespace
         exclude: public/swagger-ui/*

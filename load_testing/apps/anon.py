@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from locust import TaskSet
 from locust import task
 
