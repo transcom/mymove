@@ -9,8 +9,7 @@ export function validateAccessCode(code, label = validateAccessCodeLabel) {
   return swaggerRequest(getPublicClient, swaggerTag, { code }, { label });
 }
 
-export function claimAccessCode(code, serviceMemberId, label = claimAccessCodeLabel) {
-  //const swaggerTag = 'accesscode.claimAccessCode';
-  console.log('Claiming access code');
-  return;
+export function claimAccessCode(accessCode, label = claimAccessCodeLabel) {
+  const swaggerTag = 'accesscode.claimAccessCode';
+  return swaggerRequest(getPublicClient, swaggerTag, { accessCodePayload: accessCode }, { label });
 }

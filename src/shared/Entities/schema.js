@@ -116,6 +116,8 @@ export const storageInTransits = new schema.Array(storageInTransit);
 
 // AccessCodes
 export const validateAccessCode = new schema.Entity('validateAccessCode');
+export const accessCode = new schema.Entity('accessCode');
 export const accessCodes = new schema.Entity('accessCodes', {
   validateAccessCode: validateAccessCode,
+  accessCode: accessCode,
 });
