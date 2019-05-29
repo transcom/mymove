@@ -16,6 +16,7 @@ describe('TSP User Ships a Shipment', function() {
     tspUserCancelsEnteringADeliveryDate();
     tspUserEntersADeliveryDate();
     tspUserVerifiesShipmentStatus('Delivered');
+    tspUserVerifiesSITStatus();
   });
 });
 
@@ -62,6 +63,13 @@ function tspUserEntersADeliveryDate() {
     .click();
 
   cy.get('button').should('not.contain', 'Enter Delivery');
+}
+
+function tspUserVerifiesSITStatus() {
+  // IN_SIT Destination Sits are in delivered status and have an out date
+  cy.get('[data-cy=storage-in-transit-panel]').contains('SIT Delivered');
+
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-dates]').contains('Out date');
 }
 
 function tspUserVisitsAnInTransitShipment(locator) {
@@ -264,9 +272,4 @@ function tspUserDeliversShipment() {
 
   // New status
   tspUserVerifiesShipmentStatus('Delivered');
-
-  // IN_SIT Destination Sits are in delivered status and have an out date
-  cy.get('[data-cy=storage-in-transit-panel]').contains('SIT Delivered');
-
-  cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-dates]').contains('Out date');
 }
