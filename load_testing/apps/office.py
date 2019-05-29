@@ -95,7 +95,7 @@ class OfficeUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
 
         # Service Member Requests
         service_member_id = move["service_member_id"]
-        service_member = swagger_request(
+        swagger_request(
             self.swagger_internal.service_members.showServiceMember,
             serviceMemberId=service_member_id)
 
@@ -104,26 +104,14 @@ class OfficeUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
             serviceMemberId=service_member_id)
 
         # Shipment Requests
-        if "orders" not in service_member:
+        if "shipments" not in move:
             return
-        if not isinstance(service_member["orders"], list):
+        if not isinstance(move["shipments"], list):
             return
-        if len(service_member["orders"]) == 0:
-            return
-        if "moves" not in service_member["orders"][0]:
-            return
-        if not isinstance(service_member["orders"][0]["moves"], list):
-            return
-        if len(service_member["orders"][0]["moves"]) == 0:
-            return
-        if "shipments" not in service_member["orders"][0]["moves"][0]:
-            return
-        if not isinstance(service_member["orders"][0]["moves"][0]["shipments"], list):
-            return
-        if len(service_member["orders"][0]["moves"][0]["shipments"]) == 0:
+        if len(move["shipments"]) == 0:
             return
 
-        shipment_id = service_member["orders"][0]["moves"][0]["shipments"][0]["id"]
+        shipment_id = move["shipments"][0]["id"]
         swagger_request(
             self.swagger_public.shipments.getShipment,
             shipmentId=shipment_id)
