@@ -25,8 +25,8 @@ def get_swagger_config():
     for fmt in string_fmt_list:
         swagger_fmt = SwaggerFormat(
             format=fmt,
-            to_wire=lambda s: str(s),
-            to_python=lambda s: str(s),
+            to_wire=str,
+            to_python=str,
             validate=lambda x: x,
             description='Converts [wire]string:string <=> python string',
         )
