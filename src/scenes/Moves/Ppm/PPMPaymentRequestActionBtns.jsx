@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import './PPMPaymentRequest.css';
 
 const PPMPaymentRequestActionBtns = props => {
-  const { nextBtnLabel, onClick, history, disabled, displaySaveForLater } = props;
+  const { nextBtnLabel, onClick, history, disabled, missingWeightTicket, displaySaveForLater, submitting } = props;
   return (
     <div className="ppm-payment-request-footer">
       <div className="usa-width-two-thirds">
@@ -29,7 +29,7 @@ const PPMPaymentRequestActionBtns = props => {
                 }
               });
             }}
-            disabled={disabled}
+            disabled={disabled || submitting || missingWeightTicket}
           >
             Save For Later
           </button>
@@ -40,7 +40,7 @@ const PPMPaymentRequestActionBtns = props => {
         onClick={() => {
           onClick();
         }}
-        disabled={disabled}
+        disabled={disabled || submitting || missingWeightTicket}
       >
         {nextBtnLabel}
       </button>

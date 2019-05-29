@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { reduxForm, getFormValues, SubmissionError } from 'redux-form';
 import { connect } from 'react-redux';
-import { get, map } from 'lodash';
+import { get, map, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
@@ -12,12 +12,25 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import RadioButton from 'shared/RadioButton';
 import './PPMPaymentRequest.css';
 import Uploader from 'shared/Uploader';
-import { createMoveDocument } from '../../../shared/Entities/modules/moveDocuments';
-import Alert from '../../../shared/Alert';
+import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
+import Alert from 'shared/Alert';
+
+export const missingWeightTickets = uploaders => {
+  if (isEmpty(uploaders)) {
+    return true;
+  }
+  const uploadersKeys = Object.keys(uploaders);
+  for (const key of uploadersKeys) {
+    // eslint-disable-next-line security/detect-object-injection
+    if (uploaders[key].isEmpty()) {
+      return true;
+    }
+  }
+  return false;
+};
 
 class WeightTicket extends Component {
   state = {
-    newUploads: {},
     uploaderIsIdle: {},
     vehicleType: '',
     additionalWeightTickets: 'Yes',
@@ -35,44 +48,22 @@ class WeightTicket extends Component {
     });
   };
 
-  onChange = uploaderName => (newUploads, uploaderIsIdle) => {
+  onChange = uploaderName => uploaderIsIdle => {
     this.setState({
-      newUploads: { ...this.state.newUploads, [uploaderName]: newUploads },
       uploaderIsIdle: { ...this.state.uploaderIsIdle, [uploaderName]: uploaderIsIdle },
     });
   };
 
-  validateWeightTickets = () => {
-    const uploaders = Object.keys(this.uploaders);
-    const newUploads = this.state.newUploads;
-    for (let i = 0; i < uploaders.length; i++) {
-      // eslint-disable-next-line security/detect-object-injection
-      let key = uploaders[i];
-      if (newUploads.hasOwnProperty(key)) {
-        // eslint-disable-next-line security/detect-object-injection
-        const uploadIds = map(newUploads[key], 'id');
-        if (uploadIds.length === 0) {
-          throw new SubmissionError({ [key]: 'Missing required weight ticket upload' });
-        }
-      } else {
-        throw new SubmissionError({ [key]: 'Missing required weight ticket upload' });
-      }
-    }
-  };
-
   submitWeightTickets = formValues => {
-    this.validateWeightTickets();
     const { moveId, currentPpm } = this.props;
-    const uploadersKeys = Object.keys(this.uploaders);
-    const newUploads = this.state.newUploads;
 
     const moveDocumentSubmissions = [];
-    for (let i = 0; i < uploadersKeys.length; i++) {
+    const uploadersKeys = Object.keys(this.uploaders);
+    for (const key of uploadersKeys) {
       // eslint-disable-next-line security/detect-object-injection
-      let key = uploadersKeys[i];
-      if (newUploads.hasOwnProperty(key)) {
-        // eslint-disable-next-line security/detect-object-injection
-        const uploadIds = map(newUploads[key], 'id');
+      let files = this.uploaders[key].getFiles();
+      if (files.length > 0) {
+        const uploadIds = map(files, 'id');
         const weightTicket = {
           moveId: moveId,
           personallyProcuredMoveId: currentPpm.id,
@@ -82,7 +73,7 @@ class WeightTicket extends Component {
           notes: formValues.notes,
         };
         moveDocumentSubmissions.push(
-          this.props.createMoveDocument(weightTicket).catch(err => {
+          this.props.createMoveDocument(weightTicket).catch(() => {
             throw new SubmissionError({ _error: 'Error creating move document' });
           }),
         );
@@ -99,11 +90,9 @@ class WeightTicket extends Component {
 
   cleanup = () => {
     const { reset } = this.props;
-    const uploadersKeys = Object.keys(this.uploaders);
     const uploaders = this.uploaders;
-    for (let i = 0; i < uploadersKeys.length; i++) {
-      // eslint-disable-next-line security/detect-object-injection
-      let key = uploadersKeys[i];
+    const uploadersKeys = Object.keys(this.uploaders);
+    for (const key of uploadersKeys) {
       // eslint-disable-next-line security/detect-object-injection
       uploaders[key].clearFiles();
     }
@@ -111,8 +100,9 @@ class WeightTicket extends Component {
   };
 
   render() {
+    const missingWeightTicket = missingWeightTickets(this.uploaders);
     const { additionalWeightTickets, vehicleType } = this.state;
-    const { error, handleSubmit, schema } = this.props;
+    const { error, handleSubmit, submitting, schema } = this.props;
     const nextBtnLabel = additionalWeightTickets === 'Yes' ? 'Save & Add Another' : 'Save & Continue';
     const uploadEmptyTicketLabel =
       '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload upload empty weight ticket</span></span>';
@@ -226,6 +216,8 @@ class WeightTicket extends Component {
             {/* TODO: change onclick handler to go to next page in flow */}
             <PPMPaymentRequestActionBtns
               nextBtnLabel={nextBtnLabel}
+              missingWeightTicket={missingWeightTicket}
+              submitting={submitting}
               onClick={handleSubmit(this.submitWeightTickets)}
               displaySaveForLater={true}
             />
