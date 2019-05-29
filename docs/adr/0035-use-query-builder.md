@@ -93,16 +93,28 @@ This could also be generated:
 func (h ListShipmentsHandler) Handle(params shipmentop.ListShipmentParams) middleware.Responder {
   filters := make([]QueryFilter)
   // could also be a list
-  if params.CreatedAt{
+  if params.CreatedAtEq {
     filters = append(
       filters,
-      CreatedAtFilter{time.Time(params.CreateAt).String(),
+      CreatedAtFilter{
+        time.Time(params.CreateAt).String(),
+        Equals,
       })
   }
-  if params.MoveID {
+  if params.CreatedAtGreaterThan {
     filters = append(
       filters,
-      MoveIDFilter{uuid.FromString(params.MoveID.String()),
+      CreatedAtFilter{
+        time.Time(params.CreateAt).String(),
+        GreaterThan,
+      })
+  }
+  if params.MoveIDEqual {
+    filters = append(
+      filters,
+      MoveIDFilter{
+        uuid.FromString(params.MoveID.String()),
+        Equals,
       })
   }
   // once again every possible column...
@@ -113,8 +125,13 @@ func (h ListShipmentsHandler) Handle(params shipmentop.ListShipmentParams) middl
 ```
 
 The swagger definition would then list all the possible column filters.
-These would be arrays (ex. `move_ids`),
+These would be arrays (ex. `move_ids_equal`),
 rather than the singular parameters in our current API specs.
+Like in the query builder below,
+this filters could also use a more complex string,
+such as `move_ids=eq,1` to avoid denoting every filter type.
+However, we lose typing/go-swagger generation
+because Open API does not support object nesting like this.
 
 * **Use a third party query builder library**
 
