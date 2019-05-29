@@ -293,9 +293,14 @@ label.inline_radio {
   cursor: pointer;
 }
 
+.staleness-indicator {
+  color: gray;
+}
+
 .refresh {
   display: inline-block;
   cursor: pointer;
+  margin-left: 0.3em;
   margin-bottom: 0.3em;
   padding: 0.3em 0;
   border: 1px solid white;

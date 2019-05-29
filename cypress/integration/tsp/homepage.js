@@ -28,6 +28,21 @@ describe('TSP Home Page', function() {
   });
 });
 
+describe('Queue staleness indicator', () => {
+  it('displays the correct time ago text', () => {
+    cy.clock();
+    cy.setupBaseUrl(tspAppName);
+    cy.signIntoOffice();
+    cy.patientVisit('/queues/all');
+
+    cy.get('[data-cy=staleness-indicator]').should('have.text', 'Last updated a few seconds ago');
+
+    cy.tick(120000);
+
+    cy.get('[data-cy=staleness-indicator]').should('have.text', 'Last updated 2 mins ago');
+  });
+});
+
 function tspUserIsOnSignInPage() {
   cy.contains('tsp.move.mil');
   cy.contains('Sign In');
