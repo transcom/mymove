@@ -2366,23 +2366,23 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	email = "hhg@sit.insit.origin"
 	offer40 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
-			ID:            uuid.Must(uuid.FromString("569283cf-7b36-11e9-b8cf-f218989021c1")),
+			ID:            uuid.Must(uuid.NewV4()),
 			LoginGovEmail: email,
 		},
 		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("78fbb4e3-7b36-11e9-8189-f218989021c1"),
+			ID:            uuid.Must(uuid.NewV4()),
 			FirstName:     models.StringPointer("ORIGIN-SIT"),
 			LastName:      models.StringPointer("InSIT"),
 			Edipi:         models.StringPointer("1857924699"),
 			PersonalEmail: models.StringPointer(email),
 		},
 		Move: models.Move{
-			ID:               uuid.FromStringOrNil("84870ff3-7b36-11e9-8576-f218989021c1"),
+			ID:               uuid.Must(uuid.NewV4()),
 			Locator:          "SITOIN", // SIT Origin InSIT
 			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
-			ID:                uuid.FromStringOrNil("8c146f1c-7b36-11e9-8bda-f218989021c1"),
+			ID:                uuid.Must(uuid.NewV4()),
 			SourceRateArea:    "US62",
 			DestinationRegion: "11",
 			CodeOfService:     "D",
@@ -2397,41 +2397,23 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	authorizedStartDateOffer40 := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
-	sitID := uuid.Must(uuid.NewV4())
+	sit40 := models.StorageInTransit{
+		ID:                  uuid.Must(uuid.NewV4()),
+		ShipmentID:          offer40.ShipmentID,
+		Shipment:            offer40.Shipment,
+		Location:            models.StorageInTransitLocationORIGIN,
+		Status:              models.StorageInTransitStatusINSIT,
+		EstimatedStartDate:  time.Date(2019, time.Month(3), 22, 0, 0, 0, 0, time.UTC),
+		ActualStartDate:     &authorizedStartDateOffer40,
+		AuthorizedStartDate: &authorizedStartDateOffer40,
+		SITNumber:           models.StringPointer("400000001"),
+	}
 	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
-		StorageInTransit: models.StorageInTransit{
-			ID:                  sitID,
-			ShipmentID:          offer40.ShipmentID,
-			Shipment:            offer40.Shipment,
-			Location:            models.StorageInTransitLocationORIGIN,
-			Status:              models.StorageInTransitStatusAPPROVED,
-			EstimatedStartDate:  time.Date(2019, time.Month(3), 22, 0, 0, 0, 0, time.UTC),
-			ActualStartDate:     &authorizedStartDateOffer40,
-			AuthorizedStartDate: &authorizedStartDateOffer40,
-		},
+		StorageInTransit: sit40,
 	})
 	hhg40 := offer40.Shipment
 	hhg40.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg40.Move)
-
-	// Transition SIT to InSIT
-	// To make the SIT Number appear for an In SIT story, have to run through the place in to SIT handler
-
-	payload := apimessages.StorageInTransitInSitPayload{
-		ActualStartDate: *handlers.FmtDate(authorizedStartDateOffer40),
-	}
-	session := auth.Session{
-		ApplicationName: auth.TspApp,
-		UserID:          *tspUser.UserID,
-		IDToken:         "fake token",
-		TspUserID:       tspUser.ID,
-	}
-	inSITPlacer40 := storageintransit.NewStorageInTransitInSITPlacer(db)
-	_, verrs, err := inSITPlacer40.PlaceIntoSITStorageInTransit(payload, offer40.ShipmentID, &session, sitID)
-	if verrs.HasAny() || err != nil {
-		fmt.Println(verrs.String())
-		log.Panic(err)
-	}
 
 	/*
 	 * HHG41
@@ -2458,27 +2440,24 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	// create and return a delivered shipment ready for invoice
 	hhg41 := makeHhgReadyToInvoiceWithSIT(db, shipmentHhgParams41)
 
-	// Add Approved SIT to shipment after shipment is delivered
+	// Add SIT to shipment after shipment is delivered
+	// Create and add to shipment a SIT at Origin that is IN-SIT
+	sitID41 := uuid.Must(uuid.NewV4())
 	authorizedStartDateOffer41 := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
-	approvedSITParams41 := approvedSITParams{
-		SITID:               uuid.Must(uuid.NewV4()),
-		AuthorizedStartDate: &authorizedStartDateOffer41,
-		EstimatedStartDate:  authorizedStartDateOffer41,
-		Location:            models.StorageInTransitLocationORIGIN,
+	sit41 := models.StorageInTransit{
+		ID:                  sitID41,
 		ShipmentID:          hhg41.ID,
 		Shipment:            hhg41,
+		Location:            models.StorageInTransitLocationORIGIN,
+		Status:              models.StorageInTransitStatusINSIT,
+		EstimatedStartDate:  authorizedStartDateOffer41,
+		AuthorizedStartDate: &authorizedStartDateOffer41,
+		ActualStartDate:     &authorizedStartDateOffer41,
+		SITNumber:           models.StringPointer("410000001"),
 	}
-	addApprovedSIT(db, approvedSITParams41)
-
-	// Transition SIT to InSIT/IN_SIT
-	// To make the SIT Number appear for an In SIT story, have to run through the place in to SIT handler
-	placeInSITParams41 := placeInSITParams{
-		SITID:           approvedSITParams41.SITID,
-		ShipmentID:      hhg41.ID,
-		Shipment:        hhg41,
-		ActualStartDate: authorizedStartDateOffer41,
-	}
-	sitPlaceInSIT(db, placeInSITParams41, tspUserSession)
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: sit41,
+	})
 
 	/*
 	 * HHG42
@@ -2503,23 +2482,26 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	}
 
 	authorizedStartDate42 := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
-	approvedSITParams42 := approvedSITParams{
-		SITID:               uuid.Must(uuid.NewV4()),
-		AuthorizedStartDate: &authorizedStartDate42,
+	sitID42 := uuid.Must(uuid.NewV4())
+	sit42 := models.StorageInTransit{
+		ID:                  sitID42,
 		Location:            models.StorageInTransitLocationORIGIN,
+		Status:              models.StorageInTransitStatusAPPROVED,
+		EstimatedStartDate:  authorizedStartDate42,
+		AuthorizedStartDate: &authorizedStartDate42,
 	}
-	shipmentHhgParams42.ApprovedSITs = append(shipmentHhgParams42.ApprovedSITs, approvedSITParams42)
+
+	shipmentHhgParams42.SITs = append(shipmentHhgParams42.SITs, sit42)
 
 	// create and return a delivered shipment ready for invoice
 	hhg42 := makeHhgReadyToInvoiceWithSIT(db, shipmentHhgParams42)
 
 	// Transition SIT to InSIT/IN_SIT
-	// To make the SIT Number appear for an In SIT story, have to run through the place in to SIT handler
 	placeInSITParams42 := placeInSITParams{
-		SITID:           approvedSITParams42.SITID,
+		SITID:           sit42.ID,
 		ShipmentID:      hhg42.ID,
 		Shipment:        hhg42,
-		ActualStartDate: *approvedSITParams42.AuthorizedStartDate,
+		ActualStartDate: *sit42.AuthorizedStartDate,
 	}
 	sitPlaceInSIT(db, placeInSITParams42, tspUserSession)
 
@@ -3033,31 +3015,6 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger Logger, s
 	return offer.Shipment
 }
 
-type approvedSITParams struct {
-	Location            models.StorageInTransitLocation
-	ShipmentID          uuid.UUID
-	Shipment            models.Shipment
-	EstimatedStartDate  time.Time
-	AuthorizedStartDate *time.Time
-	SITID               uuid.UUID
-}
-
-func addApprovedSIT(db *pop.Connection, params approvedSITParams) {
-
-	// Create and add to shipment a SIT at Origin that is Approved
-	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
-		StorageInTransit: models.StorageInTransit{
-			ID:                  params.SITID,
-			ShipmentID:          params.ShipmentID,
-			Shipment:            params.Shipment,
-			Location:            params.Location,
-			Status:              models.StorageInTransitStatusAPPROVED,
-			EstimatedStartDate:  params.EstimatedStartDate,
-			AuthorizedStartDate: params.AuthorizedStartDate,
-		},
-	})
-}
-
 type placeInSITParams struct {
 	SITID           uuid.UUID
 	ShipmentID      uuid.UUID
@@ -3067,7 +3024,6 @@ type placeInSITParams struct {
 
 func sitPlaceInSIT(db *pop.Connection, params placeInSITParams, tspUserSession auth.Session) {
 	// Transition SIT to InSIT
-	// To make the SIT Number appear for an In SIT story, have to run through the place in to SIT handler
 	payload := apimessages.StorageInTransitInSitPayload{
 		ActualStartDate: *handlers.FmtDate(params.ActualStartDate),
 	}
@@ -3095,7 +3051,7 @@ type hhgReadyToInvoiceParams struct {
 	EDIPI                  string
 	Locator                string
 	PlannerDistance        int
-	ApprovedSITs           []approvedSITParams
+	SITs                   models.StorageInTransits
 }
 
 // makeHhgReadyToInvoiceWithSIT creates a shipment that is delivered and invoice ready with the option
@@ -3173,10 +3129,12 @@ func makeHhgReadyToInvoiceWithSIT(db *pop.Connection, params hhgReadyToInvoicePa
 	//
 	// Add SIT before delivering shipment -- this seems like the typical flow a shipment will go through
 	//
-	for _, sit := range params.ApprovedSITs {
+	for _, sit := range params.SITs {
 		sit.ShipmentID = offer.Shipment.ID
 		sit.Shipment = offer.Shipment
-		addApprovedSIT(db, sit)
+		testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+			StorageInTransit: sit,
+		})
 	}
 
 	//
