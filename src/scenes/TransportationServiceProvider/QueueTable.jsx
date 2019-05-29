@@ -28,6 +28,12 @@ class QueueTable extends Component {
     }
   }
 
+  openShipment(rowInfo) {
+    this.props.history.push(`/shipments/${rowInfo.original.id}`, {
+      referrerPathname: this.props.history.location.pathname,
+    });
+  }
+
   async fetchData() {
     const loadingQueueType = this.props.queueType;
 
@@ -138,10 +144,9 @@ class QueueTable extends Component {
             className="-striped -highlight"
             showPagination={false}
             getTrProps={(state, rowInfo) => ({
-              onDoubleClick: e =>
-                this.props.history.push(`/shipments/${rowInfo.original.id}`, {
-                  referrerPathname: this.props.history.location.pathname,
-                }),
+              'data-cy': 'queueTableRow',
+              onDoubleClick: () => this.openShipment(rowInfo),
+              onClick: () => this.openShipment(rowInfo),
             })}
           />
         </div>
