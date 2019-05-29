@@ -309,7 +309,7 @@ function tspUserSubmitsReleaseSit() {
   // click release shipment link
   cy
     .get('[data-cy=storage-in-transit-panel] [data-cy=release-from-sit-link]')
-    .contains('Release From SIT')
+    .contains('Release from SIT')
     .click();
 
   // Test canceling after clicking release shipment link
@@ -326,7 +326,7 @@ function tspUserSubmitsReleaseSit() {
   // click release shipment link
   cy
     .get('[data-cy=storage-in-transit-panel] [data-cy=release-from-sit-link]')
-    .contains('Release From SIT')
+    .contains('Release from SIT')
     .click();
 
   // enter in date released on
@@ -376,7 +376,7 @@ function tspUserSubmitsReleaseSit() {
   // click release shipment link
   cy
     .get('[data-cy=storage-in-transit-panel] [data-cy=release-from-sit-link]')
-    .contains('Release From SIT')
+    .contains('Release from SIT')
     .click();
 
   // enter in date released on
