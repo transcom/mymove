@@ -16,9 +16,14 @@ def get_swagger_config():
     # See https://bravado-core.readthedocs.io/en/stable/formats.html
     milmove_formats = []
     string_fmt_list = [
+        "basequantity",
+        "cents",
         "edipi",
+        "millicents",
+        "mime-type",
         "ssn",
         "telephone",
+        "uri",
         "uuid",
         "x-email",
         "zip",
