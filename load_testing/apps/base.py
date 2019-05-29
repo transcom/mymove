@@ -1,3 +1,5 @@
+import time
+
 from locust import TaskSequence
 from locust import task
 from locust import events
@@ -54,12 +56,13 @@ def swagger_request(callable_operation, *args, **kwargs):
     path_name = callable_operation.operation.path_name
     response_future = callable_operation(*args, **kwargs)
     try:
+        start_time = time.time()
         response = response_future.response()
     except HTTPError as e:
         events.request_failure.fire(
             request_type=method,
             name=path_name,
-            response_time=0,  # Not clear how to get this
+            response_time=time.time() - start_time,
             exception=e,
         )
         return e.swagger_result
@@ -68,7 +71,7 @@ def swagger_request(callable_operation, *args, **kwargs):
         events.request_failure.fire(
             request_type=method,
             name=path_name,
-            response_time=0,  # Not clear how to get this
+            response_time=time.time() - start_time,
             exception=e,
         )
         raise e
