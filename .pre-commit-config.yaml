@@ -37,6 +37,10 @@ repos:
             pkg/cli/auth.go$|
           )$
       - id: fix-encoding-pragma
+        exclude: >
+          (?x)^(
+            scripts/gen-docs-index|
+          )$
       - id: flake8
         exclude: >
           (?x)^(
