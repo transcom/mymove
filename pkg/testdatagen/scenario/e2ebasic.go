@@ -2320,7 +2320,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Status:           models.MoveStatusAPPROVED,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
-			ID:                uuid.FromStringOrNil("3b351688-6108-4d3b-9cc0-8a6a1250cda3"),
+			ID:                uuid.FromStringOrNil("bbf23676-ea22-4432-9627-89c27dffd9a7"),
 			SourceRateArea:    "US62",
 			DestinationRegion: "11",
 			CodeOfService:     "D",
@@ -2347,6 +2347,55 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	hhg39 := offer39.Shipment
 	hhg39.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg39.Move)
+
+	/*
+	 * Service member with in-transit move and denied SIT
+	 */
+	email = "hhg@sit.denied"
+	offer40 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("b46a5aa9-c923-4a85-9d00-215cd2e1c62b")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("aa404f76-cba2-47ac-98b8-c6bc7c623e6f"),
+			FirstName:     models.StringPointer("SIT"),
+			LastName:      models.StringPointer("Denied"),
+			Edipi:         models.StringPointer("1357924680"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("238c0f0a-22d4-4868-8b9c-b0fee514ce61"),
+			Locator:          "SITDN2",
+			SelectedMoveType: &selectedMoveTypeHHG,
+			Status:           models.MoveStatusAPPROVED,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("d46a0c60-1f83-48b0-8993-18430f8b4bcf"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusINTRANSIT,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID:         offer40.ShipmentID,
+			Shipment:           offer40.Shipment,
+			Status:             models.StorageInTransitStatusDENIED,
+			EstimatedStartDate: time.Date(2019, time.Month(3), 29, 0, 0, 0, 0, time.UTC),
+		},
+	})
+	hhg40 := offer40.Shipment
+	hhg40.Move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &hhg40.Move)
 
 	/*
 	 * Service member with a ppm ready to request payment

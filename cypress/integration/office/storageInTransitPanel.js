@@ -254,7 +254,7 @@ function officeUserDeniesSITRequest() {
   });
 
   cy
-    .get('a[data-cy="deny-sit-link"]')
+    .get('a[data-cy="sit-deny-link"]')
     .contains('Deny')
     .click()
     .get('[data-cy="storage-in-transit"]')
