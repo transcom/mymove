@@ -1,7 +1,6 @@
 package shipment
 
 import (
-	"errors"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -11,7 +10,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
-	//sitservice "github.com/transcom/mymove/pkg/services/storage_in_transit"
 )
 
 // DeliverAndPriceShipment is a service object to deliver and price a Shipment
@@ -24,28 +22,19 @@ type DeliverAndPriceShipment struct {
 // Call delivers a Shipment and prices associated line items
 func (c DeliverAndPriceShipment) Call(deliveryDate time.Time, shipment *models.Shipment, tspID uuid.UUID) (*validate.Errors, error) {
 	verrs := validate.NewErrors()
-	var err error
-	c.DB.Transaction(func(db *pop.Connection) error {
-		transactionError := errors.New("rollback")
-
-		err = shipment.Deliver(deliveryDate)
-		if err != nil {
-			return err
-		}
-
-		verrs, err = PriceShipment{DB: db, Engine: c.Engine, Planner: c.Planner}.Call(shipment, ShipmentPriceNEW)
-		if err != nil || verrs.HasAny() {
+	err := c.DB.Transaction(func(db *pop.Connection) error {
+		transactionError := shipment.Deliver(deliveryDate)
+		if transactionError != nil {
 			return transactionError
 		}
 
-		//sitDeliverer := sitservice.NewStorageInTransitsDeliverer(c.DB)
-		//_, verrs, err = sitDeliverer.DeliverStorageInTransits(shipment.ID, tspID)
-		//if err != nil || verrs.HasAny() {
-		//	return transactionError
-		//}
+		verrs, transactionError = PriceShipment{DB: db, Engine: c.Engine, Planner: c.Planner}.Call(shipment, ShipmentPriceNEW)
+		if transactionError != nil || verrs.HasAny() {
+			return transactionError
+		}
 
-		c.deliverStorageInTransits(shipment.ID, tspID)
-		if err != nil || verrs.HasAny() {
+		_, verrs, transactionError = deliverStorageInTransits(db, shipment.ID, tspID)
+		if transactionError != nil || verrs.HasAny() {
 			return transactionError
 		}
 
@@ -56,12 +45,12 @@ func (c DeliverAndPriceShipment) Call(deliveryDate time.Time, shipment *models.S
 }
 
 // DeliverStorageInTransits delivers multiple SITS
-func (c *DeliverAndPriceShipment) deliverStorageInTransits(shipmentID uuid.UUID, tspID uuid.UUID) ([]models.StorageInTransit, *validate.Errors, error) {
+func deliverStorageInTransits(db *pop.Connection, shipmentID uuid.UUID, tspID uuid.UUID) ([]models.StorageInTransit, *validate.Errors, error) {
 	// TODO: it looks like from the wireframes for the delivery status change form that this will also need to edit
 	//  delivery address(es) and the actual delivery date.
 	verrs := validate.NewErrors()
 
-	storageInTransits, err := models.FetchStorageInTransitsOnShipment(c.DB, shipmentID)
+	storageInTransits, err := models.FetchStorageInTransitsOnShipment(db, shipmentID)
 	if err != nil {
 		return nil, verrs, err
 	}
@@ -70,7 +59,7 @@ func (c *DeliverAndPriceShipment) deliverStorageInTransits(shipmentID uuid.UUID,
 		// only deliver DESTINATION Sits that are IN_SIT
 		if sit.Status == models.StorageInTransitStatusINSIT &&
 			sit.Location == models.StorageInTransitLocationDESTINATION {
-			modifiedSit, verrs, err := c.deliverStorageInTransit(shipmentID, sit.ID, tspID)
+			modifiedSit, verrs, err := deliverStorageInTransit(db, shipmentID, sit.ID, tspID)
 			if verrs.HasAny() || err != nil {
 				verrs.Append(verrs)
 				return nil, verrs, err
@@ -83,10 +72,10 @@ func (c *DeliverAndPriceShipment) deliverStorageInTransits(shipmentID uuid.UUID,
 	return sitsToReturn, verrs, err
 }
 
-func (c *DeliverAndPriceShipment) deliverStorageInTransit(shipmentID uuid.UUID, storageInTransitID uuid.UUID, tspID uuid.UUID) (*models.StorageInTransit, *validate.Errors, error) {
+func deliverStorageInTransit(db *pop.Connection, shipmentID uuid.UUID, storageInTransitID uuid.UUID, tspID uuid.UUID) (*models.StorageInTransit, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 
-	storageInTransit, err := models.FetchStorageInTransitByID(c.DB, storageInTransitID)
+	storageInTransit, err := models.FetchStorageInTransitByID(db, storageInTransitID)
 	if err != nil {
 		return nil, returnVerrs, err
 	}
@@ -95,7 +84,7 @@ func (c *DeliverAndPriceShipment) deliverStorageInTransit(shipmentID uuid.UUID, 
 		return nil, returnVerrs, models.ErrFetchForbidden
 	}
 
-	shipment, err := models.FetchShipmentByTSP(c.DB, tspID, shipmentID)
+	shipment, err := models.FetchShipmentByTSP(db, tspID, shipmentID)
 	if err != nil {
 		return storageInTransit, returnVerrs, err
 	}
@@ -108,7 +97,7 @@ func (c *DeliverAndPriceShipment) deliverStorageInTransit(shipmentID uuid.UUID, 
 
 	storageInTransit.Status = models.StorageInTransitStatusDELIVERED
 	storageInTransit.OutDate = shipment.ActualDeliveryDate
-	if verrs, err := c.DB.ValidateAndSave(storageInTransit); verrs.HasAny() || err != nil {
+	if verrs, err := db.ValidateAndSave(storageInTransit); verrs.HasAny() || err != nil {
 		returnVerrs.Append(verrs)
 		return nil, returnVerrs, err
 	}
