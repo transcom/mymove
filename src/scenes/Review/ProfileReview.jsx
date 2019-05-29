@@ -5,6 +5,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
 import { selectedMoveType, isLastMoveCanceled } from 'shared/Entities/modules/moves';
+import { getCurrentMoveID } from 'shared/UI/ducks';
+
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 
 import ServiceMemberSummary from './ServiceMemberSummary';
@@ -58,8 +60,8 @@ ProfileReview.propTypes = {
   serviceMember: PropTypes.object,
 };
 
-function mapStateToProps(state, ownProps) {
-  const moveId = ownProps.match.params.moveId;
+function mapStateToProps(state) {
+  const moveId = getCurrentMoveID(state);
   return {
     serviceMember: state.serviceMember.currentServiceMember,
     lastMoveIsCanceled: isLastMoveCanceled(state, moveId),
