@@ -21,10 +21,10 @@ class TSPUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
 
     @seq_task(1)
     def login(self):
-        resp = self.client.post('/devlocal-auth/create', data={"userType": "tsp"})
+        resp = self.client.post("/devlocal-auth/create", data={"userType": "tsp"})
         try:
             self.login_gov_user = resp.json()
-            self.session_token = self.client.cookies.get('tsp_session_token')
+            self.session_token = self.client.cookies.get("tsp_session_token")
             self.requests_client = RequestsClient()
             # Set the session to be the same session as locust uses
             self.requests_client.session = self.client
@@ -33,14 +33,16 @@ class TSPUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
             # nullable sub-definitions
             self.swagger_internal = SwaggerClient.from_url(
                 urljoin(self.parent.host, "internal/swagger.yaml"),
-                request_headers={'x-csrf-token': self.csrf},
+                request_headers={"x-csrf-token": self.csrf},
                 http_client=self.requests_client,
-                config=get_swagger_config())
+                config=get_swagger_config(),
+            )
             self.swagger_public = SwaggerClient.from_url(
                 urljoin(self.parent.host, "api/v1/swagger.yaml"),
-                request_headers={'x-csrf-token': self.csrf},
+                request_headers={"x-csrf-token": self.csrf},
                 http_client=self.requests_client,
-                config=get_swagger_config())
+                config=get_swagger_config(),
+            )
         except Exception:
             print(resp.content)
 
@@ -57,8 +59,8 @@ class TSPUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
         q_type = random.choice(queue_types)
 
         queue = swagger_request(
-            self.swagger_public.shipments.indexShipments,
-            status=[q_type])
+            self.swagger_public.shipments.indexShipments, status=[q_type]
+        )
 
         # Pick a random shipment
         if len(queue) == 0:
@@ -69,36 +71,41 @@ class TSPUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
 
         shipment_id = item["id"]
         swagger_request(
-            self.swagger_public.shipments.getShipment,
-            shipmentId=shipment_id)
+            self.swagger_public.shipments.getShipment, shipmentId=shipment_id
+        )
 
         swagger_request(
             self.swagger_public.service_agents.indexServiceAgents,
-            shipmentId=shipment_id)
+            shipmentId=shipment_id,
+        )
 
         swagger_request(
             self.swagger_public.transportation_service_provider.getTransportationServiceProvider,
-            shipmentId=shipment_id)
+            shipmentId=shipment_id,
+        )
 
         swagger_request(
-            self.swagger_public.move_docs.indexMoveDocuments,
-            shipmentId=shipment_id)
+            self.swagger_public.move_docs.indexMoveDocuments, shipmentId=shipment_id
+        )
 
         swagger_request(
             self.swagger_public.accessorials.getTariff400ngItems,
-            requires_pre_approval=True)
+            requires_pre_approval=True,
+        )
 
         swagger_request(
             self.swagger_public.accessorials.getShipmentLineItems,
-            shipmentId=shipment_id)
+            shipmentId=shipment_id,
+        )
 
         swagger_request(
-            self.swagger_public.shipments.getShipmentInvoices,
-            shipmentId=shipment_id)
+            self.swagger_public.shipments.getShipmentInvoices, shipmentId=shipment_id
+        )
 
         swagger_request(
             self.swagger_public.storage_in_transits.indexStorageInTransits,
-            shipmentId=shipment_id)
+            shipmentId=shipment_id,
+        )
 
     @seq_task(4)
     def logout(self):

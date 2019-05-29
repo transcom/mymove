@@ -36,13 +36,13 @@ def get_swagger_config():
             to_wire=str,
             to_python=str,
             validate=lambda x: x,
-            description='Converts [wire]string:string <=> python string',
+            description="Converts [wire]string:string <=> python string",
         )
         milmove_formats.append(swagger_fmt)
     swagger_config = {
-        'validate_requests': False,
-        'validate_responses': False,
-        'formats': milmove_formats,
+        "validate_requests": False,
+        "validate_responses": False,
+        "formats": milmove_formats,
     }
     return swagger_config
 
@@ -97,9 +97,9 @@ class BaseTaskSequence(TaskSequence):
 
         The token is set as a cookie with the name `masked_gorilla_csrf`
         """
-        self.client.get('/')
-        self.csrf = self.client.cookies.get('masked_gorilla_csrf')
-        self.client.headers.update({'x-csrf-token': self.csrf})
+        self.client.get("/")
+        self.csrf = self.client.cookies.get("masked_gorilla_csrf")
+        self.client.headers.update({"x-csrf-token": self.csrf})
 
     def on_start(self):
         """ on_start is called when a Locust start before any task is scheduled """

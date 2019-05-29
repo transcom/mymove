@@ -21,10 +21,10 @@ class OfficeUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
 
     @seq_task(1)
     def login(self):
-        resp = self.client.post('/devlocal-auth/create', data={"userType": "office"})
+        resp = self.client.post("/devlocal-auth/create", data={"userType": "office"})
         try:
             self.login_gov_user = resp.json()
-            self.session_token = self.client.cookies.get('office_session_token')
+            self.session_token = self.client.cookies.get("office_session_token")
             self.requests_client = RequestsClient()
             # Set the session to be the same session as locust uses
             self.requests_client.session = self.client
@@ -33,14 +33,16 @@ class OfficeUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
             # nullable sub-definitions
             self.swagger_internal = SwaggerClient.from_url(
                 urljoin(self.parent.host, "internal/swagger.yaml"),
-                request_headers={'x-csrf-token': self.csrf},
+                request_headers={"x-csrf-token": self.csrf},
                 http_client=self.requests_client,
-                config=get_swagger_config())
+                config=get_swagger_config(),
+            )
             self.swagger_public = SwaggerClient.from_url(
                 urljoin(self.parent.host, "api/v1/swagger.yaml"),
-                request_headers={'x-csrf-token': self.csrf},
+                request_headers={"x-csrf-token": self.csrf},
                 http_client=self.requests_client,
-                config=get_swagger_config())
+                config=get_swagger_config(),
+            )
         except Exception:
             print(resp.content)
 
@@ -58,12 +60,17 @@ class OfficeUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
 
         This task pretents to be a user who has work to do in a specific queue.
         """
-        queue_types = ["new", "ppm", "hhg_accepted", "hhg_delivered"]  # Excluding 'all' queue
+        queue_types = [
+            "new",
+            "ppm",
+            "hhg_accepted",
+            "hhg_delivered",
+        ]  # Excluding 'all' queue
         q_type = random.choice(queue_types)
 
         queue = swagger_request(
-            self.swagger_internal.queues.showQueue,
-            queueType=q_type)
+            self.swagger_internal.queues.showQueue, queueType=q_type
+        )
 
         # Pick a random move
         if len(queue) == 0:
@@ -74,34 +81,33 @@ class OfficeUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
 
         # Move Requests
         move_id = item["id"]
-        move = swagger_request(
-            self.swagger_internal.moves.showMove,
-            moveId=move_id)
+        move = swagger_request(self.swagger_internal.moves.showMove, moveId=move_id)
         swagger_request(
-            self.swagger_internal.move_docs.indexMoveDocuments,
-            moveId=move_id)
+            self.swagger_internal.move_docs.indexMoveDocuments, moveId=move_id
+        )
         swagger_request(
             self.swagger_public.accessorials.getTariff400ngItems,
-            requires_pre_approval=True)
+            requires_pre_approval=True,
+        )
         swagger_request(
-            self.swagger_internal.ppm.indexPersonallyProcuredMoves,
-            moveId=move_id)
+            self.swagger_internal.ppm.indexPersonallyProcuredMoves, moveId=move_id
+        )
 
         # Orders Requests
         orders_id = move["orders_id"]
-        swagger_request(
-            self.swagger_internal.orders.showOrders,
-            ordersId=orders_id)
+        swagger_request(self.swagger_internal.orders.showOrders, ordersId=orders_id)
 
         # Service Member Requests
         service_member_id = move["service_member_id"]
         swagger_request(
             self.swagger_internal.service_members.showServiceMember,
-            serviceMemberId=service_member_id)
+            serviceMemberId=service_member_id,
+        )
 
         swagger_request(
             self.swagger_internal.backup_contacts.indexServiceMemberBackupContacts,
-            serviceMemberId=service_member_id)
+            serviceMemberId=service_member_id,
+        )
 
         # Shipment Requests
         if "shipments" not in move:
@@ -113,28 +119,32 @@ class OfficeUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
 
         shipment_id = move["shipments"][0]["id"]
         swagger_request(
-            self.swagger_public.shipments.getShipment,
-            shipmentId=shipment_id)
+            self.swagger_public.shipments.getShipment, shipmentId=shipment_id
+        )
 
         swagger_request(
             self.swagger_public.transportation_service_provider.getTransportationServiceProvider,
-            shipmentId=shipment_id)
+            shipmentId=shipment_id,
+        )
 
         swagger_request(
             self.swagger_public.accessorials.getShipmentLineItems,
-            shipmentId=shipment_id)
+            shipmentId=shipment_id,
+        )
 
         swagger_request(
-            self.swagger_public.shipments.getShipmentInvoices,
-            shipmentId=shipment_id)
+            self.swagger_public.shipments.getShipmentInvoices, shipmentId=shipment_id
+        )
 
         swagger_request(
             self.swagger_public.service_agents.indexServiceAgents,
-            shipmentId=shipment_id)
+            shipmentId=shipment_id,
+        )
 
         swagger_request(
             self.swagger_public.storage_in_transits.indexStorageInTransits,
-            shipmentId=shipment_id)
+            shipmentId=shipment_id,
+        )
 
     @seq_task(4)
     def logout(self):
