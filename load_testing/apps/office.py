@@ -50,72 +50,98 @@ class OfficeUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
         # check response for 200
 
     @seq_task(3)
-    def view_moves_in_each_queue(self):
-        queue_types = ["new", "ppm", "hhg_accepted", "hhg_delivered", "all"]
-        for q_type in queue_types:
-            queue = swagger_request(
-                self.swagger_internal.queues.showQueue,
-                queueType=q_type)
-            # Only look at up to 5 randomly chosen items
-            for item in random.sample(queue, min(len(queue), 5)):
-                # These are all the requests you'd see loaded in a single move in rough order of execution
+    def view_moves_in_random_queue(self):
+        """
+        Choose a random queue to visit
 
-                # Move Requests
-                move_id = item["id"]
-                move = swagger_request(
-                    self.swagger_internal.moves.showMove,
-                    moveId=move_id)
-                swagger_request(
-                    self.swagger_internal.move_docs.indexMoveDocuments,
-                    moveId=move_id)
-                swagger_request(
-                    self.swagger_public.accessorials.getTariff400ngItems,
-                    requires_pre_approval=True)
-                swagger_request(
-                    self.swagger_internal.ppm.indexPersonallyProcuredMoves,
-                    moveId=move_id)
+        This task pretents to be a user who has work to do in a specific queue.
+        """
+        queue_types = ["new", "ppm", "hhg_accepted", "hhg_delivered"]  # Excluding 'all' queue
+        q_type = random.choice(queue_types)
 
-                # Orders Requests
-                orders_id = move["orders_id"]
-                orders = swagger_request(
-                    self.swagger_internal.orders.showOrders,
-                    ordersId=orders_id)
+        queue = swagger_request(
+            self.swagger_internal.queues.showQueue,
+            queueType=q_type)
 
-                # Service Member Requests
-                service_member_id = move["service_member_id"]
-                swagger_request(
-                    self.swagger_internal.service_members.showServiceMember,
-                    serviceMemberId=service_member_id)
+        # Only look at up to 5 randomly chosen items
+        for item in random.sample(queue, min(len(queue), 5)):
+            # These are all the requests you'd see loaded in a single move in rough order of execution
 
-                swagger_request(
-                    self.swagger_internal.backup_contacts.indexServiceMemberBackupContacts,
-                    serviceMemberId=service_member_id)
+            # Move Requests
+            move_id = item["id"]
+            move = swagger_request(
+                self.swagger_internal.moves.showMove,
+                moveId=move_id)
+            swagger_request(
+                self.swagger_internal.move_docs.indexMoveDocuments,
+                moveId=move_id)
+            swagger_request(
+                self.swagger_public.accessorials.getTariff400ngItems,
+                requires_pre_approval=True)
+            swagger_request(
+                self.swagger_internal.ppm.indexPersonallyProcuredMoves,
+                moveId=move_id)
 
-                # Shipment Requests
-                shipment_id = orders["moves"][0]["shipments"][0]["id"]
-                swagger_request(
-                    self.swagger_public.shipments.getShipment,
-                    shipmentId=shipment_id)
+            # Orders Requests
+            orders_id = move["orders_id"]
+            swagger_request(
+                self.swagger_internal.orders.showOrders,
+                ordersId=orders_id)
 
-                swagger_request(
-                    self.swagger_public.transportation_service_provider.getTransportationServiceProvider,
-                    shipmentId=shipment_id)
+            # Service Member Requests
+            service_member_id = move["service_member_id"]
+            service_member = swagger_request(
+                self.swagger_internal.service_members.showServiceMember,
+                serviceMemberId=service_member_id)
 
-                swagger_request(
-                    self.swagger_public.accessorials.getShipmentLineItems,
-                    shipmentId=shipment_id)
+            swagger_request(
+                self.swagger_internal.backup_contacts.indexServiceMemberBackupContacts,
+                serviceMemberId=service_member_id)
 
-                swagger_request(
-                    self.swagger_public.shipments.getShipmentInvoices,
-                    shipmentId=shipment_id)
+            # Shipment Requests
+            if "orders" not in service_member:
+                return
+            if not isinstance(service_member["orders"], list):
+                return
+            if len(service_member["orders"]) == 0:
+                return
+            if "moves" not in service_member["orders"][0]:
+                return
+            if not isinstance(service_member["orders"][0]["moves"], list):
+                return
+            if len(service_member["orders"][0]["moves"]) == 0:
+                return
+            if "shipments" not in service_member["orders"][0]["moves"][0]:
+                return
+            if not isinstance(service_member["orders"][0]["moves"][0]["shipments"], list):
+                return
+            if len(service_member["orders"][0]["moves"][0]["shipments"]) == 0:
+                return
 
-                swagger_request(
-                    self.swagger_public.service_agents.indexServiceAgents,
-                    shipmentId=shipment_id)
+            shipment_id = service_member["orders"][0]["moves"][0]["shipments"][0]["id"]
+            swagger_request(
+                self.swagger_public.shipments.getShipment,
+                shipmentId=shipment_id)
 
-                swagger_request(
-                    self.swagger_public.storage_in_transits.indexStorageInTransits,
-                    shipmentId=shipment_id)
+            swagger_request(
+                self.swagger_public.transportation_service_provider.getTransportationServiceProvider,
+                shipmentId=shipment_id)
+
+            swagger_request(
+                self.swagger_public.accessorials.getShipmentLineItems,
+                shipmentId=shipment_id)
+
+            swagger_request(
+                self.swagger_public.shipments.getShipmentInvoices,
+                shipmentId=shipment_id)
+
+            swagger_request(
+                self.swagger_public.service_agents.indexServiceAgents,
+                shipmentId=shipment_id)
+
+            swagger_request(
+                self.swagger_public.storage_in_transits.indexStorageInTransits,
+                shipmentId=shipment_id)
 
     @seq_task(4)
     def logout(self):
