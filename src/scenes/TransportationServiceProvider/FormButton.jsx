@@ -20,12 +20,11 @@ export default class FormButton extends Component {
   };
 
   enterFormView = () => {
-    const { schema, onSubmit, FormComponent } = this.props;
+    const { FormComponent } = this.props;
 
     const formProps = {
       onCancel: this.setButtonState,
-      schema: schema,
-      onSubmit: onSubmit,
+      ...this.props,
     };
     return <FormComponent {...formProps} />;
   };
