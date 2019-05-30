@@ -2674,6 +2674,15 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
+
+	// create valid access code
+	accessCodeMoveType := models.SelectedMoveTypePPM
+	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
+		AccessCode: models.AccessCode{
+			Code:     "X3FQJK",
+			MoveType: &accessCodeMoveType,
+		},
+	})
 }
 
 // MakeHhgWithPpm creates an HHG user who has added a PPM
