@@ -11,7 +11,7 @@ import { validateAccessCode, claimAccessCode } from 'shared/Entities/modules/acc
 
 class AccessCode extends React.Component {
   validateAndClaimAccessCode = () => {
-    const { history, formValues, validateAccessCode, claimAccessCode } = this.props;
+    const { formValues, validateAccessCode, claimAccessCode } = this.props;
     return validateAccessCode(formValues.claim_access_code)
       .then(res => {
         const { body: accessCode } = get(res, 'response');
@@ -23,7 +23,7 @@ class AccessCode extends React.Component {
         }
         claimAccessCode(accessCode)
           .then(() => {
-            history.push(`/`);
+            window.location.reload();
           })
           .catch(err => {
             console.log(err);
