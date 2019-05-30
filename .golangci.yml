@@ -27,9 +27,9 @@ linters:
   disable:
     - unused #deprecated https://github.com/dominikh/go-tools/tree/master/cmd/unused
     - errcheck #requires patching code
-    - gosimple
-    - ineffassign
-    - staticcheck
+    - gosimple # 20+ files need to be patched
+    - ineffassign # 20+ files need to be patched
+    - staticcheck # 30+files need to be patched
 issues:
   exclude-rules:
     # skip analyzing dutystationsloader until repeated tags from embedded types are fixed https://github.com/golang/go/issues/30846
