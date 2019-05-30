@@ -293,7 +293,7 @@ export class StorageInTransit extends Component {
                     {(isReleased || isDelivered) && (
                       <div className="panel-field nested__same-font">
                         <span className="field-title unbold">Date out</span>
-                        <span data-cy="sit-expires" className="field-value">
+                        <span data-cy="sit-date-out" className="field-value">
                           {formatDate4DigitYear(storageInTransit.out_date)}
                         </span>
                       </div>
