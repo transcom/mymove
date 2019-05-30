@@ -130,7 +130,6 @@ repos:
         files: \.md$
         pass_filenames: false
 
-
   - repo: local
     hooks:
     - id: circleci-validate
@@ -138,4 +137,13 @@ repos:
       entry: scripts/pre-commit-circleci-validate
       language: script
       files: '[.]circleci/config.yml$'
+      pass_filenames: false
+
+  - repo: local
+    hooks:
+    - id: codecov-validate
+      name: codecov validate
+      entry: scripts/pre-commit-codecov-validate
+      language: script
+      files: .codecov.yml
       pass_filenames: false
