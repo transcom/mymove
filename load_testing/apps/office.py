@@ -30,8 +30,8 @@ class OfficeUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
             # Set the session to be the same session as locust uses
             self.requests_client.session = self.client
             # Set the csrf token in the global headers for all requests
-            # Don't validate requests or responses because we're using OpenAPI Spec 2.0 which doesn't respect
-            # nullable sub-definitions
+            # Don't validate requests or responses because we're using OpenAPI Spec 2.0
+            # which doesn't respect nullable sub-definitions
             self.swagger_internal = SwaggerClient.from_url(
                 urljoin(self.parent.host, "internal/swagger.yaml"),
                 request_headers={"x-csrf-token": self.csrf},
@@ -50,7 +50,12 @@ class OfficeUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
     @seq_task(2)
     def retrieve_user(self):
         resp = self.client.get("/internal/users/logged_in")
-        self.user = resp.json()
+        try:
+            self.user = resp.json()
+        except Exception:
+            self.interrupt()
+        if not self.user or "id" not in self.user:
+            self.interrupt()
         # check response for 200
 
     @seq_task(3)
@@ -73,12 +78,15 @@ class OfficeUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
             self.swagger_internal.queues.showQueue, queueType=q_type
         )
 
-        # Pick a random move
+        if not queue:
+            return
         if len(queue) == 0:
             return
+
+        # Pick a random move
         item = random.choice(queue)
 
-        # These are all the requests you'd see loaded in a single move in rough order of execution
+        # These are all the requests loaded in a single move in rough order of execution
 
         # Move Requests
         move_id = item["id"]
