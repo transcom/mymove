@@ -23,11 +23,19 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       shipment_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       document:
         $ref: '#/definitions/DocumentPayload'
       title:
@@ -58,6 +66,10 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       upload_ids:
         type: array
         items:
@@ -96,6 +108,10 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       uploads:
         type: array
         items:
@@ -110,6 +126,10 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       url:
         type: string
         format: uri
@@ -214,6 +234,10 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
   InvoiceStatus:
     type: string
     title: Status
@@ -240,6 +264,10 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       code:
         type: string
         title: Code
@@ -286,10 +314,18 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       shipment_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       status:
         $ref: '#/definitions/InvoiceStatus'
       approver_first_name:
@@ -316,16 +352,28 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       shipment_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       tariff400ng_item:
         $ref: '#/definitions/Tariff400ngItem'
       tariff400ng_item_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       quantity_1:
         type: integer
         format: basequantity
@@ -378,6 +426,10 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       estimate_amount_cents:
         type: integer
         format: cents
@@ -598,7 +650,7 @@ definitions:
       zip3:
         type: string
         description: restricts the search to blackout periods with an explicit source rate area (zip3)
-        example: 941
+        example: '941'
         pattern: '^[0-9]{3}$'
       channel:
         $ref: '#/definitions/Channel'
@@ -617,10 +669,18 @@ definitions:
         description: unique id of the blackout in the system
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       tsp_id:
         type: string
         description: ID of the TSP filing this blackout
         format: uuid
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       start_date:
         type: string
         description: the first day to blackout
@@ -636,7 +696,7 @@ definitions:
       zip3:
         type: string
         description: restricts the search to blackout periods with an explicit source rate area (zip3)
-        example: 941
+        example: '941'
         pattern: '^[0-9]{3}$'
       channel:
         $ref: '#/definitions/Channel'
@@ -661,70 +721,6 @@ definitions:
         enum: # Add other values
           - REGION_6
         example: REGION_6
-  Document:
-    type: object
-    description: A document is one or more uploaded files (usually images or PDFs) which can be associated with a shipment
-    properties:
-      id:
-        type: string
-        format: uuid
-        description: Unique ID for this document within the system
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      name:
-        type: string
-        description: Human readable name for the document
-        example: Preload Weight Ticket 2017-10-21
-        maxLength: 1024
-      uploads:
-        type: array
-        items:
-          $ref: '#/definitions/DocumentUpload'
-      created:
-        type: string
-        format: dateTime
-        example: 2018-04-12T23:20:50.52Z
-        description: When the document was created
-      last_modified:
-        type: string
-        format: dateTime
-        example: 2018-04-12T23:22:30.52Z
-        description: When the document was last added to
-      upload_url:
-        type: string
-        format: uri
-        example: https://test_api.move.mil/api/v1/documents/c56a4180-65aa-42ec-a945-5fd21dec0538/uploads
-        description: Location to which uploads should be posted.
-    required:
-      - name
-  DocumentUpload:
-    type: object
-    description: Details of a file uploaded as part of a Document. Usually, but not always, an image or PDF
-    properties:
-      id:
-        type: string
-        format: uuid
-        description: Unique ID for this object
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      name:
-        type: string
-        description: Human readable name for the document
-        example: Page 3
-        maxLength: 1024
-      uploaded:
-        type: string
-        format: dateTime
-        description: When the Upload was created
-        example: 2018-04-12T23:22:30.52Z
-      mime_type:
-        type: string
-        description: The mime type for the file
-        example: 'application/pdf'
-        enum:
-          - application/pdf
-          - image/jpeg
-          - image/png
-    required:
-      - name
   Claim:
     type: object
     description: A claim resulting from an earlier shipment
@@ -733,10 +729,18 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       shipment_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       claim_date:
         type: string
         format: dateTime
@@ -773,16 +777,6 @@ definitions:
       COS_B: Tow-away boat
       COS_H: Haul-away boat
       COS_S: Mobile Home (CONUS)
-  Customer:
-    type: object
-    description: The person moving
-    properties:
-      given_name:
-        type: string
-        example: Mary
-      family_name:
-        type: string
-        example: Johnson
   GBLOC:
     type: string
     description: Office Codes for Transcom offices originating GBLs
@@ -802,6 +796,10 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -985,6 +983,10 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       name:
         type: string
         example: Fort Bragg North Station
@@ -1086,11 +1088,19 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       service_member_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       name:
         type: string
         example: Susan Smith
@@ -1165,6 +1175,10 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       status:
         $ref: '#/definitions/ShipmentStatus'
         readOnly: true
@@ -1185,14 +1199,26 @@ definitions:
       created_at:
         type: string
         format: date-time
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "date-time"
       updated_at:
         type: string
         format: date-time
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "date-time"
       traffic_distribution_list_id:
         type: string
         format: uuid
         example: d56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       traffic_distribution_list:
         $ref: '#/definitions/TrafficDistributionList'
         readOnly: true
@@ -1201,6 +1227,10 @@ definitions:
         format: uuid
         example: d56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       service_member:
         $ref: '#/definitions/ServiceMember'
         readOnly: true
@@ -1209,6 +1239,10 @@ definitions:
         format: uuid
         example: d56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       move:
         $ref: '#/definitions/Move'
         x-nullable: true
@@ -1218,41 +1252,69 @@ definitions:
         example: '2018-04-26'
         readOnly: true
         x-nullable: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "date"
       requested_pickup_date:
         type: string
         format: date
         example: '2018-04-26'
         x-nullable: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "date"
       original_delivery_date:
         type: string
         format: date
         example: '2018-04-26'
         readOnly: true
         x-nullable: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "date"
       original_pack_date:
         type: string
         format: date
         example: '2018-04-26'
         readOnly: true
         x-nullable: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "date"
       actual_pickup_date:
         type: string
         format: date
         example: '2018-04-26'
         readOnly: true
         x-nullable: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "date"
       actual_pack_date:
         type: string
         format: date
         example: '2018-04-26'
         readOnly: true
         x-nullable: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "date"
       actual_delivery_date:
         type: string
         format: date
         example: '2018-04-26'
         readOnly: true
         x-nullable: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "date"
       estimated_pack_days:
         description: Estimated days packing
         type: integer
@@ -1345,30 +1407,50 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "date-time"
       pm_survey_conducted_date:
         type: string
         format: date
         example: '2018-04-26'
         title: 'Conducted'
         x-nullable: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "date"
       pm_survey_planned_pack_date:
         type: string
         format: date
         example: '2018-04-26'
         title: 'Planned pack date'
         x-nullable: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "date"
       pm_survey_planned_pickup_date:
         type: string
         format: date
         example: '2018-04-26'
         title: 'Planned pickup date'
         x-nullable: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "date"
       pm_survey_planned_delivery_date:
         type: string
         format: date
         example: '2018-04-26'
         title: 'Planned delivery date'
         x-nullable: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "date"
       pm_survey_weight_estimate:
         type: integer
         minimum: 0
@@ -1412,6 +1494,10 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
   TransportationServiceProvider:
     type: object
     properties:
@@ -1420,6 +1506,10 @@ definitions:
         format: uuid
         example: 2a6a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       standard_carrier_alpha_code:
         type: string
         example: '51980581983'
@@ -1492,10 +1582,18 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       shipment_id:
         type: string
         format: uuid
         readOnly: true
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       role:
         $ref: '#/definitions/ServiceAgentRole'
       company:
@@ -1586,62 +1684,6 @@ definitions:
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         description: Email of secondary contact person
         example: jackson_flies@gmail.com
-  ShipmentDates:
-    type: object
-    description: The various dates associated with a shipment
-    properties:
-      requested_pack:
-        type: string
-        format: date
-        example: 2018-03-15
-      requested_pickup:
-        type: string
-        format: date
-        example: 2018-03-15
-      requested_latest_pickup:
-        type: string
-        format: date
-        example: 2018-03-15
-      requested_delivery:
-        type: string
-        format: date
-        example: 2018-03-15
-      planned_pack:
-        type: string
-        format: date
-        example: 2018-03-15
-      planned_pickup:
-        type: string
-        format: date
-        example: 2018-03-15
-      planned_latest_pickup:
-        type: string
-        format: date
-        example: 2018-03-15
-      planned_delivery:
-        type: string
-        format: date
-        example: 2018-03-15
-      scheduled_delivery:
-        type: string
-        format: date
-        example: 2018-03-15
-      required_delivery:
-        type: string
-        format: date
-        example: 2018-03-15
-      actual_pack:
-        type: string
-        format: date
-        example: 2018-03-15
-      actual_pickup_date:
-        type: string
-        format: date
-        example: 2018-03-15
-      actual_delivery:
-        type: string
-        format: date
-        example: 2018-03-15
   ShipmentMarket:
     type: string
     description: One of the possible 'Markets' for a shipment
@@ -1658,7 +1700,7 @@ definitions:
   ShipmentStatus:
     type: string
     description: The stages in the lifecycle of a Shipment
-    example: IN_PROGRESS
+    example: IN_TRANSIT
     enum: &SHIPMENTSTATUS
       - DRAFT
       - SUBMITTED
@@ -1737,6 +1779,10 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       name:
         type: string
         example: Moving Company, Inc.
@@ -1766,6 +1812,10 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       location:
         type: string
         title: SIT Location
@@ -1780,24 +1830,40 @@ definitions:
         format: date
         example: '2018-04-26'
         title: Estimated start date
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "date"
       authorized_start_date:
         type: string
         format: date
         x-nullable: true
         example: '2018-04-26'
         title: Authorized Start Date
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "date"
       actual_start_date:
         type: string
         format: date
         x-nullable: true
         example: '2018-04-26'
         title: Actual Start Date
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "date"
       out_date:
         type: string
         format: date
         x-nullable: true
         example: '2018-04-26'
         title: Out Date
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "date"
       notes:
         type: string
         example: Good to go!
@@ -1832,19 +1898,27 @@ definitions:
         example: john_bob@example.com
         x-nullable: true
         title: Email
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "x-email"
       shipment_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         title: Shipment ID
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       sit_number:
         type: string
         x-nullable: true
-        example: 123456
+        example: '123456'
         title: SIT Number
       status:
         type: string
-        example: REQUESTED
+        example: 'REQUESTED'
         title: Status
       warehouse_address:
         $ref: '#/definitions/Address'
@@ -1914,10 +1988,18 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       service_member_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "uuid"
       code:
         type: string
         example: CODE456

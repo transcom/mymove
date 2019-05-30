@@ -33,8 +33,12 @@ definitions:
       social_security_number:
         type: string
         format: ssn
-        pattern: '^\d{9}$'
-        example: 666555555
+        pattern: '^\d{3}-\d{2}-\d{4}$'
+        example: '555-55-5555'
+        x-go-type:
+          import:
+            package: "github.com/go-openapi/strfmt"
+          type: "ssn"
       first_name:
         type: string
         example: John
