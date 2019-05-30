@@ -58,6 +58,7 @@ PremoveSurveyForm.propTypes = {
   handleSubmit: PropTypes.func,
   submitting: PropTypes.bool,
   valid: PropTypes.bool,
+  shipmentId: PropTypes.string,
 };
 
 const mapStateToProps = (state, ownProps) => {

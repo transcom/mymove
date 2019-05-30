@@ -11,6 +11,10 @@ If you are looking to understand choices made in this project, see the list of [
   * [Service Objects / Go](service-objects.md) guide
 * [Database / Postgres](database.md) guide
 
+## Pairing Sessions
+
+* [Pairing](pairing.md). A list of past pairing recordings.
+
 <!--index-->
 
 ## HOWTOs

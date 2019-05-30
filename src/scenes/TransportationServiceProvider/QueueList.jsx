@@ -5,7 +5,7 @@ export default class QueueList extends Component {
   render() {
     return (
       <div>
-        <h2 class="queue-list-heading">Queues</h2>
+        <h2 className="queue-list-heading">Queues</h2>
         <ul className="usa-sidenav-list">
           <li>
             <NavLink to="/queues/new" activeClassName="usa-current">
