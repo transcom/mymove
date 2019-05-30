@@ -72,12 +72,12 @@ class WeightTicket extends Component {
 
   saveForLaterHandler = formValues => {
     const { history } = this.props;
-    return this.saveAndHandler(formValues)
+    return this.saveAndAddHandler(formValues)
       .then(history.push('/'))
       .catch(() => this.setState({ weightTicketSubmissionError: true }));
   };
 
-  saveAndHandler = formValues => {
+  saveAndAddHandler = formValues => {
     const { moveId, currentPpm } = this.props;
 
     const moveDocumentSubmissions = [];
@@ -123,12 +123,11 @@ class WeightTicket extends Component {
     reset();
   };
 
-  get submitButtonIsDisabled() {
+  get submitButtonsAreDisabled() {
     return !this.formIsComplete() || this.isMissingWeightTickets();
   }
 
   render() {
-    const isDisabled = this.submitButtonIsDisabled;
     const { additionalWeightTickets, vehicleType } = this.state;
     const { handleSubmit, submitting, schema } = this.props;
     const nextBtnLabel = additionalWeightTickets === 'Yes' ? 'Save & Add Another' : 'Save & Continue';
@@ -244,11 +243,11 @@ class WeightTicket extends Component {
             {/* TODO: change onclick handler to go to next page in flow */}
             <PPMPaymentRequestActionBtns
               nextBtnLabel={nextBtnLabel}
-              isDisabled={isDisabled}
+              submitButtonsAreDisabled={this.submitButtonsAreDisabled}
               submitting={submitting}
               cancelHandler={this.cancelHandler}
               saveForLaterHandler={handleSubmit(this.saveForLaterHandler)}
-              saveAndHandler={handleSubmit(this.saveAndHandler)}
+              saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
               displaySaveForLater={true}
             />
           </div>

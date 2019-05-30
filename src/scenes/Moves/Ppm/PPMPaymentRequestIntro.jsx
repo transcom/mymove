@@ -33,7 +33,7 @@ const PPMPaymentRequestIntro = props => {
       {/* TODO: change onclick handler to go to next page in flow */}
       <PPMPaymentRequestActionBtns
         cancelHandler={() => history.push('/')}
-        saveAndHandler={() => {
+        saveAndAddHandler={() => {
           history.push(`/moves/${match.params.moveId}/ppm-weight-ticket`);
         }}
         nextBtnLabel="Get Started"

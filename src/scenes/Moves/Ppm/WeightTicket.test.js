@@ -39,11 +39,11 @@ describe('Weight tickets page', () => {
       const buttonGroup = weightTicket.find(PPMPaymentRequestActionBtns);
       const cancel = weightTicket.find('button').at(0);
       const saveForLater = weightTicket.find('button').at(1);
-      const saveAnd = weightTicket.find('button').at(2);
+      const saveAndAdd = weightTicket.find('button').at(2);
 
       expect(buttonGroup.length).toEqual(1);
       expect(cancel.props().disabled).not.toEqual(true);
-      expect(saveAnd.props().disabled).toEqual(true);
+      expect(saveAndAdd.props().disabled).toEqual(true);
       expect(saveForLater.props().disabled).toEqual(true);
     });
   });
@@ -53,11 +53,11 @@ describe('Weight tickets page', () => {
       const buttonGroup = weightTicket.find(PPMPaymentRequestActionBtns);
       const cancel = weightTicket.find('button').at(0);
       const saveForLater = weightTicket.find('button').at(1);
-      const saveAnd = weightTicket.find('button').at(2);
+      const saveAndAdd = weightTicket.find('button').at(2);
 
       expect(buttonGroup.length).toEqual(1);
       expect(cancel.props().disabled).not.toEqual(true);
-      expect(saveAnd.props().disabled).toEqual(false);
+      expect(saveAndAdd.props().disabled).toEqual(false);
       expect(saveForLater.props().disabled).toEqual(false);
     });
   });
@@ -68,11 +68,11 @@ describe('Weight tickets page', () => {
       const buttonGroup = weightTicket.find(PPMPaymentRequestActionBtns);
       const cancel = weightTicket.find('button').at(0);
       const saveForLater = weightTicket.find('button').at(1);
-      const saveAnd = weightTicket.find('button').at(2);
+      const saveAndAdd = weightTicket.find('button').at(2);
 
       expect(buttonGroup.length).toEqual(1);
       expect(cancel.props().disabled).not.toEqual(true);
-      expect(saveAnd.props().disabled).toEqual(true);
+      expect(saveAndAdd.props().disabled).toEqual(true);
       expect(saveForLater.props().disabled).toEqual(true);
     });
   });

@@ -6,9 +6,9 @@ const PPMPaymentRequestActionBtns = props => {
   const {
     nextBtnLabel,
     cancelHandler,
-    saveAndHandler,
+    saveAndAddHandler,
     saveForLaterHandler,
-    isDisabled,
+    submitButtonsAreDisabled,
     displaySaveForLater,
     submitting,
   } = props;
@@ -23,13 +23,13 @@ const PPMPaymentRequestActionBtns = props => {
             type="button"
             className="usa-button-secondary"
             onClick={saveForLaterHandler}
-            disabled={isDisabled || submitting}
+            disabled={submitButtonsAreDisabled || submitting}
           >
             Save For Later
           </button>
         )}
       </div>
-      <button type="button" onClick={saveAndHandler} disabled={isDisabled || submitting}>
+      <button type="button" onClick={saveAndAddHandler} disabled={submitButtonsAreDisabled || submitting}>
         {nextBtnLabel}
       </button>
     </div>
