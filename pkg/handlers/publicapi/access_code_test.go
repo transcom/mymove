@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -51,8 +52,7 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Valid() {
 	validateAccessCodeResponse := response.(*accesscodeops.ValidateAccessCodeOK)
 	validateAccessCodePayload := validateAccessCodeResponse.Payload
 
-	suite.NotNil(validateAccessCodePayload.AccessCode)
-	suite.True(*validateAccessCodePayload.Valid)
+	suite.NotNil(validateAccessCodePayload)
 	suite.Assertions.IsType(&accesscodeops.ValidateAccessCodeOK{}, response)
 }
 
@@ -96,6 +96,10 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Invalid() {
 	validateAccessCodeResponse := response.(*accesscodeops.ValidateAccessCodeOK)
 	validateAccessCodePayload := validateAccessCodeResponse.Payload
 
-	suite.False(*validateAccessCodePayload.Valid)
+	suite.Nil(validateAccessCodePayload.Code)
+	suite.Nil(validateAccessCodePayload.ID)
+	suite.Nil(validateAccessCodePayload.MoveType)
+	suite.Nil(validateAccessCodePayload.CreatedAt)
+	suite.Equal(validateAccessCodePayload.ServiceMemberID, strfmt.UUID(""))
 	suite.Assertions.IsType(&accesscodeops.ValidateAccessCodeOK{}, response)
 }

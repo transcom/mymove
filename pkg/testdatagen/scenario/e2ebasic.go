@@ -140,41 +140,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
-	/*
-	 * Service member with no uploaded orders and requires access code
-	 */
-	email = "requires@access.code"
-	uuidStr = "5057efbe-c021-47b4-99bb-8ef3857e972e"
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovEmail: email,
-		},
-	})
-
-	testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:                 uuid.FromStringOrNil("a0bb6379-f2a1-4191-8a86-a5087e4a3bdd"),
-			UserID:             uuid.FromStringOrNil(uuidStr),
-			FirstName:          models.StringPointer("REQUIRES"),
-			LastName:           models.StringPointer("ACCESSCODE"),
-			PersonalEmail:      models.StringPointer(email),
-			RequiresAccessCode: true,
-		},
-	})
-
-	/*
-	 * Service member with no uploaded orders and has already claimed an access code
-	 */
-	email = "claimed@access.code"
-	uuidStr = "f285bfea-573b-4216-8e0e-5cf2d9834368"
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovEmail: email,
-		},
-	})
-
 	testdatagen.MakeExtendedServiceMember(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:                 uuid.FromStringOrNil("58c04285-0752-4735-977c-eaa92d20d154"),

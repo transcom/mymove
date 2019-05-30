@@ -1896,18 +1896,7 @@ definitions:
         format: date
         example: '2018-04-26'
         title: Released On Date
-  ValidateAccessCodePayload:
-    type: object
-    properties:
-      valid:
-        type: boolean
-        example: false
-      access_code:
-        $ref: '#/definitions/AccessCodePayload'
-    required:
-      - valid
-      - access_code
-  AccessCodePayload:
+  AccessCode:
     type: object
     properties:
       id:
@@ -3497,7 +3486,7 @@ paths:
         200:
           description: access code is invalid or valid
           schema:
-            $ref: '#/definitions/ValidateAccessCodePayload'
+            $ref: '#/definitions/AccessCode'
         400:
           description: invalid request
         401:
