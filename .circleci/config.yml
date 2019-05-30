@@ -238,7 +238,7 @@ jobs:
 
   # `pre_test` runs pre-commit against all files.
   pre_test:
-    executor: mymove_medium
+    executor: mymove_large
     steps:
       - checkout
       - restore_cache:
