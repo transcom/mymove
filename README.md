@@ -20,6 +20,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Git](#git)
   * [Project location](#project-location)
   * [Project Layout](#project-layout)
+  * [Setup: Makefile](#setup-makefile)
   * [Setup: Initial Setup](#setup-initial-setup)
   * [Setup: Prerequisites](#setup-prerequisites)
   * [Setup: Database](#setup-database)
@@ -121,11 +122,22 @@ All of our code is intermingled in the top level directory of mymove. Here is an
 `src`: The react source code for the client \
 `vendor`: Cached dependencies for the server
 
+### Setup: Makefile
+
+The primary way to interact with the project is via the `Makefile`. The `Makefile` contains a number of handy
+targets (you can think of these as commands) that make interacting with the project easier. Each target manages
+its own dependencies so that you don't have to. This is how you'll do common tasks like build the project, run
+the server and client, and manage the database.
+
+The fastest way to get familiar with the `Makefile` is to use the command `make help`. You can also type `make`
+and it will default to calling `make help` target on your behalf.  The `Makefile` is important to this project
+so take the time to understand what it does.
+
 ### Setup: Initial Setup
 
 The following commands will get mymove running on your machine for the first time. Please read below for explanations of each of the commands.
 
-1. `./scripts/prereqs`
+1. `make prereqs`
 1. `direnv allow`
 1. `make db_dev_run`
 1. `make db_dev_migrate`
@@ -145,7 +157,7 @@ The following commands will get mymove running on your machine for the first tim
   * Update list of shells that users can choose from: `[[ $(cat /etc/shells | grep /usr/local/bin/bash) ]] || echo "/usr/local/bin/bash" | sudo tee -a /etc/shells`
   * If you are using bash as your shell (and not zsh, fish, etc) and want to use the latest shell as well then change it (optional): `chsh -s /usr/local/bin/bash`
   * Ensure that `/usr/local/bin` comes before `/bin` on your `$PATH` by running `echo $PATH`. Modify your path by editing `~/.bashrc` or `~/.bash_profile` and changing the `PATH`.  Then source your profile with `source ~/.bashrc` or `~/.bash_profile` to ensure that your terminal has it.
-* Run `scripts/prereqs` and install everything it tells you to. _Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!_
+* Run `make prereqs` and install everything it tells you to. _Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!_
 * For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/). For bash, add the command `eval "$(direnv hook bash)"` to whichever file loads upon opening bash (likely `~./bash_profile`, though instructions say `~/.bashrc`).
 * Run `direnv allow` to load up the `.envrc` file. It should complain that you have missing variables which you will rectify in one of the following ways.
   * You can add a `.envrc.local` file. One way to do this is to run `chamber env app-devlocal >> .envrc.local`. If you don't have access to chamber you can also `touch .envrc.local` and add any values that the output from direnv asks you to define. Instructions are in the error messages.
@@ -162,8 +174,8 @@ You will need to setup a local database before you can begin working on the loca
 
 1. `make db_dev_migrate`:  Runs all existing database migrations, which does things like creating table structures, etc. You will run this command again anytime you add new migrations to the app (see below for more)
 
-You can validate that your dev database is running by running `scripts/psql-dev`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
-You can validate that your test database is running by running `scripts/psql-test`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
+You can validate that your dev database is running by running `psql-dev`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
+You can validate that your test database is running by running `psql-test`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
 
 If you are stuck on this step you may need to see the section on Troubleshooting.
 
@@ -423,7 +435,7 @@ This will let you walk through the caught spelling errors one-by-one and choose 
 ### Troubleshooting
 
 * Random problems may arise if you have old Docker containers running. Run `docker ps` and if you see containers unrelated to our app, consider stopping them.
-* If you happen to have installed pre-commit in a virtual environment not with brew, running `scripts/prereqs` will not alert you. You may run into issues when running `make deps`. To install pre-commit: `brew install pre-commit`.
+* If you happen to have installed pre-commit in a virtual environment not with brew, running `make prereqs` will not alert you. You may run into issues when running `make deps`. To install pre-commit: `brew install pre-commit`.
 * If you're having trouble accessing the API docs or the server is otherwise misbehaving, try stopping the server, running `make client_build`, and then running `make client_run` and `make server_run`.
 
 #### Postgres Issues
