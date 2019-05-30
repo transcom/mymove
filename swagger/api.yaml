@@ -1896,17 +1896,6 @@ definitions:
         format: date
         example: '2018-04-26'
         title: Released On Date
-  # ValidateAccessCode:
-  #   type: object
-  #   properties:
-  #     valid:
-  #       type: boolean
-  #       example: false
-  #     access_code:
-  #       $ref: '#/definitions/AccessCode'
-  #   required:
-  #     - valid
-  #     - access_code
   AccessCode:
     type: object
     properties:
