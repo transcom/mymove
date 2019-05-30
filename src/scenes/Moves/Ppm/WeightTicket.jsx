@@ -7,7 +7,6 @@ import PropTypes from 'prop-types';
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 import WizardHeader from '../WizardHeader';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
-import { replace } from 'react-router-redux';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import RadioButton from 'shared/RadioButton';
 import './PPMPaymentRequest.css';
@@ -17,24 +16,36 @@ import Alert from 'shared/Alert';
 
 class WeightTicket extends Component {
   state = {
-    uploaderIsIdle: {},
     vehicleType: '',
     additionalWeightTickets: 'Yes',
+    weightTicketSubmissionError: false,
   };
   uploaders = {};
 
-  missingWeightTickets = uploaders => {
-    if (isEmpty(uploaders)) {
+  isMissingWeightTickets = () => {
+    if (isEmpty(this.uploaders)) {
       return true;
     }
-    const uploadersKeys = Object.keys(uploaders);
+    const uploadersKeys = Object.keys(this.uploaders);
     for (const key of uploadersKeys) {
       // eslint-disable-next-line security/detect-object-injection
-      if (uploaders[key].isEmpty()) {
+      if (this.uploaders[key].isEmpty()) {
         return true;
       }
     }
     return false;
+  };
+
+  formIsComplete = () => {
+    const { formValues } = this.props;
+    return !!(
+      formValues &&
+      formValues.vehicle_nickname &&
+      formValues.vehicle_options &&
+      formValues.empty_weight &&
+      formValues.full_weight &&
+      formValues.weight_ticket_date
+    );
   };
 
   //  handleChange for vehicleType and additionalWeightTickets
@@ -54,7 +65,19 @@ class WeightTicket extends Component {
     });
   };
 
-  submitWeightTickets = formValues => {
+  cancelHandler = formValues => {
+    const { history } = this.props;
+    history.push('/');
+  };
+
+  saveForLaterHandler = formValues => {
+    const { history } = this.props;
+    return this.saveAndHandler(formValues)
+      .then(history.push('/'))
+      .catch(() => this.setState({ weightTicketSubmissionError: true }));
+  };
+
+  saveAndHandler = formValues => {
     const { moveId, currentPpm } = this.props;
 
     const moveDocumentSubmissions = [];
@@ -81,10 +104,11 @@ class WeightTicket extends Component {
     }
     return Promise.all(moveDocumentSubmissions)
       .then(() => {
+        this.setState({ weightTicketSubmissionError: false });
         this.cleanup();
       })
       .catch(e => {
-        throw new SubmissionError({ _error: e.message });
+        this.setState({ weightTicketSubmissionError: true });
       });
   };
 
@@ -99,10 +123,14 @@ class WeightTicket extends Component {
     reset();
   };
 
+  get submitButtonIsDisabled() {
+    return !this.formIsComplete() || this.isMissingWeightTickets();
+  }
+
   render() {
-    const missingWeightTicket = this.missingWeightTickets(this.uploaders);
+    const isDisabled = this.submitButtonIsDisabled;
     const { additionalWeightTickets, vehicleType } = this.state;
-    const { error, handleSubmit, submitting, schema } = this.props;
+    const { handleSubmit, submitting, schema } = this.props;
     const nextBtnLabel = additionalWeightTickets === 'Yes' ? 'Save & Add Another' : 'Save & Continue';
     const uploadEmptyTicketLabel =
       '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload upload empty weight ticket</span></span>';
@@ -121,7 +149,7 @@ class WeightTicket extends Component {
           }
         />
         <form>
-          {error && (
+          {this.state.weightTicketSubmissionError && (
             <div className="usa-grid">
               <div className="usa-width-one-whole error-message">
                 <Alert type="error" heading="An error occurred">
@@ -216,9 +244,11 @@ class WeightTicket extends Component {
             {/* TODO: change onclick handler to go to next page in flow */}
             <PPMPaymentRequestActionBtns
               nextBtnLabel={nextBtnLabel}
-              missingWeightTicket={missingWeightTicket}
+              isDisabled={isDisabled}
               submitting={submitting}
-              onClick={handleSubmit(this.submitWeightTickets)}
+              cancelHandler={this.cancelHandler}
+              saveForLaterHandler={handleSubmit(this.saveForLaterHandler)}
+              saveAndHandler={handleSubmit(this.saveAndHandler)}
               displaySaveForLater={true}
             />
           </div>
@@ -252,7 +282,6 @@ function mapStateToProps(state, ownProps) {
 }
 const mapDispatchToProps = {
   createMoveDocument,
-  replace,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(WeightTicket);

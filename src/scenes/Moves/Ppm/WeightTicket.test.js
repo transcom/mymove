@@ -24,7 +24,8 @@ function mountComponents(moreWeightTickets = 'Yes', missingWeightTickets) {
   );
   const wt = wrapper.find('WeightTicket');
   if (missingWeightTickets !== undefined) {
-    wt.instance().missingWeightTickets = jest.fn(uploaders => missingWeightTickets);
+    wt.instance().isMissingWeightTickets = jest.fn().mockReturnValue(missingWeightTickets);
+    wt.instance().formIsComplete = jest.fn().mockReturnValue(true);
   }
   wt.setState({ additionalWeightTickets: moreWeightTickets, initialValues: initialValues });
   wt.update();
@@ -70,7 +71,6 @@ describe('Weight tickets page', () => {
       const saveAnd = weightTicket.find('button').at(2);
 
       expect(buttonGroup.length).toEqual(1);
-      console.log(cancel.debug());
       expect(cancel.props().disabled).not.toEqual(true);
       expect(saveAnd.props().disabled).toEqual(true);
       expect(saveForLater.props().disabled).toEqual(true);
@@ -97,23 +97,26 @@ describe('Weight tickets page', () => {
 describe('missingWeightTickets', () => {
   it('returns true when there are no uploaders', () => {
     const weightTicket = mountComponents('No');
+    weightTicket.instance().uploaders = {};
 
-    expect(weightTicket.instance().missingWeightTickets({})).toEqual(true);
+    expect(weightTicket.instance().isMissingWeightTickets()).toEqual(true);
   });
   it('returns false when both uploaders have at least one file', () => {
     const weightTicket = mountComponents('No');
     const uploaders = { one: {}, two: {} };
     uploaders['one'].isEmpty = jest.fn(() => false);
     uploaders['two'].isEmpty = jest.fn(() => false);
+    weightTicket.instance().uploaders = uploaders;
 
-    expect(weightTicket.instance().missingWeightTickets(uploaders)).toEqual(false);
+    expect(weightTicket.instance().isMissingWeightTickets()).toEqual(false);
   });
   it('returns true when one uploaders do not have at least one file', () => {
     const weightTicket = mountComponents('No');
     const uploaders = { one: {}, two: {} };
     uploaders['one'].isEmpty = jest.fn(() => false);
     uploaders['two'].isEmpty = jest.fn(() => true);
+    weightTicket.instance().uploaders = uploaders;
 
-    expect(weightTicket.instance().missingWeightTickets(uploaders)).toEqual(true);
+    expect(weightTicket.instance().isMissingWeightTickets()).toEqual(true);
   });
 });
