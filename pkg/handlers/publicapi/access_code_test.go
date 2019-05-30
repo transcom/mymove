@@ -51,8 +51,7 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Valid() {
 	validateAccessCodeResponse := response.(*accesscodeops.ValidateAccessCodeOK)
 	validateAccessCodePayload := validateAccessCodeResponse.Payload
 
-	suite.NotNil(validateAccessCodePayload.AccessCode)
-	suite.True(*validateAccessCodePayload.Valid)
+	suite.NotNil(validateAccessCodePayload)
 	suite.Assertions.IsType(&accesscodeops.ValidateAccessCodeOK{}, response)
 }
 
@@ -96,7 +95,7 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Invalid() {
 	validateAccessCodeResponse := response.(*accesscodeops.ValidateAccessCodeOK)
 	validateAccessCodePayload := validateAccessCodeResponse.Payload
 
-	suite.False(*validateAccessCodePayload.Valid)
+	suite.Nil(*validateAccessCodePayload)
 	suite.Assertions.IsType(&accesscodeops.ValidateAccessCodeOK{}, response)
 }
 

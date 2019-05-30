@@ -1,7 +1,6 @@
 package publicapi
 
 import (
-	"fmt"
 	"strings"
 
 	"go.uber.org/zap"
@@ -50,27 +49,19 @@ func (h ValidateAccessCodeHandler) Handle(params accesscodeop.ValidateAccessCode
 		return accesscodeop.NewValidateAccessCodeUnauthorized()
 	}
 
-	fmt.Println("ACCESS CODE HERE...")
-	fmt.Println(*params.Code)
 	splitParams := strings.Split(*params.Code, "-")
 	moveType, code := splitParams[0], splitParams[1]
 
 	accessCode, valid, _ := h.accessCodeValidator.ValidateAccessCode(code, models.SelectedMoveType(moveType))
-	var validateAccessCodePayload *apimessages.ValidateAccessCode
+	var validateAccessCodePayload *apimessages.AccessCode
 
 	if !valid {
 		h.Logger().Warn("Access code not valid")
-		validateAccessCodePayload = &apimessages.ValidateAccessCode{
-			Valid: &valid,
-		}
+		validateAccessCodePayload = &apimessages.AccessCode{}
 		return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload)
 	}
 
-	accessCodePayload := payloadForAccessCodeModel(*accessCode)
-	validateAccessCodePayload = &apimessages.ValidateAccessCode{
-		Valid:      &valid,
-		AccessCode: accessCodePayload,
-	}
+	validateAccessCodePayload = payloadForAccessCodeModel(*accessCode)
 
 	return accesscodeop.NewValidateAccessCodeOK().WithPayload(validateAccessCodePayload)
 }
