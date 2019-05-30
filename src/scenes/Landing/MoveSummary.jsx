@@ -147,8 +147,11 @@ export const SubmittedPpmMoveSummary = props => {
                   You'll be notified when your move is approved (up to 3 days). To get ready to move:
                   <ul>
                     <li>
-                      Go to <a href="https://move.mil/resources/locator-maps">weight scales</a> to get empty &amp; full
-                      weight tickets.
+                      Go to{' '}
+                      <a href="https://move.mil/resources/locator-maps" target="_blank" rel="noopener noreferrer">
+                        weight scales
+                      </a>{' '}
+                      to get empty &amp; full weight tickets.
                     </li>
                     <li>Save expense receipts, including for storage.</li>
                   </ul>
