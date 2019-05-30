@@ -25,8 +25,7 @@ func NewAccessCodeClaimer(db *pop.Connection) services.AccessCodeClaimer {
 func (v claimAccessCode) fetchAccessCode(code string) (*models.AccessCode, error) {
 	ac := models.AccessCode{}
 
-	err := v.db.
-		Where("code = ?", code).
+	err := v.db.RawQuery("SELECT access_codes.claimed_at, access_codes.code, access_codes.created_at, access_codes.id, access_codes.move_type, access_codes.service_member_id FROM access_codes AS access_codes WHERE code = $1 FOR UPDATE", code).
 		First(&ac)
 
 	if err != nil {
@@ -39,17 +38,20 @@ func (v claimAccessCode) fetchAccessCode(code string) (*models.AccessCode, error
 // ClaimAccessCode validates an access code based upon the code and move type. A valid access
 // code is assumed to have no `service_member_id`
 func (v claimAccessCode) ClaimAccessCode(code string, serviceMemberID uuid.UUID) (*models.AccessCode, error) {
-	accessCode, err := v.fetchAccessCode(code)
-
-	if err != nil {
-		return accessCode, errors.Wrap(err, "Unable to find access code")
-	}
-
-	if accessCode.ServiceMemberID != nil {
-		return accessCode, errors.New("Access code already claimed")
-	}
+	var accessCode *models.AccessCode
+	var err error
 
 	transactionErr := v.db.Transaction(func(connection *pop.Connection) error {
+		accessCode, err = v.fetchAccessCode(code)
+
+		if err != nil {
+			return errors.Wrap(err, "Unable to find access code")
+		}
+
+		if accessCode.ServiceMemberID != nil {
+			return errors.New("Access code already claimed")
+		}
+
 		claimedAtTime := time.Now()
 		accessCode.ClaimedAt = &claimedAtTime
 		accessCode.ServiceMemberID = &serviceMemberID

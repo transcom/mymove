@@ -68,7 +68,7 @@ func (suite *ClaimAccessCodeTestSuite) TestClaimAccessCode_Failed() {
 
 	_, err2 := claimAccessCode.ClaimAccessCode(code, serviceMember.ID)
 
-	suite.Equal(err2.Error(), "Access code already claimed")
+	suite.Equal(err2.Error(), "Unable to claim access code: Access code already claimed")
 }
 
 func (suite *ClaimAccessCodeTestSuite) TestClaimAccessCode_InvalidAccessCode() {
@@ -79,5 +79,5 @@ func (suite *ClaimAccessCodeTestSuite) TestClaimAccessCode_InvalidAccessCode() {
 	claimAccessCode := NewAccessCodeClaimer(suite.DB())
 	_, err := claimAccessCode.ClaimAccessCode(code, serviceMember.ID)
 
-	suite.Equal(err.Error(), "Unable to find access code: sql: no rows in result set")
+	suite.Equal(err.Error(), "Unable to claim access code: Unable to find access code: sql: no rows in result set")
 }
