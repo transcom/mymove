@@ -48,7 +48,7 @@ type ShipmentQueryFilter interface {
     ApplyQuery(q pop.Query)  pop.Query // would apply a Where clause for the column
 }
 
-type CreatedtFilter struct {
+type CreatedAtFilter struct {
      createdAt time.Time
      comparator Comparator // string of possible comparators (=, >, <...)
 }
@@ -154,7 +154,7 @@ sql, _, _ := db.From("items").Where(goqu.Ex{
 
 * **Write a generic query interface that accepts any model**
 Another option is to write a query builder as a dependency to handlers/services.
-The proof of oncept is as follows:
+The proof of concept is as follows:
 
 ```go
 type QueryFilter interface {
@@ -183,6 +183,7 @@ func filteredQuery(query *pop.Query, filters []services.QueryFilter, t reflect.T
         invalidFields,
         fmt.Sprintf("%s %s", f.Column(), f.Comparator()),
       )
+      continue
     }
     columnQuery := fmt.Sprintf("%s %s ?", column, comparator)
     query = query.Where(columnQuery, f.Value())
@@ -210,7 +211,7 @@ And a service would utilize it as follows:
 
 ```go
 type shipmentListQueryBuilder interface {
-  FetchMany(model interface{}, fitlers []services.QueryFilter) error
+  FetchMany(model interface{}, filters []services.QueryFilter) error
 }
 
 // FetchShipmentList is uses the passed query builder to fetch a list of shipments
