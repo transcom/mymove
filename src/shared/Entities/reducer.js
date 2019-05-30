@@ -28,7 +28,6 @@ function deleteEntities(entities, deleteEntities) {
 }
 
 const initialState = {
-  accessCodes: {},
   backupContacts: {},
   invoices: {},
   moveDocuments: {},

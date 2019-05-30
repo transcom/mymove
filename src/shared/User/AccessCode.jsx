@@ -9,16 +9,33 @@ import PropTypes from 'prop-types';
 import './AccessCode.css';
 import { validateAccessCode, claimAccessCode } from 'shared/Entities/modules/accessCodes';
 
+const invalidAccessCodeFormatMsg = 'Please check the format';
+const invalidAccessCodeMsg = 'This code is invalid';
+const claimAccessCodeErrorMsg = 'There was an error. Please reach out to DPS';
+
 class AccessCode extends React.Component {
+  validateAccessCodePattern = code => {
+    const validAccessCodePattern = RegExp('^(HHG|PPM)-[A-Z0-9]{6}$');
+    const validAccessCode = validAccessCodePattern.test(code);
+
+    if (!validAccessCode) {
+      throw new SubmissionError({
+        claim_access_code: invalidAccessCodeFormatMsg,
+      });
+    }
+  };
+
   validateAndClaimAccessCode = () => {
     const { formValues, validateAccessCode, claimAccessCode } = this.props;
-    return validateAccessCode(formValues.claim_access_code)
+    const code = formValues.claim_access_code;
+    this.validateAccessCodePattern(code);
+
+    return validateAccessCode(code)
       .then(res => {
         const { body: accessCode } = get(res, 'response');
         if (!accessCode.code) {
           throw new SubmissionError({
-            claim_access_code: 'This code is invalid',
-            _error: 'Validating access code failed!',
+            claim_access_code: invalidAccessCodeMsg,
           });
         }
         claimAccessCode(accessCode)
@@ -26,25 +43,29 @@ class AccessCode extends React.Component {
             window.location.reload();
           })
           .catch(err => {
-            console.log(err);
+            throw new SubmissionError({
+              claim_access_code: claimAccessCodeErrorMsg,
+            });
           });
       })
       .catch(err => {
-        throw err;
+        throw new SubmissionError({
+          claim_access_code: claimAccessCodeErrorMsg,
+        });
       });
   };
   render() {
-    const { schema } = this.props;
+    const { schema, handleSubmit } = this.props;
     return (
       <Fragment>
         <div className="usa-grid">
           <h3 className="title">Welcome to MilMove</h3>
           <p>Please enter your MilMove access code in the field below.</p>
           <SwaggerField fieldName="claim_access_code" swagger={schema} required />
-          <button className="usa-button-primary" onClick={this.validateAndClaimAccessCode}>
+          <button className="usa-button-primary" onClick={handleSubmit(this.validateAndClaimAccessCode)}>
             Continue
           </button>
-          <br />No code? Go to DPS to schedule your move.
+          <br />No code? Go to <a href="#">DPS</a> to schedule your move.
         </div>
       </Fragment>
     );
@@ -67,7 +88,6 @@ function mapStateToProps(state) {
   const serviceMember = get(state, 'serviceMember.currentServiceMember');
   const props = {
     schema: get(state, 'swaggerInternal.spec.definitions.ClaimAccessCodePayload', {}),
-    //accessCode: get(state, 'entities.validateAccessCode.undefined.access_code', {}),
     serviceMemberId: get(serviceMember, 'id'),
     formValues: getFormValues(formName)(state),
   };
