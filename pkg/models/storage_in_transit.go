@@ -113,7 +113,6 @@ func FetchStorageInTransitsOnShipment(tx *pop.Connection, shipmentID uuid.UUID) 
 	}
 
 	return storageInTransits, nil
-
 }
 
 // FetchStorageInTransitByID retrieves a single Storage In Transit object and their warehouse address based on its own ID
