@@ -257,6 +257,8 @@ jobs:
       - run: make get_gotools
       - run: make bin/callgraph
       - run: make server_generate
+      # this is so we can avoid go mod downloading and resulting in an error on a false positive
+      - run: go mod tidy || exit 0
       - run:
           name: Run pre-commit tests
           command: pre-commit run --all-files
