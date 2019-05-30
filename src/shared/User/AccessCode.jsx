@@ -15,7 +15,7 @@ class AccessCode extends React.Component {
     return validateAccessCode(formValues.claim_access_code)
       .then(res => {
         const { body: accessCode } = get(res, 'response');
-        if (!accessCode) {
+        if (!accessCode.code) {
           throw new SubmissionError({
             claim_access_code: 'This code is invalid',
             _error: 'Validating access code failed!',
