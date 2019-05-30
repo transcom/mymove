@@ -227,10 +227,10 @@ it('allows a SM to request ppm payment', function() {
   serviceMemberVisitsIntroToPPMPaymentRequest();
   serviceMemberSubmitsWeightTicket('CAR');
   serviceMemberSubmitsWeightTicket('BOX_TRUCK');
-  serviceMemberSaveWeightTicketForLater('CAR');
+  serviceMemberSavesWeightTicketForLater('CAR');
 });
 
-function serviceMemberSaveWeightTicketForLater(vehicleType) {
+function serviceMemberSavesWeightTicketForLater(vehicleType) {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-weight-ticket/);
   });

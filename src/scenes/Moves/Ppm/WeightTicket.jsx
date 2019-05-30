@@ -72,9 +72,11 @@ class WeightTicket extends Component {
 
   saveForLaterHandler = formValues => {
     const { history } = this.props;
-    return this.saveAndAddHandler(formValues)
-      .then(history.push('/'))
-      .catch(() => this.setState({ weightTicketSubmissionError: true }));
+    return this.saveAndAddHandler(formValues).then(() => {
+      if (this.state.weightTicketSubmissionError === false) {
+        history.push('/');
+      }
+    });
   };
 
   saveAndAddHandler = formValues => {
