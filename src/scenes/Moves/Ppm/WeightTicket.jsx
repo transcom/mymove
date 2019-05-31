@@ -36,9 +36,9 @@ class WeightTicket extends Component {
     return false;
   };
 
-  formIsComplete = () => {
+  formIsIncomplete = () => {
     const { formValues } = this.props;
-    return !!(
+    const isMissingFormInput = !(
       formValues &&
       formValues.vehicle_nickname &&
       formValues.vehicle_options &&
@@ -46,6 +46,7 @@ class WeightTicket extends Component {
       formValues.full_weight &&
       formValues.weight_ticket_date
     );
+    return isMissingFormInput && this.isMissingWeightTickets();
   };
 
   //  handleChange for vehicleType and additionalWeightTickets
@@ -124,10 +125,6 @@ class WeightTicket extends Component {
     }
     reset();
   };
-
-  get submitButtonsAreDisabled() {
-    return !this.formIsComplete() || this.isMissingWeightTickets();
-  }
 
   render() {
     const { additionalWeightTickets, vehicleType } = this.state;
@@ -245,7 +242,7 @@ class WeightTicket extends Component {
             {/* TODO: change onclick handler to go to next page in flow */}
             <PPMPaymentRequestActionBtns
               nextBtnLabel={nextBtnLabel}
-              submitButtonsAreDisabled={this.submitButtonsAreDisabled}
+              submitButtonsAreDisabled={this.formIsIncomplete()}
               submitting={submitting}
               cancelHandler={this.cancelHandler}
               saveForLaterHandler={handleSubmit(this.saveForLaterHandler)}

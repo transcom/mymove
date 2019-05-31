@@ -6,7 +6,7 @@ import store from 'shared/store';
 import MockRouter from 'react-mock-router';
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 
-function mountComponents(moreWeightTickets = 'Yes', missingWeightTickets) {
+function mountComponents(moreWeightTickets = 'Yes', formIsIncomplete) {
   const initialValues = {
     empty_weight: 1100,
     full_weight: 2000,
@@ -23,9 +23,8 @@ function mountComponents(moreWeightTickets = 'Yes', missingWeightTickets) {
     </Provider>,
   );
   const wt = wrapper.find('WeightTicket');
-  if (missingWeightTickets !== undefined) {
-    wt.instance().isMissingWeightTickets = jest.fn().mockReturnValue(missingWeightTickets);
-    wt.instance().formIsComplete = jest.fn().mockReturnValue(true);
+  if (formIsIncomplete !== undefined) {
+    wt.instance().formIsIncomplete = jest.fn().mockReturnValue(formIsIncomplete);
   }
   wt.setState({ additionalWeightTickets: moreWeightTickets, initialValues: initialValues });
   wt.update();
