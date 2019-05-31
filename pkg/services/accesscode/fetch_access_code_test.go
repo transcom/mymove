@@ -40,7 +40,7 @@ func (suite *FetchAccessCodeTestSuite) TestFetchAccessCode_FetchAccessCode() {
 	fetchAccessCode := NewAccessCodeFetcher(suite.DB())
 	ac, _ := fetchAccessCode.FetchAccessCode(*serviceMemberID)
 
-	suite.Equal(ac.Code, "accessCode.Code", "expected CODE2")
+	suite.Equal(ac.Code, accessCode.Code, "expected CODE12")
 }
 
 func (suite *FetchAccessCodeTestSuite) TestFetchAccessCode_FetchEmptyAccessCode() {

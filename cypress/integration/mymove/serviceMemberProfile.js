@@ -1,6 +1,5 @@
 /* global cy */
-
-describe('setting up service member profile', function() {
+describe('setting up service member profile requiring an access code', function() {
   beforeEach(() => {
     cy.signInAsNewMilMoveUser();
   });
