@@ -38,7 +38,7 @@ func setupStorageInTransitServiceTest(suite *StorageInTransitServiceSuite) (ship
 
 	assertions := testdatagen.Assertions{
 		StorageInTransit: models.StorageInTransit{
-			Location:           models.StorageInTransitLocationDESTINATION,
+			Location:           models.StorageInTransitLocationORIGIN,
 			ShipmentID:         shipment.ID,
 			EstimatedStartDate: testdatagen.DateInsidePeakRateCycle,
 		},

@@ -69,7 +69,7 @@ function tspUserVerifiesSITStatus() {
   // IN_SIT Destination Sits are in delivered status and have an out date
   cy.get('[data-cy=storage-in-transit-panel]').contains('SIT Delivered');
 
-  cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-dates]').contains('Out date');
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-dates]').contains('Date out');
 }
 
 function tspUserVisitsAnInTransitShipment(locator) {
