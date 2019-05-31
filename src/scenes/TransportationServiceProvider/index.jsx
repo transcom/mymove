@@ -6,6 +6,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import TspHeader from 'shared/Header/Tsp';
+import QueueList from './QueueList';
+import QueueTable from './QueueTable';
 import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadPublicSchema } from 'shared/Swagger/ducks';
 import { detectIE11, no_op } from 'shared/utils';
@@ -16,8 +18,6 @@ import { isProduction } from 'shared/constants';
 import DocumentViewer from './DocumentViewerContainer';
 import NewDocument from './NewDocumentContainer';
 import ShipmentInfo from './ShipmentInfo';
-import QueueList from './QueueList';
-import QueueTable from './QueueTable';
 
 import './tsp.scss';
 
