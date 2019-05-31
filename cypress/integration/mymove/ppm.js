@@ -158,7 +158,8 @@ describe('check invalid ppm inputs', () => {
     cy
       .get('input[name="original_move_date"]')
       .first()
-      .type('6/3/2100{enter}');
+      .type('6/3/2100{enter}')
+      .blur();
     cy
       .get('input[name="pickup_postal_code"]')
       .clear()
