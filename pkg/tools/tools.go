@@ -19,7 +19,8 @@ import (
 	//_ "github.com/securego/gosec/cmd/gosec"
 
 	// Install for getting access to production secrets
-	_ "github.com/segmentio/chamber"
+	// _ "github.com/segmentio/chamber"
+	_ "github.com/trussworks/chamber"
 	// Install for pre-commit go-lint
 	_ "golang.org/x/lint/golint"
 	// Install for pre-commit circleci testing

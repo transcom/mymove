@@ -7,7 +7,6 @@ require (
 	github.com/99designs/aws-vault v0.0.0-20190321042810-2bec5348b22f
 	github.com/99designs/keyring v0.0.0-20190110203331-82da6802f65f
 	github.com/aws/aws-sdk-go v1.19.28
-	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
 	github.com/danieljoos/wincred v1.0.2 // indirect
@@ -59,13 +58,13 @@ require (
 	github.com/pkg/errors v0.8.1
 	github.com/rickar/cal v1.0.1
 	github.com/rogpeppe/go-internal v1.3.0
-	github.com/segmentio/chamber v0.0.0-20190506230340-4ac61adfff7e
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cobra v0.0.4-0.20190321000552-67fc4837d267
 	github.com/spf13/pflag v1.0.4-0.20181223182923-24fa6976df40
 	github.com/spf13/viper v1.3.3-0.20190408140645-7a605a50e69c
 	github.com/stretchr/testify v1.3.1-0.20190311161405-34c6fa2dc709
 	github.com/tealeg/xlsx v1.0.3
+	github.com/trussworks/chamber v2.2.0+incompatible
 	github.com/trussworks/pdfcpu v0.1.15-0.20180823221217-a53781a43f9d
 	go.mozilla.org/pkcs7 v0.0.0-20181213175627-3cffc6fbfe83
 	go.uber.org/atomic v1.4.0 // indirect
