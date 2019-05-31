@@ -6,7 +6,7 @@ import (
 )
 
 type officeUserListQueryBuilder interface {
-	FetchMany(model interface{}, fitlers []services.QueryFilter) error
+	FetchMany(model interface{}, filters []services.QueryFilter) error
 }
 
 type officeUserListFetcher struct {

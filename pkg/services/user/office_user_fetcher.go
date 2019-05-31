@@ -6,7 +6,7 @@ import (
 )
 
 type officeUserQueryBuilder interface {
-	FetchOne(model interface{}, fitlers []services.QueryFilter) error
+	FetchOne(model interface{}, filters []services.QueryFilter) error
 }
 
 type officeUserFetcher struct {
