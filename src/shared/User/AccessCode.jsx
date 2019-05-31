@@ -67,7 +67,8 @@ class AccessCode extends React.Component {
           <button className="usa-button-primary" onClick={handleSubmit(this.validateAndClaimAccessCode)}>
             Continue
           </button>
-          <br />No code? Go to <a href="#">DPS</a> to schedule your move.
+          <br />No code? Go to <a href="https://eta.sddc.army.mil/ETASSOPortal/default.aspx">DPS</a> to schedule your
+          move.
         </div>
       </Fragment>
     );
