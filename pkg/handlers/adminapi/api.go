@@ -6,8 +6,8 @@ import (
 
 	"github.com/go-openapi/loads"
 
+	"github.com/transcom/mymove/pkg/gen/adminapi"
 	adminops "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations"
-	"github.com/transcom/mymove/pkg/gen/restapi"
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
@@ -15,7 +15,7 @@ import (
 func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	// Wire up the handlers to the publicAPIMux
-	adminSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
+	adminSpec, err := loads.Analyzed(adminapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
 	}

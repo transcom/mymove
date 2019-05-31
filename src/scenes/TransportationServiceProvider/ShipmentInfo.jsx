@@ -62,7 +62,7 @@ import PickupForm from './PickupForm';
 import PremoveSurveyForm from './PremoveSurveyForm';
 import ServiceAgentForm from './ServiceAgentForm';
 
-import './tsp.css';
+import './tsp.scss';
 
 const attachmentsErrorMessages = {
   400: 'An error occurred',

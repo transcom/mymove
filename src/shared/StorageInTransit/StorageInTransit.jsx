@@ -11,6 +11,7 @@ import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faBan from '@fortawesome/fontawesome-free-solid/faBan';
 import faSignInAlt from '@fortawesome/fontawesome-free-solid/faSignInAlt';
+import faSignOutAlt from '@fortawesome/fontawesome-free-solid/faSignOutAlt';
 import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
 
 import './StorageInTransit.css';
@@ -20,6 +21,7 @@ import OfficeEditor from 'shared/StorageInTransit/OfficeEditor';
 import ApproveSitRequest from 'shared/StorageInTransit/ApproveSitRequest';
 import DenySitRequest from 'shared/StorageInTransit/DenySitRequest';
 import PlaceInSit from 'shared/StorageInTransit/PlaceInSit';
+import ReleaseFromSit from 'shared/StorageInTransit/ReleaseFromSit';
 import { updateStorageInTransit } from 'shared/Entities/modules/storageInTransits';
 import { isOfficeSite, isTspSite } from 'shared/constants';
 import SitStatusIcon from './SitStatusIcon';
@@ -35,6 +37,7 @@ export class StorageInTransit extends Component {
       showApproveForm: false,
       showDenyForm: false,
       showPlaceInSitForm: false,
+      showReleaseFromSitForm: false,
       showDeleteWarning: false,
       storageInTransit: {},
     };
@@ -108,6 +111,14 @@ export class StorageInTransit extends Component {
     this.setState({ showPlaceInSitForm: false });
   };
 
+  openReleaseFromSitForm = () => {
+    this.setState({ showReleaseFromSitForm: true });
+  };
+
+  closeReleaseFromSitForm = () => {
+    this.setState({ showReleaseFromSitForm: false });
+  };
+
   openDeleteWarning = () => {
     this.setState({ showDeleteWarning: true });
   };
@@ -156,6 +167,7 @@ export class StorageInTransit extends Component {
 
   renderTspSitActions() {
     const { storageInTransit } = this.props;
+    const isOrigin = storageInTransit.location === 'ORIGIN';
 
     switch (storageInTransit.status) {
       case 'REQUESTED':
@@ -175,9 +187,11 @@ export class StorageInTransit extends Component {
       case 'DENIED':
         return <SitAction action="Delete" onClick={this.openDeleteWarning} icon={faTimes} />;
       case 'IN_SIT':
-        // TODO: Release from SIT only when storageInTransit.location === 'ORIGIN'
         return (
           <Fragment>
+            {isOrigin && (
+              <SitAction action="Release from SIT" onClick={this.openReleaseFromSitForm} icon={faSignOutAlt} />
+            )}
             <SitAction action="Edit" onClick={this.openTspEditForm} icon={faPencil} />
             <SitAction action="Delete" onClick={this.openDeleteWarning} icon={faTimes} />
           </Fragment>
@@ -192,11 +206,20 @@ export class StorageInTransit extends Component {
 
   render() {
     const { storageInTransit, daysRemaining } = this.props;
-    const { showTspEditForm, showOfficeEditForm, showApproveForm, showDenyForm, showPlaceInSitForm } = this.state;
+    const {
+      showTspEditForm,
+      showOfficeEditForm,
+      showApproveForm,
+      showDenyForm,
+      showPlaceInSitForm,
+      showReleaseFromSitForm,
+    } = this.state;
     const isDenied = storageInTransit.status === 'DENIED';
     const isRequested = storageInTransit.status === 'REQUESTED';
     const isApproved = storageInTransit.status === 'APPROVED';
     const isInSit = storageInTransit.status === 'IN_SIT';
+    const isReleased = storageInTransit.status === 'RELEASED';
+    const isDelivered = storageInTransit.status === 'DELIVERED';
 
     const daysUsed = sitDaysUsed(storageInTransit);
 
@@ -223,6 +246,8 @@ export class StorageInTransit extends Component {
             </span>
           ) : isInSit ? (
             <span>In SIT{daysRemaining < 0 ? ' - SIT Expired' : ''}</span>
+          ) : isReleased ? (
+            <span>Released</span>
           ) : (
             <span>SIT {capitalize(storageInTransit.status)}</span>
           )}
@@ -232,6 +257,8 @@ export class StorageInTransit extends Component {
             <DenySitRequest onClose={this.closeDenyForm} storageInTransit={storageInTransit} />
           ) : showPlaceInSitForm ? (
             <PlaceInSit sit={storageInTransit} onClose={this.closePlaceInSitForm} />
+          ) : showReleaseFromSitForm ? (
+            <ReleaseFromSit sit={storageInTransit} onClose={this.closeReleaseFromSitForm} />
           ) : showTspEditForm ? (
             <TspEditor
               updateStorageInTransit={this.onSubmit}
@@ -263,10 +290,12 @@ export class StorageInTransit extends Component {
                       <span className="field-title unbold">Actual start date</span>
                       <span className="field-value">{formatDate4DigitYear(storageInTransit.actual_start_date)}</span>
                     </div>
-                    {storageInTransit.out_date && (
+                    {(isReleased || isDelivered) && (
                       <div className="panel-field nested__same-font">
-                        <span className="field-title unbold">Out date</span>
-                        <span className="field-value">{formatDate4DigitYear(storageInTransit.out_date)}</span>
+                        <span className="field-title unbold">Date out</span>
+                        <span data-cy="sit-date-out" className="field-value">
+                          {formatDate4DigitYear(storageInTransit.out_date)}
+                        </span>
                       </div>
                     )}
                     <div className="panel-field nested__same-font">
