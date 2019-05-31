@@ -868,7 +868,7 @@ func (s *Shipment) SaveShipmentAndPricingInfo(db *pop.Connection, baselineLineIt
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
-	db.Transaction(func(tx *pop.Connection) error {
+	saveAndPrice := func(tx *pop.Connection) error {
 		transactionError := errors.New("rollback")
 
 		verrs, err := tx.ValidateAndSave(&distanceCalculation)
@@ -904,9 +904,14 @@ func (s *Shipment) SaveShipmentAndPricingInfo(db *pop.Connection, baselineLineIt
 				return transactionError
 			}
 		}
-
 		return nil
-	})
+	}
+
+	if db.TX == nil {
+		responseError = db.Transaction(saveAndPrice)
+	} else {
+		responseError = saveAndPrice(db)
+	}
 
 	return responseVErrors, responseError
 }
