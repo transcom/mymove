@@ -31,7 +31,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 	suite.Equal(okResponse.Payload.ID.String(), unknownUser.ID.String())
 }
 
-func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
+func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandler() {
 	firstName := "Joseph"
 	sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
@@ -71,6 +71,37 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 	suite.Equal("Joseph", *okResponse.Payload.ServiceMember.FirstName)
 }
 
+func (suite *HandlerSuite) TestServiceMemberLoggedInUserNotRequiringAccessCodeHandler() {
+	firstName := "Jane"
+	sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			FirstName: &firstName,
+		},
+	})
+
+	req := httptest.NewRequest("GET", "/users/logged_in", nil)
+	req = suite.AuthenticateRequest(req, sm)
+
+	params := userop.ShowLoggedInUserParams{
+		HTTPRequest: req,
+	}
+
+	accessCodeFetcher := &mocks.AccessCodeFetcher{}
+	accessCodeFetcher.On("FetchAccessCode",
+		mock.AnythingOfType("UUID"),
+	).Return(&models.AccessCode{}, nil)
+
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), accessCodeFetcher}
+
+	response := handler.Handle(params)
+
+	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
+	suite.True(ok)
+	suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
+	suite.Equal(okResponse.Payload.ServiceMember.AccessCode, "")
+	suite.Equal("Jane", *okResponse.Payload.ServiceMember.FirstName)
+}
+
 func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHandler() {
 	firstName := "Joseph"
 	sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
@@ -91,7 +122,12 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), &mocks.AccessCodeFetcher{}}
+	accessCodeFetcher := &mocks.AccessCodeFetcher{}
+	accessCodeFetcher.On("FetchAccessCode",
+		mock.AnythingOfType("UUID"),
+	).Return(&models.AccessCode{}, nil)
+
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), accessCodeFetcher}
 
 	response := handler.Handle(params)
 
