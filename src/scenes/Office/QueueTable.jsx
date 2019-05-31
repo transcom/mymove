@@ -9,7 +9,6 @@ import { formatTimeAgo } from 'shared/formatters';
 import { newColumns, ppmColumns, defaultColumns } from './queueTableColumns';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import './office.scss';
 import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
 
 class QueueTable extends Component {

@@ -57,42 +57,11 @@ repos:
   - repo: local
     hooks:
       - id: swagger
-        name: API Swagger
+        name: Swagger
         entry: bin/swagger validate
         language: script
-        files: swagger/api.yaml
-
-  - repo: local
-    hooks:
-      - id: swagger
-        name: Internal Swagger
-        entry: bin/swagger validate
-        language: script
-        files: swagger/internal.yaml
-
-  - repo: local
-    hooks:
-      - id: swagger
-        name: Orders Swagger
-        entry: bin/swagger validate
-        language: script
-        files: swagger/orders.yaml
-
-  - repo: local
-    hooks:
-    - id: swagger
-      name: DPS Swagger
-      entry: bin/swagger validate
-      language: script
-      files: swagger/dps.yaml
-
-  - repo: local
-    hooks:
-      - id: swagger
-        name: Admin Swagger
-        entry: bin/swagger validate
-        language: script
-        files: swagger/admin.yaml
+        files: swagger/*
+        types: [yaml]
 
   # Ensure markdown files have updated table of contents
   - repo: local

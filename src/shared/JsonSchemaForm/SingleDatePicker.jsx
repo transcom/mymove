@@ -45,7 +45,7 @@ export default function SingleDatePicker(props) {
       formatDate={formatDate}
       value={formatted}
       dayPickerProps={getDayPickerProps(disabledDays)}
-      inputProps={{ disabled, name }}
+      inputProps={{ disabled, name, onChange }}
     />
   );
 }
