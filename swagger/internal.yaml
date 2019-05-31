@@ -2390,9 +2390,6 @@ definitions:
         type: string
         format: date-time
         example: 2017-07-21T17:32:28Z
-      last_modified_name:
-        type: string
-        example: Bollinger, Sam
       created_at:
         type: string
         format: date-time
@@ -2405,7 +2402,6 @@ definitions:
       - rank
       - orders_type
       - last_modified_date
-      - last_modified_name
       - created_at
   MoveDatesSummary:
     type: object

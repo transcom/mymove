@@ -76,7 +76,7 @@ type GovBillOfLadingFormValues struct {
 	// TGBL shipment case - see description ("LOT").
 	PackagesNumber int64
 	PackagesKind   string
-	// Hardcoded for now - “Household Goods. Containers: 0 Shipment is released at full replacement protection of $4.00 times the net weight in pounds of the shipment or $5,000, whichever is greater.”
+	// Hardcoded for now - “Household Goods. Containers: 0 Shipment is released at full replacement protection of $6.00 times the net weight in pounds of the HHG shipment or the gross weight of the UB shipment or $5,000, whichever is greater.”
 	DescriptionOfShipment string
 	// TSP enters weight values
 	WeightGrossPounds *int64
@@ -199,7 +199,7 @@ func FetchGovBillOfLadingFormValues(db *pop.Connection, shipmentID uuid.UUID) (G
 		"Minneapolis, MN\n" +
 		"800-417-1844\n" +
 		"PowerTrack@usbank.com"
-	gbl.DescriptionOfShipment = "Household Goods. Containers: 0 Shipment is released at full replacement protection of $4.00 times the net weight in pounds of the shipment or $5,000, whichever is greater."
+	gbl.DescriptionOfShipment = "Household Goods. Containers: 0 Shipment is released at full replacement protection of $6.00 times the net weight in pounds of the HHG shipment or the gross weight of the UB shipment or $5,000, whichever is greater."
 	gbl.Remarks = "Direct Delivery Requested"
 	if gbl.LineHaulTransportationRate != nil {
 		// Field has the following format:
