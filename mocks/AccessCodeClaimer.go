@@ -26,21 +26,21 @@ func (_m *AccessCodeClaimer) ClaimAccessCode(code string, serviceMemberID uuid.U
 		}
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(string, uuid.UUID) error); ok {
+	var r1 *validate.Errors
+	if rf, ok := ret.Get(1).(func(string, uuid.UUID) *validate.Errors); ok {
 		r1 = rf(code, serviceMemberID)
 	} else {
-		r1 = ret.Error(1)
-	}
-
-	var r2 *validate.Errors
-	if rf, ok := ret.Get(2).(func(string, uuid.UUID) *validate.Errors); ok {
-		r2 = rf(code, serviceMemberID)
-	} else {
-		if ret.Get(2) != nil {
-			r2 = ret.Get(2).(*validate.Errors)
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*validate.Errors)
 		}
 	}
 
-	return r0, r2, r1
+	var r2 error
+	if rf, ok := ret.Get(2).(func(string, uuid.UUID) error); ok {
+		r2 = rf(code, serviceMemberID)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }

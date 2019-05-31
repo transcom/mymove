@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/gobuffalo/validate"
+
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -129,7 +131,7 @@ func (suite *HandlerSuite) TestClaimAccessCodeHandler_Success() {
 	accessCodeClaimer.On("ClaimAccessCode",
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("uuid.UUID"),
-	).Return(&claimedAccessCode, nil)
+	).Return(&claimedAccessCode, validate.NewErrors(), nil)
 
 	handler := ClaimAccessCodeHandler{context, accessCodeClaimer}
 	response := handler.Handle(params)
