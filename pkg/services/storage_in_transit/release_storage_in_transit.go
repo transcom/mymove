@@ -17,7 +17,7 @@ type releaseStorageInTransit struct {
 	db *pop.Connection
 }
 
-// ReleaseStorageInTransit sets the status of a Storage In Transit to released, saves its released on date, and returns the updated object.
+// ReleaseStorageInTransit sets the status of a Storage In Transit at Origin to released, saves its released on date, and returns the updated object.
 func (r *releaseStorageInTransit) ReleaseStorageInTransit(payload apimessages.StorageInTransitReleasePayload, shipmentID uuid.UUID, session *auth.Session, storageInTransitID uuid.UUID) (*models.StorageInTransit, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 
@@ -40,6 +40,11 @@ func (r *releaseStorageInTransit) ReleaseStorageInTransit(payload apimessages.St
 
 	if err != nil {
 		return nil, returnVerrs, err
+	}
+
+	// Make sure this is a SIT at origin
+	if storageInTransit.Location != models.StorageInTransitLocationORIGIN {
+		return nil, returnVerrs, models.ErrInvalidTransition
 	}
 
 	// Make sure we're not releasing something that wasn't in SIT or in delivered status.
