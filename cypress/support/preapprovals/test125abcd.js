@@ -16,7 +16,7 @@ export function add125({ code }) {
   cy.typeInInput({ name: 'address.street_address_1', value: 'street address 1' });
   cy.typeInInput({ name: 'address.street_address_2', value: 'street address 2' });
   cy.typeInInput({ name: 'address.city', value: 'city' });
-  cy.get('select[name="address.state"]').select('CA');
+  cy.get('select[name="address.state"]').select('CA', { force: true });
   cy.typeInInput({ name: 'address.postal_code', value: '90210' });
   clickSaveAndClose();
 }
