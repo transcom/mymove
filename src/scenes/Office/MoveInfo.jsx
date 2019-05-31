@@ -373,6 +373,7 @@ class MoveInfo extends Component {
                 &nbsp;
               </li>
               <li>Locator# {move.locator}&nbsp;</li>
+              {shipment.gbl_number && <li>GBL# {shipment.gbl_number}&nbsp;</li>}
               <li>Move date {formatDate(moveDate)}&nbsp;</li>
             </ul>
           </div>
