@@ -401,8 +401,12 @@ else
 endif
 endif
 
+.PHONY: generate_mocks
+generate_mocks:
+	go generate $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+
 .PHONY: server_test
-server_test: server_deps server_generate db_test_reset db_test_migrate ## Run server unit tests
+server_test: server_deps server_generate generate_mocks db_test_reset db_test_migrate ## Run server unit tests
 	# Don't run tests in /cmd or /pkg/gen & pass `-short` to exclude long running tests
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures

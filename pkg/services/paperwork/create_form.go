@@ -19,6 +19,7 @@ type FileStorer interface {
 }
 
 // FormFiller is an interface for formFiller implementation
+//go:generate mockery -name FormFiller -output=$GOPATH/src/github.com/transcom/mymove/mocks
 type FormFiller interface {
 	AppendPage(io.ReadSeeker, map[string]paperworkforms.FieldPos, interface{}) error
 	Output(io.Writer) error
