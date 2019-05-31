@@ -43,14 +43,16 @@ class AccessCode extends React.Component {
             window.location.reload();
           })
           .catch(err => {
+            console.log('what');
             throw new SubmissionError({
               claim_access_code: claimAccessCodeErrorMsg,
             });
           });
       })
       .catch(err => {
+        const errorMsg = get(err, 'errors.claim_access_code');
         throw new SubmissionError({
-          claim_access_code: claimAccessCodeErrorMsg,
+          claim_access_code: errorMsg,
         });
       });
   };
