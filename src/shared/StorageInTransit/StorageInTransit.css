@@ -131,3 +131,7 @@
 .storage-in-transit-panel .sit-delete-warning .usa-alert-text {
   font-weight: normal;
 }
+
+.storage-in-transit-panel .sit-delete-warning h3.usa-alert-heading {
+  font-family: "Source Sans Pro", "Helvetica Neue", "Helvetica", "Roboto", "Arial", sans-serif;
+}
