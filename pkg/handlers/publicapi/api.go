@@ -42,7 +42,7 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.ShipmentsPatchShipmentHandler = PatchShipmentHandler{context}
 	publicAPI.ShipmentsAcceptShipmentHandler = AcceptShipmentHandler{context}
 	publicAPI.ShipmentsTransportShipmentHandler = TransportShipmentHandler{context}
-	publicAPI.ShipmentsDeliverShipmentHandler = DeliverShipmentHandler{context, sitservice.NewStorageInTransitsDeliverer(context.DB())}
+	publicAPI.ShipmentsDeliverShipmentHandler = DeliverShipmentHandler{context}
 	publicAPI.ShipmentsGetShipmentInvoicesHandler = GetShipmentInvoicesHandler{context}
 
 	publicAPI.ShipmentsCompletePmSurveyHandler = CompletePmSurveyHandler{context}

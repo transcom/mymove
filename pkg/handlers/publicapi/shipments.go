@@ -330,7 +330,6 @@ func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentPara
 // DeliverShipmentHandler allows a TSP to start transporting a particular shipment
 type DeliverShipmentHandler struct {
 	handlers.HandlerContext
-	storageInTransitDeliverer services.StorageInTransitDeliverer
 }
 
 // Handle delivers the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment

@@ -21,7 +21,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
-	sitservice "github.com/transcom/mymove/pkg/services/storage_in_transit"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
@@ -814,8 +813,7 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
 
 	// Handler to Test
-	storageInTransitsDeliverer := sitservice.NewStorageInTransitsDeliverer(suite.DB())
-	handler := DeliverShipmentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), storageInTransitsDeliverer}
+	handler := DeliverShipmentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	handler.SetPlanner(route.NewTestingPlanner(1044))
 
 	// Test query with first user
