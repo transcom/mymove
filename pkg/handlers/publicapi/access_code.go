@@ -3,8 +3,6 @@ package publicapi
 import (
 	"strings"
 
-	"go.uber.org/zap"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 
@@ -85,11 +83,10 @@ func (h ClaimAccessCodeHandler) Handle(params accesscodeop.ClaimAccessCodeParams
 		return accesscodeop.NewClaimAccessCodeUnauthorized()
 	}
 
-	accessCode, err := h.accessCodeClaimer.ClaimAccessCode(*params.AccessCodePayload.Code, session.ServiceMemberID)
+	accessCode, verrs, err := h.accessCodeClaimer.ClaimAccessCode(*params.AccessCodePayload.Code, session.ServiceMemberID)
 
-	if err != nil {
-		h.Logger().Error("Unable to update access code", zap.Error(err))
-		return accesscodeop.NewClaimAccessCodeNotFound()
+	if err != nil || verrs.HasAny() {
+		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
 	}
 
 	accessCodePayload := payloadForAccessCodeModel(*accessCode)
