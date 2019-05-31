@@ -25,7 +25,6 @@ type MoveQueueItem struct {
 	MoveDate         *time.Time                          `json:"move_date" db:"move_date"`
 	SubmittedDate    *time.Time                          `json:"submitted_date" db:"submitted_date"`
 	LastModifiedDate time.Time                           `json:"last_modified_date" db:"last_modified_date"`
-	LastModifiedName string                              `json:"last_modified_name" db:"last_modified_name"`
 }
 
 // GetMoveQueueItems gets all moveQueueItems for a specific lifecycleState
@@ -53,6 +52,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 					ppm.submit_date
 				) as submitted_date,
 				moves.created_at as created_at,
+				moves.updated_at as last_modified_date,
 				moves.status as status,
 				ppm.status as ppm_status,
 				shipment.status as hhg_status,

@@ -1,39 +1,39 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { connect } from 'react-redux';
 import './PPMPaymentRequest.css';
 
 const PPMPaymentRequestActionBtns = props => {
-  const { nextBtnLabel, onClick, history, disabled } = props;
+  const {
+    nextBtnLabel,
+    cancelHandler,
+    saveAndAddHandler,
+    saveForLaterHandler,
+    submitButtonsAreDisabled,
+    displaySaveForLater,
+    submitting,
+  } = props;
   return (
     <div className="ppm-payment-request-footer">
-      <button
-        className="usa-button-secondary"
-        onClick={() => {
-          history.push('/');
-        }}
-      >
-        Cancel
-      </button>
-      <button onClick={onClick} disabled={disabled}>
+      <div className="usa-width-two-thirds">
+        <button type="button" className="usa-button-secondary" onClick={cancelHandler}>
+          Cancel
+        </button>
+        {displaySaveForLater && (
+          <button
+            type="button"
+            className="usa-button-secondary"
+            onClick={saveForLaterHandler}
+            disabled={submitButtonsAreDisabled || submitting}
+          >
+            Save For Later
+          </button>
+        )}
+      </div>
+      <button type="button" onClick={saveAndAddHandler} disabled={submitButtonsAreDisabled || submitting}>
         {nextBtnLabel}
       </button>
     </div>
   );
 };
-function mapStateToProps(state) {
-  const { form } = state;
-  let isDisabled = false;
-  if (form.weight_ticket_wizard) {
-    isDisabled = !(
-      form.weight_ticket_wizard.values &&
-      form.weight_ticket_wizard.values.vehicle_nickname &&
-      form.weight_ticket_wizard.values.vehicle_options
-    );
-  }
-  return {
-    disabled: isDisabled,
-  };
-}
 
-export default connect(mapStateToProps)(withRouter(PPMPaymentRequestActionBtns));
+export default withRouter(PPMPaymentRequestActionBtns);
