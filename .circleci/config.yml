@@ -21,6 +21,11 @@ executors:
     working_directory: ~/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:9b7bfbf6bfae544566ade0c896f8aacbd16281e5
+  mymove_medium_plus:
+    resource_class: medium+
+    working_directory: ~/transcom/mymove
+    docker:
+      - image: trussworks/circleci-docker-primary:9b7bfbf6bfae544566ade0c896f8aacbd16281e5
   mymove_large:
     resource_class: large
     working_directory: ~/transcom/mymove
@@ -238,7 +243,7 @@ jobs:
 
   # `pre_test` runs pre-commit against all files.
   pre_test:
-    executor: mymove_large
+    executor: mymove_medium_plus
     steps:
       - checkout
       - restore_cache:
