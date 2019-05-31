@@ -251,6 +251,14 @@ function serviceMemberFillsOutWeightTicket(vehicleType) {
     .type('6/2/2018{enter}')
     .blur();
 
+  cy.get('input[name="missingEmptyWeightTicket"]').check({ force: true });
+
+  cy
+    .get('.usa-alert-warning')
+    .contains(
+      'Contact your local Transportation Office (PPPO) to let them know you’re missing this weight ticket. For now, keep going and enter the info you do have.',
+    );
+
   cy
     .get('[type="radio"]')
     .first()

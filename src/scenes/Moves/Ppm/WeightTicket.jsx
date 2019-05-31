@@ -3,19 +3,24 @@ import { reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
+import Alert from 'shared/Alert';
 
-import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
-import WizardHeader from '../WizardHeader';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import RadioButton from 'shared/RadioButton';
-import './PPMPaymentRequest.css';
+import Checkbox from 'shared/Checkbox';
 import Uploader from 'shared/Uploader';
+
+import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
+import WizardHeader from '../WizardHeader';
+import './PPMPaymentRequest.css';
 
 class WeightTicket extends Component {
   state = {
     vehicleType: '',
     additionalWeightTickets: 'Yes',
+    missingEmptyWeightTicket: false,
+    missingFullWeightTicket: false,
   };
 
   //  handleChange for vehicleType and additionalWeightTickets
@@ -23,14 +28,20 @@ class WeightTicket extends Component {
     this.setState({ [type]: event.target.value });
   };
 
+  handleCheckboxChange = event => {
+    this.setState({
+      [event.target.name]: event.target.checked,
+    });
+  };
+
   render() {
-    const { additionalWeightTickets, vehicleType } = this.state;
+    const { additionalWeightTickets, vehicleType, missingEmptyWeightTicket, missingFullWeightTicket } = this.state;
     const { schema } = this.props;
     const nextBtnLabel = additionalWeightTickets === 'Yes' ? 'Save & Add Another' : 'Save & Continue';
     const uploadEmptyTicketLabel =
-      '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload upload empty weight ticket</span></span>';
+      '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload empty weight ticket</span></span>';
     const uploadFullTicketLabel =
-      '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload upload full weight ticket</span></span>';
+      '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload full weight ticket</span></span>';
     return (
       <Fragment>
         <WizardHeader
@@ -68,11 +79,23 @@ class WeightTicket extends Component {
                   />{' '}
                   lbs
                 </div>
-                <div className="usa-width-two-third uploader-wrapper">
+                <div className="usa-width-two-thirds uploader-wrapper">
                   <Uploader options={{ labelIdle: uploadEmptyTicketLabel }} />
+                  <Checkbox
+                    label="I'm missing this weight ticket"
+                    name="missingEmptyWeightTicket"
+                    checked={missingEmptyWeightTicket}
+                    onChange={this.handleCheckboxChange}
+                    normalizeLabel
+                  />
+                  {missingEmptyWeightTicket && (
+                    <Alert type="warning">
+                      Contact your local Transportation Office (PPPO) to let them know you’re missing this weight
+                      ticket. For now, keep going and enter the info you do have.
+                    </Alert>
+                  )}
                 </div>
               </div>
-
               <div className="usa-grid-full" style={{ marginTop: '1em' }}>
                 <div className="usa-width-one-third">
                   <strong className="input-header">Full Weight</strong>
@@ -87,8 +110,21 @@ class WeightTicket extends Component {
                   lbs
                 </div>
 
-                <div className="usa-width-two-third uploader-wrapper">
+                <div className="usa-width-two-thirds uploader-wrapper">
                   <Uploader options={{ labelIdle: uploadFullTicketLabel }} />
+                  <Checkbox
+                    label="I'm missing this weight ticket"
+                    name="missingFullWeightTicket"
+                    checked={missingFullWeightTicket}
+                    onChange={this.handleCheckboxChange}
+                    normalizeLabel
+                  />
+                  {missingFullWeightTicket && (
+                    <Alert type="warning">
+                      Contact your local Transportation Office (PPPO) to let them know you’re missing this weight
+                      ticket. For now, keep going and enter the info you do have.
+                    </Alert>
+                  )}
                 </div>
               </div>
 
