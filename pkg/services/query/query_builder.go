@@ -65,6 +65,7 @@ func filteredQuery(query *pop.Query, filters []services.QueryFilter, t reflect.T
 				invalidFields,
 				fmt.Sprintf("%s %s", f.Column(), f.Comparator()),
 			)
+			continue
 		}
 		columnQuery := fmt.Sprintf("%s %s ?", column, comparator)
 		query = query.Where(columnQuery, f.Value())
