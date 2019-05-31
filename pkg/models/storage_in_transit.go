@@ -106,7 +106,7 @@ func (s *StorageInTransit) Validate(tx *pop.Connection) (*validate.Errors, error
 func FetchStorageInTransitsOnShipment(tx *pop.Connection, shipmentID uuid.UUID) (StorageInTransits, error) {
 	storageInTransits := StorageInTransits{}
 
-	err := tx.Eager("WarehouseAddress").Where("shipment_id = $1", shipmentID).Order("actual_start_date").All(&storageInTransits)
+	err := tx.Eager("WarehouseAddress").Where("shipment_id = $1", shipmentID).Order("location desc").Order("estimated_start_date").All(&storageInTransits)
 
 	if err != nil {
 		return nil, err
