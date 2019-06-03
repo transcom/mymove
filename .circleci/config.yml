@@ -535,6 +535,7 @@ jobs:
             - health-checker # for confirming deploy success.
             - ecs-service-logs # for showing logs on failed deploy
             - ecs-deploy-task-container # for deploying task container
+            - mockery # for generating mocks
       - announce_failure
 
   # `build_app` builds the application container and pushes to the container repository
