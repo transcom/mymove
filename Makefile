@@ -189,9 +189,6 @@ bin/gin: .check_go_version.stamp .check_gopath.stamp
 bin/soda: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/soda github.com/gobuffalo/pop/soda
 
-bin/mockery: .check_go_version.stamp .check_gopath.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/mockery github.com/vektra/mockery/cmd/mockery
-
 bin/swagger: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 
