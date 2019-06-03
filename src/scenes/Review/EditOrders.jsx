@@ -19,6 +19,7 @@ import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, 
 import scrollToTop from 'shared/scrollToTop';
 import './Review.css';
 import profileImage from './images/profile.png';
+import { getCurrentMoveID } from '../../shared/UI/ducks';
 
 const editOrdersFormName = 'edit_orders';
 const uploaderLabelIdle = 'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
@@ -181,6 +182,7 @@ class EditOrders extends Component {
 }
 
 function mapStateToProps(state) {
+  const moveId = getCurrentMoveID(state);
   const props = {
     currentOrders: state.orders.currentOrders,
     error: get(state, 'orders.error'),
@@ -188,7 +190,7 @@ function mapStateToProps(state) {
     formValues: getFormValues(editOrdersFormName)(state),
     hasSubmitError: get(state, 'orders.hasSubmitError'),
     moveIsApproved: moveIsApproved(state),
-    isPpm: isPpm(state),
+    isPpm: isPpm(state, moveId),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateUpdateOrders', {}),
   };
   return props;

@@ -18,6 +18,7 @@ import { getCurrentMove } from 'shared/UI/ducks';
 import scrollToTop from 'shared/scrollToTop';
 import './Review.css';
 import profileImage from './images/profile.png';
+import { getCurrentMoveID } from '../../shared/UI/ducks';
 
 const editProfileFormName = 'edit_profile';
 
@@ -137,6 +138,7 @@ class EditProfile extends Component {
 
 function mapStateToProps(state) {
   const move = getCurrentMove(state);
+  const moveId = getCurrentMoveID(state);
   return {
     serviceMember: get(state, 'serviceMember.currentServiceMember'),
     move: move,
@@ -144,7 +146,7 @@ function mapStateToProps(state) {
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateServiceMemberPayload', {}),
     moveIsApproved: moveIsApproved(state),
-    isPpm: isPpm(state),
+    isPpm: isPpm(state, moveId),
     schemaRank: get(state, 'swaggerInternal.spec.definitions.ServiceMemberRank', {}),
     schemaAffiliation: get(state, 'swaggerInternal.spec.definitions.Affiliation', {}),
   };
