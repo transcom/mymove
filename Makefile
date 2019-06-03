@@ -875,6 +875,7 @@ spellcheck: .client_deps.stamp # Run interactive spellchecker
 	node_modules/.bin/mdspell --ignore-numbers --ignore-acronyms --en-us \
 		`find . -type f -name "*.md" \
 			-not -path "./node_modules/*" \
+			-not -path "./vendor/*" \
 			-not -path "./docs/adr/index.md"`
 
 #

@@ -417,6 +417,23 @@ csh
 _Prevention_Cheat_Sheet#Double_Submit_Cookie
 IT-19
 IT-18
+utils
+facebookgo
+ppp-infra
+util
+createform
+whitespace
+validator
+unreferenced
+stylesheets
+stylesheet
+timestamps
+dp3
+move.mil
+Stanger
+milmove
+GoLand
+triaging
 # Put all custom terms BEFORE this comment, lest you end up in an mdspell pain cycle.
  - /usr/local
  - docs/data/tspp-data-creation.md
@@ -430,4 +447,17 @@ _Regenerate
  - ./README.md
 transportation_service_provider_performances
 transportation_service_provider_performances
+AdminLocal
  - ./docs/data/tspp-data-creation.md
+ - docs/backend/time.md
+clock.Mock
+TestYear
+ - docs/how-to/run-pre-commit-hooks.md
+dps
+ - docs/data/tariff400ng-yearly-import.md
+tariff400ng
+www.ustranscom.mil
+hhg.cfm
+waterhaul
+ - scripts/README.md
+xxx.html
