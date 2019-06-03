@@ -5,7 +5,6 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/aws/aws-sdk-go/aws"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/pkg/errors"
@@ -65,7 +64,7 @@ func CheckStorage(v *viper.Viper) error {
 }
 
 // InitStorage initializes the storage backend
-func InitStorage(v *viper.Viper, logger Logger) storage.FileStorer {
+func InitStorage(v *viper.Viper, sess *awssession.Session, logger Logger) storage.FileStorer {
 	storageBackend := v.GetString(StorageBackendFlag)
 	localStorageRoot := v.GetString(LocalStorageRootFlag)
 	localStorageWebRoot := v.GetString(LocalStorageWebRootFlag)
@@ -88,10 +87,7 @@ func InitStorage(v *viper.Viper, logger Logger) storage.FileStorer {
 		if len(awsS3KeyNamespace) == 0 {
 			logger.Fatal("Must provide aws_s3_key_namespace parameter, exiting")
 		}
-		aws := awssession.Must(awssession.NewSession(&aws.Config{
-			Region: aws.String(awsS3Region),
-		}))
-		storer = storage.NewS3(awsS3Bucket, awsS3KeyNamespace, logger, aws)
+		storer = storage.NewS3(awsS3Bucket, awsS3KeyNamespace, logger, sess)
 	} else if storageBackend == "memory" {
 		logger.Info("Using memory storage backend",
 			zap.String(LocalStorageRootFlag, path.Join(localStorageRoot, localStorageWebRoot)),

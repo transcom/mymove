@@ -18,6 +18,7 @@ import (
 	"sync"
 	"syscall"
 
+	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
 	"github.com/gorilla/csrf"
@@ -352,6 +353,19 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		pop.Debug = true
 	}
 
+	var session *awssession.Session
+	if v.GetString(cli.EmailBackendFlag) == "ses" || v.GetString(cli.StorageBackendFlag) == "s3" {
+		c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
+		if errorConfig != nil {
+			logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
+		}
+		s, errorSession := awssession.NewSession(c)
+		if errorSession != nil {
+			logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
+		}
+		session = s
+	}
+
 	// Create a connection to the DB
 	dbConnection, err := cli.InitDatabase(v, logger)
 	if err != nil {
@@ -398,7 +412,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Email
-	notificationSender := cli.InitEmail(v, logger)
+	notificationSender := cli.InitEmail(v, session, logger)
 	handlerContext.SetNotificationSender(notificationSender)
 
 	build := v.GetString(cli.BuildFlag)
@@ -415,7 +429,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	handlerContext.SetSendProductionInvoice(v.GetBool(cli.GEXSendProdInvoiceFlag))
 
 	// Storage
-	storer := cli.InitStorage(v, logger)
+	storer := cli.InitStorage(v, session, logger)
 	handlerContext.SetFileStorer(storer)
 
 	certificates, rootCAs, err := cli.InitDoDCertificates(v, logger)
