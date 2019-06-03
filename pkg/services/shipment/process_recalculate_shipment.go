@@ -48,23 +48,27 @@ func (r ProcessRecalculateShipment) Call(shipment *models.Shipment, lineItems mo
 	// If there is an active recalculate date range then continue
 	recalculateDates, err := models.FetchShipmentRecalculateDates(r.DB)
 	if recalculateDates == nil || err != nil {
+		fmt.Println("no date")
 		return false, nil
 	}
 
 	// If the Shipment is in DELIVERED state continue
 	shipmentStatus := shipment.Status
 	if shipmentStatus != models.ShipmentStatusDELIVERED {
+		fmt.Println("not delivered")
 		return false, nil
 	}
 
 	// If the Shipment was created before "ShipmentUpdatedBefore" date then continue
 	if !r.updatedInDateRange(shipment.CreatedAt, recalculateDates) {
+		fmt.Println("created before")
 		return false, nil
 	}
 
 	// If Shipment does not have all of the base line items expected or
 	// a shipment line item was updated within the recalculate update range then continue
 	if r.hasAllBaseLineItems(lineItems) && !r.shipmentLineItemsUpdatedInDateRange(lineItems, recalculateDates) {
+		fmt.Println("not all expected")
 		return false, nil
 	}
 

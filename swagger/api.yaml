@@ -2866,6 +2866,8 @@ paths:
           description: not authorized to get list of shipment line items for this shipment
         404:
           description: Shipment UUID not found in system
+        422:
+          description: Unprocessable postal code present in shipment
         500:
           description: server error
     post:
