@@ -37,9 +37,6 @@ const weightUnitCode = "L"         // Pounds
 const ladingLineItemNumber = 1
 const billedRatedAsQuantity = 1
 
-// Place holders that currently exist TODO: Replace this constants with real value
-const freightRate = 4.07
-
 //var logger Logger
 
 // Invoice858C holds all the segments that are generated
