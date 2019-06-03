@@ -6,6 +6,7 @@ const getStorageInTransitsLabel = 'StorageInTransits.getStorageInTransitsForShip
 const updateStorageInTransitLabel = 'StorageInTransits.updateStorageInTransit';
 const approveStorageInTransitLabel = 'StorageInTransits.approveStorageInTransit';
 const updateSitPlaceIntoSitLabel = 'StorageInTransits.inSitStorageInTransit';
+const updateSitReleaseFromSitLabel = 'StorageInTransits.releaseStorageInTransit';
 const denyStorageInTransitLabel = 'StorageInTransits.denyStorageInTransit';
 
 export const selectStorageInTransits = (state, shipmentId) => {
@@ -71,6 +72,20 @@ export function updateSitPlaceIntoSit(
     getPublicClient,
     'storage_in_transits.inSitStorageInTransit',
     { shipmentId, storageInTransitId, storageInTransitInSitPayload },
+    { label },
+  );
+}
+
+export function updateSitReleaseFromSit(
+  shipmentId,
+  storageInTransitId,
+  storageInTransitOnReleasePayload,
+  label = updateSitReleaseFromSitLabel,
+) {
+  return swaggerRequest(
+    getPublicClient,
+    'storage_in_transits.releaseStorageInTransit',
+    { shipmentId, storageInTransitId, storageInTransitOnReleasePayload },
     { label },
   );
 }

@@ -62,7 +62,7 @@ import PickupForm from './PickupForm';
 import PremoveSurveyForm from './PremoveSurveyForm';
 import ServiceAgentForm from './ServiceAgentForm';
 
-import './tsp.css';
+import './tsp.scss';
 
 const attachmentsErrorMessages = {
   400: 'An error occurred',
@@ -300,7 +300,9 @@ class ShipmentInfo extends Component {
                 {serviceMember.last_name}, {serviceMember.first_name}
               </div>
             </div>
-            <div className="shipment-status">Status: {statusText}</div>
+            <div data-cy="shipment-status" className="shipment-status">
+              Status: {statusText}
+            </div>
           </div>
           <div className="usa-width-one-third nav-controls">
             <ReferrerQueueLink history={this.props.history} />

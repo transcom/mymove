@@ -27,7 +27,7 @@ function renderEntitlements(entitlements, orders) {
       {orders.spouse_has_pro_gear && (
         <PanelField title="Spouse pro-gear">{get(entitlements, 'pro_gear_spouse', '').toLocaleString()} lbs</PanelField>
       )}
-      <PanelField title="Short-term storage">90 days</PanelField>
+      <PanelField title="Storage in transit">90 days</PanelField>
     </React.Fragment>
   );
 }

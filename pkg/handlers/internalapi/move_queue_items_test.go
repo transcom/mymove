@@ -210,8 +210,8 @@ func (suite *HandlerSuite) TestGetMoveQueueItemsComboSubmittedDate() {
 	moveQueueItem1 := okResponse.Payload[0]
 	moveQueueItem2 := okResponse.Payload[1]
 
-	resultPPMDate := *handlers.FmtDatePtrToPopPtr(moveQueueItem1.SubmittedDate)
-	resultHHGDate := *handlers.FmtDatePtrToPopPtr(moveQueueItem2.SubmittedDate)
+	resultPPMDate := *handlers.FmtDateTimePtrToPopPtr(moveQueueItem1.SubmittedDate)
+	resultHHGDate := *handlers.FmtDateTimePtrToPopPtr(moveQueueItem2.SubmittedDate)
 
 	suite.Equal(hhgSubmitDate.Format(time.UnixDate), resultHHGDate.Format(time.UnixDate))
 	suite.Equal(ppmSubmitDate.Format(time.UnixDate), resultPPMDate.Format(time.UnixDate))

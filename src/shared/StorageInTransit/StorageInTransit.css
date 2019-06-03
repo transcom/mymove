@@ -77,6 +77,12 @@
   margin-bottom: 16px;
 }
 
+.release-from-sit {
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: normal;
+}
+
 .storage-in-transit-form {
   font-weight: normal;
 }
