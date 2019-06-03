@@ -296,7 +296,7 @@ get_gotools: .check_gopath.stamp .get_gotools.stamp ## Get golang tools
 .get_gotools.stamp:
 	go install golang.org/x/lint/golint
 	go install golang.org/x/tools/cmd/goimports
-	go install github.com/vektra/mockery/.../
+	go install github.com/vektra/mockery/cmd/mockery
 	touch .get_gotools.stamp
 
 .PHONY: server_deps
@@ -369,7 +369,6 @@ build_tools: server_deps \
 	bin/make-dps-user \
 	bin/make-office-user \
 	bin/make-tsp-user \
-	bin/mockery \
 	bin/renderer \
 	bin/save-fuel-price-data \
 	bin/send-to-gex \
@@ -407,23 +406,23 @@ endif
 endif
 
 .PHONY: generate_mocks
-generate_mocks: bin/mockery
+generate_mocks: get_gotools
 	go generate $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test
-server_test: server_deps server_generate generate_mocks db_test_reset db_test_migrate ## Run server unit tests
+server_test: server_deps server_generate db_test_reset db_test_migrate ## Run server unit tests
 	# Don't run tests in /cmd or /pkg/gen & pass `-short` to exclude long running tests
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	DB_PORT=$(DB_PORT_TEST) go test -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_all
-server_test_all: server_deps server_generate generate_mocks db_dev_reset db_dev_migrate ## Run all server unit tests
+server_test_all: server_deps server_generate db_dev_reset db_dev_migrate ## Run all server unit tests
 	# Like server_test but runs extended tests that may hit external services.
 	DB_PORT=$(DB_PORT_TEST) go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_coverage_generate
-server_test_coverage_generate: server_deps server_generate generate_mocks db_test_reset db_test_migrate ## Run server unit test coverage
+server_test_coverage_generate: server_deps server_generate db_test_reset db_test_migrate ## Run server unit test coverage
 	# Don't run tests in /cmd or /pkg/gen
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
@@ -431,7 +430,7 @@ server_test_coverage_generate: server_deps server_generate generate_mocks db_tes
 	DB_PORT=$(DB_PORT_TEST) go test -coverprofile=coverage.out -covermode=count -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_coverage
-server_test_coverage: server_deps server_generate generate_mocks db_test_reset db_test_migrate server_test_coverage_generate ## Run server unit test coverage with html output
+server_test_coverage: server_deps server_generate db_test_reset db_test_migrate server_test_coverage_generate ## Run server unit test coverage with html output
 	DB_PORT=$(DB_PORT_TEST) go tool cover -html=coverage.out
 
 #
