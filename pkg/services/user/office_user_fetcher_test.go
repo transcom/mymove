@@ -22,7 +22,7 @@ func (t *testOfficeUserQueryBuilder) FetchOne(model interface{}, filters []servi
 }
 
 func (suite *UserServiceSuite) TestFetchOfficeUser() {
-	suite.T().Run("if the user it fetched, it should be returned", func(t *testing.T) {
+	suite.T().Run("if the user is fetched, it should be returned", func(t *testing.T) {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
 		fakeFetchOne := func(model interface{}) error {

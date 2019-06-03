@@ -166,7 +166,7 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		suite.Empty(actualUsers)
 	})
 
-	suite.T().Run("fails with invalid column", func(t *testing.T) {
+	suite.T().Run("fails with invalid comparator", func(t *testing.T) {
 		var actualUsers models.OfficeUsers
 		filters := []services.QueryFilter{
 			NewQueryFilter("id", "*", user.ID.String()),

@@ -22,7 +22,7 @@ func (t *testOfficeUserListQueryBuilder) FetchMany(model interface{}, filters []
 }
 
 func (suite *UserServiceSuite) TestFetchOfficeUserList() {
-	suite.T().Run("if the user it fetched, it should be returned", func(t *testing.T) {
+	suite.T().Run("if the user is fetched, it should be returned", func(t *testing.T) {
 		id, err := uuid.NewV4()
 		suite.NoError(err)
 		fakeFetchMany := func(model interface{}) error {
