@@ -786,14 +786,14 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
 
-	//storageInTransit := testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
-	//	StorageInTransit: models.StorageInTransit{
-	//		ShipmentID: shipment.ID,
-	//		Shipment:   shipment,
-	//		Status:     models.StorageInTransitStatusINSIT,
-	//		// default is a DESTINATION sit
-	//	},
-	//})
+	storageInTransit := testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID: shipment.ID,
+			Shipment:   shipment,
+			Status:     models.StorageInTransitStatusINSIT,
+			// default is a DESTINATION sit
+		},
+	})
 
 	// Add a line item that's ready to be priced
 	preApproval := testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
@@ -838,7 +838,11 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	suite.Equal("DELIVERED", string(okResponse.Payload.Status))
 	suite.Equal(actualDeliveryDate, time.Time(*okResponse.Payload.ActualDeliveryDate))
 
-	//TODO: check for SIT status and outdate
+	suite.DB().Reload(&storageInTransit)
+	suite.Equal(models.StorageInTransitStatusDELIVERED, storageInTransit.Status)
+	suite.NotNil(storageInTransit.OutDate)
+	suite.Equal(actualDeliveryDate, storageInTransit.OutDate.UTC())
+
 	// Check for ShipmentLineItems
 	addedLineItems, _ := models.FetchLineItemsByShipmentID(suite.DB(), &shipment.ID)
 
