@@ -193,7 +193,7 @@ bin/swagger: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
 
 bin/mockery: .check_go_version.stamp .check_gopath.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/mockery github.com/vektra/mockery/cmd/mockery
+	go build -o bin/mockery github.com/vektra/mockery/cmd/mockery
 
 ### Cert Targets
 
