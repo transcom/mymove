@@ -305,6 +305,7 @@ server_deps: get_gotools \
 	bin/gin \
 	bin/soda \
 	bin/swagger \
+	bin/mockery \
 	bin/rds-combined-ca-bundle.pem ## Install or Build server dependencies
 
 .PHONY: server_generate
