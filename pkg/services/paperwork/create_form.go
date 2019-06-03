@@ -14,12 +14,13 @@ import (
 )
 
 // FileStorer is an interface for fileStorer implementation
+//go:generate $GOPATH/src/github.com/transcom/mymove/bin/mockery -name FileStorer -output=$GOPATH/src/github.com/transcom/mymove/mocks
 type FileStorer interface {
 	Create(string) (afero.File, error)
 }
 
 // FormFiller is an interface for formFiller implementation
-//go:generate mockery -name FormFiller -output=$GOPATH/src/github.com/transcom/mymove/mocks
+//go:generate $GOPATH/src/github.com/transcom/mymove/bin/mockery -name FormFiller -output=$GOPATH/src/github.com/transcom/mymove/mocks
 type FormFiller interface {
 	AppendPage(io.ReadSeeker, map[string]paperworkforms.FieldPos, interface{}) error
 	Output(io.Writer) error

@@ -17,7 +17,7 @@
 
 ```.go
 // AccessCodeClaimer is the service object interface for ValidateAccessCode
-//go:generate mockery -name AccessCodeClaimer -output=$GOPATH/src/github.com/transcom/mymove/mocks
+//go:generate $GOPATH/src/github.com/transcom/mymove/bin/mockery -name AccessCodeClaimer -output=$GOPATH/src/github.com/transcom/mymove/mocks
 type AccessCodeClaimer interface {
     ClaimAccessCode(code string, serviceMemberID uuid.UUID) (*models.AccessCode, *validate.Errors, error)
 }
