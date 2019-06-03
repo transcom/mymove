@@ -258,7 +258,7 @@ jobs:
       - restore_cache:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
-      - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: make get_gotools
       - run: make bin/callgraph
       - run: make server_generate generate_mocks
