@@ -73,6 +73,14 @@ const minDateValidation = memoize((minDate = null, message) => {
   };
 });
 
+const maxDateValidation = memoize((maxDate = null, message) => {
+  return value => {
+    if (maxDate && moment(value).isAfter(moment(maxDate))) {
+      return message;
+    }
+  };
+});
+
 export default {
   maxLength,
   minLength,
@@ -83,5 +91,6 @@ export default {
   isInteger,
   isDate,
   minDateValidation,
+  maxDateValidation,
   patternMatches,
 };
