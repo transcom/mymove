@@ -62,9 +62,6 @@ func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsPar
 			Status:           apimessages.MoveDocumentStatus(doc.Status),
 			Notes:            handlers.FmtStringPtr(doc.Notes),
 		}
-		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
-		}
 		moveDocumentsPayload[i] = &moveDocumentPayload
 	}
 

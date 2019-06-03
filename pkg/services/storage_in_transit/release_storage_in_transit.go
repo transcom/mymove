@@ -32,10 +32,6 @@ func (r *releaseStorageInTransit) ReleaseStorageInTransit(payload apimessages.St
 		return nil, returnVerrs, models.ErrFetchForbidden
 	}
 
-	if err != nil {
-		return nil, returnVerrs, models.ErrFetchForbidden
-	}
-
 	storageInTransit, err := models.FetchStorageInTransitByID(r.db, storageInTransitID)
 
 	if err != nil {

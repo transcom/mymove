@@ -14,9 +14,9 @@ func (suite *ModelSuite) Test_ShipmentOfferValidations() {
 	sa := &ShipmentOffer{}
 
 	var expErrors = map[string][]string{
-		"shipment_id":                                    []string{"ShipmentID can not be blank."},
-		"transportation_service_provider_id":             []string{"TransportationServiceProviderID can not be blank."},
-		"transportation_service_provider_performance_id": []string{"TransportationServiceProviderPerformanceID can not be blank."},
+		"shipment_id":                                    {"ShipmentID can not be blank."},
+		"transportation_service_provider_id":             {"TransportationServiceProviderID can not be blank."},
+		"transportation_service_provider_performance_id": {"TransportationServiceProviderPerformanceID can not be blank."},
 	}
 
 	suite.verifyValidationErrors(sa, expErrors)
