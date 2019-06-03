@@ -71,6 +71,8 @@ func filteredQuery(query *pop.Query, filters []services.QueryFilter, t reflect.T
 			)
 			continue
 		}
+		// Column lookup should always adhere to SQL injection input validations
+		// https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.md#defense-option-3-whitelist-input-validation
 		columnQuery := fmt.Sprintf("%s %s ?", column, comparator)
 		query = query.Where(columnQuery, f.Value())
 	}
