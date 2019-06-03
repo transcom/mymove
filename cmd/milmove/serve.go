@@ -19,6 +19,7 @@ import (
 	"syscall"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gobuffalo/pop"
 	"github.com/gorilla/csrf"
 	"github.com/honeycombio/beeline-go"
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
@@ -345,6 +346,10 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 	if len(loginGovHostname) == 0 {
 		logger.Fatal("Must provide the Login.gov hostname parameter, exiting")
+	}
+
+	if v.GetBool(cli.DbDebugFlag) {
+		pop.Debug = true
 	}
 
 	// Create a connection to the DB

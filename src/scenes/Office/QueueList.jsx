@@ -15,7 +15,7 @@ export default class QueueList extends Component {
         <ul className="usa-sidenav-list">
           <li>
             <NavLink to="/queues/new" activeClassName="usa-current">
-              <span>New Moves</span>
+              <span>New Moves/Shipments</span>
             </NavLink>
           </li>
           <li>
