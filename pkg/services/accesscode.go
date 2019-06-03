@@ -8,13 +8,13 @@ import (
 )
 
 // AccessCodeValidator is the service object interface for ValidateAccessCode
-//go:generate mockery -name AccessCodeValidator
+//go:generate $GOPATH/src/github.com/transcom/mymove/bin/mockery -name AccessCodeValidator
 type AccessCodeValidator interface {
 	ValidateAccessCode(code string, moveType models.SelectedMoveType) (*models.AccessCode, bool, error)
 }
 
 // AccessCodeClaimer is the service object interface for ValidateAccessCode
-//go:generate mockery -name AccessCodeClaimer
+//go:generate $GOPATH/src/github.com/transcom/mymove/bin/mockery -name AccessCodeClaimer
 type AccessCodeClaimer interface {
 	ClaimAccessCode(code string, serviceMemberID uuid.UUID) (*models.AccessCode, *validate.Errors, error)
 }
