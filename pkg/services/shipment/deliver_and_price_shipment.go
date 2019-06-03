@@ -51,8 +51,6 @@ func (c DeliverAndPriceShipment) Call(deliveryDate time.Time, shipment *models.S
 
 // DeliverStorageInTransits delivers multiple SITS
 func deliverStorageInTransits(db *pop.Connection, storageInTransits []models.StorageInTransit, deliveryDate time.Time, tspID uuid.UUID) (sitsToReturn []models.StorageInTransit, verrs *validate.Errors, err error) {
-	// TODO: it looks like from the wireframes for the delivery status change form that this will also need to edit
-	//  delivery address(es) and the actual delivery date.
 	returnVerrs := validate.NewErrors()
 	for _, sit := range storageInTransits {
 

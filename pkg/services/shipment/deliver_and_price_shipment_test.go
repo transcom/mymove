@@ -71,7 +71,6 @@ func (suite *ShipmentServiceSuite) TestDeliverPriceShipmentCall() {
 		suite.NotNil(sit.OutDate)
 
 		suite.DB().Reload(&shipment)
-		//updatedShipment, err := models.FetchShipmentByTSP(suite.DB(), offerList[0].TransportationServiceProviderID, shipment.ID)
 		suite.Equal(shipment.ActualDeliveryDate, sit.OutDate)
 
 		fetchedLineItems, err := models.FetchLineItemsByShipmentID(suite.DB(), &shipment.ID)
