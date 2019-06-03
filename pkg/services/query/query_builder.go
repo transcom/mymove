@@ -14,6 +14,10 @@ import (
 const equals = "="
 const greaterThan = ">"
 
+// Error message constants
+const fetchManyReflectionMessage = "Model should be pointer to slice of structs"
+const fetchOneReflectionMessage = "Model should be pointer to struct"
+
 // Builder is a wrapper around pop
 // with more flexible query patterns to MilMove
 type Builder struct {
@@ -81,11 +85,11 @@ func filteredQuery(query *pop.Query, filters []services.QueryFilter, t reflect.T
 func (p *Builder) FetchOne(model interface{}, filters []services.QueryFilter) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
-		return errors.New("Model should be pointer to struct")
+		return errors.New(fetchOneReflectionMessage)
 	}
 	t = t.Elem()
 	if t.Kind() != reflect.Struct {
-		return errors.New("Model should be pointer to struct")
+		return errors.New(fetchOneReflectionMessage)
 	}
 	query := p.db.Q()
 	query, err := filteredQuery(query, filters, t)
@@ -100,15 +104,15 @@ func (p *Builder) FetchOne(model interface{}, filters []services.QueryFilter) er
 func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter) error {
 	t := reflect.TypeOf(model)
 	if t.Kind() != reflect.Ptr {
-		return errors.New("Model should be pointer to slice of structs")
+		return errors.New(fetchManyReflectionMessage)
 	}
 	t = t.Elem()
 	if t.Kind() != reflect.Slice {
-		return errors.New("Model should be pointer to slice of structs")
+		return errors.New(fetchManyReflectionMessage)
 	}
 	t = t.Elem()
 	if t.Kind() != reflect.Struct {
-		return errors.New("Model should be pointer to slice of structs")
+		return errors.New(fetchManyReflectionMessage)
 	}
 	query := p.db.Q()
 	query, err := filteredQuery(query, filters, t)
