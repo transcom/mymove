@@ -32,6 +32,9 @@ describe('TSP user interacts with storage in transit panel', function() {
   it('TSP user releases SIT IN-SIT at ORIGIN', function() {
     tspUserSubmitsReleaseSit();
   });
+  it('TSP user edits IN-SIT SIT request', function() {
+    tspUserEditsSitRequestInSit();
+  });
 });
 
 // need to simulate a form submit
@@ -492,5 +495,41 @@ function tspUserSubmitsReleaseSit() {
     expect(text).to.include('Expires');
     expect(text).to.include('Date out');
     expect(text).to.include('26-May-2019');
+  });
+}
+
+function tspUserEditsSitRequestInSit() {
+  // Open in_transit shipments queue
+  cy.patientVisit('/queues/in_transit');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/in_transit/);
+  });
+
+  // Find shipment and open it
+  cy.selectQueueItemMoveLocator('SITIN1');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+  });
+
+  cy
+    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
+    .contains('Edit')
+    .click()
+    .get('input[name=actual_start_date]')
+    .should('have.value', '3/30/2019')
+    .get('input[name="actual_start_date"]')
+    .clear()
+    .first()
+    .type('4/1/2019')
+    .blur();
+  cy
+    .get('button')
+    .contains('Save')
+    .click();
+  cy.patientReload();
+  cy.get('[data-cy=storage-in-transit-panel]').should($div => {
+    const text = $div.text();
+    expect(text).to.include('01-Apr-2019');
   });
 }
