@@ -47,6 +47,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/publicapi"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/middleware"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/invoice"
@@ -412,7 +413,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Email
-	notificationSender := cli.InitEmail(v, session, logger)
+	notificationSender := notifications.InitEmail(v, session, logger)
 	handlerContext.SetNotificationSender(notificationSender)
 
 	build := v.GetString(cli.BuildFlag)
