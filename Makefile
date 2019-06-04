@@ -178,11 +178,6 @@ bin/callgraph: .check_go_version.stamp .check_gopath.stamp
 bin/chamber: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
 
-# Disabled until gosec supports go modules
-# Add to server_deps target when re-enabling
-# bin/gosec: .check_go_version.stamp .check_gopath.stamp
-# 	go build -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
-
 bin/gin: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
 
@@ -288,15 +283,8 @@ pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
 go_deps_update: ## Update golang dependencies
 	go run cmd/update_deps/main.go
 
-.PHONY: get_gotools
-get_gotools: .check_gopath.stamp .get_gotools.stamp ## Get golang tools
-.get_gotools.stamp:
-	go install golang.org/x/lint/golint
-	go install golang.org/x/tools/cmd/goimports
-	touch .get_gotools.stamp
-
 .PHONY: server_deps
-server_deps: get_gotools \
+server_deps: .check_gopath.stamp \
 	bin/callgraph \
 	bin/chamber \
 	bin/gin \
