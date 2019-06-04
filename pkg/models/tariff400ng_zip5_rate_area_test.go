@@ -19,7 +19,7 @@ func (suite *ModelSuite) Test_Zip5RateAreaValidation() {
 	}
 
 	expErrors = map[string][]string{
-		"zip5": []string{"Zip5 not in range(5, 5)"},
+		"zip5": {"Zip5 not in range(5, 5)"},
 	}
 	suite.verifyValidationErrors(&invalidZip5RateArea, expErrors)
 }

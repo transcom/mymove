@@ -13,11 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-type container interface {
-	Contains(string) bool
-	Contents() []string
-}
-
 type stringList []string
 
 func (sl stringList) Contains(needle string) bool {

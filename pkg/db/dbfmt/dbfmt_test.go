@@ -1,8 +1,6 @@
 package dbfmt
 
 import (
-	"reflect"
-	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -25,12 +23,6 @@ func TestDBFmtSuite(t *testing.T) {
 		PopTestSuite: testingsuite.NewPopTestSuite(),
 	}
 	suite.Run(t, hs)
-}
-
-func sameStrings(a []string, b []string) bool {
-	sort.Strings(a)
-	sort.Strings(b)
-	return reflect.DeepEqual(a, b)
 }
 
 func (suite *DBFmtSuite) TestTheDBFmt() {

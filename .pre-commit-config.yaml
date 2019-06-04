@@ -27,6 +27,11 @@ repos:
       - id: trailing-whitespace
         exclude: public/swagger-ui/*
 
+  - repo: git://github.com/golangci/golangci-lint
+    rev: v1.16.0
+    hooks:
+      - id: golangci-lint
+
   - repo: git://github.com/igorshubovych/markdownlint-cli
     rev: v0.16.0
     hooks:
@@ -74,32 +79,6 @@ repos:
 
   - repo: local
     hooks:
-      - id: go-imports
-        name: go imports
-        entry: scripts/pre-commit-go-imports
-        language: script
-        files: \.go$
-
-  - repo: local
-    hooks:
-      - id: go-lint
-        name: go lint
-        entry: scripts/pre-commit-go-lint
-        language: script
-        files: \.go$
-        exclude: pkg/tools/
-
-  - repo: local
-    hooks:
-    - id: go-vet
-      name: go vet
-      entry: scripts/pre-commit-go-vet
-      language: script
-      files: \.go$
-      pass_filenames: false
-
-  - repo: local
-    hooks:
       - id: gomod
         name: gomod
         entry: scripts/pre-commit-go-mod
@@ -130,7 +109,6 @@ repos:
         files: \.md$
         pass_filenames: false
 
-
   - repo: local
     hooks:
     - id: circleci-validate
@@ -138,4 +116,13 @@ repos:
       entry: scripts/pre-commit-circleci-validate
       language: script
       files: '[.]circleci/config.yml$'
+      pass_filenames: false
+
+  - repo: local
+    hooks:
+    - id: codecov-validate
+      name: codecov validate
+      entry: scripts/pre-commit-codecov-validate
+      language: script
+      files: .codecov.yml
       pass_filenames: false

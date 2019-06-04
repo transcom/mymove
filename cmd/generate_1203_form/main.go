@@ -14,18 +14,10 @@ import (
 	"github.com/transcom/mymove/pkg/paperwork"
 )
 
-type fakeModel struct {
-	FieldName string
-}
-
 func noErr(err error) {
 	if err != nil {
 		log.Panic(err)
 	}
-}
-
-func stringPtr(s string) *string {
-	return &s
 }
 
 func main() {
