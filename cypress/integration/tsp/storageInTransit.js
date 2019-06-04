@@ -32,6 +32,9 @@ describe('TSP user interacts with storage in transit panel', function() {
   it('TSP user releases SIT IN-SIT at ORIGIN', function() {
     tspUserSubmitsReleaseSit();
   });
+  it('TSP user cancels delete', function() {
+    tspUserDeletesSitRequest();
+  });
   it('TSP user edits IN-SIT SIT request', function() {
     tspUserEditsSitRequestInSit();
   });
@@ -499,6 +502,30 @@ function tspUserSubmitsReleaseSit() {
     expect(text).to.include('Date out');
     expect(text).to.include('26-May-2019');
   });
+}
+
+function tspUserDeletesSitRequest() {
+  // Open accepted shipments queue
+  cy.patientVisit('/queues/accepted');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/accepted/);
+  });
+
+  // Find shipment and open it
+  cy.selectQueueItemMoveLocator('SITDEL');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+  });
+
+  // Click on Delete SIT and see SIT Delete warning
+  cy
+    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-delete-link]')
+    .click()
+    .get('[data-cy=sit-delete-warning] [data-cy=sit-delete-cancel]')
+    .click()
+    .get('[data-cy=sit-delete-warning]')
+    .should('not.exist');
 }
 
 function tspUserEditsSitRequestInSit() {

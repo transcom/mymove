@@ -33,8 +33,8 @@ function run() {
 #
 
 # Ensure our `aws` command is the one infra has wrapped with aws-vault
-command -v aws 2> /dev/null | grep "ppp-infra/bin/aws" &> /dev/null || \
-  ( echo "error: aws command not pointing to 'ppp-infra/bin/aws"
+command -v aws 2> /dev/null | grep "ppp-infra/scripts/aws" &> /dev/null || \
+  ( echo "error: aws command not pointing to 'ppp-infra/scripts/aws"
     echo "see https://github.com/transcom/ppp-infra/blob/master/transcom-ppp/README.md#using-aws-vault"
     exit 1
   )
