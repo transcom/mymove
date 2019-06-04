@@ -34,6 +34,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
+	"github.com/transcom/mymove/pkg/certs"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
@@ -434,7 +435,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	storer := cli.InitStorage(v, session, logger)
 	handlerContext.SetFileStorer(storer)
 
-	certificates, rootCAs, err := cli.InitDoDCertificates(v, logger)
+	certificates, rootCAs, err := certs.InitDoDCertificates(v, logger)
 	if certificates == nil || rootCAs == nil || err != nil {
 		logger.Fatal("Failed to initialize DOD certificates", zap.Error(err))
 	}
