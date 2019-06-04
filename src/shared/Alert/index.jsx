@@ -34,10 +34,16 @@ const Alert = props => (
   </div>
 );
 
+const requiredPropsCheck = (props, propName, componentName) => {
+  if (!props.heading && !props.children) {
+    return new Error(`One of 'heading' or 'children' is required by '${componentName}' component.`);
+  }
+};
+
 Alert.propTypes = {
-  heading: PropTypes.string.isRequired,
+  heading: requiredPropsCheck,
+  children: requiredPropsCheck,
   onRemove: PropTypes.func,
-  children: PropTypes.node,
   type: PropTypes.oneOf(['error', 'warning', 'info', 'success', 'loading']),
 };
 export default Alert;

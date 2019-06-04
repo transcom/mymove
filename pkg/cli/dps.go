@@ -18,7 +18,7 @@ const (
 	HTTPSDDCPortFlag string = "http-sddc-port"
 	// HTTPDPSServerNameFlag is the HTTP DPS Server Name Flag
 	HTTPDPSServerNameFlag string = "http-dps-server-name"
-	// DPSAuthSecretKeyFlag is the DPS Auth Secret Key Flag
+	// DPSAuthSecretKeyFlag is the DPS Auth Secret Key Flag #nosec G101
 	DPSAuthSecretKeyFlag string = "dps-auth-secret-key"
 	// DPSRedirectURLFlag is the DPS Redirect URL Flag
 	DPSRedirectURLFlag string = "dps-redirect-url"
@@ -26,7 +26,7 @@ const (
 	DPSCookieNameFlag string = "dps-cookie-name"
 	// DPSCookieDomainFlag is the DPS Cookie Domain Flag Flag
 	DPSCookieDomainFlag string = "dps-cookie-domain"
-	// DPSAuthCookieSecretKeyFlag is the DPS Auth Cookie Scret Key Flag
+	// DPSAuthCookieSecretKeyFlag is the DPS Auth Cookie Scret Key Flag #nosec G101
 	DPSAuthCookieSecretKeyFlag string = "dps-auth-cookie-secret-key"
 	// DPSCookieExpiresInMinutesFlag is the DPS Cookie Expires In Minutes Flag
 	DPSCookieExpiresInMinutesFlag string = "dps-cookie-expires-in-minutes"

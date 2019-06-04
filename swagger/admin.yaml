@@ -250,3 +250,5 @@ paths:
           description: request requires user authentication
         404:
           description: office not found
+        500:
+          description: server error

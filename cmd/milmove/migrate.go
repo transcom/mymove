@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/gobuffalo/pop"
@@ -53,7 +52,7 @@ func checkMigrateConfig(v *viper.Viper, logger logger) error {
 
 func migrateFunction(cmd *cobra.Command, args []string) error {
 
-	err := cmd.ParseFlags(os.Args[1:])
+	err := cmd.ParseFlags(args)
 	if err != nil {
 		return errors.Wrap(err, "Could not parse flags")
 	}
@@ -90,6 +89,10 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	err = checkMigrateConfig(v, logger)
 	if err != nil {
 		logger.Fatal("invalid configuration", zap.Error(err))
+	}
+
+	if v.GetBool(cli.DbDebugFlag) {
+		pop.Debug = true
 	}
 
 	// Create a connection to the DB

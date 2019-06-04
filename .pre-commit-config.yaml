@@ -27,6 +27,11 @@ repos:
       - id: trailing-whitespace
         exclude: public/swagger-ui/*
 
+  - repo: git://github.com/golangci/golangci-lint
+    rev: v1.16.0
+    hooks:
+      - id: golangci-lint
+
   - repo: git://github.com/igorshubovych/markdownlint-cli
     rev: v0.16.0
     hooks:
@@ -57,42 +62,11 @@ repos:
   - repo: local
     hooks:
       - id: swagger
-        name: API Swagger
+        name: Swagger
         entry: bin/swagger validate
         language: script
-        files: swagger/api.yaml
-
-  - repo: local
-    hooks:
-      - id: swagger
-        name: Internal Swagger
-        entry: bin/swagger validate
-        language: script
-        files: swagger/internal.yaml
-
-  - repo: local
-    hooks:
-      - id: swagger
-        name: Orders Swagger
-        entry: bin/swagger validate
-        language: script
-        files: swagger/orders.yaml
-
-  - repo: local
-    hooks:
-    - id: swagger
-      name: DPS Swagger
-      entry: bin/swagger validate
-      language: script
-      files: swagger/dps.yaml
-
-  - repo: local
-    hooks:
-      - id: swagger
-        name: Admin Swagger
-        entry: bin/swagger validate
-        language: script
-        files: swagger/admin.yaml
+        files: swagger/*
+        types: [yaml]
 
   # Ensure markdown files have updated table of contents
   - repo: local
@@ -102,32 +76,6 @@ repos:
         entry: scripts/generate-md-toc
         language: script
         files: \.md$
-
-  - repo: local
-    hooks:
-      - id: go-imports
-        name: go imports
-        entry: scripts/pre-commit-go-imports
-        language: script
-        files: \.go$
-
-  - repo: local
-    hooks:
-      - id: go-lint
-        name: go lint
-        entry: scripts/pre-commit-go-lint
-        language: script
-        files: \.go$
-        exclude: pkg/tools/
-
-  - repo: local
-    hooks:
-    - id: go-vet
-      name: go vet
-      entry: scripts/pre-commit-go-vet
-      language: script
-      files: \.go$
-      pass_filenames: false
 
   - repo: local
     hooks:
@@ -161,7 +109,6 @@ repos:
         files: \.md$
         pass_filenames: false
 
-
   - repo: local
     hooks:
     - id: circleci-validate
@@ -169,4 +116,13 @@ repos:
       entry: scripts/pre-commit-circleci-validate
       language: script
       files: '[.]circleci/config.yml$'
+      pass_filenames: false
+
+  - repo: local
+    hooks:
+    - id: codecov-validate
+      name: codecov validate
+      entry: scripts/pre-commit-codecov-validate
+      language: script
+      files: .codecov.yml
       pass_filenames: false
