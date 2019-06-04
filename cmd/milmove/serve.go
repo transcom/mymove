@@ -393,7 +393,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Register Login.gov authentication provider for My.(move.mil)
-	loginGovProvider, err := cli.InitAuth(v, logger, appnames)
+	loginGovProvider, err := authentication.InitAuth(v, logger, appnames)
 	if err != nil {
 		logger.Fatal("Registering login provider", zap.Error(err))
 	}
