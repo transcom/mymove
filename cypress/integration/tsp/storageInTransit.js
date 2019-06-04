@@ -41,6 +41,9 @@ describe('TSP user interacts with storage in transit panel', function() {
   it('TSP user edits RELEASED SIT request', function() {
     tspUserEditsReleasedSitRequest();
   });
+  it('TSP user edits DELIVERED SIT request', function() {
+    tspUserEditsDeliveredSitRequest();
+  });
 });
 
 // need to simulate a form submit
@@ -607,5 +610,36 @@ function tspUserEditsReleasedSitRequest() {
   cy.get('[data-cy=storage-in-transit-panel]').should($div => {
     const text = $div.text();
     expect(text).to.include('29-May-2019');
+  });
+}
+
+function tspUserEditsDeliveredSitRequest() {
+  cy.patientVisit('/queues/accepted');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/accepted/);
+  });
+
+  // Find shipment and open it
+  cy.selectQueueItemMoveLocator('SITDLV');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+  });
+
+  cy
+    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
+    .contains('Edit')
+    .click()
+    .get('input[name=out_date]')
+    .should('have.value', '3/27/2019')
+    .click()
+    .get('.DayPickerInput-Overlay .DayPicker-Day')
+    .contains('29')
+    .click();
+  cy.get('input[name=out_date]').should('have.value', '3/29/2019');
+  cy.get('.usa-button-primary').click();
+  cy.get('[data-cy=storage-in-transit-panel]').should($div => {
+    const text = $div.text();
+    expect(text).to.include('29-Mar-2019');
   });
 }
