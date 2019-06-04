@@ -413,6 +413,63 @@ func (m Move) CreateMovingExpenseDocument(
 	return newMovingExpenseDocument, responseVErrors, responseError
 }
 
+// CreateMovingExpenseDocument creates a moving expense document associated to a move and move document
+func (m Move) CreateWeightTicketSetDocument(
+	db *pop.Connection,
+	uploads Uploads,
+	personallyProcuredMoveID *uuid.UUID,
+	vehicleNickName string,
+	vehicleOptions string,
+	fullWeight int,
+	emptyWeight int,
+	weightTicketDate *time.Time,
+	moveType SelectedMoveType) (*WeightTicketSetDocument, *validate.Errors, error) {
+
+	var newWeightTicketSetDocument *WeightTicketSetDocument
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+
+		var newMoveDocument *MoveDocument
+		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
+			db,
+			uploads,
+			personallyProcuredMoveID,
+			MoveDocumentTypeWEIGHTTICKET,
+			"weight_ticket_set",
+			&vehicleNickName,
+			moveType)
+		if responseVErrors.HasAny() || responseError != nil {
+			return transactionError
+		}
+
+		// Finally, create the MovingExpenseDocument
+		newWeightTicketSetDocument = &WeightTicketSetDocument{
+			MoveDocumentID:   newMoveDocument.ID,
+			MoveDocument:     *newMoveDocument,
+			EmptyWeight:      unit.Pound(emptyWeight),
+			FullWeight:       unit.Pound(fullWeight),
+			VehicleNickname:  vehicleNickName,
+			VehicleOptions:   vehicleOptions,
+			WeightTicketDate: *weightTicketDate,
+		}
+		verrs, err := db.ValidateAndCreate(newWeightTicketSetDocument)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating moving expense document")
+			newWeightTicketSetDocument = nil
+			return transactionError
+		}
+
+		return nil
+
+	})
+
+	return newWeightTicketSetDocument, responseVErrors, responseError
+}
+
 // CreatePPM creates a new PPM associated with this move
 func (m Move) CreatePPM(db *pop.Connection,
 	size *internalmessages.TShirtSize,

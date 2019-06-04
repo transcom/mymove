@@ -127,6 +127,50 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 	suite.CheckResponseNotFound(badMoveResponse)
 }
 
+func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandler() {
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	move := ppm.Move
+	sm := move.Orders.ServiceMember
+
+	weightTicketSetDocument := testdatagen.MakeWeightTicketSetDocument(suite.DB(),
+		testdatagen.Assertions{
+			MoveDocument: models.MoveDocument{
+				MoveID:                   move.ID,
+				Move:                     move,
+				PersonallyProcuredMoveID: &ppm.ID,
+				MoveDocumentType:         models.MoveDocumentTypeWEIGHTTICKETSET,
+			},
+		})
+
+	request := httptest.NewRequest("POST", "/fake/path", nil)
+	request = suite.AuthenticateRequest(request, sm)
+
+	indexMoveDocParams := movedocop.IndexMoveDocumentsParams{
+		HTTPRequest: request,
+		MoveID:      strfmt.UUID(move.ID.String()),
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	context.SetFileStorer(fakeS3)
+	handler := IndexMoveDocumentsHandler{context}
+	response := handler.Handle(indexMoveDocParams)
+
+	// assert we got back the 201 response
+	indexResponse := response.(*movedocop.IndexMoveDocumentsOK)
+	indexPayload := indexResponse.Payload
+	suite.NotNil(indexPayload)
+	for _, moveDoc := range indexPayload {
+		suite.Require().Equal(*moveDoc.ID, strfmt.UUID(weightTicketSetDocument.MoveDocument.ID.String()), "expected move ids to match")
+		suite.Require().Equal(*moveDoc.PersonallyProcuredMoveID, strfmt.UUID(ppm.ID.String()), "expected ppm ids to match")
+		suite.Require().Equal(*moveDoc.EmptyWeight, int64(weightTicketSetDocument.EmptyWeight), "expected empty weight to match")
+		suite.Require().Equal(*moveDoc.FullWeight, int64(weightTicketSetDocument.FullWeight), "expected empty weight to match")
+		suite.Require().Equal(moveDoc.WeightTicketDate.String(), strfmt.Date(weightTicketSetDocument.WeightTicketDate).String(), "expected weight ticket date to match")
+		suite.Require().Equal(moveDoc.VehicleOptions, weightTicketSetDocument.VehicleOptions, "expected vehicle options to match")
+		suite.Require().Equal(moveDoc.VehicleNickname, weightTicketSetDocument.VehicleNickname, "expected vehicle nickname to match")
+	}
+}
+
 func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	// When: there is a move and move document
 	move := testdatagen.MakeDefaultMove(suite.DB())

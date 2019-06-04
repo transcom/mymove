@@ -23,6 +23,11 @@ type MoveDocumentExtractor struct {
 	MoveDocumentType         MoveDocumentType   `json:"move_document_type" db:"move_document_type"`
 	MovingExpenseType        *MovingExpenseType `json:"moving_expense_type" db:"moving_expense_type"`
 	RequestedAmountCents     *unit.Cents        `json:"requested_amount_cents" db:"requested_amount_cents"`
+	EmptyWeight              *unit.Pound        `json:"empty_weight,omitempty" db:"empty_weight"`
+	FullWeight               *unit.Pound        `json:"full_weight,omitempty" db:"full_weight"`
+	VehicleNickname          *string            `json:"vehicle_nickname,omitempty" db:"vehicle_nickname"`
+	VehicleOptions           *string            `json:"vehicle_options,omitempty" db:"vehicle_options"`
+	WeightTicketDate         *time.Time         `json:"weight_ticket_date,omitempty" db:"weight_ticket_date"`
 	PaymentMethod            *string            `json:"payment_method" db:"payment_method"`
 	Notes                    *string            `json:"notes" db:"notes"`
 	CreatedAt                time.Time          `json:"created_at" db:"created_at"`
@@ -36,15 +41,17 @@ type MoveDocumentExtractors []MoveDocumentExtractor
 func (m *Move) FetchAllMoveDocumentsForMove(db *pop.Connection) (MoveDocumentExtractors, error) {
 	var moveDocs MoveDocumentExtractors
 	query := db.Q().LeftJoin("moving_expense_documents ed", "ed.move_document_id=move_documents.id").
+		LeftJoin("weight_ticket_set_documents wt", "wt.move_document_id=move_documents.id").
 		Where("move_documents.move_id=$1", m.ID.String())
 
 	sql, args := query.ToSQL(&pop.Model{Value: MoveDocument{}},
-		"move_documents.*, ed.moving_expense_type, ed.requested_amount_cents, ed.payment_method")
+		`move_documents.*,
+					  ed.moving_expense_type, ed.requested_amount_cents, ed.payment_method,
+                      wt.empty_weight, wt.full_weight, wt.vehicle_nickname, wt.vehicle_options, wt.weight_ticket_date`)
 
 	err := db.RawQuery(sql, args...).Eager("Document.Uploads").All(&moveDocs)
 	if err != nil {
 		return moveDocs, err
 	}
-
 	return moveDocs, nil
 }

@@ -410,7 +410,7 @@ function mapStateToProps(state, ownProps) {
     formValues: getFormValues(formName)(state),
     genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
-    schema: get(state, 'swaggerInternal.spec.definitions.WeightTicketPayload', {}),
+    schema: get(state, 'swaggerInternal.spec.definitions.CreateWeightTicketDocumentsPayload', {}),
     currentPpm: get(state, 'ppm.currentPpm'),
   };
 }
