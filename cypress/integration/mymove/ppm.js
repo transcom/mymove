@@ -98,52 +98,6 @@ describe('completing the ppm flow', function() {
       cy.contains('Advance Requested: $1,333.91');
     });
   });
-
-  //TODO: remove when done with the new flow to request payment
-  it('allows a SM to request payment', function() {
-    cy.removeFetch();
-    cy.server();
-    cy.route('POST', '**/internal/uploads').as('postUploadDocument');
-    const stub = cy.stub();
-    cy.on('window:alert', stub);
-
-    cy.logout();
-    //profile@comple.te
-    cy.signInAsUserPostRequest(milmoveAppName, '8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
-    cy.setFeatureFlag('ppmPaymentRequest', '/');
-    cy.contains('Fort Gordon (from Yuma AFB)');
-    cy.contains('Request Payment').click();
-
-    cy.location().should(loc => {
-      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/request-payment/);
-    });
-
-    cy.get('input[type="checkbox"]').should('not.be.checked');
-
-    cy
-      .contains('Legal Agreement / Privacy Act')
-      .click()
-      .then(() => {
-        expect(stub.getCall(0)).to.be.calledWithMatch('LEGAL AGREEMENT / PRIVACY ACT');
-      });
-    cy.get('input[type="checkbox"]').should('not.be.checked');
-    cy.get('select[name="move_document_type"]').select('WEIGHT_TICKET');
-    cy.get('input[name="title"]').type('WEIGHT_TICKET');
-    cy.upload_file('.filepond--root', 'top-secret.png');
-    cy.wait('@postUploadDocument');
-    cy
-      .get('button')
-      .contains('Save')
-      .click();
-    cy.get('input[id="agree-checkbox"]').check({ force: true });
-    cy
-      .get('button')
-      .contains('Submit Payment')
-      .click();
-    cy.location().should(loc => {
-      expect(loc.pathname).to.match(/^\/$/);
-    });
-  });
 });
 
 describe('check invalid ppm inputs', () => {
@@ -212,28 +166,140 @@ describe('editing ppm only move', () => {
   });
 });
 
-it('allows a SM to request ppm payment', function() {
-  cy.removeFetch();
-  cy.server();
-  cy.route('POST', '**/internal/uploads').as('postUploadDocument');
-  cy.route('POST', '**/moves/**/move_documents').as('postMoveDocument');
+describe('allows a SM to request a payment', function() {
+  beforeEach(() => {
+    cy.removeFetch();
+    cy.server();
+    cy.route('POST', '**/internal/uploads').as('postUploadDocument');
+    cy.route('POST', '**/moves/**/move_documents').as('postMoveDocument');
+    cy.signInAsUserPostRequest(milmoveAppName, '8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
+  });
 
-  cy.signInAsUserPostRequest(milmoveAppName, '8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
-  cy.contains('Fort Gordon (from Yuma AFB)');
-  cy.get('.submitted .status_dates').should('exist');
-  cy.get('.ppm_approved .status_dates').should('exist');
-  cy.get('.in_progress .status_dates').should('exist');
-  serviceMemberCanCancel();
-  serviceMemberVisitsIntroToPPMPaymentRequest();
-  serviceMemberSubmitsWeightTicket('CAR');
-  serviceMemberSubmitsWeightTicket('BOX_TRUCK');
-  serviceMemberSavesWeightTicketForLater('CAR');
+  it('service member reads introduction to ppm payment and cancels to go back to homepage', () => {
+    serviceMemberVisitsIntroToPPMPaymentRequest();
+    serviceMemberCanCancel();
+  });
+
+  it('service member requests car weight ticket payment', () => {
+    serviceMemberSubmitsWeightTicket('CAR');
+  });
+
+  it('service member requests a box truck weight ticket payment', () => {
+    serviceMemberSubmitsWeightTicket('BOX_TRUCK');
+  });
+
+  it('service member requests a car + trailer weight ticket payment', () => {
+    serviceMemberSubmitsCarTrailerWeightTicket();
+  });
+
+  it('service member can save a weight ticket for later', () => {
+    serviceMemberSavesWeightTicketForLater('CAR');
+  });
+
+  //TODO: remove when done with the new flow to request payment
+  it('service member submits request for payment', function() {
+    cy.removeFetch();
+    cy.server();
+    cy.route('POST', '**/internal/uploads').as('postUploadDocument');
+    const stub = cy.stub();
+    cy.on('window:alert', stub);
+
+    cy.logout();
+    //profile@comple.te
+    cy.signInAsUserPostRequest(milmoveAppName, '8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
+    cy.setFeatureFlag('ppmPaymentRequest', '/');
+    cy.contains('Fort Gordon (from Yuma AFB)');
+    cy.contains('Request Payment').click();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/request-payment/);
+    });
+
+    cy.get('input[type="checkbox"]').should('not.be.checked');
+
+    cy
+      .contains('Legal Agreement / Privacy Act')
+      .click()
+      .then(() => {
+        expect(stub.getCall(0)).to.be.calledWithMatch('LEGAL AGREEMENT / PRIVACY ACT');
+      });
+    cy.get('input[type="checkbox"]').should('not.be.checked');
+    cy.get('select[name="move_document_type"]').select('WEIGHT_TICKET');
+    cy.get('input[name="title"]').type('WEIGHT_TICKET');
+    cy.upload_file('.filepond--root', 'top-secret.png');
+    cy.wait('@postUploadDocument');
+    cy
+      .get('button')
+      .contains('Save')
+      .click();
+    cy.get('input[id="agree-checkbox"]').check({ force: true });
+    cy
+      .get('button')
+      .contains('Submit Payment')
+      .click();
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/$/);
+    });
+  });
 });
 
+function serviceMemberSubmitsCarTrailerWeightTicket() {
+  cy.contains('Request Payment').click();
+  cy
+    .get('button')
+    .contains('Get Started')
+    .click();
+
+  cy.get('select[name="vehicle_options"]').select('CAR_TRAILER');
+
+  cy.get('input[name="vehicle_nickname"]').type('Nickname');
+
+  cy
+    .get('[type="radio"]')
+    .first()
+    .check({ force: true });
+
+  cy.upload_file('.filepond--root:first', 'top-secret.png');
+  cy.wait('@postUploadDocument');
+  cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
+
+  cy.get('input[name="missingDocumentation"]').check({ force: true });
+
+  cy
+    .get('.usa-alert-warning')
+    .contains(
+      'If your state does not provide a registration or bill of sale for your trailer, you may write and upload a signed and dated statement certifying that you or your spouse own the trailer and meets the trailer criteria. Upload your statement using the proof of ownership field.',
+    );
+
+  cy.get('input[name="empty_weight"]').type('1000');
+  cy.get('input[name="missingEmptyWeightTicket"]').check({ force: true });
+
+  cy.get('input[name="full_weight"]').type('5000');
+  cy.upload_file('.filepond--root:last', 'top-secret.png');
+  cy.wait('@postUploadDocument');
+  cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 2);
+  cy
+    .get('input[name="weight_ticket_date"]')
+    .type('6/2/2018{enter}')
+    .blur();
+
+  cy
+    .get('.usa-alert-warning')
+    .contains(
+      'Contact your local Transportation Office (PPPO) to let them know you’re missing this weight ticket. For now, keep going and enter the info you do have.',
+    );
+
+  cy
+    .get('[type="radio"]')
+    .eq(2)
+    .should('be.checked');
+}
 function serviceMemberSavesWeightTicketForLater(vehicleType) {
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-weight-ticket/);
-  });
+  cy.contains('Request Payment').click();
+  cy
+    .get('button')
+    .contains('Get Started')
+    .click();
 
   cy.get('select[name="vehicle_options"]').select(vehicleType);
 
@@ -277,9 +343,11 @@ function serviceMemberSavesWeightTicketForLater(vehicleType) {
 }
 
 function serviceMemberSubmitsWeightTicket(vehicleType) {
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-weight-ticket/);
-  });
+  cy.contains('Request Payment').click();
+  cy
+    .get('button')
+    .contains('Get Started')
+    .click();
 
   cy.get('select[name="vehicle_options"]').select(vehicleType);
 
@@ -312,11 +380,6 @@ function serviceMemberSubmitsWeightTicket(vehicleType) {
 }
 
 function serviceMemberCanCancel() {
-  cy.contains('Request Payment').click();
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-request-intro/);
-  });
   cy
     .get('button')
     .contains('Cancel')
