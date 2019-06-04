@@ -106,7 +106,7 @@ class QueueTable extends Component {
 
   render() {
     const titles = {
-      new: 'New Moves',
+      new: 'New Moves/Shipments',
       troubleshooting: 'Troubleshooting',
       ppm: 'PPMs',
       hhg_accepted: 'Accepted HHGs',
@@ -149,7 +149,7 @@ class QueueTable extends Component {
             <br />
           </Alert>
         ) : null}
-        <h1 className="queue-heading">Queue: {titles[this.props.queueType]}</h1>
+        <h1 className="queue-heading">{titles[this.props.queueType]}</h1>
         <div className="queue-table">
           <span className="staleness-indicator" data-cy="staleness-indicator">
             Last updated {formatTimeAgo(this.state.lastLoadedAt)}

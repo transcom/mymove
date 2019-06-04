@@ -37,7 +37,6 @@ type e2eBasicScenario NamedScenario
 var E2eBasicScenario = e2eBasicScenario{"e2e_basic"}
 
 var selectedMoveTypeHHG = models.SelectedMoveTypeHHG
-var selectedMoveTypePPM = models.SelectedMoveTypePPM
 var selectedMoveTypeHHGPPM = models.SelectedMoveTypeHHGPPM
 
 // Often weekends and holidays are not allowable dates

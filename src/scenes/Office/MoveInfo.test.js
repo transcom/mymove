@@ -63,7 +63,7 @@ describe('ShipmentInfo tests', () => {
           </MockRouter>
         </Provider>,
       );
-      expect(wrapper.text()).toEqual('New Moves Queue');
+      expect(wrapper.text()).toEqual('New Moves/Shipments Queue');
     });
   });
 });

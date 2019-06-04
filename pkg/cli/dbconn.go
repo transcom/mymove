@@ -15,6 +15,8 @@ import (
 )
 
 const (
+	// DbDebugFlag is the DB Debug flag
+	DbDebugFlag string = "db-debug"
 	// DbEnvFlag is the DB environment flag
 	DbEnvFlag string = "env"
 	// DbNameFlag is the DB name flag
@@ -105,6 +107,7 @@ func InitDatabaseFlags(flag *pflag.FlagSet) {
 	flag.String(DbPasswordFlag, "", "Database Password")
 	flag.String(DbSSLModeFlag, SSLModeDisable, "Database SSL Mode: "+strings.Join(allSSLModes, ", "))
 	flag.String(DbSSLRootCertFlag, "", "Path to the database root certificate file used for database connections")
+	flag.Bool(DbDebugFlag, false, "Set Pop to debug mode")
 }
 
 // CheckDatabase validates DB command line flags

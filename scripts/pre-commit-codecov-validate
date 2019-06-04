@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+set -eu -o pipefail
+
+/usr/bin/curl -s --data-binary @.codecov.yml https://codecov.io/validate | grep "Valid!"
