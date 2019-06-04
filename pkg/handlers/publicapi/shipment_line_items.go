@@ -2,10 +2,14 @@ package publicapi
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/services"
+
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -80,6 +84,7 @@ func payloadForDimensionsModel(a *models.ShipmentLineItemDimensions) *apimessage
 // GetShipmentLineItemsHandler returns a particular shipment line item
 type GetShipmentLineItemsHandler struct {
 	handlers.HandlerContext
+	shipmentLineItemFetcher services.ShipmentLineItemFetcher
 }
 
 func (h GetShipmentLineItemsHandler) recalculateShipmentLineItems(shipmentLineItems models.ShipmentLineItems, shipmentID uuid.UUID, session *auth.Session) (bool, error) {
@@ -122,34 +127,24 @@ func (h GetShipmentLineItemsHandler) Handle(params accessorialop.GetShipmentLine
 
 	shipmentID := uuid.Must(uuid.FromString(params.ShipmentID.String()))
 
-	if session.IsTspUser() {
-		// Check that the TSP user can access the shipment
-		_, _, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
-		if err != nil {
-			h.Logger().Error("Error fetching shipment for TSP user", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
-		}
-	} else if !session.IsOfficeUser() {
-		return accessorialop.NewGetShipmentLineItemsForbidden()
-	}
+	// update, recalculateError := h.recalculateShipmentLineItems(shipmentLineItems, shipmentID, session)
+	// if recalculateError != nil {
+	// 	return handlers.ResponseForError(h.Logger(), recalculateError)
+	// }
+	// if update {
+	// 	shipmentLineItems, err = models.FetchLineItemsByShipmentID(h.DB(), &shipmentID)
+	// 	if err != nil {
+	// 		h.Logger().Error("Error fetching line items for shipment after re-calculation",
+	// 			zap.Error(err))
+	// 		return handlers.ResponseForError(h.Logger(), err)
+	// 	}
+	// }
 
-	shipmentLineItems, err := models.FetchLineItemsByShipmentID(h.DB(), &shipmentID)
+	shipmentLineItems, err := h.shipmentLineItemFetcher.GetShipmentLineItemsByShipmentID(shipmentID, session)
 	if err != nil {
-		h.Logger().Error("Error fetching line items for shipment", zap.Error(err))
-		return accessorialop.NewGetShipmentLineItemsInternalServerError()
-	}
-
-	update, recalculateError := h.recalculateShipmentLineItems(shipmentLineItems, shipmentID, session)
-	if recalculateError != nil {
-		return handlers.ResponseForError(h.Logger(), recalculateError)
-	}
-	if update {
-		shipmentLineItems, err = models.FetchLineItemsByShipmentID(h.DB(), &shipmentID)
-		if err != nil {
-			h.Logger().Error("Error fetching line items for shipment after re-calculation",
-				zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
-		}
+		h.Logger().Error(fmt.Sprintf("Error fetching line items for shipment %s", shipmentID),
+			zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
 	}
 
 	payload := payloadForShipmentLineItemModels(shipmentLineItems)
@@ -506,4 +501,25 @@ func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipm
 
 	payload := payloadForShipmentLineItemModel(&shipmentLineItem)
 	return accessorialop.NewApproveShipmentLineItemOK().WithPayload(payload)
+}
+
+// RecalculateShipmentLineItemsHandler recalculates shipment line items for a given shipment id
+type RecalculateShipmentLineItemsHandler struct {
+	handlers.HandlerContext
+	shipmentLineItemRecalculator services.ShipmentLineItemRecalculator
+}
+
+// Handle handles the recalculation of shipment line items using the appropriate service object
+func (h RecalculateShipmentLineItemsHandler) Handle(params accessorialop.RecalculateShipmentLineItemsParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	shipmentID := uuid.Must(uuid.FromString(params.ShipmentID.String()))
+
+	shipmentLineItems, err := h.shipmentLineItemRecalculator.RecalculateShipmentLineItems(shipmentID, session, h.Planner())
+
+	if err != nil {
+		h.Logger().Error(fmt.Sprintf("Error recalculating shipment line for shipment id: %s", shipmentID), zap.Error(err))
+		return handlers.ResponseForError(h.Logger(), err)
+	}
+	payload := payloadForShipmentLineItemModels(shipmentLineItems)
+	return accessorialop.NewRecalculateShipmentLineItemsOK().WithPayload(payload)
 }

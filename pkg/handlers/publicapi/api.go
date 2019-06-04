@@ -13,6 +13,7 @@ import (
 
 	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
+	shipmentlineitemservice "github.com/transcom/mymove/pkg/services/shipment_line_item"
 	sitservice "github.com/transcom/mymove/pkg/services/storage_in_transit"
 )
 
@@ -49,7 +50,7 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.ShipmentsCreateGovBillOfLadingHandler = CreateGovBillOfLadingHandler{context, paperworkservice.NewFormCreator(context.FileStorer().TempFileSystem(), paperwork.NewFormFiller())}
 
 	// Accessorials
-	publicAPI.AccessorialsGetShipmentLineItemsHandler = GetShipmentLineItemsHandler{context}
+	publicAPI.AccessorialsGetShipmentLineItemsHandler = GetShipmentLineItemsHandler{context, shipmentlineitemservice.NewShipmentLineItemFetcher(context.DB())}
 	publicAPI.AccessorialsUpdateShipmentLineItemHandler = UpdateShipmentLineItemHandler{context}
 	publicAPI.AccessorialsCreateShipmentLineItemHandler = CreateShipmentLineItemHandler{context}
 	publicAPI.AccessorialsDeleteShipmentLineItemHandler = DeleteShipmentLineItemHandler{context}

@@ -11,6 +11,8 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	accessorialop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/accessorials"
+	shipmentlineitemservice "github.com/transcom/mymove/pkg/services/shipment_line_item"
+
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -53,7 +55,7 @@ func (suite *HandlerSuite) TestGetShipmentLineItemTSPHandler() {
 	}
 
 	// And: get shipment is returned
-	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), shipmentlineitemservice.NewShipmentLineItemFetcher(suite.DB())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -83,7 +85,7 @@ func (suite *HandlerSuite) TestGetShipmentLineItemOfficeHandler() {
 	}
 
 	// And: get shipment is returned
-	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), shipmentlineitemservice.NewShipmentLineItemFetcher(suite.DB())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -121,7 +123,7 @@ func (suite *HandlerSuite) TestGetShipmentLineItemRecalculateHandler() {
 	suite.MustCreate(suite.DB(), &recalculateRange)
 
 	// And: get shipment is returned
-	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), shipmentlineitemservice.NewShipmentLineItemFetcher(suite.DB())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
