@@ -432,7 +432,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	handlerContext.SetSendProductionInvoice(v.GetBool(cli.GEXSendProdInvoiceFlag))
 
 	// Storage
-	storer := cli.InitStorage(v, session, logger)
+	storer := storage.InitStorage(v, session, logger)
 	handlerContext.SetFileStorer(storer)
 
 	certificates, rootCAs, err := certs.InitDoDCertificates(v, logger)
