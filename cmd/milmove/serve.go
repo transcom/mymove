@@ -48,6 +48,7 @@ import (
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/middleware"
 	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/invoice"
@@ -423,7 +424,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	// Get route planner for handlers to calculate transit distances
 	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
-	routePlanner := cli.InitRoutePlanner(v, logger)
+	routePlanner := route.InitRoutePlanner(v, logger)
 	handlerContext.SetPlanner(routePlanner)
 
 	// Set SendProductionInvoice for ediinvoice
