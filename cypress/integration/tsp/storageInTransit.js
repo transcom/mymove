@@ -35,6 +35,9 @@ describe('TSP user interacts with storage in transit panel', function() {
   it('TSP user edits IN-SIT SIT request', function() {
     tspUserEditsSitRequestInSit();
   });
+  it('TSP user edits RELEASED SIT request', function() {
+    tspUserEditsReleasedSitRequest();
+  });
 });
 
 // need to simulate a form submit
@@ -518,18 +521,64 @@ function tspUserEditsSitRequestInSit() {
     .click()
     .get('input[name=actual_start_date]')
     .should('have.value', '3/30/2019')
-    .get('input[name="actual_start_date"]')
-    .clear()
-    .first()
-    .type('4/1/2019')
-    .blur();
-  cy
-    .get('button')
-    .contains('Save')
+    .click()
+    .get('.DayPickerInput-Overlay .DayPicker-Day')
+    .contains('29')
     .click();
-  cy.patientReload();
+  cy.get('input[name=actual_start_date]').should('have.value', '3/29/2019');
+  cy.get('.usa-button-primary').click();
   cy.get('[data-cy=storage-in-transit-panel]').should($div => {
     const text = $div.text();
-    expect(text).to.include('01-Apr-2019');
+    expect(text).to.include('29-Mar-2019');
+  });
+}
+
+function tspUserEditsReleasedSitRequest() {
+  // Open in transit shipments queue
+  cy.patientVisit('/queues/in_transit');
+
+  //
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/in_transit/);
+  });
+
+  // Find shipment that is inSIT at ORIGIN and open it
+  cy.selectQueueItemMoveLocator('SITOIN');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+  });
+
+  // click release shipment link
+  cy
+    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-release-from-sit-link]')
+    .contains('Release from SIT')
+    .click();
+  // enter in date released on
+  cy
+    .get('input[name=released_on]')
+    .type('5/26/2019')
+    .blur();
+
+  cy
+    .get('[data-cy=release-from-sit-button]')
+    .contains('Done')
+    .click();
+
+  cy
+    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
+    .contains('Edit')
+    .click()
+    .get('input[name=actual_start_date]')
+    .should('have.value', '5/26/2019')
+    .click()
+    .get('.DayPickerInput-Overlay .DayPicker-Day')
+    .contains('29')
+    .click();
+  cy.get('input[name=actual_start_date]').should('have.value', '5/29/2019');
+  cy.get('.usa-button-primary').click();
+  cy.get('[data-cy=storage-in-transit-panel]').should($div => {
+    const text = $div.text();
+    expect(text).to.include('29-May-2019');
   });
 }
