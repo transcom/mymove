@@ -301,7 +301,7 @@ class ShipmentInfo extends Component {
                 {serviceMember.last_name}, {serviceMember.first_name}
               </div>
             </div>
-            <div className="shipment-status" data-cy="shipment-status">
+            <div data-cy="shipment-status" className="shipment-status">
               Status: {statusText}
             </div>
           </div>
