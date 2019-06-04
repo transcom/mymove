@@ -261,7 +261,7 @@ jobs:
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: make get_gotools
       - run: make bin/callgraph
-      - run: make server_generate generate_mocks
+      - run: make server_generate mocks_generate
       # this is so we can avoid go mod downloading and resulting in an error on a false positive
       - run: scripts/pre-commit-go-mod || exit 0
       - run:
@@ -284,8 +284,8 @@ jobs:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
-          name: Run make server_generate generate_mocks
-          command: make server_generate generate_mocks
+          name: Run make server_generate mocks_generate
+          command: make server_generate mocks_generate
       - run:
           name: Run acceptance tests
           command: |
@@ -616,8 +616,8 @@ jobs:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
-          name: Run make server_generate generate_mocks
-          command: make server_generate generate_mocks
+          name: Run make server_generate mocks_generate
+          command: make server_generate mocks_generate
       - run:
           name: Build Chamber
           command: make bin/chamber
@@ -688,8 +688,8 @@ jobs:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
-          name: Run make server_generate generate_mocks
-          command: make server_generate generate_mocks
+          name: Run make server_generate mocks_generate
+          command: make server_generate mocks_generate
       - run:
           name: Build Chamber
           command: make bin/chamber
