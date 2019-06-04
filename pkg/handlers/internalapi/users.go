@@ -24,7 +24,6 @@ type ShowLoggedInUserHandler struct {
 
 // Handle returns the logged in user
 func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) middleware.Responder {
-
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
@@ -103,12 +102,20 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		}
 	}
 
-	// Fetch the access code associated with the service member if one exists
-	accessCode, _ := h.accessCodeFetcher.FetchAccessCode(serviceMember.ID)
+	requiresAccessCodeFeatureFlag := true
+	var code string
+	var requiresAccessCode bool
+
+	if requiresAccessCodeFeatureFlag {
+		// Fetch the access code associated with the service member if one exists
+		accessCode, _ := h.accessCodeFetcher.FetchAccessCode(serviceMember.ID)
+		code = accessCode.Code
+		requiresAccessCode = serviceMember.RequiresAccessCode
+	}
 
 	userPayload := internalmessages.LoggedInUserPayload{
 		ID:            handlers.FmtUUID(session.UserID),
-		ServiceMember: payloadForServiceMemberModel(h.FileStorer(), serviceMember, accessCode.Code),
+		ServiceMember: payloadForServiceMemberModel(h.FileStorer(), serviceMember, code, requiresAccessCode),
 		FirstName:     session.FirstName,
 		Email:         session.Email,
 	}

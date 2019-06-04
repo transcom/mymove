@@ -18,7 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
-func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember models.ServiceMember, accessCode string) *internalmessages.ServiceMemberPayload {
+func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember models.ServiceMember, accessCode string, requiresAccessCode bool) *internalmessages.ServiceMemberPayload {
 	orders := make([]*internalmessages.Orders, len(serviceMember.Orders))
 	for i, order := range serviceMember.Orders {
 		orderPayload, _ := payloadForOrdersModel(storer, order)
@@ -56,7 +56,7 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		HasSocialSecurityNumber: handlers.FmtBool(serviceMember.SocialSecurityNumberID != nil),
 		IsProfileComplete:       handlers.FmtBool(serviceMember.IsProfileComplete()),
 		CurrentStation:          payloadForDutyStationModel(serviceMember.DutyStation),
-		RequiresAccessCode:      serviceMember.RequiresAccessCode,
+		RequiresAccessCode:      requiresAccessCode,
 		AccessCode:              accessCode,
 	}
 	return &serviceMemberPayload
@@ -149,7 +149,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		session.LastName = *(newServiceMember.LastName)
 	}
 	// And return
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember, "")
+	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember, "", true)
 	responder := servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)
 	return handlers.NewCookieUpdateResponder(params.HTTPRequest, h.CookieSecret(), h.NoSessionTimeout(), h.Logger(), responder, h.UseSecureCookie())
 }
@@ -176,7 +176,7 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 		return h.RespondAndTraceError(ctx, err, "error fetching service member", zap.String("service_member_id", serviceMemberID.String()))
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, "")
+	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, "", true)
 	return servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
@@ -210,7 +210,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		return h.RespondAndTraceVErrors(ctx, verrs, err, "error saving service member", zap.String("service_member_id", serviceMember.ID.String()))
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, "")
+	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, "", true)
 	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
