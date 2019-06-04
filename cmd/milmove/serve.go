@@ -496,7 +496,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	dpsCookieSecret := []byte(v.GetString(cli.DPSAuthCookieSecretKeyFlag))
 	dpsCookieExpires := v.GetInt(cli.DPSCookieExpiresInMinutesFlag)
 
-	dpsAuthParams := cli.InitDPSAuthParams(v, appnames)
+	dpsAuthParams := dpsauth.InitDPSAuthParams(v, appnames)
 	handlerContext.SetDPSAuthParams(dpsAuthParams)
 
 	// Base routes
