@@ -82,7 +82,7 @@ type GetShipmentLineItemsHandler struct {
 	handlers.HandlerContext
 }
 
-func (h GetShipmentLineItemsHandler) recalculateShipmentLineItems(shipmentLineItems models.ShipmentLineItems, shipmentID uuid.UUID, session *auth.Session) (bool, middleware.Responder) {
+func (h GetShipmentLineItemsHandler) recalculateShipmentLineItems(shipmentLineItems models.ShipmentLineItems, shipmentID uuid.UUID, session *auth.Session) (bool, error) {
 	update := false
 
 	// If there is a shipment line item with an invoice do not run the recalculate function
@@ -99,9 +99,8 @@ func (h GetShipmentLineItemsHandler) recalculateShipmentLineItems(shipmentLineIt
 	shipment, err := invoice.FetchShipmentForInvoice{DB: h.DB()}.Call(shipmentID)
 	if err != nil {
 		h.Logger().Error("Error fetching Shipment for re-pricing line items for shipment", zap.Error(err))
-		return update, accessorialop.NewGetShipmentLineItemsInternalServerError()
+		return update, err
 	}
-
 	// Run re-calculation process
 	update, err = shipmentop.ProcessRecalculateShipment{
 		DB:     h.DB(),
@@ -110,7 +109,7 @@ func (h GetShipmentLineItemsHandler) recalculateShipmentLineItems(shipmentLineIt
 
 	if err != nil {
 		h.Logger().Error("Error re-pricing line items for shipment", zap.Error(err))
-		return update, accessorialop.NewGetShipmentLineItemsInternalServerError()
+		return update, err
 	}
 
 	return update, nil
@@ -142,14 +141,14 @@ func (h GetShipmentLineItemsHandler) Handle(params accessorialop.GetShipmentLine
 
 	update, recalculateError := h.recalculateShipmentLineItems(shipmentLineItems, shipmentID, session)
 	if recalculateError != nil {
-		return recalculateError
+		return handlers.ResponseForError(h.Logger(), recalculateError)
 	}
 	if update {
 		shipmentLineItems, err = models.FetchLineItemsByShipmentID(h.DB(), &shipmentID)
 		if err != nil {
 			h.Logger().Error("Error fetching line items for shipment after re-calculation",
 				zap.Error(err))
-			return accessorialop.NewGetShipmentLineItemsInternalServerError()
+			return handlers.ResponseForError(h.Logger(), err)
 		}
 	}
 
