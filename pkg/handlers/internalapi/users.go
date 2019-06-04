@@ -102,7 +102,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		}
 	}
 
-	requiresAccessCodeFeatureFlag := true
+	requiresAccessCodeFeatureFlag := h.HandlerContext.GetFeatureFlag("requires-access-code")
 	var code string
 	var requiresAccessCode bool
 

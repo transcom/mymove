@@ -114,6 +114,9 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// Verbose
 	cli.InitVerboseFlags(flag)
 
+	// Feature Flags
+	cli.InitFeatureFlag(flag)
+
 	// Don't sort flags
 	flag.SortFlags = false
 }
@@ -199,6 +202,10 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 	}
 
 	if err := cli.CheckVerbose(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckFeatureFlag(v); err != nil {
 		return err
 	}
 
@@ -447,6 +454,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		)
 	}
 	handlerContext.SetGexSender(gexRequester)
+
+	// Set feature flag
+	handlerContext.SetFeatureFlags(
+		handlers.FeatureFlag{Name: cli.RequiresAccessCode, Active: v.GetBool(cli.RequiresAccessCode)},
+	)
 
 	// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
 	// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate

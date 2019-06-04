@@ -149,7 +149,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		session.LastName = *(newServiceMember.LastName)
 	}
 	// And return
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember, "", true)
+	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember, "", h.HandlerContext.GetFeatureFlag("requires-access-code"))
 	responder := servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)
 	return handlers.NewCookieUpdateResponder(params.HTTPRequest, h.CookieSecret(), h.NoSessionTimeout(), h.Logger(), responder, h.UseSecureCookie())
 }
@@ -176,7 +176,7 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 		return h.RespondAndTraceError(ctx, err, "error fetching service member", zap.String("service_member_id", serviceMemberID.String()))
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, "", true)
+	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, "", h.HandlerContext.GetFeatureFlag("requires-access-code"))
 	return servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
@@ -210,7 +210,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		return h.RespondAndTraceVErrors(ctx, verrs, err, "error saving service member", zap.String("service_member_id", serviceMember.ID.String()))
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, "", true)
+	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, "", h.HandlerContext.GetFeatureFlag("requires-access-code"))
 	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
