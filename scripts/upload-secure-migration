@@ -45,8 +45,8 @@ fi
 readonly production_migration_file="$1"
 
 # Ensure our `aws` command is the one infra has wrapped with aws-vault
-command -v "$aws_command" 2> /dev/null | grep "ppp-infra/bin/aws" &> /dev/null || \
-  ( echo "error: aws command not pointing to 'ppp-infra/bin/aws"
+command -v "$aws_command" 2> /dev/null | grep "ppp-infra/scripts/aws" &> /dev/null || \
+  ( echo "error: aws command not pointing to 'ppp-infra/scripts/aws"
     echo "see https://github.com/transcom/ppp-infra/blob/master/transcom-ppp/README.md#using-aws-vault"
     exit 1
   )
