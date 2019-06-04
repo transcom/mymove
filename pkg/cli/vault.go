@@ -96,8 +96,8 @@ func CheckVault(v *viper.Viper) error {
 	return nil
 }
 
-// GetAWSCredentials uses aws-vault to return AWS credentials
-func GetAWSCredentials(keychainName string, awsProfile string) (*credentials.Credentials, error) {
+// GetAWSCredentialsFromKeyring uses aws-vault to return AWS credential from a system keyring.
+func GetAWSCredentialsFromKeyring(keychainName string, awsProfile string) (*credentials.Credentials, error) {
 
 	// Open the keyring which holds the credentials
 	ring, err := keyring.Open(keyring.Config{
@@ -151,7 +151,7 @@ func GetAWSConfig(v *viper.Viper, verbose bool) (*aws.Config, error) {
 		keychainName := v.GetString(VaultAWSKeychainNameFlag)
 		awsProfile := v.GetString(VaultAWSProfileFlag)
 		if len(keychainName) > 0 && len(awsProfile) > 0 {
-			creds, getAWSCredsErr := GetAWSCredentials(keychainName, awsProfile)
+			creds, getAWSCredsErr := GetAWSCredentialsFromKeyring(keychainName, awsProfile)
 			if getAWSCredsErr != nil {
 				return nil, errors.Wrap(getAWSCredsErr,
 					fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, awsProfile))
