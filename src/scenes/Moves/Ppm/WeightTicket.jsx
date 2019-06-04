@@ -17,14 +17,18 @@ import WizardHeader from '../WizardHeader';
 import './PPMPaymentRequest.css';
 
 class WeightTicket extends Component {
-  state = {
-    vehicleType: '',
-    additionalWeightTickets: 'Yes',
-    weightTicketSubmissionError: false,
-    missingEmptyWeightTicket: false,
-    missingFullWeightTicket: false,
-  };
+  state = this.initialState;
   uploaders = {};
+
+  get initialState() {
+    return {
+      vehicleType: '',
+      additionalWeightTickets: 'Yes',
+      weightTicketSubmissionError: false,
+      missingEmptyWeightTicket: false,
+      missingFullWeightTicket: false,
+    };
+  }
 
   isMissingWeightTickets = () => {
     if (isEmpty(this.uploaders)) {
@@ -117,7 +121,6 @@ class WeightTicket extends Component {
     }
     return Promise.all(moveDocumentSubmissions)
       .then(() => {
-        this.setState({ weightTicketSubmissionError: false });
         this.cleanup();
       })
       .catch(e => {
@@ -134,7 +137,7 @@ class WeightTicket extends Component {
       uploaders[key].clearFiles();
     }
     reset();
-    this.setState({ vehicleType: '' });
+    this.setState({ ...this.initialState });
   };
 
   render() {
