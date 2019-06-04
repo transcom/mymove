@@ -80,11 +80,11 @@ function tspUserEntersPackAndPickUpInfo() {
   // Open approved shipments queue
   cy
     .get('div')
-    .contains('Approved Shipments')
+    .contains('All Shipments')
     .click();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/approved/);
+    expect(loc.pathname).to.match(/^\/queues\/all/);
   });
 
   // Find shipment and open it
