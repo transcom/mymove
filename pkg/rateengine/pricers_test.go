@@ -20,19 +20,19 @@ func discountPtr(d float64) *unit.DiscountRate {
 }
 
 var pricersTestCases = []pricerTestCase{
-	pricerTestCase{newBasicQuantityPricer(), unit.Cents(100), unit.BaseQuantityFromInt(1), nil, unit.Cents(100)},
-	pricerTestCase{newBasicQuantityPricer(), unit.Cents(100), unit.BaseQuantityFromInt(1), discountPtr(0.5), unit.Cents(50)},
+	{newBasicQuantityPricer(), unit.Cents(100), unit.BaseQuantityFromInt(1), nil, unit.Cents(100)},
+	{newBasicQuantityPricer(), unit.Cents(100), unit.BaseQuantityFromInt(1), discountPtr(0.5), unit.Cents(50)},
 
-	pricerTestCase{newMinimumQuantityPricer(10), unit.Cents(100), unit.BaseQuantityFromInt(100), nil, unit.Cents(10000)},
-	pricerTestCase{newMinimumQuantityPricer(10), unit.Cents(100), unit.BaseQuantityFromInt(5), nil, unit.Cents(1000)},
-	pricerTestCase{newMinimumQuantityPricer(10), unit.Cents(100), unit.BaseQuantityFromInt(100), discountPtr(0.5), unit.Cents(5000)},
+	{newMinimumQuantityPricer(10), unit.Cents(100), unit.BaseQuantityFromInt(100), nil, unit.Cents(10000)},
+	{newMinimumQuantityPricer(10), unit.Cents(100), unit.BaseQuantityFromInt(5), nil, unit.Cents(1000)},
+	{newMinimumQuantityPricer(10), unit.Cents(100), unit.BaseQuantityFromInt(100), discountPtr(0.5), unit.Cents(5000)},
 
-	pricerTestCase{newMinimumQuantityHundredweightPricer(100), unit.Cents(100), unit.BaseQuantityFromInt(1000), nil, unit.Cents(1000)},
-	pricerTestCase{newMinimumQuantityHundredweightPricer(100), unit.Cents(100), unit.BaseQuantityFromInt(50), nil, unit.Cents(100)},
-	pricerTestCase{newMinimumQuantityHundredweightPricer(100), unit.Cents(100), unit.BaseQuantityFromInt(1000), discountPtr(0.5), unit.Cents(500)},
+	{newMinimumQuantityHundredweightPricer(100), unit.Cents(100), unit.BaseQuantityFromInt(1000), nil, unit.Cents(1000)},
+	{newMinimumQuantityHundredweightPricer(100), unit.Cents(100), unit.BaseQuantityFromInt(50), nil, unit.Cents(100)},
+	{newMinimumQuantityHundredweightPricer(100), unit.Cents(100), unit.BaseQuantityFromInt(1000), discountPtr(0.5), unit.Cents(500)},
 
-	pricerTestCase{newFlatRatePricer(), unit.Cents(100), unit.BaseQuantityFromInt(9999), nil, unit.Cents(100)},
-	pricerTestCase{newFlatRatePricer(), unit.Cents(100), unit.BaseQuantityFromInt(9999), discountPtr(0.5), unit.Cents(50)},
+	{newFlatRatePricer(), unit.Cents(100), unit.BaseQuantityFromInt(9999), nil, unit.Cents(100)},
+	{newFlatRatePricer(), unit.Cents(100), unit.BaseQuantityFromInt(9999), discountPtr(0.5), unit.Cents(50)},
 }
 
 func (suite *RateEngineSuite) TestPricersTestCases() {
