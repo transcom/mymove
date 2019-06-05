@@ -1,6 +1,8 @@
 package authentication
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -133,9 +135,17 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// LoginStateCookieName is the name given to the cookie storing the encrypted Login.gov state nonce.
+const LoginStateCookieName = "LGState"
+
 // RedirectHandler handles redirection
 type RedirectHandler struct {
 	Context
+}
+
+func shaAsString(nonce string) string {
+	s := sha256.Sum256([]byte(nonce))
+	return hex.EncodeToString(s[:])
 }
 
 // RedirectHandler constructs the Login.gov authentication URL and redirects to it
@@ -147,13 +157,26 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	authURL, err := h.loginGovProvider.AuthorizationURL(r)
+	loginData, err := h.loginGovProvider.AuthorizationURL(r)
 	if err != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 
-	http.Redirect(w, r, authURL, http.StatusTemporaryRedirect)
+	// Hash the state/Nonce value sent to login.gov and set the result as an HttpOnly cookie
+	// Check this when we return from login.gov
+	stateCookie := http.Cookie{
+		Name:     LoginStateCookieName,
+		Value:    shaAsString(loginData.Nonce),
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		MaxAge:   -1,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		Secure:   true,
+	}
+	http.SetCookie(w, &stateCookie)
+	http.Redirect(w, r, loginData.RedirectURL, http.StatusTemporaryRedirect)
 }
 
 // CallbackHandler processes a callback from login.gov
@@ -189,6 +212,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
+
 	rawLandingURL := h.landingURL(session)
 	landingURL, err := url.Parse(rawLandingURL)
 	if err != nil {
@@ -211,6 +235,25 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		landingURL.RawQuery = landingQuery.Encode()
 		http.Redirect(w, r, landingURL.String(), http.StatusPermanentRedirect)
+		return
+	}
+
+	// Check the state value sent back from login.gov with the value saved in the cookie
+	returnedState := r.URL.Query().Get("state")
+	stateCookie, err := r.Cookie(LoginStateCookieName)
+	if err != nil {
+		h.logger.Error("Getting login.gov state cookie", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
+	hash := stateCookie.Value
+	if hash != shaAsString(returnedState) {
+		h.logger.Error("Returned state does not match cookie",
+			zap.String("state", returnedState),
+			zap.String("cookie", hash),
+			zap.String("hash", shaAsString(returnedState)))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 

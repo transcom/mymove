@@ -105,30 +105,37 @@ func generateNonce() string {
 	return base64.URLEncoding.EncodeToString(nonceBytes)
 }
 
+// LoginGovData contains the URL and State nonce used to redirect a user
+// login.gov for authentication
+type LoginGovData struct {
+	RedirectURL string
+	Nonce       string
+}
+
 // AuthorizationURL returns a URL for login.gov authorization with required params
-func (p LoginGovProvider) AuthorizationURL(r *http.Request) (string, error) {
+func (p LoginGovProvider) AuthorizationURL(r *http.Request) (*LoginGovData, error) {
 	provider, err := getLoginGovProviderForRequest(r)
 	if err != nil {
 		p.logger.Error("Get Goth provider", zap.Error(err))
-		return "", err
+		return nil, err
 	}
 	state := generateNonce()
 	sess, err := provider.BeginAuth(state)
 	if err != nil {
 		p.logger.Error("Goth begin auth", zap.Error(err))
-		return "", err
+		return nil, err
 	}
 
 	baseURL, err := sess.GetAuthURL()
 	if err != nil {
 		p.logger.Error("Goth get auth URL", zap.Error(err))
-		return "", err
+		return nil, err
 	}
 
 	authURL, err := url.Parse(baseURL)
 	if err != nil {
 		p.logger.Error("Parse auth URL", zap.Error(err))
-		return "", err
+		return nil, err
 	}
 
 	params := authURL.Query()
@@ -137,7 +144,7 @@ func (p LoginGovProvider) AuthorizationURL(r *http.Request) (string, error) {
 	params.Set("scope", "openid email")
 
 	authURL.RawQuery = params.Encode()
-	return authURL.String(), nil
+	return &LoginGovData{authURL.String(), state}, nil
 }
 
 // LogoutURL returns a full URL to log out of login.gov with required params
