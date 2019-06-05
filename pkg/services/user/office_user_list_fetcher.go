@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -9,18 +10,25 @@ type officeUserListQueryBuilder interface {
 	FetchMany(model interface{}, filters []services.QueryFilter) error
 }
 
+type authorizeAdminUser func(session *auth.Session) error
+
 type officeUserListFetcher struct {
-	builder officeUserListQueryBuilder
+	builder      officeUserListQueryBuilder
+	authFunction authorizeAdminUser
 }
 
-// FetchOfficeUserList is uses the passed query builder to fetch a list of office users
-func (o *officeUserListFetcher) FetchOfficeUserList(filters []services.QueryFilter) (models.OfficeUsers, error) {
+// FetchOfficeUserList uses the passed query builder to fetch a list of office users
+func (o *officeUserListFetcher) FetchOfficeUserList(filters []services.QueryFilter, session *auth.Session) (models.OfficeUsers, error) {
+	err := o.authFunction(session)
+	if err != nil {
+		return nil, err
+	}
 	var officeUsers models.OfficeUsers
 	error := o.builder.FetchMany(&officeUsers, filters)
 	return officeUsers, error
 }
 
 // NewOfficeUserListFetcher returns an implementation of OfficeUserListFetcher
-func NewOfficeUserListFetcher(builder officeUserListQueryBuilder) services.OfficeUserListFetcher {
-	return &officeUserListFetcher{builder}
+func NewOfficeUserListFetcher(builder officeUserListQueryBuilder, authFunction authorizeAdminUser) services.OfficeUserListFetcher {
+	return &officeUserListFetcher{builder, authFunction}
 }

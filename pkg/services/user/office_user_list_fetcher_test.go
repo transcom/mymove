@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -33,12 +34,19 @@ func (suite *UserServiceSuite) TestFetchOfficeUserList() {
 		builder := &testOfficeUserListQueryBuilder{
 			fakeFetchMany: fakeFetchMany,
 		}
-		fetcher := NewOfficeUserListFetcher(builder)
+
+		// Mocking authorization
+		session := auth.Session{}
+		authFunction := func(session *auth.Session) error {
+			return nil
+		}
+
+		fetcher := NewOfficeUserListFetcher(builder, authFunction)
 		filters := []services.QueryFilter{
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		officeUsers, err := fetcher.FetchOfficeUserList(filters)
+		officeUsers, err := fetcher.FetchOfficeUserList(filters, &session)
 
 		suite.NoError(err)
 		suite.Equal(id, officeUsers[0].ID)
@@ -51,12 +59,42 @@ func (suite *UserServiceSuite) TestFetchOfficeUserList() {
 		builder := &testOfficeUserListQueryBuilder{
 			fakeFetchMany: fakeFetchMany,
 		}
-		fetcher := NewOfficeUserListFetcher(builder)
 
-		officeUsers, err := fetcher.FetchOfficeUserList([]services.QueryFilter{})
+		// Mocking authorization
+		session := auth.Session{}
+		authFunction := func(session *auth.Session) error {
+			return nil
+		}
+
+		fetcher := NewOfficeUserListFetcher(builder, authFunction)
+
+		officeUsers, err := fetcher.FetchOfficeUserList([]services.QueryFilter{}, &session)
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")
+		suite.Equal(models.OfficeUsers(nil), officeUsers)
+	})
+
+	suite.T().Run("if the user is unauthorized, we get an error", func(t *testing.T) {
+		fakeFetchMany := func(model interface{}) error {
+			return nil
+		}
+		builder := &testOfficeUserListQueryBuilder{
+			fakeFetchMany: fakeFetchMany,
+		}
+
+		// Mocking authorization
+		session := auth.Session{}
+		authFunction := func(session *auth.Session) error {
+			return errors.New("USER_UNAUTHORIZED")
+		}
+
+		fetcher := NewOfficeUserListFetcher(builder, authFunction)
+
+		officeUsers, err := fetcher.FetchOfficeUserList([]services.QueryFilter{}, &session)
+
+		suite.Error(err)
+		suite.Equal(err.Error(), "USER_UNAUTHORIZED")
 		suite.Equal(models.OfficeUsers(nil), officeUsers)
 	})
 }

@@ -7,7 +7,8 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
-
+	"github.com/transcom/mymove/mocks"
+	"github.com/transcom/mymove/pkg/auth"
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -38,7 +39,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
 	req := httptest.NewRequest("GET", "/office_users", nil)
-	req = suite.AuthenticateUserRequest(req, requestUser)
+	req = suite.AuthenticateAdminRequest(req, requestUser)
 
 	// test that everything is wired up
 	suite.T().Run("integration test ok response", func(t *testing.T) {
@@ -50,14 +51,14 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		handler := IndexOfficeUsersHandler{
 			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:        query.NewQueryFilter,
-			OfficeUserListFetcher: user.NewOfficeUserListFetcher(queryBuilder),
+			OfficeUserListFetcher: user.NewOfficeUserListFetcher(queryBuilder, auth.AuthorizeAdminUser),
 		}
 
 		response := handler.Handle(params)
 
 		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
 		okResponse := response.(*officeuserop.IndexOfficeUsersOK)
-		suite.Len(okResponse.Payload, 1)
+		suite.Len(okResponse.Payload, 2)
 		suite.Equal(uuidString, okResponse.Payload[0].ID.String())
 	})
 

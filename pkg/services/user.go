@@ -1,6 +1,9 @@
 package services
 
-import "github.com/transcom/mymove/pkg/models"
+import (
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/models"
+)
 
 // OfficeUserFetcher is the exported interface for fetching a single office user
 type OfficeUserFetcher interface {
@@ -10,5 +13,5 @@ type OfficeUserFetcher interface {
 // OfficeUserListFetcher is the exported interface for fetching multiple office users
 //go:generate mockery -name OfficeUserListFetcher
 type OfficeUserListFetcher interface {
-	FetchOfficeUserList(filters []QueryFilter) (models.OfficeUsers, error)
+	FetchOfficeUserList(filters []QueryFilter, session *auth.Session) (models.OfficeUsers, error)
 }

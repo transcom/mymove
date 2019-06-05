@@ -3,6 +3,7 @@ package adminapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 
+	"github.com/transcom/mymove/pkg/auth"
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -12,7 +13,12 @@ import (
 
 // TODO: fill this in
 func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
-	return &adminmessages.OfficeUser{ID: *handlers.FmtUUID(o.ID)}
+	return &adminmessages.OfficeUser{
+		ID:        *handlers.FmtUUID(o.ID),
+		FirstName: o.FirstName,
+		LastName:  o.LastName,
+		Email:     o.Email,
+	}
 }
 
 // IndexOfficeUsersHandler returns a list of office users via GET /office_users
@@ -24,15 +30,14 @@ type IndexOfficeUsersHandler struct {
 
 // Handle retrieves a list of office users
 func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersParams) middleware.Responder {
-
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 	queryFilters := []services.QueryFilter{
-		h.NewQueryFilter("id", "=", "d874d002-5582-4a91-97d3-786e8f66c763"),
+		// h.NewQueryFilter("id", "=", "d874d002-5582-4a91-97d3-786e8f66c763"),
 	}
 
-	officeUsers, err := h.OfficeUserListFetcher.FetchOfficeUserList(queryFilters)
+	officeUsers, err := h.OfficeUserListFetcher.FetchOfficeUserList(queryFilters, session)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
