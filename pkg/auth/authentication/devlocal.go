@@ -54,17 +54,14 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, h.landingURL(session), http.StatusTemporaryRedirect)
 		return
 	}
-	identities, err := models.FetchAllUserIdentities(h.db)
+	limit := 25
+	identities, err := models.FetchAppUserIdentities(h.db, session.ApplicationName, limit)
 	if err != nil {
 		h.logger.Error("Could not load list of users", zap.Error(err))
 		http.Error(w,
 			fmt.Sprintf("%s - Could not load list of users, try migrating the DB", http.StatusText(500)),
 			http.StatusInternalServerError)
 		return
-	}
-	// Truncate the list if larger than 25
-	if len(identities) > 25 {
-		identities = identities[:25]
 	}
 
 	type TemplateData struct {
@@ -75,6 +72,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		DpsUserType     string
 		AdminUserType   string
 		CsrfToken       string
+		QueryLimit      int
 	}
 
 	templateData := TemplateData{
@@ -85,7 +83,8 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		DpsUserType:     DpsUserType,
 		AdminUserType:   AdminUserType,
 		// Build CSRF token instead of grabbing from middleware. Otherwise throws errors when accessed directly.
-		CsrfToken: csrf.Token(r),
+		CsrfToken:  csrf.Token(r),
+		QueryLimit: limit,
 	}
 
 	t := template.Must(template.New("users").Parse(`
@@ -98,7 +97,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		  <div class="row mb-3">
 			<div class="col-md-8">
 			  <h2 class="mt-4">Select an Existing User</h1>
-			  <p>Showing the first 25 users:</p>
+			  <p>Showing the first {{$.QueryLimit}} users:</p>
 			  {{range .Identities}}
 				<form method="post" action="/devlocal-auth/login">
 					<p id="{{.ID}}">
