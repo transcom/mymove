@@ -190,8 +190,6 @@ export class DateAndLocation extends Component {
           pageKey={pageKey}
           serverError={error}
           initialValues={initialValues}
-          // asyncValidate={validateZipData}
-          // asyncChangeFields={['destination_postal_code']}
           enableReinitialize={true} //this is needed as the pickup_postal_code value needs to be initialized to the users residential address
         >
           <h2>PPM Dates & Locations</h2>
