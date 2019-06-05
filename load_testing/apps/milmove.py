@@ -73,8 +73,8 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         payload = model(
             affiliation="NAVY",  # Rotate
             edipi="3333333333",  # Random
-            rank="E_5",  # Rotate
             social_security_number="333-33-3333",  # Random
+            rank="E_5",  # Rotate
         )
         service_member = swagger_request(
             self.swagger_internal.service_members.patchServiceMember,
@@ -88,8 +88,8 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         model = self.swagger_internal.get_model("PatchServiceMemberPayload")
         payload = model(
             first_name="Alice",  # Random
-            last_name="Bob",  # Random
             middle_name="Carol",
+            last_name="Bob",  # Random
             suffix="",
         )
         service_member = swagger_request(
@@ -104,7 +104,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         model = self.swagger_internal.get_model("PatchServiceMemberPayload")
         payload = model(
             email_is_preferred=True,
-            personal_email="20190321164732@example.com",
+            personal_email=self.user["email"],  # Email is derived from logging in
             phone_is_preferred=True,
             secondary_telephone="333-333-3333",
             telephone="333-333-3333",
@@ -137,6 +137,61 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         self.update_service_member(service_member)
 
     @seq_task(9)
+    def current_residence_address(self):
+        model = self.swagger_internal.get_model("PatchServiceMemberPayload")
+        address = self.swagger_internal.get_model("Address")
+        payload = model(
+            residential_address=address(
+                street_address_1="12345 Fake St",
+                city="Aurora",
+                state="CO",
+                postal_code="80013",
+            )
+        )
+        service_member = swagger_request(
+            self.swagger_internal.service_members.patchServiceMember,
+            serviceMemberId=self.user["service_member"].id,
+            patchServiceMemberPayload=payload,
+        )
+        self.update_service_member(service_member)
+
+    @seq_task(10)
+    def backup_mailing_address(self):
+        model = self.swagger_internal.get_model("PatchServiceMemberPayload")
+        address = self.swagger_internal.get_model("Address")
+        payload = model(
+            backup_mailing_address=address(
+                street_address_1="12345 Fake St",
+                city="Aurora",
+                state="CO",
+                postal_code="80013",
+            )
+        )
+        service_member = swagger_request(
+            self.swagger_internal.service_members.patchServiceMember,
+            serviceMemberId=self.user["service_member"].id,
+            patchServiceMemberPayload=payload,
+        )
+        self.update_service_member(service_member)
+
+    @seq_task(11)
+    def backup_contact(self):
+        model = self.swagger_internal.get_model(
+            "CreateServiceMemberBackupContactPayload"
+        )
+        payload = model(
+            name="Alice",
+            email="alice@example.com",
+            permission="NONE",
+            telephone="333-333-3333",
+        )
+        swagger_request(
+            self.swagger_internal.backup_contacts.createServiceMemberBackupContact,
+            serviceMemberId=self.user["service_member"].id,
+            createBackupContactPayload=payload,
+        )
+
+    @seq_task(12)
     def logout(self):
         self.client.post("/auth/logout")
         self.login_gov_user = None
