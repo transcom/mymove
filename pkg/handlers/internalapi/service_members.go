@@ -126,7 +126,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		BackupMailingAddress:   backupMailingAddress,
 		SocialSecurityNumber:   ssn,
 		DutyStation:            station,
-		RequiresAccessCode:     true,
+		RequiresAccessCode:     h.HandlerContext.GetFeatureFlag("requires-access-code"),
 		DutyStationID:          stationID,
 	}
 	smVerrs, err := models.SaveServiceMember(ctx, h.DB(), &newServiceMember)
