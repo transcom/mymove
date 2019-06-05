@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getFormValues, SubmissionError } from 'redux-form';
+import { getFormValues } from 'redux-form';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import {
   createOrUpdatePpm,
@@ -29,8 +29,6 @@ const InvalidMoveParamsErrorMsg =
   "We can't schedule a move that far in the future. You can try an earlier date, or contact your PPPO for help.";
 const UnsupportedZipCodeErrorMsg =
   'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.';
-const AsyncDateErrorMsg =
-  "We can 't schedule a move that far in the future. You can try an earlier date, or contact your PPPO for help.";
 
 async function asyncValidate(values, dispatch, props, currentFieldName) {
   const { pickup_postal_code, destination_postal_code, original_move_date } = values;
@@ -70,7 +68,7 @@ async function asyncValidate(values, dispatch, props, currentFieldName) {
     try {
       await GetPpmWeightEstimate(original_move_date, pickup_postal_code, destination_postal_code, 100);
     } catch (err) {
-      const x = { original_move_date: AsyncDateErrorMsg };
+      const x = { original_move_date: InvalidMoveParamsErrorMsg };
       throw x;
     }
   }
@@ -105,9 +103,7 @@ export class DateAndLocation extends Component {
     this.setState({ showInfo: false });
   };
 
-  validateAndSavePPM = () => {
-    const { entitlement } = this.props;
-    const wtgEstEntitlement = get(entitlement, 'sum', 2000);
+  handleSubmit = () => {
     const pendingValues = Object.assign({}, this.props.formValues);
     if (pendingValues) {
       pendingValues.has_additional_postal_code = pendingValues.has_additional_postal_code || false;
@@ -116,23 +112,7 @@ export class DateAndLocation extends Component {
         pendingValues.days_in_storage = null;
       }
       const moveId = this.props.match.params.moveId;
-
-      // the call to GetPpmWeightEstimate verifies that we have rate data for
-      // these locations and move date before saving the move
-      return GetPpmWeightEstimate(
-        pendingValues.original_move_date,
-        pendingValues.pickup_postal_code,
-        pendingValues.destination_postal_code,
-        wtgEstEntitlement,
-      )
-        .then(() => {
-          return this.props.createOrUpdatePpm(moveId, pendingValues);
-        })
-        .catch(e => {
-          throw new SubmissionError({
-            original_move_date: InvalidMoveParamsErrorMsg,
-          });
-        });
+      return this.props.createOrUpdatePpm(moveId, pendingValues);
     }
   };
 
@@ -185,7 +165,7 @@ export class DateAndLocation extends Component {
           />
         )}
         <DateAndLocationWizardForm
-          reduxFormSubmit={this.validateAndSavePPM}
+          reduxFormSubmit={this.handleSubmit}
           pageList={pages}
           pageKey={pageKey}
           serverError={error}
