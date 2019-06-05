@@ -37,7 +37,6 @@ type e2eBasicScenario NamedScenario
 var E2eBasicScenario = e2eBasicScenario{"e2e_basic"}
 
 var selectedMoveTypeHHG = models.SelectedMoveTypeHHG
-var selectedMoveTypePPM = models.SelectedMoveTypePPM
 var selectedMoveTypeHHGPPM = models.SelectedMoveTypeHHGPPM
 
 // Often weekends and holidays are not allowable dates
@@ -2554,6 +2553,53 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	hhg43 := offer43.Shipment
 	hhg43.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg43.Move)
+
+	/*
+	 * Service member with accepted move for use in testing the deletion of SIT
+	 */
+	email = "hhg@sit.todelete"
+	offer44 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("76616087-713d-4837-8941-f2b73f532a10")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("54bae5b4-af77-4693-a3b3-3ff6f5796a92"),
+			FirstName:     models.StringPointer("SIT"),
+			LastName:      models.StringPointer("ToDelete"),
+			Edipi:         models.StringPointer("1357924622"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("9811bc2c-45e7-40d2-aee0-d863f0d2b7ee"),
+			Locator:          "SITDEL",
+			SelectedMoveType: &selectedMoveTypeHHG,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("0c395d75-ec2f-45de-8d3f-74716d69aa67"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusACCEPTED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID:         offer44.ShipmentID,
+			Shipment:           offer44.Shipment,
+			EstimatedStartDate: time.Date(2019, time.Month(4), 22, 0, 0, 0, 0, time.UTC),
+		},
+	})
+	hhg44 := offer44.Shipment
+	hhg44.Move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &hhg44.Move)
 
 	/*
 	 * Service member with a ppm ready to request payment

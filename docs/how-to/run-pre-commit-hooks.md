@@ -5,7 +5,7 @@
 Pre-commit can be run by simply running the following command in terminal:
 `pre-commit` or `make pre_commit_tests` which is similar to how CircleCI runs it.
 
-*If pre-commit command is not found or errors out, please make sure you have the [prerequisites](README.md#setup-prerequisites) installed.*
+*If pre-commit command is not found or errors out, please make sure you have the [pre-requisites](README.md#setup-prerequisites) installed.*
 
 ## Testing
 
@@ -33,3 +33,8 @@ If you would like to run an individual hook, for example if you want to only run
 | `go-vet` | Attempts to examines Go source code and reports suspicious constructs, such as `Printf` calls whose arguments do not align with the format string.
 | `gosec` | Inspects source code for security problems by scanning the Go AST. For more see [here](https://github.com/securego/gosec).
 | `gen-docs` |Attempts to generate table of contents for the [docs/README](docs/README.md) file in doc folder.
+| `gofmt` | Part of golangci-lint linter and attempts to format go code
+| `varcheck` | Part of golangci-lint linter and used to find unused global variables and constants
+| `typecheck` | Part of golangci-lint linter and works like the front-end of a Go compiler, parses and type-checks Go code
+| `structcheck` | Part of golangci-lint linter and finds an unused struct fields
+| `deadcode` | Part of golangci-lint linter and used to find unused code

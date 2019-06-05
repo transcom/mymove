@@ -446,6 +446,7 @@ hhg.cfm
 waterhaul
 xxx.html
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
+
  - /usr/local
  - docs/data/tspp-data-creation.md
  - docs/backend.md
@@ -454,8 +455,7 @@ xxx.html
  - README.md
  - docs/frontend.md
  - ./README.md
- - ./docs/backend/time.md
- - docs/how-to/run-pre-commit-hooks.md
- - docs/data/tariff400ng-yearly-import.md
- - scripts/README.md
-
+transportation_service_provider_performances
+ - ./docs/data/tspp-data-creation.md
+ - ./docs/data/tariff400ng-yearly-import.md
+ - ./scripts/README.md
