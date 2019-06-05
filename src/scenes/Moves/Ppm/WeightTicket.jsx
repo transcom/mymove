@@ -80,11 +80,6 @@ class WeightTicket extends Component {
     });
   };
 
-  cancelHandler = formValues => {
-    const { history } = this.props;
-    history.push('/');
-  };
-
   saveForLaterHandler = formValues => {
     const { history } = this.props;
     return this.saveAndAddHandler(formValues).then(() => {
@@ -380,7 +375,6 @@ class WeightTicket extends Component {
               nextBtnLabel={nextBtnLabel}
               submitButtonsAreDisabled={this.formIsIncomplete()}
               submitting={submitting}
-              cancelHandler={this.cancelHandler}
               saveForLaterHandler={handleSubmit(this.saveForLaterHandler)}
               saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
               displaySaveForLater={true}
