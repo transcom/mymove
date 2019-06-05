@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"fmt"
 	"net/http/httptest"
 
 	"github.com/stretchr/testify/mock"
@@ -60,11 +61,15 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandl
 		mock.AnythingOfType("UUID"),
 	).Return(&accessCode, nil)
 
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), accessCodeFetcher}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	featureFlag := handlers.FeatureFlag{Name: "requires-access-code", Active: true}
+	context.SetFeatureFlags(featureFlag)
+	handler := ShowLoggedInUserHandler{context, accessCodeFetcher}
 
 	response := handler.Handle(params)
 
 	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
+	fmt.Println(okResponse.Payload.ServiceMember.AccessCode)
 	suite.True(ok)
 	suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
 	suite.Equal(okResponse.Payload.ServiceMember.AccessCode, code)
