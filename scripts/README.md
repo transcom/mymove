@@ -26,13 +26,12 @@ committing.
 | `gen-docs-index` | generate index for documents |
 | `generate-md-toc` |  Wrapper script to generate table of contents on Markdown files. |
 | `pre-commit-circleci-validate` | validate CircleCI `config.yml` file |
-| `pre-commit-codecov-validate | validate codecov `.codecov.yml` file |
+| `pre-commit-codecov-validate` | validate Codecov `.codecov.yml` file |
 | `pre-commit-go-imports` | modify imports in go files |
 | `pre-commit-go-lint` | modify go files with linting rules |
 | `pre-commit-go-mod` | modify `go.mod` and `go.sum` to match whats in the project |
 | `pre-commit-go-vet` | analyze code with `go vet` |
 | `pre-commit-spellcheck` | run spell checker against code |
-
 
 ## CircleCI Scripts
 
@@ -68,9 +67,9 @@ application testing
 | --- | --- |
 | `dump-function-calls` |  Show all used functions in our codebase. |
 | `dump-packages` |  Show all used packages in our codebase. |
-| `export-obfuscated-tspp-sample` | Export a subset of rows from the transportation_service_provider_performances table |
+| `export-obfuscated-tspp-sample` | Export a subset of rows from the `transportation_service_provider_performances` table |
 | `find-invoices` |  This script will use available API endpoints to find invoices in whatever environment you specify|
-| `generate-devlocal-cert` | Convenience script for creating a new certificate signed by the devlocal CA. |
+| `generate-devlocal-cert` | Convenience script for creating a new certificate signed by the DevLocal CA. |
 | `go-find-pattern` |  searches over all our go source code files for a regex pattern |
 | `merge-pr` |  A script to automate the landing of your GitHub pull requests. |
 | `make-test` | A script to test common developer make targets. |
