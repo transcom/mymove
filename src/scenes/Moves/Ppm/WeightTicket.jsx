@@ -95,7 +95,8 @@ class WeightTicket extends Component {
   };
 
   saveAndAddHandler = formValues => {
-    const { moveId, currentPpm } = this.props;
+    const { moveId, currentPpm, history } = this.props;
+    const { additionalWeightTickets } = this.state;
 
     const moveDocumentSubmissions = [];
     const uploadersKeys = Object.keys(this.uploaders);
@@ -123,6 +124,9 @@ class WeightTicket extends Component {
       .then(() => {
         this.setState({ weightTicketSubmissionError: false });
         this.cleanup();
+        if (additionalWeightTickets === 'No') {
+          history.push(`/moves/${moveId}/ppm-expenses-intro`);
+        }
       })
       .catch(e => {
         this.setState({ weightTicketSubmissionError: true });
@@ -259,7 +263,7 @@ class WeightTicket extends Component {
                       The weight of this trailer should be <strong>excluded</strong> from the total weight of this trip.{' '}
                     </div>
                   )}
-                  <div className="usa-width-one-third">
+                  <div className="usa-width-one-third input-group">
                     <strong className="input-header">
                       Empty Weight{' '}
                       {isCarTrailer && (
@@ -299,7 +303,7 @@ class WeightTicket extends Component {
                     )}
                   </div>
                 </div>
-                <div className="usa-grid-full" style={{ marginTop: '1em' }}>
+                <div className="usa-grid-full input-group" style={{ marginTop: '1em' }}>
                   <div className="usa-width-one-third">
                     <strong className="input-header">
                       Full Weight{' '}

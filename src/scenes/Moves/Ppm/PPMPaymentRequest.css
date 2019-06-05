@@ -121,3 +121,7 @@
 .one-half {
   width: 50%;
 }
+
+.input-group .usa-input-error {
+  margin-top: 0px;
+}
