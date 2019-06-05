@@ -68,7 +68,7 @@ export async function ValidateZipRateData(zipCode, zipType) {
     postal_code: zipCode,
     postal_code_type: zipType,
   });
-  checkResponse(response, 'some error around validating');
+  checkResponse(response, 'failed to validate ppm data due to server error');
   return response.body;
 }
 

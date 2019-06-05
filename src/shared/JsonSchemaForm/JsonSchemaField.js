@@ -239,7 +239,6 @@ export const SwaggerField = props => {
     zipPattern,
     filteredEnumListOverride,
     hideLabel,
-    asyncChangeFields,
   } = props;
   let swaggerField;
   if (swagger.properties) {
@@ -273,7 +272,6 @@ export const SwaggerField = props => {
     zipPattern,
     filteredEnumListOverride,
     hideLabel,
-    asyncChangeFields,
   );
 };
 
@@ -294,7 +292,6 @@ const createSchemaField = (
   zipPattern,
   filteredEnumListOverride,
   hideLabel,
-  asyncChangeFields,
 ) => {
   // Early return here, this is an edge case for label placement.
   // USWDS CSS only renders a checkbox if it is followed by its label
@@ -321,7 +318,6 @@ const createSchemaField = (
   fieldProps.validate = [];
   // eslint-disable-next-line security/detect-object-injection
   fieldProps.always_required = swaggerField[ALWAYS_REQUIRED_KEY];
-  fieldProps.asyncChangeFields = asyncChangeFields;
 
   let inputProps = {
     disabled: disabled,

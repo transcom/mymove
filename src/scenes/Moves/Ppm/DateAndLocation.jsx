@@ -25,86 +25,66 @@ import { GetPpmWeightEstimate, ValidateZipRateData } from './api';
 const sitEstimateDebounceTime = 300;
 const formName = 'ppp_date_and_location';
 
-const destinationZipType = 'destination';
-const originZipType = 'pickup';
+const InvalidMoveParamsErrorMsg =
+  "We can't schedule a move that far in the future. You can try an earlier date, or contact your PPPO for help.";
+const UnsupportedZipCodeErrorMsg =
+  'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.';
+const AsyncDateErrorMsg =
+  "We can 't schedule a move that far in the future. You can try an earlier date, or contact your PPPO for help.";
 
-function asyncValidate(values, dispatch, props, currentFieldName) {
-  const zipValue = values[currentFieldName];
-  if (zipValue && (zipValue.length < 5 || zipValue === props.initialValues[currentFieldName])) {
-    return;
-  }
+async function asyncValidate(values, dispatch, props, currentFieldName) {
+  const { pickup_postal_code, destination_postal_code, original_move_date } = values;
 
-  const zip = zipValue && zipValue.slice(0, 5);
-  let zipType;
-
-  if (zip && currentFieldName === 'destination_postal_code') {
-    zipType = destinationZipType;
-  }
-  if (zip && currentFieldName === 'pickup_postal_code') {
-    zipType = originZipType;
-  }
-  return ValidateZipRateData(zip, zipType)
-    .then(responseBody => {
-      let response = {};
-      const returnValue = responseBody.valid ? undefined : UnsupportedZipCodeErrorMsg;
-
-      response[currentFieldName] = returnValue;
-      if (returnValue === UnsupportedZipCodeErrorMsg) {
-        throw response;
-      }
+  // If either postal code is blurred, check both of them for errors. We want to
+  // catch these before checking on dates via `GetPpmWeightEstimate`.
+  if (['destination_postal_code', 'pickup_postal_code'].includes(currentFieldName)) {
+    // eslint-disable-next-line security/detect-object-injection
+    const zipValue = values[currentFieldName];
+    if (zipValue && zipValue.length < 5) {
       return;
-    })
-    .catch(err => {
-      let response = {};
-      response[currentFieldName] = UnsupportedZipCodeErrorMsg;
-      if (err[currentFieldName] === response[currentFieldName]) {
-        throw err;
+    }
+    const pickupZip = pickup_postal_code && pickup_postal_code.slice(0, 5);
+    const destinationZip = destination_postal_code && destination_postal_code.slice(0, 5);
+    let responseObject = {};
+    if (pickupZip) {
+      const responseBody = await ValidateZipRateData(pickupZip, 'origin');
+      if (!responseBody.valid) {
+        responseObject.pickup_postal_code = UnsupportedZipCodeErrorMsg;
       }
-      response[currentFieldName] = 'Something went wrong.';
-      throw response;
-    });
+    }
+    if (destinationZip) {
+      const responseBody = await ValidateZipRateData(destinationZip, 'destination');
+      if (!responseBody.valid) {
+        responseObject.destination_postal_code = UnsupportedZipCodeErrorMsg;
+      }
+    }
+    if (responseObject.pickup_postal_code || responseObject.destination_postal_code) {
+      throw responseObject;
+    }
+  }
+
+  // If we have all valid postal codes and a move date, we can verify the rate engine
+  // data for the date, while assuming a very small weight (100) that should be covered in
+  // all SM weight entitlements.
+  if (pickup_postal_code && destination_postal_code && original_move_date) {
+    try {
+      await GetPpmWeightEstimate(original_move_date, pickup_postal_code, destination_postal_code, 100);
+    } catch (err) {
+      const x = { original_move_date: AsyncDateErrorMsg };
+      throw x;
+    }
+  }
 }
 
 const DateAndLocationWizardForm = reduxifyWizardForm(formName, null, asyncValidate, [
   'destination_postal_code',
   'pickup_postal_code',
+  'original_move_date',
 ]);
-
-const InvalidMoveParamsErrorMsg =
-  "We can 't schedule a move that far in the future. You can try an earlier date, or contact your PPPO for help.";
-
-const UnsupportedZipCodeErrorMsg =
-  'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.';
 
 const validateDifferentZip = (value, formValues) => {
   if (value && value === formValues.pickup_postal_code) {
     return 'You entered the same zip code for your origin and destination. Please change one of them.';
-  }
-};
-
-const validateZipData = (value, formValues, props, fieldName) => {
-  if (value && value.length < 5) {
-    return undefined;
-  }
-
-  const zip = value && value.slice(0, 5);
-  if (zip && fieldName === 'destination_postal_code') {
-    console.log(ValidateZipRateData(zip, 'destination'));
-    return ValidateZipRateData(zip, 'destination')
-      .then(responseBody => {
-        return responseBody.valid ? undefined : UnsupportedZipCodeErrorMsg;
-      })
-      .catch(err => {
-        return { error: err };
-      });
-  } else if (zip && fieldName === 'pickup_postal_code') {
-    ValidateZipRateData(zip, 'origin')
-      .then(responseBody => {
-        return responseBody.valid ? undefined : UnsupportedZipCodeErrorMsg;
-      })
-      .catch(err => {
-        return { error: err };
-      });
   }
 };
 
@@ -178,21 +158,6 @@ export class DateAndLocation extends Component {
     );
   };
 
-  validateDestinationZip = (value, formValues, props, name) => {
-    let sameZipError = validateDifferentZip(value, formValues);
-    if (sameZipError) {
-      return sameZipError;
-    }
-    let validity = validateZipData(value, formValues, props, name);
-
-    return validity;
-  };
-
-  validateOriginZip = (value, formValues, props, name) => {
-    let validity = validateZipData(value, formValues, props, name);
-    return validity ? undefined : UnsupportedZipCodeErrorMsg;
-  };
-
   render() {
     const {
       pages,
@@ -243,7 +208,6 @@ export class DateAndLocation extends Component {
             fieldName="pickup_postal_code"
             onChange={this.getDebouncedSitEstimate}
             swagger={this.props.schema}
-            // validate={validateZipData}
             required
           />
           {!isHHGPPMComboMove && (
