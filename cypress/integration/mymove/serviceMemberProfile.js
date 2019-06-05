@@ -4,7 +4,11 @@ describe('setting up service member profile requiring an access code', function(
     cy.signInAsNewMilMoveUser();
   });
   it('progresses thru forms', function() {
-    serviceMemberEntersAccessCode();
+    cy.get('body').then($body => {
+      if ($body.find('input[name="claim_access_code"]').length) {
+        serviceMemberEntersAccessCode();
+      }
+    });
     serviceMemberProfile();
   });
   it.skip('restarts app after every page', function() {
