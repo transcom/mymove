@@ -52,16 +52,13 @@ func (c DeliverAndPriceShipment) Call(deliveryDate time.Time, shipment *models.S
 
 // DeliverStorageInTransits delivers multiple SITS
 func deliverStorageInTransits(db *pop.Connection, storageInTransits []models.StorageInTransit, deliveryDate time.Time, tspID uuid.UUID) (sitsToReturn []models.StorageInTransit, verrs *validate.Errors, err error) {
-	returnVerrs := validate.NewErrors()
 	for _, sit := range storageInTransits {
-
 		// only deliver DESTINATION Sits that are IN_SIT
 		if sit.Status == models.StorageInTransitStatusINSIT &&
 			sit.Location == models.StorageInTransitLocationDESTINATION {
 			var modifiedSit *models.StorageInTransit
-			modifiedSit, verrs, err = deliverStorageInTransit(db, deliveryDate, sit, tspID)
-			if verrs.HasAny() || err != nil {
-				returnVerrs.Append(verrs)
+			modifiedSit, err = sit.Deliver(db, deliveryDate, sit, tspID)
+			if err != nil {
 				return nil, verrs, err
 			}
 			sitsToReturn = append(sitsToReturn, *modifiedSit)
@@ -69,24 +66,10 @@ func deliverStorageInTransits(db *pop.Connection, storageInTransits []models.Sto
 			sitsToReturn = append(sitsToReturn, sit)
 		}
 	}
-	return sitsToReturn, returnVerrs, err
-}
-
-func deliverStorageInTransit(db *pop.Connection, deliveryDate time.Time, storageInTransit models.StorageInTransit, tspID uuid.UUID) (*models.StorageInTransit, *validate.Errors, error) {
-	returnVerrs := validate.NewErrors()
-
-	// Make sure we're not trying to set delivered for something that isn't both IN SIT and a DESTINATION SIT
-	if !(storageInTransit.Status == models.StorageInTransitStatusINSIT &&
-		storageInTransit.Location == models.StorageInTransitLocationDESTINATION) {
-		return &storageInTransit, returnVerrs, models.ErrWriteConflict
+	verrs, err = db.ValidateAndSave(&sitsToReturn)
+	if err != nil || verrs.HasAny() {
+		return nil, verrs, err
 	}
 
-	storageInTransit.Status = models.StorageInTransitStatusDELIVERED
-	storageInTransit.OutDate = &deliveryDate
-	if verrs, err := db.ValidateAndSave(&storageInTransit); verrs.HasAny() || err != nil {
-		returnVerrs.Append(verrs)
-		return nil, returnVerrs, err
-	}
-
-	return &storageInTransit, returnVerrs, nil
+	return sitsToReturn, verrs, err
 }
