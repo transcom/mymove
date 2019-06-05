@@ -11,7 +11,6 @@ import (
 
 func (suite *ShipmentServiceSuite) TestDeliverPriceShipmentCall() {
 	suite.T().Run("shipment is delivered", func(t *testing.T) {
-
 		numTspUsers := 1
 		numShipments := 1
 		numShipmentOfferSplit := []int{1}
@@ -53,10 +52,12 @@ func (suite *ShipmentServiceSuite) TestDeliverPriceShipmentCall() {
 
 		deliveryDate := testdatagen.DateInsidePerformancePeriod
 		engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
+		priceShipment := PriceShipment{suite.DB(), engine, route.NewTestingPlanner(1044)}
 		verrs, err := DeliverAndPriceShipment{
-			DB:      suite.DB(),
-			Engine:  engine,
-			Planner: route.NewTestingPlanner(1044),
+			DB:            suite.DB(),
+			Engine:        engine,
+			Planner:       route.NewTestingPlanner(1044),
+			PriceShipment: priceShipment,
 		}.Call(deliveryDate, &shipment, offerList[0].TransportationServiceProviderID)
 
 		suite.FatalNoError(err)
@@ -106,10 +107,12 @@ func (suite *ShipmentServiceSuite) TestDeliverPriceShipmentCall() {
 
 		deliveryDate := testdatagen.DateInsidePerformancePeriod
 		engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
+		priceShipment := PriceShipment{suite.DB(), engine, route.NewTestingPlanner(1044)}
 		verrs, err := DeliverAndPriceShipment{
-			DB:      suite.DB(),
-			Engine:  engine,
-			Planner: route.NewTestingPlanner(1044),
+			DB:            suite.DB(),
+			Engine:        engine,
+			Planner:       route.NewTestingPlanner(1044),
+			PriceShipment: priceShipment,
 		}.Call(deliveryDate, &shipment, offerList[0].TransportationServiceProviderID)
 
 		suite.Empty(verrs.Errors)
@@ -166,10 +169,12 @@ func (suite *ShipmentServiceSuite) TestDeliverPriceShipmentCall() {
 
 		deliveryDate := testdatagen.DateInsidePerformancePeriod
 		engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
+		priceShipment := PriceShipment{suite.DB(), engine, route.NewTestingPlanner(0)}
 		verrs, err := DeliverAndPriceShipment{
-			DB:      suite.DB(),
-			Engine:  engine,
-			Planner: route.NewTestingPlanner(1044),
+			DB:            suite.DB(),
+			Engine:        engine,
+			Planner:       route.NewTestingPlanner(1044),
+			PriceShipment: priceShipment,
 		}.Call(deliveryDate, &shipment, offerList[0].TransportationServiceProviderID)
 
 		suite.Empty(verrs.Errors)
@@ -201,7 +206,7 @@ func (suite *ShipmentServiceSuite) TestDeliverPriceShipmentCall() {
 		//TODO: cause failure condition
 		authorizedStartDate := shipment.ActualPickupDate
 		actualStartDate := authorizedStartDate.Add(testdatagen.OneDay)
-		sit := testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
+		testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
 			StorageInTransit: models.StorageInTransit{
 				ShipmentID:          shipment.ID,
 				Shipment:            shipment,
@@ -211,6 +216,12 @@ func (suite *ShipmentServiceSuite) TestDeliverPriceShipmentCall() {
 				Status:              models.StorageInTransitStatusINSIT,
 			},
 		})
+
+		// Save an invalid SIT
+		sits, err := models.FetchStorageInTransitsOnShipment(suite.DB(), shipment.ID)
+		sit := sits[0]
+		sit.AuthorizedStartDate = nil
+		suite.DB().Save(&sit)
 
 		// And an unpriced, approved pre-approval
 		testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
@@ -226,14 +237,17 @@ func (suite *ShipmentServiceSuite) TestDeliverPriceShipmentCall() {
 
 		deliveryDate := testdatagen.DateInsidePerformancePeriod
 		engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
+		planner := route.NewTestingPlanner(1044)
+		priceShipment := PriceShipment{suite.DB(), engine, planner}
 		verrs, err := DeliverAndPriceShipment{
-			DB:      suite.DB(),
-			Engine:  engine,
-			Planner: route.NewTestingPlanner(1044),
+			DB:            suite.DB(),
+			Engine:        engine,
+			Planner:       planner,
+			PriceShipment: priceShipment,
 		}.Call(deliveryDate, &shipment, offerList[0].TransportationServiceProviderID)
 
-		suite.Empty(verrs.Errors)
-		suite.Error(err)
+		suite.NotNil(verrs.Errors)
+		suite.Nil(err)
 
 		suite.DB().Reload(&shipment)
 		suite.Equal(models.ShipmentStatusINTRANSIT, shipment.Status)

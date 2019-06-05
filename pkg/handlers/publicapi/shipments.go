@@ -355,11 +355,13 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 
 	actualDeliveryDate := (time.Time)(*params.Payload.ActualDeliveryDate)
 	engine := rateengine.NewRateEngine(h.DB(), h.Logger())
+	priceShipment := shipmentservice.PriceShipment{DB: h.DB(), Engine: engine, Planner: h.Planner()}
 
 	verrs, err := shipmentservice.DeliverAndPriceShipment{
-		DB:      h.DB(),
-		Engine:  engine,
-		Planner: h.Planner(),
+		DB:            h.DB(),
+		Engine:        engine,
+		Planner:       h.Planner(),
+		PriceShipment: priceShipment,
 	}.Call(actualDeliveryDate, shipment, tspUser.TransportationServiceProviderID)
 
 	if err != nil || verrs.HasAny() {

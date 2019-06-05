@@ -320,7 +320,11 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 	}
 
 	if tariffDataShipment != nil {
-		createTariffDataForRateEngine(db, *tariffDataShipment)
+		linehaulRates := models.Tariff400ngLinehaulRates{}
+		db.All(&linehaulRates)
+		if len(linehaulRates) == 0 {
+			createTariffDataForRateEngine(db, *tariffDataShipment)
+		}
 	}
 
 	return tspUserList, shipmentList, shipmentOfferList, nil
