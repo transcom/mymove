@@ -19,16 +19,20 @@ import WizardHeader from '../WizardHeader';
 import './PPMPaymentRequest.css';
 
 class WeightTicket extends Component {
-  state = {
-    vehicleType: '',
-    additionalWeightTickets: 'Yes',
-    isValidTrailer: 'No',
-    weightTicketSubmissionError: false,
-    missingDocumentation: false,
-    missingEmptyWeightTicket: false,
-    missingFullWeightTicket: false,
-  };
+  state = this.initialState;
   uploaders = {};
+
+  get initialState() {
+    return {
+      vehicleType: '',
+      additionalWeightTickets: 'Yes',
+      isValidTrailer: 'No',
+      weightTicketSubmissionError: false,
+      missingDocumentation: false,
+      missingEmptyWeightTicket: false,
+      missingFullWeightTicket: false,
+    };
+  }
 
   isMissingWeightTickets = () => {
     if (isEmpty(this.uploaders)) {
@@ -37,7 +41,7 @@ class WeightTicket extends Component {
     const uploadersKeys = Object.keys(this.uploaders);
     for (const key of uploadersKeys) {
       // eslint-disable-next-line security/detect-object-injection
-      if (this.uploaders[key].isEmpty()) {
+      if (this.uploaders[key] && this.uploaders[key].isEmpty()) {
         return true;
       }
     }
@@ -54,7 +58,7 @@ class WeightTicket extends Component {
       formValues.full_weight &&
       formValues.weight_ticket_date
     );
-    return isMissingFormInput && this.isMissingWeightTickets();
+    return isMissingFormInput || this.isMissingWeightTickets();
   };
 
   //  handleChange for vehicleType and additionalWeightTickets
@@ -121,7 +125,6 @@ class WeightTicket extends Component {
     }
     return Promise.all(moveDocumentSubmissions)
       .then(() => {
-        this.setState({ weightTicketSubmissionError: false });
         this.cleanup();
       })
       .catch(e => {
@@ -138,6 +141,7 @@ class WeightTicket extends Component {
       uploaders[key].clearFiles();
     }
     reset();
+    this.setState({ ...this.initialState });
   };
 
   render() {

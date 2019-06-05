@@ -113,6 +113,9 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// Middleware
 	cli.InitMiddlewareFlags(flag)
 
+	// aws-vault
+	cli.InitVaultFlags(flag)
+
 	// Verbose
 	cli.InitVerboseFlags(flag)
 
@@ -200,6 +203,10 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 		return err
 	}
 
+	if err := cli.CheckVault(v); err != nil {
+		return err
+	}
+
 	if err := cli.CheckVerbose(v); err != nil {
 		return err
 	}
@@ -256,7 +263,7 @@ func indexHandler(buildDir string, logger logger) http.HandlerFunc {
 
 func serveFunction(cmd *cobra.Command, args []string) error {
 
-	err := cmd.ParseFlags(os.Args[1:])
+	err := cmd.ParseFlags(args)
 	if err != nil {
 		return errors.Wrap(err, "Could not parse flags")
 	}

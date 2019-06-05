@@ -5,10 +5,10 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/mock"
 
-	"github.com/transcom/mymove/mocks"
 	"github.com/transcom/mymove/pkg/models"
 	paperworkforms "github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/paperwork/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )

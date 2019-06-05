@@ -258,9 +258,9 @@ jobs:
       - restore_cache:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
-      - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: make bin/callgraph
-      - run: make server_generate
+      - run: make server_generate mocks_generate
       # this is so we can avoid go mod downloading and resulting in an error on a false positive
       - run: scripts/pre-commit-go-mod || exit 0
       - run:
@@ -281,9 +281,10 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
-          name: Run make server_generate
-          command: make server_generate
+          name: Run make server_generate mocks_generate
+          command: make server_generate mocks_generate
       - run:
           name: Run acceptance tests
           command: |
@@ -437,7 +438,7 @@ jobs:
             sudo apt-get -qq update
             # Debian stretch only supports 9.6 client
             sudo apt-get -qq -y install postgresql-client-9.6
-      - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: make server_test
           command: |
@@ -476,7 +477,7 @@ jobs:
             sudo apt-get -qq update
             # Debian stretch only supports 9.6 client
             sudo apt-get -qq -y install postgresql-client-9.6
-      - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Setup Code Climate test-reporter
           command: |
@@ -541,6 +542,7 @@ jobs:
             - health-checker # for confirming deploy success.
             - ecs-service-logs # for showing logs on failed deploy
             - ecs-deploy-task-container # for deploying task container
+            - mockery # for generating mocks
       - announce_failure
 
   # `build_app` builds the application container and pushes to the container repository
@@ -611,9 +613,10 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
-          name: Run make server_generate
-          command: make server_generate
+          name: Run make server_generate mocks_generate
+          command: make server_generate mocks_generate
       - run:
           name: Build Chamber
           command: make bin/chamber
@@ -682,9 +685,10 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
-          name: Run make server_generate
-          command: make server_generate
+          name: Run make server_generate mocks_generate
+          command: make server_generate mocks_generate
       - run:
           name: Build Chamber
           command: make bin/chamber
