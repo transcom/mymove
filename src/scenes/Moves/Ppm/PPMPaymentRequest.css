@@ -107,3 +107,17 @@
 .input-header {
   display: block;
 }
+
+.car-trailer-img {
+  height: 15px;
+}
+
+.normalize-margins {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+/* Note: .usa-grid-one-half almost the same except it floats left */
+.one-half {
+  width: 50%;
+}

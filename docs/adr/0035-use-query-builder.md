@@ -10,7 +10,7 @@ they may want to view all shipments created or updated recently.
 Maybe the bug seems to be related to a certain set of moves
 and an Engineer wants to filter by foreign key.
 This type of exploratory querying isn't built into the current APIs
-because it's not relevent or authorized to users of the production applications.
+because it's not relevant or authorized to users of the production applications.
 
 Since the current apps don't require this capability,
 they also weren't built in a way that can be easily extended.
@@ -227,7 +227,7 @@ In this case, the API uses a generic filter parameter, such as:
 Note that we're going to run into object nesting issues discussed in this
 [Open API Spec Issue](https://github.com/OAI/OpenAPI-Specification/issues/1706)
 
-The handler (or middleware) marshalls those filters into a `QueryFilter`
+The handler (or middleware) marshals those filters into a `QueryFilter`
 and passes them to the service
 
 ## Decision Outcome
@@ -236,7 +236,7 @@ and passes them to the service
 * The main motivators of this decision are:
   * It accomplishes our desired feature set
   * It is relatively simple to implement
-  * It makes our codebase more maintainble
+  * It makes our codebase more maintainable
 
 ## Pros and Cons of the Alternatives
 

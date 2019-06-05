@@ -417,6 +417,64 @@ csh
 _Prevention_Cheat_Sheet#Double_Submit_Cookie
 IT-19
 IT-18
+utils
+facebookgo
+clock.mock
+testyear
+util
+createform
+ppp-infra
+trailing-whitespace
+whitespace
+markdownlint
+validator
+dps
+markdown-toc
+goimports
+golangci-lint
+unreferenced
+golint
+govet
+printf
+gosec
+gofmt
+varcheck
+typecheck
+structcheck
+deadcode
+stylesheets
+stylesheet
+timestamps
+tariff400ng
+dp3
+move.mil
+waterhaul
+milmove
+adminlocal
+goland
+check-gopath
+pre-commit-circleci-validate
+circleci-announce-broken-branch
+circleci-push-dependency-updates
+ecs-deploy-service-container
+ecs-restart-services
+ecs-run-app-migrations-container
+rds-snapshot-app-db
+triaging
+ecs-show-service-logs
+ecs-show-service-stopped-logs
+export-obfuscated-tspp-sample
+copy-swagger-ui
+Stanger
+www.ustranscom.mil
+hhg.cfm
+xxx.html
+goqu
+toolset
+metadata
+pre-commit-codecov-validate
+codecov
+hoc
 # Put all custom terms BEFORE this comment, lest you end up in an mdspell pain cycle.
  - /usr/local
  - docs/data/tspp-data-creation.md
@@ -429,5 +487,6 @@ IT-18
 _Regenerate
  - ./README.md
 transportation_service_provider_performances
-transportation_service_provider_performances
  - ./docs/data/tspp-data-creation.md
+ - ./docs/data/tariff400ng-yearly-import.md
+ - ./scripts/README.md
