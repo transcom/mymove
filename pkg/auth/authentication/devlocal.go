@@ -66,8 +66,11 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	type TemplateData struct {
 		Identities      []models.UserIdentity
+		IsMilApp        bool
 		MilMoveUserType string
+		IsOfficeApp     bool
 		OfficeUserType  string
+		IsTspApp        bool
 		TspUserType     string
 		DpsUserType     string
 		AdminUserType   string
@@ -77,8 +80,11 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	templateData := TemplateData{
 		Identities:      identities,
+		IsMilApp:        auth.MilApp == session.ApplicationName,
 		MilMoveUserType: MilMoveUserType,
+		IsOfficeApp:     auth.OfficeApp == session.ApplicationName,
 		OfficeUserType:  OfficeUserType,
+		IsTspApp:        auth.TspApp == session.ApplicationName,
 		TspUserType:     TspUserType,
 		DpsUserType:     DpsUserType,
 		AdminUserType:   AdminUserType,
@@ -130,26 +136,12 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 			<div class="col-md-4">
 			  <h2 class="mt-4">Create a New User</h1>
-			  <p>Creating new users for different sites will mean you need to redirect and log in yourself.</p>
+			  {{ if $.IsMilApp }}
 			  <form method="post" action="/devlocal-auth/new">
 				<p>
 				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
 				  <input type="hidden" name="userType" value="{{.MilMoveUserType}}">
 				  <button type="submit" data-hook="new-user-login-{{.MilMoveUserType}}">Create a New {{.MilMoveUserType}} User</button>
-				</p>
-			  </form>
-			  <form method="post" action="/devlocal-auth/new">
-				<p>
-				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
-				  <input type="hidden" name="userType" value="{{.OfficeUserType}}">
-				  <button type="submit" data-hook="new-user-login-{{.OfficeUserType}}">Create a New {{.OfficeUserType}} User</button>
-				</p>
-			  </form>
-			  <form method="post" action="/devlocal-auth/new">
-				<p>
-				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
-				  <input type="hidden" name="userType" value="{{.TspUserType}}">
-				  <button type="submit" data-hook="new-user-login-{{.TspUserType}}">Create a New {{.TspUserType}} User</button>
 				</p>
 			  </form>
 			  <form method="post" action="/devlocal-auth/new">
@@ -166,6 +158,23 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				  <button type="submit" data-hook="new-user-login-{{.AdminUserType}}">Create a New {{.AdminUserType}} User</button>
 				</p>
 			  </form>
+			  {{else if $.IsOfficeApp }}
+			  <form method="post" action="/devlocal-auth/new">
+				<p>
+				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+				  <input type="hidden" name="userType" value="{{.OfficeUserType}}">
+				  <button type="submit" data-hook="new-user-login-{{.OfficeUserType}}">Create a New {{.OfficeUserType}} User</button>
+				</p>
+			  </form>
+			  {{else if $.IsTspApp }}
+			  <form method="post" action="/devlocal-auth/new">
+				<p>
+				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">
+				  <input type="hidden" name="userType" value="{{.TspUserType}}">
+				  <button type="submit" data-hook="new-user-login-{{.TspUserType}}">Create a New {{.TspUserType}} User</button>
+				</p>
+			  </form>
+			  {{end}}
 			</div>
 		  </div>
 		</div> <!-- container -->
