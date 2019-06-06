@@ -21,6 +21,7 @@ import (
 	accessorialop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/accessorials"
 	shipmentlineitemservice "github.com/transcom/mymove/pkg/services/shipment_line_item"
 
+	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -95,6 +96,15 @@ func (suite *HandlerSuite) TestGetShipmentLineItemsHandler() {
 	suite.Assertions.IsType(&accessorialop.GetShipmentLineItemsOK{}, response)
 	responsePayload := response.(*accessorialop.GetShipmentLineItemsOK).Payload
 	suite.Equal(2, len(responsePayload))
+
+	// Any error using office user
+	shipmentLineItemsFetcher.On("GetShipmentLineItemsByShipmentID",
+		shipmentID,
+		auth.SessionFromRequestContext(params.HTTPRequest),
+	).Return([]models.ShipmentLineItem{}, errors.New("test error")).Once()
+
+	response = handler.Handle(params)
+	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
 }
 
 func (suite *HandlerSuite) TestGetShipmentLineItemTSPHandler() {
