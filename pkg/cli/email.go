@@ -3,7 +3,6 @@ package cli
 import (
 	"fmt"
 
-	"github.com/aws/aws-sdk-go/aws"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/pkg/errors"
@@ -51,7 +50,7 @@ func CheckEmail(v *viper.Viper) error {
 }
 
 // InitEmail initializes the email backend
-func InitEmail(v *viper.Viper, logger Logger) notifications.NotificationSender {
+func InitEmail(v *viper.Viper, sess *awssession.Session, logger Logger) notifications.NotificationSender {
 	if v.GetString(EmailBackendFlag) == "ses" {
 		// Setup Amazon SES (email) service
 		// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
@@ -61,13 +60,7 @@ func InitEmail(v *viper.Viper, logger Logger) notifications.NotificationSender {
 		logger.Info("Using ses email backend",
 			zap.String("region", awsSESRegion),
 			zap.String("domain", awsSESDomain))
-		sesSession, newSessionErr := awssession.NewSession(&aws.Config{
-			Region: aws.String(awsSESRegion),
-		})
-		if newSessionErr != nil {
-			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(newSessionErr))
-		}
-		sesService := ses.New(sesSession)
+		sesService := ses.New(sess)
 		return notifications.NewNotificationSender(sesService, awsSESDomain, logger)
 	}
 

@@ -63,7 +63,7 @@ Resources:
 * `+` More organized and easy to setup
 * `+` Integrated into Create React App 2
 * `+` can use variables and mixins
-* `+` backwards compatible (can change .css files to .sass or .scss file)
+* `+` backwards compatible (can change `.css` files to `.sass` or `.scss` file)
 * `+` Quick learning curve
 * `+` growing in popularity (and support)
 * written in Ruby
@@ -76,6 +76,6 @@ Resources:
 * `+` Calculations and logic
 * `+` More organized and easy to setup
 * `+` Can use variables
-* `+` Backwards compatible (can change .css files to .less file)
+* `+` Backwards compatible (can change `.css` files to .less file)
 * `+` written in Javascript, so easy to extend
 * `-` Not automatically accessible in Create React App 2

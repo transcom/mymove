@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import ReactTable from 'react-table';
 import { connect } from 'react-redux';
-import { get, capitalize } from 'lodash';
+import { get } from 'lodash';
 import 'react-table/react-table.css';
 import Alert from 'shared/Alert';
-import { formatDate, formatDateTimeWithTZ } from 'shared/formatters';
+import { formatTimeAgo } from 'shared/formatters';
+import { newColumns, ppmColumns, defaultColumns } from './queueTableColumns';
+
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faClock from '@fortawesome/fontawesome-free-solid/faClock';
-import './office.scss';
 import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
 
 class QueueTable extends Component {
@@ -19,6 +19,13 @@ class QueueTable extends Component {
       pages: null,
       loading: true,
       refreshing: false, // only true when the user clicks the refresh button
+      lastLoadedAt: new Date(),
+      lastLoadedAtText: formatTimeAgo(new Date()),
+      interval: setInterval(() => {
+        this.setState({
+          lastLoadedAtText: formatTimeAgo(this.state.lastLoadedAt),
+        });
+      }, 5000),
     };
     this.fetchData = this.fetchData.bind(this);
   }
@@ -67,6 +74,7 @@ class QueueTable extends Component {
           pages: 1,
           loading: false,
           refreshing: false,
+          lastLoadedAt: new Date(),
         });
       }
     } catch (e) {
@@ -75,13 +83,22 @@ class QueueTable extends Component {
         pages: 1,
         loading: false,
         refreshing: false,
+        lastLoadedAt: new Date(),
       });
     }
   }
 
   refresh() {
+    clearInterval(this.state.interval);
+
     this.setState({
       refreshing: true,
+      lastLoadedAt: new Date(),
+      interval: setInterval(() => {
+        this.setState({
+          lastLoadedAtText: formatTimeAgo(this.state.lastLoadedAt),
+        });
+      }, 5000),
     });
 
     this.fetchData();
@@ -89,12 +106,23 @@ class QueueTable extends Component {
 
   render() {
     const titles = {
-      new: 'New Moves',
+      new: 'New Moves/Shipments',
       troubleshooting: 'Troubleshooting',
       ppm: 'PPMs',
       hhg_accepted: 'Accepted HHGs',
       hhg_delivered: 'Delivered HHGs',
       all: 'All Moves',
+    };
+
+    const showColumns = queueType => {
+      switch (queueType) {
+        case 'new':
+          return newColumns;
+        case 'ppm':
+          return ppmColumns;
+        default:
+          return defaultColumns;
+      }
     };
 
     this.state.data.forEach(row => {
@@ -121,8 +149,11 @@ class QueueTable extends Component {
             <br />
           </Alert>
         ) : null}
-        <h1 className="queue-heading">Queue: {titles[this.props.queueType]}</h1>
+        <h1 className="queue-heading">{titles[this.props.queueType]}</h1>
         <div className="queue-table">
+          <span className="staleness-indicator" data-cy="staleness-indicator">
+            Last updated {formatTimeAgo(this.state.lastLoadedAt)}
+          </span>
           <span className={'refresh' + (this.state.refreshing ? ' focused' : '')} title="Refresh" aria-label="Refresh">
             <FontAwesomeIcon
               data-cy="refreshQueue"
@@ -135,70 +166,7 @@ class QueueTable extends Component {
             />
           </span>
           <ReactTable
-            columns={[
-              {
-                Header: <FontAwesomeIcon icon={faClock} />,
-                id: 'clockIcon',
-                accessor: row => row.synthetic_status,
-                Cell: row =>
-                  row.value === 'PAYMENT_REQUESTED' || row.value === 'SUBMITTED' ? (
-                    <span data-cy="ppm-queue-icon">
-                      <FontAwesomeIcon icon={faClock} style={{ color: 'orange' }} />
-                    </span>
-                  ) : (
-                    ''
-                  ),
-                width: 50,
-                show: this.props.queueType === 'ppm',
-              },
-              {
-                Header: 'Status',
-                accessor: 'synthetic_status',
-                Cell: row => (
-                  <span className="status" data-cy="status">
-                    {capitalize(row.value && row.value.replace('_', ' '))}
-                  </span>
-                ),
-              },
-              {
-                Header: 'Customer name',
-                accessor: 'customer_name',
-              },
-              {
-                Header: 'DoD ID',
-                accessor: 'edipi',
-              },
-              {
-                Header: 'Rank',
-                accessor: 'rank',
-                Cell: row => <span className="rank">{row.value && row.value.replace('_', '-')}</span>,
-              },
-              {
-                Header: 'Shipments',
-                accessor: 'shipments',
-                show: this.props.queueType === 'new',
-              },
-              {
-                Header: 'Locator #',
-                accessor: 'locator',
-                Cell: row => <span data-cy="locator">{row.value}</span>,
-              },
-              {
-                Header: 'GBL',
-                accessor: 'gbl_number',
-                show: this.props.queueType !== 'ppm',
-              },
-              {
-                Header: 'Move date',
-                accessor: 'move_date',
-                Cell: row => <span className="move_date">{formatDate(row.value)}</span>,
-              },
-              {
-                Header: 'Last modified',
-                accessor: 'last_modified_date',
-                Cell: row => <span className="updated_at">{formatDateTimeWithTZ(row.value)}</span>,
-              },
-            ]}
+            columns={showColumns(this.props.queueType)}
             data={this.state.data}
             loading={this.state.loading} // Display the loading overlay when we need it
             defaultSorted={[{ id: 'move_date', asc: true }]}

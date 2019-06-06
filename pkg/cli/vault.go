@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/99designs/aws-vault/prompt"
 	"github.com/99designs/aws-vault/vault"
@@ -22,6 +23,10 @@ const (
 	VaultAWSVaultFlag string = "aws-vault"
 	// VaultAWSSessionTokenFlag is the AWS session token flag
 	VaultAWSSessionTokenFlag string = "aws-session-token"
+	// VaultAWSSessionDurationFlag is the AWS session duration flag
+	VaultAWSSessionDurationFlag string = "aws-session-duration"
+	// VaultAWSAssumeRoleDurationFlag is the AWS assume role duration flag
+	VaultAWSAssumeRoleDurationFlag string = "aws-assume-role-duration"
 
 	// VaultAWSKeychainNameDefault is the aws-vault default keychain name
 	VaultAWSKeychainNameDefault string = "login"
@@ -59,6 +64,8 @@ func InitVaultFlags(flag *pflag.FlagSet) {
 	// Flags default to empty string to facilitate deploys from CircleCI
 	flag.String(VaultAWSKeychainNameFlag, "", "The aws-vault keychain name")
 	flag.String(VaultAWSProfileFlag, "", "The aws-vault profile")
+	flag.Duration(VaultAWSSessionDurationFlag, time.Hour*4, "the aws-vault sesion duration")
+	flag.Duration(VaultAWSAssumeRoleDurationFlag, time.Minute*15, "the aws-vault assume role duration")
 }
 
 // CheckVault validates Vault command line flags
@@ -96,8 +103,8 @@ func CheckVault(v *viper.Viper) error {
 	return nil
 }
 
-// GetAWSCredentials uses aws-vault to return AWS credentials
-func GetAWSCredentials(keychainName string, awsProfile string) (*credentials.Credentials, error) {
+// GetAWSCredentialsFromKeyring uses aws-vault to return AWS credential from a system keyring.
+func GetAWSCredentialsFromKeyring(keychainName string, awsProfile string, sessionDuration time.Duration, assumeRoleDuration time.Duration) (*credentials.Credentials, error) {
 
 	// Open the keyring which holds the credentials
 	ring, err := keyring.Open(keyring.Config{
@@ -116,8 +123,10 @@ func GetAWSCredentials(keychainName string, awsProfile string) (*credentials.Cre
 		return nil, errors.Wrap(err, "Unable to load AWS config from environment")
 	}
 	vOptions := vault.VaultOptions{
-		Config:    vConfig,
-		MfaPrompt: prompt.Method("terminal"),
+		Config:             vConfig,
+		MfaPrompt:          prompt.Method("terminal"),
+		SessionDuration:    sessionDuration,
+		AssumeRoleDuration: assumeRoleDuration,
 	}
 	vOptions = vOptions.ApplyDefaults()
 	err = vOptions.Validate()
@@ -151,7 +160,12 @@ func GetAWSConfig(v *viper.Viper, verbose bool) (*aws.Config, error) {
 		keychainName := v.GetString(VaultAWSKeychainNameFlag)
 		awsProfile := v.GetString(VaultAWSProfileFlag)
 		if len(keychainName) > 0 && len(awsProfile) > 0 {
-			creds, getAWSCredsErr := GetAWSCredentials(keychainName, awsProfile)
+			creds, getAWSCredsErr := GetAWSCredentialsFromKeyring(
+				keychainName,
+				awsProfile,
+				v.GetDuration(VaultAWSSessionDurationFlag),
+				v.GetDuration(VaultAWSAssumeRoleDurationFlag),
+			)
 			if getAWSCredsErr != nil {
 				return nil, errors.Wrap(getAWSCredsErr,
 					fmt.Sprintf("Unable to get AWS credentials from the keychain %s and profile %s", keychainName, awsProfile))
