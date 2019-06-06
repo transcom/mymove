@@ -231,3 +231,23 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 		}
 	})
 }
+
+func (suite *ModelSuite) TestGetUser() {
+
+	alice := testdatagen.MakeDefaultUser(suite.DB())
+
+	user1, err := GetUserFromEmail(suite.DB(), alice.LoginGovEmail)
+	suite.Nil(err, "loading alice's user")
+	suite.NotNil(user1)
+	if err == nil && user1 != nil {
+		suite.Equal(alice.ID, user1.ID)
+		suite.Equal(alice.LoginGovEmail, user1.LoginGovEmail)
+	}
+
+	user2, err := GetUser(suite.DB(), alice.ID)
+	suite.Nil(err, "loading alice's user")
+	suite.NotNil(user2)
+	if err == nil && user2 != nil {
+		suite.Equal(alice.ID, user2.ID)
+	}
+}

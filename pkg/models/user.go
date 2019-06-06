@@ -49,11 +49,24 @@ func (u *User) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
-// GetUser loads the associated User from the DB
+// GetUser loads the associated User from the DB using the user ID
 func GetUser(db *pop.Connection, userID uuid.UUID) (*User, error) {
 	var user User
-	err := db.Find(&user, userID)
-	return &user, err
+	err := db.Find(&user, userID.String())
+	if err != nil {
+		return nil, errors.Wrapf(err, "Unable to find user by id %s", userID.String())
+	}
+	return &user, nil
+}
+
+// GetUserFromEmail loads the associated User from the DB using the user email
+func GetUserFromEmail(db *pop.Connection, email string) (*User, error) {
+	users := []User{}
+	err := db.Where("login_gov_email = $1", email).All(&users)
+	if len(users) == 0 {
+		return nil, errors.Wrapf(err, "Unable to find user by email %s", email)
+	}
+	return &users[0], err
 }
 
 // CreateUser is called upon successful login.gov verification of a new user

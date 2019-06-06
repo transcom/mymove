@@ -103,7 +103,17 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		  <div class="row mb-3">
 			<div class="col-md-8">
 			  <h2 class="mt-4">Select an Existing User</h1>
-			  <p>Showing the first {{$.QueryLimit}} users:</p>
+			  <h4>Login with user email:</h4>
+				<form method="post" action="/devlocal-auth/login">
+					<p>
+						<input type="hidden" name="gorilla.csrf.Token" value="{{$.CsrfToken}}">
+						<input type="hidden" name="userType" value="{{if $.IsTspApp}}{{$.TspUserType}}{{else if $.IsOfficeApp}}{{$.OfficeUserType}}{{else}}{{$.MilMoveUserType}}{{end}}">
+						<label for="email">User Email</label>
+						<input type="text" name="email" size="60">
+						<button type="submit" data-hook="existing-user-login">Login</button>
+					</p>
+				</form>
+			  <h4>Showing the first {{$.QueryLimit}} users by creation date:</h4>
 			  {{range .Identities}}
 				<form method="post" action="/devlocal-auth/login">
 					<p id="{{.ID}}">
@@ -213,22 +223,36 @@ func NewAssignUserHandler(ac Context, db *pop.Connection, appnames auth.Applicat
 	return handler
 }
 
-// AssignUserHandler logs in a user locally
+// AssignUserHandler logs in a user locally using a user id or email
 func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	userID := r.PostFormValue("id")
-	if userID == "" {
-		h.logger.Error("No user id specified")
+	email := r.PostFormValue("email")
+	if userID == "" && email == "" {
+		h.logger.Error("No user id or email specified")
 		http.Redirect(w, r, "/devlocal-auth/login", http.StatusTemporaryRedirect)
 		return
 	}
 
-	h.logger.Info("New Devlocal Login", zap.String("userID", userID))
+	h.logger.Info("New Devlocal Login",
+		zap.String("userID", userID),
+		zap.String("email", email))
 
-	userUUID := uuid.Must(uuid.FromString(userID))
-	user, err := models.GetUser(h.db, userUUID)
-	if err != nil {
-		h.logger.Error("Could not load user", zap.String("userID", userID), zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+	var user *models.User
+	if userID != "" {
+		userUUID := uuid.Must(uuid.FromString(userID))
+		var err error
+		user, err = models.GetUser(h.db, userUUID)
+		if err != nil {
+			h.logger.Error("Could not load user from user id", zap.String("userID", userID), zap.Error(err))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		}
+	} else if email != "" {
+		var err error
+		user, err = models.GetUserFromEmail(h.db, email)
+		if err != nil {
+			h.logger.Error("Could not load user from email", zap.String("email", email), zap.Error(err))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		}
 	}
 
 	userType := r.PostFormValue("userType")
