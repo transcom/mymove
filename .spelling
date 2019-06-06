@@ -65,6 +65,7 @@ PackageControl
 JsPrettier
 intellisence
 vim-javascript
+javascript
 editorconfig
 DevTools
 destructuring
