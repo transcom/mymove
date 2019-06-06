@@ -776,12 +776,12 @@ definitions:
         title: empty weight ticket recorded weight
         type: integer
         minimum: 0
-        example: 10000
+        x-nullable: true
       full_weight:
         title: full weight ticket recorded weight
         type: integer
         minimum: 0
-        example: 10000
+        x-nullable: true
       weight_ticket_date:
         title: Weight ticket date
         type: string
@@ -949,12 +949,12 @@ definitions:
         title: empty weight ticket recorded weight
         type: integer
         minimum: 0
-        example: 10000
+        x-nullable: true
       full_weight:
         title: full weight ticket recorded weight
         type: integer
         minimum: 0
-        example: 10000
+        x-nullable: true
       weight_ticket_date:
         title: Weight ticket date
         type: string

@@ -3,6 +3,8 @@ package internalapi
 import (
 	"net/http/httptest"
 
+	"github.com/transcom/mymove/pkg/unit"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
@@ -132,7 +134,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandler() {
 	move := ppm.Move
 	sm := move.Orders.ServiceMember
 
-	weightTicketSetDocument := testdatagen.MakeWeightTicketSetDocument(suite.DB(),
+	moveDoc := testdatagen.MakeMoveDocument(suite.DB(),
 		testdatagen.Assertions{
 			MoveDocument: models.MoveDocument{
 				MoveID:                   move.ID,
@@ -141,6 +143,20 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandler() {
 				MoveDocumentType:         models.MoveDocumentTypeWEIGHTTICKETSET,
 			},
 		})
+	emptyWeight := unit.Pound(1000)
+	fullWeight := unit.Pound(2500)
+	weightTicketSetDocument := models.WeightTicketSetDocument{
+		MoveDocumentID:   moveDoc.ID,
+		MoveDocument:     moveDoc,
+		EmptyWeight:      &emptyWeight,
+		FullWeight:       &fullWeight,
+		VehicleNickname:  "My Car",
+		VehicleOptions:   "CAR",
+		WeightTicketDate: testdatagen.NextValidMoveDate,
+	}
+	verrs, err := suite.DB().ValidateAndCreate(&weightTicketSetDocument)
+	suite.Nil(err)
+	suite.False(verrs.HasAny())
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)

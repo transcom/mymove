@@ -413,7 +413,7 @@ func (m Move) CreateMovingExpenseDocument(
 	return newMovingExpenseDocument, responseVErrors, responseError
 }
 
-// CreateMovingExpenseDocument creates a moving expense document associated to a move and move document
+// CreateWeightTicketSetDocument creates a moving weight ticket document associated to a move and move document
 func (m Move) CreateWeightTicketSetDocument(
 	db *pop.Connection,
 	uploads Uploads,
@@ -422,7 +422,7 @@ func (m Move) CreateWeightTicketSetDocument(
 	vehicleOptions string,
 	fullWeight *int64,
 	emptyWeight *int64,
-	weightTicketDate *time.Time,
+	weightTicketDate time.Time,
 	moveType SelectedMoveType) (*WeightTicketSetDocument, *validate.Errors, error) {
 
 	var newWeightTicketSetDocument *WeightTicketSetDocument
@@ -437,7 +437,7 @@ func (m Move) CreateWeightTicketSetDocument(
 			db,
 			uploads,
 			personallyProcuredMoveID,
-			MoveDocumentTypeWEIGHTTICKET,
+			MoveDocumentTypeWEIGHTTICKETSET,
 			"weight_ticket_set",
 			&vehicleNickName,
 			moveType)
@@ -445,23 +445,24 @@ func (m Move) CreateWeightTicketSetDocument(
 			return transactionError
 		}
 
-		var ew unit.Pound
+		var ew *unit.Pound
 		if emptyWeight != nil {
-			ew = unit.Pound(*emptyWeight)
+			p := unit.Pound(*emptyWeight)
+			ew = &p
 		}
-		var fw unit.Pound
+		var fw *unit.Pound
 		if fullWeight != nil {
-			fw = unit.Pound(*fullWeight)
+			p := unit.Pound(*fullWeight)
+			fw = &p
 		}
-		// Finally, create the MovingExpenseDocument
 		newWeightTicketSetDocument = &WeightTicketSetDocument{
 			MoveDocumentID:   newMoveDocument.ID,
 			MoveDocument:     *newMoveDocument,
-			EmptyWeight:      &ew,
-			FullWeight:       &fw,
+			EmptyWeight:      ew,
+			FullWeight:       fw,
 			VehicleNickname:  vehicleNickName,
 			VehicleOptions:   vehicleOptions,
-			WeightTicketDate: *weightTicketDate,
+			WeightTicketDate: weightTicketDate,
 		}
 		verrs, err := db.ValidateAndCreate(newWeightTicketSetDocument)
 		if err != nil || verrs.HasAny() {

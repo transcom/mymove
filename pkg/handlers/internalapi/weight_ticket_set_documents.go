@@ -24,7 +24,6 @@ func payloadForWeightTicketSetMoveDocumentModel(storer storage.FileStorer, weigh
 		return nil, err
 	}
 
-	//
 	genericMoveDocumentPayload := internalmessages.MoveDocumentPayload{
 		ID:               handlers.FmtUUID(weightTicketSet.ID),
 		MoveID:           handlers.FmtUUID(weightTicketSet.MoveDocument.MoveID),
@@ -38,12 +37,12 @@ func payloadForWeightTicketSetMoveDocumentModel(storer storage.FileStorer, weigh
 	return &genericMoveDocumentPayload, nil
 }
 
-// CreateMovingExpenseDocumentHandler creates a MovingExpenseDocument
+// CreateWeightTicketSetDocumentHandler creates a WeightTicketSetDocument
 type CreateWeightTicketSetDocumentHandler struct {
 	handlers.HandlerContext
 }
 
-// Handle is the handler
+// Handle is the handler for CreateWeightTicketSetDocumentHandler
 func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeightTicketDocumentParams) middleware.Responder {
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
@@ -95,7 +94,7 @@ func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeig
 		*payload.VehicleOptions,
 		payload.FullWeight,
 		payload.EmptyWeight,
-		(*time.Time)(payload.WeightTicketDate),
+		(time.Time)(*payload.WeightTicketDate),
 		*move.SelectedMoveType,
 	)
 

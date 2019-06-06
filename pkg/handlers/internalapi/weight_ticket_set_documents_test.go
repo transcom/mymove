@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"log"
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
@@ -99,7 +100,7 @@ func (suite *HandlerSuite) TestCreateWeightTicketSetDocumentHandlerNoWeights() {
 	newWeightTicketSetDocumentPayload := internalmessages.CreateWeightTicketDocumentsPayload{
 		UploadIds:                uploadIds,
 		PersonallyProcuredMoveID: handlers.FmtUUID(ppm.ID),
-		VehicleNickname:          handlers.FmtString("My car"),
+		VehicleNickname:          handlers.FmtString("My car 1"),
 		VehicleOptions:           handlers.FmtString("CAR"),
 		WeightTicketDate:         handlers.FmtDate(testdatagen.NextValidMoveDate),
 	}
@@ -121,11 +122,14 @@ func (suite *HandlerSuite) TestCreateWeightTicketSetDocumentHandlerNoWeights() {
 	createdPayload := createdResponse.Payload
 	suite.NotNil(createdPayload.ID)
 
-	// Make sure the Upload was associated to the new document
-	createdDocumentID := createdPayload.Document.ID
-	var fetchedUpload models.Upload
-	suite.DB().Find(&fetchedUpload, upload.ID)
-	suite.Equal(createdDocumentID.String(), fetchedUpload.DocumentID.String())
-
-	suite.Equal(createdPayload.Status, internalmessages.MoveDocumentStatusAWAITINGREVIEW)
+	// confirm empty, full weights are nil
+	var fetchedMoveDocument models.MoveDocument
+	err := suite.DB().Q().Where("move_id = ?", ppm.MoveID).First(&fetchedMoveDocument)
+	suite.Nil(err)
+	var fetchedWeightTicket models.WeightTicketSetDocument
+	log.Println(fetchedMoveDocument.DocumentID)
+	err = suite.DB().Q().Where("move_document_id = ?", fetchedMoveDocument.ID).First(&fetchedWeightTicket)
+	suite.Nil(err)
+	suite.Nil(fetchedWeightTicket.EmptyWeight)
+	suite.Nil(fetchedWeightTicket.FullWeight)
 }
