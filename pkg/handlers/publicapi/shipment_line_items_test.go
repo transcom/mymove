@@ -1,6 +1,14 @@
 package publicapi
 
 import (
+	"fmt"
+
+	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/mocks"
+
+	"github.com/transcom/mymove/pkg/auth"
+
 	"net/http/httptest"
 	"time"
 
@@ -24,6 +32,69 @@ func makePreApprovalItem(db *pop.Connection) models.Tariff400ngItem {
 	item.RequiresPreApproval = true
 	db.Save(&item)
 	return item
+}
+
+func (suite *HandlerSuite) TestGetShipmentLineItemsHandler() {
+	// Set up a bunch of placeholder IDs for our mock
+	shipmentID, _ := uuid.NewV4()
+	officeUserID, _ := uuid.NewV4()
+	userIDForOfficeUser, _ := uuid.NewV4()
+	officeUser := models.OfficeUser{ID: officeUserID, UserID: &userIDForOfficeUser}
+	shipmentLineItemID1, _ := uuid.NewV4()
+	shipmentLineItemID2, _ := uuid.NewV4()
+	tariff400ID1, _ := uuid.NewV4()
+	tariff400ID2, _ := uuid.NewV4()
+
+	// Configure our http request
+	path := fmt.Sprintf("/shipments/%s/accessorials/recalculate", shipmentID)
+	req := httptest.NewRequest("GET", path, nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	// Initialize our mock service
+	shipmentLineItemsFetcher := &mocks.ShipmentLineItemFetcher{}
+
+	handler := GetShipmentLineItemsHandler{
+		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		shipmentLineItemsFetcher,
+	}
+	// Build out params object using our http request
+	params := accessorialop.GetShipmentLineItemsParams{
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipmentID.String()),
+	}
+
+	// What we want the handler to return in the event of a 200
+	returnShipmentLineItems := []models.ShipmentLineItem{
+		{
+			ID:            shipmentLineItemID1,
+			SubmittedDate: testdatagen.DateInsidePeakRateCycle,
+			Tariff400ngItem: models.Tariff400ngItem{
+				ID:        tariff400ID1,
+				CreatedAt: testdatagen.DateInsidePeakRateCycle,
+				UpdatedAt: testdatagen.DateInsidePeakRateCycle,
+			},
+		},
+		{
+			ID:            shipmentLineItemID2,
+			SubmittedDate: testdatagen.DateInsidePeakRateCycle,
+			Tariff400ngItem: models.Tariff400ngItem{
+				ID:        tariff400ID2,
+				CreatedAt: testdatagen.DateInsidePeakRateCycle,
+				UpdatedAt: testdatagen.DateInsidePeakRateCycle,
+			},
+		},
+	}
+
+	// Happy Path using office user
+	shipmentLineItemsFetcher.On("GetShipmentLineItemsByShipmentID",
+		shipmentID,
+		auth.SessionFromRequestContext(params.HTTPRequest),
+	).Return(returnShipmentLineItems, nil).Once()
+
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&accessorialop.GetShipmentLineItemsOK{}, response)
+	responsePayload := response.(*accessorialop.GetShipmentLineItemsOK).Payload
+	suite.Equal(2, len(responsePayload))
 }
 
 func (suite *HandlerSuite) TestGetShipmentLineItemTSPHandler() {

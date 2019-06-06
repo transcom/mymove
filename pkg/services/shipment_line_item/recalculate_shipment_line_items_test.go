@@ -15,6 +15,8 @@ func (suite *ShipmentLineItemServiceSuite) TestRecalculateShipmentLineItems() {
 	statuses := []models.ShipmentStatus{
 		models.ShipmentStatusDELIVERED,
 	}
+
+	// Generate the data we'll need to do a recalculation.
 	tspUsers, shipments, _, _ := testdatagen.CreateShipmentOfferData(suite.DB(), 1, 1, []int{1}, statuses, models.SelectedMoveTypeHHG)
 
 	tspSession := auth.Session{
@@ -23,7 +25,8 @@ func (suite *ShipmentLineItemServiceSuite) TestRecalculateShipmentLineItems() {
 		IDToken:         "fake token",
 		OfficeUserID:    tspUsers[0].ID,
 	}
-
+	// Create a line item for us to use. The Assertion makes sure we're using the shipment we made above.
+	// It also makes sure there isn't an invoice as that's a condition that will prevent a recalc.
 	shipmentLineItem1 := testdatagen.MakeCompleteShipmentLineItem(suite.DB(),
 		testdatagen.Assertions{
 			ShipmentLineItem: models.ShipmentLineItem{
@@ -42,7 +45,7 @@ func (suite *ShipmentLineItemServiceSuite) TestRecalculateShipmentLineItems() {
 		Active:                true,
 	}
 	suite.MustCreate(suite.DB(), &recalculateRange)
-
+	// Make sure we have fuel prices to use for the calc.
 	testdatagen.MakeDefaultFuelEIADieselPrices(suite.DB())
 
 	// Happy path
