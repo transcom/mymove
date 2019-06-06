@@ -3215,7 +3215,7 @@ func makeHhgReadyToInvoiceWithSIT(db *pop.Connection, params hhgReadyToInvoicePa
 		DB:      db,
 		Engine:  engine,
 		Planner: planner,
-	}.Call(nextValidMoveDateMinusOne, &offer.Shipment, offer.TransportationServiceProviderID)
+	}.Call(nextValidMoveDateMinusOne, &offer.Shipment)
 
 	if verrs.HasAny() || err != nil {
 		fmt.Println(verrs.String())
@@ -3351,7 +3351,7 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Lo
 		DB:      db,
 		Engine:  engine,
 		Planner: planner,
-	}.Call(nextValidMoveDateMinusOne, &offer.Shipment, offer.TransportationServiceProviderID)
+	}.Call(nextValidMoveDateMinusOne, &offer.Shipment)
 
 	if verrs.HasAny() || err != nil {
 		fmt.Println(verrs.String())

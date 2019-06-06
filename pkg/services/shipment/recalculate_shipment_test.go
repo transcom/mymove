@@ -16,7 +16,7 @@ func (suite *ShipmentServiceSuite) helperDeliverAndPriceShipment() *models.Shipm
 	numShipments := 1
 	numShipmentOfferSplit := []int{1}
 	status := []models.ShipmentStatus{models.ShipmentStatusINTRANSIT}
-	tspList, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
+	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
 	suite.FatalNoError(err)
 
 	shipment := shipments[0]
@@ -41,11 +41,13 @@ func (suite *ShipmentServiceSuite) helperDeliverAndPriceShipment() *models.Shipm
 	deliveryDate := testdatagen.DateInsidePerformancePeriod
 	planner := route.NewTestingPlanner(1100)
 	engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
+	priceShipment := PriceShipment{suite.DB(), engine, planner}
 	verrs, err := DeliverAndPriceShipment{
-		DB:      suite.DB(),
-		Engine:  engine,
-		Planner: planner,
-	}.Call(deliveryDate, &shipment, tspList[0].TransportationServiceProviderID)
+		DB:            suite.DB(),
+		Engine:        engine,
+		Planner:       planner,
+		PriceShipment: priceShipment,
+	}.Call(deliveryDate, &shipment)
 
 	suite.FatalNoError(err)
 	suite.FatalFalse(verrs.HasAny())

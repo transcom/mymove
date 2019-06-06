@@ -51,6 +51,7 @@ var (
 		"ShipmentOffers.TransportationServiceProviderPerformance.TransportationServiceProvider",
 		"ShippingDistance.OriginAddress",
 		"ShippingDistance.DestinationAddress",
+		"StorageInTransits",
 	}
 )
 
@@ -84,6 +85,7 @@ type Shipment struct {
 	ShipmentOffers            ShipmentOffers           `has_many:"shipment_offers" order_by:"created_at desc"`
 	ServiceAgents             ServiceAgents            `has_many:"service_agents" order_by:"created_at desc"`
 	ShipmentLineItems         ShipmentLineItems        `has_many:"shipment_line_items" order_by:"created_at desc"`
+	StorageInTransits         StorageInTransits        `has_many:"storage_in_transits" order_by:"location desc" order_by:"estimated_start_date"`
 
 	// dates
 	ActualPickupDate     *time.Time `json:"actual_pickup_date" db:"actual_pickup_date"`         // when shipment is scheduled to be picked up by the TSP
@@ -327,13 +329,45 @@ func (s *Shipment) Pack(actualPackDate time.Time) error {
 }
 
 // Deliver marks the Shipment request as Delivered. Must be IN TRANSIT state.
-func (s *Shipment) Deliver(actualDeliveryDate time.Time) error {
+func (s *Shipment) Deliver(db *pop.Connection, actualDeliveryDate time.Time) (verrs *validate.Errors, err error) {
+	verrs = validate.NewErrors()
+	// deliver Shipment
 	if s.Status != ShipmentStatusINTRANSIT {
-		return errors.Wrap(ErrInvalidTransition, "Deliver")
+		return verrs, errors.Wrap(ErrInvalidTransition, "Deliver of shipment")
 	}
 	s.Status = ShipmentStatusDELIVERED
 	s.ActualDeliveryDate = &actualDeliveryDate
-	return nil
+
+	// deliver SITs
+	_, verrs, err = deliverStorageInTransits(db, s.StorageInTransits, actualDeliveryDate)
+	if err != nil || verrs.HasAny() {
+		return verrs, err
+	}
+	return verrs, err
+}
+
+// deliverStorageInTransits delivers multiple SITS
+func deliverStorageInTransits(db *pop.Connection, storageInTransits []StorageInTransit, deliveryDate time.Time) (sitsToReturn []StorageInTransit, verrs *validate.Errors, err error) {
+	for _, sit := range storageInTransits {
+		// only deliver DESTINATION Sits that are IN_SIT
+		if sit.Status == StorageInTransitStatusINSIT &&
+			sit.Location == StorageInTransitLocationDESTINATION {
+			var modifiedSit *StorageInTransit
+			modifiedSit, err = sit.Deliver(db, deliveryDate)
+			if err != nil {
+				return nil, verrs, err
+			}
+			sitsToReturn = append(sitsToReturn, *modifiedSit)
+		} else {
+			sitsToReturn = append(sitsToReturn, sit)
+		}
+	}
+	verrs, err = db.ValidateAndSave(&sitsToReturn)
+	if err != nil || verrs.HasAny() {
+		return nil, verrs, err
+	}
+
+	return sitsToReturn, verrs, err
 }
 
 // BeforeSave will run before each create/update of a Shipment.
@@ -659,7 +693,6 @@ func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Sh
 func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID) (*Shipment, error) {
 
 	shipments := []Shipment{}
-
 	err := tx.Eager(ShipmentAssociationsDefault...).
 		Where("shipment_offers.transportation_service_provider_id = $1 and shipments.id = $2", tspID, shipmentID).
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").

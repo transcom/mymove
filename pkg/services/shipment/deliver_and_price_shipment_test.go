@@ -9,13 +9,13 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *ShipmentServiceSuite) TestDeliverPriceShipmentCall() {
+func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipmentCall() {
 	suite.T().Run("shipment is delivered", func(t *testing.T) {
 		numTspUsers := 1
 		numShipments := 1
 		numShipmentOfferSplit := []int{1}
 		status := []models.ShipmentStatus{models.ShipmentStatusINTRANSIT}
-		offerList, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
+		_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
 		suite.FatalNoError(err)
 
 		shipment := shipments[0]
@@ -25,7 +25,6 @@ func (suite *ShipmentServiceSuite) TestDeliverPriceShipmentCall() {
 		sit := testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
 			StorageInTransit: models.StorageInTransit{
 				ShipmentID:          shipment.ID,
-				Shipment:            shipment,
 				EstimatedStartDate:  *authorizedStartDate,
 				AuthorizedStartDate: authorizedStartDate,
 				ActualStartDate:     &actualStartDate,
@@ -33,6 +32,7 @@ func (suite *ShipmentServiceSuite) TestDeliverPriceShipmentCall() {
 			},
 		})
 
+		shipment.StorageInTransits = models.StorageInTransits{sit}
 		// And an unpriced, approved pre-approval
 		testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
 			ShipmentLineItem: models.ShipmentLineItem{
@@ -58,7 +58,7 @@ func (suite *ShipmentServiceSuite) TestDeliverPriceShipmentCall() {
 			Engine:        engine,
 			Planner:       route.NewTestingPlanner(1044),
 			PriceShipment: priceShipment,
-		}.Call(deliveryDate, &shipment, offerList[0].TransportationServiceProviderID)
+		}.Call(deliveryDate, &shipment)
 
 		suite.FatalNoError(err)
 		suite.FatalFalse(verrs.HasAny())
@@ -87,7 +87,7 @@ func (suite *ShipmentServiceSuite) TestDeliverPriceShipmentCall() {
 		numShipments := 1
 		numShipmentOfferSplit := []int{1}
 		invalidTransitionStatus := []models.ShipmentStatus{models.ShipmentStatusAPPROVED}
-		offerList, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, invalidTransitionStatus, models.SelectedMoveTypeHHG)
+		_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, invalidTransitionStatus, models.SelectedMoveTypeHHG)
 		suite.FatalNoError(err)
 
 		shipment := shipments[0]
@@ -97,13 +97,13 @@ func (suite *ShipmentServiceSuite) TestDeliverPriceShipmentCall() {
 		sit := testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
 			StorageInTransit: models.StorageInTransit{
 				ShipmentID:          shipment.ID,
-				Shipment:            shipment,
 				EstimatedStartDate:  *authorizedStartDate,
 				AuthorizedStartDate: authorizedStartDate,
 				ActualStartDate:     &actualStartDate,
 				Status:              models.StorageInTransitStatusINSIT,
 			},
 		})
+		shipment.StorageInTransits = models.StorageInTransits{sit}
 
 		deliveryDate := testdatagen.DateInsidePerformancePeriod
 		engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
@@ -113,7 +113,7 @@ func (suite *ShipmentServiceSuite) TestDeliverPriceShipmentCall() {
 			Engine:        engine,
 			Planner:       route.NewTestingPlanner(1044),
 			PriceShipment: priceShipment,
-		}.Call(deliveryDate, &shipment, offerList[0].TransportationServiceProviderID)
+		}.Call(deliveryDate, &shipment)
 
 		suite.Empty(verrs.Errors)
 		suite.Error(err)
@@ -136,7 +136,7 @@ func (suite *ShipmentServiceSuite) TestDeliverPriceShipmentCall() {
 		numShipments := 1
 		numShipmentOfferSplit := []int{1}
 		status := []models.ShipmentStatus{models.ShipmentStatusINTRANSIT}
-		offerList, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
+		_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
 		suite.FatalNoError(err)
 
 		shipment := shipments[0]
@@ -147,13 +147,13 @@ func (suite *ShipmentServiceSuite) TestDeliverPriceShipmentCall() {
 		sit := testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
 			StorageInTransit: models.StorageInTransit{
 				ShipmentID:          shipment.ID,
-				Shipment:            shipment,
 				EstimatedStartDate:  *authorizedStartDate,
 				AuthorizedStartDate: authorizedStartDate,
 				ActualStartDate:     &actualStartDate,
 				Status:              models.StorageInTransitStatusINSIT,
 			},
 		})
+		shipment.StorageInTransits = models.StorageInTransits{sit}
 
 		// And an unpriced, approved pre-approval
 		testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
@@ -175,7 +175,7 @@ func (suite *ShipmentServiceSuite) TestDeliverPriceShipmentCall() {
 			Engine:        engine,
 			Planner:       route.NewTestingPlanner(1044),
 			PriceShipment: priceShipment,
-		}.Call(deliveryDate, &shipment, offerList[0].TransportationServiceProviderID)
+		}.Call(deliveryDate, &shipment)
 
 		suite.Empty(verrs.Errors)
 		suite.Error(err)
@@ -191,74 +191,5 @@ func (suite *ShipmentServiceSuite) TestDeliverPriceShipmentCall() {
 		for _, item := range fetchedLineItems {
 			suite.Nil(item.AmountCents, item.Tariff400ngItem.Code)
 		}
-	})
-
-	suite.T().Run("transaction rolls back when deliver of storage in transits fails", func(t *testing.T) {
-		numTspUsers := 1
-		numShipments := 1
-		numShipmentOfferSplit := []int{1}
-		status := []models.ShipmentStatus{models.ShipmentStatusINTRANSIT}
-		offerList, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, models.SelectedMoveTypeHHG)
-		suite.FatalNoError(err)
-
-		shipment := shipments[0]
-
-		//TODO: cause failure condition
-		authorizedStartDate := shipment.ActualPickupDate
-		actualStartDate := authorizedStartDate.Add(testdatagen.OneDay)
-		testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
-			StorageInTransit: models.StorageInTransit{
-				ShipmentID:          shipment.ID,
-				Shipment:            shipment,
-				EstimatedStartDate:  *authorizedStartDate,
-				AuthorizedStartDate: authorizedStartDate,
-				ActualStartDate:     &actualStartDate,
-				Status:              models.StorageInTransitStatusINSIT,
-			},
-		})
-
-		// Save an invalid SIT
-		sits, err := models.FetchStorageInTransitsOnShipment(suite.DB(), shipment.ID)
-		sit := sits[0]
-		sit.AuthorizedStartDate = nil
-		suite.DB().Save(&sit)
-
-		// And an unpriced, approved pre-approval
-		testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
-			ShipmentLineItem: models.ShipmentLineItem{
-				Shipment:   shipment,
-				ShipmentID: shipment.ID,
-				Status:     models.ShipmentLineItemStatusAPPROVED,
-			},
-			Tariff400ngItem: models.Tariff400ngItem{
-				RequiresPreApproval: true,
-			},
-		})
-
-		deliveryDate := testdatagen.DateInsidePerformancePeriod
-		engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
-		planner := route.NewTestingPlanner(1044)
-		priceShipment := PriceShipment{suite.DB(), engine, planner}
-		verrs, err := DeliverAndPriceShipment{
-			DB:            suite.DB(),
-			Engine:        engine,
-			Planner:       planner,
-			PriceShipment: priceShipment,
-		}.Call(deliveryDate, &shipment, offerList[0].TransportationServiceProviderID)
-
-		suite.NotNil(verrs.Errors)
-		suite.Nil(err)
-
-		suite.DB().Reload(&shipment)
-		suite.Equal(models.ShipmentStatusINTRANSIT, shipment.Status)
-
-		// No items should be priced
-		fetchedLineItems, err := models.FetchLineItemsByShipmentID(suite.DB(), &shipment.ID)
-		for _, item := range fetchedLineItems {
-			suite.Nil(item.AmountCents, item.Tariff400ngItem.Code)
-		}
-
-		suite.DB().Reload(&sit)
-		suite.Equal(models.StorageInTransitStatusINSIT, sit.Status)
 	})
 }

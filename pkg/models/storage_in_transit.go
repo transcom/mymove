@@ -182,16 +182,15 @@ func SaveStorageInTransitAndAddress(db *pop.Connection, storageInTransit *Storag
 	return responseVErrors, responseError
 }
 
-func (s *StorageInTransit) Deliver(db *pop.Connection, deliveryDate time.Time, storageInTransit StorageInTransit, tspID uuid.UUID) (*StorageInTransit, error) {
-
-	// Make sure we're not trying to set delivered for something that isn't both IN SIT and a DESTINATION SIT
-	if !(storageInTransit.Status == StorageInTransitStatusINSIT &&
-		storageInTransit.Location == StorageInTransitLocationDESTINATION) {
-		return &storageInTransit, ErrWriteConflict
+func (s *StorageInTransit) Deliver(db *pop.Connection, deliveryDate time.Time) (*StorageInTransit, error) {
+	// A SIT must be IN SIT and a DESTINATION SIT in order to be delivered
+	if !(s.Status == StorageInTransitStatusINSIT &&
+		s.Location == StorageInTransitLocationDESTINATION) {
+		return s, ErrWriteConflict
 	}
 
-	storageInTransit.Status = StorageInTransitStatusDELIVERED
-	storageInTransit.OutDate = &deliveryDate
+	s.Status = StorageInTransitStatusDELIVERED
+	s.OutDate = &deliveryDate
 
-	return &storageInTransit, nil
+	return s, nil
 }
