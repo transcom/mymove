@@ -72,7 +72,7 @@ We're going to make use of the work that Patrick Stanger delivered in [this PR](
 4. Paste those values into the corresponding `Accessorials` tab in the other sheet.
 5. Repeat this same process for the `Additonal Rates` tab. Starting at the cell marked in the screenshot below:
     ![additional rates sheet](./additional_rates_spreadsheet.png)
-6. Head over to the `migration work` tab. Here, you'll find that queries have been generated for you to insert records into the milmove database.
+6. Head over to the `migration work` tab. Here, you'll find that queries have been generated for you to insert records into the `milmove` database.
 7. Copy all of the values in the `query` column for both the `Additional Rates` table at the top of the sheet and the `Accessorials` table below it.
 8. Replace
 
