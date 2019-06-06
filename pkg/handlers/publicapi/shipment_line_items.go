@@ -124,21 +124,7 @@ func (h GetShipmentLineItemsHandler) recalculateShipmentLineItems(shipmentLineIt
 func (h GetShipmentLineItemsHandler) Handle(params accessorialop.GetShipmentLineItemsParams) middleware.Responder {
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
-
 	shipmentID := uuid.Must(uuid.FromString(params.ShipmentID.String()))
-
-	// update, recalculateError := h.recalculateShipmentLineItems(shipmentLineItems, shipmentID, session)
-	// if recalculateError != nil {
-	// 	return handlers.ResponseForError(h.Logger(), recalculateError)
-	// }
-	// if update {
-	// 	shipmentLineItems, err = models.FetchLineItemsByShipmentID(h.DB(), &shipmentID)
-	// 	if err != nil {
-	// 		h.Logger().Error("Error fetching line items for shipment after re-calculation",
-	// 			zap.Error(err))
-	// 		return handlers.ResponseForError(h.Logger(), err)
-	// 	}
-	// }
 
 	shipmentLineItems, err := h.shipmentLineItemFetcher.GetShipmentLineItemsByShipmentID(shipmentID, session)
 	if err != nil {
