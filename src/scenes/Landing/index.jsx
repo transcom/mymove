@@ -8,7 +8,6 @@ import { withContext } from 'shared/AppContext';
 
 import { MoveSummary, PPMAlert } from './MoveSummary';
 import { isHHGPPMComboMove } from 'scenes/Moves/Ppm/ducks';
-import { lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { getCurrentShipment, getCurrentMoveID } from 'shared/UI/ducks';
 
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
@@ -27,6 +26,7 @@ import scrollToTop from 'shared/scrollToTop';
 import { updateMove, selectMove, selectedMoveType } from 'shared/Entities/modules/moves';
 import { getPPM } from 'scenes/Moves/Ppm/ducks';
 import { selectShipment } from 'shared/Entities/modules/shipments';
+import { isLastMoveCanceled } from '../../shared/Entities/modules/moves';
 
 export class Landing extends Component {
   componentDidMount() {
@@ -172,7 +172,7 @@ const mapStateToProps = state => {
   const user = selectCurrentUser(state);
   const moveId = getCurrentMoveID(state);
   const props = {
-    lastMoveIsCanceled: lastMoveIsCanceled(state),
+    lastMoveIsCanceled: isLastMoveCanceled(state, moveId),
     selectedMoveType: selectedMoveType(state, moveId),
     isLoggedIn: user.isLoggedIn,
     isProfileComplete: isProfileComplete(state),

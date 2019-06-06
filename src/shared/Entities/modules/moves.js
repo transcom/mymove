@@ -97,6 +97,14 @@ export function selectMoveStatus(state, moveId) {
   return move.status;
 }
 
+export function isLastMoveCanceled(state, moveId) {
+  return selectMove(state, moveId).status === 'CANCELED';
+}
+
+export function isPpm(state, moveId) {
+  return selectedMoveType(state, moveId) === 'PPM';
+}
+
 export function selectedMoveType(state, moveId) {
   const move = selectMove(state, moveId);
   return move.selected_move_type;

@@ -10,12 +10,6 @@ export const GET_MOVE = ReduxHelpers.generateAsyncActionTypes(getMoveType);
 export const createOrUpdateMoveType = 'CREATE_OR_UPDATE_MOVE';
 export const CREATE_OR_UPDATE_MOVE = ReduxHelpers.generateAsyncActionTypes(createOrUpdateMoveType);
 
-//selector
-
-export const lastMoveIsCanceled = state => get(state, 'moves.latestMove.status') === 'CANCELED';
-
-export const isPpm = state => Boolean(get(state, 'ppm.currentPpm', false));
-
 // Reducer
 const initialState = {
   currentMove: null,

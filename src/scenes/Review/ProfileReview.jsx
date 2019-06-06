@@ -5,14 +5,14 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
 
-import { lastMoveIsCanceled } from 'scenes/Moves/ducks';
-import { selectedMoveType } from 'shared/Entities/modules/moves';
+import { selectedMoveType, isLastMoveCanceled } from 'shared/Entities/modules/moves';
 
 import { getInternalSwaggerDefinition } from 'shared/Swagger/selectors';
 
 import ServiceMemberSummary from './ServiceMemberSummary';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import scrollToTop from 'shared/scrollToTop';
+import { getCurrentMoveID } from '../../shared/UI/ducks';
 
 class ProfileReview extends Component {
   componentDidMount() {
@@ -62,9 +62,10 @@ ProfileReview.propTypes = {
 };
 
 function mapStateToProps(state) {
+  const moveId = getCurrentMoveID(state);
   return {
     serviceMember: state.serviceMember.currentServiceMember,
-    lastMoveIsCanceled: lastMoveIsCanceled(state),
+    lastMoveIsCanceled: isLastMoveCanceled(state, moveId),
     selectedMoveType: selectedMoveType(state),
     schemaRank: getInternalSwaggerDefinition(state, 'ServiceMemberRank'),
     schemaOrdersType: getInternalSwaggerDefinition(state, 'OrdersType'),
