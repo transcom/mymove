@@ -17,6 +17,7 @@ import carTrailerImg from 'shared/images/car-trailer_mobile.png';
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 import WizardHeader from '../WizardHeader';
 import './PPMPaymentRequest.css';
+import { Link } from 'react-router-dom';
 
 class WeightTicket extends Component {
   state = this.initialState;
@@ -199,7 +200,8 @@ class WeightTicket extends Component {
                 <>
                   <div className="radio-group-wrapper normalize-margins">
                     <p className="radio-group-header">
-                      Is this a different trailer you own and does it meet the trailer critera?
+                      Is this a different trailer you own and does it meet the{' '}
+                      <Link to="/trailer-criteria">trailer criteria</Link>
                     </p>
                     <RadioButton
                       inputClassName="inline_radio"

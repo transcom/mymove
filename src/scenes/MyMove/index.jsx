@@ -37,6 +37,7 @@ import { loadInternalSchema } from 'shared/Swagger/ducks';
 import FailWhale from 'shared/FailWhale';
 import { detectIE11, no_op } from 'shared/utils';
 import DPSAuthCookie from 'scenes/DPSAuthCookie';
+import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
@@ -101,6 +102,7 @@ export class AppWrapper extends Component {
 
                     <PrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
                     <PrivateRoute exact path="/weight-ticket-examples" component={WeightTicketExamples} />
+                    <PrivateRoute exact path="/trailer-criteria" component={TrailerCriteria} />
 
                     <PrivateRoute exact path="/allowable-expenses" component={AllowableExpenses} />
                     <PrivateRoute path="/moves/:moveId/ppm-payment-request-intro" component={PPMPaymentRequestIntro} />
