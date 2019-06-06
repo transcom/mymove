@@ -12,11 +12,11 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 
-	"github.com/transcom/mymove/mocks"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	sitop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/storage_in_transits"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 

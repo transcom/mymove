@@ -22,6 +22,7 @@ import ApproveSitRequest from 'shared/StorageInTransit/ApproveSitRequest';
 import DenySitRequest from 'shared/StorageInTransit/DenySitRequest';
 import PlaceInSit from 'shared/StorageInTransit/PlaceInSit';
 import ReleaseFromSit from 'shared/StorageInTransit/ReleaseFromSit';
+import DeleteSitRequest from 'shared/StorageInTransit/DeleteSitRequest';
 import { updateStorageInTransit } from 'shared/Entities/modules/storageInTransits';
 import { isOfficeSite, isTspSite } from 'shared/constants';
 import SitStatusIcon from './SitStatusIcon';
@@ -213,6 +214,7 @@ export class StorageInTransit extends Component {
       showDenyForm,
       showPlaceInSitForm,
       showReleaseFromSitForm,
+      showDeleteWarning,
     } = this.state;
     const isDenied = storageInTransit.status === 'DENIED';
     const isRequested = storageInTransit.status === 'REQUESTED';
@@ -271,6 +273,8 @@ export class StorageInTransit extends Component {
               onClose={this.closeOfficeEditForm}
               storageInTransit={storageInTransit}
             />
+          ) : showDeleteWarning ? (
+            <DeleteSitRequest storageInTransit={storageInTransit} onClose={this.closeDeleteWarning} />
           ) : (
             <span className="sit-actions">{this.renderSitActions()}</span>
           )}

@@ -178,11 +178,6 @@ bin/callgraph: .check_go_version.stamp .check_gopath.stamp
 bin/chamber: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/chamber github.com/segmentio/chamber
 
-# Disabled until gosec supports go modules
-# Add to server_deps target when re-enabling
-# bin/gosec: .check_go_version.stamp .check_gopath.stamp
-# 	go build -ldflags "$(LDFLAGS)" -o bin/gosec github.com/securego/gosec/cmd/gosec
-
 bin/gin: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/gin github.com/codegangsta/gin
 
@@ -191,6 +186,10 @@ bin/soda: .check_go_version.stamp .check_gopath.stamp
 
 bin/swagger: .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/swagger github.com/go-swagger/go-swagger/cmd/swagger
+
+# No static linking / $(LDFLAGS) because mockery is only used for testing
+bin/mockery: .check_go_version.stamp .check_gopath.stamp
+	go build -o bin/mockery github.com/vektra/mockery/cmd/mockery
 
 ### Cert Targets
 
@@ -288,20 +287,14 @@ pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
 go_deps_update: ## Update golang dependencies
 	go run cmd/update_deps/main.go
 
-.PHONY: get_gotools
-get_gotools: .check_gopath.stamp .get_gotools.stamp ## Get golang tools
-.get_gotools.stamp:
-	go install golang.org/x/lint/golint
-	go install golang.org/x/tools/cmd/goimports
-	touch .get_gotools.stamp
-
 .PHONY: server_deps
-server_deps: get_gotools \
+server_deps: .check_gopath.stamp \
 	bin/callgraph \
 	bin/chamber \
 	bin/gin \
 	bin/soda \
 	bin/swagger \
+	bin/mockery \
 	bin/rds-combined-ca-bundle.pem ## Install or Build server dependencies
 
 .PHONY: server_generate
@@ -376,7 +369,7 @@ build: server_build build_tools client_build ## Build the server, tools, and cli
 # webserver_test runs a few acceptance tests against a local or remote environment.
 # This can help identify potential errors before deploying a container.
 .PHONY: webserver_test
-webserver_test: bin/rds-combined-ca-bundle.pem server_generate bin/chamber ## Run acceptance tests
+webserver_test: bin/rds-combined-ca-bundle.pem server_generate mocks_generate bin/chamber  ## Run acceptance tests
 ifndef TEST_ACC_ENV
 	@echo "Running acceptance tests for webserver using local environment."
 	@echo "* Use environment XYZ by setting environment variable to TEST_ACC_ENV=XYZ."
@@ -401,20 +394,26 @@ else
 endif
 endif
 
+.PHONY: mocks_generate
+mocks_generate: .mocks_generate.stamp ## Generate mockery mocks for tests
+.mocks_generate.stamp : bin/mockery
+	go generate $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+	touch .mocks_generate.stamp
+
 .PHONY: server_test
-server_test: server_deps server_generate db_test_reset db_test_migrate ## Run server unit tests
+server_test: server_deps server_generate mocks_generate db_test_reset db_test_migrate ## Run server unit tests
 	# Don't run tests in /cmd or /pkg/gen & pass `-short` to exclude long running tests
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	DB_PORT=$(DB_PORT_TEST) go test -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_all
-server_test_all: server_deps server_generate db_dev_reset db_dev_migrate ## Run all server unit tests
+server_test_all: server_deps server_generate mocks_generate db_dev_reset db_dev_migrate ## Run all server unit tests
 	# Like server_test but runs extended tests that may hit external services.
 	DB_PORT=$(DB_PORT_TEST) go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_coverage_generate
-server_test_coverage_generate: server_deps server_generate db_test_reset db_test_migrate ## Run server unit test coverage
+server_test_coverage_generate: server_deps server_generate mocks_generate db_test_reset db_test_migrate ## Run server unit test coverage
 	# Don't run tests in /cmd or /pkg/gen
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
@@ -422,7 +421,7 @@ server_test_coverage_generate: server_deps server_generate db_test_reset db_test
 	DB_PORT=$(DB_PORT_TEST) go test -coverprofile=coverage.out -covermode=count -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_coverage
-server_test_coverage: server_deps server_generate db_test_reset db_test_migrate server_test_coverage_generate ## Run server unit test coverage with html output
+server_test_coverage: server_deps server_generate mocks_generate db_test_reset db_test_migrate server_test_coverage_generate ## Run server unit test coverage with html output
 	DB_PORT=$(DB_PORT_TEST) go tool cover -html=coverage.out
 
 #
@@ -869,12 +868,14 @@ clean: # Clean all generated files
 	rm -rf ./public/swagger-ui/*.{css,js,png}
 	rm -rf ./tmp/secure_migrations
 	rm -rf ./tmp/storage
+	find ./pkg -type d -name "mocks" -exec rm -rf {} +
 
 .PHONY: spellcheck
 spellcheck: .client_deps.stamp # Run interactive spellchecker
 	node_modules/.bin/mdspell --ignore-numbers --ignore-acronyms --en-us \
 		`find . -type f -name "*.md" \
 			-not -path "./node_modules/*" \
+			-not -path "./vendor/*" \
 			-not -path "./docs/adr/index.md"`
 
 #
