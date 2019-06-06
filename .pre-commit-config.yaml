@@ -86,19 +86,19 @@ repos:
         files: go.mod
         pass_filenames: false
 
-  # - repo: local
-  #   hooks:
-  #     - id: mdspell
-  #       name: mdspell
-  #       entry: scripts/pre-commit-spellcheck
-  #       language: script
-  #       files: \.md$
-  #       exclude: >
-  #         (?x)^(
-  #           node_modules/|
-  #           vendor/|
-  #           docs/adr/index.md
-  #         )$
+  - repo: local
+    hooks:
+      - id: mdspell
+        name: mdspell
+        entry: scripts/pre-commit-spellcheck
+        language: script
+        files: \.md$
+        exclude: >
+          (?x)^(
+            node_modules/|
+            vendor/|
+            docs/adr/index.md
+          )$
 
   - repo: local
     hooks:
