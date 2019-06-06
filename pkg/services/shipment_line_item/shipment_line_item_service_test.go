@@ -2,8 +2,11 @@ package shipmentlineitem
 
 import (
 	"github.com/stretchr/testify/suite"
+
 	"github.com/transcom/mymove/pkg/testingsuite"
+
 	"go.uber.org/zap"
+
 	"testing"
 )
 
@@ -19,7 +22,7 @@ func (suite *ShipmentLineItemServiceSuite) SetupTest() {
 func TestShipmentLineItemSuite(t *testing.T) {
 	hs := &ShipmentLineItemServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(),
-		logger: zap.NewNop(),
+		logger:       zap.NewNop(),
 	}
 	suite.Run(t, hs)
 }

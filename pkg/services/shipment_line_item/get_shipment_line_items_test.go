@@ -8,12 +8,13 @@ import (
 
 func (suite *ShipmentLineItemServiceSuite) TestGetShipmentLineItems() {
 	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
+	serviceMemberUser := testdatagen.MakeDefaultServiceMember(suite.DB())
 	//officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	tspSession := auth.Session{
 		ApplicationName: auth.TspApp,
-		UserID: *tspUser.UserID,
-		IDToken: "fake token",
-		OfficeUserID: tspUser.ID,
+		UserID:          *tspUser.UserID,
+		IDToken:         "fake token",
+		OfficeUserID:    tspUser.ID,
 	}
 
 	shipmentLineItem1 := testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{})
@@ -38,5 +39,35 @@ func (suite *ShipmentLineItemServiceSuite) TestGetShipmentLineItems() {
 	suite.Equal(2, len(retrievedShipmentLineItems))
 	suite.Equal(shipmentLineItem1.ShipmentID, retrievedShipmentLineItems[0].ShipmentID)
 	suite.Equal(shipmentLineItem1.ShipmentID, retrievedShipmentLineItems[1].ShipmentID)
+
+	// When we don't have permission
+	serviceMemberSession := auth.Session{
+		ApplicationName: auth.MilApp,
+		UserID:          serviceMemberUser.UserID,
+		IDToken:         "fake token",
+		ServiceMemberID: serviceMemberUser.ID,
+	}
+
+	_, err = fetcher.GetShipmentLineItemsByShipmentID(shipmentLineItem1.ShipmentID, &serviceMemberSession)
+	suite.Equal(models.ErrFetchForbidden, err)
+
+	assertions := testdatagen.Assertions{
+		TspUser: models.TspUser{
+			Email: "unused_test_email_for_sit@sit.com",
+		},
+	}
+
+	tspUser2 := testdatagen.MakeTspUser(suite.DB(), assertions)
+	tspSession1 := auth.Session{
+		ApplicationName: auth.TspApp,
+		UserID:          *tspUser2.UserID,
+		IDToken:         "fake token",
+		TspUserID:       tspUser2.ID,
+	}
+
+	// TSP doesn't own the shipment
+	shipmentLineItem := testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{})
+	_, err = fetcher.GetShipmentLineItemsByShipmentID(shipmentLineItem.ShipmentID, &tspSession1)
+	suite.Equal(models.ErrFetchForbidden, err)
 
 }
