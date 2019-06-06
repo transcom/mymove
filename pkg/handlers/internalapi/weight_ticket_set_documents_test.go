@@ -54,7 +54,7 @@ func (suite *HandlerSuite) TestCreateWeightTicketSetDocumentHandler() {
 	handler := CreateWeightTicketSetDocumentHandler{context}
 	response := handler.Handle(newWeightTicketSetDocParams)
 	suite.IsNotErrResponse(response)
-	createdResponse := response.(*movedocop.CreateMovingExpenseDocumentOK)
+	createdResponse := response.(*movedocop.CreateWeightTicketDocumentOK)
 	createdPayload := createdResponse.Payload
 	suite.NotNil(createdPayload.ID)
 
@@ -118,7 +118,7 @@ func (suite *HandlerSuite) TestCreateWeightTicketSetDocumentHandlerNoWeights() {
 	response := handler.Handle(newWeightTicketSetDocParams)
 	// assert we got back the 201 response
 	suite.IsNotErrResponse(response)
-	createdResponse := response.(*movedocop.CreateMovingExpenseDocumentOK)
+	createdResponse := response.(*movedocop.CreateWeightTicketDocumentOK)
 	createdPayload := createdResponse.Payload
 	suite.NotNil(createdPayload.ID)
 

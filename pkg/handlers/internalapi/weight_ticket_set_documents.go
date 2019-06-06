@@ -83,7 +83,7 @@ func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeig
 		return handlers.ResponseForError(h.Logger(), fetchPPMErr)
 	}
 	if ppm.MoveID != moveID {
-		return movedocop.NewCreateMovingExpenseDocumentBadRequest()
+		return movedocop.NewCreateWeightTicketDocumentBadRequest()
 	}
 
 	newWeightTicketSetDocument, verrs, err := move.CreateWeightTicketSetDocument(
@@ -106,5 +106,5 @@ func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeig
 	if err != nil {
 		return handlers.ResponseForError(h.Logger(), err)
 	}
-	return movedocop.NewCreateMovingExpenseDocumentOK().WithPayload(newPayload)
+	return movedocop.NewCreateWeightTicketDocumentOK().WithPayload(newPayload)
 }

@@ -11,7 +11,7 @@ import (
 func MakeWeightTicketSetDocument(db *pop.Connection, assertions Assertions) models.WeightTicketSetDocument {
 	moveDoc := assertions.WeightTicketSetDocument.MoveDocument
 	// ID is required because it must be populated for Eager saving to work.
-	if isZeroUUID(assertions.MovingExpenseDocument.MoveDocumentID) {
+	if isZeroUUID(moveDoc.MoveID) {
 		moveDoc = MakeMoveDocument(db, assertions)
 	}
 

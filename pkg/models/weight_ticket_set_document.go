@@ -25,8 +25,8 @@ type WeightTicketSetDocument struct {
 	UpdatedAt        time.Time    `json:"updated_at" db:"updated_at"`
 }
 
-// MovingExpenseDocuments is not required by pop and may be deleted
-type WeightTicketSetDocuments []WeightTicketSetDocument
+// WeightTicketSetDocuments slice of WeightTicketSetDocuments
+type WeightTicketSetDocuments []WeightTicketSetDocuments
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
