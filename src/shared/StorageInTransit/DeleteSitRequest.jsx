@@ -6,7 +6,7 @@ class DeleteSitRequest extends Component {
     return (
       <div className="usa-alert usa-alert-warning sit-delete-warning" data-cy="sit-delete-warning">
         <div className="sit-delete-buttons">
-          <button className="usa-button sit-delete-delete" onClick={this.props.onDelete}>
+          <button className="usa-button sit-delete-delete" data-cy="sit-delete-delete" onClick={this.props.onDelete}>
             Yes, Delete
           </button>
           &nbsp;&nbsp;
