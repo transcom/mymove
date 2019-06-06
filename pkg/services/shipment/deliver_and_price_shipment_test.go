@@ -173,7 +173,11 @@ func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipment() {
 		engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
 		shipmentPricer := NewShipmentPricer(suite.DB(), engine, route.NewTestingPlanner(0))
 
-		verrs, err := NewShipmentDeliverAndPricer(suite.DB(), engine, route.NewTestingPlanner(1044), shipmentPricer,
+		verrs, err := NewShipmentDeliverAndPricer(
+			suite.DB(),
+			engine,
+			route.NewTestingPlanner(1044),
+			shipmentPricer,
 		).DeliverAndPriceShipment(deliveryDate, &shipment)
 
 		suite.Empty(verrs.Errors)

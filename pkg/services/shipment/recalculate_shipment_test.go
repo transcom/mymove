@@ -42,7 +42,11 @@ func (suite *ShipmentServiceSuite) helperDeliverAndPriceShipment() *models.Shipm
 	planner := route.NewTestingPlanner(1100)
 	engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
 	shipmentPricer := NewShipmentPricer(suite.DB(), engine, planner)
-	verrs, err := NewShipmentDeliverAndPricer(suite.DB(), engine, route.NewTestingPlanner(1044), shipmentPricer,
+	verrs, err := NewShipmentDeliverAndPricer(
+		suite.DB(),
+		engine,
+		route.NewTestingPlanner(1044),
+		shipmentPricer,
 	).DeliverAndPriceShipment(deliveryDate, &shipment)
 	suite.FatalNoError(err)
 	suite.FatalFalse(verrs.HasAny())

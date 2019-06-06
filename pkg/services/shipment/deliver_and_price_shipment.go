@@ -46,7 +46,10 @@ func NewShipmentDeliverAndPricer(
 	engine *rateengine.RateEngine,
 	planner route.Planner,
 	shipmentPricer services.ShipmentPricer,
-	) (services.ShipmentDeliverAndPricer) {
-	return &shipmentDeliverAndPricer{db: db, engine: engine, planner: planner, shipmentPricer: shipmentPricer,
-	}
+) services.ShipmentDeliverAndPricer {
+	return &shipmentDeliverAndPricer{
+		db:             db,
+		engine:         engine,
+		planner:        planner,
+		shipmentPricer: shipmentPricer}
 }
