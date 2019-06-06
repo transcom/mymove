@@ -22,4 +22,7 @@ import (
 	// Packr isn't actually a tool dependency, but it's an indirect dependency that `go vet` and `go mod tidy` disagreed about.
 	// Adding it here is a way to ensure that it isn't tidied up from go.mod
 	_ "github.com/gobuffalo/packr"
+
+	// Install for autogenerating mocks
+	_ "github.com/vektra/mockery/cmd/mockery"
 )

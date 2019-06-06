@@ -18,28 +18,36 @@ import (
 
 // initMigrateFlags - Order matters!
 func initMigrateFlags(flag *pflag.FlagSet) {
-	// Migration Config
-	cli.InitMigrationFlags(flag)
 
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
+	// Migration Config
+	cli.InitMigrationFlags(flag)
+
+	// aws-vault Config
+	cli.InitVaultFlags(flag)
+
 	// Verbose
 	cli.InitVerboseFlags(flag)
 
-	// Don't sort flags
-	flag.SortFlags = false
+	// Sort flags
+	flag.SortFlags = true
 }
 
 func checkMigrateConfig(v *viper.Viper, logger logger) error {
 
 	logger.Info("checking migration config")
 
+	if err := cli.CheckDatabase(v, logger); err != nil {
+		return err
+	}
+
 	if err := cli.CheckMigration(v); err != nil {
 		return err
 	}
 
-	if err := cli.CheckDatabase(v, logger); err != nil {
+	if err := cli.CheckVault(v); err != nil {
 		return err
 	}
 
