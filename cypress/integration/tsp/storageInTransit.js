@@ -579,33 +579,17 @@ function tspUserEditsReleasedSitRequest() {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  // click release shipment link
-  cy
-    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-release-from-sit-link]')
-    .contains('Release from SIT')
-    .click();
-  // enter in date released on
-  cy
-    .get('input[name=released_on]')
-    .type('5/26/2019')
-    .blur();
-
-  cy
-    .get('[data-cy=release-from-sit-button]')
-    .contains('Done')
-    .click();
-
   cy
     .get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
     .contains('Edit')
     .click()
-    .get('input[name=actual_start_date]')
+    .get('input[name=out_date]')
     .should('have.value', '5/26/2019')
     .click()
     .get('.DayPickerInput-Overlay .DayPicker-Day')
     .contains('29')
     .click();
-  cy.get('input[name=actual_start_date]').should('have.value', '5/29/2019');
+  cy.get('input[name=out_date]').should('have.value', '5/29/2019');
   cy.get('.usa-button-primary').click();
   cy.get('[data-cy=storage-in-transit-panel]').should($div => {
     const text = $div.text();
@@ -614,9 +598,9 @@ function tspUserEditsReleasedSitRequest() {
 }
 
 function tspUserEditsDeliveredSitRequest() {
-  cy.patientVisit('/queues/accepted');
+  cy.patientVisit('/queues/delivered');
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/accepted/);
+    expect(loc.pathname).to.match(/^\/queues\/delivered/);
   });
 
   // Find shipment and open it

@@ -10,7 +10,7 @@ import './StorageInTransit.css';
 
 export class StorageInTransitTspEditForm extends Component {
   render() {
-    const { storageInTransitSchema, minDate, maxDate } = this.props;
+    const { storageInTransitSchema, minDate } = this.props;
     const schema = this.props.storageInTransitSchema;
     const storageInTransit = this.props.initialValues;
     const fieldProps = {
@@ -24,7 +24,7 @@ export class StorageInTransitTspEditForm extends Component {
       minActualStartDate.getUTCMonth(),
       minActualStartDate.getUTCDate(),
     );
-    const maxActualStartDate = new Date(maxDate);
+    const maxActualStartDate = new Date(storageInTransit.out_date);
     const utcMaxDate = new Date(
       maxActualStartDate.getUTCFullYear(),
       maxActualStartDate.getUTCMonth(),
@@ -53,7 +53,6 @@ export class StorageInTransitTspEditForm extends Component {
               swagger={storageInTransitSchema}
               title="Actual start date"
               minDate={minDate}
-              maxDate={maxDate}
               disabledDays={disabledDaysForDayPicker}
               required
             />
@@ -71,7 +70,6 @@ export class StorageInTransitTspEditForm extends Component {
               fieldName="out_date"
               disabledDays={disabledDaysForOutDayPicker}
               minDate={minDate}
-              maxDate={maxDate}
               optional
               title="Date out"
               swagger={storageInTransitSchema}

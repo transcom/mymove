@@ -37,28 +37,6 @@ export class TspEditor extends Component {
     this.props.updateStorageInTransit(values);
   };
 
-  minimumDate() {
-    if (this.props.storageInTransit.status === 'DELIVERED') {
-      if (this.props.storageInTransit.out_date < this.props.storageInTransit.authorized_start_date) {
-        return this.props.storageInTransit.out_date;
-      } else {
-        return this.props.storageInTransit.authorized_start_date;
-      }
-    } else {
-      return this.props.storageInTransit.authorized_start_date;
-    }
-  }
-
-  maximumDate() {
-    if (this.props.storageInTransit.status === 'DELIVERED') {
-      if (this.props.storageInTransit.out_date > this.props.storageInTransit.authorized_start_date) {
-        return this.props.storageInTransit.out_date;
-      } else {
-        return this.props.storageInTransit.authorized_start_date;
-      }
-    }
-  }
-
   render() {
     const isRequested = this.props.storageInTransit.status === 'REQUESTED';
 
@@ -70,8 +48,7 @@ export class TspEditor extends Component {
             <StorageInTransitForm onSubmit={this.onSubmit} initialValues={this.props.storageInTransit} />
           ) : (
             <StorageInTransitTspEditForm
-              minDate={this.minimumDate()}
-              maxDate={this.maximumDate()}
+              minDate={this.props.storageInTransit.authorized_start_date}
               onSubmit={this.onSubmit}
               initialValues={this.props.storageInTransit}
             />
