@@ -420,8 +420,8 @@ func (m Move) CreateWeightTicketSetDocument(
 	personallyProcuredMoveID *uuid.UUID,
 	vehicleNickName string,
 	vehicleOptions string,
-	fullWeight int,
-	emptyWeight int,
+	fullWeight *int64,
+	emptyWeight *int64,
 	weightTicketDate *time.Time,
 	moveType SelectedMoveType) (*WeightTicketSetDocument, *validate.Errors, error) {
 
@@ -445,12 +445,20 @@ func (m Move) CreateWeightTicketSetDocument(
 			return transactionError
 		}
 
+		var ew unit.Pound
+		if emptyWeight != nil {
+			ew = unit.Pound(*emptyWeight)
+		}
+		var fw unit.Pound
+		if fullWeight != nil {
+			fw = unit.Pound(*fullWeight)
+		}
 		// Finally, create the MovingExpenseDocument
 		newWeightTicketSetDocument = &WeightTicketSetDocument{
 			MoveDocumentID:   newMoveDocument.ID,
 			MoveDocument:     *newMoveDocument,
-			EmptyWeight:      unit.Pound(emptyWeight),
-			FullWeight:       unit.Pound(fullWeight),
+			EmptyWeight:      &ew,
+			FullWeight:       &fw,
 			VehicleNickname:  vehicleNickName,
 			VehicleOptions:   vehicleOptions,
 			WeightTicketDate: *weightTicketDate,

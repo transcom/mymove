@@ -93,8 +93,8 @@ func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeig
 		&ppmID,
 		*payload.VehicleNickname,
 		*payload.VehicleOptions,
-		int(*payload.FullWeight),
-		int(*payload.EmptyWeight),
+		payload.FullWeight,
+		payload.EmptyWeight,
 		(*time.Time)(payload.WeightTicketDate),
 		*move.SelectedMoveType,
 	)

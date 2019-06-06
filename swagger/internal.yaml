@@ -964,8 +964,6 @@ definitions:
       - personally_procured_move_id
       - vehicle_options
       - vehicle_nickname
-      - empty_weight
-      - full_weight
       - weight_ticket_date
   ServiceMemberPayload:
     type: object
