@@ -16,14 +16,18 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
     login_gov_user = None
     session_token = None
 
-    # User is where service member data is stored
-    user = {}
+    # User is the LoggedInUserPayload
+    user = None
+    duty_stations = []
+
+    def update_user(self):
+        self.user = swagger_request(self.swagger_internal.users.showLoggedInUser)
 
     def update_service_member(self, service_member):
-        self.user["service_member"] = service_member
+        self.user.service_member = service_member
 
     def update_duty_stations(self, duty_stations):
-        self.user["duty_stations"] = duty_stations
+        self.duty_stations = duty_stations
 
     @seq_task(1)
     def login(self):
@@ -48,14 +52,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
 
     @seq_task(2)
     def retrieve_user(self):
-        resp = self.client.get("/internal/users/logged_in")
-        try:
-            self.user = resp.json()
-        except Exception:
-            self.interrupt()
-        if not self.user or "id" not in self.user:
-            self.interrupt()
-        # check response for 200
+        self.update_user()
 
     @seq_task(3)
     def create_service_member(self):
@@ -128,7 +125,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
     @seq_task(8)
     def current_duty_station(self):
         model = self.swagger_internal.get_model("PatchServiceMemberPayload")
-        payload = model(current_station_id=self.user["duty_stations"][0].id)
+        payload = model(current_station_id=self.duty_stations[0].id)
         service_member = swagger_request(
             self.swagger_internal.service_members.patchServiceMember,
             serviceMemberId=self.user["service_member"].id,
@@ -191,7 +188,16 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
             createBackupContactPayload=payload,
         )
 
+    #
+    # At this point the user profile is complete so let's refresh our knowledge
+    # of the user's profile.
+    #
+
     @seq_task(12)
+    def refresh_user_profile(self):
+        self.update_user()
+
+    @seq_task(13)
     def logout(self):
         self.client.post("/auth/logout")
         self.login_gov_user = None
