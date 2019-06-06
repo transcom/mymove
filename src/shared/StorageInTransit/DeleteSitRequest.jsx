@@ -6,7 +6,9 @@ class DeleteSitRequest extends Component {
     return (
       <div className="usa-alert usa-alert-warning sit-delete-warning" data-cy="sit-delete-warning">
         <div className="sit-delete-buttons">
-          <button className="usa-button">Yes, Delete</button>
+          <button className="usa-button sit-delete-delete" onClick={this.props.onDelete}>
+            Yes, Delete
+          </button>
           &nbsp;&nbsp;
           <a className="sit-delete-cancel" data-cy="sit-delete-cancel" onClick={this.props.onClose}>
             No, do not delete
@@ -23,6 +25,7 @@ class DeleteSitRequest extends Component {
 
 DeleteSitRequest.propTypes = {
   storageInTransit: PropTypes.object.isRequired,
+  onDelete: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
 };
 

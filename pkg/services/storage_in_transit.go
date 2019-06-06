@@ -48,7 +48,7 @@ type StorageInTransitReleaser interface {
 
 // StorageInTransitDeleter is the service object for deleting a Storage In Transit
 type StorageInTransitDeleter interface {
-	DeleteStorageInTransit(shipmentID uuid.UUID, storageInTransitID uuid.UUID, session *auth.Session) error
+	DeleteStorageInTransit(shipmentID uuid.UUID, storageInTransitID uuid.UUID, session *auth.Session) (*models.StorageInTransit, error)
 }
 
 // StorageInTransitPatcher is the service object for editing a Storage In Transit

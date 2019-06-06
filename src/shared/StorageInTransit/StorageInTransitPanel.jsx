@@ -10,7 +10,11 @@ import BasicPanel from 'shared/BasicPanel';
 import Alert from 'shared/Alert';
 import StorageInTransit from 'shared/StorageInTransit/StorageInTransit';
 import Creator from 'shared/StorageInTransit/Creator';
-import { selectStorageInTransits, createStorageInTransit } from 'shared/Entities/modules/storageInTransits';
+import {
+  selectStorageInTransits,
+  createStorageInTransit,
+  deleteStorageInTransit,
+} from 'shared/Entities/modules/storageInTransits';
 import { calculateEntitlementsForShipment } from 'shared/Entities/modules/shipments';
 import { calculateEntitlementsForMove } from 'shared/Entities/modules/moves';
 
@@ -38,6 +42,12 @@ export class StorageInTransitPanel extends Component {
 
   onSubmit = createPayload => {
     return this.props.createStorageInTransit(this.props.shipmentId, createPayload);
+  };
+
+  onDelete = (shipmentId, storageInTransitId) => {
+    this.props.deleteStorageInTransit(shipmentId, storageInTransitId).catch(err => {
+      this.setState({ error: true });
+    });
   };
 
   render() {
@@ -72,6 +82,7 @@ export class StorageInTransitPanel extends Component {
                   key={storageInTransit.id}
                   storageInTransit={storageInTransit}
                   daysRemaining={daysRemaining}
+                  onDelete={this.onDelete}
                 />
               );
             })}
@@ -116,7 +127,7 @@ function mapStateToProps(state, ownProps) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createStorageInTransit }, dispatch);
+  return bindActionCreators({ createStorageInTransit, deleteStorageInTransit }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(StorageInTransitPanel);

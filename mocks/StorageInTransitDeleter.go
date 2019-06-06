@@ -4,6 +4,7 @@ package mocks
 
 import auth "github.com/transcom/mymove/pkg/auth"
 import mock "github.com/stretchr/testify/mock"
+import models "github.com/transcom/mymove/pkg/models"
 
 import uuid "github.com/gofrs/uuid"
 
@@ -13,15 +14,24 @@ type StorageInTransitDeleter struct {
 }
 
 // DeleteStorageInTransit provides a mock function with given fields: shipmentID, storageInTransitID, session
-func (_m *StorageInTransitDeleter) DeleteStorageInTransit(shipmentID uuid.UUID, storageInTransitID uuid.UUID, session *auth.Session) error {
+func (_m *StorageInTransitDeleter) DeleteStorageInTransit(shipmentID uuid.UUID, storageInTransitID uuid.UUID, session *auth.Session) (*models.StorageInTransit, error) {
 	ret := _m.Called(shipmentID, storageInTransitID, session)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(uuid.UUID, uuid.UUID, *auth.Session) error); ok {
+	var r0 *models.StorageInTransit
+	if rf, ok := ret.Get(0).(func(uuid.UUID, uuid.UUID, *auth.Session) *models.StorageInTransit); ok {
 		r0 = rf(shipmentID, storageInTransitID, session)
 	} else {
-		r0 = ret.Error(0)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.StorageInTransit)
+		}
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func(uuid.UUID, uuid.UUID, *auth.Session) error); ok {
+		r1 = rf(shipmentID, storageInTransitID, session)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
