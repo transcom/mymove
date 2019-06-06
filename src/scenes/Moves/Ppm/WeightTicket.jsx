@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import { Link } from 'react-router-dom';
 import { reduxForm, getFormValues, SubmissionError } from 'redux-form';
 import { connect } from 'react-redux';
 import { get, map, isEmpty } from 'lodash';
@@ -194,7 +195,7 @@ class WeightTicket extends Component {
                 <>
                   <div className="radio-group-wrapper normalize-margins">
                     <p className="radio-group-header">
-                      Is this a different trailer you own and does it meet the trailer critera?
+                      Is this a different trailer you own and does it meet the <a>trailer criteria</a>?
                     </p>
                     <RadioButton
                       inputClassName="inline_radio"
@@ -239,8 +240,8 @@ class WeightTicket extends Component {
                           <Alert type="warning">
                             If your state does not provide a registration or bill of sale for your trailer, you may
                             write and upload a signed and dated statement certifying that you or your spouse own the
-                            trailer and meets the trailer criteria. Upload your statement using the proof of ownership
-                            field.
+                            trailer and meets the <a>trailer criteria</a>. Upload your statement using the proof of
+                            ownership field.
                           </Alert>
                         </div>
                       )}
