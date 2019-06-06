@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/transcom/mymove/pkg/unit"
+
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/storage"
 
@@ -86,15 +88,20 @@ func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeig
 		return movedocop.NewCreateWeightTicketDocumentBadRequest()
 	}
 
+	wtsd := models.WeightTicketSetDocument{
+		EmptyWeight:              unit.Pound(*payload.EmptyWeight),
+		EmptyWeightTicketMissing: *payload.EmptyWeightTicketMissing,
+		FullWeight:               unit.Pound(*payload.FullWeight),
+		FullWeightTicketMissing:  *payload.FullWeightTicketMissing,
+		VehicleNickname:          *payload.VehicleNickname,
+		VehicleOptions:           *payload.VehicleOptions,
+		WeightTicketDate:         (time.Time)(*payload.WeightTicketDate),
+	}
 	newWeightTicketSetDocument, verrs, err := move.CreateWeightTicketSetDocument(
 		h.DB(),
 		uploads,
 		&ppmID,
-		*payload.VehicleNickname,
-		*payload.VehicleOptions,
-		payload.FullWeight,
-		payload.EmptyWeight,
-		(time.Time)(*payload.WeightTicketDate),
+		wtsd,
 		*move.SelectedMoveType,
 	)
 

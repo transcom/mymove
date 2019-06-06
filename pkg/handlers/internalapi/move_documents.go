@@ -67,9 +67,17 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 	if docExtractor.EmptyWeight != nil {
 		emptyWeight = handlers.FmtInt64(int64(*docExtractor.EmptyWeight))
 	}
+	var emptyWeightTicketMissing *bool
+	if docExtractor.EmptyWeight != nil {
+		emptyWeightTicketMissing = docExtractor.EmptyWeightTicketMissing
+	}
 	var fullWeight *int64
 	if docExtractor.FullWeight != nil {
 		fullWeight = handlers.FmtInt64(int64(*docExtractor.FullWeight))
+	}
+	var fullWeightTicketMissing *bool
+	if docExtractor.EmptyWeight != nil {
+		fullWeightTicketMissing = docExtractor.FullWeightTicketMissing
 	}
 	var vehicleNickname string
 	if docExtractor.VehicleNickname != nil {
@@ -99,7 +107,9 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 		VehicleOptions:           vehicleOptions,
 		VehicleNickname:          vehicleNickname,
 		EmptyWeight:              emptyWeight,
+		EmptyWeightTicketMissing: emptyWeightTicketMissing,
 		FullWeight:               fullWeight,
+		FullWeightTicketMissing:  fullWeightTicketMissing,
 		WeightTicketDate:         weightTicketDate,
 	}
 

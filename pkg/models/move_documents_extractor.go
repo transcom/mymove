@@ -24,7 +24,9 @@ type MoveDocumentExtractor struct {
 	MovingExpenseType        *MovingExpenseType `json:"moving_expense_type" db:"moving_expense_type"`
 	RequestedAmountCents     *unit.Cents        `json:"requested_amount_cents" db:"requested_amount_cents"`
 	EmptyWeight              *unit.Pound        `json:"empty_weight,omitempty" db:"empty_weight"`
+	EmptyWeightTicketMissing *bool              `json:"empty_weight_ticket_missing,omitempty" db:"empty_weight_ticket_missing"`
 	FullWeight               *unit.Pound        `json:"full_weight,omitempty" db:"full_weight"`
+	FullWeightTicketMissing  *bool              `json:"full_weight_ticket_missing,omitempty" db:"full_weight_ticket_missing"`
 	VehicleNickname          *string            `json:"vehicle_nickname,omitempty" db:"vehicle_nickname"`
 	VehicleOptions           *string            `json:"vehicle_options,omitempty" db:"vehicle_options"`
 	WeightTicketDate         *time.Time         `json:"weight_ticket_date,omitempty" db:"weight_ticket_date"`
@@ -47,7 +49,7 @@ func (m *Move) FetchAllMoveDocumentsForMove(db *pop.Connection) (MoveDocumentExt
 	sql, args := query.ToSQL(&pop.Model{Value: MoveDocument{}},
 		`move_documents.*,
 					  ed.moving_expense_type, ed.requested_amount_cents, ed.payment_method,
-                      wt.empty_weight, wt.full_weight, wt.vehicle_nickname, wt.vehicle_options, wt.weight_ticket_date`)
+                      wt.empty_weight, wt.empty_weight_ticket_missing, wt.full_weight_ticket_missing, wt.full_weight, wt.vehicle_nickname, wt.vehicle_options, wt.weight_ticket_date`)
 
 	err := db.RawQuery(sql, args...).Eager("Document.Uploads").All(&moveDocs)
 	if err != nil {

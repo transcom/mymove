@@ -777,10 +777,18 @@ definitions:
         type: integer
         minimum: 0
         x-nullable: true
+      empty_weight_ticket_missing:
+        title: missing empty weight ticket
+        type: boolean
+        x-nullable: true
       full_weight:
         title: full weight ticket recorded weight
         type: integer
         minimum: 0
+        x-nullable: true
+      full_weight_ticket_missing:
+        title: missing full weight ticket
+        type: boolean
         x-nullable: true
       weight_ticket_date:
         title: Weight ticket date
@@ -945,16 +953,20 @@ definitions:
       vehicle_nickname:
         type: string
         title: Vehicle nickname (ex. "My car")
+      empty_weight_ticket_missing:
+        title: missing empty weight ticket
+        type: boolean
       empty_weight:
         title: empty weight ticket recorded weight
         type: integer
         minimum: 0
-        x-nullable: true
+      full_weight_ticket_missing:
+        title: missing full weight ticket
+        type: boolean
       full_weight:
         title: full weight ticket recorded weight
         type: integer
         minimum: 0
-        x-nullable: true
       weight_ticket_date:
         title: Weight ticket date
         type: string
@@ -964,6 +976,10 @@ definitions:
       - personally_procured_move_id
       - vehicle_options
       - vehicle_nickname
+      - full_weight
+      - full_weight_ticket_missing
+      - empty_weight
+      - empty_weight_ticket_missing
       - weight_ticket_date
   ServiceMemberPayload:
     type: object
