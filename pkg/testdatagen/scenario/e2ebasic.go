@@ -3211,11 +3211,14 @@ func makeHhgReadyToInvoiceWithSIT(db *pop.Connection, params hhgReadyToInvoicePa
 	//
 	planner := route.NewTestingPlanner(params.PlannerDistance)
 	engine := rateengine.NewRateEngine(db, params.Logger)
-	verrs, err := shipmentservice.DeliverAndPriceShipment{
-		DB:      db,
-		Engine:  engine,
-		Planner: planner,
-	}.Call(nextValidMoveDateMinusOne, &offer.Shipment)
+	shipmentPricer := shipmentservice.NewShipmentPricer(db, engine, planner)
+
+	verrs, err := shipmentservice.NewShipmentDeliverAndPricer(
+		db,
+		engine,
+		route.NewTestingPlanner(1044),
+		shipmentPricer,
+	).DeliverAndPriceShipment(nextValidMoveDateMinusOne, &offer.Shipment)
 
 	if verrs.HasAny() || err != nil {
 		fmt.Println(verrs.String())
@@ -3347,11 +3350,13 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Lo
 
 	planner := route.NewTestingPlanner(1234)
 	engine := rateengine.NewRateEngine(db, logger)
-	verrs, err := shipmentservice.DeliverAndPriceShipment{
-		DB:      db,
-		Engine:  engine,
-		Planner: planner,
-	}.Call(nextValidMoveDateMinusOne, &offer.Shipment)
+	priceShipment := shipmentservice.NewShipmentPricer(db, engine, planner)
+	verrs, err := shipmentservice.NewShipmentDeliverAndPricer(
+		db,
+		engine,
+		route.NewTestingPlanner(1044),
+		priceShipment,
+	).DeliverAndPriceShipment(nextValidMoveDateMinusOne, &offer.Shipment)
 
 	if verrs.HasAny() || err != nil {
 		fmt.Println(verrs.String())

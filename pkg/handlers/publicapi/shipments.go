@@ -21,9 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/paperwork"
-	"github.com/transcom/mymove/pkg/rateengine"
 	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
-	shipmentservice "github.com/transcom/mymove/pkg/services/shipment"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -330,6 +328,7 @@ func (h TransportShipmentHandler) Handle(params shipmentop.TransportShipmentPara
 // DeliverShipmentHandler allows a TSP to start transporting a particular shipment
 type DeliverShipmentHandler struct {
 	handlers.HandlerContext
+	shipmentDeliverAndPricer services.ShipmentDeliverAndPricer
 }
 
 // Handle delivers the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
@@ -354,15 +353,8 @@ func (h DeliverShipmentHandler) Handle(params shipmentop.DeliverShipmentParams) 
 	}
 
 	actualDeliveryDate := (time.Time)(*params.Payload.ActualDeliveryDate)
-	engine := rateengine.NewRateEngine(h.DB(), h.Logger())
-	priceShipment := shipmentservice.PriceShipment{DB: h.DB(), Engine: engine, Planner: h.Planner()}
 
-	verrs, err := shipmentservice.DeliverAndPriceShipment{
-		DB:            h.DB(),
-		Engine:        engine,
-		Planner:       h.Planner(),
-		PriceShipment: priceShipment,
-	}.Call(actualDeliveryDate, shipment)
+	verrs, err := h.shipmentDeliverAndPricer.DeliverAndPriceShipment(actualDeliveryDate, shipment)
 
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)

@@ -10,9 +10,11 @@ import (
 	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/rateengine"
 
 	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
+	shipmentservice "github.com/transcom/mymove/pkg/services/shipment"
 	sitservice "github.com/transcom/mymove/pkg/services/storage_in_transit"
 )
 
@@ -42,7 +44,17 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.ShipmentsPatchShipmentHandler = PatchShipmentHandler{context}
 	publicAPI.ShipmentsAcceptShipmentHandler = AcceptShipmentHandler{context}
 	publicAPI.ShipmentsTransportShipmentHandler = TransportShipmentHandler{context}
-	publicAPI.ShipmentsDeliverShipmentHandler = DeliverShipmentHandler{context}
+
+	engine := rateengine.NewRateEngine(context.DB(), context.Logger())
+	shipmentPricer := shipmentservice.NewShipmentPricer(context.DB(), engine, context.Planner())
+	publicAPI.ShipmentsDeliverShipmentHandler = DeliverShipmentHandler{
+		context, shipmentservice.NewShipmentDeliverAndPricer(
+			context.DB(),
+			engine,
+			context.Planner(),
+			shipmentPricer,
+		)}
+
 	publicAPI.ShipmentsGetShipmentInvoicesHandler = GetShipmentInvoicesHandler{context}
 
 	publicAPI.ShipmentsCompletePmSurveyHandler = CompletePmSurveyHandler{context}

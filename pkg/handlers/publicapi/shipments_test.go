@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/rateengine"
 
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/route"
@@ -21,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
+	shipmentservice "github.com/transcom/mymove/pkg/services/shipment"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
@@ -813,7 +815,11 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
 
 	// Handler to Test
-	handler := DeliverShipmentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	engine := rateengine.NewRateEngine(suite.DB(), suite.TestLogger())
+	planner := route.NewTestingPlanner(1044)
+	shipmentPricer := shipmentservice.NewShipmentPricer(suite.DB(), engine, planner)
+	shipmentDeliverAndPricer := shipmentservice.NewShipmentDeliverAndPricer(suite.DB(), engine, planner, shipmentPricer)
+	handler := DeliverShipmentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), shipmentDeliverAndPricer}
 	handler.SetPlanner(route.NewTestingPlanner(1044))
 
 	// Test query with first user

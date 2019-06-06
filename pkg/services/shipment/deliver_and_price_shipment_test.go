@@ -9,7 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipmentCall() {
+func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipment() {
 	suite.T().Run("shipment is delivered", func(t *testing.T) {
 		numTspUsers := 1
 		numShipments := 1
@@ -52,13 +52,13 @@ func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipmentCall() {
 
 		deliveryDate := testdatagen.DateInsidePerformancePeriod
 		engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
-		priceShipment := PriceShipment{suite.DB(), engine, route.NewTestingPlanner(1044)}
-		verrs, err := DeliverAndPriceShipment{
-			DB:            suite.DB(),
-			Engine:        engine,
-			Planner:       route.NewTestingPlanner(1044),
-			PriceShipment: priceShipment,
-		}.Call(deliveryDate, &shipment)
+		priceShipment := NewShipmentPricer(suite.DB(), engine, route.NewTestingPlanner(1044))
+		verrs, err := NewShipmentDeliverAndPricer(
+			suite.DB(),
+			engine,
+			route.NewTestingPlanner(1044),
+			priceShipment,
+		).DeliverAndPriceShipment(deliveryDate, &shipment)
 
 		suite.FatalNoError(err)
 		suite.FatalFalse(verrs.HasAny())
@@ -106,14 +106,16 @@ func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipmentCall() {
 		shipment.StorageInTransits = models.StorageInTransits{sit}
 
 		deliveryDate := testdatagen.DateInsidePerformancePeriod
+		planner := route.NewTestingPlanner(1044)
+
 		engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
-		priceShipment := PriceShipment{suite.DB(), engine, route.NewTestingPlanner(1044)}
-		verrs, err := DeliverAndPriceShipment{
-			DB:            suite.DB(),
-			Engine:        engine,
-			Planner:       route.NewTestingPlanner(1044),
-			PriceShipment: priceShipment,
-		}.Call(deliveryDate, &shipment)
+		priceShipment := NewShipmentPricer(suite.DB(), engine, planner)
+		verrs, err := NewShipmentDeliverAndPricer(
+			suite.DB(),
+			engine,
+			planner,
+			priceShipment,
+		).DeliverAndPriceShipment(deliveryDate, &shipment)
 
 		suite.Empty(verrs.Errors)
 		suite.Error(err)
@@ -169,13 +171,10 @@ func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipmentCall() {
 
 		deliveryDate := testdatagen.DateInsidePerformancePeriod
 		engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
-		priceShipment := PriceShipment{suite.DB(), engine, route.NewTestingPlanner(0)}
-		verrs, err := DeliverAndPriceShipment{
-			DB:            suite.DB(),
-			Engine:        engine,
-			Planner:       route.NewTestingPlanner(1044),
-			PriceShipment: priceShipment,
-		}.Call(deliveryDate, &shipment)
+		shipmentPricer := NewShipmentPricer(suite.DB(), engine, route.NewTestingPlanner(0))
+
+		verrs, err := NewShipmentDeliverAndPricer(suite.DB(), engine, route.NewTestingPlanner(1044), shipmentPricer,
+		).DeliverAndPriceShipment(deliveryDate, &shipment)
 
 		suite.Empty(verrs.Errors)
 		suite.Error(err)

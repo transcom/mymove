@@ -41,14 +41,9 @@ func (suite *ShipmentServiceSuite) helperDeliverAndPriceShipment() *models.Shipm
 	deliveryDate := testdatagen.DateInsidePerformancePeriod
 	planner := route.NewTestingPlanner(1100)
 	engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
-	priceShipment := PriceShipment{suite.DB(), engine, planner}
-	verrs, err := DeliverAndPriceShipment{
-		DB:            suite.DB(),
-		Engine:        engine,
-		Planner:       planner,
-		PriceShipment: priceShipment,
-	}.Call(deliveryDate, &shipment)
-
+	shipmentPricer := NewShipmentPricer(suite.DB(), engine, planner)
+	verrs, err := NewShipmentDeliverAndPricer(suite.DB(), engine, route.NewTestingPlanner(1044), shipmentPricer,
+	).DeliverAndPriceShipment(deliveryDate, &shipment)
 	suite.FatalNoError(err)
 	suite.FatalFalse(verrs.HasAny())
 
