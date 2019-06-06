@@ -38,7 +38,7 @@ import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
 import FailWhale from 'shared/FailWhale';
-import { no_op } from 'shared/utils';
+import { detectIE11, no_op } from 'shared/utils';
 import DPSAuthCookie from 'scenes/DPSAuthCookie';
 
 export class AppWrapper extends Component {
@@ -64,12 +64,14 @@ export class AppWrapper extends Component {
 
   render() {
     const props = this.props;
+    const Tag = detectIE11() ? 'div' : 'main';
+
     return (
       <ConnectedRouter history={history}>
         <LastLocationProvider>
           <div className="my-move site">
             <Header />
-            <main className="site__content my-move-container">
+            <Tag role="main" className="site__content my-move-container">
               <div className="usa-grid">
                 <LogoutOnInactivity />
                 {props.swaggerError && (
@@ -120,7 +122,7 @@ export class AppWrapper extends Component {
                     <Route component={this.noMatch} />
                   </Switch>
                 )}
-            </main>
+            </Tag>
             <Footer />
           </div>
         </LastLocationProvider>

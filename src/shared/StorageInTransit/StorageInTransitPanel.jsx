@@ -44,7 +44,10 @@ export class StorageInTransitPanel extends Component {
     const { storageInTransitEntitlement, storageInTransits } = this.props;
     const { error, isCreatorActionable } = this.state;
     const hasRequestedSIT = some(storageInTransits, sit => sit.status === 'REQUESTED');
-    const hasInSIT = some(storageInTransits, sit => sit.status === 'IN_SIT');
+    const showSitDaysRemaining = some(
+      storageInTransits,
+      sit => sit.status === 'IN_SIT' || sit.status === 'DELIVERED' || sit.status === 'RELEASED',
+    );
     const daysRemaining = storageInTransitEntitlement - sitTotalDaysUsed(storageInTransits);
 
     return (
@@ -60,7 +63,7 @@ export class StorageInTransitPanel extends Component {
           )}
           <div className="column-head">
             Entitlement: {storageInTransitEntitlement} days
-            {hasInSIT && <span className="unbold"> ({daysRemaining} remaining)</span>}
+            {showSitDaysRemaining && <span className="unbold"> ({daysRemaining} remaining)</span>}
           </div>
           {storageInTransits !== undefined &&
             storageInTransits.map(storageInTransit => {

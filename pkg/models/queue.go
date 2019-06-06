@@ -23,8 +23,8 @@ type MoveQueueItem struct {
 	HhgStatus        *string                             `json:"hhg_status" db:"hhg_status"`
 	OrdersType       string                              `json:"orders_type" db:"orders_type"`
 	MoveDate         *time.Time                          `json:"move_date" db:"move_date"`
+	SubmittedDate    *time.Time                          `json:"submitted_date" db:"submitted_date"`
 	LastModifiedDate time.Time                           `json:"last_modified_date" db:"last_modified_date"`
-	LastModifiedName string                              `json:"last_modified_name" db:"last_modified_name"`
 }
 
 // GetMoveQueueItems gets all moveQueueItems for a specific lifecycleState
@@ -47,6 +47,10 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 					ppm.actual_move_date,
 					ppm.original_move_date
 				) as move_date,
+				COALESCE(
+					shipment.submit_date,
+					ppm.submit_date
+				) as submitted_date,
 				moves.created_at as created_at,
 				moves.updated_at as last_modified_date,
 				moves.status as status,
@@ -58,8 +62,10 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
 			LEFT JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
-			WHERE moves.status = 'SUBMITTED'
-			and moves.show is true
+			WHERE (moves.status = 'SUBMITTED'
+			OR ((shipment.status in ('SUBMITTED', 'AWARDED', 'ACCEPTED') OR ppm.status = 'SUBMITTED')
+				AND (NOT moves.status in ('CANCELED', 'DRAFT'))))
+			AND moves.show is true
 		`
 	} else if lifecycleState == "ppm" {
 		query = `

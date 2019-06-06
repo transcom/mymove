@@ -25,7 +25,7 @@ func (suite *ModelSuite) Test_PerformancePeriodValidations() {
 	}
 
 	var expErrors = map[string][]string{
-		"performance_period_start": []string{"PerformancePeriodStart must be before PerformancePeriodEnd."},
+		"performance_period_start": {"PerformancePeriodStart must be before PerformancePeriodEnd."},
 	}
 
 	suite.verifyValidationErrors(tspPerformance, expErrors)
@@ -42,7 +42,7 @@ func (suite *ModelSuite) Test_RateCycleValidations() {
 	}
 
 	var expErrors = map[string][]string{
-		"rate_cycle_start": []string{"RateCycleStart must be before RateCycleEnd."},
+		"rate_cycle_start": {"RateCycleStart must be before RateCycleEnd."},
 	}
 
 	suite.verifyValidationErrors(tspPerformance, expErrors)

@@ -261,21 +261,3 @@ func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove)
 
 	return responseVErrors, responseError
 }
-
-// createNewPPM adds a new Personally Procured Move record into the DB.
-func createNewPPM(db *pop.Connection, moveID uuid.UUID) (*PersonallyProcuredMove, *validate.Errors, error) {
-	ppm := PersonallyProcuredMove{
-		MoveID: moveID,
-		Status: PPMStatusDRAFT,
-	}
-	verrs, err := db.ValidateAndCreate(&ppm)
-	if verrs.HasAny() {
-		return nil, verrs, nil
-	}
-	if err != nil {
-		return nil, verrs, err
-	}
-
-	return &ppm, verrs, nil
-
-}

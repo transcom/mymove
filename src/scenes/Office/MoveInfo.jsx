@@ -136,12 +136,6 @@ const HHGTabContent = props => {
 const ReferrerQueueLink = props => {
   const pathname = props.history.location.state ? props.history.location.state.referrerPathname : '';
   switch (pathname) {
-    case '/queues/new':
-      return (
-        <NavLink to="/queues/new" activeClassName="usa-current">
-          <span>New Moves Queue</span>
-        </NavLink>
-      );
     case '/queues/ppm':
       return (
         <NavLink to="/queues/ppm" activeClassName="usa-current">
@@ -160,12 +154,6 @@ const ReferrerQueueLink = props => {
           <span>Delivered HHG Queue</span>
         </NavLink>
       );
-    case '/queues/hhg_completed':
-      return (
-        <NavLink to="/queues/hhg_completed" activeClassName="usa-current">
-          <span>Completed HHG Queue</span>
-        </NavLink>
-      );
     case '/queues/all':
       return (
         <NavLink to="/queues/all" activeClassName="usa-current">
@@ -175,7 +163,7 @@ const ReferrerQueueLink = props => {
     default:
       return (
         <NavLink to="/queues/new" activeClassName="usa-current">
-          <span>New Moves Queue</span>
+          <span>New Moves/Shipments Queue</span>
         </NavLink>
       );
   }
@@ -379,6 +367,7 @@ class MoveInfo extends Component {
                 &nbsp;
               </li>
               <li>Locator# {move.locator}&nbsp;</li>
+              {shipment.gbl_number && <li>GBL# {shipment.gbl_number}&nbsp;</li>}
               <li>Move date {formatDate(moveDate)}&nbsp;</li>
             </ul>
           </div>

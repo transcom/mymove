@@ -39,17 +39,17 @@ describe('Download Shipment Summary button', () => {
   });
 
   describe('Combo move', () => {
-    it('is disabled when hhg not complete', () => {
+    it('is disabled when hhg not delivered', () => {
       const ppm = { net_weight: 8000, actual_move_date: '2018-11-11' };
       const signedCertification = { certification_type: 'PPM_PAYMENT' };
       const shipment = { status: 'AWARDED' };
 
       expect(sswIsDisabled(ppm, signedCertification, shipment)).toEqual(true);
     });
-    it('is enabled when hhg is complete, and has signature, actual move date, net weight', () => {
+    it('is enabled when hhg is delivered, and has signature, actual move date, net weight', () => {
       const ppm = { net_weight: 8000, actual_move_date: '2018-11-11' };
       const signedCertification = { certification_type: 'PPM_PAYMENT' };
-      const shipment = { status: 'COMPLETED' };
+      const shipment = { status: 'DELIVERED' };
 
       expect(sswIsDisabled(ppm, signedCertification, shipment)).toEqual(false);
     });

@@ -33,6 +33,8 @@ function officeUserViewsMoves() {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
+  cy.contains('GBL#').should('be.visible');
+
   cy.get('[data-cy="hhg-tab"]').click();
 
   cy.location().should(loc => {

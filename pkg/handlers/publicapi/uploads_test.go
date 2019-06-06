@@ -15,16 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func createPrereqs(suite *HandlerSuite) (models.Document, uploadop.CreateUploadParams) {
-	document := testdatagen.MakeDefaultDocument(suite.DB())
-
-	params := uploadop.NewCreateUploadParams()
-	params.DocumentID = handlers.FmtUUID(document.ID)
-	params.File = suite.Fixture("test.pdf")
-
-	return document, params
-}
-
 func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, tspUser models.TspUser, fakeS3 *storageTest.FakeS3Storage) middleware.Responder {
 	req := &http.Request{}
 	req = suite.AuthenticateTspRequest(req, tspUser)
