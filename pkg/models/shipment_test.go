@@ -165,7 +165,7 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	// Can deliver shipment
 	verrs, err := shipment.Deliver(suite.DB(), shipDate)
 	suite.Nil(err)
-	suite.Empty(verrs)
+	suite.NoVerrs(verrs)
 	suite.Equal(ShipmentStatusDELIVERED, shipment.Status, "expected Delivered")
 	suite.Equal(*shipment.ActualDeliveryDate, shipDate, "expected Actual Delivery Date to be set")
 }

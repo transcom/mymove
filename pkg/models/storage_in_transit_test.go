@@ -193,13 +193,13 @@ func (suite *ModelSuite) TestSaveStorageInTransitAndAddress() {
 }
 
 func (suite *ModelSuite) TestDeliverStorageInTransit() {
-	shipmentID, err := uuid.NewV4()
+	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{})
 
 	startDate := testdatagen.DateInsidePerformancePeriod
 
 	storageInTransit := testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
 		StorageInTransit: models.StorageInTransit{
-			ShipmentID:          shipmentID,
+			ShipmentID:          shipment.ID,
 			EstimatedStartDate:  startDate,
 			AuthorizedStartDate: &startDate,
 			ActualStartDate:     &startDate,
@@ -212,13 +212,13 @@ func (suite *ModelSuite) TestDeliverStorageInTransit() {
 
 	suite.Nil(err)
 	suite.Equal(models.StorageInTransitStatusDELIVERED, deliveredSit.Status)
-	suite.Equal(deliveryDate, deliveredSit.OutDate)
+	suite.Equal(&deliveryDate, deliveredSit.OutDate)
 
 	// Test an undeliverable SIT throws error
 	storageInTransit = testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
 		StorageInTransit: models.StorageInTransit{
 			Location:            models.StorageInTransitLocationORIGIN,
-			ShipmentID:          shipmentID,
+			ShipmentID:          shipment.ID,
 			EstimatedStartDate:  startDate,
 			AuthorizedStartDate: &startDate,
 			ActualStartDate:     &startDate,
