@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
+import datetime
+import os
+import random
 from urllib.parse import urljoin
+import uuid
 
 from locust import seq_task
 from bravado.client import SwaggerClient
@@ -16,9 +20,12 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
     login_gov_user = None
     session_token = None
 
+    fixtures_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fixtures")
+
     # User is the LoggedInUserPayload
     user = None
     duty_stations = []
+    new_duty_stations = []
 
     def update_user(self):
         self.user = swagger_request(self.swagger_internal.users.showLoggedInUser)
@@ -26,8 +33,14 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
     def update_service_member(self, service_member):
         self.user.service_member = service_member
 
-    def update_duty_stations(self, duty_stations):
-        self.duty_stations = duty_stations
+    def get_dutystations(self, short_name):
+        station_list = [short_name[0], short_name[0:3], short_name]
+        duty_stations = None
+        for station in station_list:
+            duty_stations = swagger_request(
+                self.swagger_internal.duty_stations.searchDutyStations, search=station
+            )
+        return duty_stations
 
     @seq_task(1)
     def login(self):
@@ -115,12 +128,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
 
     @seq_task(7)
     def search_for_duty_station(self):
-        station_list = ["b", "buck", "buckley"]
-        for station in station_list:
-            duty_stations = swagger_request(
-                self.swagger_internal.duty_stations.searchDutyStations, search=station
-            )
-            self.update_duty_stations(duty_stations)
+        self.duty_stations = self.get_dutystations("buckley")
 
     @seq_task(8)
     def current_duty_station(self):
@@ -197,7 +205,57 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
     def refresh_user_profile(self):
         self.update_user()
 
+    #
+    # Start adding move orders
+    #
+
     @seq_task(13)
+    def move_orders(self):
+        # Get new duty station
+        self.new_duty_stations = self.get_dutystations("travis")
+
+        # Determine a few things randomly
+        issue_date = datetime.datetime.now() + datetime.timedelta(days=random.randint(0, 30))
+        report_by_date = issue_date + datetime.timedelta(days=random.randint(1, 30))
+        spouse_has_pro_gear = False
+        has_dependents = bool(random.getrandbits(1))
+        if has_dependents:
+            spouse_has_pro_gear = bool(random.getrandbits(1))
+
+        model = self.swagger_internal.get_model("CreateUpdateOrders")
+        payload = model(
+            service_member_id=self.user["service_member"].id,
+            issue_date=issue_date,
+            report_by_date=report_by_date,
+            orders_type="PERMANENT_CHANGE_OF_STATION",
+            has_dependents=has_dependents,
+            spouse_has_pro_gear=spouse_has_pro_gear,
+            new_duty_station_id=self.new_duty_stations[0].id,
+        )
+        swagger_request(
+            self.swagger_internal.orders.createOrders,
+            createOrders=payload,
+        )
+
+    @seq_task(14)
+    def upload_orders(self):
+        with open(os.path.join(self.fixtures_path, "test.pdf"), "rb") as f:
+            swagger_request(
+                self.swagger_internal.uploads.createUpload,
+                documentId=str(uuid.uuid4()),
+                file=f,
+            )
+
+    #
+    # At this point orders have been uploaded so let's refresh our knowledge
+    # of the user's profile.
+    #
+
+    @seq_task(15)
+    def refresh_user_profile_2(self):
+        self.update_user()
+
+    @seq_task(16)
     def logout(self):
         self.client.post("/auth/logout")
         self.login_gov_user = None
