@@ -30,7 +30,7 @@ which are sometimes referred to as integration tests.
 
 ## Considered Alternatives
 
-* **Run integration in same suite as handlers and flag with testing.Short**
+* **Run integration in same suite as handlers and flag with `testing.Short`**
 
 An example of the suite setup and test:
 
@@ -51,7 +51,7 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 ```
 
 Tests would be run with `go test -short`
-if developers need quick unit testing in developement environments.
+if developers need quick unit testing in development environments.
 Or synonymously with a `make server_test -short` target.
 
 * **Use separate suites for integration tests, but within handlers package**
@@ -60,7 +60,7 @@ In this example,
 integration tests would use `IntegrationHandlerSuite`
 and the existing `HandlerSuite` would no longer have database tests requiring setup/teardown.
 
-* **Move integration tests to separate package and flag the suite with testing.Short**
+* **Move integration tests to separate package and flag the suite with `testing.Short`**
 
 In this example,
 we move all tests requiring external dependencies (database, APIs) to an `integration` package.
@@ -79,7 +79,7 @@ func TestHandlerSuite(t *testing.T) {
 
 ## Decision Outcome
 
-* Chosen Alternative: **Move integration tests to separate package and flag the suite with testing.Short**
+* Chosen Alternative: **Move integration tests to separate package and flag the suite with `testing.Short`**
 
 Moving all dependency wiring to a separate package allows unit tests to stay decoupled from dependencies.
 Namely, `handlers` is only required to pull in packages that mimics an interface dependency based production structure
@@ -90,7 +90,7 @@ rather than test level.
 
 ## Pros and Cons of the Alternatives
 
-### Run integration in same suite as handlers and flag with testing.Short
+### Run integration in same suite as handlers and flag with `testing.Short`
 
 * `+` Keeps current structure of tests (no migration).
 * `+` Integration tests live close to their unit counterparts,
@@ -112,10 +112,10 @@ rather than test level.
       but individual handlers are unaware of dependency implementations.
 * `-` Multiple suites in a single package can be confusing.
 
-### Move integration tests to separate package and flag the suite with testing.Short
+### Move integration tests to separate package and flag the suite with `testing.Short`
 
 * `+` Integration tests with dependencies are clearly marked and easily tested as separate from unit tests.
-      Depdencies are no longer imported for unit tests.
+      Dependencies are no longer imported for unit tests.
 * `+` Short flagging happens on suite/package level.
       Tests can also be run per directory.
 * `-` Requires developer awareness.
