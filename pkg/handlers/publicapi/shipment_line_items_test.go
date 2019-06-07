@@ -97,6 +97,20 @@ func (suite *HandlerSuite) TestGetShipmentLineItemsHandler() {
 	responsePayload := response.(*accessorialop.GetShipmentLineItemsOK).Payload
 	suite.Equal(2, len(responsePayload))
 
+	// Error 403
+	expectedError := models.ErrFetchForbidden
+	shipmentLineItemsFetcher.On("GetShipmentLineItemsByShipmentID",
+		shipmentID,
+		auth.SessionFromRequestContext(params.HTTPRequest),
+	).Return(nil, expectedError).Once()
+
+	response = handler.Handle(params)
+	expectedResponse := &handlers.ErrResponse{
+		Code: http.StatusForbidden,
+		Err:  expectedError,
+	}
+	suite.Equal(expectedResponse, response)
+
 	// Any error using office user
 	shipmentLineItemsFetcher.On("GetShipmentLineItemsByShipmentID",
 		shipmentID,
