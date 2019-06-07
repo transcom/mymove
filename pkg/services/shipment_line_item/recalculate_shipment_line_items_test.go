@@ -17,13 +17,12 @@ func (suite *ShipmentLineItemServiceSuite) TestRecalculateShipmentLineItems() {
 	}
 
 	// Generate the data we'll need to do a recalculation.
-	tspUsers, shipments, _, _ := testdatagen.CreateShipmentOfferData(suite.DB(), 1, 1, []int{1}, statuses, models.SelectedMoveTypeHHG)
-
-	tspSession := auth.Session{
+	tspUsers, shipments, _, _ := testdatagen.CreateShipmentOfferData(suite.DB(), 2, 2, []int{2, 0}, statuses, models.SelectedMoveTypeHHG)
+	tspSession1 := auth.Session{
 		ApplicationName: auth.TspApp,
 		UserID:          *tspUsers[0].UserID,
 		IDToken:         "fake token",
-		OfficeUserID:    tspUsers[0].ID,
+		TspUserID:       tspUsers[0].ID,
 	}
 	// Create a line item for us to use. The Assertion makes sure we're using the shipment we made above.
 	// It also makes sure there isn't an invoice as that's a condition that will prevent a recalc.
@@ -50,7 +49,34 @@ func (suite *ShipmentLineItemServiceSuite) TestRecalculateShipmentLineItems() {
 
 	// Happy path
 	recalculator := NewShipmentLineItemRecalculator(suite.DB(), suite.logger)
-	_, err := recalculator.RecalculateShipmentLineItems(shipmentLineItem1.ShipmentID, &tspSession, planner)
+	_, err := recalculator.RecalculateShipmentLineItems(shipmentLineItem1.ShipmentID, &tspSession1, planner)
 	suite.NoError(err)
 
+	// Error wrong tsp user
+	newTspUser := testdatagen.MakeDefaultTspUser(suite.DB())
+	tspSession2 := auth.Session{
+		ApplicationName: auth.TspApp,
+		UserID:          *newTspUser.UserID,
+		IDToken:         "fake token",
+		TspUserID:       newTspUser.ID,
+	}
+	_, err = recalculator.RecalculateShipmentLineItems(shipmentLineItem1.ShipmentID, &tspSession2, planner)
+	suite.Error(err)
+
+	// Make sure to return nils for existing invoice
+	invoice := testdatagen.MakeDefaultInvoice(suite.DB())
+	shipmentLineItem2 := testdatagen.MakeCompleteShipmentLineItem(suite.DB(),
+		testdatagen.Assertions{
+			ShipmentLineItem: models.ShipmentLineItem{
+				Invoice:    invoice,
+				InvoiceID:  &invoice.ID,
+				Shipment:   shipments[0],
+				ShipmentID: shipments[0].ID,
+			},
+		},
+	)
+
+	payload, err := recalculator.RecalculateShipmentLineItems(shipmentLineItem2.ShipmentID, &tspSession1, planner)
+	suite.Nil(payload)
+	suite.NoError(err)
 }
