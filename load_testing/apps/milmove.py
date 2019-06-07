@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
+import pprint
 import os
 import random
 from urllib.parse import urljoin
@@ -20,7 +21,9 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
     login_gov_user = None
     session_token = None
 
-    fixtures_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fixtures")
+    fixtures_path = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "fixtures"
+    )
 
     # User is the LoggedInUserPayload
     user = None
@@ -215,8 +218,10 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         self.new_duty_stations = self.get_dutystations("travis")
 
         # Determine a few things randomly
-        issue_date = datetime.datetime.now() + datetime.timedelta(days=random.randint(0, 30))
-        report_by_date = issue_date + datetime.timedelta(days=random.randint(1, 30))
+        issue_date = datetime.datetime.now() + datetime.timedelta(
+            days=random.randint(0, 30)
+        )
+        report_by_date = issue_date + datetime.timedelta(days=random.randint(60, 90))
         spouse_has_pro_gear = False
         has_dependents = bool(random.getrandbits(1))
         if has_dependents:
@@ -232,10 +237,8 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
             spouse_has_pro_gear=spouse_has_pro_gear,
             new_duty_station_id=self.new_duty_stations[0].id,
         )
-        swagger_request(
-            self.swagger_internal.orders.createOrders,
-            createOrders=payload,
-        )
+        self.orders = swagger_request(
+            self.swagger_internal.orders.createOrders, createOrders=payload)
 
     @seq_task(14)
     def upload_orders(self):
@@ -255,7 +258,52 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
     def refresh_user_profile_2(self):
         self.update_user()
 
+    #
+    # Create the PPM Move
+    #
+
     @seq_task(16)
+    def select_ppm_move(self):
+        model = self.swagger_internal.get_model("PatchMovePayload")
+        payload = model(selected_move_type="PPM")
+        pprint.pprint(self.orders)
+        swagger_request(
+            self.swagger_internal.moves.patchMove,
+            moveId=self.orders[0].moves[0].id,
+            patchMovePayload=payload,
+        )
+
+    @seq_task(17)
+    def ppm_dates_and_locations(self):
+        self.original_move_date = datetime.datetime.now() + datetime.timedelta(
+            days=random.randint(30, 60)
+        )
+        swagger_request(
+            self.swagger_internal.ppm.showPPMEstimate,
+            original_move_date=self.original_move_date,
+            origin_zip="80013",
+            destination_zip="94535",
+            weight_estimate=11500,
+        )
+
+    @seq_task(18)
+    def create_ppm(self):
+        model = self.swagger_internal.get_model("CreatePersonallyProcuredMovePayload")
+        payload = model(
+            days_in_storage=None,
+            destination_postal_code="94535",
+            has_additional_postal_code=False,
+            has_sit=False,
+            original_move_date=self.original_move_date,
+            pickup_postal_code="80013",
+        )
+        swagger_request(
+            self.swagger_internal.ppm.createPersonallyProcuredMove,
+            moveId=self.orders[0].moves[0].id,
+            createPersonallyProcuredMovePayload=payload,
+        )
+
+    @seq_task(19)
     def logout(self):
         self.client.post("/auth/logout")
         self.login_gov_user = None
