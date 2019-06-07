@@ -47,7 +47,7 @@ func (suite *HandlerSuite) TestGetShipmentLineItemsHandler() {
 	tariff400ID2, _ := uuid.NewV4()
 
 	// Configure our http request
-	path := fmt.Sprintf("/shipments/%s/accessorials/recalculate", shipmentID)
+	path := fmt.Sprintf("/shipments/%s/accessorials/", shipmentID)
 	req := httptest.NewRequest("GET", path, nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
