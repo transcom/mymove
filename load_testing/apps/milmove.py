@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import datetime
-import pprint
 import os
 import random
 from urllib.parse import urljoin
@@ -34,7 +33,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         self.user = swagger_request(self.swagger_internal.users.showLoggedInUser)
 
     def update_service_member(self, service_member):
-        self.user.service_member = service_member
+        self.user["service_member"] = service_member
 
     def get_dutystations(self, short_name):
         station_list = [short_name[0], short_name[0:3], short_name]
@@ -91,7 +90,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         )
         service_member = swagger_request(
             self.swagger_internal.service_members.patchServiceMember,
-            serviceMemberId=self.user["service_member"].id,
+            serviceMemberId=self.user["service_member"]["id"],
             patchServiceMemberPayload=payload,
         )
         self.update_service_member(service_member)
@@ -107,7 +106,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         )
         service_member = swagger_request(
             self.swagger_internal.service_members.patchServiceMember,
-            serviceMemberId=self.user["service_member"].id,
+            serviceMemberId=self.user["service_member"]["id"],
             patchServiceMemberPayload=payload,
         )
         self.update_service_member(service_member)
@@ -124,7 +123,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         )
         service_member = swagger_request(
             self.swagger_internal.service_members.patchServiceMember,
-            serviceMemberId=self.user["service_member"].id,
+            serviceMemberId=self.user["service_member"]["id"],
             patchServiceMemberPayload=payload,
         )
         self.update_service_member(service_member)
@@ -136,10 +135,10 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
     @seq_task(8)
     def current_duty_station(self):
         model = self.swagger_internal.get_model("PatchServiceMemberPayload")
-        payload = model(current_station_id=self.duty_stations[0].id)
+        payload = model(current_station_id=self.duty_stations[0]["id"])
         service_member = swagger_request(
             self.swagger_internal.service_members.patchServiceMember,
-            serviceMemberId=self.user["service_member"].id,
+            serviceMemberId=self.user["service_member"]["id"],
             patchServiceMemberPayload=payload,
         )
         self.update_service_member(service_member)
@@ -158,7 +157,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         )
         service_member = swagger_request(
             self.swagger_internal.service_members.patchServiceMember,
-            serviceMemberId=self.user["service_member"].id,
+            serviceMemberId=self.user["service_member"]["id"],
             patchServiceMemberPayload=payload,
         )
         self.update_service_member(service_member)
@@ -177,7 +176,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         )
         service_member = swagger_request(
             self.swagger_internal.service_members.patchServiceMember,
-            serviceMemberId=self.user["service_member"].id,
+            serviceMemberId=self.user["service_member"]["id"],
             patchServiceMemberPayload=payload,
         )
         self.update_service_member(service_member)
@@ -195,7 +194,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         )
         swagger_request(
             self.swagger_internal.backup_contacts.createServiceMemberBackupContact,
-            serviceMemberId=self.user["service_member"].id,
+            serviceMemberId=self.user["service_member"]["id"],
             createBackupContactPayload=payload,
         )
 
@@ -229,16 +228,15 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
 
         model = self.swagger_internal.get_model("CreateUpdateOrders")
         payload = model(
-            service_member_id=self.user["service_member"].id,
+            service_member_id=self.user["service_member"]["id"],
             issue_date=issue_date,
             report_by_date=report_by_date,
             orders_type="PERMANENT_CHANGE_OF_STATION",
             has_dependents=has_dependents,
             spouse_has_pro_gear=spouse_has_pro_gear,
-            new_duty_station_id=self.new_duty_stations[0].id,
+            new_duty_station_id=self.new_duty_stations[0]["id"],
         )
-        self.orders = swagger_request(
-            self.swagger_internal.orders.createOrders, createOrders=payload)
+        swagger_request(self.swagger_internal.orders.createOrders, createOrders=payload)
 
     @seq_task(14)
     def upload_orders(self):
@@ -266,10 +264,10 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
     def select_ppm_move(self):
         model = self.swagger_internal.get_model("PatchMovePayload")
         payload = model(selected_move_type="PPM")
-        pprint.pprint(self.orders)
+        # TODO: How do we get the moveId?
         swagger_request(
             self.swagger_internal.moves.patchMove,
-            moveId=self.orders[0].moves[0].id,
+            moveId=self.user["service_member"]["orders"][0]["moves"][0]["id"],
             patchMovePayload=payload,
         )
 
@@ -299,7 +297,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         )
         swagger_request(
             self.swagger_internal.ppm.createPersonallyProcuredMove,
-            moveId=self.orders[0].moves[0].id,
+            moveId=self.user["service_member"]["orders"][0]["moves"][0]["id"],
             createPersonallyProcuredMovePayload=payload,
         )
 

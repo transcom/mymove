@@ -44,6 +44,7 @@ def get_swagger_config():
         "validate_requests": False,
         "validate_responses": False,
         "formats": milmove_formats,
+        "use_models": False,
     }
     return swagger_config
 
