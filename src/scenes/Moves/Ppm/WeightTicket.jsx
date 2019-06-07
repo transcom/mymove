@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import { Link } from 'react-router-dom';
 import { reduxForm, getFormValues, SubmissionError } from 'redux-form';
 import { connect } from 'react-redux';
 import { get, map, isEmpty } from 'lodash';
@@ -14,6 +13,7 @@ import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import Alert from 'shared/Alert';
 
 import carTrailerImg from 'shared/images/car-trailer_mobile.png';
+import carImg from 'shared/images/car_mobile.png';
 
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 import WizardHeader from '../WizardHeader';
@@ -254,17 +254,25 @@ class WeightTicket extends Component {
                 <div className="dashed-divider" />
 
                 <div className="usa-grid-full" style={{ marginTop: '1em' }}>
-                  {isCarTrailer && (
+                  {isCarTrailer && isValidTrailer === 'Yes' ? (
                     <div style={{ marginBottom: '1em' }}>
-                      The weight of this trailer should be <strong>excluded</strong> from the total weight of this trip.{' '}
+                      You can claim this trailer's weight as part of the total weight of your trip.
+                    </div>
+                  ) : (
+                    <div style={{ marginBottom: '1em' }}>
+                      The weight of this trailer should be <strong>excluded</strong> from the total weight of this trip.
                     </div>
                   )}
                   <div className="usa-width-one-third input-group">
                     <strong className="input-header">
                       Empty Weight{' '}
-                      {isCarTrailer && (
+                      {isCarTrailer && isValidTrailer === 'Yes' ? (
                         <>
-                          ( <img alt="car and trailer" className="car-trailer-img" src={carTrailerImg} /> car + trailer)
+                          ( <img alt="car only" className="car-img" src={carImg} /> car only)
+                        </>
+                      ) : (
+                        <>
+                          ( <img alt="car and trailer" className="car-img" src={carTrailerImg} /> car + trailer)
                         </>
                       )}
                     </strong>

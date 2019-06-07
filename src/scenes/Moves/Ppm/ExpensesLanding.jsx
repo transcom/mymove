@@ -22,6 +22,7 @@ class ExpensesLanding extends Component {
 
   render() {
     const { hasExpenses } = this.state;
+    const { history } = this.props;
     return (
       <>
         <WizardHeader
@@ -39,7 +40,7 @@ class ExpensesLanding extends Component {
           <h3 className="expenses-header">Do you have any storage or moving expenses?</h3>
           <ul className="expenses-list">
             <li>
-              <strong>Storage</strong> expenses are <strong>reimbursable</strong>
+              <strong>Storage</strong> expenses are <strong>reimbursable</strong>.
             </li>
             <li>
               Claimable <strong>moving expenses</strong> (such as weighing fees, rental equipment, or tolls){' '}
@@ -69,10 +70,12 @@ class ExpensesLanding extends Component {
             />
           </div>
           <PPMPaymentRequestActionBtns
-            nextBtnLabel="Continue"
-            submitButtonsAreDisabled={!hasExpenses}
             cancelHandler={() => {}}
+            displaySaveForLater
+            nextBtnLabel="Continue"
             saveAndAddHandler={() => {}}
+            saveForLaterHandler={() => history.push('/')}
+            submitButtonsAreDisabled={!hasExpenses}
           />
         </div>
       </>
