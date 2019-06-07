@@ -45,9 +45,14 @@ export class StorageInTransitPanel extends Component {
   };
 
   onDelete = (shipmentId, storageInTransitId) => {
-    this.props.deleteStorageInTransit(shipmentId, storageInTransitId).catch(err => {
-      this.setState({ error: true });
-    });
+    this.props
+      .deleteStorageInTransit(shipmentId, storageInTransitId)
+      .then(() => {
+        this.setState({ error: false });
+      })
+      .catch(() => {
+        this.setState({ error: true });
+      });
   };
 
   render() {
