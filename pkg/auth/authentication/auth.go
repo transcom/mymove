@@ -137,10 +137,12 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // LoginStateCookieName is the name given to the cookie storing the encrypted Login.gov state nonce.
 const LoginStateCookieName = "LGState"
+const LoginStateCookieTTLInSecs = 1800 // 30 mins to transit through login.gov.
 
 // RedirectHandler handles redirection
 type RedirectHandler struct {
 	Context
+	UseSecureCookie bool
 }
 
 func shaAsString(nonce string) string {
@@ -169,11 +171,11 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Name:     LoginStateCookieName,
 		Value:    shaAsString(loginData.Nonce),
 		Path:     "/",
-		Expires:  time.Unix(0, 0),
-		MaxAge:   -1,
+		Expires:  time.Now().Add(time.Duration(LoginStateCookieTTLInSecs) * time.Second),
+		MaxAge:   LoginStateCookieTTLInSecs,
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
-		Secure:   true,
+		Secure:   h.UseSecureCookie,
 	}
 	http.SetCookie(w, &stateCookie)
 	http.Redirect(w, r, loginData.RedirectURL, http.StatusTemporaryRedirect)
