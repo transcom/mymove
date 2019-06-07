@@ -5,6 +5,8 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/route"
+
 	"github.com/transcom/mymove/mocks"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -23,6 +25,7 @@ import (
 	shipmentlineitemservice "github.com/transcom/mymove/pkg/services/shipment_line_item"
 
 	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -89,15 +92,45 @@ func (suite *HandlerSuite) TestRecalculateShipmentLineItemsHandler() {
 
 	// Happy Path using office user
 	shipmentLineItemRecalculator.On("RecalculateShipmentLineItems",
-		auth.SessionFromRequestContext(params.HTTPRequest),
 		shipmentID,
-		handler.Planner(),
+		auth.SessionFromRequestContext(params.HTTPRequest),
+		nil,
 	).Return(returnShipmentLineItems, nil).Once()
 
 	response := handler.Handle(params)
-	suite.Assertions.IsType(&accessorialop.GetShipmentLineItemsOK{}, response)
-	responsePayload := response.(*accessorialop.GetShipmentLineItemsOK).Payload
+	suite.Assertions.IsType(&accessorialop.RecalculateShipmentLineItemsOK{}, response)
+	responsePayload := response.(*accessorialop.RecalculateShipmentLineItemsOK).Payload
 	suite.Equal(2, len(responsePayload))
+
+	// Forbidden
+	expectedError := models.ErrFetchForbidden
+	shipmentLineItemRecalculator.On("RecalculateShipmentLineItems",
+		shipmentID,
+		auth.SessionFromRequestContext(params.HTTPRequest),
+		nil,
+	).Return(nil, expectedError).Once()
+
+	response = handler.Handle(params)
+	expectedResponse := &handlers.ErrResponse{
+		Code: http.StatusForbidden,
+		Err:  expectedError,
+	}
+	suite.Equal(expectedResponse, response)
+
+	// Unprocessable entity
+	expectedError = route.NewUnsupportedPostalCodeError("00000")
+	shipmentLineItemRecalculator.On("RecalculateShipmentLineItems",
+		shipmentID,
+		auth.SessionFromRequestContext(params.HTTPRequest),
+		nil,
+	).Return(nil, expectedError).Once()
+
+	response = handler.Handle(params)
+	expectedResponse = &handlers.ErrResponse{
+		Code: http.StatusUnprocessableEntity,
+		Err:  expectedError,
+	}
+	suite.Equal(expectedResponse, response)
 }
 
 func (suite *HandlerSuite) TestGetShipmentLineItemsHandler() {
