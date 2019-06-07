@@ -21,14 +21,13 @@ func (v validatePostalCode) ValidatePostalCode(postalCode string, postalCodeType
 		return false, err
 	}
 
-	if postalCodeType == services.Origin {
-		_, err := models.FetchRateAreaForZip5(v.DB, postalCode)
-		if err != nil {
+	switch postalCodeType {
+	case services.Origin:
+		if _, err := models.FetchRateAreaForZip5(v.DB, postalCode); err != nil {
 			return false, err
 		}
-	} else if postalCodeType == services.Destination {
-		_, err := models.FetchRegionForZip5(v.DB, postalCode)
-		if err != nil {
+	case services.Destination:
+		if _, err := models.FetchRegionForZip5(v.DB, postalCode); err != nil {
 			return false, err
 		}
 	}

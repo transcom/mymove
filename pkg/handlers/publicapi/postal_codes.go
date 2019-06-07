@@ -31,13 +31,14 @@ func (h ValidatePostalCodeHandler) Handle(params postalcodesops.ValidatePostalCo
 	latLongErrorRegex := regexp.MustCompile("Unsupported postal code lookup")
 
 	if err != nil {
-		if latLongErrorRegex.MatchString(err.Error()) {
+		switch {
+		case latLongErrorRegex.MatchString(err.Error()):
 			h.Logger().Error("We don't have latlong for postal code", zap.Error(err))
-		} else if err == models.ErrFetchNotFound && postalCodeType == "origin" {
+		case err == models.ErrFetchNotFound && postalCodeType == "origin":
 			h.Logger().Error("We do not have rate area data for origin postal code", zap.Error(err))
-		} else if err == models.ErrFetchNotFound && postalCodeType == "destination" {
+		case err == models.ErrFetchNotFound && postalCodeType == "destination":
 			h.Logger().Error("We do not have region rate data for destination postal code", zap.Error(err))
-		} else {
+		default:
 			h.Logger().Error("Validate postal code", zap.Error(err))
 			return postalcodesops.NewValidatePostalCodeBadRequest()
 		}
