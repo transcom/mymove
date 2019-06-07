@@ -91,6 +91,10 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 	if docExtractor.WeightTicketDate != nil {
 		weightTicketDate = handlers.FmtDate(*docExtractor.WeightTicketDate)
 	}
+	var trailerOwnershipMissing *bool
+	if docExtractor.TrailerOwnershipMissing != nil {
+		trailerOwnershipMissing = docExtractor.TrailerOwnershipMissing
+	}
 
 	payload := internalmessages.MoveDocumentPayload{
 		ID:                       handlers.FmtUUID(docExtractor.ID),
@@ -111,6 +115,7 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 		FullWeight:               fullWeight,
 		FullWeightTicketMissing:  fullWeightTicketMissing,
 		WeightTicketDate:         weightTicketDate,
+		TrailerOwnershipMissing:  trailerOwnershipMissing,
 	}
 
 	return &payload, nil
