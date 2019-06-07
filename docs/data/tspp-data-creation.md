@@ -420,7 +420,7 @@ The file will also need to be reduced. Currently, we are picking 2 TSPs per TDL.
 
 The following SQL can be used to do the above mentioned:
 
-* Truncate the table transportation_service_provider_performances:
+* Truncate the table `transportation_service_provider_performances`:
 
 ```sql
 TRUNCATE transportation_service_provider_performances CASCADE;

@@ -3149,6 +3149,8 @@ paths:
       responses:
         200:
           description: the storage in transit entry was successfully deleted
+          schema:
+            $ref: '#/definitions/StorageInTransit'
         400:
           description: invalid request
         401:
@@ -3498,6 +3500,38 @@ paths:
           description: access code is invalid or valid
           schema:
             $ref: '#/definitions/ValidateAccessCodePayload'
+        400:
+          description: invalid request
+        401:
+          description: not authorized to validate access code
+        404:
+          description: access code not found in system
+        500:
+          description: server error
+  /access_codes/invalid:
+    patch:
+      summary: Updates access code as invalid by associating it with the current service member.
+      description: Updates access code as invalid by associating it with the current service member.
+      operationId: claimAccessCode
+      tags:
+        - accesscode
+      parameters:
+        - in: body
+          name: accessCodePayload
+          description: the code the access code represents and verifies if in use
+          required: true
+          schema:
+            type: object
+            required:
+              - code
+            properties:
+              code:
+                type: string
+      responses:
+        200:
+          description: access code is invalid or valid
+          schema:
+            $ref: '#/definitions/AccessCodePayload'
         400:
           description: invalid request
         401:

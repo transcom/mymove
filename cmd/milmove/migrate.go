@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/gobuffalo/pop"
@@ -19,28 +18,36 @@ import (
 
 // initMigrateFlags - Order matters!
 func initMigrateFlags(flag *pflag.FlagSet) {
-	// Migration Config
-	cli.InitMigrationFlags(flag)
 
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
+	// Migration Config
+	cli.InitMigrationFlags(flag)
+
+	// aws-vault Config
+	cli.InitVaultFlags(flag)
+
 	// Verbose
 	cli.InitVerboseFlags(flag)
 
-	// Don't sort flags
-	flag.SortFlags = false
+	// Sort flags
+	flag.SortFlags = true
 }
 
 func checkMigrateConfig(v *viper.Viper, logger logger) error {
 
 	logger.Info("checking migration config")
 
+	if err := cli.CheckDatabase(v, logger); err != nil {
+		return err
+	}
+
 	if err := cli.CheckMigration(v); err != nil {
 		return err
 	}
 
-	if err := cli.CheckDatabase(v, logger); err != nil {
+	if err := cli.CheckVault(v); err != nil {
 		return err
 	}
 
@@ -53,7 +60,7 @@ func checkMigrateConfig(v *viper.Viper, logger logger) error {
 
 func migrateFunction(cmd *cobra.Command, args []string) error {
 
-	err := cmd.ParseFlags(os.Args[1:])
+	err := cmd.ParseFlags(args)
 	if err != nil {
 		return errors.Wrap(err, "Could not parse flags")
 	}
@@ -90,6 +97,10 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	err = checkMigrateConfig(v, logger)
 	if err != nil {
 		logger.Fatal("invalid configuration", zap.Error(err))
+	}
+
+	if v.GetBool(cli.DbDebugFlag) {
+		pop.Debug = true
 	}
 
 	// Create a connection to the DB

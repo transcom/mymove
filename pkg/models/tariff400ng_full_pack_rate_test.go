@@ -29,7 +29,7 @@ func (suite *ModelSuite) Test_EffectiveDateValidation() {
 	}
 
 	expErrors = map[string][]string{
-		"effective_date_upper": []string{"EffectiveDateUpper must be after EffectiveDateLower."},
+		"effective_date_upper": {"EffectiveDateUpper must be after EffectiveDateLower."},
 	}
 	suite.verifyValidationErrors(&invalidPackRate, expErrors)
 }
@@ -49,7 +49,7 @@ func (suite *ModelSuite) Test_WeightValidation() {
 	}
 
 	expErrors = map[string][]string{
-		"weight_lbs_lower": []string{"200 is not less than 100."},
+		"weight_lbs_lower": {"200 is not less than 100."},
 	}
 	suite.verifyValidationErrors(&invalidPackRate, expErrors)
 }
@@ -71,7 +71,7 @@ func (suite *ModelSuite) Test_RateValidation() {
 	}
 
 	expErrors = map[string][]string{
-		"rate_cents": []string{"-1 is not greater than -1."},
+		"rate_cents": {"-1 is not greater than -1."},
 	}
 	suite.verifyValidationErrors(&invalidPackRate, expErrors)
 }

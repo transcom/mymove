@@ -77,6 +77,7 @@ If you are looking to understand choices made in this project, see the list of [
 * 0032 [CSRF Protection for the Application](adr/0032-csrf-protection.md#csrf-protection-for-the-application)
 * 0033 [*Service Object Layer*](adr/0033-service-object-layer.md#service-object-layer)
 * 0034 [*Working With Mocks: Generation and Assertion*](adr/0034-working-with-mocks-generation-and-assertion.md#working-with-mocks-generation-and-assertion)
+* 0035 [Use Query Builder for for Admin Interface](adr/0035-use-query-builder.md#use-query-builder-for-for-admin-interface)
 * 0036 [Use Separate Integration Package for Go Integration Tests](adr/0036-go-integration.md#use-separate-integration-package-for-go-integration-tests)
 
 <!--endindex-->

@@ -22,6 +22,7 @@ import ApproveSitRequest from 'shared/StorageInTransit/ApproveSitRequest';
 import DenySitRequest from 'shared/StorageInTransit/DenySitRequest';
 import PlaceInSit from 'shared/StorageInTransit/PlaceInSit';
 import ReleaseFromSit from 'shared/StorageInTransit/ReleaseFromSit';
+import DeleteSitRequest from 'shared/StorageInTransit/DeleteSitRequest';
 import { updateStorageInTransit } from 'shared/Entities/modules/storageInTransits';
 import { isOfficeSite, isTspSite } from 'shared/constants';
 import SitStatusIcon from './SitStatusIcon';
@@ -213,6 +214,7 @@ export class StorageInTransit extends Component {
       showDenyForm,
       showPlaceInSitForm,
       showReleaseFromSitForm,
+      showDeleteWarning,
     } = this.state;
     const isDenied = storageInTransit.status === 'DENIED';
     const isRequested = storageInTransit.status === 'REQUESTED';
@@ -271,6 +273,12 @@ export class StorageInTransit extends Component {
               onClose={this.closeOfficeEditForm}
               storageInTransit={storageInTransit}
             />
+          ) : showDeleteWarning ? (
+            <DeleteSitRequest
+              storageInTransit={storageInTransit}
+              onDelete={() => this.props.onDelete(storageInTransit.shipment_id, storageInTransit.id)}
+              onClose={this.closeDeleteWarning}
+            />
           ) : (
             <span className="sit-actions">{this.renderSitActions()}</span>
           )}
@@ -293,7 +301,7 @@ export class StorageInTransit extends Component {
                     {(isReleased || isDelivered) && (
                       <div className="panel-field nested__same-font">
                         <span className="field-title unbold">Date out</span>
-                        <span data-cy="sit-expires" className="field-value">
+                        <span data-cy="sit-date-out" className="field-value">
                           {formatDate4DigitYear(storageInTransit.out_date)}
                         </span>
                       </div>
@@ -404,7 +412,8 @@ export class StorageInTransit extends Component {
 
 StorageInTransit.propTypes = {
   storageInTransit: PropTypes.object.isRequired,
-  daysRemaining: PropTypes.number,
+  daysRemaining: PropTypes.number.isRequired,
+  onDelete: PropTypes.func.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {

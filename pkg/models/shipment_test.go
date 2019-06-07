@@ -41,22 +41,22 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 
 	stringDate := weekendDate.Format("2006-01-02 15:04:05 -0700 UTC")
 	expErrors := map[string][]string{
-		"move_id":                         []string{"move_id can not be blank."},
-		"status":                          []string{"status can not be blank."},
-		"estimated_pack_days":             []string{"-2 is less than or equal to zero."},
-		"estimated_transit_days":          []string{"0 is less than or equal to zero."},
-		"weight_estimate":                 []string{"-3 is less than zero."},
-		"progear_weight_estimate":         []string{"-12 is less than zero."},
-		"spouse_progear_weight_estimate":  []string{"-9 is less than zero."},
-		"requested_pickup_date":           []string{fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
-		"original_delivery_date":          []string{fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
-		"original_pack_date":              []string{fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
-		"pm_survey_planned_pack_date":     []string{fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
-		"pm_survey_planned_pickup_date":   []string{fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
-		"pm_survey_planned_delivery_date": []string{fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
-		"actual_pack_date":                []string{fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
-		"actual_pickup_date":              []string{fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
-		"actual_delivery_date":            []string{fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"move_id":                         {"move_id can not be blank."},
+		"status":                          {"status can not be blank."},
+		"estimated_pack_days":             {"-2 is less than or equal to zero."},
+		"estimated_transit_days":          {"0 is less than or equal to zero."},
+		"weight_estimate":                 {"-3 is less than zero."},
+		"progear_weight_estimate":         {"-12 is less than zero."},
+		"spouse_progear_weight_estimate":  {"-9 is less than zero."},
+		"requested_pickup_date":           {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"original_delivery_date":          {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"original_pack_date":              {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"pm_survey_planned_pack_date":     {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"pm_survey_planned_pickup_date":   {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"pm_survey_planned_delivery_date": {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"actual_pack_date":                {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"actual_pickup_date":              {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"actual_delivery_date":            {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
 	}
 
 	suite.verifyValidationErrors(shipment, expErrors)

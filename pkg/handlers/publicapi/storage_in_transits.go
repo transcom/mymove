@@ -344,12 +344,13 @@ func (h DeleteStorageInTransitHandler) Handle(params sitop.DeleteStorageInTransi
 
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
-	err = h.deleteStorageInTransit.DeleteStorageInTransit(shipmentID, storageInTransitID, session)
+	storageInTransit, err := h.deleteStorageInTransit.DeleteStorageInTransit(shipmentID, storageInTransitID, session)
 
 	if err != nil {
 		h.Logger().Error(fmt.Sprintf("Deleting SIT failed for id: %s on shipment: %s", storageInTransitID, shipmentID), zap.Error(err))
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 
-	return sitop.NewDeleteStorageInTransitOK()
+	payload := payloadForStorageInTransitModel(storageInTransit)
+	return sitop.NewDeleteStorageInTransitOK().WithPayload(payload)
 }

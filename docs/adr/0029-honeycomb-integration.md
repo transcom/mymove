@@ -8,7 +8,7 @@
 
 Currently, the best method for tracing a request through the MyMove site is done by inspecting the JSON formatted logs hosted in AWS CloudWatch Logs. The CloudWatch Logs service provides the ability to define point queries based on the fields in the JSON log entries.  For example, a query could be looking up all log entries with a severity level of “error”. Simple searches like looking up errors do provide some value, particularly when looking for known issues and if the volume of requests flowing through the site is low. However, CloudWatch Logs doesn’t provide engineers a good way to look into more abstract unknown problems that could be happening.
 
-It’s important to be able to ask high level and ad-hoc questions like “what are the top 5 slowest API calls right now?” . More importantly, being able to ask follow up questions like “For those slow API calls, where is that time being spent?”.
+It’s important to be able to ask high level and ad hoc questions like “what are the top 5 slowest API calls right now?” . More importantly, being able to ask follow up questions like “For those slow API calls, where is that time being spent?”.
 
 This decision record is meant to pick a path forward to increase the visibility on the state of the MyMove site.
 

@@ -57,6 +57,14 @@ export class Uploader extends Component {
     }
   }
 
+  isEmpty() {
+    return this.state.files.length === 0;
+  }
+
+  getFiles() {
+    return this.state.files;
+  }
+
   isIdle() {
     // Returns a boolean: is FilePond done with all uploading?
     const existingFiles = this.pond._pond.getFiles();
