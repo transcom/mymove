@@ -32,7 +32,7 @@ describe('TSP user interacts with storage in transit panel', function() {
   it('TSP user releases SIT IN-SIT at ORIGIN', function() {
     tspUserSubmitsReleaseSit();
   });
-  it('TSP user cancels delete', function() {
+  it('TSP user cancels delete, then actually deletes SIT', function() {
     tspUserDeletesSitRequest();
   });
 });
@@ -512,12 +512,21 @@ function tspUserDeletesSitRequest() {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  // Click on Delete SIT and see SIT Delete warning
+  // Click on Delete SIT and see SIT Delete warning, then click cancel and it should go away.
   cy
     .get('[data-cy=storage-in-transit-panel] [data-cy=sit-delete-link]')
     .click()
     .get('[data-cy=sit-delete-warning] [data-cy=sit-delete-cancel]')
     .click()
     .get('[data-cy=sit-delete-warning]')
+    .should('not.exist');
+
+  // Now click on Delete SIT again, then actually delete it this time.
+  cy
+    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-delete-link]')
+    .click()
+    .get('[data-cy=sit-delete-warning] [data-cy=sit-delete-delete]')
+    .click()
+    .get('[data-cy=storage-in-transit]')
     .should('not.exist');
 }

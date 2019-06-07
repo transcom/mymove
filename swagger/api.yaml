@@ -3149,6 +3149,8 @@ paths:
       responses:
         200:
           description: the storage in transit entry was successfully deleted
+          schema:
+            $ref: '#/definitions/StorageInTransit'
         400:
           description: invalid request
         401:
