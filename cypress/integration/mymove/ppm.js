@@ -180,8 +180,9 @@ describe('allows a SM to request a payment', function() {
     serviceMemberCanCancel();
   });
 
-  it('service member requests car weight ticket payment', () => {
-    serviceMemberSubmitsWeightTicket('CAR');
+  it('service member requests car weight ticket payment and views expenses landing page', () => {
+    serviceMemberSubmitsWeightTicket('CAR', false);
+    serviceMemberViewsExpensesLandingPage();
   });
 
   it('service member requests a box truck weight ticket payment', () => {
@@ -242,6 +243,42 @@ describe('allows a SM to request a payment', function() {
     });
   });
 });
+
+function serviceMemberViewsExpensesLandingPage() {
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-expenses-intro/);
+  });
+
+  cy
+    .get('button')
+    .contains('Continue')
+    .should('be.disabled');
+
+  cy
+    .get('[type="radio"]')
+    .first()
+    .should('be.not.checked');
+  cy
+    .get('[type="radio"]')
+    .last()
+    .should('be.not.checked');
+
+  cy
+    .get('a')
+    .contains('More about expenses')
+    .should('have.attr', 'href')
+    .and('match', /^\/allowable-expenses/);
+
+  cy
+    .get('[type="radio"]')
+    .first()
+    .check({ force: true });
+
+  cy
+    .get('button')
+    .contains('Continue')
+    .should('be.enabled');
+}
 
 function serviceMemberSubmitsCarTrailerWeightTicket() {
   cy.contains('Request Payment').click();
@@ -342,7 +379,7 @@ function serviceMemberSavesWeightTicketForLater(vehicleType) {
   });
 }
 
-function serviceMemberSubmitsWeightTicket(vehicleType) {
+function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true) {
   cy.contains('Request Payment').click();
   cy
     .get('button')
@@ -366,16 +403,27 @@ function serviceMemberSubmitsWeightTicket(vehicleType) {
     .get('input[name="weight_ticket_date"]')
     .type('6/2/2018{enter}')
     .blur();
+  if (hasAnother) {
+    cy
+      .get('[type="radio"]')
+      .first()
+      .should('be.checked');
 
-  cy
-    .get('[type="radio"]')
-    .first()
-    .should('be.checked');
+    cy
+      .get('button')
+      .contains('Save & Add Another')
+      .click();
+  } else {
+    cy
+      .get('[type="radio"]')
+      .last()
+      .check({ force: true });
 
-  cy
-    .get('button')
-    .contains('Save & Add Another')
-    .click();
+    cy
+      .get('button')
+      .contains('Save & Continue')
+      .click();
+  }
   cy.wait('@postMoveDocument');
 }
 
