@@ -8,7 +8,7 @@ returns a JSON formatted version of the User model for the new user instead of r
 The new user will be logged in upon creation and the response will contain the session token you'd expect from
 a normal login.
 
-## locust.io
+## `locust.io`
 
 Getting started
 
