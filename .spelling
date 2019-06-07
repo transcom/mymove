@@ -409,6 +409,7 @@ goqu
 toolset
 metadata
 Codecov
+`testing.Short`
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - /usr/local
  - docs/data/tspp-data-creation.md
