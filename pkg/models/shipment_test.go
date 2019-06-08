@@ -163,9 +163,8 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	suite.Equal(*shipment.ActualPickupDate, shipDate, "expected Actual Pickup Date to be set")
 
 	// Can deliver shipment
-	verrs, err := shipment.Deliver(suite.DB(), shipDate)
+	err = shipment.Deliver(shipDate)
 	suite.Nil(err)
-	suite.NoVerrs(verrs)
 	suite.Equal(ShipmentStatusDELIVERED, shipment.Status, "expected Delivered")
 	suite.Equal(*shipment.ActualDeliveryDate, shipDate, "expected Actual Delivery Date to be set")
 }

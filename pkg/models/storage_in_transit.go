@@ -182,15 +182,16 @@ func SaveStorageInTransitAndAddress(db *pop.Connection, storageInTransit *Storag
 	return responseVErrors, responseError
 }
 
-func (s *StorageInTransit) Deliver(db *pop.Connection, deliveryDate time.Time) (*StorageInTransit, error) {
+// Deliver changes a sit status to Delivered status and sets the OutDate
+func (s *StorageInTransit) Deliver(deliveryDate time.Time) error {
 	// A SIT must be IN SIT and a DESTINATION SIT in order to be delivered
 	if !(s.Status == StorageInTransitStatusINSIT &&
 		s.Location == StorageInTransitLocationDESTINATION) {
-		return s, ErrWriteConflict
+		return ErrWriteConflict
 	}
 
 	s.Status = StorageInTransitStatusDELIVERED
 	s.OutDate = &deliveryDate
 
-	return s, nil
+	return nil
 }

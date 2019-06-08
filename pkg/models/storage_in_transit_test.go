@@ -208,11 +208,14 @@ func (suite *ModelSuite) TestDeliverStorageInTransit() {
 	})
 	deliveryDate := startDate.Add(testdatagen.OneWeek)
 
-	deliveredSit, err := storageInTransit.Deliver(suite.DB(), deliveryDate)
+	err := storageInTransit.Deliver(deliveryDate)
+	verrs, err := suite.DB().ValidateAndSave(shipment.StorageInTransits)
+	sit := shipment.StorageInTransits[0]
 
 	suite.Nil(err)
-	suite.Equal(models.StorageInTransitStatusDELIVERED, deliveredSit.Status)
-	suite.Equal(&deliveryDate, deliveredSit.OutDate)
+	suite.NoVerrs(verrs)
+	suite.Equal(models.StorageInTransitStatusDELIVERED, sit.Status)
+	suite.Equal(&deliveryDate, sit.OutDate)
 
 	// Test an undeliverable SIT throws error
 	storageInTransit = testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
@@ -225,6 +228,6 @@ func (suite *ModelSuite) TestDeliverStorageInTransit() {
 			Status:              models.StorageInTransitStatusINSIT,
 		},
 	})
-	_, err = storageInTransit.Deliver(suite.DB(), deliveryDate)
+	err = storageInTransit.Deliver(deliveryDate)
 	suite.Error(err)
 }

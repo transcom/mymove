@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -25,13 +26,29 @@ func (c *shipmentDeliverAndPricer) DeliverAndPriceShipment(deliveryDate time.Tim
 	verrs := validate.NewErrors()
 	err := c.db.Transaction(func(db *pop.Connection) error {
 		var transactionError error
-		verrs, transactionError = shipment.Deliver(db, deliveryDate)
-		if transactionError != nil || verrs.HasAny() {
+		transactionError = shipment.Deliver(deliveryDate)
+		if transactionError != nil {
 			return transactionError
+		}
+		verrs, transactionError = db.ValidateAndSave(shipment)
+		if transactionError != nil {
+			return transactionError
+		}
+		// force validation errors to fail the transaction...
+		if verrs.HasAny() {
+			return errors.New("error saving shipment line items")
+		}
+
+		verrs, transactionError = db.ValidateAndSave(shipment.StorageInTransits)
+		if transactionError != nil {
+			return transactionError
+		}
+		if verrs.HasAny() {
+			return errors.New("error saving shipment line items")
 		}
 
 		verrs, transactionError = c.shipmentPricer.PriceShipment(shipment, ShipmentPriceNEW)
-		if transactionError != nil || verrs.HasAny() {
+		if transactionError != nil {
 			return transactionError
 		}
 

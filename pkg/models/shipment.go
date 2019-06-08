@@ -85,7 +85,7 @@ type Shipment struct {
 	ShipmentOffers            ShipmentOffers           `has_many:"shipment_offers" order_by:"created_at desc"`
 	ServiceAgents             ServiceAgents            `has_many:"service_agents" order_by:"created_at desc"`
 	ShipmentLineItems         ShipmentLineItems        `has_many:"shipment_line_items" order_by:"created_at desc"`
-	StorageInTransits         StorageInTransits        `has_many:"storage_in_transits" order_by:"location desc" order_by:"estimated_start_date"`
+	StorageInTransits         StorageInTransits        `has_many:"storage_in_transits" order_by:"location desc, estimated_start_date"`
 
 	// dates
 	ActualPickupDate     *time.Time `json:"actual_pickup_date" db:"actual_pickup_date"`         // when shipment is scheduled to be picked up by the TSP
@@ -329,45 +329,39 @@ func (s *Shipment) Pack(actualPackDate time.Time) error {
 }
 
 // Deliver marks the Shipment request as Delivered. Must be IN TRANSIT state.
-func (s *Shipment) Deliver(db *pop.Connection, actualDeliveryDate time.Time) (verrs *validate.Errors, err error) {
-	verrs = validate.NewErrors()
+func (s *Shipment) Deliver(actualDeliveryDate time.Time) (err error) {
 	// deliver Shipment
 	if s.Status != ShipmentStatusINTRANSIT {
-		return verrs, errors.Wrap(ErrInvalidTransition, "Deliver of shipment")
+		return errors.Wrap(ErrInvalidTransition, "Deliver of shipment")
 	}
 	s.Status = ShipmentStatusDELIVERED
 	s.ActualDeliveryDate = &actualDeliveryDate
 
 	// deliver SITs
-	_, verrs, err = deliverStorageInTransits(db, s.StorageInTransits, actualDeliveryDate)
-	if err != nil || verrs.HasAny() {
-		return verrs, err
+	_, err = deliverStorageInTransits(s.StorageInTransits, actualDeliveryDate)
+	if err != nil {
+		return err
 	}
-	return verrs, err
+	return err
 }
 
 // deliverStorageInTransits delivers multiple SITS
-func deliverStorageInTransits(db *pop.Connection, storageInTransits []StorageInTransit, deliveryDate time.Time) (sitsToReturn []StorageInTransit, verrs *validate.Errors, err error) {
+func deliverStorageInTransits(storageInTransits []StorageInTransit, deliveryDate time.Time) (sitsToReturn []StorageInTransit, err error) {
 	for _, sit := range storageInTransits {
 		// only deliver DESTINATION Sits that are IN_SIT
 		if sit.Status == StorageInTransitStatusINSIT &&
 			sit.Location == StorageInTransitLocationDESTINATION {
-			var modifiedSit *StorageInTransit
-			modifiedSit, err = sit.Deliver(db, deliveryDate)
+			err = sit.Deliver(deliveryDate)
 			if err != nil {
-				return nil, verrs, err
+				return nil, err
 			}
-			sitsToReturn = append(sitsToReturn, *modifiedSit)
+			sitsToReturn = append(sitsToReturn, sit)
 		} else {
 			sitsToReturn = append(sitsToReturn, sit)
 		}
 	}
-	verrs, err = db.ValidateAndSave(&sitsToReturn)
-	if err != nil || verrs.HasAny() {
-		return nil, verrs, err
-	}
 
-	return sitsToReturn, verrs, err
+	return sitsToReturn, err
 }
 
 // BeforeSave will run before each create/update of a Shipment.
