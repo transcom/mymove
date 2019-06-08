@@ -229,7 +229,9 @@ class ShipmentInfo extends Component {
 
   deliverShipment = values => {
     this.props.deliverShipment(this.props.shipment.id, values).then(() => {
-      this.props.getStorageInTransitsForShipment(this.props.shipment.id);
+      if (this.props.context.flags.sitPanel) {
+        this.props.getStorageInTransitsForShipment(this.props.shipment.id);
+      }
       this.props.getAllShipmentLineItems(this.props.shipment.id);
     });
   };

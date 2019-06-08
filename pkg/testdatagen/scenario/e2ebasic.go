@@ -77,13 +77,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		TspUserID:       tspUser.ID,
 	}
 
-	session := auth.Session{
-		ApplicationName: auth.TspApp,
-		UserID:          *tspUser.UserID,
-		IDToken:         "fake token",
-		TspUserID:       tspUser.ID,
-	}
-
 	/*
 	 * Basic user with office access
 	 */
@@ -117,7 +110,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	/*
 	 * Service member with uploaded orders and a delivered shipment, able to generate GBL
 	 */
-	makeHhgReadyToInvoice(db, tspUser, logger, storer, &session)
+	makeHhgReadyToInvoice(db, tspUser, logger, storer)
 
 	/*
 	 * Service member with uploaded orders and an approved shipment but show in the moves table is false
@@ -3316,7 +3309,7 @@ func makeHhgReadyToInvoiceWithSIT(db *pop.Connection, params hhgReadyToInvoicePa
 	return offer.Shipment
 }
 
-func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Logger, storer *storage.Memory, session *auth.Session) models.Shipment {
+func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Logger, storer *storage.Memory) models.Shipment {
 	/*
 	 * Service member with uploaded orders and a delivered shipment, able to generate GBL
 	 */
