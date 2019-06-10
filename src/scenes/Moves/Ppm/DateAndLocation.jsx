@@ -43,7 +43,7 @@ async function asyncValidate(values, dispatch, props, currentFieldName) {
     }
     const pickupZip = pickup_postal_code && pickup_postal_code.slice(0, 5);
     const destinationZip = destination_postal_code && destination_postal_code.slice(0, 5);
-    let responseObject = {};
+    const responseObject = {};
     if (pickupZip) {
       const responseBody = await ValidateZipRateData(pickupZip, 'origin');
       if (!responseBody.valid) {
@@ -64,12 +64,13 @@ async function asyncValidate(values, dispatch, props, currentFieldName) {
   // If we have all valid postal codes and a move date, we can verify the rate engine
   // data for the date, while assuming a very small weight (100) that should be covered in
   // all SM weight entitlements.
+  const fakeLightWeight = 100;
   if (pickup_postal_code && destination_postal_code && original_move_date) {
     try {
-      await GetPpmWeightEstimate(original_move_date, pickup_postal_code, destination_postal_code, 100);
+      await GetPpmWeightEstimate(original_move_date, pickup_postal_code, destination_postal_code, fakeLightWeight);
     } catch (err) {
-      const x = { original_move_date: InvalidMoveParamsErrorMsg };
-      throw x;
+      // eslint-disable-next-line no-throw-literal
+      throw { original_move_date: InvalidMoveParamsErrorMsg };
     }
   }
 }
@@ -87,7 +88,7 @@ const validateDifferentZip = (value, formValues) => {
 };
 
 export class DateAndLocation extends Component {
-  state = { showInfo: false, pickupZipError: '', destinationZipError: '' };
+  state = { showInfo: false };
 
   componentDidMount() {
     if (!this.props.currentPpm && this.props.isHHGPPMComboMove) {
