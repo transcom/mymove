@@ -847,14 +847,17 @@ make_test: ## Test make targets not checked by CircleCI
 adr_update: .client_deps.stamp ## Update ADR Log
 	yarn run adr-log
 
+.PHONY: gofmt
+gofmt:  ## Run go fmt over all Go files
+	go fmt $$(go list ./...) >> /dev/null
+
 .PHONY: pre_commit_tests
 pre_commit_tests: .server_generate.stamp .client_deps.stamp ## Run pre-commit tests
 	pre-commit run --all-files
 
 .PHONY: pretty
-pretty: ## Run code through JS and Golang formatters
+pretty: gofmt ## Run code through JS and Golang formatters
 	npx prettier --write --loglevel warn "src/**/*.{js,jsx}"
-	gofmt pkg/ >> /dev/null
 
 .PHONY: clean
 clean: # Clean all generated files
