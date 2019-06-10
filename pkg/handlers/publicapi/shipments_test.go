@@ -817,8 +817,7 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	// Handler to Test
 	engine := rateengine.NewRateEngine(suite.DB(), suite.TestLogger())
 	planner := route.NewTestingPlanner(1044)
-	shipmentPricer := shipmentservice.NewShipmentPricer(suite.DB(), engine, planner)
-	shipmentDeliverAndPricer := shipmentservice.NewShipmentDeliverAndPricer(suite.DB(), engine, planner, shipmentPricer)
+	shipmentDeliverAndPricer := shipmentservice.NewShipmentDeliverAndPricer(suite.DB(), engine, planner)
 	handler := DeliverShipmentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), shipmentDeliverAndPricer}
 	handler.SetPlanner(route.NewTestingPlanner(1044))
 
