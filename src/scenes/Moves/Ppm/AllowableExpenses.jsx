@@ -41,7 +41,7 @@ function AllowableExpenses(props) {
       <hr />
       <FontAwesomeIcon aria-hidden className="icon" icon={faCheck} />Some commonly claimed moving expenses:
       <ul>
-        <li>Consumable packling materials</li>
+        <li>Consumable packing materials</li>
         <li>Contracted expenses</li>
         <li>Oil</li>
         <li>Rental equipment</li>
@@ -50,8 +50,8 @@ function AllowableExpenses(props) {
         <li>Gas, exceeding travel allowance (see below)</li>
       </ul>
       <div className="dashed-divider" style={{ marginBottom: '1em' }} />
-      <FontAwesomeIcon aria-hidden className="icon" icon={faBan} />Some common expenses that are not claimable or
-      reimbursable:
+      <FontAwesomeIcon aria-hidden className="icon" icon={faBan} />Some common expenses that are <em>not</em> claimable
+      or reimbursable:
       <ul>
         <li>Animal costs (kennels, transportation)</li>
         <li>Extra drivers</li>
