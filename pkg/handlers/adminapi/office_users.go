@@ -11,7 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// TODO: fill this in
 func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 	return &adminmessages.OfficeUser{
 		ID:        *handlers.FmtUUID(o.ID),
@@ -33,9 +32,7 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 	logger := h.LoggerFromRequest(params.HTTPRequest)
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
-	queryFilters := []services.QueryFilter{
-		// h.NewQueryFilter("id", "=", "d874d002-5582-4a91-97d3-786e8f66c763"),
-	}
+	queryFilters := []services.QueryFilter{}
 
 	officeUsers, err := h.OfficeUserListFetcher.FetchOfficeUserList(queryFilters, session)
 	if err != nil {
