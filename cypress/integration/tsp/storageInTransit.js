@@ -548,10 +548,12 @@ function tspUserEditsSitRequestInSit() {
   cy
     .get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
     .contains('Edit')
-    .click()
+    .click();
+  cy
     .get('input[name=actual_start_date]')
     .should('have.value', '3/30/2019')
-    .click()
+    .click();
+  cy
     .get('.DayPickerInput-Overlay .DayPicker-Day')
     .contains('29')
     .click();
@@ -582,10 +584,12 @@ function tspUserEditsReleasedSitRequest() {
   cy
     .get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
     .contains('Edit')
-    .click()
+    .click();
+  cy
     .get('input[name=out_date]')
     .should('have.value', '5/26/2019')
-    .click()
+    .click();
+  cy
     .get('.DayPickerInput-Overlay .DayPicker-Day')
     .contains('29')
     .click();
@@ -613,17 +617,21 @@ function tspUserEditsDeliveredSitRequest() {
   cy
     .get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
     .contains('Edit')
-    .click()
+    .click();
+  cy
     .get('input[name=out_date]')
     .should('have.value', '3/27/2019')
-    .click()
+    .click();
+  cy
     .get('.DayPickerInput-Overlay .DayPicker-Day')
     .contains('22')
-    .click()
-    // cannot change date_out to a date before the previous date out date
+    .click();
+  // cannot change date_out to a date before the previous date out date
+  cy
     .get('input[name=out_date]')
     .should('have.value', '3/27/2019')
-    .click()
+    .click();
+  cy
     .get('.DayPickerInput-Overlay .DayPicker-Day')
     .contains('29')
     .click();
