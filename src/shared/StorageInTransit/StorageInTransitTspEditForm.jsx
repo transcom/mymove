@@ -47,7 +47,7 @@ export class StorageInTransitTspEditForm extends Component {
         <div className="editable-panel-column">
           <PanelSwaggerField fieldName="location" required title="SIT location" {...fieldProps} />
           <PanelSwaggerField fieldName="estimated_start_date" required title="Estimated start date" {...fieldProps} />
-          {inSit || isDelivered ? (
+          {inSit || isReleased || isDelivered ? (
             <SwaggerField
               fieldName="actual_start_date"
               swagger={storageInTransitSchema}
