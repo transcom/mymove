@@ -3,6 +3,8 @@ package shipment
 import (
 	"testing"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
@@ -138,7 +140,7 @@ func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipment() {
 		suite.FatalNoError(err)
 
 		shipment := shipments[0]
-		shipment.PickupAddress = nil // make shipment unprice-able to force error
+		shipment.MoveID = uuid.UUID{} // make shipment unprice-able to force error
 		authorizedStartDate := shipment.ActualPickupDate
 		actualStartDate := authorizedStartDate.Add(testdatagen.OneDay)
 		sit := testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
@@ -173,7 +175,7 @@ func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipment() {
 			route.NewTestingPlanner(1044),
 		).DeliverAndPriceShipment(deliveryDate, &shipment)
 
-		suite.Empty(verrs.Errors)
+		suite.NotEmpty(verrs)
 		suite.Error(err)
 
 		suite.DB().Reload(&shipment)
