@@ -33,8 +33,8 @@ export default class QueueList extends Component {
             </NavLink>
             <ul className="usa-sidenav-sub_list">
               <li>
-                <NavLink to="/queues/hhg_accepted" activeClassName="usa-current">
-                  <span>Accepted</span>
+                <NavLink to="/queues/hhg_approved" activeClassName="usa-current">
+                  <span>Approved</span>
                 </NavLink>
               </li>
               <li>

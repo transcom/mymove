@@ -147,7 +147,7 @@ function officeUserApprovesHHG() {
 
   cy.get('.combo-button').click();
 
-  // Approve basic
+  // Approve basics
   cy
     .get('.combo-button .dropdown')
     .contains('Approve Basics')
