@@ -135,9 +135,9 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// LoginStateCookieName is the name given to the cookie storing the encrypted Login.gov state nonce.
-const LoginStateCookieName = "LGState"
-const LoginStateCookieTTLInSecs = 1800 // 30 mins to transit through login.gov.
+// loginStateCookieName is the name given to the cookie storing the encrypted Login.gov state nonce.
+const loginStateCookieName = "LGState"
+const loginStateCookieTTLInSecs = 1800 // 30 mins to transit through login.gov.
 
 // RedirectHandler handles redirection
 type RedirectHandler struct {
@@ -167,12 +167,18 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Hash the state/Nonce value sent to login.gov and set the result as an HttpOnly cookie
 	// Check this when we return from login.gov
+	if session == nil {
+		h.logger.Error("Session is nil, so cannot get hostname for state Cookie")
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
 	stateCookie := http.Cookie{
-		Name:     LoginStateCookieName,
+		Name:     session.Hostname + loginStateCookieName,
 		Value:    shaAsString(loginData.Nonce),
 		Path:     "/",
-		Expires:  time.Now().Add(time.Duration(LoginStateCookieTTLInSecs) * time.Second),
-		MaxAge:   LoginStateCookieTTLInSecs,
+		Expires:  time.Now().Add(time.Duration(loginStateCookieTTLInSecs) * time.Second),
+		MaxAge:   loginStateCookieTTLInSecs,
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
 		Secure:   h.UseSecureCookie,
@@ -242,7 +248,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Check the state value sent back from login.gov with the value saved in the cookie
 	returnedState := r.URL.Query().Get("state")
-	stateCookie, err := r.Cookie(LoginStateCookieName)
+	stateCookie, err := r.Cookie(session.Hostname + loginStateCookieName)
 	if err != nil {
 		h.logger.Error("Getting login.gov state cookie", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -251,7 +257,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	hash := stateCookie.Value
 	if hash != shaAsString(returnedState) {
-		h.logger.Error("Returned state does not match cookie",
+		h.logger.Error("State returned from Login.gov does not match state value stored in cookie",
 			zap.String("state", returnedState),
 			zap.String("cookie", hash),
 			zap.String("hash", shaAsString(returnedState)))
