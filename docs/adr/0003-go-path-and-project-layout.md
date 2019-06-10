@@ -2,6 +2,10 @@
 
 The server component of mymove is written in Go. Go is very particular about where source code can live to allow for a standard way of fetching and building dependencies. We need to decide how we want to build the server, and how to fit into the go ecosystem to do so.
 
+## Deprecations
+
+**NOTE:** The part of this ADR referencing `$GOPATH` is now deprecated in favor of [ADR0037](./0037-go-path-and-project-layout-revisited.md)
+
 ## Considered Alternatives
 
 * Putting the server source directly into the go path

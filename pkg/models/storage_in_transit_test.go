@@ -142,12 +142,13 @@ func (suite *ModelSuite) TestDestroyStorageInTransit() {
 	createdSIT := testdatagen.MakeStorageInTransit(suite.DB(), assertions)
 
 	// Let's send a zero value as the ID to ensure that fails with a ErrFetchNotFound
-	err := models.DeleteStorageInTransit(suite.DB(), uuid.UUID{})
+	_, err := models.DeleteStorageInTransit(suite.DB(), uuid.UUID{})
 	suite.Equal(models.ErrFetchNotFound, err)
 
 	// Make sure we can delete successfully
-	err = models.DeleteStorageInTransit(suite.DB(), createdSIT.ID)
+	storageInTransit, err := models.DeleteStorageInTransit(suite.DB(), createdSIT.ID)
 	suite.Equal(nil, err)
+	suite.Equal(createdSIT.ID, storageInTransit.ID)
 
 	// We should get ErrFetchNotFound now that the record is deleted
 	_, err = models.FetchStorageInTransitByID(suite.DB(), createdSIT.ID)
