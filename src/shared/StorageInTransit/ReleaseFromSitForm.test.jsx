@@ -22,10 +22,11 @@ const storageInTransitSchema = {
 describe('ReleaseFromSitForm tests', () => {
   describe('Pre-filled form', () => {
     let wrapper;
+    let minDate = new Date('2019-03-08');
     store = mockStore({});
     wrapper = mount(
       <Provider store={store}>
-        <ReleaseFromSitForm onSubmit={submit} storageInTransitSchema={storageInTransitSchema} />
+        <ReleaseFromSitForm minDate={minDate} onSubmit={submit} storageInTransitSchema={storageInTransitSchema} />
       </Provider>,
     );
 
