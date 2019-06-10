@@ -113,16 +113,37 @@ describe('check invalid ppm inputs', () => {
       .get('input[name="original_move_date"]')
       .first()
       .type('6/3/2100{enter}');
+    // test an invalid pickup zip code
+    cy
+      .get('input[name="pickup_postal_code"]')
+      .clear()
+      .type('00000')
+      .blur();
+    cy.get('#pickup_postal_code-error').should('exist');
+
     cy
       .get('input[name="pickup_postal_code"]')
       .clear()
       .type('80913');
-    cy.get('input[name="destination_postal_code"]').type('76127');
+
+    // test an invalid destination zip code
+    cy
+      .get('input[name="destination_postal_code"]')
+      .clear()
+      .type('00000')
+      .blur();
+    cy.get('#destination_postal_code-error').should('exist');
+
+    cy
+      .get('input[name="destination_postal_code"]')
+      .clear()
+      .type('30813');
     cy.nextPage();
 
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
     });
+
     cy.get('#original_move_date-error').should('exist');
   });
 
