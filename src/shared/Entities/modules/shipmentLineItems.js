@@ -10,6 +10,7 @@ export const createShipmentLineItemLabel = 'ShipmentLineItems.createShipmentLine
 export const deleteShipmentLineItemLabel = 'ShipmentLineItems.deleteShipmentLineItem';
 export const approveShipmentLineItemLabel = 'ShipmentLineItems.approveShipmentLineItem';
 export const updateShipmentLineItemLabel = 'ShipmentLineItems.updateShipmentLineItem';
+export const recalculateShipmentLineItemsLabel = 'ShipmentLineItems.recalculateShipmentLineItems';
 
 export function createShipmentLineItem(shipmentId, payload, label = createShipmentLineItemLabel) {
   return swaggerRequest(getPublicClient, 'accessorials.createShipmentLineItem', { shipmentId, payload }, { label });
@@ -34,6 +35,10 @@ export function approveShipmentLineItem(shipmentLineItemId, label = approveShipm
 
 export function getAllShipmentLineItems(shipmentId, label = getShipmentLineItemsLabel) {
   return swaggerRequest(getPublicClient, 'accessorials.getShipmentLineItems', { shipmentId }, { label });
+}
+
+export function recalculateShipmentLineItems(shipmentId, label = recalculateShipmentLineItemsLabel) {
+  return swaggerRequest(getPublicClient, 'accessorials.recalculateShipmentLineItems', { shipmentId }, { label });
 }
 
 // Show linehaul (and related) items before any accessorial items by adding isLinehaul property.
