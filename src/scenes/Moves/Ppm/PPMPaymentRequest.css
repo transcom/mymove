@@ -108,7 +108,7 @@
   display: block;
 }
 
-.car-trailer-img {
+.car-img {
   height: 15px;
 }
 
@@ -120,4 +120,14 @@
 /* Note: .usa-grid-one-half almost the same except it floats left */
 .one-half {
   width: 50%;
+}
+
+@media only screen and (max-width: 481px) {
+  .one-half {
+    width: 100%;
+  }
+}
+
+.input-group .usa-input-error {
+  margin-top: 0px;
 }
