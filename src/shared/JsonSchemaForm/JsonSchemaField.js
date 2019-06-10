@@ -126,12 +126,11 @@ const configureDateField = (swaggerField, props) => {
   return props;
 };
 
-const configureRestrictedDateField = (swaggerField, props, minDate, maxDate) => {
+const configureRestrictedDateField = (swaggerField, props, minDate) => {
   props.type = 'date';
   props.customComponent = SingleDatePicker;
   props.normalize = normalizer.normalizeDates;
   props.validate.push(validator.minDateValidation(minDate, `Date must be no earlier than ${minDate}`));
-  props.validate.push(validator.maxDateValidation(maxDate, `Date must be no later than ${maxDate}`));
   return props;
 };
 
@@ -236,7 +235,6 @@ export const SwaggerField = props => {
     onChange,
     validate,
     minDate,
-    maxDate,
     disabledDays,
     zipPattern,
     filteredEnumListOverride,
@@ -270,7 +268,6 @@ export const SwaggerField = props => {
     onChange,
     validate,
     minDate,
-    maxDate,
     disabledDays,
     zipPattern,
     filteredEnumListOverride,
@@ -291,7 +288,6 @@ const createSchemaField = (
   onChange,
   validate,
   minDate,
-  maxDate,
   disabledDays,
   zipPattern,
   filteredEnumListOverride,
@@ -361,9 +357,9 @@ const createSchemaField = (
     }
   } else if (swaggerField.type === 'string') {
     const fieldFormat = swaggerField.format;
-    if (fieldFormat === 'date' && (!isNil(minDate) || !isNil(maxDate))) {
+    if (fieldFormat === 'date' && !isNil(minDate)) {
       inputProps.disabledDays = disabledDays ? disabledDays : undefined;
-      fieldProps = configureRestrictedDateField(swaggerField, fieldProps, minDate, maxDate);
+      fieldProps = configureRestrictedDateField(swaggerField, fieldProps, minDate);
     } else if (fieldFormat === 'date') {
       fieldProps = configureDateField(swaggerField, fieldProps);
     } else if (fieldFormat === 'telephone') {
