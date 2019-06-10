@@ -337,31 +337,24 @@ func (s *Shipment) Deliver(actualDeliveryDate time.Time) (err error) {
 	s.Status = ShipmentStatusDELIVERED
 	s.ActualDeliveryDate = &actualDeliveryDate
 
+	var sits []StorageInTransit
 	// deliver SITs
-	_, err = deliverStorageInTransits(s.StorageInTransits, actualDeliveryDate)
-	if err != nil {
-		return err
-	}
-	return err
-}
-
-// deliverStorageInTransits delivers multiple SITS
-func deliverStorageInTransits(storageInTransits []StorageInTransit, deliveryDate time.Time) (sitsToReturn []StorageInTransit, err error) {
-	for _, sit := range storageInTransits {
+	for _, sit := range s.StorageInTransits {
 		// only deliver DESTINATION Sits that are IN_SIT
 		if sit.Status == StorageInTransitStatusINSIT &&
 			sit.Location == StorageInTransitLocationDESTINATION {
-			err = sit.Deliver(deliveryDate)
+			err = sit.Deliver(actualDeliveryDate)
 			if err != nil {
-				return nil, err
+				return err
 			}
-			sitsToReturn = append(sitsToReturn, sit)
+			sits = append(sits, sit)
 		} else {
-			sitsToReturn = append(sitsToReturn, sit)
+			sits = append(sits, sit)
 		}
 	}
+	s.StorageInTransits = sits
 
-	return sitsToReturn, err
+	return err
 }
 
 // BeforeSave will run before each create/update of a Shipment.

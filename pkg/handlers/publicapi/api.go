@@ -46,13 +46,11 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.ShipmentsTransportShipmentHandler = TransportShipmentHandler{context}
 
 	engine := rateengine.NewRateEngine(context.DB(), context.Logger())
-	shipmentPricer := shipmentservice.NewShipmentPricer(context.DB(), engine, context.Planner())
 	publicAPI.ShipmentsDeliverShipmentHandler = DeliverShipmentHandler{
 		context, shipmentservice.NewShipmentDeliverAndPricer(
 			context.DB(),
 			engine,
 			context.Planner(),
-			shipmentPricer,
 		)}
 
 	publicAPI.ShipmentsGetShipmentInvoicesHandler = GetShipmentInvoicesHandler{context}

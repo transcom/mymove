@@ -52,12 +52,10 @@ func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipment() {
 
 		deliveryDate := testdatagen.DateInsidePerformancePeriod
 		engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
-		priceShipment := NewShipmentPricer(suite.DB(), engine, route.NewTestingPlanner(1044))
 		verrs, err := NewShipmentDeliverAndPricer(
 			suite.DB(),
 			engine,
 			route.NewTestingPlanner(1044),
-			priceShipment,
 		).DeliverAndPriceShipment(deliveryDate, &shipment)
 
 		suite.FatalNoError(err)
@@ -109,12 +107,10 @@ func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipment() {
 		planner := route.NewTestingPlanner(1044)
 
 		engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
-		priceShipment := NewShipmentPricer(suite.DB(), engine, planner)
 		verrs, err := NewShipmentDeliverAndPricer(
 			suite.DB(),
 			engine,
 			planner,
-			priceShipment,
 		).DeliverAndPriceShipment(deliveryDate, &shipment)
 
 		suite.Empty(verrs.Errors)
@@ -143,7 +139,6 @@ func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipment() {
 
 		shipment := shipments[0]
 		shipment.PickupAddress = nil // make shipment unprice-able to force error
-
 		authorizedStartDate := shipment.ActualPickupDate
 		actualStartDate := authorizedStartDate.Add(testdatagen.OneDay)
 		sit := testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
@@ -171,13 +166,11 @@ func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipment() {
 
 		deliveryDate := testdatagen.DateInsidePerformancePeriod
 		engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
-		shipmentPricer := NewShipmentPricer(suite.DB(), engine, route.NewTestingPlanner(0))
 
 		verrs, err := NewShipmentDeliverAndPricer(
 			suite.DB(),
 			engine,
 			route.NewTestingPlanner(1044),
-			shipmentPricer,
 		).DeliverAndPriceShipment(deliveryDate, &shipment)
 
 		suite.Empty(verrs.Errors)

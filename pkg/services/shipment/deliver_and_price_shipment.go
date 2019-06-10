@@ -15,10 +15,9 @@ import (
 
 // DeliverAndPriceShipment is a service object to deliver and price a Shipment
 type shipmentDeliverAndPricer struct {
-	db             *pop.Connection
-	engine         *rateengine.RateEngine
-	planner        route.Planner
-	shipmentPricer services.ShipmentPricer
+	db      *pop.Connection
+	engine  *rateengine.RateEngine
+	planner route.Planner
 }
 
 // Call delivers a Shipment (and its SITs) and prices associated line items
@@ -36,7 +35,7 @@ func (c *shipmentDeliverAndPricer) DeliverAndPriceShipment(deliveryDate time.Tim
 		}
 		// force validation errors to fail the transaction...
 		if verrs.HasAny() {
-			return errors.New("error saving shipment line items")
+			return errors.New("error saving shipment")
 		}
 
 		verrs, transactionError = db.ValidateAndSave(shipment.StorageInTransits)
@@ -44,12 +43,15 @@ func (c *shipmentDeliverAndPricer) DeliverAndPriceShipment(deliveryDate time.Tim
 			return transactionError
 		}
 		if verrs.HasAny() {
-			return errors.New("error saving shipment line items")
+			return errors.New("error saving storage in transits")
 		}
-
-		verrs, transactionError = c.shipmentPricer.PriceShipment(shipment, ShipmentPriceNEW)
+		shipmentPricer := NewShipmentPricer(db, c.engine, c.planner)
+		verrs, transactionError = shipmentPricer.PriceShipment(shipment, ShipmentPriceNEW)
 		if transactionError != nil {
 			return transactionError
+		}
+		if verrs.HasAny() {
+			return errors.New("error saving shipment line items")
 		}
 
 		return nil
@@ -62,11 +64,10 @@ func NewShipmentDeliverAndPricer(
 	db *pop.Connection,
 	engine *rateengine.RateEngine,
 	planner route.Planner,
-	shipmentPricer services.ShipmentPricer,
 ) services.ShipmentDeliverAndPricer {
 	return &shipmentDeliverAndPricer{
-		db:             db,
-		engine:         engine,
-		planner:        planner,
-		shipmentPricer: shipmentPricer}
+		db:      db,
+		engine:  engine,
+		planner: planner,
+	}
 }
