@@ -14,12 +14,11 @@ export const createWeightTicketSetDocumentLabel = 'weightTicketDocumentSet.creat
 //     weight_ticket_date,
 //     trailer_ownership_missing
 // },
-// "operation MoveDocsCreateWeightTicketDocument has not yet been implemented"
-// operation move_docs.createWeightTicketDocument failed: Error: Not Implemented (501)
 export function createWeightTicketSetDocument(moveId, payload, label = createWeightTicketSetDocumentLabel) {
+  const swaggerTag = 'move_docs.createWeightTicketDocument';
   return swaggerRequest(
     getClient,
-    'move_docs.createWeightTicketDocument',
+    swaggerTag,
     {
       moveId,
       createWeightTicketDocument: { ...payload },
