@@ -27,6 +27,8 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
     user = None
     duty_stations = []
     new_duty_stations = []
+    move = None
+    ppm = None
 
     def update_user(self):
         self.user = swagger_request(self.swagger_internal.users.showLoggedInUser)
@@ -292,13 +294,76 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
             original_move_date=self.original_move_date,
             pickup_postal_code="80013",
         )
-        swagger_request(
+        self.ppm = swagger_request(
             self.swagger_internal.ppm.createPersonallyProcuredMove,
             moveId=self.get_move_id(),
             createPersonallyProcuredMovePayload=payload,
         )
 
     @seq_task(19)
+    def select_ppm_weight(self):
+        # Choose the TShirt size but don't update weight just yet
+        model = self.swagger_internal.get_model("PatchPersonallyProcuredMovePayload")
+        tshirt_size = random.choice(["S", "M", "L"])
+        payload = model(size=tshirt_size, weight_estimate=0)
+        self.ppm = swagger_request(
+            self.swagger_internal.ppm.patchPersonallyProcuredMove,
+            moveId=self.get_move_id(),
+            personallyProcuredMoveId=self.ppm["id"],
+            patchPersonallyProcuredMovePayload=payload,
+        )
+
+        # Weights are decided by TShirt size
+        size_weight = {
+            "S": {"min": 50, "max": 1000},
+            "M": {"min": 500, "max": 2500},
+            "L": {"min": 1500, "max": 11500},
+        }
+
+        weight_min = size_weight[tshirt_size]["min"]
+        weight_max = size_weight[tshirt_size]["max"]
+
+        # Make initial estimate call
+        swagger_request(
+            self.swagger_internal.ppm.showPPMEstimate,
+            original_move_date=self.original_move_date,
+            origin_zip="80013",
+            destination_zip="94535",
+            weight_estimate=int((weight_max - weight_min) / 2 + weight_min),
+        )
+        # Now modify the estimate within a random range
+        weight_step = 5
+        weight_estimate = random.randrange(weight_min, weight_max, weight_step)
+        swagger_request(
+            self.swagger_internal.ppm.showPPMEstimate,
+            original_move_date=self.original_move_date,
+            origin_zip="80013",
+            destination_zip="94535",
+            weight_estimate=weight_estimate,
+        )
+        payload = model(has_requested_advance=False, weight_estimate=weight_estimate)
+        print("two", self.ppm["id"])
+        self.ppm = swagger_request(
+            self.swagger_internal.ppm.patchPersonallyProcuredMove,
+            moveId=self.get_move_id(),
+            personallyProcuredMoveId=self.ppm["id"],
+            patchPersonallyProcuredMovePayload=payload,
+        )
+
+    @seq_task(20)
+    def update_move(self):
+        self.move = swagger_request(
+            self.swagger_internal.moves.showMove, moveId=self.get_move_id()
+        )
+
+    @seq_task(21)
+    def get_entitlements(self):
+        self.move = swagger_request(
+            self.swagger_internal.entitlements.validateEntitlement,
+            moveId=self.get_move_id(),
+        )
+
+    @seq_task(22)
     def logout(self):
         self.client.post("/auth/logout")
         self.login_gov_user = None
