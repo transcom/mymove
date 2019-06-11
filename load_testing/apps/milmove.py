@@ -44,6 +44,9 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
             )
         return duty_stations
 
+    def get_move_id(self):
+        return self.user["service_member"]["orders"][0]["moves"][0]["id"]
+
     @seq_task(1)
     def login(self):
         resp = self.client.post("/devlocal-auth/create", data={"userType": "milmove"})
@@ -229,8 +232,8 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         model = self.swagger_internal.get_model("CreateUpdateOrders")
         payload = model(
             service_member_id=self.user["service_member"]["id"],
-            issue_date=issue_date,
-            report_by_date=report_by_date,
+            issue_date=issue_date.date(),
+            report_by_date=report_by_date.date(),
             orders_type="PERMANENT_CHANGE_OF_STATION",
             has_dependents=has_dependents,
             spouse_has_pro_gear=spouse_has_pro_gear,
@@ -264,18 +267,17 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
     def select_ppm_move(self):
         model = self.swagger_internal.get_model("PatchMovePayload")
         payload = model(selected_move_type="PPM")
-        # TODO: How do we get the moveId?
         swagger_request(
             self.swagger_internal.moves.patchMove,
-            moveId=self.user["service_member"]["orders"][0]["moves"][0]["id"],
+            moveId=self.get_move_id(),
             patchMovePayload=payload,
         )
 
     @seq_task(17)
     def ppm_dates_and_locations(self):
-        self.original_move_date = datetime.datetime.now() + datetime.timedelta(
-            days=random.randint(30, 60)
-        )
+        self.original_move_date = (
+            datetime.datetime.now() + datetime.timedelta(days=random.randint(30, 60))
+        ).date()
         swagger_request(
             self.swagger_internal.ppm.showPPMEstimate,
             original_move_date=self.original_move_date,
@@ -297,7 +299,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         )
         swagger_request(
             self.swagger_internal.ppm.createPersonallyProcuredMove,
-            moveId=self.user["service_member"]["orders"][0]["moves"][0]["id"],
+            moveId=self.get_move_id(),
             createPersonallyProcuredMovePayload=payload,
         )
 
