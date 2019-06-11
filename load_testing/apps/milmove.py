@@ -222,9 +222,9 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
 
         # Determine a few things randomly
         issue_date = datetime.datetime.now() + datetime.timedelta(
-            days=random.randint(0, 30)
+            days=random.randint(0, 15)
         )
-        report_by_date = issue_date + datetime.timedelta(days=random.randint(60, 90))
+        report_by_date = issue_date + datetime.timedelta(days=random.randint(30, 60))
         spouse_has_pro_gear = False
         has_dependents = bool(random.getrandbits(1))
         if has_dependents:
@@ -273,7 +273,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
     @seq_task(17)
     def ppm_dates_and_locations(self):
         self.original_move_date = (
-            datetime.datetime.now() + datetime.timedelta(days=random.randint(30, 60))
+            datetime.datetime.now() + datetime.timedelta(days=random.randint(15, 30))
         ).date()
         swagger_request(
             self.swagger_internal.ppm.showPPMEstimate,
@@ -306,12 +306,18 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         model = self.swagger_internal.get_model("PatchPersonallyProcuredMovePayload")
         tshirt_size = random.choice(["S", "M", "L"])
         payload = model(size=tshirt_size, weight_estimate=0)
-        self.ppm = swagger_request(
+
+        # Sometimes the patch doesn't succeed because discount data is missing
+        ppm_id = self.ppm["id"]
+        new_ppm = swagger_request(
             self.swagger_internal.ppm.patchPersonallyProcuredMove,
             moveId=self.get_move_id(),
-            personallyProcuredMoveId=self.ppm["id"],
+            personallyProcuredMoveId=ppm_id,
             patchPersonallyProcuredMovePayload=payload,
         )
+        # This could mean that the PPM discount doesn't exist for the provided move dates
+        if new_ppm is not None:
+            self.ppm = new_ppm
 
         # Weights are decided by TShirt size
         size_weight = {
@@ -342,13 +348,14 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
             weight_estimate=weight_estimate,
         )
         payload = model(has_requested_advance=False, weight_estimate=weight_estimate)
-        print("two", self.ppm["id"])
-        self.ppm = swagger_request(
+        new_ppm_2 = swagger_request(
             self.swagger_internal.ppm.patchPersonallyProcuredMove,
             moveId=self.get_move_id(),
-            personallyProcuredMoveId=self.ppm["id"],
+            personallyProcuredMoveId=ppm_id,
             patchPersonallyProcuredMovePayload=payload,
         )
+        if new_ppm_2 is not None:
+            self.ppm = new_ppm_2
 
     @seq_task(20)
     def update_move(self):
