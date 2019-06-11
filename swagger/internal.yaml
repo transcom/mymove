@@ -796,6 +796,10 @@ definitions:
         example: '2018-04-26'
         format: date
         x-nullable: true
+      trailer_ownership_missing:
+        title: missing trailer ownership documentation
+        type: boolean
+        x-nullable: true
     required:
       - id
       - move_id
@@ -972,6 +976,9 @@ definitions:
         type: string
         example: '2018-04-26'
         format: date
+      trailer_ownership_missing:
+        title: missing trailer ownership documentation
+        type: boolean
     required:
       - personally_procured_move_id
       - vehicle_options
@@ -981,6 +988,7 @@ definitions:
       - empty_weight
       - empty_weight_ticket_missing
       - weight_ticket_date
+      - trailer_ownership_missing
   ServiceMemberPayload:
     type: object
     properties:

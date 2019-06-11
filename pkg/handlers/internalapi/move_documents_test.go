@@ -149,10 +149,11 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandler() {
 		EmptyWeight:              unit.Pound(1000),
 		EmptyWeightTicketMissing: true,
 		FullWeight:               unit.Pound(2500),
-		FullWeightTicketMissing:  false,
+		FullWeightTicketMissing:  true,
 		VehicleNickname:          "My Car",
 		VehicleOptions:           "CAR",
 		WeightTicketDate:         testdatagen.NextValidMoveDate,
+		TrailerOwnershipMissing:  true,
 	}
 	verrs, err := suite.DB().ValidateAndCreate(&weightTicketSetDocument)
 	suite.Nil(err)
@@ -184,6 +185,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandler() {
 		suite.Require().Equal(*moveDoc.FullWeight, int64(weightTicketSetDocument.FullWeight), "expected empty weight to match")
 		suite.Require().Equal(*moveDoc.FullWeightTicketMissing, weightTicketSetDocument.FullWeightTicketMissing, "expected full weight ticket missing to match")
 		suite.Require().Equal(moveDoc.WeightTicketDate.String(), strfmt.Date(weightTicketSetDocument.WeightTicketDate).String(), "expected weight ticket date to match")
+		suite.Require().Equal(*moveDoc.TrailerOwnershipMissing, weightTicketSetDocument.TrailerOwnershipMissing, "expected trailer ownership missing to match")
 		suite.Require().Equal(moveDoc.VehicleOptions, weightTicketSetDocument.VehicleOptions, "expected vehicle options to match")
 		suite.Require().Equal(moveDoc.VehicleNickname, weightTicketSetDocument.VehicleNickname, "expected vehicle nickname to match")
 	}

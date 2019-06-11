@@ -96,6 +96,7 @@ func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeig
 		VehicleNickname:          *payload.VehicleNickname,
 		VehicleOptions:           *payload.VehicleOptions,
 		WeightTicketDate:         (time.Time)(*payload.WeightTicketDate),
+		TrailerOwnershipMissing:  *payload.TrailerOwnershipMissing,
 	}
 	newWeightTicketSetDocument, verrs, err := move.CreateWeightTicketSetDocument(
 		h.DB(),
