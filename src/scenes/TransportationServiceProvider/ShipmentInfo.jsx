@@ -39,6 +39,7 @@ import {
   completePmSurvey,
   transportShipment,
   deliverShipment,
+  selectShipmentStatus,
 } from 'shared/Entities/modules/shipments';
 import {
   getServiceAgentsForShipment,
@@ -180,8 +181,6 @@ class ShipmentInfo extends Component {
 
   componentDidMount() {
     const shipmentId = this.props.shipmentId;
-    const shipmentStatus = this.props.shipment.status;
-
     this.props
       .getPublicShipment(shipmentId)
       .then(() => {
@@ -189,7 +188,7 @@ class ShipmentInfo extends Component {
         this.props.getTspForShipment(shipmentId);
         this.props.getAllShipmentDocuments(shipmentId);
         this.props.getAllTariff400ngItems(true);
-        this.props.fetchAndCalculateShipmentLineItems(shipmentId, shipmentStatus);
+        this.props.fetchAndCalculateShipmentLineItems(shipmentId, this.props.shipmentStatus);
         this.props.getAllInvoices(shipmentId);
         if (this.props.context.flags.sitPanel) {
           this.props.getStorageInTransitsForShipment(shipmentId);
@@ -489,6 +488,7 @@ const mapStateToProps = (state, props) => {
   return {
     swaggerError: state.swaggerPublic.hasErrored,
     shipment,
+    shipmentStatus: selectShipmentStatus(state, shipmentId),
     shipmentDocuments,
     gblGenerated,
     tariff400ngItems: selectTariff400ngItems(state),
