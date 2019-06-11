@@ -39,7 +39,6 @@ import { getRequestStatus } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
 import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
 import {
-  getAllShipmentLineItems,
   selectSortedShipmentLineItems,
   fetchAndCalculateShipmentLineItems,
 } from 'shared/Entities/modules/shipmentLineItems';
@@ -608,7 +607,6 @@ const mapDispatchToProps = dispatch =>
       approveShipment,
       cancelMove,
       getAllTariff400ngItems,
-      getAllShipmentLineItems,
       fetchAndCalculateShipmentLineItems,
       getAllInvoices,
       getTspForShipment,

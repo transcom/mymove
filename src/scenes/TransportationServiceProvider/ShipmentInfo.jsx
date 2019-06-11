@@ -22,7 +22,6 @@ import {
 } from 'shared/Entities/modules/shipmentDocuments';
 import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
 import {
-  getAllShipmentLineItems,
   selectSortedShipmentLineItems,
   fetchAndCalculateShipmentLineItems,
 } from 'shared/Entities/modules/shipmentLineItems';
@@ -525,7 +524,6 @@ const mapDispatchToProps = dispatch =>
       deliverShipment,
       getAllShipmentDocuments,
       getAllTariff400ngItems,
-      getAllShipmentLineItems,
       fetchAndCalculateShipmentLineItems,
       getAllInvoices,
       getTspForShipment,
