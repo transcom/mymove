@@ -451,6 +451,7 @@ func (m Move) CreateWeightTicketSetDocument(
 			VehicleNickname:          weightTicketSetdocument.VehicleNickname,
 			VehicleOptions:           weightTicketSetdocument.VehicleOptions,
 			WeightTicketDate:         weightTicketSetdocument.WeightTicketDate,
+			TrailerOwnershipMissing:  weightTicketSetdocument.TrailerOwnershipMissing,
 		}
 		verrs, err := db.ValidateAndCreate(newWeightTicketSetDocument)
 		if err != nil || verrs.HasAny() {

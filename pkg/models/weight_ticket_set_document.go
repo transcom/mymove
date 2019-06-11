@@ -23,6 +23,7 @@ type WeightTicketSetDocument struct {
 	VehicleNickname          string       `json:"vehicle_nickname,omitempty" db:"vehicle_nickname"`
 	VehicleOptions           string       `json:"vehicle_options,omitempty" db:"vehicle_options"`
 	WeightTicketDate         time.Time    `json:"weight_ticket_date,omitempty" db:"weight_ticket_date"`
+	TrailerOwnershipMissing  bool         `json:"trailer_ownership_missing,omitempty" db:"trailer_ownership_missing"`
 	CreatedAt                time.Time    `json:"created_at" db:"created_at"`
 	UpdatedAt                time.Time    `json:"updated_at" db:"updated_at"`
 }

@@ -192,7 +192,7 @@ describe('allows a SM to request a payment', function() {
     cy.removeFetch();
     cy.server();
     cy.route('POST', '**/internal/uploads').as('postUploadDocument');
-    cy.route('POST', '**/moves/**/move_documents').as('postMoveDocument');
+    cy.route('POST', '**/moves/**/weight_ticket').as('postWeightTicket');
     cy.signInAsUserPostRequest(milmoveAppName, '8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
   });
 
@@ -394,7 +394,7 @@ function serviceMemberSavesWeightTicketForLater(vehicleType) {
     .get('button')
     .contains('Save For Later')
     .click();
-  cy.wait('@postMoveDocument');
+  cy.wait('@postWeightTicket');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/$/);
   });
@@ -445,7 +445,7 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true) {
       .contains('Save & Continue')
       .click();
   }
-  cy.wait('@postMoveDocument');
+  cy.wait('@postWeightTicket');
 }
 
 function serviceMemberCanCancel() {
