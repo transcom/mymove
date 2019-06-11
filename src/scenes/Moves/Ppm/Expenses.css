@@ -2,6 +2,27 @@
   padding-top: 2em;
 }
 
+.expenses-header {
+  margin-bottom: 0;
+}
+
+.expenses-container > p {
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+.expenses-container .dashed-divider {
+  margin-top: 0;
+}
+
+.expenses-container .expenses-uploader {
+  padding-top: 2em;
+}
+
+.short-input {
+  max-width: 200px;
+}
+
 .expenses-container a:visited {
   color: #0071bc;
 }
@@ -13,4 +34,10 @@
 .has-expenses-radio-group {
   margin-top: 1em;
   margin-bottom: 3.5em;
+}
+
+.payment-method-radio-group-wrapper {
+  margin-bottom: 0;
+  line-height: 1.8em;
+  margin-top: 1.8em;
 }

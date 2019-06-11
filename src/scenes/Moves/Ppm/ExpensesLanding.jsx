@@ -76,7 +76,8 @@ class ExpensesLanding extends Component {
           </div>
           <PPMPaymentRequestActionBtns
             cancelHandler={() => {}}
-            displaySaveForLater
+            //TODO remove once have review page in place
+            displaySaveForLater={hasExpenses === 'No'}
             nextBtnLabel="Continue"
             saveAndAddHandler={this.saveAndAddHandler}
             saveForLaterHandler={() => history.push('/')}

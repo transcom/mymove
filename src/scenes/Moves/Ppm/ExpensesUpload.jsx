@@ -119,8 +119,14 @@ class ExpensesUpload extends Component {
             {hasMovingExpenseType && (
               <>
                 <SwaggerField title="Document title" fieldName="title" swagger={moveDocSchema} required />
-                <SwaggerField title="Amount" fieldName="requested_amount_cents" swagger={moveDocSchema} required />
-                <div className="usa-width-two-thirds uploader-wrapper">
+                <SwaggerField
+                  className="short-input"
+                  title="Amount"
+                  fieldName="requested_amount_cents"
+                  swagger={moveDocSchema}
+                  required
+                />
+                <div className="expenses-uploader">
                   <Uploader
                     isPublic={isPublic}
                     onRef={ref => (this.uploader = ref)}
@@ -135,7 +141,7 @@ class ExpensesUpload extends Component {
                   onChange={this.handleCheckboxChange}
                   normalizeLabel
                 />
-                <div className="radio-group-wrapper" style={{ marginBottom: '0px' }}>
+                <div className="payment-method-radio-group-wrapper">
                   <p className="radio-group-header">How did you pay for this?</p>
                   <RadioButton
                     inputClassName="inline_radio"
@@ -162,7 +168,7 @@ class ExpensesUpload extends Component {
                     onClick={this.handleHowDidYouPayForThis}
                   />
                 </div>
-                <div className="dashed-divider" style={{ marginTop: '0px' }} />
+                <div className="dashed-divider" />
                 <div className="radio-group-wrapper">
                   <p className="radio-group-header">Do you have more expenses to upload?</p>
                   <RadioButton

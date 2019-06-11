@@ -906,13 +906,13 @@ definitions:
     title: Moving Expense Type
     enum:
       - CONTRACTED_EXPENSE
-      - RENTAL_EQUIPMENT
-      - PACKING_MATERIALS
-      - WEIGHING_FEES
       - GAS
-      - TOLLS
       - OIL
       - OTHER
+      - PACKING_MATERIALS
+      - RENTAL_EQUIPMENT
+      - TOLLS
+      - WEIGHING_FEES
     x-display-value:
       CONTRACTED_EXPENSE: Contracted Expense
       RENTAL_EQUIPMENT: Rental Equipment
