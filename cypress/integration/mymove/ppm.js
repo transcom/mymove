@@ -193,6 +193,7 @@ describe('allows a SM to request a payment', function() {
     cy.server();
     cy.route('POST', '**/internal/uploads').as('postUploadDocument');
     cy.route('POST', '**/moves/**/weight_ticket').as('postWeightTicket');
+    cy.route('POST', '**/moves/**/moving_expense_documents').as('postMovingExpense');
     cy.signInAsUserPostRequest(milmoveAppName, '8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
   });
 
@@ -204,6 +205,7 @@ describe('allows a SM to request a payment', function() {
   it('service member requests car weight ticket payment and views expenses landing page', () => {
     serviceMemberSubmitsWeightTicket('CAR', false);
     serviceMemberViewsExpensesLandingPage();
+    serviceMemberViewsExpensesUploadPage();
   });
 
   it('service member requests a box truck weight ticket payment', () => {
@@ -298,7 +300,31 @@ function serviceMemberViewsExpensesLandingPage() {
   cy
     .get('button')
     .contains('Continue')
-    .should('be.enabled');
+    .should('be.enabled')
+    .click();
+}
+
+function serviceMemberViewsExpensesUploadPage() {
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-expenses/);
+  });
+
+  cy.contains('Expense 1');
+
+  cy.get('select[name="moving_expense_type"]').select('GAS');
+  cy.get('input[name="title"]').type('title');
+  cy.get('input[name="requested_amount_cents"]').type('1000');
+
+  cy.upload_file('.filepond--root:first', 'top-secret.png');
+  cy.wait('@postUploadDocument');
+  cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
+
+  cy.get('input[name="missingReceipt"]').should('not.be.checked');
+  cy.get('input[name="payment_method"][value="GTCC"]').should('not.be.checked');
+  cy.get('input[name="payment_method"][value="OTHER"]').should('be.checked');
+
+  cy.get('input[name="has_more_expenses"][value="Yes"]').should('not.be.checked');
+  cy.get('input[name="has_more_expenses"][value="No"]').should('be.checked');
 }
 
 function serviceMemberSubmitsCarTrailerWeightTicket() {
