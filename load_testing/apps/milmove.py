@@ -3,7 +3,6 @@ import datetime
 import os
 import random
 from urllib.parse import urljoin
-import uuid
 
 from locust import seq_task
 from bravado.client import SwaggerClient
@@ -244,11 +243,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
     @seq_task(14)
     def upload_orders(self):
         with open(os.path.join(self.fixtures_path, "test.pdf"), "rb") as f:
-            swagger_request(
-                self.swagger_internal.uploads.createUpload,
-                documentId=str(uuid.uuid4()),
-                file=f,
-            )
+            swagger_request(self.swagger_internal.uploads.createUpload, file=f)
 
     #
     # At this point orders have been uploaded so let's refresh our knowledge
