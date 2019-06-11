@@ -20,8 +20,6 @@ class MilMoveUser(HttpLocust):
     # host = "https://my.experimental.move.mil"
     weight = 1
     task_set = MilMoveUserBehavior
-    min_wait = 1000
-    max_wait = 5000
 
 
 class OfficeUser(HttpLocust):
@@ -29,8 +27,6 @@ class OfficeUser(HttpLocust):
     # host = "https://office.experimental.move.mil"
     weight = 1
     task_set = OfficeUserBehavior
-    min_wait = 1000
-    max_wait = 5000
 
 
 class TSPUser(HttpLocust):
@@ -38,5 +34,3 @@ class TSPUser(HttpLocust):
     # host = "https://tsp.experimental.move.mil"
     weight = 1
     task_set = TSPUserBehavior
-    min_wait = 1000
-    max_wait = 5000
