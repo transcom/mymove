@@ -313,6 +313,11 @@ function serviceMemberSubmitsCarTrailerWeightTicket() {
   cy.get('input[name="vehicle_nickname"]').type('Nickname');
 
   cy
+    .contains('Is this a different trailer you own')
+    .children('a')
+    .should('have.attr', 'href', '/trailer-criteria');
+
+  cy
     .get('[type="radio"]')
     .first()
     .check({ force: true });
