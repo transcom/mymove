@@ -24,7 +24,7 @@ func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Valid() {
 	request := httptest.NewRequest("GET", fmt.Sprintf("/postal_codes/%s", postalCode), strings.NewReader("postal_code_type=origin"))
 	request = suite.AuthenticateUserRequest(request, user)
 
-	params := postalcodesops.ValidatePostalCodeParams{
+	params := postalcodesops.ValidatePostalCodeWithRateDataParams{
 		HTTPRequest:    request,
 		PostalCode:     postalCode,
 		PostalCodeType: postalCodeTypeString,
@@ -41,13 +41,13 @@ func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Valid() {
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
-	validatePostalCodeResponse := response.(*postalcodesops.ValidatePostalCodeOK)
+	validatePostalCodeResponse := response.(*postalcodesops.ValidatePostalCodeWithRateDataOK)
 	validatePostalCodePayload := validatePostalCodeResponse.Payload
 
 	suite.NotNil(validatePostalCodePayload.PostalCode)
 	suite.NotNil(validatePostalCodePayload.PostalCodeType)
 	suite.True(*validatePostalCodePayload.Valid)
-	suite.Assertions.IsType(&postalcodesops.ValidatePostalCodeOK{}, response)
+	suite.Assertions.IsType(&postalcodesops.ValidatePostalCodeWithRateDataOK{}, response)
 }
 
 func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Invalid() {
@@ -62,7 +62,7 @@ func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Invalid() {
 	request := httptest.NewRequest("GET", fmt.Sprintf("/postal_codes/%s", postalCode), strings.NewReader("postal_code_type=origin"))
 	request = suite.AuthenticateUserRequest(request, user)
 
-	params := postalcodesops.ValidatePostalCodeParams{
+	params := postalcodesops.ValidatePostalCodeWithRateDataParams{
 		HTTPRequest:    request,
 		PostalCode:     postalCode,
 		PostalCodeType: postalCodeTypeString,
@@ -79,11 +79,11 @@ func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Invalid() {
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
-	validatePostalCodeResponse := response.(*postalcodesops.ValidatePostalCodeOK)
+	validatePostalCodeResponse := response.(*postalcodesops.ValidatePostalCodeWithRateDataOK)
 	validatePostalCodePayload := validatePostalCodeResponse.Payload
 
 	suite.NotNil(validatePostalCodePayload.PostalCode)
 	suite.NotNil(validatePostalCodePayload.PostalCodeType)
 	suite.False(*validatePostalCodePayload.Valid)
-	suite.Assertions.IsType(&postalcodesops.ValidatePostalCodeOK{}, response)
+	suite.Assertions.IsType(&postalcodesops.ValidatePostalCodeWithRateDataOK{}, response)
 }
