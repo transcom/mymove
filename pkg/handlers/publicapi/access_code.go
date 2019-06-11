@@ -78,7 +78,7 @@ func (h ClaimAccessCodeHandler) Handle(params accesscodeop.ClaimAccessCodeParams
 		return accesscodeop.NewClaimAccessCodeUnauthorized()
 	}
 
-	accessCode, verrs, err := h.accessCodeClaimer.ClaimAccessCode(*params.AccessCodePayload.Code, session.ServiceMemberID)
+	accessCode, verrs, err := h.accessCodeClaimer.ClaimAccessCode(*params.AccessCode.Code, session.ServiceMemberID)
 
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(h.Logger(), verrs, err)

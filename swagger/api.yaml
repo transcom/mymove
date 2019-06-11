@@ -1952,7 +1952,6 @@ definitions:
       - valid
       - postal_code
       - postal_code_type
-
 paths:
   /tariff_400ng_items:
     get:
@@ -3530,7 +3529,7 @@ paths:
         - accesscode
       parameters:
         - in: body
-          name: accessCodePayload
+          name: accessCode
           description: the code the access code represents and verifies if in use
           required: true
           schema:

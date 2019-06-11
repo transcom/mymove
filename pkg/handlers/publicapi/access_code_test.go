@@ -121,8 +121,8 @@ func (suite *HandlerSuite) TestClaimAccessCodeHandler_Success() {
 	request = suite.AuthenticateRequest(request, serviceMember)
 
 	params := accesscodeops.ClaimAccessCodeParams{
-		HTTPRequest:       request,
-		AccessCodePayload: accesscodeops.ClaimAccessCodeBody{Code: &code},
+		HTTPRequest: request,
+		AccessCode:  accesscodeops.ClaimAccessCodeBody{Code: &code},
 	}
 
 	claimedAccessCode := models.AccessCode{
