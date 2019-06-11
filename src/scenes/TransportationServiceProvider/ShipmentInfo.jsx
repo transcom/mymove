@@ -180,15 +180,16 @@ class ShipmentInfo extends Component {
 
   componentDidMount() {
     const shipmentId = this.props.shipmentId;
+    const shipmentStatus = this.props.shipment.status;
 
     this.props
       .getPublicShipment(shipmentId)
       .then(() => {
         this.props.getServiceAgentsForShipment(shipmentId);
         this.props.getTspForShipment(shipmentId);
-        this.props.fetchAndCalculateShipmentLineItems(shipmentId);
+        this.props.getAllShipmentDocuments(shipmentId);
         this.props.getAllTariff400ngItems(true);
-        this.props.getAllShipmentLineItems(shipmentId);
+        this.props.fetchAndCalculateShipmentLineItems(shipmentId, shipmentStatus);
         this.props.getAllInvoices(shipmentId);
         if (this.props.context.flags.sitPanel) {
           this.props.getStorageInTransitsForShipment(shipmentId);
@@ -233,7 +234,7 @@ class ShipmentInfo extends Component {
 
   deliverShipment = values => {
     this.props.deliverShipment(this.props.shipment.id, values).then(() => {
-      this.props.getAllShipmentLineItems(this.props.shipment.id);
+      this.props.fetchAndCalculateShipmentLineItems(this.props.shipment.id, this.props.shipment.status);
     });
   };
 

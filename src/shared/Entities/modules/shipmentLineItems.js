@@ -42,24 +42,11 @@ export function recalculateShipmentLineItems(shipmentId, label = recalculateShip
 }
 
 export function fetchAndCalculateShipmentLineItems(shipmentId, shipmentStatus) {
-  let runRecalculation = false;
-
-  let shipmentLineItems = getAllShipmentLineItems(shipmentId);
-
   if (shipmentStatus === 'DELIVERED') {
-    for (let shipmentLineItem of shipmentLineItems) {
-      if (shipmentLineItem.invoice_id.length > 0) {
-        runRecalculation = true;
-        break;
-      }
-    }
+    recalculateShipmentLineItems(shipmentId);
   }
 
-  if (runRecalculation) {
-    // TODO Should we do something if nothing recalculates here?
-  }
-
-  return shipmentLineItems;
+  return getAllShipmentLineItems(shipmentId);
 }
 
 // Show linehaul (and related) items before any accessorial items by adding isLinehaul property.

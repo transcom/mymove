@@ -38,7 +38,11 @@ import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
 import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
-import { getAllShipmentLineItems, selectSortedShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
+import {
+  getAllShipmentLineItems,
+  selectSortedShipmentLineItems,
+  fetchAndCalculateShipmentLineItems,
+} from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { approvePPM, loadPPMs, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
@@ -230,7 +234,7 @@ class MoveInfo extends Component {
   getAllShipmentInfo = shipmentId => {
     this.props.getTspForShipment(shipmentId);
     this.props.getPublicShipment(shipmentId);
-    this.props.getAllShipmentLineItems(shipmentId);
+    this.props.fetchAndCalculateShipmentLineItems(shipmentId, this.props.shipmentStatus);
     this.props.getAllInvoices(shipmentId);
     this.props.getServiceAgentsForShipment(shipmentId);
     this.props.getStorageInTransitsForShipment(shipmentId);
@@ -605,6 +609,7 @@ const mapDispatchToProps = dispatch =>
       cancelMove,
       getAllTariff400ngItems,
       getAllShipmentLineItems,
+      fetchAndCalculateShipmentLineItems,
       getAllInvoices,
       getTspForShipment,
       getServiceAgentsForShipment,
