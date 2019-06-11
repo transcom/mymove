@@ -1098,7 +1098,6 @@ definitions:
       access_code:
         type: string
         title: Access Code
-        x-nullable: true
     required:
       - id
       - user_id
