@@ -21,7 +21,11 @@ import {
   generateGBLLabel,
 } from 'shared/Entities/modules/shipmentDocuments';
 import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
-import { getAllShipmentLineItems, selectSortedShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
+import {
+  getAllShipmentLineItems,
+  selectSortedShipmentLineItems,
+  fetchAndCalculateShipmentLineItems,
+} from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { getStorageInTransitsForShipment } from 'shared/Entities/modules/storageInTransits';
@@ -182,7 +186,7 @@ class ShipmentInfo extends Component {
       .then(() => {
         this.props.getServiceAgentsForShipment(shipmentId);
         this.props.getTspForShipment(shipmentId);
-        this.props.getAllShipmentDocuments(shipmentId);
+        this.props.fetchAndCalculateShipmentLineItems(shipmentId);
         this.props.getAllTariff400ngItems(true);
         this.props.getAllShipmentLineItems(shipmentId);
         this.props.getAllInvoices(shipmentId);
@@ -521,6 +525,7 @@ const mapDispatchToProps = dispatch =>
       getAllShipmentDocuments,
       getAllTariff400ngItems,
       getAllShipmentLineItems,
+      fetchAndCalculateShipmentLineItems,
       getAllInvoices,
       getTspForShipment,
       resetRequests,
