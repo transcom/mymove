@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { reduxForm, getFormValues, SubmissionError } from 'redux-form';
+import { reduxForm, getFormValues } from 'redux-form';
 import { connect } from 'react-redux';
 import { get, map, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
@@ -9,14 +9,15 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import RadioButton from 'shared/RadioButton';
 import Checkbox from 'shared/Checkbox';
 import Uploader from 'shared/Uploader';
-import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import Alert from 'shared/Alert';
 
 import carTrailerImg from 'shared/images/car-trailer_mobile.png';
+import carImg from 'shared/images/car_mobile.png';
 
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 import WizardHeader from '../WizardHeader';
 import './PPMPaymentRequest.css';
+import { createWeightTicketSetDocument } from 'shared/Entities/modules/weightTicketSetDocuments';
 
 class WeightTicket extends Component {
   state = this.initialState;
@@ -84,11 +85,6 @@ class WeightTicket extends Component {
     });
   };
 
-  cancelHandler = formValues => {
-    const { history } = this.props;
-    history.push('/');
-  };
-
   saveForLaterHandler = formValues => {
     const { history } = this.props;
     return this.saveAndAddHandler(formValues).then(() => {
@@ -99,33 +95,40 @@ class WeightTicket extends Component {
   };
 
   saveAndAddHandler = formValues => {
-    const { moveId, currentPpm } = this.props;
+    const { moveId, currentPpm, history } = this.props;
+    const { additionalWeightTickets } = this.state;
 
-    const moveDocumentSubmissions = [];
     const uploadersKeys = Object.keys(this.uploaders);
+    const uploadIds = [];
     for (const key of uploadersKeys) {
       // eslint-disable-next-line security/detect-object-injection
       let files = this.uploaders[key].getFiles();
       if (files.length > 0) {
-        const uploadIds = map(files, 'id');
-        const weightTicket = {
-          moveId: moveId,
-          personallyProcuredMoveId: currentPpm.id,
-          uploadIds: uploadIds,
-          title: key,
-          moveDocumentType: 'WEIGHT_TICKET',
-          notes: formValues.notes,
-        };
-        moveDocumentSubmissions.push(
-          this.props.createMoveDocument(weightTicket).catch(() => {
-            throw new SubmissionError({ _error: 'Error creating move document' });
-          }),
-        );
+        const documentUploadIds = map(files, 'id');
+        uploadIds.push(...documentUploadIds);
       }
     }
-    return Promise.all(moveDocumentSubmissions)
+    const weightTicketSetDocument = {
+      personally_procured_move_id: currentPpm.id,
+      upload_ids: uploadIds,
+      vehicle_options: formValues.vehicle_options,
+      vehicle_nickname: formValues.vehicle_nickname,
+      empty_weight_ticket_missing: this.state.missingEmptyWeightTicket,
+      empty_weight: formValues.empty_weight,
+      full_weight_ticket_missing: this.state.missingFullWeightTicket,
+      full_weight: formValues.full_weight,
+      weight_ticket_date: formValues.weight_ticket_date,
+      trailer_ownership_missing: this.state.missingDocumentation,
+      move_document_type: 'WEIGHT_TICKET_SET',
+      notes: formValues.notes,
+    };
+    return this.props
+      .createWeightTicketSetDocument(moveId, weightTicketSetDocument)
       .then(() => {
         this.cleanup();
+        if (additionalWeightTickets === 'No') {
+          history.push(`/moves/${moveId}/ppm-expenses-intro`);
+        }
       })
       .catch(e => {
         this.setState({ weightTicketSubmissionError: true });
@@ -199,7 +202,7 @@ class WeightTicket extends Component {
                 <>
                   <div className="radio-group-wrapper normalize-margins">
                     <p className="radio-group-header">
-                      Is this a different trailer you own and does it meet the trailer critera?
+                      Is this a different trailer you own and does it meet the <a>trailer criteria</a>?
                     </p>
                     <RadioButton
                       inputClassName="inline_radio"
@@ -244,8 +247,8 @@ class WeightTicket extends Component {
                           <Alert type="warning">
                             If your state does not provide a registration or bill of sale for your trailer, you may
                             write and upload a signed and dated statement certifying that you or your spouse own the
-                            trailer and meets the trailer criteria. Upload your statement using the proof of ownership
-                            field.
+                            trailer and meets the <a>trailer criteria</a>. Upload your statement using the proof of
+                            ownership field.
                           </Alert>
                         </div>
                       )}
@@ -258,17 +261,25 @@ class WeightTicket extends Component {
                 <div className="dashed-divider" />
 
                 <div className="usa-grid-full" style={{ marginTop: '1em' }}>
-                  {isCarTrailer && (
+                  {isCarTrailer && isValidTrailer === 'Yes' ? (
                     <div style={{ marginBottom: '1em' }}>
-                      The weight of this trailer should be <strong>excluded</strong> from the total weight of this trip.{' '}
+                      You can claim this trailer's weight as part of the total weight of your trip.
+                    </div>
+                  ) : (
+                    <div style={{ marginBottom: '1em' }}>
+                      The weight of this trailer should be <strong>excluded</strong> from the total weight of this trip.
                     </div>
                   )}
-                  <div className="usa-width-one-third">
+                  <div className="usa-width-one-third input-group">
                     <strong className="input-header">
                       Empty Weight{' '}
-                      {isCarTrailer && (
+                      {isCarTrailer && isValidTrailer === 'Yes' ? (
                         <>
-                          ( <img alt="car and trailer" className="car-trailer-img" src={carTrailerImg} /> car + trailer)
+                          ( <img alt="car only" className="car-img" src={carImg} /> car only)
+                        </>
+                      ) : (
+                        <>
+                          ( <img alt="car and trailer" className="car-img" src={carTrailerImg} /> car + trailer)
                         </>
                       )}
                     </strong>
@@ -303,7 +314,7 @@ class WeightTicket extends Component {
                     )}
                   </div>
                 </div>
-                <div className="usa-grid-full" style={{ marginTop: '1em' }}>
+                <div className="usa-grid-full input-group" style={{ marginTop: '1em' }}>
                   <div className="usa-width-one-third">
                     <strong className="input-header">
                       Full Weight{' '}
@@ -380,7 +391,6 @@ class WeightTicket extends Component {
               nextBtnLabel={nextBtnLabel}
               submitButtonsAreDisabled={this.formIsIncomplete()}
               submitting={submitting}
-              cancelHandler={this.cancelHandler}
               saveForLaterHandler={handleSubmit(this.saveForLaterHandler)}
               saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
               displaySaveForLater={true}
@@ -410,12 +420,12 @@ function mapStateToProps(state, ownProps) {
     formValues: getFormValues(formName)(state),
     genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
-    schema: get(state, 'swaggerInternal.spec.definitions.WeightTicketPayload', {}),
+    schema: get(state, 'swaggerInternal.spec.definitions.CreateWeightTicketDocumentsPayload', {}),
     currentPpm: get(state, 'ppm.currentPpm'),
   };
 }
 const mapDispatchToProps = {
-  createMoveDocument,
+  createWeightTicketSetDocument,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(WeightTicket);

@@ -5,17 +5,17 @@ import './PPMPaymentRequest.css';
 const PPMPaymentRequestActionBtns = props => {
   const {
     nextBtnLabel,
-    cancelHandler,
     saveAndAddHandler,
     saveForLaterHandler,
     submitButtonsAreDisabled,
     displaySaveForLater,
     submitting,
+    history,
   } = props;
   return (
     <div className="ppm-payment-request-footer">
       <div className="usa-width-two-thirds">
-        <button type="button" className="usa-button-secondary" onClick={cancelHandler}>
+        <button type="button" className="usa-button-secondary" onClick={() => history.push('/')}>
           Cancel
         </button>
         {displaySaveForLater && (

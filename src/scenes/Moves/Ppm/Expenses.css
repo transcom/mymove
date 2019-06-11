@@ -1,0 +1,16 @@
+.expenses-container {
+  padding-top: 2em;
+}
+
+.expenses-container a:visited {
+  color: #0071bc;
+}
+
+.expenses-list {
+  margin-bottom: 1em;
+}
+
+.has-expenses-radio-group {
+  margin-top: 1em;
+  margin-bottom: 3.5em;
+}

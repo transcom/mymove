@@ -10,6 +10,8 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/auth"
 )
 
 // User is an entity with a registered uuid and email at login.gov
@@ -47,11 +49,24 @@ func (u *User) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
-// GetUser loads the associated User from the DB
+// GetUser loads the associated User from the DB using the user ID
 func GetUser(db *pop.Connection, userID uuid.UUID) (*User, error) {
 	var user User
-	err := db.Find(&user, userID)
-	return &user, err
+	err := db.Find(&user, userID.String())
+	if err != nil {
+		return nil, errors.Wrapf(err, "Unable to find user by id %s", userID.String())
+	}
+	return &user, nil
+}
+
+// GetUserFromEmail loads the associated User from the DB using the user email
+func GetUserFromEmail(db *pop.Connection, email string) (*User, error) {
+	users := []User{}
+	err := db.Where("login_gov_email = $1", email).All(&users)
+	if len(users) == 0 {
+		return nil, errors.Wrapf(err, "Unable to find user by email %s", email)
+	}
+	return &users[0], err
 }
 
 // CreateUser is called upon successful login.gov verification of a new user
@@ -131,10 +146,39 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 	return &identities[0], nil
 }
 
-// FetchAllUserIdentities returns information for all users in the db
-func FetchAllUserIdentities(db *pop.Connection) ([]UserIdentity, error) {
+// FetchAppUserIdentities returns a limited set of user records based on application
+func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit int) ([]UserIdentity, error) {
 	var identities []UserIdentity
-	query := `SELECT users.id,
+
+	var query string
+	switch appname {
+	case auth.OfficeApp:
+		query = `SELECT
+		        users.id,
+				users.login_gov_email AS email,
+				users.disabled AS disabled,
+				users.is_superuser AS is_superuser,
+				ou.id AS ou_id,
+				ou.first_name AS ou_fname,
+				ou.last_name AS ou_lname,
+				ou.middle_initials AS ou_middle
+			FROM office_users as ou
+			JOIN users on ou.user_id = users.id
+			ORDER BY users.created_at LIMIT $1`
+	case auth.TspApp:
+		query = `SELECT users.id,
+				users.login_gov_email AS email,
+				users.disabled AS disabled,
+				users.is_superuser AS is_superuser,
+				tu.id AS tu_id,
+				tu.first_name AS tu_fname,
+				tu.last_name AS tu_lname,
+				tu.middle_initials AS tu_middle
+			FROM tsp_users as tu
+			JOIN users on tu.user_id = users.id
+			ORDER BY users.created_at LIMIT $1`
+	default:
+		query = `SELECT users.id,
 				users.login_gov_email AS email,
 				users.disabled AS disabled,
 				users.is_superuser AS is_superuser,
@@ -142,23 +186,14 @@ func FetchAllUserIdentities(db *pop.Connection) ([]UserIdentity, error) {
 				sm.first_name AS sm_fname,
 				sm.last_name AS sm_lname,
 				sm.middle_name AS sm_middle,
-				ou.id AS ou_id,
-				ou.first_name AS ou_fname,
-				ou.last_name AS ou_lname,
-				ou.middle_initials AS ou_middle,
-				tu.id AS tu_id,
-				tu.first_name AS tu_fname,
-				tu.last_name AS tu_lname,
-				tu.middle_initials AS tu_middle,
 				du.id AS du_id
-			FROM users
-			LEFT OUTER JOIN service_members AS sm on sm.user_id = users.id
-			LEFT OUTER JOIN office_users AS ou on ou.user_id = users.id
-			LEFT OUTER JOIN tsp_users AS tu on tu.user_id = users.id
+			FROM service_members as sm
+			JOIN users on sm.user_id = users.id
 			LEFT OUTER JOIN dps_users AS du on du.login_gov_email = users.login_gov_email
-			ORDER BY users.created_at`
+			ORDER BY users.created_at LIMIT $1`
+	}
 
-	err := db.RawQuery(query).All(&identities)
+	err := db.RawQuery(query, limit).All(&identities)
 	if err != nil {
 		return nil, err
 	}

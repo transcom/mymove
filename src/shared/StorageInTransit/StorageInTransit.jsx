@@ -274,7 +274,11 @@ export class StorageInTransit extends Component {
               storageInTransit={storageInTransit}
             />
           ) : showDeleteWarning ? (
-            <DeleteSitRequest storageInTransit={storageInTransit} onClose={this.closeDeleteWarning} />
+            <DeleteSitRequest
+              storageInTransit={storageInTransit}
+              onDelete={() => this.props.onDelete(storageInTransit.shipment_id, storageInTransit.id)}
+              onClose={this.closeDeleteWarning}
+            />
           ) : (
             <span className="sit-actions">{this.renderSitActions()}</span>
           )}
@@ -408,7 +412,8 @@ export class StorageInTransit extends Component {
 
 StorageInTransit.propTypes = {
   storageInTransit: PropTypes.object.isRequired,
-  daysRemaining: PropTypes.number,
+  daysRemaining: PropTypes.number.isRequired,
+  onDelete: PropTypes.func.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {

@@ -1,4 +1,4 @@
-FROM gcr.io/distroless/base
+FROM gcr.io/distroless/base:latest
 
 COPY bin/rds-combined-ca-bundle.pem /bin/rds-combined-ca-bundle.pem
 COPY bin/chamber /bin/chamber
