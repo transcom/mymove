@@ -705,6 +705,18 @@ definitions:
         type: integer
         title: Distance
         description: unit is miles
+  VehicleOptions:
+    type: string
+    x-nullable: true
+    title: What type of vehicle are these weight tickets for?
+    enum: &VehicleOptions
+      - CAR
+      - CAR_TRAILER
+      - BOX_TRUCK
+    x-display-value:
+      CAR: Car
+      CAR_TRAILER: Car + Trailer
+      BOX_TRUCK: Box truck
   MoveDocumentPayload:
     type: object
     properties:
@@ -753,6 +765,37 @@ definitions:
         x-display-value:
           OTHER: Other account
           GTCC: GTCC
+      vehicle_options:
+        title: What type of vehicle are these weight tickets for?
+        type: string
+        enum: *VehicleOptions
+      vehicle_nickname:
+        type: string
+        title: Vehicle nickname (ex. "My car")
+      empty_weight:
+        title: empty weight ticket recorded weight
+        type: integer
+        minimum: 0
+        x-nullable: true
+      empty_weight_ticket_missing:
+        title: missing empty weight ticket
+        type: boolean
+        x-nullable: true
+      full_weight:
+        title: full weight ticket recorded weight
+        type: integer
+        minimum: 0
+        x-nullable: true
+      full_weight_ticket_missing:
+        title: missing full weight ticket
+        type: boolean
+        x-nullable: true
+      weight_ticket_date:
+        title: Weight ticket date
+        type: string
+        example: '2018-04-26'
+        format: date
+        x-nullable: true
     required:
       - id
       - move_id
@@ -798,12 +841,14 @@ definitions:
       - STORAGE_EXPENSE
       - SHIPMENT_SUMMARY
       - EXPENSE
+      - WEIGHT_TICKET_SET
     x-display-value:
       OTHER: Other document type
       WEIGHT_TICKET: Weight ticket
       STORAGE_EXPENSE: Storage expense receipt
       SHIPMENT_SUMMARY: Shipment summary
       EXPENSE: Expense
+      WEIGHT_TICKET_SET: Weight ticket set
   CreateMovingExpenseDocumentPayload:
     type: object
     properties:
@@ -884,6 +929,58 @@ definitions:
       AWAITING_REVIEW: Awaiting review
       OK: OK
       HAS_ISSUE: Has issue
+  CreateWeightTicketDocumentsPayload:
+    type: object
+    properties:
+      personally_procured_move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      upload_ids:
+        type: array
+        items:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      vehicle_options:
+        title: What type of vehicle are these weight tickets for?
+        type: string
+        enum: *VehicleOptions
+        x-display-value:
+          CAR: Car
+          CAR_TRAILER: Car + Trailer
+          BOX_TRUCK: Box truck
+      vehicle_nickname:
+        type: string
+        title: Vehicle nickname (ex. "My car")
+      empty_weight_ticket_missing:
+        title: missing empty weight ticket
+        type: boolean
+      empty_weight:
+        title: empty weight ticket recorded weight
+        type: integer
+        minimum: 0
+      full_weight_ticket_missing:
+        title: missing full weight ticket
+        type: boolean
+      full_weight:
+        title: full weight ticket recorded weight
+        type: integer
+        minimum: 0
+      weight_ticket_date:
+        title: Weight ticket date
+        type: string
+        example: '2018-04-26'
+        format: date
+    required:
+      - personally_procured_move_id
+      - vehicle_options
+      - vehicle_nickname
+      - full_weight
+      - full_weight_ticket_missing
+      - empty_weight
+      - empty_weight_ticket_missing
+      - weight_ticket_date
   ServiceMemberPayload:
     type: object
     properties:
@@ -993,7 +1090,7 @@ definitions:
       access_code:
         type: string
         title: Access Code
-        example: CODE456
+        x-nullable: true
     required:
       - id
       - user_id
@@ -2472,18 +2569,6 @@ definitions:
     required:
       - start_date
       - available
-  VehicleOptions:
-    type: string
-    x-nullable: true
-    title: What type of vehicle are these weight tickets for?
-    enum: &VehicleOptions
-      - CAR
-      - CAR_TRAILER
-      - BOX_TRUCK
-    x-display-value:
-      CAR: Car
-      CAR_TRAILER: Car + Trailer
-      BOX_TRUCK: Box truck
   WeightTicketPayload:
     type: object
     properties:
@@ -4248,7 +4333,6 @@ paths:
           description: user is not authorized
         500:
           description: internal server error
-
   /dps_auth/cookie_url:
     post:
       summary: Returns the URL to redirect to that begins DPS auth
@@ -4278,3 +4362,35 @@ paths:
           description: user is not authorized
         500:
           description: internal server error
+  /moves/{moveId}/weight_ticket:
+    post:
+      summary: Creates a weight ticket document
+      description: Created a weight ticket document with the given information
+      operationId: createWeightTicketDocument
+      tags:
+        - move_docs
+      parameters:
+        - name: moveId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+        - in: body
+          name: createWeightTicketDocument
+          required: true
+          schema:
+            $ref: '#/definitions/CreateWeightTicketDocumentsPayload'
+      responses:
+        200:
+          description: returns new weight ticket document object
+          schema:
+            $ref: '#/definitions/MoveDocumentPayload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to modify this move
+        500:
+          description: server error

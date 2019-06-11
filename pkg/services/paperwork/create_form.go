@@ -14,11 +14,13 @@ import (
 )
 
 // FileStorer is an interface for fileStorer implementation
+//go:generate mockery -name FileStorer
 type FileStorer interface {
 	Create(string) (afero.File, error)
 }
 
 // FormFiller is an interface for formFiller implementation
+//go:generate mockery -name FormFiller
 type FormFiller interface {
 	AppendPage(io.ReadSeeker, map[string]paperworkforms.FieldPos, interface{}) error
 	Output(io.Writer) error

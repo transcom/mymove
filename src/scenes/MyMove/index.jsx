@@ -22,6 +22,7 @@ import EditHHGDates from 'scenes/Review/EditShipment';
 import Header from 'shared/Header/MyMove';
 import PPMPaymentRequestIntro from 'scenes/Moves/Ppm/PPMPaymentRequestIntro';
 import WeightTicket from 'scenes/Moves/Ppm/WeightTicket';
+import ExpensesLanding from 'scenes/Moves/Ppm/ExpensesLanding';
 import AllowableExpenses from 'scenes/Moves/Ppm/AllowableExpenses';
 import WeightTicketExamples from 'scenes/Moves/Ppm/WeightTicketExamples';
 import PaymentRequest from 'scenes/Moves/Ppm/PaymentRequest';
@@ -117,6 +118,7 @@ export class AppWrapper extends Component {
                       path="/moves/:moveId/ppm-payment-request-intro"
                       component={PPMPaymentRequestIntro}
                     />
+                    <ValidatedPrivateRoute path="/moves/:moveId/ppm-expenses-intro" component={ExpensesLanding} />
                     <ValidatedPrivateRoute path="/moves/:moveId/ppm-weight-ticket" component={WeightTicket} />
                     <ValidatedPrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
                     <Route exact path="/forbidden">

@@ -12,11 +12,11 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 
-	"github.com/transcom/mymove/mocks"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	sitop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/storage_in_transits"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -704,10 +704,12 @@ func (suite *HandlerSuite) TestDeleteStorageInTransitHandler() {
 	suite.NoError(err)
 
 	user := models.TspUser{ID: tspUserID, UserID: &userID}
+	storageInTransit := models.StorageInTransit{ID: storageInTransitID, ShipmentID: shipmentID}
 
 	path := fmt.Sprintf("/shipments/%s/storage_in_transits/%s", shipmentID, storageInTransitID)
 	req := httptest.NewRequest("DELETE", path, nil)
 	req = suite.AuthenticateTspRequest(req, user)
+
 	params := sitop.DeleteStorageInTransitParams{
 		HTTPRequest:        req,
 		ShipmentID:         strfmt.UUID(shipmentID.String()),
@@ -716,20 +718,23 @@ func (suite *HandlerSuite) TestDeleteStorageInTransitHandler() {
 
 	storageInTransitDeleter := &mocks.StorageInTransitDeleter{}
 
-	handler := DeleteStorageInTransitHandler{
-		handlers.NewHandlerContext(suite.DB(),
-			suite.TestLogger()),
-		storageInTransitDeleter,
-	}
 	// Happy path
 	storageInTransitDeleter.On("DeleteStorageInTransit",
 		shipmentID,
 		storageInTransitID,
 		auth.SessionFromRequestContext(params.HTTPRequest),
-	).Return(nil).Once()
+	).Return(&storageInTransit, nil).Once()
+
+	handler := DeleteStorageInTransitHandler{
+		handlers.NewHandlerContext(suite.DB(),
+			suite.TestLogger()),
+		storageInTransitDeleter,
+	}
 
 	response := handler.Handle(params)
 	suite.Assertions.IsType(&sitop.DeleteStorageInTransitOK{}, response)
+	responsePayload := response.(*sitop.DeleteStorageInTransitOK).Payload
+	suite.Equal(storageInTransit.ID.String(), responsePayload.ID.String())
 
 	// Forbidden scenario
 	expectedError := models.ErrFetchForbidden
@@ -737,7 +742,7 @@ func (suite *HandlerSuite) TestDeleteStorageInTransitHandler() {
 		shipmentID,
 		storageInTransitID,
 		auth.SessionFromRequestContext(params.HTTPRequest),
-	).Return(expectedError).Once()
+	).Return(nil, expectedError).Once()
 
 	response = handler.Handle(params)
 	expectedResponse := &handlers.ErrResponse{

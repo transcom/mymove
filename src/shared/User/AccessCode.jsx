@@ -43,7 +43,6 @@ class AccessCode extends React.Component {
             window.location.reload();
           })
           .catch(err => {
-            console.log('what');
             throw new SubmissionError({
               claim_access_code: claimAccessCodeErrorMsg,
             });

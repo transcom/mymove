@@ -1,6 +1,7 @@
 // This must be the first line in src/index.js
 import 'react-app-polyfill/ie11';
-import 'babel-polyfill'; //todo: is this still needed?
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import 'uswds';

@@ -12,19 +12,28 @@ import Uploader from 'shared/Uploader';
 import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import Alert from 'shared/Alert';
 
+import carTrailerImg from 'shared/images/car-trailer_mobile.png';
+import carImg from 'shared/images/car_mobile.png';
+
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 import WizardHeader from '../WizardHeader';
 import './PPMPaymentRequest.css';
 
 class WeightTicket extends Component {
-  state = {
-    vehicleType: '',
-    additionalWeightTickets: 'Yes',
-    weightTicketSubmissionError: false,
-    missingEmptyWeightTicket: false,
-    missingFullWeightTicket: false,
-  };
+  state = this.initialState;
   uploaders = {};
+
+  get initialState() {
+    return {
+      vehicleType: '',
+      additionalWeightTickets: 'Yes',
+      isValidTrailer: 'No',
+      weightTicketSubmissionError: false,
+      missingDocumentation: false,
+      missingEmptyWeightTicket: false,
+      missingFullWeightTicket: false,
+    };
+  }
 
   isMissingWeightTickets = () => {
     if (isEmpty(this.uploaders)) {
@@ -33,7 +42,7 @@ class WeightTicket extends Component {
     const uploadersKeys = Object.keys(this.uploaders);
     for (const key of uploadersKeys) {
       // eslint-disable-next-line security/detect-object-injection
-      if (this.uploaders[key].isEmpty()) {
+      if (this.uploaders[key] && this.uploaders[key].isEmpty()) {
         return true;
       }
     }
@@ -50,7 +59,7 @@ class WeightTicket extends Component {
       formValues.full_weight &&
       formValues.weight_ticket_date
     );
-    return isMissingFormInput && this.isMissingWeightTickets();
+    return isMissingFormInput || this.isMissingWeightTickets();
   };
 
   //  handleChange for vehicleType and additionalWeightTickets
@@ -76,11 +85,6 @@ class WeightTicket extends Component {
     });
   };
 
-  cancelHandler = formValues => {
-    const { history } = this.props;
-    history.push('/');
-  };
-
   saveForLaterHandler = formValues => {
     const { history } = this.props;
     return this.saveAndAddHandler(formValues).then(() => {
@@ -91,7 +95,8 @@ class WeightTicket extends Component {
   };
 
   saveAndAddHandler = formValues => {
-    const { moveId, currentPpm } = this.props;
+    const { moveId, currentPpm, history } = this.props;
+    const { additionalWeightTickets } = this.state;
 
     const moveDocumentSubmissions = [];
     const uploadersKeys = Object.keys(this.uploaders);
@@ -117,8 +122,10 @@ class WeightTicket extends Component {
     }
     return Promise.all(moveDocumentSubmissions)
       .then(() => {
-        this.setState({ weightTicketSubmissionError: false });
         this.cleanup();
+        if (additionalWeightTickets === 'No') {
+          history.push(`/moves/${moveId}/ppm-expenses-intro`);
+        }
       })
       .catch(e => {
         this.setState({ weightTicketSubmissionError: true });
@@ -134,16 +141,28 @@ class WeightTicket extends Component {
       uploaders[key].clearFiles();
     }
     reset();
+    this.setState({ ...this.initialState });
   };
 
   render() {
-    const { additionalWeightTickets, vehicleType, missingEmptyWeightTicket, missingFullWeightTicket } = this.state;
+    const {
+      additionalWeightTickets,
+      vehicleType,
+      missingEmptyWeightTicket,
+      missingFullWeightTicket,
+      missingDocumentation,
+      isValidTrailer,
+    } = this.state;
     const { handleSubmit, submitting, schema } = this.props;
     const nextBtnLabel = additionalWeightTickets === 'Yes' ? 'Save & Add Another' : 'Save & Continue';
     const uploadEmptyTicketLabel =
       '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload empty weight ticket</span></span>';
     const uploadFullTicketLabel =
       '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload full weight ticket</span></span>';
+    const uploadTrailerProofOfOwnership =
+      '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload documentation</span></span>';
+    const isCarTrailer = vehicleType === 'CAR_TRAILER';
+
     return (
       <Fragment>
         <WizardHeader
@@ -175,13 +194,92 @@ class WeightTicket extends Component {
               required
             />
             <SwaggerField fieldName="vehicle_nickname" swagger={schema} required />
-            {(vehicleType === 'CAR' || vehicleType === 'BOX_TRUCK') && (
+            {vehicleType &&
+              isCarTrailer && (
+                <>
+                  <div className="radio-group-wrapper normalize-margins">
+                    <p className="radio-group-header">
+                      Is this a different trailer you own and does it meet the <a>trailer criteria</a>?
+                    </p>
+                    <RadioButton
+                      inputClassName="inline_radio"
+                      labelClassName="inline_radio"
+                      label="Yes"
+                      value="Yes"
+                      name="valid_trailer"
+                      checked={isValidTrailer === 'Yes'}
+                      onChange={event => this.handleChange(event, 'isValidTrailer')}
+                    />
+
+                    <RadioButton
+                      inputClassName="inline_radio"
+                      labelClassName="inline_radio"
+                      label="No"
+                      value="No"
+                      name="valid_trailer"
+                      checked={isValidTrailer === 'No'}
+                      onChange={event => this.handleChange(event, 'isValidTrailer')}
+                    />
+                  </div>
+                  {isValidTrailer === 'Yes' && (
+                    <>
+                      <p className="normalize-margins" style={{ marginTop: '1em' }}>
+                        Proof of ownership (ex. registration, bill of sale)
+                      </p>
+                      <Uploader
+                        options={{ labelIdle: uploadTrailerProofOfOwnership }}
+                        onRef={ref => (this.uploaders['ownership_document'] = ref)}
+                        onChange={this.onChange('ownership_document')}
+                        onAddFile={this.onAddFile('ownership_document')}
+                      />
+                      <Checkbox
+                        label="I don't have ownership documentation"
+                        name="missingDocumentation"
+                        checked={missingDocumentation}
+                        onChange={this.handleCheckboxChange}
+                        normalizeLabel
+                      />
+                      {missingDocumentation && (
+                        <div className="one-half">
+                          <Alert type="warning">
+                            If your state does not provide a registration or bill of sale for your trailer, you may
+                            write and upload a signed and dated statement certifying that you or your spouse own the
+                            trailer and meets the <a>trailer criteria</a>. Upload your statement using the proof of
+                            ownership field.
+                          </Alert>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </>
+              )}
+            {vehicleType && (
               <>
                 <div className="dashed-divider" />
 
                 <div className="usa-grid-full" style={{ marginTop: '1em' }}>
-                  <div className="usa-width-one-third">
-                    <strong className="input-header">Empty Weight</strong>
+                  {isCarTrailer && isValidTrailer === 'Yes' ? (
+                    <div style={{ marginBottom: '1em' }}>
+                      You can claim this trailer's weight as part of the total weight of your trip.
+                    </div>
+                  ) : (
+                    <div style={{ marginBottom: '1em' }}>
+                      The weight of this trailer should be <strong>excluded</strong> from the total weight of this trip.
+                    </div>
+                  )}
+                  <div className="usa-width-one-third input-group">
+                    <strong className="input-header">
+                      Empty Weight{' '}
+                      {isCarTrailer && isValidTrailer === 'Yes' ? (
+                        <>
+                          ( <img alt="car only" className="car-img" src={carImg} /> car only)
+                        </>
+                      ) : (
+                        <>
+                          ( <img alt="car and trailer" className="car-img" src={carTrailerImg} /> car + trailer)
+                        </>
+                      )}
+                    </strong>
                     <SwaggerField
                       className="short-field"
                       fieldName="empty_weight"
@@ -213,9 +311,16 @@ class WeightTicket extends Component {
                     )}
                   </div>
                 </div>
-                <div className="usa-grid-full" style={{ marginTop: '1em' }}>
+                <div className="usa-grid-full input-group" style={{ marginTop: '1em' }}>
                   <div className="usa-width-one-third">
-                    <strong className="input-header">Full Weight</strong>
+                    <strong className="input-header">
+                      Full Weight{' '}
+                      {isCarTrailer && (
+                        <>
+                          ( <img alt="car and trailer" className="car-trailer-img" src={carTrailerImg} /> car + trailer)
+                        </>
+                      )}
+                    </strong>
                     <label className="full-weight-label">Full weight at destination</label>
                     <SwaggerField
                       className="short-field"
@@ -283,7 +388,6 @@ class WeightTicket extends Component {
               nextBtnLabel={nextBtnLabel}
               submitButtonsAreDisabled={this.formIsIncomplete()}
               submitting={submitting}
-              cancelHandler={this.cancelHandler}
               saveForLaterHandler={handleSubmit(this.saveForLaterHandler)}
               saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
               displaySaveForLater={true}
@@ -313,7 +417,7 @@ function mapStateToProps(state, ownProps) {
     formValues: getFormValues(formName)(state),
     genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
-    schema: get(state, 'swaggerInternal.spec.definitions.WeightTicketPayload', {}),
+    schema: get(state, 'swaggerInternal.spec.definitions.CreateWeightTicketDocumentsPayload', {}),
     currentPpm: get(state, 'ppm.currentPpm'),
   };
 }

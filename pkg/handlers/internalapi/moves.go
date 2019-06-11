@@ -121,10 +121,8 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 	newSelectedMoveType := payload.SelectedMoveType
 
 	if newSelectedMoveType != nil {
-		if newSelectedMoveType != nil {
-			stringSelectedMoveType := models.SelectedMoveType(*newSelectedMoveType)
-			move.SelectedMoveType = &stringSelectedMoveType
-		}
+		stringSelectedMoveType := models.SelectedMoveType(*newSelectedMoveType)
+		move.SelectedMoveType = &stringSelectedMoveType
 	}
 
 	verrs, err := h.DB().ValidateAndUpdate(move)

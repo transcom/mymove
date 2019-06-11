@@ -57,7 +57,7 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		IsProfileComplete:       handlers.FmtBool(serviceMember.IsProfileComplete()),
 		CurrentStation:          payloadForDutyStationModel(serviceMember.DutyStation),
 		RequiresAccessCode:      serviceMember.RequiresAccessCode,
-		AccessCode:              accessCode,
+		AccessCode:              &accessCode,
 	}
 	return &serviceMemberPayload
 }

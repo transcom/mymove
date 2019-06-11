@@ -18,7 +18,9 @@ import (
 	"sync"
 	"syscall"
 
+	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gobuffalo/pop"
 	"github.com/gorilla/csrf"
 	"github.com/honeycombio/beeline-go"
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
@@ -111,6 +113,9 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// Middleware
 	cli.InitMiddlewareFlags(flag)
 
+	// aws-vault
+	cli.InitVaultFlags(flag)
+
 	// Verbose
 	cli.InitVerboseFlags(flag)
 
@@ -198,6 +203,10 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 		return err
 	}
 
+	if err := cli.CheckVault(v); err != nil {
+		return err
+	}
+
 	if err := cli.CheckVerbose(v); err != nil {
 		return err
 	}
@@ -254,7 +263,7 @@ func indexHandler(buildDir string, logger logger) http.HandlerFunc {
 
 func serveFunction(cmd *cobra.Command, args []string) error {
 
-	err := cmd.ParseFlags(os.Args[1:])
+	err := cmd.ParseFlags(args)
 	if err != nil {
 		return errors.Wrap(err, "Could not parse flags")
 	}
@@ -347,6 +356,23 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Must provide the Login.gov hostname parameter, exiting")
 	}
 
+	if v.GetBool(cli.DbDebugFlag) {
+		pop.Debug = true
+	}
+
+	var session *awssession.Session
+	if v.GetString(cli.EmailBackendFlag) == "ses" || v.GetString(cli.StorageBackendFlag) == "s3" {
+		c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
+		if errorConfig != nil {
+			logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
+		}
+		s, errorSession := awssession.NewSession(c)
+		if errorSession != nil {
+			logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
+		}
+		session = s
+	}
+
 	// Create a connection to the DB
 	dbConnection, err := cli.InitDatabase(v, logger)
 	if err != nil {
@@ -393,7 +419,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Email
-	notificationSender := cli.InitEmail(v, logger)
+	notificationSender := cli.InitEmail(v, session, logger)
 	handlerContext.SetNotificationSender(notificationSender)
 
 	build := v.GetString(cli.BuildFlag)
@@ -410,7 +436,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	handlerContext.SetSendProductionInvoice(v.GetBool(cli.GEXSendProdInvoiceFlag))
 
 	// Storage
-	storer := cli.InitStorage(v, logger)
+	storer := cli.InitStorage(v, session, logger)
 	handlerContext.SetFileStorer(storer)
 
 	certificates, rootCAs, err := cli.InitDoDCertificates(v, logger)

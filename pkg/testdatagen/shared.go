@@ -35,6 +35,7 @@ type Assertions struct {
 	Move                                     models.Move
 	MoveDocument                             models.MoveDocument
 	MovingExpenseDocument                    models.MovingExpenseDocument
+	WeightTicketSetDocument                  models.WeightTicketSetDocument
 	OfficeUser                               models.OfficeUser
 	Order                                    models.Order
 	PersonallyProcuredMove                   models.PersonallyProcuredMove

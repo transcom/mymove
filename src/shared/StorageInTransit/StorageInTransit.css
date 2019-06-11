@@ -113,3 +113,25 @@
   margin-top: 10px;
 }
 
+.storage-in-transit-panel .sit-delete-warning {
+  margin-top: 1em;
+}
+
+.storage-in-transit-panel .sit-delete-warning .sit-delete-buttons {
+  float: right;
+}
+
+.storage-in-transit-panel .sit-delete-warning .sit-delete-cancel {
+  font-size: 1.2em;
+  font-weight: normal;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.storage-in-transit-panel .sit-delete-warning .usa-alert-text {
+  font-weight: normal;
+}
+
+.storage-in-transit-panel .sit-delete-warning h3.usa-alert-heading {
+  font-family: "Source Sans Pro", "Helvetica Neue", "Helvetica", "Roboto", "Arial", sans-serif;
+}
