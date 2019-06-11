@@ -1,0 +1,20 @@
+input[type='image'],
+input[type='image']:hover {
+  padding: 0;
+  height: 20px;
+}
+
+.doc-summary-container {
+  background-color: #e7f4e4;
+  border-left: 10px solid #2e8540;
+  padding-left: 3em;
+  padding-top: 1em;
+}
+
+/* normalize margins of all children */
+.doc-summary-container * {
+  margin-top: 0px;
+  margin-left: 0px;
+  margin-bottom: 0px;
+  margin-right: 0px;
+}
