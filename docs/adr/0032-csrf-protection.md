@@ -24,7 +24,7 @@ We want to be able to protect our application against [Cross-Site Request Forger
 * Works with Goji
 * Generates unique-per-request (masked) tokens as a mitigation against the [BREACH](http://breachattack.com/) attack
 * Uses [secure cookies](https://en.wikipedia.org/wiki/Secure_cookie) to store the unmasked csrf token session
-* CSRF token session is stateless via [Double Submit Cookie method](https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)_Prevention_Cheat_Sheet#Double_Submit_Cookie) meaning that multiple browser tabs won't cause a user problems as their per-request token is compared with the base (unmasked) token.
+* CSRF token session is stateless via [Double Submit Cookie method](https://github.com/OWASP/CheatSheetSeries/blob/master/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.md#double-submit-cookie) meaning that multiple browser tabs won't cause a user problems as their per-request token is compared with the base (unmasked) token.
 
 * **Consequences:** HTTP requests will now need to include `x-csrf-token` header
 * Every HTTP requests that modifies data will need the header

@@ -9,7 +9,7 @@
 5. `tariff400ng_shorthaul_rates`
 6. `tariff400ng_item_rates`
 
-## Obtain yearly rates `xlsx` file from ustranscom
+## Obtain yearly rates `xlsx` file from USTRANSCOM
 
 1. Visit: [https://www.ustranscom.mil/dp3/hhg.cfm](https://www.ustranscom.mil/dp3/hhg.cfm) (for some reason, I had to load hit this url twice... the first visit redirected to another page).
 2. Look under “Special Requirements and Rates Team” -> “Domestic” -> “400NG Baseline Rates” and download yearly rate file.
@@ -55,7 +55,7 @@
 * [2018 data load](https://github.com/transcom/mymove/pull/382)
 * [2019 data load](https://github.com/transcom/mymove/pull/2036)
 
-1. Create a function that will take values and update the corrisponding columns in the `tariff400ng_service_areas`. (see pr for details)
+1. Create a function that will take values and update the corresponding columns in the `tariff400ng_service_areas`. (see pr for details)
 2. Transform rates into cents add for each row, transform row into form `SELECT update_sit_rates('service_area', sit_185a, sit_185b, sit_pd_schedule);` for each row.
 3. Remember to drop the function in the migration.
 
@@ -72,7 +72,7 @@ We're going to make use of the work that Patrick Stanger delivered in [this PR](
 4. Paste those values into the corresponding `Accessorials` tab in the other sheet.
 5. Repeat this same process for the `Additonal Rates` tab. Starting at the cell marked in the screenshot below:
     ![additional rates sheet](./additional_rates_spreadsheet.png)
-6. Head over to the `migration work` tab. Here, you'll find that queries have been generated for you to insert records into the milmove database.
+6. Head over to the `migration work` tab. Here, you'll find that queries have been generated for you to insert records into the `milmove` database.
 7. Copy all of the values in the `query` column for both the `Additional Rates` table at the top of the sheet and the `Accessorials` table below it.
 8. Replace
 
@@ -84,7 +84,7 @@ We're going to make use of the work that Patrick Stanger delivered in [this PR](
 * [2019 data load](https://github.com/transcom/mymove/pull/2036)
 
 1. Create migration to load `insert` statements generated from the sheet above.
-2. Replace `ID_HERE` with `uuid_generate_v4()` to generate a uuid.
+2. Replace `ID_HERE` with `uuid_generate_v4()` to generate a UUID.
 
 ### Fix certain item rates. Update `weight_lbs_lower` and update `rate_cents` for specific codes
 
@@ -94,7 +94,7 @@ We're going to make use of the work that Patrick Stanger delivered in [this PR](
 * [2019 data load](https://github.com/transcom/mymove/pull/2060)
 
 1. Create migration to modify `weight_lbs_lower` and `rate_cents` (see pr for example).
-  Note - This step could be addressed when origionally tranforming the data in the `xlsx`.
+  Note - This step could be addressed when originally transforming the data in the `xlsx`.
 
 ## Spot check for correct data
 

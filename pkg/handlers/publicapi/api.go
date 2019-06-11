@@ -13,6 +13,7 @@ import (
 
 	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
+	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
 	shipmentlineitemservice "github.com/transcom/mymove/pkg/services/shipment_line_item"
 	sitservice "github.com/transcom/mymove/pkg/services/storage_in_transit"
 )
@@ -114,5 +115,12 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	// Access Codes
 	publicAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{context, accesscodeservice.NewAccessCodeValidator(context.DB())}
 	publicAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{context, accesscodeservice.NewAccessCodeClaimer(context.DB())}
+
+	// Postal Codes
+	publicAPI.PostalCodesValidatePostalCodeHandler = ValidatePostalCodeHandler{
+		context,
+		postalcodeservice.NewPostalCodeValidator(context.DB()),
+	}
+
 	return publicAPI.Serve(nil)
 }

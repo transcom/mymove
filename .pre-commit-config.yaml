@@ -86,19 +86,19 @@ repos:
         files: go.mod
         pass_filenames: false
 
-  # - repo: local
-  #   hooks:
-  #     - id: mdspell
-  #       name: mdspell
-  #       entry: scripts/pre-commit-spellcheck
-  #       language: script
-  #       files: \.md$
-  #       exclude: >
-  #         (?x)^(
-  #           node_modules/|
-  #           vendor/|
-  #           docs/adr/index.md
-  #         )$
+  - repo: local
+    hooks:
+      - id: mdspell
+        name: mdspell
+        entry: scripts/pre-commit-spellcheck
+        language: script
+        files: \.md$
+        exclude: >
+          (?x)^(
+            node_modules/|
+            vendor/|
+            docs/adr/index.md
+          )$
 
   - repo: local
     hooks:
@@ -126,3 +126,9 @@ repos:
       language: script
       files: .codecov.yml
       pass_filenames: false
+
+  - repo: https://github.com/pryorda/dockerfilelint-precommit-hooks
+    rev: v0.1.0
+    hooks:
+    - id: dockerfilelint
+      stages: [commit]
