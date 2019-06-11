@@ -34,7 +34,13 @@ export class StorageInTransitTspEditForm extends Component {
     const inSit = storageInTransit.status === 'IN_SIT';
     const isReleased = storageInTransit.status === 'RELEASED';
     const isDelivered = storageInTransit.status === 'DELIVERED';
-    const disabledDaysForOutDayPicker = [{ before: utcMinDate }];
+    const outDateMinDate = new Date(storageInTransit.actual_start_date);
+    const utcOutDate = new Date(
+      outDateMinDate.getUTCFullYear(),
+      outDateMinDate.getUTCMonth(),
+      outDateMinDate.getUTCDate(),
+    );
+    const disabledDaysForOutDayPicker = [{ before: utcOutDate }];
 
     return (
       <form onSubmit={this.props.handleSubmit(this.props.onSubmit)} className="storage-in-transit-tsp-edit-form">
