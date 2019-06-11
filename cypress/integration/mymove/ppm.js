@@ -193,7 +193,6 @@ describe('allows a SM to request a payment', function() {
     cy.server();
     cy.route('POST', '**/internal/uploads').as('postUploadDocument');
     cy.route('POST', '**/moves/**/weight_ticket').as('postWeightTicket');
-    cy.route('POST', '**/moves/**/moving_expense_documents').as('postMovingExpense');
     cy.signInAsUserPostRequest(milmoveAppName, '8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
   });
 
