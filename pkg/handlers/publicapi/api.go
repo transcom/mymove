@@ -56,6 +56,7 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.AccessorialsCreateShipmentLineItemHandler = CreateShipmentLineItemHandler{context}
 	publicAPI.AccessorialsDeleteShipmentLineItemHandler = DeleteShipmentLineItemHandler{context}
 	publicAPI.AccessorialsApproveShipmentLineItemHandler = ApproveShipmentLineItemHandler{context}
+	publicAPI.AccessorialsRecalculateShipmentLineItemsHandler = RecalculateShipmentLineItemsHandler{context, shipmentlineitemservice.NewShipmentLineItemRecalculator(context.DB(), context.Logger())}
 
 	publicAPI.AccessorialsGetTariff400ngItemsHandler = GetTariff400ngItemsHandler{context}
 	publicAPI.AccessorialsGetInvoiceHandler = GetInvoiceHandler{context}
