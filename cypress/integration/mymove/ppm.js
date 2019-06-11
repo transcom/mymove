@@ -113,16 +113,37 @@ describe('check invalid ppm inputs', () => {
       .get('input[name="original_move_date"]')
       .first()
       .type('6/3/2100{enter}');
+    // test an invalid pickup zip code
+    cy
+      .get('input[name="pickup_postal_code"]')
+      .clear()
+      .type('00000')
+      .blur();
+    cy.get('#pickup_postal_code-error').should('exist');
+
     cy
       .get('input[name="pickup_postal_code"]')
       .clear()
       .type('80913');
-    cy.get('input[name="destination_postal_code"]').type('76127');
+
+    // test an invalid destination zip code
+    cy
+      .get('input[name="destination_postal_code"]')
+      .clear()
+      .type('00000')
+      .blur();
+    cy.get('#destination_postal_code-error').should('exist');
+
+    cy
+      .get('input[name="destination_postal_code"]')
+      .clear()
+      .type('30813');
     cy.nextPage();
 
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-start/);
     });
+
     cy.get('#original_move_date-error').should('exist');
   });
 
@@ -171,7 +192,7 @@ describe('allows a SM to request a payment', function() {
     cy.removeFetch();
     cy.server();
     cy.route('POST', '**/internal/uploads').as('postUploadDocument');
-    cy.route('POST', '**/moves/**/move_documents').as('postMoveDocument');
+    cy.route('POST', '**/moves/**/weight_ticket').as('postWeightTicket');
     cy.signInAsUserPostRequest(milmoveAppName, '8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
   });
 
@@ -180,8 +201,9 @@ describe('allows a SM to request a payment', function() {
     serviceMemberCanCancel();
   });
 
-  it('service member requests car weight ticket payment', () => {
-    serviceMemberSubmitsWeightTicket('CAR');
+  it('service member requests car weight ticket payment and views expenses landing page', () => {
+    serviceMemberSubmitsWeightTicket('CAR', false);
+    serviceMemberViewsExpensesLandingPage();
   });
 
   it('service member requests a box truck weight ticket payment', () => {
@@ -242,6 +264,42 @@ describe('allows a SM to request a payment', function() {
     });
   });
 });
+
+function serviceMemberViewsExpensesLandingPage() {
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-expenses-intro/);
+  });
+
+  cy
+    .get('button')
+    .contains('Continue')
+    .should('be.disabled');
+
+  cy
+    .get('[type="radio"]')
+    .first()
+    .should('be.not.checked');
+  cy
+    .get('[type="radio"]')
+    .last()
+    .should('be.not.checked');
+
+  cy
+    .get('a')
+    .contains('More about expenses')
+    .should('have.attr', 'href')
+    .and('match', /^\/allowable-expenses/);
+
+  cy
+    .get('[type="radio"]')
+    .first()
+    .check({ force: true });
+
+  cy
+    .get('button')
+    .contains('Continue')
+    .should('be.enabled');
+}
 
 function serviceMemberSubmitsCarTrailerWeightTicket() {
   cy.contains('Request Payment').click();
@@ -341,13 +399,13 @@ function serviceMemberSavesWeightTicketForLater(vehicleType) {
     .get('button')
     .contains('Save For Later')
     .click();
-  cy.wait('@postMoveDocument');
+  cy.wait('@postWeightTicket');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/$/);
   });
 }
 
-function serviceMemberSubmitsWeightTicket(vehicleType) {
+function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true) {
   cy.contains('Request Payment').click();
   cy
     .get('button')
@@ -371,17 +429,28 @@ function serviceMemberSubmitsWeightTicket(vehicleType) {
     .get('input[name="weight_ticket_date"]')
     .type('6/2/2018{enter}')
     .blur();
+  if (hasAnother) {
+    cy
+      .get('[type="radio"]')
+      .first()
+      .should('be.checked');
 
-  cy
-    .get('[type="radio"]')
-    .first()
-    .should('be.checked');
+    cy
+      .get('button')
+      .contains('Save & Add Another')
+      .click();
+  } else {
+    cy
+      .get('[type="radio"]')
+      .last()
+      .check({ force: true });
 
-  cy
-    .get('button')
-    .contains('Save & Add Another')
-    .click();
-  cy.wait('@postMoveDocument');
+    cy
+      .get('button')
+      .contains('Save & Continue')
+      .click();
+  }
+  cy.wait('@postWeightTicket');
 }
 
 function serviceMemberCanCancel() {

@@ -12,6 +12,7 @@ coverage.out
 __snapshots__
 
 # development
+/mnt
 /tmp
 
 # Ignore

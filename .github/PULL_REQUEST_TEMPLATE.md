@@ -26,9 +26,6 @@ echo "Code goes here"
   * [ ] Secure migrations have been tested using `scripts/run-prod-migrations`
 * [ ] There are no aXe warnings for UI.
 * [ ] This works in [Supported Browsers and their phone views](https://github.com/transcom/mymove/tree/master/docs/adr/0016-Browser-Support.md) (Chrome, Firefox, IE, Edge).
-* Any new client dependencies (Google Analytics, hosted libraries, CDNs, etc) have been:
-  * [ ] Communicated to @ntwyman
-  * [ ] Added to the list of [network dependencies](https://github.com/transcom/mymove#client-network-dependencies)
 * [ ] Tested in the Experimental environment (for changes to containers, app startup, or connection to data stores)
 * [ ] User facing changes have been reviewed by design.
 * [ ] Request review from a member of a different team.
