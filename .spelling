@@ -410,6 +410,7 @@ goqu
 toolset
 metadata
 Codecov
+devlocal
 `testing.Short`
 uncomment
 ecs-service-logs
