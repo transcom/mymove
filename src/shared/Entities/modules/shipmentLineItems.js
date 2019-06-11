@@ -41,6 +41,26 @@ export function recalculateShipmentLineItems(shipmentId, label = recalculateShip
   return swaggerRequest(getPublicClient, 'accessorials.recalculateShipmentLineItems', { shipmentId }, { label });
 }
 
+export function fetchAndCalculateShipmentLineItems(shipmentId, shipmentStatus, shipmentLineItems) {
+  let runRecalculation = false;
+
+  if (shipmentStatus === 'DELIVERED') {
+    for (let shipmentLineItem of shipmentLineItems) {
+      if (shipmentLineItem.invoice_id.length > 0) {
+        runRecalculation = true;
+        break;
+      }
+    }
+  }
+
+  if (runRecalculation) {
+    // TODO Should we do something if nothing recalculates here?
+    recalculateShipmentLineItems(shipmentId);
+  }
+
+  return getAllShipmentLineItems(shipmentId);
+}
+
 // Show linehaul (and related) items before any accessorial items by adding isLinehaul property.
 function listLinehaulItemsBeforeAccessorials(items) {
   const linehaulRelatedItems = ['LHS', '135A', '135B', '105A', '105C', '16A'];
