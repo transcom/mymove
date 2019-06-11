@@ -1942,7 +1942,7 @@ definitions:
       - code
       - move_type
       - created_at
-  ValidatePostalCodePayload:
+  RateEnginePostalCodePayload:
     type: object
     properties:
       valid:
@@ -3591,11 +3591,11 @@ paths:
           description: access code not found in system
         500:
           description: server error
-  /postal_codes/{postal_code}:
+  /rate_postal_codes/{postal_code}:
     get:
       summary: Validate if a zipcode is valid for origin or destination location for a move.
       description: Verifies if a zipcode is valid for origin or destination location for a move.
-      operationId: validatePostalCode
+      operationId: validatePostalCodeWithRateData
       tags:
         - postal_codes
       parameters:
@@ -3616,7 +3616,7 @@ paths:
         200:
           description: postal_code is valid or invalid
           schema:
-            $ref: '#/definitions/ValidatePostalCodePayload'
+            $ref: '#/definitions/RateEnginePostalCodePayload'
         400:
           description: invalid request
         401:

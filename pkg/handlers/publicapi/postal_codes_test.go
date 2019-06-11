@@ -12,7 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestValidatePostalCodeHandler_Valid() {
+func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Valid() {
 	// create user
 	user := testdatagen.MakeDefaultUser(suite.DB())
 
@@ -37,7 +37,7 @@ func (suite *HandlerSuite) TestValidatePostalCodeHandler_Valid() {
 		postalCodeType,
 	).Return(true, nil)
 
-	handler := ValidatePostalCodeHandler{context, postalCodeValidator}
+	handler := ValidatePostalCodeWithRateDataHandler{context, postalCodeValidator}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
@@ -50,7 +50,7 @@ func (suite *HandlerSuite) TestValidatePostalCodeHandler_Valid() {
 	suite.Assertions.IsType(&postalcodesops.ValidatePostalCodeOK{}, response)
 }
 
-func (suite *HandlerSuite) TestValidatePostalCodeHandler_Invalid() {
+func (suite *HandlerSuite) TestValidatePostalCodeWithRateDataHandler_Invalid() {
 	// create user
 	user := testdatagen.MakeDefaultUser(suite.DB())
 
@@ -75,7 +75,7 @@ func (suite *HandlerSuite) TestValidatePostalCodeHandler_Invalid() {
 		postalCodeType,
 	).Return(false, nil)
 
-	handler := ValidatePostalCodeHandler{context, postalCodeValidator}
+	handler := ValidatePostalCodeWithRateDataHandler{context, postalCodeValidator}
 	response := handler.Handle(params)
 
 	suite.IsNotErrResponse(response)
