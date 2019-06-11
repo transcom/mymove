@@ -9,7 +9,7 @@ import BasicPanel from 'shared/BasicPanel';
 import {
   selectUnbilledShipmentLineItems,
   selectTotalFromUnbilledLineItems,
-  fetchAndCalculateShipmentLineItems,
+  getAllShipmentLineItems,
 } from 'shared/Entities/modules/shipmentLineItems';
 import {
   selectSortedInvoices,
@@ -40,14 +40,14 @@ export class InvoicePanel extends PureComponent {
       .createInvoice(this.props.shipmentId)
       .then(() => {
         this.setState({ createInvoiceRequestStatus: isSuccess });
-        return this.props.fetchAndCalculateShipmentLineItems(this.props.shipmentId, this.props.shipmentStatus);
+        return this.props.getAllShipmentLineItems(this.props.shipmentId);
       })
       .catch(err => {
         this.setState({ createInvoiceRequestStatus: isError });
         let httpResCode = get(err, 'response.status');
         if (httpResCode === 409) {
           this.props.getAllInvoices(this.props.shipmentId);
-          return this.props.fetchAndCalculateShipmentLineItems(this.props.shipmentId, this.props.shipmentStatus);
+          return this.props.getAllShipmentLineItems(this.props.shipmentId);
         }
       });
   };
@@ -107,6 +107,6 @@ const mapStateToProps = (state, ownProps) => {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createInvoice, fetchAndCalculateShipmentLineItems, getAllInvoices }, dispatch);
+  return bindActionCreators({ createInvoice, getAllShipmentLineItems, getAllInvoices }, dispatch);
 }
 export default connect(mapStateToProps, mapDispatchToProps)(InvoicePanel);
