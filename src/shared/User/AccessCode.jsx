@@ -91,7 +91,7 @@ AccessCode.propTypes = {
 function mapStateToProps(state) {
   const serviceMember = get(state, 'serviceMember.currentServiceMember');
   const props = {
-    schema: get(state, 'swaggerInternal.spec.definitions.ClaimAccessCodePayload', {}),
+    schema: get(state, 'swaggerInternal.spec.definitions.ClaimAccessCode', {}),
     serviceMemberId: get(serviceMember, 'id'),
     formValues: getFormValues(formName)(state),
   };
