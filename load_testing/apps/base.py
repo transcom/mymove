@@ -69,6 +69,7 @@ def swagger_request(callable_operation, *args, **kwargs):
             response_time=time.time() - start_time,
             exception=e,
         )
+        print(e.response)
         return e.swagger_result
     except SwaggerMappingError as e:
         # Even though we don't return the result here we at least fire off the failure event
