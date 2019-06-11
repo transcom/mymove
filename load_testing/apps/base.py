@@ -41,7 +41,9 @@ def get_swagger_config():
         )
         milmove_formats.append(swagger_fmt)
     swagger_config = {
-        "validate_requests": False,
+        # Validate our own requests to catch any problems with python type conversions
+        "validate_requests": True,
+        # Many of our payloads have invalid responses per the spec because of OpenAPI 2.0 issues
         "validate_responses": False,
         "formats": milmove_formats,
         "use_models": False,
@@ -86,6 +88,7 @@ def swagger_request(callable_operation, *args, **kwargs):
             response_time=metadata.elapsed_time,
             response_length=len(metadata.incoming_response.raw_bytes),
         )
+        # this is equivalent to json.loads(metadata.incoming_response.text)
         return response.result
 
 
