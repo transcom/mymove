@@ -626,7 +626,7 @@ function tspUserEditsDeliveredSitRequest() {
     .get('.DayPickerInput-Overlay .DayPicker-Day')
     .contains('22')
     .click();
-  // cannot change date_out to a date before the previous date out date
+  // cannot change date_out to a date before the earliest authorized start date
   cy
     .get('input[name=out_date]')
     .should('have.value', '3/27/2019')
