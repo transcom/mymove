@@ -42,11 +42,19 @@ export function recalculateShipmentLineItems(shipmentId, label = recalculateShip
 }
 
 export function fetchAndCalculateShipmentLineItems(shipmentId, shipmentStatus) {
-  if (shipmentStatus === 'DELIVERED') {
-    recalculateShipmentLineItems(shipmentId);
-  }
+  return async function(dispatch) {
+    let result = await dispatch(getAllShipmentLineItems(shipmentId));
+    if (result.response.ok && shipmentStatus === 'DELIVERED') {
+      const lineItems = result.response.body;
+      const lineItem = lineItems.find(item => !item.invoice_id);
+      if (lineItem) {
+        // recalculate shipment line items if no invoice and shipment delivered
+        result = dispatch(recalculateShipmentLineItems(shipmentId));
+      }
+    }
 
-  return getAllShipmentLineItems(shipmentId);
+    return result;
+  };
 }
 
 // Show linehaul (and related) items before any accessorial items by adding isLinehaul property.
