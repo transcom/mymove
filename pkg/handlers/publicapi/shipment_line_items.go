@@ -18,8 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
-	"github.com/transcom/mymove/pkg/services/invoice"
-	shipmentop "github.com/transcom/mymove/pkg/services/shipment"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -85,39 +83,6 @@ func payloadForDimensionsModel(a *models.ShipmentLineItemDimensions) *apimessage
 type GetShipmentLineItemsHandler struct {
 	handlers.HandlerContext
 	shipmentLineItemFetcher services.ShipmentLineItemFetcher
-}
-
-func (h GetShipmentLineItemsHandler) recalculateShipmentLineItems(shipmentLineItems models.ShipmentLineItems, shipmentID uuid.UUID, session *auth.Session) (bool, error) {
-	update := false
-
-	// If there is a shipment line item with an invoice do not run the recalculate function
-	// the system is currently not setup to re-price a shipment with an existing invoice
-	// and currently the system does not expect to have multiple invoices per shipment
-	for _, item := range shipmentLineItems {
-		if item.InvoiceID != nil {
-			return update, nil
-		}
-	}
-
-	// Need to fetch Shipment to get the Accepted Offer and the ShipmentLineItems
-	// Only returning ShipmentLineItems that are approved and have no InvoiceID
-	shipment, err := invoice.FetchShipmentForInvoice{DB: h.DB()}.Call(shipmentID)
-	if err != nil {
-		h.Logger().Error("Error fetching Shipment for re-pricing line items for shipment", zap.Error(err))
-		return update, err
-	}
-	// Run re-calculation process
-	update, err = shipmentop.ProcessRecalculateShipment{
-		DB:     h.DB(),
-		Logger: h.Logger(),
-	}.Call(&shipment, shipmentLineItems, h.Planner())
-
-	if err != nil {
-		h.Logger().Error("Error re-pricing line items for shipment", zap.Error(err))
-		return update, err
-	}
-
-	return update, nil
 }
 
 // Handle returns a specified shipment line item
