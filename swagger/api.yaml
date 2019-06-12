@@ -3591,7 +3591,7 @@ paths:
           description: access code not found in system
         500:
           description: server error
-  /rate_postal_codes/{postal_code}:
+  /rate_engine_postal_codes/{postal_code}:
     get:
       summary: Validate if a zipcode is valid for origin or destination location for a move.
       description: Verifies if a zipcode is valid for origin or destination location for a move.
