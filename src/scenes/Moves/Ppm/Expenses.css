@@ -19,10 +19,6 @@
   padding-top: 2em;
 }
 
-.short-input {
-  max-width: 200px;
-}
-
 .expenses-container a:visited {
   color: #0071bc;
 }

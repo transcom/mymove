@@ -31,6 +31,8 @@ class ExpensesUpload extends Component {
     GTCC: 'GTCC',
   };
 
+  static uploadReceipt = '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload receipt</span></span>';
+
   get initialState() {
     return {
       paymentMethod: ExpensesUpload.paymentMethods.Other,
@@ -114,7 +116,7 @@ class ExpensesUpload extends Component {
               <>
                 <SwaggerField title="Document title" fieldName="title" swagger={moveDocSchema} required />
                 <SwaggerField
-                  className="short-input"
+                  className="short-field"
                   title="Amount"
                   fieldName="requested_amount_cents"
                   swagger={moveDocSchema}
@@ -122,6 +124,7 @@ class ExpensesUpload extends Component {
                 />
                 <div className="expenses-uploader">
                   <Uploader
+                    options={{ labelIdle: ExpensesUpload.uploadReceipt }}
                     isPublic={isPublic}
                     onRef={ref => (this.uploader = ref)}
                     onChange={this.onChange}
