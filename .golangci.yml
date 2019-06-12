@@ -38,10 +38,7 @@ issues:
         - govet
   fix: true
 run:
-  # timeout for analysis, e.g. 30s, 5m, default is 1m
-  deadline: 8m
-
-#  # which dirs to skip: they won't be analyzed;
+  # which dirs to skip: they won't be analyzed;
   skip-dirs:
     - pkg/gen
     - mocks
