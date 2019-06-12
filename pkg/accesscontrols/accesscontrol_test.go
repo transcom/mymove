@@ -1,24 +1,26 @@
-package auth
+package accesscontrols
 
 import (
 	"errors"
 	"testing"
+
+	"github.com/transcom/mymove/pkg/auth"
 )
 
 func TestAuthorizeAdminUser(t *testing.T) {
 	testcases := []struct {
 		description string
-		session     *Session
+		session     *auth.Session
 		expected    error
 	}{
 		{
 			description: "authorized",
-			session:     &Session{IsSuperuser: true},
+			session:     &auth.Session{IsSuperuser: true},
 			expected:    nil,
 		},
 		{
 			description: "not authorized",
-			session:     &Session{},
+			session:     &auth.Session{},
 			expected:    errors.New("USER_UNAUTHORIZED"),
 		},
 	}

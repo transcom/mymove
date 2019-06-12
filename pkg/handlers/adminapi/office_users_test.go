@@ -8,7 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/transcom/mymove/mocks"
-	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/accesscontrols"
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -51,7 +51,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		handler := IndexOfficeUsersHandler{
 			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
 			NewQueryFilter:        query.NewQueryFilter,
-			OfficeUserListFetcher: user.NewOfficeUserListFetcher(queryBuilder, auth.AuthorizeAdminUser),
+			OfficeUserListFetcher: user.NewOfficeUserListFetcher(queryBuilder, accesscontrols.AuthorizeAdminUser),
 		}
 
 		response := handler.Handle(params)
