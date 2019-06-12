@@ -3,12 +3,15 @@ package shipment
 import (
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+
 	"github.com/gofrs/uuid"
+
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
+	storageintransit "github.com/transcom/mymove/pkg/services/storage_in_transit"
 )
 
 // PricingType describe the type of pricing to do for a shipment
@@ -76,13 +79,27 @@ func (c PriceShipment) Call(shipment *models.Shipment, price PricingType) (*vali
 		return validate.NewErrors(), err
 	}
 
+	var generalLineItems models.ShipmentLineItems
+
 	// When the shipment is delivered we should also price existing approved pre-approval requests
 	preApprovals, err := c.Engine.PricePreapprovalRequestsForShipment(*shipment)
 	if err != nil {
 		return validate.NewErrors(), err
 	}
+	generalLineItems = append(generalLineItems, preApprovals...)
 
-	verrs, err := shipment.SaveShipmentAndPricingInfo(c.DB, lineItems, preApprovals, distanceCalculation)
+	// Add storage in transit line items
+	createStorageInTransitLineItems := storageintransit.CreateStorageInTransitLineItems{
+		DB:      c.DB,
+		Planner: c.Planner,
+	}
+	storageInTransitLineItems, err := createStorageInTransitLineItems.CreateStorageInTransitLineItems(shipmentCost)
+	if err != nil {
+		return validate.NewErrors(), err
+	}
+	generalLineItems = append(generalLineItems, storageInTransitLineItems...)
+
+	verrs, err := shipment.SaveShipmentAndPricingInfo(c.DB, lineItems, generalLineItems, distanceCalculation)
 	if err != nil || verrs.HasAny() {
 		return verrs, err
 	}

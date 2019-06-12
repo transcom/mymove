@@ -71,6 +71,10 @@ type StorageInTransit struct {
 	WarehousePhone      *string                  `json:"warehouse_phone" db:"warehouse_phone"`
 	WarehouseEmail      *string                  `json:"warehouse_email" db:"warehouse_email"`
 
+	// distance
+	StorageInTransitDistanceID *uuid.UUID          `json:"storage_in_transit_distance_id" db:"storage_in_transit_distance_id"`
+	StorageInTransitDistance   DistanceCalculation `belongs_to:"distance_calculation"`
+
 	// Associations
 	Shipment         Shipment `belongs_to:"shipment"`
 	WarehouseAddress Address  `belongs_to:"address"`
