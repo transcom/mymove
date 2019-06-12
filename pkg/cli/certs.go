@@ -1,20 +1,12 @@
 package cli
 
 import (
-	"crypto/tls"
-	"crypto/x509"
 	"fmt"
-	"io/ioutil"
 	"regexp"
-	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/spf13/viper"
-	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/server"
-
 	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 )
 
 const (
@@ -30,11 +22,11 @@ const (
 	MoveMilDoDTLSKeyFlag string = "move-mil-dod-tls-key"
 )
 
-type errInvalidPKCS7 struct {
+type ErrInvalidPKCS7 struct {
 	Path string
 }
 
-func (e *errInvalidPKCS7) Error() string {
+func (e *ErrInvalidPKCS7) Error() string {
 	return fmt.Sprintf("invalid DER encoded PKCS7 package: %s", e.Path)
 }
 
@@ -72,62 +64,10 @@ func CheckCert(v *viper.Viper) error {
 	}
 	pathToPackage := v.GetString(DoDCAPackageFlag)
 	if len(pathToPackage) == 0 {
-		return errors.Wrap(&errInvalidPKCS7{Path: pathToPackage}, fmt.Sprintf("%s is missing", DoDCAPackageFlag))
+		return errors.Wrap(&ErrInvalidPKCS7{Path: pathToPackage}, fmt.Sprintf("%s is missing", DoDCAPackageFlag))
 	}
 
 	return nil
-}
-
-// InitDoDCertificates initializes the DoD Certificates
-func InitDoDCertificates(v *viper.Viper, logger Logger) ([]tls.Certificate, *x509.CertPool, error) {
-
-	tlsCertString := v.GetString(MoveMilDoDTLSCertFlag)
-	tlsCerts := ParseCertificates(tlsCertString)
-	if len(tlsCerts) == 0 {
-		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing certificate PEM block", MoveMilDoDTLSCertFlag)
-	}
-	if len(tlsCerts) > 1 {
-		return make([]tls.Certificate, 0), nil, errors.Errorf("%s has too many certificate PEM blocks", MoveMilDoDTLSCertFlag)
-	}
-
-	logger.Info(fmt.Sprintf("certitficate chain from %s parsed", MoveMilDoDTLSCertFlag), zap.Any("count", len(tlsCerts)))
-
-	caCertString := v.GetString(MoveMilDoDCACertFlag)
-	caCerts := ParseCertificates(caCertString)
-	if len(caCerts) == 0 {
-		return make([]tls.Certificate, 0), nil, errors.Errorf("%s is missing certificate PEM block", MoveMilDoDTLSCertFlag)
-	}
-
-	logger.Info(fmt.Sprintf("certitficate chain from %s parsed", MoveMilDoDCACertFlag), zap.Any("count", len(caCerts)))
-
-	//Append move.mil cert with intermediate CA to create a validate certificate chain
-	cert := strings.Join(append(append(make([]string, 0), tlsCerts...), caCerts...), "\n")
-
-	key := v.GetString(MoveMilDoDTLSKeyFlag)
-	keyPair, err := tls.X509KeyPair([]byte(cert), []byte(key))
-	if err != nil {
-		return make([]tls.Certificate, 0), nil, errors.Wrap(err, "failed to parse DOD x509 keypair for server")
-	}
-
-	logger.Info("DOD keypair", zap.Any("certificates", len(keyPair.Certificate)))
-
-	pathToPackage := v.GetString(DoDCAPackageFlag)
-	pkcs7Package, err := ioutil.ReadFile(pathToPackage) // #nosec
-	if err != nil {
-		return make([]tls.Certificate, 0), nil, errors.Wrap(err, fmt.Sprintf("%s is invalid", DoDCAPackageFlag))
-	}
-
-	if len(pkcs7Package) == 0 {
-		return make([]tls.Certificate, 0), nil, errors.Wrap(&errInvalidPKCS7{Path: pathToPackage}, fmt.Sprintf("%s is an empty file", DoDCAPackageFlag))
-	}
-
-	dodCACertPool, err := server.LoadCertPoolFromPkcs7Package(pkcs7Package)
-	if err != nil {
-		return make([]tls.Certificate, 0), dodCACertPool, errors.Wrap(err, "Failed to parse DoD CA certificate package")
-	}
-
-	return []tls.Certificate{keyPair}, dodCACertPool, nil
-
 }
 
 // ParseCertificates takes a certificate and parses it into an slice of individual certificates

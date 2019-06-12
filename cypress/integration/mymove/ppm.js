@@ -313,6 +313,11 @@ function serviceMemberSubmitsCarTrailerWeightTicket() {
   cy.get('input[name="vehicle_nickname"]').type('Nickname');
 
   cy
+    .contains('Is this a different trailer you own')
+    .children('a')
+    .should('have.attr', 'href', '/trailer-criteria');
+
+  cy
     .get('[type="radio"]')
     .first()
     .check({ force: true });
@@ -487,14 +492,14 @@ function serviceMemberVisitsIntroToPPMPaymentRequest() {
 
   cy
     .get('a')
-    .contains('What expenses are allowed?')
+    .contains('More about expenses')
     .click();
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/allowable-expenses/);
   });
 
-  cy.get('h3').contains('Allowable expenses');
+  cy.get('h3').contains('Storage & Moving Expenses');
 
   cy
     .get('button')

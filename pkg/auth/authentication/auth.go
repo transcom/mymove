@@ -16,9 +16,11 @@ import (
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/pkg/errors"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -447,4 +449,26 @@ func fetchToken(logger Logger, code string, clientID string, loginGovProvider Lo
 		IDToken:     parsedResponse.IDToken,
 	}
 	return &session, err
+}
+
+// InitAuth initializes the Login.gov provider
+func InitAuth(v *viper.Viper, logger Logger, appnames auth.ApplicationServername) (LoginGovProvider, error) {
+	loginGovCallbackProtocol := v.GetString(cli.LoginGovCallbackProtocolFlag)
+	loginGovCallbackPort := v.GetInt(cli.LoginGovCallbackPortFlag)
+	loginGovSecretKey := v.GetString(cli.LoginGovSecretKeyFlag)
+	loginGovHostname := v.GetString(cli.LoginGovHostnameFlag)
+
+	loginGovProvider := NewLoginGovProvider(loginGovHostname, loginGovSecretKey, logger)
+	err := loginGovProvider.RegisterProvider(
+		appnames.MilServername,
+		v.GetString(cli.LoginGovMyClientIDFlag),
+		appnames.OfficeServername,
+		v.GetString(cli.LoginGovOfficeClientIDFlag),
+		appnames.TspServername,
+		v.GetString(cli.LoginGovTSPClientIDFlag),
+		appnames.AdminServername,
+		v.GetString(cli.LoginGovAdminClientIDFlag),
+		loginGovCallbackProtocol,
+		loginGovCallbackPort)
+	return loginGovProvider, err
 }

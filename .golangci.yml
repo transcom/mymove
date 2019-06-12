@@ -36,3 +36,4 @@ issues:
     - path: internal/pkg/dutystationsloader/duty_stations_loader.go
       linters:
         - govet
+  fix: true

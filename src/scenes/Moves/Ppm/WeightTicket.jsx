@@ -18,6 +18,7 @@ import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 import WizardHeader from '../WizardHeader';
 import './PPMPaymentRequest.css';
 import { createWeightTicketSetDocument } from 'shared/Entities/modules/weightTicketSetDocuments';
+import { Link } from 'react-router-dom';
 
 class WeightTicket extends Component {
   state = this.initialState;
@@ -202,7 +203,8 @@ class WeightTicket extends Component {
                 <>
                   <div className="radio-group-wrapper normalize-margins">
                     <p className="radio-group-header">
-                      Is this a different trailer you own and does it meet the <a>trailer criteria</a>?
+                      Is this a <strong>different</strong> trailer you own and does it meet the{' '}
+                      <Link to="/trailer-criteria">trailer criteria</Link>?
                     </p>
                     <RadioButton
                       inputClassName="inline_radio"
@@ -247,8 +249,8 @@ class WeightTicket extends Component {
                           <Alert type="warning">
                             If your state does not provide a registration or bill of sale for your trailer, you may
                             write and upload a signed and dated statement certifying that you or your spouse own the
-                            trailer and meets the <a>trailer criteria</a>. Upload your statement using the proof of
-                            ownership field.
+                            trailer and meets the <Link to="/trailer-criteria">trailer criteria</Link>. Upload your
+                            statement using the proof of ownership field.
                           </Alert>
                         </div>
                       )}

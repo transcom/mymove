@@ -11,6 +11,10 @@ Pre-commit can be run by simply running the following command in terminal:
 
 If you would like to run an individual hook, for example if you want to only run *prettier*: `pre-commit run prettier -a`
 
+## Editor Integration
+
+1. `golangci-lint` supports various [editors](https://github.com/golangci/golangci-lint/#editor-integration)
+
 ## Current pre-commit hooks
 
 | Hook  | Description |
@@ -38,3 +42,8 @@ If you would like to run an individual hook, for example if you want to only run
 | `typecheck` | Part of `golangci-lint` linter and works like the front-end of a Go compiler, parses and type-checks Go code
 | `structcheck` | Part of `golangci-lint` linter and finds an unused struct fields
 | `deadcode` | Part of `golangci-lint` linter and used to find unused code
+
+### Troubleshooting Tips
+
+1. If you encounter `cannot find module providing package github.com/transcom/mymove/pkg/gen/*` try running `make server_generate` which should generate files for `gen` folder automatically
+2. If you encounter `cannot find module providing package github.com/transcom/mymove/pkg/.../mocks` try running `make mocks_generate` which should auto generate mocks
