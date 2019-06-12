@@ -38,8 +38,10 @@ function AllowableExpenses(props) {
         <strong>Save your receipts.</strong> It’s better to have receipts you don’t need than to need receipts you don’t
         have.
       </p>
-      <hr />
-      <FontAwesomeIcon aria-hidden className="icon" icon={faCheck} />Some commonly claimed moving expenses:
+      <hr className="divider" />
+      <div className="bullet-li-header">
+        <FontAwesomeIcon aria-hidden className="icon" icon={faCheck} />Some commonly claimed moving expenses:
+      </div>
       <ul>
         <li>Consumable packing materials</li>
         <li>Contracted expenses</li>
@@ -49,9 +51,11 @@ function AllowableExpenses(props) {
         <li>Weighing fees</li>
         <li>Gas, exceeding travel allowance (see below)</li>
       </ul>
-      <div className="dashed-divider" style={{ marginBottom: '1em' }} />
-      <FontAwesomeIcon aria-hidden className="icon" icon={faBan} />Some common expenses that are <em>not</em> claimable
-      or reimbursable:
+      <div className="divider dashed-divider" />
+      <div className="bullet-li-header">
+        <FontAwesomeIcon aria-hidden className="icon" icon={faBan} />Some common expenses that are <em>not</em>{' '}
+        claimable or reimbursable:
+      </div>
       <ul>
         <li>Animal costs (kennels, transportation)</li>
         <li>Extra drivers</li>
@@ -65,39 +69,39 @@ function AllowableExpenses(props) {
         <li>Tire chains</li>
         <li>Gas, under travel allowance (see details following)</li>
       </ul>
-      <hr />
-      <p>
+      <hr className="divider" />
+      <section style={{ marginBottom: '1.5em' }}>
         <strong>Gas and fuel expenses</strong>
-        <br />
-        Fuel expenses may not be claimed for a PPM unless they exceed the amount paid for mileage and per diem fees on
-        your travel pay. The IRS does not allow you to claim an expense if you were already paid for the mileage. Doing
-        so could result in an IRS audit.
-      </p>
-      <p>
-        If your fuel costs exceed the per diem payment you received, however, you may claim the portion that exceeds
-        that amount.
-      </p>
-      <p>
+        <p>
+          Fuel expenses may not be claimed for a PPM unless they exceed the amount paid for mileage and per diem fees on
+          your travel pay. The IRS does not allow you to claim an expense if you were already paid for the mileage.
+          Doing so could result in an IRS audit.
+        </p>
+        <p>
+          If your fuel costs exceed the per diem payment you received, however, you may claim the portion that exceeds
+          that amount.
+        </p>
+      </section>
+      <section style={{ marginBottom: '3.5em' }}>
         <strong>When are receipts required?</strong>
-        <br />
-        You must have receipts for contracted expenses, storage facilities, and any expense over $75.
-      </p>
-      <p>
-        You will need receipts for expenses under $75 if multiple expenses in that same category add up to more than
-        $75.
-      </p>
-      <p>
-        Again, it’s better to have receipts you don’t need than to be missing receipts that you do need. We recommend{' '}
-        <strong>saving all your moving receipts.</strong>
-      </p>
-      <p>
-        If you are missing a receipt, you can go online and print a new copy of your receipt (if you can). Otherwise,
-        write and sign a statement that explains why the receipt is missing. Contact your{' '}
-        <a href="https://installations.militaryonesource.mil/search" target="_blank">
-          local finance office
-        </a>{' '}
-        for assistance.
-      </p>
+        <p>You must have receipts for contracted expenses, storage facilities, and any expense over $75.</p>
+        <p>
+          You will need receipts for expenses under $75 if multiple expenses in that same category add up to more than
+          $75.
+        </p>
+        <p>
+          Again, it’s better to have receipts you don’t need than to be missing receipts that you do need. We recommend{' '}
+          <strong>saving all your moving receipts.</strong>
+        </p>
+        <p>
+          If you are missing a receipt, you can go online and print a new copy of your receipt (if you can). Otherwise,
+          write and sign a statement that explains why the receipt is missing. Contact your{' '}
+          <a href="https://installations.militaryonesource.mil/search" target="_blank">
+            local finance office
+          </a>{' '}
+          for assistance.
+        </p>
+      </section>
       <div className="usa-grid button-bar">
         <button className="usa-button-secondary" onClick={goBack}>
           Back
