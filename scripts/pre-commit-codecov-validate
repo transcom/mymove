@@ -2,9 +2,4 @@
 
 set -eu -o pipefail
 
-output=$(/usr/bin/curl -s -S --retry 5 --retry-connrefused --data-binary @.codecov.yml https://codecov.io/validate)
-
-if [[ ! $output =~ (Valid) ]]; then
-    echo "$output"
-    exit 1
-fi
+/usr/bin/curl -s -S --retry 5 --retry-connrefused --data-binary @.codecov.yml https://codecov.io/validate | tee /dev/stderr | grep "Valid!"
