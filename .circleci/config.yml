@@ -482,7 +482,7 @@ jobs:
           name: Setup Code Climate test-reporter
           command: |
             # download test reporter as a static binary
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > /home/circleci/cc-test-reporter
+            curl -L -S --retry 5 --retry-connrefused https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 --output /home/circleci/cc-test-reporter
             chmod +x /home/circleci/cc-test-reporter
             /home/circleci/cc-test-reporter before-build -d
       - run:
@@ -506,7 +506,7 @@ jobs:
       - run:
           name: upload code coverage to codecov
           command: |
-            curl -s https://codecov.io/bash > /home/circleci/codecov
+            curl -s -S --retry 5 --retry-connrefused https://codecov.io/bash --output /home/circleci/codecov
             chmod +x /home/circleci/codecov
             /home/circleci/codecov -F go -f coverage.out
 
