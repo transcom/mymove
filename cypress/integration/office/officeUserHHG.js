@@ -6,7 +6,7 @@ describe('office user finds the shipment', function() {
   it('office user views hhg moves in queue new moves', function() {
     officeUserViewsMoves();
   });
-  it('office user views accepted hhg moves in queue Accepted HHGs', function() {
+  it('office user views approved hhg moves in queue Approved HHGs', function() {
     officeUserViewsApprovedShipment();
   });
   it('office user views delivered hhg moves in queue Delivered HHGs', function() {
@@ -85,7 +85,7 @@ function officeUserViewsApprovedShipment() {
 }
 
 function officeUserApprovesOnlyBasicsHHG() {
-  // Open accepted hhg queue
+  // Open approved hhg queue
   cy.patientVisit('/queues/new');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
@@ -132,10 +132,10 @@ function officeUserApprovesOnlyBasicsHHG() {
 }
 
 function officeUserApprovesHHG() {
-  // Open accepted hhg queue
-  cy.patientVisit('/queues/hhg_accepted');
+  // Open approved hhg queue
+  cy.patientVisit('/queues/new');
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
+    expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
   // Find move and open it
@@ -155,7 +155,7 @@ function officeUserApprovesHHG() {
 
   cy.get('.combo-button').click();
 
-  cy.get('.status').contains('Accepted');
+  cy.get('.status').contains('Approved');
 
   // Click on HHG tab
   cy.get('[data-cy="hhg-tab"]').click();
