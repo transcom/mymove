@@ -42,15 +42,9 @@ class ExpensesUpload extends Component {
     };
   }
 
-  handleHasMoreExpensesChange = event => {
+  handleRadioChange = event => {
     this.setState({
-      haveMoreExpenses: event.target.value,
-    });
-  };
-
-  handlePaymentMethodChange = event => {
-    this.setState({
-      paymentMethod: event.target.value,
+      [event.target.name]: event.target.value,
     });
   };
 
@@ -148,24 +142,24 @@ class ExpensesUpload extends Component {
                     labelClassName="inline_radio"
                     label="Government travel charge card (GTCC)"
                     value={ExpensesUpload.paymentMethods.GTCC}
-                    name="payment_method"
+                    name="paymentMethod"
                     checked={paymentMethod === ExpensesUpload.paymentMethods.GTCC}
-                    onChange={this.handlePaymentMethodChange}
+                    onChange={this.handleRadioChange}
                   />
                   <RadioButton
                     inputClassName="inline_radio"
                     labelClassName="inline_radio"
                     label="Other"
                     value={ExpensesUpload.paymentMethods.Other}
-                    name="payment_method"
+                    name="paymentMethod"
                     checked={paymentMethod === ExpensesUpload.paymentMethods.Other}
-                    onChange={this.handlePaymentMethodChange}
+                    onChange={this.handleRadioChange}
                   />
                   <FontAwesomeIcon
                     aria-hidden
                     className="color_blue_link"
                     icon={faQuestionCircle}
-                    onClick={this.handleHowDidYouPayForThis}
+                    onClick={this.handleRadioChange}
                   />
                 </div>
                 <div className="dashed-divider" />
@@ -176,18 +170,18 @@ class ExpensesUpload extends Component {
                     labelClassName="inline_radio"
                     label="Yes"
                     value="Yes"
-                    name="has_more_expenses"
+                    name="haveMoreExpenses"
                     checked={haveMoreExpenses === 'Yes'}
-                    onChange={this.handleHasMoreExpensesChange}
+                    onChange={this.handleRadioChange}
                   />
                   <RadioButton
                     inputClassName="inline_radio"
                     labelClassName="inline_radio"
                     label="No"
                     value="No"
-                    name="has_more_expenses"
+                    name="haveMoreExpenses"
                     checked={haveMoreExpenses === 'No'}
-                    onChange={this.handleHasMoreExpensesChange}
+                    onChange={this.handleRadioChange}
                   />
                 </div>
               </>
