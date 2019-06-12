@@ -2988,6 +2988,7 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 			PmSurveyWeightEstimate:      &weightEstimate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
 			DestinationGBLOC:            &destOffice.Gbloc,
+			GBLNumber:                   &GBLNumber,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -3017,7 +3018,6 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 	 * Service member with uploaded orders and an approved shipment to be accepted, able to generate GBL
 	 */
 	email := "hhg@govbilloflading.ready"
-
 	ordersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
 	weightEstimate := unit.Pound(5000)
 	sourceOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
@@ -3030,6 +3030,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 			Gbloc: "QRED",
 		},
 	})
+	GBLNumber := destOffice.Gbloc + "001234"
 	offer9 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("658f3a78-b3a9-47f4-a820-af673103d62d")),
