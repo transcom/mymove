@@ -366,6 +366,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		LoginGovUUID:  id,
 		LoginGovEmail: email,
 		IsSuperuser:   false,
+		Disabled:      false,
 	}
 
 	userType := r.PostFormValue("userType")
@@ -421,6 +422,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Telephone:              telephone,
 			TransportationOfficeID: office.ID,
 			Email:                  email,
+			Disabled:               false,
 		}
 		if user.ID != uuid.Nil {
 			officeUser.UserID = &user.ID
@@ -456,6 +458,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Telephone:                       telephone,
 			TransportationServiceProviderID: tsp.ID,
 			Email:                           email,
+			Disabled:                        false,
 		}
 		if user.ID != uuid.Nil {
 			tspUser.UserID = &user.ID
@@ -471,6 +474,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 	case DpsUserType:
 		dpsUser := models.DpsUser{
 			LoginGovEmail: email,
+			Disabled:      false,
 		}
 
 		verrs, err := h.db.ValidateAndSave(&dpsUser)
@@ -523,9 +527,11 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 	case OfficeUserType:
 		session.ApplicationName = auth.OfficeApp
 		session.Hostname = h.appnames.OfficeServername
+		session.Disabled = (userIdentity.OfficeDisabled != nil && *userIdentity.OfficeDisabled)
 	case TspUserType:
 		session.ApplicationName = auth.TspApp
 		session.Hostname = h.appnames.TspServername
+		session.Disabled = (userIdentity.TspDisabled != nil && *userIdentity.TspDisabled)
 	case AdminUserType:
 		session.ApplicationName = auth.AdminApp
 		session.Hostname = h.appnames.AdminServername
@@ -546,7 +552,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 		session.TspUserID = *(userIdentity.TspUserID)
 	}
 
-	if userIdentity.DpsUserID != nil {
+	if userIdentity.DpsUserID != nil && (userIdentity.DpsDisabled != nil && !*userIdentity.DpsDisabled) {
 		session.DpsUserID = *(userIdentity.DpsUserID)
 	}
 

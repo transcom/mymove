@@ -59,6 +59,7 @@ yarn-error.log*
 *.sublime-*
 
 **/migrations/schema.sql
+**/local_migrations/schema.sql
 
 *.stamp
 
