@@ -37,3 +37,10 @@ issues:
       linters:
         - govet
   fix: true
+run:
+  # timeout for analysis, e.g. 30s, 5m, default is 1m
+  deadline: 10m
+
+#  # which dirs to skip: they won't be analyzed;
+  skip-dirs:
+    - pkg/gen
