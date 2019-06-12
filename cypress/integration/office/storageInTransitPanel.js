@@ -75,7 +75,7 @@ function officeUserViewsSITPanel() {
       .siblings()
       .contains('Contact info')
       .siblings()
-      .contains('(713) 868-3497');
+      .contains('713-868-3497');
   });
 }
 
