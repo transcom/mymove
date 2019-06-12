@@ -44,3 +44,4 @@ run:
 #  # which dirs to skip: they won't be analyzed;
   skip-dirs:
     - pkg/gen
+    - mocks
