@@ -319,11 +319,11 @@ function serviceMemberViewsExpensesUploadPage() {
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
 
   cy.get('input[name="missingReceipt"]').should('not.be.checked');
-  cy.get('input[name="payment_method"][value="GTCC"]').should('not.be.checked');
-  cy.get('input[name="payment_method"][value="OTHER"]').should('be.checked');
+  cy.get('input[name="paymentMethod"][value="GTCC"]').should('not.be.checked');
+  cy.get('input[name="paymentMethod"][value="OTHER"]').should('be.checked');
 
-  cy.get('input[name="has_more_expenses"][value="Yes"]').should('not.be.checked');
-  cy.get('input[name="has_more_expenses"][value="No"]').should('be.checked');
+  cy.get('input[name="haveMoreExpenses"][value="Yes"]').should('not.be.checked');
+  cy.get('input[name="haveMoreExpenses"][value="No"]').should('be.checked');
 }
 
 function serviceMemberSubmitsCarTrailerWeightTicket() {
