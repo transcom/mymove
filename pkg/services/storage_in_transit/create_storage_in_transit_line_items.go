@@ -53,7 +53,7 @@ func (c CreateStorageInTransitLineItems) storageInTransitDistance(storageInTrans
 		return nil, errors.Wrap(err, "Error creating StorageInTransit DistanceCalculation model")
 	}
 
-	verrs, err := c.DB.ValidateAndSave(distanceCalculation)
+	verrs, err := c.DB.ValidateAndSave(&distanceCalculation)
 	if verrs.HasAny() || err != nil {
 		saveError := errors.Wrapf(err, "Error saving storage in transit distance %s", verrs.Error())
 		return nil, saveError
@@ -101,15 +101,15 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 		sit.StorageInTransitDistanceID = &(*distanceCalculation).ID
 
 		/****************************************************************************
-				 * Add 210A, 210B, and 210C Shipment Line Items
-				 * 210A-E = Additional flat rate costs based on distance to/from the SIT facility. These vary based on geographical schedules.
-		         *
-				 *
-				 * Up to 30 miles: Item 210A --  SIT Pup/Del - 30 or Less Miles
-				 * Up to 50 miles: Item 201A & 210B -- SIT Pup/Del 31 - 50 Miles
-				 * Over 50 miles : Item 210C (Use the linehaul tables for computation of charges) -- SIT Pup/Del - Over 50 Miles
-				 * Over 50 miles (Alaska only) : Item 210F (Use linehaul tables section 7 Intra-AK)
-				 ****************************************************************************/
+		 * Add 210A, 210B, and 210C Shipment Line Items
+		 * 210A-E = Additional flat rate costs based on distance to/from the SIT facility. These vary based on geographical schedules.
+		 *
+		 *
+		 * Up to 30 miles: Item 210A --  SIT Pup/Del - 30 or Less Miles
+		 * Up to 50 miles: Item 201A & 210B -- SIT Pup/Del 31 - 50 Miles
+		 * Over 50 miles : Item 210C (Use the linehaul tables for computation of charges) -- SIT Pup/Del - Over 50 Miles
+		 * Over 50 miles (Alaska only) : Item 210F (Use linehaul tables section 7 Intra-AK)
+		 ****************************************************************************/
 
 		if sit.StorageInTransitDistance.DistanceMiles > 50 {
 			additionalFlateRateCItem, err := models.FetchTariff400ngItemByCode(c.DB, "210C")
