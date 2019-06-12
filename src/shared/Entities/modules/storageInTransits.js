@@ -8,6 +8,7 @@ const approveStorageInTransitLabel = 'StorageInTransits.approveStorageInTransit'
 const updateSitPlaceIntoSitLabel = 'StorageInTransits.inSitStorageInTransit';
 const updateSitReleaseFromSitLabel = 'StorageInTransits.releaseStorageInTransit';
 const denyStorageInTransitLabel = 'StorageInTransits.denyStorageInTransit';
+const deleteStorageInTransitLabel = 'StorageInTransits.deleteStorageInTransit';
 
 export const selectStorageInTransits = (state, shipmentId) => {
   const storageInTransits = Object.values(state.entities.storageInTransits).filter(
@@ -103,6 +104,18 @@ export function denyStorageInTransit(
       shipmentId,
       storageInTransitId,
       storageInTransitDenyPayload,
+    },
+    { label },
+  );
+}
+
+export function deleteStorageInTransit(shipmentId, storageInTransitId, label = deleteStorageInTransitLabel) {
+  return swaggerRequest(
+    getPublicClient,
+    'storage_in_transits.deleteStorageInTransit',
+    {
+      shipmentId,
+      storageInTransitId,
     },
     { label },
   );

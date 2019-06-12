@@ -6,8 +6,10 @@ import { connect } from 'react-redux';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
-import './AccessCode.css';
+
 import { validateAccessCode, claimAccessCode } from 'shared/Entities/modules/accessCodes';
+
+import styles from './AccessCode.module.scss';
 
 const invalidAccessCodeFormatMsg = 'Please check the format';
 const invalidAccessCodeMsg = 'This code is invalid';
@@ -62,12 +64,17 @@ class AccessCode extends React.Component {
         <div className="usa-grid">
           <h3 className="title">Welcome to MilMove</h3>
           <p>Please enter your MilMove access code in the field below.</p>
-          <SwaggerField fieldName="claim_access_code" swagger={schema} required />
-          <button className="usa-button-primary" onClick={handleSubmit(this.validateAndClaimAccessCode)}>
+          <SwaggerField
+            className={styles['access-code-input']}
+            fieldName="claim_access_code"
+            swagger={schema}
+            required
+          />
+          <button className={styles['submit-access-code']} onClick={handleSubmit(this.validateAndClaimAccessCode)}>
             Continue
           </button>
           <br />
-          <div className="secondary-text">
+          <div className={styles['secondary-text']}>
             No code? Go to <a href="https://eta.sddc.army.mil/ETASSOPortal/default.aspx">DPS</a> to schedule your move.
           </div>
         </div>
@@ -91,7 +98,7 @@ AccessCode.propTypes = {
 function mapStateToProps(state) {
   const serviceMember = get(state, 'serviceMember.currentServiceMember');
   const props = {
-    schema: get(state, 'swaggerInternal.spec.definitions.ClaimAccessCodePayload', {}),
+    schema: get(state, 'swaggerInternal.spec.definitions.ClaimAccessCode', {}),
     serviceMemberId: get(serviceMember, 'id'),
     formValues: getFormValues(formName)(state),
   };

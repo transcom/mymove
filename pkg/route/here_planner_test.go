@@ -30,27 +30,17 @@ func newSuccessfulGeocodeResponseBody() GeocodeResponseBody {
 	return GeocodeResponseBody{
 		GeocodeResponse{
 			[]HereSearchResultsViewType{
-				HereSearchResultsViewType{
+				{
 					[]HereSearchResultType{
-						HereSearchResultType{
+						{
 							HereSearchLocation{
 								[]HerePosition{
-									HerePosition{0.0, 0.0},
+									{0.0, 0.0},
 								},
 							},
 						},
 					},
 				},
-			},
-		},
-	}
-}
-
-func newSuccessfulRoutingResponseBody(distance int) RoutingResponseBody {
-	return RoutingResponseBody{
-		RoutingResponse{
-			[]HereRoute{
-				HereRoute{HereRouteSummary{distance}},
 			},
 		},
 	}
@@ -73,7 +63,6 @@ type testClient struct {
 	geoResponse       GeocodeResponseBody
 	routingStatusCode int
 	routingErr        error
-	routingResponse   RoutingResponseBody
 }
 
 func (t *testClient) Get(getURL string) (*http.Response, error) {

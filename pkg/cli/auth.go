@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	// ClientAuthSecretKeyFlag is the Client Auth Secret Key Flag
+	// ClientAuthSecretKeyFlag is the Client Auth Secret Key Flag #nosec G101
 	ClientAuthSecretKeyFlag string = "client-auth-secret-key"
 
 	// NoSessionTimeoutFlag is the No Session Timeout Flag

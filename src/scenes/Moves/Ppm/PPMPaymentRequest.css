@@ -11,7 +11,23 @@
 }
 
 .weight-ticket-example-container p {
-  margin: 0px;
+  margin: 0;
+}
+
+.trailer-criteria-container .title {
+  font-size: 2.2rem;
+  font-family: sans-serif;
+  margin-bottom: 0;
+}
+
+.trailer-criteria-container .list-header {
+  margin: 25px 0 25px 0;
+  padding-left: 0;
+}
+
+.trailer-criteria-container p {
+  margin-bottom: 5px;
+  margin-top: 0;
 }
 
 .weight-ticket-example-img {
@@ -106,4 +122,28 @@
 
 .input-header {
   display: block;
+}
+
+.car-img {
+  height: 15px;
+}
+
+.normalize-margins {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+/* Note: .usa-grid-one-half almost the same except it floats left */
+.one-half {
+  width: 50%;
+}
+
+@media only screen and (max-width: 481px) {
+  .one-half {
+    width: 100%;
+  }
+}
+
+.input-group .usa-input-error {
+  margin-top: 0px;
 }

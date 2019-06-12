@@ -14,22 +14,15 @@ import (
 	// Install for managing the database
 	_ "github.com/gobuffalo/pop/soda"
 
-	// Install for pre-commit go-sec
-	// Disabled until gosec supports go modules
-	//_ "github.com/securego/gosec/cmd/gosec"
-
 	// Install for getting access to production secrets
 	_ "github.com/segmentio/chamber"
-	// Install for pre-commit go-lint
-	_ "golang.org/x/lint/golint"
 	// Install for pre-commit circleci testing
 	_ "golang.org/x/tools/cmd/callgraph"
-	// Install for pre-commit go-imports
-	_ "golang.org/x/tools/cmd/goimports"
-	// Install for pre-commit go-vet
-	_ "golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow"
 
 	// Packr isn't actually a tool dependency, but it's an indirect dependency that `go vet` and `go mod tidy` disagreed about.
 	// Adding it here is a way to ensure that it isn't tidied up from go.mod
 	_ "github.com/gobuffalo/packr"
+
+	// Install for autogenerating mocks
+	_ "github.com/vektra/mockery/cmd/mockery"
 )

@@ -136,12 +136,6 @@ const HHGTabContent = props => {
 const ReferrerQueueLink = props => {
   const pathname = props.history.location.state ? props.history.location.state.referrerPathname : '';
   switch (pathname) {
-    case '/queues/new':
-      return (
-        <NavLink to="/queues/new" activeClassName="usa-current">
-          <span>New Moves Queue</span>
-        </NavLink>
-      );
     case '/queues/ppm':
       return (
         <NavLink to="/queues/ppm" activeClassName="usa-current">
@@ -169,7 +163,7 @@ const ReferrerQueueLink = props => {
     default:
       return (
         <NavLink to="/queues/new" activeClassName="usa-current">
-          <span>New Moves Queue</span>
+          <span>New Moves/Shipments Queue</span>
         </NavLink>
       );
   }

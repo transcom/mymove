@@ -22,6 +22,7 @@ import EditHHGDates from 'scenes/Review/EditShipment';
 import Header from 'shared/Header/MyMove';
 import PPMPaymentRequestIntro from 'scenes/Moves/Ppm/PPMPaymentRequestIntro';
 import WeightTicket from 'scenes/Moves/Ppm/WeightTicket';
+import ExpensesLanding from 'scenes/Moves/Ppm/ExpensesLanding';
 import AllowableExpenses from 'scenes/Moves/Ppm/AllowableExpenses';
 import WeightTicketExamples from 'scenes/Moves/Ppm/WeightTicketExamples';
 import PaymentRequest from 'scenes/Moves/Ppm/PaymentRequest';
@@ -37,6 +38,7 @@ import { loadInternalSchema } from 'shared/Swagger/ducks';
 import FailWhale from 'shared/FailWhale';
 import { detectIE11, no_op } from 'shared/utils';
 import DPSAuthCookie from 'scenes/DPSAuthCookie';
+import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
@@ -111,12 +113,13 @@ export class AppWrapper extends Component {
 
                     <ValidatedPrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
                     <ValidatedPrivateRoute exact path="/weight-ticket-examples" component={WeightTicketExamples} />
-
+                    <ValidatedPrivateRoute exact path="/trailer-criteria" component={TrailerCriteria} />
                     <ValidatedPrivateRoute exact path="/allowable-expenses" component={AllowableExpenses} />
                     <ValidatedPrivateRoute
                       path="/moves/:moveId/ppm-payment-request-intro"
                       component={PPMPaymentRequestIntro}
                     />
+                    <ValidatedPrivateRoute path="/moves/:moveId/ppm-expenses-intro" component={ExpensesLanding} />
                     <ValidatedPrivateRoute path="/moves/:moveId/ppm-weight-ticket" component={WeightTicket} />
                     <ValidatedPrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
                     <Route exact path="/forbidden">

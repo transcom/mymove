@@ -1,6 +1,8 @@
 package internalapi
 
 import (
+	"github.com/go-openapi/strfmt"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 
@@ -61,6 +63,38 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 	if docExtractor.RequestedAmountCents != nil {
 		requestedAmt = *docExtractor.RequestedAmountCents
 	}
+	var emptyWeight *int64
+	if docExtractor.EmptyWeight != nil {
+		emptyWeight = handlers.FmtInt64(int64(*docExtractor.EmptyWeight))
+	}
+	var emptyWeightTicketMissing *bool
+	if docExtractor.EmptyWeight != nil {
+		emptyWeightTicketMissing = docExtractor.EmptyWeightTicketMissing
+	}
+	var fullWeight *int64
+	if docExtractor.FullWeight != nil {
+		fullWeight = handlers.FmtInt64(int64(*docExtractor.FullWeight))
+	}
+	var fullWeightTicketMissing *bool
+	if docExtractor.EmptyWeight != nil {
+		fullWeightTicketMissing = docExtractor.FullWeightTicketMissing
+	}
+	var vehicleNickname string
+	if docExtractor.VehicleNickname != nil {
+		vehicleNickname = *docExtractor.VehicleNickname
+	}
+	var vehicleOptions string
+	if docExtractor.VehicleOptions != nil {
+		vehicleOptions = *docExtractor.VehicleOptions
+	}
+	var weightTicketDate *strfmt.Date
+	if docExtractor.WeightTicketDate != nil {
+		weightTicketDate = handlers.FmtDate(*docExtractor.WeightTicketDate)
+	}
+	var trailerOwnershipMissing *bool
+	if docExtractor.TrailerOwnershipMissing != nil {
+		trailerOwnershipMissing = docExtractor.TrailerOwnershipMissing
+	}
 
 	payload := internalmessages.MoveDocumentPayload{
 		ID:                       handlers.FmtUUID(docExtractor.ID),
@@ -74,6 +108,14 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 		MovingExpenseType:        expenseType,
 		RequestedAmountCents:     int64(requestedAmt),
 		PaymentMethod:            paymentMethod,
+		VehicleOptions:           vehicleOptions,
+		VehicleNickname:          vehicleNickname,
+		EmptyWeight:              emptyWeight,
+		EmptyWeightTicketMissing: emptyWeightTicketMissing,
+		FullWeight:               fullWeight,
+		FullWeightTicketMissing:  fullWeightTicketMissing,
+		WeightTicketDate:         weightTicketDate,
+		TrailerOwnershipMissing:  trailerOwnershipMissing,
 	}
 
 	return &payload, nil

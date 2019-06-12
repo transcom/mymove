@@ -11,5 +11,5 @@ export function validateAccessCode(code, label = validateAccessCodeLabel) {
 
 export function claimAccessCode(accessCode, label = claimAccessCodeLabel) {
   const swaggerTag = 'accesscode.claimAccessCode';
-  return swaggerRequest(getPublicClient, swaggerTag, { accessCodePayload: accessCode }, { label });
+  return swaggerRequest(getPublicClient, swaggerTag, { accessCode }, { label });
 }

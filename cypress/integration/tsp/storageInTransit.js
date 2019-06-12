@@ -32,6 +32,9 @@ describe('TSP user interacts with storage in transit panel', function() {
   it('TSP user releases SIT IN-SIT at ORIGIN', function() {
     tspUserSubmitsReleaseSit();
   });
+  it('TSP user cancels delete, then actually deletes SIT', function() {
+    tspUserDeletesSitRequest();
+  });
 });
 
 // need to simulate a form submit
@@ -493,4 +496,37 @@ function tspUserSubmitsReleaseSit() {
     expect(text).to.include('Date out');
     expect(text).to.include('26-May-2019');
   });
+}
+
+function tspUserDeletesSitRequest() {
+  // Open accepted shipments queue
+  cy.patientVisit('/queues/accepted');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/accepted/);
+  });
+
+  // Find shipment and open it
+  cy.selectQueueItemMoveLocator('SITDEL');
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
+  });
+
+  // Click on Delete SIT and see SIT Delete warning, then click cancel and it should go away.
+  cy
+    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-delete-link]')
+    .click()
+    .get('[data-cy=sit-delete-warning] [data-cy=sit-delete-cancel]')
+    .click()
+    .get('[data-cy=sit-delete-warning]')
+    .should('not.exist');
+
+  // Now click on Delete SIT again, then actually delete it this time.
+  cy
+    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-delete-link]')
+    .click()
+    .get('[data-cy=sit-delete-warning] [data-cy=sit-delete-delete]')
+    .click()
+    .get('[data-cy=storage-in-transit]')
+    .should('not.exist');
 }
