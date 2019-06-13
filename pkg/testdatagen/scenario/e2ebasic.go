@@ -1652,7 +1652,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	email = "enter@delivery.date"
 
 	netWeight := unit.Pound(2000)
-	actualPickupDate := nextValidMoveDate
+	actualPickupDate := nextValidMoveDateMinusFive
 	offer24 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("1af7ca19-8511-4c6e-a93b-144811c0fa7c")),
@@ -1684,6 +1684,19 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
 			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	authorizedStartDate := nextValidMoveDateMinusFive
+	actualStartDate := nextValidMoveDateMinusFive
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID:          offer24.ShipmentID,
+			Shipment:            offer24.Shipment,
+			EstimatedStartDate:  actualPickupDate,
+			AuthorizedStartDate: &authorizedStartDate,
+			ActualStartDate:     &actualStartDate,
+			Status:              models.StorageInTransitStatusINSIT,
 		},
 	})
 
@@ -2276,7 +2289,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
-	authorizedStartDate := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
+	authorizedStartDate = time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
 	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
 		StorageInTransit: models.StorageInTransit{
 			ShipmentID:          offer37.ShipmentID,
@@ -3332,13 +3345,13 @@ func makeHhgReadyToInvoiceWithSIT(db *pop.Connection, params hhgReadyToInvoicePa
 	//
 	// Get Planner and Deliver shipment
 	//
-	planner := route.NewTestingPlanner(params.PlannerDistance)
 	engine := rateengine.NewRateEngine(db, params.Logger)
-	verrs, err := shipmentservice.DeliverAndPriceShipment{
-		DB:      db,
-		Engine:  engine,
-		Planner: planner,
-	}.Call(nextValidMoveDateMinusOne, &offer.Shipment)
+
+	verrs, err := shipmentservice.NewShipmentDeliverAndPricer(
+		db,
+		engine,
+		route.NewTestingPlanner(1044),
+	).DeliverAndPriceShipment(nextValidMoveDateMinusOne, &offer.Shipment)
 
 	if verrs.HasAny() || err != nil {
 		fmt.Println(verrs.String())
@@ -3459,13 +3472,21 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Lo
 		},
 	})
 
-	planner := route.NewTestingPlanner(1234)
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID: offer.ShipmentID,
+			Shipment:   offer.Shipment,
+			Status:     models.StorageInTransitStatusINSIT,
+			Location:   models.StorageInTransitLocationDESTINATION,
+		},
+	})
+
 	engine := rateengine.NewRateEngine(db, logger)
-	verrs, err := shipmentservice.DeliverAndPriceShipment{
-		DB:      db,
-		Engine:  engine,
-		Planner: planner,
-	}.Call(nextValidMoveDateMinusOne, &offer.Shipment)
+	verrs, err := shipmentservice.NewShipmentDeliverAndPricer(
+		db,
+		engine,
+		route.NewTestingPlanner(1044),
+	).DeliverAndPriceShipment(nextValidMoveDateMinusOne, &offer.Shipment)
 
 	if verrs.HasAny() || err != nil {
 		fmt.Println(verrs.String())
