@@ -18,9 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
-var noAccessCode = ""
-
-func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember models.ServiceMember, accessCode string, requiresAccessCode bool) *internalmessages.ServiceMemberPayload {
+func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember models.ServiceMember, requiresAccessCode bool) *internalmessages.ServiceMemberPayload {
 	orders := make([]*internalmessages.Orders, len(serviceMember.Orders))
 	for i, order := range serviceMember.Orders {
 		orderPayload, _ := payloadForOrdersModel(storer, order)
@@ -59,7 +57,6 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		IsProfileComplete:       handlers.FmtBool(serviceMember.IsProfileComplete()),
 		CurrentStation:          payloadForDutyStationModel(serviceMember.DutyStation),
 		RequiresAccessCode:      requiresAccessCode,
-		AccessCode:              accessCode,
 	}
 	return &serviceMemberPayload
 }
@@ -151,7 +148,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		session.LastName = *(newServiceMember.LastName)
 	}
 	// And return
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember, noAccessCode, h.HandlerContext.GetFeatureFlag("requires-access-code"))
+	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember, h.HandlerContext.GetFeatureFlag("requires-access-code"))
 	responder := servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)
 	return handlers.NewCookieUpdateResponder(params.HTTPRequest, h.CookieSecret(), h.NoSessionTimeout(), h.Logger(), responder, h.UseSecureCookie())
 }
@@ -178,7 +175,7 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 		return h.RespondAndTraceError(ctx, err, "error fetching service member", zap.String("service_member_id", serviceMemberID.String()))
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, noAccessCode, h.HandlerContext.GetFeatureFlag("requires-access-code"))
+	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerContext.GetFeatureFlag("requires-access-code"))
 	return servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
@@ -212,7 +209,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		return h.RespondAndTraceVErrors(ctx, verrs, err, "error saving service member", zap.String("service_member_id", serviceMember.ID.String()))
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, noAccessCode, h.HandlerContext.GetFeatureFlag("requires-access-code"))
+	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerContext.GetFeatureFlag("requires-access-code"))
 	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 

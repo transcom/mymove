@@ -13,13 +13,11 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 )
 
 // ShowLoggedInUserHandler returns the logged in user
 type ShowLoggedInUserHandler struct {
 	handlers.HandlerContext
-	accessCodeFetcher services.AccessCodeFetcher
 }
 
 // Handle returns the logged in user
@@ -102,20 +100,11 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		}
 	}
 
-	requiresAccessCodeFeatureFlag := h.HandlerContext.GetFeatureFlag("requires-access-code")
-	var code string
-	var requiresAccessCode bool
-
-	if requiresAccessCodeFeatureFlag {
-		// Fetch the access code associated with the service member if one exists
-		accessCode, _ := h.accessCodeFetcher.FetchAccessCode(serviceMember.ID)
-		code = accessCode.Code
-		requiresAccessCode = serviceMember.RequiresAccessCode
-	}
+	requiresAccessCode := h.HandlerContext.GetFeatureFlag("requires-access-code")
 
 	userPayload := internalmessages.LoggedInUserPayload{
 		ID:            handlers.FmtUUID(session.UserID),
-		ServiceMember: payloadForServiceMemberModel(h.FileStorer(), serviceMember, code, requiresAccessCode),
+		ServiceMember: payloadForServiceMemberModel(h.FileStorer(), serviceMember, requiresAccessCode),
 		FirstName:     session.FirstName,
 		Email:         session.Email,
 	}
