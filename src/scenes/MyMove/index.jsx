@@ -23,6 +23,7 @@ import Header from 'shared/Header/MyMove';
 import PPMPaymentRequestIntro from 'scenes/Moves/Ppm/PPMPaymentRequestIntro';
 import WeightTicket from 'scenes/Moves/Ppm/WeightTicket';
 import ExpensesLanding from 'scenes/Moves/Ppm/ExpensesLanding';
+import ExpensesUpload from 'scenes/Moves/Ppm/ExpensesUpload';
 import AllowableExpenses from 'scenes/Moves/Ppm/AllowableExpenses';
 import WeightTicketExamples from 'scenes/Moves/Ppm/WeightTicketExamples';
 import PaymentRequest from 'scenes/Moves/Ppm/PaymentRequest';
@@ -114,13 +115,15 @@ export class AppWrapper extends Component {
                     <ValidatedPrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
                     <ValidatedPrivateRoute exact path="/weight-ticket-examples" component={WeightTicketExamples} />
                     <ValidatedPrivateRoute exact path="/trailer-criteria" component={TrailerCriteria} />
+
                     <ValidatedPrivateRoute exact path="/allowable-expenses" component={AllowableExpenses} />
                     <ValidatedPrivateRoute
                       path="/moves/:moveId/ppm-payment-request-intro"
                       component={PPMPaymentRequestIntro}
                     />
-                    <ValidatedPrivateRoute path="/moves/:moveId/ppm-expenses-intro" component={ExpensesLanding} />
                     <ValidatedPrivateRoute path="/moves/:moveId/ppm-weight-ticket" component={WeightTicket} />
+                    <ValidatedPrivateRoute path="/moves/:moveId/ppm-expenses-intro" component={ExpensesLanding} />
+                    <ValidatedPrivateRoute path="/moves/:moveId/ppm-expenses" component={ExpensesUpload} />
                     <ValidatedPrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
                     <Route exact path="/forbidden">
                       <div className="usa-grid">

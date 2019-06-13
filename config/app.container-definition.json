@@ -19,13 +19,7 @@
     "/bin/milmove",
     "serve"
   ],
-  "command": [
-    "--env",
-    "container",
-    "--debug-logging",
-    "--log-task-metadata",
-    "--tls-enabled"
-  ],
+  "command": ["--env", "container", "--debug-logging", "--log-task-metadata", "--tls-enabled"],
   "environment": [
     {
       "name": "SERVICE_NAME",
@@ -194,6 +188,10 @@
     {
       "name": "EIA_URL",
       "value": "https://api.eia.gov/series/"
+    },
+    {
+      "name": "REQUIRES_ACCESS_CODE",
+      "value": "{{ .REQUIRES_ACCESS_CODE }}"
     }
   ],
   "logConfiguration": {

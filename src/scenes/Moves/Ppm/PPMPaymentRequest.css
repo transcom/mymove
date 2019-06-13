@@ -53,7 +53,7 @@
   justify-content: space-between;
   border-top: 1px solid black;
   margin-top: 2.3rem;
-  padding-top: 0.5rem;
+  padding-top: 1.5rem;
 }
 
 @media only screen and (max-width: 481px) {
@@ -64,6 +64,12 @@
 
 .allowable-expenses-container li {
   margin-bottom: 0px;
+}
+
+.allowable-expenses-container p {
+  line-height: normal;
+  margin-bottom: 1em;
+  margin-top: 0.5em;
 }
 
 .allowable-expenses-container .icon {
@@ -146,4 +152,12 @@
 
 .input-group .usa-input-error {
   margin-top: 0px;
+}
+
+.divider {
+  margin-bottom: 1.5em;
+}
+
+.bullet-li-header {
+  margin-bottom: 0.5em;
 }

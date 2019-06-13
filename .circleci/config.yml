@@ -482,7 +482,7 @@ jobs:
           name: Setup Code Climate test-reporter
           command: |
             # download test reporter as a static binary
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > /home/circleci/cc-test-reporter
+            curl -L --retry 5 --retry-connrefused https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 --output /home/circleci/cc-test-reporter
             chmod +x /home/circleci/cc-test-reporter
             /home/circleci/cc-test-reporter before-build -d
       - run:
@@ -506,7 +506,7 @@ jobs:
       - run:
           name: upload code coverage to codecov
           command: |
-            curl -s https://codecov.io/bash > /home/circleci/codecov
+            curl -L --retry 5 --retry-connrefused https://codecov.io/bash --output /home/circleci/codecov
             chmod +x /home/circleci/codecov
             /home/circleci/codecov -F go -f coverage.out
 
@@ -872,9 +872,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #  branches:
-          #    ignore: placeholder_branch_name
+          filters:
+            branches:
+              ignore: ren-crc-#166453611-access-code-feature-flag
 
       - integration_tests_office:
           requires:
@@ -882,9 +882,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+            branches:
+              ignore: ren-crc-#166453611-access-code-feature-flag
 
       - integration_tests_tsp:
           requires:
@@ -892,9 +892,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+            branches:
+              ignore: ren-crc-#166453611-access-code-feature-flag
 
       - integration_tests_api:
           requires:
@@ -902,9 +902,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          filters:
+            branches:
+              ignore: ren-crc-#166453611-access-code-feature-flag
 
       - client_test:
           requires:

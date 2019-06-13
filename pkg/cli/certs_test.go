@@ -12,6 +12,5 @@ func (suite *cliTestSuite) TestDODCertificates() {
 	}
 
 	suite.Setup(InitCertFlags, []string{})
-	_, _, err := InitDoDCertificates(suite.viper, suite.logger)
-	suite.Nil(err)
+	suite.Nil(CheckCert(suite.viper))
 }
