@@ -57,6 +57,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Troubleshooting](#troubleshooting)
     * [Postgres Issues](#postgres-issues)
     * [Development Machine Timezone Issues](#development-machine-timezone-issues)
+    * [Linters & Pre-commit Hooks](#linters--pre-commit-hooks)
 
 Regenerate with "scripts/generate-md-toc"
 
@@ -542,3 +543,7 @@ export TZ="UTC"
 ```
 
 Doing so will set the timezone environment variable to UTC utilizing the same localized context as your other `.envrc.local` settings.
+
+#### Linters & Pre-commit Hooks
+
+We use a number of linters for formatting, security and error checking. Please see this [how-to document](./docs/how-to/run-pre-commit-hooks.md) for a list of linters and troubleshooting tips.
