@@ -29,26 +29,29 @@ func main() {
 	}
 
 	root.AddCommand(&cobra.Command{
-		Use:   "version",
-		Short: "Print version information to stdout",
-		Long:  "Print version information to stdout",
-		RunE:  versionFunction,
+		Use:          "version",
+		Short:        "Print version information to stdout",
+		Long:         "Print version information to stdout",
+		RunE:         versionFunction,
+		SilenceUsage: true,
 	})
 
 	serveCommand := &cobra.Command{
-		Use:   "serve",
-		Short: "Runs MilMove webserver",
-		Long:  "Runs MilMove webserver",
-		RunE:  serveFunction,
+		Use:          "serve",
+		Short:        "Runs MilMove webserver",
+		Long:         "Runs MilMove webserver",
+		RunE:         serveFunction,
+		SilenceUsage: true,
 	}
 	initServeFlags(serveCommand.Flags())
 	root.AddCommand(serveCommand)
 
 	migrateCommand := &cobra.Command{
-		Use:   "migrate",
-		Short: "Runs MilMove migrations",
-		Long:  "Runs MilMove migrations",
-		RunE:  migrateFunction,
+		Use:          "migrate",
+		Short:        "Runs MilMove migrations",
+		Long:         "Runs MilMove migrations",
+		RunE:         migrateFunction,
+		SilenceUsage: true,
 	}
 	initMigrateFlags(migrateCommand.Flags())
 	root.AddCommand(migrateCommand)

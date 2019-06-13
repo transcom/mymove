@@ -18,6 +18,8 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
@@ -365,7 +367,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	var session *awssession.Session
-	if v.GetString(cli.EmailBackendFlag) == "ses" || v.GetString(cli.StorageBackendFlag) == "s3" {
+	if v.GetBool(cli.DbIamFlag) || (v.GetString(cli.EmailBackendFlag) == "ses") || (v.GetString(cli.StorageBackendFlag) == "s3") {
 		c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
 		if errorConfig != nil {
 			logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
@@ -377,8 +379,17 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		session = s
 	}
 
+	var dbCreds *credentials.Credentials
+	if session != nil {
+		// We want to get the credentials from the logged in AWS session rather than create directly,
+		// because the session conflates the environment, shared, and container metdata config
+		// within NewSession.  With stscreds, we use the Secure Token Service,
+		// to assume the given role (that has rds db connect permissions).
+		dbCreds = stscreds.NewCredentials(session, v.GetString(cli.DbIamRoleFlag))
+	}
+
 	// Create a connection to the DB
-	dbConnection, err := cli.InitDatabase(v, logger)
+	dbConnection, err := cli.InitDatabase(v, dbCreds, logger)
 	if err != nil {
 		if dbConnection == nil {
 			// No connection object means that the configuraton failed to validate and we should kill server startup

@@ -1,9 +1,9 @@
 NAME = ppp
 DB_NAME_DEV = dev_db
-DB_NAME_PROD_MIGRATIONS = prod_migrations
+DB_NAME_DEPLOYED_MIGRATIONS = deployed_migrations
 DB_NAME_TEST = test_db
 DB_DOCKER_CONTAINER_DEV = milmove-db-dev
-DB_DOCKER_CONTAINER_PROD_MIGRATIONS = milmove-db-prod-migrations
+DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS = milmove-db-deployed-migrations
 DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # The version of the postgres container should match production as closely
 # as possible.
@@ -29,7 +29,7 @@ endif
 WEBSERVER_LDFLAGS=-X main.gitBranch=$(shell git branch | grep \* | cut -d ' ' -f2) -X main.gitCommit=$(shell git rev-list -1 HEAD)
 GC_FLAGS=-trimpath=$(GOPATH)
 DB_PORT_DEV=5432
-DB_PORT_PROD_MIGRATIONS=5434
+DB_PORT_DEPLOYED_MIGRATIONS=5434
 DB_PORT_DOCKER=5432
 ifdef CIRCLECI
 	DB_PORT_TEST=5432
@@ -202,6 +202,11 @@ bin/rds-combined-ca-bundle.pem:
 
 # server_deps and server_generate required for this binary, because go build expects
 # github.com/transcom/mymove/pkg/gen/internalmessages, even though it is not used for this program.
+bin/clean-migration: server_deps server_generate
+	go build -ldflags "$(LDFLAGS)" -o bin/clean-migration ./cmd/clean-migration
+
+# server_deps and server_generate required for this binary, because go build expects
+# github.com/transcom/mymove/pkg/gen/internalmessages, even though it is not used for this program.
 bin/compare-secure-migrations: server_deps server_generate
 	go build -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
 
@@ -269,6 +274,11 @@ bin_linux/save-fuel-price-data: .server_generate_linux.stamp
 
 bin/send-to-gex: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
+
+# server_deps and server_generate required for this binary, because go build expects
+# github.com/transcom/mymove/pkg/gen/internalmessages, even though it is not used for this program.
+bin/split-migration: server_deps server_generate
+	go build -ldflags "$(LDFLAGS)" -o bin/split-migration ./cmd/split-migration
 
 bin/tsp-award-queue: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
@@ -345,6 +355,7 @@ server_run_debug: ## Debug the server
 .PHONY: build_tools
 build_tools: server_deps \
 	bin/compare-secure-migrations \
+	bin/clean-migration \
 	bin/ecs-deploy-task-container \
 	bin/ecs-service-logs \
 	bin/generate-1203-form \
@@ -437,8 +448,8 @@ server_test_coverage: server_deps server_generate mocks_generate db_test_reset d
 db_dev_destroy: ## Destroy Dev DB
 ifndef CIRCLECI
 	@echo "Destroying the ${DB_DOCKER_CONTAINER_DEV} docker database container..."
-	docker rm -f $(DB_DOCKER_CONTAINER_DEV) || \
-		echo "No database container"
+	docker rm -f $(DB_DOCKER_CONTAINER_DEV) || echo "No database container"
+	rm -fr mnt/db_dev # delete mount directory if exists
 else
 	@echo "Relying on CircleCI's database setup to destroy the DB."
 endif
@@ -451,18 +462,15 @@ endif
 	@echo "Starting the ${DB_DOCKER_CONTAINER_DEV} docker database container..."
 	# If running do nothing, if not running try to start, if can't start then run
 	docker start $(DB_DOCKER_CONTAINER_DEV) || \
-		docker run --name $(DB_DOCKER_CONTAINER_DEV) \
-			-e \
-			POSTGRES_PASSWORD=$(PGPASSWORD) \
-			-d \
+		docker run -d --name $(DB_DOCKER_CONTAINER_DEV) \
+			-e POSTGRES_PASSWORD=$(PGPASSWORD) \
 			-p $(DB_PORT_DEV):$(DB_PORT_DOCKER)\
 			$(DB_DOCKER_CONTAINER_IMAGE)
 
 .PHONY: db_dev_create
 db_dev_create: ## Create Dev DB
 	@echo "Create the ${DB_NAME_DEV} database..."
-	DB_NAME=postgres scripts/wait-for-db && \
-		createdb -p $(DB_PORT_DEV) -h localhost -U postgres $(DB_NAME_DEV) || true
+	DB_NAME=postgres scripts/wait-for-db && DB_NAME=postgres psql-wrapper "CREATE DATABASE $(DB_NAME_DEV);" || true
 
 .PHONY: db_dev_run
 db_dev_run: db_dev_start db_dev_create ## Run Dev DB (start and create)
@@ -473,9 +481,7 @@ db_dev_reset: db_dev_destroy db_dev_run ## Reset Dev DB (destroy and run)
 .PHONY: db_dev_migrate_standalone ## Migrate Dev DB directly
 db_dev_migrate_standalone: bin/milmove
 	@echo "Migrating the ${DB_NAME_DEV} database..."
-	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
-	cd scripts && \
-		../bin/milmove migrate -p ../migrations
+	bin/milmove migrate
 
 .PHONY: db_dev_migrate
 db_dev_migrate: server_deps db_dev_migrate_standalone ## Migrate Dev DB
@@ -488,52 +494,39 @@ db_dev_migrate: server_deps db_dev_migrate_standalone ## Migrate Dev DB
 # ----- START DB_PROD_MIGRATIONS TARGETS -----
 #
 
-.PHONY: db_prod_migrations_destroy
-db_prod_migrations_destroy: ## Destroy Prod Migrations DB
+.PHONY: db_deployed_migrations_destroy
+db_deployed_migrations_destroy: ## Destroy deployed migrations database
 ifndef CIRCLECI
-	@echo "Destroying the ${DB_DOCKER_CONTAINER_PROD_MIGRATIONS} docker database container..."
-	docker rm -f $(DB_DOCKER_CONTAINER_PROD_MIGRATIONS) || \
-		echo "No database container"
+	@echo "Destroying the ${DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS} docker database container..."
+	docker rm -f $(DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS) || echo "No database container"
+	rm -fr mnt/db_deployed_migrations # delete mount directory if exists
 else
 	@echo "Relying on CircleCI's database setup to destroy the DB."
 endif
 
-.PHONY: db_prod_migrations_start
-db_prod_migrations_start: ## Start Prod Migrations DB
+.PHONY: db_deployed_migrations_start
+db_deployed_migrations_start: ## Start deployed migrations database
 ifndef CIRCLECI
 	brew services stop postgresql 2> /dev/null || true
 endif
-	@echo "Starting the ${DB_DOCKER_CONTAINER_PROD_MIGRATIONS} docker database container..."
+	@echo "Starting the ${DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS} docker database container..."
 	# If running do nothing, if not running try to start, if can't start then run
-	docker start $(DB_DOCKER_CONTAINER_PROD_MIGRATIONS) || \
-		docker run --name $(DB_DOCKER_CONTAINER_PROD_MIGRATIONS) \
-			-e \
-			POSTGRES_PASSWORD=$(PGPASSWORD) \
-			-d \
-			-p $(DB_PORT_PROD_MIGRATIONS):$(DB_PORT_DOCKER)\
+	docker start $(DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS) || \
+		docker run -d --name $(DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS) \
+			-e POSTGRES_PASSWORD=$(PGPASSWORD) \
+			-p $(DB_PORT_DEPLOYED_MIGRATIONS):$(DB_PORT_DOCKER)\
 			$(DB_DOCKER_CONTAINER_IMAGE)
 
-.PHONY: db_prod_migrations_create
-db_prod_migrations_create: ## Create Prod Migrations DB
-	@echo "Create the ${DB_NAME_PROD_MIGRATIONS} database..."
-	DB_NAME=postgres DB_PORT=$(DB_PORT_PROD_MIGRATIONS) scripts/wait-for-db && \
-		createdb -p $(DB_PORT_PROD_MIGRATIONS) -h localhost -U postgres $(DB_NAME_PROD_MIGRATIONS) || true
+.PHONY: db_deployed_migrations_create
+db_deployed_migrations_create: ## Create delployed migrations DB
+	@echo "Create the ${DB_NAME_DEPLOYED_MIGRATIONS} database..."
+	DB_NAME=postgres DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) scripts/wait-for-db && DB_NAME=postgres DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) psql-wrapper "CREATE DATABASE $(DB_NAME_DEPLOYED_MIGRATIONS);" || true
 
-.PHONY: db_prod_migrations_run
-db_prod_migrations_run: db_prod_migrations_start db_prod_migrations_create ## Run Prod Migrations DB (start and create)
+.PHONY: db_deployed_migrations_run
+db_deployed_migrations_run: db_deployed_migrations_start db_deployed_migrations_create ## Run deployed migrations database (start and create)
 
-.PHONY: db_prod_migrations_reset
-db_prod_migrations_reset: db_prod_migrations_destroy db_prod_migrations_run ## Reset Prod Migrations DB (destroy and run)
-
-.PHONY: db_prod_migrations_migrate_standalone
-db_prod_migrations_migrate_standalone: bin/milmove ## Migrate Prod Migrations DB directly
-	@echo "Migrating the ${DB_NAME_PROD_MIGRATIONS} database..."
-	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
-	cd scripts && \
-		../bin/milmove migrate -p ../migrations
-
-.PHONY: db_prod_migrations_migrate
-db_prod_migrations_migrate: server_deps db_prod_migrations_migrate_standalone ## Migrate Prod Migrations DB
+.PHONY: db_deployed_migrations_reset
+db_deployed_migrations_reset: db_deployed_migrations_destroy db_deployed_migrations_run ## Reset deployed migrations database (destroy and run)
 
 #
 # ----- END DB_PROD_MIGRATIONS TARGETS -----
@@ -601,16 +594,11 @@ db_test_reset_docker: db_test_destroy db_test_run_docker ## Reset Test DB (docke
 db_test_migrate_standalone: bin/milmove ## Migrate Test DB directly
 ifndef CIRCLECI
 	@echo "Migrating the ${DB_NAME_TEST} database..."
-	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
-	cd scripts && \
-		DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST)\
-			../bin/milmove migrate -p ../migrations
+	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) bin/milmove migrate
 else
 	@echo "Migrating the ${DB_NAME_TEST} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
-	cd scripts && \
-		DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_DEV) \
-			../bin/milmove migrate -p ../migrations
+	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_DEV) bin/milmove migrate
 endif
 
 .PHONY: db_test_migrate
@@ -633,11 +621,13 @@ db_test_migrate_docker: db_test_migrations_build ## Migrate Test DB (docker)
 		-e DB_PORT=$(DB_PORT_DOCKER) \
 		-e DB_USER=postgres \
 		-e DB_PASSWORD=$(PGPASSWORD) \
+		-e "MIGRATION_PATH=/migrate/local_migrations;/migrate/migrations" \
+		-e "MIGRATION_MANIFEST=/migrate/migrations_manifest.txt" \
 		--link="$(DB_DOCKER_CONTAINER_TEST):database" \
 		--rm \
 		--entrypoint /bin/milmove\
 		e2e_migrations:latest \
-		migrate -p /migrate/migrations
+		migrate
 
 #
 # ----- END DB_TEST TARGETS -----
@@ -795,16 +785,31 @@ tasks_save_fuel_price_data: tasks_build_linux_docker ## Run save-fuel-price-data
 #
 
 .PHONY: run_prod_migrations
-run_prod_migrations: ## Run Prod migrations against Prod Migrations DB
-	./scripts/run-prod-migrations
+run_prod_migrations: server_deps bin/milmove ## Run production migrations against local deployed migrations database
+	@echo "Migrating the prod-migrations database with prod migrations..."
+	MIGRATION_PATH="s3://transcom-ppp-app-prod-us-west-2/secure-migrations;file://migrations" \
+	DB_HOST=localhost \
+	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
+	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+	bin/milmove migrate
 
 .PHONY: run_staging_migrations
-run_staging_migrations: ## Run Staging migrations against Prod Migrations DB
-	SECURE_MIGRATION_BUCKET_NAME=transcom-ppp-app-staging-us-west-2 ./scripts/run-prod-migrations
+run_staging_migrations: server_deps bin/milmove ## Run staging migrations against local deployed migrations database
+	@echo "Migrating the prod-migrations database with staging migrations..."
+	MIGRATION_PATH="s3://transcom-ppp-app-staging-us-west-2/secure-migrations;file://migrations" \
+	DB_HOST=localhost \
+	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
+	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+	bin/milmove migrate
 
 .PHONY: run_experimental_migrations
-run_experimental_migrations: ## Run Experimental migrations against Prod Migrations DB
-	SECURE_MIGRATION_BUCKET_NAME=transcom-ppp-app-experimental-us-west-2 ./scripts/run-prod-migrations
+run_experimental_migrations: server_deps bin/milmove ## Run experimental migrations against local deployed migrations database
+	@echo "Migrating the prod-migrations database with experimental migrations..."
+	MIGRATION_PATH="s3://transcom-ppp-app-experimental-us-west-2/secure-migrations;file://migrations" \
+	DB_HOST=localhost \
+	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
+	DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+	bin/milmove migrate
 
 #
 # ----- END PROD_MIGRATION TARGETS -----
@@ -842,6 +847,11 @@ make_test: ## Test make targets not checked by CircleCI
 #
 # ----- START RANDOM TARGETS -----
 #
+
+.PHONY: prune
+prune:  ## Prune docker containers and images
+	docker container prune
+	docker image prune -a
 
 .PHONY: adr_update
 adr_update: .client_deps.stamp ## Update ADR Log

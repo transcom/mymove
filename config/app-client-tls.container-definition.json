@@ -1,13 +1,6 @@
 {
   "name": "app-client-tls-{{ .environment }}",
   "image": "{{ .image }}",
-  "portMappings": [
-    {
-      "containerPort": 9443,
-      "hostPort": 9443,
-      "protocol": "tcp"
-    }
-  ],
   "essential": true,
   "entryPoint": [
     "/bin/chamber",
@@ -16,16 +9,24 @@
     "exec",
     "app-{{ .environment }}",
     "--",
-    "/bin/milmove",
-    "serve"
+    "/bin/milmove"
   ],
   "command": [
+    "serve",
     "--env",
     "container",
     "--debug-logging",
     "--log-task-metadata",
     "--tls-enabled",
-    "--mutual-tls-enabled"
+    "--mutual-tls-enabled",
+    "--db-iam"
+  ],
+  "portMappings": [
+    {
+      "containerPort": 9443,
+      "hostPort": 9443,
+      "protocol": "tcp"
+    }
   ],
   "environment": [
     {
@@ -46,7 +47,7 @@
     },
     {
       "name": "DB_USER",
-      "value": "master"
+      "value": "ecs_user"
     },
     {
       "name": "DB_NAME",

@@ -1,0 +1,9 @@
+#! /usr/bin/env bash
+#
+#   Show all used packges in our codebase.
+#
+set -eo pipefail
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly DIR
+
+find "${DIR}/../migrations/devlocal" "${DIR}/../migrations/global" -type f -exec basename {} \; | sort | uniq | grep -v "^schema[.]sql$"
