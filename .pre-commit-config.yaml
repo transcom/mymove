@@ -31,7 +31,7 @@ repos:
     rev: v1.16.0
     hooks:
       - id: golangci-lint
-        entry: golangci-lint run --fix --verbose --deadline=5m
+        entry: golangci-lint run --verbose
         verbose: true
 
   - repo: git://github.com/igorshubovych/markdownlint-cli
