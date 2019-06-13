@@ -53,7 +53,7 @@
   justify-content: space-between;
   border-top: 1px solid black;
   margin-top: 2.3rem;
-  padding-top: 0.5rem;
+  padding-top: 1.5rem;
 }
 
 @media only screen and (max-width: 481px) {
