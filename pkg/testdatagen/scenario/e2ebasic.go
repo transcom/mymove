@@ -2755,7 +2755,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Edipi:         models.StringPointer("7617044099"),
 			PersonalEmail: models.StringPointer(email),
 		},
-		// These values should be populaten for an approved move
+		// These values should be populated for an approved move
 		Order: models.Order{
 			OrdersNumber:        models.StringPointer("12345"),
 			OrdersTypeDetail:    &typeDetails,
