@@ -458,11 +458,13 @@ jobs:
             DB_HOST: localhost
             DB_PORT: 5432
             DB_NAME: test_db
+            EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
             MIGRATION_PATH: /home/circleci/transcom/mymove/migrations
             SECURE_MIGRATION_DIR: /home/circleci/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
+
       - announce_failure
 
   # `server_test_coverage` runs code coverage and submits it to CodeClimate
@@ -504,6 +506,7 @@ jobs:
             DB_HOST: localhost
             DB_PORT: 5432
             DB_NAME: test_db
+            EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
             MIGRATION_PATH: /home/circleci/transcom/mymove/migrations
