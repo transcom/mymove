@@ -61,12 +61,15 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 
 	payload := params.CreateMovingExpenseDocumentPayload
 
-	// Fetch uploads to confirm ownership
 	uploadIds := payload.UploadIds
-	if len(uploadIds) == 0 {
+	haveReceipt := !payload.ReceiptMissing
+	// To maintain old behavior that required / assumed
+	// that users always had receipts
+	if len(uploadIds) == 0 && haveReceipt {
 		return movedocop.NewCreateMovingExpenseDocumentBadRequest()
 	}
 
+	// Fetch uploads to confirm ownership
 	uploads := models.Uploads{}
 	for _, id := range uploadIds {
 		converted := uuid.Must(uuid.FromString(id.String()))
@@ -93,6 +96,12 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 		ppmID = &id
 	}
 
+	moveingExpenseDocument := models.MovingExpenseDocument{
+		MovingExpenseType:    models.MovingExpenseType(payload.MovingExpenseType),
+		RequestedAmountCents: unit.Cents(*payload.RequestedAmountCents),
+		PaymentMethod:        *payload.PaymentMethod,
+		ReceiptMissing:       payload.ReceiptMissing,
+	}
 	newMovingExpenseDocument, verrs, err := move.CreateMovingExpenseDocument(
 		h.DB(),
 		uploads,
@@ -100,9 +109,7 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 		models.MoveDocumentType(payload.MoveDocumentType),
 		*payload.Title,
 		payload.Notes,
-		unit.Cents(*payload.RequestedAmountCents),
-		*payload.PaymentMethod,
-		models.MovingExpenseType(payload.MovingExpenseType),
+		moveingExpenseDocument,
 		*move.SelectedMoveType,
 	)
 

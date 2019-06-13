@@ -765,6 +765,10 @@ definitions:
         x-display-value:
           OTHER: Other account
           GTCC: GTCC
+      receipt_missing:
+        title: missing expense receipt
+        type: boolean
+        x-nullable: true
       vehicle_options:
         title: What type of vehicle are these weight tickets for?
         type: string
@@ -889,13 +893,15 @@ definitions:
         x-display-value:
           OTHER: Other payment method
           GTCC: GTCC
+      receipt_missing:
+        title: missing expense receipt
+        type: boolean
       notes:
         type: string
         example: This document is good to go!
         x-nullable: true
         title: Notes
     required:
-      - upload_ids
       - title
       - move_document_type
       - moving_expense_type

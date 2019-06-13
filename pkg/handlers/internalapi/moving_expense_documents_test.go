@@ -81,3 +81,66 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
 	suite.CheckResponseNotFound(badMoveResponse)
 
 }
+
+func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandlerReceiptMissingNoUploads() {
+	move := testdatagen.MakeDefaultMove(suite.DB())
+	sm := move.Orders.ServiceMember
+	request := httptest.NewRequest("POST", "/fake/path", nil)
+	request = suite.AuthenticateRequest(request, sm)
+	newMovingExpenseDocPayload := internalmessages.CreateMovingExpenseDocumentPayload{
+		MoveDocumentType:     internalmessages.MoveDocumentTypeOTHER,
+		Title:                handlers.FmtString("awesome_document.pdf"),
+		Notes:                handlers.FmtString("Some notes here"),
+		MovingExpenseType:    internalmessages.MovingExpenseTypeWEIGHINGFEES,
+		PaymentMethod:        handlers.FmtString("GTCC"),
+		ReceiptMissing:       true,
+		RequestedAmountCents: handlers.FmtInt64(2589),
+	}
+	newMovingExpenseDocParams := movedocop.CreateMovingExpenseDocumentParams{
+		HTTPRequest:                        request,
+		CreateMovingExpenseDocumentPayload: &newMovingExpenseDocPayload,
+		MoveID:                             strfmt.UUID(move.ID.String()),
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	context.SetFileStorer(fakeS3)
+	handler := CreateMovingExpenseDocumentHandler{context}
+
+	response := handler.Handle(newMovingExpenseDocParams)
+
+	suite.IsNotErrResponse(response)
+	createdResponse := response.(*movedocop.CreateMovingExpenseDocumentOK)
+	createdPayload := createdResponse.Payload
+	suite.NotNil(createdPayload.ID)
+	suite.Equal(createdPayload.Status, internalmessages.MoveDocumentStatusAWAITINGREVIEW)
+}
+
+func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandlerNoUploadsAndNotMissingReceipt() {
+	move := testdatagen.MakeDefaultMove(suite.DB())
+	sm := move.Orders.ServiceMember
+	request := httptest.NewRequest("POST", "/fake/path", nil)
+	request = suite.AuthenticateRequest(request, sm)
+	newMovingExpenseDocPayload := internalmessages.CreateMovingExpenseDocumentPayload{
+		MoveDocumentType:     internalmessages.MoveDocumentTypeOTHER,
+		Title:                handlers.FmtString("awesome_document.pdf"),
+		Notes:                handlers.FmtString("Some notes here"),
+		MovingExpenseType:    internalmessages.MovingExpenseTypeWEIGHINGFEES,
+		PaymentMethod:        handlers.FmtString("GTCC"),
+		ReceiptMissing:       false,
+		RequestedAmountCents: handlers.FmtInt64(2589),
+	}
+	newMovingExpenseDocParams := movedocop.CreateMovingExpenseDocumentParams{
+		HTTPRequest:                        request,
+		CreateMovingExpenseDocumentPayload: &newMovingExpenseDocPayload,
+		MoveID:                             strfmt.UUID(move.ID.String()),
+	}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	context.SetFileStorer(fakeS3)
+	handler := CreateMovingExpenseDocumentHandler{context}
+
+	response := handler.Handle(newMovingExpenseDocParams)
+
+	// Submitting no uploads w/o selecting ReceiptMissing is an error
+	suite.Assertions.IsType(&movedocop.CreateMovingExpenseDocumentBadRequest{}, response)
+}

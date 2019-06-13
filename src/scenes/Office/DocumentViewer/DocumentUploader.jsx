@@ -61,6 +61,7 @@ export class DocumentUploader extends Component {
           formValues.requested_amount_cents,
           formValues.payment_method,
           formValues.notes,
+          false,
         )
         .then(() => {
           reset();
