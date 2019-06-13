@@ -20,7 +20,6 @@ class ValidatedPrivateRouteContainer extends React.Component {
 const mapStateToProps = state => {
   const user = selectCurrentUser(state);
   const serviceMember = get(state, 'serviceMember.currentServiceMember');
-  console.log(state);
   return {
     isLoggedIn: user.isLoggedIn,
     requiresAccessCode: get(serviceMember, 'requires_access_code'),
