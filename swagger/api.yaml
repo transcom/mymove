@@ -3495,7 +3495,7 @@ paths:
           description: server error
   /access_codes:
     get:
-      summary: Fetched an access code
+      summary: Fetches an access code
       description: Fetches the access code for a service member.
       operationId: fetchAccessCode
       tags:
@@ -3508,7 +3508,7 @@ paths:
         400:
           description: invalid request
         401:
-          description: not authorized to validate access code
+          description: not authorized to fetch access code
         404:
           description: access code not found in system
         500:

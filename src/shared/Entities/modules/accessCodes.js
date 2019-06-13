@@ -6,8 +6,8 @@ const fetchAccessCodeLabel = 'AccessCodes.getAccessCodeForServiceMember';
 const claimAccessCodeLabel = 'AccessCodes.updateAccessCodeForServiceMember';
 
 export function fetchAccessCode(label = fetchAccessCodeLabel) {
-  const swaggerTag = 'accessscode.fetchAccessCode';
-  return swaggerRequest(getPublicClient, swaggerTag, {}, { label });
+  const swaggerTag = 'accesscode.fetchAccessCode';
+  return swaggerRequest(getPublicClient, swaggerTag);
 }
 
 export function validateAccessCode(code, label = validateAccessCodeLabel) {
