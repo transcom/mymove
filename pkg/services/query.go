@@ -2,6 +2,7 @@ package services
 
 // QueryFilter is an interface to allow passing filter values into query interfaces
 // Ex `FetchMany` takes a list of filters
+//go:generate mockery -name QueryFilter
 type QueryFilter interface {
 	Column() string
 	Comparator() string
