@@ -19,6 +19,45 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+func (suite *HandlerSuite) TestFetchAccessCodeHandler_Success() {
+	// create user
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+	selectedMoveType := models.SelectedMoveTypeHHG
+
+	// creates access code
+	code := "TEST0"
+	accessCode := models.AccessCode{
+		Code:            code,
+		MoveType:        &selectedMoveType,
+		ServiceMemberID: &serviceMember.ID,
+	}
+
+	// makes request
+	request := httptest.NewRequest("GET", "/access_codes", nil)
+	request = suite.AuthenticateRequest(request, serviceMember)
+
+	params := accesscodeops.FetchAccessCodeParams{
+		HTTPRequest: request,
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	accessCodeFetcher := &mocks.AccessCodeFetcher{}
+	accessCodeFetcher.On("FetchAccessCode",
+		mock.AnythingOfType("uuid.UUID"),
+	).Return(&accessCode, nil)
+
+	handler := FetchAccessCodeHandler{context, accessCodeFetcher}
+	response := handler.Handle(params)
+
+	suite.IsNotErrResponse(response)
+	fetchAccessCodeResponse := response.(*accesscodeops.FetchAccessCodeOK)
+	fetchAccessCodePayload := fetchAccessCodeResponse.Payload
+
+	suite.NotNil(fetchAccessCodePayload)
+	suite.Assertions.IsType(&accesscodeops.FetchAccessCodeOK{}, response)
+	suite.Equal(*fetchAccessCodePayload.Code, code)
+}
+
 func (suite *HandlerSuite) TestValidateAccessCodeHandler_Valid() {
 	// create user
 	user := testdatagen.MakeDefaultUser(suite.DB())

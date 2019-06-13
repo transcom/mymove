@@ -14,12 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// ValidateAccessCodeHandler validates an access code to allow access to the MilMove platform as a service member
-type ValidateAccessCodeHandler struct {
-	handlers.HandlerContext
-	accessCodeValidator services.AccessCodeValidator
-}
-
 func payloadForAccessCodeModel(accessCode models.AccessCode) *apimessages.AccessCode {
 	payload := &apimessages.AccessCode{
 		ID:        handlers.FmtUUID(accessCode.ID),
@@ -37,6 +31,35 @@ func payloadForAccessCodeModel(accessCode models.AccessCode) *apimessages.Access
 	}
 
 	return payload
+}
+
+// FetchAccessCodeHandler fetches an access code associated with a service member
+type FetchAccessCodeHandler struct {
+	handlers.HandlerContext
+	accessCodeFetcher services.AccessCodeFetcher
+}
+
+// Handle fetches the access code
+func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	if session == nil {
+		return accesscodeop.NewFetchAccessCodeUnauthorized()
+	}
+
+	// Fetch access code
+	accessCode, _ := h.accessCodeFetcher.FetchAccessCode(session.ServiceMemberID)
+
+	fetchAccessCodePayload := payloadForAccessCodeModel(*accessCode)
+
+	return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload)
+
+}
+
+// ValidateAccessCodeHandler validates an access code to allow access to the MilMove platform as a service member
+type ValidateAccessCodeHandler struct {
+	handlers.HandlerContext
+	accessCodeValidator services.AccessCodeValidator
 }
 
 // Handle accepts the code - validates the access code

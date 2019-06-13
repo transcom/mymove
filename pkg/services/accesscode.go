@@ -14,6 +14,7 @@ type AccessCodeValidator interface {
 }
 
 // AccessCodeFetcher is the service object interface for FetchAccessCode
+//go:generate mockery -name AccessCodeFetcher
 type AccessCodeFetcher interface {
 	FetchAccessCode(serviceMemberID uuid.UUID) (*models.AccessCode, error)
 }

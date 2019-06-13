@@ -3493,6 +3493,26 @@ paths:
           description: TSP UUID not found in system
         500:
           description: server error
+  /access_codes:
+    get:
+      summary: Fetched an access code
+      description: Fetches the access code for a service member.
+      operationId: fetchAccessCode
+      tags:
+        - accesscode
+      responses:
+        200:
+          description: access code has been found in system
+          schema:
+            $ref: '#/definitions/AccessCode'
+        400:
+          description: invalid request
+        401:
+          description: not authorized to validate access code
+        404:
+          description: access code not found in system
+        500:
+          description: server error
   /access_codes/valid:
     get:
       summary: Validate if an access code has been unused and associated with the correct move type.
