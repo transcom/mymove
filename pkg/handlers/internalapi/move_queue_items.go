@@ -14,20 +14,23 @@ import (
 
 func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessages.MoveQueueItem {
 	MoveQueueItemPayload := internalmessages.MoveQueueItem{
-		ID:               handlers.FmtUUID(MoveQueueItem.ID),
-		CreatedAt:        handlers.FmtDateTime(MoveQueueItem.CreatedAt),
-		Edipi:            swag.String(MoveQueueItem.Edipi),
-		Rank:             MoveQueueItem.Rank,
-		CustomerName:     swag.String(MoveQueueItem.CustomerName),
-		Locator:          swag.String(MoveQueueItem.Locator),
-		GblNumber:        handlers.FmtStringPtr(MoveQueueItem.GBLNumber),
-		Status:           swag.String(MoveQueueItem.Status),
-		PpmStatus:        handlers.FmtStringPtr(MoveQueueItem.PpmStatus),
-		HhgStatus:        handlers.FmtStringPtr(MoveQueueItem.HhgStatus),
-		OrdersType:       swag.String(MoveQueueItem.OrdersType),
-		MoveDate:         handlers.FmtDatePtr(MoveQueueItem.MoveDate),
-		SubmittedDate:    handlers.FmtDateTimePtr(MoveQueueItem.SubmittedDate),
-		LastModifiedDate: handlers.FmtDateTime(MoveQueueItem.LastModifiedDate),
+		ID:                         handlers.FmtUUID(MoveQueueItem.ID),
+		CreatedAt:                  handlers.FmtDateTime(MoveQueueItem.CreatedAt),
+		Edipi:                      swag.String(MoveQueueItem.Edipi),
+		Rank:                       MoveQueueItem.Rank,
+		CustomerName:               swag.String(MoveQueueItem.CustomerName),
+		Locator:                    swag.String(MoveQueueItem.Locator),
+		GblNumber:                  handlers.FmtStringPtr(MoveQueueItem.GBLNumber),
+		Status:                     swag.String(MoveQueueItem.Status),
+		PpmStatus:                  handlers.FmtStringPtr(MoveQueueItem.PpmStatus),
+		HhgStatus:                  handlers.FmtStringPtr(MoveQueueItem.HhgStatus),
+		OrdersType:                 swag.String(MoveQueueItem.OrdersType),
+		MoveDate:                   handlers.FmtDatePtr(MoveQueueItem.MoveDate),
+		SubmittedDate:              handlers.FmtDateTimePtr(MoveQueueItem.SubmittedDate),
+		LastModifiedDate:           handlers.FmtDateTime(MoveQueueItem.LastModifiedDate),
+		OriginDutyStationName:      swag.String(MoveQueueItem.OriginDutyStationName),
+		DestinationDutyStationName: swag.String(MoveQueueItem.DestinationDutyStationName),
+		SitStartDate:               handlers.FmtDatePtr(MoveQueueItem.SitStartDate),
 	}
 	return &MoveQueueItemPayload
 }

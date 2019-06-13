@@ -299,7 +299,7 @@ func (s *Shipment) Approve(approveDate time.Time) error {
 	}
 
 	if s.ApproveDate != nil {
-		return errors.Wrap(ErrInvalidTransition, "Aprove - approve date change")
+		return errors.Wrap(ErrInvalidTransition, "Approve - approve date change")
 	}
 	s.Status = ShipmentStatusAPPROVED
 	s.ApproveDate = &approveDate

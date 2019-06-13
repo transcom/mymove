@@ -6,10 +6,13 @@ import { get } from 'lodash';
 import 'react-table/react-table.css';
 import Alert from 'shared/Alert';
 import { formatTimeAgo } from 'shared/formatters';
-import { newColumns, ppmColumns, defaultColumns } from './queueTableColumns';
+import { newColumns, ppmColumns, hhgActiveColumns, defaultColumns } from './queueTableColumns';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
+import { getEntitlements } from '../../shared/entitlements';
+import moment from 'moment';
+import { formatDate4DigitYear } from '../../shared/formatters';
 
 class QueueTable extends Component {
   constructor() {
@@ -110,6 +113,7 @@ class QueueTable extends Component {
       troubleshooting: 'Troubleshooting',
       ppm: 'PPMs',
       hhg_accepted: 'Accepted HHGs',
+      hhg_active: 'Active HHGs',
       hhg_delivered: 'Delivered HHGs',
       all: 'All Moves',
     };
@@ -120,6 +124,8 @@ class QueueTable extends Component {
           return newColumns;
         case 'ppm':
           return ppmColumns;
+        case 'hhg_active':
+          return hhgActiveColumns;
         default:
           return defaultColumns;
       }
@@ -138,6 +144,13 @@ class QueueTable extends Component {
         row.synthetic_status = row.ppm_status;
       } else {
         row.synthetic_status = row.status;
+      }
+
+      if (this.props.queueType === 'hhg_active' && row.sit_start_date) {
+        //Todo make this more robust, to account for multiple SITs,
+        row.sit_expires = formatDate4DigitYear(
+          moment(row.sit_start_date).add(getEntitlements(row.rank).storage_in_transit, 'days'),
+        );
       }
     });
 

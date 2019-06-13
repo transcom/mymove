@@ -32,6 +32,17 @@ const status = CreateReactTableColumn('Status', 'synthetic_status', {
   ),
 });
 
+const hhgStatus = CreateReactTableColumn('HHG status', 'hhg_status', {
+  Cell: row => (
+    <span className="status" data-cy="status">
+      {(row.value && row.value.replace('_', ' '))
+        .split(' ')
+        .map(word => capitalize(word))
+        .join(' ')}
+    </span>
+  ),
+});
+
 const customerName = CreateReactTableColumn('Customer name', 'customer_name');
 
 const dodId = CreateReactTableColumn('DoD ID', 'edipi');
@@ -60,10 +71,34 @@ const submittedDate = CreateReactTableColumn('Submitted', 'submitted_date', {
   Cell: row => <span className="submitted_date">{formatDateTimeWithTZ(row.value)}</span>,
 });
 
+const origin = CreateReactTableColumn('Origin', 'origin_duty_station_name', {
+  Cell: row => <span>{row.value}</span>,
+});
+
+const destination = CreateReactTableColumn('Destination', 'destination_duty_station_name', {
+  Cell: row => <span>{row.value}</span>,
+});
+
+const sitExpires = CreateReactTableColumn('SIT expires', 'sit_expires', {
+  Cell: row => <span>{row.value}</span>,
+});
+
 // Columns used to display in react table
 
 export const newColumns = [clockIcon, customerName, locator, dodId, rank, shipments, moveDate, submittedDate];
 
 export const ppmColumns = [clockIcon, status, customerName, dodId, rank, locator, moveDate, lastModifiedDate];
+
+export const hhgActiveColumns = [
+  clockIcon,
+  customerName,
+  hhgStatus,
+  origin,
+  destination,
+  locator,
+  gbl,
+  moveDate,
+  sitExpires,
+];
 
 export const defaultColumns = [status, customerName, dodId, rank, locator, gbl, moveDate, lastModifiedDate];

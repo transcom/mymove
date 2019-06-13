@@ -2489,6 +2489,21 @@ definitions:
       created_at:
         type: string
         format: date-time
+      origin_duty_station_name:
+        type: string
+        example: Dover AFB
+        title: Origin
+        x-nullable: true
+      destination_duty_station_name:
+        type: string
+        example: Dover AFB
+        title: Destination
+        x-nullable: true
+      sit_start_date:
+        type: string
+        format: date
+        example: 2018-04-25
+        x-nullable: true
     required:
       - id
       - status
@@ -4235,6 +4250,7 @@ paths:
             - troubleshooting
             - ppm
             - hhg_accepted
+            - hhg_active
             - hhg_delivered
             - all
           required: true

@@ -27,7 +27,7 @@ export default class QueueList extends Component {
             <NavLink
               to="#hhgshipments"
               activeClassName="usa-current"
-              isActive={isActive('hhg_accepted', 'hhg_delivered')}
+              isActive={isActive('hhg_accepted', 'hhg_active', 'hhg_delivered')}
             >
               <span>HHG shipments:</span>
             </NavLink>
@@ -35,6 +35,11 @@ export default class QueueList extends Component {
               <li>
                 <NavLink to="/queues/hhg_accepted" activeClassName="usa-current">
                   <span>Accepted</span>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/queues/hhg_active" activeClassName="usa-current">
+                  <span>Active</span>
                 </NavLink>
               </li>
               <li>
