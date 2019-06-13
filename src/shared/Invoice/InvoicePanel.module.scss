@@ -3,7 +3,11 @@
 .invoice-panel {
   font-size: 0.8em;
 
-  h1,h2,h3,h4,h5{
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
     font-family: sans-serif;
   }
 }
@@ -14,13 +18,14 @@
 }
 
 .invoice-panel__header-cont {
-  margin-top: .2em;
+  margin-top: 0.2em;
   display: flex;
   align-items: center;
 }
 
 // used in child components UnbilledTable.jsx and InvoicePaymentAlert.jsx
-.warning--header {
+.warning--header,
+.error--header {
   font-size: 1.2em;
   display: block;
 }
