@@ -469,6 +469,9 @@ func (h RecalculateShipmentLineItemsHandler) Handle(params accessorialop.Recalcu
 
 	if err != nil {
 		h.Logger().Error(fmt.Sprintf("Error recalculating shipment line for shipment id: %s", shipmentID), zap.Error(err))
+		if err != models.ErrFetchForbidden {
+			err = errors.New(fmt.Sprintf("User was authorized but failed to recalculate shipment for id %s", shipmentID))
+		}
 		return handlers.ResponseForError(h.Logger(), err)
 	}
 	payload := payloadForShipmentLineItemModels(shipmentLineItems)
