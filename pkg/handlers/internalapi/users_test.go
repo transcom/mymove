@@ -1,7 +1,6 @@
 package internalapi
 
 import (
-	"fmt"
 	"net/http/httptest"
 
 	"github.com/stretchr/testify/mock"
@@ -23,7 +22,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), &mocks.AccessCodeFetcher{}}
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 
 	response := handler.Handle(params)
 
@@ -47,33 +46,18 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandl
 		HTTPRequest: req,
 	}
 
-	// creates access code
-	code := "TEST1"
-	selectedMoveType := models.SelectedMoveTypePPM
-	accessCode := models.AccessCode{
-		Code:     code,
-		MoveType: &selectedMoveType,
-	}
-	suite.MustSave(&accessCode)
-
-	accessCodeFetcher := &mocks.AccessCodeFetcher{}
-	accessCodeFetcher.On("FetchAccessCode",
-		mock.AnythingOfType("UUID"),
-	).Return(&accessCode, nil)
-
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	featureFlag := handlers.FeatureFlag{Name: "requires-access-code", Active: true}
 	context.SetFeatureFlags(featureFlag)
-	handler := ShowLoggedInUserHandler{context, accessCodeFetcher}
+	handler := ShowLoggedInUserHandler{context}
 
 	response := handler.Handle(params)
 
 	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
-	fmt.Println(okResponse.Payload.ServiceMember.AccessCode)
 	suite.True(ok)
 	suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
-	suite.Equal(okResponse.Payload.ServiceMember.AccessCode, code)
 	suite.Equal("Joseph", *okResponse.Payload.ServiceMember.FirstName)
+	suite.True(okResponse.Payload.ServiceMember.RequiresAccessCode)
 }
 
 func (suite *HandlerSuite) TestServiceMemberLoggedInUserNotRequiringAccessCodeHandler() {
@@ -91,20 +75,18 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserNotRequiringAccessCodeHa
 		HTTPRequest: req,
 	}
 
-	accessCodeFetcher := &mocks.AccessCodeFetcher{}
-	accessCodeFetcher.On("FetchAccessCode",
-		mock.AnythingOfType("UUID"),
-	).Return(&models.AccessCode{}, nil)
-
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), accessCodeFetcher}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	featureFlag := handlers.FeatureFlag{Name: "requires-access-code", Active: false}
+	context.SetFeatureFlags(featureFlag)
+	handler := ShowLoggedInUserHandler{context}
 
 	response := handler.Handle(params)
 
 	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
 	suite.True(ok)
 	suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
-	suite.Equal(okResponse.Payload.ServiceMember.AccessCode, "")
 	suite.Equal("Jane", *okResponse.Payload.ServiceMember.FirstName)
+	suite.False(okResponse.Payload.ServiceMember.RequiresAccessCode)
 }
 
 func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHandler() {
@@ -132,7 +114,7 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 		mock.AnythingOfType("UUID"),
 	).Return(&models.AccessCode{}, nil)
 
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), accessCodeFetcher}
+	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 
 	response := handler.Handle(params)
 

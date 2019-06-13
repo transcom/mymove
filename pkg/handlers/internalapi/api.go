@@ -12,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 	"github.com/transcom/mymove/pkg/handlers"
-	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 )
 
 // NewInternalAPIHandler returns a handler for the internal API
@@ -24,7 +23,7 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	}
 	internalAPI := internalops.NewMymoveAPI(internalSpec)
 
-	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{context, accesscodeservice.NewAccessCodeFetcher(context.DB())}
+	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{context}
 
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{context}
 	internalAPI.CertificationIndexSignedCertificationHandler = IndexSignedCertificationsHandler{context}

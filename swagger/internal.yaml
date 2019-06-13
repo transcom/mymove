@@ -1095,9 +1095,6 @@ definitions:
         type: boolean
         x-nullable: false
         title: Requires Access Code
-      access_code:
-        type: string
-        title: Access Code
     required:
       - id
       - user_id
