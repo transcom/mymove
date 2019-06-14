@@ -948,6 +948,13 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			ID:               uuid.FromStringOrNil("616560f2-7e35-4504-b7e6-69038fb0c015"),
 			Locator:          "APPRVD",
 			SelectedMoveType: &selectedMoveTypeHHG,
+			Status:           models.MoveStatusAPPROVED,
+		},
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("54321"),
+			OrdersTypeDetail:    &typeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("5fe59be4-45d0-47c7-b426-cf4db9882af7"),
@@ -1496,10 +1503,18 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Edipi:         models.StringPointer("2232332334"),
 			PersonalEmail: models.StringPointer(email),
 		},
+		// These values should be populated for an approved move
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("12345"),
+			OrdersTypeDetail:    &typeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
+		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("60098ff1-8dc9-4318-a2e8-47bc8aac11a4"),
 			Locator:          "GOTDOC",
 			SelectedMoveType: &selectedMoveTypeHHG,
+			Status:           models.MoveStatusAPPROVED,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("7ad595da-9b34-4914-aeaa-9a540d13872f"),
@@ -1554,10 +1569,18 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Edipi:         models.StringPointer("4424567890"),
 			PersonalEmail: models.StringPointer(email),
 		},
+		// These values should be populated for an approved move
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("12345"),
+			OrdersTypeDetail:    &typeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
+		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("42d85649-18c2-44ad-854d-da8884579f42"),
 			Locator:          "ENTPMS",
 			SelectedMoveType: &selectedMoveTypeHHG,
+			Status:           models.MoveStatusAPPROVED,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("f426c4fc-a2fb-45b6-a3a6-7c35357ab79a"),
@@ -1629,7 +1652,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	email = "enter@delivery.date"
 
 	netWeight := unit.Pound(2000)
-	actualPickupDate := nextValidMoveDate
+	actualPickupDate := nextValidMoveDateMinusFive
 	offer24 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("1af7ca19-8511-4c6e-a93b-144811c0fa7c")),
@@ -1661,6 +1684,19 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
 			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	authorizedStartDate := nextValidMoveDateMinusFive
+	actualStartDate := nextValidMoveDateMinusFive
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID:          offer24.ShipmentID,
+			Shipment:            offer24.Shipment,
+			EstimatedStartDate:  actualPickupDate,
+			AuthorizedStartDate: &authorizedStartDate,
+			ActualStartDate:     &actualStartDate,
+			Status:              models.StorageInTransitStatusINSIT,
 		},
 	})
 
@@ -1929,10 +1965,18 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Edipi:         models.StringPointer("4124337809"),
 			PersonalEmail: models.StringPointer(email),
 		},
+		// These values should be populated for an approved move
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("12345"),
+			OrdersTypeDetail:    &typeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
+		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("8c03b5a5-2ca5-49c1-a5a0-12f56c5f15c7"),
 			Locator:          "APPPMS",
 			SelectedMoveType: &selectedMoveTypeHHG,
+			Status:           models.MoveStatusAPPROVED,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("e2351f50-9b07-4e6a-85eb-7c622486e859"),
@@ -2245,7 +2289,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
-	authorizedStartDate := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
+	authorizedStartDate = time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
 	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
 		StorageInTransit: models.StorageInTransit{
 			ShipmentID:          offer37.ShipmentID,
@@ -2995,7 +3039,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 	 * Service member with uploaded orders and an approved shipment to be accepted, able to generate GBL
 	 */
 	email := "hhg@govbilloflading.ready"
-
+	ordersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
 	weightEstimate := unit.Pound(5000)
 	sourceOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
@@ -3007,6 +3051,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 			Gbloc: "QRED",
 		},
 	})
+	GBLNumber := destOffice.Gbloc + "001234"
 	offer9 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("658f3a78-b3a9-47f4-a820-af673103d62d")),
@@ -3023,11 +3068,13 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
 			TAC:                 models.StringPointer("NTA4"),
 			SAC:                 models.StringPointer("1234567890 9876543210"),
+			OrdersTypeDetail:    &ordersTypeDetail,
 		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("05a58b2e-07da-4b41-b4f8-d18ab68dddd5"),
 			Locator:          "GBLGBL",
 			SelectedMoveType: &selectedMoveTypeHHG,
+			Status:           models.MoveStatusAPPROVED,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("b15fdc2b-52cd-4b3e-91ba-a36d6ab94a16"),
@@ -3047,6 +3094,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 			PmSurveyWeightEstimate:      &weightEstimate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
 			DestinationGBLOC:            &destOffice.Gbloc,
+			GBLNumber:                   &GBLNumber,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -3074,6 +3122,7 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger Logger, s
 	 * Service member with uploaded orders and an approved shipment to be accepted, able to generate GBL
 	 */
 	email := "hhg@gov_bill_of_lading.created"
+	ordersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
 
 	weightEstimate := unit.Pound(5000)
 	sourceOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
@@ -3102,11 +3151,13 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger Logger, s
 			DepartmentIndicator: models.StringPointer("17"),
 			TAC:                 models.StringPointer("NTA4"),
 			SAC:                 models.StringPointer("1234567890 9876543210"),
+			OrdersTypeDetail:    &ordersTypeDetail,
 		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("6eee3663-1973-40c5-b49e-e70e9325b895"),
 			Locator:          "CONGBL",
 			SelectedMoveType: &selectedMoveTypeHHG,
+			Status:           models.MoveStatusAPPROVED,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("87fcebf6-63b8-40cb-bc40-b553f5b91b9c"),
@@ -3303,13 +3354,13 @@ func makeHhgReadyToInvoiceWithSIT(db *pop.Connection, params hhgReadyToInvoicePa
 	//
 	// Get Planner and Deliver shipment
 	//
-	planner := route.NewTestingPlanner(params.PlannerDistance)
 	engine := rateengine.NewRateEngine(db, params.Logger)
-	verrs, err := shipmentservice.DeliverAndPriceShipment{
-		DB:      db,
-		Engine:  engine,
-		Planner: planner,
-	}.Call(nextValidMoveDateMinusOne, &offer.Shipment)
+
+	verrs, err := shipmentservice.NewShipmentDeliverAndPricer(
+		db,
+		engine,
+		route.NewTestingPlanner(1044),
+	).DeliverAndPriceShipment(nextValidMoveDateMinusOne, &offer.Shipment)
 
 	if verrs.HasAny() || err != nil {
 		fmt.Println(verrs.String())
@@ -3430,13 +3481,21 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Lo
 		},
 	})
 
-	planner := route.NewTestingPlanner(1234)
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID: offer.ShipmentID,
+			Shipment:   offer.Shipment,
+			Status:     models.StorageInTransitStatusINSIT,
+			Location:   models.StorageInTransitLocationDESTINATION,
+		},
+	})
+
 	engine := rateengine.NewRateEngine(db, logger)
-	verrs, err := shipmentservice.DeliverAndPriceShipment{
-		DB:      db,
-		Engine:  engine,
-		Planner: planner,
-	}.Call(nextValidMoveDateMinusOne, &offer.Shipment)
+	verrs, err := shipmentservice.NewShipmentDeliverAndPricer(
+		db,
+		engine,
+		route.NewTestingPlanner(1044),
+	).DeliverAndPriceShipment(nextValidMoveDateMinusOne, &offer.Shipment)
 
 	if verrs.HasAny() || err != nil {
 		fmt.Println(verrs.String())

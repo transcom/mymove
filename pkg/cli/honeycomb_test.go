@@ -12,7 +12,7 @@ func (suite *cliTestSuite) TestHoneycomb() {
 	}
 
 	suite.Setup(InitHoneycombFlags, []string{})
-	suite.Nil(CheckHoneycomb(suite.viper))
+	suite.NoError(CheckHoneycomb(suite.viper))
 	enabled := InitHoneycomb(suite.viper, suite.logger)
 	suite.True(enabled)
 }
