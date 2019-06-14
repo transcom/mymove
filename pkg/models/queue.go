@@ -89,7 +89,8 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			WHERE moves.status = 'APPROVED'
 			and moves.show is true
 		`
-	} else if lifecycleState == "hhg_accepted" {
+	} else if lifecycleState == "hhg_approved" {
+
 		// Move date is the Requested Pickup Date because accepted shipments haven't yet gone through the
 		// premove survey to set the actual Pickup Date.
 		query = `
@@ -109,7 +110,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
-			WHERE shipment.status = 'ACCEPTED'
+			WHERE shipment.status = 'APPROVED'
 			and moves.show is true
 		`
 	} else if lifecycleState == "hhg_in_transit" {

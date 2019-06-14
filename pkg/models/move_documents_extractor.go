@@ -30,6 +30,7 @@ type MoveDocumentExtractor struct {
 	VehicleNickname          *string            `json:"vehicle_nickname,omitempty" db:"vehicle_nickname"`
 	VehicleOptions           *string            `json:"vehicle_options,omitempty" db:"vehicle_options"`
 	WeightTicketDate         *time.Time         `json:"weight_ticket_date,omitempty" db:"weight_ticket_date"`
+	TrailerOwnershipMissing  *bool              `json:"trailer_ownership_missing,omitempty" db:"trailer_ownership_missing"`
 	PaymentMethod            *string            `json:"payment_method" db:"payment_method"`
 	Notes                    *string            `json:"notes" db:"notes"`
 	CreatedAt                time.Time          `json:"created_at" db:"created_at"`
@@ -48,8 +49,17 @@ func (m *Move) FetchAllMoveDocumentsForMove(db *pop.Connection) (MoveDocumentExt
 
 	sql, args := query.ToSQL(&pop.Model{Value: MoveDocument{}},
 		`move_documents.*,
-					  ed.moving_expense_type, ed.requested_amount_cents, ed.payment_method,
-                      wt.empty_weight, wt.empty_weight_ticket_missing, wt.full_weight_ticket_missing, wt.full_weight, wt.vehicle_nickname, wt.vehicle_options, wt.weight_ticket_date`)
+	  ed.moving_expense_type,
+	  ed.requested_amount_cents,
+	  ed.payment_method,
+	  wt.empty_weight,
+	  wt.empty_weight_ticket_missing,
+	  wt.full_weight_ticket_missing,
+	  wt.full_weight,
+	  wt.vehicle_nickname,
+	  wt.vehicle_options,
+	  wt.weight_ticket_date,
+	  wt.trailer_ownership_missing`)
 
 	err := db.RawQuery(sql, args...).Eager("Document.Uploads").All(&moveDocs)
 	if err != nil {

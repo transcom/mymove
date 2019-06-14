@@ -23,6 +23,7 @@ import Header from 'shared/Header/MyMove';
 import PPMPaymentRequestIntro from 'scenes/Moves/Ppm/PPMPaymentRequestIntro';
 import WeightTicket from 'scenes/Moves/Ppm/WeightTicket';
 import ExpensesLanding from 'scenes/Moves/Ppm/ExpensesLanding';
+import ExpensesUpload from 'scenes/Moves/Ppm/ExpensesUpload';
 import AllowableExpenses from 'scenes/Moves/Ppm/AllowableExpenses';
 import WeightTicketExamples from 'scenes/Moves/Ppm/WeightTicketExamples';
 import PaymentRequest from 'scenes/Moves/Ppm/PaymentRequest';
@@ -38,6 +39,7 @@ import { loadInternalSchema } from 'shared/Swagger/ducks';
 import FailWhale from 'shared/FailWhale';
 import { detectIE11, no_op } from 'shared/utils';
 import DPSAuthCookie from 'scenes/DPSAuthCookie';
+import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
@@ -102,11 +104,13 @@ export class AppWrapper extends Component {
 
                     <PrivateRoute path="/moves/:moveId/request-payment" component={PaymentRequest} />
                     <PrivateRoute exact path="/weight-ticket-examples" component={WeightTicketExamples} />
+                    <PrivateRoute exact path="/trailer-criteria" component={TrailerCriteria} />
 
                     <PrivateRoute exact path="/allowable-expenses" component={AllowableExpenses} />
                     <PrivateRoute path="/moves/:moveId/ppm-payment-request-intro" component={PPMPaymentRequestIntro} />
                     <PrivateRoute path="/moves/:moveId/ppm-weight-ticket" component={WeightTicket} />
                     <PrivateRoute path="/moves/:moveId/ppm-expenses-intro" component={ExpensesLanding} />
+                    <PrivateRoute path="/moves/:moveId/ppm-expenses" component={ExpensesUpload} />
                     <PrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
                     <Route exact path="/forbidden">
                       <div className="usa-grid">

@@ -10,9 +10,12 @@ import (
 	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/rateengine"
 
 	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
+	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
+	shipmentservice "github.com/transcom/mymove/pkg/services/shipment"
 	sitservice "github.com/transcom/mymove/pkg/services/storage_in_transit"
 )
 
@@ -42,7 +45,15 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.ShipmentsPatchShipmentHandler = PatchShipmentHandler{context}
 	publicAPI.ShipmentsAcceptShipmentHandler = AcceptShipmentHandler{context}
 	publicAPI.ShipmentsTransportShipmentHandler = TransportShipmentHandler{context}
-	publicAPI.ShipmentsDeliverShipmentHandler = DeliverShipmentHandler{context}
+
+	engine := rateengine.NewRateEngine(context.DB(), context.Logger())
+	publicAPI.ShipmentsDeliverShipmentHandler = DeliverShipmentHandler{
+		context, shipmentservice.NewShipmentDeliverAndPricer(
+			context.DB(),
+			engine,
+			context.Planner(),
+		)}
+
 	publicAPI.ShipmentsGetShipmentInvoicesHandler = GetShipmentInvoicesHandler{context}
 
 	publicAPI.ShipmentsCompletePmSurveyHandler = CompletePmSurveyHandler{context}
@@ -105,13 +116,16 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 		context,
 		sitservice.NewStorageInTransitInReleaser(context.DB()),
 	}
-	publicAPI.StorageInTransitsDeliverStorageInTransitHandler = DeliverStorageInTransitHandler{
-		context,
-		sitservice.NewStorageInTransitInDeliverer(context.DB()),
-	}
 
 	// Access Codes
 	publicAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{context, accesscodeservice.NewAccessCodeValidator(context.DB())}
 	publicAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{context, accesscodeservice.NewAccessCodeClaimer(context.DB())}
+
+	// Postal Codes
+	publicAPI.PostalCodesValidatePostalCodeHandler = ValidatePostalCodeHandler{
+		context,
+		postalcodeservice.NewPostalCodeValidator(context.DB()),
+	}
+
 	return publicAPI.Serve(nil)
 }

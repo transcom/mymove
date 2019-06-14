@@ -11,7 +11,23 @@
 }
 
 .weight-ticket-example-container p {
-  margin: 0px;
+  margin: 0;
+}
+
+.trailer-criteria-container .title {
+  font-size: 2.2rem;
+  font-family: sans-serif;
+  margin-bottom: 0;
+}
+
+.trailer-criteria-container .list-header {
+  margin: 25px 0 25px 0;
+  padding-left: 0;
+}
+
+.trailer-criteria-container p {
+  margin-bottom: 5px;
+  margin-top: 0;
 }
 
 .weight-ticket-example-img {
@@ -37,7 +53,7 @@
   justify-content: space-between;
   border-top: 1px solid black;
   margin-top: 2.3rem;
-  padding-top: 0.5rem;
+  padding-top: 1.5rem;
 }
 
 @media only screen and (max-width: 481px) {
@@ -48,6 +64,12 @@
 
 .allowable-expenses-container li {
   margin-bottom: 0px;
+}
+
+.allowable-expenses-container p {
+  line-height: normal;
+  margin-bottom: 1em;
+  margin-top: 0.5em;
 }
 
 .allowable-expenses-container .icon {
@@ -130,4 +152,12 @@
 
 .input-group .usa-input-error {
   margin-top: 0px;
+}
+
+.divider {
+  margin-bottom: 1.5em;
+}
+
+.bullet-li-header {
+  margin-bottom: 0.5em;
 }

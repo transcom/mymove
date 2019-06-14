@@ -286,7 +286,7 @@ export class StorageInTransit extends Component {
         {!showTspEditForm && (
           <div className="usa-width-one-whole">
             <div className="usa-width-one-half">
-              <div className="sit-dates">
+              <div className="sit-dates" data-cy="sit-dates">
                 <div className="column-subhead nested__same-font">Dates</div>
                 <div className="panel-field nested__same-font">
                   <span className="field-title unbold">Est. start date</span>

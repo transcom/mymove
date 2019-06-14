@@ -8,9 +8,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-
-	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/auth/authentication"
 )
 
 const (
@@ -60,28 +57,6 @@ func InitAuthFlags(flag *pflag.FlagSet) {
 	flag.String(LoginGovTSPClientIDFlag, "", "Client ID registered with login gov.")
 	flag.String(LoginGovAdminClientIDFlag, "", "Client ID registered with login gov.")
 	flag.String(LoginGovHostnameFlag, "secure.login.gov", "Hostname for communicating with login gov.")
-}
-
-// InitAuth initializes the Login.gov provider
-func InitAuth(v *viper.Viper, logger Logger, appnames auth.ApplicationServername) (authentication.LoginGovProvider, error) {
-	loginGovCallbackProtocol := v.GetString(LoginGovCallbackProtocolFlag)
-	loginGovCallbackPort := v.GetInt(LoginGovCallbackPortFlag)
-	loginGovSecretKey := v.GetString(LoginGovSecretKeyFlag)
-	loginGovHostname := v.GetString(LoginGovHostnameFlag)
-
-	loginGovProvider := authentication.NewLoginGovProvider(loginGovHostname, loginGovSecretKey, logger)
-	err := loginGovProvider.RegisterProvider(
-		appnames.MilServername,
-		v.GetString(LoginGovMyClientIDFlag),
-		appnames.OfficeServername,
-		v.GetString(LoginGovOfficeClientIDFlag),
-		appnames.TspServername,
-		v.GetString(LoginGovTSPClientIDFlag),
-		appnames.AdminServername,
-		v.GetString(LoginGovAdminClientIDFlag),
-		loginGovCallbackProtocol,
-		loginGovCallbackPort)
-	return loginGovProvider, err
 }
 
 // CheckAuth validates Auth command line flags

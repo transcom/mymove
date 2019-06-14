@@ -31,6 +31,8 @@ repos:
     rev: v1.16.0
     hooks:
       - id: golangci-lint
+        entry: golangci-lint run --verbose
+        verbose: true
 
   - repo: git://github.com/igorshubovych/markdownlint-cli
     rev: v0.16.0
@@ -126,3 +128,9 @@ repos:
       language: script
       files: .codecov.yml
       pass_filenames: false
+
+  - repo: https://github.com/pryorda/dockerfilelint-precommit-hooks
+    rev: v0.1.0
+    hooks:
+    - id: dockerfilelint
+      stages: [commit]

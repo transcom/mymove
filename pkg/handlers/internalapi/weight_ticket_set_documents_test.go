@@ -41,6 +41,7 @@ func (suite *HandlerSuite) TestCreateWeightTicketSetDocumentHandler() {
 		VehicleNickname:          handlers.FmtString("My car"),
 		VehicleOptions:           handlers.FmtString("CAR"),
 		WeightTicketDate:         handlers.FmtDate(testdatagen.NextValidMoveDate),
+		TrailerOwnershipMissing:  handlers.FmtBool(false),
 	}
 
 	newWeightTicketSetDocParams := movedocop.CreateWeightTicketDocumentParams{

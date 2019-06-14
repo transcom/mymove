@@ -162,11 +162,27 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	suite.Equal(ShipmentStatusINTRANSIT, shipment.Status, "expected In Transit")
 	suite.Equal(*shipment.ActualPickupDate, shipDate, "expected Actual Pickup Date to be set")
 
-	// Can deliver shipment
+	//Can deliver shipment
+	authorizedStartDate := shipment.ActualPickupDate
+	actualStartDate := authorizedStartDate.Add(testdatagen.OneDay)
+	sit := testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
+		StorageInTransit: StorageInTransit{
+			ShipmentID:          shipment.ID,
+			EstimatedStartDate:  *authorizedStartDate,
+			AuthorizedStartDate: authorizedStartDate,
+			ActualStartDate:     &actualStartDate,
+			Status:              StorageInTransitStatusINSIT,
+		},
+	})
+
+	shipment.StorageInTransits = StorageInTransits{sit}
+
 	err = shipment.Deliver(shipDate)
 	suite.Nil(err)
 	suite.Equal(ShipmentStatusDELIVERED, shipment.Status, "expected Delivered")
 	suite.Equal(*shipment.ActualDeliveryDate, shipDate, "expected Actual Delivery Date to be set")
+	suite.Equal(StorageInTransitStatusDELIVERED, shipment.StorageInTransits[0].Status)
+	suite.Equal(shipment.ActualDeliveryDate, shipment.StorageInTransits[0].OutDate)
 }
 
 func (suite *ModelSuite) TestSetBookDateWhenSubmitted() {
