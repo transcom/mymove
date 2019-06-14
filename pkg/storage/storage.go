@@ -25,6 +25,7 @@ import (
 type StoreResult struct{}
 
 // FileStorer is the set of methods needed to store and retrieve objects.
+//go:generate mockery -name FileStorer
 type FileStorer interface {
 	Store(string, io.ReadSeeker, string) (*StoreResult, error)
 	Fetch(string) (io.ReadCloser, error)

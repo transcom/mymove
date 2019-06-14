@@ -73,6 +73,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		IsTspApp        bool
 		TspUserType     string
 		DpsUserType     string
+		IsAdminApp      bool
 		AdminUserType   string
 		CsrfToken       string
 		QueryLimit      int
@@ -87,6 +88,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		IsTspApp:        auth.TspApp == session.ApplicationName,
 		TspUserType:     TspUserType,
 		DpsUserType:     DpsUserType,
+		IsAdminApp:      auth.AdminApp == session.ApplicationName,
 		AdminUserType:   AdminUserType,
 		// Build CSRF token instead of grabbing from middleware. Otherwise throws errors when accessed directly.
 		CsrfToken:  csrf.Token(r),
@@ -161,6 +163,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				  <button type="submit" data-hook="new-user-login-{{.DpsUserType}}">Create a New {{.DpsUserType}} User</button>
 				</p>
 			  </form>
+			  {{else if $.IsAdminApp }}
 			  <form method="post" action="/devlocal-auth/new">
 				<p>
 				  <input type="hidden" name="gorilla.csrf.Token" value="{{.CsrfToken}}">

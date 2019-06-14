@@ -79,6 +79,12 @@ commands:
       - deploy:
           name: Deploy task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command save-fuel-price-data
+          environment:
+            DB_PORT: 5432
+            DB_USER: master
+            DB_NAME: app
+            DB_SSL_MODE: verify-full
+            DB_SSL_ROOT_CERT: /bin/rds-combined-ca-bundle.pem
           no_output_timeout: 20m
       - announce_failure
   deploy_app_steps:
@@ -452,11 +458,13 @@ jobs:
             DB_HOST: localhost
             DB_PORT: 5432
             DB_NAME: test_db
+            EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
             MIGRATION_PATH: /home/circleci/transcom/mymove/migrations
             SECURE_MIGRATION_DIR: /home/circleci/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
+
       - announce_failure
 
   # `server_test_coverage` runs code coverage and submits it to CodeClimate
@@ -498,6 +506,7 @@ jobs:
             DB_HOST: localhost
             DB_PORT: 5432
             DB_NAME: test_db
+            EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
             MIGRATION_PATH: /home/circleci/transcom/mymove/migrations
@@ -872,9 +881,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          filters:
-            branches:
-              ignore: ren-crc-#166453611-access-code-feature-flag
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
 
       - integration_tests_office:
           requires:
@@ -882,9 +891,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          filters:
-            branches:
-              ignore: ren-crc-#166453611-access-code-feature-flag
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
 
       - integration_tests_tsp:
           requires:
@@ -892,9 +901,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          filters:
-            branches:
-              ignore: ren-crc-#166453611-access-code-feature-flag
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
 
       - integration_tests_api:
           requires:
@@ -902,9 +911,9 @@ workflows:
             - pre_deps_yarn
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
-          filters:
-            branches:
-              ignore: ren-crc-#166453611-access-code-feature-flag
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
 
       - client_test:
           requires:
@@ -949,28 +958,28 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: ren-crc-#166453611-access-code-feature-flag
+              only: placeholder_branch_name
 
       - deploy_experimental_tasks:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: ren-crc-#166453611-access-code-feature-flag
+              only: placeholder_branch_name
 
       - deploy_experimental_app:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: ren-crc-#166453611-access-code-feature-flag
+              only: placeholder_branch_name
 
       - deploy_experimental_app_client_tls:
           requires:
             - deploy_experimental_migrations
           filters:
             branches:
-              only: ren-crc-#166453611-access-code-feature-flag
+              only: placeholder_branch_name
 
       - check_circle_against_staging_sha:
           requires:

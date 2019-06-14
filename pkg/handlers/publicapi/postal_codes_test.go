@@ -5,10 +5,10 @@ import (
 	"net/http/httptest"
 	"strings"
 
-	"github.com/transcom/mymove/mocks"
 	postalcodesops "github.com/transcom/mymove/pkg/gen/restapi/apioperations/postal_codes"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
