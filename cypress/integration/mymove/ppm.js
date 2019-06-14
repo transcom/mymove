@@ -208,8 +208,8 @@ describe('allows a SM to request a payment', function() {
     serviceMemberUploadsExpenses();
   });
 
-  it('service member requests a box truck weight ticket payment', () => {
-    serviceMemberSubmitsWeightTicket('BOX_TRUCK');
+  it('service member submits weight tickets without any documents', () => {
+    serviceMemberSubmitsWeightsTicketsWithoutReceipts();
   });
 
   it('service member requests a car + trailer weight ticket payment', () => {
@@ -372,7 +372,7 @@ function serviceMemberSubmitsCarTrailerWeightTicket() {
     .first()
     .check({ force: true });
 
-  cy.upload_file('.filepond--root:first', 'top-secret.png');
+  cy.upload_file('[data-cy=trailer-upload] .filepond--root', 'top-secret.png');
   cy.wait('@postUploadDocument');
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
 
@@ -419,31 +419,18 @@ function serviceMemberSavesWeightTicketForLater(vehicleType) {
   cy.get('input[name="vehicle_nickname"]').type('Nickname');
 
   cy.get('input[name="empty_weight"]').type('1000');
-  cy.upload_file('.filepond--root:first', 'top-secret.png');
+  cy.upload_file('[data-cy=empty-weight-upload] .filepond--root', 'top-secret.png');
   cy.wait('@postUploadDocument');
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
 
   cy.get('input[name="full_weight"]').type('5000');
-  cy.upload_file('.filepond--root:last', 'top-secret.png');
+  cy.upload_file('[data-cy=full-weight-upload] .filepond--root', 'top-secret.png');
   cy.wait('@postUploadDocument');
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 2);
   cy
     .get('input[name="weight_ticket_date"]')
     .type('6/2/2018{enter}')
     .blur();
-
-  cy.get('input[name="missingEmptyWeightTicket"]').check({ force: true });
-
-  cy
-    .get('.usa-alert-warning')
-    .contains(
-      'Contact your local Transportation Office (PPPO) to let them know you’re missing this weight ticket. For now, keep going and enter the info you do have.',
-    );
-
-  cy
-    .get('[type="radio"]')
-    .first()
-    .should('be.checked');
 
   cy
     .get('button')
@@ -458,6 +445,32 @@ function serviceMemberSavesWeightTicketForLater(vehicleType) {
   });
 }
 
+function serviceMemberSubmitsWeightsTicketsWithoutReceipts() {
+  cy.contains('Request Payment').click();
+  cy
+    .get('button')
+    .contains('Get Started')
+    .click();
+
+  cy.get('select[name="vehicle_options"]').select('CAR_TRAILER');
+  cy.get('input[name="vehicle_nickname"]').type('Nickname');
+  cy.get('input[name="empty_weight"]').type('1000');
+  cy.get('input[name="full_weight"]').type('2000');
+  cy.get('input[name="valid_trailer"][value="Yes"]+label').click();
+  cy.get('input[name="missingDocumentation"]+label').click();
+  cy.get('input[name="missingEmptyWeightTicket"]+label').click();
+  cy.get('input[name="missingFullWeightTicket"]+label').click();
+  cy
+    .get('input[name="weight_ticket_date"]')
+    .type('6/2/2018{enter}')
+    .blur();
+  cy
+    .get('button')
+    .contains('Save & Add Another')
+    .click();
+  cy.wait('@postWeightTicket');
+}
+
 function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true) {
   cy.contains('Request Payment').click();
   cy
@@ -470,12 +483,13 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true) {
   cy.get('input[name="vehicle_nickname"]').type('Nickname');
 
   cy.get('input[name="empty_weight"]').type('1000');
-  cy.upload_file('.filepond--root:first', 'top-secret.png');
+
+  cy.upload_file('[data-cy=empty-weight-upload] .filepond--root', 'top-secret.png');
   cy.wait('@postUploadDocument');
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
 
   cy.get('input[name="full_weight"]').type('5000');
-  cy.upload_file('.filepond--root:last', 'top-secret.png');
+  cy.upload_file('[data-cy=full-weight-upload] .filepond--root', 'top-secret.png');
   cy.wait('@postUploadDocument');
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 2);
   cy
