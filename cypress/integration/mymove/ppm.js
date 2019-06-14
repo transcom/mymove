@@ -202,7 +202,7 @@ describe('allows a SM to request a payment', function() {
     serviceMemberCanCancel();
   });
 
-  it('service member request payment entire flow', () => {
+  it('service member goes through entire request payment flow', () => {
     serviceMemberSubmitsWeightTicket('CAR', false);
     serviceMemberViewsExpensesLandingPage();
     serviceMemberUploadsExpenses();

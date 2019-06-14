@@ -96,7 +96,7 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 		ppmID = &id
 	}
 
-	moveingExpenseDocument := models.MovingExpenseDocument{
+	movingExpenseDocument := models.MovingExpenseDocument{
 		MovingExpenseType:    models.MovingExpenseType(payload.MovingExpenseType),
 		RequestedAmountCents: unit.Cents(*payload.RequestedAmountCents),
 		PaymentMethod:        *payload.PaymentMethod,
@@ -109,7 +109,7 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 		models.MoveDocumentType(payload.MoveDocumentType),
 		*payload.Title,
 		payload.Notes,
-		moveingExpenseDocument,
+		movingExpenseDocument,
 		*move.SelectedMoveType,
 	)
 
