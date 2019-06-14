@@ -50,7 +50,7 @@ export class DocumentUploader extends Component {
     });
     if (get(formValues, 'move_document_type', false) === 'EXPENSE') {
       formValues.requested_amount_cents = convertDollarsToCents(formValues.requested_amount_cents);
-      const missingReceipt = false;
+      const receiptMissing = false;
       this.props
         .createMovingExpenseDocument(
           moveId,
@@ -62,7 +62,7 @@ export class DocumentUploader extends Component {
           formValues.requested_amount_cents,
           formValues.payment_method,
           formValues.notes,
-          missingReceipt,
+          receiptMissing,
         )
         .then(() => {
           reset();
