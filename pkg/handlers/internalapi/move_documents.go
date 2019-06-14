@@ -97,7 +97,7 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 	}
 	var receiptMissing *bool
 	if docExtractor.ReceiptMissing != nil {
-		trailerOwnershipMissing = docExtractor.ReceiptMissing
+		receiptMissing = docExtractor.ReceiptMissing
 	}
 
 	payload := internalmessages.MoveDocumentPayload{
