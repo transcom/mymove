@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+set -eu -o pipefail
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly DIR
+
+# Ensure fizz-validate is available
+if ! command -v fizz-validate &> /dev/null; then
+  echo "error: fizz-validate not installed, install with 'make bin/fizz-validate'" 1>&2
+  exit 1
+fi
+
+# shellcheck disable=SC2068
+fizz-validate $@

@@ -29,8 +29,7 @@ require (
 	github.com/go-openapi/swag v0.19.0
 	github.com/go-openapi/validate v0.19.0
 	github.com/go-swagger/go-swagger v0.19.1-0.20190513062051-8ce1ff423c5a
-	github.com/gobuffalo/fizz v1.7.1 // indirect
-	github.com/gobuffalo/helpers v0.0.0-20190506214229-8e6f634af7c3 // indirect
+	github.com/gobuffalo/fizz v1.7.1
 	github.com/gobuffalo/nulls v0.0.0-20190305142546-85f3c9250d87 // indirect
 	github.com/gobuffalo/packr v1.25.0
 	github.com/gobuffalo/pop v4.11.0+incompatible
@@ -54,8 +53,6 @@ require (
 	github.com/mattn/go-shellwords v1.0.5 // indirect
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/namsral/flag v1.7.4-alpha.0.20170814194028-67f268f20922
-	github.com/onsi/ginkgo v1.8.0 // indirect
-	github.com/onsi/gomega v1.5.0 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/rickar/cal v1.0.1
 	github.com/rogpeppe/go-internal v1.3.0
@@ -74,7 +71,7 @@ require (
 	go.uber.org/zap v1.10.0
 	goji.io v2.0.2+incompatible
 	golang.org/x/crypto v0.0.0-20190510104115-cbcb75029529
-	golang.org/x/net v0.0.0-20190509222800-a4d6f7feada5
+	golang.org/x/net v0.0.0-20190514140710-3ec191127204
 	golang.org/x/oauth2 v0.0.0-20190402181905-9f3314589c9a // indirect
 	golang.org/x/text v0.3.2
 	golang.org/x/tools v0.0.0-20190511041617-99f201b6807e
@@ -83,3 +80,5 @@ require (
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
 )
+
+replace github.com/gobuffalo/fizz => github.com/pjdufour-truss/fizz v1.8.1-0.20190614195154-63d38a512b98

@@ -211,6 +211,9 @@ bin/ecs-deploy-task-container: server_deps server_generate
 bin/ecs-service-logs:
 	go build -ldflags "$(LDFLAGS)" -o bin/ecs-service-logs ./cmd/ecs-service-logs
 
+bin/fizz-validate: .check_go_version.stamp .check_gopath.stamp
+	go build -ldflags "$(LDFLAGS)" -o bin/fizz-validate github.com/transcom/mymove/cmd/fizz-validate
+
 bin/generate-1203-form: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-1203-form ./cmd/generate_1203_form
 

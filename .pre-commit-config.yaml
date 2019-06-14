@@ -134,3 +134,12 @@ repos:
     hooks:
     - id: dockerfilelint
       stages: [commit]
+
+  - repo: local
+    hooks:
+    - id: fizz-validate
+      name: fizz validate
+      entry: scripts/pre-commit-fizz-validate
+      language: script
+      files: '\.fizz$'
+      pass_filenames: true
