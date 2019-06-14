@@ -34,6 +34,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
+	"github.com/transcom/mymove/pkg/certs"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
@@ -45,8 +46,11 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
 	"github.com/transcom/mymove/pkg/handlers/publicapi"
+	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/middleware"
+	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/invoice"
@@ -398,7 +402,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Register Login.gov authentication provider for My.(move.mil)
-	loginGovProvider, err := cli.InitAuth(v, logger, appnames)
+	loginGovProvider, err := authentication.InitAuth(v, logger, appnames)
 	if err != nil {
 		logger.Fatal("Registering login provider", zap.Error(err))
 	}
@@ -419,7 +423,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Email
-	notificationSender := cli.InitEmail(v, session, logger)
+	notificationSender := notifications.InitEmail(v, session, logger)
 	handlerContext.SetNotificationSender(notificationSender)
 
 	build := v.GetString(cli.BuildFlag)
@@ -429,17 +433,17 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	// Get route planner for handlers to calculate transit distances
 	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
-	routePlanner := cli.InitRoutePlanner(v, logger)
+	routePlanner := route.InitRoutePlanner(v, logger)
 	handlerContext.SetPlanner(routePlanner)
 
 	// Set SendProductionInvoice for ediinvoice
 	handlerContext.SetSendProductionInvoice(v.GetBool(cli.GEXSendProdInvoiceFlag))
 
 	// Storage
-	storer := cli.InitStorage(v, session, logger)
+	storer := storage.InitStorage(v, session, logger)
 	handlerContext.SetFileStorer(storer)
 
-	certificates, rootCAs, err := cli.InitDoDCertificates(v, logger)
+	certificates, rootCAs, err := certs.InitDoDCertificates(v, logger)
 	if certificates == nil || rootCAs == nil || err != nil {
 		logger.Fatal("Failed to initialize DOD certificates", zap.Error(err))
 	}
@@ -489,7 +493,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 	handlerContext.SetICNSequencer(icnSequencer)
 
-	rbs, err := cli.InitRBSPersonLookup(v, logger)
+	rbs, err := iws.InitRBSPersonLookup(v, logger)
 	if err != nil {
 		logger.Fatal("Could not instantiate IWS RBS", zap.Error(err))
 	}
@@ -500,7 +504,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	dpsCookieSecret := []byte(v.GetString(cli.DPSAuthCookieSecretKeyFlag))
 	dpsCookieExpires := v.GetInt(cli.DPSCookieExpiresInMinutesFlag)
 
-	dpsAuthParams := cli.InitDPSAuthParams(v, appnames)
+	dpsAuthParams := dpsauth.InitDPSAuthParams(v, appnames)
 	handlerContext.SetDPSAuthParams(dpsAuthParams)
 
 	// Base routes

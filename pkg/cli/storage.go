@@ -2,17 +2,12 @@ package cli
 
 import (
 	"fmt"
-	"path"
 	"path/filepath"
 
-	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/storage"
 )
 
 const (
@@ -61,45 +56,4 @@ func CheckStorage(v *viper.Viper) error {
 	}
 
 	return nil
-}
-
-// InitStorage initializes the storage backend
-func InitStorage(v *viper.Viper, sess *awssession.Session, logger Logger) storage.FileStorer {
-	storageBackend := v.GetString(StorageBackendFlag)
-	localStorageRoot := v.GetString(LocalStorageRootFlag)
-	localStorageWebRoot := v.GetString(LocalStorageWebRootFlag)
-
-	var storer storage.FileStorer
-	if storageBackend == "s3" {
-		awsS3Bucket := v.GetString(AWSS3BucketNameFlag)
-		awsS3Region := v.GetString(AWSS3RegionFlag)
-		awsS3KeyNamespace := v.GetString(AWSS3KeyNamespaceFlag)
-		logger.Info("Using s3 storage backend",
-			zap.String("bucket", awsS3Bucket),
-			zap.String("region", awsS3Region),
-			zap.String("key", awsS3KeyNamespace))
-		if len(awsS3Bucket) == 0 {
-			logger.Fatal("must provide aws-s3-bucket-name parameter, exiting")
-		}
-		if len(awsS3Region) == 0 {
-			logger.Fatal("Must provide aws-s3-region parameter, exiting")
-		}
-		if len(awsS3KeyNamespace) == 0 {
-			logger.Fatal("Must provide aws_s3_key_namespace parameter, exiting")
-		}
-		storer = storage.NewS3(awsS3Bucket, awsS3KeyNamespace, logger, sess)
-	} else if storageBackend == "memory" {
-		logger.Info("Using memory storage backend",
-			zap.String(LocalStorageRootFlag, path.Join(localStorageRoot, localStorageWebRoot)),
-			zap.String(LocalStorageWebRootFlag, localStorageWebRoot))
-		fsParams := storage.NewMemoryParams(localStorageRoot, localStorageWebRoot, logger)
-		storer = storage.NewMemory(fsParams)
-	} else {
-		logger.Info("Using local storage backend",
-			zap.String(LocalStorageRootFlag, path.Join(localStorageRoot, localStorageWebRoot)),
-			zap.String(LocalStorageWebRootFlag, localStorageWebRoot))
-		fsParams := storage.NewFilesystemParams(localStorageRoot, localStorageWebRoot, logger)
-		storer = storage.NewFilesystem(fsParams)
-	}
-	return storer
 }

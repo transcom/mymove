@@ -109,7 +109,7 @@ class QueueTable extends Component {
       new: 'New Moves/Shipments',
       troubleshooting: 'Troubleshooting',
       ppm: 'PPMs',
-      hhg_accepted: 'Accepted HHGs',
+      hhg_approved: 'Approved HHGs',
       hhg_delivered: 'Delivered HHGs',
       all: 'All Moves',
     };

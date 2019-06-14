@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/rateengine"
 
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/route"
@@ -21,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
+	shipmentservice "github.com/transcom/mymove/pkg/services/shipment"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
@@ -786,6 +788,15 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
 
+	storageInTransit := testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID: shipment.ID,
+			Shipment:   shipment,
+			Status:     models.StorageInTransitStatusINSIT,
+			// default is a DESTINATION sit
+		},
+	})
+
 	// Add a line item that's ready to be priced
 	preApproval := testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
 		ShipmentLineItem: models.ShipmentLineItem{
@@ -804,7 +815,10 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
 
 	// Handler to Test
-	handler := DeliverShipmentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	engine := rateengine.NewRateEngine(suite.DB(), suite.TestLogger())
+	planner := route.NewTestingPlanner(1044)
+	shipmentDeliverAndPricer := shipmentservice.NewShipmentDeliverAndPricer(suite.DB(), engine, planner)
+	handler := DeliverShipmentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), shipmentDeliverAndPricer}
 	handler.SetPlanner(route.NewTestingPlanner(1044))
 
 	// Test query with first user
@@ -828,6 +842,11 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 	okResponse := response.(*shipmentop.DeliverShipmentOK)
 	suite.Equal("DELIVERED", string(okResponse.Payload.Status))
 	suite.Equal(actualDeliveryDate, time.Time(*okResponse.Payload.ActualDeliveryDate))
+
+	suite.DB().Reload(&storageInTransit)
+	suite.Equal(models.StorageInTransitStatusDELIVERED, storageInTransit.Status)
+	suite.NotNil(storageInTransit.OutDate)
+	suite.Equal(actualDeliveryDate, storageInTransit.OutDate.UTC())
 
 	// Check for ShipmentLineItems
 	addedLineItems, _ := models.FetchLineItemsByShipmentID(suite.DB(), &shipment.ID)

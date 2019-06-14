@@ -1,12 +1,21 @@
 package route
 
 import (
+	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
-	"fmt"
+	"github.com/spf13/viper"
 
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
+)
+
+const (
+	// hereRequestTimeout is how long to wait on HERE request before timing out (15 seconds).
+	hereRequestTimeout = time.Duration(15) * time.Second
 )
 
 // LatLong is used to hold latitude and longitude as floats
@@ -53,4 +62,16 @@ type Planner interface {
 	TransitDistance(source *models.Address, destination *models.Address) (int, error)
 	LatLongTransitDistance(source LatLong, destination LatLong) (int, error)
 	Zip5TransitDistance(source string, destination string) (int, error)
+}
+
+// InitRoutePlanner validates Route Planner command line flags
+func InitRoutePlanner(v *viper.Viper, logger Logger) Planner {
+	hereClient := &http.Client{Timeout: hereRequestTimeout}
+	return NewHEREPlanner(
+		logger,
+		hereClient,
+		v.GetString(cli.HEREMapsGeocodeEndpointFlag),
+		v.GetString(cli.HEREMapsRoutingEndpointFlag),
+		v.GetString(cli.HEREMapsAppIDFlag),
+		v.GetString(cli.HEREMapsAppCodeFlag))
 }

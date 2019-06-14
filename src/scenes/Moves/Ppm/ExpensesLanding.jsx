@@ -8,6 +8,7 @@ import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 import WizardHeader from '../WizardHeader';
 
 import './Expenses.css';
+import { connect } from 'react-redux';
 
 class ExpensesLanding extends Component {
   state = {
@@ -18,6 +19,11 @@ class ExpensesLanding extends Component {
     this.setState({
       hasExpenses: event.target.value,
     });
+  };
+
+  saveAndAddHandler = () => {
+    const { history, moveId } = this.props;
+    history.push(`/moves/${moveId}/ppm-expenses`);
   };
 
   render() {
@@ -58,7 +64,6 @@ class ExpensesLanding extends Component {
               checked={hasExpenses === 'Yes'}
               onChange={this.handleRadioChange}
             />
-
             <RadioButton
               inputClassName="inline_radio"
               labelClassName="inline_radio"
@@ -71,9 +76,10 @@ class ExpensesLanding extends Component {
           </div>
           <PPMPaymentRequestActionBtns
             cancelHandler={() => {}}
-            displaySaveForLater
+            //TODO remove once have review page in place
+            displaySaveForLater={hasExpenses === 'No'}
             nextBtnLabel="Continue"
-            saveAndAddHandler={() => {}}
+            saveAndAddHandler={this.saveAndAddHandler}
             saveForLaterHandler={() => history.push('/')}
             submitButtonsAreDisabled={!hasExpenses}
           />
@@ -83,4 +89,11 @@ class ExpensesLanding extends Component {
   }
 }
 
-export default ExpensesLanding;
+function mapStateToProps(state, ownProps) {
+  const moveId = ownProps.match.params.moveId;
+  return {
+    moveId: moveId,
+  };
+}
+
+export default connect(mapStateToProps)(ExpensesLanding);
