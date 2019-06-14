@@ -49,6 +49,7 @@ export class StorageInTransitTspEditForm extends Component {
           <PanelSwaggerField fieldName="estimated_start_date" required title="Estimated start date" {...fieldProps} />
           {inSit || isReleased || isDelivered ? (
             <SwaggerField
+              className="storage-in-transit-form"
               fieldName="actual_start_date"
               swagger={storageInTransitSchema}
               title="Actual start date"
@@ -67,6 +68,7 @@ export class StorageInTransitTspEditForm extends Component {
           )}
           {isReleased || isDelivered ? (
             <SwaggerField
+              className="storage-in-transit-form"
               fieldName="out_date"
               disabledDays={disabledDaysForOutDayPicker}
               minDate={minDate}
