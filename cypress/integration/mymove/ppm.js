@@ -111,8 +111,8 @@ describe('check invalid ppm inputs', () => {
     cy.get('.wizard-header').should('not.exist');
     cy
       .get('input[name="original_move_date"]')
-      .first()
-      .type('6/3/2100{enter}');
+      .type('6/3/2100')
+      .blur();
     // test an invalid pickup zip code
     cy
       .get('input[name="pickup_postal_code"]')
