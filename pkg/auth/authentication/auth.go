@@ -138,7 +138,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // loginStateCookieName is the name given to the cookie storing the encrypted Login.gov state nonce.
-const loginStateCookieName = "LGState"
+const loginStateCookieName = "lg_state"
 const loginStateCookieTTLInSecs = 1800 // 30 mins to transit through login.gov.
 
 // RedirectHandler handles redirection
@@ -150,6 +150,10 @@ type RedirectHandler struct {
 func shaAsString(nonce string) string {
 	s := sha256.Sum256([]byte(nonce))
 	return hex.EncodeToString(s[:])
+}
+
+func stateCookieName(session *auth.Session) string {
+	return fmt.Sprintf("%s_%s", string(session.ApplicationName), loginStateCookieName)
 }
 
 // RedirectHandler constructs the Login.gov authentication URL and redirects to it
@@ -176,7 +180,7 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	stateCookie := http.Cookie{
-		Name:     session.Hostname + loginStateCookieName,
+		Name:     stateCookieName(session),
 		Value:    shaAsString(loginData.Nonce),
 		Path:     "/",
 		Expires:  time.Now().Add(time.Duration(loginStateCookieTTLInSecs) * time.Second),
@@ -250,7 +254,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Check the state value sent back from login.gov with the value saved in the cookie
 	returnedState := r.URL.Query().Get("state")
-	stateCookie, err := r.Cookie(session.Hostname + loginStateCookieName)
+	stateCookie, err := r.Cookie(stateCookieName(session))
 	if err != nil {
 		h.logger.Error("Getting login.gov state cookie", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
