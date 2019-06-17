@@ -51,9 +51,20 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 	var weightEstimate int64
 	if len(move.PersonallyProcuredMoves) >= 1 {
 		// PPMs are in descending order - this is the last one created
-		weightEstimate = int64(*move.PersonallyProcuredMoves[0].WeightEstimate)
+		ppm := move.PersonallyProcuredMoves[0]
+		if ppm.WeightEstimate != nil {
+			weightEstimate = int64(*ppm.WeightEstimate)
+		} else {
+			weightEstimate = int64(0)
+		}
+
 	} else if len(move.Shipments) >= 1 {
-		weightEstimate = int64(*move.Shipments[0].WeightEstimate)
+		shipment := move.Shipments[0]
+		if shipment.WeightEstimate != nil {
+			weightEstimate = int64(*shipment.WeightEstimate)
+		} else {
+			weightEstimate = int64(0)
+		}
 	}
 
 	smEntitlement, err := models.GetEntitlement(*serviceMember.Rank, orders.HasDependents, orders.SpouseHasProGear)

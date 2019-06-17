@@ -11,9 +11,6 @@ describe('TSP User Views Shipment', function() {
   it('tsp user views shipments in accepted shipments queue', function() {
     tspUserViewsAcceptedShipments();
   });
-  it('tsp user views shipments in approved shipments queue', function() {
-    tspUserViewsApprovedShipments();
-  });
   it('tsp user views shipments in in_transit shipments queue', function() {
     tspUserViewsInTransitShipments();
   });
@@ -127,31 +124,4 @@ function tspUserViewsAcceptedShipments() {
   tspUserVerifiesShipmentStatus('Shipment accepted');
 
   cy.get('a').contains('Accepted Shipments Queue');
-}
-
-function tspUserViewsApprovedShipments() {
-  // Open approved shipments queue
-  cy
-    .get('div')
-    .contains('Approved Shipments')
-    .click();
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/approved/);
-  });
-
-  // Find title
-  cy.get('h1').contains('Queue: Approved Shipments');
-
-  // Find shipment
-  cy
-    .get('div')
-    .contains('BACON1')
-    .should('not.exist');
-  cy.selectQueueItemMoveLocator('APPRVD');
-
-  // Status
-  tspUserVerifiesShipmentStatus('Awaiting pre-move survey');
-
-  cy.get('a').contains('Approved Shipments Queue');
 }

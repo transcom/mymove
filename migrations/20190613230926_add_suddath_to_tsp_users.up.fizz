@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190613230926_add_suddath_to_tsp_users.sql")

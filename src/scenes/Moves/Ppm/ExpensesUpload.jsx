@@ -6,7 +6,8 @@ import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 import WizardHeader from '../WizardHeader';
 
 import 'shared/DocumentViewer/DocumentUploader.jsx';
-import { get, isEmpty } from 'lodash';
+import { get, isEmpty, map } from 'lodash';
+import { convertDollarsToCents } from 'shared/utils';
 import RadioButton from 'shared/RadioButton';
 import { Link } from 'react-router-dom';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -16,6 +17,7 @@ import Uploader from 'shared/Uploader';
 import Checkbox from 'shared/Checkbox';
 import { getFormValues, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
+import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 import Alert from 'shared/Alert';
 
 class ExpensesUpload extends Component {
@@ -50,6 +52,54 @@ class ExpensesUpload extends Component {
     });
   };
 
+  saveForLaterHandler = formValues => {
+    const { history } = this.props;
+    return this.saveAndAddHandler(formValues).then(() => {
+      if (this.state.moveDocumentCreateError === false) {
+        history.push('/');
+      }
+    });
+  };
+
+  saveAndAddHandler = formValues => {
+    const { moveId, currentPpm } = this.props;
+    const { paymentMethod, missingReceipt } = this.state;
+    const { title, moving_expense_type: movingExpenseType, requested_amount_cents: requestedAmountCents } = formValues;
+
+    // eslint-disable-next-line security/detect-object-injection
+    let files = this.uploader.getFiles();
+    const uploadIds = map(files, 'id');
+    const personallyProcuredMoveId = currentPpm ? currentPpm.id : null;
+    return this.props
+      .createMovingExpenseDocument({
+        moveId,
+        personallyProcuredMoveId,
+        uploadIds,
+        title,
+        movingExpenseType,
+        moveDocumentType: 'EXPENSE',
+        requestedAmountCents: convertDollarsToCents(requestedAmountCents),
+        paymentMethod,
+        notes: '',
+        missingReceipt,
+      })
+      .then(() => {
+        this.setState({ expenseNumber: this.state.expenseNumber + 1 });
+        this.cleanup();
+      })
+      .catch(e => {
+        this.setState({ moveDocumentCreateError: true });
+      });
+  };
+
+  cleanup = () => {
+    const { reset } = this.props;
+    // eslint-disable-next-line security/detect-object-injection
+    this.uploader.clearFiles();
+    reset();
+    this.setState({ ...this.initialState });
+  };
+
   onAddFile = () => {
     this.setState({
       uploaderIsIdle: false,
@@ -72,9 +122,22 @@ class ExpensesUpload extends Component {
     alert('Cash, personal credit card, check — any payment method that’s not your GTCC.');
   };
 
+  formIsIncomplete = () => {
+    const { formValues } = this.props;
+    const { missingReceipt } = this.state;
+    const receiptUploaded = this.uploader && !this.uploader.isEmpty();
+    return !(
+      formValues &&
+      formValues.moving_expense_type &&
+      formValues.title &&
+      formValues.requested_amount_cents &&
+      (missingReceipt || receiptUploaded)
+    );
+  };
+
   render() {
     const { missingReceipt, paymentMethod, haveMoreExpenses, expenseNumber, moveDocumentCreateError } = this.state;
-    const { moveDocSchema, formValues, isPublic } = this.props;
+    const { moveDocSchema, formValues, isPublic, handleSubmit, submitting } = this.props;
     const nextBtnLabel =
       haveMoreExpenses === 'Yes'
         ? ExpensesUpload.nextBtnLabels.SaveAndAddAnother
@@ -162,7 +225,7 @@ class ExpensesUpload extends Component {
                     aria-hidden
                     className="color_blue_link"
                     icon={faQuestionCircle}
-                    onClick={this.handleRadioChange}
+                    onClick={this.handleHowDidYouPayForThis}
                   />
                 </div>
                 <div className="dashed-divider" />
@@ -191,9 +254,12 @@ class ExpensesUpload extends Component {
             )}
             <PPMPaymentRequestActionBtns
               nextBtnLabel={nextBtnLabel}
-              submitButtonsAreDisabled={true}
-              saveForLaterHandler={() => {}}
-              saveAndAddHandler={() => {}}
+              submitButtonsAreDisabled={
+                this.formIsIncomplete() || nextBtnLabel === ExpensesUpload.nextBtnLabels.SaveAndContinue
+              }
+              submitting={submitting}
+              saveForLaterHandler={handleSubmit(this.saveForLaterHandler)}
+              saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
               displaySaveForLater={true}
             />
           </form>
@@ -216,4 +282,9 @@ function mapStateToProps(state, props) {
     currentPpm: get(state, 'ppm.currentPpm'),
   };
 }
-export default connect(mapStateToProps)(ExpensesUpload);
+
+const mapDispatchToProps = {
+  createMovingExpenseDocument,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ExpensesUpload);

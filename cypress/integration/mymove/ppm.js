@@ -111,8 +111,8 @@ describe('check invalid ppm inputs', () => {
     cy.get('.wizard-header').should('not.exist');
     cy
       .get('input[name="original_move_date"]')
-      .first()
-      .type('6/3/2100{enter}');
+      .type('6/3/2100')
+      .blur();
     // test an invalid pickup zip code
     cy
       .get('input[name="pickup_postal_code"]')
@@ -193,6 +193,7 @@ describe('allows a SM to request a payment', function() {
     cy.server();
     cy.route('POST', '**/internal/uploads').as('postUploadDocument');
     cy.route('POST', '**/moves/**/weight_ticket').as('postWeightTicket');
+    cy.route('POST', '**/moves/**/moving_expense_documents').as('postMovingExpense');
     cy.signInAsUserPostRequest(milmoveAppName, '8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
   });
 
@@ -201,14 +202,14 @@ describe('allows a SM to request a payment', function() {
     serviceMemberCanCancel();
   });
 
-  it('service member requests car weight ticket payment and views expenses landing page', () => {
+  it('service member goes through entire request payment flow', () => {
     serviceMemberSubmitsWeightTicket('CAR', false);
     serviceMemberViewsExpensesLandingPage();
-    serviceMemberViewsExpensesUploadPage();
+    serviceMemberUploadsExpenses();
   });
 
-  it('service member requests a box truck weight ticket payment', () => {
-    serviceMemberSubmitsWeightTicket('BOX_TRUCK');
+  it('service member submits weight tickets without any documents', () => {
+    serviceMemberSubmitsWeightsTicketsWithoutReceipts();
   });
 
   it('service member requests a car + trailer weight ticket payment', () => {
@@ -303,7 +304,7 @@ function serviceMemberViewsExpensesLandingPage() {
     .click();
 }
 
-function serviceMemberViewsExpensesUploadPage() {
+function serviceMemberUploadsExpenses() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-expenses/);
   });
@@ -321,9 +322,33 @@ function serviceMemberViewsExpensesUploadPage() {
   cy.get('input[name="missingReceipt"]').should('not.be.checked');
   cy.get('input[name="paymentMethod"][value="GTCC"]').should('not.be.checked');
   cy.get('input[name="paymentMethod"][value="OTHER"]').should('be.checked');
-
   cy.get('input[name="haveMoreExpenses"][value="Yes"]').should('not.be.checked');
   cy.get('input[name="haveMoreExpenses"][value="No"]').should('be.checked');
+  cy.get('input[name="haveMoreExpenses"][value="Yes"]+label').click();
+
+  cy.contains('Save & Add Another').click();
+  cy
+    .wait('@postMovingExpense')
+    .its('status')
+    .should('eq', 200);
+
+  // Add an expense that's missing a receipt
+  cy.contains('Expense 2');
+
+  cy.get('select[name="moving_expense_type"]').select('GAS');
+  cy.get('input[name="title"]').type('title 2');
+  cy.get('input[name="requested_amount_cents"]').type('2000');
+
+  cy.get('input[name="missingReceipt"]').should('not.be.checked');
+  cy.get('input[name="missingReceipt"]+label').click();
+  cy.get('input[name="missingReceipt"]').should('be.checked');
+  cy.get('input[name="haveMoreExpenses"][value="Yes"]+label').click();
+
+  cy.contains('Save & Add Another').click();
+  cy
+    .wait('@postMovingExpense')
+    .its('status')
+    .should('eq', 200);
 }
 
 function serviceMemberSubmitsCarTrailerWeightTicket() {
@@ -347,17 +372,11 @@ function serviceMemberSubmitsCarTrailerWeightTicket() {
     .first()
     .check({ force: true });
 
-  cy.upload_file('.filepond--root:first', 'top-secret.png');
+  cy.upload_file('[data-cy=trailer-upload] .filepond--root', 'top-secret.png');
   cy.wait('@postUploadDocument');
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
 
   cy.get('input[name="missingDocumentation"]').check({ force: true });
-
-  cy
-    .get('.usa-alert-warning')
-    .contains(
-      'If your state does not provide a registration or bill of sale for your trailer, you may write and upload a signed and dated statement certifying that you or your spouse own the trailer and meets the trailer criteria. Upload your statement using the proof of ownership field.',
-    );
 
   cy.get('input[name="empty_weight"]').type('1000');
   cy.get('input[name="missingEmptyWeightTicket"]').check({ force: true });
@@ -370,12 +389,6 @@ function serviceMemberSubmitsCarTrailerWeightTicket() {
     .get('input[name="weight_ticket_date"]')
     .type('6/2/2018{enter}')
     .blur();
-
-  cy
-    .get('.usa-alert-warning')
-    .contains(
-      'Contact your local Transportation Office (PPPO) to let them know you’re missing this weight ticket. For now, keep going and enter the info you do have.',
-    );
 
   cy
     .get('[type="radio"]')
@@ -394,12 +407,12 @@ function serviceMemberSavesWeightTicketForLater(vehicleType) {
   cy.get('input[name="vehicle_nickname"]').type('Nickname');
 
   cy.get('input[name="empty_weight"]').type('1000');
-  cy.upload_file('.filepond--root:first', 'top-secret.png');
+  cy.upload_file('[data-cy=empty-weight-upload] .filepond--root', 'top-secret.png');
   cy.wait('@postUploadDocument');
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
 
   cy.get('input[name="full_weight"]').type('5000');
-  cy.upload_file('.filepond--root:last', 'top-secret.png');
+  cy.upload_file('[data-cy=full-weight-upload] .filepond--root', 'top-secret.png');
   cy.wait('@postUploadDocument');
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 2);
   cy
@@ -407,27 +420,58 @@ function serviceMemberSavesWeightTicketForLater(vehicleType) {
     .type('6/2/2018{enter}')
     .blur();
 
-  cy.get('input[name="missingEmptyWeightTicket"]').check({ force: true });
-
-  cy
-    .get('.usa-alert-warning')
-    .contains(
-      'Contact your local Transportation Office (PPPO) to let them know you’re missing this weight ticket. For now, keep going and enter the info you do have.',
-    );
-
-  cy
-    .get('[type="radio"]')
-    .first()
-    .should('be.checked');
-
   cy
     .get('button')
     .contains('Save For Later')
     .click();
-  cy.wait('@postWeightTicket');
+  cy
+    .wait('@postWeightTicket')
+    .its('status')
+    .should('eq', 200);
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/$/);
   });
+}
+
+function serviceMemberSubmitsWeightsTicketsWithoutReceipts() {
+  cy.contains('Request Payment').click();
+  cy
+    .get('button')
+    .contains('Get Started')
+    .click();
+
+  cy.get('select[name="vehicle_options"]').select('CAR_TRAILER');
+  cy.get('input[name="vehicle_nickname"]').type('Nickname');
+  cy.get('input[name="empty_weight"]').type('1000');
+  cy.get('input[name="full_weight"]').type('2000');
+  cy.get('input[name="isValidTrailer"][value="Yes"]+label').click();
+  cy.get('input[name="missingDocumentation"]+label').click();
+  cy
+    .get('[data-cy=trailer-warning]')
+    .contains(
+      'If your state does not provide a registration or bill of sale for your trailer, you may write and upload a signed and dated statement certifying that you or your spouse own the trailer and meets the trailer criteria. Upload your statement using the proof of ownership field.',
+    );
+  cy.get('input[name="missingEmptyWeightTicket"]+label').click();
+  cy
+    .get('[data-cy=empty-warning]')
+    .contains(
+      'Contact your local Transportation Office (PPPO) to let them know you’re missing this weight ticket. For now, keep going and enter the info you do have.',
+    );
+  cy.get('input[name="missingFullWeightTicket"]+label').click();
+  cy
+    .get('[data-cy=full-warning]')
+    .contains(
+      'Contact your local Transportation Office (PPPO) to let them know you’re missing this weight ticket. For now, keep going and enter the info you do have.',
+    );
+  cy
+    .get('input[name="weight_ticket_date"]')
+    .type('6/2/2018{enter}')
+    .blur();
+  cy
+    .get('button')
+    .contains('Save & Add Another')
+    .click();
+  cy.wait('@postWeightTicket');
 }
 
 function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true) {
@@ -442,12 +486,13 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true) {
   cy.get('input[name="vehicle_nickname"]').type('Nickname');
 
   cy.get('input[name="empty_weight"]').type('1000');
-  cy.upload_file('.filepond--root:first', 'top-secret.png');
+
+  cy.upload_file('[data-cy=empty-weight-upload] .filepond--root', 'top-secret.png');
   cy.wait('@postUploadDocument');
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
 
   cy.get('input[name="full_weight"]').type('5000');
-  cy.upload_file('.filepond--root:last', 'top-secret.png');
+  cy.upload_file('[data-cy=full-weight-upload] .filepond--root', 'top-secret.png');
   cy.wait('@postUploadDocument');
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 2);
   cy

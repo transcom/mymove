@@ -61,6 +61,7 @@ export class PaymentRequest extends Component {
         requestedAmountCents: convertDollarsToCents(requestedAmountCents),
         paymentMethod,
         notes,
+        missingReceipt: false,
       });
     }
     return this.props.createMoveDocument({
