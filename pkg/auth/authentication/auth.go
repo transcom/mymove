@@ -332,7 +332,7 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 		span.AddField("session.service_member_id", session.ServiceMemberID)
 	}
 
-	if userIdentity.DpsUserID != nil && !userIdentity.Disabled {
+	if userIdentity.DpsUserID != nil && (userIdentity.DpsDisabled != nil && !*userIdentity.DpsDisabled) {
 		session.DpsUserID = *(userIdentity.DpsUserID)
 	}
 
