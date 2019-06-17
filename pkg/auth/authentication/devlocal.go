@@ -600,7 +600,11 @@ func loginUser(h devlocalAuthHandler, user *models.User, userType string, w http
 	}
 
 	if session.Disabled {
-		h.logger.Info("Disabled user requesting authentication", zap.Error(err), zap.String("email", session.Email))
+		h.logger.Error("Disabled user requesting authentication",
+			zap.String("application_name", string(session.ApplicationName)),
+			zap.String("hostname", session.Hostname),
+			zap.String("user_id", session.UserID.String()),
+			zap.String("email", session.Email))
 		http.Error(w, http.StatusText(403), http.StatusForbidden)
 		return nil, nil
 	}
