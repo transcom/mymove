@@ -1,13 +1,8 @@
 package cli
 
 import (
-	"net/http"
-	"time"
-
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-
-	"github.com/transcom/mymove/pkg/route"
 )
 
 const (
@@ -19,9 +14,6 @@ const (
 	HEREMapsAppIDFlag string = "here-maps-app-id"
 	// HEREMapsAppCodeFlag is the HERE Maps App Code Flag
 	HEREMapsAppCodeFlag string = "here-maps-app-code"
-
-	// hereRequestTimeout is how long to wait on HERE request before timing out (15 seconds).
-	hereRequestTimeout = time.Duration(15) * time.Second
 )
 
 // InitRouteFlags initializes Route command line flags
@@ -30,18 +22,6 @@ func InitRouteFlags(flag *pflag.FlagSet) {
 	flag.String(HEREMapsRoutingEndpointFlag, "", "URL for the HERE maps routing endpoint")
 	flag.String(HEREMapsAppIDFlag, "", "HERE maps App ID for this application")
 	flag.String(HEREMapsAppCodeFlag, "", "HERE maps App API code")
-}
-
-// InitRoutePlanner validates Route Planner command line flags
-func InitRoutePlanner(v *viper.Viper, logger Logger) route.Planner {
-	hereClient := &http.Client{Timeout: hereRequestTimeout}
-	return route.NewHEREPlanner(
-		logger,
-		hereClient,
-		v.GetString(HEREMapsGeocodeEndpointFlag),
-		v.GetString(HEREMapsRoutingEndpointFlag),
-		v.GetString(HEREMapsAppIDFlag),
-		v.GetString(HEREMapsAppCodeFlag))
 }
 
 // CheckRoute validates Route command line flags

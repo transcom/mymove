@@ -22,6 +22,7 @@ export function createMovingExpenseDocument({
   requestedAmountCents,
   paymentMethod,
   notes,
+  missingReceipt,
 }) {
   return async function(dispatch, getState, { schema }) {
     const client = await getClient();
@@ -36,6 +37,7 @@ export function createMovingExpenseDocument({
         requested_amount_cents: requestedAmountCents,
         payment_method: paymentMethod,
         notes: notes,
+        receipt_missing: missingReceipt,
       },
     });
     checkResponse(response, 'failed to create moving expense document due to server error');

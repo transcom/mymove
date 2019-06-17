@@ -97,6 +97,7 @@ class DocumentViewer extends Component {
         requestedAmountCents: convertDollarsToCents(requestedAmountCents),
         paymentMethod,
         notes,
+        missingReceipt: false,
       });
     }
     return this.props.createMoveDocument({

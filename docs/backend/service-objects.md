@@ -281,7 +281,7 @@ import (
   "github.com/stretchr/testify/assert"
   "github.com/stretchr/testify/mock"
   "github.com/stretchr/testify/suite"
-  "github.com/transcom/mymove/mocks"
+  "github.com/transcom/mymove/pkg/services/paperwork/mocks"
   paperworkforms "github.com/transcom/mymove/pkg/paperwork"
   "github.com/transcom/mymove/pkg/services"
 )

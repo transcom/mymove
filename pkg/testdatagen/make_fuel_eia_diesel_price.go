@@ -37,7 +37,7 @@ func getFuelDefaultDateRange() (start time.Time, end time.Time) {
 // also can set the fuel prices and baselines from the assertions
 func MakeFuelEIADieselPrices(db *pop.Connection, assertions Assertions) {
 
-	// Get the default range. The default will start from Jan 2018 until the
+	// Get the default range. The default will start from Jan of until the
 	// the present Year
 	oldestStartDate, rateEndDate := getFuelDefaultDateRange()
 

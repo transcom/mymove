@@ -39,14 +39,12 @@ func (suite *ShipmentServiceSuite) helperDeliverAndPriceShipment() *models.Shipm
 	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
 
 	deliveryDate := testdatagen.DateInsidePerformancePeriod
-	planner := route.NewTestingPlanner(1100)
 	engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
-	verrs, err := DeliverAndPriceShipment{
-		DB:      suite.DB(),
-		Engine:  engine,
-		Planner: planner,
-	}.Call(deliveryDate, &shipment)
-
+	verrs, err := NewShipmentDeliverAndPricer(
+		suite.DB(),
+		engine,
+		route.NewTestingPlanner(1044),
+	).DeliverAndPriceShipment(deliveryDate, &shipment)
 	suite.FatalNoError(err)
 	suite.FatalFalse(verrs.HasAny())
 

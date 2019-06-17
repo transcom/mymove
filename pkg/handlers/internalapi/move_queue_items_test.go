@@ -147,7 +147,61 @@ func (suite *HandlerSuite) TestGetMoveQueueItemsComboMoveDate() {
 	suite.Equal(expectedMoveDate, actualMoveDate)
 }
 
-func (suite *HandlerSuite) TestGetMoveQueueItemsComboSubmittedDate() {
+func (suite *HandlerSuite) TestGetMoveQueueItemsComboSubmittedDatePPM() {
+	suite.SetupTest()
+
+	// Given: An office user
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	// Make a PPM
+	ppmSubmitDate := time.Now()
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			SubmitDate: &ppmSubmitDate,
+		},
+	})
+
+	move := &ppm.Move
+	move.Status = "SUBMITTED"
+	suite.DB().Save(move)
+
+	pickupDate := testdatagen.NextValidMoveDate
+
+	// Make a shipment
+	testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
+		Shipment: models.Shipment{
+			RequestedPickupDate: &pickupDate,
+			ActualPickupDate:    &pickupDate,
+			Status:              models.ShipmentStatusSUBMITTED,
+			Move:                ppm.Move,
+			MoveID:              ppm.Move.ID,
+		},
+	})
+
+	// And: the context contains the auth values
+	path := "/queues/new"
+	req := httptest.NewRequest("GET", path, nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+	params := queueop.ShowQueueParams{
+		HTTPRequest: req,
+		QueueType:   "new",
+	}
+
+	showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	showResponse := showHandler.Handle(params)
+
+	// Then: Expect a 200 status code
+	okResponse := showResponse.(*queueop.ShowQueueOK)
+
+	suite.Equal(1, len(okResponse.Payload))
+
+	moveQueueItem := okResponse.Payload[0]
+	resultPPMDate := *handlers.FmtDateTimePtrToPopPtr(moveQueueItem.SubmittedDate)
+
+	suite.Equal(ppmSubmitDate.Format(time.UnixDate), resultPPMDate.Format(time.UnixDate))
+}
+
+func (suite *HandlerSuite) TestGetMoveQueueItemsComboSubmittedDateHHG() {
 	suite.SetupTest()
 
 	// Given: An office user
@@ -180,16 +234,6 @@ func (suite *HandlerSuite) TestGetMoveQueueItemsComboSubmittedDate() {
 		},
 	})
 
-	testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
-		Shipment: models.Shipment{
-			RequestedPickupDate: &pickupDate,
-			ActualPickupDate:    &pickupDate,
-			Status:              models.ShipmentStatusSUBMITTED,
-			Move:                ppm.Move,
-			MoveID:              ppm.Move.ID,
-		},
-	})
-
 	// And: the context contains the auth values
 	path := "/queues/new"
 	req := httptest.NewRequest("GET", path, nil)
@@ -205,14 +249,10 @@ func (suite *HandlerSuite) TestGetMoveQueueItemsComboSubmittedDate() {
 	// Then: Expect a 200 status code
 	okResponse := showResponse.(*queueop.ShowQueueOK)
 
-	suite.Equal(2, len(okResponse.Payload))
+	suite.Equal(1, len(okResponse.Payload))
 
-	moveQueueItem1 := okResponse.Payload[0]
-	moveQueueItem2 := okResponse.Payload[1]
-
-	resultPPMDate := *handlers.FmtDateTimePtrToPopPtr(moveQueueItem1.SubmittedDate)
-	resultHHGDate := *handlers.FmtDateTimePtrToPopPtr(moveQueueItem2.SubmittedDate)
+	moveQueueItem := okResponse.Payload[0]
+	resultHHGDate := *handlers.FmtDateTimePtrToPopPtr(moveQueueItem.SubmittedDate)
 
 	suite.Equal(hhgSubmitDate.Format(time.UnixDate), resultHHGDate.Format(time.UnixDate))
-	suite.Equal(ppmSubmitDate.Format(time.UnixDate), resultPPMDate.Format(time.UnixDate))
 }

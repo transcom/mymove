@@ -28,7 +28,7 @@ const PPMPaymentRequestIntro = props => {
         </li>
       </ul>
       <p>
-        <Link to="/allowable-expenses">What expenses are allowed?</Link>
+        <Link to="/allowable-expenses">More about expenses</Link>
       </p>
       {/* TODO: change onclick handler to go to next page in flow */}
       <PPMPaymentRequestActionBtns
