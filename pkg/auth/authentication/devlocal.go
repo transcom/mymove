@@ -513,6 +513,15 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 		return nil, errors.Wrapf(err, "Unable to fetch user identity from LoginGovUUID %s", lgUUID)
 	}
 
+	if userIdentity.Disabled {
+		h.logger.Error("Disabled user requesting authentication",
+			zap.String("application_name", string(session.ApplicationName)),
+			zap.String("hostname", session.Hostname),
+			zap.String("user_id", session.UserID.String()),
+			zap.String("email", session.Email))
+		return nil, errors.New("Disabled user requesting authentication")
+	}
+
 	// Assign user identity to session
 	session.IDToken = "devlocal"
 	session.UserID = userIdentity.ID
@@ -595,18 +604,8 @@ func loginUser(h devlocalAuthHandler, user *models.User, userType string, w http
 	session, err := createSession(devlocalAuthHandler(h), user, userType, w, r)
 	if err != nil {
 		h.logger.Error("Could not create session", zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return nil, err
-	}
-
-	if session.Disabled {
-		h.logger.Error("Disabled user requesting authentication",
-			zap.String("application_name", string(session.ApplicationName)),
-			zap.String("hostname", session.Hostname),
-			zap.String("user_id", session.UserID.String()),
-			zap.String("email", session.Email))
 		http.Error(w, http.StatusText(403), http.StatusForbidden)
-		return nil, nil
+		return nil, err
 	}
 
 	err = verifySessionWithApp(session)
