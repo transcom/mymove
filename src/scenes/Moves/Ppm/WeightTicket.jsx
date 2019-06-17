@@ -22,6 +22,24 @@ import { Link } from 'react-router-dom';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCircle';
 
+const vehicleTypes = {
+  CarAndTrailer: 'CAR_TRAILER',
+  Car: 'CAR',
+  BoxTruck: 'BOX_TRUCK',
+};
+
+const nextBtnLabels = {
+  SaveAndAddAnother: 'Save & Add Another',
+  SaveAndContinue: 'Save & Continue',
+};
+
+const uploadEmptyTicketLabel =
+  '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload empty weight ticket</span></span>';
+const uploadFullTicketLabel =
+  '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload full weight ticket</span></span>';
+const uploadTrailerProofOfOwnership =
+  '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload documentation</span></span>';
+
 class WeightTicket extends Component {
   state = { ...this.initialState, weightTicketNumber: 1 };
   uploaders = {
@@ -42,39 +60,24 @@ class WeightTicket extends Component {
     };
   }
 
-  static vehicleTypes = {
-    CarAndTrailer: 'CAR_TRAILER',
-    Car: 'CAR',
-    BoxTruck: 'BOX_TRUCK',
-  };
-
-  static nextBtnLabels = {
-    SaveAndAddAnother: 'Save & Add Another',
-    SaveAndContinue: 'Save & Continue',
-  };
-
-  static uploadEmptyTicketLabel = '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload empty weight ticket</span></span>';
-  static uploadFullTicketLabel = '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload full weight ticket</span></span>';
-  static uploadTrailerProofOfOwnership = '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload documentation</span></span>';
-
   get isCarTrailer() {
-    return this.state.vehicleType === WeightTicket.vehicleTypes.CarAndTrailer;
+    return this.state.vehicleType === vehicleTypes.CarAndTrailer;
   }
 
   hasWeightTicket = uploaderRef => {
     return !!(uploaderRef && !uploaderRef.isEmpty());
   };
 
-  invalidState(uploader) {
+  invalidState = uploader => {
     return this.hasWeightTicket(uploader.uploaderRef) === uploader.isMissingChecked();
-  }
+  };
 
-  uploaderWithInvalidState() {
+  uploaderWithInvalidState = () => {
     if (this.state.isValidTrailer === 'Yes' && (this.isCarTrailer && this.invalidState(this.uploaders.trailer))) {
       return true;
     }
     return this.invalidState(this.uploaders.emptyWeight) || this.invalidState(this.uploaders.fullWeight);
-  }
+  };
 
   formIsIncomplete = () => {
     const { formValues } = this.props;
@@ -105,7 +108,7 @@ class WeightTicket extends Component {
     });
   };
 
-  onChange = uploaderName => uploaderIsIdle => {
+  onUploadChange = uploaderName => uploaderIsIdle => {
     this.setState({
       uploaderIsIdle: { ...this.state.uploaderIsIdle, [uploaderName]: uploaderIsIdle },
     });
@@ -180,6 +183,7 @@ class WeightTicket extends Component {
     this.setState({ ...this.initialState });
   };
 
+  // maps int to int with ordinal 1 -> 1st, 2 -> 2nd, 3rd ...
   numberWithOrdinal = n => {
     const s = ['th', 'st', 'nd', 'rd'];
     const v = n % 100;
@@ -202,9 +206,7 @@ class WeightTicket extends Component {
     } = this.state;
     const { handleSubmit, submitting, schema } = this.props;
     const nextBtnLabel =
-      additionalWeightTickets === 'Yes'
-        ? WeightTicket.nextBtnLabels.SaveAndAddAnother
-        : WeightTicket.nextBtnLabels.SaveAndContinue;
+      additionalWeightTickets === 'Yes' ? nextBtnLabels.SaveAndAddAnother : nextBtnLabels.SaveAndContinue;
 
     return (
       <Fragment>
@@ -260,7 +262,7 @@ class WeightTicket extends Component {
                       value="Yes"
                       name="isValidTrailer"
                       checked={isValidTrailer === 'Yes'}
-                      onChange={this.handleChange}
+                      onChange={event => this.handleChange(event, 'isValidTrailer')}
                     />
 
                     <RadioButton
@@ -270,7 +272,7 @@ class WeightTicket extends Component {
                       value="No"
                       name="isValidTrailer"
                       checked={isValidTrailer === 'No'}
-                      onChange={this.handleChange}
+                      onChange={event => this.handleChange(event, 'isValidTrailer')}
                     />
                   </div>
                   {isValidTrailer === 'Yes' && (
@@ -280,9 +282,9 @@ class WeightTicket extends Component {
                       </p>
                       <span data-cy="trailer-upload">
                         <Uploader
-                          options={{ labelIdle: WeightTicket.uploadTrailerProofOfOwnership }}
+                          options={{ labelIdle: uploadTrailerProofOfOwnership }}
                           onRef={ref => (this.uploaders.trailer.uploaderRef = ref)}
-                          onChange={this.onChange('trailer')}
+                          onChange={this.onUploadChange('trailer')}
                           onAddFile={this.onAddFile('trailer')}
                         />
                       </span>
@@ -294,7 +296,7 @@ class WeightTicket extends Component {
                         normalizeLabel
                       />
                       {missingDocumentation && (
-                        <div className="one-half">
+                        <div className="one-half" data-cy="trailer-warning">
                           <Alert type="warning">
                             If your state does not provide a registration or bill of sale for your trailer, you may
                             write and upload a signed and dated statement certifying that you or your spouse own the
@@ -347,9 +349,9 @@ class WeightTicket extends Component {
                   <div className="usa-width-two-thirds uploader-wrapper">
                     <span data-cy="empty-weight-upload">
                       <Uploader
-                        options={{ labelIdle: WeightTicket.uploadEmptyTicketLabel }}
+                        options={{ labelIdle: uploadEmptyTicketLabel }}
                         onRef={ref => (this.uploaders.emptyWeight.uploaderRef = ref)}
-                        onChange={this.onChange('emptyWeight')}
+                        onChange={this.onUploadChange('emptyWeight')}
                         onAddFile={this.onAddFile('emptyWeight')}
                       />
                     </span>
@@ -361,10 +363,12 @@ class WeightTicket extends Component {
                       normalizeLabel
                     />
                     {missingEmptyWeightTicket && (
-                      <Alert type="warning">
-                        Contact your local Transportation Office (PPPO) to let them know you’re missing this weight
-                        ticket. For now, keep going and enter the info you do have.
-                      </Alert>
+                      <span data-cy="empty-warning">
+                        <Alert type="warning">
+                          Contact your local Transportation Office (PPPO) to let them know you’re missing this weight
+                          ticket. For now, keep going and enter the info you do have.
+                        </Alert>
+                      </span>
                     )}
                   </div>
                 </div>
@@ -392,9 +396,9 @@ class WeightTicket extends Component {
                   <div className="usa-width-two-thirds uploader-wrapper">
                     <span data-cy="full-weight-upload">
                       <Uploader
-                        options={{ labelIdle: WeightTicket.uploadFullTicketLabel }}
+                        options={{ labelIdle: uploadFullTicketLabel }}
                         onRef={ref => (this.uploaders.fullWeight.uploaderRef = ref)}
-                        onChange={this.onChange('fullWeight')}
+                        onChange={this.onUploadChange('fullWeight')}
                         onAddFile={this.onAddFile('fullWeight')}
                       />
                     </span>
@@ -406,10 +410,12 @@ class WeightTicket extends Component {
                       normalizeLabel
                     />
                     {missingFullWeightTicket && (
-                      <Alert type="warning">
-                        Contact your local Transportation Office (PPPO) to let them know you’re missing this weight
-                        ticket. For now, keep going and enter the info you do have.
-                      </Alert>
+                      <span data-cy="full-warning">
+                        <Alert type="warning">
+                          Contact your local Transportation Office (PPPO) to let them know you’re missing this weight
+                          ticket. For now, keep going and enter the info you do have.
+                        </Alert>
+                      </span>
                     )}
                   </div>
                 </div>
@@ -473,8 +479,6 @@ function mapStateToProps(state, ownProps) {
   return {
     moveId: moveId,
     formValues: getFormValues(formName)(state),
-    // TODO remove below
-    // initialValues: { full_weight: 1, empty_weight: 1, weight_ticket_date: '2019-01-01', vehicle_nickname: 'car' },
     genericMoveDocSchema: get(state, 'swaggerInternal.spec.definitions.CreateGenericMoveDocumentPayload', {}),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateWeightTicketDocumentsPayload', {}),

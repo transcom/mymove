@@ -378,12 +378,6 @@ function serviceMemberSubmitsCarTrailerWeightTicket() {
 
   cy.get('input[name="missingDocumentation"]').check({ force: true });
 
-  cy
-    .get('.usa-alert-warning')
-    .contains(
-      'If your state does not provide a registration or bill of sale for your trailer, you may write and upload a signed and dated statement certifying that you or your spouse own the trailer and meets the trailer criteria. Upload your statement using the proof of ownership field.',
-    );
-
   cy.get('input[name="empty_weight"]').type('1000');
   cy.get('input[name="missingEmptyWeightTicket"]').check({ force: true });
 
@@ -395,12 +389,6 @@ function serviceMemberSubmitsCarTrailerWeightTicket() {
     .get('input[name="weight_ticket_date"]')
     .type('6/2/2018{enter}')
     .blur();
-
-  cy
-    .get('.usa-alert-warning')
-    .contains(
-      'Contact your local Transportation Office (PPPO) to let them know you’re missing this weight ticket. For now, keep going and enter the info you do have.',
-    );
 
   cy
     .get('[type="radio"]')
@@ -456,10 +444,25 @@ function serviceMemberSubmitsWeightsTicketsWithoutReceipts() {
   cy.get('input[name="vehicle_nickname"]').type('Nickname');
   cy.get('input[name="empty_weight"]').type('1000');
   cy.get('input[name="full_weight"]').type('2000');
-  cy.get('input[name="valid_trailer"][value="Yes"]+label').click();
+  cy.get('input[name="isValidTrailer"][value="Yes"]+label').click();
   cy.get('input[name="missingDocumentation"]+label').click();
+  cy
+    .get('[data-cy=trailer-warning]')
+    .contains(
+      'If your state does not provide a registration or bill of sale for your trailer, you may write and upload a signed and dated statement certifying that you or your spouse own the trailer and meets the trailer criteria. Upload your statement using the proof of ownership field.',
+    );
   cy.get('input[name="missingEmptyWeightTicket"]+label').click();
+  cy
+    .get('[data-cy=empty-warning]')
+    .contains(
+      'Contact your local Transportation Office (PPPO) to let them know you’re missing this weight ticket. For now, keep going and enter the info you do have.',
+    );
   cy.get('input[name="missingFullWeightTicket"]+label').click();
+  cy
+    .get('[data-cy=full-warning]')
+    .contains(
+      'Contact your local Transportation Office (PPPO) to let them know you’re missing this weight ticket. For now, keep going and enter the info you do have.',
+    );
   cy
     .get('input[name="weight_ticket_date"]')
     .type('6/2/2018{enter}')
