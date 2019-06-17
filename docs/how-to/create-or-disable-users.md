@@ -5,7 +5,7 @@ only create a migration corresponding to the environment where you intend to add
 please only add a `staging` secure migration if you intend to add staging users and leave the `prod`
 and `experimental` migrations empty.
 
-## Creating Office and TSP Users
+## Creating Users
 
 The only users for which Truss is responsible to create are the users of the Office and TSP apps. These
 users are usually team members in the staging environment and and actual JPPSO and TSP personnel in the
@@ -20,7 +20,7 @@ get a valid UUID4 value from [the Online UUID Generator](https://www.uuidgenerat
 In this document anywhere you see `GENERATED_UUID4_VAL` you will need to give a unique UUID4 value (i.e. don't reuse
 the same value across different tables.
 
-### Creating Users
+### Creating Office Users
 
 For creating users let's assume that the new user's email is username@example.com.
 
@@ -34,13 +34,23 @@ Here is an example migration to create an office user (please edit as needed):
 
 ```sql
 INSERT INTO public.office_users
-         VALUES (
-                GENERATED_UUID4_VAL, NULL,
-                'Jones', 'Alice', NULL,
-                'username@example.com', '(415) 891-0828',
-                '0931a9dc-c1fd-444a-b138-6e1986b1714c', now(), now()
-          );
+    (id, user_id,
+     last_name, first_name, middle_initials,
+     email, telephone,
+     transportation_office_id,
+     created_at, updated_at, disabled)
+    VALUES (
+           GENERATED_UUID4_VAL, NULL,
+           'Jones', 'Alice', NULL,
+           'username@example.com', '(415) 891-0828',
+           '0931a9dc-c1fd-444a-b138-6e1986b1714c',
+            now(), now(), false
+     );
 ```
+
+### Creating TSP Users
+
+For creating users let's assume that the new user's email is username@example.com.
 
 For Truss TSP users in the staging environment please use these values:
 
@@ -54,42 +64,78 @@ Here is an example migration to create a TSP user (please edit as needed):
 
 ```sql
 INSERT INTO public.tsp_users
-        VALUES (
-                GENERATED_UUID4_VAL, NULL,
-                'Jones', 'Alice', NULL,
-                'username@example.com', '(415) 891-0828',
-                'c71bdb14-ed86-4c92-bf06-93c0865f5070',
-                now(), now()
-        );
+    (id, user_id,
+     last_name, first_name, middle_initials,
+     email, telephone,
+     transportation_service_provider_id,
+     created_at, updated_at, disabled)
+    VALUES (
+        GENERATED_UUID4_VAL, NULL,
+        'Jones', 'Alice', NULL,
+        'username@example.com', '(415) 891-0828',
+        'c71bdb14-ed86-4c92-bf06-93c0865f5070',
+        now(), now(), false
+    );
 ```
 
 However, if you are creating Truss TSP users in the staging environment then you'll want this instead:
 
 ```sql
 INSERT INTO public.tsp_users
-        VALUES (
-                GENERATED_UUID4_VAL, NULL,
-                'Jones', 'Alice', NULL,
-                'username+pyvl@example.com', '(415) 891-0828',
-                'c71bdb14-ed86-4c92-bf06-93c0865f5070',
-                now(), now()
-        );
+    (id, user_id,
+     last_name, first_name, middle_initials,
+     email, telephone,
+     transportation_service_provider_id,
+     created_at, updated_at, disabled)
+    VALUES (
+        GENERATED_UUID4_VAL, NULL,
+        'Jones', 'Alice', NULL,
+        'username+pyvl@example.com', '(415) 891-0828',
+        'c71bdb14-ed86-4c92-bf06-93c0865f5070',
+        now(), now(), false
+    );
 INSERT INTO public.tsp_users
-        VALUES (
-                GENERATED_UUID4_VAL, NULL,
-                'Jones', 'Alice', NULL,
-                'username+dlxm@example.com', '(415) 891-0828',
-                'b98d3deb-abe9-4609-8d6e-36b2c50873c0',
-                now(), now()
-        );
+    (id, user_id,
+     last_name, first_name, middle_initials,
+     email, telephone,
+     transportation_service_provider_id,
+     created_at, updated_at, disabled)
+    VALUES (
+        GENERATED_UUID4_VAL, NULL,
+        'Jones', 'Alice', NULL,
+        'username+dlxm@example.com', '(415) 891-0828',
+        'b98d3deb-abe9-4609-8d6e-36b2c50873c0',
+        now(), now(), false
+    );
 INSERT INTO public.tsp_users
-        VALUES (
-                GENERATED_UUID4_VAL, NULL,
-                'Jones', 'Alice', NULL,
-                'username+ssow@example.com', '(415) 891-0828',
-                'b6f06674-1b6b-4b93-9ec6-293d5d846876',
-                now(), now()
-        );
+    (id, user_id,
+     last_name, first_name, middle_initials,
+     email, telephone,
+     transportation_service_provider_id,
+     created_at, updated_at, disabled)
+    VALUES (
+        GENERATED_UUID4_VAL, NULL,
+        'Jones', 'Alice', NULL,
+        'username+ssow@example.com', '(415) 891-0828',
+        'b6f06674-1b6b-4b93-9ec6-293d5d846876',
+        now(), now(), false
+    );
+```
+
+### Creating DPS Users
+
+For creating users let's assume that the new user's email is username@example.com.
+
+Here is an example migration to create a DPS user (please edit as needed):
+
+```sql
+INSERT INTO public.dps_users
+    (id, login_gov_email,
+     created_at, updated_at, disabled)
+    VALUES (
+        GENERATED_UUID4_VAL, 'username@example.com',
+        now(), now(), false
+    );
 ```
 
 ## Disabling Users
