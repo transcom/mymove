@@ -19,7 +19,6 @@ class ValidatedPrivateRouteContainer extends React.Component {
 
   render() {
     const { isLoggedIn, requiresAccessCode, accessCode, path, ...props } = this.props;
-    console.log('access code: ', accessCode);
     if (!isLoggedIn) return <Route path={path} component={SignIn} />;
     if (isLoggedIn && requiresAccessCode && !accessCode) return <Route path={path} component={AccessCode} />;
     return <Route {...props} />;
