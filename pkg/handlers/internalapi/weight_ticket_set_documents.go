@@ -60,13 +60,7 @@ func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeig
 	}
 
 	payload := params.CreateWeightTicketDocument
-
-	// Fetch uploads to confirm ownership
 	uploadIds := payload.UploadIds
-	if len(uploadIds) == 0 {
-		return movedocop.NewCreateWeightTicketDocumentBadRequest()
-	}
-
 	uploads := models.Uploads{}
 	for _, id := range uploadIds {
 		converted := uuid.Must(uuid.FromString(id.String()))
