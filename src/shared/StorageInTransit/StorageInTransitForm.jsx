@@ -6,6 +6,7 @@ import { reduxForm, Field } from 'redux-form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { AddressElementEdit } from 'shared/Address';
 import RadioButton from 'shared/RadioButton';
+import validator from '../JsonSchemaForm/validator';
 
 import './StorageInTransit.css';
 
@@ -41,7 +42,7 @@ export class StorageInTransitForm extends Component {
           <div className="editable-panel-column">
             <div className="radio-group-wrapper normalize-margins">
             <p className="radio-group-header">SIT Location</p>
-              <Field component={RadioGroup} name="location" location={location} change={change} required />
+              <Field component={RadioGroup} name="location" location={location} change={change} validate={[validator.isRequired]}/>
             </div>
             <SwaggerField fieldName="estimated_start_date" swagger={storageInTransitSchema} required />
           </div>
