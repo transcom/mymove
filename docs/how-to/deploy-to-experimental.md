@@ -18,7 +18,7 @@ Best practices mean you should announce deploys to experimental in the `#dp3-exp
 
 ## I've got a server-side feature flag
 
-You'll need to add it to [experimental config file](https://github.com/transcom/mymove/blob/master/config/env/experimental.env).
+You'll need to add it to [experimental config file](https://github.com/transcom/mymove/blob/master/config/env/experimental.env). In [the container config file](https://github.com/transcom/mymove/blob/master/config/app.container-definition.json) you'll need to add it by using mustache syntax.
 
 ## Don't forget to clean up your branch for your pr review
 
