@@ -26,6 +26,9 @@ func (f fetchAccessCode) FetchAccessCode(serviceMemberID uuid.UUID) (*models.Acc
 		First(&ac)
 
 	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return &ac, nil
+		}
 		return &ac, err
 	}
 

@@ -40,7 +40,7 @@ type FetchAccessCodeHandler struct {
 	accessCodeFetcher services.AccessCodeFetcher
 }
 
-// Handle fetches the access code
+// Handle fetches the access code for a service member
 func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
@@ -51,15 +51,18 @@ func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams
 	// Fetch access code
 	accessCode, err := h.accessCodeFetcher.FetchAccessCode(session.ServiceMemberID)
 
-	var fetchAccessCodePayload *apimessages.AccessCode
-
 	if err != nil {
-		if err.Error() == "sql: no rows in result set" {
-			fetchAccessCodePayload = &apimessages.AccessCode{}
-			return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload)
-		}
 		h.Logger().Error("Error retrieving access_code for service member", zap.Error(err))
 		return accesscodeop.NewFetchAccessCodeNotFound()
+	}
+
+	var fetchAccessCodePayload *apimessages.AccessCode
+
+	// If the access code from fetch is empty, create a new empty object
+	// because it'll be dereferencing a nil pointer otherwise
+	if accessCode.Code == "" {
+		fetchAccessCodePayload = &apimessages.AccessCode{}
+		return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload)
 	}
 	fetchAccessCodePayload = payloadForAccessCodeModel(*accessCode)
 
