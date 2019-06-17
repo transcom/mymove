@@ -44,28 +44,24 @@ func (suite *ModelSuite) TestCreateNewMoveShowFalse() {
 	suite.Empty(moves)
 }
 
-func (suite *ModelSuite) TestShowMovesDraftSubmittedApprovedPPMQueue() {
-	// Make three PPMs with different move statuses
-	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status: models.MoveStatusDRAFT,
-		},
-	})
-	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status: models.MoveStatusSUBMITTED,
-		},
-	})
-	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status: models.MoveStatusAPPROVED,
-		},
-	})
+func (suite *ModelSuite) TestShowPPMQueue() {
+	// PPMs should only show statuses in the queue:
+	// approved, payment requested and completed
 
-	// Move canceled should not return, for testing
+	// Make PPMs with different statuses
 	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			Status: models.MoveStatusCANCELED,
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			Status: models.PPMStatusAPPROVED,
+		},
+	})
+	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			Status: models.PPMStatusPAYMENTREQUESTED,
+		},
+	})
+	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			Status: models.PPMStatusCOMPLETED,
 		},
 	})
 
@@ -73,4 +69,31 @@ func (suite *ModelSuite) TestShowMovesDraftSubmittedApprovedPPMQueue() {
 	moves, err := GetMoveQueueItems(suite.DB(), "ppm")
 	suite.Nil(err)
 	suite.Len(moves, 3)
+}
+
+func (suite *ModelSuite) TestShowPPMQueueStatusDraftSubmittedCanceled() {
+	// PPMs should only show statuses in the queue:
+	// approved, payment requested and completed
+
+	// PPMs not in approved, payment requested or completed states are not returned
+	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			Status: models.PPMStatusDRAFT,
+		},
+	})
+	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			Status: models.PPMStatusSUBMITTED,
+		},
+	})
+	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			Status: models.PPMStatusCANCELED,
+		},
+	})
+
+	// Expected 0 moves for PPM queue returned
+	moves, err := GetMoveQueueItems(suite.DB(), "ppm")
+	suite.Nil(err)
+	suite.Len(moves, 0)
 }
