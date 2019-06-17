@@ -2,26 +2,47 @@ import { get } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { reduxForm } from 'redux-form';
+import { reduxForm, Field } from 'redux-form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { AddressElementEdit } from 'shared/Address';
+import RadioButton from 'shared/RadioButton';
 
 import './StorageInTransit.css';
 
+const RadioGroup = ({location, change, ...input}) => {
+  return (
+    <div className="radio-group-wrapper normalize-margins">
+      <RadioButton
+        inputClassName="inline_radio"
+        label="Destination"
+        value="destination"
+        name="location"
+        checked={location === 'DESTINATION'}
+        onChange={() => change('location', 'DESTINATION')}
+      />
+      <RadioButton
+        inputClassName="inline_radio"
+        label="Origin"
+        value="origin"
+        name="location"
+        checked={location === 'ORIGIN'}
+        onChange={() => change('location', 'ORIGIN')}
+      />
+    </div>
+  )
+};
+
 export class StorageInTransitForm extends Component {
   render() {
-    const { storageInTransitSchema, addressSchema } = this.props;
+    const { storageInTransitSchema, addressSchema, location, change } = this.props;
     return (
       <form onSubmit={this.props.handleSubmit(this.props.onSubmit)} className="storage-in-transit-form">
         <fieldset key="sit-request-information">
           <div className="editable-panel-column">
-            <SwaggerField
-              fieldName="location"
-              title="SIT location"
-              swagger={storageInTransitSchema}
-              className="storage-in-transit-location"
-              required
-            />
+            <div className="radio-group-wrapper normalize-margins">
+            <p className="radio-group-header">SIT Location</p>
+              <Field component={RadioGroup} name="location" location={location} change={change} required />
+            </div>
             <SwaggerField fieldName="estimated_start_date" swagger={storageInTransitSchema} required />
           </div>
           <div className="editable-panel-column">
@@ -67,6 +88,7 @@ StorageInTransitForm = reduxForm({
 
 function mapStateToProps(state) {
   return {
+    location: get(state, 'form.storage_in_transit_request_form.values.location'),
     storageInTransitSchema: get(state, 'swaggerPublic.spec.definitions.StorageInTransit', {}),
     addressSchema: get(state, 'swaggerPublic.spec.definitions.Address', {}),
   };
