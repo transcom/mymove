@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
@@ -48,9 +49,19 @@ func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams
 	}
 
 	// Fetch access code
-	accessCode, _ := h.accessCodeFetcher.FetchAccessCode(session.ServiceMemberID)
+	accessCode, err := h.accessCodeFetcher.FetchAccessCode(session.ServiceMemberID)
 
-	fetchAccessCodePayload := payloadForAccessCodeModel(*accessCode)
+	var fetchAccessCodePayload *apimessages.AccessCode
+
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			fetchAccessCodePayload = &apimessages.AccessCode{}
+			return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload)
+		}
+		h.Logger().Error("Error retrieving access_code for service member", zap.Error(err))
+		return accesscodeop.NewFetchAccessCodeNotFound()
+	}
+	fetchAccessCodePayload = payloadForAccessCodeModel(*accessCode)
 
 	return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload)
 

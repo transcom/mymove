@@ -1,4 +1,5 @@
 import React from 'react';
+import { bindActionCreators } from 'redux';
 import { Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 
@@ -7,25 +8,37 @@ import { get } from 'lodash';
 import SignIn from './SignIn';
 import AccessCode from './AccessCode';
 
+import { fetchAccessCode } from 'shared/Entities/modules/accessCodes';
+
 // this was adapted from https://github.com/ReactTraining/react-router/blob/master/packages/react-router-redux/examples/AuthExample.js
 // note that it does not work if the route is not inside a Switch
 class ValidatedPrivateRouteContainer extends React.Component {
+  componentDidMount() {
+    this.props.fetchAccessCode();
+  }
+
   render() {
-    const { isLoggedIn, requiresAccessCode, hasMove, path, ...props } = this.props;
+    const { isLoggedIn, requiresAccessCode, accessCode, path, ...props } = this.props;
+    console.log('access code: ', accessCode);
     if (!isLoggedIn) return <Route path={path} component={SignIn} />;
-    if (isLoggedIn && requiresAccessCode && !hasMove) return <Route path={path} component={AccessCode} />;
+    if (isLoggedIn && requiresAccessCode && !accessCode) return <Route path={path} component={AccessCode} />;
     return <Route {...props} />;
   }
 }
+
 const mapStateToProps = state => {
   const user = selectCurrentUser(state);
   const serviceMember = get(state, 'serviceMember.currentServiceMember');
+  const accessCodes = get(state, 'entities.accessCodes');
   return {
     isLoggedIn: user.isLoggedIn,
     requiresAccessCode: get(serviceMember, 'requires_access_code'),
-    hasMove: get(state, 'moves.currentMove'),
+    accessCode: accessCodes ? Object.values(accessCodes)[0].code : null,
   };
 };
-const ValidatedPrivateRoute = connect(mapStateToProps)(ValidatedPrivateRouteContainer);
+
+const mapDispatchToProps = dispatch => bindActionCreators({ fetchAccessCode }, dispatch);
+
+const ValidatedPrivateRoute = connect(mapStateToProps, mapDispatchToProps)(ValidatedPrivateRouteContainer);
 
 export default ValidatedPrivateRoute;
