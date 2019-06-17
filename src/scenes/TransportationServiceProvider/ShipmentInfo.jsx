@@ -24,7 +24,7 @@ import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/
 import { getAllShipmentLineItems, selectSortedShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
-import { getStorageInTransitsForShipment } from 'shared/Entities/modules/storageInTransits';
+import { selectStorageInTransits, getStorageInTransitsForShipment } from 'shared/Entities/modules/storageInTransits';
 import {
   updatePublicShipment,
   getPublicShipment,
@@ -166,8 +166,10 @@ const hasPreMoveSurvey = (shipment = {}) => shipment.pm_survey_completed_at;
 class ShipmentInfo extends Component {
   constructor(props) {
     super(props);
-
     this.assignTspServiceAgent = React.createRef();
+    this.state = {
+      shipment: {},
+    };
   }
   state = {
     redirectToHome: false,
@@ -194,10 +196,36 @@ class ShipmentInfo extends Component {
         this.props.history.replace('/');
       });
   }
-
   componentWillUnmount() {
     this.props.resetRequests();
   }
+
+  componentDidUpdate(prevProps) {
+    const { storageInTransits } = this.props;
+    if (storageInTransits !== prevProps.storageInTransits) {
+      this.actualDeliveryDate();
+    }
+  }
+
+  actualDeliveryDate = () => {
+    this.props.storageInTransits.map(storageInTransit => {
+      if (storageInTransit.location === 'DESTINATION' && storageInTransit.status === 'DELIVERED') {
+        this.setState({
+          shipment: {
+            ...this.props.shipment,
+            actual_delivery_date: storageInTransit.out_date,
+          },
+        });
+      } else {
+        this.setState({
+          shipment: {
+            ...this.props.shipment,
+          },
+        });
+      }
+      return null;
+    });
+  };
 
   acceptShipment = () => {
     return this.props.acceptShipment(this.props.shipment.id);
@@ -422,7 +450,7 @@ class ShipmentInfo extends Component {
               )}
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
-                  <Dates title="Dates" shipment={this.props.shipment} update={this.props.updatePublicShipment} />
+                  <Dates title="Dates" shipment={this.state.shipment} update={this.props.updatePublicShipment} />
                   <Weights
                     title="Weights & Items"
                     shipment={this.props.shipment}
@@ -489,6 +517,7 @@ const mapStateToProps = (state, props) => {
     shipment,
     shipmentDocuments,
     gblGenerated,
+    storageInTransits: selectStorageInTransits(state, shipmentId),
     tariff400ngItems: selectTariff400ngItems(state),
     shipmentLineItems: selectSortedShipmentLineItems(state),
     serviceAgents: selectServiceAgentsForShipment(state, shipmentId),
@@ -503,6 +532,7 @@ const mapStateToProps = (state, props) => {
     error: get(state, 'tsp.error'),
     shipmentSchema: get(state, 'swaggerPublic.spec.definitions.Shipment', {}),
     serviceAgentSchema: get(state, 'swaggerPublic.spec.definitions.ServiceAgent', {}),
+    storageInTransitsSchema: get(state, 'swaggerPublic.spec.definitions.StorageInTransits', {}),
     transportSchema: get(state, 'swaggerPublic.spec.definitions.TransportPayload', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
     shipmentId,
@@ -528,6 +558,7 @@ const mapDispatchToProps = dispatch =>
       getTspForShipment,
       resetRequests,
       getStorageInTransitsForShipment,
+      selectStorageInTransits,
     },
     dispatch,
   );
