@@ -26,7 +26,7 @@ import ExpensesLanding from 'scenes/Moves/Ppm/ExpensesLanding';
 import ExpensesUpload from 'scenes/Moves/Ppm/ExpensesUpload';
 import AllowableExpenses from 'scenes/Moves/Ppm/AllowableExpenses';
 import WeightTicketExamples from 'scenes/Moves/Ppm/WeightTicketExamples';
-import PaymentReview from 'scenes/Moves/Ppm/PaymentReview';
+import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 import PaymentRequest from 'scenes/Moves/Ppm/PaymentRequest';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
