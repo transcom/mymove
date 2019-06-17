@@ -39,7 +39,7 @@ type IndexEntitlementsHandler struct {
 
 // Handle is the handler
 func (h IndexEntitlementsHandler) Handle(params entitlementop.IndexEntitlementsParams) middleware.Responder {
-	entitlements := models.IndexWeightAllotment()
+	entitlements := models.AllWeightAllotments()
 	payload := make(map[string]internalmessages.WeightAllotment)
 	for k, v := range entitlements {
 		rank := string(k)

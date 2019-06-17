@@ -202,8 +202,8 @@ func makeEntitlements() map[ServiceMemberRank]WeightAllotment {
 	return entitlements
 }
 
-// IndexWeightAllotment returns all the weight allotments for each rank.
-func IndexWeightAllotment() map[ServiceMemberRank]WeightAllotment {
+// AllWeightAllotments returns all the weight allotments for each rank.
+func AllWeightAllotments() map[ServiceMemberRank]WeightAllotment {
 	return makeEntitlements()
 }
 
