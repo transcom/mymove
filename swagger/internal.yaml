@@ -2615,6 +2615,8 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+        404:
+          description: ppm discount not found for provided postal codes and original move date
         500:
           description: internal server error
   /estimates/ppm_sit:
@@ -3024,7 +3026,7 @@ paths:
         403:
           description: user is not authorized
         404:
-          description: ppm is not found
+          description: ppm is not found or ppm discount not found for provided postal codes and original move date
         500:
           description: internal server error
     get:
