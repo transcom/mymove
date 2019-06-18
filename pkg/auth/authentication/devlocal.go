@@ -520,19 +520,18 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 	session.IsSuperuser = userIdentity.IsSuperuser
 
 	// Set the app
-	var disabled bool
-	disabled = userIdentity.Disabled
+	disabled := userIdentity.Disabled
 
 	// Keep the logic for redirection separate from setting the session user ids
 	switch userType {
 	case OfficeUserType:
 		session.ApplicationName = auth.OfficeApp
 		session.Hostname = h.appnames.OfficeServername
-		disabled = (userIdentity.OfficeDisabled != nil && *userIdentity.OfficeDisabled)
+		disabled = userIdentity.Disabled || (userIdentity.OfficeDisabled != nil && *userIdentity.OfficeDisabled)
 	case TspUserType:
 		session.ApplicationName = auth.TspApp
 		session.Hostname = h.appnames.TspServername
-		disabled = (userIdentity.TspDisabled != nil && *userIdentity.TspDisabled)
+		disabled = userIdentity.Disabled || (userIdentity.TspDisabled != nil && *userIdentity.TspDisabled)
 	case AdminUserType:
 		session.ApplicationName = auth.AdminApp
 		session.Hostname = h.appnames.AdminServername
