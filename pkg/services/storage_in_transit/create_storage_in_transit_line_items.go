@@ -6,6 +6,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -18,13 +19,15 @@ type CreateStorageInTransitLineItems struct {
 	Planner route.Planner
 }
 
-func (c CreateStorageInTransitLineItems) storageInTransitDistance(storageInTransit models.StorageInTransit, shipment models.Shipment) (*models.DistanceCalculation, error) {
+func (c CreateStorageInTransitLineItems) storageInTransitDistance(storageInTransit models.StorageInTransit, shipment models.Shipment) (*models.DistanceCalculation, *models.Address, error) {
 
 	var origin models.Address
 	var destination models.Address
+	var storageAddress models.Address
 
 	if storageInTransit.Location == models.StorageInTransitLocationDESTINATION {
 		origin = storageInTransit.WarehouseAddress
+		storageAddress = origin
 		destination = shipment.Move.Orders.NewDutyStation.Address
 		if shipment.DestinationAddressOnAcceptance != nil {
 			destination = *shipment.DestinationAddressOnAcceptance
@@ -34,32 +37,33 @@ func (c CreateStorageInTransitLineItems) storageInTransitDistance(storageInTrans
 		if shipment.PickupAddress != nil {
 			origin = *shipment.PickupAddress
 		} else {
-			return nil, errors.New("StorageInTransit PickupAddress not provided")
+			return nil, nil, errors.New("StorageInTransit PickupAddress not provided")
 		}
 
 		destination = storageInTransit.WarehouseAddress
+		storageAddress = destination
 	}
 
 	if origin.ID == uuid.Nil {
-		return nil, errors.New("StorageInTransit PickupAddress not provided")
+		return nil, nil, errors.New("StorageInTransit PickupAddress not provided")
 	}
 
 	if destination.ID == uuid.Nil {
-		return nil, errors.New("StorageInTransit Destination address not provided")
+		return nil, nil, errors.New("StorageInTransit Destination address not provided")
 	}
 
 	distanceCalculation, err := models.NewDistanceCalculation(c.Planner, origin, destination)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error creating StorageInTransit DistanceCalculation model")
+		return nil, nil, errors.Wrap(err, "Error creating StorageInTransit DistanceCalculation model")
 	}
 
 	verrs, err := c.DB.ValidateAndSave(&distanceCalculation)
 	if verrs.HasAny() || err != nil {
 		saveError := errors.Wrapf(err, "Error saving storage in transit distance %s", verrs.Error())
-		return nil, saveError
+		return nil, nil, saveError
 	}
 
-	return &distanceCalculation, nil
+	return &distanceCalculation, &storageAddress, nil
 }
 
 func (c CreateStorageInTransitLineItems) shipmentItemLocation(location models.StorageInTransitLocation) models.ShipmentLineItemLocation {
@@ -76,25 +80,29 @@ func (c CreateStorageInTransitLineItems) shipmentItemLocation(location models.St
 
 func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByShipment rateengine.CostByShipment) ([]models.ShipmentLineItem, error) {
 
+	logger, err := zap.NewDevelopment()
+
 	var lineItems []models.ShipmentLineItem
 	shipment := costByShipment.Shipment
-	cost := costByShipment.Cost
+	//cost := costByShipment.Cost needed for 16B Fuelsurcharge
 	now := time.Now()
 	storageInTransits, err := models.FetchStorageInTransitsOnShipment(c.DB, shipment.ID)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error creating StorageInTransit line items")
 	}
 
+	logger.Debug("*****Number of Storage in Transits for shimpment ", zap.Int("number of SITs", len(storageInTransits)))
+
 	for _, sit := range storageInTransits {
 
 		// Only add line items for storage in transits that have been released or delivered
 		if sit.Status != models.StorageInTransitStatusDELIVERED && sit.Status != models.StorageInTransitStatusRELEASED {
-			continue
+			//continue
 		}
 
 		// Calculate distance for storage in transit
-		distanceCalculation, err := c.storageInTransitDistance(sit, shipment)
-		if distanceCalculation == nil || err != nil {
+		distanceCalculation, storageAddress, err := c.storageInTransitDistance(sit, shipment)
+		if distanceCalculation == nil || storageAddress == nil || err != nil {
 			return nil, err
 		}
 		sit.StorageInTransitDistance = *distanceCalculation
@@ -111,6 +119,8 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 		 * Over 50 miles (Alaska only) : Item 210F (Use linehaul tables section 7 Intra-AK)
 		 ****************************************************************************/
 
+		logger.Debug("Creating SIT Line Item for Shipment ID", zap.Any("shipment_id", shipment.ID), zap.Int("distance", sit.StorageInTransitDistance.DistanceMiles))
+
 		if sit.StorageInTransitDistance.DistanceMiles > 50 {
 			additionalFlateRateCItem, err := models.FetchTariff400ngItemByCode(c.DB, "210C")
 			if err != nil {
@@ -122,10 +132,10 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 				Tariff400ngItem:   additionalFlateRateCItem,
 				Location:          c.shipmentItemLocation(sit.Location),
 				Quantity1:         unit.BaseQuantityFromInt(sit.StorageInTransitDistance.DistanceMiles),
-				Status:            models.ShipmentLineItemStatusSUBMITTED,
-				AmountCents:       &cost.NonLinehaulCostComputation.DestinationService.Fee,
-				AppliedRate:       &cost.NonLinehaulCostComputation.DestinationService.Rate,
+				Status:            models.ShipmentLineItemStatusAPPROVED,
 				SubmittedDate:     now,
+				Address:           *storageAddress,
+				AddressID:         &(*storageAddress).ID,
 			}
 			lineItems = append(lineItems, additionalFlateRateC)
 		} else {
@@ -140,10 +150,10 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 					Tariff400ngItem:   additionalFlateRateBItem,
 					Location:          c.shipmentItemLocation(sit.Location),
 					Quantity1:         unit.BaseQuantityFromInt(sit.StorageInTransitDistance.DistanceMiles),
-					Status:            models.ShipmentLineItemStatusSUBMITTED,
-					AmountCents:       &cost.NonLinehaulCostComputation.DestinationService.Fee,
-					AppliedRate:       &cost.NonLinehaulCostComputation.DestinationService.Rate,
+					Status:            models.ShipmentLineItemStatusAPPROVED,
 					SubmittedDate:     now,
+					Address:           *storageAddress,
+					AddressID:         &(*storageAddress).ID,
 				}
 				lineItems = append(lineItems, additionalFlateRateB)
 			}
@@ -158,14 +168,52 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 				Tariff400ngItem:   additionalFlateRateAItem,
 				Location:          c.shipmentItemLocation(sit.Location),
 				Quantity1:         unit.BaseQuantityFromInt(sit.StorageInTransitDistance.DistanceMiles),
-				Status:            models.ShipmentLineItemStatusSUBMITTED,
-				AmountCents:       &cost.NonLinehaulCostComputation.DestinationService.Fee,
-				AppliedRate:       &cost.NonLinehaulCostComputation.DestinationService.Rate,
+				Status:            models.ShipmentLineItemStatusAPPROVED,
 				SubmittedDate:     now,
+				Address:           *storageAddress,
+				AddressID:         &(*storageAddress).ID,
 			}
 			lineItems = append(lineItems, additionalFlateRateA)
 		}
 
+		/* TODO: Failing to load 16B from database
+		// Fuel Surcharge (16B) - DEL to/from SIT (Deliver to and from Storage in Transit)
+		fuelSurchargeItem, err := models.FetchTariff400ngItemByCode(c.DB, "16B")
+		if err != nil {
+			return nil, err
+		}
+
+		fsAppliedRate := &cost.LinehaulCostComputation.FuelSurcharge.Rate
+		fuelSurcharge := models.ShipmentLineItem{
+			ShipmentID:        shipment.ID,
+			Tariff400ngItemID: fuelSurchargeItem.ID,
+			Tariff400ngItem:   fuelSurchargeItem,
+			Location:          models.ShipmentLineItemLocation(fuelSurchargeItem.AllowedLocation),
+			Quantity1:         unit.BaseQuantityFromInt(shipment.NetWeight.Int()),
+			Quantity2:         unit.BaseQuantityFromInt(sit.StorageInTransitDistance.DistanceMiles),
+			Status:            models.ShipmentLineItemStatusAPPROVED,
+			AmountCents:       &cost.LinehaulCostComputation.FuelSurcharge.Fee,
+			AppliedRate:       fsAppliedRate,
+			SubmittedDate:     now,
+		}
+		lineItems = append(lineItems, fuelSurcharge)
+		*/
+
+	}
+
+	for _, lineItem := range lineItems {
+		logger.Debug("*********** DEBUG SAVING SIT LINE ITEMS *****************")
+		verrs, err := c.DB.ValidateAndCreate(&lineItem)
+
+		logger.Debug("created line items ", zap.Int("number of", len(lineItems)))
+
+		if err != nil || verrs.HasAny() {
+
+			responseError := errors.Wrapf(err, "Error saving storage in transit line item for shipment %s and item %s with verr %s",
+				lineItem.ShipmentID, lineItem.Tariff400ngItemID, verrs.Error())
+			logger.Error("error saving SIT shipment line items for shipmentID")
+			return []models.ShipmentLineItem{}, responseError
+		}
 	}
 
 	return lineItems, nil

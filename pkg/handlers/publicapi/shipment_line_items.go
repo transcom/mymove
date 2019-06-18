@@ -350,7 +350,7 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 		// If shipment is delivered, price single shipment line item
 		if shipmentLineItem.Shipment.Status == models.ShipmentStatusDELIVERED {
 			engine := rateengine.NewRateEngine(h.DB(), h.Logger())
-			err = engine.PricePreapprovalRequest(&shipmentLineItem)
+			err = engine.PriceAdditionalRequest(&shipmentLineItem)
 			if err != nil {
 				return handlers.ResponseForError(h.Logger(), err)
 			}
@@ -496,7 +496,7 @@ func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipm
 	// If shipment is delivered and line item is approved, price single shipment line item
 	if shipmentLineItem.Shipment.Status == models.ShipmentStatusDELIVERED && shipmentLineItem.Status == models.ShipmentLineItemStatusAPPROVED {
 		engine := rateengine.NewRateEngine(h.DB(), h.Logger())
-		err = engine.PricePreapprovalRequest(&shipmentLineItem)
+		err = engine.PriceAdditionalRequest(&shipmentLineItem)
 		if err != nil {
 			return handlers.ResponseForError(h.Logger(), err)
 		}

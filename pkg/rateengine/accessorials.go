@@ -3,6 +3,7 @@ package rateengine
 import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -82,8 +83,11 @@ var tariff400ngItemPricing = map[string]pricer{
 
 	// Below are SIT-related codes, uncomment after SIT is implemented
 	// SIT P/D OT
-	// "210D": newFlatRatePricer(),
-	// "210E": newFlatRatePricer(),
+	"210A": newBasicQuantityPricer(),
+	"210B": newBasicQuantityPricer(),
+	"210C": newFlatRatePricer(),
+	//"210D": newFlatRatePricer(),
+	//"210E": newFlatRatePricer(),
 
 	// Pickup/delivery at third-party and self-storage warehouses
 	"225A": newFlatRatePricer(),
@@ -116,16 +120,17 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 		return FeeAndRate{}, errors.New("Can't price a shipment line item for a shipment without NetWeight")
 	}
 
+	var zip string
 	// Defaults to origin postal code, but if location is NEITHER than this doesn't matter
-	zip := Zip5ToZip3(shipment.PickupAddress.PostalCode)
+	zip = Zip5ToZip3(shipment.PickupAddress.PostalCode)
 	if shipmentLineItem.Location == models.ShipmentLineItemLocationDESTINATION {
 		zip = Zip5ToZip3(shipment.Move.Orders.NewDutyStation.Address.PostalCode)
 	}
-	shipDate := shipment.BookDate
 
+	shipDate := shipment.BookDate
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip, *shipDate)
 	if err != nil {
-		return FeeAndRate{}, errors.Wrap(err, "Fetching 400ng service area from db")
+		return FeeAndRate{}, errors.Wrapf(err, "Fetching 400ng service area from db for zip %s", zip)
 	}
 
 	var rateCents unit.Cents
@@ -140,6 +145,19 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 	} else if itemCode == "35A" {
 		// 35A is a Third Party Service (TPS) charge, allow user to enter dollar amount as quantity
 		rateCents = unit.Cents(100)
+	} else if itemCode == "210C" {
+		linehaul210CRate, err := models.FetchBaseLinehaulRate(
+			re.db,
+			shipmentLineItem.Quantity1.ToUnitInt(),
+			*shipment.NetWeight,
+			*shipment.ActualPickupDate)
+		rateCents = linehaul210CRate
+		re.logger.Debug("***** ComputeShipmentLineItemCharge:210C Rate returned:", zap.Any("linehaul210CRate", linehaul210CRate),
+			zap.Int("shipmentLineItem.Quantity1.ToUnitInt", shipmentLineItem.Quantity1.ToUnitInt()),
+			zap.Any("NetWeight", *shipment.NetWeight))
+		if err != nil {
+			re.logger.Error("Base Linehaul query didn't complete for 210C: ", zap.Error(err))
+		}
 	} else {
 		// Most rates should be in the tariff400ngItemRates table though
 
@@ -156,7 +174,7 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 			*shipDate,
 		)
 		if err != nil {
-			return FeeAndRate{}, errors.Wrap(err, "Fetching 400ng item rate from db")
+			return FeeAndRate{}, errors.Wrapf(err, "Fetching 400ng item rate from db for item code %s with effective item code %s", itemCode, effectiveItemCode)
 		}
 		rateCents = rate.RateCents
 	}
@@ -195,25 +213,40 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 	return FeeAndRate{}, errors.New("Could not find pricing function for given code")
 }
 
-// PricePreapprovalRequestsForShipment for a shipment, computes prices for all approved pre-approval requests and populates amount_cents field and applied_rate on those models
-func (re *RateEngine) PricePreapprovalRequestsForShipment(shipment models.Shipment) ([]models.ShipmentLineItem, error) {
-	items, err := models.FetchApprovedPreapprovalRequestsByShipment(re.db, shipment)
+// PriceAdditionalRequestsForShipment for a shipment, computes prices for all approved pre-approval requests and populates amount_cents field and applied_rate on those models
+func (re *RateEngine) PriceAdditionalRequestsForShipment(shipment models.Shipment) ([]models.ShipmentLineItem, error) {
+
+	var additionalItems models.ShipmentLineItems
+
+	// Fetch pre-approval items
+	preapprovalItems, err := models.FetchApprovedPreapprovalRequestsByShipment(re.db, shipment)
 	if err != nil {
 		return []models.ShipmentLineItem{}, err
 	}
+	additionalItems = append(additionalItems, preapprovalItems...)
 
-	for i := 0; i < len(items); i++ {
-		err := re.PricePreapprovalRequest(&items[i])
+	// Fetch storage in transit non pre-approval line items
+	storageInTransitNonPreapprovalItems, err := models.FetchStorageInTransitNonPreapprovalsRequestsByShipment(re.db, shipment)
+	if err != nil {
+		return []models.ShipmentLineItem{}, err
+	}
+	additionalItems = append(additionalItems, storageInTransitNonPreapprovalItems...)
+
+	for i := 0; i < len(additionalItems); i++ {
+		err := re.PriceAdditionalRequest(&additionalItems[i])
 		if err != nil {
 			return []models.ShipmentLineItem{}, err
 		}
 	}
 
-	return items, nil
+	return additionalItems, nil
 }
 
-// PricePreapprovalRequest computes price for given pre-approval requests and populates amount_cents field and applied_rate on those models
-func (re *RateEngine) PricePreapprovalRequest(shipmentLineItem *models.ShipmentLineItem) error {
+// PriceAdditionalRequest computes price for:
+//     a.) given pre-approval requests
+//     b.) storage in transit line item
+// and populates amount_cents field and applied_rate on those models
+func (re *RateEngine) PriceAdditionalRequest(shipmentLineItem *models.ShipmentLineItem) error {
 
 	feeAndRate, err := re.ComputeShipmentLineItemCharge(*shipmentLineItem)
 	if err != nil {

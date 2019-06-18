@@ -74,32 +74,29 @@ func (c PriceShipment) Call(shipment *models.Shipment, price PricingType) (*vali
 		}
 	}
 
-	lineItems, err := rateengine.CreateBaseShipmentLineItems(c.DB, shipmentCost)
+	baseLineItems, err := rateengine.CreateBaseShipmentLineItems(c.DB, shipmentCost)
 	if err != nil {
 		return validate.NewErrors(), err
 	}
-
-	var generalLineItems models.ShipmentLineItems
-
-	// When the shipment is delivered we should also price existing approved pre-approval requests
-	preApprovals, err := c.Engine.PricePreapprovalRequestsForShipment(*shipment)
-	if err != nil {
-		return validate.NewErrors(), err
-	}
-	generalLineItems = append(generalLineItems, preApprovals...)
 
 	// Add storage in transit line items
 	createStorageInTransitLineItems := storageintransit.CreateStorageInTransitLineItems{
 		DB:      c.DB,
 		Planner: c.Planner,
 	}
-	storageInTransitLineItems, err := createStorageInTransitLineItems.CreateStorageInTransitLineItems(shipmentCost)
+	_, err = createStorageInTransitLineItems.CreateStorageInTransitLineItems(shipmentCost)
 	if err != nil {
 		return validate.NewErrors(), err
 	}
-	generalLineItems = append(generalLineItems, storageInTransitLineItems...)
 
-	verrs, err := shipment.SaveShipmentAndPricingInfo(c.DB, lineItems, generalLineItems, distanceCalculation)
+	// When the shipment is delivered we should also price existing approved pre-approval requests
+	// (including pre-approval storage in transit line items) and storage in transit non pre-approval line items
+	additionalLineItems, err := c.Engine.PriceAdditionalRequestsForShipment(*shipment)
+	if err != nil {
+		return validate.NewErrors(), err
+	}
+
+	verrs, err := shipment.SaveShipmentAndPricingInfo(c.DB, baseLineItems, additionalLineItems, distanceCalculation)
 	if err != nil || verrs.HasAny() {
 		return verrs, err
 	}
