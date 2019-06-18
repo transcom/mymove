@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -157,6 +159,48 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 			suite.Equal(moveDoc.MoveID, ppm.Move.ID)
 			suite.Equal(moveDoc.Status, MoveDocumentStatusOK)
 			suite.Equal(moveDoc.MoveDocumentType, MoveDocumentTypeEXPENSE)
+		}
+	}
+}
+
+func (suite *ModelSuite) TestFetchMovingExpenseDocumentsStorageExpense() {
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	sm := ppm.Move.Orders.ServiceMember
+	start := time.Date(2016, 01, 01, 0, 0, 0, 0, time.UTC)
+	end := time.Date(2016, 01, 16, 0, 0, 0, 0, time.UTC)
+	storageExpense := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm.Move.ID,
+			Move:                     ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:                   "OK",
+			MoveDocumentType:         "EXPENSE",
+		},
+		MovingExpenseDocument: models.MovingExpenseDocument{
+			MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
+			RequestedAmountCents: 100,
+			PaymentMethod:        "GTCC",
+			ReceiptMissing:       false,
+			StorageStartDate:     &start,
+			StorageEndDate:       &end,
+		},
+	}
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), storageExpense)
+	session := &auth.Session{
+		ApplicationName: auth.MilApp,
+		UserID:          sm.UserID,
+		ServiceMemberID: sm.ID,
+	}
+
+	expenses, err := FetchMovingExpenseDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, nil)
+
+	if suite.NoError(err) {
+		suite.Equal(1, len(expenses))
+		for _, moveDoc := range expenses {
+			suite.Equal(moveDoc.MoveID, ppm.Move.ID)
+			suite.Equal(*moveDoc.PersonallyProcuredMoveID, ppm.ID)
+			suite.Equal(moveDoc.MovingExpenseDocument.StorageStartDate.UTC(), start)
+			suite.Equal(moveDoc.MovingExpenseDocument.StorageEndDate.UTC(), end)
 		}
 	}
 }
