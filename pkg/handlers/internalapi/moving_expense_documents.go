@@ -101,7 +101,7 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 		storageStartDate = (*time.Time)(payload.StorageStartDate)
 	}
 	var storageEndDate *time.Time
-	if payload.StorageStartDate != nil {
+	if payload.StorageEndDate != nil {
 		storageEndDate = (*time.Time)(payload.StorageEndDate)
 	}
 	movingExpenseDocument := models.MovingExpenseDocument{
