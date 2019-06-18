@@ -61,6 +61,10 @@ class ExpensesUpload extends Component {
     });
   };
 
+  isStorageExpense = formValues => {
+    return !isEmpty(formValues) && formValues.moving_expense_type === 'STORAGE';
+  };
+
   saveAndAddHandler = formValues => {
     const { moveId, currentPpm } = this.props;
     const { paymentMethod, missingReceipt } = this.state;
@@ -75,8 +79,7 @@ class ExpensesUpload extends Component {
     let files = this.uploader.getFiles();
     const uploadIds = map(files, 'id');
     const personallyProcuredMoveId = currentPpm ? currentPpm.id : null;
-    const isStorageExpense = !isEmpty(formValues) && formValues.moving_expense_type === 'STORAGE';
-    const title = isStorageExpense ? 'Storage Expense' : formValues.title;
+    const title = this.isStorageExpense(formValues) ? 'Storage Expense' : formValues.title;
     return this.props
       .createMovingExpenseDocument({
         moveId,
@@ -145,7 +148,7 @@ class ExpensesUpload extends Component {
         ? ExpensesUpload.nextBtnLabels.SaveAndAddAnother
         : ExpensesUpload.nextBtnLabels.SaveAndContinue;
     const hasMovingExpenseType = !isEmpty(formValues) && formValues.moving_expense_type !== '';
-    const isStorageExpense = !isEmpty(formValues) && formValues.moving_expense_type === 'STORAGE';
+    const isStorageExpense = this.isStorageExpense(formValues);
     return (
       <>
         <WizardHeader
