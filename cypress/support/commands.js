@@ -158,48 +158,47 @@ Cypress.Commands.add(
 
     // request use to log in
     let sendRequest = (sendRequestUserType, maskedCSRFToken) => {
-      cy
-        .request({
-          url: '/devlocal-auth/login',
-          method: 'POST',
-          headers: {
-            'X-CSRF-TOKEN': maskedCSRFToken,
-          },
-          body: {
-            id: userId,
-            userType: sendRequestUserType,
-          },
-          form: true,
-          failOnStatusCode: false,
-        })
-        .then(resp => {
-          cy.visit('/');
-          //   // Default status code to check is 200
-          //   expect(resp.status).to.eq(expectedStatusCode);
-          //   // check response body if needed
-          //   if (expectedRespBody) {
-          //     expect(resp.body).to.eq(expectedRespBody);
-          //   }
+      cy.request({
+        url: '/devlocal-auth/login',
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': maskedCSRFToken,
+        },
+        body: {
+          id: userId,
+          userType: sendRequestUserType,
+        },
+        form: true,
+        // failOnStatusCode: false,
+      });
+      // .then(resp => {
+      // cy.visit('/');
+      //   // Default status code to check is 200
+      //   expect(resp.status).to.eq(expectedStatusCode);
+      //   // check response body if needed
+      //   if (expectedRespBody) {
+      //     expect(resp.body).to.eq(expectedRespBody);
+      //   }
 
-          // Login should provide named session tokens
-          // if (checkSessionToken) {
-          //   // Check that two CSRF cookies and one session cookie exists
-          //   cy.getCookies().should('have.length', 3);
-          //   if (sendRequestUserType === milmoveAppName) {
-          //     cy.getCookie('mil_session_token').should('exist');
-          //     cy.getCookie('office_session_token').should('not.exist');
-          //     cy.getCookie('tsp_session_token').should('not.exist');
-          //   } else if (sendRequestUserType === officeAppName) {
-          //     cy.getCookie('mil_session_token').should('not.exist');
-          //     cy.getCookie('office_session_token').should('exist');
-          //     cy.getCookie('tsp_session_token').should('not.exist');
-          //   } else if (sendRequestUserType === tspAppName) {
-          //     cy.getCookie('mil_session_token').should('not.exist');
-          //     cy.getCookie('office_session_token').should('not.exist');
-          //     cy.getCookie('tsp_session_token').should('exist');
-          //   }
-          // }
-        });
+      // Login should provide named session tokens
+      // if (checkSessionToken) {
+      //   // Check that two CSRF cookies and one session cookie exists
+      //   cy.getCookies().should('have.length', 3);
+      //   if (sendRequestUserType === milmoveAppName) {
+      //     cy.getCookie('mil_session_token').should('exist');
+      //     cy.getCookie('office_session_token').should('not.exist');
+      //     cy.getCookie('tsp_session_token').should('not.exist');
+      //   } else if (sendRequestUserType === officeAppName) {
+      //     cy.getCookie('mil_session_token').should('not.exist');
+      //     cy.getCookie('office_session_token').should('exist');
+      //     cy.getCookie('tsp_session_token').should('not.exist');
+      //   } else if (sendRequestUserType === tspAppName) {
+      //     cy.getCookie('mil_session_token').should('not.exist');
+      //     cy.getCookie('office_session_token').should('not.exist');
+      //     cy.getCookie('tsp_session_token').should('exist');
+      //   }
+      // }
+      // });
     };
 
     // make sure we log out first before sign in
