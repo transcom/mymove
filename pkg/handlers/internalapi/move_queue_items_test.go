@@ -40,6 +40,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 			PersonallyProcuredMove: models.PersonallyProcuredMove{
 				Move:   newMove,
 				MoveID: newMove.ID,
+				Status: models.PPMStatusAPPROVED,
 			},
 		})
 
