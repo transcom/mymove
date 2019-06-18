@@ -335,8 +335,15 @@ function serviceMemberUploadsExpenses() {
   // Add an expense that's missing a receipt
   cy.contains('Expense 2');
 
-  cy.get('select[name="moving_expense_type"]').select('GAS');
-  cy.get('input[name="title"]').type('title 2');
+  cy.get('select[name="moving_expense_type"]').select('STORAGE');
+  cy
+    .get('input[name="storage_start_date"]')
+    .type('6/2/2018{enter}')
+    .blur();
+  cy
+    .get('input[name="storage_end_date"]')
+    .type('6/12/2018{enter}')
+    .blur();
   cy.get('input[name="requested_amount_cents"]').type('2000');
 
   cy.get('input[name="missingReceipt"]').should('not.be.checked');

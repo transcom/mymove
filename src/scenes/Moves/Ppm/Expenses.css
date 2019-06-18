@@ -37,3 +37,11 @@
   line-height: 1.8em;
   margin-top: 1.8em;
 }
+
+.expenses-form-group {
+  margin: 0 2em 0 0;
+}
+
+.expenses-form-group > label {
+  margin: 0;
+}
