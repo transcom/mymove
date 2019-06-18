@@ -203,7 +203,7 @@ Cypress.Commands.add(
     };
 
     // make sure we log out first before sign in
-    cy.logoutNew();
+    // cy.logout();
     // GET landing page to get csrf cookies
     // cy.request('/');
 
@@ -296,7 +296,7 @@ Cypress.Commands.add(
     };
 
     // make sure we log out first before sign in
-    cy.logout();
+    cy.logoutOrig();
     // GET landing page to get csrf cookies
     cy.request('/');
 
@@ -323,7 +323,7 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add('logoutNew', () => {
+Cypress.Commands.add('logout', () => {
   // cy.patientVisit('/');
 
   cy.getCookie('masked_gorilla_csrf').then(cookie => {
@@ -341,7 +341,7 @@ Cypress.Commands.add('logoutNew', () => {
   });
 });
 
-Cypress.Commands.add('logout', () => {
+Cypress.Commands.add('logoutOrig', () => {
   cy.patientVisit('/');
 
   cy.getCookie('masked_gorilla_csrf').then(cookie => {
