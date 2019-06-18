@@ -617,7 +617,7 @@ function tspUserEditsDeliveredSitRequest() {
   });
 
   // Find shipment and open it
-  cy.selectQueueItemMoveLocator('SITDLV');
+  cy.selectQueueItemMoveLocator('SITDST');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -650,4 +650,12 @@ function tspUserEditsDeliveredSitRequest() {
     const text = $div.text();
     expect(text).to.include('29-Mar-2019');
   });
+  //When SIT date out is changed, actual delivery date in the dates panel is also changed
+  cy
+    .get('.editable-panel-header')
+    .contains('Dates')
+    .siblings()
+    .click()
+    .get('input[name="dates.actual_delivery_date"]')
+    .should('have.value', '3/29/2019');
 }

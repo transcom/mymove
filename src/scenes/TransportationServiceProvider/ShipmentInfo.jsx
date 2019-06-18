@@ -203,11 +203,11 @@ class ShipmentInfo extends Component {
   componentDidUpdate(prevProps) {
     const { storageInTransits } = this.props;
     if (storageInTransits !== prevProps.storageInTransits) {
-      this.actualDeliveryDate();
+      this.resetActualDeliveryDate();
     }
   }
 
-  actualDeliveryDate = () => {
+  resetActualDeliveryDate = () => {
     if (this.props.storageInTransits.length > 0) {
       this.props.storageInTransits.map(storageInTransit => {
         if (storageInTransit.location === 'DESTINATION' && storageInTransit.status === 'DELIVERED') {
