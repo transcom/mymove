@@ -208,23 +208,26 @@ class ShipmentInfo extends Component {
   }
 
   actualDeliveryDate = () => {
-    this.props.storageInTransits.map(storageInTransit => {
-      if (storageInTransit.location === 'DESTINATION' && storageInTransit.status === 'DELIVERED') {
-        this.setState({
-          shipment: {
-            ...this.props.shipment,
-            actual_delivery_date: storageInTransit.out_date,
-          },
-        });
-      } else {
-        this.setState({
-          shipment: {
-            ...this.props.shipment,
-          },
-        });
-      }
-      return null;
-    });
+    if (this.props.storageInTransits.length > 0) {
+      this.props.storageInTransits.map(storageInTransit => {
+        if (storageInTransit.location === 'DESTINATION' && storageInTransit.status === 'DELIVERED') {
+          return this.setState({
+            shipment: {
+              ...this.props.shipment,
+              actual_delivery_date: storageInTransit.out_date,
+            },
+          });
+        } else {
+          return null;
+        }
+      });
+    } else {
+      return this.setState({
+        shipment: {
+          ...this.props.shipment,
+        },
+      });
+    }
   };
 
   acceptShipment = () => {
