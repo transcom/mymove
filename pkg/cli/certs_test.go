@@ -12,5 +12,5 @@ func (suite *cliTestSuite) TestDODCertificates() {
 	}
 
 	suite.Setup(InitCertFlags, []string{})
-	suite.Nil(CheckCert(suite.viper))
+	suite.NoError(CheckCert(suite.viper))
 }

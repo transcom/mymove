@@ -27,10 +27,10 @@ describe('office user finds the shipment', function() {
 });
 
 function officeUserViewsSITPanel() {
-  // Open hhg_accepted moves queue
-  cy.patientVisit('/queues/hhg_accepted');
+  // Open new moves queue
+  cy.patientVisit('/queues/new');
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
+    expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
   // Find move (generated in e2ebasic.go) and open it
@@ -80,10 +80,10 @@ function officeUserViewsSITPanel() {
 }
 
 function officeUserStartsAndCancelsSitApproval() {
-  // Open hhg_accepted moves queue
-  cy.patientVisit('/queues/hhg_accepted');
+  // Open new moves queue
+  cy.patientVisit('/queues/new');
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
+    expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
   // Find move (generated in e2ebasic.go) and open it
@@ -167,10 +167,10 @@ function officeUserStartsAndCancelsSitEdit() {
 }
 
 function officeUserApprovesSITRequest() {
-  // Open hhg_accepted moves queue
-  cy.patientVisit('/queues/hhg_accepted');
+  // Open new moves queue
+  cy.patientVisit('/queues/new');
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
+    expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
   // Find move (generated in e2ebasic.go) and open it
@@ -200,7 +200,7 @@ function officeUserApprovesSITRequest() {
 
   cy.get('input[name="authorized_start_date"]').should('have.value', '3/22/2019');
 
-  cy.get('textarea[name="authorization_notes"]').type('this is a note', { force: true, delay: 150 });
+  cy.get('textarea[name="authorization_notes"]').type('this is a note', { force: true });
 
   cy
     .get('[data-cy="storage-in-transit-approve-button"]')
@@ -217,10 +217,10 @@ function officeUserApprovesSITRequest() {
   cy.get('[data-cy="sit-edit-link"]').click();
 
   cy.get('input[name="authorized_start_date"]').clear();
-  cy.get('input[name="authorized_start_date"]').type('3/23/2019', { force: true, delay: 150 });
+  cy.get('input[name="authorized_start_date"]').type('3/23/2019', { force: true });
   cy.get('input[name="authorized_start_date"]').should('have.value', '3/23/2019');
 
-  cy.get('textarea[name="authorization_notes"]').type('this is also a note', { force: true, delay: 150 });
+  cy.get('textarea[name="authorization_notes"]').type('this is also a note', { force: true });
 
   cy
     .get('[data-cy="sit-editor-save-button"]')
@@ -234,10 +234,10 @@ function officeUserApprovesSITRequest() {
 }
 
 function officeUserDeniesSITRequest() {
-  // Open hhg_accepted moves queue
-  cy.patientVisit('/queues/hhg_accepted');
+  // Open new moves queue
+  cy.patientVisit('/queues/new');
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/hhg_accepted/);
+    expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
   // Find move (generated in e2ebasic.go) and open it
@@ -275,7 +275,7 @@ function officeUserDeniesSITRequest() {
 
   cy.get('[data-cy="sit-edit-link"]').click();
 
-  cy.get('textarea[name="authorization_notes"]').type('this is also a note', { force: true, delay: 150 });
+  cy.get('textarea[name="authorization_notes"]').type('this is also a note', { force: true });
 
   cy
     .get('[data-cy="sit-editor-save-button"]')

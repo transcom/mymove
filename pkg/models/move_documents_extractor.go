@@ -23,6 +23,7 @@ type MoveDocumentExtractor struct {
 	MoveDocumentType         MoveDocumentType   `json:"move_document_type" db:"move_document_type"`
 	MovingExpenseType        *MovingExpenseType `json:"moving_expense_type" db:"moving_expense_type"`
 	RequestedAmountCents     *unit.Cents        `json:"requested_amount_cents" db:"requested_amount_cents"`
+	ReceiptMissing           *bool              `json:"receipt_missing" db:"receipt_missing"`
 	EmptyWeight              *unit.Pound        `json:"empty_weight,omitempty" db:"empty_weight"`
 	EmptyWeightTicketMissing *bool              `json:"empty_weight_ticket_missing,omitempty" db:"empty_weight_ticket_missing"`
 	FullWeight               *unit.Pound        `json:"full_weight,omitempty" db:"full_weight"`
@@ -52,6 +53,7 @@ func (m *Move) FetchAllMoveDocumentsForMove(db *pop.Connection) (MoveDocumentExt
 	  ed.moving_expense_type,
 	  ed.requested_amount_cents,
 	  ed.payment_method,
+      ed.receipt_missing,
 	  wt.empty_weight,
 	  wt.empty_weight_ticket_missing,
 	  wt.full_weight_ticket_missing,

@@ -2,5 +2,5 @@ package cli
 
 func (suite *cliTestSuite) TestConfigEnvironment() {
 	suite.Setup(InitEnvironmentFlags, []string{})
-	suite.Nil(CheckEnvironment(suite.viper))
+	suite.NoError(CheckEnvironment(suite.viper))
 }

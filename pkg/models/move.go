@@ -365,10 +365,9 @@ func (m Move) CreateMovingExpenseDocument(
 	moveDocumentType MoveDocumentType,
 	title string,
 	notes *string,
-	requestedAmountCents unit.Cents,
-	paymentMethod string,
-	movingExpenseType MovingExpenseType,
-	moveType SelectedMoveType) (*MovingExpenseDocument, *validate.Errors, error) {
+	expenseDocument MovingExpenseDocument,
+	moveType SelectedMoveType,
+) (*MovingExpenseDocument, *validate.Errors, error) {
 
 	var newMovingExpenseDocument *MovingExpenseDocument
 	var responseError error
@@ -394,9 +393,10 @@ func (m Move) CreateMovingExpenseDocument(
 		newMovingExpenseDocument = &MovingExpenseDocument{
 			MoveDocumentID:       newMoveDocument.ID,
 			MoveDocument:         *newMoveDocument,
-			MovingExpenseType:    movingExpenseType,
-			RequestedAmountCents: requestedAmountCents,
-			PaymentMethod:        paymentMethod,
+			MovingExpenseType:    expenseDocument.MovingExpenseType,
+			RequestedAmountCents: expenseDocument.RequestedAmountCents,
+			PaymentMethod:        expenseDocument.PaymentMethod,
+			ReceiptMissing:       expenseDocument.ReceiptMissing,
 		}
 		verrs, err := db.ValidateAndCreate(newMovingExpenseDocument)
 		if err != nil || verrs.HasAny() {

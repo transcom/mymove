@@ -198,39 +198,6 @@ func (h InSitStorageInTransitHandler) Handle(params sitop.InSitStorageInTransitP
 
 }
 
-// DeliverStorageInTransitHandler delivers an existing storage in transit
-type DeliverStorageInTransitHandler struct {
-	handlers.HandlerContext
-	deliverStorageInTransit services.StorageInTransitDeliverer
-}
-
-// Handle handles the handling
-// This is meant to set the status for a storage in transit to delivered and return the saved object in a payload.
-func (h DeliverStorageInTransitHandler) Handle(params sitop.DeliverStorageInTransitParams) middleware.Responder {
-	// TODO: it looks like from the wireframes for the delivery status change form that this will also need to edit
-	//  delivery address(es) and the actual delivery date.
-	shipmentID, err := uuid.FromString(params.ShipmentID.String())
-	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
-
-	if err != nil {
-		h.Logger().Error("UUID Parsing", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
-	}
-
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-
-	storageInTransit, verrs, err := h.deliverStorageInTransit.DeliverStorageInTransit(shipmentID, session, storageInTransitID)
-
-	if err != nil || verrs.HasAny() {
-		h.Logger().Error(fmt.Sprintf("SIT delivery failed for ID: %s on shipment: %s", storageInTransitID, shipmentID), zap.Error(err), zap.Error(verrs))
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
-	}
-
-	returnPayload := payloadForStorageInTransitModel(storageInTransit)
-	return sitop.NewDeliverStorageInTransitOK().WithPayload(returnPayload)
-
-}
-
 // ReleaseStorageInTransitHandler releases an existing storage in transit
 type ReleaseStorageInTransitHandler struct {
 	handlers.HandlerContext
