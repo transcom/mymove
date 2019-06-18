@@ -9,7 +9,6 @@ import (
 func (suite *ShipmentLineItemServiceSuite) TestGetShipmentLineItems() {
 	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
 	serviceMemberUser := testdatagen.MakeDefaultServiceMember(suite.DB())
-	//officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	tspSession := auth.Session{
 		ApplicationName: auth.TspApp,
 		UserID:          *tspUser.UserID,
