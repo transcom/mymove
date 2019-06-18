@@ -397,6 +397,8 @@ func (m Move) CreateMovingExpenseDocument(
 			RequestedAmountCents: expenseDocument.RequestedAmountCents,
 			PaymentMethod:        expenseDocument.PaymentMethod,
 			ReceiptMissing:       expenseDocument.ReceiptMissing,
+			StorageStartDate:     expenseDocument.StorageStartDate,
+			StorageEndDate:       expenseDocument.StorageEndDate,
 		}
 		verrs, err := db.ValidateAndCreate(newMovingExpenseDocument)
 		if err != nil || verrs.HasAny() {
