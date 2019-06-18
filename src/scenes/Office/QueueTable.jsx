@@ -13,6 +13,7 @@ import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
 import { getEntitlements } from '../../shared/entitlements';
 import moment from 'moment';
 import { formatDate4DigitYear } from '../../shared/formatters';
+import { sitDaysUsed, sitTotalDaysUsed } from '../../shared/StorageInTransit/calculator';
 
 class QueueTable extends Component {
   constructor() {
@@ -146,10 +147,18 @@ class QueueTable extends Component {
         row.synthetic_status = row.status;
       }
 
-      if (this.props.queueType === 'hhg_active' && row.sit_start_date) {
-        //Todo make this more robust, to account for multiple SITs,
+      if (this.props.queueType === 'hhg_active' && row.storage_in_transits) {
         row.sit_expires = formatDate4DigitYear(
-          moment(row.sit_start_date).add(getEntitlements(row.rank).storage_in_transit, 'days'),
+          moment.min(
+            row.storage_in_transits.map(sit => {
+              return moment(sit.actual_start_date).add(
+                getEntitlements(row.rank).storage_in_transit +
+                  sitDaysUsed(sit) -
+                  sitTotalDaysUsed(row.storage_in_transits),
+                'days',
+              );
+            }),
+          ),
         );
       }
     });

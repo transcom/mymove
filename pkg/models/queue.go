@@ -25,7 +25,7 @@ type MoveQueueItem struct {
 	MoveDate                   *time.Time                          `json:"move_date" db:"move_date"`
 	SubmittedDate              *time.Time                          `json:"submitted_date" db:"submitted_date"`
 	LastModifiedDate           time.Time                           `json:"last_modified_date" db:"last_modified_date"`
-	SitStartDate               *time.Time                          `json:"sit_start_date" db:"sit_start_date"`
+	ShipmentID                 uuid.UUID                           `json:"shipment_id" db:"shipment_id"`
 	OriginDutyStationName      string                              `json:"origin_duty_station_name" db:"origin_duty_station_name"`
 	DestinationDutyStationName string                              `json:"destination_duty_station_name" db:"destination_duty_station_name"`
 }
@@ -133,14 +133,13 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				shipment.gbl_number as gbl_number,
 				origin_duty_station.name as origin_duty_station_name,
 				destination_duty_station.name as destination_duty_station_name,
-				sit.actual_start_date as sit_start_date
+				shipment.id as shipment_id
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			JOIN duty_stations as origin_duty_station ON sm.duty_station_id = origin_duty_station.id
 			JOIN duty_stations as destination_duty_station ON ord.new_duty_station_id = destination_duty_station.id
 			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
-			LEFT JOIN storage_in_transits as sit ON shipment.id = sit.shipment_id
 			WHERE ((shipment.status IN ('IN_TRANSIT', 'APPROVED')) OR (shipment.status = 'ACCEPTED' AND shipment.pm_survey_conducted_date IS NOT NULL))
 			and moves.show is true
 		`

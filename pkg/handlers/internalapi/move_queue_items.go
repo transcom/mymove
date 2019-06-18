@@ -1,9 +1,13 @@
 package internalapi
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/transcom/mymove/pkg/auth"
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
@@ -12,7 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessages.MoveQueueItem {
+func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem, StorageInTransits internalmessages.StorageInTransits) *internalmessages.MoveQueueItem {
 	MoveQueueItemPayload := internalmessages.MoveQueueItem{
 		ID:                         handlers.FmtUUID(MoveQueueItem.ID),
 		CreatedAt:                  handlers.FmtDateTime(MoveQueueItem.CreatedAt),
@@ -30,7 +34,7 @@ func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessag
 		LastModifiedDate:           handlers.FmtDateTime(MoveQueueItem.LastModifiedDate),
 		OriginDutyStationName:      swag.String(MoveQueueItem.OriginDutyStationName),
 		DestinationDutyStationName: swag.String(MoveQueueItem.DestinationDutyStationName),
-		SitStartDate:               handlers.FmtDatePtr(MoveQueueItem.SitStartDate),
+		StorageInTransits:          StorageInTransits,
 	}
 	return &MoveQueueItemPayload
 }
@@ -38,6 +42,7 @@ func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessag
 // ShowQueueHandler returns a list of all MoveQueueItems in the moves queue
 type ShowQueueHandler struct {
 	handlers.HandlerContext
+	storageInTransitsIndexer services.StorageInTransitsIndexer
 }
 
 // Handle retrieves a list of all MoveQueueItems in the system in the moves queue
@@ -58,7 +63,20 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 
 	MoveQueueItemPayloads := make([]*internalmessages.MoveQueueItem, len(MoveQueueItems))
 	for i, MoveQueueItem := range MoveQueueItems {
-		MoveQueueItemPayload := payloadForMoveQueueItem(MoveQueueItem)
+		storageInTransits, err := h.storageInTransitsIndexer.IndexStorageInTransits(MoveQueueItem.ShipmentID, session)
+
+		if err != nil {
+			h.Logger().Error(fmt.Sprintf("SITs Retrieval failed for shipment: %s", MoveQueueItem.ShipmentID), zap.Error(err))
+			return handlers.ResponseForError(h.Logger(), err)
+		}
+
+		storageInTransitsList := make(internalmessages.StorageInTransits, len(storageInTransits))
+
+		for i, storageInTransit := range storageInTransits {
+			storageInTransitsList[i] = payloadForStorageInTransitModel(&storageInTransit)
+		}
+
+		MoveQueueItemPayload := payloadForMoveQueueItem(MoveQueueItem, storageInTransitsList)
 		MoveQueueItemPayloads[i] = MoveQueueItemPayload
 	}
 	return queueop.NewShowQueueOK().WithPayload(MoveQueueItemPayloads)

@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services/mocks"
+
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -52,8 +54,11 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 			HTTPRequest: req,
 			QueueType:   queueType,
 		}
+
+		storageInTransitIndexer := &mocks.StorageInTransitsIndexer{}
+
 		// And: show Queue is queried
-		showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+		showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), storageInTransitIndexer}
 		showResponse := showHandler.Handle(params)
 
 		// Then: Expect a 200 status code
@@ -84,8 +89,11 @@ func (suite *HandlerSuite) TestShowQueueHandlerForbidden() {
 			HTTPRequest: req,
 			QueueType:   queueType,
 		}
+
+		storageInTransitIndexer := &mocks.StorageInTransitsIndexer{}
+
 		// And: show Queue is queried
-		showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+		showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), storageInTransitIndexer}
 		showResponse := showHandler.Handle(params)
 
 		// Then: Expect a 403 status code
@@ -130,8 +138,10 @@ func (suite *HandlerSuite) TestGetMoveQueueItemsComboMoveDate() {
 		QueueType:   "new",
 	}
 
+	storageInTransitIndexer := &mocks.StorageInTransitsIndexer{}
+
 	// And: show Queue is queried
-	showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), storageInTransitIndexer}
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
@@ -187,7 +197,10 @@ func (suite *HandlerSuite) TestGetMoveQueueItemsComboSubmittedDatePPM() {
 		QueueType:   "new",
 	}
 
-	showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	storageInTransitIndexer := &mocks.StorageInTransitsIndexer{}
+
+	// And: show Queue is queried
+	showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), storageInTransitIndexer}
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
@@ -243,7 +256,10 @@ func (suite *HandlerSuite) TestGetMoveQueueItemsComboSubmittedDateHHG() {
 		QueueType:   "new",
 	}
 
-	showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	storageInTransitIndexer := &mocks.StorageInTransitsIndexer{}
+
+	// And: show Queue is queried
+	showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), storageInTransitIndexer}
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
