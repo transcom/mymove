@@ -2574,6 +2574,30 @@ definitions:
     required:
       - start_date
       - available
+  WeightAllotment:
+    type: object
+    properties:
+      total_weight_self:
+        type: integer
+        example: 18000
+      total_weight_self_plus_dependents:
+        type: integer
+        example: 18000
+      pro_gear_weight:
+        type: integer
+        example: 2000
+      pro_gear_weight_spouse:
+        type: integer
+        example: 500
+    required:
+      - total_weight_self
+      - total_weight_self_plus_dependents
+      - pro_gear_weight
+      - pro_gear_weight_spouse
+  IndexEntitlements:
+    type: object
+    additionalProperties:
+      $ref: '#/definitions/WeightAllotment'
 paths:
   /estimates/ppm:
     get:
@@ -4260,6 +4284,18 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to access this queue
+  /entitlements:
+    get:
+      summary: List weight weights allotted by entitlement
+      description:  List weight weights allotted by entitlement
+      operationId: indexEntitlements
+      tags:
+        - entitlements
+      responses:
+        200:
+          description: List of weights allotted entitlement
+          schema:
+            $ref: '#/definitions/IndexEntitlements'
   /entitlements/{moveId}:
     get:
       summary: Validates that the stored weight estimate is below the allotted entitlement range for a service member

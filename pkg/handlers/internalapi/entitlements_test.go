@@ -14,6 +14,27 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+func (suite *HandlerSuite) TestIndexEntitlementsHandlerReturns200() {
+	// Given: a set of orders, a move, user, servicemember and a PPM
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	move := ppm.Move
+
+	// And: the context contains the auth values
+	request := httptest.NewRequest("GET", "/entitlements", nil)
+	request = suite.AuthenticateRequest(request, move.Orders.ServiceMember)
+
+	params := entitlementop.IndexEntitlementsParams{
+		HTTPRequest: request,
+	}
+
+	// And: index entitlements endpoint is hit
+	handler := IndexEntitlementsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	suite.Assertions.IsType(&entitlementop.IndexEntitlementsOK{}, response)
+}
+
 func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns200() {
 	// Given: a set of orders, a move, user, servicemember and a PPM
 	ppm := testdatagen.MakeDefaultPPM(suite.DB())
