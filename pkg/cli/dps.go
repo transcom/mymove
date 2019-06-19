@@ -4,9 +4,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-
-	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/dpsauth"
 )
 
 const (
@@ -45,21 +42,6 @@ func InitDPSFlags(flag *pflag.FlagSet) {
 	flag.String(DPSCookieDomainFlag, "sddclocal", "Domain of the DPS cookie")
 	flag.String(DPSAuthCookieSecretKeyFlag, "", "DPS auth cookie secret key, 32 byte long")
 	flag.Int(DPSCookieExpiresInMinutesFlag, 240, "DPS cookie expiration in minutes")
-}
-
-// InitDPSAuthParams initializes the DPS Auth Params
-func InitDPSAuthParams(v *viper.Viper, appnames auth.ApplicationServername) dpsauth.Params {
-	return dpsauth.Params{
-		SDDCProtocol:   v.GetString(HTTPSDDCProtocolFlag),
-		SDDCHostname:   appnames.SddcServername,
-		SDDCPort:       v.GetInt(HTTPSDDCPortFlag),
-		SecretKey:      v.GetString(DPSAuthSecretKeyFlag),
-		DPSRedirectURL: v.GetString(DPSRedirectURLFlag),
-		CookieName:     v.GetString(DPSCookieNameFlag),
-		CookieDomain:   v.GetString(DPSCookieDomainFlag),
-		CookieSecret:   []byte(v.GetString(DPSAuthCookieSecretKeyFlag)),
-		CookieExpires:  v.GetInt(DPSCookieExpiresInMinutesFlag),
-	}
 }
 
 // CheckDPS validates DPS command line flags

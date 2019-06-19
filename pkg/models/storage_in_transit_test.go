@@ -45,7 +45,7 @@ func (suite *ModelSuite) TestStorageInTransitValidations() {
 			WarehouseID:         "000383",
 			WarehouseName:       "Hercules Hauling",
 			WarehouseAddressID:  uuid,
-			WarehousePhone:      swag.String("(713) 868-3497"),
+			WarehousePhone:      swag.String("713-868-3497"),
 			WarehouseEmail:      swag.String("joe@herculeshauling.com"),
 			Status:              "APPROVED",
 			AuthorizedStartDate: nil,
@@ -67,7 +67,7 @@ func (suite *ModelSuite) TestStorageInTransitValidations() {
 			WarehouseID:         "000383",
 			WarehouseName:       "Hercules Hauling",
 			WarehouseAddressID:  uuid,
-			WarehousePhone:      swag.String("(713) 868-3497"),
+			WarehousePhone:      swag.String("713-868-3497"),
 			WarehouseEmail:      swag.String("joe@herculeshauling.com"),
 			Status:              "APPROVED",
 			AuthorizedStartDate: &authorizedStartDate,
@@ -191,4 +191,41 @@ func (suite *ModelSuite) TestSaveStorageInTransitAndAddress() {
 	suite.Equal(storageInTransit.WarehouseName, savedStorageInTransit.WarehouseName)
 	suite.Equal(*storageInTransit.WarehousePhone, *savedStorageInTransit.WarehousePhone)
 	suite.Equal(*storageInTransit.WarehouseEmail, *savedStorageInTransit.WarehouseEmail)
+}
+
+func (suite *ModelSuite) TestDeliverStorageInTransit() {
+	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{})
+
+	startDate := testdatagen.DateInsidePerformancePeriod
+
+	storageInTransit := testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID:          shipment.ID,
+			EstimatedStartDate:  startDate,
+			AuthorizedStartDate: &startDate,
+			ActualStartDate:     &startDate,
+			Status:              models.StorageInTransitStatusINSIT,
+		},
+	})
+	deliveryDate := startDate.Add(testdatagen.OneWeek)
+
+	err := storageInTransit.Deliver(deliveryDate)
+
+	suite.Nil(err)
+	suite.Equal(models.StorageInTransitStatusDELIVERED, storageInTransit.Status)
+	suite.Equal(&deliveryDate, storageInTransit.OutDate)
+
+	// Test an undeliverable SIT throws error
+	storageInTransit = testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			Location:            models.StorageInTransitLocationORIGIN,
+			ShipmentID:          shipment.ID,
+			EstimatedStartDate:  startDate,
+			AuthorizedStartDate: &startDate,
+			ActualStartDate:     &startDate,
+			Status:              models.StorageInTransitStatusINSIT,
+		},
+	})
+	err = storageInTransit.Deliver(deliveryDate)
+	suite.Error(err)
 }

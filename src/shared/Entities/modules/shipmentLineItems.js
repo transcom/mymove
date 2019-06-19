@@ -10,6 +10,7 @@ export const createShipmentLineItemLabel = 'ShipmentLineItems.createShipmentLine
 export const deleteShipmentLineItemLabel = 'ShipmentLineItems.deleteShipmentLineItem';
 export const approveShipmentLineItemLabel = 'ShipmentLineItems.approveShipmentLineItem';
 export const updateShipmentLineItemLabel = 'ShipmentLineItems.updateShipmentLineItem';
+export const recalculateShipmentLineItemsLabel = 'ShipmentLineItems.recalculateShipmentLineItems';
 
 export function createShipmentLineItem(shipmentId, payload, label = createShipmentLineItemLabel) {
   return swaggerRequest(getPublicClient, 'accessorials.createShipmentLineItem', { shipmentId, payload }, { label });
@@ -34,6 +35,26 @@ export function approveShipmentLineItem(shipmentLineItemId, label = approveShipm
 
 export function getAllShipmentLineItems(shipmentId, label = getShipmentLineItemsLabel) {
   return swaggerRequest(getPublicClient, 'accessorials.getShipmentLineItems', { shipmentId }, { label });
+}
+
+export function recalculateShipmentLineItems(shipmentId, label = recalculateShipmentLineItemsLabel) {
+  return swaggerRequest(getPublicClient, 'accessorials.recalculateShipmentLineItems', { shipmentId }, { label });
+}
+
+export function fetchAndCalculateShipmentLineItems(shipmentId, shipmentStatus) {
+  return async function(dispatch) {
+    let result = await dispatch(getAllShipmentLineItems(shipmentId));
+    if (result.response.ok && shipmentStatus === 'DELIVERED') {
+      const lineItems = result.response.body;
+      const lineItem = lineItems.find(item => !item.invoice_id);
+      if (lineItem) {
+        // recalculate shipment line items if no invoice and shipment delivered
+        result = dispatch(recalculateShipmentLineItems(shipmentId));
+      }
+    }
+
+    return result;
+  };
 }
 
 // Show linehaul (and related) items before any accessorial items by adding isLinehaul property.

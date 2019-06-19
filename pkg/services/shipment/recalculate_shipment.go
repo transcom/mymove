@@ -24,5 +24,5 @@ func (c RecalculateShipment) Call(shipment *models.Shipment) (*validate.Errors, 
 		zap.Any("shipment.Status", shipment.Status))
 
 	// Re-price Shipment
-	return PriceShipment{DB: c.DB, Engine: c.Engine, Planner: c.Planner}.Call(shipment, ShipmentPriceRECALCULATE)
+	return NewShipmentPricer(c.DB, c.Engine, c.Planner).PriceShipment(shipment, ShipmentPriceRECALCULATE)
 }

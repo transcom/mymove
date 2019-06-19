@@ -16,6 +16,7 @@ describe('TSP User Ships a Shipment', function() {
     tspUserCancelsEnteringADeliveryDate();
     tspUserEntersADeliveryDate();
     tspUserVerifiesShipmentStatus('Delivered');
+    tspUserVerifiesSITStatus();
   });
 });
 
@@ -64,6 +65,13 @@ function tspUserEntersADeliveryDate() {
   cy.get('button').should('not.contain', 'Enter Delivery');
 }
 
+function tspUserVerifiesSITStatus() {
+  // IN_SIT Destination Sits are in delivered status and have an out date
+  cy.get('[data-cy=storage-in-transit-panel]').contains('SIT Delivered');
+
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-dates]').contains('Date out');
+}
+
 function tspUserVisitsAnInTransitShipment(locator) {
   cy.patientVisit('/queues/in_transit');
 
@@ -80,11 +88,11 @@ function tspUserEntersPackAndPickUpInfo() {
   // Open approved shipments queue
   cy
     .get('div')
-    .contains('Approved Shipments')
+    .contains('All Shipments')
     .click();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/approved/);
+    expect(loc.pathname).to.match(/^\/queues\/all/);
   });
 
   // Find shipment and open it

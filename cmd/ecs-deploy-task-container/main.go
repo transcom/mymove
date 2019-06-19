@@ -87,6 +87,7 @@ const (
 	repositoryNameFlag     string = "repository-name"
 	imageTagFlag           string = "image-tag"
 	commandFlag            string = "command"
+	commandArgsFlag        string = "command-args"
 )
 
 func initFlags(flag *pflag.FlagSet) {
@@ -112,10 +113,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.String(repositoryNameFlag, "", fmt.Sprintf("The name of the repository where the tagged image resides"))
 	flag.String(imageTagFlag, "", "The name of the image tag referenced in the task definition")
 	flag.String(commandFlag, "", fmt.Sprintf("The name of the command to run inside the docker container (choose %q)", commands))
-
-	// EIA Open Data API
-	// The EIA Key is set in the Local or CircleCI environment and not in Chamber.
-	cli.InitEIAFlags(flag)
+	flag.String(commandArgsFlag, "", "The space separated arguments for the command")
 
 	// Verbose
 	cli.InitVerboseFlags(flag)
@@ -226,10 +224,6 @@ func checkConfig(v *viper.Viper) error {
 		return errors.Wrap(&errInvalidCommand{Command: commandName}, fmt.Sprintf("%q is invalid", commandFlag))
 	}
 
-	if err := cli.CheckEIA(v); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -240,6 +234,53 @@ func quit(logger *log.Logger, flag *pflag.FlagSet, err error) {
 		flag.PrintDefaults()
 	}
 	os.Exit(1)
+}
+
+func buildContainerEnvironment(v *viper.Viper, environmentName string, dbHost string) []*ecs.KeyValuePair {
+	chamberKMSKeyAlias := v.GetString(chamberKMSKeyAliasFlag)
+	chamberUsePaths := v.GetInt(chamberUsePathsFlag)
+	return []*ecs.KeyValuePair{
+		{
+			Name:  aws.String("CHAMBER_KMS_KEY_ALIAS"),
+			Value: aws.String(chamberKMSKeyAlias),
+		},
+		{
+			Name:  aws.String("CHAMBER_USE_PATHS"),
+			Value: aws.String(strconv.Itoa(chamberUsePaths)),
+		},
+		{
+			Name:  aws.String("ENV"),
+			Value: aws.String("container"),
+		},
+		{
+			Name:  aws.String("ENVIRONMENT"),
+			Value: aws.String(environmentName),
+		},
+		{
+			Name:  aws.String("DB_HOST"),
+			Value: aws.String(dbHost),
+		},
+		{
+			Name:  aws.String("DB_PORT"),
+			Value: aws.String(os.Getenv("DB_PORT")),
+		},
+		{
+			Name:  aws.String("DB_USER"),
+			Value: aws.String(os.Getenv("DB_USER")),
+		},
+		{
+			Name:  aws.String("DB_NAME"),
+			Value: aws.String(os.Getenv("DB_NAME")),
+		},
+		{
+			Name:  aws.String("DB_SSL_MODE"),
+			Value: aws.String(os.Getenv("DB_SSL_MODE")),
+		},
+		{
+			Name:  aws.String("DB_SSL_ROOT_CERT"),
+			Value: aws.String(os.Getenv("DB_SSL_ROOT_CERT")),
+		},
+	}
 }
 
 func main() {
@@ -295,6 +336,7 @@ func main() {
 
 	// Get the current task definition (for rollback)
 	commandName := v.GetString(commandFlag)
+	commandArgs := strings.Split(v.GetString(commandArgsFlag), " ")
 	ruleName := fmt.Sprintf("%s-%s", commandName, v.GetString(environmentFlag))
 	targetsOutput, err := serviceCloudWatchEvents.ListTargetsByRule(&cloudwatchevents.ListTargetsByRuleInput{
 		Rule: aws.String(ruleName),
@@ -365,13 +407,7 @@ func main() {
 	// Chamber Settings
 	chamberBinary := v.GetString(chamberBinaryFlag)
 	chamberRetries := v.GetInt(chamberRetriesFlag)
-	chamberKMSKeyAlias := v.GetString(chamberKMSKeyAliasFlag)
-	chamberUsePaths := v.GetInt(chamberUsePathsFlag)
 	chamberStore := fmt.Sprintf("%s-%s", serviceName, environmentName)
-
-	// Tool Settings
-	eiaKey := v.GetString(cli.EIAKeyFlag)
-	eiaURL := v.GetString(cli.EIAURLFlag)
 
 	// Register the new task definition
 	newTaskDefOutput, err := serviceECS.RegisterTaskDefinition(&ecs.RegisterTaskDefinitionInput{
@@ -389,57 +425,8 @@ func main() {
 					aws.String("--"),
 					aws.String(fmt.Sprintf("/bin/%s", commandName)),
 				},
-				Command: []*string{},
-				Environment: []*ecs.KeyValuePair{
-					{
-						Name:  aws.String("ENV"),
-						Value: aws.String("container"),
-					},
-					{
-						Name:  aws.String("ENVIRONMENT"),
-						Value: aws.String(environmentName),
-					},
-					{
-						Name:  aws.String("DB_HOST"),
-						Value: aws.String(dbHost),
-					},
-					{
-						Name:  aws.String("DB_PORT"),
-						Value: aws.String("5432"),
-					},
-					{
-						Name:  aws.String("DB_USER"),
-						Value: aws.String("master"),
-					},
-					{
-						Name:  aws.String("DB_NAME"),
-						Value: aws.String("app"),
-					},
-					{
-						Name:  aws.String("DB_SSL_MODE"),
-						Value: aws.String("verify-full"),
-					},
-					{
-						Name:  aws.String("DB_SSL_ROOT_CERT"),
-						Value: aws.String("/bin/rds-combined-ca-bundle.pem"),
-					},
-					{
-						Name:  aws.String("CHAMBER_KMS_KEY_ALIAS"),
-						Value: aws.String(chamberKMSKeyAlias),
-					},
-					{
-						Name:  aws.String("CHAMBER_USE_PATHS"),
-						Value: aws.String(strconv.Itoa(chamberUsePaths)),
-					},
-					{
-						Name:  aws.String("EIA_KEY"),
-						Value: aws.String(eiaKey),
-					},
-					{
-						Name:  aws.String("EIA_URL"),
-						Value: aws.String(eiaURL),
-					},
-				},
+				Command:     aws.StringSlice(commandArgs),
+				Environment: buildContainerEnvironment(v, environmentName, dbHost),
 				LogConfiguration: &ecs.LogConfiguration{
 					LogDriver: aws.String("awslogs"),
 					Options: map[string]*string{

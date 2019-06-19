@@ -30,7 +30,7 @@ func MakeStorageInTransit(db *pop.Connection, assertions Assertions) models.Stor
 		WarehouseID:        "000383",
 		WarehouseName:      "Hercules Hauling",
 		WarehouseAddressID: address.ID,
-		WarehousePhone:     swag.String("(713) 868-3497"),
+		WarehousePhone:     swag.String("713-868-3497"),
 		WarehouseEmail:     swag.String("joe@herculeshauling.com"),
 		Shipment:           shipment,
 		WarehouseAddress:   address,

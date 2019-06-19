@@ -10,6 +10,7 @@ import {
   selectUnbilledShipmentLineItems,
   selectTotalFromUnbilledLineItems,
   getAllShipmentLineItems,
+  recalculateShipmentLineItemsLabel,
 } from 'shared/Entities/modules/shipmentLineItems';
 import {
   selectSortedInvoices,
@@ -24,6 +25,7 @@ import { isError, isLoading, isSuccess } from 'shared/constants';
 import { getLastError } from 'shared/Swagger/selectors';
 
 import styles from './InvoicePanel.module.scss';
+import Alert from 'shared/Alert';
 
 export class InvoicePanel extends PureComponent {
   constructor(props) {
@@ -57,9 +59,16 @@ export class InvoicePanel extends PureComponent {
     const allowPayments = !this.props.invoices || !this.props.invoices.length;
     const hasUnbilled = Boolean(get(this.props, 'unbilledShipmentLineItems.length'));
     const hasInvoices = Boolean(get(this.props, 'invoices.length'));
+    const errroHeaderStyle = styles['error--header'];
+
     return (
       <div className={styles['invoice-panel']} data-cy="invoice-panel">
         <BasicPanel title="Invoicing">
+          {this.props.shipmentRecalculationError && (
+            <Alert type="error" heading="Shipment recalculation failed">
+              <span className={errroHeaderStyle}>{this.props.shipmentRecalculationError}</span>
+            </Alert>
+          )}
           <InvoicePaymentAlert
             createInvoiceStatus={this.state.createInvoiceRequestStatus}
             lastInvoiceError={this.props.lastInvoiceError}
@@ -103,6 +112,10 @@ const mapStateToProps = (state, ownProps) => {
     unbilledLineItemsTotal: isShipmentDelivered ? selectTotalFromUnbilledLineItems(state, ownProps.shipmentId) : 0,
     isShipmentDelivered: isShipmentDelivered,
     lastInvoiceError: getLastError(state, createInvoiceLabel),
+    shipmentRecalculationError: get(
+      getLastError(state, recalculateShipmentLineItemsLabel),
+      'response.response.body.message',
+    ),
   };
 };
 

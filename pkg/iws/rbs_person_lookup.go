@@ -12,7 +12,10 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/spf13/viper"
 	"go.mozilla.org/pkcs7"
+
+	"github.com/transcom/mymove/pkg/cli"
 )
 
 // RBSPersonLookup handles requests to the Real-Time Broker Service
@@ -247,4 +250,13 @@ func recordFromResponse(data []byte) (Record, error) {
 		return rec, unmarshalErr
 	}
 	return rec, nil
+}
+
+// InitRBSPersonLookup is the RBS Person Lookup service
+func InitRBSPersonLookup(v *viper.Viper, logger Logger) (*RBSPersonLookup, error) {
+	return NewRBSPersonLookup(
+		v.GetString(cli.IWSRBSHostFlag),
+		v.GetString(cli.DoDCAPackageFlag),
+		v.GetString(cli.MoveMilDoDTLSCertFlag),
+		v.GetString(cli.MoveMilDoDTLSKeyFlag))
 }

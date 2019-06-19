@@ -21,7 +21,10 @@ import {
   generateGBLLabel,
 } from 'shared/Entities/modules/shipmentDocuments';
 import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
-import { getAllShipmentLineItems, selectSortedShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
+import {
+  selectSortedShipmentLineItems,
+  fetchAndCalculateShipmentLineItems,
+} from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
 import { getStorageInTransitsForShipment } from 'shared/Entities/modules/storageInTransits';
@@ -35,6 +38,7 @@ import {
   completePmSurvey,
   transportShipment,
   deliverShipment,
+  selectShipmentStatus,
 } from 'shared/Entities/modules/shipments';
 import {
   getServiceAgentsForShipment,
@@ -176,7 +180,6 @@ class ShipmentInfo extends Component {
 
   componentDidMount() {
     const shipmentId = this.props.shipmentId;
-
     this.props
       .getPublicShipment(shipmentId)
       .then(() => {
@@ -184,7 +187,7 @@ class ShipmentInfo extends Component {
         this.props.getTspForShipment(shipmentId);
         this.props.getAllShipmentDocuments(shipmentId);
         this.props.getAllTariff400ngItems(true);
-        this.props.getAllShipmentLineItems(shipmentId);
+        this.props.fetchAndCalculateShipmentLineItems(shipmentId, this.props.shipmentStatus);
         this.props.getAllInvoices(shipmentId);
         if (this.props.context.flags.sitPanel) {
           this.props.getStorageInTransitsForShipment(shipmentId);
@@ -229,7 +232,10 @@ class ShipmentInfo extends Component {
 
   deliverShipment = values => {
     this.props.deliverShipment(this.props.shipment.id, values).then(() => {
-      this.props.getAllShipmentLineItems(this.props.shipment.id);
+      this.props.fetchAndCalculateShipmentLineItems(this.props.shipment.id, this.props.shipment.status);
+      if (this.props.context.flags.sitPanel) {
+        this.props.getStorageInTransitsForShipment(this.props.shipment.id);
+      }
     });
   };
 
@@ -484,6 +490,7 @@ const mapStateToProps = (state, props) => {
   return {
     swaggerError: state.swaggerPublic.hasErrored,
     shipment,
+    shipmentStatus: selectShipmentStatus(state, shipmentId),
     shipmentDocuments,
     gblGenerated,
     tariff400ngItems: selectTariff400ngItems(state),
@@ -520,7 +527,7 @@ const mapDispatchToProps = dispatch =>
       deliverShipment,
       getAllShipmentDocuments,
       getAllTariff400ngItems,
-      getAllShipmentLineItems,
+      fetchAndCalculateShipmentLineItems,
       getAllInvoices,
       getTspForShipment,
       resetRequests,

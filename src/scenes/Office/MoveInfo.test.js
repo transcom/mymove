@@ -49,11 +49,11 @@ describe('ShipmentInfo tests', () => {
       wrapper = mount(
         <Provider store={store}>
           <MockRouter push={jest.fn()}>
-            <ReferrerQueueLink history={{ location: { state: { referrerPathname: '/queues/hhg_accepted' } } }} />
+            <ReferrerQueueLink history={{ location: { state: { referrerPathname: '/queues/hhg_approved' } } }} />
           </MockRouter>
         </Provider>,
       );
-      expect(wrapper.text()).toEqual('Accepted HHG Queue');
+      expect(wrapper.text()).toEqual('Approved HHG Queue');
     });
     it('when no referrer is set', () => {
       wrapper = mount(

@@ -297,12 +297,6 @@ function officeUserApprovesMoveAndPPM(moveLocator) {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
 
-  // Open PPMs Queue
-  cy
-    .get('span')
-    .contains('PPMs')
-    .click();
-
   // Find move and open it
   cy.selectQueueItemMoveLocator(moveLocator);
 

@@ -44,7 +44,7 @@ type StorageInTransitInSITPlacer interface {
 // StorageInTransitDeliverer is the service object for delivering a Storage In Transit
 //go:generate mockery -name StorageInTransitDeliverer
 type StorageInTransitDeliverer interface {
-	DeliverStorageInTransit(shipmentID uuid.UUID, session *auth.Session, storageInTransitID uuid.UUID) (*models.StorageInTransit, *validate.Errors, error)
+	DeliverStorageInTransits(shipmentID uuid.UUID, tspID uuid.UUID) ([]models.StorageInTransit, *validate.Errors, error)
 }
 
 // StorageInTransitReleaser is the service object for releasing a Storage In Transit

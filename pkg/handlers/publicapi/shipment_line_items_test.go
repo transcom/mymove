@@ -1,6 +1,17 @@
 package publicapi
 
 import (
+	"fmt"
+
+	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/route"
+
+	"github.com/transcom/mymove/mocks"
+
+	"github.com/transcom/mymove/pkg/auth"
+
+	"net/http"
 	"net/http/httptest"
 	"time"
 
@@ -11,6 +22,10 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	accessorialop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/accessorials"
+	shipmentlineitemservice "github.com/transcom/mymove/pkg/services/shipment_line_item"
+
+	"github.com/pkg/errors"
+
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -22,6 +37,186 @@ func makePreApprovalItem(db *pop.Connection) models.Tariff400ngItem {
 	item.RequiresPreApproval = true
 	db.Save(&item)
 	return item
+}
+
+func (suite *HandlerSuite) TestRecalculateShipmentLineItemsHandler() {
+	// Set up a bunch of placeholder IDs for our mock
+	shipmentID, _ := uuid.NewV4()
+	officeUserID, _ := uuid.NewV4()
+	userIDForOfficeUser, _ := uuid.NewV4()
+	officeUser := models.OfficeUser{ID: officeUserID, UserID: &userIDForOfficeUser}
+	shipmentLineItemID1, _ := uuid.NewV4()
+	shipmentLineItemID2, _ := uuid.NewV4()
+	tariff400ID1, _ := uuid.NewV4()
+	tariff400ID2, _ := uuid.NewV4()
+
+	// Configure our http request
+	path := fmt.Sprintf("/shipments/%s/accessorials/recalculate", shipmentID)
+	req := httptest.NewRequest("GET", path, nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	// Initialize our mock service
+	shipmentLineItemRecalculator := &mocks.ShipmentLineItemRecalculator{}
+
+	handler := RecalculateShipmentLineItemsHandler{
+		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		shipmentLineItemRecalculator,
+	}
+	// Build out params object using our http request
+	params := accessorialop.RecalculateShipmentLineItemsParams{
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipmentID.String()),
+	}
+
+	// What we want the handler to return in the event of a 200
+	returnShipmentLineItems := []models.ShipmentLineItem{
+		{
+			ID:            shipmentLineItemID1,
+			SubmittedDate: testdatagen.DateInsidePeakRateCycle,
+			Tariff400ngItem: models.Tariff400ngItem{
+				ID:        tariff400ID1,
+				CreatedAt: testdatagen.DateInsidePeakRateCycle,
+				UpdatedAt: testdatagen.DateInsidePeakRateCycle,
+			},
+		},
+		{
+			ID:            shipmentLineItemID2,
+			SubmittedDate: testdatagen.DateInsidePeakRateCycle,
+			Tariff400ngItem: models.Tariff400ngItem{
+				ID:        tariff400ID2,
+				CreatedAt: testdatagen.DateInsidePeakRateCycle,
+				UpdatedAt: testdatagen.DateInsidePeakRateCycle,
+			},
+		},
+	}
+
+	// Happy Path using office user
+	shipmentLineItemRecalculator.On("RecalculateShipmentLineItems",
+		shipmentID,
+		auth.SessionFromRequestContext(params.HTTPRequest),
+		nil,
+	).Return(returnShipmentLineItems, nil).Once()
+
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&accessorialop.RecalculateShipmentLineItemsOK{}, response)
+	responsePayload := response.(*accessorialop.RecalculateShipmentLineItemsOK).Payload
+	suite.Equal(2, len(responsePayload))
+
+	// Forbidden
+	expectedError := models.ErrFetchForbidden
+	shipmentLineItemRecalculator.On("RecalculateShipmentLineItems",
+		shipmentID,
+		auth.SessionFromRequestContext(params.HTTPRequest),
+		nil,
+	).Return(nil, expectedError).Once()
+
+	response = handler.Handle(params)
+	expectedResponse := &handlers.ErrResponse{
+		Code: http.StatusForbidden,
+		Err:  expectedError,
+	}
+	suite.Equal(expectedResponse, response)
+
+	// 500 error. Product wants this to come back as a 500 for a bad zip code in this situation.
+	expectedError = route.NewUnsupportedPostalCodeError("00000")
+	shipmentLineItemRecalculator.On("RecalculateShipmentLineItems",
+		shipmentID,
+		auth.SessionFromRequestContext(params.HTTPRequest),
+		nil,
+	).Return(nil, expectedError).Once()
+
+	response = handler.Handle(params)
+	expectedResponse = &handlers.ErrResponse{
+		Code: http.StatusInternalServerError,
+		Err:  expectedError,
+	}
+	suite.Assert().IsType(&handlers.ErrResponse{}, response)
+}
+
+func (suite *HandlerSuite) TestGetShipmentLineItemsHandler() {
+	// Set up a bunch of placeholder IDs for our mock
+	shipmentID, _ := uuid.NewV4()
+	officeUserID, _ := uuid.NewV4()
+	userIDForOfficeUser, _ := uuid.NewV4()
+	officeUser := models.OfficeUser{ID: officeUserID, UserID: &userIDForOfficeUser}
+	shipmentLineItemID1, _ := uuid.NewV4()
+	shipmentLineItemID2, _ := uuid.NewV4()
+	tariff400ID1, _ := uuid.NewV4()
+	tariff400ID2, _ := uuid.NewV4()
+
+	// Configure our http request
+	path := fmt.Sprintf("/shipments/%s/accessorials/", shipmentID)
+	req := httptest.NewRequest("GET", path, nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	// Initialize our mock service
+	shipmentLineItemsFetcher := &mocks.ShipmentLineItemFetcher{}
+
+	handler := GetShipmentLineItemsHandler{
+		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		shipmentLineItemsFetcher,
+	}
+	// Build out params object using our http request
+	params := accessorialop.GetShipmentLineItemsParams{
+		HTTPRequest: req,
+		ShipmentID:  strfmt.UUID(shipmentID.String()),
+	}
+
+	// What we want the handler to return in the event of a 200
+	returnShipmentLineItems := []models.ShipmentLineItem{
+		{
+			ID:            shipmentLineItemID1,
+			SubmittedDate: testdatagen.DateInsidePeakRateCycle,
+			Tariff400ngItem: models.Tariff400ngItem{
+				ID:        tariff400ID1,
+				CreatedAt: testdatagen.DateInsidePeakRateCycle,
+				UpdatedAt: testdatagen.DateInsidePeakRateCycle,
+			},
+		},
+		{
+			ID:            shipmentLineItemID2,
+			SubmittedDate: testdatagen.DateInsidePeakRateCycle,
+			Tariff400ngItem: models.Tariff400ngItem{
+				ID:        tariff400ID2,
+				CreatedAt: testdatagen.DateInsidePeakRateCycle,
+				UpdatedAt: testdatagen.DateInsidePeakRateCycle,
+			},
+		},
+	}
+
+	// Happy Path using office user
+	shipmentLineItemsFetcher.On("GetShipmentLineItemsByShipmentID",
+		shipmentID,
+		auth.SessionFromRequestContext(params.HTTPRequest),
+	).Return(returnShipmentLineItems, nil).Once()
+
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&accessorialop.GetShipmentLineItemsOK{}, response)
+	responsePayload := response.(*accessorialop.GetShipmentLineItemsOK).Payload
+	suite.Equal(2, len(responsePayload))
+
+	// Error 403
+	expectedError := models.ErrFetchForbidden
+	shipmentLineItemsFetcher.On("GetShipmentLineItemsByShipmentID",
+		shipmentID,
+		auth.SessionFromRequestContext(params.HTTPRequest),
+	).Return(nil, expectedError).Once()
+
+	response = handler.Handle(params)
+	expectedResponse := &handlers.ErrResponse{
+		Code: http.StatusForbidden,
+		Err:  expectedError,
+	}
+	suite.Equal(expectedResponse, response)
+
+	// Any error using office user
+	shipmentLineItemsFetcher.On("GetShipmentLineItemsByShipmentID",
+		shipmentID,
+		auth.SessionFromRequestContext(params.HTTPRequest),
+	).Return([]models.ShipmentLineItem{}, errors.New("test error")).Once()
+
+	response = handler.Handle(params)
+	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
 }
 
 func (suite *HandlerSuite) TestGetShipmentLineItemTSPHandler() {
@@ -53,7 +248,7 @@ func (suite *HandlerSuite) TestGetShipmentLineItemTSPHandler() {
 	}
 
 	// And: get shipment is returned
-	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), shipmentlineitemservice.NewShipmentLineItemFetcher(suite.DB())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -83,7 +278,7 @@ func (suite *HandlerSuite) TestGetShipmentLineItemOfficeHandler() {
 	}
 
 	// And: get shipment is returned
-	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), shipmentlineitemservice.NewShipmentLineItemFetcher(suite.DB())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -121,7 +316,7 @@ func (suite *HandlerSuite) TestGetShipmentLineItemRecalculateHandler() {
 	suite.MustCreate(suite.DB(), &recalculateRange)
 
 	// And: get shipment is returned
-	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	handler := GetShipmentLineItemsHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger()), shipmentlineitemservice.NewShipmentLineItemFetcher(suite.DB())}
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code

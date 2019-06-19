@@ -10,10 +10,13 @@ import (
 	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/rateengine"
 
 	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
 	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
+	shipmentservice "github.com/transcom/mymove/pkg/services/shipment"
+	shipmentlineitemservice "github.com/transcom/mymove/pkg/services/shipment_line_item"
 	sitservice "github.com/transcom/mymove/pkg/services/storage_in_transit"
 )
 
@@ -43,18 +46,27 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.ShipmentsPatchShipmentHandler = PatchShipmentHandler{context}
 	publicAPI.ShipmentsAcceptShipmentHandler = AcceptShipmentHandler{context}
 	publicAPI.ShipmentsTransportShipmentHandler = TransportShipmentHandler{context}
-	publicAPI.ShipmentsDeliverShipmentHandler = DeliverShipmentHandler{context}
+
+	engine := rateengine.NewRateEngine(context.DB(), context.Logger())
+	publicAPI.ShipmentsDeliverShipmentHandler = DeliverShipmentHandler{
+		context, shipmentservice.NewShipmentDeliverAndPricer(
+			context.DB(),
+			engine,
+			context.Planner(),
+		)}
+
 	publicAPI.ShipmentsGetShipmentInvoicesHandler = GetShipmentInvoicesHandler{context}
 
 	publicAPI.ShipmentsCompletePmSurveyHandler = CompletePmSurveyHandler{context}
 	publicAPI.ShipmentsCreateGovBillOfLadingHandler = CreateGovBillOfLadingHandler{context, paperworkservice.NewFormCreator(context.FileStorer().TempFileSystem(), paperwork.NewFormFiller())}
 
 	// Accessorials
-	publicAPI.AccessorialsGetShipmentLineItemsHandler = GetShipmentLineItemsHandler{context}
+	publicAPI.AccessorialsGetShipmentLineItemsHandler = GetShipmentLineItemsHandler{context, shipmentlineitemservice.NewShipmentLineItemFetcher(context.DB())}
 	publicAPI.AccessorialsUpdateShipmentLineItemHandler = UpdateShipmentLineItemHandler{context}
 	publicAPI.AccessorialsCreateShipmentLineItemHandler = CreateShipmentLineItemHandler{context}
 	publicAPI.AccessorialsDeleteShipmentLineItemHandler = DeleteShipmentLineItemHandler{context}
 	publicAPI.AccessorialsApproveShipmentLineItemHandler = ApproveShipmentLineItemHandler{context}
+	publicAPI.AccessorialsRecalculateShipmentLineItemsHandler = RecalculateShipmentLineItemsHandler{context, shipmentlineitemservice.NewShipmentLineItemRecalculator(context.DB(), context.Logger())}
 
 	publicAPI.AccessorialsGetTariff400ngItemsHandler = GetTariff400ngItemsHandler{context}
 	publicAPI.AccessorialsGetInvoiceHandler = GetInvoiceHandler{context}
@@ -105,10 +117,6 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.StorageInTransitsReleaseStorageInTransitHandler = ReleaseStorageInTransitHandler{
 		context,
 		sitservice.NewStorageInTransitInReleaser(context.DB()),
-	}
-	publicAPI.StorageInTransitsDeliverStorageInTransitHandler = DeliverStorageInTransitHandler{
-		context,
-		sitservice.NewStorageInTransitInDeliverer(context.DB()),
 	}
 
 	// Access Codes

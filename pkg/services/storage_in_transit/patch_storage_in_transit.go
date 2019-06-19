@@ -45,6 +45,9 @@ func patchStorageInTransitWithPayload(storageInTransit *models.StorageInTransit,
 
 	storageInTransit.WarehousePhone = handlers.FmtStringPtrNonEmpty(payload.WarehousePhone)
 	storageInTransit.WarehouseEmail = handlers.FmtStringPtrNonEmpty(payload.WarehouseEmail)
+
+	storageInTransit.ActualStartDate = (*time.Time)(payload.ActualStartDate)
+	storageInTransit.OutDate = (*time.Time)(payload.OutDate)
 }
 
 // PatchStorageInTransit edits an existing storage in transit and returns the updated object.
