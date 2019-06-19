@@ -4290,7 +4290,6 @@ paths:
           type: string
           enum:
             - new
-            - troubleshooting
             - ppm
             - hhg_approved
             - hhg_delivered
@@ -4310,6 +4309,8 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to access this queue
+        404:
+          description: move queue item is not found
   /entitlements:
     get:
       summary: List weight weights allotted by entitlement
