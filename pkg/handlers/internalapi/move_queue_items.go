@@ -3,6 +3,8 @@ package internalapi
 import (
 	"fmt"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
@@ -63,11 +65,14 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 
 	MoveQueueItemPayloads := make([]*internalmessages.MoveQueueItem, len(MoveQueueItems))
 	for i, MoveQueueItem := range MoveQueueItems {
-		storageInTransits, err := h.storageInTransitsIndexer.IndexStorageInTransits(MoveQueueItem.ShipmentID, session)
+		var storageInTransits []models.StorageInTransit
+		if MoveQueueItem.ShipmentID != uuid.Nil {
+			storageInTransits, err = h.storageInTransitsIndexer.IndexStorageInTransits(MoveQueueItem.ShipmentID, session)
 
-		if err != nil {
-			h.Logger().Error(fmt.Sprintf("SITs Retrieval failed for shipment: %s", MoveQueueItem.ShipmentID), zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			if err != nil {
+				h.Logger().Error(fmt.Sprintf("SITs Retrieval failed for shipment: %s", MoveQueueItem.ShipmentID), zap.Error(err))
+				return handlers.ResponseForError(h.Logger(), err)
+			}
 		}
 
 		storageInTransitsList := make(internalmessages.StorageInTransits, len(storageInTransits))
@@ -78,6 +83,7 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 
 		MoveQueueItemPayload := payloadForMoveQueueItem(MoveQueueItem, storageInTransitsList)
 		MoveQueueItemPayloads[i] = MoveQueueItemPayload
+
 	}
 	return queueop.NewShowQueueOK().WithPayload(MoveQueueItemPayloads)
 }
