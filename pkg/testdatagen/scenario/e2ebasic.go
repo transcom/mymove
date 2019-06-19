@@ -2563,7 +2563,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	/*
 	 * Service member with accepted move for use in testing the deletion of SIT
 	 */
-	email = "hhg@sit.todelete"
+	email = "hhg@sit.todeliver"
 	offer44 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("76616087-713d-4837-8941-f2b73f532a10")),
@@ -2612,6 +2612,58 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	 */
 	email45 := "enter@delivery.sit"
 
+	pickupAddress := models.Address{
+		StreetAddress1: "9611 Highridge Dr",
+		StreetAddress2: swag.String("P.O. Box 12345"),
+		StreetAddress3: swag.String("c/o Some Person"),
+		City:           "Beverly Hills",
+		State:          "CA",
+		PostalCode:     "90210",
+		Country:        swag.String("US"),
+	}
+	pickupAddress = testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: pickupAddress,
+	})
+
+	destAddress := models.Address{
+		StreetAddress1: "2157 Willhaven Dr ",
+		StreetAddress2: swag.String(""),
+		StreetAddress3: swag.String(""),
+		City:           "Augusta",
+		State:          "GA",
+		PostalCode:     "30909",
+		Country:        swag.String("US"),
+	}
+	destAddress = testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: destAddress,
+	})
+
+	sitOriginAddress := models.Address{
+		StreetAddress1: "1860 Vine St",
+		StreetAddress2: swag.String(""),
+		StreetAddress3: swag.String(""),
+		City:           "Los Angeles",
+		State:          "CA",
+		PostalCode:     "90028",
+		Country:        swag.String("US"),
+	}
+	sitOriginAddress = testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: sitOriginAddress,
+	})
+
+	sitDestinationAddress := models.Address{
+		StreetAddress1: "1045 Bertram Rd",
+		StreetAddress2: swag.String(""),
+		StreetAddress3: swag.String(""),
+		City:           "Augusta",
+		State:          "GA",
+		PostalCode:     "30909",
+		Country:        swag.String("US"),
+	}
+	sitDestinationAddress = testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: sitDestinationAddress,
+	})
+
 	netWeight45 := unit.Pound(2000)
 	actualPickupDate45 := nextValidMoveDate
 	offer45 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
@@ -2622,7 +2674,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("1ff3f8f1-5381-4ab1-9b5b-46cc181d6abf"),
 			FirstName:     models.StringPointer("HHG"),
-			LastName:      models.StringPointer("ReadyForApprove"),
+			LastName:      models.StringPointer("ReadyForDelivery"),
 			Edipi:         models.StringPointer("4544567890"),
 			PersonalEmail: models.StringPointer(email),
 		},
@@ -2630,6 +2682,11 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			ID:               uuid.FromStringOrNil("2fcda8df-d913-460c-9cc2-c18105fae7fa"),
 			Locator:          "DELSIT",
 			SelectedMoveType: &selectedMoveTypeHHG,
+			Orders: models.Order{
+				NewDutyStation: models.DutyStation{
+					Address: destAddress,
+				},
+			},
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("8003d039-d692-4c6b-9d5f-3fd04494edf0"),
@@ -2641,6 +2698,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Status:           models.ShipmentStatusINTRANSIT,
 			NetWeight:        &netWeight45,
 			ActualPickupDate: &actualPickupDate45,
+			PickupAddress:    &pickupAddress,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -2649,31 +2707,62 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	})
 
 	hhg45 := offer45.Shipment
-	sitID45 := uuid.Must(uuid.NewV4())
-	authorizedStartDateOffer45 := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
-	sit45 := models.StorageInTransit{
-		ID:                  sitID45,
+	sitID45Destination := uuid.Must(uuid.NewV4())
+	authorizedStartDateOffer45Dest := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
+	sit45Destination := models.StorageInTransit{
+		ID:                  sitID45Destination,
 		ShipmentID:          hhg45.ID,
 		Shipment:            hhg45,
 		Location:            models.StorageInTransitLocationDESTINATION,
 		Status:              models.StorageInTransitStatusAPPROVED,
-		EstimatedStartDate:  authorizedStartDateOffer45,
-		AuthorizedStartDate: &authorizedStartDateOffer45,
-		ActualStartDate:     &authorizedStartDateOffer45,
+		EstimatedStartDate:  authorizedStartDateOffer45Dest,
+		AuthorizedStartDate: &authorizedStartDateOffer45Dest,
+		ActualStartDate:     &authorizedStartDateOffer45Dest,
+		WarehouseID:         "450384",
+		WarehouseName:       "Iron Guard Storage",
+		WarehouseAddress:    sitDestinationAddress,
 	}
 	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
-		StorageInTransit: sit45,
+		StorageInTransit: sit45Destination,
+	})
+
+	// Transition SIT to InSIT/IN_SIT
+	placeInSITParams45 := placeInSITParams{
+		SITID:           sit45Destination.ID,
+		ShipmentID:      hhg45.ID,
+		Shipment:        hhg45,
+		ActualStartDate: *sit45Destination.AuthorizedStartDate,
+	}
+	sitPlaceInSIT(db, placeInSITParams45, tspUserSession)
+
+	sitID45Origin := uuid.Must(uuid.NewV4())
+	authorizedStartDateOffer45Orig := time.Date(2019, time.Month(3), 2, 0, 0, 0, 0, time.UTC)
+	sit45Origin := models.StorageInTransit{
+		ID:                  sitID45Origin,
+		ShipmentID:          hhg45.ID,
+		Shipment:            hhg45,
+		Location:            models.StorageInTransitLocationORIGIN,
+		Status:              models.StorageInTransitStatusAPPROVED,
+		EstimatedStartDate:  authorizedStartDateOffer45Orig,
+		AuthorizedStartDate: &authorizedStartDateOffer45Orig,
+		ActualStartDate:     &authorizedStartDateOffer45Orig,
+		WarehouseID:         "450383",
+		WarehouseName:       "Extra Space Storage",
+		WarehouseAddress:    sitOriginAddress,
+	}
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: sit45Origin,
 	})
 
 	hhg45.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg45.Move)
 
 	// Transition SIT to InSIT/IN_SIT
-	placeInSITParams45 := placeInSITParams{
-		SITID:           sit45.ID,
+	placeInSITParams45 = placeInSITParams{
+		SITID:           sit45Origin.ID,
 		ShipmentID:      hhg45.ID,
 		Shipment:        hhg45,
-		ActualStartDate: *sit45.AuthorizedStartDate,
+		ActualStartDate: *sit45Origin.AuthorizedStartDate,
 	}
 	sitPlaceInSIT(db, placeInSITParams45, tspUserSession)
 

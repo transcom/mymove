@@ -83,8 +83,8 @@ var tariff400ngItemPricing = map[string]pricer{
 
 	// Below are SIT-related codes, uncomment after SIT is implemented
 	// SIT P/D OT
-	"210A": newBasicQuantityPricer(),
-	"210B": newBasicQuantityPricer(),
+	"210A": newFlatRatePricer(),
+	"210B": newFlatRatePricer(),
 	"210C": newFlatRatePricer(),
 	//"210D": newFlatRatePricer(),
 	//"210E": newFlatRatePricer(),
@@ -133,6 +133,12 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 		return FeeAndRate{}, errors.Wrapf(err, "Fetching 400ng service area from db for zip %s", zip)
 	}
 
+	re.logger.Debug("service Area:",
+		zap.Any("name", serviceArea.Name),
+		zap.Any("serviceArea", serviceArea.ServiceArea),
+		zap.Any("SIT PD Schedule", serviceArea.SITPDSchedule),
+		zap.Any("Service Schedule", serviceArea.ServicesSchedule))
+
 	var rateCents unit.Cents
 	if itemCode == "185A" {
 		// Rates for SIT are stored  on the service area
@@ -158,6 +164,28 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 		if err != nil {
 			re.logger.Error("Base Linehaul query didn't complete for 210C: ", zap.Error(err))
 		}
+	} else if itemCode == "210A" || itemCode == "210B" {
+		re.logger.Debug("Netweight",
+			zap.Any("netweight", shipment.NetWeight),
+			zap.Any("ToCWT", shipment.NetWeight.ToCWT()),
+			zap.Any("ToCWT().ToPounds()", shipment.NetWeight.ToCWT().ToPounds()))
+		cwtInPounds := shipment.NetWeight.ToCWT().ToPounds()
+		rate, err := models.FetchTariff400ngItemRate(re.db,
+			itemCode,
+			serviceArea.ServicesSchedule,
+			cwtInPounds,
+			*shipDate,
+		)
+		re.logger.Debug("FetchTariff400ngItemRate",
+			zap.String("effectiveItemCode", itemCode),
+			zap.Int("serviceArea.ServicesSchedule", serviceArea.ServicesSchedule),
+			zap.Int("weight", cwtInPounds.Int()),
+			zap.Any("shipDate", *shipDate),
+		)
+		if err != nil {
+			return FeeAndRate{}, errors.Wrapf(err, "Fetching 400ng item rate from db for item code %s with effective item code %s", itemCode, itemCode)
+		}
+		rateCents = rate.RateCents
 	} else {
 		// Most rates should be in the tariff400ngItemRates table though
 
@@ -173,11 +201,19 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 			*shipment.NetWeight,
 			*shipDate,
 		)
+		re.logger.Debug("FetchTariff400ngItemRate",
+			zap.String("effectiveItemCode", effectiveItemCode),
+			zap.Int("serviceArea.ServicesSchedule", serviceArea.ServicesSchedule),
+			zap.Int("weight", shipment.NetWeight.Int()),
+			zap.Any("shipDate", *shipDate),
+		)
 		if err != nil {
 			return FeeAndRate{}, errors.Wrapf(err, "Fetching 400ng item rate from db for item code %s with effective item code %s", itemCode, effectiveItemCode)
 		}
 		rateCents = rate.RateCents
 	}
+
+	re.logger.Debug("RateCents", zap.String("rate", rateCents.ToDollarString()))
 
 	// Make sure we have a ShipmentOffer and TSPP if we need to apply a discount
 	hasTSPP := len(shipment.ShipmentOffers) == 0 || shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.ID == uuid.Nil
@@ -191,6 +227,8 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 	} else if shipmentLineItem.Tariff400ngItem.DiscountType == models.Tariff400ngItemDiscountTypeSIT {
 		discountRate = &shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.SITRate
 	}
+
+	re.logger.Debug("discountRate", zap.Float64("discountRate", discountRate.Float64()))
 
 	// Weight-based items will pull final weight values from the shipment when available
 	appliedQuantity := shipmentLineItem.Quantity1

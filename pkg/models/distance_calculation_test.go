@@ -49,7 +49,8 @@ func (suite *ModelSuite) Test_NewDistanceCalculationCallsPlanner() {
 	planner := route.NewTestingPlanner(1044)
 	address1 := testdatagen.MakeDefaultAddress(suite.DB())
 	address2 := testdatagen.MakeDefaultAddress(suite.DB())
-	distanceCalculation, err := models.NewDistanceCalculation(planner, address1, address2)
+	useFullAddressForDistance := false
+	distanceCalculation, err := models.NewDistanceCalculation(planner, address1, address2, useFullAddressForDistance)
 
 	suite.NoError(err)
 	suite.Equal(distanceCalculation.DistanceMiles, 1044)

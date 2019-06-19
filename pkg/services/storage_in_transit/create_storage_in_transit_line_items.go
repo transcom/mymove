@@ -19,51 +19,47 @@ type CreateStorageInTransitLineItems struct {
 	Planner route.Planner
 }
 
-func (c CreateStorageInTransitLineItems) storageInTransitDistance(storageInTransit models.StorageInTransit, shipment models.Shipment) (*models.DistanceCalculation, *models.Address, error) {
+func (c CreateStorageInTransitLineItems) storageInTransitDistance(storageInTransit models.StorageInTransit, shipment models.Shipment) (*models.DistanceCalculation, error) {
 
 	var origin models.Address
 	var destination models.Address
-	var storageAddress models.Address
 
 	if storageInTransit.Location == models.StorageInTransitLocationDESTINATION {
 		origin = storageInTransit.WarehouseAddress
-		storageAddress = origin
 		destination = shipment.Move.Orders.NewDutyStation.Address
 		if shipment.DestinationAddressOnAcceptance != nil {
 			destination = *shipment.DestinationAddressOnAcceptance
 		}
-
 	} else if storageInTransit.Location == models.StorageInTransitLocationORIGIN {
 		if shipment.PickupAddress != nil {
 			origin = *shipment.PickupAddress
 		} else {
-			return nil, nil, errors.New("StorageInTransit PickupAddress not provided")
+			return nil, errors.New("StorageInTransit PickupAddress not provided")
 		}
-
 		destination = storageInTransit.WarehouseAddress
-		storageAddress = destination
 	}
 
 	if origin.ID == uuid.Nil {
-		return nil, nil, errors.New("StorageInTransit PickupAddress not provided")
+		return nil, errors.New("StorageInTransit PickupAddress not provided")
 	}
 
 	if destination.ID == uuid.Nil {
-		return nil, nil, errors.New("StorageInTransit Destination address not provided")
+		return nil, errors.New("StorageInTransit Destination address not provided")
 	}
 
-	distanceCalculation, err := models.NewDistanceCalculation(c.Planner, origin, destination)
+	useFullAddressForDistance := true
+	distanceCalculation, err := models.NewDistanceCalculation(c.Planner, origin, destination, useFullAddressForDistance)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "Error creating StorageInTransit DistanceCalculation model")
+		return nil, errors.Wrap(err, "Error creating StorageInTransit DistanceCalculation model")
 	}
 
 	verrs, err := c.DB.ValidateAndSave(&distanceCalculation)
 	if verrs.HasAny() || err != nil {
 		saveError := errors.Wrapf(err, "Error saving storage in transit distance %s", verrs.Error())
-		return nil, nil, saveError
+		return nil, saveError
 	}
 
-	return &distanceCalculation, &storageAddress, nil
+	return &distanceCalculation, nil
 }
 
 func (c CreateStorageInTransitLineItems) shipmentItemLocation(location models.StorageInTransitLocation) models.ShipmentLineItemLocation {
@@ -95,16 +91,25 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 
 	for _, sit := range storageInTransits {
 
+		// TODO: need to get Kim's PR in for delivering a shipment
 		// Only add line items for storage in transits that have been released or delivered
-		if sit.Status != models.StorageInTransitStatusDELIVERED && sit.Status != models.StorageInTransitStatusRELEASED {
-			//continue
-		}
+		//if sit.Status != models.StorageInTransitStatusDELIVERED && sit.Status != models.StorageInTransitStatusRELEASED {
+		//continue
+		//}
 
 		// Calculate distance for storage in transit
-		distanceCalculation, storageAddress, err := c.storageInTransitDistance(sit, shipment)
-		if distanceCalculation == nil || storageAddress == nil || err != nil {
+		distanceCalculation, err := c.storageInTransitDistance(sit, shipment)
+		if distanceCalculation == nil || err != nil {
+			logger.Error("Error finding the distance calculation for Storage In Transit",
+				zap.Any("sit location", sit.Location),
+				zap.Any("sit warehouse", sit.WarehouseAddress),
+				zap.Any("PickupAddress", shipment.PickupAddress),
+				zap.Any("Duty Station Address", shipment.Move.Orders.NewDutyStation.Address),
+				zap.Any("distance", distanceCalculation),
+				zap.Any("err", err))
 			return nil, err
 		}
+		// TODO: line used for testing in dev only: distanceCalculation.DistanceMiles = 40
 		sit.StorageInTransitDistance = *distanceCalculation
 		sit.StorageInTransitDistanceID = &(*distanceCalculation).ID
 
@@ -134,8 +139,8 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 				Quantity1:         unit.BaseQuantityFromInt(sit.StorageInTransitDistance.DistanceMiles),
 				Status:            models.ShipmentLineItemStatusAPPROVED,
 				SubmittedDate:     now,
-				Address:           *storageAddress,
-				AddressID:         &(*storageAddress).ID,
+				Address:           sit.WarehouseAddress,
+				AddressID:         &sit.WarehouseAddressID,
 			}
 			lineItems = append(lineItems, additionalFlateRateC)
 		} else {
@@ -152,8 +157,8 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 					Quantity1:         unit.BaseQuantityFromInt(sit.StorageInTransitDistance.DistanceMiles),
 					Status:            models.ShipmentLineItemStatusAPPROVED,
 					SubmittedDate:     now,
-					Address:           *storageAddress,
-					AddressID:         &(*storageAddress).ID,
+					Address:           sit.WarehouseAddress,
+					AddressID:         &sit.WarehouseAddressID,
 				}
 				lineItems = append(lineItems, additionalFlateRateB)
 			}
@@ -170,13 +175,14 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 				Quantity1:         unit.BaseQuantityFromInt(sit.StorageInTransitDistance.DistanceMiles),
 				Status:            models.ShipmentLineItemStatusAPPROVED,
 				SubmittedDate:     now,
-				Address:           *storageAddress,
-				AddressID:         &(*storageAddress).ID,
+				Address:           sit.WarehouseAddress,
+				AddressID:         &sit.WarehouseAddressID,
 			}
 			lineItems = append(lineItems, additionalFlateRateA)
 		}
 
 		/* TODO: Failing to load 16B from database
+		// https://www.pivotaltracker.com/story/show/166766741
 		// Fuel Surcharge (16B) - DEL to/from SIT (Deliver to and from Storage in Transit)
 		fuelSurchargeItem, err := models.FetchTariff400ngItemByCode(c.DB, "16B")
 		if err != nil {
