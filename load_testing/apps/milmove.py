@@ -168,7 +168,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
 
     @seq_task(7)
     def search_for_duty_station(self):
-        self.duty_stations = self.get_dutystations("buckley")
+        self.duty_stations = self.get_dutystations("eglin")
 
     @seq_task(8)
     def current_duty_station(self):
