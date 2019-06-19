@@ -63,6 +63,10 @@ const moveDate = CreateReactTableColumn('Move date', 'move_date', {
   Cell: row => <span className="move_date">{formatDate(row.value)}</span>,
 });
 
+const pickupDate = CreateReactTableColumn('Pickup date', 'move_date', {
+  Cell: row => <span className="move_date">{formatDate(row.value)}</span>,
+});
+
 const lastModifiedDate = CreateReactTableColumn('Last modified', 'last_modified_date', {
   Cell: row => <span className="updated_at">{formatDateTimeWithTZ(row.value)}</span>,
 });
@@ -97,7 +101,7 @@ export const hhgActiveColumns = [
   destination,
   locator,
   gbl,
-  moveDate,
+  pickupDate,
   sitExpires,
 ];
 
