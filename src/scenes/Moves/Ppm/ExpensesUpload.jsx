@@ -185,7 +185,7 @@ class ExpensesUpload extends Component {
               <>
                 {isStorageExpense ? (
                   <div>
-                    <h4 className="expenses-header">Dates</h4>
+                    <h4 className="expenses-group-header">Dates</h4>
                     <SwaggerField
                       className="short-field expenses-form-group"
                       fieldName="storage_start_date"
@@ -205,7 +205,7 @@ class ExpensesUpload extends Component {
                   <SwaggerField title="Document title" fieldName="title" swagger={moveDocSchema} required />
                 )}
                 <SwaggerField
-                  className="short-field"
+                  className="short-field expense-form-element"
                   title="Amount"
                   fieldName="requested_amount_cents"
                   swagger={moveDocSchema}

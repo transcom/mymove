@@ -38,11 +38,20 @@
   margin-top: 1.8em;
 }
 
+.expenses-group-header {
+  margin: 1.8em 0 -0.5em 0;
+}
+
+.expense-form-element > label {
+  margin: 1.5em 0 0 0;
+}
+
 .expenses-form-group {
-  margin: 0 2em 1em 0;
+  /*border: red solid;*/
+  margin: 0 2em 0 0;
 }
 
 .expenses-form-group > label {
-  margin: 0;
+  margin: 1em 0 0 0;
 }
 
