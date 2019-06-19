@@ -38,12 +38,21 @@ export function getAllShipmentLineItems(shipmentId, label = getShipmentLineItems
 
 // Show linehaul (and related) items before any accessorial items by adding isLinehaul property.
 function listLinehaulItemsBeforeAccessorials(items) {
-  const linehaulRelatedItems = ['LHS', '135A', '135B', '105A', '105C', '16A'];
+  const linehaulRelatedItemsOrderMap = new Map([
+    ['LHS', 1],
+    ['16A', 2],
+    ['135A', 3],
+    ['135B', 4],
+    ['105A', 5],
+    ['105C', 6],
+  ]);
   const storageInTransitRelatedItems = ['185A', '185B', '210A', '210B', '210C'];
   return items.map(item => {
     return {
       ...item,
-      isLinehaul: linehaulRelatedItems.includes(item.tariff400ng_item.code) ? 1 : 10,
+      isLinehaul: linehaulRelatedItemsOrderMap.has(item.tariff400ng_item.code)
+        ? linehaulRelatedItemsOrderMap.get(item.tariff400ng_item.code)
+        : 10,
       isStorageInTransit: storageInTransitRelatedItems.includes(item.tariff400ng_item.code) ? 1 : 10,
     };
   });
@@ -60,7 +69,7 @@ function orderItemsBy(items) {
       'location',
       'tariff400ng_item.code',
     ],
-    order: ['asc', 'asc', 'desc', 'desc', 'asc', 'desc', 'desc'],
+    order: ['asc', 'asc', 'desc', 'desc', 'asc', 'desc', 'asc'],
   };
   return orderBy(items, sortOrder.fields, sortOrder.order);
 }
