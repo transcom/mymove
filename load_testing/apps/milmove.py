@@ -396,6 +396,39 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         )
 
     @seq_task(22)
+    def signature(self):
+        model = self.swagger_internal.get_model("CreateSignedCertificationPayload")
+        swagger_request(
+            self.swagger_internal.certification.createSignedCertification,
+            moveId=self.get_move_id(),
+            createSignedCertificationPayload=model(
+                date=datetime.datetime.now(),
+                signature="ABC",
+                certification_text="clatto verata necktie",
+            ),
+        )
+
+    @seq_task(23)
+    def submit_move(self):
+        model = self.swagger_internal.get_model("SubmitMoveForApprovalPayload")
+        swagger_request(
+            self.swagger_internal.moves.submitMoveForApproval,
+            moveId=self.get_move_id(),
+            submitMoveForApprovalPayload=model(ppm_submit_date=datetime.datetime.now()),
+        )
+
+    @seq_task(24)
+    def get_transportation_offices(self):
+        swagger_request(
+            self.swagger_internal.transportation_offices.showDutyStationTransportationOffice,
+            dutyStationId=self.duty_stations[0]["id"],
+        )
+        swagger_request(
+            self.swagger_internal.transportation_offices.showDutyStationTransportationOffice,
+            dutyStationId=self.new_duty_stations[0]["id"],
+        )
+
+    @seq_task(25)
     def logout(self):
         self.client.post("/auth/logout")
         self.login_gov_user = None
