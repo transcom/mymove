@@ -99,6 +99,14 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 	if docExtractor.ReceiptMissing != nil {
 		receiptMissing = docExtractor.ReceiptMissing
 	}
+	var storageStartDate *strfmt.Date
+	if docExtractor.StorageStartDate != nil {
+		storageStartDate = handlers.FmtDate(*docExtractor.StorageStartDate)
+	}
+	var storageEndDate *strfmt.Date
+	if docExtractor.StorageEndDate != nil {
+		storageEndDate = handlers.FmtDate(*docExtractor.StorageEndDate)
+	}
 
 	payload := internalmessages.MoveDocumentPayload{
 		ID:                       handlers.FmtUUID(docExtractor.ID),
@@ -121,6 +129,8 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 		FullWeightTicketMissing:  fullWeightTicketMissing,
 		WeightTicketDate:         weightTicketDate,
 		TrailerOwnershipMissing:  trailerOwnershipMissing,
+		StorageStartDate:         storageStartDate,
+		StorageEndDate:           storageEndDate,
 	}
 
 	return &payload, nil

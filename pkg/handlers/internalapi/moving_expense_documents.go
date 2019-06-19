@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"reflect"
+	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
@@ -22,7 +23,6 @@ func payloadForMovingExpenseDocumentModel(storer storage.FileStorer, movingExpen
 	if err != nil {
 		return nil, err
 	}
-
 	movingExpenseDocumentPayload := internalmessages.MoveDocumentPayload{
 		ID:                   handlers.FmtUUID(movingExpenseDocument.MoveDocument.ID),
 		MoveID:               handlers.FmtUUID(movingExpenseDocument.MoveDocument.MoveID),
@@ -96,11 +96,21 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 		ppmID = &id
 	}
 
+	var storageStartDate *time.Time
+	if payload.StorageStartDate != nil {
+		storageStartDate = (*time.Time)(payload.StorageStartDate)
+	}
+	var storageEndDate *time.Time
+	if payload.StorageEndDate != nil {
+		storageEndDate = (*time.Time)(payload.StorageEndDate)
+	}
 	movingExpenseDocument := models.MovingExpenseDocument{
 		MovingExpenseType:    models.MovingExpenseType(payload.MovingExpenseType),
 		RequestedAmountCents: unit.Cents(*payload.RequestedAmountCents),
 		PaymentMethod:        *payload.PaymentMethod,
 		ReceiptMissing:       payload.ReceiptMissing,
+		StorageEndDate:       storageEndDate,
+		StorageStartDate:     storageStartDate,
 	}
 	newMovingExpenseDocument, verrs, err := move.CreateMovingExpenseDocument(
 		h.DB(),
