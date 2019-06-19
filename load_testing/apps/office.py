@@ -69,7 +69,7 @@ class OfficeUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
         queue_types = [
             "new",
             "ppm",
-            "hhg_accepted",
+            "hhg_approved",
             "hhg_delivered",
         ]  # Excluding 'all' queue
         q_type = random.choice(queue_types)

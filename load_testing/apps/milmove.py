@@ -113,14 +113,14 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         self.entitlements = swagger_request(
             self.swagger_internal.entitlements.indexEntitlements
         )
-        self.rank = random.choice(self.entitlements.keys())
+        self.rank = random.choice(list(self.entitlements.keys()))
         self.allotment = self.entitlements[self.rank]
 
         # Now set the profile
         model = self.swagger_internal.get_model("PatchServiceMemberPayload")
         payload = model(
             affiliation=random.choice(
-                "ARMY", "NAVY", "MARINES", "AIR_FORCE", "COAST_GUARD"
+                ["ARMY", "NAVY", "MARINES", "AIR_FORCE", "COAST_GUARD"]
             ),
             edipi=str(random.randint(10 ** 9, 10 ** 10 - 1)),
             social_security_number="333-33-3333",  # Random
