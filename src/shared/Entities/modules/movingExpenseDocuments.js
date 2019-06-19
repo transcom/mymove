@@ -47,9 +47,16 @@ export function createMovingExpenseDocument({
   };
 }
 
-export const selectAllMovingExpenseDocumentsForMove = (state, id) => {
+export const selectPPMCloseoutDocumentsForMove = (
+  state,
+  id,
+  selectedDocumentTypes = ['EXPENSE', 'WEIGHT_TICKET_SET'],
+) => {
+  if (!id) {
+    return [];
+  }
   const movingExpenseDocs = filter(state.entities.moveDocuments, doc => {
-    return doc.move_id === id && doc.move_document_type === 'EXPENSE';
+    return doc.move_id === id && selectedDocumentTypes.includes(doc.move_document_type);
   });
   return denormalize(map(movingExpenseDocs, 'id'), moveDocuments, state.entities);
 };

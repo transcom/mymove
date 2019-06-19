@@ -19,9 +19,11 @@ import { getFormValues, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 import Alert from 'shared/Alert';
+import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
+import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
 class ExpensesUpload extends Component {
-  state = { ...this.initialState, expenseNumber: 1 };
+  state = { ...this.initialState };
 
   static nextBtnLabels = {
     SaveAndAddAnother: 'Save & Add Another',
@@ -44,6 +46,11 @@ class ExpensesUpload extends Component {
       haveMoreExpenses: 'No',
       moveDocumentCreateError: false,
     };
+  }
+
+  componentDidMount() {
+    const { moveId } = this.props;
+    this.props.getMoveDocumentsForMove(moveId);
   }
 
   handleRadioChange = event => {
@@ -84,7 +91,6 @@ class ExpensesUpload extends Component {
         missingReceipt,
       })
       .then(() => {
-        this.setState({ expenseNumber: this.state.expenseNumber + 1 });
         this.cleanup();
       })
       .catch(e => {
@@ -136,13 +142,14 @@ class ExpensesUpload extends Component {
   };
 
   render() {
-    const { missingReceipt, paymentMethod, haveMoreExpenses, expenseNumber, moveDocumentCreateError } = this.state;
-    const { moveDocSchema, formValues, isPublic, handleSubmit, submitting } = this.props;
+    const { missingReceipt, paymentMethod, haveMoreExpenses, moveDocumentCreateError } = this.state;
+    const { moveDocSchema, formValues, isPublic, handleSubmit, submitting, expenses } = this.props;
     const nextBtnLabel =
       haveMoreExpenses === 'Yes'
         ? ExpensesUpload.nextBtnLabels.SaveAndAddAnother
         : ExpensesUpload.nextBtnLabels.SaveAndContinue;
     const hasMovingExpenseType = !isEmpty(formValues) && formValues.moving_expense_type !== '';
+    const expenseNumber = expenses.length + 1;
     return (
       <>
         <WizardHeader
@@ -280,10 +287,16 @@ function mapStateToProps(state, props) {
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
     initialValues: {},
     currentPpm: get(state, 'ppm.currentPpm'),
+    expenses: selectPPMCloseoutDocumentsForMove(state, moveId, ['EXPENSE']),
   };
 }
 
 const mapDispatchToProps = {
+  //TODO we can possibly remove selectPPMCloseoutDocumentsForMove and
+  // getMoveDocumentsForMove once the document reviewer component is added
+  // as it may be possible to get the number of expenses from that.
+  selectPPMCloseoutDocumentsForMove,
+  getMoveDocumentsForMove,
   createMovingExpenseDocument,
 };
 

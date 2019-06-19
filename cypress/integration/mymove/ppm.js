@@ -203,7 +203,7 @@ describe('allows a SM to request a payment', function() {
   });
 
   it('service member goes through entire request payment flow', () => {
-    serviceMemberSubmitsWeightTicket('CAR', false);
+    serviceMemberSubmitsWeightTicket('CAR', false, '1st');
     serviceMemberViewsExpensesLandingPage();
     serviceMemberUploadsExpenses();
   });
@@ -217,7 +217,7 @@ describe('allows a SM to request a payment', function() {
   });
 
   it('service member can save a weight ticket for later', () => {
-    serviceMemberSavesWeightTicketForLater('CAR');
+    serviceMemberSavesWeightTicketForLater('BOX_TRUCK');
   });
 
   //TODO: remove when done with the new flow to request payment
@@ -474,12 +474,14 @@ function serviceMemberSubmitsWeightsTicketsWithoutReceipts() {
   cy.wait('@postWeightTicket');
 }
 
-function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true) {
+function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordinal = '1st') {
   cy.contains('Request Payment').click();
   cy
     .get('button')
     .contains('Get Started')
     .click();
+
+  cy.contains(`Weight Tickets - ${ordinal} set`);
 
   cy.get('select[name="vehicle_options"]').select(vehicleType);
 

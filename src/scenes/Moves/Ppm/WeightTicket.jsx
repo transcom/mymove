@@ -21,6 +21,9 @@ import { createWeightTicketSetDocument } from 'shared/Entities/modules/weightTic
 import { Link } from 'react-router-dom';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCircle';
+import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
+import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import { intToOrdinal } from './utility';
 
 const vehicleTypes = {
   CarAndTrailer: 'CAR_TRAILER',
@@ -41,7 +44,7 @@ const uploadTrailerProofOfOwnership =
   '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload documentation</span></span>';
 
 class WeightTicket extends Component {
-  state = { ...this.initialState, weightTicketNumber: 1 };
+  state = { ...this.initialState };
   uploaders = {
     trailer: { uploaderRef: null, isMissingChecked: () => this.state.missingDocumentation },
     emptyWeight: { uploaderRef: null, isMissingChecked: () => this.state.missingEmptyWeightTicket },
@@ -58,6 +61,11 @@ class WeightTicket extends Component {
       missingEmptyWeightTicket: false,
       missingFullWeightTicket: false,
     };
+  }
+
+  componentDidMount() {
+    const { moveId } = this.props;
+    this.props.getMoveDocumentsForMove(moveId);
   }
 
   get isCarTrailer() {
@@ -160,7 +168,6 @@ class WeightTicket extends Component {
     return this.props
       .createWeightTicketSetDocument(moveId, weightTicketSetDocument)
       .then(() => {
-        this.setState({ weightTicketNumber: this.state.weightTicketNumber + 1 });
         this.cleanup();
         if (additionalWeightTickets === 'No') {
           history.push(`/moves/${moveId}/ppm-expenses-intro`);
@@ -183,14 +190,6 @@ class WeightTicket extends Component {
     this.setState({ ...this.initialState });
   };
 
-  // maps int to int with ordinal 1 -> 1st, 2 -> 2nd, 3rd ...
-  numberWithOrdinal = n => {
-    const s = ['th', 'st', 'nd', 'rd'];
-    const v = n % 100;
-    // eslint-disable-next-line security/detect-object-injection
-    return n + (s[(v - 20) % 10] || s[v] || s[0]);
-  };
-
   submitButtonsAreDisabled = () => {
     return this.formIsIncomplete() || this.uploaderWithInvalidState();
   };
@@ -204,9 +203,10 @@ class WeightTicket extends Component {
       missingDocumentation,
       isValidTrailer,
     } = this.state;
-    const { handleSubmit, submitting, schema } = this.props;
+    const { handleSubmit, submitting, schema, weightTicketSets } = this.props;
     const nextBtnLabel =
       additionalWeightTickets === 'Yes' ? nextBtnLabels.SaveAndAddAnother : nextBtnLabels.SaveAndContinue;
+    const weightTicketSetOrdinal = intToOrdinal(weightTicketSets.length + 1);
 
     return (
       <Fragment>
@@ -231,9 +231,7 @@ class WeightTicket extends Component {
             </div>
           )}
           <div className="usa-grid expenses-container">
-            <h3 className="expenses-header">
-              Weight Tickets - {this.numberWithOrdinal(this.state.weightTicketNumber)} set
-            </h3>
+            <h3 className="expenses-header">Weight Tickets - {weightTicketSetOrdinal} set</h3>
             Upload an <strong>empty</strong> & <strong>full</strong> weight ticket below for <em>only</em>{' '}
             <strong>one</strong> vehicle or trip at a time until they're all uploaded.{' '}
             <Link to="/weight-ticket-examples">
@@ -483,9 +481,16 @@ function mapStateToProps(state, ownProps) {
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateWeightTicketDocumentsPayload', {}),
     currentPpm: get(state, 'ppm.currentPpm'),
+    weightTicketSets: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET_SET']),
   };
 }
+
 const mapDispatchToProps = {
+  //TODO we can possibly remove selectPPMCloseoutDocumentsForMove and
+  // getMoveDocumentsForMove once the document reviewer component is added
+  // as it may be possible to get the number of weight tickets from that.
+  selectPPMCloseoutDocumentsForMove,
+  getMoveDocumentsForMove,
   createWeightTicketSetDocument,
 };
 

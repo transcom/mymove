@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/go-openapi/strfmt"
+
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -26,14 +28,27 @@ func payloadForWeightTicketSetMoveDocumentModel(storer storage.FileStorer, weigh
 		return nil, err
 	}
 
+	var ppmID *strfmt.UUID
+	if weightTicketSet.MoveDocument.PersonallyProcuredMoveID != nil {
+		ppmID = handlers.FmtUUID(*weightTicketSet.MoveDocument.PersonallyProcuredMoveID)
+	}
 	genericMoveDocumentPayload := internalmessages.MoveDocumentPayload{
-		ID:               handlers.FmtUUID(weightTicketSet.ID),
-		MoveID:           handlers.FmtUUID(weightTicketSet.MoveDocument.MoveID),
-		Document:         documentPayload,
-		Title:            &weightTicketSet.MoveDocument.Title,
-		MoveDocumentType: internalmessages.MoveDocumentType(weightTicketSet.MoveDocument.MoveDocumentType),
-		Status:           internalmessages.MoveDocumentStatus(weightTicketSet.MoveDocument.Status),
-		Notes:            weightTicketSet.MoveDocument.Notes,
+		ID:                       handlers.FmtUUID(weightTicketSet.MoveDocument.ID),
+		MoveID:                   handlers.FmtUUID(weightTicketSet.MoveDocument.MoveID),
+		Document:                 documentPayload,
+		Title:                    &weightTicketSet.MoveDocument.Title,
+		MoveDocumentType:         internalmessages.MoveDocumentType(weightTicketSet.MoveDocument.MoveDocumentType),
+		VehicleNickname:          weightTicketSet.VehicleNickname,
+		VehicleOptions:           weightTicketSet.VehicleOptions,
+		PersonallyProcuredMoveID: ppmID,
+		EmptyWeight:              handlers.FmtInt64(int64(weightTicketSet.EmptyWeight)),
+		EmptyWeightTicketMissing: handlers.FmtBool(weightTicketSet.EmptyWeightTicketMissing),
+		FullWeight:               handlers.FmtInt64(int64(weightTicketSet.FullWeight)),
+		FullWeightTicketMissing:  handlers.FmtBool(weightTicketSet.FullWeightTicketMissing),
+		TrailerOwnershipMissing:  handlers.FmtBool(weightTicketSet.TrailerOwnershipMissing),
+		WeightTicketDate:         handlers.FmtDate(weightTicketSet.WeightTicketDate),
+		Status:                   internalmessages.MoveDocumentStatus(weightTicketSet.MoveDocument.Status),
+		Notes:                    weightTicketSet.MoveDocument.Notes,
 	}
 
 	return &genericMoveDocumentPayload, nil
