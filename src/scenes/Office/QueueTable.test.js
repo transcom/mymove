@@ -100,6 +100,29 @@ describe('Refreshing', () => {
   });
 });
 
+describe('window.location.assign() is called', () => {
+  it('upon 401 unauthorized error', done => {
+    const fetchDataSpy = jest.spyOn(QueueTable.WrappedComponent.prototype, 'fetchData');
+    const windowLocationAssignSpy = jest.spyOn(window.location, 'assign');
+
+    let error = new Error('Unauthorized');
+    error.status = 401;
+
+    const wrapper = mountComponents(retrieveMovesStub(null, error));
+    wrapper
+      .find('[data-cy="refreshQueue"]')
+      .at(0)
+      .simulate('click');
+
+    setTimeout(() => {
+      expect(fetchDataSpy).toHaveBeenCalled();
+      expect(windowLocationAssignSpy).toBeCalledWith('/');
+
+      done();
+    });
+  });
+});
+
 function retrieveMovesStub(params, throwError) {
   // This is meant as a stub that will act in place of
   // `RetrieveMovesForOffice` from Office/api.js
@@ -107,6 +130,8 @@ function retrieveMovesStub(params, throwError) {
     return await new Promise(resolve => {
       if (throwError) {
         throw throwError;
+      }
+
       resolve([
         {
           id: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
