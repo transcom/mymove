@@ -15,19 +15,19 @@ const RadioGroup = ({location, change, ...input}) => {
     <div className="radio-group-wrapper normalize-margins">
       <RadioButton
         inputClassName="inline_radio"
-        label="Destination"
-        value="destination"
-        name="location"
-        checked={location === 'DESTINATION'}
-        onChange={() => change('location', 'DESTINATION')}
-      />
-      <RadioButton
-        inputClassName="inline_radio"
         label="Origin"
         value="origin"
         name="location"
         checked={location === 'ORIGIN'}
         onChange={() => change('location', 'ORIGIN')}
+      />
+      <RadioButton
+        inputClassName="inline_radio"
+        label="Destination"
+        value="destination"
+        name="location"
+        checked={location === 'DESTINATION'}
+        onChange={() => change('location', 'DESTINATION')}
       />
     </div>
   )
