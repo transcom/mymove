@@ -3,7 +3,7 @@
 }
 
 .expenses-header {
-  margin-bottom: 0;
+  margin-bottom: 0.5em;
 }
 
 .expenses-container > p {
@@ -39,9 +39,10 @@
 }
 
 .expenses-form-group {
-  margin: 0 2em 0 0;
+  margin: 0 2em 1em 0;
 }
 
 .expenses-form-group > label {
   margin: 0;
 }
+

@@ -37,7 +37,7 @@ class ExpensesUpload extends Component {
 
   get initialState() {
     return {
-      paymentMethod: ExpensesUpload.paymentMethods.Other,
+      paymentMethod: ExpensesUpload.paymentMethods.GTCC,
       uploaderIsIdle: true,
       missingReceipt: false,
       expenseType: '',
