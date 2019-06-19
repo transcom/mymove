@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"time"
+
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -71,6 +73,38 @@ func (suite *ModelSuite) TestShowMovesDraftSubmittedApprovedPPMQueue() {
 
 	// Expected 3 moves for PPM queue returned
 	moves, err := GetMoveQueueItems(suite.DB(), "ppm")
+	suite.Nil(err)
+	suite.Len(moves, 3)
+}
+
+func (suite *ModelSuite) TestActivePPMQueue() {
+	testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusINTRANSIT,
+		},
+	})
+
+	testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusAPPROVED,
+		},
+	})
+
+	now := time.Now()
+	testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
+		Shipment: models.Shipment{
+			Status:                models.ShipmentStatusACCEPTED,
+			PmSurveyConductedDate: &now,
+		},
+	})
+
+	testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusACCEPTED,
+		},
+	})
+
+	moves, err := GetMoveQueueItems(suite.DB(), "hhg_active")
 	suite.Nil(err)
 	suite.Len(moves, 3)
 }
