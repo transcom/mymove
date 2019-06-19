@@ -32,6 +32,8 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
     entitlements = None
     rank = None
     allotment = None
+    zip_origin = "32168"
+    zip_destination = "78626"
 
     def update_user(self):
         self.user = swagger_request(self.swagger_internal.users.showLoggedInUser)
@@ -50,6 +52,24 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
 
     def get_move_id(self):
         return self.user["service_member"]["orders"][0]["moves"][0]["id"]
+
+    def get_address_origin(self):
+        address = self.swagger_internal.get_model("Address")
+        return address(
+            street_address_1="12345 Fake St",
+            city="Crescent City",
+            state="FL",
+            postal_code=self.zip_origin,
+        )
+
+    def get_address_destination(self):
+        address = self.swagger_internal.get_model("Address")
+        return address(
+            street_address_1="12345 Fake St",
+            city="Austin",
+            state="TX",
+            postal_code=self.zip_destination,
+        )
 
     @seq_task(1)
     def login(self):
@@ -164,15 +184,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
     @seq_task(9)
     def current_residence_address(self):
         model = self.swagger_internal.get_model("PatchServiceMemberPayload")
-        address = self.swagger_internal.get_model("Address")
-        payload = model(
-            residential_address=address(
-                street_address_1="12345 Fake St",
-                city="Aurora",
-                state="CO",
-                postal_code="80013",
-            )
-        )
+        payload = model(residential_address=self.get_address_origin())
         service_member = swagger_request(
             self.swagger_internal.service_members.patchServiceMember,
             serviceMemberId=self.user["service_member"]["id"],
@@ -183,15 +195,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
     @seq_task(10)
     def backup_mailing_address(self):
         model = self.swagger_internal.get_model("PatchServiceMemberPayload")
-        address = self.swagger_internal.get_model("Address")
-        payload = model(
-            backup_mailing_address=address(
-                street_address_1="12345 Fake St",
-                city="Aurora",
-                state="CO",
-                postal_code="80013",
-            )
-        )
+        payload = model(backup_mailing_address=self.get_address_origin())
         service_member = swagger_request(
             self.swagger_internal.service_members.patchServiceMember,
             serviceMemberId=self.user["service_member"]["id"],
@@ -292,9 +296,9 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         swagger_request(
             self.swagger_internal.ppm.showPPMEstimate,
             original_move_date=self.original_move_date,
-            origin_zip="80013",
-            destination_zip="94535",
-            weight_estimate=11500,
+            origin_zip=self.zip_origin,
+            destination_zip=self.zip_destination,
+            weight_estimate=11500,  # This appears to be hard coded in the original API call
         )
 
     @seq_task(18)
@@ -306,7 +310,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
             has_additional_postal_code=False,
             has_sit=False,
             original_move_date=self.original_move_date,
-            pickup_postal_code="80013",
+            pickup_postal_code=self.zip_origin,
         )
         self.ppm = swagger_request(
             self.swagger_internal.ppm.createPersonallyProcuredMove,
@@ -354,8 +358,8 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         swagger_request(
             self.swagger_internal.ppm.showPPMEstimate,
             original_move_date=self.original_move_date,
-            origin_zip="80013",
-            destination_zip="94535",
+            origin_zip=self.zip_origin,
+            destination_zip=self.zip_destination,
             weight_estimate=int((weight_max - weight_min) / 2 + weight_min),
         )
         # Now modify the estimate within a random range
@@ -364,8 +368,8 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         swagger_request(
             self.swagger_internal.ppm.showPPMEstimate,
             original_move_date=self.original_move_date,
-            origin_zip="80013",
-            destination_zip="94535",
+            origin_zip=self.zip_origin,
+            destination_zip=self.zip_destination,
             weight_estimate=weight_estimate,
         )
         payload = model(has_requested_advance=False, weight_estimate=weight_estimate)
