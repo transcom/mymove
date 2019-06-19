@@ -29,6 +29,9 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
     new_duty_stations = []
     move = None
     ppm = None
+    entitlements = None
+    rank = None
+    allotment = None
 
     def update_user(self):
         self.user = swagger_request(self.swagger_internal.users.showLoggedInUser)
@@ -85,12 +88,23 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
 
     @seq_task(4)
     def create_your_profile(self):
+
+        # Need the entitlements to get ranks and weight allotments
+        self.entitlements = swagger_request(
+            self.swagger_internal.entitlements.indexEntitlements
+        )
+        self.rank = random.choice(self.entitlements.keys())
+        self.allotment = self.entitlements[self.rank]
+
+        # Now set the profile
         model = self.swagger_internal.get_model("PatchServiceMemberPayload")
         payload = model(
-            affiliation="NAVY",  # Rotate
-            edipi="3333333333",  # Random
+            affiliation=random.choice(
+                "ARMY", "NAVY", "MARINES", "AIR_FORCE", "COAST_GUARD"
+            ),
+            edipi=str(random.randint(10 ** 9, 10 ** 10 - 1)),
             social_security_number="333-33-3333",  # Random
-            rank="E_5",  # Rotate
+            rank=self.rank,
         )
         service_member = swagger_request(
             self.swagger_internal.service_members.patchServiceMember,
@@ -320,10 +334,17 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
             self.ppm = new_ppm
 
         # Weights are decided by TShirt size
+        allotment = self.allotment["total_weight_self"]
         size_weight = {
-            "S": {"min": 50, "max": 1000},
-            "M": {"min": 500, "max": 2500},
-            "L": {"min": 1500, "max": 11500},
+            "S": {
+                "min": int(allotment * 0.01),
+                "max": int(allotment * 0.10),
+            },  # 1% - 10%
+            "M": {
+                "min": int(allotment * 0.10),
+                "max": int(allotment * 0.25),
+            },  # 10% - 25%
+            "L": {"min": int(allotment * 0.25), "max": int(allotment)},  # 25% to max
         }
 
         weight_min = size_weight[tshirt_size]["min"]
@@ -364,7 +385,7 @@ class MilMoveUserBehavior(BaseTaskSequence, InternalAPIMixin):
         )
 
     @seq_task(21)
-    def get_entitlements(self):
+    def validate_entitlements(self):
         self.move = swagger_request(
             self.swagger_internal.entitlements.validateEntitlement,
             moveId=self.get_move_id(),
