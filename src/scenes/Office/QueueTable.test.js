@@ -100,11 +100,13 @@ describe('Refreshing', () => {
   });
 });
 
-function retrieveMovesStub(params) {
+function retrieveMovesStub(params, throwError) {
   // This is meant as a stub that will act in place of
   // `RetrieveMovesForOffice` from Office/api.js
   return async () => {
     return await new Promise(resolve => {
+      if (throwError) {
+        throw throwError;
       resolve([
         {
           id: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
