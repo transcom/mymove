@@ -89,6 +89,10 @@ class QueueTable extends Component {
         refreshing: false,
         lastLoadedAt: new Date(),
       });
+      // hard redirect to home page if unauthorized
+      if (e.status === 401) {
+        window.location.assign('/');
+      }
     }
   }
 
