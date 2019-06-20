@@ -50,7 +50,6 @@ type Session struct {
 	ApplicationName Application
 	Hostname        string
 	IDToken         string
-	Disabled        bool
 	IsSuperuser     bool
 	UserID          uuid.UUID
 	Email           string

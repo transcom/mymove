@@ -161,6 +161,7 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	user := models.User{
 		LoginGovUUID:  loginGovUUID,
 		LoginGovEmail: "email@example.com",
+		Disabled:      false,
 	}
 	suite.MustSave(&user)
 
@@ -274,6 +275,40 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleOffice() {
 	suite.Equal(uuid.Nil, session.TspUserID)
 }
 
+func (suite *AuthSuite) TestAuthorizeDisableOfficeUser() {
+	officeDisabled := true
+	userIdentity := models.UserIdentity{
+		OfficeDisabled: &officeDisabled,
+	}
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", OfficeTestHost), nil)
+
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        OfficeTestHost,
+		Email:           "disabled@example.com",
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled office user")
+}
+
 func (suite *AuthSuite) TestAuthKnownSingleRoleTSP() {
 	officeUserID := uuid.Must(uuid.NewV4())
 	tspUserID := uuid.Must(uuid.NewV4())
@@ -310,4 +345,38 @@ func (suite *AuthSuite) TestAuthKnownSingleRoleTSP() {
 	// TSP app, so should only have TSP ID information
 	suite.Equal(tspUserID, session.TspUserID)
 	suite.Equal(uuid.Nil, session.OfficeUserID)
+}
+
+func (suite *AuthSuite) TestAuthorizeDisableTspUser() {
+	tspDisabled := true
+	userIdentity := models.UserIdentity{
+		TspDisabled: &tspDisabled,
+	}
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", TspTestHost), nil)
+
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.TspApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        TspTestHost,
+		Email:           "disabled@example.com",
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled office user")
 }
