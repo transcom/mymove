@@ -1,9 +1,10 @@
 package migrate
 
 import (
+	"time"
+
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
-	"time"
 )
 
 func execCopyFromStdin(in *Buffer, i int, tablename string, columns []string, tx *pop.Connection, wait time.Duration) (int, error) {

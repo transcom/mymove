@@ -66,7 +66,7 @@ func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration) error {
 					if next != '\'' {
 						if i == 0 {
 							quoted--
-						} else if prev, err := in.Index(i - 1); err == nil && prev != '\'' {
+						} else if prev, errPrev := in.Index(i - 1); errPrev == nil && prev != '\'' {
 							quoted--
 						}
 					}

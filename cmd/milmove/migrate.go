@@ -71,7 +71,7 @@ func expandPath(in string) string {
 	if strings.HasPrefix(in, "file://") {
 		return in
 	}
-	return "file://"+in
+	return "file://" + in
 }
 
 func expandPaths(in []string) []string {

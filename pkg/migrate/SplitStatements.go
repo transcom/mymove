@@ -145,7 +145,7 @@ func SplitStatements(lines chan string, statements chan string) {
 					stmt.WriteString(str[0:2])
 					i += 2
 					for {
-						c, errIndex := in.Index(i)
+						c2, errIndex := in.Index(i)
 						if errIndex != nil {
 							if errIndex == ErrWait {
 								fmt.Fprintln(os.Stderr, "waiting for 10 milliseconds")
@@ -158,7 +158,7 @@ func SplitStatements(lines chan string, statements chan string) {
 							}
 						}
 						b := true
-						switch c {
+						switch c2 {
 						case ' ', '\t', '\r', '\n':
 							b = false
 						}
@@ -170,7 +170,7 @@ func SplitStatements(lines chan string, statements chan string) {
 					stmt.WriteString(" ") // add just 1 space
 					block := ""
 					for {
-						c, err := in.Index(i)
+						c3, err := in.Index(i)
 						if err != nil {
 							if err == ErrWait {
 								fmt.Fprintln(os.Stderr, "waiting for 10 milliseconds")
@@ -183,11 +183,11 @@ func SplitStatements(lines chan string, statements chan string) {
 							}
 						}
 						b := false
-						switch c {
+						switch c3 {
 						case ' ', '\t', '\r', '\n':
 							b = true
 						default:
-							block += string(c)
+							block += string(c3)
 						}
 						if b {
 							break
