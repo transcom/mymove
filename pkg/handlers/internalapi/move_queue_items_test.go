@@ -94,6 +94,29 @@ func (suite *HandlerSuite) TestShowQueueHandlerForbidden() {
 	}
 }
 
+func (suite *HandlerSuite) TestShowQueueHandlerNotFound() {
+
+	// Given: An office user
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	// And: the context contains the auth values
+	queueType := "queue_not_found"
+	path := "/queues/" + queueType
+	req := httptest.NewRequest("GET", path, nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	params := queueop.ShowQueueParams{
+		HTTPRequest: req,
+		QueueType:   queueType,
+	}
+	// And: show Queue is queried
+	showHandler := ShowQueueHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	showResponse := showHandler.Handle(params)
+
+	// Then: Expect a 404 status code
+	suite.CheckResponseNotFound(showResponse)
+}
+
 func (suite *HandlerSuite) TestGetMoveQueueItemsComboMoveDate() {
 	suite.SetupTest()
 

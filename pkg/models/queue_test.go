@@ -97,3 +97,9 @@ func (suite *ModelSuite) TestShowPPMQueueStatusDraftSubmittedCanceled() {
 	suite.Nil(err)
 	suite.Len(moves, 0)
 }
+
+func (suite *ModelSuite) TestQueueNotFound() {
+	moves, moveErrs := GetMoveQueueItems(suite.DB(), "queue_not_found")
+	suite.Equal(ErrFetchNotFound, moveErrs, "Expected not to find move queue items")
+	suite.Empty(moves)
+}
