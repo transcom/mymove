@@ -12,7 +12,7 @@ import { ValidateZipRateData } from 'shared/api';
 const UnsupportedZipCodeErrorMsg =
   'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.';
 
-async function asyncValidate(values, dispatch, props, currentFieldName) {
+async function asyncValidate(values) {
   const { postal_code } = values;
   const responseBody = await ValidateZipRateData(postal_code, 'origin');
   if (!responseBody.valid) {
