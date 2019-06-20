@@ -24,6 +24,7 @@ type TspUser struct {
 	TransportationServiceProvider   TransportationServiceProvider `belongs_to:"transportation_service_provider"`
 	CreatedAt                       time.Time                     `json:"created_at" db:"created_at"`
 	UpdatedAt                       time.Time                     `json:"updated_at" db:"updated_at"`
+	Disabled                        bool                          `json:"disabled" db:"disabled"`
 }
 
 // TspUsers is not required by pop and may be deleted

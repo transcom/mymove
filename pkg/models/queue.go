@@ -86,8 +86,8 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
 			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
-			WHERE moves.status in ('DRAFT', 'SUBMITTED', 'APPROVED')
-			and moves.show is true
+			WHERE moves.show is true
+			and ppm.status in ('APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED')
 		`
 	} else if lifecycleState == "hhg_approved" {
 
@@ -184,6 +184,8 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			LEFT JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
 			WHERE moves.show is true
 		`
+	} else {
+		return moveQueueItems, ErrFetchNotFound
 	}
 
 	err := db.RawQuery(query).All(&moveQueueItems)

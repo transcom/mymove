@@ -804,6 +804,18 @@ definitions:
         title: missing trailer ownership documentation
         type: boolean
         x-nullable: true
+      storage_start_date:
+        type: string
+        format: date
+        title: Start date of storage for storage expenses
+        example: '2018-04-26'
+        x-nullable: true
+      storage_end_date:
+        type: string
+        format: date
+        title: End date of storage for storage expenses
+        example: '2018-04-26'
+        x-nullable: true
     required:
       - id
       - move_id
@@ -901,6 +913,18 @@ definitions:
         example: This document is good to go!
         x-nullable: true
         title: Notes
+      storage_start_date:
+        type: string
+        format: date
+        title: Start date of storage for storage expenses
+        example: '2018-04-26'
+        x-nullable: true
+      storage_end_date:
+        type: string
+        format: date
+        title: End date of storage for storage expenses
+        example: '2018-04-26'
+        x-nullable: true
     required:
       - title
       - move_document_type
@@ -917,17 +941,19 @@ definitions:
       - OTHER
       - PACKING_MATERIALS
       - RENTAL_EQUIPMENT
+      - STORAGE
       - TOLLS
       - WEIGHING_FEES
     x-display-value:
-      CONTRACTED_EXPENSE: Contracted Expense
-      RENTAL_EQUIPMENT: Rental Equipment
-      PACKING_MATERIALS: Packing Materials
-      WEIGHING_FEES: Weighing Fees
+      CONTRACTED_EXPENSE: Contracted expense
       GAS: Gas
-      TOLLS: Tolls
       OIL: Oil
       OTHER: Other
+      PACKING_MATERIALS: Packing materials
+      STORAGE: Storage
+      RENTAL_EQUIPMENT: Rental equipment
+      TOLLS: Tolls
+      WEIGHING_FEES: Weighing fees
   MoveDocumentStatus:
     type: string
     title: Document Status
@@ -2574,6 +2600,30 @@ definitions:
     required:
       - start_date
       - available
+  WeightAllotment:
+    type: object
+    properties:
+      total_weight_self:
+        type: integer
+        example: 18000
+      total_weight_self_plus_dependents:
+        type: integer
+        example: 18000
+      pro_gear_weight:
+        type: integer
+        example: 2000
+      pro_gear_weight_spouse:
+        type: integer
+        example: 500
+    required:
+      - total_weight_self
+      - total_weight_self_plus_dependents
+      - pro_gear_weight
+      - pro_gear_weight_spouse
+  IndexEntitlements:
+    type: object
+    additionalProperties:
+      $ref: '#/definitions/WeightAllotment'
 paths:
   /estimates/ppm:
     get:
@@ -2615,6 +2665,8 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+        404:
+          description: ppm discount not found for provided postal codes and original move date
         500:
           description: internal server error
   /estimates/ppm_sit:
@@ -3024,7 +3076,7 @@ paths:
         403:
           description: user is not authorized
         404:
-          description: ppm is not found
+          description: ppm is not found or ppm discount not found for provided postal codes and original move date
         500:
           description: internal server error
     get:
@@ -4238,7 +4290,6 @@ paths:
           type: string
           enum:
             - new
-            - troubleshooting
             - ppm
             - hhg_approved
             - hhg_delivered
@@ -4258,6 +4309,20 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to access this queue
+        404:
+          description: move queue item is not found
+  /entitlements:
+    get:
+      summary: List weight weights allotted by entitlement
+      description:  List weight weights allotted by entitlement
+      operationId: indexEntitlements
+      tags:
+        - entitlements
+      responses:
+        200:
+          description: List of weights allotted entitlement
+          schema:
+            $ref: '#/definitions/IndexEntitlements'
   /entitlements/{moveId}:
     get:
       summary: Validates that the stored weight estimate is below the allotted entitlement range for a service member
