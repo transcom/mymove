@@ -483,7 +483,6 @@ function mapStateToProps(state, ownProps) {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateWeightTicketDocumentsPayload', {}),
     currentPpm: get(state, 'ppm.currentPpm'),
     weightTicketSets: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET_SET']),
-    allDocuments: selectPPMCloseoutDocumentsForMove(state, moveId),
   };
 }
 

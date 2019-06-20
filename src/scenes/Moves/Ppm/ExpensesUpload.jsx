@@ -325,7 +325,6 @@ function mapStateToProps(state, props) {
     expenseSchema: get(state, 'swaggerInternal.spec.definitions.CreateMovingExpenseDocumentPayload', {}),
     currentPpm: get(state, 'ppm.currentPpm'),
     expenses: selectPPMCloseoutDocumentsForMove(state, moveId, ['EXPENSE']),
-    allDocuments: selectPPMCloseoutDocumentsForMove(state, moveId),
   };
 }
 
