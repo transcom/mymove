@@ -262,12 +262,13 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hash := stateCookie.Value
+	// case where user has 2 tabs open with different cookies
 	if hash != shaAsString(returnedState) {
 		h.logger.Error("State returned from Login.gov does not match state value stored in cookie",
 			zap.String("state", returnedState),
 			zap.String("cookie", hash),
 			zap.String("hash", shaAsString(returnedState)))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
 		return
 	}
 
