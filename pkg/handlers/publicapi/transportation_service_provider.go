@@ -14,7 +14,7 @@ import (
 )
 
 func payloadForTransportationServiceProviderModel(t models.TransportationServiceProvider) *apimessages.TransportationServiceProvider {
-	transporationServiceProviderPayload := &apimessages.TransportationServiceProvider{
+	transportationServiceProviderPayload := &apimessages.TransportationServiceProvider{
 		ID:                       *handlers.FmtUUID(t.ID),
 		StandardCarrierAlphaCode: handlers.FmtString(t.StandardCarrierAlphaCode),
 		CreatedAt:                strfmt.DateTime(t.CreatedAt),
@@ -28,7 +28,7 @@ func payloadForTransportationServiceProviderModel(t models.TransportationService
 		PocClaimsEmail:           t.PocClaimsEmail,
 		PocClaimsPhone:           t.PocClaimsPhone,
 	}
-	return transporationServiceProviderPayload
+	return transportationServiceProviderPayload
 }
 
 // GetTransportationServiceProviderHandler returns a TSP for a shipment
@@ -44,40 +44,39 @@ func (h GetTransportationServiceProviderHandler) Handle(params tspop.GetTranspor
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
 	if session.IsTspUser() {
-		// TODO (2018_08_27 cgilmer): Find a way to check Shipment belongs to TSP without 2 queries
 		tspUser, fetchTSPByUserErr := models.FetchTspUserByID(h.DB(), session.TspUserID)
 		if fetchTSPByUserErr != nil {
 			h.Logger().Error("DB Query", zap.Error(fetchTSPByUserErr))
-			// return tspop.NewGetTransporationServiceProviderForbidden()
+			return tspop.NewGetTransportationServiceProviderForbidden()
 		}
 
 		shipment, err = models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
 		if err != nil {
-			handlers.ResponseForError(h.Logger(), err)
-			return tspop.NewGetTransportationServiceProviderBadRequest()
+			return tspop.NewGetTransportationServiceProviderNotFound()
 		}
 	} else if session.IsOfficeUser() {
 		shipment, err = models.FetchShipment(h.DB(), session, shipmentID)
 		if err != nil {
-			handlers.ResponseForError(h.Logger(), err)
-			return tspop.NewGetTransportationServiceProviderBadRequest()
+			return tspop.NewGetTransportationServiceProviderNotFound()
 		}
 	} else if session.IsServiceMember() {
 		shipment, err = models.FetchShipment(h.DB(), session, shipmentID)
 		if err != nil {
-			handlers.ResponseForError(h.Logger(), err)
 			if err == models.ErrFetchForbidden {
 				return tspop.NewGetTransportationServiceProviderForbidden()
 			}
-			return tspop.NewGetTransportationServiceProviderBadRequest()
+			return tspop.NewGetTransportationServiceProviderNotFound()
 		}
 	} else {
 		return tspop.NewGetTransportationServiceProviderForbidden()
 	}
 
+	// Office Users and Service Members aren't guaranteed that the shipment has been awarded
+	// TSP Users that reach this point are because otherwise they are forbidden from viewing
+	// If the Shipment is not yet awarded then the TSP ID will be a nil UUID
 	transportationServiceProviderID := shipment.CurrentTransportationServiceProviderID()
 	if transportationServiceProviderID == uuid.Nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return tspop.NewGetTransportationServiceProviderNotFound()
 	}
 
 	transportationServiceProvider, err := models.FetchTransportationServiceProvider(h.DB(), transportationServiceProviderID)
