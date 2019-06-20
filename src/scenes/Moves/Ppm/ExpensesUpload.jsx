@@ -103,7 +103,6 @@ class ExpensesUpload extends Component {
         storage_end_date,
       })
       .then(() => {
-        this.setState({ expenseNumber: this.state.expenseNumber + 1 });
         this.cleanup();
       })
       .catch(e => {
