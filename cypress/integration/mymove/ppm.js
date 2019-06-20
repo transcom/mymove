@@ -203,7 +203,7 @@ describe('allows a SM to request a payment', function() {
   });
 
   it('service member goes through entire request payment flow', () => {
-    serviceMemberSubmitsWeightTicket('CAR', false, '1st');
+    serviceMemberSubmitsWeightTicket('CAR', false);
     serviceMemberViewsExpensesLandingPage();
     serviceMemberUploadsExpenses();
   });
