@@ -7,7 +7,7 @@ import { getFormValues } from 'redux-form';
 import { updateServiceMember } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { ValidateZipRateData } from '../Moves/Ppm/api';
+import { ValidateZipRateData } from 'shared/api';
 
 const UnsupportedZipCodeErrorMsg =
   'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.';
