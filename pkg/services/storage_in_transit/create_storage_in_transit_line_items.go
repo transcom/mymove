@@ -73,6 +73,19 @@ func (c CreateStorageInTransitLineItems) shipmentItemLocation(location models.St
 
 	return models.ShipmentLineItemLocationNEITHER
 }
+func (c CreateStorageInTransitLineItems) saveLineItem(lineItem *models.ShipmentLineItem) error {
+	logger, err := zap.NewDevelopment()
+	verrs, err := c.DB.ValidateAndCreate(lineItem)
+
+	if err != nil || verrs.HasAny() {
+
+		responseError := errors.Wrapf(err, "Error saving storage in transit line item for shipment %s and item %s with verr %s",
+			lineItem.ShipmentID, lineItem.Tariff400ngItemID, verrs.Error())
+		logger.Error("error saving SIT shipment line items for shipmentID")
+		return responseError
+	}
+	return nil
+}
 
 func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByShipment rateengine.CostByShipment) ([]models.ShipmentLineItem, error) {
 
@@ -91,11 +104,10 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 
 	for _, sit := range storageInTransits {
 
-		// TODO: need to get Kim's PR in for delivering a shipment
 		// Only add line items for storage in transits that have been released or delivered
-		//if sit.Status != models.StorageInTransitStatusDELIVERED && sit.Status != models.StorageInTransitStatusRELEASED {
-		//continue
-		//}
+		if sit.Status != models.StorageInTransitStatusDELIVERED && sit.Status != models.StorageInTransitStatusRELEASED {
+			continue
+		}
 
 		// Calculate distance for storage in transit
 		distanceCalculation, err := c.storageInTransitDistance(sit, shipment)
@@ -133,6 +145,7 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 			}
 			additionalFlateRateC := models.ShipmentLineItem{
 				ShipmentID:        shipment.ID,
+				Shipment:          shipment,
 				Tariff400ngItemID: additionalFlateRateCItem.ID,
 				Tariff400ngItem:   additionalFlateRateCItem,
 				Location:          c.shipmentItemLocation(sit.Location),
@@ -142,6 +155,11 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 				Address:           sit.WarehouseAddress,
 				AddressID:         &sit.WarehouseAddressID,
 			}
+			err = c.saveLineItem(&additionalFlateRateC)
+			if err != nil {
+				return nil, errors.Wrapf(err, "Error saving line item 210C - CreateStorageInTransitLineItems()")
+			}
+
 			lineItems = append(lineItems, additionalFlateRateC)
 		} else {
 			if sit.StorageInTransitDistance.DistanceMiles > 30 {
@@ -151,6 +169,7 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 				}
 				additionalFlateRateB := models.ShipmentLineItem{
 					ShipmentID:        shipment.ID,
+					Shipment:          shipment,
 					Tariff400ngItemID: additionalFlateRateBItem.ID,
 					Tariff400ngItem:   additionalFlateRateBItem,
 					Location:          c.shipmentItemLocation(sit.Location),
@@ -159,6 +178,10 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 					SubmittedDate:     now,
 					Address:           sit.WarehouseAddress,
 					AddressID:         &sit.WarehouseAddressID,
+				}
+				err = c.saveLineItem(&additionalFlateRateB)
+				if err != nil {
+					return nil, errors.Wrapf(err, "Error saving line item 210B - CreateStorageInTransitLineItems()")
 				}
 				lineItems = append(lineItems, additionalFlateRateB)
 			}
@@ -169,6 +192,7 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 			}
 			additionalFlateRateA := models.ShipmentLineItem{
 				ShipmentID:        shipment.ID,
+				Shipment:          shipment,
 				Tariff400ngItemID: additionalFlateRateAItem.ID,
 				Tariff400ngItem:   additionalFlateRateAItem,
 				Location:          c.shipmentItemLocation(sit.Location),
@@ -177,6 +201,10 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 				SubmittedDate:     now,
 				Address:           sit.WarehouseAddress,
 				AddressID:         &sit.WarehouseAddressID,
+			}
+			err = c.saveLineItem(&additionalFlateRateA)
+			if err != nil {
+				return nil, errors.Wrapf(err, "Error saving line item 210A - CreateStorageInTransitLineItems()")
 			}
 			lineItems = append(lineItems, additionalFlateRateA)
 		}
@@ -207,20 +235,21 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 
 	}
 
-	for _, lineItem := range lineItems {
-		logger.Debug("*********** DEBUG SAVING SIT LINE ITEMS *****************")
-		verrs, err := c.DB.ValidateAndCreate(&lineItem)
+	/*
+		for _, lineItem := range lineItems {
+			verrs, err := c.DB.ValidateAndCreate(&lineItem)
 
-		logger.Debug("created line items ", zap.Int("number of", len(lineItems)))
+			if err != nil || verrs.HasAny() {
 
-		if err != nil || verrs.HasAny() {
-
-			responseError := errors.Wrapf(err, "Error saving storage in transit line item for shipment %s and item %s with verr %s",
-				lineItem.ShipmentID, lineItem.Tariff400ngItemID, verrs.Error())
-			logger.Error("error saving SIT shipment line items for shipmentID")
-			return []models.ShipmentLineItem{}, responseError
+				responseError := errors.Wrapf(err, "Error saving storage in transit line item for shipment %s and item %s with verr %s",
+					lineItem.ShipmentID, lineItem.Tariff400ngItemID, verrs.Error())
+				logger.Error("error saving SIT shipment line items for shipmentID")
+				return []models.ShipmentLineItem{}, responseError
+			}
 		}
-	}
+	*/
+	logger.Debug("*********** DEBUG SAVING SIT LINE ITEMS *****************")
+	logger.Debug("created line items ", zap.Int("number of", len(lineItems)))
 
 	return lineItems, nil
 }

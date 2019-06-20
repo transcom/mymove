@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -191,21 +192,33 @@ func FetchStorageInTransitNonPreapprovalsRequestsByShipment(dbConnection *pop.Co
 		nonPreapprovalStorageInTransitCodes[i] = t
 	}
 
+	pop.Debug = true
 	query := dbConnection.Q().
 		LeftJoin("tariff400ng_items", "shipment_line_items.tariff400ng_item_id=tariff400ng_items.id").
 		Where("code in (?)", nonPreapprovalStorageInTransitCodes...).
+		//Where("code = '210C'").
 		Where("shipment_id = ?", shipment.ID).
 		Where("status = ?", ShipmentLineItemStatusAPPROVED).
 		Where("tariff400ng_items.requires_pre_approval = false").
 		Eager("Tariff400ngItem")
 
+	//query := dbConnection.Q().All()
+
+	fmt.Println(query.ToSQL(&pop.Model{Value: ShipmentLineItems{}}))
+	fmt.Println("shipment_id", shipment.ID.String())
+
+	//err := dbConnection.All(&items)
 	err := query.All(&items)
+
+	fmt.Println("len of query return", len(items))
+	//fmt.Println("item[]",)
 
 	// Add the shipment model
 	for i := 0; i < len(items); i++ {
 		items[i].Shipment = shipment
 	}
 
+	pop.Debug = false
 	return items, err
 }
 

@@ -6,11 +6,12 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
+	storageintransit "github.com/transcom/mymove/pkg/services/storage_in_transit"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
-	storageintransit "github.com/transcom/mymove/pkg/services/storage_in_transit"
 )
 
 const (
@@ -81,14 +82,25 @@ func (c *shipmentPricer) PriceShipment(shipment *models.Shipment, price services
 		DB:      c.db,
 		Planner: c.planner,
 	}
-	_, err = createStorageInTransitLineItems.CreateStorageInTransitLineItems(shipmentCost)
+	storageInTransitLineItems, err := createStorageInTransitLineItems.CreateStorageInTransitLineItems(shipmentCost)
 	if err != nil {
 		return validate.NewErrors(), err
 	}
 
+	// TODO: Test reloading the shipment to refresh the database
+	/*
+		shipment, err = models.RefreshShipmentData(c.db, shipment)
+		if err != nil || shipment == nil {
+			return validate.NewErrors(), err
+		}
+		shipmentCost.Shipment = *shipment
+	*/
+
+	//return validate.NewErrors(), errors.New("DEBUG RETURN")
+
 	// When the shipment is delivered we should also price existing approved pre-approval requests
 	// (including pre-approval storage in transit line items) and storage in transit non pre-approval line items
-	additionalLineItems, err := c.engine.PriceAdditionalRequestsForShipment(*shipment)
+	additionalLineItems, err := c.engine.PriceAdditionalRequestsForShipment(*shipment, storageInTransitLineItems)
 	if err != nil {
 		return validate.NewErrors(), err
 	}

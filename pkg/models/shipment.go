@@ -676,6 +676,19 @@ func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Sh
 	return &shipment, nil
 }
 
+/*
+func RefreshShipmentData(tx *pop.Connection, shipment *Shipment) (*Shipment, error) {
+
+	err := tx.Eager(ShipmentAssociationsDefault...).Reload(shipment)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return shipment, err
+}
+*/
+
 // FetchShipmentByTSP looks up a shipments belonging to a TSP ID by Shipment ID
 func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID) (*Shipment, error) {
 

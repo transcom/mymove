@@ -1,6 +1,8 @@
 package rateengine
 
 import (
+	"fmt"
+
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -254,7 +256,7 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 }
 
 // PriceAdditionalRequestsForShipment for a shipment, computes prices for all approved pre-approval requests and populates amount_cents field and applied_rate on those models
-func (re *RateEngine) PriceAdditionalRequestsForShipment(shipment models.Shipment) ([]models.ShipmentLineItem, error) {
+func (re *RateEngine) PriceAdditionalRequestsForShipment(shipment models.Shipment, storageInTransitLineItems []models.ShipmentLineItem) ([]models.ShipmentLineItem, error) {
 
 	var additionalItems models.ShipmentLineItems
 
@@ -266,11 +268,15 @@ func (re *RateEngine) PriceAdditionalRequestsForShipment(shipment models.Shipmen
 	additionalItems = append(additionalItems, preapprovalItems...)
 
 	// Fetch storage in transit non pre-approval line items
-	storageInTransitNonPreapprovalItems, err := models.FetchStorageInTransitNonPreapprovalsRequestsByShipment(re.db, shipment)
-	if err != nil {
-		return []models.ShipmentLineItem{}, err
-	}
-	additionalItems = append(additionalItems, storageInTransitNonPreapprovalItems...)
+	/*
+		storageInTransitNonPreapprovalItems, err := models.FetchStorageInTransitNonPreapprovalsRequestsByShipment(re.db, shipment)
+		if err != nil {
+			return []models.ShipmentLineItem{}, err
+		}
+		fmt.Println("length for storageInTransitNonPreapprovalItems: ", len(storageInTransitNonPreapprovalItems))
+		additionalItems = append(additionalItems, storageInTransitNonPreapprovalItems...)
+	*/
+	additionalItems = append(additionalItems, storageInTransitLineItems...)
 
 	for i := 0; i < len(additionalItems); i++ {
 		err := re.PriceAdditionalRequest(&additionalItems[i])
@@ -295,7 +301,12 @@ func (re *RateEngine) PriceAdditionalRequest(shipmentLineItem *models.ShipmentLi
 	shipmentLineItem.AmountCents = &feeAndRate.Fee
 	shipmentLineItem.AppliedRate = &feeAndRate.Rate
 
+	if shipmentLineItem.Tariff400ngItem.Code == "210C" {
+		fmt.Print("feeAndRate for 210C", feeAndRate)
+	}
 	if shipmentLineItem.AmountCents == nil {
+		fmt.Println("Shipment Line Item - PriceAdditionalRequest() missing AmountCents",
+			zap.Any("shipmentLineItem.Tariff400ngItem.Code", shipmentLineItem.Tariff400ngItem.Code))
 		re.logger.Debug("Shipment Line Item - PriceAdditionalRequest() missing AmountCents",
 			zap.Any("shipmentLineItem.Tariff400ngItem.Code", shipmentLineItem.Tariff400ngItem.Code))
 	}
