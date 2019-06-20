@@ -21,6 +21,7 @@ import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpen
 import Alert from 'shared/Alert';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import DocumentsUploaded from './DocumentsUploaded';
 
 class ExpensesUpload extends Component {
   state = { ...this.initialState };
@@ -148,7 +149,16 @@ class ExpensesUpload extends Component {
 
   render() {
     const { missingReceipt, paymentMethod, haveMoreExpenses, moveDocumentCreateError } = this.state;
-    const { moveDocSchema, formValues, isPublic, handleSubmit, submitting, expenses, expenseSchema } = this.props;
+    const {
+      moveDocSchema,
+      formValues,
+      isPublic,
+      handleSubmit,
+      submitting,
+      expenses,
+      expenseSchema,
+      moveId,
+    } = this.props;
     const nextBtnLabel =
       haveMoreExpenses === 'Yes'
         ? ExpensesUpload.nextBtnLabels.SaveAndAddAnother
@@ -168,6 +178,7 @@ class ExpensesUpload extends Component {
             </ProgressTimeline>
           }
         />
+        <DocumentsUploaded moveId={moveId} />
 
         <div className="usa-grid expenses-container">
           <h3 className="expenses-header">Expense {expenseNumber}</h3>
@@ -314,6 +325,7 @@ function mapStateToProps(state, props) {
     expenseSchema: get(state, 'swaggerInternal.spec.definitions.CreateMovingExpenseDocumentPayload', {}),
     currentPpm: get(state, 'ppm.currentPpm'),
     expenses: selectPPMCloseoutDocumentsForMove(state, moveId, ['EXPENSE']),
+    allDocuments: selectPPMCloseoutDocumentsForMove(state, moveId),
   };
 }
 

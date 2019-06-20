@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { reduxForm, getFormValues } from 'redux-form';
+import { getFormValues, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { get, map } from 'lodash';
 import PropTypes from 'prop-types';
@@ -24,6 +24,7 @@ import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCirc
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { intToOrdinal } from './utility';
+import DocumentsUploaded from './DocumentsUploaded';
 
 const vehicleTypes = {
   CarAndTrailer: 'CAR_TRAILER',
@@ -203,11 +204,10 @@ class WeightTicket extends Component {
       missingDocumentation,
       isValidTrailer,
     } = this.state;
-    const { handleSubmit, submitting, schema, weightTicketSets } = this.props;
+    const { handleSubmit, submitting, schema, weightTicketSets, moveId } = this.props;
     const nextBtnLabel =
       additionalWeightTickets === 'Yes' ? nextBtnLabels.SaveAndAddAnother : nextBtnLabels.SaveAndContinue;
     const weightTicketSetOrdinal = intToOrdinal(weightTicketSets.length + 1);
-
     return (
       <Fragment>
         <WizardHeader
@@ -220,6 +220,7 @@ class WeightTicket extends Component {
             </ProgressTimeline>
           }
         />
+        <DocumentsUploaded moveId={moveId} />
         <form>
           {this.state.weightTicketSubmissionError && (
             <div className="usa-grid">
@@ -482,6 +483,7 @@ function mapStateToProps(state, ownProps) {
     schema: get(state, 'swaggerInternal.spec.definitions.CreateWeightTicketDocumentsPayload', {}),
     currentPpm: get(state, 'ppm.currentPpm'),
     weightTicketSets: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET_SET']),
+    allDocuments: selectPPMCloseoutDocumentsForMove(state, moveId),
   };
 }
 
