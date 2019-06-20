@@ -129,7 +129,7 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 		if sit.StorageInTransitDistance.DistanceMiles > 50 {
 			additionalFlateRateCItem, err := models.FetchTariff400ngItemByCode(c.DB, "210C")
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrapf(err, "Error fetching item code 210C - CreateStorageInTransitLineItems()")
 			}
 			additionalFlateRateC := models.ShipmentLineItem{
 				ShipmentID:        shipment.ID,
@@ -147,7 +147,7 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 			if sit.StorageInTransitDistance.DistanceMiles > 30 {
 				additionalFlateRateBItem, err := models.FetchTariff400ngItemByCode(c.DB, "210B")
 				if err != nil {
-					return nil, err
+					return nil, errors.Wrapf(err, "Error fetching item code 210B - CreateStorageInTransitLineItems()")
 				}
 				additionalFlateRateB := models.ShipmentLineItem{
 					ShipmentID:        shipment.ID,
@@ -165,7 +165,7 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 
 			additionalFlateRateAItem, err := models.FetchTariff400ngItemByCode(c.DB, "210A")
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrapf(err, "Error fetching item code 210A - CreateStorageInTransitLineItems()")
 			}
 			additionalFlateRateA := models.ShipmentLineItem{
 				ShipmentID:        shipment.ID,

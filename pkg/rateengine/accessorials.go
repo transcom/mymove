@@ -228,7 +228,9 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 		discountRate = &shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.SITRate
 	}
 
-	re.logger.Debug("discountRate", zap.Float64("discountRate", discountRate.Float64()))
+	if discountRate != nil {
+		re.logger.Debug("discountRate", zap.Float64("discountRate", discountRate.Float64()))
+	}
 
 	// Weight-based items will pull final weight values from the shipment when available
 	appliedQuantity := shipmentLineItem.Quantity1
@@ -292,6 +294,11 @@ func (re *RateEngine) PriceAdditionalRequest(shipmentLineItem *models.ShipmentLi
 	}
 	shipmentLineItem.AmountCents = &feeAndRate.Fee
 	shipmentLineItem.AppliedRate = &feeAndRate.Rate
+
+	if shipmentLineItem.AmountCents == nil {
+		re.logger.Debug("Shipment Line Item - PriceAdditionalRequest() missing AmountCents",
+			zap.Any("shipmentLineItem.Tariff400ngItem.Code", shipmentLineItem.Tariff400ngItem.Code))
+	}
 
 	return nil
 }

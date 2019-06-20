@@ -433,7 +433,9 @@ func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipm
 		// Approve the shipment line item
 		err = shipmentLineItem.Approve()
 		if err != nil {
-			h.Logger().Error("Error approving shipment line item for shipment", zap.Error(err))
+			h.Logger().Error("Error approving shipment line item for shipment",
+				zap.String("item code", shipmentLineItem.Tariff400ngItem.Code),
+				zap.Error(err))
 			return accessorialop.NewApproveShipmentLineItemForbidden()
 		}
 	}

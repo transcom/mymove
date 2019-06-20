@@ -853,7 +853,7 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 
 	// The details of the line items are tested in the rateengine package.  We just
 	// check the count here.
-	suite.Len(addedLineItems, 7)
+	suite.Len(addedLineItems, 8)
 
 	updatedPreApproval, err := models.FetchShipmentLineItemByID(suite.DB(), &preApproval.ID)
 	if suite.NoError(err) {
