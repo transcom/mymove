@@ -17,9 +17,7 @@
     "app-{{ .environment }}",
     "--",
     "/bin/milmove",
-    "serve"
-  ],
-  "command": [
+    "serve",
     "--env",
     "container",
     "--debug-logging",
@@ -27,6 +25,7 @@
     "--tls-enabled",
     "--mutual-tls-enabled"
   ],
+  "command": [],
   "environment": [
     {
       "name": "SERVICE_NAME",

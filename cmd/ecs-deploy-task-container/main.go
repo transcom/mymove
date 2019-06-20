@@ -336,7 +336,10 @@ func main() {
 
 	// Get the current task definition (for rollback)
 	commandName := v.GetString(commandFlag)
-	commandArgs := strings.Split(v.GetString(commandArgsFlag), " ")
+	commandArgs := []string{}
+	if str := v.GetString(commandArgsFlag); len(str) > 0 {
+		commandArgs = strings.Split(str, " ")
+	}
 	ruleName := fmt.Sprintf("%s-%s", commandName, v.GetString(environmentFlag))
 	targetsOutput, err := serviceCloudWatchEvents.ListTargetsByRule(&cloudwatchevents.ListTargetsByRuleInput{
 		Rule: aws.String(ruleName),
@@ -409,23 +412,28 @@ func main() {
 	chamberRetries := v.GetInt(chamberRetriesFlag)
 	chamberStore := fmt.Sprintf("%s-%s", serviceName, environmentName)
 
+	entryPoint := []string{
+		chamberBinary,
+		"-r",
+		strconv.Itoa(chamberRetries),
+		"exec",
+		chamberStore,
+		"--",
+		fmt.Sprintf("/bin/%s", commandName),
+	}
+	if len(commandArgs) > 0 {
+		entryPoint = append(entryPoint, commandArgs...)
+	}
+
 	// Register the new task definition
 	newTaskDefOutput, err := serviceECS.RegisterTaskDefinition(&ecs.RegisterTaskDefinitionInput{
 		ContainerDefinitions: []*ecs.ContainerDefinition{
 			{
-				Name:      aws.String(containerDefName),
-				Image:     aws.String(imageName),
-				Essential: aws.Bool(true),
-				EntryPoint: []*string{
-					aws.String(chamberBinary),
-					aws.String("-r"),
-					aws.String(strconv.Itoa(chamberRetries)),
-					aws.String("exec"),
-					aws.String(chamberStore),
-					aws.String("--"),
-					aws.String(fmt.Sprintf("/bin/%s", commandName)),
-				},
-				Command:     aws.StringSlice(commandArgs),
+				Name:        aws.String(containerDefName),
+				Image:       aws.String(imageName),
+				Essential:   aws.Bool(true),
+				EntryPoint:  aws.StringSlice(entryPoint),
+				Command:     []*string{},
 				Environment: buildContainerEnvironment(v, environmentName, dbHost),
 				LogConfiguration: &ecs.LogConfiguration{
 					LogDriver: aws.String("awslogs"),
