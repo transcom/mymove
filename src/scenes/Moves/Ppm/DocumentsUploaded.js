@@ -12,9 +12,9 @@ export class DocumentsUploaded extends Component {
 
   createHeaderMessage = documentLength => {
     return (
-      <p>
+      <div>
         {documentLength} document{documentLength > 1 ? 's' : ''} added <a style={{ paddingLeft: '1em' }}>Show</a>
-      </p>
+      </div>
     );
   };
 
