@@ -37,7 +37,7 @@ class ExpensesUpload extends Component {
 
   get initialState() {
     return {
-      paymentMethod: ExpensesUpload.paymentMethods.Other,
+      paymentMethod: ExpensesUpload.paymentMethods.GTCC,
       uploaderIsIdle: true,
       missingReceipt: false,
       expenseType: '',
@@ -61,15 +61,25 @@ class ExpensesUpload extends Component {
     });
   };
 
+  isStorageExpense = formValues => {
+    return !isEmpty(formValues) && formValues.moving_expense_type === 'STORAGE';
+  };
+
   saveAndAddHandler = formValues => {
     const { moveId, currentPpm } = this.props;
     const { paymentMethod, missingReceipt } = this.state;
-    const { title, moving_expense_type: movingExpenseType, requested_amount_cents: requestedAmountCents } = formValues;
+    const {
+      storage_start_date,
+      storage_end_date,
+      moving_expense_type: movingExpenseType,
+      requested_amount_cents: requestedAmountCents,
+    } = formValues;
 
     // eslint-disable-next-line security/detect-object-injection
     let files = this.uploader.getFiles();
     const uploadIds = map(files, 'id');
     const personallyProcuredMoveId = currentPpm ? currentPpm.id : null;
+    const title = this.isStorageExpense(formValues) ? 'Storage Expense' : formValues.title;
     return this.props
       .createMovingExpenseDocument({
         moveId,
@@ -82,6 +92,8 @@ class ExpensesUpload extends Component {
         paymentMethod,
         notes: '',
         missingReceipt,
+        storage_start_date,
+        storage_end_date,
       })
       .then(() => {
         this.setState({ expenseNumber: this.state.expenseNumber + 1 });
@@ -122,27 +134,21 @@ class ExpensesUpload extends Component {
     alert('Cash, personal credit card, check — any payment method that’s not your GTCC.');
   };
 
-  formIsIncomplete = () => {
-    const { formValues } = this.props;
+  isInvalidUploaderState = () => {
     const { missingReceipt } = this.state;
     const receiptUploaded = this.uploader && !this.uploader.isEmpty();
-    return !(
-      formValues &&
-      formValues.moving_expense_type &&
-      formValues.title &&
-      formValues.requested_amount_cents &&
-      (missingReceipt || receiptUploaded)
-    );
+    return missingReceipt === receiptUploaded;
   };
 
   render() {
     const { missingReceipt, paymentMethod, haveMoreExpenses, expenseNumber, moveDocumentCreateError } = this.state;
-    const { moveDocSchema, formValues, isPublic, handleSubmit, submitting } = this.props;
+    const { moveDocSchema, formValues, isPublic, handleSubmit, submitting, expenseSchema } = this.props;
     const nextBtnLabel =
       haveMoreExpenses === 'Yes'
         ? ExpensesUpload.nextBtnLabels.SaveAndAddAnother
         : ExpensesUpload.nextBtnLabels.SaveAndContinue;
     const hasMovingExpenseType = !isEmpty(formValues) && formValues.moving_expense_type !== '';
+    const isStorageExpense = this.isStorageExpense(formValues);
     return (
       <>
         <WizardHeader
@@ -177,9 +183,29 @@ class ExpensesUpload extends Component {
             <SwaggerField title="Expense type" fieldName="moving_expense_type" swagger={moveDocSchema} required />
             {hasMovingExpenseType && (
               <>
-                <SwaggerField title="Document title" fieldName="title" swagger={moveDocSchema} required />
+                {isStorageExpense ? (
+                  <div>
+                    <h4 className="expenses-group-header">Dates</h4>
+                    <SwaggerField
+                      className="short-field expenses-form-group"
+                      fieldName="storage_start_date"
+                      title="Start date"
+                      swagger={expenseSchema}
+                      required
+                    />
+                    <SwaggerField
+                      className="short-field expenses-form-group"
+                      fieldName="storage_end_date"
+                      title="End date"
+                      swagger={expenseSchema}
+                      required
+                    />
+                  </div>
+                ) : (
+                  <SwaggerField title="Document title" fieldName="title" swagger={moveDocSchema} required />
+                )}
                 <SwaggerField
-                  className="short-field"
+                  className="short-field expense-form-element"
                   title="Amount"
                   fieldName="requested_amount_cents"
                   swagger={moveDocSchema}
@@ -255,7 +281,7 @@ class ExpensesUpload extends Component {
             <PPMPaymentRequestActionBtns
               nextBtnLabel={nextBtnLabel}
               submitButtonsAreDisabled={
-                this.formIsIncomplete() || nextBtnLabel === ExpensesUpload.nextBtnLabels.SaveAndContinue
+                this.isInvalidUploaderState() || nextBtnLabel === ExpensesUpload.nextBtnLabels.SaveAndContinue
               }
               submitting={submitting}
               saveForLaterHandler={handleSubmit(this.saveForLaterHandler)}
@@ -278,7 +304,7 @@ function mapStateToProps(state, props) {
     moveId: moveId,
     formValues: getFormValues(formName)(state),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
-    initialValues: {},
+    expenseSchema: get(state, 'swaggerInternal.spec.definitions.CreateMovingExpenseDocumentPayload', {}),
     currentPpm: get(state, 'ppm.currentPpm'),
   };
 }
