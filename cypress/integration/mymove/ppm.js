@@ -217,7 +217,7 @@ describe('allows a SM to request a payment', function() {
   });
 
   it('service member can save a weight ticket for later', () => {
-    serviceMemberSavesWeightTicketForLater('CAR');
+    serviceMemberSavesWeightTicketForLater('BOX_TRUCK');
   });
 
   //TODO: remove when done with the new flow to request payment
@@ -320,8 +320,8 @@ function serviceMemberUploadsExpenses() {
   cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
 
   cy.get('input[name="missingReceipt"]').should('not.be.checked');
-  cy.get('input[name="paymentMethod"][value="GTCC"]').should('not.be.checked');
-  cy.get('input[name="paymentMethod"][value="OTHER"]').should('be.checked');
+  cy.get('input[name="paymentMethod"][value="GTCC"]').should('be.checked');
+  cy.get('input[name="paymentMethod"][value="OTHER"]').should('not.be.checked');
   cy.get('input[name="haveMoreExpenses"][value="Yes"]').should('not.be.checked');
   cy.get('input[name="haveMoreExpenses"][value="No"]').should('be.checked');
   cy.get('input[name="haveMoreExpenses"][value="Yes"]+label').click();
@@ -335,8 +335,15 @@ function serviceMemberUploadsExpenses() {
   // Add an expense that's missing a receipt
   cy.contains('Expense 2');
 
-  cy.get('select[name="moving_expense_type"]').select('GAS');
-  cy.get('input[name="title"]').type('title 2');
+  cy.get('select[name="moving_expense_type"]').select('STORAGE');
+  cy
+    .get('input[name="storage_start_date"]')
+    .type('6/2/2018{enter}')
+    .blur();
+  cy
+    .get('input[name="storage_end_date"]')
+    .type('6/12/2018{enter}')
+    .blur();
   cy.get('input[name="requested_amount_cents"]').type('2000');
 
   cy.get('input[name="missingReceipt"]').should('not.be.checked');
@@ -474,12 +481,14 @@ function serviceMemberSubmitsWeightsTicketsWithoutReceipts() {
   cy.wait('@postWeightTicket');
 }
 
-function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true) {
+function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordinal = '1st') {
   cy.contains('Request Payment').click();
   cy
     .get('button')
     .contains('Get Started')
     .click();
+
+  cy.contains(`Weight Tickets - ${ordinal} set`);
 
   cy.get('select[name="vehicle_options"]').select(vehicleType);
 

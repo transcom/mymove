@@ -184,6 +184,8 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			LEFT JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
 			WHERE moves.show is true
 		`
+	} else {
+		return moveQueueItems, ErrFetchNotFound
 	}
 
 	err := db.RawQuery(query).All(&moveQueueItems)
