@@ -272,6 +272,7 @@ function serviceMemberViewsExpensesLandingPage() {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-expenses-intro/);
   });
 
+  cy.get('[data-cy=documents-uploaded]').should('exist');
   cy
     .get('button')
     .contains('Continue')
@@ -310,6 +311,7 @@ function serviceMemberUploadsExpenses() {
   });
 
   cy.contains('Expense 1');
+  cy.get('[data-cy=documents-uploaded]').should('exist');
 
   cy.get('select[name="moving_expense_type"]').select('GAS');
   cy.get('input[name="title"]').type('title');
@@ -489,6 +491,7 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
     .click();
 
   cy.contains(`Weight Tickets - ${ordinal} set`);
+  cy.get('[data-cy=documents-uploaded]').should('not.exist');
 
   cy.get('select[name="vehicle_options"]').select(vehicleType);
 
@@ -530,6 +533,7 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
       .click();
   }
   cy.wait('@postWeightTicket');
+  cy.get('[data-cy=documents-uploaded]').should('exist');
 }
 
 function serviceMemberCanCancel() {
