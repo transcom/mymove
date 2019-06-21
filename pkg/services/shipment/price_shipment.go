@@ -64,7 +64,14 @@ func (c *shipmentPricer) PriceShipment(shipment *models.Shipment, price services
 			return validate.NewErrors(), err
 		}
 
+		// Delete Storage in Transit Shipment Line Items for repricing
+		err = shipment.DeleteStorageInTransitLineItems(c.db)
+		if err != nil {
+			return validate.NewErrors(), err
+		}
+
 		// Save and validate Shipment after deleting Base Shipment Line Items
+		// and Storage in Transit Shipment Line Items
 		verrs, saveShipmentErr := models.SaveShipment(c.db, shipment)
 		if verrs.HasAny() || saveShipmentErr != nil {
 			saveError := errors.Wrap(saveShipmentErr, "Error saving shipment for ShipmentPriceRECALCULATE")
@@ -72,12 +79,13 @@ func (c *shipmentPricer) PriceShipment(shipment *models.Shipment, price services
 		}
 	}
 
+	// Create Base Shipment Line Items for Shipment
 	baseLineItems, err := rateengine.CreateBaseShipmentLineItems(c.db, shipmentCost)
 	if err != nil {
 		return validate.NewErrors(), err
 	}
 
-	// Add storage in transit line items
+	// Create Storage in Transit (SIT) line items for Shipment
 	createStorageInTransitLineItems := storageintransit.CreateStorageInTransitLineItems{
 		DB:      c.db,
 		Planner: c.planner,
@@ -87,19 +95,7 @@ func (c *shipmentPricer) PriceShipment(shipment *models.Shipment, price services
 		return validate.NewErrors(), err
 	}
 
-	// TODO: Test reloading the shipment to refresh the database
-	/*
-		shipment, err = models.RefreshShipmentData(c.db, shipment)
-		if err != nil || shipment == nil {
-			return validate.NewErrors(), err
-		}
-		shipmentCost.Shipment = *shipment
-	*/
-
-	//return validate.NewErrors(), errors.New("DEBUG RETURN")
-
-	// When the shipment is delivered we should also price existing approved pre-approval requests
-	// (including pre-approval storage in transit line items) and storage in transit non pre-approval line items
+	// Price existing approved accessorials that require approval (and have been approved) and price storage in transit line items
 	additionalLineItems, err := c.engine.PriceAdditionalRequestsForShipment(*shipment, storageInTransitLineItems)
 	if err != nil {
 		return validate.NewErrors(), err

@@ -122,9 +122,8 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 		return FeeAndRate{}, errors.New("Can't price a shipment line item for a shipment without NetWeight")
 	}
 
-	var zip string
 	// Defaults to origin postal code, but if location is NEITHER than this doesn't matter
-	zip = Zip5ToZip3(shipment.PickupAddress.PostalCode)
+	zip := Zip5ToZip3(shipment.PickupAddress.PostalCode)
 	if shipmentLineItem.Location == models.ShipmentLineItemLocationDESTINATION {
 		zip = Zip5ToZip3(shipment.Move.Orders.NewDutyStation.Address.PostalCode)
 	}
@@ -267,15 +266,7 @@ func (re *RateEngine) PriceAdditionalRequestsForShipment(shipment models.Shipmen
 	}
 	additionalItems = append(additionalItems, preapprovalItems...)
 
-	// Fetch storage in transit non pre-approval line items
-	/*
-		storageInTransitNonPreapprovalItems, err := models.FetchStorageInTransitNonPreapprovalsRequestsByShipment(re.db, shipment)
-		if err != nil {
-			return []models.ShipmentLineItem{}, err
-		}
-		fmt.Println("length for storageInTransitNonPreapprovalItems: ", len(storageInTransitNonPreapprovalItems))
-		additionalItems = append(additionalItems, storageInTransitNonPreapprovalItems...)
-	*/
+	// Append storage in transit line items
 	additionalItems = append(additionalItems, storageInTransitLineItems...)
 
 	for i := 0; i < len(additionalItems); i++ {

@@ -676,19 +676,6 @@ func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Sh
 	return &shipment, nil
 }
 
-/*
-func RefreshShipmentData(tx *pop.Connection, shipment *Shipment) (*Shipment, error) {
-
-	err := tx.Eager(ShipmentAssociationsDefault...).Reload(shipment)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return shipment, err
-}
-*/
-
 // FetchShipmentByTSP looks up a shipments belonging to a TSP ID by Shipment ID
 func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID) (*Shipment, error) {
 
@@ -1024,35 +1011,6 @@ func (s *Shipment) AcceptedShipmentOffer() (*ShipmentOffer, error) {
 	return &acceptedOffers[0], nil
 }
 
-// FindBaseShipmentLineItem returns true if code is a Base Shipment Line Item
-// otherwise, returns false
-func FindBaseShipmentLineItem(code string) bool {
-	for _, base := range BaseShipmentLineItems {
-		if code == base.Code {
-			return true
-		}
-	}
-	return false
-}
-
-// VerifyBaseShipmentLineItems checks that all of the expected base line items are in use, as they are mandatory for
-// every shipment
-func VerifyBaseShipmentLineItems(lineItems []ShipmentLineItem) error {
-	var count int
-	count = 0
-	for _, item := range lineItems {
-		if !item.Tariff400ngItem.RequiresPreApproval && FindBaseShipmentLineItem(item.Tariff400ngItem.Code) {
-			count++
-		}
-	}
-
-	if count != len(BaseShipmentLineItems) {
-		return fmt.Errorf("Incorrect count for Base Shipment Line Items expected length: %d actual length: %d", len(BaseShipmentLineItems), count)
-	}
-
-	return nil
-}
-
 // DeleteBaseShipmentLineItems removes all base shipment line items from a shipment
 func (s *Shipment) DeleteBaseShipmentLineItems(db *pop.Connection) error {
 	transactionError := db.Transaction(func(tx *pop.Connection) error {
@@ -1069,7 +1027,31 @@ func (s *Shipment) DeleteBaseShipmentLineItems(db *pop.Connection) error {
 			if FindBaseShipmentLineItem(item.Tariff400ngItem.Code) {
 				err := tx.Destroy(&item)
 				if err != nil {
-					dbError = errors.Wrap(dbError, fmt.Sprintf(" Error deleting shipment line item for shipment ID: %s and shipment line item code: %s", s.ID, item.Tariff400ngItem.Code))
+					dbError = errors.Wrap(dbError, fmt.Sprintf(" Error deleting base shipment line item for shipment ID: %s and shipment line item code: %s", s.ID, item.Tariff400ngItem.Code))
+					return errors.Wrap(err, dbError.Error())
+				}
+			}
+		}
+		return nil
+	})
+
+	return transactionError
+}
+
+// DeleteStorageInTransitLineItems removes all storage in transit shipment line items from a shipment
+func (s *Shipment) DeleteStorageInTransitLineItems(db *pop.Connection) error {
+	transactionError := db.Transaction(func(tx *pop.Connection) error {
+		dbError := errors.New("rollback")
+
+		for _, item := range s.ShipmentLineItems {
+			// Do not delete a line item that has an Invoice ID
+			if item.InvoiceID != nil {
+				continue
+			}
+			if FindStorageInTransitShipmentLineItem(item.Tariff400ngItem.Code) {
+				err := tx.Destroy(&item)
+				if err != nil {
+					dbError = errors.Wrap(dbError, fmt.Sprintf(" Error deleting storage in transit shipment line item for shipment ID: %s and shipment line item code: %s", s.ID, item.Tariff400ngItem.Code))
 					return errors.Wrap(err, dbError.Error())
 				}
 			}

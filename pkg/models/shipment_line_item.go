@@ -78,6 +78,52 @@ type ShipmentLineItem struct {
 // ShipmentLineItems is not required by pop and may be deleted
 type ShipmentLineItems []ShipmentLineItem
 
+func StorageInTransitLineItemCodes() []string {
+	return []string{
+		"185A",
+		"185B",
+		"210A",
+		"210B",
+		"210C",
+		"210F",
+	}
+}
+
+// ShipmentLineItemCodeDescription describes an item code
+type ShipmentLineItemCodeDescription struct {
+	Code        string
+	Description string
+}
+
+func BaseShipmentLineItemCodes() []ShipmentLineItemCodeDescription {
+	return []ShipmentLineItemCodeDescription{
+		{
+			Code:        "LHS",
+			Description: "Linehaul charges",
+		},
+		{
+			Code:        "135A",
+			Description: "Origin service fee",
+		},
+		{
+			Code:        "135B",
+			Description: "Destination service",
+		},
+		{
+			Code:        "105A",
+			Description: "Pack Fee",
+		},
+		{
+			Code:        "105C",
+			Description: "Unpack Fee",
+		},
+		{
+			Code:        "16A",
+			Description: "Fuel Surcharge",
+		},
+	}
+}
+
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (s *ShipmentLineItem) Validate(tx *pop.Connection) (*validate.Errors, error) {
@@ -158,16 +204,21 @@ func FetchLineItemsByShipmentID(dbConnection *pop.Connection, shipmentID *uuid.U
 }
 
 // FetchApprovedPreapprovalRequestsByShipment fetches approved pre-approval requests for a shipment
-// This function should also handle pulling Storage In Transit (pre-approval) line items (185A, 185B, 210D, 210E)
-// which are stored in the database as 'requires_pre_approval = true'
 func FetchApprovedPreapprovalRequestsByShipment(dbConnection *pop.Connection, shipment Shipment) ([]ShipmentLineItem, error) {
 	var items []ShipmentLineItem
+
+	sitCodes := StorageInTransitLineItemCodes()
+	storageInTransitCodes := make([]interface{}, len(sitCodes))
+	for i, t := range sitCodes {
+		storageInTransitCodes[i] = t
+	}
 
 	query := dbConnection.Q().
 		LeftJoin("tariff400ng_items", "shipment_line_items.tariff400ng_item_id=tariff400ng_items.id").
 		Where("shipment_id = ?", shipment.ID).
 		Where("status = ?", ShipmentLineItemStatusAPPROVED).
 		Where("tariff400ng_items.requires_pre_approval = true").
+		Where("code not in (?)", storageInTransitCodes...).
 		Eager("Tariff400ngItem")
 
 	err := query.All(&items)
@@ -180,45 +231,31 @@ func FetchApprovedPreapprovalRequestsByShipment(dbConnection *pop.Connection, sh
 	return items, err
 }
 
-// FetchStorageInTransitNonPreapprovalsRequestsByShipment fetches non approval SIT line items for a shipment
-// This will fetch the SIT line items that do not require approval. The function FetchApprovedPreapprovalRequestsByShipment should
-// pull in any pre-approval shipment line items including SIT line items that need pre-approval
-func FetchStorageInTransitNonPreapprovalsRequestsByShipment(dbConnection *pop.Connection, shipment Shipment) ([]ShipmentLineItem, error) {
+// FetchStorageInTransitLineItemsByShipment fetches SIT line items for a shipment
+func FetchStorageInTransitLineItemsByShipment(dbConnection *pop.Connection, shipment Shipment) ([]ShipmentLineItem, error) {
 	var items []ShipmentLineItem
 
-	sitCodes := []string{"210A", "210B", "210C", "210F"}
-	nonPreapprovalStorageInTransitCodes := make([]interface{}, len(sitCodes))
+	sitCodes := StorageInTransitLineItemCodes()
+	storageInTransitCodes := make([]interface{}, len(sitCodes))
 	for i, t := range sitCodes {
-		nonPreapprovalStorageInTransitCodes[i] = t
+		storageInTransitCodes[i] = t
 	}
 
-	pop.Debug = true
 	query := dbConnection.Q().
 		LeftJoin("tariff400ng_items", "shipment_line_items.tariff400ng_item_id=tariff400ng_items.id").
-		Where("code in (?)", nonPreapprovalStorageInTransitCodes...).
-		//Where("code = '210C'").
+		Where("code in (?)", storageInTransitCodes...).
 		Where("shipment_id = ?", shipment.ID).
 		Where("status = ?", ShipmentLineItemStatusAPPROVED).
 		Where("tariff400ng_items.requires_pre_approval = false").
 		Eager("Tariff400ngItem")
 
-	//query := dbConnection.Q().All()
-
-	fmt.Println(query.ToSQL(&pop.Model{Value: ShipmentLineItems{}}))
-	fmt.Println("shipment_id", shipment.ID.String())
-
-	//err := dbConnection.All(&items)
 	err := query.All(&items)
-
-	fmt.Println("len of query return", len(items))
-	//fmt.Println("item[]",)
 
 	// Add the shipment model
 	for i := 0; i < len(items); i++ {
 		items[i].Shipment = shipment
 	}
 
-	pop.Debug = false
 	return items, err
 }
 
@@ -263,5 +300,45 @@ func (s *ShipmentLineItem) ConditionallyApprove() error {
 	if s.ApprovedDate.IsZero() {
 		s.ApprovedDate = time.Now()
 	}
+	return nil
+}
+
+// FindBaseShipmentLineItem returns true if code is a Base Shipment Line Item
+// otherwise, returns false
+func FindBaseShipmentLineItem(code string) bool {
+	for _, base := range BaseShipmentLineItems {
+		if code == base.Code {
+			return true
+		}
+	}
+	return false
+}
+
+// FindStorageInTransitShipmentLineItem returns true if code is a Storage in Transit Shipment Line Item
+// otherwise, returns false
+func FindStorageInTransitShipmentLineItem(code string) bool {
+	for _, base := range StorageInTransitLineItemCodes() {
+		if code == base {
+			return true
+		}
+	}
+	return false
+}
+
+// VerifyBaseShipmentLineItems checks that all of the expected base line items are in use, as they are mandatory for
+// every shipment
+func VerifyBaseShipmentLineItems(lineItems []ShipmentLineItem) error {
+	var count int
+	count = 0
+	for _, item := range lineItems {
+		if !item.Tariff400ngItem.RequiresPreApproval && FindBaseShipmentLineItem(item.Tariff400ngItem.Code) {
+			count++
+		}
+	}
+
+	if count != len(BaseShipmentLineItemCodes()) {
+		return fmt.Errorf("Incorrect count for Base Shipment Line Items expected length: %d actual length: %d", len(BaseShipmentLineItemCodes()), count)
+	}
+
 	return nil
 }

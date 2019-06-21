@@ -67,7 +67,7 @@ function listLinehaulItemsBeforeAccessorials(items) {
     ['105A', 5],
     ['105C', 6],
   ]);
-  const storageInTransitRelatedItems = ['185A', '185B', '210A', '210B', '210C'];
+  const storageInTransitRelatedItems = ['185A', '185B', '210A', '210B', '210C', '210F'];
   return items.map(item => {
     return {
       ...item,
