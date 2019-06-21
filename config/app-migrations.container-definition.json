@@ -9,14 +9,13 @@
     "exec",
     "app-{{ .environment }}",
     "--",
-    "/bin/milmove"
-  ],
-  "command": [
+    "/bin/milmove",
     "migrate",
     "--env",
     "container",
     "--db-iam"
   ],
+  "command": [],
   "portMappings": [],
   "environment": [
     {

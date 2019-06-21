@@ -9,9 +9,7 @@
     "exec",
     "app-{{ .environment }}",
     "--",
-    "/bin/milmove"
-  ],
-  "command": [
+    "/bin/milmove",
     "serve",
     "--env",
     "container",
@@ -21,6 +19,7 @@
     "--mutual-tls-enabled",
     "--db-iam"
   ],
+  "command": [],
   "portMappings": [
     {
       "containerPort": 9443,
