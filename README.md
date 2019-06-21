@@ -440,9 +440,9 @@ Running migrations on Staging / Production:
 
 Migrations are run automatically by CircleCI as part of the standard deploy process.
 
-1. CircleCI builds and registers a container that includes the `soda` binary, along with migrations files.
+1. CircleCI builds and registers a container.
 1. CircleCI deploys this container to ECS and runs it as a one-off 'task'.
-1. Migrations run inside the container against the environment's database.
+1. The container downloads and execute migrations against the environment's database.
 1. If migrations fail, CircleCI fails the deploy.
 1. If migrations pass, CircleCI continues with the deploy.
 
