@@ -2632,6 +2632,13 @@ definitions:
     type: object
     additionalProperties:
       $ref: '#/definitions/WeightAllotment'
+  ClaimAccessCode:
+    type: object
+    properties:
+      claim_access_code:
+        type: string
+        x-nullable: false
+        title: MilMove access code
 paths:
   /estimates/ppm:
     get:
@@ -4322,7 +4329,7 @@ paths:
   /entitlements:
     get:
       summary: List weight weights allotted by entitlement
-      description:  List weight weights allotted by entitlement
+      description: List weight weights allotted by entitlement
       operationId: indexEntitlements
       tags:
         - entitlements
