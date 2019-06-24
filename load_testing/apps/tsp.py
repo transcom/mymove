@@ -2,6 +2,7 @@
 import random
 from urllib.parse import urljoin
 
+from locust import TaskSet
 from locust import seq_task
 from locust import task
 from bravado.client import SwaggerClient
@@ -14,53 +15,71 @@ from .base import get_swagger_config
 from .base import swagger_request
 
 
-class TSPUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
+class TSPQueue(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
 
     login_gov_user = None
     session_token = None
     user = {}
+
+    def update_user(self):
+        self.user = swagger_request(self.swagger_internal.users.showLoggedInUser)
 
     @seq_task(1)
     def login(self):
         resp = self.client.post("/devlocal-auth/create", data={"userType": "tsp"})
         try:
             self.login_gov_user = resp.json()
+        except Exception as e:
+            print(e)
+            print("login could not be parsed", resp.content)
+            self.interrupt()
+
+        try:
             self.session_token = self.client.cookies.get("tsp_session_token")
-            self.requests_client = RequestsClient()
-            # Set the session to be the same session as locust uses
-            self.requests_client.session = self.client
+        except Exception as e:
+            print(e)
+            print("missing session token")
+            self.interrupt()
+
+        self.requests_client = RequestsClient()
+        # Set the session to be the same session as locust uses
+        self.requests_client.session = self.client
+
+        try:
             # Set the csrf token in the global headers for all requests
             # Don't validate requests or responses because we're using OpenAPI Spec 2.0
             # which doesn't respect nullable sub-definitions
             self.swagger_internal = SwaggerClient.from_url(
-                urljoin(self.parent.host, "internal/swagger.yaml"),
+                urljoin(self.parent.parent.host, "internal/swagger.yaml"),
                 request_headers={"x-csrf-token": self.csrf},
                 http_client=self.requests_client,
                 config=get_swagger_config(),
             )
             self.swagger_public = SwaggerClient.from_url(
-                urljoin(self.parent.host, "api/v1/swagger.yaml"),
+                urljoin(self.parent.parent.host, "api/v1/swagger.yaml"),
                 request_headers={"x-csrf-token": self.csrf},
                 http_client=self.requests_client,
                 config=get_swagger_config(),
             )
-        except Exception:
-            print(resp.content)
+            # If either of these fails we can't continue
+            if not (self.swagger_internal and self.swagger_public):
+                self.interrupt()
+        except Exception as e:
+            print(e)
+            self.interrupt()
 
     @seq_task(2)
     def retrieve_user(self):
-        resp = self.client.get("/internal/users/logged_in")
-        try:
-            self.user = resp.json()
-        except Exception:
-            self.interrupt()
-        if not self.user or "id" not in self.user:
-            self.interrupt()
-        # check response for 200
+        self.update_user()
 
     @seq_task(3)
     @task(10)
     def view_shipment_in_random_queue(self):
+        """
+        Choose a random queue to visit and pick a random move to view
+
+        This task pretents to be a user who has work to do in a specific queue.
+        """
         queue_types = ["AWARDED", "ACCEPTED", "APPROVED", "IN_TRANSIT", "DELIVERED"]
         q_type = random.choice(queue_types)
 
@@ -122,3 +141,7 @@ class TSPUserBehavior(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
         self.login_gov_user = None
         self.session_token = None
         self.user = {}
+
+
+class TSPUserBehavior(TaskSet):
+    tasks = {TSPQueue: 1}
