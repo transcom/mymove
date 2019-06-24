@@ -27,3 +27,51 @@ input[type='image']:hover {
   margin-bottom: 0px;
   margin-right: 0px;
 }
+
+.doc-summary-container h3 {
+  font-size: 2rem;
+}
+
+.doc-summary-container > h4 {
+  margin-top: 0.5rem;
+}
+
+.review-payment-request-header h3 {
+  margin-top: 2rem;
+}
+
+.review-payment-request-header p {
+  padding: 1rem 0 2rem 0;
+}
+
+.ticket-item {
+  width: 98%;
+  border-bottom: 1px dashed;
+  padding: 1.5rem 0 1.5rem 0;
+}
+
+.ticket-item:nth-child(3), .ticket-item:nth-child(5) {
+  border-bottom: none;
+}
+
+.weight-ticket-image  {
+  max-height: 25px;
+}
+
+#doc-summary-separator {
+  max-width: 98%;
+  margin-top: 12px;
+}
+
+.add-expense-link {
+  padding-bottom: 1rem;
+}
+
+.doc-summary-container a:visited {
+  text-decoration: none;
+  color: #0071bc;
+}
+
+.doc-review {
+  margin-top: 2rem;
+}

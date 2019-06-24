@@ -27,12 +27,13 @@ const expenses = [
 ];
 
 const WeightTicketListItem = ({ id, type, nickname, num, empty_weight, full_weight }) => (
-  <div style={{ display: 'flex' }}>
+  <div className="ticket-item" style={{ display: 'flex' }}>
     <div style={{ minWidth: 95 }}>
-      <img src={WEIGHT_TICKET_IMAGES[type]} alt={type} />
+      {/*eslint-disable security/detect-object-injection*/}
+      <img className="weight-ticket-image" src={WEIGHT_TICKET_IMAGES[type]} alt={type} />
     </div>
     <div style={{ flex: 1 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', maxWidth: 800 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', maxWidth: 820 }}>
         <h4>
           {nickname} ({num + 1} set)
         </h4>
@@ -45,8 +46,8 @@ const WeightTicketListItem = ({ id, type, nickname, num, empty_weight, full_weig
 );
 
 const ExpenseTicketListItem = ({ title, amount, type, paymentMethod }) => (
-  <div>
-    <div style={{ display: 'flex', justifyContent: 'space-between', maxWidth: 895 }}>
+  <div className="ticket-item">
+    <div style={{ display: 'flex', justifyContent: 'space-between', maxWidth: 916 }}>
       <h4>
         {type} - ${amount}
       </h4>
@@ -73,27 +74,35 @@ class PaymentReview extends Component {
           }
         />
         <div className="usa-grid">
-          <h3>Review Payment Request</h3>
-          <p>
-            Make sure <strong>all</strong> your documents are uploaded.
-          </p>
+          <div className="review-payment-request-header">
+            <h3>Review Payment Request</h3>
+            <p>
+              Make sure <strong>all</strong> your documents are uploaded.
+            </p>
+          </div>
 
           <div className="doc-summary-container">
             <h3>Document summary - {weightTickets.length + expenses.length} total</h3>
             <h4>{weightTickets.length} sets of weight tickets</h4>
-            {weightTickets.map((ticket, index) => <WeightTicketListItem key={ticket.id} num={index} {...ticket} />)}
+            <div className="tickets">
+              {weightTickets.map((ticket, index) => <WeightTicketListItem key={ticket.id} num={index} {...ticket} />)}
+            </div>
             <Link to="">
               <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} /> Add weight ticket
             </Link>
-            <hr />
+            <hr id="doc-summary-separator" />
             <h4>{expenses.length} expenses</h4>
-            {expenses.map(expense => <ExpenseTicketListItem key={expense.id} {...expense} />)}
-            <Link to="">
-              <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} /> Add expense
-            </Link>
+            <div className="tickets">
+              {expenses.map(expense => <ExpenseTicketListItem key={expense.id} {...expense} />)}
+            </div>
+            <div className="add-expense-link">
+              <Link to="">
+                <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} /> Add expense
+              </Link>
+            </div>
           </div>
 
-          <div>
+          <div className="doc-review">
             <h4>You're requesting a payment of $11,982.23</h4>
             <p>
               Finance will determine your final reimbursement after reviewing the information you’ve submitted. That
