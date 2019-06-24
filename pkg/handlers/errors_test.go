@@ -69,3 +69,14 @@ func (suite *ErrorsSuite) TestResponseForErrorWhenASQLErrorIsEncountered() {
 	}
 
 }
+
+func (suite *ErrorsSuite) TestResponseForErrorNil() {
+
+	var err error
+	actual := ResponseForError(suite.logger, err)
+	res, ok := actual.(*ErrResponse)
+	suite.True(ok)
+	suite.Equal(res.Code, 500)
+	suite.Equal(res.Err.Error(), NilErrMessage)
+
+}

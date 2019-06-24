@@ -22,6 +22,9 @@ import (
 // SQLErrMessage represents string value to represent generic sql error to avoid leaking implementation details
 const SQLErrMessage string = "Unhandled SQL error encountered"
 
+// NilErrMessage indicates an uninstantiated error was passed
+const NilErrMessage string = "Nil error passed"
+
 // ValidationErrorsResponse is a middleware.Responder for a set of validation errors
 type ValidationErrorsResponse struct {
 	Errors map[string]string `json:"errors,omitempty"`
@@ -62,6 +65,13 @@ func (o *ErrResponse) WriteResponse(rw http.ResponseWriter, producer runtime.Pro
 func ResponseForError(logger Logger, err error) middleware.Responder {
 	// AddCallerSkip(1) prevents log statements from listing this file and func as the caller
 	skipLogger := logger.WithOptions(zap.AddCallerSkip(1))
+
+	// Some code might pass an uninstantiated error for which we should throw a 500
+	// instead of throwing a nil pointer dereference.
+	if err == nil {
+		skipLogger.Error("unexpected error")
+		return newErrResponse(http.StatusInternalServerError, errors.New(NilErrMessage))
+	}
 
 	cause := errors.Cause(err)
 	switch e := cause.(type) {
