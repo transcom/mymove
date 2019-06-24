@@ -1867,7 +1867,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		Order: models.Order{
-			IssueDate:        time.Date(2018, time.May, 20, 0, 0, 0, 0, time.UTC),
+			IssueDate:        time.Date(testdatagen.TestYear, time.May, 20, 0, 0, 0, 0, time.UTC),
 			HasDependents:    true,
 			SpouseHasProGear: true,
 		},
@@ -2853,7 +2853,7 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 			PersonalEmail: models.StringPointer(email),
 		},
 		Order: models.Order{
-			IssueDate: time.Date(2018, time.May, 20, 0, 0, 0, 0, time.UTC),
+			IssueDate: time.Date(testdatagen.TestYear, time.May, 20, 0, 0, 0, 0, time.UTC),
 		},
 		Move: models.Move{
 			ID:               moveID,
@@ -2911,7 +2911,7 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 			PersonalEmail: models.StringPointer(email2),
 		},
 		Order: models.Order{
-			IssueDate:        time.Date(2018, time.May, 20, 0, 0, 0, 0, time.UTC),
+			IssueDate:        time.Date(testdatagen.TestYear, time.May, 20, 0, 0, 0, 0, time.UTC),
 			OrdersTypeDetail: &ordersTypeDetail,
 		},
 		Move: models.Move{
@@ -2980,7 +2980,7 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 			PersonalEmail: models.StringPointer(email3),
 		},
 		Order: models.Order{
-			IssueDate:        time.Date(2018, time.May, 20, 0, 0, 0, 0, time.UTC),
+			IssueDate:        time.Date(testdatagen.TestYear, time.May, 20, 0, 0, 0, 0, time.UTC),
 			OrdersTypeDetail: &ordersTypeDetail,
 		},
 		Move: models.Move{

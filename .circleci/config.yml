@@ -572,7 +572,8 @@ jobs:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make bin/chamber
       - run: make bin/rds-combined-ca-bundle.pem
-      - run: make build
+      - run: make client_build
+      - run: make server_build
       - build_tag_push:
           dockerfile: Dockerfile
           tag: ppp:web-dev

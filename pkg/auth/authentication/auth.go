@@ -1,6 +1,8 @@
 package authentication
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -135,9 +137,23 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// loginStateCookieName is the name given to the cookie storing the encrypted Login.gov state nonce.
+const loginStateCookieName = "lg_state"
+const loginStateCookieTTLInSecs = 1800 // 30 mins to transit through login.gov.
+
 // RedirectHandler handles redirection
 type RedirectHandler struct {
 	Context
+	UseSecureCookie bool
+}
+
+func shaAsString(nonce string) string {
+	s := sha256.Sum256([]byte(nonce))
+	return hex.EncodeToString(s[:])
+}
+
+func stateCookieName(session *auth.Session) string {
+	return fmt.Sprintf("%s_%s", string(session.ApplicationName), loginStateCookieName)
 }
 
 // RedirectHandler constructs the Login.gov authentication URL and redirects to it
@@ -149,13 +165,32 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	authURL, err := h.loginGovProvider.AuthorizationURL(r)
+	loginData, err := h.loginGovProvider.AuthorizationURL(r)
 	if err != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 
-	http.Redirect(w, r, authURL, http.StatusTemporaryRedirect)
+	// Hash the state/Nonce value sent to login.gov and set the result as an HttpOnly cookie
+	// Check this when we return from login.gov
+	if session == nil {
+		h.logger.Error("Session is nil, so cannot get hostname for state Cookie")
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
+	stateCookie := http.Cookie{
+		Name:     stateCookieName(session),
+		Value:    shaAsString(loginData.Nonce),
+		Path:     "/",
+		Expires:  time.Now().Add(time.Duration(loginStateCookieTTLInSecs) * time.Second),
+		MaxAge:   loginStateCookieTTLInSecs,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		Secure:   h.UseSecureCookie,
+	}
+	http.SetCookie(w, &stateCookie)
+	http.Redirect(w, r, loginData.RedirectURL, http.StatusTemporaryRedirect)
 }
 
 // CallbackHandler processes a callback from login.gov
@@ -191,6 +226,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
+
 	rawLandingURL := h.landingURL(session)
 	landingURL, err := url.Parse(rawLandingURL)
 	if err != nil {
@@ -213,6 +249,25 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		landingURL.RawQuery = landingQuery.Encode()
 		http.Redirect(w, r, landingURL.String(), http.StatusPermanentRedirect)
+		return
+	}
+
+	// Check the state value sent back from login.gov with the value saved in the cookie
+	returnedState := r.URL.Query().Get("state")
+	stateCookie, err := r.Cookie(stateCookieName(session))
+	if err != nil {
+		h.logger.Error("Getting login.gov state cookie", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
+	hash := stateCookie.Value
+	if hash != shaAsString(returnedState) {
+		h.logger.Error("State returned from Login.gov does not match state value stored in cookie",
+			zap.String("state", returnedState),
+			zap.String("cookie", hash),
+			zap.String("hash", shaAsString(returnedState)))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 
@@ -261,7 +316,11 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, session *auth.Session, w http.ResponseWriter, span *trace.Span, r *http.Request, lURL string) {
 	if userIdentity.Disabled {
-		h.logger.Error("Disabled user requesting authentication", zap.String("email", session.Email))
+		h.logger.Error("Disabled user requesting authentication",
+			zap.String("application_name", string(session.ApplicationName)),
+			zap.String("hostname", session.Hostname),
+			zap.String("user_id", session.UserID.String()),
+			zap.String("email", session.Email))
 		http.Error(w, http.StatusText(403), http.StatusForbidden)
 		return
 	}
@@ -277,11 +336,16 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 		span.AddField("session.service_member_id", session.ServiceMemberID)
 	}
 
-	if userIdentity.DpsUserID != nil {
+	if userIdentity.DpsUserID != nil && (userIdentity.DpsDisabled != nil && !*userIdentity.DpsDisabled) {
 		session.DpsUserID = *(userIdentity.DpsUserID)
 	}
 
 	if session.IsOfficeApp() {
+		if userIdentity.OfficeDisabled != nil && *userIdentity.OfficeDisabled {
+			h.logger.Error("Office user is disabled", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
+		}
 		if userIdentity.OfficeUserID != nil {
 			session.OfficeUserID = *(userIdentity.OfficeUserID)
 		} else {
@@ -309,6 +373,11 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 	}
 
 	if session.IsTspApp() {
+		if userIdentity.TspDisabled != nil && *userIdentity.TspDisabled {
+			h.logger.Error("TSP user is disabled", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
+		}
 		if userIdentity.TspUserID != nil {
 			session.TspUserID = *(userIdentity.TspUserID)
 		} else {
@@ -323,6 +392,7 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
 			}
+
 			session.TspUserID = tspUser.ID
 			span.AddField("session.tsp_user_id", session.TspUserID)
 			tspUser.UserID = &userIdentity.ID
@@ -358,6 +428,11 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
+		if officeUser.Disabled {
+			h.logger.Error("Office user is disabled", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
+		}
 	}
 
 	var tspUser *models.TspUser
@@ -370,6 +445,11 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 		} else if err != nil {
 			h.logger.Error("Checking for TSP user", zap.String("email", session.Email), zap.Error(err))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+		if tspUser.Disabled {
+			h.logger.Error("TSP user is disabled", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
 	}

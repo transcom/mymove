@@ -7,9 +7,22 @@ import { getFormValues } from 'redux-form';
 import { updateServiceMember } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { ValidateZipRateData } from 'shared/api';
+
+const UnsupportedZipCodeErrorMsg =
+  'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.';
+
+async function asyncValidate(values) {
+  const { postal_code } = values;
+  const responseBody = await ValidateZipRateData(postal_code, 'origin');
+  if (!responseBody.valid) {
+    // eslint-disable-next-line no-throw-literal
+    throw { postal_code: UnsupportedZipCodeErrorMsg };
+  }
+}
 
 const formName = 'service_member_residential_address';
-const ResidentalWizardForm = reduxifyWizardForm(formName);
+const ResidentalWizardForm = reduxifyWizardForm(formName, null, asyncValidate, ['postal_code']);
 
 export class ResidentialAddress extends Component {
   handleSubmit = () => {

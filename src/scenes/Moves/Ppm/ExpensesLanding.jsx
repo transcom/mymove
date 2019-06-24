@@ -9,6 +9,7 @@ import WizardHeader from '../WizardHeader';
 
 import './Expenses.css';
 import { connect } from 'react-redux';
+import DocumentsUploaded from './DocumentsUploaded';
 
 class ExpensesLanding extends Component {
   state = {
@@ -28,7 +29,7 @@ class ExpensesLanding extends Component {
 
   render() {
     const { hasExpenses } = this.state;
-    const { history } = this.props;
+    const { history, moveId } = this.props;
     return (
       <>
         <WizardHeader
@@ -41,6 +42,7 @@ class ExpensesLanding extends Component {
             </ProgressTimeline>
           }
         />
+        <DocumentsUploaded moveId={moveId} />
 
         <div className="usa-grid expenses-container">
           <h3 className="expenses-header">Do you have any storage or moving expenses?</h3>

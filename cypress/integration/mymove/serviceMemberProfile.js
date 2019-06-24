@@ -87,7 +87,18 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.get('input[name="street_address_1"]').type('123 main');
   cy.get('input[name="city"]').type('Anytown');
   cy.get('select[name="state"]').select('CO');
-  cy.get('input[name="postal_code"]').type('80913');
+  cy
+    .get('input[name="postal_code"]')
+    .clear()
+    .type('00001')
+    .blur();
+  cy.get('#postal_code-error').should('exist');
+  cy.get('button.next').should('be.disabled');
+  cy
+    .get('input[name="postal_code"]')
+    .clear()
+    .type('80913');
+  cy.get('#postal_code-error').should('not.exist');
   cy.nextPage();
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/backup-mailing-address/);
