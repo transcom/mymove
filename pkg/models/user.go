@@ -79,6 +79,7 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 		LoginGovUUID:  lgu,
 		LoginGovEmail: strings.ToLower(email),
 		IsSuperuser:   false,
+		Disabled:      false,
 	}
 	verrs, err := db.ValidateAndCreate(&newUser)
 	if verrs.HasAny() {
@@ -104,11 +105,14 @@ type UserIdentity struct {
 	OfficeUserFirstName    *string    `db:"ou_fname"`
 	OfficeUserLastName     *string    `db:"ou_lname"`
 	OfficeUserMiddle       *string    `db:"ou_middle"`
+	OfficeDisabled         *bool      `db:"ou_disabled"`
 	TspUserID              *uuid.UUID `db:"tu_id"`
 	TspUserFirstName       *string    `db:"tu_fname"`
 	TspUserLastName        *string    `db:"tu_lname"`
 	TspUserMiddle          *string    `db:"tu_middle"`
+	TspDisabled            *bool      `db:"tu_disabled"`
 	DpsUserID              *uuid.UUID `db:"du_id"`
+	DpsDisabled            *bool      `db:"du_disabled"`
 }
 
 // FetchUserIdentity queries the database for information about the logged in user
@@ -126,11 +130,14 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 				ou.first_name AS ou_fname,
 				ou.last_name AS ou_lname,
 				ou.middle_initials AS ou_middle,
+				ou.disabled AS ou_disabled,
 				tu.id AS tu_id,
 				tu.first_name AS tu_fname,
 				tu.last_name AS tu_lname,
 				tu.middle_initials AS tu_middle,
-				du.id AS du_id
+				tu.disabled AS tu_disabled,
+				du.id AS du_id,
+				du.disabled AS du_disabled
 			FROM users
 			LEFT OUTER JOIN service_members AS sm on sm.user_id = users.id
 			LEFT OUTER JOIN office_users AS ou on ou.user_id = users.id

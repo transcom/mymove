@@ -22,7 +22,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 
 	params := ppmop.ShowPPMIncentiveParams{
 		HTTPRequest:      req,
-		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1_2018),
+		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1TestYear),
 		OriginZip:        "94540",
 		DestinationZip:   "78626",
 		Weight:           7500,
@@ -47,7 +47,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 
 	params := ppmop.ShowPPMIncentiveParams{
 		HTTPRequest:      req,
-		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1_2018),
+		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1TestYear),
 		OriginZip:        "94540",
 		DestinationZip:   "78626",
 		Weight:           7500,
@@ -76,7 +76,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 
 	params := ppmop.ShowPPMIncentiveParams{
 		HTTPRequest:      req,
-		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1_2018),
+		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1TestYear),
 		OriginZip:        "94540",
 		DestinationZip:   "78626",
 		Weight:           600,

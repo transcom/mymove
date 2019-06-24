@@ -100,8 +100,6 @@ class QueueTable extends Component {
     const titles = {
       new: 'New Shipments',
       accepted: 'Accepted Shipments',
-      completed: 'Completed Shipments',
-      approved: 'Approved Shipments',
       in_transit: 'In Transit Shipments',
       delivered: 'Delivered Shipments',
       all: 'All Shipments',

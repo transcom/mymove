@@ -39,6 +39,7 @@ func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser
 		LastName:               "Spaceman",
 		Email:                  email,
 		Telephone:              "415-555-1212",
+		Disabled:               false,
 	}
 
 	mergeModels(&officeUser, assertions.OfficeUser)

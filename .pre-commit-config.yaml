@@ -28,14 +28,14 @@ repos:
         exclude: public/swagger-ui/*
 
   - repo: git://github.com/golangci/golangci-lint
-    rev: v1.16.0
+    rev: v1.17.1
     hooks:
       - id: golangci-lint
         entry: golangci-lint run --verbose
         verbose: true
 
   - repo: git://github.com/igorshubovych/markdownlint-cli
-    rev: v0.16.0
+    rev: v0.17.0
     hooks:
       - id: markdownlint
         entry: markdownlint --ignore .github/*.md

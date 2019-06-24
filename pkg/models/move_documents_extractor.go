@@ -23,6 +23,7 @@ type MoveDocumentExtractor struct {
 	MoveDocumentType         MoveDocumentType   `json:"move_document_type" db:"move_document_type"`
 	MovingExpenseType        *MovingExpenseType `json:"moving_expense_type" db:"moving_expense_type"`
 	RequestedAmountCents     *unit.Cents        `json:"requested_amount_cents" db:"requested_amount_cents"`
+	ReceiptMissing           *bool              `json:"receipt_missing" db:"receipt_missing"`
 	EmptyWeight              *unit.Pound        `json:"empty_weight,omitempty" db:"empty_weight"`
 	EmptyWeightTicketMissing *bool              `json:"empty_weight_ticket_missing,omitempty" db:"empty_weight_ticket_missing"`
 	FullWeight               *unit.Pound        `json:"full_weight,omitempty" db:"full_weight"`
@@ -35,6 +36,8 @@ type MoveDocumentExtractor struct {
 	Notes                    *string            `json:"notes" db:"notes"`
 	CreatedAt                time.Time          `json:"created_at" db:"created_at"`
 	UpdatedAt                time.Time          `json:"updated_at" db:"updated_at"`
+	StorageStartDate         *time.Time         `json:"storage_start_date" db:"storage_start_date"`
+	StorageEndDate           *time.Time         `json:"storage_end_date" db:"storage_end_date"`
 }
 
 // MoveDocumentExtractors is not required by pop and may be deleted
@@ -52,6 +55,9 @@ func (m *Move) FetchAllMoveDocumentsForMove(db *pop.Connection) (MoveDocumentExt
 	  ed.moving_expense_type,
 	  ed.requested_amount_cents,
 	  ed.payment_method,
+      ed.receipt_missing,
+      ed.storage_start_date,
+      ed.storage_end_date,
 	  wt.empty_weight,
 	  wt.empty_weight_ticket_missing,
 	  wt.full_weight_ticket_missing,

@@ -13,14 +13,14 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// ValidatePostalCodeHandler has the service validator
-type ValidatePostalCodeHandler struct {
+// ValidatePostalCodeWithRateDataHandler has the service validator
+type ValidatePostalCodeWithRateDataHandler struct {
 	handlers.HandlerContext
 	validatePostalCode services.PostalCodeValidator
 }
 
 // Handle should call the service validator and rescue expected errors and return false to valid
-func (h ValidatePostalCodeHandler) Handle(params postalcodesops.ValidatePostalCodeParams) middleware.Responder {
+func (h ValidatePostalCodeWithRateDataHandler) Handle(params postalcodesops.ValidatePostalCodeWithRateDataParams) middleware.Responder {
 	postalCode := params.PostalCode
 	postalCodeType := params.PostalCodeType
 
@@ -40,14 +40,14 @@ func (h ValidatePostalCodeHandler) Handle(params postalcodesops.ValidatePostalCo
 			h.Logger().Error("We do not have region rate data for destination postal code", zap.Error(err))
 		default:
 			h.Logger().Error("Validate postal code", zap.Error(err))
-			return postalcodesops.NewValidatePostalCodeBadRequest()
+			return postalcodesops.NewValidatePostalCodeWithRateDataBadRequest()
 		}
 	}
 
-	payload := apimessages.ValidatePostalCodePayload{
+	payload := apimessages.RateEnginePostalCodePayload{
 		Valid:          &valid,
 		PostalCode:     &postalCode,
 		PostalCodeType: &postalCodeType,
 	}
-	return postalcodesops.NewValidatePostalCodeOK().WithPayload(&payload)
+	return postalcodesops.NewValidatePostalCodeWithRateDataOK().WithPayload(&payload)
 }

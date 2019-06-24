@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190617155157_allow_certain_cac_read_all_electronic_orders.sql")

@@ -17,6 +17,7 @@ func MakeDpsUser(db *pop.Connection, assertions Assertions) models.DpsUser {
 
 	user := models.DpsUser{
 		LoginGovEmail: email,
+		Disabled:      false,
 	}
 
 	mustCreate(db, &user)
