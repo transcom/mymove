@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 
 import WizardHeader from '../WizardHeader';
-import Link from 'react-router-dom/es/Link';
+import { Link } from 'react-router-dom';
 
 class Review extends Component {
   render() {
