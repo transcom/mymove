@@ -35,7 +35,8 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandl
 	firstName := "Joseph"
 	sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			FirstName: &firstName,
+			FirstName:          &firstName,
+			RequiresAccessCode: true,
 		},
 	})
 
