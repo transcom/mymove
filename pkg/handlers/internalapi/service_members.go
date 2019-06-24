@@ -31,6 +31,9 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		contactPayloads[i] = &contactPayload
 	}
 
+	// if an existing service member, set requires access code to what they're already set
+	requiresAccessCode = serviceMember.RequiresAccessCode
+
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
 		ID:                      handlers.FmtUUID(serviceMember.ID),
 		CreatedAt:               handlers.FmtDateTime(serviceMember.CreatedAt),
