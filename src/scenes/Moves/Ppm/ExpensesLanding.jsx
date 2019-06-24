@@ -28,7 +28,6 @@ class ExpensesLanding extends Component {
   saveAndAddHandler = () => {
     const { history, moveId } = this.props;
     const { hasExpenses } = this.state;
-    console.log(hasExpenses);
     if (hasExpenses === 'No') {
       return history.push(`/moves/${moveId}${reviewPagePath}`);
     }

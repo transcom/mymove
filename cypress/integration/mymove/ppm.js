@@ -377,6 +377,11 @@ function serviceMemberUploadsExpenses(hasAnother = true, expenseNumber = null) {
       .get('button')
       .contains('Save & Add Another')
       .click();
+    cy
+      .wait('@postMovingExpense')
+      .its('status')
+      .should('eq', 200);
+    cy.get('[data-cy=documents-uploaded]').should('exist');
   } else {
     cy.get('input[name="haveMoreExpenses"][value="No"]+label').click();
     cy.get('input[name="haveMoreExpenses"][value="No"]').should('be.checked');
@@ -384,11 +389,11 @@ function serviceMemberUploadsExpenses(hasAnother = true, expenseNumber = null) {
       .get('button')
       .contains('Save & Continue')
       .click();
+    cy
+      .wait('@postMovingExpense')
+      .its('status')
+      .should('eq', 200);
   }
-  cy
-    .wait('@postMovingExpense')
-    .its('status')
-    .should('eq', 200);
 }
 
 function serviceMemberUploadsStorageExpenses(hasAnother = true, expenseNumber = null) {
@@ -581,7 +586,10 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
       .get('button')
       .contains('Save & Add Another')
       .click();
-    cy.wait('@postWeightTicket');
+    cy
+      .wait('@postWeightTicket')
+      .its('status')
+      .should('eq', 200);
     cy.get('[data-cy=documents-uploaded]').should('exist');
   } else {
     cy.get('input[name="additional_weight_ticket"][value="No"]+label').click();
@@ -590,7 +598,10 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
       .get('button')
       .contains('Save & Continue')
       .click();
-    cy.wait('@postWeightTicket');
+    cy
+      .wait('@postWeightTicket')
+      .its('status')
+      .should('eq', 200);
   }
 }
 
