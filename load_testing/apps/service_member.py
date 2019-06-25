@@ -460,5 +460,5 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
         self.user = {}
 
 
-class MilMoveUserBehavior(TaskSet):
+class ServiceMemberUserBehavior(TaskSet):
     tasks = {ServiceMemberSignupFlow: 1}

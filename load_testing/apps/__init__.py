@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
 from .anon import AnonBehavior  # noqa
-from .milmove import MilMoveUserBehavior  # noqa
+from .service_member import ServiceMemberUserBehavior  # noqa
 from .office import OfficeUserBehavior  # noqa
 from .tsp import TSPUserBehavior  # noqa
