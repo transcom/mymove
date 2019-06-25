@@ -4378,7 +4378,6 @@ paths:
             - troubleshooting
             - ppm
             - hhg_active
-            - hhg_approved
             - hhg_delivered
             - all
           required: true

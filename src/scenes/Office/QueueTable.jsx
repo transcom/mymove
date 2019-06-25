@@ -114,7 +114,6 @@ class QueueTable extends Component {
       troubleshooting: 'Troubleshooting',
       ppm: 'PPMs',
       hhg_active: 'Active HHGs',
-      hhg_approved: 'Approved HHGs',
       hhg_delivered: 'Delivered HHGs',
       all: 'All Moves',
     };
