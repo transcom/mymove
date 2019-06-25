@@ -120,7 +120,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
 			LEFT JOIN storage_in_transits as sits ON sits.shipment_id = shipment.id
 			WHERE ((shipment.status IN ('IN_TRANSIT', 'APPROVED')) OR (shipment.status = 'ACCEPTED' AND shipment.pm_survey_conducted_date IS NOT NULL))
-			and moves.show is true
+			AND moves.show is true AND moves.status != 'CANCELED'
 			GROUP BY moves.ID, edipi, rank, customer_name, locator, orders_type, move_date, moves.created_at, last_modified_date, moves.status, hhg_status, gbl_number, origin_duty_station_name, destination_duty_station_name, shipment.id
 		`
 	} else if lifecycleState == "hhg_in_transit" {
