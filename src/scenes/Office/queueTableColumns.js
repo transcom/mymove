@@ -35,10 +35,12 @@ const status = CreateReactTableColumn('Status', 'synthetic_status', {
 const hhgStatus = CreateReactTableColumn('HHG status', 'hhg_status', {
   Cell: row => (
     <span className="status" data-cy="status">
-      {(row.value && row.value.replace('_', ' '))
-        .split(' ')
-        .map(word => capitalize(word))
-        .join(' ')}
+      {row.value &&
+        row.value
+          .replace('_', ' ')
+          .split(' ')
+          .map(word => capitalize(word))
+          .join(' ')}
     </span>
   ),
 });
