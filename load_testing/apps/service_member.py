@@ -161,7 +161,9 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
             self.login_gov_user = resp.json()
         except Exception as e:
             print(e)
-            return self.kill("login could not be parsed", resp.content)
+            return self.kill(
+                "login could not be parsed. content: {}".format(resp.content)
+            )
 
         try:
             self.session_token = self.client.cookies.get("mil_session_token")
@@ -192,7 +194,7 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
                 http_client=self.requests_client,
                 config=get_swagger_config(),
             )
-            if not self.swagger_ipublic:
+            if not self.swagger_public:
                 self.kill("public swagger client failure")
         except Exception as e:
             print(e)
