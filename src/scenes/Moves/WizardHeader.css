@@ -5,10 +5,23 @@
 }
 
 .wizard-header h3 {
-  display: inline;
+  font-size: 1.7rem;
+  font-weight: normal;
 }
 
 .icon {
   height: 75;
   width: auto;
+}
+
+@media only screen and (max-width: 375px) {
+  .wizard-right {
+    margin-top: -30px;
+  }
+}
+
+@media only screen and (min-width: 380px) {
+  .wizard-right {
+    margin-top: 30px;
+  }
 }
