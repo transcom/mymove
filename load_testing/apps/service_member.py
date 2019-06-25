@@ -51,8 +51,77 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
             )
         return duty_stations
 
+    def get_user(self):
+        if not self.user:
+            self.interrupt()
+        return self.user
+
+    def get_user_id(self):
+        user = self.get_user()
+        if "id" not in user:
+            self.interrupt()
+        return user["id"]
+
+    def get_user_email(self):
+        user = self.get_user()
+        if "email" not in user:
+            self.interrupt()
+        return user["email"]
+
+    def get_service_member(self):
+        if "service_member" not in self.user:
+            self.interrupt()
+        return self.user["service_member"]
+
+    def get_service_member_id(self):
+        service_member = self.get_service_member()
+        if "id" not in service_member:
+            self.interrupt()
+        return service_member["id"]
+
+    def get_orders(self):
+        service_member = self.get_service_member()
+        if "orders" not in service_member:
+            self.interrupt()
+        orders = service_member["orders"]
+        if len(orders) == 0:
+            self.interrupt()
+        return orders
+
     def get_move_id(self):
-        return self.user["service_member"]["orders"][0]["moves"][0]["id"]
+        orders = self.get_orders()
+        first_order = orders[0]
+        if "moves" not in first_order:
+            self.interrupt()
+        moves = first_order["moves"]
+        if len(moves) == 0:
+            self.interrupt()
+        first_move = moves[0]
+        if "id" not in first_move:
+            self.interrupt()
+        move_id = first_move["id"]
+        return move_id
+
+    def get_ppm_id(self):
+        if not self.ppm:
+            self.interrupt()
+        if "id" not in self.ppm:
+            self.interrupt()
+        return self.ppm["id"]
+
+    def get_duty_station_id(self):
+        if len(self.duty_stations) == 0:
+            self.interrupt()
+        if "id" not in self.duty_stations[0]:
+            self.intterupt()
+        return self.duty_stations[0]["id"]
+
+    def get_new_duty_station_id(self):
+        if len(self.new_duty_stations) == 0:
+            self.interrupt()
+        if "id" not in self.new_duty_stations[0]:
+            self.intterupt()
+        return self.new_duty_stations[0]["id"]
 
     def get_address_origin(self):
         address = self.swagger_internal.get_model("Address")
@@ -114,6 +183,7 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
                 self.interrupt()
         except Exception as e:
             print(e)
+            print("swagger client failure")
             self.interrupt()
 
     @seq_task(2)
@@ -123,7 +193,7 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
     @seq_task(3)
     def create_service_member(self):
         model = self.swagger_internal.get_model("CreateServiceMemberPayload")
-        payload = model(user_id=self.user["id"])
+        payload = model(user_id=self.get_user_id())
         service_member = swagger_request(
             self.swagger_internal.service_members.createServiceMember,
             createServiceMemberPayload=payload,
@@ -152,7 +222,7 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
         )
         service_member = swagger_request(
             self.swagger_internal.service_members.patchServiceMember,
-            serviceMemberId=self.user["service_member"]["id"],
+            serviceMemberId=self.get_service_member_id(),
             patchServiceMemberPayload=payload,
         )
         self.update_service_member(service_member)
@@ -168,7 +238,7 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
         )
         service_member = swagger_request(
             self.swagger_internal.service_members.patchServiceMember,
-            serviceMemberId=self.user["service_member"]["id"],
+            serviceMemberId=self.get_service_member_id(),
             patchServiceMemberPayload=payload,
         )
         self.update_service_member(service_member)
@@ -178,14 +248,14 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
         model = self.swagger_internal.get_model("PatchServiceMemberPayload")
         payload = model(
             email_is_preferred=True,
-            personal_email=self.user["email"],  # Email is derived from logging in
+            personal_email=self.get_user_email(),  # Email is derived from logging in
             phone_is_preferred=True,
             secondary_telephone="333-333-3333",
             telephone="333-333-3333",
         )
         service_member = swagger_request(
             self.swagger_internal.service_members.patchServiceMember,
-            serviceMemberId=self.user["service_member"]["id"],
+            serviceMemberId=self.get_service_member_id(),
             patchServiceMemberPayload=payload,
         )
         self.update_service_member(service_member)
@@ -197,10 +267,10 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
     @seq_task(8)
     def current_duty_station(self):
         model = self.swagger_internal.get_model("PatchServiceMemberPayload")
-        payload = model(current_station_id=self.duty_stations[0]["id"])
+        payload = model(current_station_id=self.get_duty_station_id())
         service_member = swagger_request(
             self.swagger_internal.service_members.patchServiceMember,
-            serviceMemberId=self.user["service_member"]["id"],
+            serviceMemberId=self.get_service_member_id(),
             patchServiceMemberPayload=payload,
         )
         self.update_service_member(service_member)
@@ -211,7 +281,7 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
         payload = model(residential_address=self.get_address_origin())
         service_member = swagger_request(
             self.swagger_internal.service_members.patchServiceMember,
-            serviceMemberId=self.user["service_member"]["id"],
+            serviceMemberId=self.get_service_member_id(),
             patchServiceMemberPayload=payload,
         )
         self.update_service_member(service_member)
@@ -222,7 +292,7 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
         payload = model(backup_mailing_address=self.get_address_origin())
         service_member = swagger_request(
             self.swagger_internal.service_members.patchServiceMember,
-            serviceMemberId=self.user["service_member"]["id"],
+            serviceMemberId=self.get_service_member_id(),
             patchServiceMemberPayload=payload,
         )
         self.update_service_member(service_member)
@@ -240,7 +310,7 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
         )
         swagger_request(
             self.swagger_internal.backup_contacts.createServiceMemberBackupContact,
-            serviceMemberId=self.user["service_member"]["id"],
+            serviceMemberId=self.get_service_member_id(),
             createBackupContactPayload=payload,
         )
 
@@ -274,13 +344,13 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
 
         model = self.swagger_internal.get_model("CreateUpdateOrders")
         payload = model(
-            service_member_id=self.user["service_member"]["id"],
+            service_member_id=self.get_service_member_id(),
             issue_date=issue_date.date(),
             report_by_date=report_by_date.date(),
             orders_type="PERMANENT_CHANGE_OF_STATION",
             has_dependents=has_dependents,
             spouse_has_pro_gear=spouse_has_pro_gear,
-            new_duty_station_id=self.new_duty_stations[0]["id"],
+            new_duty_station_id=self.get_new_duty_station_id(),
         )
         swagger_request(self.swagger_internal.orders.createOrders, createOrders=payload)
 
@@ -350,7 +420,7 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
         payload = model(size=tshirt_size, weight_estimate=0)
 
         # Sometimes the patch doesn't succeed because discount data is missing
-        ppm_id = self.ppm["id"]
+        ppm_id = self.get_ppm_id()
         new_ppm = swagger_request(
             self.swagger_internal.ppm.patchPersonallyProcuredMove,
             moveId=self.get_move_id(),
@@ -445,11 +515,11 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
     def get_transportation_offices(self):
         swagger_request(
             self.swagger_internal.transportation_offices.showDutyStationTransportationOffice,
-            dutyStationId=self.duty_stations[0]["id"],
+            dutyStationId=self.get_duty_station_id(),
         )
         swagger_request(
             self.swagger_internal.transportation_offices.showDutyStationTransportationOffice,
-            dutyStationId=self.new_duty_stations[0]["id"],
+            dutyStationId=self.get_new_duty_station_id(),
         )
 
     @seq_task(25)
