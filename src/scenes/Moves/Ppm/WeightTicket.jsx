@@ -24,7 +24,7 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCircle';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
-import { intToOrdinal, getNextPage } from './utility';
+import { getNextPage, intToOrdinal } from './utility';
 import { withContext } from 'shared/AppContext';
 import DocumentsUploaded from './DocumentsUploaded';
 
@@ -129,7 +129,7 @@ class WeightTicket extends Component {
     const uploadersKeys = Object.keys(this.uploaders);
     return uploadersKeys.filter(
       // eslint-disable-next-line security/detect-object-injection
-      key => this.uploaders[key].uploaderRef && this.uploaders[key].uploaderRef.getFiles() > 0,
+      key => this.uploaders[key].uploaderRef && !this.uploaders[key].uploaderRef.isEmpty(),
     );
   }
 
