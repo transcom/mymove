@@ -59,7 +59,7 @@ const locator = CreateReactTableColumn('Locator #', 'locator', {
   Cell: row => <span data-cy="locator">{row.value}</span>,
 });
 
-const gbl = CreateReactTableColumn('GBL', 'gbl_number');
+const gbl = CreateReactTableColumn('GBL #', 'gbl_number');
 
 const moveDate = CreateReactTableColumn('Move date', 'move_date', {
   Cell: row => <span className="move_date">{formatDate(row.value)}</span>,
