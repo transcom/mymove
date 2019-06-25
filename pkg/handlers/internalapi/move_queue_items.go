@@ -1,12 +1,13 @@
 package internalapi
 
 import (
-	"fmt"
-
-	"github.com/gofrs/uuid"
+	"encoding/json"
+	"strings"
+	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -47,6 +48,29 @@ type ShowQueueHandler struct {
 	storageInTransitsIndexer services.StorageInTransitsIndexer
 }
 
+type JSONDate time.Time
+
+// Dates without timestamps need custom unmarshalling
+func (j *JSONDate) UnmarshalJSON(b []byte) error {
+	s := strings.Trim(string(b), "\"")
+	if s == "null" {
+		return nil
+	}
+	t, err := time.Parse("2006-01-02", s)
+	if err != nil {
+		return err
+	}
+	*j = JSONDate(t)
+	return nil
+}
+
+type QueueSitData struct {
+	ID              uuid.UUID `json:"id"`
+	Status          string    `json:"status"`
+	ActualStartDate JSONDate  `json:"actual_start_date"`
+	OutDate         JSONDate  `json:"out_date"`
+}
+
 // Handle retrieves a list of all MoveQueueItems in the system in the moves queue
 func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
@@ -65,20 +89,31 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 
 	MoveQueueItemPayloads := make([]*internalmessages.MoveQueueItem, len(MoveQueueItems))
 	for i, MoveQueueItem := range MoveQueueItems {
-		var storageInTransits []models.StorageInTransit
-		if MoveQueueItem.ShipmentID != uuid.Nil {
-			storageInTransits, err = h.storageInTransitsIndexer.IndexStorageInTransits(MoveQueueItem.ShipmentID, session)
+		var sits []QueueSitData
+		err := json.Unmarshal([]byte(MoveQueueItem.SitArray), &sits)
 
-			if err != nil {
-				h.Logger().Error(fmt.Sprintf("SITs Retrieval failed for shipment: %s", MoveQueueItem.ShipmentID), zap.Error(err))
-				return handlers.ResponseForError(h.Logger(), err)
-			}
+		if err != nil {
+			h.Logger().Error("Unmarshalling SITs", zap.Error(err))
 		}
 
-		storageInTransitsList := make(internalmessages.StorageInTransits, len(storageInTransits))
+		if len(sits) == 1 && sits[0].ID == uuid.Nil {
+			sits = []QueueSitData{}
+		}
 
-		for i, storageInTransit := range storageInTransits {
-			storageInTransitsList[i] = payloadForStorageInTransitModel(&storageInTransit)
+		storageInTransitsList := make(internalmessages.StorageInTransits, len(sits))
+
+		for i, storageInTransit := range sits {
+			actualStartDate := time.Time(storageInTransit.ActualStartDate)
+			outDate := time.Time(storageInTransit.OutDate)
+
+			sitObject := models.StorageInTransit{
+				ID:              storageInTransit.ID,
+				Status:          models.StorageInTransitStatus(storageInTransit.Status),
+				ActualStartDate: &actualStartDate,
+				OutDate:         &outDate,
+			}
+
+			storageInTransitsList[i] = payloadForStorageInTransitModel(&sitObject)
 		}
 
 		MoveQueueItemPayload := payloadForMoveQueueItem(MoveQueueItem, storageInTransitsList)

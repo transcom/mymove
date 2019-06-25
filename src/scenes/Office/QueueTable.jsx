@@ -147,10 +147,14 @@ class QueueTable extends Component {
         row.synthetic_status = row.status;
       }
 
-      if (this.props.queueType === 'hhg_active' && row.storage_in_transits) {
+      if (
+        this.props.queueType === 'hhg_active' &&
+        row.storage_in_transits &&
+        row.storage_in_transits.some(sit => sit.actual_start_date)
+      ) {
         row.sit_expires = formatDate4DigitYear(
           moment.min(
-            row.storage_in_transits.map(sit => {
+            row.storage_in_transits.filter(sit => sit.actual_start_date).map(sit => {
               return moment(sit.actual_start_date).add(
                 getEntitlements(row.rank).storage_in_transit +
                   sitDaysUsed(sit) -

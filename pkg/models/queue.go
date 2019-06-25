@@ -28,6 +28,7 @@ type MoveQueueItem struct {
 	ShipmentID                 uuid.UUID                           `json:"shipment_id" db:"shipment_id"`
 	OriginDutyStationName      string                              `json:"origin_duty_station_name" db:"origin_duty_station_name"`
 	DestinationDutyStationName string                              `json:"destination_duty_station_name" db:"destination_duty_station_name"`
+	SitArray                   string                              `json:"sit_array" db:"sit_array"`
 }
 
 // GetMoveQueueItems gets all moveQueueItems for a specific lifecycleState
@@ -133,15 +134,18 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				shipment.gbl_number as gbl_number,
 				origin_duty_station.name as origin_duty_station_name,
 				destination_duty_station.name as destination_duty_station_name,
-				shipment.id as shipment_id
+				shipment.id as shipment_id,
+				json_agg(json_build_object('id', sits.id , 'status', sits.status, 'actual_start_date', sits.actual_start_date, 'out_date', sits.out_date)) as sit_array
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			JOIN duty_stations as origin_duty_station ON sm.duty_station_id = origin_duty_station.id
 			JOIN duty_stations as destination_duty_station ON ord.new_duty_station_id = destination_duty_station.id
 			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
+			LEFT JOIN storage_in_transits as sits ON sits.shipment_id = shipment.id
 			WHERE ((shipment.status IN ('IN_TRANSIT', 'APPROVED')) OR (shipment.status = 'ACCEPTED' AND shipment.pm_survey_conducted_date IS NOT NULL))
 			and moves.show is true
+			GROUP BY moves.ID, edipi, rank, customer_name, locator, orders_type, move_date, moves.created_at, last_modified_date, moves.status, hhg_status, gbl_number, origin_duty_station_name, destination_duty_station_name, shipment.id
 		`
 	} else if lifecycleState == "hhg_in_transit" {
 		// Move date is the Actual Pickup Date.
