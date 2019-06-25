@@ -121,6 +121,7 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 				zap.Any("err", err))
 			return nil, err
 		}
+		logger.Debug("Storage in Transit Distance", zap.Int("sit distance", distanceCalculation.DistanceMiles))
 		// TODO: line used for testing in dev only: distanceCalculation.DistanceMiles = 40
 		sit.StorageInTransitDistance = *distanceCalculation
 		sit.StorageInTransitDistanceID = &(*distanceCalculation).ID
@@ -234,22 +235,5 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 		*/
 
 	}
-
-	/*
-		for _, lineItem := range lineItems {
-			verrs, err := c.DB.ValidateAndCreate(&lineItem)
-
-			if err != nil || verrs.HasAny() {
-
-				responseError := errors.Wrapf(err, "Error saving storage in transit line item for shipment %s and item %s with verr %s",
-					lineItem.ShipmentID, lineItem.Tariff400ngItemID, verrs.Error())
-				logger.Error("error saving SIT shipment line items for shipmentID")
-				return []models.ShipmentLineItem{}, responseError
-			}
-		}
-	*/
-	logger.Debug("*********** DEBUG SAVING SIT LINE ITEMS *****************")
-	logger.Debug("created line items ", zap.Int("number of", len(lineItems)))
-
 	return lineItems, nil
 }
