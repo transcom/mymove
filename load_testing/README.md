@@ -58,3 +58,10 @@ index 4ef1a29..bac3cf7 100644
    wafregional_rule_id                     = "d0ad0bb7-434b-4112-bde0-b5e84b718733"
  }
 ```
+
+## Metrics
+
+You will want to see metrics from your runs:
+
+- [app-experimental cluster metrics](https://us-west-2.console.aws.amazon.com/ecs/home?region=us-west-2#/clusters/app-experimental/services/app/metrics)
+- [app-experimental CloudWatch dashboard](https://us-west-2.console.aws.amazon.com/cloudwatch/home?region=us-west-2#dashboards:name=mil-experimental)
