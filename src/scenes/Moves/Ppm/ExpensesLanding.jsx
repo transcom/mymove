@@ -11,6 +11,9 @@ import './Expenses.css';
 import { connect } from 'react-redux';
 import DocumentsUploaded from './DocumentsUploaded';
 
+const reviewPagePath = '/ppm-review';
+const nextPagePath = '/ppm-expenses';
+
 class ExpensesLanding extends Component {
   state = {
     hasExpenses: '',
@@ -24,7 +27,11 @@ class ExpensesLanding extends Component {
 
   saveAndAddHandler = () => {
     const { history, moveId } = this.props;
-    history.push(`/moves/${moveId}/ppm-expenses`);
+    const { hasExpenses } = this.state;
+    if (hasExpenses === 'No') {
+      return history.push(`/moves/${moveId}${reviewPagePath}`);
+    }
+    return history.push(`/moves/${moveId}${nextPagePath}`);
   };
 
   render() {
@@ -62,7 +69,7 @@ class ExpensesLanding extends Component {
               labelClassName="inline_radio"
               label="Yes"
               value="Yes"
-              name="has_expenses"
+              name="hasExpenses"
               checked={hasExpenses === 'Yes'}
               onChange={this.handleRadioChange}
             />
@@ -71,15 +78,14 @@ class ExpensesLanding extends Component {
               labelClassName="inline_radio"
               label="No"
               value="No"
-              name="has_no_expenses"
+              name="hasExpenses"
               checked={hasExpenses === 'No'}
               onChange={this.handleRadioChange}
             />
           </div>
           <PPMPaymentRequestActionBtns
             cancelHandler={() => {}}
-            //TODO remove once have review page in place
-            displaySaveForLater={hasExpenses === 'No'}
+            displaySaveForLater={true}
             nextBtnLabel="Continue"
             saveAndAddHandler={this.saveAndAddHandler}
             saveForLaterHandler={() => history.push('/')}
