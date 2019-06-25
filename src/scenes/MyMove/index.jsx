@@ -40,8 +40,8 @@ import FailWhale from 'shared/FailWhale';
 import { detectIE11, no_op } from 'shared/utils';
 import DPSAuthCookie from 'scenes/DPSAuthCookie';
 import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
-import Review from '../Moves/Ppm/Review';
-import CustomerAgreementLegalese from '../Moves/Ppm/CustomerAgreementLegalese';
+import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
+import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
@@ -113,7 +113,7 @@ export class AppWrapper extends Component {
                     <PrivateRoute path="/moves/:moveId/ppm-weight-ticket" component={WeightTicket} />
                     <PrivateRoute path="/moves/:moveId/ppm-expenses-intro" component={ExpensesLanding} />
                     <PrivateRoute path="/moves/:moveId/ppm-expenses" component={ExpensesUpload} />
-                    <PrivateRoute path="/moves/:moveId/ppm-review" component={Review} />
+                    <PrivateRoute path="/moves/:moveId/ppm-payment-review" component={PaymentReview} />
                     <PrivateRoute exact path="/ppm-customer-agreement" component={CustomerAgreementLegalese} />
                     <PrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
                     <Route exact path="/forbidden">

@@ -229,9 +229,9 @@ describe('allows a SM to request a payment', function() {
   });
 
   it('service member starting at review page returns to review page after adding a weight ticket', () => {
-    cy.visit(`/moves/${moveID}/ppm-review`);
+    cy.visit(`/moves/${moveID}/ppm-payment-review`);
     cy.location().should(loc => {
-      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-review/);
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
     });
     cy.get('[data-cy="weight-ticket-link"]').click();
     cy.location().should(loc => {
@@ -239,14 +239,14 @@ describe('allows a SM to request a payment', function() {
     });
     serviceMemberSubmitsWeightTicket('CAR', false);
     cy.location().should(loc => {
-      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-review/);
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
     });
   });
 
   it('service member starting at review page returns to review page after adding an expense', () => {
-    cy.visit(`/moves/${moveID}/ppm-review`);
+    cy.visit(`/moves/${moveID}/ppm-payment-review`);
     cy.location().should(loc => {
-      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-review/);
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
     });
     cy.get('[data-cy="expense-link"]').click();
     cy.location().should(loc => {
@@ -254,7 +254,7 @@ describe('allows a SM to request a payment', function() {
     });
     serviceMemberUploadsExpenses(false);
     cy.location().should(loc => {
-      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-review/);
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
     });
   });
 
@@ -309,7 +309,7 @@ function serviceMemberReviewsDocuments() {
   const moveID = '946a5d40-0636-418f-b457-474915fb0149';
   cy.visit(`/moves/${moveID}/ppm-review`);
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-review/);
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
   });
   cy
     .get('.review-customer-agreement a')

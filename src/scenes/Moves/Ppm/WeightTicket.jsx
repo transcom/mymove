@@ -39,7 +39,7 @@ const nextBtnLabels = {
   SaveAndContinue: 'Save & Continue',
 };
 
-const reviewPagePath = '/ppm-review';
+const reviewPagePath = '/ppm-payment-review';
 const nextPagePath = '/ppm-expenses-intro';
 
 const uploadEmptyTicketLabel =

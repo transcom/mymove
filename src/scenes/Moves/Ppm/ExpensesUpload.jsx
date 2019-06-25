@@ -27,7 +27,7 @@ import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { withContext } from 'shared/AppContext';
 import DocumentsUploaded from './DocumentsUploaded';
 
-const nextPagePath = '/ppm-review';
+const nextPagePath = '/ppm-payment-review';
 const nextBtnLabels = {
   SaveAndAddAnother: 'Save & Add Another',
   SaveAndContinue: 'Save & Continue',

@@ -11,7 +11,7 @@ import './Expenses.css';
 import { connect } from 'react-redux';
 import DocumentsUploaded from './DocumentsUploaded';
 
-const reviewPagePath = '/ppm-review';
+const reviewPagePath = '/ppm-payment-review';
 const nextPagePath = '/ppm-expenses';
 
 class ExpensesLanding extends Component {

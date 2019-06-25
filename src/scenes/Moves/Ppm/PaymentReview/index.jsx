@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 
-import WizardHeader from '../WizardHeader';
+import WizardHeader from 'scenes/Moves/WizardHeader';
 import { Link } from 'react-router-dom';
-import CustomerAgreement from '../../Legalese/CustomerAgreement';
-import { ppmPaymentLegal } from '../../Legalese/legaleseText';
-import './Review.css';
+import CustomerAgreement from 'scenes/Legalese/CustomerAgreement';
+import { ppmPaymentLegal } from 'scenes/Legalese/legaleseText';
+import './PaymentReview.css';
 
-class Review extends Component {
+class PaymentReview extends Component {
   state = {
     acceptTerms: false,
   };
@@ -67,4 +67,4 @@ class Review extends Component {
   }
 }
 
-export default Review;
+export default PaymentReview;
