@@ -42,7 +42,7 @@ locust -f load_testing/locustfile.py --no-web --clients=50 --hatch-rate=5 --run-
 ## Handling Rate Limiting
 
 Each environment is set to limit the number of requests from a single IP in a 5 minute period. That limit
-is usually 2000. For load testing it's likely you'll want a much higher limit, perhaps even 10x as high. Work
+is usually 2000. For load testing it's likely you'll want a much higher limit, perhaps even 10 times as high. Work
 with infrastructure to modify the limit. Here is the diff to apply:
 
 ```diff
