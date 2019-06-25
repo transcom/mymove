@@ -90,10 +90,12 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 	MoveQueueItemPayloads := make([]*internalmessages.MoveQueueItem, len(MoveQueueItems))
 	for i, MoveQueueItem := range MoveQueueItems {
 		var sits []QueueSitData
-		err := json.Unmarshal([]byte(MoveQueueItem.SitArray), &sits)
+		if MoveQueueItem.SitArray != "" {
+			err := json.Unmarshal([]byte(MoveQueueItem.SitArray), &sits)
 
-		if err != nil {
-			h.Logger().Error("Unmarshalling SITs", zap.Error(err))
+			if err != nil {
+				h.Logger().Error("Unmarshalling SITs", zap.Error(err))
+			}
 		}
 
 		if len(sits) == 1 && sits[0].ID == uuid.Nil {
