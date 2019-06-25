@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 
-import WizardHeader from '../WizardHeader';
+import WizardHeader from 'scenes/Moves/WizardHeader';
 import { Link } from 'react-router-dom';
 
-class Review extends Component {
+class PaymentReview extends Component {
   render() {
     const moveId = this.props.match.params.moveId;
     const weightTicketsPage = `/moves/${moveId}/ppm-weight-ticket`;
@@ -41,4 +41,4 @@ class Review extends Component {
   }
 }
 
-export default Review;
+export default PaymentReview;
