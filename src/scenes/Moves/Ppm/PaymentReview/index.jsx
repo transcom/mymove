@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import CustomerAgreement from 'scenes/Legalese/CustomerAgreement';
 import { ppmPaymentLegal } from 'scenes/Legalese/legaleseText';
 import './PaymentReview.css';
+import PPMPaymentRequestActionBtns from '../PPMPaymentRequestActionBtns';
 
 class PaymentReview extends Component {
   state = {
@@ -16,9 +17,11 @@ class PaymentReview extends Component {
     this.setState({ acceptTerms });
   };
   render() {
+    const { submitting } = this.props;
     const moveId = this.props.match.params.moveId;
     const weightTicketsPage = `/moves/${moveId}/ppm-weight-ticket`;
     const expensePage = `/moves/${moveId}/ppm-expenses`;
+    const nextBtnLabel = 'Submit Request';
     return (
       <>
         <WizardHeader
@@ -52,14 +55,20 @@ class PaymentReview extends Component {
               </li>
             </ul>
           </div>
-        </div>
-        <div className="usa-grid">
-          <CustomerAgreement
-            className="review-customer-agreement"
-            onChange={this.handleOnAcceptTermsChange}
-            link="/ppm-customer-agreement"
-            checked={this.state.acceptTerms}
-            agreementText={ppmPaymentLegal}
+          <div className="usa-grid" style={{ marginBottom: '4.5em' }}>
+            <CustomerAgreement
+              className="review-customer-agreement"
+              onChange={this.handleOnAcceptTermsChange}
+              link="/ppm-customer-agreement"
+              checked={this.state.acceptTerms}
+              agreementText={ppmPaymentLegal}
+            />
+          </div>
+          <PPMPaymentRequestActionBtns
+            nextBtnLabel={nextBtnLabel}
+            submitButtonsAreDisabled={!this.state.acceptTerms}
+            submitting={submitting}
+            displaySaveForLater={true}
           />
         </div>
       </>

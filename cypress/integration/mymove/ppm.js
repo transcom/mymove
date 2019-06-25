@@ -306,8 +306,6 @@ describe('allows a SM to request a payment', function() {
 });
 
 function serviceMemberReviewsDocuments() {
-  const moveID = '946a5d40-0636-418f-b457-474915fb0149';
-  cy.visit(`/moves/${moveID}/ppm-review`);
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
   });
@@ -322,6 +320,14 @@ function serviceMemberReviewsDocuments() {
     .get('.usa-button-secondary')
     .contains('Back')
     .click();
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
+  });
+  cy.get('input[id="agree-checkbox"]').check({ force: true });
+  cy
+    .get('button')
+    .contains('Submit Request')
+    .should('be.enabled');
 }
 
 function serviceMemberViewsExpensesLandingPage() {
