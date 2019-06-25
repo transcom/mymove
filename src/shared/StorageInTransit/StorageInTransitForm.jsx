@@ -11,6 +11,7 @@ import validator from '../JsonSchemaForm/validator';
 import './StorageInTransit.css';
 
 const RadioGroup = ({location, change, ...input}) => {
+  location = ( (location === 'ORIGIN') ? 'ORIGIN' : 'DESTINATION' );
   return (
     <div className="radio-group-wrapper normalize-margins">
       <RadioButton
