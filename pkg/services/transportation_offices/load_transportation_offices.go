@@ -148,32 +148,47 @@ func Filter(os []Office, test func(Office) bool) []Office {
 	return filtered
 }
 
-func CheckDbForConusOffices(db *pop.Connection, o Office) models.TransportationOffices {
-	fmt.Printf("name: %s\n", o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME)
-	dbOs, err := models.FetchTransportationOfficesByPostalCode(db, o.LISTGCNSLINFO.GCNSLINFO.CNSLZIP)
+func CheckDbForConusOffices(db *pop.Connection, o Office, w io.Writer) models.TransportationOffices {
+	zip := o.LISTGCNSLINFO.GCNSLINFO.CNSLZIP
+
+	dbOs, err := models.FetchTransportationOfficesByPostalCode(db, zip)
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	if len(dbOs) == 0 {
+		partialZip := zip[:len(zip)-1] + "%"
+		fmt.Fprintf(w, "*** partialZip: %s \n", partialZip)
+		dbOs, err = models.FetchTransportationOfficesByPostalCode(db, partialZip)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+
 	return dbOs
-
 }
 
-func OutputResults(o Office, dbO models.TransportationOffices, w io.Writer) {
-	fmt.Fprintf(w, "\nname: %s\n", o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME)
-	fmt.Fprintf(w, "city: %s | state: %s | zip: %s \n", o.LISTGCNSLINFO.GCNSLINFO.CNSLCITY, o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE, o.LISTGCNSLINFO.GCNSLINFO.CNSLZIP)
-	printNames(dbO, w)
+func WriteXMLLine(o Office, w io.Writer) {
+	name := o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME
+	city := o.LISTGCNSLINFO.GCNSLINFO.CNSLCITY
+	state := o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE
+	zip := o.LISTGCNSLINFO.GCNSLINFO.CNSLZIP
+
+	fmt.Fprintf(w, "\nname: %s\n", name)
+	fmt.Fprintf(w, "city: %s | state: %s | zip: %s \n", city, state, zip)
 }
 
-func printNames(ts models.TransportationOffices, w io.Writer) {
+func WriteDbRecs(ts models.TransportationOffices, w io.Writer) int {
 	if len(ts) == 0 {
 		fmt.Printf("*** NOT FOUND\n")
 		fmt.Fprintf(w, "*** NOT FOUND\n")
+
+		return 1
 	}
+
 	for _, t := range ts {
-		_, _ = fmt.Fprintf(w, "\tdb: %v\n", t.Name)
+		_, _ = fmt.Fprintf(w, "\tdb:%v\tzip: %v\n", t.Name, t.Address.PostalCode)
 	}
-}
 
-func OpenWriteFile() {
-
+	return 0
 }

@@ -61,7 +61,7 @@ func FetchTransportationOfficesByPostalCode(tx *pop.Connection, postalCode strin
 
 	query := tx.
 		Eager().
-		Where("addresses.postal_code = $1", postalCode).
+		Where("addresses.postal_code like $1", postalCode).
 		LeftJoin("addresses", "transportation_offices.address_id = addresses.id")
 
 	err := query.All(&ts)

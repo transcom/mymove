@@ -48,8 +48,10 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-// Command: go run github.com/transcom/mymove/cmd/save_fuel_price_data
+// Command: go run github.com/transcom/mymove/cmd/load_transportation_offices
 func main() {
+	inputFile := "To_Cntct_info_201906070930.xml"
+	outputFile := "/Users/lynzt/Downloads/transportationoffices.txt"
 
 	flag := pflag.CommandLine
 	initFlags(flag)
@@ -81,7 +83,7 @@ func main() {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	fileBytes := transportationoffices.ReadXMLFile("To_Cntct_info_201906070930.xml")
+	fileBytes := transportationoffices.ReadXMLFile(inputFile)
 
 	o := transportationoffices.UnmarshalXML(fileBytes)
 
@@ -103,17 +105,18 @@ func main() {
 	conusOffices := transportationoffices.Filter(usOffices, conusOfficesFilter)
 	fmt.Printf("# conus only offices: %d\n", len(conusOffices))
 
-	// f := transportationoffices.OpenFile()
-
-	f, err := os.Create("/Users/lynzt/Downloads/transportationoffices.txt")
+	f, err := os.Create(outputFile)
 	defer f.Close()
 	w := bufio.NewWriter(f)
 
-	// for _, o := range conusOffices[1:5] {
+	counter := 0
 	for _, o := range conusOffices {
-		dbOffices := transportationoffices.CheckDbForConusOffices(dbConnection, o)
-		transportationoffices.OutputResults(o, dbOffices, w)
+		transportationoffices.WriteXMLLine(o, w)
+		dbOffices := transportationoffices.CheckDbForConusOffices(dbConnection, o, w)
+		res := transportationoffices.WriteDbRecs(dbOffices, w)
+		counter += res
 	}
 	w.Flush()
+	fmt.Println(counter)
 
 }
