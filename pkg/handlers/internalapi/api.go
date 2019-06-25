@@ -12,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 	"github.com/transcom/mymove/pkg/handlers"
-	sitservice "github.com/transcom/mymove/pkg/services/storage_in_transit"
 )
 
 // NewInternalAPIHandler returns a handler for the internal API
@@ -77,7 +76,7 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{context}
 	internalAPI.UploadsDeleteUploadsHandler = DeleteUploadsHandler{context}
 
-	internalAPI.QueuesShowQueueHandler = ShowQueueHandler{context, sitservice.NewStorageInTransitIndexer(context.DB())}
+	internalAPI.QueuesShowQueueHandler = ShowQueueHandler{context}
 
 	internalAPI.ShipmentsCreateShipmentHandler = CreateShipmentHandler{context}
 	internalAPI.ShipmentsPatchShipmentHandler = PatchShipmentHandler{context}

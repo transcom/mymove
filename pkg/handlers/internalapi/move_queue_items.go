@@ -10,8 +10,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/services"
-
 	"github.com/transcom/mymove/pkg/auth"
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -45,7 +43,6 @@ func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem, StorageInTransi
 // ShowQueueHandler returns a list of all MoveQueueItems in the moves queue
 type ShowQueueHandler struct {
 	handlers.HandlerContext
-	storageInTransitsIndexer services.StorageInTransitsIndexer
 }
 
 type JSONDate time.Time
