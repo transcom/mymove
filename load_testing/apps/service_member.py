@@ -53,38 +53,45 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
 
     def get_user(self):
         if not self.user:
+            print("get_user")
             self.interrupt()
         return self.user
 
     def get_user_id(self):
         user = self.get_user()
         if "id" not in user:
+            print("get_user_id")
             self.interrupt()
         return user["id"]
 
     def get_user_email(self):
         user = self.get_user()
         if "email" not in user:
+            print("get_user_email")
             self.interrupt()
         return user["email"]
 
     def get_service_member(self):
         if "service_member" not in self.user:
+            print("get_service_member")
             self.interrupt()
         return self.user["service_member"]
 
     def get_service_member_id(self):
         service_member = self.get_service_member()
         if "id" not in service_member:
+            print("get_service_member_id")
             self.interrupt()
         return service_member["id"]
 
     def get_orders(self):
         service_member = self.get_service_member()
         if "orders" not in service_member:
+            print("get_orders 1")
             self.interrupt()
         orders = service_member["orders"]
         if len(orders) == 0:
+            print("get_orders 2")
             self.interrupt()
         return orders
 
@@ -92,25 +99,31 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
         orders = self.get_orders()
         first_order = orders[0]
         if "moves" not in first_order:
+            print("get_move_id 1")
             self.interrupt()
         moves = first_order["moves"]
         if len(moves) == 0:
+            print("get_move_id 2")
             self.interrupt()
         first_move = moves[0]
         if "id" not in first_move:
+            print("get_move_id 3")
             self.interrupt()
         move_id = first_move["id"]
         return move_id
 
     def get_ppm_id(self):
         if not self.ppm:
+            print("get_ppm 1")
             self.interrupt()
         if "id" not in self.ppm:
+            print("get_ppm 2")
             self.interrupt()
         return self.ppm["id"]
 
     def get_duty_station_id(self):
         if len(self.duty_stations) == 0:
+            print("get_duty_station_id")
             self.interrupt()
         if "id" not in self.duty_stations[0]:
             self.intterupt()
@@ -118,6 +131,7 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
 
     def get_new_duty_station_id(self):
         if len(self.new_duty_stations) == 0:
+            print("get_new_duty_station_id")
             self.interrupt()
         if "id" not in self.new_duty_stations[0]:
             self.intterupt()
