@@ -65,7 +65,7 @@ const moveDate = CreateReactTableColumn('Move date', 'move_date', {
   Cell: row => <span className="move_date">{formatDate(row.value)}</span>,
 });
 
-const pickupDate = CreateReactTableColumn('Pickup date', 'move_date', {
+const pickupDate = CreateReactTableColumn('Pickup', 'move_date', {
   Cell: row => <span className="move_date">{formatDate(row.value)}</span>,
 });
 
