@@ -53,88 +53,87 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
 
     def get_user(self):
         if not self.user:
-            print("get_user")
-            self.interrupt()
+            return self.kill("get_user")
         return self.user
 
     def get_user_id(self):
         user = self.get_user()
-        if "id" not in user:
-            print("get_user_id")
-            self.interrupt()
+        if not user:
+            return self.kill("get_user_id 1")
+        if not isinstance(user, dict) or "id" not in user:
+            return self.kill("get_user_id 2")
         return user["id"]
 
     def get_user_email(self):
         user = self.get_user()
-        if "email" not in user:
-            print("get_user_email")
-            self.interrupt()
+        if not user:
+            return self.kill("get_user_email 1")
+        if not isinstance(user, dict) or "email" not in user:
+            return self.kill("get_user_email 2")
         return user["email"]
 
     def get_service_member(self):
-        if "service_member" not in self.user:
-            print("get_service_member")
-            self.interrupt()
+        user = self.get_user()
+        if not user:
+            return self.kill("get_service_member 1")
+        if not isinstance(user, dict) or "service_member" not in user:
+            return self.kill("get_service_member 2")
         return self.user["service_member"]
 
     def get_service_member_id(self):
         service_member = self.get_service_member()
-        if "id" not in service_member:
-            print("get_service_member_id")
-            self.interrupt()
+        if not service_member:
+            return self.kill("get_service_member_id 1")
+        if not isinstance(service_member, dict) or "id" not in service_member:
+            return self.kill("get_service_member_id 2")
         return service_member["id"]
 
     def get_orders(self):
         service_member = self.get_service_member()
         if "orders" not in service_member:
-            print("get_orders 1")
-            self.interrupt()
+            return self.kill("get_orders 1")
         orders = service_member["orders"]
         if len(orders) == 0:
-            print("get_orders 2")
-            self.interrupt()
+            return self.kill("get_orders 2")
         return orders
 
     def get_move_id(self):
         orders = self.get_orders()
         first_order = orders[0]
         if "moves" not in first_order:
-            print("get_move_id 1")
-            self.interrupt()
+            return self.kill("get_move_id 1")
         moves = first_order["moves"]
         if len(moves) == 0:
-            print("get_move_id 2")
-            self.interrupt()
+            return self.kill("get_move_id 2")
         first_move = moves[0]
         if "id" not in first_move:
-            print("get_move_id 3")
-            self.interrupt()
+            return self.kill("get_move_id 3")
         move_id = first_move["id"]
         return move_id
 
     def get_ppm_id(self):
         if not self.ppm:
-            print("get_ppm 1")
-            self.interrupt()
+            return self.kill("get_ppm 1")
         if "id" not in self.ppm:
-            print("get_ppm 2")
-            self.interrupt()
+            return self.kill("get_ppm 2")
         return self.ppm["id"]
 
     def get_duty_station_id(self):
         if len(self.duty_stations) == 0:
-            print("get_duty_station_id")
-            self.interrupt()
+            return self.kill("get_duty_station_id 1")
         if "id" not in self.duty_stations[0]:
+            return self.kill("get_duty_station_id 2")
             self.intterupt()
+            return None
         return self.duty_stations[0]["id"]
 
     def get_new_duty_station_id(self):
         if len(self.new_duty_stations) == 0:
-            print("get_new_duty_station_id")
-            self.interrupt()
+            return self.kill("get_new_duty_station_id 1")
         if "id" not in self.new_duty_stations[0]:
+            return self.kill("get_new_duty_station_id 2")
             self.intterupt()
+            return None
         return self.new_duty_stations[0]["id"]
 
     def get_address_origin(self):
@@ -162,15 +161,13 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
             self.login_gov_user = resp.json()
         except Exception as e:
             print(e)
-            print("login could not be parsed", resp.content)
-            self.interrupt()
+            return self.kill("login could not be parsed", resp.content)
 
         try:
             self.session_token = self.client.cookies.get("mil_session_token")
         except Exception as e:
             print(e)
-            print("missing session token")
-            self.interrupt()
+            return self.kill("missing session token")
 
         self.requests_client = RequestsClient()
         # Set the session to be the same session as locust uses
@@ -186,19 +183,20 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
                 http_client=self.requests_client,
                 config=get_swagger_config(),
             )
+            if not self.swagger_internal:
+                self.kill("internal swagger client failure")
+
             self.swagger_public = SwaggerClient.from_url(
                 urljoin(self.parent.parent.host, "api/v1/swagger.yaml"),
                 request_headers={"x-csrf-token": self.csrf},
                 http_client=self.requests_client,
                 config=get_swagger_config(),
             )
-            # If either of these fails we can't continue
-            if not (self.swagger_internal and self.swagger_public):
-                self.interrupt()
+            if not self.swagger_ipublic:
+                self.kill("public swagger client failure")
         except Exception as e:
             print(e)
-            print("swagger client failure")
-            self.interrupt()
+            return self.kill("unknown swagger client failure")
 
     @seq_task(2)
     def retrieve_user(self):
@@ -542,6 +540,7 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
         self.login_gov_user = None
         self.session_token = None
         self.user = {}
+        self.interrupt()
 
 
 class ServiceMemberUserBehavior(TaskSet):

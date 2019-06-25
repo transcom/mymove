@@ -97,6 +97,10 @@ class BaseTaskSequence(TaskSequence):
 
     csrf = None
 
+    def kill(self, message="no message"):
+        print(message)
+        return self.interrupt()
+
     def _get_csrf_token(self):
         """
         Pull the CSRF token from the website by hitting the root URL.

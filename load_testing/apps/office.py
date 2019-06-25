@@ -175,6 +175,7 @@ class OfficeQueue(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
         self.login_gov_user = None
         self.session_token = None
         self.user = {}
+        self.interrupt()
 
 
 class OfficeUserBehavior(TaskSet):
