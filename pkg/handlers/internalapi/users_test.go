@@ -3,9 +3,6 @@ package internalapi
 import (
 	"net/http/httptest"
 
-	"github.com/stretchr/testify/mock"
-
-	"github.com/transcom/mymove/mocks"
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -109,11 +106,6 @@ func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHa
 	params := userop.ShowLoggedInUserParams{
 		HTTPRequest: req,
 	}
-
-	accessCodeFetcher := &mocks.AccessCodeFetcher{}
-	accessCodeFetcher.On("FetchAccessCode",
-		mock.AnythingOfType("UUID"),
-	).Return(&models.AccessCode{}, nil)
 
 	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 

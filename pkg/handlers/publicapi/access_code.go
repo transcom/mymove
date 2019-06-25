@@ -60,14 +60,13 @@ func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams
 
 	// If the access code from fetch is empty, create a new empty object
 	// because it'll be dereferencing a nil pointer otherwise
-	if accessCode.Code == "" {
-		fetchAccessCodePayload = &apimessages.AccessCode{}
-		return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload)
-	}
+	//if accessCode.Code == "" {
+	//	fetchAccessCodePayload = &apimessages.AccessCode{}
+	//	return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload)
+	//}
 	fetchAccessCodePayload = payloadForAccessCodeModel(*accessCode)
 
 	return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload)
-
 }
 
 // ValidateAccessCodeHandler validates an access code to allow access to the MilMove platform as a service member

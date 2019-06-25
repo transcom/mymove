@@ -29,10 +29,11 @@ const mapStateToProps = state => {
   const user = selectCurrentUser(state);
   const serviceMember = get(state, 'serviceMember.currentServiceMember');
   const accessCodes = get(state, 'entities.accessCodes');
+
   return {
     isLoggedIn: user.isLoggedIn,
     requiresAccessCode: get(serviceMember, 'requires_access_code'),
-    accessCode: accessCodes ? Object.values(accessCodes)[0].code : null,
+    accessCode: accessCodes && Object.values(accessCodes).length > 0 ? Object.values(accessCodes)[0].code : null,
   };
 };
 
