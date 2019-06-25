@@ -5,7 +5,7 @@ import './WizardHeader.css';
 const WizardHeader = ({ icon, right, title }) => (
   <div className="wizard-header">
     <div className="usa-grid">
-      <div style={{ float: 'left' }}>
+      <div className="wizard-left" style={{ float: 'left' }}>
         <img className="icon" src={icon} alt="" />
         <h3>{title}</h3>
       </div>
