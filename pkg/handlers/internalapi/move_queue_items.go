@@ -92,6 +92,7 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 
 			if err != nil {
 				h.Logger().Error("Unmarshalling SITs", zap.Error(err))
+				return handlers.ResponseForError(h.Logger(), err)
 			}
 		}
 
