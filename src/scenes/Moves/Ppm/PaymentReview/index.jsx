@@ -131,7 +131,7 @@ class PaymentReview extends Component {
             nextBtnLabel={nextBtnLabel}
             submitButtonsAreDisabled={!this.state.acceptTerms}
             submitting={submitting}
-            displaySaveForLater={true}
+            displaySaveForLater
           />
         </div>
       </>

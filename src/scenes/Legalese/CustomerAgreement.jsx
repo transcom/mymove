@@ -33,6 +33,8 @@ CustomerAgreement.propTypes = {
   onChange: PropTypes.func,
   checked: PropTypes.bool.isRequired,
   agreementText: PropTypes.string.isRequired,
+  link: PropTypes.string,
+  className: PropTypes.string,
 };
 
 export default CustomerAgreement;
