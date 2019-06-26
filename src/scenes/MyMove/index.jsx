@@ -40,6 +40,7 @@ import FailWhale from 'shared/FailWhale';
 import { detectIE11, no_op } from 'shared/utils';
 import DPSAuthCookie from 'scenes/DPSAuthCookie';
 import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
+import PaymentReview from '../Moves/Ppm/PaymentReview';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
@@ -124,6 +125,7 @@ export class AppWrapper extends Component {
                     <ValidatedPrivateRoute path="/moves/:moveId/ppm-weight-ticket" component={WeightTicket} />
                     <ValidatedPrivateRoute path="/moves/:moveId/ppm-expenses-intro" component={ExpensesLanding} />
                     <ValidatedPrivateRoute path="/moves/:moveId/ppm-expenses" component={ExpensesUpload} />
+                    <ValidatedPrivateRoute path="/moves/:moveId/ppm-payment-review" component={PaymentReview} />
                     <ValidatedPrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
                     <Route exact path="/forbidden">
                       <div className="usa-grid">
