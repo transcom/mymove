@@ -16,7 +16,7 @@ func makeEntitlements() map[ServiceMemberRank]WeightAllotment {
 	// the midshipman entitlement is shared with service academy cadet
 	midshipman := WeightAllotment{
 		TotalWeightSelf:               350,
-		TotalWeightSelfPlusDependents: 3000,
+		TotalWeightSelfPlusDependents: 350,
 		ProGearWeight:                 0,
 		ProGearWeightSpouse:           0,
 	}
