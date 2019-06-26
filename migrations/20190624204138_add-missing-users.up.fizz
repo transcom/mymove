@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190624204138_add-missing-users.sql")
