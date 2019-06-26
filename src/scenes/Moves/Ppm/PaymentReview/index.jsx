@@ -17,7 +17,6 @@ import {
 } from 'shared/Entities/modules/moveDocuments';
 import { formatCents } from 'shared/formatters';
 import { intToOrdinal } from '../utility';
-import PPMPaymentRequestActionBtns from '../PPMPaymentRequestActionBtns';
 import WizardHeader from '../../WizardHeader';
 import './PaymentReview.css';
 
@@ -28,8 +27,8 @@ const WEIGHT_TICKET_IMAGES = {
 };
 
 const MissingLabel = ({ children }) => (
-  <p className="missing-doc">
-    <em>{children}</em> <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
+  <p className="missing-label">
+    <em>{children}</em>
   </p>
 );
 const WeightTicketListItem = ({
@@ -55,17 +54,28 @@ const WeightTicketListItem = ({
         <img alt="delete document button" onClick={() => console.log('lol')} src={deleteButtonImg} />
       </div>
       {empty_weight_ticket_missing ? (
-        <MissingLabel>Missing empty weight ticket</MissingLabel>
+        <MissingLabel>
+          Missing empty weight ticket{' '}
+          <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
+        </MissingLabel>
       ) : (
         <p>Empty weight ticket {empty_weight} lbs</p>
       )}
       {full_weight_ticket_missing ? (
-        <MissingLabel>Missing full weight ticket</MissingLabel>
+        <MissingLabel>
+          Missing full weight ticket{' '}
+          <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
+        </MissingLabel>
       ) : (
         <p>Full weight ticket {full_weight} lbs</p>
       )}
       {vehicle_options === 'CAR_TRAILER' &&
-        trailer_ownership_missing && <MissingLabel>Missing ownership documentation</MissingLabel>}
+        trailer_ownership_missing && (
+          <MissingLabel>
+            Missing ownership documentation{' '}
+            <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
+          </MissingLabel>
+        )}
       {vehicle_options === 'CAR_TRAILER' && !trailer_ownership_missing && <p>Ownership documentation</p>}
     </div>
   </div>
@@ -108,9 +118,13 @@ class PaymentReview extends Component {
   }
 
   render() {
-    const expenses = this.getExpenses(this.props.moveDocuments.expenses);
-    const weightTickets = this.props.moveDocuments.weightTickets;
-
+    const { moveId, moveDocuments } = this.props;
+    const expenses = this.getExpenses(moveDocuments.expenses);
+    const weightTickets = moveDocuments.weightTickets;
+    const missingSomeWeightTicket = weightTickets.some(
+      ({ empty_weight_ticket_missing, full_weight_ticket_missing }) =>
+        empty_weight_ticket_missing || full_weight_ticket_missing,
+    );
     return (
       <>
         <WizardHeader
@@ -137,7 +151,7 @@ class PaymentReview extends Component {
             <div className="tickets">
               {weightTickets.map((ticket, index) => <WeightTicketListItem key={ticket.id} num={index} {...ticket} />)}
             </div>
-            <Link to="">
+            <Link to={`/moves/${moveId}/ppm-weight-ticket`}>
               <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} /> Add weight ticket
             </Link>
             <hr id="doc-summary-separator" />
@@ -148,28 +162,30 @@ class PaymentReview extends Component {
               {expenses.map(expense => <ExpenseTicketListItem key={expense.id} {...expense} />)}
             </div>
             <div className="add-expense-link">
-              <Link to="">
+              <Link to={`/moves/${moveId}/ppm-expenses`}>
                 <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} /> Add expense
               </Link>
             </div>
           </div>
 
           <div className="doc-review">
-            <h4>You're requesting a payment of $11,982.23</h4>
-            <p>
-              Finance will determine your final reimbursement after reviewing the information you’ve submitted. That
-              final total will reflect the weight of your completed move (including any household goods move, if
-              applicable); any advances you requested and were given; and withheld taxes.
-            </p>
+            {missingSomeWeightTicket && (
+              <>
+                <h4 className="missing-label">
+                  <FontAwesomeIcon
+                    style={{ marginLeft: 0, color: 'red' }}
+                    className="icon"
+                    icon={faExclamationCircle}
+                  />{' '}
+                  Your estimated payment is unknown
+                </h4>
+                <p>
+                  We cannot give you estimated payment because of missing weight tickets. Submit your payment request,
+                  then go to the PPPO office to receive help in resolving this issue.
+                </p>
+              </>
+            )}
           </div>
-          <PPMPaymentRequestActionBtns
-            nextBtnLabel="Submit Request"
-            submitButtonsAreDisabled
-            submitting
-            saveForLaterHandler={() => {}}
-            saveAndAddHandler={() => {}}
-            displaySaveForLater
-          />
         </div>
       </>
     );
