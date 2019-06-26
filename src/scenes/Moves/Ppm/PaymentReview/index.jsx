@@ -8,8 +8,6 @@ import carImg from 'shared/images/car_mobile.png';
 import boxTruckImg from 'shared/images/box_truck_mobile.png';
 import carTrailerImg from 'shared/images/car-trailer_mobile.png';
 import deleteButtonImg from 'shared/images/delete-doc-button.png';
-import './PaymentReview.css';
-import WizardHeader from '../../WizardHeader';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { connect } from 'react-redux';
 import {
@@ -19,6 +17,9 @@ import {
 } from 'shared/Entities/modules/moveDocuments';
 import { formatCents } from 'shared/formatters';
 import { intToOrdinal } from '../utility';
+import PPMPaymentRequestActionBtns from '../PPMPaymentRequestActionBtns';
+import WizardHeader from '../../WizardHeader';
+import './PaymentReview.css';
 
 const WEIGHT_TICKET_IMAGES = {
   CAR: carImg,
@@ -161,6 +162,14 @@ class PaymentReview extends Component {
               applicable); any advances you requested and were given; and withheld taxes.
             </p>
           </div>
+          <PPMPaymentRequestActionBtns
+            nextBtnLabel="Submit Request"
+            submitButtonsAreDisabled
+            submitting
+            saveForLaterHandler={() => {}}
+            saveAndAddHandler={() => {}}
+            displaySaveForLater
+          />
         </div>
       </>
     );
