@@ -79,3 +79,15 @@ input[type='image']:hover {
 .missing-label {
   color: #cd3504;
 }
+
+.expense-li-item-container {
+  display: flex;
+  justify-content: space-between;
+  max-width: 916px;
+}
+
+.weight-li-item-container {
+  display: flex;
+  justify-content: space-between;
+  max-width: 820px;
+}
