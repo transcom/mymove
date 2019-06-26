@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/gobuffalo/pop"
 
@@ -138,7 +139,7 @@ func UnmarshalXML(byteValue []byte) OfficeData {
 	return od
 }
 
-func Filter(os []Office, test func(Office) bool) []Office {
+func FilterOffice(os []Office, test func(Office) bool) []Office {
 	var filtered []Office
 	for _, o := range os {
 		if test(o) {
@@ -148,7 +149,17 @@ func Filter(os []Office, test func(Office) bool) []Office {
 	return filtered
 }
 
-func CheckDbForConusOffices(db *pop.Connection, o Office, w io.Writer) models.TransportationOffices {
+func FilterTransportationOffices(os models.TransportationOffices, test func(models.TransportationOffice) bool) models.TransportationOffices {
+	var filtered models.TransportationOffices
+	for _, o := range os {
+		if test(o) {
+			filtered = append(filtered, o)
+		}
+	}
+	return filtered
+}
+
+func FindConusOffices(db *pop.Connection, o Office, w io.Writer) models.TransportationOffices {
 	zip := o.LISTGCNSLINFO.GCNSLINFO.CNSLZIP
 
 	dbOs, err := models.FetchTransportationOfficesByPostalCode(db, zip)
@@ -168,26 +179,38 @@ func CheckDbForConusOffices(db *pop.Connection, o Office, w io.Writer) models.Tr
 	return dbOs
 }
 
+func FindPPSOs(db *pop.Connection, o Office) models.TransportationOffices {
+	zip := o.LISTGCNSLINFO.GCNSLINFO.PPSOZIP
+	dbPPSOs, _ := models.FetchTransportationOfficesByPostalCode(db, zip)
+
+	JPPSOFilter := func(o models.TransportationOffice) bool {
+		return strings.HasPrefix(o.Name, "JPPSO") // true
+	}
+
+	return FilterTransportationOffices(dbPPSOs, JPPSOFilter)
+	// return dbPPSOs
+}
+
 func WriteXMLLine(o Office, w io.Writer) {
-	name := o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME
+	name := strings.Title(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME)
 	city := o.LISTGCNSLINFO.GCNSLINFO.CNSLCITY
 	state := o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE
 	zip := o.LISTGCNSLINFO.GCNSLINFO.CNSLZIP
+	fmt.Println(strings.Title(name))
 
 	fmt.Fprintf(w, "\nname: %s\n", name)
 	fmt.Fprintf(w, "city: %s | state: %s | zip: %s \n", city, state, zip)
 }
 
-func WriteDbRecs(ts models.TransportationOffices, w io.Writer) int {
+func WriteDbRecs(officeType string, ts models.TransportationOffices, w io.Writer) int {
 	if len(ts) == 0 {
-		fmt.Printf("*** NOT FOUND\n")
-		fmt.Fprintf(w, "*** NOT FOUND\n")
+		fmt.Printf("*** %s NOT FOUND\n", officeType)
+		fmt.Fprintf(w, "*** %s NOT FOUND\n", officeType)
 
 		return 1
 	}
-
 	for _, t := range ts {
-		_, _ = fmt.Fprintf(w, "\tdb:%v\tzip: %v\n", t.Name, t.Address.PostalCode)
+		_, _ = fmt.Fprintf(w, "\t%s: %v\tzip: %v\n", officeType, t.Name, t.Address.PostalCode)
 	}
 
 	return 0

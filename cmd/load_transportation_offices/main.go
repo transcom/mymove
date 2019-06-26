@@ -84,25 +84,23 @@ func main() {
 	}
 
 	fileBytes := transportationoffices.ReadXMLFile(inputFile)
-
 	o := transportationoffices.UnmarshalXML(fileBytes)
 
 	offices := o.LISTGCNSLORGID.GCNSLORGID
 
-	fmt.Printf("Name: %s\n", offices[0].LISTGCNSLINFO.GCNSLINFO.CNSLNAME)
 	fmt.Printf("# total offices: %d\n", len(offices))
 
 	usOfficesFilter := func(o transportationoffices.Office) bool {
 		return o.LISTGCNSLINFO.GCNSLINFO.CNSLCOUNTRY == "US"
 	}
-	usOffices := transportationoffices.Filter(offices, usOfficesFilter)
+	usOffices := transportationoffices.FilterOffice(offices, usOfficesFilter)
 	fmt.Printf("# us only offices: %d\n", len(usOffices))
 
 	conusOfficesFilter := func(o transportationoffices.Office) bool {
 		return o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE != "AK" &&
 			o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE != "HI"
 	}
-	conusOffices := transportationoffices.Filter(usOffices, conusOfficesFilter)
+	conusOffices := transportationoffices.FilterOffice(usOffices, conusOfficesFilter)
 	fmt.Printf("# conus only offices: %d\n", len(conusOffices))
 
 	f, err := os.Create(outputFile)
@@ -112,8 +110,10 @@ func main() {
 	counter := 0
 	for _, o := range conusOffices {
 		transportationoffices.WriteXMLLine(o, w)
-		dbOffices := transportationoffices.CheckDbForConusOffices(dbConnection, o, w)
-		res := transportationoffices.WriteDbRecs(dbOffices, w)
+		dbOffices := transportationoffices.FindConusOffices(dbConnection, o, w)
+		dbPPSOs := transportationoffices.FindPPSOs(dbConnection, o)
+		res := transportationoffices.WriteDbRecs("office", dbOffices, w)
+		transportationoffices.WriteDbRecs("JPPSO", dbPPSOs, w)
 		counter += res
 	}
 	w.Flush()
