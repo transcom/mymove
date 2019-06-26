@@ -420,10 +420,9 @@ func (m Move) CreateWeightTicketSetDocument(
 	db *pop.Connection,
 	uploads Uploads,
 	personallyProcuredMoveID *uuid.UUID,
-	weightTicketSetdocument WeightTicketSetDocument,
+	weightTicketSetdocument *WeightTicketSetDocument,
 	moveType SelectedMoveType) (*WeightTicketSetDocument, *validate.Errors, error) {
 
-	var newWeightTicketSetDocument *WeightTicketSetDocument
 	var responseError error
 	responseVErrors := validate.NewErrors()
 
@@ -443,23 +442,14 @@ func (m Move) CreateWeightTicketSetDocument(
 			return transactionError
 		}
 
-		newWeightTicketSetDocument = &WeightTicketSetDocument{
-			MoveDocumentID:           newMoveDocument.ID,
-			MoveDocument:             *newMoveDocument,
-			EmptyWeight:              unit.Pound(weightTicketSetdocument.EmptyWeight),
-			EmptyWeightTicketMissing: weightTicketSetdocument.EmptyWeightTicketMissing,
-			FullWeight:               unit.Pound(weightTicketSetdocument.FullWeight),
-			FullWeightTicketMissing:  weightTicketSetdocument.FullWeightTicketMissing,
-			VehicleNickname:          weightTicketSetdocument.VehicleNickname,
-			VehicleOptions:           weightTicketSetdocument.VehicleOptions,
-			WeightTicketDate:         weightTicketSetdocument.WeightTicketDate,
-			TrailerOwnershipMissing:  weightTicketSetdocument.TrailerOwnershipMissing,
-		}
-		verrs, err := db.ValidateAndCreate(newWeightTicketSetDocument)
+		weightTicketSetdocument.MoveDocument = *newMoveDocument
+		weightTicketSetdocument.MoveDocumentID = newMoveDocument.ID
+
+		verrs, err := db.ValidateAndCreate(weightTicketSetdocument)
 		if err != nil || verrs.HasAny() {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error creating moving expense document")
-			newWeightTicketSetDocument = nil
+			weightTicketSetdocument = nil
 			return transactionError
 		}
 
@@ -467,7 +457,7 @@ func (m Move) CreateWeightTicketSetDocument(
 
 	})
 
-	return newWeightTicketSetDocument, responseVErrors, responseError
+	return weightTicketSetdocument, responseVErrors, responseError
 }
 
 // CreatePPM creates a new PPM associated with this move

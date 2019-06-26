@@ -204,6 +204,56 @@ describe('allows a SM to request a payment', function() {
     serviceMemberCanCancel();
   });
 
+  it('makes missing weight ticket fields optional when missing is checked', () => {
+    // Always required fields
+    cy.visit(`/moves/${moveID}/ppm-weight-ticket`);
+    cy.get('select[name="vehicle_options"]').select('CAR');
+    cy.get('input[name="vehicle_nickname"]').type('Nickname');
+
+    // only required when missing not checked
+    cy.get('input[name="missingEmptyWeightTicket"]+label').click();
+
+    // only required when missing is not checked
+    cy.get('input[name="full_weight"]').type('5000');
+    cy.upload_file('[data-cy=full-weight-upload] .filepond--root', 'top-secret.png');
+    cy.wait('@postUploadDocument');
+    cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
+    cy
+      .get('input[name="weight_ticket_date"]')
+      .type('6/2/2018{enter}')
+      .blur();
+
+    cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
+    cy.get('input[name="additional_weight_ticket"][value="No"]').should('not.be.checked');
+    cy
+      .get('button')
+      .contains('Save & Add Another')
+      .should('be.enabled');
+  });
+
+  it('makes full weight ticket fields optional when missing is checked', () => {
+    // Always required fields
+    cy.visit(`/moves/${moveID}/ppm-weight-ticket`);
+    cy.get('select[name="vehicle_options"]').select('CAR');
+    cy.get('input[name="vehicle_nickname"]').type('Nickname');
+
+    // only required when missing not checked
+    cy.get('input[name="empty_weight"]').type('1000');
+    cy.upload_file('[data-cy=empty-weight-upload] .filepond--root', 'top-secret.png');
+    cy.wait('@postUploadDocument');
+    cy.get('[data-filepond-item-state="processing-complete"]').should('have.length', 1);
+
+    // only required when missing is not checked
+    cy.get('input[name="missingFullWeightTicket"]+label').click();
+
+    cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
+    cy.get('input[name="additional_weight_ticket"][value="No"]').should('not.be.checked');
+    cy
+      .get('button')
+      .contains('Save & Add Another')
+      .should('be.enabled');
+  });
+
   it('service member goes through entire request payment flow', () => {
     serviceMemberStartsPPMPaymentRequest();
     serviceMemberSubmitsWeightTicket('CAR', false, '1st');

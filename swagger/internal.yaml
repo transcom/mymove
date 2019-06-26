@@ -1008,6 +1008,7 @@ definitions:
         type: string
         example: '2018-04-26'
         format: date
+        x-nullable: true
       trailer_ownership_missing:
         title: missing trailer ownership documentation
         type: boolean
@@ -1015,11 +1016,8 @@ definitions:
       - personally_procured_move_id
       - vehicle_options
       - vehicle_nickname
-      - full_weight
       - full_weight_ticket_missing
-      - empty_weight
       - empty_weight_ticket_missing
-      - weight_ticket_date
       - trailer_ownership_missing
   ServiceMemberPayload:
     type: object
