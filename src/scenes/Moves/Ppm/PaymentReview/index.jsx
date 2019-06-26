@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
+import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import carImg from 'shared/images/car_mobile.png';
 import boxTruckImg from 'shared/images/box_truck_mobile.png';
@@ -25,6 +26,11 @@ const WEIGHT_TICKET_IMAGES = {
   CAR_TRAILER: carTrailerImg,
 };
 
+const MissingLabel = ({ children }) => (
+  <p className="missing-doc">
+    <em>{children}</em> <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
+  </p>
+);
 const WeightTicketListItem = ({
   vehicle_options,
   vehicle_nickname,
@@ -47,10 +53,18 @@ const WeightTicketListItem = ({
         </h4>
         <img alt="delete document button" onClick={() => console.log('lol')} src={deleteButtonImg} />
       </div>
-      {empty_weight_ticket_missing ? <p>Missing empty weight ticket</p> : <p>Empty weight ticket {empty_weight} lbs</p>}
-      {full_weight_ticket_missing ? <p>Missing full weight ticket</p> : <p>Full weight ticket {full_weight} lbs</p>}
+      {empty_weight_ticket_missing ? (
+        <MissingLabel>Missing empty weight ticket</MissingLabel>
+      ) : (
+        <p>Empty weight ticket {empty_weight} lbs</p>
+      )}
+      {full_weight_ticket_missing ? (
+        <MissingLabel>Missing full weight ticket</MissingLabel>
+      ) : (
+        <p>Full weight ticket {full_weight} lbs</p>
+      )}
       {vehicle_options === 'CAR_TRAILER' &&
-        trailer_ownership_missing && <p>Missing proof of ownership documentation</p>}
+        trailer_ownership_missing && <MissingLabel>Missing ownership documentation</MissingLabel>}
       {vehicle_options === 'CAR_TRAILER' && !trailer_ownership_missing && <p>Ownership documentation</p>}
     </div>
   </div>

@@ -75,3 +75,7 @@ input[type='image']:hover {
 .doc-review {
   margin-top: 2rem;
 }
+
+.missing-doc {
+  color: #cd3504;
+}
