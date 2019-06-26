@@ -11,38 +11,10 @@ const CreateReactTableColumn = (header, accessor, options = {}) => ({
   ...options,
 });
 
-const ppmClockIcon = CreateReactTableColumn(
+const clockIcon = CreateReactTableColumn(
   <FontAwesomeIcon icon={faClock} />,
   row => {
-    if (row.ppm_status != null) {
-      if (row.ppm_status === 'PAYMENT_REQUESTED' || row.ppm_status === 'SUBMITTED') {
-        return 'CLOCK';
-      }
-      return 'NONE';
-    }
-    if (row.status === 'SUBMITTED') {
-      return 'CLOCK';
-    }
-    return 'NONE';
-  },
-  {
-    id: 'clockIcon',
-    Cell: row =>
-      row.value === 'CLOCK' ? (
-        <span data-cy="ppm-queue-icon">
-          <FontAwesomeIcon icon={faClock} style={{ color: 'orange' }} />
-        </span>
-      ) : (
-        ''
-      ),
-    width: 50,
-  },
-);
-
-const defaultClockIcon = CreateReactTableColumn(
-  <FontAwesomeIcon icon={faClock} />,
-  row => {
-    return row.status === 'SUBMITTED' ? 'CLOCK' : 'NONE';
+    return row.synthetic_status === 'SUBMITTED' || row.synthetic_status === 'PAYMENT_REQUESTED' ? 'CLOCK' : 'NONE';
   },
   {
     id: 'clockIcon',
@@ -125,12 +97,12 @@ const sitExpires = CreateReactTableColumn('SIT expires', 'sit_expires', {
 
 // Columns used to display in react table
 
-export const newColumns = [defaultClockIcon, customerName, locator, dodId, rank, shipments, moveDate, submittedDate];
+export const newColumns = [clockIcon, customerName, locator, dodId, rank, shipments, moveDate, submittedDate];
 
-export const ppmColumns = [ppmClockIcon, status, customerName, dodId, rank, locator, moveDate, lastModifiedDate];
+export const ppmColumns = [clockIcon, status, customerName, dodId, rank, locator, moveDate, lastModifiedDate];
 
 export const hhgActiveColumns = [
-  defaultClockIcon,
+  clockIcon,
   customerName,
   hhgStatus,
   origin,

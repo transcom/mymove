@@ -149,6 +149,12 @@ class QueueTable extends Component {
         row.shipments = 'HHG';
       }
 
+      if (this.props.queueType === 'ppm' && row.ppm_status !== null) {
+        row.synthetic_status = row.ppm_status;
+      } else {
+        row.synthetic_status = row.status;
+      }
+
       if (
         this.props.queueType === 'hhg_active' &&
         row.storage_in_transits &&
