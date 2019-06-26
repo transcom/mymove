@@ -26,6 +26,7 @@ import ExpensesLanding from 'scenes/Moves/Ppm/ExpensesLanding';
 import ExpensesUpload from 'scenes/Moves/Ppm/ExpensesUpload';
 import AllowableExpenses from 'scenes/Moves/Ppm/AllowableExpenses';
 import WeightTicketExamples from 'scenes/Moves/Ppm/WeightTicketExamples';
+import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 import PaymentRequest from 'scenes/Moves/Ppm/PaymentRequest';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
@@ -40,7 +41,6 @@ import FailWhale from 'shared/FailWhale';
 import { detectIE11, no_op } from 'shared/utils';
 import DPSAuthCookie from 'scenes/DPSAuthCookie';
 import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
-import PaymentReview from '../Moves/Ppm/PaymentReview';
 
 export class AppWrapper extends Component {
   state = { hasError: false };

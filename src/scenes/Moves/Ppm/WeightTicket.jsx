@@ -476,10 +476,6 @@ function mapStateToProps(state, ownProps) {
 }
 
 const mapDispatchToProps = {
-  //TODO we can possibly remove selectPPMCloseoutDocumentsForMove and
-  // getMoveDocumentsForMove once the document reviewer component is added
-  // as it may be possible to get the number of weight tickets from that.
-  selectPPMCloseoutDocumentsForMove,
   getMoveDocumentsForMove,
   createWeightTicketSetDocument,
 };
