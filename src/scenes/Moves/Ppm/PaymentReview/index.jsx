@@ -6,11 +6,7 @@ import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
-import {
-  selectAllDocumentsForMove,
-  selectExpenseTicketsFromDocuments,
-  selectWeightTicketsFromDocuments,
-} from 'shared/Entities/modules/moveDocuments';
+import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { formatCents } from 'shared/formatters';
 import WeightTicketListItem from './WeightTicketListItem';
 import ExpenseTicketListItem from './ExpenseTicketListItem';
@@ -73,7 +69,7 @@ class PaymentReview extends Component {
             <div className="tickets">
               {weightTickets.map((ticket, index) => <WeightTicketListItem key={ticket.id} num={index} {...ticket} />)}
             </div>
-            <Link to={`/moves/${moveId}/ppm-weight-ticket`}>
+            <Link data-cy="weight-ticket-link" to={`/moves/${moveId}/ppm-weight-ticket`}>
               <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} /> Add weight ticket
             </Link>
             <hr id="doc-summary-separator" />
@@ -84,7 +80,7 @@ class PaymentReview extends Component {
               {expenses.map(expense => <ExpenseTicketListItem key={expense.id} {...expense} />)}
             </div>
             <div className="add-expense-link">
-              <Link to={`/moves/${moveId}/ppm-expenses`}>
+              <Link data-cy="expense-link" to={`/moves/${moveId}/ppm-expenses`}>
                 <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} /> Add expense
               </Link>
             </div>
@@ -116,12 +112,11 @@ class PaymentReview extends Component {
 
 const mapStateToProps = (state, props) => {
   const { moveId } = props.match.params;
-  const documents = selectAllDocumentsForMove(state, moveId);
 
   return {
     moveDocuments: {
-      expenses: selectExpenseTicketsFromDocuments(documents),
-      weightTickets: selectWeightTicketsFromDocuments(documents),
+      expenses: selectPPMCloseoutDocumentsForMove(state, moveId, ['EXPENSE']),
+      weightTickets: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET_SET']),
     },
     moveId,
   };
