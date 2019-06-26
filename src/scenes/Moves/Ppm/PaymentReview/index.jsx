@@ -118,7 +118,7 @@ class PaymentReview extends Component {
               </>
             )}
           </div>
-          <div className="usa-grid" style={{ marginBottom: '4.5em' }}>
+          <div className="review-customer-agreement-container">
             <CustomerAgreement
               className="review-customer-agreement"
               onChange={this.handleOnAcceptTermsChange}
