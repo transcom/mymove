@@ -89,5 +89,3 @@ have to remit the difference with the balance of my incentive disbursement and/o
 be necessary. If I receive an advance for my PPM shipment, I agree to furnish weight tickets within 45 days of final \
 delivery to my destination. I understand that failure to furnish weight tickets within this timeframe may lead to the \
 collection of my pay as necessary to cover the cost of the advance.`;
-
-// export const ppmPaymentLegalStyled =

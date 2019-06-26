@@ -7,7 +7,9 @@ import { Link } from 'react-router-dom';
 import CustomerAgreement from 'scenes/Legalese/CustomerAgreement';
 import { ppmPaymentLegal } from 'scenes/Legalese/legaleseText';
 import './PaymentReview.css';
-import PPMPaymentRequestActionBtns from '../PPMPaymentRequestActionBtns';
+import PPMPaymentRequestActionBtns from 'scenes/Moves/Ppm/PPMPaymentRequestActionBtns';
+
+const nextBtnLabel = 'Submit Request';
 
 class PaymentReview extends Component {
   state = {
@@ -21,7 +23,6 @@ class PaymentReview extends Component {
     const moveId = this.props.match.params.moveId;
     const weightTicketsPage = `/moves/${moveId}/ppm-weight-ticket`;
     const expensePage = `/moves/${moveId}/ppm-expenses`;
-    const nextBtnLabel = 'Submit Request';
     return (
       <>
         <WizardHeader
@@ -41,7 +42,7 @@ class PaymentReview extends Component {
             Make sure <strong>all</strong> your documents are uploaded.
           </p>
           <div>
-            <h3>DOCUMENT SUMMARY TBU</h3>
+            <h3 style={{ color: 'red' }}>DOCUMENT SUMMARY TBU</h3>
             <ul style={{ marginBottom: '30em' }}>
               <li>
                 <Link to={weightTicketsPage} data-cy="weight-ticket-link">
