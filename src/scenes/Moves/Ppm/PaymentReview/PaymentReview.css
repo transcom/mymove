@@ -50,7 +50,7 @@ input[type='image']:hover {
   padding: 1.5rem 0 1.5rem 0;
 }
 
-.ticket-item:nth-child(3), .ticket-item:nth-child(5) {
+.ticket-item:nth-child(3), .ticket-item:last-child {
   border-bottom: none;
 }
 

@@ -9,24 +9,22 @@ import carTrailerImg from 'shared/images/car-trailer_mobile.png';
 import deleteButtonImg from 'shared/images/delete-doc-button.png';
 import './PaymentReview.css';
 import WizardHeader from '../../WizardHeader';
+import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import { connect } from 'react-redux';
+import {
+  selectAllDocumentsForMove,
+  selectExpenseTicketsFromDocuments,
+  selectWeightTicketsFromDocuments,
+} from 'shared/Entities/modules/moveDocuments';
+import { formatCents } from 'shared/formatters';
+
 const WEIGHT_TICKET_IMAGES = {
   CAR: carImg,
   BOX_TRUCK: boxTruckImg,
   CAR_TRAILER: carTrailerImg,
 };
 
-const weightTickets = [
-  { id: 1, nickname: 'Moving truck', empty_weight: 2000, full_weight: 3000, type: 'BOX_TRUCK' },
-  { id: 2, nickname: 'My Car', empty_weight: 2000, full_weight: 3000, type: 'CAR' },
-  { id: 3, nickname: 'My Trailer', empty_weight: 2000, full_weight: 3000, type: 'CAR_TRAILER' },
-];
-const expenses = [
-  { id: 1, title: 'Storage expense 1', amount: 336.18, type: 'Storage', paymentMethod: 'GTC' },
-  { id: 2, title: 'Uhaul truck rental', amount: 632.24, type: 'Rental equipment', paymentMethod: 'GTC' },
-  { id: 3, title: 'Texaco gas', amount: 106.35, type: 'Gas', paymentMethod: 'GTC' },
-];
-
-const WeightTicketListItem = ({ id, type, nickname, num, empty_weight, full_weight }) => (
+const WeightTicketListItem = ({ type, nickname, num, emptyWeight, fullWeight }) => (
   <div className="ticket-item" style={{ display: 'flex' }}>
     <div style={{ minWidth: 95 }}>
       {/*eslint-disable security/detect-object-injection*/}
@@ -39,13 +37,13 @@ const WeightTicketListItem = ({ id, type, nickname, num, empty_weight, full_weig
         </h4>
         <img alt="delete document button" onClick={() => console.log('lol')} src={deleteButtonImg} />
       </div>
-      <p>Empty weight ticket {empty_weight} lbs</p>
-      <p>Full weight ticket {full_weight} lbs</p>
+      <p>Empty weight ticket {emptyWeight} lbs</p>
+      <p>Full weight ticket {fullWeight} lbs</p>
     </div>
   </div>
 );
 
-const ExpenseTicketListItem = ({ title, amount, type, paymentMethod }) => (
+const ExpenseTicketListItem = ({ amount, type, paymentMethod }) => (
   <div className="ticket-item">
     <div style={{ display: 'flex', justifyContent: 'space-between', maxWidth: 916 }}>
       <h4>
@@ -60,7 +58,44 @@ const ExpenseTicketListItem = ({ title, amount, type, paymentMethod }) => (
 );
 
 class PaymentReview extends Component {
+  componentDidMount() {
+    this.props.getMoveDocumentsForMove(this.props.moveId);
+  }
+
+  getWeightTickets(weightTickets) {
+    return weightTickets.map((weightTicket, idx) => {
+      return {
+        id: weightTicket.id,
+        type: weightTicket.vehicle_options,
+        nickname: weightTicket.note,
+        num: idx,
+        emptyWeight: weightTicket.empty_weight,
+        fullWeight: weightTicket.full_weight,
+      };
+    });
+  }
+
+  getExpenses(expenses) {
+    return expenses.map(expense => {
+      return {
+        id: expense.id,
+        amount: formatCents(expense.requested_amount_cents),
+        type: this.formatExpenseType(expense.moving_expense_type),
+        paymentMethod: expense.payment_method,
+      };
+    });
+  }
+
+  formatExpenseType(expenseType) {
+    if (typeof expenseType !== 'string') return '';
+    let type = expenseType.toLowerCase().replace('_', ' ');
+    return type.charAt(0).toUpperCase() + type.slice(1);
+  }
+
   render() {
+    const expenses = this.getExpenses(this.props.moveDocuments.expenses);
+    const weightTickets = this.getWeightTickets(this.props.moveDocuments.weightTickets);
+
     return (
       <>
         <WizardHeader
@@ -116,4 +151,21 @@ class PaymentReview extends Component {
   }
 }
 
-export default PaymentReview;
+const mapStateToProps = (state, props) => {
+  const { moveId } = props.match.params;
+  const documents = selectAllDocumentsForMove(state, moveId);
+
+  return {
+    moveDocuments: {
+      expenses: selectExpenseTicketsFromDocuments(documents),
+      weightTickets: selectWeightTicketsFromDocuments(documents),
+    },
+    moveId,
+  };
+};
+
+const mapDispatchToProps = {
+  getMoveDocumentsForMove,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(PaymentReview);

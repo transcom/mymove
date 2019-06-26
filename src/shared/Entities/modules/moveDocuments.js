@@ -96,3 +96,17 @@ export const selectAllDocumentsForMove = (state, id) => {
   });
   return denormalize(map(moveDocs, 'id'), moveDocuments, state.entities);
 };
+
+export const selectWeightTicketsFromDocuments = documents => {
+  if (!documents.length) {
+    return [];
+  }
+  return documents.filter(document => document.move_document_type === `WEIGHT_TICKET_SET`);
+};
+
+export const selectExpenseTicketsFromDocuments = documents => {
+  if (!documents.length) {
+    return [];
+  }
+  return documents.filter(document => document.move_document_type === `EXPENSE`);
+};
