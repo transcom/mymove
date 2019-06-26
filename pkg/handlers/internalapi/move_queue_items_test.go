@@ -271,13 +271,6 @@ func (suite *HandlerSuite) TestShowQueueActiveQueueSITHandler() {
 	order := testdatagen.MakeDefaultOrder(suite.DB())
 
 	moveShow := true
-	//newMove := models.Move{
-	//	OrdersID: order.ID,
-	//	Status:   models.MoveStatusAPPROVED,
-	//	Show:     &moveShow,
-	//}
-	//suite.MustSave(&newMove)
-
 	newMove := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Order: order,
 		Move: models.Move{
@@ -301,13 +294,11 @@ func (suite *HandlerSuite) TestShowQueueActiveQueueSITHandler() {
 	})
 
 	// Make some SITs
-
 	testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
 		StorageInTransit: models.StorageInTransit{
 			Shipment: shipment,
 		},
 	})
-
 	testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
 		StorageInTransit: models.StorageInTransit{
 			Shipment: shipment,
