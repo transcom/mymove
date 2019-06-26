@@ -50,11 +50,11 @@ input[type='image']:hover {
   padding: 1.5rem 0 1.5rem 0;
 }
 
-.ticket-item:nth-child(3), .ticket-item:last-child {
+.ticket-item:last-child {
   border-bottom: none;
 }
 
-.weight-ticket-image  {
+.weight-ticket-image {
   max-height: 25px;
 }
 

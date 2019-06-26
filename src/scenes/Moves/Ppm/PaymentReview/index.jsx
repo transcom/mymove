@@ -17,6 +17,7 @@ import {
   selectWeightTicketsFromDocuments,
 } from 'shared/Entities/modules/moveDocuments';
 import { formatCents } from 'shared/formatters';
+import { intToOrdinal } from '../utility';
 
 const WEIGHT_TICKET_IMAGES = {
   CAR: carImg,
@@ -24,21 +25,33 @@ const WEIGHT_TICKET_IMAGES = {
   CAR_TRAILER: carTrailerImg,
 };
 
-const WeightTicketListItem = ({ type, nickname, num, emptyWeight, fullWeight }) => (
+const WeightTicketListItem = ({
+  vehicle_options,
+  vehicle_nickname,
+  num,
+  empty_weight,
+  full_weight,
+  empty_weight_ticket_missing,
+  full_weight_ticket_missing,
+  trailer_ownership_missing,
+}) => (
   <div className="ticket-item" style={{ display: 'flex' }}>
     <div style={{ minWidth: 95 }}>
       {/*eslint-disable security/detect-object-injection*/}
-      <img className="weight-ticket-image" src={WEIGHT_TICKET_IMAGES[type]} alt={type} />
+      <img className="weight-ticket-image" src={WEIGHT_TICKET_IMAGES[vehicle_options]} alt={vehicle_options} />
     </div>
     <div style={{ flex: 1 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', maxWidth: 820 }}>
         <h4>
-          {nickname} ({num + 1} set)
+          {vehicle_nickname} ({intToOrdinal(num + 1)} set)
         </h4>
         <img alt="delete document button" onClick={() => console.log('lol')} src={deleteButtonImg} />
       </div>
-      <p>Empty weight ticket {emptyWeight} lbs</p>
-      <p>Full weight ticket {fullWeight} lbs</p>
+      {empty_weight_ticket_missing ? <p>Missing empty weight ticket</p> : <p>Empty weight ticket {empty_weight} lbs</p>}
+      {full_weight_ticket_missing ? <p>Missing full weight ticket</p> : <p>Full weight ticket {full_weight} lbs</p>}
+      {vehicle_options === 'CAR_TRAILER' &&
+        trailer_ownership_missing && <p>Missing proof of ownership documentation</p>}
+      {vehicle_options === 'CAR_TRAILER' && !trailer_ownership_missing && <p>Ownership documentation</p>}
     </div>
   </div>
 );
@@ -52,7 +65,7 @@ const ExpenseTicketListItem = ({ amount, type, paymentMethod }) => (
       <img alt="delete document button" onClick={() => console.log('lol')} src={deleteButtonImg} />
     </div>
     <div>
-      {type} {paymentMethod}
+      {type} ({paymentMethod})
     </div>
   </div>
 );
@@ -60,19 +73,6 @@ const ExpenseTicketListItem = ({ amount, type, paymentMethod }) => (
 class PaymentReview extends Component {
   componentDidMount() {
     this.props.getMoveDocumentsForMove(this.props.moveId);
-  }
-
-  getWeightTickets(weightTickets) {
-    return weightTickets.map((weightTicket, idx) => {
-      return {
-        id: weightTicket.id,
-        type: weightTicket.vehicle_options,
-        nickname: weightTicket.note,
-        num: idx,
-        emptyWeight: weightTicket.empty_weight,
-        fullWeight: weightTicket.full_weight,
-      };
-    });
   }
 
   getExpenses(expenses) {
@@ -94,7 +94,7 @@ class PaymentReview extends Component {
 
   render() {
     const expenses = this.getExpenses(this.props.moveDocuments.expenses);
-    const weightTickets = this.getWeightTickets(this.props.moveDocuments.weightTickets);
+    const weightTickets = this.props.moveDocuments.weightTickets;
 
     return (
       <>
@@ -126,7 +126,9 @@ class PaymentReview extends Component {
               <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} /> Add weight ticket
             </Link>
             <hr id="doc-summary-separator" />
-            <h4>{expenses.length} expenses</h4>
+            <h4>
+              {expenses.length} expense{expenses.length > 1 ? 's' : ''}
+            </h4>
             <div className="tickets">
               {expenses.map(expense => <ExpenseTicketListItem key={expense.id} {...expense} />)}
             </div>
