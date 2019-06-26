@@ -56,15 +56,7 @@ func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams
 		return accesscodeop.NewFetchAccessCodeNotFound()
 	}
 
-	var fetchAccessCodePayload *apimessages.AccessCode
-
-	// If the access code from fetch is empty, create a new empty object
-	// because it'll be dereferencing a nil pointer otherwise
-	//if accessCode.Code == "" {
-	//	fetchAccessCodePayload = &apimessages.AccessCode{}
-	//	return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload)
-	//}
-	fetchAccessCodePayload = payloadForAccessCodeModel(*accessCode)
+	fetchAccessCodePayload := payloadForAccessCodeModel(*accessCode)
 
 	return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload)
 }
