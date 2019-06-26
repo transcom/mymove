@@ -131,6 +131,15 @@ class QueueTable extends Component {
       }
     };
 
+    const defaultSort = queueType => {
+      switch (queueType) {
+        case 'hhg_active':
+          return [{ id: 'clockIcon', asc: true }, { id: 'move_date', asc: true }];
+        default:
+          return [{ id: 'move_date', asc: true }];
+      }
+    };
+
     this.state.data.forEach(row => {
       if (this.props.queueType === 'new' && row.ppm_status && row.hhg_status) {
         row.shipments = 'HHG, PPM';
@@ -138,12 +147,6 @@ class QueueTable extends Component {
         row.shipments = 'PPM';
       } else {
         row.shipments = 'HHG';
-      }
-
-      if (this.props.queueType === 'ppm' && row.ppm_status !== null) {
-        row.synthetic_status = row.ppm_status;
-      } else {
-        row.synthetic_status = row.status;
       }
 
       if (
@@ -194,7 +197,7 @@ class QueueTable extends Component {
             columns={showColumns(this.props.queueType)}
             data={this.state.data}
             loading={this.state.loading} // Display the loading overlay when we need it
-            defaultSorted={[{ id: 'move_date', asc: true }]}
+            defaultSorted={defaultSort(this.props.queueType)}
             pageSize={this.state.data.length}
             className="-striped -highlight"
             showPagination={false}
