@@ -420,7 +420,7 @@ func (m Move) CreateWeightTicketSetDocument(
 	db *pop.Connection,
 	uploads Uploads,
 	personallyProcuredMoveID *uuid.UUID,
-	weightTicketSetdocument *WeightTicketSetDocument,
+	weightTicketSetDocument *WeightTicketSetDocument,
 	moveType SelectedMoveType) (*WeightTicketSetDocument, *validate.Errors, error) {
 
 	var responseError error
@@ -436,20 +436,20 @@ func (m Move) CreateWeightTicketSetDocument(
 			personallyProcuredMoveID,
 			MoveDocumentTypeWEIGHTTICKETSET,
 			"weight_ticket_set",
-			&weightTicketSetdocument.VehicleNickname,
+			&weightTicketSetDocument.VehicleNickname,
 			moveType)
 		if responseVErrors.HasAny() || responseError != nil {
 			return transactionError
 		}
 
-		weightTicketSetdocument.MoveDocument = *newMoveDocument
-		weightTicketSetdocument.MoveDocumentID = newMoveDocument.ID
+		weightTicketSetDocument.MoveDocument = *newMoveDocument
+		weightTicketSetDocument.MoveDocumentID = newMoveDocument.ID
 
-		verrs, err := db.ValidateAndCreate(weightTicketSetdocument)
+		verrs, err := db.ValidateAndCreate(weightTicketSetDocument)
 		if err != nil || verrs.HasAny() {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error creating moving expense document")
-			weightTicketSetdocument = nil
+			weightTicketSetDocument = nil
 			return transactionError
 		}
 
@@ -457,7 +457,7 @@ func (m Move) CreateWeightTicketSetDocument(
 
 	})
 
-	return weightTicketSetdocument, responseVErrors, responseError
+	return weightTicketSetDocument, responseVErrors, responseError
 }
 
 // CreatePPM creates a new PPM associated with this move
