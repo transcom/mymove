@@ -6,10 +6,14 @@ import { get } from 'lodash';
 import 'react-table/react-table.css';
 import Alert from 'shared/Alert';
 import { formatTimeAgo } from 'shared/formatters';
-import { newColumns, ppmColumns, defaultColumns } from './queueTableColumns';
+import { newColumns, ppmColumns, hhgActiveColumns, defaultColumns } from './queueTableColumns';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
+import { getEntitlements } from '../../shared/entitlements';
+import moment from 'moment';
+import { formatDate4DigitYear } from '../../shared/formatters';
+import { sitDaysUsed, sitTotalDaysUsed } from '../../shared/StorageInTransit/calculator';
 
 class QueueTable extends Component {
   constructor() {
@@ -109,7 +113,7 @@ class QueueTable extends Component {
       new: 'New Moves/Shipments',
       troubleshooting: 'Troubleshooting',
       ppm: 'PPMs',
-      hhg_approved: 'Approved HHGs',
+      hhg_active: 'Active HHGs',
       hhg_delivered: 'Delivered HHGs',
       all: 'All Moves',
     };
@@ -120,8 +124,19 @@ class QueueTable extends Component {
           return newColumns;
         case 'ppm':
           return ppmColumns;
+        case 'hhg_active':
+          return hhgActiveColumns;
         default:
           return defaultColumns;
+      }
+    };
+
+    const defaultSort = queueType => {
+      switch (queueType) {
+        case 'hhg_active':
+          return [{ id: 'clockIcon', asc: true }, { id: 'move_date', asc: true }];
+        default:
+          return [{ id: 'move_date', asc: true }];
       }
     };
 
@@ -138,6 +153,25 @@ class QueueTable extends Component {
         row.synthetic_status = row.ppm_status;
       } else {
         row.synthetic_status = row.status;
+      }
+
+      if (
+        this.props.queueType === 'hhg_active' &&
+        row.storage_in_transits &&
+        row.storage_in_transits.some(sit => sit.actual_start_date)
+      ) {
+        row.sit_expires = formatDate4DigitYear(
+          moment.min(
+            row.storage_in_transits.filter(sit => sit.actual_start_date).map(sit => {
+              return moment(sit.actual_start_date).add(
+                getEntitlements(row.rank).storage_in_transit +
+                  sitDaysUsed(sit) -
+                  sitTotalDaysUsed(row.storage_in_transits),
+                'days',
+              );
+            }),
+          ),
+        );
       }
     });
 
@@ -169,7 +203,7 @@ class QueueTable extends Component {
             columns={showColumns(this.props.queueType)}
             data={this.state.data}
             loading={this.state.loading} // Display the loading overlay when we need it
-            defaultSorted={[{ id: 'move_date', asc: true }]}
+            defaultSorted={defaultSort(this.props.queueType)}
             pageSize={this.state.data.length}
             className="-striped -highlight"
             showPagination={false}

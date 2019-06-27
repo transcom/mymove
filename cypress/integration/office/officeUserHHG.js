@@ -6,8 +6,8 @@ describe('office user finds the shipment', function() {
   it('office user views hhg moves in queue new moves', function() {
     officeUserViewsMoves();
   });
-  it('office user views approved hhg moves in queue Approved HHGs', function() {
-    officeUserViewsApprovedShipment();
+  it('office user views active hhg moves in queue Approved HHGs', function() {
+    officeUserViewsActiveShipment();
   });
   it('office user views delivered hhg moves in queue Delivered HHGs', function() {
     officeUserViewsDeliveredShipment();
@@ -63,11 +63,11 @@ function officeUserViewsDeliveredShipment() {
   });
 }
 
-function officeUserViewsApprovedShipment() {
+function officeUserViewsActiveShipment() {
   // Open new moves queue
-  cy.patientVisit('/queues/hhg_approved');
+  cy.patientVisit('/queues/hhg_active');
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/hhg_approved/);
+    expect(loc.pathname).to.match(/^\/queues\/hhg_active/);
   });
 
   // Find move (generated in e2ebasic.go) and open it
