@@ -14,7 +14,6 @@ import WizardHeader from '../../WizardHeader';
 import './PaymentReview.css';
 import CustomerAgreement from 'scenes/Legalese/CustomerAgreement';
 import { ppmPaymentLegal } from 'scenes/Legalese/legaleseText';
-import './PaymentReview.css';
 import PPMPaymentRequestActionBtns from 'scenes/Moves/Ppm/PPMPaymentRequestActionBtns';
 
 const nextBtnLabel = 'Submit Request';
