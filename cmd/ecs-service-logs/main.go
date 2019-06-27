@@ -323,8 +323,17 @@ func main() {
 		Use:                   "show [flags] [msg=XYZ] [referer=XYZ]...",
 		DisableFlagsInUseLine: true,
 		Short:                 "Show application logs for ECS Service",
-		Long:                  "Show application logs for ECS Service",
-		RunE:                  showFunction,
+		Long: `Description
+	Easily filter JSON formatted application logs from an ECS Service or Task.
+	This tool compiles a chain of filters into a filter pattern in the format used by CloudWatch Logs.
+	You can filter application logs by ECS Cluster (--cluster), ECS Service (--service), and environment (--environment).
+	When filtering logs for a stopped task, use "--status STOPPED".
+	Trailing positional arguments are added to the query.
+	Equality (X=Y) and inverse equality (X!=Y) are supported.
+	Wildcards are also supported, e.g, "url!=health*".
+
+	- https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/FilterAndPatternSyntax.html`,
+		RunE: showFunction,
 	}
 	initFlags(showCommand.Flags())
 	root.AddCommand(showCommand)
@@ -578,24 +587,45 @@ func showFunction(cmd *cobra.Command, args []string) error {
 		filters[filterLogLevel] = level
 	}
 
+	inverseFilters := make([][]string, 0)
+
 	// Adds command line arguments as custom filters.
 	// For example: ecs-show-service-logs show [FLAGS] trace=XYZ
 	if len(args) > 0 {
 		for _, arg := range args {
-			parts := strings.SplitN(arg, "=", 2)
-			if len(parts) == 2 {
-				filters[parts[0]] = parts[1]
+			if strings.Contains(arg, "!=") {
+				parts := strings.SplitN(arg, "!=", 2)
+				if len(parts) == 2 {
+					inverseFilters = append(inverseFilters, parts)
+				}
+			} else {
+				parts := strings.SplitN(arg, "=", 2)
+				if len(parts) == 2 {
+					filters[parts[0]] = parts[1]
+				}
 			}
 		}
 	}
 
-	filterPattern := ""
+	filterParts := make([]string, 0)
 	if len(filters) > 0 {
-		parts := make([]string, 0, len(filters))
 		for k, v := range filters {
-			parts = append(parts, fmt.Sprintf("($.%s = %q)", k, v))
+			filterParts = append(filterParts, fmt.Sprintf("($.%s = %q)", k, v))
 		}
-		filterPattern = "{" + strings.Join(parts, " && ") + "}"
+	}
+	if len(inverseFilters) > 0 {
+		for _, v := range inverseFilters {
+			filterParts = append(filterParts, fmt.Sprintf("($.%s NOT EXISTS || $.%s != %q)", v[0], v[0], v[1]))
+		}
+	}
+
+	filterPattern := ""
+	if len(filterParts) > 0 {
+		filterPattern = "{" + strings.Join(filterParts, " && ") + "}"
+	}
+
+	if verbose {
+		fmt.Println("Filter Pattern: " + filterPattern)
 	}
 
 	limit := v.GetInt(flagLimit)
