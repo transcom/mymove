@@ -1,0 +1,55 @@
+# ecs-service-logs
+
+## Description
+
+**ecs-service-logs** is used to filter JSON-formatted log lines in CloudWatch.
+
+## Usage
+
+Easily filter JSON formatted application logs from an ECS Service or Task.  This tool compiles a chain of filters into a filter pattern in the format used by CloudWatch Logs.  You can filter application logs by ECS Cluster (--cluster), ECS Service (--service), and environment (--environment).  When filtering logs for a stopped task, use "--status STOPPED".  Trailing positional arguments are added to the query.  Equality (X=Y) and inverse equality (X!=Y) are supported.  Wildcards are also supported, e.g, "url!=health*".
+
+[https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/FilterAndPatternSyntax.html](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/FilterAndPatternSyntax.html).
+
+```shell
+Usage:
+  ecs-service-logs show [flags] [msg=XYZ] [referer=XYZ]...
+
+Flags:
+      --aws-profile string               The aws-vault profile
+      --aws-region string                The AWS Region (default "us-west-2")
+      --aws-vault-keychain-name string   The aws-vault keychain name
+  -c, --cluster string                   The cluster name
+  -f, --ecs-task-def-family string       The ECS task definition family.
+  -r, --ecs-task-def-revision string     The ECS task definition revision.
+  -e, --environment string               The environment name
+  -b, --git-branch string                The git branch
+      --git-commit string                The git commit
+  -h, --help                             help for show
+  -l, --level string                     The log level: debug, info, warn, error, panic, fatal
+  -n, --limit int                        If 1 or above, the maximum number of log events to print to stdout. (default -1)
+  -p, --page-size int                    The page size or maximum number of log events to return during each API call.  The default is 10,000 log events. (default -1)
+  -s, --service string                   The service name
+      --status string                    The task status: RUNNING, STOPPED
+  -v, --verbose                          Print section lines
+
+```
+
+## Examples
+
+Search for a client IP Address.
+
+```shell
+ecs-service-logs show -c app-staging -s app -e staging --status RUNNING x-forwarded-for=*1.2.3.4
+```
+
+Search for requests in a given environment, but not health checks (url is defined but does not start with /health).
+
+```shell
+ecs-service-logs show -c app-staging -s app -e staging --status STOPPED url=* url!=/health*
+```
+
+Filter by url is defined and git commit.
+
+```shell
+ecs-service-logs show -c app-experimental -s app --status STOPPED -e experimental url=* git_commit=asdfnh98nwuefr9a8jf
+```

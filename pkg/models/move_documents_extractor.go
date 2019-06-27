@@ -36,6 +36,8 @@ type MoveDocumentExtractor struct {
 	Notes                    *string            `json:"notes" db:"notes"`
 	CreatedAt                time.Time          `json:"created_at" db:"created_at"`
 	UpdatedAt                time.Time          `json:"updated_at" db:"updated_at"`
+	StorageStartDate         *time.Time         `json:"storage_start_date" db:"storage_start_date"`
+	StorageEndDate           *time.Time         `json:"storage_end_date" db:"storage_end_date"`
 }
 
 // MoveDocumentExtractors is not required by pop and may be deleted
@@ -54,6 +56,8 @@ func (m *Move) FetchAllMoveDocumentsForMove(db *pop.Connection) (MoveDocumentExt
 	  ed.requested_amount_cents,
 	  ed.payment_method,
       ed.receipt_missing,
+      ed.storage_start_date,
+      ed.storage_end_date,
 	  wt.empty_weight,
 	  wt.empty_weight_ticket_missing,
 	  wt.full_weight_ticket_missing,

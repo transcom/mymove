@@ -9,7 +9,7 @@ describe('office user finds the shipment', function() {
   const queues = {
     new: 'new',
     ppm: 'ppm',
-    approvedHHG: 'hhg_approved',
+    activeHHG: 'hhg_active',
     deliveredHHG: 'hhg_delivered',
     all: 'all',
   };
@@ -100,7 +100,7 @@ function officeUserSubmitsDocument() {
   cy.get('button.submit').should('be.disabled');
   cy.get('select[name="move_document_type"]').select('Expense');
   cy.get('input[name="title"]').type('expense document for combo');
-  cy.get('select[name="moving_expense_type"]').select('Contracted Expense');
+  cy.get('select[name="moving_expense_type"]').select('Contracted expense');
   cy.get('input[name="requested_amount_cents"]').type('4,000.92');
   cy.get('select[name="payment_method"]').select('Other account');
 

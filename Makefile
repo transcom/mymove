@@ -859,6 +859,24 @@ pre_commit_tests: .server_generate.stamp .client_deps.stamp ## Run pre-commit te
 pretty: gofmt ## Run code through JS and Golang formatters
 	npx prettier --write --loglevel warn "src/**/*.{js,jsx}"
 
+.PHONY: prune_images
+prune_images:  ## Prune docker images
+	@echo '****************'
+	docker image prune -a
+
+.PHONY: prune_containers
+prune_containers:  ## Prune docker containers
+	@echo '****************'
+	docker container prune
+
+.PHONY: prune_volumes
+prune_volumes:  ## Prune docker volumes
+	@echo '****************'
+	docker volume prune
+
+.PHONY: prune
+prune: prune_images prune_containers prune_volumes ## Prune docker containers, images, and volumes
+
 .PHONY: clean
 clean: # Clean all generated files
 	rm -f .*.stamp

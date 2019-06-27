@@ -804,6 +804,18 @@ definitions:
         title: missing trailer ownership documentation
         type: boolean
         x-nullable: true
+      storage_start_date:
+        type: string
+        format: date
+        title: Start date of storage for storage expenses
+        example: '2018-04-26'
+        x-nullable: true
+      storage_end_date:
+        type: string
+        format: date
+        title: End date of storage for storage expenses
+        example: '2018-04-26'
+        x-nullable: true
     required:
       - id
       - move_id
@@ -901,6 +913,18 @@ definitions:
         example: This document is good to go!
         x-nullable: true
         title: Notes
+      storage_start_date:
+        type: string
+        format: date
+        title: Start date of storage for storage expenses
+        example: '2018-04-26'
+        x-nullable: true
+      storage_end_date:
+        type: string
+        format: date
+        title: End date of storage for storage expenses
+        example: '2018-04-26'
+        x-nullable: true
     required:
       - title
       - move_document_type
@@ -917,17 +941,19 @@ definitions:
       - OTHER
       - PACKING_MATERIALS
       - RENTAL_EQUIPMENT
+      - STORAGE
       - TOLLS
       - WEIGHING_FEES
     x-display-value:
-      CONTRACTED_EXPENSE: Contracted Expense
-      RENTAL_EQUIPMENT: Rental Equipment
-      PACKING_MATERIALS: Packing Materials
-      WEIGHING_FEES: Weighing Fees
+      CONTRACTED_EXPENSE: Contracted expense
       GAS: Gas
-      TOLLS: Tolls
       OIL: Oil
       OTHER: Other
+      PACKING_MATERIALS: Packing materials
+      STORAGE: Storage
+      RENTAL_EQUIPMENT: Rental equipment
+      TOLLS: Tolls
+      WEIGHING_FEES: Weighing fees
   MoveDocumentStatus:
     type: string
     title: Document Status
@@ -2430,6 +2456,105 @@ definitions:
         type: object
         additionalProperties:
           type: string
+  StorageInTransit:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      location:
+        type: string
+        title: SIT Location
+        enum:
+          - ORIGIN
+          - DESTINATION
+        x-display-value:
+          ORIGIN: Origin
+          DESTINATION: Destination
+      estimated_start_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        title: Estimated start date
+      authorized_start_date:
+        type: string
+        format: date
+        x-nullable: true
+        example: '2018-04-26'
+        title: Authorized Start Date
+      actual_start_date:
+        type: string
+        format: date
+        x-nullable: true
+        example: '2018-04-26'
+        title: Actual Start Date
+      out_date:
+        type: string
+        format: date
+        x-nullable: true
+        example: '2018-04-26'
+        title: Out Date
+      notes:
+        type: string
+        example: Good to go!
+        format: textarea
+        x-nullable: true
+        title: Note
+      authorization_notes:
+        type: string
+        example: Good to go!
+        format: textarea
+        x-nullable: true
+        title: Authorization Notes
+      warehouse_id:
+        type: string
+        example: '000383'
+        title: Warehouse ID number
+      warehouse_name:
+        type: string
+        example: ABC Warehouse, Inc.
+        title: Warehouse Name
+      warehouse_phone:
+        type: string
+        format: telephone
+        pattern: '^$|^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+        title: Phone
+      warehouse_email:
+        type: string
+        format: x-email
+        pattern: '^$|^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        x-nullable: true
+        title: Email
+      shipment_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        title: Shipment ID
+      sit_number:
+        type: string
+        x-nullable: true
+        example: 123456
+        title: SIT Number
+      status:
+        type: string
+        example: REQUESTED
+        title: Status
+      warehouse_address:
+        $ref: '#/definitions/Address'
+    required:
+      - location
+      - warehouse_address
+      - warehouse_id
+      - warehouse_name
+      - estimated_start_date
+  StorageInTransits:
+      type: array
+      items:
+        $ref: '#/definitions/StorageInTransit'
   MoveQueueItem:
     type: object
     properties:
@@ -2495,6 +2620,18 @@ definitions:
       created_at:
         type: string
         format: date-time
+      origin_duty_station_name:
+        type: string
+        example: Dover AFB
+        title: Origin
+        x-nullable: true
+      destination_duty_station_name:
+        type: string
+        example: Dover AFB
+        title: Destination
+        x-nullable: true
+      storage_in_transits:
+        $ref: '#/definitions/StorageInTransits'
     required:
       - id
       - status
@@ -2641,6 +2778,8 @@ paths:
           description: user is not authorized
         404:
           description: ppm discount not found for provided postal codes and original move date
+        422:
+          description: cannot process request with given information
         500:
           description: internal server error
   /estimates/ppm_sit:
@@ -3051,6 +3190,8 @@ paths:
           description: user is not authorized
         404:
           description: ppm is not found or ppm discount not found for provided postal codes and original move date
+        422:
+          description: cannot process request with given information
         500:
           description: internal server error
     get:
@@ -4264,9 +4405,8 @@ paths:
           type: string
           enum:
             - new
-            - troubleshooting
             - ppm
-            - hhg_approved
+            - hhg_active
             - hhg_delivered
             - all
           required: true
@@ -4284,6 +4424,8 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to access this queue
+        404:
+          description: move queue item is not found
   /entitlements:
     get:
       summary: List weight weights allotted by entitlement

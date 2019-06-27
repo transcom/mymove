@@ -17,15 +17,14 @@
     "app-{{ .environment }}",
     "--",
     "/bin/milmove",
-    "serve"
-  ],
-  "command": [
+    "serve",
     "--env",
     "container",
     "--debug-logging",
     "--log-task-metadata",
     "--tls-enabled"
   ],
+  "command": [],
   "environment": [
     {
       "name": "SERVICE_NAME",

@@ -68,7 +68,7 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 		emptyWeight = handlers.FmtInt64(int64(*docExtractor.EmptyWeight))
 	}
 	var emptyWeightTicketMissing *bool
-	if docExtractor.EmptyWeight != nil {
+	if docExtractor.EmptyWeightTicketMissing != nil {
 		emptyWeightTicketMissing = docExtractor.EmptyWeightTicketMissing
 	}
 	var fullWeight *int64
@@ -76,7 +76,7 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 		fullWeight = handlers.FmtInt64(int64(*docExtractor.FullWeight))
 	}
 	var fullWeightTicketMissing *bool
-	if docExtractor.EmptyWeight != nil {
+	if docExtractor.FullWeightTicketMissing != nil {
 		fullWeightTicketMissing = docExtractor.FullWeightTicketMissing
 	}
 	var vehicleNickname string
@@ -98,6 +98,14 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 	var receiptMissing *bool
 	if docExtractor.ReceiptMissing != nil {
 		receiptMissing = docExtractor.ReceiptMissing
+	}
+	var storageStartDate *strfmt.Date
+	if docExtractor.StorageStartDate != nil {
+		storageStartDate = handlers.FmtDate(*docExtractor.StorageStartDate)
+	}
+	var storageEndDate *strfmt.Date
+	if docExtractor.StorageEndDate != nil {
+		storageEndDate = handlers.FmtDate(*docExtractor.StorageEndDate)
 	}
 
 	payload := internalmessages.MoveDocumentPayload{
@@ -121,6 +129,8 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 		FullWeightTicketMissing:  fullWeightTicketMissing,
 		WeightTicketDate:         weightTicketDate,
 		TrailerOwnershipMissing:  trailerOwnershipMissing,
+		StorageStartDate:         storageStartDate,
+		StorageEndDate:           storageEndDate,
 	}
 
 	return &payload, nil

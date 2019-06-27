@@ -1,10 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { reduxForm, getFormValues } from 'redux-form';
+import { getFormValues, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { get, map } from 'lodash';
 import PropTypes from 'prop-types';
 
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
+import { withLastLocation } from 'react-router-last-location';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import RadioButton from 'shared/RadioButton';
 import Checkbox from 'shared/Checkbox';
@@ -21,6 +22,11 @@ import { createWeightTicketSetDocument } from 'shared/Entities/modules/weightTic
 import { Link } from 'react-router-dom';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCircle';
+import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
+import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import { getNextPage, intToOrdinal } from './utility';
+import { withContext } from 'shared/AppContext';
+import DocumentsUploaded from './DocumentsUploaded';
 
 const vehicleTypes = {
   CarAndTrailer: 'CAR_TRAILER',
@@ -33,6 +39,9 @@ const nextBtnLabels = {
   SaveAndContinue: 'Save & Continue',
 };
 
+const reviewPagePath = '/ppm-payment-review';
+const nextPagePath = '/ppm-expenses-intro';
+
 const uploadEmptyTicketLabel =
   '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload empty weight ticket</span></span>';
 const uploadFullTicketLabel =
@@ -41,7 +50,7 @@ const uploadTrailerProofOfOwnership =
   '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload documentation</span></span>';
 
 class WeightTicket extends Component {
-  state = { ...this.initialState, weightTicketNumber: 1 };
+  state = { ...this.initialState };
   uploaders = {
     trailer: { uploaderRef: null, isMissingChecked: () => this.state.missingDocumentation },
     emptyWeight: { uploaderRef: null, isMissingChecked: () => this.state.missingEmptyWeightTicket },
@@ -58,6 +67,11 @@ class WeightTicket extends Component {
       missingEmptyWeightTicket: false,
       missingFullWeightTicket: false,
     };
+  }
+
+  componentDidMount() {
+    const { moveId } = this.props;
+    this.props.getMoveDocumentsForMove(moveId);
   }
 
   get isCarTrailer() {
@@ -77,18 +91,6 @@ class WeightTicket extends Component {
       return true;
     }
     return this.invalidState(this.uploaders.emptyWeight) || this.invalidState(this.uploaders.fullWeight);
-  };
-
-  formIsIncomplete = () => {
-    const { formValues } = this.props;
-    return !(
-      formValues &&
-      formValues.vehicle_nickname &&
-      formValues.vehicle_options &&
-      formValues.empty_weight &&
-      formValues.full_weight &&
-      formValues.weight_ticket_date
-    );
   };
 
   //  handleChange for vehicleType and additionalWeightTickets
@@ -127,7 +129,7 @@ class WeightTicket extends Component {
     const uploadersKeys = Object.keys(this.uploaders);
     return uploadersKeys.filter(
       // eslint-disable-next-line security/detect-object-injection
-      key => this.uploaders[key].uploaderRef && this.uploaders[key].uploaderRef.getFiles() > 0,
+      key => this.uploaders[key].uploaderRef && !this.uploaders[key].uploaderRef.isEmpty(),
     );
   }
 
@@ -160,10 +162,10 @@ class WeightTicket extends Component {
     return this.props
       .createWeightTicketSetDocument(moveId, weightTicketSetDocument)
       .then(() => {
-        this.setState({ weightTicketNumber: this.state.weightTicketNumber + 1 });
         this.cleanup();
         if (additionalWeightTickets === 'No') {
-          history.push(`/moves/${moveId}/ppm-expenses-intro`);
+          const nextPage = getNextPage(`/moves/${moveId}${nextPagePath}`, this.props.lastLocation, reviewPagePath);
+          history.push(nextPage);
         }
       })
       .catch(e => {
@@ -183,18 +185,6 @@ class WeightTicket extends Component {
     this.setState({ ...this.initialState });
   };
 
-  // maps int to int with ordinal 1 -> 1st, 2 -> 2nd, 3rd ...
-  numberWithOrdinal = n => {
-    const s = ['th', 'st', 'nd', 'rd'];
-    const v = n % 100;
-    // eslint-disable-next-line security/detect-object-injection
-    return n + (s[(v - 20) % 10] || s[v] || s[0]);
-  };
-
-  submitButtonsAreDisabled = () => {
-    return this.formIsIncomplete() || this.uploaderWithInvalidState();
-  };
-
   render() {
     const {
       additionalWeightTickets,
@@ -204,10 +194,10 @@ class WeightTicket extends Component {
       missingDocumentation,
       isValidTrailer,
     } = this.state;
-    const { handleSubmit, submitting, schema } = this.props;
+    const { handleSubmit, submitting, schema, weightTicketSets, invalid, moveId } = this.props;
     const nextBtnLabel =
       additionalWeightTickets === 'Yes' ? nextBtnLabels.SaveAndAddAnother : nextBtnLabels.SaveAndContinue;
-
+    const weightTicketSetOrdinal = intToOrdinal(weightTicketSets.length + 1);
     return (
       <Fragment>
         <WizardHeader
@@ -220,6 +210,7 @@ class WeightTicket extends Component {
             </ProgressTimeline>
           }
         />
+        <DocumentsUploaded moveId={moveId} />
         <form>
           {this.state.weightTicketSubmissionError && (
             <div className="usa-grid">
@@ -231,9 +222,7 @@ class WeightTicket extends Component {
             </div>
           )}
           <div className="usa-grid expenses-container">
-            <h3 className="expenses-header">
-              Weight Tickets - {this.numberWithOrdinal(this.state.weightTicketNumber)} set
-            </h3>
+            <h3 className="expenses-header">Weight Tickets - {weightTicketSetOrdinal} set</h3>
             Upload an <strong>empty</strong> & <strong>full</strong> weight ticket below for <em>only</em>{' '}
             <strong>one</strong> vehicle or trip at a time until they're all uploaded.{' '}
             <Link to="/weight-ticket-examples">
@@ -447,10 +436,9 @@ class WeightTicket extends Component {
                 </div>
               </>
             )}
-            {/* TODO: change onclick handler to go to next page in flow */}
             <PPMPaymentRequestActionBtns
               nextBtnLabel={nextBtnLabel}
-              submitButtonsAreDisabled={this.submitButtonsAreDisabled()}
+              submitButtonsAreDisabled={this.uploaderWithInvalidState() || invalid}
               submitting={submitting}
               saveForLaterHandler={handleSubmit(this.saveForLaterHandler)}
               saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
@@ -483,10 +471,13 @@ function mapStateToProps(state, ownProps) {
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
     schema: get(state, 'swaggerInternal.spec.definitions.CreateWeightTicketDocumentsPayload', {}),
     currentPpm: get(state, 'ppm.currentPpm'),
+    weightTicketSets: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET_SET']),
   };
 }
+
 const mapDispatchToProps = {
+  getMoveDocumentsForMove,
   createWeightTicketSetDocument,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(WeightTicket);
+export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(WeightTicket)));

@@ -316,7 +316,11 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, session *auth.Session, w http.ResponseWriter, span *trace.Span, r *http.Request, lURL string) {
 	if userIdentity.Disabled {
-		h.logger.Error("Disabled user requesting authentication", zap.String("email", session.Email))
+		h.logger.Error("Disabled user requesting authentication",
+			zap.String("application_name", string(session.ApplicationName)),
+			zap.String("hostname", session.Hostname),
+			zap.String("user_id", session.UserID.String()),
+			zap.String("email", session.Email))
 		http.Error(w, http.StatusText(403), http.StatusForbidden)
 		return
 	}
@@ -332,11 +336,16 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 		span.AddField("session.service_member_id", session.ServiceMemberID)
 	}
 
-	if userIdentity.DpsUserID != nil {
+	if userIdentity.DpsUserID != nil && (userIdentity.DpsDisabled != nil && !*userIdentity.DpsDisabled) {
 		session.DpsUserID = *(userIdentity.DpsUserID)
 	}
 
 	if session.IsOfficeApp() {
+		if userIdentity.OfficeDisabled != nil && *userIdentity.OfficeDisabled {
+			h.logger.Error("Office user is disabled", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
+		}
 		if userIdentity.OfficeUserID != nil {
 			session.OfficeUserID = *(userIdentity.OfficeUserID)
 		} else {
@@ -364,6 +373,11 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 	}
 
 	if session.IsTspApp() {
+		if userIdentity.TspDisabled != nil && *userIdentity.TspDisabled {
+			h.logger.Error("TSP user is disabled", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
+		}
 		if userIdentity.TspUserID != nil {
 			session.TspUserID = *(userIdentity.TspUserID)
 		} else {
@@ -378,6 +392,7 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
 			}
+
 			session.TspUserID = tspUser.ID
 			span.AddField("session.tsp_user_id", session.TspUserID)
 			tspUser.UserID = &userIdentity.ID
@@ -413,6 +428,11 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
+		if officeUser.Disabled {
+			h.logger.Error("Office user is disabled", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
+		}
 	}
 
 	var tspUser *models.TspUser
@@ -425,6 +445,11 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 		} else if err != nil {
 			h.logger.Error("Checking for TSP user", zap.String("email", session.Email), zap.Error(err))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+		if tspUser.Disabled {
+			h.logger.Error("TSP user is disabled", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
 			return
 		}
 	}
