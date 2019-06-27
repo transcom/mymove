@@ -5,3 +5,10 @@ export const intToOrdinal = n => {
   // eslint-disable-next-line security/detect-object-injection
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 };
+
+export const getNextPage = (nextPage, lastPage, pageToRevisit) => {
+  if (lastPage && lastPage.pathname.includes(pageToRevisit)) {
+    return lastPage.pathname;
+  }
+  return nextPage;
+};
