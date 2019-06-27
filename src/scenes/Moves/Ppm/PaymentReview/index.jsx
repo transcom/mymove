@@ -12,11 +12,24 @@ import WeightTicketListItem from './WeightTicketListItem';
 import ExpenseTicketListItem from './ExpenseTicketListItem';
 import WizardHeader from '../../WizardHeader';
 import './PaymentReview.css';
+import CustomerAgreement from 'scenes/Legalese/CustomerAgreement';
+import { ppmPaymentLegal } from 'scenes/Legalese/legaleseText';
+import PPMPaymentRequestActionBtns from 'scenes/Moves/Ppm/PPMPaymentRequestActionBtns';
+
+const nextBtnLabel = 'Submit Request';
 
 class PaymentReview extends Component {
+  state = {
+    acceptTerms: false,
+  };
+
   componentDidMount() {
     this.props.getMoveDocumentsForMove(this.props.moveId);
   }
+
+  handleOnAcceptTermsChange = acceptTerms => {
+    this.setState({ acceptTerms });
+  };
 
   getExpenses(expenses) {
     return expenses.map(expense => {
@@ -36,7 +49,7 @@ class PaymentReview extends Component {
   }
 
   render() {
-    const { moveId, moveDocuments } = this.props;
+    const { moveId, moveDocuments, submitting } = this.props;
     const expenses = this.getExpenses(moveDocuments.expenses);
     const weightTickets = moveDocuments.weightTickets;
     const missingSomeWeightTicket = weightTickets.some(
@@ -104,6 +117,21 @@ class PaymentReview extends Component {
               </>
             )}
           </div>
+          <div className="review-customer-agreement-container">
+            <CustomerAgreement
+              className="review-customer-agreement"
+              onChange={this.handleOnAcceptTermsChange}
+              link="/ppm-customer-agreement"
+              checked={this.state.acceptTerms}
+              agreementText={ppmPaymentLegal}
+            />
+          </div>
+          <PPMPaymentRequestActionBtns
+            nextBtnLabel={nextBtnLabel}
+            submitButtonsAreDisabled={!this.state.acceptTerms}
+            submitting={submitting}
+            displaySaveForLater
+          />
         </div>
       </>
     );

@@ -309,6 +309,25 @@ function serviceMemberReviewsDocuments() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
   });
+  cy
+    .get('.review-customer-agreement a')
+    .contains('Legal Agreement')
+    .click();
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/ppm-customer-agreement/);
+  });
+  cy
+    .get('.usa-button-secondary')
+    .contains('Back')
+    .click();
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
+  });
+  cy.get('input[id="agree-checkbox"]').check({ force: true });
+  cy
+    .get('button')
+    .contains('Submit Request')
+    .should('be.enabled');
 }
 
 function serviceMemberViewsExpensesLandingPage() {
