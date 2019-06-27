@@ -18,7 +18,7 @@ const (
 	// DbDebugFlag is the DB Debug flag
 	DbDebugFlag string = "db-debug"
 	// DbEnvFlag is the DB environment flag
-	DbEnvFlag string = "env"
+	DbEnvFlag string = "db-env"
 	// DbNameFlag is the DB name flag
 	DbNameFlag string = "db-name"
 	// DbHostFlag is the DB host flag
@@ -40,6 +40,9 @@ const (
 	DbEnvTest string = "test"
 	// DbEnvDevelopment is the Development DB Env name
 	DbEnvDevelopment string = "development"
+
+	// The name of the test database
+	DbNameTest string = "test_db"
 
 	// SSLModeDisable is the disable SSL Mode
 	SSLModeDisable string = "disable"
@@ -80,12 +83,12 @@ var allDbEnvs = []string{
 }
 
 type errInvalidDbEnv struct {
-	DbEnv  string
+	Value  string
 	DbEnvs []string
 }
 
 func (e *errInvalidDbEnv) Error() string {
-	return fmt.Sprintf("invalid db env %s, must be one of: "+strings.Join(e.DbEnvs, ", "), e.DbEnv)
+	return fmt.Sprintf("invalid db env %s, must be one of: ", e.Value) + strings.Join(e.DbEnvs, ", ")
 }
 
 type errInvalidSSLMode struct {
@@ -99,7 +102,7 @@ func (e *errInvalidSSLMode) Error() string {
 
 // InitDatabaseFlags initializes DB command line flags
 func InitDatabaseFlags(flag *pflag.FlagSet) {
-	flag.String(DbEnvFlag, DbEnvDevelopment, "The Database  environment in which to run.")
+	flag.String(DbEnvFlag, DbEnvDevelopment, "database environment: "+strings.Join(allDbEnvs, ", "))
 	flag.String(DbNameFlag, "dev_db", "Database Name")
 	flag.String(DbHostFlag, "localhost", "Database Hostname")
 	flag.Int(DbPortFlag, 5432, "Database Port")
@@ -123,7 +126,7 @@ func CheckDatabase(v *viper.Viper, logger Logger) error {
 
 	dbEnv := v.GetString(DbEnvFlag)
 	if !stringSliceContains(allDbEnvs, dbEnv) {
-		return &errInvalidDbEnv{DbEnv: dbEnv, DbEnvs: allDbEnvs}
+		return &errInvalidDbEnv{Value: dbEnv, DbEnvs: allDbEnvs}
 	}
 
 	sslMode := v.GetString(DbSSLModeFlag)
@@ -163,11 +166,11 @@ func InitDatabase(v *viper.Viper, logger Logger) (*pop.Connection, error) {
 		"sslmode": v.GetString(DbSSLModeFlag),
 	}
 
-	if dbEnv == "test" {
+	if dbEnv == DbEnvTest {
 		// Leave the test database name hardcoded, since we run tests in the same
 		// environment as development, and it's extra confusing to have to swap environment
 		// variables before running tests.
-		dbName = "test_db"
+		dbName = DbNameTest
 	}
 
 	if str := v.GetString(DbSSLRootCertFlag); len(str) > 0 {
