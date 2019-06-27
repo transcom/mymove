@@ -7,7 +7,7 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
-	"github.com/transcom/mymove/mocks"
+
 	"github.com/transcom/mymove/pkg/accesscontrols"
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -73,6 +73,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		officeUserListFetcher := &mocks.OfficeUserListFetcher{}
 		officeUserListFetcher.On("FetchOfficeUserList",
 			mock.Anything,
+			mock.Anything,
 		).Return(models.OfficeUsers{officeUser}, nil).Once()
 		handler := IndexOfficeUsersHandler{
 			HandlerContext:        handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
@@ -95,6 +96,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		expectedError := models.ErrFetchNotFound
 		officeUserListFetcher := &mocks.OfficeUserListFetcher{}
 		officeUserListFetcher.On("FetchOfficeUserList",
+			mock.Anything,
 			mock.Anything,
 		).Return(nil, expectedError).Once()
 		handler := IndexOfficeUsersHandler{
