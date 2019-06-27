@@ -64,7 +64,7 @@ function ServiceMemberSummary(props) {
   const yesNoMap = { true: 'Yes', false: 'No' };
 
   return (
-    <div>
+    <div class="service-member-summary">
       <h3>Profile and Orders</h3>
       <div className="usa-grid-full review-content">
         <div className="usa-width-one-half review-section">
