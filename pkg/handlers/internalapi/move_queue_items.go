@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"encoding/json"
+	"sort"
 	"strings"
 	"time"
 
@@ -83,6 +84,10 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 		h.Logger().Error("Loading Queue", zap.String("State", lifecycleState), zap.Error(err))
 		return handlers.ResponseForError(h.Logger(), err)
 	}
+	// Sorting the slice by LastModifiedDate so that the API results follow suit.
+	sort.Slice(MoveQueueItems, func(i, j int) bool {
+		return MoveQueueItems[i].LastModifiedDate.Before(MoveQueueItems[j].LastModifiedDate)
+	})
 
 	MoveQueueItemPayloads := make([]*internalmessages.MoveQueueItem, len(MoveQueueItems))
 	for i, MoveQueueItem := range MoveQueueItems {
