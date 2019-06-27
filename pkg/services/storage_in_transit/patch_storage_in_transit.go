@@ -72,6 +72,7 @@ func (p *patchStorageInTransit) PatchStorageInTransit(payload apimessages.Storag
 	}
 
 	patchStorageInTransitWithPayload(storageInTransit, &payload)
+	storageInTransit.SaveActualDeliveryDateAsOutDate(p.db, session, *(*time.Time)(payload.OutDate))
 
 	verrs, err := models.SaveStorageInTransitAndAddress(p.db, storageInTransit)
 	if err != nil || verrs.HasAny() {

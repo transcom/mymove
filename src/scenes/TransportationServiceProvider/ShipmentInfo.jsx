@@ -200,35 +200,32 @@ class ShipmentInfo extends Component {
     this.props.resetRequests();
   }
 
-  componentDidUpdate(prevProps) {
-    const { storageInTransits } = this.props;
-    if (storageInTransits !== prevProps.storageInTransits) {
-      this.resetActualDeliveryDate();
-    }
-  }
+  componentDidUpdate(prevState) {
+    const { storageInTransits, shipment } = this.props;
 
-  resetActualDeliveryDate = () => {
-    if (this.props.storageInTransits.length > 0) {
-      this.props.storageInTransits.map(storageInTransit => {
-        if (storageInTransit.location === 'DESTINATION' && storageInTransit.status === 'DELIVERED') {
-          return this.setState({
+    storageInTransits.map(storageInTransit => {
+      prevState.storageInTransits.map(prevSit => {
+        if (prevSit.id === storageInTransit.id && prevSit.out_date !== storageInTransit.out_date) {
+          this.setState({
             shipment: {
-              ...this.props.shipment,
+              ...shipment,
               actual_delivery_date: storageInTransit.out_date,
             },
           });
-        } else {
-          return null;
         }
+        return null;
       });
-    } else {
-      return this.setState({
+      return null;
+    });
+
+    if (shipment.actual_delivery_date !== prevState.shipment.actual_delivery_date) {
+      this.setState({
         shipment: {
-          ...this.props.shipment,
+          ...shipment,
         },
       });
     }
-  };
+  }
 
   acceptShipment = () => {
     return this.props.acceptShipment(this.props.shipment.id);

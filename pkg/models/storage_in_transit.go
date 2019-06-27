@@ -8,6 +8,8 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/auth"
 )
 
 // StorageInTransitStatus represents the status of a SIT request
@@ -193,4 +195,28 @@ func (s *StorageInTransit) Deliver(deliveryDate time.Time) error {
 	s.OutDate = &deliveryDate
 
 	return nil
+}
+
+func (s *StorageInTransit) SaveActualDeliveryDateAsOutDate(db *pop.Connection, session *auth.Session, newOutDate time.Time) (*validate.Errors, error) {
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	shipment, err := FetchShipment(db, session, s.ShipmentID)
+	if err != nil {
+		return nil, err
+	}
+
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("rollback")
+
+		shipment.ActualDeliveryDate = &newOutDate
+		if verrs, err := db.ValidateAndSave(shipment); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error saving shipment")
+			return transactionError
+		}
+		return nil
+	})
+
+	return responseVErrors, responseError
 }
