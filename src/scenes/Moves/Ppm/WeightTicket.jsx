@@ -26,7 +26,7 @@ import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movin
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { getNextPage, intToOrdinal } from './utility';
 import { withContext } from 'shared/AppContext';
-import DocumentsUploaded from './DocumentsUploaded';
+import DocumentsUploaded from './PaymentReview/DocumentsUploaded';
 
 const vehicleTypes = {
   CarAndTrailer: 'CAR_TRAILER',

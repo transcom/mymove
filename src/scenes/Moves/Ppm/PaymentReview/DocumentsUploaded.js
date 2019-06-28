@@ -6,10 +6,11 @@ import faPlusCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircl
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { connect } from 'react-redux';
-import WeightTicketListItem from './PaymentReview/WeightTicketListItem';
-import ExpenseTicketListItem from './PaymentReview/ExpenseTicketListItem';
-import { formatExpenseDocs } from './utility';
-import './PaymentReview/PaymentReview.css';
+import WeightTicketListItem from './WeightTicketListItem';
+import ExpenseTicketListItem from './ExpenseTicketListItem';
+import { formatExpenseDocs } from '../utility';
+
+import './PaymentReview.css';
 
 export class DocumentsUploaded extends Component {
   state = {
@@ -52,7 +53,7 @@ export class DocumentsUploaded extends Component {
         <div
           className="doc-summary-container"
           data-cy="documents-uploaded"
-          style={{ paddingBottom: !inReviewPage && !showDocs ? '1em' : 0, marginTop: !inReviewPage ? '1em' : 0 }}
+          style={{ paddingBottom: !inReviewPage && !showDocs ? '1em' : null, marginTop: !inReviewPage ? '1em' : null }}
         >
           <div style={{ display: 'flex', alignItems: 'baseline' }}>
             {this.renderHeader()}
@@ -62,7 +63,7 @@ export class DocumentsUploaded extends Component {
               </a>
             )}
           </div>
-          {showDocs && (
+          {(showDocs || inReviewPage) && (
             <>
               <h4>{weightTicketDocs.length} sets of weight tickets</h4>
               <div className="tickets">

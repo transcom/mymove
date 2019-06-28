@@ -6,18 +6,17 @@ import { get } from 'lodash';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
-import DocumentsUploaded from '../DocumentsUploaded';
-import WizardHeader from '../../WizardHeader';
-
-import './PaymentReview.css';
 import CustomerAgreement from 'scenes/Legalese/CustomerAgreement';
 import { ppmPaymentLegal } from 'scenes/Legalese/legaleseText';
 import PPMPaymentRequestActionBtns from 'scenes/Moves/Ppm/PPMPaymentRequestActionBtns';
 import moment from 'moment';
 import Alert from 'shared/Alert';
 import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
-import { submitExpenseDocs } from '../ducks';
 import scrollToTop from 'shared/scrollToTop';
+import { submitExpenseDocs } from '../ducks';
+import DocumentsUploaded from './DocumentsUploaded';
+import WizardHeader from '../../WizardHeader';
+import './PaymentReview.css';
 
 const nextBtnLabel = 'Submit Request';
 
@@ -62,7 +61,6 @@ class PaymentReview extends Component {
 
   render() {
     const { moveId, moveDocuments, submitting } = this.props;
-    const expenseDocs = formatExpenseDocs(moveDocuments.expenses);
     const weightTickets = moveDocuments.weightTickets;
     const missingSomeWeightTicket = weightTickets.some(
       ({ empty_weight_ticket_missing, full_weight_ticket_missing }) =>

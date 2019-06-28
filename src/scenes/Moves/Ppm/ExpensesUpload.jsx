@@ -25,7 +25,7 @@ import {
 import Alert from 'shared/Alert';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { withContext } from 'shared/AppContext';
-import DocumentsUploaded from './DocumentsUploaded';
+import DocumentsUploaded from './PaymentReview/DocumentsUploaded';
 
 const nextPagePath = '/ppm-payment-review';
 const nextBtnLabels = {
