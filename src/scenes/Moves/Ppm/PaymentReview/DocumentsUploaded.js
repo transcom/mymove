@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { bool } from 'prop-types';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
-import { connect } from 'react-redux';
+import docsAddedCheckmarkImg from 'shared/images/docs_added_checkmark.png';
 import WeightTicketListItem from './WeightTicketListItem';
 import ExpenseTicketListItem from './ExpenseTicketListItem';
 import { formatExpenseDocs } from '../utility';
@@ -37,7 +38,9 @@ export class DocumentsUploaded extends Component {
     const totalDocs = expenseDocs.length + weightTicketDocs.length;
     const documentLabel = `document${totalDocs > 1 ? 's' : ''}`;
 
-    return <h3>{inReviewPage ? `Document Summary - ${totalDocs} total` : `${totalDocs} ${documentLabel} added`}</h3>;
+    return (
+      <h3>{inReviewPage ? `Document Summary - ${totalDocs} total` : <>{`${totalDocs} ${documentLabel} added`}</>}</h3>
+    );
   };
 
   render() {
@@ -55,7 +58,14 @@ export class DocumentsUploaded extends Component {
           data-cy="documents-uploaded"
           style={{ paddingBottom: !inReviewPage && !showDocs ? '1em' : null, marginTop: !inReviewPage ? '1em' : null }}
         >
-          <div style={{ display: 'flex', alignItems: 'baseline' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', marginRight: 5 }}>
+            {!inReviewPage && (
+              <img
+                alt="documents added checkmark"
+                src={docsAddedCheckmarkImg}
+                style={{ alignSelf: 'center', marginRight: 5 }}
+              />
+            )}
             {this.renderHeader()}
             {showToggleDocs && (
               <a style={{ paddingLeft: '1em' }} onClick={this.toggleShowDocs}>
