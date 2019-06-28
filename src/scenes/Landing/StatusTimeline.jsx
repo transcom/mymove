@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { PureComponent } from 'react';
-import { get, filter, findLast, includes } from 'lodash';
+import { get, filter, findLast } from 'lodash';
 import moment from 'moment';
 
 import { displayDateRange } from 'shared/formatters';

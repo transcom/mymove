@@ -1,13 +1,27 @@
 import React from 'react';
-import { includes } from 'lodash';
-import { getDates, StatusTimeline } from './StatusTimeline';
+import { get, includes } from 'lodash';
+import { StatusTimeline } from './StatusTimeline';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
   getSignedCertification,
   selectPaymentRequestCertificationForMove,
-} from '../../shared/Entities/modules/signed_certifications';
+} from 'shared/Entities/modules/signed_certifications';
+
+const statuses = {
+  Submitted: 'SUBMITTED',
+  Approved: 'APPROVED',
+  PaymentRequested: 'PAYMENT_REQUESTED',
+  Completed: 'COMPLETED',
+};
+
+const codes = {
+  Submitted: 'SUBMITTED',
+  PpmApproved: 'PPM_APPROVED',
+  InProgress: 'IN_PROGRESS',
+  PaymentRequested: 'PAYMENT_REQUESTED',
+};
 
 export class PPMStatusTimeline extends React.Component {
   componentDidMount() {
@@ -15,64 +29,81 @@ export class PPMStatusTimeline extends React.Component {
     this.props.getSignedCertification(moveId);
   }
 
+  static determineActualMoveDate(ppm) {
+    const approveDate = get(ppm, 'approve_date');
+    const originalMoveDate = get(ppm, 'original_move_date');
+    const actualMoveDate = get(ppm, 'actual_move_date');
+    // if there's no approve date, then the PPM hasn't been approved yet
+    // and the in progress date should not be shown
+    if (!approveDate) {
+      return;
+    }
+    // if there's an actual move date that is known and passed, show it
+    // else show original move date if it has passed
+    if (actualMoveDate && moment(actualMoveDate, 'YYYY-MM-DD').isSameOrBefore()) {
+      return actualMoveDate;
+    }
+    if (moment(originalMoveDate, 'YYYY-MM-DD').isSameOrBefore()) {
+      return originalMoveDate;
+    }
+  }
+
+  isCompleted(code) {
+    const { ppm } = this.props;
+    const moveIsApproved = includes([statuses.Approved, statuses.PaymentRequested, statuses.Completed], ppm.status);
+    const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
+    const moveIsComplete = includes(['PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
+
+    switch (code) {
+      case codes.Submitted:
+        return true;
+      case codes.Approved:
+        return moveIsApproved;
+      case codes.InProgress:
+        return (moveInProgress && ppm.status === statuses.Approved) || moveIsComplete;
+      case codes.PaymentRequested:
+        return moveIsComplete;
+      default:
+        console.log('Unknown status');
+    }
+  }
+
   getStatuses() {
+    const { ppm, signedCertification } = this.props;
+    const actualMoveDate = PPMStatusTimeline.determineActualMoveDate(ppm);
+    const approveDate = get(ppm, 'approve_date');
+    const submitDate = get(ppm, 'submit_date');
+    const paymentRequestedDate = signedCertification && signedCertification.date ? signedCertification.date : null;
     return [
-      { name: 'Submitted', code: 'SUBMITTED', date_type: 'submit_date' },
-      { name: 'Approved', code: 'PPM_APPROVED', date_type: 'approve_date' },
-      { name: 'In progress', code: 'IN_PROGRESS', date_type: 'actual_move_date' },
-      { name: 'Payment requested', code: 'PAYMENT_REQUESTED' },
+      {
+        name: 'Submitted',
+        code: codes.Submitted,
+        dates: [submitDate],
+        completed: this.isCompleted(codes.Submitted),
+      },
+      {
+        name: 'Approved',
+        code: codes.PpmApproved,
+        dates: [approveDate],
+        completed: this.isCompleted(codes.Approved),
+      },
+      {
+        name: 'In progress',
+        code: codes.InProgress,
+        dates: [actualMoveDate],
+        completed: this.isCompleted(codes.InProgress),
+      },
+      {
+        name: 'Payment requested',
+        code: codes.PaymentRequested,
+        dates: [paymentRequestedDate],
+        completed: this.isCompleted(codes.PaymentRequested),
+      },
     ];
   }
 
-  getCompletedStatus(status) {
-    const { ppm } = this.props;
-
-    if (status === 'SUBMITTED') {
-      return true;
-    }
-
-    if (status === 'PPM_APPROVED') {
-      return includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
-    }
-
-    if (status === 'IN_PROGRESS') {
-      const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
-      return (moveInProgress && ppm.status === 'APPROVED') || includes(['PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
-    }
-
-    if (status === 'PAYMENT_REQUESTED') {
-      return includes(['PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
-    }
-  }
-
-  addDates(statuses) {
-    const { signedCertification } = this.props;
-    const paymentRequestedDate = signedCertification && signedCertification.date ? signedCertification.date : null;
-    return statuses.map(status => {
-      if (status.code === 'PAYMENT_REQUESTED') {
-        return {
-          ...status,
-          dates: [paymentRequestedDate],
-        };
-      }
-      return {
-        ...status,
-        dates: [getDates(this.props.ppm, status.date_type)],
-      };
-    });
-  }
-
-  addCompleted(statuses) {
-    return statuses.map(status => {
-      return {
-        ...status,
-        completed: this.getCompletedStatus(status.code),
-      };
-    });
-  }
-
   render() {
-    const statuses = this.addDates(this.addCompleted(this.getStatuses()));
+    const statuses = this.getStatuses();
     return <StatusTimeline statuses={statuses} showEstimated={false} />;
   }
 }
