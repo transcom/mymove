@@ -9,7 +9,7 @@ describe('office user finds the shipment', function() {
   const queues = {
     new: 'new',
     ppm: 'ppm',
-    approvedHHG: 'hhg_approved',
+    activeHHG: 'hhg_active',
     deliveredHHG: 'hhg_delivered',
     all: 'all',
   };

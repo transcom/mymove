@@ -13,7 +13,7 @@ const (
 	// GEXBasicAuthPasswordFlag is the GEX Basic Auth Password Flag #nosec G101
 	GEXBasicAuthPasswordFlag string = "gex-basic-auth-password"
 	// GEXSendProdInvoiceFlag is the GEX Send Prod Invoice Flag
-	GEXSendProdInvoiceFlag string = "send-prod-invoice"
+	GEXSendProdInvoiceFlag string = "gex-send-prod-invoice"
 	// GEXURLFlag is the GEX URL FLag
 	GEXURLFlag string = "gex-url"
 )

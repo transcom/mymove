@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190627162208_add-one-new-truss-user.sql")

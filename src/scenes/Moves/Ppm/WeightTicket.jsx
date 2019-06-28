@@ -198,6 +198,8 @@ class WeightTicket extends Component {
     const nextBtnLabel =
       additionalWeightTickets === 'Yes' ? nextBtnLabels.SaveAndAddAnother : nextBtnLabels.SaveAndContinue;
     const weightTicketSetOrdinal = intToOrdinal(weightTicketSets.length + 1);
+    const fullWeightTicketFieldsRequired = missingFullWeightTicket ? null : true;
+    const emptyWeightTicketFieldsRequired = missingEmptyWeightTicket ? null : true;
     return (
       <Fragment>
         <WizardHeader
@@ -331,7 +333,7 @@ class WeightTicket extends Component {
                       fieldName="empty_weight"
                       swagger={schema}
                       hideLabel
-                      required
+                      required={emptyWeightTicketFieldsRequired}
                     />{' '}
                     lbs
                   </div>
@@ -377,7 +379,7 @@ class WeightTicket extends Component {
                       fieldName="full_weight"
                       swagger={schema}
                       hideLabel
-                      required
+                      required={fullWeightTicketFieldsRequired}
                     />{' '}
                     lbs
                   </div>
@@ -409,7 +411,11 @@ class WeightTicket extends Component {
                   </div>
                 </div>
 
-                <SwaggerField fieldName="weight_ticket_date" swagger={schema} required />
+                <SwaggerField
+                  fieldName="weight_ticket_date"
+                  swagger={schema}
+                  required={fullWeightTicketFieldsRequired}
+                />
                 <div className="dashed-divider" />
 
                 <div className="radio-group-wrapper">
@@ -476,10 +482,6 @@ function mapStateToProps(state, ownProps) {
 }
 
 const mapDispatchToProps = {
-  //TODO we can possibly remove selectPPMCloseoutDocumentsForMove and
-  // getMoveDocumentsForMove once the document reviewer component is added
-  // as it may be possible to get the number of weight tickets from that.
-  selectPPMCloseoutDocumentsForMove,
   getMoveDocumentsForMove,
   createWeightTicketSetDocument,
 };

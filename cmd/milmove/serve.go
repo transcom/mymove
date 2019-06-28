@@ -63,8 +63,11 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// Environment
 	cli.InitEnvironmentFlags(flag)
 
-	// Build Server
+	// Build Files
 	cli.InitBuildFlags(flag)
+
+	// Webserver
+	cli.InitWebserverFlags(flag)
 
 	// Hosts
 	cli.InitHostFlags(flag)
@@ -120,6 +123,9 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// aws-vault
 	cli.InitVaultFlags(flag)
 
+	// Logging
+	cli.InitLoggingFlags(flag)
+
 	// Verbose
 	cli.InitVerboseFlags(flag)
 
@@ -139,6 +145,10 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 	}
 
 	if err := cli.CheckBuild(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckWebserver(v); err != nil {
 		return err
 	}
 
@@ -211,6 +221,10 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 	}
 
 	if err := cli.CheckVault(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckLogging(v); err != nil {
 		return err
 	}
 
@@ -289,9 +303,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	dbEnv := v.GetString(cli.DbEnvFlag)
-
-	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	logger, err := logging.Config(v.GetString(cli.LoggingEnvFlag), v.GetBool(cli.VerboseFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
@@ -332,6 +344,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			}
 		}
 	}
+
 	zap.ReplaceGlobals(logger)
 
 	logger.Info("webserver starting up")
@@ -340,6 +353,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		logger.Fatal("invalid configuration", zap.Error(err))
 	}
+
+	dbEnv := v.GetString(cli.DbEnvFlag)
 
 	isDevOrTest := dbEnv == "development" || dbEnv == "test"
 	if isDevOrTest {
@@ -433,7 +448,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	notificationSender := notifications.InitEmail(v, session, logger)
 	handlerContext.SetNotificationSender(notificationSender)
 
-	build := v.GetString(cli.BuildFlag)
+	build := v.GetString(cli.BuildRootFlag)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(build))
@@ -587,6 +602,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 				}
 			}
 		}
+
+		// Log the number of headers, which can be used for finding abnormal requests
+		fields = append(fields, zap.Int("headers", len(r.Header)))
 
 		logger.Info("Request", fields...)
 
