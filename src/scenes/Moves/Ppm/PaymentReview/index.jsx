@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
+import { get } from 'lodash';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
@@ -15,12 +16,18 @@ import './PaymentReview.css';
 import CustomerAgreement from 'scenes/Legalese/CustomerAgreement';
 import { ppmPaymentLegal } from 'scenes/Legalese/legaleseText';
 import PPMPaymentRequestActionBtns from 'scenes/Moves/Ppm/PPMPaymentRequestActionBtns';
+import moment from 'moment';
+import Alert from 'shared/Alert';
+import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
+import { submitExpenseDocs } from '../ducks';
+import scrollToTop from 'shared/scrollToTop';
 
 const nextBtnLabel = 'Submit Request';
 
 class PaymentReview extends Component {
   state = {
     acceptTerms: false,
+    moveSubmissionError: false,
   };
 
   componentDidMount() {
@@ -41,6 +48,31 @@ class PaymentReview extends Component {
       };
     });
   }
+
+  submitCertificate = () => {
+    const signatureTime = moment().format();
+    const { currentPpm, moveId } = this.props;
+    const certificate = {
+      certification_text: ppmPaymentLegal,
+      date: signatureTime,
+      signature: 'CHECKBOX',
+      personally_procured_move_id: currentPpm.id,
+      certification_type: 'PPM_PAYMENT',
+    };
+    return this.props.createSignedCertification(moveId, certificate);
+  };
+
+  applyClickHandlers = () => {
+    this.setState({ moveSubmissionError: false });
+    Promise.all([this.submitCertificate(), this.props.submitExpenseDocs()])
+      .then(() => {
+        this.props.history.push('/');
+      })
+      .catch(() => {
+        this.setState({ moveSubmissionError: true });
+        scrollToTop();
+      });
+  };
 
   formatExpenseType(expenseType) {
     if (typeof expenseType !== 'string') return '';
@@ -70,6 +102,13 @@ class PaymentReview extends Component {
         />
         <div className="usa-grid">
           <div className="review-payment-request-header">
+            {this.state.moveSubmissionError && (
+              <div className="usa-width-one-whole error-message">
+                <Alert type="error" heading="An error occurred">
+                  There was an error requesting payment, please try again.
+                </Alert>
+              </div>
+            )}
             <h3>Review Payment Request</h3>
             <p>
               Make sure <strong>all</strong> your documents are uploaded.
@@ -129,6 +168,7 @@ class PaymentReview extends Component {
           <PPMPaymentRequestActionBtns
             nextBtnLabel={nextBtnLabel}
             submitButtonsAreDisabled={!this.state.acceptTerms}
+            saveAndAddHandler={this.applyClickHandlers}
             submitting={submitting}
             displaySaveForLater
           />
@@ -140,17 +180,19 @@ class PaymentReview extends Component {
 
 const mapStateToProps = (state, props) => {
   const { moveId } = props.match.params;
-
   return {
     moveDocuments: {
       expenses: selectPPMCloseoutDocumentsForMove(state, moveId, ['EXPENSE']),
       weightTickets: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET_SET']),
     },
     moveId,
+    currentPpm: get(state, 'ppm.currentPpm'),
   };
 };
 
 const mapDispatchToProps = {
+  submitExpenseDocs,
+  createSignedCertification,
   getMoveDocumentsForMove,
 };
 
