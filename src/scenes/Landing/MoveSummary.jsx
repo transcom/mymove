@@ -359,7 +359,7 @@ export const NewApprovedMoveSummary = props => {
                 )}
               </div>
               <div className="usa-width-one-third">
-                <NewPPMMoveDetailsPanel ppm={ppm} />
+                <NewPPMMoveDetails ppm={ppm} />
               </div>
             </div>
             <div className="step-links" />
@@ -454,7 +454,10 @@ const NewPPMMoveDetailsPanel = props => {
   const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
     ? `(up to ${ppm.estimated_storage_reimbursement})`
     : '';
-  const advanceString = ppm.has_requested_advance ? `Advance Requested: $${formatCents(advance.requested_amount)}` : '';
+  const advanceString =
+    ppm.has_requested_advance && advance && advance.requested_amount
+      ? `Advance Requested: $${formatCents(advance.requested_amount)}`
+      : '';
   const hasSitString = `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`;
 
   return (
@@ -500,7 +503,9 @@ const mapStateToPPMMoveDetailsProps = (state, ownProps) => {
   return { ppm, advance };
 };
 
+// TODO remove redundant function when remove ppmPaymentRequest flag
 const PPMMoveDetails = connect(mapStateToPPMMoveDetailsProps)(PPMMoveDetailsPanel);
+const NewPPMMoveDetails = connect(mapStateToPPMMoveDetailsProps)(NewPPMMoveDetailsPanel);
 
 const HhgMoveDetails = props => {
   return (
