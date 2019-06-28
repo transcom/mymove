@@ -6,14 +6,10 @@ import { get } from 'lodash';
 import 'react-table/react-table.css';
 import Alert from 'shared/Alert';
 import { formatTimeAgo } from 'shared/formatters';
-import { newColumns, ppmColumns, hhgActiveColumns, defaultColumns } from './queueTableColumns';
+import { newColumns, ppmColumns, hhgActiveColumns, defaultColumns, hhgDeliveredColumns } from './queueTableColumns';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
-import { getEntitlements } from '../../shared/entitlements';
-import moment from 'moment';
-import { formatDate4DigitYear } from '../../shared/formatters';
-import { sitDaysUsed, sitTotalDaysUsed } from '../../shared/StorageInTransit/calculator';
 
 class QueueTable extends Component {
   constructor() {
@@ -42,6 +38,10 @@ class QueueTable extends Component {
     if (this.props.queueType !== prevProps.queueType) {
       this.fetchData();
     }
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.state.interval);
   }
 
   openMove(rowInfo) {
@@ -126,18 +126,18 @@ class QueueTable extends Component {
           return ppmColumns;
         case 'hhg_active':
           return hhgActiveColumns;
+        case 'hhg_delivered':
+          return hhgDeliveredColumns;
         default:
           return defaultColumns;
       }
     };
 
     const defaultSort = queueType => {
-      switch (queueType) {
-        case 'hhg_active':
-          return [{ id: 'clockIcon', asc: true }, { id: 'move_date', asc: true }];
-        default:
-          return [{ id: 'move_date', asc: true }];
+      if (['hhg_active', 'hhg_delivered', 'new'].includes(queueType)) {
+        return [{ id: 'clockIcon', asc: true }, { id: 'move_date', asc: true }];
       }
+      return [{ id: 'move_date', asc: true }];
     };
 
     this.state.data.forEach(row => {
@@ -153,25 +153,6 @@ class QueueTable extends Component {
         row.synthetic_status = row.ppm_status;
       } else {
         row.synthetic_status = row.status;
-      }
-
-      if (
-        this.props.queueType === 'hhg_active' &&
-        row.storage_in_transits &&
-        row.storage_in_transits.some(sit => sit.actual_start_date)
-      ) {
-        row.sit_expires = formatDate4DigitYear(
-          moment.min(
-            row.storage_in_transits.filter(sit => sit.actual_start_date).map(sit => {
-              return moment(sit.actual_start_date).add(
-                getEntitlements(row.rank).storage_in_transit +
-                  sitDaysUsed(sit) -
-                  sitTotalDaysUsed(row.storage_in_transits),
-                'days',
-              );
-            }),
-          ),
-        );
       }
     });
 
