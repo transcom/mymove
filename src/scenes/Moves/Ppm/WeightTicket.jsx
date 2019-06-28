@@ -213,7 +213,7 @@ class WeightTicket extends Component {
           }
         />
         <div className="usa-grid">
-          <DocumentsUploaded moveId={moveId} showLinks />
+          <DocumentsUploaded moveId={moveId} showToggleDocs />
         </div>
         <form>
           {this.state.weightTicketSubmissionError && (

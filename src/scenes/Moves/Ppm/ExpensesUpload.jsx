@@ -186,7 +186,7 @@ class ExpensesUpload extends Component {
           }
         />
         <div className="usa-grid">
-          <DocumentsUploaded moveId={moveId} />
+          <DocumentsUploaded showToggleDocs moveId={moveId} />
         </div>
 
         <div className="usa-grid expenses-container">

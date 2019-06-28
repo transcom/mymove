@@ -96,7 +96,7 @@ class PaymentReview extends Component {
             </p>
           </div>
 
-          <DocumentsUploaded showLinks moveId={moveId} />
+          <DocumentsUploaded inReviewPage showLinks moveId={moveId} />
 
           <div className="doc-review">
             {missingSomeWeightTicket && (
