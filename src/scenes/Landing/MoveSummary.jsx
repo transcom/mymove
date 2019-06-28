@@ -15,10 +15,11 @@ import { selectReimbursement } from 'shared/Entities/modules/ppms';
 
 import './MoveSummary.css';
 import ppmCar from './images/ppm-car.svg';
-import { PPMStatusTimeline, ShipmentStatusTimeline, ProfileStatusTimeline } from './StatusTimeline';
+import { ShipmentStatusTimeline, ProfileStatusTimeline } from './StatusTimeline';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlus from '@fortawesome/fontawesome-free-solid/faPlus';
+import PPMStatusTimeline from './PPMStatusTimeline';
 
 export const CanceledMoveSummary = props => {
   const { profile, reviewProfile } = props;

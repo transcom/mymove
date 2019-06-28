@@ -6,7 +6,7 @@ import moment from 'moment';
 import { displayDateRange } from 'shared/formatters';
 import './StatusTimeline.css';
 
-function getDates(source, dateType) {
+export function getDates(source, dateType) {
   // The in progress state in PPMStatusTimeline has different expectations
   if (dateType === 'actual_move_date') {
     // if there's no approve date, then the PPM hasn't been approved yet
@@ -25,7 +25,6 @@ function getDates(source, dateType) {
       }
       return date;
     }
-
     return;
   }
   return get(source, dateType);
@@ -36,65 +35,6 @@ function getCurrentStatus(statuses) {
     return status.completed;
   });
 }
-
-export class PPMStatusTimeline extends React.Component {
-  getStatuses() {
-    return [
-      { name: 'Submitted', code: 'SUBMITTED', date_type: 'submit_date' },
-      { name: 'Approved', code: 'PPM_APPROVED', date_type: 'approve_date' },
-      { name: 'In progress', code: 'IN_PROGRESS', date_type: 'actual_move_date' },
-      { name: 'Payment requested', code: 'PAYMENT_REQUESTED' },
-    ];
-  }
-
-  getCompletedStatus(status) {
-    const { ppm } = this.props;
-
-    if (status === 'SUBMITTED') {
-      return true;
-    }
-
-    if (status === 'PPM_APPROVED') {
-      return includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
-    }
-
-    if (status === 'IN_PROGRESS') {
-      const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
-      return (moveInProgress && ppm.status === 'APPROVED') || includes(['PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
-    }
-
-    if (status === 'PAYMENT_REQUESTED') {
-      return includes(['PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
-    }
-  }
-
-  addDates(statuses) {
-    return statuses.map(status => {
-      return {
-        ...status,
-        dates: [getDates(this.props.ppm, status.date_type)],
-      };
-    });
-  }
-
-  addCompleted(statuses) {
-    return statuses.map(status => {
-      return {
-        ...status,
-        completed: this.getCompletedStatus(status.code),
-      };
-    });
-  }
-
-  render() {
-    const statuses = this.addDates(this.addCompleted(this.getStatuses()));
-    return <StatusTimeline statuses={statuses} showEstimated={false} />;
-  }
-}
-
-PPMStatusTimeline.propTypes = {
-  ppm: PropTypes.object.isRequired,
-};
 
 export class ShipmentStatusTimeline extends React.Component {
   getStatuses() {
@@ -202,7 +142,7 @@ ProfileStatusTimeline.propTypes = {
   profile: PropTypes.object.isRequired,
 };
 
-class StatusTimeline extends PureComponent {
+export class StatusTimeline extends PureComponent {
   createStatusBlock = (status, currentStatus) => {
     return (
       <StatusBlock
