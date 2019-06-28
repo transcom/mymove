@@ -29,6 +29,7 @@ const WeightTicketListItem = ({
   trailer_ownership_missing,
   vehicle_nickname,
   vehicle_options,
+  showDelete,
 }) => (
   <div className="ticket-item" style={{ display: 'flex' }}>
     {/* size of largest of the images */}
@@ -41,7 +42,7 @@ const WeightTicketListItem = ({
         <h4>
           {vehicle_nickname} ({intToOrdinal(num + 1)} set)
         </h4>
-        <img alt="delete document button" onClick={() => console.log('lol')} src={deleteButtonImg} />
+        {showDelete && <img alt="delete document button" onClick={() => console.log('lol')} src={deleteButtonImg} />}
       </div>
       {empty_weight_ticket_missing ? (
         <MissingLabel>
@@ -80,5 +81,9 @@ WeightTicketListItem.propTypes = {
   trailer_ownership_missing: bool.isRequired,
   vehicle_nickname: string.isRequired,
   vehicle_options: string.isRequired,
+};
+
+WeightTicketListItem.defaultProps = {
+  showDelete: false,
 };
 export default WeightTicketListItem;

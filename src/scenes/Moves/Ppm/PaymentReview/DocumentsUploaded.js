@@ -3,7 +3,7 @@ import { bool } from 'prop-types';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faPlusCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
+import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import docsAddedCheckmarkImg from 'shared/images/docs_added_checkmark.png';
@@ -16,6 +16,12 @@ import './PaymentReview.css';
 export class DocumentsUploaded extends Component {
   state = {
     showDocs: false,
+  };
+
+  static propTypes = {
+    showLinks: bool,
+    showToggleDocs: bool,
+    inReviewPage: bool,
   };
 
   static defaultProps = {
@@ -38,9 +44,7 @@ export class DocumentsUploaded extends Component {
     const totalDocs = expenseDocs.length + weightTicketDocs.length;
     const documentLabel = `document${totalDocs > 1 ? 's' : ''}`;
 
-    return (
-      <h3>{inReviewPage ? `Document Summary - ${totalDocs} total` : <>{`${totalDocs} ${documentLabel} added`}</>}</h3>
-    );
+    return <h3>{inReviewPage ? `Document Summary - ${totalDocs} total` : `${totalDocs} ${documentLabel} added`}</h3>;
   };
 
   render() {
@@ -77,7 +81,7 @@ export class DocumentsUploaded extends Component {
             <h4>{weightTicketDocs.length} sets of weight tickets</h4>
             <div className="tickets">
               {weightTicketDocs.map((ticket, index) => (
-                <WeightTicketListItem key={ticket.id} num={index} {...ticket} />
+                <WeightTicketListItem key={ticket.id} num={index} showDelete={inReviewPage} {...ticket} />
               ))}
             </div>
             {showLinks && (
@@ -90,7 +94,9 @@ export class DocumentsUploaded extends Component {
               {expenseDocs.length} expense{expenseDocs.length > 1 ? 's' : ''}
             </h4>
             <div className="tickets">
-              {formatExpenseDocs(expenseDocs).map(expense => <ExpenseTicketListItem key={expense.id} {...expense} />)}
+              {formatExpenseDocs(expenseDocs).map(expense => (
+                <ExpenseTicketListItem key={expense.id} showDelete={inReviewPage} {...expense} />
+              ))}
             </div>
             {showLinks && (
               <div className="add-expense-link">
@@ -105,12 +111,6 @@ export class DocumentsUploaded extends Component {
     );
   }
 }
-
-DocumentsUploaded.propTypes = {
-  showLinks: bool,
-  showToggleDocs: bool,
-  inReviewPage: bool,
-};
 
 function mapStateToProps(state, { moveId }) {
   return {
