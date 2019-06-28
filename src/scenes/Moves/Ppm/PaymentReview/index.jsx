@@ -8,10 +8,11 @@ import { get } from 'lodash';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
-import { formatCents } from 'shared/formatters';
 import WeightTicketListItem from './WeightTicketListItem';
 import ExpenseTicketListItem from './ExpenseTicketListItem';
 import WizardHeader from '../../WizardHeader';
+import { formatExpenseDocs } from '../utility';
+
 import './PaymentReview.css';
 import CustomerAgreement from 'scenes/Legalese/CustomerAgreement';
 import { ppmPaymentLegal } from 'scenes/Legalese/legaleseText';
@@ -38,17 +39,6 @@ class PaymentReview extends Component {
     this.setState({ acceptTerms });
   };
 
-  getExpenses(expenses) {
-    return expenses.map(expense => {
-      return {
-        id: expense.id,
-        amount: formatCents(expense.requested_amount_cents),
-        type: this.formatExpenseType(expense.moving_expense_type),
-        paymentMethod: expense.payment_method,
-      };
-    });
-  }
-
   submitCertificate = () => {
     const signatureTime = moment().format();
     const { currentPpm, moveId } = this.props;
@@ -74,15 +64,9 @@ class PaymentReview extends Component {
       });
   };
 
-  formatExpenseType(expenseType) {
-    if (typeof expenseType !== 'string') return '';
-    let type = expenseType.toLowerCase().replace('_', ' ');
-    return type.charAt(0).toUpperCase() + type.slice(1);
-  }
-
   render() {
     const { moveId, moveDocuments, submitting } = this.props;
-    const expenses = this.getExpenses(moveDocuments.expenses);
+    const expenseDocs = formatExpenseDocs(moveDocuments.expenses);
     const weightTickets = moveDocuments.weightTickets;
     const missingSomeWeightTicket = weightTickets.some(
       ({ empty_weight_ticket_missing, full_weight_ticket_missing }) =>
@@ -116,7 +100,7 @@ class PaymentReview extends Component {
           </div>
 
           <div className="doc-summary-container">
-            <h3>Document summary - {weightTickets.length + expenses.length} total</h3>
+            <h3>Document summary - {weightTickets.length + expenseDocs.length} total</h3>
             <h4>{weightTickets.length} sets of weight tickets</h4>
             <div className="tickets">
               {weightTickets.map((ticket, index) => <WeightTicketListItem key={ticket.id} num={index} {...ticket} />)}
@@ -126,10 +110,10 @@ class PaymentReview extends Component {
             </Link>
             <hr id="doc-summary-separator" />
             <h4>
-              {expenses.length} expense{expenses.length > 1 ? 's' : ''}
+              {expenseDocs.length} expense{expenseDocs.length > 1 ? 's' : ''}
             </h4>
             <div className="tickets">
-              {expenses.map(expense => <ExpenseTicketListItem key={expense.id} {...expense} />)}
+              {expenseDocs.map(expense => <ExpenseTicketListItem key={expense.id} {...expense} />)}
             </div>
             <div className="add-expense-link">
               <Link data-cy="expense-link" to={`/moves/${moveId}/ppm-expenses`}>

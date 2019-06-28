@@ -21,14 +21,14 @@ const MissingLabel = ({ children }) => (
 );
 
 const WeightTicketListItem = ({
-  vehicle_options,
-  vehicle_nickname,
-  num,
-  empty_weight,
-  full_weight,
   empty_weight_ticket_missing,
+  empty_weight,
   full_weight_ticket_missing,
+  full_weight,
+  num,
   trailer_ownership_missing,
+  vehicle_nickname,
+  vehicle_options,
 }) => (
   <div className="ticket-item" style={{ display: 'flex' }}>
     {/* size of largest of the images */}
@@ -72,13 +72,13 @@ const WeightTicketListItem = ({
 );
 
 WeightTicketListItem.propTypes = {
-  vehicle_options: string.isRequired,
-  vehicle_nickname: string.isRequired,
-  num: number.isRequired,
-  empty_weight: number.isRequired,
-  full_weight: number.isRequired,
   empty_weight_ticket_missing: bool.isRequired,
+  empty_weight: number.isRequired,
   full_weight_ticket_missing: bool.isRequired,
+  full_weight: number.isRequired,
+  num: number.isRequired,
   trailer_ownership_missing: bool.isRequired,
+  vehicle_nickname: string.isRequired,
+  vehicle_options: string.isRequired,
 };
 export default WeightTicketListItem;
