@@ -55,7 +55,7 @@ export class PPMStatusTimeline extends React.Component {
       ppm.status,
     );
     const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
-    const moveIsComplete = includes(['PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
+    const moveIsComplete = includes([PpmStatuses.PaymentRequested, PpmStatuses.Completed], ppm.status);
 
     switch (statusCode) {
       case PpmStatusTimelineCodes.Submitted:
