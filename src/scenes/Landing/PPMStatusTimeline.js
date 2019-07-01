@@ -9,14 +9,14 @@ import {
   selectPaymentRequestCertificationForMove,
 } from 'shared/Entities/modules/signed_certifications';
 
-const statuses = {
+const PpmStatuses = {
   Submitted: 'SUBMITTED',
   Approved: 'APPROVED',
   PaymentRequested: 'PAYMENT_REQUESTED',
   Completed: 'COMPLETED',
 };
 
-const codes = {
+const PpmStatusTimelineCodes = {
   Submitted: 'SUBMITTED',
   PpmApproved: 'PPM_APPROVED',
   InProgress: 'IN_PROGRESS',
@@ -48,20 +48,23 @@ export class PPMStatusTimeline extends React.Component {
     }
   }
 
-  isCompleted(code) {
+  isCompleted(statusCode) {
     const { ppm } = this.props;
-    const moveIsApproved = includes([statuses.Approved, statuses.PaymentRequested, statuses.Completed], ppm.status);
+    const moveIsApproved = includes(
+      [PpmStatuses.Approved, PpmStatuses.PaymentRequested, PpmStatuses.Completed],
+      ppm.status,
+    );
     const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
     const moveIsComplete = includes(['PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
 
-    switch (code) {
-      case codes.Submitted:
+    switch (statusCode) {
+      case PpmStatusTimelineCodes.Submitted:
         return true;
-      case codes.Approved:
+      case PpmStatusTimelineCodes.Approved:
         return moveIsApproved;
-      case codes.InProgress:
-        return (moveInProgress && ppm.status === statuses.Approved) || moveIsComplete;
-      case codes.PaymentRequested:
+      case PpmStatusTimelineCodes.InProgress:
+        return (moveInProgress && ppm.status === PpmStatuses.Approved) || moveIsComplete;
+      case PpmStatusTimelineCodes.PaymentRequested:
         return moveIsComplete;
       default:
         console.log('Unknown status');
@@ -77,27 +80,27 @@ export class PPMStatusTimeline extends React.Component {
     return [
       {
         name: 'Submitted',
-        code: codes.Submitted,
+        code: PpmStatusTimelineCodes.Submitted,
         dates: [submitDate],
-        completed: this.isCompleted(codes.Submitted),
+        completed: this.isCompleted(PpmStatusTimelineCodes.Submitted),
       },
       {
         name: 'Approved',
-        code: codes.PpmApproved,
+        code: PpmStatusTimelineCodes.PpmApproved,
         dates: [approveDate],
-        completed: this.isCompleted(codes.Approved),
+        completed: this.isCompleted(PpmStatusTimelineCodes.Approved),
       },
       {
         name: 'In progress',
-        code: codes.InProgress,
+        code: PpmStatusTimelineCodes.InProgress,
         dates: [actualMoveDate],
-        completed: this.isCompleted(codes.InProgress),
+        completed: this.isCompleted(PpmStatusTimelineCodes.InProgress),
       },
       {
         name: 'Payment requested',
-        code: codes.PaymentRequested,
+        code: PpmStatusTimelineCodes.PaymentRequested,
         dates: [paymentRequestedDate],
-        completed: this.isCompleted(codes.PaymentRequested),
+        completed: this.isCompleted(PpmStatusTimelineCodes.PaymentRequested),
       },
     ];
   }
