@@ -281,6 +281,27 @@ func indexHandler(buildDir string, logger logger) http.HandlerFunc {
 
 func serveFunction(cmd *cobra.Command, args []string) error {
 
+	var logger *zap.Logger
+	var dbConnection *pop.Connection
+	dbClose := &sync.Once{}
+
+	defer func() {
+		if logger != nil {
+			if r := recover(); r != nil {
+				logger.Error("server recovered from panic", zap.Any("recover", r))
+			}
+			if dbConnection != nil {
+				dbClose.Do(func() {
+					logger.Info("closing database connections")
+					if err := dbConnection.Close(); err != nil {
+						logger.Error("error closing database connections", zap.Error(err))
+					}
+				})
+			}
+			logger.Sync()
+		}
+	}()
+
 	err := cmd.ParseFlags(args)
 	if err != nil {
 		return errors.Wrap(err, "Could not parse flags")
@@ -296,7 +317,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	logger, err := logging.Config(v.GetString(cli.LoggingEnvFlag), v.GetBool(cli.VerboseFlag))
+	logger, err = logging.Config(v.GetString(cli.LoggingEnvFlag), v.GetBool(cli.VerboseFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
@@ -393,7 +414,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Create a connection to the DB
-	dbConnection, err := cli.InitDatabase(v, logger)
+	dbConnection, err = cli.InitDatabase(v, logger)
 	if err != nil {
 		if dbConnection == nil {
 			// No connection object means that the configuraton failed to validate and we should kill server startup
@@ -896,6 +917,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	logger.Info("All listeners are shutdown")
 	logger.Sync()
 
+	var dbCloseErr error
+	dbClose.Do(func() {
+		logger.Info("closing database connections")
+		dbCloseErr = dbConnection.Close()
+	})
+
 	shutdownError := false
 	shutdownErrors.Range(func(key, value interface{}) bool {
 		if srv, ok := key.(*server.NamedServer); ok {
@@ -908,6 +935,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 		return true
 	})
+
+	if dbCloseErr != nil {
+		logger.Error("error closing database connections", zap.Error(dbCloseErr))
+	}
+
 	logger.Sync()
 
 	if shutdownError {
