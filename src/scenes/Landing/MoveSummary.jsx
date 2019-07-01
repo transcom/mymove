@@ -641,7 +641,7 @@ export const MoveSummary = props => {
               profile={profile}
               move={move}
               entitlement={entitlement}
-              requestPaymentSucess={requestPaymentSuccess}
+              requestPaymentSuccess={requestPaymentSuccess}
             />
             <br />
           </div>
