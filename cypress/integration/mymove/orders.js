@@ -48,7 +48,7 @@ describe('orders entry', function() {
       expect(loc.pathname).to.eq('/orders/upload');
     });
 
-    cy.visit('/');
+    cy.setFeatureFlag('ppmPaymentRequest=false', '/');
     cy.contains('NAS Fort Worth (from Yuma AFB)');
     cy.get('.whole_box > div > :nth-child(3) > span').contains('7,000 lbs');
     cy.contains('Continue Move Setup').click();
