@@ -688,7 +688,7 @@ db_e2e_up: bin/generate-test-data ## Truncate Test DB and Generate e2e (end-to-e
 	@echo "Truncate the ${DB_NAME_TEST} database..."
 	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE;'
 	@echo "Populate the ${DB_NAME_TEST} database..."
-	DB_PORT=$(DB_PORT_TEST) bin/generate-test-data --named-scenario="e2e_basic" --env="test"
+	DB_PORT=$(DB_PORT_TEST) bin/generate-test-data --named-scenario="e2e_basic" --db-env="test"
 
 .PHONY: db_e2e_up_docker
 db_e2e_up_docker: ## Truncate DB and Generate e2e (end-to-end) data (docker)
@@ -723,7 +723,7 @@ db_e2e_init_docker: db_test_reset_docker db_test_migrate_docker db_e2e_up_docker
 .PHONY: db_dev_e2e_populate
 db_dev_e2e_populate: db_dev_reset db_dev_migrate build_tools ## Populate Dev DB with generated e2e (end-to-end) data
 	@echo "Populate the ${DB_NAME_DEV} database with docker command..."
-	bin/generate-test-data --named-scenario="e2e_basic" --env="development"
+	bin/generate-test-data --named-scenario="e2e_basic" --db-env="development"
 
 .PHONY: db_test_e2e_populate
 db_test_e2e_populate: db_test_reset_docker db_test_migrate_docker build_tools db_e2e_up_docker ## Populate Test DB with generated e2e (end-to-end) data

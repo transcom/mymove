@@ -12,7 +12,9 @@
     "--",
     "/bin/milmove",
     "migrate",
-    "--env",
+    "--logging-env",
+    "production",
+    "--db-env",
     "container",
     "-p",
     "/migrate/migrations"

@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"encoding/json"
+	"sort"
 	"strings"
 	"time"
 
@@ -68,6 +69,22 @@ type QueueSitData struct {
 	OutDate         JSONDate  `json:"out_date"`
 }
 
+// Implementation of a type and methods in order to use sort.Interface directly.
+// This allows us to call sortQueueItemsByLastModifiedDate in the ShowQueueHandler which will
+// sort the slice by the LastModfiedDate. Doing it this way allows us to avoid having reflect called
+// which should act to speed the sort up.
+type MoveQueueItems []models.MoveQueueItem
+
+func (mqi MoveQueueItems) Less(i, j int) bool {
+	return mqi[i].LastModifiedDate.Before(mqi[j].LastModifiedDate)
+}
+func (mqi MoveQueueItems) Len() int      { return len(mqi) }
+func (mqi MoveQueueItems) Swap(i, j int) { mqi[i], mqi[j] = mqi[j], mqi[i] }
+
+func sortQueueItemsByLastModifiedDate(moveQueueItems []models.MoveQueueItem) {
+	sort.Sort(MoveQueueItems(moveQueueItems))
+}
+
 // Handle retrieves a list of all MoveQueueItems in the system in the moves queue
 func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
@@ -83,6 +100,9 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 		h.Logger().Error("Loading Queue", zap.String("State", lifecycleState), zap.Error(err))
 		return handlers.ResponseForError(h.Logger(), err)
 	}
+
+	// Sorting the slice by LastModifiedDate so that the API results follow suit.
+	sortQueueItemsByLastModifiedDate(MoveQueueItems)
 
 	MoveQueueItemPayloads := make([]*internalmessages.MoveQueueItem, len(MoveQueueItems))
 	for i, MoveQueueItem := range MoveQueueItems {
