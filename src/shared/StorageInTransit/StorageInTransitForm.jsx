@@ -16,6 +16,7 @@ const RadioGroup = ({location, change, ...input}) => {
     <div className="radio-group-wrapper normalize-margins">
       <RadioButton
         inputClassName="inline_radio"
+        labelClassName="radio-label__location"
         label="Origin"
         value="origin"
         name="location"
@@ -25,6 +26,7 @@ const RadioGroup = ({location, change, ...input}) => {
       />
       <RadioButton
         inputClassName="inline_radio"
+        labelClassName="radio-label__location"
         label="Destination"
         value="destination"
         name="location"
