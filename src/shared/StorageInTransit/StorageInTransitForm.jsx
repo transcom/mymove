@@ -21,6 +21,7 @@ const RadioGroup = ({location, change, ...input}) => {
         name="location"
         checked={location === 'ORIGIN'}
         onChange={() => change('location', 'ORIGIN')}
+        testId="origin-radio"
       />
       <RadioButton
         inputClassName="inline_radio"
@@ -29,6 +30,7 @@ const RadioGroup = ({location, change, ...input}) => {
         name="location"
         checked={location === 'DESTINATION'}
         onChange={() => change('location', 'DESTINATION')}
+        testId="destination-radio"
       />
     </div>
   )
