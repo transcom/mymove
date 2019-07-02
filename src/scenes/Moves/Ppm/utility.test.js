@@ -1,13 +1,5 @@
-import { intToOrdinal, getNextPage } from './utility';
+import { getNextPage } from './utility';
 
-describe('intToOrdinal', () => {
-  it('returns the ordinal corresponding to an int', () => {
-    expect(intToOrdinal(1)).toEqual('1st');
-    expect(intToOrdinal(2)).toEqual('2nd');
-    expect(intToOrdinal(3)).toEqual('3rd');
-    expect(intToOrdinal(4)).toEqual('4th');
-  });
-});
 describe('nextPage', () => {
   it('returns to the lastPage when user is visiting from pageToRevisit', () => {
     const lastPage = {
