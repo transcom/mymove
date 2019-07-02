@@ -1,4 +1,5 @@
 import { tspUserVerifiesShipmentStatus } from '../../support/testTspStatus';
+import moment from 'moment-business-days';
 import { nthDayOfCurrentMonth } from '../../support/utils';
 
 /* global cy */
@@ -7,10 +8,8 @@ describe('TSP User Ships a Shipment', function() {
     cy.signIntoTSP();
   });
   it('tsp user enters Pack and Pick Up shipment info', function() {
-    cy.nextAvailable(nthDayOfCurrentMonth(1)).then(availableDays => {
-      tspUserEntersPackAndPickUpInfo();
-      tspUserDeliversShipment(availableDays);
-    });
+    tspUserEntersPackAndPickUpInfo();
+    tspUserDeliversShipment();
   });
 
   it('tsp user enters a delivery date', function() {
@@ -208,7 +207,7 @@ function tspUserEntersPackAndPickUpInfo() {
   tspUserVerifiesShipmentStatus('Inbound');
 }
 
-function tspUserDeliversShipment(availableDays) {
+function tspUserDeliversShipment() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
@@ -232,9 +231,12 @@ function tspUserDeliversShipment(availableDays) {
     .get('input')
     .click();
 
+  const nextBusinessDay1 = moment(nthDayOfCurrentMonth(10))
+    .nextBusinessDay()
+    .format('D');
   cy
     .get('div')
-    .contains(availableDays[0].format('DD'))
+    .contains(nextBusinessDay1)
     .click();
 
   // Cancel
@@ -263,9 +265,12 @@ function tspUserDeliversShipment(availableDays) {
     .get('input')
     .click();
 
+  const nextBusinessDay2 = moment(nthDayOfCurrentMonth(13))
+    .nextBusinessDay()
+    .format('D');
   cy
     .get('div')
-    .contains(availableDays[1].format('DD'))
+    .contains(nextBusinessDay2)
     .click();
 
   cy
