@@ -254,7 +254,7 @@ class ExpensesUpload extends Component {
                 />
                 {isStorageExpense &&
                   missingReceipt && (
-                    <span data-cy="full-warning">
+                    <span data-cy="storage-warning">
                       <Alert type="warning">
                         If you can, go online and print a new copy of your receipt, then upload it. <br />Otherwise,
                         write and sign a statement that explains why this receipt is missing, then upload it. Finance

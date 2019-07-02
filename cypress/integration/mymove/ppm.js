@@ -502,6 +502,9 @@ function serviceMemberUploadsStorageExpenses(hasAnother = true, expenseNumber = 
 
   cy.get('input[name="missingReceipt"]').should('not.be.checked');
   cy.get('input[name="missingReceipt"]+label').click();
+  cy
+    .get('[data-cy=storage-warning]')
+    .contains('If you can, go online and print a new copy of your receipt, then upload it.');
   cy.get('input[name="missingReceipt"]').should('be.checked');
   cy.get('input[name="haveMoreExpenses"][value="Yes"]+label').click();
 
