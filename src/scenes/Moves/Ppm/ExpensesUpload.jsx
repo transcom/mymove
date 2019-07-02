@@ -252,6 +252,16 @@ class ExpensesUpload extends Component {
                   onChange={this.handleCheckboxChange}
                   normalizeLabel
                 />
+                {isStorageExpense &&
+                  missingReceipt && (
+                    <span data-cy="full-warning">
+                      <Alert type="warning">
+                        If you can, go online and print a new copy of your receipt, then upload it. <br />Otherwise,
+                        write and sign a statement that explains why this receipt is missing, then upload it. Finance
+                        will approve or reject this expense based on your information.
+                      </Alert>
+                    </span>
+                  )}
                 <div className="payment-method-radio-group-wrapper">
                   <p className="radio-group-header">How did you pay for this?</p>
                   <RadioButton
