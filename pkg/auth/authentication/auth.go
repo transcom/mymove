@@ -268,6 +268,14 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			zap.String("state", returnedState),
 			zap.String("cookie", hash),
 			zap.String("hash", shaAsString(returnedState)))
+
+		// Delete lg_state cookie
+		auth.DeleteCookie(w, stateCookieName(session))
+
+		// set error query
+		landingQuery := landingURL.Query()
+		landingQuery.Add("error", "SIGNIN_ERROR")
+		landingURL.RawQuery = landingQuery.Encode()
 		http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
 		return
 	}
