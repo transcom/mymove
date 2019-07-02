@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import ReactTable from 'react-table';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { capitalize } from 'lodash';
 import 'react-table/react-table.css';
 import { formatDate, formatDateTimeWithTZ, formatTimeAgo } from 'shared/formatters';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
+import { setUserIsLoggedIn } from 'shared/Data/users';
 
 class QueueTable extends Component {
   constructor() {
@@ -76,6 +78,10 @@ class QueueTable extends Component {
         refreshing: false,
         lastLoadedAt: new Date(),
       });
+      // redirect to home page if unauthorized
+      if (e.status === 401) {
+        this.props.setUserIsLoggedIn(false);
+      }
     }
   }
 
@@ -201,4 +207,8 @@ const mapStateToProps = (state, ownProps) => ({
   retrieveShipments: ownProps.retrieveShipments,
 });
 
-export default withRouter(connect(mapStateToProps)(QueueTable));
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({ setUserIsLoggedIn }, dispatch);
+}
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(QueueTable));
