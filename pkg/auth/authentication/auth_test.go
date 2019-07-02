@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/honeycombio/beeline-go/trace"
@@ -379,4 +380,66 @@ func (suite *AuthSuite) TestAuthorizeDisableTspUser() {
 	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled office user")
+}
+
+func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
+	officeUserID := uuid.Must(uuid.NewV4())
+	tspUserID := uuid.Must(uuid.NewV4())
+	userIdentity := models.UserIdentity{
+		Disabled:     false,
+		OfficeUserID: &officeUserID,
+		TspUserID:    &tspUserID,
+	}
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback", OfficeTestHost), nil)
+	// login.gov state cookie
+	appnames := ApplicationTestServername()
+	appName, _ := auth.ApplicationName(req.Host, appnames)
+	cookieName := fmt.Sprintf("%s_%s", strings.ToLower(string(appName)), "lg_state")
+	cookie := http.Cookie{
+		Name:    cookieName,
+		Value:   "some mis-matched hash value",
+		Path:    "/",
+		Expires: auth.GetExpiryTimeFromMinutes(auth.SessionExpiryInMinutes),
+	}
+	req.AddCookie(&cookie)
+
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        OfficeTestHost,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+
+	span := trace.Span{}
+	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	rr2 := httptest.NewRecorder()
+	h.ServeHTTP(rr2, req.WithContext(ctx))
+
+	// Office app, so should only have office ID information
+	suite.Equal(officeUserID, session.OfficeUserID)
+	suite.Equal(uuid.Nil, session.TspUserID)
+
+	// check for blank value for cookie login gov state value
+	for _, cookie := range rr2.Result().Cookies() {
+		if cookie.Name == cookieName {
+			suite.Equal("blank", cookie.Value)
+		}
+	}
+
+	suite.Equal("http://office.example.com:1234/?error=SIGNIN_ERROR", rr2.Result().Header.Get("Location"))
 }
