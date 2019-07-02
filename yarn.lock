@@ -12369,9 +12369,9 @@ svgo@^1.0.0, svgo@^1.2.2:
     util.promisify "~1.0.0"
 
 swagger-client@^3.4.6:
-  version "3.9.0"
-  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.9.0.tgz#b94ea65baa0194f4cb3fad2f8bd552c531d57e03"
-  integrity sha512-uyCq2xoaAtmE0oIQ0fCfnsDoy/v97ANnAZywtyk4yumBP74xXp4NFlpZaqZJHN9K9dbPzgs3MH98VocZeM0ExQ==
+  version "3.8.25"
+  resolved "https://registry.yarnpkg.com/swagger-client/-/swagger-client-3.8.25.tgz#89cb58b000c103ee5e23accc13a9db1e686035e6"
+  integrity sha512-7ZtSSPnempsUbCAOJCQ6PyGaNkRoCm6ghOpJlI62ChfMGbLWtlOm8dLlgYiTkP9OAWuNHoRoTzOW14+QmZY1HA==
   dependencies:
     "@kyleshockey/js-yaml" "^1.0.1"
     "@kyleshockey/object-assign-deep" "^0.4.0"
@@ -12387,7 +12387,6 @@ swagger-client@^3.4.6:
     lodash "^4.16.2"
     qs "^6.3.0"
     querystring-browser "^1.0.4"
-    traverse "^0.6.6"
     url "^0.11.0"
     utf8-bytes "0.0.1"
     utfstring "^2.0.0"
@@ -12700,11 +12699,6 @@ tr46@^1.0.1:
   integrity sha1-qLE/1r/SSJUZZ0zN5VujaTtwbQk=
   dependencies:
     punycode "^2.1.0"
-
-traverse@^0.6.6:
-  version "0.6.6"
-  resolved "https://registry.yarnpkg.com/traverse/-/traverse-0.6.6.tgz#cbdf560fd7b9af632502fed40f918c157ea97137"
-  integrity sha1-y99WD9e5r2MlAv7UD5GMFX6pcTc=
 
 trim-newlines@^1.0.0:
   version "1.0.0"
