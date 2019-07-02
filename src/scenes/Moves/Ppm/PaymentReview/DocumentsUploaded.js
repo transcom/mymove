@@ -20,13 +20,11 @@ export class DocumentsUploaded extends Component {
 
   static propTypes = {
     showLinks: bool,
-    showToggleDocs: bool,
     inReviewPage: bool,
   };
 
   static defaultProps = {
     showLinks: false,
-    showToggleDocs: false,
     inReviewPage: false,
   };
 
@@ -49,8 +47,10 @@ export class DocumentsUploaded extends Component {
 
   render() {
     const { showDocs } = this.state;
-    const { expenseDocs, weightTicketDocs, moveId, showLinks, showToggleDocs, inReviewPage } = this.props;
+    const { expenseDocs, weightTicketDocs, moveId, showLinks, inReviewPage } = this.props;
     const totalDocs = expenseDocs.length + weightTicketDocs.length;
+    const expandedDocumentList = showDocs || inReviewPage;
+    const hiddenDocumentList = !inReviewPage && !showDocs;
 
     if (totalDocs === 0) {
       return null;
@@ -59,9 +59,9 @@ export class DocumentsUploaded extends Component {
       <div
         className="doc-summary-container"
         data-cy="documents-uploaded"
-        style={{ paddingBottom: !inReviewPage && !showDocs ? '1em' : null, marginTop: !inReviewPage ? '1em' : null }}
+        style={{ paddingBottom: hiddenDocumentList ? '1em' : null, marginTop: !inReviewPage ? '1em' : null }}
       >
-        <div style={{ display: 'flex', alignItems: 'baseline', marginRight: 5 }}>
+        <div className="documents-uploaded-header">
           {!inReviewPage && (
             <img
               alt="documents added checkmark"
@@ -70,13 +70,13 @@ export class DocumentsUploaded extends Component {
             />
           )}
           {this.renderHeader()}
-          {showToggleDocs && (
-            <a style={{ paddingLeft: '1em' }} onClick={this.toggleShowDocs}>
+          {!inReviewPage && (
+            <a data-cy="toggle-documents-uploaded" style={{ paddingLeft: '1em' }} onClick={this.toggleShowDocs}>
               {showDocs ? 'Hide' : 'Show'}
             </a>
           )}
         </div>
-        {(showDocs || inReviewPage) && (
+        {expandedDocumentList && (
           <>
             <h4>{weightTicketDocs.length} sets of weight tickets</h4>
             <div className="tickets">
@@ -90,8 +90,8 @@ export class DocumentsUploaded extends Component {
               </Link>
             )}
             <hr id="doc-summary-separator" />
-            <h4>
-              {expenseDocs.length} expense{expenseDocs.length > 1 ? 's' : ''}
+            <h4 style={{ paddingBottom: expenseDocs.length === 0 ? '1em' : null }}>
+              {expenseDocs.length} expense{expenseDocs.length >= 0 ? 's' : ''}
             </h4>
             <div className="tickets">
               {formatExpenseDocs(expenseDocs).map(expense => (

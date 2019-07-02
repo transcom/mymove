@@ -50,7 +50,7 @@ class ExpensesLanding extends Component {
           }
         />
         <div className="usa-grid">
-          <DocumentsUploaded showToggleDocs moveId={moveId} />
+          <DocumentsUploaded moveId={moveId} />
         </div>
 
         <div className="usa-grid expenses-container">

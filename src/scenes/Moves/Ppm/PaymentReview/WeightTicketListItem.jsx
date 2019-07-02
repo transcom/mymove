@@ -6,7 +6,7 @@ import carImg from 'shared/images/car_mobile.png';
 import boxTruckImg from 'shared/images/box_truck_mobile.png';
 import carTrailerImg from 'shared/images/car-trailer_mobile.png';
 import deleteButtonImg from 'shared/images/delete-doc-button.png';
-import { intToOrdinal } from '../utility';
+import { formatToOrdinal } from 'shared/formatters';
 
 const WEIGHT_TICKET_IMAGES = {
   CAR: carImg,
@@ -40,7 +40,7 @@ const WeightTicketListItem = ({
     <div style={{ flex: 1 }}>
       <div className="weight-li-item-container">
         <h4>
-          {vehicle_nickname} ({intToOrdinal(num + 1)} set)
+          {vehicle_nickname} ({formatToOrdinal(num + 1)} set)
         </h4>
         {showDelete && <img alt="delete document button" onClick={() => console.log('lol')} src={deleteButtonImg} />}
       </div>

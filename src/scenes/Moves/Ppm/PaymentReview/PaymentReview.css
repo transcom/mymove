@@ -110,3 +110,9 @@ input[type='image']:hover {
   margin-top: 0;
   margin-bottom: 0;
 }
+
+.documents-uploaded-header {
+  display: flex;
+  align-items: baseline;
+  margin-right: 5;
+}
