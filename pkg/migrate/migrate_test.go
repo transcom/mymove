@@ -2,6 +2,7 @@ package migrate
 
 import (
 	"fmt"
+	"log"
 	"testing"
 
 	"go.uber.org/zap"
@@ -22,10 +23,14 @@ func (suite *MigrateSuite) SetupTest() {
 }
 
 func TestMigrateSuite(t *testing.T) {
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		log.Panic(err)
+	}
 
 	ms := &MigrateSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(),
-		logger:       zap.NewNop(), // Use a no-op logger during testing
+		logger:       logger,
 	}
 	suite.Run(t, ms)
 }

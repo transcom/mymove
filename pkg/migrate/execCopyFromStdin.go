@@ -31,6 +31,7 @@ func execCopyFromStdin(in *Buffer, i int, tablename string, columns []string, tx
 
 		i++ // eat new line
 
+		// Capture end-of-data
 		if line == "\\." {
 			break
 		}
