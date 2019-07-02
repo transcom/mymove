@@ -117,8 +117,6 @@ func (suite *DutyStationsLoaderSuite) TestNormalizeName() {
 		{"PPPO - MCB QUANTICO", "PPPO - Marine Corp Base Quantico"},
 		{"PPPO - USCG DIST WASHINGTON DC", "PPPO - USCG DIST Washington DC"},
 		{"PPPO - JB ANDREWS-NAF", "PPPO - JB Andrews-NAF"},
-		// PPPO, FLCJ, NAS, KEY WEST, FL
-
 	}
 
 	for _, n := range nameTests {

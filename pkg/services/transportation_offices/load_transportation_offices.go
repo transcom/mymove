@@ -1,6 +1,7 @@
 package transportationoffices
 
 import (
+	"bufio"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -290,10 +291,10 @@ func FilterTransportationOffices(os models.TransportationOffices, test func(mode
 	return filtered
 }
 
-func FindConusOffices(db *pop.Connection, o Office, w io.Writer) models.TransportationOffices {
+func (b *MigrationBuilder) FindConusOffices(o Office, w io.Writer) models.TransportationOffices {
 	zip := o.LISTGCNSLINFO.GCNSLINFO.CNSLZIP
 
-	dbOs, err := models.FetchTransportationOfficesByPostalCode(db, zip)
+	dbOs, err := models.FetchTransportationOfficesByPostalCode(b.db, zip)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -301,7 +302,7 @@ func FindConusOffices(db *pop.Connection, o Office, w io.Writer) models.Transpor
 	if len(dbOs) == 0 {
 		partialZip := zip[:len(zip)-1] + "%"
 		fmt.Fprintf(w, "*** partialZip: %s \n", partialZip)
-		dbOs, err = models.FetchTransportationOfficesByPostalCode(db, partialZip)
+		dbOs, err = models.FetchTransportationOfficesByPostalCode(b.db, partialZip)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -310,44 +311,39 @@ func FindConusOffices(db *pop.Connection, o Office, w io.Writer) models.Transpor
 	return dbOs
 }
 
-func FindPPSOs(db *pop.Connection, o Office) models.TransportationOffices {
+func (b *MigrationBuilder) FindPPSOs(o Office) models.TransportationOffices {
 	zip := o.LISTGCNSLINFO.GCNSLINFO.PPSOZIP
-	dbPPSOs, _ := models.FetchTransportationOfficesByPostalCode(db, zip)
+	dbPPSOs, _ := models.FetchTransportationOfficesByPostalCode(b.db, zip)
 
 	JPPSOFilter := func(o models.TransportationOffice) bool {
 		return strings.HasPrefix(o.Name, "JPPSO") // true
 	}
 
 	return FilterTransportationOffices(dbPPSOs, JPPSOFilter)
-	// return dbPPSOs
 }
 
-// func (b *MigrationBuilder) WriteXMLLine(o Office, w io.Writer) {
-func (b *MigrationBuilder) WriteXMLLine(o Office) {
-	name := strings.Title(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME)
+func (b *MigrationBuilder) WriteXMLLine(o Office, w io.Writer) {
+	name := b.normalizeName(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME)
 	city := o.LISTGCNSLINFO.GCNSLINFO.CNSLCITY
 	state := o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE
 	zip := o.LISTGCNSLINFO.GCNSLINFO.CNSLZIP
-	fmt.Println(strings.Title(name))
-
-	b.logger.Debug("*** BLAH")
 
 	fmt.Printf("\nname: %s\n", name)
+	fmt.Fprintf(w, "\nname: %s\n", name)
 	fmt.Printf("city: %s | state: %s | zip: %s \n", city, state, zip)
-
-	// fmt.Fprintf(w, "\nname: %s\n", name)
-	// fmt.Fprintf(w, "city: %s | state: %s | zip: %s \n", city, state, zip)
+	fmt.Fprintf(w, "city: %s | state: %s | zip: %s \n", city, state, zip)
 }
 
-// func (b *MigrationBuilder) writeDbRecs(os []Office, test func(Office) bool) []Office {
-// func (b *MigrationBuilder) WriteDbRecs(officeType string, ts models.TransportationOffices, w io.Writer) int {
-func (b *MigrationBuilder) WriteDbRecs(officeType string, ts models.TransportationOffices) int {
+func (b *MigrationBuilder) WriteDbRecs(officeType string, ts models.TransportationOffices, w io.Writer) int {
 	if len(ts) == 0 {
-		b.logger.Debug("*** NONE FOUND... BLAH")
+		// b.logger.Debug("*** NONE FOUND... BLAH")
 		fmt.Printf("*** %s NOT FOUND\n", officeType)
-		// fmt.Fprintf(w, "*** %s NOT FOUND\n", officeType)
+		fmt.Fprintf(w, "*** %s NOT FOUND\n", officeType)
 
 		return 1
+	}
+	for _, t := range ts {
+		fmt.Fprintf(w, "\t%s: %s\n", officeType, t.Name)
 	}
 	return 0
 }
@@ -376,12 +372,7 @@ func (b *MigrationBuilder) normalizeName(name string) string {
 }
 
 func (b *MigrationBuilder) convertAbbr(s string) string {
-
-	// fmt.Printf("convertAbbr: %s\n", s)
-	// splitAbbr(s, ',')
-
 	for k, v := range abbrs {
-		// fmt.Println(k)
 		if k == s {
 			return v
 		}
@@ -389,7 +380,7 @@ func (b *MigrationBuilder) convertAbbr(s string) string {
 	return s
 }
 
-func (b *MigrationBuilder) Build(officesFilePath string) (string, error) {
+func (b *MigrationBuilder) Build(officesFilePath string, outputFilePath string) (string, error) {
 	// Parse raw data from xml
 	offices, err := b.parseOffices(officesFilePath)
 	if err != nil {
@@ -403,15 +394,19 @@ func (b *MigrationBuilder) Build(officesFilePath string) (string, error) {
 	conusOffices := b.isConus(usOffices)
 	fmt.Printf("# conus only offices: %d\n", len(conusOffices))
 
-	for _, o := range conusOffices {
-		b.WriteXMLLine(o)
-		// 	dbOffices := transportationoffices.FindConusOffices(dbConnection, o, w)
-		// 	dbPPSOs := transportationoffices.FindPPSOs(dbConnection, o)
-		// 	res := transportationoffices.WriteDbRecs("office", dbOffices, w)
-		// 	transportationoffices.WriteDbRecs("JPPSO", dbPPSOs, w)
-		// 	counter += res
-	}
+	fmt.Println(outputFilePath)
+	f, err := os.Create(outputFilePath)
+	defer f.Close()
+	w := bufio.NewWriter(f)
 
+	for _, o := range conusOffices {
+		b.WriteXMLLine(o, w)
+		dbOffices := b.FindConusOffices(o, w)
+		dbPPSOs := b.FindPPSOs(o)
+		b.WriteDbRecs("office", dbOffices, w)
+		b.WriteDbRecs("JPPSO", dbPPSOs, w)
+	}
+	w.Flush()
 	return "abc", nil
 
 }
