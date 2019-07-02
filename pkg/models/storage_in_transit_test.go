@@ -8,6 +8,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -228,4 +229,38 @@ func (suite *ModelSuite) TestDeliverStorageInTransit() {
 	})
 	err = storageInTransit.Deliver(deliveryDate)
 	suite.Error(err)
+}
+
+func (suite *ModelSuite) TestSaveActualDeliveryDateAsOutDate() {
+	startDate := testdatagen.DateInsidePerformancePeriod
+	deliveryDate := startDate.Add(testdatagen.OneWeek)
+	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
+		Shipment: models.Shipment{
+			ActualDeliveryDate: &deliveryDate,
+		},
+	})
+
+	session := &auth.Session{
+		ApplicationName: auth.TspApp,
+	}
+
+	storageInTransit := testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			Shipment:   shipment,
+			ShipmentID: shipment.ID,
+			Status:     models.StorageInTransitStatusDELIVERED,
+			OutDate:    &startDate,
+		},
+	})
+
+	suite.NotEqual(shipment.ActualDeliveryDate, storageInTransit.OutDate)
+
+	verrs, err := storageInTransit.SaveActualDeliveryDateAsOutDate(suite.DB(), session, *storageInTransit.OutDate)
+	suite.Nil(err)
+	suite.Equal(0, verrs.Count())
+
+	actualShipment, err := models.FetchShipment(suite.DB(), session, shipment.ID)
+	savedStorageInTransit, err := models.FetchStorageInTransitByID(suite.DB(), storageInTransit.ID)
+
+	suite.Equal(actualShipment.ActualDeliveryDate, savedStorageInTransit.OutDate)
 }

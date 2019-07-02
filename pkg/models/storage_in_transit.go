@@ -203,7 +203,7 @@ func (s *StorageInTransit) SaveActualDeliveryDateAsOutDate(db *pop.Connection, s
 
 	shipment, err := FetchShipment(db, session, s.ShipmentID)
 	if err != nil {
-		return nil, err
+		return responseVErrors, responseError
 	}
 
 	db.Transaction(func(db *pop.Connection) error {
