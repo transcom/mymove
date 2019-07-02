@@ -6,6 +6,7 @@ import { ordersArray } from 'shared/Entities/schema';
 import { addEntities } from 'shared/Entities/actions';
 import { getShipment } from 'shared/Entities/modules/shipments';
 
+export const setIsLoggedInType = 'SET_IS_LOGGED_IN';
 const getLoggedInUserType = 'GET_LOGGED_IN_USER';
 
 export const GET_LOGGED_IN_USER = helpers.generateAsyncActionTypes(getLoggedInUserType);
@@ -31,6 +32,12 @@ export function getCurrentUserInfo() {
         return dispatch(getLoggedInActions.success(response));
       })
       .catch(error => dispatch(getLoggedInActions.error(error)));
+  };
+}
+
+export function setUserIsLoggedIn(isLoggedIn) {
+  return function(dispatch) {
+    return dispatch({ type: setIsLoggedInType, isLoggedIn });
   };
 }
 
@@ -90,6 +97,14 @@ const currentUserReducer = (state = currentUserReducerDefault(), action) => {
         hasSucceeded: false,
         error: action.error,
         userInfo: userInfoDefault(),
+      };
+    case setIsLoggedInType:
+      return {
+        ...state,
+        userInfo: {
+          ...userInfoDefault(),
+          isLoggedIn: action.isLoggedIn,
+        },
       };
     default:
       return state;

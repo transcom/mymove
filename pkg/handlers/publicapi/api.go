@@ -124,7 +124,7 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{context, accesscodeservice.NewAccessCodeClaimer(context.DB())}
 
 	// Postal Codes
-	publicAPI.PostalCodesValidatePostalCodeHandler = ValidatePostalCodeHandler{
+	publicAPI.PostalCodesValidatePostalCodeWithRateDataHandler = ValidatePostalCodeWithRateDataHandler{
 		context,
 		postalcodeservice.NewPostalCodeValidator(context.DB()),
 	}

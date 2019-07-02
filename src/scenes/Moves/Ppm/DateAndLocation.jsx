@@ -20,7 +20,8 @@ import WizardHeader from '../WizardHeader';
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import './DateAndLocation.css';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
-import { GetPpmWeightEstimate, ValidateZipRateData } from './api';
+import { GetPpmWeightEstimate } from './api';
+import { ValidateZipRateData } from 'shared/api';
 
 const sitEstimateDebounceTime = 300;
 const formName = 'ppp_date_and_location';
