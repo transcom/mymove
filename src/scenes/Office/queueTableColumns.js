@@ -5,7 +5,7 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import { formatDate4DigitYear } from '../../shared/formatters';
-import moment from './QueueTable';
+import moment from 'moment';
 import { getEntitlements } from '../../shared/entitlements';
 import { sitDaysUsed, sitTotalDaysUsed } from '../../shared/StorageInTransit/calculator';
 
@@ -117,6 +117,7 @@ const sitExpires = CreateReactTableColumn(
   },
   {
     Cell: row => <span>{row.value}</span>,
+    id: 'sit_expires',
   },
 );
 
