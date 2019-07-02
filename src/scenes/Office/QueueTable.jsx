@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import ReactTable from 'react-table';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
 import 'react-table/react-table.css';
 import Alert from 'shared/Alert';
 import { formatTimeAgo } from 'shared/formatters';
 import { newColumns, ppmColumns, hhgActiveColumns, defaultColumns } from './queueTableColumns';
+import { setUserIsLoggedIn } from 'shared/Data/users';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
@@ -42,6 +44,10 @@ class QueueTable extends Component {
     if (this.props.queueType !== prevProps.queueType) {
       this.fetchData();
     }
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.state.interval);
   }
 
   openMove(rowInfo) {
@@ -89,6 +95,10 @@ class QueueTable extends Component {
         refreshing: false,
         lastLoadedAt: new Date(),
       });
+      // redirect to home page if unauthorized
+      if (e.status === 401) {
+        this.props.setUserIsLoggedIn(false);
+      }
     }
   }
 
@@ -226,4 +236,8 @@ const mapStateToProps = state => {
   };
 };
 
-export default withRouter(connect(mapStateToProps)(QueueTable));
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({ setUserIsLoggedIn }, dispatch);
+}
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(QueueTable));

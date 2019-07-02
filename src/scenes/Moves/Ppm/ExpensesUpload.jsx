@@ -25,7 +25,7 @@ import {
 import Alert from 'shared/Alert';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { withContext } from 'shared/AppContext';
-import DocumentsUploaded from './DocumentsUploaded';
+import DocumentsUploaded from './PaymentReview/DocumentsUploaded';
 
 const nextPagePath = '/ppm-payment-review';
 const nextBtnLabels = {
@@ -185,7 +185,9 @@ class ExpensesUpload extends Component {
             </ProgressTimeline>
           }
         />
-        <DocumentsUploaded moveId={moveId} />
+        <div className="usa-grid">
+          <DocumentsUploaded moveId={moveId} />
+        </div>
 
         <div className="usa-grid expenses-container">
           <h3 className="expenses-header">Expense {expenseNumber}</h3>

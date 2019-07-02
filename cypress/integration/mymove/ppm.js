@@ -188,20 +188,49 @@ describe('editing ppm only move', () => {
 });
 
 describe('allows a SM to request a payment', function() {
-  const smId = '8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e';
-  const moveID = '946a5d40-0636-418f-b457-474915fb0149';
+  const smId = '745e0eba-4028-4c78-a262-818b00802748';
+  const moveID = 'f9f10492-587e-43b3-af2a-9f67d2ac8757';
   beforeEach(() => {
     cy.removeFetch();
     cy.server();
     cy.route('POST', '**/internal/uploads').as('postUploadDocument');
     cy.route('POST', '**/moves/**/weight_ticket').as('postWeightTicket');
     cy.route('POST', '**/moves/**/moving_expense_documents').as('postMovingExpense');
+    cy.route('POST', '**/internal/personally_procured_move/**/request_payment').as('requestPayment');
+    cy.route('POST', '**/moves/**/signed_certifications').as('signedCertifications');
     cy.signInAsUserPostRequest(milmoveAppName, smId);
   });
 
   it('service member reads introduction to ppm payment and cancels to go back to homepage', () => {
     serviceMemberStartsPPMPaymentRequestWithAssertions();
     serviceMemberCanCancel();
+  });
+
+  it('service member can save a multiple weight tickets', () => {
+    cy.visit(`/moves/${moveID}/ppm-weight-ticket`);
+    serviceMemberSubmitsWeightTicket('CAR', true, '1st');
+    serviceMemberSubmitsWeightTicket('BOX_TRUCK', false, '2nd');
+  });
+
+  it('service member can save multiple expenses', () => {
+    cy.visit(`/moves/${moveID}/ppm-expenses`);
+    serviceMemberUploadsExpenses(true, 1);
+    serviceMemberUploadsStorageExpenses(false, 2);
+  });
+
+  it('service member can save a weight ticket for later', () => {
+    cy.visit(`/moves/${moveID}/ppm-weight-ticket`);
+    serviceMemberSavesWeightTicketForLater('BOX_TRUCK');
+  });
+
+  it('service member submits weight tickets without any documents', () => {
+    cy.visit(`/moves/${moveID}/ppm-weight-ticket`);
+    serviceMemberSubmitsWeightsTicketsWithoutReceipts();
+  });
+
+  it('service member requests a car + trailer weight ticket payment', () => {
+    cy.visit(`/moves/${moveID}/ppm-weight-ticket`);
+    serviceMemberSubmitsCarTrailerWeightTicket();
   });
 
   it('makes missing weight ticket fields optional when missing is checked', () => {
@@ -254,30 +283,6 @@ describe('allows a SM to request a payment', function() {
       .should('be.enabled');
   });
 
-  it('service member goes through entire request payment flow', () => {
-    serviceMemberStartsPPMPaymentRequest();
-    serviceMemberSubmitsWeightTicket('CAR', false, '1st');
-    serviceMemberViewsExpensesLandingPage();
-    serviceMemberUploadsExpenses(true, 1);
-    serviceMemberUploadsStorageExpenses(false, 2);
-    serviceMemberReviewsDocuments();
-  });
-
-  it('service member submits weight tickets without any documents', () => {
-    serviceMemberStartsPPMPaymentRequest();
-    serviceMemberSubmitsWeightsTicketsWithoutReceipts();
-  });
-
-  it('service member requests a car + trailer weight ticket payment', () => {
-    serviceMemberStartsPPMPaymentRequest();
-    serviceMemberSubmitsCarTrailerWeightTicket();
-  });
-
-  it('service member can save a weight ticket for later', () => {
-    serviceMemberStartsPPMPaymentRequest();
-    serviceMemberSavesWeightTicketForLater('BOX_TRUCK');
-  });
-
   it('service member starting at review page returns to review page after adding a weight ticket', () => {
     cy.visit(`/moves/${moveID}/ppm-payment-review`);
     cy.location().should(loc => {
@@ -308,6 +313,14 @@ describe('allows a SM to request a payment', function() {
     });
   });
 
+  it('service member goes through entire request payment flow', () => {
+    serviceMemberStartsPPMPaymentRequest();
+    serviceMemberSubmitsWeightTicket('CAR', false);
+    serviceMemberViewsExpensesLandingPage();
+    serviceMemberUploadsExpenses(false);
+    serviceMemberReviewsDocuments();
+  });
+
   //TODO: remove when done with the new flow to request payment
   it('service member submits request for payment', function() {
     cy.removeFetch();
@@ -319,7 +332,7 @@ describe('allows a SM to request a payment', function() {
     cy.logout();
     //profile@comple.te
     cy.signInAsUserPostRequest(milmoveAppName, '8e0d7e98-134e-4b28-bdd1-7d6b1ff34f9e');
-    cy.setFeatureFlag('ppmPaymentRequest', '/');
+    cy.setFeatureFlag('ppmPaymentRequest=false', '/');
     cy.contains('Fort Gordon (from Yuma AFB)');
     cy.contains('Request Payment').click();
 
@@ -377,7 +390,10 @@ function serviceMemberReviewsDocuments() {
   cy
     .get('button')
     .contains('Submit Request')
-    .should('be.enabled');
+    .should('be.enabled')
+    .click();
+  cy.wait('@signedCertifications');
+  cy.wait('@requestPayment');
 }
 
 function serviceMemberViewsExpensesLandingPage() {

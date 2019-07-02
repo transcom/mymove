@@ -5,13 +5,13 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services/mocks"
+
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate"
 
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
-
-	"github.com/transcom/mymove/pkg/services/mocks"
 
 	accesscodeops "github.com/transcom/mymove/pkg/gen/restapi/apioperations/accesscode"
 	"github.com/transcom/mymove/pkg/handlers"

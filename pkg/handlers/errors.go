@@ -79,9 +79,7 @@ func ResponseForError(logger Logger, err error) middleware.Responder {
 		skipLogger.Info("Encountered error using route planner", zap.Error(e))
 		// Handle RouteError codes
 		switch e.Code() {
-		case route.UnsupportedPostalCode:
-			return newErrResponse(http.StatusUnprocessableEntity, err)
-		case route.UnroutableRoute:
+		case route.UnsupportedPostalCode, route.UnroutableRoute:
 			return newErrResponse(http.StatusUnprocessableEntity, err)
 		default:
 			return newErrResponse(http.StatusInternalServerError, err)
