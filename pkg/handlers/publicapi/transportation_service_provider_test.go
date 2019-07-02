@@ -6,8 +6,6 @@ import (
 
 	"github.com/go-openapi/strfmt"
 
-	"github.com/transcom/mymove/pkg/auth"
-
 	tspop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/transportation_service_provider"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -60,10 +58,10 @@ func (suite *HandlerSuite) TestGetTransportationServiceProviderHandlerWhereSessi
 		ShipmentID:  strfmt.UUID(shipment.ID.String()),
 	}
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-
 	handler := GetTransportationServiceProviderHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
+
+	session := handler.SessionFromRequest(params.HTTPRequest)
 
 	suite.NotEqual(session.ServiceMemberID, shipment.ServiceMemberID)
 	suite.Assertions.IsType(&tspop.GetTransportationServiceProviderForbidden{}, response)

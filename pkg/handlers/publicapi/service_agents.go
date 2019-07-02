@@ -6,7 +6,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	serviceagentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/service_agents"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -39,7 +38,7 @@ type IndexServiceAgentsHandler struct {
 // Handle returns a list of service agents - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h IndexServiceAgentsHandler) Handle(params serviceagentop.IndexServiceAgentsParams) middleware.Responder {
 	var serviceAgents []models.ServiceAgent
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
@@ -47,29 +46,29 @@ func (h IndexServiceAgentsHandler) Handle(params serviceagentop.IndexServiceAgen
 		// TODO (2018_08_27 cgilmer): Find a way to check Shipment belongs to TSP without 2 queries
 		tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
 		if err != nil {
-			h.Logger().Error("DB Query", zap.Error(err))
+			logger.Error("DB Query", zap.Error(err))
 			return serviceagentop.NewIndexServiceAgentsForbidden()
 		}
 
 		shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
 		if err != nil {
-			h.Logger().Error("DB Query", zap.Error(err))
+			logger.Error("DB Query", zap.Error(err))
 			return serviceagentop.NewIndexServiceAgentsBadRequest()
 		}
 
 		serviceAgents, err = models.FetchServiceAgentsByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return handlers.ResponseForError(logger, err)
 		}
 	} else if session.IsOfficeUser() {
 		shipment, err := models.FetchShipment(h.DB(), session, shipmentID)
 		if err != nil {
-			h.Logger().Error("DB Query", zap.Error(err))
+			logger.Error("DB Query", zap.Error(err))
 			return serviceagentop.NewIndexServiceAgentsBadRequest()
 		}
 		serviceAgents, err = models.FetchServiceAgentsOnShipment(h.DB(), shipment.ID)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return handlers.ResponseForError(logger, err)
 		}
 	} else {
 		return serviceagentop.NewIndexServiceAgentsForbidden()
@@ -89,20 +88,20 @@ type CreateServiceAgentHandler struct {
 
 // Handle creates a new ServiceAgent from a request payload - checks that currently logged in user is authorized to act for the TSP assigned the shipment
 func (h CreateServiceAgentHandler) Handle(params serviceagentop.CreateServiceAgentParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
 	// TODO (rebecca): Find a way to check Shipment belongs to TSP without 2 queries
 	tspUser, err := models.FetchTspUserByID(h.DB(), session.TspUserID)
 	if err != nil {
-		h.Logger().Error("DB Query", zap.Error(err))
+		logger.Error("DB Query", zap.Error(err))
 		return serviceagentop.NewCreateServiceAgentForbidden()
 	}
 
 	shipment, err := models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
 	if err != nil {
-		h.Logger().Error("DB Query", zap.Error(err))
+		logger.Error("DB Query", zap.Error(err))
 		return serviceagentop.NewCreateServiceAgentBadRequest()
 	}
 
@@ -120,7 +119,7 @@ func (h CreateServiceAgentHandler) Handle(params serviceagentop.CreateServiceAge
 		payload.PhoneIsPreferred,
 		payload.Notes)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	serviceAgentPayload := payloadForServiceAgentModel(newServiceAgent)
@@ -137,7 +136,7 @@ func (h PatchServiceAgentHandler) Handle(params serviceagentop.PatchServiceAgent
 	var serviceAgent *models.ServiceAgent
 	var err error
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 	serviceAgentID, _ := uuid.FromString(params.ServiceAgentID.String())
@@ -145,23 +144,23 @@ func (h PatchServiceAgentHandler) Handle(params serviceagentop.PatchServiceAgent
 	if session.IsTspUser() {
 		tspUser, fetchTspUserByIDErr := models.FetchTspUserByID(h.DB(), session.TspUserID)
 		if fetchTspUserByIDErr != nil {
-			h.Logger().Error("DB Query", zap.Error(fetchTspUserByIDErr))
+			logger.Error("DB Query", zap.Error(fetchTspUserByIDErr))
 			return serviceagentop.NewPatchServiceAgentForbidden()
 		}
 
 		serviceAgent, err = models.FetchServiceAgentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID, serviceAgentID)
 		if err != nil {
-			h.Logger().Error("DB Query", zap.Error(err))
+			logger.Error("DB Query", zap.Error(err))
 			return serviceagentop.NewPatchServiceAgentBadRequest()
 		}
 	} else if session.IsOfficeUser() {
 		serviceAgent, err = models.FetchServiceAgentForOffice(h.DB(), shipmentID, serviceAgentID)
 		if err != nil {
-			h.Logger().Error("DB Query", zap.Error(err))
+			logger.Error("DB Query", zap.Error(err))
 			return serviceagentop.NewPatchServiceAgentBadRequest()
 		}
 	} else {
-		h.Logger().Error("Non office or TSP user attempted to patch service agent")
+		logger.Error("Non office or TSP user attempted to patch service agent")
 		return serviceagentop.NewPatchServiceAgentForbidden()
 	}
 	// Update the Service Agent
@@ -182,7 +181,7 @@ func (h PatchServiceAgentHandler) Handle(params serviceagentop.PatchServiceAgent
 	verrs, err := h.DB().ValidateAndSave(serviceAgent)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	serviceAgentPayload := payloadForServiceAgentModel(*serviceAgent)

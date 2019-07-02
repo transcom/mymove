@@ -10,6 +10,9 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
+
+	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/trace"
 )
 
 const (
@@ -29,6 +32,8 @@ type testSuite struct {
 	ok      http.HandlerFunc
 	reflect http.HandlerFunc
 	panic   http.HandlerFunc
+	trace   http.HandlerFunc
+	log     http.HandlerFunc
 }
 
 func TestSuite(t *testing.T) {
@@ -52,6 +57,18 @@ func TestSuite(t *testing.T) {
 		}),
 		panic: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			panic(errors.New("foobar"))
+		}),
+		trace: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			traceID := trace.FromContext(r.Context())
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprint(w, traceID)
+		}),
+		log: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if l, ok := logging.FromContext(r.Context()).(Logger); ok {
+				l.Info("Placeholder for info message")
+				l.Error("Placeholder for error message")
+				w.WriteHeader(http.StatusOK)
+			}
 		}),
 	}
 
