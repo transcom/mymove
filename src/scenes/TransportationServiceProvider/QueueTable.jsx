@@ -39,6 +39,10 @@ class QueueTable extends Component {
     }
   }
 
+  componentWillUnmount() {
+    clearInterval(this.state.interval);
+  }
+
   openShipment(rowInfo) {
     this.props.history.push(`/shipments/${rowInfo.original.id}`, {
       referrerPathname: this.props.history.location.pathname,
