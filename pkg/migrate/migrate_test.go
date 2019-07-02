@@ -4,8 +4,31 @@ import (
 	"fmt"
 	"testing"
 
+	"go.uber.org/zap"
+
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
+
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
+
+type MigrateSuite struct {
+	testingsuite.PopTestSuite
+	logger Logger
+}
+
+func (suite *MigrateSuite) SetupTest() {
+	suite.DB().TruncateAll()
+}
+
+func TestMigrateSuite(t *testing.T) {
+
+	ms := &MigrateSuite{
+		PopTestSuite: testingsuite.NewPopTestSuite(),
+		logger:       zap.NewNop(), // Use a no-op logger during testing
+	}
+	suite.Run(t, ms)
+}
 
 func TestCopyStdinPattern(t *testing.T) {
 	tableName := "public.transportation_service_provider_performances"
@@ -43,4 +66,7 @@ func TestCopyStdinPattern(t *testing.T) {
 	assert.Equal(t, match[12], ";")
 	// 12 : whitespace
 	assert.Equal(t, match[13], "")
+
+	// preparedStmt := pq.CopyInSchema(parts[0], parts[1], columns...)
+	// assert.Equal(t, preparedStmt, stmtString)
 }

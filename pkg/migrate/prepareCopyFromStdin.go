@@ -10,15 +10,17 @@ import (
 )
 
 func prepareCopyFromStdin(tablename string, columns []string, tx *pop.Connection) (*sql.Stmt, error) {
-	//fmt.Fprintln(os.Stderr, tablename, columns)
+	// With Schema
 	if strings.Contains(tablename, ".") {
 		parts := strings.SplitN(tablename, ".", 2)
-		stmt, err := tx.TX.Prepare(pq.CopyInSchema(parts[0], parts[1], columns...))
+		preparedStmt := pq.CopyInSchema(parts[0], parts[1], columns...)
+		stmt, err := tx.TX.Prepare(preparedStmt)
 		if err != nil {
 			return nil, errors.Wrap(err, "error preparing copy from stdin statement")
 		}
 		return stmt, nil
 	}
+	// Without Schema
 	stmt, err := tx.TX.Prepare(pq.CopyIn(tablename, columns...))
 	if err != nil {
 		return nil, errors.Wrap(err, "error preparing copy from stdin statement")
