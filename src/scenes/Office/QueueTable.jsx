@@ -95,9 +95,8 @@ class QueueTable extends Component {
         refreshing: false,
         lastLoadedAt: new Date(),
       });
-      // hard redirect to home page if unauthorized
+      // redirect to home page if unauthorized
       if (e.status === 401) {
-        //window.location.assign('/');
         this.props.setUserIsLoggedIn(false);
       }
     }
@@ -238,12 +237,7 @@ const mapStateToProps = state => {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      setUserIsLoggedIn,
-    },
-    dispatch,
-  );
+  return bindActionCreators({ setUserIsLoggedIn }, dispatch);
 }
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(QueueTable));
