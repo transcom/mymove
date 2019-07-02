@@ -1,6 +1,4 @@
 import { tspUserVerifiesShipmentStatus } from '../../support/testTspStatus';
-import moment from 'moment-business-days';
-import { nthDayOfCurrentMonth } from '../../support/utils';
 
 /* global cy */
 describe('TSP User Ships a Shipment', function() {
@@ -231,12 +229,9 @@ function tspUserDeliversShipment() {
     .get('input')
     .click();
 
-  const nextBusinessDay1 = moment(nthDayOfCurrentMonth(10))
-    .nextBusinessDay()
-    .format('D');
   cy
     .get('div')
-    .contains(nextBusinessDay1)
+    .contains('13')
     .click();
 
   // Cancel
@@ -265,12 +260,9 @@ function tspUserDeliversShipment() {
     .get('input')
     .click();
 
-  const nextBusinessDay2 = moment(nthDayOfCurrentMonth(13))
-    .nextBusinessDay()
-    .format('D');
   cy
     .get('div')
-    .contains(nextBusinessDay2)
+    .contains('15')
     .click();
 
   cy
