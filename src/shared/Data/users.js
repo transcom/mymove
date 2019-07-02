@@ -6,7 +6,7 @@ import { ordersArray } from 'shared/Entities/schema';
 import { addEntities } from 'shared/Entities/actions';
 import { getShipment } from 'shared/Entities/modules/shipments';
 
-const setIsLoggedInType = 'SET_IS_LOGGED_IN';
+export const setIsLoggedInType = 'SET_IS_LOGGED_IN';
 const getLoggedInUserType = 'GET_LOGGED_IN_USER';
 
 export const GET_LOGGED_IN_USER = helpers.generateAsyncActionTypes(getLoggedInUserType);
