@@ -19,6 +19,13 @@ type Buffer struct {
 	closed bool
 }
 
+func (b *Buffer) String() string {
+	b.Lock()
+	out := b.buffer.String()
+	b.Unlock()
+	return out
+}
+
 func (b *Buffer) Close() {
 	b.Lock()
 	b.closed = true

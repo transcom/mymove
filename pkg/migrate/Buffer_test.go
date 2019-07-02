@@ -45,3 +45,17 @@ func TestBuffer(t *testing.T) {
 	require.Equal(t, byte(0), c)
 
 }
+
+func TestBufferString(t *testing.T) {
+
+	in := "hello world"
+
+	buf := NewBuffer()
+
+	time.Sleep(time.Second * 1)
+	buf.WriteString(in)
+	buf.Close()
+
+	out := buf.String()
+	require.Equal(t, out, in)
+}
