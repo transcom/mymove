@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bufio"
+	// "bufio"
 	"fmt"
 	"log"
 	"os"
@@ -50,8 +50,10 @@ func initFlags(flag *pflag.FlagSet) {
 
 // Command: go run github.com/transcom/mymove/cmd/load_transportation_offices
 func main() {
-	inputFile := "To_Cntct_info_201906070930.xml"
-	outputFile := "/Users/lynzt/Downloads/transportationoffices.txt"
+	inputFile := "./cmd/load_transportation_offices/data/To_Cntct_info_201906070930.xml"
+	// officesPath := "./testdata/transportation_offices.xml"
+	// inputFile := "To_Cntct_info_201906070930.xml"
+	// outputFile := "/Users/lynzt/Downloads/transportationoffices.txt"
 
 	flag := pflag.CommandLine
 	initFlags(flag)
@@ -83,40 +85,44 @@ func main() {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	fileBytes := transportationoffices.ReadXMLFile(inputFile)
-	o := transportationoffices.UnmarshalXML(fileBytes)
+	fmt.Println("hi...")
+	builder := transportationoffices.NewMigrationBuilder(dbConnection, logger)
+	builder.Build(inputFile)
 
-	offices := o.LISTGCNSLORGID.GCNSLORGID
+	// fileBytes := transportationoffices.ReadXMLFile(inputFile)
+	// o := transportationoffices.UnmarshalXML(fileBytes)
 
-	fmt.Printf("# total offices: %d\n", len(offices))
+	// offices := o.LISTGCNSLORGID.GCNSLORGID
 
-	usOfficesFilter := func(o transportationoffices.Office) bool {
-		return o.LISTGCNSLINFO.GCNSLINFO.CNSLCOUNTRY == "US"
-	}
-	usOffices := transportationoffices.FilterOffice(offices, usOfficesFilter)
-	fmt.Printf("# us only offices: %d\n", len(usOffices))
+	// fmt.Printf("# total offices: %d\n", len(offices))
 
-	conusOfficesFilter := func(o transportationoffices.Office) bool {
-		return o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE != "AK" &&
-			o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE != "HI"
-	}
-	conusOffices := transportationoffices.FilterOffice(usOffices, conusOfficesFilter)
-	fmt.Printf("# conus only offices: %d\n", len(conusOffices))
+	// usOfficesFilter := func(o transportationoffices.Office) bool {
+	// 	return o.LISTGCNSLINFO.GCNSLINFO.CNSLCOUNTRY == "US"
+	// }
+	// usOffices := transportationoffices.FilterOffice(offices, usOfficesFilter)
+	// fmt.Printf("# us only offices: %d\n", len(usOffices))
 
-	f, err := os.Create(outputFile)
-	defer f.Close()
-	w := bufio.NewWriter(f)
+	// conusOfficesFilter := func(o transportationoffices.Office) bool {
+	// 	return o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE != "AK" &&
+	// 		o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE != "HI"
+	// }
+	// conusOffices := transportationoffices.FilterOffice(usOffices, conusOfficesFilter)
+	// fmt.Printf("# conus only offices: %d\n", len(conusOffices))
 
-	counter := 0
-	for _, o := range conusOffices {
-		transportationoffices.WriteXMLLine(o, w)
-		dbOffices := transportationoffices.FindConusOffices(dbConnection, o, w)
-		dbPPSOs := transportationoffices.FindPPSOs(dbConnection, o)
-		res := transportationoffices.WriteDbRecs("office", dbOffices, w)
-		transportationoffices.WriteDbRecs("JPPSO", dbPPSOs, w)
-		counter += res
-	}
-	w.Flush()
-	fmt.Println(counter)
+	// f, err := os.Create(outputFile)
+	// defer f.Close()
+	// w := bufio.NewWriter(f)
+
+	// counter := 0
+	// for _, o := range conusOffices {
+	// 	transportationoffices.WriteXMLLine(o, w)
+	// 	dbOffices := transportationoffices.FindConusOffices(dbConnection, o, w)
+	// 	dbPPSOs := transportationoffices.FindPPSOs(dbConnection, o)
+	// 	res := transportationoffices.WriteDbRecs("office", dbOffices, w)
+	// 	transportationoffices.WriteDbRecs("JPPSO", dbPPSOs, w)
+	// 	counter += res
+	// }
+	// w.Flush()
+	// fmt.Println(counter)
 
 }

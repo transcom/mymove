@@ -9,9 +9,101 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/pop"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 )
+
+var uppercaseWords = map[string]bool{
+	// seeing double w/ a comma == a hack to deal w/ commas in the office name
+	"AFB":     true,
+	"AFB,":    true,
+	"DIST":    true,
+	"DIST,":   true,
+	"FLCJ":    true,
+	"FLCJ,":   true,
+	"JB":      true,
+	"JRB":     true,
+	"JRB,":    true,
+	"LCR":     true,
+	"LCR,":    true,
+	"MCAS":    true,
+	"MCAS,":   true,
+	"NAVSUP":  true,
+	"NAVSUP,": true,
+	"NAF":     true,
+	"NAF,":    true,
+	"NAS":     true,
+	"NAS,":    true,
+	"PPPO":    true,
+	"PPPO,":   true,
+	"USCG":    true,
+	"USCG,":   true,
+	"USMA":    true,
+	"USMA,":   true,
+	"USNA":    true,
+	"USNA,":   true,
+}
+
+var states = map[string]bool{
+	"AL": true,
+	"AK": true,
+	"AZ": true,
+	"AR": true,
+	"CA": true,
+	"CO": true,
+	"CT": true,
+	"DC": true,
+	"DE": true,
+	"FL": true,
+	"GA": true,
+	"HI": true,
+	"ID": true,
+	"IL": true,
+	"IN": true,
+	"IA": true,
+	"KS": true,
+	"KY": true,
+	"LA": true,
+	"ME": true,
+	"MD": true,
+	"MA": true,
+	"MI": true,
+	"MN": true,
+	"MS": true,
+	"MO": true,
+	"MT": true,
+	"NE": true,
+	"NV": true,
+	"NH": true,
+	"NJ": true,
+	"NM": true,
+	"NY": true,
+	"NC": true,
+	"ND": true,
+	"OH": true,
+	"OK": true,
+	"OR": true,
+	"PA": true,
+	"RI": true,
+	"SC": true,
+	"SD": true,
+	"TN": true,
+	"TX": true,
+	"UT": true,
+	"VT": true,
+	"VA": true,
+	"WA": true,
+	"WV": true,
+	"WI": true,
+	"WY": true,
+}
+
+var abbrs = map[string]string{
+	"ft":          "fort",
+	"mcb":         "marine corp base",
+	"andrews-naf": "Andrews-NAF",
+}
 
 type OfficeData struct {
 	XMLName        xml.Name `xml:"CONTACT_INFO_INITIAL_SITES_R2NEW"`
@@ -121,8 +213,32 @@ type Office struct {
 	} `xml:"LIST_G_CNSL_PHONE_ORG_ID"`
 }
 
+// MigrationBuilder has methods that assist in building a DutyStation INSERT migration
+type MigrationBuilder struct {
+	db     *pop.Connection
+	logger *zap.Logger
+}
+
+// NewMigrationBuilder returns a new instance of a MigrationBuilder
+func NewMigrationBuilder(db *pop.Connection, logger *zap.Logger) MigrationBuilder {
+	return MigrationBuilder{
+		db,
+		logger,
+	}
+}
+
+func (b *MigrationBuilder) parseOffices(path string) ([]Office, error) {
+	fileBytes := ReadXMLFile(path)
+	data := UnmarshalXML(fileBytes)
+	officeData := data.LISTGCNSLORGID.GCNSLORGID
+
+	return officeData, nil
+
+}
+
 func ReadXMLFile(file string) []byte {
-	xmlFile, err := os.Open("cmd/load_transportation_offices/data/" + file)
+	// xmlFile, err := os.Open("cmd/load_transportation_offices/data/" + file)
+	xmlFile, err := os.Open(file)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -139,7 +255,22 @@ func UnmarshalXML(byteValue []byte) OfficeData {
 	return od
 }
 
-func FilterOffice(os []Office, test func(Office) bool) []Office {
+func (b *MigrationBuilder) isUS(offices []Office) []Office {
+	filter := func(o Office) bool {
+		return o.LISTGCNSLINFO.GCNSLINFO.CNSLCOUNTRY == "US"
+	}
+	return b.filterOffice(offices, filter)
+}
+
+func (b *MigrationBuilder) isConus(offices []Office) []Office {
+	filter := func(o Office) bool {
+		return o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE != "AK" &&
+			o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE != "HI"
+	}
+	return b.filterOffice(offices, filter)
+}
+
+func (b *MigrationBuilder) filterOffice(os []Office, test func(Office) bool) []Office {
 	var filtered []Office
 	for _, o := range os {
 		if test(o) {
@@ -191,27 +322,96 @@ func FindPPSOs(db *pop.Connection, o Office) models.TransportationOffices {
 	// return dbPPSOs
 }
 
-func WriteXMLLine(o Office, w io.Writer) {
+// func (b *MigrationBuilder) WriteXMLLine(o Office, w io.Writer) {
+func (b *MigrationBuilder) WriteXMLLine(o Office) {
 	name := strings.Title(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME)
 	city := o.LISTGCNSLINFO.GCNSLINFO.CNSLCITY
 	state := o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE
 	zip := o.LISTGCNSLINFO.GCNSLINFO.CNSLZIP
 	fmt.Println(strings.Title(name))
 
-	fmt.Fprintf(w, "\nname: %s\n", name)
-	fmt.Fprintf(w, "city: %s | state: %s | zip: %s \n", city, state, zip)
+	b.logger.Debug("*** BLAH")
+
+	fmt.Printf("\nname: %s\n", name)
+	fmt.Printf("city: %s | state: %s | zip: %s \n", city, state, zip)
+
+	// fmt.Fprintf(w, "\nname: %s\n", name)
+	// fmt.Fprintf(w, "city: %s | state: %s | zip: %s \n", city, state, zip)
 }
 
-func WriteDbRecs(officeType string, ts models.TransportationOffices, w io.Writer) int {
+// func (b *MigrationBuilder) writeDbRecs(os []Office, test func(Office) bool) []Office {
+// func (b *MigrationBuilder) WriteDbRecs(officeType string, ts models.TransportationOffices, w io.Writer) int {
+func (b *MigrationBuilder) WriteDbRecs(officeType string, ts models.TransportationOffices) int {
 	if len(ts) == 0 {
+		b.logger.Debug("*** NONE FOUND... BLAH")
 		fmt.Printf("*** %s NOT FOUND\n", officeType)
-		fmt.Fprintf(w, "*** %s NOT FOUND\n", officeType)
+		// fmt.Fprintf(w, "*** %s NOT FOUND\n", officeType)
 
 		return 1
 	}
-	for _, t := range ts {
-		_, _ = fmt.Fprintf(w, "\t%s: %v\tzip: %v\n", officeType, t.Name, t.Address.PostalCode)
+	return 0
+}
+
+func (b *MigrationBuilder) normalizeName(name string) string {
+	var normalized []string
+	nameSplit := strings.Fields(name)
+	for _, n := range nameSplit {
+		if _, exists := uppercaseWords[n]; exists {
+			normalized = append(normalized, n)
+			continue
+		}
+
+		if _, exists := states[n]; exists {
+			normalized = append(normalized, n)
+			continue
+		}
+
+		n = strings.ToLower(n)
+		n = b.convertAbbr(n)
+		n = strings.Title(n)
+		normalized = append(normalized, n)
 	}
 
-	return 0
+	return strings.Join(normalized, " ")
+}
+
+func (b *MigrationBuilder) convertAbbr(s string) string {
+
+	// fmt.Printf("convertAbbr: %s\n", s)
+	// splitAbbr(s, ',')
+
+	for k, v := range abbrs {
+		// fmt.Println(k)
+		if k == s {
+			return v
+		}
+	}
+	return s
+}
+
+func (b *MigrationBuilder) Build(officesFilePath string) (string, error) {
+	// Parse raw data from xml
+	offices, err := b.parseOffices(officesFilePath)
+	if err != nil {
+		return "", err
+	}
+	fmt.Printf("# total offices: %d\n", len(offices))
+
+	usOffices := b.isUS(offices)
+	fmt.Printf("# us only offices: %d\n", len(usOffices))
+
+	conusOffices := b.isConus(usOffices)
+	fmt.Printf("# conus only offices: %d\n", len(conusOffices))
+
+	for _, o := range conusOffices {
+		b.WriteXMLLine(o)
+		// 	dbOffices := transportationoffices.FindConusOffices(dbConnection, o, w)
+		// 	dbPPSOs := transportationoffices.FindPPSOs(dbConnection, o)
+		// 	res := transportationoffices.WriteDbRecs("office", dbOffices, w)
+		// 	transportationoffices.WriteDbRecs("JPPSO", dbPPSOs, w)
+		// 	counter += res
+	}
+
+	return "abc", nil
+
 }

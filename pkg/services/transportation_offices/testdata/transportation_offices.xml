@@ -1,0 +1,974 @@
+<?xml version="1.0" encoding="UTF-8" ?> <CONTACT_INFO_INITIAL_SITES_R2NEW>
+  <name>truss</name>
+  <LIST_G_CNSL_ORG_ID>
+    <G_CNSL_ORG_ID>
+      <CNSL_ORG_ID1>1001</CNSL_ORG_ID1>
+      <LIST_G_CNSL_INFO>
+        <G_CNSL_INFO>
+          <CNSL_CTRY_NM>UNITED STATES</CNSL_CTRY_NM>
+          <CNSL_ST_DIV>OKLAHOMA</CNSL_ST_DIV>
+          <CNSL_NAME>ALTUS AFB, OK</CNSL_NAME>
+          <CNSL_ADDR1>97 LRS/LGRT</CNSL_ADDR1>
+          <CNSL_ADDR2>308 NORTH 1ST STR, BLDG 52</CNSL_ADDR2>
+          <CNSL_CITY>ALTUS</CNSL_CITY>
+          <CNSL_STATE>OK</CNSL_STATE>
+          <CNSL_ZIP>73523</CNSL_ZIP>
+          <CNSL_COUNTRY>US</CNSL_COUNTRY>
+          <PPSO_ORG_ID>243</PPSO_ORG_ID>
+          <PPSO_COUNTRY>US</PPSO_COUNTRY>
+          <PPSO_STATE>TX</PPSO_STATE>
+          <PPSO_ZIP>78236</PPSO_ZIP>
+          <PPSO_NAME>JPPSO SOUTH CENTRAL </PPSO_NAME>
+          <PPSO_CITY>LACKLAND AFB</PPSO_CITY>
+          <PPSO_ADDR2>2261 HUGHES AVE, SUITE 160 </PPSO_ADDR2>
+          <PPSO_ADDR1>JPPSO SOUTH CENTRAL, DETACHMENT 3</PPSO_ADDR1>
+          <LIST_G_PPSO_EMAIL_ORG_ID>
+            <G_PPSO_EMAIL_ORG_ID>
+              <ORG_IDP>243</ORG_IDP>
+              <LIST_G_PPSO_EMAIL>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>Customer Service</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>jppso-sc.cs-ms@us.af.mil   </EMAIL_ADDRESSP>
+                </G_ppso_email>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>DPM/OTO</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>jppso-sc.sm-dpm@us.af.mil</EMAIL_ADDRESSP>
+                </G_ppso_email>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>Inbound</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>jppso-sc.cs-ms@us.af.mil</EMAIL_ADDRESSP>
+                </G_ppso_email>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>NTS</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>jppso-sc.sm-ps@us.af.mil      </EMAIL_ADDRESSP>
+                </G_ppso_email>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>Outbound</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>jppso-sc.sm-coded@us.af.mil   </EMAIL_ADDRESSP>
+                </G_ppso_email>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>Outbound</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>jppso-sc.sm-nts@us.af.mil   </EMAIL_ADDRESSP>
+                </G_ppso_email>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>QA</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>jppso-sc.qa-pm@us.af.mil</EMAIL_ADDRESSP>
+                </G_ppso_email>
+              </LIST_G_PPSO_EMAIL>
+            </G_PPSO_EMAIL_ORG_ID>
+          </LIST_G_PPSO_EMAIL_ORG_ID>
+          <LIST_G_PPSO_PHONE_ORG_ID>
+            <G_PPSO_PHONE_ORG_ID>
+              <PPSO_ORG_ID2>243</PPSO_ORG_ID2>
+              <LIST_G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>8005997708</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>800 Number</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES/>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>8005997709</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>800 Number</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES/>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>2103214200</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>Customer Service</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES/>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>9544200</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>Customer Service</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES/>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>2103214255</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>Inbound</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>For Inbound Shipments</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>9544255</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>Inbound</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>For Inbound Shipments</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>2103214251</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>NTS</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>For all NTS  Extensions, if releasing an NTS lot, send paperwork to Outbound</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>9544251</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>NTS</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>For all NTS Extensions, if releasing an NTS lot send paperwork to Outbound</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>2103214253</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>Outbound</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Shipment Applications Our AOR &amp; NTS Releases/DD1299, DD1797, Orders, etc. </PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>9544253</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>Outbound</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Shipment Applications Our AOR &amp; NTS Releases/DD1299, DD1797, Orders, etc. </PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>2103214254</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>QC/QA</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Quality Assurance</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>9544254</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>QC/QA</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Quality Assurance</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>2103214251</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>SIT</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>For SIT Extensions, for release or long delivery contact Inbound</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>9544251</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>SIT</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>For SIT Extensions, for release or long delivery, contact Inbound</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>9544255</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>Tracing</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>For Inbound Shipments</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+              </LIST_G_PPSO_PHONE_NOTES>
+            </G_PPSO_PHONE_ORG_ID>
+          </LIST_G_PPSO_PHONE_ORG_ID>
+        </G_CNSL_INFO>
+      </LIST_G_CNSL_INFO>
+      <LIST_G_CNSL_EMAIL_ORG_ID>
+        <G_CNSL_EMAIL_ORG_ID>
+          <ORG_ID2>1001</ORG_ID2>
+          <LIST_G_CNSL_EMAIL>
+            <G_CNSL_EMAIL>
+              <EMAIL_TYPE>Email</EMAIL_TYPE>
+              <EMAIL_ADDRESS>97LRS.LGRD.PersPropMvmt@us.af.mil</EMAIL_ADDRESS>
+            </G_CNSL_EMAIL>
+          </LIST_G_CNSL_EMAIL>
+        </G_CNSL_EMAIL_ORG_ID>
+      </LIST_G_CNSL_EMAIL_ORG_ID>
+      <LIST_G_CNSL_PHONE_ORG_ID>
+        <G_CNSL_PHONE_ORG_ID>
+          <CNSL_ORG_ID2>1001</CNSL_ORG_ID2>
+          <LIST_G_CNSL_PHONE_NOTES>
+            <G_CNSL_PHONE_NOTES>
+              <CNSL_VOICE_OR_FAX>V</CNSL_VOICE_OR_FAX>
+              <CNSL_DSN_NUM/>
+              <CNSL_AREA_CODE>1</CNSL_AREA_CODE>
+              <CNSL_PHONE_TYPE>TMO</CNSL_PHONE_TYPE>
+              <CNSL_COMM_OR_DSN>C</CNSL_COMM_OR_DSN>
+              <CNSL_PHONE_NUM>5804816830</CNSL_PHONE_NUM>
+              <CNSL_PHONE_NOTES/>
+            </G_CNSL_PHONE_NOTES>
+            <G_CNSL_PHONE_NOTES>
+              <CNSL_VOICE_OR_FAX>F</CNSL_VOICE_OR_FAX>
+              <CNSL_DSN_NUM/>
+              <CNSL_AREA_CODE>1</CNSL_AREA_CODE>
+              <CNSL_PHONE_TYPE>TMO</CNSL_PHONE_TYPE>
+              <CNSL_COMM_OR_DSN>C</CNSL_COMM_OR_DSN>
+              <CNSL_PHONE_NUM>5804817711</CNSL_PHONE_NUM>
+              <CNSL_PHONE_NOTES/>
+            </G_CNSL_PHONE_NOTES>
+            <G_CNSL_PHONE_NOTES>
+              <CNSL_VOICE_OR_FAX>V</CNSL_VOICE_OR_FAX>
+              <CNSL_DSN_NUM/>
+              <CNSL_AREA_CODE>1</CNSL_AREA_CODE>
+              <CNSL_PHONE_TYPE>TMO</CNSL_PHONE_TYPE>
+              <CNSL_COMM_OR_DSN>C</CNSL_COMM_OR_DSN>
+              <CNSL_PHONE_NUM>5804817515</CNSL_PHONE_NUM>
+              <CNSL_PHONE_NOTES/>
+            </G_CNSL_PHONE_NOTES>
+            <G_CNSL_PHONE_NOTES>
+              <CNSL_VOICE_OR_FAX>V</CNSL_VOICE_OR_FAX>
+              <CNSL_DSN_NUM>8667515</CNSL_DSN_NUM>
+              <CNSL_AREA_CODE/>
+              <CNSL_PHONE_TYPE>TMO</CNSL_PHONE_TYPE>
+              <CNSL_COMM_OR_DSN>D</CNSL_COMM_OR_DSN>
+              <CNSL_PHONE_NUM/>
+              <CNSL_PHONE_NOTES/>
+            </G_CNSL_PHONE_NOTES>
+            <G_CNSL_PHONE_NOTES>
+              <CNSL_VOICE_OR_FAX>F</CNSL_VOICE_OR_FAX>
+              <CNSL_DSN_NUM>8667711</CNSL_DSN_NUM>
+              <CNSL_AREA_CODE/>
+              <CNSL_PHONE_TYPE>TMO</CNSL_PHONE_TYPE>
+              <CNSL_COMM_OR_DSN>D</CNSL_COMM_OR_DSN>
+              <CNSL_PHONE_NUM/>
+              <CNSL_PHONE_NOTES/>
+            </G_CNSL_PHONE_NOTES>
+            <G_CNSL_PHONE_NOTES>
+              <CNSL_VOICE_OR_FAX>V</CNSL_VOICE_OR_FAX>
+              <CNSL_DSN_NUM>8666830</CNSL_DSN_NUM>
+              <CNSL_AREA_CODE/>
+              <CNSL_PHONE_TYPE>TMO</CNSL_PHONE_TYPE>
+              <CNSL_COMM_OR_DSN>D</CNSL_COMM_OR_DSN>
+              <CNSL_PHONE_NUM/>
+              <CNSL_PHONE_NOTES/>
+            </G_CNSL_PHONE_NOTES>
+          </LIST_G_CNSL_PHONE_NOTES>
+        </G_CNSL_PHONE_ORG_ID>
+      </LIST_G_CNSL_PHONE_ORG_ID>
+    </G_CNSL_ORG_ID>
+    <G_CNSL_ORG_ID>
+      <CNSL_ORG_ID1>1002</CNSL_ORG_ID1>
+      <LIST_G_CNSL_INFO>
+        <G_CNSL_INFO>
+          <CNSL_CTRY_NM>UNITED STATES</CNSL_CTRY_NM>
+          <CNSL_ST_DIV>OKLAHOMA</CNSL_ST_DIV>
+          <CNSL_NAME>TINKER AFB, OK</CNSL_NAME>
+          <CNSL_ADDR1>72 LRS/LGRDF</CNSL_ADDR1>
+          <CNSL_ADDR2>7330 Sentry Blvd. Bldg 469</CNSL_ADDR2>
+          <CNSL_CITY>TINKER AFB</CNSL_CITY>
+          <CNSL_STATE>OK</CNSL_STATE>
+          <CNSL_ZIP>73145</CNSL_ZIP>
+          <CNSL_COUNTRY>US</CNSL_COUNTRY>
+          <PPSO_ORG_ID>243</PPSO_ORG_ID>
+          <PPSO_COUNTRY>US</PPSO_COUNTRY>
+          <PPSO_STATE>TX</PPSO_STATE>
+          <PPSO_ZIP>78236</PPSO_ZIP>
+          <PPSO_NAME>JPPSO SOUTH CENTRAL </PPSO_NAME>
+          <PPSO_CITY>LACKLAND AFB</PPSO_CITY>
+          <PPSO_ADDR2>2261 HUGHES AVE, SUITE 160 </PPSO_ADDR2>
+          <PPSO_ADDR1>JPPSO SOUTH CENTRAL, DETACHMENT 3</PPSO_ADDR1>
+          <LIST_G_PPSO_EMAIL_ORG_ID>
+            <G_PPSO_EMAIL_ORG_ID>
+              <ORG_IDP>243</ORG_IDP>
+              <LIST_G_PPSO_EMAIL>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>Customer Service</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>jppso-sc.cs-ms@us.af.mil   </EMAIL_ADDRESSP>
+                </G_ppso_email>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>DPM/OTO</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>jppso-sc.sm-dpm@us.af.mil</EMAIL_ADDRESSP>
+                </G_ppso_email>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>Inbound</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>jppso-sc.cs-ms@us.af.mil</EMAIL_ADDRESSP>
+                </G_ppso_email>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>NTS</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>jppso-sc.sm-ps@us.af.mil      </EMAIL_ADDRESSP>
+                </G_ppso_email>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>Outbound</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>jppso-sc.sm-coded@us.af.mil   </EMAIL_ADDRESSP>
+                </G_ppso_email>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>Outbound</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>jppso-sc.sm-nts@us.af.mil   </EMAIL_ADDRESSP>
+                </G_ppso_email>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>QA</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>jppso-sc.qa-pm@us.af.mil</EMAIL_ADDRESSP>
+                </G_ppso_email>
+              </LIST_G_PPSO_EMAIL>
+            </G_PPSO_EMAIL_ORG_ID>
+          </LIST_G_PPSO_EMAIL_ORG_ID>
+          <LIST_G_PPSO_PHONE_ORG_ID>
+            <G_PPSO_PHONE_ORG_ID>
+              <PPSO_ORG_ID2>243</PPSO_ORG_ID2>
+              <LIST_G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>8005997708</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>800 Number</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES/>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>8005997709</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>800 Number</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES/>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>2103214200</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>Customer Service</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES/>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>9544200</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>Customer Service</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES/>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>2103214255</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>Inbound</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>For Inbound Shipments</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>9544255</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>Inbound</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>For Inbound Shipments</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>2103214251</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>NTS</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>For all NTS  Extensions, if releasing an NTS lot, send paperwork to Outbound</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>9544251</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>NTS</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>For all NTS Extensions, if releasing an NTS lot send paperwork to Outbound</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>2103214253</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>Outbound</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Shipment Applications Our AOR &amp; NTS Releases/DD1299, DD1797, Orders, etc. </PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>9544253</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>Outbound</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Shipment Applications Our AOR &amp; NTS Releases/DD1299, DD1797, Orders, etc. </PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>2103214254</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>QC/QA</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Quality Assurance</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>9544254</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>QC/QA</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Quality Assurance</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>2103214251</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>SIT</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>For SIT Extensions, for release or long delivery contact Inbound</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>9544251</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>SIT</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>For SIT Extensions, for release or long delivery, contact Inbound</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>9544255</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>Tracing</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>For Inbound Shipments</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+              </LIST_G_PPSO_PHONE_NOTES>
+            </G_PPSO_PHONE_ORG_ID>
+          </LIST_G_PPSO_PHONE_ORG_ID>
+        </G_CNSL_INFO>
+      </LIST_G_CNSL_INFO>
+      <LIST_G_CNSL_EMAIL_ORG_ID/>
+      <LIST_G_CNSL_PHONE_ORG_ID>
+        <G_CNSL_PHONE_ORG_ID>
+          <CNSL_ORG_ID2>1002</CNSL_ORG_ID2>
+          <LIST_G_CNSL_PHONE_NOTES>
+            <G_CNSL_PHONE_NOTES>
+              <CNSL_VOICE_OR_FAX>F</CNSL_VOICE_OR_FAX>
+              <CNSL_DSN_NUM/>
+              <CNSL_AREA_CODE>1</CNSL_AREA_CODE>
+              <CNSL_PHONE_TYPE/>
+              <CNSL_COMM_OR_DSN>C</CNSL_COMM_OR_DSN>
+              <CNSL_PHONE_NUM>4057394706</CNSL_PHONE_NUM>
+              <CNSL_PHONE_NOTES/>
+            </G_CNSL_PHONE_NOTES>
+            <G_CNSL_PHONE_NOTES>
+              <CNSL_VOICE_OR_FAX>V</CNSL_VOICE_OR_FAX>
+              <CNSL_DSN_NUM/>
+              <CNSL_AREA_CODE>1</CNSL_AREA_CODE>
+              <CNSL_PHONE_TYPE/>
+              <CNSL_COMM_OR_DSN>C</CNSL_COMM_OR_DSN>
+              <CNSL_PHONE_NUM>4057394706</CNSL_PHONE_NUM>
+              <CNSL_PHONE_NOTES/>
+            </G_CNSL_PHONE_NOTES>
+            <G_CNSL_PHONE_NOTES>
+              <CNSL_VOICE_OR_FAX>F</CNSL_VOICE_OR_FAX>
+              <CNSL_DSN_NUM>3394706</CNSL_DSN_NUM>
+              <CNSL_AREA_CODE/>
+              <CNSL_PHONE_TYPE/>
+              <CNSL_COMM_OR_DSN>D</CNSL_COMM_OR_DSN>
+              <CNSL_PHONE_NUM/>
+              <CNSL_PHONE_NOTES/>
+            </G_CNSL_PHONE_NOTES>
+            <G_CNSL_PHONE_NOTES>
+              <CNSL_VOICE_OR_FAX>V</CNSL_VOICE_OR_FAX>
+              <CNSL_DSN_NUM/>
+              <CNSL_AREA_CODE>1</CNSL_AREA_CODE>
+              <CNSL_PHONE_TYPE>TMO</CNSL_PHONE_TYPE>
+              <CNSL_COMM_OR_DSN>C</CNSL_COMM_OR_DSN>
+              <CNSL_PHONE_NUM>4057395727</CNSL_PHONE_NUM>
+              <CNSL_PHONE_NOTES>QA/QC</CNSL_PHONE_NOTES>
+            </G_CNSL_PHONE_NOTES>
+            <G_CNSL_PHONE_NOTES>
+              <CNSL_VOICE_OR_FAX>V</CNSL_VOICE_OR_FAX>
+              <CNSL_DSN_NUM/>
+              <CNSL_AREA_CODE>1</CNSL_AREA_CODE>
+              <CNSL_PHONE_TYPE>TMO</CNSL_PHONE_TYPE>
+              <CNSL_COMM_OR_DSN>C</CNSL_COMM_OR_DSN>
+              <CNSL_PHONE_NUM>4057393059</CNSL_PHONE_NUM>
+              <CNSL_PHONE_NOTES/>
+            </G_CNSL_PHONE_NOTES>
+            <G_CNSL_PHONE_NOTES>
+              <CNSL_VOICE_OR_FAX>V</CNSL_VOICE_OR_FAX>
+              <CNSL_DSN_NUM>3393059</CNSL_DSN_NUM>
+              <CNSL_AREA_CODE/>
+              <CNSL_PHONE_TYPE>TMO</CNSL_PHONE_TYPE>
+              <CNSL_COMM_OR_DSN>D</CNSL_COMM_OR_DSN>
+              <CNSL_PHONE_NUM/>
+              <CNSL_PHONE_NOTES/>
+            </G_CNSL_PHONE_NOTES>
+          </LIST_G_CNSL_PHONE_NOTES>
+        </G_CNSL_PHONE_ORG_ID>
+      </LIST_G_CNSL_PHONE_ORG_ID>
+    </G_CNSL_ORG_ID>
+    <G_CNSL_ORG_ID>
+      <CNSL_ORG_ID1>1167</CNSL_ORG_ID1>
+      <LIST_G_CNSL_INFO>
+        <G_CNSL_INFO>
+          <CNSL_CTRY_NM>UNITED STATES</CNSL_CTRY_NM>
+          <CNSL_ST_DIV>HAWAII</CNSL_ST_DIV>
+          <CNSL_NAME>U.S. COAST GUARD BASE HONOLULU - USCG</CNSL_NAME>
+          <CNSL_ADDR1>400 SAND ISLAND PARKWAY</CNSL_ADDR1>
+          <CNSL_ADDR2/>
+          <CNSL_CITY>HONOLULU</CNSL_CITY>
+          <CNSL_STATE>HI</CNSL_STATE>
+          <CNSL_ZIP>96819</CNSL_ZIP>
+          <CNSL_COUNTRY>US</CNSL_COUNTRY>
+          <PPSO_ORG_ID>300</PPSO_ORG_ID>
+          <PPSO_COUNTRY>US</PPSO_COUNTRY>
+          <PPSO_STATE>HI</PPSO_STATE>
+          <PPSO_ZIP>96818</PPSO_ZIP>
+          <PPSO_NAME>FLEET LOGISTIC CENTER PEARL HARBOR</PPSO_NAME>
+          <PPSO_CITY>HONOLULU</PPSO_CITY>
+          <PPSO_ADDR2>4825 BOUGAINVILLE DRIVE</PPSO_ADDR2>
+          <PPSO_ADDR1>JPPSO-HAWAII CODE 800</PPSO_ADDR1>
+          <LIST_G_PPSO_EMAIL_ORG_ID>
+            <G_PPSO_EMAIL_ORG_ID>
+              <ORG_IDP>300</ORG_IDP>
+              <LIST_G_PPSO_EMAIL>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>Inbound</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>jppso_PH_shipment@navy.mil</EMAIL_ADDRESSP>
+                </G_ppso_email>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>NTS</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>jppso_PH_storage@navy.mil</EMAIL_ADDRESSP>
+                </G_ppso_email>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>Outbound</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>jppso_PH_shipment@navy.mil</EMAIL_ADDRESSP>
+                </G_ppso_email>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>QA</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>jppso_PH_vendor@navy.mil</EMAIL_ADDRESSP>
+                </G_ppso_email>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>QC/QA</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>jppso_PH_QA@navy.mil</EMAIL_ADDRESSP>
+                </G_ppso_email>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>Shipment Support</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>Navy_HHG_DOCS@navy.mil</EMAIL_ADDRESSP>
+                </G_ppso_email>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>TO</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>jppso_PH_counseling@navy.mil</EMAIL_ADDRESSP>
+                </G_ppso_email>
+              </LIST_G_PPSO_EMAIL>
+            </G_PPSO_EMAIL_ORG_ID>
+          </LIST_G_PPSO_EMAIL_ORG_ID>
+          <LIST_G_PPSO_PHONE_ORG_ID>
+            <G_PPSO_PHONE_ORG_ID>
+              <PPSO_ORG_ID2>300</PPSO_ORG_ID2>
+              <LIST_G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>8084744597</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE/>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Administration</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>4744597</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE/>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Administration</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>8084737764</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>QA</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Quality Assurance (Inspections, Reweighs)</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>8084737775</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>QA</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Quality Assurance</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>4737764</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>QA</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Quality Assurance (Inspections, Reweighs)</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>4737775</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>QA</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Quality Assurance</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>8084737760</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>SIT</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Storage (SIT, NTS) and Invoicing</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>8084737764</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>SIT</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Invoicing and Storage (SIT, NTS)</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>4737760</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>SIT</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Storage (SIT, NTS) and Invoicing</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>4737764</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>SIT</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Invoicing and Storage (SIT, NTS)</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>8084737750</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>Shipment Support</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Inbound/Outbound</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>8084737764</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>Shipment Support</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Inbound and Outbound</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>4737750</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>Shipment Support</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Inbound/Outbound</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>F</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>4737764</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>Shipment Support</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Inbound/Outbound</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>8084737782</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>TO</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Navy / Air Force Personal Property Entitlements/Counseling Office</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>4737782</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>TO</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES>Navy / Air Force Personal Property Entitlements/Counseling Office</PPSO_PHONE_NOTES>
+                </G_PPSO_PHONE_NOTES>
+              </LIST_G_PPSO_PHONE_NOTES>
+            </G_PPSO_PHONE_ORG_ID>
+          </LIST_G_PPSO_PHONE_ORG_ID>
+        </G_CNSL_INFO>
+      </LIST_G_CNSL_INFO>
+    </G_CNSL_ORG_ID>
+    <G_CNSL_ORG_ID>
+      <CNSL_ORG_ID1>12591</CNSL_ORG_ID1>
+      <LIST_G_CNSL_INFO>
+        <G_CNSL_INFO>
+          <CNSL_CTRY_NM>UNITED STATES</CNSL_CTRY_NM>
+          <CNSL_ST_DIV>ALASKA</CNSL_ST_DIV>
+          <CNSL_NAME>CG BASE Ketchikan</CNSL_NAME>
+          <CNSL_ADDR1>1300 Stedman St</CNSL_ADDR1>
+          <CNSL_ADDR2/>
+          <CNSL_CITY>KETCHIKAN</CNSL_CITY>
+          <CNSL_STATE>AK</CNSL_STATE>
+          <CNSL_ZIP>99901</CNSL_ZIP>
+          <CNSL_COUNTRY>US</CNSL_COUNTRY>
+          <PPSO_ORG_ID>263</PPSO_ORG_ID>
+          <PPSO_COUNTRY>US</PPSO_COUNTRY>
+          <PPSO_STATE>AK</PPSO_STATE>
+          <PPSO_ZIP>99901</PPSO_ZIP>
+          <PPSO_NAME>CG BASE KETCHIKAN, AK</PPSO_NAME>
+          <PPSO_CITY>KETCHIKAN</PPSO_CITY>
+          <PPSO_ADDR2>1300 STEDMAN STREET</PPSO_ADDR2>
+          <PPSO_ADDR1>BASE KETCHIKAN (TO)</PPSO_ADDR1>
+          <LIST_G_PPSO_EMAIL_ORG_ID>
+            <G_PPSO_EMAIL_ORG_ID>
+              <ORG_IDP>263</ORG_IDP>
+              <LIST_G_PPSO_EMAIL>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>Customer Service</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>D17-SMB-TRANS@USCG.MIL</EMAIL_ADDRESSP>
+                </G_ppso_email>
+              </LIST_G_PPSO_EMAIL>
+            </G_PPSO_EMAIL_ORG_ID>
+          </LIST_G_PPSO_EMAIL_ORG_ID>
+          <LIST_G_PPSO_PHONE_ORG_ID>
+            <G_PPSO_PHONE_ORG_ID>
+              <PPSO_ORG_ID2>263</PPSO_ORG_ID2>
+              <LIST_G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>9072286433</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>Customer Service</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES/>
+                </G_PPSO_PHONE_NOTES>
+              </LIST_G_PPSO_PHONE_NOTES>
+            </G_PPSO_PHONE_ORG_ID>
+          </LIST_G_PPSO_PHONE_ORG_ID>
+        </G_CNSL_INFO>
+      </LIST_G_CNSL_INFO>
+      <LIST_G_CNSL_EMAIL_ORG_ID>
+        <G_CNSL_EMAIL_ORG_ID>
+          <ORG_ID2>12591</ORG_ID2>
+          <LIST_G_CNSL_EMAIL>
+            <G_CNSL_EMAIL>
+              <EMAIL_TYPE>Email</EMAIL_TYPE>
+              <EMAIL_ADDRESS>D17-SMB-TRANS@uscg.mil</EMAIL_ADDRESS>
+            </G_CNSL_EMAIL>
+          </LIST_G_CNSL_EMAIL>
+        </G_CNSL_EMAIL_ORG_ID>
+      </LIST_G_CNSL_EMAIL_ORG_ID>
+      <LIST_G_CNSL_PHONE_ORG_ID>
+        <G_CNSL_PHONE_ORG_ID>
+          <CNSL_ORG_ID2>12591</CNSL_ORG_ID2>
+          <LIST_G_CNSL_PHONE_NOTES>
+            <G_CNSL_PHONE_NOTES>
+              <CNSL_VOICE_OR_FAX>V</CNSL_VOICE_OR_FAX>
+              <CNSL_DSN_NUM/>
+              <CNSL_AREA_CODE>1</CNSL_AREA_CODE>
+              <CNSL_PHONE_TYPE>TO</CNSL_PHONE_TYPE>
+              <CNSL_COMM_OR_DSN>C</CNSL_COMM_OR_DSN>
+              <CNSL_PHONE_NUM>9072286433</CNSL_PHONE_NUM>
+              <CNSL_PHONE_NOTES/>
+            </G_CNSL_PHONE_NOTES>
+            <G_CNSL_PHONE_NOTES>
+              <CNSL_VOICE_OR_FAX>V</CNSL_VOICE_OR_FAX>
+              <CNSL_DSN_NUM/>
+              <CNSL_AREA_CODE>1</CNSL_AREA_CODE>
+              <CNSL_PHONE_TYPE>TO</CNSL_PHONE_TYPE>
+              <CNSL_COMM_OR_DSN>C</CNSL_COMM_OR_DSN>
+              <CNSL_PHONE_NUM>9072286434</CNSL_PHONE_NUM>
+              <CNSL_PHONE_NOTES/>
+            </G_CNSL_PHONE_NOTES>
+            <G_CNSL_PHONE_NOTES>
+              <CNSL_VOICE_OR_FAX>F</CNSL_VOICE_OR_FAX>
+              <CNSL_DSN_NUM/>
+              <CNSL_AREA_CODE>1</CNSL_AREA_CODE>
+              <CNSL_PHONE_TYPE>TO</CNSL_PHONE_TYPE>
+              <CNSL_COMM_OR_DSN>C</CNSL_COMM_OR_DSN>
+              <CNSL_PHONE_NUM>9072280285</CNSL_PHONE_NUM>
+              <CNSL_PHONE_NOTES/>
+            </G_CNSL_PHONE_NOTES>
+          </LIST_G_CNSL_PHONE_NOTES>
+        </G_CNSL_PHONE_ORG_ID>
+      </LIST_G_CNSL_PHONE_ORG_ID>
+    </G_CNSL_ORG_ID>
+    <G_CNSL_ORG_ID>
+      <CNSL_ORG_ID1>12656</CNSL_ORG_ID1>
+      <LIST_G_CNSL_INFO>
+        <G_CNSL_INFO>
+          <CNSL_CTRY_NM>ITALY</CNSL_CTRY_NM>
+          <CNSL_ST_DIV>FRIULI-VENEZIA GIULIA</CNSL_ST_DIV>
+          <CNSL_NAME>PERSONAL PROPERTY/ UCFS</CNSL_NAME>
+          <CNSL_ADDR1>PERSONAL PROPERTY</CNSL_ADDR1>
+          <CNSL_ADDR2>ATTN LGRDF</CNSL_ADDR2>
+          <CNSL_CITY>AVIANO</CNSL_CITY>
+          <CNSL_STATE/>
+          <CNSL_ZIP>09604</CNSL_ZIP>
+          <CNSL_COUNTRY>IT</CNSL_COUNTRY>
+          <PPSO_ORG_ID>334</PPSO_ORG_ID>
+          <PPSO_COUNTRY>IT</PPSO_COUNTRY>
+          <PPSO_STATE/>
+          <PPSO_ZIP>09604</PPSO_ZIP>
+          <PPSO_NAME>31 FW, AVIANO AB, ITALY</PPSO_NAME>
+          <PPSO_CITY>AVIANO</PPSO_CITY>
+          <PPSO_ADDR2>31 FIGHTER WING UNIT 6109 PO BOX 120</PPSO_ADDR2>
+          <PPSO_ADDR1>ATTN LGRDDF</PPSO_ADDR1>
+          <LIST_G_PPSO_EMAIL_ORG_ID>
+            <G_PPSO_EMAIL_ORG_ID>
+              <ORG_IDP>334</ORG_IDP>
+              <LIST_G_PPSO_EMAIL>
+                <G_ppso_email>
+                  <EMAIL_TYPEP>TMO</EMAIL_TYPEP>
+                  <EMAIL_ADDRESSP>31lrs.tmo.qa@us.af.mil</EMAIL_ADDRESSP>
+                </G_ppso_email>
+              </LIST_G_PPSO_EMAIL>
+            </G_PPSO_EMAIL_ORG_ID>
+          </LIST_G_PPSO_EMAIL_ORG_ID>
+          <LIST_G_PPSO_PHONE_ORG_ID>
+            <G_PPSO_PHONE_ORG_ID>
+              <PPSO_ORG_ID2>334</PPSO_ORG_ID2>
+              <LIST_G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>0434306017</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>Customer Service</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES/>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>6326017</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>Customer Service</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES/>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>0434306017</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>Inbound</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES/>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>6326017</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>Inbound</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES/>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>0434306017</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>Outbound</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES/>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>6326017</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>Outbound</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES/>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>0434301709</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>QA</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES/>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>6321709</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>QA</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES/>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>0434301709</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>Shipment Support</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES/>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>6321709</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>Shipment Support</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES/>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM>0434306017</PPSO_PHONE_NUM>
+                  <PPSO_DSN_NUM/>
+                  <PPSO_PHONE_TYPE>TMO</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>C</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES/>
+                </G_PPSO_PHONE_NOTES>
+                <G_PPSO_PHONE_NOTES>
+                  <PPSO_VOICE_OR_FAX>V</PPSO_VOICE_OR_FAX>
+                  <PPSO_PHONE_NUM/>
+                  <PPSO_DSN_NUM>6326017</PPSO_DSN_NUM>
+                  <PPSO_PHONE_TYPE>TMO</PPSO_PHONE_TYPE>
+                  <PPSO_COMM_OR_DSN>D</PPSO_COMM_OR_DSN>
+                  <PPSO_PHONE_NOTES/>
+                </G_PPSO_PHONE_NOTES>
+              </LIST_G_PPSO_PHONE_NOTES>
+            </G_PPSO_PHONE_ORG_ID>
+          </LIST_G_PPSO_PHONE_ORG_ID>
+        </G_CNSL_INFO>
+      </LIST_G_CNSL_INFO>
+      <LIST_G_CNSL_EMAIL_ORG_ID>
+        <G_CNSL_EMAIL_ORG_ID>
+          <ORG_ID2>12656</ORG_ID2>
+          <LIST_G_CNSL_EMAIL>
+            <G_CNSL_EMAIL>
+              <EMAIL_TYPE>TMO</EMAIL_TYPE>
+              <EMAIL_ADDRESS>31lrs.lgrdf@aviano.af.mil</EMAIL_ADDRESS>
+            </G_CNSL_EMAIL>
+          </LIST_G_CNSL_EMAIL>
+        </G_CNSL_EMAIL_ORG_ID>
+      </LIST_G_CNSL_EMAIL_ORG_ID>
+      <LIST_G_CNSL_PHONE_ORG_ID>
+        <G_CNSL_PHONE_ORG_ID>
+          <CNSL_ORG_ID2>12656</CNSL_ORG_ID2>
+          <LIST_G_CNSL_PHONE_NOTES>
+            <G_CNSL_PHONE_NOTES>
+              <CNSL_VOICE_OR_FAX>F</CNSL_VOICE_OR_FAX>
+              <CNSL_DSN_NUM>6325059</CNSL_DSN_NUM>
+              <CNSL_AREA_CODE/>
+              <CNSL_PHONE_TYPE>TMO</CNSL_PHONE_TYPE>
+              <CNSL_COMM_OR_DSN>D</CNSL_COMM_OR_DSN>
+              <CNSL_PHONE_NUM/>
+              <CNSL_PHONE_NOTES/>
+            </G_CNSL_PHONE_NOTES>
+            <G_CNSL_PHONE_NOTES>
+              <CNSL_VOICE_OR_FAX>V</CNSL_VOICE_OR_FAX>
+              <CNSL_DSN_NUM>6326025</CNSL_DSN_NUM>
+              <CNSL_AREA_CODE/>
+              <CNSL_PHONE_TYPE>TMO</CNSL_PHONE_TYPE>
+              <CNSL_COMM_OR_DSN>D</CNSL_COMM_OR_DSN>
+              <CNSL_PHONE_NUM/>
+              <CNSL_PHONE_NOTES/>
+            </G_CNSL_PHONE_NOTES>
+          </LIST_G_CNSL_PHONE_NOTES>
+        </G_CNSL_PHONE_ORG_ID>
+      </LIST_G_CNSL_PHONE_ORG_ID>
+    </G_CNSL_ORG_ID>
+  </LIST_G_CNSL_ORG_ID>
+</CONTACT_INFO_INITIAL_SITES_R2NEW>
