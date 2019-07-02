@@ -4,7 +4,6 @@ import ReactTable from 'react-table';
 import { connect } from 'react-redux';
 import { capitalize } from 'lodash';
 import 'react-table/react-table.css';
-import { RetrieveShipmentsForTSP } from './api.js';
 import { formatDate, formatDateTimeWithTZ, formatTimeAgo } from 'shared/formatters';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
@@ -56,7 +55,7 @@ class QueueTable extends Component {
 
     // Catch any errors here and render an empty queue
     try {
-      const body = await RetrieveShipmentsForTSP(this.props.queueType);
+      const body = await this.props.retrieveShipments(this.props.queueType);
 
       // Only update the queue list if the request that is returning
       // is for the same queue as the most recent request.
@@ -198,6 +197,8 @@ class QueueTable extends Component {
   }
 }
 
-const mapStateToProps = state => ({});
+const mapStateToProps = (state, ownProps) => ({
+  retrieveShipments: ownProps.retrieveShipments,
+});
 
 export default withRouter(connect(mapStateToProps)(QueueTable));

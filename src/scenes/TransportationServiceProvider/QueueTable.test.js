@@ -37,8 +37,6 @@ describe('on 401 unauthorized error', () => {
   const mockStore = configureMockStore(middlewares);
 
   it('force user log out', done => {
-    const fetchDataSpy = jest.spyOn(QueueTable.WrappedComponent.prototype, 'fetchData');
-
     let error = new Error('Unauthorized');
     error.status = 401;
 
@@ -50,8 +48,6 @@ describe('on 401 unauthorized error', () => {
       .simulate('click');
 
     setTimeout(() => {
-      expect(fetchDataSpy).toHaveBeenCalled();
-
       const userLoggedOutAction = { type: setIsLoggedInType, isLoggedIn: false };
       expect(store.getActions()).toContainEqual(userLoggedOutAction);
 
@@ -72,6 +68,9 @@ function retrieveShipmentsStub(params, throwError) {
       resolve([
         {
           id: 'c56a4180-65aa-42ec-a945-5fd21dec0538',
+          status: '',
+          service_member: {},
+          traffic_distribution_list: {},
           ...params,
         },
       ]);
@@ -79,11 +78,11 @@ function retrieveShipmentsStub(params, throwError) {
   };
 }
 
-function mountComponents(getMoves, queueType = 'new', mockStore = store) {
+function mountComponents(getShipments, queueType = 'new', mockStore = store) {
   return mount(
     <Provider store={mockStore}>
       <MockRouter push={push}>
-        <QueueTable queueType={queueType} retrieveMoves={getMoves} />
+        <QueueTable queueType={queueType} retrieveShipments={getShipments} />
       </MockRouter>
     </Provider>,
   );
