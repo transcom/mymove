@@ -167,9 +167,6 @@ class ShipmentInfo extends Component {
   constructor(props) {
     super(props);
     this.assignTspServiceAgent = React.createRef();
-    this.state = {
-      shipment: {},
-    };
   }
   state = {
     redirectToHome: false,
