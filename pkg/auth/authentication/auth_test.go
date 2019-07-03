@@ -7,7 +7,6 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"strconv"
-	"strings"
 	"testing"
 
 	"github.com/honeycombio/beeline-go/trace"
@@ -392,17 +391,6 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 	}
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback", OfficeTestHost), nil)
-	// login.gov state cookie
-	appnames := ApplicationTestServername()
-	appName, _ := auth.ApplicationName(req.Host, appnames)
-	cookieName := fmt.Sprintf("%s_%s", strings.ToLower(string(appName)), "lg_state")
-	cookie := http.Cookie{
-		Name:    cookieName,
-		Value:   "some mis-matched hash value",
-		Path:    "/",
-		Expires: auth.GetExpiryTimeFromMinutes(auth.SessionExpiryInMinutes),
-	}
-	req.AddCookie(&cookie)
 
 	fakeToken := "some_token"
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
@@ -412,6 +400,16 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 		IDToken:         fakeToken,
 		Hostname:        OfficeTestHost,
 	}
+	// login.gov state cookie
+	cookieName := StateCookieName(&session)
+	cookie := http.Cookie{
+		Name:    cookieName,
+		Value:   "some mis-matched hash value",
+		Path:    "/",
+		Expires: auth.GetExpiryTimeFromMinutes(auth.SessionExpiryInMinutes),
+	}
+	req.AddCookie(&cookie)
+
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	callbackPort := 1234
 	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
