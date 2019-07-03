@@ -200,33 +200,6 @@ class ShipmentInfo extends Component {
     this.props.resetRequests();
   }
 
-  componentDidUpdate(prevState) {
-    const { storageInTransits, shipment } = this.props;
-
-    storageInTransits.map(storageInTransit => {
-      prevState.storageInTransits.map(prevSit => {
-        if (prevSit.id === storageInTransit.id && prevSit.out_date !== storageInTransit.out_date) {
-          this.setState({
-            shipment: {
-              ...shipment,
-              actual_delivery_date: storageInTransit.out_date,
-            },
-          });
-        }
-        return null;
-      });
-      return null;
-    });
-
-    if (shipment.actual_delivery_date !== prevState.shipment.actual_delivery_date) {
-      this.setState({
-        shipment: {
-          ...shipment,
-        },
-      });
-    }
-  }
-
   acceptShipment = () => {
     return this.props.acceptShipment(this.props.shipment.id);
   };
@@ -450,7 +423,7 @@ class ShipmentInfo extends Component {
               )}
               {this.props.loadTspDependenciesHasSuccess && (
                 <div className="office-tab">
-                  <Dates title="Dates" shipment={this.state.shipment} update={this.props.updatePublicShipment} />
+                  <Dates title="Dates" shipment={this.props.shipment} update={this.props.updatePublicShipment} />
                   <Weights
                     title="Weights & Items"
                     shipment={this.props.shipment}

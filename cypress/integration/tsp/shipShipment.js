@@ -257,13 +257,9 @@ function tspUserDeliversShipment() {
   cy
     .get('div')
     .contains('Actual Delivery Date')
-    .get('input')
-    .click();
-
-  cy
-    .get('div')
-    .contains('14')
-    .click();
+    .get('input[name="actual_delivery_date"]')
+    .type('10/19/2018')
+    .blur();
 
   cy
     .get('button')
