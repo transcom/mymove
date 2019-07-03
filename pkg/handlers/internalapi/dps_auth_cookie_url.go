@@ -9,7 +9,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/dps_auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -40,7 +39,7 @@ func (h DPSAuthGetCookieURLHandler) Handle(params dps_auth.GetCookieURLParams) m
 	// launch this feature, all service members should be able to access this endpoint.
 	// Important: Only DPS users should ever be allowed to set parameters though (for testing).
 	// Service members should never be allowed to set params and only be allowed to use the default params.
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	if !session.IsDpsUser() {
 		return dps_auth.NewGetCookieURLForbidden()
 	}
@@ -48,7 +47,7 @@ func (h DPSAuthGetCookieURLHandler) Handle(params dps_auth.GetCookieURLParams) m
 	dpsParams := h.DPSAuthParams()
 	url, err := url.Parse(fmt.Sprintf("%s://%s:%d%s", dpsParams.SDDCProtocol, dpsParams.SDDCHostname, dpsParams.SDDCPort, dpsauth.SetCookiePath))
 	if err != nil {
-		h.Logger().Error("Parsing cookie URL", zap.Error(err))
+		logger.Error("Parsing cookie URL", zap.Error(err))
 		return dps_auth.NewGetCookieURLInternalServerError()
 	}
 
@@ -56,9 +55,9 @@ func (h DPSAuthGetCookieURLHandler) Handle(params dps_auth.GetCookieURLParams) m
 	if err != nil {
 		switch e := err.(type) {
 		case *errUserMissing:
-			h.Logger().Error("Generating token for cookie URL", zap.Error(err), zap.String("user", e.userID.String()))
+			logger.Error("Generating token for cookie URL", zap.Error(err), zap.String("user", e.userID.String()))
 		default:
-			h.Logger().Error("Generating token for cookie URL", zap.Error(err))
+			logger.Error("Generating token for cookie URL", zap.Error(err))
 		}
 
 		return dps_auth.NewGetCookieURLInternalServerError()
@@ -84,7 +83,7 @@ func (h DPSAuthGetCookieURLHandler) generateToken(params dps_auth.GetCookieURLPa
 		dpsRedirectURL = *params.DpsRedirectURL
 	}
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := h.SessionFromRequest(params.HTTPRequest)
 	user, err := models.GetUser(h.DB(), session.UserID)
 	if err != nil {
 		return "", &errUserMissing{userID: session.UserID}

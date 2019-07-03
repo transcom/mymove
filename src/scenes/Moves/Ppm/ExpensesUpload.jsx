@@ -25,7 +25,7 @@ import {
 import Alert from 'shared/Alert';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { withContext } from 'shared/AppContext';
-import DocumentsUploaded from './DocumentsUploaded';
+import DocumentsUploaded from './PaymentReview/DocumentsUploaded';
 
 const nextPagePath = '/ppm-payment-review';
 const nextBtnLabels = {
@@ -185,7 +185,9 @@ class ExpensesUpload extends Component {
             </ProgressTimeline>
           }
         />
-        <DocumentsUploaded moveId={moveId} />
+        <div className="usa-grid">
+          <DocumentsUploaded moveId={moveId} />
+        </div>
 
         <div className="usa-grid expenses-container">
           <h3 className="expenses-header">Expense {expenseNumber}</h3>
@@ -252,6 +254,16 @@ class ExpensesUpload extends Component {
                   onChange={this.handleCheckboxChange}
                   normalizeLabel
                 />
+                {isStorageExpense &&
+                  missingReceipt && (
+                    <span data-cy="storage-warning">
+                      <Alert type="warning">
+                        If you can, go online and print a new copy of your receipt, then upload it. <br />Otherwise,
+                        write and sign a statement that explains why this receipt is missing, then upload it. Finance
+                        will approve or reject this expense based on your information.
+                      </Alert>
+                    </span>
+                  )}
                 <div className="payment-method-radio-group-wrapper">
                   <p className="radio-group-header">How did you pay for this?</p>
                   <RadioButton

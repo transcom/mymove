@@ -8,7 +8,6 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -26,7 +25,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	if !session.IsServiceMember() {
 		userPayload := internalmessages.LoggedInUserPayload{
@@ -39,7 +38,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	// Load Servicemember and first level associations
 	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, session.ServiceMemberID)
 	if err != nil {
-		h.Logger().Error("Error retrieving service_member", zap.Error(err))
+		logger.Error("Error retrieving service_member", zap.Error(err))
 		return userop.NewShowLoggedInUserUnauthorized()
 	}
 
@@ -48,7 +47,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		// Fetch associations on duty station
 		dutyStation, err := models.FetchDutyStation(ctx, h.DB(), *serviceMember.DutyStationID)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return handlers.ResponseForError(logger, err)
 		}
 		serviceMember.DutyStation = dutyStation
 
@@ -57,11 +56,11 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		if err != nil {
 			if errors.Cause(err) != models.ErrFetchNotFound {
 				// The absence of an office shouldn't render the entire request a 404
-				return handlers.ResponseForError(h.Logger(), err)
+				return handlers.ResponseForError(logger, err)
 			}
 			// We might not have Transportation Office data for a Duty Station, and that's ok
 			if errors.Cause(err) != models.ErrFetchNotFound {
-				return handlers.ResponseForError(h.Logger(), err)
+				return handlers.ResponseForError(logger, err)
 			}
 		}
 		serviceMember.DutyStation.TransportationOffice = transportationOffice
@@ -71,7 +70,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	if len(serviceMember.Orders) > 0 {
 		orders, err := models.FetchOrderForUser(h.DB(), session, serviceMember.Orders[0].ID)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return handlers.ResponseForError(logger, err)
 		}
 		serviceMember.Orders[0] = orders
 
@@ -79,11 +78,11 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		if err != nil {
 			if errors.Cause(err) != models.ErrFetchNotFound {
 				// The absence of an office shouldn't render the entire request a 404
-				return handlers.ResponseForError(h.Logger(), err)
+				return handlers.ResponseForError(logger, err)
 			}
 			// We might not have Transportation Office data for a Duty Station, and that's ok
 			if errors.Cause(err) != models.ErrFetchNotFound {
-				return handlers.ResponseForError(h.Logger(), err)
+				return handlers.ResponseForError(logger, err)
 			}
 		}
 		serviceMember.Orders[0].NewDutyStation.TransportationOffice = newDutyStationTransportationOffice
@@ -94,7 +93,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				// TODO: load advances on all ppms for the latest order's move
 				ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].ID)
 				if err != nil {
-					return handlers.ResponseForError(h.Logger(), err)
+					return handlers.ResponseForError(logger, err)
 				}
 				serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves[0].Advance = ppm.Advance
 			}

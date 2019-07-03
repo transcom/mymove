@@ -2,15 +2,18 @@ package handlers
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/iws"
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/logging/hnyzap"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
@@ -21,7 +24,12 @@ import (
 // HandlerContext provides access to all the contextual references needed by individual handlers
 type HandlerContext interface {
 	DB() *pop.Connection
-	Logger() Logger
+	SessionAndLoggerFromContext(ctx context.Context) (*auth.Session, Logger)
+	SessionAndLoggerFromRequest(r *http.Request) (*auth.Session, Logger)
+	SessionFromRequest(r *http.Request) *auth.Session
+	SessionFromContext(ctx context.Context) *auth.Session
+	LoggerFromContext(ctx context.Context) Logger
+	LoggerFromRequest(r *http.Request) Logger
 	HoneyZapLogger() *hnyzap.Logger
 	FileStorer() storage.FileStorer
 	SetFileStorer(storer storage.FileStorer)
@@ -75,14 +83,36 @@ func NewHandlerContext(db *pop.Connection, logger Logger) HandlerContext {
 	}
 }
 
+func (hctx *handlerContext) SessionAndLoggerFromRequest(r *http.Request) (*auth.Session, Logger) {
+	return hctx.SessionAndLoggerFromContext(r.Context())
+}
+
+func (hctx *handlerContext) SessionAndLoggerFromContext(ctx context.Context) (*auth.Session, Logger) {
+	return auth.SessionFromContext(ctx), hctx.LoggerFromContext(ctx)
+}
+
+func (hctx *handlerContext) SessionFromRequest(r *http.Request) *auth.Session {
+	return auth.SessionFromContext(r.Context())
+}
+
+func (hctx *handlerContext) SessionFromContext(ctx context.Context) *auth.Session {
+	return auth.SessionFromContext(ctx)
+}
+
+func (hctx *handlerContext) LoggerFromRequest(r *http.Request) Logger {
+	return hctx.LoggerFromContext(r.Context())
+}
+
+func (hctx *handlerContext) LoggerFromContext(ctx context.Context) Logger {
+	if logger, ok := logging.FromContext(ctx).(Logger); ok {
+		return logger
+	}
+	return hctx.logger
+}
+
 // DB returns a POP db connection for the context
 func (hctx *handlerContext) DB() *pop.Connection {
 	return hctx.db
-}
-
-// Logger returns the logger to use in this context
-func (hctx *handlerContext) Logger() Logger {
-	return hctx.logger
 }
 
 // HoneyZapLogger returns the logger capable of writing to Honeycomb to use in this context
@@ -96,13 +126,13 @@ func (hctx *handlerContext) HoneyZapLogger() *hnyzap.Logger {
 // RespondAndTraceError uses Honeycomb to trace errors and then passes response to the standard ResponseForError
 func (hctx *handlerContext) RespondAndTraceError(ctx context.Context, err error, msg string, fields ...zap.Field) middleware.Responder {
 	hctx.HoneyZapLogger().TraceError(ctx, msg, fields...)
-	return ResponseForError(hctx.Logger(), err)
+	return ResponseForError(hctx.LoggerFromContext(ctx), err)
 }
 
 // RespondAndTraceVErrors uses Honeycomb to trace errors and then passes response to the standard ResponseForVErrors
 func (hctx *handlerContext) RespondAndTraceVErrors(ctx context.Context, verrs *validate.Errors, err error, msg string, fields ...zap.Field) middleware.Responder {
 	hctx.HoneyZapLogger().TraceError(ctx, msg, fields...)
-	return ResponseForVErrors(hctx.Logger(), verrs, err)
+	return ResponseForVErrors(hctx.LoggerFromContext(ctx), verrs, err)
 }
 
 // FileStorer returns the storage to use in the current context

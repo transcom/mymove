@@ -57,6 +57,7 @@ const (
 	flagGitBranch              string = "git-branch"
 	flagGitCommit              string = "git-commit"
 	flagPageSize               string = "page-size"
+	flagTasks                  string = "tasks"
 	flagLimit                  string = "limit"
 	flagStatus                 string = "status"
 	flagVerbose                string = "verbose"
@@ -71,7 +72,7 @@ const (
 )
 
 var environments = []string{"prod", "staging", "experimental"}
-var ecsTaskStatuses = []string{"RUNNING", "STOPPED"}
+var ecsTaskStatuses = []string{"RUNNING", "STOPPED", "ALL"}
 var logLevels = []string{"debug", "info", "warn", "error", "panic", "fatal"}
 
 func parseTaskID(taskArn string) string {
@@ -162,7 +163,7 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.StringP(flagCluster, "c", "", "The cluster name")
 	flag.StringP(flagEnvironment, "e", "", "The environment name")
 	flag.StringP(flagService, "s", "", "The service name")
-	flag.String(flagStatus, "", "The task status: "+strings.Join(ecsTaskStatuses, ", "))
+	flag.String(flagStatus, "ALL", "The task status: "+strings.Join(ecsTaskStatuses, ", "))
 	flag.StringP(flagLogLevel, "l", "", "The log level: "+strings.Join(logLevels, ", "))
 	flag.StringP(flagGitBranch, "b", "", "The git branch")
 	flag.String(flagGitCommit, "", "The git commit")
@@ -170,15 +171,11 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.StringP(flagTaskDefinitionRevision, "r", "", "The ECS task definition revision.")
 	flag.IntP(flagPageSize, "p", -1, "The page size or maximum number of log events to return during each API call.  The default is 10,000 log events.")
 	flag.IntP(flagLimit, "n", -1, "If 1 or above, the maximum number of log events to print to stdout.")
+	flag.IntP(flagTasks, "t", 10, "If 1 or above, the maximum number of log streams (aka tasks) to print to stdout.")
 	flag.BoolP(flagVerbose, "v", false, "Print section lines")
 }
 
 func checkConfig(v *viper.Viper) error {
-	clusterName := v.GetString("cluster")
-
-	if len(clusterName) == 0 {
-		return &errInvalidCluster{Cluster: clusterName}
-	}
 
 	if awsVaultProfile := v.GetString(flagAWSVaultProfile); len(awsVaultProfile) > 0 {
 		sessionToken := v.GetString(flagAWSSessionToken)
@@ -217,39 +214,47 @@ func checkConfig(v *viper.Viper) error {
 	}
 
 	status := strings.ToUpper(v.GetString(flagStatus))
-	if len(status) > 0 {
+	if len(status) == 0 {
+		return errors.Wrap(&errInvalidTaskStatus{Status: status}, "status is required")
+	}
 
+	valid := false
+	for _, str := range ecsTaskStatuses {
+		if status == str {
+			valid = true
+			break
+		}
+	}
+
+	if !valid {
+		return errors.Wrap(&errInvalidTaskStatus{Status: status}, fmt.Sprintf("%q is invalid", flagStatus))
+	}
+
+	if status == "RUNNING" || status == "STOPPED" {
+		clusterName := v.GetString("cluster")
+		if len(clusterName) == 0 {
+			return &errInvalidCluster{Cluster: clusterName}
+		}
+	}
+
+	if status == "STOPPED" || status == "ALL" {
+		environment := v.GetString(flagEnvironment)
+		if len(environment) == 0 {
+			return errors.New("when status is set to STOPPED then environment must be set")
+		}
 		valid := false
-		for _, str := range ecsTaskStatuses {
-			if status == str {
+		for _, str := range environments {
+			if environment == str {
 				valid = true
 				break
 			}
 		}
-
 		if !valid {
-			return errors.Wrap(&errInvalidTaskStatus{Status: status}, fmt.Sprintf("%q is invalid", flagStatus))
+			return errors.Wrap(&errInvalidEnvironment{Environment: environment}, fmt.Sprintf("%q is invalid", flagEnvironment))
 		}
 
-		if status == "STOPPED" {
-			environment := v.GetString(flagEnvironment)
-			if len(environment) == 0 {
-				return errors.New("when status is set to STOPPED then environment must be set")
-			}
-			valid := false
-			for _, str := range environments {
-				if environment == str {
-					valid = true
-					break
-				}
-			}
-			if !valid {
-				return errors.Wrap(&errInvalidEnvironment{Environment: environment}, fmt.Sprintf("%q is invalid", flagEnvironment))
-			}
-
-			if serviceName := v.GetString(flagService); len(serviceName) == 0 {
-				return &errInvalidService{Service: serviceName}
-			}
+		if serviceName := v.GetString(flagService); len(serviceName) == 0 {
+			return &errInvalidService{Service: serviceName}
 		}
 	}
 
@@ -345,6 +350,12 @@ func main() {
 
 func showFunction(cmd *cobra.Command, args []string) error {
 
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println(r)
+		}
+	}()
+
 	err := cmd.ParseFlags(args)
 	if err != nil {
 		return err
@@ -416,6 +427,7 @@ func showFunction(cmd *cobra.Command, args []string) error {
 
 	jobs := make([]Job, 0)
 
+	maxTasks := v.GetInt(flagTasks)
 	if status == "STOPPED" {
 		stoppedTaskIds := make([]string, 0)
 		describeServicesInput := &ecs.DescribeServicesInput{
@@ -462,7 +474,7 @@ func showFunction(cmd *cobra.Command, args []string) error {
 			jobs = append(jobs, job)
 		}
 
-	} else {
+	} else if status == "RUNNING" {
 		taskArns := make([]*string, 0)
 		var nextToken *string
 		for {
@@ -563,59 +575,134 @@ func showFunction(cmd *cobra.Command, args []string) error {
 			}
 
 		}
+	} else {
+
+		logGroupName := fmt.Sprintf("ecs-tasks-%s-%s", serviceName, environment)
+		logStreamPrefix := fmt.Sprintf("app/%s-%s/", serviceName, environment)
+
+		var nextToken *string
+		for {
+			describeLogStreamsInput := &cloudwatchlogs.DescribeLogStreamsInput{
+				LogGroupName: aws.String(logGroupName),
+				OrderBy:      aws.String("LastEventTime"),
+				Descending:   aws.Bool(true),
+				NextToken:    nextToken,
+			}
+			describeLogStreamsOutput, err := serviceCloudWatchLogs.DescribeLogStreams(describeLogStreamsInput)
+			if err != nil {
+				return errors.Wrap(err, "error describing log streams")
+			}
+
+			for _, logStream := range describeLogStreamsOutput.LogStreams {
+				logStreamName := aws.StringValue(logStream.LogStreamName)
+				if strings.HasPrefix(logStreamName, logStreamPrefix) {
+					job := Job{
+						TaskID:        logStreamName[len(logStreamPrefix):],
+						LogGroupName:  logGroupName,
+						LogStreamName: logStreamName,
+						Limit:         -1,
+					}
+					if pageSize > 0 {
+						job.Limit = pageSize
+					}
+					jobs = append(jobs, job)
+					// break the pagination loop
+					if (maxTasks > 0) && (len(jobs) == maxTasks) {
+						break
+					}
+				}
+			}
+
+			// break the pagination loop
+			if (maxTasks > 0) && (len(jobs) == maxTasks) {
+				break
+			}
+
+			// if there are no more events
+			if describeLogStreamsOutput.NextToken == nil {
+				break
+			}
+
+			nextToken = describeLogStreamsOutput.NextToken
+		}
 	}
 
-	filters := map[string]string{}
+	equalFilters := map[string]string{}
 
 	if gitBranch := v.GetString(flagGitBranch); len(gitBranch) > 0 {
-		filters[logGitBranch] = gitBranch
+		equalFilters[logGitBranch] = gitBranch
 	}
 
 	if gitCommit := v.GetString(flagGitCommit); len(gitCommit) > 0 {
-		filters[logGitCommit] = gitCommit
+		equalFilters[logGitCommit] = gitCommit
 	}
 
 	if family := v.GetString(flagTaskDefinitionFamily); len(family) > 0 {
-		filters[logTaskDefinitionFamily] = family
+		equalFilters[logTaskDefinitionFamily] = family
 	}
 
 	if revision := v.GetString(flagTaskDefinitionRevision); len(revision) > 0 {
-		filters[logTaskDefinitionRevision] = revision
+		equalFilters[logTaskDefinitionRevision] = revision
 	}
 
 	if level := strings.ToLower(v.GetString(flagLogLevel)); len(level) > 0 {
-		filters[filterLogLevel] = level
+		equalFilters[filterLogLevel] = level
 	}
 
 	inverseFilters := make([][]string, 0)
+
+	numericComparisonfilters := map[string][][]string{
+		"<=": make([][]string, 0),
+		">=": make([][]string, 0),
+		">":  make([][]string, 0),
+		"<":  make([][]string, 0),
+	}
 
 	// Adds command line arguments as custom filters.
 	// For example: ecs-show-service-logs show [FLAGS] trace=XYZ
 	if len(args) > 0 {
 		for _, arg := range args {
-			if strings.Contains(arg, "!=") {
-				parts := strings.SplitN(arg, "!=", 2)
-				if len(parts) == 2 {
-					inverseFilters = append(inverseFilters, parts)
-				}
-			} else {
-				parts := strings.SplitN(arg, "=", 2)
-				if len(parts) == 2 {
-					filters[parts[0]] = parts[1]
+			for i := 1; i < len(arg); i++ {
+				if arg[i] == '!' {
+					if arg[i+1] == '=' {
+						inverseFilters = append(inverseFilters, []string{arg[0:i], arg[i+2:]})
+						break
+					}
+				} else if arg[i] == '=' {
+					equalFilters[arg[0:i]] = arg[i+1:]
+					break
+				} else if arg[i] == '<' || arg[i] == '>' {
+					if arg[i+1] == '=' {
+						numericComparisonfilters[arg[i:i+2]] = append(numericComparisonfilters[arg[i:i+2]], []string{arg[0:i], arg[i+2:]})
+						break
+					} else {
+						numericComparisonfilters[arg[i:i+1]] = append(numericComparisonfilters[arg[i:i+1]], []string{arg[0:i], arg[i+1:]})
+						break
+					}
 				}
 			}
 		}
 	}
 
 	filterParts := make([]string, 0)
-	if len(filters) > 0 {
-		for k, v := range filters {
+
+	if len(equalFilters) > 0 {
+		for k, v := range equalFilters {
 			filterParts = append(filterParts, fmt.Sprintf("($.%s = %q)", k, v))
 		}
 	}
+
 	if len(inverseFilters) > 0 {
 		for _, v := range inverseFilters {
 			filterParts = append(filterParts, fmt.Sprintf("($.%s NOT EXISTS || $.%s != %q)", v[0], v[0], v[1]))
+		}
+	}
+
+	for op, values := range numericComparisonfilters {
+		if len(values) > 0 {
+			for _, v := range values {
+				filterParts = append(filterParts, fmt.Sprintf("($.%s %s %s)", v[0], op, v[1]))
+			}
 		}
 	}
 

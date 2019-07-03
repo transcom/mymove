@@ -15,7 +15,6 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/honeycombio/beeline-go"
 
-	"github.com/transcom/mymove/pkg/auth"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -75,17 +74,19 @@ type CreateWeightTicketSetDocumentHandler struct {
 
 // Handle is the handler for CreateWeightTicketSetDocumentHandler
 func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeightTicketDocumentParams) middleware.Responder {
+
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	payload := params.CreateWeightTicketDocument
@@ -95,7 +96,7 @@ func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeig
 		converted := uuid.Must(uuid.FromString(id.String()))
 		upload, fetchUploadErr := models.FetchUpload(ctx, h.DB(), session, converted)
 		if fetchUploadErr != nil {
-			return handlers.ResponseForError(h.Logger(), fetchUploadErr)
+			return handlers.ResponseForError(logger, fetchUploadErr)
 		}
 		uploads = append(uploads, upload)
 	}
@@ -105,7 +106,7 @@ func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeig
 	// Enforce that the ppm's move_id matches our move
 	ppm, fetchPPMErr := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
 	if fetchPPMErr != nil {
-		return handlers.ResponseForError(h.Logger(), fetchPPMErr)
+		return handlers.ResponseForError(logger, fetchPPMErr)
 	}
 	if ppm.MoveID != moveID {
 		return movedocop.NewCreateWeightTicketDocumentBadRequest()
@@ -144,12 +145,12 @@ func (h CreateWeightTicketSetDocumentHandler) Handle(params movedocop.CreateWeig
 	)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	newPayload, err := payloadForWeightTicketSetMoveDocumentModel(h.FileStorer(), *newWeightTicketSetDocument)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return movedocop.NewCreateWeightTicketDocumentOK().WithPayload(newPayload)
 }

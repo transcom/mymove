@@ -11,7 +11,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -87,7 +86,7 @@ func sortQueueItemsByLastModifiedDate(moveQueueItems []models.MoveQueueItem) {
 
 // Handle retrieves a list of all MoveQueueItems in the system in the moves queue
 func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	if !session.IsOfficeUser() {
 		return queueop.NewShowQueueForbidden()
@@ -97,8 +96,8 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 
 	MoveQueueItems, err := models.GetMoveQueueItems(h.DB(), lifecycleState)
 	if err != nil {
-		h.Logger().Error("Loading Queue", zap.String("State", lifecycleState), zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		logger.Error("Loading Queue", zap.String("State", lifecycleState), zap.Error(err))
+		return handlers.ResponseForError(logger, err)
 	}
 
 	// Sorting the slice by LastModifiedDate so that the API results follow suit.
@@ -111,8 +110,8 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 			err := json.Unmarshal([]byte(MoveQueueItem.SitArray), &sits)
 
 			if err != nil {
-				h.Logger().Error("Unmarshalling SITs", zap.Error(err))
-				return handlers.ResponseForError(h.Logger(), err)
+				logger.Error("Unmarshalling SITs", zap.Error(err))
+				return handlers.ResponseForError(logger, err)
 			}
 		}
 

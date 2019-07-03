@@ -29,9 +29,9 @@ Flags:
   -n, --limit int                        If 1 or above, the maximum number of log events to print to stdout. (default -1)
   -p, --page-size int                    The page size or maximum number of log events to return during each API call.  The default is 10,000 log events. (default -1)
   -s, --service string                   The service name
-      --status string                    The task status: RUNNING, STOPPED
+      --status string                    The task status: RUNNING, STOPPED, ALL (default "ALL")
+  -t, --tasks int                        If 1 or above, the maximum number of log streams (aka tasks) to print to stdout. (default 10)
   -v, --verbose                          Print section lines
-
 ```
 
 ## Examples
@@ -39,17 +39,29 @@ Flags:
 Search for a client IP Address.
 
 ```shell
-ecs-service-logs show -c app-staging -s app -e staging --status RUNNING x-forwarded-for=*1.2.3.4
+ecs-service-logs show -s app -e staging x-forwarded-for=*1.2.3.4
+```
+
+Search for a client IP Address in only running tasks.
+
+```shell
+ecs-service-logs show --status RUNNING -c app-staging -s app x-forwarded-for=*1.2.3.4
 ```
 
 Search for requests in a given environment, but not health checks (url is defined but does not start with /health).
 
 ```shell
-ecs-service-logs show -c app-staging -s app -e staging --status STOPPED url=* url!=/health*
+ecs-service-logs show -s app -e staging url=* url!=/health*
 ```
 
 Filter by url is defined and git commit.
 
 ```shell
-ecs-service-logs show -c app-experimental -s app --status STOPPED -e experimental url=* git_commit=asdfnh98nwuefr9a8jf
+ecs-service-logs show -s app -e experimental url=* git_commit=asdfnh98nwuefr9a8jf
+```
+
+Filter by url is defined and the number of headers is greater than 14.
+
+```shell
+ecs-service-logs show -s app -e experimental url=* "headers>14"
 ```
