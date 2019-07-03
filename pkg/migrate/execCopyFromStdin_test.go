@@ -41,7 +41,7 @@ func (suite *MigrateSuite) TestExecCopyFromStdin() {
 
 	suite.DB().Transaction(func(tx *pop.Connection) error {
 		i := 572
-		wait := 30 * time.Second
+		wait := 30 * time.Millisecond
 		lineNum, err := execCopyFromStdin(in, i, tableName, columns, tx, wait)
 		suite.Nil(err)
 		suite.NotNil(lineNum)
