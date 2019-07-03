@@ -22,11 +22,16 @@ func untilNewLine(in *Buffer, i int, wait time.Duration) (int, string, error) {
 				return i, line.String(), errors.Wrap(err, "received unknown error ")
 			}
 		}
-		if c == '\n' {
+		b := false
+		switch c {
+		case '\n':
+			b = true
+		}
+		if b {
 			break
 		}
-		line.WriteByte(c)
 		i++
+		line.WriteByte(c)
 	}
 	return i, line.String(), nil
 }
