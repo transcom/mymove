@@ -113,7 +113,7 @@ export const PPMAlert = props => {
           Get certified <strong>weight tickets</strong>, both empty &amp; full
         </li>
         <li>
-          Save <strong>expense receipts</strong>, including for storgage
+          Save <strong>expense receipts</strong>, including for storage
         </li>
         <li>
           Read the{' '}
