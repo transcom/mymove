@@ -1,8 +1,7 @@
 FROM alpine:3.7
 
 COPY bin_linux/milmove /bin/milmove
-RUN mkdir -p /scripts
-COPY scripts/apply-secure-migration.sh /scripts
+
 COPY bin_linux/generate-test-data /bin/generate-test-data
 
 COPY migrations /migrate/migrations
@@ -11,12 +10,10 @@ COPY local_migrations /migrate/local
 RUN mkdir -p /bin/pkg/testdatagen/testdata/
 COPY pkg/testdatagen/testdata/test.pdf /bin/pkg/testdatagen/testdata/test.pdf
 
-ENV GO_ENV=test
-ENV SECURE_MIGRATION_SOURCE=local
-ENV SECURE_MIGRATION_DIR=/migrate/local
-
-# Install tools needed in container
+# psql (aka postgresql-client) is required to run `TRUNCATE users CASCADE;` to reset local database
 RUN apk update
 RUN apk add postgresql-client bash --no-cache
 
-WORKDIR /scripts
+WORKDIR /
+
+ENTRYPOINT ["/bin/milmove"]

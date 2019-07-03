@@ -3,6 +3,8 @@ package cli
 import (
 	"fmt"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
@@ -10,6 +12,8 @@ import (
 )
 
 const (
+	// MigrationManifestFlag is the migration manifest flag
+	MigrationManifestFlag string = "migration-manifest"
 	// MigrationPathFlag is the migration path flag
 	MigrationPathFlag string = "migration-path"
 	// MigrationManifestFlag is the migration manifest flag
@@ -41,8 +45,9 @@ func CheckMigration(v *viper.Viper) error {
 	if len(migrationPath) == 0 {
 		return errMissingMigrationPath
 	}
-	if _, err := os.Stat(migrationPath); os.IsNotExist(err) {
-		return errors.Wrapf(&errInvalidMigrationPath{Path: migrationPath}, "Expected %s to exist", migrationPath)
+	migrationManifest := v.GetString(MigrationManifestFlag)
+	if len(migrationManifest) == 0 {
+		return errMissingMigrationManifest
 	}
 	if len(MigrationManifestFlag) == 0 {
 		return errMissingMigrationManifest

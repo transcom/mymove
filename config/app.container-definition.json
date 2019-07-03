@@ -1,13 +1,6 @@
 {
   "name": "app-{{ .environment }}",
   "image": "{{ .image }}",
-  "portMappings": [
-    {
-      "containerPort": 8443,
-      "hostPort": 8443,
-      "protocol": "tcp"
-    }
-  ],
   "essential": true,
   "entryPoint": [
     "/bin/chamber",
@@ -24,7 +17,16 @@
     "production",
     "--debug-logging",
     "--log-task-metadata",
-    "--tls-enabled"
+    "--tls-enabled",
+    "--db-iam"
+  ],
+  "command": [],
+  "portMappings": [
+    {
+      "containerPort": 8443,
+      "hostPort": 8443,
+      "protocol": "tcp"
+    }
   ],
   "command": [],
   "environment": [
@@ -46,7 +48,7 @@
     },
     {
       "name": "DB_USER",
-      "value": "master"
+      "value": "ecs_user"
     },
     {
       "name": "DB_NAME",

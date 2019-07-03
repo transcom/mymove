@@ -5,12 +5,18 @@ import (
 	"log"
 
 	"github.com/gobuffalo/pop"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // MakeTDL finds or makes a single traffic_distribution_list record
 func MakeTDL(db *pop.Connection, assertions Assertions) models.TrafficDistributionList {
+
+	tdlID := assertions.TrafficDistributionList.ID
+	if isZeroUUID(tdlID) {
+		tdlID = uuid.Must(uuid.NewV4())
+	}
 
 	source := assertions.TrafficDistributionList.SourceRateArea
 	if source == "" {
@@ -37,6 +43,7 @@ func MakeTDL(db *pop.Connection, assertions Assertions) models.TrafficDistributi
 	// Create a new record if none are found
 	if len(tdls) == 0 {
 		tdl := models.TrafficDistributionList{
+			ID:                tdlID,
 			SourceRateArea:    source,
 			DestinationRegion: dest,
 			CodeOfService:     cos,
