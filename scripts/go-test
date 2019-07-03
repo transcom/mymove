@@ -4,4 +4,9 @@
 #   For example: scripts/go-test ./pkg/models
 #
 
-DB_PORT=$DB_PORT_TEST go test "$@"
+if [[ -z "${COVERAGE:-}" ]]; then
+  DB_PORT=${DB_PORT_TEST} go test "$@"
+else
+  DB_PORT=${DB_PORT_TEST} go test -coverprofile=coverage.out -covermode=count -p 1 -count 1 -short "$@"
+  go tool cover -html=coverage.out
+fi
