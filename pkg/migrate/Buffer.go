@@ -19,6 +19,7 @@ type Buffer struct {
 	closed bool
 }
 
+// String returns
 func (b *Buffer) String() string {
 	b.Lock()
 	out := b.buffer.String()
@@ -26,12 +27,14 @@ func (b *Buffer) String() string {
 	return out
 }
 
+// Close closes the buffer for writing
 func (b *Buffer) Close() {
 	b.Lock()
 	b.closed = true
 	b.Unlock()
 }
 
+// Closed returns the state of writing on the buffer
 func (b *Buffer) Closed() bool {
 	closed := false
 	b.RLock()
@@ -40,10 +43,12 @@ func (b *Buffer) Closed() bool {
 	return closed
 }
 
+// Len returns the length of the buffer
 func (b *Buffer) Len() int {
 	return b.buffer.Len()
 }
 
+// WriteString writes a string to the buffer
 func (b *Buffer) WriteString(x string) (int, error) {
 	b.Lock()
 	n, err := b.buffer.WriteString(x)
@@ -51,6 +56,7 @@ func (b *Buffer) WriteString(x string) (int, error) {
 	return n, err
 }
 
+// WriteByte writes a byte to the buffer
 func (b *Buffer) WriteByte(x byte) error {
 	b.Lock()
 	err := b.buffer.WriteByte(x)
@@ -58,6 +64,7 @@ func (b *Buffer) WriteByte(x byte) error {
 	return err
 }
 
+// WriteRune writes a rune to the buffer
 func (b *Buffer) WriteRune(x rune) (int, error) {
 	b.Lock()
 	n, err := b.buffer.WriteRune(x)
@@ -65,6 +72,7 @@ func (b *Buffer) WriteRune(x rune) (int, error) {
 	return n, err
 }
 
+// Index returns the character at the indexed position in the String
 func (b *Buffer) Index(i int) (byte, error) {
 	b.RLock()
 	if i >= b.buffer.Len() {
@@ -80,6 +88,7 @@ func (b *Buffer) Index(i int) (byte, error) {
 	return x, nil
 }
 
+// Range returns a string from a range within the buffer
 func (b *Buffer) Range(start int, end int) (string, error) {
 	if start >= end {
 		return "", errors.New("start should be less than end")
