@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	"reflect"
 	"time"
 
 	"github.com/facebookgo/clock"
@@ -9,10 +10,13 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/honeycombio/beeline-go"
+
 	"github.com/transcom/mymove/pkg/auth"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 	invoiceop "github.com/transcom/mymove/pkg/services/invoice"
 )
@@ -140,14 +144,15 @@ type CreateShipmentHandler struct {
 
 // Handle is the handler
 func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	payload := params.Shipment
@@ -199,18 +204,18 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		Market:                       &market,
 	}
 	if err = updateShipmentDatesWithPayload(h, &newShipment, params.Shipment); err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	verrs, err := models.SaveShipmentAndAddresses(h.DB(), &newShipment)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	shipmentPayload, err := payloadForShipmentModel(newShipment)
 	if err != nil {
-		h.Logger().Error("Error in shipment payload: ", zap.Error(err))
+		logger.Error("Error in shipment payload: ", zap.Error(err))
 	}
 
 	return shipmentop.NewCreateShipmentCreated().WithPayload(shipmentPayload)
@@ -323,19 +328,19 @@ type PatchShipmentHandler struct {
 
 // Handle is the handler
 func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	// #nosec UUID is pattern matched by swagger and will be ok
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
 	shipment, err := models.FetchShipment(h.DB(), session, shipmentID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	patchShipmentWithPayload(shipment, params.Shipment)
 	if err = updateShipmentDatesWithPayload(h, shipment, params.Shipment); err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	// Premove survey info can only be edited by office users or TSPs
@@ -346,12 +351,12 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	verrs, err := models.SaveShipmentAndAddresses(h.DB(), shipment)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	shipmentPayload, err := payloadForShipmentModel(*shipment)
 	if err != nil {
-		h.Logger().Error("Error in shipment payload: ", zap.Error(err))
+		logger.Error("Error in shipment payload: ", zap.Error(err))
 	}
 
 	return shipmentop.NewPatchShipmentOK().WithPayload(shipmentPayload)
@@ -390,19 +395,23 @@ type GetShipmentHandler struct {
 
 // Handle is the handler
 func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	ctx := params.HTTPRequest.Context()
+
+	logger := logging.FromContext(ctx).(Logger)
+
+	session := auth.SessionFromContext(ctx)
 
 	// #nosec UUID is pattern matched by swagger and will be ok
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
 	shipment, err := models.FetchShipment(h.DB(), session, shipmentID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	shipmentPayload, err := payloadForShipmentModel(*shipment)
 	if err != nil {
-		h.Logger().Error("Error in shipment payload: ", zap.Error(err))
+		logger.Error("Error in shipment payload: ", zap.Error(err))
 	}
 
 	return shipmentop.NewGetShipmentOK().WithPayload(shipmentPayload)
@@ -415,7 +424,13 @@ type ApproveHHGHandler struct {
 
 // Handle is the handler
 func (h ApproveHHGHandler) Handle(params shipmentop.ApproveHHGParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	ctx := params.HTTPRequest.Context()
+
+	ctx, span := beeline.StartSpan(ctx, reflect.TypeOf(h).Name())
+	defer span.Send()
+
+	session, logger := h.SessionAndLoggerFromContext(ctx)
 	if !session.IsOfficeUser() {
 		return shipmentop.NewApproveHHGForbidden()
 	}
@@ -425,7 +440,7 @@ func (h ApproveHHGHandler) Handle(params shipmentop.ApproveHHGParams) middleware
 
 	shipment, err := models.FetchShipment(h.DB(), session, shipmentID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	var approveDate time.Time
 	if params.ApproveShipmentPayload.ApproveDate != nil {
@@ -433,17 +448,17 @@ func (h ApproveHHGHandler) Handle(params shipmentop.ApproveHHGParams) middleware
 	}
 	err = shipment.Approve(approveDate)
 	if err != nil {
-		h.Logger().Error("Attempted to approve HHG, got invalid transition", zap.Error(err), zap.String("shipment_status", string(shipment.Status)))
-		return handlers.ResponseForError(h.Logger(), err)
+		logger.Error("Attempted to approve HHG, got invalid transition", zap.Error(err), zap.String("shipment_status", string(shipment.Status)))
+		return handlers.ResponseForError(logger, err)
 	}
 	verrs, err := h.DB().ValidateAndUpdate(shipment)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	shipmentPayload, err := payloadForShipmentModel(*shipment)
 	if err != nil {
-		h.Logger().Error("Error in shipment payload: ", zap.Error(err))
+		logger.Error("Error in shipment payload: ", zap.Error(err))
 	}
 
 	return shipmentop.NewApproveHHGOK().WithPayload(shipmentPayload)
@@ -456,7 +471,8 @@ type ShipmentInvoiceHandler struct {
 
 // Handle is the handler
 func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoiceParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	if !session.IsOfficeUser() {
 		return shipmentop.NewCreateAndSendHHGInvoiceForbidden()
 	}
@@ -465,10 +481,10 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 	shipment, err := invoiceop.FetchShipmentForInvoice{DB: h.DB()}.Call(shipmentID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	if shipment.Status != models.ShipmentStatusDELIVERED {
-		h.Logger().Error("Shipment status not in delivered state.")
+		logger.Error("Shipment status not in delivered state.")
 		return shipmentop.NewCreateAndSendHHGInvoicePreconditionFailed()
 	}
 
@@ -476,7 +492,7 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 	//if invoices exists and at least one is either in process or has succeeded then return 409
 	existingInvoices, err := models.FetchInvoicesForShipment(h.DB(), shipmentID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	for _, invoice := range existingInvoices {
 		//if an invoice has started, is in process or has been submitted successfully then throw err
@@ -488,39 +504,39 @@ func (h ShipmentInvoiceHandler) Handle(params shipmentop.CreateAndSendHHGInvoice
 
 	approver, err := models.FetchOfficeUserByID(h.DB(), session.OfficeUserID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	// before processing the invoice, save it in an in process state
 	var invoice models.Invoice
 	verrs, err := invoiceop.CreateInvoice{DB: h.DB(), Clock: clock.New()}.Call(*approver, &invoice, shipment)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	invoice858CString, verrs, err := invoiceop.ProcessInvoice{
 		DB:                    h.DB(),
-		Logger:                h.Logger(),
+		Logger:                logger,
 		GexSender:             h.GexSender(),
 		SendProductionInvoice: h.SendProductionInvoice(),
 		ICNSequencer:          h.ICNSequencer(),
 	}.Call(&invoice, shipment)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	// Send invoice to S3 for storage if response from GEX is successful
 	fs := h.FileStorer()
 	verrs, err = invoiceop.StoreInvoice858C{
 		DB:     h.DB(),
-		Logger: h.Logger(),
+		Logger: logger,
 		Storer: &fs,
 	}.Call(*invoice858CString, &invoice, session.UserID)
 	if verrs.HasAny() {
-		h.Logger().Error("Failed to store invoice record to s3, with validation errors", zap.Error(verrs))
+		logger.Error("Failed to store invoice record to s3, with validation errors", zap.Error(verrs))
 	}
 	if err != nil {
-		h.Logger().Error("Failed to store invoice record to s3, with error", zap.Error(err))
+		logger.Error("Failed to store invoice record to s3, with error", zap.Error(err))
 	}
 
 	payload := payloadForInvoiceModel(&invoice)

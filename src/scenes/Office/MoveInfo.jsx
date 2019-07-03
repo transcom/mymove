@@ -8,7 +8,7 @@ import { NavTab, RoutedTabs } from 'react-router-tabs';
 import { Link, NavLink, Redirect, Switch } from 'react-router-dom';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { getStorageInTransitsForShipment, selectStorageInTransits } from 'shared/Entities/modules/storageInTransits';
-import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
+import PrivateRoute from 'shared/User/PrivateRoute';
 import LocationsContainer from './Hhg/LocationsContainer';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import DocumentList from 'shared/DocumentViewer/DocumentList';
@@ -415,7 +415,7 @@ class MoveInfo extends Component {
 
             <div className="tab-content">
               <Switch>
-                <ValidatedPrivateRoute
+                <PrivateRoute
                   exact
                   path={`${this.props.match.url}`}
                   render={() => (
@@ -425,13 +425,13 @@ class MoveInfo extends Component {
                     />
                   )}
                 />
-                <ValidatedPrivateRoute path={`${this.props.match.path}/basics`}>
+                <PrivateRoute path={`${this.props.match.path}/basics`}>
                   <BasicsTabContent moveId={this.props.moveId} serviceMember={this.props.serviceMember} />
-                </ValidatedPrivateRoute>
-                <ValidatedPrivateRoute path={`${this.props.match.path}/ppm`}>
+                </PrivateRoute>
+                <PrivateRoute path={`${this.props.match.path}/ppm`}>
                   <PPMTabContent moveId={this.props.moveId} ppmPaymentRequested={ppmPaymentRequested} />
-                </ValidatedPrivateRoute>
-                <ValidatedPrivateRoute path={`${this.props.match.path}/hhg`}>
+                </PrivateRoute>
+                <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   {this.props.shipment && (
                     <HHGTabContent
                       canApprovePaymentInvoice={hhgDelivered}
@@ -443,7 +443,7 @@ class MoveInfo extends Component {
                       showSitPanel={this.props.context.flags.sitPanel}
                     />
                   )}
-                </ValidatedPrivateRoute>
+                </PrivateRoute>
               </Switch>
             </div>
           </div>

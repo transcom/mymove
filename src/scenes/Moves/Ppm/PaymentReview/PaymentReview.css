@@ -1,14 +1,14 @@
-h3,
-h4,
-h5,
-p {
+.payment-review-container h3,
+.payment-review-container h4,
+.payment-review-container h5,
+.payment-review-container p {
   font-family: 'Source Sans Pro', 'Helvetica Neue', 'Helvetica', 'Roboto', Arial, 'sans-serif';
   line-height: normal;
   margin: 0;
 }
 
-input[type='image'],
-input[type='image']:hover {
+.payment-review-container input[type='image'],
+.payment-review-container input[type='image']:hover {
   padding: 0;
   height: 20px;
 }

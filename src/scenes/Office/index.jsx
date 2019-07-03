@@ -15,7 +15,7 @@ import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadInternalSchema, loadPublicSchema } from 'shared/Swagger/ducks';
 import { detectIE11, no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
-import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
+import PrivateRoute from 'shared/User/PrivateRoute';
 import ScratchPad from 'shared/ScratchPad';
 import { isProduction } from 'shared/constants';
 import { RetrieveMovesForOffice } from './api';
@@ -68,11 +68,11 @@ class OfficeWrapper extends Component {
                     />
                   )}
                 />
-                <ValidatedPrivateRoute path="/queues/:queueType/moves/:moveId" component={MoveInfo} />
-                <ValidatedPrivateRoute path="/queues/:queueType" component={Queues} />
-                <ValidatedPrivateRoute path="/moves/:moveId/orders" component={OrdersInfo} />
-                <ValidatedPrivateRoute path="/moves/:moveId/documents/:moveDocumentId?" component={DocumentViewer} />
-                {!isProduction && <ValidatedPrivateRoute path="/playground" component={ScratchPad} />}
+                <PrivateRoute path="/queues/:queueType/moves/:moveId" component={MoveInfo} />
+                <PrivateRoute path="/queues/:queueType" component={Queues} />
+                <PrivateRoute path="/moves/:moveId/orders" component={OrdersInfo} />
+                <PrivateRoute path="/moves/:moveId/documents/:moveDocumentId?" component={DocumentViewer} />
+                {!isProduction && <PrivateRoute path="/playground" component={ScratchPad} />}
               </Switch>
             </div>
           </Tag>

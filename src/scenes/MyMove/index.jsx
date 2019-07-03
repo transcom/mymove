@@ -41,6 +41,7 @@ import { detectIE11, no_op } from 'shared/utils';
 import DPSAuthCookie from 'scenes/DPSAuthCookie';
 import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
 import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
+import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
@@ -125,6 +126,7 @@ export class AppWrapper extends Component {
                     <ValidatedPrivateRoute path="/moves/:moveId/ppm-expenses-intro" component={ExpensesLanding} />
                     <ValidatedPrivateRoute path="/moves/:moveId/ppm-expenses" component={ExpensesUpload} />
                     <ValidatedPrivateRoute path="/moves/:moveId/ppm-payment-review" component={PaymentReview} />
+                    <ValidatedPrivateRoute exact path="/ppm-customer-agreement" component={CustomerAgreementLegalese} />
                     <ValidatedPrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
                     <Route exact path="/forbidden">
                       <div className="usa-grid">

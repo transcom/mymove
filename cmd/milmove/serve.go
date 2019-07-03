@@ -695,6 +695,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	root := goji.NewMux()
 	root.Use(middleware.Recovery(logger))
+	root.Use(middleware.Trace(logger))                             // injects http request trace id
+	root.Use(middleware.ContextLogger("milmove_trace_id", logger)) // injects http request logger
 	root.Use(sessionCookieMiddleware)
 	root.Use(middleware.RequestLogger(logger))
 
@@ -734,7 +736,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	apiMux.Handle(pat.New("/*"), externalAPIMux)
 	externalAPIMux.Use(middleware.NoCache(logger))
 	externalAPIMux.Use(userAuthMiddleware)
-	externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext))
+	externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext, logger))
 
 	internalMux := goji.SubMux()
 	root.Handle(pat.New("/internal/*"), internalMux)
