@@ -17,7 +17,7 @@ export class Edit extends React.Component {
       <div className="usa-grid">
         <div className="usa-width-one-whole">
           <a className="back-to-home" onClick={this.goHome}>
-            &lt;BACK TO HOME
+            &lt; BACK TO HOME
           </a>
           <h1 className="edit-title">Edit Move</h1>
           <p>Changes to your orders or shipments could impact your move, including the estimated PPM incentive.</p>

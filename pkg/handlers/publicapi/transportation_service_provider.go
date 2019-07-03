@@ -6,7 +6,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	tspop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/transportation_service_provider"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -40,13 +39,13 @@ type GetTransportationServiceProviderHandler struct {
 func (h GetTransportationServiceProviderHandler) Handle(params tspop.GetTransportationServiceProviderParams) middleware.Responder {
 	var shipment *models.Shipment
 	var err error
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
 	if session.IsTspUser() {
 		tspUser, fetchTSPByUserErr := models.FetchTspUserByID(h.DB(), session.TspUserID)
 		if fetchTSPByUserErr != nil {
-			h.Logger().Error("DB Query", zap.Error(fetchTSPByUserErr))
+			logger.Error("DB Query", zap.Error(fetchTSPByUserErr))
 			return tspop.NewGetTransportationServiceProviderForbidden()
 		}
 
@@ -81,7 +80,7 @@ func (h GetTransportationServiceProviderHandler) Handle(params tspop.GetTranspor
 
 	transportationServiceProvider, err := models.FetchTransportationServiceProvider(h.DB(), transportationServiceProviderID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	transportationServiceProviderPayload := payloadForTransportationServiceProviderModel(*transportationServiceProvider)

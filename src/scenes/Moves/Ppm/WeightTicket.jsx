@@ -3,9 +3,10 @@ import { getFormValues, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { get, map } from 'lodash';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
+import { withLastLocation } from 'react-router-last-location';
 
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
-import { withLastLocation } from 'react-router-last-location';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import RadioButton from 'shared/RadioButton';
 import Checkbox from 'shared/Checkbox';
@@ -14,19 +15,20 @@ import Alert from 'shared/Alert';
 
 import carTrailerImg from 'shared/images/car-trailer_mobile.png';
 import carImg from 'shared/images/car_mobile.png';
-
-import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
-import WizardHeader from '../WizardHeader';
-import './PPMPaymentRequest.css';
 import { createWeightTicketSetDocument } from 'shared/Entities/modules/weightTicketSetDocuments';
-import { Link } from 'react-router-dom';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCircle';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
-import { getNextPage, intToOrdinal } from './utility';
 import { withContext } from 'shared/AppContext';
-import DocumentsUploaded from './DocumentsUploaded';
+
+import { getNextPage } from './utility';
+import DocumentsUploaded from './PaymentReview/DocumentsUploaded';
+import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
+import WizardHeader from '../WizardHeader';
+import { formatToOrdinal } from 'shared/formatters';
+
+import './PPMPaymentRequest.css';
 
 const vehicleTypes = {
   CarAndTrailer: 'CAR_TRAILER',
@@ -197,7 +199,7 @@ class WeightTicket extends Component {
     const { handleSubmit, submitting, schema, weightTicketSets, invalid, moveId } = this.props;
     const nextBtnLabel =
       additionalWeightTickets === 'Yes' ? nextBtnLabels.SaveAndAddAnother : nextBtnLabels.SaveAndContinue;
-    const weightTicketSetOrdinal = intToOrdinal(weightTicketSets.length + 1);
+    const weightTicketSetOrdinal = formatToOrdinal(weightTicketSets.length + 1);
     const fullWeightTicketFieldsRequired = missingFullWeightTicket ? null : true;
     const emptyWeightTicketFieldsRequired = missingEmptyWeightTicket ? null : true;
     return (
@@ -212,7 +214,9 @@ class WeightTicket extends Component {
             </ProgressTimeline>
           }
         />
-        <DocumentsUploaded moveId={moveId} />
+        <div className="usa-grid">
+          <DocumentsUploaded moveId={moveId} />
+        </div>
         <form>
           {this.state.weightTicketSubmissionError && (
             <div className="usa-grid">
