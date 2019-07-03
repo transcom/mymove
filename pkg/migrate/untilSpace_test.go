@@ -10,12 +10,12 @@ func (suite *MigrateSuite) TestUntilSpace() {
 	buf := NewBuffer()
 
 	go func() {
-		time.Sleep(time.Second * 1)
+		time.Sleep(time.Millisecond * 1)
 		buf.WriteString(in)
 		buf.Close()
 	}()
 
-	wait := 10 * time.Second
+	wait := 10 * time.Millisecond
 	lineNum, out, err := untilSpace(buf, 0, wait)
 
 	suite.Nil(err)
@@ -29,12 +29,12 @@ func (suite *MigrateSuite) TestUntilSpaceEOF() {
 	buf := NewBuffer()
 
 	go func() {
-		time.Sleep(time.Second * 1)
+		time.Sleep(time.Millisecond * 1)
 		buf.WriteString(in)
 		buf.Close()
 	}()
 
-	wait := 10 * time.Second
+	wait := 10 * time.Millisecond
 	lineNum, out, err := untilSpace(buf, 0, wait)
 
 	suite.NotNil(err)

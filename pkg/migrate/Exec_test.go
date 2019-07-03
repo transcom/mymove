@@ -18,7 +18,7 @@ func (suite *MigrateSuite) TestExecWithDeleteUsersSQL() {
 	suite.Nil(err)
 
 	suite.DB().Transaction(func(tx *pop.Connection) error {
-		wait := 10 * time.Second
+		wait := 10 * time.Millisecond
 		err := Exec(f, tx, wait)
 		suite.Nil(err)
 		return nil
@@ -46,7 +46,7 @@ func (suite *MigrateSuite) TestExecWithCopyFromStdinSQL() {
 	suite.Nil(err)
 
 	suite.DB().Transaction(func(tx *pop.Connection) error {
-		wait := 10 * time.Second
+		wait := 10 * time.Millisecond
 		err := Exec(f, tx, wait)
 		suite.Nil(err)
 		return nil
@@ -60,7 +60,7 @@ func (suite *MigrateSuite) TestExecWithLoopSQL() {
 	suite.Nil(err)
 
 	suite.DB().Transaction(func(tx *pop.Connection) error {
-		wait := 10 * time.Second
+		wait := 10 * time.Millisecond
 		err := Exec(f, tx, wait)
 		suite.Nil(err)
 		return nil
