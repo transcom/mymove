@@ -223,6 +223,10 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 			Field:    s.ActualPickupDate,
 			Name:     "actual_pickup_date",
 			Calendar: calendar},
+		&OptionalDateIsWorkday{
+			Field:    s.ActualDeliveryDate,
+			Name:     "actual_delivery_date",
+			Calendar: calendar},
 	}
 
 	if s.Status == ShipmentStatusSUBMITTED {

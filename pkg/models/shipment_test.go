@@ -56,6 +56,7 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 		"pm_survey_planned_delivery_date": {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
 		"actual_pack_date":                {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
 		"actual_pickup_date":              {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
+		"actual_delivery_date":            {fmt.Sprintf("cannot be on a weekend or holiday, is %v", stringDate)},
 	}
 
 	suite.verifyValidationErrors(shipment, expErrors)
