@@ -25,6 +25,8 @@ func TestStack(t *testing.T) {
 	assert.Equal(t, 2, stack.Len())
 	assert.Equal(t, "bar", stack.Last())
 
+	assert.Equal(t, 2, len(stack.Slice()))
+
 	stack.Pop()
 
 	assert.False(t, stack.Empty())
