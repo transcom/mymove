@@ -2,6 +2,10 @@
   margin-top: 1.5rem;
 }
 
+.service-member-summary {
+  margin-top: 2rem;
+}
+
 .review-title > h2 {
   margin-top: 1.5em;
 }
@@ -12,8 +16,7 @@
 }
 
 .review-section {
-  padding-left: 1.5rem;
-  padding-bottom: 1rem;
+  padding: 2rem 0 1rem 1.5rem;
 }
 
 .review-section .notice {

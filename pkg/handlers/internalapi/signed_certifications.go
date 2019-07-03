@@ -6,7 +6,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/auth"
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -41,7 +40,7 @@ type CreateSignedCertificationHandler struct {
 
 // Handle creates a new SignedCertification from a request payload
 func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCertificationParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	// User should always be populated by middleware
 	moveID, _ := uuid.FromString(params.MoveID.String())
 	payload := params.CreateSignedCertificationPayload
@@ -52,7 +51,7 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 		if err == nil {
 			_, err = models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
 			if err != nil {
-				return handlers.ResponseForError(h.Logger(), err)
+				return handlers.ResponseForError(logger, err)
 			}
 		}
 	}
@@ -62,7 +61,7 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 		if err == nil {
 			_, err = models.FetchShipment(h.DB(), session, shipmentID)
 			if err != nil {
-				return handlers.ResponseForError(h.Logger(), err)
+				return handlers.ResponseForError(logger, err)
 			}
 		}
 	}
@@ -75,7 +74,7 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	newSignedCertification, verrs, err := move.CreateSignedCertification(h.DB(),
@@ -87,7 +86,7 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 		shipmentID,
 		ptrCertType)
 	if verrs.HasAny() || err != nil {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 	signedCertificationPayload := payloadForSignedCertificationModel(*newSignedCertification)
 
@@ -101,12 +100,12 @@ type IndexSignedCertificationsHandler struct {
 
 // Handle gets a list of SignedCertifications for a move
 func (h IndexSignedCertificationsHandler) Handle(params certop.IndexSignedCertificationParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	_, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	signedCertifications, err := models.FetchSignedCertifications(h.DB(), session, moveID)
@@ -115,7 +114,7 @@ func (h IndexSignedCertificationsHandler) Handle(params certop.IndexSignedCertif
 		signedCertificationsPayload = append(signedCertificationsPayload, payloadForSignedCertificationModel(*sc))
 	}
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return certop.NewIndexSignedCertificationOK().WithPayload(signedCertificationsPayload)
 }

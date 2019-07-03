@@ -29,6 +29,10 @@ const (
 	DbUserFlag string = "db-user"
 	// DbPasswordFlag is the DB password flag
 	DbPasswordFlag string = "db-password"
+	// DbPoolFlag is the DB pool flag
+	DbPoolFlag string = "db-pool"
+	// DbIdlePoolFlag is the DB idle pool flag
+	DbIdlePoolFlag string = "db-idle-pool"
 	// DbSSLModeFlag is the DB SSL Mode flag
 	DbSSLModeFlag string = "db-ssl-mode"
 	// DbSSLRootCertFlag is the DB SSL Root Cert flag
@@ -56,6 +60,13 @@ const (
 	SSLModeVerifyCA string = "verify-ca"
 	// SSLModeVerifyFull is the verify-full SSL Mode
 	SSLModeVerifyFull string = "verify-full"
+
+	// DbPoolDefault is the default db pool connections
+	DbPoolDefault = 50
+	// DbIdlePoolDefault is the default db idle pool connections
+	DbIdlePoolDefault = 2
+	// DbPoolMax is the upper limit the db pool can use for connections which constrains the user input
+	DbPoolMax int = 50
 )
 
 // The dependency https://github.com/lib/pq only supports a limited subset of SSL Modes and returns the error:
@@ -80,6 +91,23 @@ var allDbEnvs = []string{
 	DbEnvContainer,
 	DbEnvTest,
 	DbEnvDevelopment,
+}
+
+type errInvalidDbPool struct {
+	DbPool int
+}
+
+func (e *errInvalidDbPool) Error() string {
+	return fmt.Sprintf("invalid db pool of %d. Pool must be greater than 0 and less than or equal to %d", e.DbPool, DbPoolMax)
+}
+
+type errInvalidDbIdlePool struct {
+	DbPool     int
+	DbIdlePool int
+}
+
+func (e *errInvalidDbIdlePool) Error() string {
+	return fmt.Sprintf("invalid db idle pool of %d. Pool must be greater than 0 and less than or equal to %d", e.DbIdlePool, e.DbPool)
 }
 
 type errInvalidDbEnv struct {
@@ -108,6 +136,8 @@ func InitDatabaseFlags(flag *pflag.FlagSet) {
 	flag.Int(DbPortFlag, 5432, "Database Port")
 	flag.String(DbUserFlag, "postgres", "Database Username")
 	flag.String(DbPasswordFlag, "", "Database Password")
+	flag.Int(DbPoolFlag, DbPoolDefault, "Database Pool or max DB connections")
+	flag.Int(DbIdlePoolFlag, DbIdlePoolDefault, "Database Idle Pool or max DB idle connections")
 	flag.String(DbSSLModeFlag, SSLModeDisable, "Database SSL Mode: "+strings.Join(allSSLModes, ", "))
 	flag.String(DbSSLRootCertFlag, "", "Path to the database root certificate file used for database connections")
 	flag.Bool(DbDebugFlag, false, "Set Pop to debug mode")
@@ -122,6 +152,16 @@ func CheckDatabase(v *viper.Viper, logger Logger) error {
 
 	if err := ValidatePort(v, DbPortFlag); err != nil {
 		return err
+	}
+
+	dbPool := v.GetInt(DbPoolFlag)
+	dbIdlePool := v.GetInt(DbIdlePoolFlag)
+	if dbPool < 1 || dbPool > DbPoolMax {
+		return &errInvalidDbPool{DbPool: dbPool}
+	}
+
+	if dbIdlePool > dbPool {
+		return &errInvalidDbIdlePool{DbPool: dbPool, DbIdlePool: dbIdlePool}
 	}
 
 	dbEnv := v.GetString(DbEnvFlag)
@@ -160,6 +200,8 @@ func InitDatabase(v *viper.Viper, logger Logger) (*pop.Connection, error) {
 	dbPort := strconv.Itoa(v.GetInt(DbPortFlag))
 	dbUser := v.GetString(DbUserFlag)
 	dbPassword := v.GetString(DbPasswordFlag)
+	dbPool := v.GetInt(DbPoolFlag)
+	dbIdlePool := v.GetInt(DbIdlePoolFlag)
 
 	// Modify DB options by environment
 	dbOptions := map[string]string{
@@ -191,6 +233,8 @@ func InitDatabase(v *viper.Viper, logger Logger) (*pop.Connection, error) {
 		User:     dbUser,
 		Password: dbPassword,
 		Options:  dbOptions,
+		Pool:     dbPool,
+		IdlePool: dbIdlePool,
 	}
 	err := dbConnectionDetails.Finalize()
 	if err != nil {
