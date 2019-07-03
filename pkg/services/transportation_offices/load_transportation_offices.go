@@ -256,6 +256,35 @@ func UnmarshalXML(byteValue []byte) OfficeData {
 	return od
 }
 
+func isUSFilter(o Office) bool {
+	return o.LISTGCNSLINFO.GCNSLINFO.CNSLCOUNTRY == "US"
+}
+
+func isCONUSFilter(o Office) bool {
+	return o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE != "AK" &&
+		o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE != "HI"
+}
+
+func isAFBFilter(o Office) bool {
+	return strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "AFB")
+}
+
+func isArmyFilter(o Office) bool {
+	return strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "FORT") ||
+		strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "FT") ||
+		strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "USMA")
+}
+
+func isNavyFilter(o Office) bool {
+	return strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "NAV") ||
+		strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "NAVSUP") ||
+		strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "USNA")
+}
+
+func isOtherFilter(o Office) bool {
+	return !(isAFBFilter(o) || isArmyFilter(o) || isNavyFilter(o))
+}
+
 func (b *MigrationBuilder) isUS(offices []Office) []Office {
 	filter := func(o Office) bool {
 		return o.LISTGCNSLINFO.GCNSLINFO.CNSLCOUNTRY == "US"
@@ -267,6 +296,32 @@ func (b *MigrationBuilder) isConus(offices []Office) []Office {
 	filter := func(o Office) bool {
 		return o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE != "AK" &&
 			o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE != "HI"
+	}
+	return b.filterOffice(offices, filter)
+}
+
+func (b *MigrationBuilder) isAFB(offices []Office) []Office {
+	filter := func(o Office) bool {
+		return strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "AFB")
+	}
+	return b.filterOffice(offices, filter)
+}
+
+func (b *MigrationBuilder) isArmy(offices []Office) []Office {
+	filter := func(o Office) bool {
+		return strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "FORT") ||
+			strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "FT") ||
+			strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "USMA")
+	}
+	return b.filterOffice(offices, filter)
+}
+
+func (b *MigrationBuilder) isNav(offices []Office) []Office {
+	filter := func(o Office) bool {
+		return strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "NAV") ||
+			strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "NAVSUP") ||
+			strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "USNA")
+
 	}
 	return b.filterOffice(offices, filter)
 }
@@ -328,9 +383,9 @@ func (b *MigrationBuilder) WriteXMLLine(o Office, w io.Writer) {
 	state := o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE
 	zip := o.LISTGCNSLINFO.GCNSLINFO.CNSLZIP
 
-	fmt.Printf("\nname: %s\n", name)
+	//fmt.Printf("\nname: %s\n", name)
 	fmt.Fprintf(w, "\nname: %s\n", name)
-	fmt.Printf("city: %s | state: %s | zip: %s \n", city, state, zip)
+	//fmt.Printf("city: %s | state: %s | zip: %s \n", city, state, zip)
 	fmt.Fprintf(w, "city: %s | state: %s | zip: %s \n", city, state, zip)
 }
 
@@ -388,18 +443,30 @@ func (b *MigrationBuilder) Build(officesFilePath string, outputFilePath string) 
 	}
 	fmt.Printf("# total offices: %d\n", len(offices))
 
-	usOffices := b.isUS(offices)
+	usOffices := b.filterOffice(offices, isUSFilter)
 	fmt.Printf("# us only offices: %d\n", len(usOffices))
 
-	conusOffices := b.isConus(usOffices)
+	conusOffices := b.filterOffice(usOffices, isCONUSFilter)
 	fmt.Printf("# conus only offices: %d\n", len(conusOffices))
+
+	afbOffices := b.filterOffice(conusOffices, isAFBFilter)
+	fmt.Printf("# AFB offices: %d\n", len(afbOffices))
+
+	armyOffices := b.filterOffice(conusOffices, isArmyFilter)
+	fmt.Printf("# Army offices: %d\n", len(armyOffices))
+
+	navOffices := b.filterOffice(conusOffices, isNavyFilter)
+	fmt.Printf("# Nav offices: %d\n", len(navOffices))
+
+	otherOffices := b.filterOffice(conusOffices, isOtherFilter)
+	fmt.Printf("# other offices: %d\n", len(otherOffices))
 
 	fmt.Println(outputFilePath)
 	f, err := os.Create(outputFilePath)
 	defer f.Close()
 	w := bufio.NewWriter(f)
 
-	for _, o := range conusOffices {
+	for _, o := range navOffices {
 		b.WriteXMLLine(o, w)
 		dbOffices := b.FindConusOffices(o, w)
 		dbPPSOs := b.FindPPSOs(o)
@@ -408,5 +475,4 @@ func (b *MigrationBuilder) Build(officesFilePath string, outputFilePath string) 
 	}
 	w.Flush()
 	return "abc", nil
-
 }

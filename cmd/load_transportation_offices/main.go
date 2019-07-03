@@ -53,7 +53,7 @@ func main() {
 	inputFile := "./cmd/load_transportation_offices/data/To_Cntct_info_201906070930.xml"
 	// officesPath := "./testdata/transportation_offices.xml"
 	// inputFile := "To_Cntct_info_201906070930.xml"
-	outputFile := "/Users/lynzt/Downloads/transportationoffices.txt"
+	outputFile := "/Users/isaac/Projects/transportationoffices.txt"
 
 	flag := pflag.CommandLine
 	initFlags(flag)
