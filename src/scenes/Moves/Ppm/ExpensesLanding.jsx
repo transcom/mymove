@@ -9,6 +9,10 @@ import WizardHeader from '../WizardHeader';
 
 import './Expenses.css';
 import { connect } from 'react-redux';
+import DocumentsUploaded from './PaymentReview/DocumentsUploaded';
+
+const reviewPagePath = '/ppm-payment-review';
+const nextPagePath = '/ppm-expenses';
 
 class ExpensesLanding extends Component {
   state = {
@@ -17,18 +21,22 @@ class ExpensesLanding extends Component {
 
   handleRadioChange = event => {
     this.setState({
-      hasExpenses: event.target.value,
+      [event.target.name]: event.target.value,
     });
   };
 
   saveAndAddHandler = () => {
     const { history, moveId } = this.props;
-    history.push(`/moves/${moveId}/ppm-expenses`);
+    const { hasExpenses } = this.state;
+    if (hasExpenses === 'No') {
+      return history.push(`/moves/${moveId}${reviewPagePath}`);
+    }
+    return history.push(`/moves/${moveId}${nextPagePath}`);
   };
 
   render() {
     const { hasExpenses } = this.state;
-    const { history } = this.props;
+    const { history, moveId } = this.props;
     return (
       <>
         <WizardHeader
@@ -41,6 +49,9 @@ class ExpensesLanding extends Component {
             </ProgressTimeline>
           }
         />
+        <div className="usa-grid">
+          <DocumentsUploaded moveId={moveId} />
+        </div>
 
         <div className="usa-grid expenses-container">
           <h3 className="expenses-header">Do you have any storage or moving expenses?</h3>
@@ -60,7 +71,7 @@ class ExpensesLanding extends Component {
               labelClassName="inline_radio"
               label="Yes"
               value="Yes"
-              name="has_expenses"
+              name="hasExpenses"
               checked={hasExpenses === 'Yes'}
               onChange={this.handleRadioChange}
             />
@@ -69,15 +80,14 @@ class ExpensesLanding extends Component {
               labelClassName="inline_radio"
               label="No"
               value="No"
-              name="has_no_expenses"
+              name="hasExpenses"
               checked={hasExpenses === 'No'}
               onChange={this.handleRadioChange}
             />
           </div>
           <PPMPaymentRequestActionBtns
             cancelHandler={() => {}}
-            //TODO remove once have review page in place
-            displaySaveForLater={hasExpenses === 'No'}
+            displaySaveForLater={true}
             nextBtnLabel="Continue"
             saveAndAddHandler={this.saveAndAddHandler}
             saveForLaterHandler={() => history.push('/')}

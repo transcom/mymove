@@ -46,6 +46,9 @@ func RequestLogger(logger Logger) func(inner http.Handler) http.Handler {
 				}
 			}
 
+			// Log the number of headers, which can be used for finding abnormal requests
+			fields = append(fields, zap.Int("headers", len(r.Header)))
+
 			if session := auth.SessionFromRequestContext(r); session != nil {
 				if session.UserID != uuid.Nil {
 					fields = append(fields, zap.String("user-id", session.UserID.String()))

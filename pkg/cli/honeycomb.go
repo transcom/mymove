@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	// ServiceNameFlag is the Service Name Flag
-	ServiceNameFlag string = "service-name"
+	// HoneycombServiceNameFlag is the Honeycomb Service Name Flag
+	HoneycombServiceNameFlag string = "honeycomb-service-name"
 	// HoneycombEnabledFlag is the Honeycomb Enabled Flag
 	HoneycombEnabledFlag string = "honeycomb-enabled"
 	// HoneycombAPIHostFlag is the Honeycomb API Host Flag
@@ -25,7 +25,7 @@ const (
 
 // InitHoneycombFlags initializes Honeycomb command line flags
 func InitHoneycombFlags(flag *pflag.FlagSet) {
-	flag.String(ServiceNameFlag, "app", "The service name identifies the application for instrumentation.")
+	flag.String(HoneycombServiceNameFlag, "app", "The service name identifies the application for instrumentation.")
 	flag.Bool(HoneycombEnabledFlag, false, "Honeycomb enabled")
 	flag.String(HoneycombAPIHostFlag, "https://api.honeycomb.io/", "API Host for Honeycomb")
 	flag.String(HoneycombAPIKeyFlag, "", "API Key for Honeycomb")
@@ -41,7 +41,7 @@ func InitHoneycomb(v *viper.Viper, logger Logger) bool {
 	honeycombAPIKey := v.GetString(HoneycombAPIKeyFlag)
 	honeycombDataset := v.GetString(HoneycombDatasetFlag)
 	honeycombDebug := v.GetBool(HoneycombDebugFlag)
-	honeycombServiceName := v.GetString(ServiceNameFlag)
+	honeycombServiceName := v.GetString(HoneycombServiceNameFlag)
 
 	if honeycombEnabled && len(honeycombAPIKey) > 0 && len(honeycombDataset) > 0 && len(honeycombServiceName) > 0 {
 		logger.Debug("Honeycomb Integration enabled",
@@ -63,9 +63,10 @@ func InitHoneycomb(v *viper.Viper, logger Logger) bool {
 
 // CheckHoneycomb validates Honeycomb command line flags
 func CheckHoneycomb(v *viper.Viper) error {
-	if serviceName := v.GetString(ServiceNameFlag); len(serviceName) == 0 {
-		return errors.Errorf("Must provide service name for honeycomb")
+	if v.GetBool(HoneycombEnabledFlag) {
+		if str := v.GetString(HoneycombServiceNameFlag); len(str) == 0 {
+			return errors.Errorf("Must provide service name for honeycomb")
+		}
 	}
-
 	return nil
 }

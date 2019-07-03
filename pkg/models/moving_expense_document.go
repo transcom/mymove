@@ -29,6 +29,8 @@ const (
 	MovingExpenseTypeTOLLS MovingExpenseType = "TOLLS"
 	// MovingExpenseTypeOIL captures enum value "OIL"
 	MovingExpenseTypeOIL MovingExpenseType = "OIL"
+	// MovingExpenseTypeSTORAGE captures enum value "STORAGE"
+	MovingExpenseTypeSTORAGE MovingExpenseType = "STORAGE"
 	// MovingExpenseTypeOTHER captures enum value "OTHER"
 	MovingExpenseTypeOTHER MovingExpenseType = "OTHER"
 )
@@ -56,6 +58,9 @@ type MovingExpenseDocument struct {
 	MovingExpenseType    MovingExpenseType `json:"moving_expense_type" db:"moving_expense_type"`
 	RequestedAmountCents unit.Cents        `json:"requested_amount_cents" db:"requested_amount_cents"`
 	PaymentMethod        string            `json:"payment_method" db:"payment_method"`
+	ReceiptMissing       bool              `json:"receipt_missing" db:"receipt_missing"`
+	StorageStartDate     *time.Time        `json:"storage_start_date" db:"storage_start_date"`
+	StorageEndDate       *time.Time        `json:"storage_end_date" db:"storage_end_date"`
 	CreatedAt            time.Time         `json:"created_at" db:"created_at"`
 	UpdatedAt            time.Time         `json:"updated_at" db:"updated_at"`
 }

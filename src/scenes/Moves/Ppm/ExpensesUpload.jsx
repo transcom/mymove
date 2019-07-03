@@ -6,7 +6,9 @@ import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 import WizardHeader from '../WizardHeader';
 
 import 'shared/DocumentViewer/DocumentUploader.jsx';
-import { get, isEmpty } from 'lodash';
+import { get, isEmpty, map } from 'lodash';
+import { convertDollarsToCents } from 'shared/utils';
+import { withLastLocation } from 'react-router-last-location';
 import RadioButton from 'shared/RadioButton';
 import { Link } from 'react-router-dom';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -16,26 +18,35 @@ import Uploader from 'shared/Uploader';
 import Checkbox from 'shared/Checkbox';
 import { getFormValues, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
+import {
+  createMovingExpenseDocument,
+  selectPPMCloseoutDocumentsForMove,
+} from 'shared/Entities/modules/movingExpenseDocuments';
 import Alert from 'shared/Alert';
+import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import { withContext } from 'shared/AppContext';
+import DocumentsUploaded from './PaymentReview/DocumentsUploaded';
+
+const nextPagePath = '/ppm-payment-review';
+const nextBtnLabels = {
+  SaveAndAddAnother: 'Save & Add Another',
+  SaveAndContinue: 'Save & Continue',
+};
+
+const paymentMethods = {
+  Other: 'OTHER',
+  GTCC: 'GTCC',
+};
+
+const uploadReceipt =
+  '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload receipt</span></span>';
 
 class ExpensesUpload extends Component {
-  state = { ...this.initialState, expenseNumber: 1 };
-
-  static nextBtnLabels = {
-    SaveAndAddAnother: 'Save & Add Another',
-    SaveAndContinue: 'Save & Continue',
-  };
-
-  static paymentMethods = {
-    Other: 'OTHER',
-    GTCC: 'GTCC',
-  };
-
-  static uploadReceipt = '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload receipt</span></span>';
+  state = { ...this.initialState };
 
   get initialState() {
     return {
-      paymentMethod: ExpensesUpload.paymentMethods.Other,
+      paymentMethod: paymentMethods.GTCC,
       uploaderIsIdle: true,
       missingReceipt: false,
       expenseType: '',
@@ -44,10 +55,77 @@ class ExpensesUpload extends Component {
     };
   }
 
+  componentDidMount() {
+    const { moveId } = this.props;
+    this.props.getMoveDocumentsForMove(moveId);
+  }
+
   handleRadioChange = event => {
     this.setState({
       [event.target.name]: event.target.value,
     });
+  };
+
+  saveForLaterHandler = formValues => {
+    const { history } = this.props;
+    return this.saveAndAddHandler(formValues).then(() => {
+      if (this.state.moveDocumentCreateError === false) {
+        history.push('/');
+      }
+    });
+  };
+
+  isStorageExpense = formValues => {
+    return !isEmpty(formValues) && formValues.moving_expense_type === 'STORAGE';
+  };
+
+  saveAndAddHandler = formValues => {
+    const { moveId, currentPpm, history } = this.props;
+    const { paymentMethod, missingReceipt, haveMoreExpenses } = this.state;
+    const {
+      storage_start_date,
+      storage_end_date,
+      moving_expense_type: movingExpenseType,
+      requested_amount_cents: requestedAmountCents,
+    } = formValues;
+
+    // eslint-disable-next-line security/detect-object-injection
+    let files = this.uploader.getFiles();
+    const uploadIds = map(files, 'id');
+    const personallyProcuredMoveId = currentPpm ? currentPpm.id : null;
+    const title = this.isStorageExpense(formValues) ? 'Storage Expense' : formValues.title;
+    return this.props
+      .createMovingExpenseDocument({
+        moveId,
+        personallyProcuredMoveId,
+        uploadIds,
+        title,
+        movingExpenseType,
+        moveDocumentType: 'EXPENSE',
+        requestedAmountCents: convertDollarsToCents(requestedAmountCents),
+        paymentMethod,
+        notes: '',
+        missingReceipt,
+        storage_start_date,
+        storage_end_date,
+      })
+      .then(() => {
+        this.cleanup();
+        if (haveMoreExpenses === 'No') {
+          history.push(`/moves/${moveId}${nextPagePath}`);
+        }
+      })
+      .catch(e => {
+        this.setState({ moveDocumentCreateError: true });
+      });
+  };
+
+  cleanup = () => {
+    const { reset } = this.props;
+    // eslint-disable-next-line security/detect-object-injection
+    this.uploader.clearFiles();
+    reset();
+    this.setState({ ...this.initialState });
   };
 
   onAddFile = () => {
@@ -72,14 +150,29 @@ class ExpensesUpload extends Component {
     alert('Cash, personal credit card, check — any payment method that’s not your GTCC.');
   };
 
+  isInvalidUploaderState = () => {
+    const { missingReceipt } = this.state;
+    const receiptUploaded = this.uploader && !this.uploader.isEmpty();
+    return missingReceipt === receiptUploaded;
+  };
+
   render() {
-    const { missingReceipt, paymentMethod, haveMoreExpenses, expenseNumber, moveDocumentCreateError } = this.state;
-    const { moveDocSchema, formValues, isPublic } = this.props;
-    const nextBtnLabel =
-      haveMoreExpenses === 'Yes'
-        ? ExpensesUpload.nextBtnLabels.SaveAndAddAnother
-        : ExpensesUpload.nextBtnLabels.SaveAndContinue;
+    const { missingReceipt, paymentMethod, haveMoreExpenses, moveDocumentCreateError } = this.state;
+    const {
+      moveDocSchema,
+      formValues,
+      isPublic,
+      handleSubmit,
+      submitting,
+      expenses,
+      expenseSchema,
+      invalid,
+      moveId,
+    } = this.props;
+    const nextBtnLabel = haveMoreExpenses === 'Yes' ? nextBtnLabels.SaveAndAddAnother : nextBtnLabels.SaveAndContinue;
     const hasMovingExpenseType = !isEmpty(formValues) && formValues.moving_expense_type !== '';
+    const isStorageExpense = this.isStorageExpense(formValues);
+    const expenseNumber = expenses.length + 1;
     return (
       <>
         <WizardHeader
@@ -92,6 +185,9 @@ class ExpensesUpload extends Component {
             </ProgressTimeline>
           }
         />
+        <div className="usa-grid">
+          <DocumentsUploaded moveId={moveId} />
+        </div>
 
         <div className="usa-grid expenses-container">
           <h3 className="expenses-header">Expense {expenseNumber}</h3>
@@ -114,9 +210,29 @@ class ExpensesUpload extends Component {
             <SwaggerField title="Expense type" fieldName="moving_expense_type" swagger={moveDocSchema} required />
             {hasMovingExpenseType && (
               <>
-                <SwaggerField title="Document title" fieldName="title" swagger={moveDocSchema} required />
+                {isStorageExpense ? (
+                  <div>
+                    <h4 className="expenses-group-header">Dates</h4>
+                    <SwaggerField
+                      className="short-field expenses-form-group"
+                      fieldName="storage_start_date"
+                      title="Start date"
+                      swagger={expenseSchema}
+                      required
+                    />
+                    <SwaggerField
+                      className="short-field expenses-form-group"
+                      fieldName="storage_end_date"
+                      title="End date"
+                      swagger={expenseSchema}
+                      required
+                    />
+                  </div>
+                ) : (
+                  <SwaggerField title="Document title" fieldName="title" swagger={moveDocSchema} required />
+                )}
                 <SwaggerField
-                  className="short-field"
+                  className="short-field expense-form-element"
                   title="Amount"
                   fieldName="requested_amount_cents"
                   swagger={moveDocSchema}
@@ -124,7 +240,7 @@ class ExpensesUpload extends Component {
                 />
                 <div className="expenses-uploader">
                   <Uploader
-                    options={{ labelIdle: ExpensesUpload.uploadReceipt }}
+                    options={{ labelIdle: uploadReceipt }}
                     isPublic={isPublic}
                     onRef={ref => (this.uploader = ref)}
                     onChange={this.onChange}
@@ -138,31 +254,41 @@ class ExpensesUpload extends Component {
                   onChange={this.handleCheckboxChange}
                   normalizeLabel
                 />
+                {isStorageExpense &&
+                  missingReceipt && (
+                    <span data-cy="storage-warning">
+                      <Alert type="warning">
+                        If you can, go online and print a new copy of your receipt, then upload it. <br />Otherwise,
+                        write and sign a statement that explains why this receipt is missing, then upload it. Finance
+                        will approve or reject this expense based on your information.
+                      </Alert>
+                    </span>
+                  )}
                 <div className="payment-method-radio-group-wrapper">
                   <p className="radio-group-header">How did you pay for this?</p>
                   <RadioButton
                     inputClassName="inline_radio"
                     labelClassName="inline_radio"
                     label="Government travel charge card (GTCC)"
-                    value={ExpensesUpload.paymentMethods.GTCC}
+                    value={paymentMethods.GTCC}
                     name="paymentMethod"
-                    checked={paymentMethod === ExpensesUpload.paymentMethods.GTCC}
+                    checked={paymentMethod === paymentMethods.GTCC}
                     onChange={this.handleRadioChange}
                   />
                   <RadioButton
                     inputClassName="inline_radio"
                     labelClassName="inline_radio"
                     label="Other"
-                    value={ExpensesUpload.paymentMethods.Other}
+                    value={paymentMethods.Other}
                     name="paymentMethod"
-                    checked={paymentMethod === ExpensesUpload.paymentMethods.Other}
+                    checked={paymentMethod === paymentMethods.Other}
                     onChange={this.handleRadioChange}
                   />
                   <FontAwesomeIcon
                     aria-hidden
                     className="color_blue_link"
                     icon={faQuestionCircle}
-                    onClick={this.handleRadioChange}
+                    onClick={this.handleHowDidYouPayForThis}
                   />
                 </div>
                 <div className="dashed-divider" />
@@ -191,9 +317,10 @@ class ExpensesUpload extends Component {
             )}
             <PPMPaymentRequestActionBtns
               nextBtnLabel={nextBtnLabel}
-              submitButtonsAreDisabled={true}
-              saveForLaterHandler={() => {}}
-              saveAndAddHandler={() => {}}
+              submitButtonsAreDisabled={this.isInvalidUploaderState() || invalid}
+              submitting={submitting}
+              saveForLaterHandler={handleSubmit(this.saveForLaterHandler)}
+              saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
               displaySaveForLater={true}
             />
           </form>
@@ -212,8 +339,19 @@ function mapStateToProps(state, props) {
     moveId: moveId,
     formValues: getFormValues(formName)(state),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
-    initialValues: {},
+    expenseSchema: get(state, 'swaggerInternal.spec.definitions.CreateMovingExpenseDocumentPayload', {}),
     currentPpm: get(state, 'ppm.currentPpm'),
+    expenses: selectPPMCloseoutDocumentsForMove(state, moveId, ['EXPENSE']),
   };
 }
-export default connect(mapStateToProps)(ExpensesUpload);
+
+const mapDispatchToProps = {
+  //TODO we can possibly remove selectPPMCloseoutDocumentsForMove and
+  // getMoveDocumentsForMove once the document reviewer component is added
+  // as it may be possible to get the number of expenses from that.
+  selectPPMCloseoutDocumentsForMove,
+  getMoveDocumentsForMove,
+  createMovingExpenseDocument,
+};
+
+export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(ExpensesUpload)));

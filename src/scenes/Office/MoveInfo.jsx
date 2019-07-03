@@ -38,7 +38,10 @@ import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
 import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
-import { getAllShipmentLineItems, selectSortedShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
+import {
+  selectSortedShipmentLineItems,
+  fetchAndCalculateShipmentLineItems,
+} from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { approvePPM, loadPPMs, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
@@ -142,10 +145,10 @@ const ReferrerQueueLink = props => {
           <span>PPM Queue</span>
         </NavLink>
       );
-    case '/queues/hhg_approved':
+    case '/queues/hhg_active':
       return (
-        <NavLink to="/queues/hhg_approved" activeClassName="usa-current">
-          <span>Approved HHG Queue</span>
+        <NavLink to="/queues/hhg_active" activeClassName="usa-current">
+          <span>Active HHG Queue</span>
         </NavLink>
       );
     case '/queues/hhg_delivered':
@@ -230,7 +233,7 @@ class MoveInfo extends Component {
   getAllShipmentInfo = shipmentId => {
     this.props.getTspForShipment(shipmentId);
     this.props.getPublicShipment(shipmentId);
-    this.props.getAllShipmentLineItems(shipmentId);
+    this.props.fetchAndCalculateShipmentLineItems(shipmentId, this.props.shipmentStatus);
     this.props.getAllInvoices(shipmentId);
     this.props.getServiceAgentsForShipment(shipmentId);
     this.props.getStorageInTransitsForShipment(shipmentId);
@@ -604,7 +607,7 @@ const mapDispatchToProps = dispatch =>
       approveShipment,
       cancelMove,
       getAllTariff400ngItems,
-      getAllShipmentLineItems,
+      fetchAndCalculateShipmentLineItems,
       getAllInvoices,
       getTspForShipment,
       getServiceAgentsForShipment,
