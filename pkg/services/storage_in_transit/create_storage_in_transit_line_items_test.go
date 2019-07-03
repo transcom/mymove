@@ -16,14 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *StorageInTransitServiceSuite) helperCreateShipment(originSITAddress models.Address, destinationSITAddress models.Address) rateengine.CostByShipment {
-
-	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), 1, 1, []int{1}, []models.ShipmentStatus{models.ShipmentStatusINTRANSIT}, models.SelectedMoveTypeHHG)
-	suite.NoError(err)
-
-	tspUser := tspUsers[0]
-	shipment := shipments[0]
-
+func (suite *StorageInTransitServiceSuite) helperSetup() (models.Address, models.Address) {
 	assertions := testdatagen.Assertions{}
 	assertions.FuelEIADieselPrice.BaselineRate = 6
 	assertions.FuelEIADieselPrice.EIAPricePerGallonMillicents = 320700
@@ -54,6 +47,21 @@ func (suite *StorageInTransitServiceSuite) helperCreateShipment(originSITAddress
 	destAddress = testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: destAddress,
 	})
+
+	return pickupAddress, destAddress
+}
+
+func (suite *StorageInTransitServiceSuite) helperCreateShipment(
+	pickupAddress models.Address,
+	destAddress models.Address,
+	originSITAddress models.Address,
+	destinationSITAddress models.Address) rateengine.CostByShipment {
+
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), 1, 1, []int{1}, []models.ShipmentStatus{models.ShipmentStatusINTRANSIT}, models.SelectedMoveTypeHHG)
+	suite.NoError(err)
+
+	tspUser := tspUsers[0]
+	shipment := shipments[0]
 
 	originSITAddress = testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
 		Address: originSITAddress,
@@ -122,6 +130,8 @@ func (suite *StorageInTransitServiceSuite) helperCreateShipment(originSITAddress
 
 func (suite *StorageInTransitServiceSuite) TestCreateStorageInTransitLineItems() {
 
+	pickupAddress, destinationAddress := suite.helperSetup()
+
 	suite.T().Run("Create Storage In Transit Less Than 30 mi", func(t *testing.T) {
 		sitOriginAddress := models.Address{
 			StreetAddress1: "1860 Vine St",
@@ -143,7 +153,7 @@ func (suite *StorageInTransitServiceSuite) TestCreateStorageInTransitLineItems()
 			Country:        swag.String("US"),
 		}
 
-		shipmentCost := suite.helperCreateShipment(sitOriginAddress, sitDestinationAddress)
+		shipmentCost := suite.helperCreateShipment(pickupAddress, destinationAddress, sitOriginAddress, sitDestinationAddress)
 
 		//planner := route.NewTestingPlanner(1100)
 		//planner := route.NewTestingPlanner(shipmentCost.Cost.Mileage)
@@ -206,7 +216,7 @@ func (suite *StorageInTransitServiceSuite) TestCreateStorageInTransitLineItems()
 			Country:        swag.String("US"),
 		}
 
-		shipmentCost := suite.helperCreateShipment(sitOriginAddress, sitDestinationAddress)
+		shipmentCost := suite.helperCreateShipment(pickupAddress, destinationAddress, sitOriginAddress, sitDestinationAddress)
 
 		//planner := route.NewTestingPlanner(1100)
 		//planner := route.NewTestingPlanner(shipmentCost.Cost.Mileage)
