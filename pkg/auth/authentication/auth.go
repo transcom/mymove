@@ -152,7 +152,8 @@ func shaAsString(nonce string) string {
 	return hex.EncodeToString(s[:])
 }
 
-func stateCookieName(session *auth.Session) string {
+// StateCookieName returns the login.gov state cookie name
+func StateCookieName(session *auth.Session) string {
 	return fmt.Sprintf("%s_%s", string(session.ApplicationName), loginStateCookieName)
 }
 
@@ -180,7 +181,7 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	stateCookie := http.Cookie{
-		Name:     stateCookieName(session),
+		Name:     StateCookieName(session),
 		Value:    shaAsString(loginData.Nonce),
 		Path:     "/",
 		Expires:  time.Now().Add(time.Duration(loginStateCookieTTLInSecs) * time.Second),
@@ -254,7 +255,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Check the state value sent back from login.gov with the value saved in the cookie
 	returnedState := r.URL.Query().Get("state")
-	stateCookie, err := r.Cookie(stateCookieName(session))
+	stateCookie, err := r.Cookie(StateCookieName(session))
 	if err != nil {
 		h.logger.Error("Getting login.gov state cookie", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -274,7 +275,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		session.UserID = uuid.Nil
 		auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
 		// Delete lg_state cookie
-		auth.DeleteCookie(w, stateCookieName(session))
+		auth.DeleteCookie(w, StateCookieName(session))
 
 		// set error query
 		landingQuery := landingURL.Query()
