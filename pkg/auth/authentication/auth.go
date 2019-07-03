@@ -269,6 +269,10 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			zap.String("cookie", hash),
 			zap.String("hash", shaAsString(returnedState)))
 
+		// This operation will delete all cookies from the session
+		session.IDToken = ""
+		session.UserID = uuid.Nil
+		auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
 		// Delete lg_state cookie
 		auth.DeleteCookie(w, stateCookieName(session))
 
