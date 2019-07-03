@@ -366,6 +366,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		LoginGovUUID:  id,
 		LoginGovEmail: email,
 		IsSuperuser:   false,
+		Disabled:      false,
 	}
 
 	userType := r.PostFormValue("userType")
@@ -421,6 +422,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Telephone:              telephone,
 			TransportationOfficeID: office.ID,
 			Email:                  email,
+			Disabled:               false,
 		}
 		if user.ID != uuid.Nil {
 			officeUser.UserID = &user.ID
@@ -456,6 +458,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			Telephone:                       telephone,
 			TransportationServiceProviderID: tsp.ID,
 			Email:                           email,
+			Disabled:                        false,
 		}
 		if user.ID != uuid.Nil {
 			tspUser.UserID = &user.ID
@@ -471,6 +474,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 	case DpsUserType:
 		dpsUser := models.DpsUser{
 			LoginGovEmail: email,
+			Disabled:      false,
 		}
 
 		verrs, err := h.db.ValidateAndSave(&dpsUser)
@@ -513,25 +517,37 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 	session.IDToken = "devlocal"
 	session.UserID = userIdentity.ID
 	session.Email = userIdentity.Email
-	session.Disabled = userIdentity.Disabled
 	session.IsSuperuser = userIdentity.IsSuperuser
 
 	// Set the app
+	disabled := userIdentity.Disabled
 
 	// Keep the logic for redirection separate from setting the session user ids
 	switch userType {
 	case OfficeUserType:
 		session.ApplicationName = auth.OfficeApp
 		session.Hostname = h.appnames.OfficeServername
+		disabled = userIdentity.Disabled || (userIdentity.OfficeDisabled != nil && *userIdentity.OfficeDisabled)
 	case TspUserType:
 		session.ApplicationName = auth.TspApp
 		session.Hostname = h.appnames.TspServername
+		disabled = userIdentity.Disabled || (userIdentity.TspDisabled != nil && *userIdentity.TspDisabled)
 	case AdminUserType:
 		session.ApplicationName = auth.AdminApp
 		session.Hostname = h.appnames.AdminServername
 	default:
 		session.ApplicationName = auth.MilApp
 		session.Hostname = h.appnames.MilServername
+	}
+
+	// If the user is disabled they should be denied a session
+	if disabled {
+		h.logger.Error("Disabled user requesting authentication",
+			zap.String("application_name", string(session.ApplicationName)),
+			zap.String("hostname", session.Hostname),
+			zap.String("user_id", session.UserID.String()),
+			zap.String("email", session.Email))
+		return nil, errors.New("Disabled user requesting authentication")
 	}
 
 	if userIdentity.ServiceMemberID != nil {
@@ -546,7 +562,7 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 		session.TspUserID = *(userIdentity.TspUserID)
 	}
 
-	if userIdentity.DpsUserID != nil {
+	if userIdentity.DpsUserID != nil && (userIdentity.DpsDisabled != nil && !*userIdentity.DpsDisabled) {
 		session.DpsUserID = *(userIdentity.DpsUserID)
 	}
 
@@ -589,14 +605,8 @@ func loginUser(h devlocalAuthHandler, user *models.User, userType string, w http
 	session, err := createSession(devlocalAuthHandler(h), user, userType, w, r)
 	if err != nil {
 		h.logger.Error("Could not create session", zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return nil, err
-	}
-
-	if session.Disabled {
-		h.logger.Info("Disabled user requesting authentication", zap.Error(err), zap.String("email", session.Email))
 		http.Error(w, http.StatusText(403), http.StatusForbidden)
-		return nil, nil
+		return nil, err
 	}
 
 	err = verifySessionWithApp(session)

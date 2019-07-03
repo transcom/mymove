@@ -1,0 +1,118 @@
+.payment-review-container h3,
+.payment-review-container h4,
+.payment-review-container h5,
+.payment-review-container p {
+  font-family: 'Source Sans Pro', 'Helvetica Neue', 'Helvetica', 'Roboto', Arial, 'sans-serif';
+  line-height: normal;
+  margin: 0;
+}
+
+.payment-review-container input[type='image'],
+.payment-review-container input[type='image']:hover {
+  padding: 0;
+  height: 20px;
+}
+
+.doc-summary-container {
+  background-color: #e7f4e4;
+  border-left: 10px solid #2e8540;
+  padding-left: 2em;
+  padding-top: 1em;
+}
+
+/* normalize margins of all children */
+.doc-summary-container * {
+  margin-top: 0px;
+  margin-left: 0px;
+  margin-bottom: 0px;
+  margin-right: 0px;
+}
+
+.doc-summary-container h3 {
+  font-size: 2rem;
+}
+
+.doc-summary-container > h4 {
+  margin-top: 0.5rem;
+}
+
+.review-payment-request-header h3 {
+  margin-top: 2rem;
+}
+
+.review-payment-request-header p {
+  padding: 1rem 0 2rem 0;
+}
+
+.ticket-item {
+  width: 98%;
+  border-bottom: 1px dashed;
+  padding: 1.5rem 0 1.5rem 0;
+}
+
+.ticket-item:last-child {
+  border-bottom: none;
+}
+
+.weight-ticket-image {
+  max-height: 25px;
+}
+
+#doc-summary-separator {
+  max-width: 98%;
+  margin-top: 12px;
+}
+
+.add-expense-link {
+  padding-bottom: 1rem;
+}
+
+.doc-summary-container a:visited {
+  text-decoration: none;
+  color: #0071bc;
+}
+
+.doc-review {
+  margin-top: 2rem;
+}
+
+.missing-label {
+  color: #cd3504;
+}
+
+.expense-li-item-container {
+  display: flex;
+  justify-content: space-between;
+  max-width: 916px;
+}
+
+.weight-li-item-container {
+  display: flex;
+  justify-content: space-between;
+  max-width: 820px;
+}
+
+.review-customer-agreement-container {
+  margin: 1.5em 0 4.5em 0;
+}
+
+.review-customer-agreement {
+  background-color: #ededed;
+  padding: 1em;
+}
+
+.review-customer-agreement p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.review-customer-agreement label {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.documents-uploaded-header {
+  display: flex;
+  align-items: baseline;
+  margin-right: 5;
+}

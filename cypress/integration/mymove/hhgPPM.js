@@ -424,8 +424,8 @@ function serviceMemberCanReviewMoveSummary() {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
 
-  cy.get('.wizard-header .usa-width-one-third').should('not.contain', 'Move Setup');
-  cy.get('.wizard-header .usa-width-one-third').should('contain', 'Review');
+  cy.get('.wizard-header .wizard-left').should('not.contain', 'Move Setup');
+  cy.get('.wizard-header .wizard-left').should('contain', 'Review');
   cy
     .get('.wizard-header .progress-timeline .step')
     .first()

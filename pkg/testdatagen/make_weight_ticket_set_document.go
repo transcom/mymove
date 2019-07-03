@@ -15,14 +15,16 @@ func MakeWeightTicketSetDocument(db *pop.Connection, assertions Assertions) mode
 		moveDoc = MakeMoveDocument(db, assertions)
 	}
 
+	emptyWeight := unit.Pound(1000)
+	fullWeight := unit.Pound(2500)
 	weightTicketSetDocument := models.WeightTicketSetDocument{
 		MoveDocumentID:   moveDoc.ID,
 		MoveDocument:     moveDoc,
-		EmptyWeight:      unit.Pound(1000),
-		FullWeight:       unit.Pound(2500),
+		EmptyWeight:      &emptyWeight,
+		FullWeight:       &fullWeight,
 		VehicleNickname:  "My Car",
 		VehicleOptions:   "CAR",
-		WeightTicketDate: NextValidMoveDate,
+		WeightTicketDate: &NextValidMoveDate,
 	}
 
 	// Overwrite values with those from assertions

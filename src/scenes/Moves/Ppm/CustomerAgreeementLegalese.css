@@ -1,0 +1,26 @@
+.customer-agreement-legalese-container {
+  font-family: 'Source Sans Pro', 'Helvetica Neue', 'Helvetica', 'Roboto', 'Arial', sans-serif;
+}
+
+.customer-agreement-legalese-container h2 {
+  margin: 0.25em 0 0 0;
+}
+
+.customer-agreement-legalese-container h4 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0.8em 0 0 0;
+  padding: 0;
+}
+
+.customer-agreement-legalese-container p {
+  font-size: 1.8rem;
+  margin: 0 0 0.5em 0;
+  padding: 0;
+  line-height: 1.25em;
+}
+
+.customer-agreement-legalese-text {
+  border: 1px solid;
+  padding: 1em;
+}

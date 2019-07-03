@@ -22,6 +22,9 @@ export function createMovingExpenseDocument({
   requestedAmountCents,
   paymentMethod,
   notes,
+  missingReceipt,
+  storage_start_date,
+  storage_end_date,
 }) {
   return async function(dispatch, getState, { schema }) {
     const client = await getClient();
@@ -36,6 +39,9 @@ export function createMovingExpenseDocument({
         requested_amount_cents: requestedAmountCents,
         payment_method: paymentMethod,
         notes: notes,
+        receipt_missing: missingReceipt,
+        storage_start_date,
+        storage_end_date,
       },
     });
     checkResponse(response, 'failed to create moving expense document due to server error');
@@ -45,9 +51,16 @@ export function createMovingExpenseDocument({
   };
 }
 
-export const selectAllMovingExpenseDocumentsForMove = (state, id) => {
+export const selectPPMCloseoutDocumentsForMove = (
+  state,
+  id,
+  selectedDocumentTypes = ['EXPENSE', 'WEIGHT_TICKET_SET'],
+) => {
+  if (!id) {
+    return [];
+  }
   const movingExpenseDocs = filter(state.entities.moveDocuments, doc => {
-    return doc.move_id === id && doc.move_document_type === 'EXPENSE';
+    return doc.move_id === id && selectedDocumentTypes.includes(doc.move_document_type);
   });
   return denormalize(map(movingExpenseDocs, 'id'), moveDocuments, state.entities);
 };

@@ -5,10 +5,32 @@
 }
 
 .wizard-header h3 {
-  display: inline;
+  font-size: 1.7rem;
+  font-weight: normal;
 }
 
 .icon {
   height: 75;
   width: auto;
+}
+
+.wizard-header .wizard-left {
+  float: left;
+}
+
+.wizard-header .wizard-right {
+  float: right;
+  margin-right: -17px;
+}
+
+@media only screen and (max-width: 375px) {
+  .wizard-header .wizard-right {
+    margin-top: -30px;
+  }
+}
+
+@media only screen and (min-width: 380px) {
+  .wizard-header .wizard-right {
+    margin-top: 30px;
+  }
 }

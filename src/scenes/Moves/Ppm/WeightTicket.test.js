@@ -6,11 +6,11 @@ import store from 'shared/store';
 import MockRouter from 'react-mock-router';
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
 
-function mountComponents(moreWeightTickets = 'Yes', formIsIncomplete) {
+function mountComponents(moreWeightTickets = 'Yes', formInvalid, uploderWithInvalidState) {
   const initialValues = {
     empty_weight: 1100,
     full_weight: 2000,
-    vehicle_nickname: 'HALE',
+    vehicle_nickname: 'KIRBY',
     vehicle_options: 'CAR',
     weight_ticket_date: '2019-05-22',
   };
@@ -23,8 +23,9 @@ function mountComponents(moreWeightTickets = 'Yes', formIsIncomplete) {
     </Provider>,
   );
   const wt = wrapper.find('WeightTicket');
-  if (formIsIncomplete !== undefined) {
-    wt.instance().formIsIncomplete = jest.fn().mockReturnValue(formIsIncomplete);
+  if (formInvalid !== undefined) {
+    wt.instance().invalid = jest.fn().mockReturnValue(formInvalid);
+    wt.instance().uploaderWithInvalidState = jest.fn().mockReturnValue(uploderWithInvalidState);
   }
   wt.setState({ additionalWeightTickets: moreWeightTickets, initialValues: initialValues });
   wt.update();
@@ -34,7 +35,7 @@ function mountComponents(moreWeightTickets = 'Yes', formIsIncomplete) {
 describe('Weight tickets page', () => {
   describe('Service member is missing a weight ticket', () => {
     it('renders both the Save buttons are disabled', () => {
-      const weightTicket = mountComponents('No', true);
+      const weightTicket = mountComponents('No', true, true);
       const buttonGroup = weightTicket.find(PPMPaymentRequestActionBtns);
       const cancel = weightTicket.find('button').at(0);
       const saveForLater = weightTicket.find('button').at(1);
@@ -48,7 +49,7 @@ describe('Weight tickets page', () => {
   });
   describe('Service member has uploaded both a weight tickets', () => {
     it('renders both the Save buttons are enabled', () => {
-      const weightTicket = mountComponents('No', false);
+      const weightTicket = mountComponents('No', false, false);
       const buttonGroup = weightTicket.find(PPMPaymentRequestActionBtns);
       const cancel = weightTicket.find('button').at(0);
       const saveForLater = weightTicket.find('button').at(1);
@@ -58,21 +59,6 @@ describe('Weight tickets page', () => {
       expect(cancel.props().disabled).not.toEqual(true);
       expect(saveAndAdd.props().disabled).toEqual(false);
       expect(saveForLater.props().disabled).toEqual(false);
-    });
-  });
-
-  describe('Service member hasnt provided an Empty Weight weight ticket', () => {
-    it('renders both the Save buttons are disabled', () => {
-      const weightTicket = mountComponents('No');
-      const buttonGroup = weightTicket.find(PPMPaymentRequestActionBtns);
-      const cancel = weightTicket.find('button').at(0);
-      const saveForLater = weightTicket.find('button').at(1);
-      const saveAndAdd = weightTicket.find('button').at(2);
-
-      expect(buttonGroup.length).toEqual(1);
-      expect(cancel.props().disabled).not.toEqual(true);
-      expect(saveAndAdd.props().disabled).toEqual(true);
-      expect(saveForLater.props().disabled).toEqual(true);
     });
   });
   describe('Service member answers "Yes" that they have more weight tickets', () => {
@@ -93,29 +79,50 @@ describe('Weight tickets page', () => {
   });
 });
 
-describe('missingWeightTickets', () => {
+describe('uploaderWithInvalidState', () => {
   it('returns true when there are no uploaders', () => {
     const weightTicket = mountComponents('No');
-    weightTicket.instance().uploaders = {};
+    const uploaders = {
+      emptyWeight: { uploaderRef: {} },
+      fullWeight: { uploaderRef: {} },
+      trailer: { uploaderRef: {} },
+    };
+    weightTicket.instance().uploaders = uploaders;
+    uploaders.emptyWeight.uploaderRef.isEmpty = jest.fn(() => false);
+    uploaders.emptyWeight.isMissingChecked = jest.fn(() => false);
+    uploaders.fullWeight.uploaderRef.isEmpty = jest.fn(() => false);
+    uploaders.fullWeight.isMissingChecked = jest.fn(() => false);
 
-    expect(weightTicket.instance().isMissingWeightTickets()).toEqual(true);
+    expect(weightTicket.instance().uploaderWithInvalidState()).toEqual(false);
   });
-  it('returns false when both uploaders have at least one file', () => {
+  it('returns false when uploaders have at least one file and isMissing is not checked', () => {
     const weightTicket = mountComponents('No');
-    const uploaders = { one: {}, two: {} };
-    uploaders['one'].isEmpty = jest.fn(() => false);
-    uploaders['two'].isEmpty = jest.fn(() => false);
+    const uploaders = {
+      emptyWeight: { uploaderRef: {} },
+      fullWeight: { uploaderRef: {} },
+      trailer: { uploaderRef: {} },
+    };
+    uploaders.emptyWeight.uploaderRef.isEmpty = jest.fn(() => false);
+    uploaders.emptyWeight.isMissingChecked = jest.fn(() => false);
+    uploaders.fullWeight.uploaderRef.isEmpty = jest.fn(() => false);
+    uploaders.fullWeight.isMissingChecked = jest.fn(() => false);
     weightTicket.instance().uploaders = uploaders;
 
-    expect(weightTicket.instance().isMissingWeightTickets()).toEqual(false);
+    expect(weightTicket.instance().uploaderWithInvalidState()).toEqual(false);
   });
-  it('returns true when one uploaders do not have at least one file', () => {
+  it('returns true when uploaders have at least one file and isMissing is checked', () => {
     const weightTicket = mountComponents('No');
-    const uploaders = { one: {}, two: {} };
-    uploaders['one'].isEmpty = jest.fn(() => false);
-    uploaders['two'].isEmpty = jest.fn(() => true);
+    const uploaders = {
+      emptyWeight: { uploaderRef: {} },
+      fullWeight: { uploaderRef: {} },
+      trailer: { uploaderRef: {} },
+    };
+    uploaders.emptyWeight.uploaderRef.isEmpty = jest.fn(() => false);
+    uploaders.emptyWeight.isMissingChecked = jest.fn(() => false);
+    uploaders.fullWeight.uploaderRef.isEmpty = jest.fn(() => false);
+    uploaders.fullWeight.isMissingChecked = jest.fn(() => true);
     weightTicket.instance().uploaders = uploaders;
 
-    expect(weightTicket.instance().isMissingWeightTickets()).toEqual(true);
+    expect(weightTicket.instance().uploaderWithInvalidState()).toEqual(true);
   });
 });

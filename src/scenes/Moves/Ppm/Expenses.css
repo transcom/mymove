@@ -3,7 +3,7 @@
 }
 
 .expenses-header {
-  margin-bottom: 0;
+  margin-bottom: 0.5em;
 }
 
 .expenses-container > p {
@@ -37,3 +37,21 @@
   line-height: 1.8em;
   margin-top: 1.8em;
 }
+
+.expenses-group-header {
+  margin: 1.8em 0 -0.5em 0;
+}
+
+.expense-form-element > label {
+  margin: 1.5em 0 0 0;
+}
+
+.expenses-form-group {
+  /*border: red solid;*/
+  margin: 0 2em 0 0;
+}
+
+.expenses-form-group > label {
+  margin: 1em 0 0 0;
+}
+

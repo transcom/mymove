@@ -49,6 +49,8 @@ export async function getPublicSpec() {
 // Used by pre-swaggerRequest code to verify responses
 export function checkResponse(response, errorMessage) {
   if (!response.ok) {
-    throw new Error(`${errorMessage}: ${response.url}: ${response.statusText}`);
+    let err = new Error(`${errorMessage}: ${response.url}: ${response.statusText}`);
+    err.status = response.status;
+    throw err;
   }
 }
