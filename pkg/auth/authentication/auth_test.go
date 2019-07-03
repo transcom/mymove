@@ -434,10 +434,12 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 	suite.Equal(officeUserID, session.OfficeUserID)
 	suite.Equal(uuid.Nil, session.TspUserID)
 
+	suite.Equal(2, len(rr2.Result().Cookies()))
 	// check for blank value for cookie login gov state value
 	for _, cookie := range rr2.Result().Cookies() {
-		if cookie.Name == cookieName {
+		if cookie.Name == cookieName || cookie.Name == fmt.Sprintf("%s_%s", string(session.ApplicationName), auth.UserSessionCookieName) {
 			suite.Equal("blank", cookie.Value)
+			suite.Equal("/", cookie.Path)
 		}
 	}
 
