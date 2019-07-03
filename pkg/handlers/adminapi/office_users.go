@@ -24,6 +24,9 @@ type IndexOfficeUsersHandler struct {
 
 // Handle retrieves a list of office users
 func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersParams) middleware.Responder {
+
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 	queryFilters := []services.QueryFilter{
 		h.NewQueryFilter("id", "=", "d874d002-5582-4a91-97d3-786e8f66c763"),
@@ -31,7 +34,7 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 
 	officeUsers, err := h.OfficeUserListFetcher.FetchOfficeUserList(queryFilters)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	payload := make(adminmessages.OfficeUsers, len(officeUsers))

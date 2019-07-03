@@ -34,9 +34,14 @@ var affiliationMap = map[models.ServiceMemberAffiliation]dpsmessages.Affiliation
 
 // Handle returns user information given an encrypted token
 func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
-	clientCert := authentication.ClientCertFromRequestContext(params.HTTPRequest)
+
+	ctx := params.HTTPRequest.Context()
+
+	logger := h.LoggerFromContext(ctx)
+
+	clientCert := authentication.ClientCertFromContext(ctx)
 	if clientCert == nil || !clientCert.AllowDpsAuthAPI {
-		h.Logger().Info("Client certificate is not authorized to access this API")
+		logger.Info("Client certificate is not authorized to access this API")
 		return dps.NewGetUserUnauthorized()
 	}
 
@@ -44,7 +49,7 @@ func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
 	token := params.Token
 	loginGovID, err := dpsauth.CookieToLoginGovID(token, dpsParams.CookieSecret)
 	if err != nil {
-		h.Logger().Error("Extracting user ID from token", zap.Error(err))
+		logger.Error("Extracting user ID from token", zap.Error(err))
 
 		switch err.(type) {
 		case *dpsauth.ErrInvalidCookie:
@@ -57,9 +62,9 @@ func (h GetUserHandler) Handle(params dps.GetUserParams) middleware.Responder {
 	if err != nil {
 		switch e := err.(type) {
 		case *errUserMissingData:
-			h.Logger().Error("Fetching user data from user ID", zap.Error(err), zap.String("user", e.userID.String()))
+			logger.Error("Fetching user data from user ID", zap.Error(err), zap.String("user", e.userID.String()))
 		default:
-			h.Logger().Error("Fetching user data from user ID", zap.Error(err))
+			logger.Error("Fetching user data from user ID", zap.Error(err))
 		}
 
 		return dps.NewGetUserInternalServerError()

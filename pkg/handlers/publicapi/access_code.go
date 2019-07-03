@@ -6,7 +6,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	accesscodeop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/accesscode"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -41,7 +40,7 @@ func payloadForAccessCodeModel(accessCode models.AccessCode) *apimessages.Access
 
 // Handle accepts the code - validates the access code
 func (h ValidateAccessCodeHandler) Handle(params accesscodeop.ValidateAccessCodeParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	if session == nil {
 		return accesscodeop.NewValidateAccessCodeUnauthorized()
@@ -54,7 +53,7 @@ func (h ValidateAccessCodeHandler) Handle(params accesscodeop.ValidateAccessCode
 	var validateAccessCodePayload *apimessages.ValidateAccessCodePayload
 
 	if !valid {
-		h.Logger().Warn("Access code not valid")
+		logger.Warn("Access code not valid")
 		validateAccessCodePayload = &apimessages.ValidateAccessCodePayload{
 			Valid: &valid,
 		}
@@ -77,7 +76,7 @@ type ClaimAccessCodeHandler struct {
 
 // Handle accepts the code - updates the access code
 func (h ClaimAccessCodeHandler) Handle(params accesscodeop.ClaimAccessCodeParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	if session == nil || session.ServiceMemberID == uuid.Nil {
 		return accesscodeop.NewClaimAccessCodeUnauthorized()
@@ -86,7 +85,7 @@ func (h ClaimAccessCodeHandler) Handle(params accesscodeop.ClaimAccessCodeParams
 	accessCode, verrs, err := h.accessCodeClaimer.ClaimAccessCode(*params.AccessCodePayload.Code, session.ServiceMemberID)
 
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	accessCodePayload := payloadForAccessCodeModel(*accessCode)
