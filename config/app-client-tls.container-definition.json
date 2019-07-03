@@ -1,13 +1,6 @@
 {
   "name": "app-client-tls-{{ .environment }}",
   "image": "{{ .image }}",
-  "portMappings": [
-    {
-      "containerPort": 9443,
-      "hostPort": 9443,
-      "protocol": "tcp"
-    }
-  ],
   "essential": true,
   "entryPoint": [
     "/bin/chamber",
@@ -25,7 +18,16 @@
     "--db-env",
     "container",
     "--tls-enabled",
-    "--mutual-tls-enabled"
+    "--mutual-tls-enabled",
+    "--db-iam"
+  ],
+  "command": [],
+  "portMappings": [
+    {
+      "containerPort": 9443,
+      "hostPort": 9443,
+      "protocol": "tcp"
+    }
   ],
   "command": [],
   "environment": [
@@ -47,7 +49,7 @@
     },
     {
       "name": "DB_USER",
-      "value": "master"
+      "value": "ecs_user"
     },
     {
       "name": "DB_NAME",

@@ -1,22 +1,15 @@
 FROM alpine:3.7
 
 COPY bin/rds-combined-ca-bundle.pem /bin/rds-combined-ca-bundle.pem
+
 COPY bin/chamber /bin/chamber
+
 COPY bin/milmove /bin/milmove
-RUN mkdir -p /scripts
-COPY scripts/apply-secure-migration.sh /scripts
 
 COPY migrations /migrate/migrations
 
-RUN mkdir -p /migrate/secure
+COPY migrations_manifest.txt /migrate/migrations_manifest.txt
 
-ENV GO_ENV=container
+WORKDIR /
 
-# Install tools needed in container
-RUN apk update
-RUN apk add postgresql-client python3 ca-certificates bash --no-cache
-RUN pip3 install awscli
-
-WORKDIR /scripts
-ENTRYPOINT ["/bin/milmove"]
-CMD ["migrate", "-p", "/migrate/migrations"]
+ENTRYPOINT ["/bin/milmove", "migrate", "-p", "/migrate/migrations", "-m", "/migrate/migrations_manifest.txt"]

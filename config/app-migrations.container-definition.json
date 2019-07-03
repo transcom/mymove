@@ -1,7 +1,6 @@
 {
   "name": "app-migrations-{{ .environment }}",
   "image": "{{ .image }}",
-  "portMappings": [],
   "essential": true,
   "entryPoint": [
     "/bin/chamber",
@@ -16,26 +15,22 @@
     "production",
     "--db-env",
     "container",
-    "-p",
-    "/migrate/migrations"
+    "--db-iam"
   ],
   "command": [],
+  "portMappings": [],
   "environment": [
     {
       "name": "ENVIRONMENT",
       "value": "{{ .environment }}"
     },
     {
-      "name": "SECURE_MIGRATION_SOURCE",
-      "value": "s3"
+      "name": "MIGRATION_PATH",
+      "value": "s3://transcom-ppp-app-{{ .environment }}-us-west-2/secure-migrations;file:///migrate/migrations"
     },
     {
-      "name": "SECURE_MIGRATION_DIR",
-      "value": "/migrate/secure/"
-    },
-    {
-      "name": "SECURE_MIGRATION_BUCKET_NAME",
-      "value": "transcom-ppp-app-{{ .environment }}-us-west-2"
+      "name": "MIGRATION_MANIFEST",
+      "value": "/migrate/migrations_manifest.txt"
     },
     {
       "name": "DB_HOST",
@@ -47,7 +42,7 @@
     },
     {
       "name": "DB_USER",
-      "value": "master"
+      "value": "ecs_user"
     },
     {
       "name": "DB_NAME",
@@ -83,5 +78,6 @@
     }
   },
   "mountPoints": [],
-  "volumesFrom": []
+  "volumesFrom": [],
+  "readonlyRootFilesystem": true
 }

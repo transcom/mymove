@@ -40,7 +40,7 @@ issues:
 run:
   # timeout for analysis, e.g. 30s, 5m, default is 1m
   deadline: 8m
-  concurrency: 1
+  concurrency: 3
 
 # which dirs to skip: they won't be analyzed;
   skip-dirs:
