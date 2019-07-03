@@ -11,7 +11,21 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *MigrateSuite) TestExec() {
+func (suite *MigrateSuite) TestExecWithDeleteUsersSQL() {
+
+	// Load the fixture with the sql example
+	f, err := os.Open("./fixtures/deleteUsers.sql")
+	suite.Nil(err)
+
+	suite.DB().Transaction(func(tx *pop.Connection) error {
+		wait := 10 * time.Second
+		err := Exec(f, tx, wait)
+		suite.Nil(err)
+		return nil
+	})
+}
+
+func (suite *MigrateSuite) TestExecWithCopyFromStdinSQL() {
 
 	// Create common TSP
 	testdatagen.MakeTSP(suite.DB(), testdatagen.Assertions{
@@ -32,7 +46,21 @@ func (suite *MigrateSuite) TestExec() {
 	suite.Nil(err)
 
 	suite.DB().Transaction(func(tx *pop.Connection) error {
-		wait := 30 * time.Second
+		wait := 10 * time.Second
+		err := Exec(f, tx, wait)
+		suite.Nil(err)
+		return nil
+	})
+}
+
+func (suite *MigrateSuite) TestExecWithLoopSQL() {
+
+	// Load the fixture with the sql example
+	f, err := os.Open("./fixtures/loop.sql")
+	suite.Nil(err)
+
+	suite.DB().Transaction(func(tx *pop.Connection) error {
+		wait := 10 * time.Second
 		err := Exec(f, tx, wait)
 		suite.Nil(err)
 		return nil
