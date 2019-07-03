@@ -129,7 +129,7 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 	suite.CheckResponseNotFound(badMoveResponse)
 }
 
-func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandler() {
+func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerNoMissingFields() {
 	ppm := testdatagen.MakeDefaultPPM(suite.DB())
 	move := ppm.Move
 	sm := move.Orders.ServiceMember
@@ -143,17 +143,19 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandler() {
 				MoveDocumentType:         models.MoveDocumentTypeWEIGHTTICKETSET,
 			},
 		})
+	emptyWeight := unit.Pound(1000)
+	fullWeight := unit.Pound(2500)
 	weightTicketSetDocument := models.WeightTicketSetDocument{
 		MoveDocumentID:           moveDoc.ID,
 		MoveDocument:             moveDoc,
-		EmptyWeight:              unit.Pound(1000),
-		EmptyWeightTicketMissing: true,
-		FullWeight:               unit.Pound(2500),
-		FullWeightTicketMissing:  true,
+		EmptyWeight:              &emptyWeight,
+		EmptyWeightTicketMissing: false,
+		FullWeight:               &fullWeight,
+		FullWeightTicketMissing:  false,
 		VehicleNickname:          "My Car",
 		VehicleOptions:           "CAR",
-		WeightTicketDate:         testdatagen.NextValidMoveDate,
-		TrailerOwnershipMissing:  true,
+		WeightTicketDate:         &testdatagen.NextValidMoveDate,
+		TrailerOwnershipMissing:  false,
 	}
 	verrs, err := suite.DB().ValidateAndCreate(&weightTicketSetDocument)
 	suite.Nil(err)
@@ -180,11 +182,73 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandler() {
 	for _, moveDoc := range indexPayload {
 		suite.Require().Equal(*moveDoc.ID, strfmt.UUID(weightTicketSetDocument.MoveDocument.ID.String()), "expected move ids to match")
 		suite.Require().Equal(*moveDoc.PersonallyProcuredMoveID, strfmt.UUID(ppm.ID.String()), "expected ppm ids to match")
-		suite.Require().Equal(*moveDoc.EmptyWeight, int64(weightTicketSetDocument.EmptyWeight), "expected empty weight to match")
+		suite.Require().Equal(*moveDoc.EmptyWeight, int64(*weightTicketSetDocument.EmptyWeight), "expected empty weight to match")
 		suite.Require().Equal(*moveDoc.EmptyWeightTicketMissing, weightTicketSetDocument.EmptyWeightTicketMissing, "expected empty weight ticket missing to match")
-		suite.Require().Equal(*moveDoc.FullWeight, int64(weightTicketSetDocument.FullWeight), "expected empty weight to match")
+		suite.Require().Equal(*moveDoc.FullWeight, int64(*weightTicketSetDocument.FullWeight), "expected empty weight to match")
 		suite.Require().Equal(*moveDoc.FullWeightTicketMissing, weightTicketSetDocument.FullWeightTicketMissing, "expected full weight ticket missing to match")
-		suite.Require().Equal(moveDoc.WeightTicketDate.String(), strfmt.Date(weightTicketSetDocument.WeightTicketDate).String(), "expected weight ticket date to match")
+		suite.Require().Equal(moveDoc.WeightTicketDate.String(), strfmt.Date(*weightTicketSetDocument.WeightTicketDate).String(), "expected weight ticket date to match")
+		suite.Require().Equal(*moveDoc.TrailerOwnershipMissing, weightTicketSetDocument.TrailerOwnershipMissing, "expected trailer ownership missing to match")
+		suite.Require().Equal(moveDoc.VehicleOptions, weightTicketSetDocument.VehicleOptions, "expected vehicle options to match")
+		suite.Require().Equal(moveDoc.VehicleNickname, weightTicketSetDocument.VehicleNickname, "expected vehicle nickname to match")
+	}
+}
+
+func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerMissingFields() {
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	move := ppm.Move
+	sm := move.Orders.ServiceMember
+
+	moveDoc := testdatagen.MakeMoveDocument(suite.DB(),
+		testdatagen.Assertions{
+			MoveDocument: models.MoveDocument{
+				MoveID:                   move.ID,
+				Move:                     move,
+				PersonallyProcuredMoveID: &ppm.ID,
+				MoveDocumentType:         models.MoveDocumentTypeWEIGHTTICKETSET,
+			},
+		})
+	weightTicketSetDocument := models.WeightTicketSetDocument{
+		MoveDocumentID:           moveDoc.ID,
+		MoveDocument:             moveDoc,
+		EmptyWeight:              nil,
+		EmptyWeightTicketMissing: true,
+		FullWeight:               nil,
+		FullWeightTicketMissing:  true,
+		VehicleNickname:          "My Car",
+		VehicleOptions:           "CAR",
+		WeightTicketDate:         nil,
+		TrailerOwnershipMissing:  false,
+	}
+	verrs, err := suite.DB().ValidateAndCreate(&weightTicketSetDocument)
+	suite.Nil(err)
+	suite.False(verrs.HasAny())
+
+	request := httptest.NewRequest("POST", "/fake/path", nil)
+	request = suite.AuthenticateRequest(request, sm)
+
+	indexMoveDocParams := movedocop.IndexMoveDocumentsParams{
+		HTTPRequest: request,
+		MoveID:      strfmt.UUID(move.ID.String()),
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	context.SetFileStorer(fakeS3)
+	handler := IndexMoveDocumentsHandler{context}
+	response := handler.Handle(indexMoveDocParams)
+
+	// assert we got back the 201 response
+	indexResponse := response.(*movedocop.IndexMoveDocumentsOK)
+	indexPayload := indexResponse.Payload
+	suite.NotNil(indexPayload)
+	for _, moveDoc := range indexPayload {
+		suite.Require().Equal(*moveDoc.ID, strfmt.UUID(weightTicketSetDocument.MoveDocument.ID.String()), "expected move ids to match")
+		suite.Require().Equal(*moveDoc.PersonallyProcuredMoveID, strfmt.UUID(ppm.ID.String()), "expected ppm ids to match")
+		suite.Require().Nil(moveDoc.EmptyWeight)
+		suite.Require().Equal(*moveDoc.EmptyWeightTicketMissing, weightTicketSetDocument.EmptyWeightTicketMissing, "expected empty weight ticket missing to match")
+		suite.Require().Nil(moveDoc.FullWeight)
+		suite.Require().Equal(*moveDoc.FullWeightTicketMissing, weightTicketSetDocument.FullWeightTicketMissing, "expected full weight ticket missing to match")
+		suite.Require().Nil(moveDoc.WeightTicketDate)
 		suite.Require().Equal(*moveDoc.TrailerOwnershipMissing, weightTicketSetDocument.TrailerOwnershipMissing, "expected trailer ownership missing to match")
 		suite.Require().Equal(moveDoc.VehicleOptions, weightTicketSetDocument.VehicleOptions, "expected vehicle options to match")
 		suite.Require().Equal(moveDoc.VehicleNickname, weightTicketSetDocument.VehicleNickname, "expected vehicle nickname to match")

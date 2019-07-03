@@ -1,8 +1,10 @@
 import React, { Component, Fragment } from 'react';
-import { reduxForm, getFormValues } from 'redux-form';
+import { getFormValues, reduxForm } from 'redux-form';
 import { connect } from 'react-redux';
 import { get, map } from 'lodash';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
+import { withLastLocation } from 'react-router-last-location';
 
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -13,17 +15,20 @@ import Alert from 'shared/Alert';
 
 import carTrailerImg from 'shared/images/car-trailer_mobile.png';
 import carImg from 'shared/images/car_mobile.png';
-
-import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
-import WizardHeader from '../WizardHeader';
-import './PPMPaymentRequest.css';
 import { createWeightTicketSetDocument } from 'shared/Entities/modules/weightTicketSetDocuments';
-import { Link } from 'react-router-dom';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCircle';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
-import { intToOrdinal } from './utility';
+import { withContext } from 'shared/AppContext';
+
+import { getNextPage } from './utility';
+import DocumentsUploaded from './PaymentReview/DocumentsUploaded';
+import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
+import WizardHeader from '../WizardHeader';
+import { formatToOrdinal } from 'shared/formatters';
+
+import './PPMPaymentRequest.css';
 
 const vehicleTypes = {
   CarAndTrailer: 'CAR_TRAILER',
@@ -35,6 +40,9 @@ const nextBtnLabels = {
   SaveAndAddAnother: 'Save & Add Another',
   SaveAndContinue: 'Save & Continue',
 };
+
+const reviewPagePath = '/ppm-payment-review';
+const nextPagePath = '/ppm-expenses-intro';
 
 const uploadEmptyTicketLabel =
   '<span class="uploader-label">Drag & drop or <span class="filepond--label-action">click to upload empty weight ticket</span></span>';
@@ -87,18 +95,6 @@ class WeightTicket extends Component {
     return this.invalidState(this.uploaders.emptyWeight) || this.invalidState(this.uploaders.fullWeight);
   };
 
-  formIsIncomplete = () => {
-    const { formValues } = this.props;
-    return !(
-      formValues &&
-      formValues.vehicle_nickname &&
-      formValues.vehicle_options &&
-      formValues.empty_weight &&
-      formValues.full_weight &&
-      formValues.weight_ticket_date
-    );
-  };
-
   //  handleChange for vehicleType and additionalWeightTickets
   handleChange = (event, type) => {
     this.setState({ [type]: event.target.value });
@@ -135,7 +131,7 @@ class WeightTicket extends Component {
     const uploadersKeys = Object.keys(this.uploaders);
     return uploadersKeys.filter(
       // eslint-disable-next-line security/detect-object-injection
-      key => this.uploaders[key].uploaderRef && this.uploaders[key].uploaderRef.getFiles() > 0,
+      key => this.uploaders[key].uploaderRef && !this.uploaders[key].uploaderRef.isEmpty(),
     );
   }
 
@@ -170,7 +166,8 @@ class WeightTicket extends Component {
       .then(() => {
         this.cleanup();
         if (additionalWeightTickets === 'No') {
-          history.push(`/moves/${moveId}/ppm-expenses-intro`);
+          const nextPage = getNextPage(`/moves/${moveId}${nextPagePath}`, this.props.lastLocation, reviewPagePath);
+          history.push(nextPage);
         }
       })
       .catch(e => {
@@ -190,10 +187,6 @@ class WeightTicket extends Component {
     this.setState({ ...this.initialState });
   };
 
-  submitButtonsAreDisabled = () => {
-    return this.formIsIncomplete() || this.uploaderWithInvalidState();
-  };
-
   render() {
     const {
       additionalWeightTickets,
@@ -203,11 +196,12 @@ class WeightTicket extends Component {
       missingDocumentation,
       isValidTrailer,
     } = this.state;
-    const { handleSubmit, submitting, schema, weightTicketSets } = this.props;
+    const { handleSubmit, submitting, schema, weightTicketSets, invalid, moveId } = this.props;
     const nextBtnLabel =
       additionalWeightTickets === 'Yes' ? nextBtnLabels.SaveAndAddAnother : nextBtnLabels.SaveAndContinue;
-    const weightTicketSetOrdinal = intToOrdinal(weightTicketSets.length + 1);
-
+    const weightTicketSetOrdinal = formatToOrdinal(weightTicketSets.length + 1);
+    const fullWeightTicketFieldsRequired = missingFullWeightTicket ? null : true;
+    const emptyWeightTicketFieldsRequired = missingEmptyWeightTicket ? null : true;
     return (
       <Fragment>
         <WizardHeader
@@ -220,6 +214,9 @@ class WeightTicket extends Component {
             </ProgressTimeline>
           }
         />
+        <div className="usa-grid">
+          <DocumentsUploaded moveId={moveId} />
+        </div>
         <form>
           {this.state.weightTicketSubmissionError && (
             <div className="usa-grid">
@@ -340,7 +337,7 @@ class WeightTicket extends Component {
                       fieldName="empty_weight"
                       swagger={schema}
                       hideLabel
-                      required
+                      required={emptyWeightTicketFieldsRequired}
                     />{' '}
                     lbs
                   </div>
@@ -386,7 +383,7 @@ class WeightTicket extends Component {
                       fieldName="full_weight"
                       swagger={schema}
                       hideLabel
-                      required
+                      required={fullWeightTicketFieldsRequired}
                     />{' '}
                     lbs
                   </div>
@@ -418,7 +415,11 @@ class WeightTicket extends Component {
                   </div>
                 </div>
 
-                <SwaggerField fieldName="weight_ticket_date" swagger={schema} required />
+                <SwaggerField
+                  fieldName="weight_ticket_date"
+                  swagger={schema}
+                  required={fullWeightTicketFieldsRequired}
+                />
                 <div className="dashed-divider" />
 
                 <div className="radio-group-wrapper">
@@ -445,10 +446,9 @@ class WeightTicket extends Component {
                 </div>
               </>
             )}
-            {/* TODO: change onclick handler to go to next page in flow */}
             <PPMPaymentRequestActionBtns
               nextBtnLabel={nextBtnLabel}
-              submitButtonsAreDisabled={this.submitButtonsAreDisabled()}
+              submitButtonsAreDisabled={this.uploaderWithInvalidState() || invalid}
               submitting={submitting}
               saveForLaterHandler={handleSubmit(this.saveForLaterHandler)}
               saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
@@ -486,12 +486,8 @@ function mapStateToProps(state, ownProps) {
 }
 
 const mapDispatchToProps = {
-  //TODO we can possibly remove selectPPMCloseoutDocumentsForMove and
-  // getMoveDocumentsForMove once the document reviewer component is added
-  // as it may be possible to get the number of weight tickets from that.
-  selectPPMCloseoutDocumentsForMove,
   getMoveDocumentsForMove,
   createWeightTicketSetDocument,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(WeightTicket);
+export default withContext(withLastLocation(connect(mapStateToProps, mapDispatchToProps)(WeightTicket)));

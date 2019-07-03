@@ -9,7 +9,6 @@ import (
 	beeline "github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	officeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -23,7 +22,7 @@ type ApproveMoveHandler struct {
 
 // Handle ... approves a Move from a request payload
 func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	if !session.IsOfficeUser() {
 		return officeop.NewApproveMoveForbidden()
@@ -32,12 +31,12 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 	moveID, _ := uuid.FromString(params.MoveID.String())
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	// Don't approve Move if orders are incomplete
 	orders, ordersErr := models.FetchOrder(h.DB(), move.OrdersID)
 	if ordersErr != nil {
-		return handlers.ResponseForError(h.Logger(), ordersErr)
+		return handlers.ResponseForError(logger, ordersErr)
 	}
 	if orders.IsComplete() != true {
 		return officeop.NewApprovePPMBadRequest()
@@ -45,20 +44,20 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 
 	err = move.Approve()
 	if err != nil {
-		h.Logger().Info("Attempted to approve move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
-		return handlers.ResponseForError(h.Logger(), err)
+		logger.Info("Attempted to approve move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
+		return handlers.ResponseForError(logger, err)
 	}
 
 	verrs, err := h.DB().ValidateAndUpdate(move)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	// TODO: Save and/or update the move association status' (PPM, Reimbursement, Orders) a la Cancel handler
 
 	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return officeop.NewApproveMoveOK().WithPayload(movePayload)
 }
@@ -74,7 +73,7 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	if !session.IsOfficeUser() {
 		return officeop.NewCancelMoveForbidden()
 	}
@@ -84,35 +83,35 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	// Canceling move will result in canceled associated PPMs
 	err = move.Cancel(*params.CancelMove.CancelReason)
 	if err != nil {
-		h.Logger().Error("Attempted to cancel move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
-		return handlers.ResponseForError(h.Logger(), err)
+		logger.Error("Attempted to cancel move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
+		return handlers.ResponseForError(logger, err)
 	}
 
 	// Save move, orders, and PPMs statuses
 	verrs, err := models.SaveMoveDependencies(h.DB(), move)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	err = h.NotificationSender().SendNotification(
 		ctx,
-		notifications.NewMoveCanceled(h.DB(), h.Logger(), session, moveID),
+		notifications.NewMoveCanceled(h.DB(), logger, session, moveID),
 	)
 
 	if err != nil {
-		h.Logger().Error("problem sending email to user", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		logger.Error("problem sending email to user", zap.Error(err))
+		return handlers.ResponseForError(logger, err)
 	}
 
 	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return officeop.NewCancelMoveOK().WithPayload(movePayload)
 }
@@ -127,7 +126,7 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	if !session.IsOfficeUser() {
 		return officeop.NewApprovePPMForbidden()
 	}
@@ -137,7 +136,7 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 
 	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	moveID := ppm.MoveID
 	var approveDate time.Time
@@ -146,27 +145,27 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 	}
 	err = ppm.Approve(approveDate)
 	if err != nil {
-		h.Logger().Error("Attempted to approve PPM, got invalid transition", zap.Error(err), zap.String("move_status", string(ppm.Status)))
-		return handlers.ResponseForError(h.Logger(), err)
+		logger.Error("Attempted to approve PPM, got invalid transition", zap.Error(err), zap.String("move_status", string(ppm.Status)))
+		return handlers.ResponseForError(logger, err)
 	}
 
 	verrs, err := h.DB().ValidateAndUpdate(ppm)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	err = h.NotificationSender().SendNotification(
 		ctx,
-		notifications.NewMoveApproved(h.DB(), h.Logger(), session, moveID),
+		notifications.NewMoveApproved(h.DB(), logger, session, moveID),
 	)
 	if err != nil {
-		h.Logger().Error("problem sending email to user", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		logger.Error("problem sending email to user", zap.Error(err))
+		return handlers.ResponseForError(logger, err)
 	}
 
 	ppmPayload, err := payloadForPPMModel(h.FileStorer(), *ppm)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return officeop.NewApprovePPMOK().WithPayload(ppmPayload)
 }
@@ -178,7 +177,7 @@ type ApproveReimbursementHandler struct {
 
 // Handle ... approves a Reimbursement from a request payload
 func (h ApproveReimbursementHandler) Handle(params officeop.ApproveReimbursementParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	if !session.IsOfficeUser() {
 		return officeop.NewApproveReimbursementForbidden()
@@ -189,18 +188,18 @@ func (h ApproveReimbursementHandler) Handle(params officeop.ApproveReimbursement
 
 	reimbursement, err := models.FetchReimbursement(h.DB(), session, reimbursementID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	err = reimbursement.Approve()
 	if err != nil {
-		h.Logger().Error("Attempted to approve, got invalid transition", zap.Error(err), zap.String("reimbursement_status", string(reimbursement.Status)))
-		return handlers.ResponseForError(h.Logger(), err)
+		logger.Error("Attempted to approve, got invalid transition", zap.Error(err), zap.String("reimbursement_status", string(reimbursement.Status)))
+		return handlers.ResponseForError(logger, err)
 	}
 
 	verrs, err := h.DB().ValidateAndUpdate(reimbursement)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	reimbursementPayload := payloadForReimbursementModel(reimbursement)

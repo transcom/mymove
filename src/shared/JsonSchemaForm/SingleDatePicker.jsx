@@ -40,12 +40,13 @@ export default function SingleDatePicker(props) {
   return (
     <DayPickerInput
       onDayChange={onChange}
+      onDayPickerHide={onBlur}
       placeholder=""
       parseDate={parseDate}
       formatDate={formatDate}
       value={formatted}
       dayPickerProps={getDayPickerProps(disabledDays)}
-      inputProps={{ disabled, name, onChange, onBlur }}
+      inputProps={{ disabled, name, onChange, autoComplete: 'off' }}
     />
   );
 }

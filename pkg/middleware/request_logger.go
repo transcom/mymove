@@ -10,14 +10,24 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/logging"
 )
 
 // RequestLogger returns a middleware that logs requests.
 // The middleware trys to use the logger from the context.
 // If the request context has no handler, then falls back to the server logger.
-func RequestLogger(logger Logger) func(inner http.Handler) http.Handler {
+func RequestLogger(serverLogger Logger) func(inner http.Handler) http.Handler {
 	return func(inner http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+			ctx := r.Context()
+
+			var logger InfoLogger
+			if requestLogger, ok := logging.FromContext(ctx).(InfoLogger); ok {
+				logger = requestLogger
+			} else {
+				logger = serverLogger
+			}
 
 			fields := []zap.Field{
 				zap.String("accepted-language", r.Header.Get("accepted-language")),
@@ -46,7 +56,10 @@ func RequestLogger(logger Logger) func(inner http.Handler) http.Handler {
 				}
 			}
 
-			if session := auth.SessionFromRequestContext(r); session != nil {
+			// Log the number of headers, which can be used for finding abnormal requests
+			fields = append(fields, zap.Int("headers", len(r.Header)))
+
+			if session := auth.SessionFromContext(ctx); session != nil {
 				if session.UserID != uuid.Nil {
 					fields = append(fields, zap.String("user-id", session.UserID.String()))
 				}

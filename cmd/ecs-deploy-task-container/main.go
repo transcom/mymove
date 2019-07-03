@@ -249,8 +249,12 @@ func buildContainerEnvironment(v *viper.Viper, environmentName string, dbHost st
 			Value: aws.String(strconv.Itoa(chamberUsePaths)),
 		},
 		{
-			Name:  aws.String("ENV"),
-			Value: aws.String("container"),
+			Name:  aws.String("DB_ENV"),
+			Value: aws.String(cli.DbEnvContainer),
+		},
+		{
+			Name:  aws.String("LOGGING_ENV"),
+			Value: aws.String(cli.LoggingEnvProduction),
 		},
 		{
 			Name:  aws.String("ENVIRONMENT"),
