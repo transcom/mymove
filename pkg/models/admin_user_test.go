@@ -17,6 +17,7 @@ func (suite *ModelSuite) TestAdminUserCreation() {
 		LastName:  "Spaceman",
 		UserID:    user.ID,
 		Role:      "SYSTEM_ADMIN",
+		Email:     "leo@gmail.com",
 	}
 
 	if verrs, err := suite.DB().ValidateAndCreate(&newAdminUser); err != nil || verrs.HasAny() {
@@ -34,7 +35,7 @@ func (suite *ModelSuite) TestAdminUserCreationWithoutValues() {
 	expErrors := map[string][]string{
 		"first_name": {"FirstName can not be blank."},
 		"last_name":  {"LastName can not be blank."},
-		"user_id":    {"UserID can not be blank."},
+		"email":      {"Email can not be blank."},
 		"role":       {"Role is not in the list [SYSTEM_ADMIN, PROGRAM_ADMIN]."},
 	}
 
