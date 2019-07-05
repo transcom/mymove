@@ -90,5 +90,3 @@ require (
 	gopkg.in/ini.v1 v1.44.0 // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
 )
-
-replace github.com/gobuffalo/pop => github.com/pjdufour-truss/pop v4.11.2-0.20190611171623-15091dd8b56d+incompatible
