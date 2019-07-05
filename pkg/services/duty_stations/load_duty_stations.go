@@ -1,9 +1,8 @@
 package dutystations
 
 import (
-	"bufio"
+	"encoding/csv"
 	"fmt"
-	"io"
 	"os"
 	"strings"
 
@@ -253,7 +252,7 @@ func FilterTransportationOffices(os models.TransportationOffices, test func(mode
 	return filtered
 }
 
-func (b *MigrationBuilder) FindTransportationOffice(s StationData, w io.Writer) models.TransportationOffices {
+func (b *MigrationBuilder) FindTransportationOffice(s StationData) models.TransportationOffices {
 	zip := s.Zip
 
 	dbOs, err := models.FetchTransportationOfficesByPostalCode(b.db, zip)
@@ -273,23 +272,29 @@ func (b *MigrationBuilder) FindTransportationOffice(s StationData, w io.Writer) 
 	return dbOs
 }
 
-func (b *MigrationBuilder) WriteLine(s StationData, w io.Writer) {
+func (b *MigrationBuilder) WriteLine(s StationData, row *[]string) {
 	name := b.normalizeName(s.Name)
 
-	fmt.Printf("\nname: %s  | zip: %s \n", name, s.Zip)
-	fmt.Fprintf(w, "\nname: %s  | zip: %s \n", name, s.Zip)
+	//fmt.Printf("\nname: %s  | zip: %s \n", name, s.Zip)
+	//fmt.Fprintf(w, "\nname: %s  | zip: %s \n", name, s.Zip)
+	newRow := append(*row, name, s.Zip)
+	*row = newRow
 }
 
-func (b *MigrationBuilder) WriteDbRecs(officeType string, ts models.TransportationOffices, w io.Writer) int {
+func (b *MigrationBuilder) WriteDbRecs(ts models.TransportationOffices, row *[]string) int {
+	var newRow []string
 	if len(ts) == 0 {
 		// b.logger.Debug("*** NONE FOUND... BLAH")
-		fmt.Printf("*** %s NOT FOUND\n", officeType)
-		fmt.Fprintf(w, "*** %s NOT FOUND\n", officeType)
-
+		//fmt.Printf("*** %s NOT FOUND\n", officeType)
+		//fmt.Fprintf(w, "*** %s NOT FOUND\n", officeType)
+		newRow = append(*row, "*** office NOT FOUND")
+		*row = newRow
 		return 1
 	}
 	for _, t := range ts {
-		fmt.Fprintf(w, "\t%s: %s\n", officeType, t.Name)
+		//fmt.Fprintf(w, "\t%s: %s\n", officeType, t.Name)
+		newRow = append(*row, t.Name)
+		*row = newRow
 	}
 	return 0
 }
@@ -333,37 +338,18 @@ func (b *MigrationBuilder) Build(dutyStationsFilePath string, outputFilePath str
 		return "", err
 	}
 	fmt.Printf("# total stations: %d\n", len(stations))
-
-	//usOffices := b.filterOffice(offices, isUSFilter)
-	//fmt.Printf("# us only offices: %d\n", len(usOffices))
-	//
-	//conusOffices := b.filterOffice(usOffices, isCONUSFilter)
-	//fmt.Printf("# conus only offices: %d\n", len(conusOffices))
-	//
-	//afbOffices := b.filterOffice(conusOffices, isAFBFilter)
-	//fmt.Printf("# AFB offices: %d\n", len(afbOffices))
-	//
-	//armyOffices := b.filterOffice(conusOffices, isArmyFilter)
-	//fmt.Printf("# Army offices: %d\n", len(armyOffices))
-	//
-	//navOffices := b.filterOffice(conusOffices, isNavyFilter)
-	//fmt.Printf("# Nav offices: %d\n", len(navOffices))
-	//
-	//otherOffices := b.filterOffice(conusOffices, isOtherFilter)
-	//fmt.Printf("# other offices: %d\n", len(otherOffices))
-	//
-	//
-	//fmt.Println(outputFilePath)
 	f, err := os.Create(outputFilePath)
 	defer f.Close()
-	w := bufio.NewWriter(f)
-
+	w := csv.NewWriter(f)
+	w.Write([]string{"Duty Station Name", "ZIP", "Transportation Offices -->"})
 	for _, s := range stations {
+		var row []string
 		fmt.Printf("%v\n", s)
-		dbOffices := b.FindTransportationOffice(s, w)
-		if len(dbOffices) == 0 {
-			b.WriteLine(s, w)
-			b.WriteDbRecs("office", dbOffices, w)
+		dbOffices := b.FindTransportationOffice(s)
+		if len(dbOffices) > 0 {
+			b.WriteLine(s, &row)
+			b.WriteDbRecs(dbOffices, &row)
+			w.Write(row)
 		}
 	}
 	w.Flush()
