@@ -3,11 +3,21 @@ package migrate
 import (
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/gobuffalo/pop"
 )
 
 var mrx = regexp.MustCompile(`^(\d+)_([^.]+)(\.[a-z0-9]+)?(\.[a-z]+)?\.(sql|fizz)$`)
+
+func normalizeSynonyms(dialect string) string {
+	d := strings.ToLower(dialect)
+	switch d {
+	case "postgres", "pg":
+		return "postgres"
+	}
+	return d
+}
 
 // ParseMigrationFilename parses a migration filename.
 func ParseMigrationFilename(filename string) (*pop.Match, error) {
@@ -28,7 +38,7 @@ func ParseMigrationFilename(filename string) (*pop.Match, error) {
 			dbType = "all"
 			direction = m[3][1:]
 		} else {
-			dbType = m[3][1:]
+			dbType = normalizeSynonyms(m[3][1:])
 			if !pop.DialectSupported(dbType) {
 				return nil, fmt.Errorf("unsupported dialect %s", dbType)
 			}
