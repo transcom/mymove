@@ -2,11 +2,13 @@ sql("CREATE TYPE admin_role AS ENUM ('SYSTEM_ADMIN', 'PROGRAM_ADMIN');")
 
 create_table("admin_users") {
 	t.Column("id", "uuid", {primary: true})
-	t.Column("user_id", "uuid", {})
+	t.Column("user_id", "uuid", {null: true})
 	t.Column("first_name", "string", {null: true})
 	t.Column("last_name", "string", {null: true})
 	t.Column("organization_id", "uuid", {null: true})
 	t.Column("role", "admin_role", {})
+	t.Column("disabled", "bool", {default: false})
+	t.Column("email", "string", {})
 	t.Timestamps()
 }
 
