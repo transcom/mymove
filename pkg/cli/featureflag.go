@@ -7,12 +7,12 @@ import (
 
 const (
 	//RequiresAccessCode flag
-	RequiresAccessCode string = "requires-access-code"
+	FeatureFlagAccessCode string = "feature-flag-access-code"
 )
 
 // InitFeatureFlag initializes FeatureFlags command line flags
 func InitFeatureFlag(flag *pflag.FlagSet) {
-	flag.Bool(RequiresAccessCode, false, "Flag (bool) to enable requires-access-code")
+	flag.Bool(FeatureFlagAccessCode, false, "Flag (bool) to enable requires-access-code")
 }
 
 // CheckFeatureFlag validates Verbose command line flags

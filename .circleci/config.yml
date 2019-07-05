@@ -676,7 +676,7 @@ jobs:
       - APP_ENVIRONMENT: 'experimental'
     steps:
       - deploy_app_client_tls_steps:
-          compare_host: '' # leave blank since we want experimental to be able to roll back
+          compare_host: "" # leave blank since we want experimental to be able to roll back
           health_check_hosts: gex.experimental.move.mil,dps.experimental.move.mil,orders.experimental.move.mil
 
   check_circle_against_staging_sha:
@@ -883,8 +883,8 @@ workflows:
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
           # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
+          #  branches:
+          #    ignore: placeholder_branch_name
 
       - integration_tests_office:
           requires:

@@ -189,8 +189,8 @@
       "value": "{{ .SERVE_SWAGGER_UI }}"
     },
     {
-      "name": "REQUIRES_ACCESS_CODE",
-      "value": "{{ .REQUIRES_ACCESS_CODE }}"
+      "name": "FEATURE_FLAG_ACCESS_CODE",
+      "value": "{{ .FEATURE_FLAG_ACCESS_CODE }}"
     }
   ],
   "logConfiguration": {

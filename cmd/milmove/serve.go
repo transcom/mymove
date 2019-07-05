@@ -133,7 +133,7 @@ func initServeFlags(flag *pflag.FlagSet) {
 	cli.InitFeatureFlag(flag)
 
 	// Don't sort flags
-	flag.SortFlags = false
+	flag.SortFlags = true
 }
 
 func checkServeConfig(v *viper.Viper, logger logger) error {
@@ -523,7 +523,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	// Set feature flag
 	handlerContext.SetFeatureFlags(
-		handlers.FeatureFlag{Name: cli.RequiresAccessCode, Active: v.GetBool(cli.RequiresAccessCode)},
+		handlers.FeatureFlag{Name: cli.FeatureFlagAccessCode, Active: v.GetBool(cli.FeatureFlagAccessCode)},
 	)
 
 	// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
