@@ -406,6 +406,10 @@ function serviceMemberEditsPaymentRequest() {
     .contains('Edit Payment Request')
     .should('exist')
     .click();
+  cy
+    .get('[data-cy=weight-ticket-link]')
+    .should('exist')
+    .click();
   serviceMemberSubmitsWeightTicket('CAR', false);
   serviceMemberReviewsDocuments();
 }
