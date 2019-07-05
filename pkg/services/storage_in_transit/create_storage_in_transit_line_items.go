@@ -59,6 +59,11 @@ func (c CreateStorageInTransitLineItems) storageInTransitDistance(storageInTrans
 		return nil, saveError
 	}
 
+	logger, err := zap.NewDevelopment()
+	logger.Debug("origin vs destination for distanceCalculation", zap.Any("Origin Address", origin),
+		zap.Any("Destination Address", destination),
+		zap.Any("distance", distanceCalculation.DistanceMiles))
+
 	return &distanceCalculation, nil
 }
 
@@ -100,7 +105,7 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 		return nil, errors.Wrap(err, "Error creating StorageInTransit line items")
 	}
 
-	logger.Debug("*****Number of Storage in Transits for shimpment ", zap.Int("number of SITs", len(storageInTransits)))
+	logger.Debug("*****Number of Storage in Transits for shipment ", zap.Int("number of SITs", len(storageInTransits)))
 
 	for _, sit := range storageInTransits {
 
@@ -108,6 +113,13 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 		if sit.Status != models.StorageInTransitStatusDELIVERED && sit.Status != models.StorageInTransitStatusRELEASED {
 			continue
 		}
+
+		logger.Debug("Running distance calculation for Storage In Transit",
+			zap.Any("sit location", sit.Location),
+			zap.Any("sit warehouse", sit.WarehouseAddress),
+			zap.Any("PickupAddress", shipment.PickupAddress),
+			zap.Any("Duty Station Address", shipment.Move.Orders.NewDutyStation.Address),
+		)
 
 		// Calculate distance for storage in transit
 		distanceCalculation, err := c.storageInTransitDistance(sit, shipment)

@@ -2868,6 +2868,85 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	}
 	sitPlaceInSIT(db, placeInSITParams46, tspUserSession)
 
+	/* HHG47
+	 * Service member with in transit shipment and SIT
+	 */
+
+	/*
+		pickupAddress := models.Address{
+			StreetAddress1: "9611 Highridge Dr",
+			//StreetAddress2: swag.String(""),
+			//StreetAddress3: swag.String(""),
+			City:           "Beverly Hills",
+			State:          "CA",
+			PostalCode:     "90210",
+			Country:        swag.String("US"),
+		}
+		pickupAddress = testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+			Address: pickupAddress,
+		})
+
+		destAddress := models.Address{
+			StreetAddress1: "2157 Willhaven Dr",
+			//StreetAddress2: swag.String(""),
+			//StreetAddress3: swag.String(""),
+			City:           "Augusta",
+			State:          "GA",
+			PostalCode:     "30909",
+			Country:        swag.String("US"),
+		}
+		destAddress = testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+			Address: destAddress,
+		})
+
+		// 9.2 mi from Origin: Saf Keep Storage, 4996 Melrose Ave, Los Angeles, CA 90029
+		sitOriginAddress := models.Address{
+			StreetAddress1: "4996 Melrose Ave",
+			StreetAddress2: swag.String(""),
+			StreetAddress3: swag.String(""),
+			City:           "Los Angeles",
+			State:          "CA",
+			PostalCode:     "90029",
+			Country:        swag.String("US"),
+		}
+
+		//Extra Space Storage, 155 S Adams St, Anaheim, CA 92802: less than 50 depending on route
+		//mileage is: 39.7mi, 47.5mi, and 49.2mi
+		sitOriginAddress := models.Address{
+			StreetAddress1: "155 S Adams St",
+			StreetAddress2: swag.String(""),
+			StreetAddress3: swag.String(""),
+			City:           "Anaheim",
+			State:          "CA",
+			PostalCode:     "92802",
+			Country:        swag.String("US"),
+		}
+
+		sitOriginAddress := models.Address{
+			StreetAddress1: "1860 Vine St",
+			StreetAddress2: swag.String(""),
+			StreetAddress3: swag.String(""),
+			City:           "Los Angeles",
+			State:          "CA",
+			PostalCode:     "90028",
+			Country:        swag.String("US"),
+		}
+
+		sitDestinationAddress := models.Address{
+			StreetAddress1: "1045 Bertram Rd",
+			StreetAddress2: swag.String(""),
+			StreetAddress3: swag.String(""),
+			City:           "Augusta",
+			State:          "GA",
+			PostalCode:     "30909",
+			Country:        swag.String("US"),
+		}
+	*/
+
+	/* HHG48
+	 * Service member with in transit shipment and SIT
+	 */
+
 	/*
 	 * Service member with a ppm ready to request payment
 	 */

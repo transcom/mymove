@@ -1,7 +1,6 @@
 package storageintransit
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/gofrs/uuid"
@@ -16,46 +15,16 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *StorageInTransitServiceSuite) helperSetup() (models.Address, models.Address) {
+func (suite *StorageInTransitServiceSuite) helperSetup() {
 	assertions := testdatagen.Assertions{}
 	assertions.FuelEIADieselPrice.BaselineRate = 6
 	assertions.FuelEIADieselPrice.EIAPricePerGallonMillicents = 320700
 	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
-
-	pickupAddress := models.Address{
-		StreetAddress1: "9611 Highridge Dr",
-		StreetAddress2: swag.String("P.O. Box 12345"),
-		StreetAddress3: swag.String("c/o Some Person"),
-		City:           "Beverly Hills",
-		State:          "CA",
-		PostalCode:     "90210",
-		Country:        swag.String("US"),
-	}
-	pickupAddress = testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: pickupAddress,
-	})
-
-	destAddress := models.Address{
-		StreetAddress1: "2157 Willhaven Dr ",
-		StreetAddress2: swag.String(""),
-		StreetAddress3: swag.String(""),
-		City:           "Augusta",
-		State:          "GA",
-		PostalCode:     "30909",
-		Country:        swag.String("US"),
-	}
-	destAddress = testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: destAddress,
-	})
-
-	return pickupAddress, destAddress
 }
 
 func (suite *StorageInTransitServiceSuite) helperCreateShipment(
-	pickupAddress models.Address,
-	destAddress models.Address,
-	originSITAddress models.Address,
-	destinationSITAddress models.Address) rateengine.CostByShipment {
+	originSITAddress *models.Address,
+	destinationSITAddress *models.Address) (rateengine.CostByShipment, uuid.UUID) {
 
 	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), 1, 1, []int{1}, []models.ShipmentStatus{models.ShipmentStatusINTRANSIT}, models.SelectedMoveTypeHHG)
 	suite.NoError(err)
@@ -63,50 +32,54 @@ func (suite *StorageInTransitServiceSuite) helperCreateShipment(
 	tspUser := tspUsers[0]
 	shipment := shipments[0]
 
-	originSITAddress = testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: originSITAddress,
-	})
-
-	destinationSITAddress = testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
-		Address: destinationSITAddress,
-	})
-
 	authorizedStartDate := shipment.ActualPickupDate
-	sitOriginID := uuid.Must(uuid.NewV4())
-	sitOrigin := models.StorageInTransit{
-		ID:                  sitOriginID,
-		ShipmentID:          shipment.ID,
-		Shipment:            shipment,
-		Location:            models.StorageInTransitLocationORIGIN,
-		Status:              models.StorageInTransitStatusRELEASED,
-		EstimatedStartDate:  *authorizedStartDate,
-		AuthorizedStartDate: authorizedStartDate,
-		ActualStartDate:     authorizedStartDate,
-		WarehouseID:         "450383",
-		WarehouseName:       "Extra Space Storage",
-		WarehouseAddress:    originSITAddress,
-	}
-	testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
-		StorageInTransit: sitOrigin,
-	})
 
-	sitDestinationID := uuid.Must(uuid.NewV4())
-	sitDestination := models.StorageInTransit{
-		ID:                  sitDestinationID,
-		ShipmentID:          shipment.ID,
-		Shipment:            shipment,
-		Location:            models.StorageInTransitLocationDESTINATION,
-		Status:              models.StorageInTransitStatusDELIVERED,
-		EstimatedStartDate:  *authorizedStartDate,
-		AuthorizedStartDate: authorizedStartDate,
-		ActualStartDate:     authorizedStartDate,
-		WarehouseID:         "450384",
-		WarehouseName:       "Iron Guard Storage",
-		WarehouseAddress:    destinationSITAddress,
+	if originSITAddress != nil {
+		makeOriginSITAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+			Address: *originSITAddress,
+		})
+		sitOriginID := uuid.Must(uuid.NewV4())
+		sitOrigin := models.StorageInTransit{
+			ID:                  sitOriginID,
+			ShipmentID:          shipment.ID,
+			Shipment:            shipment,
+			Location:            models.StorageInTransitLocationORIGIN,
+			Status:              models.StorageInTransitStatusRELEASED,
+			EstimatedStartDate:  *authorizedStartDate,
+			AuthorizedStartDate: authorizedStartDate,
+			ActualStartDate:     authorizedStartDate,
+			WarehouseID:         "450383",
+			WarehouseName:       "Extra Space Storage",
+			WarehouseAddress:    makeOriginSITAddress,
+		}
+		testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
+			StorageInTransit: sitOrigin,
+		})
 	}
-	testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
-		StorageInTransit: sitDestination,
-	})
+
+	if destinationSITAddress != nil {
+		makeDestinationSITAddress := testdatagen.MakeAddress(suite.DB(), testdatagen.Assertions{
+			Address: *destinationSITAddress,
+		})
+
+		sitDestinationID := uuid.Must(uuid.NewV4())
+		sitDestination := models.StorageInTransit{
+			ID:                  sitDestinationID,
+			ShipmentID:          shipment.ID,
+			Shipment:            shipment,
+			Location:            models.StorageInTransitLocationDESTINATION,
+			Status:              models.StorageInTransitStatusDELIVERED,
+			EstimatedStartDate:  *authorizedStartDate,
+			AuthorizedStartDate: authorizedStartDate,
+			ActualStartDate:     authorizedStartDate,
+			WarehouseID:         "450384",
+			WarehouseName:       "Iron Guard Storage",
+			WarehouseAddress:    makeDestinationSITAddress,
+		}
+		testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
+			StorageInTransit: sitDestination,
+		})
+	}
 
 	// Refetching shipments from database to get all needed eagerly fetched relationships.
 	dbShipment, err := models.FetchShipmentByTSP(suite.DB(), tspUser.TransportationServiceProviderID, shipment.ID)
@@ -114,52 +87,52 @@ func (suite *StorageInTransitServiceSuite) helperCreateShipment(
 
 	logger, err := zap.NewDevelopment()
 	suite.FatalNoError(err)
-	logger.Debug("^^^^^^^^^^^^^^^^TESTING NON TEST SUITE DEBUGGER")
-	//suite.logger.Debug("$$$$$$$$$$$$$$$TEST TEST SUITE DEBUGGER")
-
-	//engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
 
 	engine := rateengine.NewRateEngine(suite.DB(), logger)
-	//storageInTransitCompare(suite, *actualStorageInTransit, sit)
-	//engine := rateengine.NewRateEngine(suite.DB(), suite.logger)
 	shipmentCost, err := engine.HandleRunOnShipment(*dbShipment, dbShipment.ShippingDistance)
 	suite.FatalNoError(err)
 
-	return shipmentCost
+	return shipmentCost, shipment.ID
 }
 
 func (suite *StorageInTransitServiceSuite) TestCreateStorageInTransitLineItems() {
 
-	pickupAddress, destinationAddress := suite.helperSetup()
+	suite.helperSetup()
 
-	suite.T().Run("Create Storage In Transit Less Than 30 mi", func(t *testing.T) {
+	suite.T().Run("Create Storage In Transit Has 1044 distance miles", func(t *testing.T) {
+
+		// Because of how the planner is setup the distance from storage warehouse will always be 1044 mi
+		// to test fully the real distances will be tested in e2e using Cypress.io
+		// 9.2 mi from Origin: Saf Keep Storage, 4996 Melrose Ave, Los Angeles, CA 90029
 		sitOriginAddress := models.Address{
-			StreetAddress1: "1860 Vine St",
+			StreetAddress1: "4996 Melrose Ave",
 			StreetAddress2: swag.String(""),
 			StreetAddress3: swag.String(""),
 			City:           "Los Angeles",
 			State:          "CA",
-			PostalCode:     "90028",
+			PostalCode:     "90029",
 			Country:        swag.String("US"),
 		}
 
-		sitDestinationAddress := models.Address{
-			StreetAddress1: "1045 Bertram Rd",
-			StreetAddress2: swag.String(""),
-			StreetAddress3: swag.String(""),
-			City:           "Augusta",
-			State:          "GA",
-			PostalCode:     "30909",
-			Country:        swag.String("US"),
-		}
+		shipmentCost, shipmentID := suite.helperCreateShipment(&sitOriginAddress, nil)
+		suite.NotEqual(shipmentCost.Shipment.ID, uuid.Nil, "shipmentCost.Shipment.ID not uuid.Nil")
 
-		shipmentCost := suite.helperCreateShipment(pickupAddress, destinationAddress, sitOriginAddress, sitDestinationAddress)
+		storageInTransits, err := models.FetchStorageInTransitsOnShipment(suite.DB(), shipmentCost.Shipment.ID)
+		suite.FatalNoError(err)
+		suite.Len(storageInTransits, 1)
 
-		//planner := route.NewTestingPlanner(1100)
-		//planner := route.NewTestingPlanner(shipmentCost.Cost.Mileage)
+		suite.Equal(sitOriginAddress.StreetAddress1, storageInTransits[0].WarehouseAddress.StreetAddress1, "Origin SIT Address is what we expect")
+		suite.Equal(sitOriginAddress.PostalCode, storageInTransits[0].WarehouseAddress.PostalCode, "Origin SIT Zip is what we expect")
+
+		suite.Equal(shipmentID, shipmentCost.Shipment.ID,
+			"shipmentID and shipmentCost.Shipment.ID IDs are the same")
+
+		suite.Equal(shipmentCost.Shipment.ID, storageInTransits[0].ShipmentID,
+			"shipmentCost.Shipment.ID and storageInTransits[0].ShipmentID IDs are the same")
+
 		planner := route.NewTestingPlanner(shipmentCost.Shipment.ShippingDistance.DistanceMiles)
-		// Create Storage in Transit (SIT) line items for Shipment
 
+		// Create Storage in Transit (SIT) line items for Shipment
 		createStorageInTransitLineItems := CreateStorageInTransitLineItems{
 			DB:      suite.DB(),
 			Planner: planner,
@@ -167,105 +140,22 @@ func (suite *StorageInTransitServiceSuite) TestCreateStorageInTransitLineItems()
 		storageInTransitLineItems, err := createStorageInTransitLineItems.CreateStorageInTransitLineItems(shipmentCost)
 		suite.FatalNoError(err)
 
-		// There are 6 Base Shipment line items:
-		// origin fee, destination fee, linehaul, pack, unpack, fuel surcharge
-		//suite.Len(lineItems, 6)
-
-		/*
-
-			itemLHS := suite.findLineItem(storageInTransitLineItems, "210A")
-			if itemLHS != nil {
-				//suite.validateLineItemFields(*itemLHS, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(1044), models.ShipmentLineItemLocationORIGIN, unit.Cents(260858), unit.Millicents(0))
-			}
-
-			item135A := suite.findLineItem(storageInTransitLineItems, "210B")
-			if item135A != nil {
-				//suite.validateLineItemFields(*item135A, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationORIGIN, unit.Cents(10230), unit.Millicents(511000))
-			}
-		*/
-
-		item135B := suite.findLineItem(storageInTransitLineItems, "210C")
-		if item135B != nil {
-			//suite.validateLineItemFields(*item135B, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationDESTINATION, unit.Cents(11524), unit.Millicents(576000))
+		for _, sit := range storageInTransits {
+			suite.Equal(shipmentCost.Shipment.ID, sit.ShipmentID, "shipmentCost.Shipment.ID, sit.ShipmentID are the same")
+			suite.Equal(sit.ShipmentID, shipmentID, "sit.ShipmentID, shipmentID are the same")
 		}
-
-	})
-
-	suite.T().Run("Create Storage In Transit Less Than 50 mi", func(t *testing.T) {
-
-	})
-
-	suite.T().Run("Create Storage In Transit At Least 50 mi", func(t *testing.T) {
-		sitOriginAddress := models.Address{
-			StreetAddress1: "1860 Vine St",
-			StreetAddress2: swag.String(""),
-			StreetAddress3: swag.String(""),
-			City:           "Los Angeles",
-			State:          "CA",
-			PostalCode:     "90028",
-			Country:        swag.String("US"),
-		}
-
-		sitDestinationAddress := models.Address{
-			StreetAddress1: "1045 Bertram Rd",
-			StreetAddress2: swag.String(""),
-			StreetAddress3: swag.String(""),
-			City:           "Augusta",
-			State:          "GA",
-			PostalCode:     "30909",
-			Country:        swag.String("US"),
-		}
-
-		shipmentCost := suite.helperCreateShipment(pickupAddress, destinationAddress, sitOriginAddress, sitDestinationAddress)
-
-		//planner := route.NewTestingPlanner(1100)
-		//planner := route.NewTestingPlanner(shipmentCost.Cost.Mileage)
-		planner := route.NewTestingPlanner(shipmentCost.Shipment.ShippingDistance.DistanceMiles)
-		// Create Storage in Transit (SIT) line items for Shipment
-
-		createStorageInTransitLineItems := CreateStorageInTransitLineItems{
-			DB:      suite.DB(),
-			Planner: planner,
-		}
-		storageInTransitLineItems, err := createStorageInTransitLineItems.CreateStorageInTransitLineItems(shipmentCost)
-		suite.FatalNoError(err)
-
-		// There are 6 Base Shipment line items:
-		// origin fee, destination fee, linehaul, pack, unpack, fuel surcharge
-		//suite.Len(lineItems, 6)
-
-		/*
-
-			item210A := suite.findLineItem(storageInTransitLineItems, "210A")
-			if item210A != nil {
-				//suite.validateLineItemFields(*itemLHS, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(1044), models.ShipmentLineItemLocationORIGIN, unit.Cents(260858), unit.Millicents(0))
-			}
-
-			item210B := suite.findLineItem(storageInTransitLineItems, "210B")
-			if item210B != nil {
-				//suite.validateLineItemFields(*item135A, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationORIGIN, unit.Cents(10230), unit.Millicents(511000))
-			}
-		*/
 
 		item210C := suite.findLineItem(storageInTransitLineItems, "210C")
 		if item210C != nil {
-			//suite.validateLineItemFields(*item135B, unit.BaseQuantityFromInt(2000), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationDESTINATION, unit.Cents(11524), unit.Millicents(576000))
+			suite.validateLineItemFields(*item210C, unit.BaseQuantityFromInt(1044), unit.BaseQuantityFromInt(0), models.ShipmentLineItemLocationORIGIN)
 		}
+
 	})
 }
 
 func (suite *StorageInTransitServiceSuite) findLineItem(lineItems []models.ShipmentLineItem, itemCode string) *models.ShipmentLineItem {
 	for _, lineItem := range lineItems {
 		if itemCode == lineItem.Tariff400ngItem.Code {
-			fmt.Println("DEBUG line item",
-				zap.Any("code", itemCode),
-				zap.Any("quantity1", lineItem.Quantity1),
-				zap.Any("quantity2", lineItem.Quantity2),
-				zap.Any("location", lineItem.Location),
-				zap.Any("status", lineItem.Status),
-			//zap.Any("amountCents", *lineItem.AmountCents),
-			//zap.Any("appliedRate", *lineItem.AppliedRate),
-			)
 			return &lineItem
 		}
 	}
@@ -274,12 +164,9 @@ func (suite *StorageInTransitServiceSuite) findLineItem(lineItems []models.Shipm
 	return nil
 }
 
-func (suite *StorageInTransitServiceSuite) validateLineItemFields(lineItem models.ShipmentLineItem, quantity1 unit.BaseQuantity, quantity2 unit.BaseQuantity, location models.ShipmentLineItemLocation, amountCents unit.Cents, appliedRate unit.Millicents) {
+func (suite *StorageInTransitServiceSuite) validateLineItemFields(lineItem models.ShipmentLineItem, quantity1 unit.BaseQuantity, quantity2 unit.BaseQuantity, location models.ShipmentLineItemLocation) {
 	suite.Equal(quantity1, lineItem.Quantity1)
 	suite.Equal(quantity2, lineItem.Quantity2)
 	suite.Equal(location, lineItem.Location)
-	suite.Equal(amountCents, *lineItem.AmountCents)
-	suite.Equal(appliedRate, *lineItem.AppliedRate)
-
-	suite.Equal(models.ShipmentLineItemStatusSUBMITTED, lineItem.Status)
+	suite.Equal(models.ShipmentLineItemStatusAPPROVED, lineItem.Status)
 }
