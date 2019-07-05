@@ -3,6 +3,8 @@ package internalapi
 import (
 	"reflect"
 
+	"github.com/transcom/mymove/pkg/cli"
+
 	"github.com/go-openapi/runtime/middleware"
 	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
@@ -99,7 +101,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		}
 	}
 
-	requiresAccessCode := h.HandlerContext.GetFeatureFlag("requires-access-code")
+	requiresAccessCode := h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode)
 
 	userPayload := internalmessages.LoggedInUserPayload{
 		ID:            handlers.FmtUUID(session.UserID),

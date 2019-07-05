@@ -1,5 +1,4 @@
-CREATE TABLE access_codes
-(
+CREATE TABLE access_codes (
 	id uuid PRIMARY KEY,
 	service_member_id uuid REFERENCES service_members(id),
 	code text UNIQUE NOT NULL,

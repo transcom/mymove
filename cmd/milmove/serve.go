@@ -130,9 +130,9 @@ func initServeFlags(flag *pflag.FlagSet) {
 	cli.InitVerboseFlags(flag)
 
 	// Feature Flags
-	cli.InitFeatureFlag(flag)
+	cli.InitFeatureFlags(flag)
 
-	// Don't sort flags
+	// Sort flags
 	flag.SortFlags = true
 }
 

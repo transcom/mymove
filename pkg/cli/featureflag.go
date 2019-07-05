@@ -11,7 +11,7 @@ const (
 )
 
 // InitFeatureFlag initializes FeatureFlags command line flags
-func InitFeatureFlag(flag *pflag.FlagSet) {
+func InitFeatureFlags(flag *pflag.FlagSet) {
 	flag.Bool(FeatureFlagAccessCode, false, "Flag (bool) to enable requires-access-code")
 }
 
