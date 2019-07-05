@@ -12,3 +12,5 @@ These include data about network requests, container resources, and errors.
 * [Experimental Dashboard](https://us-west-2.console.aws.amazon.com/cloudwatch/home?region=us-west-2#dashboards:name=mil-experimental)
 
 ### Updating Dashboards
+
+Dashboards are maintained by Terraform in the [MilMove infra repo](https://github.com/transcom/ppp-infra/blob/master/modules/aws-app-environment/main.tf#L840).
