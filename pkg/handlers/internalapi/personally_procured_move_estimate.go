@@ -21,21 +21,24 @@ type ShowPPMEstimateHandler struct {
 
 // Handle calculates a PPM reimbursement range.
 func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middleware.Responder {
-	engine := rateengine.NewRateEngine(h.DB(), h.Logger())
+
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+
+	engine := rateengine.NewRateEngine(h.DB(), logger)
 
 	lhDiscount, _, err := models.PPMDiscountFetch(h.DB(),
-		h.Logger(),
+		logger,
 		params.OriginZip,
 		params.DestinationZip,
 		time.Time(params.OriginalMoveDate),
 	)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	distanceMiles, err := h.Planner().Zip5TransitDistance(params.OriginZip, params.DestinationZip)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	cost, err := engine.ComputePPM(unit.Pound(params.WeightEstimate),
@@ -49,7 +52,7 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 	)
 
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	min := cost.GCC.MultiplyFloat64(0.95)

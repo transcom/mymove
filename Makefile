@@ -1,9 +1,9 @@
 NAME = ppp
 DB_NAME_DEV = dev_db
-DB_NAME_PROD_MIGRATIONS = prod_migrations
+DB_NAME_DEPLOYED_MIGRATIONS = deployed_migrations
 DB_NAME_TEST = test_db
 DB_DOCKER_CONTAINER_DEV = milmove-db-dev
-DB_DOCKER_CONTAINER_PROD_MIGRATIONS = milmove-db-prod-migrations
+DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS = milmove-db-deployed-migrations
 DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # The version of the postgres container should match production as closely
 # as possible.
@@ -29,7 +29,7 @@ endif
 WEBSERVER_LDFLAGS=-X main.gitBranch=$(shell git branch | grep \* | cut -d ' ' -f2) -X main.gitCommit=$(shell git rev-list -1 HEAD)
 GC_FLAGS=-trimpath=$(GOPATH)
 DB_PORT_DEV=5432
-DB_PORT_PROD_MIGRATIONS=5434
+DB_PORT_DEPLOYED_MIGRATIONS=5434
 DB_PORT_DOCKER=5432
 ifdef CIRCLECI
 	DB_PORT_TEST=5432
@@ -485,58 +485,57 @@ db_dev_migrate: server_deps db_dev_migrate_standalone ## Migrate Dev DB
 #
 
 #
-# ----- START DB_PROD_MIGRATIONS TARGETS -----
+# ----- START DB_DEPLOYED_MIGRATIONS TARGETS -----
 #
 
-.PHONY: db_prod_migrations_destroy
-db_prod_migrations_destroy: ## Destroy Prod Migrations DB
+.PHONY: db_deployed_migrations_destroy
+db_deployed_migrations_destroy: ## Destroy Deployed Migrations DB
 ifndef CIRCLECI
-	@echo "Destroying the ${DB_DOCKER_CONTAINER_PROD_MIGRATIONS} docker database container..."
-	docker rm -f $(DB_DOCKER_CONTAINER_PROD_MIGRATIONS) || \
+	@echo "Destroying the ${DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS} docker database container..."
+	docker rm -f $(DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS) || \
 		echo "No database container"
 else
 	@echo "Relying on CircleCI's database setup to destroy the DB."
 endif
 
-.PHONY: db_prod_migrations_start
-db_prod_migrations_start: ## Start Prod Migrations DB
+.PHONY: db_deployed_migrations_start
+db_deployed_migrations_start: ## Start Deployed Migrations DB
 ifndef CIRCLECI
 	brew services stop postgresql 2> /dev/null || true
 endif
-	@echo "Starting the ${DB_DOCKER_CONTAINER_PROD_MIGRATIONS} docker database container..."
+	@echo "Starting the ${DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS} docker database container..."
 	# If running do nothing, if not running try to start, if can't start then run
-	docker start $(DB_DOCKER_CONTAINER_PROD_MIGRATIONS) || \
-		docker run --name $(DB_DOCKER_CONTAINER_PROD_MIGRATIONS) \
+	docker start $(DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS) || \
+		docker run --name $(DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS) \
 			-e \
 			POSTGRES_PASSWORD=$(PGPASSWORD) \
 			-d \
-			-p $(DB_PORT_PROD_MIGRATIONS):$(DB_PORT_DOCKER)\
+			-p $(DB_PORT_DEPLOYED_MIGRATIONS):$(DB_PORT_DOCKER)\
 			$(DB_DOCKER_CONTAINER_IMAGE)
 
-.PHONY: db_prod_migrations_create
-db_prod_migrations_create: ## Create Prod Migrations DB
-	@echo "Create the ${DB_NAME_PROD_MIGRATIONS} database..."
-	DB_NAME=postgres DB_PORT=$(DB_PORT_PROD_MIGRATIONS) scripts/wait-for-db && \
-		createdb -p $(DB_PORT_PROD_MIGRATIONS) -h localhost -U postgres $(DB_NAME_PROD_MIGRATIONS) || true
+.PHONY: db_deployed_migrations_create
+db_deployed_migrations_create: ## Create Deployed Migrations DB
+	@echo "Create the ${DB_NAME_DEPLOYED_MIGRATIONS} database..."
+	DB_NAME=postgres DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) scripts/wait-for-db && \
+		createdb -p $(DB_PORT_DEPLOYED_MIGRATIONS) -h localhost -U postgres $(DB_NAME_DEPLOYED_MIGRATIONS) || true
 
-.PHONY: db_prod_migrations_run
-db_prod_migrations_run: db_prod_migrations_start db_prod_migrations_create ## Run Prod Migrations DB (start and create)
+.PHONY: db_deployed_migrations_run
+db_deployed_migrations_run: db_deployed_migrations_start db_deployed_migrations_create ## Run Deployed Migrations DB (start and create)
 
-.PHONY: db_prod_migrations_reset
-db_prod_migrations_reset: db_prod_migrations_destroy db_prod_migrations_run ## Reset Prod Migrations DB (destroy and run)
+.PHONY: db_deployed_migrations_reset
+db_deployed_migrations_reset: db_deployed_migrations_destroy db_deployed_migrations_run ## Reset Deployed Migrations DB (destroy and run)
 
-.PHONY: db_prod_migrations_migrate_standalone
-db_prod_migrations_migrate_standalone: bin/milmove ## Migrate Prod Migrations DB directly
-	@echo "Migrating the ${DB_NAME_PROD_MIGRATIONS} database..."
+.PHONY: db_deployed_migrations_migrate_standalone
+db_deployed_migrations_migrate_standalone: bin/milmove ## Migrate Deployed Migrations DB with local migrations
+	@echo "Migrating the ${DB_NAME_DEPLOYED_MIGRATIONS} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
-	cd scripts && \
-		../bin/milmove migrate -p ../migrations
+	cd scripts && DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) ../bin/milmove migrate -p ../migrations
 
-.PHONY: db_prod_migrations_migrate
-db_prod_migrations_migrate: server_deps db_prod_migrations_migrate_standalone ## Migrate Prod Migrations DB
+.PHONY: db_deployed_migrations_migrate
+db_deployed_migrations_migrate: server_deps db_deployed_migrations_migrate_standalone ## Migrate Deployed Migrations DB
 
 #
-# ----- END DB_PROD_MIGRATIONS TARGETS -----
+# ----- END DB_DEPLOYED_MIGRATIONS TARGETS -----
 #
 
 #
@@ -688,7 +687,7 @@ db_e2e_up: bin/generate-test-data ## Truncate Test DB and Generate e2e (end-to-e
 	@echo "Truncate the ${DB_NAME_TEST} database..."
 	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE;'
 	@echo "Populate the ${DB_NAME_TEST} database..."
-	DB_PORT=$(DB_PORT_TEST) bin/generate-test-data --named-scenario="e2e_basic" --env="test"
+	DB_PORT=$(DB_PORT_TEST) bin/generate-test-data --named-scenario="e2e_basic" --db-env="test"
 
 .PHONY: db_e2e_up_docker
 db_e2e_up_docker: ## Truncate DB and Generate e2e (end-to-end) data (docker)
@@ -723,7 +722,7 @@ db_e2e_init_docker: db_test_reset_docker db_test_migrate_docker db_e2e_up_docker
 .PHONY: db_dev_e2e_populate
 db_dev_e2e_populate: db_dev_reset db_dev_migrate build_tools ## Populate Dev DB with generated e2e (end-to-end) data
 	@echo "Populate the ${DB_NAME_DEV} database with docker command..."
-	bin/generate-test-data --named-scenario="e2e_basic" --env="development"
+	bin/generate-test-data --named-scenario="e2e_basic" --db-env="development"
 
 .PHONY: db_test_e2e_populate
 db_test_e2e_populate: db_test_reset_docker db_test_migrate_docker build_tools db_e2e_up_docker ## Populate Test DB with generated e2e (end-to-end) data
@@ -791,20 +790,20 @@ tasks_save_fuel_price_data: tasks_build_linux_docker ## Run save-fuel-price-data
 #
 
 #
-# ----- START PROD MIGRATION TARGETS -----
+# ----- START Deployed MIGRATION TARGETS -----
 #
 
 .PHONY: run_prod_migrations
-run_prod_migrations: ## Run Prod migrations against Prod Migrations DB
-	./scripts/run-prod-migrations
+run_prod_migrations: ## Run Prod migrations against Deployed Migrations DB
+	SECURE_MIGRATION_BUCKET_NAME=transcom-ppp-app-prod-us-west-2 SECURE_MIGRATION_SOURCE=s3 ./scripts/run-deployed-migrations $(DB_NAME_DEPLOYED_MIGRATIONS)
 
 .PHONY: run_staging_migrations
-run_staging_migrations: ## Run Staging migrations against Prod Migrations DB
-	SECURE_MIGRATION_BUCKET_NAME=transcom-ppp-app-staging-us-west-2 ./scripts/run-prod-migrations
+run_staging_migrations: ## Run Staging migrations against Deployed Migrations DB
+	SECURE_MIGRATION_BUCKET_NAME=transcom-ppp-app-staging-us-west-2 SECURE_MIGRATION_SOURCE=s3 ./scripts/run-deployed-migrations $(DB_NAME_DEPLOYED_MIGRATIONS)
 
 .PHONY: run_experimental_migrations
-run_experimental_migrations: ## Run Experimental migrations against Prod Migrations DB
-	SECURE_MIGRATION_BUCKET_NAME=transcom-ppp-app-experimental-us-west-2 ./scripts/run-prod-migrations
+run_experimental_migrations: ## Run Experimental migrations against Deployed Migrations DB
+	SECURE_MIGRATION_BUCKET_NAME=transcom-ppp-app-experimental-us-west-2 SECURE_MIGRATION_SOURCE=s3 ./scripts/run-deployed-migrations $(DB_NAME_DEPLOYED_MIGRATIONS)
 
 #
 # ----- END PROD_MIGRATION TARGETS -----

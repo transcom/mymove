@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"encoding/json"
+	"sort"
 	"strings"
 	"time"
 
@@ -10,7 +11,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -71,9 +71,25 @@ type QueueSitData struct {
 	Location        string    `json:"location"`
 }
 
+// Implementation of a type and methods in order to use sort.Interface directly.
+// This allows us to call sortQueueItemsByLastModifiedDate in the ShowQueueHandler which will
+// sort the slice by the LastModfiedDate. Doing it this way allows us to avoid having reflect called
+// which should act to speed the sort up.
+type MoveQueueItems []models.MoveQueueItem
+
+func (mqi MoveQueueItems) Less(i, j int) bool {
+	return mqi[i].LastModifiedDate.Before(mqi[j].LastModifiedDate)
+}
+func (mqi MoveQueueItems) Len() int      { return len(mqi) }
+func (mqi MoveQueueItems) Swap(i, j int) { mqi[i], mqi[j] = mqi[j], mqi[i] }
+
+func sortQueueItemsByLastModifiedDate(moveQueueItems []models.MoveQueueItem) {
+	sort.Sort(MoveQueueItems(moveQueueItems))
+}
+
 // Handle retrieves a list of all MoveQueueItems in the system in the moves queue
 func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	if !session.IsOfficeUser() {
 		return queueop.NewShowQueueForbidden()
@@ -83,9 +99,12 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 
 	MoveQueueItems, err := models.GetMoveQueueItems(h.DB(), lifecycleState)
 	if err != nil {
-		h.Logger().Error("Loading Queue", zap.String("State", lifecycleState), zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		logger.Error("Loading Queue", zap.String("State", lifecycleState), zap.Error(err))
+		return handlers.ResponseForError(logger, err)
 	}
+
+	// Sorting the slice by LastModifiedDate so that the API results follow suit.
+	sortQueueItemsByLastModifiedDate(MoveQueueItems)
 
 	MoveQueueItemPayloads := make([]*internalmessages.MoveQueueItem, len(MoveQueueItems))
 	for i, MoveQueueItem := range MoveQueueItems {
@@ -94,8 +113,8 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 			err := json.Unmarshal([]byte(MoveQueueItem.SitArray), &sits)
 
 			if err != nil {
-				h.Logger().Error("Unmarshalling SITs", zap.Error(err))
-				return handlers.ResponseForError(h.Logger(), err)
+				logger.Error("Unmarshalling SITs", zap.Error(err))
+				return handlers.ResponseForError(logger, err)
 			}
 		}
 

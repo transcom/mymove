@@ -4,7 +4,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	accessorialop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/accessorials"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -48,7 +47,7 @@ type GetTariff400ngItemsHandler struct {
 
 // Handle returns a list of 400ng items
 func (h GetTariff400ngItemsHandler) Handle(params accessorialop.GetTariff400ngItemsParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	if session == nil {
 		return accessorialop.NewGetTariff400ngItemsUnauthorized()
@@ -57,7 +56,7 @@ func (h GetTariff400ngItemsHandler) Handle(params accessorialop.GetTariff400ngIt
 	// params.RequiresPreApproval has a default so we don't need to nil-check it
 	items, err := models.FetchTariff400ngItems(h.DB(), *params.RequiresPreApproval)
 	if err != nil {
-		h.Logger().Error("Error fetching 400ng items", zap.Error(err))
+		logger.Error("Error fetching 400ng items", zap.Error(err))
 		return accessorialop.NewGetTariff400ngItemsInternalServerError()
 	}
 	payload := payloadForTariff400ngItemModels(items)

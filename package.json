@@ -59,7 +59,7 @@
     "regenerator-runtime": "^0.13.2",
     "reselect": "^4.0.0",
     "selenium-webdriver": "^3.6.0",
-    "swagger-client": "^3.4.6",
+    "swagger-client": "=3.8.25",
     "swagger-ui-dist": "^3.9.2",
     "uswds": "^1.4.4"
   },

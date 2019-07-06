@@ -1,19 +1,20 @@
 import React from 'react';
 import { shallow, mount } from 'enzyme';
-import { StatusBlock, PPMStatusTimeline, ShipmentStatusTimeline, ProfileStatusTimeline } from './StatusTimeline';
+import { StatusBlock, ShipmentStatusTimeline, ProfileStatusTimeline } from './StatusTimeline';
+import { PPMStatusTimeline } from './PPMStatusTimeline';
 
 describe('StatusTimeline', () => {
   describe('PPMStatusTimeline', () => {
     test('renders timeline', () => {
       const ppm = {};
-      const wrapper = mount(<PPMStatusTimeline ppm={ppm} />);
+      const wrapper = mount(<PPMStatusTimeline ppm={ppm} getSignedCertification={jest.fn()} />);
 
       expect(wrapper.find(StatusBlock)).toHaveLength(4);
     });
 
     test('renders timeline for submitted ppm', () => {
       const ppm = { status: 'SUBMITTED' };
-      const wrapper = mount(<PPMStatusTimeline ppm={ppm} />);
+      const wrapper = mount(<PPMStatusTimeline ppm={ppm} getSignedCertification={jest.fn()} />);
 
       const completed = wrapper.findWhere(b => b.prop('completed'));
       expect(completed).toHaveLength(1);
@@ -26,7 +27,7 @@ describe('StatusTimeline', () => {
 
     test('renders timeline for an in-progress ppm', () => {
       const ppm = { status: 'APPROVED', original_move_date: '2019-03-20' };
-      const wrapper = mount(<PPMStatusTimeline ppm={ppm} />);
+      const wrapper = mount(<PPMStatusTimeline ppm={ppm} getSignedCertification={jest.fn()} />);
 
       const completed = wrapper.findWhere(b => b.prop('completed'));
       expect(completed).toHaveLength(3);

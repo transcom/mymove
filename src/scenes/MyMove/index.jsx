@@ -26,7 +26,6 @@ import ExpensesLanding from 'scenes/Moves/Ppm/ExpensesLanding';
 import ExpensesUpload from 'scenes/Moves/Ppm/ExpensesUpload';
 import AllowableExpenses from 'scenes/Moves/Ppm/AllowableExpenses';
 import WeightTicketExamples from 'scenes/Moves/Ppm/WeightTicketExamples';
-import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 import PaymentRequest from 'scenes/Moves/Ppm/PaymentRequest';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
@@ -41,6 +40,8 @@ import FailWhale from 'shared/FailWhale';
 import { detectIE11, no_op } from 'shared/utils';
 import DPSAuthCookie from 'scenes/DPSAuthCookie';
 import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
+import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegalese';
+import PaymentReview from 'scenes/Moves/Ppm/PaymentReview/index';
 
 export class AppWrapper extends Component {
   state = { hasError: false };
@@ -113,6 +114,7 @@ export class AppWrapper extends Component {
                     <PrivateRoute path="/moves/:moveId/ppm-expenses-intro" component={ExpensesLanding} />
                     <PrivateRoute path="/moves/:moveId/ppm-expenses" component={ExpensesUpload} />
                     <PrivateRoute path="/moves/:moveId/ppm-payment-review" component={PaymentReview} />
+                    <PrivateRoute exact path="/ppm-customer-agreement" component={CustomerAgreementLegalese} />
                     <PrivateRoute path="/dps_cookie" component={DPSAuthCookie} />
                     <Route exact path="/forbidden">
                       <div className="usa-grid">

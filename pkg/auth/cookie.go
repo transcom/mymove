@@ -12,6 +12,8 @@ import (
 	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/logging"
 )
 
 // ApplicationServername is a collection of all the servernames for the application
@@ -235,15 +237,25 @@ func ApplicationName(hostname string, appnames ApplicationServername) (Applicati
 }
 
 // SessionCookieMiddleware handle serializing and de-serializing the session between the user_session cookie and the request context
-func SessionCookieMiddleware(logger Logger, secret string, noSessionTimeout bool, appnames ApplicationServername, useSecureCookie bool) func(next http.Handler) http.Handler {
-	logger.Info("Creating session",
+func SessionCookieMiddleware(serverLogger Logger, secret string, noSessionTimeout bool, appnames ApplicationServername, useSecureCookie bool) func(next http.Handler) http.Handler {
+	serverLogger.Info("Creating session",
 		zap.String("milServername", appnames.MilServername),
 		zap.String("officeServername", appnames.OfficeServername),
 		zap.String("tspServername", appnames.TspServername),
 		zap.String("adminServername", appnames.AdminServername))
 	return func(next http.Handler) http.Handler {
-		mw := func(w http.ResponseWriter, r *http.Request) {
-			ctx, span := beeline.StartSpan(r.Context(), "SessionCookieMiddleware")
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+			ctx := r.Context()
+
+			var logger Logger
+			if requestLogger, ok := logging.FromContext(ctx).(Logger); ok {
+				logger = requestLogger
+			} else {
+				logger = serverLogger
+			}
+
+			ctx, span := beeline.StartSpan(ctx, "SessionCookieMiddleware")
 			defer span.Send()
 
 			// Set up the new session object
@@ -266,18 +278,15 @@ func SessionCookieMiddleware(logger Logger, secret string, noSessionTimeout bool
 			session.ApplicationName = appName
 			session.Hostname = strings.ToLower(hostname)
 
-			// And put the session info into the request context
-			ctx = SetSessionInRequestContext(r.WithContext(ctx), &session)
-
 			// And update the cookie. May get over-ridden later
 			WriteSessionCookie(w, &session, secret, noSessionTimeout, logger, useSecureCookie)
 
 			span.AddTraceField("auth.application_name", session.ApplicationName)
 			span.AddTraceField("auth.hostname", session.Hostname)
 
-			next.ServeHTTP(w, r.WithContext(ctx))
+			// And put the session info into the request context
+			next.ServeHTTP(w, r.WithContext(SetSessionInContext(ctx, &session)))
 
-		}
-		return http.HandlerFunc(mw)
+		})
 	}
 }
