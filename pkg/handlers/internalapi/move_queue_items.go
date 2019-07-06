@@ -134,6 +134,7 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 		for _, shipmentLineItemStatus := range shipmentLineItems {
 			if shipmentLineItemStatus == models.ShipmentLineItemStatusSUBMITTED {
 				hasUnapprovedShipmentLineItems = true
+				break
 			}
 		}
 
