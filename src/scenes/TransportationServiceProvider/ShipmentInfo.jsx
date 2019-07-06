@@ -93,7 +93,7 @@ const DeliveryDateFormView = props => {
   const { schema, onCancel, handleSubmit, submitting, valid } = props;
 
   return (
-    <form className="infoPanel-wizard" onSubmit={handleSubmit}>
+    <form data-cy="tsp-enter-delivery-form" className="infoPanel-wizard" onSubmit={handleSubmit}>
       <div className="infoPanel-wizard-header">Enter Delivery</div>
       <SwaggerField fieldName="actual_delivery_date" swagger={schema} required />
       <p className="infoPanel-wizard-help">
@@ -105,7 +105,12 @@ const DeliveryDateFormView = props => {
         <a className="infoPanel-wizard-cancel" onClick={onCancel}>
           Cancel
         </a>
-        <button className="usa-button-primary" type="submit" disabled={submitting || !valid}>
+        <button
+          data-cy="tsp-enter-delivery-submit"
+          className="usa-button-primary"
+          type="submit"
+          disabled={submitting || !valid}
+        >
           Done
         </button>
       </div>
@@ -412,6 +417,7 @@ class ShipmentInfo extends Component {
                   schema={this.props.deliverSchema}
                   onSubmit={this.deliverShipment}
                   buttonTitle="Enter Delivery"
+                  buttonDataCy="tsp-enter-delivery"
                 />
               )}
               {canEnterPackAndPickup && (
