@@ -144,8 +144,8 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 			err := json.Unmarshal([]byte(MoveQueueItem.SliArray), &shipmentLineItems)
 
 			if err != nil {
-				h.Logger().Error("Unmarshalling Shipment Line Items", zap.Error(err))
-				return handlers.ResponseForError(h.Logger(), err)
+				logger.Error("Unmarshalling Shipment Line Items", zap.Error(err))
+				return handlers.ResponseForError(logger, err)
 			}
 		}
 
