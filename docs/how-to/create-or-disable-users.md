@@ -48,6 +48,8 @@ INSERT INTO public.office_users
      );
 ```
 
+Writing this migration by hand, can get tedious if there are many office users to add, so
+
 ### Creating TSP Users
 
 For creating users let's assume that the new user's email is username@example.com.
