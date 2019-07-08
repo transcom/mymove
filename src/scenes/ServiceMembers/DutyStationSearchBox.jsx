@@ -12,7 +12,7 @@ import { SearchDutyStations } from './api.js';
 import './DutyStation.css';
 
 const inputDebounceTime = 200;
-const minSearchLength = 3;
+const minSearchLength = 1;
 const getOptionName = option => (option ? option.name : '');
 
 export class DutyStationSearchBox extends Component {
@@ -77,10 +77,8 @@ export class DutyStationSearchBox extends Component {
     return inputValue;
   }
   noOptionsMessage(props) {
-    if (this.state.inputValue === '') {
-      return <span>Start typing</span>;
-    } else if (this.state.inputValue.length < minSearchLength) {
-      return <span>Keep typing</span>;
+    if (this.state.inputValue.length < minSearchLength) {
+      return <span />;
     }
     return <span>No Options</span>;
   }
