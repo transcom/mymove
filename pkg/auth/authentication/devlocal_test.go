@@ -229,8 +229,9 @@ func (suite *AuthSuite) TestCreateUserHandlerAdmin() {
 		t.Error("Could not unmarshal json data into User model.", err)
 	}
 
-	// Make sure the superuser flag is set to true
-	suite.True(user.IsSuperuser, "superuser flag was not set to true for admin user")
+	if _, err := models.FetchAdminUserByEmail(suite.DB(), user.LoginGovEmail); err != nil {
+		t.Error("Couldn't find admin user record")
+	}
 }
 
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {

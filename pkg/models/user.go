@@ -22,7 +22,6 @@ type User struct {
 	LoginGovUUID  uuid.UUID `json:"login_gov_uuid" db:"login_gov_uuid"`
 	LoginGovEmail string    `json:"login_gov_email" db:"login_gov_email"`
 	Disabled      bool      `json:"disabled" db:"disabled"`
-	IsSuperuser   bool      `json:"is_superuser" db:"is_superuser"`
 }
 
 // Users is not required by pop and may be deleted
@@ -78,7 +77,6 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 	newUser := User{
 		LoginGovUUID:  lgu,
 		LoginGovEmail: strings.ToLower(email),
-		IsSuperuser:   false,
 		Disabled:      false,
 	}
 	verrs, err := db.ValidateAndCreate(&newUser)
@@ -95,7 +93,6 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 type UserIdentity struct {
 	ID                     uuid.UUID  `db:"id"`
 	Disabled               bool       `db:"disabled"`
-	IsSuperuser            bool       `db:"is_superuser"`
 	Email                  string     `db:"email"`
 	ServiceMemberID        *uuid.UUID `db:"sm_id"`
 	ServiceMemberFirstName *string    `db:"sm_fname"`
@@ -111,6 +108,11 @@ type UserIdentity struct {
 	TspUserLastName        *string    `db:"tu_lname"`
 	TspUserMiddle          *string    `db:"tu_middle"`
 	TspDisabled            *bool      `db:"tu_disabled"`
+	AdminUserID            *uuid.UUID `db:"au_id"`
+	AdminUserRole          *AdminRole `db:"au_role"`
+	AdminUserFirstName     *string    `db:"au_fname"`
+	AdminUserLastName      *string    `db:"au_lname"`
+	AdminUserDisabled      *bool      `db:"au_disabled"`
 	DpsUserID              *uuid.UUID `db:"du_id"`
 	DpsDisabled            *bool      `db:"du_disabled"`
 }
@@ -121,7 +123,6 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 	query := `SELECT users.id,
 				users.login_gov_email AS email,
 				users.disabled AS disabled,
-				users.is_superuser AS is_superuser,
 				sm.id AS sm_id,
 				sm.first_name AS sm_fname,
 				sm.last_name AS sm_lname,
@@ -136,12 +137,18 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 				tu.last_name AS tu_lname,
 				tu.middle_initials AS tu_middle,
 				tu.disabled AS tu_disabled,
+				au.id AS au_id,
+				au.role AS au_role,
+				au.first_name AS au_fname,
+				au.last_name AS au_lname,
+				au.disabled AS au_disabled,
 				du.id AS du_id,
 				du.disabled AS du_disabled
 			FROM users
 			LEFT OUTER JOIN service_members AS sm on sm.user_id = users.id
 			LEFT OUTER JOIN office_users AS ou on ou.user_id = users.id
 			LEFT OUTER JOIN tsp_users AS tu on tu.user_id = users.id
+			LEFT OUTER JOIN admin_users AS au on au.user_id = users.id
 			LEFT OUTER JOIN dps_users AS du on du.login_gov_email = users.login_gov_email
 			WHERE users.login_gov_uuid  = $1`
 	err := db.RawQuery(query, loginGovID).All(&identities)
@@ -164,7 +171,6 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 		        users.id,
 				users.login_gov_email AS email,
 				users.disabled AS disabled,
-				users.is_superuser AS is_superuser,
 				ou.id AS ou_id,
 				ou.first_name AS ou_fname,
 				ou.last_name AS ou_lname,
@@ -176,7 +182,6 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 		query = `SELECT users.id,
 				users.login_gov_email AS email,
 				users.disabled AS disabled,
-				users.is_superuser AS is_superuser,
 				tu.id AS tu_id,
 				tu.first_name AS tu_fname,
 				tu.last_name AS tu_lname,
@@ -184,11 +189,21 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 			FROM tsp_users as tu
 			JOIN users on tu.user_id = users.id
 			ORDER BY users.created_at LIMIT $1`
+	case auth.AdminApp:
+		query = `SELECT users.id,
+				users.login_gov_email AS email,
+				users.disabled AS disabled,
+				au.id AS au_id,
+				au.role AS au_role,
+				au.first_name AS au_fname,
+				au.last_name AS au_lname
+			FROM admin_users as au
+			JOIN users on au.user_id = users.id
+			ORDER BY users.created_at LIMIT $1`
 	default:
 		query = `SELECT users.id,
 				users.login_gov_email AS email,
 				users.disabled AS disabled,
-				users.is_superuser AS is_superuser,
 				sm.id AS sm_id,
 				sm.first_name AS sm_fname,
 				sm.last_name AS sm_lname,
@@ -208,16 +223,13 @@ func FetchAppUserIdentities(db *pop.Connection, appname auth.Application, limit 
 }
 
 // firstValue returns the first string value that is not nil
-func firstValue(one *string, two *string, three *string) (value string) {
-
-	if one != nil {
-		value = *one
-	} else if two != nil {
-		value = *two
-	} else if three != nil {
-		value = *three
+func firstValue(vals ...*string) string {
+	for _, val := range vals {
+		if val != nil {
+			return *val
+		}
 	}
-	return
+	return ""
 }
 
 // FirstName gets the firstname of the user from either the ServiceMember or OfficeUser or TspUser identity

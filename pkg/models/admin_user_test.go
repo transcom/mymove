@@ -15,7 +15,7 @@ func (suite *ModelSuite) TestAdminUserCreation() {
 	newAdminUser := AdminUser{
 		FirstName: "Leo",
 		LastName:  "Spaceman",
-		UserID:    user.ID,
+		UserID:    &user.ID,
 		Role:      "SYSTEM_ADMIN",
 		Email:     "leo@gmail.com",
 	}

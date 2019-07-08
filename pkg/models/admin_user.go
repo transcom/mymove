@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -19,17 +20,23 @@ func (ar *AdminRole) ValidRoles() []string {
 	}
 }
 
+func (ar *AdminRole) String() string {
+	return string(*ar)
+}
+
 type AdminUser struct {
-	ID             uuid.UUID `json:"id" db:"id"`
-	CreatedAt      time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at" db:"updated_at"`
-	UserID         uuid.UUID `json:"user_id" db:"user_id"`
-	Role           AdminRole `json:"role" db:"role"`
-	Email          string    `json:"email" db:"email"`
-	FirstName      string    `json:"first_name" db:"first_name"`
-	LastName       string    `json:"last_name" db:"last_name"`
-	OrganizationID uuid.UUID `json:"organization_id" db:"organization_id"`
-	Disabled       bool      `json:"disabled" db:"disabled"`
+	ID             uuid.UUID    `json:"id" db:"id"`
+	CreatedAt      time.Time    `json:"created_at" db:"created_at"`
+	UpdatedAt      time.Time    `json:"updated_at" db:"updated_at"`
+	UserID         *uuid.UUID   `json:"user_id" db:"user_id"`
+	User           User         `belongs_to:"user"`
+	Role           AdminRole    `json:"role" db:"role"`
+	Email          string       `json:"email" db:"email"`
+	FirstName      string       `json:"first_name" db:"first_name"`
+	LastName       string       `json:"last_name" db:"last_name"`
+	OrganizationID *uuid.UUID   `json:"organization_id" db:"organization_id"`
+	Organization   Organization `belongs_to:"organization"`
+	Disabled       bool         `json:"disabled" db:"disabled"`
 }
 
 // String is not required by pop and may be deleted
@@ -68,4 +75,16 @@ func (a *AdminUser) ValidateCreate(tx *pop.Connection) (*validate.Errors, error)
 // This method is not required and may be deleted.
 func (a *AdminUser) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+func FetchAdminUserByEmail(tx *pop.Connection, email string) (*AdminUser, error) {
+	var users AdminUsers
+	err := tx.Where("LOWER(email) = $1", strings.ToLower(email)).All(&users)
+	if err != nil {
+		return nil, err
+	}
+	if len(users) == 0 {
+		return nil, ErrFetchNotFound
+	}
+	return &users[0], nil
 }

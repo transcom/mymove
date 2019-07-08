@@ -50,7 +50,6 @@ type Session struct {
 	ApplicationName Application
 	Hostname        string
 	IDToken         string
-	IsSuperuser     bool
 	UserID          uuid.UUID
 	Email           string
 	FirstName       string
@@ -59,6 +58,8 @@ type Session struct {
 	ServiceMemberID uuid.UUID
 	OfficeUserID    uuid.UUID
 	TspUserID       uuid.UUID
+	AdminUserID     uuid.UUID
+	AdminUserRole   string
 	DpsUserID       uuid.UUID
 }
 
@@ -102,7 +103,19 @@ func (s *Session) IsTspUser() bool {
 
 // IsAdminUser checks whether the authenticated user is an AdminUser
 func (s *Session) IsAdminUser() bool {
-	return s.IsSuperuser
+	return s.AdminUserID != uuid.Nil
+}
+
+// IsSystemAdmin checks whether the authenticated admin user is a system admin
+func (s *Session) IsSystemAdmin() bool {
+	role := "SYSTEM_ADMIN"
+	return s.IsAdminUser() && s.AdminUserRole == role
+}
+
+// IsProgramAdmin checks whether the authenticated admin user is a program admin
+func (s *Session) IsProgramAdmin() bool {
+	role := "PROGRAM_ADMIN"
+	return s.IsAdminUser() && s.AdminUserRole == role
 }
 
 // IsDpsUser checks whether the authenticated user is a DpsUser
