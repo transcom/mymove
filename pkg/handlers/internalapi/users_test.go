@@ -46,7 +46,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandl
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	featureFlag := handlers.FeatureFlag{Name: "requires-access-code", Active: true}
-	context.SetFeatureFlags(featureFlag)
+	context.SetFeatureFlag(featureFlag)
 	handler := ShowLoggedInUserHandler{context}
 
 	response := handler.Handle(params)
@@ -75,7 +75,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserNotRequiringAccessCodeHa
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
 	featureFlag := handlers.FeatureFlag{Name: "requires-access-code", Active: false}
-	context.SetFeatureFlags(featureFlag)
+	context.SetFeatureFlag(featureFlag)
 	handler := ShowLoggedInUserHandler{context}
 
 	response := handler.Handle(params)

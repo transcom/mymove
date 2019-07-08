@@ -522,7 +522,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	handlerContext.SetGexSender(gexRequester)
 
 	// Set feature flag
-	handlerContext.SetFeatureFlags(
+	handlerContext.SetFeatureFlag(
 		handlers.FeatureFlag{Name: cli.FeatureFlagAccessCode, Active: v.GetBool(cli.FeatureFlagAccessCode)},
 	)
 

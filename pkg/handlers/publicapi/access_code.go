@@ -49,13 +49,15 @@ func (h FetchAccessCodeHandler) Handle(params accesscodeop.FetchAccessCodeParams
 
 	// Fetch access code
 	accessCode, err := h.accessCodeFetcher.FetchAccessCode(session.ServiceMemberID)
+	var fetchAccessCodePayload *apimessages.AccessCode
 
 	if err != nil {
 		logger.Error("Error retrieving access_code for service member", zap.Error(err))
-		return accesscodeop.NewFetchAccessCodeNotFound()
+		fetchAccessCodePayload = &apimessages.AccessCode{}
+		return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload)
 	}
 
-	fetchAccessCodePayload := payloadForAccessCodeModel(*accessCode)
+	fetchAccessCodePayload = payloadForAccessCodeModel(*accessCode)
 
 	return accesscodeop.NewFetchAccessCodeOK().WithPayload(fetchAccessCodePayload)
 }

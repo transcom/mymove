@@ -47,7 +47,7 @@ type HandlerContext interface {
 	SetSendProductionInvoice(sendProductionInvoice bool)
 	UseSecureCookie() bool
 	SetUseSecureCookie(useSecureCookie bool)
-	SetFeatureFlags(flags ...FeatureFlag)
+	SetFeatureFlag(flags FeatureFlag)
 	GetFeatureFlag(name string) bool
 
 	GexSender() services.GexSender
@@ -246,13 +246,12 @@ func (hctx *handlerContext) SetUseSecureCookie(useSecureCookie bool) {
 	hctx.useSecureCookie = useSecureCookie
 }
 
-func (hctx *handlerContext) SetFeatureFlags(flag ...FeatureFlag) {
-	for _, f := range flag {
-		if hctx.featureFlags == nil {
-			hctx.featureFlags = make(map[string]bool)
-		}
-		hctx.featureFlags[f.Name] = f.Active
+func (hctx *handlerContext) SetFeatureFlag(flag FeatureFlag) {
+	if hctx.featureFlags == nil {
+		hctx.featureFlags = make(map[string]bool)
 	}
+
+	hctx.featureFlags[flag.Name] = flag.Active
 }
 
 func (hctx *handlerContext) GetFeatureFlag(flag string) bool {
