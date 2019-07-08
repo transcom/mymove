@@ -1,7 +1,7 @@
 /* global cy */
 export function fillAndSaveStorageInTransit() {
   // Select the location
-  cy.get('input[data-cy="origin-radio"]').check( { force: true } ); // checks Origin
+  cy.get('input[data-cy="origin-radio"]').check({ force: true }); // checks Origin
 
   // Enter details in form and create the Storage In Transit request
   cy

@@ -10,8 +10,8 @@ import validator from '../JsonSchemaForm/validator';
 
 import './StorageInTransit.css';
 
-const RadioGroup = ({location, change, ...input}) => {
-  location = ( (location === 'ORIGIN') ? 'ORIGIN' : 'DESTINATION' );
+const RadioGroup = ({ location, change, ...input }) => {
+  location = location === 'ORIGIN' ? 'ORIGIN' : 'DESTINATION';
   return (
     <div className="radio-group-wrapper normalize-margins">
       <RadioButton
@@ -35,7 +35,7 @@ const RadioGroup = ({location, change, ...input}) => {
         testId="destination-radio"
       />
     </div>
-  )
+  );
 };
 
 export class StorageInTransitForm extends Component {
@@ -46,8 +46,14 @@ export class StorageInTransitForm extends Component {
         <fieldset key="sit-request-information">
           <div className="editable-panel-column">
             <div className="radio-group-wrapper normalize-margins">
-            <p className="radio-group-header">SIT Location</p>
-              <Field component={RadioGroup} name="location" location={location} change={change} validate={[validator.isRequired]}/>
+              <p className="radio-group-header">SIT Location</p>
+              <Field
+                component={RadioGroup}
+                name="location"
+                location={location}
+                change={change}
+                validate={[validator.isRequired]}
+              />
             </div>
             <SwaggerField fieldName="estimated_start_date" swagger={storageInTransitSchema} required />
           </div>
