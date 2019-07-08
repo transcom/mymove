@@ -71,13 +71,25 @@ class ExpensesUpload extends Component {
     history.push(`/moves/${moveId}${nextPagePath}`);
   };
 
-  saveForLaterHandler = formValues => {
+  finishLaterHandler = formValues => {
     const { history } = this.props;
-    return this.saveAndAddHandler(formValues).then(() => {
-      if (this.state.moveDocumentCreateError === false) {
-        history.push('/');
-      }
-    });
+    const {
+      storage_start_date,
+      storage_end_date,
+      moving_expense_type: movingExpenseType,
+      requested_amount_cents: requestedAmountCents,
+    } = formValues;
+    if (!(storage_start_date && storage_end_date && movingExpenseType && requestedAmountCents)) {
+      this.cleanup();
+      history.push('/');
+      return;
+    } else {
+      return this.saveAndAddHandler(formValues).then(() => {
+        if (this.state.moveDocumentCreateError === false) {
+          history.push('/');
+        }
+      });
+    }
   };
 
   isStorageExpense = formValues => {
@@ -325,10 +337,9 @@ class ExpensesUpload extends Component {
               submitButtonsAreDisabled={this.isInvalidUploaderState() || invalid}
               submitting={submitting}
               skipHandler={this.skipHandler}
-              saveForLaterHandler={handleSubmit(this.saveForLaterHandler)}
-              saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
               displaySkip={expenses.length >= 1}
-              displaySaveForLater={true}
+              finishLaterHandler={handleSubmit(this.finishLaterHandler)}
+              saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
             />
           </form>
         </div>

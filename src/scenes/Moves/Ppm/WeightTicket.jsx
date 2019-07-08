@@ -123,7 +123,7 @@ class WeightTicket extends Component {
     history.push(`/moves/${moveId}${nextPagePath}`);
   };
 
-  saveForLaterHandler = formValues => {
+  finishLaterHandler = formValues => {
     const { history } = this.props;
     return this.saveAndAddHandler(formValues).then(() => {
       if (this.state.weightTicketSubmissionError === false) {
@@ -456,7 +456,7 @@ class WeightTicket extends Component {
               submitButtonsAreDisabled={this.uploaderWithInvalidState() || invalid}
               submitting={submitting}
               skipHandler={this.skipHandler}
-              saveForLaterHandler={handleSubmit(this.saveForLaterHandler)}
+              finishLaterHandler={handleSubmit(this.finishLaterHandler)}
               saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
               displaySaveForLater={true}
               displaySkip={weightTicketSets.length >= 1}
