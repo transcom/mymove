@@ -13,7 +13,7 @@ import { convertDollarsToCents } from '../../../shared/utils';
 const StorageDisplay = props => {
   let cost = props.ppm && props.ppm.total_sit_cost ? formatCents(props.ppm.total_sit_cost) : 0;
   let days = props.ppm && props.ppm.days_in_storage ? props.ppm.days_in_storage : 0;
-
+  console.log(cost);
   const fieldProps = {
     schema: {
       properties: {

@@ -199,20 +199,22 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	moveDoc.MoveDocumentType = newType
 
 	newStatus := models.MoveDocumentStatus(payload.Status)
+	oldStatus := moveDoc.Status
 
-	// If this is a shipment summary and it has been approved, we process the ppm.
-	if newStatus != moveDoc.Status {
+	if newStatus != oldStatus {
 		err = moveDoc.AttemptTransition(newStatus)
 		if err != nil {
 			return handlers.ResponseForError(logger, err)
 		}
 
-		if newStatus == models.MoveDocumentStatusOK && moveDoc.MoveDocumentType == models.MoveDocumentTypeSHIPMENTSUMMARY {
-			if moveDoc.PersonallyProcuredMoveID == nil {
-				return handlers.ResponseForError(logger, errors.New("No PPM loaded for Approved Move Doc"))
-			}
+		if moveDoc.PersonallyProcuredMoveID == nil {
+			return handlers.ResponseForError(logger, errors.New("No PPM loaded for Approved Move Doc"))
+		}
 
-			ppm := &moveDoc.PersonallyProcuredMove
+		ppm := &moveDoc.PersonallyProcuredMove
+
+		// If this is a shipment summary and it has been approved, we process the ppm.
+		if newStatus == models.MoveDocumentStatusOK && moveDoc.MoveDocumentType == models.MoveDocumentTypeSHIPMENTSUMMARY {
 			// If the status has already been completed
 			// (because the document has been toggled between OK and HAS_ISSUE and back)
 			// then don't complete it again.
@@ -222,6 +224,28 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 					return handlers.ResponseForError(logger, completeErr)
 				}
 			}
+		}
+
+		// If this is a storage expense, we need to make changes to the total sit amount for the ppm.
+		if moveDoc.MoveDocumentType == models.MoveDocumentTypeEXPENSE && moveDoc.MovingExpenseDocument.MovingExpenseType == models.MovingExpenseTypeSTORAGE {
+			storageRequestedAmt := unit.Cents(payload.RequestedAmountCents)
+			var newCost unit.Cents
+
+			// add to SIT total amont if OK
+			if newStatus == models.MoveDocumentStatusOK {
+				if ppm.TotalSITCost == nil {
+					newCost = storageRequestedAmt
+				} else {
+					newCost = *ppm.TotalSITCost + storageRequestedAmt
+				}
+			}
+
+			// subtract from SIT total amount if changed from OK
+			if oldStatus == models.MoveDocumentStatusOK && newStatus != models.MoveDocumentStatusOK {
+				newCost = *ppm.TotalSITCost - storageRequestedAmt
+			}
+
+			ppm.TotalSITCost = &newCost
 		}
 	}
 
