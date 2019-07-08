@@ -207,14 +207,13 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 			return handlers.ResponseForError(logger, err)
 		}
 
-		if moveDoc.PersonallyProcuredMoveID == nil {
-			return handlers.ResponseForError(logger, errors.New("No PPM loaded for Approved Move Doc"))
-		}
-
-		ppm := &moveDoc.PersonallyProcuredMove
-
 		// If this is a shipment summary and it has been approved, we process the ppm.
 		if newStatus == models.MoveDocumentStatusOK && moveDoc.MoveDocumentType == models.MoveDocumentTypeSHIPMENTSUMMARY {
+			if moveDoc.PersonallyProcuredMoveID == nil {
+				return handlers.ResponseForError(logger, errors.New("No PPM loaded for Approved Move Doc"))
+			}
+
+			ppm := &moveDoc.PersonallyProcuredMove
 			// If the status has already been completed
 			// (because the document has been toggled between OK and HAS_ISSUE and back)
 			// then don't complete it again.
@@ -228,10 +227,15 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 
 		// If this is a storage expense, we need to make changes to the total sit amount for the ppm.
 		if moveDoc.MoveDocumentType == models.MoveDocumentTypeEXPENSE && moveDoc.MovingExpenseDocument.MovingExpenseType == models.MovingExpenseTypeSTORAGE {
+			if moveDoc.PersonallyProcuredMoveID == nil {
+				return handlers.ResponseForError(logger, errors.New("No PPM loaded for Approved Move Doc"))
+			}
+
+			ppm := &moveDoc.PersonallyProcuredMove
 			storageRequestedAmt := unit.Cents(payload.RequestedAmountCents)
 			var newCost unit.Cents
 
-			// add to SIT total amont if OK
+			// add to SIT total amount if OK
 			if newStatus == models.MoveDocumentStatusOK {
 				if ppm.TotalSITCost == nil {
 					newCost = storageRequestedAmt
