@@ -66,14 +66,14 @@ func (m MoveCanceled) emails(ctx context.Context) ([]emailContent, error) {
 	// TODO: we will want some sort of templating system
 
 	introText := `Update on your move`
-	nextSteps := fmt.Sprintf("Upon review, the office has determined that MilMove can’t handle your move from %s to %s, and canceled it in the system. You’re still moving, but we’ll need to manage your move with a different system. ",
+	nextSteps := fmt.Sprintf("Upon review, the office has determined that MilMove can’t handle your move from %s to %s, and canceled it in the system. You’re still moving, but we’ll need to manage your move with a different system.",
 		dsTransportInfo.Name, orders.NewDutyStation.Name)
 	closingText := fmt.Sprintf("Please call the PPPO at %s at %s and they’ll help you figure out what to do next.",
 		dsTransportInfo.Name, dsTransportInfo.PhoneLine)
 
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
-		subject:        fmt.Sprintf("[Milmove] %s", introText),
+		subject:        fmt.Sprintf("[MilMove] %s", introText),
 		htmlBody:       fmt.Sprintf("%s<br/>%s", nextSteps, closingText),
 		textBody:       fmt.Sprintf("%s\n%s", nextSteps, closingText),
 	}
