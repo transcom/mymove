@@ -1,6 +1,11 @@
 package transportationoffices
 
 import (
+	"bytes"
+	"encoding/json"
+	"log"
+	"net/http"
+
 	"bufio"
 	"encoding/xml"
 	"fmt"
@@ -435,7 +440,33 @@ func (b *MigrationBuilder) convertAbbr(s string) string {
 	return s
 }
 
+func (b *MigrationBuilder) getLocationsList() string {
+	message := map[string]interface{}{
+		"query": "55407",
+	}
+
+	bytesRepresentation, err := json.Marshal(message)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	resp, err := http.Post("https://move.mil/parser/locator-maps", "application/json", bytes.NewBuffer(bytesRepresentation))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var result map[string]interface{}
+
+	json.NewDecoder(resp.Body).Decode(&result)
+
+	log.Println(result)
+	log.Println(result["data"])
+	return "abc"
+}
+
 func (b *MigrationBuilder) Build(officesFilePath string, outputFilePath string) (string, error) {
+	b.getLocationsList()
+
 	// Parse raw data from xml
 	offices, err := b.parseOffices(officesFilePath)
 	if err != nil {
