@@ -475,7 +475,7 @@ db_dev_migrate_standalone: bin/milmove
 	@echo "Migrating the ${DB_NAME_DEV} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd scripts && \
-		../bin/milmove migrate -p ../migrations
+		../bin/milmove migrate -p ../migrations -m ../migrations_manifest.txt
 
 .PHONY: db_dev_migrate
 db_dev_migrate: server_deps db_dev_migrate_standalone ## Migrate Dev DB
@@ -529,7 +529,7 @@ db_deployed_migrations_reset: db_deployed_migrations_destroy db_deployed_migrati
 db_deployed_migrations_migrate_standalone: bin/milmove ## Migrate Deployed Migrations DB with local migrations
 	@echo "Migrating the ${DB_NAME_DEPLOYED_MIGRATIONS} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
-	cd scripts && DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) ../bin/milmove migrate -p ../migrations
+	cd scripts && DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) ../bin/milmove migrate -p ../migrations -m ../migrations_manifest.txt
 
 .PHONY: db_deployed_migrations_migrate
 db_deployed_migrations_migrate: server_deps db_deployed_migrations_migrate_standalone ## Migrate Deployed Migrations DB
@@ -603,13 +603,13 @@ ifndef CIRCLECI
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd scripts && \
 		DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST)\
-			../bin/milmove migrate -p ../migrations
+			../bin/milmove migrate -p ../migrations -m ../migrations_manifest.txt
 else
 	@echo "Migrating the ${DB_NAME_TEST} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd scripts && \
 		DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_DEV) \
-			../bin/milmove migrate -p ../migrations
+			../bin/milmove migrate -p ../migrations -m ../migrations_manifest.txt
 endif
 
 .PHONY: db_test_migrate
@@ -636,7 +636,7 @@ db_test_migrate_docker: db_test_migrations_build ## Migrate Test DB (docker)
 		--rm \
 		--entrypoint /bin/milmove\
 		e2e_migrations:latest \
-		migrate -p /migrate/migrations
+		migrate -p /migrate/migrations -m /migrate/migrations_manifest.txt
 
 #
 # ----- END DB_TEST TARGETS -----

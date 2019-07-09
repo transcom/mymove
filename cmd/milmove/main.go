@@ -45,10 +45,12 @@ func main() {
 	root.AddCommand(serveCommand)
 
 	migrateCommand := &cobra.Command{
-		Use:   "migrate",
-		Short: "Runs MilMove migrations",
-		Long:  "Runs MilMove migrations",
-		RunE:  migrateFunction,
+		Use:           "migrate",
+		Short:         "Runs MilMove migrations",
+		Long:          "Runs MilMove migrations",
+		RunE:          migrateFunction,
+		SilenceUsage:  true, // not needed
+		SilenceErrors: true, // caught and printed during panic on line 69
 	}
 	initMigrateFlags(migrateCommand.Flags())
 	root.AddCommand(migrateCommand)
