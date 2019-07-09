@@ -28,13 +28,15 @@ VALUES
 
 const (
 	//OfficeUsersFilenameFlag filename containing the details for new office users
-	OfficeUsersFilenameFlag  string = "office-users-filename"
-	OfficeUsersMigrationFile        = "add_office_users_migration.sql"
+	OfficeUsersFilenameFlag string = "office-users-filename"
+	//OfficeUsersMigrationFile sql file containing the migration to add the new office users
+	OfficeUsersMigrationFilenameFlag string = "migration-filename"
 )
 
 // OfficeUsersFilenameFlag initializes add_office_users command line flags
 func InitAddOfficeUsersFlags(flag *pflag.FlagSet) {
 	flag.StringP(OfficeUsersFilenameFlag, "f", "", "File name of csv file containing the new office users")
+	flag.StringP(OfficeUsersMigrationFilenameFlag, "o", "", "File name of sql file containing the migration for the new office users")
 }
 
 // CheckAddOfficeUsers validates add_office_users command line flags
@@ -42,6 +44,10 @@ func CheckAddOfficeUsers(v *viper.Viper) error {
 	officeUsersFileName := v.GetString(OfficeUsersFilenameFlag)
 	if officeUsersFileName == "" {
 		return fmt.Errorf("--office-users-filename is required")
+	}
+	officeUsersMigrationFilenameFlag := v.GetString(OfficeUsersMigrationFilenameFlag)
+	if officeUsersMigrationFilenameFlag == "" {
+		return fmt.Errorf("--migration-filename is required")
 	}
 	return nil
 }
@@ -122,10 +128,10 @@ func main() {
 	if err != nil {
 		log.Fatal("error reading csv file: ", err)
 	}
-	outfile, err := os.Create(OfficeUsersMigrationFile)
+	outfile, err := os.Create(OfficeUsersMigrationFilenameFlag)
 	defer closeFile(outfile)
 	if err != nil {
-		log.Fatalf("error creating %s: %v\n", OfficeUsersMigrationFile, err)
+		log.Fatalf("error creating %s: %v\n", OfficeUsersMigrationFilenameFlag, err)
 	}
 	t := template.Must(template.New("add_office_user").Parse(createOfficeUser))
 	err = t.Execute(outfile, officeUsers)
