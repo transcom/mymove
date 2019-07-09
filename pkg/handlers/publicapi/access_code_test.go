@@ -5,18 +5,58 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/transcom/mymove/pkg/services/mocks"
+
+	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate"
 
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
-
-	"github.com/transcom/mymove/pkg/services/mocks"
 
 	accesscodeops "github.com/transcom/mymove/pkg/gen/restapi/apioperations/accesscode"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
+
+func (suite *HandlerSuite) TestFetchAccessCodeHandler_Success() {
+	// create user
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
+	selectedMoveType := models.SelectedMoveTypeHHG
+
+	// creates access code
+	code := "TEST0"
+	accessCode := models.AccessCode{
+		Code:            code,
+		MoveType:        &selectedMoveType,
+		ServiceMemberID: &serviceMember.ID,
+	}
+
+	// makes request
+	request := httptest.NewRequest("GET", "/access_codes", nil)
+	request = suite.AuthenticateRequest(request, serviceMember)
+
+	params := accesscodeops.FetchAccessCodeParams{
+		HTTPRequest: request,
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	accessCodeFetcher := &mocks.AccessCodeFetcher{}
+	accessCodeFetcher.On("FetchAccessCode",
+		mock.AnythingOfType("uuid.UUID"),
+	).Return(&accessCode, nil)
+
+	handler := FetchAccessCodeHandler{context, accessCodeFetcher}
+	response := handler.Handle(params)
+
+	suite.IsNotErrResponse(response)
+	fetchAccessCodeResponse := response.(*accesscodeops.FetchAccessCodeOK)
+	fetchAccessCodePayload := fetchAccessCodeResponse.Payload
+
+	suite.NotNil(fetchAccessCodePayload)
+	suite.Assertions.IsType(&accesscodeops.FetchAccessCodeOK{}, response)
+	suite.Equal(*fetchAccessCodePayload.Code, code)
+}
 
 func (suite *HandlerSuite) TestValidateAccessCodeHandler_Valid() {
 	// create user
@@ -53,8 +93,7 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Valid() {
 	validateAccessCodeResponse := response.(*accesscodeops.ValidateAccessCodeOK)
 	validateAccessCodePayload := validateAccessCodeResponse.Payload
 
-	suite.NotNil(validateAccessCodePayload.AccessCode)
-	suite.True(*validateAccessCodePayload.Valid)
+	suite.NotNil(validateAccessCodePayload)
 	suite.Assertions.IsType(&accesscodeops.ValidateAccessCodeOK{}, response)
 }
 
@@ -98,7 +137,12 @@ func (suite *HandlerSuite) TestValidateAccessCodeHandler_Invalid() {
 	validateAccessCodeResponse := response.(*accesscodeops.ValidateAccessCodeOK)
 	validateAccessCodePayload := validateAccessCodeResponse.Payload
 
-	suite.False(*validateAccessCodePayload.Valid)
+	suite.Nil(validateAccessCodePayload.Code)
+	suite.Nil(validateAccessCodePayload.ID)
+	suite.Nil(validateAccessCodePayload.MoveType)
+	suite.Nil(validateAccessCodePayload.CreatedAt)
+	suite.Equal(validateAccessCodePayload.ServiceMemberID, strfmt.UUID(""))
+
 	suite.Assertions.IsType(&accesscodeops.ValidateAccessCodeOK{}, response)
 }
 
@@ -116,8 +160,8 @@ func (suite *HandlerSuite) TestClaimAccessCodeHandler_Success() {
 	request = suite.AuthenticateRequest(request, serviceMember)
 
 	params := accesscodeops.ClaimAccessCodeParams{
-		HTTPRequest:       request,
-		AccessCodePayload: accesscodeops.ClaimAccessCodeBody{Code: &code},
+		HTTPRequest: request,
+		AccessCode:  accesscodeops.ClaimAccessCodeBody{Code: &code},
 	}
 
 	claimedAccessCode := models.AccessCode{
@@ -142,7 +186,7 @@ func (suite *HandlerSuite) TestClaimAccessCodeHandler_Success() {
 
 	suite.Assertions.Equal(claimedAccessCode.Code, *claimAccessCodePayload.Code)
 	suite.Assertions.Equal(claimedAccessCode.MoveType.String(), *claimAccessCodePayload.MoveType)
-	suite.Assertions.Equal(claimAccessCodePayload.ClaimedAt, *handlers.FmtDateTime(*claimedAccessCode.ClaimedAt))
+	suite.Assertions.Equal(claimAccessCodePayload.ClaimedAt, handlers.FmtDateTime(*claimedAccessCode.ClaimedAt))
 	suite.Assertions.Equal(claimAccessCodePayload.ServiceMemberID, *handlers.FmtUUID(*claimedAccessCode.ServiceMemberID))
 	suite.Assertions.IsType(&accesscodeops.ClaimAccessCodeOK{}, response)
 }

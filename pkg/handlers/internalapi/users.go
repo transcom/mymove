@@ -3,6 +3,8 @@ package internalapi
 import (
 	"reflect"
 
+	"github.com/transcom/mymove/pkg/cli"
+
 	"github.com/go-openapi/runtime/middleware"
 	beeline "github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
@@ -21,7 +23,6 @@ type ShowLoggedInUserHandler struct {
 
 // Handle returns the logged in user
 func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) middleware.Responder {
-
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
@@ -100,9 +101,11 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		}
 	}
 
+	requiresAccessCode := h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode)
+
 	userPayload := internalmessages.LoggedInUserPayload{
 		ID:            handlers.FmtUUID(session.UserID),
-		ServiceMember: payloadForServiceMemberModel(h.FileStorer(), serviceMember),
+		ServiceMember: payloadForServiceMemberModel(h.FileStorer(), serviceMember, requiresAccessCode),
 		FirstName:     session.FirstName,
 		Email:         session.Email,
 	}

@@ -65,12 +65,10 @@ func (suite *ClaimAccessCodeTestSuite) TestClaimAccessCode_Failed() {
 	suite.Equal(ac1.Code, accessCode.Code, "expected CODE2")
 	suite.Equal(ac1.ServiceMemberID, &serviceMember.ID)
 	suite.NotNil(ac1.ClaimedAt)
-
 	_, _, err2 := claimAccessCode.ClaimAccessCode(code, serviceMember.ID)
 
 	suite.Equal(err2.Error(), "Access code already claimed")
 }
-
 func (suite *ClaimAccessCodeTestSuite) TestClaimAccessCode_InvalidAccessCode() {
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 

@@ -47,6 +47,8 @@ type HandlerContext interface {
 	SetSendProductionInvoice(sendProductionInvoice bool)
 	UseSecureCookie() bool
 	SetUseSecureCookie(useSecureCookie bool)
+	SetFeatureFlag(flags FeatureFlag)
+	GetFeatureFlag(name string) bool
 
 	GexSender() services.GexSender
 	SetGexSender(gexSender services.GexSender)
@@ -56,6 +58,12 @@ type HandlerContext interface {
 	SetDPSAuthParams(params dpsauth.Params)
 	RespondAndTraceError(ctx context.Context, err error, msg string, fields ...zap.Field) middleware.Responder
 	RespondAndTraceVErrors(ctx context.Context, verrs *validate.Errors, err error, msg string, fields ...zap.Field) middleware.Responder
+}
+
+// FeatureFlag struct for feature flags
+type FeatureFlag struct {
+	Name   string
+	Active bool
 }
 
 // A single handlerContext is passed to each handler
@@ -73,6 +81,7 @@ type handlerContext struct {
 	senderToGex           services.GexSender
 	icnSequencer          sequence.Sequencer
 	useSecureCookie       bool
+	featureFlags          map[string]bool
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
@@ -235,4 +244,19 @@ func (hctx *handlerContext) UseSecureCookie() bool {
 // Sets flag for using Secure cookie
 func (hctx *handlerContext) SetUseSecureCookie(useSecureCookie bool) {
 	hctx.useSecureCookie = useSecureCookie
+}
+
+func (hctx *handlerContext) SetFeatureFlag(flag FeatureFlag) {
+	if hctx.featureFlags == nil {
+		hctx.featureFlags = make(map[string]bool)
+	}
+
+	hctx.featureFlags[flag.Name] = flag.Active
+}
+
+func (hctx *handlerContext) GetFeatureFlag(flag string) bool {
+	if value, ok := hctx.featureFlags[flag]; ok {
+		return value
+	}
+	return false
 }
