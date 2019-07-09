@@ -19,6 +19,8 @@ class OfficeQueue(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
 
     login_gov_user = None
     session_token = None
+
+    # User is the LoggedInUserPayload
     user = {}
 
     def update_user(self):
@@ -31,15 +33,15 @@ class OfficeQueue(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
             self.login_gov_user = resp.json()
         except Exception as e:
             print(e)
-            print("login could not be parsed", resp.content)
-            self.interrupt()
+            return self.kill(
+                "login could not be parsed. content: {}".format(resp.content)
+            )
 
         try:
             self.session_token = self.client.cookies.get("office_session_token")
         except Exception as e:
             print(e)
-            print("missing session token")
-            self.interrupt()
+            return self.kill("missing session token")
 
         self.requests_client = RequestsClient()
         # Set the session to be the same session as locust uses
@@ -55,18 +57,20 @@ class OfficeQueue(BaseTaskSequence, InternalAPIMixin, PublicAPIMixin):
                 http_client=self.requests_client,
                 config=get_swagger_config(),
             )
+            if not self.swagger_internal:
+                self.kill("internal swagger client failure")
+
             self.swagger_public = SwaggerClient.from_url(
                 urljoin(self.parent.parent.host, "api/v1/swagger.yaml"),
                 request_headers={"x-csrf-token": self.csrf},
                 http_client=self.requests_client,
                 config=get_swagger_config(),
             )
-            # If either of these fails we can't continue
-            if not (self.swagger_internal and self.swagger_public):
-                self.interrupt()
+            if not self.swagger_public:
+                self.kill("public swagger client failure")
         except Exception as e:
             print(e)
-            self.interrupt()
+            return self.kill("unknown swagger client failure")
 
     @seq_task(2)
     def retrieve_user(self):
