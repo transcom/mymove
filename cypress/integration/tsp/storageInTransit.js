@@ -80,6 +80,8 @@ function tspUserDeliversShipmentSIT030() {
   tspUserInvoiceContains('210ASIT Pup/Del - 30 or Less MilesO9 mi');
   // 210A Destination SIT Line Item
   tspUserInvoiceContains('210ASIT Pup/Del - 30 or Less MilesD13 mi');
+  cy.get('[data-cy=invoice-panel] [data-cy=basic-panel-content] tbody > tr').should('not.contain', /^210B\w+/);
+  cy.get('[data-cy=invoice-panel] [data-cy=basic-panel-content] tbody > tr').should('not.contain', /^210C\w+/);
 }
 function tspUserDeliversShipmentSIT050() {
   // SIT050
@@ -101,6 +103,7 @@ function tspUserDeliversShipmentSIT050() {
   tspUserInvoiceContains('210ASIT Pup/Del - 30 or Less MilesO43 mi');
   // 210B Origin SIT Line Item
   tspUserInvoiceContains('210BSIT Pup/Del 31 - 50 MilesO43 mi');
+  cy.get('[data-cy=invoice-panel] [data-cy=basic-panel-content] tbody > tr').should('not.contain', /^210C\w+/);
 }
 function tspUserDeliversShipmentSIT051() {
   // SIT051
@@ -119,6 +122,8 @@ function tspUserDeliversShipmentSIT051() {
   // Verify Invoice contains expected 210* line item(s)
   // 210C Destination SIT Line Item
   tspUserInvoiceContains('210CSIT Pup/Del Over 50 MilesD226 mi');
+  cy.get('[data-cy=invoice-panel] [data-cy=basic-panel-content] tbody > tr').should('not.contain', /^210A\w+/);
+  cy.get('[data-cy=invoice-panel] [data-cy=basic-panel-content] tbody > tr').should('not.contain', /^210B\w+/);
 }
 
 function tspUserReleasesOriginSit() {
