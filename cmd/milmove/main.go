@@ -61,16 +61,15 @@ func main() {
 		Long:  "Generate migrations and other objects",
 		RunE:  nil,
 	}
-	initMigrateFlags(genCommand.Flags())
 	root.AddCommand(genCommand)
 
 	genMigrationCommand := &cobra.Command{
-		Use:           "migration",
-		Short:         "Generate migrations and other objects",
-		Long:          "Generate migrations and other objects",
-		RunE:          genMigrationFunction,
-		SilenceUsage:  false, // yes please
-		SilenceErrors: true,  // not needed
+		Use:                   "migration -n NAME [-t TYPE]",
+		Short:                 "Generate migrations and other objects",
+		Long:                  "Generate migrations and other objects",
+		RunE:                  genMigrationFunction,
+		DisableFlagsInUseLine: true,
+		SilenceErrors:         true, // not needed
 	}
 	initGenMigrationFlags(genMigrationCommand.Flags())
 	genCommand.AddCommand(genMigrationCommand)

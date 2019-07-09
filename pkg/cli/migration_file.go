@@ -18,7 +18,7 @@ const (
 	MigrationNameFlag string = "name"
 	// MigrationTypeFlag is the migration manifest flag
 	MigrationTypeFlag string = "type"
-
+	// VersionTimeFormat is the Go time format for creating a version number.
 	VersionTimeFormat string = "20060102150405"
 )
 
@@ -56,7 +56,7 @@ func (e *errInvalidMigrationType) Error() string {
 func InitMigrationFileFlags(flag *pflag.FlagSet) {
 	flag.String(MigrationVersionFlag, time.Now().Format(VersionTimeFormat), "migration version: integer representation of datetime, default is current time using Go format "+VersionTimeFormat)
 	flag.StringP(MigrationNameFlag, "n", "", "migration name: alphanumeric, no spaces, underscores and dashes allowed")
-	flag.StringP(MigrationTypeFlag, "t", "", "migration type: fizz or sql.")
+	flag.StringP(MigrationTypeFlag, "t", "fizz", "migration type: fizz or sql.")
 }
 
 // CheckMigration validates migration command line flags
