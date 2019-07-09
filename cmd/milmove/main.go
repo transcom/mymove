@@ -50,10 +50,30 @@ func main() {
 		Long:          "Runs MilMove migrations",
 		RunE:          migrateFunction,
 		SilenceUsage:  true, // not needed
-		SilenceErrors: true, // caught and printed during panic on line 69
+		SilenceErrors: true, // not needed
 	}
 	initMigrateFlags(migrateCommand.Flags())
 	root.AddCommand(migrateCommand)
+
+	genCommand := &cobra.Command{
+		Use:   "gen",
+		Short: "Generate migrations and other objects",
+		Long:  "Generate migrations and other objects",
+		RunE:  nil,
+	}
+	initMigrateFlags(genCommand.Flags())
+	root.AddCommand(genCommand)
+
+	genMigrationCommand := &cobra.Command{
+		Use:           "migration",
+		Short:         "Generate migrations and other objects",
+		Long:          "Generate migrations and other objects",
+		RunE:          genMigrationFunction,
+		SilenceUsage:  false, // yes please
+		SilenceErrors: true,  // not needed
+	}
+	initGenMigrationFlags(genMigrationCommand.Flags())
+	genCommand.AddCommand(genMigrationCommand)
 
 	completionCommand := &cobra.Command{
 		Use:   "completion",
