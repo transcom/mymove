@@ -177,7 +177,7 @@ func (hctx *handlerContext) SetNotificationSender(sender notifications.Notificat
 	hctx.notificationSender = sender
 }
 
-// Planner is a returns the planner for the current context
+// Planner returns the planner for the current context
 func (hctx *handlerContext) Planner() route.Planner {
 	return hctx.planner
 }
