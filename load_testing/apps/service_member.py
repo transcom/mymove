@@ -43,7 +43,7 @@ class ServiceMemberSignupFlow(BaseTaskSequence, InternalAPIMixin):
         self.user["service_member"] = service_member
 
     def get_dutystations(self, short_name):
-        station_list = [short_name[0], short_name[0:3], short_name]
+        station_list = [short_name[0:3], short_name]
         duty_stations = None
         for station in station_list:
             duty_stations = swagger_request(
