@@ -145,40 +145,6 @@ type Shipment struct {
 // Shipments is not required by pop and may be deleted
 type Shipments []Shipment
 
-// BaseShipmentLineItem describes a base line items
-type BaseShipmentLineItem struct {
-	Code        string
-	Description string
-}
-
-// BaseShipmentLineItems lists all of the mandatory Shipment Line Items
-var BaseShipmentLineItems = []BaseShipmentLineItem{
-	{
-		Code:        "LHS",
-		Description: "Linehaul charges",
-	},
-	{
-		Code:        "135A",
-		Description: "Origin service fee",
-	},
-	{
-		Code:        "135B",
-		Description: "Destination service",
-	},
-	{
-		Code:        "105A",
-		Description: "Pack Fee",
-	},
-	{
-		Code:        "105C",
-		Description: "Unpack Fee",
-	},
-	{
-		Code:        "16A",
-		Description: "Fuel Surcharge",
-	},
-}
-
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	calendar := dates.NewUSCalendar()

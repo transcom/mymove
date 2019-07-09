@@ -254,8 +254,8 @@ func (s *ShipmentLineItem) ConditionallyApprove() error {
 // FindBaseShipmentLineItem returns true if code is a Base Shipment Line Item
 // otherwise, returns false
 func FindBaseShipmentLineItem(code string) bool {
-	for _, base := range BaseShipmentLineItems {
-		if code == base.Code {
+	for _, item := range BaseShipmentLineItemCodes() {
+		if code == item {
 			return true
 		}
 	}

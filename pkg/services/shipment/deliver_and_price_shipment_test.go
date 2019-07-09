@@ -1,11 +1,9 @@
 package shipment
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -80,18 +78,6 @@ func (suite *ShipmentServiceSuite) TestDeliverAndPriceShipment() {
 		suite.FatalNoError(err)
 		// All items should be priced
 		for _, item := range fetchedLineItems {
-			if item.AmountCents == nil {
-				fmt.Printf("items %s AmountCents is nil status %s location %s\n",
-					item.Tariff400ngItem.Code,
-					item.Status,
-					item.Location)
-				suite.logger.Error("items AmountCents is nil",
-					zap.Any("status", item.Status),
-					zap.Any("", item.Location),
-				)
-
-			}
-
 			suite.NotNil(item.AmountCents, item.Tariff400ngItem.Code)
 		}
 	})
