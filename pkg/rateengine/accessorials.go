@@ -153,6 +153,9 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 		// 35A is a Third Party Service (TPS) charge, allow user to enter dollar amount as quantity
 		rateCents = unit.Cents(100)
 	} else if itemCode == "210C" {
+		// If both 210C and 210F are both going to follow this path, consider changing this to
+		// if DiscountType == models.Tariff400ngItemDiscountTypeHHGLINEHAUL50 but for now
+		// we are only using 210C
 		linehaul210CRate, err := models.FetchBaseLinehaulRate(
 			re.db,
 			shipmentLineItem.Quantity1.ToUnitInt(),
@@ -223,9 +226,12 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 	}
 
 	var discountRate *unit.DiscountRate
-	if shipmentLineItem.Tariff400ngItem.DiscountType == models.Tariff400ngItemDiscountTypeHHG || shipmentLineItem.Tariff400ngItem.DiscountType == models.Tariff400ngItemDiscountTypeHHGLINEHAUL50 {
+	// Removing the check for DiscountType == models.Tariff400ngItemDiscountTypeHHGLINEHAUL50 and explicitly checking for 210C, the
+	// only other item that falls under this type is 210F and we aren't currently processing this.
+	// For 210C, the linehaul rate table is used for pricing but the SIT discount rate is used for the discount rate.
+	if shipmentLineItem.Tariff400ngItem.DiscountType == models.Tariff400ngItemDiscountTypeHHG {
 		discountRate = &shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.LinehaulRate
-	} else if shipmentLineItem.Tariff400ngItem.DiscountType == models.Tariff400ngItemDiscountTypeSIT {
+	} else if shipmentLineItem.Tariff400ngItem.DiscountType == models.Tariff400ngItemDiscountTypeSIT || shipmentLineItem.Tariff400ngItem.Code == "210C" {
 		discountRate = &shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.SITRate
 	}
 
