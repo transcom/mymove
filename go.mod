@@ -24,10 +24,12 @@ require (
 	github.com/felixge/httpsnoop v1.0.0
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-ini/ini v1.44.0 // indirect
+	github.com/go-openapi/errors v0.19.2
 	github.com/go-openapi/loads v0.19.2
 	github.com/go-openapi/runtime v0.19.3
 	github.com/go-openapi/strfmt v0.19.2
 	github.com/go-openapi/swag v0.19.4
+	github.com/go-openapi/validate v0.19.2
 	github.com/go-swagger/go-swagger v0.19.1-0.20190712002221-a5e3099fe0bb
 	github.com/gobuffalo/fizz v1.9.2 // indirect
 	github.com/gobuffalo/logger v1.0.1 // indirect
