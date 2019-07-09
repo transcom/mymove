@@ -89,38 +89,14 @@ func StorageInTransitLineItemCodes() []string {
 	}
 }
 
-// ShipmentLineItemCodeDescription describes an item code
-type ShipmentLineItemCodeDescription struct {
-	Code        string
-	Description string
-}
-
-func BaseShipmentLineItemCodes() []ShipmentLineItemCodeDescription {
-	return []ShipmentLineItemCodeDescription{
-		{
-			Code:        "LHS",
-			Description: "Linehaul charges",
-		},
-		{
-			Code:        "135A",
-			Description: "Origin service fee",
-		},
-		{
-			Code:        "135B",
-			Description: "Destination service",
-		},
-		{
-			Code:        "105A",
-			Description: "Pack Fee",
-		},
-		{
-			Code:        "105C",
-			Description: "Unpack Fee",
-		},
-		{
-			Code:        "16A",
-			Description: "Fuel Surcharge",
-		},
+func BaseShipmentLineItemCodes() []string {
+	return []string{
+		"LHS",
+		"135A",
+		"135B",
+		"105A",
+		"105C",
+		"16A",
 	}
 }
 
@@ -219,34 +195,6 @@ func FetchApprovedPreapprovalRequestsByShipment(dbConnection *pop.Connection, sh
 		Where("status = ?", ShipmentLineItemStatusAPPROVED).
 		Where("tariff400ng_items.requires_pre_approval = true").
 		Where("code not in (?)", storageInTransitCodes...).
-		Eager("Tariff400ngItem")
-
-	err := query.All(&items)
-
-	// Add the shipment model
-	for i := 0; i < len(items); i++ {
-		items[i].Shipment = shipment
-	}
-
-	return items, err
-}
-
-// FetchStorageInTransitLineItemsByShipment fetches SIT line items for a shipment
-func FetchStorageInTransitLineItemsByShipment(dbConnection *pop.Connection, shipment Shipment) ([]ShipmentLineItem, error) {
-	var items []ShipmentLineItem
-
-	sitCodes := StorageInTransitLineItemCodes()
-	storageInTransitCodes := make([]interface{}, len(sitCodes))
-	for i, t := range sitCodes {
-		storageInTransitCodes[i] = t
-	}
-
-	query := dbConnection.Q().
-		LeftJoin("tariff400ng_items", "shipment_line_items.tariff400ng_item_id=tariff400ng_items.id").
-		Where("code in (?)", storageInTransitCodes...).
-		Where("shipment_id = ?", shipment.ID).
-		Where("status = ?", ShipmentLineItemStatusAPPROVED).
-		Where("tariff400ng_items.requires_pre_approval = false").
 		Eager("Tariff400ngItem")
 
 	err := query.All(&items)

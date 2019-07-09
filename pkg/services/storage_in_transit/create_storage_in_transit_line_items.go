@@ -134,7 +134,6 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 			return nil, err
 		}
 		logger.Debug("Storage in Transit Distance", zap.Int("sit distance", distanceCalculation.DistanceMiles))
-		// TODO: line used for testing in dev only: distanceCalculation.DistanceMiles = 40
 		sit.StorageInTransitDistance = *distanceCalculation
 		sit.StorageInTransitDistanceID = &(*distanceCalculation).ID
 
@@ -151,7 +150,9 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 
 		logger.Debug("Creating SIT Line Item for Shipment ID", zap.Any("shipment_id", shipment.ID), zap.Int("distance", sit.StorageInTransitDistance.DistanceMiles))
 
-		if sit.StorageInTransitDistance.DistanceMiles > 50 {
+		const distance30Miles = 30
+		const distance50Miles = 50
+		if sit.StorageInTransitDistance.DistanceMiles > distance50Miles {
 			additionalFlateRateCItem, err := models.FetchTariff400ngItemByCode(c.DB, "210C")
 			if err != nil {
 				return nil, errors.Wrapf(err, "Error fetching item code 210C - CreateStorageInTransitLineItems()")
@@ -175,7 +176,7 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 
 			lineItems = append(lineItems, additionalFlateRateC)
 		} else {
-			if sit.StorageInTransitDistance.DistanceMiles > 30 {
+			if sit.StorageInTransitDistance.DistanceMiles > distance30Miles {
 				additionalFlateRateBItem, err := models.FetchTariff400ngItemByCode(c.DB, "210B")
 				if err != nil {
 					return nil, errors.Wrapf(err, "Error fetching item code 210B - CreateStorageInTransitLineItems()")
