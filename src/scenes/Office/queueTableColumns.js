@@ -96,8 +96,17 @@ const sitExpires = CreateReactTableColumn('SIT expires', 'sit_expires', {
 });
 
 // Columns used to display in react table
-
-export const newColumns = [clockIcon, customerName, locator, dodId, rank, shipments, moveDate, submittedDate];
+export const newColumns = [
+  clockIcon,
+  customerName,
+  hhgStatus,
+  shipments,
+  origin,
+  dodId,
+  locator,
+  pickupDate,
+  submittedDate,
+];
 
 export const ppmColumns = [clockIcon, status, customerName, dodId, rank, locator, moveDate, lastModifiedDate];
 
