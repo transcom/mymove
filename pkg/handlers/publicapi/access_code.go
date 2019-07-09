@@ -27,7 +27,7 @@ func payloadForAccessCodeModel(accessCode models.AccessCode) *apimessages.Access
 	}
 
 	if accessCode.ClaimedAt != nil {
-		payload.ClaimedAt = *handlers.FmtDateTime(*accessCode.ClaimedAt)
+		payload.ClaimedAt = handlers.FmtDateTime(*accessCode.ClaimedAt)
 	}
 
 	return payload

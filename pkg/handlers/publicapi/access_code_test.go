@@ -186,7 +186,7 @@ func (suite *HandlerSuite) TestClaimAccessCodeHandler_Success() {
 
 	suite.Assertions.Equal(claimedAccessCode.Code, *claimAccessCodePayload.Code)
 	suite.Assertions.Equal(claimedAccessCode.MoveType.String(), *claimAccessCodePayload.MoveType)
-	suite.Assertions.Equal(claimAccessCodePayload.ClaimedAt, *handlers.FmtDateTime(*claimedAccessCode.ClaimedAt))
+	suite.Assertions.Equal(claimAccessCodePayload.ClaimedAt, handlers.FmtDateTime(*claimedAccessCode.ClaimedAt))
 	suite.Assertions.Equal(claimAccessCodePayload.ServiceMemberID, *handlers.FmtUUID(*claimedAccessCode.ServiceMemberID))
 	suite.Assertions.IsType(&accesscodeops.ClaimAccessCodeOK{}, response)
 }

@@ -132,7 +132,7 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// Feature Flags
 	cli.InitFeatureFlags(flag)
 
-	// Sort flags
+	// Sort command line flags
 	flag.SortFlags = true
 }
 
