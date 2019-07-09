@@ -391,7 +391,6 @@ const createSchemaField = (
   } else {
     console.error('ERROR: This is an unimplemented type in our JSONSchemaForm implementation');
   }
-
   return (
     <Field
       key={fieldName}

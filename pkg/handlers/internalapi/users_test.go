@@ -28,8 +28,38 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 	suite.Equal(okResponse.Payload.ID.String(), unknownUser.ID.String())
 }
 
-func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
+func (suite *HandlerSuite) TestServiceMemberLoggedInUserRequiringAccessCodeHandler() {
 	firstName := "Joseph"
+	sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			FirstName:          &firstName,
+			RequiresAccessCode: true,
+		},
+	})
+
+	req := httptest.NewRequest("GET", "/users/logged_in", nil)
+	req = suite.AuthenticateRequest(req, sm)
+
+	params := userop.ShowLoggedInUserParams{
+		HTTPRequest: req,
+	}
+
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	featureFlag := handlers.FeatureFlag{Name: "requires-access-code", Active: true}
+	context.SetFeatureFlag(featureFlag)
+	handler := ShowLoggedInUserHandler{context}
+
+	response := handler.Handle(params)
+
+	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
+	suite.True(ok)
+	suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
+	suite.Equal("Joseph", *okResponse.Payload.ServiceMember.FirstName)
+	suite.True(okResponse.Payload.ServiceMember.RequiresAccessCode)
+}
+
+func (suite *HandlerSuite) TestServiceMemberLoggedInUserNotRequiringAccessCodeHandler() {
+	firstName := "Jane"
 	sm := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName: &firstName,
@@ -43,14 +73,18 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 		HTTPRequest: req,
 	}
 
-	handler := ShowLoggedInUserHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	featureFlag := handlers.FeatureFlag{Name: "requires-access-code", Active: false}
+	context.SetFeatureFlag(featureFlag)
+	handler := ShowLoggedInUserHandler{context}
 
 	response := handler.Handle(params)
 
 	okResponse, ok := response.(*userop.ShowLoggedInUserOK)
 	suite.True(ok)
 	suite.Equal(okResponse.Payload.ID.String(), sm.UserID.String())
-	suite.Equal("Joseph", *okResponse.Payload.ServiceMember.FirstName)
+	suite.Equal("Jane", *okResponse.Payload.ServiceMember.FirstName)
+	suite.False(okResponse.Payload.ServiceMember.RequiresAccessCode)
 }
 
 func (suite *HandlerSuite) TestServiceMemberNoTransportationOfficeLoggedInUserHandler() {
