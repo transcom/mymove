@@ -1,16 +1,15 @@
 package transportationoffices
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"log"
 	"net/http"
 
-	"bufio"
-	"encoding/xml"
+	"encoding/csv"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -111,112 +110,139 @@ var abbrs = map[string]string{
 	"andrews-naf": "Andrews-NAF",
 }
 
-type OfficeData struct {
-	XMLName        xml.Name `xml:"CONTACT_INFO_INITIAL_SITES_R2NEW"`
-	Text           string   `xml:",chardata"`
-	Name           string   `xml:"name"`
-	LISTGCNSLORGID struct {
-		Text       string   `xml:",chardata"`
-		GCNSLORGID []Office `xml:"G_CNSL_ORG_ID"`
-	} `xml:"LIST_G_CNSL_ORG_ID"`
+// type OfficeData struct {
+// 	XMLName        xml.Name `xml:"CONTACT_INFO_INITIAL_SITES_R2NEW"`
+// 	Text           string   `xml:",chardata"`
+// 	Name           string   `xml:"name"`
+// 	LISTGCNSLORGID struct {
+// 		Text       string   `xml:",chardata"`
+// 		GCNSLORGID []Office `xml:"G_CNSL_ORG_ID"`
+// 	} `xml:"LIST_G_CNSL_ORG_ID"`
+// }
+
+// type Office struct {
+// 	XMLName       xml.Name `xml:"G_CNSL_ORG_ID"`
+// 	Text          string   `xml:",chardata"`
+// 	CNSLORGID1    string   `xml:"CNSL_ORG_ID1"`
+// 	LISTGCNSLINFO struct {
+// 		Text      string `xml:",chardata"`
+// 		GCNSLINFO struct {
+// 			Text                string `xml:",chardata"`
+// 			CNSLCTRYNM          string `xml:"CNSL_CTRY_NM"`
+// 			CNSLSTDIV           string `xml:"CNSL_ST_DIV"`
+// 			CNSLNAME            string `xml:"CNSL_NAME"`
+// 			CNSLADDR1           string `xml:"CNSL_ADDR1"`
+// 			CNSLADDR2           string `xml:"CNSL_ADDR2"`
+// 			CNSLCITY            string `xml:"CNSL_CITY"`
+// 			CNSLSTATE           string `xml:"CNSL_STATE"`
+// 			CNSLZIP             string `xml:"CNSL_ZIP"`
+// 			CNSLCOUNTRY         string `xml:"CNSL_COUNTRY"`
+// 			PPSOORGID           string `xml:"PPSO_ORG_ID"`
+// 			PPSOCOUNTRY         string `xml:"PPSO_COUNTRY"`
+// 			PPSOSTATE           string `xml:"PPSO_STATE"`
+// 			PPSOZIP             string `xml:"PPSO_ZIP"`
+// 			PPSONAME            string `xml:"PPSO_NAME"`
+// 			PPSOCITY            string `xml:"PPSO_CITY"`
+// 			PPSOADDR2           string `xml:"PPSO_ADDR2"`
+// 			PPSOADDR1           string `xml:"PPSO_ADDR1"`
+// 			LISTGPPSOEMAILORGID struct {
+// 				Text            string `xml:",chardata"`
+// 				GPPSOEMAILORGID struct {
+// 					Text           string `xml:",chardata"`
+// 					ORGIDP         string `xml:"ORG_IDP"`
+// 					LISTGPPSOEMAIL struct {
+// 						Text       string `xml:",chardata"`
+// 						GPpsoEmail []struct {
+// 							Text          string `xml:",chardata"`
+// 							EMAILTYPEP    string `xml:"EMAIL_TYPEP"`
+// 							EMAILADDRESSP string `xml:"EMAIL_ADDRESSP"`
+// 						} `xml:"G_ppso_email"`
+// 					} `xml:"LIST_G_PPSO_EMAIL"`
+// 				} `xml:"G_PPSO_EMAIL_ORG_ID"`
+// 			} `xml:"LIST_G_PPSO_EMAIL_ORG_ID"`
+// 			LISTGPPSOPHONEORGID struct {
+// 				Text            string `xml:",chardata"`
+// 				GPPSOPHONEORGID struct {
+// 					Text                string `xml:",chardata"`
+// 					PPSOORGID2          string `xml:"PPSO_ORG_ID2"`
+// 					LISTGPPSOPHONENOTES struct {
+// 						Text            string `xml:",chardata"`
+// 						GPPSOPHONENOTES []struct {
+// 							Text           string `xml:",chardata"`
+// 							PPSOVOICEORFAX string `xml:"PPSO_VOICE_OR_FAX"`
+// 							PPSOPHONENUM   string `xml:"PPSO_PHONE_NUM"`
+// 							PPSODSNNUM     string `xml:"PPSO_DSN_NUM"`
+// 							PPSOPHONETYPE  string `xml:"PPSO_PHONE_TYPE"`
+// 							PPSOCOMMORDSN  string `xml:"PPSO_COMM_OR_DSN"`
+// 							PPSOPHONENOTES string `xml:"PPSO_PHONE_NOTES"`
+// 						} `xml:"G_PPSO_PHONE_NOTES"`
+// 					} `xml:"LIST_G_PPSO_PHONE_NOTES"`
+// 				} `xml:"G_PPSO_PHONE_ORG_ID"`
+// 			} `xml:"LIST_G_PPSO_PHONE_ORG_ID"`
+// 		} `xml:"G_CNSL_INFO"`
+// 	} `xml:"LIST_G_CNSL_INFO"`
+// 	LISTGCNSLEMAILORGID struct {
+// 		Text            string `xml:",chardata"`
+// 		GCNSLEMAILORGID struct {
+// 			Text           string `xml:",chardata"`
+// 			ORGID2         string `xml:"ORG_ID2"`
+// 			LISTGCNSLEMAIL struct {
+// 				Text       string `xml:",chardata"`
+// 				GCNSLEMAIL struct {
+// 					Text         string `xml:",chardata"`
+// 					EMAILTYPE    string `xml:"EMAIL_TYPE"`
+// 					EMAILADDRESS string `xml:"EMAIL_ADDRESS"`
+// 				} `xml:"G_CNSL_EMAIL"`
+// 			} `xml:"LIST_G_CNSL_EMAIL"`
+// 		} `xml:"G_CNSL_EMAIL_ORG_ID"`
+// 	} `xml:"LIST_G_CNSL_EMAIL_ORG_ID"`
+// 	LISTGCNSLPHONEORGID struct {
+// 		Text            string `xml:",chardata"`
+// 		GCNSLPHONEORGID struct {
+// 			Text                string `xml:",chardata"`
+// 			CNSLORGID2          string `xml:"CNSL_ORG_ID2"`
+// 			LISTGCNSLPHONENOTES struct {
+// 				Text            string `xml:",chardata"`
+// 				GCNSLPHONENOTES []struct {
+// 					Text           string `xml:",chardata"`
+// 					CNSLVOICEORFAX string `xml:"CNSL_VOICE_OR_FAX"`
+// 					CNSLDSNNUM     string `xml:"CNSL_DSN_NUM"`
+// 					CNSLAREACODE   string `xml:"CNSL_AREA_CODE"`
+// 					CNSLPHONETYPE  string `xml:"CNSL_PHONE_TYPE"`
+// 					CNSLCOMMORDSN  string `xml:"CNSL_COMM_OR_DSN"`
+// 					CNSLPHONENUM   string `xml:"CNSL_PHONE_NUM"`
+// 					CNSLPHONENOTES string `xml:"CNSL_PHONE_NOTES"`
+// 				} `xml:"G_CNSL_PHONE_NOTES"`
+// 			} `xml:"LIST_G_CNSL_PHONE_NOTES"`
+// 		} `xml:"G_CNSL_PHONE_ORG_ID"`
+// 	} `xml:"LIST_G_CNSL_PHONE_ORG_ID"`
+// }
+
+type OfficeDataGeoLocation struct {
+	Lat string `json:"lat"`
+	Lng string `json:"lng"`
 }
 
-type Office struct {
-	XMLName       xml.Name `xml:"G_CNSL_ORG_ID"`
-	Text          string   `xml:",chardata"`
-	CNSLORGID1    string   `xml:"CNSL_ORG_ID1"`
-	LISTGCNSLINFO struct {
-		Text      string `xml:",chardata"`
-		GCNSLINFO struct {
-			Text                string `xml:",chardata"`
-			CNSLCTRYNM          string `xml:"CNSL_CTRY_NM"`
-			CNSLSTDIV           string `xml:"CNSL_ST_DIV"`
-			CNSLNAME            string `xml:"CNSL_NAME"`
-			CNSLADDR1           string `xml:"CNSL_ADDR1"`
-			CNSLADDR2           string `xml:"CNSL_ADDR2"`
-			CNSLCITY            string `xml:"CNSL_CITY"`
-			CNSLSTATE           string `xml:"CNSL_STATE"`
-			CNSLZIP             string `xml:"CNSL_ZIP"`
-			CNSLCOUNTRY         string `xml:"CNSL_COUNTRY"`
-			PPSOORGID           string `xml:"PPSO_ORG_ID"`
-			PPSOCOUNTRY         string `xml:"PPSO_COUNTRY"`
-			PPSOSTATE           string `xml:"PPSO_STATE"`
-			PPSOZIP             string `xml:"PPSO_ZIP"`
-			PPSONAME            string `xml:"PPSO_NAME"`
-			PPSOCITY            string `xml:"PPSO_CITY"`
-			PPSOADDR2           string `xml:"PPSO_ADDR2"`
-			PPSOADDR1           string `xml:"PPSO_ADDR1"`
-			LISTGPPSOEMAILORGID struct {
-				Text            string `xml:",chardata"`
-				GPPSOEMAILORGID struct {
-					Text           string `xml:",chardata"`
-					ORGIDP         string `xml:"ORG_IDP"`
-					LISTGPPSOEMAIL struct {
-						Text       string `xml:",chardata"`
-						GPpsoEmail []struct {
-							Text          string `xml:",chardata"`
-							EMAILTYPEP    string `xml:"EMAIL_TYPEP"`
-							EMAILADDRESSP string `xml:"EMAIL_ADDRESSP"`
-						} `xml:"G_ppso_email"`
-					} `xml:"LIST_G_PPSO_EMAIL"`
-				} `xml:"G_PPSO_EMAIL_ORG_ID"`
-			} `xml:"LIST_G_PPSO_EMAIL_ORG_ID"`
-			LISTGPPSOPHONEORGID struct {
-				Text            string `xml:",chardata"`
-				GPPSOPHONEORGID struct {
-					Text                string `xml:",chardata"`
-					PPSOORGID2          string `xml:"PPSO_ORG_ID2"`
-					LISTGPPSOPHONENOTES struct {
-						Text            string `xml:",chardata"`
-						GPPSOPHONENOTES []struct {
-							Text           string `xml:",chardata"`
-							PPSOVOICEORFAX string `xml:"PPSO_VOICE_OR_FAX"`
-							PPSOPHONENUM   string `xml:"PPSO_PHONE_NUM"`
-							PPSODSNNUM     string `xml:"PPSO_DSN_NUM"`
-							PPSOPHONETYPE  string `xml:"PPSO_PHONE_TYPE"`
-							PPSOCOMMORDSN  string `xml:"PPSO_COMM_OR_DSN"`
-							PPSOPHONENOTES string `xml:"PPSO_PHONE_NOTES"`
-						} `xml:"G_PPSO_PHONE_NOTES"`
-					} `xml:"LIST_G_PPSO_PHONE_NOTES"`
-				} `xml:"G_PPSO_PHONE_ORG_ID"`
-			} `xml:"LIST_G_PPSO_PHONE_ORG_ID"`
-		} `xml:"G_CNSL_INFO"`
-	} `xml:"LIST_G_CNSL_INFO"`
-	LISTGCNSLEMAILORGID struct {
-		Text            string `xml:",chardata"`
-		GCNSLEMAILORGID struct {
-			Text           string `xml:",chardata"`
-			ORGID2         string `xml:"ORG_ID2"`
-			LISTGCNSLEMAIL struct {
-				Text       string `xml:",chardata"`
-				GCNSLEMAIL struct {
-					Text         string `xml:",chardata"`
-					EMAILTYPE    string `xml:"EMAIL_TYPE"`
-					EMAILADDRESS string `xml:"EMAIL_ADDRESS"`
-				} `xml:"G_CNSL_EMAIL"`
-			} `xml:"LIST_G_CNSL_EMAIL"`
-		} `xml:"G_CNSL_EMAIL_ORG_ID"`
-	} `xml:"LIST_G_CNSL_EMAIL_ORG_ID"`
-	LISTGCNSLPHONEORGID struct {
-		Text            string `xml:",chardata"`
-		GCNSLPHONEORGID struct {
-			Text                string `xml:",chardata"`
-			CNSLORGID2          string `xml:"CNSL_ORG_ID2"`
-			LISTGCNSLPHONENOTES struct {
-				Text            string `xml:",chardata"`
-				GCNSLPHONENOTES []struct {
-					Text           string `xml:",chardata"`
-					CNSLVOICEORFAX string `xml:"CNSL_VOICE_OR_FAX"`
-					CNSLDSNNUM     string `xml:"CNSL_DSN_NUM"`
-					CNSLAREACODE   string `xml:"CNSL_AREA_CODE"`
-					CNSLPHONETYPE  string `xml:"CNSL_PHONE_TYPE"`
-					CNSLCOMMORDSN  string `xml:"CNSL_COMM_OR_DSN"`
-					CNSLPHONENUM   string `xml:"CNSL_PHONE_NUM"`
-					CNSLPHONENOTES string `xml:"CNSL_PHONE_NOTES"`
-				} `xml:"G_CNSL_PHONE_NOTES"`
-			} `xml:"LIST_G_CNSL_PHONE_NOTES"`
-		} `xml:"G_CNSL_PHONE_ORG_ID"`
-	} `xml:"LIST_G_CNSL_PHONE_ORG_ID"`
+type OfficeDataLocation struct {
+	CountryCode       string                `json:"country_code"`
+	PostalCode        string                `json:"postal_code"`
+	AddressLine1      string                `json:"address_line1"`
+	AddressLine2      string                `json:"address_line2"`
+	AdminstrativeArea string                `json:"administrative_area"`
+	GeoLocation       OfficeDataGeoLocation `json:"geolocation"`
+}
+
+type OfficeShippingOffice struct {
+	Type     string             `json:"type"`
+	Title    string             `json:"title"`
+	Location OfficeDataLocation `json:"location"`
+}
+
+type OfficeDataStruct struct {
+	Type           string               `json:"type"`
+	Title          string               `json:"title"`
+	Location       OfficeDataLocation   `json:"location"`
+	ShippingOffice OfficeShippingOffice `json:"shipping_office"`
 }
 
 // MigrationBuilder has methods that assist in building a DutyStation INSERT migration
@@ -233,166 +259,171 @@ func NewMigrationBuilder(db *pop.Connection, logger *zap.Logger) MigrationBuilde
 	}
 }
 
-func (b *MigrationBuilder) parseOffices(path string) ([]Office, error) {
-	fileBytes := ReadXMLFile(path)
-	data := UnmarshalXML(fileBytes)
-	officeData := data.LISTGCNSLORGID.GCNSLORGID
+// func (b *MigrationBuilder) parseOffices(path string) ([]Office, error) {
+// 	fileBytes := ReadXMLFile(path)
+// 	data := UnmarshalXML(fileBytes)
+// 	officeData := data.LISTGCNSLORGID.GCNSLORGID
 
-	return officeData, nil
+// 	return officeData, nil
 
+// }
+
+// func ReadXMLFile(file string) []byte {
+// 	// xmlFile, err := os.Open("cmd/load_transportation_offices/data/" + file)
+// 	xmlFile, err := os.Open(file)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+// 	defer xmlFile.Close()
+
+// 	// read our opened xmlFile as a byte array.
+// 	byteValue, _ := ioutil.ReadAll(xmlFile)
+// 	return byteValue
+// }
+
+// func UnmarshalXML(byteValue []byte) OfficeData {
+// 	var od OfficeData
+// 	xml.Unmarshal(byteValue, &od)
+// 	return od
+// }
+
+func isUSAndConusFilter(o OfficeDataStruct) bool {
+	return o.Location.CountryCode == "US" && o.Location.AdminstrativeArea != "AK" &&
+		o.Location.AdminstrativeArea != "HI" && o.Type == "Transportation Office"
 }
 
-func ReadXMLFile(file string) []byte {
-	// xmlFile, err := os.Open("cmd/load_transportation_offices/data/" + file)
-	xmlFile, err := os.Open(file)
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer xmlFile.Close()
-
-	// read our opened xmlFile as a byte array.
-	byteValue, _ := ioutil.ReadAll(xmlFile)
-	return byteValue
+func isUSFilter(o OfficeDataStruct) bool {
+	return o.Location.CountryCode == "US"
 }
 
-func UnmarshalXML(byteValue []byte) OfficeData {
-	var od OfficeData
-	xml.Unmarshal(byteValue, &od)
-	return od
+func isCONUSFilter(o OfficeDataStruct) bool {
+	return o.Location.AdminstrativeArea != "AK" &&
+		o.Location.AdminstrativeArea != "HI"
 }
 
-func isUSFilter(o Office) bool {
-	return o.LISTGCNSLINFO.GCNSLINFO.CNSLCOUNTRY == "US"
-}
+// func isAFBFilter(o Office) bool {
+// 	return strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "AFB")
+// }
 
-func isCONUSFilter(o Office) bool {
-	return o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE != "AK" &&
-		o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE != "HI"
-}
+// func isArmyFilter(o Office) bool {
+// 	return strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "FORT") ||
+// 		strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "FT") ||
+// 		strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "USMA")
+// }
 
-func isAFBFilter(o Office) bool {
-	return strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "AFB")
-}
+// func isNavyFilter(o Office) bool {
+// 	return strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "NAV") ||
+// 		strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "NAVSUP") ||
+// 		strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "USNA")
+// }
 
-func isArmyFilter(o Office) bool {
-	return strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "FORT") ||
-		strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "FT") ||
-		strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "USMA")
-}
+// func isOtherFilter(o Office) bool {
+// 	return !(isAFBFilter(o) || isArmyFilter(o) || isNavyFilter(o))
+// }
 
-func isNavyFilter(o Office) bool {
-	return strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "NAV") ||
-		strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "NAVSUP") ||
-		strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "USNA")
-}
+// func (b *MigrationBuilder) isUS(offices []Office) []Office {
+// 	filter := func(o Office) bool {
+// 		return o.LISTGCNSLINFO.GCNSLINFO.CNSLCOUNTRY == "US"
+// 	}
+// 	return b.filterOffice(offices, filter)
+// }
 
-func isOtherFilter(o Office) bool {
-	return !(isAFBFilter(o) || isArmyFilter(o) || isNavyFilter(o))
-}
+// func (b *MigrationBuilder) isConus(offices []Office) []Office {
+// 	filter := func(o Office) bool {
+// 		return o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE != "AK" &&
+// 			o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE != "HI"
+// 	}
+// 	return b.filterOffice(offices, filter)
+// }
 
-func (b *MigrationBuilder) isUS(offices []Office) []Office {
-	filter := func(o Office) bool {
-		return o.LISTGCNSLINFO.GCNSLINFO.CNSLCOUNTRY == "US"
-	}
-	return b.filterOffice(offices, filter)
-}
+// func (b *MigrationBuilder) isAFB(offices []Office) []Office {
+// 	filter := func(o Office) bool {
+// 		return strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "AFB")
+// 	}
+// 	return b.filterOffice(offices, filter)
+// }
 
-func (b *MigrationBuilder) isConus(offices []Office) []Office {
-	filter := func(o Office) bool {
-		return o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE != "AK" &&
-			o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE != "HI"
-	}
-	return b.filterOffice(offices, filter)
-}
+// func (b *MigrationBuilder) isArmy(offices []Office) []Office {
+// 	filter := func(o Office) bool {
+// 		return strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "FORT") ||
+// 			strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "FT") ||
+// 			strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "USMA")
+// 	}
+// 	return b.filterOffice(offices, filter)
+// }
 
-func (b *MigrationBuilder) isAFB(offices []Office) []Office {
-	filter := func(o Office) bool {
-		return strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "AFB")
-	}
-	return b.filterOffice(offices, filter)
-}
+// func (b *MigrationBuilder) isNav(offices []Office) []Office {
+// 	filter := func(o Office) bool {
+// 		return strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "NAV") ||
+// 			strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "NAVSUP") ||
+// 			strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "USNA")
 
-func (b *MigrationBuilder) isArmy(offices []Office) []Office {
-	filter := func(o Office) bool {
-		return strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "FORT") ||
-			strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "FT") ||
-			strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "USMA")
-	}
-	return b.filterOffice(offices, filter)
-}
+// 	}
+// 	return b.filterOffice(offices, filter)
+// }
 
-func (b *MigrationBuilder) isNav(offices []Office) []Office {
-	filter := func(o Office) bool {
-		return strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "NAV") ||
-			strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "NAVSUP") ||
-			strings.Contains(strings.ToUpper(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME), "USNA")
-
-	}
-	return b.filterOffice(offices, filter)
-}
-
-func (b *MigrationBuilder) filterOffice(os []Office, test func(Office) bool) []Office {
-	var filtered []Office
-	for _, o := range os {
+func (b *MigrationBuilder) filterOffice(os map[string]OfficeDataStruct, test func(OfficeDataStruct) bool) map[string]OfficeDataStruct {
+	filtered := make(map[string]OfficeDataStruct)
+	for key, o := range os {
 		if test(o) {
-			filtered = append(filtered, o)
+			filtered[key] = o
 		}
 	}
 	return filtered
 }
 
-func FilterTransportationOffices(os models.TransportationOffices, test func(models.TransportationOffice) bool) models.TransportationOffices {
-	var filtered models.TransportationOffices
-	for _, o := range os {
-		if test(o) {
-			filtered = append(filtered, o)
-		}
-	}
-	return filtered
-}
+// func FilterTransportationOffices(os models.TransportationOffices, test func(models.TransportationOffice) bool) models.TransportationOffices {
+// 	var filtered models.TransportationOffices
+// 	for _, o := range os {
+// 		if test(o) {
+// 			filtered = append(filtered, o)
+// 		}
+// 	}
+// 	return filtered
+// }
 
-func (b *MigrationBuilder) FindConusOffices(o Office, w io.Writer) models.TransportationOffices {
-	zip := o.LISTGCNSLINFO.GCNSLINFO.CNSLZIP
+// func (b *MigrationBuilder) FindConusOffices(o Office, w io.Writer) models.TransportationOffices {
+// 	zip := o.LISTGCNSLINFO.GCNSLINFO.CNSLZIP
 
-	dbOs, err := models.FetchTransportationOfficesByPostalCode(b.db, zip)
-	if err != nil {
-		fmt.Println(err)
-	}
+// 	dbOs, err := models.FetchTransportationOfficesByPostalCode(b.db, zip)
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
 
-	if len(dbOs) == 0 {
-		partialZip := zip[:len(zip)-1] + "%"
-		fmt.Fprintf(w, "*** partialZip: %s \n", partialZip)
-		dbOs, err = models.FetchTransportationOfficesByPostalCode(b.db, partialZip)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
+// 	if len(dbOs) == 0 {
+// 		partialZip := zip[:len(zip)-1] + "%"
+// 		fmt.Fprintf(w, "*** partialZip: %s \n", partialZip)
+// 		dbOs, err = models.FetchTransportationOfficesByPostalCode(b.db, partialZip)
+// 		if err != nil {
+// 			fmt.Println(err)
+// 		}
+// 	}
 
-	return dbOs
-}
+// 	return dbOs
+// }
 
-func (b *MigrationBuilder) FindPPSOs(o Office) models.TransportationOffices {
-	zip := o.LISTGCNSLINFO.GCNSLINFO.PPSOZIP
-	dbPPSOs, _ := models.FetchTransportationOfficesByPostalCode(b.db, zip)
+// func (b *MigrationBuilder) FindPPSOs(o Office) models.TransportationOffices {
+// 	zip := o.LISTGCNSLINFO.GCNSLINFO.PPSOZIP
+// 	dbPPSOs, _ := models.FetchTransportationOfficesByPostalCode(b.db, zip)
 
-	JPPSOFilter := func(o models.TransportationOffice) bool {
-		return strings.HasPrefix(o.Name, "JPPSO") // true
-	}
+// 	JPPSOFilter := func(o models.TransportationOffice) bool {
+// 		return strings.HasPrefix(o.Name, "JPPSO") // true
+// 	}
 
-	return FilterTransportationOffices(dbPPSOs, JPPSOFilter)
-}
+// 	return FilterTransportationOffices(dbPPSOs, JPPSOFilter)
+// }
 
-func (b *MigrationBuilder) WriteXMLLine(o Office, w io.Writer) {
-	name := b.normalizeName(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME)
-	city := o.LISTGCNSLINFO.GCNSLINFO.CNSLCITY
-	state := o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE
-	zip := o.LISTGCNSLINFO.GCNSLINFO.CNSLZIP
+// func (b *MigrationBuilder) WriteXMLLine(o Office, w io.Writer) {
+// 	name := b.normalizeName(o.LISTGCNSLINFO.GCNSLINFO.CNSLNAME)
+// 	city := o.LISTGCNSLINFO.GCNSLINFO.CNSLCITY
+// 	state := o.LISTGCNSLINFO.GCNSLINFO.CNSLSTATE
+// 	zip := o.LISTGCNSLINFO.GCNSLINFO.CNSLZIP
 
-	//fmt.Printf("\nname: %s\n", name)
-	fmt.Fprintf(w, "\nname: %s\n", name)
-	//fmt.Printf("city: %s | state: %s | zip: %s \n", city, state, zip)
-	fmt.Fprintf(w, "city: %s | state: %s | zip: %s \n", city, state, zip)
-}
+// 	//fmt.Printf("\nname: %s\n", name)
+// 	fmt.Fprintf(w, "\nname: %s\n", name)
+// 	//fmt.Printf("city: %s | state: %s | zip: %s \n", city, state, zip)
+// 	fmt.Fprintf(w, "city: %s | state: %s | zip: %s \n", city, state, zip)
+// }
 
 func (b *MigrationBuilder) WriteDbRecs(officeType string, ts models.TransportationOffices, w io.Writer) int {
 	if len(ts) == 0 {
@@ -440,7 +471,7 @@ func (b *MigrationBuilder) convertAbbr(s string) string {
 	return s
 }
 
-func (b *MigrationBuilder) getLocationsList() string {
+func (b *MigrationBuilder) getLocationsList() map[string]OfficeDataStruct {
 	message := map[string]interface{}{
 		"query": "55407",
 	}
@@ -455,55 +486,92 @@ func (b *MigrationBuilder) getLocationsList() string {
 		log.Fatalln(err)
 	}
 
-	var result map[string]interface{}
+	var result map[string]map[string]OfficeDataStruct
 
 	json.NewDecoder(resp.Body).Decode(&result)
 
-	log.Println(result)
-	log.Println(result["data"])
-	return "abc"
+	// for key, element := range result["offices"] {
+	// 	log.Println(key)
+	// 	log.Println(element)
+	// 	log.Println("")
+	// }
+
+	//log.Println(result["offices"])
+	//log.Println(result["data"])
+	return result["offices"]
+}
+
+func (b *MigrationBuilder) getPPSOGbloc() map[string]string {
+	ppsoWithGbloc := make(map[string]string)
+	csvFile, _ := os.Open("./cmd/load_transportation_offices/data/ppso_org_gbloc.csv")
+	reader := csv.NewReader(bufio.NewReader(csvFile))
+
+	for {
+		line, error := reader.Read()
+		if error == io.EOF {
+			break
+		} else if error != nil {
+			log.Fatal(error)
+		}
+		//log.Println(line)
+		// key: title of office, value: gbloc
+		ppsoWithGbloc[strings.ToLower(strings.Trim(line[0], " "))] = line[2]
+	}
+
+	return ppsoWithGbloc
 }
 
 func (b *MigrationBuilder) Build(officesFilePath string, outputFilePath string) (string, error) {
-	b.getLocationsList()
+	offices := b.getLocationsList()
 
 	// Parse raw data from xml
-	offices, err := b.parseOffices(officesFilePath)
-	if err != nil {
-		return "", err
-	}
+	// offices, err := b.parseOffices(officesFilePath)
+	// if err != nil {
+	// 	return "", err
+	// }
 	fmt.Printf("# total offices: %d\n", len(offices))
 
-	usOffices := b.filterOffice(offices, isUSFilter)
-	fmt.Printf("# us only offices: %d\n", len(usOffices))
+	usAndConusOffices := b.filterOffice(offices, isUSAndConusFilter)
+	fmt.Printf("# us and conus only offices: %d\n", len(usAndConusOffices))
 
-	conusOffices := b.filterOffice(usOffices, isCONUSFilter)
-	fmt.Printf("# conus only offices: %d\n", len(conusOffices))
-
-	afbOffices := b.filterOffice(conusOffices, isAFBFilter)
-	fmt.Printf("# AFB offices: %d\n", len(afbOffices))
-
-	armyOffices := b.filterOffice(conusOffices, isArmyFilter)
-	fmt.Printf("# Army offices: %d\n", len(armyOffices))
-
-	navOffices := b.filterOffice(conusOffices, isNavyFilter)
-	fmt.Printf("# Nav offices: %d\n", len(navOffices))
-
-	otherOffices := b.filterOffice(conusOffices, isOtherFilter)
-	fmt.Printf("# other offices: %d\n", len(otherOffices))
-
-	fmt.Println(outputFilePath)
-	f, err := os.Create(outputFilePath)
-	defer f.Close()
-	w := bufio.NewWriter(f)
-
-	for _, o := range navOffices {
-		b.WriteXMLLine(o, w)
-		dbOffices := b.FindConusOffices(o, w)
-		dbPPSOs := b.FindPPSOs(o)
-		b.WriteDbRecs("office", dbOffices, w)
-		b.WriteDbRecs("JPPSO", dbPPSOs, w)
+	//Get all transportation offices in the gbloc list
+	fmt.Println("# US and CONUS offices found in PPSO with Gbloc list: ")
+	ppsoWithGbloc := b.getPPSOGbloc()
+	for _, element := range usAndConusOffices {
+		value, ok := ppsoWithGbloc[strings.ToLower(element.Title)]
+		if ok {
+			log.Println(element)
+			log.Println(fmt.Sprint("Gbloc: ", value))
+		}
 	}
-	w.Flush()
+
+	// conusOffices := b.filterOffice(usOffices, isCONUSFilter)
+	// fmt.Printf("# conus only offices: %d\n", len(conusOffices))
+
+	// afbOffices := b.filterOffice(conusOffices, isAFBFilter)
+	// fmt.Printf("# AFB offices: %d\n", len(afbOffices))
+
+	// armyOffices := b.filterOffice(conusOffices, isArmyFilter)
+	// fmt.Printf("# Army offices: %d\n", len(armyOffices))
+
+	// navOffices := b.filterOffice(conusOffices, isNavyFilter)
+	// fmt.Printf("# Nav offices: %d\n", len(navOffices))
+
+	// otherOffices := b.filterOffice(conusOffices, isOtherFilter)
+	// fmt.Printf("# other offices: %d\n", len(otherOffices))
+
+	// fmt.Println(outputFilePath)
+	// f, err := os.Create(outputFilePath)
+	// defer f.Close()
+	// w := bufio.NewWriter(f)
+
+	// for _, o := range navOffices {
+	// 	b.WriteXMLLine(o, w)
+	// 	dbOffices := b.FindConusOffices(o, w)
+	// 	dbPPSOs := b.FindPPSOs(o)
+	// 	b.WriteDbRecs("office", dbOffices, w)
+	// 	b.WriteDbRecs("JPPSO", dbPPSOs, w)
+	// }
+	// w.Flush()
 	return "abc", nil
 }
