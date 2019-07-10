@@ -78,6 +78,7 @@ func DeleteCookie(w http.ResponseWriter, name string) {
 		Name:   name,
 		Value:  "blank",
 		MaxAge: -1,
+		Path:   "/",
 	}
 	http.SetCookie(w, &c)
 }

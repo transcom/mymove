@@ -152,7 +152,8 @@ func shaAsString(nonce string) string {
 	return hex.EncodeToString(s[:])
 }
 
-func stateCookieName(session *auth.Session) string {
+// StateCookieName returns the login.gov state cookie name
+func StateCookieName(session *auth.Session) string {
 	return fmt.Sprintf("%s_%s", string(session.ApplicationName), loginStateCookieName)
 }
 
@@ -180,7 +181,7 @@ func (h RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	stateCookie := http.Cookie{
-		Name:     stateCookieName(session),
+		Name:     StateCookieName(session),
 		Value:    shaAsString(loginData.Nonce),
 		Path:     "/",
 		Expires:  time.Now().Add(time.Duration(loginStateCookieTTLInSecs) * time.Second),
@@ -254,7 +255,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Check the state value sent back from login.gov with the value saved in the cookie
 	returnedState := r.URL.Query().Get("state")
-	stateCookie, err := r.Cookie(stateCookieName(session))
+	stateCookie, err := r.Cookie(StateCookieName(session))
 	if err != nil {
 		h.logger.Error("Getting login.gov state cookie", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -262,12 +263,25 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hash := stateCookie.Value
+	// case where user has 2 tabs open with different cookies
 	if hash != shaAsString(returnedState) {
 		h.logger.Error("State returned from Login.gov does not match state value stored in cookie",
 			zap.String("state", returnedState),
 			zap.String("cookie", hash),
 			zap.String("hash", shaAsString(returnedState)))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+
+		// This operation will delete all cookies from the session
+		session.IDToken = ""
+		session.UserID = uuid.Nil
+		auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger, h.useSecureCookie)
+		// Delete lg_state cookie
+		auth.DeleteCookie(w, StateCookieName(session))
+
+		// set error query
+		landingQuery := landingURL.Query()
+		landingQuery.Add("error", "SIGNIN_ERROR")
+		landingURL.RawQuery = landingQuery.Encode()
+		http.Redirect(w, r, landingURL.String(), http.StatusTemporaryRedirect)
 		return
 	}
 

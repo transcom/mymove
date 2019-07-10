@@ -187,6 +187,10 @@
     {
       "name": "SERVE_SWAGGER_UI",
       "value": "{{ .SERVE_SWAGGER_UI }}"
+    },
+    {
+      "name": "FEATURE_FLAG_ACCESS_CODE",
+      "value": "{{ .FEATURE_FLAG_ACCESS_CODE }}"
     }
   ],
   "logConfiguration": {

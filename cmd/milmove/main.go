@@ -45,13 +45,34 @@ func main() {
 	root.AddCommand(serveCommand)
 
 	migrateCommand := &cobra.Command{
-		Use:   "migrate",
-		Short: "Runs MilMove migrations",
-		Long:  "Runs MilMove migrations",
-		RunE:  migrateFunction,
+		Use:           "migrate",
+		Short:         "Runs MilMove migrations",
+		Long:          "Runs MilMove migrations",
+		RunE:          migrateFunction,
+		SilenceUsage:  true, // not needed
+		SilenceErrors: true, // not needed
 	}
 	initMigrateFlags(migrateCommand.Flags())
 	root.AddCommand(migrateCommand)
+
+	genCommand := &cobra.Command{
+		Use:   "gen",
+		Short: "Generate migrations and other objects",
+		Long:  "Generate migrations and other objects",
+		RunE:  nil,
+	}
+	root.AddCommand(genCommand)
+
+	genMigrationCommand := &cobra.Command{
+		Use:                   "migration -n NAME [-t TYPE]",
+		Short:                 "Generate migrations and other objects",
+		Long:                  "Generate migrations and other objects",
+		RunE:                  genMigrationFunction,
+		DisableFlagsInUseLine: true,
+		SilenceErrors:         true, // not needed
+	}
+	initGenMigrationFlags(genMigrationCommand.Flags())
+	genCommand.AddCommand(genMigrationCommand)
 
 	completionCommand := &cobra.Command{
 		Use:   "completion",

@@ -1,15 +1,28 @@
 /* global cy */
-describe('setting up service member profile', function() {
+describe('setting up service member profile requiring an access code', function() {
   beforeEach(() => {
     cy.signInAsNewMilMoveUser();
   });
   it('progresses thru forms', function() {
+    cy.get('body').then($body => {
+      if ($body.find('input[name="claim_access_code"]').length) {
+        serviceMemberEntersAccessCode();
+      }
+    });
     serviceMemberProfile();
   });
   it.skip('restarts app after every page', function() {
     serviceMemberProfile(true);
   });
 });
+
+function serviceMemberEntersAccessCode() {
+  cy.get('input[name="claim_access_code"]').type('PPM-X3FQJK');
+  cy
+    .get('button')
+    .contains('Continue')
+    .click();
+}
 
 function serviceMemberProfile(reloadAfterEveryPage) {
   //dod info

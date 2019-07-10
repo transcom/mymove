@@ -126,7 +126,7 @@ func (p *PersonallyProcuredMove) Approve(approveDate time.Time) error {
 
 // RequestPayment requests payment for the PPM
 func (p *PersonallyProcuredMove) RequestPayment() error {
-	if p.Status != PPMStatusAPPROVED {
+	if p.Status != PPMStatusPAYMENTREQUESTED && p.Status != PPMStatusAPPROVED {
 		return errors.Wrap(ErrInvalidTransition, "RequestPayment")
 	}
 
