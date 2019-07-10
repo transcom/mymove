@@ -13,7 +13,7 @@ the same code.  To migrate you should use a command based on your DB:
 
 * `make db_dev_migrate`
 * `make db_test_migrate`
-* `make db_prod_migrations_migrate`
+* `make db_deployed_migrations_migrate`
 
 The reason to use a `make` target is because it will put you into the `scripts/` directory from which it is required
 you run the migration so that `scripts/apply-secure-migrations.sh` is called with the correct paths for the different
@@ -29,9 +29,9 @@ Use soda (a part of [pop](https://github.com/gobuffalo/pop/)) to generate models
 
 If you are generating a new model, use: `gen-model model-name column-name:type column-name:type ...`. The fields `id`, `created_at`, and `updated_at` are all created automatically.
 
-### Modifying an Existing Model
+### Generating a New Migration
 
-If you are modifying an existing model, use `soda generate migration migration_name` and add the [Fizz commands](https://github.com/gobuffalo/fizz) yourself to the created `{migration_name}.up.fizz` file. Delete the `down.fizz` file, as we aren't using those (see note below.)
+If you are generating a new migration, use: `milmove gen migration`, which will create a placeholder migration and add it to the manifest.
 
 ## Zero-Downtime Migrations
 
@@ -59,7 +59,7 @@ We are piggy-backing on the migration system for importing static datasets. This
 3. Copy the production migration into the local test migration.
 4. Scrub the test migration of sensitive data, but use it to test the gist of the production migration operation.
 5. Test the local migration by running `make db_dev_migrate`. You should see it run your local migration.
-6. Test the secure migration by running `make run_prod_migrations` to setup a local `prod_migrations` database. Then run `psql-prod-migrations< tmp/$NAME_OF_YOUR_SECURE_MIGRATION`. Verify that the updated values are in the database.
+6. Test the secure migration by running `make run_prod_migrations` to setup a local `deployed_migrations` database. Then run `psql-deployed-migrations< tmp/$NAME_OF_YOUR_SECURE_MIGRATION`. Verify that the updated values are in the database.
 7. If you are wanting to run a secure migration for a specific non-production environment, then **skip to the next section**.
 8. Upload the migration to S3 with: `upload-secure-migration <production_migration_file>`. **NOTE:** For a single environment see the next section.
 9. Run `make run_prod_migrations` to verify that the upload worked and that the migration can be applied successfully. If not, you can make changes and run `upload-secure-migration` again and it will overwrite the old files.
@@ -88,7 +88,7 @@ When secure migrations are run, `soda` will shell out to our script, `apply-secu
 * Look at `$SECURE_MIGRATION_SOURCE` to determine if the migrations should be found locally (`local`, for dev & testing,) or on S3 (`s3`).
 * If the file is to be found on S3, it is downloaded from `${AWS_S3_BUCKET_NAME}/secure-migrations/${FILENAME}`.
 * If it is to be found locally, the script looks for it in `$SECURE_MIGRATION_DIR`.
-* Regardless of where the migration comes from, it is then applied to the database by essentially doing: `psql-prod-migrations < ${FILENAME}`.
+* Regardless of where the migration comes from, it is then applied to the database by essentially doing: `psql-deployed-migrations < ${FILENAME}`.
 
 There is an example of a secure migration [in the repo](https://github.com/transcom/mymove/blob/master/migrations/20180424010930_test_secure_migrations.up.fizz).
 

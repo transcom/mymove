@@ -291,6 +291,7 @@
 20190507213921_add_access_codes.sql
 20190507232529_add_approve_date_to_shipment.up.fizz
 20190510170742_new-office-user-05-10-19.sql
+20190510205156_add_requires_access_code_to_service_members.up.sql
 20190515160313_add-sba-office-user-051509.sql
 20190515164502_add-sbd-tsp-users.sql
 20190516222135_fix_user_name_office_users_table.sql
@@ -312,4 +313,10 @@
 20190624204138_add-missing-users.sql
 20190625175052_add_office_users.sql
 20190627162208_add-one-new-truss-user.sql
+20190702150158_create_admin_users.up.fizz
 20190702170631_add_new_office_user.sql
+20190702195904_create_organizations.up.fizz
+20190703141326_add-usmc-office-users.sql
+20190703141326_add-usmc-office-users.up.fizz
+20190709204712_add-office-users.sql
+20190709204712_add-office-users.up.fizz

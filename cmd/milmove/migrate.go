@@ -252,7 +252,7 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		uri := ""
 		for dir, filenames := range migrationFiles {
 			for _, filename := range filenames {
-				if target == filename || strings.Replace(target, ".up.sql", ".sql", 1) == filename {
+				if target == filename {
 					uri = fmt.Sprintf("%s/%s", dir, filename)
 					break
 				}

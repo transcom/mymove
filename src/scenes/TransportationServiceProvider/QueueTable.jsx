@@ -2,12 +2,13 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import ReactTable from 'react-table';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { capitalize } from 'lodash';
 import 'react-table/react-table.css';
-import { RetrieveShipmentsForTSP } from './api.js';
 import { formatDate, formatDateTimeWithTZ, formatTimeAgo } from 'shared/formatters';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
+import { setUserIsLoggedIn } from 'shared/Data/users';
 
 class QueueTable extends Component {
   constructor() {
@@ -38,6 +39,10 @@ class QueueTable extends Component {
     }
   }
 
+  componentWillUnmount() {
+    clearInterval(this.state.interval);
+  }
+
   openShipment(rowInfo) {
     this.props.history.push(`/shipments/${rowInfo.original.id}`, {
       referrerPathname: this.props.history.location.pathname,
@@ -56,7 +61,7 @@ class QueueTable extends Component {
 
     // Catch any errors here and render an empty queue
     try {
-      const body = await RetrieveShipmentsForTSP(this.props.queueType);
+      const body = await this.props.retrieveShipments(this.props.queueType);
 
       // Only update the queue list if the request that is returning
       // is for the same queue as the most recent request.
@@ -77,6 +82,10 @@ class QueueTable extends Component {
         refreshing: false,
         lastLoadedAt: new Date(),
       });
+      // redirect to home page if unauthorized
+      if (e.status === 401) {
+        this.props.setUserIsLoggedIn(false);
+      }
     }
   }
 
@@ -198,6 +207,12 @@ class QueueTable extends Component {
   }
 }
 
-const mapStateToProps = state => ({});
+const mapStateToProps = (state, ownProps) => ({
+  retrieveShipments: ownProps.retrieveShipments,
+});
 
-export default withRouter(connect(mapStateToProps)(QueueTable));
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({ setUserIsLoggedIn }, dispatch);
+}
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(QueueTable));

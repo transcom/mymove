@@ -35,8 +35,8 @@ func (e *errInvalidMigrationPath) Error() string {
 
 // InitMigrationFlags initializes the Migration command line flags
 func InitMigrationFlags(flag *pflag.FlagSet) {
-	flag.StringP(MigrationManifestFlag, "m", "", "Path to the migrations manifest")
-	flag.StringP(MigrationPathFlag, "p", "", "Semicolon-separated path to the migrations directories")
+	flag.StringP(MigrationPathFlag, "p", "./migrations", "Path to the migrations folder")
+	flag.StringP(MigrationManifestFlag, "m", "./migrations_manifest.txt", "Path to the manifest")
 	flag.DurationP(MigrationWaitFlag, "w", time.Millisecond*10, "duration to wait when polling for new data from migration file")
 }
 
@@ -58,6 +58,9 @@ func CheckMigration(v *viper.Viper) error {
 	}
 	migrationManifest := v.GetString(MigrationManifestFlag)
 	if len(migrationManifest) == 0 {
+		return errMissingMigrationManifest
+	}
+	if len(MigrationManifestFlag) == 0 {
 		return errMissingMigrationManifest
 	}
 	return nil

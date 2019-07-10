@@ -57,6 +57,25 @@ func main() {
 	initMigrateFlags(migrateCommand.Flags())
 	root.AddCommand(migrateCommand)
 
+	genCommand := &cobra.Command{
+		Use:   "gen",
+		Short: "Generate migrations and other objects",
+		Long:  "Generate migrations and other objects",
+		RunE:  nil,
+	}
+	root.AddCommand(genCommand)
+
+	genMigrationCommand := &cobra.Command{
+		Use:                   "migration -n NAME [-t TYPE]",
+		Short:                 "Generate migrations and other objects",
+		Long:                  "Generate migrations and other objects",
+		RunE:                  genMigrationFunction,
+		DisableFlagsInUseLine: true,
+		SilenceErrors:         true, // not needed
+	}
+	initGenMigrationFlags(genMigrationCommand.Flags())
+	genCommand.AddCommand(genMigrationCommand)
+
 	completionCommand := &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",

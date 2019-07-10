@@ -40,7 +40,6 @@ export class Landing extends Component {
       createServiceMember,
       isProfileComplete,
     } = this.props;
-
     if (loggedInUserSuccess) {
       if (!createdServiceMemberIsLoading && isEmpty(serviceMember) && !createdServiceMemberError) {
         // Once the logged in user loads, if the service member doesn't

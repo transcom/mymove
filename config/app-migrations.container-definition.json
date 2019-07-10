@@ -15,6 +15,10 @@
     "production",
     "--db-env",
     "container",
+    "-p",
+    "/migrate/migrations",
+    "-m",
+    "/migrate/migrations_manifest.txt",
     "--db-iam"
   ],
   "command": [],

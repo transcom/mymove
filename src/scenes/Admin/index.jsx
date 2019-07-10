@@ -9,7 +9,7 @@ import AdminHeader from 'shared/Header/Admin';
 import { getCurrentUserInfo } from 'shared/Data/users';
 import { no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
-import PrivateRoute from 'shared/User/PrivateRoute';
+import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
 import { loadPublicSchema } from 'shared/Swagger/ducks';
 import AdminHome from 'scenes/Admin/AdminHome';
 
@@ -42,7 +42,7 @@ class AdminWrapper extends Component {
                     />
                   )}
                 />
-                <PrivateRoute path="/system" component={AdminHome} />
+                <ValidatedPrivateRoute path="/system" component={AdminHome} />
               </Switch>
             </div>
           </main>
