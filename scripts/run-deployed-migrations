@@ -59,9 +59,7 @@ command -v aws 2> /dev/null | grep "ppp-infra/scripts/aws" &> /dev/null || \
   )
 
 # Test AWS command and freshen AWS session token
-if [ "${SECURE_MIGRATION_SOURCE:-}" == "s3" ]; then
-  aws s3 ls "${SECURE_MIGRATION_BUCKET_NAME}/secure-migrations" > /dev/null
-fi
+aws s3 ls > /dev/null
 
 #
 # Run migrations
