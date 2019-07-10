@@ -23,7 +23,12 @@ func SetClientCertInRequestContext(r *http.Request, clientCert *models.ClientCer
 
 // ClientCertFromRequestContext gets the reference to the ClientCert stored in the request.Context()
 func ClientCertFromRequestContext(r *http.Request) *models.ClientCert {
-	if clientCert, ok := r.Context().Value(clientCertContextKey).(*models.ClientCert); ok {
+	return ClientCertFromContext(r.Context())
+}
+
+// ClientCertFromContext gets the reference to the ClientCert stored in the request.Context()
+func ClientCertFromContext(ctx context.Context) *models.ClientCert {
+	if clientCert, ok := ctx.Value(clientCertContextKey).(*models.ClientCert); ok {
 		return clientCert
 	}
 	return nil

@@ -4,13 +4,14 @@ import (
 	"context"
 	"reflect"
 
+	"github.com/transcom/mymove/pkg/cli"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 	"github.com/honeycombio/beeline-go"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -18,7 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
-func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
+func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember models.ServiceMember, requiresAccessCode bool) *internalmessages.ServiceMemberPayload {
 	orders := make([]*internalmessages.Orders, len(serviceMember.Orders))
 	for i, order := range serviceMember.Orders {
 		orderPayload, _ := payloadForOrdersModel(storer, order)
@@ -30,6 +31,9 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		contactPayload := payloadForBackupContactModel(contact)
 		contactPayloads[i] = &contactPayload
 	}
+
+	// if an existing service member, set requires access code to what they're already set
+	requiresAccessCode = serviceMember.RequiresAccessCode
 
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
 		ID:                      handlers.FmtUUID(serviceMember.ID),
@@ -56,6 +60,7 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		HasSocialSecurityNumber: handlers.FmtBool(serviceMember.SocialSecurityNumberID != nil),
 		IsProfileComplete:       handlers.FmtBool(serviceMember.IsProfileComplete()),
 		CurrentStation:          payloadForDutyStationModel(serviceMember.DutyStation),
+		RequiresAccessCode:      requiresAccessCode,
 	}
 	return &serviceMemberPayload
 }
@@ -68,7 +73,9 @@ type CreateServiceMemberHandler struct {
 // Handle ... creates a new ServiceMember from a request payload
 func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceMemberParams) middleware.Responder {
 
-	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	ctx := params.HTTPRequest.Context()
+
+	ctx, span := beeline.StartSpan(ctx, reflect.TypeOf(h).Name())
 	defer span.Send()
 
 	residentialAddress := addressModelFromPayload(params.CreateServiceMemberPayload.ResidentialAddress)
@@ -102,7 +109,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	}
 
 	// User should always be populated by middleware
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromContext(ctx)
 
 	// Create a new serviceMember for an authenticated user
 	newServiceMember := models.ServiceMember{
@@ -124,6 +131,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		BackupMailingAddress:   backupMailingAddress,
 		SocialSecurityNumber:   ssn,
 		DutyStation:            station,
+		RequiresAccessCode:     h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode),
 		DutyStationID:          stationID,
 	}
 	smVerrs, err := models.SaveServiceMember(ctx, h.DB(), &newServiceMember)
@@ -146,9 +154,9 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		session.LastName = *(newServiceMember.LastName)
 	}
 	// And return
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember)
+	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
 	responder := servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)
-	return handlers.NewCookieUpdateResponder(params.HTTPRequest, h.CookieSecret(), h.NoSessionTimeout(), h.Logger(), responder, h.UseSecureCookie())
+	return handlers.NewCookieUpdateResponder(params.HTTPRequest, h.CookieSecret(), h.NoSessionTimeout(), logger, responder, h.UseSecureCookie())
 }
 
 // ShowServiceMemberHandler returns a serviceMember for a user and service member ID
@@ -159,10 +167,12 @@ type ShowServiceMemberHandler struct {
 // Handle retrieves a service member in the system belonging to the logged in user given service member ID
 func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMemberParams) middleware.Responder {
 
-	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	ctx := params.HTTPRequest.Context()
+
+	ctx, span := beeline.StartSpan(ctx, reflect.TypeOf(h).Name())
 	defer span.Send()
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := h.SessionFromContext(ctx)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 
@@ -173,7 +183,7 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 		return h.RespondAndTraceError(ctx, err, "error fetching service member", zap.String("service_member_id", serviceMemberID.String()))
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember)
+	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
 	return servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
@@ -185,10 +195,12 @@ type PatchServiceMemberHandler struct {
 // Handle ... patches a new ServiceMember from a request payload
 func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMemberParams) middleware.Responder {
 
-	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	ctx := params.HTTPRequest.Context()
+
+	ctx, span := beeline.StartSpan(ctx, reflect.TypeOf(h).Name())
 	defer span.Send()
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session := h.SessionFromContext(ctx)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 
@@ -207,7 +219,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		return h.RespondAndTraceVErrors(ctx, verrs, err, "error saving service member", zap.String("service_member_id", serviceMember.ID.String()))
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember)
+	serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), serviceMember, h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode))
 	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
@@ -304,10 +316,12 @@ type ShowServiceMemberOrdersHandler struct {
 // Handle retrieves orders for a service member
 func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServiceMemberOrdersParams) middleware.Responder {
 
-	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+	ctx := params.HTTPRequest.Context()
+
+	ctx, span := beeline.StartSpan(ctx, reflect.TypeOf(h).Name())
 	defer span.Send()
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromContext(ctx)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
@@ -322,7 +336,7 @@ func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServic
 
 	orderPayload, err := payloadForOrdersModel(h.FileStorer(), order)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return servicememberop.NewShowServiceMemberOrdersOK().WithPayload(orderPayload)
 }

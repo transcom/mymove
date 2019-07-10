@@ -1,0 +1,7 @@
+create_table("organizations") {
+	t.Column("id", "uuid", {primary: true})
+	t.Column("name", "string", {})
+	t.Column("poc_email", "string", {})
+	t.Column("poc_phone", "string", {})
+	t.Timestamps()
+}

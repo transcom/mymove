@@ -2880,6 +2880,17 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
+
+	/*
+	* Creates a valid, unclaimed access code
+	 */
+	accessCodeMoveType := models.SelectedMoveTypePPM
+	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
+		AccessCode: models.AccessCode{
+			Code:     "X3FQJK",
+			MoveType: &accessCodeMoveType,
+		},
+	})
 	/*
 	 * Service member with a ppm ready to request payment
 	 */
