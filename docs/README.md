@@ -15,6 +15,10 @@ If you are looking to understand choices made in this project, see the list of [
 
 * [Pairing](pairing.md). A list of past pairing recordings.
 
+## Metrics
+
+* [Metrics](metrics.md). Documentation for application metrics.
+
 <!--index-->
 
 ## HOWTOs
