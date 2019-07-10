@@ -978,16 +978,21 @@ func (s *Shipment) AcceptedShipmentOffer() (*ShipmentOffer, error) {
 }
 
 // DeleteBaseShipmentLineItems removes all base shipment line items from a shipment
+// Will not delete a line that has an invoice. If there is an invoice present, that indicates
+// the bill has already been sent off for payment
 func (s *Shipment) DeleteBaseShipmentLineItems(db *pop.Connection) error {
 	transactionError := db.Transaction(func(tx *pop.Connection) error {
 		dbError := errors.New("rollback")
 
+		var updatedShipmentLines ShipmentLineItems
 		for _, item := range s.ShipmentLineItems {
 			if item.Tariff400ngItem.RequiresPreApproval {
+				updatedShipmentLines = append(updatedShipmentLines, item)
 				continue
 			}
 			// Do not delete a line item that has an Invoice ID
 			if item.InvoiceID != nil {
+				updatedShipmentLines = append(updatedShipmentLines, item)
 				continue
 			}
 			if FindBaseShipmentLineItem(item.Tariff400ngItem.Code) {
@@ -996,7 +1001,17 @@ func (s *Shipment) DeleteBaseShipmentLineItems(db *pop.Connection) error {
 					dbError = errors.Wrap(dbError, fmt.Sprintf(" Error deleting base shipment line item for shipment ID: %s and shipment line item code: %s", s.ID, item.Tariff400ngItem.Code))
 					return errors.Wrap(err, dbError.Error())
 				}
+			} else {
+				updatedShipmentLines = append(updatedShipmentLines, item)
 			}
+		}
+
+		// Save and validate Shipment after deleting line items
+		s.ShipmentLineItems = updatedShipmentLines
+		verrs, saveShipmentErr := SaveShipment(db, s)
+		if verrs.HasAny() || saveShipmentErr != nil {
+			saveError := errors.Wrap(saveShipmentErr, "Error saving shipment for DeleteBaseShipmentLineItems")
+			return errors.Wrap(saveError, verrs.Error())
 		}
 		return nil
 	})
@@ -1005,13 +1020,17 @@ func (s *Shipment) DeleteBaseShipmentLineItems(db *pop.Connection) error {
 }
 
 // DeleteStorageInTransitLineItems removes all storage in transit shipment line items from a shipment
+// Will not delete a line that has an invoice. If there is an invoice present, that indicates
+// the bill has already been sent off for payment
 func (s *Shipment) DeleteStorageInTransitLineItems(db *pop.Connection) error {
 	transactionError := db.Transaction(func(tx *pop.Connection) error {
 		dbError := errors.New("rollback")
 
+		var updatedShipmentLines ShipmentLineItems
 		for _, item := range s.ShipmentLineItems {
 			// Do not delete a line item that has an Invoice ID
 			if item.InvoiceID != nil {
+				updatedShipmentLines = append(updatedShipmentLines, item)
 				continue
 			}
 			if FindStorageInTransitShipmentLineItem(item.Tariff400ngItem.Code) {
@@ -1020,7 +1039,17 @@ func (s *Shipment) DeleteStorageInTransitLineItems(db *pop.Connection) error {
 					dbError = errors.Wrap(dbError, fmt.Sprintf(" Error deleting storage in transit shipment line item for shipment ID: %s and shipment line item code: %s", s.ID, item.Tariff400ngItem.Code))
 					return errors.Wrap(err, dbError.Error())
 				}
+			} else {
+				updatedShipmentLines = append(updatedShipmentLines, item)
 			}
+		}
+
+		// Save and validate Shipment after deleting line items
+		s.ShipmentLineItems = updatedShipmentLines
+		verrs, saveShipmentErr := SaveShipment(db, s)
+		if verrs.HasAny() || saveShipmentErr != nil {
+			saveError := errors.Wrap(saveShipmentErr, "Error saving shipment for DeleteStorageInTransitLineItems")
+			return errors.Wrap(saveError, verrs.Error())
 		}
 		return nil
 	})

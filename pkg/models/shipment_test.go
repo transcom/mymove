@@ -940,3 +940,68 @@ func (suite *ModelSuite) TestFetchShipment() {
 	suite.NoError(err, "Did not fail fetching completed shipment")
 	suite.Equal("COMPLETED", string(actualShipment.Status))
 }
+
+func (suite *ModelSuite) TestDeleteStorageInTransitLineItems() {
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	status := []ShipmentStatus{ShipmentStatusINTRANSIT}
+	_, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.DB(), numTspUsers, numShipments, numShipmentOfferSplit, status, SelectedMoveTypeHHG)
+	suite.FatalNoError(err)
+
+	shipment := shipments[0]
+
+	// And an unpriced, approved pre-approval
+	testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
+		ShipmentLineItem: ShipmentLineItem{
+			Shipment:   shipment,
+			ShipmentID: shipment.ID,
+			Status:     ShipmentLineItemStatusAPPROVED,
+		},
+		Tariff400ngItem: Tariff400ngItem{
+			RequiresPreApproval: true,
+		},
+	})
+
+	// Create line item for each SIT Item Code
+	sit210Items := []string{"210A", "210B", "210C"}
+	for _, code := range sit210Items {
+		item := testdatagen.MakeCompleteShipmentLineItem(suite.DB(), testdatagen.Assertions{
+			ShipmentLineItem: ShipmentLineItem{
+				Shipment:   shipment,
+				ShipmentID: shipment.ID,
+				Status:     ShipmentLineItemStatusAPPROVED,
+			},
+			Tariff400ngItem: Tariff400ngItem{
+				Code:                code,
+				RequiresPreApproval: false,
+			},
+		})
+		item.InvoiceID = nil
+		item.Invoice = Invoice{}
+		suite.MustSave(&item)
+	}
+
+	fetchedLineItems, err := FetchLineItemsByShipmentID(suite.DB(), &shipment.ID)
+	suite.FatalNoError(err)
+	suite.Equal(4, len(fetchedLineItems), "Expected number of line items before delete")
+
+	// Make sure line items are on the shipment
+	shipment.ShipmentLineItems = fetchedLineItems
+	suite.MustSave(&shipment)
+
+	// Delete Storage In Transit Line Items
+	err = shipment.DeleteStorageInTransitLineItems(suite.DB())
+	suite.Nil(err)
+
+	// Update line items on shipment
+	fetchedLineItems, err = FetchLineItemsByShipmentID(suite.DB(), &shipment.ID)
+	suite.FatalNoError(err)
+	suite.Equal(1, len(fetchedLineItems), "Expected number of line items after delete")
+
+	for _, item := range fetchedLineItems {
+		if FindStorageInTransitShipmentLineItem(item.Tariff400ngItem.Code) == true {
+			suite.Fail("210 item should not be present after delete", item.Tariff400ngItem.Code)
+		}
+	}
+}
