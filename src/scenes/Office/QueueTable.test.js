@@ -8,6 +8,7 @@ import QueueTable from './QueueTable';
 import ReactTable from 'react-table';
 import store from 'shared/store';
 import { mount } from 'enzyme/build';
+import { calculateNeedsAttention } from './queueTableColumns';
 import { setIsLoggedInType } from 'shared/Data/users';
 
 const push = jest.fn();
@@ -103,6 +104,22 @@ describe('Refreshing', () => {
   });
 });
 
+describe('calculateNeedsAttention function', () => {
+  it('returns the correct notifications', () => {
+    const tests = [
+      [{ hhg_status: 'ACCEPTED' }, ['Awaiting review']],
+      [{ hhg_status: 'SUBMITTED', status: 'SUBMITTED' }, ['Awaiting review']],
+      [{ has_unapproved_shipment_line_items: true }, ['Pre-approval requested']],
+      [{ storage_in_transits: [{ status: 'REQUESTED', location: 'ORIGIN' }] }, ['Origin SIT requested']],
+      [{ storage_in_transits: [{ status: 'REQUESTED', location: 'DESTINATION' }] }, ['Dest SIT requested']],
+    ];
+
+    tests.forEach(test => {
+      expect(calculateNeedsAttention(test[0])).toEqual(test[1]);
+    });
+  });
+});
+
 describe('on 401 unauthorized error', () => {
   const middlewares = [thunk];
   const mockStore = configureMockStore(middlewares);
@@ -130,6 +147,7 @@ describe('on 401 unauthorized error', () => {
     });
   });
 });
+
 
 function retrieveMovesStub(params, throwError) {
   // This is meant as a stub that will act in place of
