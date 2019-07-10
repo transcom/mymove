@@ -357,7 +357,7 @@ const NewApprovedMoveSummaryComponent = ({ ppm, move, weightTicketSets }) => {
                         <div>
                           Continue uploading your weight tickets and expense to get paid after your move is done.
                         </div>
-                        <Link to={`moves/${move.id}/ppm-payment-review`} className="usa-button usa-button-secondary">
+                        <Link to={ppmPaymentRequestReviewRoute} className="usa-button usa-button-secondary">
                           Continue Requesting Payment
                         </Link>
                       </>
@@ -368,7 +368,7 @@ const NewApprovedMoveSummaryComponent = ({ ppm, move, weightTicketSets }) => {
                           Request a PPM payment, a storage payment, or an advance against your PPM payment before your
                           move is done.
                         </div>
-                        <Link to={ppmPaymentRequestRoute} className="usa-button usa-button-secondary">
+                        <Link to={ppmPaymentRequestIntroRoute} className="usa-button usa-button-secondary">
                           Request Payment
                         </Link>
                       </>

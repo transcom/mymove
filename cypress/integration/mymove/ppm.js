@@ -210,6 +210,8 @@ describe('allows a SM to request a payment', function() {
     cy.visit(`/moves/${moveID}/ppm-weight-ticket`);
     serviceMemberSubmitsWeightTicket('CAR', true, '1st');
     serviceMemberSubmitsWeightTicket('BOX_TRUCK', false, '2nd');
+    serviceMemberCanCancel();
+    serviceMemberCanContinueRequestingPayment();
   });
 
   it('service member can save multiple expenses', () => {
@@ -385,6 +387,16 @@ describe('allows a SM to request a payment', function() {
     });
   });
 });
+
+function serviceMemberCanContinueRequestingPayment() {
+  cy
+    .get('a')
+    .contains('Continue Requesting Payment')
+    .click();
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
+  });
+}
 
 function serviceMemberReviewsDocuments() {
   cy.location().should(loc => {
