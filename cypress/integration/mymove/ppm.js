@@ -203,15 +203,22 @@ describe('allows a SM to request a payment', function() {
 
   it('service member reads introduction to ppm payment and cancels to go back to homepage', () => {
     serviceMemberStartsPPMPaymentRequestWithAssertions();
-    serviceMemberCanCancel();
+  });
+
+  it('service member goes through entire request payment flow', () => {
+    serviceMemberStartsPPMPaymentRequest();
+    serviceMemberSubmitsWeightTicket('CAR', false);
+    serviceMemberViewsExpensesLandingPage();
+    serviceMemberUploadsExpenses(false);
+    serviceMemberReviewsDocuments();
+    serviceMemberEditsPaymentRequest();
   });
 
   it('service member can save a multiple weight tickets', () => {
     cy.visit(`/moves/${moveID}/ppm-weight-ticket`);
     serviceMemberSubmitsWeightTicket('CAR', true, '1st');
     serviceMemberSubmitsWeightTicket('BOX_TRUCK', false, '2nd');
-    serviceMemberCanCancel();
-    serviceMemberCanContinueRequestingPayment();
+    cy.visit('/');
   });
 
   it('service member can save multiple expenses', () => {
@@ -387,16 +394,6 @@ describe('allows a SM to request a payment', function() {
     });
   });
 });
-
-function serviceMemberCanContinueRequestingPayment() {
-  cy
-    .get('a')
-    .contains('Continue Requesting Payment')
-    .click();
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
-  });
-}
 
 function serviceMemberReviewsDocuments() {
   cy.location().should(loc => {
@@ -738,17 +735,6 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
       .its('status')
       .should('eq', 200);
   }
-}
-
-function serviceMemberCanCancel() {
-  cy
-    .get('button')
-    .contains('Cancel')
-    .click();
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\//);
-  });
 }
 
 function serviceMemberStartsPPMPaymentRequestWithAssertions() {
