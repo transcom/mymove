@@ -481,7 +481,7 @@ db_dev_reset: db_dev_destroy db_dev_run ## Reset Dev DB (destroy and run)
 .PHONY: db_dev_migrate_standalone ## Migrate Dev DB directly
 db_dev_migrate_standalone: bin/milmove
 	@echo "Migrating the ${DB_NAME_DEV} database..."
-	bin/milmove migrate -p migrations -m migrations_manifest.txt
+	bin/milmove migrate -p "migrations;local_migrations" -m migrations_manifest.txt
 
 .PHONY: db_dev_migrate
 db_dev_migrate: server_deps db_dev_migrate_standalone ## Migrate Dev DB
@@ -604,11 +604,10 @@ db_test_reset_docker: db_test_destroy db_test_run_docker ## Reset Test DB (docke
 db_test_migrate_standalone: bin/milmove ## Migrate Test DB directly
 ifndef CIRCLECI
 	@echo "Migrating the ${DB_NAME_TEST} database..."
-	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
-	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) bin/milmove migrate -p migrations -m migrations_manifest.txt
+	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST) bin/milmove migrate -p "migrations;local_migrations" -m migrations_manifest.txt
 else
 	@echo "Migrating the ${DB_NAME_TEST} database..."
-	$(DB_NAME_TEST) DB_PORT=$(DB_PORT_DEV) bin/milmove migrate -p migrations -m migrations_manifest.txt
+	DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_DEV) bin/milmove migrate -p "migrations;local_migrations" -m migrations_manifest.txt
 endif
 
 .PHONY: db_test_migrate
