@@ -120,10 +120,7 @@ class WeightTicket extends Component {
 
   skipHandler = () => {
     const { moveId, history } = this.props;
-
-    const nextPage = getNextPage(`/moves/${moveId}${nextPagePath}`, this.props.lastLocation, reviewPagePath);
-    console.log(nextPage);
-    history.push(nextPage);
+    history.push(`/moves/${moveId}${nextPagePath}`);
   };
 
   saveForLaterHandler = formValues => {
