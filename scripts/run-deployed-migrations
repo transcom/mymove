@@ -68,6 +68,8 @@ aws s3 ls > /dev/null
 echo
 if [ "${SECURE_MIGRATION_SOURCE:-}" == "s3" ]; then
   echo -e "\e[33mUsing ${SECURE_MIGRATION_BUCKET_NAME} to gather secure migrations\e[39m"
+else
+    echo -e "\e[33mUsing local_migrations folder to gather secure migrations\e[39m"
 fi
 echo
 proceed "Running deployed migrations against the local database with name ${DB_NAME}. This will delete everything in that db."
