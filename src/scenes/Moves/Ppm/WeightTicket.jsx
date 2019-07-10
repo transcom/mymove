@@ -202,6 +202,7 @@ class WeightTicket extends Component {
     const weightTicketSetOrdinal = formatToOrdinal(weightTicketSets.length + 1);
     const fullWeightTicketFieldsRequired = missingFullWeightTicket ? null : true;
     const emptyWeightTicketFieldsRequired = missingEmptyWeightTicket ? null : true;
+
     return (
       <Fragment>
         <WizardHeader
@@ -453,6 +454,7 @@ class WeightTicket extends Component {
               saveForLaterHandler={handleSubmit(this.saveForLaterHandler)}
               saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
               displaySaveForLater={true}
+              displaySkip={weightTicketSets.length >= 1}
             />
           </div>
         </form>

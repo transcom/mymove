@@ -9,6 +9,7 @@ const PPMPaymentRequestActionBtns = props => {
     saveForLaterHandler,
     submitButtonsAreDisabled,
     displaySaveForLater,
+    displaySkip,
     submitting,
     history,
   } = props;
@@ -29,6 +30,11 @@ const PPMPaymentRequestActionBtns = props => {
           </button>
         )}
       </div>
+      {displaySkip && (
+        <button type="button" className="usa-button-secondary">
+          Skip
+        </button>
+      )}
       <button type="button" onClick={saveAndAddHandler} disabled={submitButtonsAreDisabled || submitting}>
         {nextBtnLabel}
       </button>
