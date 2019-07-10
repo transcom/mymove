@@ -5,7 +5,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	accessorialop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/accessorials"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -45,7 +44,7 @@ type GetInvoiceHandler struct {
 
 // Handle returns a specified invoice
 func (h GetInvoiceHandler) Handle(params accessorialop.GetInvoiceParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	if session == nil {
 		return accessorialop.NewGetInvoiceUnauthorized()
@@ -56,17 +55,17 @@ func (h GetInvoiceHandler) Handle(params accessorialop.GetInvoiceParams) middlew
 	invoice, err := models.FetchInvoice(h.DB(), session, invoiceID)
 	if err != nil {
 		if err == models.ErrFetchNotFound {
-			h.Logger().Warn("Invoice not found", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			logger.Warn("Invoice not found", zap.Error(err))
+			return handlers.ResponseForError(logger, err)
 		} else if err == models.ErrFetchForbidden {
-			h.Logger().Error("User not permitted to access invoice", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			logger.Error("User not permitted to access invoice", zap.Error(err))
+			return handlers.ResponseForError(logger, err)
 		} else if err == models.ErrUserUnauthorized {
-			h.Logger().Error("User not authorized to access invoice", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			logger.Error("User not authorized to access invoice", zap.Error(err))
+			return handlers.ResponseForError(logger, err)
 		}
-		h.Logger().Error("Error fetching invoice", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		logger.Error("Error fetching invoice", zap.Error(err))
+		return handlers.ResponseForError(logger, err)
 	}
 
 	payload := payloadForInvoiceModel(invoice)

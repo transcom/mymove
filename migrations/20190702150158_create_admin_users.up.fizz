@@ -1,0 +1,23 @@
+sql("CREATE TYPE admin_role AS ENUM ('SYSTEM_ADMIN', 'PROGRAM_ADMIN');")
+
+create_table("admin_users") {
+	t.Column("id", "uuid", {primary: true})
+	t.Column("user_id", "uuid", {null: true})
+	t.Column("first_name", "string", {null: true})
+	t.Column("last_name", "string", {null: true})
+	t.Column("organization_id", "uuid", {null: true})
+	t.Column("role", "admin_role", {})
+	t.Column("disabled", "bool", {default: false})
+	t.Column("email", "string", {})
+	t.Timestamps()
+}
+
+add_index("admin_users", "user_id", {})
+add_index("admin_users", "organization_id", {})
+
+sql("
+	INSERT INTO admin_users(id, user_id, role, email, created_at, updated_at)
+	SELECT uuid_generate_v4(), id, 'SYSTEM_ADMIN', login_gov_email, now(), now()
+	FROM users
+	WHERE is_superuser = true
+")

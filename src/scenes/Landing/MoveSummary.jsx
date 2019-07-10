@@ -15,10 +15,11 @@ import { selectReimbursement } from 'shared/Entities/modules/ppms';
 
 import './MoveSummary.css';
 import ppmCar from './images/ppm-car.svg';
-import { PPMStatusTimeline, ShipmentStatusTimeline, ProfileStatusTimeline } from './StatusTimeline';
+import { ShipmentStatusTimeline, ProfileStatusTimeline } from './StatusTimeline';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlus from '@fortawesome/fontawesome-free-solid/faPlus';
+import PPMStatusTimeline from './PPMStatusTimeline';
 
 export const CanceledMoveSummary = props => {
   const { profile, reviewProfile } = props;
@@ -112,7 +113,7 @@ export const PPMAlert = props => {
           Get certified <strong>weight tickets</strong>, both empty &amp; full
         </li>
         <li>
-          Save <strong>expense receipts</strong>, including for storgage
+          Save <strong>expense receipts</strong>, including for storage
         </li>
         <li>
           Read the{' '}
@@ -305,13 +306,79 @@ export const SubmittedHhgMoveSummary = props => {
   );
 };
 
-export const ApprovedMoveSummary = props => {
-  const { ppm, move, requestPaymentSuccess, context } = props;
+//TODO remove redundant ApprovedMoveSummary component w/ ppmPaymentRequest flag
+export const NewApprovedMoveSummary = props => {
+  const { ppm, move } = props;
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
   const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
-  const ppmPaymentRequestRoute = context.flags.ppmPaymentRequest
-    ? `moves/${move.id}/ppm-payment-request-intro`
-    : `moves/${move.id}/request-payment`;
+  const ppmPaymentRequestIntroRoute = `moves/${move.id}/ppm-payment-request-intro`;
+  const ppmPaymentRequestReviewRoute = `moves/${move.id}/ppm-payment-review`;
+  return (
+    <Fragment>
+      <div>
+        <div className="shipment_box">
+          <div className="shipment_type">
+            <img className="move_sm" src={ppmCar} alt="ppm-car" />
+            Move your own stuff (PPM)
+          </div>
+
+          <div className="shipment_box_contents">
+            <PPMStatusTimeline ppm={ppm} />
+            <div className="step-contents">
+              <div className="status_box usa-width-two-thirds">
+                {!moveInProgress && (
+                  <div className="step">
+                    <div className="title">Next Step: Get ready to move</div>
+                    <div>
+                      Remember to save your weight tickets and expense receipts. For more information, read the PPM info
+                      packet.
+                    </div>
+                    <a href={ppmInfoPacket} target="_blank" rel="noopener noreferrer">
+                      <button className="usa-button-secondary">Read PPM Info Packet</button>
+                    </a>
+                  </div>
+                )}
+                {paymentRequested ? (
+                  <div className="step">
+                    <div className="title">Next step: Wait for your payment paperwork</div>
+                    <div>
+                      We're reviewing your payment request. We'll let you know when you can submit your payment
+                      paperwork to Finance.
+                    </div>
+                    <Link to={ppmPaymentRequestReviewRoute} className="usa-button usa-button-secondary">
+                      Edit Payment Request
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="step">
+                    <div className="title">Next Step: Request payment</div>
+                    <div>
+                      Request a PPM payment, a storage payment, or an advance against your PPM payment before your move
+                      is done.
+                    </div>
+                    <Link to={ppmPaymentRequestIntroRoute} className="usa-button usa-button-secondary">
+                      Request Payment
+                    </Link>
+                  </div>
+                )}
+              </div>
+              <div className="usa-width-one-third">
+                <NewPPMMoveDetails ppm={ppm} />
+              </div>
+            </div>
+            <div className="step-links" />
+          </div>
+        </div>
+      </div>
+    </Fragment>
+  );
+};
+
+export const ApprovedMoveSummary = props => {
+  const { ppm, move, requestPaymentSuccess } = props;
+  const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
+  const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
+  const ppmPaymentRequestIntroRoute = `moves/${move.id}/request-payment`;
   return (
     <Fragment>
       <div>
@@ -357,7 +424,7 @@ export const ApprovedMoveSummary = props => {
                       Request a PPM payment, a storage payment, or an advance against your PPM payment before your move
                       is done.
                     </div>
-                    <Link to={ppmPaymentRequestRoute} className="usa-button usa-button-secondary">
+                    <Link to={ppmPaymentRequestIntroRoute} className="usa-button usa-button-secondary">
                       Request Payment
                     </Link>
                   </div>
@@ -382,6 +449,36 @@ export const ApprovedMoveSummary = props => {
         </div>
       </div>
     </Fragment>
+  );
+};
+
+//TODO remove redundant PPMMoveDetailsPanel component w/ ppmPaymentRequest flag
+const NewPPMMoveDetailsPanel = props => {
+  const { advance, ppm } = props;
+  const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
+    ? `(up to ${ppm.estimated_storage_reimbursement})`
+    : '';
+  const advanceString =
+    ppm.has_requested_advance && advance && advance.requested_amount
+      ? `Advance Requested: $${formatCents(advance.requested_amount)}`
+      : '';
+  const hasSitString = `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`;
+
+  return (
+    <div className="titled_block">
+      <div className="title">Details</div>
+      <div>Weight (est.): {ppm.weight_estimate} lbs</div>
+      <div className="title" style={{ paddingTop: '0.5em' }}>
+        Payment request
+      </div>
+      <div>Estimated payment: </div>
+      <div>{formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max)}</div>
+      <div style={{ fontSize: '0.90em', color: '#767676' }}>
+        <em>Actual payment may vary, subject to Finance review.</em>
+      </div>
+      {ppm.has_sit && <div>{hasSitString}</div>}
+      {ppm.has_requested_advance && <div>{advanceString}</div>}
+    </div>
   );
 };
 
@@ -410,7 +507,9 @@ const mapStateToPPMMoveDetailsProps = (state, ownProps) => {
   return { ppm, advance };
 };
 
+// TODO remove redundant function when remove ppmPaymentRequest flag
 const PPMMoveDetails = connect(mapStateToPPMMoveDetailsProps)(PPMMoveDetailsPanel);
+const NewPPMMoveDetails = connect(mapStateToPPMMoveDetailsProps)(NewPPMMoveDetailsPanel);
 
 const HhgMoveDetails = props => {
   return (
@@ -430,9 +529,11 @@ const FindWeightScales = () => (
 );
 
 const MoveInfoHeader = props => {
-  const { orders, profile, move, entitlement } = props;
+  const { orders, profile, move, entitlement, requestPaymentSuccess } = props;
   return (
     <Fragment>
+      {requestPaymentSuccess && <Alert type="success" heading="Payment request submitted" />}
+
       <h2 className="move-summary-header">
         {get(orders, 'new_duty_station.name', 'New move')} (from {get(profile, 'current_station.name', '')})
       </h2>
@@ -446,12 +547,24 @@ const MoveInfoHeader = props => {
   );
 };
 
-const ppmSummaryStatusComponents = {
-  DRAFT: DraftMoveSummary,
-  SUBMITTED: SubmittedPpmMoveSummary,
-  APPROVED: ApprovedMoveSummary,
-  CANCELED: CanceledMoveSummary,
-  PAYMENT_REQUESTED: ApprovedMoveSummary,
+// TODO revert this function to a constant when remove ppmPaymentRequest flag
+const genPpmSummaryStatusComponents = context => {
+  if (context && context.flags && context.flags.ppmPaymentRequest) {
+    return {
+      DRAFT: DraftMoveSummary,
+      SUBMITTED: SubmittedPpmMoveSummary,
+      APPROVED: NewApprovedMoveSummary,
+      CANCELED: CanceledMoveSummary,
+      PAYMENT_REQUESTED: ApprovedMoveSummary,
+    };
+  }
+  return {
+    DRAFT: DraftMoveSummary,
+    SUBMITTED: SubmittedPpmMoveSummary,
+    APPROVED: ApprovedMoveSummary,
+    CANCELED: CanceledMoveSummary,
+    PAYMENT_REQUESTED: ApprovedMoveSummary,
+  };
 };
 
 const hhgSummaryStatusComponents = {
@@ -509,7 +622,7 @@ export const MoveSummary = props => {
   const showPPM = selectedMoveType === 'PPM' || selectedMoveType === 'HHG_PPM';
   const hhgStatus = getHHGStatus(moveStatus, shipment);
   const HHGComponent = hhgSummaryStatusComponents[hhgStatus]; // eslint-disable-line security/detect-object-injection
-  const PPMComponent = ppmSummaryStatusComponents[getPPMStatus(moveStatus, ppm, selectedMoveType)];
+  const PPMComponent = genPpmSummaryStatusComponents(context)[getPPMStatus(moveStatus, ppm, selectedMoveType)];
   const showAddShipmentLink =
     selectedMoveType === 'HHG' &&
     includes(['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED'], move.status);
@@ -527,7 +640,13 @@ export const MoveSummary = props => {
       <div className="whole_box">
         {move.status !== 'CANCELED' && (
           <div>
-            <MoveInfoHeader orders={orders} profile={profile} move={move} entitlement={entitlement} />
+            <MoveInfoHeader
+              orders={orders}
+              profile={profile}
+              move={move}
+              entitlement={entitlement}
+              requestPaymentSuccess={requestPaymentSuccess}
+            />
             <br />
           </div>
         )}

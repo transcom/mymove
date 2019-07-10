@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190624154036_remove-project-alumni.sql")

@@ -21,7 +21,7 @@ import (
 )
 
 // NewPublicAPIHandler returns a handler for the public API
-func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
+func NewPublicAPIHandler(context handlers.HandlerContext, logger Logger) http.Handler {
 
 	// Wire up the handlers to the publicAPIMux
 	apiSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
@@ -47,7 +47,7 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.ShipmentsAcceptShipmentHandler = AcceptShipmentHandler{context}
 	publicAPI.ShipmentsTransportShipmentHandler = TransportShipmentHandler{context}
 
-	engine := rateengine.NewRateEngine(context.DB(), context.Logger())
+	engine := rateengine.NewRateEngine(context.DB(), logger)
 	publicAPI.ShipmentsDeliverShipmentHandler = DeliverShipmentHandler{
 		context, shipmentservice.NewShipmentDeliverAndPricer(
 			context.DB(),
@@ -66,7 +66,7 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	publicAPI.AccessorialsCreateShipmentLineItemHandler = CreateShipmentLineItemHandler{context}
 	publicAPI.AccessorialsDeleteShipmentLineItemHandler = DeleteShipmentLineItemHandler{context}
 	publicAPI.AccessorialsApproveShipmentLineItemHandler = ApproveShipmentLineItemHandler{context}
-	publicAPI.AccessorialsRecalculateShipmentLineItemsHandler = RecalculateShipmentLineItemsHandler{context, shipmentlineitemservice.NewShipmentLineItemRecalculator(context.DB(), context.Logger())}
+	publicAPI.AccessorialsRecalculateShipmentLineItemsHandler = RecalculateShipmentLineItemsHandler{context, shipmentlineitemservice.NewShipmentLineItemRecalculator(context.DB(), logger)}
 
 	publicAPI.AccessorialsGetTariff400ngItemsHandler = GetTariff400ngItemsHandler{context}
 	publicAPI.AccessorialsGetInvoiceHandler = GetInvoiceHandler{context}
@@ -120,6 +120,7 @@ func NewPublicAPIHandler(context handlers.HandlerContext) http.Handler {
 	}
 
 	// Access Codes
+	publicAPI.AccesscodeFetchAccessCodeHandler = FetchAccessCodeHandler{context, accesscodeservice.NewAccessCodeFetcher(context.DB())}
 	publicAPI.AccesscodeValidateAccessCodeHandler = ValidateAccessCodeHandler{context, accesscodeservice.NewAccessCodeValidator(context.DB())}
 	publicAPI.AccesscodeClaimAccessCodeHandler = ClaimAccessCodeHandler{context, accesscodeservice.NewAccessCodeClaimer(context.DB())}
 

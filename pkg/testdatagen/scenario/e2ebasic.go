@@ -2822,6 +2822,58 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
+
+	/*
+	* Creates a valid, unclaimed access code
+	 */
+	accessCodeMoveType := models.SelectedMoveTypePPM
+	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
+		AccessCode: models.AccessCode{
+			Code:     "X3FQJK",
+			MoveType: &accessCodeMoveType,
+		},
+	})
+	/*
+	 * Service member with a ppm ready to request payment
+	 */
+	email = "ppm@requestingpayment.newflow"
+	uuidStr = "745e0eba-4028-4c78-a262-818b00802748"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	ppm6 := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("1404fdcf-7a54-4b83-862d-7d1c7ba36ad7"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("RequestingPayNewFlow"),
+			Edipi:         models.StringPointer("6737033007"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		// These values should be populated for an approved move
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("62149"),
+			OrdersTypeDetail:    &typeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("f9f10492-587e-43b3-af2a-9f67d2ac8757"),
+			Locator: "RQPAY2",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate: &pastTime,
+		},
+		Uploader: loader,
+	})
+	ppm6.Move.Submit(time.Now())
+	ppm6.Move.Approve()
+	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
+	ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	models.SaveMoveDependencies(db, &ppm6.Move)
 }
 
 // MakeHhgWithPpm creates an HHG user who has added a PPM

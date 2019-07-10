@@ -7,7 +7,6 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/honeycombio/beeline-go"
 
-	"github.com/transcom/mymove/pkg/auth"
 	backupop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/backup_contacts"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -35,16 +34,19 @@ type CreateBackupContactHandler struct {
 
 // Handle ... creates a new BackupContact from a request payload
 func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBackupContactParams) middleware.Responder {
-	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
+
+	ctx := params.HTTPRequest.Context()
+
+	ctx, span := beeline.StartSpan(ctx, reflect.TypeOf(h).Name())
 	defer span.Send()
 
 	// User should always be populated by middleware
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromContext(ctx)
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	newContact, verrs, err := serviceMember.CreateBackupContact(h.DB(),
@@ -53,7 +55,7 @@ func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBa
 		params.CreateBackupContactPayload.Telephone,
 		models.BackupContactPermission(params.CreateBackupContactPayload.Permission))
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	contactPayload := payloadForBackupContactModel(newContact)
@@ -70,13 +72,13 @@ func (h IndexBackupContactsHandler) Handle(params backupop.IndexServiceMemberBac
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	contacts := serviceMember.BackupContacts
@@ -98,12 +100,12 @@ type ShowBackupContactHandler struct {
 // Handle retrieves a backup contact in the system belonging to the logged in user given backup contact ID
 func (h ShowBackupContactHandler) Handle(params backupop.ShowServiceMemberBackupContactParams) middleware.Responder {
 	// User should always be populated by middleware
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	contactID, _ := uuid.FromString(params.BackupContactID.String())
 	contact, err := models.FetchBackupContact(h.DB(), session, contactID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	contactPayload := payloadForBackupContactModel(contact)
@@ -118,12 +120,12 @@ type UpdateBackupContactHandler struct {
 // Handle ... updates a BackupContact from a request payload
 func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBackupContactParams) middleware.Responder {
 	// User should always be populated by middleware
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	contactID, _ := uuid.FromString(params.BackupContactID.String())
 	contact, err := models.FetchBackupContact(h.DB(), session, contactID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	contact.Name = *params.UpdateServiceMemberBackupContactPayload.Name
@@ -132,7 +134,7 @@ func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBa
 	contact.Permission = models.BackupContactPermission(params.UpdateServiceMemberBackupContactPayload.Permission)
 
 	if verrs, err := h.DB().ValidateAndUpdate(&contact); verrs.HasAny() || err != nil {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	contactPayload := payloadForBackupContactModel(contact)
