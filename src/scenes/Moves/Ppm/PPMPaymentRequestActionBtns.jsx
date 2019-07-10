@@ -31,14 +31,16 @@ const PPMPaymentRequestActionBtns = props => {
           </button>
         )}
       </div>
-      {displaySkip && (
-        <button type="button" className="usa-button-secondary" onClick={skipHandler}>
-          Skip
+      <div className="usa-width-one-third">
+        {displaySkip && (
+          <button type="button" className="usa-button-secondary" onClick={skipHandler}>
+            Skip
+          </button>
+        )}
+        <button type="button" onClick={saveAndAddHandler} disabled={submitButtonsAreDisabled || submitting}>
+          {nextBtnLabel}
         </button>
-      )}
-      <button type="button" onClick={saveAndAddHandler} disabled={submitButtonsAreDisabled || submitting}>
-        {nextBtnLabel}
-      </button>
+      </div>
     </div>
   );
 };
