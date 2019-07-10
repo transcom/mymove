@@ -7,8 +7,10 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/gofrs/uuid"
 	"github.com/spf13/pflag"
@@ -26,11 +28,15 @@ VALUES
 {{- end}};
 `
 
+const Migration = `exec("./apply-secure-migration.sh {{.}}")`
+
 const (
-	//OfficeUsersFilenameFlag filename containing the details for new office users
+	// OfficeUsersFilenameFlag filename containing the details for new office users
 	OfficeUsersFilenameFlag string = "office-users-filename"
-	//OfficeUsersMigrationFile sql file containing the migration to add the new office users
+	// OfficeUsersMigrationFile sql file containing the migration to add the new office users
 	OfficeUsersMigrationFilenameFlag string = "migration-filename"
+	// VersionTimeFormat is the Go time format for creating a version number.
+	VersionTimeFormat string = "20060102150405"
 )
 
 // OfficeUsersFilenameFlag initializes add_office_users command line flags
@@ -63,11 +69,14 @@ func initFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = false
 }
 
-func readOfficeUsersCSV(v *viper.Viper) ([]models.OfficeUser, error) {
-	csvFile, _ := os.Open(v.GetString(OfficeUsersFilenameFlag))
+func readOfficeUsersCSV(fileName string) ([]models.OfficeUser, error) {
+	csvFile, err := os.Open(fileName)
+	if err != nil {
+		return []models.OfficeUser{}, err
+	}
 	reader := csv.NewReader(bufio.NewReader(csvFile))
 	//skip header
-	_, err := reader.Read()
+	_, err = reader.Read()
 	if err != nil {
 		return []models.OfficeUser{}, err
 	}
@@ -124,18 +133,39 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	officeUsers, err := readOfficeUsersCSV(v)
+	officeUsersFileName := v.GetString(OfficeUsersFilenameFlag)
+	migrationFileName := v.GetString(OfficeUsersMigrationFilenameFlag)
+
+	officeUsers, err := readOfficeUsersCSV(officeUsersFileName)
 	if err != nil {
 		log.Fatal("error reading csv file: ", err)
 	}
-	outfile, err := os.Create(OfficeUsersMigrationFilenameFlag)
-	defer closeFile(outfile)
+
+	secureMigrationName := fmt.Sprintf("%s_%s.up.sql", time.Now().Format(VersionTimeFormat), migrationFileName)
+	secureMigrationPath := filepath.Join("./tmp", secureMigrationName)
+	outfile1, err := os.Create(secureMigrationPath)
+	defer closeFile(outfile1)
 	if err != nil {
-		log.Fatalf("error creating %s: %v\n", OfficeUsersMigrationFilenameFlag, err)
+		log.Fatalf("error creating %s: %v\n", secureMigrationPath, err)
 	}
-	t := template.Must(template.New("add_office_user").Parse(createOfficeUser))
-	err = t.Execute(outfile, officeUsers)
+	t1 := template.Must(template.New("add_office_user").Parse(createOfficeUser))
+	err = t1.Execute(outfile1, officeUsers)
 	if err != nil {
 		log.Println("error executing template: ", err)
 	}
+	log.Printf("new secure migration file created at:  %q\n", secureMigrationPath)
+
+	migrationName := fmt.Sprintf("%s_%s.up.fizz", time.Now().Format(VersionTimeFormat), migrationFileName)
+	migrationPath := filepath.Join("./migrations", migrationName)
+	outfile2, err := os.Create(migrationPath)
+	defer closeFile(outfile2)
+	if err != nil {
+		log.Fatalf("error creating %s: %v\n", migrationPath, err)
+	}
+	t2 := template.Must(template.New("migration").Parse(Migration))
+	err = t2.Execute(outfile2, secureMigrationName)
+	if err != nil {
+		log.Println("error executing template: ", err)
+	}
+	log.Printf("new migration file created at:  %q\n", migrationPath)
 }
