@@ -148,7 +148,6 @@ describe('on 401 unauthorized error', () => {
   });
 });
 
-
 function retrieveMovesStub(params, throwError) {
   // This is meant as a stub that will act in place of
   // `RetrieveMovesForOffice` from Office/api.js
