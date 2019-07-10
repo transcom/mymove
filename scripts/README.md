@@ -122,3 +122,13 @@ These scripts are primarily used for working with the database
 | `psql-wrapper` | A wrapper around `psql` that sets correct values |
 | `wait-for-db` |  waits for an available database connection, or until a timeout is reached |
 | `wait-for-db-docker` |  waits for an available database connection, or until a timeout is reached using docker |
+
+### CAC Scripts
+
+These scripts are primarily used for working with a CAC and the Orders API
+
+| Script Name | Description |
+| --- | --- |
+| `cac-info` | Get general information from a CAC |
+| `cac-generate-cert` | Get a certificate from CAC |
+| `cac-generate-pubkey` | Get a public key from CAC |

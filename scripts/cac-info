@@ -1,0 +1,20 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+#
+# Get general information from a CAC
+#
+
+
+echo -e "\n----- List Info -----\n"
+
+pkcs15-tool --list-info
+
+echo -e "\n----- List Certificates -----\n"
+
+pkcs15-tool --list-certificates
+
+echo -e "\n----- List Slots -----\n"
+
+pkcs11-tool --list-slots

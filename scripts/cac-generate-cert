@@ -1,0 +1,21 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+#
+# Get a certificate from CAC
+#
+# From: https://github.com/OpenSC/OpenSC/wiki/Using-pkcs11-tool-and-OpenSSL#signverify-using-private-keycertificate
+#
+
+read -r -s -p "Enter CAC PIN: " CAC_PIN
+echo ""
+read -r -s -p "Enter Sign Key: " SIGN_KEY
+echo ""
+
+readonly MODULE=/usr/local/lib/pkcs11/opensc-pkcs11.so
+
+# Public Key And Certificate
+/usr/local/bin/pkcs11-tool -r -p "${CAC_PIN}" --id "${SIGN_KEY}" --type cert --module "${MODULE}" > "${SIGN_KEY}.cert"
+openssl x509 -inform DER -in "${SIGN_KEY}.cert" -pubkey > "${SIGN_KEY}.pub"
+cat "${SIGN_KEY}.pub"
