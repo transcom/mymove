@@ -113,3 +113,6 @@ export const transportationServiceProvider = new schema.Entity('transportationSe
 export const storageInTransit = new schema.Entity('storageInTransits');
 
 export const storageInTransits = new schema.Array(storageInTransit);
+
+// AccessCodes
+export const accessCode = new schema.Entity('accessCodes');

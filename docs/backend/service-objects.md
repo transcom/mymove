@@ -71,7 +71,7 @@ the name of the service object execution method.
 
 **Parameters**
 Remember that service objects should be reusable. Try to abstract as much out of the logic specific parameters to achieve this.
-Pass as many parameters as make sense. Use your best judgement. In the following example from the codebase, we are only passing in one parameter to the `CreateForm` execution method, a
+Pass as many parameters as make sense. Use your best judgment. In the following example from the codebase, we are only passing in one parameter to the `CreateForm` execution method, a
 `template` variable with the type `FormTemplate`. This is because the `FormTemplate` is more complex than most service objects and this use case works for use here.
  Some service objects will only require only one or two parameters and a struct is not appropriate.`FormTemplate` only holds relatively abstract parameters such that the service
 object can be reused if needed. Regarding `CreateForm`, this service object can be reused to generate another PDF by passing
@@ -98,7 +98,7 @@ type FormCreator interface {
 
 **Return Values**
 Service objects should return as many return values as appropriate. In the case of a service object like the CreateForm, the first parameter is whatever the service object is responsible for creating. If the first parameter returns a created entity, the second parameter should be an error.
-In the case of a simple entity fetch by ID, the first parameter could be model validation errors. There are some situations that require more complex returns. For those, use your best judgement.
+In the case of a simple entity fetch by ID, the first parameter could be model validation errors. There are some situations that require more complex returns. For those, use your best judgment.
 
 *Remember all `errors` should be Wrapped by using `errors.Wrap` so that the underlying error is propagated properly*
 
@@ -281,7 +281,7 @@ import (
   "github.com/stretchr/testify/assert"
   "github.com/stretchr/testify/mock"
   "github.com/stretchr/testify/suite"
-  "github.com/transcom/mymove/mocks"
+  "github.com/transcom/mymove/pkg/services/paperwork/mocks"
   paperworkforms "github.com/transcom/mymove/pkg/paperwork"
   "github.com/transcom/mymove/pkg/services"
 )

@@ -4,9 +4,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-
-	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/dpsauth"
 )
 
 const (
@@ -18,7 +15,7 @@ const (
 	HTTPSDDCPortFlag string = "http-sddc-port"
 	// HTTPDPSServerNameFlag is the HTTP DPS Server Name Flag
 	HTTPDPSServerNameFlag string = "http-dps-server-name"
-	// DPSAuthSecretKeyFlag is the DPS Auth Secret Key Flag
+	// DPSAuthSecretKeyFlag is the DPS Auth Secret Key Flag #nosec G101
 	DPSAuthSecretKeyFlag string = "dps-auth-secret-key"
 	// DPSRedirectURLFlag is the DPS Redirect URL Flag
 	DPSRedirectURLFlag string = "dps-redirect-url"
@@ -26,7 +23,7 @@ const (
 	DPSCookieNameFlag string = "dps-cookie-name"
 	// DPSCookieDomainFlag is the DPS Cookie Domain Flag Flag
 	DPSCookieDomainFlag string = "dps-cookie-domain"
-	// DPSAuthCookieSecretKeyFlag is the DPS Auth Cookie Scret Key Flag
+	// DPSAuthCookieSecretKeyFlag is the DPS Auth Cookie Scret Key Flag #nosec G101
 	DPSAuthCookieSecretKeyFlag string = "dps-auth-cookie-secret-key"
 	// DPSCookieExpiresInMinutesFlag is the DPS Cookie Expires In Minutes Flag
 	DPSCookieExpiresInMinutesFlag string = "dps-cookie-expires-in-minutes"
@@ -45,21 +42,6 @@ func InitDPSFlags(flag *pflag.FlagSet) {
 	flag.String(DPSCookieDomainFlag, "sddclocal", "Domain of the DPS cookie")
 	flag.String(DPSAuthCookieSecretKeyFlag, "", "DPS auth cookie secret key, 32 byte long")
 	flag.Int(DPSCookieExpiresInMinutesFlag, 240, "DPS cookie expiration in minutes")
-}
-
-// InitDPSAuthParams initializes the DPS Auth Params
-func InitDPSAuthParams(v *viper.Viper, appnames auth.ApplicationServername) dpsauth.Params {
-	return dpsauth.Params{
-		SDDCProtocol:   v.GetString(HTTPSDDCProtocolFlag),
-		SDDCHostname:   appnames.SddcServername,
-		SDDCPort:       v.GetInt(HTTPSDDCPortFlag),
-		SecretKey:      v.GetString(DPSAuthSecretKeyFlag),
-		DPSRedirectURL: v.GetString(DPSRedirectURLFlag),
-		CookieName:     v.GetString(DPSCookieNameFlag),
-		CookieDomain:   v.GetString(DPSCookieDomainFlag),
-		CookieSecret:   []byte(v.GetString(DPSAuthCookieSecretKeyFlag)),
-		CookieExpires:  v.GetInt(DPSCookieExpiresInMinutesFlag),
-	}
 }
 
 // CheckDPS validates DPS command line flags

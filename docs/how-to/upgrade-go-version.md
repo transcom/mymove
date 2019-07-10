@@ -4,8 +4,8 @@ Upgrading the Go version that we use happens in roughly these steps:
 
 1. Update [trussworks/circleci-docker-primary](https://github.com/trussworks/circleci-docker-primary) to point at an updated Go binary
 2. Upgrade local Go version (`brew upgrade go`)
-3. Create a PR for the transcom/mymove repo with the updated git hash created in step 1
-4. Create a PR for the transcom/ppp-infra repo with the updated git hash created in step 1
+3. Create a PR for the `transcom/mymove` repo with the updated git hash created in step 1
+4. Create a PR for the `transcom/ppp-infra` repo with the updated git hash created in step 1
 5. Notify everyone that we're updating Go around the time your PR lands
 
 For more details read the following sections.
@@ -24,7 +24,7 @@ For more details read the following sections.
   - If you've done some PATH sorcery to point to a specific Go version (as detailed [here](https://github.com/transcom/mymove#setup-prerequisites)), you'll have to update that as well
 - `go version` to check it worked
 
-## Update transcom/mymove Repo
+## Update `transcom/mymove` Repo
 
 - After your Docker image PR lands, grab the git hash from [Docker](https://hub.docker.com/r/trussworks/circleci-docker-primary/tags) that corresponds with your merged code
 - Update `.circleci/config.yml` and `Dockerfile.dep_updater` with the updated Docker image git hash and Go version
@@ -33,7 +33,7 @@ For more details read the following sections.
 - Rerun the Go formatter on the codebase with `pre-commit run --all-files go-fmt`
 - Commit the above changes and any reformatted code and make sure everything builds correctly on CircleCI
 
-## Update transcom/ppp-infra Repo
+## Update `transcom/ppp-infra` Repo
 
 - After your Docker image PR lands, grab the git hash from [Docker](https://hub.docker.com/r/trussworks/circleci-docker-primary/tags) that corresponds with your merged code
 - Update `.circleci/config.yml` and `Dockerfile` with the updated Docker image git hash and Go version

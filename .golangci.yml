@@ -1,0 +1,48 @@
+linters-settings:
+  govet:
+    check-shadowing: true
+    settings:
+      printf:
+        funcs:
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Infof
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
+  goimports:
+    # put imports beginning with prefix after 3rd-party packages;
+    # it's a comma-separated list of prefixes
+    local-prefixes: github.com/transcom/mymove
+
+linters:
+  enable:
+     - gosec
+     - golint
+     - gofmt
+     - goimports
+     - govet
+     - varcheck
+     - typecheck
+     - structcheck
+     - deadcode
+  disable:
+    - unused #deprecated https://github.com/dominikh/go-tools/tree/master/cmd/unused
+    - errcheck #requires patching code
+    - gosimple # 20+ files need to be patched
+    - ineffassign # 20+ files need to be patched
+    - staticcheck # 30+files need to be patched
+issues:
+  exclude-rules:
+    # skip analyzing dutystationsloader until repeated tags from embedded types are fixed https://github.com/golang/go/issues/30846
+    - path: internal/pkg/dutystationsloader/duty_stations_loader.go
+      linters:
+        - govet
+  fix: true
+run:
+  # timeout for analysis, e.g. 30s, 5m, default is 1m
+  deadline: 8m
+  concurrency: 1
+
+# which dirs to skip: they won't be analyzed;
+  skip-dirs:
+    - pkg/gen
+    - mocks

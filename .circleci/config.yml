@@ -21,6 +21,11 @@ executors:
     working_directory: ~/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:9b7bfbf6bfae544566ade0c896f8aacbd16281e5
+  mymove_medium_plus:
+    resource_class: medium+
+    working_directory: ~/transcom/mymove
+    docker:
+      - image: trussworks/circleci-docker-primary:9b7bfbf6bfae544566ade0c896f8aacbd16281e5
   mymove_large:
     resource_class: large
     working_directory: ~/transcom/mymove
@@ -32,7 +37,7 @@ executors:
     working_directory: ~/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:9b7bfbf6bfae544566ade0c896f8aacbd16281e5
-      - image: postgres:10.6
+      - image: postgres:10.9
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
@@ -87,6 +92,12 @@ commands:
       - deploy:
           name: Deploy task service
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} bin/ecs-deploy-task-container --aws-account-id ${AWS_ACCOUNT_ID} --aws-region ${AWS_DEFAULT_REGION} --service app --environment ${APP_ENVIRONMENT} --repository-name app-tasks --image-tag git-${CIRCLE_SHA1} --command save-fuel-price-data
+          environment:
+            DB_PORT: 5432
+            DB_USER: master
+            DB_NAME: app
+            DB_SSL_MODE: verify-full
+            DB_SSL_ROOT_CERT: /bin/rds-combined-ca-bundle.pem
           no_output_timeout: 20m
       - announce_failure
   deploy_app_steps:
@@ -251,7 +262,7 @@ jobs:
 
   # `pre_test` runs pre-commit against all files.
   pre_test:
-    executor: mymove_medium
+    executor: mymove_medium_plus
     steps:
       - checkout
       - restore_cache:
@@ -266,10 +277,11 @@ jobs:
       - restore_cache:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
-      - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
-      - run: make get_gotools
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run: make bin/callgraph
-      - run: make server_generate
+      - run: make server_generate mocks_generate
+      # this is so we can avoid go mod downloading and resulting in an error on a false positive
+      - run: scripts/pre-commit-go-mod || exit 0
       - run:
           name: Run pre-commit tests
           command: pre-commit run --all-files
@@ -288,9 +300,10 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
-          name: Run make server_generate
-          command: make server_generate
+          name: Run make server_generate mocks_generate
+          command: make server_generate mocks_generate
       - run:
           name: Run acceptance tests
           command: |
@@ -446,7 +459,7 @@ jobs:
             wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
             sudo apt-get -qq update
             sudo apt-get -qq -y install postgresql-client-10
-      - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: make server_test
           command: |
@@ -460,11 +473,13 @@ jobs:
             DB_HOST: localhost
             DB_PORT: 5432
             DB_NAME: test_db
+            EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
             MIGRATION_PATH: /home/circleci/transcom/mymove/migrations
             SECURE_MIGRATION_DIR: /home/circleci/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
+
       - announce_failure
 
   # `server_test_coverage` runs code coverage and submits it to CodeClimate
@@ -487,12 +502,12 @@ jobs:
             wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
             sudo apt-get -qq update
             sudo apt-get -qq -y install postgresql-client-10
-      - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Setup Code Climate test-reporter
           command: |
             # download test reporter as a static binary
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > /home/circleci/cc-test-reporter
+            curl -L --retry 5 --retry-connrefused https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 --output /home/circleci/cc-test-reporter
             chmod +x /home/circleci/cc-test-reporter
             /home/circleci/cc-test-reporter before-build -d
       - run:
@@ -508,6 +523,7 @@ jobs:
             DB_HOST: localhost
             DB_PORT: 5432
             DB_NAME: test_db
+            EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
             MIGRATION_PATH: /home/circleci/transcom/mymove/migrations
@@ -516,7 +532,7 @@ jobs:
       - run:
           name: upload code coverage to codecov
           command: |
-            curl -s https://codecov.io/bash > /home/circleci/codecov
+            curl -L --retry 5 --retry-connrefused https://codecov.io/bash --output /home/circleci/codecov
             chmod +x /home/circleci/codecov
             /home/circleci/codecov -F go -f coverage.out
 
@@ -552,6 +568,7 @@ jobs:
             - health-checker # for confirming deploy success.
             - ecs-service-logs # for showing logs on failed deploy
             - ecs-deploy-task-container # for deploying task container
+            - mockery # for generating mocks
       - announce_failure
 
   # `build_app` builds the application container and pushes to the container repository
@@ -572,7 +589,8 @@ jobs:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
       - run: make bin/chamber
       - run: make bin/rds-combined-ca-bundle.pem
-      - run: make build
+      - run: make client_build
+      - run: make server_build
       - build_tag_push:
           dockerfile: Dockerfile
           tag: ppp:web-dev
@@ -622,9 +640,10 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
-          name: Run make server_generate
-          command: make server_generate
+          name: Run make server_generate mocks_generate
+          command: make server_generate mocks_generate
       - run:
           name: Build Chamber
           command: make bin/chamber
@@ -693,9 +712,10 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-sources-v2-{{ checksum "go.sum" }}
+      - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
-          name: Run make server_generate
-          command: make server_generate
+          name: Run make server_generate mocks_generate
+          command: make server_generate mocks_generate
       - run:
           name: Build Chamber
           command: make bin/chamber

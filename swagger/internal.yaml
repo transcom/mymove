@@ -705,6 +705,18 @@ definitions:
         type: integer
         title: Distance
         description: unit is miles
+  VehicleOptions:
+    type: string
+    x-nullable: true
+    title: What type of vehicle are these weight tickets for?
+    enum: &VehicleOptions
+      - CAR
+      - CAR_TRAILER
+      - BOX_TRUCK
+    x-display-value:
+      CAR: Car
+      CAR_TRAILER: Car + Trailer
+      BOX_TRUCK: Box truck
   MoveDocumentPayload:
     type: object
     properties:
@@ -753,6 +765,57 @@ definitions:
         x-display-value:
           OTHER: Other account
           GTCC: GTCC
+      receipt_missing:
+        title: missing expense receipt
+        type: boolean
+        x-nullable: true
+      vehicle_options:
+        title: What type of vehicle are these weight tickets for?
+        type: string
+        enum: *VehicleOptions
+      vehicle_nickname:
+        type: string
+        title: Vehicle nickname (ex. "My car")
+      empty_weight:
+        title: empty weight ticket recorded weight
+        type: integer
+        minimum: 0
+        x-nullable: true
+      empty_weight_ticket_missing:
+        title: missing empty weight ticket
+        type: boolean
+        x-nullable: true
+      full_weight:
+        title: full weight ticket recorded weight
+        type: integer
+        minimum: 0
+        x-nullable: true
+      full_weight_ticket_missing:
+        title: missing full weight ticket
+        type: boolean
+        x-nullable: true
+      weight_ticket_date:
+        title: Weight ticket date
+        type: string
+        example: '2018-04-26'
+        format: date
+        x-nullable: true
+      trailer_ownership_missing:
+        title: missing trailer ownership documentation
+        type: boolean
+        x-nullable: true
+      storage_start_date:
+        type: string
+        format: date
+        title: Start date of storage for storage expenses
+        example: '2018-04-26'
+        x-nullable: true
+      storage_end_date:
+        type: string
+        format: date
+        title: End date of storage for storage expenses
+        example: '2018-04-26'
+        x-nullable: true
     required:
       - id
       - move_id
@@ -798,12 +861,14 @@ definitions:
       - STORAGE_EXPENSE
       - SHIPMENT_SUMMARY
       - EXPENSE
+      - WEIGHT_TICKET_SET
     x-display-value:
       OTHER: Other document type
       WEIGHT_TICKET: Weight ticket
       STORAGE_EXPENSE: Storage expense receipt
       SHIPMENT_SUMMARY: Shipment summary
       EXPENSE: Expense
+      WEIGHT_TICKET_SET: Weight ticket set
   CreateMovingExpenseDocumentPayload:
     type: object
     properties:
@@ -840,13 +905,27 @@ definitions:
         x-display-value:
           OTHER: Other payment method
           GTCC: GTCC
+      receipt_missing:
+        title: missing expense receipt
+        type: boolean
       notes:
         type: string
         example: This document is good to go!
         x-nullable: true
         title: Notes
+      storage_start_date:
+        type: string
+        format: date
+        title: Start date of storage for storage expenses
+        example: '2018-04-26'
+        x-nullable: true
+      storage_end_date:
+        type: string
+        format: date
+        title: End date of storage for storage expenses
+        example: '2018-04-26'
+        x-nullable: true
     required:
-      - upload_ids
       - title
       - move_document_type
       - moving_expense_type
@@ -857,22 +936,24 @@ definitions:
     title: Moving Expense Type
     enum:
       - CONTRACTED_EXPENSE
-      - RENTAL_EQUIPMENT
-      - PACKING_MATERIALS
-      - WEIGHING_FEES
       - GAS
-      - TOLLS
       - OIL
       - OTHER
+      - PACKING_MATERIALS
+      - RENTAL_EQUIPMENT
+      - STORAGE
+      - TOLLS
+      - WEIGHING_FEES
     x-display-value:
-      CONTRACTED_EXPENSE: Contracted Expense
-      RENTAL_EQUIPMENT: Rental Equipment
-      PACKING_MATERIALS: Packing Materials
-      WEIGHING_FEES: Weighing Fees
+      CONTRACTED_EXPENSE: Contracted expense
       GAS: Gas
-      TOLLS: Tolls
       OIL: Oil
       OTHER: Other
+      PACKING_MATERIALS: Packing materials
+      STORAGE: Storage
+      RENTAL_EQUIPMENT: Rental equipment
+      TOLLS: Tolls
+      WEIGHING_FEES: Weighing fees
   MoveDocumentStatus:
     type: string
     title: Document Status
@@ -884,6 +965,60 @@ definitions:
       AWAITING_REVIEW: Awaiting review
       OK: OK
       HAS_ISSUE: Has issue
+  CreateWeightTicketDocumentsPayload:
+    type: object
+    properties:
+      personally_procured_move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      upload_ids:
+        type: array
+        items:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      vehicle_options:
+        title: What type of vehicle are these weight tickets for?
+        type: string
+        enum: *VehicleOptions
+        x-display-value:
+          CAR: Car
+          CAR_TRAILER: Car + Trailer
+          BOX_TRUCK: Box truck
+      vehicle_nickname:
+        type: string
+        title: Vehicle nickname (ex. "My car")
+      empty_weight_ticket_missing:
+        title: missing empty weight ticket
+        type: boolean
+      empty_weight:
+        title: empty weight ticket recorded weight
+        type: integer
+        minimum: 0
+      full_weight_ticket_missing:
+        title: missing full weight ticket
+        type: boolean
+      full_weight:
+        title: full weight ticket recorded weight
+        type: integer
+        minimum: 0
+      weight_ticket_date:
+        title: Weight ticket date
+        type: string
+        example: '2018-04-26'
+        format: date
+        x-nullable: true
+      trailer_ownership_missing:
+        title: missing trailer ownership documentation
+        type: boolean
+    required:
+      - personally_procured_move_id
+      - vehicle_options
+      - vehicle_nickname
+      - full_weight_ticket_missing
+      - empty_weight_ticket_missing
+      - trailer_ownership_missing
   ServiceMemberPayload:
     type: object
     properties:
@@ -986,6 +1121,10 @@ definitions:
       updated_at:
         type: string
         format: date-time
+      requires_access_code:
+        type: boolean
+        x-nullable: false
+        title: Requires Access Code
     required:
       - id
       - user_id
@@ -993,6 +1132,7 @@ definitions:
       - has_social_security_number
       - created_at
       - updated_at
+      - requires_access_code
   CreateServiceMemberPayload:
     type: object
     properties:
@@ -2319,6 +2459,105 @@ definitions:
         type: object
         additionalProperties:
           type: string
+  StorageInTransit:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      location:
+        type: string
+        title: SIT Location
+        enum:
+          - ORIGIN
+          - DESTINATION
+        x-display-value:
+          ORIGIN: Origin
+          DESTINATION: Destination
+      estimated_start_date:
+        type: string
+        format: date
+        example: '2018-04-26'
+        title: Estimated start date
+      authorized_start_date:
+        type: string
+        format: date
+        x-nullable: true
+        example: '2018-04-26'
+        title: Authorized Start Date
+      actual_start_date:
+        type: string
+        format: date
+        x-nullable: true
+        example: '2018-04-26'
+        title: Actual Start Date
+      out_date:
+        type: string
+        format: date
+        x-nullable: true
+        example: '2018-04-26'
+        title: Out Date
+      notes:
+        type: string
+        example: Good to go!
+        format: textarea
+        x-nullable: true
+        title: Note
+      authorization_notes:
+        type: string
+        example: Good to go!
+        format: textarea
+        x-nullable: true
+        title: Authorization Notes
+      warehouse_id:
+        type: string
+        example: '000383'
+        title: Warehouse ID number
+      warehouse_name:
+        type: string
+        example: ABC Warehouse, Inc.
+        title: Warehouse Name
+      warehouse_phone:
+        type: string
+        format: telephone
+        pattern: '^$|^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+        title: Phone
+      warehouse_email:
+        type: string
+        format: x-email
+        pattern: '^$|^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        x-nullable: true
+        title: Email
+      shipment_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        title: Shipment ID
+      sit_number:
+        type: string
+        x-nullable: true
+        example: 123456
+        title: SIT Number
+      status:
+        type: string
+        example: REQUESTED
+        title: Status
+      warehouse_address:
+        $ref: '#/definitions/Address'
+    required:
+      - location
+      - warehouse_address
+      - warehouse_id
+      - warehouse_name
+      - estimated_start_date
+  StorageInTransits:
+      type: array
+      items:
+        $ref: '#/definitions/StorageInTransit'
   MoveQueueItem:
     type: object
     properties:
@@ -2374,19 +2613,28 @@ definitions:
         x-nullable: true
       submitted_date:
         type: string
-        format: date
+        format: date-time
         example: 2018-04-25
         x-nullable: true
       last_modified_date:
         type: string
         format: date-time
         example: 2017-07-21T17:32:28Z
-      last_modified_name:
-        type: string
-        example: Bollinger, Sam
       created_at:
         type: string
         format: date-time
+      origin_duty_station_name:
+        type: string
+        example: Dover AFB
+        title: Origin
+        x-nullable: true
+      destination_duty_station_name:
+        type: string
+        example: Dover AFB
+        title: Destination
+        x-nullable: true
+      storage_in_transits:
+        $ref: '#/definitions/StorageInTransits'
     required:
       - id
       - status
@@ -2396,7 +2644,6 @@ definitions:
       - rank
       - orders_type
       - last_modified_date
-      - last_modified_name
       - created_at
   MoveDatesSummary:
     type: object
@@ -2467,41 +2714,37 @@ definitions:
     required:
       - start_date
       - available
-  VehicleOptions:
-    type: string
-    x-nullable: true
-    title: What type of vehicle are these weight tickets for?
-    enum: &VehicleOptions
-      - CAR
-      - CAR_TRAILER
-      - BOX_TRUCK
-    x-display-value:
-      CAR: Car
-      CAR_TRAILER: Car + Trailer
-      BOX_TRUCK: Box truck
-  WeightTicketPayload:
+  WeightAllotment:
     type: object
     properties:
-      vehicle_options:
-        $ref: '#/definitions/VehicleOptions'
-      vehicle_nickname:
-        $ref: '#/definitions/VehicleNickname'
-      empty_weight:
-        type: number
-        x-nullable: true
-      full_weight:
-        type: number
-        x-nullable: true
-      weight_ticket_date:
+      total_weight_self:
+        type: integer
+        example: 18000
+      total_weight_self_plus_dependents:
+        type: integer
+        example: 18000
+      pro_gear_weight:
+        type: integer
+        example: 2000
+      pro_gear_weight_spouse:
+        type: integer
+        example: 500
+    required:
+      - total_weight_self
+      - total_weight_self_plus_dependents
+      - pro_gear_weight
+      - pro_gear_weight_spouse
+  IndexEntitlements:
+    type: object
+    additionalProperties:
+      $ref: '#/definitions/WeightAllotment'
+  ClaimAccessCode:
+    type: object
+    properties:
+      claim_access_code:
         type: string
-        example: '2018-04-26'
-        format: date
-        title: Weight ticket date
-        x-nullable: true
-  VehicleNickname:
-    type: string
-    x-nullable: true
-    title: Vehicle nickname (ex. "My car")
+        x-nullable: false
+        title: MilMove access code
 paths:
   /estimates/ppm:
     get:
@@ -2543,6 +2786,10 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+        404:
+          description: ppm discount not found for provided postal codes and original move date
+        422:
+          description: cannot process request with given information
         500:
           description: internal server error
   /estimates/ppm_sit:
@@ -2952,7 +3199,9 @@ paths:
         403:
           description: user is not authorized
         404:
-          description: ppm is not found
+          description: ppm is not found or ppm discount not found for provided postal codes and original move date
+        422:
+          description: cannot process request with given information
         500:
           description: internal server error
     get:
@@ -4166,9 +4415,8 @@ paths:
           type: string
           enum:
             - new
-            - troubleshooting
             - ppm
-            - hhg_accepted
+            - hhg_active
             - hhg_delivered
             - all
           required: true
@@ -4186,6 +4434,20 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to access this queue
+        404:
+          description: move queue item is not found
+  /entitlements:
+    get:
+      summary: List weight weights allotted by entitlement
+      description: List weight weights allotted by entitlement
+      operationId: indexEntitlements
+      tags:
+        - entitlements
+      responses:
+        200:
+          description: List of weights allotted entitlement
+          schema:
+            $ref: '#/definitions/IndexEntitlements'
   /entitlements/{moveId}:
     get:
       summary: Validates that the stored weight estimate is below the allotted entitlement range for a service member
@@ -4234,7 +4496,6 @@ paths:
           description: user is not authorized
         500:
           description: internal server error
-
   /dps_auth/cookie_url:
     post:
       summary: Returns the URL to redirect to that begins DPS auth
@@ -4264,3 +4525,35 @@ paths:
           description: user is not authorized
         500:
           description: internal server error
+  /moves/{moveId}/weight_ticket:
+    post:
+      summary: Creates a weight ticket document
+      description: Created a weight ticket document with the given information
+      operationId: createWeightTicketDocument
+      tags:
+        - move_docs
+      parameters:
+        - name: moveId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+        - in: body
+          name: createWeightTicketDocument
+          required: true
+          schema:
+            $ref: '#/definitions/CreateWeightTicketDocumentsPayload'
+      responses:
+        200:
+          description: returns new weight ticket document object
+          schema:
+            $ref: '#/definitions/MoveDocumentPayload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to modify this move
+        500:
+          description: server error

@@ -1,4 +1,4 @@
-import { userEntersDates, userEntersAndRemovesDates } from '../../support/datesPanel';
+import { userEntersDates } from '../../support/datesPanel';
 
 /* global cy */
 describe('TSP User Completes Dates Panel', function() {
@@ -8,10 +8,6 @@ describe('TSP User Completes Dates Panel', function() {
   it('tsp user completes dates panel', function() {
     tspUserGoesToDatesPanel('DATESP');
     userEntersDates();
-  });
-  it('tsp user completes dates panel and zeroes it out', function() {
-    tspUserGoesToDatesPanel('DATESZ');
-    userEntersAndRemovesDates();
   });
 });
 

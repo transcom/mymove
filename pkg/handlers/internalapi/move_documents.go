@@ -1,12 +1,13 @@
 package internalapi
 
 import (
+	"github.com/go-openapi/strfmt"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/auth"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -61,6 +62,50 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 	if docExtractor.RequestedAmountCents != nil {
 		requestedAmt = *docExtractor.RequestedAmountCents
 	}
+	var emptyWeight *int64
+	if docExtractor.EmptyWeight != nil {
+		emptyWeight = handlers.FmtInt64(int64(*docExtractor.EmptyWeight))
+	}
+	var emptyWeightTicketMissing *bool
+	if docExtractor.EmptyWeightTicketMissing != nil {
+		emptyWeightTicketMissing = docExtractor.EmptyWeightTicketMissing
+	}
+	var fullWeight *int64
+	if docExtractor.FullWeight != nil {
+		fullWeight = handlers.FmtInt64(int64(*docExtractor.FullWeight))
+	}
+	var fullWeightTicketMissing *bool
+	if docExtractor.FullWeightTicketMissing != nil {
+		fullWeightTicketMissing = docExtractor.FullWeightTicketMissing
+	}
+	var vehicleNickname string
+	if docExtractor.VehicleNickname != nil {
+		vehicleNickname = *docExtractor.VehicleNickname
+	}
+	var vehicleOptions string
+	if docExtractor.VehicleOptions != nil {
+		vehicleOptions = *docExtractor.VehicleOptions
+	}
+	var weightTicketDate *strfmt.Date
+	if docExtractor.WeightTicketDate != nil {
+		weightTicketDate = handlers.FmtDate(*docExtractor.WeightTicketDate)
+	}
+	var trailerOwnershipMissing *bool
+	if docExtractor.TrailerOwnershipMissing != nil {
+		trailerOwnershipMissing = docExtractor.TrailerOwnershipMissing
+	}
+	var receiptMissing *bool
+	if docExtractor.ReceiptMissing != nil {
+		receiptMissing = docExtractor.ReceiptMissing
+	}
+	var storageStartDate *strfmt.Date
+	if docExtractor.StorageStartDate != nil {
+		storageStartDate = handlers.FmtDate(*docExtractor.StorageStartDate)
+	}
+	var storageEndDate *strfmt.Date
+	if docExtractor.StorageEndDate != nil {
+		storageEndDate = handlers.FmtDate(*docExtractor.StorageEndDate)
+	}
 
 	payload := internalmessages.MoveDocumentPayload{
 		ID:                       handlers.FmtUUID(docExtractor.ID),
@@ -74,6 +119,17 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 		MovingExpenseType:        expenseType,
 		RequestedAmountCents:     int64(requestedAmt),
 		PaymentMethod:            paymentMethod,
+		ReceiptMissing:           receiptMissing,
+		VehicleOptions:           vehicleOptions,
+		VehicleNickname:          vehicleNickname,
+		EmptyWeight:              emptyWeight,
+		EmptyWeightTicketMissing: emptyWeightTicketMissing,
+		FullWeight:               fullWeight,
+		FullWeightTicketMissing:  fullWeightTicketMissing,
+		WeightTicketDate:         weightTicketDate,
+		TrailerOwnershipMissing:  trailerOwnershipMissing,
+		StorageStartDate:         storageStartDate,
+		StorageEndDate:           storageEndDate,
 	}
 
 	return &payload, nil
@@ -87,26 +143,26 @@ type IndexMoveDocumentsHandler struct {
 // Handle handles the request
 func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsParams) middleware.Responder {
 	// #nosec User should always be populated by middleware
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	moveDocs, err := move.FetchAllMoveDocumentsForMove(h.DB())
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	moveDocumentsPayload := make(internalmessages.MoveDocuments, len(moveDocs))
 	for i, doc := range moveDocs {
 		moveDocumentPayload, err := payloadForMoveDocumentExtractor(h.FileStorer(), doc)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return handlers.ResponseForError(logger, err)
 		}
 		moveDocumentsPayload[i] = moveDocumentPayload
 	}
@@ -122,14 +178,14 @@ type UpdateMoveDocumentHandler struct {
 
 // Handle ... updates a move document from a request payload
 func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	moveDocID, _ := uuid.FromString(params.MoveDocumentID.String())
 
 	// Fetch move document from move id
 	moveDoc, err := models.FetchMoveDocument(h.DB(), session, moveDocID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	payload := params.UpdateMoveDocument
@@ -143,17 +199,18 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	moveDoc.MoveDocumentType = newType
 
 	newStatus := models.MoveDocumentStatus(payload.Status)
+	oldStatus := moveDoc.Status
 
-	// If this is a shipment summary and it has been approved, we process the ppm.
-	if newStatus != moveDoc.Status {
+	if newStatus != oldStatus {
 		err = moveDoc.AttemptTransition(newStatus)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return handlers.ResponseForError(logger, err)
 		}
 
+		// If this is a shipment summary and it has been approved, we process the ppm.
 		if newStatus == models.MoveDocumentStatusOK && moveDoc.MoveDocumentType == models.MoveDocumentTypeSHIPMENTSUMMARY {
 			if moveDoc.PersonallyProcuredMoveID == nil {
-				return handlers.ResponseForError(h.Logger(), errors.New("No PPM loaded for Approved Move Doc"))
+				return handlers.ResponseForError(logger, errors.New("No PPM loaded for Approved Move Doc"))
 			}
 
 			ppm := &moveDoc.PersonallyProcuredMove
@@ -163,9 +220,36 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 			if ppm.Status != models.PPMStatusCOMPLETED {
 				completeErr := ppm.Complete()
 				if completeErr != nil {
-					return handlers.ResponseForError(h.Logger(), completeErr)
+					return handlers.ResponseForError(logger, completeErr)
 				}
 			}
+		}
+
+		// If this is a storage expense, we need to make changes to the total sit amount for the ppm.
+		if moveDoc.MoveDocumentType == models.MoveDocumentTypeEXPENSE && moveDoc.MovingExpenseDocument.MovingExpenseType == models.MovingExpenseTypeSTORAGE {
+			if moveDoc.PersonallyProcuredMoveID == nil {
+				return handlers.ResponseForError(logger, errors.New("No PPM loaded for Approved Move Doc"))
+			}
+
+			ppm := &moveDoc.PersonallyProcuredMove
+			storageRequestedAmt := unit.Cents(payload.RequestedAmountCents)
+			var newCost unit.Cents
+
+			// add to SIT total amount if OK
+			if newStatus == models.MoveDocumentStatusOK {
+				if ppm.TotalSITCost == nil {
+					newCost = storageRequestedAmt
+				} else {
+					newCost = *ppm.TotalSITCost + storageRequestedAmt
+				}
+			}
+
+			// subtract from SIT total amount if changed from OK
+			if oldStatus == models.MoveDocumentStatusOK && newStatus != models.MoveDocumentStatusOK {
+				newCost = *ppm.TotalSITCost - storageRequestedAmt
+			}
+
+			ppm.TotalSITCost = &newCost
 		}
 	}
 
@@ -202,12 +286,12 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 
 	verrs, err := models.SaveMoveDocument(h.DB(), moveDoc, saveAction)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	moveDocPayload, err := payloadForMoveDocument(h.FileStorer(), *moveDoc)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return movedocop.NewUpdateMoveDocumentOK().WithPayload(moveDocPayload)
 }

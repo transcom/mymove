@@ -9,9 +9,9 @@ func (suite *ModelSuite) Test_TrafficDistributionList() {
 	tdl := &TrafficDistributionList{}
 
 	expErrors := map[string][]string{
-		"source_rate_area":   []string{"SourceRateArea can not be blank.", "SourceRateArea does not match the expected format."},
-		"destination_region": []string{"DestinationRegion can not be blank.", "DestinationRegion does not match the expected format."},
-		"code_of_service":    []string{"CodeOfService can not be blank."},
+		"source_rate_area":   {"SourceRateArea can not be blank.", "SourceRateArea does not match the expected format."},
+		"destination_region": {"DestinationRegion can not be blank.", "DestinationRegion does not match the expected format."},
+		"code_of_service":    {"CodeOfService can not be blank."},
 	}
 
 	suite.verifyValidationErrors(tdl, expErrors)

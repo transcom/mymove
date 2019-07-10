@@ -1,0 +1,316 @@
+.queue-heading {
+  margin-top: 0;
+}
+
+.queue-list-heading {
+  margin-top: 0.4em;
+}
+
+.queue-table {
+  font-size: 0.75em;
+  min-width: 1000px;
+  margin-bottom: 4em;
+}
+
+.queue-table-scrollable {
+  overflow-x: scroll;
+}
+
+.fake-link {
+  text-decoration: underline;
+  color: blue;
+}
+
+.icon {
+  margin: 0 0.3em 0 0.3em;
+}
+
+.icon-grey {
+  color: rgba(171,171,171,1.00);
+}
+
+.form-column {
+  display: inline-block;
+  width: 45%;
+  margin-right: 5%;
+}
+
+/* Queue list page */
+.queue-columns {
+  position: relative;
+}
+
+.queue-menu-column {
+  margin-right: 3rem;
+  width: 18rem;
+  position: absolute;
+}
+
+.queue-list-column {
+  margin-left: 22rem;
+}
+
+.ReactTable .rt-thead .rt-resizable-header-content {
+  text-align: left;
+}
+
+/* Use with .usa-grid for a liquid and nearly full-width grid layout. */
+.grid-wide {
+  max-width: 2000px;
+  margin: auto;
+  padding: 0 2em;
+}
+
+.panels-body {
+  margin-top: 2em;
+}
+
+.move-info-header-meta {
+  list-style: none outside;
+  border-top: solid 1px rgb(222, 222, 222);
+  margin: 0;
+  padding: 2px 0 0;
+}
+
+.move-info-header-meta .icon {
+  margin: 0 0.4em;
+}
+
+.move-info-header-meta li {
+  display: inline-block;
+  margin-bottom: 0;
+}
+
+.move-info-header-meta li:after {
+  content: '-';
+  margin: 0 0.8em;
+}
+
+.move-info-header-meta li:last-child:after {
+  content: none;
+  margin: 0;
+}
+
+.nav-controls {
+  text-align: right;
+  padding-top: 0.5em;
+  font-size: 0.9em;
+}
+
+.tabs {
+  margin-top: 2em;
+}
+
+.tabs .nav-tab {
+  border: solid 1px black;
+  border-radius: 4px 4px 0 0;
+  padding: 4px 42px 8px 42px;
+  margin-left: 8px;
+  display: inline-block;
+  text-decoration: none;
+  color: black;
+  background-color: #ececec;
+}
+
+.tabs .nav-tab .status,
+.tabs .nav-tab .title {
+  display: block;
+  text-align: center;
+}
+
+.tabs .nav-tab .status {
+  font-size: 0.7em;
+  margin-top: 2px;
+}
+
+.tabs .nav-tab.active {
+  border-bottom-color: white;
+  background-color: white;
+}
+
+.tabs .nav-tab.active .title {
+  font-weight: bold;
+}
+
+.tabs .nav-tab .icon {
+  margin-right: 4px;
+}
+
+.tab-content {
+  border-top: solid 1px black;
+  margin-top: -1px;
+  padding-top: 2rem;
+}
+
+.extras.usa-heading {
+  margin-top: 0;
+  font-size: 2rem;
+  font-family: sans-serif;
+}
+
+.extras.content {
+  margin-top: 2rem;
+  font-family: sans-serif;
+  font-size: 0.8em;
+}
+
+.extras.options {
+  margin-top: 1rem;
+}
+
+.customer-info {
+  border: 3px solid #f1f1f1;
+  padding: 1em;
+  margin-top: 1em;
+}
+
+.documents {
+  border: 1px solid black;
+  padding: 1em;
+  margin-top: 1em;
+}
+
+.documents .status {
+  font-size: 1.3rem;
+}
+
+.documents .upload-documents-link {
+  display: block;
+  padding-top: 8px;
+  border-top: 1px solid #f1f1f1;
+  text-decoration: none;
+}
+
+.documents .upload-documents-link:visited {
+  color: #0071bc;
+}
+
+.documents-list-header {
+  margin-top: 0;
+  font-size: '2rem';
+  font-family: 'sans-serif';
+}
+
+.infoPanel-wizard {
+  border: 2px solid #205493;
+  padding: 1.5rem 1.7rem;
+  margin-bottom: 18px;
+}
+
+.infoPanel-wizard .infoPanel-wizard-header {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.infoPanel-wizard .infoPanel-wizard-form-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.infoPanel-wizard-form-container .infoPanel-wizard-column {
+  flex-direction: column;
+}
+
+.infoPanel-wizard .infoPanel-wizard-cancel {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.infoPanel-wizard .infoPanel-wizard-actions-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.infoPanel-wizard .infoPanel-wizard-help {
+  margin-bottom: 0px;
+}
+
+.page-title {
+  display: flex;
+  align-items: flex-end;
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
+.move-info {
+  display: block;
+}
+
+.move-info-code {
+  text-transform: uppercase;
+  display: block;
+}
+
+.service-member-name {
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 4rem;
+}
+
+@keyframes shipmentStatusFade {
+  from {
+    background-color: rgb(231, 244, 228);
+    color: rgb(46, 133, 64);
+  }
+
+  to {
+    background-color: rgb(241, 241, 241);
+    color: #212121;
+  }
+}
+
+.shipment-status {
+  display: inline-block;
+  font-weight: bold;
+  margin-left: 24px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 12px;
+  padding-right: 12px;
+  position: relative;
+
+  /* Fall back color if animation doesn't work */
+  background-color: rgb(241, 241, 241);
+  color: #212121;
+
+  /* Animation to fade from green to black/grey */
+  animation: shipmentStatusFade ease-in 1;
+  animation-fill-mode: forwards;
+  animation-duration: 2s;
+}
+
+.optional-destination-agent-question {
+  margin-top: 3rem;
+}
+
+label.inline_radio {
+	margin-top: 1px;
+	margin-bottom: 1px;
+}
+
+.rt-tr-group {
+  cursor: pointer;
+}
+
+.staleness-indicator {
+  color: gray;
+}
+
+.ReactTable.-highlight .rt-tbody .rt-tr:not(.-padRow):hover {
+  background-color: #E2F1FB;
+  color: #0071bb;
+}
+
+.refresh {
+  display: inline-block;
+  cursor: pointer;
+  margin-left: 0.3em;
+  margin-bottom: 0.3em;
+  padding: 0.3em 0;
+  border: 1px solid white;
+
+  &.focused {
+    border: 1px dashed gray;
+  }
+}

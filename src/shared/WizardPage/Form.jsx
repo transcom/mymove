@@ -189,7 +189,7 @@ function composeValidations(initialValidations, additionalValidations) {
 
 const wizardFormPageWithSize = windowSize(WizardFormPage);
 
-export const reduxifyWizardForm = (name, additionalValidations) => {
+export const reduxifyWizardForm = (name, additionalValidations, asyncValidate, asyncBlurFields) => {
   let validations = validateRequiredFields;
   if (additionalValidations) {
     validations = composeValidations(validateRequiredFields, additionalValidations);
@@ -197,6 +197,8 @@ export const reduxifyWizardForm = (name, additionalValidations) => {
   return reduxForm({
     form: name,
     validate: validations,
+    asyncValidate,
+    asyncBlurFields,
     enableReinitialize: true,
     keepDirtyOnReinitialize: true,
   })(withRouter(connect(null, mapDispatchToProps)(wizardFormPageWithSize)));

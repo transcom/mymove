@@ -33,7 +33,7 @@ func (suite *ModelSuite) Test_LinehaulEffectiveDateValidation() {
 	}
 
 	expErrors = map[string][]string{
-		"effective_date_upper": []string{"EffectiveDateUpper must be after EffectiveDateLower."},
+		"effective_date_upper": {"EffectiveDateUpper must be after EffectiveDateLower."},
 	}
 	suite.verifyValidationErrors(&invalidLinehaulRate, expErrors)
 }
@@ -57,7 +57,7 @@ func (suite *ModelSuite) Test_LinehaulWeightValidation() {
 	}
 
 	expErrors = map[string][]string{
-		"weight_lbs_lower": []string{"200 is not less than 100."},
+		"weight_lbs_lower": {"200 is not less than 100."},
 	}
 	suite.verifyValidationErrors(&invalidLinehaulRate, expErrors)
 }
@@ -83,7 +83,7 @@ func (suite *ModelSuite) Test_LinehaulRateValidation() {
 	}
 
 	expErrors = map[string][]string{
-		"rate_cents": []string{"-1 is not greater than -1."},
+		"rate_cents": {"-1 is not greater than -1."},
 	}
 	suite.verifyValidationErrors(&invalidLinehaulRate, expErrors)
 }
@@ -107,7 +107,7 @@ func (suite *ModelSuite) Test_LinehaulDistanceValidation() {
 	}
 
 	expErrors = map[string][]string{
-		"distance_miles_lower": []string{"200 is not less than 100."},
+		"distance_miles_lower": {"200 is not less than 100."},
 	}
 	suite.verifyValidationErrors(&invalidLinehaulRate, expErrors)
 }

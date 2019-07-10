@@ -2,20 +2,21 @@ package publicapi
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/services"
+
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	accessorialop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/accessorials"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
-	"github.com/transcom/mymove/pkg/services/invoice"
-	shipmentop "github.com/transcom/mymove/pkg/services/shipment"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -80,77 +81,19 @@ func payloadForDimensionsModel(a *models.ShipmentLineItemDimensions) *apimessage
 // GetShipmentLineItemsHandler returns a particular shipment line item
 type GetShipmentLineItemsHandler struct {
 	handlers.HandlerContext
-}
-
-func (h GetShipmentLineItemsHandler) recalculateShipmentLineItems(shipmentLineItems models.ShipmentLineItems, shipmentID uuid.UUID, session *auth.Session) (bool, middleware.Responder) {
-	update := false
-
-	// If there is a shipment line item with an invoice do not run the recalculate function
-	// the system is currently not setup to re-price a shipment with an existing invoice
-	// and currently the system does not expect to have multiple invoices per shipment
-	for _, item := range shipmentLineItems {
-		if item.InvoiceID != nil {
-			return update, nil
-		}
-	}
-
-	// Need to fetch Shipment to get the Accepted Offer and the ShipmentLineItems
-	// Only returning ShipmentLineItems that are approved and have no InvoiceID
-	shipment, err := invoice.FetchShipmentForInvoice{DB: h.DB()}.Call(shipmentID)
-	if err != nil {
-		h.Logger().Error("Error fetching Shipment for re-pricing line items for shipment", zap.Error(err))
-		return update, accessorialop.NewGetShipmentLineItemsInternalServerError()
-	}
-
-	// Run re-calculation process
-	update, err = shipmentop.ProcessRecalculateShipment{
-		DB:     h.DB(),
-		Logger: h.Logger(),
-	}.Call(&shipment, shipmentLineItems, h.Planner())
-
-	if err != nil {
-		h.Logger().Error("Error re-pricing line items for shipment", zap.Error(err))
-		return update, accessorialop.NewGetShipmentLineItemsInternalServerError()
-	}
-
-	return update, nil
+	shipmentLineItemFetcher services.ShipmentLineItemFetcher
 }
 
 // Handle returns a specified shipment line item
 func (h GetShipmentLineItemsHandler) Handle(params accessorialop.GetShipmentLineItemsParams) middleware.Responder {
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	shipmentID := uuid.Must(uuid.FromString(params.ShipmentID.String()))
 
-	if session.IsTspUser() {
-		// Check that the TSP user can access the shipment
-		_, _, err := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
-		if err != nil {
-			h.Logger().Error("Error fetching shipment for TSP user", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
-		}
-	} else if !session.IsOfficeUser() {
-		return accessorialop.NewGetShipmentLineItemsForbidden()
-	}
-
-	shipmentLineItems, err := models.FetchLineItemsByShipmentID(h.DB(), &shipmentID)
+	shipmentLineItems, err := h.shipmentLineItemFetcher.GetShipmentLineItemsByShipmentID(shipmentID, session)
 	if err != nil {
-		h.Logger().Error("Error fetching line items for shipment", zap.Error(err))
-		return accessorialop.NewGetShipmentLineItemsInternalServerError()
-	}
-
-	update, recalculateError := h.recalculateShipmentLineItems(shipmentLineItems, shipmentID, session)
-	if recalculateError != nil {
-		return recalculateError
-	}
-	if update {
-		shipmentLineItems, err = models.FetchLineItemsByShipmentID(h.DB(), &shipmentID)
-		if err != nil {
-			h.Logger().Error("Error fetching line items for shipment after re-calculation",
-				zap.Error(err))
-			return accessorialop.NewGetShipmentLineItemsInternalServerError()
-		}
+		logger.Error(fmt.Sprintf("Error fetching line items for shipment %s", shipmentID), zap.Error(err))
+		return handlers.ResponseForError(logger, err)
 	}
 
 	payload := payloadForShipmentLineItemModels(shipmentLineItems)
@@ -164,7 +107,7 @@ type CreateShipmentLineItemHandler struct {
 
 // Handle handles the request
 func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmentLineItemParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	shipmentID := uuid.Must(uuid.FromString(params.ShipmentID.String()))
 	var shipment *models.Shipment
@@ -176,14 +119,14 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 		// Check that the TSP user can access the shipment
 		_, shipment, err = models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
 		if err != nil {
-			h.Logger().Error("Error fetching shipment for TSP user", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			logger.Error("Error fetching shipment for TSP user", zap.Error(err))
+			return handlers.ResponseForError(logger, err)
 		}
 	} else if session.IsOfficeUser() {
 		shipment, err = models.FetchShipment(h.DB(), session, shipmentID)
 		if err != nil {
-			h.Logger().Error("Error fetching shipment for office user", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			logger.Error("Error fetching shipment for office user", zap.Error(err))
+			return handlers.ResponseForError(logger, err)
 		}
 	} else {
 		return accessorialop.NewCreateShipmentLineItemForbidden()
@@ -192,7 +135,7 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 	tariff400ngItemID := uuid.Must(uuid.FromString(params.Payload.Tariff400ngItemID.String()))
 	tariff400ngItem, err := models.FetchTariff400ngItem(h.DB(), tariff400ngItemID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	if !tariff400ngItem.RequiresPreApproval {
@@ -242,8 +185,8 @@ func (h CreateShipmentLineItemHandler) Handle(params accessorialop.CreateShipmen
 	)
 
 	if verrs.HasAny() || err != nil {
-		h.Logger().Error("Error fetching shipment line items for shipment", zap.Error(err))
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		logger.Error("Error fetching shipment line items for shipment", zap.Error(err))
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 	payload := payloadForShipmentLineItemModel(shipmentLineItem)
 	return accessorialop.NewCreateShipmentLineItemCreated().WithPayload(payload)
@@ -256,14 +199,14 @@ type UpdateShipmentLineItemHandler struct {
 
 // Handle updates a specified shipment line item
 func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmentLineItemParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	shipmentLineItemID := uuid.Must(uuid.FromString(params.ShipmentLineItemID.String()))
 	var shipment *models.Shipment
 
 	// Fetch shipment line item
 	shipmentLineItem, err := models.FetchShipmentLineItemByID(h.DB(), &shipmentLineItemID)
 	if err != nil {
-		h.Logger().Error("Error fetching shipment line item for shipment", zap.Error(err))
+		logger.Error("Error fetching shipment line item for shipment", zap.Error(err))
 		return accessorialop.NewUpdateShipmentLineItemInternalServerError()
 	}
 
@@ -272,14 +215,14 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 		// Check that the TSP user can access the shipment
 		_, shipment, err = models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentLineItem.ShipmentID)
 		if err != nil {
-			h.Logger().Error("Error fetching shipment for TSP user", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			logger.Error("Error fetching shipment for TSP user", zap.Error(err))
+			return handlers.ResponseForError(logger, err)
 		}
 	} else if session.IsOfficeUser() {
 		shipment, err = models.FetchShipment(h.DB(), session, shipmentLineItem.ShipmentID)
 		if err != nil {
-			h.Logger().Error("Error fetching shipment for office user", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			logger.Error("Error fetching shipment for office user", zap.Error(err))
+			return handlers.ResponseForError(logger, err)
 		}
 	} else {
 		return accessorialop.NewUpdateShipmentLineItemForbidden()
@@ -292,10 +235,10 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 	canUpdate35A := tariff400ngItem.Code == "35A" && shipmentLineItem.EstimateAmountCents != nil && shipmentLineItem.InvoiceID == nil
 
 	if !tariff400ngItem.RequiresPreApproval {
-		h.Logger().Error("Error: tariff400ng item " + tariff400ngItem.Code + " does not require pre-approval")
+		logger.Error("Error: tariff400ng item " + tariff400ngItem.Code + " does not require pre-approval")
 		return accessorialop.NewUpdateShipmentLineItemForbidden()
 	} else if shipmentLineItem.Status == models.ShipmentLineItemStatusAPPROVED && !canUpdate35A {
-		h.Logger().Error("Error: cannot update shipment line item if status is approved (or status is invoiced for tariff400ng item 35A)")
+		logger.Error("Error: cannot update shipment line item if status is approved (or status is invoiced for tariff400ng item 35A)")
 		return accessorialop.NewUpdateShipmentLineItemUnprocessableEntity()
 	}
 
@@ -342,17 +285,17 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 		&shipmentLineItem,
 	)
 	if verrs.HasAny() || err != nil {
-		h.Logger().Error("Error fetching shipment line items for shipment", zap.Error(err))
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		logger.Error("Error fetching shipment line items for shipment", zap.Error(err))
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	if (shipmentLineItem.Status == models.ShipmentLineItemStatusCONDITIONALLYAPPROVED || shipmentLineItem.Status == models.ShipmentLineItemStatusAPPROVED) && shipmentLineItem.ActualAmountCents != nil {
 		// If shipment is delivered, price single shipment line item
 		if shipmentLineItem.Shipment.Status == models.ShipmentStatusDELIVERED {
-			engine := rateengine.NewRateEngine(h.DB(), h.Logger())
+			engine := rateengine.NewRateEngine(h.DB(), logger)
 			err = engine.PricePreapprovalRequest(&shipmentLineItem)
 			if err != nil {
-				return handlers.ResponseForError(h.Logger(), err)
+				return handlers.ResponseForError(logger, err)
 			}
 		}
 
@@ -360,7 +303,7 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 		if shipmentLineItem.Status == models.ShipmentLineItemStatusCONDITIONALLYAPPROVED {
 			err = shipmentLineItem.Approve()
 			if err != nil {
-				h.Logger().Error("Error approving shipment line item for shipment", zap.Error(err))
+				logger.Error("Error approving shipment line item for shipment", zap.Error(err))
 				return accessorialop.NewApproveShipmentLineItemForbidden()
 			}
 		}
@@ -377,7 +320,7 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 			// Conditionally approve the shipment line item
 			err = shipmentLineItem.ConditionallyApprove()
 			if err != nil {
-				h.Logger().Error("Error conditionally approving shipment line item for shipment", zap.Error(err))
+				logger.Error("Error conditionally approving shipment line item for shipment", zap.Error(err))
 				return accessorialop.NewApproveShipmentLineItemForbidden()
 			}
 		}
@@ -396,18 +339,18 @@ type DeleteShipmentLineItemHandler struct {
 
 // Handle deletes a specified shipment line item
 func (h DeleteShipmentLineItemHandler) Handle(params accessorialop.DeleteShipmentLineItemParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	// Fetch shipment line item first
 	shipmentLineItemID := uuid.Must(uuid.FromString(params.ShipmentLineItemID.String()))
 	shipmentLineItem, err := models.FetchShipmentLineItemByID(h.DB(), &shipmentLineItemID)
 	if err != nil {
 		if errors.Cause(err) == sql.ErrNoRows {
-			h.Logger().Error("Error shipment line item for shipment not found", zap.Error(err))
+			logger.Error("Error shipment line item for shipment not found", zap.Error(err))
 			return accessorialop.NewDeleteShipmentLineItemNotFound()
 		}
 
-		h.Logger().Error("Error fetching shipment line item for shipment", zap.Error(err))
+		logger.Error("Error fetching shipment line item for shipment", zap.Error(err))
 		return accessorialop.NewDeleteShipmentLineItemInternalServerError()
 	}
 
@@ -421,14 +364,14 @@ func (h DeleteShipmentLineItemHandler) Handle(params accessorialop.DeleteShipmen
 		// Check that the TSP user can access the shipment
 		_, _, fetchShipmentForVerifiedTSPUserErr := models.FetchShipmentForVerifiedTSPUser(h.DB(), session.TspUserID, shipmentID)
 		if fetchShipmentForVerifiedTSPUserErr != nil {
-			h.Logger().Error("Error fetching shipment for TSP user", zap.Error(fetchShipmentForVerifiedTSPUserErr))
-			return handlers.ResponseForError(h.Logger(), fetchShipmentForVerifiedTSPUserErr)
+			logger.Error("Error fetching shipment for TSP user", zap.Error(fetchShipmentForVerifiedTSPUserErr))
+			return handlers.ResponseForError(logger, fetchShipmentForVerifiedTSPUserErr)
 		}
 	} else if session.IsOfficeUser() {
 		_, fetchShipmentErr := models.FetchShipment(h.DB(), session, shipmentID)
 		if fetchShipmentErr != nil {
-			h.Logger().Error("Error fetching shipment for office user", zap.Error(fetchShipmentErr))
-			return handlers.ResponseForError(h.Logger(), fetchShipmentErr)
+			logger.Error("Error fetching shipment for office user", zap.Error(fetchShipmentErr))
+			return handlers.ResponseForError(logger, fetchShipmentErr)
 		}
 	} else {
 		return accessorialop.NewDeleteShipmentLineItemForbidden()
@@ -437,8 +380,8 @@ func (h DeleteShipmentLineItemHandler) Handle(params accessorialop.DeleteShipmen
 	// Delete the shipment line item
 	err = h.DB().Destroy(&shipmentLineItem)
 	if err != nil {
-		h.Logger().Error("Error deleting shipment line item for shipment", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		logger.Error("Error deleting shipment line item for shipment", zap.Error(err))
+		return handlers.ResponseForError(logger, err)
 	}
 
 	payload := payloadForShipmentLineItemModel(&shipmentLineItem)
@@ -452,14 +395,14 @@ type ApproveShipmentLineItemHandler struct {
 
 // Handle returns a specified shipment
 func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipmentLineItemParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	var shipment *models.Shipment
 
 	shipmentLineItemID := uuid.Must(uuid.FromString(params.ShipmentLineItemID.String()))
 
 	shipmentLineItem, err := models.FetchShipmentLineItemByID(h.DB(), &shipmentLineItemID)
 	if err != nil {
-		h.Logger().Error("Error fetching line items for shipment", zap.Error(err))
+		logger.Error("Error fetching line items for shipment", zap.Error(err))
 		return accessorialop.NewApproveShipmentLineItemInternalServerError()
 	}
 
@@ -468,11 +411,11 @@ func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipm
 	if shipmentLineItem.Tariff400ngItem.RequiresPreApproval && session.IsOfficeUser() {
 		shipment, err = models.FetchShipment(h.DB(), session, shipmentLineItem.ShipmentID)
 		if err != nil {
-			h.Logger().Error("Error fetching shipment for office user", zap.Error(err))
-			return handlers.ResponseForError(h.Logger(), err)
+			logger.Error("Error fetching shipment for office user", zap.Error(err))
+			return handlers.ResponseForError(logger, err)
 		}
 	} else {
-		h.Logger().Error("Error does not require pre-approval for shipment")
+		logger.Error("Error does not require pre-approval for shipment")
 		return accessorialop.NewApproveShipmentLineItemForbidden()
 	}
 	shipmentLineItem.Shipment = *shipment
@@ -481,24 +424,24 @@ func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipm
 		// Conditionally approve the shipment line item
 		err = shipmentLineItem.ConditionallyApprove()
 		if err != nil {
-			h.Logger().Error("Error conditionally approving shipment line item for shipment", zap.Error(err))
+			logger.Error("Error conditionally approving shipment line item for shipment", zap.Error(err))
 			return accessorialop.NewApproveShipmentLineItemForbidden()
 		}
 	} else {
 		// Approve the shipment line item
 		err = shipmentLineItem.Approve()
 		if err != nil {
-			h.Logger().Error("Error approving shipment line item for shipment", zap.Error(err))
+			logger.Error("Error approving shipment line item for shipment", zap.Error(err))
 			return accessorialop.NewApproveShipmentLineItemForbidden()
 		}
 	}
 
 	// If shipment is delivered and line item is approved, price single shipment line item
 	if shipmentLineItem.Shipment.Status == models.ShipmentStatusDELIVERED && shipmentLineItem.Status == models.ShipmentLineItemStatusAPPROVED {
-		engine := rateengine.NewRateEngine(h.DB(), h.Logger())
+		engine := rateengine.NewRateEngine(h.DB(), logger)
 		err = engine.PricePreapprovalRequest(&shipmentLineItem)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return handlers.ResponseForError(logger, err)
 		}
 	}
 
@@ -507,4 +450,29 @@ func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipm
 
 	payload := payloadForShipmentLineItemModel(&shipmentLineItem)
 	return accessorialop.NewApproveShipmentLineItemOK().WithPayload(payload)
+}
+
+// RecalculateShipmentLineItemsHandler recalculates shipment line items for a given shipment id
+type RecalculateShipmentLineItemsHandler struct {
+	handlers.HandlerContext
+	shipmentLineItemRecalculator services.ShipmentLineItemRecalculator
+}
+
+// Handle handles the recalculation of shipment line items using the appropriate service object
+func (h RecalculateShipmentLineItemsHandler) Handle(params accessorialop.RecalculateShipmentLineItemsParams) middleware.Responder {
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	shipmentID := uuid.Must(uuid.FromString(params.ShipmentID.String()))
+
+	shipmentLineItems, err := h.shipmentLineItemRecalculator.RecalculateShipmentLineItems(shipmentID, session, h.Planner())
+
+	if err != nil {
+		logger.Error(fmt.Sprintf("Error recalculating shipment line for shipment id: %s", shipmentID), zap.Error(err))
+		if err != models.ErrFetchForbidden {
+			err = errors.New(fmt.Sprintf("User was authorized but failed to recalculate shipment for id %s", shipmentID))
+		}
+		return handlers.ResponseForError(logger, err)
+	}
+	payload := payloadForShipmentLineItemModels(shipmentLineItems)
+	return accessorialop.NewRecalculateShipmentLineItemsOK().WithPayload(payload)
 }

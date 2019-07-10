@@ -22,7 +22,6 @@ func (i *stringSlice) Set(value string) error {
 }
 
 var inputFiles stringSlice
-var outputFile string
 
 func main() {
 	flag.Var(&inputFiles, "input", "Image to add to PDF")

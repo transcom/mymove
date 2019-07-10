@@ -5,8 +5,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gobuffalo/pop"
-
 	"github.com/transcom/mymove/pkg/testingsuite"
 
 	"github.com/stretchr/testify/suite"
@@ -15,7 +13,6 @@ import (
 
 type GexSuite struct {
 	testingsuite.PopTestSuite
-	db     *pop.Connection
 	logger Logger
 }
 

@@ -71,11 +71,10 @@ const (
 	// Horizontal alignment is controlled by including "L", "C" or "R" (left, center, right) in alignStr.
 	// Vertical alignment is controlled by including "T", "M", "B" or "A" (top, middle, bottom, baseline) in alignStr.
 	// The default alignment is left middle.
-	fontDir      string  = ""
-	lineHeight   float64 = 3
-	templateName string  = "form_template"
-	imageXPos    float64 = 0
-	imageYPos    float64 = 0
+	fontDir    string  = ""
+	lineHeight float64 = 3
+	imageXPos  float64 = 0
+	imageYPos  float64 = 0
 	// 0-value will be auto-calculated from aspect ratio
 	letterWidthMm  float64 = 215.9
 	letterHeightMm float64 = 0

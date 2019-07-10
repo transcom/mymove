@@ -6,7 +6,9 @@ const getStorageInTransitsLabel = 'StorageInTransits.getStorageInTransitsForShip
 const updateStorageInTransitLabel = 'StorageInTransits.updateStorageInTransit';
 const approveStorageInTransitLabel = 'StorageInTransits.approveStorageInTransit';
 const updateSitPlaceIntoSitLabel = 'StorageInTransits.inSitStorageInTransit';
+const updateSitReleaseFromSitLabel = 'StorageInTransits.releaseStorageInTransit';
 const denyStorageInTransitLabel = 'StorageInTransits.denyStorageInTransit';
+const deleteStorageInTransitLabel = 'StorageInTransits.deleteStorageInTransit';
 
 export const selectStorageInTransits = (state, shipmentId) => {
   const storageInTransits = Object.values(state.entities.storageInTransits).filter(
@@ -75,6 +77,20 @@ export function updateSitPlaceIntoSit(
   );
 }
 
+export function updateSitReleaseFromSit(
+  shipmentId,
+  storageInTransitId,
+  storageInTransitOnReleasePayload,
+  label = updateSitReleaseFromSitLabel,
+) {
+  return swaggerRequest(
+    getPublicClient,
+    'storage_in_transits.releaseStorageInTransit',
+    { shipmentId, storageInTransitId, storageInTransitOnReleasePayload },
+    { label },
+  );
+}
+
 export function denyStorageInTransit(
   shipmentId,
   storageInTransitId,
@@ -88,6 +104,18 @@ export function denyStorageInTransit(
       shipmentId,
       storageInTransitId,
       storageInTransitDenyPayload,
+    },
+    { label },
+  );
+}
+
+export function deleteStorageInTransit(shipmentId, storageInTransitId, label = deleteStorageInTransitLabel) {
+  return swaggerRequest(
+    getPublicClient,
+    'storage_in_transits.deleteStorageInTransit',
+    {
+      shipmentId,
+      storageInTransitId,
     },
     { label },
   );

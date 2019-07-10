@@ -1,4 +1,4 @@
-import { userEntersDates, userEntersAndRemovesDates } from '../../support/datesPanel';
+import { userEntersDates } from '../../support/datesPanel';
 
 /* global cy */
 describe('office user interacts with dates panel', function() {
@@ -8,10 +8,6 @@ describe('office user interacts with dates panel', function() {
   it('office user completes dates panel', function() {
     officeUserGoesToDatesPanel('ODATES');
     userEntersDates();
-  });
-  it('office user completes dates panel and zeroes it out', function() {
-    officeUserGoesToDatesPanel('ODATE0');
-    userEntersAndRemovesDates();
   });
 });
 

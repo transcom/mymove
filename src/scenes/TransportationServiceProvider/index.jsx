@@ -6,9 +6,11 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import TspHeader from 'shared/Header/Tsp';
+import QueueList from './QueueList';
+import QueueTable from './QueueTable';
 import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadPublicSchema } from 'shared/Swagger/ducks';
-import { no_op } from 'shared/utils';
+import { detectIE11, no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import ScratchPad from 'shared/ScratchPad';
@@ -16,10 +18,9 @@ import { isProduction } from 'shared/constants';
 import DocumentViewer from './DocumentViewerContainer';
 import NewDocument from './NewDocumentContainer';
 import ShipmentInfo from './ShipmentInfo';
-import QueueList from './QueueList';
-import QueueTable from './QueueTable';
+import { RetrieveShipmentsForTSP } from './api.js';
 
-import './tsp.css';
+import './tsp.scss';
 
 class Queues extends Component {
   render() {
@@ -29,7 +30,7 @@ class Queues extends Component {
           <QueueList />
         </div>
         <div className="queue-list-column">
-          <QueueTable queueType={this.props.match.params.queueType} />
+          <QueueTable queueType={this.props.match.params.queueType} retrieveShipments={RetrieveShipmentsForTSP} />
         </div>
       </div>
     );
@@ -44,11 +45,12 @@ class TspWrapper extends Component {
   }
 
   render() {
+    const Tag = detectIE11() ? 'div' : 'main';
     return (
       <ConnectedRouter history={history}>
         <div className="TSP site">
           <TspHeader />
-          <main className="site__content">
+          <Tag role="main" className="site__content">
             <div>
               <LogoutOnInactivity />
               <Switch>
@@ -78,7 +80,7 @@ class TspWrapper extends Component {
                 <Redirect from="*" to="/queues/new" component={Queues} />
               </Switch>
             </div>
-          </main>
+          </Tag>
         </div>
       </ConnectedRouter>
     );

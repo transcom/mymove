@@ -3,15 +3,10 @@ package cli
 import (
 	"fmt"
 
-	"github.com/aws/aws-sdk-go/aws"
-	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/notifications"
 )
 
 const (
@@ -48,30 +43,4 @@ func CheckEmail(v *viper.Viper) error {
 	}
 
 	return nil
-}
-
-// InitEmail initializes the email backend
-func InitEmail(v *viper.Viper, logger Logger) notifications.NotificationSender {
-	if v.GetString(EmailBackendFlag) == "ses" {
-		// Setup Amazon SES (email) service
-		// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
-		// below.
-		awsSESRegion := v.GetString(AWSSESRegionFlag)
-		awsSESDomain := v.GetString(AWSSESDomainFlag)
-		logger.Info("Using ses email backend",
-			zap.String("region", awsSESRegion),
-			zap.String("domain", awsSESDomain))
-		sesSession, newSessionErr := awssession.NewSession(&aws.Config{
-			Region: aws.String(awsSESRegion),
-		})
-		if newSessionErr != nil {
-			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(newSessionErr))
-		}
-		sesService := ses.New(sesSession)
-		return notifications.NewNotificationSender(sesService, awsSESDomain, logger)
-	}
-
-	domain := "milmovelocal"
-	logger.Info("Using local email backend", zap.String("domain", domain))
-	return notifications.NewStubNotificationSender(domain, logger)
 }

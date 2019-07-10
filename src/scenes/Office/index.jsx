@@ -13,7 +13,7 @@ import OrdersInfo from './OrdersInfo';
 import DocumentViewer from './DocumentViewer';
 import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadInternalSchema, loadPublicSchema } from 'shared/Swagger/ducks';
-import { no_op } from 'shared/utils';
+import { detectIE11, no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import ScratchPad from 'shared/ScratchPad';
@@ -46,11 +46,12 @@ class OfficeWrapper extends Component {
   }
 
   render() {
+    const Tag = detectIE11() ? 'div' : 'main';
     return (
       <ConnectedRouter history={history}>
         <div className="Office site">
           <QueueHeader />
-          <main className="site__content">
+          <Tag role="main" className="site__content">
             <div>
               <LogoutOnInactivity />
               <Switch>
@@ -74,7 +75,7 @@ class OfficeWrapper extends Component {
                 {!isProduction && <PrivateRoute path="/playground" component={ScratchPad} />}
               </Switch>
             </div>
-          </main>
+          </Tag>
         </div>
       </ConnectedRouter>
     );

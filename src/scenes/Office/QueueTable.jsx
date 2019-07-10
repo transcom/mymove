@@ -2,14 +2,20 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import ReactTable from 'react-table';
 import { connect } from 'react-redux';
-import { get, capitalize } from 'lodash';
+import { bindActionCreators } from 'redux';
+import { get } from 'lodash';
 import 'react-table/react-table.css';
 import Alert from 'shared/Alert';
-import { formatDate, formatDateTimeWithTZ, formatTimeAgo } from 'shared/formatters';
+import { formatTimeAgo } from 'shared/formatters';
+import { newColumns, ppmColumns, hhgActiveColumns, defaultColumns } from './queueTableColumns';
+import { setUserIsLoggedIn } from 'shared/Data/users';
+
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faClock from '@fortawesome/fontawesome-free-solid/faClock';
-import './office.scss';
 import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
+import { getEntitlements } from '../../shared/entitlements';
+import moment from 'moment';
+import { formatDate4DigitYear } from '../../shared/formatters';
+import { sitDaysUsed, sitTotalDaysUsed } from '../../shared/StorageInTransit/calculator';
 
 class QueueTable extends Component {
   constructor() {
@@ -38,6 +44,10 @@ class QueueTable extends Component {
     if (this.props.queueType !== prevProps.queueType) {
       this.fetchData();
     }
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.state.interval);
   }
 
   openMove(rowInfo) {
@@ -85,6 +95,10 @@ class QueueTable extends Component {
         refreshing: false,
         lastLoadedAt: new Date(),
       });
+      // redirect to home page if unauthorized
+      if (e.status === 401) {
+        this.props.setUserIsLoggedIn(false);
+      }
     }
   }
 
@@ -106,12 +120,34 @@ class QueueTable extends Component {
 
   render() {
     const titles = {
-      new: 'New Moves',
+      new: 'New Moves/Shipments',
       troubleshooting: 'Troubleshooting',
       ppm: 'PPMs',
-      hhg_accepted: 'Accepted HHGs',
+      hhg_active: 'Active HHGs',
       hhg_delivered: 'Delivered HHGs',
       all: 'All Moves',
+    };
+
+    const showColumns = queueType => {
+      switch (queueType) {
+        case 'new':
+          return newColumns;
+        case 'ppm':
+          return ppmColumns;
+        case 'hhg_active':
+          return hhgActiveColumns;
+        default:
+          return defaultColumns;
+      }
+    };
+
+    const defaultSort = queueType => {
+      switch (queueType) {
+        case 'hhg_active':
+          return [{ id: 'clockIcon', asc: true }, { id: 'move_date', asc: true }];
+        default:
+          return [{ id: 'move_date', asc: true }];
+      }
     };
 
     this.state.data.forEach(row => {
@@ -128,6 +164,25 @@ class QueueTable extends Component {
       } else {
         row.synthetic_status = row.status;
       }
+
+      if (
+        this.props.queueType === 'hhg_active' &&
+        row.storage_in_transits &&
+        row.storage_in_transits.some(sit => sit.actual_start_date)
+      ) {
+        row.sit_expires = formatDate4DigitYear(
+          moment.min(
+            row.storage_in_transits.filter(sit => sit.actual_start_date).map(sit => {
+              return moment(sit.actual_start_date).add(
+                getEntitlements(row.rank).storage_in_transit +
+                  sitDaysUsed(sit) -
+                  sitTotalDaysUsed(row.storage_in_transits),
+                'days',
+              );
+            }),
+          ),
+        );
+      }
     });
 
     return (
@@ -138,7 +193,7 @@ class QueueTable extends Component {
             <br />
           </Alert>
         ) : null}
-        <h1 className="queue-heading">Queue: {titles[this.props.queueType]}</h1>
+        <h1 className="queue-heading">{titles[this.props.queueType]}</h1>
         <div className="queue-table">
           <span className="staleness-indicator" data-cy="staleness-indicator">
             Last updated {formatTimeAgo(this.state.lastLoadedAt)}
@@ -155,80 +210,10 @@ class QueueTable extends Component {
             />
           </span>
           <ReactTable
-            columns={[
-              {
-                Header: <FontAwesomeIcon icon={faClock} />,
-                id: 'clockIcon',
-                accessor: row => row.synthetic_status,
-                Cell: row =>
-                  row.value === 'PAYMENT_REQUESTED' || row.value === 'SUBMITTED' ? (
-                    <span data-cy="ppm-queue-icon">
-                      <FontAwesomeIcon icon={faClock} style={{ color: 'orange' }} />
-                    </span>
-                  ) : (
-                    ''
-                  ),
-                width: 50,
-                show: this.props.queueType === 'ppm',
-              },
-              {
-                Header: 'Status',
-                accessor: 'synthetic_status',
-                Cell: row => (
-                  <span className="status" data-cy="status">
-                    {capitalize(row.value && row.value.replace('_', ' '))}
-                  </span>
-                ),
-              },
-              {
-                Header: 'Customer name',
-                accessor: 'customer_name',
-              },
-              {
-                Header: 'DoD ID',
-                accessor: 'edipi',
-              },
-              {
-                Header: 'Rank',
-                accessor: 'rank',
-                Cell: row => <span className="rank">{row.value && row.value.replace('_', '-')}</span>,
-              },
-              {
-                Header: 'Shipments',
-                accessor: 'shipments',
-                show: this.props.queueType === 'new',
-              },
-              {
-                Header: 'Locator #',
-                accessor: 'locator',
-                Cell: row => <span data-cy="locator">{row.value}</span>,
-              },
-              {
-                Header: 'GBL',
-                accessor: 'gbl_number',
-                show: this.props.queueType !== 'ppm',
-              },
-              {
-                Header: 'Move date',
-                accessor: 'move_date',
-                Cell: row => <span className="move_date">{formatDate(row.value)}</span>,
-              },
-              {
-                Header: 'Last modified',
-                accessor: 'last_modified_date',
-                Cell: row => <span className="updated_at">{formatDateTimeWithTZ(row.value)}</span>,
-                show: this.props.queueType !== 'new',
-              },
-              {
-                Header: 'Submitted',
-                accessor: 'submitted_date',
-                Cell: row => <span className="submitted_date">{formatDateTimeWithTZ(row.value)}</span>,
-                show: this.props.queueType === 'new',
-              },
-            ]}
+            columns={showColumns(this.props.queueType)}
             data={this.state.data}
             loading={this.state.loading} // Display the loading overlay when we need it
-            defaultSorted={[{ id: 'move_date', asc: true }]}
+            defaultSorted={defaultSort(this.props.queueType)}
             pageSize={this.state.data.length}
             className="-striped -highlight"
             showPagination={false}
@@ -251,4 +236,8 @@ const mapStateToProps = state => {
   };
 };
 
-export default withRouter(connect(mapStateToProps)(QueueTable));
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({ setUserIsLoggedIn }, dispatch);
+}
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(QueueTable));

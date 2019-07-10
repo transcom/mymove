@@ -58,6 +58,8 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	internalAPI.MoveDocsCreateMovingExpenseDocumentHandler = CreateMovingExpenseDocumentHandler{context}
 
+	internalAPI.MoveDocsCreateWeightTicketDocumentHandler = CreateWeightTicketSetDocumentHandler{context}
+
 	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler{context}
 	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler{context}
 	internalAPI.ServiceMembersShowServiceMemberHandler = ShowServiceMemberHandler{context}
@@ -87,6 +89,7 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.OfficeApproveReimbursementHandler = ApproveReimbursementHandler{context}
 	internalAPI.OfficeCancelMoveHandler = CancelMoveHandler{context}
 
+	internalAPI.EntitlementsIndexEntitlementsHandler = IndexEntitlementsHandler{context}
 	internalAPI.EntitlementsValidateEntitlementHandler = ValidateEntitlementHandler{context}
 
 	internalAPI.CalendarShowAvailableMoveDatesHandler = ShowAvailableMoveDatesHandler{context}

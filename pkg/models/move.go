@@ -365,10 +365,9 @@ func (m Move) CreateMovingExpenseDocument(
 	moveDocumentType MoveDocumentType,
 	title string,
 	notes *string,
-	requestedAmountCents unit.Cents,
-	paymentMethod string,
-	movingExpenseType MovingExpenseType,
-	moveType SelectedMoveType) (*MovingExpenseDocument, *validate.Errors, error) {
+	expenseDocument MovingExpenseDocument,
+	moveType SelectedMoveType,
+) (*MovingExpenseDocument, *validate.Errors, error) {
 
 	var newMovingExpenseDocument *MovingExpenseDocument
 	var responseError error
@@ -394,9 +393,12 @@ func (m Move) CreateMovingExpenseDocument(
 		newMovingExpenseDocument = &MovingExpenseDocument{
 			MoveDocumentID:       newMoveDocument.ID,
 			MoveDocument:         *newMoveDocument,
-			MovingExpenseType:    movingExpenseType,
-			RequestedAmountCents: requestedAmountCents,
-			PaymentMethod:        paymentMethod,
+			MovingExpenseType:    expenseDocument.MovingExpenseType,
+			RequestedAmountCents: expenseDocument.RequestedAmountCents,
+			PaymentMethod:        expenseDocument.PaymentMethod,
+			ReceiptMissing:       expenseDocument.ReceiptMissing,
+			StorageStartDate:     expenseDocument.StorageStartDate,
+			StorageEndDate:       expenseDocument.StorageEndDate,
 		}
 		verrs, err := db.ValidateAndCreate(newMovingExpenseDocument)
 		if err != nil || verrs.HasAny() {
@@ -411,6 +413,51 @@ func (m Move) CreateMovingExpenseDocument(
 	})
 
 	return newMovingExpenseDocument, responseVErrors, responseError
+}
+
+// CreateWeightTicketSetDocument creates a moving weight ticket document associated to a move and move document
+func (m Move) CreateWeightTicketSetDocument(
+	db *pop.Connection,
+	uploads Uploads,
+	personallyProcuredMoveID *uuid.UUID,
+	weightTicketSetDocument *WeightTicketSetDocument,
+	moveType SelectedMoveType) (*WeightTicketSetDocument, *validate.Errors, error) {
+
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+
+		var newMoveDocument *MoveDocument
+		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
+			db,
+			uploads,
+			personallyProcuredMoveID,
+			MoveDocumentTypeWEIGHTTICKETSET,
+			"weight_ticket_set",
+			&weightTicketSetDocument.VehicleNickname,
+			moveType)
+		if responseVErrors.HasAny() || responseError != nil {
+			return transactionError
+		}
+
+		weightTicketSetDocument.MoveDocument = *newMoveDocument
+		weightTicketSetDocument.MoveDocumentID = newMoveDocument.ID
+
+		verrs, err := db.ValidateAndCreate(weightTicketSetDocument)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating moving expense document")
+			weightTicketSetDocument = nil
+			return transactionError
+		}
+
+		return nil
+
+	})
+
+	return weightTicketSetDocument, responseVErrors, responseError
 }
 
 // CreatePPM creates a new PPM associated with this move

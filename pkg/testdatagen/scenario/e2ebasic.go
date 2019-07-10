@@ -10,6 +10,11 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/gen/apimessages"
+	"github.com/transcom/mymove/pkg/handlers"
+	storageintransit "github.com/transcom/mymove/pkg/services/storage_in_transit"
+
 	"github.com/transcom/mymove/pkg/assets"
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -32,7 +37,6 @@ type e2eBasicScenario NamedScenario
 var E2eBasicScenario = e2eBasicScenario{"e2e_basic"}
 
 var selectedMoveTypeHHG = models.SelectedMoveTypeHHG
-var selectedMoveTypePPM = models.SelectedMoveTypePPM
 var selectedMoveTypeHHGPPM = models.SelectedMoveTypeHHGPPM
 
 // Often weekends and holidays are not allowable dates
@@ -66,6 +70,12 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			StandardCarrierAlphaCode: "J12K",
 		},
 	})
+	tspUserSession := auth.Session{
+		ApplicationName: auth.TspApp,
+		UserID:          *tspUser.UserID,
+		IDToken:         "fake token",
+		TspUserID:       tspUser.ID,
+	}
 
 	/*
 	 * Basic user with office access
@@ -938,6 +948,13 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			ID:               uuid.FromStringOrNil("616560f2-7e35-4504-b7e6-69038fb0c015"),
 			Locator:          "APPRVD",
 			SelectedMoveType: &selectedMoveTypeHHG,
+			Status:           models.MoveStatusAPPROVED,
+		},
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("54321"),
+			OrdersTypeDetail:    &typeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("5fe59be4-45d0-47c7-b426-cf4db9882af7"),
@@ -1486,10 +1503,18 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Edipi:         models.StringPointer("2232332334"),
 			PersonalEmail: models.StringPointer(email),
 		},
+		// These values should be populated for an approved move
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("12345"),
+			OrdersTypeDetail:    &typeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
+		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("60098ff1-8dc9-4318-a2e8-47bc8aac11a4"),
 			Locator:          "GOTDOC",
 			SelectedMoveType: &selectedMoveTypeHHG,
+			Status:           models.MoveStatusAPPROVED,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("7ad595da-9b34-4914-aeaa-9a540d13872f"),
@@ -1544,10 +1569,18 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Edipi:         models.StringPointer("4424567890"),
 			PersonalEmail: models.StringPointer(email),
 		},
+		// These values should be populated for an approved move
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("12345"),
+			OrdersTypeDetail:    &typeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
+		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("42d85649-18c2-44ad-854d-da8884579f42"),
 			Locator:          "ENTPMS",
 			SelectedMoveType: &selectedMoveTypeHHG,
+			Status:           models.MoveStatusAPPROVED,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("f426c4fc-a2fb-45b6-a3a6-7c35357ab79a"),
@@ -1619,7 +1652,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	email = "enter@delivery.date"
 
 	netWeight := unit.Pound(2000)
-	actualPickupDate := nextValidMoveDate
+	actualPickupDate := nextValidMoveDateMinusFive
 	offer24 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("1af7ca19-8511-4c6e-a93b-144811c0fa7c")),
@@ -1651,6 +1684,19 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
 			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	authorizedStartDate := nextValidMoveDateMinusFive
+	actualStartDate := nextValidMoveDateMinusFive
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID:          offer24.ShipmentID,
+			Shipment:            offer24.Shipment,
+			EstimatedStartDate:  actualPickupDate,
+			AuthorizedStartDate: &authorizedStartDate,
+			ActualStartDate:     &actualStartDate,
+			Status:              models.StorageInTransitStatusINSIT,
 		},
 	})
 
@@ -1821,7 +1867,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			SelectedMoveType: &selectedMoveTypeHHG,
 		},
 		Order: models.Order{
-			IssueDate:        time.Date(2018, time.May, 20, 0, 0, 0, 0, time.UTC),
+			IssueDate:        time.Date(testdatagen.TestYear, time.May, 20, 0, 0, 0, 0, time.UTC),
 			HasDependents:    true,
 			SpouseHasProGear: true,
 		},
@@ -1919,10 +1965,18 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Edipi:         models.StringPointer("4124337809"),
 			PersonalEmail: models.StringPointer(email),
 		},
+		// These values should be populated for an approved move
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("12345"),
+			OrdersTypeDetail:    &typeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
+		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("8c03b5a5-2ca5-49c1-a5a0-12f56c5f15c7"),
 			Locator:          "APPPMS",
 			SelectedMoveType: &selectedMoveTypeHHG,
+			Status:           models.MoveStatusAPPROVED,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("e2351f50-9b07-4e6a-85eb-7c622486e859"),
@@ -2235,7 +2289,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
-	authorizedStartDate := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
+	authorizedStartDate = time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
 	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
 		StorageInTransit: models.StorageInTransit{
 			ShipmentID:          offer37.ShipmentID,
@@ -2320,7 +2374,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Status:           models.MoveStatusAPPROVED,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
-			ID:                uuid.FromStringOrNil("3b351688-6108-4d3b-9cc0-8a6a1250cda3"),
+			ID:                uuid.FromStringOrNil("bbf23676-ea22-4432-9627-89c27dffd9a7"),
 			SourceRateArea:    "US62",
 			DestinationRegion: "11",
 			CodeOfService:     "D",
@@ -2347,6 +2401,307 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	hhg39 := offer39.Shipment
 	hhg39.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg39.Move)
+
+	/*
+	 * HHG40
+	 * Service member with in-transit shipment and Origin InSIT SIT
+	 */
+	email = "hhg@sit.insit.origin"
+	offer40 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.NewV4()),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.Must(uuid.NewV4()),
+			FirstName:     models.StringPointer("ORIGIN-SIT"),
+			LastName:      models.StringPointer("InSIT"),
+			Edipi:         models.StringPointer("1857924699"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.Must(uuid.NewV4()),
+			Locator:          "SITOIN", // SIT Origin InSIT
+			SelectedMoveType: &selectedMoveTypeHHG,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.Must(uuid.NewV4()),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusINTRANSIT,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	authorizedStartDateOffer40 := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
+	sit40 := models.StorageInTransit{
+		ID:                  uuid.Must(uuid.NewV4()),
+		ShipmentID:          offer40.ShipmentID,
+		Shipment:            offer40.Shipment,
+		Location:            models.StorageInTransitLocationORIGIN,
+		Status:              models.StorageInTransitStatusINSIT,
+		EstimatedStartDate:  time.Date(2019, time.Month(3), 22, 0, 0, 0, 0, time.UTC),
+		ActualStartDate:     &authorizedStartDateOffer40,
+		AuthorizedStartDate: &authorizedStartDateOffer40,
+		SITNumber:           models.StringPointer("400000001"),
+	}
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: sit40,
+	})
+	hhg40 := offer40.Shipment
+	hhg40.Move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &hhg40.Move)
+
+	/*
+	 * HHG41
+	 * Service member with delivered Shipment and Origin InSIT SIT (SIT added after shipment is delivered)
+	 */
+
+	// Info used to create a delivered shipment ready for invoice
+	shipmentHhgParams41 := hhgReadyToInvoiceParams{
+		TspUser:                tspUser,
+		Logger:                 logger,
+		Storer:                 storer,
+		Email:                  "hhg@delivered.insit.origin",
+		NetWeight:              3000,
+		WeightEstimate:         5000,
+		SourceGBLOC:            "ABCD",
+		DestGBLOC:              "QRED",
+		GBLNumber:              "010041",
+		ServiceMemberFirstName: "Origin-SIT",
+		ServiceMemberLastName:  "ShipmentDelivered",
+		Locator:                "DISIT1",
+		PlannerDistance:        1234,
+	}
+
+	// create and return a delivered shipment ready for invoice
+	hhg41 := makeHhgReadyToInvoiceWithSIT(db, shipmentHhgParams41)
+
+	// Add SIT to shipment after shipment is delivered
+	// Create and add to shipment a SIT at Origin that is IN-SIT
+	sitID41 := uuid.Must(uuid.NewV4())
+	authorizedStartDateOffer41 := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
+	sit41 := models.StorageInTransit{
+		ID:                  sitID41,
+		ShipmentID:          hhg41.ID,
+		Shipment:            hhg41,
+		Location:            models.StorageInTransitLocationORIGIN,
+		Status:              models.StorageInTransitStatusINSIT,
+		EstimatedStartDate:  authorizedStartDateOffer41,
+		AuthorizedStartDate: &authorizedStartDateOffer41,
+		ActualStartDate:     &authorizedStartDateOffer41,
+		SITNumber:           models.StringPointer("410000001"),
+	}
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: sit41,
+	})
+
+	/*
+	 * HHG42
+	 * Service member with delivered Shipment and Origin InSIT SIT (SIT added while shipment is in Transit)
+	 */
+
+	// Info used to create a delivered shipment ready for invoice
+	shipmentHhgParams42 := hhgReadyToInvoiceParams{
+		TspUser:                tspUser,
+		Logger:                 logger,
+		Storer:                 storer,
+		Email:                  "hhg@delivered.insit.origin2",
+		NetWeight:              3000,
+		WeightEstimate:         5000,
+		SourceGBLOC:            "ABCD",
+		DestGBLOC:              "QRED",
+		GBLNumber:              "010042",
+		ServiceMemberFirstName: "Origin-SIT",
+		ServiceMemberLastName:  "ShipmentDelivered",
+		Locator:                "DISIT2",
+		PlannerDistance:        1234,
+	}
+
+	authorizedStartDate42 := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
+	sitID42 := uuid.Must(uuid.NewV4())
+	sit42 := models.StorageInTransit{
+		ID:                  sitID42,
+		Location:            models.StorageInTransitLocationORIGIN,
+		Status:              models.StorageInTransitStatusAPPROVED,
+		EstimatedStartDate:  authorizedStartDate42,
+		AuthorizedStartDate: &authorizedStartDate42,
+	}
+
+	shipmentHhgParams42.SITs = append(shipmentHhgParams42.SITs, sit42)
+
+	// create and return a delivered shipment ready for invoice
+	hhg42 := makeHhgReadyToInvoiceWithSIT(db, shipmentHhgParams42)
+
+	// Transition SIT to InSIT/IN_SIT
+	placeInSITParams42 := placeInSITParams{
+		SITID:           sit42.ID,
+		ShipmentID:      hhg42.ID,
+		Shipment:        hhg42,
+		ActualStartDate: *sit42.AuthorizedStartDate,
+	}
+	sitPlaceInSIT(db, placeInSITParams42, tspUserSession)
+
+	/*
+	 * HHG43
+	 * Service member with in-transit move and denied SIT
+	 */
+	email = "hhg@sit.denied"
+	offer43 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("b46a5aa9-c923-4a85-9d00-215cd2e1c62b")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("aa404f76-cba2-47ac-98b8-c6bc7c623e6f"),
+			FirstName:     models.StringPointer("SIT"),
+			LastName:      models.StringPointer("Denied"),
+			Edipi:         models.StringPointer("1357924680"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("238c0f0a-22d4-4868-8b9c-b0fee514ce61"),
+			Locator:          "SITDN2",
+			SelectedMoveType: &selectedMoveTypeHHG,
+			Status:           models.MoveStatusAPPROVED,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("d46a0c60-1f83-48b0-8993-18430f8b4bcf"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusINTRANSIT,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID:         offer43.ShipmentID,
+			Shipment:           offer43.Shipment,
+			Status:             models.StorageInTransitStatusDENIED,
+			EstimatedStartDate: time.Date(2019, time.Month(3), 29, 0, 0, 0, 0, time.UTC),
+		},
+	})
+	hhg43 := offer43.Shipment
+	hhg43.Move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &hhg43.Move)
+
+	/*
+	 * HHG45
+	 * Service member with in-transit shipment and Origin DELIVERED SIT
+	 */
+	email = "hhg@sit.delivered.origin"
+	offer45 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.NewV4()),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.Must(uuid.NewV4()),
+			FirstName:     models.StringPointer("ORIGIN-SIT"),
+			LastName:      models.StringPointer("DELIVERED"),
+			Edipi:         models.StringPointer("1857924699"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.Must(uuid.NewV4()),
+			Locator:          "SITDLV", // SIT Origin DELIVERED
+			SelectedMoveType: &selectedMoveTypeHHG,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.Must(uuid.NewV4()),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusDELIVERED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	authorizedStartDateOffer45 := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
+	outDate45 := time.Date(2019, time.Month(3), 27, 0, 0, 0, 0, time.UTC)
+	sit45 := models.StorageInTransit{
+		ID:                  uuid.Must(uuid.NewV4()),
+		ShipmentID:          offer45.ShipmentID,
+		Shipment:            offer45.Shipment,
+		Location:            models.StorageInTransitLocationORIGIN,
+		Status:              models.StorageInTransitStatusDELIVERED,
+		EstimatedStartDate:  time.Date(2019, time.Month(3), 22, 0, 0, 0, 0, time.UTC),
+		ActualStartDate:     &authorizedStartDateOffer45,
+		AuthorizedStartDate: &authorizedStartDateOffer45,
+		OutDate:             &outDate45,
+		SITNumber:           models.StringPointer("400000001"),
+	}
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: sit45,
+	})
+	hhg45 := offer45.Shipment
+	hhg45.Move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &hhg45.Move)
+
+	/*
+	 * Service member with accepted move for use in testing the deletion of SIT
+	 */
+	email = "hhg@sit.todelete"
+	offer44 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("76616087-713d-4837-8941-f2b73f532a10")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("54bae5b4-af77-4693-a3b3-3ff6f5796a92"),
+			FirstName:     models.StringPointer("SIT"),
+			LastName:      models.StringPointer("ToDelete"),
+			Edipi:         models.StringPointer("1357924622"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("9811bc2c-45e7-40d2-aee0-d863f0d2b7ee"),
+			Locator:          "SITDEL",
+			SelectedMoveType: &selectedMoveTypeHHG,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("0c395d75-ec2f-45de-8d3f-74716d69aa67"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusACCEPTED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID:         offer44.ShipmentID,
+			Shipment:           offer44.Shipment,
+			EstimatedStartDate: time.Date(2019, time.Month(4), 22, 0, 0, 0, 0, time.UTC),
+		},
+	})
+	hhg44 := offer44.Shipment
+	hhg44.Move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &hhg44.Move)
 
 	/*
 	 * Service member with a ppm ready to request payment
@@ -2467,6 +2822,58 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Uploader: loader,
 	})
+
+	/*
+	* Creates a valid, unclaimed access code
+	 */
+	accessCodeMoveType := models.SelectedMoveTypePPM
+	testdatagen.MakeAccessCode(db, testdatagen.Assertions{
+		AccessCode: models.AccessCode{
+			Code:     "X3FQJK",
+			MoveType: &accessCodeMoveType,
+		},
+	})
+	/*
+	 * Service member with a ppm ready to request payment
+	 */
+	email = "ppm@requestingpayment.newflow"
+	uuidStr = "745e0eba-4028-4c78-a262-818b00802748"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	ppm6 := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("1404fdcf-7a54-4b83-862d-7d1c7ba36ad7"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("RequestingPayNewFlow"),
+			Edipi:         models.StringPointer("6737033007"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		// These values should be populated for an approved move
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("62149"),
+			OrdersTypeDetail:    &typeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("f9f10492-587e-43b3-af2a-9f67d2ac8757"),
+			Locator: "RQPAY2",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate: &pastTime,
+		},
+		Uploader: loader,
+	})
+	ppm6.Move.Submit(time.Now())
+	ppm6.Move.Approve()
+	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
+	ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	models.SaveMoveDependencies(db, &ppm6.Move)
 }
 
 // MakeHhgWithPpm creates an HHG user who has added a PPM
@@ -2489,7 +2896,7 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 			PersonalEmail: models.StringPointer(email),
 		},
 		Order: models.Order{
-			IssueDate: time.Date(2018, time.May, 20, 0, 0, 0, 0, time.UTC),
+			IssueDate: time.Date(testdatagen.TestYear, time.May, 20, 0, 0, 0, 0, time.UTC),
 		},
 		Move: models.Move{
 			ID:               moveID,
@@ -2547,7 +2954,7 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 			PersonalEmail: models.StringPointer(email2),
 		},
 		Order: models.Order{
-			IssueDate:        time.Date(2018, time.May, 20, 0, 0, 0, 0, time.UTC),
+			IssueDate:        time.Date(testdatagen.TestYear, time.May, 20, 0, 0, 0, 0, time.UTC),
 			OrdersTypeDetail: &ordersTypeDetail,
 		},
 		Move: models.Move{
@@ -2616,7 +3023,7 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 			PersonalEmail: models.StringPointer(email3),
 		},
 		Order: models.Order{
-			IssueDate:        time.Date(2018, time.May, 20, 0, 0, 0, 0, time.UTC),
+			IssueDate:        time.Date(testdatagen.TestYear, time.May, 20, 0, 0, 0, 0, time.UTC),
 			OrdersTypeDetail: &ordersTypeDetail,
 		},
 		Move: models.Move{
@@ -2675,7 +3082,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 	 * Service member with uploaded orders and an approved shipment to be accepted, able to generate GBL
 	 */
 	email := "hhg@govbilloflading.ready"
-
+	ordersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
 	weightEstimate := unit.Pound(5000)
 	sourceOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
 		TransportationOffice: models.TransportationOffice{
@@ -2687,6 +3094,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 			Gbloc: "QRED",
 		},
 	})
+	GBLNumber := destOffice.Gbloc + "001234"
 	offer9 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
 			ID:            uuid.Must(uuid.FromString("658f3a78-b3a9-47f4-a820-af673103d62d")),
@@ -2703,11 +3111,13 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
 			TAC:                 models.StringPointer("NTA4"),
 			SAC:                 models.StringPointer("1234567890 9876543210"),
+			OrdersTypeDetail:    &ordersTypeDetail,
 		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("05a58b2e-07da-4b41-b4f8-d18ab68dddd5"),
 			Locator:          "GBLGBL",
 			SelectedMoveType: &selectedMoveTypeHHG,
+			Status:           models.MoveStatusAPPROVED,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("b15fdc2b-52cd-4b3e-91ba-a36d6ab94a16"),
@@ -2727,6 +3137,7 @@ func MakeHhgFromAwardedToAcceptedGBLReady(db *pop.Connection, tspUser models.Tsp
 			PmSurveyWeightEstimate:      &weightEstimate,
 			SourceGBLOC:                 &sourceOffice.Gbloc,
 			DestinationGBLOC:            &destOffice.Gbloc,
+			GBLNumber:                   &GBLNumber,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -2754,6 +3165,7 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger Logger, s
 	 * Service member with uploaded orders and an approved shipment to be accepted, able to generate GBL
 	 */
 	email := "hhg@gov_bill_of_lading.created"
+	ordersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
 
 	weightEstimate := unit.Pound(5000)
 	sourceOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
@@ -2782,11 +3194,13 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger Logger, s
 			DepartmentIndicator: models.StringPointer("17"),
 			TAC:                 models.StringPointer("NTA4"),
 			SAC:                 models.StringPointer("1234567890 9876543210"),
+			OrdersTypeDetail:    &ordersTypeDetail,
 		},
 		Move: models.Move{
 			ID:               uuid.FromStringOrNil("6eee3663-1973-40c5-b49e-e70e9325b895"),
 			Locator:          "CONGBL",
 			SelectedMoveType: &selectedMoveTypeHHG,
+			Status:           models.MoveStatusAPPROVED,
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("87fcebf6-63b8-40cb-bc40-b553f5b91b9c"),
@@ -2853,6 +3267,188 @@ func MakeHhgWithGBL(db *pop.Connection, tspUser models.TspUser, logger Logger, s
 		string("Government Bill Of Lading"),
 		swag.String(""),
 		models.SelectedMoveTypeHHG,
+	)
+
+	return offer.Shipment
+}
+
+type placeInSITParams struct {
+	SITID           uuid.UUID
+	ShipmentID      uuid.UUID
+	Shipment        models.Shipment
+	ActualStartDate time.Time
+}
+
+func sitPlaceInSIT(db *pop.Connection, params placeInSITParams, tspUserSession auth.Session) {
+	// Transition SIT to InSIT
+	payload := apimessages.StorageInTransitInSitPayload{
+		ActualStartDate: *handlers.FmtDate(params.ActualStartDate),
+	}
+
+	inSITPlacer := storageintransit.NewStorageInTransitInSITPlacer(db)
+	_, verrs, err := inSITPlacer.PlaceIntoSITStorageInTransit(payload, params.Shipment.ID, &tspUserSession, params.SITID)
+	if verrs.HasAny() || err != nil {
+		fmt.Println(verrs.String())
+		log.Panic(err)
+	}
+}
+
+type hhgReadyToInvoiceParams struct {
+	TspUser                models.TspUser
+	Logger                 Logger
+	Storer                 *storage.Memory
+	Email                  string
+	NetWeight              unit.Pound
+	WeightEstimate         unit.Pound
+	SourceGBLOC            string
+	DestGBLOC              string
+	GBLNumber              string
+	ServiceMemberFirstName string
+	ServiceMemberLastName  string
+	EDIPI                  string
+	Locator                string
+	PlannerDistance        int
+	SITs                   models.StorageInTransits
+}
+
+// makeHhgReadyToInvoiceWithSIT creates a shipment that is delivered and invoice ready with the option
+// to add a SIT while shipment is in-transit
+func makeHhgReadyToInvoiceWithSIT(db *pop.Connection, params hhgReadyToInvoiceParams) models.Shipment {
+	/*
+	 * Service member with uploaded orders and a delivered shipment, able to generate GBL
+	 */
+	email := params.Email
+	netWeight := unit.Pound(params.NetWeight)
+	weightEstimate := unit.Pound(params.WeightEstimate)
+	sourceOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: params.SourceGBLOC,
+		},
+	})
+	destOffice := testdatagen.MakeTransportationOffice(db, testdatagen.Assertions{
+		TransportationOffice: models.TransportationOffice{
+			Gbloc: params.DestGBLOC,
+		},
+	})
+	GBLNumber := destOffice.Gbloc + params.GBLNumber
+
+	offer := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.NewV4()),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.Must(uuid.NewV4()),
+			FirstName:     models.StringPointer(params.ServiceMemberFirstName),
+			LastName:      models.StringPointer(params.ServiceMemberLastName),
+			Edipi:         models.StringPointer(params.EDIPI),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Order: models.Order{
+			DepartmentIndicator: models.StringPointer("17"),
+			TAC:                 models.StringPointer("NTA4"),
+			SAC:                 models.StringPointer("1234567890 9876543210"),
+		},
+		Move: models.Move{
+			ID:               uuid.Must(uuid.NewV4()),
+			Locator:          params.Locator,
+			SelectedMoveType: &selectedMoveTypeHHG,
+			Status:           models.MoveStatusAPPROVED,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.Must(uuid.NewV4()),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			ID:                          uuid.Must(uuid.NewV4()),
+			Status:                      models.ShipmentStatusINTRANSIT,
+			PmSurveyMethod:              "PHONE",
+			PmSurveyPlannedPackDate:     &nextVAlidMoveDateMinusTen,
+			PmSurveyPlannedPickupDate:   &nextValidMoveDateMinusFive,
+			PmSurveyPlannedDeliveryDate: &nextValidMoveDateMinusOne,
+			NetWeight:                   &netWeight,
+			ActualPickupDate:            &nextValidMoveDateMinusFive,
+			OriginalDeliveryDate:        &nextValidMoveDateMinusOne,
+			PmSurveyWeightEstimate:      &weightEstimate,
+			SourceGBLOC:                 &sourceOffice.Gbloc,
+			DestinationGBLOC:            &destOffice.Gbloc,
+			GBLNumber:                   &GBLNumber,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: params.TspUser.TransportationServiceProviderID,
+			TransportationServiceProvider:   params.TspUser.TransportationServiceProvider,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	//
+	// Add SIT before delivering shipment -- this seems like the typical flow a shipment will go through
+	//
+	for _, sit := range params.SITs {
+		sit.ShipmentID = offer.Shipment.ID
+		sit.Shipment = offer.Shipment
+		testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+			StorageInTransit: sit,
+		})
+	}
+
+	//
+	// Get Planner and Deliver shipment
+	//
+	engine := rateengine.NewRateEngine(db, params.Logger)
+
+	verrs, err := shipmentservice.NewShipmentDeliverAndPricer(
+		db,
+		engine,
+		route.NewTestingPlanner(1044),
+	).DeliverAndPriceShipment(nextValidMoveDateMinusOne, &offer.Shipment)
+
+	if verrs.HasAny() || err != nil {
+		fmt.Println(verrs.String())
+		log.Panic(err)
+	}
+
+	testdatagen.MakeServiceAgent(db, testdatagen.Assertions{
+		ServiceAgent: models.ServiceAgent{
+			Shipment:   &offer.Shipment,
+			ShipmentID: offer.ShipmentID,
+		},
+	})
+
+	hhg := offer.Shipment
+	hhgID := offer.ShipmentID
+	hhg.Move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &hhg.Move)
+
+	// Create PDF for GBL
+	gbl, _ := models.FetchGovBillOfLadingFormValues(db, hhgID)
+	formLayout := paperwork.Form1203Layout
+
+	// Read in bytes from Asset pkg
+	data, _ := assets.Asset(formLayout.TemplateImagePath)
+	f := bytes.NewReader(data)
+
+	formFiller := paperwork.NewFormFiller()
+	formFiller.AppendPage(f, formLayout.FieldsLayout, gbl)
+
+	// Write to a temporary file system
+	aFile, _ := params.Storer.TempFileSystem().Create(gbl.GBLNumber1)
+	formFiller.Output(aFile)
+
+	uploader := uploaderpkg.NewUploader(db, params.Logger, params.Storer)
+	upload, _, _ := uploader.CreateUpload(*params.TspUser.UserID, &aFile, uploaderpkg.AllowedTypesPDF)
+	uploads := []models.Upload{*upload}
+
+	// Create GBL move document associated to the shipment
+	hhg.Move.CreateMoveDocument(db,
+		uploads,
+		&hhgID,
+		models.MoveDocumentTypeGOVBILLOFLADING,
+		string("Government Bill Of Lading"),
+		swag.String(""),
+		selectedMoveTypeHHG,
 	)
 
 	return offer.Shipment
@@ -2928,13 +3524,21 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Lo
 		},
 	})
 
-	planner := route.NewTestingPlanner(1234)
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID: offer.ShipmentID,
+			Shipment:   offer.Shipment,
+			Status:     models.StorageInTransitStatusINSIT,
+			Location:   models.StorageInTransitLocationDESTINATION,
+		},
+	})
+
 	engine := rateengine.NewRateEngine(db, logger)
-	verrs, err := shipmentservice.DeliverAndPriceShipment{
-		DB:      db,
-		Engine:  engine,
-		Planner: planner,
-	}.Call(nextValidMoveDateMinusOne, &offer.Shipment)
+	verrs, err := shipmentservice.NewShipmentDeliverAndPricer(
+		db,
+		engine,
+		route.NewTestingPlanner(1044),
+	).DeliverAndPriceShipment(nextValidMoveDateMinusOne, &offer.Shipment)
 
 	if verrs.HasAny() || err != nil {
 		fmt.Println(verrs.String())

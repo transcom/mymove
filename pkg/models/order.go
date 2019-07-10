@@ -158,6 +158,7 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	var order Order
 	err := db.Q().Eager("ServiceMember.User",
 		"NewDutyStation.Address",
+		"NewDutyStation.TransportationOffice",
 		"UploadedOrders.Uploads",
 		"Moves.PersonallyProcuredMoves",
 		"Moves.Shipments.TrafficDistributionList",

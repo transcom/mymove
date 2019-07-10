@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
-	"os"
+	"net/http"
 	"strings"
 
 	"github.com/gobuffalo/pop"
@@ -14,33 +16,49 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/ecs"
 	"github.com/transcom/mymove/pkg/logging"
 )
 
 // initMigrateFlags - Order matters!
 func initMigrateFlags(flag *pflag.FlagSet) {
-	// Migration Config
-	cli.InitMigrationFlags(flag)
 
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
+	// Migration Config
+	cli.InitMigrationFlags(flag)
+
+	// aws-vault Config
+	cli.InitVaultFlags(flag)
+
+	// Logging
+	cli.InitLoggingFlags(flag)
+
 	// Verbose
 	cli.InitVerboseFlags(flag)
 
-	// Don't sort flags
-	flag.SortFlags = false
+	// Sort command line flags
+	flag.SortFlags = true
 }
 
 func checkMigrateConfig(v *viper.Viper, logger logger) error {
 
 	logger.Info("checking migration config")
 
+	if err := cli.CheckDatabase(v, logger); err != nil {
+		return err
+	}
+
 	if err := cli.CheckMigration(v); err != nil {
 		return err
 	}
 
-	if err := cli.CheckDatabase(v, logger); err != nil {
+	if err := cli.CheckVault(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckLogging(v); err != nil {
 		return err
 	}
 
@@ -53,7 +71,7 @@ func checkMigrateConfig(v *viper.Viper, logger logger) error {
 
 func migrateFunction(cmd *cobra.Command, args []string) error {
 
-	err := cmd.ParseFlags(os.Args[1:])
+	err := cmd.ParseFlags(args)
 	if err != nil {
 		return errors.Wrap(err, "Could not parse flags")
 	}
@@ -68,9 +86,9 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	dbEnv := v.GetString(cli.DbEnvFlag)
+	loggingEnv := v.GetString(cli.LoggingEnvFlag)
 
-	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	logger, err := logging.Config(loggingEnv, v.GetBool(cli.VerboseFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
@@ -83,6 +101,35 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		fields = append(fields, zap.String("git_commit", gitCommit))
 	}
 	logger = logger.With(fields...)
+
+	if v.GetBool(cli.LogTaskMetadataFlag) {
+		resp, httpGetErr := http.Get("http://169.254.170.2/v2/metadata")
+		if httpGetErr != nil {
+			logger.Error(errors.Wrap(httpGetErr, "could not fetch task metadata").Error())
+		} else {
+			body, readAllErr := ioutil.ReadAll(resp.Body)
+			if readAllErr != nil {
+				logger.Error(errors.Wrap(readAllErr, "could not read task metadata").Error())
+			} else {
+				taskMetadata := &ecs.TaskMetadata{}
+				unmarshallErr := json.Unmarshal(body, taskMetadata)
+				if unmarshallErr != nil {
+					logger.Error(errors.Wrap(unmarshallErr, "could not parse task metadata").Error())
+				} else {
+					logger = logger.With(
+						zap.String("ecs_cluster", taskMetadata.Cluster),
+						zap.String("ecs_task_def_family", taskMetadata.Family),
+						zap.String("ecs_task_def_revision", taskMetadata.Revision),
+					)
+				}
+			}
+			err = resp.Body.Close()
+			if err != nil {
+				logger.Error(errors.Wrap(err, "could not close task metadata response").Error())
+			}
+		}
+	}
+
 	zap.ReplaceGlobals(logger)
 
 	logger.Info("migrator starting up")
@@ -90,6 +137,10 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	err = checkMigrateConfig(v, logger)
 	if err != nil {
 		logger.Fatal("invalid configuration", zap.Error(err))
+	}
+
+	if v.GetBool(cli.DbDebugFlag) {
+		pop.Debug = true
 	}
 
 	// Create a connection to the DB

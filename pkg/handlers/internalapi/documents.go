@@ -9,7 +9,6 @@ import (
 
 	"github.com/honeycombio/beeline-go"
 
-	auth "github.com/transcom/mymove/pkg/auth"
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -47,17 +46,17 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	serviceMemberID, err := uuid.FromString(params.DocumentPayload.ServiceMemberID.String())
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	// Fetch to check auth
 	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	newDocument := models.Document{
@@ -66,17 +65,17 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 
 	verrs, err := h.DB().ValidateAndCreate(&newDocument)
 	if err != nil {
-		h.Logger().Info("DB Insertion", zap.Error(err))
+		logger.Info("DB Insertion", zap.Error(err))
 		return documentop.NewCreateDocumentInternalServerError()
 	} else if verrs.HasAny() {
-		h.Logger().Error("Could not save document", zap.String("errors", verrs.Error()))
+		logger.Error("Could not save document", zap.String("errors", verrs.Error()))
 		return documentop.NewCreateDocumentBadRequest()
 	}
 
-	h.Logger().Info("created a document with id: ", zap.Any("new_document_id", newDocument.ID))
+	logger.Info("created a document with id", zap.Any("new_document_id", newDocument.ID))
 	documentPayload, err := payloadForDocumentModel(h.FileStorer(), newDocument)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return documentop.NewCreateDocumentCreated().WithPayload(documentPayload)
 }
@@ -92,21 +91,21 @@ func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middle
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	document, err := models.FetchDocument(ctx, h.DB(), session, documentID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	documentPayload, err := payloadForDocumentModel(h.FileStorer(), document)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	return documentop.NewShowDocumentOK().WithPayload(documentPayload)

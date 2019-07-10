@@ -3,8 +3,6 @@ package cli
 import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-
-	"github.com/transcom/mymove/pkg/iws"
 )
 
 const (
@@ -15,15 +13,6 @@ const (
 // InitIWSFlags initializes CSRF command line flags
 func InitIWSFlags(flag *pflag.FlagSet) {
 	flag.String(IWSRBSHostFlag, "", "Hostname for the IWS RBS")
-}
-
-// InitRBSPersonLookup is the RBS Person Lookup service
-func InitRBSPersonLookup(v *viper.Viper, logger Logger) (*iws.RBSPersonLookup, error) {
-	return iws.NewRBSPersonLookup(
-		v.GetString(IWSRBSHostFlag),
-		v.GetString(DoDCAPackageFlag),
-		v.GetString(MoveMilDoDTLSCertFlag),
-		v.GetString(MoveMilDoDTLSKeyFlag))
 }
 
 // CheckIWS validates IWS command line flags

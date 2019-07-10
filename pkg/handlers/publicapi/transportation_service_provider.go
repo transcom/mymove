@@ -6,7 +6,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	tspop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/transportation_service_provider"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -14,7 +13,7 @@ import (
 )
 
 func payloadForTransportationServiceProviderModel(t models.TransportationServiceProvider) *apimessages.TransportationServiceProvider {
-	transporationServiceProviderPayload := &apimessages.TransportationServiceProvider{
+	transportationServiceProviderPayload := &apimessages.TransportationServiceProvider{
 		ID:                       *handlers.FmtUUID(t.ID),
 		StandardCarrierAlphaCode: handlers.FmtString(t.StandardCarrierAlphaCode),
 		CreatedAt:                strfmt.DateTime(t.CreatedAt),
@@ -28,7 +27,7 @@ func payloadForTransportationServiceProviderModel(t models.TransportationService
 		PocClaimsEmail:           t.PocClaimsEmail,
 		PocClaimsPhone:           t.PocClaimsPhone,
 	}
-	return transporationServiceProviderPayload
+	return transportationServiceProviderPayload
 }
 
 // GetTransportationServiceProviderHandler returns a TSP for a shipment
@@ -40,49 +39,48 @@ type GetTransportationServiceProviderHandler struct {
 func (h GetTransportationServiceProviderHandler) Handle(params tspop.GetTransportationServiceProviderParams) middleware.Responder {
 	var shipment *models.Shipment
 	var err error
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
 
 	if session.IsTspUser() {
-		// TODO (2018_08_27 cgilmer): Find a way to check Shipment belongs to TSP without 2 queries
 		tspUser, fetchTSPByUserErr := models.FetchTspUserByID(h.DB(), session.TspUserID)
 		if fetchTSPByUserErr != nil {
-			h.Logger().Error("DB Query", zap.Error(fetchTSPByUserErr))
-			// return tspop.NewGetTransporationServiceProviderForbidden()
+			logger.Error("DB Query", zap.Error(fetchTSPByUserErr))
+			return tspop.NewGetTransportationServiceProviderForbidden()
 		}
 
 		shipment, err = models.FetchShipmentByTSP(h.DB(), tspUser.TransportationServiceProviderID, shipmentID)
 		if err != nil {
-			handlers.ResponseForError(h.Logger(), err)
-			return tspop.NewGetTransportationServiceProviderBadRequest()
+			return tspop.NewGetTransportationServiceProviderNotFound()
 		}
 	} else if session.IsOfficeUser() {
 		shipment, err = models.FetchShipment(h.DB(), session, shipmentID)
 		if err != nil {
-			handlers.ResponseForError(h.Logger(), err)
-			return tspop.NewGetTransportationServiceProviderBadRequest()
+			return tspop.NewGetTransportationServiceProviderNotFound()
 		}
 	} else if session.IsServiceMember() {
 		shipment, err = models.FetchShipment(h.DB(), session, shipmentID)
 		if err != nil {
-			handlers.ResponseForError(h.Logger(), err)
 			if err == models.ErrFetchForbidden {
 				return tspop.NewGetTransportationServiceProviderForbidden()
 			}
-			return tspop.NewGetTransportationServiceProviderBadRequest()
+			return tspop.NewGetTransportationServiceProviderNotFound()
 		}
 	} else {
 		return tspop.NewGetTransportationServiceProviderForbidden()
 	}
 
+	// Office Users and Service Members aren't guaranteed that the shipment has been awarded
+	// TSP Users that reach this point are because otherwise they are forbidden from viewing
+	// If the Shipment is not yet awarded then the TSP ID will be a nil UUID
 	transportationServiceProviderID := shipment.CurrentTransportationServiceProviderID()
 	if transportationServiceProviderID == uuid.Nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return tspop.NewGetTransportationServiceProviderNotFound()
 	}
 
 	transportationServiceProvider, err := models.FetchTransportationServiceProvider(h.DB(), transportationServiceProviderID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	transportationServiceProviderPayload := payloadForTransportationServiceProviderModel(*transportationServiceProvider)

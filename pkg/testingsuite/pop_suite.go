@@ -157,6 +157,17 @@ func (suite *PopTestSuite) MustCreate(db *pop.Connection, model interface{}) {
 	}
 }
 
+// MustDestroy requires deleting without errors
+func (suite *PopTestSuite) MustDestroy(model interface{}) {
+	t := suite.T()
+	t.Helper()
+
+	err := suite.db.Destroy(model)
+	if err != nil {
+		suite.T().Errorf("Errors encountered destroying %v: %v", model, err)
+	}
+}
+
 // NoVerrs prints any errors it receives
 func (suite *PopTestSuite) NoVerrs(verrs *validate.Errors) bool {
 	if !suite.False(verrs.HasAny()) {

@@ -14,7 +14,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/assets"
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/awardqueue"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -73,7 +72,7 @@ type ShowMoveHandler struct {
 
 // Handle retrieves a move in the system belonging to the logged in user given move ID
 func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
@@ -81,17 +80,17 @@ func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Respond
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	// Fetch orders for authorized user
 	orders, err := models.FetchOrderForUser(h.DB(), session, move.OrdersID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	movePayload, err := payloadForMoveModel(h.FileStorer(), orders, *move)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return moveop.NewShowMoveOK().WithPayload(movePayload)
 }
@@ -103,37 +102,35 @@ type PatchMoveHandler struct {
 
 // Handle ... patches a Move from a request payload
 func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	// Fetch orders for authorized user
 	orders, err := models.FetchOrderForUser(h.DB(), session, move.OrdersID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	payload := params.PatchMovePayload
 	newSelectedMoveType := payload.SelectedMoveType
 
 	if newSelectedMoveType != nil {
-		if newSelectedMoveType != nil {
-			stringSelectedMoveType := models.SelectedMoveType(*newSelectedMoveType)
-			move.SelectedMoveType = &stringSelectedMoveType
-		}
+		stringSelectedMoveType := models.SelectedMoveType(*newSelectedMoveType)
+		move.SelectedMoveType = &stringSelectedMoveType
 	}
 
 	verrs, err := h.DB().ValidateAndUpdate(move)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 	movePayload, err := payloadForMoveModel(h.FileStorer(), orders, *move)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return moveop.NewPatchMoveCreated().WithPayload(movePayload)
 }
@@ -148,7 +145,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	ctx, span := beeline.StartSpan(params.HTTPRequest.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
@@ -156,7 +153,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 
 	move, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	submitDate := time.Time(*params.SubmitMoveForApprovalPayload.PpmSubmitDate)
@@ -166,22 +163,22 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		h.HoneyZapLogger().TraceError(ctx, "Failed to change move status to submit",
 			zap.String("move_id", moveID.String()),
 			zap.String("move_status", string(move.Status)))
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	// Transaction to save move and dependencies
 	verrs, err := models.SaveMoveDependencies(h.DB(), move)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForVErrors(h.Logger(), verrs, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
 
 	err = h.NotificationSender().SendNotification(
 		ctx,
-		notifications.NewMoveSubmitted(h.DB(), h.Logger(), session, moveID),
+		notifications.NewMoveSubmitted(h.DB(), logger, session, moveID),
 	)
 	if err != nil {
-		h.Logger().Error("problem sending email to user", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		logger.Error("problem sending email to user", zap.Error(err))
+		return handlers.ResponseForError(logger, err)
 	}
 
 	if len(move.Shipments) > 0 {
@@ -190,7 +187,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 
 	movePayload, err := payloadForMoveModel(h.FileStorer(), move.Orders, *move)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 	return moveop.NewSubmitMoveForApprovalOK().WithPayload(movePayload)
 }
@@ -202,7 +199,7 @@ type ShowMoveDatesSummaryHandler struct {
 
 // Handle returns a summary of the dates in the move process.
 func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	moveDate := time.Time(params.MoveDate)
 	moveID, _ := uuid.FromString(params.MoveID.String())
@@ -210,12 +207,12 @@ func (h ShowMoveDatesSummaryHandler) Handle(params moveop.ShowMoveDatesSummaryPa
 	// Validate that this move belongs to the current user
 	_, err := models.FetchMove(h.DB(), session, moveID)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	summary, err := calculateMoveDatesFromMove(h.DB(), h.Planner(), moveID, moveDate)
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	moveDatesSummary := &internalmessages.MoveDatesSummary{
@@ -239,27 +236,27 @@ type ShowShipmentSummaryWorksheetHandler struct {
 
 // Handle returns a generated PDF
 func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSummaryWorksheetParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
-	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(h.DB(), h.Logger()))
+	ppmComputer := paperwork.NewSSWPPMComputer(rateengine.NewRateEngine(h.DB(), logger))
 
 	ssfd, err := models.FetchDataShipmentSummaryWorksheetFormData(h.DB(), session, moveID)
 	if err != nil {
-		h.Logger().Error("Error fetching data for SSW", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		logger.Error("Error fetching data for SSW", zap.Error(err))
+		return handlers.ResponseForError(logger, err)
 	}
 
 	ssfd.PreparationDate = time.Time(params.PreparationDate)
 	ssfd.Obligations, err = ppmComputer.ComputeObligations(ssfd, h.Planner())
 	if err != nil {
-		h.Logger().Error("Error calculating obligations ", zap.Error(err))
-		return handlers.ResponseForError(h.Logger(), err)
+		logger.Error("Error calculating obligations ", zap.Error(err))
+		return handlers.ResponseForError(logger, err)
 	}
 
 	page1Data, page2Data, err := models.FormatValuesShipmentSummaryWorksheet(ssfd)
 
 	if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	formFiller := paperwork.NewFormFiller()
@@ -269,14 +266,14 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	page1Template, err := assets.Asset(page1Layout.TemplateImagePath)
 
 	if err != nil {
-		h.Logger().Error("Error reading template file", zap.String("asset", page1Layout.TemplateImagePath), zap.Error(err))
+		logger.Error("Error reading template file", zap.String("asset", page1Layout.TemplateImagePath), zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
 	}
 
 	page1Reader := bytes.NewReader(page1Template)
 	err = formFiller.AppendPage(page1Reader, page1Layout.FieldsLayout, page1Data)
 	if err != nil {
-		h.Logger().Error("Error appending page to PDF", zap.Error(err))
+		logger.Error("Error appending page to PDF", zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
 	}
 
@@ -285,21 +282,21 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	page2Template, err := assets.Asset(page2Layout.TemplateImagePath)
 
 	if err != nil {
-		h.Logger().Error("Error reading template file", zap.String("asset", page2Layout.TemplateImagePath), zap.Error(err))
+		logger.Error("Error reading template file", zap.String("asset", page2Layout.TemplateImagePath), zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
 	}
 
 	page2Reader := bytes.NewReader(page2Template)
 	err = formFiller.AppendPage(page2Reader, page2Layout.FieldsLayout, page2Data)
 	if err != nil {
-		h.Logger().Error("Error appending page to PDF", zap.Error(err))
+		logger.Error("Error appending page to PDF", zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
 	}
 
 	buf := new(bytes.Buffer)
 	err = formFiller.Output(buf)
 	if err != nil {
-		h.Logger().Error("Error writing out PDF", zap.Error(err))
+		logger.Error("Error writing out PDF", zap.Error(err))
 		return moveop.NewShowShipmentSummaryWorksheetInternalServerError()
 	}
 

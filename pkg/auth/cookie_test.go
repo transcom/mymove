@@ -16,7 +16,7 @@ import (
 )
 
 func createRandomRSAPEM() (s string, err error) {
-	priv, err := rsa.GenerateKey(rand.Reader, 1024)
+	priv, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
 		err = errors.Wrap(err, "failed to generate key")
 		return

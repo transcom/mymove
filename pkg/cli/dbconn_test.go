@@ -6,7 +6,7 @@ import (
 
 func (suite *cliTestSuite) TestConfigDatabase() {
 	suite.Setup(InitDatabaseFlags, []string{})
-	suite.Nil(CheckDatabase(suite.viper, suite.logger))
+	suite.NoError(CheckDatabase(suite.viper, suite.logger))
 }
 
 func (suite *cliTestSuite) TestInitDatabase() {

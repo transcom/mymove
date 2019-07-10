@@ -17,7 +17,7 @@ func (suite *StorageInTransitServiceSuite) TestDeleteStorageInTransit() {
 	}
 	// Office user can't delete. This should fail.
 	deleter := NewStorageInTransitDeleter(suite.DB())
-	err := deleter.DeleteStorageInTransit(shipment.ID, sit.ID, &session)
+	_, err := deleter.DeleteStorageInTransit(shipment.ID, sit.ID, &session)
 	suite.Error(err, "FETCH_FORBIDDEN")
 
 	// If a TSP doesn't 'own' the storage in transit, it should fail.
@@ -28,7 +28,7 @@ func (suite *StorageInTransitServiceSuite) TestDeleteStorageInTransit() {
 		TspUserID:       tspUser.ID,
 	}
 	deleter = NewStorageInTransitDeleter(suite.DB())
-	err = deleter.DeleteStorageInTransit(shipment.ID, sit.ID, &session)
+	_, err = deleter.DeleteStorageInTransit(shipment.ID, sit.ID, &session)
 	suite.Error(err, "FETCH_FORBIDDEN")
 
 	// Happy path
@@ -42,9 +42,9 @@ func (suite *StorageInTransitServiceSuite) TestDeleteStorageInTransit() {
 	// Use these to create a SIT for them.
 	testdatagen.MakeShipmentOffer(suite.DB(), assertions)
 
-	err = deleter.DeleteStorageInTransit(shipment.ID, sit.ID, &session)
+	actualStorageInTransit, err := deleter.DeleteStorageInTransit(shipment.ID, sit.ID, &session)
 	suite.NoError(err)
+	storageInTransitCompare(suite, sit, *actualStorageInTransit)
 	deletedStorageInTransit, err := models.FetchStorageInTransitByID(suite.DB(), sit.ID)
 	suite.Nil(deletedStorageInTransit)
-
 }

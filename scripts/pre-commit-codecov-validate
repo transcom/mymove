@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+set -eu -o pipefail
+
+/usr/bin/curl -s -S --retry 5 --retry-connrefused --data-binary @.codecov.yml https://codecov.io/validate | tee /dev/stderr | grep "Valid!"

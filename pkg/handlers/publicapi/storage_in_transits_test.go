@@ -12,11 +12,11 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 
-	"github.com/transcom/mymove/mocks"
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	sitop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/storage_in_transits"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -462,82 +462,6 @@ func (suite *HandlerSuite) TestInSitStorageInTransitHandler() {
 	suite.Equal(expectedResponse, response)
 }
 
-func (suite *HandlerSuite) TestDeliverStorageInTransitHandler() {
-	shipmentID, err := uuid.NewV4()
-	suite.NoError(err)
-
-	storageInTransitID, err := uuid.NewV4()
-	suite.NoError(err)
-	storageInTransit := models.StorageInTransit{ID: storageInTransitID}
-
-	tspUserID, err := uuid.NewV4()
-	suite.NoError(err)
-
-	userID, err := uuid.NewV4()
-	suite.NoError(err)
-
-	user := models.TspUser{ID: tspUserID, UserID: &userID}
-
-	path := fmt.Sprintf("/shipments/%s/storage_in_transits/%s/deliver", shipmentID, storageInTransitID)
-	req := httptest.NewRequest("POST", path, nil)
-	req = suite.AuthenticateTspRequest(req, user)
-	params := sitop.DeliverStorageInTransitParams{
-		HTTPRequest:        req,
-		ShipmentID:         strfmt.UUID(shipmentID.String()),
-		StorageInTransitID: strfmt.UUID(storageInTransitID.String()),
-	}
-
-	storageInTransitInSITDeliverer := &mocks.StorageInTransitDeliverer{}
-
-	handler := DeliverStorageInTransitHandler{
-		handlers.NewHandlerContext(suite.DB(),
-			suite.TestLogger()),
-		storageInTransitInSITDeliverer,
-	}
-	// Happy path
-	storageInTransitInSITDeliverer.On("DeliverStorageInTransit",
-		shipmentID,
-		auth.SessionFromRequestContext(params.HTTPRequest),
-		storageInTransitID,
-	).Return(&storageInTransit, validate.NewErrors(), nil).Once()
-
-	response := handler.Handle(params)
-
-	suite.Assertions.IsType(&sitop.DeliverStorageInTransitOK{}, response)
-	responsePayload := response.(*sitop.DeliverStorageInTransitOK).Payload
-	suite.Equal(storageInTransitID.String(), responsePayload.ID.String())
-
-	// Forbidden scenario
-	expectedError := models.ErrFetchForbidden
-	storageInTransitInSITDeliverer.On("DeliverStorageInTransit",
-		shipmentID,
-		auth.SessionFromRequestContext(params.HTTPRequest),
-		storageInTransitID,
-	).Return(nil, validate.NewErrors(), expectedError).Once()
-
-	response = handler.Handle(params)
-	expectedResponse := &handlers.ErrResponse{
-		Code: http.StatusForbidden,
-		Err:  expectedError,
-	}
-	suite.Equal(expectedResponse, response)
-
-	// Write conflict scenario
-	expectedError = models.ErrWriteConflict
-	storageInTransitInSITDeliverer.On("DeliverStorageInTransit",
-		shipmentID,
-		auth.SessionFromRequestContext(params.HTTPRequest),
-		storageInTransitID,
-	).Return(nil, validate.NewErrors(), expectedError).Once()
-
-	response = handler.Handle(params)
-	expectedResponse = &handlers.ErrResponse{
-		Code: http.StatusConflict,
-		Err:  expectedError,
-	}
-	suite.Equal(expectedResponse, response)
-}
-
 func (suite *HandlerSuite) TestReleaseStorageInTransitHandler() {
 	shipmentID, err := uuid.NewV4()
 	suite.NoError(err)
@@ -704,10 +628,12 @@ func (suite *HandlerSuite) TestDeleteStorageInTransitHandler() {
 	suite.NoError(err)
 
 	user := models.TspUser{ID: tspUserID, UserID: &userID}
+	storageInTransit := models.StorageInTransit{ID: storageInTransitID, ShipmentID: shipmentID}
 
 	path := fmt.Sprintf("/shipments/%s/storage_in_transits/%s", shipmentID, storageInTransitID)
 	req := httptest.NewRequest("DELETE", path, nil)
 	req = suite.AuthenticateTspRequest(req, user)
+
 	params := sitop.DeleteStorageInTransitParams{
 		HTTPRequest:        req,
 		ShipmentID:         strfmt.UUID(shipmentID.String()),
@@ -716,20 +642,23 @@ func (suite *HandlerSuite) TestDeleteStorageInTransitHandler() {
 
 	storageInTransitDeleter := &mocks.StorageInTransitDeleter{}
 
-	handler := DeleteStorageInTransitHandler{
-		handlers.NewHandlerContext(suite.DB(),
-			suite.TestLogger()),
-		storageInTransitDeleter,
-	}
 	// Happy path
 	storageInTransitDeleter.On("DeleteStorageInTransit",
 		shipmentID,
 		storageInTransitID,
 		auth.SessionFromRequestContext(params.HTTPRequest),
-	).Return(nil).Once()
+	).Return(&storageInTransit, nil).Once()
+
+	handler := DeleteStorageInTransitHandler{
+		handlers.NewHandlerContext(suite.DB(),
+			suite.TestLogger()),
+		storageInTransitDeleter,
+	}
 
 	response := handler.Handle(params)
 	suite.Assertions.IsType(&sitop.DeleteStorageInTransitOK{}, response)
+	responsePayload := response.(*sitop.DeleteStorageInTransitOK).Payload
+	suite.Equal(storageInTransit.ID.String(), responsePayload.ID.String())
 
 	// Forbidden scenario
 	expectedError := models.ErrFetchForbidden
@@ -737,7 +666,7 @@ func (suite *HandlerSuite) TestDeleteStorageInTransitHandler() {
 		shipmentID,
 		storageInTransitID,
 		auth.SessionFromRequestContext(params.HTTPRequest),
-	).Return(expectedError).Once()
+	).Return(nil, expectedError).Once()
 
 	response = handler.Handle(params)
 	expectedResponse := &handlers.ErrResponse{

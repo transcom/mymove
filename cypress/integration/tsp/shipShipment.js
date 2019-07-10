@@ -1,4 +1,5 @@
 import { tspUserVerifiesShipmentStatus } from '../../support/testTspStatus';
+import { nthDayOfCurrentMonth } from '../../support/utils';
 
 /* global cy */
 describe('TSP User Ships a Shipment', function() {
@@ -6,8 +7,10 @@ describe('TSP User Ships a Shipment', function() {
     cy.signIntoTSP();
   });
   it('tsp user enters Pack and Pick Up shipment info', function() {
-    tspUserEntersPackAndPickUpInfo();
-    tspUserDeliversShipment();
+    cy.nextAvailable(nthDayOfCurrentMonth(1)).then(availableDays => {
+      tspUserEntersPackAndPickUpInfo();
+      tspUserDeliversShipment(availableDays);
+    });
   });
 
   it('tsp user enters a delivery date', function() {
@@ -16,6 +19,7 @@ describe('TSP User Ships a Shipment', function() {
     tspUserCancelsEnteringADeliveryDate();
     tspUserEntersADeliveryDate();
     tspUserVerifiesShipmentStatus('Delivered');
+    tspUserVerifiesSITStatus();
   });
 });
 
@@ -64,6 +68,13 @@ function tspUserEntersADeliveryDate() {
   cy.get('button').should('not.contain', 'Enter Delivery');
 }
 
+function tspUserVerifiesSITStatus() {
+  // IN_SIT Destination Sits are in delivered status and have an out date
+  cy.get('[data-cy=storage-in-transit-panel]').contains('SIT Delivered');
+
+  cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-dates]').contains('Date out');
+}
+
 function tspUserVisitsAnInTransitShipment(locator) {
   cy.patientVisit('/queues/in_transit');
 
@@ -80,11 +91,11 @@ function tspUserEntersPackAndPickUpInfo() {
   // Open approved shipments queue
   cy
     .get('div')
-    .contains('Approved Shipments')
+    .contains('All Shipments')
     .click();
 
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/approved/);
+    expect(loc.pathname).to.match(/^\/queues\/all/);
   });
 
   // Find shipment and open it
@@ -197,7 +208,7 @@ function tspUserEntersPackAndPickUpInfo() {
   tspUserVerifiesShipmentStatus('Inbound');
 }
 
-function tspUserDeliversShipment() {
+function tspUserDeliversShipment(availableDays) {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
@@ -223,7 +234,7 @@ function tspUserDeliversShipment() {
 
   cy
     .get('div')
-    .contains('13')
+    .contains(availableDays[0].format('DD'))
     .click();
 
   // Cancel
@@ -254,7 +265,7 @@ function tspUserDeliversShipment() {
 
   cy
     .get('div')
-    .contains('15')
+    .contains(availableDays[1].format('DD'))
     .click();
 
   cy

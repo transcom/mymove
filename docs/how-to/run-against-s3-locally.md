@@ -12,7 +12,7 @@ You need to have followed [the instructions to setup your AWS developer credenti
 
 The environment variable `STORAGE_BACKEND` specifies if files should be stored on `s3`, on the `local` filesystem, or in `memory`. The default value is `local` in development and `s3` when the app is running in any deployed environment.
 
-### Using the Devlocal Bucket
+### Using the DevLocal Bucket
 
 Assuming your AWS credentials are setup properly, this command will configure the app to upload to the `transcom-ppp-app-devlocal-us-west-2` S3 bucket:
 

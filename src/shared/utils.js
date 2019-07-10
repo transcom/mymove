@@ -116,3 +116,12 @@ export function humanReadableError(errors) {
     .map(error => `${snakeCaseToCapitals(error[0])} ${error[1]}`)
     .join('/n');
 }
+
+export function detectIE11() {
+  let sAgent = window.navigator.userAgent;
+  let Idx = sAgent.indexOf('Trident');
+  if (Idx > -1) {
+    return true;
+  }
+  return false;
+}

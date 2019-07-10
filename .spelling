@@ -65,6 +65,7 @@ PackageControl
 JsPrettier
 intellisence
 vim-javascript
+javascript
 editorconfig
 DevTools
 destructuring
@@ -180,32 +181,6 @@ initializer
 initializers
 main.go
 globals
-ADR-0000
-ADR-0001
-ADR-0002
-ADR-0003
-ADR-0004
-ADR-0005
-ADR-0006
-ADR-0007
-ADR-0008
-ADR-0009
-ADR-0010
-ADR-0011
-ADR-0012
-ADR-0013
-ADR-0014
-ADR-0015
-ADR-0016
-ADR-0017
-ADR-0018
-ADR-0019
-ADR-0020
-ADR-0021
-ADR-0022
-ADR-0023
-ADR-0024
-ADR-0025
 Excelize
 interop
 runtime
@@ -217,7 +192,6 @@ _Regenerate
 Codegen
 30x
 ish
-_
 HOC
 HOCs
 PrivateRoute
@@ -351,7 +325,6 @@ Kibana
 JSONPath
 dataset
 FedRAMP
-ad-hoc
 HOWTOs
 rdsutils
 html
@@ -387,9 +360,7 @@ checksum
 64-bit
 Dockerfile
 MilMove
-milmovelocal
 MilMoveLocal
-officelocal
 OfficeLocal
 TSPLocal
 unexported
@@ -397,27 +368,53 @@ CSS
 Javascript
 mixins
 preprocessors
-css
-scss
 database.md
-transportation_service_provider_performances
-perf
-devlocal
+DevLocal
 justinas
 nosurf
 csrf
 Goji
 DD-Mon-YYYY
 29-Mar-2018
-bash
 zsh
-fish
 tcsh
 csh
-_Prevention_Cheat_Sheet#Double_Submit_Cookie
 IT-19
 IT-18
-# Put all custom terms BEFORE this comment, lest you end up in an mdspell pain cycle.
+utils
+facebookgo
+util
+CreateForm
+whitespace
+validator
+unreferenced
+stylesheets
+stylesheet
+timestamps
+dp3
+move.mil
+Stanger
+GoLand
+triaging
+AdminLocal
+clock.Mock
+TestYear
+dps
+tariff400ng
+www.ustranscom.mil
+hhg.cfm
+waterhaul
+xxx.html
+hoc
+goqu
+toolset
+metadata
+Codecov
+`testing.Short`
+uncomment
+ecs-service-logs
+Wildcards
+# Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - /usr/local
  - docs/data/tspp-data-creation.md
  - docs/backend.md
@@ -425,9 +422,7 @@ IT-18
  - docs/adr/0027-pdf-generation.md
  - README.md
  - docs/frontend.md
- - ./docs/frontend.md
-_Regenerate
  - ./README.md
-transportation_service_provider_performances
-transportation_service_provider_performances
  - ./docs/data/tspp-data-creation.md
+ - ./docs/data/tariff400ng-yearly-import.md
+ - ./scripts/README.md

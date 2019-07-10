@@ -1,0 +1,3 @@
+add_column("office_users", "disabled", "bool", {"default": false })
+add_column("tsp_users", "disabled", "bool", {"default": false })
+add_column("dps_users", "disabled", "bool", {"default": false })

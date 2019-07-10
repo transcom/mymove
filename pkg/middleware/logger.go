@@ -11,5 +11,11 @@ type Logger interface {
 	Error(msg string, fields ...zap.Field)
 	Warn(msg string, fields ...zap.Field)
 	Fatal(msg string, fields ...zap.Field)
+	With(fields ...zap.Field) *zap.Logger
 	WithOptions(options ...zap.Option) *zap.Logger
+}
+
+// InfoLogger is a logger interface with the Info method.
+type InfoLogger interface {
+	Info(msg string, fields ...zap.Field)
 }

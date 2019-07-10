@@ -1,13 +1,13 @@
 package scenario
 
 import (
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/pkg/errors"
 
 	"github.com/gobuffalo/pop"
+
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 // NamedScenario is a data generation scenario that has a name
@@ -15,17 +15,17 @@ type NamedScenario struct {
 	Name string
 }
 
-// May15_2018 is a date in May 2018
-var May15_2018 = time.Date(2018, time.May, 15, 0, 0, 0, 0, time.UTC)
+// May15TestYear is a May 15 of TestYear
+var May15TestYear = time.Date(testdatagen.TestYear, time.May, 15, 0, 0, 0, 0, time.UTC)
 
-// Oct1_2018 is October 1, 2018
-var Oct1_2018 = time.Date(2018, time.October, 1, 0, 0, 0, 0, time.UTC)
+// Oct1TestYear is October 1 of TestYear
+var Oct1TestYear = time.Date(testdatagen.TestYear, time.October, 1, 0, 0, 0, 0, time.UTC)
 
-// Dec31_2018 is December 31, 2018
-var Dec31_2018 = time.Date(2018, time.December, 31, 0, 0, 0, 0, time.UTC)
+// Dec31TestYear is December 31 of TestYear
+var Dec31TestYear = time.Date(testdatagen.TestYear, time.December, 31, 0, 0, 0, 0, time.UTC)
 
-// May14_2019 is May 14, 2019
-var May14_2019 = time.Date(2019, time.May, 14, 0, 0, 0, 0, time.UTC)
+// May14FollowingYear is May 14 of the year AFTER TestYear
+var May14FollowingYear = time.Date(testdatagen.TestYear+1, time.May, 14, 0, 0, 0, 0, time.UTC)
 
 func save(db *pop.Connection, model interface{}) error {
 	verrs, err := db.ValidateAndSave(model)
@@ -36,14 +36,4 @@ func save(db *pop.Connection, model interface{}) error {
 		return errors.Errorf("Validation errors encountered saving model: %v", verrs)
 	}
 	return nil
-}
-
-func mustSave(db *pop.Connection, model interface{}) {
-	verrs, err := db.ValidateAndSave(model)
-	if err != nil {
-		log.Panic(fmt.Errorf("Errors encountered saving %v: %v", model, err))
-	}
-	if verrs.HasAny() {
-		log.Panic(fmt.Errorf("Validation errors encountered saving %v: %v", model, verrs))
-	}
 }

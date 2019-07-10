@@ -18,7 +18,9 @@ import (
 	"sync"
 	"syscall"
 
+	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gobuffalo/pop"
 	"github.com/gorilla/csrf"
 	"github.com/honeycombio/beeline-go"
 	"github.com/honeycombio/beeline-go/wrappers/hnynethttp"
@@ -32,6 +34,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
+	"github.com/transcom/mymove/pkg/certs"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
@@ -43,8 +46,11 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
 	"github.com/transcom/mymove/pkg/handlers/ordersapi"
 	"github.com/transcom/mymove/pkg/handlers/publicapi"
+	"github.com/transcom/mymove/pkg/iws"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/middleware"
+	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/server"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/invoice"
@@ -57,8 +63,11 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// Environment
 	cli.InitEnvironmentFlags(flag)
 
-	// Build Server
+	// Build Files
 	cli.InitBuildFlags(flag)
+
+	// Webserver
+	cli.InitWebserverFlags(flag)
 
 	// Hosts
 	cli.InitHostFlags(flag)
@@ -111,11 +120,20 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// Middleware
 	cli.InitMiddlewareFlags(flag)
 
+	// aws-vault
+	cli.InitVaultFlags(flag)
+
+	// Logging
+	cli.InitLoggingFlags(flag)
+
 	// Verbose
 	cli.InitVerboseFlags(flag)
 
-	// Don't sort flags
-	flag.SortFlags = false
+	// Feature Flags
+	cli.InitFeatureFlags(flag)
+
+	// Sort command line flags
+	flag.SortFlags = true
 }
 
 func checkServeConfig(v *viper.Viper, logger logger) error {
@@ -127,6 +145,10 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 	}
 
 	if err := cli.CheckBuild(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckWebserver(v); err != nil {
 		return err
 	}
 
@@ -198,7 +220,19 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 		return err
 	}
 
+	if err := cli.CheckVault(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckLogging(v); err != nil {
+		return err
+	}
+
 	if err := cli.CheckVerbose(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckFeatureFlag(v); err != nil {
 		return err
 	}
 
@@ -254,7 +288,28 @@ func indexHandler(buildDir string, logger logger) http.HandlerFunc {
 
 func serveFunction(cmd *cobra.Command, args []string) error {
 
-	err := cmd.ParseFlags(os.Args[1:])
+	var logger *zap.Logger
+	var dbConnection *pop.Connection
+	dbClose := &sync.Once{}
+
+	defer func() {
+		if logger != nil {
+			if r := recover(); r != nil {
+				logger.Error("server recovered from panic", zap.Any("recover", r))
+			}
+			if dbConnection != nil {
+				dbClose.Do(func() {
+					logger.Info("closing database connections")
+					if err := dbConnection.Close(); err != nil {
+						logger.Error("error closing database connections", zap.Error(err))
+					}
+				})
+			}
+			logger.Sync()
+		}
+	}()
+
+	err := cmd.ParseFlags(args)
 	if err != nil {
 		return errors.Wrap(err, "Could not parse flags")
 	}
@@ -269,9 +324,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	dbEnv := v.GetString(cli.DbEnvFlag)
-
-	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	logger, err = logging.Config(v.GetString(cli.LoggingEnvFlag), v.GetBool(cli.VerboseFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
@@ -312,6 +365,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			}
 		}
 	}
+
 	zap.ReplaceGlobals(logger)
 
 	logger.Info("webserver starting up")
@@ -320,6 +374,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		logger.Fatal("invalid configuration", zap.Error(err))
 	}
+
+	dbEnv := v.GetString(cli.DbEnvFlag)
 
 	isDevOrTest := dbEnv == "development" || dbEnv == "test"
 	if isDevOrTest {
@@ -347,8 +403,25 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		logger.Fatal("Must provide the Login.gov hostname parameter, exiting")
 	}
 
+	if v.GetBool(cli.DbDebugFlag) {
+		pop.Debug = true
+	}
+
+	var session *awssession.Session
+	if v.GetString(cli.EmailBackendFlag) == "ses" || v.GetString(cli.StorageBackendFlag) == "s3" {
+		c, errorConfig := cli.GetAWSConfig(v, v.GetBool(cli.VerboseFlag))
+		if errorConfig != nil {
+			logger.Fatal(errors.Wrap(errorConfig, "error creating aws config").Error())
+		}
+		s, errorSession := awssession.NewSession(c)
+		if errorSession != nil {
+			logger.Fatal(errors.Wrap(errorSession, "error creating aws session").Error())
+		}
+		session = s
+	}
+
 	// Create a connection to the DB
-	dbConnection, err := cli.InitDatabase(v, logger)
+	dbConnection, err = cli.InitDatabase(v, logger)
 	if err != nil {
 		if dbConnection == nil {
 			// No connection object means that the configuraton failed to validate and we should kill server startup
@@ -372,7 +445,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Register Login.gov authentication provider for My.(move.mil)
-	loginGovProvider, err := cli.InitAuth(v, logger, appnames)
+	loginGovProvider, err := authentication.InitAuth(v, logger, appnames)
 	if err != nil {
 		logger.Fatal("Registering login provider", zap.Error(err))
 	}
@@ -393,27 +466,27 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Email
-	notificationSender := cli.InitEmail(v, logger)
+	notificationSender := notifications.InitEmail(v, session, logger)
 	handlerContext.SetNotificationSender(notificationSender)
 
-	build := v.GetString(cli.BuildFlag)
+	build := v.GetString(cli.BuildRootFlag)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(build))
 
 	// Get route planner for handlers to calculate transit distances
 	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
-	routePlanner := cli.InitRoutePlanner(v, logger)
+	routePlanner := route.InitRoutePlanner(v, logger)
 	handlerContext.SetPlanner(routePlanner)
 
 	// Set SendProductionInvoice for ediinvoice
 	handlerContext.SetSendProductionInvoice(v.GetBool(cli.GEXSendProdInvoiceFlag))
 
 	// Storage
-	storer := cli.InitStorage(v, logger)
+	storer := storage.InitStorage(v, session, logger)
 	handlerContext.SetFileStorer(storer)
 
-	certificates, rootCAs, err := cli.InitDoDCertificates(v, logger)
+	certificates, rootCAs, err := certs.InitDoDCertificates(v, logger)
 	if certificates == nil || rootCAs == nil || err != nil {
 		logger.Fatal("Failed to initialize DOD certificates", zap.Error(err))
 	}
@@ -448,6 +521,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 	handlerContext.SetGexSender(gexRequester)
 
+	// Set feature flag
+	handlerContext.SetFeatureFlag(
+		handlers.FeatureFlag{Name: cli.FeatureFlagAccessCode, Active: v.GetBool(cli.FeatureFlagAccessCode)},
+	)
+
 	// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
 	// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate
 	// test ICNs in Syncada.
@@ -463,7 +541,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 	handlerContext.SetICNSequencer(icnSequencer)
 
-	rbs, err := cli.InitRBSPersonLookup(v, logger)
+	rbs, err := iws.InitRBSPersonLookup(v, logger)
 	if err != nil {
 		logger.Fatal("Could not instantiate IWS RBS", zap.Error(err))
 	}
@@ -474,7 +552,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	dpsCookieSecret := []byte(v.GetString(cli.DPSAuthCookieSecretKeyFlag))
 	dpsCookieExpires := v.GetInt(cli.DPSCookieExpiresInMinutesFlag)
 
-	dpsAuthParams := cli.InitDPSAuthParams(v, appnames)
+	dpsAuthParams := dpsauth.InitDPSAuthParams(v, appnames)
 	handlerContext.SetDPSAuthParams(dpsAuthParams)
 
 	// Base routes
@@ -546,6 +624,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			}
 		}
 
+		// Log the number of headers, which can be used for finding abnormal requests
+		fields = append(fields, zap.Int("headers", len(r.Header)))
+
 		logger.Info("Request", fields...)
 
 	})
@@ -614,6 +695,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	root := goji.NewMux()
 	root.Use(middleware.Recovery(logger))
+	root.Use(middleware.Trace(logger))                             // injects http request trace id
+	root.Use(middleware.ContextLogger("milmove_trace_id", logger)) // injects http request logger
 	root.Use(sessionCookieMiddleware)
 	root.Use(middleware.RequestLogger(logger))
 
@@ -653,7 +736,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	apiMux.Handle(pat.New("/*"), externalAPIMux)
 	externalAPIMux.Use(middleware.NoCache(logger))
 	externalAPIMux.Use(userAuthMiddleware)
-	externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext))
+	externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext, logger))
 
 	internalMux := goji.SubMux()
 	root.Handle(pat.New("/internal/*"), internalMux)
@@ -690,7 +773,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
-	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext})
+	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext, UseSecureCookie: useSecureCookie})
 	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 
@@ -848,6 +931,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	logger.Info("All listeners are shutdown")
 	logger.Sync()
 
+	var dbCloseErr error
+	dbClose.Do(func() {
+		logger.Info("closing database connections")
+		dbCloseErr = dbConnection.Close()
+	})
+
 	shutdownError := false
 	shutdownErrors.Range(func(key, value interface{}) bool {
 		if srv, ok := key.(*server.NamedServer); ok {
@@ -860,6 +949,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 		return true
 	})
+
+	if dbCloseErr != nil {
+		logger.Error("error closing database connections", zap.Error(dbCloseErr))
+	}
+
 	logger.Sync()
 
 	if shutdownError {

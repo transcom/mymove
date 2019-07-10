@@ -147,6 +147,8 @@ function officeUserVerifiesOrders(moveLocator) {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
 
+  cy.contains('GBL#').should('not.be.visible');
+
   // Click on Orders document link, check that link matches
   cy
     .get('.panel-field')
@@ -294,12 +296,6 @@ function officeUserApprovesMoveAndPPM(moveLocator) {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
-
-  // Open PPMs Queue
-  cy
-    .get('span')
-    .contains('PPMs')
-    .click();
 
   // Find move and open it
   cy.selectQueueItemMoveLocator(moveLocator);

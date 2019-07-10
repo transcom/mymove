@@ -21,6 +21,7 @@ import (
 
 // Assertions defines assertions about what the data contains
 type Assertions struct {
+	AccessCode                               models.AccessCode
 	Address                                  models.Address
 	BackupContact                            models.BackupContact
 	BlackoutDate                             models.BlackoutDate
@@ -34,6 +35,7 @@ type Assertions struct {
 	Move                                     models.Move
 	MoveDocument                             models.MoveDocument
 	MovingExpenseDocument                    models.MovingExpenseDocument
+	WeightTicketSetDocument                  models.WeightTicketSetDocument
 	OfficeUser                               models.OfficeUser
 	Order                                    models.Order
 	PersonallyProcuredMove                   models.PersonallyProcuredMove

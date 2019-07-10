@@ -126,7 +126,7 @@ func (p *PersonallyProcuredMove) Approve(approveDate time.Time) error {
 
 // RequestPayment requests payment for the PPM
 func (p *PersonallyProcuredMove) RequestPayment() error {
-	if p.Status != PPMStatusAPPROVED {
+	if p.Status != PPMStatusPAYMENTREQUESTED && p.Status != PPMStatusAPPROVED {
 		return errors.Wrap(ErrInvalidTransition, "RequestPayment")
 	}
 
@@ -260,22 +260,4 @@ func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove)
 	})
 
 	return responseVErrors, responseError
-}
-
-// createNewPPM adds a new Personally Procured Move record into the DB.
-func createNewPPM(db *pop.Connection, moveID uuid.UUID) (*PersonallyProcuredMove, *validate.Errors, error) {
-	ppm := PersonallyProcuredMove{
-		MoveID: moveID,
-		Status: PPMStatusDRAFT,
-	}
-	verrs, err := db.ValidateAndCreate(&ppm)
-	if verrs.HasAny() {
-		return nil, verrs, nil
-	}
-	if err != nil {
-		return nil, verrs, err
-	}
-
-	return &ppm, verrs, nil
-
 }

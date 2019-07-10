@@ -86,7 +86,7 @@ func (suite *NotificationSuite) TestMoveSubmitted() {
 	suite.NotEmpty(email.textBody)
 }
 
-func (suite *NotificationSuite) GetTestEmailContent() emailContent {
+func (suite *NotificationSuite) getTestEmailContent() emailContent {
 	return emailContent{
 		recipientEmail: "lucky@winner.com",
 		subject:        "This is a Test",

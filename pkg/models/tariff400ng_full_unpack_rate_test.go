@@ -24,7 +24,7 @@ func (suite *ModelSuite) Test_UnpackEffectiveDateValidation() {
 	}
 
 	expErrors = map[string][]string{
-		"effective_date_upper": []string{"EffectiveDateUpper must be after EffectiveDateLower."},
+		"effective_date_upper": {"EffectiveDateUpper must be after EffectiveDateLower."},
 	}
 	suite.verifyValidationErrors(&invalidUnpackRate, expErrors)
 }
@@ -42,7 +42,7 @@ func (suite *ModelSuite) Test_UnpackRateValidation() {
 	}
 
 	expErrors = map[string][]string{
-		"rate_millicents": []string{"-1 is not greater than -1."},
+		"rate_millicents": {"-1 is not greater than -1."},
 	}
 	suite.verifyValidationErrors(&invalidUnpackRate, expErrors)
 }

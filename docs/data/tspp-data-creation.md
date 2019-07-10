@@ -208,7 +208,7 @@ We'll now create a new migration with that data (replace your migration filename
 ./bin/soda generate sql add_new_tdls
 rm migrations/20190410152949_add_new_tdls.down.sql
 echo -e "INSERT INTO traffic_distribution_lists (id, source_rate_area, destination_region, code_of_service, created_at, updated_at) \nVALUES\n$(
-./scripts/psql-prod-migrations "\copy (SELECT id, source_rate_area, destination_region, code_of_service FROM temp_tdls WHERE import = true) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
+./scripts/psql-deployed-migrations "\copy (SELECT id, source_rate_area, destination_region, code_of_service FROM temp_tdls WHERE import = true) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
   | awk '{print "  ("$0", now(), now()),"}' \
   | sed '$ s/.$//');" \
   > migrations/20190410152949_add_new_tdls.up.sql
@@ -271,7 +271,7 @@ Generate the migration (replacing your migration filename):
 rm migrations/20190409010258_add_new_scacs.down.sql
 
 echo -e "INSERT INTO transportation_service_providers (id, standard_carrier_alpha_code, created_at, updated_at, name) \nVALUES\n$(
-./scripts/psql-prod-migrations "\copy (SELECT id, standard_carrier_alpha_code from temp_tsps) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
+./scripts/psql-deployed-migrations "\copy (SELECT id, standard_carrier_alpha_code from temp_tsps) TO stdout WITH (FORMAT CSV, FORCE_QUOTE *, QUOTE '''');" \
   | awk '{print "  ("$0", now(), now(), '\''),"}' \
   | sed '$ s/.$//');" \
   > migrations/20190409010258_add_new_scacs.up.sql
@@ -420,7 +420,7 @@ The file will also need to be reduced. Currently, we are picking 2 TSPs per TDL.
 
 The following SQL can be used to do the above mentioned:
 
-* Truncate the table transportation_service_provider_performances:
+* Truncate the table `transportation_service_provider_performances`:
 
 ```sql
 TRUNCATE transportation_service_provider_performances CASCADE;

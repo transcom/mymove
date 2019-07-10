@@ -46,6 +46,8 @@ const (
 	MoveDocumentTypeSHIPMENTSUMMARY MoveDocumentType = "SHIPMENT_SUMMARY"
 	// MoveDocumentTypeEXPENSE captures enum value "EXPENSE"
 	MoveDocumentTypeEXPENSE MoveDocumentType = "EXPENSE"
+	// MoveDocumentTypeWEIGHTTICKETSET captures enum value "WEIGHT_TICKET_SET"
+	MoveDocumentTypeWEIGHTTICKETSET MoveDocumentType = "WEIGHT_TICKET_SET"
 
 	// HHG Doc Types
 

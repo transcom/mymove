@@ -50,7 +50,6 @@ type Session struct {
 	ApplicationName Application
 	Hostname        string
 	IDToken         string
-	Disabled        bool
 	IsSuperuser     bool
 	UserID          uuid.UUID
 	Email           string
@@ -68,9 +67,19 @@ func SetSessionInRequestContext(r *http.Request, session *Session) context.Conte
 	return context.WithValue(r.Context(), sessionContextKey, session)
 }
 
+// SetSessionInContext modifies the context to add the session data.
+func SetSessionInContext(ctx context.Context, session *Session) context.Context {
+	return context.WithValue(ctx, sessionContextKey, session)
+}
+
 // SessionFromRequestContext gets the reference to the Session stored in the request.Context()
 func SessionFromRequestContext(r *http.Request) *Session {
-	if session, ok := r.Context().Value(sessionContextKey).(*Session); ok {
+	return SessionFromContext(r.Context())
+}
+
+// SessionFromContext gets the reference to the Session stored in the request.Context()
+func SessionFromContext(ctx context.Context) *Session {
+	if session, ok := ctx.Value(sessionContextKey).(*Session); ok {
 		return session
 	}
 	return nil

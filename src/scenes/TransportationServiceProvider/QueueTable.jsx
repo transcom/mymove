@@ -2,10 +2,13 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import ReactTable from 'react-table';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { capitalize } from 'lodash';
 import 'react-table/react-table.css';
-import { RetrieveShipmentsForTSP } from './api.js';
-import { formatDate, formatDateTimeWithTZ } from 'shared/formatters';
+import { formatDate, formatDateTimeWithTZ, formatTimeAgo } from 'shared/formatters';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
+import { setUserIsLoggedIn } from 'shared/Data/users';
 
 class QueueTable extends Component {
   constructor() {
@@ -14,6 +17,14 @@ class QueueTable extends Component {
       data: [],
       pages: null,
       loading: true,
+      refreshing: false, // only true when the user clicks the refresh button
+      lastLoadedAt: new Date(),
+      lastLoadedAtText: formatTimeAgo(new Date()),
+      interval: setInterval(() => {
+        this.setState({
+          lastLoadedAtText: formatTimeAgo(this.state.lastLoadedAt),
+        });
+      }, 5000),
     };
     this.fetchData = this.fetchData.bind(this);
   }
@@ -28,6 +39,16 @@ class QueueTable extends Component {
     }
   }
 
+  componentWillUnmount() {
+    clearInterval(this.state.interval);
+  }
+
+  openShipment(rowInfo) {
+    this.props.history.push(`/shipments/${rowInfo.original.id}`, {
+      referrerPathname: this.props.history.location.pathname,
+    });
+  }
+
   async fetchData() {
     const loadingQueueType = this.props.queueType;
 
@@ -40,7 +61,7 @@ class QueueTable extends Component {
 
     // Catch any errors here and render an empty queue
     try {
-      const body = await RetrieveShipmentsForTSP(this.props.queueType);
+      const body = await this.props.retrieveShipments(this.props.queueType);
 
       // Only update the queue list if the request that is returning
       // is for the same queue as the most recent request.
@@ -49,6 +70,8 @@ class QueueTable extends Component {
           data: body,
           pages: 1,
           loading: false,
+          refreshing: false,
+          lastLoadedAt: new Date(),
         });
       }
     } catch (e) {
@@ -56,16 +79,36 @@ class QueueTable extends Component {
         data: [],
         pages: 1,
         loading: false,
+        refreshing: false,
+        lastLoadedAt: new Date(),
       });
+      // redirect to home page if unauthorized
+      if (e.status === 401) {
+        this.props.setUserIsLoggedIn(false);
+      }
     }
+  }
+
+  refresh() {
+    clearInterval(this.state.interval);
+
+    this.setState({
+      refreshing: true,
+      lastLoadedAt: new Date(),
+      interval: setInterval(() => {
+        this.setState({
+          lastLoadedAtText: formatTimeAgo(this.state.lastLoadedAt),
+        });
+      }, 5000),
+    });
+
+    this.fetchData();
   }
 
   render() {
     const titles = {
       new: 'New Shipments',
       accepted: 'Accepted Shipments',
-      completed: 'Completed Shipments',
-      approved: 'Approved Shipments',
       in_transit: 'In Transit Shipments',
       delivered: 'Delivered Shipments',
       all: 'All Shipments',
@@ -75,6 +118,21 @@ class QueueTable extends Component {
       <div>
         <h1 className="queue-heading">Queue: {titles[this.props.queueType]}</h1>
         <div className="queue-table">
+          <span className="staleness-indicator" data-cy="staleness-indicator">
+            Last updated {formatTimeAgo(this.state.lastLoadedAt)}
+          </span>
+          <span className={'refresh' + (this.state.refreshing ? ' focused' : '')} title="Refresh" aria-label="Refresh">
+            <FontAwesomeIcon
+              data-cy="refreshQueue"
+              className="link-blue"
+              icon={faSyncAlt}
+              onClick={this.refresh.bind(this)}
+              color="blue"
+              size="lg"
+              spin={!this.state.refreshing && this.state.loading}
+            />
+          </span>
+
           <ReactTable
             columns={[
               {
@@ -138,10 +196,9 @@ class QueueTable extends Component {
             className="-striped -highlight"
             showPagination={false}
             getTrProps={(state, rowInfo) => ({
-              onDoubleClick: e =>
-                this.props.history.push(`/shipments/${rowInfo.original.id}`, {
-                  referrerPathname: this.props.history.location.pathname,
-                }),
+              'data-cy': 'queueTableRow',
+              onDoubleClick: () => this.openShipment(rowInfo),
+              onClick: () => this.openShipment(rowInfo),
             })}
           />
         </div>
@@ -150,6 +207,12 @@ class QueueTable extends Component {
   }
 }
 
-const mapStateToProps = state => ({});
+const mapStateToProps = (state, ownProps) => ({
+  retrieveShipments: ownProps.retrieveShipments,
+});
 
-export default withRouter(connect(mapStateToProps)(QueueTable));
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({ setUserIsLoggedIn }, dispatch);
+}
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(QueueTable));

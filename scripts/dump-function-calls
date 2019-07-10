@@ -20,4 +20,4 @@ readonly format='{"path":"{{.Caller.Pkg.Pkg.Path}}","line":"{{.Line}}","column":
 # Use the deployed architecture, since we don't really care what is used just for darwin/macOS.
 # "The cgo tool is enabled by default for native builds on systems where it is expected to work. It is disabled by default when cross-compiling"
 # https://golang.org/cmd/cgo/
-CGO_ENABLED=1 GOOS=linux GOARCH=amd64 "$DIR/callgraph" -format "$format" "$entrypoint"
+CGO_ENABLED=1 GOOS=linux GOARCH=amd64 "$DIR/../bin/callgraph" -format "$format" "$entrypoint"

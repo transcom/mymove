@@ -64,12 +64,6 @@ type StationOfficePair struct {
 	models.TransportationOffice
 }
 
-// column pairs a column name with its INSERT query-stringified value
-type column struct {
-	name  string
-	value string
-}
-
 // Gotta have a stringPointer function. Returns nil if empty string
 func stringPointer(s string) *string {
 	if s == "" {

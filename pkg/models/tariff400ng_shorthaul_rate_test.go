@@ -29,7 +29,7 @@ func (suite *ModelSuite) Test_ShorthaulRateEffectiveDateValidation() {
 	}
 
 	expErrors = map[string][]string{
-		"effective_date_upper": []string{"EffectiveDateUpper must be after EffectiveDateLower."},
+		"effective_date_upper": {"EffectiveDateUpper must be after EffectiveDateLower."},
 	}
 	suite.verifyValidationErrors(&invalidShorthaulRate, expErrors)
 }
@@ -51,7 +51,7 @@ func (suite *ModelSuite) Test_ShorthaulRateServiceChargeValidation() {
 	}
 
 	expErrors = map[string][]string{
-		"service_charge_cents": []string{"-1 is not greater than -1."},
+		"service_charge_cents": {"-1 is not greater than -1."},
 	}
 	suite.verifyValidationErrors(&invalidShorthaulRate, expErrors)
 }
@@ -71,7 +71,7 @@ func (suite *ModelSuite) Test_ShorthaulRateCwtMilesValidation() {
 	}
 
 	expErrors = map[string][]string{
-		"cwt_miles_upper": []string{"10 is not greater than 20."},
+		"cwt_miles_upper": {"10 is not greater than 20."},
 	}
 	suite.verifyValidationErrors(&invalidShorthaulRate, expErrors)
 }

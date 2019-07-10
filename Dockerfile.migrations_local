@@ -16,6 +16,6 @@ ENV SECURE_MIGRATION_DIR=/migrate/local
 
 # Install tools needed in container
 RUN apk update
-RUN apk add postgresql-client bash
+RUN apk add postgresql-client bash --no-cache
 
 WORKDIR /scripts

@@ -7,10 +7,12 @@
 
 # testing
 /coverage
+**/mocks
 coverage.out
 __snapshots__
 
 # development
+/mnt
 /tmp
 
 # Ignore

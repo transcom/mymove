@@ -62,6 +62,7 @@ type ServiceMember struct {
 	BackupContacts         BackupContacts            `has_many:"backup_contacts"`
 	DutyStationID          *uuid.UUID                `json:"duty_station_id" db:"duty_station_id"`
 	DutyStation            DutyStation               `belongs_to:"duty_stations"`
+	RequiresAccessCode     bool                      `json:"requires_access_code" db:"requires_access_code"`
 }
 
 // ServiceMembers is not required by pop and may be deleted
@@ -95,7 +96,16 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 	defer span.Send()
 
 	var serviceMember ServiceMember
-	err := db.Q().Eager().Find(&serviceMember, id)
+	err := db.Q().Eager("User",
+		"BackupMailingAddress",
+		"BackupContacts",
+		"DutyStation",
+		"DutyStation.TransportationOffice",
+		"Orders",
+		"Orders.NewDutyStation",
+		"Orders.NewDutyStation.TransportationOffice",
+		"ResidentialAddress",
+		"SocialSecurityNumber").Find(&serviceMember, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return ServiceMember{}, ErrFetchNotFound

@@ -132,11 +132,11 @@ func (suite *DutyStationsLoaderSuite) TestSeparateStations() {
 
 	builder := NewMigrationBuilder(suite.DB(), suite.logger)
 	new, existing, err := builder.separateExistingStations([]DutyStationWrapper{
-		DutyStationWrapper{
+		{
 			TransportationOfficeName: "Some name",
 			DutyStation:              saved,
 		},
-		DutyStationWrapper{
+		{
 			TransportationOfficeName: "Some other name",
 			DutyStation:              notSaved,
 		},
