@@ -5,6 +5,7 @@ import './PPMPaymentRequest.css';
 const PPMPaymentRequestActionBtns = props => {
   const {
     nextBtnLabel,
+    skipHandler,
     saveAndAddHandler,
     saveForLaterHandler,
     submitButtonsAreDisabled,
@@ -31,7 +32,7 @@ const PPMPaymentRequestActionBtns = props => {
         )}
       </div>
       {displaySkip && (
-        <button type="button" className="usa-button-secondary">
+        <button type="button" className="usa-button-secondary" onClick={skipHandler}>
           Skip
         </button>
       )}

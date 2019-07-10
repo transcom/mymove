@@ -118,6 +118,14 @@ class WeightTicket extends Component {
     });
   };
 
+  skipHandler = () => {
+    const { moveId, history } = this.props;
+
+    const nextPage = getNextPage(`/moves/${moveId}${nextPagePath}`, this.props.lastLocation, reviewPagePath);
+    console.log(nextPage);
+    history.push(nextPage);
+  };
+
   saveForLaterHandler = formValues => {
     const { history } = this.props;
     return this.saveAndAddHandler(formValues).then(() => {
@@ -451,6 +459,7 @@ class WeightTicket extends Component {
               nextBtnLabel={nextBtnLabel}
               submitButtonsAreDisabled={this.uploaderWithInvalidState() || invalid}
               submitting={submitting}
+              skipHandler={this.skipHandler}
               saveForLaterHandler={handleSubmit(this.saveForLaterHandler)}
               saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
               displaySaveForLater={true}
