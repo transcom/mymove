@@ -7,6 +7,7 @@ RUN mkdir -p /scripts
 COPY scripts/apply-secure-migration.sh /scripts
 
 COPY migrations /migrate/migrations
+COPY migrations_manifest.txt /migrate/migrations_manifest.txt
 
 RUN mkdir -p /migrate/secure
 
@@ -19,4 +20,4 @@ RUN pip3 install awscli
 
 WORKDIR /scripts
 ENTRYPOINT ["/bin/milmove"]
-CMD ["migrate", "-p", "/migrate/migrations"]
+CMD ["migrate", "-p", "/migrate/migrations", "-m", "/migrate/migrations_manifest.txt"]
