@@ -2,7 +2,7 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import { selectGetCurrentUserIsSuccess, selectGetCurrentUserIsError } from 'shared/Data/users';
+import { selectCurrentUser, selectGetCurrentUserIsLoading } from 'shared/Data/users';
 import SignIn from './SignIn';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
@@ -10,15 +10,15 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 // note that it does not work if the route is not inside a Switch
 class PrivateRouteContainer extends React.Component {
   render() {
-    const { loginHasSucceeded, loginHasErrored, path, ...props } = this.props;
-    if (loginHasSucceeded) return <Route {...props} />;
-    else if (loginHasErrored) return <Route path={path} component={SignIn} />;
-    else return <LoadingPlaceholder />;
+    const { loginIsLoading, userIsLoggedIn, path, ...props } = this.props;
+    if (userIsLoggedIn) return <Route {...props} />;
+    else if (loginIsLoading) return <LoadingPlaceholder />;
+    else return <Route path={path} component={SignIn} />;
   }
 }
 const mapStateToProps = state => ({
-  loginHasErrored: selectGetCurrentUserIsError(state),
-  loginHasSucceeded: selectGetCurrentUserIsSuccess(state),
+  loginIsLoading: selectGetCurrentUserIsLoading(state),
+  userIsLoggedIn: selectCurrentUser(state).isLoggedIn,
 });
 
 const PrivateRoute = connect(mapStateToProps)(PrivateRouteContainer);

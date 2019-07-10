@@ -8,7 +8,7 @@ DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # The version of the postgres container should match production as closely
 # as possible.
 # https://github.com/transcom/ppp-infra/blob/7ba2e1086ab1b2a0d4f917b407890817327ffb3d/modules/aws-app-environment/database/variables.tf#L48
-DB_DOCKER_CONTAINER_IMAGE = postgres:10.6
+DB_DOCKER_CONTAINER_IMAGE = postgres:10.9
 TASKS_DOCKER_CONTAINER = tasks
 export PGPASSWORD=mysecretpassword
 
@@ -535,7 +535,7 @@ db_deployed_migrations_migrate_standalone: bin/milmove ## Migrate Deployed Migra
 db_deployed_migrations_migrate: server_deps db_deployed_migrations_migrate_standalone ## Migrate Deployed Migrations DB
 
 #
-# ----- END DB_PROD_MIGRATIONS TARGETS -----
+# ----- END DB_DEPLOYED_MIGRATIONS TARGETS -----
 #
 
 #

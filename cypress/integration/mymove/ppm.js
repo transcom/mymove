@@ -319,6 +319,7 @@ describe('allows a SM to request a payment', function() {
     serviceMemberViewsExpensesLandingPage();
     serviceMemberUploadsExpenses(false);
     serviceMemberReviewsDocuments();
+    serviceMemberEditsPaymentRequest();
   });
 
   //TODO: remove when done with the new flow to request payment
@@ -395,7 +396,23 @@ function serviceMemberReviewsDocuments() {
   cy.wait('@signedCertifications');
   cy.wait('@requestPayment');
 }
-
+function serviceMemberEditsPaymentRequest() {
+  cy
+    .get('.usa-alert-success')
+    .contains('Payment request submitted')
+    .should('exist');
+  cy
+    .get('.usa-button-secondary')
+    .contains('Edit Payment Request')
+    .should('exist')
+    .click();
+  cy
+    .get('[data-cy=weight-ticket-link]')
+    .should('exist')
+    .click();
+  serviceMemberSubmitsWeightTicket('CAR', false);
+  serviceMemberReviewsDocuments();
+}
 function serviceMemberViewsExpensesLandingPage() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-expenses-intro/);

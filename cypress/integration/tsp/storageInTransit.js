@@ -179,7 +179,7 @@ function tspUserCreatesSitRequest() {
     .get('.storage-in-transit-form')
     .should($div => {
       const text = $div.text();
-      expect(text).to.include('SIT location');
+      expect(text).to.include('SIT Location');
       expect(text).to.include('Warehouse ID number');
       expect(text).to.include('Warehouse name');
       expect(text).to.include('Address line 1');

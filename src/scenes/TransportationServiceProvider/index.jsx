@@ -18,6 +18,7 @@ import { isProduction } from 'shared/constants';
 import DocumentViewer from './DocumentViewerContainer';
 import NewDocument from './NewDocumentContainer';
 import ShipmentInfo from './ShipmentInfo';
+import { RetrieveShipmentsForTSP } from './api.js';
 
 import './tsp.scss';
 
@@ -29,7 +30,7 @@ class Queues extends Component {
           <QueueList />
         </div>
         <div className="queue-list-column">
-          <QueueTable queueType={this.props.match.params.queueType} />
+          <QueueTable queueType={this.props.match.params.queueType} retrieveShipments={RetrieveShipmentsForTSP} />
         </div>
       </div>
     );

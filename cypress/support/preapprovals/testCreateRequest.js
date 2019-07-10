@@ -17,8 +17,10 @@ export function fillAndSavePreApprovalRequest() {
   cy.selectTariff400ngItem('Article: Motorcycle');
 
   cy.get('select[name="location"]').select('ORIGIN');
-
-  cy.typeInInput({ name: 'quantity_1', value: 2 });
+  cy
+    .get('input[name="quantity_1"]')
+    .clear({ force: true })
+    .type('2', { force: true });
   cy.typeInTextarea({ name: 'notes', value: `notes notes` });
 
   cy
