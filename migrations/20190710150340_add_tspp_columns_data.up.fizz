@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190710150340_add_tspp_columns_data.sql")
