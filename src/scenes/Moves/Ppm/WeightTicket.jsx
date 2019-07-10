@@ -62,7 +62,7 @@ class WeightTicket extends Component {
   get initialState() {
     return {
       vehicleType: '',
-      additionalWeightTickets: 'Yes',
+      additionalWeightTickets: 'No',
       isValidTrailer: 'No',
       weightTicketSubmissionError: false,
       missingDocumentation: false,
