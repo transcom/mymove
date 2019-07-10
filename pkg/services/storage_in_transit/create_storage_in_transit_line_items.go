@@ -6,7 +6,6 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
@@ -58,11 +57,6 @@ func (c CreateStorageInTransitLineItems) storageInTransitDistance(storageInTrans
 		saveError := errors.Wrapf(err, "Error saving storage in transit distance %s", verrs.Error())
 		return nil, saveError
 	}
-
-	logger, err := zap.NewDevelopment()
-	logger.Debug("origin vs destination for distanceCalculation", zap.Any("Origin Address", origin),
-		zap.Any("Destination Address", destination),
-		zap.Any("distance", distanceCalculation.DistanceMiles))
 
 	return &distanceCalculation, nil
 }
