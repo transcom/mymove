@@ -201,9 +201,10 @@ func (suite *serverSuite) TestTLSConfigWithRequest() {
 	caCertPool.AppendCertsFromPEM(caFile)
 
 	// A handler that we can test with
-	// handler := func(w http.ResponseWriter, r *http.Request) {
-	// 	io.WriteString(w, "<html><body>Hello World!</body></html>")
-	// }
+	htmlBody := "<html><body>Hello, client</body></html>"
+	httpHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintln(w, htmlBody)
+	})
 
 	host := "localhost"
 	port := 7443
@@ -212,7 +213,7 @@ func (suite *serverSuite) TestTLSConfigWithRequest() {
 		Port:         port,
 		ClientAuth:   tls.RequireAndVerifyClientCert,
 		ClientCAs:    caCertPool,
-		HTTPHandler:  suite.httpHandler,
+		HTTPHandler:  httpHandler,
 		Logger:       suite.logger,
 		Certificates: []tls.Certificate{keyPair},
 	})
@@ -239,6 +240,6 @@ func (suite *serverSuite) TestTLSConfigWithRequest() {
 		body, err := ioutil.ReadAll(res.Body)
 		res.Body.Close()
 		suite.Nil(err)
-		suite.Equal("404 page not found\n", string(body))
+		suite.Equal(htmlBody+"\n", string(body))
 	}
 }
