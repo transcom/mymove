@@ -158,7 +158,18 @@ func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration) error {
 				}
 			}
 			if err == nil && byteIsSpace(str[2]) {
-				if str[0:2] == "DO" || (str[0:2] == "AS" && (hasPrefix(stmt.String(), "CREATE OR REPLACE FUNCTION") || hasPrefix(stmt.String(), "CREATE FUNCTION"))) {
+				pushBlock := false
+				if str[0:2] == "DO" {
+					if !hasPrefix(stmt.String(), "INSERT INTO") {
+						pushBlock = true
+					}
+				} else if str[0:2] == "AS" {
+					if hasPrefix(stmt.String(), "CREATE OR REPLACE FUNCTION") || hasPrefix(stmt.String(), "CREATE FUNCTION") {
+						pushBlock = true
+					}
+				}
+
+				if pushBlock {
 					stmt.WriteString(str[0:2])
 					i += 2
 
