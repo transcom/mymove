@@ -85,7 +85,6 @@ StoragePanel = reduxForm({
 function mapStateToProps(state, props) {
   const formValues = getFormValues(formName)(state);
   const ppm = selectPPMForMove(state, props.moveId);
-  const moveDocuments = props.moveDocuments;
 
   return {
     // reduxForm
@@ -94,7 +93,7 @@ function mapStateToProps(state, props) {
       total_sit_cost: formatCents(ppm.total_sit_cost),
       days_in_storage: ppm.days_in_storage,
     },
-    storageExpenses: filter(moveDocuments, ['moving_expense_type', 'STORAGE']),
+    storageExpenses: filter(props.moveDocuments, ['moving_expense_type', 'STORAGE']),
     ppmSchema: get(state, 'swaggerInternal.spec.definitions.PersonallyProcuredMovePayload'),
     ppm,
 
