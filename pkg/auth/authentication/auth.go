@@ -79,7 +79,7 @@ func AdminAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 			session := auth.SessionFromRequestContext(r)
 
 			if session == nil || !session.IsAdminUser() {
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			}
 
