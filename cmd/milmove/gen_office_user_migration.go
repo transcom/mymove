@@ -12,6 +12,9 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
+
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 
@@ -65,12 +68,18 @@ func CheckAddOfficeUsers(v *viper.Viper) error {
 	return nil
 }
 
-func initFlags(flag *pflag.FlagSet) {
+func initGenOffierUserMigrationFlags(flag *pflag.FlagSet) {
 	// Verbose
 	cli.InitVerboseFlags(flag)
 
+	// Migration Config
+	cli.InitMigrationFlags(flag)
+
 	// Add Office Users
 	InitAddOfficeUsersFlags(flag)
+
+	// Sort command line flags
+	flag.SortFlags = true
 }
 
 func ValidateOfficeUser(o *models.OfficeUser) (*validate.Errors, error) {
@@ -144,55 +153,71 @@ func closeFile(outfile *os.File) {
 	}
 }
 
-func main() {
-	flag := pflag.CommandLine
-	initFlags(flag)
-	err := flag.Parse(os.Args[1:])
+func createMigration(path string, filename string, t *template.Template, templateData interface{}) error {
+	migrationPath := filepath.Join(path, filename)
+	migrationFile, err := os.Create(migrationPath)
+	defer closeFile(migrationFile)
 	if err != nil {
-		log.Fatal(err)
+		return errors.Wrapf(err, "error creating %s", migrationPath)
+	}
+	err = t.Execute(migrationFile, templateData)
+	if err != nil {
+		log.Println("error executing template: ", err)
+	}
+	log.Printf("new migration file created at:  %q\n", migrationPath)
+	return nil
+}
+
+func genOfficeUserMigration(cmd *cobra.Command, args []string) error {
+	err := cmd.ParseFlags(args)
+	flag := cmd.Flags()
+	err = flag.Parse(os.Args[1:])
+	if err != nil {
+		return errors.Wrap(err, "could not parse flags")
 	}
 	v := viper.New()
 	err = v.BindPFlags(flag)
 	if err != nil {
-		log.Fatal(err)
+		return errors.Wrap(err, "could not bind flags")
 	}
 	err = CheckAddOfficeUsers(v)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
+	migrationsPath := v.GetString(cli.MigrationPathFlag)
+	migrationManifest := v.GetString(cli.MigrationManifestFlag)
 	officeUsersFileName := v.GetString(OfficeUsersFilenameFlag)
 	migrationFileName := v.GetString(OfficeUsersMigrationFilenameFlag)
 
 	officeUsers, err := readOfficeUsersCSV(officeUsersFileName)
 	if err != nil {
-		log.Fatal("error reading csv file: ", err)
+		return errors.Wrap(err, "error reading csv file")
 	}
 
 	secureMigrationName := fmt.Sprintf("%s_%s.up.sql", time.Now().Format(VersionTimeFormat), migrationFileName)
-	secureMigrationPath := filepath.Join("./tmp", secureMigrationName)
-	secureMigrationFile, err := os.Create(secureMigrationPath)
-	defer closeFile(secureMigrationFile)
-	if err != nil {
-		log.Fatalf("error creating %s: %v\n", secureMigrationPath, err)
-	}
 	t1 := template.Must(template.New("add_office_user").Parse(createOfficeUser))
-	err = t1.Execute(secureMigrationFile, officeUsers)
+	err = createMigration("./tmp", secureMigrationName, t1, officeUsers)
 	if err != nil {
-		log.Println("error executing template: ", err)
+		return err
 	}
-	log.Printf("new secure migration file created at:  %q\n", secureMigrationPath)
+	localMigrationPath := filepath.Join("local_migrations", secureMigrationName)
+	localMigrationFile, err := os.Create(localMigrationPath)
+	defer closeFile(localMigrationFile)
+	if err != nil {
+		return errors.Wrapf(err, "error creating %s", localMigrationPath)
+	}
+	log.Printf("new migration file created at:  %q\n", localMigrationPath)
 
 	migrationName := fmt.Sprintf("%s_%s.up.fizz", time.Now().Format(VersionTimeFormat), migrationFileName)
-	migrationPath := filepath.Join("./migrations", migrationName)
-	migrationFile, err := os.Create(migrationPath)
-	defer closeFile(migrationFile)
-	if err != nil {
-		log.Fatalf("error creating %s: %v\n", migrationPath, err)
-	}
 	t2 := template.Must(template.New("migration").Parse(migration))
-	err = t2.Execute(migrationFile, secureMigrationName)
+	err = createMigration(migrationsPath, migrationName, t2, secureMigrationName)
 	if err != nil {
-		log.Println("error executing template: ", err)
+		return err
 	}
-	log.Printf("new migration file created at:  %q\n", migrationPath)
+
+	err = addMigrationToManifest(migrationManifest, migrationName)
+	if err != nil {
+		return err
+	}
+	return nil
 }

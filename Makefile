@@ -241,9 +241,6 @@ bin/load-office-data: .server_generate.stamp
 bin/load-user-gen: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/load-user-gen ./cmd/load_user_gen
 
-bin/make-office-users-migration: .server_generate.stamp
-	go build -ldflags "$(LDFLAGS)" -o bin/make_office_users_migration ./cmd/make_office_users_migration
-
 bin/make-dps-user: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/make-dps-user ./cmd/make_dps_user
 
@@ -361,7 +358,6 @@ build_tools: server_deps \
 	bin/load-user-gen \
 	bin/make-dps-user \
 	bin/make-office-user \
-	bin/make-office-users-migration \
 	bin/make-tsp-user \
 	bin/renderer \
 	bin/save-fuel-price-data \
