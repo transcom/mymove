@@ -17,7 +17,9 @@
     "--db-env",
     "container",
     "-p",
-    "/migrate/migrations"
+    "/migrate/migrations",
+    "-m",
+    "/migrate/migrations_manifest.txt"
   ],
   "command": [],
   "environment": [

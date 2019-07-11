@@ -29,9 +29,9 @@ Use soda (a part of [pop](https://github.com/gobuffalo/pop/)) to generate models
 
 If you are generating a new model, use: `gen-model model-name column-name:type column-name:type ...`. The fields `id`, `created_at`, and `updated_at` are all created automatically.
 
-### Modifying an Existing Model
+### Generating a New Migration
 
-If you are modifying an existing model, use `soda generate migration migration_name` and add the [Fizz commands](https://github.com/gobuffalo/fizz) yourself to the created `{migration_name}.up.fizz` file. Delete the `down.fizz` file, as we aren't using those (see note below.)
+If you are generating a new migration, use: `milmove gen migration`, which will create a placeholder migration and add it to the manifest.
 
 ## Zero-Downtime Migrations
 
