@@ -630,13 +630,11 @@ db_test_migrate_docker: db_test_migrations_build ## Migrate Test DB (docker)
 		-e DB_PORT=$(DB_PORT_DOCKER) \
 		-e DB_USER=postgres \
 		-e DB_PASSWORD=$(PGPASSWORD) \
-		-e "MIGRATION_PATH=/migrate/local_migrations;/migrate/migrations" \
-		-e "MIGRATION_MANIFEST=/migrate/migrations_manifest.txt" \
 		--link="$(DB_DOCKER_CONTAINER_TEST):database" \
 		--rm \
 		--entrypoint /bin/milmove\
 		e2e_migrations:latest \
-		migrate -p /migrate/migrations -m /migrate/migrations_manifest.txt
+		migrate -p "/migrate/local_migrations;/migrate/migrations" -m /migrate/migrations_manifest.txt
 
 #
 # ----- END DB_TEST TARGETS -----
@@ -856,11 +854,6 @@ make_test: ## Test make targets not checked by CircleCI
 #
 # ----- START RANDOM TARGETS -----
 #
-
-.PHONY: prune
-prune:  ## Prune docker containers and images
-	docker container prune
-	docker image prune -a
 
 .PHONY: adr_update
 adr_update: .client_deps.stamp ## Update ADR Log
