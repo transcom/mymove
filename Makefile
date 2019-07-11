@@ -480,6 +480,10 @@ db_dev_migrate_standalone: bin/milmove
 .PHONY: db_dev_migrate
 db_dev_migrate: server_deps db_dev_migrate_standalone ## Migrate Dev DB
 
+.PHONY: db_dev_psql
+db_dev_psql: ## Open PostgreSQL shell for Dev DB
+	scripts/psql-dev
+
 #
 # ----- END DB_DEV TARGETS -----
 #
@@ -533,6 +537,10 @@ db_deployed_migrations_migrate_standalone: bin/milmove ## Migrate Deployed Migra
 
 .PHONY: db_deployed_migrations_migrate
 db_deployed_migrations_migrate: server_deps db_deployed_migrations_migrate_standalone ## Migrate Deployed Migrations DB
+
+.PHONY: db_deployed_psql
+db_deployed_psql: ## Open PostgreSQL shell for Deployed Migrations DB
+	scripts/psql-deployed-migrations
 
 #
 # ----- END DB_DEPLOYED_MIGRATIONS TARGETS -----
@@ -637,6 +645,10 @@ db_test_migrate_docker: db_test_migrations_build ## Migrate Test DB (docker)
 		--entrypoint /bin/milmove\
 		e2e_migrations:latest \
 		migrate -p /migrate/migrations -m /migrate/migrations_manifest.txt
+
+.PHONY: db_test_psql
+db_test_psql: ## Open PostgreSQL shell for Test DB
+	scripts/psql-test
 
 #
 # ----- END DB_TEST TARGETS -----
