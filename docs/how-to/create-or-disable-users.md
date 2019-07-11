@@ -48,7 +48,7 @@ INSERT INTO public.office_users
      );
 ```
 
-Writing this migration by hand can become tedious if there are many office users to add. In such cases, if the data can be provided in or
+Writing this migration by hand can become tedious if there are multiple office users to add. In such cases, if the data can be provided in or
 reformatted as a csv file matching the format below
 
 ```markdown
@@ -67,33 +67,32 @@ reformatted as a csv file matching the format below
 
 ```
 
-you can instead use the command line helper `make_office_users_migration` to auto-generate the migration.
+you can instead use the command line helper `milmove gen office-user-migration` to auto-generate the migration files.
 
-For example, applying `make_office_users_migration` to a csv file containing data above
+Running `milmove gen office-user-migration` on a csv file containing the
+data above will add the migration to the `migrations_manifest.txt` and create three files:
 
-```bash
-./bin/make_office_users_migration -f test_office_users.csv -n add-office-users
-```
+* A .sql file in `tmp` containing the actual secure migration
 
-would produce two migration files. One .sql file in `tmp` containing the following migration
+    ```sql
+    INSERT INTO public.office_users
+    (id, user_id, first_name, last_name, middle_initials, email, telephone, transportation_office_id, created_at, updated_at)
+    VALUES
+    ('f4eb1945-25f6-4dea-b4e9-f9a01628602f', NULL, 'Robert', 'Sanders', 'T', 'robertsanders@mail.com', '(915) 269-1070', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+    ,('20ddda94-8015-41a2-9802-87fb8c5cbf40', NULL, 'Jennifer', 'Jackson', NULL, 'jenniferjackson@mail.com', '(201) 271-0070', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+    ,('3341ca2d-0fde-43fa-b780-11ffafd8ffdd', NULL, 'Robert', 'Diaz', NULL, 'robertdiaz@mail.com', '(241) 740-2961', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+    ,('859a8218-e393-4df7-8fa6-11e719ed157b', NULL, 'John', 'Cooper', NULL, 'johncooper@mail.com', '(750) 789-5810', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+    ,('3fcc4f00-43be-41b6-a2dd-5789b0abdcc5', NULL, 'Robert', 'Thompson', NULL, 'robertthompson@mail.com', '(346) 464-0904', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+    ,('15612b99-3fee-475d-99c7-339bb306fcaa', NULL, 'Lisa', 'Morgan', NULL, 'lisamorgan@mail.com', '(225) 656-6220', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+    ,('e0d3255b-af7e-4f4c-8dac-695b660731bf', NULL, 'Richard', 'Ellis', NULL, 'richardellis@mail.com', '(853) 992-5796', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+    ,('cc1f5eba-00d1-4121-ae26-1342379efd0b', NULL, 'David', 'Gonzalez', 'J', 'davidgonzalez@mail.com', '(790) 907-0453', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+    ,('939a271e-f2fd-43be-986f-0a0596fee411', NULL, 'Richard', 'Collins', NULL, 'richardcollins@mail.com', '(518) 772-8852', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+    ,('aacaf7d9-aa6f-4e96-8837-56b1b4091158', NULL, 'Barbara', 'Howard', NULL, 'barbarahoward@mail.com', '(392) 216-7523', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now());
+    ```
 
-```sql
-INSERT INTO public.office_users
-(id, user_id, first_name, last_name, middle_initials, email, telephone, transportation_office_id, created_at, updated_at)
-VALUES
-('f4eb1945-25f6-4dea-b4e9-f9a01628602f', NULL, 'Robert', 'Sanders', 'T', 'robertsanders@mail.com', '(915) 269-1070', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
-,('20ddda94-8015-41a2-9802-87fb8c5cbf40', NULL, 'Jennifer', 'Jackson', NULL, 'jenniferjackson@mail.com', '(201) 271-0070', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
-,('3341ca2d-0fde-43fa-b780-11ffafd8ffdd', NULL, 'Robert', 'Diaz', NULL, 'robertdiaz@mail.com', '(241) 740-2961', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
-,('859a8218-e393-4df7-8fa6-11e719ed157b', NULL, 'John', 'Cooper', NULL, 'johncooper@mail.com', '(750) 789-5810', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
-,('3fcc4f00-43be-41b6-a2dd-5789b0abdcc5', NULL, 'Robert', 'Thompson', NULL, 'robertthompson@mail.com', '(346) 464-0904', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
-,('15612b99-3fee-475d-99c7-339bb306fcaa', NULL, 'Lisa', 'Morgan', NULL, 'lisamorgan@mail.com', '(225) 656-6220', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
-,('e0d3255b-af7e-4f4c-8dac-695b660731bf', NULL, 'Richard', 'Ellis', NULL, 'richardellis@mail.com', '(853) 992-5796', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
-,('cc1f5eba-00d1-4121-ae26-1342379efd0b', NULL, 'David', 'Gonzalez', 'J', 'davidgonzalez@mail.com', '(790) 907-0453', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
-,('939a271e-f2fd-43be-986f-0a0596fee411', NULL, 'Richard', 'Collins', NULL, 'richardcollins@mail.com', '(518) 772-8852', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
-,('aacaf7d9-aa6f-4e96-8837-56b1b4091158', NULL, 'Barbara', 'Howard', NULL, 'barbarahoward@mail.com', '(392) 216-7523', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now());
-```
+* `.fizz` file in the `migrations` folder that will apply the secure migration.
 
-and one `.fizz` file in the migrations folder to apply the secure migration.
+* An empty `.sql` file in the `local_migrations` folder to use for local development / testing.
 
 ### Creating TSP Users
 
