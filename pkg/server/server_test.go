@@ -3,6 +3,7 @@ package server
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -185,4 +186,50 @@ func (suite *serverSuite) TestHTTPServerConfig() {
 	suite.NoError(err)
 	suite.Equal(httpsServer.Addr, "127.0.0.1:8080")
 	suite.Equal(suite.httpHandler, httpsServer.Handler)
+}
+
+func (suite *serverSuite) TestTLSConfigWithRequest() {
+
+	keyPair, err := tls.X509KeyPair(
+		suite.readFile("localhost.pem"),
+		suite.readFile("localhost.key"))
+
+	suite.Nil(err)
+
+	caFile := suite.readFile("ca.pem")
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caFile)
+
+	// A handler that we can test with
+	// handler := func(w http.ResponseWriter, r *http.Request) {
+	// 	io.WriteString(w, "<html><body>Hello World!</body></html>")
+	// }
+
+	host := "127.0.0.1"
+	port := 7443
+	srv, err := CreateNamedServer(&CreateNamedServerInput{
+		Host:         host,
+		Port:         port,
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+		ClientCAs:    caCertPool,
+		HTTPHandler:  suite.httpHandler,
+		Logger:       suite.logger,
+		Certificates: []tls.Certificate{keyPair},
+	})
+	suite.Nil(err)
+	defer srv.Close()
+
+	// Start the Server
+	err = srv.ListenAndServeTLS()
+	suite.Nil(err)
+
+	// Send a request
+	res, err := http.Get(fmt.Sprintf("https://%s:%d", host, port))
+	suite.Nil(err)
+
+	// Read the response
+	body, err := ioutil.ReadAll(res.Body)
+	res.Body.Close()
+	suite.Nil(err)
+	suite.Equal("", body)
 }
