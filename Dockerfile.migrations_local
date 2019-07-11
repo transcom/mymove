@@ -15,5 +15,4 @@ RUN apk update
 RUN apk add postgresql-client bash --no-cache
 
 WORKDIR /
-
 ENTRYPOINT ["/bin/milmove"]
