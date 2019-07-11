@@ -68,10 +68,7 @@ func CheckAddOfficeUsers(v *viper.Viper) error {
 	return nil
 }
 
-func initGenOffierUserMigrationFlags(flag *pflag.FlagSet) {
-	// Verbose
-	cli.InitVerboseFlags(flag)
-
+func initGenOfficeUserMigrationFlags(flag *pflag.FlagSet) {
 	// Migration Config
 	cli.InitMigrationFlags(flag)
 
