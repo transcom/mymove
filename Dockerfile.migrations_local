@@ -1,7 +1,6 @@
 FROM alpine:3.7
 
 COPY bin_linux/milmove /bin/milmove
-
 COPY bin_linux/generate-test-data /bin/generate-test-data
 
 COPY migrations /migrate/migrations
