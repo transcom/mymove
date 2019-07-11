@@ -52,18 +52,19 @@ Writing this migration by hand can become tedious if there are many office users
 reformatted as a csv file matching the format below
 
 ```markdown
-| First Name | Last Name | Email                    | Phone          | Transport Office (UUID)              |
-|------------|-----------|--------------------------|----------------|--------------------------------------|
-| Robert     | Sanders   | robertsanders@mail.com   | (915) 269-1070 | 313db258-d067-41d1-bbc2-91023d62f9a3 |
-| Jennifer   | Jackson   | jenniferjackson@mail.com | (201) 271-0070 | 313db258-d067-41d1-bbc2-91023d62f9a3 |
-| Robert     | Diaz      | robertdiaz@mail.com      | (241) 740-2961 | 313db258-d067-41d1-bbc2-91023d62f9a3 |
-| John       | Cooper    | johncooper@mail.com      | (750) 789-5810 | 313db258-d067-41d1-bbc2-91023d62f9a3 |
-| Robert     | Thompson  | robertthompson@mail.com  | (346) 464-0904 | 313db258-d067-41d1-bbc2-91023d62f9a3 |
-| Lisa       | Morgan    | lisamorgan@mail.com      | (225) 656-6220 | 313db258-d067-41d1-bbc2-91023d62f9a3 |
-| Richard    | Ellis     | richardellis@mail.com    | (853) 992-5796 | 313db258-d067-41d1-bbc2-91023d62f9a3 |
-| David      | Gonzalez  | davidgonzalez@mail.com   | (790) 907-0453 | 313db258-d067-41d1-bbc2-91023d62f9a3 |
-| Richard    | Collins   | richardcollins@mail.com  | (518) 772-8852 | 313db258-d067-41d1-bbc2-91023d62f9a3 |
-| Barbara    | Howard    | barbarahoward@mail.com   | (392) 216-7523 | 313db258-d067-41d1-bbc2-91023d62f9a3 |
+| First Name | Middle Initials (Optional) | Last Name | Email                    | Phone          | Transport Office (UUID)               |
+|------------|----------------------------|-----------|--------------------------|----------------|---------------------------------------|
+| Robert     | T                          | Sanders   | robertsanders@mail.com   | (915) 269-1070 | 313db258-d067-41d1-bbc2-91023d62f9a3  |
+| Jennifer   |                            | Jackson   | jenniferjackson@mail.com | (201) 271-0070 | 313db258-d067-41d1-bbc2-91023d62f9a3  |
+| Robert     |                            | Diaz      | robertdiaz@mail.com      | (241) 740-2961 | 313db258-d067-41d1-bbc2-91023d62f9a3  |
+| John       |                            | Cooper    | johncooper@mail.com      | (750) 789-5810 | 313db258-d067-41d1-bbc2-91023d62f9a3  |
+| Robert     |                            | Thompson  | robertthompson@mail.com  | (346) 464-0904 | 313db258-d067-41d1-bbc2-91023d62f9a3  |
+| Lisa       |                            | Morgan    | lisamorgan@mail.com      | (225) 656-6220 | 313db258-d067-41d1-bbc2-91023d62f9a3  |
+| Richard    |                            | Ellis     | richardellis@mail.com    | (853) 992-5796 | 313db258-d067-41d1-bbc2-91023d62f9a3  |
+| David      | J                          | Gonzalez  | davidgonzalez@mail.com   | (790) 907-0453 | 313db258-d067-41d1-bbc2-91023d62f9a3  |
+| Richard    |                            | Collins   | richardcollins@mail.com  | (518) 772-8852 | 313db258-d067-41d1-bbc2-91023d62f9a3  |
+| Barbara    |                            | Howard    | barbarahoward@mail.com   | (392) 216-7523 | 313db258-d067-41d1-bbc2-91023d62f9a3% |
+
 ```
 
 you can instead use the command line helper `make_office_users_migration` to auto-generate the migration.
@@ -80,16 +81,16 @@ would produce two migration files. One .sql file in `tmp` containing the followi
 INSERT INTO public.office_users
 (id, user_id, first_name, last_name, middle_initials, email, telephone, transportation_office_id, created_at, updated_at)
 VALUES
-('d475002e-4a64-479c-bf7a-835443df9d65', NULL, 'Robert', 'Sanders', NULL, 'robertsanders@mail.com', '(915) 269-1070', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
-,('286c2b88-4c7f-48d8-9ce3-97c70bacdbc6', NULL, 'Jennifer', 'Jackson', NULL, 'jenniferjackson@mail.com', '(201) 271-0070', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
-,('dcbabde6-89b8-4c74-ad2c-a5f2d3979a3a', NULL, 'Robert', 'Diaz', NULL, 'robertdiaz@mail.com', '(241) 740-2961', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
-,('ee1b1b16-2ad4-45dd-a1af-91296836dcc2', NULL, 'John', 'Cooper', NULL, 'johncooper@mail.com', '(750) 789-5810', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
-,('d9ce5d52-822e-4ddd-8d93-1fc6d0476c67', NULL, 'Robert', 'Thompson', NULL, 'robertthompson@mail.com', '(346) 464-0904', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
-,('14951906-9a98-4d9c-a8a3-dc42e05f1382', NULL, 'Lisa', 'Morgan', NULL, 'lisamorgan@mail.com', '(225) 656-6220', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
-,('c0c6a9cc-bfb6-45f1-a6c6-c6ec07bf3a71', NULL, 'Richard', 'Ellis', NULL, 'richardellis@mail.com', '(853) 992-5796', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
-,('3cff2841-ffde-4207-ae20-568197588447', NULL, 'David', 'Gonzalez', NULL, 'davidgonzalez@mail.com', '(790) 907-0453', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
-,('4a0a424a-13d5-4742-ba2a-8dd13eaf905a', NULL, 'Richard', 'Collins', NULL, 'richardcollins@mail.com', '(518) 772-8852', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
-,('2c2dc78f-9d2c-440e-8239-9eeadbb09565', NULL, 'Barbara', 'Howard', NULL, 'barbarahoward@mail.com', '(392) 216-7523', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now());
+('f4eb1945-25f6-4dea-b4e9-f9a01628602f', NULL, 'Robert', 'Sanders', 'T', 'robertsanders@mail.com', '(915) 269-1070', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+,('20ddda94-8015-41a2-9802-87fb8c5cbf40', NULL, 'Jennifer', 'Jackson', NULL, 'jenniferjackson@mail.com', '(201) 271-0070', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+,('3341ca2d-0fde-43fa-b780-11ffafd8ffdd', NULL, 'Robert', 'Diaz', NULL, 'robertdiaz@mail.com', '(241) 740-2961', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+,('859a8218-e393-4df7-8fa6-11e719ed157b', NULL, 'John', 'Cooper', NULL, 'johncooper@mail.com', '(750) 789-5810', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+,('3fcc4f00-43be-41b6-a2dd-5789b0abdcc5', NULL, 'Robert', 'Thompson', NULL, 'robertthompson@mail.com', '(346) 464-0904', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+,('15612b99-3fee-475d-99c7-339bb306fcaa', NULL, 'Lisa', 'Morgan', NULL, 'lisamorgan@mail.com', '(225) 656-6220', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+,('e0d3255b-af7e-4f4c-8dac-695b660731bf', NULL, 'Richard', 'Ellis', NULL, 'richardellis@mail.com', '(853) 992-5796', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+,('cc1f5eba-00d1-4121-ae26-1342379efd0b', NULL, 'David', 'Gonzalez', 'J', 'davidgonzalez@mail.com', '(790) 907-0453', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+,('939a271e-f2fd-43be-986f-0a0596fee411', NULL, 'Richard', 'Collins', NULL, 'richardcollins@mail.com', '(518) 772-8852', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+,('aacaf7d9-aa6f-4e96-8837-56b1b4091158', NULL, 'Barbara', 'Howard', NULL, 'barbarahoward@mail.com', '(392) 216-7523', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now());
 ```
 
 and one `.fizz` file in the migrations folder to apply the secure migration.
