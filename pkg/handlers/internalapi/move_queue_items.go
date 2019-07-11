@@ -38,6 +38,10 @@ func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem, StorageInTransi
 		StorageInTransits:              StorageInTransits,
 		HasUnapprovedShipmentLineItems: &HasUnapprovedShipmentLineItems,
 		PmSurveyConductedDate:          handlers.FmtDateTimePtr(MoveQueueItem.PmSurveyConductedDate),
+		OriginGbloc:                    handlers.FmtStringPtr(MoveQueueItem.OriginGBLOC),
+		DestinationGbloc:               handlers.FmtStringPtr(MoveQueueItem.DestinationGBLOC),
+		DeliveredDate:                  handlers.FmtDateTimePtr(MoveQueueItem.DeliveredDate),
+		InvoiceApprovedDate:            handlers.FmtDateTimePtr(MoveQueueItem.InvoiceApprovedDate),
 	}
 	return &MoveQueueItemPayload
 }

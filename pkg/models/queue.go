@@ -31,6 +31,10 @@ type MoveQueueItem struct {
 	SitArray                   string                              `json:"sit_array" db:"sit_array"`
 	SliArray                   string                              `json:"sli_array" db:"sli_array"`
 	PmSurveyConductedDate      *time.Time                          `json:"pm_survey_conducted_date" db:"pm_survey_conducted_date"`
+	OriginGBLOC                *string                             `json:"origin_gbloc" db:"origin_gbloc"`
+	DestinationGBLOC           *string                             `json:"destination_gbloc" db:"destination_gbloc"`
+	DeliveredDate              *time.Time                          `json:"delivered_date" db:"delivered_date"`
+	InvoiceApprovedDate        *time.Time                          `json:"invoice_approved_date" db:"invoice_approved_date"`
 }
 
 // GetMoveQueueItems gets all moveQueueItems for a specific lifecycleState
@@ -173,16 +177,22 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				shipment.gbl_number as gbl_number,
 				shipment.pm_survey_conducted_date as pm_survey_conducted_date,
 				json_agg(json_build_object('id', sits.id , 'location', sits.location, 'status', sits.status, 'actual_start_date', sits.actual_start_date, 'out_date', sits.out_date)) as sit_array,
-				json_agg(slis.status) as sli_array
+				json_agg(slis.status) as sli_array,
+				shipment.source_gbloc as origin_gbloc,
+				shipment.destination_gbloc as destination_gbloc,
+				shipment.actual_delivery_date as delivered_date,
+				(case when invoice.status = 'SUBMITTED' then invoice.updated_at end) as invoice_approved_date
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
 			LEFT JOIN storage_in_transits as sits ON sits.shipment_id = shipment.id
 			LEFT JOIN shipment_line_items as slis ON slis.shipment_id = shipment.id
+			LEFT JOIN invoices as invoice on invoice.shipment_id = shipment.id
 			WHERE shipment.status = 'DELIVERED'
 			and moves.show is true
-			GROUP BY moves.ID, rank, customer_name, edipi, locator, orders_type, move_date, moves.created_at, last_modified_date, moves.status, shipment.id
+			GROUP BY moves.ID, rank, customer_name, edipi, locator, orders_type, move_date, moves.created_at, last_modified_date, moves.status,
+			shipment.id, origin_gbloc, destination_gbloc, invoice_approved_date, delivered_date
 
 		`
 	} else if lifecycleState == "all" {
