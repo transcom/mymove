@@ -12,8 +12,6 @@ import (
 )
 
 const (
-	// MigrationManifestFlag is the migration manifest flag
-	MigrationManifestFlag string = "migration-manifest"
 	// MigrationPathFlag is the migration path flag
 	MigrationPathFlag string = "migration-path"
 	// MigrationManifestFlag is the migration manifest flag
