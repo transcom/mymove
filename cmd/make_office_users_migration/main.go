@@ -42,7 +42,7 @@ const (
 // OfficeUsersFilenameFlag initializes add_office_users command line flags
 func InitAddOfficeUsersFlags(flag *pflag.FlagSet) {
 	flag.StringP(OfficeUsersFilenameFlag, "f", "", "File name of csv file containing the new office users")
-	flag.StringP(OfficeUsersMigrationFilenameFlag, "o", "", "File name of sql file containing the migration for the new office users")
+	flag.StringP(OfficeUsersMigrationFilenameFlag, "n", "", "File name of the migration files for the new office users")
 }
 
 // CheckAddOfficeUsers validates add_office_users command line flags

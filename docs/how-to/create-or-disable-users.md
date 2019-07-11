@@ -71,10 +71,10 @@ you can instead use the command line helper `make_office_users_migration` to aut
 For example, applying `make_office_users_migration` to a csv file containing data above
 
 ```bash
-./bin/make_office_users_migration -f test_office_users.csv
+./bin/make_office_users_migration -f test_office_users.csv -n add-office-users
 ```
 
-would produce a sql file containing the following migration
+would produce two migration files. One .sql file in `tmp` containing the following migration
 
 ```sql
 INSERT INTO public.office_users
@@ -91,6 +91,8 @@ VALUES
 ,('4a0a424a-13d5-4742-ba2a-8dd13eaf905a', NULL, 'Richard', 'Collins', NULL, 'richardcollins@mail.com', '(518) 772-8852', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
 ,('2c2dc78f-9d2c-440e-8239-9eeadbb09565', NULL, 'Barbara', 'Howard', NULL, 'barbarahoward@mail.com', '(392) 216-7523', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now());
 ```
+
+and one `.fizz` file in the migrations folder to apply the secure migration.
 
 ### Creating TSP Users
 
