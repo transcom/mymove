@@ -217,19 +217,20 @@ func (suite *serverSuite) TestTLSConfigWithRequest() {
 		Logger:       suite.logger,
 		Certificates: []tls.Certificate{keyPair},
 	})
-	suite.Nil(err)
 	defer srv.Close()
+	suite.Nil(err)
 
 	// Start the Server
 	go srv.ListenAndServeTLS()
 
 	// Send a request
+	config := tls.Config{
+		RootCAs:      caCertPool,
+		Certificates: []tls.Certificate{keyPair},
+	}
 	client := &http.Client{
 		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{
-				RootCAs:      caCertPool,
-				Certificates: []tls.Certificate{keyPair},
-			},
+			TLSClientConfig: &config,
 		},
 	}
 	res, err := client.Get(fmt.Sprintf("https://%s:%d", host, port))
@@ -237,9 +238,22 @@ func (suite *serverSuite) TestTLSConfigWithRequest() {
 
 	// Read the response
 	if res != nil {
-		body, err := ioutil.ReadAll(res.Body)
+		body, bodyErr := ioutil.ReadAll(res.Body)
 		res.Body.Close()
-		suite.Nil(err)
+		suite.Nil(bodyErr)
 		suite.Equal(htmlBody+"\n", string(body))
 	}
+
+	// Check the connection
+	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", host, port), &config)
+	defer conn.Close()
+	suite.Nil(err)
+
+	connState := conn.ConnectionState()
+	suite.Equal(tls.VersionTLS12, int(connState.Version))
+	suite.True(connState.HandshakeComplete)
+	suite.False(connState.DidResume)
+	suite.Equal("", connState.NegotiatedProtocol)
+	suite.True(connState.NegotiatedProtocolIsMutual)
+	suite.Equal("", connState.ServerName)
 }
