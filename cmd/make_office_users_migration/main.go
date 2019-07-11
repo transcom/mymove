@@ -20,16 +20,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-const createOfficeUser = `INSERT INTO public.office_users
-(id, user_id, first_name, last_name, middle_initials, email, telephone, transportation_office_id, created_at, updated_at)
-VALUES
-{{- range $i, $e := $}}
-{{ if $i}},{{end}}('{{$e.ID}}', NULL, '{{$e.FirstName}}', '{{$e.LastName}}', NULL, '{{$e.Email}}', '{{$e.Telephone}}', '{{$e.TransportationOfficeID}}', now(), now())
-{{- end}};
-`
-
-const Migration = `exec("./apply-secure-migration.sh {{.}}")`
-
 const (
 	// OfficeUsersFilenameFlag filename containing the details for new office users
 	OfficeUsersFilenameFlag string = "office-users-filename"
@@ -37,6 +27,20 @@ const (
 	OfficeUsersMigrationFilenameFlag string = "migration-filename"
 	// VersionTimeFormat is the Go time format for creating a version number.
 	VersionTimeFormat string = "20060102150405"
+)
+
+const (
+	// template for adding office users
+	createOfficeUser string = `INSERT INTO public.office_users
+(id, user_id, first_name, last_name, middle_initials, email, telephone, transportation_office_id, created_at, updated_at)
+VALUES
+{{- range $i, $e := $}}
+{{ if $i}},{{end}}('{{$e.ID}}', NULL, '{{$e.FirstName}}', '{{$e.LastName}}', NULL, '{{$e.Email}}', '{{$e.Telephone}}', '{{$e.TransportationOfficeID}}', now(), now())
+{{- end}};
+`
+
+	// template to apply secure migration
+	migration string = `exec("./apply-secure-migration.sh {{.}}")`
 )
 
 // OfficeUsersFilenameFlag initializes add_office_users command line flags
@@ -64,9 +68,6 @@ func initFlags(flag *pflag.FlagSet) {
 
 	// Add Office Users
 	InitAddOfficeUsersFlags(flag)
-
-	// Don't sort flags
-	flag.SortFlags = false
 }
 
 func readOfficeUsersCSV(fileName string) ([]models.OfficeUser, error) {
@@ -143,13 +144,13 @@ func main() {
 
 	secureMigrationName := fmt.Sprintf("%s_%s.up.sql", time.Now().Format(VersionTimeFormat), migrationFileName)
 	secureMigrationPath := filepath.Join("./tmp", secureMigrationName)
-	outfile1, err := os.Create(secureMigrationPath)
-	defer closeFile(outfile1)
+	secureMigrationFile, err := os.Create(secureMigrationPath)
+	defer closeFile(secureMigrationFile)
 	if err != nil {
 		log.Fatalf("error creating %s: %v\n", secureMigrationPath, err)
 	}
 	t1 := template.Must(template.New("add_office_user").Parse(createOfficeUser))
-	err = t1.Execute(outfile1, officeUsers)
+	err = t1.Execute(secureMigrationFile, officeUsers)
 	if err != nil {
 		log.Println("error executing template: ", err)
 	}
@@ -157,13 +158,13 @@ func main() {
 
 	migrationName := fmt.Sprintf("%s_%s.up.fizz", time.Now().Format(VersionTimeFormat), migrationFileName)
 	migrationPath := filepath.Join("./migrations", migrationName)
-	outfile2, err := os.Create(migrationPath)
-	defer closeFile(outfile2)
+	migrationFile, err := os.Create(migrationPath)
+	defer closeFile(migrationFile)
 	if err != nil {
 		log.Fatalf("error creating %s: %v\n", migrationPath, err)
 	}
-	t2 := template.Must(template.New("migration").Parse(Migration))
-	err = t2.Execute(outfile2, secureMigrationName)
+	t2 := template.Must(template.New("migration").Parse(migration))
+	err = t2.Execute(migrationFile, secureMigrationName)
 	if err != nil {
 		log.Println("error executing template: ", err)
 	}
