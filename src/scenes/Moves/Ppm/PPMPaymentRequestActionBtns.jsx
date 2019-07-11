@@ -1,67 +1,93 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
+// import { get} from 'lodash';
+
 import './PPMPaymentRequest.css';
-import Alert from 'shared/Alert';
+import AlertWithConfirmation from 'shared/AlertWithConfirmation';
 
-const ConfirmationAlert = props => {
-  const { confirmationAlertMsg, history } = props;
-  return (
-    <Alert type="warning" heading="">
-      <div className="usa-width-two-thirds">{confirmationAlertMsg}</div>
-      <div className="usa-width-one-thirds">
-        <button type="button" className="usa-button-secondary" onClick={() => console.log('cancelled')}>
-          Cancel
-        </button>
-        <button type="button" className="usa-button" onClick={() => history.push('/')}>
-          OK
-        </button>
-      </div>
-    </Alert>
-  );
-};
+class PPMPaymentRequestActionBtns extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      hasConfirmation: props.hasConfirmation,
+      displayConfirmation: false,
+    };
 
-const PPMPaymentRequestActionBtns = props => {
-  const {
-    nextBtnLabel,
-    displaySkip,
-    skipHandler,
-    saveAndAddHandler,
-    finishLaterHandler,
-    displayConfirmation,
-    submitButtonsAreDisabled,
-    submitting,
-  } = props;
-  return (
-    <div className="ppm-payment-request-footer">
+    this.showConfirmationOrFinishLater = formValues => {
+      const { history, hasConfirmation } = this.props;
+
+      if (!hasConfirmation) {
+        return history.push('/');
+      }
+
+      this.setState({ displayConfirmation: true });
+      return;
+    };
+
+    this.cancelConfirmationHandler = () => {
+      this.setState({ displayConfirmation: false });
+      return;
+    };
+
+    this.confirmFinishLater = () => {
+      return this.props.history.push('/');
+    };
+  }
+
+  render() {
+    const {
+      nextBtnLabel,
+      displaySkip,
+      skipHandler,
+      saveAndAddHandler,
+      hasConfirmation,
+      displayConfirmation,
+      submitButtonsAreDisabled,
+      submitting,
+    } = props;
+    return (
       <div className="usa-width-one-whole">
-        <ConfirmationAlert confirmationAlertMsg="Partially completed entries will not be saved. Click OK to continue. Click cancel to return and edit." />
-      </div>
-      {displayConfirmation && (
-        <div>
-          <div className="usa-width-two-thirds">
+        {hasConfirmation &&
+          this.state.displayConfirmation && (
+            <div className="ppm-payment-request-footer">
+              <AlertWithConfirmation
+                hasConfirmation={hasConfirmation}
+                type="warning"
+                cancelActionHandler={this.cancelConfirmationHandler}
+                okActionHandler={this.confirmFinishLater}
+                message="Go back to the home screen without saving current screen."
+              />
+            </div>
+          )}
+
+        {!this.state.displayConfirmation && (
+          <div className="ppm-payment-request-footer">
+            <button type="button" className="usa-button-secondary" onClick={this.showConfirmationOrFinishLater}>
+              Finish Later
+            </button>
             <button
               type="button"
-              className="usa-button-secondary"
-              onClick={finishLaterHandler}
+              className="usa-button"
+              onClick={saveAndAddHandler}
               disabled={submitButtonsAreDisabled || submitting}
             >
               Finish Later
             </button>
-          </div>
-          <div className="usa-width-one-thirds">
-            {displaySkip && (
-              <button data-cy="skip" type="button" className="usa-button-secondary" onClick={skipHandler}>
-                Skip
+            <div className="usa-width-one-thirds">
+              {displaySkip && (
+                <button data-cy="skip" type="button" className="usa-button-secondary" onClick={skipHandler}>
+                  Skip
+                </button>
+              )}
+              <button type="button" onClick={saveAndAddHandler} disabled={submitButtonsAreDisabled || submitting}>
+                {nextBtnLabel}
               </button>
-            )}
-            <button type="button" onClick={saveAndAddHandler} disabled={submitButtonsAreDisabled || submitting}>
-              {nextBtnLabel}
-            </button>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
-  );
-};
+        )}
+      </div>
+    );
+  }
+}
 
 export default withRouter(PPMPaymentRequestActionBtns);

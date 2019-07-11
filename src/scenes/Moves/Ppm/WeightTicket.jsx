@@ -118,6 +118,7 @@ class WeightTicket extends Component {
     });
   };
 
+<<<<<<< HEAD
   skipHandler = () => {
     const { moveId, history } = this.props;
     history.push(`/moves/${moveId}${nextPagePath}`);
@@ -132,6 +133,8 @@ class WeightTicket extends Component {
     });
   };
 
+=======
+>>>>>>> Buttons work appropriately
   nonEmptyUploaderKeys() {
     const uploadersKeys = Object.keys(this.uploaders);
     return uploadersKeys.filter(
@@ -453,10 +456,10 @@ class WeightTicket extends Component {
             )}
             <PPMPaymentRequestActionBtns
               nextBtnLabel={nextBtnLabel}
+              hasConfirmation={true}
               submitButtonsAreDisabled={this.uploaderWithInvalidState() || invalid}
               submitting={submitting}
               skipHandler={this.skipHandler}
-              finishLaterHandler={handleSubmit(this.finishLaterHandler)}
               saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
               displaySaveForLater={true}
               displaySkip={weightTicketSets.length >= 1}
