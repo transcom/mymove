@@ -46,10 +46,8 @@ executors:
     resource_class: large
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:9ad70927655a601580c036d53456c70061c76cba
-        environment:
-          GO111MODULE: "on"
-      - image: postgres:10.6
+      - image: trussworks/circleci-docker-primary:9b7bfbf6bfae544566ade0c896f8aacbd16281e5
+      - image: postgres:10.9
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
