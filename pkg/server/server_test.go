@@ -205,7 +205,7 @@ func (suite *serverSuite) TestTLSConfigWithRequest() {
 	// 	io.WriteString(w, "<html><body>Hello World!</body></html>")
 	// }
 
-	host := "127.0.0.1"
+	host := "localhost"
 	port := 7443
 	srv, err := CreateNamedServer(&CreateNamedServerInput{
 		Host:         host,
@@ -220,16 +220,25 @@ func (suite *serverSuite) TestTLSConfigWithRequest() {
 	defer srv.Close()
 
 	// Start the Server
-	err = srv.ListenAndServeTLS()
-	suite.Nil(err)
+	go srv.ListenAndServeTLS()
 
 	// Send a request
-	res, err := http.Get(fmt.Sprintf("https://%s:%d", host, port))
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				RootCAs:      caCertPool,
+				Certificates: []tls.Certificate{keyPair},
+			},
+		},
+	}
+	res, err := client.Get(fmt.Sprintf("https://%s:%d", host, port))
 	suite.Nil(err)
 
 	// Read the response
-	body, err := ioutil.ReadAll(res.Body)
-	res.Body.Close()
-	suite.Nil(err)
-	suite.Equal("", body)
+	if res != nil {
+		body, err := ioutil.ReadAll(res.Body)
+		res.Body.Close()
+		suite.Nil(err)
+		suite.Equal("404 page not found\n", string(body))
+	}
 }
