@@ -126,3 +126,28 @@ func (suite *MigrateSuite) TestBuilderCompileUnsupportedDialect() {
 	suite.NotNil(err)
 	suite.Nil(migration)
 }
+
+func (suite *MigrateSuite) TestBuilderCompileUpdateFromSetSQL() {
+
+	// Create the builder and point to the fixture path
+	uri := "file://./fixtures/update_from_set.sql"
+	m := pop.Match{
+		Version:   "00000",
+		Name:      "update_from_set",
+		DBType:    "all",
+		Direction: "up",
+		Type:      "sql",
+	}
+	builder := &Builder{Match: &m, Path: uri}
+
+	wait := 10 * time.Millisecond
+	migration, err := builder.Compile(nil, wait)
+	suite.Nil(err)
+	suite.NotNil(migration)
+
+	// Migrate to use the Runner
+	migrator := pop.NewMigrator(suite.DB())
+	migrator.Migrations[migration.Direction] = append(migrator.Migrations[migration.Direction], *migration)
+	err = migrator.Up()
+	suite.Nil(err)
+}
