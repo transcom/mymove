@@ -174,6 +174,10 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		BestValueScore:                  90,
 		LinehaulRate:                    0.67,
 		SITRate:                         0.5,
+		Quartile:                        1,
+		Rank:                            1,
+		SurveyScore:                     65,
+		RateScore:                       25,
 	}
 
 	return save(db, &tspp)
@@ -386,6 +390,10 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		BestValueScore:                  90,
 		LinehaulRate:                    0.67,
 		SITRate:                         0.6,
+		Quartile:                        1,
+		Rank:                            1,
+		SurveyScore:                     65,
+		RateScore:                       25,
 	}
 
 	return save(db, &tspp)

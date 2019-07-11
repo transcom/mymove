@@ -690,6 +690,10 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 		QualityBand:                     swag.Int(1),
 		BestValueScore:                  100,
 		OfferCount:                      0,
+		Quartile:                        1,
+		Rank:                            1,
+		SurveyScore:                     70,
+		RateScore:                       30,
 	}
 	_, err := suite.DB().ValidateAndSave(&tspPerfPeak)
 	if err != nil {
@@ -728,6 +732,10 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 		QualityBand:                     swag.Int(1),
 		BestValueScore:                  100,
 		OfferCount:                      0,
+		Quartile:                        1,
+		Rank:                            1,
+		SurveyScore:                     70,
+		RateScore:                       30,
 	}
 	_, err = suite.DB().ValidateAndSave(&tspPerfNonPeak)
 	if err != nil {

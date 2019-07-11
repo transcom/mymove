@@ -735,6 +735,10 @@ func (suite *ModelSuite) Test_FetchDiscountRatesBVS() {
 		BestValueScore:                  90,
 		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
 		SITRate:                         unit.NewDiscountRateFromPercent(50.0),
+		Quartile:                        1,
+		Rank:                            1,
+		SurveyScore:                     65,
+		RateScore:                       25,
 	}
 	suite.MustSave(&tspPerformance)
 
@@ -749,6 +753,10 @@ func (suite *ModelSuite) Test_FetchDiscountRatesBVS() {
 		BestValueScore:                  89,
 		LinehaulRate:                    unit.NewDiscountRateFromPercent(55.5),
 		SITRate:                         unit.NewDiscountRateFromPercent(52.0),
+		Quartile:                        1,
+		Rank:                            1,
+		SurveyScore:                     64,
+		RateScore:                       25,
 	}
 	suite.MustSave(&lowerTSPPerformance)
 
@@ -763,6 +771,10 @@ func (suite *ModelSuite) Test_FetchDiscountRatesBVS() {
 		BestValueScore:                  91,
 		LinehaulRate:                    unit.NewDiscountRateFromPercent(55.5),
 		SITRate:                         unit.NewDiscountRateFromPercent(53.0),
+		Quartile:                        1,
+		Rank:                            1,
+		SurveyScore:                     66,
+		RateScore:                       25,
 	}
 	suite.MustSave(&otherPerformancePeriodTSPPerformance)
 
@@ -815,6 +827,10 @@ func (suite *ModelSuite) Test_FetchDiscountRatesPerformancePeriodBoundaries() {
 		BestValueScore:                  90,
 		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
 		SITRate:                         unit.NewDiscountRateFromPercent(50.0),
+		Quartile:                        1,
+		Rank:                            1,
+		SurveyScore:                     65,
+		RateScore:                       25,
 	}
 	suite.MustSave(&tspPerformance)
 

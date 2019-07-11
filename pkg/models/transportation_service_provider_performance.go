@@ -47,6 +47,10 @@ type TransportationServiceProviderPerformance struct {
 	LinehaulRate                    unit.DiscountRate             `db:"linehaul_rate"`
 	SITRate                         unit.DiscountRate             `db:"sit_rate"`
 	OfferCount                      int                           `db:"offer_count"`
+	Quartile                        int                           `db:"quartile"`
+	Rank                            int                           `db:"rank"`
+	SurveyScore                     float64                       `db:"survey_score"`
+	RateScore                       float64                       `db:"rate_score"`
 }
 
 // TransportationServiceProviderPerformances is a handy type for multiple TransportationServiceProviderPerformance structs
@@ -93,6 +97,9 @@ func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) 
 
 		&DiscountRateIsValid{Field: t.LinehaulRate, Name: "LinehaulRate"},
 		&DiscountRateIsValid{Field: t.SITRate, Name: "SITRate"},
+
+		// TODO: Consider validations for Quartile, Rank, SurveyScore, and RateScore once we start using them.
+		//   Not adding with data load story because of impact on test data setup code.
 	), nil
 }
 

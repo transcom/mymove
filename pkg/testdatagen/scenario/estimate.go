@@ -107,6 +107,10 @@ func RunPPMSITEstimateScenario1(db *pop.Connection) error {
 		BestValueScore:                  90,
 		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
 		SITRate:                         unit.NewDiscountRateFromPercent(50),
+		Quartile:                        1,
+		Rank:                            1,
+		SurveyScore:                     65,
+		RateScore:                       25,
 	}
 
 	return save(db, &tspp)

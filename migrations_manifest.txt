@@ -318,3 +318,6 @@
 20190702195904_create_organizations.up.fizz
 20190703141326_add-usmc-office-users.up.fizz
 20190709204712_add-office-users.up.fizz
+20190710150103_add_tspp_columns.up.sql
+20190710150340_add_tspp_columns_data.up.fizz
+20190710150918_add_tspp_constraints.up.sql

@@ -137,6 +137,10 @@ func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, desti
 		BestValueScore:                  90,
 		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
 		SITRate:                         unit.NewDiscountRateFromPercent(50.0),
+		Quartile:                        1,
+		Rank:                            1,
+		SurveyScore:                     65,
+		RateScore:                       25,
 	}
 	suite.MustSave(&tspPerformance)
 	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(suite.DB(),

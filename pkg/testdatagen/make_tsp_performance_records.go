@@ -31,6 +31,10 @@ func MakeTSPPerformance(db *pop.Connection, assertions Assertions) (models.Trans
 	offerCount := assertions.TransportationServiceProviderPerformance.OfferCount
 	linehaulRate := assertions.TransportationServiceProviderPerformance.LinehaulRate
 	sitRate := assertions.TransportationServiceProviderPerformance.SITRate
+	quartile := assertions.TransportationServiceProviderPerformance.Quartile
+	rank := assertions.TransportationServiceProviderPerformance.Rank
+	surveyScore := assertions.TransportationServiceProviderPerformance.SurveyScore
+	rateScore := assertions.TransportationServiceProviderPerformance.RateScore
 
 	if id == uuid.Nil {
 		tsp = MakeDefaultTSP(db)
@@ -48,7 +52,7 @@ func MakeTSPPerformance(db *pop.Connection, assertions Assertions) (models.Trans
 	}
 
 	if score == 0 {
-		score = 0.88
+		score = 88
 	}
 
 	if linehaulRate == 0 {
@@ -57,6 +61,22 @@ func MakeTSPPerformance(db *pop.Connection, assertions Assertions) (models.Trans
 
 	if sitRate == 0 {
 		sitRate = 0.45
+	}
+
+	if quartile == 0 {
+		quartile = 1
+	}
+
+	if rank == 0 {
+		rank = 1
+	}
+
+	if surveyScore == 0 {
+		surveyScore = 63
+	}
+
+	if rateScore == 0 {
+		rateScore = 25
 	}
 
 	tspp := models.TransportationServiceProviderPerformance{
@@ -73,6 +93,10 @@ func MakeTSPPerformance(db *pop.Connection, assertions Assertions) (models.Trans
 		OfferCount:                offerCount,
 		LinehaulRate:              linehaulRate,
 		SITRate:                   sitRate,
+		Quartile:                  quartile,
+		Rank:                      rank,
+		SurveyScore:               surveyScore,
+		RateScore:                 rateScore,
 	}
 
 	mergeModels(&tspp, assertions.TransportationServiceProviderPerformance)
