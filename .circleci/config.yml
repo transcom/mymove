@@ -462,6 +462,7 @@ jobs:
             ENV: test
             ENVIRONMENT: test
             MIGRATION_PATH: /home/circleci/transcom/mymove/migrations
+            MIGRATION_MANIFEST: /home/circleci/transcom/mymove/migrations_manifest.txt
             SECURE_MIGRATION_DIR: /home/circleci/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
 
@@ -510,6 +511,7 @@ jobs:
             ENV: test
             ENVIRONMENT: test
             MIGRATION_PATH: /home/circleci/transcom/mymove/migrations
+            MIGRATION_MANIFEST: /home/circleci/transcom/mymove/migrations_manifest.txt
             SECURE_MIGRATION_DIR: /home/circleci/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
       - run:

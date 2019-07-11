@@ -133,3 +133,11 @@ repos:
     hooks:
     - id: dockerfilelint
       stages: [commit]
+
+  - repo: local
+    hooks:
+    - id: migrations-manifest
+      name: migrations manifest
+      entry: scripts/update-migrations-manifest
+      language: script
+      pass_filenames: false

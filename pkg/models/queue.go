@@ -29,6 +29,8 @@ type MoveQueueItem struct {
 	OriginDutyStationName      string                              `json:"origin_duty_station_name" db:"origin_duty_station_name"`
 	DestinationDutyStationName string                              `json:"destination_duty_station_name" db:"destination_duty_station_name"`
 	SitArray                   string                              `json:"sit_array" db:"sit_array"`
+	SliArray                   string                              `json:"sli_array" db:"sli_array"`
+	PmSurveyConductedDate      *time.Time                          `json:"pm_survey_conducted_date" db:"pm_survey_conducted_date"`
 }
 
 // GetMoveQueueItems gets all moveQueueItems for a specific lifecycleState
@@ -60,16 +62,22 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				moves.status as status,
 				ppm.status as ppm_status,
 				shipment.status as hhg_status,
-				shipment.gbl_number as gbl_number
+				shipment.gbl_number as gbl_number,
+				shipment.pm_survey_conducted_date as pm_survey_conducted_date,
+				json_agg(json_build_object('id', sits.id , 'location', sits.location, 'status', sits.status, 'actual_start_date', sits.actual_start_date, 'out_date', sits.out_date)) as sit_array,
+				json_agg(slis.status) as sli_array
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
 			LEFT JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
+			LEFT JOIN storage_in_transits as sits ON sits.shipment_id = shipment.id
+			LEFT JOIN shipment_line_items as slis ON slis.shipment_id = shipment.id
 			WHERE (moves.status = 'SUBMITTED'
 			OR ((shipment.status in ('SUBMITTED', 'AWARDED', 'ACCEPTED') OR ppm.status = 'SUBMITTED')
 				AND (NOT moves.status in ('CANCELED', 'DRAFT'))))
 			AND moves.show is true
+			GROUP BY moves.ID, rank, customer_name, edipi, locator, orders_type, move_date, moves.created_at, last_modified_date, moves.status, shipment.id, ppm.submit_date, ppm_status
 		`
 	} else if lifecycleState == "ppm" {
 		query = `
@@ -111,7 +119,9 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				origin_duty_station.name as origin_duty_station_name,
 				destination_duty_station.name as destination_duty_station_name,
 				shipment.id as shipment_id,
-				json_agg(json_build_object('id', sits.id , 'status', sits.status, 'actual_start_date', sits.actual_start_date, 'out_date', sits.out_date)) as sit_array
+				shipment.pm_survey_conducted_date as pm_survey_conducted_date,
+				json_agg(json_build_object('id', sits.id , 'location', sits.location, 'status', sits.status, 'actual_start_date', sits.actual_start_date, 'out_date', sits.out_date)) as sit_array,
+				json_agg(slis.status) as sli_array
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
@@ -119,9 +129,10 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN duty_stations as destination_duty_station ON ord.new_duty_station_id = destination_duty_station.id
 			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
 			LEFT JOIN storage_in_transits as sits ON sits.shipment_id = shipment.id
+			LEFT JOIN shipment_line_items as slis ON slis.shipment_id = shipment.id
 			WHERE ((shipment.status IN ('IN_TRANSIT', 'APPROVED')) OR (shipment.status = 'ACCEPTED' AND shipment.pm_survey_conducted_date IS NOT NULL))
 			AND moves.show is true AND moves.status != 'CANCELED'
-			GROUP BY moves.ID, edipi, rank, customer_name, locator, orders_type, move_date, moves.created_at, last_modified_date, moves.status, hhg_status, gbl_number, origin_duty_station_name, destination_duty_station_name, shipment.id
+			GROUP BY moves.ID, rank, customer_name, edipi, locator, orders_type, move_date, moves.created_at, last_modified_date, moves.status, origin_duty_station_name, destination_duty_station_name, shipment.id
 		`
 	} else if lifecycleState == "hhg_in_transit" {
 		// Move date is the Actual Pickup Date.
@@ -159,13 +170,20 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				moves.updated_at as last_modified_date,
 				moves.status as status,
 				shipment.status as hhg_status,
-				shipment.gbl_number as gbl_number
+				shipment.gbl_number as gbl_number,
+				shipment.pm_survey_conducted_date as pm_survey_conducted_date,
+				json_agg(json_build_object('id', sits.id , 'location', sits.location, 'status', sits.status, 'actual_start_date', sits.actual_start_date, 'out_date', sits.out_date)) as sit_array,
+				json_agg(slis.status) as sli_array
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			LEFT JOIN shipments as shipment ON moves.id = shipment.move_id
+			LEFT JOIN storage_in_transits as sits ON sits.shipment_id = shipment.id
+			LEFT JOIN shipment_line_items as slis ON slis.shipment_id = shipment.id
 			WHERE shipment.status = 'DELIVERED'
 			and moves.show is true
+			GROUP BY moves.ID, rank, customer_name, edipi, locator, orders_type, move_date, moves.created_at, last_modified_date, moves.status, shipment.id
+
 		`
 	} else if lifecycleState == "all" {
 		query = `
