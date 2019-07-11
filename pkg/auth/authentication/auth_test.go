@@ -249,7 +249,7 @@ func (suite *AuthSuite) TestRequireAdminAuthMiddlewareUnauthorized() {
 	middleware.ServeHTTP(rr, req)
 
 	// We should receive an unauthorized response
-	if status := rr.Code; status != http.StatusUnauthorized {
+	if status := rr.Code; status != http.StatusForbidden {
 		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusUnauthorized)
 	}
 }
