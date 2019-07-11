@@ -98,7 +98,7 @@ const PPMTabContent = props => {
       {props.ppmPaymentRequested && (
         <>
           <ExpensesPanel title="Expenses" moveId={props.moveId} />
-          <StoragePanel title="Storage" moveId={props.moveId} />
+          <StoragePanel title="Storage" moveId={props.moveId} moveDocuments={props.moveDocuments} />
           <DatesAndLocationPanel title="Dates & Locations" moveId={props.moveId} />
           <NetWeightPanel title="Weights" moveId={props.moveId} />
         </>
@@ -429,7 +429,11 @@ class MoveInfo extends Component {
                   <BasicsTabContent moveId={this.props.moveId} serviceMember={this.props.serviceMember} />
                 </PrivateRoute>
                 <PrivateRoute path={`${this.props.match.path}/ppm`}>
-                  <PPMTabContent moveId={this.props.moveId} ppmPaymentRequested={ppmPaymentRequested} />
+                  <PPMTabContent
+                    moveId={this.props.moveId}
+                    ppmPaymentRequested={ppmPaymentRequested}
+                    moveDocuments={moveDocuments}
+                  />
                 </PrivateRoute>
                 <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   {this.props.shipment && (
