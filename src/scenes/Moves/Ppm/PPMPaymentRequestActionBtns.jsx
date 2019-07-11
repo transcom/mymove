@@ -33,7 +33,7 @@ const PPMPaymentRequestActionBtns = props => {
       </div>
       <div className="usa-width-one-third">
         {displaySkip && (
-          <button type="button" className="usa-button-secondary" onClick={skipHandler}>
+          <button data-cy="skip" type="button" className="usa-button-secondary" onClick={skipHandler}>
             Skip
           </button>
         )}
