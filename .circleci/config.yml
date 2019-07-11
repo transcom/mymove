@@ -44,7 +44,7 @@ executors:
         command: "-c fsync=off -c full_page_writes=off -c max_connections=200"
   mymove_and_postgres_large:
     resource_class: large
-    working_directory: ~/go/src/github.com/transcom/mymove
+    working_directory: ~/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:9b7bfbf6bfae544566ade0c896f8aacbd16281e5
       - image: postgres:10.9
