@@ -74,7 +74,7 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 func AdminAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			ctx, span := beeline.StartSpan(r.Context(), "UserAuthMiddleware")
+			ctx, span := beeline.StartSpan(r.Context(), "AdminAuthMiddleware")
 			defer span.Send()
 			session := auth.SessionFromRequestContext(r)
 
