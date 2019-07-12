@@ -68,7 +68,7 @@ func (suite *ModelSuite) Test_ShipmentValidationsSubmittedMove() {
 	}
 
 	verrs, err := shipment.Validate(suite.DB())
-	suite.Nil(err)
+	suite.NoError(err)
 
 	pickupAddressErrors := verrs.Get("pickup_address_id")
 	suite.Equal(1, len(pickupAddressErrors), "expected one error on pickup_address_id, but there were %d: %v", len(pickupAddressErrors), pickupAddressErrors)
@@ -130,35 +130,35 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 
 	// Can submit shipment
 	err := shipment.Submit(time.Now())
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(ShipmentStatusSUBMITTED, shipment.Status, "expected Submitted")
 
 	// Can award shipment
 	err = shipment.Award()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(ShipmentStatusAWARDED, shipment.Status, "expected Awarded")
 
 	// Can accept shipment
 	err = shipment.Accept()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(ShipmentStatusACCEPTED, shipment.Status, "expected Accepted")
 
 	// Can approve shipment (HHG)
 	err = shipment.Approve(time.Now())
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(ShipmentStatusAPPROVED, shipment.Status, "expected Approved")
 
 	shipDate := time.Now()
 
 	// Can pack shipment
 	err = shipment.Pack(shipDate)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(ShipmentStatusAPPROVED, shipment.Status, "expected Approved")
 	suite.Equal(*shipment.ActualPackDate, shipDate, "expected Actual Pack Date to be set")
 
 	// Can transport shipment
 	err = shipment.Transport(shipDate)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(ShipmentStatusINTRANSIT, shipment.Status, "expected In Transit")
 	suite.Equal(*shipment.ActualPickupDate, shipDate, "expected Actual Pickup Date to be set")
 
@@ -178,7 +178,7 @@ func (suite *ModelSuite) TestShipmentStateMachine() {
 	shipment.StorageInTransits = StorageInTransits{sit}
 
 	err = shipment.Deliver(shipDate)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(ShipmentStatusDELIVERED, shipment.Status, "expected Delivered")
 	suite.Equal(*shipment.ActualDeliveryDate, shipDate, "expected Actual Delivery Date to be set")
 	suite.Equal(StorageInTransitStatusDELIVERED, shipment.StorageInTransits[0].Status)
@@ -195,7 +195,7 @@ func (suite *ModelSuite) TestSetBookDateWhenSubmitted() {
 
 	// Can submit shipment
 	err := shipment.Submit(time.Now())
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.NotNil(shipment.BookDate)
 }
 
@@ -296,7 +296,7 @@ func (suite *ModelSuite) TestCurrentTransportationServiceProviderID() {
 	// Since it doesn't re-fetch the shipment, if the offers have changed
 	// We need to re-fetch the shipment to reload the offers
 	reloadShipment, err := FetchShipmentByTSP(suite.DB(), tsp.ID, shipment.ID)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(tsp.ID, reloadShipment.CurrentTransportationServiceProviderID(), "expected ids to be equal")
 }
 
@@ -862,7 +862,7 @@ func (suite *ModelSuite) TestAcceptedShipmentOffer() {
 
 	// Shipment does not have an accepted shipment offer
 	noAcceptedShipmentOffer, err := shipment.AcceptedShipmentOffer()
-	suite.Nil(err) // Shipment.Status does not require an accepted ShipmentOffer
+	suite.NoError(err) // Shipment.Status does not require an accepted ShipmentOffer
 	suite.Nil(noAcceptedShipmentOffer)
 
 	shipmentOffer := testdatagen.MakeDefaultShipmentOffer(suite.DB())
@@ -871,23 +871,23 @@ func (suite *ModelSuite) TestAcceptedShipmentOffer() {
 
 	// Can submit shipment
 	err = shipment.Submit(time.Now())
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(ShipmentStatusSUBMITTED, shipment.Status, "expected Submitted")
 
 	// Can award shipment
 	err = shipment.Award()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(ShipmentStatusAWARDED, shipment.Status, "expected Awarded")
 
 	// ShipmentOffer has not been accepted yet
 	// Shipment does not have an accepted shipment offer
 	noAcceptedShipmentOffer, err = shipment.AcceptedShipmentOffer()
-	suite.Nil(err) // Shipment.Status does not require an accepted ShipmentOffer
+	suite.NoError(err) // Shipment.Status does not require an accepted ShipmentOffer
 	suite.Nil(noAcceptedShipmentOffer)
 
 	// Can accept shipment
 	err = shipment.Accept()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(ShipmentStatusACCEPTED, shipment.Status, "expected Accepted")
 
 	// ShipmentOffer has not been accepted yet
@@ -898,22 +898,22 @@ func (suite *ModelSuite) TestAcceptedShipmentOffer() {
 
 	// Accept ShipmentOffer for the TSP
 	err = shipment.ShipmentOffers[0].Accept()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.True(*shipment.ShipmentOffers[0].Accepted)
 	suite.Nil(shipment.ShipmentOffers[0].RejectionReason)
 
 	// Get accepted shipment offer from shipment
 	acceptedShipmentOffer, err := shipment.AcceptedShipmentOffer()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.NotNil(acceptedShipmentOffer)
 
 	// Test results of TSP for an accepted shipment offer
 	// accepted shipment offer can't have empty or nil values for certain data
 	scac, err := acceptedShipmentOffer.SCAC()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.NotEmpty(scac)
 	supplierID, err := acceptedShipmentOffer.SupplierID()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.NotNil(supplierID)
 	suite.NotEmpty(*supplierID)
 

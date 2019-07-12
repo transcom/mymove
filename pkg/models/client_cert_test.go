@@ -20,7 +20,7 @@ func (suite *ModelSuite) Test_FetchClientCert() {
 	suite.MustSave(&certNew)
 
 	cert, err := models.FetchClientCert(suite.DB(), digest)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(cert.Sha256Digest, digest)
 	suite.Equal(cert.Subject, subject)
 }

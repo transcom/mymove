@@ -41,7 +41,7 @@ func (suite *iwsSuite) TestParseWkEmaResponse() {
 	  </adrRecord>
 	</record>`
 	edipi, person, personnel, err := parseWkEmaResponse([]byte(data))
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(uint64(9995006001), edipi)
 	suite.NotNil(person)
 	suite.NotEmpty(personnel)
@@ -67,7 +67,7 @@ func (suite *iwsSuite) TestParseWkEmaResponseError() {
 func (suite *iwsSuite) TestBuildWkEmaURL() {
 	urlString, err := buildWkEmaURL("example.com", "1234", "test@example.com")
 	suite.NotEmpty(urlString)
-	suite.Nil(err)
+	suite.NoError(err)
 	parsedURL, parseErr := url.Parse(urlString)
 	suite.Nil(parseErr)
 	suite.Equal("https", parsedURL.Scheme)
@@ -84,7 +84,7 @@ func (suite *iwsSuite) TestBuildWkEmaURLEmailInvalid() {
 func (suite *iwsSuite) TestBuildWkEmaURLLongEmail() {
 	urlString, err := buildWkEmaURL("example.com", "1234", "pneumonoultramicroscopicsilicovolcanoconiosis_is_a_terrible_way_to_expire@unpronounceablediseases.org")
 	suite.NotEmpty(urlString)
-	suite.Nil(err)
+	suite.NoError(err)
 	parsedURL, parseErr := url.Parse(urlString)
 	suite.Nil(parseErr)
 	suite.Equal("https", parsedURL.Scheme)

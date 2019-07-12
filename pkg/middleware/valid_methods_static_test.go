@@ -27,7 +27,7 @@ func (suite *testSuite) TestValidMethodStaticPost() {
 	suite.do(mw, suite.ok, rr, httptest.NewRequest("POST", testURL, nil))
 	suite.Equal(http.StatusMethodNotAllowed, rr.Code, errStatusCode) // check status code
 	body, err := ioutil.ReadAll(rr.Body)
-	suite.Nil(err)                                                                        // check that you could read full body
+	suite.NoError(err)                                                                    // check that you could read full body
 	suite.Equal(http.StatusText(http.StatusMethodNotAllowed)+"\n", string(body), errBody) // check body
 }
 
@@ -37,7 +37,7 @@ func (suite *testSuite) TestValidMethodStaticPut() {
 	suite.do(mw, suite.ok, rr, httptest.NewRequest("PUT", testURL, nil))
 	suite.Equal(http.StatusMethodNotAllowed, rr.Code, errStatusCode) // check status code
 	body, err := ioutil.ReadAll(rr.Body)
-	suite.Nil(err)                                                                        // check that you could read full body
+	suite.NoError(err)                                                                    // check that you could read full body
 	suite.Equal(http.StatusText(http.StatusMethodNotAllowed)+"\n", string(body), errBody) // check body
 }
 
@@ -47,7 +47,7 @@ func (suite *testSuite) TestValidMethodStaticPatch() {
 	suite.do(mw, suite.ok, rr, httptest.NewRequest("PATCH", testURL, nil))
 	suite.Equal(http.StatusMethodNotAllowed, rr.Code, errStatusCode) // check status code
 	body, err := ioutil.ReadAll(rr.Body)
-	suite.Nil(err)                                                                        // check that you could read full body
+	suite.NoError(err)                                                                    // check that you could read full body
 	suite.Equal(http.StatusText(http.StatusMethodNotAllowed)+"\n", string(body), errBody) // check body
 }
 
@@ -57,6 +57,6 @@ func (suite *testSuite) TestValidMethodStaticDelete() {
 	suite.do(mw, suite.ok, rr, httptest.NewRequest("DELETE", testURL, nil))
 	suite.Equal(http.StatusMethodNotAllowed, rr.Code, errStatusCode) // check status code
 	body, err := ioutil.ReadAll(rr.Body)
-	suite.Nil(err)                                                                        // check that you could read full body
+	suite.NoError(err)                                                                    // check that you could read full body
 	suite.Equal(http.StatusText(http.StatusMethodNotAllowed)+"\n", string(body), errBody) // check body
 }

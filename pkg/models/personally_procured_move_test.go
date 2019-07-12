@@ -26,7 +26,7 @@ func (suite *ModelSuite) TestPPMAdvance() {
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
 
 	ppm, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
 	advance.Request()
@@ -37,7 +37,7 @@ func (suite *ModelSuite) TestPPMAdvance() {
 		ServiceMemberID: serviceMember.ID,
 	}
 	fetchedPPM, err := FetchPersonallyProcuredMove(suite.DB(), &session, ppm.ID)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(fetchedPPM.Advance.Status, ReimbursementStatusREQUESTED, "expected Requested")
 }
 
@@ -47,7 +47,7 @@ func (suite *ModelSuite) TestPPMAdvanceNoGTCC() {
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptGTCC)
 
 	_, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.True(verrs.HasAny())
 }
 
@@ -63,20 +63,20 @@ func (suite *ModelSuite) TestPPMStateMachine() {
 		Show:         swag.Bool(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
 
 	ppm, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
 	ppm.Status = PPMStatusSUBMITTED // NEVER do this outside of a test.
 
 	// Can cancel ppm
 	err = ppm.Cancel()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(PPMStatusCANCELED, ppm.Status, "expected Canceled")
 }
