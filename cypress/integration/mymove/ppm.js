@@ -550,7 +550,7 @@ function serviceMemberSubmitsCarTrailerWeightTicket() {
   cy.get('input[name="vehicle_nickname"]').type('Nickname');
 
   cy
-    .contains('Is this a different trailer you own')
+    .contains('Do you own this trailer')
     .children('a')
     .should('have.attr', 'href', '/trailer-criteria');
 
