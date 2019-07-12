@@ -12,7 +12,7 @@ import { SearchDutyStations } from './api.js';
 import './DutyStation.css';
 
 const inputDebounceTime = 200;
-const minSearchLength = 1;
+const minSearchLength = 2;
 const getOptionName = option => (option ? option.name : '');
 
 export class DutyStationSearchBox extends Component {
