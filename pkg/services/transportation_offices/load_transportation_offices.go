@@ -252,33 +252,11 @@ func (b *MigrationBuilder) convertAbbr(s string) string {
 }
 
 func (b *MigrationBuilder) getLocationsList() map[string]OfficeDataStruct {
-	// message := map[string]interface{}{
-	// 	"query": "55407",
-	// }
-
-	// bytesRepresentation, err := json.Marshal(message)
-	// if err != nil {
-	// 	log.Fatalln(err)
-	// }
-
-	// resp, err := http.Post("https://move.mil/parser/locator-maps", "application/json", bytes.NewBuffer(bytesRepresentation))
-	// if err != nil {
-	// 	log.Fatalln(err)
-	// }
-
 	var result map[string]map[string]OfficeDataStruct
 	officesJSON, _ := os.Open("./cmd/load_transportation_offices/data/transportation_offices.json")
 	defer officesJSON.Close()
 	json.NewDecoder(officesJSON).Decode(&result)
 
-	// for key, element := range result["offices"] {
-	// 	log.Println(key)
-	// 	log.Println(element)
-	// 	log.Println("")
-	// }
-
-	//log.Println(result["offices"])
-	//log.Println(result["data"])
 	return result["offices"]
 }
 
@@ -294,8 +272,9 @@ func (b *MigrationBuilder) getPPSOGbloc() map[string]string {
 		} else if error != nil {
 			log.Fatal(error)
 		}
-		//log.Println(line)
+
 		// key: title of office, value: gbloc
+		// for fast searching
 		ppsoWithGbloc[strings.ToLower(strings.Trim(line[0], " "))] = line[2]
 	}
 
@@ -315,7 +294,6 @@ func (b *MigrationBuilder) Build() (string, error) {
 	var missingOffices []OfficeDataStruct
 	var foundOffices []OfficeDataStruct
 	for _, o := range usAndConusOffices {
-		//b.WriteXMLLine(o, w)
 
 		// List the missing transportation office
 		offices := b.FindConusOffices(o)
@@ -371,7 +349,6 @@ func (b *MigrationBuilder) Build() (string, error) {
 
 	//Match all missing transportation offices with a shipping office
 	fmt.Println("Sql script to add new transportation offices: ")
-	//var officesMissingShipping []OfficeDataStruct
 	for _, missingOffice := range missingOffices {
 		shippingOffices := b.FindShippingOffices(missingOffice.ShippingOffice)
 
@@ -473,9 +450,6 @@ func (b *MigrationBuilder) Build() (string, error) {
 			}
 		}
 	}
-
-	// fmt.Println("# of missing offices missing shipping offices: ")
-	// fmt.Println(len(officesMissingShipping))
 
 	return "abc", nil
 }
