@@ -193,8 +193,8 @@ func (suite *serverSuite) TestTLSConfigWithRequest() {
 	keyPair, err := tls.X509KeyPair(
 		suite.readFile("localhost.pem"),
 		suite.readFile("localhost.key"))
-
-	suite.Nil(err)
+	suite.NoError(err)
+	certificates := []tls.Certificate{keyPair}
 
 	caFile := suite.readFile("ca.pem")
 	caCertPool := x509.NewCertPool()
@@ -203,6 +203,18 @@ func (suite *serverSuite) TestTLSConfigWithRequest() {
 	// A handler that we can test with
 	htmlBody := "<html><body>Hello, client</body></html>"
 	httpHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Check the TLS connection from inside the request
+		connState := r.TLS
+		suite.Equal(tls.VersionTLS12, int(connState.Version))
+		suite.True(connState.HandshakeComplete)
+		suite.False(connState.DidResume)
+		suite.Equal("", connState.NegotiatedProtocol)
+		suite.True(connState.NegotiatedProtocolIsMutual)
+		suite.Equal("localhost", connState.ServerName)
+		suite.Equal("Snake Oil", connState.PeerCertificates[0].Subject.Organization[0])
+		suite.Equal("Snake Oil", connState.VerifiedChains[0][0].Subject.Organization[0])
+
+		// Now write out a message
 		fmt.Fprintln(w, htmlBody)
 	})
 
@@ -211,14 +223,14 @@ func (suite *serverSuite) TestTLSConfigWithRequest() {
 	srv, err := CreateNamedServer(&CreateNamedServerInput{
 		Host:         host,
 		Port:         port,
-		ClientAuth:   tls.RequireAndVerifyClientCert,
-		ClientCAs:    caCertPool,
 		HTTPHandler:  httpHandler,
 		Logger:       suite.logger,
-		Certificates: []tls.Certificate{keyPair},
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+		Certificates: certificates,
+		ClientCAs:    caCertPool,
 	})
 	defer srv.Close()
-	suite.Nil(err)
+	suite.NoError(err)
 
 	// Start the Server
 	go srv.ListenAndServeTLS()
@@ -226,7 +238,7 @@ func (suite *serverSuite) TestTLSConfigWithRequest() {
 	// Send a request
 	config := tls.Config{
 		RootCAs:      caCertPool,
-		Certificates: []tls.Certificate{keyPair},
+		Certificates: certificates,
 	}
 	client := &http.Client{
 		Transport: &http.Transport{
@@ -234,26 +246,19 @@ func (suite *serverSuite) TestTLSConfigWithRequest() {
 		},
 	}
 	res, err := client.Get(fmt.Sprintf("https://%s:%d", host, port))
-	suite.Nil(err)
+	suite.NoError(err)
 
 	// Read the response
 	if res != nil {
 		body, bodyErr := ioutil.ReadAll(res.Body)
 		res.Body.Close()
-		suite.Nil(bodyErr)
+		suite.NoError(bodyErr)
 		suite.Equal(htmlBody+"\n", string(body))
 	}
 
-	// Check the connection
+	// Check the TLS connection directly
 	conn, err := tls.Dial("tcp", fmt.Sprintf("%s:%d", host, port), &config)
 	defer conn.Close()
-	suite.Nil(err)
+	suite.NoError(err)
 
-	connState := conn.ConnectionState()
-	suite.Equal(tls.VersionTLS12, int(connState.Version))
-	suite.True(connState.HandshakeComplete)
-	suite.False(connState.DidResume)
-	suite.Equal("", connState.NegotiatedProtocol)
-	suite.True(connState.NegotiatedProtocolIsMutual)
-	suite.Equal("", connState.ServerName)
 }
