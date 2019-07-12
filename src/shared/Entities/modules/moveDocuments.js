@@ -30,6 +30,13 @@ export const calcWeightTicketNetWeight = moveDocs =>
     return accum;
   }, 0);
 
+export const findPendingWeightTickets = moveDocs => {
+  return moveDocs.filter(
+    ({ move_document_type, status }) =>
+      move_document_type === MOVE_DOC_TYPE.WEIGHT_TICKET_SET && status !== MOVE_DOC_STATUS.OK,
+  );
+};
+
 // Actions
 export const getMoveDocumentsForMove = moveId => {
   return async function(dispatch, getState, { schema }) {
