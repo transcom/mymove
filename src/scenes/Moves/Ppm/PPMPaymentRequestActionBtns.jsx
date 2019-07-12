@@ -5,10 +5,12 @@ import './PPMPaymentRequest.css';
 const PPMPaymentRequestActionBtns = props => {
   const {
     nextBtnLabel,
+    skipHandler,
     saveAndAddHandler,
     saveForLaterHandler,
     submitButtonsAreDisabled,
     displaySaveForLater,
+    displaySkip,
     submitting,
     history,
   } = props;
@@ -29,9 +31,16 @@ const PPMPaymentRequestActionBtns = props => {
           </button>
         )}
       </div>
-      <button type="button" onClick={saveAndAddHandler} disabled={submitButtonsAreDisabled || submitting}>
-        {nextBtnLabel}
-      </button>
+      <div className="usa-width-one-third">
+        {displaySkip && (
+          <button data-cy="skip" type="button" className="usa-button-secondary" onClick={skipHandler}>
+            Skip
+          </button>
+        )}
+        <button type="button" onClick={saveAndAddHandler} disabled={submitButtonsAreDisabled || submitting}>
+          {nextBtnLabel}
+        </button>
+      </div>
     </div>
   );
 };

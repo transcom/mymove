@@ -158,7 +158,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerNoMissingFiel
 		TrailerOwnershipMissing:  false,
 	}
 	verrs, err := suite.DB().ValidateAndCreate(&weightTicketSetDocument)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
@@ -220,7 +220,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerMissingFields
 		TrailerOwnershipMissing:  false,
 	}
 	verrs, err := suite.DB().ValidateAndCreate(&weightTicketSetDocument)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)

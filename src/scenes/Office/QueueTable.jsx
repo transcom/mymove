@@ -118,7 +118,7 @@ class QueueTable extends Component {
     const titles = {
       new: 'New Moves/Shipments',
       troubleshooting: 'Troubleshooting',
-      ppm: 'PPMs',
+      ppm: 'PPM Shipments',
       hhg_active: 'Active HHGs',
       hhg_delivered: 'Delivered HHGs',
       all: 'All Moves',
