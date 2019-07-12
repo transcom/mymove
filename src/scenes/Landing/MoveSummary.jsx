@@ -113,7 +113,7 @@ export const PPMAlert = props => {
           Get certified <strong>weight tickets</strong>, both empty &amp; full
         </li>
         <li>
-          Save <strong>expense receipts</strong>, including for storgage
+          Save <strong>expense receipts</strong>, including for storage
         </li>
         <li>
           Read the{' '}
@@ -311,7 +311,8 @@ export const NewApprovedMoveSummary = props => {
   const { ppm, move } = props;
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
   const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
-  const ppmPaymentRequestRoute = `moves/${move.id}/ppm-payment-request-intro`;
+  const ppmPaymentRequestIntroRoute = `moves/${move.id}/ppm-payment-request-intro`;
+  const ppmPaymentRequestReviewRoute = `moves/${move.id}/ppm-payment-review`;
   return (
     <Fragment>
       <div>
@@ -344,6 +345,9 @@ export const NewApprovedMoveSummary = props => {
                       We're reviewing your payment request. We'll let you know when you can submit your payment
                       paperwork to Finance.
                     </div>
+                    <Link to={ppmPaymentRequestReviewRoute} className="usa-button usa-button-secondary">
+                      Edit Payment Request
+                    </Link>
                   </div>
                 ) : (
                   <div className="step">
@@ -352,7 +356,7 @@ export const NewApprovedMoveSummary = props => {
                       Request a PPM payment, a storage payment, or an advance against your PPM payment before your move
                       is done.
                     </div>
-                    <Link to={ppmPaymentRequestRoute} className="usa-button usa-button-secondary">
+                    <Link to={ppmPaymentRequestIntroRoute} className="usa-button usa-button-secondary">
                       Request Payment
                     </Link>
                   </div>
@@ -374,7 +378,7 @@ export const ApprovedMoveSummary = props => {
   const { ppm, move, requestPaymentSuccess } = props;
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
   const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
-  const ppmPaymentRequestRoute = `moves/${move.id}/request-payment`;
+  const ppmPaymentRequestIntroRoute = `moves/${move.id}/request-payment`;
   return (
     <Fragment>
       <div>
@@ -420,7 +424,7 @@ export const ApprovedMoveSummary = props => {
                       Request a PPM payment, a storage payment, or an advance against your PPM payment before your move
                       is done.
                     </div>
-                    <Link to={ppmPaymentRequestRoute} className="usa-button usa-button-secondary">
+                    <Link to={ppmPaymentRequestIntroRoute} className="usa-button usa-button-secondary">
                       Request Payment
                     </Link>
                   </div>

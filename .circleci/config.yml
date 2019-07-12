@@ -37,7 +37,7 @@ executors:
     working_directory: ~/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:9b7bfbf6bfae544566ade0c896f8aacbd16281e5
-      - image: postgres:10.6
+      - image: postgres:10.9
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
@@ -462,6 +462,7 @@ jobs:
             ENV: test
             ENVIRONMENT: test
             MIGRATION_PATH: /home/circleci/transcom/mymove/migrations
+            MIGRATION_MANIFEST: /home/circleci/transcom/mymove/migrations_manifest.txt
             SECURE_MIGRATION_DIR: /home/circleci/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
 
@@ -510,6 +511,7 @@ jobs:
             ENV: test
             ENVIRONMENT: test
             MIGRATION_PATH: /home/circleci/transcom/mymove/migrations
+            MIGRATION_MANIFEST: /home/circleci/transcom/mymove/migrations_manifest.txt
             SECURE_MIGRATION_DIR: /home/circleci/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
       - run:

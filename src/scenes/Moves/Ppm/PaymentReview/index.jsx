@@ -79,7 +79,7 @@ class PaymentReview extends Component {
             </ProgressTimeline>
           }
         />
-        <div className="usa-grid">
+        <div className="payment-review-container usa-grid">
           <div className="review-payment-request-header">
             {this.state.moveSubmissionError && (
               <div className="usa-width-one-whole error-message">

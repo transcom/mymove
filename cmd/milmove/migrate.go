@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gobuffalo/pop"
@@ -18,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/ecs"
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/migrate"
 )
 
 // initMigrateFlags - Order matters!
@@ -158,9 +161,66 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 
 	migrationPath := v.GetString(cli.MigrationPathFlag)
 	logger.Info(fmt.Sprintf("using migration path %q", migrationPath))
-	mig, err := pop.NewFileMigrator(migrationPath, dbConnection)
+
+	migrationManifest := v.GetString(cli.MigrationManifestFlag)
+	logger.Info(fmt.Sprintf("using migration manifest at %q", migrationManifest))
+
+	manifest, err := os.Open(migrationManifest)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error reading manifest")
 	}
-	return mig.Up()
+	migrations := map[string]struct{}{}
+	scanner := bufio.NewScanner(manifest)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if len(line) == 0 {
+			// skip blank lines
+			continue
+		}
+		if strings.HasPrefix(line, "#") {
+			// If line starts with a #, then comment it out.
+			continue
+		}
+		migrations[line] = struct{}{}
+	}
+
+	fm := &pop.FileMigrator{
+		Migrator: pop.NewMigrator(dbConnection),
+		Path:     migrationPath,
+	}
+	fm.SchemaPath = migrationPath
+
+	runner := func(mf pop.Migration, tx *pop.Connection) error {
+
+		f, err := os.Open(mf.Path)
+		if err != nil {
+			return err
+		}
+
+		// if a secure migration, this step will execute.
+		// See https://github.com/gobuffalo/fizz/pull/54
+		content, err := pop.MigrationContent(mf, tx, f, false)
+		if err != nil {
+			return errors.Wrapf(err, "error processing %s", mf.Path)
+		}
+
+		if content == "" {
+			return nil
+		}
+
+		err = tx.RawQuery(content).Exec()
+		if err != nil {
+			return errors.Wrapf(err, "error executing %s, sql: %s", mf.Path, content)
+		}
+
+		return nil
+
+	}
+
+	errFindMigrations := migrate.FindMigrations(fm, migrations, runner)
+	if errFindMigrations != nil {
+		return errFindMigrations
+	}
+
+	return fm.Up()
 }

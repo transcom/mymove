@@ -65,7 +65,7 @@ const userInfoDefault = () => ({
 const currentUserReducerDefault = () => ({
   hasSucceeded: false,
   hasErrored: false,
-  isLoading: false,
+  isLoading: true,
   userInfo: userInfoDefault(),
 });
 

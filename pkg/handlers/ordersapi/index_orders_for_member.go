@@ -18,30 +18,35 @@ type IndexOrdersForMemberHandler struct {
 
 // Handle (IndexOrdersForMemberHandler) responds to GET /edipis/{edipi}/orders
 func (h IndexOrdersForMemberHandler) Handle(params ordersoperations.IndexOrdersForMemberParams) middleware.Responder {
-	clientCert := authentication.ClientCertFromRequestContext(params.HTTPRequest)
+
+	ctx := params.HTTPRequest.Context()
+
+	logger := h.LoggerFromContext(ctx)
+
+	clientCert := authentication.ClientCertFromContext(ctx)
 	if clientCert == nil {
-		return handlers.ResponseForError(h.Logger(), errors.WithMessage(models.ErrUserUnauthorized, "No client certificate provided"))
+		return handlers.ResponseForError(logger, errors.WithMessage(models.ErrUserUnauthorized, "No client certificate provided"))
 	}
 	if !clientCert.AllowOrdersAPI {
-		return handlers.ResponseForError(h.Logger(), errors.WithMessage(models.ErrFetchForbidden, "Not permitted to access this API"))
+		return handlers.ResponseForError(logger, errors.WithMessage(models.ErrFetchForbidden, "Not permitted to access this API"))
 	}
 	allowedIssuers := clientCert.GetAllowedOrdersIssuersRead()
 	if len(allowedIssuers) == 0 {
-		return handlers.ResponseForError(h.Logger(), errors.WithMessage(models.ErrFetchForbidden, "Not permitted to read any Orders"))
+		return handlers.ResponseForError(logger, errors.WithMessage(models.ErrFetchForbidden, "Not permitted to read any Orders"))
 	}
 
 	orders, err := models.FetchElectronicOrdersByEdipiAndIssuers(h.DB(), params.Edipi, allowedIssuers)
 	if err == models.ErrFetchNotFound {
 		return ordersoperations.NewIndexOrdersForMemberOK().WithPayload([]*ordersmessages.Orders{})
 	} else if err != nil {
-		return handlers.ResponseForError(h.Logger(), err)
+		return handlers.ResponseForError(logger, err)
 	}
 
 	ordersPayloads := make([]*ordersmessages.Orders, len(orders))
 	for i, o := range orders {
 		payload, err := payloadForElectronicOrderModel(o)
 		if err != nil {
-			return handlers.ResponseForError(h.Logger(), err)
+			return handlers.ResponseForError(logger, err)
 		}
 		ordersPayloads[i] = payload
 	}
