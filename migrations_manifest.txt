@@ -319,3 +319,4 @@
 20190702195904_create_organizations.up.fizz
 20190703141326_add-usmc-office-users.up.fizz
 20190709204712_add-office-users.up.fizz
+20190712172225_add-missing-transportation-offices.up.sql
