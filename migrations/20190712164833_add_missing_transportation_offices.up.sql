@@ -17,14 +17,6 @@ INSERT INTO transportation_offices
 INSERT INTO addresses
 	(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country)
 	VALUES
-	('1668d756-eeb0-4e62-bae4-13dfef73032d', 'Installation Transportation', '4-2843 Normandy Dr', 'Fort Bragg', 'NC', '28310', now(), now(), 'United States');
-INSERT INTO transportation_offices
-	(id, name, gbloc, address_id, latitude, longitude, shipping_office_id, created_at, updated_at)
-	VALUES
-	('1c772de4-88af-4d52-a84c-f1436eecdb77', 'Fort Bragg', 'BKAS', '1668d756-eeb0-4e62-bae4-13dfef73032d', 35.1236025, -78.9910352, '8eca374c-f5b1-4f88-8821-1d82068a0cbf', now(), now());
-INSERT INTO addresses
-	(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country)
-	VALUES
 	('e11204f0-48f9-4239-bcac-7bf471daa61d', '55 Pony Soldier Avenue, Bldg 253, Suite 2003A', 'Soldier Service Center', 'Fort Stewart', 'GA', '31314', now(), now(), 'United States');
 INSERT INTO transportation_offices
 	(id, name, gbloc, address_id, latitude, longitude, shipping_office_id, created_at, updated_at)
