@@ -181,7 +181,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				shipment.source_gbloc as origin_gbloc,
 				shipment.destination_gbloc as destination_gbloc,
 				shipment.actual_delivery_date as delivered_date,
-				(case when invoice.status = 'SUBMITTED' then invoice.updated_at end) as invoice_approved_date
+				(case when invoice.status = 'SUBMITTED' then invoice.invoiced_date end) as invoice_approved_date
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
