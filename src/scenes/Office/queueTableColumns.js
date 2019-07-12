@@ -77,6 +77,22 @@ const destination = CreateReactTableColumn('Destination', 'destination_duty_stat
   Cell: row => <span>{row.value}</span>,
 });
 
+const originGBLOC = CreateReactTableColumn('Origin GBLOC', 'origin_gbloc', {
+  Cell: row => <span>{row.value}</span>,
+});
+
+const destinationGBLOC = CreateReactTableColumn('Destination GBLOC', 'destination_gbloc', {
+  Cell: row => <span>{row.value}</span>,
+});
+
+const deliveredDate = CreateReactTableColumn('Delivered', 'delivered_date', {
+  Cell: row => <span>{formatDate(row.value)}</span>,
+});
+
+const invoiceApprovedDate = CreateReactTableColumn('Invoice Approved', 'invoice_approved_date', {
+  Cell: row => <span>{formatDate(row.value)}</span>,
+});
+
 const sitExpires = CreateReactTableColumn(
   'SIT expires',
   row => {
@@ -204,16 +220,14 @@ export const hhgActiveColumns = [
 ];
 
 export const hhgDeliveredColumns = [
-  needsAttentionClockIcon,
   needsAttention,
-  status,
   customerName,
-  dodId,
-  rank,
+  originGBLOC,
+  destinationGBLOC,
   locator,
   gbl,
-  moveDate,
-  lastModifiedDate,
+  deliveredDate,
+  invoiceApprovedDate,
 ];
 
 export const defaultColumns = [status, customerName, dodId, rank, locator, gbl, moveDate, lastModifiedDate];
