@@ -378,18 +378,18 @@ func (b *MigrationBuilder) Build() (string, error) {
 		if len(shippingOffices) == 0 {
 			shippingOfficeUUID, _ := uuid.NewV4()
 			shippingAddressUUID, _ := uuid.NewV4()
-			gbloc := ppsoWithGloc[missingOffice.ShippingOffice.Title]
+			gbloc := ppsoWithGloc[strings.ToLower(missingOffice.ShippingOffice.Title)]
 			//Shipping office
 			fmt.Println(fmt.Sprintf(`INSERT INTO addresses
 	(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country)
 	VALUES
 	('%s', '%s', '%s', '%s', '%s', '%s', now(), now(), 'United States');`,
-				shippingAddressUUID, missingOffice.Location.AddressLine1, missingOffice.Location.AddressLine2, missingOffice.Location.Locality, missingOffice.Location.AdminstrativeArea, missingOffice.Location.PostalCode))
+				shippingAddressUUID, missingOffice.ShippingOffice.Location.AddressLine1, missingOffice.ShippingOffice.Location.AddressLine2, missingOffice.ShippingOffice.Location.Locality, missingOffice.ShippingOffice.Location.AdminstrativeArea, missingOffice.ShippingOffice.Location.PostalCode))
 			fmt.Println(fmt.Sprintf(`INSERT INTO transportation_offices
 	(id, name, gbloc, address_id, latitude, longitude, shipping_office_id, created_at, updated_at)
 	VALUES
-	('%s', '%s', '%s', '%s', %s, %s, '%s', now(), now());`,
-				shippingOfficeUUID, b.normalizeName(missingOffice.Title), gbloc, "NULL", missingOffice.Location.GeoLocation.Lat, missingOffice.Location.GeoLocation.Lng, shippingOfficeUUID))
+	('%s', '%s', '%s', '%s', %s, %s, %s, now(), now());`,
+				shippingOfficeUUID, b.normalizeName(missingOffice.ShippingOffice.Title), gbloc, shippingAddressUUID, missingOffice.ShippingOffice.Location.GeoLocation.Lat, missingOffice.ShippingOffice.Location.GeoLocation.Lng, "NULL"))
 
 			officeUUID, _ := uuid.NewV4()
 			officeAddressUUID, _ := uuid.NewV4()
@@ -408,6 +408,10 @@ func (b *MigrationBuilder) Build() (string, error) {
 		}
 
 		for _, shippingOffice := range shippingOffices {
+			if shippingOffice.Gbloc == "" || shippingOffice.Gbloc == "XXXX" {
+				continue
+			}
+
 			long, _ := strconv.ParseFloat(missingOffice.ShippingOffice.Location.GeoLocation.Lng, 64)
 			fromLong := float64(shippingOffice.Longitude - .2)
 			toLong := float64(shippingOffice.Longitude + .2)
@@ -439,18 +443,18 @@ func (b *MigrationBuilder) Build() (string, error) {
 
 				shippingOfficeUUID, _ := uuid.NewV4()
 				shippingAddressUUID, _ := uuid.NewV4()
-				gbloc := ppsoWithGloc[missingOffice.ShippingOffice.Title]
+				gbloc := ppsoWithGloc[strings.ToLower(missingOffice.ShippingOffice.Title)]
 				//Shipping office
 				fmt.Println(fmt.Sprintf(`INSERT INTO addresses
 	(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country)
 	VALUES
 	('%s', '%s', '%s', '%s', '%s', '%s', now(), now(), 'United States');`,
-					shippingAddressUUID, missingOffice.Location.AddressLine1, missingOffice.Location.AddressLine2, missingOffice.Location.Locality, missingOffice.Location.AdminstrativeArea, missingOffice.Location.PostalCode))
+					shippingAddressUUID, missingOffice.ShippingOffice.Location.AddressLine1, missingOffice.ShippingOffice.Location.AddressLine2, missingOffice.ShippingOffice.Location.Locality, missingOffice.ShippingOffice.Location.AdminstrativeArea, missingOffice.ShippingOffice.Location.PostalCode))
 				fmt.Println(fmt.Sprintf(`INSERT INTO transportation_offices
 	(id, name, gbloc, address_id, latitude, longitude, shipping_office_id, created_at, updated_at)
 	VALUES
-	('%s', '%s', '%s', '%s', %s, %s, '%s', now(), now());`,
-					shippingOfficeUUID, b.normalizeName(missingOffice.Title), gbloc, "NULL", missingOffice.Location.GeoLocation.Lat, missingOffice.Location.GeoLocation.Lng, shippingOffice.ID))
+	('%s', '%s', '%s', '%s', %s, %s, %s, now(), now());`,
+					shippingOfficeUUID, b.normalizeName(missingOffice.ShippingOffice.Title), gbloc, shippingAddressUUID, missingOffice.ShippingOffice.Location.GeoLocation.Lat, missingOffice.ShippingOffice.Location.GeoLocation.Lng, "NULL"))
 
 				officeUUID, _ := uuid.NewV4()
 				officeAddressUUID, _ := uuid.NewV4()
@@ -464,7 +468,7 @@ func (b *MigrationBuilder) Build() (string, error) {
 	(id, name, gbloc, address_id, latitude, longitude, shipping_office_id, created_at, updated_at)
 	VALUES
 	('%s', '%s', '%s', '%s', %s, %s, '%s', now(), now());`,
-					officeUUID, b.normalizeName(missingOffice.Title), gbloc, officeAddressUUID, missingOffice.Location.GeoLocation.Lat, missingOffice.Location.GeoLocation.Lng, shippingOffice.ID))
+					officeUUID, b.normalizeName(missingOffice.Title), gbloc, officeAddressUUID, missingOffice.Location.GeoLocation.Lat, missingOffice.Location.GeoLocation.Lng, shippingOfficeUUID))
 
 			}
 		}
