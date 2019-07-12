@@ -281,27 +281,18 @@ func (b *MigrationBuilder) getPPSOGbloc() map[string]string {
 	return ppsoWithGbloc
 }
 
-func (b *MigrationBuilder) Build() (string, error) {
-	ppsoWithGloc := b.getPPSOGbloc()
-	offices := b.getLocationsList()
-
-	fmt.Printf("# total offices: %d\n", len(offices))
-
-	usAndConusOffices := b.filterOffice(offices, isUSAndConusFilter)
-	fmt.Printf("# us and conus only offices: %d\n", len(usAndConusOffices))
-
-	fmt.Println("# of missing transportation offices: ")
+func (b *MigrationBuilder) findExistingAndMissingOffices(offices map[string]OfficeDataStruct) ([]OfficeDataStruct, []OfficeDataStruct) {
 	var missingOffices []OfficeDataStruct
 	var foundOffices []OfficeDataStruct
-	for _, o := range usAndConusOffices {
+	for _, o := range offices {
 
 		// List the missing transportation office
 		offices := b.FindConusOffices(o)
 		if len(offices) == 0 {
 			missingOffices = append(missingOffices, o)
-			fmt.Println()
-			fmt.Printf("%+v\n", o)
-			fmt.Println()
+			// fmt.Println()
+			// fmt.Printf("%+v\n", o)
+			// fmt.Println()
 		}
 
 		// Filter matches of location
@@ -330,25 +321,25 @@ func (b *MigrationBuilder) Build() (string, error) {
 				foundOffices = append(foundOffices, o)
 			} else {
 				missingOffices = append(missingOffices, o)
-				fmt.Println()
-				fmt.Printf("%+v\n", o)
-				fmt.Println()
-				fmt.Println("Office by zip geo location difference: ")
-				fmt.Println("Lat: ", float64(officeByZip.Latitude))
-				fmt.Println("Long: ", float64(officeByZip.Longitude))
-				fmt.Println("Office by json geo location difference: ")
-				fmt.Println("Lat: ", o.Location.GeoLocation.Lat)
-				fmt.Println("Long: ", o.Location.GeoLocation.Lng)
+				// fmt.Println()
+				// fmt.Printf("%+v\n", o)
+				// fmt.Println()
+				// fmt.Println("Office by zip geo location difference: ")
+				// fmt.Println("Lat: ", float64(officeByZip.Latitude))
+				// fmt.Println("Long: ", float64(officeByZip.Longitude))
+				// fmt.Println("Office by json geo location difference: ")
+				// fmt.Println("Lat: ", o.Location.GeoLocation.Lat)
+				// fmt.Println("Long: ", o.Location.GeoLocation.Lng)
 			}
 		}
 	}
-	fmt.Println("# of found offices:")
-	fmt.Println(len(foundOffices))
-	fmt.Println("# of missing offices:")
-	fmt.Println(len(missingOffices))
 
-	//Match all missing transportation offices with a shipping office
-	fmt.Println("Sql script to add new transportation offices: ")
+	return foundOffices, missingOffices
+}
+
+func (b *MigrationBuilder) generateSqlForMissingOffices(missingOffices []OfficeDataStruct) {
+	ppsoWithGloc := b.getPPSOGbloc()
+
 	for _, missingOffice := range missingOffices {
 		shippingOffices := b.FindShippingOffices(missingOffice.ShippingOffice)
 
@@ -356,6 +347,7 @@ func (b *MigrationBuilder) Build() (string, error) {
 			shippingOfficeUUID, _ := uuid.NewV4()
 			shippingAddressUUID, _ := uuid.NewV4()
 			gbloc := ppsoWithGloc[strings.ToLower(missingOffice.ShippingOffice.Title)]
+
 			//Shipping office
 			fmt.Println(fmt.Sprintf(`INSERT INTO addresses
 	(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country)
@@ -370,6 +362,7 @@ func (b *MigrationBuilder) Build() (string, error) {
 
 			officeUUID, _ := uuid.NewV4()
 			officeAddressUUID, _ := uuid.NewV4()
+
 			//Transportation office
 			fmt.Println(fmt.Sprintf(`INSERT INTO addresses
 	(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country)
@@ -385,6 +378,7 @@ func (b *MigrationBuilder) Build() (string, error) {
 		}
 
 		for _, shippingOffice := range shippingOffices {
+			// Don't include shipping offices with no gbloc
 			if shippingOffice.Gbloc == "" || shippingOffice.Gbloc == "XXXX" {
 				continue
 			}
@@ -416,7 +410,6 @@ func (b *MigrationBuilder) Build() (string, error) {
 					officeUUID, b.normalizeName(missingOffice.Title), shippingOffice.Gbloc, addressUUID, missingOffice.Location.GeoLocation.Lat, missingOffice.Location.GeoLocation.Lng, shippingOffice.ID))
 			} else {
 				// add missing transportation offices with new address
-				//officesMissingShipping = append(officesMissingShipping, missingOffice)
 
 				shippingOfficeUUID, _ := uuid.NewV4()
 				shippingAddressUUID, _ := uuid.NewV4()
@@ -450,6 +443,22 @@ func (b *MigrationBuilder) Build() (string, error) {
 			}
 		}
 	}
+}
+
+func (b *MigrationBuilder) Build() (string, error) {
+	offices := b.getLocationsList()
+
+	fmt.Printf("# total offices: %d\n", len(offices))
+
+	usAndConusOffices := b.filterOffice(offices, isUSAndConusFilter)
+	fmt.Printf("# us and conus only offices: %d\n", len(usAndConusOffices))
+
+	foundOffices, missingOffices := b.findExistingAndMissingOffices(usAndConusOffices)
+	fmt.Printf("# of found offices: %d\n", len(foundOffices))
+	fmt.Printf("# of missing offices: %d\n", len(missingOffices))
+
+	fmt.Println("Sql script to add new transportation offices: ")
+	b.generateSqlForMissingOffices(missingOffices)
 
 	return "abc", nil
 }
