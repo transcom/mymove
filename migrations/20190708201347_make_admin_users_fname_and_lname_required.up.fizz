@@ -1,2 +1,2 @@
-change_column("admin_users", "first_name", "string", {"null": false})
-change_column("admin_users", "last_name", "string", {"null": false})
+sql("ALTER TABLE admin_users ALTER COLUMN first_name SET NOT NULL;")
+sql("ALTER TABLE admin_users ALTER COLUMN last_name SET NOT NULL;")
