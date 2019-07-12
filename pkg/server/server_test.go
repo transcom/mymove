@@ -12,7 +12,6 @@ import (
 
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
-	goji "goji.io"
 
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
@@ -25,7 +24,6 @@ type serverSuite struct {
 
 func TestServerSuite(t *testing.T) {
 	var httpHandler http.Handler
-	httpHandler := goji.NewMux()
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Panic(err)
@@ -142,9 +140,14 @@ func (suite *serverSuite) TestTLSConfigWithMissingCA() {
 
 	suite.NoError(err)
 
-	certificates := []tls.Certificate{keyPair}
-	caCertPool := x509.NewCertPool()
-	_, err := CreateNamedMutualTLSServer("127.0.0.1", 8443, suite.Logger, suite.httpHandler, certificates, caCertPool)
+	_, err = CreateNamedServer(&CreateNamedServerInput{
+		Host:         "127.0.0.1",
+		Port:         8443,
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+		HTTPHandler:  suite.httpHandler,
+		Logger:       suite.logger,
+		Certificates: []tls.Certificate{keyPair},
+	})
 	suite.Equal(ErrMissingCACert, err)
 }
 
@@ -161,8 +164,15 @@ func (suite *serverSuite) TestTLSConfigWithMisconfiguredCA() {
 	certOk := caCertPool.AppendCertsFromPEM(caFile)
 	suite.False(certOk)
 
-	certificates := []tls.Certificate{keyPair}
-	_, err := CreateNamedMutualTLSServer("127.0.0.1", 8443, suite.Logger, suite.httpHandler, certificates, caCertPool)
+	_, err = CreateNamedServer(&CreateNamedServerInput{
+		Host:         "127.0.0.1",
+		Port:         8443,
+		ClientAuth:   tls.RequireAndVerifyClientCert,
+		ClientCAs:    caCertPool,
+		HTTPHandler:  suite.httpHandler,
+		Logger:       suite.logger,
+		Certificates: []tls.Certificate{keyPair},
+	})
 	suite.Equal(ErrMissingCACert, err)
 }
 
