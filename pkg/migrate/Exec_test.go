@@ -80,3 +80,18 @@ func (suite *MigrateSuite) TestExecWithUpdateFromSetSQL() {
 		return nil
 	})
 }
+
+func (suite *MigrateSuite) TestExecWithInsertConflictSQL() {
+
+	// Load the fixture with the sql example
+	f, err := os.Open("./fixtures/insert_conflict.sql")
+	suite.Nil(err)
+
+	errTransaction := suite.DB().Transaction(func(tx *pop.Connection) error {
+		wait := 10 * time.Millisecond
+		err := Exec(f, tx, wait)
+		suite.Nil(err)
+		return nil
+	})
+	suite.NoError(errTransaction)
+}
