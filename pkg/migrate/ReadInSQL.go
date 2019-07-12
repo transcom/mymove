@@ -2,8 +2,14 @@ package migrate
 
 import (
 	"bufio"
+	"bytes"
 	"io"
-	"strings"
+)
+
+var (
+	lineCommentBytes   = []byte("--")
+	startCopyFromStdin = []byte(" FROM stdin;")
+	endCopyFromStdin   = []byte("\\.")
 )
 
 // ReadInSQL reads the SQL lines from the in reader and writes them to the out Buffer.
@@ -11,22 +17,47 @@ import (
 // If dropBlankLines is true, then drops all blank lines.
 func ReadInSQL(in io.Reader, out *Buffer, dropComments bool, dropBlankLines bool, dropSearchPath bool) {
 	scanner := bufio.NewScanner(in)
+	inCopyFrom := false
 	for scanner.Scan() {
-		line := scanner.Text()
-		if strings.HasPrefix(line, "--") {
+		line := scanner.Bytes()
+
+		if inCopyFrom {
+
+			if bytes.Equal(line, endCopyFromStdin) {
+				inCopyFrom = false
+			}
+
+		} else {
+
 			if dropComments {
-				continue
+				if idx := bytes.Index(line, lineCommentBytes); idx != -1 {
+					if idx == 0 {
+						continue
+					} else {
+						line = line[0:idx]
+					}
+				}
 			}
-		} else if strings.Contains(line, "pg_catalog.set_config('search_path'") {
-			if dropSearchPath {
-				continue
+
+			if bytes.Contains(line, []byte("pg_catalog.set_config('search_path'")) {
+				if dropSearchPath {
+					continue
+				}
 			}
-		} else if len(strings.TrimSpace(line)) == 0 {
+
 			if dropBlankLines {
-				continue
+				if len(bytes.TrimSpace(line)) == 0 {
+					continue
+				}
 			}
+
+			if bytes.HasSuffix(line, startCopyFromStdin) {
+				inCopyFrom = true
+			}
+
 		}
-		out.WriteString(line)
+
+		out.WriteString(string(line))
 		out.WriteByte('\n')
 	}
 	out.Close()
