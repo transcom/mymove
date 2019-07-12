@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -38,6 +39,22 @@ func checkGenMigrationConfig(v *viper.Viper) error {
 		return err
 	}
 
+	return nil
+}
+
+func addMigrationToManifest(migrationManifest string, filename string) error {
+	mmf, err := os.OpenFile(migrationManifest, os.O_APPEND|os.O_WRONLY, 0600)
+	if err != nil {
+		return errors.Wrap(err, "could not open migration manifest")
+	}
+	defer mmf.Close()
+
+	_, err = mmf.WriteString(filename + "\n")
+	if err != nil {
+		return errors.Wrap(err, "could not append to the migration manifest")
+	}
+
+	log.Println(fmt.Sprintf("new migration appended to manifest at %q", migrationManifest))
 	return nil
 }
 
@@ -79,18 +96,9 @@ func genMigrationFunction(cmd *cobra.Command, args []string) error {
 
 	fmt.Println(fmt.Sprintf("new migration file created at %q", p))
 
-	mmf, err := os.OpenFile(migrationManifest, os.O_APPEND|os.O_WRONLY, 0600)
+	err = addMigrationToManifest(migrationManifest, filename)
 	if err != nil {
-		return errors.Wrap(err, "could not open migration manifest")
+		return err
 	}
-	defer mmf.Close()
-
-	_, err = mmf.WriteString(filename + "\n")
-	if err != nil {
-		return errors.Wrap(err, "could not append to the migration manifest")
-	}
-
-	fmt.Println(fmt.Sprintf("new migration appended to manifest at %q", migrationManifest))
-
 	return nil
 }

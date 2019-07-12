@@ -61,7 +61,7 @@ ${aws_command} s3 ls "${aws_bucket_prefix}${environments[0]}${aws_bucket_suffix}
 
 echo "Testing migrations ... (This could be several minutes!)"
 
-SECURE_MIGRATION_SOURCE=local make run_prod_migrations
+SECURE_MIGRATION_SOURCE=local ./scripts/run-deployed-migrations "${DB_NAME_DEPLOYED_MIGRATIONS}"
 
 echo "Testing migrations was successful!"
 echo

@@ -19,13 +19,13 @@ import (
 func (suite *PaperworkSuite) sha256ForPath(path string, fs *afero.Afero) (string, error) {
 	file, err := fs.Open(path)
 	if err != nil {
-		suite.Nil(err)
+		suite.NoError(err)
 	}
 	defer file.Close()
 
 	hash := sha256.New()
 	if _, err := io.Copy(hash, file); err != nil {
-		suite.Nil(err)
+		suite.NoError(err)
 	}
 
 	byteArray := hash.Sum(nil)
