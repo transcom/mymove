@@ -12,6 +12,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { selectMoveDocument, updateMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import { selectPPMForMove } from 'shared/Entities/modules/ppms';
 import { isMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
+import { MOVE_DOC_TYPE } from 'shared/constants';
 
 import ExpenseDocumentForm from 'scenes/Office/DocumentViewer/ExpenseDocumentForm';
 
@@ -87,7 +88,7 @@ DocumentDetailDisplay.propTypes = {
 };
 
 const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
-  const isExpenseDocument = formValues.moveDocument.move_document_type === 'EXPENSE';
+  const isExpenseDocument = formValues.moveDocument.move_document_type === MOVE_DOC_TYPE.EXPENSE;
   return (
     <Fragment>
       <div>

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues } from 'redux-form';
 import { selectPPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
-import { selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import { selectAllDocumentsForMove, calcWeightTicketNetWeight } from 'shared/Entities/modules/moveDocuments';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
@@ -44,12 +44,7 @@ function mapStateToProps(state, ownProps) {
   const formValues = getFormValues(formName)(state);
   const ppm = selectPPMForMove(state, ownProps.moveId);
   const moveDocs = selectAllDocumentsForMove(state, ownProps.moveId);
-  const netWeight = moveDocs.reduce((accum, { move_document_type, status, full_weight, empty_weight }) => {
-    if (move_document_type === 'WEIGHT_TICKET_SET' && status === 'OK') {
-      return accum + (full_weight - empty_weight);
-    }
-    return accum;
-  }, 0);
+  const netWeight = calcWeightTicketNetWeight(moveDocs);
 
   return {
     // reduxForm
