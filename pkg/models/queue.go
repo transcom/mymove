@@ -96,11 +96,15 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				ppm.updated_at as last_modified_date,
 				moves.status as status,
 				ppm.status as ppm_status,
-				shipment.gbl_number as gbl_number
+				shipment.gbl_number as gbl_number,
+				origin_duty_station.name as origin_duty_station_name,
+				destination_duty_station.name as destination_duty_station_name
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
+			JOIN duty_stations as origin_duty_station ON sm.duty_station_id = origin_duty_station.id
+			JOIN duty_stations as destination_duty_station ON ord.new_duty_station_id = destination_duty_station.id
 			LEFT JOIN shipments AS shipment ON moves.id = shipment.move_id
 			WHERE moves.show is true
 			and ppm.status in ('APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED')

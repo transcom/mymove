@@ -313,6 +313,7 @@
 20190624204138_add-missing-users.up.fizz
 20190625175052_add_office_users.up.fizz
 20190627162208_add-one-new-truss-user.up.fizz
+20190701205931_add_duty_station_index.up.fizz
 20190702150158_create_admin_users.up.fizz
 20190702170631_add_new_office_user.up.fizz
 20190702195904_create_organizations.up.fizz

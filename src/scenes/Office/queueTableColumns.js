@@ -16,25 +16,6 @@ const CreateReactTableColumn = (header, accessor, options = {}) => ({
   ...options,
 });
 
-const clockIcon = CreateReactTableColumn(
-  <FontAwesomeIcon icon={faClock} />,
-  row => {
-    return row.synthetic_status === 'SUBMITTED' || row.synthetic_status === 'PAYMENT_REQUESTED' ? 'CLOCK' : 'NONE';
-  },
-  {
-    id: 'clockIcon',
-    Cell: row =>
-      row.value === 'CLOCK' ? (
-        <span data-cy="ppm-queue-icon">
-          <FontAwesomeIcon icon={faClock} className="clock-icon" />
-        </span>
-      ) : (
-        ''
-      ),
-    width: 50,
-  },
-);
-
 const status = CreateReactTableColumn('Status', 'synthetic_status', {
   Cell: row => (
     <span className="status" data-cy="status">
@@ -72,7 +53,7 @@ const locator = CreateReactTableColumn('Locator #', 'locator', {
 
 const gbl = CreateReactTableColumn('GBL #', 'gbl_number');
 
-const moveDate = CreateReactTableColumn('Move date', 'move_date', {
+const moveDate = CreateReactTableColumn('PPM start', 'move_date', {
   Cell: row => <span className="move_date">{formatDate(row.value)}</span>,
 });
 
@@ -223,7 +204,7 @@ export const newColumns = [
   submittedDate,
 ];
 
-export const ppmColumns = [clockIcon, status, customerName, dodId, rank, locator, moveDate, lastModifiedDate];
+export const ppmColumns = [status, customerName, origin, destination, dodId, locator, moveDate, lastModifiedDate];
 
 export const hhgActiveColumns = [
   needsAttentionClockIcon,

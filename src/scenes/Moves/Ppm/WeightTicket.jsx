@@ -62,7 +62,7 @@ class WeightTicket extends Component {
   get initialState() {
     return {
       vehicleType: '',
-      additionalWeightTickets: 'Yes',
+      additionalWeightTickets: 'No',
       isValidTrailer: 'No',
       weightTicketSubmissionError: false,
       missingDocumentation: false,
@@ -116,6 +116,11 @@ class WeightTicket extends Component {
     this.setState({
       uploaderIsIdle: { ...this.state.uploaderIsIdle, [uploaderName]: uploaderIsIdle },
     });
+  };
+
+  skipHandler = () => {
+    const { moveId, history } = this.props;
+    history.push(`/moves/${moveId}${nextPagePath}`);
   };
 
   saveForLaterHandler = formValues => {
@@ -202,6 +207,7 @@ class WeightTicket extends Component {
     const weightTicketSetOrdinal = formatToOrdinal(weightTicketSets.length + 1);
     const fullWeightTicketFieldsRequired = missingFullWeightTicket ? null : true;
     const emptyWeightTicketFieldsRequired = missingEmptyWeightTicket ? null : true;
+
     return (
       <Fragment>
         <WizardHeader
@@ -247,8 +253,7 @@ class WeightTicket extends Component {
                 <>
                   <div className="radio-group-wrapper normalize-margins">
                     <p className="radio-group-header">
-                      Is this a <strong>different</strong> trailer you own and does it meet the{' '}
-                      <Link to="/trailer-criteria">trailer criteria</Link>?
+                      Do you own this trailer, and does it meet all <Link to="/trailer-criteria">trailer criteria</Link>?
                     </p>
                     <RadioButton
                       inputClassName="inline_radio"
@@ -450,9 +455,11 @@ class WeightTicket extends Component {
               nextBtnLabel={nextBtnLabel}
               submitButtonsAreDisabled={this.uploaderWithInvalidState() || invalid}
               submitting={submitting}
+              skipHandler={this.skipHandler}
               saveForLaterHandler={handleSubmit(this.saveForLaterHandler)}
               saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
               displaySaveForLater={true}
+              displaySkip={weightTicketSets.length >= 1}
             />
           </div>
         </form>

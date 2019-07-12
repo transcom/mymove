@@ -252,8 +252,9 @@ describe('allows a SM to request a payment', function() {
       .type('6/2/2018{enter}')
       .blur();
 
-    cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
-    cy.get('input[name="additional_weight_ticket"][value="No"]').should('not.be.checked');
+    cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('not.be.checked');
+    cy.get('input[name="additional_weight_ticket"][value="No"]').should('be.checked');
+    cy.get('input[name="additional_weight_ticket"][value="Yes"]+label').click();
     cy
       .get('button')
       .contains('Save & Add Another')
@@ -275,8 +276,9 @@ describe('allows a SM to request a payment', function() {
     // only required when missing is not checked
     cy.get('input[name="missingFullWeightTicket"]+label').click();
 
-    cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
-    cy.get('input[name="additional_weight_ticket"][value="No"]').should('not.be.checked');
+    cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('not.be.checked');
+    cy.get('input[name="additional_weight_ticket"][value="No"]').should('be.checked');
+    cy.get('input[name="additional_weight_ticket"][value="Yes"]+label').click();
     cy
       .get('button')
       .contains('Save & Add Another')
@@ -311,6 +313,21 @@ describe('allows a SM to request a payment', function() {
     cy.location().should(loc => {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
     });
+  });
+
+  it('service member can skip weight tickets and expenses if already have one', () => {
+    serviceMemberStartsPPMPaymentRequest();
+    serviceMemberSubmitsWeightTicket('CAR', true);
+    cy
+      .get('[data-cy=skip]')
+      .contains('Skip')
+      .click();
+    serviceMemberViewsExpensesLandingPage();
+    serviceMemberUploadsExpenses();
+    cy
+      .get('[data-cy=skip]')
+      .contains('Skip')
+      .click();
   });
 
   it('service member goes through entire request payment flow', () => {
@@ -550,7 +567,7 @@ function serviceMemberSubmitsCarTrailerWeightTicket() {
   cy.get('input[name="vehicle_nickname"]').type('Nickname');
 
   cy
-    .contains('Is this a different trailer you own')
+    .contains('Do you own this trailer')
     .children('a')
     .should('have.attr', 'href', '/trailer-criteria');
 
@@ -576,10 +593,8 @@ function serviceMemberSubmitsCarTrailerWeightTicket() {
     .type('6/2/2018{enter}')
     .blur();
 
-  cy
-    .get('[type="radio"]')
-    .eq(2)
-    .should('be.checked');
+  cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('not.be.checked');
+  cy.get('input[name="additional_weight_ticket"][value="No"]').should('be.checked');
 }
 function serviceMemberSavesWeightTicketForLater(vehicleType) {
   cy.get('select[name="vehicle_options"]').select(vehicleType);
@@ -641,6 +656,9 @@ function serviceMemberSubmitsWeightsTicketsWithoutReceipts() {
     .get('input[name="weight_ticket_date"]')
     .type('6/2/2018{enter}')
     .blur();
+
+  cy.get('input[name="additional_weight_ticket"][value="Yes"]+label').click();
+  cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
   cy
     .get('button')
     .contains('Save & Add Another')
@@ -684,9 +702,11 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
     .get('input[name="weight_ticket_date"]')
     .type('6/2/2018{enter}')
     .blur();
-  cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
-  cy.get('input[name="additional_weight_ticket"][value="No"]').should('not.be.checked');
+  cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('not.be.checked');
+  cy.get('input[name="additional_weight_ticket"][value="No"]').should('be.checked');
   if (hasAnother) {
+    cy.get('input[name="additional_weight_ticket"][value="Yes"]+label').click();
+    cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('be.checked');
     cy
       .get('button')
       .contains('Save & Add Another')
@@ -697,8 +717,6 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
       .should('eq', 200);
     cy.get('[data-cy=documents-uploaded]').should('exist');
   } else {
-    cy.get('input[name="additional_weight_ticket"][value="No"]+label').click();
-    cy.get('input[name="additional_weight_ticket"][value="No"]').should('be.checked');
     cy
       .get('button')
       .contains('Save & Continue')

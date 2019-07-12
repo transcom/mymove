@@ -20,7 +20,7 @@ func (suite *ModelSuite) TestCreateNewMoveShow() {
 		Show:         swag.Bool(true),
 	}
 	_, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 
 	moves, moveErrs := GetMoveQueueItems(suite.DB(), "all")
@@ -38,7 +38,7 @@ func (suite *ModelSuite) TestCreateNewMoveShowFalse() {
 		Show:         swag.Bool(false),
 	}
 	_, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 
 	moves, moveErrs := GetMoveQueueItems(suite.DB(), "all")
@@ -69,7 +69,7 @@ func (suite *ModelSuite) TestShowPPMQueue() {
 
 	// Expected 3 moves for PPM queue returned
 	moves, err := GetMoveQueueItems(suite.DB(), "ppm")
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Len(moves, 3)
 }
 
@@ -96,7 +96,7 @@ func (suite *ModelSuite) TestShowPPMQueueStatusDraftSubmittedCanceled() {
 
 	// Expected 0 moves for PPM queue returned
 	moves, err := GetMoveQueueItems(suite.DB(), "ppm")
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Len(moves, 0)
 }
 
@@ -134,6 +134,6 @@ func (suite *ModelSuite) TestActivePPMQueue() {
 	})
 
 	moves, err := GetMoveQueueItems(suite.DB(), "hhg_active")
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Len(moves, 3)
 }
