@@ -61,46 +61,6 @@ func TestTransportationOfficesSuite(t *testing.T) {
 	suite.Run(t, hs)
 }
 
-func (suite *DutyStationsLoaderSuite) TestParsingFunctions() {
-	officesPath := "./testdata/transportation_offices.xml"
-	builder := NewMigrationBuilder(suite.db, suite.logger)
-
-	officesRows, err := builder.parseOffices(officesPath)
-	suite.NoError(err)
-	suite.Len(officesRows, 5)
-	officeRow := officesRows[0].LISTGCNSLINFO.GCNSLINFO
-	suite.Equal(officeRow.CNSLNAME, "ALTUS AFB, OK")
-	suite.Equal(officeRow.CNSLCITY, "ALTUS")
-	suite.Equal(officeRow.CNSLSTATE, "OK")
-	suite.Equal(officeRow.CNSLZIP, "73523")
-	suite.Equal(officeRow.PPSONAME, "JPPSO SOUTH CENTRAL ")
-	suite.Equal(officeRow.PPSOZIP, "78236")
-}
-
-func (suite *DutyStationsLoaderSuite) TestIsUsFilter() {
-	officesPath := "./testdata/transportation_offices.xml"
-	builder := NewMigrationBuilder(suite.db, suite.logger)
-
-	officesRows, err := builder.parseOffices(officesPath)
-	suite.NoError(err)
-	suite.Len(officesRows, 5)
-
-	usOffices := builder.isUS(officesRows)
-	suite.Len(usOffices, 4)
-}
-
-func (suite *DutyStationsLoaderSuite) TestIsConusFilter() {
-	officesPath := "./testdata/transportation_offices.xml"
-	builder := NewMigrationBuilder(suite.db, suite.logger)
-
-	officesRows, err := builder.parseOffices(officesPath)
-	suite.NoError(err)
-	suite.Len(officesRows, 5)
-
-	usOffices := builder.isConus(officesRows)
-	suite.Len(usOffices, 3)
-}
-
 func (suite *DutyStationsLoaderSuite) TestNormalizeName() {
 	builder := NewMigrationBuilder(suite.db, suite.logger)
 	var nameTests = []struct {

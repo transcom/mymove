@@ -50,11 +50,6 @@ func initFlags(flag *pflag.FlagSet) {
 
 // Command: go run github.com/transcom/mymove/cmd/load_transportation_offices
 func main() {
-	inputFile := "./cmd/load_transportation_offices/data/To_Cntct_info_201906070930.xml"
-	// officesPath := "./testdata/transportation_offices.xml"
-	// inputFile := "To_Cntct_info_201906070930.xml"
-	outputFile := "/Users/isaac/Projects/transportationoffices.txt"
-
 	flag := pflag.CommandLine
 	initFlags(flag)
 	flag.Parse(os.Args[1:])
@@ -87,7 +82,7 @@ func main() {
 
 	fmt.Println("hi...")
 	builder := transportationoffices.NewMigrationBuilder(dbConnection, logger)
-	builder.Build(inputFile, outputFile)
+	builder.Build()
 
 	// fileBytes := transportationoffices.ReadXMLFile(inputFile)
 	// o := transportationoffices.UnmarshalXML(fileBytes)
