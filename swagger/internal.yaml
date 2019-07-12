@@ -2635,6 +2635,15 @@ definitions:
         x-nullable: true
       storage_in_transits:
         $ref: '#/definitions/StorageInTransits'
+      has_unapproved_shipment_line_items:
+        type: boolean
+        title: Are there any unapproved shipment line items?
+        x-nullable: true
+      pm_survey_conducted_date:
+        type: string
+        format: date-time
+        example: 2017-07-21T17:32:28Z
+        x-nullable: true
     required:
       - id
       - status
