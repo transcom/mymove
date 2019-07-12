@@ -40,7 +40,7 @@ func helperInvoice(suite *InvoiceServiceSuite) (*models.Invoice, *models.OfficeU
 
 	// Then: invoice is returned
 	extantInvoice, err := models.FetchInvoice(suite.DB(), session, invoice.ID)
-	suite.Nil(err)
+	suite.NoError(err)
 	if suite.NoError(err) {
 		suite.Equal(extantInvoice.ID, invoice.ID)
 	}
@@ -67,7 +67,7 @@ func (suite *InvoiceServiceSuite) TestStoreInvoice858C() {
 		Logger: suite.logger,
 		Storer: &fs,
 	}.Call(invoiceString, invoice, *officeUser.UserID)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Empty(verrs.Error())
 
 	// When: office user tries to access
@@ -79,7 +79,7 @@ func (suite *InvoiceServiceSuite) TestStoreInvoice858C() {
 
 	// Fetch invoice and verify upload is set
 	invoice, err = models.FetchInvoice(suite.DB(), session, invoice.ID)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.NotNil(invoice)
 	suite.NotNil(invoice.Upload)
 	suite.NotNil(invoice.UploadID)

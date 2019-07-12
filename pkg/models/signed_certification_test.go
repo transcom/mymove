@@ -45,7 +45,7 @@ func (suite *ModelSuite) TestFetchSignedCertificationsPPMPayment() {
 	})
 
 	sc, err := FetchSignedCertificationsPPMPayment(suite.DB(), session, move.ID)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(signedCertification.ID, sc.ID)
 }
 
@@ -146,6 +146,6 @@ func (suite *ModelSuite) TestFetchSignedCertifications() {
 	}
 
 	suite.Len(scs, 3)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.ElementsMatch(ids, []uuid.UUID{hhgSignedCertification.ID, ppmSignedCertification.ID, ppmPaymentsignedCertification.ID})
 }

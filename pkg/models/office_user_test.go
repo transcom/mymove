@@ -65,7 +65,7 @@ func (suite *ModelSuite) TestFetchOfficeUserByEmail() {
 	suite.MustSave(&newUser)
 
 	user, err = FetchOfficeUserByEmail(suite.DB(), email)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.NotNil(user)
 	suite.Equal(newUser.ID, user.ID)
 }
@@ -93,7 +93,7 @@ func (suite *ModelSuite) TestFetchOfficeUserByEmailCaseSensitivity() {
 	suite.MustSave(&officeUser)
 
 	user, err := FetchOfficeUserByEmail(suite.DB(), strings.ToLower(userEmail))
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.NotNil(user)
 	suite.Equal(user.Email, userEmail)
 }
@@ -115,7 +115,7 @@ func (suite *ModelSuite) TestFetchOfficeUserByID() {
 	suite.MustSave(&newUser)
 
 	user, err = FetchOfficeUserByID(suite.DB(), newUser.ID)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.NotNil(user)
 	suite.Equal(newUser.ID, user.ID)
 }
