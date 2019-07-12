@@ -319,3 +319,4 @@
 20190702195904_create_organizations.up.fizz
 20190703141326_add-usmc-office-users.up.fizz
 20190709204712_add-office-users.up.fizz
+20190711215901_load_usmc_duty_stations.up.sql
