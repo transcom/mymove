@@ -247,8 +247,7 @@ class WeightTicket extends Component {
                 <>
                   <div className="radio-group-wrapper normalize-margins">
                     <p className="radio-group-header">
-                      Is this a <strong>different</strong> trailer you own and does it meet the{' '}
-                      <Link to="/trailer-criteria">trailer criteria</Link>?
+                      Do you own this trailer, and does it meet all <Link to="/trailer-criteria">trailer criteria</Link>?
                     </p>
                     <RadioButton
                       inputClassName="inline_radio"
