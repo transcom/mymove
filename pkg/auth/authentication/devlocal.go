@@ -75,7 +75,6 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		DpsUserType     string
 		IsAdminApp      bool
 		AdminUserType   string
-		IsAdminUser     bool
 		CsrfToken       string
 		QueryLimit      int
 	}
