@@ -10,14 +10,18 @@ import (
 	"github.com/namsral/flag"
 	"go.uber.org/zap"
 
-	dutyStations "github.com/transcom/mymove/pkg/services/duty_stations"
+	"github.com/transcom/mymove/internal/pkg/dutystationsloader"
 )
 
-func setup() (*pop.Connection, *zap.Logger) {
+//nolint:deadcode
+func mainv1() {
 	config := flag.String("config-dir", "config", "The location of server config files")
 	verbose := flag.Bool("verbose", false, "Sets debug logging level")
 	env := flag.String("env", "development", "The environment to run in, which configures the database.")
 	validate := flag.Bool("validate", false, "Only run file validations")
+	output := flag.String("output", "", "Where to output the migration file")
+	stationsPath := flag.String("stations", "", "Input file for duty stations")
+	officesPath := flag.String("offices", "", "Input file for transportation offices")
 	flag.Parse()
 
 	zapConfig := zap.NewDevelopmentConfig()
@@ -42,29 +46,21 @@ func setup() (*pop.Connection, *zap.Logger) {
 	if validate != nil && *validate {
 		os.Exit(0)
 	}
-	return db, logger
-}
 
-// Command: go run github.com/transcom/mymove/cmd/load_duty_stations
-func main() {
-	inputFile := "./cmd/load_duty_stations/data/duty_station_units.csv"
-	outputFile := "./cmd/load_duty_stations/data/outputfile.sql"
-
-	dbConnection, logger := setup()
-
-	builder := dutyStations.NewMigrationBuilder(dbConnection, logger)
-	insertions, err := builder.Build(inputFile)
+	builder := dutystationsloader.NewMigrationBuilder(db, logger)
+	insertions, err := builder.Build(*stationsPath, *officesPath)
 	if err != nil {
 		logger.Panic("Error while building migration", zap.Error(err))
 	}
 
 	var migration strings.Builder
 	migration.WriteString("-- Migration generated using cmd/load_duty_stations\n")
-	migration.WriteString(fmt.Sprintf("-- Duty stations file: %v\n", outputFile))
+	migration.WriteString(fmt.Sprintf("-- Duty stations file: %v\n", *stationsPath))
+	migration.WriteString(fmt.Sprintf("-- Transportation offices file: %v\n", *officesPath))
 	migration.WriteString("\n")
 	migration.WriteString(insertions)
 
-	f, err := os.Create(outputFile)
+	f, err := os.OpenFile(*output, os.O_TRUNC|os.O_WRONLY, os.ModeAppend)
 	defer f.Close()
 	if err != nil {
 		log.Panic(err)
@@ -74,5 +70,5 @@ func main() {
 		log.Panic(err)
 	}
 
-	fmt.Printf("Complete! Migration written to %v\n", outputFile)
+	fmt.Printf("Complete! Migration written to %v\n", *output)
 }
