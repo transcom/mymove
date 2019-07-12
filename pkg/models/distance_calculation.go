@@ -28,12 +28,12 @@ type DistanceCalculation struct {
 }
 
 // NewDistanceCalculation performs a distance calculation and returns the resulting DistanceCalculation model
-func NewDistanceCalculation(planner distanceCalculator, origin Address, destination Address, useFullAddress bool) (DistanceCalculation, error) {
+func NewDistanceCalculation(planner distanceCalculator, origin Address, destination Address, useZipOnly bool) (DistanceCalculation, error) {
 
 	var distanceMiles int
 	var err error
 
-	if useFullAddress == false {
+	if useZipOnly {
 		distanceMiles, err = planner.Zip5TransitDistance(origin.PostalCode, destination.PostalCode)
 	} else {
 		distanceMiles, err = planner.TransitDistance(&origin, &destination)

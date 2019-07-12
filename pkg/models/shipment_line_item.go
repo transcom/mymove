@@ -276,16 +276,21 @@ func FindStorageInTransitShipmentLineItem(code string) bool {
 // VerifyBaseShipmentLineItems checks that all of the expected base line items are in use, as they are mandatory for
 // every shipment
 func VerifyBaseShipmentLineItems(lineItems []ShipmentLineItem) error {
-	var count int
-	count = 0
+	m := make(map[string]int)
+	for _, code := range BaseShipmentLineItemCodes() {
+		m[code] = 0
+	}
+
 	for _, item := range lineItems {
 		if !item.Tariff400ngItem.RequiresPreApproval && FindBaseShipmentLineItem(item.Tariff400ngItem.Code) {
-			count++
+			m[item.Tariff400ngItem.Code]++
 		}
 	}
 
-	if count != len(BaseShipmentLineItemCodes()) {
-		return fmt.Errorf("Incorrect count for Base Shipment Line Items expected length: %d actual length: %d", len(BaseShipmentLineItemCodes()), count)
+	for code, count := range m {
+		if count != 1 {
+			return fmt.Errorf("incorrect count for Base Shipment Line Item %s expected count: 1, actual count: %d", code, count)
+		}
 	}
 
 	return nil

@@ -46,8 +46,8 @@ func (c CreateStorageInTransitLineItems) storageInTransitDistance(storageInTrans
 		return nil, errors.New("StorageInTransit Destination address not provided")
 	}
 
-	useFullAddressForDistance := true
-	distanceCalculation, err := models.NewDistanceCalculation(c.Planner, origin, destination, useFullAddressForDistance)
+	useZipOnlyForDistance := false
+	distanceCalculation, err := models.NewDistanceCalculation(c.Planner, origin, destination, useZipOnlyForDistance)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error creating StorageInTransit DistanceCalculation model")
 	}
@@ -81,6 +81,32 @@ func (c CreateStorageInTransitLineItems) saveLineItem(lineItem *models.ShipmentL
 		return responseError
 	}
 	return nil
+}
+
+func (c CreateStorageInTransitLineItems) createShipmentLineItem(itemCode string, shipment models.Shipment, sit models.StorageInTransit, currentTime time.Time) (models.ShipmentLineItem, error) {
+
+	tariffItem, err := models.FetchTariff400ngItemByCode(c.DB, itemCode)
+	if err != nil {
+		return models.ShipmentLineItem{}, errors.Wrapf(err, "Error fetching item code %s - CreateStorageInTransitLineItems()", itemCode)
+	}
+	lineItem := models.ShipmentLineItem{
+		ShipmentID:        shipment.ID,
+		Shipment:          shipment,
+		Tariff400ngItemID: tariffItem.ID,
+		Tariff400ngItem:   tariffItem,
+		Location:          c.shipmentItemLocation(sit.Location),
+		Quantity1:         unit.BaseQuantityFromInt(sit.StorageInTransitDistance.DistanceMiles),
+		Status:            models.ShipmentLineItemStatusAPPROVED,
+		SubmittedDate:     currentTime,
+		Address:           sit.WarehouseAddress,
+		AddressID:         &sit.WarehouseAddressID,
+	}
+	err = c.saveLineItem(&lineItem)
+	if err != nil {
+		return models.ShipmentLineItem{}, errors.Wrapf(err, "Error saving line item %s - CreateStorageInTransitLineItems()", itemCode)
+	}
+
+	return lineItem, nil
 }
 
 func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByShipment rateengine.CostByShipment) ([]models.ShipmentLineItem, error) {
@@ -122,74 +148,24 @@ func (c CreateStorageInTransitLineItems) CreateStorageInTransitLineItems(costByS
 		const distance30Miles = 30
 		const distance50Miles = 50
 		if sit.StorageInTransitDistance.DistanceMiles > distance50Miles {
-			additionalFlateRateCItem, err := models.FetchTariff400ngItemByCode(c.DB, "210C")
+			additionalFlatRate, err := c.createShipmentLineItem("210C", shipment, sit, now)
 			if err != nil {
-				return nil, errors.Wrapf(err, "Error fetching item code 210C - CreateStorageInTransitLineItems()")
+				return nil, errors.Wrapf(err, "Error creating shipment line item for 210C - CreateStorageInTransitLineItems()")
 			}
-			additionalFlateRateC := models.ShipmentLineItem{
-				ShipmentID:        shipment.ID,
-				Shipment:          shipment,
-				Tariff400ngItemID: additionalFlateRateCItem.ID,
-				Tariff400ngItem:   additionalFlateRateCItem,
-				Location:          c.shipmentItemLocation(sit.Location),
-				Quantity1:         unit.BaseQuantityFromInt(sit.StorageInTransitDistance.DistanceMiles),
-				Status:            models.ShipmentLineItemStatusAPPROVED,
-				SubmittedDate:     now,
-				Address:           sit.WarehouseAddress,
-				AddressID:         &sit.WarehouseAddressID,
-			}
-			err = c.saveLineItem(&additionalFlateRateC)
-			if err != nil {
-				return nil, errors.Wrapf(err, "Error saving line item 210C - CreateStorageInTransitLineItems()")
-			}
-
-			lineItems = append(lineItems, additionalFlateRateC)
+			lineItems = append(lineItems, additionalFlatRate)
 		} else {
 			if sit.StorageInTransitDistance.DistanceMiles > distance30Miles {
-				additionalFlateRateBItem, err := models.FetchTariff400ngItemByCode(c.DB, "210B")
+				additionalFlatRate, err := c.createShipmentLineItem("210B", shipment, sit, now)
 				if err != nil {
-					return nil, errors.Wrapf(err, "Error fetching item code 210B - CreateStorageInTransitLineItems()")
+					return nil, errors.Wrapf(err, "Error creating shipment line item for 210B - CreateStorageInTransitLineItems()")
 				}
-				additionalFlateRateB := models.ShipmentLineItem{
-					ShipmentID:        shipment.ID,
-					Shipment:          shipment,
-					Tariff400ngItemID: additionalFlateRateBItem.ID,
-					Tariff400ngItem:   additionalFlateRateBItem,
-					Location:          c.shipmentItemLocation(sit.Location),
-					Quantity1:         unit.BaseQuantityFromInt(sit.StorageInTransitDistance.DistanceMiles),
-					Status:            models.ShipmentLineItemStatusAPPROVED,
-					SubmittedDate:     now,
-					Address:           sit.WarehouseAddress,
-					AddressID:         &sit.WarehouseAddressID,
-				}
-				err = c.saveLineItem(&additionalFlateRateB)
-				if err != nil {
-					return nil, errors.Wrapf(err, "Error saving line item 210B - CreateStorageInTransitLineItems()")
-				}
-				lineItems = append(lineItems, additionalFlateRateB)
+				lineItems = append(lineItems, additionalFlatRate)
 			}
-
-			additionalFlateRateAItem, err := models.FetchTariff400ngItemByCode(c.DB, "210A")
+			additionalFlatRate, err := c.createShipmentLineItem("210A", shipment, sit, now)
 			if err != nil {
-				return nil, errors.Wrapf(err, "Error fetching item code 210A - CreateStorageInTransitLineItems()")
+				return nil, errors.Wrapf(err, "Error creating shipment line item for 210A - CreateStorageInTransitLineItems()")
 			}
-			additionalFlateRateA := models.ShipmentLineItem{
-				ShipmentID:        shipment.ID,
-				Shipment:          shipment,
-				Tariff400ngItemID: additionalFlateRateAItem.ID,
-				Tariff400ngItem:   additionalFlateRateAItem,
-				Location:          c.shipmentItemLocation(sit.Location),
-				Quantity1:         unit.BaseQuantityFromInt(sit.StorageInTransitDistance.DistanceMiles),
-				Status:            models.ShipmentLineItemStatusAPPROVED,
-				SubmittedDate:     now,
-				Address:           sit.WarehouseAddress,
-				AddressID:         &sit.WarehouseAddressID,
-			}
-			err = c.saveLineItem(&additionalFlateRateA)
-			if err != nil {
-				return nil, errors.Wrapf(err, "Error saving line item 210A - CreateStorageInTransitLineItems()")
-			}
-			lineItems = append(lineItems, additionalFlateRateA)
+			lineItems = append(lineItems, additionalFlatRate)
 		}
 
 		/* TODO: Failing to load 16B from database

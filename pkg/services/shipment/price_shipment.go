@@ -44,8 +44,8 @@ func (c *shipmentPricer) PriceShipment(shipment *models.Shipment, price services
 		return validate.NewErrors(), errors.New("Destination address not provided")
 	}
 
-	useFullAddressForDistance := false
-	distanceCalculation, err := models.NewDistanceCalculation(c.planner, *origin, destination, useFullAddressForDistance)
+	useZipOnlyForDistance := true
+	distanceCalculation, err := models.NewDistanceCalculation(c.planner, *origin, destination, useZipOnlyForDistance)
 	if err != nil {
 		return validate.NewErrors(), errors.Wrap(err, "Error creating DistanceCalculation model")
 	}
