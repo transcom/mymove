@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -24,6 +25,8 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 // UserAuthMiddleware enforces that the incoming request is tied to a user session
@@ -447,7 +450,12 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 			session.AdminUserRole = userIdentity.AdminUserRole.String()
 		} else {
 			// In case they managed to login before the admin_user record was created
-			adminUser, err := models.FetchAdminUserByEmail(h.db, session.Email)
+			var adminUser models.AdminUser
+			queryBuilder := query.NewQueryBuilder(h.db)
+			filters := []services.QueryFilter{
+				query.NewQueryFilter("email", "=", strings.ToLower(userIdentity.Email)),
+			}
+			err := queryBuilder.FetchOne(&adminUser, filters)
 			if err == models.ErrFetchNotFound {
 				h.logger.Error("Non-admin user authenticated at admin site", zap.String("email", session.Email))
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
@@ -462,9 +470,15 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 			session.AdminUserRole = adminUser.Role.String()
 			span.AddField("session.admin_user_id", session.AdminUserID)
 			adminUser.UserID = &userIdentity.ID
-			err = h.db.Save(adminUser)
+			verrs, err := h.db.ValidateAndSave(&adminUser)
 			if err != nil {
 				h.logger.Error("Updating admin user", zap.String("email", session.Email), zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+
+			if verrs != nil {
+				h.logger.Error("Admin user validation errors", zap.String("email", session.Email), zap.Error(verrs))
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 				return
 			}
@@ -520,9 +534,13 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 		}
 	}
 
-	var adminUser *models.AdminUser
+	var adminUser models.AdminUser
 	if session.IsAdminApp() {
-		adminUser, err = models.FetchAdminUserByEmail(h.db, session.Email)
+		queryBuilder := query.NewQueryBuilder(h.db)
+		filters := []services.QueryFilter{
+			query.NewQueryFilter("email", "=", strings.ToLower(session.Email)),
+		}
+		err = queryBuilder.FetchOne(&adminUser, filters)
 
 		if err == models.ErrFetchNotFound {
 			h.logger.Error("No admin user found", zap.String("email", session.Email))
@@ -541,6 +559,7 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 	}
 
 	user, err := models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
+
 	if err == nil { // Successfully created the user
 		session.UserID = user.ID
 		span.AddField("session.user_id", session.UserID)
@@ -554,11 +573,12 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 			span.AddField("session.tsp_user_id", session.TspUserID)
 			tspUser.UserID = &user.ID
 			err = h.db.Save(tspUser)
-		} else if adminUser != nil {
+		} else if &adminUser.ID != &uuid.Nil {
 			session.AdminUserID = adminUser.ID
-			span.AddField("session.tsp_user_id", session.AdminUserID)
+			span.AddField("session.admin_user_id", session.AdminUserID)
 			adminUser.UserID = &user.ID
-			err = h.db.Save(adminUser)
+
+			err = h.db.Save(&adminUser)
 		}
 	}
 	if err != nil {

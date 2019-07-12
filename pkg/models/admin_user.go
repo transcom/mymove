@@ -2,7 +2,7 @@ package models
 
 import (
 	"encoding/json"
-	"strings"
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -13,10 +13,15 @@ import (
 
 type AdminRole string
 
-func (ar *AdminRole) ValidRoles() []string {
-	return []string{
-		"SYSTEM_ADMIN",
-		"PROGRAM_ADMIN",
+const (
+	SystemAdminRole  AdminRole = "SYSTEM_ADMIN"
+	ProgramAdminRole AdminRole = "PROGRAM_ADMIN"
+)
+
+func (ar *AdminRole) ValidRoles() []AdminRole {
+	return []AdminRole{
+		SystemAdminRole,
+		ProgramAdminRole,
 	}
 }
 
@@ -54,6 +59,31 @@ func (a AdminUsers) String() string {
 	return string(ja)
 }
 
+type RoleInclusion struct {
+	Name    string
+	Field   AdminRole
+	List    []AdminRole
+	Message string
+}
+
+func (v *RoleInclusion) IsValid(errors *validate.Errors) {
+	found := false
+	for _, l := range v.List {
+		if l == v.Field {
+			found = true
+			break
+		}
+	}
+	if !found {
+		if len(v.Message) > 0 {
+			errors.Add(validators.GenerateKey(v.Name), v.Message)
+			return
+		}
+
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s is not in the list %+v.", v.Name, v.List))
+	}
+}
+
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (a *AdminUser) Validate(tx *pop.Connection) (*validate.Errors, error) {
@@ -61,7 +91,7 @@ func (a *AdminUser) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: a.FirstName, Name: "FirstName"},
 		&validators.StringIsPresent{Field: a.LastName, Name: "LastName"},
 		&validators.StringIsPresent{Field: a.Email, Name: "Email"},
-		&validators.StringInclusion{Field: string(a.Role), Name: "Role", List: new(AdminRole).ValidRoles()},
+		&RoleInclusion{Field: a.Role, Name: "Role", List: new(AdminRole).ValidRoles()},
 	), nil
 }
 
@@ -75,16 +105,4 @@ func (a *AdminUser) ValidateCreate(tx *pop.Connection) (*validate.Errors, error)
 // This method is not required and may be deleted.
 func (a *AdminUser) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
-}
-
-func FetchAdminUserByEmail(tx *pop.Connection, email string) (*AdminUser, error) {
-	var users AdminUsers
-	err := tx.Where("LOWER(email) = $1", strings.ToLower(email)).All(&users)
-	if err != nil {
-		return nil, err
-	}
-	if len(users) == 0 {
-		return nil, ErrFetchNotFound
-	}
-	return &users[0], nil
 }
