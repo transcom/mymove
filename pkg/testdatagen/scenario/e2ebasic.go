@@ -2657,6 +2657,64 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	models.SaveMoveDependencies(db, &hhg45.Move)
 
 	/*
+	 * HHG46
+	 * Service member with in-transit shipment and Destination DELIVERED SIT
+	 */
+	email = "hhg@sit.delivered.destination"
+	offer46 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.NewV4()),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.Must(uuid.NewV4()),
+			FirstName:     models.StringPointer("DESTINATION-SIT"),
+			LastName:      models.StringPointer("DELIVERED"),
+			Edipi:         models.StringPointer("1857924699"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.Must(uuid.NewV4()),
+			Locator:          "SITDST", // SIT Destination DELIVERED
+			SelectedMoveType: &selectedMoveTypeHHG,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.Must(uuid.NewV4()),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusDELIVERED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	authorizedStartDateOffer46 := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
+	outDate46 := time.Date(2019, time.Month(3), 27, 0, 0, 0, 0, time.UTC)
+	sit46 := models.StorageInTransit{
+		ID:                  uuid.Must(uuid.NewV4()),
+		ShipmentID:          offer46.ShipmentID,
+		Shipment:            offer46.Shipment,
+		Location:            models.StorageInTransitLocationDESTINATION,
+		Status:              models.StorageInTransitStatusDELIVERED,
+		EstimatedStartDate:  time.Date(2019, time.Month(3), 22, 0, 0, 0, 0, time.UTC),
+		ActualStartDate:     &authorizedStartDateOffer46,
+		AuthorizedStartDate: &authorizedStartDateOffer46,
+		OutDate:             &outDate46,
+		SITNumber:           models.StringPointer("400000001"),
+	}
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: sit46,
+	})
+	hhg46 := offer46.Shipment
+	hhg46.Move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &hhg46.Move)
+
+	/*
 	 * Service member with accepted move for use in testing the deletion of SIT
 	 */
 	email = "hhg@sit.todelete"

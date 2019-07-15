@@ -72,14 +72,21 @@ func (p *patchStorageInTransit) PatchStorageInTransit(payload apimessages.Storag
 	}
 
 	patchStorageInTransitWithPayload(storageInTransit, &payload)
-
 	verrs, err := models.SaveStorageInTransitAndAddress(p.db, storageInTransit)
 	if err != nil || verrs.HasAny() {
 		returnVerrs.Append(verrs)
 		return nil, returnVerrs, err
 	}
 
-	return storageInTransit, returnVerrs, nil
+	if session.IsTspUser() {
+		verrs, err = storageInTransit.SaveActualDeliveryDateAsOutDate(p.db, session, *(*time.Time)(payload.OutDate))
+		if err != nil || verrs.HasAny() {
+			returnVerrs.Append(verrs)
+			return storageInTransit, returnVerrs, err
+		}
+	}
+
+	return storageInTransit, returnVerrs, err
 }
 
 // NewStorageInTransitPatcher is the public constructor for a `NewStorageInTransitPatcher`

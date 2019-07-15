@@ -27,7 +27,7 @@ import {
 } from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
-import { getStorageInTransitsForShipment } from 'shared/Entities/modules/storageInTransits';
+import { selectStorageInTransits, getStorageInTransitsForShipment } from 'shared/Entities/modules/storageInTransits';
 import {
   updatePublicShipment,
   getPublicShipment,
@@ -170,7 +170,6 @@ const hasPreMoveSurvey = (shipment = {}) => shipment.pm_survey_completed_at;
 class ShipmentInfo extends Component {
   constructor(props) {
     super(props);
-
     this.assignTspServiceAgent = React.createRef();
   }
   state = {
@@ -197,7 +196,6 @@ class ShipmentInfo extends Component {
         this.props.history.replace('/');
       });
   }
-
   componentWillUnmount() {
     this.props.resetRequests();
   }
@@ -493,6 +491,7 @@ const mapStateToProps = (state, props) => {
     shipmentStatus: selectShipmentStatus(state, shipmentId),
     shipmentDocuments,
     gblGenerated,
+    storageInTransits: selectStorageInTransits(state, shipmentId),
     tariff400ngItems: selectTariff400ngItems(state),
     shipmentLineItems: selectSortedShipmentLineItems(state),
     serviceAgents: selectServiceAgentsForShipment(state, shipmentId),
@@ -507,6 +506,7 @@ const mapStateToProps = (state, props) => {
     error: get(state, 'tsp.error'),
     shipmentSchema: get(state, 'swaggerPublic.spec.definitions.Shipment', {}),
     serviceAgentSchema: get(state, 'swaggerPublic.spec.definitions.ServiceAgent', {}),
+    storageInTransitsSchema: get(state, 'swaggerPublic.spec.definitions.StorageInTransits', {}),
     transportSchema: get(state, 'swaggerPublic.spec.definitions.TransportPayload', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
     shipmentId,
@@ -532,6 +532,7 @@ const mapDispatchToProps = dispatch =>
       getTspForShipment,
       resetRequests,
       getStorageInTransitsForShipment,
+      selectStorageInTransits,
     },
     dispatch,
   );
