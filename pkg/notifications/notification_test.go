@@ -33,10 +33,10 @@ func (suite *NotificationSuite) TestMoveApproved() {
 	approver := testdatagen.MakeDefaultUser(suite.DB())
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	notification := MoveApproved{
-		db:            suite.DB(),
-		logger:        suite.logger,
-		milServername: "milmovedomain",
-		moveID:        move.ID,
+		db:     suite.DB(),
+		logger: suite.logger,
+		host:   "milmovelocal",
+		moveID: move.ID,
 		session: &auth.Session{
 			UserID:          approver.ID,
 			ApplicationName: auth.OfficeApp,
@@ -56,7 +56,7 @@ func (suite *NotificationSuite) TestMoveApproved() {
 	suite.NotEmpty(email.subject)
 	suite.NotEmpty(email.htmlBody)
 	suite.NotEmpty(email.textBody)
-	suite.True(strings.Contains(email.textBody, notification.milServername))
+	suite.True(strings.Contains(email.textBody, notification.host))
 }
 
 func (suite *NotificationSuite) TestMoveSubmitted() {

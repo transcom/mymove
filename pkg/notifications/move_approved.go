@@ -14,26 +14,26 @@ import (
 
 // MoveApproved has notification content for approved moves
 type MoveApproved struct {
-	db            *pop.Connection
-	logger        Logger
-	milServername string
-	moveID        uuid.UUID
-	session       *auth.Session // TODO - remove this when we move permissions up to handlers and out of models
+	db      *pop.Connection
+	logger  Logger
+	host    string
+	moveID  uuid.UUID
+	session *auth.Session // TODO - remove this when we move permissions up to handlers and out of models
 }
 
 // NewMoveApproved returns a new move approval notification
 func NewMoveApproved(db *pop.Connection,
 	logger Logger,
 	session *auth.Session,
-	milServername string,
+	host string,
 	moveID uuid.UUID) *MoveApproved {
 
 	return &MoveApproved{
-		db:            db,
-		logger:        logger,
-		milServername: milServername,
-		moveID:        moveID,
-		session:       session,
+		db:      db,
+		logger:  logger,
+		host:    host,
+		moveID:  moveID,
+		session: session,
 	}
 }
 
@@ -64,7 +64,7 @@ func (m MoveApproved) emails(ctx context.Context) ([]emailContent, error) {
 	// TODO: we will want some sort of templating system
 	ppmInfoSheetURL := url.URL{
 		Scheme: "https",
-		Host:   m.milServername,
+		Host:   m.host,
 		Path:   "downloads/ppm_info_sheet.pdf",
 	}
 
