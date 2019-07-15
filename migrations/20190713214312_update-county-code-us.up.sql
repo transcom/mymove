@@ -1,2 +1,2 @@
 
-UPDATE addresses SET country = 'United States' where country = 'US';
+UPDATE addresses SET country = 'United States' WHERE country = 'US';
