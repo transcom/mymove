@@ -319,7 +319,7 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 			QualityBand:                     swag.Int(1),
 		},
 	})
-	suite.Nil(err)
+	suite.NoError(err)
 
 	// Run the Award Queue
 	offer, err := queue.attemptShipmentOffer(context.Background(), shipment)
@@ -389,7 +389,7 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 		},
 	})
 
-	suite.Nil(err)
+	suite.NoError(err)
 
 	// Run the Award Queue
 	offer, err := queue.attemptShipmentOffer(context.Background(), shipment)
@@ -790,7 +790,7 @@ func (suite *AwardQueueSuite) Test_validateShipmentForAward() {
 		Shipment: models.Shipment{},
 	})
 	err := validateShipmentForAward(shipment)
-	suite.Nil(err)
+	suite.NoError(err)
 
 	// A shipment with a nil TDL ID
 	shipment = testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{

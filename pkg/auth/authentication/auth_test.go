@@ -148,7 +148,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	params := redirectURL.Query()
 
 	postRedirectURI, err := url.Parse(params["post_logout_redirect_uri"][0])
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(OfficeTestHost, postRedirectURI.Hostname())
 	suite.Equal(strconv.Itoa(callbackPort), postRedirectURI.Port())
 	token := params["id_token_hint"][0]

@@ -10,14 +10,16 @@ function usage() {
   exit 1
 }
 
-if [[ "${SECURE_MIGRATION_SOURCE:-}" != "s3" ]]; then
+if [[ "${SECURE_MIGRATION_SOURCE:-}" != "s3" &&  "${SECURE_MIGRATION_SOURCE:-}" != "local" ]]; then
   echo "environment variable SECURE_MIGRATION_SOURCE is required"
   usage
 fi
 
-if [[ -z "$SECURE_MIGRATION_BUCKET_NAME" ]]; then
-  echo "environment variable SECURE_MIGRATION_BUCKET_NAME is required"
-  usage
+if [ "${SECURE_MIGRATION_SOURCE:-}" == "s3" ]; then
+  if [ -z "$SECURE_MIGRATION_BUCKET_NAME" ]; then
+    echo "environment variable SECURE_MIGRATION_BUCKET_NAME is required"
+    usage
+  fi
 fi
 
 if [[ "$#" -lt 1 ]]; then
@@ -57,14 +59,18 @@ command -v aws 2> /dev/null | grep "ppp-infra/scripts/aws" &> /dev/null || \
   )
 
 # Test AWS command and freshen AWS session token
-aws s3 ls "${SECURE_MIGRATION_BUCKET_NAME}/secure-migrations" > /dev/null
+aws s3 ls > /dev/null
 
 #
 # Run migrations
 #
 
 echo
-echo -e "\e[33mUsing ${SECURE_MIGRATION_BUCKET_NAME} to gather secure migrations\e[39m"
+if [ "${SECURE_MIGRATION_SOURCE:-}" == "s3" ]; then
+  echo -e "\e[33mUsing ${SECURE_MIGRATION_BUCKET_NAME} to gather secure migrations\e[39m"
+else
+    echo -e "\e[33mUsing local_migrations folder to gather secure migrations\e[39m"
+fi
 echo
 proceed "Running deployed migrations against the local database with name ${DB_NAME}. This will delete everything in that db."
 

@@ -83,8 +83,8 @@ func (m MoveSubmitted) emails(ctx context.Context) ([]emailContent, error) {
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
 		subject:        "[MilMove] You’ve submitted your move details",
-		htmlBody:       fmt.Sprintf("%s<br/>%s<br/>%s<br/>%s", submittedText, processText, pppoText, closingText),
-		textBody:       fmt.Sprintf("%s\n%s\n%s\n%s", submittedText, processText, pppoText, closingText),
+		htmlBody:       fmt.Sprintf("%s<br/><br/>%s<br/><br/>%s<br/><br/><br/>%s", submittedText, processText, pppoText, closingText),
+		textBody:       fmt.Sprintf("%s\n\n%s\n\n%s\n\n\n%s", submittedText, processText, pppoText, closingText),
 	}
 
 	m.logger.Info("Generated move submitted email to service member",

@@ -20,7 +20,7 @@ func (suite *AccessCodeServiceSuite) TestClaimAccessCode_Success() {
 	claimAccessCode := NewAccessCodeClaimer(suite.DB())
 	ac, _, err := claimAccessCode.ClaimAccessCode(code, serviceMember.ID)
 
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(ac.Code, accessCode.Code, "expected CODE2")
 	suite.Equal(ac.ServiceMemberID, &serviceMember.ID)
 	suite.NotNil(ac.ClaimedAt)

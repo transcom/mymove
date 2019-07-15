@@ -159,7 +159,7 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 	suite.T().Run("default user no profile", func(t *testing.T) {
 		testdatagen.MakeDefaultUser(suite.DB())
 		identities, err := FetchAppUserIdentities(suite.DB(), auth.MilApp, 5)
-		suite.Nil(err)
+		suite.NoError(err)
 		suite.Empty(identities)
 	})
 
@@ -168,7 +168,7 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 		// Regular service member
 		testdatagen.MakeDefaultServiceMember(suite.DB())
 		identities, err := FetchAppUserIdentities(suite.DB(), auth.MilApp, 5)
-		suite.Nil(err)
+		suite.NoError(err)
 		suite.NotEmpty(identities)
 		suite.Equal(1, len(identities))
 
@@ -186,7 +186,7 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 			},
 		})
 		identities, err = FetchAppUserIdentities(suite.DB(), auth.MilApp, 5)
-		suite.Nil(err)
+		suite.NoError(err)
 		suite.NotEmpty(identities)
 		suite.Equal(2, len(identities))
 
@@ -204,7 +204,7 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 	suite.T().Run("office user", func(t *testing.T) {
 		testdatagen.MakeDefaultOfficeUser(suite.DB())
 		identities, err := FetchAppUserIdentities(suite.DB(), auth.OfficeApp, 5)
-		suite.Nil(err)
+		suite.NoError(err)
 		suite.NotEmpty(identities)
 		suite.Equal(1, len(identities))
 
@@ -219,7 +219,7 @@ func (suite *ModelSuite) TestFetchAppUserIdentities() {
 	suite.T().Run("tsp user", func(t *testing.T) {
 		testdatagen.MakeDefaultTspUser(suite.DB())
 		identities, err := FetchAppUserIdentities(suite.DB(), auth.TspApp, 5)
-		suite.Nil(err)
+		suite.NoError(err)
 		suite.NotEmpty(identities)
 		suite.Equal(1, len(identities))
 

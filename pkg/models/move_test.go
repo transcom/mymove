@@ -34,7 +34,7 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	//move, verrs, err := orders.CreateNewMove(suite.DB(), &selectedMoveType, true)
 
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	// Verify valid items are in locator
 	suite.Regexp("^[346789BCDFGHJKMPQRTVWXY]+$", move.Locator)
@@ -67,7 +67,7 @@ func (suite *ModelSuite) TestFetchMove() {
 		Show:         swag.Bool(true),
 	}
 	move, verrs, err := order1.CreateNewMove(suite.DB(), moveOptions)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	suite.Equal(6, len(move.Locator))
 
@@ -128,19 +128,19 @@ func (suite *ModelSuite) TestMoveCancellationWithReason() {
 		Show:         swag.Bool(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 	reason := "SM's orders revoked"
 
 	// Check to ensure move shows SUBMITTED before Cancel()
 	err = move.Submit(time.Now())
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
 
 	// Can cancel move, and status changes as expected
 	err = move.Cancel(reason)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
 	suite.Equal(&reason, move.CancelReason, "expected 'SM's orders revoked'")
 
@@ -158,7 +158,7 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 		Show:         swag.Bool(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	reason := ""
 	move.Orders = orders
@@ -207,13 +207,13 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	err = move.Submit(currentTime)
 	suite.MustSave(move)
 	suite.DB().Reload(move)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
 	suite.Equal(PPMStatusSUBMITTED, move.PersonallyProcuredMoves[0].Status, "expected Submitted")
 	suite.Equal(ShipmentStatusSUBMITTED, move.Shipments[0].Status, "expected Submitted")
 	// Can cancel move
 	err = move.Cancel(reason)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
 	suite.Nil(move.CancelReason)
 }
@@ -231,26 +231,26 @@ func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
 		Show:         swag.Bool(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
 
 	ppm, verrs, err := move.CreatePPM(suite.DB(), nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
 	// Associate PPM with the move it's on.
 	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, *ppm)
 	err = move.Submit(time.Now())
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
 
 	// When move is canceled, expect associated PPM and Order to be canceled
 	reason := "Orders changed"
 	err = move.Cancel(reason)
-	suite.Nil(err)
+	suite.NoError(err)
 
 	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
 	suite.Equal(PPMStatusCANCELED, move.PersonallyProcuredMoves[0].Status, "expected Canceled")
@@ -269,7 +269,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 		Show:         swag.Bool(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 
@@ -289,13 +289,13 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 		Show:         swag.Bool(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 
 	verrs, err = SaveMoveDependencies(suite.DB(), move)
 	suite.False(verrs.HasAny(), "failed to save valid statuses")
-	suite.Nil(err)
+	suite.NoError(err)
 }
 
 func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
@@ -323,7 +323,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 		Show:         swag.Bool(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 
 	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
@@ -347,7 +347,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 	move.Status = MoveStatusSUBMITTED
 	verrs, err = SaveMoveDependencies(suite.DB(), move)
 	suite.False(verrs.HasAny(), "failed to save valid statuses")
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.DB().Reload(&shipment)
 
 	// Then: Shipment GBLOCs will be equal to:

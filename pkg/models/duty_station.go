@@ -98,19 +98,7 @@ func FetchDutyStationByName(tx *pop.Connection, name string) (DutyStation, error
 // FindDutyStations returns all duty stations matching a search query and military affiliation
 func FindDutyStations(tx *pop.Connection, search string) (DutyStations, error) {
 	var stations DutyStations
-
-	// ILIKE does case-insensitive pattern matching, "%" matches any string
-	// We build a query by inserting '%' between each letter in the search string.
-	// This allows matching substrings as well as abbreviations.
-	// It would probably be worth ordering the results by similarity to the search string, one day.
-	searchQuery := []rune("%")
-
-	for _, runeChar := range search {
-		searchQuery = append(searchQuery, runeChar)
-		searchQuery = append(searchQuery, '%')
-	}
-	queryString := string(searchQuery)
-
+	queryString := "%" + search + "%"
 	query := tx.Q().Eager().Where("name ILIKE $1", queryString)
 
 	if err := query.All(&stations); err != nil {

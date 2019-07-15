@@ -69,10 +69,10 @@ func (suite *HandlerSuite) TestCreateWeightTicketSetDocumentHandler() {
 
 	var fetchedMoveDocument models.MoveDocument
 	err := suite.DB().Q().Where("move_id = ?", ppm.MoveID).First(&fetchedMoveDocument)
-	suite.Nil(err)
+	suite.NoError(err)
 	var fetchedWeightTicket models.WeightTicketSetDocument
 	err = suite.DB().Q().Where("move_document_id = ?", fetchedMoveDocument.ID).First(&fetchedWeightTicket)
-	suite.Nil(err)
+	suite.NoError(err)
 
 	// Wrong user
 	wrongUser := testdatagen.MakeDefaultServiceMember(suite.DB())

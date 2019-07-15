@@ -205,6 +205,6 @@ func (suite *RateEngineSuite) Test_CheckFuelSurchargeComputation() {
 
 	fuelSurcharge, err := engine.fuelSurchargeComputation(unit.Cents(12000), testdatagen.NonPeakRateCycleEnd)
 
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(unit.Cents(720), fuelSurcharge.Fee)
 }
