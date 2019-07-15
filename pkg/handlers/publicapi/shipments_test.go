@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestPayloadForShipmentModelWhenTspIDIsPresent() {
 		},
 	})
 	reloadShipment, err := models.FetchShipmentByTSP(suite.DB(), tsp.ID, shipment.ID)
-	suite.Nil(err)
+	suite.NoError(err)
 
 	shipmentPayload := payloadForShipmentModel(*reloadShipment)
 	expectedTspID := *handlers.FmtUUID(tsp.ID)

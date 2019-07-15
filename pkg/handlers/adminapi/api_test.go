@@ -4,6 +4,8 @@ import (
 	"log"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/testingsuite"
+
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -36,7 +38,7 @@ func TestHandlerSuite(t *testing.T) {
 	}
 
 	hs := &HandlerSuite{
-		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(logger, notifications.NewStubNotificationSender("adminlocal", logger)),
+		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(logger, notifications.NewStubNotificationSender("adminlocal", logger), testingsuite.CurrentPackage()),
 	}
 
 	suite.Run(t, hs)

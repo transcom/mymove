@@ -18,7 +18,7 @@ func (suite *AccessCodeServiceSuite) SetupTest() {
 
 func TestAccessCodeServiceSuite(t *testing.T) {
 	ts := &AccessCodeServiceSuite{
-		testingsuite.NewPopTestSuite(),
+		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
 	suite.Run(t, ts)
 }

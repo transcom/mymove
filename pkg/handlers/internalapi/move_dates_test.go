@@ -241,7 +241,7 @@ func (suite *HandlerSuite) TestCalculateMoveDatesFromShipment() {
 	for _, testCase := range cases {
 		suite.T().Run(testCase.name, func(t *testing.T) {
 			summary, err := calculateMoveDatesFromShipment(&testCase.shipment)
-			suite.Nil(err)
+			suite.NoError(err)
 			suite.Equal(testCase.summary.PackDays, summary.PackDays, "%v: PackDays did not match, expected %v, got %v", testCase.name, testCase.summary.PackDays, summary.PackDays)
 			suite.Equal(testCase.summary.PickupDays, summary.PickupDays, "%v: PickupDays did not match, expected %v, got %v", testCase.name, testCase.summary.PickupDays, summary.PickupDays)
 			suite.Equal(testCase.summary.TransitDays, summary.TransitDays, "%v: TransitDays did not match, expected %v, got %v", testCase.name, testCase.summary.TransitDays, summary.TransitDays)

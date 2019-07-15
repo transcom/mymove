@@ -152,7 +152,7 @@ func (suite *ModelSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() 
 	movingExpenses, err := models.FetchMovingExpensesShipmentSummaryWorksheet(move, suite.DB(), &session)
 
 	suite.Len(movingExpenses, 0)
-	suite.Nil(err)
+	suite.NoError(err)
 }
 
 func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage1() {
@@ -403,7 +403,7 @@ func (suite *ModelSuite) TestFormatSSWGetEntitlement() {
 	hasDependants := true
 	allotment := models.GetWeightAllotment(models.ServiceMemberRankE1)
 	totalEntitlement, err := models.GetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
-	suite.Nil(err)
+	suite.NoError(err)
 	sswEntitlement := models.SSWGetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
 
 	suite.Equal(unit.Pound(totalEntitlement), sswEntitlement.TotalWeight)
@@ -417,7 +417,7 @@ func (suite *ModelSuite) TestFormatSSWGetEntitlementNoDependants() {
 	hasDependants := false
 	allotment := models.GetWeightAllotment(models.ServiceMemberRankE1)
 	totalEntitlement, err := models.GetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
-	suite.Nil(err)
+	suite.NoError(err)
 	sswEntitlement := models.SSWGetEntitlement(models.ServiceMemberRankE1, hasDependants, spouseHasProGear)
 
 	suite.Equal(unit.Pound(totalEntitlement), sswEntitlement.TotalWeight)
@@ -563,7 +563,7 @@ func (suite *ModelSuite) TestCalculatePPMEntitlementNoHHGPPMLessThanMaxEntitleme
 	}
 
 	ppmRemainingEntitlement, err := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
-	suite.Nil(err)
+	suite.NoError(err)
 
 	suite.Equal(unit.Pound(ppmWeight), ppmRemainingEntitlement)
 }
@@ -576,7 +576,7 @@ func (suite *ModelSuite) TestCalculatePPMEntitlementNoHHGPPMGreaterThanMaxEntitl
 	}
 
 	ppmRemainingEntitlement, err := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
-	suite.Nil(err)
+	suite.NoError(err)
 
 	suite.Equal(totalEntitlement, ppmRemainingEntitlement)
 }
@@ -591,7 +591,7 @@ func (suite *ModelSuite) TestCalculatePPMEntitlementPPMGreaterThanRemainingEntit
 	}
 
 	ppmRemainingEntitlement, err := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
-	suite.Nil(err)
+	suite.NoError(err)
 
 	suite.Equal(totalEntitlement-hhg, ppmRemainingEntitlement)
 }
@@ -606,7 +606,7 @@ func (suite *ModelSuite) TestCalculatePPMEntitlementPPMLessThanRemainingEntitlem
 	}
 
 	ppmRemainingEntitlement, err := models.CalculateRemainingPPMEntitlement(move, totalEntitlement)
-	suite.Nil(err)
+	suite.NoError(err)
 
 	suite.Equal(unit.Pound(ppmWeight), ppmRemainingEntitlement)
 }

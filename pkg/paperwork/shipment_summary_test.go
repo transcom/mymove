@@ -108,7 +108,7 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 		}
 		cost, err := ppmComputer.ComputeObligations(params, planner)
 
-		suite.Nil(err)
+		suite.NoError(err)
 		calledWith := mockComputer.CalledWith()
 		suite.Equal(*ppm.TotalSITCost, cost.ActualObligation.SIT)
 		suite.Equal(expectMaxObligationParams, calledWith[0])
@@ -122,7 +122,7 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 		ppmComputer := NewSSWPPMComputer(&mockComputer)
 		obligations, err := ppmComputer.ComputeObligations(params, planner)
 
-		suite.Nil(err)
+		suite.NoError(err)
 		suite.Equal(unit.Cents(500), obligations.ActualObligation.SIT)
 	})
 
@@ -143,7 +143,7 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 		ppmComputer := NewSSWPPMComputer(&mockComputer)
 		obligations, err := ppmComputer.ComputeObligations(shipmentSummaryFormParams, planner)
 
-		suite.Nil(err)
+		suite.NoError(err)
 		suite.Equal(unit.Cents(0), obligations.ActualObligation.SIT)
 	})
 

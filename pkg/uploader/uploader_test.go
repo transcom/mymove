@@ -86,7 +86,7 @@ func TestUploaderSuite(t *testing.T) {
 	}
 
 	hs := &UploaderSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 		storer:       storageTest.NewFakeS3Storage(true),
 	}
@@ -134,7 +134,7 @@ func (suite *UploaderSuite) TestCreateUploadNoDocument() {
 	up := uploader.NewUploader(suite.DB(), suite.logger, suite.storer)
 	file := suite.fixture("test.pdf")
 	fixtureFileInfo, err := file.Stat()
-	suite.Nil(err)
+	suite.NoError(err)
 
 	// Create file and upload
 	upload, verrs, err := up.CreateUpload(userID, &file, uploader.AllowedTypesPDF)
@@ -145,15 +145,15 @@ func (suite *UploaderSuite) TestCreateUploadNoDocument() {
 
 	// Download file and test size
 	download, err := up.Download(upload)
-	suite.Nil(err)
+	suite.NoError(err)
 	defer download.Close()
 
 	outputFile, err := suite.helperNewTempFile()
-	suite.Nil(err)
+	suite.NoError(err)
 	defer outputFile.Close()
 
 	written, err := io.Copy(outputFile, download)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.NotEqual(0, written)
 
 	info, err := outputFile.Stat()
@@ -161,5 +161,5 @@ func (suite *UploaderSuite) TestCreateUploadNoDocument() {
 
 	// Delete file previously uploaded
 	err = up.Storer.Delete(upload.StorageKey)
-	suite.Nil(err)
+	suite.NoError(err)
 }
