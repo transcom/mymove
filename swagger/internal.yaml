@@ -777,7 +777,7 @@ definitions:
         type: string
         title: Vehicle nickname (ex. "My car")
       empty_weight:
-        title: empty weight ticket recorded weight
+        title: Empty Weight
         type: integer
         minimum: 0
         x-nullable: true
@@ -786,7 +786,7 @@ definitions:
         type: boolean
         x-nullable: true
       full_weight:
-        title: full weight ticket recorded weight
+        title: Full Weight
         type: integer
         minimum: 0
         x-nullable: true

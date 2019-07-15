@@ -1,6 +1,8 @@
 package internalapi
 
 import (
+	"time"
+
 	"github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -38,6 +40,13 @@ func payloadForMoveDocument(storer storage.FileStorer, moveDoc models.MoveDocume
 		payload.MovingExpenseType = internalmessages.MovingExpenseType(moveDoc.MovingExpenseDocument.MovingExpenseType)
 		payload.RequestedAmountCents = int64(moveDoc.MovingExpenseDocument.RequestedAmountCents)
 		payload.PaymentMethod = moveDoc.MovingExpenseDocument.PaymentMethod
+	}
+
+	if moveDoc.WeightTicketSetDocument != nil {
+		emptyWeight := int64(*moveDoc.WeightTicketSetDocument.EmptyWeight)
+		fullWeight := int64(*moveDoc.WeightTicketSetDocument.FullWeight)
+		payload.EmptyWeight = &emptyWeight
+		payload.FullWeight = &fullWeight
 	}
 
 	return &payload, nil
@@ -251,9 +260,21 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 
 			ppm.TotalSITCost = &newCost
 		}
+
+		// // If this is a weight ticket set, make changes to the empty weight and full weight
+		// if moveDoc.MoveDocumentType == models.MoveDocumentTypeWEIGHTTICKETSET {
+		// 	weightTicketSet, err := models.FetchWeightTicketSetDocument(h.DB(), session, moveDocID)
+		// 	if err != nil {
+		// 		return handlers.ResponseForError(logger, err)
+		// 	}
+		// 	emptyPounds := unit.Pound(*payload.EmptyWeight)
+		// 	fullPounds := unit.Pound(*payload.FullWeight)
+		// 	weightTicketSet.EmptyWeight = &emptyPounds
+		// 	weightTicketSet.FullWeight = &fullPounds
+		// }
 	}
 
-	var saveAction models.MoveDocumentSaveAction
+	var saveExpenseAction models.MoveExpenseDocumentSaveAction
 
 	// If we are an expense type, we need to either delete, create, or update a MovingExpenseType
 	// depending on which type of document already exists
@@ -276,15 +297,47 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 			moveDoc.MovingExpenseDocument.RequestedAmountCents = requestedAmt
 			moveDoc.MovingExpenseDocument.PaymentMethod = paymentMethod
 		}
-		saveAction = models.MoveDocumentSaveActionSAVEEXPENSEMODEL
+		saveExpenseAction = models.MoveDocumentSaveActionSAVEEXPENSEMODEL
 	} else {
 		if moveDoc.MovingExpenseDocument != nil {
 			// We just care if a MovingExpenseType exists, as it needs to be deleted
-			saveAction = models.MoveDocumentSaveActionDELETEEXPENSEMODEL
+			saveExpenseAction = models.MoveDocumentSaveActionDELETEEXPENSEMODEL
 		}
 	}
 
-	verrs, err := models.SaveMoveDocument(h.DB(), moveDoc, saveAction)
+	var saveWeightTicketSetAction models.MoveWeightTicketSetDocumentSaveAction
+
+	// If we are a weight ticket set type, we need to either delete, create, or update a WeightTicketSetDocument
+	// depending on which type of document already exists
+	if newType == models.MoveDocumentTypeWEIGHTTICKETSET {
+		emptyWeight := unit.Pound(*payload.EmptyWeight)
+		fullWeight := unit.Pound(*payload.FullWeight)
+		weightTicketDate := (*time.Time)(payload.WeightTicketDate)
+		if moveDoc.WeightTicketSetDocument == nil {
+			moveDoc.WeightTicketSetDocument = &models.WeightTicketSetDocument{
+				MoveDocumentID:           moveDoc.ID,
+				MoveDocument:             *moveDoc,
+				EmptyWeight:              &emptyWeight,
+				EmptyWeightTicketMissing: *payload.EmptyWeightTicketMissing,
+				FullWeight:               &fullWeight,
+				FullWeightTicketMissing:  *payload.FullWeightTicketMissing,
+				VehicleNickname:          payload.VehicleNickname,
+				VehicleOptions:           payload.VehicleOptions,
+				WeightTicketDate:         weightTicketDate,
+				TrailerOwnershipMissing:  *payload.TrailerOwnershipMissing,
+			}
+		} else {
+			moveDoc.WeightTicketSetDocument.EmptyWeight = &emptyWeight
+			moveDoc.WeightTicketSetDocument.FullWeight = &fullWeight
+		}
+		saveWeightTicketSetAction = models.MoveDocumentSaveActionSAVEWEIGHTTICKETSETMODEL
+	} else {
+		if moveDoc.WeightTicketSetDocument != nil {
+			saveWeightTicketSetAction = models.MoveDocumentSaveActionDELETEWEIGHTTICKETSETMODEL
+		}
+	}
+
+	verrs, err := models.SaveMoveDocument(h.DB(), moveDoc, saveExpenseAction, saveWeightTicketSetAction)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
