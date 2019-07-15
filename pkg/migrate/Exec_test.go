@@ -11,6 +11,8 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+const FailedTransaction = "error committing or rolling back transaction: pq: Could not complete operation in a failed transaction"
+
 func (suite *MigrateSuite) TestExecWithDeleteUsersSQL() {
 
 	// Load the fixture with the sql example
@@ -93,5 +95,5 @@ func (suite *MigrateSuite) TestExecWithInsertConflictSQL() {
 		suite.Nil(err)
 		return nil
 	})
-	suite.NoError(errTransaction)
+	suite.EqualError(errTransaction, FailedTransaction)
 }
