@@ -67,6 +67,18 @@ describe('office user finds the move', function() {
     });
   });
 
+  it('download all attachments button is disabled when there are no attachments to download', function() {
+    officeUserGoesToPPMPanel('FDXTIU');
+    cy
+      .get('a')
+      .contains('Create payment paperwork')
+      .click();
+    cy
+      .get('button')
+      .contains('Download All Attachments (PDF)')
+      .should('be.disabled');
+  });
+
   it('office user edits ppm net weight', function() {
     officeUserEditsNetWeight();
   });

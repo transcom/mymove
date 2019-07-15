@@ -10,6 +10,7 @@ import {
   downloadPPMAttachments,
   downloadPPMAttachmentsLabel,
 } from 'shared/Entities/modules/ppms';
+import { selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { getLastError } from 'shared/Swagger/selectors';
 
 import { no_op } from 'shared/utils';
@@ -74,6 +75,10 @@ class PaymentsTable extends Component {
 
   togglePaperwork = () => {
     this.setState({ showPaperwork: !this.state.showPaperwork });
+  };
+
+  disableDownloadAll = () => {
+    return this.props.moveDocuments.length < 1;
   };
 
   startDownload = docTypes => {
@@ -230,7 +235,7 @@ class PaymentsTable extends Component {
                     <p>Download bundle of PPM receipts and attach it to the completed Shipment Summary Worksheet.</p>
                   </div>
                   <button
-                    disabled={this.state.disableDownload}
+                    disabled={this.state.disableDownload || this.disableDownloadAll()}
                     onClick={() => this.startDownload(['OTHER', 'WEIGHT_TICKET', 'STORAGE_EXPENSE', 'EXPENSE'])}
                   >
                     Download All Attachments (PDF)
@@ -283,12 +288,14 @@ const mapStateToProps = (state, ownProps) => {
   const advance = selectReimbursement(state, ppm.advance);
   const signedCertifications = selectPaymentRequestCertificationForMove(state, moveId);
   const disableSSW = sswIsDisabled(ppm, signedCertifications, shipment);
+  const moveDocuments = selectAllDocumentsForMove(state, moveId);
   return {
     ppm,
     disableSSW,
     moveId,
     advance,
     attachmentsError: getLastError(state, downloadPPMAttachmentsLabel),
+    moveDocuments,
   };
 };
 
