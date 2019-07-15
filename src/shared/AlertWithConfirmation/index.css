@@ -23,17 +23,14 @@
   display: inline;
 }
 
-.usa-alert-loading {
-  background-color: #e1f3f8;
-}
-
 .heading--icon {
   margin-right: 2em;
 }
 
-.remove-icon {
-  position: absolute;
-  right: 2em;
+.cancel-or-ok-buttons {
+	flex-grow: 1;
+	display: flex;
+	justify-content: flex-end;
 }
 
 .usa-alert-loading::before {

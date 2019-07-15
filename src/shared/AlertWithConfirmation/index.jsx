@@ -15,22 +15,18 @@ class AlertWithConfirmation extends Component {
 
   render() {
     return (
-      <div className="usa-width-one-whole">
-        <div className={`usa-alert usa-alert-${this.props.type}`}>
-          <div className="usa-alert-body">
-            <div className="body--heading">
-              <div>
-                <div>{this.props.heading && <h3 className="usa-alert-heading">{this.props.heading}</h3>}</div>
-                <div className="usa-alert-text">{this.props.message}</div>
-                <div className="cancel-or-ok-buttons">
-                  <button type="button" className="usa-button-secondary" onClick={this.cancelActionHandler()}>
-                    Cancel
-                  </button>
-                  <button type="button" className="usa-button" onClick={this.confirmActionHandler()}>
-                    OK
-                  </button>
-                </div>
-              </div>
+      <div className={`usa-alert usa-alert-${this.props.type} usa-width-one-whole`}>
+        <div className="usa-alert-body usa-width-one-whole">
+          <div className="body--heading">
+            <div>{this.props.heading && <h3 className="usa-alert-heading">{this.props.heading}</h3>}</div>
+            <div className="usa-alert-text">{this.props.message}</div>
+            <div className="cancel-or-ok-buttons">
+              <button type="button" className="usa-button-secondary" onClick={this.cancelActionHandler()}>
+                Cancel
+              </button>
+              <button type="button" className="usa-button" onClick={this.confirmActionHandler()}>
+                OK
+              </button>
             </div>
           </div>
         </div>
