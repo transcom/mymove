@@ -104,8 +104,12 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
           {isExpenseDocument && <ExpenseDocumentForm moveDocSchema={moveDocSchema} />}
           {isWeightTicketDocument && (
             <>
-              <SwaggerField fieldName="empty_weight" swagger={moveDocSchema} required />
-              <SwaggerField fieldName="full_weight" swagger={moveDocSchema} required />
+              <div className="field-with-units">
+                <SwaggerField className="short-field" fieldName="empty_weight" swagger={moveDocSchema} required /> lbs
+              </div>
+              <div className="field-with-units">
+                <SwaggerField className="short-field" fieldName="full_weight" swagger={moveDocSchema} required /> lbs
+              </div>
             </>
           )}
           <SwaggerField fieldName="status" swagger={moveDocSchema} required />
