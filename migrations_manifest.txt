@@ -321,3 +321,4 @@
 20190705235827_fix_duty_station_zip.up.sql
 20190709204712_add-office-users.up.fizz
 20190711215901_load_usmc_duty_stations.up.sql
+20190715122032_delete-duty-stations-with-no-zip3.up.sql
