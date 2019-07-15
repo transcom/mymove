@@ -37,7 +37,12 @@ const PPMPaymentRequestActionBtns = props => {
             Skip
           </button>
         )}
-        <button type="button" onClick={saveAndAddHandler} disabled={submitButtonsAreDisabled || submitting}>
+        <button
+          type="button"
+          className="submit-button"
+          onClick={saveAndAddHandler}
+          disabled={submitButtonsAreDisabled || submitting}
+        >
           {nextBtnLabel}
         </button>
       </div>

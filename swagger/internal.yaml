@@ -781,6 +781,7 @@ definitions:
         type: integer
         minimum: 0
         x-nullable: true
+        x-formatting: weight
       empty_weight_ticket_missing:
         title: missing empty weight ticket
         type: boolean
@@ -790,6 +791,7 @@ definitions:
         type: integer
         minimum: 0
         x-nullable: true
+        x-formatting: weight
       full_weight_ticket_missing:
         title: missing full weight ticket
         type: boolean
