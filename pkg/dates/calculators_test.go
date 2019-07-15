@@ -140,7 +140,7 @@ func TestDatesSuite(t *testing.T) {
 	}
 
 	hs := &DatesSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       &hnyzap.Logger{Logger: logger},
 	}
 	suite.Run(t, hs)

@@ -22,7 +22,7 @@ func TestShipmentServiceSuite(t *testing.T) {
 	logger := zap.NewNop()
 
 	hs := &ShipmentServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 	}
 	suite.Run(t, hs)

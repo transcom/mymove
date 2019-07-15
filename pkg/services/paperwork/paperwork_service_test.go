@@ -19,7 +19,7 @@ func (suite *PaperworkServiceSuite) SetupTest() {
 func TestPaperworkServiceSuite(t *testing.T) {
 
 	hs := &PaperworkServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
 	suite.Run(t, hs)
 }

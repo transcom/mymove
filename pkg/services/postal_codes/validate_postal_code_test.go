@@ -19,7 +19,7 @@ func (suite *ValidatePostalCodeTestSuite) SetupTest() {
 
 func TestValidatePostalCodeTestSuite(t *testing.T) {
 	ts := &ValidatePostalCodeTestSuite{
-		testingsuite.NewPopTestSuite(),
+		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
 	suite.Run(t, ts)
 }
