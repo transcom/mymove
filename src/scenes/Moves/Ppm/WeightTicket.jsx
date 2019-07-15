@@ -118,23 +118,11 @@ class WeightTicket extends Component {
     });
   };
 
-<<<<<<< HEAD
   skipHandler = () => {
     const { moveId, history } = this.props;
     history.push(`/moves/${moveId}${nextPagePath}`);
   };
 
-  finishLaterHandler = formValues => {
-    const { history } = this.props;
-    return this.saveAndAddHandler(formValues).then(() => {
-      if (this.state.weightTicketSubmissionError === false) {
-        history.push('/');
-      }
-    });
-  };
-
-=======
->>>>>>> Buttons work appropriately
   nonEmptyUploaderKeys() {
     const uploadersKeys = Object.keys(this.uploaders);
     return uploadersKeys.filter(
@@ -461,7 +449,6 @@ class WeightTicket extends Component {
               submitting={submitting}
               skipHandler={this.skipHandler}
               saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
-              displaySaveForLater={true}
               displaySkip={weightTicketSets.length >= 1}
             />
           </div>

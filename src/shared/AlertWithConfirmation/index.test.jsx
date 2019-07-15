@@ -1,11 +1,18 @@
 import React from 'react';
-import { shallow } from 'enzyme';
-import Alert from '.';
+// import { shallow } from 'enzyme';
+import { Provider } from 'react-redux';
+import store from 'shared/store';
+import { mount } from 'enzyme';
+import AlertWithConfirmation from '.';
 
-describe('basic alert component', () => {
+describe('basic alert with confirmation component', () => {
   const text = 'some text';
   const heading = 'a heading';
-  const wrapper = shallow(<Alert heading={heading}>{text}</Alert>);
+  const wrapper = mount(
+    <Provider store={store}>
+      <AlertWithConfirmation heading={heading} message={text} />
+    </Provider>,
+  );
   it('should render children and heading', () => {
     expect(wrapper.find('.usa-alert-heading').text()).toBe(heading);
     expect(wrapper.find('.usa-alert-text').text()).toBe(text);
@@ -16,27 +23,30 @@ describe('basic alert component', () => {
   it('should not display a spinner', () => {
     expect(wrapper.find('.heading--icon')).toHaveLength(0);
   });
-  describe('loading alert', () => {
-    const wrapper = shallow(
-      <Alert heading={heading} type="loading">
-        {text}
-      </Alert>,
+  describe('cancel confirmation', () => {
+    const mockCancelActionHandler = jest.fn();
+    const wrapper = mount(
+      <Provider store={store}>
+        <AlertWithConfirmation heading={heading} message={text} cancelActionHandler={mockCancelActionHandler} />
+      </Provider>,
     );
-    it('should display a spinner', () => {
-      expect(wrapper.find('.heading--icon')).toHaveLength(1);
+    it('should render cancel button', () => {
+      expect(wrapper.find('.usa-button-secondary')).toHaveLength(1);
+      wrapper.find('.usa-button-secondary').simulate('click');
+      expect(mockCancelActionHandler).toHaveBeenCalled();
     });
   });
-  describe('close button', () => {
-    const mockOnRemove = jest.fn();
-    const wrapper = shallow(
-      <Alert heading={heading} onRemove={mockOnRemove}>
-        {text}
-      </Alert>,
+  describe('ok confirmation', () => {
+    const mockOkActionHandler = jest.fn();
+    const wrapper = mount(
+      <Provider store={store}>
+        <AlertWithConfirmation heading={heading} message={text} okActionHandler={mockOkActionHandler} />
+      </Provider>,
     );
-    it('should render a close button', () => {
-      expect(wrapper.find('.icon.remove-icon')).toHaveLength(1);
-      wrapper.find('.icon.remove-icon').simulate('click');
-      expect(mockOnRemove).toHaveBeenCalled();
+    it('should render cancel and ok buttons', () => {
+      expect(wrapper.find('.usa-button')).toHaveLength(1);
+      wrapper.find('.usa-button').simulate('click');
+      expect(mockOkActionHandler).toHaveBeenCalled();
     });
   });
 });

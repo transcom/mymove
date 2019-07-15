@@ -41,10 +41,9 @@ class PPMPaymentRequestActionBtns extends Component {
       skipHandler,
       saveAndAddHandler,
       hasConfirmation,
-      displayConfirmation,
       submitButtonsAreDisabled,
       submitting,
-    } = props;
+    } = this.props;
     return (
       <div className="usa-width-one-whole">
         {hasConfirmation &&
@@ -63,14 +62,6 @@ class PPMPaymentRequestActionBtns extends Component {
         {!this.state.displayConfirmation && (
           <div className="ppm-payment-request-footer">
             <button type="button" className="usa-button-secondary" onClick={this.showConfirmationOrFinishLater}>
-              Finish Later
-            </button>
-            <button
-              type="button"
-              className="usa-button"
-              onClick={saveAndAddHandler}
-              disabled={submitButtonsAreDisabled || submitting}
-            >
               Finish Later
             </button>
             <div className="usa-width-one-thirds">

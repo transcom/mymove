@@ -2,9 +2,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import './index.css';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
-import { withRouter } from 'react-router-dom';
 
 //this is taken from https://designsystem.digital.gov/components/alerts/
 class AlertWithConfirmation extends Component {
@@ -23,16 +20,7 @@ class AlertWithConfirmation extends Component {
           <div className="usa-alert-body">
             <div className="body--heading">
               <div>
-                <div>
-                  {this.props.heading && <h3 className="usa-alert-heading">{this.props.heading}</h3>}
-                  {this.props.onRemove && (
-                    <FontAwesomeIcon
-                      className="icon remove-icon actionable actionable-secondary"
-                      onClick={this.props.onRemove}
-                      icon={faTimes}
-                    />
-                  )}
-                </div>
+                <div>{this.props.heading && <h3 className="usa-alert-heading">{this.props.heading}</h3>}</div>
                 <div className="usa-alert-text">{this.props.message}</div>
                 <div className="cancel-or-ok-buttons">
                   <button type="button" className="usa-button-secondary" onClick={this.cancelActionHandler()}>
@@ -52,14 +40,14 @@ class AlertWithConfirmation extends Component {
 }
 
 const requiredPropsCheck = (props, propName, componentName) => {
-  if (!props.message) {
-    return new Error(`Message is required by '${componentName}' component.`);
+  if (!props.heading || !props.message) {
+    return new Error(`A heading or message is required by '${componentName}' component.`);
   }
 };
 
 AlertWithConfirmation.propTypes = {
+  heading: requiredPropsCheck,
   message: requiredPropsCheck,
-  onRemove: PropTypes.func,
-  type: PropTypes.oneOf(['error', 'warning', 'info', 'success', 'loading']),
+  type: PropTypes.oneOf(['error', 'warning', 'info', 'success']),
 };
-export default withRouter(AlertWithConfirmation);
+export default AlertWithConfirmation;
