@@ -9,7 +9,7 @@ import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 import { titleCase } from 'shared/constants.js';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-
+import { MOVE_DOC_TYPE } from 'shared/constants';
 import Alert from 'shared/Alert';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import { withContext } from 'shared/AppContext';
@@ -484,7 +484,7 @@ const mapStateToProps = (state, props) => {
   const shipmentId = props.match.params.shipmentId;
   const shipment = selectShipment(state, shipmentId);
   const shipmentDocuments = selectShipmentDocuments(state, shipment.id) || {};
-  const gbl = shipmentDocuments.find(element => element.move_document_type === 'GOV_BILL_OF_LADING');
+  const gbl = shipmentDocuments.find(element => element.move_document_type === MOVE_DOC_TYPE.GBL);
   const gblGenerated = !!gbl;
 
   return {
