@@ -323,3 +323,4 @@
 20190711215901_load_usmc_duty_stations.up.sql
 20190713214312_update-county-code-us.up.sql
 20190715122032_delete-duty-stations-with-no-zip3.up.sql
+20190715144534_delete-duty-stations-with-no-zip3-conflict.up.sql
