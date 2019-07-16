@@ -187,6 +187,36 @@ describe('editing ppm only move', () => {
   });
 });
 
+describe('allows a SM to continue requesting a payment', function() {
+  const smId = '4ebc03b7-c801-4c0d-806c-a95aed242102';
+  beforeEach(() => {
+    cy.removeFetch();
+    cy.server();
+    cy.route('POST', '**/internal/uploads').as('postUploadDocument');
+    cy.route('POST', '**/moves/**/weight_ticket').as('postWeightTicket');
+    cy.route('POST', '**/moves/**/moving_expense_documents').as('postMovingExpense');
+    cy.route('POST', '**/internal/personally_procured_move/**/request_payment').as('requestPayment');
+    cy.route('POST', '**/moves/**/signed_certifications').as('signedCertifications');
+    cy.signInAsUserPostRequest(milmoveAppName, smId);
+  });
+
+  it('service should be able to continue requesting payment', () => {
+    serviceMemberStartsPPMPaymentRequest();
+    serviceMemberSubmitsWeightTicket('CAR', true);
+
+    cy
+      .get('button')
+      .contains('Cancel')
+      .click();
+    cy
+      .get('.usa-button-secondary')
+      .contains('Continue Requesting Payment')
+      .click();
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
+    });
+  });
+});
 describe('allows a SM to request a payment', function() {
   const smId = '745e0eba-4028-4c78-a262-818b00802748';
   const moveID = 'f9f10492-587e-43b3-af2a-9f67d2ac8757';
@@ -203,19 +233,15 @@ describe('allows a SM to request a payment', function() {
 
   it('service member reads introduction to ppm payment and cancels to go back to homepage', () => {
     serviceMemberStartsPPMPaymentRequestWithAssertions();
-    serviceMemberCanCancel();
   });
 
-  it('service member can save a multiple weight tickets', () => {
-    cy.visit(`/moves/${moveID}/ppm-weight-ticket`);
-    serviceMemberSubmitsWeightTicket('CAR', true, '1st');
-    serviceMemberSubmitsWeightTicket('BOX_TRUCK', false, '2nd');
-  });
-
-  it('service member can save multiple expenses', () => {
-    cy.visit(`/moves/${moveID}/ppm-expenses`);
-    serviceMemberUploadsExpenses(true, 1);
-    serviceMemberUploadsStorageExpenses(false, 2);
+  it('service member goes through entire request payment flow', () => {
+    serviceMemberStartsPPMPaymentRequest();
+    serviceMemberSubmitsWeightTicket('CAR', false);
+    serviceMemberViewsExpensesLandingPage();
+    serviceMemberUploadsExpenses(false);
+    serviceMemberReviewsDocuments();
+    serviceMemberEditsPaymentRequest();
   });
 
   it('service member can save a weight ticket for later', () => {
@@ -316,7 +342,8 @@ describe('allows a SM to request a payment', function() {
   });
 
   it('service member can skip weight tickets and expenses if already have one', () => {
-    serviceMemberStartsPPMPaymentRequest();
+    cy.visit(`/moves/${moveID}/ppm-weight-ticket`);
+
     serviceMemberSubmitsWeightTicket('CAR', true);
     cy
       .get('[data-cy=skip]')
@@ -328,15 +355,6 @@ describe('allows a SM to request a payment', function() {
       .get('[data-cy=skip]')
       .contains('Skip')
       .click();
-  });
-
-  it('service member goes through entire request payment flow', () => {
-    serviceMemberStartsPPMPaymentRequest();
-    serviceMemberSubmitsWeightTicket('CAR', false);
-    serviceMemberViewsExpensesLandingPage();
-    serviceMemberUploadsExpenses(false);
-    serviceMemberReviewsDocuments();
-    serviceMemberEditsPaymentRequest();
   });
 
   //TODO: remove when done with the new flow to request payment
@@ -515,52 +533,6 @@ function serviceMemberUploadsExpenses(hasAnother = true, expenseNumber = null) {
   }
 }
 
-function serviceMemberUploadsStorageExpenses(hasAnother = true, expenseNumber = null) {
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-expenses/);
-  });
-  if (expenseNumber) {
-    cy.contains(`Expense ${expenseNumber}`);
-  }
-
-  cy.get('select[name="moving_expense_type"]').select('STORAGE');
-  cy
-    .get('input[name="storage_start_date"]')
-    .type('6/2/2018{enter}')
-    .blur();
-  cy
-    .get('input[name="storage_end_date"]')
-    .type('6/12/2018{enter}')
-    .blur();
-  cy.get('input[name="requested_amount_cents"]').type('2000');
-
-  cy.get('input[name="missingReceipt"]').should('not.be.checked');
-  cy.get('input[name="missingReceipt"]+label').click();
-  cy
-    .get('[data-cy=storage-warning]')
-    .contains('If you can, go online and print a new copy of your receipt, then upload it.');
-  cy.get('input[name="missingReceipt"]').should('be.checked');
-  cy.get('input[name="haveMoreExpenses"][value="Yes"]+label').click();
-
-  if (hasAnother) {
-    cy
-      .get('button')
-      .contains('Save & Add Another')
-      .click();
-  } else {
-    cy.get('input[name="haveMoreExpenses"][value="No"]+label').click();
-    cy.get('input[name="haveMoreExpenses"][value="No"]').should('be.checked');
-    cy
-      .get('button')
-      .contains('Save & Continue')
-      .click();
-  }
-  cy
-    .wait('@postMovingExpense')
-    .its('status')
-    .should('eq', 200);
-}
-
 function serviceMemberSubmitsCarTrailerWeightTicket() {
   cy.get('select[name="vehicle_options"]').select('CAR_TRAILER');
 
@@ -726,17 +698,6 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
       .its('status')
       .should('eq', 200);
   }
-}
-
-function serviceMemberCanCancel() {
-  cy
-    .get('button')
-    .contains('Cancel')
-    .click();
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\//);
-  });
 }
 
 function serviceMemberStartsPPMPaymentRequestWithAssertions() {

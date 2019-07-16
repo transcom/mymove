@@ -86,7 +86,7 @@ func TestUploaderSuite(t *testing.T) {
 	}
 
 	hs := &UploaderSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 		storer:       storageTest.NewFakeS3Storage(true),
 	}

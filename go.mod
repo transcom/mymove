@@ -10,7 +10,7 @@ require (
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
 	github.com/cockroachdb/apd v1.1.0 // indirect
 	github.com/cockroachdb/cockroach-go v0.0.0-20181001143604-e0a95dfd547c // indirect
-	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4 // indirect
+	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/dustin/go-humanize v1.0.0
@@ -27,6 +27,7 @@ require (
 	github.com/go-openapi/errors v0.19.2
 	github.com/go-openapi/loads v0.19.2
 	github.com/go-openapi/runtime v0.19.3
+	github.com/go-openapi/spec v0.19.2
 	github.com/go-openapi/strfmt v0.19.2
 	github.com/go-openapi/swag v0.19.4
 	github.com/go-openapi/validate v0.19.2
@@ -48,6 +49,7 @@ require (
 	github.com/imdario/mergo v0.3.7
 	github.com/jackc/fake v0.0.0-20150926172116-812a484cc733 // indirect
 	github.com/jackc/pgx v3.5.0+incompatible // indirect
+	github.com/jessevdk/go-flags v1.4.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/jung-kurt/gofpdf v1.5.2
 	github.com/lib/pq v1.1.1
@@ -79,6 +81,7 @@ require (
 	go.uber.org/zap v1.10.0
 	goji.io v2.0.2+incompatible
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
+	golang.org/x/net v0.0.0-20190628185345-da137c7871d7
 	golang.org/x/text v0.3.2
 	golang.org/x/tools v0.0.0-20190715044752-607ca053a137
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect

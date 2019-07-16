@@ -4,24 +4,36 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues } from 'redux-form';
 import { selectPPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
+import {
+  selectAllDocumentsForMove,
+  calcWeightTicketNetWeight,
+  findPendingWeightTickets,
+} from 'shared/Entities/modules/moveDocuments';
+import Alert from 'shared/Alert';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
 
-const NetWeightDisplay = props => {
+const NetWeightDisplay = ({ ppmSchema, ppm, netWeight, hasWeightTicketsPending }) => {
   const fieldProps = {
-    schema: props.ppmSchema,
-    values: props.ppm,
+    schema: ppmSchema,
+    values: ppm,
   };
   return (
     <div className="editable-panel-column">
-      <PanelSwaggerField title="Net Weight" fieldName="net_weight" required {...fieldProps} />
+      {hasWeightTicketsPending && (
+        <div className="missing-info-alert">
+          <Alert type="warning">There are more weight tickets awaiting review.</Alert>
+        </div>
+      )}
+      <PanelSwaggerField title="Net Weight" fieldName="net_weight" required {...fieldProps}>
+        {netWeight}
+      </PanelSwaggerField>
     </div>
   );
 };
 
-const NetWeightEdit = props => {
-  const { ppmSchema } = props;
+const NetWeightEdit = ({ ppmSchema }) => {
   return (
     <div className="editable-panel-column net-weight">
       <SwaggerField className="short-field" title="Net Weight" fieldName="net_weight" swagger={ppmSchema} required />lbs
@@ -31,7 +43,7 @@ const NetWeightEdit = props => {
 
 const formName = 'ppm_net_weight';
 
-let NetWeightPanel = editablePanelify(NetWeightDisplay, NetWeightEdit);
+let NetWeightPanel = editablePanelify(NetWeightDisplay, NetWeightEdit, false);
 NetWeightPanel = reduxForm({
   form: formName,
   enableReinitialize: true,
@@ -41,6 +53,10 @@ NetWeightPanel = reduxForm({
 function mapStateToProps(state, ownProps) {
   const formValues = getFormValues(formName)(state);
   const ppm = selectPPMForMove(state, ownProps.moveId);
+  const moveDocs = selectAllDocumentsForMove(state, ownProps.moveId);
+  const netWeight = calcWeightTicketNetWeight(moveDocs);
+  const hasWeightTicketsPending = findPendingWeightTickets(moveDocs).length > 0;
+
   return {
     // reduxForm
     initialValues: pick(ppm, 'net_weight'),
@@ -54,6 +70,8 @@ function mapStateToProps(state, ownProps) {
       const values = getFormValues(formName)(state);
       return [ownProps.moveId, ppm.id, values];
     },
+    netWeight,
+    hasWeightTicketsPending,
   };
 }
 
