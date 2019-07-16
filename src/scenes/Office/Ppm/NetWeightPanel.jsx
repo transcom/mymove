@@ -23,7 +23,7 @@ const NetWeightDisplay = ({ ppmSchema, ppm, netWeight, hasWeightTicketsPending }
     <div className="editable-panel-column">
       {hasWeightTicketsPending && (
         <div className="missing-info-alert">
-          <Alert type="warning">There are more weight tickets awaiting review</Alert>
+          <Alert type="warning">There are more weight tickets awaiting review.</Alert>
         </div>
       )}
       <PanelSwaggerField title="Net Weight" fieldName="net_weight" required {...fieldProps}>
