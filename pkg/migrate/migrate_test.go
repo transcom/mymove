@@ -29,7 +29,7 @@ func TestMigrateSuite(t *testing.T) {
 	}
 
 	ms := &MigrateSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite("migrate"),
 		logger:       logger,
 	}
 	suite.Run(t, ms)

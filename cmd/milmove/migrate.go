@@ -214,68 +214,77 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		return errors.Wrap(err, "database not ready for connections")
 	}
 
-	migrationPath := v.GetString(cli.MigrationPathFlag)
-	logger.Info(fmt.Sprintf("using migration path %q", migrationPath))
+	migrationTableName := dbConnection.MigrationTableName()
+	logger.Info(fmt.Sprintf("tracking migrations using table %q", migrationTableName))
 
-	migrationManifest := v.GetString(cli.MigrationManifestFlag)
-	logger.Info(fmt.Sprintf("using migration manifest at %q", migrationManifest))
+	migrationManifest := expandPath(v.GetString(cli.MigrationManifestFlag))
+	logger.Info(fmt.Sprintf("using migration manifest %q", migrationManifest))
 
-	manifest, err := os.Open(migrationManifest)
+	var s3Client *s3.S3
+	if s3Migrations {
+		s3Client = s3.New(session)
+	}
+
+	migrationFiles := map[string][]string{}
+	for _, p := range migrationPath {
+		filenames, errListFiles := migrate.ListFiles(p, s3Client)
+		if errListFiles != nil {
+			logger.Fatal("Error listing migrations directory", zap.Error(errListFiles))
+		}
+		migrationFiles[p] = filenames
+	}
+
+	manifest, err := os.Open(migrationManifest[len("file://"):])
 	if err != nil {
 		return errors.Wrap(err, "error reading manifest")
 	}
-	migrations := map[string]struct{}{}
+
+	wait := v.GetDuration(cli.MigrationWaitFlag)
+
+	migrator := pop.NewMigrator(dbConnection)
 	scanner := bufio.NewScanner(manifest)
 	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if len(line) == 0 {
-			// skip blank lines
-			continue
-		}
-		if strings.HasPrefix(line, "#") {
+		target := scanner.Text()
+		if strings.HasPrefix(target, "#") {
 			// If line starts with a #, then comment it out.
 			continue
 		}
-		migrations[line] = struct{}{}
-	}
-
-	fm := &pop.FileMigrator{
-		Migrator: pop.NewMigrator(dbConnection),
-		Path:     migrationPath,
-	}
-	fm.SchemaPath = migrationPath
-
-	runner := func(mf pop.Migration, tx *pop.Connection) error {
-
-		f, err := os.Open(mf.Path)
+		uri := ""
+		for dir, filenames := range migrationFiles {
+			for _, filename := range filenames {
+				if target == filename {
+					uri = fmt.Sprintf("%s/%s", dir, filename)
+					break
+				}
+			}
+		}
+		if len(uri) == 0 {
+			return errors.Errorf("Error finding migration for filename %q", target)
+		}
+		m, err := migrate.ParseMigrationFilename(target)
 		if err != nil {
-			return err
+			return errors.Wrapf(err, "error parsing migration filename %q", uri)
 		}
-
-		// if a secure migration, this step will execute.
-		// See https://github.com/gobuffalo/fizz/pull/54
-		content, err := pop.MigrationContent(mf, tx, f, false)
-		if err != nil {
-			return errors.Wrapf(err, "error processing %s", mf.Path)
+		if m == nil {
+			return errors.Errorf("Error parsing migration filename %q", uri)
 		}
-
-		if content == "" {
-			return nil
+		b := &migrate.Builder{Match: m, Path: uri}
+		migration, errCompile := b.Compile(s3Client, wait)
+		if errCompile != nil {
+			return errors.Wrap(errCompile, "Error compiling migration")
 		}
-
-		err = tx.RawQuery(content).Exec()
-		if err != nil {
-			return errors.Wrapf(err, "error executing %s, sql: %s", mf.Path, content)
-		}
-
-		return nil
-
+		migrator.Migrations[migration.Direction] = append(migrator.Migrations[migration.Direction], *migration)
 	}
 
-	errFindMigrations := migrate.FindMigrations(fm, migrations, runner)
-	if errFindMigrations != nil {
-		return errFindMigrations
+	errSchemaMigrations := migrator.CreateSchemaMigrations()
+	if errSchemaMigrations != nil {
+		return errors.Wrap(errSchemaMigrations, "error creating table for tracking migrations")
 	}
 
-	return fm.Up()
+	errUp := migrator.Up()
+	if errUp != nil {
+		return errors.Wrap(errUp, "error running migrations")
+	}
+
+	return nil
 }

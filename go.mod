@@ -32,7 +32,7 @@ require (
 	github.com/go-openapi/swag v0.19.4
 	github.com/go-openapi/validate v0.19.2
 	github.com/go-swagger/go-swagger v0.19.1-0.20190712002221-a5e3099fe0bb
-	github.com/gobuffalo/fizz v1.9.2 // indirect
+	github.com/gobuffalo/fizz v1.9.2
 	github.com/gobuffalo/logger v1.0.1 // indirect
 	github.com/gobuffalo/makr v1.2.0 // indirect
 	github.com/gobuffalo/nulls v0.1.0 // indirect
@@ -62,7 +62,7 @@ require (
 	github.com/rickar/cal v1.0.1
 	github.com/rogpeppe/go-internal v1.3.0
 	github.com/satori/go.uuid v1.2.0 // indirect
-	github.com/segmentio/chamber v0.0.0-20190710175036-9b6cb14e98b6
+	github.com/segmentio/chamber v2.3.3+incompatible
 	github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24 // indirect
 	github.com/smartystreets/assertions v1.0.0 // indirect
 	github.com/smartystreets/goconvey v0.0.0-20190710185942-9d28bd7c0945 // indirect

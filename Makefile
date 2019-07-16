@@ -373,6 +373,7 @@ build_tools: server_deps \
 	bin/renderer \
 	bin/save-fuel-price-data \
 	bin/send-to-gex \
+	bin/split-migration \
 	bin/tsp-award-queue ## Build all tools
 
 .PHONY: build
