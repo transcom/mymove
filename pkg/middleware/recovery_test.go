@@ -21,6 +21,6 @@ func (suite *testSuite) TestRecoveryPanic() {
 	suite.do(mw, suite.panic, rr, httptest.NewRequest("GET", testURL, nil))
 	suite.Equal(http.StatusInternalServerError, rr.Code, errStatusCode) // check status code
 	body, err := ioutil.ReadAll(rr.Body)
-	suite.Nil(err)                         // check that you could read full body
+	suite.NoError(err)                     // check that you could read full body
 	suite.Equal("", string(body), errBody) // check body (body was written before panic)
 }

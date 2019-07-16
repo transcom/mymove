@@ -52,7 +52,7 @@ func (suite *serverSuite) TestParseSingleTLSCert() {
 		suite.readFile("localhost.pem"),
 		suite.readFile("localhost.key"))
 
-	suite.Nil(err)
+	suite.NoError(err)
 
 	httpsServer, err := CreateNamedServer(&CreateNamedServerInput{
 		Host:         "127.0.0.1",
@@ -62,7 +62,7 @@ func (suite *serverSuite) TestParseSingleTLSCert() {
 		Logger:       suite.logger,
 		Certificates: []tls.Certificate{keyPair},
 	})
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(len(httpsServer.TLSConfig.Certificates), 1)
 	suite.Contains(httpsServer.TLSConfig.NameToCertificate, "localhost")
 }
@@ -82,13 +82,13 @@ func (suite *serverSuite) TestParseMultipleTLSCerts() {
 		suite.readFile("localhost.pem"),
 		suite.readFile("localhost.key"))
 
-	suite.Nil(err)
+	suite.NoError(err)
 
 	keyPairOffice, err := tls.X509KeyPair(
 		suite.readFile("officelocal.pem"),
 		suite.readFile("officelocal.key"))
 
-	suite.Nil(err)
+	suite.NoError(err)
 
 	httpsServer, err := CreateNamedServer(&CreateNamedServerInput{
 		Host:        "127.0.0.1",
@@ -101,7 +101,7 @@ func (suite *serverSuite) TestParseMultipleTLSCerts() {
 			keyPairOffice,
 		},
 	})
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(len(httpsServer.TLSConfig.Certificates), 2)
 	suite.Contains(httpsServer.TLSConfig.NameToCertificate, "localhost")
 	suite.Contains(httpsServer.TLSConfig.NameToCertificate, "officelocal")
@@ -113,7 +113,7 @@ func (suite *serverSuite) TestTLSConfigWithClientAuth() {
 		suite.readFile("localhost.pem"),
 		suite.readFile("localhost.key"))
 
-	suite.Nil(err)
+	suite.NoError(err)
 
 	caFile := suite.readFile("ca.pem")
 	caCertPool := x509.NewCertPool()
@@ -128,7 +128,7 @@ func (suite *serverSuite) TestTLSConfigWithClientAuth() {
 		Logger:       suite.logger,
 		Certificates: []tls.Certificate{keyPair},
 	})
-	suite.Nil(err)
+	suite.NoError(err)
 }
 
 func (suite *serverSuite) TestTLSConfigWithMissingCA() {
@@ -137,7 +137,7 @@ func (suite *serverSuite) TestTLSConfigWithMissingCA() {
 		suite.readFile("localhost.pem"),
 		suite.readFile("localhost.key"))
 
-	suite.Nil(err)
+	suite.NoError(err)
 
 	_, err = CreateNamedServer(&CreateNamedServerInput{
 		Host:         "127.0.0.1",
@@ -156,7 +156,7 @@ func (suite *serverSuite) TestTLSConfigWithMisconfiguredCA() {
 		suite.readFile("localhost.pem"),
 		suite.readFile("localhost.key"))
 
-	suite.Nil(err)
+	suite.NoError(err)
 
 	caFile := suite.readFile("localhost-bad.pem")
 	caCertPool := x509.NewCertPool()
@@ -182,7 +182,7 @@ func (suite *serverSuite) TestHTTPServerConfig() {
 		HTTPHandler: suite.httpHandler,
 		Logger:      suite.logger,
 	})
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(httpsServer.Addr, "127.0.0.1:8080")
 	suite.Equal(suite.httpHandler, httpsServer.Handler)
 }

@@ -1,37 +1,30 @@
 package invoice
 
 import (
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gobuffalo/pop"
+	"github.com/transcom/mymove/pkg/testingsuite"
+
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 )
 
 type GexSuite struct {
-	suite.Suite
-	db     *pop.Connection
+	testingsuite.PopTestSuite
 	logger Logger
 }
 
 func (suite *GexSuite) SetupTest() {
-	suite.db.TruncateAll()
+	suite.DB().TruncateAll()
 }
 
 func TestGexSuite(t *testing.T) {
-	configLocation := "../../../config"
-	pop.AddLookupPaths(configLocation)
-	db, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
 
 	hs := &GexSuite{
-		db:     db,
-		logger: zap.NewNop(), // Use a no-op logger during testing
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("gex")),
+		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, hs)
 }

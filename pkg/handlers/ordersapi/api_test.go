@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/transcom/mymove/pkg/testingsuite"
+
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -45,7 +47,7 @@ func TestHandlerSuite(t *testing.T) {
 	}
 
 	hs := &HandlerSuite{
-		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(logger, notifications.NewStubNotificationSender("milmovelocal", logger)),
+		BaseHandlerTestSuite: handlers.NewBaseHandlerTestSuite(logger, notifications.NewStubNotificationSender("milmovelocal", logger), testingsuite.CurrentPackage()),
 	}
 
 	suite.Run(t, hs)

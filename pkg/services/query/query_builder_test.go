@@ -25,7 +25,7 @@ func (suite *QueryBuilderSuite) SetupTest() {
 func TestUserSuite(t *testing.T) {
 
 	hs := &QueryBuilderSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, hs)

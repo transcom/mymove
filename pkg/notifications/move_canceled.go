@@ -74,8 +74,8 @@ func (m MoveCanceled) emails(ctx context.Context) ([]emailContent, error) {
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
 		subject:        fmt.Sprintf("[MilMove] %s", introText),
-		htmlBody:       fmt.Sprintf("%s<br/>%s", nextSteps, closingText),
-		textBody:       fmt.Sprintf("%s\n%s", nextSteps, closingText),
+		htmlBody:       fmt.Sprintf("%s<br/><br/><br/>%s", nextSteps, closingText),
+		textBody:       fmt.Sprintf("%s\n\n\n%s", nextSteps, closingText),
 	}
 
 	// TODO: Send email to trusted contacts when that's supported

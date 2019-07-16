@@ -66,6 +66,11 @@ class ExpensesUpload extends Component {
     });
   };
 
+  skipHandler = () => {
+    const { moveId, history } = this.props;
+    history.push(`/moves/${moveId}${nextPagePath}`);
+  };
+
   saveForLaterHandler = formValues => {
     const { history } = this.props;
     return this.saveAndAddHandler(formValues).then(() => {
@@ -319,8 +324,10 @@ class ExpensesUpload extends Component {
               nextBtnLabel={nextBtnLabel}
               submitButtonsAreDisabled={this.isInvalidUploaderState() || invalid}
               submitting={submitting}
+              skipHandler={this.skipHandler}
               saveForLaterHandler={handleSubmit(this.saveForLaterHandler)}
               saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
+              displaySkip={expenses.length >= 1}
               displaySaveForLater={true}
             />
           </form>

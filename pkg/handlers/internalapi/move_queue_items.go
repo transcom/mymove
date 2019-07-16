@@ -38,6 +38,10 @@ func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem, StorageInTransi
 		StorageInTransits:              StorageInTransits,
 		HasUnapprovedShipmentLineItems: &HasUnapprovedShipmentLineItems,
 		PmSurveyConductedDate:          handlers.FmtDateTimePtr(MoveQueueItem.PmSurveyConductedDate),
+		OriginGbloc:                    handlers.FmtStringPtr(MoveQueueItem.OriginGBLOC),
+		DestinationGbloc:               handlers.FmtStringPtr(MoveQueueItem.DestinationGBLOC),
+		DeliveredDate:                  handlers.FmtDateTimePtr(MoveQueueItem.DeliveredDate),
+		InvoiceApprovedDate:            handlers.FmtDateTimePtr(MoveQueueItem.InvoiceApprovedDate),
 	}
 	return &MoveQueueItemPayload
 }
@@ -145,6 +149,7 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 
 			if err != nil {
 				logger.Error("Unmarshalling Shipment Line Items", zap.Error(err))
+
 				return handlers.ResponseForError(logger, err)
 			}
 		}

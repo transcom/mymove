@@ -20,6 +20,18 @@ export const titleCase = str => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
+export const MOVE_DOC_TYPE = {
+  WEIGHT_TICKET_SET: 'WEIGHT_TICKET_SET',
+  EXPENSE: 'EXPENSE',
+  GBL: 'GOV_BILL_OF_LADING',
+};
+
+export const MOVE_DOC_STATUS = {
+  OK: 'OK',
+  AWAITING_REVIEW: 'AWAITING_REVIEW',
+  HAS_ISSUE: 'HAS_ISSUE',
+};
+
 // These constants are used to track network requests using component state
 export const isError = 'REQUEST_ERROR';
 export const isLoading = 'REQUEST_LOADING';

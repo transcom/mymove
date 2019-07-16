@@ -12,7 +12,7 @@ import { SearchDutyStations } from './api.js';
 import './DutyStation.css';
 
 const inputDebounceTime = 200;
-const minSearchLength = 1;
+const minSearchLength = 2;
 const getOptionName = option => (option ? option.name : '');
 
 export class DutyStationSearchBox extends Component {
@@ -29,6 +29,7 @@ export class DutyStationSearchBox extends Component {
     this.localOnChange = this.localOnChange.bind(this);
     this.onInputChange = this.onInputChange.bind(this);
     this.renderOption = this.renderOption.bind(this);
+    this.noOptionsMessage = this.noOptionsMessage.bind(this);
   }
 
   loadOptions(inputValue, callback) {
@@ -75,7 +76,12 @@ export class DutyStationSearchBox extends Component {
     this.setState({ inputValue });
     return inputValue;
   }
-
+  noOptionsMessage(props) {
+    if (this.state.inputValue.length < minSearchLength) {
+      return <span />;
+    }
+    return <span>No Options</span>;
+  }
   renderOption(props) {
     // React throws an error complaining about use of this property, so we delete it
     delete props.innerProps.innerRef;
@@ -125,6 +131,7 @@ export class DutyStationSearchBox extends Component {
               onInputChange={this.onInputChange}
               components={{ Option: this.renderOption }}
               value={isEmptyStation ? null : this.props.input.value}
+              noOptionsMessage={this.noOptionsMessage}
               placeholder="Start typing a duty station..."
             />
             {!isEmptyStation && (

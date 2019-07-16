@@ -63,7 +63,7 @@ func (suite *ShipmentServiceSuite) TestProcessRecalculateShipmentCall() {
 	shipmentID := shipment.ID
 
 	shipmentLineItems, err := models.FetchLineItemsByShipmentID(suite.DB(), &shipmentID)
-	suite.Nil(err)
+	suite.NoError(err)
 
 	shipment2, err := invoice.FetchShipmentForInvoice{DB: suite.DB()}.Call(shipmentID)
 	if err != nil {
@@ -83,7 +83,7 @@ func (suite *ShipmentServiceSuite) TestProcessRecalculateShipmentCall() {
 		Logger: suite.logger,
 	}.Call(shipment, shipmentLineItems, *planner)
 	// TEST Validation: No date range records (return false)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(false, update)
 
 	id, err := uuid.NewV4()
@@ -97,7 +97,7 @@ func (suite *ShipmentServiceSuite) TestProcessRecalculateShipmentCall() {
 	suite.MustCreate(suite.DB(), &recalculateRange)
 	fetchRecalculateRange, err := models.FetchShipmentRecalculateDates(suite.DB())
 	recalculateRange = *fetchRecalculateRange
-	suite.Nil(err)
+	suite.NoError(err)
 
 	//
 	// TEST: shipment is not in DELIVERED state (return false)
@@ -110,7 +110,7 @@ func (suite *ShipmentServiceSuite) TestProcessRecalculateShipmentCall() {
 		Logger: suite.logger,
 	}.Call(shipment, shipmentLineItems, *planner)
 	// TEST Validation: shipment is not in DELIVERED state (return false)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(false, update)
 
 	// Shipment is delivered
@@ -132,7 +132,7 @@ func (suite *ShipmentServiceSuite) TestProcessRecalculateShipmentCall() {
 		Logger: suite.logger,
 	}.Call(shipment, shipmentLineItems, *planner)
 	// TEST Validation: shipment after date range (return false)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(false, update)
 
 	//
@@ -152,11 +152,11 @@ func (suite *ShipmentServiceSuite) TestProcessRecalculateShipmentCall() {
 		Logger: suite.logger,
 	}.Call(shipment, shipmentLineItems, *planner)
 	// TEST Validation: Shipment missing base line item or line item was updated in date range (return true)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(true, update)
 
 	shipmentLineItems, err = models.FetchLineItemsByShipmentID(suite.DB(), &shipmentID)
-	suite.Nil(err)
+	suite.NoError(err)
 
 	shipment2, err = invoice.FetchShipmentForInvoice{DB: suite.DB()}.Call(shipmentID)
 	if err != nil {
@@ -170,7 +170,7 @@ func (suite *ShipmentServiceSuite) TestProcessRecalculateShipmentCall() {
 	suite.MustSave(&recalculateRange)
 
 	fetchRecalculateRange, err = models.FetchShipmentRecalculateDates(suite.DB())
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.NotNil(fetchRecalculateRange)
 
 	// Move Shipment.CreatedAt to date within range
@@ -183,6 +183,6 @@ func (suite *ShipmentServiceSuite) TestProcessRecalculateShipmentCall() {
 		Logger: suite.logger,
 	}.Call(shipment, shipmentLineItems, *planner)
 	// TEST Validation:  Do not recalculate shipment all line items are up to date (return false)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(false, update)
 }

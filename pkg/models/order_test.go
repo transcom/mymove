@@ -187,12 +187,12 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 
 	// Submit Orders
 	err := order.Submit()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(OrderStatusSUBMITTED, order.Status, "expected Submitted")
 
 	// Can cancel orders
 	err = order.Cancel()
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(OrderStatusCANCELED, order.Status, "expected Canceled")
 }
 
@@ -236,17 +236,17 @@ func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
 		Show:         swag.Bool(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 	suite.MustSave(move)
 
 	err = move.Submit(time.Now())
-	suite.Nil(err)
+	suite.NoError(err)
 
 	reason := "Mistaken identity"
 	err = move.Cancel(reason)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
 	suite.Equal(OrderStatusCANCELED, move.Orders.Status, "expected Canceled")
 
