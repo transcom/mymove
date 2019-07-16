@@ -206,8 +206,18 @@ describe('allows a SM to continue requesting a payment', function() {
 
     cy
       .get('button')
-      .contains('Cancel')
+      .contains('Finish Later')
       .click();
+
+    cy
+      .get('button')
+      .contains('OK')
+      .click();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/$/);
+    });
+
     cy
       .get('.usa-button-secondary')
       .contains('Continue Requesting Payment')
@@ -231,7 +241,7 @@ describe('allows a SM to request a payment', function() {
     cy.signInAsUserPostRequest(milmoveAppName, smId);
   });
 
-  it('service member reads introduction to ppm payment and cancels to go back to homepage', () => {
+  it('service member reads introduction to ppm payment and goes back to homepage', () => {
     serviceMemberStartsPPMPaymentRequestWithAssertions();
   });
 
