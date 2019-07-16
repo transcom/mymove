@@ -458,7 +458,7 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 			err := queryBuilder.FetchOne(&adminUser, filters)
 			if err == models.ErrFetchNotFound {
 				h.logger.Error("Non-admin user authenticated at admin site", zap.String("email", session.Email))
-				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return
 			} else if err != nil {
 				h.logger.Error("Checking for admin user", zap.String("email", session.Email), zap.Error(err))
