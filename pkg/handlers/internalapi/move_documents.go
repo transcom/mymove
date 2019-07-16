@@ -260,18 +260,6 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 
 			ppm.TotalSITCost = &newCost
 		}
-
-		// // If this is a weight ticket set, make changes to the empty weight and full weight
-		// if moveDoc.MoveDocumentType == models.MoveDocumentTypeWEIGHTTICKETSET {
-		// 	weightTicketSet, err := models.FetchWeightTicketSetDocument(h.DB(), session, moveDocID)
-		// 	if err != nil {
-		// 		return handlers.ResponseForError(logger, err)
-		// 	}
-		// 	emptyPounds := unit.Pound(*payload.EmptyWeight)
-		// 	fullPounds := unit.Pound(*payload.FullWeight)
-		// 	weightTicketSet.EmptyWeight = &emptyPounds
-		// 	weightTicketSet.FullWeight = &fullPounds
-		// }
 	}
 
 	var saveExpenseAction models.MoveExpenseDocumentSaveAction
