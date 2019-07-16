@@ -315,16 +315,14 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 		weightTicketDate := (*time.Time)(payload.WeightTicketDate)
 		if moveDoc.WeightTicketSetDocument == nil {
 			moveDoc.WeightTicketSetDocument = &models.WeightTicketSetDocument{
-				MoveDocumentID:           moveDoc.ID,
-				MoveDocument:             *moveDoc,
-				EmptyWeight:              &emptyWeight,
-				EmptyWeightTicketMissing: *payload.EmptyWeightTicketMissing,
-				FullWeight:               &fullWeight,
-				FullWeightTicketMissing:  *payload.FullWeightTicketMissing,
-				VehicleNickname:          payload.VehicleNickname,
-				VehicleOptions:           payload.VehicleOptions,
-				WeightTicketDate:         weightTicketDate,
-				TrailerOwnershipMissing:  *payload.TrailerOwnershipMissing,
+				MoveDocumentID:          moveDoc.ID,
+				MoveDocument:            *moveDoc,
+				EmptyWeight:             &emptyWeight,
+				FullWeight:              &fullWeight,
+				VehicleNickname:         payload.VehicleNickname,
+				VehicleOptions:          payload.VehicleOptions,
+				WeightTicketDate:        weightTicketDate,
+				TrailerOwnershipMissing: *payload.TrailerOwnershipMissing,
 			}
 		} else {
 			moveDoc.WeightTicketSetDocument.EmptyWeight = &emptyWeight

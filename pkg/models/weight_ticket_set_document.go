@@ -52,20 +52,3 @@ func (m *WeightTicketSetDocument) ValidateCreate(tx *pop.Connection) (*validate.
 func (m *WeightTicketSetDocument) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
-
-// // FetchWeightTicketSetDocument fetches a WeightTicketSetDocument model
-// func FetchWeightTicketSetDocument(db *pop.Connection, session *auth.Session, moveDocumentID uuid.UUID) (*WeightTicketSetDocument, error) {
-// 	// Allow all office users to fetch move doc
-// 	if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
-// 		return &WeightTicketSetDocument{}, ErrFetchForbidden
-// 	}
-
-// 	var weightTicketSetDocument WeightTicketSetDocument
-// 	err := db.Where("move_document_id = ?", moveDocumentID).First(&weightTicketSetDocument)
-
-// 	if err != nil {
-// 		return &weightTicketSetDocument, err
-// 	}
-
-// 	return &weightTicketSetDocument, nil
-// }
