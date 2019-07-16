@@ -16,7 +16,7 @@ func (suite *cliTestSuite) TestConfigAWS() {
 	}
 	suite.Setup(InitAWSFlags, flagSet)
 	region, err := CheckAWSRegion(suite.viper)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(endpoints.UsWest2RegionID, region)
 }
 
@@ -24,16 +24,16 @@ func (suite *cliTestSuite) TestCheckAWSRegionForService() {
 	region := endpoints.UsWest2RegionID
 
 	err := CheckAWSRegionForService(region, cloudwatchevents.ServiceName)
-	suite.Nil(err)
+	suite.NoError(err)
 
 	err = CheckAWSRegionForService(region, ecs.ServiceName)
-	suite.Nil(err)
+	suite.NoError(err)
 
 	// This service is not listed in endpoints.AwsPartition().Services()
 	// Want this to pass anyway
 	err = CheckAWSRegionForService(region, ecr.ServiceName)
-	suite.Nil(err)
+	suite.NoError(err)
 
 	err = CheckAWSRegionForService(region, rds.ServiceName)
-	suite.Nil(err)
+	suite.NoError(err)
 }

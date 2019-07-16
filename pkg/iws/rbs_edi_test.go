@@ -4,7 +4,7 @@ import "net/url"
 
 func (suite *iwsSuite) TestBuildEdiURL() {
 	urlString, err := buildEdiURL("example.com", "1234", 1234567890)
-	suite.Nil(err)
+	suite.NoError(err)
 	parsedURL, parseErr := url.Parse(urlString)
 	suite.Nil(parseErr)
 	suite.Equal("https", parsedURL.Scheme)
@@ -52,7 +52,7 @@ func (suite *iwsSuite) TestParseEdiResponse() {
 		</adrRecord>
 	</record>`
 	person, personnel, err := parseEdiResponse([]byte(data))
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.NotNil(person)
 	suite.Equal("xxxx12345", person.ID)
 	suite.NotEmpty(personnel)

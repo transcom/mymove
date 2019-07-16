@@ -2644,6 +2644,26 @@ definitions:
         format: date-time
         example: 2017-07-21T17:32:28Z
         x-nullable: true
+      origin_gbloc:
+        type: string
+        example: LKNQ
+        title: Origin GBLOC
+        x-nullable: true
+      destination_gbloc:
+        type: string
+        example: LKNQ
+        title: Destination GBLOC
+        x-nullable: true
+      delivered_date:
+        type: string
+        format: date-time
+        example: 2017-07-21T17:32:28Z
+        x-nullable: true
+      invoice_approved_date:
+        type: string
+        format: date-time
+        example: 2017-07-21T17:32:28Z
+        x-nullable: true
     required:
       - id
       - status

@@ -404,9 +404,12 @@ mocks_generate: .mocks_generate.stamp ## Generate mockery mocks for tests
 .PHONY: server_test
 server_test: server_deps server_generate mocks_generate db_test_reset db_test_migrate ## Run server unit tests
 	# Don't run tests in /cmd or /pkg/gen & pass `-short` to exclude long running tests
-	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
-	DB_PORT=$(DB_PORT_TEST) go test -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+	DB_PORT=$(DB_PORT_TEST) go test -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+
+server_test_build:
+	# Try to compile tests, but don't run them.
+	go test -run=nope -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_all
 server_test_all: server_deps server_generate mocks_generate db_dev_reset db_dev_migrate ## Run all server unit tests

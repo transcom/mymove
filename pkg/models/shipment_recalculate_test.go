@@ -68,7 +68,7 @@ func (suite *ModelSuite) TestShipmentRecalculateTooManyActiveRecord() {
 		}
 		verrs, err := suite.DB().ValidateAndCreate(&newRecalculateDates)
 		suite.Empty(verrs.Error())
-		suite.Nil(err)
+		suite.NoError(err)
 
 		id = uuid.Must(uuid.NewV4())
 		newRecalculateDates = models.ShipmentRecalculate{
@@ -78,7 +78,7 @@ func (suite *ModelSuite) TestShipmentRecalculateTooManyActiveRecord() {
 		}
 		verrs, err = suite.DB().ValidateAndCreate(&newRecalculateDates)
 		suite.Empty(verrs.Error())
-		suite.Nil(err)
+		suite.NoError(err)
 
 		fetchDates, err := models.FetchShipmentRecalculateDates(suite.DB())
 		suite.EqualError(err, "Too many active re-calculate date records")
@@ -103,7 +103,7 @@ func (suite *ModelSuite) TestShipmentRecalculateFetchActiveRecord() {
 		}
 		verrs, err := suite.DB().ValidateAndCreate(&newRecalculateDatesActive)
 		suite.Empty(verrs.Error())
-		suite.Nil(err)
+		suite.NoError(err)
 
 		id = uuid.Must(uuid.NewV4())
 
@@ -115,10 +115,10 @@ func (suite *ModelSuite) TestShipmentRecalculateFetchActiveRecord() {
 		}
 		verrs, err = suite.DB().ValidateAndCreate(&newRecalculateDatesNotActive)
 		suite.Empty(verrs.Error())
-		suite.Nil(err)
+		suite.NoError(err)
 
 		fetchDates, err := models.FetchShipmentRecalculateDates(suite.DB())
-		suite.Nil(err)
+		suite.NoError(err)
 		suite.Empty(verrs.Error())
 		suite.NotNil(fetchDates)
 
