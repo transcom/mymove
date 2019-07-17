@@ -167,11 +167,11 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		pop.Debug = true
 	}
 
-	migrationPath := expandPaths(strings.Split(v.GetString(cli.MigrationPathFlag), ";"))
-	logger.Info(fmt.Sprintf("using migration path %q", migrationPath))
+	migrationPaths := expandPaths(strings.Split(v.GetString(cli.MigrationPathFlag), ";"))
+	logger.Info(fmt.Sprintf("using migration paths %q", migrationPaths))
 
 	s3Migrations := false
-	for _, p := range migrationPath {
+	for _, p := range migrationPaths {
 		if strings.HasPrefix(p, "s3://") {
 			s3Migrations = true
 			break
@@ -226,7 +226,7 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	migrationFiles := map[string][]string{}
-	for _, p := range migrationPath {
+	for _, p := range migrationPaths {
 		filenames, errListFiles := migrate.ListFiles(p, s3Client)
 		if errListFiles != nil {
 			logger.Fatal("Error listing migrations directory", zap.Error(errListFiles))
