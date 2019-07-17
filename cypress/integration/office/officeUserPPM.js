@@ -187,6 +187,28 @@ function officeUserVerifiesOrders(moveLocator) {
   cy.get('span').contains('ISSUING AGENCY');
   cy.get('span').contains('FP-TP');
 
+  // Enter SAC
+  cy.get('.combo-button button').should('be.disabled');
+
+  // Click on edit orders
+  cy
+    .get('.editable-panel-header')
+    .contains('Accounting')
+    .siblings()
+    .click();
+
+  cy.get('input[name="sac"]').type('SAC');
+
+  cy
+    .get('button')
+    .contains('Save')
+    .should('be.enabled');
+
+  cy
+    .get('button')
+    .contains('Save')
+    .click();
+
   // Refresh browser and make sure changes persist
   cy.patientReload();
 

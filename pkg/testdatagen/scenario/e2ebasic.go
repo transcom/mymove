@@ -310,39 +310,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	models.SaveMoveDependencies(db, &ppmToCancel.Move)
 
 	/*
-	 * A move with empty SAC, where SAC will be added by e2e test.
-	 */
-	email = "no-sac@example.com"
-	uuidStr = "e10d5964-c070-49cb-9bd1-eaf9f7348eb8"
-	testdatagen.MakeUser(db, testdatagen.Assertions{
-		User: models.User{
-			ID:            uuid.Must(uuid.FromString(uuidStr)),
-			LoginGovEmail: email,
-		},
-	})
-	ppmNoSAC := testdatagen.MakePPM(db, testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("94ced723-fabc-42af-b9ee-87f8986bb5c0"),
-			UserID:        uuid.FromStringOrNil(uuidStr),
-			FirstName:     models.StringPointer("PPM"),
-			LastName:      models.StringPointer("Submitted"),
-			Edipi:         models.StringPointer("1234567890"),
-			PersonalEmail: models.StringPointer(email),
-		},
-		Move: models.Move{
-			ID:      uuid.FromStringOrNil("0db80bd6-de75-439e-bf89-deaafa1d0dc0"),
-			Locator: "NILSAC",
-		},
-		PersonallyProcuredMove: models.PersonallyProcuredMove{
-			OriginalMoveDate: &nextValidMoveDate,
-		},
-		Uploader: loader,
-	})
-
-	ppmNoSAC.Move.Submit(time.Now())
-	models.SaveMoveDependencies(db, &ppmNoSAC.Move)
-
-	/*
 	 * Service member with a ppm in progress
 	 */
 	email = "ppm.in@progre.ss"
@@ -2989,6 +2956,7 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 		Order: models.Order{
 			IssueDate:        time.Date(testdatagen.TestYear, time.May, 20, 0, 0, 0, 0, time.UTC),
 			OrdersTypeDetail: &ordersTypeDetail,
+			SAC:              models.StringPointer("sac"),
 		},
 		Move: models.Move{
 			ID:               moveID2,
