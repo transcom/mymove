@@ -816,7 +816,7 @@ tasks_save_fuel_price_data: tasks_build_linux_docker ## Run save-fuel-price-data
 #
 
 .PHONY: run_prod_migrations
-run_prod_migrations: server_deps bin/milmove ## Run Prod migrations against Deployed Migrations DB
+run_prod_migrations: server_deps bin/milmove db_deployed_migrations_reset ## Run Prod migrations against Deployed Migrations DB
 	@echo "Migrating the prod-migrations database with prod migrations..."
 	MIGRATION_PATH="s3://transcom-ppp-app-prod-us-west-2/secure-migrations;file://migrations" \
 	DB_HOST=localhost \
@@ -825,7 +825,7 @@ run_prod_migrations: server_deps bin/milmove ## Run Prod migrations against Depl
 	bin/milmove migrate
 
 .PHONY: run_staging_migrations
-run_staging_migrations: server_deps bin/milmove ## Run Staging migrations against Deployed Migrations DB
+run_staging_migrations: server_deps bin/milmove db_deployed_migrations_reset ## Run Staging migrations against Deployed Migrations DB
 	@echo "Migrating the prod-migrations database with staging migrations..."
 	MIGRATION_PATH="s3://transcom-ppp-app-staging-us-west-2/secure-migrations;file://migrations" \
 	DB_HOST=localhost \
@@ -834,7 +834,7 @@ run_staging_migrations: server_deps bin/milmove ## Run Staging migrations agains
 	bin/milmove migrate
 
 .PHONY: run_experimental_migrations
-run_experimental_migrations: server_deps bin/milmove ## Run Experimental migrations against Deployed Migrations DB
+run_experimental_migrations: server_deps bin/milmove db_deployed_migrations_reset ## Run Experimental migrations against Deployed Migrations DB
 	@echo "Migrating the prod-migrations database with experimental migrations..."
 	MIGRATION_PATH="s3://transcom-ppp-app-experimental-us-west-2/secure-migrations;file://migrations" \
 	DB_HOST=localhost \

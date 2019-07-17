@@ -61,7 +61,11 @@ ${aws_command} s3 ls "${aws_bucket_prefix}${environments[0]}${aws_bucket_suffix}
 
 echo "Testing migrations ... (This could be several minutes!)"
 
-SECURE_MIGRATION_SOURCE=local ./scripts/run-deployed-migrations "${DB_NAME_DEPLOYED_MIGRATIONS}"
+MIGRATION_PATH="file://local_migrations;file://migrations" \
+  DB_HOST=localhost \
+  DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
+  DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+  bin/milmove migrate
 
 echo "Testing migrations was successful!"
 echo
