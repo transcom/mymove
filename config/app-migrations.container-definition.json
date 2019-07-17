@@ -18,7 +18,8 @@
     "-p",
     "/migrate/migrations",
     "-m",
-    "/migrate/migrations_manifest.txt"
+    "/migrate/migrations_manifest.txt",
+    "--db-iam"
   ],
   "command": [],
   "portMappings": [],
