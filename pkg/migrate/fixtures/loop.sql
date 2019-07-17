@@ -86,8 +86,3 @@ DO $do$
           END LOOP;
       END LOOP;
   END $do$;
-
--- Now add a unique constraint for the invoice number and set the shipment_id to non-nullable.
-ALTER TABLE invoices
-  ADD CONSTRAINT unique_invoice_number UNIQUE (invoice_number),
-  ALTER COLUMN shipment_id SET NOT NULL;
