@@ -3,36 +3,25 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import './index.css';
 
-//this is taken from https://designsystem.digital.gov/components/alerts/
-class AlertWithConfirmation extends Component {
-  cancelActionHandler = () => {
-    return this.props.cancelActionHandler;
-  };
-
-  confirmActionHandler = () => {
-    return this.props.okActionHandler;
-  };
-
-  render() {
-    return (
-      <div className={`usa-alert usa-alert-${this.props.type} usa-width-one-whole`}>
-        <div className="usa-alert-body usa-width-one-whole">
-          <div className="body--heading">
-            <div>{this.props.heading && <h3 className="usa-alert-heading">{this.props.heading}</h3>}</div>
-            <div className="usa-alert-text">{this.props.message}</div>
-            <div className="cancel-or-ok-buttons">
-              <button type="button" className="usa-button-secondary" onClick={this.cancelActionHandler()}>
-                Cancel
-              </button>
-              <button type="button" className="usa-button" onClick={this.confirmActionHandler()}>
-                OK
-              </button>
-            </div>
+export function AlertWithConfirmation(props) {
+  return (
+    <div className={`usa-alert usa-alert-${props.type} usa-width-one-whole`}>
+      <div className="usa-alert-body usa-width-one-whole">
+        <div className="body--heading">
+          <div>{props.heading && <h3 className="usa-alert-heading">{props.heading}</h3>}</div>
+          <div className="usa-alert-text">{props.message}</div>
+          <div className="cancel-or-ok-buttons">
+            <button type="button" className="usa-button-secondary" onClick={props.cancelActionHandler}>
+              Cancel
+            </button>
+            <button type="button" className="usa-button" onClick={props.okActionHandler}>
+              OK
+            </button>
           </div>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 }
 
 const requiredPropsCheck = (props, propName, componentName) => {

@@ -6,33 +6,28 @@ import './PPMPaymentRequest.css';
 import AlertWithConfirmation from 'shared/AlertWithConfirmation';
 
 class PPMPaymentRequestActionBtns extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      hasConfirmation: props.hasConfirmation,
-      displayConfirmation: false,
-    };
+  state = {
+    hasConfirmation: this.props.hasConfirmation,
+    displayConfirmation: false,
+  };
 
-    this.showConfirmationOrFinishLater = formValues => {
-      const { history, hasConfirmation } = this.props;
+  showConfirmationOrFinishLater = formValues => {
+    const { history, hasConfirmation } = this.props;
 
-      if (!hasConfirmation) {
-        return history.push('/');
-      }
+    if (!hasConfirmation) {
+      return history.push('/');
+    }
 
-      this.setState({ displayConfirmation: true });
-      return;
-    };
+    this.setState({ displayConfirmation: true });
+  };
 
-    this.cancelConfirmationHandler = () => {
-      this.setState({ displayConfirmation: false });
-      return;
-    };
+  cancelConfirmationHandler = () => {
+    this.setState({ displayConfirmation: false });
+  };
 
-    this.confirmFinishLater = () => {
-      return this.props.history.push('/');
-    };
-  }
+  confirmFinishLater = () => {
+    this.props.history.push('/');
+  };
 
   render() {
     const {
