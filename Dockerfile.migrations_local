@@ -4,8 +4,8 @@ COPY bin_linux/milmove /bin/milmove
 COPY bin_linux/generate-test-data /bin/generate-test-data
 
 COPY migrations /migrate/migrations
+COPY local_migrations /migrate/local_migrations
 COPY migrations_manifest.txt /migrate/migrations_manifest.txt
-COPY local_migrations /migrate/local
 RUN mkdir -p /bin/pkg/testdatagen/testdata/
 COPY pkg/testdatagen/testdata/test.pdf /bin/pkg/testdatagen/testdata/test.pdf
 
