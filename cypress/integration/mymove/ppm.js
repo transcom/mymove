@@ -206,8 +206,18 @@ describe('allows a SM to continue requesting a payment', function() {
 
     cy
       .get('button')
-      .contains('Cancel')
+      .contains('Finish Later')
       .click();
+
+    cy
+      .get('button')
+      .contains('OK')
+      .click();
+
+    cy.location().should(loc => {
+      expect(loc.pathname).to.match(/^\/$/);
+    });
+
     cy
       .get('.usa-button-secondary')
       .contains('Continue Requesting Payment')
@@ -231,7 +241,7 @@ describe('allows a SM to request a payment', function() {
     cy.signInAsUserPostRequest(milmoveAppName, smId);
   });
 
-  it('service member reads introduction to ppm payment and cancels to go back to homepage', () => {
+  it('service member reads introduction to ppm payment and goes back to homepage', () => {
     serviceMemberStartsPPMPaymentRequestWithAssertions();
   });
 
@@ -246,7 +256,7 @@ describe('allows a SM to request a payment', function() {
 
   it('service member can save a weight ticket for later', () => {
     cy.visit(`/moves/${moveID}/ppm-weight-ticket`);
-    serviceMemberSavesWeightTicketForLater('BOX_TRUCK');
+    serviceMemberCanFinishWeightTicketLater('BOX_TRUCK');
   });
 
   it('service member submits weight tickets without any documents', () => {
@@ -568,7 +578,7 @@ function serviceMemberSubmitsCarTrailerWeightTicket() {
   cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('not.be.checked');
   cy.get('input[name="additional_weight_ticket"][value="No"]').should('be.checked');
 }
-function serviceMemberSavesWeightTicketForLater(vehicleType) {
+function serviceMemberCanFinishWeightTicketLater(vehicleType) {
   cy.get('select[name="vehicle_options"]').select(vehicleType);
 
   cy.get('input[name="vehicle_nickname"]').type('Nickname');
@@ -589,12 +599,28 @@ function serviceMemberSavesWeightTicketForLater(vehicleType) {
 
   cy
     .get('button')
-    .contains('Save For Later')
+    .contains('Finish Later')
     .click();
+
   cy
-    .wait('@postWeightTicket')
-    .its('status')
-    .should('eq', 200);
+    .get('button')
+    .contains('Cancel')
+    .click();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-weight-ticket/);
+  });
+
+  cy
+    .get('button')
+    .contains('Finish Later')
+    .click();
+
+  cy
+    .get('button')
+    .contains('OK')
+    .click();
+
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/$/);
   });
