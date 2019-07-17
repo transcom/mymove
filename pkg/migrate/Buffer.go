@@ -9,7 +9,8 @@ import (
 )
 
 var (
-	ErrWait = errors.New("wait for input")
+	ErrWait   = errors.New("wait for input")
+	ErrClosed = errors.New("buffer is closed for writing")
 )
 
 // Buffer is a wrapper around strings.Builder for concurrent loading and reading.
@@ -50,6 +51,9 @@ func (b *Buffer) Len() int {
 
 // WriteString writes a string to the buffer
 func (b *Buffer) WriteString(x string) (int, error) {
+	if b.closed {
+		return -1, ErrClosed
+	}
 	b.Lock()
 	n, err := b.buffer.WriteString(x)
 	b.Unlock()
@@ -58,6 +62,9 @@ func (b *Buffer) WriteString(x string) (int, error) {
 
 // WriteByte writes a byte to the buffer
 func (b *Buffer) WriteByte(x byte) error {
+	if b.closed {
+		return ErrClosed
+	}
 	b.Lock()
 	err := b.buffer.WriteByte(x)
 	b.Unlock()
@@ -66,6 +73,9 @@ func (b *Buffer) WriteByte(x byte) error {
 
 // WriteRune writes a rune to the buffer
 func (b *Buffer) WriteRune(x rune) (int, error) {
+	if b.closed {
+		return -1, ErrClosed
+	}
 	b.Lock()
 	n, err := b.buffer.WriteRune(x)
 	b.Unlock()
