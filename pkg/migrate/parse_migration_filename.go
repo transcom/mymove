@@ -26,6 +26,7 @@ func ParseMigrationFilename(filename string) (*pop.Match, error) {
 	if len(matches) == 0 {
 		return nil, nil
 	}
+	// See test to understand regex
 	m := matches[0]
 
 	dbType := ""
