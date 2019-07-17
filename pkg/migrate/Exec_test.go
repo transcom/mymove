@@ -15,12 +15,12 @@ func (suite *MigrateSuite) TestExecWithDeleteUsersSQL() {
 
 	// Load the fixture with the sql example
 	f, err := os.Open("./fixtures/deleteUsers.sql")
-	suite.Nil(err)
+	suite.NoError(err)
 
 	errTransaction := suite.DB().Transaction(func(tx *pop.Connection) error {
 		wait := 10 * time.Millisecond
 		err := Exec(f, tx, wait)
-		suite.Nil(err)
+		suite.NoError(err)
 		return err
 	})
 	suite.NoError(errTransaction)
@@ -44,12 +44,12 @@ func (suite *MigrateSuite) TestExecWithCopyFromStdinSQL() {
 
 	// Load the fixture with the sql example
 	f, err := os.Open("./fixtures/copyFromStdin.sql")
-	suite.Nil(err)
+	suite.NoError(err)
 
 	errTransaction := suite.DB().Transaction(func(tx *pop.Connection) error {
 		wait := 10 * time.Millisecond
 		err := Exec(f, tx, wait)
-		suite.Nil(err)
+		suite.NoError(err)
 		return err
 	})
 	suite.NoError(errTransaction)
@@ -59,12 +59,12 @@ func (suite *MigrateSuite) TestExecWithLoopSQL() {
 
 	// Load the fixture with the sql example
 	f, err := os.Open("./fixtures/loop.sql")
-	suite.Nil(err)
+	suite.NoError(err)
 
 	errTransaction := suite.DB().Transaction(func(tx *pop.Connection) error {
 		wait := 10 * time.Millisecond
 		err := Exec(f, tx, wait)
-		suite.Nil(err)
+		suite.NoError(err)
 		return err
 	})
 	suite.NoError(errTransaction)
@@ -74,12 +74,12 @@ func (suite *MigrateSuite) TestExecWithUpdateFromSetSQL() {
 
 	// Load the fixture with the sql example
 	f, err := os.Open("./fixtures/update_from_set.sql")
-	suite.Nil(err)
+	suite.NoError(err)
 
 	errTransaction := suite.DB().Transaction(func(tx *pop.Connection) error {
 		wait := 10 * time.Millisecond
 		err := Exec(f, tx, wait)
-		suite.Nil(err)
+		suite.NoError(err)
 		return err
 	})
 	suite.NoError(errTransaction)
@@ -89,19 +89,19 @@ func (suite *MigrateSuite) TestExecWithInsertConflictSQL() {
 
 	// Create Transportation Office
 	testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{
-		TrafficDistributionList: models.TrafficDistributionList{
-			ID: uuid.Must(uuid.FromString("27f1fbeb-090c-4a91-955c-67899de4d6d6")),
+		TransportationOffice: models.TransportationOffice{
+			ID: uuid.Must(uuid.FromString("c219d9e5-2659-427d-be33-bf439251b7f3")),
 		},
 	})
 
 	// Load the fixture with the sql example
 	f, err := os.Open("./fixtures/insert_conflict.sql")
-	suite.Nil(err)
+	suite.NoError(err)
 
 	errTransaction := suite.DB().Transaction(func(tx *pop.Connection) error {
 		wait := 10 * time.Millisecond
 		err := Exec(f, tx, wait)
-		suite.Nil(err)
+		suite.NoError(err)
 		return err
 	})
 	suite.NoError(errTransaction)
