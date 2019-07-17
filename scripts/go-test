@@ -4,4 +4,4 @@
 #   For example: scripts/go-test ./pkg/models
 #
 
-DB_PORT=$DB_PORT_TEST go test "$@"
+go test "$@"
