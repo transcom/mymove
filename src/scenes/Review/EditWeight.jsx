@@ -187,6 +187,7 @@ class EditWeight extends Component {
     const { currentPpm, entitlement, originDutyStationZip } = this.props;
     if (newValue > 0 && newValue <= entitlement.sum) {
       this.debouncedGetPpmWeightEstimate(
+        currentPpm.id,
         currentPpm.original_move_date,
         currentPpm.pickup_postal_code,
         originDutyStationZip,
