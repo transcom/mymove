@@ -531,7 +531,11 @@ class MoveInfo extends Component {
                 </div>
               )}
               {showDocumentViewer && (
-                <DocumentList detailUrlPrefix={`/moves/${this.props.moveId}/documents`} moveDocuments={moveDocuments} />
+                <DocumentList
+                  detailUrlPrefix={`/moves/${this.props.moveId}/documents`}
+                  moveDocuments={moveDocuments}
+                  uploadUrlPrefix={`/moves/${this.props.moveId}/documents/new`}
+                />
               )}
             </div>
           </div>

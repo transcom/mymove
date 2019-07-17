@@ -2,8 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { renderStatusIcon } from 'shared/utils';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import { faPlusCircle } from '@fortawesome/fontawesome-free-solid';
 
-const DocumentList = ({ currentMoveDocumentId, moveDocuments, detailUrlPrefix, disableLinks }) => (
+const documentUploadIcon = faPlusCircle;
+
+const DocumentList = ({ currentMoveDocumentId, moveDocuments, detailUrlPrefix, disableLinks, uploadUrlPrefix }) => (
   <div>
     {moveDocuments.map(doc => {
       const chosenDocument = currentMoveDocumentId === doc.id ? 'chosen-document' : null;
@@ -21,6 +25,12 @@ const DocumentList = ({ currentMoveDocumentId, moveDocuments, detailUrlPrefix, d
         </div>
       );
     })}
+    {uploadUrlPrefix && (
+      <div className="document-upload-link">
+        <FontAwesomeIcon className="icon link-blue" icon={documentUploadIcon} />
+        <Link to={uploadUrlPrefix}>Upload new document</Link>
+      </div>
+    )}
   </div>
 );
 
@@ -35,6 +45,7 @@ DocumentList.propTypes = {
       title: PropTypes.string.isRequired,
     }),
   ).isRequired,
+  uploadUrlPrefix: PropTypes.string.isRequired,
 };
 
 export default DocumentList;

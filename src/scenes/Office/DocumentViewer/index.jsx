@@ -14,7 +14,7 @@ import { getRequestStatus } from 'shared/Swagger/selectors';
 import { loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import PrivateRoute from 'shared/User/PrivateRoute';
-import { Switch, Redirect, Link } from 'react-router-dom';
+import { Switch, Redirect } from 'react-router-dom';
 
 import DocumentUploadViewer from 'shared/DocumentViewer/DocumentUploadViewer';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
@@ -28,9 +28,6 @@ import {
 } from 'shared/Entities/modules/moveDocuments';
 import { stringifyName } from 'shared/utils/serviceMember';
 import { convertDollarsToCents } from 'shared/utils';
-
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 
 import DocumentDetailPanel from './DocumentDetailPanel';
 
@@ -166,18 +163,13 @@ class DocumentViewer extends Component {
               </TabList>
 
               <TabPanel>
-                <div className="pad-ns">
-                  <span className="status">
-                    <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
-                  </span>
-                  <Link to={newUrl}>Upload new document</Link>
-                </div>
                 <div>
                   {' '}
                   <DocumentList
                     currentMoveDocumentId={moveDocumentId}
                     detailUrlPrefix={`/moves/${moveId}/documents`}
                     moveDocuments={moveDocuments}
+                    uploadUrlPrefix={`/moves/${this.props.moveId}/documents/new`}
                   />
                 </div>
               </TabPanel>
