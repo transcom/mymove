@@ -8,6 +8,8 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 
+	"github.com/gofrs/uuid"
+
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -44,7 +46,11 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 		return handlers.ResponseForError(logger, err)
 	}
 
-	cost, err := engine.ComputePPM(unit.Pound(params.Weight),
+	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
+	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
+
+	costFromPickupZip, err := engine.ComputePPM(
+		unit.Pound(params.Weight),
 		params.OriginZip,
 		params.DestinationZip,
 		distanceMiles,
@@ -53,9 +59,27 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 		lhDiscount,
 		0.0,
 	)
-
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
+	}
+
+	costFromDutyStationZip, err := engine.ComputePPM(
+		unit.Pound(params.Weight),
+		ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode,
+		params.DestinationZip,
+		distanceMiles,
+		time.Time(params.OriginalMoveDate),
+		0, // We don't want any SIT charges
+		lhDiscount,
+		0.0,
+	)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	cost := costFromPickupZip
+	if costFromPickupZip.LinehaulChargeTotal.Int() > costFromDutyStationZip.LinehaulChargeTotal.Int() {
+		cost = costFromDutyStationZip
 	}
 
 	gcc := cost.GCC
