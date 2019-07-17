@@ -27,10 +27,10 @@ func (suite *MigrateSuite) TestBuilderCompile() {
 	})
 
 	// Create the builder and point to the fixture path
-	uri := "file://./fixtures"
+	uri := "file://./fixtures/loop.sql"
 	m := pop.Match{
-		Version:   "",
-		Name:      "",
+		Version:   "20190715144534",
+		Name:      "loop",
 		DBType:    "all",
 		Direction: "up",
 		Type:      "sql",
@@ -56,8 +56,8 @@ func (suite *MigrateSuite) TestBuilderCompileInvalidPath() {
 	// Create the builder and point to the fixture path
 	uri := "invalid_path"
 	m := pop.Match{
-		Version:   "",
-		Name:      "",
+		Version:   "20190715144534",
+		Name:      "invalid_path",
 		DBType:    "all",
 		Direction: "up",
 		Type:      "sql",
@@ -73,10 +73,10 @@ func (suite *MigrateSuite) TestBuilderCompileInvalidPath() {
 func (suite *MigrateSuite) TestBuilderCompileBadType() {
 
 	// Create the builder and point to the fixture path
-	uri := "file://./fixtures"
+	uri := "file://./fixtures/loop.sql"
 	m := pop.Match{
-		Version:   "",
-		Name:      "",
+		Version:   "20190715144534",
+		Name:      "loop",
 		DBType:    "all",
 		Direction: "up",
 		Type:      "bad_type",
@@ -92,10 +92,10 @@ func (suite *MigrateSuite) TestBuilderCompileBadType() {
 func (suite *MigrateSuite) TestBuilderCompileInvalidDirection() {
 
 	// Create the builder and point to the fixture path
-	uri := "file://./fixtures"
+	uri := "file://./fixtures/loop.sql"
 	m := pop.Match{
-		Version:   "",
-		Name:      "",
+		Version:   "20190715144534",
+		Name:      "loop",
 		DBType:    "all",
 		Direction: "bad_direction",
 		Type:      "sql",
@@ -111,10 +111,10 @@ func (suite *MigrateSuite) TestBuilderCompileInvalidDirection() {
 func (suite *MigrateSuite) TestBuilderCompileUnsupportedDialect() {
 
 	// Create the builder and point to the fixture path
-	uri := "file://./fixtures"
+	uri := "file://./fixtures/loop.sql"
 	m := pop.Match{
-		Version:   "",
-		Name:      "",
+		Version:   "20190715144534",
+		Name:      "loop",
 		DBType:    "bad_dialect",
 		Direction: "up",
 		Type:      "sql",
@@ -132,7 +132,7 @@ func (suite *MigrateSuite) TestBuilderCompileUpdateFromSetSQL() {
 	// Create the builder and point to the fixture path
 	uri := "file://./fixtures/update_from_set.sql"
 	m := pop.Match{
-		Version:   "00000",
+		Version:   "20190715144534",
 		Name:      "update_from_set",
 		DBType:    "all",
 		Direction: "up",
