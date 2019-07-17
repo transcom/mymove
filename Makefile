@@ -485,9 +485,7 @@ db_dev_reset: db_dev_destroy db_dev_run ## Reset Dev DB (destroy and run)
 .PHONY: db_dev_migrate_standalone ## Migrate Dev DB directly
 db_dev_migrate_standalone: bin/milmove
 	@echo "Migrating the ${DB_NAME_DEV} database..."
-	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
-	cd scripts && \
-		../bin/milmove migrate -p ../migrations -m ../migrations_manifest.txt
+	bin/milmove migrate -p "migrations;local_migrations" -m migrations_manifest.txt
 
 .PHONY: db_dev_migrate
 db_dev_migrate: server_deps db_dev_migrate_standalone ## Migrate Dev DB
