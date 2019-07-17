@@ -29,7 +29,8 @@ func (suite *MigrateSuite) TestBuilderCompile() {
 	// Create the builder and point to the fixture path
 	uri := "file://./fixtures/loop.sql"
 	m := pop.Match{
-		Version:   "20190715144534",
+		// Version MUST BE UNIQUE for this test to work
+		Version:   "20190715140000",
 		Name:      "loop",
 		DBType:    "all",
 		Direction: "up",
@@ -39,16 +40,17 @@ func (suite *MigrateSuite) TestBuilderCompile() {
 
 	// Compile the migration
 	wait := 10 * time.Millisecond
-	migration, err := builder.Compile(nil, wait)
-	suite.Nil(err)
+	migration, errCompile := builder.Compile(nil, wait)
+	suite.NoError(errCompile)
 	suite.NotNil(migration)
 
-	// Migrate to use the Runner
+	// Create a migrator and add the migration to it
 	migrator := pop.NewMigrator(suite.DB())
 	migrator.Migrations[migration.Direction] = append(migrator.Migrations[migration.Direction], *migration)
-	err = migrator.Up()
-	suite.Nil(err)
 
+	// Migrate to use the Runner
+	errUp := migrator.Up()
+	suite.NoError(errUp)
 }
 
 func (suite *MigrateSuite) TestBuilderCompileInvalidPath() {
