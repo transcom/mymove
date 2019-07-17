@@ -39,9 +39,6 @@ func execCopyFromStdin(in *Buffer, i int, tablename string, columns []string, tx
 		values := lineToValues(line)
 		_, err = stmt.Exec(values...)
 		if err != nil {
-			// For testing might want to disable sometimes
-			//fmt.Println("Error copying values into table:", err, ":", line)
-			//continue
 			return i, errors.Wrapf(err, "error executing copy from stdin with values %q", values)
 		}
 	}

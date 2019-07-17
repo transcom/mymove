@@ -24,7 +24,6 @@ func SplitStatements(lines chan string, statements chan string) {
 		in.Close()
 	}()
 
-	//statements := make([]string, 0)
 	quoted := 0
 	blocks := NewStack()
 	var stmt strings.Builder
@@ -34,7 +33,6 @@ func SplitStatements(lines chan string, statements chan string) {
 		c, err := in.Index(i)
 		if err != nil {
 			if err == io.EOF {
-				//fmt.Fprintln(os.Stderr, "received EOF")
 				break
 			} else if err == ErrWait {
 				fmt.Fprintln(os.Stderr, "waiting for 10 milliseconds")
@@ -57,7 +55,6 @@ func SplitStatements(lines chan string, statements chan string) {
 		if blocks.Empty() && quoted == 0 && c == ';' {
 			str := strings.TrimSpace(stmt.String() + ";")
 			if len(str) > 0 {
-				//statements = append(statements, stmt)
 				statements <- str
 				stmt.Reset()
 			}
@@ -235,11 +232,9 @@ func SplitStatements(lines chan string, statements chan string) {
 	if stmt.Len() > 0 {
 		str := strings.TrimSpace(stmt.String())
 		if len(str) > 0 {
-			//statements = append(statements, stmt)
 			statements <- str
 			stmt.Reset()
 		}
 	}
 	close(statements)
-	//return statements
 }

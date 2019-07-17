@@ -23,12 +23,9 @@ func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration) error {
 	i := 0
 	for {
 
-		//fmt.Println("Blocks:", blocks)
-
 		char, err := in.Index(i)
 		if err != nil {
 			if err == io.EOF {
-				//fmt.Fprintln(os.Stderr, "received EOF")
 				break
 			} else if err == ErrWait {
 				time.Sleep(wait)
@@ -84,9 +81,7 @@ func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration) error {
 
 			stmtString := stmt.String()
 
-			//fmt.Fprintln(os.Stderr, "stmt:", stmt.String())
 			match := copyStdinPattern.FindStringSubmatch(stmtString)
-			//fmt.Fprintln(os.Stderr, "match:", match)
 			if match != nil {
 				// See test to understand regex
 				var errCopyFromStdin error
@@ -174,7 +169,6 @@ func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration) error {
 					stmt.WriteString(block) // add token
 					stmt.WriteRune('\n')    // add trailing new line
 					blocks.Push(block)
-					//fmt.Println("Blocks:", blocks)
 					continue
 				}
 			}
