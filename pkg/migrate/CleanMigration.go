@@ -28,19 +28,7 @@ func CleanMigraton(r io.Reader, w chan string) {
 		if match == nil {
 			w <- line
 		} else {
-			// 0 : Full Line
-			// 1 : Whitespace Prefix
-			// 2 : COPY
-			// 3 : Whitespace
-			// 4 : table name
-			// 5 : whitespace
-			// 6 : list of columns
-			// 7 : whitespace
-			// 8 : FROM
-			// 9 : whitespace
-			// 10 : stdin
-			// 11 : ;
-			// 12 : whitespace
+			// See test to understand regex
 			prefix := fmt.Sprintf("INSERT INTO %s (%s) VALUES\n", match[4], match[6]) // #nosec
 			i := 0
 			for scanner.Scan() {
