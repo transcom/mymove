@@ -469,6 +469,7 @@ jobs:
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
+            DB_PORT_TEST: 5433
             DB_PORT: 5432
             DB_NAME: test_db
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
@@ -520,6 +521,7 @@ jobs:
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
+            DB_PORT_TEST: 5433
             DB_PORT: 5432
             DB_NAME: test_db
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
