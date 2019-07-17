@@ -52,3 +52,27 @@ fbfb095e-6ea3-4c1e-bd3d-7f131d73e295	2019-01-01	2019-05-14	27f1fbeb-090c-4a91-95
 `
 	suite.Equal(in.String(), expected)
 }
+
+func (suite *MigrateSuite) TestReadInSQLWithInsertConflictSQL() {
+
+	// Load the fixture with the sql example
+	fixture := "./fixtures/insert_conflict.sql"
+	f, err := os.Open(fixture)
+	suite.Nil(err)
+
+	in := NewBuffer()
+	dropComments := true
+	dropBlankLines := true
+	dropSearchPath := true
+
+	ReadInSQL(f, in, dropComments, dropBlankLines, dropSearchPath)
+
+	expected := `INSERT INTO office_users
+  VALUES('c219d9e5-2659-427d-be33-bf439251b7f3', NULL, 'Foo', 'Bar', '', 'foo.bar@example.com', '', 'c219d9e5-2659-427d-be33-bf439251b7f3', NOW(), NOW())
+  ON CONFLICT DO NOTHING;
+INSERT INTO office_users
+  VALUES('c219d9e5-2659-427d-be33-bf439251b7f3', NULL, 'Foo', 'Bar', '', 'foo.bar@example.com', '', 'c219d9e5-2659-427d-be33-bf439251b7f3', NOW(), NOW())
+  ON CONFLICT DO NOTHING;
+`
+	suite.Equal(in.String(), expected)
+}
