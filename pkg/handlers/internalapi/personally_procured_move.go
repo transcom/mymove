@@ -8,6 +8,7 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/auth"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -249,7 +250,7 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 	patchPPMWithPayload(ppm, params.PatchPersonallyProcuredMovePayload)
 
 	if needsEstimatesRecalculated {
-		err = h.updateEstimates(ppm, logger)
+		err = h.updateEstimates(ppm, logger, session)
 		if err != nil {
 			logger.Error("Unable to set calculated fields on PPM", zap.Error(err))
 			return handlers.ResponseForError(logger, err)
@@ -389,7 +390,7 @@ func dateForComparison(previousValue, newValue *time.Time) (value time.Time, val
 	return value, false, false
 }
 
-func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.PersonallyProcuredMove, logger Logger) error {
+func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.PersonallyProcuredMove, logger Logger, session *auth.Session) error {
 	re := rateengine.NewRateEngine(h.DB(), logger)
 	daysInSIT := 0
 	if ppm.HasSit != nil && *ppm.HasSit && ppm.DaysInStorage != nil {
@@ -419,9 +420,19 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 		return err
 	}
 
-	cost, err := re.ComputePPM(unit.Pound(*ppm.WeightEstimate), *ppm.PickupPostalCode, *ppm.DestinationPostalCode, distanceMiles, *ppm.OriginalMoveDate, daysInSIT, lhDiscount, sitDiscount)
+	costFromPickupZip, err := re.ComputePPM(unit.Pound(*ppm.WeightEstimate), *ppm.PickupPostalCode, *ppm.DestinationPostalCode, distanceMiles, *ppm.OriginalMoveDate, daysInSIT, lhDiscount, sitDiscount)
 	if err != nil {
 		return err
+	}
+
+	costFromDutyStationZip, err := re.ComputePPM(unit.Pound(*ppm.WeightEstimate), ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode, *ppm.DestinationPostalCode, distanceMiles, *ppm.OriginalMoveDate, daysInSIT, lhDiscount, sitDiscount)
+	if err != nil {
+		return err
+	}
+
+	cost := costFromPickupZip
+	if costFromPickupZip.LinehaulChargeTotal.Int() > costFromDutyStationZip.LinehaulChargeTotal.Int() {
+		cost = costFromDutyStationZip
 	}
 
 	mileage := int64(cost.LinehaulCostComputation.Mileage)
