@@ -6,6 +6,8 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 
+	"github.com/gofrs/uuid"
+
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -21,8 +23,7 @@ type ShowPPMEstimateHandler struct {
 
 // Handle calculates a PPM reimbursement range.
 func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middleware.Responder {
-
-	logger := h.LoggerFromRequest(params.HTTPRequest)
+	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	engine := rateengine.NewRateEngine(h.DB(), logger)
 
@@ -41,7 +42,11 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 		return handlers.ResponseForError(logger, err)
 	}
 
-	cost, err := engine.ComputePPM(unit.Pound(params.WeightEstimate),
+	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
+	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
+
+	costFromPickupZip, err := engine.ComputePPM(
+		unit.Pound(params.WeightEstimate),
 		params.OriginZip,
 		params.DestinationZip,
 		distanceMiles,
@@ -50,9 +55,27 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 		lhDiscount,
 		0.0,
 	)
-
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
+	}
+
+	costFromDutyStationZip, err := engine.ComputePPM(
+		unit.Pound(params.WeightEstimate),
+		ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode,
+		params.DestinationZip,
+		distanceMiles,
+		time.Time(params.OriginalMoveDate),
+		0, // We don't want any SIT charges
+		lhDiscount,
+		0.0,
+	)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	cost := costFromPickupZip
+	if costFromPickupZip.LinehaulChargeTotal.Int() < costFromDutyStationZip.LinehaulChargeTotal.Int() {
+		cost = costFromDutyStationZip
 	}
 
 	min := cost.GCC.MultiplyFloat64(0.95)
