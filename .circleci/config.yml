@@ -474,10 +474,8 @@ jobs:
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
             ENV: test
             ENVIRONMENT: test
-            MIGRATION_PATH: /home/circleci/transcom/mymove/migrations
-            MIGRATION_MANIFEST: /home/circleci/transcom/mymove/migrations_manifest.txt
-            SECURE_MIGRATION_DIR: /home/circleci/transcom/mymove/local_migrations
-            SECURE_MIGRATION_SOURCE: local
+            MIGRATION_PATH: "/home/circleci/transcom/mymove/local_migrations;/home/circleci/transcom/mymove/migrations"
+            MIGRATION_MANIFEST: "/home/circleci/transcom/mymove/migrations_manifest.txt"
 
       - announce_failure
 
