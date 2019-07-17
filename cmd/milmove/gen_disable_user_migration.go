@@ -5,11 +5,13 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 	"time"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 
 	"github.com/spf13/viper"
 
@@ -19,29 +21,47 @@ import (
 const (
 	// DisableUserMigrationFilenameFlag sql file containing the migration
 	DisableUserMigrationFilenameFlag string = "migration-filename"
+	DisableUserEmailFlag             string = "migration-email"
 )
 
 const (
 	// template for adding office users
 	disableUser string = `UPDATE admin_users
 SET disabled=true
-WHERE email='{{.EmailPrefix}}@truss.works';
+WHERE email='{{.EmailPrefix}}@{{.EmailDomain}}';
 
 UPDATE office_users
 SET disabled=true
-WHERE email='{{.EmailPrefix}}@truss.works';
+WHERE email='{{.EmailPrefix}}@{{.EmailDomain}}';
 
 UPDATE tsp_users
 SET disabled=true
-WHERE email='{{.EmailPrefix}}+pyvl@truss.works'
-	OR email='{{.EmailPrefix}}+dlxm@truss.works'
-	OR email='{{.EmailPrefix}}+ssow@truss.works';
+WHERE email='{{.EmailPrefix}}+pyvl@{{.EmailDomain}}'
+	OR email='{{.EmailPrefix}}+dlxm@{{.EmailDomain}}'
+	OR email='{{.EmailPrefix}}+ssow@{{.EmailDomain}}';
 `
 )
+
+func InitDisableUserFlags(flag *pflag.FlagSet) {
+	flag.StringP(DisableUserEmailFlag, "e", "", "Email address")
+	flag.StringP(DisableUserMigrationFilenameFlag, "n", "", "File name of the migration files for the new office users")
+}
+
+func initDisableUserMigrationFlags(flag *pflag.FlagSet) {
+	// Migration Config
+	cli.InitMigrationFlags(flag)
+
+	// Disable User
+	InitDisableUserFlags(flag)
+
+	// Sort command line flags
+	flag.SortFlags = true
+}
 
 // UserTemplate is a struct that stores the EmailPrefix from which to generate the migration
 type UserTemplate struct {
 	EmailPrefix string
+	EmailDomain string
 }
 
 func genDisableUserMigration(cmd *cobra.Command, args []string) error {
@@ -60,8 +80,16 @@ func genDisableUserMigration(cmd *cobra.Command, args []string) error {
 	migrationsPath := v.GetString(cli.MigrationPathFlag)
 	migrationManifest := v.GetString(cli.MigrationManifestFlag)
 	migrationFileName := v.GetString(DisableUserMigrationFilenameFlag)
+	migrationEmail := strings.Split(v.GetString(DisableUserEmailFlag), "@")
 
-	user := UserTemplate{EmailPrefix: "NAME"}
+	if len(migrationEmail) < 2 {
+		return fmt.Errorf("-e is required")
+	}
+
+	emailPrefix := migrationEmail[0]
+	emailDomain := migrationEmail[1]
+
+	user := UserTemplate{EmailPrefix: emailPrefix, EmailDomain: emailDomain}
 
 	secureMigrationName := fmt.Sprintf("%s_%s.up.sql", time.Now().Format(VersionTimeFormat), migrationFileName)
 	t1 := template.Must(template.New("disable_user").Parse(disableUser))

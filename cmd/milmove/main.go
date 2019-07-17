@@ -86,13 +86,13 @@ func main() {
 	genCommand.AddCommand(genOfficeUserMigrationCommand)
 
 	genDisableUserMigrationCommand := &cobra.Command{
-		Use:                   "disable-user-migration -n MIGRATION_NAME",
+		Use:                   "disable-user-migration -e EMAIL -n MIGRATION_NAME",
 		Short:                 "Generate migrations required for disabling a user",
 		Long:                  "Generate migrations required for disabling a user",
 		RunE:                  genDisableUserMigration,
 		DisableFlagsInUseLine: true,
 	}
-	initGenOfficeUserMigrationFlags(genDisableUserMigrationCommand.Flags())
+	initDisableUserMigrationFlags(genDisableUserMigrationCommand.Flags())
 	genCommand.AddCommand(genDisableUserMigrationCommand)
 
 	completionCommand := &cobra.Command{
