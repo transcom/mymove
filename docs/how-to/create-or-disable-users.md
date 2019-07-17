@@ -228,3 +228,9 @@ An example of disabling a DPS user by email:
 ```sql
 UPDATE dps_users SET disabled = true WHERE email = 'username@example.com';
 ```
+
+### Generating a migration to disable a specific user
+
+You can use the following `milmove` sub-command:
+
+`milmove gen disable-user-migration -n MIGRATION_NAME -e EMAIL`
