@@ -39,6 +39,8 @@ func ReadInSQL(in io.Reader, out *Buffer, dropComments bool, dropBlankLines bool
 				}
 			}
 
+			// closing parentheses aren't strictly required and wouldn't hit on this line if there was a space after
+			// search_path, so it has intentionally been left off
 			if bytes.Contains(line, []byte("pg_catalog.set_config('search_path'")) {
 				if dropSearchPath {
 					continue
