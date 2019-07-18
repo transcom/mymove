@@ -233,4 +233,4 @@ UPDATE dps_users SET disabled = true WHERE email = 'username@example.com';
 
 You can use the following `milmove` sub-command:
 
-`milmove gen disable-user-migration -n MIGRATION_NAME -e EMAIL`
+`milmove gen disable-user-migration -e EMAIL`
