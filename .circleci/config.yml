@@ -74,6 +74,7 @@ commands:
       - run:
           name: Run migrations
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
+          no_output_timeout: 60m
           environment:
             CHAMBER_RETRIES: 20
       - announce_failure
