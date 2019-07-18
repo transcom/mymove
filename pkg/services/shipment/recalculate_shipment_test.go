@@ -33,6 +33,23 @@ func (suite *ShipmentServiceSuite) helperDeliverAndPriceShipment() *models.Shipm
 		},
 	})
 
+	// Add storage in transit
+	authorizedStartDate := shipment.ActualPickupDate
+	actualStartDate := authorizedStartDate.Add(testdatagen.OneDay)
+	sit := testdatagen.MakeStorageInTransit(suite.DB(), testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID:          shipment.ID,
+			Shipment:            shipment,
+			EstimatedStartDate:  *authorizedStartDate,
+			AuthorizedStartDate: authorizedStartDate,
+			ActualStartDate:     &actualStartDate,
+			Status:              models.StorageInTransitStatusINSIT,
+			Location:            models.StorageInTransitLocationDESTINATION,
+		},
+	})
+
+	shipment.StorageInTransits = models.StorageInTransits{sit}
+
 	// Make sure there's a FuelEIADieselPrice
 	assertions := testdatagen.Assertions{}
 	assertions.FuelEIADieselPrice.BaselineRate = 6
@@ -108,13 +125,31 @@ func (suite *ShipmentServiceSuite) TestRecalculateShipmentCall() {
 	}
 	suite.Equal(true, updatedUnpack)
 
+	// Find 210 line item
+	updated210 := false
+	var item210 models.ShipmentLineItem
+	for _, item := range fetchedLineItems {
+		if item.Tariff400ngItem.Code == "210A" || item.Tariff400ngItem.Code == "210B" || item.Tariff400ngItem.Code == "210C" {
+			item210 = item
+			item.AmountCents = &zeroCents
+			item.AppliedRate = &zeroMillicents
+			updated210 = true
+			suite.MustSave(&item)
+			break
+		}
+	}
+	suite.Equal(true, updated210)
+
 	// Fetch shipment line items after saves
 	fetchedLineItems, err = models.FetchLineItemsByShipmentID(suite.DB(), &shipmentID)
 	suite.FatalNoError(err)
 
-	// Verify base shipment line item is  zero
+	// Verify base shipment line item is zero and 210 item is zero
 	for _, item := range fetchedLineItems {
 		if item.Tariff400ngItem.Code == "4A" {
+			suite.Equal(zeroCents, *item.AmountCents)
+		}
+		if item.Tariff400ngItem.Code == item210.Tariff400ngItem.Code {
 			suite.Equal(zeroCents, *item.AmountCents)
 		}
 	}
@@ -148,6 +183,21 @@ func (suite *ShipmentServiceSuite) TestRecalculateShipmentCall() {
 	// Verify all base shipment line items are present
 	allPresent = ProcessRecalculateShipment{}.hasAllBaseLineItems(fetchedLineItems)
 	suite.Equal(true, allPresent)
+
+	// Verify 210 line item is present
+	found210 := false
+	for _, item := range fetchedLineItems {
+		if item.Tariff400ngItem.Code == item210.Tariff400ngItem.Code {
+			// Date created should be greater than the old item210
+			suite.Equal(true, item.CreatedAt.After(item210.CreatedAt), "210 CreatedAt is updated")
+			// Price and Discount should be the same
+			suite.Equal(item210.AmountCents, item.AmountCents, "210 Price should be the same")
+			suite.Equal(item210.AppliedRate, item.AppliedRate, "210 Discount rate should be the same")
+			found210 = true
+			break
+		}
+	}
+	suite.Equal(true, found210)
 
 	// All items should be priced
 	// Verify base shipment line item is not zero

@@ -465,6 +465,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		handlerContext.SetNoSessionTimeout()
 	}
 
+	handlerContext.SetAppNames(appnames)
+
 	// Email
 	notificationSender := notifications.InitEmail(v, session, logger)
 	handlerContext.SetNotificationSender(notificationSender)

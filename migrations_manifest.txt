@@ -303,6 +303,7 @@
 20190607214336_add_missing_ownership_documentation_weight_ticket_documents.up.sql
 20190611192304_add_users.up.fizz
 20190612091000_add-office-tsp-dps-disable.up.fizz
+20190612150228_add_mileage_to_storage_in_transit.up.fizz
 20190612185213_add_receipt_missing_moving_expense_documents.up.sql
 20190613230926_add_suddath_to_tsp_users.up.fizz
 20190617155157_allow_certain_cac_read_all_electronic_orders.up.fizz

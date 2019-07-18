@@ -3,6 +3,7 @@ package rateengine
 import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -82,8 +83,11 @@ var tariff400ngItemPricing = map[string]pricer{
 
 	// Below are SIT-related codes, uncomment after SIT is implemented
 	// SIT P/D OT
-	// "210D": newFlatRatePricer(),
-	// "210E": newFlatRatePricer(),
+	"210A": newFlatRatePricer(),
+	"210B": newFlatRatePricer(),
+	"210C": newFlatRatePricer(),
+	//"210D": newFlatRatePricer(),
+	//"210E": newFlatRatePricer(),
 
 	// Pickup/delivery at third-party and self-storage warehouses
 	"225A": newFlatRatePricer(),
@@ -121,11 +125,11 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 	if shipmentLineItem.Location == models.ShipmentLineItemLocationDESTINATION {
 		zip = Zip5ToZip3(shipment.Move.Orders.NewDutyStation.Address.PostalCode)
 	}
-	shipDate := shipment.BookDate
 
+	shipDate := shipment.BookDate
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip, *shipDate)
 	if err != nil {
-		return FeeAndRate{}, errors.Wrap(err, "Fetching 400ng service area from db")
+		return FeeAndRate{}, errors.Wrapf(err, "Fetching 400ng service area from db for zip %s", zip)
 	}
 
 	var rateCents unit.Cents
@@ -140,6 +144,19 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 	} else if itemCode == "35A" {
 		// 35A is a Third Party Service (TPS) charge, allow user to enter dollar amount as quantity
 		rateCents = unit.Cents(100)
+	} else if itemCode == "210C" {
+		// If both 210C and 210F are both going to follow this path, consider changing this to
+		// if DiscountType == models.Tariff400ngItemDiscountTypeHHGLINEHAUL50 but for now
+		// we are only using 210C
+		linehaul210CRate, err := models.FetchBaseLinehaulRate(
+			re.db,
+			shipmentLineItem.Quantity1.ToUnitInt(),
+			*shipment.NetWeight,
+			*shipment.ActualPickupDate)
+		rateCents = linehaul210CRate
+		if err != nil {
+			re.logger.Error("Base Linehaul query didn't complete for 210C: ", zap.Error(err))
+		}
 	} else {
 		// Most rates should be in the tariff400ngItemRates table though
 
@@ -156,11 +173,10 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 			*shipDate,
 		)
 		if err != nil {
-			return FeeAndRate{}, errors.Wrap(err, "Fetching 400ng item rate from db")
+			return FeeAndRate{}, errors.Wrapf(err, "Fetching 400ng item rate from db for item code %s with effective item code %s", itemCode, effectiveItemCode)
 		}
 		rateCents = rate.RateCents
 	}
-
 	// Make sure we have a ShipmentOffer and TSPP if we need to apply a discount
 	hasTSPP := len(shipment.ShipmentOffers) == 0 || shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.ID == uuid.Nil
 	if shipmentLineItem.Tariff400ngItem.DiscountType != models.Tariff400ngItemDiscountTypeNONE && hasTSPP {
@@ -168,12 +184,14 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 	}
 
 	var discountRate *unit.DiscountRate
-	if shipmentLineItem.Tariff400ngItem.DiscountType == models.Tariff400ngItemDiscountTypeHHG || shipmentLineItem.Tariff400ngItem.DiscountType == models.Tariff400ngItemDiscountTypeHHGLINEHAUL50 {
+	// Removing the check for DiscountType == models.Tariff400ngItemDiscountTypeHHGLINEHAUL50 and explicitly checking for 210C, the
+	// only other item that falls under this type is 210F and we aren't currently processing this.
+	// For 210C, the linehaul rate table is used for pricing but the SIT discount rate is used for the discount rate.
+	if shipmentLineItem.Tariff400ngItem.DiscountType == models.Tariff400ngItemDiscountTypeHHG {
 		discountRate = &shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.LinehaulRate
-	} else if shipmentLineItem.Tariff400ngItem.DiscountType == models.Tariff400ngItemDiscountTypeSIT {
+	} else if shipmentLineItem.Tariff400ngItem.DiscountType == models.Tariff400ngItemDiscountTypeSIT || shipmentLineItem.Tariff400ngItem.Code == "210C" {
 		discountRate = &shipment.ShipmentOffers[0].TransportationServiceProviderPerformance.SITRate
 	}
-
 	// Weight-based items will pull final weight values from the shipment when available
 	appliedQuantity := shipmentLineItem.Quantity1
 	if _, ok := tariff400ngWeightBasedItems[itemCode]; ok {
@@ -195,25 +213,36 @@ func (re *RateEngine) ComputeShipmentLineItemCharge(shipmentLineItem models.Ship
 	return FeeAndRate{}, errors.New("Could not find pricing function for given code")
 }
 
-// PricePreapprovalRequestsForShipment for a shipment, computes prices for all approved pre-approval requests and populates amount_cents field and applied_rate on those models
-func (re *RateEngine) PricePreapprovalRequestsForShipment(shipment models.Shipment) ([]models.ShipmentLineItem, error) {
-	items, err := models.FetchApprovedPreapprovalRequestsByShipment(re.db, shipment)
+// PriceAdditionalRequestsForShipment for a shipment, computes prices for all approved pre-approval requests and populates amount_cents field and applied_rate on those models
+func (re *RateEngine) PriceAdditionalRequestsForShipment(shipment models.Shipment, storageInTransitLineItems []models.ShipmentLineItem) ([]models.ShipmentLineItem, error) {
+
+	var additionalItems models.ShipmentLineItems
+
+	// Fetch pre-approval items
+	preapprovalItems, err := models.FetchApprovedPreapprovalRequestsByShipment(re.db, shipment)
 	if err != nil {
 		return []models.ShipmentLineItem{}, err
 	}
+	additionalItems = append(additionalItems, preapprovalItems...)
 
-	for i := 0; i < len(items); i++ {
-		err := re.PricePreapprovalRequest(&items[i])
+	// Append storage in transit line items
+	additionalItems = append(additionalItems, storageInTransitLineItems...)
+
+	for i := 0; i < len(additionalItems); i++ {
+		err := re.PriceAdditionalRequest(&additionalItems[i])
 		if err != nil {
 			return []models.ShipmentLineItem{}, err
 		}
 	}
 
-	return items, nil
+	return additionalItems, nil
 }
 
-// PricePreapprovalRequest computes price for given pre-approval requests and populates amount_cents field and applied_rate on those models
-func (re *RateEngine) PricePreapprovalRequest(shipmentLineItem *models.ShipmentLineItem) error {
+// PriceAdditionalRequest computes price for:
+//     a.) given pre-approval requests
+//     b.) storage in transit line item
+// and populates amount_cents field and applied_rate on those models
+func (re *RateEngine) PriceAdditionalRequest(shipmentLineItem *models.ShipmentLineItem) error {
 
 	feeAndRate, err := re.ComputeShipmentLineItemCharge(*shipmentLineItem)
 	if err != nil {
@@ -221,6 +250,5 @@ func (re *RateEngine) PricePreapprovalRequest(shipmentLineItem *models.ShipmentL
 	}
 	shipmentLineItem.AmountCents = &feeAndRate.Fee
 	shipmentLineItem.AppliedRate = &feeAndRate.Rate
-
 	return nil
 }

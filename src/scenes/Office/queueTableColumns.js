@@ -191,15 +191,15 @@ const needsAttention = CreateReactTableColumn('Needs Attention', calculateNeedsA
 });
 
 // Columns used to display in react table
-
 export const newColumns = [
   needsAttentionClockIcon,
   needsAttention,
   customerName,
-  locator,
-  dodId,
-  rank,
+  hhgStatus,
   shipments,
+  origin,
+  dodId,
+  locator,
   pickupDate,
   submittedDate,
 ];

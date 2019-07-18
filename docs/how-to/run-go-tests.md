@@ -33,7 +33,7 @@ $ TEST_ACC_ENV=staging TEST_ACC_DOD_CERTIFICATES=1 make webserver_test
 ### Run All Tests in a Single Package
 
 ```console
-$ scripts/go-test ./pkg/handlers/internalapi/
+$ go test ./pkg/handlers/internalapi/
 ```
 
 ### Run Tests with Names Matching a String
@@ -41,7 +41,7 @@ $ scripts/go-test ./pkg/handlers/internalapi/
 The following will run any Testify tests that have a name matching `Test_Name` in the `handlers/internalapi` package:
 
 ```console
-$ scripts/go-test ./pkg/handlers/internalapi/ -testify.m Test_Name
+$ go test ./pkg/handlers/internalapi/ -testify.m Test_Name
 ```
 
 ## Run Tests when a File Changes
