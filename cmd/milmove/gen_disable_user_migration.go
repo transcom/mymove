@@ -19,9 +19,7 @@ import (
 )
 
 const (
-	// DisableUserMigrationFilenameFlag sql file containing the migration
-	DisableUserMigrationFilenameFlag string = "migration-filename"
-	DisableUserEmailFlag             string = "migration-email"
+	DisableUserEmailFlag string = "migration-email"
 )
 
 const (
@@ -48,7 +46,6 @@ WHERE email='{{.EmailPrefix}}+pyvl@{{.EmailDomain}}'
 
 func InitDisableUserFlags(flag *pflag.FlagSet) {
 	flag.StringP(DisableUserEmailFlag, "e", "", "Email address")
-	flag.StringP(DisableUserMigrationFilenameFlag, "n", "", "File name of the migration files for the new office users")
 }
 
 func initDisableUserMigrationFlags(flag *pflag.FlagSet) {
@@ -68,6 +65,15 @@ type UserTemplate struct {
 	EmailDomain string
 }
 
+func CheckDisableUserFlags(v *viper.Viper) error {
+	email := v.GetString(DisableUserEmailFlag)
+	if len(email) == 0 {
+		return fmt.Errorf("-e is required")
+	}
+
+	return nil
+}
+
 func genDisableUserMigration(cmd *cobra.Command, args []string) error {
 	err := cmd.ParseFlags(args)
 	flag := cmd.Flags()
@@ -83,11 +89,12 @@ func genDisableUserMigration(cmd *cobra.Command, args []string) error {
 
 	migrationsPath := v.GetString(cli.MigrationPathFlag)
 	migrationManifest := v.GetString(cli.MigrationManifestFlag)
-	migrationFileName := v.GetString(DisableUserMigrationFilenameFlag)
+	migrationFileName := "disable_user"
 	migrationEmail := strings.Split(v.GetString(DisableUserEmailFlag), "@")
 
-	if len(migrationEmail) < 2 {
-		return fmt.Errorf("-e is required")
+	err = CheckDisableUserFlags(v)
+	if err != nil {
+		return err
 	}
 
 	emailPrefix := migrationEmail[0]
