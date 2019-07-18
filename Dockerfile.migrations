@@ -7,7 +7,8 @@ COPY bin/milmove /bin/milmove
 COPY migrations /migrate/migrations
 COPY migrations_manifest.txt /migrate/migrations_manifest.txt
 
-COPY migrations_manifest.txt /migrate/migrations_manifest.txt
+# Install tools needed in container
+RUN apk update && apk add ca-certificates --no-cache
 
 WORKDIR /
 
