@@ -1,6 +1,7 @@
 {
   "name": "app-migrations-{{ .environment }}",
   "image": "{{ .image }}",
+  "portMappings": [],
   "essential": true,
   "entryPoint": [
     "/bin/chamber",
@@ -15,14 +16,9 @@
     "production",
     "--db-env",
     "container",
-    "-p",
-    "/migrate/migrations",
-    "-m",
-    "/migrate/migrations_manifest.txt",
     "--db-iam"
   ],
   "command": [],
-  "portMappings": [],
   "environment": [
     {
       "name": "ENVIRONMENT",
