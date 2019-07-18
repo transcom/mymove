@@ -7,7 +7,7 @@ import { faPlusCircle } from '@fortawesome/fontawesome-free-solid';
 
 const documentUploadIcon = faPlusCircle;
 
-const DocumentList = ({ currentMoveDocumentId, moveDocuments, detailUrlPrefix, disableLinks, uploadUrlPrefix }) => (
+const DocumentList = ({ currentMoveDocumentId, moveDocuments, detailUrlPrefix, disableLinks, uploadDocumentUrl }) => (
   <div>
     {moveDocuments.map(doc => {
       const chosenDocument = currentMoveDocumentId === doc.id ? 'chosen-document' : null;
@@ -25,12 +25,10 @@ const DocumentList = ({ currentMoveDocumentId, moveDocuments, detailUrlPrefix, d
         </div>
       );
     })}
-    {uploadUrlPrefix && (
-      <div className="document-upload-link">
-        <FontAwesomeIcon className="icon link-blue" icon={documentUploadIcon} />
-        <Link to={uploadUrlPrefix}>Upload new document</Link>
-      </div>
-    )}
+    <div className="document-upload-link">
+      <FontAwesomeIcon className="icon link-blue" icon={documentUploadIcon} />
+      <Link to={uploadDocumentUrl}>Upload new document</Link>
+    </div>
   </div>
 );
 
@@ -45,7 +43,7 @@ DocumentList.propTypes = {
       title: PropTypes.string.isRequired,
     }),
   ).isRequired,
-  uploadUrlPrefix: PropTypes.string.isRequired,
+  uploadDocumentUrl: PropTypes.string.isRequired,
 };
 
 export default DocumentList;

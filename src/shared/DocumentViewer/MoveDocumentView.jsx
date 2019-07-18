@@ -63,6 +63,7 @@ class MoveDocumentView extends Component {
                     currentMoveDocumentId={currentMoveDocumentId}
                     detailUrlPrefix={documentDetailUrlPrefix}
                     moveDocuments={moveDocuments}
+                    uploadDocumentUrl={newDocumentUrl}
                   />
                 </div>
               </TabPanel>

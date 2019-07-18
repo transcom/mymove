@@ -169,7 +169,7 @@ class DocumentViewer extends Component {
                     currentMoveDocumentId={moveDocumentId}
                     detailUrlPrefix={`/moves/${moveId}/documents`}
                     moveDocuments={moveDocuments}
-                    uploadUrlPrefix={`/moves/${this.props.moveId}/documents/new`}
+                    uploadDocumentUrl={newUrl}
                   />
                 </div>
               </TabPanel>

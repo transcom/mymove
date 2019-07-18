@@ -326,6 +326,9 @@ class MoveInfo extends Component {
     const hasRequestedSIT = !isEmpty(storageInTransits) && some(storageInTransits, sit => sit.status === 'REQUESTED');
 
     const moveDate = isPPM ? ppm.original_move_date : shipment && shipment.requested_pickup_date;
+
+    const uploadDocumentUrl = `/moves/${this.props.moveId}/documents/new`;
+
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
     }
@@ -534,7 +537,7 @@ class MoveInfo extends Component {
                 <DocumentList
                   detailUrlPrefix={`/moves/${this.props.moveId}/documents`}
                   moveDocuments={moveDocuments}
-                  uploadUrlPrefix={`/moves/${this.props.moveId}/documents/new`}
+                  uploadDocumentUrl={uploadDocumentUrl}
                 />
               )}
             </div>
