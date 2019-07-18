@@ -138,7 +138,7 @@ client_deps: .check_hosts.stamp .client_deps.stamp ## Install client dependencie
 client_build: .client_deps.stamp .client_build.stamp ## Build the client
 
 build/index.html: ## milmove serve requires this file to boot, but it isn't used during local development
-	mkdir build
+	mkdir -p build
 	touch build/index.html
 
 .PHONY: client_run
