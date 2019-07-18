@@ -91,7 +91,6 @@ This subset of development scripts is used for testing
 | Script Name | Description |
 | --- | --- |
 | `gen-e2e-migration` | generate migrations for cypress |
-| `go-test` | runs go test but with the correct DB port |
 | `run-e2e-test` | Runs cypress tests with interactive GUI |
 | `run-e2e-test-docker` | Runs cypress tests entirely inside docker containers like in CircleCI |
 
