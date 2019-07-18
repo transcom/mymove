@@ -43,10 +43,12 @@ func payloadForMoveDocument(storer storage.FileStorer, moveDoc models.MoveDocume
 	}
 
 	if moveDoc.WeightTicketSetDocument != nil {
-		emptyWeight := int64(*moveDoc.WeightTicketSetDocument.EmptyWeight)
-		fullWeight := int64(*moveDoc.WeightTicketSetDocument.FullWeight)
-		payload.EmptyWeight = &emptyWeight
-		payload.FullWeight = &fullWeight
+		if moveDoc.WeightTicketSetDocument.EmptyWeight != nil {
+			payload.EmptyWeight = handlers.FmtInt64(int64(*moveDoc.WeightTicketSetDocument.EmptyWeight))
+		}
+		if moveDoc.WeightTicketSetDocument.FullWeight != nil {
+			payload.FullWeight = handlers.FmtInt64(int64(*moveDoc.WeightTicketSetDocument.FullWeight))
+		}
 	}
 
 	return &payload, nil
