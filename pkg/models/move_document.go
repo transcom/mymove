@@ -205,26 +205,23 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	}
 
 	// Pointer associations are buggy, so we manually load expense document things
-	movingExpenseDocument := MovingExpenseDocument{}
-	moveDoc.MovingExpenseDocument = nil
-	err = db.Where("move_document_id = $1", moveDoc.ID.String()).Eager().First(&movingExpenseDocument)
-	if err != nil {
-		if errors.Cause(err).Error() != recordNotFoundErrorString {
-			return nil, err
-		}
-	} else {
-		moveDoc.MovingExpenseDocument = &movingExpenseDocument
+	q := db.Where("move_document_id = $1", moveDoc.ID.String())
+	movingExpenseDocument := &MovingExpenseDocument{}
+	var movingDocumentErr error
+	if movingDocumentErr = q.Eager().First(movingExpenseDocument); movingDocumentErr == nil {
+		moveDoc.MovingExpenseDocument = movingExpenseDocument
+	}
+	if movingDocumentErr != nil && errors.Cause(movingDocumentErr).Error() != recordNotFoundErrorString {
+		return nil, err
 	}
 
-	weightTicketSetDocument := WeightTicketSetDocument{}
-	moveDoc.WeightTicketSetDocument = nil
-	err = db.Where("move_document_id = $1", moveDoc.ID.String()).Eager().First(&weightTicketSetDocument)
-	if err != nil {
-		if errors.Cause(err).Error() != recordNotFoundErrorString {
-			return nil, err
-		}
-	} else {
-		moveDoc.WeightTicketSetDocument = &weightTicketSetDocument
+	weightTicketSetDocument := &WeightTicketSetDocument{}
+	var weightTicketSetDocumentErr error
+	if weightTicketSetDocumentErr = q.Eager().First(weightTicketSetDocument); weightTicketSetDocumentErr == nil {
+		moveDoc.WeightTicketSetDocument = weightTicketSetDocument
+	}
+	if weightTicketSetDocumentErr != nil && errors.Cause(weightTicketSetDocumentErr).Error() != recordNotFoundErrorString {
+		return nil, err
 	}
 
 	// Check that the logged-in service member is associated to the document
