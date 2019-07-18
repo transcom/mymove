@@ -300,26 +300,40 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	// If we are a weight ticket set type, we need to either delete, create, or update a WeightTicketSetDocument
 	// depending on which type of document already exists
 	if newType == models.MoveDocumentTypeWEIGHTTICKETSET {
-		emptyWeight := unit.Pound(*payload.EmptyWeight)
-		fullWeight := unit.Pound(*payload.FullWeight)
-		weightTicketDate := (*time.Time)(payload.WeightTicketDate)
+		var emptyWeight, fullWeight *unit.Pound
+		if payload.EmptyWeight != nil {
+			ew := unit.Pound(*payload.EmptyWeight)
+			emptyWeight = &ew
+		}
+		if payload.FullWeight != nil {
+			fw := unit.Pound(*payload.FullWeight)
+			fullWeight = &fw
+		}
+		var weightTicketDate *time.Time
+		if payload.WeightTicketDate != nil {
+			weightTicketDate = (*time.Time)(payload.WeightTicketDate)
+		}
+		var trailerOwnershipMissing bool
+		if payload.TrailerOwnershipMissing != nil {
+			trailerOwnershipMissing = *payload.TrailerOwnershipMissing
+		}
 
 		if moveDoc.WeightTicketSetDocument == nil {
 			// create new weight ticket set
 			moveDoc.WeightTicketSetDocument = &models.WeightTicketSetDocument{
 				MoveDocumentID:          moveDoc.ID,
 				MoveDocument:            *moveDoc,
-				EmptyWeight:             &emptyWeight,
-				FullWeight:              &fullWeight,
+				EmptyWeight:             emptyWeight,
+				FullWeight:              fullWeight,
 				VehicleNickname:         payload.VehicleNickname,
 				VehicleOptions:          payload.VehicleOptions,
 				WeightTicketDate:        weightTicketDate,
-				TrailerOwnershipMissing: *payload.TrailerOwnershipMissing,
+				TrailerOwnershipMissing: trailerOwnershipMissing,
 			}
 		} else {
 			// update existing weight ticket set
-			moveDoc.WeightTicketSetDocument.EmptyWeight = &emptyWeight
-			moveDoc.WeightTicketSetDocument.FullWeight = &fullWeight
+			moveDoc.WeightTicketSetDocument.EmptyWeight = emptyWeight
+			moveDoc.WeightTicketSetDocument.FullWeight = fullWeight
 		}
 		saveWeightTicketSetAction = models.MoveDocumentSaveActionSAVEWEIGHTTICKETSETMODEL
 	} else {
