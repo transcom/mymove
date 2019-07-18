@@ -303,7 +303,9 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 		emptyWeight := unit.Pound(*payload.EmptyWeight)
 		fullWeight := unit.Pound(*payload.FullWeight)
 		weightTicketDate := (*time.Time)(payload.WeightTicketDate)
+
 		if moveDoc.WeightTicketSetDocument == nil {
+			// create new weight ticket set
 			moveDoc.WeightTicketSetDocument = &models.WeightTicketSetDocument{
 				MoveDocumentID:          moveDoc.ID,
 				MoveDocument:            *moveDoc,
@@ -315,11 +317,13 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 				TrailerOwnershipMissing: *payload.TrailerOwnershipMissing,
 			}
 		} else {
+			// update existing weight ticket set
 			moveDoc.WeightTicketSetDocument.EmptyWeight = &emptyWeight
 			moveDoc.WeightTicketSetDocument.FullWeight = &fullWeight
 		}
 		saveWeightTicketSetAction = models.MoveDocumentSaveActionSAVEWEIGHTTICKETSETMODEL
 	} else {
+		// delete if document exists but the move document is being converted to something else
 		if moveDoc.WeightTicketSetDocument != nil {
 			saveWeightTicketSetAction = models.MoveDocumentSaveActionDELETEWEIGHTTICKETSETMODEL
 		}
