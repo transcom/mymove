@@ -2,18 +2,21 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import './index.css';
+import styles from './DocumentContent.module.scss';
 
 const DocumentContent = ({ contentType, filename, url }) => (
   <div className="page">
     {contentType === 'application/pdf' ? (
-      <div className="pdf-placeholder">
-        {filename && <span className="filename">{filename}</span>}
-        This PDF can be{' '}
-        <a target="_blank" href={url}>
-          viewed here
-        </a>
-        .
-      </div>
+      <object className={styles.pdf} data={url} type="application/pdf" alt="document upload">
+        <div className="pdf-placeholder">
+          {filename && <span className="filename">{filename}</span>}
+          This PDF can be{' '}
+          <a target="_blank" rel="noopener noreferrer" href={url}>
+            viewed here
+          </a>
+          .
+        </div>
+      </object>
     ) : (
       <img src={url} width="100%" height="100%" alt="document upload" />
     )}
