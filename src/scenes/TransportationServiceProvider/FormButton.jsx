@@ -15,8 +15,12 @@ export default class FormButton extends Component {
   };
 
   buttonView = () => {
-    const { buttonTitle } = this.props;
-    return <button onClick={this.setFormState}>{buttonTitle}</button>;
+    const { buttonTitle, buttonDataCy } = this.props;
+    return (
+      <button data-cy={buttonDataCy} onClick={this.setFormState}>
+        {buttonTitle}
+      </button>
+    );
   };
 
   enterFormView = () => {
@@ -43,4 +47,5 @@ FormButton.propTypes = {
   schema: PropTypes.object.isRequired,
   onSubmit: PropTypes.func.isRequired,
   buttonTitle: PropTypes.string.isRequired,
+  buttonDataCy: PropTypes.string,
 };
