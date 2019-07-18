@@ -247,7 +247,7 @@ func (h ShowShipmentSummaryWorksheetHandler) Handle(params moveop.ShowShipmentSu
 	}
 
 	ssfd.PreparationDate = time.Time(params.PreparationDate)
-	ssfd.Obligations, err = ppmComputer.ComputeObligations(ssfd, h.Planner())
+	ssfd.Obligations, err = ppmComputer.ComputeObligations(ssfd, h.Planner(), h.DB(), session)
 	if err != nil {
 		logger.Error("Error calculating obligations ", zap.Error(err))
 		return handlers.ResponseForError(logger, err)

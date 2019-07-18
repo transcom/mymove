@@ -420,20 +420,7 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 		return err
 	}
 
-	costFromPickupZip, err := re.ComputePPM(unit.Pound(*ppm.WeightEstimate), *ppm.PickupPostalCode, *ppm.DestinationPostalCode, distanceMiles, *ppm.OriginalMoveDate, daysInSIT, lhDiscount, sitDiscount)
-	if err != nil {
-		return err
-	}
-
-	costFromDutyStationZip, err := re.ComputePPM(unit.Pound(*ppm.WeightEstimate), ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode, *ppm.DestinationPostalCode, distanceMiles, *ppm.OriginalMoveDate, daysInSIT, lhDiscount, sitDiscount)
-	if err != nil {
-		return err
-	}
-
-	cost := costFromPickupZip
-	if costFromPickupZip.LinehaulChargeTotal.Int() > costFromDutyStationZip.LinehaulChargeTotal.Int() {
-		cost = costFromDutyStationZip
-	}
+	cost, err := re.ComputePPM(unit.Pound(*ppm.WeightEstimate), *ppm.PickupPostalCode, ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode, *ppm.DestinationPostalCode, distanceMiles, *ppm.OriginalMoveDate, daysInSIT, lhDiscount, sitDiscount)
 
 	mileage := int64(cost.LinehaulCostComputation.Mileage)
 	ppm.Mileage = &mileage

@@ -81,7 +81,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("%s", errors.Wrap(err, "Error fetching shipment summary worksheet data "))
 	}
-	ssfd.Obligations, err = ppmComputer.ComputeObligations(ssfd, planner)
+	ssfd.Obligations, err = ppmComputer.ComputeObligations(ssfd, planner, db, &auth.Session{})
 	if err != nil {
 		log.Fatalf("%s", errors.Wrap(err, "Error calculating obligations "))
 	}

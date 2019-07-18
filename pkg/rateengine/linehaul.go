@@ -20,6 +20,7 @@ type LinehaulCostComputation struct {
 	LinehaulChargeTotal       unit.Cents
 	Mileage                   int
 	FuelSurcharge             FeeAndRate
+	OriginZipUsed			  string
 }
 
 // Scale scales a cost computation by a multiplicative factor

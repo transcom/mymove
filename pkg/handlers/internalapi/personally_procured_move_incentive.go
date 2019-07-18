@@ -49,22 +49,9 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
 	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
 
-	costFromPickupZip, err := engine.ComputePPM(
+	cost, err := engine.ComputePPM(
 		unit.Pound(params.Weight),
 		params.OriginZip,
-		params.DestinationZip,
-		distanceMiles,
-		time.Time(params.OriginalMoveDate),
-		0, // We don't want any SIT charges
-		lhDiscount,
-		0.0,
-	)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-
-	costFromDutyStationZip, err := engine.ComputePPM(
-		unit.Pound(params.Weight),
 		ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode,
 		params.DestinationZip,
 		distanceMiles,
@@ -75,11 +62,6 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 	)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
-	}
-
-	cost := costFromPickupZip
-	if costFromPickupZip.LinehaulChargeTotal.Int() > costFromDutyStationZip.LinehaulChargeTotal.Int() {
-		cost = costFromDutyStationZip
 	}
 
 	gcc := cost.GCC

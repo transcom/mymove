@@ -11,10 +11,12 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/gobuffalo/pop"
+	"github.com/transcom/mymove/pkg/auth"
 )
 
 type ppmComputer interface {
-	ComputePPMIncludingLHDiscount(weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int) (cost rateengine.CostComputation, err error)
+	ComputePPMIncludingLHDiscount(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int) (cost rateengine.CostComputation, err error)
 }
 
 //SSWPPMComputer a rate engine wrapper with helper functions to simplify ppm cost calculations specific to shipment summary worksheet
@@ -31,9 +33,8 @@ func NewSSWPPMComputer(PPMComputer ppmComputer) *SSWPPMComputer {
 type ObligationType int
 
 //ComputeObligations is helper function for computing the obligations section of the shipment summary worksheet
-func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSummaryFormData, planner route.Planner) (obligation models.Obligations, err error) {
+func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSummaryFormData, planner route.Planner, db *pop.Connection, session *auth.Session) (obligation models.Obligations, err error) {
 	firstPPM, err := sswPpmComputer.nilCheckPPM(ssfd)
-
 	if err != nil {
 		return models.Obligations{}, err
 	}
@@ -41,9 +42,14 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 	if err != nil {
 		return models.Obligations{}, errors.New("error calculating distance")
 	}
+
+	ppm, err := models.FetchPersonallyProcuredMove(db, session, firstPPM.ID)
+
+
 	maxCost, err := sswPpmComputer.ComputePPMIncludingLHDiscount(
 		ssfd.WeightAllotment.TotalWeight,
 		*firstPPM.PickupPostalCode,
+		ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode,
 		*firstPPM.DestinationPostalCode,
 		distanceMiles,
 		*firstPPM.ActualMoveDate,
@@ -55,6 +61,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 	actualCost, err := sswPpmComputer.ComputePPMIncludingLHDiscount(
 		ssfd.PPMRemainingEntitlement,
 		*firstPPM.PickupPostalCode,
+		ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode,
 		*firstPPM.DestinationPostalCode,
 		distanceMiles,
 		*firstPPM.ActualMoveDate,
