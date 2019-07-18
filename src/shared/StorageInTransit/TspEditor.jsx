@@ -54,6 +54,7 @@ export class TspEditor extends Component {
           ) : (
             <StorageInTransitTspEditForm
               minDate={this.props.storageInTransit.authorized_start_date}
+              maxDate={this.props.storageInTransit.out_date}
               onSubmit={this.onSubmit}
               initialValues={this.props.storageInTransit}
             />
