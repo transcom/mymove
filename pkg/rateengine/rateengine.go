@@ -36,6 +36,7 @@ type CostComputation struct {
 	SITDiscount unit.DiscountRate
 	Weight      unit.Pound
 	ShipmentID  uuid.UUID
+	OriginZipUsed	string
 }
 
 // Scale scales a cost computation by a multiplicative factor
@@ -71,6 +72,7 @@ func (c CostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	encoder.AddInt("Miles", c.Mileage)
 	encoder.AddInt("Weight", c.Weight.Int())
 	encoder.AddString("ShipmentID", c.ShipmentID.String())
+	encoder.AddString("OriginZipUsed", c.OriginZipUsed)
 
 	return nil
 }
@@ -83,13 +85,15 @@ func Zip5ToZip3(zip5 string) string {
 // ComputePPM Calculates the cost of a PPM move.
 func (re *RateEngine) ComputePPM(
 	weight unit.Pound,
-	originZip5 string,
+	originPickupZip5 string,
+	originDutyStationZip5 string,
 	destinationZip5 string,
 	distanceMiles int,
 	date time.Time,
 	daysInSIT int,
 	lhDiscount unit.DiscountRate,
-	sitDiscount unit.DiscountRate) (cost CostComputation, err error) {
+	sitDiscount unit.DiscountRate,
+	) (cost CostComputation, err error) {
 
 	// Weights below 1000lbs are prorated to the 1000lb rate
 	prorateFactor := 1.0
@@ -98,15 +102,33 @@ func (re *RateEngine) ComputePPM(
 		weight = unit.Pound(1000)
 	}
 
-	// Linehaul charges
-	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, distanceMiles, date)
+	//Calculate linhaul charges using pickup zip code
+	linehaulPickupZipCostComputation, err := re.linehaulChargeComputation(weight, originPickupZip5, destinationZip5, distanceMiles, date)
 	if err != nil {
 		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
 		return
 	}
 
-	// Non linehaul charges
-	nonLinehaulCostComputation, err := re.nonLinehaulChargeComputation(weight, originZip5, destinationZip5, date)
+	//Calculate linehaul charges using duty station zip code
+	linehaulDutyStationZipCostComputation, err := re.linehaulChargeComputation(weight, originDutyStationZip5, destinationZip5, distanceMiles, date)
+	if err != nil {
+		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
+		return
+	}
+
+	pickupZipUsed := "Pickup location zip"
+	dutyStationZipUsed := "Duty station zip"
+
+	// Linehaul charges. Compares linehaul cost from pickup zip code vs cost from duty station zip code, and returns the lowest cost. Also sets
+	// the origin zip location that is used to populate the logs.
+	linehaulCostComputation := linehaulPickupZipCostComputation
+	originZipUsed := pickupZipUsed
+	if linehaulPickupZipCostComputation.LinehaulChargeTotal.Int() > linehaulDutyStationZipCostComputation.LinehaulChargeTotal.Int() {
+		linehaulCostComputation = linehaulDutyStationZipCostComputation
+		originZipUsed = dutyStationZipUsed
+	}
+
+	nonLinehaulCostComputation, err := re.nonLinehaulChargeComputation(weight, originPickupZip5, destinationZip5, date)
 	if err != nil {
 		re.logger.Error("Failed to compute non-linehaul cost", zap.Error(err))
 		return
@@ -154,6 +176,7 @@ func (re *RateEngine) ComputePPM(
 		LHDiscount:                 lhDiscount,
 		SITDiscount:                sitDiscount,
 		Weight:                     weight,
+		OriginZipUsed:				originZipUsed,
 	}
 
 	// Finally, scale by prorate factor
@@ -165,11 +188,11 @@ func (re *RateEngine) ComputePPM(
 }
 
 //ComputePPMIncludingLHDiscount Calculates the cost of a PPM move using zip + date derived linehaul discount
-func (re *RateEngine) ComputePPMIncludingLHDiscount(weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int) (cost CostComputation, err error) {
+func (re *RateEngine) ComputePPMIncludingLHDiscount(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int) (cost CostComputation, err error) {
 
-	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(re.db,
+	pickupZipLhDiscount, pickupZipSitDiscount, err := models.PPMDiscountFetch(re.db,
 		re.logger,
-		originZip5,
+		originPickupZip5,
 		destinationZip5,
 		date,
 	)
@@ -178,8 +201,30 @@ func (re *RateEngine) ComputePPMIncludingLHDiscount(weight unit.Pound, originZip
 		return
 	}
 
+	dutyStationZipLhDiscount, dutyStationZipSitDiscount, err := models.PPMDiscountFetch(re.db,
+		re.logger,
+		originDutyStationZip5,
+		destinationZip5,
+		date,
+	)
+	if err != nil {
+		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
+		return
+	}
+
+	lhDiscount := pickupZipLhDiscount
+	if pickupZipLhDiscount < dutyStationZipLhDiscount {
+		lhDiscount = dutyStationZipLhDiscount
+	}
+
+	sitDiscount := pickupZipSitDiscount
+	if pickupZipSitDiscount < dutyStationZipSitDiscount {
+		sitDiscount = dutyStationZipSitDiscount
+	}
+
 	cost, err = re.ComputePPM(weight,
-		originZip5,
+		originPickupZip5,
+		originDutyStationZip5,
 		destinationZip5,
 		distanceMiles,
 		date,
