@@ -23,7 +23,7 @@ func (suite *SequenceSuite) SetupTest() {
 func TestSequenceSuite(t *testing.T) {
 
 	hs := &SequenceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
 	suite.Run(t, hs)
 }

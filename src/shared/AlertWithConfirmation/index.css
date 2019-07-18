@@ -1,0 +1,42 @@
+.usa-alert {
+	white-space: pre-wrap;
+}
+
+.usa-alert.usa-alert-success p {
+	margin-bottom: 1rem;
+}
+
+.usa-alert .usa-alert-no-padding {
+  padding: 0em;
+}
+
+.usa-alert .usa-alert-right {
+  float: right;
+}
+
+.body--heading {
+  display: flex;
+  align-items: center;
+}
+
+.usa-alert-heading {
+  display: inline;
+}
+
+.heading--icon {
+  margin-right: 2em;
+}
+
+.cancel-or-ok-buttons {
+	flex-grow: 1;
+	display: flex;
+	justify-content: flex-end;
+}
+
+.usa-alert-loading::before {
+  background-color: #02bfe7;
+}
+
+.actionable.actionable-secondary {
+  color: #999999;
+}

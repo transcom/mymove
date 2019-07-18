@@ -63,7 +63,7 @@ func (suite *ModelSuite) noValidationErrors(verrs *validate.Errors, err error) b
 }
 
 func TestModelSuite(t *testing.T) {
-	hs := &ModelSuite{PopTestSuite: testingsuite.NewPopTestSuite()}
+	hs := &ModelSuite{PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage())}
 	suite.Run(t, hs)
 }
 

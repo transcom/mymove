@@ -79,10 +79,6 @@ describe('office user finds the move', function() {
       .should('be.disabled');
   });
 
-  it('office user edits ppm net weight', function() {
-    officeUserEditsNetWeight();
-  });
-
   it('edits pickup and destination zip codes in estimates panel and these values are reflected in the storage and incentive calculators', function() {
     officeUserGoesToPPMPanel('FDXTIU');
     officeUserEditsEstimatesPanel(60606, 72018, 6000);
@@ -98,39 +94,6 @@ describe('office user finds the move', function() {
     userCancelsStorageDetails();
   });
 });
-
-function officeUserEditsNetWeight() {
-  cy.patientVisit('/queues/ppm');
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/ppm/);
-  });
-
-  cy.selectQueueItemMoveLocator('FDXTIU');
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
-  });
-
-  cy.get('[data-cy="ppm-tab"]').click();
-
-  cy.get('.net_weight').contains('missing');
-
-  cy
-    .get('.editable-panel-header')
-    .contains('Weights')
-    .siblings()
-    .click();
-
-  cy.get('input[name="net_weight"]').type('6000');
-
-  cy
-    .get('button')
-    .contains('Save')
-    .click();
-
-  cy.get('.net_weight').contains('6,000');
-}
 
 function officeUserViewsMoves() {
   // Open new moves queue

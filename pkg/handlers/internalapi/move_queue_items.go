@@ -149,6 +149,7 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 
 			if err != nil {
 				logger.Error("Unmarshalling Shipment Line Items", zap.Error(err))
+
 				return handlers.ResponseForError(logger, err)
 			}
 		}

@@ -222,7 +222,7 @@ func TestRateEngineSuite(t *testing.T) {
 	logger, _ := zap.NewDevelopment()
 
 	hs := &RateEngineSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 	}
 	suite.Run(t, hs)

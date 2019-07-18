@@ -28,7 +28,6 @@ class MoveDocumentView extends Component {
       uploads,
     } = this.props;
     const currentMoveDocumentId = this.props.match.params.moveDocumentId;
-    console.log(moveDocument);
     return (
       <div className="usa-grid doc-viewer">
         <div className="usa-width-two-thirds">
