@@ -140,14 +140,14 @@ func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, desti
 		SITRate:                         unit.NewDiscountRateFromPercent(50.0),
 	}
 	suite.MustSave(&tspPerformance)
-	useFallBackDate := false
+	allowBookDate := false
 	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(suite.DB(),
 		logger,
 		originZip,
 		destinationZip,
 		testdatagen.RateEngineDate,
 		time.Time{},
-		useFallBackDate,
+		allowBookDate,
 	)
 	suite.Require().Nil(err)
 	engine := NewRateEngine(suite.DB(), logger)

@@ -99,14 +99,14 @@ func (suite *ModelSuite) TestPPMDiscountFetch() {
 	//
 	// Successful move date
 	//
-	useFallBackDate := false
+	allowBookDate := false
 	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(suite.DB(),
 		logger,
 		originZip,
 		destinationZip,
 		testdatagen.RateEngineDate,
 		time.Time{},
-		useFallBackDate,
+		allowBookDate,
 	)
 	suite.Nil(err)
 	suite.Equal(0.505, lhDiscount.Float64(), "Discount rate is not 0.505")
@@ -115,14 +115,14 @@ func (suite *ModelSuite) TestPPMDiscountFetch() {
 	//
 	// Successful move date
 	//
-	useFallBackDate = true
+	allowBookDate = true
 	lhDiscount, sitDiscount, err = models.PPMDiscountFetch(suite.DB(),
 		logger,
 		originZip,
 		destinationZip,
 		testdatagen.RateEngineDate,
 		time.Time{},
-		useFallBackDate,
+		allowBookDate,
 	)
 	suite.Nil(err)
 	suite.Equal(0.505, lhDiscount.Float64(), "Discount rate is not 0.505")
@@ -131,14 +131,14 @@ func (suite *ModelSuite) TestPPMDiscountFetch() {
 	//
 	// Failed move date and not using book date
 	//
-	useFallBackDate = false
+	allowBookDate = false
 	lhDiscount, sitDiscount, err = models.PPMDiscountFetch(suite.DB(),
 		logger,
 		originZip,
 		destinationZip,
 		testdatagen.RateEngineDate.AddDate(2, 0, 0),
 		time.Time{},
-		useFallBackDate,
+		allowBookDate,
 	)
 	// Expect to get FETCH_NOT_FOUND
 	suite.NotNil(err)
@@ -149,14 +149,14 @@ func (suite *ModelSuite) TestPPMDiscountFetch() {
 	//
 	// Failed move date and Successful book date
 	//
-	useFallBackDate = true
+	allowBookDate = true
 	lhDiscount, sitDiscount, err = models.PPMDiscountFetch(suite.DB(),
 		logger,
 		originZip,
 		destinationZip,
 		testdatagen.RateEngineDate.AddDate(2, 0, 0),
 		testdatagen.RateEngineDate,
-		useFallBackDate,
+		allowBookDate,
 	)
 	suite.Nil(err)
 	suite.Equal(0.505, lhDiscount.Float64(), "Discount rate is not 0.505")

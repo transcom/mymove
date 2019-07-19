@@ -98,6 +98,9 @@ func PPMDiscountFetch(db *pop.Connection, logger Logger, originZip string, destZ
 						zap.Float64("lh_discount", lhDiscount.Float64()),
 						zap.Float64("sit_discount", sitDiscount.Float64()),
 					)
+					if allowBookDate {
+						logger.Info("Found Discount for TDL allowing use of book date", zap.Time("book_date", bookDate))
+					}
 					return lhDiscount, sitDiscount, err
 				}
 			}
@@ -110,5 +113,8 @@ func PPMDiscountFetch(db *pop.Connection, logger Logger, originZip string, destZ
 		zap.Time("move_date", moveDate),
 		zap.Error(err),
 	)
+	if allowBookDate {
+		logger.Info("Couldn't find Discount with date including", zap.Time("book_date", bookDate))
+	}
 	return 0, 0, err
 }
