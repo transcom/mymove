@@ -37,7 +37,7 @@ type Generator struct {
 	uploader  *uploader.Uploader
 	pdfConfig *pdfcpu.Configuration
 	workDir   string
-	pdfcpu    PDFLibrary
+	pdfLib    PDFLibrary
 }
 
 type pdfCPUWrapper struct {
@@ -115,7 +115,7 @@ func NewGenerator(db *pop.Connection, logger Logger, uploader *uploader.Uploader
 		uploader:  uploader,
 		pdfConfig: pdfConfig,
 		workDir:   directory,
-		pdfcpu:    pdfCPU,
+		pdfLib:    pdfCPU,
 	}, nil
 }
 
@@ -208,7 +208,7 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 		if err != nil {
 			return nil, errors.Wrap(err, "Validating pdfs")
 		}
-		err = api.Validate(f, g.pdfConfig)
+		err = g.pdfLib.Validate(f)
 		if err != nil {
 			return nil, errors.Wrap(err, "Validating pdfs")
 		}
@@ -299,7 +299,7 @@ func (g *Generator) MergePDFFiles(paths []string) (afero.File, error) {
 		}
 		files = append(files, f)
 	}
-	if err = g.pdfcpu.Merge(files, mergedFile); err != nil {
+	if err = g.pdfLib.Merge(files, mergedFile); err != nil {
 		return mergedFile, err
 	}
 
