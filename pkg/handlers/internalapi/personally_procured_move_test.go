@@ -187,9 +187,10 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	initialWeight := unit.Pound(4100)
 	newWeight := swag.Int64(4105)
 
-	// Date picked essentialy at random, but needs to be within TestYear
+	// Date picked essentially at random, but needs to be within TestYear
 	newMoveDate := time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
 	initialMoveDate := newMoveDate.Add(-2 * 24 * time.Hour)
+	bookDate := initialMoveDate.Add(-14 * 24 * time.Hour)
 
 	hasAdditionalPostalCode := swag.Bool(true)
 	newHasAdditionalPostalCode := swag.Bool(false)
@@ -223,6 +224,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		Status:                     models.PPMStatusDRAFT,
 		AdvanceWorksheet:           newAdvanceWorksheet,
 		AdvanceWorksheetID:         &newAdvanceWorksheet.ID,
+		SubmitDate:                 &bookDate,
 	}
 	suite.MustSave(&ppm1)
 
@@ -272,6 +274,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 
 	// Date picked essentialy at random, but needs to be within TestYear
 	moveDate := time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
+	bookDate := moveDate.Add(-16 * 24 * time.Hour)
 
 	pickupPostalCode := swag.String("32168")
 	destinationPostalCode := swag.String("29401")
@@ -285,6 +288,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 		PickupPostalCode:      pickupPostalCode,
 		DestinationPostalCode: destinationPostalCode,
 		Status:                models.PPMStatusDRAFT,
+		SubmitDate:            &bookDate,
 	}
 	suite.MustSave(&ppm1)
 
@@ -344,6 +348,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	// Date picked essentialy at random, but needs to be within TestYear
 	newMoveDate := time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
 	initialMoveDate := newMoveDate.Add(-2 * 24 * time.Hour)
+	bookDate := initialMoveDate.Add(-5 * 24 * time.Hour)
 
 	user2 := testdatagen.MakeDefaultServiceMember(suite.DB())
 	move := testdatagen.MakeDefaultMove(suite.DB())
@@ -355,6 +360,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 		WeightEstimate:   &initialWeight,
 		OriginalMoveDate: &initialMoveDate,
 		Status:           models.PPMStatusDRAFT,
+		SubmitDate:       &bookDate,
 	}
 	suite.MustSave(&ppm1)
 

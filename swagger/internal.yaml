@@ -2784,6 +2784,11 @@ paths:
         - ppm
       parameters:
         - in: query
+          name: book_date
+          type: string
+          format: date
+          required: true
+        - in: query
           name: original_move_date
           type: string
           format: date
@@ -2803,6 +2808,10 @@ paths:
         - in: query
           name: weight_estimate
           type: integer
+          required: true
+        - in: query
+          name: allow_book_date
+          type: boolean
           required: true
       responses:
         200:
@@ -2830,6 +2839,11 @@ paths:
         - ppm
       parameters:
         - in: query
+          name: book_date
+          type: string
+          format: date
+          required: true
+        - in: query
           name: original_move_date
           type: string
           format: date
@@ -2853,6 +2867,10 @@ paths:
         - in: query
           name: weight_estimate
           type: integer
+          required: true
+        - in: query
+          name: allow_book_date
+          type: boolean
           required: true
       responses:
         200:
@@ -3956,6 +3974,11 @@ paths:
         - ppm
       parameters:
         - in: query
+          name: book_date
+          type: string
+          format: date
+          required: true
+        - in: query
           name: original_move_date
           type: string
           format: date
@@ -3975,6 +3998,10 @@ paths:
         - in: query
           name: weight
           type: integer
+          required: true
+        - in: query
+          name: allow_book_date
+          type: boolean
           required: true
       responses:
         200:

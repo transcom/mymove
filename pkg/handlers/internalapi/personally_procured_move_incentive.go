@@ -34,6 +34,8 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 		params.OriginZip,
 		params.DestinationZip,
 		time.Time(params.OriginalMoveDate),
+		time.Time(params.BookDate),
+		params.AllowBookDate,
 	)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)

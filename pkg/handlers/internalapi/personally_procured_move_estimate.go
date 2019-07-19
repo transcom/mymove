@@ -31,6 +31,8 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 		params.OriginZip,
 		params.DestinationZip,
 		time.Time(params.OriginalMoveDate),
+		time.Time(params.BookDate),
+		params.AllowBookDate,
 	)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)

@@ -2,6 +2,7 @@ package rateengine
 
 import (
 	"testing"
+	"time"
 
 	"github.com/go-openapi/swag"
 	"github.com/stretchr/testify/suite"
@@ -139,10 +140,14 @@ func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, desti
 		SITRate:                         unit.NewDiscountRateFromPercent(50.0),
 	}
 	suite.MustSave(&tspPerformance)
+	useFallBackDate := false
 	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(suite.DB(),
 		logger,
 		originZip,
-		destinationZip, testdatagen.RateEngineDate,
+		destinationZip,
+		testdatagen.RateEngineDate,
+		time.Time{},
+		useFallBackDate,
 	)
 	suite.Require().Nil(err)
 	engine := NewRateEngine(suite.DB(), logger)

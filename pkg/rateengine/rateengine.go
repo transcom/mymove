@@ -167,11 +167,15 @@ func (re *RateEngine) ComputePPM(
 //ComputePPMIncludingLHDiscount Calculates the cost of a PPM move using zip + date derived linehaul discount
 func (re *RateEngine) ComputePPMIncludingLHDiscount(weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int) (cost CostComputation, err error) {
 
+	var bookDate time.Time
+	allowBookDate := false
 	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(re.db,
 		re.logger,
 		originZip5,
 		destinationZip5,
 		date,
+		bookDate,
+		allowBookDate,
 	)
 	if err != nil {
 		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
