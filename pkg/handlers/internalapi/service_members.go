@@ -61,6 +61,7 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		IsProfileComplete:       handlers.FmtBool(serviceMember.IsProfileComplete()),
 		CurrentStation:          payloadForDutyStationModel(serviceMember.DutyStation),
 		RequiresAccessCode:      requiresAccessCode,
+		WeightAllotment:         payloadForWeightAllotmentModel(models.GetWeightAllotment(*serviceMember.Rank)),
 	}
 	return &serviceMemberPayload
 }

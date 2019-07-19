@@ -1125,6 +1125,8 @@ definitions:
         type: boolean
         x-nullable: false
         title: Requires Access Code
+      weight_allotment:
+        $ref: '#/definitions/WeightAllotment'
     required:
       - id
       - user_id
@@ -2664,6 +2666,8 @@ definitions:
         format: date-time
         example: 2017-07-21T17:32:28Z
         x-nullable: true
+      weight_allotment:
+        $ref: '#/definitions/WeightAllotment'
     required:
       - id
       - status

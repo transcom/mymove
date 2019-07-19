@@ -6,7 +6,7 @@ import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import { formatDate4DigitYear } from 'shared/formatters';
 import moment from 'moment';
-import { getEntitlements } from 'shared/entitlements';
+import { adjustEntitlements } from 'shared/entitlements';
 import { sitDaysUsed, sitTotalDaysUsed } from 'shared/StorageInTransit/calculator';
 
 // Abstracting react table column creation
@@ -101,7 +101,7 @@ const sitExpires = CreateReactTableColumn(
         moment.min(
           row.storage_in_transits.filter(sit => sit.actual_start_date).map(sit => {
             return moment(sit.actual_start_date).add(
-              getEntitlements(row.rank).storage_in_transit +
+              adjustEntitlements(row.weight_allotment).storage_in_transit +
                 sitDaysUsed(sit) -
                 sitTotalDaysUsed(row.storage_in_transits),
               'days',

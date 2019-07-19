@@ -22,7 +22,7 @@ func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem, StorageInTransi
 		ID:                             handlers.FmtUUID(MoveQueueItem.ID),
 		CreatedAt:                      handlers.FmtDateTime(MoveQueueItem.CreatedAt),
 		Edipi:                          swag.String(MoveQueueItem.Edipi),
-		Rank:                           MoveQueueItem.Rank,
+		Rank:                           (*internalmessages.ServiceMemberRank)(MoveQueueItem.Rank),
 		CustomerName:                   swag.String(MoveQueueItem.CustomerName),
 		Locator:                        swag.String(MoveQueueItem.Locator),
 		GblNumber:                      handlers.FmtStringPtr(MoveQueueItem.GBLNumber),
@@ -42,6 +42,7 @@ func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem, StorageInTransi
 		DestinationGbloc:               handlers.FmtStringPtr(MoveQueueItem.DestinationGBLOC),
 		DeliveredDate:                  handlers.FmtDateTimePtr(MoveQueueItem.DeliveredDate),
 		InvoiceApprovedDate:            handlers.FmtDateTimePtr(MoveQueueItem.InvoiceApprovedDate),
+		WeightAllotment:                payloadForWeightAllotmentModel(models.GetWeightAllotment(*MoveQueueItem.Rank)),
 	}
 	return &MoveQueueItemPayload
 }
