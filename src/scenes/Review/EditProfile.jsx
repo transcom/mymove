@@ -50,7 +50,7 @@ let EditProfileForm = props => {
           <SwaggerField fieldName="affiliation" swagger={schema} required />
           <SwaggerField fieldName="rank" swagger={schema} required />
           <SwaggerField fieldName="edipi" swagger={schema} required />
-          <Field name="current_station" component={DutyStationSearchBox} />
+          <Field name="current_station" title="What is your current duty station?" component={DutyStationSearchBox} />
         </Fragment>
       )}
       {moveIsApproved && (
