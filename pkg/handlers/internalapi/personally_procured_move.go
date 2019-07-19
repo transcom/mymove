@@ -396,9 +396,15 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 		daysInSIT = int(*ppm.DaysInStorage)
 	}
 
-	// BookDate and SubmitDate are synonymous
-	allowFallbackToSubmitDate := true
-	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(h.DB(), logger, *ppm.PickupPostalCode, *ppm.DestinationPostalCode, *ppm.OriginalMoveDate, *ppm.SubmitDate, allowFallbackToSubmitDate)
+	allowFallbackToBookDate := true
+	bookDate := time.Now()
+	if allowFallbackToBookDate {
+		if ppm.SubmitDate != nil {
+			bookDate = *ppm.SubmitDate
+		}
+	}
+
+	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(h.DB(), logger, *ppm.PickupPostalCode, *ppm.DestinationPostalCode, *ppm.OriginalMoveDate, bookDate, allowFallbackToBookDate)
 	if err != nil {
 		return err
 	}
