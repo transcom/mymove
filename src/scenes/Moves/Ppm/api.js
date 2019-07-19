@@ -1,5 +1,6 @@
 import { getClient, checkResponse } from 'shared/Swagger/api';
 import { formatPayload, formatDateString } from 'shared/utils';
+import moment from 'moment';
 
 export async function GetPpm(moveId) {
   const client = await getClient();
@@ -38,18 +39,24 @@ export async function UpdatePpm(
 }
 
 export async function GetPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate) {
+  let allowBookDate = true;
+  let bookDate = moment();
   const client = await getClient();
   const response = await client.apis.ppm.showPPMEstimate({
     original_move_date: formatDateString(moveDate),
     origin_zip: originZip,
     destination_zip: destZip,
     weight_estimate: weightEstimate,
+    book_date: formatDateString(bookDate),
+    allow_book_date: allowBookDate,
   });
   checkResponse(response, 'failed to update ppm due to server error');
   return response.body;
 }
 
 export async function GetPpmSitEstimate(moveDate, sitDays, originZip, destZip, weightEstimate) {
+  let allowBookDate = true;
+  let bookDate = moment();
   const client = await getClient();
   const response = await client.apis.ppm.showPPMSitEstimate({
     original_move_date: formatDateString(moveDate),
@@ -57,6 +64,8 @@ export async function GetPpmSitEstimate(moveDate, sitDays, originZip, destZip, w
     origin_zip: originZip,
     destination_zip: destZip,
     weight_estimate: weightEstimate,
+    book_date: formatDateString(bookDate),
+    allow_book_date: allowBookDate,
   });
   checkResponse(response, 'failed to update ppm due to server error');
   return response.body;
