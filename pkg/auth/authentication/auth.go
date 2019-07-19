@@ -59,7 +59,7 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 				return
 			}
 
-			// Include session office ID, service member ID, tsp ID, user ID, and superuser status to the beeline event
+			// Include session office ID, service member ID, tsp ID, user ID, and admin ID to the beeline event
 			span.AddTraceField("auth.office_user_id", session.OfficeUserID)
 			span.AddTraceField("auth.service_member_id", session.ServiceMemberID)
 			span.AddTraceField("auth.tsp_user_id", session.TspUserID)
