@@ -140,7 +140,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	yuma := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
 	fortGordon := testdatagen.FetchOrMakeDefaultNewOrdersDutyStation(suite.DB())
 	rank := models.ServiceMemberRankE9
-	moveType := models.SelectedMoveTypeHHGPPM
+	moveType := models.SelectedMoveTypePPM
 
 	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
 		Move: models.Move{
@@ -179,7 +179,20 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 			MoveID:                   ppm.Move.ID,
 			Move:                     ppm.Move,
 			PersonallyProcuredMoveID: &ppm.ID,
-			Status:                   models.MoveDocumentStatusAWAITINGREVIEW,
+			Status:                   models.MoveDocumentStatusOK,
+			MoveDocumentType:         "EXPENSE",
+		},
+		Document: models.Document{
+			ServiceMemberID: serviceMemberID,
+			ServiceMember:   move.Orders.ServiceMember,
+		},
+	}
+	movedocuments2 := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm.Move.ID,
+			Move:                     ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:                   models.MoveDocumentStatusEXCLUDEFROMCALCULATION,
 			MoveDocumentType:         "EXPENSE",
 		},
 		Document: models.Document{
@@ -189,6 +202,7 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	}
 	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
 	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments2)
 	shipmentWeight := unit.Pound(1000)
 	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
