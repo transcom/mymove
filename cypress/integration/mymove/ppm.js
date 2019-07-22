@@ -667,6 +667,10 @@ function serviceMemberSubmitsWeightsTicketsWithoutReceipts() {
 function serviceMemberStartsPPMPaymentRequest() {
   cy.contains('Request Payment').click();
   cy
+    .get('input[name="actual_move_date"]')
+    .type('6/20/2018{enter}')
+    .blur();
+  cy
     .get('button')
     .contains('Get Started')
     .click();
@@ -728,7 +732,10 @@ function serviceMemberSubmitsWeightTicket(vehicleType, hasAnother = true, ordina
 
 function serviceMemberStartsPPMPaymentRequestWithAssertions() {
   cy.contains('Request Payment').click();
-
+  cy
+    .get('button')
+    .contains('Get Started')
+    .should('be.disabled');
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-request-intro/);
   });
@@ -768,6 +775,10 @@ function serviceMemberStartsPPMPaymentRequestWithAssertions() {
     .contains('Back')
     .click();
 
+  cy
+    .get('input[name="actual_move_date"]')
+    .type('6/20/2018{enter}')
+    .blur();
   cy
     .get('button')
     .contains('Get Started')
