@@ -967,10 +967,12 @@ definitions:
       - AWAITING_REVIEW
       - OK
       - HAS_ISSUE
+      - EXCLUDE_FROM_CALCULATION
     x-display-value:
       AWAITING_REVIEW: Awaiting review
       OK: OK
       HAS_ISSUE: Has issue
+      EXCLUDE_FROM_CALCULATION: Exclude from calculation
   CreateWeightTicketDocumentsPayload:
     type: object
     properties:

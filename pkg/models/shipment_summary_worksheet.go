@@ -319,7 +319,8 @@ func FetchMovingExpensesShipmentSummaryWorksheet(move Move, db *pop.Connection, 
 	var movingExpenses []MovingExpenseDocument
 	if len(move.PersonallyProcuredMoves) > 0 {
 		ppm := move.PersonallyProcuredMoves[0]
-		moveDocuments, err := FetchMoveDocuments(db, session, ppm.ID, nil, MoveDocumentTypeEXPENSE)
+		status := MoveDocumentStatusOK
+		moveDocuments, err := FetchMoveDocuments(db, session, ppm.ID, &status, MoveDocumentTypeEXPENSE)
 		if err != nil {
 			return movingExpenses, err
 		}
