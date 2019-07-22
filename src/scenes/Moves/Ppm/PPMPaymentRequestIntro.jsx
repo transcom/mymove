@@ -8,11 +8,10 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { get } from 'lodash';
 import { withContext } from 'shared/AppContext';
 import { connect } from 'react-redux';
-import { updatePPM } from 'shared/Entities/modules/ppms';
 import Alert from 'shared/Alert';
 import { reduxForm } from 'redux-form';
-import { selectPPMForMove } from 'shared/Entities/modules/ppms';
 import './PPMPaymentRequestIntro.css';
+import { createOrUpdatePpm } from './ducks';
 
 class PPMPaymentRequestIntro extends Component {
   state = {
@@ -20,14 +19,11 @@ class PPMPaymentRequestIntro extends Component {
   };
 
   updatePpmDate = formValues => {
-    const {
-      history,
-      moveId,
-      currentPpm: { id: ppmId },
-    } = this.props;
-    if (formValues.actual_move_date) {
+    const { history, moveId, currentPpm } = this.props;
+    if (formValues.actual_move_date && currentPpm) {
+      const updatedPpm = { ...currentPpm, ...{ actual_move_date: formValues.actual_move_date } };
       this.props
-        .updatePPM(moveId, ppmId, { actual_move_date: formValues.actual_move_date })
+        .createOrUpdatePpm(moveId, updatedPpm)
         .then(() => history.push(`/moves/${moveId}/ppm-weight-ticket`))
         .catch(() => {
           this.setState({ ppmUpdateError: true });
@@ -97,19 +93,18 @@ PPMPaymentRequestIntro = reduxForm({
 
 function mapStateToProps(state, ownProps) {
   const moveId = ownProps.match.params.moveId;
-  const currentPpm = selectPPMForMove(state, moveId) || get(state, 'ppm.currentPpm');
+  const currentPpm = get(state, 'ppm.currentPpm');
   const actualMoveDate = currentPpm.actual_move_date ? currentPpm.actual_move_date : null;
-  console.log(actualMoveDate);
   return {
     moveId: moveId,
-    currentPpm: get(state, 'ppm.currentPpm'),
+    currentPpm: currentPpm,
     schema: get(state, 'swaggerInternal.spec.definitions.PatchPersonallyProcuredMovePayload'),
     initialValues: { actual_move_date: actualMoveDate },
   };
 }
 
 const mapDispatchToProps = {
-  updatePPM,
+  createOrUpdatePpm,
 };
 
 export default withContext(connect(mapStateToProps, mapDispatchToProps)(PPMPaymentRequestIntro));
