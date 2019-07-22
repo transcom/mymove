@@ -203,14 +203,6 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
 	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments)
 	testdatagen.MakeMovingExpenseDocument(suite.DB(), movedocuments2)
-	shipmentWeight := unit.Pound(1000)
-	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
-		Shipment: models.Shipment{
-			ServiceMemberID: serviceMemberID,
-			MoveID:          move.ID,
-			NetWeight:       &shipmentWeight,
-		},
-	})
 	session := auth.Session{
 		UserID:          move.Orders.ServiceMember.UserID,
 		ServiceMemberID: serviceMemberID,
@@ -238,8 +230,6 @@ func (suite *ModelSuite) TestFetchDataShipmentSummaryWorksheetOnlyPPM() {
 
 	suite.NoError(err)
 	suite.Equal(move.Orders.ID, ssd.Order.ID)
-	suite.Require().Len(ssd.Shipments, 1)
-	suite.Equal(shipment.ID, ssd.Shipments[0].ID)
 	suite.Require().Len(ssd.PersonallyProcuredMoves, 1)
 	suite.Equal(ppm.ID, ssd.PersonallyProcuredMoves[0].ID)
 	suite.Equal(serviceMemberID, ssd.ServiceMember.ID)
