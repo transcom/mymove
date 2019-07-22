@@ -23,6 +23,7 @@ type shipmentDeliverAndPricer struct {
 // Call delivers a Shipment (and its SITs) and prices associated line items
 func (c *shipmentDeliverAndPricer) DeliverAndPriceShipment(deliveryDate time.Time, shipment *models.Shipment) (*validate.Errors, error) {
 	verrs := validate.NewErrors()
+
 	err := c.db.Transaction(func(db *pop.Connection) error {
 		var transactionError error
 		transactionError = shipment.Deliver(deliveryDate)
