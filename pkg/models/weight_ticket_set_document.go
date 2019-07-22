@@ -11,7 +11,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-// WeightTicketDocumentsPayload weight ticket documents payload
+// WeightTicketSetDocument weight ticket documents payload
 type WeightTicketSetDocument struct {
 	ID                       uuid.UUID    `json:"id" db:"id"`
 	MoveDocumentID           uuid.UUID    `json:"move_document_id" db:"move_document_id"`
