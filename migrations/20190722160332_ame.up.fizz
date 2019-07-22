@@ -1,0 +1,2 @@
+sql("INSERT INTO addresses VALUES ('9b55fbba-1f59-4e64-aab5-1349e089f383',  '', NULL, '29 Palms', 'CA', '92278', '2019-07-22 12:09:35.218693', '2019-07-22 12:09:35.218693', NULL, 'United States');")
+sql("INSERT INTO duty_stations VALUES ('8e93c5ac-bbd0-485f-90bb-be3942d737ce', 'Twentynine Palms, CA', 'MARINES', '9b55fbba-1f59-4e64-aab5-1349e089f383','2019-07-22 12:09:35.218693', '2019-07-22 12:09:35.218693', 'bd733387-6b6c-42ba-b2c3-76c20cc65006' );")
