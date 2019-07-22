@@ -12,6 +12,7 @@ import { updatePPM } from 'shared/Entities/modules/ppms';
 import Alert from 'shared/Alert';
 import { reduxForm } from 'redux-form';
 import { selectPPMForMove } from 'shared/Entities/modules/ppms';
+import './PPMPaymentRequestIntro.css';
 
 class PPMPaymentRequestIntro extends Component {
   state = {
@@ -69,7 +70,13 @@ class PPMPaymentRequestIntro extends Component {
         <p>
           <Link to="/allowable-expenses">More about expenses</Link>
         </p>
-        <SwaggerField title="What day did you depart?" fieldName="actual_move_date" swagger={schema} required />
+        <SwaggerField
+          className="ppm-payment-request-actual-date"
+          title="What day did you depart?"
+          fieldName="actual_move_date"
+          swagger={schema}
+          required
+        />
         <PPMPaymentRequestActionBtns
           hasConfirmation={true}
           saveAndAddHandler={handleSubmit(this.updatePpmDate)}

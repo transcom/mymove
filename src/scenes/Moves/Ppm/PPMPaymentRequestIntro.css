@@ -1,0 +1,13 @@
+.ppm-payment-request-actual-date {
+  padding-bottom: 1.5em;
+  display: inline-block;
+}
+
+.ppm-payment-request-actual-date input {
+  width: 20em;
+  display: inline-block;
+}
+
+.ppm-payment-request-actual-date label {
+  margin-top: 1em;
+}
