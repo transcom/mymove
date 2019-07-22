@@ -1,9 +1,16 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { get } from 'lodash';
+import { updateMove } from '../Moves/ducks';
 import ordersComplete from 'shared/images/orders-complete-gray-icon.png';
 import moveIcon from 'shared/images/move-icon.png';
 
 export class TransitionToMove extends Component {
   render() {
+    // Make sure the move is always set to PPM since we no longer allow HHGs
+    this.props.updateMove(this.props.moveId, 'PPM');
+
     return (
       <div className="usa-grid">
         <div className="lg center">
@@ -20,4 +27,15 @@ export class TransitionToMove extends Component {
   }
 }
 
-export default TransitionToMove;
+function mapStateToProps(state) {
+  const move = get(state, 'moves.currentMove');
+  const props = {
+    moveId: get(move, 'id'),
+  };
+  return props;
+}
+
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({ updateMove }, dispatch);
+}
+export default connect(mapStateToProps, mapDispatchToProps)(TransitionToMove);
