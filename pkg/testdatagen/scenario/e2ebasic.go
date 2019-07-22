@@ -49,7 +49,7 @@ var nextValidMoveDatePlusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate
 
 var nextValidMoveDateMinusOne = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -1), cal)
 var nextValidMoveDateMinusFive = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -5), cal)
-var nextVAlidMoveDateMinusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
+var nextValidMoveDateMinusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
 
 // Run does that data load thing
 func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger Logger, storer *storage.Memory) {
@@ -320,7 +320,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			LoginGovEmail: email,
 		},
 	})
-	pastTime := nextVAlidMoveDateMinusTen
+	pastTime := nextValidMoveDateMinusTen
 	ppm1 := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("466c41b9-50bf-462c-b3cd-1ae33a2dad9b"),
@@ -911,7 +911,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Shipment: models.Shipment{
 			Status:                      models.ShipmentStatusINTRANSIT,
-			BookDate:                    &nextVAlidMoveDateMinusTen,
+			BookDate:                    &nextValidMoveDateMinusTen,
 			PmSurveyPlannedPackDate:     &nextValidMoveDateMinusFive,
 			PmSurveyConductedDate:       &nextValidMoveDateMinusFive,
 			PmSurveyPlannedPickupDate:   &nextValidMoveDateMinusOne,
@@ -3867,7 +3867,7 @@ func makeHhgReadyToInvoiceWithSIT(db *pop.Connection, params hhgReadyToInvoicePa
 			ID:                          uuid.Must(uuid.NewV4()),
 			Status:                      models.ShipmentStatusINTRANSIT,
 			PmSurveyMethod:              "PHONE",
-			PmSurveyPlannedPackDate:     &nextVAlidMoveDateMinusTen,
+			PmSurveyPlannedPackDate:     &nextValidMoveDateMinusTen,
 			PmSurveyPlannedPickupDate:   &nextValidMoveDateMinusFive,
 			PmSurveyPlannedDeliveryDate: &nextValidMoveDateMinusOne,
 			NetWeight:                   &netWeight,
@@ -4008,7 +4008,7 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Lo
 			ID:                          uuid.FromStringOrNil("67a3cbe7-4ae3-4f6a-9f9a-4f312e7458b9"),
 			Status:                      models.ShipmentStatusINTRANSIT,
 			PmSurveyMethod:              "PHONE",
-			PmSurveyPlannedPackDate:     &nextVAlidMoveDateMinusTen,
+			PmSurveyPlannedPackDate:     &nextValidMoveDateMinusTen,
 			PmSurveyPlannedPickupDate:   &nextValidMoveDateMinusFive,
 			PmSurveyPlannedDeliveryDate: &nextValidMoveDateMinusOne,
 			NetWeight:                   &netWeight,
