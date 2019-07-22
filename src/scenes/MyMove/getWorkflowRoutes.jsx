@@ -21,7 +21,6 @@ import DutyStation from 'scenes/ServiceMembers/DutyStation';
 import TransitionToMove from 'scenes/Orders/TransitionToMove';
 import UploadOrders from 'scenes/Orders/UploadOrders';
 
-import MoveType from 'scenes/Moves/MoveTypeWizard';
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
@@ -166,11 +165,6 @@ const pages = {
         </WizardPage>
       );
     },
-  },
-  '/moves/:moveId': {
-    isInFlow: always,
-    isComplete: ({ sm, orders, move }) => get(move, 'selected_move_type', null),
-    render: (key, pages) => ({ match }) => <MoveType pages={pages} pageKey={key} match={match} />,
   },
   '/moves/:moveId/hhg-start': {
     isInFlow: hasHHG,
