@@ -44,6 +44,9 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
 	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 
 	cost, err := engine.ComputePPM(
 		unit.Pound(params.WeightEstimate),

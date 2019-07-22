@@ -8,7 +8,6 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -250,7 +249,7 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 	patchPPMWithPayload(ppm, params.PatchPersonallyProcuredMovePayload)
 
 	if needsEstimatesRecalculated {
-		err = h.updateEstimates(ppm, logger, session)
+		err = h.updateEstimates(ppm, logger)
 		if err != nil {
 			logger.Error("Unable to set calculated fields on PPM", zap.Error(err))
 			return handlers.ResponseForError(logger, err)
@@ -323,7 +322,6 @@ func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonall
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
 
 	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
-
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -390,7 +388,7 @@ func dateForComparison(previousValue, newValue *time.Time) (value time.Time, val
 	return value, false, false
 }
 
-func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.PersonallyProcuredMove, logger Logger, session *auth.Session) error {
+func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.PersonallyProcuredMove, logger Logger) error {
 	re := rateengine.NewRateEngine(h.DB(), logger)
 	daysInSIT := 0
 	if ppm.HasSit != nil && *ppm.HasSit && ppm.DaysInStorage != nil {
@@ -421,6 +419,9 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 	}
 
 	cost, err := re.ComputePPM(unit.Pound(*ppm.WeightEstimate), *ppm.PickupPostalCode, ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode, *ppm.DestinationPostalCode, distanceMiles, *ppm.OriginalMoveDate, daysInSIT, lhDiscount, sitDiscount)
+	if err != nil {
+		return err
+	}
 
 	mileage := int64(cost.LinehaulCostComputation.Mileage)
 	ppm.Mileage = &mileage

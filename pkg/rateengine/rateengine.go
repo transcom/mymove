@@ -29,14 +29,14 @@ type CostComputation struct {
 	LinehaulCostComputation
 	NonLinehaulCostComputation
 
-	SITFee      unit.Cents
-	SITMax      unit.Cents
-	GCC         unit.Cents
-	LHDiscount  unit.DiscountRate
-	SITDiscount unit.DiscountRate
-	Weight      unit.Pound
-	ShipmentID  uuid.UUID
-	OriginZipUsed	string
+	SITFee        unit.Cents
+	SITMax        unit.Cents
+	GCC           unit.Cents
+	LHDiscount    unit.DiscountRate
+	SITDiscount   unit.DiscountRate
+	Weight        unit.Pound
+	ShipmentID    uuid.UUID
+	OriginZipUsed string
 }
 
 // Scale scales a cost computation by a multiplicative factor
@@ -93,7 +93,7 @@ func (re *RateEngine) ComputePPM(
 	daysInSIT int,
 	lhDiscount unit.DiscountRate,
 	sitDiscount unit.DiscountRate,
-	) (cost CostComputation, err error) {
+) (cost CostComputation, err error) {
 
 	// Weights below 1000lbs are prorated to the 1000lb rate
 	prorateFactor := 1.0
@@ -176,7 +176,7 @@ func (re *RateEngine) ComputePPM(
 		LHDiscount:                 lhDiscount,
 		SITDiscount:                sitDiscount,
 		Weight:                     weight,
-		OriginZipUsed:				originZipUsed,
+		OriginZipUsed:              originZipUsed,
 	}
 
 	// Finally, scale by prorate factor

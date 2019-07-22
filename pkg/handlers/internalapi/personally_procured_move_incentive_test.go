@@ -3,8 +3,11 @@ package internalapi
 import (
 	"net/http/httptest"
 
+	"github.com/go-openapi/strfmt"
+
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
@@ -15,17 +18,23 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
-	user := testdatagen.MakeDefaultServiceMember(suite.DB())
+	defaultPPM := testdatagen.MakeDefaultPPM(suite.DB())
+	testdatagen.MakeTariff400ngServiceArea(suite.DB(), testdatagen.Assertions{
+		Tariff400ngServiceArea: models.Tariff400ngServiceArea{
+			ServiceArea: "296",
+		},
+	})
 
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
-	req = suite.AuthenticateRequest(req, user)
+	req = suite.AuthenticateRequest(req, defaultPPM.Move.Orders.ServiceMember)
 
 	params := ppmop.ShowPPMIncentiveParams{
-		HTTPRequest:      req,
-		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1TestYear),
-		OriginZip:        "94540",
-		DestinationZip:   "78626",
-		Weight:           7500,
+		PersonallyProcuredMoveID: strfmt.UUID(defaultPPM.ID.String()),
+		HTTPRequest:              req,
+		OriginalMoveDate:         *handlers.FmtDate(scenario.Oct1TestYear),
+		OriginZip:                "94540",
+		DestinationZip:           "78626",
+		Weight:                   7500,
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -41,16 +50,23 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 	}
 
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	defaultPPM := testdatagen.MakeDefaultPPM(suite.DB())
+	testdatagen.MakeTariff400ngServiceArea(suite.DB(), testdatagen.Assertions{
+		Tariff400ngServiceArea: models.Tariff400ngServiceArea{
+			ServiceArea: "296",
+		},
+	})
 
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	params := ppmop.ShowPPMIncentiveParams{
-		HTTPRequest:      req,
-		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1TestYear),
-		OriginZip:        "94540",
-		DestinationZip:   "78626",
-		Weight:           7500,
+		PersonallyProcuredMoveID: strfmt.UUID(defaultPPM.ID.String()),
+		HTTPRequest:              req,
+		OriginalMoveDate:         *handlers.FmtDate(scenario.Oct1TestYear),
+		OriginZip:                "94540",
+		DestinationZip:           "78626",
+		Weight:                   7500,
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -61,8 +77,8 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 	okResponse := showResponse.(*ppmop.ShowPPMIncentiveOK)
 	cost := okResponse.Payload
 
-	suite.Equal(int64(637056), *cost.Gcc, "Gcc was not equal")
-	suite.Equal(int64(605203), *cost.IncentivePercentage, "IncentivePercentage was not equal")
+	suite.Equal(int64(631957), *cost.Gcc, "Gcc was not equal")
+	suite.Equal(int64(600359), *cost.IncentivePercentage, "IncentivePercentage was not equal")
 }
 func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 	if err := scenario.RunRateEngineScenario2(suite.DB()); err != nil {
@@ -70,16 +86,23 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 	}
 
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	defaultPPM := testdatagen.MakeDefaultPPM(suite.DB())
+	testdatagen.MakeTariff400ngServiceArea(suite.DB(), testdatagen.Assertions{
+		Tariff400ngServiceArea: models.Tariff400ngServiceArea{
+			ServiceArea: "296",
+		},
+	})
 
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	params := ppmop.ShowPPMIncentiveParams{
-		HTTPRequest:      req,
-		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1TestYear),
-		OriginZip:        "94540",
-		DestinationZip:   "78626",
-		Weight:           600,
+		PersonallyProcuredMoveID: strfmt.UUID(defaultPPM.ID.String()),
+		HTTPRequest:              req,
+		OriginalMoveDate:         *handlers.FmtDate(scenario.Oct1TestYear),
+		OriginZip:                "94540",
+		DestinationZip:           "78626",
+		Weight:                   600,
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -90,6 +113,6 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 	okResponse := showResponse.(*ppmop.ShowPPMIncentiveOK)
 	cost := okResponse.Payload
 
-	suite.Equal(int64(270252), *cost.Gcc, "Gcc was not equal")
-	suite.Equal(int64(256739), *cost.IncentivePercentage, "IncentivePercentage was not equal")
+	suite.Equal(int64(269844), *cost.Gcc, "Gcc was not equal")
+	suite.Equal(int64(256352), *cost.IncentivePercentage, "IncentivePercentage was not equal")
 }

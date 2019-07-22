@@ -116,7 +116,7 @@ func (suite *RateEngineSuite) setupRateEngineTest() {
 	suite.MustSave(&itemRate225A)
 }
 
-func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, destinationZip string, weight unit.Pound, logger Logger, planner route.Planner) (CostComputation, error) {
+func (suite *RateEngineSuite) computePPMIncludingLHRates(originPickupZip string, originDutyStationZip string, destinationZip string, weight unit.Pound, logger Logger, planner route.Planner) (CostComputation, error) {
 	suite.setupRateEngineTest()
 	tdl := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
 		TrafficDistributionList: models.TrafficDistributionList{
@@ -141,14 +141,15 @@ func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, desti
 	suite.MustSave(&tspPerformance)
 	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(suite.DB(),
 		logger,
-		originZip,
+		originPickupZip,
 		destinationZip, testdatagen.RateEngineDate,
 	)
 	suite.Require().Nil(err)
 	engine := NewRateEngine(suite.DB(), logger)
 	cost, err := engine.ComputePPM(
 		weight,
-		originZip,
+		originPickupZip,
+		originDutyStationZip,
 		destinationZip,
 		1044,
 		testdatagen.RateEngineDate,
@@ -172,7 +173,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
 
 	// 139698 +20000
-	cost, err := engine.ComputePPM(2000, "39574", "33633", 1234, testdatagen.RateEngineDate,
+	cost, err := engine.ComputePPM(2000, "39574", "33621", "33633", 1234, testdatagen.RateEngineDate,
 		1, unit.DiscountRate(.6), unit.DiscountRate(.5))
 
 	if err != nil {
@@ -188,15 +189,17 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 func (suite *RateEngineSuite) TestComputePPMWithLHDiscount() {
 	logger, _ := zap.NewDevelopment()
 	planner := route.NewTestingPlanner(1234)
-	originZip := "39574"
+	originPickupZip := "39574"
+	originDutyStationZip := "39530"
 	destinationZip := "33633"
 	weight := unit.Pound(2000)
-	cost, err := suite.computePPMIncludingLHRates(originZip, destinationZip, weight, logger, planner)
+	cost, err := suite.computePPMIncludingLHRates(originPickupZip, originDutyStationZip, destinationZip, weight, logger, planner)
 
 	engine := NewRateEngine(suite.DB(), logger)
 	ppmCost, err := engine.ComputePPMIncludingLHDiscount(
 		weight,
-		originZip,
+		originPickupZip,
+		originDutyStationZip,
 		destinationZip,
 		1044,
 		testdatagen.RateEngineDate,

@@ -247,6 +247,12 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
+	testdatagen.MakeTariff400ngServiceArea(suite.DB(), testdatagen.Assertions{
+		Tariff400ngServiceArea: models.Tariff400ngServiceArea{
+			ServiceArea: "296",
+		},
+	})
+
 	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	handler.SetPlanner(route.NewTestingPlanner(900))
 	response := handler.Handle(patchPPMParams)
@@ -302,6 +308,12 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 		PatchPersonallyProcuredMovePayload: payload,
 	}
 
+	testdatagen.MakeTariff400ngServiceArea(suite.DB(), testdatagen.Assertions{
+		Tariff400ngServiceArea: models.Tariff400ngServiceArea{
+			ServiceArea: "296",
+		},
+	})
+
 	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	handler.SetPlanner(route.NewTestingPlanner(900))
 	response := handler.Handle(patchPPMParams)
@@ -312,8 +324,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 
 	suite.Assertions.Equal(int64(*weight), *patchPPMPayload.WeightEstimate)
 	suite.Assertions.Equal(int64(900), *patchPPMPayload.Mileage)
-	suite.Assertions.Equal(int64(242246), *patchPPMPayload.IncentiveEstimateMin)
-	suite.Assertions.Equal(int64(267746), *patchPPMPayload.IncentiveEstimateMax)
+	suite.Assertions.Equal(int64(242207), *patchPPMPayload.IncentiveEstimateMin)
+	suite.Assertions.Equal(int64(267703), *patchPPMPayload.IncentiveEstimateMax)
 	suite.Assertions.Nil(patchPPMPayload.EstimatedStorageReimbursement)
 	suite.Assertions.Equal(int64(0), *patchPPMPayload.PlannedSitMax)
 	suite.Assertions.Equal(int64(157015), *patchPPMPayload.SitMax)
