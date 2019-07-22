@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-openapi/loads"
 
-	"github.com/transcom/mymove/pkg/accesscontrols"
 	"github.com/transcom/mymove/pkg/gen/adminapi"
 	adminops "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -29,7 +28,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 	adminAPI.OfficeIndexOfficeUsersHandler = IndexOfficeUsersHandler{
 		HandlerContext:        context,
 		NewQueryFilter:        query.NewQueryFilter,
-		OfficeUserListFetcher: user.NewOfficeUserListFetcher(queryBuilder, accesscontrols.AuthorizeAdminUser),
+		OfficeUserListFetcher: user.NewOfficeUserListFetcher(queryBuilder),
 	}
 
 	return adminAPI.Serve(nil)

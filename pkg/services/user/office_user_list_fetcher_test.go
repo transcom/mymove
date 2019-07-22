@@ -37,11 +37,7 @@ func (suite *UserServiceSuite) TestFetchOfficeUserList() {
 
 		// Mocking authorization
 		session := auth.Session{}
-		authFunction := func(session *auth.Session) error {
-			return nil
-		}
-
-		fetcher := NewOfficeUserListFetcher(builder, authFunction)
+		fetcher := NewOfficeUserListFetcher(builder)
 		filters := []services.QueryFilter{
 			query.NewQueryFilter("id", "=", id.String()),
 		}
@@ -62,11 +58,7 @@ func (suite *UserServiceSuite) TestFetchOfficeUserList() {
 
 		// Mocking authorization
 		session := auth.Session{}
-		authFunction := func(session *auth.Session) error {
-			return nil
-		}
-
-		fetcher := NewOfficeUserListFetcher(builder, authFunction)
+		fetcher := NewOfficeUserListFetcher(builder)
 
 		officeUsers, err := fetcher.FetchOfficeUserList([]services.QueryFilter{}, &session)
 
@@ -85,11 +77,7 @@ func (suite *UserServiceSuite) TestFetchOfficeUserList() {
 
 		// Mocking authorization
 		session := auth.Session{}
-		authFunction := func(session *auth.Session) error {
-			return errors.New("USER_UNAUTHORIZED")
-		}
-
-		fetcher := NewOfficeUserListFetcher(builder, authFunction)
+		fetcher := NewOfficeUserListFetcher(builder)
 
 		officeUsers, err := fetcher.FetchOfficeUserList([]services.QueryFilter{}, &session)
 

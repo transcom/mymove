@@ -10,25 +10,18 @@ type officeUserListQueryBuilder interface {
 	FetchMany(model interface{}, filters []services.QueryFilter) error
 }
 
-type authorizeAdminUser func(session *auth.Session) error
-
 type officeUserListFetcher struct {
-	builder      officeUserListQueryBuilder
-	authFunction authorizeAdminUser
+	builder officeUserListQueryBuilder
 }
 
 // FetchOfficeUserList uses the passed query builder to fetch a list of office users
 func (o *officeUserListFetcher) FetchOfficeUserList(filters []services.QueryFilter, session *auth.Session) (models.OfficeUsers, error) {
-	err := o.authFunction(session)
-	if err != nil {
-		return nil, err
-	}
 	var officeUsers models.OfficeUsers
 	error := o.builder.FetchMany(&officeUsers, filters)
 	return officeUsers, error
 }
 
 // NewOfficeUserListFetcher returns an implementation of OfficeUserListFetcher
-func NewOfficeUserListFetcher(builder officeUserListQueryBuilder, authFunction authorizeAdminUser) services.OfficeUserListFetcher {
-	return &officeUserListFetcher{builder, authFunction}
+func NewOfficeUserListFetcher(builder officeUserListQueryBuilder) services.OfficeUserListFetcher {
+	return &officeUserListFetcher{builder}
 }

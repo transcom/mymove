@@ -177,18 +177,6 @@ func (suite *BaseHandlerTestSuite) AuthenticateDpsRequest(req *http.Request, ser
 	return req.WithContext(ctx)
 }
 
-// AuthenticateAdminRequest authenticates DPS users
-func (suite *BaseHandlerTestSuite) AuthenticateAdminRequest(req *http.Request, user models.User) *http.Request {
-	session := auth.Session{
-		ApplicationName: auth.AdminApp,
-		UserID:          user.ID,
-		IDToken:         "fake token",
-		IsSuperuser:     true,
-	}
-	ctx := auth.SetSessionInRequestContext(req, &session)
-	return req.WithContext(ctx)
-}
-
 // Fixture allows us to include a fixture like a PDF in the test
 func (suite *BaseHandlerTestSuite) Fixture(name string) *runtime.File {
 	fixtureDir := "fixtures"
