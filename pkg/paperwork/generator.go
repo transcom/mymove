@@ -248,10 +248,10 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 	}
 
 	var opt gofpdf.ImageOptions
-	for _, i := range images {
+	for _, img := range images {
 		pdf.AddPage()
-		file, _ := g.fs.Open(i.Path)
-		if i.ContentType == "image/png" {
+		file, _ := g.fs.Open(img.Path)
+		if img.ContentType == "image/png" {
 			// gofpdf isn't able to process 16-bit PNGs, so to be safe we convert all PNGs to an 8-bit color depth
 			newFile, newTemplateFileErr := g.newTempFile()
 			if newTemplateFileErr != nil {
@@ -268,9 +268,9 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 			}
 		}
 		// Need to register the image using an afero reader, else it uses default filesystem
-		pdf.RegisterImageReader(i.Path, contentTypeToImageType[i.ContentType], file)
-		opt.ImageType = contentTypeToImageType[i.ContentType]
-		pdf.ImageOptions(i.Path, horizontalMargin, topMargin, bodyWidth, 0, false, opt, 0, "")
+		pdf.RegisterImageReader(img.Path, contentTypeToImageType[img.ContentType], file)
+		opt.ImageType = contentTypeToImageType[img.ContentType]
+		pdf.ImageOptions(img.Path, horizontalMargin, topMargin, bodyWidth, 0, false, opt, 0, "")
 		fileCloseErr := file.Close()
 		if fileCloseErr != nil {
 			return "", errors.Wrapf(err, "error closing file: %s", file.Name())
@@ -293,9 +293,9 @@ func (g *Generator) MergePDFFiles(paths []string) (afero.File, error) {
 
 	var files []ReadSeekerCloser
 	for _, p := range paths {
-		f, err1 := g.fs.Open(p)
-		if err1 != nil {
-			return mergedFile, err
+		f, fileOpenErr := g.fs.Open(p)
+		if fileOpenErr != nil {
+			return mergedFile, fileOpenErr
 		}
 		files = append(files, f)
 	}
