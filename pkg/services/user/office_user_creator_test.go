@@ -17,8 +17,8 @@ func (suite *UserServiceSuite) TestCreateOfficeUser() {
 		FirstName:              "Leo",
 		Email:                  "spaceman@leo.org",
 		TransportationOfficeID: transportationOffice.ID,
-		//Telephone: "312-111-1111",
-		TransportationOffice: transportationOffice,
+		Telephone:              "312-111-1111",
+		TransportationOffice:   transportationOffice,
 	}
 
 	// Happy path

@@ -72,13 +72,13 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 		TransportationOfficeID: transporationOfficeID,
 	}
 
-	transporationIDFilter := []services.QueryFilter{
+	transportationIDFilter := []services.QueryFilter{
 		h.NewQueryFilter("id", "=", transporationOfficeID),
 	}
 
-	createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(&officeUser, transporationIDFilter)
-	if err != nil || verrs.HasAny() {
-		logger.Error("Error saving user", zap.Error(err), zap.Error(verrs))
+	createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(&officeUser, transportationIDFilter)
+	if err != nil || verrs != nil {
+		logger.Error("Error saving user", zap.Error(err))
 		return officeuserop.NewCreateOfficeUserInternalServerError()
 	}
 
