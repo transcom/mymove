@@ -23,6 +23,7 @@ import (
 type Assertions struct {
 	AccessCode                               models.AccessCode
 	Address                                  models.Address
+	AdminUser                                models.AdminUser
 	BackupContact                            models.BackupContact
 	BlackoutDate                             models.BlackoutDate
 	DistanceCalculation                      models.DistanceCalculation

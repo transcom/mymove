@@ -1,0 +1,2 @@
+sql("ALTER TABLE admin_users ALTER COLUMN first_name SET NOT NULL;")
+sql("ALTER TABLE admin_users ALTER COLUMN last_name SET NOT NULL;")
