@@ -22,7 +22,7 @@ type PopTestSuite struct {
 }
 
 func commandWithDefaults(command string, args ...string) *exec.Cmd {
-	port := envy.MustGet("DB_PORT")
+	port := envy.MustGet("DB_PORT_TEST")
 	defaults := []string{"-U", "postgres", "-h", "localhost", "-p", port}
 
 	arguments := append(defaults, args...)
@@ -109,7 +109,7 @@ func NewPopTestSuite(packageName PackageName) PopTestSuite {
 		Dialect:  "postgres",
 		Database: dbName,
 		Host:     envy.MustGet("DB_HOST"),
-		Port:     envy.MustGet("DB_PORT"),
+		Port:     envy.MustGet("DB_PORT_TEST"),
 		User:     envy.MustGet("DB_USER"),
 		Password: envy.MustGet("DB_PASSWORD"),
 	})

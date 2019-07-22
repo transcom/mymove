@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -76,6 +77,28 @@ type ShipmentLineItem struct {
 
 // ShipmentLineItems is not required by pop and may be deleted
 type ShipmentLineItems []ShipmentLineItem
+
+func StorageInTransitLineItemCodes() []string {
+	return []string{
+		"185A",
+		"185B",
+		"210A",
+		"210B",
+		"210C",
+		"210F",
+	}
+}
+
+func BaseShipmentLineItemCodes() []string {
+	return []string{
+		"LHS",
+		"135A",
+		"135B",
+		"105A",
+		"105C",
+		"16A",
+	}
+}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
@@ -160,11 +183,18 @@ func FetchLineItemsByShipmentID(dbConnection *pop.Connection, shipmentID *uuid.U
 func FetchApprovedPreapprovalRequestsByShipment(dbConnection *pop.Connection, shipment Shipment) ([]ShipmentLineItem, error) {
 	var items []ShipmentLineItem
 
+	sitCodes := StorageInTransitLineItemCodes()
+	storageInTransitCodes := make([]interface{}, len(sitCodes))
+	for i, t := range sitCodes {
+		storageInTransitCodes[i] = t
+	}
+
 	query := dbConnection.Q().
 		LeftJoin("tariff400ng_items", "shipment_line_items.tariff400ng_item_id=tariff400ng_items.id").
 		Where("shipment_id = ?", shipment.ID).
 		Where("status = ?", ShipmentLineItemStatusAPPROVED).
 		Where("tariff400ng_items.requires_pre_approval = true").
+		Where("code not in (?)", storageInTransitCodes...).
 		Eager("Tariff400ngItem")
 
 	err := query.All(&items)
@@ -218,5 +248,50 @@ func (s *ShipmentLineItem) ConditionallyApprove() error {
 	if s.ApprovedDate.IsZero() {
 		s.ApprovedDate = time.Now()
 	}
+	return nil
+}
+
+// FindBaseShipmentLineItem returns true if code is a Base Shipment Line Item
+// otherwise, returns false
+func FindBaseShipmentLineItem(code string) bool {
+	for _, item := range BaseShipmentLineItemCodes() {
+		if code == item {
+			return true
+		}
+	}
+	return false
+}
+
+// FindStorageInTransitShipmentLineItem returns true if code is a Storage in Transit Shipment Line Item
+// otherwise, returns false
+func FindStorageInTransitShipmentLineItem(code string) bool {
+	for _, base := range StorageInTransitLineItemCodes() {
+		if code == base {
+			return true
+		}
+	}
+	return false
+}
+
+// VerifyBaseShipmentLineItems checks that all of the expected base line items are in use, as they are mandatory for
+// every shipment
+func VerifyBaseShipmentLineItems(lineItems []ShipmentLineItem) error {
+	m := make(map[string]int)
+	for _, code := range BaseShipmentLineItemCodes() {
+		m[code] = 0
+	}
+
+	for _, item := range lineItems {
+		if !item.Tariff400ngItem.RequiresPreApproval && FindBaseShipmentLineItem(item.Tariff400ngItem.Code) {
+			m[item.Tariff400ngItem.Code]++
+		}
+	}
+
+	for code, count := range m {
+		if count != 1 {
+			return fmt.Errorf("incorrect count for Base Shipment Line Item %s expected count: 1, actual count: %d", code, count)
+		}
+	}
+
 	return nil
 }

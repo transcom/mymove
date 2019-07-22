@@ -123,15 +123,6 @@ class WeightTicket extends Component {
     history.push(`/moves/${moveId}${nextPagePath}`);
   };
 
-  saveForLaterHandler = formValues => {
-    const { history } = this.props;
-    return this.saveAndAddHandler(formValues).then(() => {
-      if (this.state.weightTicketSubmissionError === false) {
-        history.push('/');
-      }
-    });
-  };
-
   nonEmptyUploaderKeys() {
     const uploadersKeys = Object.keys(this.uploaders);
     return uploadersKeys.filter(
@@ -453,12 +444,11 @@ class WeightTicket extends Component {
             )}
             <PPMPaymentRequestActionBtns
               nextBtnLabel={nextBtnLabel}
+              hasConfirmation={true}
               submitButtonsAreDisabled={this.uploaderWithInvalidState() || invalid}
               submitting={submitting}
               skipHandler={this.skipHandler}
-              saveForLaterHandler={handleSubmit(this.saveForLaterHandler)}
               saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
-              displaySaveForLater={true}
               displaySkip={weightTicketSets.length >= 1}
             />
           </div>

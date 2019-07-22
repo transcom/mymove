@@ -11,6 +11,8 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 func getCookie(name string, cookies []*http.Cookie) (*http.Cookie, error) {
@@ -229,8 +231,15 @@ func (suite *AuthSuite) TestCreateUserHandlerAdmin() {
 		t.Error("Could not unmarshal json data into User model.", err)
 	}
 
-	// Make sure the superuser flag is set to true
-	suite.True(user.IsSuperuser, "superuser flag was not set to true for admin user")
+	var adminUser models.AdminUser
+	queryBuilder := query.NewQueryBuilder(suite.DB())
+	filters := []services.QueryFilter{
+		query.NewQueryFilter("email", "=", user.LoginGovEmail),
+	}
+
+	if err := queryBuilder.FetchOne(&adminUser, filters); err != nil {
+		t.Error("Couldn't find admin user record")
+	}
 }
 
 func (suite *AuthSuite) TestCreateAndLoginUserHandlerFromMilMoveToMilMove() {

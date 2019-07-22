@@ -112,7 +112,7 @@ func (suite *RateEngineSuite) TestPricePreapprovalRequestsForShipment() {
 	}
 
 	engine := NewRateEngine(suite.DB(), suite.logger)
-	pricedItems, err := engine.PricePreapprovalRequestsForShipment(shipment)
+	pricedItems, err := engine.PriceAdditionalRequestsForShipment(shipment, []models.ShipmentLineItem{})
 
 	// There should be no error
 	if suite.NoError(err) {
@@ -137,7 +137,7 @@ func (suite *RateEngineSuite) TestPricePreapprovalRequest() {
 	})
 
 	engine := NewRateEngine(suite.DB(), suite.logger)
-	err := engine.PricePreapprovalRequest(&item)
+	err := engine.PriceAdditionalRequest(&item)
 
 	if suite.NoError(err) {
 		suite.NotNil(item.AmountCents)
