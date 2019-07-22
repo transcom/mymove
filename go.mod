@@ -6,7 +6,7 @@ require (
 	github.com/0xAX/notificator v0.0.0-20181105090803-d81462e38c21 // indirect
 	github.com/99designs/aws-vault v4.5.1+incompatible
 	github.com/99designs/keyring v1.1.0
-	github.com/aws/aws-sdk-go v1.20.20
+	github.com/aws/aws-sdk-go v1.21.1
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
 	github.com/cockroachdb/apd v1.1.0 // indirect
 	github.com/cockroachdb/cockroach-go v0.0.0-20181001143604-e0a95dfd547c // indirect
@@ -24,19 +24,17 @@ require (
 	github.com/felixge/httpsnoop v1.0.0
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-ini/ini v1.44.0 // indirect
-	github.com/go-openapi/errors v0.19.2
 	github.com/go-openapi/loads v0.19.2
 	github.com/go-openapi/runtime v0.19.3
-	github.com/go-openapi/spec v0.19.2
 	github.com/go-openapi/strfmt v0.19.2
 	github.com/go-openapi/swag v0.19.4
-	github.com/go-openapi/validate v0.19.2
-	github.com/go-swagger/go-swagger v0.19.1-0.20190712002221-a5e3099fe0bb
+	github.com/go-swagger/go-swagger v0.19.1-0.20190719001815-2f32a5a85285
 	github.com/gobuffalo/fizz v1.9.2 // indirect
 	github.com/gobuffalo/logger v1.0.1 // indirect
 	github.com/gobuffalo/makr v1.2.0 // indirect
 	github.com/gobuffalo/nulls v0.1.0 // indirect
 	github.com/gobuffalo/packr v1.30.1
+	github.com/gobuffalo/plush v3.8.3+incompatible // indirect
 	github.com/gobuffalo/pop v4.11.2+incompatible
 	github.com/gobuffalo/validate v2.0.3+incompatible
 	github.com/gofrs/uuid v3.2.0+incompatible
@@ -49,10 +47,9 @@ require (
 	github.com/imdario/mergo v0.3.7
 	github.com/jackc/fake v0.0.0-20150926172116-812a484cc733 // indirect
 	github.com/jackc/pgx v3.5.0+incompatible // indirect
-	github.com/jessevdk/go-flags v1.4.0
 	github.com/jmoiron/sqlx v1.2.0
-	github.com/jung-kurt/gofpdf v1.5.2
-	github.com/lib/pq v1.1.1
+	github.com/jung-kurt/gofpdf v1.5.4
+	github.com/lib/pq v1.2.0
 	github.com/markbates/goth v1.54.1
 	github.com/mattn/go-colorable v0.1.2 // indirect
 	github.com/mattn/go-shellwords v1.0.5 // indirect
@@ -62,9 +59,9 @@ require (
 	github.com/rickar/cal v1.0.1
 	github.com/rogpeppe/go-internal v1.3.0
 	github.com/satori/go.uuid v1.2.0 // indirect
-	github.com/segmentio/chamber v0.0.0-20190710175036-9b6cb14e98b6
+	github.com/segmentio/chamber v0.0.0-20190715181207-e5ba522bff08
 	github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24 // indirect
-	github.com/smartystreets/assertions v1.0.0 // indirect
+	github.com/smartystreets/assertions v1.0.1 // indirect
 	github.com/smartystreets/goconvey v0.0.0-20190710185942-9d28bd7c0945 // indirect
 	github.com/spf13/afero v1.2.2
 	github.com/spf13/cobra v0.0.5
@@ -81,9 +78,8 @@ require (
 	go.uber.org/zap v1.10.0
 	goji.io v2.0.2+incompatible
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
-	golang.org/x/net v0.0.0-20190628185345-da137c7871d7
 	golang.org/x/text v0.3.2
-	golang.org/x/tools v0.0.0-20190715044752-607ca053a137
+	golang.org/x/tools v0.0.0-20190719005602-e377ae9d6386
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/alexcesaro/statsd.v2 v2.0.0 // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
