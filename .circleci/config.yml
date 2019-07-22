@@ -323,8 +323,8 @@ jobs:
             NO_TLS_ENABLED: true
       - announce_failure
 
-  # `integration_tests_parallel` runs integration tests using Cypress.  https://www.cypress.io/
-  integration_tests_parallel:
+  # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
+  integration_tests:
     parallelism: 10
     executor: mymove_medium
     steps:
@@ -809,7 +809,7 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
 
-      - integration_tests_parallel:
+      - integration_tests:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
@@ -908,7 +908,7 @@ workflows:
             - build_tasks
             - acceptance_tests_local
             - acceptance_tests_staging
-            - integration_tests_parallel
+            - integration_tests
           filters:
             branches:
               only: master
