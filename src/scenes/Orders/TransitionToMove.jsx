@@ -7,10 +7,14 @@ import ordersComplete from 'shared/images/orders-complete-gray-icon.png';
 import moveIcon from 'shared/images/move-icon.png';
 
 export class TransitionToMove extends Component {
-  render() {
-    // Make sure the move is always set to PPM since we no longer allow HHGs
-    this.props.updateMove(this.props.moveId, 'PPM');
+  componentDidMount() {
+    if (!this.props.selectedMoveType) {
+      // Make sure the move is always set to PPM since we no longer allow HHGs
+      this.props.updateMove(this.props.moveId, 'PPM');
+    }
+  }
 
+  render() {
     return (
       <div className="usa-grid">
         <div className="lg center">
@@ -31,6 +35,7 @@ function mapStateToProps(state) {
   const move = get(state, 'moves.currentMove');
   const props = {
     moveId: get(move, 'id'),
+    selectedMoveType: get(move, 'selected_move_type'),
   };
   return props;
 }
