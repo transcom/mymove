@@ -93,7 +93,6 @@ const (
 type MoveWeightTicketSetDocumentSaveAction string
 
 const (
-
 	// MoveDocumentSaveActionDELETEWEIGHTTICKETSETMODEL encodes an action to delete a linked expense model
 	MoveDocumentSaveActionDELETEWEIGHTTICKETSETMODEL MoveWeightTicketSetDocumentSaveAction = "DELETE_WEIGHT_TICKET_SET_MODEL"
 	// MoveDocumentSaveActionSAVEWEIGHTTICKETSETMODEL encodes an action to save a linked expense model
@@ -267,6 +266,19 @@ func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UU
 			}
 		} else {
 			moveDocuments[i].MovingExpenseDocument = &movingExpenseDocument
+		}
+	}
+
+	for i, moveDoc := range moveDocuments {
+		weightTicketSet := WeightTicketSetDocument{}
+		moveDoc.WeightTicketSetDocument = nil
+		err = db.Where("move_document_id = $1", moveDoc.ID.String()).Eager().First(&weightTicketSet)
+		if err != nil {
+			if errors.Cause(err).Error() != recordNotFoundErrorString {
+				return nil, err
+			}
+		} else {
+			moveDocuments[i].WeightTicketSetDocument = &weightTicketSet
 		}
 	}
 

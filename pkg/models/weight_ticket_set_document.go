@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/transcom/mymove/pkg/auth"
 	"time"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -51,4 +52,21 @@ func (m *WeightTicketSetDocument) ValidateCreate(tx *pop.Connection) (*validate.
 // This method is not required and may be deleted.
 func (m *WeightTicketSetDocument) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+func SumWeightTicketSetsForPPM(db *pop.Connection, session *auth.Session, ppmID uuid.UUID) (*unit.Pound, error) {
+	status := MoveDocumentStatusOK
+	weightTicketSets, err := FetchMoveDocuments(db, session, ppmID, &status, MoveDocumentTypeWEIGHTTICKETSET)
+	if err != nil {
+		pound := unit.Pound(0)
+		return &pound, err
+	}
+	var totalWeight unit.Pound
+	for _, weightTicketSet := range weightTicketSets {
+		wt := weightTicketSet.WeightTicketSetDocument
+		if wt != nil && wt.FullWeight != nil && wt.EmptyWeight != nil {
+			totalWeight += *wt.FullWeight - *wt.EmptyWeight
+		}
+	}
+	return &totalWeight, nil
 }

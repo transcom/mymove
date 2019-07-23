@@ -300,6 +300,11 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	// If we are a weight ticket set type, we need to either delete, create, or update a WeightTicketSetDocument
 	// depending on which type of document already exists
 	if newType == models.MoveDocumentTypeWEIGHTTICKETSET {
+		ppm := &moveDoc.PersonallyProcuredMove
+		ppm.NetWeight, err = models.SumWeightTicketSetsForPPM(h.DB(), session, ppm.ID)
+		if err != nil {
+			return handlers.ResponseForError(logger, errors.New("unable to calculate ppm net weight"))
+		}
 		var emptyWeight, fullWeight *unit.Pound
 		if payload.EmptyWeight != nil {
 			ew := unit.Pound(*payload.EmptyWeight)
@@ -334,8 +339,10 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 			// update existing weight ticket set
 			moveDoc.WeightTicketSetDocument.EmptyWeight = emptyWeight
 			moveDoc.WeightTicketSetDocument.FullWeight = fullWeight
+
 		}
 		saveWeightTicketSetAction = models.MoveDocumentSaveActionSAVEWEIGHTTICKETSETMODEL
+
 	} else {
 		// delete if document exists but the move document is being converted to something else
 		if moveDoc.WeightTicketSetDocument != nil {
@@ -346,6 +353,19 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	verrs, err := models.SaveMoveDocument(h.DB(), moveDoc, saveExpenseAction, saveWeightTicketSetAction)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
+	}
+
+	if newType == models.MoveDocumentTypeWEIGHTTICKETSET {
+		// weight tickets require that we save the ppm again to reflect updated net weight derived from the
+		// updated weight tickets
+		ppm := &moveDoc.PersonallyProcuredMove
+		ppm.NetWeight, err = models.SumWeightTicketSetsForPPM(h.DB(), session, ppm.ID)
+		if err != nil {
+			return handlers.ResponseForError(logger, errors.New("unable to calculate ppm net weight"))
+		}
+		if verrs, err := h.DB().ValidateAndSave(ppm); verrs.HasAny() || err != nil {
+			return handlers.ResponseForError(logger, errors.New("unable to save ppm net weight"))
+		}
 	}
 
 	moveDocPayload, err := payloadForMoveDocument(h.FileStorer(), *moveDoc)

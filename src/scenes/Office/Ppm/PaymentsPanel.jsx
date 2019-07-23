@@ -38,8 +38,7 @@ const attachmentsErrorMessages = {
 export function sswIsDisabled(ppm, signedCertification, shipment, moveDocs) {
   return (
     missingSignature(signedCertification) ||
-    !calcWeightTicketNetWeight(moveDocs) ||
-    missingActualMoveDate(ppm) ||
+    missingRequiredPPMInfo(ppm) ||
     isComboAndNotDelivered(shipment)
   );
 }
@@ -48,8 +47,8 @@ function missingSignature(signedCertification) {
   return isEmpty(signedCertification) || signedCertification.certification_type !== 'PPM_PAYMENT';
 }
 
-function missingActualMoveDate(ppm) {
-  return isEmpty(ppm) || !ppm.actual_move_date;
+function missingRequiredPPMInfo(ppm) {
+  return isEmpty(ppm) || !ppm.actual_move_date || !ppm.net_weight;
 }
 
 function isComboAndNotDelivered(shipment) {
