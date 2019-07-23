@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190710174257_add_system_admin_users.sql")

@@ -21,7 +21,6 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/',
           '/orders/upload',
           '/orders/transition',
-          '/moves/:moveId',
           '/moves/:moveId/ppm-start',
           '/moves/:moveId/ppm-size',
           '/moves/:moveId/ppm-incentive',
@@ -46,7 +45,6 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/',
           '/orders/upload',
           '/orders/transition',
-          '/moves/:moveId',
           '/moves/:moveId/hhg-ppm-start',
           '/moves/:moveId/hhg-ppm-size',
           '/moves/:moveId/hhg-ppm-weight',
@@ -64,7 +62,6 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/',
           '/orders/upload',
           '/orders/transition',
-          '/moves/:moveId',
           '/moves/:moveId/ppm-start',
           '/moves/:moveId/ppm-size',
           '/moves/:moveId/ppm-incentive',
@@ -91,7 +88,6 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/',
           '/orders/upload',
           '/orders/transition',
-          '/moves/:moveId',
           '/moves/:moveId/hhg-start',
           '/moves/:moveId/hhg-locations',
           '/moves/:moveId/hhg-weight',
@@ -121,7 +117,6 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/',
           '/orders/upload',
           '/orders/transition',
-          '/moves/:moveId',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
         ]);
@@ -145,7 +140,6 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/',
           '/orders/upload',
           '/orders/transition',
-          '/moves/:moveId',
           '/moves/:moveId/ppm-start',
           '/moves/:moveId/ppm-size',
           '/moves/:moveId/ppm-incentive',
@@ -172,7 +166,6 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/',
           '/orders/upload',
           '/orders/transition',
-          '/moves/:moveId',
           '/moves/:moveId/hhg-start',
           '/moves/:moveId/hhg-locations',
           '/moves/:moveId/hhg-weight',
@@ -437,35 +430,7 @@ describe('when getting the next incomplete page', () => {
           },
           move: { id: 'bar' },
         });
-        expect(result).toEqual('/moves/bar');
-      });
-    });
-    describe('when move type selection is complete', () => {
-      it('returns the next page', () => {
-        const result = getNextIncompletePage({
-          selectedMoveType: 'PPM',
-          serviceMember: {
-            ...serviceMember,
-            is_profile_complete: true,
-          },
-          orders: {
-            orders_type: 'foo',
-            issue_date: '2019-01-01',
-            report_by_date: '2019-02-01',
-            new_duty_station: { id: 'something' },
-            uploaded_orders: {
-              uploads: [{}],
-            },
-          },
-          move: {
-            id: 'bar',
-            selected_move_type: 'PPM',
-          },
-          ppm: {
-            id: 'baz',
-          },
-        });
-        expect(result).toEqual('/moves/bar/ppm-start');
+        expect(result).toEqual('/moves/bar/review');
       });
     });
     describe('when ppm date is complete', () => {
