@@ -18,7 +18,7 @@ import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import ScratchPad from 'shared/ScratchPad';
 import { isProduction } from 'shared/constants';
-import FailWhale from 'shared/FailWhale';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { RetrieveMovesForOffice } from './api';
 
 import './office.scss';
@@ -63,7 +63,7 @@ export class OfficeWrapper extends Component {
           <Tag role="main" className="site__content">
             <div>
               <LogoutOnInactivity />
-              {this.state.hasError && <FailWhale />}
+              {this.state.hasError && <SomethingWentWrong />}
               {!this.state.hasError && (
                 <Switch>
                   <Route

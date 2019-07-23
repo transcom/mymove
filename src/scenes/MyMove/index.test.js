@@ -3,7 +3,7 @@ import { shallow } from 'enzyme';
 import { AppWrapper } from '.';
 import Header from 'shared/Header/MyMove';
 import Footer from 'shared/Footer';
-import FailWhale from 'shared/FailWhale';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 describe('AppWrapper tests', () => {
   let _wrapper;
@@ -15,7 +15,7 @@ describe('AppWrapper tests', () => {
   it('renders without crashing or erroring', () => {
     const appWrapper = _wrapper.find('div');
     expect(appWrapper).toBeDefined();
-    expect(_wrapper.find(FailWhale)).toHaveLength(0);
+    expect(_wrapper.find(SomethingWentWrong)).toHaveLength(0);
   });
 
   it('renders Header component', () => {
@@ -28,6 +28,6 @@ describe('AppWrapper tests', () => {
 
   it('renders the fail whale', () => {
     _wrapper.setState({ hasError: true });
-    expect(_wrapper.find(FailWhale)).toHaveLength(1);
+    expect(_wrapper.find(SomethingWentWrong)).toHaveLength(1);
   });
 });

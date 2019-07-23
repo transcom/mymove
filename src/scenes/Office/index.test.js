@@ -2,7 +2,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import { OfficeWrapper } from '.';
 import QueueHeader from 'shared/Header/Office';
-import FailWhale from 'shared/FailWhale';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 
 describe('OfficeWrapper tests', () => {
   let _wrapper;
@@ -14,7 +14,7 @@ describe('OfficeWrapper tests', () => {
   it('renders without crashing or erroring', () => {
     const officeWrapper = _wrapper.find('div');
     expect(officeWrapper).toBeDefined();
-    expect(_wrapper.find(FailWhale)).toHaveLength(0);
+    expect(_wrapper.find(SomethingWentWrong)).toHaveLength(0);
   });
 
   it('renders Queue Header component', () => {
@@ -23,6 +23,6 @@ describe('OfficeWrapper tests', () => {
 
   it('renders the fail whale', () => {
     _wrapper.setState({ hasError: true });
-    expect(_wrapper.find(FailWhale)).toHaveLength(1);
+    expect(_wrapper.find(SomethingWentWrong)).toHaveLength(1);
   });
 });
