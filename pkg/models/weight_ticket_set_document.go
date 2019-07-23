@@ -55,14 +55,17 @@ func (m *WeightTicketSetDocument) ValidateUpdate(tx *pop.Connection) (*validate.
 	return validate.NewErrors(), nil
 }
 
+// SumWeightTicketSetsForPPM iterates through move documents that are weight ticket sets and accumulates
+// the net weight if the weight ticket set has an OK status
 func SumWeightTicketSetsForPPM(db *pop.Connection, session *auth.Session, ppmID uuid.UUID) (*unit.Pound, error) {
 	status := MoveDocumentStatusOK
-	weightTicketSets, err := FetchMoveDocuments(db, session, ppmID, &status, MoveDocumentTypeWEIGHTTICKETSET)
-	if err != nil {
-		pound := unit.Pound(0)
-		return &pound, err
-	}
 	var totalWeight unit.Pound
+	weightTicketSets, err := FetchMoveDocuments(db, session, ppmID, &status, MoveDocumentTypeWEIGHTTICKETSET)
+
+	if err != nil {
+		return &totalWeight, err
+	}
+
 	for _, weightTicketSet := range weightTicketSets {
 		wt := weightTicketSet.WeightTicketSetDocument
 		if wt != nil && wt.FullWeight != nil && wt.EmptyWeight != nil {

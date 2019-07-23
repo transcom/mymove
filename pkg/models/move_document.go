@@ -231,7 +231,7 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	return &moveDoc, nil
 }
 
-// FetchMoveDocuments fetches all move expense documents for a ppm
+// FetchMoveDocuments fetches all move expense and weight ticket set documents for a ppm
 // the optional status parameter can be used for restricting to a subset of statuses.
 func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UUID, status *MoveDocumentStatus, moveDocumentType MoveDocumentType) (MoveDocuments, error) {
 	// Allow all logged in office users to fetch move docs
