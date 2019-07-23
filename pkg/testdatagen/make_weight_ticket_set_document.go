@@ -7,7 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// MakeWeightTicketSetDocument creates a single Moving Expense Document.
+// MakeWeightTicketSetDocument creates a single Weight Ticket Set Document.
 func MakeWeightTicketSetDocument(db *pop.Connection, assertions Assertions) models.WeightTicketSetDocument {
 	moveDoc := assertions.WeightTicketSetDocument.MoveDocument
 	// ID is required because it must be populated for Eager saving to work.
