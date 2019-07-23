@@ -22,4 +22,4 @@ if [[ ! -f "${MODULE}" ]]; then
 fi
 
 "${PKCS11}" -r --module "${MODULE}" -a "Identity #0" --type cert > identity.cert 2> /dev/null
-openssl x509 -inform der -in identity.cert -noout -fingerprint -sha256 | cut -d "=" -f2 | sed s/://g | perl -ne 'print lc'
+openssl x509 -inform der -in identity.cert -noout -fingerprint -sha256 | perl -ne 's/^.*=//; s/://g; print lc'
