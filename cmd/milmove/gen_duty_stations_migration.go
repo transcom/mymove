@@ -24,8 +24,6 @@ const (
 	DutyStationsFilenameFlag string = "office-users-filename"
 	// sql file containing the migration to add the new office users
 	DutyStationsMigrationFilenameFlag string = "migration-filename"
-	// the Go time format for creating a version number.
-	VersionTimeFormat11 string = "20060102150405"
 )
 
 type MigrationInfo struct {
@@ -46,12 +44,12 @@ func InitAddDutyStationsFlags(flag *pflag.FlagSet) {
 
 // CheckAddDutyStations validates add_office_users command line flags
 func CheckAddDutyStations(v *viper.Viper) error {
-	DutyStationsFilenameFlag := v.GetString(DutyStationsFilenameFlag)
-	if DutyStationsFilenameFlag == "" {
+	DutyStationsFilename := v.GetString(DutyStationsFilenameFlag)
+	if DutyStationsFilename == "" {
 		return fmt.Errorf("--office-users-filename is required")
 	}
-	DutyStationsMigrationFilenameFlag := v.GetString(DutyStationsMigrationFilenameFlag)
-	if DutyStationsMigrationFilenameFlag == "" {
+	DutyStationsMigrationFilename := v.GetString(DutyStationsMigrationFilenameFlag)
+	if DutyStationsMigrationFilename == "" {
 		return fmt.Errorf("--migration-filename is required")
 	}
 	return nil
@@ -71,14 +69,6 @@ func initGenDutyStationsMigrationFlags(flag *pflag.FlagSet) {
 	flag.SortFlags = true
 }
 
-func closeFile11(outfile *os.File) {
-	err := outfile.Close()
-	if err != nil {
-		log.Printf("error closing %s: %v\n", outfile.Name(), err)
-		os.Exit(1)
-	}
-}
-
 func createDutyStationMigration(path string, filename string, ds []dutyStations.DutyStationMigration) error {
 	migrationPath := filepath.Join(path, filename)
 	migrationFile, err := os.Create(migrationPath)
@@ -89,7 +79,7 @@ func createDutyStationMigration(path string, filename string, ds []dutyStations.
 
 	t1 := template.Must(template.New("temp1").Parse(DutyStationMigration))
 	err = t1.Execute(migrationFile, MigrationInfo{filename})
-	t2 := template.Must(template.New("temp2").Parse(dutyStations.ABC))
+	t2 := template.Must(template.New("temp2").Parse(dutyStations.InsertTemplate))
 	err = t2.Execute(migrationFile, ds)
 	if err != nil {
 		log.Println("error executing template: ", err)

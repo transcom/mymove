@@ -21,7 +21,7 @@ import (
 const hereRequestTimeout = time.Duration(15) * time.Second
 
 const (
-	ABC string = `
+	InsertTemplate string = `
 	{{range .}}
 INSERT INTO addresses (id, street_address_1, city, state, postal_code, created_at, updated_at, country) VALUES ('{{.AddressID}}', 'N/A', '{{.Address.City}}', '{{.Address.State}}', '{{.Address.PostalCode}}', now(), now(), 'United States');
 INSERT INTO duty_stations (id, name, affiliation, address_id, created_at, updated_at, transportation_office_id) VALUES ('{{.DutyStationID}}', '{{.Stations.Name}}', 'MARINES', '{{.AddressID}}', now(), now(), '{{.To.ID}}');
@@ -34,98 +34,6 @@ type DutyStationMigration struct {
 	Stations      StationData
 	AddressID     uuid.UUID
 	DutyStationID uuid.UUID
-}
-
-var uppercaseWords = map[string]bool{
-	// seeing double w/ a comma == a hack to deal w/ commas in the office name
-	"AFB":     true,
-	"AFB,":    true,
-	"DIST":    true,
-	"DIST,":   true,
-	"FLCJ":    true,
-	"FLCJ,":   true,
-	"JB":      true,
-	"JRB":     true,
-	"JRB,":    true,
-	"LCR":     true,
-	"LCR,":    true,
-	"MCAS":    true,
-	"MCAS,":   true,
-	"NAVSUP":  true,
-	"NAVSUP,": true,
-	"NAF":     true,
-	"NAF,":    true,
-	"NAS":     true,
-	"NAS,":    true,
-	"PPPO":    true,
-	"PPPO,":   true,
-	"USCG":    true,
-	"USCG,":   true,
-	"USMA":    true,
-	"USMA,":   true,
-	"USNA":    true,
-	"USNA,":   true,
-	"HQTRS":   true,
-}
-
-var states = map[string]bool{
-	"AL": true,
-	"AK": true,
-	"AZ": true,
-	"AR": true,
-	"CA": true,
-	"CO": true,
-	"CT": true,
-	"DC": true,
-	"DE": true,
-	"FL": true,
-	"GA": true,
-	"HI": true,
-	"ID": true,
-	"IL": true,
-	"IN": true,
-	"IA": true,
-	"KS": true,
-	"KY": true,
-	"LA": true,
-	"ME": true,
-	"MD": true,
-	"MA": true,
-	"MI": true,
-	"MN": true,
-	"MS": true,
-	"MO": true,
-	"MT": true,
-	"NE": true,
-	"NV": true,
-	"NH": true,
-	"NJ": true,
-	"NM": true,
-	"NY": true,
-	"NC": true,
-	"ND": true,
-	"OH": true,
-	"OK": true,
-	"OR": true,
-	"PA": true,
-	"RI": true,
-	"SC": true,
-	"SD": true,
-	"TN": true,
-	"TX": true,
-	"UT": true,
-	"VT": true,
-	"VA": true,
-	"WA": true,
-	"WV": true,
-	"WI": true,
-	"WY": true,
-}
-
-var abbrs = map[string]string{
-	"ft":          "fort",
-	"mcb":         "marine corp base",
-	"andrews-naf": "Andrews-NAF",
 }
 
 type StationData struct {
@@ -176,16 +84,6 @@ func NewMigrationBuilder(db *pop.Connection, logger *zap.Logger) MigrationBuilde
 	}
 }
 
-func FilterTransportationOffices(os models.TransportationOffices, test func(models.TransportationOffice) bool) models.TransportationOffices {
-	var filtered models.TransportationOffices
-	for _, o := range os {
-		if test(o) {
-			filtered = append(filtered, o)
-		}
-	}
-	return filtered
-}
-
 func (b *MigrationBuilder) filterMarines(dss models.DutyStations) models.DutyStations {
 	var filtered []models.DutyStation
 	for _, ds := range dss {
@@ -202,47 +100,8 @@ func (b *MigrationBuilder) findDutyStations(s StationData) models.DutyStations {
 	if err != nil {
 		fmt.Println(err)
 	}
-	//fmt.Println("unfiltered duty stations: ", len(stations))
 	filteredStations := b.filterMarines(stations)
-	//fmt.Println("filtered duty stations: ", len(filteredStations))
 	return filteredStations
-}
-
-func (b *MigrationBuilder) WriteDbRecs(ts models.DutyStations) {
-	for _, t := range ts {
-		fmt.Println("\tdb: ", t.Name, " | ", t.Affiliation)
-	}
-}
-
-func normalizeName(name string) string {
-	var normalized []string
-	nameSplit := strings.Fields(name)
-	for _, n := range nameSplit {
-		if _, exists := uppercaseWords[n]; exists {
-			normalized = append(normalized, n)
-			continue
-		}
-
-		if _, exists := states[n]; exists {
-			normalized = append(normalized, n)
-			continue
-		}
-
-		n = strings.ToLower(n)
-		n = convertAbbr(n)
-		n = strings.Title(n)
-		normalized = append(normalized, n)
-	}
-	return strings.Join(normalized, " ")
-}
-
-func convertAbbr(s string) string {
-	for k, v := range abbrs {
-		if k == s {
-			return v
-		}
-	}
-	return s
 }
 
 func (b *MigrationBuilder) addressLatLong(address models.Address) (route.LatLong, error) {
@@ -308,7 +167,6 @@ func (b *MigrationBuilder) Build(dutyStationsFilePath string) ([]DutyStationMigr
 				fmt.Println("Error encountered finding nearest transportation office: ", err)
 				continue
 			}
-			// DutyStationMigration := DutyStationMigration{address, to, s, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4())}
 			DutyStationMigrations = append(DutyStationMigrations, DutyStationMigration{address, to, s, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4())})
 		}
 	}
