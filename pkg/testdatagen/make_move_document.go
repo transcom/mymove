@@ -60,6 +60,36 @@ func MakeMoveDocument(db *pop.Connection, assertions Assertions) models.MoveDocu
 	return moveDocument
 }
 
+// MakeMoveDocumentWeightTicketSet creates a single Move Document with a WeightTicketSetDocument.
+func MakeMoveDocumentWeightTicketSet(db *pop.Connection, assertions Assertions) models.MoveDocument {
+	moveDocumentType := models.MoveDocumentTypeWEIGHTTICKETSET
+
+	moveDocumentDefaults := models.MoveDocument{
+		MoveDocumentType: moveDocumentType,
+	}
+
+	// Overwrite values with those from assertions
+	mergeModels(&moveDocumentDefaults, assertions.MoveDocument)
+
+	assertions.MoveDocument = moveDocumentDefaults
+
+	moveDocument := MakeMoveDocument(db, assertions)
+
+	weightTicketSetAssertions := Assertions{
+		WeightTicketSetDocument: models.WeightTicketSetDocument{
+			MoveDocumentID: moveDocument.ID,
+			MoveDocument:   moveDocument,
+		},
+	}
+
+	weightTicketSetDocument := MakeWeightTicketSetDocument(db, weightTicketSetAssertions)
+	moveDocument.WeightTicketSetDocument = &weightTicketSetDocument
+
+	mustSave(db, &moveDocument)
+
+	return moveDocument
+}
+
 // MakeDefaultMoveDocument returns a MoveDocument with default values
 func MakeDefaultMoveDocument(db *pop.Connection) models.MoveDocument {
 	return MakeMoveDocument(db, Assertions{})
