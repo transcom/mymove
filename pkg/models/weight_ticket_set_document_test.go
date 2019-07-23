@@ -93,7 +93,7 @@ func (suite *ModelSuite) TestCalculateNetWeightWeightTicketAwaitingReview() {
 	total, err := models.SumWeightTicketSetsForPPM(suite.DB(), session, ppm.ID)
 	suite.NoError(err)
 	expectedTotal := (fullWeight1 + fullWeight2) - (emptyWeight1 + emptyWeight2)
-	suite.Equal(expectedTotal, total)
+	suite.Equal(&expectedTotal, total)
 
 }
 
@@ -112,8 +112,9 @@ func (suite *ModelSuite) TestCalculateNetWeightNoWeightTicket() {
 		ServiceMemberID: sm.ID,
 	}
 	total, err := models.SumWeightTicketSetsForPPM(suite.DB(), session, ppm.ID)
+	expectedTotal := unit.Pound(0)
 	suite.NoError(err)
-	suite.Equal(unit.Pound(0), total)
+	suite.Equal(&expectedTotal, total)
 
 }
 
@@ -187,6 +188,6 @@ func (suite *ModelSuite) TestCalculateNetWeight() {
 	total, err := models.SumWeightTicketSetsForPPM(suite.DB(), session, ppm.ID)
 	suite.NoError(err)
 	expectedTotal := fullWeight1 - emptyWeight1
-	suite.Equal(expectedTotal, total)
+	suite.Equal(&expectedTotal, total)
 
 }
