@@ -320,7 +320,6 @@
 20190702195904_create_organizations.up.fizz
 20190703141326_add-usmc-office-users.up.fizz
 20190705235827_fix_duty_station_zip.up.sql
-20190708201347_make_admin_users_fname_and_lname_required.up.fizz
 20190709204712_add-office-users.up.fizz
 20190710151514_make_organizations_poc_nullable.up.fizz
 20190710174257_add_system_admin_users.up.fizz
