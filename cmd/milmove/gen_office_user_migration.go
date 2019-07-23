@@ -37,6 +37,7 @@ VALUES
 
 // InitAddOfficeUsersFlags initializes command line flags
 func InitAddOfficeUsersFlags(flag *pflag.FlagSet) {
+	flag.StringP(MigrationFilenameFlag, "n", "", "File name of the migration files for the new office users")
 	flag.StringP(OfficeUsersFilenameFlag, "f", "", "File name of csv file containing the new office users")
 }
 

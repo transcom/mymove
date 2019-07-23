@@ -82,31 +82,31 @@ type OrdersTemplate struct {
 
 // InitOrdersMigrationFlags initializes orders migration command line flags
 func InitOrdersMigrationFlags(flag *pflag.FlagSet) {
+	flag.StringP(MigrationFilenameFlag, "n", "", "File name of the migration file")
 	flag.StringP(OrdersFingerprintFlag, "f", "", "Certificate fingerprint in SHA 256 form")
 	flag.StringP(OrdersSubjectFlag, "s", "", "Certificate subject")
-	flag.StringP(OfficeUsersMigrationFilenameFlag, "n", "", "File name of the migration file")
 }
 
 // CheckOrdersMigration validates add_office_users command line flags
 func CheckOrdersMigration(v *viper.Viper) error {
 	fingerprint := v.GetString(OrdersFingerprintFlag)
 	if fingerprint == "" {
-		return fmt.Errorf("--fingerprint is required")
+		return fmt.Errorf("%s is missing", OrdersFingerprintFlag)
 	}
 	sha256Pattern := "^[a-f0-9]{64}$"
 	_, err := regexp.MatchString(sha256Pattern, fingerprint)
 	if err != nil {
-		return fmt.Errorf("Fingerprint must be a valid SHA 256 hash")
+		return errors.Errorf("Fingerprint must be a valid SHA 256 hash")
 	}
 
 	subject := v.GetString(OrdersSubjectFlag)
 	if subject == "" {
-		return fmt.Errorf("--subject is required")
+		return errors.Errorf("%s is missing", OrdersSubjectFlag)
 	}
 
-	officeUsersMigrationFilenameFlag := v.GetString(OfficeUsersMigrationFilenameFlag)
+	officeUsersMigrationFilenameFlag := v.GetString(MigrationFilenameFlag)
 	if officeUsersMigrationFilenameFlag == "" {
-		return fmt.Errorf("--migration-filename is required")
+		return errors.Errorf("%s is missing", MigrationFilenameFlag)
 	}
 	return nil
 }
@@ -118,8 +118,8 @@ func initGenOrdersMigrationFlags(flag *pflag.FlagSet) {
 	// Init Orders Migration Flags
 	InitOrdersMigrationFlags(flag)
 
-	// Sort command line flags
-	flag.SortFlags = true
+	// Don't sort command line flags
+	flag.SortFlags = false
 }
 
 func genOrdersMigration(cmd *cobra.Command, args []string) error {
@@ -140,7 +140,7 @@ func genOrdersMigration(cmd *cobra.Command, args []string) error {
 	}
 	migrationsPath := v.GetString(cli.MigrationPathFlag)
 	migrationManifest := v.GetString(cli.MigrationManifestFlag)
-	migrationFileName := v.GetString(OfficeUsersMigrationFilenameFlag)
+	migrationFileName := v.GetString(MigrationFilenameFlag)
 
 	ordersTemplate := OrdersTemplate{
 		ID:          uuid.Must(uuid.NewV4()).String(),
