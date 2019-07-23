@@ -31,7 +31,7 @@ func NewSSWPPMComputer(PPMComputer ppmComputer) *SSWPPMComputer {
 type ObligationType int
 
 //ComputeObligations is helper function for computing the obligations section of the shipment summary worksheet
-func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSummaryFormData, planner route.Planner, db *pop.Connection, session *auth.Session) (obligation models.Obligations, err error) {
+func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSummaryFormData, planner route.Planner) (obligation models.Obligations, err error) {
 	firstPPM, err := sswPpmComputer.nilCheckPPM(ssfd)
 	if err != nil {
 		return models.Obligations{}, err

@@ -88,10 +88,12 @@ func (re *RateEngine) ComputePPM(
 	originPickupZip5 string,
 	originDutyStationZip5 string,
 	destinationZip5 string,
-	distanceMiles int,
+	distanceMilesFromPickupZip int,
+	distanceMilesFromDutyStationZip int,
 	date time.Time,
 	daysInSIT int,
-	lhDiscount unit.DiscountRate,
+	lhDiscountPickupZip unit.DiscountRate,
+	lhDiscountDutyStationZip unit.DiscountRate,
 	sitDiscount unit.DiscountRate,
 ) (cost CostComputation, err error) {
 
@@ -103,14 +105,14 @@ func (re *RateEngine) ComputePPM(
 	}
 
 	//Calculate linhaul charges using pickup zip code
-	linehaulPickupZipCostComputation, err := re.linehaulChargeComputation(weight, originPickupZip5, destinationZip5, distanceMiles, date)
+	linehaulPickupZipCostComputation, err := re.linehaulChargeComputation(weight, originPickupZip5, destinationZip5, distanceMilesFromPickupZip, date)
 	if err != nil {
 		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
 		return
 	}
 
 	//Calculate linehaul charges using duty station zip code
-	linehaulDutyStationZipCostComputation, err := re.linehaulChargeComputation(weight, originDutyStationZip5, destinationZip5, distanceMiles, date)
+	linehaulDutyStationZipCostComputation, err := re.linehaulChargeComputation(weight, originDutyStationZip5, destinationZip5, distanceMilesFromDutyStationZip, date)
 	if err != nil {
 		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
 		return
@@ -123,9 +125,11 @@ func (re *RateEngine) ComputePPM(
 	// the origin zip location that is used to populate the logs.
 	linehaulCostComputation := linehaulPickupZipCostComputation
 	originZipUsed := pickupZipUsed
+	lhDiscount := lhDiscountPickupZip
 	if linehaulPickupZipCostComputation.LinehaulChargeTotal.Int() > linehaulDutyStationZipCostComputation.LinehaulChargeTotal.Int() {
 		linehaulCostComputation = linehaulDutyStationZipCostComputation
 		originZipUsed = dutyStationZipUsed
+		lhDiscount = lhDiscountDutyStationZip
 	}
 
 	nonLinehaulCostComputation, err := re.nonLinehaulChargeComputation(weight, originPickupZip5, destinationZip5, date)
@@ -188,9 +192,9 @@ func (re *RateEngine) ComputePPM(
 }
 
 //ComputePPMIncludingLHDiscount Calculates the cost of a PPM move using zip + date derived linehaul discount
-func (re *RateEngine) ComputePPMIncludingLHDiscount(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int) (cost CostComputation, err error) {
+func (re *RateEngine) ComputePPMIncludingLHDiscount(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromPickupZip int, distanceMilesFromDutyStationZip int, date time.Time, daysInSIT int) (cost CostComputation, err error) {
 
-	pickupZipLhDiscount, pickupZipSitDiscount, err := models.PPMDiscountFetch(re.db,
+	lhDiscountPickupZip, pickupZipSitDiscount, err := models.PPMDiscountFetch(re.db,
 		re.logger,
 		originPickupZip5,
 		destinationZip5,
@@ -201,7 +205,7 @@ func (re *RateEngine) ComputePPMIncludingLHDiscount(weight unit.Pound, originPic
 		return
 	}
 
-	dutyStationZipLhDiscount, dutyStationZipSitDiscount, err := models.PPMDiscountFetch(re.db,
+	lhDiscountDutyStationZip, dutyStationZipSitDiscount, err := models.PPMDiscountFetch(re.db,
 		re.logger,
 		originDutyStationZip5,
 		destinationZip5,
@@ -210,11 +214,6 @@ func (re *RateEngine) ComputePPMIncludingLHDiscount(weight unit.Pound, originPic
 	if err != nil {
 		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
 		return
-	}
-
-	lhDiscount := pickupZipLhDiscount
-	if pickupZipLhDiscount < dutyStationZipLhDiscount {
-		lhDiscount = dutyStationZipLhDiscount
 	}
 
 	sitDiscount := pickupZipSitDiscount
@@ -226,10 +225,12 @@ func (re *RateEngine) ComputePPMIncludingLHDiscount(weight unit.Pound, originPic
 		originPickupZip5,
 		originDutyStationZip5,
 		destinationZip5,
-		distanceMiles,
+		distanceMilesFromPickupZip,
+		distanceMilesFromDutyStationZip,
 		date,
 		daysInSIT,
-		lhDiscount,
+		lhDiscountPickupZip,
+		lhDiscountDutyStationZip,
 		sitDiscount,
 	)
 
