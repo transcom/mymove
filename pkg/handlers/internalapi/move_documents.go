@@ -300,11 +300,6 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	// If we are a weight ticket set type, we need to either delete, create, or update a WeightTicketSetDocument
 	// depending on which type of document already exists
 	if newType == models.MoveDocumentTypeWEIGHTTICKETSET {
-		ppm := &moveDoc.PersonallyProcuredMove
-		ppm.NetWeight, err = models.SumWeightTicketSetsForPPM(h.DB(), session, ppm.ID)
-		if err != nil {
-			return handlers.ResponseForError(logger, errors.New("unable to calculate ppm net weight"))
-		}
 		var emptyWeight, fullWeight *unit.Pound
 		if payload.EmptyWeight != nil {
 			ew := unit.Pound(*payload.EmptyWeight)
@@ -363,7 +358,7 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 		if err != nil {
 			return handlers.ResponseForError(logger, errors.New("unable to calculate ppm net weight"))
 		}
-		if verrs, err := h.DB().ValidateAndSave(ppm); verrs.HasAny() || err != nil {
+		if verrs, saveErr := h.DB().ValidateAndSave(ppm); verrs.HasAny() || saveErr != nil {
 			return handlers.ResponseForError(logger, errors.New("unable to save ppm net weight"))
 		}
 	}

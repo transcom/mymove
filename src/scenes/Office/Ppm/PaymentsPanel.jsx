@@ -10,7 +10,7 @@ import {
   downloadPPMAttachments,
   downloadPPMAttachmentsLabel,
 } from 'shared/Entities/modules/ppms';
-import { selectAllDocumentsForMove, calcWeightTicketNetWeight } from 'shared/Entities/modules/moveDocuments';
+import { selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { getLastError } from 'shared/Swagger/selectors';
 
 import { no_op } from 'shared/utils';
