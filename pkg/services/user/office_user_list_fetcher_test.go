@@ -66,23 +66,4 @@ func (suite *UserServiceSuite) TestFetchOfficeUserList() {
 		suite.Equal(err.Error(), "Fetch error")
 		suite.Equal(models.OfficeUsers(nil), officeUsers)
 	})
-
-	suite.T().Run("if the user is unauthorized, we get an error", func(t *testing.T) {
-		fakeFetchMany := func(model interface{}) error {
-			return nil
-		}
-		builder := &testOfficeUserListQueryBuilder{
-			fakeFetchMany: fakeFetchMany,
-		}
-
-		// Mocking authorization
-		session := auth.Session{}
-		fetcher := NewOfficeUserListFetcher(builder)
-
-		officeUsers, err := fetcher.FetchOfficeUserList([]services.QueryFilter{}, &session)
-
-		suite.Error(err)
-		suite.Equal(err.Error(), "USER_UNAUTHORIZED")
-		suite.Equal(models.OfficeUsers(nil), officeUsers)
-	})
 }
