@@ -25,6 +25,14 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 		},
 	})
 
+	//testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
+	//	TrafficDistributionList: models.TrafficDistributionList{
+	//		SourceRateArea:    "US53",
+	//		DestinationRegion: "6",
+	//		CodeOfService:     "2",
+	//	},
+	//})
+
 	req := httptest.NewRequest("GET", "/estimates/ppm", nil)
 	req = suite.AuthenticateRequest(req, defaultPPM.Move.Orders.ServiceMember)
 

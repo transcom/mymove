@@ -395,9 +395,26 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 		daysInSIT = int(*ppm.DaysInStorage)
 	}
 
-	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(h.DB(), logger, *ppm.PickupPostalCode, *ppm.DestinationPostalCode, *ppm.OriginalMoveDate)
+	dutyStationZip := ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode
+
+	lhDiscountPickupZip, pickupZipSitDiscount, err := models.PPMDiscountFetch(h.DB(), logger, *ppm.PickupPostalCode, *ppm.DestinationPostalCode, *ppm.OriginalMoveDate)
 	if err != nil {
 		return err
+	}
+
+	lhDiscountDutyStationZip, dutyStationZipSitDiscount, err := models.PPMDiscountFetch(h.DB(), logger, dutyStationZip, *ppm.DestinationPostalCode, *ppm.OriginalMoveDate)
+	if err != nil {
+		return err
+	}
+
+	sitDiscount := pickupZipSitDiscount
+	if pickupZipSitDiscount < dutyStationZipSitDiscount {
+		sitDiscount = dutyStationZipSitDiscount
+	}
+
+	lhDiscount := lhDiscountPickupZip
+	if lhDiscountPickupZip < lhDiscountDutyStationZip {
+		lhDiscount = dutyStationZipSitDiscount
 	}
 
 	// Update SIT estimate
@@ -413,12 +430,17 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 		ppm.EstimatedStorageReimbursement = &reimbursementString
 	}
 
-	distanceMiles, err := h.Planner().Zip5TransitDistance(*ppm.PickupPostalCode, *ppm.DestinationPostalCode)
+	distanceMilesFromPickupZip, err := h.Planner().Zip5TransitDistance(*ppm.PickupPostalCode, *ppm.DestinationPostalCode)
 	if err != nil {
 		return err
 	}
 
-	cost, err := re.ComputePPM(unit.Pound(*ppm.WeightEstimate), *ppm.PickupPostalCode, ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode, *ppm.DestinationPostalCode, distanceMiles, *ppm.OriginalMoveDate, daysInSIT, lhDiscount, sitDiscount)
+	distanceMilesFromDutyStationZip, err := h.Planner().Zip5TransitDistance(dutyStationZip, *ppm.DestinationPostalCode)
+	if err != nil {
+		return err
+	}
+
+	cost, err := re.ComputePPM(unit.Pound(*ppm.WeightEstimate), *ppm.PickupPostalCode, dutyStationZip, *ppm.DestinationPostalCode, distanceMilesFromPickupZip, distanceMilesFromDutyStationZip, *ppm.OriginalMoveDate, daysInSIT, lhDiscountPickupZip, lhDiscountDutyStationZip, sitDiscount)
 	if err != nil {
 		return err
 	}

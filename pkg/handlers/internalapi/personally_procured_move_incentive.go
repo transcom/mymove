@@ -31,7 +31,15 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 	}
 	engine := rateengine.NewRateEngine(h.DB(), logger)
 
-	lhDiscount, _, err := models.PPMDiscountFetch(h.DB(),
+	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
+	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	dutyStationZip := ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode
+
+	lhDiscountPickupZip, _, err := models.PPMDiscountFetch(h.DB(),
 		logger,
 		params.OriginZip,
 		params.DestinationZip,
@@ -41,23 +49,37 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 		return handlers.ResponseForError(logger, err)
 	}
 
-	distanceMiles, err := h.Planner().Zip5TransitDistance(params.OriginZip, params.DestinationZip)
+	lhDiscountDutyStationZip, _, err := models.PPMDiscountFetch(h.DB(),
+		logger,
+		dutyStationZip,
+		params.DestinationZip,
+		time.Time(params.OriginalMoveDate),
+	)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
-	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
+	distanceMilesFromPickupZip, err := h.Planner().Zip5TransitDistance(params.OriginZip, params.DestinationZip)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	distanceMilesFromDutyStationZip, err := h.Planner().Zip5TransitDistance(dutyStationZip, params.DestinationZip)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 
 	cost, err := engine.ComputePPM(
 		unit.Pound(params.Weight),
 		params.OriginZip,
 		ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode,
 		params.DestinationZip,
-		distanceMiles,
+		distanceMilesFromPickupZip,
+		distanceMilesFromDutyStationZip,
 		time.Time(params.OriginalMoveDate),
 		0, // We don't want any SIT charges
-		lhDiscount,
+		lhDiscountPickupZip,
+		lhDiscountDutyStationZip,
 		0.0,
 	)
 	if err != nil {
