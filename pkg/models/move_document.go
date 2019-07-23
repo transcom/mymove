@@ -232,9 +232,9 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	return &moveDoc, nil
 }
 
-// FetchMovingExpenseDocuments fetches all move expense documents for a ppm
+// FetchMoveDocuments fetches all move expense documents for a ppm
 // the optional status parameter can be used for restricting to a subset of statuses.
-func FetchMovingExpenseDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UUID, status *MoveDocumentStatus) (MoveDocuments, error) {
+func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UUID, status *MoveDocumentStatus, moveDocumentType MoveDocumentType) (MoveDocuments, error) {
 	// Allow all logged in office users to fetch move docs
 	if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
 		return nil, ErrFetchForbidden
@@ -246,7 +246,7 @@ func FetchMovingExpenseDocuments(db *pop.Connection, session *auth.Session, ppmI
 	}
 
 	var moveDocuments MoveDocuments
-	query := db.Where("move_document_type = $1", string(MoveDocumentTypeEXPENSE)).Where("personally_procured_move_id = $2", ppmID.String())
+	query := db.Where("move_document_type = $1", string(moveDocumentType)).Where("personally_procured_move_id = $2", ppmID.String())
 	if status != nil {
 		query = query.Where("status = $3", string(*status))
 	}
