@@ -12,6 +12,7 @@ import (
 // See: pkg/route/planner.go for more info on this interface
 type distanceCalculator interface {
 	Zip5TransitDistance(string, string) (int, error)
+	TransitDistance(*Address, *Address) (int, error)
 }
 
 // DistanceCalculation represents a distance calculation in miles between an origin and destination address
@@ -27,8 +28,16 @@ type DistanceCalculation struct {
 }
 
 // NewDistanceCalculation performs a distance calculation and returns the resulting DistanceCalculation model
-func NewDistanceCalculation(planner distanceCalculator, origin Address, destination Address) (DistanceCalculation, error) {
-	distanceMiles, err := planner.Zip5TransitDistance(origin.PostalCode, destination.PostalCode)
+func NewDistanceCalculation(planner distanceCalculator, origin Address, destination Address, useZipOnly bool) (DistanceCalculation, error) {
+
+	var distanceMiles int
+	var err error
+
+	if useZipOnly {
+		distanceMiles, err = planner.Zip5TransitDistance(origin.PostalCode, destination.PostalCode)
+	} else {
+		distanceMiles, err = planner.TransitDistance(&origin, &destination)
+	}
 	if err != nil {
 		return DistanceCalculation{}, err
 	}
