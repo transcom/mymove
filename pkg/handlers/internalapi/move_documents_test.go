@@ -3,6 +3,9 @@ package internalapi
 import (
 	"net/http/httptest"
 
+	"github.com/gobuffalo/pop"
+
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/go-openapi/strfmt"
@@ -372,4 +375,56 @@ func (suite *HandlerSuite) TestApproveMoveDocumentHandler() {
 	reloadedPPM := ppms[0]
 	suite.Require().Equal(string(models.PPMStatusCOMPLETED), string(reloadedPPM.Status))
 
+}
+func (suite *HandlerSuite) TestCalculateNetWeight() {
+	// When: there is a move and move document
+	//ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+	//	PersonallyProcuredMove: models.PersonallyProcuredMove{
+	//		Status: models.PPMStatusPAYMENTREQUESTED,
+	//	},
+	//})
+	//move := ppm.Move
+	//sm := move.Orders.ServiceMember
+	//ew := unit.Pound(1000)
+	//fw := unit.Pound(2000)
+	//weightTicketSetAssertions := testdatagen.Assertions{
+	//	MoveDocument: models.MoveDocument{
+	//		//WeightTicketSetDocument: models.WeightTicketSetDocument{
+	//		//	EmptyWeight: &ew,
+	//		//	FullWeight:  &fw,
+	//		},
+	//	}
+	//}
+	//testdatagen.MakeWeightTicketSetDocument(suite.DB(), weightTicketSetAssertions)
+
+	//testdatagen.MakeWeightTicketSetDocument(suite.DB(), weightTicketSetAssertions)
+	//session := &auth.Session{
+	//	ApplicationName: auth.MilApp,
+	//	UserID:          sm.UserID,
+	//	ServiceMemberID: sm.ID,
+	//}
+
+	//status := models.MoveDocumentStatusOK
+	//wts, err := models.FetchMoveDocuments(suite.DB(), session, ppm.ID, &status, models.MoveDocumentTypeWEIGHTTICKETSET)
+	//log.Println(moveDocumentWeightTicket1.ID)
+	//log.Println(moveDocumentWeightTicket2.ID)
+	//suite.NoError(err)
+	//suite.Len(wts, 2)
+
+}
+
+func SumWeightTicketSetsForPPM(db *pop.Connection, session *auth.Session, ppmID uuid.UUID) (int, error) {
+	status := models.MoveDocumentStatusOK
+	weightTicketSets, err := models.FetchMoveDocuments(db, session, ppmID, &status, models.MoveDocumentTypeWEIGHTTICKETSET)
+	if err != nil {
+		return 0, err
+	}
+	var totalWeight int
+	for _, weightTicketSet := range weightTicketSets {
+		wt := weightTicketSet.WeightTicketSetDocument
+		if wt.FullWeight != nil && wt.EmptyWeight != nil {
+			totalWeight += int(*wt.FullWeight) - int(*wt.EmptyWeight)
+		}
+	}
+	return totalWeight, nil
 }
