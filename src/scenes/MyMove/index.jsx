@@ -45,6 +45,7 @@ import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegales
 
 export class AppWrapper extends Component {
   state = { hasError: false };
+
   componentDidMount() {
     this.props.loadInternalSchema();
     this.props.getCurrentUserInfo();

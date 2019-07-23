@@ -38,7 +38,7 @@ class Queues extends Component {
   }
 }
 
-class OfficeWrapper extends Component {
+export class OfficeWrapper extends Component {
   state = { hasError: false };
 
   componentDidMount() {
