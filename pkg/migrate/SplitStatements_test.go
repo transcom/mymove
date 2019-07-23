@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -16,9 +17,18 @@ func TestSplitStatements(t *testing.T) {
 	f, err := os.Open(fixture)
 	require.Nil(t, err)
 
+	in := NewBuffer()
+	dropComments := true
+	dropBlankLines := true
+	dropSearchPath := false
+
+	ReadInSQL(f, in, dropComments, dropBlankLines, dropSearchPath)
+	formattedSQL := in.String()
+
 	lines := make(chan string, 1000)
+	//read buffer values into the channel
 	go func() {
-		scanner := bufio.NewScanner(f)
+		scanner := bufio.NewScanner(strings.NewReader(formattedSQL))
 		for scanner.Scan() {
 			lines <- scanner.Text()
 		}
@@ -29,11 +39,9 @@ func TestSplitStatements(t *testing.T) {
 	go SplitStatements(lines, statements)
 	i := 0
 	for stmt := range statements {
-		fmt.Println("---------------------------------------------------")
 		fmt.Println("Statement:", i)
-		fmt.Println("---------------------------------------------------")
 		fmt.Println(stmt)
 		i++
 	}
-	require.Equal(t, i, 14)
+	require.Equal(t, i, 11)
 }
