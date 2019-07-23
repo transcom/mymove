@@ -18,6 +18,7 @@ import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import ScratchPad from 'shared/ScratchPad';
 import { isProduction } from 'shared/constants';
+import FailWhale from 'shared/FailWhale';
 import { RetrieveMovesForOffice } from './api';
 
 import './office.scss';
@@ -38,11 +39,19 @@ class Queues extends Component {
 }
 
 class OfficeWrapper extends Component {
+  state = { hasError: false };
+
   componentDidMount() {
     document.title = 'Transcom PPP: Office';
     this.props.loadInternalSchema();
     this.props.loadPublicSchema();
     this.props.getCurrentUserInfo();
+  }
+
+  componentDidCatch(error, info) {
+    this.setState({
+      hasError: true,
+    });
   }
 
   render() {
@@ -54,26 +63,29 @@ class OfficeWrapper extends Component {
           <Tag role="main" className="site__content">
             <div>
               <LogoutOnInactivity />
-              <Switch>
-                <Route
-                  exact
-                  path="/"
-                  component={({ location }) => (
-                    <Redirect
-                      from="/"
-                      to={{
-                        ...location,
-                        pathname: '/queues/new',
-                      }}
-                    />
-                  )}
-                />
-                <PrivateRoute path="/queues/:queueType/moves/:moveId" component={MoveInfo} />
-                <PrivateRoute path="/queues/:queueType" component={Queues} />
-                <PrivateRoute path="/moves/:moveId/orders" component={OrdersInfo} />
-                <PrivateRoute path="/moves/:moveId/documents/:moveDocumentId?" component={DocumentViewer} />
-                {!isProduction && <PrivateRoute path="/playground" component={ScratchPad} />}
-              </Switch>
+              {this.state.hasError && <FailWhale />}
+              {!this.state.hasError && (
+                <Switch>
+                  <Route
+                    exact
+                    path="/"
+                    component={({ location }) => (
+                      <Redirect
+                        from="/"
+                        to={{
+                          ...location,
+                          pathname: '/queues/new',
+                        }}
+                      />
+                    )}
+                  />
+                  <PrivateRoute path="/queues/:queueType/moves/:moveId" component={MoveInfo} />
+                  <PrivateRoute path="/queues/:queueType" component={Queues} />
+                  <PrivateRoute path="/moves/:moveId/orders" component={OrdersInfo} />
+                  <PrivateRoute path="/moves/:moveId/documents/:moveDocumentId?" component={DocumentViewer} />
+                  {!isProduction && <PrivateRoute path="/playground" component={ScratchPad} />}
+                </Switch>
+              )}
             </div>
           </Tag>
         </div>
