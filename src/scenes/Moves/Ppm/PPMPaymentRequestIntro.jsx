@@ -10,7 +10,7 @@ import { withContext } from 'shared/AppContext';
 import { connect } from 'react-redux';
 import Alert from 'shared/Alert';
 import { reduxForm } from 'redux-form';
-import './PPMPaymentRequestIntro.css';
+import styles from './PPMPaymentRequestIntro.module.scss';
 import { createOrUpdatePpm } from './ducks';
 
 class PPMPaymentRequestIntro extends Component {
@@ -67,7 +67,7 @@ class PPMPaymentRequestIntro extends Component {
           <Link to="/allowable-expenses">More about expenses</Link>
         </p>
         <SwaggerField
-          className="ppm-payment-request-actual-date"
+          className={styles['ppm-payment-request-actual-date']}
           title="What day did you depart?"
           fieldName="actual_move_date"
           swagger={schema}
