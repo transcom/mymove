@@ -1,5 +1,6 @@
 # This is the migrations manifest.
 # If a migration is not recorded here, then it will error.
+.DS_Store
 20180103215841_create_issues.up.fizz
 20180124183922_rename_issue_body_to_description.up.fizz
 20180126235545_create_form1299s.up.fizz

@@ -78,3 +78,6 @@ cypress/results
 
 # SQLEditor
 *.sqs
+
+# CAC Certs
+identity.cert

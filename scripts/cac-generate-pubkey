@@ -3,19 +3,23 @@
 set -eu -o pipefail
 
 #
-# Get a public key from CAC
-#
-# From: https://github.com/OpenSC/OpenSC/wiki/Using-pkcs11-tool-and-OpenSSL#signverify-using-private-keycertificate
+# Get a sha256 hash of the certificate from CAC
 #
 
-read -r -s -p "Enter CAC PIN: " CAC_PIN
-echo ""
-read -r -s -p "Enter Sign Key: " SIGN_KEY
-echo ""
+readonly MODULE=/usr/local/lib/pkcs11/cackey.dylib
+readonly PKCS11=/usr/local/bin/pkcs11-tool
 
-readonly MODULE=/usr/local/lib/pkcs11/opensc-pkcs11.so
+if [[ ! -x "${PKCS11}" ]]; then
+  echo "${PKCS11} has not been installed"
+  echo "Please install with 'brew install opensc'"
+  exit 1
+fi
 
-## Public Key Only
-/usr/local/bin/pkcs11-tool -r -p "${CAC_PIN}" --id "${SIGN_KEY}" --type pubkey --module "${MODULE}" > "${SIGN_KEY}.der"
-openssl rsa -inform DER -outform PEM -in "${SIGN_KEY}.der" -pubin > "${SIGN_KEY}.pub"
-cat "${SIGN_KEY}.pub"
+if [[ ! -f "${MODULE}" ]]; then
+  echo "${MODULE} has not been installed"
+  echo "Please visit http://militarycac.org/MacVideos.htm#CACKey_packages and follow instructions to install"
+  exit 1
+fi
+
+"${PKCS11}" -r --module "${MODULE}" -a "Identity #0" --type cert > identity.cert 2> /dev/null
+openssl x509 -inform der -in identity.cert
