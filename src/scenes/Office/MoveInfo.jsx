@@ -77,7 +77,6 @@ import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
-import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 import moment from 'moment';
 
 const BasicsTabContent = props => {
@@ -503,15 +502,7 @@ class MoveInfo extends Component {
               </div>
             </div>
             <div className="documents">
-              <h2 className="extras usa-heading">
-                Documents
-                {!showDocumentViewer && <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />}
-                {showDocumentViewer && (
-                  <Link to={`/moves/${move.id}/documents`} target="_blank" aria-label="Documents">
-                    <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
-                  </Link>
-                )}
-              </h2>
+              <h2 className="extras usa-heading">Documents</h2>
               {!upload ? (
                 <p>No orders have been uploaded.</p>
               ) : (

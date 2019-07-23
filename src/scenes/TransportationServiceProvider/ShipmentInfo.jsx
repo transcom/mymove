@@ -49,7 +49,6 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
-import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 import TspContainer from 'shared/TspPanel/TspContainer';
 import Weights from 'shared/ShipmentWeights';
 import Dates from 'shared/ShipmentDates';
@@ -254,7 +253,6 @@ class ShipmentInfo extends Component {
 
     const shipmentId = this.props.shipmentId;
     const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
-    const showDocumentViewer = context.flags.documentViewer;
     const showSitPanel = context.flags.sitPanel;
     const awarded = shipment.status === 'AWARDED';
     const accepted = shipment.status === 'ACCEPTED';
@@ -451,15 +449,7 @@ class ShipmentInfo extends Component {
                 <CustomerInfo shipment={this.props.shipment} />
               </div>
               <div className="documents">
-                <h2 className="extras usa-heading">
-                  Documents
-                  {!showDocumentViewer && <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />}
-                  {showDocumentViewer && (
-                    <Link to={newDocumentUrl} target="_blank">
-                      <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
-                    </Link>
-                  )}
-                </h2>
+                <h2 className="extras usa-heading">Documents</h2>
                 <DocumentList
                   detailUrlPrefix={`/shipments/${shipmentId}/documents`}
                   moveDocuments={shipmentDocuments}
