@@ -3,7 +3,7 @@
 set -eu -o pipefail
 
 #
-# Get a sha256 hash of the certificate from CAC
+# Get a sha256 hash of the certificate from CAC as well as the Subject
 #
 
 readonly MODULE=/usr/local/lib/pkcs11/cackey.dylib
@@ -23,3 +23,5 @@ fi
 
 "${PKCS11}" -r --module "${MODULE}" -a "Identity #0" --type cert > identity.cert 2> /dev/null
 openssl x509 -inform der -in identity.cert -noout -fingerprint -sha256 | perl -ne 's/^.*=//; s/://g; print lc'
+openssl x509 -inform der -in identity.cert -noout -subject | perl -ne 's/^subject= //; print'
+rm -f identity.cert
