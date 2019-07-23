@@ -5,7 +5,6 @@ import { Redirect } from 'react-router-dom';
 import { get } from 'lodash';
 import { NavLink, Link } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
-import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 import { titleCase } from 'shared/constants.js';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -464,13 +463,8 @@ class ShipmentInfo extends Component {
                 <DocumentList
                   detailUrlPrefix={`/shipments/${shipmentId}/documents`}
                   moveDocuments={shipmentDocuments}
+                  uploadDocumentUrl={newDocumentUrl}
                 />
-                <Link className="status upload-documents-link" to={newDocumentUrl} target="_blank">
-                  <span>
-                    <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
-                  </span>
-                  Upload new document
-                </Link>
               </div>
             </div>
           </div>
