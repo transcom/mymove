@@ -89,6 +89,14 @@ func InitOrdersMigrationFlags(flag *pflag.FlagSet) {
 
 // CheckOrdersMigration validates add_office_users command line flags
 func CheckOrdersMigration(v *viper.Viper) error {
+	if err := cli.CheckMigration(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckMigrationFile(v); err != nil {
+		return err
+	}
+
 	fingerprint := v.GetString(OrdersFingerprintFlag)
 	if fingerprint == "" {
 		return fmt.Errorf("%s is missing", OrdersFingerprintFlag)
