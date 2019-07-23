@@ -1,8 +1,9 @@
 package models
 
 import (
-	"github.com/transcom/mymove/pkg/auth"
 	"time"
+
+	"github.com/transcom/mymove/pkg/auth"
 
 	"github.com/transcom/mymove/pkg/unit"
 

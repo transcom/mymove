@@ -373,4 +373,3 @@ func (suite *HandlerSuite) TestApproveMoveDocumentHandler() {
 	suite.Require().Equal(string(models.PPMStatusCOMPLETED), string(reloadedPPM.Status))
 
 }
-

@@ -190,4 +190,3 @@ func (suite *ModelSuite) TestCalculateNetWeight() {
 	suite.Equal(expectedTotal, total)
 
 }
-

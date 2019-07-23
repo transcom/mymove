@@ -36,11 +36,7 @@ const attachmentsErrorMessages = {
 };
 
 export function sswIsDisabled(ppm, signedCertification, shipment, moveDocs) {
-  return (
-    missingSignature(signedCertification) ||
-    missingRequiredPPMInfo(ppm) ||
-    isComboAndNotDelivered(shipment)
-  );
+  return missingSignature(signedCertification) || missingRequiredPPMInfo(ppm) || isComboAndNotDelivered(shipment);
 }
 
 function missingSignature(signedCertification) {
