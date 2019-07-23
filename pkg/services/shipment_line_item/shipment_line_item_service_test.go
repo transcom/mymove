@@ -21,7 +21,7 @@ func (suite *ShipmentLineItemServiceSuite) SetupTest() {
 
 func TestShipmentLineItemSuite(t *testing.T) {
 	hs := &ShipmentLineItemServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       zap.NewNop(),
 	}
 	suite.Run(t, hs)

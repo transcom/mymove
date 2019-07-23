@@ -47,6 +47,8 @@ type HandlerContext interface {
 	SetSendProductionInvoice(sendProductionInvoice bool)
 	UseSecureCookie() bool
 	SetUseSecureCookie(useSecureCookie bool)
+	SetAppNames(appNames auth.ApplicationServername)
+	AppNames() auth.ApplicationServername
 	SetFeatureFlag(flags FeatureFlag)
 	GetFeatureFlag(name string) bool
 
@@ -81,6 +83,7 @@ type handlerContext struct {
 	senderToGex           services.GexSender
 	icnSequencer          sequence.Sequencer
 	useSecureCookie       bool
+	appNames              auth.ApplicationServername
 	featureFlags          map[string]bool
 }
 
@@ -154,6 +157,16 @@ func (hctx *handlerContext) SetFileStorer(storer storage.FileStorer) {
 	hctx.storage = storer
 }
 
+// AppNames returns a struct of all the app names for the current environment
+func (hctx *handlerContext) AppNames() auth.ApplicationServername {
+	return hctx.appNames
+}
+
+// SetAppNames is a simple setter for private field
+func (hctx *handlerContext) SetAppNames(appNames auth.ApplicationServername) {
+	hctx.appNames = appNames
+}
+
 // NotificationSender returns the sender to use in the current context
 func (hctx *handlerContext) NotificationSender() notifications.NotificationSender {
 	return hctx.notificationSender
@@ -164,7 +177,7 @@ func (hctx *handlerContext) SetNotificationSender(sender notifications.Notificat
 	hctx.notificationSender = sender
 }
 
-// Planner is a simple setter for the route.Planner private field
+// Planner returns the planner for the current context
 func (hctx *handlerContext) Planner() route.Planner {
 	return hctx.planner
 }

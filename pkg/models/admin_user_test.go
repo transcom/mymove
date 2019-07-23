@@ -15,7 +15,7 @@ func (suite *ModelSuite) TestAdminUserCreation() {
 	newAdminUser := AdminUser{
 		FirstName: "Leo",
 		LastName:  "Spaceman",
-		UserID:    user.ID,
+		UserID:    &user.ID,
 		Role:      "SYSTEM_ADMIN",
 		Email:     "leo@gmail.com",
 	}
@@ -36,7 +36,7 @@ func (suite *ModelSuite) TestAdminUserCreationWithoutValues() {
 		"first_name": {"FirstName can not be blank."},
 		"last_name":  {"LastName can not be blank."},
 		"email":      {"Email can not be blank."},
-		"role":       {"Role is not in the list [SYSTEM_ADMIN, PROGRAM_ADMIN]."},
+		"role":       {"Role is not in the list [SYSTEM_ADMIN PROGRAM_ADMIN]."},
 	}
 
 	suite.verifyValidationErrors(newAdminUser, expErrors)

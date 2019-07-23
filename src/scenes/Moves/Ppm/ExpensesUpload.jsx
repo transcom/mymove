@@ -71,15 +71,6 @@ class ExpensesUpload extends Component {
     history.push(`/moves/${moveId}${nextPagePath}`);
   };
 
-  saveForLaterHandler = formValues => {
-    const { history } = this.props;
-    return this.saveAndAddHandler(formValues).then(() => {
-      if (this.state.moveDocumentCreateError === false) {
-        history.push('/');
-      }
-    });
-  };
-
   isStorageExpense = formValues => {
     return !isEmpty(formValues) && formValues.moving_expense_type === 'STORAGE';
   };
@@ -322,13 +313,12 @@ class ExpensesUpload extends Component {
             )}
             <PPMPaymentRequestActionBtns
               nextBtnLabel={nextBtnLabel}
+              hasConfirmation={true}
               submitButtonsAreDisabled={this.isInvalidUploaderState() || invalid}
               submitting={submitting}
               skipHandler={this.skipHandler}
-              saveForLaterHandler={handleSubmit(this.saveForLaterHandler)}
-              saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
               displaySkip={expenses.length >= 1}
-              displaySaveForLater={true}
+              saveAndAddHandler={handleSubmit(this.saveAndAddHandler)}
             />
           </form>
         </div>

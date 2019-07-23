@@ -49,7 +49,7 @@ var nextValidMoveDatePlusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate
 
 var nextValidMoveDateMinusOne = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -1), cal)
 var nextValidMoveDateMinusFive = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -5), cal)
-var nextVAlidMoveDateMinusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
+var nextValidMoveDateMinusTen = dates.NextValidMoveDate(nextValidMoveDate.AddDate(0, 0, -10), cal)
 
 // Run does that data load thing
 func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, logger Logger, storer *storage.Memory) {
@@ -312,7 +312,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	/*
 	 * Service member with a ppm in progress
 	 */
-	email = "ppm.in@progre.ss"
+	email = "ppm.on@progre.ss"
 	uuidStr = "20199d12-5165-4980-9ca7-19b5dc9f1032"
 	testdatagen.MakeUser(db, testdatagen.Assertions{
 		User: models.User{
@@ -320,7 +320,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			LoginGovEmail: email,
 		},
 	})
-	pastTime := nextVAlidMoveDateMinusTen
+	pastTime := nextValidMoveDateMinusTen
 	ppm1 := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("466c41b9-50bf-462c-b3cd-1ae33a2dad9b"),
@@ -911,7 +911,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 		Shipment: models.Shipment{
 			Status:                      models.ShipmentStatusINTRANSIT,
-			BookDate:                    &nextVAlidMoveDateMinusTen,
+			BookDate:                    &nextValidMoveDateMinusTen,
 			PmSurveyPlannedPackDate:     &nextValidMoveDateMinusFive,
 			PmSurveyConductedDate:       &nextValidMoveDateMinusFive,
 			PmSurveyPlannedPickupDate:   &nextValidMoveDateMinusOne,
@@ -2599,6 +2599,53 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	models.SaveMoveDependencies(db, &hhg43.Move)
 
 	/*
+	 * Service member with accepted move for use in testing the deletion of SIT
+	 */
+	email = "hhg@sit.todelete"
+	offer44 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString("76616087-713d-4837-8941-f2b73f532a10")),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("54bae5b4-af77-4693-a3b3-3ff6f5796a92"),
+			FirstName:     models.StringPointer("SIT"),
+			LastName:      models.StringPointer("ToDelete"),
+			Edipi:         models.StringPointer("1357924622"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.FromStringOrNil("9811bc2c-45e7-40d2-aee0-d863f0d2b7ee"),
+			Locator:          "SITDEL",
+			SelectedMoveType: &selectedMoveTypeHHG,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.FromStringOrNil("0c395d75-ec2f-45de-8d3f-74716d69aa67"),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusACCEPTED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: models.StorageInTransit{
+			ShipmentID:         offer44.ShipmentID,
+			Shipment:           offer44.Shipment,
+			EstimatedStartDate: time.Date(2019, time.Month(4), 22, 0, 0, 0, 0, time.UTC),
+		},
+	})
+	hhg44 := offer44.Shipment
+	hhg44.Move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &hhg44.Move)
+
+	/*
 	 * HHG45
 	 * Service member with in-transit shipment and Origin DELIVERED SIT
 	 */
@@ -2656,35 +2703,98 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	hhg45.Move.Submit(time.Now())
 	models.SaveMoveDependencies(db, &hhg45.Move)
 
-	/*
-	 * Service member with accepted move for use in testing the deletion of SIT
+	/* HHG46
+	 * Service member with in transit shipment and SIT less than 30 mi
 	 */
-	email = "hhg@sit.todelete"
-	offer44 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+	email46 := "enter@delivery.sit30"
+
+	pickupAddress := models.Address{
+		StreetAddress1: "9611 Highridge Dr",
+		StreetAddress2: swag.String("P.O. Box 12345"),
+		StreetAddress3: swag.String("c/o Some Person"),
+		City:           "Beverly Hills",
+		State:          "CA",
+		PostalCode:     "90210",
+		Country:        swag.String("US"),
+	}
+	pickupAddress = testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: pickupAddress,
+	})
+
+	destAddress := models.Address{
+		StreetAddress1: "2157 Willhaven Dr ",
+		StreetAddress2: swag.String(""),
+		StreetAddress3: swag.String(""),
+		City:           "Augusta",
+		State:          "GA",
+		PostalCode:     "30909",
+		Country:        swag.String("US"),
+	}
+	destAddress = testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: destAddress,
+	})
+
+	sitOriginAddress := models.Address{
+		StreetAddress1: "1860 Vine St",
+		StreetAddress2: swag.String(""),
+		StreetAddress3: swag.String(""),
+		City:           "Los Angeles",
+		State:          "CA",
+		PostalCode:     "90028",
+		Country:        swag.String("US"),
+	}
+	sitOriginAddress = testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: sitOriginAddress,
+	})
+
+	sitDestinationAddress46 := models.Address{
+		StreetAddress1: "1045 Bertram Rd",
+		StreetAddress2: swag.String(""),
+		StreetAddress3: swag.String(""),
+		City:           "Augusta",
+		State:          "GA",
+		PostalCode:     "30909",
+		Country:        swag.String("US"),
+	}
+	sitDestinationAddress46 = testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: sitDestinationAddress46,
+	})
+
+	netWeight46 := unit.Pound(2000)
+	actualPickupDate46 := nextValidMoveDate
+	offer46 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
 		User: models.User{
-			ID:            uuid.Must(uuid.FromString("76616087-713d-4837-8941-f2b73f532a10")),
-			LoginGovEmail: email,
+			ID:            uuid.Must(uuid.FromString("b742b1a8-3900-4a9b-aad8-af496a7b43b3")),
+			LoginGovEmail: email46,
 		},
 		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("54bae5b4-af77-4693-a3b3-3ff6f5796a92"),
-			FirstName:     models.StringPointer("SIT"),
-			LastName:      models.StringPointer("ToDelete"),
-			Edipi:         models.StringPointer("1357924622"),
-			PersonalEmail: models.StringPointer(email),
+			ID:            uuid.FromStringOrNil("1ff3f8f1-5381-4ab1-9b5b-46cc181d6abf"),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("ReadyForDelivery"),
+			Edipi:         models.StringPointer("4544567890"),
+			PersonalEmail: models.StringPointer(email46),
 		},
 		Move: models.Move{
-			ID:               uuid.FromStringOrNil("9811bc2c-45e7-40d2-aee0-d863f0d2b7ee"),
-			Locator:          "SITDEL",
+			ID:               uuid.FromStringOrNil("2fcda8df-d913-460c-9cc2-c18105fae7fa"),
+			Locator:          "SIT030",
 			SelectedMoveType: &selectedMoveTypeHHG,
+			Orders: models.Order{
+				NewDutyStation: models.DutyStation{
+					Address: destAddress,
+				},
+			},
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
-			ID:                uuid.FromStringOrNil("0c395d75-ec2f-45de-8d3f-74716d69aa67"),
+			ID:                uuid.FromStringOrNil("8003d039-d692-4c6b-9d5f-3fd04494edf0"),
 			SourceRateArea:    "US62",
 			DestinationRegion: "11",
 			CodeOfService:     "D",
 		},
 		Shipment: models.Shipment{
-			Status: models.ShipmentStatusACCEPTED,
+			Status:           models.ShipmentStatusINTRANSIT,
+			NetWeight:        &netWeight46,
+			ActualPickupDate: &actualPickupDate46,
+			PickupAddress:    &pickupAddress,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -2692,16 +2802,365 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 		},
 	})
 
+	hhg46 := offer46.Shipment
+	sitID46Destination := uuid.Must(uuid.NewV4())
+	authorizedStartDateOffer46Dest := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
+	sit46Destination := models.StorageInTransit{
+		ID:                  sitID46Destination,
+		ShipmentID:          hhg46.ID,
+		Shipment:            hhg46,
+		Location:            models.StorageInTransitLocationDESTINATION,
+		Status:              models.StorageInTransitStatusAPPROVED,
+		EstimatedStartDate:  authorizedStartDateOffer46Dest,
+		AuthorizedStartDate: &authorizedStartDateOffer46Dest,
+		ActualStartDate:     &authorizedStartDateOffer46Dest,
+		WarehouseID:         "450384",
+		WarehouseName:       "Iron Guard Storage",
+		WarehouseAddress:    sitDestinationAddress46,
+	}
 	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
-		StorageInTransit: models.StorageInTransit{
-			ShipmentID:         offer44.ShipmentID,
-			Shipment:           offer44.Shipment,
-			EstimatedStartDate: time.Date(2019, time.Month(4), 22, 0, 0, 0, 0, time.UTC),
+		StorageInTransit: sit46Destination,
+	})
+
+	// Transition SIT to InSIT/IN_SIT
+	placeInSITParams46 := placeInSITParams{
+		SITID:           sit46Destination.ID,
+		ShipmentID:      hhg46.ID,
+		Shipment:        hhg46,
+		ActualStartDate: *sit46Destination.AuthorizedStartDate,
+	}
+	sitPlaceInSIT(db, placeInSITParams46, tspUserSession)
+
+	sitID46Origin := uuid.Must(uuid.NewV4())
+	authorizedStartDateOffer46Orig := time.Date(2019, time.Month(3), 2, 0, 0, 0, 0, time.UTC)
+	sit46Origin := models.StorageInTransit{
+		ID:                  sitID46Origin,
+		ShipmentID:          hhg46.ID,
+		Shipment:            hhg46,
+		Location:            models.StorageInTransitLocationORIGIN,
+		Status:              models.StorageInTransitStatusAPPROVED,
+		EstimatedStartDate:  authorizedStartDateOffer46Orig,
+		AuthorizedStartDate: &authorizedStartDateOffer46Orig,
+		ActualStartDate:     &authorizedStartDateOffer46Orig,
+		WarehouseID:         "450383",
+		WarehouseName:       "Extra Space Storage",
+		WarehouseAddress:    sitOriginAddress,
+	}
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: sit46Origin,
+	})
+
+	hhg46.Move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &hhg46.Move)
+
+	// Transition SIT to InSIT/IN_SIT
+	placeInSITParams46 = placeInSITParams{
+		SITID:           sit46Origin.ID,
+		ShipmentID:      hhg46.ID,
+		Shipment:        hhg46,
+		ActualStartDate: *sit46Origin.AuthorizedStartDate,
+	}
+	sitPlaceInSIT(db, placeInSITParams46, tspUserSession)
+
+	/* HHG47
+	 * Service member with in transit shipment and SIT less than or equal to 50 mi
+	 */
+	email47 := "enter@delivery.sit50"
+
+	pickupAddress47 := models.Address{
+		StreetAddress1: "9611 Highridge Dr",
+		StreetAddress2: swag.String("P.O. Box 12345"),
+		StreetAddress3: swag.String("c/o Some Person"),
+		City:           "Beverly Hills",
+		State:          "CA",
+		PostalCode:     "90210",
+		Country:        swag.String("US"),
+	}
+	pickupAddress47 = testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: pickupAddress47,
+	})
+
+	destAddress47 := models.Address{
+		StreetAddress1: "2157 Willhaven Dr ",
+		StreetAddress2: swag.String(""),
+		StreetAddress3: swag.String(""),
+		City:           "Augusta",
+		State:          "GA",
+		PostalCode:     "30909",
+		Country:        swag.String("US"),
+	}
+	destAddress47 = testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: destAddress47,
+	})
+
+	//Extra Space Storage, 155 S Adams St, Anaheim, CA 92802: less than 50 depending on route
+	//mileage is: 39.7mi, 47.5mi, and 49.2mi
+	sitOriginAddress47 := models.Address{
+		StreetAddress1: "155 S Adams St",
+		StreetAddress2: swag.String(""),
+		StreetAddress3: swag.String(""),
+		City:           "Anaheim",
+		State:          "CA",
+		PostalCode:     "92802",
+		Country:        swag.String("US"),
+	}
+	sitOriginAddress47 = testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: sitOriginAddress47,
+	})
+
+	netWeight47 := unit.Pound(2000)
+	actualPickupDate47 := nextValidMoveDate
+	offer47 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.NewV4()),
+			LoginGovEmail: email47,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.Must(uuid.NewV4()),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("ReadyForDelivery"),
+			Edipi:         models.StringPointer("4744567890"),
+			PersonalEmail: models.StringPointer(email47),
+		},
+		Move: models.Move{
+			ID:               uuid.Must(uuid.NewV4()),
+			Locator:          "SIT050",
+			SelectedMoveType: &selectedMoveTypeHHG,
+			Orders: models.Order{
+				NewDutyStation: models.DutyStation{
+					Address: destAddress,
+				},
+			},
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.Must(uuid.NewV4()),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status:           models.ShipmentStatusINTRANSIT,
+			NetWeight:        &netWeight47,
+			ActualPickupDate: &actualPickupDate47,
+			PickupAddress:    &pickupAddress,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
 		},
 	})
-	hhg44 := offer44.Shipment
-	hhg44.Move.Submit(time.Now())
-	models.SaveMoveDependencies(db, &hhg44.Move)
+
+	hhg47 := offer47.Shipment
+	sitID47Origin := uuid.Must(uuid.NewV4())
+	authorizedStartDateOffer47Orig := time.Date(2019, time.Month(3), 2, 0, 0, 0, 0, time.UTC)
+	sit47Origin := models.StorageInTransit{
+		ID:                  sitID47Origin,
+		ShipmentID:          hhg47.ID,
+		Shipment:            hhg47,
+		Location:            models.StorageInTransitLocationORIGIN,
+		Status:              models.StorageInTransitStatusAPPROVED,
+		EstimatedStartDate:  authorizedStartDateOffer47Orig,
+		AuthorizedStartDate: &authorizedStartDateOffer47Orig,
+		ActualStartDate:     &authorizedStartDateOffer47Orig,
+		WarehouseID:         "450383",
+		WarehouseName:       "Extra Space Storage",
+		WarehouseAddress:    sitOriginAddress47,
+	}
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: sit47Origin,
+	})
+
+	hhg47.Move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &hhg47.Move)
+
+	// Transition SIT to InSIT/IN_SIT
+	placeInSITParams47 := placeInSITParams{
+		SITID:           sit47Origin.ID,
+		ShipmentID:      hhg47.ID,
+		Shipment:        hhg47,
+		ActualStartDate: *sit47Origin.AuthorizedStartDate,
+	}
+	sitPlaceInSIT(db, placeInSITParams47, tspUserSession)
+
+	/* HHG48
+	 * Service member with in transit shipment and SIT more than 50 mi
+	 */
+
+	email48 := "enter@delivery.sit51"
+
+	pickupAddress48 := models.Address{
+		StreetAddress1: "9611 Highridge Dr",
+		StreetAddress2: swag.String(""),
+		StreetAddress3: swag.String(""),
+		City:           "Beverly Hills",
+		State:          "CA",
+		PostalCode:     "90210",
+		Country:        swag.String("US"),
+	}
+	pickupAddress48 = testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: pickupAddress48,
+	})
+
+	destAddress48 := models.Address{
+		StreetAddress1: "2157 Willhaven Dr ",
+		StreetAddress2: swag.String(""),
+		StreetAddress3: swag.String(""),
+		City:           "Augusta",
+		State:          "GA",
+		PostalCode:     "30909",
+		Country:        swag.String("US"),
+	}
+	destAddress48 = testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: destAddress48,
+	})
+
+	// Southern Storage
+	// 1177 US-29, Valley, AL 36854
+	// more than 200 mi from destination
+	sitDestinationAddress48 := models.Address{
+		StreetAddress1: "1177 US-29",
+		StreetAddress2: swag.String(""),
+		StreetAddress3: swag.String(""),
+		City:           "Valley",
+		State:          "AL",
+		PostalCode:     "36854",
+		Country:        swag.String("US"),
+	}
+	sitDestinationAddress48 = testdatagen.MakeAddress(db, testdatagen.Assertions{
+		Address: sitDestinationAddress48,
+	})
+
+	netWeight48 := unit.Pound(2000)
+	actualPickupDate48 := nextValidMoveDate
+	offer48 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.NewV4()),
+			LoginGovEmail: email48,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.Must(uuid.NewV4()),
+			FirstName:     models.StringPointer("HHG"),
+			LastName:      models.StringPointer("ReadyForDelivery"),
+			Edipi:         models.StringPointer("4844567890"),
+			PersonalEmail: models.StringPointer(email48),
+		},
+		Move: models.Move{
+			ID:               uuid.Must(uuid.NewV4()),
+			Locator:          "SIT051",
+			SelectedMoveType: &selectedMoveTypeHHG,
+			Orders: models.Order{
+				NewDutyStation: models.DutyStation{
+					Address: destAddress,
+				},
+			},
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.Must(uuid.NewV4()),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status:           models.ShipmentStatusINTRANSIT,
+			NetWeight:        &netWeight48,
+			ActualPickupDate: &actualPickupDate48,
+			PickupAddress:    &pickupAddress,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	hhg48 := offer48.Shipment
+	sitID48Destination := uuid.Must(uuid.NewV4())
+	authorizedStartDateOffer48Dest := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
+	sit48Destination := models.StorageInTransit{
+		ID:                  sitID48Destination,
+		ShipmentID:          hhg48.ID,
+		Shipment:            hhg48,
+		Location:            models.StorageInTransitLocationDESTINATION,
+		Status:              models.StorageInTransitStatusAPPROVED,
+		EstimatedStartDate:  authorizedStartDateOffer48Dest,
+		AuthorizedStartDate: &authorizedStartDateOffer48Dest,
+		ActualStartDate:     &authorizedStartDateOffer48Dest,
+		WarehouseID:         "450384",
+		WarehouseName:       "Iron Guard Storage",
+		WarehouseAddress:    sitDestinationAddress48,
+	}
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: sit48Destination,
+	})
+
+	// Transition SIT to InSIT/IN_SIT
+	placeInSITParams48 := placeInSITParams{
+		SITID:           sit48Destination.ID,
+		ShipmentID:      hhg48.ID,
+		Shipment:        hhg48,
+		ActualStartDate: *sit48Destination.AuthorizedStartDate,
+	}
+	sitPlaceInSIT(db, placeInSITParams48, tspUserSession)
+
+	hhg48.Move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &hhg48.Move)
+
+	/*
+	 * HHG49
+	 * Service member with in-transit shipment and Destination DELIVERED SIT
+	 */
+	email = "hhg@sit.delivered.destination"
+	offer49 := testdatagen.MakeShipmentOffer(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.NewV4()),
+			LoginGovEmail: email,
+		},
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.Must(uuid.NewV4()),
+			FirstName:     models.StringPointer("DESTINATION-SIT"),
+			LastName:      models.StringPointer("DELIVERED"),
+			Edipi:         models.StringPointer("1857924699"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		Move: models.Move{
+			ID:               uuid.Must(uuid.NewV4()),
+			Locator:          "SITDST", // SIT Destination DELIVERED
+			SelectedMoveType: &selectedMoveTypeHHG,
+		},
+		TrafficDistributionList: models.TrafficDistributionList{
+			ID:                uuid.Must(uuid.NewV4()),
+			SourceRateArea:    "US62",
+			DestinationRegion: "11",
+			CodeOfService:     "D",
+		},
+		Shipment: models.Shipment{
+			Status: models.ShipmentStatusDELIVERED,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Accepted:                        models.BoolPointer(true),
+		},
+	})
+
+	authorizedStartDateOffer49 := time.Date(2019, time.Month(3), 26, 0, 0, 0, 0, time.UTC)
+	outDate49 := time.Date(2019, time.Month(3), 27, 0, 0, 0, 0, time.UTC)
+	sit49 := models.StorageInTransit{
+		ID:                  uuid.Must(uuid.NewV4()),
+		ShipmentID:          offer49.ShipmentID,
+		Shipment:            offer49.Shipment,
+		Location:            models.StorageInTransitLocationDESTINATION,
+		Status:              models.StorageInTransitStatusDELIVERED,
+		EstimatedStartDate:  time.Date(2019, time.Month(3), 22, 0, 0, 0, 0, time.UTC),
+		ActualStartDate:     &authorizedStartDateOffer49,
+		AuthorizedStartDate: &authorizedStartDateOffer49,
+		OutDate:             &outDate49,
+		SITNumber:           models.StringPointer("400000001"),
+	}
+	testdatagen.MakeStorageInTransit(db, testdatagen.Assertions{
+		StorageInTransit: sit49,
+	})
+	hhg49 := offer49.Shipment
+	hhg49.Move.Submit(time.Now())
+	models.SaveMoveDependencies(db, &hhg49.Move)
 
 	/*
 	 * Service member with a ppm ready to request payment
@@ -2833,6 +3292,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			MoveType: &accessCodeMoveType,
 		},
 	})
+
 	/*
 	 * Service member with a ppm ready to request payment
 	 */
@@ -2874,6 +3334,48 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	ppm6.Move.PersonallyProcuredMoves[0].Submit(time.Now())
 	ppm6.Move.PersonallyProcuredMoves[0].Approve(time.Now())
 	models.SaveMoveDependencies(db, &ppm6.Move)
+
+	/*
+	 * Service member with a ppm ready to request payment
+	 */
+	email = "ppm@continue.requestingpayment"
+	uuidStr = "4ebc03b7-c801-4c0d-806c-a95aed242102"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	ppm7 := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("0cfb9fc6-82dd-404b-aa39-4deb6dba6c66"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("ContinueRequesting"),
+			Edipi:         models.StringPointer("6737033007"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		// These values should be populated for an approved move
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("62149"),
+			OrdersTypeDetail:    &typeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("0581253d-0539-4a93-b1b6-ea4ad384f0c5"),
+			Locator: "RQPAY3",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate: &pastTime,
+		},
+		Uploader: loader,
+	})
+	ppm7.Move.Submit(time.Now())
+	ppm7.Move.Approve()
+	ppm7.Move.PersonallyProcuredMoves[0].Submit(time.Now())
+	ppm7.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	models.SaveMoveDependencies(db, &ppm7.Move)
 }
 
 // MakeHhgWithPpm creates an HHG user who has added a PPM
@@ -3365,7 +3867,7 @@ func makeHhgReadyToInvoiceWithSIT(db *pop.Connection, params hhgReadyToInvoicePa
 			ID:                          uuid.Must(uuid.NewV4()),
 			Status:                      models.ShipmentStatusINTRANSIT,
 			PmSurveyMethod:              "PHONE",
-			PmSurveyPlannedPackDate:     &nextVAlidMoveDateMinusTen,
+			PmSurveyPlannedPackDate:     &nextValidMoveDateMinusTen,
 			PmSurveyPlannedPickupDate:   &nextValidMoveDateMinusFive,
 			PmSurveyPlannedDeliveryDate: &nextValidMoveDateMinusOne,
 			NetWeight:                   &netWeight,
@@ -3506,7 +4008,7 @@ func makeHhgReadyToInvoice(db *pop.Connection, tspUser models.TspUser, logger Lo
 			ID:                          uuid.FromStringOrNil("67a3cbe7-4ae3-4f6a-9f9a-4f312e7458b9"),
 			Status:                      models.ShipmentStatusINTRANSIT,
 			PmSurveyMethod:              "PHONE",
-			PmSurveyPlannedPackDate:     &nextVAlidMoveDateMinusTen,
+			PmSurveyPlannedPackDate:     &nextValidMoveDateMinusTen,
 			PmSurveyPlannedPickupDate:   &nextValidMoveDateMinusFive,
 			PmSurveyPlannedDeliveryDate: &nextValidMoveDateMinusOne,
 			NetWeight:                   &netWeight,

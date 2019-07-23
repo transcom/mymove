@@ -60,7 +60,7 @@ class PaymentReview extends Component {
   };
 
   render() {
-    const { moveId, moveDocuments, submitting } = this.props;
+    const { moveId, moveDocuments, submitting, history } = this.props;
     const weightTickets = moveDocuments.weightTickets;
     const missingSomeWeightTicket = weightTickets.some(
       ({ empty_weight_ticket_missing, full_weight_ticket_missing }) =>
@@ -125,10 +125,10 @@ class PaymentReview extends Component {
           </div>
           <PPMPaymentRequestActionBtns
             nextBtnLabel={nextBtnLabel}
+            finishLaterHandler={() => history.push('/')}
             submitButtonsAreDisabled={!this.state.acceptTerms}
             saveAndAddHandler={this.applyClickHandlers}
             submitting={submitting}
-            displaySaveForLater
           />
         </div>
       </>

@@ -30,6 +30,10 @@ export const displayBaseQuantityUnits = (item, scale) => {
   } else if (isPrice(itemCode) && isRobustAccessorial(item)) {
     const price = formatBaseQuantityAsDollars(itemQuantity1);
     return `$${price}`;
+  } else if (isDistance(itemCode)) {
+    const decimalPlaces = 0;
+    const milage = convertTruncateAddCommas(itemQuantity1, decimalPlaces);
+    return `${milage} mi`;
   }
 
   return formatFromBaseQuantity(itemQuantity1);
@@ -53,6 +57,11 @@ function isWeightDistance(itemCode) {
 function isPrice(itemCode) {
   const priceItems = ['226A', '35A'];
   return priceItems.includes(itemCode);
+}
+
+function isDistance(itemCode) {
+  const miItems = ['210A', '210B', '210C'];
+  return miItems.includes(itemCode);
 }
 
 function convertTruncateAddCommas(value, decimalPlaces) {

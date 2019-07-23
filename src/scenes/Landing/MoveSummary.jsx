@@ -10,16 +10,17 @@ import Alert from 'shared/Alert';
 import { formatCents, formatCentsRange } from 'shared/formatters';
 import TransportationOfficeContactInfo from 'shared/TransportationOffices/TransportationOfficeContactInfo';
 import TransportationServiceProviderContactInfo from 'scenes/TransportationServiceProvider/ContactInfo';
-import truck from 'shared/icon/truck-gray.svg';
-import { selectReimbursement } from 'shared/Entities/modules/ppms';
-
-import './MoveSummary.css';
-import ppmCar from './images/ppm-car.svg';
-import { ShipmentStatusTimeline, ProfileStatusTimeline } from './StatusTimeline';
-
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlus from '@fortawesome/fontawesome-free-solid/faPlus';
+import truck from 'shared/icon/truck-gray.svg';
+import { selectReimbursement } from 'shared/Entities/modules/ppms';
+import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
+
+import ppmCar from './images/ppm-car.svg';
+import { ShipmentStatusTimeline, ProfileStatusTimeline } from './StatusTimeline';
 import PPMStatusTimeline from './PPMStatusTimeline';
+
+import './MoveSummary.css';
 
 export const CanceledMoveSummary = props => {
   const { profile, reviewProfile } = props;
@@ -307,8 +308,7 @@ export const SubmittedHhgMoveSummary = props => {
 };
 
 //TODO remove redundant ApprovedMoveSummary component w/ ppmPaymentRequest flag
-export const NewApprovedMoveSummary = props => {
-  const { ppm, move } = props;
+const NewApprovedMoveSummaryComponent = ({ ppm, move, weightTicketSets }) => {
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
   const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
   const ppmPaymentRequestIntroRoute = `moves/${move.id}/ppm-payment-request-intro`;
@@ -351,14 +351,28 @@ export const NewApprovedMoveSummary = props => {
                   </div>
                 ) : (
                   <div className="step">
-                    <div className="title">Next Step: Request payment</div>
-                    <div>
-                      Request a PPM payment, a storage payment, or an advance against your PPM payment before your move
-                      is done.
-                    </div>
-                    <Link to={ppmPaymentRequestIntroRoute} className="usa-button usa-button-secondary">
-                      Request Payment
-                    </Link>
+                    {weightTicketSets.length ? (
+                      <>
+                        <div className="title">Next Step: Finish requesting payment</div>
+                        <div>
+                          Continue uploading your weight tickets and expense to get paid after your move is done.
+                        </div>
+                        <Link to={ppmPaymentRequestReviewRoute} className="usa-button usa-button-secondary">
+                          Continue Requesting Payment
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <div className="title">Next Step: Request payment</div>
+                        <div>
+                          Request a PPM payment, a storage payment, or an advance against your PPM payment before your
+                          move is done.
+                        </div>
+                        <Link to={ppmPaymentRequestIntroRoute} className="usa-button usa-button-secondary">
+                          Request Payment
+                        </Link>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
@@ -373,6 +387,12 @@ export const NewApprovedMoveSummary = props => {
     </Fragment>
   );
 };
+
+const mapStateToNewApprovedMoveSummaryProps = (state, { move }) => ({
+  weightTicketSets: selectPPMCloseoutDocumentsForMove(state, move.id, ['WEIGHT_TICKET_SET']),
+});
+
+const NewApprovedMoveSummary = connect(mapStateToNewApprovedMoveSummaryProps)(NewApprovedMoveSummaryComponent);
 
 export const ApprovedMoveSummary = props => {
   const { ppm, move, requestPaymentSuccess } = props;

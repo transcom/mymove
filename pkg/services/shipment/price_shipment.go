@@ -6,6 +6,8 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
+	storageintransit "github.com/transcom/mymove/pkg/services/storage_in_transit"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/route"
@@ -42,7 +44,8 @@ func (c *shipmentPricer) PriceShipment(shipment *models.Shipment, price services
 		return validate.NewErrors(), errors.New("Destination address not provided")
 	}
 
-	distanceCalculation, err := models.NewDistanceCalculation(c.planner, *origin, destination)
+	useZipOnlyForDistance := true
+	distanceCalculation, err := models.NewDistanceCalculation(c.planner, *origin, destination, useZipOnlyForDistance)
 	if err != nil {
 		return validate.NewErrors(), errors.Wrap(err, "Error creating DistanceCalculation model")
 	}
@@ -61,7 +64,14 @@ func (c *shipmentPricer) PriceShipment(shipment *models.Shipment, price services
 			return validate.NewErrors(), err
 		}
 
+		// Delete Storage in Transit Shipment Line Items for repricing
+		err = shipment.DeleteStorageInTransitLineItems(c.db)
+		if err != nil {
+			return validate.NewErrors(), err
+		}
+
 		// Save and validate Shipment after deleting Base Shipment Line Items
+		// and Storage in Transit Shipment Line Items
 		verrs, saveShipmentErr := models.SaveShipment(c.db, shipment)
 		if verrs.HasAny() || saveShipmentErr != nil {
 			saveError := errors.Wrap(saveShipmentErr, "Error saving shipment for ShipmentPriceRECALCULATE")
@@ -69,18 +79,29 @@ func (c *shipmentPricer) PriceShipment(shipment *models.Shipment, price services
 		}
 	}
 
-	lineItems, err := rateengine.CreateBaseShipmentLineItems(c.db, shipmentCost)
+	// Create Base Shipment Line Items for Shipment
+	baseLineItems, err := rateengine.CreateBaseShipmentLineItems(c.db, shipmentCost)
 	if err != nil {
 		return validate.NewErrors(), err
 	}
 
-	// When the shipment is delivered we should also price existing approved pre-approval requests
-	preApprovals, err := c.engine.PricePreapprovalRequestsForShipment(*shipment)
+	// Create Storage in Transit (SIT) line items for Shipment
+	createStorageInTransitLineItems := storageintransit.CreateStorageInTransitLineItems{
+		DB:      c.db,
+		Planner: c.planner,
+	}
+	storageInTransitLineItems, err := createStorageInTransitLineItems.CreateStorageInTransitLineItems(shipmentCost)
 	if err != nil {
 		return validate.NewErrors(), err
 	}
 
-	verrs, err := shipment.SaveShipmentAndPricingInfo(c.db, lineItems, preApprovals, distanceCalculation)
+	// Price existing approved accessorials that require approval (and have been approved) and price storage in transit line items
+	additionalLineItems, err := c.engine.PriceAdditionalRequestsForShipment(*shipment, storageInTransitLineItems)
+	if err != nil {
+		return validate.NewErrors(), err
+	}
+
+	verrs, err := shipment.SaveShipmentAndPricingInfo(c.db, baseLineItems, additionalLineItems, distanceCalculation)
 	if err != nil || verrs.HasAny() {
 		return verrs, err
 	}
