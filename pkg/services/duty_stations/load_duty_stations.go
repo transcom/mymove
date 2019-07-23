@@ -9,19 +9,32 @@ import (
 	"strings"
 	"time"
 
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
-
-	"github.com/gofrs/uuid"
-
-	"github.com/transcom/mymove/pkg/route"
-
 	"github.com/gobuffalo/pop"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 )
 
 const hereRequestTimeout = time.Duration(15) * time.Second
+
+const (
+	ABC string = `
+	{{range .}}
+INSERT INTO addresses (id, street_address_1, city, state, postal_code, created_at, updated_at, country) VALUES ('{{.AddressID}}', 'N/A', '{{.Address.City}}', '{{.Address.State}}', '{{.Address.PostalCode}}', now(), now(), 'United States');
+INSERT INTO duty_stations (id, name, affiliation, address_id, created_at, updated_at, transportation_office_id) VALUES ('{{.DutyStationID}}', '{{.Stations.Name}}', 'MARINES', '{{.AddressID}}', now(), now(), '{{.To.ID}}');
+	{{end}}`
+)
+
+type DutyStationMigration struct {
+	Address       models.Address
+	To            models.TransportationOffice
+	Stations      StationData
+	AddressID     uuid.UUID
+	DutyStationID uuid.UUID
+}
 
 var uppercaseWords = map[string]bool{
 	// seeing double w/ a comma == a hack to deal w/ commas in the office name
@@ -134,7 +147,6 @@ func (b MigrationBuilder) ParseStations(filename string) ([]StationData, error) 
 
 	// Skip the first header row
 	dataRows, err := r.ReadAll()
-	// dataRows := xlFile.Sheets[1].Rows[1:245]
 	for _, row := range dataRows[1:] {
 		parsed := StationData{
 			Unit: row[0],
@@ -194,34 +206,6 @@ func (b *MigrationBuilder) findDutyStations(s StationData) models.DutyStations {
 	filteredStations := b.filterMarines(stations)
 	//fmt.Println("filtered duty stations: ", len(filteredStations))
 	return filteredStations
-}
-
-// func (b *MigrationBuilder) FindTransportationOffice(s StationData) models.TransportationOffices {
-// 	zip := s.Zip
-
-// 	dbOs, err := models.FetchTransportationOfficesByPostalCode(b.db, zip)
-// 	if err != nil {
-// 		fmt.Println(err)
-// 	}
-
-// 	if len(dbOs) == 0 {
-// 		partialZip := zip[:len(zip)-1] + "%"
-// 		//fmt.Fprintf(w, "*** partialZip: %s \n", partialZip)
-// 		dbOs, err = models.FetchTransportationOfficesByPostalCode(b.db, partialZip)
-// 		if err != nil {
-// 			fmt.Println(err)
-// 		}
-// 	}
-
-// 	return dbOs
-// }
-
-func (b *MigrationBuilder) WriteLine(s StationData, row *[]string) {
-	name := normalizeName(s.Name)
-	//fmt.Printf("\nname: %s  | zip: %s \n", name, s.Zip)
-	//fmt.Fprintf(w, "\nname: %s  | zip: %s \n", name, s.Zip)
-	newRow := append(*row, name, s.Zip)
-	*row = newRow
 }
 
 func (b *MigrationBuilder) WriteDbRecs(ts models.DutyStations) {
@@ -298,48 +282,21 @@ func (b *MigrationBuilder) nearestTransportationOffice(address models.Address) (
 	return to, nil
 }
 
-func createInsertAddress(address models.Address, id uuid.UUID) string {
-	// nolint
-	return fmt.Sprintf(`INSERT INTO addresses (id, street_address_1, city, state, postal_code, created_at, updated_at, country) VALUES ('%s', 'N/A', '%s', '%s', '%s', now(), now(), 'US');`, id, address.City, address.State, address.PostalCode)
-}
-
-func createInsertDutyStations(addressID uuid.UUID, officeID uuid.UUID, stationName string) string {
-	dutyStationID := uuid.Must(uuid.NewV4())
-	// nolint
-	return fmt.Sprintf(`INSERT INTO duty_stations (id, name, affiliation, address_id, created_at, updated_at, transportation_office_id) VALUES ('%s', '%s', 'MARINES', '%s', now(), now(), '%s');`, dutyStationID, stationName, addressID, officeID)
-}
-
-func (b *MigrationBuilder) generateInsertionBlock(address models.Address, to models.TransportationOffice, station StationData) string {
-	var query strings.Builder
-	addressID := uuid.Must(uuid.NewV4())
-
-	query.WriteString(createInsertAddress(address, addressID))
-	query.WriteString("\n")
-	query.WriteString(createInsertDutyStations(addressID, to.ID, station.Name))
-	query.WriteString("\n")
-
-	return query.String()
-}
-
-func (b *MigrationBuilder) Build(dutyStationsFilePath string) (string, error) {
+func (b *MigrationBuilder) Build(dutyStationsFilePath string) ([]DutyStationMigration, error) {
 	stations, err := b.ParseStations(dutyStationsFilePath)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	//fmt.Printf("# total stations: %d\n", len(stations))
 
-	var migration strings.Builder
+	var DutyStationMigrations []DutyStationMigration
 	for _, s := range stations {
-		//fmt.Println("\n", s.Name, " | ", s.Zip)
 		city, state := getCityState(s.Unit)
 		address := models.Address{
 			City:       city,
 			State:      state,
 			PostalCode: s.Zip,
 		}
-		//fmt.Println(city, " | ", state)
 		if state == "HI" || state == "AK" {
-			fmt.Println("\t*** skipping non-conus")
 			continue
 		}
 
@@ -351,8 +308,9 @@ func (b *MigrationBuilder) Build(dutyStationsFilePath string) (string, error) {
 				fmt.Println("Error encountered finding nearest transportation office: ", err)
 				continue
 			}
-			migration.WriteString(b.generateInsertionBlock(address, to, s))
+			// DutyStationMigration := DutyStationMigration{address, to, s, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4())}
+			DutyStationMigrations = append(DutyStationMigrations, DutyStationMigration{address, to, s, uuid.Must(uuid.NewV4()), uuid.Must(uuid.NewV4())})
 		}
 	}
-	return migration.String(), nil
+	return DutyStationMigrations, nil
 }

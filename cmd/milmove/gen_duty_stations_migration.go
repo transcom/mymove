@@ -1,0 +1,154 @@
+package main
+
+import (
+	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+	"text/template"
+	"time"
+
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/cli"
+	"github.com/transcom/mymove/pkg/logging"
+	dutyStations "github.com/transcom/mymove/pkg/services/duty_stations"
+)
+
+const (
+	// filename containing the details for new office users
+	DutyStationsFilenameFlag string = "office-users-filename"
+	// sql file containing the migration to add the new office users
+	DutyStationsMigrationFilenameFlag string = "migration-filename"
+	// the Go time format for creating a version number.
+	VersionTimeFormat11 string = "20060102150405"
+)
+
+type MigrationInfo struct {
+	Filename string
+}
+
+const (
+	DutyStationMigration string = `
+-- Migration generated using: cmd/milmove/gen_duty_stations_migration.go
+-- Duty stations file: {{.Filename}}`
+)
+
+// DutyStationsFilenameFlag initializes add_office_users command line flags
+func InitAddDutyStationsFlags(flag *pflag.FlagSet) {
+	flag.StringP(DutyStationsFilenameFlag, "f", "", "File name of csv file containing the new office users")
+	flag.StringP(DutyStationsMigrationFilenameFlag, "n", "", "File name of the migration files for the new office users")
+}
+
+// CheckAddDutyStations validates add_office_users command line flags
+func CheckAddDutyStations(v *viper.Viper) error {
+	DutyStationsFilenameFlag := v.GetString(DutyStationsFilenameFlag)
+	if DutyStationsFilenameFlag == "" {
+		return fmt.Errorf("--office-users-filename is required")
+	}
+	DutyStationsMigrationFilenameFlag := v.GetString(DutyStationsMigrationFilenameFlag)
+	if DutyStationsMigrationFilenameFlag == "" {
+		return fmt.Errorf("--migration-filename is required")
+	}
+	return nil
+}
+
+func initGenDutyStationsMigrationFlags(flag *pflag.FlagSet) {
+	// DB Config
+	cli.InitDatabaseFlags(flag)
+
+	// Migration Config
+	cli.InitMigrationFlags(flag)
+
+	// Add Office Users
+	InitAddDutyStationsFlags(flag)
+
+	// Sort command line flags
+	flag.SortFlags = true
+}
+
+func closeFile11(outfile *os.File) {
+	err := outfile.Close()
+	if err != nil {
+		log.Printf("error closing %s: %v\n", outfile.Name(), err)
+		os.Exit(1)
+	}
+}
+
+func createDutyStationMigration(path string, filename string, ds []dutyStations.DutyStationMigration) error {
+	migrationPath := filepath.Join(path, filename)
+	migrationFile, err := os.Create(migrationPath)
+	defer closeFile(migrationFile)
+	if err != nil {
+		return errors.Wrapf(err, "error creating %s", migrationPath)
+	}
+
+	t1 := template.Must(template.New("temp1").Parse(DutyStationMigration))
+	err = t1.Execute(migrationFile, MigrationInfo{filename})
+	t2 := template.Must(template.New("temp2").Parse(dutyStations.ABC))
+	err = t2.Execute(migrationFile, ds)
+	if err != nil {
+		log.Println("error executing template: ", err)
+	}
+	log.Printf("new migration file created at:  %q\n", migrationPath)
+	return nil
+}
+
+func genDutyStationsMigration(cmd *cobra.Command, args []string) error {
+	err := cmd.ParseFlags(args)
+	flag := cmd.Flags()
+	err = flag.Parse(os.Args[1:])
+	if err != nil {
+		return errors.Wrap(err, "could not parse flags")
+	}
+	v := viper.New()
+	err = v.BindPFlags(flag)
+	if err != nil {
+		return errors.Wrap(err, "could not bind flags")
+	}
+	err = CheckAddDutyStations(v)
+	if err != nil {
+		return err
+	}
+	migrationsPath := v.GetString(cli.MigrationPathFlag)
+	migrationManifest := v.GetString(cli.MigrationManifestFlag)
+	migrationFilename := v.GetString(DutyStationsMigrationFilenameFlag)
+	dutyStationsFilename := v.GetString(DutyStationsFilenameFlag)
+
+	logger, err := logging.Config(v.GetString(cli.LoggingEnvFlag), v.GetBool(cli.VerboseFlag))
+
+	// Create a connection to the DB
+	dbConnection, err := cli.InitDatabase(v, logger)
+	if err != nil {
+		if dbConnection == nil {
+			// No connection object means that the configuraton failed to validate and we should kill server startup
+			logger.Fatal("Invalid DB Configuration", zap.Error(err))
+		} else {
+			// A valid connection object that still has an error indicates that the DB is not up and
+			// thus is not ready for migrations
+			logger.Fatal("DB is not ready for connections", zap.Error(err))
+		}
+	}
+
+	builder := dutyStations.NewMigrationBuilder(dbConnection, logger)
+	insertions, err := builder.Build(dutyStationsFilename)
+	if err != nil {
+		logger.Panic("Error while building migration", zap.Error(err))
+	}
+
+	migrationName := fmt.Sprintf("%s_%s.up.sql", time.Now().Format(VersionTimeFormat), migrationFilename)
+	err = createDutyStationMigration(migrationsPath, migrationName, insertions)
+	if err != nil {
+		return err
+	}
+
+	err = addMigrationToManifest(migrationManifest, migrationName)
+	if err != nil {
+		return err
+	}
+	return nil
+}
