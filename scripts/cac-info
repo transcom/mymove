@@ -6,15 +6,36 @@ set -eu -o pipefail
 # Get general information from a CAC
 #
 
+readonly MODULE=/usr/local/lib/pkcs11/cackey.dylib
+readonly PKCS11=/usr/local/bin/pkcs11-tool
+readonly PKCS15=/usr/local/bin/pkcs15-tool
+
+if [[ ! -x "${PKCS11}" ]]; then
+  echo "${PKCS11} has not been installed"
+  echo "Please install with 'brew install opensc'"
+  exit 1
+fi
+
+if [[ ! -x "${PKCS15}" ]]; then
+  echo "${PKCS15} has not been installed"
+  echo "Please install with 'brew install opensc'"
+  exit 1
+fi
+
+if [[ ! -f "${MODULE}" ]]; then
+  echo "${MODULE} has not been installed"
+  echo "Please visit http://militarycac.org/MacVideos.htm#CACKey_packages and follow instructions to install"
+  exit 1
+fi
 
 echo -e "\n----- List Info -----\n"
 
-pkcs15-tool --list-info
+"${PKCS15}" --list-info
 
 echo -e "\n----- List Certificates -----\n"
 
-pkcs15-tool --list-certificates
+"${PKCS15}" --list-certificates
 
 echo -e "\n----- List Slots -----\n"
 
-pkcs11-tool --list-slots
+"${PKCS11}" --list-slots
