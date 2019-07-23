@@ -73,33 +73,42 @@ func (m MoveApproved) emails(ctx context.Context) ([]emailContent, error) {
 		Path:   "downloads/ppm_info_sheet.pdf",
 	}
 
-	introText := `You're all set to move!`
-	dutyStationText := fmt.Sprintf("The local transportation office <strong>approved your move</strong> from <strong>%s</strong> to <strong>%s</strong>.", dsTransportInfo.Name, orders.NewDutyStation.Name)
-	ppmInfoSheetInstructions := fmt.Sprintf("Please <a href=\"%s\">review the Personally Procured Move (PPM) info sheet</a> for detailed instructions.", ppmInfoSheetURL.String())
+	introTextHTML := "You're all set to move!"
+	introText := "You're all set to move!"
+
+	dutyStationTextHTML := fmt.Sprintf("The local transportation office <strong>approved your move</strong> from <strong>%s</strong> to <strong>%s</strong>.", dsTransportInfo.Name, orders.NewDutyStation.Name)
+	dutyStationText := fmt.Sprintf("The local transportation office approved your move from %s to %s.", dsTransportInfo.Name, orders.NewDutyStation.Name)
+
+	ppmInfoSheetInstructionsHTML := fmt.Sprintf("Please <a href=\"%s\">review the Personally Procured Move (PPM) info sheet</a> for detailed instructions.", ppmInfoSheetURL.String())
+	ppmInfoSheetInstructions := fmt.Sprintf("Please review the Personally Procured Move (PPM) info sheet for detailed instructions at %s.", ppmInfoSheetURL.String())
 
 	if move.PersonallyProcuredMoves != nil {
-		introText = fmt.Sprintf("<strong>%s</strong><br /><br /> %s <br /><br />%s<br /><br />",
-			introText,
-			dutyStationText,
-			ppmInfoSheetInstructions,
+		introTextHTML = fmt.Sprintf("<strong>%s</strong><br /><br /> %s <br /><br />%s<br />",
+			introTextHTML,
+			dutyStationTextHTML,
+			ppmInfoSheetInstructionsHTML,
 		)
+		introText = fmt.Sprintf("%s\n\n%s\n\n%s", introText, dutyStationText, ppmInfoSheetInstructions)
 	}
 
-	nextStepsText := `<strong>Next steps</strong>`
+	nextStepsTextHTML := `<strong>Next steps</strong>`
+	nextStepsText := "Next steps"
 
+	ppmTextHTML := ""
 	ppmText := ""
 	if move.PersonallyProcuredMoves != nil {
-		ppmText = `Because you’ve chosen a do-it-yourself move, you can start whenever you are ready.<br /><br >
+		ppmTextHTML = `Because you’ve chosen a do-it-yourself move, you can start whenever you are ready.<br /><br >
 		Be sure to <strong>save your weight tickets and any receipts</strong> associated with your move. You’ll need them to request payment later in the process.`
+		ppmText = "Because you’ve chosen a do-it-yourself move, you can start whenever you are ready.\n\nBe sure to save your weight tickets and any receipts associated with your move. You’ll need them to request payment later in the process."
 	}
 
-	// TODO: Add the PPPO contact info
-	closingText := fmt.Sprintf("If you have any questions, call the <strong>%s</strong> PPPO at %s.<br /><br />You can <a href=\"%s\">check the status of your move</a> anytime at https://my.move.mil", dsTransportInfo.Name, dsTransportInfo.PhoneLine, "https://my.move.mil")
+	closingTextHTML := fmt.Sprintf("If you have any questions, call the <strong>%s</strong> PPPO at %s.<br /><br />You can <a href=\"%s\">check the status of your move</a> anytime at https://my.move.mil", dsTransportInfo.Name, dsTransportInfo.PhoneLine, "https://my.move.mil")
+	closingText := fmt.Sprintf("If you have any questions, call the %s PPPO at %s.\n\nYou can check the status of your move anytime at https://my.move.mil", dsTransportInfo.Name, dsTransportInfo.PhoneLine)
 
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
 		subject:        "[MilMove] Your move is approved",
-		htmlBody:       fmt.Sprintf("%s<br/>%s<br/>%s<br/><br />%s", introText, nextStepsText, ppmText, closingText),
+		htmlBody:       fmt.Sprintf("%s<br/>%s<br/>%s<br/><br />%s", introTextHTML, nextStepsTextHTML, ppmTextHTML, closingTextHTML),
 		textBody:       fmt.Sprintf("%s\n%s\n%s\n%s", introText, nextStepsText, ppmText, closingText),
 	}
 
