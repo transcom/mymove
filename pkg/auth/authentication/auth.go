@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -24,6 +25,8 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 // UserAuthMiddleware enforces that the incoming request is tied to a user session
@@ -42,30 +45,50 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 			}
 			// DO NOT CHECK MILMOVE SESSION BECAUSE NEW SERVICE MEMBERS WON'T HAVE AN ID RIGHT AWAY
 			// This must be the right type of user for the application
-			if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
+			if session.IsOfficeApp() && !session.IsOfficeUser() {
 				logger.Error("unauthorized user for office.move.mil", zap.String("email", session.Email))
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
-			} else if session.IsTspApp() && session.TspUserID == uuid.Nil {
+			} else if session.IsTspApp() && !session.IsTspUser() {
 				logger.Error("unauthorized user for tsp.move.mil", zap.String("email", session.Email))
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
-			} else if session.IsAdminApp() && !session.IsSuperuser {
+			} else if session.IsAdminApp() && !session.IsAdminUser() {
 				logger.Error("unauthorized user for admin.move.mil", zap.String("email", session.Email))
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
 
-			// Include session office ID, service member ID, tsp ID, user ID, and superuser status to the beeline event
+			// Include session office ID, service member ID, tsp ID, user ID, and admin ID to the beeline event
 			span.AddTraceField("auth.office_user_id", session.OfficeUserID)
 			span.AddTraceField("auth.service_member_id", session.ServiceMemberID)
 			span.AddTraceField("auth.tsp_user_id", session.TspUserID)
+			span.AddTraceField("auth.admin_user_id", session.AdminUserID)
 			span.AddTraceField("auth.user_id", session.UserID)
-			span.AddTraceField("auth.is_superuser", session.IsSuperuser)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 			return
 		}
+		return http.HandlerFunc(mw)
+	}
+}
+
+func AdminAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			ctx, span := beeline.StartSpan(r.Context(), "AdminAuthMiddleware")
+			defer span.Send()
+			session := auth.SessionFromRequestContext(r)
+
+			if session == nil || !session.IsAdminUser() {
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
+				return
+			}
+
+			next.ServeHTTP(w, r.WithContext(ctx))
+			return
+		}
+
 		return http.HandlerFunc(mw)
 	}
 }
@@ -217,7 +240,6 @@ func NewCallbackHandler(ac Context, db *pop.Connection, clientAuthSecretKey stri
 
 // AuthorizationCallbackHandler handles the callback from the Login.gov authorization flow
 func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
 	_, span := beeline.StartSpan(r.Context(), reflect.TypeOf(h).Name())
 	defer span.Send()
 
@@ -329,6 +351,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, session *auth.Session, w http.ResponseWriter, span *trace.Span, r *http.Request, lURL string) {
+
 	if userIdentity.Disabled {
 		h.logger.Error("Disabled user requesting authentication",
 			zap.String("application_name", string(session.ApplicationName)),
@@ -341,9 +364,6 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 
 	session.UserID = userIdentity.ID
 	span.AddField("session.user_id", session.UserID)
-
-	session.IsSuperuser = userIdentity.IsSuperuser
-	span.AddField("session.is_superuser", session.IsSuperuser)
 
 	if userIdentity.ServiceMemberID != nil {
 		session.ServiceMemberID = *(userIdentity.ServiceMemberID)
@@ -418,6 +438,52 @@ func authorizeKnownUser(userIdentity *models.UserIdentity, h CallbackHandler, se
 			}
 		}
 	}
+
+	if session.IsAdminApp() {
+		if userIdentity.AdminUserDisabled != nil && *userIdentity.AdminUserDisabled {
+			h.logger.Error("Admin user is disabled", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
+		}
+		if userIdentity.AdminUserID != nil {
+			session.AdminUserID = *(userIdentity.AdminUserID)
+			session.AdminUserRole = userIdentity.AdminUserRole.String()
+		} else {
+			// In case they managed to login before the admin_user record was created
+			var adminUser models.AdminUser
+			queryBuilder := query.NewQueryBuilder(h.db)
+			filters := []services.QueryFilter{
+				query.NewQueryFilter("email", "=", strings.ToLower(userIdentity.Email)),
+			}
+			err := queryBuilder.FetchOne(&adminUser, filters)
+			if err == models.ErrFetchNotFound {
+				h.logger.Error("Non-admin user authenticated at admin site", zap.String("email", session.Email))
+				http.Error(w, http.StatusText(403), http.StatusForbidden)
+				return
+			} else if err != nil {
+				h.logger.Error("Checking for admin user", zap.String("email", session.Email), zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+
+			session.AdminUserID = adminUser.ID
+			session.AdminUserRole = adminUser.Role.String()
+			span.AddField("session.admin_user_id", session.AdminUserID)
+			adminUser.UserID = &userIdentity.ID
+			verrs, err := h.db.ValidateAndSave(&adminUser)
+			if err != nil {
+				h.logger.Error("Updating admin user", zap.String("email", session.Email), zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+
+			if verrs != nil {
+				h.logger.Error("Admin user validation errors", zap.String("email", session.Email), zap.Error(verrs))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+		}
+	}
 	session.FirstName = userIdentity.FirstName()
 	session.LastName = userIdentity.LastName()
 	session.Middle = userIdentity.Middle()
@@ -468,26 +534,50 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 		}
 	}
 
+	var adminUser models.AdminUser
 	if session.IsAdminApp() {
-		h.logger.Error("No superuser found", zap.String("email", session.Email))
-		http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-		return
+		queryBuilder := query.NewQueryBuilder(h.db)
+		filters := []services.QueryFilter{
+			query.NewQueryFilter("email", "=", strings.ToLower(session.Email)),
+		}
+		err = queryBuilder.FetchOne(&adminUser, filters)
+
+		if err == models.ErrFetchNotFound {
+			h.logger.Error("No admin user found", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+			return
+		} else if err != nil {
+			h.logger.Error("Checking for admin user", zap.String("email", session.Email), zap.Error(err))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+		if adminUser.Disabled {
+			h.logger.Error("Admin user is disabled", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(403), http.StatusForbidden)
+			return
+		}
 	}
 
 	user, err := models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
+
 	if err == nil { // Successfully created the user
 		session.UserID = user.ID
 		span.AddField("session.user_id", session.UserID)
-		if officeUser != nil {
+		if session.IsOfficeApp() && officeUser != nil {
 			session.OfficeUserID = officeUser.ID
 			span.AddField("session.office_user_id", session.OfficeUserID)
 			officeUser.UserID = &user.ID
 			err = h.db.Save(officeUser)
-		} else if tspUser != nil {
+		} else if session.IsTspApp() && tspUser != nil {
 			session.TspUserID = tspUser.ID
 			span.AddField("session.tsp_user_id", session.TspUserID)
 			tspUser.UserID = &user.ID
 			err = h.db.Save(tspUser)
+		} else if session.IsAdminApp() && adminUser.ID != uuid.Nil {
+			session.AdminUserID = adminUser.ID
+			span.AddField("session.admin_user_id", session.AdminUserID)
+			adminUser.UserID = &user.ID
+			err = h.db.Save(&adminUser)
 		}
 	}
 	if err != nil {
