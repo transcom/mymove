@@ -10,7 +10,7 @@ import {
   downloadPPMAttachments,
   downloadPPMAttachmentsLabel,
 } from 'shared/Entities/modules/ppms';
-import { selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import { selectAllDocumentsForMove, calcWeightTicketNetWeight } from 'shared/Entities/modules/moveDocuments';
 import { getLastError } from 'shared/Swagger/selectors';
 
 import { no_op } from 'shared/utils';
@@ -35,9 +35,12 @@ const attachmentsErrorMessages = {
   500: 'An unexpected error has occurred',
 };
 
-export function sswIsDisabled(ppm, signedCertification, shipment) {
+export function sswIsDisabled(ppm, signedCertification, shipment, moveDocs) {
   return (
-    missingSignature(signedCertification) || missingNetWeightOrActualMoveDate(ppm) || isComboAndNotDelivered(shipment)
+    missingSignature(signedCertification) ||
+    !calcWeightTicketNetWeight(moveDocs) ||
+    missingActualMoveDate(ppm) ||
+    isComboAndNotDelivered(shipment)
   );
 }
 
@@ -45,9 +48,10 @@ function missingSignature(signedCertification) {
   return isEmpty(signedCertification) || signedCertification.certification_type !== 'PPM_PAYMENT';
 }
 
-function missingNetWeightOrActualMoveDate(ppm) {
-  return isEmpty(ppm) || !ppm.net_weight || !ppm.actual_move_date;
+function missingActualMoveDate(ppm) {
+  return isEmpty(ppm) || !ppm.actual_move_date;
 }
+
 function isComboAndNotDelivered(shipment) {
   return !isEmpty(shipment) && shipment.status !== 'DELIVERED';
 }
@@ -287,8 +291,8 @@ const mapStateToProps = (state, ownProps) => {
   const shipment = selectShipmentForMove(state, moveId);
   const advance = selectReimbursement(state, ppm.advance);
   const signedCertifications = selectPaymentRequestCertificationForMove(state, moveId);
-  const disableSSW = sswIsDisabled(ppm, signedCertifications, shipment);
   const moveDocuments = selectAllDocumentsForMove(state, moveId);
+  const disableSSW = sswIsDisabled(ppm, signedCertifications, shipment, moveDocuments);
   return {
     ppm,
     disableSSW,
