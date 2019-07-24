@@ -26,6 +26,7 @@
     "--log-task-metadata",
     "--tls-enabled",
     "--serve-admin",
+    "true",
     "--serve-sddc",
     "--serve-dps",
     "--serve-api-internal",
