@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-import AlertWithConfirmation from 'shared/AlertWithConfirmation';
+// import { get} from 'lodash';
+
 import './PPMPaymentRequest.css';
+import AlertWithConfirmation from 'shared/AlertWithConfirmation';
 
 class PPMPaymentRequestActionBtns extends Component {
   state = {
