@@ -38,9 +38,6 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	if err != nil {
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}
-	if len(moveDocs) == 0 {
-		return ppmop.NewCreatePPMAttachmentsFailedDependency()
-	}
 
 	// Init our tools
 	loader := uploader.NewUploader(h.DB(), logger, h.FileStorer())
