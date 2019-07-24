@@ -51,7 +51,7 @@ func (suite *PaperworkServiceSuite) TestCreateFormServiceSuccess() {
 	file, err := formCreator.CreateForm(template)
 
 	suite.NotNil(file)
-	suite.Nil(err)
+	suite.NoError(err)
 	FormFiller.AssertExpectations(suite.T())
 }
 

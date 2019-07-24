@@ -40,7 +40,7 @@ func (suite *HandlerSuite) TestGetUserHandler() {
 	serviceMember := testdatagen.MakeServiceMember(suite.DB(), assertions)
 	loginGovID := serviceMember.User.LoginGovUUID.String()
 	cookie, err := dpsauth.LoginGovIDToCookie(loginGovID, dpsParams.CookieSecret, dpsParams.CookieExpires)
-	suite.Nil(err)
+	suite.NoError(err)
 
 	request := httptest.NewRequest("GET", "/dps/v0/authentication/user", nil)
 	params := dps.GetUserParams{Token: cookie.Value}

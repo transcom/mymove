@@ -16,6 +16,7 @@ import (
 type MoveApproved struct {
 	db      *pop.Connection
 	logger  Logger
+	host    string
 	moveID  uuid.UUID
 	session *auth.Session // TODO - remove this when we move permissions up to handlers and out of models
 }
@@ -24,11 +25,13 @@ type MoveApproved struct {
 func NewMoveApproved(db *pop.Connection,
 	logger Logger,
 	session *auth.Session,
+	host string,
 	moveID uuid.UUID) *MoveApproved {
 
 	return &MoveApproved{
 		db:      db,
 		logger:  logger,
+		host:    host,
 		moveID:  moveID,
 		session: session,
 	}
@@ -59,10 +62,9 @@ func (m MoveApproved) emails(ctx context.Context) ([]emailContent, error) {
 	// Set up various text segments. Copy comes from here:
 	// https://docs.google.com/document/d/1bgE0Q_-_c93uruMP8dcNSHugXo8Pidz6YFojWBKn1Gg/edit#heading=h.h3ys1ur2qhpn
 	// TODO: we will want some sort of templating system
-
 	ppmInfoSheetURL := url.URL{
 		Scheme: "https",
-		Host:   m.session.Hostname,
+		Host:   m.host,
 		Path:   "downloads/ppm_info_sheet.pdf",
 	}
 
@@ -73,7 +75,6 @@ func (m MoveApproved) emails(ctx context.Context) ([]emailContent, error) {
 			`Please review the PPM info sheet for more detailed instructions: `,
 			ppmInfoSheetURL.String())
 	}
-
 	nextStepsText := `Next steps:`
 
 	ppmText := ""

@@ -36,7 +36,7 @@ import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { getCurrentUserInfo } from 'shared/Data/users';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
-import FailWhale from 'shared/FailWhale';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { detectIE11, no_op } from 'shared/utils';
 import DPSAuthCookie from 'scenes/DPSAuthCookie';
 import TrailerCriteria from 'scenes/Moves/Ppm/TrailerCriteria';
@@ -45,6 +45,7 @@ import CustomerAgreementLegalese from 'scenes/Moves/Ppm/CustomerAgreementLegales
 
 export class AppWrapper extends Component {
   state = { hasError: false };
+
   componentDidMount() {
     this.props.loadInternalSchema();
     this.props.getCurrentUserInfo();
@@ -82,7 +83,7 @@ export class AppWrapper extends Component {
                   </Alert>
                 )}
               </div>
-              {this.state.hasError && <FailWhale />}
+              {this.state.hasError && <SomethingWentWrong />}
               {!this.state.hasError &&
                 !props.swaggerError && (
                   <Switch>

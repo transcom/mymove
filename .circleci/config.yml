@@ -41,6 +41,17 @@ executors:
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
           - POSTGRES_DB: test_db
+        command: "-c fsync=off -c full_page_writes=off -c max_connections=200"
+  mymove_and_postgres_large:
+    resource_class: large
+    working_directory: ~/transcom/mymove
+    docker:
+      - image: trussworks/circleci-docker-primary:9b7bfbf6bfae544566ade0c896f8aacbd16281e5
+      - image: postgres:10.9
+        environment:
+          - POSTGRES_PASSWORD: mysecretpassword
+          - POSTGRES_DB: test_db
+        command: "-c fsync=off -c full_page_writes=off -c max_connections=200"
 
 commands:
   announce_failure:
@@ -63,6 +74,7 @@ commands:
       - run:
           name: Run migrations
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
+          no_output_timeout: 60m
           environment:
             CHAMBER_RETRIES: 20
       - announce_failure
@@ -165,9 +177,6 @@ commands:
             docker tag << parameters.tag >> ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/<< parameters.repo >>:git-${CIRCLE_SHA1}
   e2e_tests:
-    parameters:
-      spec:
-        type: string
     steps:
       - run:
           name: make e2e_test_docker
@@ -180,7 +189,7 @@ commands:
             echo 'export LOGIN_GOV_HOSTNAME=$E2E_LOGIN_GOV_HOSTNAME' >> $BASH_ENV
             echo 'export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID' >> $BASH_ENV
             echo 'export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE' >> $BASH_ENV
-            echo 'export SPEC=<< parameters.spec>>' >> $BASH_ENV
+            echo "export SPEC=$(find cypress/integration -type f -name '*.js' | circleci tests split | tr '\n' ',' )" >> $BASH_ENV
             source $BASH_ENV
             make e2e_test_docker
           environment:
@@ -314,8 +323,9 @@ jobs:
             NO_TLS_ENABLED: true
       - announce_failure
 
-  # `integration_tests_mymove` runs integration tests using Cypress.  https://www.cypress.io/
-  integration_tests_mymove:
+  # `integration_tests` runs integration tests using Cypress.  https://www.cypress.io/
+  integration_tests:
+    parallelism: 10
     executor: mymove_medium
     steps:
       - checkout
@@ -330,92 +340,7 @@ jobs:
       - restore_cache:
           keys:
             - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - e2e_tests:
-          spec: 'cypress/integration/mymove/**/*'
-      - store_artifacts:
-          path: cypress/videos
-          destination: videos
-      - store_artifacts:
-          path: cypress/screenshots
-          destination: screenshots
-      - store_test_results:
-          path: cypress/results
-      - announce_failure
-
-  # `integration_tests_office` runs integration tests using Cypress.  https://www.cypress.io/
-  integration_tests_office:
-    executor: mymove_medium
-    steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - restore_cache:
-          keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}
-      - restore_cache:
-          keys:
-            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - e2e_tests:
-          spec: 'cypress/integration/office/**/*'
-      - store_artifacts:
-          path: cypress/videos
-          destination: videos
-      - store_artifacts:
-          path: cypress/screenshots
-          destination: screenshots
-      - store_test_results:
-          path: cypress/results
-      - announce_failure
-
-  # `integration_tests_tsp` runs integration tests using Cypress.  https://www.cypress.io/
-  integration_tests_tsp:
-    executor: mymove_medium
-    steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - restore_cache:
-          keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}
-      - restore_cache:
-          keys:
-            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - e2e_tests:
-          spec: 'cypress/integration/tsp/**/*'
-      - store_artifacts:
-          path: cypress/videos
-          destination: videos
-      - store_artifacts:
-          path: cypress/screenshots
-          destination: screenshots
-      - store_test_results:
-          path: cypress/results
-      - announce_failure
-
-  # `integration_tests_api` runs integration tests using Cypress.  https://www.cypress.io/
-  integration_tests_api:
-    executor: mymove_medium
-    steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: true
-      - restore_cache:
-          keys:
-            - go-mod-sources-v2-{{ checksum "go.sum" }}
-      - restore_cache:
-          keys:
-            - v2-cache-yarn-v2-{{ checksum "yarn.lock" }}
-      - restore_cache:
-          keys:
-            - v2-mymove-node-modules-{{ checksum "yarn.lock" }}
-      - e2e_tests:
-          spec: 'cypress/integration/api/**/*'
+      - e2e_tests
       - store_artifacts:
           path: cypress/videos
           destination: videos
@@ -428,7 +353,7 @@ jobs:
 
   # `server_test` runs the server side Go tests
   server_test:
-    executor: mymove_and_postgres_medium
+    executor: mymove_and_postgres_large
     steps:
       - checkout
       - setup_remote_docker:
@@ -441,9 +366,11 @@ jobs:
           # itself starts making database connections.
           name: Install postgres client
           command: |
+            # Debian stretch only supports 9.6 client, so add the Postgresql apt repository for 10.x
+            echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" | sudo tee -a /etc/apt/sources.list.d/pgdg.list
+            wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
             sudo apt-get -qq update
-            # Debian stretch only supports 9.6 client
-            sudo apt-get -qq -y install postgresql-client-9.6
+            sudo apt-get -qq -y install postgresql-client-10
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: make server_test
@@ -456,6 +383,7 @@ jobs:
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
+            DB_PORT_TEST: 5433
             DB_PORT: 5432
             DB_NAME: test_db
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
@@ -483,9 +411,11 @@ jobs:
           # itself starts making database connections.
           name: Install postgres client
           command: |
+            # Debian stretch only supports 9.6 client, so add the Postgresql apt repository for 10.x
+            echo "deb http://apt.postgresql.org/pub/repos/apt/ stretch-pgdg main" | sudo tee -a /etc/apt/sources.list.d/pgdg.list
+            wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
             sudo apt-get -qq update
-            # Debian stretch only supports 9.6 client
-            sudo apt-get -qq -y install postgresql-client-9.6
+            sudo apt-get -qq -y install postgresql-client-10
       - run: echo 'export PATH=${PATH}:~/go/bin:~/transcom/mymove/bin' >> $BASH_ENV
       - run:
           name: Setup Code Climate test-reporter
@@ -505,6 +435,7 @@ jobs:
             DB_PASSWORD: mysecretpassword
             DB_USER: postgres
             DB_HOST: localhost
+            DB_PORT_TEST: 5433
             DB_PORT: 5432
             DB_NAME: test_db
             EIA_KEY: db2522a43820268a41a802a16ae9fd26 # dummy key generated with openssl rand -hex 16
@@ -878,37 +809,7 @@ workflows:
             - pre_deps_golang
             - pre_deps_yarn
 
-      - integration_tests_mymove:
-          requires:
-            - pre_deps_golang
-            - pre_deps_yarn
-            - acceptance_tests_local
-          # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #  branches:
-          #    ignore: placeholder_branch_name
-
-      - integration_tests_office:
-          requires:
-            - pre_deps_golang
-            - pre_deps_yarn
-            - acceptance_tests_local
-          # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
-
-      - integration_tests_tsp:
-          requires:
-            - pre_deps_golang
-            - pre_deps_yarn
-            - acceptance_tests_local
-          # if testing on experimental, you can disable these tests by using the commented block below.
-          # filters:
-          #   branches:
-          #     ignore: placeholder_branch_name
-
-      - integration_tests_api:
+      - integration_tests:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
@@ -921,14 +822,26 @@ workflows:
       - client_test:
           requires:
             - pre_deps_yarn
+          # if testing on experimental, you can disable these tests by using the commented block below.
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
 
       - server_test:
           requires:
             - pre_deps_golang
+          # if testing on experimental, you can disable these tests by using the commented block below.
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
 
       - server_test_coverage:
           requires:
             - pre_deps_golang
+          # if testing on experimental, you can disable these tests by using the commented block below.
+          # filters:
+          #   branches:
+          #     ignore: placeholder_branch_name
 
       - build_app:
           requires:
@@ -995,10 +908,7 @@ workflows:
             - build_tasks
             - acceptance_tests_local
             - acceptance_tests_staging
-            - integration_tests_mymove
-            - integration_tests_office
-            - integration_tests_tsp
-            - integration_tests_api
+            - integration_tests
           filters:
             branches:
               only: master

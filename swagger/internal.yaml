@@ -777,19 +777,21 @@ definitions:
         type: string
         title: Vehicle nickname (ex. "My car")
       empty_weight:
-        title: empty weight ticket recorded weight
+        title: Empty Weight
         type: integer
         minimum: 0
         x-nullable: true
+        x-formatting: weight
       empty_weight_ticket_missing:
         title: missing empty weight ticket
         type: boolean
         x-nullable: true
       full_weight:
-        title: full weight ticket recorded weight
+        title: Full Weight
         type: integer
         minimum: 0
         x-nullable: true
+        x-formatting: weight
       full_weight_ticket_missing:
         title: missing full weight ticket
         type: boolean
@@ -2640,6 +2642,26 @@ definitions:
         title: Are there any unapproved shipment line items?
         x-nullable: true
       pm_survey_conducted_date:
+        type: string
+        format: date-time
+        example: 2017-07-21T17:32:28Z
+        x-nullable: true
+      origin_gbloc:
+        type: string
+        example: LKNQ
+        title: Origin GBLOC
+        x-nullable: true
+      destination_gbloc:
+        type: string
+        example: LKNQ
+        title: Destination GBLOC
+        x-nullable: true
+      delivered_date:
+        type: string
+        format: date-time
+        example: 2017-07-21T17:32:28Z
+        x-nullable: true
+      invoice_approved_date:
         type: string
         format: date-time
         example: 2017-07-21T17:32:28Z

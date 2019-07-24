@@ -95,7 +95,7 @@ func TestAuthSuite(t *testing.T) {
 		log.Panic(err)
 	}
 	hs := &AuthSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 	}
 	suite.Run(t, hs)
@@ -148,7 +148,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	params := redirectURL.Query()
 
 	postRedirectURI, err := url.Parse(params["post_logout_redirect_uri"][0])
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(OfficeTestHost, postRedirectURI.Hostname())
 	suite.Equal(strconv.Itoa(callbackPort), postRedirectURI.Port())
 	token := params["id_token_hint"][0]
@@ -200,6 +200,56 @@ func (suite *AuthSuite) TestRequireAuthMiddlewareUnauthorized() {
 
 	// We should receive an unauthorized response
 	if status := rr.Code; status != http.StatusUnauthorized {
+		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusUnauthorized)
+	}
+}
+
+func (suite *AuthSuite) TestRequireAdminAuthMiddleware() {
+	// Given: a logged in user
+	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	user := models.User{
+		LoginGovUUID:  loginGovUUID,
+		LoginGovEmail: "email@example.com",
+		Disabled:      false,
+	}
+	suite.MustSave(&user)
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/admin/v1/office_users", nil)
+
+	// And: the context contains the auth values
+	session := auth.Session{UserID: user.ID, IDToken: "fake Token", AdminUserID: uuid.Must(uuid.NewV4())}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	req = req.WithContext(ctx)
+
+	var handlerSession *auth.Session
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handlerSession = auth.SessionFromRequestContext(r)
+	})
+
+	middleware := AdminAuthMiddleware(suite.logger)(handler)
+
+	middleware.ServeHTTP(rr, req)
+
+	// We should be not be redirected since we're logged in
+	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
+	suite.Equal(handlerSession.UserID, user.ID, "the authenticated user is different from expected")
+}
+
+func (suite *AuthSuite) TestRequireAdminAuthMiddlewareUnauthorized() {
+	t := suite.T()
+
+	// Given: No logged in users
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/admin/v1/office_users", nil)
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	middleware := AdminAuthMiddleware(suite.logger)(handler)
+
+	middleware.ServeHTTP(rr, req)
+
+	// We should receive an unauthorized response
+	if status := rr.Code; status != http.StatusForbidden {
 		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusUnauthorized)
 	}
 }
@@ -421,7 +471,6 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 		false,
 	}
 	rr := httptest.NewRecorder()
-
 	span := trace.Span{}
 	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
 
@@ -442,4 +491,83 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 	}
 
 	suite.Equal("http://office.example.com:1234/?error=SIGNIN_ERROR", rr2.Result().Header.Get("Location"))
+}
+
+func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
+	adminUserID := uuid.Must(uuid.NewV4())
+	officeUserID := uuid.Must(uuid.NewV4())
+	var adminUserRole models.AdminRole = "SYSTEM_ADMIN"
+
+	userIdentity := models.UserIdentity{
+		Disabled:      false,
+		OfficeUserID:  &officeUserID,
+		AdminUserID:   &adminUserID,
+		AdminUserRole: &adminUserRole,
+	}
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/authorize", AdminTestHost), nil)
+
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.AdminApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        AdminTestHost,
+	}
+
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	// admin app, so should only have admin ID information
+	suite.Equal(adminUserID, session.AdminUserID)
+	suite.Equal(uuid.Nil, session.OfficeUserID)
+	suite.True(session.IsAdminUser())
+	suite.True(session.IsSystemAdmin())
+	suite.False(session.IsProgramAdmin())
+}
+
+func (suite *AuthSuite) TestAuthorizeDisableAdmin() {
+	adminUserDisabled := true
+	userIdentity := models.UserIdentity{
+		AdminUserDisabled: &adminUserDisabled,
+	}
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", AdminTestHost), nil)
+
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.AdminApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        AdminTestHost,
+		Email:           "disabled@example.com",
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled office user")
 }

@@ -74,6 +74,27 @@ func main() {
 	initGenMigrationFlags(genMigrationCommand.Flags())
 	genCommand.AddCommand(genMigrationCommand)
 
+	genOfficeUserMigrationCommand := &cobra.Command{
+		Use:                   "office-user-migration -f CSV_FILENAME -n MIGRATION_NAME",
+		Short:                 "Generate migrations required for adding office users",
+		Long:                  "Generate migrations required for adding office users",
+		RunE:                  genOfficeUserMigration,
+		DisableFlagsInUseLine: true,
+		SilenceErrors:         true, // not needed
+	}
+	initGenOfficeUserMigrationFlags(genOfficeUserMigrationCommand.Flags())
+	genCommand.AddCommand(genOfficeUserMigrationCommand)
+
+	genDisableUserMigrationCommand := &cobra.Command{
+		Use:                   "disable-user-migration -e EMAIL",
+		Short:                 "Generate migrations required for disabling a user",
+		Long:                  "Generate migrations required for disabling a user",
+		RunE:                  genDisableUserMigration,
+		DisableFlagsInUseLine: true,
+	}
+	initDisableUserMigrationFlags(genDisableUserMigrationCommand.Flags())
+	genCommand.AddCommand(genDisableUserMigrationCommand)
+
 	completionCommand := &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",

@@ -12,10 +12,11 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { selectMoveDocument, updateMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import { selectPPMForMove } from 'shared/Entities/modules/ppms';
 import { isMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
+import { MOVE_DOC_TYPE } from 'shared/constants';
 
 import ExpenseDocumentForm from 'scenes/Office/DocumentViewer/ExpenseDocumentForm';
 
-const DocumentDetailDisplay = ({ isExpenseDocument, moveDocument, moveDocSchema }) => {
+const DocumentDetailDisplay = ({ isExpenseDocument, isWeightTicketDocument, moveDocument, moveDocSchema }) => {
   const moveDocFieldProps = {
     values: moveDocument,
     schema: moveDocSchema,
@@ -43,8 +44,13 @@ const DocumentDetailDisplay = ({ isExpenseDocument, moveDocument, moveDocSchema 
           get(moveDocument, 'payment_method') && (
             <PanelSwaggerField fieldName="payment_method" {...moveDocFieldProps} />
           )}
+        {isWeightTicketDocument && (
+          <>
+            <PanelSwaggerField title="Empty Weight Ticket" fieldName="empty_weight" required {...moveDocFieldProps} />
+            <PanelSwaggerField title="Full Weight Ticket" fieldName="full_weight" required {...moveDocFieldProps} />
+          </>
+        )}
         <PanelSwaggerField title="Document Status" fieldName="status" required {...moveDocFieldProps} />
-
         <PanelSwaggerField title="Notes" fieldName="notes" {...moveDocFieldProps} />
       </div>
     </Fragment>
@@ -55,6 +61,7 @@ const { bool, object, shape, string, number, arrayOf } = PropTypes;
 
 DocumentDetailDisplay.propTypes = {
   isExpenseDocument: bool.isRequired,
+  isWeightTicketDocument: bool.isRequired,
   moveDocSchema: shape({
     properties: object.isRequired,
     required: arrayOf(string).isRequired,
@@ -87,7 +94,8 @@ DocumentDetailDisplay.propTypes = {
 };
 
 const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
-  const isExpenseDocument = formValues.moveDocument.move_document_type === 'EXPENSE';
+  const isExpenseDocument = formValues.moveDocument.move_document_type === MOVE_DOC_TYPE.EXPENSE;
+  const isWeightTicketDocument = formValues.moveDocument.move_document_type === MOVE_DOC_TYPE.WEIGHT_TICKET_SET;
   return (
     <Fragment>
       <div>
@@ -95,6 +103,16 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
           <SwaggerField fieldName="title" swagger={moveDocSchema} required />
           <SwaggerField fieldName="move_document_type" swagger={moveDocSchema} required />
           {isExpenseDocument && <ExpenseDocumentForm moveDocSchema={moveDocSchema} />}
+          {isWeightTicketDocument && (
+            <>
+              <div className="field-with-units">
+                <SwaggerField className="short-field" fieldName="empty_weight" swagger={moveDocSchema} required /> lbs
+              </div>
+              <div className="field-with-units">
+                <SwaggerField className="short-field" fieldName="full_weight" swagger={moveDocSchema} required /> lbs
+              </div>
+            </>
+          )}
           <SwaggerField fieldName="status" swagger={moveDocSchema} required />
           <SwaggerField fieldName="notes" swagger={moveDocSchema} />
         </FormSection>
@@ -105,6 +123,7 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
 
 DocumentDetailEdit.propTypes = {
   isExpenseDocument: bool.isRequired,
+  isWeightTicketDocument: bool.isRequired,
   moveDocSchema: shape({
     properties: object.isRequired,
     required: arrayOf(string).isRequired,
@@ -122,6 +141,7 @@ function mapStateToProps(state, props) {
   const { moveId, moveDocumentId } = props;
   const moveDocument = selectMoveDocument(state, moveDocumentId);
   const isExpenseDocument = isMovingExpenseDocument(moveDocument);
+  const isWeightTicketDocument = get(moveDocument, 'move_document_type') === 'WEIGHT_TICKET_SET';
   // Convert cents to collars - make a deep clone copy to not modify moveDocument itself
   const initialMoveDocument = JSON.parse(JSON.stringify(moveDocument));
   const requested_amount = get(initialMoveDocument, 'requested_amount_cents');
@@ -135,6 +155,7 @@ function mapStateToProps(state, props) {
       moveDocument: initialMoveDocument,
     },
     isExpenseDocument,
+    isWeightTicketDocument,
     formValues: getFormValues(formName)(state),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
     hasError: false,

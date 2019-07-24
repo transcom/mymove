@@ -87,10 +87,9 @@ class ExpensesLanding extends Component {
           </div>
           <PPMPaymentRequestActionBtns
             cancelHandler={() => {}}
-            displaySaveForLater={true}
             nextBtnLabel="Continue"
             saveAndAddHandler={this.saveAndAddHandler}
-            saveForLaterHandler={() => history.push('/')}
+            finishLaterHandler={() => history.push('/')}
             submitButtonsAreDisabled={!hasExpenses}
           />
         </div>

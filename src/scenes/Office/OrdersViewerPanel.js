@@ -60,7 +60,7 @@ const OrdersViewerDisplay = props => {
 
         <PanelSwaggerField title="TAC" fieldName="tac" required {...ordersFieldsProps} />
 
-        <PanelSwaggerField title="SAC" fieldName="sac" {...ordersFieldsProps} />
+        <PanelSwaggerField title="SAC" fieldName="sac" {...ordersFieldsProps} required />
       </div>
     </React.Fragment>
   );

@@ -5,6 +5,15 @@ describe('TSP user interacts with storage in transit panel', function() {
   beforeEach(() => {
     cy.signIntoTSP();
   });
+  it('TSP user Delivers Shipment with two (2) SITs 30 mi or less', function() {
+    tspUserDeliversShipmentSIT030();
+  });
+  it('TSP user Delivers Shipment with one (1) SIT 50 mi or less', function() {
+    tspUserDeliversShipmentSIT050();
+  });
+  it('TSP user Delivers Shipment with one (1) SIT more than 50 mi', function() {
+    tspUserDeliversShipmentSIT051();
+  });
   it('TSP user creates storage in transit request', function() {
     tspUserCreatesSitRequest();
   });
@@ -30,7 +39,7 @@ describe('TSP user interacts with storage in transit panel', function() {
     tspUserViewsDeniedSit();
   });
   it('TSP user releases SIT IN-SIT at ORIGIN', function() {
-    tspUserSubmitsReleaseSit();
+    tspUserReleasesOriginSit();
   });
   it('TSP user cancels delete, then actually deletes SIT', function() {
     tspUserDeletesSitRequest();
@@ -46,8 +55,102 @@ describe('TSP user interacts with storage in transit panel', function() {
   });
 });
 
-// need to simulate a form submit
+function tspUserDeliversShipmentSIT030() {
+  // SIT030
+  // Origin SIT
+  // Destination SIT
 
+  // Release Origin SIT before entering delivery
+  let tspQueue = 'in_transit';
+  let moveLocator = 'SIT030';
+  let releaseOnDate = '5/22/2019';
+  let dateOut = '22-May-2019';
+  tspUserSubmitsReleaseSit(tspQueue, moveLocator, releaseOnDate, dateOut);
+
+  // Enter delivery for shipment
+  let deliveryDate = '5/28/2019';
+  tspUserDeliversShipment(tspQueue, moveLocator, deliveryDate);
+
+  // Verify Destination SIT was updated on panel
+  dateOut = '28-May-2019';
+  tspUserVerifySitReleasedDelivered('Destination', 'Delivered', dateOut);
+
+  // Verify Invoice contains expected 210* line item(s)
+  // 210A Origin SIT Line Item
+  tspUserInvoiceContains('210ASIT Pup/Del - 30 or Less MilesO9 mi');
+  // 210A Destination SIT Line Item
+  tspUserInvoiceContains('210ASIT Pup/Del - 30 or Less MilesD13 mi');
+  cy.get('[data-cy=invoice-panel] [data-cy=basic-panel-content] tbody > tr').should('not.contain', /^210B\w+/);
+  cy.get('[data-cy=invoice-panel] [data-cy=basic-panel-content] tbody > tr').should('not.contain', /^210C\w+/);
+}
+function tspUserDeliversShipmentSIT050() {
+  // SIT050
+  // Origin SIT
+
+  // Release Origin SIT before entering delivery
+  let tspQueue = 'in_transit';
+  let moveLocator = 'SIT050';
+  let releaseOnDate = '5/22/2019';
+  let dateOut = '22-May-2019';
+  tspUserSubmitsReleaseSit(tspQueue, moveLocator, releaseOnDate, dateOut);
+
+  // Enter delivery for shipment
+  let deliveryDate = '5/28/2019';
+  tspUserDeliversShipment(tspQueue, moveLocator, deliveryDate);
+
+  // Verify Invoice contains expected 210* line item(s)
+  // 210A Origin SIT Line Item
+  tspUserInvoiceContains('210ASIT Pup/Del - 30 or Less MilesO43 mi');
+  // 210B Origin SIT Line Item
+  tspUserInvoiceContains('210BSIT Pup/Del 31 - 50 MilesO43 mi');
+  cy.get('[data-cy=invoice-panel] [data-cy=basic-panel-content] tbody > tr').should('not.contain', /^210C\w+/);
+}
+function tspUserDeliversShipmentSIT051() {
+  // SIT051
+  // Destination SIT
+
+  // Enter delivery for shipment
+  let tspQueue = 'in_transit';
+  let moveLocator = 'SIT051';
+  let deliveryDate = '5/28/2019';
+  tspUserDeliversShipment(tspQueue, moveLocator, deliveryDate);
+
+  // Verify Destination SIT was updated on panel
+  let dateOut = '28-May-2019';
+  tspUserVerifySitReleasedDelivered('Destination', 'Delivered', dateOut);
+
+  // Verify Invoice contains expected 210* line item(s)
+  // 210C Destination SIT Line Item
+  tspUserInvoiceContains('210CSIT Pup/Del Over 50 MilesD226 mi');
+  cy.get('[data-cy=invoice-panel] [data-cy=basic-panel-content] tbody > tr').should('not.contain', /^210A\w+/);
+  cy.get('[data-cy=invoice-panel] [data-cy=basic-panel-content] tbody > tr').should('not.contain', /^210B\w+/);
+}
+
+function tspUserReleasesOriginSit() {
+  // SITOIN - SIT added to shipment in transit, ready to be
+  // placed inSIT
+  let tspQueue = 'in_transit';
+  let moveLocator = 'SITOIN';
+  let releaseOnDate = '5/26/2019';
+  let dateOut = '26-May-2019';
+  tspUserSubmitsReleaseSit(tspQueue, moveLocator, releaseOnDate, dateOut);
+
+  // DISIT1 - Origin SIT added after Shipment is Delivered
+  tspQueue = 'delivered';
+  moveLocator = 'DISIT1';
+  releaseOnDate = '5/26/2019';
+  dateOut = '26-May-2019';
+  tspUserSubmitsReleaseSit(tspQueue, moveLocator, releaseOnDate, dateOut);
+
+  // DISIT2 - Origin SIT added to Shipment in Transit and then Shipment is Delivered
+  tspQueue = 'delivered';
+  moveLocator = 'DISIT2';
+  releaseOnDate = '5/26/2019';
+  dateOut = '26-May-2019';
+  tspUserSubmitsReleaseSit(tspQueue, moveLocator, releaseOnDate, dateOut);
+}
+
+// need to simulate a form submit
 function tspUserCreatesSitRequest() {
   // Open accepted shipments queue
   cy.patientVisit('/queues/accepted');
@@ -338,20 +441,93 @@ function tspUserViewsDeniedSit() {
   cy.get('[data-cy=storage-in-transit-panel] [data-cy=sit-delete-link]').contains('Delete');
 }
 
-function tspUserSubmitsReleaseSit() {
-  // Open in transit shipments queue
-  cy.patientVisit('/queues/in_transit');
+function tspUserInvoiceContains(lineItem) {
+  // The invoice table should display the unbilled line items.
+  cy.get('[data-cy=invoice-panel] [data-cy=basic-panel-content] tbody').contains('tr', lineItem);
+}
 
-  //
+// tspUserVerifySitReleasedDelivered
+// params: sitLocation is 'Origin' or 'Destination'
+//         status is 'Released' or 'Delivered'
+//         dateOut is in the formation dd-mmm-yyyy
+function tspUserVerifySitReleasedDelivered(sitLocation, status, dateOut) {
+  cy.get('[data-cy=storage-in-transit-panel]').should($div => {
+    const text = $div.text();
+    expect(text).to.include(sitLocation + ' SIT');
+    expect(text).to.include(status);
+    expect(text).to.include('Entitlement: 90 days');
+    expect(text).to.include('Actual start date');
+    expect(text).to.include('SIT Number');
+    expect(text).to.include('Days used');
+    expect(text).to.include('Expires');
+    expect(text).to.include('Date out' + dateOut);
+  });
+}
+
+function tspUserVisitsQueue(tspQueue) {
+  cy.patientVisit('/queues/' + tspQueue);
+  let re;
+  switch (tspQueue) {
+    case 'in_transit':
+      re = new RegExp('^/queues/in_transit');
+      break;
+    case 'delivered':
+      re = new RegExp('^/queues/delivered');
+      break;
+    case 'accepted':
+      re = new RegExp('^/queues/accepted');
+      break;
+    case 'new':
+      re = new RegExp('^/queues/new');
+      break;
+    case 'all':
+      re = new RegExp('^/queues/all');
+      break;
+    default:
+      re = new RegExp('^/queues/undefined');
+  }
   cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/in_transit/);
+    expect(loc.pathname).to.match(re);
+  });
+}
+
+function tspUserDeliversShipment(tspQueue, moveLocator, deliveryDate) {
+  // Open TSP shipments queue
+  tspUserVisitsQueue(tspQueue);
+
+  // Find shipment with moveLocator
+  cy.selectQueueItemMoveLocator(moveLocator);
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
 
-  // SITOIN - SIT added to shipment in transit, ready to be
-  // placed inSIT
+  // click Enter Delivery button
+  cy
+    .get('[data-cy=tsp-enter-delivery]')
+    .contains('Enter Delivery')
+    .click();
 
-  // Find shipment that is inSIT at ORIGIN and open it
-  cy.selectQueueItemMoveLocator('SITOIN');
+  // enter Actual Delivery Date
+  cy
+    .get('input[name=actual_delivery_date]')
+    .type(deliveryDate)
+    .blur();
+
+  // press button to release shipment and confirm the expected information on the panel
+  // after releasing the shipment
+  cy
+    .get('[data-cy=tsp-enter-delivery-submit]')
+    .contains('Done')
+    .click();
+}
+
+function tspUserSubmitsReleaseSit(tspQueue, moveLocator, releaseOnDate, dateOut) {
+  // Open TSP shipments queue
+  tspUserVisitsQueue(tspQueue);
+
+  // Find shipment with moveLocator
+  cy.selectQueueItemMoveLocator(moveLocator);
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -383,7 +559,8 @@ function tspUserSubmitsReleaseSit() {
   // enter in date released on
   cy
     .get('input[name=released_on]')
-    .type('5/26/2019')
+    .focus()
+    .type(releaseOnDate)
     .blur();
 
   // press button to release shipment and confirm the expected information on the panel
@@ -393,118 +570,7 @@ function tspUserSubmitsReleaseSit() {
     .contains('Done')
     .click();
 
-  cy.get('[data-cy=storage-in-transit-panel]').should($div => {
-    const text = $div.text();
-    expect(text).to.include('Origin SIT');
-    expect(text).to.include('Released');
-    expect(text).to.include('Entitlement: 90 days');
-    expect(text).to.include('Actual start date');
-    expect(text).to.include('SIT Number');
-    expect(text).to.include('Days used');
-    expect(text).to.include('Expires');
-    expect(text).to.include('Date out');
-    expect(text).to.include('26-May-2019');
-  });
-
-  // DISIT1 - Origin SIT added after Shipment is Delivered
-
-  // Testing other Origin SIT release flows DISIT1
-  // Open delivered shipments queue
-  cy.patientVisit('/queues/delivered');
-
-  //
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/delivered/);
-  });
-
-  // Find shipment that is inSIT at ORIGIN and open it
-  cy.selectQueueItemMoveLocator('DISIT1');
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
-  });
-
-  // click release shipment link
-  cy
-    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-release-from-sit-link]')
-    .contains('Release from SIT')
-    .click();
-
-  // enter in date released on
-  cy
-    .get('input[name=released_on]')
-    .type('5/26/2019')
-    .blur();
-
-  // press button to release shipment and confirm the expected information on the panel
-  // after releasing the shipment
-  cy
-    .get('[data-cy=release-from-sit-button]')
-    .contains('Done')
-    .click();
-
-  cy.get('[data-cy=storage-in-transit-panel]').should($div => {
-    const text = $div.text();
-    expect(text).to.include('Origin SIT');
-    expect(text).to.include('Released');
-    expect(text).to.include('Entitlement: 90 days');
-    expect(text).to.include('Actual start date');
-    expect(text).to.include('SIT Number');
-    expect(text).to.include('Days used');
-    expect(text).to.include('Expires');
-    expect(text).to.include('Date out');
-    expect(text).to.include('26-May-2019');
-  });
-
-  // DISIT2 - Origin SIT added to Shipment in Transit and then Shipment is Delivered
-
-  // Testing other Origin SIT release flows DISIT2
-  // Open delivered shipments queue
-  cy.patientVisit('/queues/delivered');
-
-  //
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/delivered/);
-  });
-
-  // Find shipment that is inSIT at ORIGIN and open it
-  cy.selectQueueItemMoveLocator('DISIT2');
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
-  });
-
-  // click release shipment link
-  cy
-    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-release-from-sit-link]')
-    .contains('Release from SIT')
-    .click();
-
-  // enter in date released on
-  cy
-    .get('input[name=released_on]')
-    .type('5/26/2019')
-    .blur();
-
-  // press button to release shipment and confirm the expected information on the panel
-  // after releasing the shipment
-  cy
-    .get('[data-cy=release-from-sit-button]')
-    .contains('Done')
-    .click();
-
-  cy.get('[data-cy=storage-in-transit-panel]').should($div => {
-    const text = $div.text();
-    expect(text).to.include('Origin SIT');
-    expect(text).to.include('Released');
-    expect(text).to.include('Entitlement: 90 days');
-    expect(text).to.include('Actual start date');
-    expect(text).to.include('SIT Number');
-    expect(text).to.include('Days used');
-    expect(text).to.include('Expires');
-    expect(text).to.include('Date out');
-    expect(text).to.include('26-May-2019');
-  });
+  tspUserVerifySitReleasedDelivered('Origin', 'Released', dateOut);
 }
 
 function tspUserDeletesSitRequest() {
@@ -617,7 +683,7 @@ function tspUserEditsDeliveredSitRequest() {
   });
 
   // Find shipment and open it
-  cy.selectQueueItemMoveLocator('SITDLV');
+  cy.selectQueueItemMoveLocator('SITDST');
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
@@ -650,4 +716,27 @@ function tspUserEditsDeliveredSitRequest() {
     const text = $div.text();
     expect(text).to.include('29-Mar-2019');
   });
+  cy
+    .get('.editable-panel-header')
+    .contains('Dates')
+    .siblings()
+    .click()
+    .get('input[name="dates.actual_delivery_date"]')
+    //When SIT date out is changed, actual delivery date in the dates panel is also changed
+    .should('have.value', '3/29/2019')
+    .click()
+    .get('.DayPickerInput-Overlay .DayPicker-Day')
+    .contains('27')
+    .click()
+    .get('input[name="dates.actual_delivery_date"]')
+    .should('have.value', '3/27/2019');
+
+  cy
+    .get('[data-cy=storage-in-transit-panel] [data-cy=sit-edit-link]')
+    .contains('Edit')
+    .click();
+  cy
+    //When shipment actual delivery date is changed, SIT out date is unchanged
+    .get('input[name=out_date]')
+    .should('have.value', '3/29/2019');
 }

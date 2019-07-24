@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190716161854_remove_patrick_d.sql")

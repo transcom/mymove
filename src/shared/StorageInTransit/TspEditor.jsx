@@ -11,6 +11,8 @@ import StorageInTransitForm, { formName as StorageInTransitFormName } from './St
 import StorageInTransitTspEditForm, {
   formName as StorageInTransitTspEditFormName,
 } from './StorageInTransitTspEditForm.jsx';
+import { getPublicShipment } from 'shared/Entities/modules/shipments';
+import { updateStorageInTransit } from 'shared/Entities/modules/storageInTransits';
 
 export class TspEditor extends Component {
   state = {
@@ -34,7 +36,10 @@ export class TspEditor extends Component {
   };
 
   onSubmit = values => {
-    this.props.updateStorageInTransit(values);
+    const { storageInTransit } = this.props;
+    this.props.updateStorageInTransit(storageInTransit.shipment_id, storageInTransit.id, values).then(() => {
+      this.props.getPublicShipment(storageInTransit.shipment_id);
+    });
   };
 
   render() {
@@ -105,6 +110,8 @@ function mapDispatchToProps(dispatch, ownProps) {
   return bindActionCreators(
     {
       submitForm: () => submit(formNameSelector(ownProps)),
+      updateStorageInTransit,
+      getPublicShipment,
     },
     dispatch,
   );

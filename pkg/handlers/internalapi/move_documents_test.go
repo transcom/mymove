@@ -158,7 +158,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerNoMissingFiel
 		TrailerOwnershipMissing:  false,
 	}
 	verrs, err := suite.DB().ValidateAndCreate(&weightTicketSetDocument)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
@@ -220,7 +220,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerMissingFields
 		TrailerOwnershipMissing:  false,
 	}
 	verrs, err := suite.DB().ValidateAndCreate(&weightTicketSetDocument)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.False(verrs.HasAny())
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
@@ -259,8 +259,7 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	// When: there is a move and move document
 	move := testdatagen.MakeDefaultMove(suite.DB())
 	sm := move.Orders.ServiceMember
-
-	moveDocument := testdatagen.MakeMoveDocument(suite.DB(), testdatagen.Assertions{
+	moveDocument := testdatagen.MakeMoveDocumentWeightTicketSet(suite.DB(), testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
 			MoveID: move.ID,
 			Move:   move,
@@ -273,6 +272,9 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 
+	emptyWeight := (int64)(200)
+	fullWeight := (int64)(500)
+
 	// And: the title and status are updated
 	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
 		ID:               handlers.FmtUUID(moveDocument.ID),
@@ -280,7 +282,9 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 		Title:            handlers.FmtString("super_awesome.pdf"),
 		Notes:            handlers.FmtString("This document is super awesome."),
 		Status:           internalmessages.MoveDocumentStatusOK,
-		MoveDocumentType: internalmessages.MoveDocumentTypeOTHER,
+		MoveDocumentType: internalmessages.MoveDocumentTypeWEIGHTTICKETSET,
+		EmptyWeight:      &emptyWeight,
+		FullWeight:       &fullWeight,
 	}
 
 	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
@@ -303,8 +307,9 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	// And: the new data to be there
 	suite.Require().Equal(*updatePayload.Title, "super_awesome.pdf")
 	suite.Require().Equal(*updatePayload.Notes, "This document is super awesome.")
+	suite.Require().Equal(*updatePayload.EmptyWeight, int64(200))
+	suite.Require().Equal(*updatePayload.FullWeight, int64(500))
 }
-
 func (suite *HandlerSuite) TestApproveMoveDocumentHandler() {
 	// When: there is a move and move document
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{

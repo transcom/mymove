@@ -48,6 +48,52 @@ INSERT INTO public.office_users
      );
 ```
 
+Writing this migration by hand can become tedious if there are multiple office users to add. In such cases, if the data can be provided in or
+reformatted as a csv file matching the format below
+
+```markdown
+| First Name | Middle Initials (Optional) | Last Name | Email                    | Phone          | Transport Office (UUID)               |
+|------------|----------------------------|-----------|--------------------------|----------------|---------------------------------------|
+| Robert     | T                          | Sanders   | robertsanders@mail.com   | (915) 269-1070 | 313db258-d067-41d1-bbc2-91023d62f9a3  |
+| Jennifer   |                            | Jackson   | jenniferjackson@mail.com | (201) 271-0070 | 313db258-d067-41d1-bbc2-91023d62f9a3  |
+| Robert     |                            | Diaz      | robertdiaz@mail.com      | (241) 740-2961 | 313db258-d067-41d1-bbc2-91023d62f9a3  |
+| John       |                            | Cooper    | johncooper@mail.com      | (750) 789-5810 | 313db258-d067-41d1-bbc2-91023d62f9a3  |
+| Robert     |                            | Thompson  | robertthompson@mail.com  | (346) 464-0904 | 313db258-d067-41d1-bbc2-91023d62f9a3  |
+| Lisa       |                            | Morgan    | lisamorgan@mail.com      | (225) 656-6220 | 313db258-d067-41d1-bbc2-91023d62f9a3  |
+| Richard    |                            | Ellis     | richardellis@mail.com    | (853) 992-5796 | 313db258-d067-41d1-bbc2-91023d62f9a3  |
+| David      | J                          | Gonzalez  | davidgonzalez@mail.com   | (790) 907-0453 | 313db258-d067-41d1-bbc2-91023d62f9a3  |
+| Richard    |                            | Collins   | richardcollins@mail.com  | (518) 772-8852 | 313db258-d067-41d1-bbc2-91023d62f9a3  |
+| Barbara    |                            | Howard    | barbarahoward@mail.com   | (392) 216-7523 | 313db258-d067-41d1-bbc2-91023d62f9a3% |
+
+```
+
+you can instead use the command line helper `milmove gen office-user-migration` to auto-generate the migration files.
+
+Running `milmove gen office-user-migration` on a csv file containing the
+data above will add the migration to the `migrations_manifest.txt` and create three files:
+
+* A .sql file in `tmp` containing the actual secure migration
+
+    ```sql
+    INSERT INTO public.office_users
+    (id, user_id, first_name, last_name, middle_initials, email, telephone, transportation_office_id, created_at, updated_at)
+    VALUES
+    ('f4eb1945-25f6-4dea-b4e9-f9a01628602f', NULL, 'Robert', 'Sanders', 'T', 'robertsanders@mail.com', '(915) 269-1070', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+    ,('20ddda94-8015-41a2-9802-87fb8c5cbf40', NULL, 'Jennifer', 'Jackson', NULL, 'jenniferjackson@mail.com', '(201) 271-0070', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+    ,('3341ca2d-0fde-43fa-b780-11ffafd8ffdd', NULL, 'Robert', 'Diaz', NULL, 'robertdiaz@mail.com', '(241) 740-2961', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+    ,('859a8218-e393-4df7-8fa6-11e719ed157b', NULL, 'John', 'Cooper', NULL, 'johncooper@mail.com', '(750) 789-5810', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+    ,('3fcc4f00-43be-41b6-a2dd-5789b0abdcc5', NULL, 'Robert', 'Thompson', NULL, 'robertthompson@mail.com', '(346) 464-0904', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+    ,('15612b99-3fee-475d-99c7-339bb306fcaa', NULL, 'Lisa', 'Morgan', NULL, 'lisamorgan@mail.com', '(225) 656-6220', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+    ,('e0d3255b-af7e-4f4c-8dac-695b660731bf', NULL, 'Richard', 'Ellis', NULL, 'richardellis@mail.com', '(853) 992-5796', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+    ,('cc1f5eba-00d1-4121-ae26-1342379efd0b', NULL, 'David', 'Gonzalez', 'J', 'davidgonzalez@mail.com', '(790) 907-0453', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+    ,('939a271e-f2fd-43be-986f-0a0596fee411', NULL, 'Richard', 'Collins', NULL, 'richardcollins@mail.com', '(518) 772-8852', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now())
+    ,('aacaf7d9-aa6f-4e96-8837-56b1b4091158', NULL, 'Barbara', 'Howard', NULL, 'barbarahoward@mail.com', '(392) 216-7523', '313db258-d067-41d1-bbc2-91023d62f9a3', now(), now());
+    ```
+
+* `.fizz` file in the `migrations` folder that will apply the secure migration.
+
+* An empty `.sql` file in the `local_migrations` folder to use for local development / testing.
+
 ### Creating TSP Users
 
 For creating users let's assume that the new user's email is username@example.com.
@@ -182,3 +228,9 @@ An example of disabling a DPS user by email:
 ```sql
 UPDATE dps_users SET disabled = true WHERE email = 'username@example.com';
 ```
+
+### Generating a migration to disable a specific user
+
+You can use the following `milmove` sub-command:
+
+`milmove gen disable-user-migration -e EMAIL`

@@ -1,31 +1,11 @@
 package accesscode
 
 import (
-	"testing"
-
-	"github.com/stretchr/testify/suite"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type ClaimAccessCodeTestSuite struct {
-	testingsuite.PopTestSuite
-}
-
-func (suite *ClaimAccessCodeTestSuite) SetupTest() {
-	suite.DB().TruncateAll()
-}
-
-func TestClaimAccessCodeTestSuite(t *testing.T) {
-	ts := &ClaimAccessCodeTestSuite{
-		testingsuite.NewPopTestSuite(),
-	}
-	suite.Run(t, ts)
-}
-
-func (suite *ClaimAccessCodeTestSuite) TestClaimAccessCode_Success() {
+func (suite *AccessCodeServiceSuite) TestClaimAccessCode_Success() {
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	selectedMoveType := models.SelectedMoveTypePPM
@@ -40,13 +20,13 @@ func (suite *ClaimAccessCodeTestSuite) TestClaimAccessCode_Success() {
 	claimAccessCode := NewAccessCodeClaimer(suite.DB())
 	ac, _, err := claimAccessCode.ClaimAccessCode(code, serviceMember.ID)
 
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(ac.Code, accessCode.Code, "expected CODE2")
 	suite.Equal(ac.ServiceMemberID, &serviceMember.ID)
 	suite.NotNil(ac.ClaimedAt)
 }
 
-func (suite *ClaimAccessCodeTestSuite) TestClaimAccessCode_Failed() {
+func (suite *AccessCodeServiceSuite) TestClaimAccessCode_Failed() {
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	selectedMoveType := models.SelectedMoveTypePPM
@@ -69,7 +49,7 @@ func (suite *ClaimAccessCodeTestSuite) TestClaimAccessCode_Failed() {
 
 	suite.Equal(err2.Error(), "Access code already claimed")
 }
-func (suite *ClaimAccessCodeTestSuite) TestClaimAccessCode_InvalidAccessCode() {
+func (suite *AccessCodeServiceSuite) TestClaimAccessCode_InvalidAccessCode() {
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	code := "CODE12"

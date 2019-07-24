@@ -97,7 +97,7 @@ const PPMTabContent = props => {
       {props.ppmPaymentRequested && (
         <>
           <ExpensesPanel title="Expenses" moveId={props.moveId} />
-          <StoragePanel title="Storage" moveId={props.moveId} />
+          <StoragePanel title="Storage" moveId={props.moveId} moveDocuments={props.moveDocuments} />
           <DatesAndLocationPanel title="Dates & Locations" moveId={props.moveId} />
           <NetWeightPanel title="Weights" moveId={props.moveId} />
         </>
@@ -312,7 +312,7 @@ class MoveInfo extends Component {
     const showDocumentViewer = this.props.context.flags.documentViewer;
     const moveInfoComboButton = this.props.context.flags.moveInfoComboButton;
     const ordersComplete = Boolean(
-      orders.orders_number && orders.orders_type_detail && orders.department_indicator && orders.tac,
+      orders.orders_number && orders.orders_type_detail && orders.department_indicator && orders.tac && orders.sac,
     );
     const ppmPaymentRequested = includes(['PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
@@ -431,7 +431,11 @@ class MoveInfo extends Component {
                   <BasicsTabContent moveId={this.props.moveId} serviceMember={this.props.serviceMember} />
                 </PrivateRoute>
                 <PrivateRoute path={`${this.props.match.path}/ppm`}>
-                  <PPMTabContent moveId={this.props.moveId} ppmPaymentRequested={ppmPaymentRequested} />
+                  <PPMTabContent
+                    moveId={this.props.moveId}
+                    ppmPaymentRequested={ppmPaymentRequested}
+                    moveDocuments={moveDocuments}
+                  />
                 </PrivateRoute>
                 <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   {this.props.shipment && (

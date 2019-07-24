@@ -1,0 +1,2 @@
+change_column("organizations", "poc_email", "string", {null: true})
+change_column("organizations", "poc_phone", "string", {null: true})

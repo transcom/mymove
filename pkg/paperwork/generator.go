@@ -9,11 +9,11 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/pop"
+	"github.com/hhrutter/pdfcpu/pkg/api"
+	"github.com/hhrutter/pdfcpu/pkg/pdfcpu"
 	"github.com/jung-kurt/gofpdf"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
-	"github.com/trussworks/pdfcpu/pkg/api"
-	"github.com/trussworks/pdfcpu/pkg/pdfcpu"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -37,6 +37,38 @@ type Generator struct {
 	uploader  *uploader.Uploader
 	pdfConfig *pdfcpu.Configuration
 	workDir   string
+	pdfLib    PDFLibrary
+}
+
+type pdfCPUWrapper struct {
+	*pdfcpu.Configuration
+}
+
+func (pcw pdfCPUWrapper) Merge(files []ReadSeekerCloser, w io.Writer) error {
+	var rscs []api.ReadSeekerCloser
+	for _, f := range files {
+		frsc, ok := f.(api.ReadSeekerCloser)
+		if !ok {
+			return errors.Errorf("file %T does not implement api.ReadSeekerCloser", f)
+		}
+		rscs = append(rscs, frsc)
+	}
+	return api.Merge(rscs, w, pcw.Configuration)
+}
+
+func (pcw pdfCPUWrapper) Validate(rs io.ReadSeeker) error {
+	return api.Validate(rs, pcw.Configuration)
+}
+
+// ReadSeekerCloser combines io.ReadSeeker and io.Closer
+type ReadSeekerCloser interface {
+	io.ReadSeeker
+	io.Closer
+}
+
+type PDFLibrary interface {
+	Merge(rsc []ReadSeekerCloser, w io.Writer) error
+	Validate(rs io.ReadSeeker) error
 }
 
 // Converts an image of any type to a PNG with 8-bit color depth
@@ -68,8 +100,8 @@ func convertTo8BitPNG(in io.Reader, out io.Writer) error {
 func NewGenerator(db *pop.Connection, logger Logger, uploader *uploader.Uploader) (*Generator, error) {
 	afs := uploader.Storer.FileSystem()
 
-	pdfConfig := pdfcpu.NewInMemoryConfiguration()
-	pdfConfig.FileSystem = afs.Fs
+	pdfConfig := pdfcpu.NewDefaultConfiguration()
+	pdfCPU := pdfCPUWrapper{Configuration: pdfConfig}
 
 	directory, err := afs.TempDir("", "generator")
 	if err != nil {
@@ -83,6 +115,7 @@ func NewGenerator(db *pop.Connection, logger Logger, uploader *uploader.Uploader
 		uploader:  uploader,
 		pdfConfig: pdfConfig,
 		workDir:   directory,
+		pdfLib:    pdfCPU,
 	}, nil
 }
 
@@ -170,8 +203,12 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 		pdfs = append(pdfs, pdf)
 	}
 
-	for _, f := range pdfs {
-		err := api.Validate(f, g.pdfConfig)
+	for _, fn := range pdfs {
+		f, err := g.fs.Open(fn)
+		if err != nil {
+			return nil, errors.Wrap(err, "Validating pdfs")
+		}
+		err = g.pdfLib.Validate(f)
 		if err != nil {
 			return nil, errors.Wrap(err, "Validating pdfs")
 		}
@@ -211,10 +248,10 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 	}
 
 	var opt gofpdf.ImageOptions
-	for _, image := range images {
+	for _, img := range images {
 		pdf.AddPage()
-		file, _ := g.fs.Open(image.Path)
-		if image.ContentType == "image/png" {
+		file, _ := g.fs.Open(img.Path)
+		if img.ContentType == "image/png" {
 			// gofpdf isn't able to process 16-bit PNGs, so to be safe we convert all PNGs to an 8-bit color depth
 			newFile, newTemplateFileErr := g.newTempFile()
 			if newTemplateFileErr != nil {
@@ -224,14 +261,20 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 			if convertTo8BitPNGErr != nil {
 				return "", errors.Wrap(convertTo8BitPNGErr, "Converting to 8-bit png")
 			}
-			defer file.Close()
 			file = newFile
-			file.Seek(0, io.SeekStart)
+			_, fileSeekErr := file.Seek(0, io.SeekStart)
+			if fileSeekErr != nil {
+				return "", errors.Wrapf(err, "file.Seek offset: 0 whence: %d", io.SeekStart)
+			}
 		}
 		// Need to register the image using an afero reader, else it uses default filesystem
-		pdf.RegisterImageReader(image.Path, contentTypeToImageType[image.ContentType], file)
-		opt.ImageType = contentTypeToImageType[image.ContentType]
-		pdf.ImageOptions(image.Path, horizontalMargin, topMargin, bodyWidth, 0, false, opt, 0, "")
+		pdf.RegisterImageReader(img.Path, contentTypeToImageType[img.ContentType], file)
+		opt.ImageType = contentTypeToImageType[img.ContentType]
+		pdf.ImageOptions(img.Path, horizontalMargin, topMargin, bodyWidth, 0, false, opt, 0, "")
+		fileCloseErr := file.Close()
+		if fileCloseErr != nil {
+			return "", errors.Wrapf(err, "error closing file: %s", file.Name())
+		}
 	}
 
 	if err = pdf.OutputAndClose(outputFile); err != nil {
@@ -242,12 +285,21 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 
 // MergePDFFiles Merges a slice of paths to PDF files into a single PDF
 func (g *Generator) MergePDFFiles(paths []string) (afero.File, error) {
+	var err error
 	mergedFile, err := g.newTempFile()
 	if err != nil {
 		return mergedFile, err
 	}
 
-	if err = api.Merge(paths, mergedFile.Name(), g.pdfConfig); err != nil {
+	var files []ReadSeekerCloser
+	for _, p := range paths {
+		f, fileOpenErr := g.fs.Open(p)
+		if fileOpenErr != nil {
+			return mergedFile, fileOpenErr
+		}
+		files = append(files, f)
+	}
+	if err = g.pdfLib.Merge(files, mergedFile); err != nil {
 		return mergedFile, err
 	}
 

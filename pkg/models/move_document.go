@@ -79,34 +79,46 @@ const (
 	MoveDocumentTypePHOTO = "PHOTO"
 )
 
-// MoveDocumentSaveAction represents actions that can be taken during save
-type MoveDocumentSaveAction string
+// MoveExpenseDocumentSaveAction represents actions that can be taken during save for expense documents
+type MoveExpenseDocumentSaveAction string
 
 const (
 	// MoveDocumentSaveActionDELETEEXPENSEMODEL encodes an action to delete a linked expense model
-	MoveDocumentSaveActionDELETEEXPENSEMODEL MoveDocumentSaveAction = "DELETE_EXPENSE_MODEL"
+	MoveDocumentSaveActionDELETEEXPENSEMODEL MoveExpenseDocumentSaveAction = "DELETE_EXPENSE_MODEL"
 	// MoveDocumentSaveActionSAVEEXPENSEMODEL encodes an action to save a linked expense model
-	MoveDocumentSaveActionSAVEEXPENSEMODEL MoveDocumentSaveAction = "SAVE_EXPENSE_MODEL"
+	MoveDocumentSaveActionSAVEEXPENSEMODEL MoveExpenseDocumentSaveAction = "SAVE_EXPENSE_MODEL"
+)
+
+// MoveWeightTicketSetDocumentSaveAction represents actions that can be taken during save for weight ticket set documents
+type MoveWeightTicketSetDocumentSaveAction string
+
+const (
+
+	// MoveDocumentSaveActionDELETEWEIGHTTICKETSETMODEL encodes an action to delete a linked expense model
+	MoveDocumentSaveActionDELETEWEIGHTTICKETSETMODEL MoveWeightTicketSetDocumentSaveAction = "DELETE_WEIGHT_TICKET_SET_MODEL"
+	// MoveDocumentSaveActionSAVEWEIGHTTICKETSETMODEL encodes an action to save a linked expense model
+	MoveDocumentSaveActionSAVEWEIGHTTICKETSETMODEL MoveWeightTicketSetDocumentSaveAction = "SAVE_WEIGHT_TICKET_SET_MODEL"
 )
 
 // MoveDocument is an object representing a move document
 type MoveDocument struct {
-	ID                       uuid.UUID              `json:"id" db:"id"`
-	DocumentID               uuid.UUID              `json:"document_id" db:"document_id"`
-	Document                 Document               `belongs_to:"documents"`
-	MoveID                   uuid.UUID              `json:"move_id" db:"move_id"`
-	Move                     Move                   `belongs_to:"moves"`
-	PersonallyProcuredMoveID *uuid.UUID             `json:"personally_procured_move_id" db:"personally_procured_move_id"`
-	PersonallyProcuredMove   PersonallyProcuredMove `belongs_to:"personally_procured_moves"`
-	ShipmentID               *uuid.UUID             `json:"shipment_id" db:"shipment_id"`
-	Shipment                 Shipment               `belongs_to:"shipments"`
-	Title                    string                 `json:"title" db:"title"`
-	Status                   MoveDocumentStatus     `json:"status" db:"status"`
-	MoveDocumentType         MoveDocumentType       `json:"move_document_type" db:"move_document_type"`
-	MovingExpenseDocument    *MovingExpenseDocument `has_one:"moving_expense_document"`
-	Notes                    *string                `json:"notes" db:"notes"`
-	CreatedAt                time.Time              `json:"created_at" db:"created_at"`
-	UpdatedAt                time.Time              `json:"updated_at" db:"updated_at"`
+	ID                       uuid.UUID                `json:"id" db:"id"`
+	DocumentID               uuid.UUID                `json:"document_id" db:"document_id"`
+	Document                 Document                 `belongs_to:"documents"`
+	MoveID                   uuid.UUID                `json:"move_id" db:"move_id"`
+	Move                     Move                     `belongs_to:"moves"`
+	PersonallyProcuredMoveID *uuid.UUID               `json:"personally_procured_move_id" db:"personally_procured_move_id"`
+	PersonallyProcuredMove   PersonallyProcuredMove   `belongs_to:"personally_procured_moves"`
+	ShipmentID               *uuid.UUID               `json:"shipment_id" db:"shipment_id"`
+	Shipment                 Shipment                 `belongs_to:"shipments"`
+	Title                    string                   `json:"title" db:"title"`
+	Status                   MoveDocumentStatus       `json:"status" db:"status"`
+	MoveDocumentType         MoveDocumentType         `json:"move_document_type" db:"move_document_type"`
+	MovingExpenseDocument    *MovingExpenseDocument   `has_one:"moving_expense_document"`
+	Notes                    *string                  `json:"notes" db:"notes"`
+	CreatedAt                time.Time                `json:"created_at" db:"created_at"`
+	UpdatedAt                time.Time                `json:"updated_at" db:"updated_at"`
+	WeightTicketSetDocument  *WeightTicketSetDocument `has_one:"weight_ticket_set_document"`
 }
 
 // MoveDocuments is not required by pop and may be deleted
@@ -193,15 +205,23 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	}
 
 	// Pointer associations are buggy, so we manually load expense document things
-	movingExpenseDocument := MovingExpenseDocument{}
-	moveDoc.MovingExpenseDocument = nil
-	err = db.Where("move_document_id = $1", moveDoc.ID.String()).Eager().First(&movingExpenseDocument)
-	if err != nil {
-		if errors.Cause(err).Error() != recordNotFoundErrorString {
-			return nil, err
-		}
-	} else {
-		moveDoc.MovingExpenseDocument = &movingExpenseDocument
+	q := db.Where("move_document_id = $1", moveDoc.ID.String())
+	movingExpenseDocument := &MovingExpenseDocument{}
+	var movingDocumentErr error
+	if movingDocumentErr = q.Eager().First(movingExpenseDocument); movingDocumentErr == nil {
+		moveDoc.MovingExpenseDocument = movingExpenseDocument
+	}
+	if movingDocumentErr != nil && errors.Cause(movingDocumentErr).Error() != recordNotFoundErrorString {
+		return nil, err
+	}
+
+	weightTicketSetDocument := &WeightTicketSetDocument{}
+	var weightTicketSetDocumentErr error
+	if weightTicketSetDocumentErr = q.Eager().First(weightTicketSetDocument); weightTicketSetDocumentErr == nil {
+		moveDoc.WeightTicketSetDocument = weightTicketSetDocument
+	}
+	if weightTicketSetDocumentErr != nil && errors.Cause(weightTicketSetDocumentErr).Error() != recordNotFoundErrorString {
+		return nil, err
 	}
 
 	// Check that the logged-in service member is associated to the document
@@ -291,14 +311,14 @@ func FetchMoveDocumentsByTypeForShipment(db *pop.Connection, session *auth.Sessi
 }
 
 // SaveMoveDocument saves a move document
-func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveAction MoveDocumentSaveAction) (*validate.Errors, error) {
+func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveExpenseAction MoveExpenseDocumentSaveAction, saveWeightTicketSetAction MoveWeightTicketSetDocumentSaveAction) (*validate.Errors, error) {
 	var responseError error
 	responseVErrors := validate.NewErrors()
 
 	db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
-		if saveAction == MoveDocumentSaveActionSAVEEXPENSEMODEL {
+		if saveExpenseAction == MoveDocumentSaveActionSAVEEXPENSEMODEL {
 			// Save expense document
 			expenseDocument := moveDocument.MovingExpenseDocument
 			if verrs, err := db.ValidateAndSave(expenseDocument); verrs.HasAny() || err != nil {
@@ -306,7 +326,7 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveAction
 				responseError = errors.Wrap(err, "Error Creating Moving Expense Document")
 				return transactionError
 			}
-		} else if saveAction == MoveDocumentSaveActionDELETEEXPENSEMODEL {
+		} else if saveExpenseAction == MoveDocumentSaveActionDELETEEXPENSEMODEL {
 			// destroy expense document
 			expenseDocument := moveDocument.MovingExpenseDocument
 			if err := db.Destroy(expenseDocument); err != nil {
@@ -314,6 +334,24 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveAction
 				return transactionError
 			}
 			moveDocument.MovingExpenseDocument = nil
+		}
+
+		if saveWeightTicketSetAction == MoveDocumentSaveActionSAVEWEIGHTTICKETSETMODEL {
+			// save weight ticket set document
+			weightTicketSetDocument := moveDocument.WeightTicketSetDocument
+			if verrs, err := db.ValidateAndSave(weightTicketSetDocument); verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrap(err, "Error Creating Moving Expense Document")
+				return transactionError
+			}
+		} else if saveWeightTicketSetAction == MoveDocumentSaveActionDELETEWEIGHTTICKETSETMODEL {
+			// destroy weight ticket set document
+			weightTicketSetDocument := moveDocument.WeightTicketSetDocument
+			if err := db.Destroy(weightTicketSetDocument); err != nil {
+				responseError = errors.Wrap(err, "Error Deleting Moving Expense Document")
+				return transactionError
+			}
+			moveDocument.WeightTicketSetDocument = nil
 		}
 
 		// Updating the move document can cause the PPM to be updated
