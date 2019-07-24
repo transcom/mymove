@@ -21,7 +21,7 @@ if [[ ! -f "${MODULE}" ]]; then
   exit 1
 fi
 
-"${PKCS11}" -r --module "${MODULE}" -a "Identity #0" --type cert > identity.cert 2> /dev/null
-openssl x509 -inform der -in identity.cert -noout -fingerprint -sha256 | perl -ne 's/^.*=//; s/://g; print lc'
-openssl x509 -inform der -in identity.cert -noout -subject | perl -ne 's/^subject= //; print'
-rm -f identity.cert
+# Fingerprint
+"${PKCS11}" -r --module "${MODULE}" -a "Identity #0" --type cert 2>/dev/null | openssl dgst -sha256 | perl -ne 's/^.*= //; print'
+# Certificate Subject
+"${PKCS11}" -r --module "${MODULE}" -a "Identity #0" --type cert 2>/dev/null | openssl x509 -inform der -noout -subject | perl -ne 's/^subject= //; print'

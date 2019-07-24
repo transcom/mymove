@@ -21,4 +21,4 @@ if [[ ! -f "${MODULE}" ]]; then
   exit 1
 fi
 
-"${PKCS11}" -r --module /usr/local/lib/pkcs11/cackey.dylib -a "Identity #0" --type cert | openssl x509 -inform der -text -noout
+"${PKCS11}" -r --module /usr/local/lib/pkcs11/cackey.dylib -a "Identity #0" --type cert 2>/dev/null | openssl x509 -inform der -text -noout
