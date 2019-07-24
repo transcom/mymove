@@ -1,9 +1,9 @@
-import { adjustEntitlements } from './entitlements';
+import { selectEntitlements } from './entitlements';
 describe('entitlements', () => {
   describe('when I have dependents', () => {
     describe('when my spouse has pro gear', () => {
       it('should include spouse progear', () => {
-        const entitlements = adjustEntitlements(
+        const entitlements = selectEntitlements(
           {
             total_weight_self: 5000,
             total_weight_self_plus_dependents: 8000,
@@ -24,7 +24,7 @@ describe('entitlements', () => {
     });
     describe('when my spouse does not have pro gear', () => {
       it('should not include spouse progear', () => {
-        const entitlements = adjustEntitlements(
+        const entitlements = selectEntitlements(
           {
             total_weight_self: 5000,
             total_weight_self_plus_dependents: 8000,
@@ -46,7 +46,7 @@ describe('entitlements', () => {
   });
   describe("when I don't have dependents", () => {
     it('should exclude spouse progear', () => {
-      const entitlements = adjustEntitlements({
+      const entitlements = selectEntitlements({
         total_weight_self: 5000,
         total_weight_self_plus_dependents: 8000,
         pro_gear_weight: 2000,

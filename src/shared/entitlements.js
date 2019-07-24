@@ -2,7 +2,7 @@ import { get, isNull, sum } from 'lodash';
 
 const defaultStorageInTransitDays = 90;
 
-export function adjustEntitlements(rankEntitlement, hasDependents = false, spouseHasProGear = false) {
+export function selectEntitlements(rankEntitlement, hasDependents = false, spouseHasProGear = false) {
   if (!rankEntitlement) {
     return {};
   }
@@ -26,5 +26,5 @@ export function loadEntitlementsFromState(state) {
   if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(weightAllotment)) {
     return {};
   }
-  return adjustEntitlements(weightAllotment, hasDependents, spouseHasProGear);
+  return selectEntitlements(weightAllotment, hasDependents, spouseHasProGear);
 }
