@@ -414,6 +414,7 @@ Codecov
 uncomment
 ecs-service-logs
 Wildcards
+envrc.local
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - /usr/local
  - docs/data/tspp-data-creation.md

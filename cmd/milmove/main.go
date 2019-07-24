@@ -96,6 +96,16 @@ func main() {
 	initGenDutyStationsMigrationFlags(genDutyStationsMigrationCommand.Flags())
 	genCommand.AddCommand(genDutyStationsMigrationCommand)
 
+	genDisableUserMigrationCommand := &cobra.Command{
+		Use:                   "disable-user-migration -e EMAIL",
+		Short:                 "Generate migrations required for disabling a user",
+		Long:                  "Generate migrations required for disabling a user",
+		RunE:                  genDisableUserMigration,
+		DisableFlagsInUseLine: true,
+	}
+	initDisableUserMigrationFlags(genDisableUserMigrationCommand.Flags())
+	genCommand.AddCommand(genDisableUserMigrationCommand)
+
 	completionCommand := &cobra.Command{
 		Use:   "completion",
 		Short: "Generates bash completion scripts",

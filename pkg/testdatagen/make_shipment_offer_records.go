@@ -406,6 +406,26 @@ func createTariffDataForRateEngine(db *pop.Connection, shipment models.Shipment)
 		EffectiveDateUpper: PerformancePeriodEnd,
 	}
 	mustSave(db, &itemRate210A)
+	itemRate210B := models.Tariff400ngItemRate{
+		Code:               "210B",
+		Schedule:           &sa2.SITPDSchedule,
+		WeightLbsLower:     weightLower,
+		WeightLbsUpper:     weightUpper,
+		RateCents:          unit.Cents(57600),
+		EffectiveDateLower: PerformancePeriodStart,
+		EffectiveDateUpper: PerformancePeriodEnd,
+	}
+	mustSave(db, &itemRate210B)
+	itemRate210C := models.Tariff400ngItemRate{
+		Code:               "210C",
+		Schedule:           &sa2.SITPDSchedule,
+		WeightLbsLower:     weightLower,
+		WeightLbsUpper:     weightUpper,
+		RateCents:          unit.Cents(57600),
+		EffectiveDateLower: PerformancePeriodStart,
+		EffectiveDateUpper: PerformancePeriodEnd,
+	}
+	mustSave(db, &itemRate210C)
 	itemRate225A := models.Tariff400ngItemRate{
 		Code:               "225A",
 		Schedule:           &sa2.ServicesSchedule,
@@ -489,4 +509,41 @@ func createTariffDataForRateEngine(db *pop.Connection, shipment models.Shipment)
 		RequiresPreApproval: false,
 	}
 	mustSave(db, &code16A)
+
+	code210A := models.Tariff400ngItem{
+		Code:                "210A",
+		Item:                "SIT Pup/Del - 30 or Less Miles",
+		DiscountType:        models.Tariff400ngItemDiscountTypeSIT,
+		AllowedLocation:     models.Tariff400ngItemAllowedLocationEITHER,
+		MeasurementUnit1:    models.Tariff400ngItemMeasurementUnitWEIGHT,
+		MeasurementUnit2:    models.Tariff400ngItemMeasurementUnitNONE,
+		RateRefCode:         models.Tariff400ngItemRateRefCodeNONE,
+		RequiresPreApproval: false,
+	}
+	mustSave(db, &code210A)
+
+	code210B := models.Tariff400ngItem{
+		Code:                "210B",
+		Item:                "SIT Pup/Del 31 - 50 Miles",
+		DiscountType:        models.Tariff400ngItemDiscountTypeSIT,
+		AllowedLocation:     models.Tariff400ngItemAllowedLocationEITHER,
+		MeasurementUnit1:    models.Tariff400ngItemMeasurementUnitWEIGHT,
+		MeasurementUnit2:    models.Tariff400ngItemMeasurementUnitNONE,
+		RateRefCode:         models.Tariff400ngItemRateRefCodeFUELSURCHARGE,
+		RequiresPreApproval: false,
+	}
+	mustSave(db, &code210B)
+
+	code210C := models.Tariff400ngItem{
+		Code:                "210C",
+		Item:                "SIT Pup/Del Over 50 Miles",
+		DiscountType:        models.Tariff400ngItemDiscountTypeHHG,
+		AllowedLocation:     models.Tariff400ngItemAllowedLocationEITHER,
+		MeasurementUnit1:    models.Tariff400ngItemMeasurementUnitWEIGHT,
+		MeasurementUnit2:    models.Tariff400ngItemMeasurementUnitNONE,
+		RateRefCode:         models.Tariff400ngItemRateRefCodeFUELSURCHARGE,
+		RequiresPreApproval: false,
+	}
+	mustSave(db, &code210C)
+
 }

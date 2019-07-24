@@ -92,7 +92,8 @@ func (h GetShipmentLineItemsHandler) Handle(params accessorialop.GetShipmentLine
 
 	shipmentLineItems, err := h.shipmentLineItemFetcher.GetShipmentLineItemsByShipmentID(shipmentID, session)
 	if err != nil {
-		logger.Error(fmt.Sprintf("Error fetching line items for shipment %s", shipmentID), zap.Error(err))
+		logger.Error(fmt.Sprintf("Error fetching line items for shipment %s", shipmentID),
+			zap.Error(err))
 		return handlers.ResponseForError(logger, err)
 	}
 
@@ -293,7 +294,7 @@ func (h UpdateShipmentLineItemHandler) Handle(params accessorialop.UpdateShipmen
 		// If shipment is delivered, price single shipment line item
 		if shipmentLineItem.Shipment.Status == models.ShipmentStatusDELIVERED {
 			engine := rateengine.NewRateEngine(h.DB(), logger)
-			err = engine.PricePreapprovalRequest(&shipmentLineItem)
+			err = engine.PriceAdditionalRequest(&shipmentLineItem)
 			if err != nil {
 				return handlers.ResponseForError(logger, err)
 			}
@@ -431,7 +432,9 @@ func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipm
 		// Approve the shipment line item
 		err = shipmentLineItem.Approve()
 		if err != nil {
-			logger.Error("Error approving shipment line item for shipment", zap.Error(err))
+			logger.Error("Error approving shipment line item for shipment",
+				zap.String("item code", shipmentLineItem.Tariff400ngItem.Code),
+				zap.Error(err))
 			return accessorialop.NewApproveShipmentLineItemForbidden()
 		}
 	}
@@ -439,7 +442,7 @@ func (h ApproveShipmentLineItemHandler) Handle(params accessorialop.ApproveShipm
 	// If shipment is delivered and line item is approved, price single shipment line item
 	if shipmentLineItem.Shipment.Status == models.ShipmentStatusDELIVERED && shipmentLineItem.Status == models.ShipmentLineItemStatusAPPROVED {
 		engine := rateengine.NewRateEngine(h.DB(), logger)
-		err = engine.PricePreapprovalRequest(&shipmentLineItem)
+		err = engine.PriceAdditionalRequest(&shipmentLineItem)
 		if err != nil {
 			return handlers.ResponseForError(logger, err)
 		}

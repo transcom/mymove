@@ -37,28 +37,24 @@ describe('Weight tickets page', () => {
     it('renders both the Save buttons are disabled', () => {
       const weightTicket = mountComponents('No', true, true);
       const buttonGroup = weightTicket.find(PPMPaymentRequestActionBtns);
-      const cancel = weightTicket.find('button').at(0);
-      const saveForLater = weightTicket.find('button').at(1);
-      const saveAndAdd = weightTicket.find('button').at(2);
+      const finishLater = weightTicket.find('button').at(0);
+      const saveAndAdd = weightTicket.find('button').at(1);
 
       expect(buttonGroup.length).toEqual(1);
-      expect(cancel.props().disabled).not.toEqual(true);
       expect(saveAndAdd.props().disabled).toEqual(true);
-      expect(saveForLater.props().disabled).toEqual(true);
+      expect(finishLater.props().disabled).not.toEqual(true);
     });
   });
   describe('Service member has uploaded both a weight tickets', () => {
     it('renders both the Save buttons are enabled', () => {
       const weightTicket = mountComponents('No', false, false);
       const buttonGroup = weightTicket.find(PPMPaymentRequestActionBtns);
-      const cancel = weightTicket.find('button').at(0);
-      const saveForLater = weightTicket.find('button').at(1);
-      const saveAndAdd = weightTicket.find('button').at(2);
+      const finishLater = weightTicket.find('button').at(0);
+      const saveAndAdd = weightTicket.find('button').at(1);
 
       expect(buttonGroup.length).toEqual(1);
-      expect(cancel.props().disabled).not.toEqual(true);
       expect(saveAndAdd.props().disabled).toEqual(false);
-      expect(saveForLater.props().disabled).toEqual(false);
+      expect(finishLater.props().disabled).not.toEqual(true);
     });
   });
   describe('Service member answers "Yes" that they have more weight tickets', () => {

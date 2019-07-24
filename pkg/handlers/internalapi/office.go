@@ -156,7 +156,7 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 
 	err = h.NotificationSender().SendNotification(
 		ctx,
-		notifications.NewMoveApproved(h.DB(), logger, session, moveID),
+		notifications.NewMoveApproved(h.DB(), logger, session, h.HandlerContext.AppNames().MilServername, moveID),
 	)
 	if err != nil {
 		logger.Error("problem sending email to user", zap.Error(err))
