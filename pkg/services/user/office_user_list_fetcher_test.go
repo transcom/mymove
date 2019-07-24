@@ -33,6 +33,7 @@ func (suite *UserServiceSuite) TestFetchOfficeUserList() {
 		builder := &testOfficeUserListQueryBuilder{
 			fakeFetchMany: fakeFetchMany,
 		}
+
 		fetcher := NewOfficeUserListFetcher(builder)
 		filters := []services.QueryFilter{
 			query.NewQueryFilter("id", "=", id.String()),
@@ -51,6 +52,7 @@ func (suite *UserServiceSuite) TestFetchOfficeUserList() {
 		builder := &testOfficeUserListQueryBuilder{
 			fakeFetchMany: fakeFetchMany,
 		}
+
 		fetcher := NewOfficeUserListFetcher(builder)
 
 		officeUsers, err := fetcher.FetchOfficeUserList([]services.QueryFilter{})
