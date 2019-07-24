@@ -47,7 +47,7 @@
   color: #205493;
 }
 
-.ppm-payment-request-footer {
+.usa-width-one-whole .ppm-payment-request-footer {
   border-top: 1px solid black;
   display: flex;
   justify-content: space-between;
