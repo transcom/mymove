@@ -1,6 +1,8 @@
 package internalapi
 
 import (
+	"time"
+
 	"github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -38,6 +40,15 @@ func payloadForMoveDocument(storer storage.FileStorer, moveDoc models.MoveDocume
 		payload.MovingExpenseType = internalmessages.MovingExpenseType(moveDoc.MovingExpenseDocument.MovingExpenseType)
 		payload.RequestedAmountCents = int64(moveDoc.MovingExpenseDocument.RequestedAmountCents)
 		payload.PaymentMethod = moveDoc.MovingExpenseDocument.PaymentMethod
+	}
+
+	if moveDoc.WeightTicketSetDocument != nil {
+		if moveDoc.WeightTicketSetDocument.EmptyWeight != nil {
+			payload.EmptyWeight = handlers.FmtInt64(int64(*moveDoc.WeightTicketSetDocument.EmptyWeight))
+		}
+		if moveDoc.WeightTicketSetDocument.FullWeight != nil {
+			payload.FullWeight = handlers.FmtInt64(int64(*moveDoc.WeightTicketSetDocument.FullWeight))
+		}
 	}
 
 	return &payload, nil
@@ -253,7 +264,7 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 		}
 	}
 
-	var saveAction models.MoveDocumentSaveAction
+	var saveExpenseAction models.MoveExpenseDocumentSaveAction
 
 	// If we are an expense type, we need to either delete, create, or update a MovingExpenseType
 	// depending on which type of document already exists
@@ -276,15 +287,63 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 			moveDoc.MovingExpenseDocument.RequestedAmountCents = requestedAmt
 			moveDoc.MovingExpenseDocument.PaymentMethod = paymentMethod
 		}
-		saveAction = models.MoveDocumentSaveActionSAVEEXPENSEMODEL
+		saveExpenseAction = models.MoveDocumentSaveActionSAVEEXPENSEMODEL
 	} else {
 		if moveDoc.MovingExpenseDocument != nil {
 			// We just care if a MovingExpenseType exists, as it needs to be deleted
-			saveAction = models.MoveDocumentSaveActionDELETEEXPENSEMODEL
+			saveExpenseAction = models.MoveDocumentSaveActionDELETEEXPENSEMODEL
 		}
 	}
 
-	verrs, err := models.SaveMoveDocument(h.DB(), moveDoc, saveAction)
+	var saveWeightTicketSetAction models.MoveWeightTicketSetDocumentSaveAction
+
+	// If we are a weight ticket set type, we need to either delete, create, or update a WeightTicketSetDocument
+	// depending on which type of document already exists
+	if newType == models.MoveDocumentTypeWEIGHTTICKETSET {
+		var emptyWeight, fullWeight *unit.Pound
+		if payload.EmptyWeight != nil {
+			ew := unit.Pound(*payload.EmptyWeight)
+			emptyWeight = &ew
+		}
+		if payload.FullWeight != nil {
+			fw := unit.Pound(*payload.FullWeight)
+			fullWeight = &fw
+		}
+		var weightTicketDate *time.Time
+		if payload.WeightTicketDate != nil {
+			weightTicketDate = (*time.Time)(payload.WeightTicketDate)
+		}
+		var trailerOwnershipMissing bool
+		if payload.TrailerOwnershipMissing != nil {
+			trailerOwnershipMissing = *payload.TrailerOwnershipMissing
+		}
+
+		if moveDoc.WeightTicketSetDocument == nil {
+			// create new weight ticket set
+			moveDoc.WeightTicketSetDocument = &models.WeightTicketSetDocument{
+				MoveDocumentID:          moveDoc.ID,
+				MoveDocument:            *moveDoc,
+				EmptyWeight:             emptyWeight,
+				FullWeight:              fullWeight,
+				VehicleNickname:         payload.VehicleNickname,
+				VehicleOptions:          payload.VehicleOptions,
+				WeightTicketDate:        weightTicketDate,
+				TrailerOwnershipMissing: trailerOwnershipMissing,
+			}
+		} else {
+			// update existing weight ticket set
+			moveDoc.WeightTicketSetDocument.EmptyWeight = emptyWeight
+			moveDoc.WeightTicketSetDocument.FullWeight = fullWeight
+		}
+		saveWeightTicketSetAction = models.MoveDocumentSaveActionSAVEWEIGHTTICKETSETMODEL
+	} else {
+		// delete if document exists but the move document is being converted to something else
+		if moveDoc.WeightTicketSetDocument != nil {
+			saveWeightTicketSetAction = models.MoveDocumentSaveActionDELETEWEIGHTTICKETSETMODEL
+		}
+	}
+
+	verrs, err := models.SaveMoveDocument(h.DB(), moveDoc, saveExpenseAction, saveWeightTicketSetAction)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}

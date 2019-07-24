@@ -116,6 +116,32 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		return err
 	}
 
+	itemRate210B := models.Tariff400ngItemRate{
+		Code:               "210B",
+		Schedule:           &destinationServiceArea.SITPDSchedule,
+		WeightLbsLower:     linehaulRate.WeightLbsLower,
+		WeightLbsUpper:     linehaulRate.WeightLbsUpper,
+		RateCents:          unit.Cents(57600),
+		EffectiveDateLower: May15TestYear,
+		EffectiveDateUpper: May14FollowingYear,
+	}
+	if err := save(db, &itemRate210B); err != nil {
+		return err
+	}
+
+	itemRate210C := models.Tariff400ngItemRate{
+		Code:               "210C",
+		Schedule:           &destinationServiceArea.SITPDSchedule,
+		WeightLbsLower:     linehaulRate.WeightLbsLower,
+		WeightLbsUpper:     linehaulRate.WeightLbsUpper,
+		RateCents:          unit.Cents(57600),
+		EffectiveDateLower: May15TestYear,
+		EffectiveDateUpper: May14FollowingYear,
+	}
+	if err := save(db, &itemRate210C); err != nil {
+		return err
+	}
+
 	itemRate225A := models.Tariff400ngItemRate{
 		Code:               "225A",
 		Schedule:           &destinationServiceArea.ServicesSchedule,
