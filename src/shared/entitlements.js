@@ -3,6 +3,9 @@ import { get, isNull, sum } from 'lodash';
 const defaultStorageInTransitDays = 90;
 
 export function adjustEntitlements(rankEntitlement, hasDependents = false, spouseHasProGear = false) {
+  if (!rankEntitlement) {
+    return {};
+  }
   const totalKey = hasDependents ? 'total_weight_self_plus_dependents' : 'total_weight_self';
   // eslint-disable-next-line security/detect-object-injection
   const entitlement = {
