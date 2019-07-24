@@ -24,10 +24,13 @@ require (
 	github.com/felixge/httpsnoop v1.0.0
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-ini/ini v1.44.0 // indirect
+	github.com/go-openapi/errors v0.19.2
 	github.com/go-openapi/loads v0.19.2
 	github.com/go-openapi/runtime v0.19.3
+	github.com/go-openapi/spec v0.19.2
 	github.com/go-openapi/strfmt v0.19.2
 	github.com/go-openapi/swag v0.19.4
+	github.com/go-openapi/validate v0.19.2
 	github.com/go-swagger/go-swagger v0.19.1-0.20190719001815-2f32a5a85285
 	github.com/gobuffalo/fizz v1.9.2 // indirect
 	github.com/gobuffalo/logger v1.0.1 // indirect
@@ -47,6 +50,7 @@ require (
 	github.com/imdario/mergo v0.3.7
 	github.com/jackc/fake v0.0.0-20150926172116-812a484cc733 // indirect
 	github.com/jackc/pgx v3.5.0+incompatible // indirect
+	github.com/jessevdk/go-flags v1.4.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/jung-kurt/gofpdf v1.5.4
 	github.com/lib/pq v1.2.0
@@ -78,6 +82,7 @@ require (
 	go.uber.org/zap v1.10.0
 	goji.io v2.0.2+incompatible
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
+	golang.org/x/net v0.0.0-20190628185345-da137c7871d7
 	golang.org/x/text v0.3.2
 	golang.org/x/tools v0.0.0-20190719005602-e377ae9d6386
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
