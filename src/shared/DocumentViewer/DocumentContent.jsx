@@ -1,10 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { detectFirefox } from 'shared/utils';
+
 import './index.css';
 import styles from './DocumentContent.module.scss';
 
-const downloadOnlyView = (contentType, filename, url) => (
+const downloadOnlyView = (filename, url) => (
   <div className="pdf-placeholder">
     {filename && <span className="filename">{filename}</span>}
     This PDF can be{' '}
@@ -15,16 +17,14 @@ const downloadOnlyView = (contentType, filename, url) => (
   </div>
 );
 
-const isFirefox = typeof InstallTrigger !== 'undefined';
-
 const DocumentContent = ({ contentType, filename, url }) => (
   <div className="page">
     {contentType === 'application/pdf' ? (
-      isFirefox ? (
-        downloadOnlyView(contentType, filename, url)
+      detectFirefox() ? (
+        downloadOnlyView(filename, url)
       ) : (
         <object className={styles.pdf} data={url} type="application/pdf" alt="document upload">
-          {downloadOnlyView(contentType, filename, url)}
+          {downloadOnlyView(filename, url)}
         </object>
       )
     ) : (

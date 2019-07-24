@@ -125,3 +125,10 @@ export function detectIE11() {
   }
   return false;
 }
+
+export function detectFirefox() {
+  if (typeof InstallTrigger !== 'undefined') {
+    return true;
+  }
+  return false;
+}
