@@ -1,0 +1,24 @@
+#! /usr/bin/env bash
+
+set -eu -o pipefail
+
+#
+# Get a publick key from CAC
+#
+
+readonly MODULE=/usr/local/lib/pkcs11/cackey.dylib
+readonly PKCS11=/usr/local/bin/pkcs11-tool
+
+if [[ ! -x "${PKCS11}" ]]; then
+  echo "${PKCS11} has not been installed"
+  echo "Please install with 'brew install opensc'"
+  exit 1
+fi
+
+if [[ ! -f "${MODULE}" ]]; then
+  echo "${MODULE} has not been installed"
+  echo "Please visit http://militarycac.org/MacVideos.htm#CACKey_packages and follow instructions to install"
+  exit 1
+fi
+
+"${PKCS11}" -r --module "${MODULE}" -a "Identity #0" --type cert 2>/dev/null | openssl x509 -inform der -pubkey -noout
