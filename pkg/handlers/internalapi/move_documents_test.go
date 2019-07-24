@@ -257,20 +257,42 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerMissingFields
 
 func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	// When: there is a move and move document
-	move := testdatagen.MakeDefaultMove(suite.DB())
-	sm := move.Orders.ServiceMember
-	moveDocument := testdatagen.MakeMoveDocumentWeightTicketSet(suite.DB(), testdatagen.Assertions{
-		MoveDocument: models.MoveDocument{
-			MoveID: move.ID,
-			Move:   move,
-		},
-		Document: models.Document{
-			ServiceMemberID: sm.ID,
-			ServiceMember:   sm,
-		},
-	})
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	move := ppm.Move
+	sm := ppm.Move.Orders.ServiceMember
+	moveDocument := testdatagen.MakeMoveDocument(suite.DB(),
+		testdatagen.Assertions{
+			MoveDocument: models.MoveDocument{
+				MoveID:                   move.ID,
+				Move:                     move,
+				PersonallyProcuredMoveID: &ppm.ID,
+				MoveDocumentType:         models.MoveDocumentTypeWEIGHTTICKETSET,
+				Status:                   models.MoveDocumentStatusOK,
+			},
+			Document: models.Document{
+				ServiceMemberID: sm.ID,
+				ServiceMember:   sm,
+			},
+		})
+	emptyWeight1 := unit.Pound(1000)
+	fullWeight1 := unit.Pound(2500)
+	weightTicketSetDocument := models.WeightTicketSetDocument{
+		MoveDocumentID:           moveDocument.ID,
+		MoveDocument:             moveDocument,
+		EmptyWeight:              &emptyWeight1,
+		EmptyWeightTicketMissing: false,
+		FullWeight:               &fullWeight1,
+		FullWeightTicketMissing:  false,
+		VehicleNickname:          "My Car",
+		VehicleOptions:           "CAR",
+		WeightTicketDate:         &testdatagen.NextValidMoveDate,
+		TrailerOwnershipMissing:  false,
+	}
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
+	verrs, err := suite.DB().ValidateAndCreate(&weightTicketSetDocument)
+	suite.NoVerrs(verrs)
+	suite.NoError(err)
 
 	emptyWeight := (int64)(200)
 	fullWeight := (int64)(500)
