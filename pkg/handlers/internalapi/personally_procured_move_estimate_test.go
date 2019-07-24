@@ -103,14 +103,6 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 	suite.setupPersonallyProcuredMoveEstimateTest()
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
-	//testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
-	//	TrafficDistributionList: models.TrafficDistributionList{
-	//		SourceRateArea:    "US53",
-	//		DestinationRegion: "6",
-	//		CodeOfService:     "2",
-	//	},
-	//})
-
 	req := httptest.NewRequest("GET", "/estimates/ppm", nil)
 	req = suite.AuthenticateRequest(req, serviceMember)
 

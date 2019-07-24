@@ -104,7 +104,7 @@ func (re *RateEngine) ComputePPM(
 		weight = unit.Pound(1000)
 	}
 
-	//Calculate linhaul charges using pickup zip code
+	//Calculate linehaul charges using pickup zip code
 	linehaulPickupZipCostComputation, err := re.linehaulChargeComputation(weight, originPickupZip5, destinationZip5, distanceMilesFromPickupZip, date)
 	if err != nil {
 		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
