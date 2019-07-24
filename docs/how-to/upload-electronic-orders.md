@@ -45,3 +45,7 @@ The generation script will provide three files and update the `migrations_manife
 * A secure migration in the `migrations/` folder
 * A stub local migration in the `local_migrations/` folder
 * A migration to upload to AWS S3 in the `tmp/` folder
+
+It is important only to upload the migration from the `tmp/` directory to the Staging and Experimental environments.
+**DO NOT UPLOAD THIS MIGRATION TO PRODUCTION AS THERE SHOULD BE NO USE CASE FOR USING A PERSONAL CAC TO UPLOAD ORDERS
+IN PROD**.
