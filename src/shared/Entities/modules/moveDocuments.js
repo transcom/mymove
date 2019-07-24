@@ -1,9 +1,9 @@
 import { filter, map } from 'lodash';
+import { denormalize, normalize } from 'normalizr';
+import { getClient, getPublicClient, checkResponse } from 'shared/Swagger/api';
+import { MOVE_DOC_TYPE, MOVE_DOC_STATUS } from 'shared/constants';
 import { moveDocuments } from '../schema';
 import { ADD_ENTITIES, addEntities } from '../actions';
-import { denormalize, normalize } from 'normalizr';
-
-import { getClient, getPublicClient, checkResponse } from 'shared/Swagger/api';
 
 export const STATE_KEY = 'moveDocuments';
 
@@ -20,6 +20,22 @@ export default function reducer(state = {}, action) {
       return state;
   }
 }
+
+// Utilities
+export const calcWeightTicketNetWeight = moveDocs =>
+  moveDocs.reduce((accum, { move_document_type, status, full_weight, empty_weight }) => {
+    if (move_document_type === MOVE_DOC_TYPE.WEIGHT_TICKET_SET && status === MOVE_DOC_STATUS.OK) {
+      return accum + (full_weight - empty_weight);
+    }
+    return accum;
+  }, 0);
+
+export const findPendingWeightTickets = moveDocs => {
+  return moveDocs.filter(
+    ({ move_document_type, status }) =>
+      move_document_type === MOVE_DOC_TYPE.WEIGHT_TICKET_SET && status !== MOVE_DOC_STATUS.OK,
+  );
+};
 
 // Actions
 export const getMoveDocumentsForMove = moveId => {

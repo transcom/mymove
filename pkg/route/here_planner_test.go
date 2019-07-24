@@ -227,7 +227,7 @@ func TestHereTestSuite(t *testing.T) {
 	}
 
 	hs := &HereTestSuite{
-		testingsuite.NewPopTestSuite(),
+		testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger,
 	}
 	suite.Run(t, hs)

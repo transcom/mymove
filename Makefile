@@ -137,7 +137,9 @@ client_deps: .check_hosts.stamp .client_deps.stamp ## Install client dependencie
 .PHONY: client_build
 client_build: .client_deps.stamp .client_build.stamp ## Build the client
 
-build/favicon.ico: client_build
+build/index.html: ## milmove serve requires this file to boot, but it isn't used during local development
+	mkdir -p build
+	touch build/index.html
 
 .PHONY: client_run
 client_run: .client_deps.stamp ## Run MilMove Service Member client
@@ -285,7 +287,7 @@ pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
 #
 
 .PHONY: go_deps_update
-go_deps_update: ## Update golang dependencies
+go_deps_update: server_deps server_generate mocks_generate ## Update golang dependencies
 	go run cmd/update_deps/main.go
 
 .PHONY: server_deps
@@ -321,13 +323,14 @@ server_build_linux: server_generate_linux ## Build the server (linux)
 	GOOS=linux GOARCH=amd64 go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
 # This command is for running the server by itself, it will serve the compiled frontend on its own
-server_run_standalone: client_build server_build db_dev_run
+server_run_standalone: server_build client_build db_dev_run
 	DEBUG_LOGGING=true $(AWS_VAULT) ./bin/milmove serve
+
 # This command will rebuild the swagger go code and rerun server on any changes
 server_run:
 	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run_default
 # This command runs the server behind gin, a hot-reload server
-server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp bin/gin build/favicon.ico server_generate db_dev_run
+server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp bin/gin build/index.html server_generate db_dev_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) ./bin/gin \
 		--build ./cmd/milmove \
@@ -404,9 +407,12 @@ mocks_generate: .mocks_generate.stamp ## Generate mockery mocks for tests
 .PHONY: server_test
 server_test: server_deps server_generate mocks_generate db_test_reset db_test_migrate ## Run server unit tests
 	# Don't run tests in /cmd or /pkg/gen & pass `-short` to exclude long running tests
-	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
-	DB_PORT=$(DB_PORT_TEST) go test -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+	DB_PORT=$(DB_PORT_TEST) go test -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+
+server_test_build:
+	# Try to compile tests, but don't run them.
+	go test -run=nope -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_all
 server_test_all: server_deps server_generate mocks_generate db_dev_reset db_dev_migrate ## Run all server unit tests

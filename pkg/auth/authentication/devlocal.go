@@ -121,7 +121,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					<p id="{{.ID}}">
 						<input type="hidden" name="gorilla.csrf.Token" value="{{$.CsrfToken}}">
 						{{.Email}}
-						{{if .IsSuperuser}}
+						{{if .AdminUserID}}
 						  ({{$.AdminUserType}})
 						  <input type="hidden" name="userType" value="{{$.AdminUserType}}">
 						{{else if .DpsUserID}}
@@ -365,7 +365,6 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 	user := models.User{
 		LoginGovUUID:  id,
 		LoginGovEmail: email,
-		IsSuperuser:   false,
 		Disabled:      false,
 	}
 
@@ -485,8 +484,17 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			h.logger.Error("validation errors creating dps user", zap.Stringer("errors", verrs))
 		}
 	case AdminUserType:
-		user.IsSuperuser = true
-		verrs, err := h.db.ValidateAndSave(&user)
+		var role models.AdminRole = "SYSTEM_ADMIN"
+
+		adminUser := models.AdminUser{
+			UserID:    &user.ID,
+			Email:     user.LoginGovEmail,
+			FirstName: "Leo",
+			LastName:  "Spaceman",
+			Role:      role,
+		}
+		verrs, err := h.db.ValidateAndSave(&adminUser)
+
 		if err != nil {
 			h.logger.Error("could not create admin user", zap.Error(err))
 		}
@@ -517,7 +525,6 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 	session.IDToken = "devlocal"
 	session.UserID = userIdentity.ID
 	session.Email = userIdentity.Email
-	session.IsSuperuser = userIdentity.IsSuperuser
 
 	// Set the app
 	disabled := userIdentity.Disabled
@@ -535,6 +542,8 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, w 
 	case AdminUserType:
 		session.ApplicationName = auth.AdminApp
 		session.Hostname = h.appnames.AdminServername
+		session.AdminUserID = *userIdentity.AdminUserID
+		session.AdminUserRole = userIdentity.AdminUserRole.String()
 	default:
 		session.ApplicationName = auth.MilApp
 		session.Hostname = h.appnames.MilServername
@@ -593,8 +602,8 @@ func verifySessionWithApp(session *auth.Session) error {
 		return errors.Errorf("Non-TSP user %s authenticated at TSP site", session.Email)
 	}
 
-	if !session.IsSuperuser && session.IsAdminApp() {
-		return errors.Errorf("Non-superuser %s authenticated at admin site", session.Email)
+	if !session.IsAdminUser() && session.IsAdminApp() {
+		return errors.Errorf("Non-admin user %s authenticated at admin site", session.Email)
 	}
 
 	return nil

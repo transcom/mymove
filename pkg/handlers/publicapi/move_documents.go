@@ -124,9 +124,10 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 		}
 	}
 
-	var saveAction models.MoveDocumentSaveAction
+	var saveExpenseAction models.MoveExpenseDocumentSaveAction
+	var saveWeightTicketSetAction models.MoveWeightTicketSetDocumentSaveAction
 
-	verrs, err := models.SaveMoveDocument(h.DB(), moveDoc, saveAction)
+	verrs, err := models.SaveMoveDocument(h.DB(), moveDoc, saveExpenseAction, saveWeightTicketSetAction)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}

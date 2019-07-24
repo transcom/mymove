@@ -20,7 +20,7 @@ func (suite *DBFmtSuite) SetupTest() {
 
 func TestDBFmtSuite(t *testing.T) {
 	hs := &DBFmtSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
 	suite.Run(t, hs)
 }
