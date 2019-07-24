@@ -1003,6 +1003,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			OrdersTypeDetail:    &typeDetail,
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
 			TAC:                 models.StringPointer("99"),
+			SAC:                 models.StringPointer("SAC"),
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("d17e2e3e-9bff-4bb0-b301-f97ad03350c1"),
@@ -1386,6 +1387,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			OrdersTypeDetail:    &typeDetail,
 			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
 			TAC:                 models.StringPointer("99"),
+			SAC:                 models.StringPointer("SAC"),
 		},
 		TrafficDistributionList: models.TrafficDistributionList{
 			ID:                uuid.FromStringOrNil("cb49e75e-7897-4a01-8cff-c13ae85ca5ba"),
@@ -3458,6 +3460,7 @@ func MakeHhgWithPpm(db *pop.Connection, tspUser models.TspUser, loader *uploader
 		Order: models.Order{
 			IssueDate:        time.Date(testdatagen.TestYear, time.May, 20, 0, 0, 0, 0, time.UTC),
 			OrdersTypeDetail: &ordersTypeDetail,
+			SAC:              models.StringPointer("sac"),
 		},
 		Move: models.Move{
 			ID:               moveID2,
