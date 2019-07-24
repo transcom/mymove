@@ -82,7 +82,6 @@ type OrdersTemplate struct {
 
 // InitOrdersMigrationFlags initializes orders migration command line flags
 func InitOrdersMigrationFlags(flag *pflag.FlagSet) {
-	flag.StringP(MigrationFilenameFlag, "n", "", "File name of the migration file")
 	flag.StringP(OrdersFingerprintFlag, "f", "", "Certificate fingerprint in SHA 256 form")
 	flag.StringP(OrdersSubjectFlag, "s", "", "Certificate subject")
 }
@@ -98,7 +97,7 @@ func CheckOrdersMigration(v *viper.Viper) error {
 	}
 
 	fingerprint := v.GetString(OrdersFingerprintFlag)
-	if fingerprint == "" {
+	if len(fingerprint) == 0 {
 		return fmt.Errorf("%s is missing", OrdersFingerprintFlag)
 	}
 	sha256Pattern := "^[a-f0-9]{64}$"
@@ -108,20 +107,19 @@ func CheckOrdersMigration(v *viper.Viper) error {
 	}
 
 	subject := v.GetString(OrdersSubjectFlag)
-	if subject == "" {
+	if len(subject) == 0 {
 		return errors.Errorf("%s is missing", OrdersSubjectFlag)
 	}
 
-	officeUsersMigrationFilenameFlag := v.GetString(MigrationFilenameFlag)
-	if officeUsersMigrationFilenameFlag == "" {
-		return errors.Errorf("%s is missing", MigrationFilenameFlag)
-	}
 	return nil
 }
 
 func initGenOrdersMigrationFlags(flag *pflag.FlagSet) {
 	// Migration Config
 	cli.InitMigrationFlags(flag)
+
+	// Migration File Config
+	cli.InitMigrationFileFlags(flag)
 
 	// Init Orders Migration Flags
 	InitOrdersMigrationFlags(flag)
@@ -148,7 +146,8 @@ func genOrdersMigration(cmd *cobra.Command, args []string) error {
 	}
 	migrationsPath := v.GetString(cli.MigrationPathFlag)
 	migrationManifest := v.GetString(cli.MigrationManifestFlag)
-	migrationFileName := v.GetString(MigrationFilenameFlag)
+	migrationName := v.GetString(cli.MigrationNameFlag)
+	migrationVersion := v.GetString(cli.MigrationVersionFlag)
 
 	ordersTemplate := OrdersTemplate{
 		ID:          uuid.Must(uuid.NewV4()).String(),
@@ -156,7 +155,7 @@ func genOrdersMigration(cmd *cobra.Command, args []string) error {
 		Subject:     v.GetString(OrdersSubjectFlag),
 	}
 
-	secureMigrationName := fmt.Sprintf("%s_%s.up.sql", time.Now().Format(VersionTimeFormat), migrationFileName)
+	secureMigrationName := fmt.Sprintf("%s_%s.up.sql", migrationVersion, migrationName)
 	t1 := template.Must(template.New("orders_migration").Parse(createOrdersMigration))
 	err = createMigration(tempMigrationPath, secureMigrationName, t1, ordersTemplate)
 	if err != nil {
@@ -170,14 +169,14 @@ func genOrdersMigration(cmd *cobra.Command, args []string) error {
 	}
 	log.Printf("new migration file created at:  %q\n", localMigrationPath)
 
-	migrationName := fmt.Sprintf("%s_%s.up.fizz", time.Now().Format(VersionTimeFormat), migrationFileName)
+	migrationFileName := fmt.Sprintf("%s_%s.up.fizz", time.Now().Format(VersionTimeFormat), migrationName)
 	t2 := template.Must(template.New("migration").Parse(secureMigrationTemplate))
-	err = createMigration(migrationsPath, migrationName, t2, secureMigrationName)
+	err = createMigration(migrationsPath, migrationFileName, t2, secureMigrationName)
 	if err != nil {
 		return err
 	}
 
-	err = addMigrationToManifest(migrationManifest, migrationName)
+	err = addMigrationToManifest(migrationManifest, migrationFileName)
 	if err != nil {
 		return err
 	}
