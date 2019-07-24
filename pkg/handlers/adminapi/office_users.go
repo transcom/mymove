@@ -3,7 +3,6 @@ package adminapi
 import (
 	"github.com/go-openapi/runtime/middleware"
 
-	"github.com/transcom/mymove/pkg/auth"
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -30,11 +29,10 @@ type IndexOfficeUsersHandler struct {
 // Handle retrieves a list of office users
 func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersParams) middleware.Responder {
 	logger := h.LoggerFromRequest(params.HTTPRequest)
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
 	queryFilters := []services.QueryFilter{}
 
-	officeUsers, err := h.OfficeUserListFetcher.FetchOfficeUserList(queryFilters, session)
+	officeUsers, err := h.OfficeUserListFetcher.FetchOfficeUserList(queryFilters)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}

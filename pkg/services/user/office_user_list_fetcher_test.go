@@ -7,7 +7,6 @@ import (
 
 	"github.com/gofrs/uuid"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -35,14 +34,12 @@ func (suite *UserServiceSuite) TestFetchOfficeUserList() {
 			fakeFetchMany: fakeFetchMany,
 		}
 
-		// Mocking authorization
-		session := auth.Session{}
 		fetcher := NewOfficeUserListFetcher(builder)
 		filters := []services.QueryFilter{
 			query.NewQueryFilter("id", "=", id.String()),
 		}
 
-		officeUsers, err := fetcher.FetchOfficeUserList(filters, &session)
+		officeUsers, err := fetcher.FetchOfficeUserList(filters)
 
 		suite.NoError(err)
 		suite.Equal(id, officeUsers[0].ID)
@@ -56,11 +53,9 @@ func (suite *UserServiceSuite) TestFetchOfficeUserList() {
 			fakeFetchMany: fakeFetchMany,
 		}
 
-		// Mocking authorization
-		session := auth.Session{}
 		fetcher := NewOfficeUserListFetcher(builder)
 
-		officeUsers, err := fetcher.FetchOfficeUserList([]services.QueryFilter{}, &session)
+		officeUsers, err := fetcher.FetchOfficeUserList([]services.QueryFilter{})
 
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")
