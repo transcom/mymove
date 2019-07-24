@@ -329,5 +329,7 @@
 20190715144534_delete-duty-stations-with-no-zip3-conflict.up.sql
 20190716161854_remove_patrick_d.up.fizz
 20190722160332_ame.up.fizz
+20190722225748_add_office_users.up.fizz
 20190723165935_add-duty-station-uslb-albany-ga.up.sql
 20190723192710_add_staging_user.up.fizz
+20190723214108_add_office_users.up.fizz

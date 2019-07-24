@@ -287,7 +287,7 @@ pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
 #
 
 .PHONY: go_deps_update
-go_deps_update: ## Update golang dependencies
+go_deps_update: server_deps server_generate mocks_generate ## Update golang dependencies
 	go run cmd/update_deps/main.go
 
 .PHONY: server_deps

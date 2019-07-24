@@ -19,9 +19,7 @@ const (
 )
 
 // Use a custom branch for the following dependencies
-var customBranches = map[string]string{
-	"github.com/trussworks/pdfcpu": "afero",
-}
+var customBranches = map[string]string{}
 
 // This program exists so that we can work around go mod's MVS behavior.
 // For each dependency listed in go.mod, this program will update that dependency
