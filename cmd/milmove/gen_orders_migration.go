@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"text/template"
-	"time"
 
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -169,7 +168,7 @@ func genOrdersMigration(cmd *cobra.Command, args []string) error {
 	}
 	log.Printf("new migration file created at:  %q\n", localMigrationPath)
 
-	migrationFileName := fmt.Sprintf("%s_%s.up.fizz", time.Now().Format(VersionTimeFormat), migrationName)
+	migrationFileName := fmt.Sprintf("%s_%s.up.fizz", migrationVersion, migrationName)
 	t2 := template.Must(template.New("migration").Parse(secureMigrationTemplate))
 	err = createMigration(migrationsPath, migrationFileName, t2, secureMigrationName)
 	if err != nil {
