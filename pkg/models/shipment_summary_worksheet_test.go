@@ -296,6 +296,21 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
 			RequestedAmountCents: unit.Cents(10000),
 			PaymentMethod:        "GTCC",
 		},
+		{
+			MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
+			RequestedAmountCents: unit.Cents(100000),
+			PaymentMethod:        "GTCC",
+		},
+		{
+			MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
+			RequestedAmountCents: unit.Cents(20000),
+			PaymentMethod:        "GTCC",
+		},
+		{
+			MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
+			RequestedAmountCents: unit.Cents(10000),
+			PaymentMethod:        "OTHER",
+		},
 	}
 
 	ssd := models.ShipmentSummaryFormData{
@@ -314,6 +329,8 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
 	suite.Equal("$100.00", sswPage2.GasMemberPaid)
 	suite.Equal("$200.00", sswPage2.TotalMemberPaid)
 	suite.Equal("$200.00", sswPage2.TotalMemberPaidRepeated)
+	suite.Equal("$100.00", sswPage2.TotalMemberPaidSIT)
+	suite.Equal("$1,200.00", sswPage2.TotalGTCCPaidSIT)
 }
 
 func (suite *ModelSuite) TestGroupExpenses() {

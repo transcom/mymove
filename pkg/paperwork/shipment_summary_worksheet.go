@@ -73,6 +73,8 @@ var ShipmentSummaryPage2Layout = FormLayout{
 		"TotalGTCCPaid":               FormField(181.5, 99.5, 20, floatPtr(10), nil, stringPtr("RM")),
 		"TotalMemberPaidRepeated":     FormField(74, 42, 30, floatPtr(10), nil, stringPtr("RM")),
 		"TotalGTCCPaidRepeated":       FormField(74, 53, 30, floatPtr(10), nil, stringPtr("RM")),
+		"TotalMemberPaidSIT":          FormField(74, 64, 30, floatPtr(10), nil, stringPtr("RM")),
+		"TotalGTCCPaidSIT":            FormField(74, 75, 30, floatPtr(10), nil, stringPtr("RM")),
 		"ServiceMemberSignature":      FormField(9.5, 261, 200, floatPtr(10), nil, nil),
 	},
 }
