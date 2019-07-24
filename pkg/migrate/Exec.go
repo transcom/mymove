@@ -33,36 +33,23 @@ func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration) error {
 		//if it is COPY statement then assume rest of the statements are part of copy and execute then as part of stdin
 		match := copyStdinPattern.FindStringSubmatch(stmt)
 		if match != nil {
-			//create buffer of remaining statements
-			copyStmts := NewBuffer()
-			var isCopy []string
 
-			//range over the channel again
-			for copyStmt := range statements {
-
-				//only do this once, we are looking for first instance of copy
-				//with an assumption that copy is always the last statement
-				if isCopy == nil {
-					isCopy = copyStdinPattern.FindStringSubmatch(copyStmt)
-				}
-
-				//skip all non copy statements
-				if isCopy == nil {
-					continue
-				} else {
-					_, err := copyStmts.WriteString(copyStmt)
-					if err != nil {
-						return errors.Wrap(err, "error copying from stdin")
-					}
-				}
+			dataRows, err := extractCopyDataRows(statements)
+			if err != nil {
+				return errors.Wrapf(err, "error extracting data from")
 			}
-			copyStmts.Close()
 
-			// See test to understand regex
-			var errCopyFromStdin error
-			_, errCopyFromStdin = execCopyFromStdin(copyStmts, 0, match[4], parseColumns(match[6]), tx, wait)
-			if errCopyFromStdin != nil {
-				return errors.Wrap(errCopyFromStdin, "error copying from stdin")
+			// prepare statement so we can insert data rows
+			stmt, err := prepareCopyFromStdin(match[4], parseColumns(match[6]), tx)
+			if err != nil {
+				return errors.Wrap(err, "error preparing copy from stdin statement")
+			}
+			for _, dataRow := range dataRows {
+				values := lineToValues(dataRow)
+				_, err = stmt.Exec(values...)
+				if err != nil {
+					return errors.Wrapf(err, "error executing copy from stdin with values %q", values)
+				}
 			}
 			//exit loop after encountering the first COPY statement
 			break
@@ -75,4 +62,34 @@ func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration) error {
 		}
 	}
 	return nil
+}
+
+// function to find and return data statements from COPY migration
+func extractCopyDataRows(statements chan string) ([]string, error) {
+	//create buffer of remaining statements
+	var copyStmts []string
+	var isCopy []string
+
+	//range over the channel again
+	for stmt := range statements {
+		//only do this once, we are looking for first instance of copy
+		//with an assumption that copy is always the last statement
+		if isCopy == nil {
+			isCopy = copyStdinPattern.FindStringSubmatch(stmt)
+		}
+
+		//skip all non copy statements
+		if isCopy == nil {
+			continue
+		} else {
+			// data statements end with newline instead of ; let's split them, by newline
+			copyStmts = strings.Split(stmt, "\n")
+			// remove trailing \. from slice
+			if copyStmts[len(copyStmts)-1] == "\\." {
+				//drop element from slice
+				copyStmts = copyStmts[:len(copyStmts)-1]
+			}
+		}
+	}
+	return copyStmts, nil
 }
