@@ -25,7 +25,8 @@
     "--db-env",
     "container",
     "--tls-enabled",
-    "--mutual-tls-enabled"
+    "--mutual-tls-enabled",
+    "--serve-orders"
   ],
   "command": [],
   "environment": [

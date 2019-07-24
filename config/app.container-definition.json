@@ -24,7 +24,12 @@
     "production",
     "--debug-logging",
     "--log-task-metadata",
-    "--tls-enabled"
+    "--tls-enabled",
+    "--serve-admin",
+    "--serve-sddc",
+    "--serve-dps",
+    "--serve-api-internal",
+    "--serve-api-external"
   ],
   "command": [],
   "environment": [
