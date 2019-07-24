@@ -139,9 +139,15 @@ func (suite *RateEngineSuite) computePPMIncludingLHRates(originPickupZip string,
 		SITRate:                         unit.NewDiscountRateFromPercent(50.0),
 	}
 	suite.MustSave(&tspPerformance)
-	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(suite.DB(),
+	lhDiscountFromPickupZip, sitDiscount, err := models.PPMDiscountFetch(suite.DB(),
 		logger,
 		originPickupZip,
+		destinationZip, testdatagen.RateEngineDate,
+	)
+
+	lhDiscountFromDutyStationZip, _, err := models.PPMDiscountFetch(suite.DB(),
+		logger,
+		originDutyStationZip,
 		destinationZip, testdatagen.RateEngineDate,
 	)
 	suite.Require().Nil(err)
@@ -152,9 +158,11 @@ func (suite *RateEngineSuite) computePPMIncludingLHRates(originPickupZip string,
 		originDutyStationZip,
 		destinationZip,
 		1044,
+		1230,
 		testdatagen.RateEngineDate,
 		0,
-		lhDiscount,
+		lhDiscountFromPickupZip,
+		lhDiscountFromDutyStationZip,
 		sitDiscount,
 	)
 	suite.Require().Nil(err)
@@ -173,8 +181,8 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
 
 	// 139698 +20000
-	cost, err := engine.ComputePPM(2000, "39574", "33621", "33633", 1234, testdatagen.RateEngineDate,
-		1, unit.DiscountRate(.6), unit.DiscountRate(.5))
+	cost, err := engine.ComputePPM(2000, "39574", "33621", "33633", 1234, 1450, testdatagen.RateEngineDate,
+		1, unit.DiscountRate(.6), unit.DiscountRate(.4), unit.DiscountRate(.5))
 
 	if err != nil {
 		t.Fatalf("failed to calculate ppm charge: %s", err)
@@ -202,6 +210,7 @@ func (suite *RateEngineSuite) TestComputePPMWithLHDiscount() {
 		originDutyStationZip,
 		destinationZip,
 		1044,
+		1450,
 		testdatagen.RateEngineDate,
 		0,
 	)

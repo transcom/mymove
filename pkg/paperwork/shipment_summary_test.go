@@ -14,13 +14,14 @@ import (
 )
 
 type ppmComputerParams struct {
-	Weight           unit.Pound
-	PickupOriginZip5 string
-	DutyStationZip5  string
-	DestinationZip5  string
-	Miles            int
-	Date             time.Time
-	DaysInSIT        int
+	Weight                          unit.Pound
+	PickupOriginZip5                string
+	DutyStationZip5                 string
+	DestinationZip5                 string
+	DistanceMilesFromPickupZip      int
+	DistanceMilesFromDutyStationZip int
+	Date                            time.Time
+	DaysInSIT                       int
 }
 
 type mockPPMComputer struct {
@@ -29,15 +30,16 @@ type mockPPMComputer struct {
 	ppmComputerParams []ppmComputerParams
 }
 
-func (mppmc *mockPPMComputer) ComputePPMIncludingLHDiscount(weight unit.Pound, pickupOriginZip5 string, dutyStationZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int) (cost rateengine.CostComputation, err error) {
+func (mppmc *mockPPMComputer) ComputePPMIncludingLHDiscount(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromPickupZip int, distanceMilesFromDutyStationZip int, date time.Time, daysInSIT int) (cost rateengine.CostComputation, err error) {
 	mppmc.ppmComputerParams = append(mppmc.ppmComputerParams, ppmComputerParams{
-		Weight:           weight,
-		PickupOriginZip5: pickupOriginZip5,
-		DutyStationZip5:  dutyStationZip5,
-		DestinationZip5:  destinationZip5,
-		Miles:            distanceMiles,
-		Date:             date,
-		DaysInSIT:        daysInSIT,
+		Weight:                          weight,
+		PickupOriginZip5:                originPickupZip5,
+		DutyStationZip5:                 originDutyStationZip5,
+		DestinationZip5:                 destinationZip5,
+		DistanceMilesFromPickupZip:      distanceMilesFromPickupZip,
+		DistanceMilesFromDutyStationZip: distanceMilesFromDutyStationZip,
+		Date:                            date,
+		DaysInSIT:                       daysInSIT,
 	})
 	return mppmc.costComputation, mppmc.err
 }
@@ -74,24 +76,25 @@ func (suite *PaperworkSuite) TestComputeObligationsParams() {
 }
 
 func (suite *PaperworkSuite) TestTestComputeObligations() {
-	miles := 100
+	distanceMilesFromPickupZip := 100
+	distanceMilesFromDutyStationZip := 200
 	totalWeightEntitlement := unit.Pound(1000)
 	ppmRemainingEntitlement := unit.Pound(2000)
-	planner := route.NewTestingPlanner(miles)
+	planner := route.NewTestingPlanner(distanceMilesFromPickupZip)
 	origMoveDate := time.Date(2018, 12, 11, 0, 0, 0, 0, time.UTC)
 	actualDate := time.Date(2018, 12, 15, 0, 0, 0, 0, time.UTC)
 	pickupPostalCode := "85369"
-	//dutyStationPostalCode := "94540"
+	dutyStationPostalCode := "94540"
 	destinationPostalCode := "31905"
-	//cents := unit.Cents(1000)
-	//ppm := models.PersonallyProcuredMove{
-	//	OriginalMoveDate:      &origMoveDate,
-	//	ActualMoveDate:        &actualDate,
-	//	PickupPostalCode:      &pickupPostalCode,
-	//	DestinationPostalCode: &destinationPostalCode,
-	//	TotalSITCost:          &cents,
-	//}
-	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	cents := unit.Cents(1000)
+	ppm := models.PersonallyProcuredMove{
+		OriginalMoveDate:      &origMoveDate,
+		ActualMoveDate:        &actualDate,
+		PickupPostalCode:      &pickupPostalCode,
+		DestinationPostalCode: &destinationPostalCode,
+		TotalSITCost:          &cents,
+	}
+	//ppm := testdatagen.MakeDefaultPPM(suite.DB())
 
 	params := models.ShipmentSummaryFormData{
 		PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
@@ -104,22 +107,24 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 		}
 		ppmComputer := NewSSWPPMComputer(&mockComputer)
 		expectMaxObligationParams := ppmComputerParams{
-			Weight:           totalWeightEntitlement,
-			PickupOriginZip5: pickupPostalCode,
-			DutyStationZip5:  ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode,
-			DestinationZip5:  destinationPostalCode,
-			Miles:            miles,
-			Date:             actualDate,
-			DaysInSIT:        0,
+			Weight:                          totalWeightEntitlement,
+			PickupOriginZip5:                pickupPostalCode,
+			DutyStationZip5:                 dutyStationPostalCode,
+			DestinationZip5:                 destinationPostalCode,
+			DistanceMilesFromPickupZip:      distanceMilesFromPickupZip,
+			DistanceMilesFromDutyStationZip: distanceMilesFromDutyStationZip,
+			Date:                            actualDate,
+			DaysInSIT:                       0,
 		}
 		expectActualObligationParams := ppmComputerParams{
-			Weight:           ppmRemainingEntitlement,
-			PickupOriginZip5: pickupPostalCode,
-			DutyStationZip5:  ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode,
-			DestinationZip5:  destinationPostalCode,
-			Date:             actualDate,
-			Miles:            miles,
-			DaysInSIT:        0,
+			Weight:                          ppmRemainingEntitlement,
+			PickupOriginZip5:                pickupPostalCode,
+			DutyStationZip5:                 dutyStationPostalCode,
+			DestinationZip5:                 destinationPostalCode,
+			Date:                            actualDate,
+			DistanceMilesFromPickupZip:      distanceMilesFromPickupZip,
+			DistanceMilesFromDutyStationZip: distanceMilesFromDutyStationZip,
+			DaysInSIT:                       0,
 		}
 		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 		session := &auth.Session{
