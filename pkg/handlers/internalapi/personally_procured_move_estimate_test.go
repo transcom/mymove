@@ -146,7 +146,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 		HTTPRequest:              req,
 		OriginalMoveDate:         *handlers.FmtDate(scenario.Oct1TestYear),
 		OriginZip:                "94540",
-		DestinationZip:           "95630",
+		DestinationZip:           "78626",
 		WeightEstimate:           7500,
 	}
 
@@ -158,8 +158,8 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 	okResponse := showResponse.(*ppmop.ShowPPMEstimateOK)
 	cost := okResponse.Payload
 
-	suite.Equal(int64(907805), *cost.RangeMin, "RangeMin was not equal")
-	suite.Equal(int64(1003363), *cost.RangeMax, "RangeMax was not equal")
+	suite.Equal(int64(605203), *cost.RangeMin, "RangeMin was not equal")
+	suite.Equal(int64(668909), *cost.RangeMax, "RangeMax was not equal")
 }
 
 func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
