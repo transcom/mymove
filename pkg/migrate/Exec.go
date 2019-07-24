@@ -28,7 +28,7 @@ func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration) error {
 	}()
 
 	statements := make(chan string, 1000)
-	go SplitStatements(lines, statements)
+	go SplitStatements(lines, statements, wait)
 	for stmt := range statements {
 		//if it is COPY statement then assume rest of the statements are part of copy and execute then as part of stdin
 		match := copyStdinPattern.FindStringSubmatch(stmt)

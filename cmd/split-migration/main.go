@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -62,8 +63,9 @@ func main() {
 				close(lines)
 			}()
 
+			wait := 10 * time.Millisecond
 			statements := make(chan string, 1000)
-			go migrate.SplitStatements(lines, statements)
+			go migrate.SplitStatements(lines, statements, wait)
 			i := 0
 			for stmt := range statements {
 				fmt.Println("---------------------------------------------------")

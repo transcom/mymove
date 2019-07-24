@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -35,8 +36,9 @@ func TestSplitStatements(t *testing.T) {
 		close(lines)
 	}()
 
+	wait := 10 * time.Millisecond
 	statements := make(chan string, 1000)
-	go SplitStatements(lines, statements)
+	go SplitStatements(lines, statements, wait)
 
 	expectedStmt := []string{
 		"SET statement_timeout = 0;",

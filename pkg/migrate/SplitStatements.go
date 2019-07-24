@@ -1,19 +1,13 @@
 package migrate
 
 import (
-	"fmt"
 	"io"
-	"os"
 	"strings"
 	"time"
 )
 
-import (
-	"github.com/pkg/errors"
-)
-
 // SplitStatements splits a string of SQL statements into a slice with each element being a statement.
-func SplitStatements(lines chan string, statements chan string) {
+func SplitStatements(lines chan string, statements chan string, wait time.Duration) {
 
 	in := NewBuffer()
 
@@ -27,32 +21,31 @@ func SplitStatements(lines chan string, statements chan string) {
 	quoted := 0
 	blocks := NewStack()
 	var stmt strings.Builder
+
 	i := 0
 	for {
 		// Get previous and current characters
-		c, err := in.Index(i)
+		char, err := in.Index(i)
 		if err != nil {
 			if err == io.EOF {
 				break
 			} else if err == ErrWait {
-				fmt.Fprintln(os.Stderr, "waiting for 10 milliseconds")
-				time.Sleep(time.Millisecond * 10)
+				time.Sleep(wait)
 				continue
 			} else {
-				fmt.Fprintln(os.Stderr, errors.Wrap(err, "received unknown error "))
 				close(statements)
 				return
 			}
 		}
 
 		// if statement is empty, don't prefix with spaces
-		if stmt.Len() == 0 && byteIsSpace(c) {
+		if stmt.Len() == 0 && byteIsSpace(char) {
 			i++
 			continue
 		}
 
 		// If not in block not quoted and on semicolon, then split statement.
-		if blocks.Empty() && quoted == 0 && c == ';' {
+		if blocks.Empty() && quoted == 0 && char == ';' {
 			str := strings.TrimSpace(stmt.String() + ";")
 			if len(str) > 0 {
 				statements <- str
@@ -64,8 +57,8 @@ func SplitStatements(lines chan string, statements chan string) {
 
 		// If quoted, then see if we can unquote.
 		if quoted > 0 {
-			stmt.WriteByte(c)
-			if c == '\'' {
+			stmt.WriteByte(char)
+			if char == '\'' {
 				if in.Closed() && i+1 == in.Len() {
 					quoted--
 				} else {
@@ -75,11 +68,9 @@ func SplitStatements(lines chan string, statements chan string) {
 							break
 						}
 						if err == ErrWait {
-							fmt.Fprintln(os.Stderr, "waiting for 10 milliseconds")
-							time.Sleep(time.Millisecond * 10)
+							time.Sleep(wait)
 							continue
 						}
-						fmt.Fprintln(os.Stderr, errors.Wrap(err, "received unknown error"))
 						close(statements)
 						return
 					}
@@ -97,16 +88,14 @@ func SplitStatements(lines chan string, statements chan string) {
 		}
 
 		// If not quoted and there's a quote.
-		if c == '\'' {
+		if char == '\'' {
 			str, err := in.Range(i, i+2)
 			if err != nil {
 				if err == ErrWait {
-
-					time.Sleep(time.Millisecond * 10)
+					time.Sleep(wait)
 					continue
 				}
 				if err != io.EOF {
-					fmt.Fprint(os.Stderr, errors.Wrap(err, "received unknown error"))
 					close(statements)
 					return
 				}
@@ -117,7 +106,7 @@ func SplitStatements(lines chan string, statements chan string) {
 				i += 2                 // skip forward
 				continue
 			}
-			stmt.WriteByte(c)
+			stmt.WriteByte(char)
 			quoted++
 			i++ // eat 1 character
 			continue
@@ -127,12 +116,10 @@ func SplitStatements(lines chan string, statements chan string) {
 			str, err := in.Range(i, i+3)
 			if err != nil {
 				if err == ErrWait {
-					fmt.Fprintln(os.Stderr, "waiting for 10 milliseconds")
-					time.Sleep(time.Millisecond * 10)
+					time.Sleep(wait)
 					continue
 				}
 				if err != io.EOF {
-					fmt.Fprint(os.Stderr, errors.Wrap(err, "received unknown error"))
 					close(statements)
 					return
 				}
@@ -145,11 +132,9 @@ func SplitStatements(lines chan string, statements chan string) {
 						c2, errIndex := in.Index(i)
 						if errIndex != nil {
 							if errIndex == ErrWait {
-								fmt.Fprintln(os.Stderr, "waiting for 10 milliseconds")
-								time.Sleep(time.Millisecond * 10)
+								time.Sleep(wait)
 								continue
 							} else {
-								fmt.Fprint(os.Stderr, errors.Wrap(errIndex, "received unknown error "))
 								close(statements)
 								return
 							}
@@ -170,11 +155,9 @@ func SplitStatements(lines chan string, statements chan string) {
 						c3, err := in.Index(i)
 						if err != nil {
 							if err == ErrWait {
-								fmt.Fprintln(os.Stderr, "waiting for 10 milliseconds")
-								time.Sleep(time.Millisecond * 10)
+								time.Sleep(wait)
 								continue
 							} else {
-								fmt.Fprint(os.Stderr, errors.Wrap(err, "received unknown error "))
 								close(statements)
 								return
 							}
@@ -206,12 +189,10 @@ func SplitStatements(lines chan string, statements chan string) {
 			str, err := in.Range(i, i+len(lastBlock))
 			if err != nil {
 				if err == ErrWait {
-					fmt.Fprintln(os.Stderr, "waiting for 10 milliseconds")
-					time.Sleep(time.Millisecond * 10)
+					time.Sleep(wait)
 					continue
 				}
 				// if there is EOF and there are still blocks, then that's an issue
-				fmt.Fprint(os.Stderr, errors.Wrap(err, fmt.Sprintf("received unknown error with blocks %q left to process", blocks)))
 				close(statements)
 				return
 			}
@@ -224,7 +205,7 @@ func SplitStatements(lines chan string, statements chan string) {
 		}
 
 		// if nothing special simply add the character and increment the cursor
-		stmt.WriteByte(c)
+		stmt.WriteByte(char)
 		i++
 	}
 

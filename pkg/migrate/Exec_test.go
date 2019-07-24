@@ -137,8 +137,9 @@ func TestExtractCopyDataRows(t *testing.T) {
 		close(lines)
 	}()
 
+	wait := 10 * time.Millisecond
 	statements := make(chan string, 1000)
-	go SplitStatements(lines, statements)
+	go SplitStatements(lines, statements, wait)
 	res, _ := extractCopyDataRows(statements)
 
 	// length of data rows should be 2 based on the fixture file
