@@ -563,21 +563,20 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 	if err == nil { // Successfully created the user
 		session.UserID = user.ID
 		span.AddField("session.user_id", session.UserID)
-		if officeUser != nil {
+		if session.IsOfficeApp() && officeUser != nil {
 			session.OfficeUserID = officeUser.ID
 			span.AddField("session.office_user_id", session.OfficeUserID)
 			officeUser.UserID = &user.ID
 			err = h.db.Save(officeUser)
-		} else if tspUser != nil {
+		} else if session.IsTspApp() && tspUser != nil {
 			session.TspUserID = tspUser.ID
 			span.AddField("session.tsp_user_id", session.TspUserID)
 			tspUser.UserID = &user.ID
 			err = h.db.Save(tspUser)
-		} else if &adminUser.ID != &uuid.Nil {
+		} else if session.IsAdminApp() && adminUser.ID != uuid.Nil {
 			session.AdminUserID = adminUser.ID
 			span.AddField("session.admin_user_id", session.AdminUserID)
 			adminUser.UserID = &user.ID
-
 			err = h.db.Save(&adminUser)
 		}
 	}
