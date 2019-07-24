@@ -228,6 +228,9 @@ func (o *Order) IsComplete() bool {
 	if o.TAC == nil {
 		return false
 	}
+	if o.SAC == nil {
+		return false
+	}
 	return true
 }
 
