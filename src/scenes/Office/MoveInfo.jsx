@@ -313,7 +313,7 @@ class MoveInfo extends Component {
     const showDocumentViewer = this.props.context.flags.documentViewer;
     const moveInfoComboButton = this.props.context.flags.moveInfoComboButton;
     const ordersComplete = Boolean(
-      orders.orders_number && orders.orders_type_detail && orders.department_indicator && orders.tac,
+      orders.orders_number && orders.orders_type_detail && orders.department_indicator && orders.tac && orders.sac,
     );
     const ppmPaymentRequested = includes(['PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
