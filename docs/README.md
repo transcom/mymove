@@ -45,7 +45,7 @@ If you are looking to understand choices made in this project, see the list of [
 * [Troubleshoot GEX Connection](how-to/troubleshoot-gex-connection.md#how-to-troubleshoot-gex-connection)
 * [Unit Test React Components](how-to/unit-test-react-components.md#how-to-unit-test-react-components)
 * [Upgrade Go Version](how-to/upgrade-go-version.md#how-to-upgrade-go-version)
-* [Upload Electronic Orders](how-to/upload-electronic-orders.md#how-to-upload-electronic-orders)
+* [Upload Electronic Orders Using your CAC](how-to/upload-electronic-orders.md#how-to-upload-electronic-orders-using-your-cac)
 
 ## ADRs
 

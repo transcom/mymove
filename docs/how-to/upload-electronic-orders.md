@@ -1,4 +1,4 @@
-# How to Upload Electronic Orders
+# How to Upload Electronic Orders Using your CAC
 
 ## Requirements
 
@@ -43,5 +43,5 @@ milmove gen orders-migration --fingerprint "${FINGERPRINT}" --subject "${SUBJECT
 The generation script will provide three files and update the `migrations_manifest.txt` for you:
 
 * A secure migration in the `migrations/` folder
-* A stug local migration in the `local_migrations/` folder
+* A stub local migration in the `local_migrations/` folder
 * A migration to upload to AWS S3 in the `tmp/` folder
