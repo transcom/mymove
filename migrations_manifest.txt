@@ -332,3 +332,4 @@
 20190722225748_add_office_users.up.fizz
 20190723165935_add-duty-station-uslb-albany-ga.up.sql
 20190723214108_add_office_users.up.fizz
+20190724193344_add_more_system_admin_users.up.fizz
