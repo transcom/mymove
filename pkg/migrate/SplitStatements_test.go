@@ -3,7 +3,6 @@ package migrate
 import (
 	"bufio"
 	"os"
-	"strings"
 	"testing"
 	"time"
 
@@ -15,23 +14,16 @@ func TestSplitStatements(t *testing.T) {
 	// Load the fixture with the sql example
 	fixture := "./fixtures/copyFromStdin.sql"
 	f, err := os.Open(fixture)
+	defer f.Close()
 	require.Nil(t, err)
 
-	in := NewBuffer()
-	dropComments := true
-	dropBlankLines := true
-	dropSearchPath := false
-
-	ReadInSQL(f, in, dropComments, dropBlankLines, dropSearchPath)
-
 	lines := make(chan string, 1000)
-
-	//read buffer values into the channel
+	dropComments := true
+	dropSearchPath := true
 	go func() {
-		formattedSQL := in.String()
-		scanner := bufio.NewScanner(strings.NewReader(formattedSQL))
+		scanner := bufio.NewScanner(f)
 		for scanner.Scan() {
-			lines <- scanner.Text()
+			lines <- ReadInSQLLine(scanner.Text(), dropComments, dropSearchPath)
 		}
 		close(lines)
 	}()
@@ -46,7 +38,6 @@ func TestSplitStatements(t *testing.T) {
 		"SET idle_in_transaction_session_timeout = 0;",
 		"SET client_encoding = 'UTF8';",
 		"SET standard_conforming_strings = on;",
-		"SELECT pg_catalog.set_config('search_path', '', false);",
 		"SET check_function_bodies = false;",
 		"SET client_min_messages = warning;",
 		"SET row_security = off;",
@@ -56,8 +47,8 @@ func TestSplitStatements(t *testing.T) {
 
 	i := 0
 	for stmt := range statements {
-		require.Equal(t, stmt, expectedStmt[i])
+		require.Equal(t, expectedStmt[i], stmt)
 		i++
 	}
-	require.Equal(t, i, 11)
+	require.Equal(t, i, 10)
 }

@@ -55,10 +55,12 @@ func main() {
 			}
 
 			lines := make(chan string, 1000)
+			dropComments := true
+			dropSearchPath := true
 			go func() {
 				scanner := bufio.NewScanner(inputReader)
 				for scanner.Scan() {
-					lines <- scanner.Text()
+					lines <- migrate.ReadInSQLLine(scanner.Text(), dropComments, dropSearchPath)
 				}
 				close(lines)
 			}()

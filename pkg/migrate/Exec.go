@@ -12,17 +12,14 @@ import (
 
 func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration) error {
 
-	in := NewBuffer()
-
-	go ReadInSQL(inputReader, in, true, true, true) // read in lines as a separate thread
-
 	lines := make(chan string, 1000)
+	dropComments := true
+	dropSearchPath := true
 	// read values out of the buffer
 	go func() {
-		formattedSQL := in.String()
-		scanner := bufio.NewScanner(strings.NewReader(formattedSQL))
+		scanner := bufio.NewScanner(inputReader)
 		for scanner.Scan() {
-			lines <- scanner.Text()
+			lines <- ReadInSQLLine(scanner.Text(), dropComments, dropSearchPath)
 		}
 		close(lines)
 	}()

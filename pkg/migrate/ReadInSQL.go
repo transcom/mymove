@@ -4,17 +4,23 @@ import (
 	"bufio"
 	"bytes"
 	"io"
+	"strings"
 )
 
 var (
 	lineCommentBytes   = []byte("--")
 	startCopyFromStdin = []byte(" FROM stdin;")
 	endCopyFromStdin   = []byte("\\.")
+
+	// closing parentheses aren't strictly required and wouldn't hit on this line if there was a space after
+	// search_path, so it has intentionally been left off
+	searchPath = []byte("pg_catalog.set_config('search_path'")
 )
 
 // ReadInSQL reads the SQL lines from the in reader and writes them to the out Buffer.
 // If dropComments is true, then drops all line comments.
 // If dropBlankLines is true, then drops all blank lines.
+// If dropSearchPath is true, then drops all search paths.
 func ReadInSQL(in io.Reader, out *Buffer, dropComments bool, dropBlankLines bool, dropSearchPath bool) {
 	scanner := bufio.NewScanner(in)
 	inCopyFrom := false
@@ -39,9 +45,7 @@ func ReadInSQL(in io.Reader, out *Buffer, dropComments bool, dropBlankLines bool
 				}
 			}
 
-			// closing parentheses aren't strictly required and wouldn't hit on this line if there was a space after
-			// search_path, so it has intentionally been left off
-			if bytes.Contains(line, []byte("pg_catalog.set_config('search_path'")) {
+			if bytes.Contains(line, searchPath) {
 				if dropSearchPath {
 					continue
 				}
@@ -63,4 +67,22 @@ func ReadInSQL(in io.Reader, out *Buffer, dropComments bool, dropBlankLines bool
 		out.WriteByte('\n')
 	}
 	out.Close()
+}
+
+// ReadInSQLLine reads the SQL line from a string and returns the line as modified by the configuration
+// If dropComments is true, then drops all line comments.
+// If dropSearchPath is true, then drops all search paths.
+func ReadInSQLLine(line string, dropComments bool, dropSearchPath bool) string {
+
+	if dropComments {
+		if idx := strings.Index(line, string(lineCommentBytes)); idx != -1 {
+			line = line[0:idx]
+		}
+	}
+
+	if dropSearchPath && strings.Contains(line, string(searchPath)) {
+		return ""
+	}
+
+	return strings.TrimSpace(line)
 }

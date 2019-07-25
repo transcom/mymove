@@ -3,7 +3,6 @@ package migrate
 import (
 	"bufio"
 	"os"
-	"strings"
 	"testing"
 	"time"
 
@@ -117,22 +116,16 @@ func TestExtractCopyDataRows(t *testing.T) {
 	// Load the fixture with the sql example
 	fixture := "./fixtures/copyMultiFromStdin.sql"
 	f, err := os.Open(fixture)
+	defer f.Close()
 	require.Nil(t, err)
 
-	in := NewBuffer()
-	dropComments := true
-	dropBlankLines := true
-	dropSearchPath := false
-
-	ReadInSQL(f, in, dropComments, dropBlankLines, dropSearchPath)
-	formattedSQL := in.String()
-
 	lines := make(chan string, 1000)
-	//read buffer values into the channel
+	dropComments := true
+	dropSearchPath := true
 	go func() {
-		scanner := bufio.NewScanner(strings.NewReader(formattedSQL))
+		scanner := bufio.NewScanner(f)
 		for scanner.Scan() {
-			lines <- scanner.Text()
+			lines <- ReadInSQLLine(scanner.Text(), dropComments, dropSearchPath)
 		}
 		close(lines)
 	}()
@@ -140,6 +133,8 @@ func TestExtractCopyDataRows(t *testing.T) {
 	wait := 10 * time.Millisecond
 	statements := make(chan string, 1000)
 	go SplitStatements(lines, statements, wait)
+
+	// Now extract the copy data rows
 	res, _ := extractCopyDataRows(statements)
 
 	// length of data rows should be 2 based on the fixture file
