@@ -1,12 +1,8 @@
 package migrate
 
 import (
-	"bufio"
 	"os"
-	"testing"
 	"time"
-
-	"github.com/stretchr/testify/require"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gofrs/uuid"
@@ -109,34 +105,4 @@ func (suite *MigrateSuite) TestExecWithInsertConflictSQL() {
 		return err
 	})
 	suite.NoError(errTransaction)
-}
-
-func TestExtractCopyDataRows(t *testing.T) {
-
-	// Load the fixture with the sql example
-	fixture := "./fixtures/copyMultiFromStdin.sql"
-	f, err := os.Open(fixture)
-	defer f.Close()
-	require.Nil(t, err)
-
-	lines := make(chan string, 1000)
-	dropComments := true
-	dropSearchPath := true
-	go func() {
-		scanner := bufio.NewScanner(f)
-		for scanner.Scan() {
-			lines <- ReadInSQLLine(scanner.Text(), dropComments, dropSearchPath)
-		}
-		close(lines)
-	}()
-
-	wait := 10 * time.Millisecond
-	statements := make(chan string, 1000)
-	go SplitStatements(lines, statements, wait)
-
-	// Now extract the copy data rows
-	res, _ := extractCopyDataRows(statements)
-
-	// length of data rows should be 2 based on the fixture file
-	require.Equal(t, len(res), 2)
 }
