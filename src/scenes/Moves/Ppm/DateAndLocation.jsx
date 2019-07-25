@@ -32,7 +32,7 @@ const UnsupportedZipCodeErrorMsg =
   'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.';
 
 async function asyncValidate(values, dispatch, props, currentFieldName) {
-  const { id, pickup_postal_code, destination_postal_code, original_move_date } = values;
+  const { pickup_postal_code, destination_postal_code, original_move_date } = values;
 
   // If either postal code is blurred, check both of them for errors. We want to
   // catch these before checking on dates via `GetPpmWeightEstimate`.
@@ -68,7 +68,7 @@ async function asyncValidate(values, dispatch, props, currentFieldName) {
   const fakeLightWeight = 100;
   if (pickup_postal_code && destination_postal_code && original_move_date) {
     try {
-      await GetPpmWeightEstimate(id, original_move_date, pickup_postal_code, destination_postal_code, fakeLightWeight);
+      await GetPpmWeightEstimate(original_move_date, pickup_postal_code, destination_postal_code, fakeLightWeight);
     } catch (err) {
       // eslint-disable-next-line no-throw-literal
       throw { original_move_date: InvalidMoveParamsErrorMsg };
@@ -285,10 +285,10 @@ function mapStateToProps(state) {
   props.initialValues = props.currentPpm
     ? props.currentPpm
     : defaultPickupZip
-      ? {
-          pickup_postal_code: defaultPickupZip,
-        }
-      : null;
+    ? {
+        pickup_postal_code: defaultPickupZip,
+      }
+    : null;
 
   if (props.isHHGPPMComboMove) {
     props.defaultValues = {
@@ -306,4 +306,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ createOrUpdatePpm, getPpmSitEstimate, setInitialFormValues }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DateAndLocation);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(DateAndLocation);

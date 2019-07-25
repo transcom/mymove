@@ -27,11 +27,11 @@ export function setPendingPpmWeight(value) {
   return { type: SET_PENDING_PPM_WEIGHT, payload: value };
 }
 
-export function getPpmWeightEstimate(personallyProcuredMoveId, moveDate, originZip, destZip, weightEstimate) {
+export function getPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate) {
   const action = ReduxHelpers.generateAsyncActions('GET_PPM_ESTIMATE');
   return function(dispatch, getState) {
     dispatch(action.start());
-    return GetPpmWeightEstimate(personallyProcuredMoveId, moveDate, originZip, destZip, weightEstimate)
+    return GetPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate)
       .then(item => dispatch(action.success(item)))
       .catch(error => dispatch(action.error(error)));
   };

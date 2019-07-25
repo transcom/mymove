@@ -197,7 +197,7 @@ const pages = {
   '/moves/:moveId/hhg-ppm-start': {
     isInFlow: hasHHGPPM,
     isComplete: ({ sm, orders, move, ppm }) => {
-      return ppm && every([ppm.id, ppm.original_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
+      return ppm && every([ppm.original_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
     },
     render: key => ({ match }) => <PpmDateAndLocations pages={hhgPPMPages} pageKey={key} match={match} />,
   },
@@ -215,7 +215,7 @@ const pages = {
   '/moves/:moveId/ppm-start': {
     isInFlow: state => state.selectedMoveType === 'PPM',
     isComplete: ({ sm, orders, move, ppm }) => {
-      return ppm && every([ppm.id, ppm.original_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
+      return ppm && every([ppm.original_move_date, ppm.pickup_postal_code, ppm.destination_postal_code]);
     },
     render: (key, pages) => ({ match }) => <PpmDateAndLocations pages={pages} pageKey={key} match={match} />,
   },

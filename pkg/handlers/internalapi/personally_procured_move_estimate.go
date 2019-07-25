@@ -24,15 +24,16 @@ type ShowPPMEstimateHandler struct {
 // Handle calculates a PPM reimbursement range.
 func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	ctx := params.HTTPRequest.Context()
 
 	engine := rateengine.NewRateEngine(h.DB(), logger)
 
-	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
-	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
+	serviceMemberID, _ := uuid.FromString(session.ServiceMemberID.String())
+	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-	dutyStationZip := ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode
+	dutyStationZip := serviceMember.DutyStation.Address.PostalCode
 
 	lhDiscountPickupZip, _, err := models.PPMDiscountFetch(h.DB(),
 		logger,

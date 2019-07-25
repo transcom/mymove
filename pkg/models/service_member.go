@@ -101,6 +101,7 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 		"BackupContacts",
 		"DutyStation",
 		"DutyStation.TransportationOffice",
+		"DutyStation.Address.PostalCode",
 		"Orders",
 		"Orders.NewDutyStation",
 		"Orders.NewDutyStation.TransportationOffice",

@@ -25,19 +25,19 @@ type ShowPPMIncentiveHandler struct {
 // Handle calculates a PPM reimbursement range.
 func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	ctx := params.HTTPRequest.Context()
 
 	if !session.IsOfficeUser() {
 		return ppmop.NewShowPPMIncentiveForbidden()
 	}
 	engine := rateengine.NewRateEngine(h.DB(), logger)
 
-	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
-	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
+	serviceMemberID, _ := uuid.FromString(session.ServiceMemberID.String())
+	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
-
-	dutyStationZip := ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode
+	dutyStationZip := serviceMember.DutyStation.Address.PostalCode
 
 	lhDiscountPickupZip, _, err := models.PPMDiscountFetch(h.DB(),
 		logger,
@@ -72,7 +72,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 	cost, err := engine.ComputePPM(
 		unit.Pound(params.Weight),
 		params.OriginZip,
-		ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode,
+		dutyStationZip,
 		params.DestinationZip,
 		distanceMilesFromPickupZip,
 		distanceMilesFromDutyStationZip,
