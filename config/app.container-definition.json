@@ -20,7 +20,7 @@
     "--tls-enabled",
     "--db-iam",
     "--db-iam-role",
-    "ecs-rds-role-app-{{ .environment }}"
+    "arn:aws:iam::923914045601:role/ecs-rds-role-app-{{ .environment }}"
   ],
   "command": [],
   "portMappings": [
