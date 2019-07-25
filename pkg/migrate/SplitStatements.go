@@ -23,6 +23,7 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 	var stmt strings.Builder
 
 	i := 0
+	var hasCopyStatment []string
 	for {
 		// Get previous and current characters
 		char, err := in.Index(i)
@@ -50,6 +51,11 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 			if len(str) > 0 {
 				statements <- str
 				stmt.Reset()
+			}
+
+			// check for copy statement in statements, we only need to do this once
+			if hasCopyStatment == nil {
+				hasCopyStatment = copyStdinPattern.FindStringSubmatch(str)
 			}
 			i++ // eat 1 character
 			continue
@@ -213,8 +219,20 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 	if stmt.Len() > 0 {
 		str := strings.TrimSpace(stmt.String())
 		if len(str) > 0 {
-			statements <- str
-			stmt.Reset()
+			// if we found COPY statement in statements anywhere, we assume last rows are data rows. Split them on newline
+			if hasCopyStatment != nil {
+				copyStmts := strings.Split(str, "\n")
+				for _, dataStmt := range copyStmts {
+					// skip adding \.
+					if dataStmt == "\\." {
+						continue
+					}
+					statements <- dataStmt
+				}
+			} else {
+				statements <- str
+				stmt.Reset()
+			}
 		}
 	}
 	close(statements)
