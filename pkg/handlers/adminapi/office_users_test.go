@@ -57,7 +57,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 
 		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
 		okResponse := response.(*officeuserop.IndexOfficeUsersOK)
-		suite.Len(okResponse.Payload, 1)
+		suite.Len(okResponse.Payload, 2)
 		suite.Equal(uuidString, okResponse.Payload[0].ID.String())
 	})
 

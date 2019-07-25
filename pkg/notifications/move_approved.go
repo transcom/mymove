@@ -55,12 +55,17 @@ func (m MoveApproved) emails(ctx context.Context) ([]emailContent, error) {
 		return emails, err
 	}
 
+	dsTransportInfo, err := models.FetchDSContactInfo(m.db, serviceMember.DutyStationID)
+	if err != nil {
+		return emails, err
+	}
+
 	if serviceMember.PersonalEmail == nil {
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
 	// Set up various text segments. Copy comes from here:
-	// https://docs.google.com/document/d/1bgE0Q_-_c93uruMP8dcNSHugXo8Pidz6YFojWBKn1Gg/edit#heading=h.h3ys1ur2qhpn
+	// https://docs.google.com/document/d/1Hm8qTm_biHmdT5LCyHY8QJxqXqlDPGJMnhDk_0LE5Gc/
 	// TODO: we will want some sort of templating system
 	ppmInfoSheetURL := url.URL{
 		Scheme: "https",
@@ -68,27 +73,42 @@ func (m MoveApproved) emails(ctx context.Context) ([]emailContent, error) {
 		Path:   "downloads/ppm_info_sheet.pdf",
 	}
 
-	introText := `Your move has been approved and you are ready to move!`
-	if move.PersonallyProcuredMoves != nil {
-		introText = fmt.Sprintf("%s %s %s",
-			introText,
-			`Please review the PPM info sheet for more detailed instructions: `,
-			ppmInfoSheetURL.String())
-	}
-	nextStepsText := `Next steps:`
+	introTextHTML := "You're all set to move!"
+	introText := "You're all set to move!"
 
+	dutyStationTextHTML := fmt.Sprintf("The local transportation office <strong>approved your move</strong> from <strong>%s</strong> to <strong>%s</strong>.", dsTransportInfo.Name, orders.NewDutyStation.Name)
+	dutyStationText := fmt.Sprintf("The local transportation office approved your move from %s to %s.", dsTransportInfo.Name, orders.NewDutyStation.Name)
+
+	ppmInfoSheetInstructionsHTML := fmt.Sprintf("Please <a href=\"%s\">review the Personally Procured Move (PPM) info sheet</a> for detailed instructions.", ppmInfoSheetURL.String())
+	ppmInfoSheetInstructions := fmt.Sprintf("Please review the Personally Procured Move (PPM) info sheet for detailed instructions at %s.", ppmInfoSheetURL.String())
+
+	if move.PersonallyProcuredMoves != nil {
+		introTextHTML = fmt.Sprintf("<strong>%s</strong><br /><br /> %s <br /><br />%s<br />",
+			introTextHTML,
+			dutyStationTextHTML,
+			ppmInfoSheetInstructionsHTML,
+		)
+		introText = fmt.Sprintf("%s\n\n%s\n\n%s", introText, dutyStationText, ppmInfoSheetInstructions)
+	}
+
+	nextStepsTextHTML := `<strong>Next steps</strong>`
+	nextStepsText := "Next steps"
+
+	ppmTextHTML := ""
 	ppmText := ""
 	if move.PersonallyProcuredMoves != nil {
-		ppmText = `For your “Do-it-Yourself” shipment, you can begin your move whenever you are ready. Be sure to save your weight tickets and any receipts associated with your move for when you request payment later on in the process.`
+		ppmTextHTML = `Because you’ve chosen a do-it-yourself move, you can start whenever you are ready.<br /><br >
+		Be sure to <strong>save your weight tickets and any receipts</strong> associated with your move. You’ll need them to request payment later in the process.`
+		ppmText = "Because you’ve chosen a do-it-yourself move, you can start whenever you are ready.\n\nBe sure to save your weight tickets and any receipts associated with your move. You’ll need them to request payment later in the process."
 	}
 
-	// TODO: Add the PPPO contact info
-	closingText := `If you have any questions, contact your origin PPPO.`
+	closingTextHTML := fmt.Sprintf("If you have any questions, call the <strong>%s</strong> PPPO at %s.<br /><br />You can <a href=\"%s\">check the status of your move</a> anytime at https://my.move.mil", dsTransportInfo.Name, dsTransportInfo.PhoneLine, "https://my.move.mil")
+	closingText := fmt.Sprintf("If you have any questions, call the %s PPPO at %s.\n\nYou can check the status of your move anytime at https://my.move.mil", dsTransportInfo.Name, dsTransportInfo.PhoneLine)
 
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
-		subject:        "MOVE.MIL: Your move has been approved.",
-		htmlBody:       fmt.Sprintf("%s<br/>%s<br/>%s<br/>%s", introText, nextStepsText, ppmText, closingText),
+		subject:        "[MilMove] Your move is approved",
+		htmlBody:       fmt.Sprintf("%s<br/>%s<br/>%s<br/><br />%s", introTextHTML, nextStepsTextHTML, ppmTextHTML, closingTextHTML),
 		textBody:       fmt.Sprintf("%s\n%s\n%s\n%s", introText, nextStepsText, ppmText, closingText),
 	}
 

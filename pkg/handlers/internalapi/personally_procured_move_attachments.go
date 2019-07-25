@@ -38,9 +38,6 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	if err != nil {
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}
-	if len(moveDocs) == 0 {
-		return ppmop.NewCreatePPMAttachmentsFailedDependency()
-	}
 
 	// Init our tools
 	loader := uploader.NewUploader(h.DB(), logger, h.FileStorer())
@@ -49,6 +46,11 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 		logger.Error("failed to initialize generator", zap.Error(err))
 		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}
+	defer func() {
+		if cleanupErr := generator.Cleanup(); cleanupErr != nil {
+			logger.Error("failed to cleanup", zap.Error(cleanupErr))
+		}
+	}()
 
 	// Start with uploaded orders info
 	uploads := ppm.Move.Orders.UploadedOrders.Uploads

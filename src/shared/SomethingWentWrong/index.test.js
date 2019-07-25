@@ -1,12 +1,12 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import FailWhale from '.';
+import SomethingWentWrong from '.';
 
-describe('FailWhale tests', () => {
+describe('SomethingWentWrong tests', () => {
   let wrapper;
   it('renders without crashing', () => {
     const div = document.createElement('div');
-    wrapper = shallow(<FailWhale />, div);
+    wrapper = shallow(<SomethingWentWrong />, div);
     expect(wrapper.find('.usa-grid').length).toEqual(1);
   });
 });
