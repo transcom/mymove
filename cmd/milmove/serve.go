@@ -423,12 +423,16 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	var dbCreds *credentials.Credentials
-	if session != nil {
-		// We want to get the credentials from the logged in AWS session rather than create directly,
-		// because the session conflates the environment, shared, and container metdata config
-		// within NewSession.  With stscreds, we use the Secure Token Service,
-		// to assume the given role (that has rds db connect permissions).
-		dbCreds = stscreds.NewCredentials(session, v.GetString(cli.DbIamRoleFlag))
+	if v.GetBool(cli.DbIamFlag) {
+		if session != nil {
+			// We want to get the credentials from the logged in AWS session rather than create directly,
+			// because the session conflates the environment, shared, and container metdata config
+			// within NewSession.  With stscreds, we use the Secure Token Service,
+			// to assume the given role (that has rds db connect permissions).
+			dbIamRole := v.GetString(cli.DbIamRoleFlag)
+			logger.Info(fmt.Sprintf("assuming AWS role %q for db connection", dbIamRole))
+			dbCreds = stscreds.NewCredentials(session, dbIamRole)
+		}
 	}
 
 	// Create a connection to the DB
