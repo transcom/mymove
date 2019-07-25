@@ -1702,9 +1702,11 @@ definitions:
     enum:
       - AIR_FORCE
       - MARINES
+      - ARMY
     x-display-value:
       AIR_FORCE: 57 - United States Air Force
       MARINES: 17 - United States Marines
+      ARMY: 21 - United States Army
   TrafficDistributionList:
     type: object
     properties:
