@@ -1,9 +1,10 @@
 package rateengine
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"time"
 
 	"github.com/transcom/mymove/pkg/models"
 
