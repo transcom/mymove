@@ -206,6 +206,8 @@ func (suite *PaperworkSuite) TestCleanup() {
 			return nil
 		})
 		suite.Nil(walkErr)
-		suite.Failf("did not clean up", "expected %s to be empty, but it contained %v", generator.workDir, paths)
+		if len(paths) > 0 {
+			suite.Failf("did not clean up", "expected %s to be empty, but it contained %v", generator.workDir, paths)
+		}
 	}
 }
