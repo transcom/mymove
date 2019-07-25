@@ -223,10 +223,6 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 			if hasCopyStatment != nil {
 				copyStmts := strings.Split(str, "\n")
 				for _, dataStmt := range copyStmts {
-					// skip adding \.
-					if dataStmt == "\\." {
-						continue
-					}
 					statements <- dataStmt
 				}
 			} else {
