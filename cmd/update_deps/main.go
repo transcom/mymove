@@ -50,7 +50,7 @@ func main() {
 		if cmdErr != nil {
 			fmt.Println(" ×")
 			if ctx.Err() == context.DeadlineExceeded {
-				log.Fatalf("timed out trying trying to run %s %s", "go", args)
+				log.Fatalf("timed out trying tryig to run %s %s", "go", args)
 			} else {
 				log.Fatalf("failed to update %s: ran %s %v, got %s", req.Mod.Path, "go", args, string(out))
 			}
