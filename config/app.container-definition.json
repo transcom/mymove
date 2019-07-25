@@ -18,7 +18,9 @@
     "--debug-logging",
     "--log-task-metadata",
     "--tls-enabled",
-    "--db-iam"
+    "--db-iam",
+    "--db-iam-role",
+    "ecs-rds-role-app-{{ .environment }}"
   ],
   "command": [],
   "portMappings": [
