@@ -231,7 +231,7 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	for _, p := range migrationPaths {
 		filenames, errListFiles := migrate.ListFiles(p, s3Client)
 		if errListFiles != nil {
-			logger.Fatal("Error listing migrations directory", zap.Error(errListFiles))
+			logger.Fatal(fmt.Sprintf("Error listing migrations directory %s", p), zap.Error(errListFiles))
 		}
 		migrationFiles[p] = filenames
 	}
