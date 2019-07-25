@@ -2,6 +2,7 @@ package migrate
 
 import (
 	"bufio"
+	"database/sql"
 	"io"
 	"time"
 
@@ -27,6 +28,7 @@ func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration) error {
 	go SplitStatements(lines, statements, wait)
 
 	var match []string
+	var preparedStmt *sql.Stmt
 	for stmt := range statements {
 
 		//if it is COPY statement then assume rest of the statements are data rows
@@ -36,17 +38,43 @@ func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration) error {
 
 		// COPY statements logic
 		if match != nil {
-			// prepare statement so we can insert data rows
-			preparedStmt, err := prepareCopyFromStdin(match[4], parseColumns(match[6]), tx)
-			if err != nil {
-				return errors.Wrap(err, "error preparing copy from stdin statement")
+
+			// Capture end of copy-from-stdin data and leave this loop
+			if stmt == string(endCopyFromStdin) {
+
+				// Flush the statment to ensure nothing is still being buffered
+				_, errFlush := preparedStmt.Exec()
+				if errFlush != nil {
+					return errors.Wrap(errFlush, "error flushing copy from stdin")
+				}
+
+				// Manually close the statement after flushing
+				errClose := preparedStmt.Close()
+				if errClose != nil {
+					return errors.Wrap(errClose, "error closing copy from stdin")
+				}
+
+				// Leave the COPY statement logic
+				match = nil
+				preparedStmt = nil
+				continue
 			}
 
-			values := lineToValues(stmt)
-			_, err = preparedStmt.Exec(values...)
-			if err != nil {
-				return errors.Wrapf(err, "error executing copy from stdin with values %q", values)
+			if preparedStmt == nil {
+				// prepare statement so we can insert data rows
+				var errPreparedStmt error
+				preparedStmt, errPreparedStmt = prepareCopyFromStdin(match[4], parseColumns(match[6]), tx)
+				if errPreparedStmt != nil {
+					return errors.Wrap(errPreparedStmt, "error preparing copy from stdin statement")
+				}
+			} else {
+				values := lineToValues(stmt)
+				_, errPreparedStmtExec := preparedStmt.Exec(values...)
+				if errPreparedStmtExec != nil {
+					return errors.Wrapf(errPreparedStmtExec, "error executing copy from stdin with values %q", values)
+				}
 			}
+
 		} else {
 			//regular statement logic executes it as raw sql
 			errExec := tx.RawQuery(stmt).Exec()
