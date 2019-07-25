@@ -10,18 +10,19 @@ import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
 
-const NetWeightDisplay = ({ ppmSchema, ppm, hasWeightTicketsPending }) => {
+const NetWeightDisplay = ({ ppmSchema, ppm, hasWeightTicketsPending, ppmPaymentRequestedFlag }) => {
   const fieldProps = {
     schema: ppmSchema,
     values: ppm,
   };
   return (
     <div className="editable-panel-column">
-      {hasWeightTicketsPending && (
-        <div className="missing-info-alert">
-          <Alert type="warning">There are more weight tickets awaiting review.</Alert>
-        </div>
-      )}
+      {ppmPaymentRequestedFlag &&
+        hasWeightTicketsPending && (
+          <div className="missing-info-alert">
+            <Alert type="warning">There are more weight tickets awaiting review.</Alert>
+          </div>
+        )}
       <PanelSwaggerField title="Net Weight" fieldName="net_weight" required {...fieldProps} />
     </div>
   );
@@ -37,7 +38,7 @@ const NetWeightEdit = ({ ppmSchema }) => {
 
 const formName = 'ppm_net_weight';
 
-let NetWeightPanel = editablePanelify(NetWeightDisplay, NetWeightEdit, false);
+let NetWeightPanel = editablePanelify(NetWeightDisplay, NetWeightEdit);
 NetWeightPanel = reduxForm({
   form: formName,
   enableReinitialize: true,
