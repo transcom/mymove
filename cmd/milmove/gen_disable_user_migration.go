@@ -2,17 +2,12 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"os"
-	"path/filepath"
 	"strings"
 	"text/template"
-	"time"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-
 	"github.com/spf13/viper"
 
 	"github.com/transcom/mymove/pkg/cli"
@@ -20,9 +15,7 @@ import (
 
 const (
 	DisableUserEmailFlag string = "migration-email"
-)
 
-const (
 	// template for adding office users
 	disableUser string = `UPDATE users
 SET disabled=true
@@ -44,6 +37,13 @@ WHERE email='{{.EmailPrefix}}+pyvl@{{.EmailDomain}}'
 `
 )
 
+// UserTemplate is a struct that stores the EmailPrefix from which to generate the migration
+type UserTemplate struct {
+	EmailPrefix string
+	EmailDomain string
+}
+
+// InitDisableUserFlags initializes command line flags
 func InitDisableUserFlags(flag *pflag.FlagSet) {
 	flag.StringP(DisableUserEmailFlag, "e", "", "Email address")
 }
@@ -52,78 +52,85 @@ func initDisableUserMigrationFlags(flag *pflag.FlagSet) {
 	// Migration Config
 	cli.InitMigrationFlags(flag)
 
+	// Migration File Config
+	cli.InitMigrationFileFlags(flag)
+
 	// Disable User
 	InitDisableUserFlags(flag)
 
-	// Sort command line flags
-	flag.SortFlags = true
+	// Don't sort command line flags
+	flag.SortFlags = false
 }
 
-// UserTemplate is a struct that stores the EmailPrefix from which to generate the migration
-type UserTemplate struct {
-	EmailPrefix string
-	EmailDomain string
-}
-
+// CheckDisableUserFlags validates add_office_users command line flags
 func CheckDisableUserFlags(v *viper.Viper) error {
-	email := v.GetString(DisableUserEmailFlag)
-	if len(email) == 0 {
-		return fmt.Errorf("-e is required")
+	if err := cli.CheckMigration(v); err != nil {
+		return err
 	}
 
+	if err := cli.CheckMigrationFile(v); err != nil {
+		return err
+	}
+
+	email := v.GetString(DisableUserEmailFlag)
+	if len(email) == 0 {
+		return errors.Errorf("%s is missing", DisableUserEmailFlag)
+	}
 	return nil
 }
 
 func genDisableUserMigration(cmd *cobra.Command, args []string) error {
 	err := cmd.ParseFlags(args)
-	flag := cmd.Flags()
-	err = flag.Parse(os.Args[1:])
 	if err != nil {
-		return errors.Wrap(err, "could not parse flags")
+		errors.Wrap(err, "Could not parse flags")
 	}
+
+	flag := cmd.Flags()
+
 	v := viper.New()
 	err = v.BindPFlags(flag)
 	if err != nil {
 		return errors.Wrap(err, "could not bind flags")
 	}
-
-	migrationsPath := v.GetString(cli.MigrationPathFlag)
-	migrationManifest := v.GetString(cli.MigrationManifestFlag)
-	migrationFileName := "disable_user"
-	migrationEmail := strings.Split(v.GetString(DisableUserEmailFlag), "@")
+	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	v.AutomaticEnv()
 
 	err = CheckDisableUserFlags(v)
 	if err != nil {
 		return err
 	}
 
+	migrationPath := v.GetString(cli.MigrationPathFlag)
+	migrationManifest := v.GetString(cli.MigrationManifestFlag)
+	migrationName := v.GetString(cli.MigrationNameFlag)
+	migrationVersion := v.GetString(cli.MigrationVersionFlag)
+	migrationEmail := strings.Split(v.GetString(DisableUserEmailFlag), "@")
+
 	emailPrefix := migrationEmail[0]
 	emailDomain := migrationEmail[1]
 
 	user := UserTemplate{EmailPrefix: emailPrefix, EmailDomain: emailDomain}
 
-	secureMigrationName := fmt.Sprintf("%s_%s.up.sql", time.Now().Format(VersionTimeFormat), migrationFileName)
+	secureMigrationName := fmt.Sprintf("%s_%s.up.sql", migrationVersion, migrationName)
 	t1 := template.Must(template.New("disable_user").Parse(disableUser))
-	err = createMigration("./tmp", secureMigrationName, t1, user)
-	if err != nil {
-		return err
-	}
-	localMigrationPath := filepath.Join("local_migrations", secureMigrationName)
-	localMigrationFile, err := os.Create(localMigrationPath)
-	defer closeFile(localMigrationFile)
-	if err != nil {
-		return errors.Wrapf(err, "error creating %s", localMigrationPath)
-	}
-	log.Printf("new migration file created at:  %q\n", localMigrationPath)
-
-	migrationName := fmt.Sprintf("%s_%s.up.fizz", time.Now().Format(VersionTimeFormat), migrationFileName)
-	t2 := template.Must(template.New("migration").Parse(migration))
-	err = createMigration(migrationsPath, migrationName, t2, secureMigrationName)
+	err = createMigration(tempMigrationPath, secureMigrationName, t1, user)
 	if err != nil {
 		return err
 	}
 
-	err = addMigrationToManifest(migrationManifest, migrationName)
+	err = writeEmptyFile("local_migrations", secureMigrationName)
+	if err != nil {
+		return err
+	}
+
+	migrationFileName := fmt.Sprintf("%s_%s.up.fizz", migrationVersion, migrationName)
+	t2 := template.Must(template.New("migration").Parse(secureMigrationTemplate))
+	err = createMigration(migrationPath, migrationFileName, t2, secureMigrationName)
+	if err != nil {
+		return err
+	}
+
+	err = addMigrationToManifest(migrationManifest, migrationFileName)
 	if err != nil {
 		return err
 	}
