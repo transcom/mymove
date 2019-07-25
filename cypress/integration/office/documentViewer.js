@@ -49,7 +49,7 @@ describe('The document viewer', function() {
       cy.contains('All Documents (1)');
       cy.contains('super secret info document');
       cy
-        .get('.pad-ns')
+        .get('.panel-field')
         .find('a')
         .should('have.attr', 'href')
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
@@ -76,7 +76,7 @@ describe('The document viewer', function() {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy.contains('expense document');
       cy
-        .get('.pad-ns')
+        .get('.panel-field')
         .find('a')
         .should('have.attr', 'href')
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
@@ -106,7 +106,7 @@ describe('The document viewer', function() {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy.contains('expense document');
       cy
-        .get('.pad-ns')
+        .get('.panel-field')
         .find('a')
         .should('have.attr', 'href')
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
@@ -135,7 +135,7 @@ describe('The document viewer', function() {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy.contains('expense document');
       cy
-        .get('.pad-ns')
+        .get('.panel-field')
         .find('a')
         .should('have.attr', 'href')
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
@@ -179,7 +179,7 @@ describe('The document viewer', function() {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy.contains('weight ticket document');
       cy
-        .get('.pad-ns')
+        .get('.panel-field')
         .find('a')
         .should('have.attr', 'href')
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
