@@ -1,10 +1,9 @@
 package rateengine
 
 import (
-	"time"
-
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"time"
 
 	"github.com/transcom/mymove/pkg/models"
 
@@ -136,6 +135,15 @@ func (re *RateEngine) ComputePPM(
 	if err != nil {
 		re.logger.Error("Failed to compute non-linehaul cost", zap.Error(err))
 		return
+	}
+
+	//If linehaulDutyStationZipCostComputation is used, then calculate nonLinehaulChargeComputation with duty station zip
+	if linehaulCostComputation == linehaulDutyStationZipCostComputation {
+		nonLinehaulCostComputation, err = re.nonLinehaulChargeComputation(weight, originDutyStationZip5, destinationZip5, date)
+		if err != nil {
+			re.logger.Error("Failed to compute non-linehaul cost", zap.Error(err))
+			return
+		}
 	}
 
 	// Apply linehaul discounts
