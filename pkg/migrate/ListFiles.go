@@ -1,11 +1,13 @@
 package migrate
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/pkg/errors"
 )
 
 // ListFiles lists the files in a given directory.
@@ -17,6 +19,9 @@ func ListFiles(p string, s3Client *s3.S3) ([]string, error) {
 		}
 		return f.Readdirnames(-1)
 	} else if strings.HasPrefix(p, "s3://") {
+		if s3Client == nil {
+			return make([]string, 0), errors.New(fmt.Sprintf("No s3Client provided to list files at %s", p))
+		}
 		parts := strings.SplitN(p[len("s3://"):], "/", 2)
 		if len(parts) == 2 {
 			bucket := parts[0]
