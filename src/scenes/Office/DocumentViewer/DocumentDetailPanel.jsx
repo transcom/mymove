@@ -16,7 +16,13 @@ import { MOVE_DOC_TYPE } from 'shared/constants';
 
 import ExpenseDocumentForm from 'scenes/Office/DocumentViewer/ExpenseDocumentForm';
 
-const DocumentDetailDisplay = ({ isExpenseDocument, isWeightTicketDocument, moveDocument, moveDocSchema }) => {
+const DocumentDetailDisplay = ({
+  isExpenseDocument,
+  isWeightTicketDocument,
+  moveDocument,
+  moveDocSchema,
+  isStorageExpenseDocument,
+}) => {
   const moveDocFieldProps = {
     values: moveDocument,
     schema: moveDocSchema,
@@ -48,6 +54,12 @@ const DocumentDetailDisplay = ({ isExpenseDocument, isWeightTicketDocument, move
           <>
             <PanelSwaggerField title="Empty Weight Ticket" fieldName="empty_weight" required {...moveDocFieldProps} />
             <PanelSwaggerField title="Full Weight Ticket" fieldName="full_weight" required {...moveDocFieldProps} />
+          </>
+        )}
+        {isStorageExpenseDocument && (
+          <>
+            <PanelSwaggerField title="Start Date" fieldName="storage_start_date" required {...moveDocFieldProps} />
+            <PanelSwaggerField title="End Date" fieldName="storage_end_date" required {...moveDocFieldProps} />
           </>
         )}
         <PanelSwaggerField title="Document Status" fieldName="status" required {...moveDocFieldProps} />
@@ -96,6 +108,9 @@ DocumentDetailDisplay.propTypes = {
 const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
   const isExpenseDocument = formValues.moveDocument.move_document_type === MOVE_DOC_TYPE.EXPENSE;
   const isWeightTicketDocument = formValues.moveDocument.move_document_type === MOVE_DOC_TYPE.WEIGHT_TICKET_SET;
+  const isStorageExpenseDocument =
+    get(formValues.moveDocument, 'move_document_type') === 'EXPENSE' &&
+    get(formValues.moveDocument, 'moving_expense_type') === 'STORAGE';
   return (
     <Fragment>
       <div>
@@ -111,6 +126,12 @@ const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
               <div className="field-with-units">
                 <SwaggerField className="short-field" fieldName="full_weight" swagger={moveDocSchema} required /> lbs
               </div>
+            </>
+          )}
+          {isStorageExpenseDocument && (
+            <>
+              <SwaggerField title="Start Date" fieldName="storage_start_date" required swagger={moveDocSchema} />
+              <SwaggerField title="End Date" fieldName="storage_end_date" required swagger={moveDocSchema} />
             </>
           )}
           <SwaggerField fieldName="status" swagger={moveDocSchema} required />
@@ -142,6 +163,8 @@ function mapStateToProps(state, props) {
   const moveDocument = selectMoveDocument(state, moveDocumentId);
   const isExpenseDocument = isMovingExpenseDocument(moveDocument);
   const isWeightTicketDocument = get(moveDocument, 'move_document_type') === 'WEIGHT_TICKET_SET';
+  const isStorageExpenseDocument =
+    get(moveDocument, 'move_document_type') === 'EXPENSE' && get(moveDocument, 'moving_expense_type') === 'STORAGE';
   // Convert cents to collars - make a deep clone copy to not modify moveDocument itself
   const initialMoveDocument = JSON.parse(JSON.stringify(moveDocument));
   const requested_amount = get(initialMoveDocument, 'requested_amount_cents');
@@ -156,6 +179,7 @@ function mapStateToProps(state, props) {
     },
     isExpenseDocument,
     isWeightTicketDocument,
+    isStorageExpenseDocument,
     formValues: getFormValues(formName)(state),
     moveDocSchema: get(state, 'swaggerInternal.spec.definitions.MoveDocumentPayload', {}),
     hasError: false,

@@ -42,6 +42,15 @@ func payloadForMoveDocument(storer storage.FileStorer, moveDoc models.MoveDocume
 		payload.PaymentMethod = moveDoc.MovingExpenseDocument.PaymentMethod
 	}
 
+	if moveDoc.MovingExpenseDocument != nil && moveDoc.MovingExpenseDocument.MovingExpenseType == models.MovingExpenseTypeSTORAGE {
+		if moveDoc.MovingExpenseDocument.StorageStartDate != nil {
+			payload.StorageStartDate = handlers.FmtDate(*moveDoc.MovingExpenseDocument.StorageStartDate)
+		}
+		if moveDoc.MovingExpenseDocument.StorageEndDate != nil {
+			payload.StorageEndDate = handlers.FmtDate(*moveDoc.MovingExpenseDocument.StorageEndDate)
+		}
+	}
+
 	if moveDoc.WeightTicketSetDocument != nil {
 		if moveDoc.WeightTicketSetDocument.EmptyWeight != nil {
 			payload.EmptyWeight = handlers.FmtInt64(int64(*moveDoc.WeightTicketSetDocument.EmptyWeight))
@@ -241,7 +250,6 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 			if moveDoc.PersonallyProcuredMoveID == nil {
 				return handlers.ResponseForError(logger, errors.New("No PPM loaded for Approved Move Doc"))
 			}
-
 			ppm := &moveDoc.PersonallyProcuredMove
 			storageRequestedAmt := unit.Cents(payload.RequestedAmountCents)
 			var newCost unit.Cents
@@ -272,6 +280,14 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 		// We should have a MovingExpenseDocument model
 		requestedAmt := unit.Cents(payload.RequestedAmountCents)
 		paymentMethod := payload.PaymentMethod
+		var storageStartDate *time.Time
+		if payload.StorageStartDate != nil {
+			storageStartDate = handlers.FmtDatePtrToPopPtr(payload.StorageStartDate)
+		}
+		var storageEndDate *time.Time
+		if payload.StorageEndDate != nil {
+			storageEndDate = handlers.FmtDatePtrToPopPtr(payload.StorageEndDate)
+		}
 		if moveDoc.MovingExpenseDocument == nil {
 			// But we don't have one, so create it to be saved later
 			moveDoc.MovingExpenseDocument = &models.MovingExpenseDocument{
@@ -280,12 +296,16 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 				MovingExpenseType:    models.MovingExpenseType(payload.MovingExpenseType),
 				RequestedAmountCents: requestedAmt,
 				PaymentMethod:        paymentMethod,
+				StorageStartDate:     storageStartDate,
+				StorageEndDate:       storageEndDate,
 			}
 		} else {
 			// We have one already, so update the fields
 			moveDoc.MovingExpenseDocument.MovingExpenseType = models.MovingExpenseType(payload.MovingExpenseType)
 			moveDoc.MovingExpenseDocument.RequestedAmountCents = requestedAmt
 			moveDoc.MovingExpenseDocument.PaymentMethod = paymentMethod
+			moveDoc.MovingExpenseDocument.StorageStartDate = storageStartDate
+			moveDoc.MovingExpenseDocument.StorageEndDate = storageEndDate
 		}
 		saveExpenseAction = models.MoveDocumentSaveActionSAVEEXPENSEMODEL
 	} else {
@@ -355,6 +375,22 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 		// updated weight tickets
 		ppm := &moveDoc.PersonallyProcuredMove
 		ppm.NetWeight, err = models.SumWeightTicketSetsForPPM(h.DB(), session, ppm.ID)
+		if err != nil {
+			return handlers.ResponseForError(logger, errors.New("unable to calculate ppm net weight"))
+		}
+		if verrs, saveErr := h.DB().ValidateAndSave(ppm); verrs.HasAny() || saveErr != nil {
+			return handlers.ResponseForError(logger, errors.New("unable to save ppm net weight"))
+		}
+	}
+
+	if newType == models.MoveDocumentTypeEXPENSE && moveDoc.MovingExpenseDocument.MovingExpenseType == models.MovingExpenseTypeSTORAGE {
+		// weight tickets require that we save the ppm again to reflect updated net weight derived from the
+		// updated weight tickets
+		ppm := &moveDoc.PersonallyProcuredMove
+		//TODO add days in storage calc
+		//var daysInStorage *int64
+		ds := int64(100)
+		ppm.DaysInStorage = &ds
 		if err != nil {
 			return handlers.ResponseForError(logger, errors.New("unable to calculate ppm net weight"))
 		}
