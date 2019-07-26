@@ -13,7 +13,10 @@ func SplitStatements(lines chan string, statements chan string, wait time.Durati
 
 	go func() {
 		for line := range lines {
-			in.WriteString(line + "\n")
+			// Ignore empty lines when writing to the buffer
+			if len(line) > 0 {
+				in.WriteString(line + "\n")
+			}
 		}
 		in.Close()
 	}()
