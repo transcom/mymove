@@ -31,7 +31,7 @@ repos:
     rev: v1.17.1
     hooks:
       - id: golangci-lint
-        entry: golangci-lint run -v
+        entry: golangci-lint run
 
   - repo: git://github.com/igorshubovych/markdownlint-cli
     rev: v0.17.0
