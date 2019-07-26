@@ -44,6 +44,14 @@ func TestBuffer(t *testing.T) {
 	require.Equal(t, err, io.EOF)
 	require.Equal(t, byte(0), c)
 
+	cstr, err := buf.Range(1, 0)
+	require.NotNil(t, err)
+	require.Equal(t, "", cstr)
+
+	cstr, err = buf.Range(0, 1)
+	require.Nil(t, err)
+	require.Equal(t, "h", cstr)
+
 }
 
 func TestBufferString(t *testing.T) {
@@ -51,6 +59,10 @@ func TestBufferString(t *testing.T) {
 	in := "hello world"
 
 	buf := NewBuffer()
+
+	cstr, err := buf.Range(0, 10)
+	require.NotNil(t, err)
+	require.Equal(t, "", cstr)
 
 	time.Sleep(time.Second * 1)
 	buf.WriteString(in)
