@@ -21,11 +21,6 @@ type Builder struct {
 	Path string
 }
 
-// NewBuilder returns a new builder.
-func NewBuilder() *Builder {
-	return &Builder{}
-}
-
 // Compile compiles the provided configration into a migration.
 func (b *Builder) Compile(s3Client *s3.S3, wait time.Duration) (*pop.Migration, error) {
 
