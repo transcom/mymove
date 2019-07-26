@@ -204,11 +204,6 @@ bin/rds-combined-ca-bundle.pem:
 
 # server_deps and server_generate required for this binary, because go build expects
 # github.com/transcom/mymove/pkg/gen/internalmessages, even though it is not used for this program.
-bin/clean-migration: server_deps server_generate
-	go build -ldflags "$(LDFLAGS)" -o bin/clean-migration ./cmd/clean-migration
-
-# server_deps and server_generate required for this binary, because go build expects
-# github.com/transcom/mymove/pkg/gen/internalmessages, even though it is not used for this program.
 bin/compare-secure-migrations: server_deps server_generate
 	go build -ldflags "$(LDFLAGS)" -o bin/compare-secure-migrations ./cmd/compare-secure-migrations
 
@@ -358,7 +353,6 @@ server_run_debug: ## Debug the server
 .PHONY: build_tools
 build_tools: server_deps \
 	bin/compare-secure-migrations \
-	bin/clean-migration \
 	bin/ecs-deploy-task-container \
 	bin/ecs-service-logs \
 	bin/generate-1203-form \
