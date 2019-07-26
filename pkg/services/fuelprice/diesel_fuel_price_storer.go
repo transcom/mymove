@@ -223,10 +223,6 @@ func (u DieselFuelPriceStorer) getMissingRecordsPrices(missingMonths []int) (fue
 				if !ok {
 					return nil, errors.New("data returned from api as pub_date failed string type assertion")
 				}
-				price, ok = weekData[1].(float64)
-				if !ok {
-					return nil, errors.New("data returned as fuel price failed float64 type assertion")
-				}
 				pubDateAsInt, atoiErr := strconv.Atoi(dateString)
 				if atoiErr != nil {
 					return nil, errors.Wrap(atoiErr, "pubDate conversion from string to int")

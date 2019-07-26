@@ -92,7 +92,7 @@ func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 // This method is thereby a useful way of performing access control checks.
 func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (ServiceMember, error) {
 
-	ctx, span := beeline.StartSpan(ctx, "FetchServiceMemberForUser")
+	_, span := beeline.StartSpan(ctx, "FetchServiceMemberForUser")
 	defer span.Send()
 
 	var serviceMember ServiceMember
@@ -171,7 +171,7 @@ func FetchServiceMember(db *pop.Connection, id uuid.UUID) (ServiceMember, error)
 // SaveServiceMember takes a serviceMember with Address structs and coordinates saving it all in a transaction
 func SaveServiceMember(ctx context.Context, dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
 
-	ctx, span := beeline.StartSpan(ctx, "SaveServiceMember")
+	_, span := beeline.StartSpan(ctx, "SaveServiceMember")
 	defer span.Send()
 
 	responseVErrors := validate.NewErrors()
@@ -354,7 +354,7 @@ func (s *ServiceMember) IsProfileComplete() bool {
 
 // FetchLatestOrder gets the latest order for a service member
 func (s ServiceMember) FetchLatestOrder(ctx context.Context, db *pop.Connection) (Order, error) {
-	ctx, span := beeline.StartSpan(ctx, "FetchLatestOrder")
+	_, span := beeline.StartSpan(ctx, "FetchLatestOrder")
 	defer span.Send()
 
 	var order Order

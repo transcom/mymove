@@ -332,6 +332,9 @@ func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonall
 		submitDate = time.Time(*params.SubmitPersonallyProcuredMovePayload.SubmitDate)
 	}
 	err = ppm.Submit(submitDate)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 
 	verrs, err := models.SavePersonallyProcuredMove(h.DB(), ppm)
 	if err != nil || verrs.HasAny() {

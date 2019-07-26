@@ -131,6 +131,7 @@ func (suite *HandlerSuite) TestRecalculateShipmentLineItemsHandler() {
 		Err:  expectedError,
 	}
 	suite.Assert().IsType(&handlers.ErrResponse{}, response)
+	suite.Equal(expectedResponse, response)
 }
 
 func (suite *HandlerSuite) TestGetShipmentLineItemsHandler() {
@@ -753,7 +754,7 @@ func (suite *HandlerSuite) TestDeleteShipmentLineItemCode105BE() {
 		},
 	}
 	// Given: Create 105B preapproval
-	shipmentLineItem, _, err := shipment.CreateShipmentLineItem(suite.DB(),
+	shipmentLineItem, _, _ := shipment.CreateShipmentLineItem(suite.DB(),
 		baseParams, additionalParams)
 
 	testdatagen.MakeDefaultShipmentLineItem(suite.DB())

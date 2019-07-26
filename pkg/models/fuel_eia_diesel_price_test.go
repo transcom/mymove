@@ -92,6 +92,8 @@ func (suite *ModelSuite) TestFuelEIADieselPriceOverlappingDatesConstraint() {
 			BaselineRate:                6,
 		}
 		verrs, err := suite.DB().ValidateAndCreate(&newFuelPrice)
+		suite.NoError(err)
+		suite.NoVerrs(verrs)
 
 		id = uuid.Must(uuid.NewV4())
 		newFuelPrice = models.FuelEIADieselPrice{
@@ -103,6 +105,8 @@ func (suite *ModelSuite) TestFuelEIADieselPriceOverlappingDatesConstraint() {
 			BaselineRate:                6,
 		}
 		verrs, err = suite.DB().ValidateAndCreate(&newFuelPrice)
+		suite.NoError(err)
+		suite.NoVerrs(verrs)
 
 		// Overlapping record should cause en error
 		id = uuid.Must(uuid.NewV4())

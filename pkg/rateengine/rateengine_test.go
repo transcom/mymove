@@ -192,6 +192,7 @@ func (suite *RateEngineSuite) TestComputePPMWithLHDiscount() {
 	destinationZip := "33633"
 	weight := unit.Pound(2000)
 	cost, err := suite.computePPMIncludingLHRates(originZip, destinationZip, weight, logger, planner)
+	suite.Require().Nil(err)
 
 	engine := NewRateEngine(suite.DB(), logger)
 	ppmCost, err := engine.ComputePPMIncludingLHDiscount(
