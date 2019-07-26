@@ -64,8 +64,8 @@ func CheckAddOfficeUsersFlags(v *viper.Viper) error {
 		return err
 	}
 
-	officeUsersFileName := v.GetString(OfficeUsersFilenameFlag)
-	if officeUsersFileName == "" {
+	officeUsersFilename := v.GetString(OfficeUsersFilenameFlag)
+	if officeUsersFilename == "" {
 		return errors.Errorf("%s is missing", OfficeUsersFilenameFlag)
 	}
 	return nil
@@ -137,7 +137,7 @@ func readOfficeUsersCSV(fileName string) ([]models.OfficeUser, error) {
 func genOfficeUserMigration(cmd *cobra.Command, args []string) error {
 	err := cmd.ParseFlags(args)
 	if err != nil {
-		errors.Wrap(err, "Could not parse flags")
+		return errors.Wrap(err, "Could not parse flags")
 	}
 
 	flag := cmd.Flags()
@@ -159,9 +159,9 @@ func genOfficeUserMigration(cmd *cobra.Command, args []string) error {
 	migrationManifest := v.GetString(cli.MigrationManifestFlag)
 	migrationName := v.GetString(cli.MigrationNameFlag)
 	migrationVersion := v.GetString(cli.MigrationVersionFlag)
-	officeUsersFileName := v.GetString(OfficeUsersFilenameFlag)
+	officeUsersFilename := v.GetString(OfficeUsersFilenameFlag)
 
-	officeUsers, err := readOfficeUsersCSV(officeUsersFileName)
+	officeUsers, err := readOfficeUsersCSV(officeUsersFilename)
 	if err != nil {
 		return errors.Wrap(err, "error reading csv file")
 	}
@@ -178,14 +178,14 @@ func genOfficeUserMigration(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	migrationFileName := fmt.Sprintf("%s_%s.up.fizz", migrationVersion, migrationName)
+	migrationFilename := fmt.Sprintf("%s_%s.up.fizz", migrationVersion, migrationName)
 	t2 := template.Must(template.New("migration").Parse(secureMigrationTemplate))
-	err = createMigration(migrationPath, migrationFileName, t2, secureMigrationName)
+	err = createMigration(migrationPath, migrationFilename, t2, secureMigrationName)
 	if err != nil {
 		return err
 	}
 
-	err = addMigrationToManifest(migrationManifest, migrationFileName)
+	err = addMigrationToManifest(migrationManifest, migrationFilename)
 	if err != nil {
 		return err
 	}

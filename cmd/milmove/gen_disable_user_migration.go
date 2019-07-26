@@ -82,7 +82,7 @@ func CheckDisableUserFlags(v *viper.Viper) error {
 func genDisableUserMigration(cmd *cobra.Command, args []string) error {
 	err := cmd.ParseFlags(args)
 	if err != nil {
-		errors.Wrap(err, "Could not parse flags")
+		return errors.Wrap(err, "Could not parse flags")
 	}
 
 	flag := cmd.Flags()
@@ -123,14 +123,14 @@ func genDisableUserMigration(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	migrationFileName := fmt.Sprintf("%s_%s.up.fizz", migrationVersion, migrationName)
+	migrationFilename := fmt.Sprintf("%s_%s.up.fizz", migrationVersion, migrationName)
 	t2 := template.Must(template.New("migration").Parse(secureMigrationTemplate))
-	err = createMigration(migrationPath, migrationFileName, t2, secureMigrationName)
+	err = createMigration(migrationPath, migrationFilename, t2, secureMigrationName)
 	if err != nil {
 		return err
 	}
 
-	err = addMigrationToManifest(migrationManifest, migrationFileName)
+	err = addMigrationToManifest(migrationManifest, migrationFilename)
 	if err != nil {
 		return err
 	}
