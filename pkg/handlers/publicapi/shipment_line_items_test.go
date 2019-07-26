@@ -4,10 +4,14 @@ import (
 	"fmt"
 
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/route"
 
+	"github.com/stretchr/testify/mock"
 	"github.com/transcom/mymove/mocks"
+	"github.com/transcom/mymove/pkg/logging"
+	shipmentlineitemmocks "github.com/transcom/mymove/pkg/services/shipment_line_item/mocks"
 
 	"github.com/transcom/mymove/pkg/auth"
 
@@ -57,9 +61,10 @@ func (suite *HandlerSuite) TestRecalculateShipmentLineItemsHandler() {
 
 	// Initialize our mock service
 	shipmentLineItemRecalculator := &mocks.ShipmentLineItemRecalculator{}
+	serviceLogger := &shipmentlineitemmocks.Logger{}
 
 	handler := RecalculateShipmentLineItemsHandler{
-		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		handlers.NewHandlerContext(suite.DB(), serviceLogger),
 		shipmentLineItemRecalculator,
 	}
 	// Build out params object using our http request
@@ -110,26 +115,38 @@ func (suite *HandlerSuite) TestRecalculateShipmentLineItemsHandler() {
 		nil,
 	).Return(nil, expectedError).Once()
 
-	response = handler.Handle(params)
 	expectedResponse := &handlers.ErrResponse{
 		Code: http.StatusForbidden,
 		Err:  expectedError,
 	}
+	zapLogger, _ := logging.Config("dev", true)
+	serviceLogger.On("WithOptions", mock.AnythingOfType("zap.optionFunc")).Return(zapLogger)
+	serviceLogger.On("Error", mock.AnythingOfType("string"), mock.AnythingOfType("zapcore.Field")).Return()
+
+	response = handler.Handle(params)
+	serviceLogger.AssertCalled(suite.T(), "Error", fmt.Sprintf("Error recalculating shipment line for shipment id: %s", shipmentID), zap.Error(expectedError))
 	suite.Equal(expectedResponse, response)
 
 	// 500 error. Product wants this to come back as a 500 for a bad zip code in this situation.
-	expectedError = route.NewUnsupportedPostalCodeError("00000")
+	loggedError := route.NewUnsupportedPostalCodeError("00000")
 	shipmentLineItemRecalculator.On("RecalculateShipmentLineItems",
 		shipmentID,
 		auth.SessionFromRequestContext(params.HTTPRequest),
 		nil,
-	).Return(nil, expectedError).Once()
+	).Return(nil, loggedError).Once()
 
-	response = handler.Handle(params)
+	expectedError = errors.New(fmt.Sprintf("User was authorized but failed to recalculate shipment for id %s", shipmentID))
 	expectedResponse = &handlers.ErrResponse{
 		Code: http.StatusInternalServerError,
 		Err:  expectedError,
 	}
+
+	serviceLogger.On("WithOptions", mock.AnythingOfType("zap.optionFunc")).Return(zapLogger)
+	serviceLogger.On("Error", mock.AnythingOfType("string"), mock.AnythingOfType("zapcore.Field")).Return()
+
+	response = handler.Handle(params)
+
+	serviceLogger.AssertCalled(suite.T(), "Error", fmt.Sprintf("Error recalculating shipment line for shipment id: %s", shipmentID), zap.Error(loggedError))
 	suite.Assert().IsType(&handlers.ErrResponse{}, response)
 	suite.Equal(expectedResponse, response)
 }
