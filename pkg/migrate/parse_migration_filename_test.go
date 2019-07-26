@@ -6,6 +6,21 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func Test_NormalizeSynonyms(t *testing.T) {
+	r := require.New(t)
+	r.Equal(normalizeSynonyms("postgres"), "postgres")
+	r.Equal(normalizeSynonyms("pg"), "postgres")
+	r.Equal(normalizeSynonyms("other"), "other")
+}
+
+func Test_ParseMigrationBadFilename(t *testing.T) {
+	r := require.New(t)
+
+	m, err := ParseMigrationFilename("bad_filename")
+	r.NoError(err)
+	r.Nil(m)
+}
+
 func Test_ParseMigrationFilenameSQL(t *testing.T) {
 	r := require.New(t)
 
@@ -87,4 +102,13 @@ func Test_ParseMigrationFilenameSQLUpPostgres(t *testing.T) {
 	r.Equal(m.DBType, "postgres")
 	r.Equal(m.Direction, "up")
 	r.Equal(m.Type, "sql")
+}
+
+func Test_ParseMigrationFilenameSQLUpUnsuportedDialect(t *testing.T) {
+	r := require.New(t)
+
+	m, err := ParseMigrationFilename("20190611004000_create_providers.bad.up.sql")
+	r.NotNil(err)
+	r.Equal("unsupported dialect bad", err.Error())
+	r.Nil(m)
 }
