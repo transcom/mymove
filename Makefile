@@ -337,7 +337,7 @@ server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.sta
 	$(AWS_VAULT) ./bin/gin \
 		--build ./cmd/milmove \
 		--bin /bin/milmove_gin \
-		--laddr 127.0.0.1 --port 9001 --appPort 8080 \
+		--laddr 127.0.0.1 --port 9001 \
 		--excludeDir node_modules \
 		--immediate \
 		--buildArgs "-i -ldflags=\"$(WEBSERVER_LDFLAGS)\"" \
