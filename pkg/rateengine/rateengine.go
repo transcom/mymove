@@ -348,8 +348,7 @@ func (re *RateEngine) HandleRunOnShipment(shipment models.Shipment, distanceCalc
 
 	// All required relationships should exist at this point.
 	daysInSIT := 0
-	var sitDiscount unit.DiscountRate
-	sitDiscount = 0.0
+	sitDiscount := unit.DiscountRate(0.0)
 
 	lhDiscount := acceptedOffer.TransportationServiceProviderPerformance.LinehaulRate
 

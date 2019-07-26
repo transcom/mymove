@@ -67,7 +67,6 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 			span.AddTraceField("auth.user_id", session.UserID)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
-			return
 		}
 		return http.HandlerFunc(mw)
 	}
@@ -86,7 +85,6 @@ func AdminAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 			}
 
 			next.ServeHTTP(w, r.WithContext(ctx))
-			return
 		}
 
 		return http.HandlerFunc(mw)

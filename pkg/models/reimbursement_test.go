@@ -50,7 +50,7 @@ func (suite *ModelSuite) TestBasicReimbursement() {
 
 	suite.NotNil(reimbursement.ID)
 
-	since := time.Now().Sub(*reimbursement.RequestedDate)
+	since := time.Since(*reimbursement.RequestedDate)
 	if since > 1*time.Second {
 		suite.T().Fail()
 	}
