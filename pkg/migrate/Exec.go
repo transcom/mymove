@@ -10,6 +10,11 @@ import (
 	"github.com/pkg/errors"
 )
 
+var (
+	// This denotes the end of a copy-from-stdin data
+	endCopyFromStdin = "\\."
+)
+
 func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration) error {
 
 	lines := make(chan string, 1000)
@@ -40,7 +45,7 @@ func Exec(inputReader io.Reader, tx *pop.Connection, wait time.Duration) error {
 		if match != nil {
 
 			// Capture end of copy-from-stdin data and leave this loop
-			if stmt == string(endCopyFromStdin) {
+			if stmt == endCopyFromStdin {
 
 				// Flush the statment to ensure nothing is still being buffered
 				_, errFlush := preparedStmt.Exec()
