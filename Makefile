@@ -330,12 +330,14 @@ server_run_standalone: server_build client_build db_dev_run
 server_run:
 	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run_default
 # This command runs the server behind gin, a hot-reload server
+# Note: Gin is not being used as a proxy so assigning odd port and laddr to keep in IPv4 space.
+# Note: The INTERFACE envar is set to configure the gin build, milmove_giv, local IP4 space with default port 8080.
 server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp bin/gin build/index.html server_generate db_dev_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) ./bin/gin \
 		--build ./cmd/milmove \
 		--bin /bin/milmove_gin \
-		--port 8080 --appPort 8081 \
+		--laddr 127.0.0.1 --port 9001 --appPort 8080 \
 		--excludeDir node_modules \
 		--immediate \
 		--buildArgs "-i -ldflags=\"$(WEBSERVER_LDFLAGS)\"" \
