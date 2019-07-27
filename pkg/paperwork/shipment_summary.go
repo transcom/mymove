@@ -4,20 +4,21 @@ import (
 	"errors"
 	"time"
 
+	"github.com/gobuffalo/pop"
+
+	"github.com/transcom/mymove/pkg/auth"
+
 	"github.com/transcom/mymove/pkg/route"
 
 	"github.com/transcom/mymove/pkg/rateengine"
 
 	"github.com/transcom/mymove/pkg/unit"
 
-	"github.com/gobuffalo/pop"
-
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 type ppmComputer interface {
-	ComputePPMIncludingLHDiscount(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromPickupZip int, distanceMilesFromDutyStationZip int, date time.Time, daysInSIT int) (cost rateengine.CostComputation, err error)
+	ComputePPMIncludingLHDiscount(weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int) (cost rateengine.CostComputation, err error)
 }
 
 //SSWPPMComputer a rate engine wrapper with helper functions to simplify ppm cost calculations specific to shipment summary worksheet
@@ -56,12 +57,34 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		return models.Obligations{}, errors.New("error calculating distance")
 	}
 
-	maxCost, err := sswPpmComputer.ComputePPMIncludingLHDiscount(
+	originPickupZipMaxCost, err := sswPpmComputer.ComputePPMIncludingLHDiscount(
 		ssfd.WeightAllotment.TotalWeight,
 		*firstPPM.PickupPostalCode,
-		dutyStationZip,
 		*firstPPM.DestinationPostalCode,
 		distanceMilesFromPickupZip,
+		*firstPPM.ActualMoveDate,
+		0,
+	)
+	if err != nil {
+		return models.Obligations{}, errors.New("error calculating PPM max obligations")
+	}
+
+	originPickupZipActualCost, err := sswPpmComputer.ComputePPMIncludingLHDiscount(
+		ssfd.PPMRemainingEntitlement,
+		*firstPPM.PickupPostalCode,
+		*firstPPM.DestinationPostalCode,
+		distanceMilesFromDutyStationZip,
+		*firstPPM.ActualMoveDate,
+		0,
+	)
+	if err != nil {
+		return models.Obligations{}, errors.New("error calculating PPM actual obligations")
+	}
+
+	originDutyStationZipMaxCost, err := sswPpmComputer.ComputePPMIncludingLHDiscount(
+		ssfd.WeightAllotment.TotalWeight,
+		*firstPPM.PickupPostalCode,
+		*firstPPM.DestinationPostalCode,
 		distanceMilesFromDutyStationZip,
 		*firstPPM.ActualMoveDate,
 		0,
@@ -69,18 +92,27 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 	if err != nil {
 		return models.Obligations{}, errors.New("error calculating PPM max obligations")
 	}
-	actualCost, err := sswPpmComputer.ComputePPMIncludingLHDiscount(
+
+	originDutyStationZipActualCost, err := sswPpmComputer.ComputePPMIncludingLHDiscount(
 		ssfd.PPMRemainingEntitlement,
 		*firstPPM.PickupPostalCode,
-		dutyStationZip,
 		*firstPPM.DestinationPostalCode,
-		distanceMilesFromPickupZip,
 		distanceMilesFromDutyStationZip,
 		*firstPPM.ActualMoveDate,
 		0,
 	)
 	if err != nil {
 		return models.Obligations{}, errors.New("error calculating PPM actual obligations")
+	}
+
+	actualCost := originPickupZipActualCost
+	if originPickupZipActualCost.GCC > originDutyStationZipActualCost.GCC {
+		actualCost = originDutyStationZipActualCost
+	}
+
+	maxCost := originPickupZipMaxCost
+	if originPickupZipMaxCost.GCC > originDutyStationZipMaxCost.GCC {
+		maxCost = originDutyStationZipMaxCost
 	}
 	var actualSIT unit.Cents
 	if firstPPM.TotalSITCost != nil {
@@ -89,6 +121,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 	if actualSIT > maxCost.SITMax {
 		actualSIT = maxCost.SITMax
 	}
+
 	maxObligation := models.Obligation{Gcc: maxCost.GCC, SIT: maxCost.SITMax}
 	actualObligation := models.Obligation{Gcc: actualCost.GCC, SIT: actualSIT}
 	obligations := models.Obligations{MaxObligation: maxObligation, ActualObligation: actualObligation}

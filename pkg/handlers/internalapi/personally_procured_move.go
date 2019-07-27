@@ -322,6 +322,7 @@ func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonall
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
 
 	ppm, err := models.FetchPersonallyProcuredMove(h.DB(), session, ppmID)
+
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -395,26 +396,11 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 		daysInSIT = int(*ppm.DaysInStorage)
 	}
 
-	dutyStationZip := ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode
+	originDutyStationZip := ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode
 
-	lhDiscountPickupZip, pickupZipSitDiscount, err := models.PPMDiscountFetch(h.DB(), logger, *ppm.PickupPostalCode, *ppm.DestinationPostalCode, *ppm.OriginalMoveDate)
+	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(h.DB(), logger, *ppm.PickupPostalCode, *ppm.DestinationPostalCode, *ppm.OriginalMoveDate)
 	if err != nil {
 		return err
-	}
-
-	lhDiscountDutyStationZip, dutyStationZipSitDiscount, err := models.PPMDiscountFetch(h.DB(), logger, dutyStationZip, *ppm.DestinationPostalCode, *ppm.OriginalMoveDate)
-	if err != nil {
-		return err
-	}
-
-	sitDiscount := pickupZipSitDiscount
-	if pickupZipSitDiscount < dutyStationZipSitDiscount {
-		sitDiscount = dutyStationZipSitDiscount
-	}
-
-	lhDiscount := lhDiscountPickupZip
-	if lhDiscountPickupZip < lhDiscountDutyStationZip {
-		lhDiscount = dutyStationZipSitDiscount
 	}
 
 	// Update SIT estimate
@@ -430,17 +416,26 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 		ppm.EstimatedStorageReimbursement = &reimbursementString
 	}
 
-	distanceMilesFromPickupZip, err := h.Planner().Zip5TransitDistance(*ppm.PickupPostalCode, *ppm.DestinationPostalCode)
+	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistance(*ppm.PickupPostalCode, *ppm.DestinationPostalCode)
 	if err != nil {
 		return err
 	}
 
-	distanceMilesFromDutyStationZip, err := h.Planner().Zip5TransitDistance(dutyStationZip, *ppm.DestinationPostalCode)
+	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(originDutyStationZip, *ppm.DestinationPostalCode)
 	if err != nil {
 		return err
 	}
 
-	cost, err := re.ComputePPM(unit.Pound(*ppm.WeightEstimate), *ppm.PickupPostalCode, dutyStationZip, *ppm.DestinationPostalCode, distanceMilesFromPickupZip, distanceMilesFromDutyStationZip, *ppm.OriginalMoveDate, daysInSIT, lhDiscountPickupZip, lhDiscountDutyStationZip, sitDiscount)
+	cost, err := re.ComputeLowestCostPPMMove(
+		unit.Pound(*ppm.WeightEstimate),
+		*ppm.PickupPostalCode,
+		originDutyStationZip,
+		*ppm.DestinationPostalCode,
+		distanceMilesFromOriginPickupZip,
+		distanceMilesFromOriginDutyStationZip,
+		time.Time(*ppm.OriginalMoveDate),
+		0,
+	)
 	if err != nil {
 		return err
 	}

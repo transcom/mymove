@@ -9,7 +9,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
-	beeline "github.com/honeycombio/beeline-go"
+	"github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -100,8 +100,8 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 		"BackupMailingAddress",
 		"BackupContacts",
 		"DutyStation",
-		"DutyStation.TransportationOffice",
 		"DutyStation.Address.PostalCode",
+		"DutyStation.TransportationOffice",
 		"Orders",
 		"Orders.NewDutyStation",
 		"Orders.NewDutyStation.TransportationOffice",
@@ -167,6 +167,12 @@ func FetchServiceMember(db *pop.Connection, id uuid.UUID) (ServiceMember, error)
 	}
 
 	return serviceMember, nil
+}
+
+func FetchServiceMemberByUserID(db *pop.Connection, userID uuid.UUID) (ServiceMember, error) {
+	var serviceMember ServiceMember
+	err := db.Where("user_id = ?", userID).First(&serviceMember)
+	return serviceMember, err
 }
 
 // SaveServiceMember takes a serviceMember with Address structs and coordinates saving it all in a transaction

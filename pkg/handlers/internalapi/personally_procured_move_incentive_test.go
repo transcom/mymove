@@ -3,13 +3,14 @@ package internalapi
 import (
 	"net/http/httptest"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
@@ -77,17 +78,11 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveIncentiveTest() {
 		CodeOfService:     "2",
 	}
 	suite.MustSave(&tdl2)
-	tdl3 := models.TrafficDistributionList{
-		SourceRateArea:    "US53",
-		DestinationRegion: "2",
-		CodeOfService:     "2",
-	}
-	suite.MustSave(&tdl3)
 	tsp := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: "STDM",
 	}
 	suite.MustSave(&tsp)
-	tspPerformance1 := models.TransportationServiceProviderPerformance{
+	tspPerformance := models.TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          scenario.Oct1TestYear,
 		PerformancePeriodEnd:            scenario.Dec31TestYear,
 		RateCycleStart:                  scenario.Oct1TestYear,
@@ -99,33 +94,7 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveIncentiveTest() {
 		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
 		SITRate:                         unit.NewDiscountRateFromPercent(50),
 	}
-	suite.MustSave(&tspPerformance1)
-	tspPerformance2 := models.TransportationServiceProviderPerformance{
-		PerformancePeriodStart:          scenario.Oct1TestYear,
-		PerformancePeriodEnd:            scenario.Dec31TestYear,
-		RateCycleStart:                  scenario.Oct1TestYear,
-		RateCycleEnd:                    scenario.May14FollowingYear,
-		TrafficDistributionListID:       tdl2.ID,
-		TransportationServiceProviderID: tsp.ID,
-		QualityBand:                     swag.Int(1),
-		BestValueScore:                  90,
-		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
-		SITRate:                         unit.NewDiscountRateFromPercent(50),
-	}
-	suite.MustSave(&tspPerformance2)
-	tspPerformance3 := models.TransportationServiceProviderPerformance{
-		PerformancePeriodStart:          scenario.Oct1TestYear,
-		PerformancePeriodEnd:            scenario.Dec31TestYear,
-		RateCycleStart:                  scenario.Oct1TestYear,
-		RateCycleEnd:                    scenario.May14FollowingYear,
-		TrafficDistributionListID:       tdl3.ID,
-		TransportationServiceProviderID: tsp.ID,
-		QualityBand:                     swag.Int(1),
-		BestValueScore:                  90,
-		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
-		SITRate:                         unit.NewDiscountRateFromPercent(50),
-	}
-	suite.MustSave(&tspPerformance3)
+	suite.MustSave(&tspPerformance)
 }
 
 func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
@@ -133,18 +102,14 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
-	firstName := "Jane"
-	serviceMember := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			FirstName: &firstName,
-		},
-	})
-
+	user := testdatagen.MakeDefaultServiceMember(suite.DB())
+	move := testdatagen.MakeDefaultMove(suite.DB())
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
-	req = suite.AuthenticateRequest(req, serviceMember)
+	req = suite.AuthenticateRequest(req, user)
 
 	params := ppmop.ShowPPMIncentiveParams{
 		HTTPRequest:      req,
+		MoveID:           strfmt.UUID(move.ID.String()),
 		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1TestYear),
 		OriginZip:        "94540",
 		DestinationZip:   "78626",
@@ -163,14 +128,35 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 	suite.setupPersonallyProcuredMoveIncentiveTest()
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	testdatagen.MakeDefaultServiceMember(suite.DB())
+	user := testdatagen.MakeDefaultUser(suite.DB())
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			UserID: &user.ID,
+		},
+	})
+	firstName := "Magic"
+	serviceMember := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			FirstName: &firstName,
+		},
+	})
+	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: serviceMember.ID,
+		},
+	})
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			OrdersID: order.ID,
+		},
+	})
 
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	params := ppmop.ShowPPMIncentiveParams{
 		HTTPRequest:      req,
+		MoveID:           strfmt.UUID(move.ID.String()),
 		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1TestYear),
 		OriginZip:        "94540",
 		DestinationZip:   "78626",
@@ -194,11 +180,26 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 	}
 
 	suite.setupPersonallyProcuredMoveIncentiveTest()
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	testdatagen.MakeDefaultServiceMember(suite.DB())
-	testdatagen.MakeTariff400ngServiceArea(suite.DB(), testdatagen.Assertions{
-		Tariff400ngServiceArea: models.Tariff400ngServiceArea{
-			ServiceArea: "296",
+	user := testdatagen.MakeDefaultUser(suite.DB())
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			UserID: &user.ID,
+		},
+	})
+	firstName := "Magic"
+	serviceMember := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			FirstName: &firstName,
+		},
+	})
+	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: serviceMember.ID,
+		},
+	})
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			OrdersID: order.ID,
 		},
 	})
 
@@ -207,6 +208,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 
 	params := ppmop.ShowPPMIncentiveParams{
 		HTTPRequest:      req,
+		MoveID:           strfmt.UUID(move.ID.String()),
 		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1TestYear),
 		OriginZip:        "94540",
 		DestinationZip:   "78626",

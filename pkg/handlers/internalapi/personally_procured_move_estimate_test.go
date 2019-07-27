@@ -3,14 +3,15 @@ package internalapi
 import (
 	"net/http/httptest"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/unit"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
@@ -77,17 +78,11 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveEstimateTest() {
 		CodeOfService:     "2",
 	}
 	suite.MustSave(&tdl2)
-	tdl3 := models.TrafficDistributionList{
-		SourceRateArea:    "US53",
-		DestinationRegion: "2",
-		CodeOfService:     "2",
-	}
-	suite.MustSave(&tdl3)
 	tsp := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: "STDM",
 	}
 	suite.MustSave(&tsp)
-	tspPerformance1 := models.TransportationServiceProviderPerformance{
+	tspPerformance := models.TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          scenario.Oct1TestYear,
 		PerformancePeriodEnd:            scenario.Dec31TestYear,
 		RateCycleStart:                  scenario.Oct1TestYear,
@@ -99,33 +94,7 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveEstimateTest() {
 		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
 		SITRate:                         unit.NewDiscountRateFromPercent(50),
 	}
-	suite.MustSave(&tspPerformance1)
-	tspPerformance2 := models.TransportationServiceProviderPerformance{
-		PerformancePeriodStart:          scenario.Oct1TestYear,
-		PerformancePeriodEnd:            scenario.Dec31TestYear,
-		RateCycleStart:                  scenario.Oct1TestYear,
-		RateCycleEnd:                    scenario.May14FollowingYear,
-		TrafficDistributionListID:       tdl2.ID,
-		TransportationServiceProviderID: tsp.ID,
-		QualityBand:                     swag.Int(1),
-		BestValueScore:                  90,
-		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
-		SITRate:                         unit.NewDiscountRateFromPercent(50),
-	}
-	suite.MustSave(&tspPerformance2)
-	tspPerformance3 := models.TransportationServiceProviderPerformance{
-		PerformancePeriodStart:          scenario.Oct1TestYear,
-		PerformancePeriodEnd:            scenario.Dec31TestYear,
-		RateCycleStart:                  scenario.Oct1TestYear,
-		RateCycleEnd:                    scenario.May14FollowingYear,
-		TrafficDistributionListID:       tdl3.ID,
-		TransportationServiceProviderID: tsp.ID,
-		QualityBand:                     swag.Int(1),
-		BestValueScore:                  90,
-		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
-		SITRate:                         unit.NewDiscountRateFromPercent(50),
-	}
-	suite.MustSave(&tspPerformance3)
+	suite.MustSave(&tspPerformance)
 }
 
 func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
@@ -133,11 +102,20 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 	suite.setupPersonallyProcuredMoveEstimateTest()
-
 	firstName := "Jane"
 	serviceMember := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName: &firstName,
+		},
+	})
+	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: serviceMember.ID,
+		},
+	})
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			OrdersID: order.ID,
 		},
 	})
 
@@ -146,6 +124,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 
 	params := ppmop.ShowPPMEstimateParams{
 		HTTPRequest:      req,
+		MoveID:           strfmt.UUID(move.ID.String()),
 		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1TestYear),
 		OriginZip:        "94540",
 		DestinationZip:   "78626",
@@ -169,11 +148,20 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 	suite.setupPersonallyProcuredMoveEstimateTest()
-
 	firstName := "Jane"
 	serviceMember := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			FirstName: &firstName,
+		},
+	})
+	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMemberID: serviceMember.ID,
+		},
+	})
+	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
+		Move: models.Move{
+			OrdersID: order.ID,
 		},
 	})
 
@@ -182,6 +170,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 
 	params := ppmop.ShowPPMEstimateParams{
 		HTTPRequest:      req,
+		MoveID:           strfmt.UUID(move.ID.String()),
 		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1TestYear),
 		OriginZip:        "94540",
 		DestinationZip:   "78626",

@@ -3,12 +3,12 @@ package internalapi
 import (
 	"time"
 
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
-
-	"github.com/gofrs/uuid"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -25,62 +25,38 @@ type ShowPPMIncentiveHandler struct {
 // Handle calculates a PPM reimbursement range.
 func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	ctx := params.HTTPRequest.Context()
+	moveID, _ := uuid.FromString(params.MoveID.String())
+	move, err := models.FetchMove(h.DB(), session, moveID)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 
+	originDutyStationZip := move.Orders.ServiceMember.DutyStation.Address.PostalCode
 	if !session.IsOfficeUser() {
 		return ppmop.NewShowPPMIncentiveForbidden()
 	}
+
 	engine := rateengine.NewRateEngine(h.DB(), logger)
 
-	serviceMemberID, _ := uuid.FromString(session.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMemberForUser(ctx, h.DB(), session, serviceMemberID)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-	dutyStationZip := serviceMember.DutyStation.Address.PostalCode
-
-	lhDiscountPickupZip, _, err := models.PPMDiscountFetch(h.DB(),
-		logger,
-		params.OriginZip,
-		params.DestinationZip,
-		time.Time(params.OriginalMoveDate),
-	)
+	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistance(params.OriginZip, params.DestinationZip)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	lhDiscountDutyStationZip, _, err := models.PPMDiscountFetch(h.DB(),
-		logger,
-		dutyStationZip,
-		params.DestinationZip,
-		time.Time(params.OriginalMoveDate),
-	)
+	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(originDutyStationZip, params.DestinationZip)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	distanceMilesFromPickupZip, err := h.Planner().Zip5TransitDistance(params.OriginZip, params.DestinationZip)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-
-	distanceMilesFromDutyStationZip, err := h.Planner().Zip5TransitDistance(dutyStationZip, params.DestinationZip)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-
-	cost, err := engine.ComputePPM(
+	cost, err := engine.ComputeLowestCostPPMMove(
 		unit.Pound(params.Weight),
 		params.OriginZip,
-		dutyStationZip,
+		originDutyStationZip,
 		params.DestinationZip,
-		distanceMilesFromPickupZip,
-		distanceMilesFromDutyStationZip,
+		distanceMilesFromOriginPickupZip,
+		distanceMilesFromOriginDutyStationZip,
 		time.Time(params.OriginalMoveDate),
-		0, // We don't want any SIT charges
-		lhDiscountPickupZip,
-		lhDiscountDutyStationZip,
-		0.0,
+		0,
 	)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)

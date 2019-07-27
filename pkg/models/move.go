@@ -197,6 +197,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	err := db.Q().Eager("PersonallyProcuredMoves.Advance",
 		"SignedCertifications",
 		"Orders",
+		"Orders.ServiceMember.DutyStation.Address",
 		"MoveDocuments.Document",
 		"Shipments.TrafficDistributionList",
 		"Shipments.ServiceAgents").Find(&move, id)

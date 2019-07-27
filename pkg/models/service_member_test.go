@@ -158,3 +158,12 @@ func (suite *ModelSuite) TestFetchServiceMemberNotForUser() {
 		suite.Equal(sm.ResidentialAddressID, goodSm.ResidentialAddressID)
 	}
 }
+
+func (suite *ModelSuite) TestFetchServiceMemberByUserID() {
+	sm := testdatagen.MakeDefaultServiceMember(suite.DB())
+	goodSm, err := FetchServiceMemberByUserID(suite.DB(), sm.UserID)
+	if suite.NoError(err) {
+		suite.Equal(sm.FirstName, goodSm.FirstName)
+		suite.Equal(sm.UserID, goodSm.UserID)
+	}
+}

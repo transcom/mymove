@@ -37,9 +37,10 @@ export async function UpdatePpm(
   return response.body;
 }
 
-export async function GetPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate) {
+export async function GetPpmWeightEstimate(moveId, moveDate, originZip, destZip, weightEstimate) {
   const client = await getClient();
   const response = await client.apis.ppm.showPPMEstimate({
+    move_id: moveId,
     original_move_date: formatDateString(moveDate),
     origin_zip: originZip,
     destination_zip: destZip,

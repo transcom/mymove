@@ -2788,6 +2788,11 @@ paths:
         - ppm
       parameters:
         - in: query
+          name: move_id
+          type: string
+          format: uuid
+          required: true
+        - in: query
           name: original_move_date
           type: string
           format: date
@@ -3959,6 +3964,11 @@ paths:
       tags:
         - ppm
       parameters:
+        - in: query
+          name: move_id
+          type: string
+          format: uuid
+          required: true
         - in: query
           name: original_move_date
           type: string
