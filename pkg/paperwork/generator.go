@@ -132,6 +132,10 @@ func (g *Generator) newTempFile() (afero.File, error) {
 	return outputFile, nil
 }
 
+func (g *Generator) Cleanup() error {
+	return g.fs.RemoveAll(g.workDir)
+}
+
 // CreateMergedPDFUpload converts Uploads to PDF and merges them into a single PDF
 func (g *Generator) CreateMergedPDFUpload(uploads models.Uploads) (afero.File, error) {
 	pdfs, err := g.ConvertUploadsToPDF(uploads)
