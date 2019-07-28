@@ -5,12 +5,10 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
-	"github.com/gofrs/uuid"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -22,31 +20,23 @@ type ShowPPMEstimateHandler struct {
 
 // Handle calculates a PPM reimbursement range.
 func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middleware.Responder {
-	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	moveID, _ := uuid.FromString(params.MoveID.String())
-	move, err := models.FetchMove(h.DB(), session, moveID)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-
-	originDutyStationZip := move.Orders.ServiceMember.DutyStation.Address.PostalCode
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	engine := rateengine.NewRateEngine(h.DB(), logger)
 
 	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistance(params.OriginZip, params.DestinationZip)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(originDutyStationZip, params.DestinationZip)
+	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(params.DutyStationZip, params.DestinationZip)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
 
-	engine := rateengine.NewRateEngine(h.DB(), logger)
-
 	cost, err := engine.ComputeLowestCostPPMMove(
 		unit.Pound(params.WeightEstimate),
 		params.OriginZip,
-		originDutyStationZip,
+		params.DutyStationZip,
 		params.DestinationZip,
 		distanceMilesFromOriginPickupZip,
 		distanceMilesFromOriginDutyStationZip,

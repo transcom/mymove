@@ -2788,17 +2788,18 @@ paths:
         - ppm
       parameters:
         - in: query
-          name: move_id
-          type: string
-          format: uuid
-          required: true
-        - in: query
           name: original_move_date
           type: string
           format: date
           required: true
         - in: query
           name: origin_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: duty_station_zip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
@@ -3965,17 +3966,18 @@ paths:
         - ppm
       parameters:
         - in: query
-          name: move_id
-          type: string
-          format: uuid
-          required: true
-        - in: query
           name: original_move_date
           type: string
           format: date
           required: true
         - in: query
           name: origin_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: duty_station_zip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'

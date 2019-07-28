@@ -3,7 +3,6 @@ package internalapi
 import (
 	"net/http/httptest"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -103,15 +102,14 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 	}
 
 	user := testdatagen.MakeDefaultServiceMember(suite.DB())
-	move := testdatagen.MakeDefaultMove(suite.DB())
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
 	req = suite.AuthenticateRequest(req, user)
 
 	params := ppmop.ShowPPMIncentiveParams{
 		HTTPRequest:      req,
-		MoveID:           strfmt.UUID(move.ID.String()),
 		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1TestYear),
 		OriginZip:        "94540",
+		DutyStationZip:   "50309",
 		DestinationZip:   "78626",
 		Weight:           7500,
 	}
@@ -134,31 +132,15 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 			UserID: &user.ID,
 		},
 	})
-	firstName := "Magic"
-	serviceMember := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			FirstName: &firstName,
-		},
-	})
-	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: serviceMember.ID,
-		},
-	})
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			OrdersID: order.ID,
-		},
-	})
 
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	params := ppmop.ShowPPMIncentiveParams{
 		HTTPRequest:      req,
-		MoveID:           strfmt.UUID(move.ID.String()),
 		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1TestYear),
 		OriginZip:        "94540",
+		DutyStationZip:   "50309",
 		DestinationZip:   "78626",
 		Weight:           7500,
 	}
@@ -186,31 +168,15 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 			UserID: &user.ID,
 		},
 	})
-	firstName := "Magic"
-	serviceMember := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			FirstName: &firstName,
-		},
-	})
-	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: serviceMember.ID,
-		},
-	})
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			OrdersID: order.ID,
-		},
-	})
 
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	params := ppmop.ShowPPMIncentiveParams{
 		HTTPRequest:      req,
-		MoveID:           strfmt.UUID(move.ID.String()),
 		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1TestYear),
 		OriginZip:        "94540",
+		DutyStationZip:   "50309",
 		DestinationZip:   "78626",
 		Weight:           600,
 	}

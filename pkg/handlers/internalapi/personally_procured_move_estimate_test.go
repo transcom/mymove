@@ -3,7 +3,6 @@ package internalapi
 import (
 	"net/http/httptest"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -108,25 +107,15 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 			FirstName: &firstName,
 		},
 	})
-	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: serviceMember.ID,
-		},
-	})
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			OrdersID: order.ID,
-		},
-	})
 
 	req := httptest.NewRequest("GET", "/estimates/ppm", nil)
 	req = suite.AuthenticateRequest(req, serviceMember)
 
 	params := ppmop.ShowPPMEstimateParams{
 		HTTPRequest:      req,
-		MoveID:           strfmt.UUID(move.ID.String()),
 		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1TestYear),
 		OriginZip:        "94540",
+		DutyStationZip:   "50309",
 		DestinationZip:   "78626",
 		WeightEstimate:   7500,
 	}
@@ -154,25 +143,15 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 			FirstName: &firstName,
 		},
 	})
-	order := testdatagen.MakeOrder(suite.DB(), testdatagen.Assertions{
-		Order: models.Order{
-			ServiceMemberID: serviceMember.ID,
-		},
-	})
-	move := testdatagen.MakeMove(suite.DB(), testdatagen.Assertions{
-		Move: models.Move{
-			OrdersID: order.ID,
-		},
-	})
 
 	req := httptest.NewRequest("GET", "/estimates/ppm", nil)
 	req = suite.AuthenticateRequest(req, serviceMember)
 
 	params := ppmop.ShowPPMEstimateParams{
 		HTTPRequest:      req,
-		MoveID:           strfmt.UUID(move.ID.String()),
 		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1TestYear),
 		OriginZip:        "94540",
+		DutyStationZip:   "50309",
 		DestinationZip:   "78626",
 		WeightEstimate:   600,
 	}

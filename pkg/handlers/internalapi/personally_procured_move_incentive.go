@@ -3,10 +3,6 @@ package internalapi
 import (
 	"time"
 
-	"github.com/gofrs/uuid"
-
-	"github.com/transcom/mymove/pkg/models"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 
@@ -25,13 +21,6 @@ type ShowPPMIncentiveHandler struct {
 // Handle calculates a PPM reimbursement range.
 func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
-	moveID, _ := uuid.FromString(params.MoveID.String())
-	move, err := models.FetchMove(h.DB(), session, moveID)
-	if err != nil {
-		return handlers.ResponseForError(logger, err)
-	}
-
-	originDutyStationZip := move.Orders.ServiceMember.DutyStation.Address.PostalCode
 	if !session.IsOfficeUser() {
 		return ppmop.NewShowPPMIncentiveForbidden()
 	}
@@ -43,7 +32,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 		return handlers.ResponseForError(logger, err)
 	}
 
-	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(originDutyStationZip, params.DestinationZip)
+	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(params.DutyStationZip, params.DestinationZip)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -51,7 +40,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 	cost, err := engine.ComputeLowestCostPPMMove(
 		unit.Pound(params.Weight),
 		params.OriginZip,
-		originDutyStationZip,
+		params.DutyStationZip,
 		params.DestinationZip,
 		distanceMilesFromOriginPickupZip,
 		distanceMilesFromOriginDutyStationZip,
