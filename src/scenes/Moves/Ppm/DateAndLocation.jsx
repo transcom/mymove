@@ -295,6 +295,7 @@ function mapStateToProps(state) {
     : defaultPickupZip
       ? {
           pickup_postal_code: defaultPickupZip,
+          duty_station_zip: dutyStationZip,
         }
       : null;
 
