@@ -130,6 +130,15 @@ func (suite *HandlerSuite) setupPersonallyProcuredMoveTest() {
 		SITRate:                         unit.NewDiscountRateFromPercent(50),
 	}
 	suite.MustSave(&tspPerformance3)
+	fullPackRate := models.Tariff400ngFullPackRate{
+		Schedule:           3,
+		WeightLbsLower:     0,
+		WeightLbsUpper:     16001,
+		RateCents:          6130,
+		EffectiveDateLower: scenario.May15TestYear,
+		EffectiveDateUpper: scenario.May14FollowingYear,
+	}
+	suite.MustSave(&fullPackRate)
 }
 
 func (suite *HandlerSuite) TestCreatePPMHandler() {
@@ -360,12 +369,6 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
-
-	testdatagen.MakeTariff400ngServiceArea(suite.DB(), testdatagen.Assertions{
-		Tariff400ngServiceArea: models.Tariff400ngServiceArea{
-			ServiceArea: "296",
-		},
-	})
 
 	handler := PatchPersonallyProcuredMoveHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	handler.SetPlanner(route.NewTestingPlanner(900))
