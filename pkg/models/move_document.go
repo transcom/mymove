@@ -93,7 +93,6 @@ const (
 type MoveWeightTicketSetDocumentSaveAction string
 
 const (
-
 	// MoveDocumentSaveActionDELETEWEIGHTTICKETSETMODEL encodes an action to delete a linked expense model
 	MoveDocumentSaveActionDELETEWEIGHTTICKETSETMODEL MoveWeightTicketSetDocumentSaveAction = "DELETE_WEIGHT_TICKET_SET_MODEL"
 	// MoveDocumentSaveActionSAVEWEIGHTTICKETSETMODEL encodes an action to save a linked expense model
@@ -232,9 +231,9 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	return &moveDoc, nil
 }
 
-// FetchMovingExpenseDocuments fetches all move expense documents for a ppm
+// FetchMoveDocuments fetches all move expense and weight ticket set documents for a ppm
 // the optional status parameter can be used for restricting to a subset of statuses.
-func FetchMovingExpenseDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UUID, status *MoveDocumentStatus) (MoveDocuments, error) {
+func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UUID, status *MoveDocumentStatus, moveDocumentType MoveDocumentType) (MoveDocuments, error) {
 	// Allow all logged in office users to fetch move docs
 	if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
 		return nil, ErrFetchForbidden
@@ -246,7 +245,7 @@ func FetchMovingExpenseDocuments(db *pop.Connection, session *auth.Session, ppmI
 	}
 
 	var moveDocuments MoveDocuments
-	query := db.Where("move_document_type = $1", string(MoveDocumentTypeEXPENSE)).Where("personally_procured_move_id = $2", ppmID.String())
+	query := db.Where("move_document_type = $1", string(moveDocumentType)).Where("personally_procured_move_id = $2", ppmID.String())
 	if status != nil {
 		query = query.Where("status = $3", string(*status))
 	}
@@ -267,6 +266,19 @@ func FetchMovingExpenseDocuments(db *pop.Connection, session *auth.Session, ppmI
 			}
 		} else {
 			moveDocuments[i].MovingExpenseDocument = &movingExpenseDocument
+		}
+	}
+
+	for i, moveDoc := range moveDocuments {
+		weightTicketSet := WeightTicketSetDocument{}
+		moveDoc.WeightTicketSetDocument = nil
+		err = db.Where("move_document_id = $1", moveDoc.ID.String()).Eager().First(&weightTicketSet)
+		if err != nil {
+			if errors.Cause(err).Error() != recordNotFoundErrorString {
+				return nil, err
+			}
+		} else {
+			moveDocuments[i].WeightTicketSetDocument = &weightTicketSet
 		}
 	}
 
