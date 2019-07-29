@@ -3,7 +3,7 @@ import { shipments } from '../schema';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient, getPublicClient } from 'shared/Swagger/api';
 import { isNull } from 'lodash';
-import { getEntitlements } from 'shared/entitlements.js';
+import { selectEntitlements } from '../../entitlements';
 
 const approveShipmentLabel = 'Shipments.approveShipment';
 export const getShipmentLabel = 'Shipments.getShipment';
@@ -97,12 +97,12 @@ export function calculateEntitlementsForShipment(state, shipmentId) {
   const serviceMember = shipment.service_member || {};
   const hasDependents = move.has_dependents;
   const spouseHasProGear = move.spouse_has_pro_gear;
-  const rank = serviceMember.rank;
+  const weightAllotment = serviceMember.weight_allotment;
 
-  if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
+  if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(weightAllotment)) {
     return null;
   }
-  return getEntitlements(rank, hasDependents, spouseHasProGear);
+  return selectEntitlements(weightAllotment, hasDependents, spouseHasProGear);
 }
 
 export function selectShipment(state, id) {
