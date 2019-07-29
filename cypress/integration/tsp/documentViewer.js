@@ -7,48 +7,19 @@ describe('The document viewer', function() {
     cy.signIntoTSP(false);
   });
 
-  it('has a new document links', () => {
-    cy.patientVisit('/');
-
-    cy.location().should(loc => {
-      expect(loc.pathname).to.match(/^\/queues\/new/);
-    });
-
-    // Find a shipment and open it
-    cy.selectQueueItemMoveLocator('DOCVWR');
-
-    cy.location().should(loc => {
-      expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
-    });
-
-    cy
-      .get('.usa-heading')
-      .contains('Documents')
-      .within(() => {
-        cy
-          .get('a')
-          .should('have.attr', 'href')
-          .and('match', /^\/shipments\/[^/]+\/documents\/new/);
-      });
-
-    cy
-      .get('.documents > .status')
-      .contains('Upload new document')
-      .should('have.attr', 'href')
-      .and('match', /^\/shipments\/[^/]+\/documents\/new/);
-  });
-
   it('shows current shipment docs after viewing a shipment with no docs', () => {
     // Find a shipment with no docs
     cy.patientVisit('/shipments/65e00326-420e-436a-89fc-6aeb3f90b870', {
       log: true,
     });
 
+    cy.get('.document-upload-link').contains('Upload new document');
+
     cy
-      .get('.documents > .status')
-      .contains('Upload new document')
+      .get('.document-upload-link')
+      .find('a')
       .should('have.attr', 'href')
-      .and('match', /^\/shipments\/[^/]+\/documents\/new/);
+      .and('contain', '/shipments/65e00326-420e-436a-89fc-6aeb3f90b870/documents/new');
 
     cy.patientVisit('/queues/approved/', {
       log: true,
@@ -62,15 +33,21 @@ describe('The document viewer', function() {
     });
 
     cy
-      .get('.documents > .status')
+      .get('.document-upload-url')
       .should('have.attr', 'href')
       .and('match', /^\/shipments\/[^/]+\/documents\/[^/]+/);
   });
 
   it('can upload a new document', () => {
-    cy.patientVisit('/shipments/65e00326-420e-436a-89fc-6aeb3f90b870/documents/new', {
+    cy.patientVisit('/shipments/65e00326-420e-436a-89fc-6aeb3f90b870/documents', {
       log: true,
     });
+    cy
+      .get('.document-upload-link')
+      .find('a')
+      .should('have.attr', 'href')
+      .and('contain', '/shipments/65e00326-420e-436a-89fc-6aeb3f90b870/documents/new');
+    cy.get('.document-upload-link').click();
 
     cy.get('button.submit').should('be.disabled');
     cy.get('input[name="title"]').type('super secret info document');

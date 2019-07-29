@@ -25,7 +25,7 @@ const DocumentList = ({ currentMoveDocumentId, moveDocuments, detailUrlPrefix, d
         </div>
       );
     })}
-    <div className="document-upload-link">
+    <div className="document-upload-link" data-cy="document-upload-link">
       <FontAwesomeIcon className="icon link-blue" icon={documentUploadIcon} />
       <Link to={uploadDocumentUrl}>Upload new document</Link>
     </div>
