@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 
 	"github.com/stretchr/testify/mock"
+
 	"github.com/transcom/mymove/mocks"
 	"github.com/transcom/mymove/pkg/logging"
 	shipmentlineitemmocks "github.com/transcom/mymove/pkg/services/shipment_line_item/mocks"

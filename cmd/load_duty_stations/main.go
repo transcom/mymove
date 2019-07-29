@@ -60,10 +60,11 @@ func main() {
 	migration.WriteString(insertions)
 
 	f, err := os.OpenFile(*output, os.O_TRUNC|os.O_WRONLY, os.ModeAppend)
-	defer f.Close()
 	if err != nil {
 		log.Panic(err)
 	}
+	defer f.Close()
+
 	_, err = f.WriteString(migration.String())
 	if err != nil {
 		log.Panic(err)
