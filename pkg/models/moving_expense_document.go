@@ -109,3 +109,13 @@ func (m *MovingExpenseDocument) DaysInStorage() (int, error) {
 	}
 	return daysInStorage, nil
 }
+
+func FilterSITExpenses(movingExpenseDocuments MovingExpenseDocuments) MovingExpenseDocuments {
+	var sitExpenses []MovingExpenseDocument
+	for _, doc := range movingExpenseDocuments {
+		if doc.MovingExpenseType == MovingExpenseTypeSTORAGE {
+			sitExpenses = append(sitExpenses, doc)
+		}
+	}
+	return sitExpenses
+}

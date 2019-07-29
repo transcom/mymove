@@ -387,11 +387,22 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 		// weight tickets require that we save the ppm again to reflect updated net weight derived from the
 		// updated weight tickets
 		ppm := &moveDoc.PersonallyProcuredMove
-		//TODO add days in storage calc
-		//var daysInStorage *int64
-		ds := int64(100)
-		ppm.DaysInStorage = &ds
-		if err != nil {
+		status := models.MoveDocumentStatusOK
+		moveDocuments, sitCalcErr := models.FetchMoveDocuments(h.DB(), session, ppm.ID, &status, models.MoveDocumentTypeEXPENSE)
+		movingExpenseDocuments, sitCalcErr := models.FetchMovingExpenses(moveDocuments)
+		sitExpenses := models.FilterSITExpenses(movingExpenseDocuments)
+		var totalDaysInSit int64
+		for _, sitExpense := range sitExpenses {
+			var daysInSit int
+			if sitExpense.StorageStartDate != nil && sitExpense.StorageEndDate != nil {
+				daysInSit, sitCalcErr = sitExpense.DaysInStorage()
+				if sitCalcErr == nil {
+					totalDaysInSit += int64(daysInSit)
+				}
+			}
+		}
+		ppm.DaysInStorage = &totalDaysInSit
+		if sitCalcErr != nil {
 			return handlers.ResponseForError(logger, errors.New("unable to calculate ppm net weight"))
 		}
 		if verrs, saveErr := h.DB().ValidateAndSave(ppm); verrs.HasAny() || saveErr != nil {
