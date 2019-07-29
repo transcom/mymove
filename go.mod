@@ -44,6 +44,7 @@ require (
 	github.com/gopherjs/gopherjs v0.0.0-20190430165422-3e4dfb77656c // indirect
 	github.com/gorilla/csrf v1.6.0
 	github.com/hashicorp/go-multierror v1.0.0
+	github.com/hhrutter/pdfcpu v0.2.1
 	github.com/honeycombio/beeline-go v0.4.4
 	github.com/honeycombio/libhoney-go v1.11.1 // indirect
 	github.com/imdario/mergo v0.3.7
@@ -73,7 +74,6 @@ require (
 	github.com/stretchr/testify v1.3.1-0.20190712000136-221dbe5ed467
 	github.com/subosito/gotenv v1.1.1 // indirect
 	github.com/tealeg/xlsx v1.0.3
-	github.com/trussworks/pdfcpu v0.1.15-0.20180823221217-a53781a43f9d
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	go.mongodb.org/mongo-driver v1.0.4 // indirect
