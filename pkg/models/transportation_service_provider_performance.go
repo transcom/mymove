@@ -123,6 +123,10 @@ func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID,
 			offer_count ASC,
 			best_value_score DESC
 		`
+	// Note: For PPM estimates, we ensure we have a tiebreaker that always returns the same TSPP
+	// record in case multiple records match in the query above.  We may want to adjust the award
+	// queue for consistency if we start doing HHGs again.  For more information, see:
+	// https://docs.google.com/document/d/1T-KYb7BGNWpybkz-LrLGFRfWyKXhAD2w4fwJOBHko5A/edit#
 
 	tspp := TransportationServiceProviderPerformance{}
 	err := tx.RawQuery(sql, tdlID, qualityBand, bookDate, requestedPickupDate).First(&tspp)
@@ -214,6 +218,10 @@ func FetchTSPPerformancesForQualityBandAssignment(tx *pop.Connection, perfGroup 
 		Where("enrolled = true").
 		Order("best_value_score DESC").
 		All(&perfs)
+	// Note: For PPM estimates, we ensure we have a tiebreaker that always returns the same TSPP
+	// record in case multiple records match in the query above.  We may want to adjust the award
+	// queue for consistency if we start doing HHGs again.  For more information, see:
+	// https://docs.google.com/document/d/1T-KYb7BGNWpybkz-LrLGFRfWyKXhAD2w4fwJOBHko5A/edit#
 
 	return perfs, err
 }
