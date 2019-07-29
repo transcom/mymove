@@ -32,7 +32,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 		return handlers.ResponseForError(logger, err)
 	}
 
-	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(params.DutyStationZip, params.DestinationZip)
+	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(params.OriginDutyStationZip, params.DestinationZip)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)
 	}
@@ -40,7 +40,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 	cost, err := engine.ComputeLowestCostPPMMove(
 		unit.Pound(params.Weight),
 		params.OriginZip,
-		params.DutyStationZip,
+		params.OriginDutyStationZip,
 		params.DestinationZip,
 		distanceMilesFromOriginPickupZip,
 		distanceMilesFromOriginDutyStationZip,

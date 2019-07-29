@@ -112,12 +112,12 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 	req = suite.AuthenticateRequest(req, serviceMember)
 
 	params := ppmop.ShowPPMEstimateParams{
-		HTTPRequest:      req,
-		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1TestYear),
-		OriginZip:        "94540",
-		DutyStationZip:   "50309",
-		DestinationZip:   "78626",
-		WeightEstimate:   7500,
+		HTTPRequest:          req,
+		OriginalMoveDate:     *handlers.FmtDate(scenario.Oct1TestYear),
+		OriginZip:            "94540",
+		OriginDutyStationZip: "50309",
+		DestinationZip:       "78626",
+		WeightEstimate:       7500,
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -148,12 +148,12 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 	req = suite.AuthenticateRequest(req, serviceMember)
 
 	params := ppmop.ShowPPMEstimateParams{
-		HTTPRequest:      req,
-		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1TestYear),
-		OriginZip:        "94540",
-		DutyStationZip:   "50309",
-		DestinationZip:   "78626",
-		WeightEstimate:   600,
+		HTTPRequest:          req,
+		OriginalMoveDate:     *handlers.FmtDate(scenario.Oct1TestYear),
+		OriginZip:            "94540",
+		OriginDutyStationZip: "50309",
+		DestinationZip:       "78626",
+		WeightEstimate:       600,
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())

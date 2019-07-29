@@ -106,12 +106,12 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 	req = suite.AuthenticateRequest(req, user)
 
 	params := ppmop.ShowPPMIncentiveParams{
-		HTTPRequest:      req,
-		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1TestYear),
-		OriginZip:        "94540",
-		DutyStationZip:   "50309",
-		DestinationZip:   "78626",
-		Weight:           7500,
+		HTTPRequest:          req,
+		OriginalMoveDate:     *handlers.FmtDate(scenario.Oct1TestYear),
+		OriginZip:            "94540",
+		OriginDutyStationZip: "50309",
+		DestinationZip:       "78626",
+		Weight:               7500,
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -137,12 +137,12 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	params := ppmop.ShowPPMIncentiveParams{
-		HTTPRequest:      req,
-		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1TestYear),
-		OriginZip:        "94540",
-		DutyStationZip:   "50309",
-		DestinationZip:   "78626",
-		Weight:           7500,
+		HTTPRequest:          req,
+		OriginalMoveDate:     *handlers.FmtDate(scenario.Oct1TestYear),
+		OriginZip:            "94540",
+		OriginDutyStationZip: "50309",
+		DestinationZip:       "78626",
+		Weight:               7500,
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
@@ -173,12 +173,12 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	params := ppmop.ShowPPMIncentiveParams{
-		HTTPRequest:      req,
-		OriginalMoveDate: *handlers.FmtDate(scenario.Oct1TestYear),
-		OriginZip:        "94540",
-		DutyStationZip:   "50309",
-		DestinationZip:   "78626",
-		Weight:           600,
+		HTTPRequest:          req,
+		OriginalMoveDate:     *handlers.FmtDate(scenario.Oct1TestYear),
+		OriginZip:            "94540",
+		OriginDutyStationZip: "50309",
+		DestinationZip:       "78626",
+		Weight:               600,
 	}
 
 	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
