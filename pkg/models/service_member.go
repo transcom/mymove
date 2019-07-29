@@ -100,7 +100,7 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 		"BackupMailingAddress",
 		"BackupContacts",
 		"DutyStation",
-		"DutyStation.Address.PostalCode",
+		"DutyStation.Address",
 		"DutyStation.TransportationOffice",
 		"Orders",
 		"Orders.NewDutyStation",
@@ -167,12 +167,6 @@ func FetchServiceMember(db *pop.Connection, id uuid.UUID) (ServiceMember, error)
 	}
 
 	return serviceMember, nil
-}
-
-func FetchServiceMemberByUserID(db *pop.Connection, userID uuid.UUID) (ServiceMember, error) {
-	var serviceMember ServiceMember
-	err := db.Where("user_id = ?", userID).First(&serviceMember)
-	return serviceMember, err
 }
 
 // SaveServiceMember takes a serviceMember with Address structs and coordinates saving it all in a transaction
