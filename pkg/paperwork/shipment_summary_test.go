@@ -90,10 +90,12 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 			TotalSITCost:          &cents,
 		},
 	})
+	currentDutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
 	params := models.ShipmentSummaryFormData{
 		PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
 		WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
+		CurrentDutyStation:      currentDutyStation,
 	}
 	suite.Run("TestComputeObligations", func() {
 		mockComputer := mockPPMComputer{
@@ -157,9 +159,11 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 				DestinationPostalCode: &destinationPostalCode,
 			},
 		})
+		currentDutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
 		shipmentSummaryFormParams := models.ShipmentSummaryFormData{
 			PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
 			WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
+			CurrentDutyStation:      currentDutyStation,
 		}
 		mockComputer := mockPPMComputer{
 			costComputation: rateengine.CostComputation{SITMax: unit.Cents(500)},

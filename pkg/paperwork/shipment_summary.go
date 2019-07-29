@@ -41,11 +41,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		return models.Obligations{}, err
 	}
 
-	ppm, err := models.FetchPersonallyProcuredMove(db, session, firstPPM.ID)
-	if err != nil {
-		return models.Obligations{}, models.ErrFetchForbidden
-	}
-	originDutyStationZip := ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode
+	originDutyStationZip := ssfd.CurrentDutyStation.Address.PostalCode
 
 	distanceMilesFromPickupZip, err := planner.Zip5TransitDistance(*firstPPM.PickupPostalCode, *firstPPM.DestinationPostalCode)
 	if err != nil {
