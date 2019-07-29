@@ -303,7 +303,7 @@ func (suite *RateEngineSuite) TestComputeLowestCostPPMMoveWithLHDiscount() {
 	ppmCost, err := engine.ComputePPM(weight, originZip, destinationZip, distanceMilesFromOriginPickupZip, testdatagen.RateEngineDate,
 		1, lhDiscount, sitDiscount)
 
-	cost, err := engine.ComputeLowestCostPPMMove(
+	cost, err := engine.ComputeLowestCostPPMMoveWithLHDiscount(
 		weight,
 		originZip,
 		originDutyStationZip,
@@ -311,7 +311,9 @@ func (suite *RateEngineSuite) TestComputeLowestCostPPMMoveWithLHDiscount() {
 		distanceMilesFromOriginPickupZip,
 		distanceMilesFromDutyStationZip,
 		testdatagen.RateEngineDate,
-		0,
+		1,
+		lhDiscount,
+		sitDiscount,
 	)
 	suite.Require().Nil(err)
 
