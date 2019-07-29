@@ -2569,7 +2569,7 @@ paths:
           description: UUID of the shipment
       responses:
         200:
-          description: returns a Transporation Service Provider
+          description: returns a Transportation Service Provider
           schema:
             $ref: '#/definitions/TransportationServiceProvider'
         401:

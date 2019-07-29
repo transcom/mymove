@@ -33,7 +33,7 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 
 	adminAPI.OfficeCreateOfficeUserHandler = CreateOfficeUserHandler{
 		context,
-		user.NewOfficeUserCreator(context.DB(), queryBuilder),
+		user.NewOfficeUserCreator(queryBuilder),
 		query.NewQueryFilter,
 	}
 

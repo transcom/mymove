@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/gobuffalo/validate"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -27,13 +29,17 @@ func (suite *UserServiceSuite) TestCreateOfficeUser() {
 			reflect.ValueOf(model).Elem().FieldByName("ID").Set(reflect.ValueOf(transportationOffice.ID))
 			return nil
 		}
+		fakeCreateOne := func(interface{}) (*validate.Errors, error) {
+			return nil, nil
+		}
 		filter := []services.QueryFilter{query.NewQueryFilter("id", "=", transportationOffice.ID)}
 
 		builder := &testOfficeUserQueryBuilder{
-			fakeFetchOne: fakeFetchOne,
+			fakeFetchOne:  fakeFetchOne,
+			fakeCreateOne: fakeCreateOne,
 		}
 
-		creator := NewOfficeUserCreator(suite.DB(), builder)
+		creator := NewOfficeUserCreator(builder)
 		_, verrs, err := creator.CreateOfficeUser(&userInfo, filter)
 		suite.NoError(err)
 		suite.Nil(verrs)
@@ -50,7 +56,7 @@ func (suite *UserServiceSuite) TestCreateOfficeUser() {
 			fakeFetchOne: fakeFetchOne,
 		}
 
-		creator := NewOfficeUserCreator(suite.DB(), builder)
+		creator := NewOfficeUserCreator(builder)
 		_, _, err := creator.CreateOfficeUser(&userInfo, filter)
 		suite.Error(err)
 		suite.Equal(models.ErrFetchNotFound.Error(), err.Error())
