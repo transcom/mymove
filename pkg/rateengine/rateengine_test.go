@@ -289,6 +289,36 @@ func (suite *RateEngineSuite) TestComputeLowestCostPPMMove() {
 	suite.Equal(ppmCost, cost)
 }
 
+func (suite *RateEngineSuite) TestComputeLowestCostPPMMoveWithLHDiscount() {
+	logger, _ := zap.NewDevelopment()
+	originZip := "39574"
+	originDutyStationZip := "50309"
+	destinationZip := "33633"
+	distanceMilesFromOriginPickupZip := 1044
+	distanceMilesFromDutyStationZip := 3300
+	weight := unit.Pound(2000)
+	engine := NewRateEngine(suite.DB(), logger)
+	lhDiscount := unit.DiscountRate(.6)
+	sitDiscount := unit.DiscountRate(.5)
+	ppmCost, err := engine.ComputePPM(weight, originZip, destinationZip, distanceMilesFromOriginPickupZip, testdatagen.RateEngineDate,
+		1, lhDiscount, sitDiscount)
+
+	cost, err := engine.ComputeLowestCostPPMMove(
+		weight,
+		originZip,
+		originDutyStationZip,
+		destinationZip,
+		distanceMilesFromOriginPickupZip,
+		distanceMilesFromDutyStationZip,
+		testdatagen.RateEngineDate,
+		0,
+	)
+	suite.Require().Nil(err)
+
+	suite.True(ppmCost.GCC > 0)
+	suite.Equal(ppmCost, cost)
+}
+
 type RateEngineSuite struct {
 	testingsuite.PopTestSuite
 	logger Logger
