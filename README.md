@@ -217,7 +217,7 @@ If you wish to not maintain a `.envrc.local` you can alternatively run `cp .envr
 
 #### Helpful variables for `.envrc.local`
 
-* `export GOLANGCI_LINT_CONCURRENCY=6` - variable to increase concurrency of golangci-lint for an up to 3X performance gain.
+* `export GOLANGCI_LINT_CONCURRENCY=8` - variable to increase concurrency of golangci-lint; defaults to 6 on dev machines and to 1 in CircleCI.
 * `export GOLAND=1` - variable to enable go code debugging in goland
 
 ### Setup: Pre-Commit
