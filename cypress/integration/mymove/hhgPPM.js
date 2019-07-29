@@ -122,7 +122,7 @@ function serviceMemberVerifiesHHGPPMSummary() {
     expect(text).to.include('Delivery ZIP Code:  30813');
     expect(text).not.to.include('Storage: Not requested');
     expect(text).to.include('Estimated Weight:  1,50');
-    expect(text).to.include('Estimated PPM Incentive:  $2,275.63 - 2,515.17');
+    expect(text).to.include('Estimated PPM Incentive:  $2,072.45 - 2,290.61');
   });
 }
 
@@ -131,7 +131,7 @@ function serviceMemberVerifiesPPMWeightsEdited() {
     const text = $div.text();
 
     expect(text).to.include('Estimated Weight:  1,700 lbs');
-    expect(text).to.include('Estimated PPM Incentive:  $3,460.33 - 3,824.57');
+    expect(text).to.include('Estimated PPM Incentive:  $3,765.95 - 4,162.37');
   });
 }
 
@@ -141,7 +141,7 @@ function serviceMemberEditsPPMWeight() {
   cy.typeInInput({ name: 'weight_estimate', value: '1700' });
 
   cy.get('strong').contains('$3,460.33 - 3,824.57');
-  cy.get('.subtext').contains('Originally $3,117.06 - 3,445.18');
+  cy.get('.subtext').contains('Originally $3,392.37 - 3,749.47');
 
   cy
     .get('button')
@@ -443,7 +443,7 @@ function serviceMemberCanReviewMoveSummary() {
     expect(text).to.include('Delivery ZIP Code:  30813');
     expect(text).not.to.include('Storage: Not requested');
     expect(text).to.include('Estimated Weight:  1,50');
-    expect(text).to.include('Estimated PPM Incentive:  $2,275.63 - 2,515.17');
+    expect(text).to.include('Estimated PPM Incentive:  $2,072.45 - 2,290.61');
   });
 
   cy.nextPage();
@@ -501,6 +501,6 @@ function serviceMemberViewsUpdatedHomePage() {
       .children('a')
       .should('have.attr', 'href', 'https://move.mil/resources/locator-maps');
     cy.contains('Weight (est.): 150');
-    cy.contains('Incentive (est.): $2,275.63 - 2,515.17');
+    cy.contains('Incentive (est.): $2,072.45 - 2,290.61');
   });
 }
