@@ -24,9 +24,9 @@ linters:
      - typecheck
      - structcheck
      - deadcode
-     - gosimple
   disable:
     - unused #deprecated https://github.com/dominikh/go-tools/tree/master/cmd/unused
+    - gosimple #deprecated https://github.com/golangci/golangci-lint/issues/357
     - errcheck #requires patching code
     - ineffassign # 20+ files need to be patched
     - staticcheck # 30+files need to be patched
