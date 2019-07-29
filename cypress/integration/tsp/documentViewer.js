@@ -13,10 +13,8 @@ describe('The document viewer', function() {
       log: true,
     });
 
-    cy.get('.document-upload-link').contains('Upload new document');
-
     cy
-      .get('.document-upload-link')
+      .get('[data-cy="document-upload-link"]')
       .find('a')
       .should('have.attr', 'href')
       .and('contain', '/shipments/65e00326-420e-436a-89fc-6aeb3f90b870/documents/new');
@@ -33,7 +31,8 @@ describe('The document viewer', function() {
     });
 
     cy
-      .get('.document-upload-url')
+      .get('[data-cy="document-upload-link"]')
+      .find('a')
       .should('have.attr', 'href')
       .and('match', /^\/shipments\/[^/]+\/documents\/[^/]+/);
   });
@@ -43,15 +42,18 @@ describe('The document viewer', function() {
       log: true,
     });
     cy
-      .get('.document-upload-link')
+      .get('[data-cy="document-upload-link"]')
       .find('a')
       .should('have.attr', 'href')
       .and('contain', '/shipments/65e00326-420e-436a-89fc-6aeb3f90b870/documents/new');
-    cy.get('.document-upload-link').click();
+    cy
+      .get('[data-cy="document-upload-link"]')
+      .find('a')
+      .click();
 
     cy.get('button.submit').should('be.disabled');
-    cy.get('input[name="title"]').type('super secret info document');
     cy.get('select[name="move_document_type"]').select('Other document type');
+    cy.get('input[name="title"]').type('super secret info document');
     cy.get('input[name="notes"]').type('burn after reading');
     cy.get('button.submit').should('be.disabled');
     cy.upload_file('.filepond--root', 'top-secret.png');
