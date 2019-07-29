@@ -55,6 +55,10 @@ type ShipmentSummaryWorksheetPage1Values struct {
 	ShipmentPickUpDates             string
 	ShipmentWeights                 string
 	ShipmentCurrentShipmentStatuses string
+	SITNumberAndTypes               string
+	SITEntryDates                   string
+	SITEndDates                     string
+	SITDaysInStorage                string
 	PreparationDate                 string
 	MaxObligationGCC100             string
 	TotalWeightAllotmentRepeat      string
@@ -76,10 +80,23 @@ type ShipmentSummaryWorkSheetShipments struct {
 	CurrentShipmentStatuses string
 }
 
+type ShipmentSummaryWorkSheetSIT struct {
+	NumberAndTypes string
+	EntryDates     string
+	EndDates       string
+	DaysInStorage  string
+}
+
+type FormattedSitExpenses struct {
+	TotalMemberPaidSIT string
+	TotalGTCCPaidSIT   string
+}
+
 // ShipmentSummaryWorksheetPage2Values is an object representing a Shipment Summary Worksheet
 type ShipmentSummaryWorksheetPage2Values struct {
 	PreparationDate string
 	FormattedMovingExpenses
+	FormattedSitExpenses
 	ServiceMemberSignature string
 }
 
@@ -352,6 +369,12 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data ShipmentSummaryFormData)
 	page1.ShipmentCurrentShipmentStatuses = formattedShipments.CurrentShipmentStatuses
 	page1.ShipmentWeights = formattedShipments.ShipmentWeights
 
+	formattedSit := FormatAllSITExpenses(data.MovingExpenseDocuments)
+	page1.SITNumberAndTypes = formattedSit.NumberAndTypes
+	page1.SITEntryDates = formattedSit.EntryDates
+	page1.SITEndDates = formattedSit.EndDates
+	page1.SITDaysInStorage = formattedSit.DaysInStorage
+
 	maxObligations := data.Obligations.MaxObligation
 	page1.MaxObligationGCC100 = FormatDollars(maxObligations.GCC100())
 	page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
@@ -420,6 +443,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData)
 	page2 := ShipmentSummaryWorksheetPage2Values{}
 	page2.PreparationDate = FormatDate(data.PreparationDate)
 	page2.FormattedMovingExpenses, err = FormatMovingExpenses(data.MovingExpenseDocuments)
+	page2.FormattedSitExpenses, err = FormatSitExpenses(data.MovingExpenseDocuments)
 	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
 	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
 	page2.ServiceMemberSignature = FormatSignature(data)
@@ -489,8 +513,81 @@ func FormatAllShipments(ppms PersonallyProcuredMoves, shipments Shipments) Shipm
 	return formattedShipments
 }
 
+//FormatAllSITExpenses formats SIT line items for the Shipment Summary Worksheet
+func FormatAllSITExpenses(movingExpenseDocuments MovingExpenseDocuments) ShipmentSummaryWorkSheetSIT {
+	formattedShipments := ShipmentSummaryWorkSheetSIT{}
+	sitExpenses := getSitExpenses(movingExpenseDocuments)
+	totalSITExpenses := len(sitExpenses)
+	formattedShipmentNumberAndTypes := make([]string, totalSITExpenses)
+	formattedEntryDates := make([]string, totalSITExpenses)
+	formattedEndDates := make([]string, totalSITExpenses)
+	formattedDaysInStorage := make([]string, totalSITExpenses)
+
+	for i, sitExpense := range sitExpenses {
+		formattedShipmentNumberAndTypes[i] = FormatPPMNumberAndType(i)
+		if sitExpense.StorageStartDate != nil {
+			formattedEntryDates[i] = FormatDate(*sitExpense.StorageStartDate)
+		}
+		if sitExpense.StorageEndDate != nil {
+			formattedEndDates[i] = FormatDate(*sitExpense.StorageEndDate)
+		}
+		days, err := sitExpense.DaysInStorage()
+		if err == nil {
+			formattedDaysInStorage[i] = fmt.Sprintf("%d", days)
+		}
+	}
+
+	formattedShipments.NumberAndTypes = strings.Join(formattedShipmentNumberAndTypes, "\n\n")
+	formattedShipments.EntryDates = strings.Join(formattedEntryDates, "\n\n")
+	formattedShipments.EndDates = strings.Join(formattedEndDates, "\n\n")
+	formattedShipments.DaysInStorage = strings.Join(formattedDaysInStorage, "\n\n")
+
+	return formattedShipments
+}
+
+//FormatMovingExpenses formats moving expenses for Shipment Summary Worksheet
+func FormatSitExpenses(movingExpenseDocuments MovingExpenseDocuments) (FormattedSitExpenses, error) {
+	sitExpenses := getSitExpenses(movingExpenseDocuments)
+	storageExpenses := struct {
+		StorageGTCCPaid   string
+		StorageMemberPaid string
+	}{
+		StorageGTCCPaid:   FormatDollars(0),
+		StorageMemberPaid: FormatDollars(0),
+	}
+	subTotals := SubTotalExpenses(sitExpenses)
+	formattedExpenses := make(map[string]string)
+	for key, value := range subTotals {
+		formattedExpenses[key] = FormatDollars(value)
+	}
+	err := mapstructure.Decode(formattedExpenses, &storageExpenses)
+	if err != nil {
+		return FormattedSitExpenses{}, err
+	}
+	return FormattedSitExpenses{
+		TotalMemberPaidSIT: storageExpenses.StorageMemberPaid,
+		TotalGTCCPaidSIT:   storageExpenses.StorageGTCCPaid,
+	}, nil
+}
+
+func getSitExpenses(movingExpenseDocuments MovingExpenseDocuments) MovingExpenseDocuments {
+	var sitExpenses []MovingExpenseDocument
+	for _, doc := range movingExpenseDocuments {
+		if doc.MovingExpenseType == MovingExpenseTypeSTORAGE {
+			sitExpenses = append(sitExpenses, doc)
+		}
+	}
+	return sitExpenses
+}
+
 //FormatMovingExpenses formats moving expenses for Shipment Summary Worksheet
 func FormatMovingExpenses(movingExpenseDocuments MovingExpenseDocuments) (FormattedMovingExpenses, error) {
+	var nonSitExpenses []MovingExpenseDocument
+	for _, doc := range movingExpenseDocuments {
+		if doc.MovingExpenseType != MovingExpenseTypeSTORAGE {
+			nonSitExpenses = append(nonSitExpenses, doc)
+		}
+	}
 	expenses := FormattedMovingExpenses{
 		ContractedExpenseMemberPaid: FormatDollars(0),
 		ContractedExpenseGTCCPaid:   FormatDollars(0),
@@ -511,7 +608,7 @@ func FormatMovingExpenses(movingExpenseDocuments MovingExpenseDocuments) (Format
 		TotalMemberPaid:             FormatDollars(0),
 		TotalGTCCPaid:               FormatDollars(0),
 	}
-	subTotals := SubTotalExpenses(movingExpenseDocuments)
+	subTotals := SubTotalExpenses(nonSitExpenses)
 	formattedExpenses := make(map[string]string)
 	for key, value := range subTotals {
 		formattedExpenses[key] = FormatDollars(value)
