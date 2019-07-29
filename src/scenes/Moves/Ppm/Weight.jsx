@@ -171,7 +171,7 @@ export class PpmWeight extends Component {
   // it runs even if the incentive has been set before since data changes on previous pages could
   // affect it
   updateIncentive() {
-    const { currentWeight, currentPpm } = this.props;
+    const { currentWeight, currentPpm, originDutyStationZip } = this.props;
     const weight_estimate = get(this.props, 'currentPpm.weight_estimate');
     if (![this.state.pendingPpmWeight, weight_estimate].includes(currentWeight) || !currentWeight) {
       const newWeight = currentWeight && currentWeight !== 0 ? currentWeight : this.state.pendingPpmWeight;
@@ -179,7 +179,7 @@ export class PpmWeight extends Component {
       this.props.getPpmWeightEstimate(
         currentPpm.original_move_date,
         currentPpm.pickup_postal_code,
-        currentPpm.duty_station_zip,
+        originDutyStationZip,
         currentPpm.destination_postal_code,
         newWeight,
       );
@@ -209,11 +209,11 @@ export class PpmWeight extends Component {
     });
   };
   onWeightSelected() {
-    const { currentPpm } = this.props;
+    const { currentPpm, originDutyStationZip } = this.props;
     this.props.getPpmWeightEstimate(
       currentPpm.original_move_date,
       currentPpm.pickup_postal_code,
-      currentPpm.duty_station_zip,
+      originDutyStationZip,
       currentPpm.destination_postal_code,
       this.state.pendingPpmWeight,
     );
@@ -374,6 +374,7 @@ PpmWeight.propTypes = {
 };
 function mapStateToProps(state) {
   const schema = get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {});
+  const originDutyStationZip = state.serviceMember.currentServiceMember.current_station.address.postal_code;
   // In scheduling, PPM advances cannot go to GTCC so we filter out that method of payment.
   let ppmAdvanceSchema = {};
   if (has(schema, 'properties')) {
@@ -393,6 +394,7 @@ function mapStateToProps(state) {
     ppmAdvanceSchema: ppmAdvanceSchema,
     advanceFormValues: getFormValues(requestAdvanceFormName)(state),
     isHHGPPMComboMove: get(state, 'moves.currentMove.selected_move_type') === 'HHG_PPM',
+    originDutyStationZip: originDutyStationZip,
   };
 
   return props;

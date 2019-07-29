@@ -434,7 +434,7 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 		distanceMilesFromOriginPickupZip,
 		distanceMilesFromOriginDutyStationZip,
 		time.Time(*ppm.OriginalMoveDate),
-		0,
+		daysInSIT,
 	)
 	if err != nil {
 		return err

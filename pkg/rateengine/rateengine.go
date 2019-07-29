@@ -36,6 +36,7 @@ type CostComputation struct {
 	SITDiscount unit.DiscountRate
 	Weight      unit.Pound
 	ShipmentID  uuid.UUID
+	OriginZip   string
 }
 
 // Scale scales a cost computation by a multiplicative factor
@@ -71,6 +72,7 @@ func (c CostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	encoder.AddInt("Miles", c.Mileage)
 	encoder.AddInt("Weight", c.Weight.Int())
 	encoder.AddString("ShipmentID", c.ShipmentID.String())
+	encoder.AddString("OriginZip", c.OriginZip)
 
 	return nil
 }
@@ -154,6 +156,7 @@ func (re *RateEngine) ComputePPM(
 		LHDiscount:                 lhDiscount,
 		SITDiscount:                sitDiscount,
 		Weight:                     weight,
+		OriginZip:                  originZip5,
 	}
 
 	// Finally, scale by prorate factor
