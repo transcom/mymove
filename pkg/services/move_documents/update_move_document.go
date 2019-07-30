@@ -12,7 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// createForm is a service object to create a form with data
+// moveDocumentUpdater implementation of MoveDocumentUpdater
 type moveDocumentUpdater struct {
 	db                    *pop.Connection
 	weightTicketUpdater   Updater
@@ -22,10 +22,12 @@ type moveDocumentUpdater struct {
 	moveDocumentStatusUpdater
 }
 
+//Updater interface for individual document updaters
 type Updater interface {
 	Update(params movedocop.UpdateMoveDocumentParams, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error)
 }
 
+//NewMoveDocumentUpdater create NewMoveDocumentUpdater including expected updaters
 func NewMoveDocumentUpdater(db *pop.Connection) services.MoveDocumentUpdater {
 	mdsu := moveDocumentStatusUpdater{}
 	wtu := WeightTicketUpdater{db, mdsu}
@@ -68,8 +70,8 @@ func (m moveDocumentUpdater) Update(params movedocop.UpdateMoveDocumentParams, m
 type moveDocumentStatusUpdater struct {
 }
 
-//UpdateMoveDocumentStatus attempt to transition a move document from one status to another. Returns and error if
-// the status transition is invalid
+//UpdateMoveDocumentStatus attempt to transition a move document from one status to another.
+// Returns and error if the status transition is invalid
 func (mds moveDocumentStatusUpdater) UpdateMoveDocumentStatus(params movedocop.UpdateMoveDocumentParams, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 	payload := params.UpdateMoveDocument

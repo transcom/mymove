@@ -17,6 +17,7 @@ type StorageExpenseUpdater struct {
 	moveDocumentStatusUpdater
 }
 
+//Update updates the storage expense documents
 func (seu StorageExpenseUpdater) Update(params movedocop.UpdateMoveDocumentParams, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 	payload := params.UpdateMoveDocument

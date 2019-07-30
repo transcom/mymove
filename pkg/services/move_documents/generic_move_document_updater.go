@@ -14,6 +14,7 @@ type GenericUpdater struct {
 	moveDocumentStatusUpdater
 }
 
+//Update updates the generic (non-special case) move documents
 func (gu GenericUpdater) Update(params movedocop.UpdateMoveDocumentParams, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 	payload := params.UpdateMoveDocument

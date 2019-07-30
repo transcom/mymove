@@ -14,6 +14,7 @@ type PPMCompleter struct {
 	moveDocumentStatusUpdater
 }
 
+//Update moves ppm status to complete when ssw is uploaded
 func (ppmc PPMCompleter) Update(params movedocop.UpdateMoveDocumentParams, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 	payload := params.UpdateMoveDocument

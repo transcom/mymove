@@ -16,6 +16,7 @@ type WeightTicketUpdater struct {
 	moveDocumentStatusUpdater
 }
 
+//Update updates the weight ticket documents
 func (wtu WeightTicketUpdater) Update(params movedocop.UpdateMoveDocumentParams, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 	payload := params.UpdateMoveDocument
