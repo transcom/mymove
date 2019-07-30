@@ -27,7 +27,7 @@ services:
        - DB_USER=postgres
        - ENVIRONMENT=test
        - SECURE_MIGRATION_DIR=/mymove/local_migrations
-       - SECURE_MIGRATION_SOURCE
+       - SECURE_MIGRATION_SOURCE=local
      volumes:
        - ./local_migrations:/mymove/local_migrations
 
@@ -47,7 +47,7 @@ services:
        - DB_HOST=database
        - DB_NAME=dev_db
        - DB_PASSWORD=mysecretpassword
-       - DB_PORT=6432
+       - DB_PORT=5432
        - DB_SSL_MODE=disable
        - DB_USER=postgres
        - DEVLOCAL_CA=/config/tls/devlocal-ca.pem
@@ -79,6 +79,4 @@ services:
        - MOVE_MIL_DOD_TLS_KEY
        - NO_TLS_ENABLED=1
        - NO_TLS_PORT=5000
-       - SECURE_MIGRATION_DIR
-       - SECURE_MIGRATION_SOURCE
        - STORAGE_BACKEND=memory
