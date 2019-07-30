@@ -142,11 +142,11 @@
     },
     {
       "name": "MUTUAL_TLS_ENABLED",
-      "value": true
+      "value": "{{ .MUTUAL_TLS_ENABLED }}"
     },
     {
       "name": "SERVE_ORDERS",
-      "value": true
+      "value": "{{ .SERVE_ORDERS }}"
     }
   ],
   "logConfiguration": {
