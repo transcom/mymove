@@ -24,12 +24,7 @@
     "production",
     "--debug-logging",
     "--log-task-metadata",
-    "--tls-enabled",
-    "--serve-admin",
-    "--serve-sddc",
-    "--serve-dps",
-    "--serve-api-internal",
-    "--serve-api-external"
+    "--tls-enabled"
   ],
   "command": [],
   "environment": [
@@ -196,6 +191,26 @@
     {
       "name": "FEATURE_FLAG_ACCESS_CODE",
       "value": "{{ .FEATURE_FLAG_ACCESS_CODE }}"
+    },
+    {
+      "name": "SERVE_ADMIN",
+      "value": "true"
+    },
+    {
+      "name": "SERVE_SDDC",
+      "value": "true"
+    },
+    {
+      "name": "SERVE_DPS",
+      "value": "true"
+    },
+    {
+      "name": "SERVE_API_INTERNAL",
+      "value": "true"
+    },
+    {
+      "name": "SERVE_EXTERNAL",
+      "value": "true"
     }
   ],
   "logConfiguration": {
