@@ -78,7 +78,7 @@ func (p *patchStorageInTransit) PatchStorageInTransit(payload apimessages.Storag
 		return nil, returnVerrs, err
 	}
 
-	if session.IsTspUser() {
+	if session.IsTspUser() && payload.OutDate != nil {
 		verrs, err = storageInTransit.SaveActualDeliveryDateAsOutDate(p.db, session, *(*time.Time)(payload.OutDate))
 		if err != nil || verrs.HasAny() {
 			returnVerrs.Append(verrs)
