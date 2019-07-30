@@ -10,7 +10,7 @@ services:
    milmove_migrate:
      depends_on:
        - database
-     image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-2a0262233d7bd7632694fd09f2eedcfcde8a80b1
+     image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-branch-cg_docker_compose
      ports:
        - '5436:5432'
      environment:
@@ -28,7 +28,7 @@ services:
      depends_on:
        - database
        - milmove_migrate
-     image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app:git-2a0262233d7bd7632694fd09f2eedcfcde8a80b1
+     image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app:git-branch-cg_docker_compose
      ports:
        - '5000:5000'
      environment:
