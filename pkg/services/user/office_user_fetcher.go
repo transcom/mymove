@@ -1,12 +1,15 @@
 package user
 
 import (
+	"github.com/gobuffalo/validate"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
 type officeUserQueryBuilder interface {
 	FetchOne(model interface{}, filters []services.QueryFilter) error
+	CreateOne(model interface{}) (*validate.Errors, error)
 }
 
 type officeUserFetcher struct {
