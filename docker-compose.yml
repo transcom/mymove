@@ -10,11 +10,6 @@ services:
        - POSTGRES_USER=postgres
        - POSTGRES_PASSWORD=mysecretpassword
        - POSTGRES_DB=dev_db
-     healthcheck:
-       test: ["CMD-SHELL", "pg_isready -U postgres"]
-       interval: 10s
-       timeout: 5s
-       retries: 5
 
    milmove_migrate:
      depends_on:
