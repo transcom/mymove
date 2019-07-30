@@ -22,12 +22,14 @@ services:
        - DB_HOST=database
        - DB_NAME=dev_db
        - DB_PASSWORD=mysecretpassword
-       - DB_PORT=6432
+       - DB_PORT=5432
        - DB_SSL_MODE=disable
        - DB_USER=postgres
        - ENVIRONMENT=test
-       - SECURE_MIGRATION_DIR
+       - SECURE_MIGRATION_DIR=/mymove/local_migrations
        - SECURE_MIGRATION_SOURCE
+     volumes:
+       - ./local_migrations:/mymove/local_migrations
 
    milmove:
      depends_on:
