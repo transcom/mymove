@@ -151,7 +151,7 @@ func (suite *HandlerSuite) TestRecalculateShipmentLineItemsHandler() {
 	suite.Assert().IsType(&handlers.ErrResponse{}, response)
 	errResponse := response.(*handlers.ErrResponse)
 	suite.Equal(expectedResponse.Code, errResponse.Code)
-	suite.Equal(expectedResponse.Err, errResponse.Err)
+	suite.Equal(expectedResponse.Err.Error(), errResponse.Err.Error())
 }
 
 func (suite *HandlerSuite) TestGetShipmentLineItemsHandler() {
