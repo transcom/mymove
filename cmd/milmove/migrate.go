@@ -160,7 +160,7 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 				// A valid connection object that still has an error indicates that the DB is not up and
 				// thus is not ready for migrations
 				logger.Error("DB is not ready for connections, sleeping", zap.Error(errDbConn))
-				time.Sleep(5 * time.Second)
+				time.Sleep(10 * time.Second)
 			}
 		} else {
 			break
