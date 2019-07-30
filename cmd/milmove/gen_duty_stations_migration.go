@@ -19,8 +19,8 @@ import (
 )
 
 const (
-	// filename containing the details for new office users
-	DutyStationsFilenameFlag string = "office-users-filename"
+	// filename containing the details for new duty stations
+	DutyStationsFilenameFlag string = "duty-stations-filename"
 )
 
 type MigrationInfo struct {
@@ -33,16 +33,28 @@ const (
 -- Duty stations file: {{.Filename}}`
 )
 
-// DutyStationsFilenameFlag initializes add_office_users command line flags
+// DutyStationsFilenameFlag initializes add_duty_stations command line flags
 func InitAddDutyStationsFlags(flag *pflag.FlagSet) {
-	flag.StringP(DutyStationsFilenameFlag, "f", "", "File name of csv file containing the new office users")
+	flag.StringP(DutyStationsFilenameFlag, "f", "", "File name of csv file containing the new duty stations users")
 }
 
-// CheckAddDutyStations validates add_office_users command line flags
-func CheckAddDutyStations(v *viper.Viper) error {
+// CheckAddDutyStations validates add_duty_stations command line flags
+func CheckAddDutyStations(v *viper.Viper, logger logger) error {
+	if err := cli.CheckDatabase(v, logger); err != nil {
+		return err
+	}
+
+	if err := cli.CheckMigration(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckMigrationFile(v); err != nil {
+		return err
+	}
+
 	DutyStationsFilename := v.GetString(DutyStationsFilenameFlag)
 	if DutyStationsFilename == "" {
-		return fmt.Errorf("--office-users-filename is required")
+		return fmt.Errorf("--duty-stations-filename is required")
 	}
 	return nil
 }
@@ -95,7 +107,13 @@ func genDutyStationsMigration(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return errors.Wrap(err, "could not bind flags")
 	}
-	err = CheckAddDutyStations(v)
+
+	logger, err := logging.Config(v.GetString(cli.LoggingEnvFlag), v.GetBool(cli.VerboseFlag))
+	if err != nil {
+		return err
+	}
+
+	err = CheckAddDutyStations(v, logger)
 	if err != nil {
 		return err
 	}
@@ -105,8 +123,6 @@ func genDutyStationsMigration(cmd *cobra.Command, args []string) error {
 	migrationName := v.GetString(cli.MigrationNameFlag)
 	migrationVersion := v.GetString(cli.MigrationVersionFlag)
 	dutyStationsFilename := v.GetString(DutyStationsFilenameFlag)
-
-	logger, err := logging.Config(v.GetString(cli.LoggingEnvFlag), v.GetBool(cli.VerboseFlag))
 
 	// Create a connection to the DB
 	dbConnection, err := cli.InitDatabase(v, logger)
