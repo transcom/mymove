@@ -38,48 +38,52 @@ definitions:
     items:
       $ref: '#/definitions/OfficeUser'
   TransportationOffice:
-      type: object
-      properties:
-        id:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+      address:
+        $ref: '#/definitions/Address'
+      phone_lines:
+        type: array
+        items:
           type: string
-          format: uuid
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        name:
-          type: string
-          example: Fort Bragg North Station
-        address:
-          $ref: '#/definitions/Address'
-        phone_lines:
-          type: array
-          items:
-            type: string
-            format: telephone
-            pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-            example: 212-555-5555
-        gbloc:
-          type: string
-          pattern: '^[A-Z]{4}$'
-          example: JENQ
-        latitude:
-          type: number
-          format: float
-          example: 29.382973
-        longitude:
-          type: number
-          format: float
-          example: -98.62759
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-      required:
-        - id
-        - name
-        - address
-        - created_at
-        - updated_at
+          format: telephone
+          pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+          example: 212-555-5555
+      gbloc:
+        type: string
+        pattern: '^[A-Z]{4}$'
+        example: JENQ
+      latitude:
+        type: number
+        format: float
+        example: 29.382973
+      longitude:
+        type: number
+        format: float
+        example: -98.62759
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - address
+      - created_at
+      - updated_at
+  TransportationOffices:
+    type: array
+    items:
+      $ref: '#/definitions/TransportationOffice'
   Address:
     type: object
     properties:
@@ -244,6 +248,32 @@ paths:
           description: success
           schema:
             $ref: '#/definitions/OfficeUsers'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: office not found
+        500:
+          description: server error
+  /offices:
+    get:
+      summary: List transportation offices
+      description: Returns a list of transportation offices
+      operationId: indexOffices
+      tags:
+        - office
+      parameters:
+        - in: query
+          name: filter
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/TransportationOffices'
         400:
           description: invalid request
         401:
