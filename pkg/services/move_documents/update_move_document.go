@@ -45,13 +45,13 @@ func NewMoveDocumentUpdater(db *pop.Connection) services.MoveDocumentUpdater {
 }
 
 //Update dispatches the various types of move documents to the appropriate Updater
-func (m moveDocumentUpdater) Update(params movedocop.UpdateMoveDocumentParams, moveDocId uuid.UUID, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
+func (m moveDocumentUpdater) Update(params movedocop.UpdateMoveDocumentParams, moveDocID uuid.UUID, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 	payload := params.UpdateMoveDocument
 	newStatus := models.MoveDocumentStatus(payload.Status)
 	newType := models.MoveDocumentType(payload.MoveDocumentType)
 	newExpenseType := models.MovingExpenseType(payload.MovingExpenseType)
-	originalMoveDocument, err := models.FetchMoveDocument(m.db, session, moveDocId)
+	originalMoveDocument, err := models.FetchMoveDocument(m.db, session, moveDocID)
 	if err != nil {
 		return nil, returnVerrs, models.ErrFetchNotFound
 	}
@@ -103,5 +103,3 @@ func mergeMoveDocuments(moveDocuments models.MoveDocuments, moveDoc models.MoveD
 	}
 	return oldMoveDocuments
 }
-
-

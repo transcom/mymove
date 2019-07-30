@@ -12,7 +12,7 @@ import (
 // MoveDocumentUpdater is an interface for moveDocument implementation
 //go:generate mockery -name MoveDocumentUpdater
 type MoveDocumentUpdater interface {
-	Update(moveDocument movedocop.UpdateMoveDocumentParams, moveId uuid.UUID, session *auth.Session) (*models.MoveDocument, *validate.Errors, error)
+	Update(moveDocument movedocop.UpdateMoveDocumentParams, moveID uuid.UUID, session *auth.Session) (*models.MoveDocument, *validate.Errors, error)
 	MoveDocumentStatusUpdater
 }
 
