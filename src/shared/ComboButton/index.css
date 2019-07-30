@@ -1,5 +1,6 @@
 .combo-button {
-  position: relative;
+  /* NOTE: Commenting this out to fix IE11 issue where combo button did not handle clicks */
+  /* position: relative; */
 }
 
 .combo-button-icon {
