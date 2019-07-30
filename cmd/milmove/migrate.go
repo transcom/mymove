@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"
@@ -148,22 +147,15 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Create a connection to the DB
-	var dbConnection *pop.Connection
-	var errDbConn error
-	for {
-		dbConnection, errDbConn = cli.InitDatabase(v, logger)
-		if errDbConn != nil {
-			if dbConnection == nil {
-				// No connection object means that the configuraton failed to validate and we should kill server startup
-				logger.Fatal("Invalid DB Configuration", zap.Error(errDbConn))
-			} else {
-				// A valid connection object that still has an error indicates that the DB is not up and
-				// thus is not ready for migrations
-				logger.Error("DB is not ready for connections, sleeping", zap.Error(errDbConn))
-				time.Sleep(10 * time.Second)
-			}
+	dbConnection, err := cli.InitDatabase(v, logger)
+	if err != nil {
+		if dbConnection == nil {
+			// No connection object means that the configuraton failed to validate and we should kill server startup
+			logger.Fatal("Invalid DB Configuration", zap.Error(err))
 		} else {
-			break
+			// A valid connection object that still has an error indicates that the DB is not up and
+			// thus is not ready for migrations
+			logger.Fatal("DB is not ready for connections", zap.Error(err))
 		}
 	}
 
