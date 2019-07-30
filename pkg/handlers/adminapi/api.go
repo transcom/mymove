@@ -9,7 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi"
 	adminops "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/services/office"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/services/user"
 )
@@ -32,9 +31,8 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		OfficeUserListFetcher: user.NewOfficeUserListFetcher(queryBuilder),
 	}
 	adminAPI.OfficeIndexOfficesHandler = IndexOfficesHandler{
-		HandlerContext:    context,
-		NewQueryFilter:    query.NewQueryFilter,
-		OfficeListFetcher: office.NewOfficeListFetcher(queryBuilder),
+		HandlerContext: context,
+		NewQueryFilter: query.NewQueryFilter,
 	}
 
 	return adminAPI.Serve(nil)

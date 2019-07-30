@@ -26,7 +26,6 @@ func payloadForOfficeModel(o models.TransportationOffice) *adminmessages.Transpo
 type IndexOfficesHandler struct {
 	handlers.HandlerContext
 	services.NewQueryFilter
-	services.OfficeListFetcher
 }
 
 // Handle retrieves a list of office users

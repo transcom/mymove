@@ -12,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/services/office"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -38,11 +37,9 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 			HTTPRequest: req,
 		}
 
-		queryBuilder := query.NewQueryBuilder(suite.DB())
 		handler := IndexOfficesHandler{
-			HandlerContext:    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			NewQueryFilter:    query.NewQueryFilter,
-			OfficeListFetcher: office.NewOfficeListFetcher(queryBuilder),
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			NewQueryFilter: query.NewQueryFilter,
 		}
 
 		response := handler.Handle(params)
@@ -65,9 +62,8 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 			mock.Anything,
 		).Return(nil, expectedError).Once()
 		handler := IndexOfficesHandler{
-			HandlerContext:    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			NewQueryFilter:    newQueryFilter,
-			OfficeListFetcher: officeListFetcher,
+			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			NewQueryFilter: newQueryFilter,
 		}
 
 		response := handler.Handle(params)
