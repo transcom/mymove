@@ -1,0 +1,26 @@
+package movedocument
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/suite"
+
+	"github.com/transcom/mymove/pkg/testingsuite"
+)
+
+type MoveDocumentServiceSuite struct {
+	testingsuite.PopTestSuite
+	logger Logger
+}
+
+func (suite *MoveDocumentServiceSuite) SetupTest() {
+	suite.DB().TruncateAll()
+}
+
+
+func TestStorageInTransitServiceSuite(t *testing.T) {
+	hs := &MoveDocumentServiceSuite{
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("move_document_service")),
+	}
+	suite.Run(t, hs)
+}

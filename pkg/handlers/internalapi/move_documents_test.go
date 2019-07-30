@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
 	"net/http/httptest"
 
 	"github.com/transcom/mymove/pkg/unit"
@@ -315,7 +316,9 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 		MoveDocumentID:     strfmt.UUID(moveDocument.ID.String()),
 	}
 
-	handler := UpdateMoveDocumentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	moveDocumentsUpdater := movedocument.NewMoveDocumentUpdater(context.DB())
+	handler := UpdateMoveDocumentHandler{context, moveDocumentsUpdater}
 	response := handler.Handle(updateMoveDocParams)
 
 	// Then: we expect to get back a 200 response
@@ -373,7 +376,9 @@ func (suite *HandlerSuite) TestApproveMoveDocumentHandler() {
 		MoveDocumentID:     strfmt.UUID(moveDocument.ID.String()),
 	}
 
-	handler := UpdateMoveDocumentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
+	context := handlers.NewHandlerContext(suite.DB(), suite.TestLogger())
+	moveDocumentsUpdater := movedocument.NewMoveDocumentUpdater(context.DB())
+	handler := UpdateMoveDocumentHandler{context, moveDocumentsUpdater}
 	response := handler.Handle(updateMoveDocParams)
 
 	// Then: we expect to get back a 200 response

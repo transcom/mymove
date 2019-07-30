@@ -1,6 +1,7 @@
 package internalapi
 
 import (
+	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
 	"io"
 	"log"
 	"net/http"
@@ -53,7 +54,9 @@ func NewInternalAPIHandler(context handlers.HandlerContext) http.Handler {
 	internalAPI.MovesShowMoveDatesSummaryHandler = ShowMoveDatesSummaryHandler{context}
 
 	internalAPI.MoveDocsCreateGenericMoveDocumentHandler = CreateGenericMoveDocumentHandler{context}
-	internalAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler{context}
+	internalAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler{context,
+		movedocument.NewMoveDocumentUpdater(context.DB()),
+	}
 	internalAPI.MoveDocsIndexMoveDocumentsHandler = IndexMoveDocumentsHandler{context}
 
 	internalAPI.MoveDocsCreateMovingExpenseDocumentHandler = CreateMovingExpenseDocumentHandler{context}
