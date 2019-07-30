@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"text/template"
-	"time"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -22,8 +21,6 @@ import (
 const (
 	// filename containing the details for new office users
 	DutyStationsFilenameFlag string = "office-users-filename"
-	// sql file containing the migration to add the new office users
-	DutyStationsMigrationFilenameFlag string = "migration-filename"
 )
 
 type MigrationInfo struct {
@@ -39,7 +36,6 @@ const (
 // DutyStationsFilenameFlag initializes add_office_users command line flags
 func InitAddDutyStationsFlags(flag *pflag.FlagSet) {
 	flag.StringP(DutyStationsFilenameFlag, "f", "", "File name of csv file containing the new office users")
-	flag.StringP(DutyStationsMigrationFilenameFlag, "n", "", "File name of the migration files for the new office users")
 }
 
 // CheckAddDutyStations validates add_office_users command line flags
@@ -47,10 +43,6 @@ func CheckAddDutyStations(v *viper.Viper) error {
 	DutyStationsFilename := v.GetString(DutyStationsFilenameFlag)
 	if DutyStationsFilename == "" {
 		return fmt.Errorf("--office-users-filename is required")
-	}
-	DutyStationsMigrationFilename := v.GetString(DutyStationsMigrationFilenameFlag)
-	if DutyStationsMigrationFilename == "" {
-		return fmt.Errorf("--migration-filename is required")
 	}
 	return nil
 }
@@ -62,7 +54,10 @@ func initGenDutyStationsMigrationFlags(flag *pflag.FlagSet) {
 	// Migration Config
 	cli.InitMigrationFlags(flag)
 
-	// Add Office Users
+	// Migration File Config
+	cli.InitMigrationFileFlags(flag)
+
+	// Add Duty Stations
 	InitAddDutyStationsFlags(flag)
 
 	// Sort command line flags
@@ -104,9 +99,11 @@ func genDutyStationsMigration(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	migrationsPath := v.GetString(cli.MigrationPathFlag)
+
+	migrationPath := v.GetString(cli.MigrationPathFlag)
 	migrationManifest := v.GetString(cli.MigrationManifestFlag)
-	migrationFilename := v.GetString(DutyStationsMigrationFilenameFlag)
+	migrationName := v.GetString(cli.MigrationNameFlag)
+	migrationVersion := v.GetString(cli.MigrationVersionFlag)
 	dutyStationsFilename := v.GetString(DutyStationsFilenameFlag)
 
 	logger, err := logging.Config(v.GetString(cli.LoggingEnvFlag), v.GetBool(cli.VerboseFlag))
@@ -130,13 +127,13 @@ func genDutyStationsMigration(cmd *cobra.Command, args []string) error {
 		logger.Panic("Error while building migration", zap.Error(err))
 	}
 
-	migrationName := fmt.Sprintf("%s_%s.up.sql", time.Now().Format(VersionTimeFormat), migrationFilename)
-	err = createDutyStationMigration(migrationsPath, migrationName, insertions)
+	migrationFilename := fmt.Sprintf("%s_%s.up.sql", migrationVersion, migrationName)
+	err = createDutyStationMigration(migrationPath, migrationFilename, insertions)
 	if err != nil {
 		return err
 	}
 
-	err = addMigrationToManifest(migrationManifest, migrationName)
+	err = addMigrationToManifest(migrationManifest, migrationFilename)
 	if err != nil {
 		return err
 	}
