@@ -1,8 +1,9 @@
 package internalapi
 
 import (
-	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
 	"net/http/httptest"
+
+	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
 
 	"github.com/transcom/mymove/pkg/unit"
 
@@ -258,7 +259,10 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerMissingFields
 
 func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	// When: there is a move and move document
-	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	emptyWeight1 := unit.Pound(1000)
+	fullWeight1 := unit.Pound(2500)
+	netWeight1 := fullWeight1 - emptyWeight1
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{PersonallyProcuredMove: models.PersonallyProcuredMove{NetWeight: &netWeight1}})
 	move := ppm.Move
 	sm := ppm.Move.Orders.ServiceMember
 	moveDocument := testdatagen.MakeMoveDocument(suite.DB(),
@@ -275,8 +279,6 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 				ServiceMember:   sm,
 			},
 		})
-	emptyWeight1 := unit.Pound(1000)
-	fullWeight1 := unit.Pound(2500)
 	weightTicketSetDocument := models.WeightTicketSetDocument{
 		MoveDocumentID:           moveDocument.ID,
 		MoveDocument:             moveDocument,
@@ -334,6 +336,10 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	suite.Require().Equal(*updatePayload.Notes, "This document is super awesome.")
 	suite.Require().Equal(*updatePayload.EmptyWeight, int64(200))
 	suite.Require().Equal(*updatePayload.FullWeight, int64(500))
+	updatedPpm := models.PersonallyProcuredMove{}
+	err = suite.DB().Where(`id = $1`, ppm.ID).First(&updatedPpm)
+	suite.Require().Nil(err)
+	suite.Require().Equal(int64(*updatedPpm.NetWeight), *updatePayload.FullWeight - *updatePayload.EmptyWeight)
 }
 func (suite *HandlerSuite) TestApproveMoveDocumentHandler() {
 	// When: there is a move and move document

@@ -1,10 +1,11 @@
 package internalapi
 
 import (
-	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
 	"io"
 	"log"
 	"net/http"
+
+	movedocument "github.com/transcom/mymove/pkg/services/move_documents"
 
 	"github.com/go-openapi/loads"
 	"github.com/go-openapi/runtime"

@@ -1,7 +1,6 @@
 package models
 
 import (
-	"log"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -342,7 +341,6 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveExpens
 		} else if saveExpenseAction == MoveDocumentSaveActionDELETEEXPENSEMODEL {
 			// destroy expense document
 			expenseDocument := moveDocument.MovingExpenseDocument
-			log.Println("expenseDocument: ",  expenseDocument)
 			if err := db.Destroy(expenseDocument); err != nil {
 				responseError = errors.Wrap(err, "Error Deleting Moving Expense Document")
 				return transactionError

@@ -2,6 +2,7 @@ package internalapi
 
 import (
 	"github.com/go-openapi/strfmt"
+
 	"github.com/transcom/mymove/pkg/services"
 
 	"github.com/go-openapi/runtime/middleware"

@@ -17,10 +17,10 @@ func (suite *MoveDocumentServiceSuite) SetupTest() {
 	suite.DB().TruncateAll()
 }
 
-
-func TestStorageInTransitServiceSuite(t *testing.T) {
+func TestMoveDocumentUpdaterServiceSuite(t *testing.T) {
 	hs := &MoveDocumentServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("move_document_service")),
 	}
 	suite.Run(t, hs)
 }
+
