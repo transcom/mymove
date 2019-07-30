@@ -32,11 +32,12 @@ describe('The document viewer', function() {
     it('can upload a new document', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy
-        .get('.document-upload-link')
+        .get('[data-cy="document-upload-link"]')
         .find('a')
         .should('have.attr', 'href')
         .and('contain', '/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
-      cy.get('.document-upload-link').click();
+      cy.get('[data-cy="document-upload-link"]').click();
+
       cy.contains('Upload a new document');
       cy.get('button.submit').should('be.disabled');
       cy.get('input[name="title"]').type('super secret info document');
