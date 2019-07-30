@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { isEmpty, get } from 'lodash';
+import { isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
@@ -8,7 +8,6 @@ import { withContext } from 'shared/AppContext';
 
 import { MoveSummary, PPMAlert } from './MoveSummary';
 import { isHHGPPMComboMove } from 'scenes/Moves/Ppm/ducks';
-import { lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { getCurrentShipment, getCurrentMoveID } from 'shared/UI/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';

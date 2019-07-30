@@ -110,8 +110,7 @@ export function selectedMoveType(state, moveId) {
   return move.selected_move_type;
 }
 
-export const moveIsApproved = (state, moveId) =>
+export const moveIsApproved = (state, moveId) => {
   const status = selectMoveStatus(state, moveId);
   return status === 'APPROVED';
 };
-

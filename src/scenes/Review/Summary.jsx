@@ -135,11 +135,8 @@ Summary.propTypes = {
 };
 
 function mapStateToProps(state, ownProps) {
-<<<<<<< HEAD
   const move = getCurrentMove(state);
-=======
   const moveId = ownProps.match.params.moveId;
->>>>>>> Migrate lastMoveIsCanceled and isPpm to entities
   return {
     currentPpm: getPPM(state),
     currentShipment: selectShipment(state, getCurrentShipmentID(state)),

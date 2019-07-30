@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
-import { updateMove } from '../Moves/ducks';
+import { updateMove } from 'shared/Entities/modules/moves';
 import ordersComplete from 'shared/images/orders-complete-gray-icon.png';
 import moveIcon from 'shared/images/move-icon.png';
 
