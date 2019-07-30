@@ -1,7 +1,10 @@
 package movedocument
 
 import (
+	"time"
+
 	"github.com/go-openapi/strfmt"
+
 	"github.com/transcom/mymove/pkg/auth"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -9,7 +12,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
-	"time"
 )
 
 func (suite *MoveDocumentServiceSuite) TestNetWeightUpdate() {
@@ -72,7 +74,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightUpdate() {
 		MoveDocumentType: internalmessages.MoveDocumentTypeWEIGHTTICKETSET,
 		EmptyWeight:      &emptyWeight,
 		FullWeight:       &fullWeight,
-		WeightTicketDate:         handlers.FmtDate(wtDate),
+		WeightTicketDate: handlers.FmtDate(wtDate),
 	}
 	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
 		UpdateMoveDocument: &updateMoveDocPayload,
@@ -89,7 +91,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightUpdate() {
 
 	suite.Require().NotNil(md.WeightTicketSetDocument)
 	suite.Require().Equal(moveDocument.ID.String(), md.ID.String(), "expected move doc ids to match")
-	suite.Require().Equal("super_awesome.pdf", md.Title, )
+	suite.Require().Equal("super_awesome.pdf", md.Title)
 	suite.Require().Equal("This document is super awesome.", *md.Notes)
 	suite.Require().Equal(models.MoveDocumentStatusOK, md.Status)
 	suite.Require().Equal("My Car", md.WeightTicketSetDocument.VehicleNickname)
@@ -155,17 +157,17 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightRemovedWhenStatusNotOK() {
 	fullWeight := (int64)(500)
 	wtDate := time.Date(2019, 05, 11, 0, 0, 0, 0, time.UTC)
 	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
-		EmptyWeight:              &emptyWeight,
-		FullWeight:               &fullWeight,
-		ID:                       handlers.FmtUUID(moveDocument.ID),
-		MoveDocumentType:         internalmessages.MoveDocumentTypeWEIGHTTICKETSET,
-		MoveID:                   handlers.FmtUUID(move.ID),
-		Notes:                    handlers.FmtString("This document is super awesome."),
-		Status:                   internalmessages.MoveDocumentStatusHASISSUE,
-		Title:                    handlers.FmtString("super_awesome.pdf"),
-		VehicleNickname:          "My Car",
-		VehicleOptions:           "CAR",
-		WeightTicketDate:         handlers.FmtDate(wtDate),
+		EmptyWeight:      &emptyWeight,
+		FullWeight:       &fullWeight,
+		ID:               handlers.FmtUUID(moveDocument.ID),
+		MoveDocumentType: internalmessages.MoveDocumentTypeWEIGHTTICKETSET,
+		MoveID:           handlers.FmtUUID(move.ID),
+		Notes:            handlers.FmtString("This document is super awesome."),
+		Status:           internalmessages.MoveDocumentStatusHASISSUE,
+		Title:            handlers.FmtString("super_awesome.pdf"),
+		VehicleNickname:  "My Car",
+		VehicleOptions:   "CAR",
+		WeightTicketDate: handlers.FmtDate(wtDate),
 	}
 	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
 		UpdateMoveDocument: &updateMoveDocPayload,
@@ -183,7 +185,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightRemovedWhenStatusNotOK() {
 	suite.Require().Equal(moveDocument.ID.String(), md.ID.String(), "expected move doc ids to match")
 	suite.Require().NotNil(md.WeightTicketSetDocument)
 	suite.Require().Equal("super_awesome.pdf", md.Title)
-	suite.Require().Equal("This document is super awesome.", *md.Notes, )
+	suite.Require().Equal("This document is super awesome.", *md.Notes)
 	suite.Require().Equal(models.MoveDocumentStatusHASISSUE, md.Status)
 	suite.Require().Equal("My Car", md.WeightTicketSetDocument.VehicleNickname)
 	suite.Require().Equal("CAR", md.WeightTicketSetDocument.VehicleOptions)
@@ -259,7 +261,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightAfterManualOverride() {
 		MoveDocumentType: internalmessages.MoveDocumentTypeWEIGHTTICKETSET,
 		EmptyWeight:      &emptyWeight,
 		FullWeight:       &fullWeight,
-		WeightTicketDate:         handlers.FmtDate(wtDate),
+		WeightTicketDate: handlers.FmtDate(wtDate),
 	}
 	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
 		UpdateMoveDocument: &updateMoveDocPayload,
@@ -276,7 +278,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightAfterManualOverride() {
 
 	suite.Require().NotNil(md.WeightTicketSetDocument)
 	suite.Require().Equal(moveDocument.ID.String(), md.ID.String(), "expected move doc ids to match")
-	suite.Require().Equal("super_awesome.pdf", md.Title, )
+	suite.Require().Equal("super_awesome.pdf", md.Title)
 	suite.Require().Equal("This document is super awesome.", *md.Notes)
 	suite.Require().Equal(models.MoveDocumentStatusOK, md.Status)
 	suite.Require().Equal("My Car", md.WeightTicketSetDocument.VehicleNickname)

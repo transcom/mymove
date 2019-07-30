@@ -203,9 +203,8 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 
 	moveDoc, verrs, err := h.moveDocumentUpdater.Update(params, moveDocID, session)
 	if err != nil || verrs.HasAny() {
-		return handlers.ResponseForError(logger, err)
+		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
-
 	moveDocPayload, err := payloadForMoveDocument(h.FileStorer(), *moveDoc)
 	if err != nil {
 		return handlers.ResponseForError(logger, err)

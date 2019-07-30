@@ -21,4 +21,3 @@ type MoveDocumentUpdater interface {
 type MoveDocumentStatusUpdater interface {
 	UpdateMoveDocumentStatus(params movedocop.UpdateMoveDocumentParams, moveDocument *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error)
 }
-

@@ -259,6 +259,7 @@ func (suite *HandlerSuite) TestIndexWeightTicketSetDocumentsHandlerMissingFields
 
 func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	// When: there is a move and move document
+	//TODO simplify handler tests
 	emptyWeight1 := unit.Pound(1000)
 	fullWeight1 := unit.Pound(2500)
 	netWeight1 := fullWeight1 - emptyWeight1
@@ -308,6 +309,8 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 		Notes:            handlers.FmtString("This document is super awesome."),
 		Status:           internalmessages.MoveDocumentStatusOK,
 		MoveDocumentType: internalmessages.MoveDocumentTypeWEIGHTTICKETSET,
+		VehicleNickname:  "my car",
+		VehicleOptions:   "CAR",
 		EmptyWeight:      &emptyWeight,
 		FullWeight:       &fullWeight,
 	}
@@ -339,7 +342,7 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	updatedPpm := models.PersonallyProcuredMove{}
 	err = suite.DB().Where(`id = $1`, ppm.ID).First(&updatedPpm)
 	suite.Require().Nil(err)
-	suite.Require().Equal(int64(*updatedPpm.NetWeight), *updatePayload.FullWeight - *updatePayload.EmptyWeight)
+	suite.Require().Equal(int64(*updatedPpm.NetWeight), *updatePayload.FullWeight-*updatePayload.EmptyWeight)
 }
 func (suite *HandlerSuite) TestApproveMoveDocumentHandler() {
 	// When: there is a move and move document

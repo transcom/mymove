@@ -2,6 +2,7 @@ package movedocument
 
 import (
 	"github.com/go-openapi/strfmt"
+
 	"github.com/transcom/mymove/pkg/auth"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -42,13 +43,13 @@ func (suite *MoveDocumentServiceSuite) TestPPMCompleteWhenSSWOK() {
 			},
 		})
 	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
-		ID:                   handlers.FmtUUID(moveDocument.ID),
-		MoveID:               handlers.FmtUUID(move.ID),
-		Title:                handlers.FmtString("super_awesome.pdf"),
-		Notes:                handlers.FmtString("This document is super awesome."),
-		Status:               internalmessages.MoveDocumentStatusOK,
-		MoveDocumentType:     internalmessages.MoveDocumentTypeSHIPMENTSUMMARY,
-		PaymentMethod:        "GTCC",
+		ID:               handlers.FmtUUID(moveDocument.ID),
+		MoveID:           handlers.FmtUUID(move.ID),
+		Title:            handlers.FmtString("super_awesome.pdf"),
+		Notes:            handlers.FmtString("This document is super awesome."),
+		Status:           internalmessages.MoveDocumentStatusOK,
+		MoveDocumentType: internalmessages.MoveDocumentTypeSHIPMENTSUMMARY,
+		PaymentMethod:    "GTCC",
 	}
 	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
 		UpdateMoveDocument: &updateMoveDocPayload,
@@ -64,8 +65,8 @@ func (suite *MoveDocumentServiceSuite) TestPPMCompleteWhenSSWOK() {
 	suite.Nil(err)
 
 	suite.Require().Equal(moveDocument.ID.String(), md.ID.String(), "expected move doc ids to match")
-	suite.Require().Equal("super_awesome.pdf", md.Title, )
-	suite.Require().Equal("This document is super awesome.", *md.Notes, )
+	suite.Require().Equal("super_awesome.pdf", md.Title)
+	suite.Require().Equal("This document is super awesome.", *md.Notes)
 	updatedPpm := models.PersonallyProcuredMove{}
 	err = suite.DB().Where(`id = $1`, ppm.ID).First(&updatedPpm)
 	suite.Require().Nil(err)
@@ -104,13 +105,13 @@ func (suite *MoveDocumentServiceSuite) TestPPMNothingHappensWhenSSWOK() {
 			},
 		})
 	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
-		ID:                   handlers.FmtUUID(moveDocument.ID),
-		MoveID:               handlers.FmtUUID(move.ID),
-		Title:                handlers.FmtString("super_awesome.pdf"),
-		Notes:                handlers.FmtString("This document is super awesome."),
-		Status:               internalmessages.MoveDocumentStatusOK,
-		MoveDocumentType:     internalmessages.MoveDocumentTypeSHIPMENTSUMMARY,
-		PaymentMethod:        "GTCC",
+		ID:               handlers.FmtUUID(moveDocument.ID),
+		MoveID:           handlers.FmtUUID(move.ID),
+		Title:            handlers.FmtString("super_awesome.pdf"),
+		Notes:            handlers.FmtString("This document is super awesome."),
+		Status:           internalmessages.MoveDocumentStatusOK,
+		MoveDocumentType: internalmessages.MoveDocumentTypeSHIPMENTSUMMARY,
+		PaymentMethod:    "GTCC",
 	}
 	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
 		UpdateMoveDocument: &updateMoveDocPayload,

@@ -23,4 +23,3 @@ func TestMoveDocumentUpdaterServiceSuite(t *testing.T) {
 	}
 	suite.Run(t, hs)
 }
-
