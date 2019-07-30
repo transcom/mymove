@@ -10,6 +10,7 @@ import { NULL_UUID } from 'shared/constants';
 import { SearchDutyStations } from './api.js';
 
 import './DutyStation.css';
+import styles from './DutyStationSearchBox.module.scss';
 
 const inputDebounceTime = 200;
 const minSearchLength = 2;
@@ -119,7 +120,7 @@ export class DutyStationSearchBox extends Component {
             </div>
           )}
           <div className={inputContainerClasses}>
-            <p className={searchBoxHeaderClasses}>{errorMsg ? <strong>{title}</strong> : title}</p>
+            <p className={`${styles.title} ${searchBoxHeaderClasses}`}>{errorMsg ? <strong>{title}</strong> : title}</p>
             {this.props.errorMsg && <span className="usa-input-error-message">{this.props.errorMsg}</span>}
             <AsyncSelect
               className={dutyInputClasses}

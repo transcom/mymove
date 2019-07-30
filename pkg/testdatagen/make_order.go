@@ -46,7 +46,6 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 
 	ordersNumber := "ORDER3"
 	TAC := "F8E1"
-	SAC := "SAC"
 	departmentIndicator := "AIR_FORCE"
 	hasDependents := assertions.Order.HasDependents || false
 	spouseHasProGear := assertions.Order.SpouseHasProGear || false
@@ -66,7 +65,6 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 		SpouseHasProGear:    spouseHasProGear,
 		Status:              models.OrderStatusDRAFT,
 		TAC:                 &TAC,
-		SAC:                 &SAC,
 		DepartmentIndicator: &departmentIndicator,
 	}
 

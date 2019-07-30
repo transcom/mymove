@@ -1,6 +1,6 @@
 import React from 'react';
 import sadComputer from 'shared/images/sad-computer.png';
-const FailWhale = () => (
+const SomethingWentWrong = () => (
   <div className="usa-grid">
     <div className="usa-width-one-whole align-center">
       <p>
@@ -23,4 +23,4 @@ const FailWhale = () => (
   </div>
 );
 
-export default FailWhale;
+export default SomethingWentWrong;

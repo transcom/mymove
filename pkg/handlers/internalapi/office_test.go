@@ -22,6 +22,7 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 			OrdersNumber:        handlers.FmtString("1234"),
 			OrdersTypeDetail:    &hhgPermitted,
 			TAC:                 handlers.FmtString("1234"),
+			SAC:                 handlers.FmtString("sac"),
 			DepartmentIndicator: handlers.FmtString("17 - United States Marines"),
 		},
 	}
