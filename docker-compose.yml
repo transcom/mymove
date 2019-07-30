@@ -4,22 +4,27 @@ services:
    database:
      image: postgres:10.9
      restart: always
+     ports:
+       - '6432:5432'
      environment:
-       PGPASSWORD: mysecretpassword
+       - POSTGRES_USER=postgres
+       - POSTGRES_PASSWORD=mysecretpassword
+       - POSTGRES_DB=dev_db
 
    milmove_migrate:
      depends_on:
        - database
      image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-branch-placeholder_branch_name
-     ports:
-       - '5436:5432'
+     links:
+       - database
      environment:
        - DB_ENV=development
        - DB_HOST=database
-       - DB_NAME
-       - DB_PASSWORD
-       - DB_PORT
-       - DB_USER
+       - DB_NAME=dev_db
+       - DB_PASSWORD=mysecretpassword
+       - DB_PORT=6432
+       - DB_SSL_MODE=disable
+       - DB_USER=postgres
        - ENVIRONMENT=test
        - SECURE_MIGRATION_DIR
        - SECURE_MIGRATION_SOURCE
@@ -36,10 +41,11 @@ services:
        - CSRF_AUTH_KEY
        - DB_ENV=development
        - DB_HOST=database
-       - DB_NAME
-       - DB_PASSWORD
-       - DB_PORT=5436
-       - DB_USER
+       - DB_NAME=dev_db
+       - DB_PASSWORD=mysecretpassword
+       - DB_PORT=6432
+       - DB_SSL_MODE=disable
+       - DB_USER=postgres
        - DEVLOCAL_CA=/config/tls/devlocal-ca.pem
        - DEVLOCAL_AUTH=true
        - DOD_CA_PACKAGE=/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b
