@@ -149,7 +149,8 @@ func (suite *HandlerSuite) TestRecalculateShipmentLineItemsHandler() {
 
 	serviceLogger.AssertCalled(suite.T(), "Error", fmt.Sprintf("Error recalculating shipment line for shipment id: %s", shipmentID), zap.Error(loggedError))
 	suite.Assert().IsType(&handlers.ErrResponse{}, response)
-	suite.Equal(expectedResponse, response)
+	errResponse := response.(*handlers.ErrResponse)
+	suite.Equal(expectedResponse, errResponse)
 }
 
 func (suite *HandlerSuite) TestGetShipmentLineItemsHandler() {
