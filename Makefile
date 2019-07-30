@@ -912,7 +912,7 @@ clean: # Clean all generated files
 	find ./pkg -type d -name "mocks" -exec rm -rf {} +
 
 .PHONY: spellcheck
-spellcheck: .client_deps.stamp # Run interactive spellchecker
+spellcheck: .client_deps.stamp ## Run interactive spellchecker
 	node_modules/.bin/mdspell --ignore-numbers --ignore-acronyms --en-us \
 		`find . -type f -name "*.md" \
 			-not -path "./node_modules/*" \
@@ -921,6 +921,24 @@ spellcheck: .client_deps.stamp # Run interactive spellchecker
 
 #
 # ----- END RANDOM TARGETS -----
+#
+
+#
+# ----- START DOCKER COMPOSE TARGETS -----
+#
+
+.PHONY: docker_compose_setup
+docker_compose_setup: ## Install requirements to use docker-compose
+	brew install git docker docker-compose direnv aws-vault
+
+.PHONY: docker_compose_up
+docker_compose_up: ## Bring up docker-compose file
+	aws ecr get-login --region us-west-2 --no-include-email | sh
+	open http://milmovelocal:5000
+	docker-compose up
+
+#
+# ----- END DOCKER COMPOSE TARGETS -----
 #
 
 default: help
