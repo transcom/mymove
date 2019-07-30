@@ -933,7 +933,7 @@ docker_compose_setup: ## Install requirements to use docker-compose
 
 .PHONY: docker_compose_up
 docker_compose_up: ## Bring up docker-compose file
-	aws ecr get-login --region us-west-2 --no-include-email | sh
+	aws ecr get-login --no-include-email --region us-west-2 --no-include-email | sh
 	scripts/update-docker-compose
 	open http://milmovelocal:5000
 	docker-compose up
