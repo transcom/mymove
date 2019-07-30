@@ -99,7 +99,11 @@ const PPMTabContent = props => {
           <ExpensesPanel title="Expenses" moveId={props.moveId} />
           <StoragePanel title="Storage" moveId={props.moveId} moveDocuments={props.moveDocuments} />
           <DatesAndLocationPanel title="Dates & Locations" moveId={props.moveId} />
-          <NetWeightPanel title="Weights" moveId={props.moveId} />
+          <NetWeightPanel
+            title="Weights"
+            moveId={props.moveId}
+            ppmPaymentRequestedFlag={props.ppmPaymentRequestedFlag}
+          />
         </>
       )}
 
@@ -432,6 +436,7 @@ class MoveInfo extends Component {
                 </PrivateRoute>
                 <PrivateRoute path={`${this.props.match.path}/ppm`}>
                   <PPMTabContent
+                    ppmPaymentRequestedFlag={this.props.context.flags.ppmPaymentRequest}
                     moveId={this.props.moveId}
                     ppmPaymentRequested={ppmPaymentRequested}
                     moveDocuments={moveDocuments}

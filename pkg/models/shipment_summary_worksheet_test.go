@@ -296,6 +296,21 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
 			RequestedAmountCents: unit.Cents(10000),
 			PaymentMethod:        "GTCC",
 		},
+		{
+			MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
+			RequestedAmountCents: unit.Cents(100000),
+			PaymentMethod:        "GTCC",
+		},
+		{
+			MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
+			RequestedAmountCents: unit.Cents(20000),
+			PaymentMethod:        "GTCC",
+		},
+		{
+			MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
+			RequestedAmountCents: unit.Cents(10000),
+			PaymentMethod:        "OTHER",
+		},
 	}
 
 	ssd := models.ShipmentSummaryFormData{
@@ -314,6 +329,8 @@ func (suite *ModelSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
 	suite.Equal("$100.00", sswPage2.GasMemberPaid)
 	suite.Equal("$200.00", sswPage2.TotalMemberPaid)
 	suite.Equal("$200.00", sswPage2.TotalMemberPaidRepeated)
+	suite.Equal("$100.00", sswPage2.TotalMemberPaidSIT)
+	suite.Equal("$1,200.00", sswPage2.TotalGTCCPaidSIT)
 }
 
 func (suite *ModelSuite) TestGroupExpenses() {
@@ -498,6 +515,32 @@ func (suite *ModelSuite) TestFormatShipmentNumberAndType() {
 
 	// testing a variety of shipments and ppms
 	suite.Equal("01 - HHG (GBL)\n\n02 - PPM\n\n03 - PPM", varietyOfShipmentsFormatted.ShipmentNumberAndTypes)
+}
+
+func (suite *ModelSuite) TestFormatAllSITExpenses() {
+	startdate1 := time.Date(2019, 5, 12, 0, 0, 0, 0, time.UTC)
+	endDate1 := time.Date(2019, 5, 15, 0, 0, 0, 0, time.UTC)
+	startdate2 := time.Date(2019, 5, 15, 0, 0, 0, 0, time.UTC)
+	endDate2 := time.Date(2019, 5, 20, 0, 0, 0, 0, time.UTC)
+	sitExpenses := models.MovingExpenseDocuments{
+		{
+			MovingExpenseType: models.MovingExpenseTypeSTORAGE,
+			StorageStartDate:  &startdate1,
+			StorageEndDate:    &endDate1,
+		},
+		{
+			MovingExpenseType: models.MovingExpenseTypeSTORAGE,
+			StorageStartDate:  &startdate2,
+			StorageEndDate:    &endDate2,
+		},
+	}
+
+	formattedSitExpenses := models.FormatAllSITExpenses(sitExpenses)
+
+	suite.Equal("01 - PPM\n\n02 - PPM", formattedSitExpenses.NumberAndTypes)
+	suite.Equal("12-May-2019\n\n15-May-2019", formattedSitExpenses.EntryDates)
+	suite.Equal("15-May-2019\n\n20-May-2019", formattedSitExpenses.EndDates)
+	suite.Equal("2\n\n4", formattedSitExpenses.DaysInStorage)
 }
 
 func (suite *ModelSuite) TestFormatShipmentWeight() {
