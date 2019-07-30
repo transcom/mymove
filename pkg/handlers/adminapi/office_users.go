@@ -59,7 +59,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 	payload := params.OfficeUser
 	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
-	transporationOfficeID, err := uuid.FromString(payload.TransportationOfficeID.String())
+	transportationOfficeID, err := uuid.FromString(payload.TransportationOfficeID.String())
 	if err != nil {
 		logger.Error(fmt.Sprintf("UUID Parsing for %s", payload.TransportationOfficeID.String()), zap.Error(err))
 	}
@@ -69,11 +69,11 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 		FirstName:              payload.FirstName,
 		Telephone:              payload.Telephone,
 		Email:                  payload.Email,
-		TransportationOfficeID: transporationOfficeID,
+		TransportationOfficeID: transportationOfficeID,
 	}
 
 	transportationIDFilter := []services.QueryFilter{
-		h.NewQueryFilter("id", "=", transporationOfficeID),
+		h.NewQueryFilter("id", "=", transportationOfficeID),
 	}
 
 	createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(&officeUser, transportationIDFilter)
