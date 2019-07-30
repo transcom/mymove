@@ -11,18 +11,11 @@ import (
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/services/user"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
-
-func newMockQueryFilterBuilder(filter *mocks.QueryFilter) services.NewQueryFilter {
-	return func(column string, comparator string, value interface{}) services.QueryFilter {
-		return filter
-	}
-}
 
 func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 	// replace this with generated UUID when filter param is built out
