@@ -194,23 +194,23 @@
     },
     {
       "name": "SERVE_ADMIN",
-      "value": "true"
+      "value": true
     },
     {
       "name": "SERVE_SDDC",
-      "value": "true"
+      "value": true
     },
     {
       "name": "SERVE_DPS",
-      "value": "true"
+      "value": true
     },
     {
       "name": "SERVE_API_INTERNAL",
-      "value": "true"
+      "value": true
     },
     {
       "name": "SERVE_EXTERNAL",
-      "value": "true"
+      "value": true
     }
   ],
   "logConfiguration": {
