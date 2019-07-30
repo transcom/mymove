@@ -34,6 +34,8 @@ services:
        - database
        - milmove_migrate
      image: 923914045601.dkr.ecr.us-west-2.amazonaws.com/app:git-branch-placeholder_branch_name
+     links:
+       - database
      ports:
        - '5000:5000'
      environment:
