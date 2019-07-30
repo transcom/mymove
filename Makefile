@@ -387,6 +387,7 @@ ifndef TEST_ACC_ENV
   SERVE_DPS=true \
   SERVE_API_INTERNAL=true \
   SERVE_API_EXTERNAL=true \
+  MUTUAL_TLS_ENABLED=true \
 	go test -v -p 1 -count 1 -short $$(go list ./... | grep \\/cmd\\/milmove)
 else
 ifndef CIRCLECI
