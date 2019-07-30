@@ -108,14 +108,6 @@ func (suite *RateEngineSuite) setupRateEngineTest() {
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.MustSave(&newBaseLinehaul)
-	shorthaul := models.Tariff400ngShorthaulRate{
-		CwtMilesLower:      1,
-		CwtMilesUpper:      50000,
-		RateCents:          5656,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.MustSave(&shorthaul)
 	itemRate210A := models.Tariff400ngItemRate{
 		Code:               "210A",
 		Schedule:           &destinationServiceArea.SITPDSchedule,
@@ -136,18 +128,27 @@ func (suite *RateEngineSuite) setupRateEngineTest() {
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.MustSave(&itemRate225A)
-}
-
-func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, destinationZip string, weight unit.Pound, logger Logger, planner route.Planner) (CostComputation, error) {
-	suite.setupRateEngineTest()
-	tdl := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
-		TrafficDistributionList: models.TrafficDistributionList{
-			SourceRateArea:    "US48",
-			DestinationRegion: "13",
-			CodeOfService:     "2",
-		},
-	})
-
+	fullPackRate1 := models.Tariff400ngFullPackRate{
+		Schedule:           3,
+		WeightLbsLower:     0,
+		WeightLbsUpper:     16001,
+		RateCents:          6130,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+	}
+	suite.MustSave(&fullPackRate1)
+	tdl := models.TrafficDistributionList{
+		SourceRateArea:    "US48",
+		DestinationRegion: "13",
+		CodeOfService:     "2",
+	}
+	suite.MustSave(&tdl)
+	tdl1 := models.TrafficDistributionList{
+		SourceRateArea:    "US53",
+		DestinationRegion: "13",
+		CodeOfService:     "2",
+	}
+	suite.MustSave(&tdl1)
 	tsp := testdatagen.MakeDefaultTSP(suite.DB())
 	tspPerformance := models.TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
@@ -162,14 +163,6 @@ func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, desti
 		SITRate:                         unit.NewDiscountRateFromPercent(50.0),
 	}
 	suite.MustSave(&tspPerformance)
-	tdl1 := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
-		TrafficDistributionList: models.TrafficDistributionList{
-			SourceRateArea:    "US53",
-			DestinationRegion: "13",
-			CodeOfService:     "2",
-		},
-	})
-
 	tspPerformance1 := models.TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
 		PerformancePeriodEnd:            testdatagen.PerformancePeriodEnd,
@@ -183,15 +176,10 @@ func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, desti
 		SITRate:                         unit.NewDiscountRateFromPercent(50.0),
 	}
 	suite.MustSave(&tspPerformance1)
-	fullPackRate := models.Tariff400ngFullPackRate{
-		Schedule:           3,
-		WeightLbsLower:     0,
-		WeightLbsUpper:     16001,
-		RateCents:          6130,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.MustSave(&fullPackRate)
+}
+
+func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, destinationZip string, weight unit.Pound, logger Logger, planner route.Planner) (CostComputation, error) {
+	suite.setupRateEngineTest()
 	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(suite.DB(),
 		logger,
 		originZip,
@@ -290,6 +278,8 @@ func (suite *RateEngineSuite) TestComputeLowestCostPPMMove() {
 }
 
 func (suite *RateEngineSuite) TestComputeLowestCostPPMMoveWithLHDiscount() {
+	suite.setupRateEngineTest()
+
 	logger, _ := zap.NewDevelopment()
 	originZip := "39574"
 	originDutyStationZip := "50309"
