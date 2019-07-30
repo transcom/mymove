@@ -932,11 +932,15 @@ docker_compose_setup: ## Install requirements to use docker-compose
 	brew install git docker docker-compose direnv aws-vault
 
 .PHONY: docker_compose_up
-docker_compose_up: ## Bring up docker-compose file
+docker_compose_up: ## Bring up docker-compose containers
 	aws ecr get-login --no-include-email --region us-west-2 --no-include-email | sh
 	scripts/update-docker-compose
-	open http://milmovelocal:5000
+	@echo "Open app at http://milmovelocal:5000"
 	docker-compose up
+
+.PHONY: docker_compose_down
+docker_compose_down: ## Destroy docker-compose containers
+	docker-compose down
 
 #
 # ----- END DOCKER COMPOSE TARGETS -----
