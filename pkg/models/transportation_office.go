@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 )
 
 // TransportationOffice is a PPPO, PPSO or JPPSO. If it is its own shipping office, ShippingOffice will be nil,
@@ -53,4 +54,24 @@ func (t *TransportationOffice) ValidateCreate(tx *pop.Connection) (*validate.Err
 // This method is not required and may be deleted.
 func (t *TransportationOffice) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+func FetchNearestTransportationOffice(tx *pop.Connection, long float32, lat float32) (TransportationOffice, error) {
+	var to TransportationOffice
+
+	query := `
+		select *
+			from transportation_offices
+		WHERE shipping_office_id IS NOT NULL
+		order by ST_Distance(
+  		ST_GeographyFromText(concat('point(',$1::text,' ',$2::text,')'))
+  		, ST_GeographyFromText(concat('point(',longitude, ' ', latitude,')'))
+ 		) asc`
+
+	err := tx.RawQuery(query, long, lat).First(&to)
+	if err != nil {
+		return to, errors.Wrap(err, "Fetch transportation office failed")
+	}
+
+	return to, nil
 }
