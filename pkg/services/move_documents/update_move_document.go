@@ -6,8 +6,9 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
+
 	"github.com/transcom/mymove/pkg/auth"
-	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -25,7 +26,7 @@ type moveDocumentUpdater struct {
 //Updater interface for individual document updaters
 //go:generate mockery -name Updater
 type Updater interface {
-	Update(params movedocop.UpdateMoveDocumentParams, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error)
+	Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error)
 }
 
 //NewMoveDocumentUpdater create NewMoveDocumentUpdater including expected updaters
@@ -46,25 +47,24 @@ func NewMoveDocumentUpdater(db *pop.Connection) services.MoveDocumentUpdater {
 }
 
 //Update dispatches the various types of move documents to the appropriate Updater
-func (m moveDocumentUpdater) Update(params movedocop.UpdateMoveDocumentParams, moveDocID uuid.UUID, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
+func (m moveDocumentUpdater) Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDocID uuid.UUID, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
-	payload := params.UpdateMoveDocument
-	newStatus := models.MoveDocumentStatus(payload.Status)
-	newType := models.MoveDocumentType(payload.MoveDocumentType)
-	newExpenseType := models.MovingExpenseType(payload.MovingExpenseType)
+	newStatus := models.MoveDocumentStatus(moveDocumentPayload.Status)
+	newType := models.MoveDocumentType(moveDocumentPayload.MoveDocumentType)
+	newExpenseType := models.MovingExpenseType(moveDocumentPayload.MovingExpenseType)
 	originalMoveDocument, err := models.FetchMoveDocument(m.db, session, moveDocID)
 	if err != nil {
 		return nil, returnVerrs, models.ErrFetchNotFound
 	}
 	switch {
 	case newType == models.MoveDocumentTypeEXPENSE && newExpenseType == models.MovingExpenseTypeSTORAGE:
-		return m.storageExpenseUpdater.Update(params, originalMoveDocument, session)
+		return m.storageExpenseUpdater.Update(moveDocumentPayload, originalMoveDocument, session)
 	case newType == models.MoveDocumentTypeWEIGHTTICKETSET:
-		return m.weightTicketUpdater.Update(params, originalMoveDocument, session)
+		return m.weightTicketUpdater.Update(moveDocumentPayload, originalMoveDocument, session)
 	case newType == models.MoveDocumentTypeSHIPMENTSUMMARY && newStatus == models.MoveDocumentStatusOK:
-		return m.ppmCompleter.Update(params, originalMoveDocument, session)
+		return m.ppmCompleter.Update(moveDocumentPayload, originalMoveDocument, session)
 	default:
-		return m.genericUpdater.Update(params, originalMoveDocument, session)
+		return m.genericUpdater.Update(moveDocumentPayload, originalMoveDocument, session)
 	}
 }
 
@@ -73,10 +73,9 @@ type moveDocumentStatusUpdater struct {
 
 //UpdateMoveDocumentStatus attempt to transition a move document from one status to another.
 // Returns and error if the status transition is invalid
-func (mds moveDocumentStatusUpdater) UpdateMoveDocumentStatus(params movedocop.UpdateMoveDocumentParams, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
+func (mds moveDocumentStatusUpdater) UpdateMoveDocumentStatus(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
-	payload := params.UpdateMoveDocument
-	newStatus := models.MoveDocumentStatus(payload.Status)
+	newStatus := models.MoveDocumentStatus(moveDocumentPayload.Status)
 	if moveDoc == nil {
 		return &models.MoveDocument{}, returnVerrs, errors.New("updateMoveDocumentStatus: missing move document")
 	}

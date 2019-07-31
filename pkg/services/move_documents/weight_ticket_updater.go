@@ -3,12 +3,13 @@ package movedocument
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
-	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -19,45 +20,44 @@ type WeightTicketUpdater struct {
 }
 
 //Update updates the weight ticket documents
-func (wtu WeightTicketUpdater) Update(params movedocop.UpdateMoveDocumentParams, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
+func (wtu WeightTicketUpdater) Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
-	payload := params.UpdateMoveDocument
-	newType := models.MoveDocumentType(payload.MoveDocumentType)
+	newType := models.MoveDocumentType(moveDocumentPayload.MoveDocumentType)
 	var emptyWeight, fullWeight *unit.Pound
-	updatedMoveDoc, returnVerrs, err := wtu.UpdateMoveDocumentStatus(params, moveDoc, session)
+	updatedMoveDoc, returnVerrs, err := wtu.UpdateMoveDocumentStatus(moveDocumentPayload, moveDoc, session)
 	if err != nil || returnVerrs.HasAny() {
 		return nil, returnVerrs, errors.Wrap(err, "weightticketupdater.update: error updating move document status")
 	}
-	if payload.EmptyWeight != nil {
-		ew := unit.Pound(*payload.EmptyWeight)
+	if moveDocumentPayload.EmptyWeight != nil {
+		ew := unit.Pound(*moveDocumentPayload.EmptyWeight)
 		emptyWeight = &ew
 	}
-	if payload.FullWeight != nil {
-		fw := unit.Pound(*payload.FullWeight)
+	if moveDocumentPayload.FullWeight != nil {
+		fw := unit.Pound(*moveDocumentPayload.FullWeight)
 		fullWeight = &fw
 	}
 	var weightTicketDate *time.Time
-	if payload.WeightTicketDate != nil {
-		weightTicketDate = (*time.Time)(payload.WeightTicketDate)
+	if moveDocumentPayload.WeightTicketDate != nil {
+		weightTicketDate = (*time.Time)(moveDocumentPayload.WeightTicketDate)
 	}
 	var trailerOwnershipMissing bool
-	if payload.TrailerOwnershipMissing != nil {
-		trailerOwnershipMissing = *payload.TrailerOwnershipMissing
+	if moveDocumentPayload.TrailerOwnershipMissing != nil {
+		trailerOwnershipMissing = *moveDocumentPayload.TrailerOwnershipMissing
 	}
 	var title string
-	if payload.Title != nil {
-		title = *payload.Title
+	if moveDocumentPayload.Title != nil {
+		title = *moveDocumentPayload.Title
 	}
 	var emptyWeightTicketMissing bool
-	if payload.EmptyWeightTicketMissing != nil {
-		emptyWeightTicketMissing = *payload.EmptyWeightTicketMissing
+	if moveDocumentPayload.EmptyWeightTicketMissing != nil {
+		emptyWeightTicketMissing = *moveDocumentPayload.EmptyWeightTicketMissing
 	}
 	var fullWeightTicketMissing bool
-	if payload.EmptyWeightTicketMissing != nil {
-		emptyWeightTicketMissing = *payload.FullWeightTicketMissing
+	if moveDocumentPayload.EmptyWeightTicketMissing != nil {
+		emptyWeightTicketMissing = *moveDocumentPayload.FullWeightTicketMissing
 	}
 	updatedMoveDoc.Title = title
-	updatedMoveDoc.Notes = payload.Notes
+	updatedMoveDoc.Notes = moveDocumentPayload.Notes
 	updatedMoveDoc.MoveDocumentType = newType
 	if updatedMoveDoc.WeightTicketSetDocument == nil {
 		updatedMoveDoc.WeightTicketSetDocument = &models.WeightTicketSetDocument{
@@ -69,22 +69,22 @@ func (wtu WeightTicketUpdater) Update(params movedocop.UpdateMoveDocumentParams,
 	updatedMoveDoc.WeightTicketSetDocument.EmptyWeightTicketMissing = emptyWeightTicketMissing
 	updatedMoveDoc.WeightTicketSetDocument.FullWeight = fullWeight
 	updatedMoveDoc.WeightTicketSetDocument.FullWeightTicketMissing = fullWeightTicketMissing
-	updatedMoveDoc.WeightTicketSetDocument.VehicleNickname = payload.VehicleNickname
-	updatedMoveDoc.WeightTicketSetDocument.VehicleOptions = payload.VehicleOptions
+	updatedMoveDoc.WeightTicketSetDocument.VehicleNickname = moveDocumentPayload.VehicleNickname
+	updatedMoveDoc.WeightTicketSetDocument.VehicleOptions = moveDocumentPayload.VehicleOptions
 	updatedMoveDoc.WeightTicketSetDocument.WeightTicketDate = weightTicketDate
 	updatedMoveDoc.WeightTicketSetDocument.TrailerOwnershipMissing = trailerOwnershipMissing
-	updatedMoveDoc, returnVerrs, err = wtu.updatePPMNetWeight(params, updatedMoveDoc, session)
+	updatedMoveDoc, returnVerrs, err = wtu.updatePPMNetWeight(updatedMoveDoc, session)
 	if err != nil || returnVerrs.HasAny() {
 		return nil, returnVerrs, errors.Wrap(err, "weightticketupdater.update: error updating weight ticket ppm")
 	}
-	updatedMoveDoc, returnVerrs, err = wtu.updateWeightTicket(params, updatedMoveDoc)
+	updatedMoveDoc, returnVerrs, err = wtu.updateWeightTicket(updatedMoveDoc)
 	if err != nil || returnVerrs.HasAny() {
 		return nil, returnVerrs, errors.Wrap(err, "weightticketupdater.update: error updating weight ticket")
 	}
 	return moveDoc, returnVerrs, nil
 }
 
-func (wtu WeightTicketUpdater) updatePPMNetWeight(params movedocop.UpdateMoveDocumentParams, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
+func (wtu WeightTicketUpdater) updatePPMNetWeight(moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	// weight tickets require that we save the ppm again to
 	// reflect updated net weight derived from the updated weight tickets
 	returnVerrs := validate.NewErrors()
@@ -109,7 +109,7 @@ func (wtu WeightTicketUpdater) updatePPMNetWeight(params movedocop.UpdateMoveDoc
 	return moveDoc, returnVerrs, nil
 }
 
-func (wtu WeightTicketUpdater) updateWeightTicket(params movedocop.UpdateMoveDocumentParams, moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error) {
+func (wtu WeightTicketUpdater) updateWeightTicket(moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error) {
 	var saveExpenseAction models.MoveExpenseDocumentSaveAction
 	if moveDoc.MovingExpenseDocument != nil {
 		saveExpenseAction = models.MoveDocumentSaveActionDELETEEXPENSEMODEL

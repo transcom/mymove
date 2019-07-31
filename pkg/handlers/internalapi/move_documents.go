@@ -201,7 +201,7 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 
 	moveDocID, _ := uuid.FromString(params.MoveDocumentID.String())
 
-	moveDoc, verrs, err := h.moveDocumentUpdater.Update(params, moveDocID, session)
+	moveDoc, verrs, err := h.moveDocumentUpdater.Update(params.UpdateMoveDocument, moveDocID, session)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}

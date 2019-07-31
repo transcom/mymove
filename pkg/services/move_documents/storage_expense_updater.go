@@ -3,12 +3,13 @@ package movedocument
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
-	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -20,28 +21,27 @@ type StorageExpenseUpdater struct {
 }
 
 //Update updates the storage expense documents
-func (seu StorageExpenseUpdater) Update(params movedocop.UpdateMoveDocumentParams, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
+func (seu StorageExpenseUpdater) Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
-	payload := params.UpdateMoveDocument
-	newType := models.MoveDocumentType(payload.MoveDocumentType)
-	updatedMoveDoc, returnVerrs, err := seu.UpdateMoveDocumentStatus(params, moveDoc, session)
+	newType := models.MoveDocumentType(moveDocumentPayload.MoveDocumentType)
+	updatedMoveDoc, returnVerrs, err := seu.UpdateMoveDocumentStatus(moveDocumentPayload, moveDoc, session)
 	if err != nil || returnVerrs.HasAny() {
 		return nil, returnVerrs, errors.Wrap(err, "storageexpenseupdater.update: error updating move document status")
 	}
 	var storageStartDate *time.Time
-	if payload.StorageStartDate != nil {
-		storageStartDate = handlers.FmtDatePtrToPopPtr(payload.StorageStartDate)
+	if moveDocumentPayload.StorageStartDate != nil {
+		storageStartDate = handlers.FmtDatePtrToPopPtr(moveDocumentPayload.StorageStartDate)
 	}
 	var storageEndDate *time.Time
-	if payload.StorageEndDate != nil {
-		storageEndDate = handlers.FmtDatePtrToPopPtr(payload.StorageEndDate)
+	if moveDocumentPayload.StorageEndDate != nil {
+		storageEndDate = handlers.FmtDatePtrToPopPtr(moveDocumentPayload.StorageEndDate)
 	}
 	var recieptMissing bool
-	if payload.ReceiptMissing != nil {
-		recieptMissing = *payload.ReceiptMissing
+	if moveDocumentPayload.ReceiptMissing != nil {
+		recieptMissing = *moveDocumentPayload.ReceiptMissing
 	}
-	updatedMoveDoc.Title = *payload.Title
-	updatedMoveDoc.Notes = payload.Notes
+	updatedMoveDoc.Title = *moveDocumentPayload.Title
+	updatedMoveDoc.Notes = moveDocumentPayload.Notes
 	updatedMoveDoc.MoveDocumentType = newType
 	if updatedMoveDoc.MovingExpenseDocument == nil {
 		updatedMoveDoc.MovingExpenseDocument = &models.MovingExpenseDocument{
@@ -50,8 +50,8 @@ func (seu StorageExpenseUpdater) Update(params movedocop.UpdateMoveDocumentParam
 			MovingExpenseType: models.MovingExpenseTypeSTORAGE,
 		}
 	}
-	updatedMoveDoc.MovingExpenseDocument.RequestedAmountCents = unit.Cents(payload.RequestedAmountCents)
-	updatedMoveDoc.MovingExpenseDocument.PaymentMethod = payload.PaymentMethod
+	updatedMoveDoc.MovingExpenseDocument.RequestedAmountCents = unit.Cents(moveDocumentPayload.RequestedAmountCents)
+	updatedMoveDoc.MovingExpenseDocument.PaymentMethod = moveDocumentPayload.PaymentMethod
 	updatedMoveDoc.MovingExpenseDocument.StorageStartDate = storageStartDate
 	updatedMoveDoc.MovingExpenseDocument.StorageEndDate = storageEndDate
 	updatedMoveDoc.MovingExpenseDocument.ReceiptMissing = recieptMissing
@@ -60,7 +60,7 @@ func (seu StorageExpenseUpdater) Update(params movedocop.UpdateMoveDocumentParam
 	if err != nil || returnVerrs.HasAny() {
 		return nil, returnVerrs, errors.Wrap(err, "Update: error updating move document ppm")
 	}
-	updatedMoveDoc, returnVerrs, err = seu.updateMovingExpense(params, updatedMoveDoc)
+	updatedMoveDoc, returnVerrs, err = seu.updateMovingExpense(updatedMoveDoc)
 	if err != nil || returnVerrs.HasAny() {
 		return nil, returnVerrs, errors.Wrap(err, "Update: error updating move document")
 	}
@@ -94,7 +94,7 @@ func (seu StorageExpenseUpdater) updatePPMSIT(moveDoc *models.MoveDocument, sess
 	return moveDoc, returnVerrs, nil
 }
 
-func (seu StorageExpenseUpdater) updateMovingExpense(params movedocop.UpdateMoveDocumentParams, moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error) {
+func (seu StorageExpenseUpdater) updateMovingExpense(moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
 	//TODO check w/ ren that got this right, but understanding as if move document wasn't nil
 	//TODO i.e. we're in update situation, want to clear weight ticket since this is an expense

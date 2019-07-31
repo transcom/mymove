@@ -3,10 +3,7 @@ package movedocument
 import (
 	"time"
 
-	"github.com/go-openapi/strfmt"
-
 	"github.com/transcom/mymove/pkg/auth"
-	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -66,7 +63,7 @@ func (suite *MoveDocumentServiceSuite) TestStorageExpenseUpdate() {
 	newStartDate := time.Date(2019, 05, 11, 0, 0, 0, 0, time.UTC)
 	newEndDate := time.Date(2019, 05, 16, 0, 0, 0, 0, time.UTC)
 	newRequestedAmount := int64(2000)
-	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
+	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
 		ID:                   handlers.FmtUUID(moveDocument.ID),
 		MoveID:               handlers.FmtUUID(move.ID),
 		Title:                handlers.FmtString("super_awesome.pdf"),
@@ -79,13 +76,10 @@ func (suite *MoveDocumentServiceSuite) TestStorageExpenseUpdate() {
 		StorageEndDate:       handlers.FmtDate(newEndDate),
 		StorageStartDate:     handlers.FmtDate(newStartDate),
 	}
-	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
-		UpdateMoveDocument: &updateMoveDocPayload,
-		MoveDocumentID:     strfmt.UUID(moveDocument.ID.String()),
-	}
+
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
 	suite.Nil(err)
-	umd, verrs, err := stu.Update(updateMoveDocParams, originalMoveDocument, session)
+	umd, verrs, err := stu.Update(updateMoveDocPayload, originalMoveDocument, session)
 	suite.NotNil(umd)
 	suite.Nil(err)
 	suite.NoVerrs(verrs)
@@ -161,7 +155,7 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysRemovedWhenNotOK() 
 	newStartDate := time.Date(2019, 05, 11, 0, 0, 0, 0, time.UTC)
 	newEndDate := time.Date(2019, 05, 16, 0, 0, 0, 0, time.UTC)
 	newRequestedAmount := int64(2000)
-	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
+	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
 		ID:                   handlers.FmtUUID(moveDocument.ID),
 		MoveID:               handlers.FmtUUID(move.ID),
 		Title:                handlers.FmtString("super_awesome.pdf"),
@@ -174,13 +168,10 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysRemovedWhenNotOK() 
 		StorageEndDate:       handlers.FmtDate(newEndDate),
 		StorageStartDate:     handlers.FmtDate(newStartDate),
 	}
-	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
-		UpdateMoveDocument: &updateMoveDocPayload,
-		MoveDocumentID:     strfmt.UUID(moveDocument.ID.String()),
-	}
+
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
 	suite.Nil(err)
-	umd, verrs, err := stu.Update(updateMoveDocParams, originalMoveDocument, session)
+	umd, verrs, err := stu.Update(updateMoveDocPayload, originalMoveDocument, session)
 	suite.NotNil(umd)
 	suite.Nil(err)
 	suite.NoVerrs(verrs)
@@ -257,7 +248,7 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysAfterManualOverride
 	newStartDate := time.Date(2019, 05, 11, 0, 0, 0, 0, time.UTC)
 	newEndDate := time.Date(2019, 05, 16, 0, 0, 0, 0, time.UTC)
 	newRequestedAmount := int64(2000)
-	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
+	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
 		ID:                   handlers.FmtUUID(moveDocument.ID),
 		MoveID:               handlers.FmtUUID(move.ID),
 		Title:                handlers.FmtString("super_awesome.pdf"),
@@ -270,13 +261,10 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysAfterManualOverride
 		StorageEndDate:       handlers.FmtDate(newEndDate),
 		StorageStartDate:     handlers.FmtDate(newStartDate),
 	}
-	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
-		UpdateMoveDocument: &updateMoveDocPayload,
-		MoveDocumentID:     strfmt.UUID(moveDocument.ID.String()),
-	}
+
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
 	suite.Nil(err)
-	umd, verrs, err := stu.Update(updateMoveDocParams, originalMoveDocument, session)
+	umd, verrs, err := stu.Update(updateMoveDocPayload, originalMoveDocument, session)
 	suite.NotNil(umd)
 	suite.Nil(err)
 	suite.NoVerrs(verrs)

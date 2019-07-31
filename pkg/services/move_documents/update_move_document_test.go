@@ -1,12 +1,10 @@
 package movedocument
 
 import (
-	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
-	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/move_documents/mocks"
@@ -40,17 +38,13 @@ func setup(suite *MoveDocumentServiceSuite) (*models.MoveDocument, uuid.UUID, *a
 func (suite *MoveDocumentServiceSuite) TestMoveDocumentWeightTicketUpdaterWeight() {
 	originalMoveDocument, moveDocumentID, session := setup(suite)
 
-	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
+	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
 		Status:           internalmessages.MoveDocumentStatusOK,
 		MoveDocumentType: internalmessages.MoveDocumentTypeWEIGHTTICKETSET,
 	}
-	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
-		UpdateMoveDocument: &updateMoveDocPayload,
-		MoveDocumentID:     strfmt.UUID(moveDocumentID.String()),
-	}
 
 	weightTicketUpdater := mocks.Updater{}
-	weightTicketUpdater.On("Update", updateMoveDocParams, originalMoveDocument, session).
+	weightTicketUpdater.On("Update", updateMoveDocPayload, originalMoveDocument, session).
 		Return(&models.MoveDocument{}, validate.NewErrors(), nil)
 	storageExpenseUpdater := mocks.Updater{}
 	ppmCompleter := mocks.Updater{}
@@ -64,7 +58,7 @@ func (suite *MoveDocumentServiceSuite) TestMoveDocumentWeightTicketUpdaterWeight
 		moveDocumentStatusUpdater: moveDocumentStatusUpdater{},
 	}
 
-	_, verrs, err := mdu.Update(updateMoveDocParams, moveDocumentID, session)
+	_, verrs, err := mdu.Update(updateMoveDocPayload, moveDocumentID, session)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
 	weightTicketUpdater.AssertNumberOfCalls(suite.T(), "Update", 1)
@@ -73,19 +67,15 @@ func (suite *MoveDocumentServiceSuite) TestMoveDocumentWeightTicketUpdaterWeight
 func (suite *MoveDocumentServiceSuite) TestMoveStorageExpenseDocumentUpdater() {
 	originalMoveDocument, moveDocumentID, session := setup(suite)
 
-	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
+	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
 		Status:            internalmessages.MoveDocumentStatusOK,
 		MoveDocumentType:  internalmessages.MoveDocumentTypeEXPENSE,
 		MovingExpenseType: internalmessages.MovingExpenseTypeSTORAGE,
 	}
-	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
-		UpdateMoveDocument: &updateMoveDocPayload,
-		MoveDocumentID:     strfmt.UUID(moveDocumentID.String()),
-	}
 
 	weightTicketUpdater := mocks.Updater{}
 	storageExpenseUpdater := mocks.Updater{}
-	storageExpenseUpdater.On("Update", updateMoveDocParams, originalMoveDocument, session).
+	storageExpenseUpdater.On("Update", updateMoveDocPayload, originalMoveDocument, session).
 		Return(&models.MoveDocument{}, validate.NewErrors(), nil)
 	ppmCompleter := mocks.Updater{}
 	genericUpdater := mocks.Updater{}
@@ -98,7 +88,7 @@ func (suite *MoveDocumentServiceSuite) TestMoveStorageExpenseDocumentUpdater() {
 		moveDocumentStatusUpdater: moveDocumentStatusUpdater{},
 	}
 
-	_, verrs, err := mdu.Update(updateMoveDocParams, moveDocumentID, session)
+	_, verrs, err := mdu.Update(updateMoveDocPayload, moveDocumentID, session)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
 	storageExpenseUpdater.AssertNumberOfCalls(suite.T(), "Update", 1)
@@ -107,19 +97,15 @@ func (suite *MoveDocumentServiceSuite) TestMoveStorageExpenseDocumentUpdater() {
 func (suite *MoveDocumentServiceSuite) TestMoveSSWDocumentUpdater() {
 	originalMoveDocument, moveDocumentID, session := setup(suite)
 
-	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
+	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
 		MoveDocumentType: internalmessages.MoveDocumentTypeSHIPMENTSUMMARY,
 		Status:           internalmessages.MoveDocumentStatusOK,
-	}
-	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
-		UpdateMoveDocument: &updateMoveDocPayload,
-		MoveDocumentID:     strfmt.UUID(moveDocumentID.String()),
 	}
 
 	weightTicketUpdater := mocks.Updater{}
 	storageExpenseUpdater := mocks.Updater{}
 	ppmCompleter := mocks.Updater{}
-	ppmCompleter.On("Update", updateMoveDocParams, originalMoveDocument, session).
+	ppmCompleter.On("Update", updateMoveDocPayload, originalMoveDocument, session).
 		Return(&models.MoveDocument{}, validate.NewErrors(), nil)
 	genericUpdater := mocks.Updater{}
 	mdu := moveDocumentUpdater{
@@ -131,7 +117,7 @@ func (suite *MoveDocumentServiceSuite) TestMoveSSWDocumentUpdater() {
 		moveDocumentStatusUpdater: moveDocumentStatusUpdater{},
 	}
 
-	_, verrs, err := mdu.Update(updateMoveDocParams, moveDocumentID, session)
+	_, verrs, err := mdu.Update(updateMoveDocPayload, moveDocumentID, session)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
 	ppmCompleter.AssertNumberOfCalls(suite.T(), "Update", 1)
@@ -141,19 +127,15 @@ func (suite *MoveDocumentServiceSuite) TestMoveGenericDocumentUpdater() {
 	originalMoveDocument, moveDocumentID, session := setup(suite)
 
 	// default case that should get called if not storage expense, ssw, or weight ticket set
-	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
+	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
 		MoveDocumentType: internalmessages.MoveDocumentTypeEXPENSE,
-	}
-	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
-		UpdateMoveDocument: &updateMoveDocPayload,
-		MoveDocumentID:     strfmt.UUID(moveDocumentID.String()),
 	}
 
 	weightTicketUpdater := mocks.Updater{}
 	storageExpenseUpdater := mocks.Updater{}
 	ppmCompleter := mocks.Updater{}
 	genericUpdater := mocks.Updater{}
-	genericUpdater.On("Update", updateMoveDocParams, originalMoveDocument, session).
+	genericUpdater.On("Update", updateMoveDocPayload, originalMoveDocument, session).
 		Return(&models.MoveDocument{}, validate.NewErrors(), nil)
 	mdu := moveDocumentUpdater{
 		db:                        suite.DB(),
@@ -164,7 +146,7 @@ func (suite *MoveDocumentServiceSuite) TestMoveGenericDocumentUpdater() {
 		moveDocumentStatusUpdater: moveDocumentStatusUpdater{},
 	}
 
-	_, verrs, err := mdu.Update(updateMoveDocParams, moveDocumentID, session)
+	_, verrs, err := mdu.Update(updateMoveDocPayload, moveDocumentID, session)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
 	genericUpdater.AssertNumberOfCalls(suite.T(), "Update", 1)

@@ -5,8 +5,9 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
+
 	"github.com/transcom/mymove/pkg/auth"
-	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -16,14 +17,13 @@ type PPMCompleter struct {
 }
 
 //Update moves ppm status to complete when ssw is uploaded
-func (ppmc PPMCompleter) Update(params movedocop.UpdateMoveDocumentParams, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
+func (ppmc PPMCompleter) Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
-	payload := params.UpdateMoveDocument
-	newType := models.MoveDocumentType(payload.MoveDocumentType)
-	moveDoc.Title = *payload.Title
-	moveDoc.Notes = payload.Notes
+	newType := models.MoveDocumentType(moveDocumentPayload.MoveDocumentType)
+	moveDoc.Title = *moveDocumentPayload.Title
+	moveDoc.Notes = moveDocumentPayload.Notes
 	moveDoc.MoveDocumentType = newType
-	updatedMoveDoc, returnVerrs, err := ppmc.UpdateMoveDocumentStatus(params, moveDoc, session)
+	updatedMoveDoc, returnVerrs, err := ppmc.UpdateMoveDocumentStatus(moveDocumentPayload, moveDoc, session)
 	if err != nil || returnVerrs.HasAny() {
 		return nil, returnVerrs, errors.Wrap(err, "ppmcompleter.update: error updating move document status")
 	}

@@ -1,10 +1,7 @@
 package movedocument
 
 import (
-	"github.com/go-openapi/strfmt"
-
 	"github.com/transcom/mymove/pkg/auth"
-	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -42,7 +39,7 @@ func (suite *MoveDocumentServiceSuite) TestPPMCompleteWhenSSWOK() {
 				ServiceMember:   sm,
 			},
 		})
-	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
+	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
 		ID:               handlers.FmtUUID(moveDocument.ID),
 		MoveID:           handlers.FmtUUID(move.ID),
 		Title:            handlers.FmtString("super_awesome.pdf"),
@@ -51,13 +48,10 @@ func (suite *MoveDocumentServiceSuite) TestPPMCompleteWhenSSWOK() {
 		MoveDocumentType: internalmessages.MoveDocumentTypeSHIPMENTSUMMARY,
 		PaymentMethod:    "GTCC",
 	}
-	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
-		UpdateMoveDocument: &updateMoveDocPayload,
-		MoveDocumentID:     strfmt.UUID(moveDocument.ID.String()),
-	}
+
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
 	suite.Nil(err)
-	umd, verrs, err := ppmc.Update(updateMoveDocParams, originalMoveDocument, session)
+	umd, verrs, err := ppmc.Update(updateMoveDocPayload, originalMoveDocument, session)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
@@ -103,7 +97,7 @@ func (suite *MoveDocumentServiceSuite) TestPPMNothingHappensWhenPPMAlreadyComple
 				ServiceMember:   sm,
 			},
 		})
-	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
+	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
 		ID:               handlers.FmtUUID(moveDocument.ID),
 		MoveID:           handlers.FmtUUID(move.ID),
 		Title:            handlers.FmtString("super_awesome.pdf"),
@@ -112,13 +106,10 @@ func (suite *MoveDocumentServiceSuite) TestPPMNothingHappensWhenPPMAlreadyComple
 		Status:           internalmessages.MoveDocumentStatusHASISSUE,
 		PaymentMethod:    "GTCC",
 	}
-	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
-		UpdateMoveDocument: &updateMoveDocPayload,
-		MoveDocumentID:     strfmt.UUID(moveDocument.ID.String()),
-	}
+
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
 	suite.Nil(err)
-	_, verrs, err := ppmc.Update(updateMoveDocParams, originalMoveDocument, session)
+	_, verrs, err := ppmc.Update(updateMoveDocPayload, originalMoveDocument, session)
 	suite.Nil(err)
 	suite.NoVerrs(verrs)
 	md, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)

@@ -3,10 +3,7 @@ package movedocument
 import (
 	"time"
 
-	"github.com/go-openapi/strfmt"
-
 	"github.com/transcom/mymove/pkg/auth"
-	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -63,7 +60,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightUpdate() {
 
 	emptyWeight := (int64)(200)
 	fullWeight := (int64)(500)
-	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
+	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
 		ID:               handlers.FmtUUID(moveDocument.ID),
 		MoveID:           handlers.FmtUUID(move.ID),
 		Title:            handlers.FmtString("super_awesome.pdf"),
@@ -76,13 +73,10 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightUpdate() {
 		FullWeight:       &fullWeight,
 		WeightTicketDate: handlers.FmtDate(wtDate),
 	}
-	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
-		UpdateMoveDocument: &updateMoveDocPayload,
-		MoveDocumentID:     strfmt.UUID(moveDocument.ID.String()),
-	}
+
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
 	suite.Nil(err)
-	umd, verrs, err := wtu.Update(updateMoveDocParams, originalMoveDocument, session)
+	umd, verrs, err := wtu.Update(updateMoveDocPayload, originalMoveDocument, session)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
@@ -155,7 +149,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightRemovedWhenStatusNotOK() {
 	emptyWeight := (int64)(200)
 	fullWeight := (int64)(500)
 	wtDate := time.Date(2019, 05, 11, 0, 0, 0, 0, time.UTC)
-	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
+	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
 		EmptyWeight:      &emptyWeight,
 		FullWeight:       &fullWeight,
 		ID:               handlers.FmtUUID(moveDocument.ID),
@@ -168,13 +162,10 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightRemovedWhenStatusNotOK() {
 		VehicleOptions:   "CAR",
 		WeightTicketDate: handlers.FmtDate(wtDate),
 	}
-	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
-		UpdateMoveDocument: &updateMoveDocPayload,
-		MoveDocumentID:     strfmt.UUID(moveDocument.ID.String()),
-	}
+
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
 	suite.Nil(err)
-	umd, verrs, err := wtu.Update(updateMoveDocParams, originalMoveDocument, session)
+	umd, verrs, err := wtu.Update(updateMoveDocPayload, originalMoveDocument, session)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
@@ -248,7 +239,7 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightAfterManualOverride() {
 
 	emptyWeight := (int64)(200)
 	fullWeight := (int64)(500)
-	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
+	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
 		ID:               handlers.FmtUUID(moveDocument.ID),
 		MoveID:           handlers.FmtUUID(move.ID),
 		Title:            handlers.FmtString("super_awesome.pdf"),
@@ -261,13 +252,10 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightAfterManualOverride() {
 		FullWeight:       &fullWeight,
 		WeightTicketDate: handlers.FmtDate(wtDate),
 	}
-	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
-		UpdateMoveDocument: &updateMoveDocPayload,
-		MoveDocumentID:     strfmt.UUID(moveDocument.ID.String()),
-	}
+
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
 	suite.Nil(err)
-	umd, verrs, err := wtu.Update(updateMoveDocParams, originalMoveDocument, session)
+	umd, verrs, err := wtu.Update(updateMoveDocPayload, originalMoveDocument, session)
 	suite.NotNil(umd)
 	suite.NoVerrs(verrs)
 	suite.Nil(err)
