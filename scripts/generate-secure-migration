@@ -91,3 +91,9 @@ Next:
     4. Run scripts/run-prod-migrations to verify that the upload worked and that the migration can be applied successfully.
     5. Open a pull request for this change; when it is accepted, your migration will run on staging.
 EOM
+
+#
+# Update the migrations manifest
+#
+
+./scripts/update-migrations-manifest

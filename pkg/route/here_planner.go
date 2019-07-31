@@ -78,6 +78,16 @@ func getPosition(r io.ReadCloser) (*HerePosition, error) {
 	return &response.Response.View[0].Result[0].Location.NavigationPosition[0], nil
 }
 
+func (p *herePlanner) GetAddressLatLong(address *models.Address) (LatLong, error) {
+	responses := make(chan addressLatLong)
+	go p.getAddressLatLong(responses, address)
+	response := <-responses
+	if response.err != nil {
+		return LatLong{}, response.err
+	}
+	return response.location, nil
+}
+
 // getAddressLatLong is expected to run in a goroutine to look up the LatLong of an address using the HERE
 // geocoder endpoint. It returns the data via a channel so two requests can run in parallel
 func (p *herePlanner) getAddressLatLong(responses chan addressLatLong, address *models.Address) {
@@ -221,6 +231,15 @@ func addKeysToEndpoint(endpoint string, id string, code string) string {
 // NewHEREPlanner constructs and returns a Planner which uses the HERE Map API to plan routes.
 func NewHEREPlanner(logger Logger, client httpGetter, geocodeEndpoint string, routeEndpoint string, appID string, appCode string) Planner {
 	return &herePlanner{
+		logger:                  logger,
+		httpClient:              client,
+		routeEndPointWithKeys:   addKeysToEndpoint(routeEndpoint, appID, appCode),
+		geocodeEndPointWithKeys: addKeysToEndpoint(geocodeEndpoint, appID, appCode)}
+}
+
+// nolint - this is duplicated to return a herePlanner rather than a Planner interface
+func NewHEREPlannerHP(logger Logger, client httpGetter, geocodeEndpoint string, routeEndpoint string, appID string, appCode string) herePlanner {
+	return herePlanner{
 		logger:                  logger,
 		httpClient:              client,
 		routeEndPointWithKeys:   addKeysToEndpoint(routeEndpoint, appID, appCode),
