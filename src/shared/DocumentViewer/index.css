@@ -39,11 +39,6 @@
   padding: 2rem 0rem 2rem 0rem;
 }
 
-.document-upload-link {
-  padding-top: 2rem;
-  font-size: 0.8em;
-}
-
 .chosen-document {
   /* override anchor tag link style */
   color: black !important;

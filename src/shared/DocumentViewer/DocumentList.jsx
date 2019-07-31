@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { renderStatusIcon } from 'shared/utils';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import { faPlusCircle } from '@fortawesome/fontawesome-free-solid';
+import styles from 'shared/DocumentViewer.module.scss';
 
 const documentUploadIcon = faPlusCircle;
 
@@ -25,7 +26,7 @@ const DocumentList = ({ currentMoveDocumentId, moveDocuments, detailUrlPrefix, d
         </div>
       );
     })}
-    <div className="document-upload-link" data-cy="document-upload-link">
+    <div className={styles['document-upload-link']} data-cy="document-upload-link">
       <FontAwesomeIcon className="icon link-blue" icon={documentUploadIcon} />
       <Link to={uploadDocumentUrl} target="_blank">
         Upload new document

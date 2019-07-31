@@ -46,10 +46,8 @@ describe('The document viewer', function() {
       .find('a')
       .should('have.attr', 'href')
       .and('contain', '/shipments/65e00326-420e-436a-89fc-6aeb3f90b870/documents/new');
-    cy
-      .get('[data-cy="document-upload-link"]')
-      .find('a')
-      .click();
+
+    cy.patientVisit('/shipments/65e00326-420e-436a-89fc-6aeb3f90b870/documents/new');
 
     cy.get('button.submit').should('be.disabled');
     cy.get('select[name="move_document_type"]').select('Other document type');
