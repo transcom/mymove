@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 type GenericUpdater struct {
@@ -28,12 +29,31 @@ func (gu GenericUpdater) Update(params movedocop.UpdateMoveDocumentParams, moveD
 	if payload.Title != nil {
 		title = *payload.Title
 	}
+	var recieptMissing bool
+	if payload.ReceiptMissing != nil {
+		recieptMissing = *payload.ReceiptMissing
+	}
 	updatedMoveDoc.Title = title
 	updatedMoveDoc.Notes = payload.Notes
 	updatedMoveDoc.MoveDocumentType = newType
+	if newType == models.MoveDocumentTypeEXPENSE {
+		if updatedMoveDoc.MovingExpenseDocument == nil {
+			updatedMoveDoc.MovingExpenseDocument = &models.MovingExpenseDocument{
+				MoveDocumentID: updatedMoveDoc.ID,
+				MoveDocument:   *updatedMoveDoc,
+			}
+		}
+		updatedMoveDoc.MovingExpenseDocument.MovingExpenseType = models.MovingExpenseType(payload.MovingExpenseType)
+		updatedMoveDoc.MovingExpenseDocument.RequestedAmountCents = unit.Cents(payload.RequestedAmountCents)
+		updatedMoveDoc.MovingExpenseDocument.PaymentMethod = payload.PaymentMethod
+		updatedMoveDoc.MovingExpenseDocument.ReceiptMissing = recieptMissing
+	}
 
 	var saveExpenseAction models.MoveExpenseDocumentSaveAction
-	if moveDoc.MovingExpenseDocument != nil {
+	if newType == models.MoveDocumentTypeEXPENSE {
+		saveExpenseAction = models.MoveDocumentSaveActionSAVEEXPENSEMODEL
+	}
+	if moveDoc.MovingExpenseDocument != nil && newType != models.MoveDocumentTypeEXPENSE {
 		saveExpenseAction = models.MoveDocumentSaveActionDELETEEXPENSEMODEL
 	}
 	var saveWeightTicketAction models.MoveWeightTicketSetDocumentSaveAction

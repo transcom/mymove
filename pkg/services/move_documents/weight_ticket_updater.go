@@ -60,7 +60,10 @@ func (wtu WeightTicketUpdater) Update(params movedocop.UpdateMoveDocumentParams,
 	updatedMoveDoc.Notes = payload.Notes
 	updatedMoveDoc.MoveDocumentType = newType
 	if updatedMoveDoc.WeightTicketSetDocument == nil {
-		updatedMoveDoc.WeightTicketSetDocument = &models.WeightTicketSetDocument{}
+		updatedMoveDoc.WeightTicketSetDocument = &models.WeightTicketSetDocument{
+			MoveDocumentID: updatedMoveDoc.ID,
+			MoveDocument:   *updatedMoveDoc,
+		}
 	}
 	updatedMoveDoc.WeightTicketSetDocument.EmptyWeight = emptyWeight
 	updatedMoveDoc.WeightTicketSetDocument.EmptyWeightTicketMissing = emptyWeightTicketMissing
