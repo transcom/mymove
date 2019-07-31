@@ -9,7 +9,7 @@ function PrivacyPolicy() {
         <p>
           Your privacy is important to us. By using{' '}
           <a href="http://my.move.mil/" target="_blank" rel="noopener noreferrer">
-            my.move.mil
+            MilMove
           </a>
           , you authorize us to share your data with other government entities to facilitate your personal property
           relocation.
@@ -25,7 +25,7 @@ function PrivacyPolicy() {
         </p>
         <p>
           <a href="https://my.move.mil/" target="_blank" rel="noopener noreferrer">
-            My.move.mil
+            MilMove
           </a>{' '}
           uses industry best practices in information security, drawing upon DoD, HIPAA, and PCI standards for
           information assurance.
@@ -33,7 +33,7 @@ function PrivacyPolicy() {
         <p>
           The information you provide to access your{' '}
           <a href="https://my.move.mil/" target="_blank" rel="noopener noreferrer">
-            my.move.mil
+            MilMove
           </a>{' '}
           account is collected pursuant to 6 USC § 1523 (b)(1)(A)-(E), the{' '}
           <a
@@ -48,7 +48,7 @@ function PrivacyPolicy() {
         <p>
           Access and accessibility is important to us.{' '}
           <a href="https://my.move.mil/" target="_blank" rel="noopener noreferrer">
-            My.move.mil
+            MilMove
           </a>{' '}
           is built to be accessible and compliant with Section 508. If you discover an issue with this site’s
           accessibility, please report it to your local Personal Property Office (PPPO).
