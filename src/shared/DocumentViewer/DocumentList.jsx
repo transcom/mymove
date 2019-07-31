@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { renderStatusIcon } from 'shared/utils';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import { faPlusCircle } from '@fortawesome/fontawesome-free-solid';
-import styles from './DocumentList.module.scss';
+import styles from 'shared/DocumentViewer/DocumentList.module.scss';
 
 const documentUploadIcon = faPlusCircle;
 
