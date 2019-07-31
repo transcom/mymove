@@ -13,6 +13,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -94,6 +95,26 @@ func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) 
 		&DiscountRateIsValid{Field: t.LinehaulRate, Name: "LinehaulRate"},
 		&DiscountRateIsValid{Field: t.SITRate, Name: "SITRate"},
 	), nil
+}
+
+// MarshalLogObject is required to be able to zap.Object log a TSPP
+func (t *TransportationServiceProviderPerformance) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	encoder.AddString("ID", t.ID.String())
+	encoder.AddTime("PerformancePeriodStart", t.PerformancePeriodStart)
+	encoder.AddTime("PerformancePeriodEnd", t.PerformancePeriodEnd)
+	encoder.AddTime("RateCycleStart", t.RateCycleStart)
+	encoder.AddTime("RateCycleEnd", t.RateCycleEnd)
+	encoder.AddString("TrafficDistributionListID", t.TrafficDistributionListID.String())
+	encoder.AddString("TransportationServiceProviderID", t.TransportationServiceProviderID.String())
+	if t.QualityBand != nil {
+		encoder.AddInt("QualityBand", *t.QualityBand)
+	}
+	encoder.AddFloat64("BestValueScore", t.BestValueScore)
+	encoder.AddFloat64("LinehaulRate", t.LinehaulRate.Float64())
+	encoder.AddFloat64("SITRate", t.SITRate.Float64())
+	encoder.AddInt("OfferCount", t.OfferCount)
+
+	return nil
 }
 
 // NextTSPPerformanceInQualityBand returns the TSP performance record in a given TDL
