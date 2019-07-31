@@ -30,6 +30,9 @@ func initMigrateFlags(flag *pflag.FlagSet) {
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
+	// DB Retry Config
+	cli.InitDatabaseRetryFlags(flag)
+
 	// Migration Config
 	cli.InitMigrationFlags(flag)
 
@@ -51,6 +54,10 @@ func checkMigrateConfig(v *viper.Viper, logger logger) error {
 	logger.Info("checking migration config")
 
 	if err := cli.CheckDatabase(v, logger); err != nil {
+		return err
+	}
+
+	if err := cli.CheckDatabaseRetry(v); err != nil {
 		return err
 	}
 
@@ -150,10 +157,11 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 	// Create a connection to the DB with retry logic
 	var dbConnection *pop.Connection
 	var errDbConn error
-	retry := 0
-	retryMax := 5
-	retryInterval := 5 * time.Second
-	for retry < retryMax {
+	retryCount := 0
+	retryMax := v.GetInt(cli.DbRetryMaxFlag)
+	retryInterval := v.GetDuration(cli.DbRetryIntervalFlag)
+
+	for retryCount < retryMax {
 		dbConnection, errDbConn = cli.InitDatabase(v, logger)
 		if errDbConn != nil {
 			if dbConnection == nil {
@@ -170,8 +178,8 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 		}
 
 		// Retry logic should break after max retries
-		retry++
-		if retry >= retryMax {
+		retryCount++
+		if retryCount >= retryMax {
 			logger.Fatal(fmt.Sprintf("DB was not ready for connections after %d retries", retryMax), zap.Error(errDbConn))
 		}
 	}
