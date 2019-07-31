@@ -128,7 +128,6 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 		},
 	}
 	testdatagen.MakeOfficeUser(suite.DB(), assertions)
-	testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
 	req := httptest.NewRequest("GET", fmt.Sprintf("/office_users/%s", id), nil)
