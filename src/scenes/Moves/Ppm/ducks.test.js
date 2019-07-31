@@ -273,6 +273,12 @@ describe('Ppm Reducer', () => {
           serviceMember: {
             currentServiceMember: {
               rank: 'E_1',
+              weight_allotment: {
+                total_weight_self: 5000,
+                total_weight_self_plus_dependents: 8000,
+                pro_gear_weight: 2000,
+                pro_gear_weight_spouse: 500,
+              },
             },
           },
           ui: {
@@ -317,6 +323,12 @@ describe('Ppm Reducer', () => {
           serviceMember: {
             currentServiceMember: {
               rank: 'E_1',
+              weight_allotment: {
+                total_weight_self: 5000,
+                total_weight_self_plus_dependents: 8000,
+                pro_gear_weight: 2000,
+                pro_gear_weight_spouse: 500,
+              },
             },
           },
           ui: {
@@ -361,6 +373,12 @@ describe('Ppm Reducer', () => {
             serviceMember: {
               currentServiceMember: {
                 rank: 'E_1',
+                weight_allotment: {
+                  total_weight_self: 5000,
+                  total_weight_self_plus_dependents: 8000,
+                  pro_gear_weight: 2000,
+                  pro_gear_weight_spouse: 500,
+                },
               },
             },
             ui: {

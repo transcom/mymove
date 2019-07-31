@@ -1,6 +1,8 @@
 package services
 
 import (
+	"github.com/gobuffalo/validate"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -13,4 +15,10 @@ type OfficeUserFetcher interface {
 //go:generate mockery -name OfficeUserListFetcher
 type OfficeUserListFetcher interface {
 	FetchOfficeUserList(filters []QueryFilter) (models.OfficeUsers, error)
+}
+
+// OfficeUserCreator is the exported interface for creating an office user
+//go:generate mockery -name OfficeUserCreator
+type OfficeUserCreator interface {
+	CreateOfficeUser(user *models.OfficeUser, transportationIDFilter []QueryFilter) (*models.OfficeUser, *validate.Errors, error)
 }

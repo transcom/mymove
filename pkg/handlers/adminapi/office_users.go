@@ -1,7 +1,11 @@
 package adminapi
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
@@ -43,4 +47,41 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 	}
 
 	return officeuserop.NewIndexOfficeUsersOK().WithPayload(payload)
+}
+
+type CreateOfficeUserHandler struct {
+	handlers.HandlerContext
+	services.OfficeUserCreator
+	services.NewQueryFilter
+}
+
+func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserParams) middleware.Responder {
+	payload := params.OfficeUser
+	_, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+
+	transportationOfficeID, err := uuid.FromString(payload.TransportationOfficeID.String())
+	if err != nil {
+		logger.Error(fmt.Sprintf("UUID Parsing for %s", payload.TransportationOfficeID.String()), zap.Error(err))
+	}
+
+	officeUser := models.OfficeUser{
+		LastName:               payload.LastName,
+		FirstName:              payload.FirstName,
+		Telephone:              payload.Telephone,
+		Email:                  payload.Email,
+		TransportationOfficeID: transportationOfficeID,
+	}
+
+	transportationIDFilter := []services.QueryFilter{
+		h.NewQueryFilter("id", "=", transportationOfficeID),
+	}
+
+	createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(&officeUser, transportationIDFilter)
+	if err != nil || verrs != nil {
+		logger.Error("Error saving user", zap.Error(err))
+		return officeuserop.NewCreateOfficeUserInternalServerError()
+	}
+
+	returnPayload := payloadForOfficeUserModel(*createdOfficeUser)
+	return officeuserop.NewCreateOfficeUserCreated().WithPayload(returnPayload)
 }

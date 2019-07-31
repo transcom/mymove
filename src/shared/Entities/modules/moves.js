@@ -4,7 +4,7 @@ import { ADD_ENTITIES } from '../actions';
 import { denormalize } from 'normalizr';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
-import { getEntitlements } from 'shared/entitlements.js';
+import { selectEntitlements } from 'shared/entitlements.js';
 import { selectOrdersForMove } from 'shared/Entities/modules/orders';
 import { selectServiceMemberForMove } from 'shared/Entities/modules/serviceMembers';
 
@@ -51,11 +51,11 @@ export function calculateEntitlementsForMove(state, moveId) {
   const hasDependents = orders.has_dependents;
   const spouseHasProGear = orders.spouse_has_pro_gear;
   const serviceMember = selectServiceMemberForMove(state, moveId);
-  const rank = serviceMember.rank;
-  if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
+  const weightAllotment = serviceMember.weight_allotment;
+  if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(weightAllotment)) {
     return null;
   }
-  return getEntitlements(rank, hasDependents, spouseHasProGear);
+  return selectEntitlements(weightAllotment, hasDependents, spouseHasProGear);
 }
 
 export function selectMoveDatesSummary(state, moveId, moveDate) {
