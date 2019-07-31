@@ -76,6 +76,13 @@ $DOCKER_RUN \
   -e MOVE_MIL_DOD_CA_CERT \
   -e MOVE_MIL_DOD_TLS_CERT \
   -e MOVE_MIL_DOD_TLS_KEY \
+  -e SERVE_ADMIN=true \
+  -e SERVE_SDDC=true \
+  -e SERVE_ORDERS=true \
+  -e SERVE_DPS=true \
+  -e SERVE_API_INTERNAL=true \
+  -e SERVE_API_EXTERNAL=true \
+  -e MUTUAL_TLS_ENABLED=true \
   -e NO_TLS_ENABLED=1 \
   -e NO_TLS_PORT="${HTTP_PORT}" \
   -e SECURE_MIGRATION_DIR \
