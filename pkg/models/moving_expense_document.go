@@ -110,6 +110,7 @@ func (m *MovingExpenseDocument) DaysInStorage() (int, error) {
 	return daysInStorage, nil
 }
 
+//FilterSITExpenses filter MovingExpenseDocuments to only storage expenses
 func FilterSITExpenses(movingExpenseDocuments MovingExpenseDocuments) MovingExpenseDocuments {
 	var sitExpenses []MovingExpenseDocument
 	for _, doc := range movingExpenseDocuments {
@@ -118,4 +119,15 @@ func FilterSITExpenses(movingExpenseDocuments MovingExpenseDocuments) MovingExpe
 		}
 	}
 	return sitExpenses
+}
+
+//FilterMovingExpenseDocuments filter MoveDocuments to only moving expense documents
+func FilterMovingExpenseDocuments(moveDocuments MoveDocuments) ([]MovingExpenseDocument, error) {
+	var movingExpenses []MovingExpenseDocument
+	for _, moveDocument := range moveDocuments {
+		if moveDocument.MovingExpenseDocument != nil {
+			movingExpenses = append(movingExpenses, *moveDocument.MovingExpenseDocument)
+		}
+	}
+	return movingExpenses, nil
 }

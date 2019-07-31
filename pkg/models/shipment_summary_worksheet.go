@@ -323,22 +323,12 @@ func FetchMovingExpensesShipmentSummaryWorksheet(move Move, db *pop.Connection, 
 		if err != nil {
 			return movingExpenseDocuments, err
 		}
-		movingExpenseDocuments, err = FetchMovingExpenses(moveDocuments)
+		movingExpenseDocuments, err = FilterMovingExpenseDocuments(moveDocuments)
 		if err != nil {
 			return movingExpenseDocuments, err
 		}
 	}
 	return movingExpenseDocuments, nil
-}
-
-func FetchMovingExpenses(moveDocuments MoveDocuments) ([]MovingExpenseDocument, error) {
-	var movingExpenses []MovingExpenseDocument
-	for _, moveDocument := range moveDocuments {
-		if moveDocument.MovingExpenseDocument != nil {
-			movingExpenses = append(movingExpenses, *moveDocument.MovingExpenseDocument)
-		}
-	}
-	return movingExpenses, nil
 }
 
 // FormatValuesShipmentSummaryWorksheetFormPage1 formats the data for page 1 of the Shipment Summary Worksheet

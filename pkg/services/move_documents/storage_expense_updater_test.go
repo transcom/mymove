@@ -23,16 +23,15 @@ func (suite *MoveDocumentServiceSuite) TestStorageExpenseUpdate() {
 		OfficeUserID:    officeUser.ID,
 	}
 
-	// When: there is a move and move document
 	origStartDate := time.Date(2019, 05, 12, 0, 0, 0, 0, time.UTC)
 	origEndDate := time.Date(2019, 05, 15, 0, 0, 0, 0, time.UTC)
-	daysInStorage := int64(2)
-	totalSitCost := unit.Cents(1000)
+	origDaysInStorage := int64(2)
+	origTotalSitCost := unit.Cents(1000)
 	ppm := testdatagen.MakePPM(suite.DB(),
 		testdatagen.Assertions{
 			PersonallyProcuredMove: models.PersonallyProcuredMove{
-				DaysInStorage: &daysInStorage,
-				TotalSITCost:  &totalSitCost,
+				DaysInStorage: &origDaysInStorage,
+				TotalSITCost:  &origTotalSitCost,
 			}})
 	move := ppm.Move
 	sm := ppm.Move.Orders.ServiceMember
@@ -54,7 +53,7 @@ func (suite *MoveDocumentServiceSuite) TestStorageExpenseUpdate() {
 		MoveDocumentID:       moveDocument.ID,
 		MoveDocument:         moveDocument,
 		MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
-		RequestedAmountCents: totalSitCost,
+		RequestedAmountCents: origTotalSitCost,
 		PaymentMethod:        "GTCC",
 		ReceiptMissing:       false,
 		StorageStartDate:     &origStartDate,
@@ -64,9 +63,9 @@ func (suite *MoveDocumentServiceSuite) TestStorageExpenseUpdate() {
 	suite.NoVerrs(verrs)
 	suite.NoError(err)
 
-	startDate := time.Date(2019, 05, 11, 0, 0, 0, 0, time.UTC)
-	endDate := time.Date(2019, 05, 16, 0, 0, 0, 0, time.UTC)
-	requestedAmount := int64(2000)
+	newStartDate := time.Date(2019, 05, 11, 0, 0, 0, 0, time.UTC)
+	newEndDate := time.Date(2019, 05, 16, 0, 0, 0, 0, time.UTC)
+	newRequestedAmount := int64(2000)
 	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
 		ID:                   handlers.FmtUUID(moveDocument.ID),
 		MoveID:               handlers.FmtUUID(move.ID),
@@ -75,10 +74,10 @@ func (suite *MoveDocumentServiceSuite) TestStorageExpenseUpdate() {
 		Status:               internalmessages.MoveDocumentStatusOK,
 		MoveDocumentType:     internalmessages.MoveDocumentTypeEXPENSE,
 		MovingExpenseType:    internalmessages.MovingExpenseTypeSTORAGE,
-		RequestedAmountCents: requestedAmount,
+		RequestedAmountCents: newRequestedAmount,
 		PaymentMethod:        "GTCC",
-		StorageEndDate:       handlers.FmtDate(endDate),
-		StorageStartDate:     handlers.FmtDate(startDate),
+		StorageEndDate:       handlers.FmtDate(newEndDate),
+		StorageStartDate:     handlers.FmtDate(newStartDate),
 	}
 	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
 		UpdateMoveDocument: &updateMoveDocPayload,
@@ -98,14 +97,15 @@ func (suite *MoveDocumentServiceSuite) TestStorageExpenseUpdate() {
 	suite.Require().Equal("super_awesome.pdf", md.Title)
 	suite.Require().Equal("This document is super awesome.", *md.Notes)
 	mdEndDate := *md.MovingExpenseDocument.StorageEndDate
-	suite.Require().Equal(endDate.UTC(), mdEndDate.UTC())
+	suite.Require().Equal(newEndDate.UTC(), mdEndDate.UTC())
 	mdStartDate := *md.MovingExpenseDocument.StorageStartDate
-	suite.Require().Equal(startDate.UTC(), mdStartDate.UTC())
-	suite.Require().Equal(unit.Cents(requestedAmount), md.MovingExpenseDocument.RequestedAmountCents)
+	suite.Require().Equal(newStartDate.UTC(), mdStartDate.UTC())
+	suite.Require().Equal(unit.Cents(newRequestedAmount), md.MovingExpenseDocument.RequestedAmountCents)
 	updatedPpm := models.PersonallyProcuredMove{}
+	// ppm is updated to reflect new sit total cost and days in storage
 	err = suite.DB().Where(`id = $1`, ppm.ID).First(&updatedPpm)
 	suite.Require().Nil(err)
-	suite.Require().Equal(unit.Cents(requestedAmount), *updatedPpm.TotalSITCost)
+	suite.Require().Equal(unit.Cents(newRequestedAmount), *updatedPpm.TotalSITCost)
 	suite.Require().Equal(int64(4), *updatedPpm.DaysInStorage)
 }
 
@@ -118,7 +118,6 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysRemovedWhenNotOK() 
 		OfficeUserID:    officeUser.ID,
 	}
 
-	// When: there is a move and move document
 	origStartDate := time.Date(2019, 05, 12, 0, 0, 0, 0, time.UTC)
 	origEndDate := time.Date(2019, 05, 15, 0, 0, 0, 0, time.UTC)
 	daysInStorage := int64(2)
@@ -159,9 +158,9 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysRemovedWhenNotOK() 
 	suite.NoVerrs(verrs)
 	suite.NoError(err)
 
-	startDate := time.Date(2019, 05, 11, 0, 0, 0, 0, time.UTC)
-	endDate := time.Date(2019, 05, 16, 0, 0, 0, 0, time.UTC)
-	requestedAmount := int64(2000)
+	newStartDate := time.Date(2019, 05, 11, 0, 0, 0, 0, time.UTC)
+	newEndDate := time.Date(2019, 05, 16, 0, 0, 0, 0, time.UTC)
+	newRequestedAmount := int64(2000)
 	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
 		ID:                   handlers.FmtUUID(moveDocument.ID),
 		MoveID:               handlers.FmtUUID(move.ID),
@@ -170,10 +169,10 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysRemovedWhenNotOK() 
 		MoveDocumentType:     internalmessages.MoveDocumentTypeEXPENSE,
 		MovingExpenseType:    internalmessages.MovingExpenseTypeSTORAGE,
 		Status:               internalmessages.MoveDocumentStatusHASISSUE,
-		RequestedAmountCents: requestedAmount,
+		RequestedAmountCents: newRequestedAmount,
 		PaymentMethod:        "GTCC",
-		StorageEndDate:       handlers.FmtDate(endDate),
-		StorageStartDate:     handlers.FmtDate(startDate),
+		StorageEndDate:       handlers.FmtDate(newEndDate),
+		StorageStartDate:     handlers.FmtDate(newStartDate),
 	}
 	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
 		UpdateMoveDocument: &updateMoveDocPayload,
@@ -193,11 +192,12 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysRemovedWhenNotOK() 
 	suite.Require().Equal("super_awesome.pdf", md.Title)
 	suite.Require().Equal("This document is super awesome.", *md.Notes)
 	mdEndDate := *md.MovingExpenseDocument.StorageEndDate
-	suite.Require().Equal(endDate.UTC(), mdEndDate.UTC())
+	suite.Require().Equal(newEndDate.UTC(), mdEndDate.UTC())
 	mdStartDate := *md.MovingExpenseDocument.StorageStartDate
-	suite.Require().Equal(startDate.UTC(), mdStartDate.UTC())
-	suite.Require().Equal(unit.Cents(requestedAmount), md.MovingExpenseDocument.RequestedAmountCents)
+	suite.Require().Equal(newStartDate.UTC(), mdStartDate.UTC())
+	suite.Require().Equal(unit.Cents(newRequestedAmount), md.MovingExpenseDocument.RequestedAmountCents)
 	updatedPpm := models.PersonallyProcuredMove{}
+	// ppm is updated to reflect exlusion of this sit expense from total cost and days in storage
 	err = suite.DB().Where(`id = $1`, ppm.ID).First(&updatedPpm)
 	suite.Require().Nil(err)
 	suite.Require().Equal(unit.Cents(0), *updatedPpm.TotalSITCost)
@@ -213,10 +213,9 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysAfterManualOverride
 		OfficeUserID:    officeUser.ID,
 	}
 
-	// When: there is a move and move document
 	origStartDate := time.Date(2019, 05, 12, 0, 0, 0, 0, time.UTC)
 	origEndDate := time.Date(2019, 05, 15, 0, 0, 0, 0, time.UTC)
-	// made up number as if office user overrides
+	// made up daysInStorage and totalSitCost (as if office user overrides)
 	daysInStorage := int64(4)
 	totalSitCost := unit.Cents(2000)
 	ppm := testdatagen.MakePPM(suite.DB(),
@@ -255,9 +254,9 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysAfterManualOverride
 	suite.NoVerrs(verrs)
 	suite.NoError(err)
 
-	startDate := time.Date(2019, 05, 11, 0, 0, 0, 0, time.UTC)
-	endDate := time.Date(2019, 05, 16, 0, 0, 0, 0, time.UTC)
-	requestedAmount := int64(2000)
+	newStartDate := time.Date(2019, 05, 11, 0, 0, 0, 0, time.UTC)
+	newEndDate := time.Date(2019, 05, 16, 0, 0, 0, 0, time.UTC)
+	newRequestedAmount := int64(2000)
 	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
 		ID:                   handlers.FmtUUID(moveDocument.ID),
 		MoveID:               handlers.FmtUUID(move.ID),
@@ -266,10 +265,10 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysAfterManualOverride
 		Status:               internalmessages.MoveDocumentStatusOK,
 		MoveDocumentType:     internalmessages.MoveDocumentTypeEXPENSE,
 		MovingExpenseType:    internalmessages.MovingExpenseTypeSTORAGE,
-		RequestedAmountCents: requestedAmount,
+		RequestedAmountCents: newRequestedAmount,
 		PaymentMethod:        "GTCC",
-		StorageEndDate:       handlers.FmtDate(endDate),
-		StorageStartDate:     handlers.FmtDate(startDate),
+		StorageEndDate:       handlers.FmtDate(newEndDate),
+		StorageStartDate:     handlers.FmtDate(newStartDate),
 	}
 	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
 		UpdateMoveDocument: &updateMoveDocPayload,
@@ -289,13 +288,14 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysAfterManualOverride
 	suite.Require().Equal("super_awesome.pdf", md.Title)
 	suite.Require().Equal("This document is super awesome.", *md.Notes)
 	mdEndDate := *md.MovingExpenseDocument.StorageEndDate
-	suite.Require().Equal(endDate.UTC(), mdEndDate.UTC())
+	suite.Require().Equal(newEndDate.UTC(), mdEndDate.UTC())
 	mdStartDate := *md.MovingExpenseDocument.StorageStartDate
-	suite.Require().Equal(startDate.UTC(), mdStartDate.UTC())
-	suite.Require().Equal(unit.Cents(requestedAmount), md.MovingExpenseDocument.RequestedAmountCents)
+	suite.Require().Equal(newStartDate.UTC(), mdStartDate.UTC())
+	suite.Require().Equal(unit.Cents(newRequestedAmount), md.MovingExpenseDocument.RequestedAmountCents)
 	updatedPpm := models.PersonallyProcuredMove{}
 	err = suite.DB().Where(`id = $1`, ppm.ID).First(&updatedPpm)
 	suite.Require().Nil(err)
-	suite.Require().Equal(unit.Cents(2000), *updatedPpm.TotalSITCost)
-	suite.Require().Equal(int64(4), *updatedPpm.DaysInStorage)
+	suite.Require().Equal(unit.Cents(newRequestedAmount), *updatedPpm.TotalSITCost)
+	newDaysInStorage := int64((newEndDate.Sub(newStartDate).Hours() / 24) - 1)
+	suite.Require().Equal(newDaysInStorage, *updatedPpm.DaysInStorage)
 }

@@ -116,7 +116,6 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightRemovedWhenStatusNotOK() {
 		OfficeUserID:    officeUser.ID,
 	}
 
-	// When: there is a move and move document
 	emptyWeight1 := unit.Pound(1000)
 	fullWeight1 := unit.Pound(2500)
 	netWeight1 := fullWeight1 - emptyWeight1
@@ -209,10 +208,9 @@ func (suite *MoveDocumentServiceSuite) TestNetWeightAfterManualOverride() {
 		OfficeUserID:    officeUser.ID,
 	}
 
-	// When: there is a move and move document
 	emptyWeight1 := unit.Pound(1000)
 	fullWeight1 := unit.Pound(2500)
-	// made up number as if offide user overrode weight tickets
+	// made up net weight (as if office user overrode weight tickets)
 	netWeight1 := unit.Pound(10000)
 	wtDate := time.Date(2019, 05, 11, 0, 0, 0, 0, time.UTC)
 	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{PersonallyProcuredMove: models.PersonallyProcuredMove{NetWeight: &netWeight1}})

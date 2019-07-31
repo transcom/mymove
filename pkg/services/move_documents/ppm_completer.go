@@ -47,9 +47,8 @@ func (ppmc PPMCompleter) Update(params movedocop.UpdateMoveDocumentParams, moveD
 }
 
 func (ppmc PPMCompleter) completePPM(moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error) {
-	// If the status has already been completed
-	// (because the document has been toggled between OK and HAS_ISSUE and back)
-	// then don't complete it again.
+	// If the status has already been completed (because the document has been toggled
+	// between OK and HAS_ISSUE and back) then don't complete it again.
 	returnVerrs := validate.NewErrors()
 	ppm := &moveDoc.PersonallyProcuredMove
 	if ppm.Status != models.PPMStatusCOMPLETED {

@@ -308,7 +308,7 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 		moveDocumentUpdateHandler,
 	}
 
-	// error scenario
+	// happy path
 	returnedMoveDocument := models.MoveDocument{ID: moveDocument.ID}
 	moveDocumentUpdateHandler.On("Update",
 		updateMoveDocParams,

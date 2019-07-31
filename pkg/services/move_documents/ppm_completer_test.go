@@ -73,7 +73,7 @@ func (suite *MoveDocumentServiceSuite) TestPPMCompleteWhenSSWOK() {
 	suite.Require().Equal(models.PPMStatusCOMPLETED, updatedPpm.Status)
 }
 
-func (suite *MoveDocumentServiceSuite) TestPPMNothingHappensWhenSSWOK() {
+func (suite *MoveDocumentServiceSuite) TestPPMNothingHappensWhenPPMAlreadyCompleted() {
 	ppmc := PPMCompleter{suite.DB(), moveDocumentStatusUpdater{}}
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 	session := &auth.Session{
@@ -82,11 +82,10 @@ func (suite *MoveDocumentServiceSuite) TestPPMNothingHappensWhenSSWOK() {
 		OfficeUserID:    officeUser.ID,
 	}
 
-	// When: there is a move and move document
 	ppm := testdatagen.MakePPM(suite.DB(),
 		testdatagen.Assertions{
 			PersonallyProcuredMove: models.PersonallyProcuredMove{
-				Status: models.PPMStatusPAYMENTREQUESTED,
+				Status: models.PPMStatusCOMPLETED,
 			}})
 	move := ppm.Move
 	sm := ppm.Move.Orders.ServiceMember
@@ -97,7 +96,7 @@ func (suite *MoveDocumentServiceSuite) TestPPMNothingHappensWhenSSWOK() {
 				Move:                     move,
 				PersonallyProcuredMoveID: &ppm.ID,
 				MoveDocumentType:         models.MoveDocumentTypeSHIPMENTSUMMARY,
-				Status:                   models.MoveDocumentStatusAWAITINGREVIEW,
+				Status:                   models.MoveDocumentStatusOK,
 			},
 			Document: models.Document{
 				ServiceMemberID: sm.ID,
@@ -109,8 +108,8 @@ func (suite *MoveDocumentServiceSuite) TestPPMNothingHappensWhenSSWOK() {
 		MoveID:           handlers.FmtUUID(move.ID),
 		Title:            handlers.FmtString("super_awesome.pdf"),
 		Notes:            handlers.FmtString("This document is super awesome."),
-		Status:           internalmessages.MoveDocumentStatusOK,
 		MoveDocumentType: internalmessages.MoveDocumentTypeSHIPMENTSUMMARY,
+		Status:           internalmessages.MoveDocumentStatusHASISSUE,
 		PaymentMethod:    "GTCC",
 	}
 	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
@@ -131,5 +130,5 @@ func (suite *MoveDocumentServiceSuite) TestPPMNothingHappensWhenSSWOK() {
 	updatedPpm := models.PersonallyProcuredMove{}
 	err = suite.DB().Where(`id = $1`, ppm.ID).First(&updatedPpm)
 	suite.Require().Nil(err)
-	suite.Require().Equal(updatedPpm.Status, models.PPMStatusCOMPLETED)
+	suite.Require().Equal(models.PPMStatusCOMPLETED, updatedPpm.Status)
 }

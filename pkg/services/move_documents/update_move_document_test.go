@@ -64,7 +64,9 @@ func (suite *MoveDocumentServiceSuite) TestMoveDocumentWeightTicketUpdaterWeight
 		moveDocumentStatusUpdater: moveDocumentStatusUpdater{},
 	}
 
-	mdu.Update(updateMoveDocParams, moveDocumentID, session)
+	_, verrs, err := mdu.Update(updateMoveDocParams, moveDocumentID, session)
+	suite.NoVerrs(verrs)
+	suite.Nil(err)
 	weightTicketUpdater.AssertNumberOfCalls(suite.T(), "Update", 1)
 }
 
@@ -96,7 +98,9 @@ func (suite *MoveDocumentServiceSuite) TestMoveStorageExpenseDocumentUpdater() {
 		moveDocumentStatusUpdater: moveDocumentStatusUpdater{},
 	}
 
-	mdu.Update(updateMoveDocParams, moveDocumentID, session)
+	_, verrs, err := mdu.Update(updateMoveDocParams, moveDocumentID, session)
+	suite.NoVerrs(verrs)
+	suite.Nil(err)
 	storageExpenseUpdater.AssertNumberOfCalls(suite.T(), "Update", 1)
 }
 
@@ -127,7 +131,9 @@ func (suite *MoveDocumentServiceSuite) TestMoveSSWDocumentUpdater() {
 		moveDocumentStatusUpdater: moveDocumentStatusUpdater{},
 	}
 
-	mdu.Update(updateMoveDocParams, moveDocumentID, session)
+	_, verrs, err := mdu.Update(updateMoveDocParams, moveDocumentID, session)
+	suite.NoVerrs(verrs)
+	suite.Nil(err)
 	ppmCompleter.AssertNumberOfCalls(suite.T(), "Update", 1)
 }
 
@@ -158,6 +164,8 @@ func (suite *MoveDocumentServiceSuite) TestMoveGenericDocumentUpdater() {
 		moveDocumentStatusUpdater: moveDocumentStatusUpdater{},
 	}
 
-	mdu.Update(updateMoveDocParams, moveDocumentID, session)
+	_, verrs, err := mdu.Update(updateMoveDocParams, moveDocumentID, session)
+	suite.NoVerrs(verrs)
+	suite.Nil(err)
 	genericUpdater.AssertNumberOfCalls(suite.T(), "Update", 1)
 }
