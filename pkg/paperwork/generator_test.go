@@ -181,3 +181,33 @@ func (suite *PaperworkSuite) TestCreateMergedPDF() {
 
 	suite.Equal(3, ctx.PageCount)
 }
+
+func (suite *PaperworkSuite) TestCleanup() {
+	generator, order := suite.setupOrdersDocument()
+
+	uploads := order.UploadedOrders.Uploads
+	_, err := generator.CreateMergedPDFUpload(uploads)
+	suite.FatalNil(err)
+
+	generator.Cleanup()
+
+	fs := suite.uploader.Storer.FileSystem()
+	exists, existsErr := fs.DirExists(generator.workDir)
+	suite.Nil(existsErr)
+
+	if exists {
+		suite.Failf("expected %s to not be a directory, but it was", generator.workDir)
+
+		var paths []string
+		walkErr := fs.Walk(generator.workDir, func(path string, info os.FileInfo, err error) error {
+			if path != generator.workDir { // Walk starts off with the directory passed to it
+				paths = append(paths, path)
+			}
+			return nil
+		})
+		suite.Nil(walkErr)
+		if len(paths) > 0 {
+			suite.Failf("did not clean up", "expected %s to be empty, but it contained %v", generator.workDir, paths)
+		}
+	}
+}

@@ -5,6 +5,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/go-openapi/strfmt"
+	"github.com/gobuffalo/validate"
+
+	"github.com/transcom/mymove/pkg/gen/adminmessages"
+
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
@@ -103,4 +108,78 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		}
 		suite.Equal(expectedResponse, response)
 	})
+}
+
+func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
+
+	transportationOfficeID, _ := uuid.NewV4()
+	officeUserID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
+	officeUser := models.OfficeUser{ID: officeUserID, TransportationOfficeID: transportationOfficeID, UserID: nil}
+	queryFilter := mocks.QueryFilter{}
+	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
+
+	req := httptest.NewRequest("POST", "/office_users", nil)
+	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	req = suite.AuthenticateUserRequest(req, requestUser)
+
+	params := officeuserop.CreateOfficeUserParams{
+		HTTPRequest: req,
+		OfficeUser: &adminmessages.OfficeUserCreatePayload{
+			FirstName:              officeUser.FirstName,
+			LastName:               officeUser.LastName,
+			Telephone:              officeUser.Telephone,
+			TransportationOfficeID: strfmt.UUID(officeUser.TransportationOfficeID.String()),
+		},
+	}
+
+	suite.T().Run("Successful create", func(t *testing.T) {
+		officeUserCreator := &mocks.OfficeUserCreator{}
+
+		officeUserCreator.On("CreateOfficeUser",
+			&officeUser,
+			mock.Anything).Return(&officeUser, nil, nil).Once()
+
+		handler := CreateOfficeUserHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			officeUserCreator,
+			newQueryFilter,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&officeuserop.CreateOfficeUserCreated{}, response)
+	})
+
+	suite.T().Run("Failed create", func(t *testing.T) {
+		officeUserCreator := &mocks.OfficeUserCreator{}
+
+		officeUserCreator.On("CreateOfficeUser",
+			&officeUser,
+			mock.Anything).Return(&officeUser, nil, nil).Once()
+
+		handler := CreateOfficeUserHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			officeUserCreator,
+			newQueryFilter,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&officeuserop.CreateOfficeUserCreated{}, response)
+	})
+
+	officeUserCreator := &mocks.OfficeUserCreator{}
+	err := validate.NewErrors()
+
+	officeUserCreator.On("CreateOfficeUser",
+		&officeUser,
+		mock.Anything).Return(nil, err, nil).Once()
+
+	handler := CreateOfficeUserHandler{
+		handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+		officeUserCreator,
+		newQueryFilter,
+	}
+
+	handler.Handle(params)
+	suite.Error(err, "Error saving user")
+
 }

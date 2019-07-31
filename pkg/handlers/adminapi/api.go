@@ -35,5 +35,11 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 		NewQueryFilter: query.NewQueryFilter,
 	}
 
+	adminAPI.OfficeCreateOfficeUserHandler = CreateOfficeUserHandler{
+		context,
+		user.NewOfficeUserCreator(queryBuilder),
+		query.NewQueryFilter,
+	}
+
 	return adminAPI.Serve(nil)
 }
