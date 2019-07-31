@@ -23,6 +23,7 @@ type moveDocumentUpdater struct {
 }
 
 //Updater interface for individual document updaters
+//go:generate mockery -name Updater
 type Updater interface {
 	Update(params movedocop.UpdateMoveDocumentParams, moveDoc *models.MoveDocument, session *auth.Session) (*models.MoveDocument, *validate.Errors, error)
 }
