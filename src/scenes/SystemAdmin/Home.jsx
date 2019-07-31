@@ -1,10 +1,19 @@
 import restProvider from 'ra-data-simple-rest';
-import { Admin, Resource, Layout, List, Pagination, Datagrid, TextField } from 'react-admin';
+import { fetchUtils, Admin, Resource, Layout, List, Pagination, Datagrid, TextField } from 'react-admin';
 import { history } from 'shared/store';
 import React from 'react';
 import Menu from './Menu';
 
-const dataProvider = restProvider('/admin/v1');
+const httpClient = (url, options = {}) => {
+  if (!options.headers) {
+    options.headers = new Headers({ Accept: 'application/json' });
+  }
+
+  // send cookies in the request
+  options.credentials = 'same-origin';
+  return fetchUtils.fetchJson(url, options);
+};
+const dataProvider = restProvider('/admin/v1', httpClient);
 
 const AdminLayout = props => <Layout {...props} menu={Menu} />;
 const AdminPagination = props => <Pagination rowsPerPageOptions={[]} {...props} />;
