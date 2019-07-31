@@ -928,7 +928,7 @@ spellcheck: .client_deps.stamp ## Run interactive spellchecker
 #
 
 .PHONY: docker_compose_setup
-docker_compose_setup: ## Install requirements to use docker-compose
+docker_compose_setup: .check_hosts.stamp ## Install requirements to use docker-compose
 	brew install -f bash git docker docker-compose direnv || true
 	brew cask install -f aws-vault || true
 
