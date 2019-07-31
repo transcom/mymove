@@ -110,7 +110,7 @@ func (b *MigrationBuilder) addressLatLong(address models.Address) (route.LatLong
 	testAppID := os.Getenv("HERE_MAPS_APP_ID")
 	testAppCode := os.Getenv("HERE_MAPS_APP_CODE")
 	hereClient := &http.Client{Timeout: hereRequestTimeout}
-	p := route.NewHEREPlannerMine(b.logger, hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
+	p := route.NewHEREPlannerHP(b.logger, hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
 
 	plannerType := reflect.TypeOf(p)
 	for i := 0; i < plannerType.NumMethod(); i++ {

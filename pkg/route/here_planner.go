@@ -237,8 +237,8 @@ func NewHEREPlanner(logger Logger, client httpGetter, geocodeEndpoint string, ro
 		geocodeEndPointWithKeys: addKeysToEndpoint(geocodeEndpoint, appID, appCode)}
 }
 
-// nolint
-func NewHEREPlannerMine(logger Logger, client httpGetter, geocodeEndpoint string, routeEndpoint string, appID string, appCode string) herePlanner {
+// nolint - this is duplicated to return a herePlanner rather than a Planner interface
+func NewHEREPlannerHP(logger Logger, client httpGetter, geocodeEndpoint string, routeEndpoint string, appID string, appCode string) herePlanner {
 	return herePlanner{
 		logger:                  logger,
 		httpClient:              client,
