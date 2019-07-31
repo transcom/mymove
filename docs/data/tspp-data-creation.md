@@ -2,7 +2,7 @@
 
 This outlines the steps you need to do to join the two data sources we've traditionally gotten - CSVs or text files of best value scores tide to TDLs, exported one code of service at a time, and CSVs or text files of TSP discount rates, organized by the three pieces of data that make up a TDL (origin, destination, and code of service). If anything behaves in a surprising way, double check the schema detailed here against the organization of your input files. No step of this should alter zero rows, for instance.
 
-Before you begin this process, convert discount rate Excel files or txt files to CSVs, if needed.
+Before you begin this process, convert discount rate Excel files or txt files to CSVs, if needed. **Verify that values for SVY_SCORE, RATE_SCORE, and BVS are decimal values (should be formatted like `77.3456`).**
 
 > We will use the `\copy` `psql` command throughout this guide.
 >
@@ -178,7 +178,7 @@ AND
 Check for null TDL IDs:
 
 ```sql
-SELECT count(DISTINCT scac) FROM tdl_scores_and_discounts WHERE tsd_id IS NULL;
+SELECT count(DISTINCT scac) FROM tdl_scores_and_discounts WHERE tdl_id IS NULL;
 ```
 
 If count returns anything but 0, you'll need to add new TDL entries.
@@ -429,7 +429,7 @@ TRUNCATE transportation_service_provider_performances CASCADE;
 * Load the file created from the `pg_dump`:
 
 ```sh
-scripts/psql-wrapper < tspp_data_dump.pgsql
+scripts/psql-dev < tspp_data_dump.pgsql
 ```
 
 * Reduce the number of TSPs to two (2) TSPs per TDL:
@@ -446,6 +446,20 @@ WHERE id not in (
 ```
 
 * Scrub the data:
+
+First, define a `random_between` function ([source](http://www.postgresqltutorial.com/postgresql-random-range/)).
+
+```sql
+CREATE OR REPLACE FUNCTION random_between(low INT ,high INT)
+   RETURNS INT AS
+$$
+BEGIN
+   RETURN floor(random()* (high-low + 1) + low);
+END;
+$$ language 'plpgsql' STRICT;
+```
+
+Then, use that function to set random values for fields that contain secret values:
 
 ```sql
 UPDATE transportation_service_provider_performances
