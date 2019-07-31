@@ -45,11 +45,11 @@ func (seu StorageExpenseUpdater) Update(moveDocumentPayload *internalmessages.Mo
 	updatedMoveDoc.MoveDocumentType = newType
 	if updatedMoveDoc.MovingExpenseDocument == nil {
 		updatedMoveDoc.MovingExpenseDocument = &models.MovingExpenseDocument{
-			MoveDocumentID:    moveDoc.ID,
-			MoveDocument:      *moveDoc,
-			MovingExpenseType: models.MovingExpenseTypeSTORAGE,
+			MoveDocumentID: moveDoc.ID,
+			MoveDocument:   *moveDoc,
 		}
 	}
+	updatedMoveDoc.MovingExpenseDocument.MovingExpenseType = models.MovingExpenseTypeSTORAGE
 	updatedMoveDoc.MovingExpenseDocument.RequestedAmountCents = unit.Cents(moveDocumentPayload.RequestedAmountCents)
 	updatedMoveDoc.MovingExpenseDocument.PaymentMethod = moveDocumentPayload.PaymentMethod
 	updatedMoveDoc.MovingExpenseDocument.StorageStartDate = storageStartDate

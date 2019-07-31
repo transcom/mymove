@@ -92,14 +92,14 @@ func (mds moveDocumentStatusUpdater) UpdateMoveDocumentStatus(moveDocumentPayloa
 }
 
 func mergeMoveDocuments(moveDocuments models.MoveDocuments, moveDoc models.MoveDocument) models.MoveDocuments {
-	var oldMoveDocuments models.MoveDocuments
-	for _, v := range moveDocuments {
-		if v.ID != moveDoc.ID {
-			oldMoveDocuments = append(oldMoveDocuments, v)
-		}
-		if v.ID == moveDoc.ID && moveDoc.Status == models.MoveDocumentStatusOK {
-			oldMoveDocuments = append(oldMoveDocuments, moveDoc)
+	var mergedMoveDocuments models.MoveDocuments
+	for _, moveDocument := range moveDocuments {
+		if moveDocument.ID != moveDoc.ID {
+			mergedMoveDocuments = append(mergedMoveDocuments, moveDocument)
 		}
 	}
-	return oldMoveDocuments
+	if moveDoc.Status == models.MoveDocumentStatusOK {
+		mergedMoveDocuments = append(mergedMoveDocuments, moveDoc)
+	}
+	return mergedMoveDocuments
 }
