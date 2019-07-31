@@ -12,6 +12,11 @@ func payloadForServiceMemberModel(serviceMember *models.ServiceMember) *apimessa
 		contactPayloads[i] = &contactPayload
 	}
 
+	var weightAllotment *apimessages.WeightAllotment
+	if serviceMember.Rank != nil {
+		weightAllotment = payloadForWeightAllotmentModel(models.GetWeightAllotment(*serviceMember.Rank))
+	}
+
 	serviceMemberPayload := apimessages.ServiceMember{
 		FirstName:              serviceMember.FirstName,
 		MiddleName:             serviceMember.MiddleName,
@@ -27,6 +32,7 @@ func payloadForServiceMemberModel(serviceMember *models.ServiceMember) *apimessa
 		TextMessageIsPreferred: serviceMember.TextMessageIsPreferred,
 		EmailIsPreferred:       serviceMember.EmailIsPreferred,
 		BackupContacts:         contactPayloads,
+		WeightAllotment:        weightAllotment,
 	}
 
 	return &serviceMemberPayload
