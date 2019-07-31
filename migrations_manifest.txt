@@ -334,3 +334,4 @@
 20190723192710_add_staging_user.up.fizz
 20190723214108_add_office_users.up.fizz
 20190724193344_add_more_system_admin_users.up.fizz
+20190730225048_add_deleted_at_to_document_tables.up.sql

@@ -28,6 +28,7 @@ type Upload struct {
 	StorageKey  string     `db:"storage_key"`
 	CreatedAt   time.Time  `db:"created_at"`
 	UpdatedAt   time.Time  `db:"updated_at"`
+	DeletedAt   time.Time  `db:"deleted_at"`
 }
 
 // Uploads is not required by pop and may be deleted

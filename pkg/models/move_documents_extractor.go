@@ -36,6 +36,7 @@ type MoveDocumentExtractor struct {
 	Notes                    *string            `json:"notes" db:"notes"`
 	CreatedAt                time.Time          `json:"created_at" db:"created_at"`
 	UpdatedAt                time.Time          `json:"updated_at" db:"updated_at"`
+	DeletedAt                time.Time          `json:"deleted_at" db:"deleted_at"`
 	StorageStartDate         *time.Time         `json:"storage_start_date" db:"storage_start_date"`
 	StorageEndDate           *time.Time         `json:"storage_end_date" db:"storage_end_date"`
 }

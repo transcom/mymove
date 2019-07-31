@@ -117,6 +117,7 @@ type MoveDocument struct {
 	Notes                    *string                  `json:"notes" db:"notes"`
 	CreatedAt                time.Time                `json:"created_at" db:"created_at"`
 	UpdatedAt                time.Time                `json:"updated_at" db:"updated_at"`
+	DeletedAt                time.Time                `db:"deleted_at"`
 	WeightTicketSetDocument  *WeightTicketSetDocument `has_one:"weight_ticket_set_document"`
 }
 

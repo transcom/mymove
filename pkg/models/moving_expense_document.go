@@ -64,6 +64,7 @@ type MovingExpenseDocument struct {
 	StorageEndDate       *time.Time        `json:"storage_end_date" db:"storage_end_date"`
 	CreatedAt            time.Time         `json:"created_at" db:"created_at"`
 	UpdatedAt            time.Time         `json:"updated_at" db:"updated_at"`
+	DeletedAt            time.Time         `db:"deleted_at"`
 }
 
 // MovingExpenseDocuments is not required by pop and may be deleted

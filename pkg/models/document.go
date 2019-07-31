@@ -23,6 +23,7 @@ type Document struct {
 	ServiceMember   ServiceMember `belongs_to:"service_members"`
 	CreatedAt       time.Time     `db:"created_at"`
 	UpdatedAt       time.Time     `db:"updated_at"`
+	DeletedAt       time.Time     `db:"deleted_at"`
 	Uploads         Uploads       `has_many:"uploads" order_by:"created_at asc"`
 }
 
