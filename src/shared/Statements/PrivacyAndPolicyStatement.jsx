@@ -18,7 +18,7 @@ function PrivacyPolicy() {
           {' '}
           All records are stored electronically in a database in DoD’s{' '}
           <a href="https://aws.amazon.com/" target="_blank" rel="noopener noreferrer">
-            Amazon Web Services (AWS) environment
+            Amazon Web Services (AWS) cloud environment
           </a>
           . All records are encrypted while being stored (at rest) and when the data is transferred between systems (in
           transit).
