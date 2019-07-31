@@ -3,8 +3,6 @@
 #   Restarted the ECS services associated with the given environment.
 #
 set -eo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-readonly DIR
 
 usage() {
     echo "${0##*/} <environment>"
