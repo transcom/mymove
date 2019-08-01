@@ -2591,7 +2591,7 @@ paths:
           description: UUID of the shipment
       responses:
         200:
-          description: returns a Transporation Service Provider
+          description: returns a Transportation Service Provider
           schema:
             $ref: '#/definitions/TransportationServiceProvider'
         401:
@@ -3656,5 +3656,30 @@ paths:
           description: must be authenticated to use this endpoint
         403:
           description: user is not authorized
+        500:
+          description: server error
+  /transportation_service_provider_performances/{transportationServiceProviderPerformanceId}:
+    get:
+      summary: Logs a Transportation Service Provider Performance
+      description: Logs a Transportation Service Provider Performance
+      operationId: logTransportationServiceProviderPerformance
+      tags:
+        - transportation_service_provider_performance
+      parameters:
+        - name: transportationServiceProviderPerformanceId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the Transportation Service Provider Performance
+      responses:
+        204:
+          description: the Transportation Service Provider Performance was logged
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to log the details of this Transportation Service Provider Performance
         500:
           description: server error

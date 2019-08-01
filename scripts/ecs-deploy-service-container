@@ -36,7 +36,6 @@ readonly cluster=app-${environment}
 readonly rds=app-${environment}
 
 readonly task_family=${name}-${environment}
-readonly container_name=${name}-${environment}
 
 readonly zone_name="move.mil"
 

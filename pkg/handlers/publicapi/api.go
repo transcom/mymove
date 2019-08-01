@@ -11,6 +11,8 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/paperwork"
 	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/services/tsp"
 
 	accesscodeservice "github.com/transcom/mymove/pkg/services/accesscode"
 	paperworkservice "github.com/transcom/mymove/pkg/services/paperwork"
@@ -80,6 +82,14 @@ func NewPublicAPIHandler(context handlers.HandlerContext, logger Logger) http.Ha
 	publicAPI.TransportationServiceProviderGetTransportationServiceProviderHandler = GetTransportationServiceProviderHandler{context}
 	publicAPI.TspsIndexTSPsHandler = TspsIndexTSPsHandler{context}
 	publicAPI.TspsGetTspShipmentsHandler = TspsGetTspShipmentsHandler{context}
+
+	// Transportation Service Provider Performances
+	queryBuilder := query.NewQueryBuilder(context.DB())
+	publicAPI.TransportationServiceProviderPerformanceLogTransportationServiceProviderPerformanceHandler = LogTransportationServiceProviderPerformanceHandler{
+		HandlerContext: context,
+		NewQueryFilter: query.NewQueryFilter,
+		TransportationServiceProviderPerformanceFetcher: tsp.NewTransportationServiceProviderPerformanceFetcher(queryBuilder),
+	}
 
 	// Storage In Transits
 	publicAPI.StorageInTransitsCreateStorageInTransitHandler = CreateStorageInTransitHandler{
