@@ -634,15 +634,8 @@ db_test_migrate: server_deps db_test_migrate_standalone ## Migrate Test DB
 .PHONY: db_test_migrations_build
 db_test_migrations_build: .db_test_migrations_build.stamp ## Build Test DB Migrations Docker Image
 .db_test_migrations_build.stamp: server_generate_linux bin_linux/milmove bin_linux/generate-test-data
-ifndef CIRCLECI
 	@echo "Build the docker migration container..."
-	docker build -f Dockerfile.migrations_locar --tag e2e_migrations:latest .
-else
-	@echo "Pulling the built docker migration container..."
-	aws ecr get-login --no-include-email --region us-west-2 --no-include-email | sh
-	docker pull "923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-branch-$(shell git rev-parse --abbrev-ref HEAD)"
-	docker tag "923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-branch-$(shell git rev-parse --abbrev-ref HEAD)" e2e_migrations:latest
-endif
+	docker build -f Dockerfile.migrations_local --tag e2e_migrations:latest .
 
 .PHONY: db_test_migrate_docker
 db_test_migrate_docker: db_test_migrations_build ## Migrate Test DB (docker)
