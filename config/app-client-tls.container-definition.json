@@ -24,7 +24,7 @@
     "--log-task-metadata",
     "--db-env",
     "container",
-    "--tls-enabled"
+    "--mutual-tls-enabled"
   ],
   "command": [],
   "environment": [
@@ -139,10 +139,6 @@
     {
       "name": "SERVE_SWAGGER_UI",
       "value": "{{ .SERVE_SWAGGER_UI }}"
-    },
-    {
-      "name": "MUTUAL_TLS_ENABLED",
-      "value": "{{ .MUTUAL_TLS_ENABLED }}"
     },
     {
       "name": "SERVE_ORDERS",

@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -55,7 +57,7 @@ func CheckServices(v *viper.Viper) error {
 	if v.GetString(EnvironmentFlag) != EnvironmentDevelopment {
 		if ordersEnabled && !mutualTLSEnabled ||
 			!ordersEnabled && mutualTLSEnabled {
-			return errors.New("for orders service to be enabled both it and the MutualTLSListener flags must be in use")
+			return errors.New(fmt.Sprintf("for orders service to be enabled both %s and the %s flags must be in use", ServeOrdersFlag, MutualTLSListenerFlag))
 		}
 	}
 
