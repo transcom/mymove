@@ -309,8 +309,10 @@ server_generate: .check_go_version.stamp .check_gopath.stamp .server_generate.st
 .PHONY: server_generate_linux
 server_generate_linux: .check_go_version.stamp .check_gopath.stamp pkg/assets/assets.go bin/swagger .server_generate_linux.stamp ## Generate golang server code from Swagger files (linux)
 .server_generate_linux.stamp: $(shell find swagger -type f -name *.yaml)
+ifndef CIRCLECI
 	scripts/gen-server
 	touch .server_generate_linux.stamp
+endif
 
 .PHONY: server_build
 server_build: server_deps server_generate bin/milmove ## Build the server
@@ -639,11 +641,9 @@ ifndef CIRCLECI
 	docker build -f Dockerfile.migrations_locar --tag e2e_migrations:latest .
 else
 	@echo "Pulling the built docker migration container..."
-	BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
-	IMAGE_NAME="923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-branch-$(BRANCH_NAME)"
 	aws ecr get-login --no-include-email --region us-west-2 --no-include-email | sh
-	docker pull $(IMAGE_NAME)
-	docker tag $(IMAGE_NAME) e2e_migrations:latest
+	docker pull "923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-branch-$(shell git rev-parse --abbrev-ref HEAD)"
+	docker tag "923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-branch-$(shell git rev-parse --abbrev-ref HEAD)" e2e_migrations:latest
 endif
 
 .PHONY: db_test_migrate_docker
