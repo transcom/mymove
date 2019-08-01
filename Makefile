@@ -640,10 +640,10 @@ ifndef CIRCLECI
 else
 	@echo "Pulling the built docker migration container..."
 	BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
-	IMAGE_NAME="923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-branch-${BRANCH_NAME}"
+	IMAGE_NAME="923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-branch-$(BRANCH_NAME)"
 	aws ecr get-login --no-include-email --region us-west-2 --no-include-email | sh
-	docker pull ${IMAGE_NAME}
-	docker tag ${IMAGE_NAME} e2e_migrations:latest
+	docker pull $(IMAGE_NAME)
+	docker tag $(IMAGE_NAME) e2e_migrations:latest
 endif
 
 .PHONY: db_test_migrate_docker
