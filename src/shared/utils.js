@@ -132,3 +132,13 @@ export function detectFirefox() {
   }
   return false;
 }
+
+export function openLinkInNewWindow(url, windowName) {
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  window.open(
+    url,
+    windowName,
+    `noopener=true,norefferer=true,width=${window.outerWidth * 2 / 3},height=${window.outerHeight * 2 / 3}`,
+  );
+  return false;
+}

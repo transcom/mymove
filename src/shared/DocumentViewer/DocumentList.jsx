@@ -1,9 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { renderStatusIcon } from 'shared/utils';
+
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import { faPlusCircle } from '@fortawesome/fontawesome-free-solid';
+
+import { renderStatusIcon, openLinkInNewWindow } from 'shared/utils';
 import styles from 'shared/DocumentViewer/DocumentList.module.scss';
 
 const documentUploadIcon = faPlusCircle;
@@ -18,7 +20,12 @@ const DocumentList = ({ currentMoveDocumentId, moveDocuments, detailUrlPrefix, d
         <div className={`panel-field ${chosenDocument}`} key={doc.id}>
           <span className="status">{status}</span>
           {!disableLinks && (
-            <Link className={chosenDocument} to={detailUrl}>
+            <Link
+              className={chosenDocument}
+              to={detailUrl}
+              target="_blank"
+              onClick={openLinkInNewWindow.bind(this, detailUrl, '_blank')}
+            >
               {doc.title}
             </Link>
           )}
@@ -28,7 +35,11 @@ const DocumentList = ({ currentMoveDocumentId, moveDocuments, detailUrlPrefix, d
     })}
     <div className={styles['document-upload-link']} data-cy="document-upload-link">
       <FontAwesomeIcon className="icon link-blue" icon={documentUploadIcon} />
-      <Link to={uploadDocumentUrl} target="_blank">
+      <Link
+        to={uploadDocumentUrl}
+        target="_blank"
+        onClick={openLinkInNewWindow.bind(this, uploadDocumentUrl, '_blank')}
+      >
         Upload new document
       </Link>
     </div>

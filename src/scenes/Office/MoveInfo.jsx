@@ -46,6 +46,7 @@ import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { approvePPM, loadPPMs, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
 import { loadOrders, loadOrdersLabel, selectOrders } from 'shared/Entities/modules/orders';
+import { openLinkInNewWindow } from 'shared/utils';
 import {
   approveShipment,
   getPublicShipment,
@@ -331,6 +332,7 @@ class MoveInfo extends Component {
     const moveDate = isPPM ? ppm.original_move_date : shipment && shipment.requested_pickup_date;
 
     const uploadDocumentUrl = `/moves/${this.props.moveId}/documents/new`;
+    const ordersUrl = `/moves/${move.id}/orders`;
 
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -519,14 +521,22 @@ class MoveInfo extends Component {
                   {moveApproved ? (
                     <div className="panel-field">
                       <FontAwesomeIcon style={{ color: 'green' }} className="icon" icon={faCheck} />
-                      <Link to={`/moves/${move.id}/orders`} target="_blank">
+                      <Link
+                        to={ordersUrl}
+                        target="_blank"
+                        onClick={openLinkInNewWindow.bind(this, ordersUrl, '_blank')}
+                      >
                         Orders ({formatDate(upload.created_at)})
                       </Link>
                     </div>
                   ) : (
                     <div className="panel-field">
                       <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
-                      <Link to={`/moves/${move.id}/orders`} target="_blank">
+                      <Link
+                        to={ordersUrl}
+                        target="_blank"
+                        onClick={openLinkInNewWindow.bind(this, ordersUrl, '_blank')}
+                      >
                         Orders ({formatDate(upload.created_at)})
                       </Link>
                     </div>
