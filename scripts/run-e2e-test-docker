@@ -56,7 +56,7 @@ if [[ -n "${CIRCLECI+x}" ]]; then
   done
 
   # Build a small tools dockerfile
-  make bin/generate-test-data
+  make bin_linux/generate-test-data
   docker build -f Dockerfile.tools --tag tools:latest .
   docker run \
     --link="database" \
