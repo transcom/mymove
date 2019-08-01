@@ -1,0 +1,11 @@
+FROM alpine:3.7
+
+RUN mkdir -p /scripts
+COPY scripts/apply-secure-migration.sh /scripts
+COPY bin_linux/generate-test-data /bin/generate-test-data
+
+# Install tools needed in container
+RUN apk update
+RUN apk add postgresql-client bash --no-cache
+
+WORKDIR /scripts
