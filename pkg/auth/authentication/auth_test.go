@@ -9,6 +9,10 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/markbates/goth"
+
+	"github.com/transcom/mymove/pkg/testdatagen"
+
 	"github.com/honeycombio/beeline-go/trace"
 
 	"github.com/gofrs/uuid"
@@ -570,4 +574,120 @@ func (suite *AuthSuite) TestAuthorizeDisableAdmin() {
 	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
 
 	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled office user")
+}
+
+func (suite *AuthSuite) TestAuthorizeUnknownUserDisabled() {
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			Disabled: true,
+		},
+	})
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback", OfficeTestHost), nil)
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        OfficeTestHost,
+		Email:           officeUser.Email,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+
+	user := goth.User{
+		UserID: "id",
+		Email:  "sample@email.com",
+	}
+
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+
+	authorizeUnknownUser(user, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	suite.Equal(http.StatusForbidden, rr.Code, "Office user is disabled")
+}
+
+func (suite *AuthSuite) TestAuthorizeUnknownUserNotFound() {
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback", OfficeTestHost), nil)
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        OfficeTestHost,
+		Email:           "missing@email.com",
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+
+	user := goth.User{
+		UserID: "id",
+		Email:  "sample@email.com",
+	}
+
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+
+	authorizeUnknownUser(user, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	suite.Equal(http.StatusUnauthorized, rr.Code, "Office user not found")
+}
+
+func (suite *AuthSuite) TestAuthorizeUnknownUserLogsIn() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback", OfficeTestHost), nil)
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        OfficeTestHost,
+		Email:           officeUser.Email,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+
+	user := goth.User{
+		UserID: "39b28c92-0506-4bef-8b57-e39519f42dc2",
+		Email:  "sample@email.com",
+	}
+
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+
+	authorizeUnknownUser(user, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	// Office app, so should only have office ID information
+	suite.Equal(officeUser.ID, session.OfficeUserID)
+	suite.Equal(uuid.Nil, session.TspUserID)
 }
