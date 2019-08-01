@@ -91,15 +91,20 @@ func (mds moveDocumentStatusUpdater) UpdateMoveDocumentStatus(moveDocumentPayloa
 	return moveDoc, returnVerrs, nil
 }
 
-func mergeMoveDocuments(moveDocuments models.MoveDocuments, moveDoc models.MoveDocument) models.MoveDocuments {
+func mergeMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UUID, moveDoc *models.MoveDocument, status models.MoveDocumentStatus) (models.MoveDocuments, error) {
+	// get all documents excluding new document merge in new updated document if status is correct
+	moveDocuments, err := models.FetchMoveDocuments(db, session, ppmID, &status, models.MoveDocumentTypeEXPENSE)
+	if err != nil {
+		return models.MoveDocuments{}, errors.New("mergeDocuments: unable to fetch move documents")
+	}
 	var mergedMoveDocuments models.MoveDocuments
 	for _, moveDocument := range moveDocuments {
 		if moveDocument.ID != moveDoc.ID {
 			mergedMoveDocuments = append(mergedMoveDocuments, moveDocument)
 		}
 	}
-	if moveDoc.Status == models.MoveDocumentStatusOK {
-		mergedMoveDocuments = append(mergedMoveDocuments, moveDoc)
+	if moveDoc.Status == status {
+		mergedMoveDocuments = append(mergedMoveDocuments, *moveDoc)
 	}
-	return mergedMoveDocuments
+	return mergedMoveDocuments, nil
 }

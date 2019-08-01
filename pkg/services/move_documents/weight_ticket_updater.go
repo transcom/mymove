@@ -93,11 +93,10 @@ func (wtu WeightTicketUpdater) updatePPMNetWeight(moveDoc *models.MoveDocument, 
 		return &models.MoveDocument{}, returnVerrs, errors.New("weightticketupdater.updateppmnetweight: no PPM loaded for move doc")
 	}
 	okStatus := models.MoveDocumentStatusOK
-	moveDocuments, err := models.FetchMoveDocuments(wtu.db, session, ppm.ID, &okStatus, models.MoveDocumentTypeWEIGHTTICKETSET)
+	mergedMoveDocuments, err := mergeMoveDocuments(wtu.db, session, ppm.ID, moveDoc, okStatus)
 	if err != nil {
-		return &models.MoveDocument{}, returnVerrs, errors.New("weightticketupdater.updateppmnetweight: unable to fetch move documents")
+		return &models.MoveDocument{}, returnVerrs, errors.New("weightticketupdater.updateppmnetweight: unable to merge move documents")
 	}
-	mergedMoveDocuments := mergeMoveDocuments(moveDocuments, *moveDoc)
 	var updatedNetWeight unit.Pound
 	for _, weightTicket := range mergedMoveDocuments {
 		wts := weightTicket.WeightTicketSetDocument

@@ -74,20 +74,19 @@ func (seu StorageExpenseUpdater) updatePPMSIT(moveDoc *models.MoveDocument, sess
 		return &models.MoveDocument{}, returnVerrs, errors.New("storageexpenseupdater.updateppmsit: no PPM loaded for move doc")
 	}
 	okStatus := models.MoveDocumentStatusOK
-	moveDocuments, err := models.FetchMoveDocuments(seu.db, session, ppm.ID, &okStatus, models.MoveDocumentTypeEXPENSE)
+	mergedMoveDocuments, err := mergeMoveDocuments(seu.db, session, ppm.ID, moveDoc, okStatus)
 	if err != nil {
-		return &models.MoveDocument{}, returnVerrs, errors.New("storageexpenseupdater.updateppmsit: unable to fetch move documents")
+		return &models.MoveDocument{}, returnVerrs, errors.New("storageexpenseupdater.updateppmsit: unable to merge move documents")
 	}
-	mergedMoveDocuments := mergeMoveDocuments(moveDocuments, *moveDoc)
 	sitExpenses := filterSitExpenses(mergedMoveDocuments)
 	var updatedDaysInSit int64
 	var updatedTotalSit unit.Cents
-	for _, v := range sitExpenses {
-		days, err := v.DaysInStorage()
+	for _, sitExpense := range sitExpenses {
+		days, err := sitExpense.DaysInStorage()
 		if err == nil {
 			updatedDaysInSit += int64(days)
 		}
-		updatedTotalSit += v.RequestedAmountCents
+		updatedTotalSit += sitExpense.RequestedAmountCents
 	}
 	ppm.DaysInStorage = &updatedDaysInSit
 	ppm.TotalSITCost = &updatedTotalSit
