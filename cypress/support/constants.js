@@ -2,7 +2,7 @@ export const longPageLoadTimeout = 10000;
 export const fileUploadTimeout = 10000;
 
 // Base URLs
-const cypressClientPort = process.env.CYPRESS_CLIENT_PORT || 4000; //change this to 3000 to run cypress against dev instance
+const cypressClientPort = 4000; //change this to 3000 to run cypress against dev instance
 export const milmoveBaseURL = `http://milmovelocal:${cypressClientPort}`;
 export const officeBaseURL = `http://officelocal:${cypressClientPort}`;
 export const tspBaseURL = `http://tsplocal:${cypressClientPort}`;

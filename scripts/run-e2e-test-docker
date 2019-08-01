@@ -30,7 +30,7 @@ if [[ -n "${CIRCLECI+x}" ]]; then
   # CI/CD allows us to use pre-built images using the branch name
 
   # Set Defaults
-  HTTP_PORT=5000
+  HTTP_PORT=4000
   NETWORK="mymove_default" # Docker network
 
   # Begin Setup
@@ -134,7 +134,6 @@ fi
 
 $DOCKER_RUN \
   -e CYPRESS_baseUrl="http://${MILMOVEHOST}:${HTTP_PORT}" \
-  -e CYPRESS_CLIENT_PORT="${HTTP_PORT}" \
   --add-host "${MILMOVEHOST}:${E2E_IP}" \
   --add-host "${OFFICEHOST}:${E2E_IP}" \
   --add-host "${TSPHOST}:${E2E_IP}" \

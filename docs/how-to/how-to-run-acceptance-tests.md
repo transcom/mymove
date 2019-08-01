@@ -37,10 +37,10 @@ At this point the server should be running and a lot of text will be scrolling b
 
 To log into the server you must browse to one of these websites:
 
-* [Service Member login](http://milmovelocal:5000/devlocal-auth/login)
-* [Office login](http://officelocal:5000/devlocal-auth/login)
-* [TSP login](http://tsplocal:5000/devlocal-auth/login)
-* [Admin login](http://adminlocal:5000/devlocal-auth/login)
+* [Service Member login](http://milmovelocal:4000/devlocal-auth/login)
+* [Office login](http://officelocal:4000/devlocal-auth/login)
+* [TSP login](http://tsplocal:4000/devlocal-auth/login)
+* [Admin login](http://adminlocal:4000/devlocal-auth/login)
 
 **NOTE:** Unlike in development there is no `Local Sign In` button. This is because the production builds are
 specifically disallowed from compiling that button into what we would deliver to production as a safety measure.
