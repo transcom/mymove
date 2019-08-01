@@ -641,7 +641,7 @@ else
 	@echo "Pulling the built docker migration container..."
 	BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
 	IMAGE_NAME="923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-branch-${BRANCH_NAME}"
-	bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
+	aws ecr get-login --no-include-email --region us-west-2 --no-include-email | sh
 	docker pull ${IMAGE_NAME}
 	docker tag ${IMAGE_NAME} e2e_migrations:latest
 endif
@@ -943,7 +943,7 @@ docker_compose_setup: .check_hosts.stamp ## Install requirements to use docker-c
 
 .PHONY: docker_compose_up
 docker_compose_up: ## Bring up docker-compose containers
-	bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
+	aws ecr get-login --no-include-email --region us-west-2 --no-include-email | sh
 	scripts/update-docker-compose
 	docker-compose up
 
