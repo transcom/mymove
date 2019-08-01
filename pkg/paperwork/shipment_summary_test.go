@@ -6,7 +6,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/route"
 
-	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -55,16 +54,10 @@ func (suite *PaperworkSuite) TestComputeObligationsParams() {
 	noPPM := models.ShipmentSummaryFormData{PersonallyProcuredMoves: models.PersonallyProcuredMoves{}}
 	missingZip := models.ShipmentSummaryFormData{PersonallyProcuredMoves: models.PersonallyProcuredMoves{{}}}
 	missingActualMoveDate := models.ShipmentSummaryFormData{PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm}}
-	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-	session := &auth.Session{
-		ApplicationName: auth.OfficeApp,
-		UserID:          *officeUser.UserID,
-		OfficeUserID:    officeUser.ID,
-	}
 
-	_, err1 := ppmComputer.ComputeObligations(noPPM, route.NewTestingPlanner(10), suite.DB(), session)
-	_, err2 := ppmComputer.ComputeObligations(missingZip, route.NewTestingPlanner(10), suite.DB(), session)
-	_, err3 := ppmComputer.ComputeObligations(missingActualMoveDate, route.NewTestingPlanner(10), suite.DB(), session)
+	_, err1 := ppmComputer.ComputeObligations(noPPM, route.NewTestingPlanner(10))
+	_, err2 := ppmComputer.ComputeObligations(missingZip, route.NewTestingPlanner(10))
+	_, err3 := ppmComputer.ComputeObligations(missingActualMoveDate, route.NewTestingPlanner(10))
 
 	suite.NotNil(err1)
 	suite.NotNil(err2)
@@ -118,13 +111,7 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 			Miles:           miles,
 			DaysInSIT:       0,
 		}
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		session := &auth.Session{
-			ApplicationName: auth.OfficeApp,
-			UserID:          *officeUser.UserID,
-			OfficeUserID:    officeUser.ID,
-		}
-		cost, err := ppmComputer.ComputeObligations(params, planner, suite.DB(), session)
+		cost, err := ppmComputer.ComputeObligations(params, planner)
 
 		suite.NoError(err)
 		calledWith := mockComputer.CalledWith()
@@ -137,14 +124,8 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 		mockComputer := mockPPMComputer{
 			costComputation: rateengine.CostComputation{SITMax: unit.Cents(500)},
 		}
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		session := &auth.Session{
-			ApplicationName: auth.OfficeApp,
-			UserID:          *officeUser.UserID,
-			OfficeUserID:    officeUser.ID,
-		}
 		ppmComputer := NewSSWPPMComputer(&mockComputer)
-		obligations, err := ppmComputer.ComputeObligations(params, planner, suite.DB(), session)
+		obligations, err := ppmComputer.ComputeObligations(params, planner)
 
 		suite.NoError(err)
 		suite.Equal(unit.Cents(500), obligations.ActualObligation.SIT)
@@ -169,13 +150,7 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 			costComputation: rateengine.CostComputation{SITMax: unit.Cents(500)},
 		}
 		ppmComputer := NewSSWPPMComputer(&mockComputer)
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		session := &auth.Session{
-			ApplicationName: auth.OfficeApp,
-			UserID:          *officeUser.UserID,
-			OfficeUserID:    officeUser.ID,
-		}
-		obligations, err := ppmComputer.ComputeObligations(shipmentSummaryFormParams, planner, suite.DB(), session)
+		obligations, err := ppmComputer.ComputeObligations(shipmentSummaryFormParams, planner)
 
 		suite.NoError(err)
 		suite.Equal(unit.Cents(0), obligations.ActualObligation.SIT)
@@ -184,14 +159,7 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 	suite.Run("TestCalcError", func() {
 		mockComputer := mockPPMComputer{err: errors.New("ERROR")}
 		ppmComputer := SSWPPMComputer{&mockComputer}
-		officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
-		session := &auth.Session{
-			ApplicationName: auth.OfficeApp,
-			UserID:          *officeUser.UserID,
-			OfficeUserID:    officeUser.ID,
-		}
-
-		_, err := ppmComputer.ComputeObligations(params, planner, suite.DB(), session)
+		_, err := ppmComputer.ComputeObligations(params, planner)
 
 		suite.NotNil(err)
 	})

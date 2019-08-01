@@ -99,11 +99,7 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 	err := db.Q().Eager("User",
 		"BackupMailingAddress",
 		"BackupContacts",
-		"DutyStation",
-		"DutyStation.Address",
 		"DutyStation.TransportationOffice",
-		"Orders",
-		"Orders.NewDutyStation",
 		"Orders.NewDutyStation.TransportationOffice",
 		"ResidentialAddress",
 		"SocialSecurityNumber").Find(&serviceMember, id)
