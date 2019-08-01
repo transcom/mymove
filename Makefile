@@ -878,7 +878,7 @@ gofmt:  ## Run go fmt over all Go files
 	go fmt $$(go list ./...) >> /dev/null
 
 .PHONY: pre_commit_tests
-pre_commit_tests: .server_generate.stamp .client_deps.stamp ## Run pre-commit tests
+pre_commit_tests: .server_generate.stamp .mocks_generate.stamp .client_deps.stamp ## Run pre-commit tests
 	pre-commit run --all-files
 
 .PHONY: pretty
@@ -919,7 +919,7 @@ clean: # Clean all generated files
 	find ./pkg -type d -name "mocks" -exec rm -rf {} +
 
 .PHONY: spellcheck
-spellcheck: .client_deps.stamp # Run interactive spellchecker
+spellcheck: .client_deps.stamp ## Run interactive spellchecker
 	node_modules/.bin/mdspell --ignore-numbers --ignore-acronyms --en-us \
 		`find . -type f -name "*.md" \
 			-not -path "./node_modules/*" \
@@ -928,6 +928,31 @@ spellcheck: .client_deps.stamp # Run interactive spellchecker
 
 #
 # ----- END RANDOM TARGETS -----
+#
+
+#
+# ----- START DOCKER COMPOSE TARGETS -----
+#
+
+.PHONY: docker_compose_setup
+docker_compose_setup: .check_hosts.stamp ## Install requirements to use docker-compose
+	brew install -f bash git docker docker-compose direnv || true
+	brew cask install -f aws-vault || true
+
+.PHONY: docker_compose_up
+docker_compose_up: ## Bring up docker-compose containers
+	aws ecr get-login --no-include-email --region us-west-2 --no-include-email | sh
+	scripts/update-docker-compose
+	docker-compose up
+
+.PHONY: docker_compose_down
+docker_compose_down: ## Destroy docker-compose containers
+	docker-compose down
+	# Instead of using `--rmi all` which might destroy postgres we just remove the AWS containers
+	docker rmi $(shell docker images --filter=reference='*amazonaws*/*:*' --format "{{.ID}}")
+
+#
+# ----- END DOCKER COMPOSE TARGETS -----
 #
 
 default: help
