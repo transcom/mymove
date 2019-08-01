@@ -212,13 +212,13 @@ const renderInputField = ({
             !customComponent && <span className="label-optional">Optional</span>}
         </label>
       )}
+      <span className={prefixInputClassName}>{FieldComponent}</span>
       {touched &&
         error && (
           <span className="usa-input-error-message" id={input.name + '-error'} role="alert">
             {error}
           </span>
         )}
-      <span className={prefixInputClassName}>{FieldComponent}</span>
     </div>
   );
 };
