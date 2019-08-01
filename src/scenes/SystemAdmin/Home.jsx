@@ -1,6 +1,7 @@
 import restProvider from 'ra-data-simple-rest';
 import { fetchUtils, Admin, Resource, Layout, List, Pagination, Datagrid, TextField } from 'react-admin';
-import { history } from 'shared/store';
+import { Route } from 'react-router-dom';
+import { createBrowserHistory } from 'history';
 import React from 'react';
 import Menu from './Menu';
 
@@ -28,9 +29,13 @@ const UserList = props => (
   </List>
 );
 
+const routes = [<Route exact path="/system/office_users" component={UserList} />];
+
+const history = createBrowserHistory({ basename: '/system' });
+
 const Home = () => (
   <div className="admin-system-wrapper">
-    <Admin dataProvider={dataProvider} history={history} appLayout={AdminLayout}>
+    <Admin customRoutes={routes} dataProvider={dataProvider} history={history} appLayout={AdminLayout}>
       <Resource name="office_users" list={UserList} />
     </Admin>
   </div>
