@@ -58,11 +58,11 @@ func (seu StorageExpenseUpdater) Update(moveDocumentPayload *internalmessages.Mo
 
 	updatedMoveDoc, returnVerrs, err = seu.updatePPMSIT(updatedMoveDoc, session)
 	if err != nil || returnVerrs.HasAny() {
-		return nil, returnVerrs, errors.Wrap(err, "Update: error updating move document ppm")
+		return nil, returnVerrs, errors.Wrap(err, "storageexpenseupdater.update: error updating move document ppm")
 	}
 	updatedMoveDoc, returnVerrs, err = seu.updateMovingExpense(updatedMoveDoc)
 	if err != nil || returnVerrs.HasAny() {
-		return nil, returnVerrs, errors.Wrap(err, "Update: error updating move document")
+		return nil, returnVerrs, errors.Wrap(err, "storageexpenseupdater.update: error updating move document")
 	}
 	return updatedMoveDoc, returnVerrs, nil
 }
@@ -96,9 +96,10 @@ func (seu StorageExpenseUpdater) updatePPMSIT(moveDoc *models.MoveDocument, sess
 
 func (seu StorageExpenseUpdater) updateMovingExpense(moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
-	//TODO check w/ ren that got this right, but understanding as if move document wasn't nil
-	//TODO i.e. we're in update situation, want to clear weight ticket since this is an expense
-	//TODO not sure how this situation would arise, but would be like prev was a wt, but now an expense
+	//TODO check w/ ren that got this right, but understanding this as if weight ticket
+	//TODO document wasn't nil i.e. we're in update situation, BUT the this document prev
+	//TODO was a weight ticket we need to clear the weight ticket since this is
+	//TODO now an expense and not a weight ticket
 	var saveWeightTicketAction models.MoveWeightTicketSetDocumentSaveAction
 	if moveDoc.WeightTicketSetDocument != nil {
 		saveWeightTicketAction = models.MoveDocumentSaveActionDELETEWEIGHTTICKETSETMODEL

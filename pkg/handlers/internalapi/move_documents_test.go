@@ -285,7 +285,7 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.AuthenticateRequest(request, sm)
 
-	updateMoveDocPayload := internalmessages.MoveDocumentPayload{
+	updateMoveDocPayload := &internalmessages.MoveDocumentPayload{
 		ID:               handlers.FmtUUID(moveDocument.ID),
 		MoveID:           handlers.FmtUUID(move.ID),
 		Title:            handlers.FmtString(moveDocument.Title),
@@ -296,7 +296,7 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 
 	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
 		HTTPRequest:        request,
-		UpdateMoveDocument: &updateMoveDocPayload,
+		UpdateMoveDocument: updateMoveDocPayload,
 		MoveDocumentID:     strfmt.UUID(moveDocument.ID.String()),
 	}
 
@@ -311,7 +311,7 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	// happy path
 	returnedMoveDocument := models.MoveDocument{ID: moveDocument.ID}
 	moveDocumentUpdateHandler.On("Update",
-		updateMoveDocParams,
+		updateMoveDocPayload,
 		moveDocument.ID,
 		auth.SessionFromRequestContext(updateMoveDocParams.HTTPRequest),
 	).Return(&returnedMoveDocument, validate.NewErrors(), nil).Once()
@@ -326,7 +326,7 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	expectedError := models.ErrFetchForbidden
 	returnedMoveDocument = models.MoveDocument{ID: moveDocument.ID}
 	moveDocumentUpdateHandler.On("Update",
-		updateMoveDocParams,
+		updateMoveDocPayload,
 		moveDocument.ID,
 		auth.SessionFromRequestContext(updateMoveDocParams.HTTPRequest),
 	).Return(&returnedMoveDocument, validate.NewErrors(), expectedError).Once()
