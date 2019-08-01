@@ -634,8 +634,17 @@ db_test_migrate: server_deps db_test_migrate_standalone ## Migrate Test DB
 .PHONY: db_test_migrations_build
 db_test_migrations_build: .db_test_migrations_build.stamp ## Build Test DB Migrations Docker Image
 .db_test_migrations_build.stamp: server_generate_linux bin_linux/milmove bin_linux/generate-test-data
+ifndef CIRCLECI
 	@echo "Build the docker migration container..."
-	docker build -f Dockerfile.migrations_local --tag e2e_migrations:latest .
+	docker build -f Dockerfile.migrations_locar --tag e2e_migrations:latest .
+else
+	@echo "Pulling the built docker migration container..."
+	BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+	IMAGE_NAME="923914045601.dkr.ecr.us-west-2.amazonaws.com/app-migrations:git-branch-${BRANCH_NAME}"
+	bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
+	docker pull ${IMAGE_NAME}
+	docker tag ${IMAGE_NAME} e2e_migrations:latest
+endif
 
 .PHONY: db_test_migrate_docker
 db_test_migrate_docker: db_test_migrations_build ## Migrate Test DB (docker)
@@ -934,7 +943,7 @@ docker_compose_setup: .check_hosts.stamp ## Install requirements to use docker-c
 
 .PHONY: docker_compose_up
 docker_compose_up: ## Bring up docker-compose containers
-	aws ecr get-login --no-include-email --region us-west-2 --no-include-email | sh
+	bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
 	scripts/update-docker-compose
 	docker-compose up
 

@@ -816,6 +816,8 @@ workflows:
           requires:
             - pre_deps_golang
             - pre_deps_yarn
+            - build_app
+            - build_migrations
             - acceptance_tests_local
           # if testing on experimental, you can disable these tests by using the commented block below.
           # filters:

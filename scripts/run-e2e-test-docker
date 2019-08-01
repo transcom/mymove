@@ -29,15 +29,31 @@ fi
 docker system info >> /dev/null
 
 # Begin setup
-make e2e_clean client_build db_e2e_init_docker server_build_linux
+make e2e_clean db_e2e_init_docker
 
-# Download RDS Certificates
-# Dockerfile requires them even though not used locally.
-# Might as well download them so we don't have to split Dockerfile
-make bin/rds-combined-ca-bundle.pem
+if [[ -z "${CIRCLECI}" ]]; then
+  # Locally development requires that we build the container
+  make client_build server_build_linux
 
-# Build the docker container
-docker build --tag e2e:latest .
+  # Download RDS Certificates
+  # Dockerfile requires them even though not used locally.
+  # Might as well download them so we don't have to split Dockerfile
+  make bin/rds-combined-ca-bundle.pem
+
+  # Build the docker container
+  docker build --tag e2e:latest .
+else
+  # CI/CD allows us to use pre-built images using the branch name
+
+  # Login to the docker server
+  bash -c '$(aws ecr get-login --no-include-email --region "${AWS_DEFAULT_REGION}")'
+
+  # Use the branch name
+  BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+  IMAGE_NAME="923914045601.dkr.ecr.us-west-2.amazonaws.com/app:git-branch-${BRANCH_NAME}"
+	docker pull "${IMAGE_NAME}"
+	docker tag "${IMAGE_NAME}" "${CONTAINER}:latest"
+fi
 
 # Run the image with the ports changed
 $DOCKER_RUN \
@@ -88,7 +104,7 @@ $DOCKER_RUN \
   --read-only \
   --detach \
   --rm \
-  ${CONTAINER}:latest
+  "${CONTAINER}:latest"
 
 # If your container is exiting unexpectedly try uncommenting this code to see the output:
 # docker logs -f ${CONTAINER}
