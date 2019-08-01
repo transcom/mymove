@@ -51,7 +51,7 @@ func (ppmc PPMCompleter) completePPM(moveDoc *models.MoveDocument) (*models.Move
 	// between OK and HAS_ISSUE and back) then don't complete it again.
 	returnVerrs := validate.NewErrors()
 	ppm := &moveDoc.PersonallyProcuredMove
-	if ppm.Status != models.PPMStatusCOMPLETED {
+	if ppm.Status != models.PPMStatusCOMPLETED && moveDoc.Status == models.MoveDocumentStatusOK {
 		err := ppm.Complete()
 		if err != nil {
 			return &models.MoveDocument{}, returnVerrs, errors.Wrap(err, "ppmcompleter.completeppm: error completing ppm")

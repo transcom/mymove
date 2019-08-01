@@ -49,7 +49,6 @@ func NewMoveDocumentUpdater(db *pop.Connection) services.MoveDocumentUpdater {
 //Update dispatches the various types of move documents to the appropriate Updater
 func (m moveDocumentUpdater) Update(moveDocumentPayload *internalmessages.MoveDocumentPayload, moveDocID uuid.UUID, session *auth.Session) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
-	newStatus := models.MoveDocumentStatus(moveDocumentPayload.Status)
 	newType := models.MoveDocumentType(moveDocumentPayload.MoveDocumentType)
 	newExpenseType := models.MovingExpenseType(moveDocumentPayload.MovingExpenseType)
 	originalMoveDocument, err := models.FetchMoveDocument(m.db, session, moveDocID)
@@ -61,7 +60,7 @@ func (m moveDocumentUpdater) Update(moveDocumentPayload *internalmessages.MoveDo
 		return m.storageExpenseUpdater.Update(moveDocumentPayload, originalMoveDocument, session)
 	case newType == models.MoveDocumentTypeWEIGHTTICKETSET:
 		return m.weightTicketUpdater.Update(moveDocumentPayload, originalMoveDocument, session)
-	case newType == models.MoveDocumentTypeSHIPMENTSUMMARY && newStatus == models.MoveDocumentStatusOK:
+	case newType == models.MoveDocumentTypeSHIPMENTSUMMARY:
 		return m.ppmCompleter.Update(moveDocumentPayload, originalMoveDocument, session)
 	default:
 		return m.genericUpdater.Update(moveDocumentPayload, originalMoveDocument, session)
