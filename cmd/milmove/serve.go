@@ -32,6 +32,8 @@ import (
 	goji "goji.io"
 	"goji.io/pat"
 
+	_ "net/http/pprof"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/certs"
@@ -248,6 +250,9 @@ func startListener(srv *server.NamedServer, logger logger, useTLS bool) {
 		zap.Int("port", srv.Port()),
 		zap.Bool("tls", useTLS),
 	)
+	go func() {
+		log.Println("adding pprof:", http.ListenAndServe("localhost:6060", nil))
+	}()
 	var err error
 	if useTLS {
 		err = srv.ListenAndServeTLS()
