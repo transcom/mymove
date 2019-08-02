@@ -534,13 +534,9 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 		}
 	}
 
-	var adminUser models.AdminUser
+	var adminUser *models.AdminUser
 	if session.IsAdminApp() {
-		queryBuilder := query.NewQueryBuilder(h.db)
-		filters := []services.QueryFilter{
-			query.NewQueryFilter("email", "=", strings.ToLower(session.Email)),
-		}
-		err = queryBuilder.FetchOne(&adminUser, filters)
+		adminUser, err = models.FetchAdminUserByEmail(h.db, session.Email)
 
 		if err == models.ErrFetchNotFound {
 			h.logger.Error("No admin user found", zap.String("email", session.Email))
@@ -577,7 +573,7 @@ func authorizeUnknownUser(openIDUser goth.User, h CallbackHandler, session *auth
 			session.AdminUserID = adminUser.ID
 			span.AddField("session.admin_user_id", session.AdminUserID)
 			adminUser.UserID = &user.ID
-			err = h.db.Save(&adminUser)
+			err = h.db.Save(adminUser)
 		}
 	}
 	if err != nil {
