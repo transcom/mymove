@@ -75,6 +75,10 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	if verrs.HasAny() || err != nil {
 		return handlers.ResponseForVErrors(logger, verrs, err)
 	}
+	err = mergedPdf.Close()
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 
 	url, err := loader.PresignedURL(pdfUpload)
 	if err != nil {
