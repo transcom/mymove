@@ -44,7 +44,7 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 
 	officeUsersCount := len(officeUsers)
 
-	payload := make(adminmessages.OfficeUsers, len(officeUsers))
+	payload := make(adminmessages.OfficeUsers, officeUsersCount)
 	for i, s := range officeUsers {
 		payload[i] = payloadForOfficeUserModel(s)
 	}
