@@ -13,12 +13,14 @@ import (
 )
 
 type ppmComputerParams struct {
-	Weight          unit.Pound
-	OriginZip5      string
-	DestinationZip5 string
-	Miles           int
-	Date            time.Time
-	DaysInSIT       int
+	Weight                                unit.Pound
+	OriginPickupZip5                      string
+	OriginDutyStationZip5                 string
+	DestinationZip5                       string
+	DistanceMilesFromOriginPickupZip      int
+	DistanceMilesFromOriginDutyStationZip int
+	Date                                  time.Time
+	DaysInSIT                             int
 }
 
 type mockPPMComputer struct {
@@ -27,14 +29,16 @@ type mockPPMComputer struct {
 	ppmComputerParams []ppmComputerParams
 }
 
-func (mppmc *mockPPMComputer) ComputePPMIncludingLHDiscount(weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int) (cost rateengine.CostComputation, err error) {
+func (mppmc *mockPPMComputer) ComputeLowestCostPPMMove(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyStationZip int, date time.Time, daysInSit int) (cost rateengine.CostComputation, err error) {
 	mppmc.ppmComputerParams = append(mppmc.ppmComputerParams, ppmComputerParams{
-		Weight:          weight,
-		OriginZip5:      originZip5,
-		DestinationZip5: destinationZip5,
-		Miles:           distanceMiles,
-		Date:            date,
-		DaysInSIT:       daysInSIT,
+		Weight:                                weight,
+		OriginPickupZip5:                      originPickupZip5,
+		OriginDutyStationZip5:                 originDutyStationZip5,
+		DestinationZip5:                       destinationZip5,
+		DistanceMilesFromOriginPickupZip:      distanceMilesFromOriginPickupZip,
+		DistanceMilesFromOriginDutyStationZip: distanceMilesFromOriginDutyStationZip,
+		Date:                                  date,
+		DaysInSIT:                             daysInSit,
 	})
 	return mppmc.costComputation, mppmc.err
 }
@@ -96,28 +100,32 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 		}
 		ppmComputer := NewSSWPPMComputer(&mockComputer)
 		expectMaxObligationParams := ppmComputerParams{
-			Weight:          totalWeightEntitlement,
-			OriginZip5:      pickupPostalCode,
-			DestinationZip5: destinationPostalCode,
-			Miles:           miles,
-			Date:            actualDate,
-			DaysInSIT:       0,
+			Weight:                                totalWeightEntitlement,
+			OriginPickupZip5:                      pickupPostalCode,
+			OriginDutyStationZip5:                 currentDutyStation.Address.PostalCode,
+			DestinationZip5:                       destinationPostalCode,
+			DistanceMilesFromOriginPickupZip:      miles,
+			DistanceMilesFromOriginDutyStationZip: miles,
+			Date:                                  actualDate,
+			DaysInSIT:                             0,
 		}
 		expectActualObligationParams := ppmComputerParams{
-			Weight:          ppmRemainingEntitlement,
-			OriginZip5:      pickupPostalCode,
-			DestinationZip5: destinationPostalCode,
-			Date:            actualDate,
-			Miles:           miles,
-			DaysInSIT:       0,
+			Weight:                                ppmRemainingEntitlement,
+			OriginPickupZip5:                      pickupPostalCode,
+			OriginDutyStationZip5:                 currentDutyStation.Address.PostalCode,
+			DestinationZip5:                       destinationPostalCode,
+			DistanceMilesFromOriginPickupZip:      miles,
+			DistanceMilesFromOriginDutyStationZip: miles,
+			Date:                                  actualDate,
+			DaysInSIT:                             0,
 		}
 		cost, err := ppmComputer.ComputeObligations(params, planner)
 
 		suite.NoError(err)
 		calledWith := mockComputer.CalledWith()
 		suite.Equal(*ppm.TotalSITCost, cost.ActualObligation.SIT)
-		suite.Equal(expectMaxObligationParams, calledWith[0])
-		suite.Equal(expectActualObligationParams, calledWith[1])
+		suite.Equal(expectActualObligationParams, calledWith[0])
+		suite.Equal(expectMaxObligationParams, calledWith[1])
 	})
 
 	suite.Run("TestComputeObligations when actual PPM SIT exceeds MaxSIT", func() {
