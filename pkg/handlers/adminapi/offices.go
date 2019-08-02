@@ -17,5 +17,19 @@ type IndexOfficesHandler struct {
 
 // Handle retrieves a list of office users
 func (h IndexOfficesHandler) Handle(params officeop.IndexOfficesParams) middleware.Responder {
-	return officeop.NewIndexOfficesOK().WithPayload(adminmessages.TransportationOffices{})
+	logger := h.LoggerFromRequest(params.HTTPRequest)
+	// Here is where NewQueryFilter will be used to create Filters from the 'filter' query param
+	queryFilters := []services.QueryFilter{}
+
+	offices, err := h.OfficeListFetcher.FetchOfficeList(queryFilters)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
+
+	payload := make(adminmessages.TransportationOffices, len(offices))
+	for i, s := range offices {
+		payload[i] = payloadForOfficeModel(s)
+	}
+
+	return officeop.NewIndexOfficesOK().WithPayload(payload)
 }
