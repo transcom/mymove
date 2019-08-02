@@ -15,7 +15,7 @@ export const isMilmoveSite = hostname.startsWith('my') || hostname.startsWith('m
 export const isOfficeSite = hostname.startsWith('office') || '';
 export const isTspSite = hostname.startsWith('tsp') || '';
 export const isAdminSite = hostname.startsWith('admin') || '';
-export const isSystemAdminSite = isAdminSite; // onec we start building program admin, we can flesh this out
+export const isSystemAdminSite = isAdminSite; // once we start building program admin, we can flesh this out
 
 export const titleCase = str => {
   return str.charAt(0).toUpperCase() + str.slice(1);
