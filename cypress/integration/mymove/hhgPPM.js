@@ -131,7 +131,7 @@ function serviceMemberVerifiesPPMWeightsEdited() {
     const text = $div.text();
 
     expect(text).to.include('Estimated Weight:  1,700 lbs');
-    expect(text).to.include('Estimated PPM Incentive:  $3,765.95 - 4,162.37');
+    expect(text).to.include('Estimated PPM Incentive:  $3,460.33 - 3,824.57');
   });
 }
 
