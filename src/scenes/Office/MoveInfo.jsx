@@ -3,14 +3,24 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { capitalize, get, includes, some, isEmpty } from 'lodash';
-
 import { NavTab, RoutedTabs } from 'react-router-tabs';
-import { Link, NavLink, Redirect, Switch } from 'react-router-dom';
+import { NavLink, Redirect, Switch } from 'react-router-dom';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
+import faComments from '@fortawesome/fontawesome-free-solid/faComments';
+import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
+import faClock from '@fortawesome/fontawesome-free-solid/faClock';
+import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
+import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
+import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
+import moment from 'moment';
+
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { getStorageInTransitsForShipment, selectStorageInTransits } from 'shared/Entities/modules/storageInTransits';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import LocationsContainer from './Hhg/LocationsContainer';
 import Alert from 'shared/Alert'; // eslint-disable-line
+
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import AccountingPanel from './AccountingPanel';
 import BackupInfoPanel from './BackupInfoPanel';
@@ -70,15 +80,7 @@ import { formatDate } from 'shared/formatters';
 import { getMoveDocumentsForMove, selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import SitStatusIcon from 'shared/StorageInTransit/SitStatusIcon';
 
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
-import faComments from '@fortawesome/fontawesome-free-solid/faComments';
-import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
-import faClock from '@fortawesome/fontawesome-free-solid/faClock';
-import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
-import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
-import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
-import moment from 'moment';
+import styles from 'scenes/Office/MoveInfo.module.scss';
 
 const BasicsTabContent = props => {
   return (
@@ -521,24 +523,22 @@ class MoveInfo extends Component {
                   {moveApproved ? (
                     <div className="panel-field">
                       <FontAwesomeIcon style={{ color: 'green' }} className="icon" icon={faCheck} />
-                      <Link
-                        to={ordersUrl}
-                        target="_blank"
-                        onClick={openLinkInNewWindow.bind(this, ordersUrl, '_blank', window)}
+                      <div
+                        className={`${styles.doctitle} link-blue`}
+                        onClick={openLinkInNewWindow.bind(this, ordersUrl, 'orders', window)}
                       >
                         Orders ({formatDate(upload.created_at)})
-                      </Link>
+                      </div>
                     </div>
                   ) : (
                     <div className="panel-field">
                       <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
-                      <Link
-                        to={ordersUrl}
-                        target="_blank"
-                        onClick={openLinkInNewWindow.bind(this, ordersUrl, '_blank', window)}
+                      <div
+                        className={`${styles.doctitle} link-blue`}
+                        onClick={openLinkInNewWindow.bind(this, ordersUrl, 'orders', window)}
                       >
                         Orders ({formatDate(upload.created_at)})
-                      </Link>
+                      </div>
                     </div>
                   )}
                 </div>
