@@ -10,7 +10,14 @@ import moveInfoStyles from 'scenes/Office/MoveInfo.module.scss';
 
 const documentUploadIcon = faPlusCircle;
 
-const DocumentList = ({ currentMoveDocumentId, moveDocuments, detailUrlPrefix, disableLinks, uploadDocumentUrl }) => (
+const DocumentList = ({
+  currentMoveDocumentId,
+  moveDocuments,
+  detailUrlPrefix,
+  disableLinks,
+  uploadDocumentUrl,
+  moveId,
+}) => (
   <div>
     {moveDocuments.map(doc => {
       const chosenDocument = currentMoveDocumentId === doc.id ? styles['chosen-document'] : 'link-blue';
@@ -20,14 +27,14 @@ const DocumentList = ({ currentMoveDocumentId, moveDocuments, detailUrlPrefix, d
         <div className={`panel-field ${chosenDocument}`} key={doc.id}>
           <span className="status">{status}</span>
           {!disableLinks &&
-            (window.name === 'docViewer' ? (
+            (window.name === `docViewer-${moveId}` ? (
               <Link className={`${chosenDocument} ${moveInfoStyles.doctitle}`} to={detailUrl}>
                 {doc.title}
               </Link>
             ) : (
               <div
                 className={`${chosenDocument} ${moveInfoStyles.doctitle}`}
-                onClick={openLinkInNewWindow.bind(this, detailUrl, 'docViewer', window)}
+                onClick={openLinkInNewWindow.bind(this, detailUrl, `docViewer-${moveId}`, window)}
               >
                 {doc.title}
               </div>
@@ -36,7 +43,7 @@ const DocumentList = ({ currentMoveDocumentId, moveDocuments, detailUrlPrefix, d
         </div>
       );
     })}
-    {window.name === 'docViewer' ? (
+    {window.name === `docViewer-${moveId}` ? (
       <div className={`${styles['document-upload-link']} link-blue`}>
         <Link to={uploadDocumentUrl}>
           <FontAwesomeIcon className="icon link-blue" icon={documentUploadIcon} />
@@ -47,7 +54,7 @@ const DocumentList = ({ currentMoveDocumentId, moveDocuments, detailUrlPrefix, d
       <div
         className={`${styles['document-upload-link']} link-blue`}
         data-cy="document-upload-link"
-        onClick={openLinkInNewWindow.bind(this, uploadDocumentUrl, 'docViewer', window)}
+        onClick={openLinkInNewWindow.bind(this, uploadDocumentUrl, `docViewer-${moveId}`, window)}
       >
         <FontAwesomeIcon className="icon link-blue" icon={documentUploadIcon} />
         Upload new document

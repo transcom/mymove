@@ -525,7 +525,7 @@ class MoveInfo extends Component {
                       <FontAwesomeIcon style={{ color: 'green' }} className="icon" icon={faCheck} />
                       <div
                         className={`${styles.doctitle} link-blue`}
-                        onClick={openLinkInNewWindow.bind(this, ordersUrl, 'orders', window)}
+                        onClick={openLinkInNewWindow.bind(this, ordersUrl, `orders-${this.props.moveId}`, window)}
                       >
                         Orders ({formatDate(upload.created_at)})
                       </div>
@@ -535,7 +535,7 @@ class MoveInfo extends Component {
                       <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
                       <div
                         className={`${styles.doctitle} link-blue`}
-                        onClick={openLinkInNewWindow.bind(this, ordersUrl, 'orders', window)}
+                        onClick={openLinkInNewWindow.bind(this, ordersUrl, `orders-${this.props.moveId}`, window)}
                       >
                         Orders ({formatDate(upload.created_at)})
                       </div>
@@ -548,6 +548,7 @@ class MoveInfo extends Component {
                   detailUrlPrefix={`/moves/${this.props.moveId}/documents`}
                   moveDocuments={moveDocuments}
                   uploadDocumentUrl={uploadDocumentUrl}
+                  moveId={this.props.moveId}
                 />
               )}
             </div>
