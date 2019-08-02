@@ -14,7 +14,6 @@ const Menu = props => {
           key={resource.name}
           to={`/${resource.name}`}
           primaryText={(resource.options && resource.options.label) || resource.name}
-          onClick={() => console.log('hi')}
         />
       ))}
       <MenuItemLink
