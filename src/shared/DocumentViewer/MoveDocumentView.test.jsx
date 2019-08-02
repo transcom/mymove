@@ -110,17 +110,6 @@ describe('MoveDocumentView', () => {
       ).toEqual('All Documents (3)');
     });
 
-    it('has a link to upload a new document', () => {
-      const newDocumentUrl = 'test-url-new';
-      const documentView = renderMoveDocumentView({ newDocumentUrl });
-      const newDocumentLink = documentView
-        .find('TabPanel')
-        .at(0)
-        .find('Link');
-      expect(newDocumentLink.prop('to')).toEqual(newDocumentUrl);
-      expect(newDocumentLink.prop('children')).toEqual('Upload new document');
-    });
-
     it('renders a DocumentList with the appropriate props', () => {
       const documentDetailUrlPrefix = 'test-doc-prefix';
       const documentView = renderMoveDocumentView({

@@ -23,12 +23,22 @@ func NewAdminAPIHandler(context handlers.HandlerContext) http.Handler {
 	}
 
 	adminAPI := adminops.NewMymoveAPI(adminSpec)
-
 	queryBuilder := query.NewQueryBuilder(context.DB())
+
 	adminAPI.OfficeIndexOfficeUsersHandler = IndexOfficeUsersHandler{
-		HandlerContext:        context,
-		NewQueryFilter:        query.NewQueryFilter,
-		OfficeUserListFetcher: user.NewOfficeUserListFetcher(queryBuilder),
+		context,
+		user.NewOfficeUserListFetcher(queryBuilder),
+		query.NewQueryFilter,
+	}
+
+	adminAPI.OfficeGetOfficeUserHandler = GetOfficeUserHandler{
+		context,
+		user.NewOfficeUserFetcher(queryBuilder),
+		query.NewQueryFilter,
+	}
+	adminAPI.OfficeIndexOfficesHandler = IndexOfficesHandler{
+		HandlerContext: context,
+		NewQueryFilter: query.NewQueryFilter,
 	}
 
 	adminAPI.OfficeCreateOfficeUserHandler = CreateOfficeUserHandler{
