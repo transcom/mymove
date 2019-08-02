@@ -251,7 +251,6 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 		return "", err
 	}
 
-	var opt gofpdf.ImageOptions
 	for _, img := range images {
 		pdf.AddPage()
 		file, _ := g.fs.Open(img.Path)
@@ -271,10 +270,10 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 				return "", errors.Wrapf(err, "file.Seek offset: 0 whence: %d", io.SeekStart)
 			}
 		}
+		options := gofpdf.ImageOptions{ImageType: contentTypeToImageType[img.ContentType], ReadDpi: true}
 		// Need to register the image using an afero reader, else it uses default filesystem
-		pdf.RegisterImageReader(img.Path, contentTypeToImageType[img.ContentType], file)
-		opt.ImageType = contentTypeToImageType[img.ContentType]
-		pdf.ImageOptions(img.Path, horizontalMargin, topMargin, bodyWidth, 0, false, opt, 0, "")
+		pdf.RegisterImageOptionsReader(img.Path, options, file)
+		pdf.ImageOptions(img.Path, horizontalMargin, topMargin, bodyWidth, 0, false, options, 0, "")
 		fileCloseErr := file.Close()
 		if fileCloseErr != nil {
 			return "", errors.Wrapf(err, "error closing file: %s", file.Name())
@@ -305,6 +304,12 @@ func (g *Generator) MergePDFFiles(paths []string) (afero.File, error) {
 	}
 	if err = g.pdfLib.Merge(files, mergedFile); err != nil {
 		return mergedFile, err
+	}
+	for _, f := range files {
+		err = f.Close()
+		if err != nil {
+			return mergedFile, err
+		}
 	}
 
 	// Reload the file from memstore
