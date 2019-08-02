@@ -12,6 +12,7 @@ import (
 // IndexOfficesHandler returns a list of office users via GET /office_users
 type IndexOfficesHandler struct {
 	handlers.HandlerContext
+	services.OfficeListFetcher
 	services.NewQueryFilter
 }
 
