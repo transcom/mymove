@@ -126,12 +126,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 	suite.setupPersonallyProcuredMoveIncentiveTest()
-	user := testdatagen.MakeDefaultUser(suite.DB())
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			UserID: &user.ID,
-		},
-	})
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -162,12 +157,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 	}
 
 	suite.setupPersonallyProcuredMoveIncentiveTest()
-	user := testdatagen.MakeDefaultUser(suite.DB())
-	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
-		OfficeUser: models.OfficeUser{
-			UserID: &user.ID,
-		},
-	})
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
 
 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)

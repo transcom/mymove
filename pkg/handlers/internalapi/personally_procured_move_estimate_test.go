@@ -101,12 +101,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 	suite.setupPersonallyProcuredMoveEstimateTest()
-	firstName := "Jane"
-	serviceMember := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			FirstName: &firstName,
-		},
-	})
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	req := httptest.NewRequest("GET", "/estimates/ppm", nil)
 	req = suite.AuthenticateRequest(req, serviceMember)
@@ -137,12 +132,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 	suite.setupPersonallyProcuredMoveEstimateTest()
-	firstName := "Jane"
-	serviceMember := testdatagen.MakeExtendedServiceMember(suite.DB(), testdatagen.Assertions{
-		ServiceMember: models.ServiceMember{
-			FirstName: &firstName,
-		},
-	})
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.DB())
 
 	req := httptest.NewRequest("GET", "/estimates/ppm", nil)
 	req = suite.AuthenticateRequest(req, serviceMember)

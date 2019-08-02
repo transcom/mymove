@@ -179,11 +179,11 @@ func (suite *RateEngineSuite) setupRateEngineTest() {
 }
 
 func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, destinationZip string, weight unit.Pound, logger Logger, planner route.Planner) (CostComputation, error) {
-	suite.setupRateEngineTest()
 	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(suite.DB(),
 		logger,
 		originZip,
-		destinationZip, testdatagen.RateEngineDate,
+		destinationZip,
+		testdatagen.RateEngineDate,
 	)
 	suite.Require().Nil(err)
 	engine := NewRateEngine(suite.DB(), logger)
@@ -227,6 +227,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 }
 
 func (suite *RateEngineSuite) TestComputePPMWithLHDiscount() {
+	suite.setupRateEngineTest()
 	logger, _ := zap.NewDevelopment()
 	planner := route.NewTestingPlanner(1234)
 	originZip := "39574"
@@ -250,6 +251,7 @@ func (suite *RateEngineSuite) TestComputePPMWithLHDiscount() {
 }
 
 func (suite *RateEngineSuite) TestComputeLowestCostPPMMove() {
+	suite.setupRateEngineTest()
 	logger, _ := zap.NewDevelopment()
 	planner := route.NewTestingPlanner(1234)
 	originZip := "39574"
@@ -259,56 +261,85 @@ func (suite *RateEngineSuite) TestComputeLowestCostPPMMove() {
 	distanceMilesFromDutyStationZip := 3300
 	weight := unit.Pound(2000)
 	engine := NewRateEngine(suite.DB(), logger)
-	ppmCost, err := suite.computePPMIncludingLHRates(originZip, destinationZip, weight, logger, planner)
 
-	cost, err := engine.ComputeLowestCostPPMMove(
-		weight,
-		originZip,
-		originDutyStationZip,
-		destinationZip,
-		distanceMilesFromOriginPickupZip,
-		distanceMilesFromDutyStationZip,
-		testdatagen.RateEngineDate,
-		0,
-	)
-	suite.Require().Nil(err)
+	suite.Run("TestComputeLowestCostPPMMove when pickup zip results in lower GCC", func() {
+		ppmCostWithPickupZip, err := suite.computePPMIncludingLHRates(
+			originZip,
+			destinationZip,
+			weight,
+			logger,
+			planner,
+		)
 
-	suite.True(ppmCost.GCC > 0)
-	suite.Equal(ppmCost, cost)
-}
+		ppmCostWithDutyStationZip, err := suite.computePPMIncludingLHRates(
+			originDutyStationZip,
+			destinationZip,
+			weight,
+			logger,
+			planner,
+		)
 
-func (suite *RateEngineSuite) TestComputeLowestCostPPMMoveWithLHDiscount() {
-	suite.setupRateEngineTest()
+		cost, err := engine.ComputeLowestCostPPMMove(
+			weight,
+			originZip,
+			originDutyStationZip,
+			destinationZip,
+			distanceMilesFromOriginPickupZip,
+			distanceMilesFromDutyStationZip,
+			testdatagen.RateEngineDate,
+			0,
+		)
 
-	logger, _ := zap.NewDevelopment()
-	originZip := "39574"
-	originDutyStationZip := "50309"
-	destinationZip := "33633"
-	distanceMilesFromOriginPickupZip := 1044
-	distanceMilesFromDutyStationZip := 3300
-	weight := unit.Pound(2000)
-	engine := NewRateEngine(suite.DB(), logger)
-	lhDiscount := unit.DiscountRate(.6)
-	sitDiscount := unit.DiscountRate(.5)
-	ppmCost, err := engine.ComputePPM(weight, originZip, destinationZip, distanceMilesFromOriginPickupZip, testdatagen.RateEngineDate,
-		1, lhDiscount, sitDiscount)
+		suite.Require().Nil(err)
 
-	cost, err := engine.ComputeLowestCostPPMMoveWithLHDiscount(
-		weight,
-		originZip,
-		originDutyStationZip,
-		destinationZip,
-		distanceMilesFromOriginPickupZip,
-		distanceMilesFromDutyStationZip,
-		testdatagen.RateEngineDate,
-		1,
-		lhDiscount,
-		sitDiscount,
-	)
-	suite.Require().Nil(err)
+		suite.True(cost.GCC > 0)
+		suite.True(ppmCostWithPickupZip.GCC > 0)
+		suite.True(ppmCostWithDutyStationZip.GCC > 0)
+		suite.True(ppmCostWithPickupZip.GCC < ppmCostWithDutyStationZip.GCC)
+		suite.Equal(cost, ppmCostWithPickupZip)
+	})
 
-	suite.True(ppmCost.GCC > 0)
-	suite.Equal(ppmCost, cost)
+	suite.Run("TestComputeLowestCostPPMMove when duty station results in lower GCC", func() {
+		originZip := "50309"
+		originDutyStationZip := "39574"
+		distanceMilesFromOriginPickupZip := 3300
+		distanceMilesFromDutyStationZip := 1044
+
+		ppmCostWithPickupZip, err := suite.computePPMIncludingLHRates(
+			originZip,
+			destinationZip,
+			weight,
+			logger,
+			planner,
+		)
+
+		ppmCostWithDutyStationZip, err := suite.computePPMIncludingLHRates(
+			originDutyStationZip,
+			destinationZip,
+			weight,
+			logger,
+			planner,
+		)
+
+		cost, err := engine.ComputeLowestCostPPMMove(
+			weight,
+			originZip,
+			originDutyStationZip,
+			destinationZip,
+			distanceMilesFromOriginPickupZip,
+			distanceMilesFromDutyStationZip,
+			testdatagen.RateEngineDate,
+			0,
+		)
+
+		suite.Require().Nil(err)
+
+		suite.True(cost.GCC > 0)
+		suite.True(ppmCostWithPickupZip.GCC > 0)
+		suite.True(ppmCostWithDutyStationZip.GCC > 0)
+		suite.True(ppmCostWithPickupZip.GCC > ppmCostWithDutyStationZip.GCC)
+		suite.Equal(cost, ppmCostWithDutyStationZip)
+	})
 }
 
 type RateEngineSuite struct {

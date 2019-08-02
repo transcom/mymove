@@ -58,7 +58,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		0,
 	)
 	if err != nil {
-		return models.Obligations{}, errors.New("error calculating PPM max obligations")
+		return models.Obligations{}, errors.New("error calculating PPM max obligations with origin pickup zip code")
 	}
 
 	originPickupZipActualCost, err := sswPpmComputer.ComputePPMIncludingLHDiscount(
@@ -70,7 +70,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		0,
 	)
 	if err != nil {
-		return models.Obligations{}, errors.New("error calculating PPM actual obligations")
+		return models.Obligations{}, errors.New("error calculating PPM actual obligations with origin pickup zip code")
 	}
 
 	originDutyStationZipMaxCost, err := sswPpmComputer.ComputePPMIncludingLHDiscount(
@@ -82,7 +82,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		0,
 	)
 	if err != nil {
-		return models.Obligations{}, errors.New("error calculating PPM max obligations")
+		return models.Obligations{}, errors.New("error calculating PPM max obligations with origin duty station zip code")
 	}
 
 	originDutyStationZipActualCost, err := sswPpmComputer.ComputePPMIncludingLHDiscount(
@@ -94,7 +94,7 @@ func (sswPpmComputer *SSWPPMComputer) ComputeObligations(ssfd models.ShipmentSum
 		0,
 	)
 	if err != nil {
-		return models.Obligations{}, errors.New("error calculating PPM actual obligations")
+		return models.Obligations{}, errors.New("error calculating PPM actual obligations with origin duty station zip code")
 	}
 
 	actualCost := originPickupZipActualCost
