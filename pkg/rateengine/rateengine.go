@@ -195,6 +195,48 @@ func (re *RateEngine) ComputePPMIncludingLHDiscount(weight unit.Pound, originZip
 	return cost, nil
 }
 
+//ComputeLowestCostPPMove uses zip codes to make two calculations for the price of a PPM move - once with the pickup zip and once with the current duty station zip - and returns the lowest cost move.
+func (re *RateEngine) ComputeLowestCostPPMMove(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyStationZip int, date time.Time, daysInSit int) (cost CostComputation, err error) {
+	costFromOriginPickupZip, err := re.ComputePPMIncludingLHDiscount(
+		weight,
+		originPickupZip5,
+		destinationZip5,
+		distanceMilesFromOriginPickupZip,
+		date,
+		daysInSit,
+	)
+	if err != nil {
+		re.logger.Error("Failed to compute PPM cost", zap.Error(err))
+		return
+	}
+
+	costFromOriginDutyStationZip, err := re.ComputePPMIncludingLHDiscount(
+		weight,
+		originDutyStationZip5,
+		destinationZip5,
+		distanceMilesFromOriginDutyStationZip,
+		date,
+		daysInSit,
+	)
+	if err != nil {
+		re.logger.Error("Failed to compute PPM cost", zap.Error(err))
+		return
+	}
+
+	cost = costFromOriginPickupZip
+	originZipCode := originPickupZip5
+	originZipLocation := "Pickup location"
+	if costFromOriginPickupZip.GCC > costFromOriginDutyStationZip.GCC {
+		cost = costFromOriginDutyStationZip
+		originZipCode = originDutyStationZip5
+		originZipLocation = "Current duty station"
+	}
+
+	re.logger.Info("Origin zip code information", zap.String("originZipLocation", originZipLocation), zap.String("originZipCode", originZipCode))
+
+	return cost, nil
+}
+
 // ComputeShipment Calculates the cost of an HHG move.
 func (re *RateEngine) ComputeShipment(
 	shipment models.Shipment,
