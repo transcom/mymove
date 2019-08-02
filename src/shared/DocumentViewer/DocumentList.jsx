@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import { faPlusCircle } from '@fortawesome/fontawesome-free-solid';
@@ -13,35 +12,31 @@ const documentUploadIcon = faPlusCircle;
 const DocumentList = ({ currentMoveDocumentId, moveDocuments, detailUrlPrefix, disableLinks, uploadDocumentUrl }) => (
   <div>
     {moveDocuments.map(doc => {
-      const chosenDocument = currentMoveDocumentId === doc.id ? 'chosen-document' : null;
+      const chosenDocument = currentMoveDocumentId === doc.id ? styles.chosenDocument : 'link-blue';
       const status = renderStatusIcon(doc.status);
       const detailUrl = `${detailUrlPrefix}/${doc.id}`;
       return (
         <div className={`panel-field ${chosenDocument}`} key={doc.id}>
           <span className="status">{status}</span>
           {!disableLinks && (
-            <Link
-              className={chosenDocument}
-              to={detailUrl}
-              target="_blank"
-              onClick={openLinkInNewWindow.bind(this, detailUrl, '_blank')}
+            <div
+              className={(chosenDocument, styles.doctitle)}
+              onClick={openLinkInNewWindow.bind(this, detailUrl, '_blank', window)}
             >
               {doc.title}
-            </Link>
+            </div>
           )}
           {disableLinks && <span>{doc.title}</span>}
         </div>
       );
     })}
-    <div className={styles['document-upload-link']} data-cy="document-upload-link">
+    <div
+      className={`${styles['document-upload-link']} link-blue`}
+      data-cy="document-upload-link"
+      onClick={openLinkInNewWindow.bind(this, uploadDocumentUrl, '_blank', window)}
+    >
       <FontAwesomeIcon className="icon link-blue" icon={documentUploadIcon} />
-      <Link
-        to={uploadDocumentUrl}
-        target="_blank"
-        onClick={openLinkInNewWindow.bind(this, uploadDocumentUrl, '_blank')}
-      >
-        Upload new document
-      </Link>
+      Upload new document
     </div>
   </div>
 );

@@ -524,7 +524,7 @@ class MoveInfo extends Component {
                       <Link
                         to={ordersUrl}
                         target="_blank"
-                        onClick={openLinkInNewWindow.bind(this, ordersUrl, '_blank')}
+                        onClick={openLinkInNewWindow.bind(this, ordersUrl, '_blank', window)}
                       >
                         Orders ({formatDate(upload.created_at)})
                       </Link>
@@ -535,7 +535,7 @@ class MoveInfo extends Component {
                       <Link
                         to={ordersUrl}
                         target="_blank"
-                        onClick={openLinkInNewWindow.bind(this, ordersUrl, '_blank')}
+                        onClick={openLinkInNewWindow.bind(this, ordersUrl, '_blank', window)}
                       >
                         Orders ({formatDate(upload.created_at)})
                       </Link>
