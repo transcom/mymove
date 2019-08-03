@@ -11,12 +11,14 @@ import { selectServiceMemberForOrders } from 'shared/Entities/modules/serviceMem
 import { formatDate } from 'shared/formatters';
 
 import { PanelSwaggerField, PanelField, SwaggerValue, editablePanelify } from 'shared/EditablePanel';
+import { openLinkInNewWindow } from 'shared/utils';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
+import styles from 'scenes/Office/MoveInfo.module.scss';
 
 function renderEntitlements(entitlements, orders) {
   return (
@@ -44,11 +46,14 @@ const OrdersDisplay = props => {
       <div className="editable-panel-column">
         {orders.orders_number ? (
           <PanelField title="Orders Number" className="orders_number">
-            <Link to={`/moves/${moveId}/orders`} target="_blank">
+            <div
+              className={`${styles.doctitle} link-blue`}
+              onClick={openLinkInNewWindow.bind(this, `/moves/${moveId}/orders`, `orders-${moveId}`, window)}
+            >
               <SwaggerValue fieldName="orders_number" {...fieldProps} />
               &nbsp;
               <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
-            </Link>
+            </div>
           </PanelField>
         ) : (
           <PanelField title="Orders Number" className="missing orders_number">
