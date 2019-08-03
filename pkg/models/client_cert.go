@@ -57,7 +57,7 @@ func FetchClientCert(db *pop.Connection, sha256Digest string) (*ClientCert, erro
 	var cert ClientCert
 	err := db.Eager().Where("sha256_digest = $1", sha256Digest).First(&cert)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return nil, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.

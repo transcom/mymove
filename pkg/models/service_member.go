@@ -107,7 +107,7 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 		"ResidentialAddress",
 		"SocialSecurityNumber").Find(&serviceMember, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return ServiceMember{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
@@ -158,7 +158,7 @@ func FetchServiceMember(db *pop.Connection, id uuid.UUID) (ServiceMember, error)
 	var serviceMember ServiceMember
 	err := db.Q().Find(&serviceMember, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return ServiceMember{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
@@ -365,7 +365,7 @@ func (s ServiceMember) FetchLatestOrder(ctx context.Context, db *pop.Connection)
 		"Moves.PersonallyProcuredMoves",
 		"Moves.SignedCertifications").First(&order)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
 		}
 		return Order{}, err
