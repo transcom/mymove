@@ -3,7 +3,6 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -106,17 +105,4 @@ func (a *AdminUser) ValidateCreate(tx *pop.Connection) (*validate.Errors, error)
 // This method is not required and may be deleted.
 func (a *AdminUser) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
-}
-
-// FetchTspUserByEmail looks for an tsp user with a specific email
-func FetchAdminUserByEmail(tx *pop.Connection, email string) (*AdminUser, error) {
-	var users AdminUsers
-	err := tx.Where("LOWER(email) = $1", strings.ToLower(email)).All(&users)
-	if err != nil {
-		return nil, err
-	}
-	if len(users) == 0 {
-		return nil, ErrFetchNotFound
-	}
-	return &users[0], nil
 }
