@@ -17,6 +17,11 @@ import (
 // ErrZeroLengthFile represents an error caused by a file with no content
 var ErrZeroLengthFile = errors.New("File has length of 0")
 
+const fileSizeLimit = 25000000
+
+// ErrTooLarge represents an error caused by a file larger than 25MB
+var ErrTooLarge = errors.New("File is too large. We do not accept files larger than 25 MB")
+
 // Uploader encapsulates a few common processes: creating Uploads for a Document,
 // generating pre-signed URLs for file access, and deleting Uploads.
 type Uploader struct {
@@ -54,6 +59,9 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 
 	if info.Size() == 0 {
 		return nil, responseVErrors, ErrZeroLengthFile
+	}
+	if info.Size() > fileSizeLimit {
+		return nil, responseVErrors, ErrTooLarge
 	}
 
 	contentType, detectContentTypeErr := storage.DetectContentType(file)

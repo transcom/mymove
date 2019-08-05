@@ -65,6 +65,7 @@ export class UploadOrders extends Component {
           <h1 className="sm-heading">Upload Your Orders</h1>
           <p>In order to schedule your move, we need to have a complete copy of your orders.</p>
           <p>You can upload a PDF, or you can take a picture of each page and upload the images.</p>
+          <p>We do not accept files larger than 25 MB.</p>
         </div>
         {Boolean(uploads.length) && (
           <Fragment>

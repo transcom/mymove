@@ -271,6 +271,7 @@ class WeightTicket extends Component {
                       <p className="normalize-margins" style={{ marginTop: '1em' }}>
                         Proof of ownership (ex. registration, bill of sale)
                       </p>
+                      <p>We do not accept files larger than 25 MB.</p>
                       <span data-cy="trailer-upload">
                         <Uploader
                           options={{ labelIdle: uploadTrailerProofOfOwnership }}
@@ -312,6 +313,7 @@ class WeightTicket extends Component {
                   ) : (
                     <div style={{ marginBottom: '1em' }}>
                       The weight of this trailer should be <strong>excluded</strong> from the total weight of this trip.
+                      <p>We do not accept files larger than 25 MB.</p>
                     </div>
                   )}
                   <div className="usa-width-one-third input-group">

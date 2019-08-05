@@ -63,11 +63,14 @@ let EditOrdersForm = props => {
       <p>Uploads:</p>
       {Boolean(visibleUploads.length) && <UploadsTable uploads={visibleUploads} onDelete={onDelete} />}
       {Boolean(get(initialValues, 'uploaded_orders')) && (
-        <Uploader
-          document={initialValues.uploaded_orders}
-          onChange={onUpload}
-          options={{ labelIdle: uploaderLabelIdle }}
-        />
+        <div>
+          <p>We do not accept files larger than 25 MB.</p>
+          <Uploader
+            document={initialValues.uploaded_orders}
+            onChange={onUpload}
+            options={{ labelIdle: uploaderLabelIdle }}
+          />
+        </div>
       )}
       <SaveCancelButtons valid={valid} submitting={submitting} />
     </form>

@@ -143,6 +143,7 @@ export class DocumentUploader extends Component {
             <div>
               <h4>Attach PDF or image</h4>
               <p>Upload a PDF or take a picture of each page and upload the images.</p>
+              <p>We do not accept files larger than 25 MB.</p>
             </div>
             <Uploader onRef={ref => (this.uploader = ref)} onChange={this.onChange} onAddFile={this.onAddFile} />
             <div className="hint">(Each page must be clear and legible)</div>
