@@ -35,6 +35,11 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 	// if an existing service member, set requires access code to what they're already set
 	requiresAccessCode = serviceMember.RequiresAccessCode
 
+	var weightAllotment *internalmessages.WeightAllotment
+	if serviceMember.Rank != nil {
+		weightAllotment = payloadForWeightAllotmentModel(models.GetWeightAllotment(*serviceMember.Rank))
+	}
+
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
 		ID:                      handlers.FmtUUID(serviceMember.ID),
 		CreatedAt:               handlers.FmtDateTime(serviceMember.CreatedAt),
@@ -61,6 +66,7 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		IsProfileComplete:       handlers.FmtBool(serviceMember.IsProfileComplete()),
 		CurrentStation:          payloadForDutyStationModel(serviceMember.DutyStation),
 		RequiresAccessCode:      requiresAccessCode,
+		WeightAllotment:         weightAllotment,
 	}
 	return &serviceMemberPayload
 }
