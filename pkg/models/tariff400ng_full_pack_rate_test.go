@@ -110,7 +110,7 @@ func (suite *ModelSuite) Test_FetchFullPackRateCents() {
 	}
 
 	// Test exclusivity of effective_date_upper
-	_, err = FetchTariff400ngFullPackRateCents(suite.DB(), weight, schedule, testdatagen.PeakRateCycleEnd)
+	rate, err = FetchTariff400ngFullPackRateCents(suite.DB(), weight, schedule, testdatagen.PeakRateCycleEnd)
 	if err == nil && rate == rateExpected {
 		t.Errorf("EffectiveDateUpper is incorrectly inclusive.")
 	}
@@ -122,7 +122,7 @@ func (suite *ModelSuite) Test_FetchFullPackRateCents() {
 	}
 
 	// Test exclusivity of weight_lbs_upper
-	_, err = FetchTariff400ngFullPackRateCents(suite.DB(), weightUpper, schedule, testdatagen.DateInsidePeakRateCycle)
+	rate, err = FetchTariff400ngFullPackRateCents(suite.DB(), weightUpper, schedule, testdatagen.DateInsidePeakRateCycle)
 	if err == nil && rate == rateExpected {
 		t.Errorf("WeightLbsUpper is incorrectly inclusive.")
 	}
