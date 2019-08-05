@@ -28,8 +28,22 @@ const UserList = props => (
     </Datagrid>
   </List>
 );
+const OfficeList = props => (
+  <List {...props} pagination={<AdminPagination />} perPage={500}>
+    <Datagrid>
+      <TextField source="id" />
+      <TextField source="name" />
+      <TextField source="latitude" />
+      <TextField source="longitude" />
+      <TextField source="gbloc" />
+    </Datagrid>
+  </List>
+);
 
-const routes = [<Route exact path="/system/office_users" component={UserList} />];
+const routes = [
+  <Route exact path="/system/office_users" component={UserList} />,
+  <Route exact path="/system/offices" component={OfficeList} />,
+];
 
 const history = createBrowserHistory({ basename: '/system' });
 
@@ -37,6 +51,7 @@ const Home = () => (
   <div className="admin-system-wrapper">
     <Admin customRoutes={routes} dataProvider={dataProvider} history={history} appLayout={AdminLayout}>
       <Resource name="office_users" list={UserList} />
+      <Resource name="offices" list={OfficeList} />
     </Admin>
   </div>
 );
