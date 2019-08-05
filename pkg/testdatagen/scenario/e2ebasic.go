@@ -443,19 +443,24 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	 */
 
 	email = "ppm.excludecalculations.expenses"
-	uuidStr = "42d8e7db-929c-4ca4-86e6-5957222e724d"
+	uuidStr = "4f092d53-9005-4371-814d-0c88e970d2f7"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
 	// Date picked essentialy at random, but needs to be within TestYear
-	originalMoveDate = time.Date(testdatagen.TestYear, time.November, 10, 23, 0, 0, 0, time.UTC)
-	actualMoveDate = time.Date(testdatagen.TestYear, time.November, 11, 10, 0, 0, 0, time.UTC)
+	originalMoveDate = time.Date(testdatagen.TestYear, time.December, 10, 23, 0, 0, 0, time.UTC)
+	actualMoveDate = time.Date(testdatagen.TestYear, time.December, 11, 10, 0, 0, 0, time.UTC)
 	moveTypeDetail = internalmessages.OrdersTypeDetailPCSTDY
-
-	ppm4 := testdatagen.MakePPM(db, testdatagen.Assertions{
+	assertions := testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			ID:            uuid.FromStringOrNil("5c949d6a-ecfb-4bef-9599-b81ddce272a6"),
+			ID:            uuid.FromStringOrNil("350f0450-1cb8-4aa8-8a85-2d0f45899447"),
 			UserID:        uuid.FromStringOrNil(uuidStr),
 			FirstName:     models.StringPointer("PPM"),
 			LastName:      models.StringPointer("Payment Requested"),
-			Edipi:         models.StringPointer("7617033988"),
+			Edipi:         models.StringPointer("5427033988"),
 			PersonalEmail: models.StringPointer(email),
 		},
 		// These values should be populated for an approved move
@@ -466,34 +471,46 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			TAC:                 models.StringPointer("99"),
 		},
 		Move: models.Move{
-			ID:      uuid.FromStringOrNil("90d9aa6c-8c05-4ad2-bd7b-a7448e05fc57"),
-			Locator: "EXCDEX",
+			ID:      uuid.FromStringOrNil("687e3ee4-62ff-44b3-a5cb-73338c9fdf95"),
+			Locator: "EXCLDE",
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			ID:               uuid.FromStringOrNil("38c4fc15-062f-4325-bceb-13ea167001da"),
 			OriginalMoveDate: &originalMoveDate,
 			ActualMoveDate:   &actualMoveDate,
 		},
 		Uploader: loader,
-		Document: models.Document{
-			ID:              uuid.FromStringOrNil("6237726e-4db3-4849-bea0-19f126edffbf"),
-			ServiceMemberID: uuid.FromStringOrNil("5c949d6a-ecfb-4bef-9599-b81ddce272a6"),
-		},
+	}
+	ppmExcludedCalculations := testdatagen.MakePPM(db, assertions)
+
+	ppmExcludedCalculations.Move.Submit(time.Now())
+	ppmExcludedCalculations.Move.Approve()
+	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
+	ppmExcludedCalculations.Move.PersonallyProcuredMoves[0].Submit(time.Now())
+	ppmExcludedCalculations.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	ppmExcludedCalculations.Move.PersonallyProcuredMoves[0].RequestPayment()
+	models.SaveMoveDependencies(db, &ppmExcludedCalculations.Move)
+
+	testdatagen.MakeMoveDocument(db, testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
-			ID:               uuid.FromStringOrNil("97b13ce9-91a3-41fd-9bb4-53d663928ce4"),
-			DocumentID:       uuid.FromStringOrNil("6237726e-4db3-4849-bea0-19f126edffbf"),
-			MoveDocumentType: models.MoveDocumentTypeEXPENSE,
-			Status:           models.MoveDocumentStatusAWAITINGREVIEW,
-			MoveID:           uuid.FromStringOrNil("90d9aa6c-8c05-4ad2-bd7b-a7448e05fc57"),
-			Title:            "Excluded Expense",
+			MoveID:                   ppmExcludedCalculations.Move.ID,
+			Move:                     ppmExcludedCalculations.Move,
+			MoveDocumentType:         models.MoveDocumentTypeEXPENSE,
+			Status:                   models.MoveDocumentStatusOK,
+			PersonallyProcuredMoveID: &assertions.PersonallyProcuredMove.ID,
+			Title:                    "Expense Document",
+			ID:                       uuid.FromStringOrNil("02021626-20ee-4c65-9194-87e6455f385e"),
 		},
 	})
-	ppm4.Move.Submit(time.Now())
-	ppm4.Move.Approve()
-	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
-	ppm4.Move.PersonallyProcuredMoves[0].Submit(time.Now())
-	ppm4.Move.PersonallyProcuredMoves[0].Approve(time.Now())
-	ppm4.Move.PersonallyProcuredMoves[0].RequestPayment()
-	models.SaveMoveDependencies(db, &ppm4.Move)
+
+	testdatagen.MakeMovingExpenseDocument(db, testdatagen.Assertions{
+		MovingExpenseDocument: models.MovingExpenseDocument{
+			MoveDocumentID:       uuid.FromStringOrNil("02021626-20ee-4c65-9194-87e6455f385e"),
+			MovingExpenseType:    models.MovingExpenseTypeCONTRACTEDEXPENSE,
+			PaymentMethod:        "GTCC",
+			RequestedAmountCents: unit.Cents(10000),
+		},
+	})
 
 	/*
 	 * A PPM move that has been canceled.
