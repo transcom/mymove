@@ -326,7 +326,7 @@ func TestInvoiceSuite(t *testing.T) {
 
 func (suite *InvoiceSuite) TestMakeEDISegments() {
 	shipment := helperShipment(suite)
-	lineItems := append(shipment.ShipmentLineItems)
+	lineItems := shipment.ShipmentLineItems
 
 	suite.T().Run("test EDI segments", func(t *testing.T) {
 		for _, lineItem := range lineItems {
