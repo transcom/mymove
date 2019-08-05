@@ -32,12 +32,14 @@ const DocumentList = ({
                 {doc.title}
               </Link>
             ) : (
-              <div
+              <a
+                href={detailUrl}
+                target={`docViewer-${moveId}`}
                 className={`${chosenDocument} ${moveInfoStyles.doctitle}`}
                 onClick={openLinkInNewWindow.bind(this, detailUrl, `docViewer-${moveId}`, window)}
               >
                 {doc.title}
-              </div>
+              </a>
             ))}
           {disableLinks && <span>{doc.title}</span>}
         </div>
@@ -51,13 +53,15 @@ const DocumentList = ({
         </Link>
       </div>
     ) : (
-      <div
-        className={`${styles['document-upload-link']} link-blue`}
-        data-cy="document-upload-link"
-        onClick={openLinkInNewWindow.bind(this, uploadDocumentUrl, `docViewer-${moveId}`, window)}
-      >
-        <FontAwesomeIcon className="icon link-blue" icon={documentUploadIcon} />
-        Upload new document
+      <div className={styles['document-upload-link']} data-cy="document-upload-link">
+        <a
+          href={uploadDocumentUrl}
+          target={`docViewer-${moveId}`}
+          onClick={openLinkInNewWindow.bind(this, uploadDocumentUrl, `docViewer-${moveId}`, window)}
+        >
+          <FontAwesomeIcon className="icon link-blue" icon={documentUploadIcon} />
+          Upload new document
+        </a>
       </div>
     )}
   </div>

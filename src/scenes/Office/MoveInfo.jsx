@@ -80,8 +80,6 @@ import { formatDate } from 'shared/formatters';
 import { getMoveDocumentsForMove, selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import SitStatusIcon from 'shared/StorageInTransit/SitStatusIcon';
 
-import styles from 'scenes/Office/MoveInfo.module.scss';
-
 const BasicsTabContent = props => {
   return (
     <div className="office-tab">
@@ -523,22 +521,24 @@ class MoveInfo extends Component {
                   {moveApproved ? (
                     <div className="panel-field">
                       <FontAwesomeIcon style={{ color: 'green' }} className="icon" icon={faCheck} />
-                      <div
-                        className={`${styles.doctitle} link-blue`}
+                      <a
+                        href={ordersUrl}
+                        target={`orders-${this.props.moveId}`}
                         onClick={openLinkInNewWindow.bind(this, ordersUrl, `orders-${this.props.moveId}`, window)}
                       >
                         Orders ({formatDate(upload.created_at)})
-                      </div>
+                      </a>
                     </div>
                   ) : (
                     <div className="panel-field">
                       <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
-                      <div
-                        className={`${styles.doctitle} link-blue`}
+                      <a
+                        href={ordersUrl}
+                        target={`orders-${this.props.moveId}`}
                         onClick={openLinkInNewWindow.bind(this, ordersUrl, `orders-${this.props.moveId}`, window)}
                       >
                         Orders ({formatDate(upload.created_at)})
-                      </div>
+                      </a>
                     </div>
                   )}
                 </div>
