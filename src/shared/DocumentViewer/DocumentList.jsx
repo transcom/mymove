@@ -6,7 +6,6 @@ import { faPlusCircle } from '@fortawesome/fontawesome-free-solid';
 import { Link } from 'react-router-dom';
 import { renderStatusIcon, openLinkInNewWindow } from 'shared/utils';
 import styles from 'shared/DocumentViewer/DocumentList.module.scss';
-import moveInfoStyles from 'scenes/Office/MoveInfo.module.scss';
 
 const documentUploadIcon = faPlusCircle;
 
@@ -28,14 +27,16 @@ const DocumentList = ({
           <span className="status">{status}</span>
           {!disableLinks &&
             (window.name === `docViewer-${moveId}` ? (
-              <Link className={`${chosenDocument} ${moveInfoStyles.doctitle}`} to={detailUrl}>
+              // open in same window if already in document viewer
+              <Link className={chosenDocument} to={detailUrl}>
                 {doc.title}
               </Link>
             ) : (
+              // open in new window if one is not already open
               <a
                 href={detailUrl}
                 target={`docViewer-${moveId}`}
-                className={`${chosenDocument} ${moveInfoStyles.doctitle}`}
+                className={chosenDocument}
                 onClick={openLinkInNewWindow.bind(this, detailUrl, `docViewer-${moveId}`, window)}
               >
                 {doc.title}

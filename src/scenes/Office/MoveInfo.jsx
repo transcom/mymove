@@ -301,6 +301,7 @@ class MoveInfo extends Component {
   render() {
     const {
       move,
+      moveId,
       moveDocuments,
       moveStatus,
       orders,
@@ -548,7 +549,7 @@ class MoveInfo extends Component {
                   detailUrlPrefix={`/moves/${this.props.moveId}/documents`}
                   moveDocuments={moveDocuments}
                   uploadDocumentUrl={uploadDocumentUrl}
-                  moveId={this.props.moveId}
+                  moveId={moveId}
                 />
               )}
             </div>

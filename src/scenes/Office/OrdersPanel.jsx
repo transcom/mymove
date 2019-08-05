@@ -18,7 +18,6 @@ import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
-import styles from 'scenes/Office/MoveInfo.module.scss';
 
 function renderEntitlements(entitlements, orders) {
   return (
@@ -46,14 +45,15 @@ const OrdersDisplay = props => {
       <div className="editable-panel-column">
         {orders.orders_number ? (
           <PanelField title="Orders Number" className="orders_number">
-            <div
-              className={`${styles.doctitle} link-blue`}
+            <a
+              href={`/moves/${moveId}/orders`}
+              target={`orders-${moveId}`}
               onClick={openLinkInNewWindow.bind(this, `/moves/${moveId}/orders`, `orders-${moveId}`, window)}
             >
               <SwaggerValue fieldName="orders_number" {...fieldProps} />
               &nbsp;
               <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
-            </div>
+            </a>
           </PanelField>
         ) : (
           <PanelField title="Orders Number" className="missing orders_number">

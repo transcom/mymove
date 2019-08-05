@@ -32,6 +32,7 @@ import { convertDollarsToCents } from 'shared/utils';
 import DocumentDetailPanel from './DocumentDetailPanel';
 
 import './index.css';
+
 class DocumentViewer extends Component {
   componentDidMount() {
     const { moveId } = this.props;
@@ -167,6 +168,7 @@ class DocumentViewer extends Component {
                     detailUrlPrefix={`/moves/${moveId}/documents`}
                     moveDocuments={moveDocuments}
                     uploadDocumentUrl={newUrl}
+                    moveId={moveId}
                   />
                 </div>
               </TabPanel>
