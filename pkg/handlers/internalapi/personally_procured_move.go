@@ -408,7 +408,7 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 		return err
 	}
 
-	cost, err := re.ComputeLowestCostPPMMoveWithLHDiscount(
+	cost, err := re.ComputeLowestCostPPMMove(
 		unit.Pound(*ppm.WeightEstimate),
 		*ppm.PickupPostalCode,
 		originDutyStationZip,
@@ -417,8 +417,6 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 		distanceMilesFromOriginDutyStationZip,
 		time.Time(*ppm.OriginalMoveDate),
 		daysInSIT,
-		lhDiscount,
-		sitDiscount,
 	)
 	if err != nil {
 		return err
