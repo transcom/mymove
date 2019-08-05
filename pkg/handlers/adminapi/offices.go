@@ -1,6 +1,8 @@
 package adminapi
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/runtime/middleware"
 
 	officeop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
@@ -40,10 +42,11 @@ func (h IndexOfficesHandler) Handle(params officeop.IndexOfficesParams) middlewa
 		return handlers.ResponseForError(logger, err)
 	}
 
-	payload := make(adminmessages.TransportationOffices, len(offices))
+	officesCount := len(offices)
+	payload := make(adminmessages.TransportationOffices, officesCount)
 	for i, s := range offices {
 		payload[i] = payloadForOfficeModel(s)
 	}
 
-	return officeop.NewIndexOfficesOK().WithPayload(payload)
+	return officeop.NewIndexOfficesOK().WithContentRange(fmt.Sprintf("offices 0-%d/%d", officesCount, officesCount)).WithPayload(payload)
 }
