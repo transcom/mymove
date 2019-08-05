@@ -27,11 +27,11 @@ export function setPendingPpmWeight(value) {
   return { type: SET_PENDING_PPM_WEIGHT, payload: value };
 }
 
-export function getPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate) {
+export function getPpmWeightEstimate(moveDate, originZip, originDutyStationZip, destZip, weightEstimate) {
   const action = ReduxHelpers.generateAsyncActions('GET_PPM_ESTIMATE');
   return function(dispatch, getState) {
     dispatch(action.start());
-    return GetPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate)
+    return GetPpmWeightEstimate(moveDate, originZip, originDutyStationZip, destZip, weightEstimate)
       .then(item => dispatch(action.success(item)))
       .catch(error => dispatch(action.error(error)));
   };
@@ -73,10 +73,11 @@ export function createOrUpdatePpm(moveId, ppm) {
   };
 }
 
-export function setInitialFormValues(originalMoveDate, pickupPostalCode, destinationPostalCode) {
+export function setInitialFormValues(originalMoveDate, pickupPostalCode, originDutyStationZip, destinationPostalCode) {
   return function(dispatch) {
     dispatch(change('ppp_date_and_location', 'original_move_date', originalMoveDate));
     dispatch(change('ppp_date_and_location', 'pickup_postal_code', pickupPostalCode));
+    dispatch(change('ppp_date_and_location', 'origin_duty_station_zip', originDutyStationZip));
     dispatch(change('ppp_date_and_location', 'destination_postal_code', destinationPostalCode));
   };
 }

@@ -307,6 +307,8 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 		MoveDocumentType: internalmessages.MoveDocumentTypeWEIGHTTICKETSET,
 		EmptyWeight:      &emptyWeight,
 		FullWeight:       &fullWeight,
+		VehicleNickname:  "My Car",
+		VehicleOptions:   "Car",
 	}
 
 	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{

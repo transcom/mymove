@@ -1,14 +1,18 @@
 package adminapi
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	officeop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/mocks"
+	"github.com/transcom/mymove/pkg/services/office"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -33,16 +37,68 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 		params := officeop.IndexOfficesParams{
 			HTTPRequest: req,
 		}
-
+		queryBuilder := query.NewQueryBuilder(suite.DB())
 		handler := IndexOfficesHandler{
-			HandlerContext: handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
-			NewQueryFilter: query.NewQueryFilter,
+			HandlerContext:    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			NewQueryFilter:    query.NewQueryFilter,
+			OfficeListFetcher: office.NewOfficeListFetcher(queryBuilder),
 		}
 
 		response := handler.Handle(params)
 
 		suite.IsType(&officeop.IndexOfficesOK{}, response)
 		okResponse := response.(*officeop.IndexOfficesOK)
-		suite.Len(okResponse.Payload, 0)
+		suite.Len(okResponse.Payload, 1)
+		suite.Equal(uuidString, okResponse.Payload[0].ID.String())
+	})
+
+	queryFilter := mocks.QueryFilter{}
+	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
+
+	suite.T().Run("successful response", func(t *testing.T) {
+		office := models.TransportationOffice{ID: id}
+		params := officeop.IndexOfficesParams{
+			HTTPRequest: req,
+		}
+		officeListFetcher := &mocks.OfficeListFetcher{}
+		officeListFetcher.On("FetchOfficeList",
+			mock.Anything,
+		).Return(models.TransportationOffices{office}, nil).Once()
+		handler := IndexOfficesHandler{
+			HandlerContext:    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			NewQueryFilter:    newQueryFilter,
+			OfficeListFetcher: officeListFetcher,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&officeop.IndexOfficesOK{}, response)
+		okResponse := response.(*officeop.IndexOfficesOK)
+		suite.Len(okResponse.Payload, 1)
+		suite.Equal(uuidString, okResponse.Payload[0].ID.String())
+	})
+
+	suite.T().Run("unsuccesful response when fetch fails", func(t *testing.T) {
+		params := officeop.IndexOfficesParams{
+			HTTPRequest: req,
+		}
+		expectedError := models.ErrFetchNotFound
+		officeListFetcher := &mocks.OfficeListFetcher{}
+		officeListFetcher.On("FetchOfficeList",
+			mock.Anything,
+		).Return(nil, expectedError).Once()
+		handler := IndexOfficesHandler{
+			HandlerContext:    handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			NewQueryFilter:    newQueryFilter,
+			OfficeListFetcher: officeListFetcher,
+		}
+
+		response := handler.Handle(params)
+
+		expectedResponse := &handlers.ErrResponse{
+			Code: http.StatusNotFound,
+			Err:  expectedError,
+		}
+		suite.Equal(expectedResponse, response)
 	})
 }
