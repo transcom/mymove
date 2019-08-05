@@ -1010,7 +1010,7 @@ definitions:
         type: integer
         minimum: 0
       weight_ticket_date:
-        title: Weight ticket date
+        title: Full Weight Ticket Date
         type: string
         example: '2018-04-26'
         format: date
