@@ -187,7 +187,7 @@ func (suite *RateEngineSuite) computePPMIncludingLHRates(originZip string, desti
 	)
 	suite.Require().Nil(err)
 	engine := NewRateEngine(suite.DB(), logger)
-	cost, err := engine.ComputePPM(
+	cost, err := engine.computePPM(
 		weight,
 		originZip,
 		destinationZip,
@@ -213,7 +213,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 	testdatagen.MakeFuelEIADieselPrices(suite.DB(), assertions)
 
 	// 139698 +20000
-	cost, err := engine.ComputePPM(2000, "39574", "33633", 1234, testdatagen.RateEngineDate,
+	cost, err := engine.computePPM(2000, "39574", "33633", 1234, testdatagen.RateEngineDate,
 		1, unit.DiscountRate(.6), unit.DiscountRate(.5))
 
 	if err != nil {
@@ -236,7 +236,7 @@ func (suite *RateEngineSuite) TestComputePPMWithLHDiscount() {
 	cost, err := suite.computePPMIncludingLHRates(originZip, destinationZip, weight, logger, planner)
 
 	engine := NewRateEngine(suite.DB(), logger)
-	ppmCost, err := engine.ComputePPMIncludingLHDiscount(
+	ppmCost, err := engine.computePPMIncludingLHDiscount(
 		weight,
 		originZip,
 		destinationZip,
