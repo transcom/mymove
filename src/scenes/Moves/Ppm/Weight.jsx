@@ -410,7 +410,4 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(PpmWeight);
+export default connect(mapStateToProps, mapDispatchToProps)(PpmWeight);

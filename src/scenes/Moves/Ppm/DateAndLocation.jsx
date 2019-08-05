@@ -299,9 +299,9 @@ function mapStateToProps(state) {
     ? props.currentPpm
     : defaultPickupZip
       ? {
-        pickup_postal_code: defaultPickupZip,
-        origin_duty_station_zip: originDutyStationZip,
-      }
+          pickup_postal_code: defaultPickupZip,
+          origin_duty_station_zip: originDutyStationZip,
+        }
       : null;
 
   if (props.isHHGPPMComboMove) {
