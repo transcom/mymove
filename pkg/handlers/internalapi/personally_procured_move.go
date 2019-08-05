@@ -396,7 +396,28 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 		daysInSIT = int(*ppm.DaysInStorage)
 	}
 
-	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(h.DB(), logger, *ppm.PickupPostalCode, *ppm.DestinationPostalCode, *ppm.OriginalMoveDate)
+	originDutyStationZip := ppm.Move.Orders.ServiceMember.DutyStation.Address.PostalCode
+
+	distanceMilesFromOriginPickupZip, err := h.Planner().Zip5TransitDistance(*ppm.PickupPostalCode, *ppm.DestinationPostalCode)
+	if err != nil {
+		return err
+	}
+
+	distanceMilesFromOriginDutyStationZip, err := h.Planner().Zip5TransitDistance(originDutyStationZip, *ppm.DestinationPostalCode)
+	if err != nil {
+		return err
+	}
+
+	cost, err := re.ComputeLowestCostPPMMove(
+		unit.Pound(*ppm.WeightEstimate),
+		*ppm.PickupPostalCode,
+		originDutyStationZip,
+		*ppm.DestinationPostalCode,
+		distanceMilesFromOriginPickupZip,
+		distanceMilesFromOriginDutyStationZip,
+		time.Time(*ppm.OriginalMoveDate),
+		daysInSIT,
+	)
 	if err != nil {
 		return err
 	}
@@ -409,19 +430,9 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 		if sitChargeErr != nil {
 			return sitChargeErr
 		}
-		sitCharge := float64(sitComputation.ApplyDiscount(lhDiscount, sitDiscount))
+		sitCharge := float64(sitComputation.ApplyDiscount(cost.LHDiscount, cost.SITDiscount))
 		reimbursementString := fmt.Sprintf("$%.2f", sitCharge/100)
 		ppm.EstimatedStorageReimbursement = &reimbursementString
-	}
-
-	distanceMiles, err := h.Planner().Zip5TransitDistance(*ppm.PickupPostalCode, *ppm.DestinationPostalCode)
-	if err != nil {
-		return err
-	}
-
-	cost, err := re.ComputePPM(unit.Pound(*ppm.WeightEstimate), *ppm.PickupPostalCode, *ppm.DestinationPostalCode, distanceMiles, *ppm.OriginalMoveDate, daysInSIT, lhDiscount, sitDiscount)
-	if err != nil {
-		return err
 	}
 
 	mileage := int64(cost.LinehaulCostComputation.Mileage)

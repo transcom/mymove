@@ -29,22 +29,6 @@ type TransportationServiceProvider struct {
 	PocClaimsPhone           *string   `json:"poc_claims_phone" db:"poc_claims_phone"`
 }
 
-// TSPWithBVSAndOfferCount represents a list of TSPs along with their BVS
-// and offered shipment counts.
-type TSPWithBVSAndOfferCount struct {
-	ID                        uuid.UUID `json:"id" db:"id"`
-	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	BestValueScore            int       `json:"best_value_score" db:"best_value_score"`
-	OfferCount                int       `json:"offer_count" db:"offer_count"`
-}
-
-// TSPWithBVSCount represents a list of TSPs along with their BVS counts.
-type TSPWithBVSCount struct {
-	ID                        uuid.UUID `json:"id" db:"id"`
-	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	BestValueScore            int       `json:"best_value_score" db:"best_value_score"`
-}
-
 // TransportationServiceProviders is not required by pop and may be deleted
 type TransportationServiceProviders []TransportationServiceProvider
 

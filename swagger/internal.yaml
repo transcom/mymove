@@ -773,6 +773,10 @@ definitions:
         title: What type of vehicle are these weight tickets for?
         type: string
         enum: *VehicleOptions
+        x-display-value:
+          CAR: Car
+          CAR_TRAILER: Car + Trailer
+          BOX_TRUCK: Box truck
       vehicle_nickname:
         type: string
         title: Vehicle nickname (ex. "My car")
@@ -2561,9 +2565,9 @@ definitions:
       - warehouse_name
       - estimated_start_date
   StorageInTransits:
-      type: array
-      items:
-        $ref: '#/definitions/StorageInTransit'
+    type: array
+    items:
+      $ref: '#/definitions/StorageInTransit'
   MoveQueueItem:
     type: object
     properties:
@@ -2798,6 +2802,12 @@ paths:
           required: true
         - in: query
           name: origin_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: origin_duty_station_zip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
@@ -3970,6 +3980,12 @@ paths:
           required: true
         - in: query
           name: origin_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: origin_duty_station_zip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'

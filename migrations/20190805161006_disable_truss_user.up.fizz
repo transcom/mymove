@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20190805161006_disable_truss_user.sql")
