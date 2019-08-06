@@ -959,7 +959,7 @@ func (s *Shipment) AcceptedShipmentOffer() (*ShipmentOffer, error) {
 	}
 
 	// If the Shipment is in a state that requires a TSP then check for the Accepted TSP
-	if s.requireAnAcceptedTSP() == true {
+	if s.requireAnAcceptedTSP() {
 		if numAcceptedOffers == 0 || acceptedOffers == nil {
 			return nil, errors.New("No accepted shipment offer found")
 		}

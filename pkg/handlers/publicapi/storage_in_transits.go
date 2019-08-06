@@ -86,8 +86,11 @@ type CreateStorageInTransitHandler struct {
 // This is meant to create a storage in transit and return it in a payload
 func (h CreateStorageInTransitHandler) Handle(params sitop.CreateStorageInTransitParams) middleware.Responder {
 	payload := params.StorageInTransit
-	shipmentID, err := uuid.FromString(params.ShipmentID.String())
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
+	shipmentID, err := uuid.FromString(params.ShipmentID.String())
+	if err != nil {
+		logger.Error(fmt.Sprintf("invalid shipment id: %s", params.ShipmentID.String()), zap.Error(err))
+	}
 
 	newStorageInTransit, verrs, err := h.storageInTransitCreator.CreateStorageInTransit(*payload, shipmentID, session)
 
@@ -116,10 +119,15 @@ func (h ApproveStorageInTransitHandler) Handle(params sitop.ApproveStorageInTran
 
 	payload := params.StorageInTransitApprovalPayload
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
+	if err != nil {
+		logger.Error("invalid shipment id", zap.Error(err))
+		return handlers.ResponseForError(logger, err)
+	}
+
 	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
 
 	if err != nil {
-		logger.Error("UUID Parsing", zap.Error(err))
+		logger.Error("invalid storage in transit id", zap.Error(err))
 		return handlers.ResponseForError(logger, err)
 	}
 
@@ -150,10 +158,15 @@ func (h DenyStorageInTransitHandler) Handle(params sitop.DenyStorageInTransitPar
 
 	payload := params.StorageInTransitDenyPayload
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
+	if err != nil {
+		logger.Error("Invalid shipment id", zap.Error(err))
+		return handlers.ResponseForError(logger, err)
+	}
+
 	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
 
 	if err != nil {
-		logger.Error("UUID Parsing", zap.Error(err))
+		logger.Error("Invalid storage in transit id", zap.Error(err))
 		return handlers.ResponseForError(logger, err)
 	}
 
@@ -180,11 +193,17 @@ type InSitStorageInTransitHandler struct {
 func (h InSitStorageInTransitHandler) Handle(params sitop.InSitStorageInTransitParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
-	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
 	if err != nil {
-		logger.Error("UUID Parsing", zap.Error(err))
+		logger.Error("Invalid shipment id", zap.Error(err))
 		return handlers.ResponseForError(logger, err)
 	}
+
+	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
+	if err != nil {
+		logger.Error("Invalid storage in transit id", zap.Error(err))
+		return handlers.ResponseForError(logger, err)
+	}
+
 	inSitPayload := params.StorageInTransitInSitPayload
 
 	storageInTransit, verrs, err := h.storageInTransitInSITPlacer.PlaceIntoSITStorageInTransit(*inSitPayload, shipmentID, session, storageInTransitID)
@@ -211,13 +230,18 @@ type ReleaseStorageInTransitHandler struct {
 func (h ReleaseStorageInTransitHandler) Handle(params sitop.ReleaseStorageInTransitParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
-	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
-	payload := params.StorageInTransitOnReleasePayload
-
 	if err != nil {
-		logger.Error("UUID Parsing", zap.Error(err))
+		logger.Error("Invalid shipment id", zap.Error(err))
 		return handlers.ResponseForError(logger, err)
 	}
+
+	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
+	if err != nil {
+		logger.Error("Invalid storage in transit id", zap.Error(err))
+		return handlers.ResponseForError(logger, err)
+	}
+
+	payload := params.StorageInTransitOnReleasePayload
 
 	storageInTransit, verrs, err := h.releaseStorageInTransit.ReleaseStorageInTransit(*payload, shipmentID, session, storageInTransitID)
 
@@ -244,10 +268,14 @@ func (h PatchStorageInTransitHandler) Handle(params sitop.PatchStorageInTransitP
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	payload := params.StorageInTransit
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
-	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
-
 	if err != nil {
-		logger.Error("UUID Parsing", zap.Error(err))
+		logger.Error("Invalid shipment id", zap.Error(err))
+		return handlers.ResponseForError(logger, err)
+	}
+
+	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
+	if err != nil {
+		logger.Error("Invalid storage in transit id", zap.Error(err))
 		return handlers.ResponseForError(logger, err)
 	}
 
@@ -274,10 +302,14 @@ type GetStorageInTransitHandler struct {
 func (h GetStorageInTransitHandler) Handle(params sitop.GetStorageInTransitParams) middleware.Responder {
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
-	shipmentID, err := uuid.FromString(params.ShipmentID.String())
-
 	if err != nil {
-		logger.Error("UUID Parsing", zap.Error(err))
+		logger.Error("Invalid storage in transit id", zap.Error(err))
+		return handlers.ResponseForError(logger, err)
+	}
+
+	shipmentID, err := uuid.FromString(params.ShipmentID.String())
+	if err != nil {
+		logger.Error("Invalid shipment id", zap.Error(err))
 		return handlers.ResponseForError(logger, err)
 	}
 
@@ -303,10 +335,14 @@ func (h DeleteStorageInTransitHandler) Handle(params sitop.DeleteStorageInTransi
 	session, logger := h.SessionAndLoggerFromRequest(params.HTTPRequest)
 
 	storageInTransitID, err := uuid.FromString(params.StorageInTransitID.String())
+	if err != nil {
+		logger.Error("Invalid storage in transit id", zap.Error(err))
+		return handlers.ResponseForError(logger, err)
+	}
 
 	shipmentID, err := uuid.FromString(params.ShipmentID.String())
 	if err != nil {
-		logger.Error("UUID Parsing", zap.Error(err))
+		logger.Error("Invalid shipment id", zap.Error(err))
 		return handlers.ResponseForError(logger, err)
 	}
 

@@ -46,7 +46,7 @@ func (suite *InvoiceServiceSuite) TestUpdateInvoicesCall() {
 		suite.DB().Eager("ShipmentLineItems.ID").Reload(&shipmentLineItem.Shipment)
 		invoice := helperCreateInvoice(suite, shipmentLineItem.Shipment)
 
-		fakeUUID, err := uuid.NewV4()
+		fakeUUID, _ := uuid.NewV4()
 		shipmentLineItem.ShipmentID = fakeUUID // create foreign key constraint error
 		invoice.ShipmentID = fakeUUID
 
@@ -73,7 +73,7 @@ func (suite *InvoiceServiceSuite) TestUpdateInvoicesCall() {
 		updateInvoicesSubmitted := UpdateInvoiceSubmitted{
 			DB: suite.DB(),
 		}
-		fakeUUID, err := uuid.NewV4()
+		fakeUUID, _ := uuid.NewV4()
 		shipmentLineItem.ShipmentID = fakeUUID // create foreign key constraint error
 		shipmentLineItems := models.ShipmentLineItems{shipmentLineItem}
 

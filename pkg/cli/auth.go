@@ -134,7 +134,7 @@ func ParsePrivateKey(str string) []string {
 
 	// https://tools.ietf.org/html/rfc7468#section-2
 	//	- https://stackoverflow.com/questions/20173472/does-go-regexps-any-charcter-match-newline
-	re := regexp.MustCompile("(?s)([-]{5}BEGIN PRIVATE KEY[-]{5})(\\s*)(.+?)(\\s*)([-]{5}END PRIVATE KEY[-]{5})")
+	re := regexp.MustCompile(`(?s)([-]{5}BEGIN PRIVATE KEY[-]{5})(\s*)(.+?)(\s*)([-]{5}END PRIVATE KEY[-]{5})`)
 	matches := re.FindAllStringSubmatch(str, -1)
 
 	privateKeys := make([]string, 0, len(matches))

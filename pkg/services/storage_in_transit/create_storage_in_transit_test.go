@@ -44,7 +44,7 @@ func (suite *StorageInTransitServiceSuite) TestCreateStorageInTransit() {
 		OfficeUserID:    user.ID,
 	}
 	// Happy path. This should succeed.
-	actualStorageInTransit, verrs, err = creator.CreateStorageInTransit(*payload, shipment.ID, &session)
+	_, verrs, err = creator.CreateStorageInTransit(*payload, shipment.ID, &session)
 	suite.Error(err, "FETCH_FORBIDDEN")
 
 	// This should fail if the tsp user doesn't 'own' the shipment associated with the SIT.
@@ -61,6 +61,6 @@ func (suite *StorageInTransitServiceSuite) TestCreateStorageInTransit() {
 		TspUserID:       tspUser2.ID,
 	}
 
-	actualStorageInTransit, verrs, err = creator.CreateStorageInTransit(*payload, shipment.ID, &session)
+	_, verrs, err = creator.CreateStorageInTransit(*payload, shipment.ID, &session)
 	suite.Error(err, "USER_UNAUTHORIZED")
 }
