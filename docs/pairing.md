@@ -19,6 +19,11 @@ Please update this document with a brief description of the pairing session.
 
 ## Sessions
 
+* [2015-08-01 Building CloudWatch Dashboards](https://drive.google.com/file/d/1wCNvShVKKqXO95fnK7Ure7DOJ1QFDjNc/view)
+  Navigating the CloudWatch interface,
+  our current dashboards,
+  the dashboard builder,
+  and Insights log query tool.
 * [2015-05-29 Query Builder Pairing](https://drive.google.com/file/d/1r1hAs0bdyFmrvSa8T9B3fq8u4Lq0iQLh/view)
   Code overview of the [Query Builder implementation](https://github.com/transcom/mymove/pull/2120/files)
   for the Admin APIs
