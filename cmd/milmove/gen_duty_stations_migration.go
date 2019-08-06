@@ -86,10 +86,13 @@ func createDutyStationMigration(path string, filename string, ds []dutyStations.
 
 	t1 := template.Must(template.New("temp1").Parse(DutyStationMigration))
 	err = t1.Execute(migrationFile, MigrationInfo{filename})
+	if err != nil {
+		log.Println("error executing template 1: ", err)
+	}
 	t2 := template.Must(template.New("temp2").Parse(dutyStations.InsertTemplate))
 	err = t2.Execute(migrationFile, ds)
 	if err != nil {
-		log.Println("error executing template: ", err)
+		log.Println("error executing template 2: ", err)
 	}
 	log.Printf("new migration file created at:  %q\n", migrationPath)
 	return nil
@@ -97,6 +100,9 @@ func createDutyStationMigration(path string, filename string, ds []dutyStations.
 
 func genDutyStationsMigration(cmd *cobra.Command, args []string) error {
 	err := cmd.ParseFlags(args)
+	if err != nil {
+		return errors.Wrap(err, "could not ParseFlags on args")
+	}
 	flag := cmd.Flags()
 	err = flag.Parse(os.Args[1:])
 	if err != nil {

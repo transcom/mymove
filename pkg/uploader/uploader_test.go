@@ -158,6 +158,7 @@ func (suite *UploaderSuite) TestCreateUploadNoDocument() {
 
 	info, err := outputFile.Stat()
 	suite.Equal(fixtureFileInfo.Size(), info.Size())
+	suite.NoError(err)
 
 	// Delete file previously uploaded
 	err = up.Storer.Delete(upload.StorageKey)

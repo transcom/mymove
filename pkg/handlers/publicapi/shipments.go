@@ -504,9 +504,9 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 		}
 	}
 	if payload.HasSecondaryPickupAddress != nil {
-		if *payload.HasSecondaryPickupAddress == false {
+		if !*payload.HasSecondaryPickupAddress {
 			shipment.SecondaryPickupAddress = nil
-		} else if *payload.HasSecondaryPickupAddress == true {
+		} else if *payload.HasSecondaryPickupAddress {
 			if payload.SecondaryPickupAddress != nil {
 				if shipment.SecondaryPickupAddress == nil {
 					shipment.SecondaryPickupAddress = addressModelFromPayload(payload.SecondaryPickupAddress)
@@ -519,9 +519,9 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 	}
 
 	if payload.HasDeliveryAddress != nil {
-		if *payload.HasDeliveryAddress == false {
+		if !*payload.HasDeliveryAddress {
 			shipment.DeliveryAddress = nil
-		} else if *payload.HasDeliveryAddress == true {
+		} else if *payload.HasDeliveryAddress {
 			if payload.DeliveryAddress != nil {
 				if shipment.DeliveryAddress == nil {
 					shipment.DeliveryAddress = addressModelFromPayload(payload.DeliveryAddress)
@@ -534,9 +534,9 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *apimessages.Sh
 	}
 
 	if payload.HasPartialSitDeliveryAddress != nil {
-		if *payload.HasPartialSitDeliveryAddress == false {
+		if !*payload.HasPartialSitDeliveryAddress {
 			shipment.PartialSITDeliveryAddress = nil
-		} else if *payload.HasPartialSitDeliveryAddress == true {
+		} else if *payload.HasPartialSitDeliveryAddress {
 			if payload.PartialSitDeliveryAddress != nil {
 				if shipment.PartialSITDeliveryAddress == nil {
 					shipment.PartialSITDeliveryAddress = addressModelFromPayload(payload.PartialSitDeliveryAddress)
@@ -630,7 +630,7 @@ func (h CreateGovBillOfLadingHandler) Handle(params shipmentop.CreateGovBillOfLa
 	if ordersErr != nil {
 		return handlers.ResponseForError(logger, ordersErr)
 	}
-	if orders.IsCompleteForGBL() != true {
+	if !orders.IsCompleteForGBL() {
 		return handlers.ResponseForCustomErrors(logger, fmt.Errorf("the move is missing some information from the JPPSO. Please contact the JPPSO"), http.StatusExpectationFailed)
 	}
 

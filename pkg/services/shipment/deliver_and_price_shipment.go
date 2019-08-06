@@ -25,8 +25,7 @@ func (c *shipmentDeliverAndPricer) DeliverAndPriceShipment(deliveryDate time.Tim
 	verrs := validate.NewErrors()
 
 	err := c.db.Transaction(func(db *pop.Connection) error {
-		var transactionError error
-		transactionError = shipment.Deliver(deliveryDate)
+		transactionError := shipment.Deliver(deliveryDate)
 		if transactionError != nil {
 			return transactionError
 		}

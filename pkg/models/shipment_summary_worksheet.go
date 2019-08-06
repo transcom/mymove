@@ -439,6 +439,9 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data ShipmentSummaryFormData)
 	page2 := ShipmentSummaryWorksheetPage2Values{}
 	page2.PreparationDate = FormatDate(data.PreparationDate)
 	page2.FormattedMovingExpenses, err = FormatMovingExpenses(data.MovingExpenseDocuments)
+	if err != nil {
+		return page2, err
+	}
 	page2.FormattedSitExpenses, err = FormatSitExpenses(data.MovingExpenseDocuments)
 	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
 	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid

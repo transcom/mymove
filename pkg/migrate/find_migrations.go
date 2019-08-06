@@ -6,10 +6,9 @@ import (
 	"path/filepath"
 
 	"github.com/gobuffalo/pop"
-	"github.com/pkg/errors"
 )
 
-func FindMigrations(fm *pop.FileMigrator, valid map[string]struct{}, runner func(mf pop.Migration, tx *pop.Connection) error) error {
+func FindMigrations(fm *pop.FileMigrator, valid map[string]struct{}, runner func(mf pop.Migration, tx *pop.Connection) error, logger Logger) error {
 
 	dir := fm.Path
 
@@ -30,8 +29,10 @@ func FindMigrations(fm *pop.FileMigrator, valid map[string]struct{}, runner func
 				return nil
 			}
 
+			// Ignore files not in the manifest
 			if _, ok := valid[filepath.Base(p)]; !ok {
-				return errors.New(fmt.Sprintf("migration at path %q missing from manifest", p))
+				logger.Error(fmt.Sprintf("migration at path %q missing from manifest and will not be run", p))
+				return nil
 			}
 
 			mf := pop.Migration{
