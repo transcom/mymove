@@ -3,6 +3,11 @@ import { connect } from 'react-redux';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import { get } from 'lodash';
+import moment from 'moment';
+import Alert from 'shared/Alert';
+import { formatCents } from 'shared/formatters';
+import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
+import scrollToTop from 'shared/scrollToTop';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
@@ -11,14 +16,9 @@ import { ppmPaymentLegal } from 'scenes/Legalese/legaleseText';
 import PPMPaymentRequestActionBtns from 'scenes/Moves/Ppm/PPMPaymentRequestActionBtns';
 import { getPpmWeightEstimate } from '../ducks';
 
-import moment from 'moment';
-import Alert from 'shared/Alert';
-import { formatCents } from 'shared/formatters';
-
-import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
-import scrollToTop from 'shared/scrollToTop';
 import { submitExpenseDocs } from '../ducks';
 import DocumentsUploaded from './DocumentsUploaded';
+import { calcNetWeight } from '../utility';
 import WizardHeader from '../../WizardHeader';
 import './PaymentReview.css';
 
@@ -34,18 +34,12 @@ class PaymentReview extends Component {
     const { originDutyStationZip, currentPpm } = this.props;
     const { actual_move_date, pickup_postal_code, destination_postal_code } = currentPpm;
     this.props.getMoveDocumentsForMove(this.props.moveId).then(({ obj: documents }) => {
-      const netWeight = documents.reduce((accum, { move_document_type, full_weight, empty_weight }) => {
-        if (move_document_type === 'WEIGHT_TICKET_SET') {
-          return accum + (full_weight - empty_weight);
-        }
-        return accum;
-      }, 0);
       this.props.getPpmWeightEstimate(
         actual_move_date,
         pickup_postal_code,
         originDutyStationZip,
         destination_postal_code,
-        netWeight,
+        calcNetWeight(documents),
       );
     });
   }
