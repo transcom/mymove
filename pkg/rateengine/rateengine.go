@@ -80,8 +80,8 @@ func Zip5ToZip3(zip5 string) string {
 	return zip5[0:3]
 }
 
-// ComputePPM Calculates the cost of a PPM move.
-func (re *RateEngine) ComputePPM(
+// computePPM Calculates the cost of a PPM move.
+func (re *RateEngine) computePPM(
 	weight unit.Pound,
 	originZip5 string,
 	destinationZip5 string,
@@ -164,8 +164,8 @@ func (re *RateEngine) ComputePPM(
 	return cost, nil
 }
 
-//ComputePPMIncludingLHDiscount Calculates the cost of a PPM move using zip + date derived linehaul discount
-func (re *RateEngine) ComputePPMIncludingLHDiscount(weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int) (cost CostComputation, err error) {
+//computePPMIncludingLHDiscount Calculates the cost of a PPM move using zip + date derived linehaul discount
+func (re *RateEngine) computePPMIncludingLHDiscount(weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int) (cost CostComputation, err error) {
 
 	lhDiscount, sitDiscount, err := models.PPMDiscountFetch(re.db,
 		re.logger,
@@ -178,7 +178,7 @@ func (re *RateEngine) ComputePPMIncludingLHDiscount(weight unit.Pound, originZip
 		return
 	}
 
-	cost, err = re.ComputePPM(weight,
+	cost, err = re.computePPM(weight,
 		originZip5,
 		destinationZip5,
 		distanceMiles,
@@ -197,7 +197,7 @@ func (re *RateEngine) ComputePPMIncludingLHDiscount(weight unit.Pound, originZip
 
 //ComputeLowestCostPPMove uses zip codes to make two calculations for the price of a PPM move - once with the pickup zip and once with the current duty station zip - and returns the lowest cost move.
 func (re *RateEngine) ComputeLowestCostPPMMove(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyStationZip int, date time.Time, daysInSit int) (cost CostComputation, err error) {
-	costFromOriginPickupZip, err := re.ComputePPMIncludingLHDiscount(
+	costFromOriginPickupZip, err := re.computePPMIncludingLHDiscount(
 		weight,
 		originPickupZip5,
 		destinationZip5,
@@ -210,7 +210,7 @@ func (re *RateEngine) ComputeLowestCostPPMMove(weight unit.Pound, originPickupZi
 		return
 	}
 
-	costFromOriginDutyStationZip, err := re.ComputePPMIncludingLHDiscount(
+	costFromOriginDutyStationZip, err := re.computePPMIncludingLHDiscount(
 		weight,
 		originDutyStationZip5,
 		destinationZip5,
