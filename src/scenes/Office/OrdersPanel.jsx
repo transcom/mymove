@@ -2,7 +2,6 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { reduxForm, Field, FormSection, getFormValues } from 'redux-form';
-import { Link } from 'react-router-dom';
 
 import { calculateEntitlementsForMove } from 'shared/Entities/modules/moves';
 import { updateServiceMember } from 'shared/Entities/modules/serviceMembers';
@@ -58,9 +57,15 @@ const OrdersDisplay = props => {
         ) : (
           <PanelField title="Orders Number" className="missing orders_number">
             missing
-            <Link to={`/moves/${moveId}/orders`} target="_blank">
+            <a
+              href={`/moves/${moveId}/orders`}
+              target={`orders-${moveId}`}
+              onClick={openLinkInNewWindow.bind(this, `/moves/${moveId}/orders`, `orders-${moveId}`, window)}
+            >
+              <SwaggerValue fieldName="orders_number" {...fieldProps} />
+              &nbsp;
               <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
-            </Link>
+            </a>
           </PanelField>
         )}
         <PanelField title="Date issued" value={formatDate(orders.issue_date)} />

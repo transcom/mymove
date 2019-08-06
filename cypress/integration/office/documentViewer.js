@@ -36,7 +36,8 @@ describe('The document viewer', function() {
         .find('a')
         .should('have.attr', 'href')
         .and('contain', '/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
-      cy.get('[data-cy="document-upload-link"]').click();
+      cy.get('[data-cy="document-upload-link"]');
+      cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
 
       cy.contains('Upload a new document');
       cy.get('button.submit').should('be.disabled');
@@ -83,12 +84,14 @@ describe('The document viewer', function() {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy.contains('expense document');
       cy
-        .get('.panel-field')
+        .get('[data-cy="doc-link"]')
         .find('a')
         .should('have.attr', 'href')
-        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
+        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/)
+        .then(href => {
+          cy.patientVisit(href);
+        });
 
-      cy.contains('expense document').click();
       cy.contains('Details').click();
 
       // Verify values have been stored correctly
@@ -116,9 +119,10 @@ describe('The document viewer', function() {
         .get('.panel-field')
         .find('a')
         .should('have.attr', 'href')
-        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
-
-      cy.contains('expense document').click();
+        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/)
+        .then(href => {
+          cy.patientVisit(href);
+        });
       cy.contains('Details').click();
       cy.contains('GTCC');
       cy.contains('Edit').click();
@@ -145,9 +149,11 @@ describe('The document viewer', function() {
         .get('.panel-field')
         .find('a')
         .should('have.attr', 'href')
-        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
+        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/)
+        .then(href => {
+          cy.patientVisit(href);
+        });
 
-      cy.contains('expense document').click();
       cy.contains('Details').click();
       cy.contains('OK');
       cy.contains('Edit').click();
@@ -189,9 +195,11 @@ describe('The document viewer', function() {
         .get('.panel-field')
         .find('a')
         .should('have.attr', 'href')
-        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
+        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/)
+        .then(href => {
+          cy.patientVisit(href);
+        });
 
-      cy.contains('weight ticket').click();
       cy.contains('Details').click();
 
       cy.contains('Empty Weight Ticket');

@@ -141,6 +141,6 @@ export function openLinkInNewWindow(url, windowName, window) {
       windowName,
       `noopener=true,noreferrer=true,width=${window.outerWidth * 2 / 3},height=${window.outerHeight * 2 / 3}`,
     )
-    .focus();
+    .focus(); // required in IE to put re-used window on top
   return false;
 }
