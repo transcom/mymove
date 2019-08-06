@@ -47,9 +47,9 @@ func (gu GenericUpdater) Update(moveDocumentPayload *internalmessages.MoveDocume
 		updatedMoveDoc.MovingExpenseDocument.RequestedAmountCents = unit.Cents(moveDocumentPayload.RequestedAmountCents)
 		updatedMoveDoc.MovingExpenseDocument.PaymentMethod = moveDocumentPayload.PaymentMethod
 		updatedMoveDoc.MovingExpenseDocument.ReceiptMissing = recieptMissing
+		updatedMoveDoc.MovingExpenseDocument.StorageStartDate = nil
+		updatedMoveDoc.MovingExpenseDocument.StorageEndDate = nil
 	}
-	updatedMoveDoc.MovingExpenseDocument.StorageStartDate = nil
-	updatedMoveDoc.MovingExpenseDocument.StorageEndDate = nil
 
 	var saveExpenseAction models.MoveExpenseDocumentSaveAction
 	if newType == models.MoveDocumentTypeEXPENSE {
