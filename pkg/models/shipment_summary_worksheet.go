@@ -323,10 +323,7 @@ func FetchMovingExpensesShipmentSummaryWorksheet(move Move, db *pop.Connection, 
 		if err != nil {
 			return movingExpenseDocuments, err
 		}
-		movingExpenseDocuments, err = FilterMovingExpenseDocuments(moveDocuments)
-		if err != nil {
-			return movingExpenseDocuments, err
-		}
+		movingExpenseDocuments = FilterMovingExpenseDocuments(moveDocuments)
 	}
 	return movingExpenseDocuments, nil
 }

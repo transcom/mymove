@@ -122,12 +122,12 @@ func FilterSITExpenses(movingExpenseDocuments MovingExpenseDocuments) MovingExpe
 }
 
 //FilterMovingExpenseDocuments filter MoveDocuments to only moving expense documents
-func FilterMovingExpenseDocuments(moveDocuments MoveDocuments) ([]MovingExpenseDocument, error) {
+func FilterMovingExpenseDocuments(moveDocuments MoveDocuments) MovingExpenseDocuments {
 	var movingExpenses []MovingExpenseDocument
 	for _, moveDocument := range moveDocuments {
 		if moveDocument.MovingExpenseDocument != nil {
 			movingExpenses = append(movingExpenses, *moveDocument.MovingExpenseDocument)
 		}
 	}
-	return movingExpenses, nil
+	return movingExpenses
 }
