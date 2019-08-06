@@ -314,8 +314,6 @@ const NewApprovedMoveSummaryComponent = ({ ppm, move, weightTicketSets }) => {
   const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
   const ppmPaymentRequestIntroRoute = `moves/${move.id}/ppm-payment-request-intro`;
   const ppmPaymentRequestReviewRoute = `moves/${move.id}/ppm-payment-review`;
-  console.log(ppm);
-  console.log(paymentReviewed);
   return (
     <Fragment>
       <div>
