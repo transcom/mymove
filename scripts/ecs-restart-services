@@ -2,9 +2,7 @@
 #
 #   Restarted the ECS services associated with the given environment.
 #
-set -eo pipefail
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-readonly DIR
+set -euo pipefail
 
 usage() {
     echo "${0##*/} <environment>"
@@ -15,16 +13,19 @@ usage() {
 # Display command being run
 echo "$0 $*"
 
-set -u
+readonly environment="$1"
+readonly cluster="app-${environment}"
 
+# Validate the environments
+if [[ "${environment}" != "experimental" ]] && [[ "${environment}" != "staging" ]] && [[ "${environment}" != "prod" ]] ; then
+  echo "<environment> must be one of experimental, staging, or prod"
+  exit 1
+fi
 
-readonly environment=$1
-readonly cluster=app-${environment}
-
-echo "* Restarting service \"app\""
+echo "* Restarting service \"app\" for cluster \"${cluster}\""
 aws ecs update-service --cluster "$cluster" --service app --force-new-deployment > /dev/null
 
-echo "* Restarting service \"app-client-tls\""
+echo "* Restarting service \"app-client-tls\" for cluster \"${cluster}\""
 aws ecs update-service --cluster "$cluster" --service app-client-tls --force-new-deployment > /dev/null
 
 echo "* Waiting for service \"app\" and \"app-client-tls\" to stabilize (this takes a while)"

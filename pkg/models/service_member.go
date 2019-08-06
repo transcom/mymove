@@ -9,7 +9,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
-	beeline "github.com/honeycombio/beeline-go"
+	"github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -99,10 +99,8 @@ func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session 
 	err := db.Q().Eager("User",
 		"BackupMailingAddress",
 		"BackupContacts",
-		"DutyStation",
+		"DutyStation.Address",
 		"DutyStation.TransportationOffice",
-		"Orders",
-		"Orders.NewDutyStation",
 		"Orders.NewDutyStation.TransportationOffice",
 		"ResidentialAddress",
 		"SocialSecurityNumber").Find(&serviceMember, id)

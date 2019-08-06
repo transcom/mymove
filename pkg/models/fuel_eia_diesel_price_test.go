@@ -156,9 +156,7 @@ func (suite *ModelSuite) TestFetchMostRecentFuelPrices() {
 	clock := clock.NewMock()
 	currentTime := clock.Now()
 	for month := 0; month < 15; month++ {
-		var shipmentDate time.Time
-
-		shipmentDate = currentTime.AddDate(0, -(month - 1), 0)
+		shipmentDate := currentTime.AddDate(0, -(month - 1), 0)
 		testdatagen.MakeDefaultFuelEIADieselPriceForDate(suite.DB(), shipmentDate)
 	}
 

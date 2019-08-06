@@ -94,10 +94,7 @@ func (r ProcessRecalculateShipment) Call(shipment *models.Shipment, lineItems mo
 
 func (r ProcessRecalculateShipment) hasAllBaseLineItems(lineItems models.ShipmentLineItems) bool {
 	err := models.VerifyBaseShipmentLineItems(lineItems)
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
 
 func (r ProcessRecalculateShipment) shipmentLineItemsUpdatedInDateRange(lineItems models.ShipmentLineItems, recalculateDates *models.ShipmentRecalculate) bool {

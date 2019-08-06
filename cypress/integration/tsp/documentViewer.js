@@ -7,37 +7,6 @@ describe('The document viewer', function() {
     cy.signIntoTSP(false);
   });
 
-  it('has a new document links', () => {
-    cy.patientVisit('/');
-
-    cy.location().should(loc => {
-      expect(loc.pathname).to.match(/^\/queues\/new/);
-    });
-
-    // Find a shipment and open it
-    cy.selectQueueItemMoveLocator('DOCVWR');
-
-    cy.location().should(loc => {
-      expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
-    });
-
-    cy
-      .get('.usa-heading')
-      .contains('Documents')
-      .within(() => {
-        cy
-          .get('a')
-          .should('have.attr', 'href')
-          .and('match', /^\/shipments\/[^/]+\/documents\/new/);
-      });
-
-    cy
-      .get('.documents > .status')
-      .contains('Upload new document')
-      .should('have.attr', 'href')
-      .and('match', /^\/shipments\/[^/]+\/documents\/new/);
-  });
-
   it('shows current shipment docs after viewing a shipment with no docs', () => {
     // Find a shipment with no docs
     cy.patientVisit('/shipments/65e00326-420e-436a-89fc-6aeb3f90b870', {
@@ -45,10 +14,10 @@ describe('The document viewer', function() {
     });
 
     cy
-      .get('.documents > .status')
-      .contains('Upload new document')
+      .get('[data-cy="document-upload-link"]')
+      .find('a')
       .should('have.attr', 'href')
-      .and('match', /^\/shipments\/[^/]+\/documents\/new/);
+      .and('contain', '/shipments/65e00326-420e-436a-89fc-6aeb3f90b870/documents/new');
 
     cy.patientVisit('/queues/approved/', {
       log: true,
@@ -62,19 +31,27 @@ describe('The document viewer', function() {
     });
 
     cy
-      .get('.documents > .status')
+      .get('[data-cy="document-upload-link"]')
+      .find('a')
       .should('have.attr', 'href')
       .and('match', /^\/shipments\/[^/]+\/documents\/[^/]+/);
   });
 
   it('can upload a new document', () => {
-    cy.patientVisit('/shipments/65e00326-420e-436a-89fc-6aeb3f90b870/documents/new', {
+    cy.patientVisit('/shipments/65e00326-420e-436a-89fc-6aeb3f90b870/documents', {
       log: true,
     });
+    cy
+      .get('[data-cy="document-upload-link"]')
+      .find('a')
+      .should('have.attr', 'href')
+      .and('contain', '/shipments/65e00326-420e-436a-89fc-6aeb3f90b870/documents/new');
+
+    cy.patientVisit('/shipments/65e00326-420e-436a-89fc-6aeb3f90b870/documents/new');
 
     cy.get('button.submit').should('be.disabled');
-    cy.get('input[name="title"]').type('super secret info document');
     cy.get('select[name="move_document_type"]').select('Other document type');
+    cy.get('input[name="title"]').type('super secret info document');
     cy.get('input[name="notes"]').type('burn after reading');
     cy.get('button.submit').should('be.disabled');
     cy.upload_file('.filepond--root', 'top-secret.png');

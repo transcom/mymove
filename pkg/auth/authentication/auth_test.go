@@ -428,7 +428,7 @@ func (suite *AuthSuite) TestAuthorizeDisableTspUser() {
 	span := trace.Span{}
 	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
 
-	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled office user")
+	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled tsp user")
 }
 
 func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
@@ -569,5 +569,5 @@ func (suite *AuthSuite) TestAuthorizeDisableAdmin() {
 	span := trace.Span{}
 	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
 
-	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled office user")
+	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled admin user")
 }

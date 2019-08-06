@@ -62,7 +62,6 @@ func ClientCertMiddleware(logger Logger, db *pop.Connection) func(next http.Hand
 			ctx := SetClientCertInRequestContext(r, clientCert)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
-			return
 		}
 		return http.HandlerFunc(mw)
 	}

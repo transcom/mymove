@@ -417,6 +417,8 @@ Wildcards
 envrc.local
 golangci-lint
 goland
+SVY_SCORE
+RATE_SCORE
 # Put all custom terms BEFORE this comment, lest 'pre-commit' and 'make spellcheck' yield different errors.
  - /usr/local
  - docs/data/tspp-data-creation.md
