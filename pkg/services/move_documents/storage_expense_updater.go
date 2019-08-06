@@ -95,10 +95,6 @@ func (seu StorageExpenseUpdater) updatePPMSIT(moveDoc *models.MoveDocument, sess
 
 func (seu StorageExpenseUpdater) updateMovingExpense(moveDoc *models.MoveDocument) (*models.MoveDocument, *validate.Errors, error) {
 	returnVerrs := validate.NewErrors()
-	//TODO check w/ ren that got this right, but understanding this as if weight ticket
-	//TODO document wasn't nil i.e. we're in update situation, BUT the this document prev
-	//TODO was a weight ticket we need to clear the weight ticket since this is
-	//TODO now an expense and not a weight ticket
 	var saveWeightTicketAction models.MoveWeightTicketSetDocumentSaveAction
 	if moveDoc.WeightTicketSetDocument != nil {
 		saveWeightTicketAction = models.MoveDocumentSaveActionDELETEWEIGHTTICKETSETMODEL
