@@ -633,8 +633,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 
 	// First, create an advance
 	truth := true
-	var initialAmount int64
-	initialAmount = 1000
+	initialAmount := int64(1000)
 	initialMethod := internalmessages.MethodOfReceiptMILPAY
 	initialAdvance := internalmessages.Reimbursement{
 		RequestedAmount: &initialAmount,
@@ -665,8 +664,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 	suite.Require().Equal(initialAmount, *created.Payload.Advance.RequestedAmount, "expected amount to shine through.")
 
 	// Then, update the advance
-	var newAmount int64
-	newAmount = 9999999
+	newAmount := int64(9999999)
 	badStatus := internalmessages.ReimbursementStatusREQUESTED
 	payload.Advance.RequestedAmount = &newAmount
 	payload.Advance.Status = &badStatus
@@ -723,8 +721,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerEdgeCases() {
 	suite.CheckResponseBadRequest(response)
 
 	// Then, try and create an advance without setting has requested advance
-	var initialAmount int64
-	initialAmount = 1000
+	initialAmount := int64(1000)
 	initialMethod := internalmessages.MethodOfReceiptMILPAY
 	initialAdvance := internalmessages.Reimbursement{
 		RequestedAmount: &initialAmount,

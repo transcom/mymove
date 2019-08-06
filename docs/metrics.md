@@ -20,3 +20,10 @@ The Terraform file can be updated with this source,
 replacing environment variables as shown in the existing file.
 Feel free to ask the Infrastructure team for help,
 as they'll have access to deploy changes across environments.
+
+### Dashboard Video Overview
+
+[Here](https://drive.google.com/file/d/1wCNvShVKKqXO95fnK7Ure7DOJ1QFDjNc/view)
+is a recording going over the CloudWatch dashboards,
+how to add more,
+and how to use the AWS Insights log query tool.

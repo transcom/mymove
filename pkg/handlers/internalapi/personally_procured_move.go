@@ -170,9 +170,9 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 		ppm.PickupPostalCode = payload.PickupPostalCode
 	}
 	if payload.HasAdditionalPostalCode != nil {
-		if *payload.HasAdditionalPostalCode == false {
+		if !*payload.HasAdditionalPostalCode {
 			ppm.AdditionalPickupPostalCode = nil
-		} else if *payload.HasAdditionalPostalCode == true {
+		} else if *payload.HasAdditionalPostalCode {
 			ppm.AdditionalPickupPostalCode = payload.AdditionalPickupPostalCode
 		}
 		ppm.HasAdditionalPostalCode = payload.HasAdditionalPostalCode
@@ -332,6 +332,9 @@ func (h SubmitPersonallyProcuredMoveHandler) Handle(params ppmop.SubmitPersonall
 		submitDate = time.Time(*params.SubmitPersonallyProcuredMovePayload.SubmitDate)
 	}
 	err = ppm.Submit(submitDate)
+	if err != nil {
+		return handlers.ResponseForError(logger, err)
+	}
 
 	verrs, err := models.SavePersonallyProcuredMove(h.DB(), ppm)
 	if err != nil || verrs.HasAny() {
@@ -423,7 +426,7 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 	}
 
 	// Update SIT estimate
-	if ppm.HasSit != nil && *ppm.HasSit == true {
+	if ppm.HasSit != nil && *ppm.HasSit {
 		cwtWeight := unit.Pound(*ppm.WeightEstimate).ToCWT()
 		sitZip3 := rateengine.Zip5ToZip3(*ppm.DestinationPostalCode)
 		sitComputation, sitChargeErr := re.SitCharge(cwtWeight, daysInSIT, sitZip3, *ppm.OriginalMoveDate, true)

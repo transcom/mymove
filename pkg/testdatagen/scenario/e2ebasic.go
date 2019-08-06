@@ -2930,7 +2930,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			SelectedMoveType: &selectedMoveTypeHHG,
 			Orders: models.Order{
 				NewDutyStation: models.DutyStation{
-					Address: destAddress,
+					Address: destAddress47,
 				},
 			},
 		},
@@ -2944,7 +2944,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Status:           models.ShipmentStatusINTRANSIT,
 			NetWeight:        &netWeight47,
 			ActualPickupDate: &actualPickupDate47,
-			PickupAddress:    &pickupAddress,
+			PickupAddress:    &pickupAddress47,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -3052,7 +3052,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			SelectedMoveType: &selectedMoveTypeHHG,
 			Orders: models.Order{
 				NewDutyStation: models.DutyStation{
-					Address: destAddress,
+					Address: destAddress48,
 				},
 			},
 		},
@@ -3066,7 +3066,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Status:           models.ShipmentStatusINTRANSIT,
 			NetWeight:        &netWeight48,
 			ActualPickupDate: &actualPickupDate48,
-			PickupAddress:    &pickupAddress,
+			PickupAddress:    &pickupAddress48,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,

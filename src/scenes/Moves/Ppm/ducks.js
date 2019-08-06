@@ -2,7 +2,7 @@ import { get, every, isNull, isNumber, isEmpty } from 'lodash';
 import { CreatePpm, UpdatePpm, GetPpm, GetPpmWeightEstimate, GetPpmSitEstimate, RequestPayment } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/Data/users';
-import { fetchActive } from 'shared/utils';
+import { fetchActive, fetchActivePPM } from 'shared/utils';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCents } from 'shared/formatters';
 import { selectShipment } from 'shared/Entities/modules/shipments';
@@ -249,7 +249,7 @@ export function ppmReducer(state = initialState, action) {
       // Initialize state when we get the logged in user
       const activeOrders = fetchActive(get(action.payload, 'service_member.orders'));
       const activeMove = fetchActive(get(activeOrders, 'moves'));
-      const activePpm = fetchActive(get(activeMove, 'personally_procured_moves'));
+      const activePpm = fetchActivePPM(get(activeMove, 'personally_procured_moves'));
       return Object.assign({}, state, {
         currentPpm: activePpm,
         pendingPpmSize: get(activePpm, 'size', null),
