@@ -75,7 +75,7 @@ func (suite *ShipmentServiceSuite) TestProcessRecalculateShipmentCall() {
 	// TEST: No date range records (return false)
 	//
 
-	dates, err := models.FetchShipmentRecalculateDates(suite.DB())
+	dates, _ := models.FetchShipmentRecalculateDates(suite.DB())
 	suite.Empty(dates)
 
 	update, err := ProcessRecalculateShipment{
@@ -86,7 +86,7 @@ func (suite *ShipmentServiceSuite) TestProcessRecalculateShipmentCall() {
 	suite.NoError(err)
 	suite.Equal(false, update)
 
-	id, err := uuid.NewV4()
+	id, _ := uuid.NewV4()
 	// Create date range
 	recalculateRange := models.ShipmentRecalculate{
 		ID:                    id,

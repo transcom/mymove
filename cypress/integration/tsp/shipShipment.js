@@ -233,8 +233,8 @@ function tspUserDeliversShipment(availableDays) {
     .click();
 
   cy
-    .get('div')
-    .contains(availableDays[0].format('DD'))
+    .get('.DayPicker-Day')
+    .contains(availableDays[0].format('D'))
     .click();
 
   // Cancel
@@ -264,8 +264,8 @@ function tspUserDeliversShipment(availableDays) {
     .click();
 
   cy
-    .get('div')
-    .contains(availableDays[1].format('DD'))
+    .get('.DayPicker-Day')
+    .contains(availableDays[1].format('D'))
     .click();
 
   cy

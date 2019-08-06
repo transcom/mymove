@@ -49,6 +49,8 @@ func payloadForMoveDocument(storer storage.FileStorer, moveDoc models.MoveDocume
 		if moveDoc.WeightTicketSetDocument.FullWeight != nil {
 			payload.FullWeight = handlers.FmtInt64(int64(*moveDoc.WeightTicketSetDocument.FullWeight))
 		}
+		payload.VehicleNickname = moveDoc.WeightTicketSetDocument.VehicleNickname
+		payload.VehicleOptions = moveDoc.WeightTicketSetDocument.VehicleOptions
 	}
 
 	return &payload, nil
@@ -309,6 +311,7 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 			fw := unit.Pound(*payload.FullWeight)
 			fullWeight = &fw
 		}
+
 		var weightTicketDate *time.Time
 		if payload.WeightTicketDate != nil {
 			weightTicketDate = (*time.Time)(payload.WeightTicketDate)
@@ -334,7 +337,8 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 			// update existing weight ticket set
 			moveDoc.WeightTicketSetDocument.EmptyWeight = emptyWeight
 			moveDoc.WeightTicketSetDocument.FullWeight = fullWeight
-
+			moveDoc.WeightTicketSetDocument.VehicleOptions = payload.VehicleOptions
+			moveDoc.WeightTicketSetDocument.VehicleNickname = payload.VehicleNickname
 		}
 		saveWeightTicketSetAction = models.MoveDocumentSaveActionSAVEWEIGHTTICKETSETMODEL
 

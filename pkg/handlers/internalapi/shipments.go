@@ -266,9 +266,9 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *internalmessag
 	}
 
 	if payload.HasSecondaryPickupAddress != nil {
-		if *payload.HasSecondaryPickupAddress == false {
+		if !*payload.HasSecondaryPickupAddress {
 			shipment.SecondaryPickupAddress = nil
-		} else if *payload.HasSecondaryPickupAddress == true {
+		} else if *payload.HasSecondaryPickupAddress {
 			if payload.SecondaryPickupAddress != nil {
 				if shipment.SecondaryPickupAddress == nil {
 					shipment.SecondaryPickupAddress = addressModelFromPayload(payload.SecondaryPickupAddress)
@@ -281,9 +281,9 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *internalmessag
 	}
 
 	if payload.HasDeliveryAddress != nil {
-		if *payload.HasDeliveryAddress == false {
+		if !*payload.HasDeliveryAddress {
 			shipment.DeliveryAddress = nil
-		} else if *payload.HasDeliveryAddress == true {
+		} else if *payload.HasDeliveryAddress {
 			if payload.DeliveryAddress != nil {
 				if shipment.DeliveryAddress == nil {
 					shipment.DeliveryAddress = addressModelFromPayload(payload.DeliveryAddress)
@@ -296,9 +296,9 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *internalmessag
 	}
 
 	if payload.HasPartialSitDeliveryAddress != nil {
-		if *payload.HasPartialSitDeliveryAddress == false {
+		if !*payload.HasPartialSitDeliveryAddress {
 			shipment.PartialSITDeliveryAddress = nil
-		} else if *payload.HasPartialSitDeliveryAddress == true {
+		} else if *payload.HasPartialSitDeliveryAddress {
 			if payload.PartialSitDeliveryAddress != nil {
 				if shipment.PartialSITDeliveryAddress == nil {
 					shipment.PartialSITDeliveryAddress = addressModelFromPayload(payload.PartialSitDeliveryAddress)
