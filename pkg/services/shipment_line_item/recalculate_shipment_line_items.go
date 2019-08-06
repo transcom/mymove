@@ -30,6 +30,9 @@ func (r *recalculateShipmentLineItems) RecalculateShipmentLineItems(shipmentID u
 	}
 
 	shipmentLineItems, err := models.FetchLineItemsByShipmentID(r.db, &shipmentID)
+	if err != nil {
+		return nil, err
+	}
 
 	// If there is a shipment line item with an invoice do not run the recalculate function
 	// the system is currently not setup to re-price a shipment with an existing invoice

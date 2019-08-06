@@ -32,7 +32,7 @@ func (u UpdateInvoiceUpload) saveInvoice(invoice *models.Invoice) error {
 		if verrs.HasAny() {
 			dbError = dbError + verrs.Error()
 		}
-		return errors.Wrapf(err, "error saving invoice with ID: "+invoice.ID.String())
+		return errors.Wrapf(errors.New(dbError), "error saving invoice with ID: "+invoice.ID.String())
 	}
 	return nil
 }
@@ -52,10 +52,14 @@ func (u UpdateInvoiceUpload) DeleteUpload(invoice *models.Invoice) error {
 			invoice.UploadID = nil
 			invoice.Upload = nil
 			err := u.saveInvoice(invoice)
+			var logString string
+			if err != nil {
+				logString = fmt.Sprintf("Failed to saveInvoice with uploadID: %s", invoice.UploadID)
+				return errors.Wrap(err, logString)
+			}
 
 			// Delete Upload
 			err = u.Uploader.DeleteUpload(deleteUpload)
-			var logString string
 			if err != nil {
 				logString = fmt.Sprintf("Failed to DeleteUpload for Upload.ID [%s] and StorageKey [%s]", deleteUpload.ID, deleteUpload.StorageKey)
 				return errors.Wrap(err, logString)

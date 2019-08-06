@@ -101,9 +101,9 @@ func MakeTSP(db *pop.Connection, assertions Assertions) models.TransportationSer
 		PocGeneralName:           pocGeneralName,
 		PocGeneralEmail:          pocGeneralEmail,
 		PocGeneralPhone:          pocGeneralPhone,
-		PocClaimsName:            pocGeneralName,
-		PocClaimsEmail:           pocGeneralEmail,
-		PocClaimsPhone:           pocGeneralPhone,
+		PocClaimsName:            pocClaimsName,
+		PocClaimsEmail:           pocClaimsEmail,
+		PocClaimsPhone:           pocClaimsPhone,
 	}
 
 	verrs, err := db.ValidateAndCreate(&tsp)

@@ -234,6 +234,7 @@ func (suite *RateEngineSuite) TestComputePPMWithLHDiscount() {
 	destinationZip := "33633"
 	weight := unit.Pound(2000)
 	cost, err := suite.computePPMIncludingLHRates(originZip, destinationZip, weight, logger, planner)
+	suite.Require().Nil(err)
 
 	engine := NewRateEngine(suite.DB(), logger)
 	ppmCost, err := engine.computePPMIncludingLHDiscount(
@@ -270,6 +271,7 @@ func (suite *RateEngineSuite) TestComputeLowestCostPPMMove() {
 			logger,
 			planner,
 		)
+		suite.NoError(err)
 
 		ppmCostWithDutyStationZip, err := suite.computePPMIncludingLHRates(
 			originDutyStationZip,
@@ -278,6 +280,7 @@ func (suite *RateEngineSuite) TestComputeLowestCostPPMMove() {
 			logger,
 			planner,
 		)
+		suite.NoError(err)
 
 		cost, err := engine.ComputeLowestCostPPMMove(
 			weight,
@@ -289,8 +292,7 @@ func (suite *RateEngineSuite) TestComputeLowestCostPPMMove() {
 			testdatagen.RateEngineDate,
 			0,
 		)
-
-		suite.Require().Nil(err)
+		suite.NoError(err)
 
 		suite.True(cost.GCC > 0)
 		suite.True(ppmCostWithPickupZip.GCC > 0)
@@ -312,6 +314,7 @@ func (suite *RateEngineSuite) TestComputeLowestCostPPMMove() {
 			logger,
 			planner,
 		)
+		suite.NoError(err)
 
 		ppmCostWithDutyStationZip, err := suite.computePPMIncludingLHRates(
 			originDutyStationZip,
@@ -320,6 +323,7 @@ func (suite *RateEngineSuite) TestComputeLowestCostPPMMove() {
 			logger,
 			planner,
 		)
+		suite.NoError(err)
 
 		cost, err := engine.ComputeLowestCostPPMMove(
 			weight,
@@ -331,8 +335,7 @@ func (suite *RateEngineSuite) TestComputeLowestCostPPMMove() {
 			testdatagen.RateEngineDate,
 			0,
 		)
-
-		suite.Require().Nil(err)
+		suite.NoError(err)
 
 		suite.True(cost.GCC > 0)
 		suite.True(ppmCostWithPickupZip.GCC > 0)

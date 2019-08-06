@@ -24,6 +24,7 @@ func (suite *HandlerSuite) assertPDFPageCount(count int, file afero.File, storer
 	pdfConfig := pdfcpu.NewDefaultConfiguration()
 
 	f, err := storer.FileSystem().Open(file.Name())
+	suite.NoError(err)
 	ctx, err := api.ReadContext(f, pdfConfig)
 	suite.NoError(err)
 
