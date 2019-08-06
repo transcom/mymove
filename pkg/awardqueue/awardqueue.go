@@ -105,7 +105,7 @@ func (aq *AwardQueue) attemptShipmentOffer(ctx context.Context, shipment models.
 			if createShipmentOfferErr == nil {
 				var tspPerformanceErr error
 				if tspPerformance, tspPerformanceErr = models.IncrementTSPPerformanceOfferCount(aq.db, tspPerformance.ID); tspPerformanceErr == nil {
-					if isAdministrativeShipment == true {
+					if isAdministrativeShipment {
 						aq.logger.TraceInfo(ctx, "Shipment pickup date is during a blackout period. Awarding Administrative Shipment to TSP.")
 					} else {
 						qb := -1
