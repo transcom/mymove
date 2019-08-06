@@ -42,12 +42,14 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 		return handlers.ResponseForError(logger, err)
 	}
 
-	payload := make(adminmessages.OfficeUsers, len(officeUsers))
+	officeUsersCount := len(officeUsers)
+
+	payload := make(adminmessages.OfficeUsers, officeUsersCount)
 	for i, s := range officeUsers {
 		payload[i] = payloadForOfficeUserModel(s)
 	}
 
-	return officeuserop.NewIndexOfficeUsersOK().WithPayload(payload)
+	return officeuserop.NewIndexOfficeUsersOK().WithContentRange(fmt.Sprintf("office users 0-%d/%d", officeUsersCount, officeUsersCount)).WithPayload(payload)
 }
 
 type GetOfficeUserHandler struct {

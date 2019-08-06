@@ -4,12 +4,15 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { isSystemAdminSite } from 'shared/constants.js';
 import 'uswds';
 
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 import './index.css';
-import '../node_modules/uswds/dist/css/uswds.css';
 
+if (!isSystemAdminSite) {
+  require('../node_modules/uswds/dist/css/uswds.css');
+}
 ReactDOM.render(<App />, document.getElementById('root'));
 registerServiceWorker();
