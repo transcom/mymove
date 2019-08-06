@@ -82,10 +82,10 @@ describe('The document viewer', function() {
     });
     it('can select and update newly-uploaded expense document', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.contains('expense document');
       cy
         .get('[data-cy="doc-link"]')
-        .find('a')
+        .get('a')
+        .contains('expense document')
         .should('have.attr', 'href')
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/)
         .then(href => {
@@ -114,10 +114,10 @@ describe('The document viewer', function() {
     });
     it('can update expense document to other doc type', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.contains('expense document');
       cy
         .get('.panel-field')
-        .find('a')
+        .get('a')
+        .contains('expense document')
         .should('have.attr', 'href')
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/)
         .then(href => {
@@ -144,10 +144,10 @@ describe('The document viewer', function() {
     });
     it('can update other document type back to expense type', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.contains('expense document');
       cy
         .get('.panel-field')
-        .find('a')
+        .get('a')
+        .contains('expense document')
         .should('have.attr', 'href')
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/)
         .then(href => {
@@ -190,10 +190,10 @@ describe('The document viewer', function() {
         .click();
 
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.contains('weight ticket document');
       cy
         .get('.panel-field')
-        .find('a')
+        .get('a')
+        .contains('weight ticket document')
         .should('have.attr', 'href')
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/)
         .then(href => {
