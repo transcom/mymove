@@ -773,6 +773,10 @@ definitions:
         title: What type of vehicle are these weight tickets for?
         type: string
         enum: *VehicleOptions
+        x-display-value:
+          CAR: Car
+          CAR_TRAILER: Car + Trailer
+          BOX_TRUCK: Box truck
       vehicle_nickname:
         type: string
         title: Vehicle nickname (ex. "My car")
@@ -1006,7 +1010,7 @@ definitions:
         type: integer
         minimum: 0
       weight_ticket_date:
-        title: Weight ticket date
+        title: Full Weight Ticket Date
         type: string
         example: '2018-04-26'
         format: date
@@ -2561,9 +2565,9 @@ definitions:
       - warehouse_name
       - estimated_start_date
   StorageInTransits:
-      type: array
-      items:
-        $ref: '#/definitions/StorageInTransit'
+    type: array
+    items:
+      $ref: '#/definitions/StorageInTransit'
   MoveQueueItem:
     type: object
     properties:

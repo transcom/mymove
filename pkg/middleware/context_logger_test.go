@@ -26,7 +26,7 @@ func (suite *testSuite) TestContextLoggerWithoutTrace() {
 	rr := httptest.NewRecorder()
 	suite.do(mw, suite.log, rr, httptest.NewRequest("GET", testURL, nil))
 	suite.Equal(http.StatusOK, rr.Code, errStatusCode) // check status code
-	out := strings.TrimSpace(string(buf.Bytes()))      // remove trailing new line
+	out := strings.TrimSpace(buf.String())             // remove trailing new line
 	suite.NotEmpty(out, "log was empty")
 	lines := strings.Split(out, "\n")
 	suite.Len(lines, 2) // test that there are 2 log lines (info message and error message)

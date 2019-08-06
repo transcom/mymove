@@ -326,7 +326,7 @@ func getFirstMondayOrNonHolidayAfter(firstDateOfMonth time.Time) time.Time {
 	isWorkMondayOrNonHolidayAfter := false
 	isFirstMondayOrAfter := false
 
-	for isWorkMondayOrNonHolidayAfter == false {
+	for !isWorkMondayOrNonHolidayAfter {
 		if dayToCheck.Weekday() == time.Monday {
 			isFirstMondayOrAfter = true
 		}

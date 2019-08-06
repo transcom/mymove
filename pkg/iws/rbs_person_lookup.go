@@ -33,7 +33,7 @@ type GetPersonUsingSSNParams struct {
 
 var myMoveCustNum = "2675"
 var emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$")
-var ssnRegex = regexp.MustCompile("^\\d{9}$")
+var ssnRegex = regexp.MustCompile(`^\d{9}$`)
 
 // GetPersonUsingEDIPI retrieves personal information through the IWS:RBS REST API using that person's EDIPI (aka DOD ID number).
 // If matched succesfully, it returns the full name and SSN information, as well as the personnel information for each of the organizations the person belongs to
