@@ -23,19 +23,10 @@ export const formatExpenseDocs = expenseDocs => {
   }));
 };
 
-export const calcNetWeight = documents => {
-  console.log(
-    documents.reduce((accum, { move_document_type, full_weight, empty_weight }) => {
-      if (move_document_type === MOVE_DOC_TYPE.WEIGHT_TICKET_SET) {
-        return accum + (full_weight - empty_weight);
-      }
-      return accum;
-    }, 0),
-  );
-  return documents.reduce((accum, { move_document_type, full_weight, empty_weight }) => {
+export const calcNetWeight = documents =>
+  documents.reduce((accum, { move_document_type, full_weight, empty_weight }) => {
     if (move_document_type === MOVE_DOC_TYPE.WEIGHT_TICKET_SET) {
       return accum + (full_weight - empty_weight);
     }
     return accum;
   }, 0);
-};

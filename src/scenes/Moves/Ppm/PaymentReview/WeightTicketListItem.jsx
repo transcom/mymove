@@ -5,7 +5,6 @@ import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamati
 import carImg from 'shared/images/car_mobile.png';
 import boxTruckImg from 'shared/images/box_truck_mobile.png';
 import carTrailerImg from 'shared/images/car-trailer_mobile.png';
-// import deleteButtonImg from 'shared/images/delete-doc-button.png';
 import { formatToOrdinal } from 'shared/formatters';
 
 const WEIGHT_TICKET_IMAGES = {

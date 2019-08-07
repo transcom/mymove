@@ -1,6 +1,5 @@
 import React from 'react';
 import { string } from 'prop-types';
-// import deleteButtonImg from 'shared/images/delete-doc-button.png';
 
 const ExpenseTicketListItem = ({ amount, type, paymentMethod, showDelete }) => (
   <div className="ticket-item">
