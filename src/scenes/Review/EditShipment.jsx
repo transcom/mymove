@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { push } from 'react-router-redux';
+import { push } from 'connected-react-router';
 import { get } from 'lodash';
 
 import { Field, reduxForm, getFormValues } from 'redux-form';

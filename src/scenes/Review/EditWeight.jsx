@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { debounce, get } from 'lodash';
 import SaveCancelButtons from './SaveCancelButtons';
-import { push } from 'react-router-redux';
+import { push } from 'connected-react-router';
 import { reduxForm } from 'redux-form';
 
 import Alert from 'shared/Alert'; // eslint-disable-line

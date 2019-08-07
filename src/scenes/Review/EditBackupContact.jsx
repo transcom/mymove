@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { get } from 'lodash';
 import scrollToTop from 'shared/scrollToTop';
 
-import { push } from 'react-router-redux';
+import { push } from 'connected-react-router';
 import { reduxForm } from 'redux-form';
 
 import Alert from 'shared/Alert'; // eslint-disable-line

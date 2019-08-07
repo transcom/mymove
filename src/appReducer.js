@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import { reducer as formReducer } from 'redux-form';
-import { routerReducer } from 'react-router-redux';
+import { connectRouter } from 'connected-react-router';
 
 import userReducer from 'shared/Data/users';
 import { swaggerReducerPublic, swaggerReducerInternal } from 'shared/Swagger/ducks';
@@ -24,37 +24,39 @@ import defaultMessages from 'ra-language-english';
 const locale = 'en';
 const i18nProvider = () => defaultMessages;
 
-const defaultReducers = {
-  form: formReducer,
-  router: routerReducer,
-  swaggerPublic: swaggerReducerPublic,
-  requests: requestsReducer,
-  ui: uiReducer,
-  user: userReducer,
-  entities: entitiesReducer,
+const defaultReducers = history => {
+  return {
+    form: formReducer,
+    router: connectRouter(history),
+    swaggerPublic: swaggerReducerPublic,
+    requests: requestsReducer,
+    ui: uiReducer,
+    user: userReducer,
+    entities: entitiesReducer,
+  };
 };
 
-export const appReducer = combineReducers({
-  ...defaultReducers,
-  swaggerInternal: swaggerReducerInternal,
-  moves: moveReducer,
-  ppm: ppmReducer,
-  serviceMember: serviceMemberReducer,
-  orders: ordersReducer,
-  signedCertification: signedCertificationReducer,
-  upload: documentReducer,
-  review: reviewReducer,
-  flashMessages: officeFlashMessagesReducer,
-  transportationOffices: transportationOfficeReducer,
-  ppmIncentive: officePpmReducer,
-});
+export const appReducer = history =>
+  combineReducers({
+    ...defaultReducers(history),
+    swaggerInternal: swaggerReducerInternal,
+    moves: moveReducer,
+    ppm: ppmReducer,
+    serviceMember: serviceMemberReducer,
+    orders: ordersReducer,
+    signedCertification: signedCertificationReducer,
+    upload: documentReducer,
+    review: reviewReducer,
+    flashMessages: officeFlashMessagesReducer,
+    transportationOffices: transportationOfficeReducer,
+    ppmIncentive: officePpmReducer,
+  });
 
-export const adminAppReducer = combineReducers({
-  ...defaultReducers,
-  admin: adminReducer,
-  i18n: i18nReducer(locale, i18nProvider(locale)),
-  form: formReducer,
-  router: routerReducer,
-});
+export const adminAppReducer = history =>
+  combineReducers({
+    ...defaultReducers(history),
+    admin: adminReducer,
+    i18n: i18nReducer(locale, i18nProvider(locale)),
+  });
 
 export default appReducer;

@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { get } from 'lodash';
 import { SignedCertification } from './index';
 import { getFormValues } from 'redux-form';
-import { push } from 'react-router-redux';
+import { push } from 'connected-react-router';
 import { bindActionCreators } from 'redux';
 import { loadCertificationText, signAndSubmitPpm } from './ducks';
 import { isHHGPPMComboMove } from 'scenes/Moves/Ppm/ducks';

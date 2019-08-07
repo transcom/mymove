@@ -1,7 +1,7 @@
 import { createStore, applyMiddleware } from 'redux';
 import { appReducer, adminAppReducer } from 'appReducer';
 import { createBrowserHistory } from 'history';
-import { routerMiddleware } from 'react-router-redux';
+import { routerMiddleware } from 'connected-react-router';
 import thunk from 'redux-thunk';
 
 import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction';
@@ -20,14 +20,14 @@ if (isDevelopment && !window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
 
 const composeEnhancers = composeWithDevTools({});
 
-function appSelector() {
+function appSelector(history) {
   if (isAdminSite) {
-    return adminAppReducer;
+    return adminAppReducer(history);
   } else {
-    return appReducer;
+    return appReducer(history);
   }
 }
 
-export const store = composeEnhancers(applyMiddleware(...middlewares))(createStore)(appSelector());
+export const store = composeEnhancers(applyMiddleware(...middlewares))(createStore)(appSelector(history));
 
 export default store;

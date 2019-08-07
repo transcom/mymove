@@ -1,7 +1,7 @@
 import { get, map } from 'lodash';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { replace } from 'react-router-redux';
+import { replace } from 'connected-react-router';
 import { getFormValues, reduxForm } from 'redux-form';
 import PropTypes from 'prop-types';
 
