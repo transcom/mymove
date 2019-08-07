@@ -140,13 +140,14 @@ export function detectFirefox() {
   return false;
 }
 
-export function openLinkInNewWindow(url, windowName, window) {
+export function openLinkInNewWindow(url, windowName, window, relativeSize) {
   // eslint-disable-next-line security/detect-non-literal-fs-filename
   window
     .open(
       url,
       windowName,
-      `noopener=true,noreferrer=true,width=${window.outerWidth * 2 / 3},height=${window.outerHeight * 2 / 3}`,
+      `noopener=true,noreferrer=true,width=${window.outerWidth * relativeSize},height=${window.outerHeight *
+        relativeSize}`,
     )
     .focus(); // required in IE to put re-used window on top
   return false;

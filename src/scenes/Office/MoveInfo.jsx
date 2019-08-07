@@ -334,6 +334,7 @@ class MoveInfo extends Component {
 
     const uploadDocumentUrl = `/moves/${this.props.moveId}/documents/new`;
     const ordersUrl = `/moves/${move.id}/orders`;
+    const relativeWindowSize = 2 / 3;
 
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
@@ -525,7 +526,13 @@ class MoveInfo extends Component {
                       <a
                         href={ordersUrl}
                         target={`orders-${this.props.moveId}`}
-                        onClick={openLinkInNewWindow.bind(this, ordersUrl, `orders-${this.props.moveId}`, window)}
+                        onClick={openLinkInNewWindow.bind(
+                          this,
+                          ordersUrl,
+                          `orders-${this.props.moveId}`,
+                          window,
+                          relativeWindowSize,
+                        )}
                       >
                         Orders ({formatDate(upload.created_at)})
                       </a>
@@ -536,7 +543,13 @@ class MoveInfo extends Component {
                       <a
                         href={ordersUrl}
                         target={`orders-${this.props.moveId}`}
-                        onClick={openLinkInNewWindow.bind(this, ordersUrl, `orders-${this.props.moveId}`, window)}
+                        onClick={openLinkInNewWindow.bind(
+                          this,
+                          ordersUrl,
+                          `orders-${this.props.moveId}`,
+                          window,
+                          relativeWindowSize,
+                        )}
                       >
                         Orders ({formatDate(upload.created_at)})
                       </a>

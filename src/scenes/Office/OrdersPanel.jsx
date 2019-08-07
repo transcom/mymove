@@ -38,6 +38,7 @@ const OrdersDisplay = props => {
     schema: ordersSchema,
     values: orders,
   };
+  const relativeWindowSize = 2 / 3;
 
   return (
     <React.Fragment>
@@ -47,7 +48,13 @@ const OrdersDisplay = props => {
             <a
               href={`/moves/${moveId}/orders`}
               target={`orders-${moveId}`}
-              onClick={openLinkInNewWindow.bind(this, `/moves/${moveId}/orders`, `orders-${moveId}`, window)}
+              onClick={openLinkInNewWindow.bind(
+                this,
+                `/moves/${moveId}/orders`,
+                `orders-${moveId}`,
+                window,
+                relativeWindowSize,
+              )}
             >
               <SwaggerValue fieldName="orders_number" {...fieldProps} />
               &nbsp;
@@ -60,7 +67,13 @@ const OrdersDisplay = props => {
             <a
               href={`/moves/${moveId}/orders`}
               target={`orders-${moveId}`}
-              onClick={openLinkInNewWindow.bind(this, `/moves/${moveId}/orders`, `orders-${moveId}`, window)}
+              onClick={openLinkInNewWindow.bind(
+                this,
+                `/moves/${moveId}/orders`,
+                `orders-${moveId}`,
+                window,
+                relativeWindowSize,
+              )}
             >
               <SwaggerValue fieldName="orders_number" {...fieldProps} />
               &nbsp;

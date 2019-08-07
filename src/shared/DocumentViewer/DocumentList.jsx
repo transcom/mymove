@@ -8,7 +8,7 @@ import { renderStatusIcon, openLinkInNewWindow } from 'shared/utils';
 import styles from 'shared/DocumentViewer/DocumentList.module.scss';
 
 const documentUploadIcon = faPlusCircle;
-
+const relativeWindowSize = 2 / 3;
 const DocumentList = ({
   currentMoveDocumentId,
   moveDocuments,
@@ -37,7 +37,7 @@ const DocumentList = ({
                 href={detailUrl}
                 target={`docViewer-${moveId}`}
                 className={chosenDocument}
-                onClick={openLinkInNewWindow.bind(this, detailUrl, `docViewer-${moveId}`, window)}
+                onClick={openLinkInNewWindow.bind(this, detailUrl, `docViewer-${moveId}`, window, relativeWindowSize)}
               >
                 {doc.title}
               </a>
@@ -58,7 +58,7 @@ const DocumentList = ({
         <a
           href={uploadDocumentUrl}
           target={`docViewer-${moveId}`}
-          onClick={openLinkInNewWindow.bind(this, uploadDocumentUrl, `docViewer-${moveId}`, window)}
+          onClick={openLinkInNewWindow.bind(this, uploadDocumentUrl, `docViewer-${moveId}`, window, relativeWindowSize)}
         >
           <FontAwesomeIcon className="icon link-blue" icon={documentUploadIcon} />
           Upload new document
