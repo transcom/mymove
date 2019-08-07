@@ -17,7 +17,8 @@ import { selectReimbursement } from 'shared/Entities/modules/ppms';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
-
+import { calcNetWeight } from 'scenes/Moves/Ppm/utility';
+import { getPpmWeightEstimate } from 'scenes/Moves/Ppm/ducks';
 import ppmCar from './images/ppm-car.svg';
 import { ShipmentStatusTimeline, ProfileStatusTimeline } from './StatusTimeline';
 import PPMStatusTimeline from './PPMStatusTimeline';
@@ -488,8 +489,7 @@ export const ApprovedMoveSummary = props => {
 };
 
 //TODO remove redundant PPMMoveDetailsPanel component w/ ppmPaymentRequest flag
-const NewPPMMoveDetailsPanel = props => {
-  const { advance, ppm, isMissingWeightTicketDocuments } = props;
+const NewPPMMoveDetailsPanel = ({ advance, ppm, isMissingWeightTicketDocuments }) => {
   const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
     ? `(up to ${ppm.estimated_storage_reimbursement})`
     : '';
@@ -552,12 +552,11 @@ const PPMMoveDetailsPanel = props => {
 };
 
 const mapStateToPPMMoveDetailsProps = (state, ownProps) => {
-  const { ppm } = ownProps;
   const advance = selectReimbursement(state, ownProps.ppm.advance);
   const isMissingWeightTicketDocuments = selectPPMCloseoutDocumentsForMove(state, ownProps.ppm.move_id, [
     'WEIGHT_TICKET_SET',
   ]).some(doc => doc.empty_weight_ticket_missing || doc.full_weight_ticket_missing);
-  return { ppm, advance, isMissingWeightTicketDocuments };
+  return { ppm: get(state, 'ppm', {}), advance, isMissingWeightTicketDocuments };
 };
 
 // TODO remove redundant function when remove ppmPaymentRequest flag
@@ -655,7 +654,15 @@ const getHHGStatus = (moveStatus, shipment) => {
 
 export class MoveSummaryComponent extends React.Component {
   componentDidMount() {
-    this.props.getMoveDocumentsForMove(this.props.move.id);
+    this.props.getMoveDocumentsForMove(this.props.move.id).then(({ obj: documents }) => {
+      this.props.getPpmWeightEstimate(
+        this.props.ppm.actual_move_date,
+        this.props.ppm.pickup_postal_code,
+        this.props.originDutyStationZip,
+        this.props.ppm.destination_postal_code,
+        calcNetWeight(documents),
+      );
+    });
   }
   render() {
     const {
@@ -788,10 +795,12 @@ function mapStateToProps(state, ownProps) {
 
   return {
     isMissingWeightTicketDocuments,
+    originDutyStationZip: get(state, 'serviceMember.currentServiceMember.current_station.address.postal_code'),
   };
 }
 
 const mapDispatchToProps = {
   getMoveDocumentsForMove,
+  getPpmWeightEstimate,
 };
 export const MoveSummary = connect(mapStateToProps, mapDispatchToProps)(MoveSummaryComponent);
