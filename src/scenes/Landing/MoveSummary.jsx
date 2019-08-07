@@ -16,6 +16,7 @@ import truck from 'shared/icon/truck-gray.svg';
 import { selectReimbursement } from 'shared/Entities/modules/ppms';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 
 import ppmCar from './images/ppm-car.svg';
 import { ShipmentStatusTimeline, ProfileStatusTimeline } from './StatusTimeline';
@@ -309,7 +310,7 @@ export const SubmittedHhgMoveSummary = props => {
 };
 
 //TODO remove redundant ApprovedMoveSummary component w/ ppmPaymentRequest flag
-const NewApprovedMoveSummaryComponent = ({ ppm, move, weightTicketSets }) => {
+const NewApprovedMoveSummaryComponent = ({ ppm, move, weightTicketSets, isMissingWeightTicketDocuments }) => {
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
   const paymentReviewed = ppm.status === 'COMPLETED';
   const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
@@ -340,20 +341,29 @@ const NewApprovedMoveSummaryComponent = ({ ppm, move, weightTicketSets }) => {
                     </a>
                   </div>
                 )}
-                {paymentReviewed ? (
-                  // Copy will be added later.
-                  <></>
-                ) : paymentRequested ? (
-                  <div className="step">
-                    <div className="title">Next step: Wait for your payment paperwork</div>
-                    <div>
-                      We're reviewing your payment request. We'll let you know when you can submit your payment
-                      paperwork to Finance.
+                {paymentRequested ? (
+                  isMissingWeightTicketDocuments ? (
+                    <div className="step">
+                      <div className="title">Next step: Contact the PPPO office</div>
+                      <div>
+                        You will need to go into the PPPO office in order to take care of your missing weight ticket.
+                      </div>
+                      <Link to={ppmPaymentRequestReviewRoute} className="usa-button usa-button-secondary">
+                        Edit Payment Request
+                      </Link>
                     </div>
-                    <Link to={ppmPaymentRequestReviewRoute} className="usa-button usa-button-secondary">
-                      Edit Payment Request
-                    </Link>
-                  </div>
+                  ) : (
+                    <div className="step">
+                      <div className="title">Next step: Wait for your payment paperwork</div>
+                      <div>
+                        We're reviewing your payment request. We'll let you know when you can submit your payment
+                        paperwork to Finance.
+                      </div>
+                      <Link to={ppmPaymentRequestReviewRoute} className="usa-button usa-button-secondary">
+                        Edit Payment Request
+                      </Link>
+                    </div>
+                  )
                 ) : (
                   <div className="step">
                     {weightTicketSets.length ? (
@@ -479,7 +489,7 @@ export const ApprovedMoveSummary = props => {
 
 //TODO remove redundant PPMMoveDetailsPanel component w/ ppmPaymentRequest flag
 const NewPPMMoveDetailsPanel = props => {
-  const { advance, ppm } = props;
+  const { advance, ppm, isMissingWeightTicketDocuments } = props;
   const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
     ? `(up to ${ppm.estimated_storage_reimbursement})`
     : '';
@@ -497,10 +507,25 @@ const NewPPMMoveDetailsPanel = props => {
         Payment request
       </div>
       <div>Estimated payment: </div>
-      <div>${formatCents(ppm.incentive_estimate_min)}</div>
-      <div style={{ fontSize: '0.90em', color: '#767676' }}>
-        <em>Actual payment may vary, subject to Finance review.</em>
-      </div>
+      {isMissingWeightTicketDocuments ? (
+        <>
+          <div className="missing-label">
+            Unknown
+            <FontAwesomeIcon style={{ color: 'red' }} className="icon" icon={faExclamationCircle} />
+          </div>
+          <div style={{ fontSize: '0.90em', color: '#767676' }}>
+            <em>Estimated payment will be given after resolving missing weight tickets.</em>
+          </div>
+        </>
+      ) : (
+        <>
+          <div>${formatCents(ppm.incentive_estimate_min)}</div>
+          <div style={{ fontSize: '0.90em', color: '#767676' }}>
+            <em>Actual payment may vary, subject to Finance review.</em>
+          </div>
+        </>
+      )}
+
       {ppm.has_sit && <div>{hasSitString}</div>}
       {ppm.has_requested_advance && <div>{advanceString}</div>}
     </div>
@@ -529,7 +554,10 @@ const PPMMoveDetailsPanel = props => {
 const mapStateToPPMMoveDetailsProps = (state, ownProps) => {
   const { ppm } = ownProps;
   const advance = selectReimbursement(state, ownProps.ppm.advance);
-  return { ppm, advance };
+  const isMissingWeightTicketDocuments = selectPPMCloseoutDocumentsForMove(state, ownProps.ppm.move_id, [
+    'WEIGHT_TICKET_SET',
+  ]).some(doc => doc.empty_weight_ticket_missing || doc.full_weight_ticket_missing);
+  return { ppm, advance, isMissingWeightTicketDocuments };
 };
 
 // TODO remove redundant function when remove ppmPaymentRequest flag
