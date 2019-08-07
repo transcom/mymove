@@ -201,7 +201,9 @@ const renderInputField = ({
   );
 
   const displayError = touched && error;
-  const classes = `${displayError ? 'usa-input-error' : 'usa-input'} ${className}`;
+  const classes = `${
+    displayError ? `usa-input-error  ${error.length > 57 && 'usa-input-error-long-message'}` : 'usa-input'
+  } ${className}`;
   return (
     <div className={classes}>
       {hideLabel || (
