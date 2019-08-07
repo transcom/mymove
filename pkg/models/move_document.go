@@ -117,7 +117,7 @@ type MoveDocument struct {
 	Notes                    *string                  `json:"notes" db:"notes"`
 	CreatedAt                time.Time                `json:"created_at" db:"created_at"`
 	UpdatedAt                time.Time                `json:"updated_at" db:"updated_at"`
-	DeletedAt                time.Time                `db:"deleted_at"`
+	DeletedAt                *time.Time               `db:"deleted_at"`
 	WeightTicketSetDocument  *WeightTicketSetDocument `has_one:"weight_ticket_set_document"`
 }
 
@@ -196,7 +196,7 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	}
 
 	var moveDoc MoveDocument
-	err := db.Q().Eager("Document.Uploads", "Move", "PersonallyProcuredMove", "Shipment").Find(&moveDoc, id)
+	err := db.Q().Where("deleted_at is null").Eager("Document.Uploads", "Move", "PersonallyProcuredMove", "Shipment").Find(&moveDoc, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound

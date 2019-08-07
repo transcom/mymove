@@ -28,7 +28,7 @@ type Upload struct {
 	StorageKey  string     `db:"storage_key"`
 	CreatedAt   time.Time  `db:"created_at"`
 	UpdatedAt   time.Time  `db:"updated_at"`
-	DeletedAt   time.Time  `db:"deleted_at"`
+	DeletedAt   *time.Time `db:"deleted_at"`
 }
 
 // Uploads is not required by pop and may be deleted
@@ -66,7 +66,7 @@ func FetchUpload(ctx context.Context, db *pop.Connection, session *auth.Session,
 	defer span.Send()
 
 	var upload Upload
-	err := db.Q().Eager().Find(&upload, id)
+	err := db.Q().Where("uploads.deleted_at is null").Eager().Find(&upload, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return Upload{}, errors.Wrap(ErrFetchNotFound, "error fetching upload")

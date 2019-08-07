@@ -28,7 +28,7 @@ type WeightTicketSetDocument struct {
 	TrailerOwnershipMissing  bool         `json:"trailer_ownership_missing,omitempty" db:"trailer_ownership_missing"`
 	CreatedAt                time.Time    `json:"created_at" db:"created_at"`
 	UpdatedAt                time.Time    `json:"updated_at" db:"updated_at"`
-	DeletedAt                time.Time    `db:"deleted_at"`
+	DeletedAt                *time.Time   `db:"deleted_at"`
 }
 
 // WeightTicketSetDocuments slice of WeightTicketSetDocuments

@@ -23,7 +23,7 @@ type Document struct {
 	ServiceMember   ServiceMember `belongs_to:"service_members"`
 	CreatedAt       time.Time     `db:"created_at"`
 	UpdatedAt       time.Time     `db:"updated_at"`
-	DeletedAt       time.Time     `db:"deleted_at"`
+	DeletedAt       *time.Time    `db:"deleted_at"`
 	Uploads         Uploads       `has_many:"uploads" order_by:"created_at asc"`
 }
 
@@ -44,7 +44,7 @@ func FetchDocument(ctx context.Context, db *pop.Connection, session *auth.Sessio
 	defer span.Send()
 
 	var document Document
-	err := db.Q().Eager().Find(&document, id)
+	err := db.Q().Where("documents.deleted_at is null").Eager().Find(&document, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return Document{}, ErrFetchNotFound

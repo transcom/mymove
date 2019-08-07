@@ -36,7 +36,7 @@ type MoveDocumentExtractor struct {
 	Notes                    *string            `json:"notes" db:"notes"`
 	CreatedAt                time.Time          `json:"created_at" db:"created_at"`
 	UpdatedAt                time.Time          `json:"updated_at" db:"updated_at"`
-	DeletedAt                time.Time          `json:"deleted_at" db:"deleted_at"`
+	DeletedAt                *time.Time         `json:"deleted_at" db:"deleted_at"`
 	StorageStartDate         *time.Time         `json:"storage_start_date" db:"storage_start_date"`
 	StorageEndDate           *time.Time         `json:"storage_end_date" db:"storage_end_date"`
 }
@@ -49,7 +49,8 @@ func (m *Move) FetchAllMoveDocumentsForMove(db *pop.Connection) (MoveDocumentExt
 	var moveDocs MoveDocumentExtractors
 	query := db.Q().LeftJoin("moving_expense_documents ed", "ed.move_document_id=move_documents.id").
 		LeftJoin("weight_ticket_set_documents wt", "wt.move_document_id=move_documents.id").
-		Where("move_documents.move_id=$1", m.ID.String())
+		Where("move_documents.move_id=$1", m.ID.String()).
+		Where("move_documents.deleted_at is null")
 
 	sql, args := query.ToSQL(&pop.Model{Value: MoveDocument{}},
 		`move_documents.*,
