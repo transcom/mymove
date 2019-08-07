@@ -338,3 +338,4 @@
 20190730194820_pp3_2019_tspp_data.up.fizz
 20190731163048_remove_is_superuser.up.fizz
 20190805161006_disable_truss_user.up.fizz
+20190807163505_modify-moves-bad-zip3-and-delete.up.sql
