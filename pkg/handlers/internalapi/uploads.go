@@ -2,7 +2,13 @@ package internalapi
 
 import (
 	"io"
+	"io/ioutil"
+	"log"
+	"net/http"
 	"reflect"
+
+	//"github.com/davidbyttow/govips/pkg/vips"
+	"github.com/h2non/bimg"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
@@ -98,7 +104,42 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 	uploadPayload := payloadForUploadModel(*newUpload, url)
+
+	//buf := bytes.NewBuffer(nil)
+	//_, err = io.Copy(buf, file.Data)
+	////vips.NewImageFromBuffer(buf.Bytes())
+	//_, _, err = vips.NewTransform().LoadBuffer(buf.Bytes()).OutputFile("test.jpeg").Apply()
+	//if err != nil {
+	//	logger.Error("failed to process image", zap.Error(err))
+	//}
+
+	options := bimg.Options{
+		Quality:   75,
+	}
+
+	// read file into bytes
+	f,  err := h.FileStorer().TempFileSystem().Open(aFile.Name())
+	if err != nil {
+		logger.Error("bimg.Read", zap.Error(err))
+	}
+	bs, err := ioutil.ReadAll(f)
+	if err != nil {
+		logger.Error("bimg.Read", zap.Error(err))
+	}
+	newImage, err := bimg.NewImage(bs).Process(options)
+	if err != nil {
+		filetype := http.DetectContentType(bs)
+		log.Println(len(bs))
+		log.Println(filetype)
+		logger.Error("bimg.NewImage.Process", zap.Error(err))
+	}
+
+	err = bimg.Write("new.jpg", newImage)
+	if err != nil {
+		logger.Error("bimg.Writ", zap.Error(err))
+	}
 	return uploadop.NewCreateUploadCreated().WithPayload(uploadPayload)
+
 }
 
 // DeleteUploadHandler deletes an upload

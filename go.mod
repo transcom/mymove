@@ -11,6 +11,7 @@ require (
 	github.com/cockroachdb/cockroach-go v0.0.0-20181001143604-e0a95dfd547c // indirect
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
+	github.com/davidbyttow/govips v0.0.0-20190304175058-d272f04c0fea
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/dustin/go-humanize v1.0.0
 	github.com/facebookgo/clock v0.0.0-20150410010913-600d898af40a
@@ -43,6 +44,7 @@ require (
 	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20190430165422-3e4dfb77656c // indirect
 	github.com/gorilla/csrf v1.6.0
+	github.com/h2non/bimg v1.0.19
 	github.com/hashicorp/go-multierror v1.0.0
 	github.com/hhrutter/pdfcpu v0.2.1
 	github.com/honeycombio/beeline-go v0.4.4
@@ -87,6 +89,7 @@ require (
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/alexcesaro/statsd.v2 v2.0.0 // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
+	gopkg.in/h2non/bimg.v1 v1.0.19
 	gopkg.in/ini.v1 v1.44.0 // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
 )
