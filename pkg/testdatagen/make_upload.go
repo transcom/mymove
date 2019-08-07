@@ -38,13 +38,17 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 	} else {
 		// If no file is being stored, use asserted fields
 		upload = &models.Upload{
-			DocumentID:  &document.ID,
-			Document:    document,
-			UploaderID:  uploaderID,
-			Filename:    "testFile.pdf",
-			Bytes:       2202009,
-			ContentType: "application/pdf",
-			Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
+			DocumentID:                  &document.ID,
+			Document:                    document,
+			UploaderID:                  uploaderID,
+			Filename:                    "testFile.pdf",
+			Bytes:                       2202009,
+			ContentType:                 "application/pdf",
+			Checksum:                    "ImGQ2Ush0bDHsaQthV5BnQ==",
+			OrigDocumentFilename:        "testFile.pdf",
+			OriginalDocumentBytes:       2202009,
+			OriginalDocumentContentType: "application/pdf",
+			OriginalDocumentChecksum:    "DSFUMNXDHsaQthV5BnQ==",
 		}
 
 		mergeModels(upload, assertions.Upload)

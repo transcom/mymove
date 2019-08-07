@@ -17,17 +17,22 @@ import (
 
 // An Upload represents an uploaded file, such as an image or PDF.
 type Upload struct {
-	ID          uuid.UUID  `db:"id"`
-	DocumentID  *uuid.UUID `db:"document_id"`
-	Document    Document   `belongs_to:"documents"`
-	UploaderID  uuid.UUID  `db:"uploader_id"`
-	Filename    string     `db:"filename"`
-	Bytes       int64      `db:"bytes"`
-	ContentType string     `db:"content_type"`
-	Checksum    string     `db:"checksum"`
-	StorageKey  string     `db:"storage_key"`
-	CreatedAt   time.Time  `db:"created_at"`
-	UpdatedAt   time.Time  `db:"updated_at"`
+	ID                          uuid.UUID  `db:"id"`
+	DocumentID                  *uuid.UUID `db:"document_id"`
+	Document                    Document   `belongs_to:"documents"`
+	UploaderID                  uuid.UUID  `db:"uploader_id"`
+	OriginalDocumentStorageKey  string     `db:"original_document_storage_key"`
+	OrigDocumentFilename        string     `db:"original_document_filename"`
+	OriginalDocumentBytes       int64      `db:"original_document_bytes"`
+	OriginalDocumentContentType string     `db:"original_document_content_type"`
+	OriginalDocumentChecksum    string     `db:"original_document_checksum"`
+	Filename                    string     `db:"filename"`
+	Bytes                       int64      `db:"bytes"`
+	ContentType                 string     `db:"content_type"`
+	Checksum                    string     `db:"checksum"`
+	StorageKey                  string     `db:"storage_key"`
+	CreatedAt                   time.Time  `db:"created_at"`
+	UpdatedAt                   time.Time  `db:"updated_at"`
 }
 
 // Uploads is not required by pop and may be deleted
@@ -41,6 +46,10 @@ func (u *Upload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&Int64IsPresent{Field: u.Bytes, Name: "Bytes"},
 		&validators.StringIsPresent{Field: u.ContentType, Name: "ContentType"},
 		&validators.StringIsPresent{Field: u.Checksum, Name: "Checksum"},
+		&validators.StringIsPresent{Field: u.OrigDocumentFilename, Name: "OrigDocumentFilename"},
+		&Int64IsPresent{Field: u.OriginalDocumentBytes, Name: "OriginalDocumentBytes"},
+		&validators.StringIsPresent{Field: u.OriginalDocumentContentType, Name: "OriginalDocumentContentType"},
+		&validators.StringIsPresent{Field: u.OriginalDocumentChecksum, Name: "OriginalDocumentChecksum"},
 	), nil
 }
 
@@ -53,6 +62,9 @@ func (u *Upload) BeforeCreate(tx *pop.Connection) error {
 
 	if u.StorageKey == "" {
 		u.StorageKey = path.Join("user", u.UploaderID.String(), "uploads", u.ID.String())
+	}
+	if u.OriginalDocumentStorageKey == "" {
+		u.OriginalDocumentStorageKey = path.Join("user", u.UploaderID.String(), "uploads", u.ID.String()+"-original")
 	}
 
 	return nil

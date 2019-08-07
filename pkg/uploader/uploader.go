@@ -2,10 +2,8 @@ package uploader
 
 import (
 	"io"
-	"io/ioutil"
 	"log"
-
-	"github.com/h2non/bimg"
+	"os"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
@@ -57,76 +55,71 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 		return nil, responseVErrors, detectContentTypeErr
 	}
 
-	// read file into bytes
-	// TODO seems like should just be able to use afile but this wasn't
-	// TODO working
-	var readErr error
-	var bs []byte
-	var f afero.File
-	f, readErr = u.Storer.TempFileSystem().Open(file.Name())
-	if readErr != nil {
-		f, readErr = u.Storer.TempFileSystem().Create(file.Name())
-		if readErr != nil {
-			log.Println("u.Storer.TempFileSystem().Create", zap.Error(readErr))
-		}
-	}
-	bs, readErr = ioutil.ReadAll(f)
-	newImage := bimg.NewImage(bs)
-	if readErr != nil {
-		log.Println("bimg.Read", zap.Error(readErr))
-	}
-	imageType := bimg.DetermineImageType(bs)
-	if bimg.VipsIsTypeSupported(imageType) && imageType != bimg.PDF {
-		options := bimg.Options{
-			Quality: 75,
-		}
-		processedImage, err := newImage.Process(options)
-		if err != nil {
-			log.Println("bimg.NewImage.Process", zap.Error(err))
-		}
-
-		//TODO newImage is just bytes
-		file, err = u.Storer.TempFileSystem().Create(file.Name() + "_post_processed")
-		if err != nil {
-			log.Println("bimg.Writ", zap.Error(err))
-		}
-		_, err = file.Write(processedImage)
-		if err != nil {
-			log.Println("postProcessedFile.Write", zap.Error(err))
-		}
+	info, checksum, responseVErrors, err := u.fileStats(file, contentType, allowedTypes)
+	if err != nil || responseVErrors.HasAny() {
+		u.logger.Error("could not compute file stats", zap.Error(err))
+		return nil, responseVErrors, err
 	}
 
-	info, fileStatErr := file.Stat()
-	if fileStatErr != nil {
-		u.logger.Error("Could not get file info", zap.Error(fileStatErr))
-	}
+	//var readErr error
+	//var bs []byte
+	//var f afero.File
+	//// TODO seems like should just be able to use afile but this wasn't
+	//// TODO working
+	//// read file into bytes
+	//f, readErr = u.Storer.TempFileSystem().Open(file.Name())
+	//if readErr != nil {
+	//	file, readErr = u.Storer.TempFileSystem().Create(file.Name())
+	//	if readErr != nil {
+	//		log.Println("u.Storer.TempFileSystem().Create", zap.Error(readErr))
+	//	}
+	//}
+	//defer f.Close()
+	//bs, readErr = ioutil.ReadAll(f)
+	//newImage := bimg.NewImage(bs)
+	//if readErr != nil {
+	//	log.Println("bimg.Read", zap.Error(readErr))
+	//}
+	//imageType := bimg.DetermineImageType(bs)
+	//var postProcessedFile afero.File
+	//if bimg.VipsIsTypeSupported(imageType) && imageType != bimg.PDF {
+	//	options := bimg.Options{
+	//		Quality: 75,
+	//	}
+	//	processedImage, err := newImage.Process(options)
+	//	if err != nil {
+	//		log.Println("bimg.NewImage.Process", zap.Error(err))
+	//	}
+	//
+	//	postProcessedFile, err = u.Storer.TempFileSystem().Create("post_processed_ " + file.Name())
+	//	defer postProcessedFile.Close()
+	//	if err != nil {
+	//		log.Println("bimg.Writ", zap.Error(err))
+	//	}
+	//	_, err = postProcessedFile.Write(processedImage)
+	//	if err != nil {
+	//		log.Println("postProcessedFile.Write", zap.Error(err))
+	//	}
+	//}
 
-	if info.Size() == 0 {
-		return nil, responseVErrors, ErrZeroLengthFile
-	}
-
-	validator := models.NewStringInList(contentType, "ContentType", allowedTypes)
-	validator.IsValid(responseVErrors)
-	if responseVErrors.HasAny() {
-		u.logger.Error("Invalid content type for upload", zap.String("Filename", file.Name()), zap.String("ContentType", contentType))
-		return nil, responseVErrors, nil
-	}
-
-	checksum, computeChecksumErr := storage.ComputeChecksum(file)
-	if computeChecksumErr != nil {
-		u.logger.Error("Could not compute checksum", zap.Error(computeChecksumErr))
-		return nil, responseVErrors, computeChecksumErr
-	}
+	//postProcessedFile := file
+	//postProcessedFileInfo, postProcessedFileChecksum, responseVErrors, err := u.fileStats(postProcessedFile, contentType, allowedTypes)
+	//if err != nil || responseVErrors.HasAny() {
+	//	u.logger.Error("could not compute file stats", zap.Error(err))
+	//	return nil, responseVErrors, err
+	//}
 
 	id := uuid.Must(uuid.NewV4())
 
-	//TODO Add fields for Original file
-	//TODO and put post processed file
-	//TODO in old original file spot
 	newUpload := &models.Upload{
-		ID:          id,
-		DocumentID:  documentID,
-		UploaderID:  userID,
+		ID:                          id,
+		DocumentID:                  documentID,
+		UploaderID:                  userID,
+		OrigDocumentFilename:        file.Name(),
+		OriginalDocumentBytes:       info.Size(),
+		OriginalDocumentContentType: contentType,
+		OriginalDocumentChecksum:    checksum,
+
 		Filename:    file.Name(),
 		Bytes:       info.Size(),
 		ContentType: contentType,
@@ -136,10 +129,11 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 	// Set the Upload.StorageKey if set
 	if u.UploadStorageKey != "" {
 		newUpload.StorageKey = u.UploadStorageKey
+		newUpload.OriginalDocumentStorageKey = u.UploadStorageKey + "-original"
 	}
 
 	var uploadError error
-	err := u.db.Transaction(func(db *pop.Connection) error {
+	err = u.db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
 		verrs, err := db.ValidateAndCreate(newUpload)
@@ -151,6 +145,13 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 		}
 
 		// Push file to S3
+		if _, err := u.Storer.Store(newUpload.OriginalDocumentStorageKey, file, checksum); err != nil {
+			u.logger.Error("failed to store original object", zap.Error(err))
+			responseVErrors.Append(verrs)
+			uploadError = errors.Wrap(err, "failed to store original object")
+			return transactionError
+		}
+
 		if _, err := u.Storer.Store(newUpload.StorageKey, file, checksum); err != nil {
 			u.logger.Error("failed to store object", zap.Error(err))
 			responseVErrors.Append(verrs)
@@ -166,6 +167,32 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 	}
 
 	return newUpload, responseVErrors, nil
+}
+
+func (u *Uploader) fileStats(file afero.File, contentType string, allowedTypes AllowedFileTypes) (os.FileInfo, string, *validate.Errors, error) {
+	if file == nil {
+		log.Fatal("WATTTTTTTTT")
+	}
+	responseVErrors := validate.NewErrors()
+	info, err := file.Stat()
+	if err != nil {
+		u.logger.Error("Could not get file info", zap.Error(err))
+	}
+	if info.Size() == 0 {
+		return nil, "", responseVErrors, ErrZeroLengthFile
+	}
+	validator := models.NewStringInList(contentType, "ContentType", allowedTypes)
+	validator.IsValid(responseVErrors)
+	if responseVErrors.HasAny() {
+		u.logger.Error("Invalid content type for upload", zap.String("Filename", file.Name()), zap.String("ContentType", contentType))
+		return nil, "", responseVErrors, nil
+	}
+	checksum, computeChecksumErr := storage.ComputeChecksum(file)
+	if computeChecksumErr != nil {
+		u.logger.Error("Could not compute checksum", zap.Error(computeChecksumErr))
+		return nil, "", responseVErrors, computeChecksumErr
+	}
+	return info, checksum, responseVErrors, err
 }
 
 // CreateUpload stores Upload but does not assign a Document
