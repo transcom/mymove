@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import {
-  MoveSummary,
+  MoveSummaryComponent as MoveSummary,
   CanceledMoveSummary,
   ApprovedMoveSummary,
   SubmittedPpmMoveSummary,
@@ -16,6 +16,8 @@ describe('MoveSummary', () => {
   const entitlementObj = { sum: '10000' };
   const serviceMember = { current_station: { name: 'Ft Carson' } };
   const ordersObj = {};
+  const getMoveDocumentsForMove = jest.fn(() => ({ then: () => {} }));
+  const getPpmWeightEstimate = jest.fn();
   const getShallowRender = (
     entitlementObj,
     serviceMember,
@@ -39,6 +41,8 @@ describe('MoveSummary', () => {
         moveSubmitSuccess={moveObj.moveSubmitSuccess}
         resumeMove={resumeMoveFn}
         addPPMShipment={addPPMShipmentFn}
+        getMoveDocumentsForMove={getMoveDocumentsForMove}
+        getPpmWeightEstimate={getPpmWeightEstimate}
       />,
     );
   };
