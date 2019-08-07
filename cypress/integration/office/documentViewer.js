@@ -52,9 +52,48 @@ describe('The document viewer', function() {
         .should('not.be.disabled')
         .click();
     });
+    it('can upload a weight ticket set and edit it', () => {
+      cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
+      cy.contains('Upload a new document');
+      cy.get('button.submit').should('be.disabled');
+      cy.get('input[name="title"]').type('Weight ticket document');
+      cy.get('select[name="move_document_type"]').select('Weight ticket set');
+      cy.get('input[name="notes"]').type('burn after reading');
+      cy.get('button.submit').should('be.disabled');
+
+      cy.upload_file('.filepond--root', 'top-secret.png');
+      cy
+        .get('button.submit', { timeout: fileUploadTimeout })
+        .should('not.be.disabled')
+        .click();
+
+      cy.contains('Weight ticket document').click();
+      cy.contains('Details').click();
+
+      cy.contains('Edit').click();
+
+      cy.get('select[name="moveDocument.vehicle_options"]').select('CAR');
+      cy.get('input[name="moveDocument.vehicle_nickname"]').type('Herbie');
+      cy.get('input[name="moveDocument.empty_weight"]').type('1000');
+      cy.get('input[name="moveDocument.full_weight"]').type('2000');
+
+      cy.get('select[name="moveDocument.status"]').select('OK');
+
+      cy
+        .get('button')
+        .contains('Save')
+        .should('not.be.disabled')
+        .click();
+
+      cy.contains('Car');
+      cy.contains('Herbie');
+      cy.contains('1,000');
+      cy.contains('2,000');
+    });
+
     it('shows the newly uploaded document in the document list tab', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy.contains('All Documents (1)');
+      cy.contains('All Documents (2)');
       cy.contains('super secret info document');
       cy
         .get('.panel-field')
@@ -173,37 +212,6 @@ describe('The document viewer', function() {
       cy.contains('Expense');
       cy.contains('4,999.92');
       cy.contains('GTCC');
-    });
-    it('can upload and view a weight ticket set document', () => {
-      cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
-      cy.contains('Upload a new document');
-      cy.get('button.submit').should('be.disabled');
-      cy.get('select[name="move_document_type"]').select('Weight ticket set');
-      cy.get('input[name="title"]').type('weight ticket document');
-
-      cy.get('button.submit').should('be.disabled');
-
-      cy.upload_file('.filepond--root', 'top-secret.png');
-      cy
-        .get('button.submit', { timeout: fileUploadTimeout })
-        .should('not.be.disabled')
-        .click();
-
-      cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-      cy
-        .get('.panel-field')
-        .get('a')
-        .contains('weight ticket document')
-        .should('have.attr', 'href')
-        .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/)
-        .then(href => {
-          cy.patientVisit(href);
-        });
-
-      cy.contains('Details').click();
-
-      cy.contains('Empty Weight Ticket');
-      cy.contains('Full Weight Ticket');
     });
     it('can upload documents to an HHG move', () => {
       cy.patientVisit('moves/533d176f-0bab-4c51-88cd-c899f6855b9d/documents/new');

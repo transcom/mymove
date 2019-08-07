@@ -37,7 +37,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
 	req := httptest.NewRequest("GET", "/office_users", nil)
-	req = suite.AuthenticateUserRequest(req, requestUser)
+	req = suite.AuthenticateAdminRequest(req, requestUser)
 
 	// test that everything is wired up
 	suite.T().Run("integration test ok response", func(t *testing.T) {

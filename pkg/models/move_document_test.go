@@ -244,8 +244,6 @@ func (suite *ModelSuite) TestFetchMovingExpenseDocuments() {
 	}
 
 	allExpenses, err := FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, nil, MoveDocumentTypeEXPENSE)
-	approvedExpenses, err := FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status, MoveDocumentTypeEXPENSE)
-
 	if suite.NoError(err) {
 		suite.Equal(2, len(allExpenses))
 		for _, moveDoc := range allExpenses {
@@ -254,6 +252,7 @@ func (suite *ModelSuite) TestFetchMovingExpenseDocuments() {
 		}
 	}
 
+	approvedExpenses, err := FetchMoveDocuments(suite.DB(), session, ppm.Move.PersonallyProcuredMoves[0].ID, &status, MoveDocumentTypeEXPENSE)
 	if suite.NoError(err) {
 		suite.Equal(1, len(approvedExpenses))
 		for _, moveDoc := range approvedExpenses {
