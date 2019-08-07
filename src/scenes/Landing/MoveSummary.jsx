@@ -655,12 +655,15 @@ const getHHGStatus = (moveStatus, shipment) => {
 export class MoveSummaryComponent extends React.Component {
   componentDidMount() {
     this.props.getMoveDocumentsForMove(this.props.move.id).then(({ obj: documents }) => {
+      const weightTicketNetWeight = calcNetWeight(documents);
+      const netWeight =
+        weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
       this.props.getPpmWeightEstimate(
         this.props.ppm.actual_move_date,
         this.props.ppm.pickup_postal_code,
         this.props.originDutyStationZip,
         this.props.ppm.destination_postal_code,
-        calcNetWeight(documents),
+        netWeight,
       );
     });
   }
