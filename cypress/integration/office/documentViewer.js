@@ -52,7 +52,7 @@ describe('The document viewer', function() {
         .should('not.be.disabled')
         .click();
     });
-    it('can upload a weight ticket set and edit it', () => {
+    it('can upload a weight ticket set', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents/new');
       cy.contains('Upload a new document');
       cy.get('button.submit').should('be.disabled');
@@ -66,9 +66,13 @@ describe('The document viewer', function() {
         .get('button.submit', { timeout: fileUploadTimeout })
         .should('not.be.disabled')
         .click();
+    });
 
+    it('can edit an uploaded weight ticket set', () => {
+      cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy
-        .get('[data-cy="doc-link"] a')
+        .get('[data-cy="doc-link"]')
+        .find('a')
         .contains('Weight ticket document')
         .should('have.attr', 'href')
         .then(href => {
