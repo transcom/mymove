@@ -14,6 +14,7 @@ import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movin
 import CustomerAgreement from 'scenes/Legalese/CustomerAgreement';
 import { ppmPaymentLegal } from 'scenes/Legalese/legaleseText';
 import PPMPaymentRequestActionBtns from 'scenes/Moves/Ppm/PPMPaymentRequestActionBtns';
+import { loadEntitlementsFromState } from 'shared/entitlements';
 import { getPpmWeightEstimate } from '../ducks';
 
 import { submitExpenseDocs } from '../ducks';
@@ -34,12 +35,15 @@ class PaymentReview extends Component {
     const { originDutyStationZip, currentPpm } = this.props;
     const { actual_move_date, pickup_postal_code, destination_postal_code } = currentPpm;
     this.props.getMoveDocumentsForMove(this.props.moveId).then(({ obj: documents }) => {
+      const weightTicketNetWeight = calcNetWeight(documents);
+      const netWeight =
+        weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
       this.props.getPpmWeightEstimate(
         actual_move_date,
         pickup_postal_code,
         originDutyStationZip,
         destination_postal_code,
-        calcNetWeight(documents),
+        netWeight,
       );
     });
   }
@@ -170,6 +174,7 @@ const mapStateToProps = (state, props) => {
     currentPpm: get(state, 'ppm.currentPpm', {}),
     ppm: get(state, 'ppm', {}),
     originDutyStationZip: get(state, 'serviceMember.currentServiceMember.current_station.address.postal_code'),
+    entitlement: loadEntitlementsFromState(state),
   };
 };
 

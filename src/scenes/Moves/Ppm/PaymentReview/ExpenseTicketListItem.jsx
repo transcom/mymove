@@ -7,7 +7,6 @@ const ExpenseTicketListItem = ({ amount, type, paymentMethod, showDelete }) => (
       <h4>
         {type} - ${amount}
       </h4>
-      {/* {showDelete && <img alt="delete document button" onClick={() => console.log('lol')} src={deleteButtonImg} />} */}
     </div>
     <div>
       {type} ({paymentMethod})

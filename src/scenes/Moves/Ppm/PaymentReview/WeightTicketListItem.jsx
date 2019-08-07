@@ -41,7 +41,6 @@ const WeightTicketListItem = ({
         <h4>
           {vehicle_nickname} ({formatToOrdinal(num + 1)} set)
         </h4>
-        {/* {showDelete && <img alt="delete document button" onClick={() => console.log('lol')} src={deleteButtonImg} />} */}
       </div>
       {empty_weight_ticket_missing ? (
         <MissingLabel>
