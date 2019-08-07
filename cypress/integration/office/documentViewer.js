@@ -67,7 +67,13 @@ describe('The document viewer', function() {
         .should('not.be.disabled')
         .click();
 
-      cy.contains('Weight ticket document').click();
+      cy
+        .get('[data-cy="doc-link"] a')
+        .contains('Weight ticket document')
+        .should('have.attr', 'href')
+        .then(href => {
+          cy.patientVisit(href);
+        });
       cy.contains('Details').click();
 
       cy.contains('Edit').click();
@@ -94,10 +100,10 @@ describe('The document viewer', function() {
     it('shows the newly uploaded document in the document list tab', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy.contains('All Documents (2)');
-      cy.contains('super secret info document');
       cy
         .get('.panel-field')
-        .find('a')
+        .get('a')
+        .contains('super secret info document')
         .should('have.attr', 'href')
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
     });
