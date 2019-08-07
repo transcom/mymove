@@ -2,6 +2,11 @@ package uploader
 
 import (
 	"io"
+	"io/ioutil"
+	"log"
+	"net/http"
+
+	"github.com/h2non/bimg"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
@@ -47,6 +52,43 @@ func (u *Uploader) SetUploadStorageKey(key string) {
 func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UUID, file afero.File, allowedTypes AllowedFileTypes) (*models.Upload, *validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 
+	contentType, detectContentTypeErr := storage.DetectContentType(file)
+	if detectContentTypeErr != nil {
+		u.logger.Error("Could not detect content type", zap.Error(detectContentTypeErr))
+		return nil, responseVErrors, detectContentTypeErr
+	}
+
+	options := bimg.Options{
+		Quality: 75,
+	}
+
+	// read file into bytes
+	// TODO seems like should just be able to use afile but this wasn't
+	// TODO working
+	f, err := u.Storer.TempFileSystem().Open(file.Name())
+	bs, err := ioutil.ReadAll(f)
+	bimg.VipsIsTypeSupported(bs)
+	if err != nil {
+		log.Println("bimg.Read", zap.Error(err))
+	}
+	newImage, err := bimg.NewImage(bs).Process(options)
+	if err != nil {
+		filetype := http.DetectContentType(bs)
+		log.Println(len(bs))
+		log.Println(filetype)
+		log.Println("bimg.NewImage.Process", zap.Error(err))
+	}
+
+	//TODO newImage is just bytes
+	file, err = u.Storer.TempFileSystem().Create(file.Name() + "_post_processed")
+	if err != nil {
+		log.Println("bimg.Writ", zap.Error(err))
+	}
+	_, err = file.Write(newImage)
+	if err != nil {
+		log.Println("postProcessedFile.Write", zap.Error(err))
+	}
+
 	info, fileStatErr := file.Stat()
 	if fileStatErr != nil {
 		u.logger.Error("Could not get file info", zap.Error(fileStatErr))
@@ -54,12 +96,6 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 
 	if info.Size() == 0 {
 		return nil, responseVErrors, ErrZeroLengthFile
-	}
-
-	contentType, detectContentTypeErr := storage.DetectContentType(file)
-	if detectContentTypeErr != nil {
-		u.logger.Error("Could not detect content type", zap.Error(detectContentTypeErr))
-		return nil, responseVErrors, detectContentTypeErr
 	}
 
 	validator := models.NewStringInList(contentType, "ContentType", allowedTypes)
@@ -77,6 +113,9 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 
 	id := uuid.Must(uuid.NewV4())
 
+	//TODO Add fields for Original file
+	//TODO and put post processed file
+	//TODO in old original file spot
 	newUpload := &models.Upload{
 		ID:          id,
 		DocumentID:  documentID,
@@ -93,7 +132,7 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 	}
 
 	var uploadError error
-	err := u.db.Transaction(func(db *pop.Connection) error {
+	err = u.db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
 		verrs, err := db.ValidateAndCreate(newUpload)
