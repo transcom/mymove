@@ -6,4 +6,5 @@ ALTER TABLE admin_users
 	ALTER COLUMN last_name SET NOT NULL
 ")
 
+add_foreign_key("admin_users", "user_id", {"users": ["id"]}, {})
 add_index("admin_users", "email", {"unique": true, "name": "admin_users_email_uniq_idx"})
