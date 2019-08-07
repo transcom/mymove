@@ -310,6 +310,7 @@ export const SubmittedHhgMoveSummary = props => {
 //TODO remove redundant ApprovedMoveSummary component w/ ppmPaymentRequest flag
 const NewApprovedMoveSummaryComponent = ({ ppm, move, weightTicketSets }) => {
   const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
+  const paymentReviewed = ppm.status === 'COMPLETED';
   const moveInProgress = moment(ppm.original_move_date, 'YYYY-MM-DD').isSameOrBefore();
   const ppmPaymentRequestIntroRoute = `moves/${move.id}/ppm-payment-request-intro`;
   const ppmPaymentRequestReviewRoute = `moves/${move.id}/ppm-payment-review`;
@@ -338,7 +339,10 @@ const NewApprovedMoveSummaryComponent = ({ ppm, move, weightTicketSets }) => {
                     </a>
                   </div>
                 )}
-                {paymentRequested ? (
+                {paymentReviewed ? (
+                  // Copy will be added later.
+                  <></>
+                ) : paymentRequested ? (
                   <div className="step">
                     <div className="title">Next step: Wait for your payment paperwork</div>
                     <div>

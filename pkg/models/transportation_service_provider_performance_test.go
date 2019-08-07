@@ -702,7 +702,7 @@ func (suite *ModelSuite) Test_FetchUnbandedTSPPerformanceGroups() {
 		"RateCycleEnd in TSPP group did not match")
 }
 
-// Test_FetchDiscountRates tests that the discount rate for the TSP with the best BVS
+// Test_FetchDiscountRatesBVS tests that the discount rate for the TSP with the best BVS
 // for the specified channel and date is returned.
 func (suite *ModelSuite) Test_FetchDiscountRatesBVS() {
 	t := suite.T()
@@ -773,17 +773,86 @@ func (suite *ModelSuite) Test_FetchDiscountRatesBVS() {
 
 	expectedLinehaul := unit.DiscountRate(.505)
 	if discountRate != expectedLinehaul {
-		t.Errorf("Wrong discount rate: expected %v, got %v", expectedLinehaul, discountRate)
+		t.Errorf("Wrong linehaul discount rate: expected %v, got %v", expectedLinehaul, discountRate)
 	}
 
 	expectedSIT := unit.DiscountRate(.5)
 	if sitRate != expectedSIT {
-		t.Errorf("Wrong discount rate: expected %v, got %v", expectedSIT, sitRate)
+		t.Errorf("Wrong SIT discount rate: expected %v, got %v", expectedSIT, sitRate)
 	}
 }
 
 func date(year int, month time.Month, day int) time.Time {
 	return time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+}
+
+// Test_FetchDiscountRatesSameBVS tests that the TSP with the first UUID (ascending sort) is returned
+// when the highest BVS score is shared by more than one TSP.
+func (suite *ModelSuite) Test_FetchDiscountRatesSameBVS() {
+	t := suite.T()
+
+	tdl := testdatagen.MakeTDL(suite.DB(), testdatagen.Assertions{
+		TrafficDistributionList: TrafficDistributionList{
+			SourceRateArea:    "US68",
+			DestinationRegion: "5",
+			CodeOfService:     "2",
+		},
+	}) // Victoria, TX to Salina, KS
+	tsp := testdatagen.MakeDefaultTSP(suite.DB())
+
+	suite.MustSave(&Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "320", Region: "6"})
+	suite.MustSave(&Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
+
+	moveDate := date(testdatagen.TestYear, time.May, 26)
+
+	tspPerformance1 := TransportationServiceProviderPerformance{
+		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
+		PerformancePeriodEnd:            testdatagen.PerformancePeriodEnd,
+		RateCycleStart:                  testdatagen.PeakRateCycleStart,
+		RateCycleEnd:                    testdatagen.PeakRateCycleEnd,
+		TrafficDistributionListID:       tdl.ID,
+		TransportationServiceProviderID: tsp.ID,
+		QualityBand:                     swag.Int(1),
+		BestValueScore:                  90,
+		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
+		SITRate:                         unit.NewDiscountRateFromPercent(50.0),
+	}
+	suite.MustSave(&tspPerformance1)
+
+	tspPerformance2 := TransportationServiceProviderPerformance{
+		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
+		PerformancePeriodEnd:            testdatagen.PerformancePeriodEnd,
+		RateCycleStart:                  testdatagen.PeakRateCycleStart,
+		RateCycleEnd:                    testdatagen.PeakRateCycleEnd,
+		TrafficDistributionListID:       tdl.ID,
+		TransportationServiceProviderID: tsp.ID,
+		QualityBand:                     swag.Int(1),
+		BestValueScore:                  90,
+		LinehaulRate:                    unit.NewDiscountRateFromPercent(55.5),
+		SITRate:                         unit.NewDiscountRateFromPercent(52.0),
+	}
+	suite.MustSave(&tspPerformance2)
+
+	// Given matching BVS scores, the TSPP with the alphabetically first ID should be returned.  Make that our target.
+	targetTspPerformance := tspPerformance1
+	if tspPerformance1.ID.String() > tspPerformance2.ID.String() {
+		targetTspPerformance = tspPerformance2
+	}
+
+	discountRate, sitRate, err := FetchDiscountRates(suite.DB(), "77901", "67401", "2", moveDate)
+	if err != nil {
+		t.Fatalf("Failed to find tsp performance: %s", err)
+	}
+
+	expectedLinehaul := targetTspPerformance.LinehaulRate
+	if discountRate != expectedLinehaul {
+		t.Errorf("Wrong linehaul discount rate: expected %v, got %v", expectedLinehaul, discountRate)
+	}
+
+	expectedSIT := targetTspPerformance.SITRate
+	if sitRate != expectedSIT {
+		t.Errorf("Wrong SIT discount rate: expected %v, got %v", expectedSIT, sitRate)
+	}
 }
 
 func (suite *ModelSuite) Test_FetchDiscountRatesPerformancePeriodBoundaries() {

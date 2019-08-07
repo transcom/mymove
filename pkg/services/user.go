@@ -7,6 +7,7 @@ import (
 )
 
 // OfficeUserFetcher is the exported interface for fetching a single office user
+//go:generate mockery -name OfficeUserFetcher
 type OfficeUserFetcher interface {
 	FetchOfficeUser(filters []QueryFilter) (models.OfficeUser, error)
 }

@@ -20,8 +20,7 @@ func MakeShipmentLineItem(db *pop.Connection, assertions Assertions) models.Ship
 	if isZeroUUID(tariff400ngItem.ID) {
 		tariff400ngItem = MakeTariff400ngItem(db, assertions)
 	}
-	var rate unit.Millicents
-	rate = 2354000
+	rate := unit.Millicents(2354000)
 	//filled in dummy data
 	shipmentLineItem := models.ShipmentLineItem{
 		ShipmentID:        shipment.ID,

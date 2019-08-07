@@ -25,7 +25,7 @@ func (suite *testSuite) TestRequestLogger() {
 	rr := httptest.NewRecorder()
 	suite.do(requestLogger, suite.ok, rr, httptest.NewRequest("GET", testURL, nil))
 	suite.Equal(http.StatusOK, rr.Code, errStatusCode) // check status code
-	out := strings.TrimSpace(string(buf.Bytes()))      // remove trailing new line
+	out := strings.TrimSpace(buf.String())             // remove trailing new line
 	suite.NotEmpty(out, "log was empty")
 	lines := strings.Split(out, "\n")
 	suite.Len(lines, 1) // there is 1 INFO log line

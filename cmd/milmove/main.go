@@ -85,6 +85,17 @@ func main() {
 	initGenOfficeUserMigrationFlags(genOfficeUserMigrationCommand.Flags())
 	genCommand.AddCommand(genOfficeUserMigrationCommand)
 
+	genDutyStationsMigrationCommand := &cobra.Command{
+		Use:                   "duty-stations-migration -f CSV_FILENAME -n MIGRATION_NAME",
+		Short:                 "Generate migrations required for adding duty stations",
+		Long:                  "Generate migrations required for adding duty stations",
+		RunE:                  genDutyStationsMigration,
+		DisableFlagsInUseLine: true,
+		SilenceErrors:         true, // not needed
+	}
+	initGenDutyStationsMigrationFlags(genDutyStationsMigrationCommand.Flags())
+	genCommand.AddCommand(genDutyStationsMigrationCommand)
+
 	genDisableUserMigrationCommand := &cobra.Command{
 		Use:                   "disable-user-migration -e EMAIL",
 		Short:                 "Generate migrations required for disabling a user",

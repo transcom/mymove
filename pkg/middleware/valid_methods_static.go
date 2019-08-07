@@ -14,7 +14,6 @@ func ValidMethodsStatic(logger Logger) func(inner http.Handler) http.Handler {
 				return
 			}
 			inner.ServeHTTP(w, r)
-			return
 		})
 	}
 }

@@ -1,6 +1,7 @@
 package adminapi
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -16,18 +17,11 @@ import (
 	officeuserop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/services/user"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
-
-func newMockQueryFilterBuilder(filter *mocks.QueryFilter) services.NewQueryFilter {
-	return func(column string, comparator string, value interface{}) services.QueryFilter {
-		return filter
-	}
-}
 
 func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 	// replace this with generated UUID when filter param is built out
@@ -43,7 +37,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 
 	requestUser := testdatagen.MakeDefaultUser(suite.DB())
 	req := httptest.NewRequest("GET", "/office_users", nil)
-	req = suite.AuthenticateUserRequest(req, requestUser)
+	req = suite.AuthenticateAdminRequest(req, requestUser)
 
 	// test that everything is wired up
 	suite.T().Run("integration test ok response", func(t *testing.T) {
@@ -117,8 +111,95 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 	})
 }
 
-func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
+func (suite *HandlerSuite) TestGetOfficeUserHandler() {
+	// replace this with generated UUID when filter param is built out
+	uuidString := "d874d002-5582-4a91-97d3-786e8f66c763"
+	id, _ := uuid.FromString(uuidString)
+	assertions := testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			ID: id,
+		},
+	}
+	testdatagen.MakeOfficeUser(suite.DB(), assertions)
 
+	requestUser := testdatagen.MakeDefaultUser(suite.DB())
+	req := httptest.NewRequest("GET", fmt.Sprintf("/office_users/%s", id), nil)
+	req = suite.AuthenticateUserRequest(req, requestUser)
+
+	// test that everything is wired up
+	suite.T().Run("integration test ok response", func(t *testing.T) {
+		params := officeuserop.GetOfficeUserParams{
+			HTTPRequest:  req,
+			OfficeUserID: strfmt.UUID(uuidString),
+		}
+
+		queryBuilder := query.NewQueryBuilder(suite.DB())
+		handler := GetOfficeUserHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			user.NewOfficeUserFetcher(queryBuilder),
+			query.NewQueryFilter,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&officeuserop.GetOfficeUserOK{}, response)
+		okResponse := response.(*officeuserop.GetOfficeUserOK)
+		suite.Equal(uuidString, okResponse.Payload.ID.String())
+	})
+
+	queryFilter := mocks.QueryFilter{}
+	newQueryFilter := newMockQueryFilterBuilder(&queryFilter)
+
+	suite.T().Run("successful response", func(t *testing.T) {
+		officeUser := models.OfficeUser{ID: id}
+		params := officeuserop.GetOfficeUserParams{
+			HTTPRequest:  req,
+			OfficeUserID: strfmt.UUID(uuidString),
+		}
+		officeUserFetcher := &mocks.OfficeUserFetcher{}
+		officeUserFetcher.On("FetchOfficeUser",
+			mock.Anything,
+		).Return(officeUser, nil).Once()
+		handler := GetOfficeUserHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			officeUserFetcher,
+			newQueryFilter,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&officeuserop.GetOfficeUserOK{}, response)
+		okResponse := response.(*officeuserop.GetOfficeUserOK)
+		suite.Equal(uuidString, okResponse.Payload.ID.String())
+	})
+
+	suite.T().Run("unsuccesful response when fetch fails", func(t *testing.T) {
+		params := officeuserop.GetOfficeUserParams{
+			HTTPRequest:  req,
+			OfficeUserID: strfmt.UUID(uuidString),
+		}
+		expectedError := models.ErrFetchNotFound
+		officeUserFetcher := &mocks.OfficeUserFetcher{}
+		officeUserFetcher.On("FetchOfficeUser",
+			mock.Anything,
+		).Return(models.OfficeUser{}, expectedError).Once()
+		handler := GetOfficeUserHandler{
+			handlers.NewHandlerContext(suite.DB(), suite.TestLogger()),
+			officeUserFetcher,
+			newQueryFilter,
+		}
+
+		response := handler.Handle(params)
+
+		expectedResponse := &handlers.ErrResponse{
+			Code: http.StatusNotFound,
+			Err:  expectedError,
+		}
+		suite.Equal(expectedResponse, response)
+	})
+}
+
+func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 	transportationOfficeID, _ := uuid.NewV4()
 	officeUserID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
 	officeUser := models.OfficeUser{ID: officeUserID, TransportationOfficeID: transportationOfficeID, UserID: nil}
