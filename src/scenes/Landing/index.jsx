@@ -30,6 +30,7 @@ import { selectShipment } from 'shared/Entities/modules/shipments';
 export class Landing extends Component {
   componentDidMount() {
     scrollToTop();
+    // this.props.getMoveDocumentsForMove(this.props.move.id);
   }
   componentDidUpdate() {
     const {
@@ -168,6 +169,7 @@ export class Landing extends Component {
 const mapStateToProps = state => {
   const shipmentId = getCurrentShipment(state);
   const user = selectCurrentUser(state);
+  const move = state.moves.currentMove || state.moves.latestMove || {};
   const props = {
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     selectedMoveType: selectedMoveType(state),
@@ -177,7 +179,7 @@ const mapStateToProps = state => {
     serviceMember: state.serviceMember.currentServiceMember || {},
     backupContacts: state.serviceMember.currentBackupContacts || [],
     orders: state.orders.currentOrders || {},
-    move: state.moves.currentMove || state.moves.latestMove || {},
+    move,
     hhg: selectShipment(state, shipmentId),
     ppm: getPPM(state),
     currentShipment: shipmentId || {},

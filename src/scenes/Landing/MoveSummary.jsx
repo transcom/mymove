@@ -15,6 +15,7 @@ import faPlus from '@fortawesome/fontawesome-free-solid/faPlus';
 import truck from 'shared/icon/truck-gray.svg';
 import { selectReimbursement } from 'shared/Entities/modules/ppms';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
+import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
 import ppmCar from './images/ppm-car.svg';
 import { ShipmentStatusTimeline, ProfileStatusTimeline } from './StatusTimeline';
@@ -496,7 +497,7 @@ const NewPPMMoveDetailsPanel = props => {
         Payment request
       </div>
       <div>Estimated payment: </div>
-      <div>{formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max)}</div>
+      <div>${formatCents(ppm.incentive_estimate_min)}</div>
       <div style={{ fontSize: '0.90em', color: '#767676' }}>
         <em>Actual payment may vary, subject to Finance review.</em>
       </div>
@@ -624,117 +625,145 @@ const getHHGStatus = (moveStatus, shipment) => {
     : 'DRAFT';
 };
 
-export const MoveSummary = props => {
-  const {
-    context,
-    profile,
-    move,
-    orders,
-    ppm,
-    shipment,
-    editMove,
-    entitlement,
-    resumeMove,
-    reviewProfile,
-    requestPaymentSuccess,
-    addPPMShipment,
-  } = props;
-  const moveStatus = get(move, 'status', 'DRAFT');
-  const moveId = get(move, 'id');
-  const selectedMoveType = get(move, 'selected_move_type');
-  const showHHG = selectedMoveType === 'HHG' || selectedMoveType === 'HHG_PPM';
-  const showPPM = selectedMoveType === 'PPM' || selectedMoveType === 'HHG_PPM';
-  const hhgStatus = getHHGStatus(moveStatus, shipment);
-  const HHGComponent = hhgSummaryStatusComponents[hhgStatus]; // eslint-disable-line security/detect-object-injection
-  const PPMComponent = genPpmSummaryStatusComponents(context)[getPPMStatus(moveStatus, ppm, selectedMoveType)];
-  const showAddShipmentLink =
-    selectedMoveType === 'HHG' &&
-    includes(['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED'], move.status);
-  const showTsp =
-    move.selected_move_type !== 'PPM' && includes(['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED'], hhgStatus);
-  return (
-    <div className="move-summary">
-      {move.status === 'CANCELED' && (
-        <Alert type="info" heading="Your move was canceled">
-          Your move from {get(profile, 'current_station.name')} to {get(orders, 'new_duty_station.name')} with the move
-          locator ID {get(move, 'locator')} was canceled.
-        </Alert>
-      )}
-
-      <div className="whole_box">
-        {move.status !== 'CANCELED' && (
-          <div>
-            <MoveInfoHeader
-              orders={orders}
-              profile={profile}
-              move={move}
-              entitlement={entitlement}
-              requestPaymentSuccess={requestPaymentSuccess}
-            />
-            <br />
-          </div>
+export class MoveSummaryComponent extends React.Component {
+  componentDidMount() {
+    this.props.getMoveDocumentsForMove(this.props.move.id);
+  }
+  render() {
+    const {
+      context,
+      profile,
+      move,
+      orders,
+      ppm,
+      shipment,
+      editMove,
+      entitlement,
+      resumeMove,
+      reviewProfile,
+      requestPaymentSuccess,
+      addPPMShipment,
+      isMissingWeightTicketDocuments,
+    } = this.props;
+    const moveStatus = get(move, 'status', 'DRAFT');
+    const moveId = get(move, 'id');
+    const selectedMoveType = get(move, 'selected_move_type');
+    const showHHG = selectedMoveType === 'HHG' || selectedMoveType === 'HHG_PPM';
+    const showPPM = selectedMoveType === 'PPM' || selectedMoveType === 'HHG_PPM';
+    const hhgStatus = getHHGStatus(moveStatus, shipment);
+    const HHGComponent = hhgSummaryStatusComponents[hhgStatus]; // eslint-disable-line security/detect-object-injection
+    const PPMComponent = genPpmSummaryStatusComponents(context)[getPPMStatus(moveStatus, ppm, selectedMoveType)];
+    const showAddShipmentLink =
+      selectedMoveType === 'HHG' &&
+      includes(['SUBMITTED', 'ACCEPTED', 'AWARDED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED'], move.status);
+    const showTsp =
+      move.selected_move_type !== 'PPM' && includes(['ACCEPTED', 'APPROVED', 'IN_TRANSIT', 'DELIVERED'], hhgStatus);
+    return (
+      <div className="move-summary">
+        {move.status === 'CANCELED' && (
+          <Alert type="info" heading="Your move was canceled">
+            Your move from {get(profile, 'current_station.name')} to {get(orders, 'new_duty_station.name')} with the
+            move locator ID {get(move, 'locator')} was canceled.
+          </Alert>
         )}
-        <div className="usa-width-three-fourths">
-          {(showHHG || (!showHHG && !showPPM)) && (
-            <HHGComponent
-              className="status-component"
-              ppm={ppm}
-              shipment={shipment}
-              orders={orders}
-              profile={profile}
-              move={move}
-              entitlement={entitlement}
-              resumeMove={resumeMove}
-              reviewProfile={reviewProfile}
-              requestPaymentSuccess={requestPaymentSuccess}
-              addPPMShipment={addPPMShipment}
-            />
-          )}
-          {showPPM && (
-            <PPMComponent
-              context={context}
-              className="status-component"
-              ppm={ppm}
-              shipment={shipment}
-              orders={orders}
-              profile={profile}
-              move={move}
-              entitlement={entitlement}
-              resumeMove={resumeMove}
-              reviewProfile={reviewProfile}
-              requestPaymentSuccess={requestPaymentSuccess}
-            />
-          )}
-        </div>
 
-        <div className="sidebar usa-width-one-fourth">
-          <div>
-            <button
-              className="usa-button-secondary"
-              onClick={() => editMove(move)}
-              disabled={includes(['DRAFT', 'CANCELED'], move.status)}
-            >
-              Edit Move
-            </button>
+        <div className="whole_box">
+          {move.status !== 'CANCELED' && (
+            <div>
+              <MoveInfoHeader
+                orders={orders}
+                profile={profile}
+                move={move}
+                entitlement={entitlement}
+                requestPaymentSuccess={requestPaymentSuccess}
+              />
+              <br />
+            </div>
+          )}
+          {isMissingWeightTicketDocuments &&
+            ppm.status === 'PAYMENT_REQUESTED' && (
+              <Alert type="warning" heading="Payment request is missing info">
+                You will need to contact your local PPPO office to resolve your missing weight ticket.
+              </Alert>
+            )}
+          <div className="usa-width-three-fourths">
+            {(showHHG || (!showHHG && !showPPM)) && (
+              <HHGComponent
+                className="status-component"
+                ppm={ppm}
+                shipment={shipment}
+                orders={orders}
+                profile={profile}
+                move={move}
+                entitlement={entitlement}
+                resumeMove={resumeMove}
+                reviewProfile={reviewProfile}
+                requestPaymentSuccess={requestPaymentSuccess}
+                addPPMShipment={addPPMShipment}
+              />
+            )}
+            {showPPM && (
+              <PPMComponent
+                context={context}
+                className="status-component"
+                ppm={ppm}
+                shipment={shipment}
+                orders={orders}
+                profile={profile}
+                move={move}
+                entitlement={entitlement}
+                resumeMove={resumeMove}
+                reviewProfile={reviewProfile}
+                requestPaymentSuccess={requestPaymentSuccess}
+                isMissingWeightTicketDocuments={isMissingWeightTicketDocuments}
+              />
+            )}
           </div>
-          <div>
-            {showAddShipmentLink && (
-              <button className="link" onClick={() => addPPMShipment(moveId)}>
-                <FontAwesomeIcon icon={faPlus} />
-                <span> Add PPM (DITY) Move</span>
+
+          <div className="sidebar usa-width-one-fourth">
+            <div>
+              <button
+                className="usa-button-secondary"
+                onClick={() => editMove(move)}
+                disabled={includes(['DRAFT', 'CANCELED'], move.status)}
+              >
+                Edit Move
               </button>
-            )}
-          </div>
-          <div className="contact_block">
-            <div className="title">Contacts</div>
-            <TransportationOfficeContactInfo dutyStation={profile.current_station} isOrigin={true} />
-            {hhgStatus !== 'CANCELED' && (
-              <TransportationOfficeContactInfo dutyStation={get(orders, 'new_duty_station')} />
-            )}
-            {showTsp && <TransportationServiceProviderContactInfo shipmentId={shipment.id} />}
+            </div>
+            <div>
+              {showAddShipmentLink && (
+                <button className="link" onClick={() => addPPMShipment(moveId)}>
+                  <FontAwesomeIcon icon={faPlus} />
+                  <span> Add PPM (DITY) Move</span>
+                </button>
+              )}
+            </div>
+            <div className="contact_block">
+              <div className="title">Contacts</div>
+              <TransportationOfficeContactInfo dutyStation={profile.current_station} isOrigin={true} />
+              {hhgStatus !== 'CANCELED' && (
+                <TransportationOfficeContactInfo dutyStation={get(orders, 'new_duty_station')} />
+              )}
+              {showTsp && <TransportationServiceProviderContactInfo shipmentId={shipment.id} />}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
+}
+
+function mapStateToProps(state, ownProps) {
+  const isMissingWeightTicketDocuments = selectPPMCloseoutDocumentsForMove(state, ownProps.move.id, [
+    'WEIGHT_TICKET_SET',
+  ]).some(doc => doc.empty_weight_ticket_missing || doc.full_weight_ticket_missing);
+
+  return {
+    isMissingWeightTicketDocuments,
+  };
+}
+
+const mapDispatchToProps = {
+  getMoveDocumentsForMove,
 };
+export const MoveSummary = connect(mapStateToProps, mapDispatchToProps)(MoveSummaryComponent);
