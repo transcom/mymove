@@ -7,4 +7,5 @@ ALTER TABLE admin_users
 ")
 
 add_foreign_key("admin_users", "user_id", {"users": ["id"]}, {})
+add_foreign_key("admin_users", "organization_id", {"organizations": ["id"]}, {})
 add_index("admin_users", "email", {"unique": true, "name": "admin_users_email_uniq_idx"})
