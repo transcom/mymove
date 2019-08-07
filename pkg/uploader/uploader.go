@@ -4,7 +4,6 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
-	"net/http"
 
 	"github.com/h2non/bimg"
 
@@ -58,35 +57,43 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 		return nil, responseVErrors, detectContentTypeErr
 	}
 
-	options := bimg.Options{
-		Quality: 75,
-	}
-
 	// read file into bytes
 	// TODO seems like should just be able to use afile but this wasn't
 	// TODO working
-	f, err := u.Storer.TempFileSystem().Open(file.Name())
-	bs, err := ioutil.ReadAll(f)
-	bimg.VipsIsTypeSupported(bs)
-	if err != nil {
-		log.Println("bimg.Read", zap.Error(err))
+	var readErr error
+	var bs []byte
+	var f afero.File
+	f, readErr = u.Storer.TempFileSystem().Open(file.Name())
+	if readErr != nil {
+		f, readErr = u.Storer.TempFileSystem().Create(file.Name())
+		if readErr != nil {
+			log.Println("u.Storer.TempFileSystem().Create", zap.Error(readErr))
+		}
 	}
-	newImage, err := bimg.NewImage(bs).Process(options)
-	if err != nil {
-		filetype := http.DetectContentType(bs)
-		log.Println(len(bs))
-		log.Println(filetype)
-		log.Println("bimg.NewImage.Process", zap.Error(err))
+	bs, readErr = ioutil.ReadAll(f)
+	newImage := bimg.NewImage(bs)
+	if readErr != nil {
+		log.Println("bimg.Read", zap.Error(readErr))
 	}
+	imageType := bimg.DetermineImageType(bs)
+	if bimg.VipsIsTypeSupported(imageType) && imageType != bimg.PDF {
+		options := bimg.Options{
+			Quality: 75,
+		}
+		processedImage, err := newImage.Process(options)
+		if err != nil {
+			log.Println("bimg.NewImage.Process", zap.Error(err))
+		}
 
-	//TODO newImage is just bytes
-	file, err = u.Storer.TempFileSystem().Create(file.Name() + "_post_processed")
-	if err != nil {
-		log.Println("bimg.Writ", zap.Error(err))
-	}
-	_, err = file.Write(newImage)
-	if err != nil {
-		log.Println("postProcessedFile.Write", zap.Error(err))
+		//TODO newImage is just bytes
+		file, err = u.Storer.TempFileSystem().Create(file.Name() + "_post_processed")
+		if err != nil {
+			log.Println("bimg.Writ", zap.Error(err))
+		}
+		_, err = file.Write(processedImage)
+		if err != nil {
+			log.Println("postProcessedFile.Write", zap.Error(err))
+		}
 	}
 
 	info, fileStatErr := file.Stat()
@@ -132,7 +139,7 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 	}
 
 	var uploadError error
-	err = u.db.Transaction(func(db *pop.Connection) error {
+	err := u.db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
 		verrs, err := db.ValidateAndCreate(newUpload)
