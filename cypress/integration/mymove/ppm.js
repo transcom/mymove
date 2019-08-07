@@ -433,6 +433,7 @@ function serviceMemberReviewsDocuments() {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
   });
   cy.get('input[id="agree-checkbox"]').check({ force: true });
+  cy.contains(`You're requesting a payment of $`);
   cy
     .get('button')
     .contains('Submit Request')
