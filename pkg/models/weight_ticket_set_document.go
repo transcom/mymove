@@ -3,6 +3,8 @@ package models
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/auth"
+
 	"github.com/transcom/mymove/pkg/unit"
 
 	"github.com/gobuffalo/pop"
@@ -11,18 +13,18 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-// WeightTicketDocumentsPayload weight ticket documents payload
+// WeightTicketSetDocument weight ticket documents payload
 type WeightTicketSetDocument struct {
 	ID                       uuid.UUID    `json:"id" db:"id"`
 	MoveDocumentID           uuid.UUID    `json:"move_document_id" db:"move_document_id"`
 	MoveDocument             MoveDocument `belongs_to:"move_documents"`
-	EmptyWeight              unit.Pound   `json:"empty_weight,omitempty" db:"empty_weight"`
+	EmptyWeight              *unit.Pound  `json:"empty_weight,omitempty" db:"empty_weight"`
 	EmptyWeightTicketMissing bool         `json:"empty_weight_ticket_missing,omitempty" db:"empty_weight_ticket_missing"`
-	FullWeight               unit.Pound   `json:"full_weight,omitempty" db:"full_weight"`
+	FullWeight               *unit.Pound  `json:"full_weight,omitempty" db:"full_weight"`
 	FullWeightTicketMissing  bool         `json:"full_weight_ticket_missing,omitempty" db:"full_weight_ticket_missing"`
 	VehicleNickname          string       `json:"vehicle_nickname,omitempty" db:"vehicle_nickname"`
 	VehicleOptions           string       `json:"vehicle_options,omitempty" db:"vehicle_options"`
-	WeightTicketDate         time.Time    `json:"weight_ticket_date,omitempty" db:"weight_ticket_date"`
+	WeightTicketDate         *time.Time   `json:"weight_ticket_date,omitempty" db:"weight_ticket_date"`
 	TrailerOwnershipMissing  bool         `json:"trailer_ownership_missing,omitempty" db:"trailer_ownership_missing"`
 	CreatedAt                time.Time    `json:"created_at" db:"created_at"`
 	UpdatedAt                time.Time    `json:"updated_at" db:"updated_at"`
@@ -38,9 +40,6 @@ func (m *WeightTicketSetDocument) Validate(tx *pop.Connection) (*validate.Errors
 		&validators.UUIDIsPresent{Field: m.MoveDocumentID, Name: "MoveDocumentID"},
 		&validators.StringIsPresent{Field: string(m.VehicleNickname), Name: "VehicleNickname"},
 		&validators.StringIsPresent{Field: string(m.VehicleOptions), Name: "VehicleOptions"},
-		&validators.IntIsGreaterThan{Field: int(m.FullWeight), Name: "FullWeight", Compared: 0},
-		&validators.IntIsGreaterThan{Field: int(m.EmptyWeight), Name: "EmptyWeight", Compared: 0},
-		&validators.TimeIsPresent{Field: m.WeightTicketDate, Name: "WeightTicketDate"},
 	), nil
 }
 
@@ -54,4 +53,24 @@ func (m *WeightTicketSetDocument) ValidateCreate(tx *pop.Connection) (*validate.
 // This method is not required and may be deleted.
 func (m *WeightTicketSetDocument) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// SumWeightTicketSetsForPPM iterates through move documents that are weight ticket sets and accumulates
+// the net weight if the weight ticket set has an OK status
+func SumWeightTicketSetsForPPM(db *pop.Connection, session *auth.Session, ppmID uuid.UUID) (*unit.Pound, error) {
+	status := MoveDocumentStatusOK
+	var totalWeight unit.Pound
+	weightTicketSets, err := FetchMoveDocuments(db, session, ppmID, &status, MoveDocumentTypeWEIGHTTICKETSET)
+
+	if err != nil {
+		return &totalWeight, err
+	}
+
+	for _, weightTicketSet := range weightTicketSets {
+		wt := weightTicketSet.WeightTicketSetDocument
+		if wt != nil && wt.FullWeight != nil && wt.EmptyWeight != nil {
+			totalWeight += *wt.FullWeight - *wt.EmptyWeight
+		}
+	}
+	return &totalWeight, nil
 }

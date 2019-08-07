@@ -95,8 +95,7 @@ func (suite *InvoiceServiceSuite) helperCreateUpload(storer *storage.FileStorer)
 }
 
 func (suite *InvoiceServiceSuite) helperShipment() models.Shipment {
-	var weight unit.Pound
-	weight = 2000
+	weight := unit.Pound(2000)
 	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
 			NetWeight: &weight,
@@ -251,13 +250,13 @@ func (suite *InvoiceServiceSuite) TestUpdateInvoiceUploadCall() {
 
 	// Add upload to invoice
 	verrs, err := UpdateInvoiceUpload{DB: suite.DB(), Uploader: up}.Call(invoice, upload)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Empty(verrs.Error())
 	suite.Equal(upload.ID, *invoice.UploadID)
 
 	// Fetch Invoice from database and compare Upload IDs
 	fetchInvoice, err := suite.helperFetchInvoice(invoice.ID)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.NotNil(fetchInvoice)
 	suite.NotNil(fetchInvoice.UploadID)
 	suite.NotNil(fetchInvoice.Upload)
@@ -267,7 +266,7 @@ func (suite *InvoiceServiceSuite) TestUpdateInvoiceUploadCall() {
 	upload = suite.helperCreateUpload(storer)
 	suite.NotNil(upload)
 	err = UpdateInvoiceUpload{DB: suite.DB(), Uploader: up}.DeleteUpload(invoice)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Empty(verrs.Error())
 	suite.Nil(invoice.UploadID)
 	suite.Nil(invoice.Upload)

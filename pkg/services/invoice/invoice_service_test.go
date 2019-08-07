@@ -29,7 +29,7 @@ func (suite *InvoiceServiceSuite) SetupTest() {
 func TestInvoiceSuite(t *testing.T) {
 
 	hs := &InvoiceServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage().Suffix("invoice_service")),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 		storer:       storageTest.NewFakeS3Storage(true),
 	}
@@ -41,8 +41,7 @@ func helperShipment(suite *InvoiceServiceSuite) models.Shipment {
 }
 
 func helperShipmentUsingScac(suite *InvoiceServiceSuite, scac string) models.Shipment {
-	var weight unit.Pound
-	weight = 2000
+	weight := unit.Pound(2000)
 	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
 			NetWeight: &weight,

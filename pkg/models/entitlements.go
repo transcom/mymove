@@ -16,7 +16,7 @@ func makeEntitlements() map[ServiceMemberRank]WeightAllotment {
 	// the midshipman entitlement is shared with service academy cadet
 	midshipman := WeightAllotment{
 		TotalWeightSelf:               350,
-		TotalWeightSelfPlusDependents: 3000,
+		TotalWeightSelfPlusDependents: 350,
 		ProGearWeight:                 0,
 		ProGearWeightSpouse:           0,
 	}
@@ -200,6 +200,11 @@ func makeEntitlements() map[ServiceMemberRank]WeightAllotment {
 		ServiceMemberRankCIVILIANEMPLOYEE:  civilianEmployee,
 	}
 	return entitlements
+}
+
+// AllWeightAllotments returns all the weight allotments for each rank.
+func AllWeightAllotments() map[ServiceMemberRank]WeightAllotment {
+	return makeEntitlements()
 }
 
 // GetWeightAllotment returns the weight allotments for a given rank.

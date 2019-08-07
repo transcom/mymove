@@ -4,28 +4,37 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"os"
 	"path"
+
+	"github.com/hhrutter/pdfcpu/pkg/pdfcpu/validate"
 
 	"github.com/transcom/mymove/pkg/uploader"
 
+	"github.com/hhrutter/pdfcpu/pkg/api"
 	"github.com/spf13/afero"
-	"github.com/trussworks/pdfcpu/pkg/api"
-	"github.com/trussworks/pdfcpu/pkg/pdfcpu"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *PaperworkSuite) sha256ForPath(path string, fs *afero.Afero) (string, error) {
-	file, err := fs.Open(path)
+	var file afero.File
+	var err error
+	if fs != nil {
+		file, err = fs.Open(path)
+	} else {
+		file, err = os.Open(path)
+	}
 	if err != nil {
-		suite.Nil(err)
+		suite.NoError(err)
 	}
 	defer file.Close()
 
 	hash := sha256.New()
 	if _, err := io.Copy(hash, file); err != nil {
-		suite.Nil(err)
+		suite.NoError(err)
 	}
 
 	byteArray := hash.Sum(nil)
@@ -84,22 +93,37 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 
 	generatedPath, err := generator.PDFFromImages(images)
 	suite.FatalNil(err, "failed to generate pdf")
+	aferoFile, err := generator.fs.Open(generatedPath)
+	suite.FatalNil(err, "afero failed to open pdf")
+
 	suite.NotEmpty(generatedPath, "got an empty path to the generated file")
+	suite.FatalNil(err)
 
 	// verify that the images are in the pdf by extracting them and checking their checksums
-	tmpdir, err := afero.TempDir(generator.fs, "", "extracted_images")
-	suite.FatalNil(err, "could not create temp dir")
-
-	api.ExtractImages(generatedPath, tmpdir, []string{"-2"}, generator.pdfConfig)
+	file, err := afero.ReadAll(aferoFile)
+	suite.FatalNil(err)
+	tmpDir, err := ioutil.TempDir("", "images")
+	suite.FatalNil(err)
+	f, err := ioutil.TempFile(tmpDir, "")
+	suite.FatalNil(err)
+	err = ioutil.WriteFile(f.Name(), file, os.ModePerm)
+	suite.FatalNil(err)
+	err = api.ExtractImages(f, tmpDir, []string{"-2"}, generator.pdfConfig)
+	suite.FatalNil(err)
+	err = os.Remove(f.Name())
+	suite.FatalNil(err)
 
 	checksums := make([]string, 2)
-	files, err := afero.ReadDir(generator.fs, tmpdir)
+	files, err := ioutil.ReadDir(tmpDir)
+	for _, f := range files {
+		fmt.Println(f.Name())
+	}
 	suite.FatalNil(err)
 
 	suite.Equal(2, len(files), "did not find 2 images")
 
 	for _, file := range files {
-		checksum, sha256ForPathErr := suite.sha256ForPath(path.Join(tmpdir, file.Name()), generator.fs)
+		checksum, sha256ForPathErr := suite.sha256ForPath(path.Join(tmpDir, file.Name()), nil)
 		suite.FatalNil(sha256ForPathErr, "error calculating hash")
 		if sha256ForPathErr != nil {
 			suite.FailNow(sha256ForPathErr.Error())
@@ -146,15 +170,46 @@ func (suite *PaperworkSuite) TestGenerateUploadsPDF() {
 func (suite *PaperworkSuite) TestCreateMergedPDF() {
 	generator, order := suite.setupOrdersDocument()
 
-	file, err := generator.CreateMergedPDFUpload(order.UploadedOrders.Uploads)
+	uploads := order.UploadedOrders.Uploads
+	file, err := generator.CreateMergedPDFUpload(uploads)
 	suite.FatalNil(err)
 
 	// Read merged file and verify page count
-	ctx, err := api.Read(file.Name(), generator.pdfConfig)
+	ctx, err := api.ReadContext(file, generator.pdfConfig)
 	suite.FatalNil(err)
 
-	err = pdfcpu.ValidateXRefTable(ctx.XRefTable)
+	err = validate.XRefTable(ctx.XRefTable)
 	suite.FatalNil(err)
 
 	suite.Equal(3, ctx.PageCount)
+}
+
+func (suite *PaperworkSuite) TestCleanup() {
+	generator, order := suite.setupOrdersDocument()
+
+	uploads := order.UploadedOrders.Uploads
+	_, err := generator.CreateMergedPDFUpload(uploads)
+	suite.FatalNil(err)
+
+	generator.Cleanup()
+
+	fs := suite.uploader.Storer.FileSystem()
+	exists, existsErr := fs.DirExists(generator.workDir)
+	suite.Nil(existsErr)
+
+	if exists {
+		suite.Failf("expected %s to not be a directory, but it was", generator.workDir)
+
+		var paths []string
+		walkErr := fs.Walk(generator.workDir, func(path string, info os.FileInfo, err error) error {
+			if path != generator.workDir { // Walk starts off with the directory passed to it
+				paths = append(paths, path)
+			}
+			return nil
+		})
+		suite.Nil(walkErr)
+		if len(paths) > 0 {
+			suite.Failf("did not clean up", "expected %s to be empty, but it contained %v", generator.workDir, paths)
+		}
+	}
 }

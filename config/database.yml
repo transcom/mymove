@@ -1,3 +1,7 @@
+# This file is used only by soda, as that tool does not accept database connection information
+# in any other way.
+
+# This block is used in both development AND test environments for local development.
 development:
   dialect: "postgres"
   database: {{ env "DB_NAME" }}
@@ -6,17 +10,16 @@ development:
   user: {{ env "DB_USER" }}
   password: {{ env "DB_PASSWORD" }}
 
+# This block is used by integration tests on CircleCI.
 test:
   dialect: "postgres"
-  # Leave the test database name hardcoded, since we run tests in the same
-  # environment as development, and it's extra confusing to have to swap env
-  # variables before running tests.
-  database: "test_db"
+  database: {{ env "TEST_DB_NAME" }}
   host: {{ env "DB_HOST" }}
   port: {{ env "DB_PORT" }}
   user: {{ env "DB_USER" }}
   password: {{ env "DB_PASSWORD" }}
 
+# This block is used by experimental, staging, and production migrations on CircleCI.
 container:
   dialect: "postgres"
   database: {{ env "DB_NAME" }}

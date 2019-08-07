@@ -4,24 +4,31 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues } from 'redux-form';
 import { selectPPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
+import { selectAllDocumentsForMove, findPendingWeightTickets } from 'shared/Entities/modules/moveDocuments';
+import Alert from 'shared/Alert';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
 
-const NetWeightDisplay = props => {
+const NetWeightDisplay = ({ ppmSchema, ppm, hasWeightTicketsPending, ppmPaymentRequestedFlag }) => {
   const fieldProps = {
-    schema: props.ppmSchema,
-    values: props.ppm,
+    schema: ppmSchema,
+    values: ppm,
   };
   return (
     <div className="editable-panel-column">
+      {ppmPaymentRequestedFlag &&
+        hasWeightTicketsPending && (
+          <div className="missing-info-alert">
+            <Alert type="warning">There are more weight tickets awaiting review.</Alert>
+          </div>
+        )}
       <PanelSwaggerField title="Net Weight" fieldName="net_weight" required {...fieldProps} />
     </div>
   );
 };
 
-const NetWeightEdit = props => {
-  const { ppmSchema } = props;
+const NetWeightEdit = ({ ppmSchema }) => {
   return (
     <div className="editable-panel-column net-weight">
       <SwaggerField className="short-field" title="Net Weight" fieldName="net_weight" swagger={ppmSchema} required />lbs
@@ -41,6 +48,9 @@ NetWeightPanel = reduxForm({
 function mapStateToProps(state, ownProps) {
   const formValues = getFormValues(formName)(state);
   const ppm = selectPPMForMove(state, ownProps.moveId);
+  const moveDocs = selectAllDocumentsForMove(state, ownProps.moveId);
+  const hasWeightTicketsPending = findPendingWeightTickets(moveDocs).length > 0;
+
   return {
     // reduxForm
     initialValues: pick(ppm, 'net_weight'),
@@ -54,6 +64,7 @@ function mapStateToProps(state, ownProps) {
       const values = getFormValues(formName)(state);
       return [ownProps.moveId, ppm.id, values];
     },
+    hasWeightTicketsPending,
   };
 }
 

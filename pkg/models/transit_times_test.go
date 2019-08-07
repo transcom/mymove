@@ -7,11 +7,11 @@ import (
 
 func (suite *ModelSuite) Test_TransitDaysLookup() {
 	days, err := TransitDays(unit.Pound(2500), 1100)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(11, days, "wrong number of days")
 
 	days, err = TransitDays(unit.Pound(4300), 6100)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Equal(30, days, "wrong number of days")
 }
 

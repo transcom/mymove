@@ -67,8 +67,16 @@ describe('office user finds the move', function() {
     });
   });
 
-  it('office user edits ppm net weight', function() {
-    officeUserEditsNetWeight();
+  it('download all attachments button is disabled when there are no attachments to download', function() {
+    officeUserGoesToPPMPanel('FDXTIU');
+    cy
+      .get('a')
+      .contains('Create payment paperwork')
+      .click();
+    cy
+      .get('button')
+      .contains('Download All Attachments (PDF)')
+      .should('be.disabled');
   });
 
   it('edits pickup and destination zip codes in estimates panel and these values are reflected in the storage and incentive calculators', function() {
@@ -86,39 +94,6 @@ describe('office user finds the move', function() {
     userCancelsStorageDetails();
   });
 });
-
-function officeUserEditsNetWeight() {
-  cy.patientVisit('/queues/ppm');
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/ppm/);
-  });
-
-  cy.selectQueueItemMoveLocator('FDXTIU');
-
-  cy.location().should(loc => {
-    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
-  });
-
-  cy.get('[data-cy="ppm-tab"]').click();
-
-  cy.get('.net_weight').contains('missing');
-
-  cy
-    .get('.editable-panel-header')
-    .contains('Weights')
-    .siblings()
-    .click();
-
-  cy.get('input[name="net_weight"]').type('6000');
-
-  cy
-    .get('button')
-    .contains('Save')
-    .click();
-
-  cy.get('.net_weight').contains('6,000');
-}
 
 function officeUserViewsMoves() {
   // Open new moves queue
@@ -186,6 +161,28 @@ function officeUserVerifiesOrders(moveLocator) {
 
   cy.get('span').contains('ISSUING AGENCY');
   cy.get('span').contains('FP-TP');
+
+  // Enter SAC
+  cy.get('.combo-button button').should('be.disabled');
+
+  // Click on edit orders
+  cy
+    .get('.editable-panel-header')
+    .contains('Accounting')
+    .siblings()
+    .click();
+
+  cy.get('input[name="sac"]').type('SAC');
+
+  cy
+    .get('button')
+    .contains('Save')
+    .should('be.enabled');
+
+  cy
+    .get('button')
+    .contains('Save')
+    .click();
 
   // Refresh browser and make sure changes persist
   cy.patientReload();
@@ -296,12 +293,6 @@ function officeUserApprovesMoveAndPPM(moveLocator) {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new/);
   });
-
-  // Open PPMs Queue
-  cy
-    .get('span')
-    .contains('PPMs')
-    .click();
 
   // Find move and open it
   cy.selectQueueItemMoveLocator(moveLocator);

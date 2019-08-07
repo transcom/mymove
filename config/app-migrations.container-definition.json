@@ -10,15 +10,18 @@
     "exec",
     "app-{{ .environment }}",
     "--",
-    "/bin/milmove"
-  ],
-  "command": [
+    "/bin/milmove",
     "migrate",
-    "--env",
+    "--logging-env",
+    "production",
+    "--db-env",
     "container",
     "-p",
-    "/migrate/migrations"
+    "/migrate/migrations",
+    "-m",
+    "/migrate/migrations_manifest.txt"
   ],
+  "command": [],
   "environment": [
     {
       "name": "ENVIRONMENT",

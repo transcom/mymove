@@ -33,7 +33,7 @@ const toCamelCase = str => str[0].toLowerCase() + str.slice(1);
 function successfulReturnType(routeDefinition, status) {
   // eslint-disable-next-line security/detect-object-injection
   const response = routeDefinition.responses[status];
-  const [, , schemaKey] = response.schema['$$ref'].split('/');
+  const schemaKey = response.schema['$$ref'].split('/').pop();
   if (!response) {
     console.error(`No response found for operation ${routeDefinition.operationId} with status ${status}`);
     return;

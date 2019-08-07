@@ -74,7 +74,12 @@ export class DutyStation extends Component {
         serverError={error}
       >
         <h1 className="sm-heading">Current Duty Station</h1>
-        <Field name="current_station" component={DutyStationSearchBox} errorMsg={newDutyStationErrorMsg} />
+        <Field
+          name="current_station"
+          title="What is your current duty station?"
+          component={DutyStationSearchBox}
+          errorMsg={newDutyStationErrorMsg}
+        />
       </DutyStationWizardForm>
     );
   }

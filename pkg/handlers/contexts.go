@@ -2,15 +2,18 @@ package handlers
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	"github.com/transcom/mymove/pkg/dpsauth"
 	"github.com/transcom/mymove/pkg/iws"
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/logging/hnyzap"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
@@ -21,7 +24,12 @@ import (
 // HandlerContext provides access to all the contextual references needed by individual handlers
 type HandlerContext interface {
 	DB() *pop.Connection
-	Logger() Logger
+	SessionAndLoggerFromContext(ctx context.Context) (*auth.Session, Logger)
+	SessionAndLoggerFromRequest(r *http.Request) (*auth.Session, Logger)
+	SessionFromRequest(r *http.Request) *auth.Session
+	SessionFromContext(ctx context.Context) *auth.Session
+	LoggerFromContext(ctx context.Context) Logger
+	LoggerFromRequest(r *http.Request) Logger
 	HoneyZapLogger() *hnyzap.Logger
 	FileStorer() storage.FileStorer
 	SetFileStorer(storer storage.FileStorer)
@@ -39,6 +47,10 @@ type HandlerContext interface {
 	SetSendProductionInvoice(sendProductionInvoice bool)
 	UseSecureCookie() bool
 	SetUseSecureCookie(useSecureCookie bool)
+	SetAppNames(appNames auth.ApplicationServername)
+	AppNames() auth.ApplicationServername
+	SetFeatureFlag(flags FeatureFlag)
+	GetFeatureFlag(name string) bool
 
 	GexSender() services.GexSender
 	SetGexSender(gexSender services.GexSender)
@@ -48,6 +60,12 @@ type HandlerContext interface {
 	SetDPSAuthParams(params dpsauth.Params)
 	RespondAndTraceError(ctx context.Context, err error, msg string, fields ...zap.Field) middleware.Responder
 	RespondAndTraceVErrors(ctx context.Context, verrs *validate.Errors, err error, msg string, fields ...zap.Field) middleware.Responder
+}
+
+// FeatureFlag struct for feature flags
+type FeatureFlag struct {
+	Name   string
+	Active bool
 }
 
 // A single handlerContext is passed to each handler
@@ -65,6 +83,8 @@ type handlerContext struct {
 	senderToGex           services.GexSender
 	icnSequencer          sequence.Sequencer
 	useSecureCookie       bool
+	appNames              auth.ApplicationServername
+	featureFlags          map[string]bool
 }
 
 // NewHandlerContext returns a new handlerContext with its required private fields set.
@@ -75,14 +95,36 @@ func NewHandlerContext(db *pop.Connection, logger Logger) HandlerContext {
 	}
 }
 
+func (hctx *handlerContext) SessionAndLoggerFromRequest(r *http.Request) (*auth.Session, Logger) {
+	return hctx.SessionAndLoggerFromContext(r.Context())
+}
+
+func (hctx *handlerContext) SessionAndLoggerFromContext(ctx context.Context) (*auth.Session, Logger) {
+	return auth.SessionFromContext(ctx), hctx.LoggerFromContext(ctx)
+}
+
+func (hctx *handlerContext) SessionFromRequest(r *http.Request) *auth.Session {
+	return auth.SessionFromContext(r.Context())
+}
+
+func (hctx *handlerContext) SessionFromContext(ctx context.Context) *auth.Session {
+	return auth.SessionFromContext(ctx)
+}
+
+func (hctx *handlerContext) LoggerFromRequest(r *http.Request) Logger {
+	return hctx.LoggerFromContext(r.Context())
+}
+
+func (hctx *handlerContext) LoggerFromContext(ctx context.Context) Logger {
+	if logger, ok := logging.FromContext(ctx).(Logger); ok {
+		return logger
+	}
+	return hctx.logger
+}
+
 // DB returns a POP db connection for the context
 func (hctx *handlerContext) DB() *pop.Connection {
 	return hctx.db
-}
-
-// Logger returns the logger to use in this context
-func (hctx *handlerContext) Logger() Logger {
-	return hctx.logger
 }
 
 // HoneyZapLogger returns the logger capable of writing to Honeycomb to use in this context
@@ -96,13 +138,13 @@ func (hctx *handlerContext) HoneyZapLogger() *hnyzap.Logger {
 // RespondAndTraceError uses Honeycomb to trace errors and then passes response to the standard ResponseForError
 func (hctx *handlerContext) RespondAndTraceError(ctx context.Context, err error, msg string, fields ...zap.Field) middleware.Responder {
 	hctx.HoneyZapLogger().TraceError(ctx, msg, fields...)
-	return ResponseForError(hctx.Logger(), err)
+	return ResponseForError(hctx.LoggerFromContext(ctx), err)
 }
 
 // RespondAndTraceVErrors uses Honeycomb to trace errors and then passes response to the standard ResponseForVErrors
 func (hctx *handlerContext) RespondAndTraceVErrors(ctx context.Context, verrs *validate.Errors, err error, msg string, fields ...zap.Field) middleware.Responder {
 	hctx.HoneyZapLogger().TraceError(ctx, msg, fields...)
-	return ResponseForVErrors(hctx.Logger(), verrs, err)
+	return ResponseForVErrors(hctx.LoggerFromContext(ctx), verrs, err)
 }
 
 // FileStorer returns the storage to use in the current context
@@ -115,6 +157,16 @@ func (hctx *handlerContext) SetFileStorer(storer storage.FileStorer) {
 	hctx.storage = storer
 }
 
+// AppNames returns a struct of all the app names for the current environment
+func (hctx *handlerContext) AppNames() auth.ApplicationServername {
+	return hctx.appNames
+}
+
+// SetAppNames is a simple setter for private field
+func (hctx *handlerContext) SetAppNames(appNames auth.ApplicationServername) {
+	hctx.appNames = appNames
+}
+
 // NotificationSender returns the sender to use in the current context
 func (hctx *handlerContext) NotificationSender() notifications.NotificationSender {
 	return hctx.notificationSender
@@ -125,7 +177,7 @@ func (hctx *handlerContext) SetNotificationSender(sender notifications.Notificat
 	hctx.notificationSender = sender
 }
 
-// Planner is a simple setter for the route.Planner private field
+// Planner returns the planner for the current context
 func (hctx *handlerContext) Planner() route.Planner {
 	return hctx.planner
 }
@@ -205,4 +257,19 @@ func (hctx *handlerContext) UseSecureCookie() bool {
 // Sets flag for using Secure cookie
 func (hctx *handlerContext) SetUseSecureCookie(useSecureCookie bool) {
 	hctx.useSecureCookie = useSecureCookie
+}
+
+func (hctx *handlerContext) SetFeatureFlag(flag FeatureFlag) {
+	if hctx.featureFlags == nil {
+		hctx.featureFlags = make(map[string]bool)
+	}
+
+	hctx.featureFlags[flag.Name] = flag.Active
+}
+
+func (hctx *handlerContext) GetFeatureFlag(flag string) bool {
+	if value, ok := hctx.featureFlags[flag]; ok {
+		return value
+	}
+	return false
 }

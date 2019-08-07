@@ -23,7 +23,12 @@ func SetClientCertInRequestContext(r *http.Request, clientCert *models.ClientCer
 
 // ClientCertFromRequestContext gets the reference to the ClientCert stored in the request.Context()
 func ClientCertFromRequestContext(r *http.Request) *models.ClientCert {
-	if clientCert, ok := r.Context().Value(clientCertContextKey).(*models.ClientCert); ok {
+	return ClientCertFromContext(r.Context())
+}
+
+// ClientCertFromContext gets the reference to the ClientCert stored in the request.Context()
+func ClientCertFromContext(ctx context.Context) *models.ClientCert {
+	if clientCert, ok := ctx.Value(clientCertContextKey).(*models.ClientCert); ok {
 		return clientCert
 	}
 	return nil
@@ -33,7 +38,7 @@ func ClientCertFromRequestContext(r *http.Request) *models.ClientCert {
 func ClientCertMiddleware(logger Logger, db *pop.Connection) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			ctx, span := beeline.StartSpan(r.Context(), "ClientCertMiddleware")
+			_, span := beeline.StartSpan(r.Context(), "ClientCertMiddleware")
 			defer span.Send()
 
 			if r.TLS == nil || len(r.TLS.PeerCertificates) == 0 {
@@ -54,10 +59,9 @@ func ClientCertMiddleware(logger Logger, db *pop.Connection) func(next http.Hand
 				return
 			}
 
-			ctx = SetClientCertInRequestContext(r, clientCert)
+			ctx := SetClientCertInRequestContext(r, clientCert)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
-			return
 		}
 		return http.HandlerFunc(mw)
 	}

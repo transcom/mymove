@@ -15,8 +15,6 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"github.com/transcom/mymove/pkg/auth"
-
 	"github.com/transcom/mymove/pkg/gen/apimessages"
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -44,7 +42,7 @@ func (suite *HandlerSuite) TestPayloadForShipmentModelWhenTspIDIsPresent() {
 		},
 	})
 	reloadShipment, err := models.FetchShipmentByTSP(suite.DB(), tsp.ID, shipment.ID)
-	suite.Nil(err)
+	suite.NoError(err)
 
 	shipmentPayload := payloadForShipmentModel(*reloadShipment)
 	expectedTspID := *handlers.FmtUUID(tsp.ID)
@@ -163,10 +161,10 @@ func (suite *HandlerSuite) TestGetShipmentHandlerWhereSessionServiceMemberIDDoes
 		ShipmentID:  strfmt.UUID(shipment.ID.String()),
 	}
 
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-
 	handler := GetShipmentHandler{handlers.NewHandlerContext(suite.DB(), suite.TestLogger())}
 	response := handler.Handle(params)
+
+	session := handler.SessionFromRequest(params.HTTPRequest)
 
 	suite.NotEqual(session.ServiceMemberID, shipment.ServiceMemberID)
 	suite.Assertions.IsType(&shipmentop.GetShipmentForbidden{}, response)
@@ -853,7 +851,7 @@ func (suite *HandlerSuite) TestDeliverShipmentHandler() {
 
 	// The details of the line items are tested in the rateengine package.  We just
 	// check the count here.
-	suite.Len(addedLineItems, 7)
+	suite.Len(addedLineItems, 8)
 
 	updatedPreApproval, err := models.FetchShipmentLineItemByID(suite.DB(), &preApproval.ID)
 	if suite.NoError(err) {

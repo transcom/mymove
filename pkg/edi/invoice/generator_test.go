@@ -165,8 +165,7 @@ func (suite *InvoiceSuite) TestEDIString() {
 }
 
 func helperShipment(suite *InvoiceSuite) models.Shipment {
-	var weight unit.Pound
-	weight = 2000
+	weight := unit.Pound(2000)
 	shipment := testdatagen.MakeShipment(suite.DB(), testdatagen.Assertions{
 		Shipment: models.Shipment{
 			NetWeight: &weight,
@@ -315,7 +314,7 @@ func TestInvoiceSuite(t *testing.T) {
 	v.AutomaticEnv()
 
 	hs := &InvoiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 		Viper:        v,
 	}
@@ -327,9 +326,7 @@ func TestInvoiceSuite(t *testing.T) {
 
 func (suite *InvoiceSuite) TestMakeEDISegments() {
 	shipment := helperShipment(suite)
-	var lineItems []models.ShipmentLineItem
-
-	lineItems = append(shipment.ShipmentLineItems)
+	lineItems := shipment.ShipmentLineItems
 
 	suite.T().Run("test EDI segments", func(t *testing.T) {
 		for _, lineItem := range lineItems {

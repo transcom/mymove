@@ -1075,6 +1075,8 @@ definitions:
         title: Email
       backup_contacts:
         $ref: '#/definitions/IndexServiceMemberBackupContacts'
+      weight_allotment:
+        $ref: '#/definitions/WeightAllotment'
   IndexServiceMemberBackupContacts:
     type: array
     items:
@@ -1138,6 +1140,26 @@ definitions:
       NONE: Contact Only
       VIEW: View all move details
       EDIT: View and edit all move details
+  WeightAllotment:
+    type: object
+    properties:
+      total_weight_self:
+        type: integer
+        example: 18000
+      total_weight_self_plus_dependents:
+        type: integer
+        example: 18000
+      pro_gear_weight:
+        type: integer
+        example: 2000
+      pro_gear_weight_spouse:
+        type: integer
+        example: 500
+    required:
+      - total_weight_self
+      - total_weight_self_plus_dependents
+      - pro_gear_weight
+      - pro_gear_weight_spouse
   TrafficDistributionList:
     type: object
     properties:
@@ -1896,18 +1918,7 @@ definitions:
         format: date
         example: '2018-04-26'
         title: Released On Date
-  ValidateAccessCodePayload:
-    type: object
-    properties:
-      valid:
-        type: boolean
-        example: false
-      access_code:
-        $ref: '#/definitions/AccessCodePayload'
-    required:
-      - valid
-      - access_code
-  AccessCodePayload:
+  AccessCode:
     type: object
     properties:
       id:
@@ -1937,12 +1948,13 @@ definitions:
         format: datetime
         example: 2018-04-12T23:20:50.52Z
         description: when the access code was claimed or used
+        x-nullable: true
     required:
       - id
       - code
       - move_type
       - created_at
-  ValidatePostalCodePayload:
+  RateEnginePostalCodePayload:
     type: object
     properties:
       valid:
@@ -1963,7 +1975,6 @@ definitions:
       - valid
       - postal_code
       - postal_code_type
-
 paths:
   /tariff_400ng_items:
     get:
@@ -2580,15 +2591,15 @@ paths:
           description: UUID of the shipment
       responses:
         200:
-          description: returns a Transporation Service Provider
+          description: returns a Transportation Service Provider
           schema:
             $ref: '#/definitions/TransportationServiceProvider'
-        400:
-          description: invalid request
         401:
           description: must be authenticated to use this endpoint
         403:
           description: not authorized to list these shipments
+        404:
+          description: transportation service provider does not exist for shipment
         422:
           description: cannot process request with given information
         500:
@@ -2923,6 +2934,35 @@ paths:
           description: failed to meet data requirements for line items
         500:
           description: server error
+  /shipments/{shipmentId}/accessorials/recalculate:
+    post:
+      summary: Recalculates shipment line items for a shipment
+      description: Recalcuate shipment line items given a shipment ID
+      operationId: recalculateShipmentLineItems
+      tags:
+        - accessorials
+      parameters:
+        - in: path
+          name: shipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+      responses:
+        200:
+          description: A collection of recalculated shipment line items
+          schema:
+            $ref: '#/definitions/ShipmentLineItems'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authorization
+        403:
+          description: user unauthorized
+        404:
+          description: shipment id not found
+        500:
+          description: internal server error
   /shipments/accessorials/{shipmentLineItemId}:
     put:
       summary: Updates a shipment line item
@@ -3505,6 +3545,26 @@ paths:
           description: TSP UUID not found in system
         500:
           description: server error
+  /access_codes:
+    get:
+      summary: Fetches an access code
+      description: Fetches the access code for a service member.
+      operationId: fetchAccessCode
+      tags:
+        - accesscode
+      responses:
+        200:
+          description: access code has been found in system
+          schema:
+            $ref: '#/definitions/AccessCode'
+        400:
+          description: invalid request
+        401:
+          description: not authorized to fetch access code
+        404:
+          description: access code not found in system
+        500:
+          description: server error
   /access_codes/valid:
     get:
       summary: Validate if an access code has been unused and associated with the correct move type.
@@ -3517,11 +3577,13 @@ paths:
           name: code
           type: string
           description: the code the access code represents and verifies if in use
+          pattern: '^(HHG|PPM)-[A-Z0-9]{6}$'
+          x-nullable: false
       responses:
         200:
           description: access code is invalid or valid
           schema:
-            $ref: '#/definitions/ValidateAccessCodePayload'
+            $ref: '#/definitions/AccessCode'
         400:
           description: invalid request
         401:
@@ -3539,7 +3601,7 @@ paths:
         - accesscode
       parameters:
         - in: body
-          name: accessCodePayload
+          name: accessCode
           description: the code the access code represents and verifies if in use
           required: true
           schema:
@@ -3553,7 +3615,7 @@ paths:
         200:
           description: access code is invalid or valid
           schema:
-            $ref: '#/definitions/AccessCodePayload'
+            $ref: '#/definitions/AccessCode'
         400:
           description: invalid request
         401:
@@ -3562,11 +3624,11 @@ paths:
           description: access code not found in system
         500:
           description: server error
-  /postal_codes/{postal_code}:
+  /rate_engine_postal_codes/{postal_code}:
     get:
       summary: Validate if a zipcode is valid for origin or destination location for a move.
       description: Verifies if a zipcode is valid for origin or destination location for a move.
-      operationId: validatePostalCode
+      operationId: validatePostalCodeWithRateData
       tags:
         - postal_codes
       parameters:
@@ -3587,12 +3649,37 @@ paths:
         200:
           description: postal_code is valid or invalid
           schema:
-            $ref: '#/definitions/ValidatePostalCodePayload'
+            $ref: '#/definitions/RateEnginePostalCodePayload'
         400:
           description: invalid request
         401:
           description: must be authenticated to use this endpoint
         403:
           description: user is not authorized
+        500:
+          description: server error
+  /transportation_service_provider_performances/{transportationServiceProviderPerformanceId}:
+    get:
+      summary: Logs a Transportation Service Provider Performance
+      description: Logs a Transportation Service Provider Performance
+      operationId: logTransportationServiceProviderPerformance
+      tags:
+        - transportation_service_provider_performance
+      parameters:
+        - name: transportationServiceProviderPerformanceId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the Transportation Service Provider Performance
+      responses:
+        204:
+          description: the Transportation Service Provider Performance was logged
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to log the details of this Transportation Service Provider Performance
         500:
           description: server error

@@ -64,8 +64,7 @@ func recursivePrettyStringWithPadding(model interface{}, padding string) string 
 			valField := modelValue.Field(i)
 			typeField := modelType.Field(i)
 
-			var fieldRep interface{}
-			fieldRep = recursivePrettyStringWithPadding(valField.Interface(), indentedPadding)
+			fieldRep := recursivePrettyStringWithPadding(valField.Interface(), indentedPadding)
 
 			prettyString += fmt.Sprintf("%s%-22s %v\n", indentedPadding, typeField.Name, fieldRep)
 		}

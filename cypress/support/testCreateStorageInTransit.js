@@ -1,8 +1,5 @@
 /* global cy */
 export function fillAndSaveStorageInTransit() {
-  // Select the location
-  cy.get('select[name="location"]').select('ORIGIN');
-
   // Enter details in form and create the Storage In Transit request
   cy
 
@@ -47,7 +44,9 @@ export function fillAndSaveStorageInTransit() {
   cy
     .get('button')
     .contains('Send Request')
-    .should('be.enabled');
+    .should('be.enabled'); // assures default location is detected in form
+
+  cy.get('input[data-cy="origin-radio"]').check({ force: true }); // checks Origin
 
   cy
     .get('button')
@@ -59,6 +58,7 @@ export function fillAndSaveStorageInTransit() {
 
   cy.get('.storage-in-transit').should($div => {
     const text = $div.text();
+    expect(text).to.include('Origin');
     expect(text).to.include('Dates');
     expect(text).to.include('24-Oct-2018');
     expect(text).to.include('Warehouse');
@@ -77,19 +77,20 @@ export function editAndSaveStorageInTransit() {
   cy
     .get('input[name="warehouse_name"]')
     .first()
+    .clear()
     .type('the haus', { force: true, delay: 150 });
+
+  cy.get('input[data-cy="destination-radio"]').check({ force: true });
 
   cy.get('.usa-button-primary').click();
 
-  // Refresh browser and make sure changes persist
-  cy.patientReload();
-
   cy.get('.storage-in-transit').should($div => {
     const text = $div.text();
+    expect(text).to.include('Destination');
     expect(text).to.include('Dates');
     expect(text).to.include('24-Oct-2018');
     expect(text).to.include('Warehouse');
-    expect(text).to.include('warehouse haus');
+    expect(text).to.include('the haus');
     expect(text).to.include('Warehouse ID');
     expect(text).to.include('SIT123456SIT');
     expect(text).to.include('Contact info');
@@ -97,5 +98,14 @@ export function editAndSaveStorageInTransit() {
     expect(text).to.include('Citycitycity');
     expect(text).to.include('NY');
     expect(text).to.include('94703');
+  });
+
+  // Refresh browser and make sure changes persist
+  cy.patientReload();
+
+  cy.get('.storage-in-transit').should($div => {
+    const text = $div.text();
+    expect(text).to.include('Destination');
+    expect(text).to.include('the haus');
   });
 }

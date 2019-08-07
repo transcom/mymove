@@ -122,7 +122,7 @@ function serviceMemberVerifiesHHGPPMSummary() {
     expect(text).to.include('Delivery ZIP Code:  30813');
     expect(text).not.to.include('Storage: Not requested');
     expect(text).to.include('Estimated Weight:  1,50');
-    expect(text).to.include('Estimated PPM Incentive:  $2,677.52 - 2,959.36');
+    expect(text).to.include('Estimated PPM Incentive:  $2,275.63 - 2,515.17');
   });
 }
 
@@ -131,7 +131,7 @@ function serviceMemberVerifiesPPMWeightsEdited() {
     const text = $div.text();
 
     expect(text).to.include('Estimated Weight:  1,700 lbs');
-    expect(text).to.include('Estimated PPM Incentive:  $4,858.82 - 5,370.28');
+    expect(text).to.include('Estimated PPM Incentive:  $3,460.33 - 3,824.57');
   });
 }
 
@@ -140,8 +140,8 @@ function serviceMemberEditsPPMWeight() {
 
   cy.typeInInput({ name: 'weight_estimate', value: '1700' });
 
-  cy.get('strong').contains('$4,858.82 - 5,370.28');
-  cy.get('.subtext').contains('Originally $4,362.66 - 4,821.88');
+  cy.get('strong').contains('$3,460.33 - 3,824.57');
+  cy.get('.subtext').contains('Originally $3,117.06 - 3,445.18');
 
   cy
     .get('button')
@@ -424,8 +424,8 @@ function serviceMemberCanReviewMoveSummary() {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/review/);
   });
 
-  cy.get('.wizard-header .usa-width-one-third').should('not.contain', 'Move Setup');
-  cy.get('.wizard-header .usa-width-one-third').should('contain', 'Review');
+  cy.get('.wizard-header .wizard-left').should('not.contain', 'Move Setup');
+  cy.get('.wizard-header .wizard-left').should('contain', 'Review');
   cy
     .get('.wizard-header .progress-timeline .step')
     .first()
@@ -443,7 +443,7 @@ function serviceMemberCanReviewMoveSummary() {
     expect(text).to.include('Delivery ZIP Code:  30813');
     expect(text).not.to.include('Storage: Not requested');
     expect(text).to.include('Estimated Weight:  1,50');
-    expect(text).to.include('Estimated PPM Incentive:  $2,677.52 - 2,959.36');
+    expect(text).to.include('Estimated PPM Incentive:  $2,275.63 - 2,515.17');
   });
 
   cy.nextPage();
@@ -501,6 +501,6 @@ function serviceMemberViewsUpdatedHomePage() {
       .children('a')
       .should('have.attr', 'href', 'https://move.mil/resources/locator-maps');
     cy.contains('Weight (est.): 150');
-    cy.contains('Incentive (est.): $2,677.52 - 2,959.36');
+    cy.contains('Incentive (est.): $2,275.63 - 2,515.17');
   });
 }

@@ -25,7 +25,7 @@ func (suite *QueryBuilderSuite) SetupTest() {
 func TestUserSuite(t *testing.T) {
 
 	hs := &QueryBuilderSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       zap.NewNop(), // Use a no-op logger during testing
 	}
 	suite.Run(t, hs)
@@ -207,4 +207,30 @@ func (suite *QueryBuilderSuite) TestFetchMany() {
 		suite.Error(err)
 		suite.Equal("Model should be pointer to slice of structs", err.Error())
 	})
+}
+
+func (suite *QueryBuilderSuite) TestCreateOne() {
+	builder := NewQueryBuilder(suite.DB())
+
+	transportationOffice := testdatagen.MakeTransportationOffice(suite.DB(), testdatagen.Assertions{})
+	userInfo := models.OfficeUser{
+		LastName:               "Spaceman",
+		FirstName:              "Leo",
+		Email:                  "spaceman@leo.org",
+		TransportationOfficeID: transportationOffice.ID,
+		Telephone:              "312-111-1111",
+		TransportationOffice:   transportationOffice,
+	}
+
+	suite.T().Run("Successfully creates a record", func(t *testing.T) {
+		verrs, err := builder.CreateOne(&userInfo)
+		suite.Nil(verrs)
+		suite.Nil(err)
+	})
+
+	suite.T().Run("Rejects input that isn't a pointer to a struct", func(t *testing.T) {
+		_, err := builder.CreateOne(userInfo)
+		suite.Error(err, "Model should be a pointer to a struct")
+	})
+
 }

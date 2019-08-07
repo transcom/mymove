@@ -9,7 +9,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/gofrs/uuid"
-	beeline "github.com/honeycombio/beeline-go"
+	"github.com/honeycombio/beeline-go"
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -62,6 +62,7 @@ type ServiceMember struct {
 	BackupContacts         BackupContacts            `has_many:"backup_contacts"`
 	DutyStationID          *uuid.UUID                `json:"duty_station_id" db:"duty_station_id"`
 	DutyStation            DutyStation               `belongs_to:"duty_stations"`
+	RequiresAccessCode     bool                      `json:"requires_access_code" db:"requires_access_code"`
 }
 
 // ServiceMembers is not required by pop and may be deleted
@@ -91,17 +92,15 @@ func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 // This method is thereby a useful way of performing access control checks.
 func FetchServiceMemberForUser(ctx context.Context, db *pop.Connection, session *auth.Session, id uuid.UUID) (ServiceMember, error) {
 
-	ctx, span := beeline.StartSpan(ctx, "FetchServiceMemberForUser")
+	_, span := beeline.StartSpan(ctx, "FetchServiceMemberForUser")
 	defer span.Send()
 
 	var serviceMember ServiceMember
 	err := db.Q().Eager("User",
 		"BackupMailingAddress",
 		"BackupContacts",
-		"DutyStation",
+		"DutyStation.Address",
 		"DutyStation.TransportationOffice",
-		"Orders",
-		"Orders.NewDutyStation",
 		"Orders.NewDutyStation.TransportationOffice",
 		"ResidentialAddress",
 		"SocialSecurityNumber").Find(&serviceMember, id)
@@ -170,7 +169,7 @@ func FetchServiceMember(db *pop.Connection, id uuid.UUID) (ServiceMember, error)
 // SaveServiceMember takes a serviceMember with Address structs and coordinates saving it all in a transaction
 func SaveServiceMember(ctx context.Context, dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
 
-	ctx, span := beeline.StartSpan(ctx, "SaveServiceMember")
+	_, span := beeline.StartSpan(ctx, "SaveServiceMember")
 	defer span.Send()
 
 	responseVErrors := validate.NewErrors()
@@ -353,7 +352,7 @@ func (s *ServiceMember) IsProfileComplete() bool {
 
 // FetchLatestOrder gets the latest order for a service member
 func (s ServiceMember) FetchLatestOrder(ctx context.Context, db *pop.Connection) (Order, error) {
-	ctx, span := beeline.StartSpan(ctx, "FetchLatestOrder")
+	_, span := beeline.StartSpan(ctx, "FetchLatestOrder")
 	defer span.Send()
 
 	var order Order

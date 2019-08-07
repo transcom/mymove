@@ -1,4 +1,5 @@
 import { tspUserVerifiesShipmentStatus } from '../../support/testTspStatus';
+import { nthDayOfCurrentMonth } from '../../support/utils';
 
 /* global cy */
 describe('TSP User Ships a Shipment', function() {
@@ -6,8 +7,10 @@ describe('TSP User Ships a Shipment', function() {
     cy.signIntoTSP();
   });
   it('tsp user enters Pack and Pick Up shipment info', function() {
-    tspUserEntersPackAndPickUpInfo();
-    tspUserDeliversShipment();
+    cy.nextAvailable(nthDayOfCurrentMonth(1)).then(availableDays => {
+      tspUserEntersPackAndPickUpInfo();
+      tspUserDeliversShipment(availableDays);
+    });
   });
 
   it('tsp user enters a delivery date', function() {
@@ -205,7 +208,7 @@ function tspUserEntersPackAndPickUpInfo() {
   tspUserVerifiesShipmentStatus('Inbound');
 }
 
-function tspUserDeliversShipment() {
+function tspUserDeliversShipment(availableDays) {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/shipments\/[^/]+/);
   });
@@ -230,8 +233,8 @@ function tspUserDeliversShipment() {
     .click();
 
   cy
-    .get('div')
-    .contains('13')
+    .get('.DayPicker-Day')
+    .contains(availableDays[0].format('D'))
     .click();
 
   // Cancel
@@ -261,8 +264,8 @@ function tspUserDeliversShipment() {
     .click();
 
   cy
-    .get('div')
-    .contains('14')
+    .get('.DayPicker-Day')
+    .contains(availableDays[1].format('D'))
     .click();
 
   cy

@@ -126,7 +126,7 @@ func (p *PersonallyProcuredMove) Approve(approveDate time.Time) error {
 
 // RequestPayment requests payment for the PPM
 func (p *PersonallyProcuredMove) RequestPayment() error {
-	if p.Status != PPMStatusAPPROVED {
+	if p.Status != PPMStatusPAYMENTREQUESTED && p.Status != PPMStatusAPPROVED {
 		return errors.Wrap(ErrInvalidTransition, "RequestPayment")
 	}
 
@@ -184,7 +184,7 @@ func (p *PersonallyProcuredMove) FetchMoveDocumentsForTypes(db *pop.Connection, 
 // FetchPersonallyProcuredMove Fetches and Validates a PPM model
 func FetchPersonallyProcuredMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*PersonallyProcuredMove, error) {
 	var ppm PersonallyProcuredMove
-	err := db.Q().Eager("Move.Orders.ServiceMember", "Advance").Find(&ppm, id)
+	err := db.Q().Eager("Move.Orders.ServiceMember.DutyStation.Address", "Advance").Find(&ppm, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound

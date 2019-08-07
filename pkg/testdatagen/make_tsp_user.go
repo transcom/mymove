@@ -36,6 +36,7 @@ func MakeTspUser(db *pop.Connection, assertions Assertions) models.TspUser {
 		LastName:                        "Spaceman",
 		Email:                           email,
 		Telephone:                       "415-555-1212",
+		Disabled:                        false,
 	}
 
 	mergeModels(&tspUser, assertions.TspUser)

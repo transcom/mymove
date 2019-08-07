@@ -2,11 +2,13 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import ReactTable from 'react-table';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
 import 'react-table/react-table.css';
 import Alert from 'shared/Alert';
 import { formatTimeAgo } from 'shared/formatters';
-import { newColumns, ppmColumns, defaultColumns } from './queueTableColumns';
+import { setUserIsLoggedIn } from 'shared/Data/users';
+import { newColumns, ppmColumns, hhgActiveColumns, defaultColumns, hhgDeliveredColumns } from './queueTableColumns';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faSyncAlt from '@fortawesome/fontawesome-free-solid/faSyncAlt';
@@ -38,6 +40,10 @@ class QueueTable extends Component {
     if (this.props.queueType !== prevProps.queueType) {
       this.fetchData();
     }
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.state.interval);
   }
 
   openMove(rowInfo) {
@@ -85,6 +91,10 @@ class QueueTable extends Component {
         refreshing: false,
         lastLoadedAt: new Date(),
       });
+      // redirect to home page if unauthorized
+      if (e.status === 401) {
+        this.props.setUserIsLoggedIn(false);
+      }
     }
   }
 
@@ -108,8 +118,8 @@ class QueueTable extends Component {
     const titles = {
       new: 'New Moves/Shipments',
       troubleshooting: 'Troubleshooting',
-      ppm: 'PPMs',
-      hhg_approved: 'Approved HHGs',
+      ppm: 'PPM Shipments',
+      hhg_active: 'Active HHGs',
       hhg_delivered: 'Delivered HHGs',
       all: 'All Moves',
     };
@@ -120,9 +130,20 @@ class QueueTable extends Component {
           return newColumns;
         case 'ppm':
           return ppmColumns;
+        case 'hhg_active':
+          return hhgActiveColumns;
+        case 'hhg_delivered':
+          return hhgDeliveredColumns;
         default:
           return defaultColumns;
       }
+    };
+
+    const defaultSort = queueType => {
+      if (['hhg_active', 'hhg_delivered', 'new'].includes(queueType)) {
+        return [{ id: 'clockIcon', asc: true }, { id: 'move_date', asc: true }];
+      }
+      return [{ id: 'move_date', asc: true }];
     };
 
     this.state.data.forEach(row => {
@@ -169,7 +190,7 @@ class QueueTable extends Component {
             columns={showColumns(this.props.queueType)}
             data={this.state.data}
             loading={this.state.loading} // Display the loading overlay when we need it
-            defaultSorted={[{ id: 'move_date', asc: true }]}
+            defaultSorted={defaultSort(this.props.queueType)}
             pageSize={this.state.data.length}
             className="-striped -highlight"
             showPagination={false}
@@ -192,4 +213,8 @@ const mapStateToProps = state => {
   };
 };
 
-export default withRouter(connect(mapStateToProps)(QueueTable));
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({ setUserIsLoggedIn }, dispatch);
+}
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(QueueTable));

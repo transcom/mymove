@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -29,6 +30,8 @@ const (
 	MovingExpenseTypeTOLLS MovingExpenseType = "TOLLS"
 	// MovingExpenseTypeOIL captures enum value "OIL"
 	MovingExpenseTypeOIL MovingExpenseType = "OIL"
+	// MovingExpenseTypeSTORAGE captures enum value "STORAGE"
+	MovingExpenseTypeSTORAGE MovingExpenseType = "STORAGE"
 	// MovingExpenseTypeOTHER captures enum value "OTHER"
 	MovingExpenseTypeOTHER MovingExpenseType = "OTHER"
 )
@@ -57,6 +60,8 @@ type MovingExpenseDocument struct {
 	RequestedAmountCents unit.Cents        `json:"requested_amount_cents" db:"requested_amount_cents"`
 	PaymentMethod        string            `json:"payment_method" db:"payment_method"`
 	ReceiptMissing       bool              `json:"receipt_missing" db:"receipt_missing"`
+	StorageStartDate     *time.Time        `json:"storage_start_date" db:"storage_start_date"`
+	StorageEndDate       *time.Time        `json:"storage_end_date" db:"storage_end_date"`
 	CreatedAt            time.Time         `json:"created_at" db:"created_at"`
 	UpdatedAt            time.Time         `json:"updated_at" db:"updated_at"`
 }
@@ -85,4 +90,22 @@ func (m *MovingExpenseDocument) ValidateCreate(tx *pop.Connection) (*validate.Er
 // This method is not required and may be deleted.
 func (m *MovingExpenseDocument) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+func (m *MovingExpenseDocument) DaysInStorage() (int, error) {
+	if m.MovingExpenseType != MovingExpenseTypeSTORAGE {
+		return 0, fmt.Errorf("not storage expense")
+	}
+	if m.StorageStartDate == nil || m.StorageEndDate == nil {
+		return 0, fmt.Errorf("storage end date or storage start date is nil")
+	}
+	if m.StorageEndDate.Before(*m.StorageStartDate) {
+		return 0, fmt.Errorf("storage end date before storage start date")
+	}
+	// don't include the first day
+	daysInStorage := int(m.StorageEndDate.Sub(*m.StorageStartDate).Hours()/24) - 1
+	if daysInStorage < 0 {
+		return 0, nil
+	}
+	return daysInStorage, nil
 }

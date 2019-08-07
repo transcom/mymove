@@ -38,48 +38,52 @@ definitions:
     items:
       $ref: '#/definitions/OfficeUser'
   TransportationOffice:
-      type: object
-      properties:
-        id:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+      address:
+        $ref: '#/definitions/Address'
+      phone_lines:
+        type: array
+        items:
           type: string
-          format: uuid
-          example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        name:
-          type: string
-          example: Fort Bragg North Station
-        address:
-          $ref: '#/definitions/Address'
-        phone_lines:
-          type: array
-          items:
-            type: string
-            format: telephone
-            pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-            example: 212-555-5555
-        gbloc:
-          type: string
-          pattern: '^[A-Z]{4}$'
-          example: JENQ
-        latitude:
-          type: number
-          format: float
-          example: 29.382973
-        longitude:
-          type: number
-          format: float
-          example: -98.62759
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
-      required:
-        - id
-        - name
-        - address
-        - created_at
-        - updated_at
+          format: telephone
+          pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+          example: 212-555-5555
+      gbloc:
+        type: string
+        pattern: '^[A-Z]{4}$'
+        example: JENQ
+      latitude:
+        type: number
+        format: float
+        example: 29.382973
+      longitude:
+        type: number
+        format: float
+        example: -98.62759
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - address
+      - created_at
+      - updated_at
+  TransportationOffices:
+    type: array
+    items:
+      $ref: '#/definitions/TransportationOffice'
   Address:
     type: object
     properties:
@@ -225,6 +229,28 @@ definitions:
       - state
       - city
       - postal_code
+  OfficeUserCreatePayload:
+    type: object
+    properties:
+      email:
+        type: string
+        example: 'user@userdomain.com'
+        title: Email
+      first_name:
+        type: string
+        title: First Name
+      last_name:
+        type: string
+        title: Last Name
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+      transportation_office_id:
+        type: string
+        format: uuid
+        example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
 paths:
   /office_users:
     get:
@@ -242,8 +268,93 @@ paths:
       responses:
         200:
           description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
           schema:
             $ref: '#/definitions/OfficeUsers'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: office not found
+        500:
+          description: server error
+    post:
+      summary: create an office user
+      description: creates and returns an office user record
+      operationId: createOfficeUser
+      tags:
+        - office
+      parameters:
+        - in: body
+          name: officeUser
+          description: Office user information
+          schema:
+            $ref: '#/definitions/OfficeUserCreatePayload'
+      responses:
+        201:
+          description: Successfully created Office User
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        400:
+          description: Invalid Request
+        401:
+          description: Must be authenticated to use this end point
+        403:
+          description: Not authorized to create an office user
+        500:
+          description: Server error
+  /office_users/{officeUserId}:
+    get:
+      summary: Get an office user
+      description: Returns the given office user
+      operationId: getOfficeUser
+      tags:
+        - office
+      parameters:
+        - in: path
+          name: officeUserId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        404:
+          description: office not found
+        500:
+          description: server error
+  /offices:
+    get:
+      summary: List transportation offices
+      description: Returns a list of transportation offices
+      operationId: indexOffices
+      tags:
+        - office
+      parameters:
+        - in: query
+          name: filter
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/TransportationOffices'
         400:
           description: invalid request
         401:

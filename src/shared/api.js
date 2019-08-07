@@ -41,3 +41,13 @@ export async function CreateDocument(name, serviceMemberId) {
   checkResponse(response, 'failed to create document due to server error');
   return response.body;
 }
+
+export async function ValidateZipRateData(zipCode, zipType) {
+  const client = await getPublicClient();
+  const response = await client.apis.postal_codes.validatePostalCodeWithRateData({
+    postal_code: zipCode,
+    postal_code_type: zipType,
+  });
+  checkResponse(response, 'failed to validate ppm data due to server error');
+  return response.body;
+}

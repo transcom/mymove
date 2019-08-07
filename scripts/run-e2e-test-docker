@@ -43,6 +43,7 @@ docker build --tag e2e:latest .
 $DOCKER_RUN \
   -e CLIENT_AUTH_SECRET_KEY \
   -e CSRF_AUTH_KEY \
+  -e DB_ENV="test" \
   -e DB_HOST="database" \
   -e DB_NAME \
   -e DB_PASSWORD \
@@ -53,7 +54,6 @@ $DOCKER_RUN \
   -e DOD_CA_PACKAGE="/config/tls/Certificates_PKCS7_v5.4_DoD.der.p7b" \
   -e DPS_AUTH_COOKIE_SECRET_KEY \
   -e DPS_COOKIE_EXPIRES_IN_MINUTES \
-  -e ENV="test" \
   -e ENVIRONMENT="test" \
   -e HERE_MAPS_APP_CODE \
   -e HERE_MAPS_APP_ID \

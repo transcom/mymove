@@ -60,7 +60,7 @@ func (suite *HandlerSuite) TestGetInvoiceHandler() {
 	response = handler.Handle(params)
 
 	// Then: Invoice is returned
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Assertions.IsType(&accessorialop.GetInvoiceOK{}, response)
 	okResponse := response.(*accessorialop.GetInvoiceOK)
 	suite.Equal(strfmt.UUID(invoice.ID.String()), okResponse.Payload.ID)
@@ -74,7 +74,7 @@ func (suite *HandlerSuite) TestGetInvoiceHandler() {
 	response = handler.Handle(params)
 
 	// Then: Invoice is returned
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.Assertions.IsType(&accessorialop.GetInvoiceOK{}, response)
 	okResponse = response.(*accessorialop.GetInvoiceOK)
 	suite.Equal(strfmt.UUID(invoice.ID.String()), okResponse.Payload.ID)

@@ -20,7 +20,7 @@ func (suite *DBFmtSuite) SetupTest() {
 
 func TestDBFmtSuite(t *testing.T) {
 	hs := &DBFmtSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 	}
 	suite.Run(t, hs)
 }
@@ -33,7 +33,7 @@ func (suite *DBFmtSuite) TestTheDBFmt() {
 
 	move = models.Move{}
 	err := suite.DB().Eager("Orders.Moves").Find(&move, moveID.String())
-	suite.Nil(err)
+	suite.NoError(err)
 
 	littlemove := move.Orders.Moves[0]
 	move.Orders.Moves = append(move.Orders.Moves, littlemove)

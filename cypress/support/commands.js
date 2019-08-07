@@ -13,6 +13,7 @@ import {
   userTypeToBaseURL,
   longPageLoadTimeout,
 } from './constants';
+import moment from 'moment';
 
 /* global Cypress, cy */
 // ***********************************************
@@ -501,5 +502,14 @@ Cypress.Commands.add('removeFetch', () => {
   // https://github.com/cypress-io/cypress-example-recipes/tree/master/examples/stubbing-spying__window-fetch
   cy.on('window:before:load', win => {
     delete win.fetch;
+  });
+});
+
+// calls /internal/calendar/available_move_dates for a given start date
+// and returns an array of moment.js dates
+Cypress.Commands.add('nextAvailable', (startDate = moment().format('YYYY-MM-DD')) => {
+  return cy.request(`/internal/calendar/available_move_dates?startDate=${startDate}`).then(response => {
+    expect(response.body).to.have.property('available');
+    return response.body.available.map(date => moment(date));
   });
 });

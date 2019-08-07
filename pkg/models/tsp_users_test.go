@@ -66,7 +66,7 @@ func (suite *ModelSuite) TestFetchTspUserByEmail() {
 	suite.MustSave(&newUser)
 
 	user, err = FetchTspUserByEmail(suite.DB(), email)
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.NotNil(user)
 	suite.Equal(newUser.ID, user.ID)
 }
@@ -84,7 +84,7 @@ func (suite *ModelSuite) TestFetchTspUserByEmailCaseSensitivity() {
 	suite.MustSave(&tspUser)
 
 	user, err := FetchTspUserByEmail(suite.DB(), strings.ToLower(email))
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.NotNil(user)
 	suite.Equal(user.Email, email)
 }

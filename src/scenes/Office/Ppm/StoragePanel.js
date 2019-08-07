@@ -3,7 +3,9 @@ import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { reduxForm, getFormValues } from 'redux-form';
+import { filter } from 'lodash';
 
+import Alert from 'shared/Alert';
 import { editablePanelify, PanelSwaggerField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { selectPPMForMove, updatePPM } from 'shared/Entities/modules/ppms';
@@ -11,8 +13,11 @@ import { formatCents } from '../../../shared/formatters';
 import { convertDollarsToCents } from '../../../shared/utils';
 
 const StorageDisplay = props => {
-  let cost = props.ppm && props.ppm.total_sit_cost ? formatCents(props.ppm.total_sit_cost) : 0;
-  let days = props.ppm && props.ppm.days_in_storage ? props.ppm.days_in_storage : 0;
+  const cost = props.ppm && props.ppm.total_sit_cost ? formatCents(props.ppm.total_sit_cost) : 0;
+  const days = props.ppm && props.ppm.days_in_storage ? props.ppm.days_in_storage : 0;
+  const awaitingStorageExpenses = filter(props.storageExpenses, function(expense) {
+    return expense.status !== 'OK';
+  });
 
   const fieldProps = {
     schema: {
@@ -37,6 +42,11 @@ const StorageDisplay = props => {
 
   return (
     <div className="editable-panel-column">
+      {awaitingStorageExpenses.length > 0 && (
+        <div className="awaiting-storage-expenses-warning">
+          <Alert type="warning">There are more storage receipts awaiting review</Alert>
+        </div>
+      )}
       <PanelSwaggerField fieldName="total_sit_cost" title="Total storage cost" {...fieldProps} />
       <PanelSwaggerField fieldName="days_in_storage" title="Days in storage" {...fieldProps} />
     </div>
@@ -83,7 +93,7 @@ function mapStateToProps(state, props) {
       total_sit_cost: formatCents(ppm.total_sit_cost),
       days_in_storage: ppm.days_in_storage,
     },
-
+    storageExpenses: filter(props.moveDocuments, ['moving_expense_type', 'STORAGE']),
     ppmSchema: get(state, 'swaggerInternal.spec.definitions.PersonallyProcuredMovePayload'),
     ppm,
 

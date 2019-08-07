@@ -10,6 +10,7 @@ export const createShipmentLineItemLabel = 'ShipmentLineItems.createShipmentLine
 export const deleteShipmentLineItemLabel = 'ShipmentLineItems.deleteShipmentLineItem';
 export const approveShipmentLineItemLabel = 'ShipmentLineItems.approveShipmentLineItem';
 export const updateShipmentLineItemLabel = 'ShipmentLineItems.updateShipmentLineItem';
+export const recalculateShipmentLineItemsLabel = 'ShipmentLineItems.recalculateShipmentLineItems';
 
 export function createShipmentLineItem(shipmentId, payload, label = createShipmentLineItemLabel) {
   return swaggerRequest(getPublicClient, 'accessorials.createShipmentLineItem', { shipmentId, payload }, { label });
@@ -36,21 +37,60 @@ export function getAllShipmentLineItems(shipmentId, label = getShipmentLineItems
   return swaggerRequest(getPublicClient, 'accessorials.getShipmentLineItems', { shipmentId }, { label });
 }
 
+export function recalculateShipmentLineItems(shipmentId, label = recalculateShipmentLineItemsLabel) {
+  return swaggerRequest(getPublicClient, 'accessorials.recalculateShipmentLineItems', { shipmentId }, { label });
+}
+
+export function fetchAndCalculateShipmentLineItems(shipmentId, shipmentStatus) {
+  return async function(dispatch) {
+    let result = await dispatch(getAllShipmentLineItems(shipmentId));
+    if (result.response.ok && shipmentStatus === 'DELIVERED') {
+      const lineItems = result.response.body;
+      const lineItem = lineItems.find(item => !item.invoice_id);
+      if (lineItem) {
+        // recalculate shipment line items if no invoice and shipment delivered
+        result = dispatch(recalculateShipmentLineItems(shipmentId));
+      }
+    }
+
+    return result;
+  };
+}
+
 // Show linehaul (and related) items before any accessorial items by adding isLinehaul property.
 function listLinehaulItemsBeforeAccessorials(items) {
-  const linehaulRelatedItems = ['LHS', '135A', '135B', '105A', '105C', '16A'];
+  const linehaulRelatedItemsOrderMap = new Map([
+    ['LHS', 1],
+    ['16A', 2],
+    ['135A', 3],
+    ['135B', 4],
+    ['105A', 5],
+    ['105C', 6],
+  ]);
+  const storageInTransitRelatedItems = ['185A', '185B', '210A', '210B', '210C', '210F'];
   return items.map(item => {
     return {
       ...item,
-      isLinehaul: linehaulRelatedItems.includes(item.tariff400ng_item.code) ? 1 : 10,
+      isLinehaul: linehaulRelatedItemsOrderMap.has(item.tariff400ng_item.code)
+        ? linehaulRelatedItemsOrderMap.get(item.tariff400ng_item.code)
+        : 10,
+      isStorageInTransit: storageInTransitRelatedItems.includes(item.tariff400ng_item.code) ? 1 : 10,
     };
   });
 }
 
 function orderItemsBy(items) {
   const sortOrder = {
-    fields: ['isLinehaul', 'status', 'approved_date', 'submitted_date', 'tariff400ng_item.code'],
-    order: ['asc', 'asc', 'desc', 'desc', 'desc'],
+    fields: [
+      'isLinehaul',
+      'status',
+      'approved_date',
+      'submitted_date',
+      'isStorageInTransit',
+      'location',
+      'tariff400ng_item.code',
+    ],
+    order: ['asc', 'asc', 'desc', 'desc', 'asc', 'desc', 'asc'],
   };
   return orderBy(items, sortOrder.fields, sortOrder.order);
 }

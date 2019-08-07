@@ -63,8 +63,11 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// Environment
 	cli.InitEnvironmentFlags(flag)
 
-	// Build Server
+	// Build Files
 	cli.InitBuildFlags(flag)
+
+	// Webserver
+	cli.InitWebserverFlags(flag)
 
 	// Hosts
 	cli.InitHostFlags(flag)
@@ -120,11 +123,17 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// aws-vault
 	cli.InitVaultFlags(flag)
 
+	// Logging
+	cli.InitLoggingFlags(flag)
+
 	// Verbose
 	cli.InitVerboseFlags(flag)
 
-	// Don't sort flags
-	flag.SortFlags = false
+	// Feature Flags
+	cli.InitFeatureFlags(flag)
+
+	// Sort command line flags
+	flag.SortFlags = true
 }
 
 func checkServeConfig(v *viper.Viper, logger logger) error {
@@ -136,6 +145,10 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 	}
 
 	if err := cli.CheckBuild(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckWebserver(v); err != nil {
 		return err
 	}
 
@@ -211,7 +224,15 @@ func checkServeConfig(v *viper.Viper, logger logger) error {
 		return err
 	}
 
+	if err := cli.CheckLogging(v); err != nil {
+		return err
+	}
+
 	if err := cli.CheckVerbose(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckFeatureFlag(v); err != nil {
 		return err
 	}
 
@@ -267,6 +288,27 @@ func indexHandler(buildDir string, logger logger) http.HandlerFunc {
 
 func serveFunction(cmd *cobra.Command, args []string) error {
 
+	var logger *zap.Logger
+	var dbConnection *pop.Connection
+	dbClose := &sync.Once{}
+
+	defer func() {
+		if logger != nil {
+			if r := recover(); r != nil {
+				logger.Error("server recovered from panic", zap.Any("recover", r))
+			}
+			if dbConnection != nil {
+				dbClose.Do(func() {
+					logger.Info("closing database connections")
+					if err := dbConnection.Close(); err != nil {
+						logger.Error("error closing database connections", zap.Error(err))
+					}
+				})
+			}
+			logger.Sync()
+		}
+	}()
+
 	err := cmd.ParseFlags(args)
 	if err != nil {
 		return errors.Wrap(err, "Could not parse flags")
@@ -282,9 +324,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
 
-	dbEnv := v.GetString(cli.DbEnvFlag)
-
-	logger, err := logging.Config(dbEnv, v.GetBool(cli.VerboseFlag))
+	logger, err = logging.Config(v.GetString(cli.LoggingEnvFlag), v.GetBool(cli.VerboseFlag))
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
@@ -325,6 +365,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			}
 		}
 	}
+
 	zap.ReplaceGlobals(logger)
 
 	logger.Info("webserver starting up")
@@ -333,6 +374,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		logger.Fatal("invalid configuration", zap.Error(err))
 	}
+
+	dbEnv := v.GetString(cli.DbEnvFlag)
 
 	isDevOrTest := dbEnv == "development" || dbEnv == "test"
 	if isDevOrTest {
@@ -378,7 +421,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 
 	// Create a connection to the DB
-	dbConnection, err := cli.InitDatabase(v, logger)
+	dbConnection, err = cli.InitDatabase(v, logger)
 	if err != nil {
 		if dbConnection == nil {
 			// No connection object means that the configuraton failed to validate and we should kill server startup
@@ -422,11 +465,13 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		handlerContext.SetNoSessionTimeout()
 	}
 
+	handlerContext.SetAppNames(appnames)
+
 	// Email
 	notificationSender := notifications.InitEmail(v, session, logger)
 	handlerContext.SetNotificationSender(notificationSender)
 
-	build := v.GetString(cli.BuildFlag)
+	build := v.GetString(cli.BuildRootFlag)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(build))
@@ -477,6 +522,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		)
 	}
 	handlerContext.SetGexSender(gexRequester)
+
+	// Set feature flag
+	handlerContext.SetFeatureFlag(
+		handlers.FeatureFlag{Name: cli.FeatureFlagAccessCode, Active: v.GetBool(cli.FeatureFlagAccessCode)},
+	)
 
 	// Set the ICNSequencer in the handler: if we are in dev/test mode and sending to a real
 	// GEX URL, then we should use a random ICN number within a defined range to avoid duplicate
@@ -576,6 +626,9 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 			}
 		}
 
+		// Log the number of headers, which can be used for finding abnormal requests
+		fields = append(fields, zap.Int("headers", len(r.Header)))
+
 		logger.Info("Request", fields...)
 
 	})
@@ -644,6 +697,8 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	root := goji.NewMux()
 	root.Use(middleware.Recovery(logger))
+	root.Use(middleware.Trace(logger))                             // injects http request trace id
+	root.Use(middleware.ContextLogger("milmove_trace_id", logger)) // injects http request logger
 	root.Use(sessionCookieMiddleware)
 	root.Use(middleware.RequestLogger(logger))
 
@@ -683,7 +738,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	apiMux.Handle(pat.New("/*"), externalAPIMux)
 	externalAPIMux.Use(middleware.NoCache(logger))
 	externalAPIMux.Use(userAuthMiddleware)
-	externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext))
+	externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext, logger))
 
 	internalMux := goji.SubMux()
 	root.Handle(pat.New("/internal/*"), internalMux)
@@ -714,13 +769,14 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	adminAPIMux := goji.SubMux()
 	adminMux.Handle(pat.New("/*"), adminAPIMux)
 	adminAPIMux.Use(userAuthMiddleware)
+	adminAPIMux.Use(authentication.AdminAuthMiddleware(logger))
 	adminAPIMux.Use(middleware.NoCache(logger))
 	adminAPIMux.Handle(pat.New("/*"), adminapi.NewAdminAPIHandler(handlerContext))
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, loginGovCallbackProtocol, loginGovCallbackPort)
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
-	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext})
+	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext, UseSecureCookie: useSecureCookie})
 	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 	authMux.Handle(pat.Post("/logout"), authentication.NewLogoutHandler(authContext, clientAuthSecretKey, noSessionTimeout, useSecureCookie))
 
@@ -878,6 +934,12 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	logger.Info("All listeners are shutdown")
 	logger.Sync()
 
+	var dbCloseErr error
+	dbClose.Do(func() {
+		logger.Info("closing database connections")
+		dbCloseErr = dbConnection.Close()
+	})
+
 	shutdownError := false
 	shutdownErrors.Range(func(key, value interface{}) bool {
 		if srv, ok := key.(*server.NamedServer); ok {
@@ -890,6 +952,11 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		}
 		return true
 	})
+
+	if dbCloseErr != nil {
+		logger.Error("error closing database connections", zap.Error(dbCloseErr))
+	}
+
 	logger.Sync()
 
 	if shutdownError {

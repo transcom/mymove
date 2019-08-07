@@ -4,11 +4,8 @@
 #   For example: scripts/go-find-pattern '[.]Info[(]"[^"]+\s+"'
 #
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-readonly DIR
-
 usage() {
-    echo "$0 <pattern"
+    echo "$0 <pattern>"
     exit 1
 }
 [[ -z $1  ]] && usage

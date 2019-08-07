@@ -15,6 +15,10 @@ If you are looking to understand choices made in this project, see the list of [
 
 * [Pairing](pairing.md). A list of past pairing recordings.
 
+## Metrics
+
+* [Metrics](metrics.md). Documentation for application metrics.
+
 <!--index-->
 
 ## HOWTOs
@@ -22,8 +26,11 @@ If you are looking to understand choices made in this project, see the list of [
 * [Call Swagger Endpoints from React](how-to/access-swagger-endpoints-from-react.md#how-to-call-swagger-endpoints-from-react)
 * [Add Application Logging](how-to/add-application-logging.md#how-to-add-application-logging)
 * [Backup and Restore the Development Database](how-to/backup-and-restore-dev-database.md#how-to-backup-and-restore-the-development-database)
+* [Create or Disable Users](how-to/create-or-disable-users.md#how-to-create-or-disable-users)
+* [Deploy to Experimental](how-to/deploy-to-experimental.md#how-to-deploy-to-experimental)
 * [display dates and times](how-to/display-dates-and-times.md#how-to-display-dates-and-times)
 * [Generate Mocks with Mockery](how-to/generate-mocks-with-mockery.md#how-to-generate-mocks-with-mockery)
+* [Run Acceptance Tests](how-to/how-to-run-acceptance-tests.md#how-to-run-acceptance-tests)
 * [Instrument Data in Honeycomb](how-to/instrument-data-in-honeycomb.md#how-to-instrument-data-in-honeycomb)
 * [Manage Dependencies With go mod](how-to/manage-dependencies-with-go-mod.md#how-to-manage-dependencies-with-go-mod)
 * [Manage Docker Locally](how-to/manage-docker-locally.md#how-to-manage-docker-locally)

@@ -5,11 +5,10 @@ import { Redirect } from 'react-router-dom';
 import { get } from 'lodash';
 import { NavLink, Link } from 'react-router-dom';
 import { reduxForm } from 'redux-form';
-import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 import { titleCase } from 'shared/constants.js';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-
+import { MOVE_DOC_TYPE } from 'shared/constants';
 import Alert from 'shared/Alert';
 import DocumentList from 'shared/DocumentViewer/DocumentList';
 import { withContext } from 'shared/AppContext';
@@ -21,10 +20,13 @@ import {
   generateGBLLabel,
 } from 'shared/Entities/modules/shipmentDocuments';
 import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
-import { getAllShipmentLineItems, selectSortedShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
+import {
+  selectSortedShipmentLineItems,
+  fetchAndCalculateShipmentLineItems,
+} from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { getTspForShipment } from 'shared/Entities/modules/transportationServiceProviders';
-import { getStorageInTransitsForShipment } from 'shared/Entities/modules/storageInTransits';
+import { selectStorageInTransits, getStorageInTransitsForShipment } from 'shared/Entities/modules/storageInTransits';
 import {
   updatePublicShipment,
   getPublicShipment,
@@ -35,6 +37,7 @@ import {
   completePmSurvey,
   transportShipment,
   deliverShipment,
+  selectShipmentStatus,
 } from 'shared/Entities/modules/shipments';
 import {
   getServiceAgentsForShipment,
@@ -46,7 +49,6 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
-import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 import TspContainer from 'shared/TspPanel/TspContainer';
 import Weights from 'shared/ShipmentWeights';
 import Dates from 'shared/ShipmentDates';
@@ -89,7 +91,7 @@ const DeliveryDateFormView = props => {
   const { schema, onCancel, handleSubmit, submitting, valid } = props;
 
   return (
-    <form className="infoPanel-wizard" onSubmit={handleSubmit}>
+    <form data-cy="tsp-enter-delivery-form" className="infoPanel-wizard" onSubmit={handleSubmit}>
       <div className="infoPanel-wizard-header">Enter Delivery</div>
       <SwaggerField fieldName="actual_delivery_date" swagger={schema} required />
       <p className="infoPanel-wizard-help">
@@ -101,7 +103,12 @@ const DeliveryDateFormView = props => {
         <a className="infoPanel-wizard-cancel" onClick={onCancel}>
           Cancel
         </a>
-        <button className="usa-button-primary" type="submit" disabled={submitting || !valid}>
+        <button
+          data-cy="tsp-enter-delivery-submit"
+          className="usa-button-primary"
+          type="submit"
+          disabled={submitting || !valid}
+        >
           Done
         </button>
       </div>
@@ -166,7 +173,6 @@ const hasPreMoveSurvey = (shipment = {}) => shipment.pm_survey_completed_at;
 class ShipmentInfo extends Component {
   constructor(props) {
     super(props);
-
     this.assignTspServiceAgent = React.createRef();
   }
   state = {
@@ -176,7 +182,6 @@ class ShipmentInfo extends Component {
 
   componentDidMount() {
     const shipmentId = this.props.shipmentId;
-
     this.props
       .getPublicShipment(shipmentId)
       .then(() => {
@@ -184,7 +189,7 @@ class ShipmentInfo extends Component {
         this.props.getTspForShipment(shipmentId);
         this.props.getAllShipmentDocuments(shipmentId);
         this.props.getAllTariff400ngItems(true);
-        this.props.getAllShipmentLineItems(shipmentId);
+        this.props.fetchAndCalculateShipmentLineItems(shipmentId, this.props.shipmentStatus);
         this.props.getAllInvoices(shipmentId);
         if (this.props.context.flags.sitPanel) {
           this.props.getStorageInTransitsForShipment(shipmentId);
@@ -194,7 +199,6 @@ class ShipmentInfo extends Component {
         this.props.history.replace('/');
       });
   }
-
   componentWillUnmount() {
     this.props.resetRequests();
   }
@@ -229,10 +233,10 @@ class ShipmentInfo extends Component {
 
   deliverShipment = values => {
     this.props.deliverShipment(this.props.shipment.id, values).then(() => {
+      this.props.fetchAndCalculateShipmentLineItems(this.props.shipment.id, this.props.shipment.status);
       if (this.props.context.flags.sitPanel) {
         this.props.getStorageInTransitsForShipment(this.props.shipment.id);
       }
-      this.props.getAllShipmentLineItems(this.props.shipment.id);
     });
   };
 
@@ -252,7 +256,6 @@ class ShipmentInfo extends Component {
 
     const shipmentId = this.props.shipmentId;
     const newDocumentUrl = `/shipments/${shipmentId}/documents/new`;
-    const showDocumentViewer = context.flags.documentViewer;
     const showSitPanel = context.flags.sitPanel;
     const awarded = shipment.status === 'AWARDED';
     const accepted = shipment.status === 'ACCEPTED';
@@ -409,6 +412,7 @@ class ShipmentInfo extends Component {
                   schema={this.props.deliverSchema}
                   onSubmit={this.deliverShipment}
                   buttonTitle="Enter Delivery"
+                  buttonDataCy="tsp-enter-delivery"
                 />
               )}
               {canEnterPackAndPickup && (
@@ -449,25 +453,12 @@ class ShipmentInfo extends Component {
                 <CustomerInfo shipment={this.props.shipment} />
               </div>
               <div className="documents">
-                <h2 className="extras usa-heading">
-                  Documents
-                  {!showDocumentViewer && <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />}
-                  {showDocumentViewer && (
-                    <Link to={newDocumentUrl} target="_blank">
-                      <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
-                    </Link>
-                  )}
-                </h2>
+                <h2 className="extras usa-heading">Documents</h2>
                 <DocumentList
                   detailUrlPrefix={`/shipments/${shipmentId}/documents`}
                   moveDocuments={shipmentDocuments}
+                  uploadDocumentUrl={newDocumentUrl}
                 />
-                <Link className="status upload-documents-link" to={newDocumentUrl} target="_blank">
-                  <span>
-                    <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
-                  </span>
-                  Upload new document
-                </Link>
               </div>
             </div>
           </div>
@@ -481,14 +472,16 @@ const mapStateToProps = (state, props) => {
   const shipmentId = props.match.params.shipmentId;
   const shipment = selectShipment(state, shipmentId);
   const shipmentDocuments = selectShipmentDocuments(state, shipment.id) || {};
-  const gbl = shipmentDocuments.find(element => element.move_document_type === 'GOV_BILL_OF_LADING');
+  const gbl = shipmentDocuments.find(element => element.move_document_type === MOVE_DOC_TYPE.GBL);
   const gblGenerated = !!gbl;
 
   return {
     swaggerError: state.swaggerPublic.hasErrored,
     shipment,
+    shipmentStatus: selectShipmentStatus(state, shipmentId),
     shipmentDocuments,
     gblGenerated,
+    storageInTransits: selectStorageInTransits(state, shipmentId),
     tariff400ngItems: selectTariff400ngItems(state),
     shipmentLineItems: selectSortedShipmentLineItems(state),
     serviceAgents: selectServiceAgentsForShipment(state, shipmentId),
@@ -503,6 +496,7 @@ const mapStateToProps = (state, props) => {
     error: get(state, 'tsp.error'),
     shipmentSchema: get(state, 'swaggerPublic.spec.definitions.Shipment', {}),
     serviceAgentSchema: get(state, 'swaggerPublic.spec.definitions.ServiceAgent', {}),
+    storageInTransitsSchema: get(state, 'swaggerPublic.spec.definitions.StorageInTransits', {}),
     transportSchema: get(state, 'swaggerPublic.spec.definitions.TransportPayload', {}),
     deliverSchema: get(state, 'swaggerPublic.spec.definitions.ActualDeliveryDate', {}),
     shipmentId,
@@ -523,11 +517,12 @@ const mapDispatchToProps = dispatch =>
       deliverShipment,
       getAllShipmentDocuments,
       getAllTariff400ngItems,
-      getAllShipmentLineItems,
+      fetchAndCalculateShipmentLineItems,
       getAllInvoices,
       getTspForShipment,
       resetRequests,
       getStorageInTransitsForShipment,
+      selectStorageInTransits,
     },
     dispatch,
   );

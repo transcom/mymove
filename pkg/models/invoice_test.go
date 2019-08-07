@@ -53,7 +53,7 @@ func (suite *ModelSuite) TestFetchInvoice() {
 
 	// Then: invoice is returned
 	extantInvoice, err := FetchInvoice(suite.DB(), session, invoice.ID)
-	suite.Nil(err)
+	suite.NoError(err)
 	if suite.NoError(err) {
 		suite.Equal(extantInvoice.ID, invoice.ID)
 	}
@@ -75,7 +75,7 @@ func (suite *ModelSuite) TestFetchInvoice() {
 	}
 	// Then: invoice is returned
 	extantInvoice, err = FetchInvoice(suite.DB(), session, invoice.ID)
-	suite.Nil(err)
+	suite.NoError(err)
 	if suite.NoError(err) {
 		suite.Equal(extantInvoice.ID, invoice.ID)
 	}

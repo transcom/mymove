@@ -43,7 +43,7 @@ func (suite *ModelSuite) TestFetchDPSUserByEmailCaseSensitivity() {
 
 	suite.MustSave(&dpsUser)
 	user, err := models.FetchDPSUserByEmail(suite.DB(), strings.ToLower(email))
-	suite.Nil(err)
+	suite.NoError(err)
 	suite.NotNil(user)
 	suite.Equal(user.LoginGovEmail, email)
 }

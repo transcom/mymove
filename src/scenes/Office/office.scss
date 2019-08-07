@@ -1,4 +1,5 @@
 @import 'shared/styles/fonts.scss';
+@import 'shared/styles/colors.scss';
 
 h1,
 h2,
@@ -247,6 +248,10 @@ head .panel-subhead {
   margin-top: 0;
 }
 
+.editable-panel-column .awaiting-storage-expenses-warning {
+  margin-bottom: 20px;
+}
+
 .usa-input.duty-station p {
   margin-bottom: 0;
 }
@@ -446,7 +451,7 @@ head .panel-subhead {
 }
 
 .ReactTable.-highlight .rt-tbody .rt-tr:not(.-padRow):hover {
-  background-color: #E2F1FB;
+  background-color: #e2f1fb;
   color: #0071bb;
 }
 
@@ -465,4 +470,20 @@ head .panel-subhead {
   &.focused {
     border: 1px dashed gray;
   }
+}
+
+.needs-attention-alert {
+  display: block;
+}
+
+.clock-icon {
+  color: $color-gold;
+}
+
+.bang-icon {
+  color: $color-red;
+}
+
+.editable-panel-column .missing-info-alert {
+  margin-bottom: 20px;
 }

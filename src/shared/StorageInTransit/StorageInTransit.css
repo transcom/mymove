@@ -77,7 +77,7 @@
   margin-bottom: 16px;
 }
 
-.release-from-sit {
+.release-from-sit-field {
   text-decoration: none;
   cursor: pointer;
   font-weight: normal;
@@ -90,6 +90,15 @@
 .storage-in-transit-form textarea {
   height: 9rem;
 }
+
+.storage-in-transit-form .radio-group-header {
+  margin-bottom: .25em;
+}
+
+.storage-in-transit-form .radio-label__location {
+  margin-top: 1rem;
+}
+
 
 .place-in-sit-form {
   font-weight: normal;

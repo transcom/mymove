@@ -8,16 +8,19 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
 type ppmComputerParams struct {
-	Weight          unit.Pound
-	OriginZip5      string
-	DestinationZip5 string
-	Miles           int
-	Date            time.Time
-	DaysInSIT       int
+	Weight                                unit.Pound
+	OriginPickupZip5                      string
+	OriginDutyStationZip5                 string
+	DestinationZip5                       string
+	DistanceMilesFromOriginPickupZip      int
+	DistanceMilesFromOriginDutyStationZip int
+	Date                                  time.Time
+	DaysInSIT                             int
 }
 
 type mockPPMComputer struct {
@@ -26,14 +29,16 @@ type mockPPMComputer struct {
 	ppmComputerParams []ppmComputerParams
 }
 
-func (mppmc *mockPPMComputer) ComputePPMIncludingLHDiscount(weight unit.Pound, originZip5 string, destinationZip5 string, distanceMiles int, date time.Time, daysInSIT int) (cost rateengine.CostComputation, err error) {
+func (mppmc *mockPPMComputer) ComputeLowestCostPPMMove(weight unit.Pound, originPickupZip5 string, originDutyStationZip5 string, destinationZip5 string, distanceMilesFromOriginPickupZip int, distanceMilesFromOriginDutyStationZip int, date time.Time, daysInSit int) (cost rateengine.CostComputation, err error) {
 	mppmc.ppmComputerParams = append(mppmc.ppmComputerParams, ppmComputerParams{
-		Weight:          weight,
-		OriginZip5:      originZip5,
-		DestinationZip5: destinationZip5,
-		Miles:           distanceMiles,
-		Date:            date,
-		DaysInSIT:       daysInSIT,
+		Weight:                                weight,
+		OriginPickupZip5:                      originPickupZip5,
+		OriginDutyStationZip5:                 originDutyStationZip5,
+		DestinationZip5:                       destinationZip5,
+		DistanceMilesFromOriginPickupZip:      distanceMilesFromOriginPickupZip,
+		DistanceMilesFromOriginDutyStationZip: distanceMilesFromOriginDutyStationZip,
+		Date:                                  date,
+		DaysInSIT:                             daysInSit,
 	})
 	return mppmc.costComputation, mppmc.err
 }
@@ -73,17 +78,21 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 	pickupPostalCode := "85369"
 	destinationPostalCode := "31905"
 	cents := unit.Cents(1000)
-	ppm := models.PersonallyProcuredMove{
-		OriginalMoveDate:      &origMoveDate,
-		ActualMoveDate:        &actualDate,
-		PickupPostalCode:      &pickupPostalCode,
-		DestinationPostalCode: &destinationPostalCode,
-		TotalSITCost:          &cents,
-	}
+	ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			OriginalMoveDate:      &origMoveDate,
+			ActualMoveDate:        &actualDate,
+			PickupPostalCode:      &pickupPostalCode,
+			DestinationPostalCode: &destinationPostalCode,
+			TotalSITCost:          &cents,
+		},
+	})
+	currentDutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
 	params := models.ShipmentSummaryFormData{
 		PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
 		WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
 		PPMRemainingEntitlement: ppmRemainingEntitlement,
+		CurrentDutyStation:      currentDutyStation,
 	}
 	suite.Run("TestComputeObligations", func() {
 		mockComputer := mockPPMComputer{
@@ -91,28 +100,32 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 		}
 		ppmComputer := NewSSWPPMComputer(&mockComputer)
 		expectMaxObligationParams := ppmComputerParams{
-			Weight:          totalWeightEntitlement,
-			OriginZip5:      pickupPostalCode,
-			DestinationZip5: destinationPostalCode,
-			Miles:           miles,
-			Date:            actualDate,
-			DaysInSIT:       0,
+			Weight:                                totalWeightEntitlement,
+			OriginPickupZip5:                      pickupPostalCode,
+			OriginDutyStationZip5:                 currentDutyStation.Address.PostalCode,
+			DestinationZip5:                       destinationPostalCode,
+			DistanceMilesFromOriginPickupZip:      miles,
+			DistanceMilesFromOriginDutyStationZip: miles,
+			Date:                                  actualDate,
+			DaysInSIT:                             0,
 		}
 		expectActualObligationParams := ppmComputerParams{
-			Weight:          ppmRemainingEntitlement,
-			OriginZip5:      pickupPostalCode,
-			DestinationZip5: destinationPostalCode,
-			Date:            actualDate,
-			Miles:           miles,
-			DaysInSIT:       0,
+			Weight:                                ppmRemainingEntitlement,
+			OriginPickupZip5:                      pickupPostalCode,
+			OriginDutyStationZip5:                 currentDutyStation.Address.PostalCode,
+			DestinationZip5:                       destinationPostalCode,
+			DistanceMilesFromOriginPickupZip:      miles,
+			DistanceMilesFromOriginDutyStationZip: miles,
+			Date:                                  actualDate,
+			DaysInSIT:                             0,
 		}
 		cost, err := ppmComputer.ComputeObligations(params, planner)
 
-		suite.Nil(err)
+		suite.NoError(err)
 		calledWith := mockComputer.CalledWith()
 		suite.Equal(*ppm.TotalSITCost, cost.ActualObligation.SIT)
-		suite.Equal(expectMaxObligationParams, calledWith[0])
-		suite.Equal(expectActualObligationParams, calledWith[1])
+		suite.Equal(expectActualObligationParams, calledWith[0])
+		suite.Equal(expectMaxObligationParams, calledWith[1])
 	})
 
 	suite.Run("TestComputeObligations when actual PPM SIT exceeds MaxSIT", func() {
@@ -122,20 +135,24 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 		ppmComputer := NewSSWPPMComputer(&mockComputer)
 		obligations, err := ppmComputer.ComputeObligations(params, planner)
 
-		suite.Nil(err)
+		suite.NoError(err)
 		suite.Equal(unit.Cents(500), obligations.ActualObligation.SIT)
 	})
 
 	suite.Run("TestComputeObligations when there is no actual PPM SIT", func() {
-		ppm := models.PersonallyProcuredMove{
-			OriginalMoveDate:      &origMoveDate,
-			ActualMoveDate:        &actualDate,
-			PickupPostalCode:      &pickupPostalCode,
-			DestinationPostalCode: &destinationPostalCode,
-		}
+		ppm := testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+			PersonallyProcuredMove: models.PersonallyProcuredMove{
+				OriginalMoveDate:      &origMoveDate,
+				ActualMoveDate:        &actualDate,
+				PickupPostalCode:      &pickupPostalCode,
+				DestinationPostalCode: &destinationPostalCode,
+			},
+		})
+		currentDutyStation := testdatagen.FetchOrMakeDefaultCurrentDutyStation(suite.DB())
 		shipmentSummaryFormParams := models.ShipmentSummaryFormData{
 			PersonallyProcuredMoves: models.PersonallyProcuredMoves{ppm},
 			WeightAllotment:         models.SSWMaxWeightEntitlement{TotalWeight: totalWeightEntitlement},
+			CurrentDutyStation:      currentDutyStation,
 		}
 		mockComputer := mockPPMComputer{
 			costComputation: rateengine.CostComputation{SITMax: unit.Cents(500)},
@@ -143,14 +160,13 @@ func (suite *PaperworkSuite) TestTestComputeObligations() {
 		ppmComputer := NewSSWPPMComputer(&mockComputer)
 		obligations, err := ppmComputer.ComputeObligations(shipmentSummaryFormParams, planner)
 
-		suite.Nil(err)
+		suite.NoError(err)
 		suite.Equal(unit.Cents(0), obligations.ActualObligation.SIT)
 	})
 
 	suite.Run("TestCalcError", func() {
 		mockComputer := mockPPMComputer{err: errors.New("ERROR")}
 		ppmComputer := SSWPPMComputer{&mockComputer}
-
 		_, err := ppmComputer.ComputeObligations(params, planner)
 
 		suite.NotNil(err)

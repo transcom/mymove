@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import { every, some, get, findKey, pick } from 'lodash';
-import PrivateRoute from 'shared/User/PrivateRoute';
+import ValidatedPrivateRoute from 'shared/User/ValidatedPrivateRoute';
 import WizardPage from 'shared/WizardPage';
 import generatePath from 'shared/WizardPage/generatePath';
 import { no_op } from 'shared/utils';
@@ -21,7 +21,6 @@ import DutyStation from 'scenes/ServiceMembers/DutyStation';
 import TransitionToMove from 'scenes/Orders/TransitionToMove';
 import UploadOrders from 'scenes/Orders/UploadOrders';
 
-import MoveType from 'scenes/Moves/MoveTypeWizard';
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
@@ -167,11 +166,6 @@ const pages = {
       );
     },
   },
-  '/moves/:moveId': {
-    isInFlow: always,
-    isComplete: ({ sm, orders, move }) => get(move, 'selected_move_type', null),
-    render: (key, pages) => ({ match }) => <MoveType pages={pages} pageKey={key} match={match} />,
-  },
   '/moves/:moveId/hhg-start': {
     isInFlow: hasHHG,
     isComplete: ({ sm, orders, move, hhg }) => {
@@ -304,7 +298,7 @@ export const getWorkflowRoutes = props => {
     const currPage = pages[key];
     if (currPage.isInFlow(flowProps)) {
       const render = currPage.render(key, pageList, currPage.description, props);
-      return <PrivateRoute exact path={key} key={key} render={render} />;
+      return <ValidatedPrivateRoute exact path={key} key={key} render={render} />;
     } else {
       return <Route exact path={key} key={key} component={PageNotInFlow} />;
     }

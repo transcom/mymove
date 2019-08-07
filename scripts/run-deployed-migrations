@@ -1,0 +1,84 @@
+#! /usr/bin/env bash
+#
+# A script to apply all migrations, including secure migrations, to a local database.
+# https://github.com/transcom/mymove/blob/master/docs/how-to/migrate-the-database.md#secure-migrations
+
+set -eu -o pipefail
+
+function usage() {
+  echo "SECURE_MIGRATION_SOURCE=s3 SECURE_MIGRATION_BUCKET_NAME=* ${0##*/} DB_NAME"
+  exit 1
+}
+
+if [[ "${SECURE_MIGRATION_SOURCE:-}" != "s3" &&  "${SECURE_MIGRATION_SOURCE:-}" != "local" ]]; then
+  echo "environment variable SECURE_MIGRATION_SOURCE is required"
+  usage
+fi
+
+if [ "${SECURE_MIGRATION_SOURCE:-}" == "s3" ]; then
+  if [ -z "$SECURE_MIGRATION_BUCKET_NAME" ]; then
+    echo "environment variable SECURE_MIGRATION_BUCKET_NAME is required"
+    usage
+  fi
+fi
+
+if [[ "$#" -lt 1 ]]; then
+  echo "Missing database name"
+  usage
+fi
+
+export PSQL_SSL_MODE=disable
+export DB_NAME=$1
+export DB_PORT="${DB_PORT_DEPLOYED_MIGRATIONS:-5434}"
+
+function proceed() {
+  proceed_message=${1:-"proceed"}
+  echo -en "\e[31m${proceed_message} (y/N) \e[39m"
+  read -r proceed
+  if [[ "$proceed" =~ ^[^yY]*$ ]]; then
+    echo "exiting"
+    exit 0
+  fi
+}
+
+function run() {
+  readonly command=( "$@" )
+  echo "...executing: ${command[*]}"
+  ${command[*]}
+}
+
+#
+# Pre-flight checks
+#
+
+# Ensure our `aws` command is the one infra has wrapped with aws-vault
+command -v aws 2> /dev/null | grep "ppp-infra/scripts/aws" &> /dev/null || \
+  ( echo "error: aws command not pointing to 'ppp-infra/scripts/aws"
+    echo "see https://github.com/transcom/ppp-infra/blob/master/transcom-ppp/README.md#using-aws-vault"
+    exit 1
+  )
+
+# Test AWS command and freshen AWS session token
+aws s3 ls > /dev/null
+
+#
+# Run migrations
+#
+
+echo
+if [ "${SECURE_MIGRATION_SOURCE:-}" == "s3" ]; then
+  echo -e "\e[33mUsing ${SECURE_MIGRATION_BUCKET_NAME} to gather secure migrations\e[39m"
+else
+    echo -e "\e[33mUsing local_migrations folder to gather secure migrations\e[39m"
+fi
+echo
+proceed "Running deployed migrations against the local database with name ${DB_NAME}. This will delete everything in that db."
+
+export PGPASSWORD=${DB_PASSWORD}
+make db_deployed_migrations_reset
+run make db_deployed_migrations_migrate || (
+  echo "error: migrations failed!"
+  exit 1
+  )
+
+echo "Production migrations applied to ${DB_NAME}."

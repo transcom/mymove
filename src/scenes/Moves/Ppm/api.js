@@ -1,4 +1,4 @@
-import { getClient, checkResponse, getPublicClient } from 'shared/Swagger/api';
+import { getClient, checkResponse } from 'shared/Swagger/api';
 import { formatPayload, formatDateString } from 'shared/utils';
 
 export async function GetPpm(moveId) {
@@ -37,11 +37,12 @@ export async function UpdatePpm(
   return response.body;
 }
 
-export async function GetPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate) {
+export async function GetPpmWeightEstimate(moveDate, originZip, originDutyStationZip, destZip, weightEstimate) {
   const client = await getClient();
   const response = await client.apis.ppm.showPPMEstimate({
     original_move_date: formatDateString(moveDate),
     origin_zip: originZip,
+    origin_duty_station_zip: originDutyStationZip,
     destination_zip: destZip,
     weight_estimate: weightEstimate,
   });
@@ -59,16 +60,6 @@ export async function GetPpmSitEstimate(moveDate, sitDays, originZip, destZip, w
     weight_estimate: weightEstimate,
   });
   checkResponse(response, 'failed to update ppm due to server error');
-  return response.body;
-}
-
-export async function ValidateZipRateData(zipCode, zipType) {
-  const client = await getPublicClient();
-  const response = await client.apis.postal_codes.validatePostalCode({
-    postal_code: zipCode,
-    postal_code_type: zipType,
-  });
-  checkResponse(response, 'failed to validate ppm data due to server error');
   return response.body;
 }
 

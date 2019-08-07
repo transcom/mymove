@@ -54,9 +54,9 @@ func (m MoveSubmitted) emails(ctx context.Context) ([]emailContent, error) {
 	}
 
 	submittedText := "Your move has been submitted to your local transportation office for review. "
-	processText := "This process can take up to 3 business days. "
+	processText := "This can take up to 3 business days. The office will email you once your move has been approved."
 	pppoText := "If you have questions or need expedited processing contact your local transportation office."
-
+	closingText := "You can check the status of your move at any time at https://my.move.mil/"
 	if serviceMember.DutyStationID != nil {
 		originDSTransportInfo, err := models.FetchDSContactInfo(m.db, serviceMember.DutyStationID)
 		if err != nil {
@@ -67,24 +67,24 @@ func (m MoveSubmitted) emails(ctx context.Context) ([]emailContent, error) {
 			return emails, err
 		}
 
-		pppoText = fmt.Sprintf(
-			"If you have questions or need expedited processing contact your local PPPO %s at %s.",
-			originDSTransportInfo.Name,
-			originDSTransportInfo.PhoneLine,
-		)
 		submittedText = fmt.Sprintf(
-			"Your move from %s to %s has been submitted to your local transportation office for review. ",
+			"Your move from %s to %s has been submitted to your local transportation office for review.",
 			originDSTransportInfo.Name,
 			destinationDutyStation.Name,
 		)
+
+		pppoText = fmt.Sprintf(
+			"In the meantime, if you have questions or need expedited processing, call the %s PPPO at %s.",
+			originDSTransportInfo.Name,
+			originDSTransportInfo.PhoneLine,
+		)
 	}
 
-	text := submittedText + processText + pppoText
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
-		subject:        "MOVE.MIL: Your move has been submitted.",
-		htmlBody:       text,
-		textBody:       text,
+		subject:        "[MilMove] You’ve submitted your move details",
+		htmlBody:       fmt.Sprintf("%s<br/><br/>%s<br/><br/>%s<br/><br/><br/>%s", submittedText, processText, pppoText, closingText),
+		textBody:       fmt.Sprintf("%s\n\n%s\n\n%s\n\n\n%s", submittedText, processText, pppoText, closingText),
 	}
 
 	m.logger.Info("Generated move submitted email to service member",

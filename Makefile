@@ -1,14 +1,14 @@
 NAME = ppp
 DB_NAME_DEV = dev_db
-DB_NAME_PROD_MIGRATIONS = prod_migrations
+DB_NAME_DEPLOYED_MIGRATIONS = deployed_migrations
 DB_NAME_TEST = test_db
 DB_DOCKER_CONTAINER_DEV = milmove-db-dev
-DB_DOCKER_CONTAINER_PROD_MIGRATIONS = milmove-db-prod-migrations
+DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS = milmove-db-deployed-migrations
 DB_DOCKER_CONTAINER_TEST = milmove-db-test
 # The version of the postgres container should match production as closely
 # as possible.
 # https://github.com/transcom/ppp-infra/blob/7ba2e1086ab1b2a0d4f917b407890817327ffb3d/modules/aws-app-environment/database/variables.tf#L48
-DB_DOCKER_CONTAINER_IMAGE = postgres:10.6
+DB_DOCKER_CONTAINER_IMAGE = postgres:10.9
 TASKS_DOCKER_CONTAINER = tasks
 export PGPASSWORD=mysecretpassword
 
@@ -29,7 +29,7 @@ endif
 WEBSERVER_LDFLAGS=-X main.gitBranch=$(shell git branch | grep \* | cut -d ' ' -f2) -X main.gitCommit=$(shell git rev-list -1 HEAD)
 GC_FLAGS=-trimpath=$(GOPATH)
 DB_PORT_DEV=5432
-DB_PORT_PROD_MIGRATIONS=5434
+DB_PORT_DEPLOYED_MIGRATIONS=5434
 DB_PORT_DOCKER=5432
 ifdef CIRCLECI
 	DB_PORT_TEST=5432
@@ -99,14 +99,7 @@ endif
 	touch .check_bash_version.stamp
 
 .PHONY: deps
-deps: prereqs \
-	check_hosts \
-	check_go_version \
-	check_gopath \
-	check_bash_version \
-	ensure_pre_commit \
-	client_deps \
-	server_deps ## Run all checks and install all depdendencies
+deps: prereqs check_hosts check_go_version check_gopath check_bash_version ensure_pre_commit client_deps server_deps ## Run all checks and install all depdendencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
@@ -137,7 +130,9 @@ client_deps: .check_hosts.stamp .client_deps.stamp ## Install client dependencie
 .PHONY: client_build
 client_build: .client_deps.stamp .client_build.stamp ## Build the client
 
-build/favicon.ico: client_build
+build/index.html: ## milmove serve requires this file to boot, but it isn't used during local development
+	mkdir -p build
+	touch build/index.html
 
 .PHONY: client_run
 client_run: .client_deps.stamp ## Run MilMove Service Member client
@@ -285,18 +280,11 @@ pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
 #
 
 .PHONY: go_deps_update
-go_deps_update: ## Update golang dependencies
+go_deps_update: server_deps server_generate mocks_generate ## Update golang dependencies
 	go run cmd/update_deps/main.go
 
 .PHONY: server_deps
-server_deps: .check_gopath.stamp \
-	bin/callgraph \
-	bin/chamber \
-	bin/gin \
-	bin/soda \
-	bin/swagger \
-	bin/mockery \
-	bin/rds-combined-ca-bundle.pem ## Install or Build server dependencies
+server_deps: .check_gopath.stamp bin/callgraph bin/chamber bin/gin bin/soda bin/swagger bin/mockery bin/rds-combined-ca-bundle.pem ## Install or Build server dependencies
 
 .PHONY: server_generate
 server_generate: .check_go_version.stamp .check_gopath.stamp .server_generate.stamp ## Generate golang server code from Swagger files
@@ -321,18 +309,21 @@ server_build_linux: server_generate_linux ## Build the server (linux)
 	GOOS=linux GOARCH=amd64 go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
 # This command is for running the server by itself, it will serve the compiled frontend on its own
-server_run_standalone: client_build server_build db_dev_run
+server_run_standalone: server_build client_build db_dev_run
 	DEBUG_LOGGING=true $(AWS_VAULT) ./bin/milmove serve
+
 # This command will rebuild the swagger go code and rerun server on any changes
 server_run:
 	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run_default
 # This command runs the server behind gin, a hot-reload server
-server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp bin/gin build/favicon.ico server_generate db_dev_run
+# Note: Gin is not being used as a proxy so assigning odd port and laddr to keep in IPv4 space.
+# Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port 8080.
+server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp bin/gin build/index.html server_generate db_dev_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) ./bin/gin \
 		--build ./cmd/milmove \
 		--bin /bin/milmove_gin \
-		--port 8080 --appPort 8081 \
+		--laddr 127.0.0.1 --port 9001 \
 		--excludeDir node_modules \
 		--immediate \
 		--buildArgs "-i -ldflags=\"$(WEBSERVER_LDFLAGS)\"" \
@@ -404,9 +395,12 @@ mocks_generate: .mocks_generate.stamp ## Generate mockery mocks for tests
 .PHONY: server_test
 server_test: server_deps server_generate mocks_generate db_test_reset db_test_migrate ## Run server unit tests
 	# Don't run tests in /cmd or /pkg/gen & pass `-short` to exclude long running tests
-	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
-	DB_PORT=$(DB_PORT_TEST) go test -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+	DB_PORT=$(DB_PORT_TEST) go test -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+
+server_test_build:
+	# Try to compile tests, but don't run them.
+	go test -run=nope -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_all
 server_test_all: server_deps server_generate mocks_generate db_dev_reset db_dev_migrate ## Run all server unit tests
@@ -475,68 +469,75 @@ db_dev_migrate_standalone: bin/milmove
 	@echo "Migrating the ${DB_NAME_DEV} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd scripts && \
-		../bin/milmove migrate -p ../migrations
+		../bin/milmove migrate -p ../migrations -m ../migrations_manifest.txt
 
 .PHONY: db_dev_migrate
 db_dev_migrate: server_deps db_dev_migrate_standalone ## Migrate Dev DB
+
+.PHONY: db_dev_psql
+db_dev_psql: ## Open PostgreSQL shell for Dev DB
+	scripts/psql-dev
 
 #
 # ----- END DB_DEV TARGETS -----
 #
 
 #
-# ----- START DB_PROD_MIGRATIONS TARGETS -----
+# ----- START DB_DEPLOYED_MIGRATIONS TARGETS -----
 #
 
-.PHONY: db_prod_migrations_destroy
-db_prod_migrations_destroy: ## Destroy Prod Migrations DB
+.PHONY: db_deployed_migrations_destroy
+db_deployed_migrations_destroy: ## Destroy Deployed Migrations DB
 ifndef CIRCLECI
-	@echo "Destroying the ${DB_DOCKER_CONTAINER_PROD_MIGRATIONS} docker database container..."
-	docker rm -f $(DB_DOCKER_CONTAINER_PROD_MIGRATIONS) || \
+	@echo "Destroying the ${DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS} docker database container..."
+	docker rm -f $(DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS) || \
 		echo "No database container"
 else
 	@echo "Relying on CircleCI's database setup to destroy the DB."
 endif
 
-.PHONY: db_prod_migrations_start
-db_prod_migrations_start: ## Start Prod Migrations DB
+.PHONY: db_deployed_migrations_start
+db_deployed_migrations_start: ## Start Deployed Migrations DB
 ifndef CIRCLECI
 	brew services stop postgresql 2> /dev/null || true
 endif
-	@echo "Starting the ${DB_DOCKER_CONTAINER_PROD_MIGRATIONS} docker database container..."
+	@echo "Starting the ${DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS} docker database container..."
 	# If running do nothing, if not running try to start, if can't start then run
-	docker start $(DB_DOCKER_CONTAINER_PROD_MIGRATIONS) || \
-		docker run --name $(DB_DOCKER_CONTAINER_PROD_MIGRATIONS) \
+	docker start $(DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS) || \
+		docker run --name $(DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS) \
 			-e \
 			POSTGRES_PASSWORD=$(PGPASSWORD) \
 			-d \
-			-p $(DB_PORT_PROD_MIGRATIONS):$(DB_PORT_DOCKER)\
+			-p $(DB_PORT_DEPLOYED_MIGRATIONS):$(DB_PORT_DOCKER)\
 			$(DB_DOCKER_CONTAINER_IMAGE)
 
-.PHONY: db_prod_migrations_create
-db_prod_migrations_create: ## Create Prod Migrations DB
-	@echo "Create the ${DB_NAME_PROD_MIGRATIONS} database..."
-	DB_NAME=postgres DB_PORT=$(DB_PORT_PROD_MIGRATIONS) scripts/wait-for-db && \
-		createdb -p $(DB_PORT_PROD_MIGRATIONS) -h localhost -U postgres $(DB_NAME_PROD_MIGRATIONS) || true
+.PHONY: db_deployed_migrations_create
+db_deployed_migrations_create: ## Create Deployed Migrations DB
+	@echo "Create the ${DB_NAME_DEPLOYED_MIGRATIONS} database..."
+	DB_NAME=postgres DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) scripts/wait-for-db && \
+		createdb -p $(DB_PORT_DEPLOYED_MIGRATIONS) -h localhost -U postgres $(DB_NAME_DEPLOYED_MIGRATIONS) || true
 
-.PHONY: db_prod_migrations_run
-db_prod_migrations_run: db_prod_migrations_start db_prod_migrations_create ## Run Prod Migrations DB (start and create)
+.PHONY: db_deployed_migrations_run
+db_deployed_migrations_run: db_deployed_migrations_start db_deployed_migrations_create ## Run Deployed Migrations DB (start and create)
 
-.PHONY: db_prod_migrations_reset
-db_prod_migrations_reset: db_prod_migrations_destroy db_prod_migrations_run ## Reset Prod Migrations DB (destroy and run)
+.PHONY: db_deployed_migrations_reset
+db_deployed_migrations_reset: db_deployed_migrations_destroy db_deployed_migrations_run ## Reset Deployed Migrations DB (destroy and run)
 
-.PHONY: db_prod_migrations_migrate_standalone
-db_prod_migrations_migrate_standalone: bin/milmove ## Migrate Prod Migrations DB directly
-	@echo "Migrating the ${DB_NAME_PROD_MIGRATIONS} database..."
+.PHONY: db_deployed_migrations_migrate_standalone
+db_deployed_migrations_migrate_standalone: bin/milmove ## Migrate Deployed Migrations DB with local migrations
+	@echo "Migrating the ${DB_NAME_DEPLOYED_MIGRATIONS} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
-	cd scripts && \
-		../bin/milmove migrate -p ../migrations
+	cd scripts && DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) ../bin/milmove migrate -p ../migrations -m ../migrations_manifest.txt
 
-.PHONY: db_prod_migrations_migrate
-db_prod_migrations_migrate: server_deps db_prod_migrations_migrate_standalone ## Migrate Prod Migrations DB
+.PHONY: db_deployed_migrations_migrate
+db_deployed_migrations_migrate: server_deps db_deployed_migrations_migrate_standalone ## Migrate Deployed Migrations DB
+
+.PHONY: db_deployed_psql
+db_deployed_psql: ## Open PostgreSQL shell for Deployed Migrations DB
+	scripts/psql-deployed-migrations
 
 #
-# ----- END DB_PROD_MIGRATIONS TARGETS -----
+# ----- END DB_DEPLOYED_MIGRATIONS TARGETS -----
 #
 
 #
@@ -604,13 +605,13 @@ ifndef CIRCLECI
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd scripts && \
 		DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_TEST)\
-			../bin/milmove migrate -p ../migrations
+			../bin/milmove migrate -p ../migrations -m ../migrations_manifest.txt
 else
 	@echo "Migrating the ${DB_NAME_TEST} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
 	cd scripts && \
 		DB_NAME=$(DB_NAME_TEST) DB_PORT=$(DB_PORT_DEV) \
-			../bin/milmove migrate -p ../migrations
+			../bin/milmove migrate -p ../migrations -m ../migrations_manifest.txt
 endif
 
 .PHONY: db_test_migrate
@@ -637,7 +638,11 @@ db_test_migrate_docker: db_test_migrations_build ## Migrate Test DB (docker)
 		--rm \
 		--entrypoint /bin/milmove\
 		e2e_migrations:latest \
-		migrate -p /migrate/migrations
+		migrate -p /migrate/migrations -m /migrate/migrations_manifest.txt
+
+.PHONY: db_test_psql
+db_test_psql: ## Open PostgreSQL shell for Test DB
+	scripts/psql-test
 
 #
 # ----- END DB_TEST TARGETS -----
@@ -688,7 +693,7 @@ db_e2e_up: bin/generate-test-data ## Truncate Test DB and Generate e2e (end-to-e
 	@echo "Truncate the ${DB_NAME_TEST} database..."
 	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)/$(DB_NAME_TEST)?sslmode=disable -c 'TRUNCATE users CASCADE;'
 	@echo "Populate the ${DB_NAME_TEST} database..."
-	DB_PORT=$(DB_PORT_TEST) bin/generate-test-data --named-scenario="e2e_basic" --env="test"
+	DB_PORT=$(DB_PORT_TEST) bin/generate-test-data --named-scenario="e2e_basic" --db-env="test"
 
 .PHONY: db_e2e_up_docker
 db_e2e_up_docker: ## Truncate DB and Generate e2e (end-to-end) data (docker)
@@ -723,7 +728,7 @@ db_e2e_init_docker: db_test_reset_docker db_test_migrate_docker db_e2e_up_docker
 .PHONY: db_dev_e2e_populate
 db_dev_e2e_populate: db_dev_reset db_dev_migrate build_tools ## Populate Dev DB with generated e2e (end-to-end) data
 	@echo "Populate the ${DB_NAME_DEV} database with docker command..."
-	bin/generate-test-data --named-scenario="e2e_basic" --env="development"
+	bin/generate-test-data --named-scenario="e2e_basic" --db-env="development"
 
 .PHONY: db_test_e2e_populate
 db_test_e2e_populate: db_test_reset_docker db_test_migrate_docker build_tools db_e2e_up_docker ## Populate Test DB with generated e2e (end-to-end) data
@@ -791,20 +796,20 @@ tasks_save_fuel_price_data: tasks_build_linux_docker ## Run save-fuel-price-data
 #
 
 #
-# ----- START PROD MIGRATION TARGETS -----
+# ----- START Deployed MIGRATION TARGETS -----
 #
 
 .PHONY: run_prod_migrations
-run_prod_migrations: ## Run Prod migrations against Prod Migrations DB
-	./scripts/run-prod-migrations
+run_prod_migrations: ## Run Prod migrations against Deployed Migrations DB
+	SECURE_MIGRATION_BUCKET_NAME=transcom-ppp-app-prod-us-west-2 SECURE_MIGRATION_SOURCE=s3 ./scripts/run-deployed-migrations $(DB_NAME_DEPLOYED_MIGRATIONS)
 
 .PHONY: run_staging_migrations
-run_staging_migrations: ## Run Staging migrations against Prod Migrations DB
-	SECURE_MIGRATION_BUCKET_NAME=transcom-ppp-app-staging-us-west-2 ./scripts/run-prod-migrations
+run_staging_migrations: ## Run Staging migrations against Deployed Migrations DB
+	SECURE_MIGRATION_BUCKET_NAME=transcom-ppp-app-staging-us-west-2 SECURE_MIGRATION_SOURCE=s3 ./scripts/run-deployed-migrations $(DB_NAME_DEPLOYED_MIGRATIONS)
 
 .PHONY: run_experimental_migrations
-run_experimental_migrations: ## Run Experimental migrations against Prod Migrations DB
-	SECURE_MIGRATION_BUCKET_NAME=transcom-ppp-app-experimental-us-west-2 ./scripts/run-prod-migrations
+run_experimental_migrations: ## Run Experimental migrations against Deployed Migrations DB
+	SECURE_MIGRATION_BUCKET_NAME=transcom-ppp-app-experimental-us-west-2 SECURE_MIGRATION_SOURCE=s3 ./scripts/run-deployed-migrations $(DB_NAME_DEPLOYED_MIGRATIONS)
 
 #
 # ----- END PROD_MIGRATION TARGETS -----
@@ -852,15 +857,33 @@ gofmt:  ## Run go fmt over all Go files
 	go fmt $$(go list ./...) >> /dev/null
 
 .PHONY: pre_commit_tests
-pre_commit_tests: .server_generate.stamp .client_deps.stamp ## Run pre-commit tests
+pre_commit_tests: .server_generate.stamp .mocks_generate.stamp .client_deps.stamp ## Run pre-commit tests
 	pre-commit run --all-files
 
 .PHONY: pretty
 pretty: gofmt ## Run code through JS and Golang formatters
 	npx prettier --write --loglevel warn "src/**/*.{js,jsx}"
 
+.PHONY: prune_images
+prune_images:  ## Prune docker images
+	@echo '****************'
+	docker image prune -a
+
+.PHONY: prune_containers
+prune_containers:  ## Prune docker containers
+	@echo '****************'
+	docker container prune
+
+.PHONY: prune_volumes
+prune_volumes:  ## Prune docker volumes
+	@echo '****************'
+	docker volume prune
+
+.PHONY: prune
+prune: prune_images prune_containers prune_volumes ## Prune docker containers, images, and volumes
+
 .PHONY: clean
-clean: # Clean all generated files
+clean: ## Clean all generated files
 	rm -f .*.stamp
 	rm -f coverage.out
 	rm -rf ./bin
@@ -875,7 +898,7 @@ clean: # Clean all generated files
 	find ./pkg -type d -name "mocks" -exec rm -rf {} +
 
 .PHONY: spellcheck
-spellcheck: .client_deps.stamp # Run interactive spellchecker
+spellcheck: .client_deps.stamp ## Run interactive spellchecker
 	node_modules/.bin/mdspell --ignore-numbers --ignore-acronyms --en-us \
 		`find . -type f -name "*.md" \
 			-not -path "./node_modules/*" \
@@ -884,6 +907,31 @@ spellcheck: .client_deps.stamp # Run interactive spellchecker
 
 #
 # ----- END RANDOM TARGETS -----
+#
+
+#
+# ----- START DOCKER COMPOSE TARGETS -----
+#
+
+.PHONY: docker_compose_setup
+docker_compose_setup: .check_hosts.stamp ## Install requirements to use docker-compose
+	brew install -f bash git docker docker-compose direnv || true
+	brew cask install -f aws-vault || true
+
+.PHONY: docker_compose_up
+docker_compose_up: ## Bring up docker-compose containers
+	aws ecr get-login --no-include-email --region us-west-2 --no-include-email | sh
+	scripts/update-docker-compose
+	docker-compose up
+
+.PHONY: docker_compose_down
+docker_compose_down: ## Destroy docker-compose containers
+	docker-compose down
+	# Instead of using `--rmi all` which might destroy postgres we just remove the AWS containers
+	docker rmi $(shell docker images --filter=reference='*amazonaws*/*:*' --format "{{.ID}}")
+
+#
+# ----- END DOCKER COMPOSE TARGETS -----
 #
 
 default: help

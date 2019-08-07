@@ -38,7 +38,10 @@ import { DropDown, DropDownItem } from 'shared/ComboButton/dropdown';
 import { getRequestStatus } from 'shared/Swagger/selectors';
 import { resetRequests } from 'shared/Swagger/request';
 import { getAllTariff400ngItems, selectTariff400ngItems } from 'shared/Entities/modules/tariff400ngItems';
-import { getAllShipmentLineItems, selectSortedShipmentLineItems } from 'shared/Entities/modules/shipmentLineItems';
+import {
+  selectSortedShipmentLineItems,
+  fetchAndCalculateShipmentLineItems,
+} from 'shared/Entities/modules/shipmentLineItems';
 import { getAllInvoices } from 'shared/Entities/modules/invoices';
 import { approvePPM, loadPPMs, selectPPMForMove, selectReimbursement } from 'shared/Entities/modules/ppms';
 import { loadBackupContacts, loadServiceMember, selectServiceMember } from 'shared/Entities/modules/serviceMembers';
@@ -74,7 +77,6 @@ import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
-import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 import moment from 'moment';
 
 const BasicsTabContent = props => {
@@ -95,9 +97,13 @@ const PPMTabContent = props => {
       {props.ppmPaymentRequested && (
         <>
           <ExpensesPanel title="Expenses" moveId={props.moveId} />
-          <StoragePanel title="Storage" moveId={props.moveId} />
+          <StoragePanel title="Storage" moveId={props.moveId} moveDocuments={props.moveDocuments} />
           <DatesAndLocationPanel title="Dates & Locations" moveId={props.moveId} />
-          <NetWeightPanel title="Weights" moveId={props.moveId} />
+          <NetWeightPanel
+            title="Weights"
+            moveId={props.moveId}
+            ppmPaymentRequestedFlag={props.ppmPaymentRequestedFlag}
+          />
         </>
       )}
 
@@ -142,10 +148,10 @@ const ReferrerQueueLink = props => {
           <span>PPM Queue</span>
         </NavLink>
       );
-    case '/queues/hhg_approved':
+    case '/queues/hhg_active':
       return (
-        <NavLink to="/queues/hhg_approved" activeClassName="usa-current">
-          <span>Approved HHG Queue</span>
+        <NavLink to="/queues/hhg_active" activeClassName="usa-current">
+          <span>Active HHG Queue</span>
         </NavLink>
       );
     case '/queues/hhg_delivered':
@@ -230,7 +236,7 @@ class MoveInfo extends Component {
   getAllShipmentInfo = shipmentId => {
     this.props.getTspForShipment(shipmentId);
     this.props.getPublicShipment(shipmentId);
-    this.props.getAllShipmentLineItems(shipmentId);
+    this.props.fetchAndCalculateShipmentLineItems(shipmentId, this.props.shipmentStatus);
     this.props.getAllInvoices(shipmentId);
     this.props.getServiceAgentsForShipment(shipmentId);
     this.props.getStorageInTransitsForShipment(shipmentId);
@@ -310,7 +316,7 @@ class MoveInfo extends Component {
     const showDocumentViewer = this.props.context.flags.documentViewer;
     const moveInfoComboButton = this.props.context.flags.moveInfoComboButton;
     const ordersComplete = Boolean(
-      orders.orders_number && orders.orders_type_detail && orders.department_indicator && orders.tac,
+      orders.orders_number && orders.orders_type_detail && orders.department_indicator && orders.tac && orders.sac,
     );
     const ppmPaymentRequested = includes(['PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
     const ppmApproved = includes(['APPROVED', 'PAYMENT_REQUESTED', 'COMPLETED'], ppm.status);
@@ -323,6 +329,9 @@ class MoveInfo extends Component {
     const hasRequestedSIT = !isEmpty(storageInTransits) && some(storageInTransits, sit => sit.status === 'REQUESTED');
 
     const moveDate = isPPM ? ppm.original_move_date : shipment && shipment.requested_pickup_date;
+
+    const uploadDocumentUrl = `/moves/${this.props.moveId}/documents/new`;
+
     if (this.state.redirectToHome) {
       return <Redirect to="/" />;
     }
@@ -426,7 +435,12 @@ class MoveInfo extends Component {
                   <BasicsTabContent moveId={this.props.moveId} serviceMember={this.props.serviceMember} />
                 </PrivateRoute>
                 <PrivateRoute path={`${this.props.match.path}/ppm`}>
-                  <PPMTabContent moveId={this.props.moveId} ppmPaymentRequested={ppmPaymentRequested} />
+                  <PPMTabContent
+                    ppmPaymentRequestedFlag={this.props.context.flags.ppmPaymentRequest}
+                    moveId={this.props.moveId}
+                    ppmPaymentRequested={ppmPaymentRequested}
+                    moveDocuments={moveDocuments}
+                  />
                 </PrivateRoute>
                 <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   {this.props.shipment && (
@@ -497,15 +511,7 @@ class MoveInfo extends Component {
               </div>
             </div>
             <div className="documents">
-              <h2 className="extras usa-heading">
-                Documents
-                {!showDocumentViewer && <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />}
-                {showDocumentViewer && (
-                  <Link to={`/moves/${move.id}/documents`} target="_blank" aria-label="Documents">
-                    <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
-                  </Link>
-                )}
-              </h2>
+              <h2 className="extras usa-heading">Documents</h2>
               {!upload ? (
                 <p>No orders have been uploaded.</p>
               ) : (
@@ -528,7 +534,11 @@ class MoveInfo extends Component {
                 </div>
               )}
               {showDocumentViewer && (
-                <DocumentList detailUrlPrefix={`/moves/${this.props.moveId}/documents`} moveDocuments={moveDocuments} />
+                <DocumentList
+                  detailUrlPrefix={`/moves/${this.props.moveId}/documents`}
+                  moveDocuments={moveDocuments}
+                  uploadDocumentUrl={uploadDocumentUrl}
+                />
               )}
             </div>
           </div>
@@ -604,7 +614,7 @@ const mapDispatchToProps = dispatch =>
       approveShipment,
       cancelMove,
       getAllTariff400ngItems,
-      getAllShipmentLineItems,
+      fetchAndCalculateShipmentLineItems,
       getAllInvoices,
       getTspForShipment,
       getServiceAgentsForShipment,

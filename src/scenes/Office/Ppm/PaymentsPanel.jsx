@@ -10,6 +10,7 @@ import {
   downloadPPMAttachments,
   downloadPPMAttachmentsLabel,
 } from 'shared/Entities/modules/ppms';
+import { selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { getLastError } from 'shared/Swagger/selectors';
 
 import { no_op } from 'shared/utils';
@@ -34,19 +35,18 @@ const attachmentsErrorMessages = {
   500: 'An unexpected error has occurred',
 };
 
-export function sswIsDisabled(ppm, signedCertification, shipment) {
-  return (
-    missingSignature(signedCertification) || missingNetWeightOrActualMoveDate(ppm) || isComboAndNotDelivered(shipment)
-  );
+export function sswIsDisabled(ppm, signedCertification, shipment, moveDocs) {
+  return missingSignature(signedCertification) || missingRequiredPPMInfo(ppm) || isComboAndNotDelivered(shipment);
 }
 
 function missingSignature(signedCertification) {
   return isEmpty(signedCertification) || signedCertification.certification_type !== 'PPM_PAYMENT';
 }
 
-function missingNetWeightOrActualMoveDate(ppm) {
-  return isEmpty(ppm) || !ppm.net_weight || !ppm.actual_move_date;
+function missingRequiredPPMInfo(ppm) {
+  return isEmpty(ppm) || !ppm.actual_move_date || !ppm.net_weight;
 }
+
 function isComboAndNotDelivered(shipment) {
   return !isEmpty(shipment) && shipment.status !== 'DELIVERED';
 }
@@ -76,16 +76,25 @@ class PaymentsTable extends Component {
     this.setState({ showPaperwork: !this.state.showPaperwork });
   };
 
+  disableDownloadAll = () => {
+    return this.props.moveDocuments.length < 1;
+  };
+
   startDownload = docTypes => {
     this.setState({ disableDownload: true });
     this.props.downloadPPMAttachments(this.props.ppm.id, docTypes).then(response => {
-      if (response.payload) {
+      const {
+        response: {
+          obj: { url },
+        },
+      } = response;
+      if (url) {
         // Taken from https://mathiasbynens.github.io/rel-noopener/
         let win = window.open();
         // win can be null if a pop-up blocker is used
         if (win) {
           win.opener = null;
-          win.location = response.payload.url;
+          win.location = url;
         }
       }
       this.setState({ disableDownload: false });
@@ -230,8 +239,10 @@ class PaymentsTable extends Component {
                     <p>Download bundle of PPM receipts and attach it to the completed Shipment Summary Worksheet.</p>
                   </div>
                   <button
-                    disabled={this.state.disableDownload}
-                    onClick={() => this.startDownload(['OTHER', 'WEIGHT_TICKET', 'STORAGE_EXPENSE', 'EXPENSE'])}
+                    disabled={this.state.disableDownload || this.disableDownloadAll()}
+                    onClick={() =>
+                      this.startDownload(['OTHER', 'WEIGHT_TICKET', 'WEIGHT_TICKET_SET', 'STORAGE_EXPENSE', 'EXPENSE'])
+                    }
                   >
                     Download All Attachments (PDF)
                   </button>
@@ -249,7 +260,9 @@ class PaymentsTable extends Component {
                   </div>
                   <button
                     disabled={this.state.disableDownload}
-                    onClick={() => this.startDownload(['OTHER', 'WEIGHT_TICKET', 'STORAGE_EXPENSE'])}
+                    onClick={() =>
+                      this.startDownload(['OTHER', 'WEIGHT_TICKET', 'WEIGHT_TICKET_SET', 'STORAGE_EXPENSE'])
+                    }
                   >
                     Download Orders and Weight Tickets (PDF)
                   </button>
@@ -282,13 +295,15 @@ const mapStateToProps = (state, ownProps) => {
   const shipment = selectShipmentForMove(state, moveId);
   const advance = selectReimbursement(state, ppm.advance);
   const signedCertifications = selectPaymentRequestCertificationForMove(state, moveId);
-  const disableSSW = sswIsDisabled(ppm, signedCertifications, shipment);
+  const moveDocuments = selectAllDocumentsForMove(state, moveId);
+  const disableSSW = sswIsDisabled(ppm, signedCertifications, shipment, moveDocuments);
   return {
     ppm,
     disableSSW,
     moveId,
     advance,
-    attachmentsError: getLastError(state, downloadPPMAttachmentsLabel),
+    attachmentsError: getLastError(state, `${downloadPPMAttachmentsLabel}-${moveId}`),
+    moveDocuments,
   };
 };
 

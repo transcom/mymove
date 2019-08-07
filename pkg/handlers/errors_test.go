@@ -34,7 +34,7 @@ func TestErrorsSuite(t *testing.T) {
 	zap.ReplaceGlobals(logger)
 
 	hs := &ErrorsSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(),
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage()),
 		logger:       logger,
 	}
 	suite.Run(t, hs)
@@ -67,5 +67,16 @@ func (suite *ErrorsSuite) TestResponseForErrorWhenASQLErrorIsEncountered() {
 		suite.Equal(res.Code, 500)
 		suite.Equal(res.Err.Error(), SQLErrMessage)
 	}
+
+}
+
+func (suite *ErrorsSuite) TestResponseForErrorNil() {
+
+	var err error
+	actual := ResponseForError(suite.logger, err)
+	res, ok := actual.(*ErrResponse)
+	suite.True(ok)
+	suite.Equal(res.Code, 500)
+	suite.Equal(res.Err.Error(), NilErrMessage)
 
 }

@@ -91,7 +91,6 @@ This subset of development scripts is used for testing
 | Script Name | Description |
 | --- | --- |
 | `gen-e2e-migration` | generate migrations for cypress |
-| `go-test` | runs go test but with the correct DB port |
 | `run-e2e-test` | Runs cypress tests with interactive GUI |
 | `run-e2e-test-docker` | Runs cypress tests entirely inside docker containers like in CircleCI |
 
@@ -118,7 +117,7 @@ These scripts are primarily used for working with the database
 | `db-cleanup` | Remove the database backup. |
 | `db-restore` |  Restore the contents of the development database from an earlier backup. |
 | `psql-dev` | Convenience script to drop into development postgres DB |
-| `psql-prod-migrations` | Convenience script to drop into production migrations postgres DB |
+| `psql-deployed-migrations` | Convenience script to drop into deployed migrations postgres DB |
 | `psql-test` | Convenience script to drop into testing postgres DB |
 | `psql-wrapper` | A wrapper around `psql` that sets correct values |
 | `wait-for-db` |  waits for an available database connection, or until a timeout is reached |

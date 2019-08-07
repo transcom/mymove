@@ -62,20 +62,20 @@ func (m MoveCanceled) emails(ctx context.Context) ([]emailContent, error) {
 	}
 
 	// Set up various text segments. Copy comes from here:
-	// https://docs.google.com/document/d/1bgE0Q_-_c93uruMP8dcNSHugXo8Pidz6YFojWBKn1Gg/edit#heading=h.h3ys1ur2qhpn
+	// https://docs.google.com/document/d/1gIQZprWzJJE_sAAyg5NViPwy9ckL5RK37gFq1fEfipU
 	// TODO: we will want some sort of templating system
 
-	introText := `Your move has been canceled.`
-	nextSteps := fmt.Sprintf("Your move from %s to %s with the move locator ID %s was canceled.",
-		dsTransportInfo.Name, orders.NewDutyStation.Name, move.Locator)
-	closingText := fmt.Sprintf("Contact your local PPPO %s at %s if you have any questions.",
+	introText := `Update on your move`
+	nextSteps := fmt.Sprintf("Upon review, the office has determined that MilMove can’t handle your move from %s to %s, and canceled it in the system. You’re still moving, but we’ll need to manage your move with a different system.",
+		dsTransportInfo.Name, orders.NewDutyStation.Name)
+	closingText := fmt.Sprintf("Please call the PPPO at %s at %s and they’ll help you figure out what to do next.",
 		dsTransportInfo.Name, dsTransportInfo.PhoneLine)
 
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
-		subject:        fmt.Sprintf("MOVE.MIL: %s", introText),
-		htmlBody:       fmt.Sprintf("%s<br/>%s", nextSteps, closingText),
-		textBody:       fmt.Sprintf("%s\n%s", nextSteps, closingText),
+		subject:        fmt.Sprintf("[MilMove] %s", introText),
+		htmlBody:       fmt.Sprintf("%s<br/><br/><br/>%s", nextSteps, closingText),
+		textBody:       fmt.Sprintf("%s\n\n\n%s", nextSteps, closingText),
 	}
 
 	// TODO: Send email to trusted contacts when that's supported

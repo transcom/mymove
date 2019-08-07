@@ -26,9 +26,9 @@ type BaseHandlerTestSuite struct {
 }
 
 // NewBaseHandlerTestSuite returns a new BaseHandlerTestSuite
-func NewBaseHandlerTestSuite(logger Logger, sender notifications.NotificationSender) BaseHandlerTestSuite {
+func NewBaseHandlerTestSuite(logger Logger, sender notifications.NotificationSender, packageName testingsuite.PackageName) BaseHandlerTestSuite {
 	return BaseHandlerTestSuite{
-		PopTestSuite:       testingsuite.NewPopTestSuite(),
+		PopTestSuite:       testingsuite.NewPopTestSuite(packageName),
 		logger:             logger,
 		notificationSender: sender,
 	}
@@ -172,6 +172,17 @@ func (suite *BaseHandlerTestSuite) AuthenticateDpsRequest(req *http.Request, ser
 		UserID:          serviceMember.UserID,
 		IDToken:         "fake token",
 		DpsUserID:       dpsUser.ID,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	return req.WithContext(ctx)
+}
+
+// AuthenticateAdminRequest authenticates DPS users
+func (suite *BaseHandlerTestSuite) AuthenticateAdminRequest(req *http.Request, user models.User) *http.Request {
+	session := auth.Session{
+		ApplicationName: auth.AdminApp,
+		UserID:          user.ID,
+		IDToken:         "fake token",
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)
