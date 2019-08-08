@@ -1,6 +1,7 @@
 package paperwork
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
@@ -249,7 +250,9 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 	for _, img := range images {
 		pdf.AddPage()
 		file, _ := g.fs.Open(img.Path)
+		g.logger.Debug("What is the file", zap.Any("files", file))
 		if img.ContentType == "image/png" {
+			g.logger.Debug("Converting png to 8-bit")
 			// gofpdf isn't able to process 16-bit PNGs, so to be safe we convert all PNGs to an 8-bit color depth
 			newFile, newTemplateFileErr := g.newTempFile()
 			if newTemplateFileErr != nil {
@@ -265,9 +268,42 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 				return "", errors.Wrapf(err, "file.Seek offset: 0 whence: %d", io.SeekStart)
 			}
 		}
+		// Here is where we should choose things so we can add rotation to the image options
+		// Determine here if w > h, rotate 90 degrees
+		// otherwise, don't rotate
+		// Rotate using the image library
+		//
+		// scale using the imageOptions below
+		// bodyWidth should be set to 0 when the image height the proportion of the page is taller than wide as compared to a A4 page
+		// opposite for bodyHeight
+		g.logger.Debug("Going to decode the file into an image")
+
+		pic, _, err := image.Decode(file)
+		fmt.Println("I got a pic: ", pic)
+		rect := pic.Bounds()
+		fmt.Println("I got the pic's bounds: ", rect)
+
+		// if w > h {
+		// 	newFile, newTemplateFileErr := g.newTempFile()
+		// 	if newTemplateFileErr != nil {
+		// 		return "", errors.Wrap(newTemplateFileErr, "Creating temp file for image rotation")
+		// 	}
+		//
+		// 	file = newFile
+		// 	_, fileSeekErr := file.Seek(0, io.SeekStart)
+		// 	if fileSeekErr != nil {
+		// 		return "", errors.Wrapf(err, "file.Seek offset: 0 whence: %d", io.SeekStart)
+		// 	}
+		// }
+		// // 	convertTo8BitPNGErr := convertTo8BitPNG(file, newFile)
+		// 	if convertTo8BitPNGErr != nil {
+		// 		return "", errors.Wrap(convertTo8BitPNGErr, "Converting to 8-bit png")
+		// 	}
+
 		// Need to register the image using an afero reader, else it uses default filesystem
 		pdf.RegisterImageReader(img.Path, contentTypeToImageType[img.ContentType], file)
 		opt.ImageType = contentTypeToImageType[img.ContentType]
+
 		pdf.ImageOptions(img.Path, horizontalMargin, topMargin, bodyWidth, 0, false, opt, 0, "")
 		fileCloseErr := file.Close()
 		if fileCloseErr != nil {
