@@ -104,7 +104,7 @@ Cypress.Commands.add('patientReload', () => {
 
 // Visits a given URL but makes an attempt to wait for the loading screen to disappear
 Cypress.Commands.add('patientVisit', url => {
-  cy.visit(url, { timeout: 120000 });
+  cy.visit(url, { timeout: 180000 });
   cy.waitForLoadingScreen();
 });
 
