@@ -4,8 +4,6 @@ import (
 	"io"
 	"reflect"
 
-	//"github.com/davidbyttow/govips/pkg/vips"
-
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
@@ -89,7 +87,6 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	}
 
 	uploader := uploaderpkg.NewUploader(h.DB(), logger, h.FileStorer())
-
 	newUpload, verrs, err := uploader.CreateUploadForDocument(docID, session.UserID, aFile, uploaderpkg.AllowedTypesServiceMember)
 	if err != nil || verrs.HasAny() {
 		return handlers.ResponseForVErrors(logger, verrs, err)
@@ -101,9 +98,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 	uploadPayload := payloadForUploadModel(*newUpload, url)
-
 	return uploadop.NewCreateUploadCreated().WithPayload(uploadPayload)
-
 }
 
 // DeleteUploadHandler deletes an upload

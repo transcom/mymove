@@ -5,7 +5,6 @@ import (
 	"image/color"
 	"image/png"
 	"io"
-	"log"
 	"path/filepath"
 	"strings"
 
@@ -209,15 +208,12 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 	}
 
 	for _, fn := range pdfs {
-		log.Println(fn)
 		f, err := g.fs.Open(fn)
 		if err != nil {
-			log.Println("Err1")
 			return nil, errors.Wrap(err, "Validating pdfs")
 		}
 		err = g.pdfLib.Validate(f)
 		if err != nil {
-			log.Println("Err2")
 			return nil, errors.Wrap(err, "Validating pdfs")
 		}
 	}
