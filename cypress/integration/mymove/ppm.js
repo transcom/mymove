@@ -88,15 +88,6 @@ describe('completing the ppm flow', function() {
         .should('have.attr', 'href')
         .and('include', '/downloads/ppm_info_sheet.pdf');
     });
-
-    cy.get('.usa-width-three-fourths').within(() => {
-      cy.contains('Next Step: Wait for approval');
-      cy
-        .contains('Go to weight scales')
-        .children('a')
-        .should('have.attr', 'href', 'https://move.mil/resources/locator-maps');
-      cy.contains('Advance Requested: $1,333.91');
-    });
   });
 });
 
