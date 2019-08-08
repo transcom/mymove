@@ -147,7 +147,7 @@ func (suite *ModelSuite) TestFetchDeletedUpload() {
 
 	up, _ := models.FetchUpload(ctx, suite.DB(), &session, upload.ID)
 
-	// fetches an empty upload
+	// fetches a nil upload
 	suite.Equal(up.Filename, "")
 	suite.Equal(up.ContentType, "")
 	suite.Equal(up.ID, uuid.Nil)
