@@ -1,6 +1,6 @@
 import React from 'react';
 import { List, EmailField, Datagrid, TextField } from 'react-admin';
-import AdminPagination from './AdminPagination'
+import AdminPagination from './AdminPagination';
 
 const UserList = props => (
   <List {...props} pagination={<AdminPagination />} perPage={500}>
