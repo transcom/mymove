@@ -542,8 +542,11 @@ const PPMMoveDetailsPanel = props => {
   return (
     <div className="titled_block">
       <div className="title">Details</div>
-      <div>Weight (est.): {ppm.weight_estimate} lbs</div>
-      <div>Incentive (est.): {formatCentsRange(ppm.incentive_estimate_min, ppm.incentive_estimate_max)}</div>
+      <div>Weight (est.): {ppm.currentPpm.weight_estimate} lbs</div>
+      <div>
+        Incentive (est.):{' '}
+        {formatCentsRange(ppm.currentPpm.incentive_estimate_min, ppm.currentPpm.incentive_estimate_max)}
+      </div>
       {ppm.has_sit && <div>{hasSitString}</div>}
       {ppm.has_requested_advance && <div>{advanceString}</div>}
     </div>
@@ -658,7 +661,7 @@ export class MoveSummaryComponent extends React.Component {
       const netWeight =
         weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
       this.props.getPpmWeightEstimate(
-        this.props.ppm.actual_move_date,
+        this.props.ppm.actual_move_date || this.props.ppm.original_move_date,
         this.props.ppm.pickup_postal_code,
         this.props.originDutyStationZip,
         this.props.ppm.destination_postal_code,
