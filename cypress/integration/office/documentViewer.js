@@ -106,7 +106,7 @@ describe('The document viewer', function() {
       cy.contains('All Documents (2)');
       cy
         .get('.panel-field')
-        .get('a')
+        .find('a')
         .contains('super secret info document')
         .should('have.attr', 'href')
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
@@ -133,7 +133,7 @@ describe('The document viewer', function() {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy
         .get('[data-cy="doc-link"]')
-        .get('a')
+        .find('a')
         .contains('expense document')
         .should('have.attr', 'href')
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/)
@@ -164,8 +164,8 @@ describe('The document viewer', function() {
     it('can update expense document to other doc type', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy
-        .get('.panel-field')
-        .get('a')
+        .get('[data-cy="doc-link"]')
+        .find('a')
         .contains('expense document')
         .should('have.attr', 'href')
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/)
@@ -194,8 +194,8 @@ describe('The document viewer', function() {
     it('can update other document type back to expense type', () => {
       cy.patientVisit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
       cy
-        .get('.panel-field')
-        .get('a')
+        .get('[data-cy="doc-link"]')
+        .find('a')
         .contains('expense document')
         .should('have.attr', 'href')
         .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/)
