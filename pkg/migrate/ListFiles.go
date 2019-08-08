@@ -8,6 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3/s3iface"
 	"github.com/pkg/errors"
 )
 
@@ -28,7 +29,7 @@ func (fh *FileHelper) SetFileSystem(fs afero.Fs) {
 }
 
 // ListFiles lists the files in a given directory.
-func (fh *FileHelper) ListFiles(p string, s3Client *s3.S3) ([]string, error) {
+func (fh *FileHelper) ListFiles(p string, s3Client s3iface.S3API) ([]string, error) {
 	if strings.HasPrefix(p, "file://") {
 		f, err := fh.fs.Open(p[len("file://"):])
 		if err != nil {
