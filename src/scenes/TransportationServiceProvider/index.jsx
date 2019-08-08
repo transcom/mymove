@@ -46,10 +46,11 @@ class TspWrapper extends Component {
 
   render() {
     const Tag = detectIE11() ? 'div' : 'main';
+    const isDocViewerUrl = window.location.href && /\/shipments\/[^/]+\/documents/.test(window.location.href);
     return (
       <ConnectedRouter history={history}>
         <div className="TSP site">
-          <TspHeader />
+          {!isDocViewerUrl && <TspHeader />}
           <Tag role="main" className="site__content">
             <div>
               <LogoutOnInactivity />

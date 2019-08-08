@@ -56,10 +56,12 @@ export class OfficeWrapper extends Component {
 
   render() {
     const Tag = detectIE11() ? 'div' : 'main';
+    const isDocViewerUrl = window.location.href && /\/moves\/[^/]+\/documents/.test(window.location.href);
+    const isOrdersUrl = window.location.href && /\/moves\/[^/]+\/orders/.test(window.location.href);
     return (
       <ConnectedRouter history={history}>
         <div className="Office site">
-          <QueueHeader />
+          {!isDocViewerUrl && !isOrdersUrl && <QueueHeader />}
           <Tag role="main" className="site__content">
             <div>
               <LogoutOnInactivity />
