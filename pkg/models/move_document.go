@@ -246,7 +246,7 @@ func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UU
 	}
 
 	var moveDocuments MoveDocuments
-	query := db.Where("move_document_type = $1", string(moveDocumentType)).Where("personally_procured_move_id = $2", ppmID.String())
+	query := db.Where("deleted_at is null").Where("move_document_type = $1", string(moveDocumentType)).Where("personally_procured_move_id = $2", ppmID.String())
 	if status != nil {
 		query = query.Where("status = $3", string(*status))
 	}
@@ -314,7 +314,7 @@ func FetchMoveDocumentsByTypeForShipment(db *pop.Connection, session *auth.Sessi
 	}
 
 	var moveDocuments MoveDocuments
-	err := db.Where("move_document_type = $1", string(moveDocumentType)).Where("shipment_id = $2", shipmentID.String()).All(&moveDocuments)
+	err := db.Where("deleted_at is null").Where("move_document_type = $1", string(moveDocumentType)).Where("shipment_id = $2", shipmentID.String()).All(&moveDocuments)
 	if err != nil {
 		if errors.Cause(err).Error() != recordNotFoundErrorString {
 			return nil, err

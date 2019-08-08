@@ -61,6 +61,36 @@ func (suite *ModelSuite) TestFetchMoveDocumentsByTypeForShipment() {
 	testdatagen.MakeMoveDocument(suite.DB(), assertions)
 	testdatagen.MakeMoveDocument(suite.DB(), assertions)
 	testdatagen.MakeShipmentOffer(suite.DB(), assertions)
+
+	deletedAt := time.Date(2019, 8, 7, 0, 0, 0, 0, time.UTC)
+	deleteAssertions := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:           shipment.Move.ID,
+			Move:             shipment.Move,
+			ShipmentID:       &shipment.ID,
+			Status:           "OK",
+			MoveDocumentType: "GOV_BILL_OF_LADING",
+			DeletedAt:        &deletedAt,
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+			DeletedAt:       &deletedAt,
+		},
+		TransportationServiceProvider: models.TransportationServiceProvider{
+			ID: tspUser.TransportationServiceProvider.ID,
+		},
+		Shipment: models.Shipment{
+			ID: shipment.ID,
+		},
+		ShipmentOffer: models.ShipmentOffer{
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			Shipment:                        shipment,
+			ShipmentID:                      shipment.ID,
+		},
+	}
+	testdatagen.MakeMoveDocument(suite.DB(), deleteAssertions)
+
 	// When: the logged in user is a TSP user
 	session := &auth.Session{
 		ApplicationName: auth.TspApp,
@@ -118,6 +148,24 @@ func (suite *ModelSuite) TestFetchApprovedMovingExpenseDocuments() {
 
 	testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions)
 	testdatagen.MakeMovingExpenseDocument(suite.DB(), assertions)
+
+	deletedAt := time.Date(2019, 8, 7, 0, 0, 0, 0, time.UTC)
+	deleteAssertions := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppm.Move.ID,
+			Move:                     ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:                   "OK",
+			MoveDocumentType:         "EXPENSE",
+			DeletedAt:                &deletedAt,
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+			DeletedAt:       &deletedAt,
+		},
+	}
+	testdatagen.MakeMovingExpenseDocument(suite.DB(), deleteAssertions)
 
 	// User is authorized to fetch move doc
 	session := &auth.Session{
