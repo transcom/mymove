@@ -8,6 +8,7 @@ import {
   getSignedCertification,
   selectPaymentRequestCertificationForMove,
 } from 'shared/Entities/modules/signed_certifications';
+import { getCurrentMoveID } from 'shared/UI/ducks';
 
 const PpmStatuses = {
   Submitted: 'SUBMITTED',
@@ -116,10 +117,9 @@ PPMStatusTimeline.propTypes = {
 };
 
 function mapStateToProps(state) {
-  const move = state.moves.currentMove || state.moves.latestMove || {};
-  const moveId = move.id || null;
+  const moveId = getCurrentMoveID(state);
   return {
-    signedCertification: selectPaymentRequestCertificationForMove(state, move.id),
+    signedCertification: selectPaymentRequestCertificationForMove(state, moveId),
     moveId,
   };
 }
