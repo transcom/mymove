@@ -70,7 +70,6 @@ export class ContactInfo extends Component {
         <fieldset key="contact_preferences">
           <legend htmlFor="contact_preferences">Preferred contact method(s) during your move:</legend>
           <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
-          <SwaggerField fieldName="text_message_is_preferred" swagger={schema} disabled={true} />
           <SwaggerField fieldName="email_is_preferred" swagger={schema} />
         </fieldset>
       </ContactWizardForm>

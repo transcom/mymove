@@ -105,7 +105,6 @@ const CustomerInfoEdit = props => {
                 <p>Preferred contact method</p>
               </legend>
               <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
-              <SwaggerField fieldName="text_message_is_preferred" swagger={schema} />
               <SwaggerField fieldName="email_is_preferred" swagger={schema} />
             </fieldset>
           </FormSection>
