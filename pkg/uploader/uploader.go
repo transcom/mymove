@@ -85,7 +85,7 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 		ID:                          id,
 		DocumentID:                  documentID,
 		UploaderID:                  userID,
-		OrigDocumentFilename:        file.Name(),
+		OrigDocumentFilename:        file.Name() + "-original",
 		OriginalDocumentBytes:       info.Size(),
 		OriginalDocumentContentType: contentType,
 		OriginalDocumentChecksum:    checksum,
@@ -115,7 +115,7 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 			return transactionError
 		}
 
-		// Push file to S3
+		//Push file to S3
 		if _, vcErr = u.Storer.Store(newUpload.OriginalDocumentStorageKey, file, checksum); vcErr != nil {
 			u.logger.Error("failed to store original object", zap.Error(err))
 			responseVErrors.Append(verrs)
@@ -123,7 +123,7 @@ func (u *Uploader) CreateUploadForDocument(documentID *uuid.UUID, userID uuid.UU
 			return transactionError
 		}
 
-		if _, vcErr = u.Storer.Store(newUpload.StorageKey, postProcessedFile, checksum); vcErr != nil {
+		if _, vcErr = u.Storer.Store(newUpload.StorageKey, postProcessedFile, postProcessedFileChecksum); vcErr != nil {
 			u.logger.Error("failed to store object", zap.Error(err))
 			responseVErrors.Append(verrs)
 			uploadError = errors.Wrap(err, "failed to store object")
@@ -177,6 +177,11 @@ func (ipp *imageProcessingPipeline) ProcessImage(file afero.File, storer storage
 		_, err = postProcessedFile.Write(processedImage)
 		if err != nil {
 			return file, errors.Wrap(err, "could not create write to postProcessedFile")
+		}
+		// TODO do not understand this but if don't reset back to zero checksum for s3 fails.....
+		_, err = postProcessedFile.Seek(0, 0)
+		if err != nil {
+			return file, errors.Wrap(err, "could not reset buffer for postProcessedFile")
 		}
 		return postProcessedFile, nil
 	}

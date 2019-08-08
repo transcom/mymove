@@ -94,6 +94,9 @@ func CheckVault(v *viper.Viper) error {
 		return errors.Wrap(&errInvalidAWSProfile{Profile: awsProfile},
 			fmt.Sprintf("%s is invalid, expected %v", VaultAWSProfileFlag, awsProfiles))
 	}
+	//TODO seems like there is an issue getting env vars need to investigate
+	//TODO but just hard coding now
+	awsProfile = VaultAWSProfileDefault
 
 	// Require both are set or neither are set
 	if (len(keychainName) != 0 && len(awsProfile) == 0) || (len(keychainName) == 0 && len(awsProfile) != 0) {
