@@ -6,6 +6,7 @@ import Menu from './Menu';
 import UserList from './UserList';
 import OfficeList from './OfficeList';
 import UserShow from './UserShow';
+import styles from './Home.module.scss';
 
 const httpClient = (url, options = {}) => {
   if (!options.headers) {
@@ -21,7 +22,7 @@ const AdminLayout = props => <Layout {...props} menu={Menu} />;
 const history = createBrowserHistory({ basename: '/system' });
 
 const Home = () => (
-  <div className="admin-system-wrapper">
+  <div className={styles['admin-system-wrapper']}>
     <Admin dataProvider={dataProvider} history={history} appLayout={AdminLayout}>
       <Resource name="office_users" list={UserList} show={UserShow} />
       <Resource name="offices" list={OfficeList} />
