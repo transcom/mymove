@@ -4,6 +4,7 @@ import { Route } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
 import React from 'react';
 import Menu from './Menu';
+import styles from './Home.module.scss';
 
 const httpClient = (url, options = {}) => {
   if (!options.headers) {
@@ -48,7 +49,7 @@ const routes = [
 const history = createBrowserHistory({ basename: '/system' });
 
 const Home = () => (
-  <div className="admin-system-wrapper">
+  <div className={styles['admin-system-wrapper']}>
     <Admin customRoutes={routes} dataProvider={dataProvider} history={history} appLayout={AdminLayout}>
       <Resource name="office_users" list={UserList} />
       <Resource name="offices" list={OfficeList} />
