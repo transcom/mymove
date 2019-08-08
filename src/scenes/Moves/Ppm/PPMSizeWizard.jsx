@@ -10,6 +10,7 @@ import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline'
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import PpmSize from './Size';
 import { getCurrentMove } from 'shared/UI/ducks';
+import { get } from 'lodash';
 
 export class PpmSizeWizardPage extends Component {
   handleSubmit = () => {
@@ -76,7 +77,7 @@ function mapStateToProps(state) {
     isHHGPPMComboMove: isHHGPPMComboMove(state),
     move: {
       currentMove: getCurrentMove(state),
-      pendingMoveType: state.moves.pendingMoveType,
+      pendingMoveType: get(state, 'ui.pendingMoveType'),
     },
     weightInfo: getRawWeightInfo(state),
   };
