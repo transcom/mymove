@@ -2,18 +2,35 @@ package migrate
 
 import (
 	"fmt"
-	"os"
 	"strings"
+
+	"github.com/spf13/afero"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/pkg/errors"
 )
 
+type FileHelper struct {
+	fs afero.Fs
+}
+
+// NewUploader creates and returns a new uploader
+func NewFileHelper() *FileHelper {
+	fs := afero.NewOsFs()
+	return &FileHelper{
+		fs: fs,
+	}
+}
+
+func (fh *FileHelper) SetFileSystem(fs afero.Fs) {
+	fh.fs = fs
+}
+
 // ListFiles lists the files in a given directory.
-func ListFiles(p string, s3Client *s3.S3) ([]string, error) {
+func (fh *FileHelper) ListFiles(p string, s3Client *s3.S3) ([]string, error) {
 	if strings.HasPrefix(p, "file://") {
-		f, err := os.Open(p[len("file://"):])
+		f, err := fh.fs.Open(p[len("file://"):])
 		if err != nil {
 			return []string{}, err
 		}
