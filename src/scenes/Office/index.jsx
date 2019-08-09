@@ -51,6 +51,8 @@ export class OfficeWrapper extends Component {
   componentDidCatch(error, info) {
     this.setState({
       hasError: true,
+      error,
+      info,
     });
   }
 
@@ -65,7 +67,7 @@ export class OfficeWrapper extends Component {
           <Tag role="main" className="site__content">
             <div>
               <LogoutOnInactivity />
-              {this.state.hasError && <SomethingWentWrong />}
+              {this.state.hasError && <SomethingWentWrong error={this.state.error} info={this.state.info} />}
               {!this.state.hasError && (
                 <Switch>
                   <Route
