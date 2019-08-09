@@ -339,3 +339,4 @@
 20190730225048_add_deleted_at_to_document_tables.up.sql
 20190731163048_remove_is_superuser.up.fizz
 20190805161006_disable_truss_user.up.fizz
+20190807134704_admin_user_fname_lname_required.up.fizz
