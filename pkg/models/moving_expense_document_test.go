@@ -33,7 +33,7 @@ func (suite *ModelSuite) TestStorageExpenseDaysInStorage() {
 	}
 	daysInStorage, err := storageExpense.DaysInStorage()
 	suite.Nil(err)
-	suite.Equal(daysInStorage, 2)
+	suite.Equal(daysInStorage, 3)
 }
 
 func (suite *ModelSuite) TestStorageExpenseDaysInStorageSameDay() {
