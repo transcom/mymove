@@ -4,8 +4,7 @@ import windowSize from 'react-window-size';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 
-import { setPendingMoveType } from './ducks';
-import { getCurrentMove } from 'shared/UI/ducks';
+import { getCurrentMove, setPendingMoveType } from 'shared/UI/ducks';
 
 import BigButton from 'shared/BigButton';
 import trailerGray from 'shared/icon/trailer-gray.svg';
