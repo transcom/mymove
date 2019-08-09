@@ -103,7 +103,7 @@ func (m *MovingExpenseDocument) DaysInStorage() (int, error) {
 		return 0, fmt.Errorf("storage end date before storage start date")
 	}
 	// don't include the first day
-	daysInStorage := int(m.StorageEndDate.Sub(*m.StorageStartDate).Hours()/24) - 1
+	daysInStorage := int(m.StorageEndDate.Sub(*m.StorageStartDate).Hours() / 24)
 	if daysInStorage < 0 {
 		return 0, nil
 	}

@@ -100,7 +100,7 @@ func (suite *MoveDocumentServiceSuite) TestStorageExpenseUpdate() {
 	err = suite.DB().Where(`id = $1`, ppm.ID).First(&updatedPpm)
 	suite.Require().Nil(err)
 	suite.Require().Equal(unit.Cents(newRequestedAmount), *updatedPpm.TotalSITCost)
-	suite.Require().Equal(int64(4), *updatedPpm.DaysInStorage)
+	suite.Require().Equal(int64(5), *updatedPpm.DaysInStorage)
 }
 
 func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysRemovedWhenNotOK() {
@@ -284,6 +284,6 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysAfterManualOverride
 	err = suite.DB().Where(`id = $1`, ppm.ID).First(&updatedPpm)
 	suite.Require().Nil(err)
 	suite.Require().Equal(unit.Cents(newRequestedAmount), *updatedPpm.TotalSITCost)
-	newDaysInStorage := int64((newEndDate.Sub(newStartDate).Hours() / 24) - 1)
+	newDaysInStorage := int64(newEndDate.Sub(newStartDate).Hours() / 24)
 	suite.Require().Equal(newDaysInStorage, *updatedPpm.DaysInStorage)
 }
