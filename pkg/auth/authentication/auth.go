@@ -43,6 +43,11 @@ func UserAuthMiddleware(logger Logger) func(next http.Handler) http.Handler {
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
+			if strings.HasPrefix(r.RequestURI, "/debug") && !session.IsOfficeApp() && !session.IsOfficeUser() {
+				logger.Error("unauthorized user for debug route", zap.String("email", session.Email))
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			}
 			// DO NOT CHECK MILMOVE SESSION BECAUSE NEW SERVICE MEMBERS WON'T HAVE AN ID RIGHT AWAY
 			// This must be the right type of user for the application
 			if session.IsOfficeApp() && !session.IsOfficeUser() {

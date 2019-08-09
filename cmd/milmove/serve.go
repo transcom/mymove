@@ -706,7 +706,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 
 	debug := goji.SubMux()
 	root.Handle(pat.New("/debug/*"), debug)
-	//TODO check with infra not exposing anything https://mmcloughlin.com/posts/your-pprof-is-showing
+	debug.Use(userAuthMiddleware)
 	debug.HandleFunc(pat.Get("/pprof"), pprof.Index)
 	debug.Handle(pat.Get("/allocs"), pprof.Handler("allocs"))
 	debug.Handle(pat.Get("/block"), pprof.Handler("block"))
