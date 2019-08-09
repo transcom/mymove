@@ -95,6 +95,9 @@ export const updateMoveDocument = (moveId, moveDocumentId, payload) => {
 
 // Selectors
 export const selectMoveDocument = (state, id) => {
+  if (!id) {
+    return {};
+  }
   return denormalize([id], moveDocuments, state.entities)[0];
 };
 

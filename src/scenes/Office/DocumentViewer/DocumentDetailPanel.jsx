@@ -149,7 +149,7 @@ DocumentDetailPanel = reduxForm({ form: formName })(DocumentDetailPanel);
 
 function mapStateToProps(state, props) {
   const { moveId, moveDocumentId } = props;
-  const moveDocument = selectMoveDocument(state, moveDocumentId) || {}; //temp fix TODO: apply best practice to avoid error when value is undefined
+  const moveDocument = selectMoveDocument(state, moveDocumentId);
   const isExpenseDocument = isMovingExpenseDocument(moveDocument);
   const isWeightTicketDocument = get(moveDocument, 'move_document_type') === 'WEIGHT_TICKET_SET';
   // Convert cents to collars - make a deep clone copy to not modify moveDocument itself
