@@ -55,6 +55,10 @@ func (b MigrationBuilder) ParseStations(filename string) ([]StationData, error) 
 
 	// Skip the first header row
 	dataRows, err := r.ReadAll()
+	if err != nil {
+		fmt.Println(err)
+		return stations, err
+	}
 	for _, row := range dataRows[1:] {
 		parsed := StationData{
 			Unit: row[0],

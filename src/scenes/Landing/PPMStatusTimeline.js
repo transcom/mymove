@@ -22,6 +22,7 @@ const PpmStatusTimelineCodes = {
   PpmApproved: 'PPM_APPROVED',
   InProgress: 'IN_PROGRESS',
   PaymentRequested: 'PAYMENT_REQUESTED',
+  PaymentReviewed: 'PAYMENT_REVIEWED',
 };
 
 export class PPMStatusTimeline extends React.Component {
@@ -67,6 +68,8 @@ export class PPMStatusTimeline extends React.Component {
         return (moveInProgress && ppm.status === PpmStatuses.Approved) || moveIsComplete;
       case PpmStatusTimelineCodes.PaymentRequested:
         return moveIsComplete;
+      case PpmStatusTimelineCodes.PaymentReviewed:
+        return ppm.status === PpmStatuses.Completed;
       default:
         console.log('Unknown status');
     }
@@ -102,6 +105,11 @@ export class PPMStatusTimeline extends React.Component {
         code: PpmStatusTimelineCodes.PaymentRequested,
         dates: [paymentRequestedDate],
         completed: this.isCompleted(PpmStatusTimelineCodes.PaymentRequested),
+      },
+      {
+        name: 'Payment reviewed',
+        code: PpmStatusTimelineCodes.PaymentReviewed,
+        completed: this.isCompleted(PpmStatusTimelineCodes.PaymentReviewed),
       },
     ];
   }

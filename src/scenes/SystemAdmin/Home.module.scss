@@ -1,0 +1,23 @@
+.admin-system-wrapper {
+  a, p, span {
+    font-size: 1.5rem !important;
+  }
+
+  table {
+    margin: 0;
+  }
+
+  th, td {
+    border: 1px solid #efefef;
+  }
+
+  a {
+    &:visited {
+      color: #0071bc;
+    }
+  }
+
+  .headroom-wrapper {
+    font-size: 2rem !important;
+  }
+}

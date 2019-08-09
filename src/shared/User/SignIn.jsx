@@ -32,7 +32,7 @@ const SignIn = ({ context, location }) => {
           </div>
         )}
         <div className="align-center">
-          <a href="/auth/login-gov" className="usa-button  usa-button-big ">
+          <a href="/auth/login-gov" className="usa-button  usa-button-big">
             Sign in
           </a>
         </div>
