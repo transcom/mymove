@@ -24,7 +24,8 @@
     "--log-task-metadata",
     "--db-env",
     "container",
-    "--mutual-tls-enabled"
+    "--mutual-tls-enabled",
+    "--tls-enabled"
   ],
   "command": [],
   "environment": [
