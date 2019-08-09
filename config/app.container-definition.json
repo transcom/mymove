@@ -209,8 +209,8 @@
       "value": "{{ .SERVE_API_INTERNAL }}"
     },
     {
-      "name": "SERVE_EXTERNAL",
-      "value": "{{ .SERVE_API_EXTERNAL }}"
+      "name": "SERVE_PUBLIC",
+      "value": "{{ .SERVE_API_PUBLIC }}"
     }
   ],
   "logConfiguration": {

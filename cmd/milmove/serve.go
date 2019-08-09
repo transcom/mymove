@@ -737,7 +737,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	}
 	site.Handle(pat.New("/*"), root)
 
-	if v.GetBool(cli.ServeAPIExternalFlag) {
+	if v.GetBool(cli.ServePublicAPIlFlag) {
 		apiMux := goji.SubMux()
 		root.Handle(pat.New("/api/v1/*"), apiMux)
 		apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.SwaggerFlag)))
@@ -747,14 +747,14 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		} else {
 			apiMux.Handle(pat.Get("/docs"), http.NotFoundHandler())
 		}
-		externalAPIMux := goji.SubMux()
-		apiMux.Handle(pat.New("/*"), externalAPIMux)
-		externalAPIMux.Use(middleware.NoCache(logger))
-		externalAPIMux.Use(userAuthMiddleware)
-		externalAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext, logger))
+		publicAPIMux := goji.SubMux()
+		apiMux.Handle(pat.New("/*"), publicAPIMux)
+		publicAPIMux.Use(middleware.NoCache(logger))
+		publicAPIMux.Use(userAuthMiddleware)
+		publicAPIMux.Handle(pat.New("/*"), publicapi.NewPublicAPIHandler(handlerContext, logger))
 	}
 
-	if v.GetBool(cli.ServeAPIInternalFlag) {
+	if v.GetBool(cli.ServeInternalAPIFlag) {
 		internalMux := goji.SubMux()
 		root.Handle(pat.New("/internal/*"), internalMux)
 		internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(v.GetString(cli.InternalSwaggerFlag)))
