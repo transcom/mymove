@@ -9,4 +9,5 @@ create_table("uploads") {
 	t.Column("s3_id", "uuid", {})
 	t.ForeignKey("document_id", {"documents": ["id"]}, {})
 	t.ForeignKey("uploader_id", {"users": ["id"]}, {})
+	t.Timestamps()
 }

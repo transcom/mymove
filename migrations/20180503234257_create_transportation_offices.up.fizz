@@ -10,4 +10,5 @@ create_table("transportation_offices") {
 	t.Column("note", "text", {"null": true})
 	t.ForeignKey("shipping_office_id", {"transportation_offices": ["id"]}, {})
 	t.ForeignKey("address_id", {"addresses": ["id"]}, {})
+	t.Timestamps()
 }
