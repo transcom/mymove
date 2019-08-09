@@ -14,8 +14,8 @@ const SomethingWentWrong = ({ error, info }) => (
       </h2>
       <p>Please try again in a few moments.</p>
       <div>
-        <pre>{error}</pre>
-        <pre>{info}</pre>
+        <pre>{error && error.toString()}</pre>
+        <pre>{info && info.componentStack}</pre>
       </div>
       <br />
       <br />
