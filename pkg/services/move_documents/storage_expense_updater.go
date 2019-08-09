@@ -78,7 +78,8 @@ func (seu StorageExpenseUpdater) updatePPMSIT(moveDoc *models.MoveDocument, sess
 	if err != nil {
 		return &models.MoveDocument{}, returnVerrs, errors.New("storageexpenseupdater.updateppmsit: unable to merge move documents")
 	}
-	sitExpenses := filterSitExpenses(mergedMoveDocuments)
+	movingExpenseDocuments := models.FilterMovingExpenseDocuments(mergedMoveDocuments)
+	sitExpenses := models.FilterSITExpenses(movingExpenseDocuments)
 	var updatedDaysInSit int64
 	var updatedTotalSit unit.Cents
 	for _, sitExpense := range sitExpenses {
@@ -104,15 +105,4 @@ func (seu StorageExpenseUpdater) updateMovingExpense(moveDoc *models.MoveDocumen
 		return &models.MoveDocument{}, returnVerrs, err
 	}
 	return moveDoc, returnVerrs, nil
-}
-
-func filterSitExpenses(moveDocuments models.MoveDocuments) []models.MovingExpenseDocument {
-	var sitExpenses []models.MovingExpenseDocument
-	for _, moveDocument := range moveDocuments {
-		if moveDocument.MovingExpenseDocument != nil &&
-			moveDocument.MovingExpenseDocument.MovingExpenseType == models.MovingExpenseTypeSTORAGE {
-			sitExpenses = append(sitExpenses, *moveDocument.MovingExpenseDocument)
-		}
-	}
-	return sitExpenses
 }

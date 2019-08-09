@@ -32,7 +32,7 @@ func (ppmc PPMCompleter) Update(moveDocumentPayload *internalmessages.MoveDocume
 	}
 	updatedMoveDoc, returnVerrs, err = ppmc.completePPM(updatedMoveDoc)
 	if err != nil || returnVerrs.HasAny() {
-		return nil, returnVerrs, errors.Wrap(err, "ppmcompleter.update: error updating move document ppm")
+		return nil, returnVerrs, errors.Wrap(err, "ppmcompleter.update: error completing ppm")
 	}
 	var saveExpenseAction models.MoveExpenseDocumentSaveAction
 	if moveDoc.MovingExpenseDocument != nil {

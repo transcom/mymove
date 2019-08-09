@@ -39,14 +39,15 @@ func (gu GenericUpdater) Update(moveDocumentPayload *internalmessages.MoveDocume
 	if newType == models.MoveDocumentTypeEXPENSE {
 		if updatedMoveDoc.MovingExpenseDocument == nil {
 			updatedMoveDoc.MovingExpenseDocument = &models.MovingExpenseDocument{
-				MoveDocumentID: updatedMoveDoc.ID,
-				MoveDocument:   *updatedMoveDoc,
+				MoveDocumentID: moveDoc.ID,
+				MoveDocument:   *moveDoc,
 			}
 		}
 		updatedMoveDoc.MovingExpenseDocument.MovingExpenseType = models.MovingExpenseType(moveDocumentPayload.MovingExpenseType)
 		updatedMoveDoc.MovingExpenseDocument.RequestedAmountCents = unit.Cents(moveDocumentPayload.RequestedAmountCents)
 		updatedMoveDoc.MovingExpenseDocument.PaymentMethod = moveDocumentPayload.PaymentMethod
 		updatedMoveDoc.MovingExpenseDocument.ReceiptMissing = recieptMissing
+		// Storage expenses have their own updater StorageExpenseUpdater
 		updatedMoveDoc.MovingExpenseDocument.StorageStartDate = nil
 		updatedMoveDoc.MovingExpenseDocument.StorageEndDate = nil
 	}
@@ -64,7 +65,7 @@ func (gu GenericUpdater) Update(moveDocumentPayload *internalmessages.MoveDocume
 	}
 	returnVerrs, err = models.SaveMoveDocument(gu.db, updatedMoveDoc, saveExpenseAction, saveWeightTicketAction)
 	if err != nil || returnVerrs.HasAny() {
-		return nil, returnVerrs, errors.Wrap(err, "Update: error updating move document ppm")
+		return &models.MoveDocument{}, returnVerrs, err
 	}
 	return moveDoc, returnVerrs, nil
 }

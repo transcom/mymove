@@ -46,7 +46,6 @@ func (suite *MoveDocumentServiceSuite) TestPPMCompleteWhenSSWOK() {
 		Notes:            handlers.FmtString("This document is super awesome."),
 		Status:           internalmessages.MoveDocumentStatusOK,
 		MoveDocumentType: internalmessages.MoveDocumentTypeSHIPMENTSUMMARY,
-		PaymentMethod:    "GTCC",
 	}
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
@@ -90,7 +89,7 @@ func (suite *MoveDocumentServiceSuite) TestPPMNothingHappensWhenPPMAlreadyComple
 				Move:                     move,
 				PersonallyProcuredMoveID: &ppm.ID,
 				MoveDocumentType:         models.MoveDocumentTypeSHIPMENTSUMMARY,
-				Status:                   models.MoveDocumentStatusOK,
+				Status:                   models.MoveDocumentStatusHASISSUE,
 			},
 			Document: models.Document{
 				ServiceMemberID: sm.ID,
@@ -104,7 +103,6 @@ func (suite *MoveDocumentServiceSuite) TestPPMNothingHappensWhenPPMAlreadyComple
 		Notes:            handlers.FmtString("This document is super awesome."),
 		MoveDocumentType: internalmessages.MoveDocumentTypeSHIPMENTSUMMARY,
 		Status:           internalmessages.MoveDocumentStatusHASISSUE,
-		PaymentMethod:    "GTCC",
 	}
 
 	originalMoveDocument, err := models.FetchMoveDocument(suite.DB(), session, moveDocument.ID)
