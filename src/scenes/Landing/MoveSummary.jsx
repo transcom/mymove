@@ -356,8 +356,8 @@ const NewApprovedMoveSummaryComponent = ({ ppm, move, weightTicketSets, isMissin
                     <div className="step">
                       <div className="title">Next step: Wait for your payment paperwork</div>
                       <div>
-                        We're reviewing your payment request for ${formatCents(ppm.incentive_estimate_min)}. We'll let
-                        you know when you can submit your payment paperwork to Finance.
+                        We're reviewing your payment request. We'll let you know when you can submit your payment
+                        paperwork to Finance.
                       </div>
                       <Link to={ppmPaymentRequestReviewRoute} className="usa-button usa-button-secondary">
                         Edit Payment Request
@@ -501,7 +501,7 @@ const NewPPMMoveDetailsPanel = ({ advance, ppm, isMissingWeightTicketDocuments }
   return (
     <div className="titled_block">
       <div className="title">Details</div>
-      <div>Weight (est.): {ppm.weight_estimate} lbs</div>
+      <div>Weight (est.): {ppm.currentPpm.weight_estimate} lbs</div>
       <div className="title" style={{ paddingTop: '0.5em' }}>
         Payment request
       </div>
