@@ -1,6 +1,5 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import MockRouter from 'react-mock-router';
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 
@@ -10,6 +9,7 @@ import store from 'shared/store';
 import { mount } from 'enzyme/build';
 import { calculateNeedsAttention } from './queueTableColumns';
 import { setIsLoggedInType } from 'shared/Data/users';
+import { MemoryRouter } from 'react-router';
 
 const push = jest.fn();
 
@@ -170,9 +170,9 @@ function retrieveMovesStub(params, throwError) {
 function mountComponents(getMoves, queueType = 'new', mockStore = store) {
   return mount(
     <Provider store={mockStore}>
-      <MockRouter push={push}>
+      <MemoryRouter push={push}>
         <QueueTable queueType={queueType} retrieveMoves={getMoves} />
-      </MockRouter>
+      </MemoryRouter>
     </Provider>,
   );
 }

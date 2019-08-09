@@ -3,7 +3,7 @@ import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { ReferrerQueueLink } from './ShipmentInfo';
-import MockRouter from 'react-mock-router';
+import { MemoryRouter } from 'react-router';
 
 const mockstore = configureStore();
 let wrapper;
@@ -16,9 +16,9 @@ describe('ShipmentInfo tests', () => {
     it('when a referrer is set in history', () => {
       wrapper = mount(
         <Provider store={store}>
-          <MockRouter push={jest.fn()}>
+          <MemoryRouter>
             <ReferrerQueueLink history={{ location: { state: { referrerPathname: '/queues/accepted' } } }} />
-          </MockRouter>
+          </MemoryRouter>
         </Provider>,
       );
       expect(wrapper.text()).toEqual('Accepted Shipments Queue');
@@ -26,9 +26,9 @@ describe('ShipmentInfo tests', () => {
     it('when no referrer is set', () => {
       wrapper = mount(
         <Provider store={store}>
-          <MockRouter push={jest.fn()}>
+          <MemoryRouter>
             <ReferrerQueueLink history={{ location: {} }} />
-          </MockRouter>
+          </MemoryRouter>
         </Provider>,
       );
       expect(wrapper.text()).toEqual('New Shipments Queue');

@@ -3,8 +3,8 @@ import WeightTicket from './WeightTicket';
 import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import store from 'shared/store';
-import MockRouter from 'react-mock-router';
 import PPMPaymentRequestActionBtns from './PPMPaymentRequestActionBtns';
+import { MemoryRouter } from 'react-router';
 
 function mountComponents(moreWeightTickets = 'Yes', formInvalid, uploderWithInvalidState) {
   const initialValues = {
@@ -17,9 +17,9 @@ function mountComponents(moreWeightTickets = 'Yes', formInvalid, uploderWithInva
   const match = { params: { moveId: 'someID' } };
   const wrapper = mount(
     <Provider store={store}>
-      <MockRouter push={jest.fn()}>
+      <MemoryRouter>
         <WeightTicket match={match} />
-      </MockRouter>
+      </MemoryRouter>
     </Provider>,
   );
   const wt = wrapper.find('WeightTicket');

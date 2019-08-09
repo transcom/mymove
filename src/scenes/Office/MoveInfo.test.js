@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import MockRouter from 'react-mock-router';
 
 import MoveInfo from './MoveInfo';
 import store from 'shared/store';
 import { mount } from 'enzyme/build';
 import { ReferrerQueueLink } from './MoveInfo';
+import { MemoryRouter } from 'react-router';
 
 const dummyFunc = () => {};
 const loadDependenciesHasError = null;
@@ -27,7 +27,7 @@ describe('Loads MoveInfo', () => {
     const div = document.createElement('div');
     ReactDOM.render(
       <Provider store={store}>
-        <MockRouter push={push}>
+        <MemoryRouter push={push}>
           <MoveInfo
             loadDependenciesHasError={loadDependenciesHasError}
             loadDependenciesHasSuccess={loadDependenciesHasSuccess}
@@ -35,7 +35,7 @@ describe('Loads MoveInfo', () => {
             match={match}
             loadMoveDependencies={dummyFunc}
           />
-        </MockRouter>
+        </MemoryRouter>
       </Provider>,
       div,
     );
@@ -48,9 +48,9 @@ describe('ShipmentInfo tests', () => {
     it('when a referrer is set in history', () => {
       wrapper = mount(
         <Provider store={store}>
-          <MockRouter push={jest.fn()}>
+          <MemoryRouter push={jest.fn()}>
             <ReferrerQueueLink history={{ location: { state: { referrerPathname: '/queues/hhg_active' } } }} />
-          </MockRouter>
+          </MemoryRouter>
         </Provider>,
       );
       expect(wrapper.text()).toEqual('Active HHG Queue');
@@ -58,9 +58,9 @@ describe('ShipmentInfo tests', () => {
     it('when no referrer is set', () => {
       wrapper = mount(
         <Provider store={store}>
-          <MockRouter push={jest.fn()}>
+          <MemoryRouter push={jest.fn()}>
             <ReferrerQueueLink history={{ location: {} }} />
-          </MockRouter>
+          </MemoryRouter>
         </Provider>,
       );
       expect(wrapper.text()).toEqual('New Moves/Shipments Queue');
