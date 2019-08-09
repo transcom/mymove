@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get, omit } from 'lodash';
+import { get, omit, cloneDeep } from 'lodash';
 import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
 import { renderStatusIcon, convertDollarsToCents } from 'shared/utils';
@@ -153,7 +153,7 @@ function mapStateToProps(state, props) {
   const isExpenseDocument = isMovingExpenseDocument(moveDocument);
   const isWeightTicketDocument = get(moveDocument, 'move_document_type') === 'WEIGHT_TICKET_SET';
   // Convert cents to collars - make a deep clone copy to not modify moveDocument itself
-  const initialMoveDocument = JSON.parse(JSON.stringify(moveDocument));
+  const initialMoveDocument = cloneDeep(moveDocument);
   const requested_amount = get(initialMoveDocument, 'requested_amount_cents');
   if (requested_amount) {
     initialMoveDocument.requested_amount_cents = formatCents(requested_amount);
@@ -175,7 +175,7 @@ function mapStateToProps(state, props) {
     // editablePanelify
     getUpdateArgs: function() {
       // Make a copy of values to not modify moveDocument
-      let values = JSON.parse(JSON.stringify(getFormValues(formName)(state)));
+      let values = cloneDeep(getFormValues(formName)(state));
       values.moveDocument.personally_procured_move_id = selectPPMForMove(state, props.moveId).id;
       if (
         get(values.moveDocument, 'move_document_type', '') !== 'EXPENSE' &&
