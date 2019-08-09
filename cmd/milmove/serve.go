@@ -32,7 +32,7 @@ import (
 	goji "goji.io"
 	"goji.io/pat"
 
-	//_ "net/http/pprof"
+	"net/http/pprof"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/auth/authentication"
@@ -250,9 +250,6 @@ func startListener(srv *server.NamedServer, logger logger, useTLS bool) {
 		zap.Int("port", srv.Port()),
 		zap.Bool("tls", useTLS),
 	)
-	//go func() {
-	//	log.Println("adding pprof:", http.ListenAndServe("localhost:6060", nil))
-	//}()
 	var err error
 	if useTLS {
 		err = srv.ListenAndServeTLS()
@@ -706,6 +703,21 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 	root.Use(middleware.ContextLogger("milmove_trace_id", logger)) // injects http request logger
 	root.Use(sessionCookieMiddleware)
 	root.Use(middleware.RequestLogger(logger))
+
+	debug := goji.SubMux()
+	root.Handle(pat.New("/debug/*"), debug)
+	//TODO check with infra not exposing anything https://mmcloughlin.com/posts/your-pprof-is-showing
+	debug.HandleFunc(pat.Get("/pprof"), pprof.Index)
+	debug.Handle(pat.Get("/allocs"), pprof.Handler("allocs"))
+	debug.Handle(pat.Get("/block"), pprof.Handler("block"))
+	debug.HandleFunc(pat.Get("/cmdline"), pprof.Cmdline)
+	debug.Handle(pat.Get("/goroutine"), pprof.Handler("goroutine"))
+	debug.Handle(pat.Get("/heap"), pprof.Handler("heap"))
+	debug.Handle(pat.Get("/mutex"), pprof.Handler("mutex"))
+	debug.HandleFunc(pat.Get("/profile"), pprof.Profile)
+	debug.HandleFunc(pat.Get("/trace"), pprof.Trace)
+	debug.Handle(pat.Get("/threadcreate"), pprof.Handler("threadcreate"))
+	debug.HandleFunc(pat.Get("/symbol"), pprof.Symbol)
 
 	// CSRF path is set specifically at the root to avoid duplicate tokens from different paths
 	csrfAuthKey, err := hex.DecodeString(v.GetString(cli.CSRFAuthKeyFlag))
