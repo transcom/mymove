@@ -64,7 +64,7 @@ let EditOrdersForm = props => {
       {Boolean(visibleUploads.length) && <UploadsTable uploads={visibleUploads} onDelete={onDelete} />}
       {Boolean(get(initialValues, 'uploaded_orders')) && (
         <div>
-          <p>We do not accept files larger than 25 MB.</p>
+          <p>Please keep each file under 25MB.</p>
           <Uploader
             document={initialValues.uploaded_orders}
             onChange={onUpload}
