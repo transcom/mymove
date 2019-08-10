@@ -71,7 +71,6 @@ import SitStatusIcon from 'shared/StorageInTransit/SitStatusIcon';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
-import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
@@ -368,9 +367,6 @@ class MoveInfo extends Component {
                 {serviceMember.telephone}
                 {serviceMember.phone_is_preferred && (
                   <FontAwesomeIcon className="icon icon-grey" icon={faPhone} flip="horizontal" />
-                )}
-                {serviceMember.text_message_is_preferred && (
-                  <FontAwesomeIcon className="icon icon-grey" icon={faComments} />
                 )}
                 {serviceMember.email_is_preferred && <FontAwesomeIcon className="icon icon-grey" icon={faEmail} />}
                 &nbsp;

@@ -85,11 +85,7 @@ const validateEditContactFormBools = fields => {
 
 EditContactForm = reduxForm({
   form: editContactFormName,
-  validate: validateEditContactFormBools([
-    'serviceMember.phone_is_preferred',
-    'serviceMember.text_message_is_preferred',
-    'serviceMember.email_is_preferred',
-  ]),
+  validate: validateEditContactFormBools(['serviceMember.phone_is_preferred', 'serviceMember.email_is_preferred']),
 })(EditContactForm);
 
 class EditContact extends Component {
