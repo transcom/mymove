@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get, omit, cloneDeep } from 'lodash';
+import { get, omit, cloneDeep, isEmpty } from 'lodash';
 import { reduxForm, getFormValues, FormSection } from 'redux-form';
 
 import { renderStatusIcon, convertDollarsToCents } from 'shared/utils';
@@ -15,13 +15,16 @@ import { isMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDo
 import { MOVE_DOC_TYPE } from 'shared/constants';
 
 import ExpenseDocumentForm from 'scenes/Office/DocumentViewer/ExpenseDocumentForm';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
 const DocumentDetailDisplay = ({ isExpenseDocument, isWeightTicketDocument, moveDocument, moveDocSchema }) => {
   const moveDocFieldProps = {
     values: moveDocument,
     schema: moveDocSchema,
   };
-  return (
+  return isEmpty(moveDocument) ? (
+    <LoadingPlaceholder />
+  ) : (
     <Fragment>
       <div>
         <span className="panel-subhead">
