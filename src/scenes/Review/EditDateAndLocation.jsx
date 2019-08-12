@@ -14,7 +14,7 @@ import { createOrUpdatePpm, getPpmSitEstimate } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import 'scenes/Moves/Ppm/DateAndLocation.css';
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
-import { isHHGPPMComboMove } from '../Moves/Ppm/ducks';
+import { isHHGPPMComboMove } from 'shared/Entities/modules/ppms';
 import { getCurrentMove } from 'shared/UI/ducks';
 
 import scrollToTop from 'shared/scrollToTop';

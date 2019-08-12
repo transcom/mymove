@@ -5,7 +5,7 @@ import { getFormValues } from 'redux-form';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
 import { loadCertificationText, signAndSubmitPpm } from './ducks';
-import { isHHGPPMComboMove } from 'scenes/Moves/Ppm/ducks';
+import { isHHGPPMComboMove } from 'shared/Entities/modules/ppms';
 import { selectGetCurrentUserIsSuccess } from 'shared/Data/users';
 import { getCurrentMoveID } from 'shared/UI/ducks';
 import { selectedMoveType } from 'shared/Entities/modules/moves';

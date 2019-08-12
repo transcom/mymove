@@ -5,13 +5,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import {
-  createOrUpdatePpm,
-  getDestinationPostalCode,
-  getPpmSitEstimate,
-  isHHGPPMComboMove,
-  setInitialFormValues,
-} from './ducks';
+import { createOrUpdatePpm, getDestinationPostalCode, getPpmSitEstimate, setInitialFormValues } from './ducks';
+import { isHHGPPMComboMove } from 'shared/Entities/modules/ppms';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlementsFromState } from 'shared/entitlements';
