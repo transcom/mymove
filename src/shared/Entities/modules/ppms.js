@@ -1,6 +1,8 @@
 import { get } from 'lodash';
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient } from 'shared/Swagger/api';
+import { selectShipment } from 'shared/Entities/modules/shipments';
+import { getCurrentShipmentID } from 'shared/UI/ducks';
 
 const approvePpmLabel = 'PPMs.approvePPM';
 export const downloadPPMAttachmentsLabel = 'PPMs.downloadAttachments';
@@ -79,4 +81,14 @@ export function getMaxAdvance(state, ppmId) {
 export function isHHGPPMComboMove(state, moveId) {
   const moveType = get(state, `entities.moves.${moveId}.selected_move_type`);
   return moveType === 'HHG_PPM';
+}
+
+export function getDestinationPostalCode(state) {
+  const currentShipment = selectShipment(state, getCurrentShipmentID(state));
+  const addresses = state.entities.addresses;
+  const currentOrders = state.orders.currentOrders;
+
+  return currentShipment.has_delivery_address && addresses
+    ? addresses[currentShipment.delivery_address].postal_code
+    : currentOrders.new_duty_station.address.postal_code;
 }

@@ -203,16 +203,6 @@ export function getActualRemainingWeight(state) {
   }
 }
 
-export function getDestinationPostalCode(state) {
-  const currentShipment = selectShipment(state, getCurrentShipmentID(state));
-  const addresses = state.entities.addresses;
-  const currentOrders = state.orders.currentOrders;
-
-  return currentShipment.has_delivery_address && addresses
-    ? addresses[currentShipment.delivery_address].postal_code
-    : currentOrders.new_duty_station.address.postal_code;
-}
-
 export function getPPM(state) {
   const moveId = getCurrentMoveID(state);
   const ppmFromEntities = Object.values(state.entities.personallyProcuredMoves).find(ppm => ppm.move_id === moveId);
