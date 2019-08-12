@@ -102,7 +102,9 @@ DocumentDetailDisplay.propTypes = {
 const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
   const isExpenseDocument = formValues.moveDocument.move_document_type === MOVE_DOC_TYPE.EXPENSE;
   const isWeightTicketDocument = formValues.moveDocument.move_document_type === MOVE_DOC_TYPE.WEIGHT_TICKET_SET;
-  return (
+  return typeof formValues.moveDocument === undefined ? (
+    <LoadingPlaceholder />
+  ) : (
     <Fragment>
       <div>
         <FormSection name="moveDocument">
