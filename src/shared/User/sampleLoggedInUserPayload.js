@@ -220,7 +220,6 @@ export default {
         street_address_1: '123 Main',
       },
       telephone: '555-555-5556',
-      text_message_is_preferred: true,
       updated_at: '2018-05-25T21:39:10.484Z',
       user_id: 'b46e651e-9d1c-4be5-bb88-bba58e817696',
     },

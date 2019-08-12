@@ -93,8 +93,7 @@ const pages = {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) =>
       sm.is_profile_complete ||
-      (every([sm.telephone, sm.personal_email]) &&
-        some([sm.phone_is_preferred, sm.email_is_preferred, sm.text_message_is_preferred])),
+      (every([sm.telephone, sm.personal_email]) && some([sm.phone_is_preferred, sm.email_is_preferred])),
     render: (key, pages) => ({ match }) => <ContactInfo pages={pages} pageKey={key} match={match} />,
   },
   '/service-member/:serviceMemberId/duty-station': {
