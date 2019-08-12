@@ -7,7 +7,7 @@ import { withLastLocation } from 'react-router-last-location';
 import { withContext } from 'shared/AppContext';
 
 import { MoveSummary, PPMAlert } from './MoveSummary';
-import { isHHGPPMComboMove } from 'scenes/Moves/Ppm/ducks';
+import { isHHGPPMComboMove } from 'shared/Entities/modules/ppms';
 import { getCurrentShipment, getCurrentMoveID } from 'shared/UI/ducks';
 import { createServiceMember, isProfileComplete } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';

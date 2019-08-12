@@ -3,7 +3,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { createOrUpdatePpm, getRawWeightInfo, isHHGPPMComboMove } from './ducks';
+import { createOrUpdatePpm, getRawWeightInfo } from './ducks';
+import { isHHGPPMComboMove } from 'shared/Entities/modules/ppms';
+
 import WizardHeader from '../WizardHeader';
 import WizardPage from 'shared/WizardPage';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
