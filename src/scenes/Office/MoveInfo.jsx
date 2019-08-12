@@ -96,7 +96,7 @@ const PPMTabContent = props => {
       <PaymentsPanel title="Payments" moveId={props.moveId} />
       {props.ppmPaymentRequested && (
         <>
-          <ExpensesPanel title="Expenses" moveId={props.moveId} />
+          <ExpensesPanel title="Expenses" moveId={props.moveId} moveDocuments={props.moveDocuments} />
           <StoragePanel title="Storage" moveId={props.moveId} moveDocuments={props.moveDocuments} />
           <DatesAndLocationPanel title="Dates & Locations" moveId={props.moveId} />
           <NetWeightPanel
