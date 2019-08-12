@@ -265,11 +265,6 @@ bin_linux/save-fuel-price-data: .server_generate_linux.stamp
 bin/send-to-gex: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/send-to-gex ./cmd/send_to_gex
 
-# server_deps and server_generate required for this binary, because go build expects
-# github.com/transcom/mymove/pkg/gen/internalmessages, even though it is not used for this program.
-bin/split-migration: server_deps server_generate
-	go build -ldflags "$(LDFLAGS)" -o bin/split-migration ./cmd/split-migration
-
 bin/tsp-award-queue: .server_generate.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/tsp-award-queue ./cmd/tsp_award_queue
 
@@ -359,7 +354,6 @@ build_tools: server_deps \
 	bin/renderer \
 	bin/save-fuel-price-data \
 	bin/send-to-gex \
-	bin/split-migration \
 	bin/tsp-award-queue ## Build all tools
 
 .PHONY: build
