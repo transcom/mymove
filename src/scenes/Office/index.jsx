@@ -60,10 +60,12 @@ export class OfficeWrapper extends Component {
     const Tag = detectIE11() ? 'div' : 'main';
     const isDocViewerUrl = window.location.href && /\/moves\/[^/]+\/documents/.test(window.location.href);
     const isOrdersUrl = window.location.href && /\/moves\/[^/]+\/orders/.test(window.location.href);
+    const userIsLoggedOff = this.props.userHasErrored;
+
     return (
       <ConnectedRouter history={history}>
         <div className="Office site">
-          {!isDocViewerUrl && !isOrdersUrl && <QueueHeader />}
+          {(userIsLoggedOff || (!isDocViewerUrl && !isOrdersUrl)) && <QueueHeader />}
           <Tag role="main" className="site__content">
             <div>
               <LogoutOnInactivity />
@@ -105,6 +107,7 @@ OfficeWrapper.defaultProps = {
 
 const mapStateToProps = state => ({
   swaggerError: state.swaggerInternal.hasErrored,
+  userHasErrored: state.user.hasErrored,
 });
 
 const mapDispatchToProps = dispatch =>
