@@ -93,6 +93,7 @@ func (m *MovingExpenseDocument) ValidateUpdate(tx *pop.Connection) (*validate.Er
 	return validate.NewErrors(), nil
 }
 
+// DaysInStorage calculates the days in storage excluding the entry day
 func (m *MovingExpenseDocument) DaysInStorage() (int, error) {
 	if m.MovingExpenseType != MovingExpenseTypeSTORAGE {
 		return 0, fmt.Errorf("not storage expense")
@@ -109,4 +110,11 @@ func (m *MovingExpenseDocument) DaysInStorage() (int, error) {
 		return 0, nil
 	}
 	return daysInStorage, nil
+}
+
+// DeleteMovingExpenseDocument soft deletes a moving expense document
+func DeleteMovingExpenseDocument(db *pop.Connection, movingExpenseDocument *MovingExpenseDocument) error {
+	now := time.Now()
+	movingExpenseDocument.DeletedAt = &now
+	return db.Save(movingExpenseDocument)
 }
