@@ -85,6 +85,9 @@ func (suite *ModelSuite) TestCalculateNetWeightWeightTicketAwaitingReview() {
 		TrailerOwnershipMissing:  false,
 	}
 	verrs, err = suite.DB().ValidateAndCreate(&weightTicketSetDocument2)
+	suite.NoVerrs(verrs)
+	suite.NoError(err)
+
 	status := models.MoveDocumentStatusOK
 	wts, err := models.FetchMoveDocuments(suite.DB(), session, ppm.ID, &status, models.MoveDocumentTypeWEIGHTTICKETSET)
 	suite.NoError(err)
@@ -184,6 +187,8 @@ func (suite *ModelSuite) TestCalculateNetWeight() {
 		TrailerOwnershipMissing:  false,
 	}
 	verrs, err = suite.DB().ValidateAndCreate(&weightTicketSetDocument2)
+	suite.NoVerrs(verrs)
+	suite.NoError(err)
 
 	total, err := models.SumWeightTicketSetsForPPM(suite.DB(), session, ppm.ID)
 	suite.NoError(err)

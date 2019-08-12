@@ -28,7 +28,7 @@ const UnsupportedZipCodeErrorMsg =
   'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.';
 
 async function asyncValidate(values, dispatch, props, currentFieldName) {
-  const { pickup_postal_code, destination_postal_code, original_move_date } = values;
+  const { original_move_date, pickup_postal_code, origin_duty_station_zip, destination_postal_code } = values;
 
   // If either postal code is blurred, check both of them for errors. We want to
   // catch these before checking on dates via `GetPpmWeightEstimate`.
@@ -64,7 +64,13 @@ async function asyncValidate(values, dispatch, props, currentFieldName) {
   const fakeLightWeight = 100;
   if (pickup_postal_code && destination_postal_code && original_move_date) {
     try {
-      await GetPpmWeightEstimate(original_move_date, pickup_postal_code, destination_postal_code, fakeLightWeight);
+      await GetPpmWeightEstimate(
+        original_move_date,
+        pickup_postal_code,
+        origin_duty_station_zip,
+        destination_postal_code,
+        fakeLightWeight,
+      );
     } catch (err) {
       // eslint-disable-next-line no-throw-literal
       throw { original_move_date: InvalidMoveParamsErrorMsg };
@@ -89,8 +95,13 @@ export class DateAndLocation extends Component {
 
   componentDidMount() {
     if (!this.props.currentPpm && this.props.isHHGPPMComboMove) {
-      const { originalMoveDate, pickupPostalCode, destinationPostalCode } = this.props.defaultValues;
-      this.props.setInitialFormValues(originalMoveDate, pickupPostalCode, destinationPostalCode);
+      const {
+        originalMoveDate,
+        pickupPostalCode,
+        originDutyStationZip,
+        destinationPostalCode,
+      } = this.props.defaultValues;
+      this.props.setInitialFormValues(originalMoveDate, pickupPostalCode, originDutyStationZip, destinationPostalCode);
     }
   }
 
@@ -274,15 +285,18 @@ function mapStateToProps(state) {
     entitlement: loadEntitlementsFromState(state),
     hasEstimateError: state.ppm.hasEstimateError,
     isHHGPPMComboMove: isHHGPPMComboMove(state),
+    originDutyStationZip: state.serviceMember.currentServiceMember.current_station.address.postal_code,
   };
   const defaultPickupZip = get(state.serviceMember, 'currentServiceMember.residential_address.postal_code');
   const currentOrders = state.orders.currentOrders;
+  const originDutyStationZip = state.serviceMember.currentServiceMember.current_station.address.postal_code;
 
   props.initialValues = props.currentPpm
     ? props.currentPpm
     : defaultPickupZip
       ? {
           pickup_postal_code: defaultPickupZip,
+          origin_duty_station_zip: originDutyStationZip,
         }
       : null;
 
@@ -290,6 +304,7 @@ function mapStateToProps(state) {
     props.defaultValues = {
       pickupPostalCode: defaultPickupZip,
       originalMoveDate: currentOrders.issue_date,
+      originDutyStationZip: originDutyStationZip,
       // defaults to SM's destination address, if none, uses destination duty station zip
       destinationPostalCode: getDestinationPostalCode(state),
     };

@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/gobuffalo/validate"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -13,12 +15,17 @@ import (
 )
 
 type testOfficeUserQueryBuilder struct {
-	fakeFetchOne func(model interface{}) error
+	fakeFetchOne  func(model interface{}) error
+	fakeCreateOne func(models interface{}) (*validate.Errors, error)
 }
 
 func (t *testOfficeUserQueryBuilder) FetchOne(model interface{}, filters []services.QueryFilter) error {
 	m := t.fakeFetchOne(model)
 	return m
+}
+
+func (t *testOfficeUserQueryBuilder) CreateOne(model interface{}) (*validate.Errors, error) {
+	return nil, nil
 }
 
 func (suite *UserServiceSuite) TestFetchOfficeUser() {
@@ -30,8 +37,13 @@ func (suite *UserServiceSuite) TestFetchOfficeUser() {
 			return nil
 		}
 
+		fakeCreateOne := func(interface{}) (*validate.Errors, error) {
+			return nil, nil
+		}
+
 		builder := &testOfficeUserQueryBuilder{
-			fakeFetchOne: fakeFetchOne,
+			fakeFetchOne:  fakeFetchOne,
+			fakeCreateOne: fakeCreateOne,
 		}
 		fetcher := NewOfficeUserFetcher(builder)
 		filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}

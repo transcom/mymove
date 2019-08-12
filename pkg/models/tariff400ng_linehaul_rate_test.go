@@ -146,7 +146,7 @@ func (suite *ModelSuite) Test_FetchBaseLinehaulRate() {
 	}
 
 	// Test inclusivity of EffectiveDateLower
-	rate, err = FetchBaseLinehaulRate(suite.DB(), goodDistance, goodWeight, testdatagen.PeakRateCycleStart)
+	_, err = FetchBaseLinehaulRate(suite.DB(), goodDistance, goodWeight, testdatagen.PeakRateCycleStart)
 	if err != nil {
 		t.Errorf("EffectiveDateLower is incorrectly exlusive: %s", err)
 	}
@@ -158,7 +158,7 @@ func (suite *ModelSuite) Test_FetchBaseLinehaulRate() {
 	}
 
 	// Test inclusivity of DistanceMilesLower
-	rate, err = FetchBaseLinehaulRate(suite.DB(), distanceLower, goodWeight, testdatagen.DateInsidePeakRateCycle)
+	_, err = FetchBaseLinehaulRate(suite.DB(), distanceLower, goodWeight, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Errorf("DistanceMilesLower is incorrectly exlusive: %s", err)
 	}
@@ -170,7 +170,7 @@ func (suite *ModelSuite) Test_FetchBaseLinehaulRate() {
 	}
 
 	// Test inclusivity of WeightLbsLower
-	rate, err = FetchBaseLinehaulRate(suite.DB(), goodDistance, weightLbsLower, testdatagen.DateInsidePeakRateCycle)
+	_, err = FetchBaseLinehaulRate(suite.DB(), goodDistance, weightLbsLower, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Errorf("WeightLbsLower is incorrectly exlusive: %s", err)
 	}

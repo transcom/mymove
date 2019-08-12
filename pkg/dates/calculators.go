@@ -43,7 +43,7 @@ func CreateValidDatesBetweenTwoDates(startDate time.Time, endDate time.Time, inc
 	var dates []time.Time
 
 	if startDate.After(endDate) || startDate == endDate {
-		if allowEarlierOrSameEndDate == true {
+		if allowEarlierOrSameEndDate {
 			return dates, nil
 		}
 		return dates, errors.New("End date cannot be before or equal to start date")

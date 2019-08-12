@@ -88,15 +88,6 @@ describe('completing the ppm flow', function() {
         .should('have.attr', 'href')
         .and('include', '/downloads/ppm_info_sheet.pdf');
     });
-
-    cy.get('.usa-width-three-fourths').within(() => {
-      cy.contains('Next Step: Wait for approval');
-      cy
-        .contains('Go to weight scales')
-        .children('a')
-        .should('have.attr', 'href', 'https://move.mil/resources/locator-maps');
-      cy.contains('Advance Requested: $1,333.91');
-    });
   });
 });
 
@@ -254,6 +245,7 @@ describe('allows a SM to request a payment', function() {
     serviceMemberUploadsExpenses(false);
     serviceMemberReviewsDocuments();
     serviceMemberEditsPaymentRequest();
+    serviceMemberAddsWeightTicketSetWithMissingDocuments();
   });
 
   it('service member can save a weight ticket for later', () => {
@@ -435,6 +427,7 @@ function serviceMemberReviewsDocuments() {
     expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
   });
   cy.get('input[id="agree-checkbox"]').check({ force: true });
+  cy.contains(`You're requesting a payment of $`);
   cy
     .get('button')
     .contains('Submit Request')
@@ -442,6 +435,7 @@ function serviceMemberReviewsDocuments() {
     .click();
   cy.wait('@signedCertifications');
   cy.wait('@requestPayment');
+  cy.contains("We're reviewing your payment request for $");
 }
 function serviceMemberEditsPaymentRequest() {
   cy
@@ -459,6 +453,77 @@ function serviceMemberEditsPaymentRequest() {
     .click();
   serviceMemberSubmitsWeightTicket('CAR', false);
   serviceMemberReviewsDocuments();
+}
+function serviceMemberAddsWeightTicketSetWithMissingDocuments() {
+  cy
+    .get('.usa-button-secondary')
+    .contains('Edit Payment Request')
+    .should('exist')
+    .click();
+  cy
+    .get('[data-cy=weight-ticket-link]')
+    .should('exist')
+    .click();
+
+  cy.get('select[name="vehicle_options"]').select('CAR');
+
+  cy.get('input[name="vehicle_nickname"]').type('Nickname');
+
+  cy.get('input[name="empty_weight"]').type('1000');
+  cy.get('input[name="missingEmptyWeightTicket"]').check({ force: true });
+
+  cy.get('input[name="full_weight"]').type('5000');
+  cy.get('input[name="missingFullWeightTicket"]').check({ force: true });
+
+  cy
+    .get('input[name="weight_ticket_date"]')
+    .type('6/2/2018{enter}')
+    .blur();
+  cy.get('input[name="additional_weight_ticket"][value="Yes"]').should('not.be.checked');
+  cy.get('input[name="additional_weight_ticket"][value="No"]').should('be.checked');
+
+  cy
+    .get('button')
+    .contains('Save & Continue')
+    .click();
+  cy
+    .wait('@postWeightTicket')
+    .its('status')
+    .should('eq', 200);
+
+  cy
+    .get('.review-customer-agreement a')
+    .contains('Legal Agreement')
+    .click();
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/ppm-customer-agreement/);
+  });
+  cy
+    .get('.usa-button-secondary')
+    .contains('Back')
+    .click();
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-payment-review/);
+  });
+  cy.get('.missing-label').contains('Your estimated payment is unknown');
+
+  cy.get('input[id="agree-checkbox"]').check({ force: true });
+
+  cy
+    .get('button')
+    .contains('Submit Request')
+    .should('be.enabled')
+    .click();
+  cy.wait('@signedCertifications');
+  cy.wait('@requestPayment');
+
+  cy.get('.usa-alert-warning').contains('Payment request is missing info');
+  cy
+    .get('.usa-alert-warning')
+    .contains('You will need to contact your local PPPO office to resolve your missing weight ticket.');
+
+  cy.get('.title').contains('Next step: Contact the PPPO office');
+  cy.get('.missing-label').contains('Unknown');
 }
 function serviceMemberViewsExpensesLandingPage() {
   cy.location().should(loc => {

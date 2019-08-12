@@ -121,7 +121,6 @@ export class DutyStationSearchBox extends Component {
           )}
           <div className={inputContainerClasses}>
             <p className={`${styles.title} ${searchBoxHeaderClasses}`}>{errorMsg ? <strong>{title}</strong> : title}</p>
-            {this.props.errorMsg && <span className="usa-input-error-message">{this.props.errorMsg}</span>}
             <AsyncSelect
               className={dutyInputClasses}
               cacheOptions
@@ -141,6 +140,7 @@ export class DutyStationSearchBox extends Component {
                 {this.props.input.value.address.postal_code}
               </p>
             )}
+            {this.props.errorMsg && <span className="usa-input-error-message">{this.props.errorMsg}</span>}
           </div>
         </div>
       </Fragment>

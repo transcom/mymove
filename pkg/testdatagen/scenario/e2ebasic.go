@@ -439,6 +439,80 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 	models.SaveMoveDependencies(db, &ppm3.Move)
 
 	/*
+	 * Service member with a ppm move that has requested payment
+	 */
+
+	email = "ppm.excludecalculations.expenses"
+	uuidStr = "4f092d53-9005-4371-814d-0c88e970d2f7"
+	testdatagen.MakeUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID:            uuid.Must(uuid.FromString(uuidStr)),
+			LoginGovEmail: email,
+		},
+	})
+	// Date picked essentialy at random, but needs to be within TestYear
+	originalMoveDate = time.Date(testdatagen.TestYear, time.December, 10, 23, 0, 0, 0, time.UTC)
+	actualMoveDate = time.Date(testdatagen.TestYear, time.December, 11, 10, 0, 0, 0, time.UTC)
+	moveTypeDetail = internalmessages.OrdersTypeDetailPCSTDY
+	assertions := testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID:            uuid.FromStringOrNil("350f0450-1cb8-4aa8-8a85-2d0f45899447"),
+			UserID:        uuid.FromStringOrNil(uuidStr),
+			FirstName:     models.StringPointer("PPM"),
+			LastName:      models.StringPointer("Payment Requested"),
+			Edipi:         models.StringPointer("5427033988"),
+			PersonalEmail: models.StringPointer(email),
+		},
+		// These values should be populated for an approved move
+		Order: models.Order{
+			OrdersNumber:        models.StringPointer("12345"),
+			OrdersTypeDetail:    &moveTypeDetail,
+			DepartmentIndicator: models.StringPointer("AIR_FORCE"),
+			TAC:                 models.StringPointer("99"),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("687e3ee4-62ff-44b3-a5cb-73338c9fdf95"),
+			Locator: "EXCLDE",
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			ID:               uuid.FromStringOrNil("38c4fc15-062f-4325-bceb-13ea167001da"),
+			OriginalMoveDate: &originalMoveDate,
+			ActualMoveDate:   &actualMoveDate,
+		},
+		Uploader: loader,
+	}
+	ppmExcludedCalculations := testdatagen.MakePPM(db, assertions)
+
+	ppmExcludedCalculations.Move.Submit(time.Now())
+	ppmExcludedCalculations.Move.Approve()
+	// This is the same PPM model as ppm3, but this is the one that will be saved by SaveMoveDependencies
+	ppmExcludedCalculations.Move.PersonallyProcuredMoves[0].Submit(time.Now())
+	ppmExcludedCalculations.Move.PersonallyProcuredMoves[0].Approve(time.Now())
+	ppmExcludedCalculations.Move.PersonallyProcuredMoves[0].RequestPayment()
+	models.SaveMoveDependencies(db, &ppmExcludedCalculations.Move)
+
+	testdatagen.MakeMoveDocument(db, testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID:                   ppmExcludedCalculations.Move.ID,
+			Move:                     ppmExcludedCalculations.Move,
+			MoveDocumentType:         models.MoveDocumentTypeEXPENSE,
+			Status:                   models.MoveDocumentStatusOK,
+			PersonallyProcuredMoveID: &assertions.PersonallyProcuredMove.ID,
+			Title:                    "Expense Document",
+			ID:                       uuid.FromStringOrNil("02021626-20ee-4c65-9194-87e6455f385e"),
+		},
+	})
+
+	testdatagen.MakeMovingExpenseDocument(db, testdatagen.Assertions{
+		MovingExpenseDocument: models.MovingExpenseDocument{
+			MoveDocumentID:       uuid.FromStringOrNil("02021626-20ee-4c65-9194-87e6455f385e"),
+			MovingExpenseType:    models.MovingExpenseTypeCONTRACTEDEXPENSE,
+			PaymentMethod:        "GTCC",
+			RequestedAmountCents: unit.Cents(10000),
+		},
+	})
+
+	/*
 	 * A PPM move that has been canceled.
 	 */
 	email = "ppm-canceled@example.com"
@@ -2930,7 +3004,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			SelectedMoveType: &selectedMoveTypeHHG,
 			Orders: models.Order{
 				NewDutyStation: models.DutyStation{
-					Address: destAddress,
+					Address: destAddress47,
 				},
 			},
 		},
@@ -2944,7 +3018,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Status:           models.ShipmentStatusINTRANSIT,
 			NetWeight:        &netWeight47,
 			ActualPickupDate: &actualPickupDate47,
-			PickupAddress:    &pickupAddress,
+			PickupAddress:    &pickupAddress47,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
@@ -3052,7 +3126,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			SelectedMoveType: &selectedMoveTypeHHG,
 			Orders: models.Order{
 				NewDutyStation: models.DutyStation{
-					Address: destAddress,
+					Address: destAddress48,
 				},
 			},
 		},
@@ -3066,7 +3140,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection, loader *uploader.Uploader, log
 			Status:           models.ShipmentStatusINTRANSIT,
 			NetWeight:        &netWeight48,
 			ActualPickupDate: &actualPickupDate48,
-			PickupAddress:    &pickupAddress,
+			PickupAddress:    &pickupAddress48,
 		},
 		ShipmentOffer: models.ShipmentOffer{
 			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
