@@ -255,37 +255,5 @@ describe('The document viewer', function() {
 
       cy.contains('All Documents (2)');
     });
-    it('can navigate to the shipment info page and show line item info', () => {
-      cy.patientVisit('/moves/fb4105cf-f5a5-43be-845e-d59fdb34f31c/documents/new', {
-        log: true,
-      });
-
-      cy.patientVisit('/');
-
-      cy.location().should(loc => {
-        expect(loc.pathname).to.match(/^\/queues\/new/);
-      });
-
-      cy
-        .get('div')
-        .contains('Delivered')
-        .click();
-
-      cy.selectQueueItemMoveLocator('DOOB');
-
-      cy.location().should(loc => {
-        expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
-      });
-
-      cy.get('[data-cy="hhg-tab"]').click();
-
-      cy
-        .get('[data-cy=invoice-panel]')
-        .get('[data-cy=unbilled-table]')
-        .find('tbody tr')
-        .should(rows => {
-          expect(rows).to.have.length.of.at.least(3);
-        });
-    });
   });
 });
