@@ -6,7 +6,7 @@ import { fetchActive } from 'shared/utils';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCents } from 'shared/formatters';
 import { selectShipment } from 'shared/Entities/modules/shipments';
-import { getCurrentShipmentID, getCurrentMove, getCurrentMoveID } from 'shared/UI/ducks';
+import { getCurrentShipmentID, getCurrentMoveID } from 'shared/UI/ducks';
 import { change } from 'redux-form';
 
 // Types
@@ -161,54 +161,6 @@ export function getSelectedWeightInfo(state) {
 
   const size = ppm ? ppm.size : 'L';
   return weightInfo[size]; // eslint-disable-line security/detect-object-injection
-}
-
-export function isHHGPPMComboMove(state) {
-  const move = getCurrentMove(state);
-  return get(move, 'selected_move_type') === 'HHG_PPM';
-}
-
-const estimatedRemainingWeight = (sum, weight) => {
-  if (sum >= weight) {
-    return sum - weight;
-  } else {
-    return sum;
-  }
-};
-
-export function getEstimatedRemainingWeight(state) {
-  const entitlements = loadEntitlementsFromState(state);
-
-  if (!isHHGPPMComboMove(state) || isNull(entitlements)) {
-    return null;
-  }
-
-  const { sum } = entitlements;
-
-  const { pm_survey_weight_estimate, weight_estimate } = selectShipment(state, getCurrentShipmentID(state));
-
-  if (pm_survey_weight_estimate) {
-    return estimatedRemainingWeight(sum, pm_survey_weight_estimate);
-  }
-
-  if (sum && weight_estimate >= 0) {
-    return estimatedRemainingWeight(sum, weight_estimate);
-  }
-}
-
-export function getActualRemainingWeight(state) {
-  const entitlements = loadEntitlementsFromState(state);
-
-  if (!isHHGPPMComboMove(state) || isNull(entitlements)) {
-    return null;
-  }
-
-  const { sum } = entitlements;
-  const { tare_weight, gross_weight } = selectShipment(state, getCurrentShipmentID(state));
-
-  if (sum && gross_weight && tare_weight) {
-    return estimatedRemainingWeight(sum, gross_weight - tare_weight);
-  }
 }
 
 export function getDestinationPostalCode(state) {
