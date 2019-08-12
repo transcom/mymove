@@ -2,14 +2,9 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import {
-  setPendingPpmSize,
-  getRawWeightInfo,
-  getActualRemainingWeight,
-  getEstimatedRemainingWeight,
-  isHHGPPMComboMove,
-} from './ducks';
+import { setPendingPpmSize, getRawWeightInfo, getActualRemainingWeight, getEstimatedRemainingWeight } from './ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
+import { isHHGPPMComboMove } from 'shared/Entities/modules/ppms';
 import EntitlementBar from 'scenes/EntitlementBar';
 import BigButton from 'shared/BigButton';
 import carGray from 'shared/icon/car-gray.svg';

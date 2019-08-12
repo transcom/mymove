@@ -75,3 +75,8 @@ export function getMaxAdvance(state, ppmId) {
   // and we don't want to block the user from requesting an advance if the rate engine fails
   return maxIncentive ? 0.6 * maxIncentive : 20000000;
 }
+
+export function isHHGPPMComboMove(state, moveId) {
+  const moveType = get(state, `entities.moves.${moveId}.selected_move_type`);
+  return moveType === 'HHG_PPM';
+}
