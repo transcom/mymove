@@ -540,7 +540,7 @@ func (suite *ModelSuite) TestFormatAllSITExpenses() {
 	suite.Equal("01 - PPM\n\n02 - PPM", formattedSitExpenses.NumberAndTypes)
 	suite.Equal("12-May-2019\n\n15-May-2019", formattedSitExpenses.EntryDates)
 	suite.Equal("15-May-2019\n\n20-May-2019", formattedSitExpenses.EndDates)
-	suite.Equal("2\n\n4", formattedSitExpenses.DaysInStorage)
+	suite.Equal("3\n\n5", formattedSitExpenses.DaysInStorage)
 }
 
 func (suite *ModelSuite) TestFormatShipmentWeight() {

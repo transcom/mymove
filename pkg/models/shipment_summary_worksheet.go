@@ -316,20 +316,16 @@ func CalculateRemainingPPMEntitlement(move Move, totalEntitlement unit.Pound) (u
 
 // FetchMovingExpensesShipmentSummaryWorksheet fetches moving expenses for the Shipment Summary Worksheet
 func FetchMovingExpensesShipmentSummaryWorksheet(move Move, db *pop.Connection, session *auth.Session) ([]MovingExpenseDocument, error) {
-	var movingExpenses []MovingExpenseDocument
+	var movingExpenseDocuments []MovingExpenseDocument
 	if len(move.PersonallyProcuredMoves) > 0 {
 		ppm := move.PersonallyProcuredMoves[0]
 		moveDocuments, err := FetchMoveDocuments(db, session, ppm.ID, nil, MoveDocumentTypeEXPENSE)
 		if err != nil {
-			return movingExpenses, err
+			return movingExpenseDocuments, err
 		}
-		for _, moveDocument := range moveDocuments {
-			if moveDocument.MovingExpenseDocument != nil {
-				movingExpenses = append(movingExpenses, *moveDocument.MovingExpenseDocument)
-			}
-		}
+		movingExpenseDocuments = FilterMovingExpenseDocuments(moveDocuments)
 	}
-	return movingExpenses, nil
+	return movingExpenseDocuments, nil
 }
 
 // FormatValuesShipmentSummaryWorksheetFormPage1 formats the data for page 1 of the Shipment Summary Worksheet
@@ -519,7 +515,7 @@ func FormatAllShipments(ppms PersonallyProcuredMoves, shipments Shipments) Shipm
 //FormatAllSITExpenses formats SIT line items for the Shipment Summary Worksheet
 func FormatAllSITExpenses(movingExpenseDocuments MovingExpenseDocuments) ShipmentSummaryWorkSheetSIT {
 	formattedShipments := ShipmentSummaryWorkSheetSIT{}
-	sitExpenses := getSitExpenses(movingExpenseDocuments)
+	sitExpenses := FilterSITExpenses(movingExpenseDocuments)
 	totalSITExpenses := len(sitExpenses)
 	formattedShipmentNumberAndTypes := make([]string, totalSITExpenses)
 	formattedEntryDates := make([]string, totalSITExpenses)
@@ -550,7 +546,7 @@ func FormatAllSITExpenses(movingExpenseDocuments MovingExpenseDocuments) Shipmen
 
 //FormatMovingExpenses formats moving expenses for Shipment Summary Worksheet
 func FormatSitExpenses(movingExpenseDocuments MovingExpenseDocuments) (FormattedSitExpenses, error) {
-	sitExpenses := getSitExpenses(movingExpenseDocuments)
+	sitExpenses := FilterSITExpenses(movingExpenseDocuments)
 	storageExpenses := struct {
 		StorageGTCCPaid   string
 		StorageMemberPaid string
@@ -571,16 +567,6 @@ func FormatSitExpenses(movingExpenseDocuments MovingExpenseDocuments) (Formatted
 		TotalMemberPaidSIT: storageExpenses.StorageMemberPaid,
 		TotalGTCCPaidSIT:   storageExpenses.StorageGTCCPaid,
 	}, nil
-}
-
-func getSitExpenses(movingExpenseDocuments MovingExpenseDocuments) MovingExpenseDocuments {
-	var sitExpenses []MovingExpenseDocument
-	for _, doc := range movingExpenseDocuments {
-		if doc.MovingExpenseType == MovingExpenseTypeSTORAGE {
-			sitExpenses = append(sitExpenses, doc)
-		}
-	}
-	return sitExpenses
 }
 
 //FormatMovingExpenses formats moving expenses for Shipment Summary Worksheet
