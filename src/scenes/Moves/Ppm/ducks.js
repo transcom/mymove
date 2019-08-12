@@ -225,7 +225,7 @@ export function getPPM(state) {
   const move = state.moves.currentMove || state.moves.latestMove || {};
   const moveId = move.id;
   const ppmFromEntities = Object.values(state.entities.personallyProcuredMoves).find(ppm => ppm.move_id === moveId);
-  return ppmFromEntities || state.ppm.currentPpm;
+  return ppmFromEntities || state.ppm.currentPpm || {};
 }
 
 // Reducer
