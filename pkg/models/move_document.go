@@ -23,6 +23,8 @@ const (
 	MoveDocumentStatusOK MoveDocumentStatus = "OK"
 	// MoveDocumentStatusHASISSUE captures enum value "HAS_ISSUE"
 	MoveDocumentStatusHASISSUE MoveDocumentStatus = "HAS_ISSUE"
+	// MoveDocumentStatusEXCLUDEFROMCALCULATION captures enum value "EXCLUDE_FROM_CALCULATION"
+	MoveDocumentStatusEXCLUDEFROMCALCULATION MoveDocumentStatus = "EXCLUDE_FROM_CALCULATION"
 )
 
 // MoveDocumentType represents types of different move documents
@@ -150,6 +152,8 @@ func (m *MoveDocument) AttemptTransition(targetStatus MoveDocumentStatus) error 
 		return m.Approve()
 	case MoveDocumentStatusHASISSUE:
 		return m.Reject()
+	case MoveDocumentStatusEXCLUDEFROMCALCULATION:
+		return m.Exclude()
 	}
 
 	return errors.Wrap(ErrInvalidTransition, string(targetStatus))
@@ -172,6 +176,16 @@ func (m *MoveDocument) Reject() error {
 	}
 
 	m.Status = MoveDocumentStatusHASISSUE
+	return nil
+}
+
+// Exclude marks the Document as HAS_ISSUE
+func (m *MoveDocument) Exclude() error {
+	if m.Status == MoveDocumentStatusEXCLUDEFROMCALCULATION {
+		return errors.Wrap(ErrInvalidTransition, "Exclude")
+	}
+
+	m.Status = MoveDocumentStatusEXCLUDEFROMCALCULATION
 	return nil
 }
 

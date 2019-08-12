@@ -9,9 +9,9 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/pop"
-	"github.com/hhrutter/pdfcpu/pkg/api"
-	"github.com/hhrutter/pdfcpu/pkg/pdfcpu"
 	"github.com/jung-kurt/gofpdf"
+	"github.com/pdfcpu/pdfcpu/pkg/api"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
@@ -44,12 +44,12 @@ type pdfCPUWrapper struct {
 	*pdfcpu.Configuration
 }
 
-func (pcw pdfCPUWrapper) Merge(files []ReadSeekerCloser, w io.Writer) error {
-	var rscs []api.ReadSeekerCloser
+func (pcw pdfCPUWrapper) Merge(files []io.ReadSeeker, w io.Writer) error {
+	var rscs []io.ReadSeeker
 	for _, f := range files {
-		frsc, ok := f.(api.ReadSeekerCloser)
+		frsc, ok := f.(io.ReadSeeker)
 		if !ok {
-			return errors.Errorf("file %T does not implement api.ReadSeekerCloser", f)
+			return errors.Errorf("file %T does not implement io.ReadSeeker", f)
 		}
 		rscs = append(rscs, frsc)
 	}
@@ -60,14 +60,8 @@ func (pcw pdfCPUWrapper) Validate(rs io.ReadSeeker) error {
 	return api.Validate(rs, pcw.Configuration)
 }
 
-// ReadSeekerCloser combines io.ReadSeeker and io.Closer
-type ReadSeekerCloser interface {
-	io.ReadSeeker
-	io.Closer
-}
-
 type PDFLibrary interface {
-	Merge(rsc []ReadSeekerCloser, w io.Writer) error
+	Merge(rsc []io.ReadSeeker, w io.Writer) error
 	Validate(rs io.ReadSeeker) error
 }
 
@@ -295,7 +289,7 @@ func (g *Generator) MergePDFFiles(paths []string) (afero.File, error) {
 		return mergedFile, err
 	}
 
-	var files []ReadSeekerCloser
+	var files []io.ReadSeeker
 	for _, p := range paths {
 		f, fileOpenErr := g.fs.Open(p)
 		if fileOpenErr != nil {
