@@ -4,7 +4,6 @@ import {
   GET_SIT_ESTIMATE,
   GET_PPM_ESTIMATE,
   ppmReducer,
-  getMaxAdvance,
   getEstimatedRemainingWeight,
   getActualRemainingWeight,
 } from './ducks';
@@ -237,20 +236,6 @@ describe('Ppm Reducer', () => {
         incentive_estimate_max: null,
         error: null,
       });
-    });
-  });
-  describe('getMaxAdvance', () => {
-    describe('when there is a max estimated incentive', () => {
-      const state = { ppm: { incentive_estimate_max: 10000 } };
-      it('should return 60% of max estimated incentive', () => {
-        expect(getMaxAdvance(state)).toEqual(6000);
-      });
-    });
-  });
-  describe('when there is no max estimated incentive', () => {
-    const state = {};
-    it('should return 60% of max estimated incentive', () => {
-      expect(getMaxAdvance(state)).toEqual(20000000);
     });
   });
 

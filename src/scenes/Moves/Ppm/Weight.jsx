@@ -13,7 +13,8 @@ import Alert from 'shared/Alert';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { formatCents, formatCentsRange, formatNumber } from 'shared/formatters';
 import { convertDollarsToCents } from 'shared/utils';
-import { getPpmWeightEstimate, createOrUpdatePpm, getSelectedWeightInfo, getMaxAdvance } from './ducks';
+import { getPpmWeightEstimate, createOrUpdatePpm, getSelectedWeightInfo } from './ducks';
+import { getMaxAdvance } from 'shared/Entities/modules/ppms';
 import { getCurrentMove } from 'shared/UI/ducks';
 
 import WizardHeader from '../WizardHeader';
