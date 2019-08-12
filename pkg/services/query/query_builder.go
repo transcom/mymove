@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/gobuffalo/validate"
+
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/services"
@@ -122,4 +124,17 @@ func (p *Builder) FetchMany(model interface{}, filters []services.QueryFilter) e
 		return err
 	}
 	return query.All(model)
+}
+
+func (p *Builder) CreateOne(model interface{}) (*validate.Errors, error) {
+	t := reflect.TypeOf(model)
+	if t.Kind() != reflect.Ptr {
+		return nil, errors.New(fetchOneReflectionMessage)
+	}
+
+	verrs, err := p.db.ValidateAndCreate(model)
+	if err != nil || verrs.HasAny() {
+		return verrs, err
+	}
+	return nil, nil
 }

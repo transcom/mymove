@@ -773,6 +773,10 @@ definitions:
         title: What type of vehicle are these weight tickets for?
         type: string
         enum: *VehicleOptions
+        x-display-value:
+          CAR: Car
+          CAR_TRAILER: Car + Trailer
+          BOX_TRUCK: Box truck
       vehicle_nickname:
         type: string
         title: Vehicle nickname (ex. "My car")
@@ -963,10 +967,12 @@ definitions:
       - AWAITING_REVIEW
       - OK
       - HAS_ISSUE
+      - EXCLUDE_FROM_CALCULATION
     x-display-value:
       AWAITING_REVIEW: Awaiting review
       OK: OK
       HAS_ISSUE: Has issue
+      EXCLUDE_FROM_CALCULATION: Exclude from calculation
   CreateWeightTicketDocumentsPayload:
     type: object
     properties:
@@ -1006,7 +1012,7 @@ definitions:
         type: integer
         minimum: 0
       weight_ticket_date:
-        title: Weight ticket date
+        title: Full Weight Ticket Date
         type: string
         example: '2018-04-26'
         format: date
@@ -1098,10 +1104,6 @@ definitions:
         type: boolean
         x-nullable: true
         title: Telephone
-      text_message_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Text Message - Coming Soon!
       email_is_preferred:
         type: boolean
         x-nullable: true
@@ -1127,6 +1129,8 @@ definitions:
         type: boolean
         x-nullable: false
         title: Requires Access Code
+      weight_allotment:
+        $ref: '#/definitions/WeightAllotment'
     required:
       - id
       - user_id
@@ -1206,10 +1210,6 @@ definitions:
         type: boolean
         x-nullable: true
         title: Phone
-      text_message_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Text Message - Coming Soon!
       email_is_preferred:
         type: boolean
         x-nullable: true
@@ -1296,10 +1296,6 @@ definitions:
         type: boolean
         x-nullable: true
         title: Phone
-      text_message_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Text Message - Coming Soon!
       email_is_preferred:
         type: boolean
         x-nullable: true
@@ -1702,9 +1698,11 @@ definitions:
     enum:
       - AIR_FORCE
       - MARINES
+      - ARMY
     x-display-value:
       AIR_FORCE: 57 - United States Air Force
       MARINES: 17 - United States Marines
+      ARMY: 21 - United States Army
   TrafficDistributionList:
     type: object
     properties:
@@ -2557,9 +2555,9 @@ definitions:
       - warehouse_name
       - estimated_start_date
   StorageInTransits:
-      type: array
-      items:
-        $ref: '#/definitions/StorageInTransit'
+    type: array
+    items:
+      $ref: '#/definitions/StorageInTransit'
   MoveQueueItem:
     type: object
     properties:
@@ -2666,6 +2664,8 @@ definitions:
         format: date-time
         example: 2017-07-21T17:32:28Z
         x-nullable: true
+      weight_allotment:
+        $ref: '#/definitions/WeightAllotment'
     required:
       - id
       - status
@@ -2792,6 +2792,12 @@ paths:
           required: true
         - in: query
           name: origin_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: origin_duty_station_zip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
@@ -3964,6 +3970,12 @@ paths:
           required: true
         - in: query
           name: origin_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: origin_duty_station_zip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'

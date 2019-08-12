@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import Loadable from 'react-loadable';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import { isOfficeSite, isTspSite, isAdminSite } from 'shared/constants.js';
+import { isOfficeSite, isTspSite, isAdminSite, isSystemAdminSite } from 'shared/constants.js';
 import { store } from 'shared/store';
 import {
   AppContext,
@@ -32,8 +32,14 @@ const MyMove = Loadable({
   loading: () => <LoadingPlaceholder />,
 });
 
-const Admin = Loadable({
-  loader: () => import('scenes/Admin'),
+// Will uncomment for program admin
+// const Admin = Loadable({
+//   loader: () => import('scenes/Admin'),
+//   loading: () => <LoadingPlaceholder />,
+// });
+//
+const SystemAdmin = Loadable({
+  loader: () => import('scenes/SystemAdmin'),
   loading: () => <LoadingPlaceholder />,
 });
 
@@ -61,14 +67,13 @@ const App = () => {
         </AppContext.Provider>
       </Provider>
     );
-  else if (isAdminSite)
+  else if (isSystemAdminSite)
     return (
-      <Provider store={store}>
-        <AppContext.Provider value={adminContext}>
-          <Admin />
-        </AppContext.Provider>
-      </Provider>
+      <AppContext.Provider value={adminContext}>
+        <SystemAdmin />
+      </AppContext.Provider>
     );
+  else if (isAdminSite) return <SystemAdmin />;
   return (
     <Provider store={store}>
       <AppContext.Provider value={myMoveContext}>

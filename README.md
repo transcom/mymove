@@ -26,6 +26,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Setup: Quick Initial Setup](#setup-quick-initial-setup)
   * [Setup: Prerequisites](#setup-prerequisites)
   * [Setup: Direnv](#setup-direnv)
+    * [Helpful variables for `.envrc.local`](#helpful-variables-for-envrclocal)
   * [Setup: Pre-Commit](#setup-pre-commit)
   * [Setup: Hosts](#setup-hosts)
   * [Setup: Dependencies](#setup-dependencies)
@@ -210,9 +211,14 @@ For managing local environment variables, we're using [direnv](https://direnv.ne
 
 Run `direnv allow` to load up the `.envrc` file. It should complain that you have missing variables which you will rectify in one of the following ways.
 
-You can add a `.envrc.local` file. One way to do this is to run `chamber env app-devlocal >> .envrc.local`. If you don't have access to chamber you can also `touch .envrc.local` and add any values that the output from direnv asks you to define. Instructions are in the error messages.
+You can add a `.envrc.local` file. One way to do this is using chamber.  You must have the infra-com repo already cloned and must add the path to it in your .envrc.local (`PPP_INFRA_PATH='~/yourlocalpath/ppp-infra'`) Then run `chamber env app-devlocal >> .envrc.local`. If you don't have access to chamber you can also `touch .envrc.local` and add any values that the output from direnv asks you to define. Instructions are in the error messages.
 
 If you wish to not maintain a `.envrc.local` you can alternatively run `cp .envrc.chamber.template .envrc.chamber` to enable getting secret values from `chamber`. **Note** that this method does not work for users of the `fish` shell unless you replace `direnv allow` with `direnv export fish | source`.
+
+#### Helpful variables for `.envrc.local`
+
+* `export GOLANGCI_LINT_CONCURRENCY=8` - variable to increase concurrency of golangci-lint; defaults to 6 on dev machines and to 1 in CircleCI.
+* `export GOLAND=1` - variable to enable go code debugging in goland
 
 ### Setup: Pre-Commit
 

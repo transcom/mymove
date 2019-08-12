@@ -6,9 +6,8 @@ require (
 	github.com/0xAX/notificator v0.0.0-20181105090803-d81462e38c21 // indirect
 	github.com/99designs/aws-vault v4.5.1+incompatible
 	github.com/99designs/keyring v1.1.0
-	github.com/aws/aws-sdk-go v1.21.1
-	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
-	github.com/cockroachdb/apd v1.1.0 // indirect
+	github.com/aws/aws-sdk-go v1.21.3
+	github.com/cockroachdb/apd v2.0.0+incompatible // indirect
 	github.com/cockroachdb/cockroach-go v0.0.0-20181001143604-e0a95dfd547c // indirect
 	github.com/codegangsta/envy v0.0.0-20141216192214-4b78388c8ce4
 	github.com/codegangsta/gin v0.0.0-20171026143024-cafe2ce98974
@@ -58,12 +57,13 @@ require (
 	github.com/mattn/go-colorable v0.1.2 // indirect
 	github.com/mattn/go-shellwords v1.0.5 // indirect
 	github.com/mitchellh/mapstructure v1.1.2
-	github.com/namsral/flag v1.7.4-alpha.0.20170814194028-67f268f20922
+	github.com/namsral/flag v1.7.4-pre.0.20170814194028-67f268f20922
+	github.com/pdfcpu/pdfcpu v0.2.3
 	github.com/pkg/errors v0.8.1
 	github.com/rickar/cal v1.0.1
 	github.com/rogpeppe/go-internal v1.3.0
 	github.com/satori/go.uuid v1.2.0 // indirect
-	github.com/segmentio/chamber v0.0.0-20190715181207-e5ba522bff08
+	github.com/segmentio/chamber v1.17.1-0.20190723001754-99008c1dab17
 	github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24 // indirect
 	github.com/smartystreets/assertions v1.0.1 // indirect
 	github.com/smartystreets/goconvey v0.0.0-20190710185942-9d28bd7c0945 // indirect
@@ -74,7 +74,6 @@ require (
 	github.com/stretchr/testify v1.3.1-0.20190712000136-221dbe5ed467
 	github.com/subosito/gotenv v1.1.1 // indirect
 	github.com/tealeg/xlsx v1.0.3
-	github.com/trussworks/pdfcpu v0.1.15-0.20180823221217-a53781a43f9d
 	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	go.mongodb.org/mongo-driver v1.0.4 // indirect
@@ -84,7 +83,7 @@ require (
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
 	golang.org/x/net v0.0.0-20190628185345-da137c7871d7
 	golang.org/x/text v0.3.2
-	golang.org/x/tools v0.0.0-20190719005602-e377ae9d6386
+	golang.org/x/tools v0.0.0-20190723021737-8bb11ff117ca
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/alexcesaro/statsd.v2 v2.0.0 // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect

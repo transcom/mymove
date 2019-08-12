@@ -1,11 +1,8 @@
 import React, { Component } from 'react';
 import { func, object, array, string, shape } from 'prop-types';
-import { Link } from 'react-router-dom';
 
 import { PanelField } from 'shared/EditablePanel';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 import DocumentUploader from 'shared/DocumentViewer/DocumentUploader';
 
 import './index.css';
@@ -83,18 +80,13 @@ class NewDocumentView extends Component {
               </TabList>
 
               <TabPanel>
-                <div className="pad-ns">
-                  <span className="status">
-                    <FontAwesomeIcon className="icon link-blue" icon={faPlusCircle} />
-                  </span>
-                  <Link to={newDocumentUrl}>Upload new document</Link>
-                </div>
                 <div>
                   {' '}
                   <DocumentList
                     currentMoveDocumentId={currentMoveDocumentId}
                     detailUrlPrefix={documentDetailUrlPrefix}
                     moveDocuments={moveDocuments}
+                    uploadDocumentUrl={newDocumentUrl}
                   />
                 </div>
               </TabPanel>
