@@ -5,10 +5,9 @@ import (
 	"os"
 	"regexp"
 
-	"github.com/hhrutter/pdfcpu/pkg/pdfcpu/validate"
-
-	"github.com/hhrutter/pdfcpu/pkg/api"
-	"github.com/hhrutter/pdfcpu/pkg/pdfcpu"
+	"github.com/pdfcpu/pdfcpu/pkg/api"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/validate"
 	"github.com/spf13/afero"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
