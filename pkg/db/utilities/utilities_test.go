@@ -5,7 +5,6 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/transcom/mymove/pkg/db/dbfmt"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -31,11 +30,9 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithoutAssocia
 	//model without deleted_at with no associations
 	user := testdatagen.MakeDefaultUser(suite.DB())
 
-	dbfmt.Println(user)
-
 	err := SoftDestroy(suite.DB(), user)
 
-	suite.NoError(err)
+	suite.Error(err, "can not soft delete this model")
 }
 
 func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithAssociations() {

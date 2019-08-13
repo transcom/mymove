@@ -21,35 +21,27 @@ func SoftDestroy(c *pop.Connection, model interface{}) error {
 
 	//TODO check if the model is a model
 	transactionError := c.Transaction(func(db *pop.Connection) error {
-		// model and "delete" it and its associations
-		// either do a raw query setting the deleted_at or use db.Save()
-		// use reflect to get associations
-		//
 		modelValue := reflect.ValueOf(model)
-		modelType := reflect.TypeOf(model)
+		deletedAtField := modelValue.FieldByName(deletedAt)
+		deletedAtValue := reflect.ValueOf(&deletedAtField).Elem()
 
-		for field := 0; field < modelValue.NumField(); field++ {
-			modelField := modelType.Field(field)
-			fieldValue := reflect.ValueOf(modelField)
-			name := modelField.Name
+		if deletedAtField.IsValid() && deletedAtValue.CanSet() {
+			now := time.Now()
+			reflectTime := reflect.ValueOf(now)
+			deletedAtValue.Set(reflectTime)
+			verrs, err = db.ValidateAndSave(model)
 
-			if name == deletedAt && fieldValue.CanSet() {
-				now := time.Now()
-				reflectTime := reflect.ValueOf(now)
-				fieldValue.Set(reflectTime)
-				verrs, err = db.ValidateAndSave(model)
-
-				if err != nil || verrs.HasAny() {
-					return errors.New("error updating model")
-				}
+			if err != nil || verrs.HasAny() {
+				return errors.New("error updating model")
 			}
-			return nil
+		} else {
+			return errors.New("can not soft delete this model")
 		}
-		return errors.New("Rollback The transaction")
+		return nil
 	})
 
 	if transactionError != nil || verrs.HasAny() {
 		return transactionError
 	}
-	return nil
+	return errors.New("error updating model")
 }
