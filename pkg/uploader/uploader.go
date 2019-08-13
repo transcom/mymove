@@ -152,5 +152,9 @@ func (u *Uploader) DeleteUpload(upload *models.Upload) error {
 //
 // It is the caller's responsibility to delete the tempfile.
 func (u *Uploader) Download(upload *models.Upload) (io.ReadCloser, error) {
-	return u.Storer.Fetch(upload.StorageKey)
+	f, err := u.Storer.Fetch(upload.StorageKey)
+	if err != nil {
+		return nil, err
+	}
+	return f, nil
 }

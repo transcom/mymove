@@ -107,6 +107,7 @@ func (fs *Memory) PresignedURL(key, contentType string) (string, error) {
 // It is the caller's responsibility to delete the tempfile.
 func (fs *Memory) Fetch(key string) (io.ReadCloser, error) {
 	sourcePath := filepath.Join(fs.root, key)
+	log.Println(sourcePath)
 	f, err := fs.fs.Open(sourcePath)
 	return f, errors.Wrap(err, "could not open file")
 }
