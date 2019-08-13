@@ -32,7 +32,7 @@ import Footer from 'shared/Footer';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement';
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
-import { selectedMoveType, isLastMoveCanceled } from 'shared/Entities/modules/moves';
+import { selectMove, selectedMoveType, isLastMoveCanceled } from 'shared/Entities/modules/moves';
 import { getCurrentMoveID } from 'shared/UI/ducks';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { getCurrentUserInfo } from 'shared/Data/users';
@@ -161,7 +161,7 @@ const mapStateToProps = state => {
   return {
     currentServiceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
     lastMoveIsCanceled: isLastMoveCanceled(state, moveId),
-    latestMove: get(state, 'moves.latestMove'), //ToDo: will want to move away from using this later...
+    latestMove: selectMove(state, moveId),
     moveId: moveId,
     selectedMoveType: selectedMoveType(state, moveId),
     swaggerError: state.swaggerInternal.hasErrored,

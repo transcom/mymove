@@ -8,7 +8,6 @@ import { requestsReducer } from 'shared/Swagger/requestsReducer';
 import { entitiesReducer } from 'shared/Entities/reducer';
 import uiReducer from 'shared/UI/ducks';
 
-import { moveReducer } from 'scenes/Moves/ducks';
 import { ppmReducer } from 'scenes/Moves/Ppm/ducks';
 import { serviceMemberReducer } from 'scenes/ServiceMembers/ducks';
 import { ordersReducer } from 'scenes/Orders/ducks';
@@ -37,7 +36,6 @@ const defaultReducers = {
 export const appReducer = combineReducers({
   ...defaultReducers,
   swaggerInternal: swaggerReducerInternal,
-  moves: moveReducer,
   ppm: ppmReducer,
   serviceMember: serviceMemberReducer,
   orders: ordersReducer,
