@@ -3,4 +3,5 @@ create_table("moves") {
 	t.Column("user_id", "uuid", {})
 	t.Column("selected_move_type", "string", {"null": true})
 	t.ForeignKey("user_id", {"users": ["id"]}, {})
+	t.Timestamps()
 }

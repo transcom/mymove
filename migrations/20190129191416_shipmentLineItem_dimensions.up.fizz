@@ -1,8 +1,9 @@
 create_table("shipment_line_item_dimensions") {
-    t.Column("id", "uuid", {"primary": true})
-    t.Column("length", "integer")
-    t.Column("width", "integer")
-    t.Column("height", "integer")
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("length", "integer")
+	t.Column("width", "integer")
+	t.Column("height", "integer")
+	t.Timestamps()
 }
 
 add_column("shipment_line_items", "item_dimensions_id", "uuid", {"null": true})
