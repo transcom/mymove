@@ -2,7 +2,6 @@ package utilities
 
 import (
 	"errors"
-	"fmt"
 	"reflect"
 	"time"
 
@@ -11,15 +10,20 @@ import (
 )
 
 const deletedAt = "DeletedAt"
+const modelsPkgPath = "github.com/transcom/mymove/pkg/models"
 
 // SoftDestroy deletes a record and all foreign key associations from the database
 func SoftDestroy(c *pop.Connection, model interface{}) error {
 	verrs := validate.NewErrors()
 	var err error
 
-	fmt.Println(reflect.TypeOf(model))
+	pkgPath := reflect.TypeOf(model).Elem().PkgPath()
 
-	//TODO check if the model is a model
+	if pkgPath != modelsPkgPath {
+		return errors.New("can only soft delete type model")
+	}
+
+	// TODO check if the model is a model
 	transactionError := c.Transaction(func(db *pop.Connection) error {
 		modelValue := reflect.ValueOf(model).Elem()
 		deletedAtField := modelValue.FieldByName(deletedAt)
@@ -40,6 +44,8 @@ func SoftDestroy(c *pop.Connection, model interface{}) error {
 		} else {
 			return errors.New("this model does not have deleted_at property")
 		}
+
+		// TODO get associations and do this all over again recursively????
 		return nil
 	})
 

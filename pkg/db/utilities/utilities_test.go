@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
@@ -26,25 +27,21 @@ func TestUtilitiesSuite(t *testing.T) {
 	suite.Run(t, hs)
 }
 
+func (suite *UtilitiesSuite) TestSoftDestroy_NotModel() {
+	accessCodeFetcher := &mocks.AccessCodeFetcher{}
+
+	err := SoftDestroy(suite.DB(), &accessCodeFetcher)
+
+	suite.Error(err)
+}
+
 func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithoutAssociations() {
 	//model without deleted_at with no associations
 	user := testdatagen.MakeDefaultUser(suite.DB())
 
 	err := SoftDestroy(suite.DB(), &user)
 
-	suite.Error(err, "can not soft delete this model")
-}
-
-func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithAssociations() {
-	// model without deleted_at with associations
-	// service member
-
-}
-
-func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithAssociations() {
-	// model with deleted_at with associations
-	// uploads
-
+	suite.Error(err)
 }
 
 func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithoutAssociations() {
@@ -61,4 +58,16 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithoutAssociatio
 
 	err := SoftDestroy(suite.DB(), &expenseDocumentModel)
 	suite.NoError(err)
+}
+
+func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithAssociations() {
+	// model without deleted_at with associations
+	// service member
+
+}
+
+func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithAssociations() {
+	// model with deleted_at with associations
+	// uploads
+
 }
