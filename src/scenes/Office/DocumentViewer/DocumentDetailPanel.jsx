@@ -112,8 +112,8 @@ DocumentDetailDisplay.propTypes = {
 };
 
 const DocumentDetailEdit = ({ formValues, moveDocSchema }) => {
-  const isExpenseDocument = formValues.moveDocument.move_document_type === MOVE_DOC_TYPE.EXPENSE;
-  const isWeightTicketDocument = formValues.moveDocument.move_document_type === MOVE_DOC_TYPE.WEIGHT_TICKET_SET;
+  const isExpenseDocument = get(formValues.moveDocument, 'move_document_type') === MOVE_DOC_TYPE.EXPENSE;
+  const isWeightTicketDocument = get(formValues.moveDocument, 'move_document_type') === MOVE_DOC_TYPE.WEIGHT_TICKET_SET;
   const isStorageExpenseDocument =
     get(formValues.moveDocument, 'move_document_type') === 'EXPENSE' &&
     get(formValues.moveDocument, 'moving_expense_type') === 'STORAGE';
