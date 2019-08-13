@@ -9,7 +9,7 @@ const ExpenseTicketListItem = ({ amount, type, paymentMethod, showDelete }) => (
       </h4>
     </div>
     <div>
-      {type} ({paymentMethod})
+      {type} ({paymentMethod === 'OTHER' ? 'Not GTCC' : paymentMethod})
     </div>
   </div>
 );
