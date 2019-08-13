@@ -30,7 +30,7 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithoutDeletedAtWithoutAssocia
 	//model without deleted_at with no associations
 	user := testdatagen.MakeDefaultUser(suite.DB())
 
-	err := SoftDestroy(suite.DB(), user)
+	err := SoftDestroy(suite.DB(), &user)
 
 	suite.Error(err, "can not soft delete this model")
 }
@@ -59,6 +59,6 @@ func (suite *UtilitiesSuite) TestSoftDestroy_ModelWithDeletedAtWithoutAssociatio
 
 	suite.MustSave(&expenseDocumentModel)
 
-	err := SoftDestroy(suite.DB(), expenseDocumentModel)
+	err := SoftDestroy(suite.DB(), &expenseDocumentModel)
 	suite.NoError(err)
 }
