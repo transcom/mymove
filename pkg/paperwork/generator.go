@@ -1,7 +1,6 @@
 package paperwork
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"image/png"
@@ -26,6 +25,7 @@ const (
 	PdfOrientation string  = "P"
 	PdfUnit        string  = "mm"
 	PdfPageWidth   float64 = 210.0
+	PdfPageHeight  float64 = 297.0
 	PdfPageSize    string  = "A4"
 	PdfFontDir     string  = ""
 )
@@ -175,6 +175,7 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 		defer download.Close()
 
 		outputFile, err := g.newTempFile()
+
 		if err != nil {
 			return nil, errors.Wrap(err, "Creating temp file")
 		}
@@ -228,9 +229,12 @@ var contentTypeToImageType = map[string]string{
 // The files at those paths will be tempfiles that will need to be cleaned
 // up by the caller.
 func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
+	// TO DO close all files
 	horizontalMargin := 0.0
 	topMargin := 0.0
 	bodyWidth := PdfPageWidth - (horizontalMargin * 2)
+	// bodyHeight := PdfPageHeight - (topMargin * 2)
+	// wToHRatio := bodyWidth / bodyHeight
 
 	pdf := gofpdf.New(PdfOrientation, PdfUnit, PdfPageSize, PdfFontDir)
 	pdf.SetMargins(horizontalMargin, topMargin, horizontalMargin)
@@ -245,6 +249,10 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	// _, fileSeekErr := outputFile.Seek(0, io.SeekStart)
+	// if fileSeekErr != nil {
+	// 	return "", errors.Wrapf(fileSeekErr, "file.Seek offset: 0 whence: %d", io.SeekStart)
+	// }
 
 	var opt gofpdf.ImageOptions
 	for _, img := range images {
@@ -265,7 +273,7 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 			file = newFile
 			_, fileSeekErr := file.Seek(0, io.SeekStart)
 			if fileSeekErr != nil {
-				return "", errors.Wrapf(err, "file.Seek offset: 0 whence: %d", io.SeekStart)
+				return "", errors.Wrapf(fileSeekErr, "file.Seek offset: 0 whence: %d", io.SeekStart)
 			}
 		}
 		// Here is where we should choose things so we can add rotation to the image options
@@ -279,37 +287,49 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 		g.logger.Debug("Going to decode the file into an image")
 
 		pic, _, err := image.Decode(file)
-		fmt.Println("I got a pic: ", pic)
 		rect := pic.Bounds()
-		fmt.Println("I got the pic's bounds: ", rect)
+		g.logger.Debug("I got the pic's bounds: ", zap.Any("rectangle", rect))
+		// w := rect.Max.X - rect.Min.X
+		// h := rect.Max.Y - rect.Min.Y
+
+		widthInPdf := bodyWidth
+		heightInPdf := 0.0
 
 		// if w > h {
 		// 	newFile, newTemplateFileErr := g.newTempFile()
 		// 	if newTemplateFileErr != nil {
 		// 		return "", errors.Wrap(newTemplateFileErr, "Creating temp file for image rotation")
 		// 	}
-		//
+		// 	// Rotate and save new file
+		// 	newPic := imaging.Rotate90(pic)
+		// 	w, h = h, w
+		// 	if float64(w/h) < wToHRatio {
+		// 		widthInPdf = 0
+		// 		heightInPdf = bodyHeight
+		// 	}
+		// 	// We need to resize if w is greater than
+		// 	// Save new file with pic
+		// 	jpeg.Encode(newFile, newPic, nil)
+		// 	// Use newFile instead of oldFile
 		// 	file = newFile
 		// 	_, fileSeekErr := file.Seek(0, io.SeekStart)
 		// 	if fileSeekErr != nil {
 		// 		return "", errors.Wrapf(err, "file.Seek offset: 0 whence: %d", io.SeekStart)
 		// 	}
 		// }
-		// // 	convertTo8BitPNGErr := convertTo8BitPNG(file, newFile)
-		// 	if convertTo8BitPNGErr != nil {
-		// 		return "", errors.Wrap(convertTo8BitPNGErr, "Converting to 8-bit png")
-		// 	}
 
 		// Need to register the image using an afero reader, else it uses default filesystem
 		pdf.RegisterImageReader(img.Path, contentTypeToImageType[img.ContentType], file)
 		opt.ImageType = contentTypeToImageType[img.ContentType]
 
-		pdf.ImageOptions(img.Path, horizontalMargin, topMargin, bodyWidth, 0, false, opt, 0, "")
+		pdf.ImageOptions(img.Path, horizontalMargin, topMargin, widthInPdf, heightInPdf, false, opt, 0, "")
 		fileCloseErr := file.Close()
 		if fileCloseErr != nil {
 			return "", errors.Wrapf(err, "error closing file: %s", file.Name())
 		}
 	}
+
+	g.logger.Debug("ready to close the file", zap.Any("output file", outputFile))
 
 	if err = pdf.OutputAndClose(outputFile); err != nil {
 		return "", errors.Wrap(err, "could not write PDF to outputfile")
