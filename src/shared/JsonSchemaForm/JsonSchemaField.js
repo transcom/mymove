@@ -363,7 +363,7 @@ const createSchemaField = (
     }
   } else if (swaggerField.type === 'string') {
     const fieldFormat = swaggerField.format;
-    if ((fieldFormat === 'date' && !isNil(minDate)) || !isNil(maxDate)) {
+    if (fieldFormat === 'date' && (!isNil(minDate) || !isNil(maxDate))) {
       inputProps.disabledDays = disabledDays ? disabledDays : undefined;
       fieldProps = configureRestrictedDateField(swaggerField, fieldProps, minDate, maxDate);
     } else if (fieldFormat === 'date') {
