@@ -10,4 +10,5 @@ create_table("service_agents") {
 	t.Column("phone_is_preferred", "bool", {"null": true})
 	t.Column("notes", "text", {"null": true})
 	t.ForeignKey("shipment_id", {"shipments": ["id"]}, {})
+	t.Timestamps()
 }
