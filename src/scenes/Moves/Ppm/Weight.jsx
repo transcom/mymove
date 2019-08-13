@@ -14,8 +14,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { formatCents, formatCentsRange, formatNumber } from 'shared/formatters';
 import { convertDollarsToCents } from 'shared/utils';
 import { getPpmWeightEstimate, createOrUpdatePpm, getSelectedWeightInfo } from './ducks';
-import { getMaxAdvance } from 'shared/Entities/modules/ppms';
-import { getCurrentMove } from 'shared/UI/ducks';
+import { getMaxAdvance, isHHGPPMComboMove } from 'shared/Entities/modules/ppms';
 
 import WizardHeader from '../WizardHeader';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
@@ -377,7 +376,6 @@ PpmWeight.propTypes = {
 };
 function mapStateToProps(state) {
   const schema = get(state, 'swaggerInternal.spec.definitions.UpdatePersonallyProcuredMovePayload', {});
-  const move = getCurrentMove(state);
   const originDutyStationZip = state.serviceMember.currentServiceMember.current_station.address.postal_code;
   // In scheduling, PPM advances cannot go to GTCC so we filter out that method of payment.
   let ppmAdvanceSchema = {};
@@ -397,7 +395,7 @@ function mapStateToProps(state) {
     schema: schema,
     ppmAdvanceSchema: ppmAdvanceSchema,
     advanceFormValues: getFormValues(requestAdvanceFormName)(state),
-    isHHGPPMComboMove: get(move, 'selected_move_type') === 'HHG_PPM',
+    isHHGPPMComboMove: isHHGPPMComboMove(state),
     originDutyStationZip: originDutyStationZip,
   };
 
