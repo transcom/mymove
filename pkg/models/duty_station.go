@@ -102,7 +102,7 @@ func FindDutyStations(tx *pop.Connection, search string) (DutyStations, error) {
 	query := tx.Q().Eager().Where("name ILIKE $1", queryString)
 
 	if err := query.All(&stations); err != nil {
-		if errors.Cause(err).Error() != recordNotFoundErrorString {
+		if errors.Cause(err).Error() != RecordNotFoundErrorString {
 			return stations, err
 		}
 	}
