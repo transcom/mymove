@@ -17,13 +17,10 @@ func SoftDestroy(c *pop.Connection, model interface{}) error {
 	verrs := validate.NewErrors()
 	var err error
 
-	pkgPath := reflect.TypeOf(model).Elem().PkgPath()
-
-	if pkgPath != modelsPkgPath {
+	if !IsModel(model) {
 		return errors.New("can only soft delete type model")
 	}
 
-	// TODO check if the model is a model
 	transactionError := c.Transaction(func(db *pop.Connection) error {
 		modelValue := reflect.ValueOf(model).Elem()
 		deletedAtField := modelValue.FieldByName(deletedAt)
@@ -53,4 +50,18 @@ func SoftDestroy(c *pop.Connection, model interface{}) error {
 		return transactionError
 	}
 	return nil
+}
+
+// IsModel verifies if the given interface is a model
+func IsModel(model interface{}) bool {
+	pkgPath := reflect.TypeOf(model).Elem().PkgPath()
+	return pkgPath == modelsPkgPath
+}
+
+// GetForeignKeyAssociations fetches all the foreign key associations the model has
+func GetForeignKeyAssociations(model interface{}) []interface{} {
+	var foreignKeyAssociations []interface{}
+	return foreignKeyAssociations
+	// go through all the fields
+	// fetch those of tag 'has_many'
 }

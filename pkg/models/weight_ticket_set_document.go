@@ -75,10 +75,3 @@ func SumWeightTicketSetsForPPM(db *pop.Connection, session *auth.Session, ppmID 
 	}
 	return &totalWeight, nil
 }
-
-// DeleteWeightTicketSetDocument soft deletes a weight ticket set document
-func DeleteWeightTicketSetDocument(db *pop.Connection, weightTicketSetDocument *WeightTicketSetDocument) error {
-	now := time.Now()
-	weightTicketSetDocument.DeletedAt = &now
-	return db.Save(weightTicketSetDocument)
-}

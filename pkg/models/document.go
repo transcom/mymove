@@ -59,10 +59,3 @@ func FetchDocument(ctx context.Context, db *pop.Connection, session *auth.Sessio
 	}
 	return document, nil
 }
-
-// DeleteDocument deletes an document from the database
-func DeleteDocument(db *pop.Connection, document *Document) error {
-	now := time.Now()
-	document.DeletedAt = &now
-	return db.Save(document)
-}

@@ -111,10 +111,3 @@ func (m *MovingExpenseDocument) DaysInStorage() (int, error) {
 	}
 	return daysInStorage, nil
 }
-
-// DeleteMovingExpenseDocument soft deletes a moving expense document
-func DeleteMovingExpenseDocument(db *pop.Connection, movingExpenseDocument *MovingExpenseDocument) error {
-	now := time.Now()
-	movingExpenseDocument.DeletedAt = &now
-	return db.Save(movingExpenseDocument)
-}

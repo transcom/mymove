@@ -188,33 +188,6 @@ func (m *MoveDocument) ValidateUpdate(tx *pop.Connection) (*validate.Errors, err
 	return validate.NewErrors(), nil
 }
 
-// DeleteMoveDocument deletes a move document from the database
-func DeleteMoveDocument(db *pop.Connection, moveDocument *MoveDocument) error {
-	err := db.Transaction(func(db *pop.Connection) error {
-		now := time.Now()
-		moveDocument.DeletedAt = &now
-
-		if moveDocument.MoveDocumentType == MoveDocumentTypeWEIGHTTICKETSET && moveDocument.WeightTicketSetDocument != nil {
-			if err := DeleteWeightTicketSetDocument(db, moveDocument.WeightTicketSetDocument); err != nil {
-				return err
-			}
-		}
-
-		if moveDocument.MoveDocumentType == MoveDocumentTypeEXPENSE && moveDocument.MovingExpenseDocument != nil {
-			if err := DeleteMovingExpenseDocument(db, moveDocument.MovingExpenseDocument); err != nil {
-				return err
-			}
-		}
-
-		if err := DeleteDocument(db, &moveDocument.Document); err != nil {
-			return err
-		}
-
-		return db.Save(moveDocument)
-	})
-	return err
-}
-
 // FetchMoveDocument fetches a MoveDocument model
 func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) (*MoveDocument, error) {
 	// Allow all office users to fetch move doc
@@ -369,7 +342,7 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveExpens
 		} else if saveExpenseAction == MoveDocumentSaveActionDELETEEXPENSEMODEL {
 			// destroy expense document
 			expenseDocument := moveDocument.MovingExpenseDocument
-			if err := DeleteMovingExpenseDocument(db, expenseDocument); err != nil {
+			if err := db.Destroy(expenseDocument); err != nil {
 				responseError = errors.Wrap(err, "Error Deleting Moving Expense Document")
 				return transactionError
 			}
@@ -387,7 +360,7 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveExpens
 		} else if saveWeightTicketSetAction == MoveDocumentSaveActionDELETEWEIGHTTICKETSETMODEL {
 			// destroy weight ticket set document
 			weightTicketSetDocument := moveDocument.WeightTicketSetDocument
-			if err := DeleteWeightTicketSetDocument(db, weightTicketSetDocument); err != nil {
+			if err := db.Destroy(weightTicketSetDocument); err != nil {
 				responseError = errors.Wrap(err, "Error Deleting Moving Expense Document")
 				return transactionError
 			}
