@@ -521,7 +521,7 @@ db_deployed_migrations_reset: db_deployed_migrations_destroy db_deployed_migrati
 db_deployed_migrations_migrate_standalone: bin/milmove ## Migrate Deployed Migrations DB with local migrations
 	@echo "Migrating the ${DB_NAME_DEPLOYED_MIGRATIONS} database..."
 	# We need to move to the scripts/ directory so that the cwd contains `apply-secure-migration.sh`
-	cd scripts && DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) ../bin/milmove migrate -p ../migrations -m ../migrations_manifest.txt
+	DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) bin/milmove migrate -p "migrations;local_migrations" -m migrations_manifest.txt
 
 .PHONY: db_deployed_migrations_migrate
 db_deployed_migrations_migrate: server_deps db_deployed_migrations_migrate_standalone ## Migrate Deployed Migrations DB
