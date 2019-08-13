@@ -12,6 +12,7 @@ import RadioButton from 'shared/RadioButton';
 import Checkbox from 'shared/Checkbox';
 import Uploader from 'shared/Uploader';
 import Alert from 'shared/Alert';
+import { documentSizeLimitMsg } from 'shared/constants';
 
 import carTrailerImg from 'shared/images/car-trailer_mobile.png';
 import carImg from 'shared/images/car_mobile.png';
@@ -271,6 +272,7 @@ class WeightTicket extends Component {
                       <p className="normalize-margins" style={{ marginTop: '1em' }}>
                         Proof of ownership (ex. registration, bill of sale)
                       </p>
+                      <p>{documentSizeLimitMsg}</p>
                       <span data-cy="trailer-upload">
                         <Uploader
                           options={{ labelIdle: uploadTrailerProofOfOwnership }}
@@ -312,6 +314,7 @@ class WeightTicket extends Component {
                   ) : (
                     <div style={{ marginBottom: '1em' }}>
                       The weight of this trailer should be <strong>excluded</strong> from the total weight of this trip.
+                      <p>{documentSizeLimitMsg}</p>
                     </div>
                   )}
                   <div className="usa-width-one-third input-group">

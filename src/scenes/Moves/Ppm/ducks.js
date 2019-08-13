@@ -225,7 +225,7 @@ export function getDestinationPostalCode(state) {
 export function getPPM(state) {
   const moveId = getCurrentMoveID(state);
   const ppmFromEntities = Object.values(state.entities.personallyProcuredMoves).find(ppm => ppm.move_id === moveId);
-  return ppmFromEntities || state.ppm.currentPpm;
+  return ppmFromEntities || state.ppm.currentPpm || {};
 }
 
 // Reducer

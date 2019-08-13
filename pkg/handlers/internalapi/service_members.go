@@ -57,7 +57,6 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		SecondaryTelephone:      serviceMember.SecondaryTelephone,
 		PhoneIsPreferred:        serviceMember.PhoneIsPreferred,
 		PersonalEmail:           serviceMember.PersonalEmail,
-		TextMessageIsPreferred:  serviceMember.TextMessageIsPreferred,
 		EmailIsPreferred:        serviceMember.EmailIsPreferred,
 		ResidentialAddress:      payloadForAddressModel(serviceMember.ResidentialAddress),
 		BackupMailingAddress:    payloadForAddressModel(serviceMember.BackupMailingAddress),
@@ -119,26 +118,25 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 
 	// Create a new serviceMember for an authenticated user
 	newServiceMember := models.ServiceMember{
-		UserID:                 session.UserID,
-		Edipi:                  params.CreateServiceMemberPayload.Edipi,
-		Affiliation:            (*models.ServiceMemberAffiliation)(params.CreateServiceMemberPayload.Affiliation),
-		Rank:                   (*models.ServiceMemberRank)(params.CreateServiceMemberPayload.Rank),
-		FirstName:              params.CreateServiceMemberPayload.FirstName,
-		MiddleName:             params.CreateServiceMemberPayload.MiddleName,
-		LastName:               params.CreateServiceMemberPayload.LastName,
-		Suffix:                 params.CreateServiceMemberPayload.Suffix,
-		Telephone:              params.CreateServiceMemberPayload.Telephone,
-		SecondaryTelephone:     params.CreateServiceMemberPayload.SecondaryTelephone,
-		PersonalEmail:          params.CreateServiceMemberPayload.PersonalEmail,
-		PhoneIsPreferred:       params.CreateServiceMemberPayload.PhoneIsPreferred,
-		TextMessageIsPreferred: params.CreateServiceMemberPayload.TextMessageIsPreferred,
-		EmailIsPreferred:       params.CreateServiceMemberPayload.EmailIsPreferred,
-		ResidentialAddress:     residentialAddress,
-		BackupMailingAddress:   backupMailingAddress,
-		SocialSecurityNumber:   ssn,
-		DutyStation:            station,
-		RequiresAccessCode:     h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode),
-		DutyStationID:          stationID,
+		UserID:               session.UserID,
+		Edipi:                params.CreateServiceMemberPayload.Edipi,
+		Affiliation:          (*models.ServiceMemberAffiliation)(params.CreateServiceMemberPayload.Affiliation),
+		Rank:                 (*models.ServiceMemberRank)(params.CreateServiceMemberPayload.Rank),
+		FirstName:            params.CreateServiceMemberPayload.FirstName,
+		MiddleName:           params.CreateServiceMemberPayload.MiddleName,
+		LastName:             params.CreateServiceMemberPayload.LastName,
+		Suffix:               params.CreateServiceMemberPayload.Suffix,
+		Telephone:            params.CreateServiceMemberPayload.Telephone,
+		SecondaryTelephone:   params.CreateServiceMemberPayload.SecondaryTelephone,
+		PersonalEmail:        params.CreateServiceMemberPayload.PersonalEmail,
+		PhoneIsPreferred:     params.CreateServiceMemberPayload.PhoneIsPreferred,
+		EmailIsPreferred:     params.CreateServiceMemberPayload.EmailIsPreferred,
+		ResidentialAddress:   residentialAddress,
+		BackupMailingAddress: backupMailingAddress,
+		SocialSecurityNumber: ssn,
+		DutyStation:          station,
+		RequiresAccessCode:   h.HandlerContext.GetFeatureFlag(cli.FeatureFlagAccessCode),
+		DutyStationID:        stationID,
 	}
 	smVerrs, err := models.SaveServiceMember(ctx, h.DB(), &newServiceMember)
 	verrs.Append(smVerrs)
@@ -266,9 +264,6 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(ctx context.Con
 	}
 	if payload.PhoneIsPreferred != nil {
 		serviceMember.PhoneIsPreferred = payload.PhoneIsPreferred
-	}
-	if payload.TextMessageIsPreferred != nil {
-		serviceMember.TextMessageIsPreferred = payload.TextMessageIsPreferred
 	}
 	if payload.EmailIsPreferred != nil {
 		serviceMember.EmailIsPreferred = payload.EmailIsPreferred
