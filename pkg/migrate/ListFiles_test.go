@@ -69,3 +69,10 @@ func TestListFilesForS3(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, len(res), 1)
 }
+
+func TestListFilesForBadPrefix(t *testing.T) {
+	sut := NewFileHelper()
+	res, err := sut.ListFiles("/home/files", nil)
+	assert.NoError(t, err)
+	assert.Equal(t, len(res), 0)
+}
