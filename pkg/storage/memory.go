@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"path"
 	"path/filepath"
 
@@ -99,7 +100,12 @@ func (fs *Memory) Delete(key string) error {
 func (fs *Memory) PresignedURL(key, contentType string) (string, error) {
 	file, err := fs.Fetch(key)
 	if err != nil {
-		return "", errors.Wrap(err, "could not fetch file")
+		// old behavior only exists for e2e tests
+		values := url.Values{}
+		values.Add("contentType", contentType)
+		imageURL := fs.webRoot + "/" + key + "?" + values.Encode()
+		log.Printf("could not fetch file %s", key)
+		return imageURL, nil
 	}
 	reader := bufio.NewReader(file)
 	content, err := ioutil.ReadAll(reader)
