@@ -1,11 +1,13 @@
 package storage
 
 import (
+	"bufio"
+	"encoding/base64"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
-	"net/url"
 	"path"
 	"path/filepath"
 
@@ -95,10 +97,17 @@ func (fs *Memory) Delete(key string) error {
 
 // PresignedURL returns a URL that provides access to a file for 15 mintes.
 func (fs *Memory) PresignedURL(key, contentType string) (string, error) {
-	values := url.Values{}
-	values.Add("contentType", contentType)
-	url := fs.webRoot + "/" + key + "?" + values.Encode()
-	return url, nil
+	file, err := fs.Fetch(key)
+	if err != nil {
+		return "", errors.Wrap(err, "could not fetch file")
+	}
+	reader := bufio.NewReader(file)
+	content, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return "", errors.Wrap(err, "could not read file")
+	}
+	encoded := base64.StdEncoding.EncodeToString(content)
+	return fmt.Sprintf("data:%s;base64, %s", contentType, encoded), nil
 }
 
 // Fetch retrieves a copy of a file and stores it in a tempfile. The path to this
