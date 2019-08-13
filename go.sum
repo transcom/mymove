@@ -288,8 +288,6 @@ github.com/hashicorp/golang-lru v0.5.0/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ
 github.com/hashicorp/golang-lru v0.5.1/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
 github.com/hashicorp/hcl v1.0.0 h1:0Anlzjpi4vEasTeNFn2mLJgTSwt0+6sfsiTG8qcWGx4=
 github.com/hashicorp/hcl v1.0.0/go.mod h1:E5yfLk+7swimpb2L/Alb/PJmXilQ/rhwaUYs4T20WEQ=
-github.com/hhrutter/pdfcpu v0.2.1 h1:Z/BAEmGr92QELpsLW/7hW72oasyoBXi6rfxOev1tiVU=
-github.com/hhrutter/pdfcpu v0.2.1/go.mod h1:vRp7lzKvxF4+7VgBPjNxSuArQafA247dnd1LepVM+DE=
 github.com/honeycombio/beeline-go v0.4.4 h1:fafAE/05lfxctzKBNejs/cUPemKJvNdifjVwLXO0Wm8=
 github.com/honeycombio/beeline-go v0.4.4/go.mod h1:xZNfHCpYQFjVS4Xuc8eMKhBclLnW/PvBz5L1Dwcp81Y=
 github.com/honeycombio/libhoney-go v1.11.1 h1:RVC6OTagbWKdX04V2N/NHhQVTwG2Nzb7DE7xYizqWQ0=
@@ -398,6 +396,8 @@ github.com/onsi/ginkgo v1.8.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+W
 github.com/onsi/gomega v1.5.0 h1:izbySO9zDPmjJ8rDjLvkA2zJHIo+HkYXHnf7eN7SSyo=
 github.com/onsi/gomega v1.5.0/go.mod h1:ex+gbHU/CVuBBDIJjb2X0qEXbFg53c61hWP/1CpauHY=
 github.com/pborman/uuid v1.2.0/go.mod h1:X/NO0urCmaxf9VXbdlT7C2Yzkj2IKimNn4k+gtPdI/k=
+github.com/pdfcpu/pdfcpu v0.2.3 h1:vVgbDtFTGIHiyArGFIUl3O+SYcvQPFmvQOpnT4ByWS0=
+github.com/pdfcpu/pdfcpu v0.2.3/go.mod h1:Bp9OfH2H74BCs4GOYqIg1IS4GUq3gnuE05R53lckbzM=
 github.com/pelletier/go-toml v1.2.0 h1:T5zMGML61Wp+FlcbWjRDT7yAxhJNAiPPLOFECq181zc=
 github.com/pelletier/go-toml v1.2.0/go.mod h1:5z9KED0ma1S8pY6P1sdut58dfprrGBbd/94hg7ilaic=
 github.com/pelletier/go-toml v1.4.0 h1:u3Z1r+oOXJIkxqw34zVhyPgjBsm6X2wn21NWs/HfSeg=

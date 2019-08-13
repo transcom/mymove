@@ -71,7 +71,7 @@ func FetchInvoice(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Inv
 	var invoice Invoice
 	err := db.Eager().Find(&invoice, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return nil, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.

@@ -186,7 +186,7 @@ func FetchPersonallyProcuredMove(db *pop.Connection, session *auth.Session, id u
 	var ppm PersonallyProcuredMove
 	err := db.Q().Eager("Move.Orders.ServiceMember.DutyStation.Address", "Advance").Find(&ppm, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return nil, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.

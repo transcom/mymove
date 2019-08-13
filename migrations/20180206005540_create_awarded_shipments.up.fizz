@@ -5,4 +5,5 @@ create_table("awarded_shipments") {
 	t.Column("administrative_shipment", "bool", {})
 	t.ForeignKey("transportation_service_provider_id", {"transportation_service_providers": ["id"]}, {})
 	t.ForeignKey("shipment_id", {"shipments": ["id"]}, {})
+	t.Timestamps()
 }
