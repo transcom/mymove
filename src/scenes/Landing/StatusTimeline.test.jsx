@@ -9,7 +9,7 @@ describe('StatusTimeline', () => {
       const ppm = {};
       const wrapper = mount(<PPMStatusTimeline ppm={ppm} getSignedCertification={jest.fn()} />);
 
-      expect(wrapper.find(StatusBlock)).toHaveLength(4);
+      expect(wrapper.find(StatusBlock)).toHaveLength(5);
     });
 
     test('renders timeline for submitted ppm', () => {

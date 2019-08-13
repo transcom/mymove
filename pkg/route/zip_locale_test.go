@@ -26,10 +26,10 @@ func (suite *PlannerSuite) TestZip5ToLatLong() {
 	suite.Assertions.Equal(zip94103LatLong, ll, "Lat long for zip with no leading zero")
 
 	// Not a number
-	ll, err = Zip5ToLatLong("charleston")
+	_, err = Zip5ToLatLong("charleston")
 	suite.Assertions.NotNil(err, "Should get error from Zip5 not number")
 
 	// Not a valid zip
-	ll, err = Zip5ToLatLong("00001")
+	_, err = Zip5ToLatLong("00001")
 	suite.Assertions.NotNil(err, "Should get error from Zip5 not valid")
 }

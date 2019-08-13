@@ -202,7 +202,9 @@ const renderInputField = ({
   );
 
   const displayError = touched && error;
-  const classes = `${displayError ? 'usa-input-error' : 'usa-input'} ${className}`;
+  const classes = `${
+    displayError ? `usa-input-error  ${error.length > 57 && 'usa-input-error-long-message'}` : 'usa-input'
+  } ${className}`;
   return (
     <div className={classes}>
       {hideLabel || (
@@ -213,13 +215,13 @@ const renderInputField = ({
             !customComponent && <span className="label-optional">Optional</span>}
         </label>
       )}
+      <span className={prefixInputClassName}>{FieldComponent}</span>
       {touched &&
         error && (
           <span className="usa-input-error-message" id={input.name + '-error'} role="alert">
             {error}
           </span>
         )}
-      <span className={prefixInputClassName}>{FieldComponent}</span>
     </div>
   );
 };

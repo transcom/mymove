@@ -65,43 +65,8 @@ describe('HomePage tests', () => {
         expect(wrapper.find(MoveSummary).length).toEqual(0);
       });
     });
-    describe('When the user profile is complete but orders have not been entered', () => {
-      const moveObj = { id: 'foo', selected_move_type: 'PPM' };
-      const futureFortNight = moment().add(14, 'day');
-      const ppmObj = {
-        original_move_date: futureFortNight,
-        weight_estimate: '10000',
-        estimated_incentive: '$24665.59 - 27261.97',
-      };
-      it('Renders resume move text', () => {
-        const div = document.createElement('div');
-        wrapper = shallow(
-          <Landing
-            serviceMember={service_member}
-            ppm={ppmObj}
-            move={moveObj}
-            isLoggedIn={true}
-            loggedInUserSuccess={true}
-            isProfileComplete={true}
-          />,
-          div,
-        );
 
-        expect(
-          wrapper
-            .find(MoveSummary)
-            .dive()
-            .find('.status-component')
-            .dive()
-            .find('.step')
-            .find('div.title')
-            .first()
-            .html(),
-        ).toEqual('<div class="title">Next Step: Finish setting up your move</div>');
-      });
-    });
     describe('When orders have been entered but the move is not complete', () => {
-      const moveObj = { id: 'foo', selected_move_type: 'PPM', status: 'DRAFT' };
       const futureFortNight = moment().add(14, 'day');
       const orders = {
         orders_type: 'foo',
@@ -114,32 +79,7 @@ describe('HomePage tests', () => {
         weight_estimate: '10000',
         estimated_incentive: '$24665.59 - 27261.97',
       };
-      it('Renders resume move text', () => {
-        const div = document.createElement('div');
-        wrapper = shallow(
-          <Landing
-            serviceMember={service_member}
-            ppm={ppmObj}
-            move={moveObj}
-            orders={orders}
-            isLoggedIn={true}
-            loggedInUserSuccess={true}
-            isProfileComplete={true}
-          />,
-          div,
-        );
-        expect(
-          wrapper
-            .find(MoveSummary)
-            .dive()
-            .find('.status-component')
-            .dive()
-            .find('.step')
-            .find('div.title')
-            .first()
-            .html(),
-        ).toEqual('<div class="title">Next Step: Finish setting up your move</div>');
-      });
+
       describe('When a ppm only move is submitted', () => {
         it('renders the ppm only alert', () => {
           const moveObj = { selected_move_type: 'PPM', status: 'SUBMITTED', moveSubmitSuccess: true };

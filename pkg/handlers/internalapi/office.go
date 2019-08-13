@@ -38,7 +38,7 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 	if ordersErr != nil {
 		return handlers.ResponseForError(logger, ordersErr)
 	}
-	if orders.IsComplete() != true {
+	if !orders.IsComplete() {
 		return officeop.NewApprovePPMBadRequest()
 	}
 

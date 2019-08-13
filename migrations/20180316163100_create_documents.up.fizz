@@ -5,4 +5,5 @@ create_table("documents") {
 	t.Column("name", "text", {"null": true})
 	t.ForeignKey("uploader_id", {"users": ["id"]}, {})
 	t.ForeignKey("move_id", {"moves": ["id"]}, {})
+	t.Timestamps()
 }

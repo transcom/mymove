@@ -19,7 +19,6 @@ func HostnameDetectorMiddleware(logger Logger, hostname string) func(next http.H
 				return
 			}
 			next.ServeHTTP(w, r)
-			return
 		}
 		return http.HandlerFunc(mw)
 	}

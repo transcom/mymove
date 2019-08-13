@@ -340,7 +340,7 @@ func (e *ElectronicOrdersRevision) ValidateUpdate(tx *pop.Connection) (*validate
 
 // CreateElectronicOrdersRevision inserts a revision into the database
 func CreateElectronicOrdersRevision(ctx context.Context, dbConnection *pop.Connection, revision *ElectronicOrdersRevision) (*validate.Errors, error) {
-	ctx, span := beeline.StartSpan(ctx, "CreateElectronicOrdersRevision")
+	_, span := beeline.StartSpan(ctx, "CreateElectronicOrdersRevision")
 	defer span.Send()
 
 	responseVErrors := validate.NewErrors()

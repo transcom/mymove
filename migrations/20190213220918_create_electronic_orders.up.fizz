@@ -3,6 +3,7 @@ create_table("electronic_orders") {
 	t.Column("orders_number", "string", {})
 	t.Column("edipi", "string", {})
 	t.Column("issuer", "string", {})
+	t.Timestamps()
 }
 
 create_table("electronic_orders_revisions") {
@@ -54,4 +55,5 @@ create_table("electronic_orders_revisions") {
 	t.Column("ub_sdn", "string", {"null": true})
 	t.Column("ub_loa", "string", {"null": true})
 	t.Column("comments", "text", {"null": true})
+	t.Timestamps()
 }

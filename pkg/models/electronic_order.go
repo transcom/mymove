@@ -86,7 +86,7 @@ func (e *ElectronicOrder) ValidateUpdate(tx *pop.Connection) (*validate.Errors, 
 
 // CreateElectronicOrder inserts an empty set of electronic Orders into the database
 func CreateElectronicOrder(ctx context.Context, dbConnection *pop.Connection, order *ElectronicOrder) (*validate.Errors, error) {
-	ctx, span := beeline.StartSpan(ctx, "CreateElectronicOrder")
+	_, span := beeline.StartSpan(ctx, "CreateElectronicOrder")
 	defer span.Send()
 
 	responseVErrors := validate.NewErrors()
