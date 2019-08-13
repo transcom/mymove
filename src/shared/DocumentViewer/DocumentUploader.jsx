@@ -8,6 +8,7 @@ import PropTypes from 'prop-types';
 import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import Uploader from 'shared/Uploader';
+import { documentSizeLimitMsg } from 'shared/constants';
 import ExpenseDocumentForm from 'scenes/Office/DocumentViewer/ExpenseDocumentForm';
 
 import './DocumentUploader.css';
@@ -104,7 +105,7 @@ export class DocumentUploader extends Component {
             <div>
               <h4>Attach PDF or image</h4>
               <p>Upload a PDF or take a picture of each page and upload the images.</p>
-              <p>Please keep each file under 25MB.</p>
+              <p>{documentSizeLimitMsg}</p>
             </div>
             <Uploader
               isPublic={isPublic}

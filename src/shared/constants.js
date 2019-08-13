@@ -37,3 +37,6 @@ export const MOVE_DOC_STATUS = {
 export const isError = 'REQUEST_ERROR';
 export const isLoading = 'REQUEST_LOADING';
 export const isSuccess = 'REQUEST_SUCCESS';
+
+// documentSizeLimitMsg is used in several files around document upload
+export const documentSizeLimitMsg = 'Please keep each file under 25MB.';

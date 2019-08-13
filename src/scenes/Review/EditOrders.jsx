@@ -17,6 +17,7 @@ import { updateOrders, deleteUploads, addUploads } from 'scenes/Orders/ducks';
 import { moveIsApproved, isPpm } from 'scenes/Moves/ducks';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
+import { documentSizeLimitMsg } from 'shared/constants';
 
 import './Review.css';
 import profileImage from './images/profile.png';
@@ -64,7 +65,7 @@ let EditOrdersForm = props => {
       {Boolean(visibleUploads.length) && <UploadsTable uploads={visibleUploads} onDelete={onDelete} />}
       {Boolean(get(initialValues, 'uploaded_orders')) && (
         <div>
-          <p>Please keep each file under 25MB.</p>
+          <p>{documentSizeLimitMsg}</p>
           <Uploader
             document={initialValues.uploaded_orders}
             onChange={onUpload}
