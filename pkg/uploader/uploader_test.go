@@ -123,7 +123,7 @@ func (suite *UploaderSuite) TestTooLargeUploadFromLocalFile() {
 	document := testdatagen.MakeDefaultDocument(suite.DB())
 
 	up := uploader.NewUploader(suite.DB(), suite.logger, suite.storer)
-	file := suite.fixture("largepdf.pdf")
+	file := suite.fixture("largejpeg.jpg")
 
 	upload, verrs, err := up.CreateUploadForDocument(&document.ID, document.ServiceMember.UserID, file, uploader.AllowedTypesPDF)
 	suite.Equal(err, uploader.ErrTooLarge)
