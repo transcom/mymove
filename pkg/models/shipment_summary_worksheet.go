@@ -185,7 +185,7 @@ func FetchDataShipmentSummaryWorksheetFormData(db *pop.Connection, session *auth
 	).Find(&move, moveID)
 
 	if dbQErr != nil {
-		if errors.Cause(dbQErr).Error() == recordNotFoundErrorString {
+		if errors.Cause(dbQErr).Error() == RecordNotFoundErrorString {
 			return ShipmentSummaryFormData{}, ErrFetchNotFound
 		}
 		return ShipmentSummaryFormData{}, dbQErr
