@@ -690,6 +690,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
 	// Office app, so should only have office ID information
 	suite.Equal(officeUser.ID, session.OfficeUserID)
 	suite.Equal(uuid.Nil, session.TspUserID)
+	suite.Equal(uuid.Nil, session.AdminUserID)
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserTSPDisabled() {
@@ -806,6 +807,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserTSPLogsIn() {
 	// Office app, so should only have office ID information
 	suite.Equal(tspUser.ID, session.TspUserID)
 	suite.Equal(uuid.Nil, session.OfficeUserID)
+	suite.Equal(uuid.Nil, session.AdminUserID)
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDisabled() {
@@ -922,4 +924,5 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
 	// Office app, so should only have office ID information
 	suite.Equal(adminUser.ID, session.AdminUserID)
 	suite.Equal(uuid.Nil, session.OfficeUserID)
+	suite.Equal(uuid.Nil, session.TspUserID)
 }
