@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Redirect, Switch, Route } from 'react-router-dom';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 import { history } from 'shared/store';
 import { connect } from 'react-redux';
@@ -56,44 +56,71 @@ export class OfficeWrapper extends Component {
     });
   }
 
-  render() {
+  renderWithHeader(ComponentName, props) {
     const Tag = detectIE11() ? 'div' : 'main';
-    const isDocViewerUrl = window.location.href && /\/moves\/[^/]+\/documents/.test(window.location.href);
-    const isOrdersUrl = window.location.href && /\/moves\/[^/]+\/orders/.test(window.location.href);
-    const userIsLoggedOff = this.props.userHasErrored;
+    return (
+      <React.Fragment>
+        <QueueHeader />
+        <Tag role="main" className="site__content">
+          <ComponentName {...props} />
+        </Tag>
+      </React.Fragment>
+    );
+  }
+
+  renderWithoutHeader(ComponentName, props) {
+    const Tag = detectIE11() ? 'div' : 'main';
+    return (
+      <div>
+        <Tag role="main" className="site__content">
+          <ComponentName {...props} />
+        </Tag>
+      </div>
+    );
+  }
+
+  render() {
+    // const Tag = detectIE11() ? 'div' : 'main';
 
     return (
       <ConnectedRouter history={history}>
         <div className="Office site">
-          {(userIsLoggedOff || (!isDocViewerUrl && !isOrdersUrl)) && <QueueHeader />}
-          <Tag role="main" className="site__content">
-            <div>
-              <LogoutOnInactivity />
-              {this.state.hasError && <SomethingWentWrong error={this.state.error} info={this.state.info} />}
-              {!this.state.hasError && (
-                <Switch>
-                  <Route
-                    exact
-                    path="/"
-                    component={({ location }) => (
-                      <Redirect
-                        from="/"
-                        to={{
-                          ...location,
-                          pathname: '/queues/new',
-                        }}
-                      />
-                    )}
+          {/*<QueueHeader/>*/}
+          <LogoutOnInactivity />
+          {this.state.hasError && <SomethingWentWrong error={this.state.error} info={this.state.info} />}
+          {!this.state.hasError && (
+            <Switch>
+              <Route
+                exact
+                path="/"
+                component={({ location }) => (
+                  <Redirect
+                    from="/"
+                    to={{
+                      ...location,
+                      pathname: '/queues/new',
+                    }}
                   />
-                  <PrivateRoute path="/queues/:queueType/moves/:moveId" component={MoveInfo} />
-                  <PrivateRoute path="/queues/:queueType" component={Queues} />
-                  <PrivateRoute path="/moves/:moveId/orders" component={OrdersInfo} />
-                  <PrivateRoute path="/moves/:moveId/documents/:moveDocumentId?" component={DocumentViewer} />
-                  {!isProduction && <PrivateRoute path="/playground" component={ScratchPad} />}
-                </Switch>
+                )}
+              />
+              <PrivateRoute
+                path="/queues/:queueType/moves/:moveId"
+                render={props => this.renderWithHeader(MoveInfo, props)}
+              />
+              <PrivateRoute path="/queues/:queueType" render={props => this.renderWithHeader(Queues, props)} />
+              <PrivateRoute
+                path="/moves/:moveId/orders"
+                render={props => this.renderWithoutHeader(OrdersInfo, props)}
+              />
+              <PrivateRoute
+                path="/moves/:moveId/documents/:moveDocumentId?"
+                render={props => this.renderWithoutHeader(DocumentViewer, props)}
+              />
+              {!isProduction && (
+                <PrivateRoute path="/playground" render={props => this.renderWithHeader(ScratchPad, props)} />
               )}
-            </div>
-          </Tag>
+            </Switch>
+          )}
         </div>
       </ConnectedRouter>
     );
