@@ -340,3 +340,4 @@
 20190805161006_disable_truss_user.up.fizz
 20190807134704_admin_user_fname_lname_required.up.fizz
 20190812151703_add_product_admin_users.up.fizz
+20190814195556_delete-truss-tsp-user-data.up.fizz
