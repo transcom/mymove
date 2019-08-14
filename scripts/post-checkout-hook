@@ -1,0 +1,6 @@
+#! /usr/bin/env bash
+
+echo "Removing generated code..."
+make clean >> /dev/null
+echo "Done!"
+

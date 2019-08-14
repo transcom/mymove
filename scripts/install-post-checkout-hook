@@ -1,0 +1,4 @@
+#! /usr/bin/env bash
+
+cp ./scripts/post-checkout-hook ./.git/hooks/post-checkout
+chmod +x ./.git/hooks/post-checkout
