@@ -147,6 +147,12 @@ const ReferrerQueueLink = props => {
           <span>PPM Queue</span>
         </NavLink>
       );
+    case '/queues/ppm_payment_requested':
+      return (
+        <NavLink to="/queues/ppm_payment_requested" activeClassName="usa-current">
+          <span>PPM Payment Requests Queue</span>
+        </NavLink>
+      );
     case '/queues/hhg_active':
       return (
         <NavLink to="/queues/hhg_active" activeClassName="usa-current">
