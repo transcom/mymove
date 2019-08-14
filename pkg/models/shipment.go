@@ -624,7 +624,7 @@ func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Sh
 	err := db.Eager(ShipmentAssociationsDefault...).Find(&shipment, id)
 
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return nil, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
@@ -959,7 +959,7 @@ func (s *Shipment) AcceptedShipmentOffer() (*ShipmentOffer, error) {
 	}
 
 	// If the Shipment is in a state that requires a TSP then check for the Accepted TSP
-	if s.requireAnAcceptedTSP() == true {
+	if s.requireAnAcceptedTSP() {
 		if numAcceptedOffers == 0 || acceptedOffers == nil {
 			return nil, errors.New("No accepted shipment offer found")
 		}

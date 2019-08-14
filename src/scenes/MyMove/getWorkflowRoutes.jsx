@@ -21,7 +21,6 @@ import DutyStation from 'scenes/ServiceMembers/DutyStation';
 import TransitionToMove from 'scenes/Orders/TransitionToMove';
 import UploadOrders from 'scenes/Orders/UploadOrders';
 
-import MoveType from 'scenes/Moves/MoveTypeWizard';
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
@@ -94,8 +93,7 @@ const pages = {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) =>
       sm.is_profile_complete ||
-      (every([sm.telephone, sm.personal_email]) &&
-        some([sm.phone_is_preferred, sm.email_is_preferred, sm.text_message_is_preferred])),
+      (every([sm.telephone, sm.personal_email]) && some([sm.phone_is_preferred, sm.email_is_preferred])),
     render: (key, pages) => ({ match }) => <ContactInfo pages={pages} pageKey={key} match={match} />,
   },
   '/service-member/:serviceMemberId/duty-station': {
@@ -166,11 +164,6 @@ const pages = {
         </WizardPage>
       );
     },
-  },
-  '/moves/:moveId': {
-    isInFlow: always,
-    isComplete: ({ sm, orders, move }) => get(move, 'selected_move_type', null),
-    render: (key, pages) => ({ match }) => <MoveType pages={pages} pageKey={key} match={match} />,
   },
   '/moves/:moveId/hhg-start': {
     isInFlow: hasHHG,

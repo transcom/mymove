@@ -21,3 +21,8 @@ func (suite *cliTestSuite) TestInitDatabase() {
 	suite.NoError(err)
 	suite.NotNil(conn)
 }
+
+func (suite *cliTestSuite) TestConfigDatabaseRetry() {
+	suite.Setup(InitDatabaseRetryFlags, []string{})
+	suite.NoError(CheckDatabaseRetry(suite.viper))
+}

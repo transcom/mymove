@@ -5,7 +5,6 @@ import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues } from 'redux-form';
 
 import { updateOrders, selectOrdersForMove } from 'shared/Entities/modules/orders';
-import { selectMove } from 'shared/Entities/modules/moves';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelSwaggerField, editablePanelify } from 'shared/EditablePanel';
@@ -15,13 +14,12 @@ const AccountingDisplay = props => {
     schema: props.ordersSchema,
     values: props.orders,
   };
-  const { sacIsRequired } = props;
   return (
     <React.Fragment>
       <div className="editable-panel-column">
         <PanelSwaggerField title="Department indicator" fieldName="department_indicator" required {...fieldProps} />
 
-        <PanelSwaggerField title="SAC" required={sacIsRequired} fieldName="sac" {...fieldProps} />
+        <PanelSwaggerField title="SAC" required fieldName="sac" {...fieldProps} />
       </div>
       <div className="editable-panel-column">
         <PanelSwaggerField title="TAC" required fieldName="tac" {...fieldProps} />
@@ -31,7 +29,7 @@ const AccountingDisplay = props => {
 };
 
 const AccountingEdit = props => {
-  const { ordersSchema, sacIsRequired } = props;
+  const { ordersSchema } = props;
   return (
     <React.Fragment>
       <div className="editable-panel-column">
@@ -41,7 +39,7 @@ const AccountingEdit = props => {
         <SwaggerField title="TAC" fieldName="tac" swagger={ordersSchema} required />
       </div>
       <div className="editable-panel-column">
-        <SwaggerField title="SAC" fieldName="sac" swagger={ordersSchema} required={sacIsRequired} />
+        <SwaggerField title="SAC" fieldName="sac" swagger={ordersSchema} required />
       </div>
     </React.Fragment>
   );
@@ -58,7 +56,6 @@ AccountingPanel = reduxForm({
 
 function mapStateToProps(state, ownProps) {
   const { moveId } = ownProps;
-  const move = selectMove(state, moveId);
   const orders = selectOrdersForMove(state, moveId);
 
   return {
@@ -68,7 +65,6 @@ function mapStateToProps(state, ownProps) {
     // Wrapper
     ordersSchema: get(state, 'swaggerInternal.spec.definitions.Orders', {}),
     orders: orders,
-    sacIsRequired: !move.selected_move_type === 'PPM',
 
     // editablePanelify
     getUpdateArgs: function() {

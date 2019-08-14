@@ -19,7 +19,6 @@ function getFullContactPreferences(serviceMember) {
   if (!serviceMember) return;
   const prefs = {
     phone_is_preferred: 'Phone',
-    text_message_is_preferred: 'Text',
     email_is_preferred: 'Email',
   };
   const preferredMethods = [];

@@ -9,6 +9,10 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/markbates/goth"
+
+	"github.com/transcom/mymove/pkg/testdatagen"
+
 	"github.com/honeycombio/beeline-go/trace"
 
 	"github.com/gofrs/uuid"
@@ -204,6 +208,56 @@ func (suite *AuthSuite) TestRequireAuthMiddlewareUnauthorized() {
 	}
 }
 
+func (suite *AuthSuite) TestRequireAdminAuthMiddleware() {
+	// Given: a logged in user
+	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	user := models.User{
+		LoginGovUUID:  loginGovUUID,
+		LoginGovEmail: "email@example.com",
+		Disabled:      false,
+	}
+	suite.MustSave(&user)
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/admin/v1/office_users", nil)
+
+	// And: the context contains the auth values
+	session := auth.Session{UserID: user.ID, IDToken: "fake Token", AdminUserID: uuid.Must(uuid.NewV4())}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	req = req.WithContext(ctx)
+
+	var handlerSession *auth.Session
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handlerSession = auth.SessionFromRequestContext(r)
+	})
+
+	middleware := AdminAuthMiddleware(suite.logger)(handler)
+
+	middleware.ServeHTTP(rr, req)
+
+	// We should be not be redirected since we're logged in
+	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
+	suite.Equal(handlerSession.UserID, user.ID, "the authenticated user is different from expected")
+}
+
+func (suite *AuthSuite) TestRequireAdminAuthMiddlewareUnauthorized() {
+	t := suite.T()
+
+	// Given: No logged in users
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/admin/v1/office_users", nil)
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	middleware := AdminAuthMiddleware(suite.logger)(handler)
+
+	middleware.ServeHTTP(rr, req)
+
+	// We should receive an unauthorized response
+	if status := rr.Code; status != http.StatusForbidden {
+		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusUnauthorized)
+	}
+}
+
 func (suite *AuthSuite) TestAuthorizeDisableUser() {
 	userIdentity := models.UserIdentity{
 		Disabled: true,
@@ -378,7 +432,7 @@ func (suite *AuthSuite) TestAuthorizeDisableTspUser() {
 	span := trace.Span{}
 	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
 
-	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled office user")
+	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled tsp user")
 }
 
 func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
@@ -421,7 +475,6 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 		false,
 	}
 	rr := httptest.NewRecorder()
-
 	span := trace.Span{}
 	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
 
@@ -442,4 +495,434 @@ func (suite *AuthSuite) TestRedirectLoginGovErrorMsg() {
 	}
 
 	suite.Equal("http://office.example.com:1234/?error=SIGNIN_ERROR", rr2.Result().Header.Get("Location"))
+}
+
+func (suite *AuthSuite) TestAuthKnownSingleRoleAdmin() {
+	adminUserID := uuid.Must(uuid.NewV4())
+	officeUserID := uuid.Must(uuid.NewV4())
+	var adminUserRole models.AdminRole = "SYSTEM_ADMIN"
+
+	userIdentity := models.UserIdentity{
+		Disabled:      false,
+		OfficeUserID:  &officeUserID,
+		AdminUserID:   &adminUserID,
+		AdminUserRole: &adminUserRole,
+	}
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/authorize", AdminTestHost), nil)
+
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.AdminApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        AdminTestHost,
+	}
+
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	// admin app, so should only have admin ID information
+	suite.Equal(adminUserID, session.AdminUserID)
+	suite.Equal(uuid.Nil, session.OfficeUserID)
+	suite.True(session.IsAdminUser())
+	suite.True(session.IsSystemAdmin())
+	suite.False(session.IsProgramAdmin())
+}
+
+func (suite *AuthSuite) TestAuthorizeDisableAdmin() {
+	adminUserDisabled := true
+	userIdentity := models.UserIdentity{
+		AdminUserDisabled: &adminUserDisabled,
+	}
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", AdminTestHost), nil)
+
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.AdminApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        AdminTestHost,
+		Email:           "disabled@example.com",
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+	authorizeKnownUser(&userIdentity, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	suite.Equal(http.StatusForbidden, rr.Code, "authorizer did not recognize disabled admin user")
+}
+
+func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeDisabled() {
+	officeUser := testdatagen.MakeOfficeUser(suite.DB(), testdatagen.Assertions{
+		OfficeUser: models.OfficeUser{
+			Disabled: true,
+		},
+	})
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback", OfficeTestHost), nil)
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        OfficeTestHost,
+		Email:           officeUser.Email,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+
+	user := goth.User{
+		UserID: "id",
+		Email:  "sample@email.com",
+	}
+
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+
+	authorizeUnknownUser(user, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	suite.Equal(http.StatusForbidden, rr.Code, "Office user is disabled")
+}
+
+func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeNotFound() {
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback", OfficeTestHost), nil)
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        OfficeTestHost,
+		Email:           "missing@email.com",
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+
+	user := goth.User{
+		UserID: "id",
+		Email:  "sample@email.com",
+	}
+
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+
+	authorizeUnknownUser(user, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	suite.Equal(http.StatusUnauthorized, rr.Code, "Office user not found")
+}
+
+func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsIn() {
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/login-gov/callback", OfficeTestHost), nil)
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        OfficeTestHost,
+		Email:           officeUser.Email,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+
+	user := goth.User{
+		UserID: "39b28c92-0506-4bef-8b57-e39519f42dc2",
+		Email:  "sample@email.com",
+	}
+
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+
+	authorizeUnknownUser(user, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	// Office app, so should only have office ID information
+	suite.Equal(officeUser.ID, session.OfficeUserID)
+	suite.Equal(uuid.Nil, session.TspUserID)
+	suite.Equal(uuid.Nil, session.AdminUserID)
+}
+
+func (suite *AuthSuite) TestAuthorizeUnknownUserTSPDisabled() {
+	tspUser := testdatagen.MakeTspUser(suite.DB(), testdatagen.Assertions{
+		TspUser: models.TspUser{
+			Disabled: true,
+		},
+	})
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/authorize", TspTestHost), nil)
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.TspApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        TspTestHost,
+		Email:           tspUser.Email,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+
+	user := goth.User{
+		UserID: "id",
+		Email:  "sample@email.com",
+	}
+
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+
+	authorizeUnknownUser(user, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	suite.Equal(http.StatusForbidden, rr.Code, "TSP user is disabled")
+}
+
+func (suite *AuthSuite) TestAuthorizeUnknownUserTSPNotFound() {
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/authorize", TspTestHost), nil)
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.TspApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        TspTestHost,
+		Email:           "missing@email.com",
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+
+	user := goth.User{
+		UserID: "id",
+		Email:  "sample@email.com",
+	}
+
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+
+	authorizeUnknownUser(user, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	suite.Equal(http.StatusUnauthorized, rr.Code, "TSP user not found")
+}
+
+func (suite *AuthSuite) TestAuthorizeUnknownUserTSPLogsIn() {
+	tspUser := testdatagen.MakeDefaultTspUser(suite.DB())
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/authorize", TspTestHost), nil)
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.TspApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        TspTestHost,
+		Email:           tspUser.Email,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+
+	user := goth.User{
+		UserID: "39b28c92-0506-4bef-8b57-e39519f42dc2",
+		Email:  "sample@email.com",
+	}
+
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+
+	authorizeUnknownUser(user, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	// Office app, so should only have office ID information
+	suite.Equal(tspUser.ID, session.TspUserID)
+	suite.Equal(uuid.Nil, session.OfficeUserID)
+	suite.Equal(uuid.Nil, session.AdminUserID)
+}
+
+func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDisabled() {
+	adminUser := testdatagen.MakeAdminUser(suite.DB(), testdatagen.Assertions{
+		AdminUser: models.AdminUser{
+			Disabled: true,
+		},
+	})
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", AdminTestHost), nil)
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.AdminApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        AdminTestHost,
+		Email:           adminUser.Email,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+
+	user := goth.User{
+		UserID: "id",
+		Email:  "sample@email.com",
+	}
+
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+
+	authorizeUnknownUser(user, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	suite.Equal(http.StatusForbidden, rr.Code, "Admin user is disabled")
+}
+
+func (suite *AuthSuite) TestAuthorizeUnknownUserAdminNotFound() {
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", AdminTestHost), nil)
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.AdminApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        AdminTestHost,
+		Email:           "missing@email.com",
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+
+	user := goth.User{
+		UserID: "id",
+		Email:  "sample@email.com",
+	}
+
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+
+	authorizeUnknownUser(user, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	suite.Equal(http.StatusUnauthorized, rr.Code, "Admin user not found")
+}
+
+func (suite *AuthSuite) TestAuthorizeUnknownUserAdminLogsIn() {
+	adminUser := testdatagen.MakeDefaultAdminUser(suite.DB())
+
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/auth/logout", AdminTestHost), nil)
+	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	session := auth.Session{
+		ApplicationName: auth.AdminApp,
+		UserID:          fakeUUID,
+		IDToken:         fakeToken,
+		Hostname:        AdminTestHost,
+		Email:           adminUser.Email,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+
+	user := goth.User{
+		UserID: "39b28c92-0506-4bef-8b57-e39519f42dc2",
+		Email:  "sample@email.com",
+	}
+
+	callbackPort := 1234
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http", callbackPort)
+	h := CallbackHandler{
+		authContext,
+		suite.DB(),
+		"fake key",
+		false,
+		false,
+	}
+	rr := httptest.NewRecorder()
+	span := trace.Span{}
+
+	authorizeUnknownUser(user, h, &session, rr, &span, req.WithContext(ctx), "")
+
+	// Office app, so should only have office ID information
+	suite.Equal(adminUser.ID, session.AdminUserID)
+	suite.Equal(uuid.Nil, session.OfficeUserID)
+	suite.Equal(uuid.Nil, session.TspUserID)
 }

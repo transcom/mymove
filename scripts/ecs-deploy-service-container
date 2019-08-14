@@ -24,6 +24,9 @@ readonly image=$3
 readonly environment=$4
 readonly launch_type="${5:-EC2}"
 
+readonly RESERVATION_CPU=512
+readonly RESERVATION_MEM=1024
+
 if [[ $launch_type != EC2 && $launch_type != FARGATE ]]; then
     echo "Error: launch_type must be EC2 or FARGATE"
     usage
@@ -33,7 +36,6 @@ readonly cluster=app-${environment}
 readonly rds=app-${environment}
 
 readonly task_family=${name}-${environment}
-readonly container_name=${name}-${environment}
 
 readonly zone_name="move.mil"
 
@@ -92,7 +94,7 @@ echo "* Registering new task definition"
 
 launch_type_opts=""
 if [[ $launch_type = FARGATE ]]; then
-    launch_type_opts=(--requires-compatibilities FARGATE --execution-role-arn "ecs-task-execution-role-$name-$environment" --cpu 256 --memory 512)
+    launch_type_opts=(--requires-compatibilities FARGATE --execution-role-arn "ecs-task-execution-role-$name-$environment" --cpu "$RESERVATION_CPU" --memory "$RESERVATION_MEM")
 fi
 
 green_task_def_arn=$(aws ecs register-task-definition --network-mode awsvpc --task-role-arn "ecs-task-role-$name-$environment" --family "$task_family" --container-definitions "$container_definition_json" ${launch_type_opts[*]} --query 'taskDefinition.taskDefinitionArn' --output text)

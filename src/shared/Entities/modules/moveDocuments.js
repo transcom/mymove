@@ -22,14 +22,6 @@ export default function reducer(state = {}, action) {
 }
 
 // Utilities
-export const calcWeightTicketNetWeight = moveDocs =>
-  moveDocs.reduce((accum, { move_document_type, status, full_weight, empty_weight }) => {
-    if (move_document_type === MOVE_DOC_TYPE.WEIGHT_TICKET_SET && status === MOVE_DOC_STATUS.OK) {
-      return accum + (full_weight - empty_weight);
-    }
-    return accum;
-  }, 0);
-
 export const findPendingWeightTickets = moveDocs => {
   return moveDocs.filter(
     ({ move_document_type, status }) =>

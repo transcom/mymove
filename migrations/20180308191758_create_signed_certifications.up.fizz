@@ -6,4 +6,5 @@ create_table("signed_certifications") {
 	t.Column("signature", "text", {})
 	t.Column("date", "date", {})
 	t.ForeignKey("submitting_user_id", {"users": ["id"]}, {})
+	t.Timestamps()
 }

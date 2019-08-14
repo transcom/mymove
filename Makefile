@@ -99,14 +99,7 @@ endif
 	touch .check_bash_version.stamp
 
 .PHONY: deps
-deps: prereqs \
-	check_hosts \
-	check_go_version \
-	check_gopath \
-	check_bash_version \
-	ensure_pre_commit \
-	client_deps \
-	server_deps ## Run all checks and install all depdendencies
+deps: prereqs check_hosts check_go_version check_gopath check_bash_version ensure_pre_commit client_deps server_deps ## Run all checks and install all depdendencies
 
 .PHONY: test
 test: client_test server_test e2e_test ## Run all tests
@@ -287,18 +280,11 @@ pkg/assets/assets.go: .check_go_version.stamp .check_gopath.stamp
 #
 
 .PHONY: go_deps_update
-go_deps_update: ## Update golang dependencies
+go_deps_update: server_deps server_generate mocks_generate ## Update golang dependencies
 	go run cmd/update_deps/main.go
 
 .PHONY: server_deps
-server_deps: .check_gopath.stamp \
-	bin/callgraph \
-	bin/chamber \
-	bin/gin \
-	bin/soda \
-	bin/swagger \
-	bin/mockery \
-	bin/rds-combined-ca-bundle.pem ## Install or Build server dependencies
+server_deps: .check_gopath.stamp bin/callgraph bin/chamber bin/gin bin/soda bin/swagger bin/mockery bin/rds-combined-ca-bundle.pem ## Install or Build server dependencies
 
 .PHONY: server_generate
 server_generate: .check_go_version.stamp .check_gopath.stamp .server_generate.stamp ## Generate golang server code from Swagger files
@@ -323,19 +309,22 @@ server_build_linux: server_generate_linux ## Build the server (linux)
 	GOOS=linux GOARCH=amd64 go build -gcflags="$(GOLAND_GC_FLAGS) $(GC_FLAGS)" -asmflags=-trimpath=$(GOPATH) -ldflags "$(LDFLAGS) $(WEBSERVER_LDFLAGS)" -o bin/milmove ./cmd/milmove
 
 # This command is for running the server by itself, it will serve the compiled frontend on its own
+# Note: Don't double wrap with aws-vault because the pkg/cli/vault.go will handle it
 server_run_standalone: server_build client_build db_dev_run
-	DEBUG_LOGGING=true $(AWS_VAULT) ./bin/milmove serve
+	DEBUG_LOGGING=true ./bin/milmove serve
 
 # This command will rebuild the swagger go code and rerun server on any changes
 server_run:
 	find ./swagger -type f -name "*.yaml" | entr -c -r make server_run_default
 # This command runs the server behind gin, a hot-reload server
+# Note: Gin is not being used as a proxy so assigning odd port and laddr to keep in IPv4 space.
+# Note: The INTERFACE envar is set to configure the gin build, milmove_gin, local IP4 space with default port 8080.
 server_run_default: .check_hosts.stamp .check_go_version.stamp .check_gopath.stamp bin/gin build/index.html server_generate db_dev_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
 	$(AWS_VAULT) ./bin/gin \
 		--build ./cmd/milmove \
 		--bin /bin/milmove_gin \
-		--port 8080 --appPort 8081 \
+		--laddr 127.0.0.1 --port 9001 \
 		--excludeDir node_modules \
 		--immediate \
 		--buildArgs "-i -ldflags=\"$(WEBSERVER_LDFLAGS)\"" \
@@ -869,7 +858,7 @@ gofmt:  ## Run go fmt over all Go files
 	go fmt $$(go list ./...) >> /dev/null
 
 .PHONY: pre_commit_tests
-pre_commit_tests: .server_generate.stamp .client_deps.stamp ## Run pre-commit tests
+pre_commit_tests: .server_generate.stamp .mocks_generate.stamp .client_deps.stamp ## Run pre-commit tests
 	pre-commit run --all-files
 
 .PHONY: pretty
@@ -895,7 +884,7 @@ prune_volumes:  ## Prune docker volumes
 prune: prune_images prune_containers prune_volumes ## Prune docker containers, images, and volumes
 
 .PHONY: clean
-clean: # Clean all generated files
+clean: ## Clean all generated files
 	rm -f .*.stamp
 	rm -f coverage.out
 	rm -rf ./bin
@@ -910,7 +899,7 @@ clean: # Clean all generated files
 	find ./pkg -type d -name "mocks" -exec rm -rf {} +
 
 .PHONY: spellcheck
-spellcheck: .client_deps.stamp # Run interactive spellchecker
+spellcheck: .client_deps.stamp ## Run interactive spellchecker
 	node_modules/.bin/mdspell --ignore-numbers --ignore-acronyms --en-us \
 		`find . -type f -name "*.md" \
 			-not -path "./node_modules/*" \
@@ -919,6 +908,31 @@ spellcheck: .client_deps.stamp # Run interactive spellchecker
 
 #
 # ----- END RANDOM TARGETS -----
+#
+
+#
+# ----- START DOCKER COMPOSE TARGETS -----
+#
+
+.PHONY: docker_compose_setup
+docker_compose_setup: .check_hosts.stamp ## Install requirements to use docker-compose
+	brew install -f bash git docker docker-compose direnv || true
+	brew cask install -f aws-vault || true
+
+.PHONY: docker_compose_up
+docker_compose_up: ## Bring up docker-compose containers
+	aws ecr get-login --no-include-email --region us-west-2 --no-include-email | sh
+	scripts/update-docker-compose
+	docker-compose up
+
+.PHONY: docker_compose_down
+docker_compose_down: ## Destroy docker-compose containers
+	docker-compose down
+	# Instead of using `--rmi all` which might destroy postgres we just remove the AWS containers
+	docker rmi $(shell docker images --filter=reference='*amazonaws*/*:*' --format "{{.ID}}")
+
+#
+# ----- END DOCKER COMPOSE TARGETS -----
 #
 
 default: help

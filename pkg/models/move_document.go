@@ -23,6 +23,8 @@ const (
 	MoveDocumentStatusOK MoveDocumentStatus = "OK"
 	// MoveDocumentStatusHASISSUE captures enum value "HAS_ISSUE"
 	MoveDocumentStatusHASISSUE MoveDocumentStatus = "HAS_ISSUE"
+	// MoveDocumentStatusEXCLUDEFROMCALCULATION captures enum value "EXCLUDE_FROM_CALCULATION"
+	MoveDocumentStatusEXCLUDEFROMCALCULATION MoveDocumentStatus = "EXCLUDE_FROM_CALCULATION"
 )
 
 // MoveDocumentType represents types of different move documents
@@ -93,7 +95,6 @@ const (
 type MoveWeightTicketSetDocumentSaveAction string
 
 const (
-
 	// MoveDocumentSaveActionDELETEWEIGHTTICKETSETMODEL encodes an action to delete a linked expense model
 	MoveDocumentSaveActionDELETEWEIGHTTICKETSETMODEL MoveWeightTicketSetDocumentSaveAction = "DELETE_WEIGHT_TICKET_SET_MODEL"
 	// MoveDocumentSaveActionSAVEWEIGHTTICKETSETMODEL encodes an action to save a linked expense model
@@ -151,6 +152,8 @@ func (m *MoveDocument) AttemptTransition(targetStatus MoveDocumentStatus) error 
 		return m.Approve()
 	case MoveDocumentStatusHASISSUE:
 		return m.Reject()
+	case MoveDocumentStatusEXCLUDEFROMCALCULATION:
+		return m.Exclude()
 	}
 
 	return errors.Wrap(ErrInvalidTransition, string(targetStatus))
@@ -176,6 +179,16 @@ func (m *MoveDocument) Reject() error {
 	return nil
 }
 
+// Exclude marks the Document as HAS_ISSUE
+func (m *MoveDocument) Exclude() error {
+	if m.Status == MoveDocumentStatusEXCLUDEFROMCALCULATION {
+		return errors.Wrap(ErrInvalidTransition, "Exclude")
+	}
+
+	m.Status = MoveDocumentStatusEXCLUDEFROMCALCULATION
+	return nil
+}
+
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
 // This method is not required and may be deleted.
 func (m *MoveDocument) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
@@ -198,7 +211,7 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	var moveDoc MoveDocument
 	err := db.Q().Eager("Document.Uploads", "Move", "PersonallyProcuredMove", "Shipment").Find(&moveDoc, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return nil, ErrFetchNotFound
 		}
 		return nil, err
@@ -211,7 +224,7 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	if movingDocumentErr = q.Eager().First(movingExpenseDocument); movingDocumentErr == nil {
 		moveDoc.MovingExpenseDocument = movingExpenseDocument
 	}
-	if movingDocumentErr != nil && errors.Cause(movingDocumentErr).Error() != recordNotFoundErrorString {
+	if movingDocumentErr != nil && errors.Cause(movingDocumentErr).Error() != RecordNotFoundErrorString {
 		return nil, err
 	}
 
@@ -220,7 +233,7 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	if weightTicketSetDocumentErr = q.Eager().First(weightTicketSetDocument); weightTicketSetDocumentErr == nil {
 		moveDoc.WeightTicketSetDocument = weightTicketSetDocument
 	}
-	if weightTicketSetDocumentErr != nil && errors.Cause(weightTicketSetDocumentErr).Error() != recordNotFoundErrorString {
+	if weightTicketSetDocumentErr != nil && errors.Cause(weightTicketSetDocumentErr).Error() != RecordNotFoundErrorString {
 		return nil, err
 	}
 
@@ -232,9 +245,9 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	return &moveDoc, nil
 }
 
-// FetchMovingExpenseDocuments fetches all move expense documents for a ppm
+// FetchMoveDocuments fetches all move expense and weight ticket set documents for a ppm
 // the optional status parameter can be used for restricting to a subset of statuses.
-func FetchMovingExpenseDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UUID, status *MoveDocumentStatus) (MoveDocuments, error) {
+func FetchMoveDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UUID, status *MoveDocumentStatus, moveDocumentType MoveDocumentType) (MoveDocuments, error) {
 	// Allow all logged in office users to fetch move docs
 	if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
 		return nil, ErrFetchForbidden
@@ -246,13 +259,13 @@ func FetchMovingExpenseDocuments(db *pop.Connection, session *auth.Session, ppmI
 	}
 
 	var moveDocuments MoveDocuments
-	query := db.Where("move_document_type = $1", string(MoveDocumentTypeEXPENSE)).Where("personally_procured_move_id = $2", ppmID.String())
+	query := db.Where("move_document_type = $1", string(moveDocumentType)).Where("personally_procured_move_id = $2", ppmID.String())
 	if status != nil {
 		query = query.Where("status = $3", string(*status))
 	}
 	err := query.All(&moveDocuments)
 	if err != nil {
-		if errors.Cause(err).Error() != recordNotFoundErrorString {
+		if errors.Cause(err).Error() != RecordNotFoundErrorString {
 			return nil, err
 		}
 	}
@@ -262,11 +275,24 @@ func FetchMovingExpenseDocuments(db *pop.Connection, session *auth.Session, ppmI
 		moveDoc.MovingExpenseDocument = nil
 		err = db.Where("move_document_id = $1", moveDoc.ID.String()).Eager().First(&movingExpenseDocument)
 		if err != nil {
-			if errors.Cause(err).Error() != recordNotFoundErrorString {
+			if errors.Cause(err).Error() != RecordNotFoundErrorString {
 				return nil, err
 			}
 		} else {
 			moveDocuments[i].MovingExpenseDocument = &movingExpenseDocument
+		}
+	}
+
+	for i, moveDoc := range moveDocuments {
+		weightTicketSet := WeightTicketSetDocument{}
+		moveDoc.WeightTicketSetDocument = nil
+		err = db.Where("move_document_id = $1", moveDoc.ID.String()).Eager().First(&weightTicketSet)
+		if err != nil {
+			if errors.Cause(err).Error() != RecordNotFoundErrorString {
+				return nil, err
+			}
+		} else {
+			moveDocuments[i].WeightTicketSetDocument = &weightTicketSet
 		}
 	}
 
@@ -303,7 +329,7 @@ func FetchMoveDocumentsByTypeForShipment(db *pop.Connection, session *auth.Sessi
 	var moveDocuments MoveDocuments
 	err := db.Where("move_document_type = $1", string(moveDocumentType)).Where("shipment_id = $2", shipmentID.String()).All(&moveDocuments)
 	if err != nil {
-		if errors.Cause(err).Error() != recordNotFoundErrorString {
+		if errors.Cause(err).Error() != RecordNotFoundErrorString {
 			return nil, err
 		}
 	}

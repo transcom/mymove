@@ -3,18 +3,23 @@ import { connect } from 'react-redux';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import { get } from 'lodash';
+import moment from 'moment';
+import Alert from 'shared/Alert';
+import { formatCents } from 'shared/formatters';
+import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
+import scrollToTop from 'shared/scrollToTop';
 import { ProgressTimeline, ProgressTimelineStep } from 'shared/ProgressTimeline';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { selectPPMCloseoutDocumentsForMove } from 'shared/Entities/modules/movingExpenseDocuments';
 import CustomerAgreement from 'scenes/Legalese/CustomerAgreement';
 import { ppmPaymentLegal } from 'scenes/Legalese/legaleseText';
 import PPMPaymentRequestActionBtns from 'scenes/Moves/Ppm/PPMPaymentRequestActionBtns';
-import moment from 'moment';
-import Alert from 'shared/Alert';
-import { createSignedCertification } from 'shared/Entities/modules/signed_certifications';
-import scrollToTop from 'shared/scrollToTop';
+import { loadEntitlementsFromState } from 'shared/entitlements';
+import { getPpmWeightEstimate } from '../ducks';
+
 import { submitExpenseDocs } from '../ducks';
 import DocumentsUploaded from './DocumentsUploaded';
+import { calcNetWeight } from '../utility';
 import WizardHeader from '../../WizardHeader';
 import './PaymentReview.css';
 
@@ -27,7 +32,20 @@ class PaymentReview extends Component {
   };
 
   componentDidMount() {
-    this.props.getMoveDocumentsForMove(this.props.moveId);
+    const { originDutyStationZip, currentPpm } = this.props;
+    const { actual_move_date, pickup_postal_code, destination_postal_code } = currentPpm;
+    this.props.getMoveDocumentsForMove(this.props.moveId).then(({ obj: documents }) => {
+      const weightTicketNetWeight = calcNetWeight(documents);
+      const netWeight =
+        weightTicketNetWeight > this.props.entitlement.sum ? this.props.entitlement.sum : weightTicketNetWeight;
+      this.props.getPpmWeightEstimate(
+        actual_move_date,
+        pickup_postal_code,
+        originDutyStationZip,
+        destination_postal_code,
+        netWeight,
+      );
+    });
   }
 
   handleOnAcceptTermsChange = acceptTerms => {
@@ -60,7 +78,7 @@ class PaymentReview extends Component {
   };
 
   render() {
-    const { moveId, moveDocuments, submitting, history } = this.props;
+    const { moveId, moveDocuments, submitting, history, ppm } = this.props;
     const weightTickets = moveDocuments.weightTickets;
     const missingSomeWeightTicket = weightTickets.some(
       ({ empty_weight_ticket_missing, full_weight_ticket_missing }) =>
@@ -97,7 +115,7 @@ class PaymentReview extends Component {
           <DocumentsUploaded inReviewPage showLinks moveId={moveId} />
 
           <div className="doc-review">
-            {missingSomeWeightTicket && (
+            {missingSomeWeightTicket ? (
               <>
                 <h4 className="missing-label">
                   <FontAwesomeIcon
@@ -110,6 +128,15 @@ class PaymentReview extends Component {
                 <p>
                   We cannot give you estimated payment because of missing weight tickets. Submit your payment request,
                   then go to the PPPO office to receive help in resolving this issue.
+                </p>
+              </>
+            ) : (
+              <>
+                <h4>You're requesting a payment of ${formatCents(ppm.incentive_estimate_min)}</h4>
+                <p>
+                  Finance will determine your final reimbursement after reviewing the information you’ve submitted. That
+                  final total will reflect the weight of your completed move (including any household goods move, if
+                  applicable); any advances you requested and were given; and withheld taxes.
                 </p>
               </>
             )}
@@ -144,7 +171,10 @@ const mapStateToProps = (state, props) => {
       weightTickets: selectPPMCloseoutDocumentsForMove(state, moveId, ['WEIGHT_TICKET_SET']),
     },
     moveId,
-    currentPpm: get(state, 'ppm.currentPpm'),
+    currentPpm: get(state, 'ppm.currentPpm', {}),
+    ppm: get(state, 'ppm', {}),
+    originDutyStationZip: get(state, 'serviceMember.currentServiceMember.current_station.address.postal_code'),
+    entitlement: loadEntitlementsFromState(state),
   };
 };
 
@@ -152,6 +182,7 @@ const mapDispatchToProps = {
   submitExpenseDocs,
   createSignedCertification,
   getMoveDocumentsForMove,
+  getPpmWeightEstimate,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(PaymentReview);

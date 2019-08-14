@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
 const CustomerAgreement = ({ onChange, link, checked, agreementText, className }) => {
   const handleOnChange = e => {
@@ -20,10 +21,11 @@ const CustomerAgreement = ({ onChange, link, checked, agreementText, className }
       <input id="agree-checkbox" type="checkbox" checked={checked} onChange={handleOnChange} />
       <label htmlFor="agree-checkbox">
         I agree to the{' '}
-        <a href={link} onClick={link ? null : handleClick}>
-          {' '}
-          Legal Agreement / Privacy Act
-        </a>
+        {link ? (
+          <Link to={link}> Legal Agreement / Privacy Act</Link>
+        ) : (
+          <a onClick={handleClick}> Legal Agreement / Privacy Act</a>
+        )}
       </label>
     </div>
   );

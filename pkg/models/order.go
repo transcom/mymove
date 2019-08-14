@@ -164,7 +164,7 @@ func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		"Moves.Shipments.TrafficDistributionList",
 		"Moves.SignedCertifications").Find(&order, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
@@ -183,7 +183,7 @@ func FetchOrder(db *pop.Connection, id uuid.UUID) (Order, error) {
 	var order Order
 	err := db.Q().Find(&order, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
@@ -198,7 +198,7 @@ func FetchOrderForPDFConversion(db *pop.Connection, id uuid.UUID) (Order, error)
 	var order Order
 	err := db.Q().Eager("UploadedOrders.Uploads").Find(&order, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
@@ -226,6 +226,9 @@ func (o *Order) IsComplete() bool {
 		return false
 	}
 	if o.TAC == nil {
+		return false
+	}
+	if o.SAC == nil {
 		return false
 	}
 	return true
