@@ -101,10 +101,8 @@ migrations.
 
 | Script Name | Description |
 | --- | --- |
-| `apply-secure-migration.sh` | Executes an SQL file from S3 against the environment's database. |
-| `generate-secure-migration` |  A script to help manage the creation of secure migrations |
 | `download-secure-migration` |  A script to download secure migrations from all environments |
-| `run-prod-migrations` |  A script to apply all migrations, including secure migrations, to a local database. |
+| `generate-secure-migration` |  A script to help manage the creation of secure migrations |
 | `upload-secure-migration` | A script to upload secure migrations to all environments |
 
 ### Database Scripts
