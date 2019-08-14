@@ -59,68 +59,79 @@ export class OfficeWrapper extends Component {
   renderWithHeader(ComponentName, props) {
     const Tag = detectIE11() ? 'div' : 'main';
     return (
-      <React.Fragment>
+      <>
         <QueueHeader />
         <Tag role="main" className="site__content">
           <ComponentName {...props} />
         </Tag>
-      </React.Fragment>
+      </>
     );
   }
 
   renderWithoutHeader(ComponentName, props) {
     const Tag = detectIE11() ? 'div' : 'main';
     return (
-      <div>
+      <>
         <Tag role="main" className="site__content">
           <ComponentName {...props} />
         </Tag>
-      </div>
+      </>
     );
   }
 
   render() {
-    // const Tag = detectIE11() ? 'div' : 'main';
+    const ConditionalWrap = ({ condition, wrap, children }) => (condition ? wrap(children) : <>{children}</>);
+    const Tag = detectIE11() ? 'div' : 'main';
+    const userIsLoggedOff = this.props.userHasErrored;
 
     return (
       <ConnectedRouter history={history}>
         <div className="Office site">
-          {/*<QueueHeader/>*/}
-          <LogoutOnInactivity />
-          {this.state.hasError && <SomethingWentWrong error={this.state.error} info={this.state.info} />}
-          {!this.state.hasError && (
-            <Switch>
-              <Route
-                exact
-                path="/"
-                component={({ location }) => (
-                  <Redirect
-                    from="/"
-                    to={{
-                      ...location,
-                      pathname: '/queues/new',
-                    }}
-                  />
+          {userIsLoggedOff && <QueueHeader />}
+          <ConditionalWrap
+            condition={userIsLoggedOff}
+            wrap={children => (
+              <Tag role="main" className="site__content">
+                {children}
+              </Tag>
+            )}
+          >
+            <LogoutOnInactivity />
+            {this.state.hasError && <SomethingWentWrong error={this.state.error} info={this.state.info} />}
+            {!this.state.hasError && (
+              <Switch>
+                <Route
+                  exact
+                  path="/"
+                  component={({ location }) => (
+                    <Redirect
+                      from="/"
+                      to={{
+                        ...location,
+                        pathname: '/queues/new',
+                      }}
+                    />
+                  )}
+                />
+                <PrivateRoute
+                  path="/queues/:queueType/moves/:moveId"
+                  render={props => this.renderWithHeader(MoveInfo, props)}
+                />
+                <PrivateRoute path="/queues/:queueType" render={props => this.renderWithHeader(Queues, props)} />
+                <PrivateRoute
+                  path="/moves/:moveId/orders"
+                  render={props => this.renderWithoutHeader(OrdersInfo, props)}
+                />
+                <PrivateRoute
+                  path="/moves/:moveId/documents/:moveDocumentId?"
+                  render={props => this.renderWithoutHeader(DocumentViewer, props)}
+                />
+                {!isProduction && (
+                  <PrivateRoute path="/playground" render={props => this.renderWithHeader(ScratchPad, props)} />
                 )}
-              />
-              <PrivateRoute
-                path="/queues/:queueType/moves/:moveId"
-                render={props => this.renderWithHeader(MoveInfo, props)}
-              />
-              <PrivateRoute path="/queues/:queueType" render={props => this.renderWithHeader(Queues, props)} />
-              <PrivateRoute
-                path="/moves/:moveId/orders"
-                render={props => this.renderWithoutHeader(OrdersInfo, props)}
-              />
-              <PrivateRoute
-                path="/moves/:moveId/documents/:moveDocumentId?"
-                render={props => this.renderWithoutHeader(DocumentViewer, props)}
-              />
-              {!isProduction && (
-                <PrivateRoute path="/playground" render={props => this.renderWithHeader(ScratchPad, props)} />
-              )}
-            </Switch>
-          )}
+              </Switch>
+            )}
+          </ConditionalWrap>
         </div>
       </ConnectedRouter>
     );
