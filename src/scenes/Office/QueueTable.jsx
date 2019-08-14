@@ -130,6 +130,7 @@ class QueueTable extends Component {
         case 'new':
           return newColumns;
         case 'ppm':
+        case 'ppm_payment_requested':
           return ppmColumns;
         case 'hhg_active':
           return hhgActiveColumns;
