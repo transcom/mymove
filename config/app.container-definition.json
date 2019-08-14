@@ -209,7 +209,7 @@
       "value": "{{ .SERVE_API_INTERNAL }}"
     },
     {
-      "name": "SERVE_PUBLIC",
+      "name": "SERVE_API_PUBLIC",
       "value": "{{ .SERVE_API_PUBLIC }}"
     }
   ],
