@@ -67,7 +67,7 @@ func FetchBackupContact(db *pop.Connection, session *auth.Session, id uuid.UUID)
 	var contact BackupContact
 	err := db.Q().Eager().Find(&contact, id)
 	if err != nil {
-		if errors.Cause(err).Error() == recordNotFoundErrorString {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return BackupContact{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.

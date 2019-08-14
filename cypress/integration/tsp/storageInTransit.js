@@ -711,6 +711,28 @@ function tspUserEditsDeliveredSitRequest() {
     .contains('29')
     .click();
   cy.get('input[name=out_date]').should('have.value', '3/29/2019');
+  cy
+    .get('input[name=actual_start_date]')
+    .should('have.value', '3/26/2019')
+    .click();
+  //if out date is changed, actual start date selector will update to include that new date as it's max date
+  cy
+    .get('.DayPickerInput-Overlay .DayPicker-Day')
+    .contains('30')
+    .click();
+  cy
+    .get('input[name=actual_start_date]')
+    .should('have.value', '3/26/2019')
+    .click();
+  cy
+    .get('.DayPickerInput-Overlay .DayPicker-Day')
+    .contains('29')
+    .click();
+  cy.get('input[name=actual_start_date]').should('have.value', '3/29/2019');
+  cy
+    .get('input[name=actual_start_date]')
+    .should('have.value', '3/29/2019')
+    .click();
   cy.get('.usa-button-primary').click();
   cy.get('[data-cy=storage-in-transit-panel]').should($div => {
     const text = $div.text();

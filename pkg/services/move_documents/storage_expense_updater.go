@@ -74,7 +74,7 @@ func (seu StorageExpenseUpdater) updatePPMSIT(moveDoc *models.MoveDocument, sess
 		return &models.MoveDocument{}, returnVerrs, errors.New("storageexpenseupdater.updateppmsit: no PPM loaded for move doc")
 	}
 	okStatus := models.MoveDocumentStatusOK
-	mergedMoveDocuments, err := mergeMoveDocuments(seu.db, session, ppm.ID, moveDoc, okStatus)
+	mergedMoveDocuments, err := mergeMoveDocuments(seu.db, session, ppm.ID, moveDoc, models.MoveDocumentTypeEXPENSE, okStatus)
 	if err != nil {
 		return &models.MoveDocument{}, returnVerrs, errors.New("storageexpenseupdater.updateppmsit: unable to merge move documents")
 	}

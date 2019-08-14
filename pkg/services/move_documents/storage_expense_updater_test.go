@@ -195,6 +195,130 @@ func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysRemovedWhenNotOK() 
 	suite.Require().Equal(int64(0), *updatedPpm.DaysInStorage)
 }
 
+func (suite *MoveDocumentServiceSuite) TestStorageDaysTotalCostMultipleReceipts() {
+	stu := StorageExpenseUpdater{suite.DB(), moveDocumentStatusUpdater{}}
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())
+	session := &auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          *officeUser.UserID,
+		OfficeUserID:    officeUser.ID,
+	}
+
+	startDateOne := time.Date(2019, 05, 12, 0, 0, 0, 0, time.UTC)
+	endDateOne := time.Date(2019, 05, 15, 0, 0, 0, 0, time.UTC)
+	totalDaysOne := int64(endDateOne.Sub(startDateOne).Hours() / 24)
+	totalSitCostOne := unit.Cents(2000)
+	ppm := testdatagen.MakeDefaultPPM(suite.DB())
+	move := ppm.Move
+	sm := ppm.Move.Orders.ServiceMember
+	moveDocumentOne := testdatagen.MakeMoveDocument(suite.DB(),
+		testdatagen.Assertions{
+			MoveDocument: models.MoveDocument{
+				MoveID:                   move.ID,
+				Move:                     move,
+				PersonallyProcuredMoveID: &ppm.ID,
+				MoveDocumentType:         models.MoveDocumentTypeEXPENSE,
+				Status:                   models.MoveDocumentStatusOK,
+			},
+			Document: models.Document{
+				ServiceMemberID: sm.ID,
+				ServiceMember:   sm,
+			},
+		})
+	storageExpenseOne := models.MovingExpenseDocument{
+		MoveDocumentID:       moveDocumentOne.ID,
+		MoveDocument:         moveDocumentOne,
+		MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
+		RequestedAmountCents: totalSitCostOne,
+		PaymentMethod:        "GTCC",
+		ReceiptMissing:       false,
+		StorageStartDate:     &startDateOne,
+		StorageEndDate:       &endDateOne,
+	}
+	verrs, err := suite.DB().ValidateAndCreate(&storageExpenseOne)
+	suite.NoVerrs(verrs)
+	suite.NoError(err)
+
+	startDateTwo := time.Date(2019, 05, 20, 0, 0, 0, 0, time.UTC)
+	endDateTwo := time.Date(2019, 05, 25, 0, 0, 0, 0, time.UTC)
+	totalDaysTwo := int64(endDateTwo.Sub(startDateTwo).Hours() / 24)
+	totalSitCostTwo := unit.Cents(1000)
+	moveDocumentTwo := testdatagen.MakeMoveDocument(suite.DB(),
+		testdatagen.Assertions{
+			MoveDocument: models.MoveDocument{
+				MoveID:                   move.ID,
+				Move:                     move,
+				PersonallyProcuredMoveID: &ppm.ID,
+				MoveDocumentType:         models.MoveDocumentTypeEXPENSE,
+				Status:                   models.MoveDocumentStatusOK,
+			},
+			Document: models.Document{
+				ServiceMemberID: sm.ID,
+				ServiceMember:   sm,
+			},
+		})
+	storageExpenseTwo := models.MovingExpenseDocument{
+		MoveDocumentID:       moveDocumentTwo.ID,
+		MoveDocument:         moveDocumentTwo,
+		MovingExpenseType:    models.MovingExpenseTypeSTORAGE,
+		RequestedAmountCents: totalSitCostTwo,
+		PaymentMethod:        "GTCC",
+		ReceiptMissing:       false,
+		StorageStartDate:     &startDateTwo,
+		StorageEndDate:       &endDateTwo,
+	}
+	verrs, err = suite.DB().ValidateAndCreate(&storageExpenseTwo)
+	suite.NoVerrs(verrs)
+	suite.NoError(err)
+
+	updateMoveDocOnePayload := &internalmessages.MoveDocumentPayload{
+		ID:                   handlers.FmtUUID(moveDocumentOne.ID),
+		MoveID:               handlers.FmtUUID(move.ID),
+		Title:                handlers.FmtString("super_awesome.pdf"),
+		Notes:                handlers.FmtString("This document is super awesome."),
+		MoveDocumentType:     internalmessages.MoveDocumentTypeEXPENSE,
+		MovingExpenseType:    internalmessages.MovingExpenseTypeSTORAGE,
+		Status:               internalmessages.MoveDocumentStatusOK,
+		RequestedAmountCents: int64(totalSitCostOne),
+		PaymentMethod:        "GTCC",
+		StorageEndDate:       handlers.FmtDate(endDateOne),
+		StorageStartDate:     handlers.FmtDate(startDateOne),
+	}
+	updateMoveDocTwoPayload := &internalmessages.MoveDocumentPayload{
+		ID:                   handlers.FmtUUID(moveDocumentTwo.ID),
+		MoveID:               handlers.FmtUUID(move.ID),
+		Title:                handlers.FmtString("super_awesome.pdf"),
+		Notes:                handlers.FmtString("This document is super awesome."),
+		MoveDocumentType:     internalmessages.MoveDocumentTypeEXPENSE,
+		MovingExpenseType:    internalmessages.MovingExpenseTypeSTORAGE,
+		Status:               internalmessages.MoveDocumentStatusOK,
+		RequestedAmountCents: int64(totalSitCostTwo),
+		PaymentMethod:        "GTCC",
+		StorageEndDate:       handlers.FmtDate(endDateTwo),
+		StorageStartDate:     handlers.FmtDate(startDateTwo),
+	}
+
+	originalMoveDocumentOne, err := models.FetchMoveDocument(suite.DB(), session, moveDocumentOne.ID)
+	suite.Nil(err)
+	umd, verrs, err := stu.Update(updateMoveDocOnePayload, originalMoveDocumentOne, session)
+	suite.NotNil(umd)
+	suite.Nil(err)
+	suite.NoVerrs(verrs)
+
+	originalMoveDocumentTwo, err := models.FetchMoveDocument(suite.DB(), session, moveDocumentTwo.ID)
+	suite.Nil(err)
+	umd, verrs, err = stu.Update(updateMoveDocTwoPayload, originalMoveDocumentTwo, session)
+	suite.NotNil(umd)
+	suite.Nil(err)
+	suite.NoVerrs(verrs)
+
+	updatedPpm := models.PersonallyProcuredMove{}
+	err = suite.DB().Where(`id = $1`, ppm.ID).First(&updatedPpm)
+	suite.Require().Nil(err)
+	suite.Require().Equal(totalSitCostOne+totalSitCostTwo, *updatedPpm.TotalSITCost)
+	suite.Require().Equal(totalDaysOne+totalDaysTwo, *updatedPpm.DaysInStorage)
+}
+
 func (suite *MoveDocumentServiceSuite) TestStorageCostAndDaysAfterManualOverride() {
 	stu := StorageExpenseUpdater{suite.DB(), moveDocumentStatusUpdater{}}
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.DB())

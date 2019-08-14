@@ -54,4 +54,5 @@ create_table("form1299s") {
 	t.Column("nonavailability_of_signature_reason", "string", {"null": true})
 	t.Column("certified_by_signature", "string", {"null": true})
 	t.Column("title_of_certified_by_signature", "string", {"null": true})
+	t.Timestamps()
 }

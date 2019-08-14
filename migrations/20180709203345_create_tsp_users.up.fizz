@@ -9,5 +9,6 @@ create_table("tsp_users") {
 	t.Column("transportation_service_provider_id", "uuid", {})
 	t.ForeignKey("user_id", {"users": ["id"]}, {})
 	t.ForeignKey("transportation_service_provider_id", {"transportation_service_providers": ["id"]}, {})
+	t.Timestamps()
 }
 add_index("tsp_users", "email", {"unique": true})
