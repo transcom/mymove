@@ -6,52 +6,44 @@ function PrivacyPolicy() {
     <div className="usa-grid">
       <div className="usa-width-two-thirds statement-content">
         <h1>Privacy & Security Policy</h1>
+        <ol>
+          <li>
+            This system is covered by Systems of Record Notice FRTRANSCOM 01 DoD - Defense Transportation System (DTS)
+            Records dated(September 26, 2014, 79 FR 57893).
+          </li>
+          <li>
+            AUTHORITY: Public Law 100-562, Imported Vehicle Safety Compliance Act of 1988; 5 U.S.C. 5726, Storage
+            Expenses, Household Goods and Personal Effects; 10 U.S.C. 113, Secretary of Defense; 10 U.S.C. 3013,
+            Secretary of the Army; 10 U.S.C. 5013, Secretary of the Navy; 10 U.S.C. 8013, Secretary of the Air Force; 19
+            U.S.C. 1498, Entry Under Regulations; 37 U.S.C. 406, Travel and Transportation Allowances, Dependents,
+            Baggage and Household Effects; Federal Acquisition Regulation (FAR); Joint Federal Travel Regulation (JTR),
+            Volumes I and II; DoD Directive 4500.9E, Transportation and Traffic Management; DoD Directive 5158.4, United
+            States Transportation Command; DoD Instruction 4500.42, DoD Transportation Reservation and Ticketing
+            Services; DoD Regulation 4140.1, DoD Materiel Management Regulation; DoD Regulation 4500.9, Defense
+            Transportation Regulation; and DoD Regulation 4515.13-R, Air Transportation Eligibility. DPS - Executive
+            Order 10450, 9397; and Public Law 99-474, the Computer Fraud and Abuse Act. Privacy Act Information -The
+            information accessed through this system is For Official Use Only and must be protected IAW DoD Directive
+            5400.11 and DoD 5400.11-R, DoD Privacy Program. Authority: The Privacy Act of 1974, as amended. 5 U.S.C.
+            552a.
+          </li>
+        </ol>
         <p>
-          Your privacy is important to us. By using{' '}
-          <a href="http://my.move.mil/" target="_blank" rel="noopener noreferrer">
-            MilMove
-          </a>
-          , you authorize us to share your data with other government entities to facilitate your personal property
-          relocation.
+          PURPOSE: PII is collected to effectuate movement of household goods and personal property shipments, to
+          include payment of carrier and service-members.
         </p>
         <p>
-          {' '}
-          All records are stored electronically in a database in DoD’s{' '}
-          <a href="https://aws.amazon.com/" target="_blank" rel="noopener noreferrer">
-            Amazon Web Services (AWS) cloud environment
-          </a>
-          . All records are encrypted while being stored (at rest) and when the data is transferred between systems (in
-          transit).
+          ROUTINE USES: All collected PII will be disclosed to agencies and activities of the Department of Defense for
+          the purposes of arranging and facilitating tasks directly related to effecting movement of household goods and
+          personal property to include facilitating payment to Service-members. Certain information, limited to rolodex
+          contact information, is disclosed to contracted Transportation Services Providers in order to effect the
+          movement of household goods and personal property. Use of information in this system is restricted to MilMove
+          / DPS Prototype account holders and disclosure is prohibited without the written consent of the DPS Program
+          Management Office.
         </p>
         <p>
-          <a href="https://my.move.mil/" target="_blank" rel="noopener noreferrer">
-            MilMove
-          </a>{' '}
-          uses industry best practices in information security, drawing upon DoD, HIPAA, and PCI standards for
-          information assurance.
-        </p>
-        <p>
-          The information you provide to access your{' '}
-          <a href="https://my.move.mil/" target="_blank" rel="noopener noreferrer">
-            MilMove
-          </a>{' '}
-          account is collected pursuant to 6 USC § 1523 (b)(1)(A)-(E), the{' '}
-          <a
-            href="https://www.gpo.gov/fdsys/pkg/PLAW-107publ347/html/PLAW-107publ347.htm"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            E-Government Act of 2002 (44 USC § 3501)
-          </a>
-          , and 40 USC § 501.
-        </p>
-        <p>
-          Access and accessibility is important to us.{' '}
-          <a href="https://my.move.mil/" target="_blank" rel="noopener noreferrer">
-            MilMove
-          </a>{' '}
-          is built to be accessible and compliant with Section 508. If you discover an issue with this site’s
-          accessibility, please report it to your local Personal Property Office (PPPO).
+          DISCLOSURE: Voluntary. However, failure to provide the requested information may result in the Service-member
+          being unable to use the DPS(MilMove) prototype system to effectuate their household goods or personal property
+          movement.
         </p>
       </div>
     </div>
