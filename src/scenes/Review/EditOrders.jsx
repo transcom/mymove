@@ -2,10 +2,8 @@ import React, { Component, Fragment } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get, concat, includes, map, reject } from 'lodash';
-
 import { push } from 'react-router-redux';
 import { getFormValues, reduxForm, Field } from 'redux-form';
-
 import Alert from 'shared/Alert'; // eslint-disable-line
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
@@ -14,15 +12,13 @@ import Uploader from 'shared/Uploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
 import SaveCancelButtons from './SaveCancelButtons';
 import { updateOrders, deleteUploads, addUploads } from 'scenes/Orders/ducks';
-import { moveIsApproved } from 'shared/Entities/modules/moves';
+import { moveIsApproved, isPpm } from 'shared/Entities/modules/moves';
 import { editBegin, editSuccessful, entitlementChangeBegin, entitlementChanged, checkEntitlement } from './ducks';
 import scrollToTop from 'shared/scrollToTop';
-import { isPpm } from '../../shared/Entities/modules/moves';
 import { documentSizeLimitMsg } from 'shared/constants';
-
 import './Review.css';
 import profileImage from './images/profile.png';
-import { getCurrentMoveID } from '../../shared/UI/ducks';
+import { getCurrentMoveID } from 'shared/UI/ducks';
 
 const editOrdersFormName = 'edit_orders';
 const uploaderLabelIdle = 'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
