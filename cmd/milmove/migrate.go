@@ -242,7 +242,7 @@ func migrateFunction(cmd *cobra.Command, args []string) error {
 
 	}
 
-	errFindMigrations := migrate.FindMigrations(fm, migrations, runner)
+	errFindMigrations := migrate.FindMigrations(fm, migrations, runner, logger)
 	if errFindMigrations != nil {
 		return errFindMigrations
 	}

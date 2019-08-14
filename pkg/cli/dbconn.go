@@ -258,6 +258,10 @@ func InitDatabase(v *viper.Viper, logger Logger) (*pop.Connection, error) {
 
 	// Check the connection
 	db, err := sqlx.Open(connection.Dialect.Details().Dialect, connection.Dialect.URL())
+	if err != nil {
+		logger.Warn("Failed to open DB by driver name", zap.Error(err))
+		return connection, err
+	}
 	err = db.Ping()
 	if err != nil {
 		logger.Warn("Failed to ping DB connection", zap.Error(err))

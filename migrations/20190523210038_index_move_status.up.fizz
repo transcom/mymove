@@ -1,1 +1,1 @@
-add_index("moves", "status", {});
+add_index("moves", "status", {})

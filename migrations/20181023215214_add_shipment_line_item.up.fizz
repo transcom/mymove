@@ -11,4 +11,5 @@ create_table("shipment_line_items") {
 	t.Column("approved_date", "datetime", {})
 	t.ForeignKey("shipment_id", {"shipments": ["id"]}, {"on_delete": "restrict"})
 	t.ForeignKey("tariff400ng_item_id", {"tariff400ng_items": ["id"]}, {"on_delete": "restrict"})
+	t.Timestamps()
 }

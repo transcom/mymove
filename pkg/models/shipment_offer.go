@@ -120,7 +120,7 @@ func FetchShipmentOfferByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uui
 func (so *ShipmentOffers) Accepted() (ShipmentOffers, error) {
 	var acceptedOffers ShipmentOffers
 	for _, offer := range *so {
-		if offer.Accepted != nil && *offer.Accepted == true {
+		if offer.Accepted != nil && *offer.Accepted {
 			acceptedOffers = append(acceptedOffers, offer)
 
 			if offer.TransportationServiceProviderPerformance.TransportationServiceProvider.ID == uuid.Nil {

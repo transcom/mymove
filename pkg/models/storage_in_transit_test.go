@@ -185,6 +185,7 @@ func (suite *ModelSuite) TestSaveStorageInTransitAndAddress() {
 	suite.Equal(0, verrs.Count())
 
 	savedStorageInTransit, err := models.FetchStorageInTransitByID(suite.DB(), storageInTransit.ID)
+	suite.NoError(err)
 
 	suite.Equal(storageInTransit.ID, savedStorageInTransit.ID)
 	suite.Equal(savedStorageInTransit.Status, storageInTransit.Status)
@@ -260,7 +261,9 @@ func (suite *ModelSuite) TestSaveActualDeliveryDateAsOutDate() {
 	suite.Equal(0, verrs.Count())
 
 	actualShipment, err := models.FetchShipment(suite.DB(), session, shipment.ID)
+	suite.NoError(err)
 	savedStorageInTransit, err := models.FetchStorageInTransitByID(suite.DB(), storageInTransit.ID)
+	suite.NoError(err)
 
 	suite.Equal(actualShipment.ActualDeliveryDate, savedStorageInTransit.OutDate)
 }

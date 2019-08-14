@@ -8,15 +8,13 @@ import (
 	"os"
 	"path"
 
-	"github.com/hhrutter/pdfcpu/pkg/pdfcpu/validate"
-
-	"github.com/transcom/mymove/pkg/uploader"
-
-	"github.com/hhrutter/pdfcpu/pkg/api"
+	"github.com/pdfcpu/pdfcpu/pkg/api"
+	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/validate"
 	"github.com/spf13/afero"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *PaperworkSuite) sha256ForPath(path string, fs *afero.Afero) (string, error) {
@@ -103,7 +101,9 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	file, err := afero.ReadAll(aferoFile)
 	suite.FatalNil(err)
 	tmpDir, err := ioutil.TempDir("", "images")
+	suite.FatalNil(err)
 	f, err := ioutil.TempFile(tmpDir, "")
+	suite.FatalNil(err)
 	err = ioutil.WriteFile(f.Name(), file, os.ModePerm)
 	suite.FatalNil(err)
 	err = api.ExtractImages(f, tmpDir, []string{"-2"}, generator.pdfConfig)

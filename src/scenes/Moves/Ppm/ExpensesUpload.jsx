@@ -26,6 +26,7 @@ import Alert from 'shared/Alert';
 import { getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { withContext } from 'shared/AppContext';
 import DocumentsUploaded from './PaymentReview/DocumentsUploaded';
+import { documentSizeLimitMsg } from 'shared/constants';
 
 const nextPagePath = '/ppm-payment-review';
 const nextBtnLabels = {
@@ -235,6 +236,7 @@ class ExpensesUpload extends Component {
                   required
                 />
                 <div className="expenses-uploader">
+                  <p>{documentSizeLimitMsg}</p>
                   <Uploader
                     options={{ labelIdle: uploadReceipt }}
                     isPublic={isPublic}

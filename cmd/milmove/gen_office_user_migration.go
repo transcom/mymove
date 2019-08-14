@@ -113,6 +113,9 @@ func readOfficeUsersCSV(fileName string) ([]models.OfficeUser, error) {
 			middleInitials = &mi
 		}
 		id, err = uuid.NewV4()
+		if err != nil {
+			return []models.OfficeUser{}, err
+		}
 		officeUser := models.OfficeUser{
 			ID:                     id,
 			FirstName:              strings.TrimSpace(line[0]),
