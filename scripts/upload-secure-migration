@@ -63,8 +63,8 @@ echo "Testing migrations ... (This could be several minutes!)"
 
 MIGRATION_PATH="file://local_migrations;file://migrations" \
   DB_HOST=localhost \
-  DB_PORT=$(DB_PORT_DEPLOYED_MIGRATIONS) \
-  DB_NAME=$(DB_NAME_DEPLOYED_MIGRATIONS) \
+  DB_PORT="${DB_PORT_DEPLOYED_MIGRATIONS}" \
+  DB_NAME="${DB_NAME_DEPLOYED_MIGRATIONS}" \
   bin/milmove migrate
 
 echo "Testing migrations was successful!"
