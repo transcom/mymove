@@ -34,7 +34,8 @@ readonly migration_name="$1"
 # - remove ".up.fizz" from filename
 # - remove "migrations/" from filename
 # - append ".sql"
-readonly secure_migration_name="${migration_name}.up.sql"
+readonly version=$(date +"%Y%m%d%H%M%S")
+readonly secure_migration_name="${version}_${migration_name}.up.sql"
 
 readonly local_test_migration_name="${local_migrations_dir}/${secure_migration_name}"
 readonly prod_migration_name="${prod_migrations_temp_dir}/${secure_migration_name}"
