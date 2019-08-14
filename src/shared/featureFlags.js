@@ -24,13 +24,10 @@ const environmentFlags = {
 
   experimental: Object.assign({}, defaultFlags),
 
-  staging: Object.assign({}, defaultFlags, {
-    ppmPaymentRequest: false,
-  }),
+  staging: Object.assign({}, defaultFlags, {}),
 
   production: Object.assign({}, defaultFlags, {
     sitPanel: false,
-    ppmPaymentRequest: false,
   }),
 };
 
