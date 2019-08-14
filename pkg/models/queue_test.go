@@ -73,6 +73,33 @@ func (suite *ModelSuite) TestShowPPMQueue() {
 	suite.Len(moves, 3)
 }
 
+func (suite *ModelSuite) TestShowPPMPaymentRequestsQueue() {
+	// PPMs should only show statuses in the queue:
+	// payment requested
+
+	// Make PPMs with different statuses
+	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			Status: models.PPMStatusAPPROVED,
+		},
+	})
+	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			Status: models.PPMStatusPAYMENTREQUESTED,
+		},
+	})
+	testdatagen.MakePPM(suite.DB(), testdatagen.Assertions{
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			Status: models.PPMStatusCOMPLETED,
+		},
+	})
+
+	// Expected 1 move for PPM payment requests queue returned
+	moves, err := GetMoveQueueItems(suite.DB(), "ppm_payment_requested")
+	suite.NoError(err)
+	suite.Len(moves, 1)
+}
+
 func (suite *ModelSuite) TestShowPPMQueueStatusDraftSubmittedCanceled() {
 	// PPMs should only show statuses in the queue:
 	// approved, payment requested and completed
